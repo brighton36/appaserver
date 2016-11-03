@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Output Measurement Sets Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h2>Output Measurement Sets</h2>
+<p>This is a set of output processes that display all the datatypes
+from a single station.
+<ul>
+<li>Data Sets Transmit: A text file is created to transmit to your computer.
+<li>Data Sets Table: A table is displayed in the bottom window.
+<li>Data Sets Easychart: An Easychart is displayed in a new window.
+<li>Data Sets Gracechart: A Gracechart is displayed in a new window.
+<li>Aggregate Level: Optionally select an aggregate level to calculate sum (if quantum datatype) or average (if flow datatype).
+<li>Validation Level:
+	<ul>
+	<li>Provisional: none of the measurements selected will have been validated yet.
+	<li>Validated: only validated measurements will be selected.
+	<li>Either: all measurements will be selected.
+	</ul>
+<li>Plot For Station Check yn: This flag is used to assist technicians and hydrologists to perform their duties. It only applies to the Gracechart and Easychart.
+	<ul>
+	<li>If Yes or left blank: a datatype will appear if
+		STATION_DATATYPE.plot_for_station_check_yn&nbsp;=&nbsp;'y'.
+	<li>If No:
+		<ol>
+		<li>a datatype will appear if
+		STATION_DATATYPE.validation_required_yn&nbsp;=&nbsp;'y'.
+		<li>conductivity will be excluded, only salinity.
+		</ol>
+	<li>In either case: DATATYPE.units must be populated.
+	</ul>
+<li>Begin and End Dates:
+	<ul>
+	<li>Leave both blank will report the entire period of record.
+	<li>Enter a full Begin Date and End Date will report on that date range.
+	<li>Enter only the year in Begin Date will report from January 1.
+	<li>Enter only the year in End Date will report to December 31.
+	<li>Enter only the year and month in Begin Date will report from the first day of that month.
+	<li>Enter only the year and month in End Date will report to the last day of that month.
+	<li>Enter a full Begin Date and leave the End Date blank will report on the single day.
+	<li>Enter a only the year in Begin Date and leave the End Date blank will report on the entire year.
+	<li>Enter a only the year and month in Begin Date and leave the End Date blank will report on the entire month.
+	<li>Leave blank the Begin Date but populate the End Date will report from the beginning of record to the End Date.
+	</ul>
+</ul>
+</body>
+</HTML>

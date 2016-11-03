@@ -1,0 +1,1054 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<!--
+Freely available software. See appaserver.org
+-->
+
+<title>
+.title
+</title>
+<link rel="stylesheet" type="text/css"
+href="/rollbar/skin-winxp.css" media="all">
+
+<style type="text/css">
+div.dynarch-rollbar table.dynarch-inner-table td.dynarch-inner-td
+{ vertical-align: top }
+div.dynarch-roll-tabs table { margin-left: 0; }
+</style>
+
+<script type="text/javascript" src="/rollbar/rollbar.js"></script>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
+<link rel=stylesheet type="text/css" href=/alligator/style_dataentry.css>
+<TITLE>DataForEver Alligator</TITLE>
+
+<SCRIPT language="JavaScript1.2" src="/javascript/trim.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/javascript/timlib.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/javascript/cookie.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/javascript/form.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/javascript/form_cookie.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/javascript/keystrokes.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/javascript/trim.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/javascript/timlib.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/javascript/post_change.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/javascript/push_button_submit.js"></SCRIPT>
+<link rel=stylesheet type=text/css href=/jscal2/src/css/jscal2.css />
+<link rel=stylesheet type=text/css href=/jscal2/src/css/border-radius.css />
+<link rel=stylesheet type=text/css href=/jscal2/src/css/gold/gold.css />
+<script type=text/javascript src=/jscal2/src/js/jscal2.js></script>
+<script type=text/javascript src=/jscal2/src/js/lang/en.js></script>
+
+
+</head>
+
+<body onload="tab = DynarchRB.setup(	'wizard',
+					{tabs: 'top',
+				 	animation: false })">
+<div id="wizard">
+
+<div title="First Nest Visit">
+
+<h1>Insert Nest Visits for
+.title
+</h1>
+<form enctype="multipart/form-data">
+<table cellspacing=0 cellpadding=0 border>
+<tr>
+
+<td align=left>*Observation Date</td>
+<td><input name="observation_date_0"
+	type="text"
+	size="10"
+	value=""
+	maxlength="10"
+	id="observation_date_0"
+	onChange="copy_observation_date_to_subsequent_nest_visits();"
+	>
+<img id="trigger_0" src=/javascript/calendar.gif>
+<script type="text/javascript">
+Calendar.setup( {inputField : "observation_date_0",
+ifFormat: "%Y-%m-%d",
+fdow: 0,
+trigger: "trigger_0",
+align: "M",
+onSelect: function() { this.hide(); copy_observation_date_to_subsequent_nest_visits(); } } );
+</script>
+</td>
+<tr>
+<td align=left>Observation View</td>
+<td align=left colspan=1>
+<select name="observation_view_0" size="1"><option value="select">Select
+.process=observation_view_wizard_list.sh application
+</select></td>
+<tr>
+<td align=left>Total Eggs</td>
+<td><input name="total_eggs_0" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Banded Eggs</td>
+<td><input name="banded_eggs_0" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Not Banded Eggs</td>
+<td><input name="not_banded_eggs_0" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Flooded Eggs</td>
+<td><input name="flooded_eggs_0" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Predated Eggs</td>
+<td><input name="predated_eggs_0" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Other Egg Mortality</td>
+<td><input name="other_egg_mortality_0" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Female Size cm</td>
+<td><input name="female_size_cm_0" type="text" size="3" value="" maxlength="3"></td>
+<tr>
+<td align=left>Female Behavior</td>
+<td align=left colspan=1>
+<select name="female_behavior_0" size="1"><option value="select">Select
+.process=female_behavior_wizard_list.sh application
+</select></td>
+<tr>
+<td align=left>Habitat</td>
+<td align=left colspan=1>
+<select name="habitat_0" size="1"><option value="select">Select
+.process=habitat_wizard_list.sh application
+</select></td>
+<tr>
+<td align=left>Construction</td>
+<td align=left colspan=1>
+<select name="materials_0" size="1"><option value="select">Select
+.process=nest_materials_wizard_list.sh application
+</select></td>
+<tr>
+<td align=left>Nest Status</td>
+<td align=left colspan=1>
+<select name="nest_status_0" size="1"><option value="select">Select
+.process=nest_status_wizard_list.sh application
+</select></td>
+<tr>
+<td align=left>Water Depth 1 Cm</td>
+<td><input name="water_depth_1_cm_0" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Water Depth 2 Cm</td>
+<td><input name="water_depth_2_cm_0" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Water Depth 3 Cm</td>
+<td><input name="water_depth_3_cm_0" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Water Depth 4 Cm</td>
+<td><input name="water_depth_4_cm_0" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Nest Height cm</td>
+<td><input name="nest_height_cm_0" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<!--
+<td align=left>Hatchlings Count</td>
+<td><input name="hatchlings_count_0" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+-->
+<td align=left>Hatched Eggs</td>
+<td><input name="hatched_eggs_0" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Crushed Eggs</td>
+<td><input name="crushed_eggs_0" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Nest Height Above Water Cm</td>
+<td><input name="nest_height_above_water_cm_0" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Observation Notepad</td>
+<td><textarea name="observation_notepad_0" cols=30 rows=4 onblur="timlib_check_notepad_size(this, 255);" wrap=physical></textarea>
+</td>
+
+<tr>
+</table>
+<table border=1>
+<tr>
+<td><input type="button" value="Reset" onClick="form_reset(document.forms[0]); copy_observation_date_to_subsequent_nest_visits();">
+<td><input type="button" value="Top" onClick="window.scrollTo(0,0)">
+<td><input type="button" onclick="tab.next();window.scrollTo(0,0)" value="Next >>">
+</td>
+</table>
+</form>
+</div>
+
+<script type=text/javascript>
+
+.nest_number
+
+function append_dictionary_variable(
+		dictionary_string,
+		variable_name,
+		data )
+{
+	var length;
+
+	if ( data == undefined )
+	{
+		return dictionary_string;
+	}
+
+	length = dictionary_string.length;
+
+	if ( length > 0 )
+	{
+		dictionary_string = dictionary_string + '&';
+	}
+
+	dictionary_string = dictionary_string + variable_name;
+	dictionary_string = dictionary_string + '^';
+	dictionary_string = dictionary_string + data;
+
+	return dictionary_string;
+} // append_dictionary_variable()
+
+function store_observation_date_to_display_list( form_number )
+{
+	var element_name;
+	var element;
+	var observation_list_element;
+	var nest_observation_form;
+	var observation_date_element;
+	var primary_key;
+
+	// Get the observation date element
+	// --------------------------------
+	observation_date_element =
+		timlib_get_form_element( "observation_date_1", form_number );
+	if ( observation_date_element.value.toString() == '' )
+	{
+		return false;
+	}
+
+	primary_key = observation_date_element.value;
+
+	// Get Observation List element
+	// ----------------------------
+	observation_list_element =
+		timlib_get_form_element( "observation_list", form_number + 1 );
+	for(	var j = 0;
+		j < observation_list_element.options.length;
+		j++ )
+	{
+		if ( observation_list_element.options[ j ].text == primary_key )
+		{
+			return true;
+		}
+	}
+
+	observation_list_element.options[ j ] =
+			new Option(
+			primary_key,
+			primary_key,
+			0, 0 );
+	return true;
+} // store_observation_date_to_display_list()
+
+var observation_date_array = [];
+var nest_visit_number_array = [];
+var observation_view_array = [];
+var nest_status_array = [];
+var habitat_array = [];
+var materials_array = [];
+var female_behavior_array = [];
+var nest_height_cm_array = [];
+var female_size_cm_array = [];
+var hatchlings_count_array = [];
+var total_eggs_array = [];
+var banded_eggs_array = [];
+var not_banded_eggs_array = [];
+var hatched_eggs_array = [];
+var flooded_eggs_array = [];
+var predated_eggs_array = [];
+var crushed_eggs_array = [];
+var other_egg_mortality_array = [];
+var nest_height_above_water_cm_array = [];
+var water_depth_1_cm_array = [];
+var water_depth_2_cm_array = [];
+var water_depth_3_cm_array = [];
+var water_depth_4_cm_array = [];
+var observation_notepad_array = [];
+
+function store_observation_zero_to_associative_array(
+			form_number )
+{
+	var element;
+	var drop_down_value;
+
+	element = timlib_get_form_element( "observation_date_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		observation_date_array[ 0 ] = element.value;
+	}
+	else
+	{
+		return true;
+	}
+
+	nest_visit_number_array[ 0 ] = "1";
+
+	element = timlib_get_form_element( "observation_view_0", form_number );
+	drop_down_value = timlib_get_drop_down_element_value( element.options );
+	if ( drop_down_value != 'select' )
+	{
+		observation_view_array[ 0 ] = drop_down_value;
+	}
+
+	element = timlib_get_form_element( "nest_status_0", form_number );
+	drop_down_value = timlib_get_drop_down_element_value( element.options );
+	if ( drop_down_value != 'select' )
+	{
+		nest_status_array[ 0 ] = drop_down_value;
+	}
+
+	element = timlib_get_form_element( "habitat_0", form_number );
+	drop_down_value = timlib_get_drop_down_element_value( element.options );
+	if ( drop_down_value != 'select' )
+	{
+		habitat_array[ 0 ] = drop_down_value;
+	}
+
+	element = timlib_get_form_element( "materials_0", form_number );
+	drop_down_value = timlib_get_drop_down_element_value( element.options );
+	if ( drop_down_value != 'select' )
+	{
+		materials_array[ 0 ] = drop_down_value;
+	}
+
+	element = timlib_get_form_element( "female_behavior_0", form_number );
+	drop_down_value = timlib_get_drop_down_element_value( element.options );
+	if ( drop_down_value != 'select' )
+	{
+		female_behavior_array[ 0 ] = drop_down_value;
+	}
+
+	element = timlib_get_form_element( "nest_height_cm_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		nest_height_cm_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "female_size_cm_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		female_size_cm_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "total_eggs_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		total_eggs_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "banded_eggs_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		banded_eggs_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "not_banded_eggs_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		not_banded_eggs_array[ 0 ] = element.value;
+	}
+
+//	element = timlib_get_form_element( "hatchlings_count_0", form_number );
+//	if ( element.value.toString() != '' )
+//	{
+//		hatchlings_count_array[ 0 ] = element.value;
+//	}
+
+	element = timlib_get_form_element( "hatched_eggs_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		hatched_eggs_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "flooded_eggs_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		flooded_eggs_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "predated_eggs_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		predated_eggs_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "crushed_eggs_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		crushed_eggs_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element(
+			"other_egg_mortality_0",
+			form_number );
+	if ( element.value.toString() != '' )
+	{
+		other_egg_mortality_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element(
+			"nest_height_above_water_cm_0",
+			form_number );
+	if ( element.value.toString() != '' )
+	{
+		nest_height_above_water_cm_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "water_depth_1_cm_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		water_depth_1_cm_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "water_depth_2_cm_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		water_depth_2_cm_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "water_depth_3_cm_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		water_depth_3_cm_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element( "water_depth_4_cm_0", form_number );
+	if ( element.value.toString() != '' )
+	{
+		water_depth_4_cm_array[ 0 ] = element.value;
+	}
+
+	element = timlib_get_form_element(
+			"observation_notepad_0",
+			form_number );
+	if ( element.value.toString() != '' )
+	{
+		observation_notepad_array[ 0 ] = element.value;
+	}
+
+	return true;
+} // store_observation_zero_to_associative_array()
+
+var observation_record_number = 1;
+
+function store_observation_to_associative_array(
+			form_number,
+			observation_record_number )
+{
+	var element;
+	var drop_down_value;
+
+	element = timlib_get_form_element( "observation_date_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		observation_date_array[ observation_record_number ] =
+			element.value;
+	}
+	else
+	{
+		return false;
+	}
+
+	element = timlib_get_form_element( "nest_visit_number_1", form_number );
+
+	if ( element.value.toString() != '' )
+	{
+		nest_visit_number_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "observation_view_1", form_number );
+	drop_down_value = timlib_get_drop_down_element_value( element.options );
+	if ( drop_down_value != 'select' )
+	{
+		observation_view_array[ observation_record_number ] =
+			drop_down_value;
+	}
+
+	element = timlib_get_form_element( "nest_status_1", form_number );
+	drop_down_value = timlib_get_drop_down_element_value( element.options );
+	if ( drop_down_value != 'select' )
+	{
+		nest_status_array[ observation_record_number ] =
+			drop_down_value;
+	}
+
+	element = timlib_get_form_element( "female_behavior_1", form_number );
+	drop_down_value = timlib_get_drop_down_element_value( element.options );
+	if ( drop_down_value != 'select' )
+	{
+		female_behavior_array[ observation_record_number ] =
+			drop_down_value;
+	}
+
+	element = timlib_get_form_element( "nest_height_cm_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		nest_height_cm_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "female_size_cm_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		female_size_cm_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "hatchlings_count_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		hatchlings_count_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "hatched_eggs_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		hatched_eggs_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "flooded_eggs_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		flooded_eggs_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "predated_eggs_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		predated_eggs_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "crushed_eggs_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		crushed_eggs_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element(
+			"other_egg_mortality_1",
+			form_number );
+	if ( element.value.toString() != '' )
+	{
+		other_egg_mortality_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element(
+			"nest_height_above_water_cm_1",
+			form_number );
+	if ( element.value.toString() != '' )
+	{
+		nest_height_above_water_cm_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "water_depth_1_cm_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		water_depth_1_cm_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "water_depth_2_cm_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		water_depth_2_cm_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "water_depth_3_cm_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		water_depth_3_cm_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element( "water_depth_4_cm_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		water_depth_4_cm_array[ observation_record_number ] =
+			element.value;
+	}
+
+	element = timlib_get_form_element(
+			"observation_notepad_1",
+			form_number );
+	if ( element.value.toString() != '' )
+	{
+		observation_notepad_array[ observation_record_number ] =
+			element.value;
+	}
+
+	return true;
+} // store_observation_to_associative_array()
+
+function check_unstored_visits( form_number )
+{
+	var element;
+
+	element = timlib_get_form_element( "observation_date_1", form_number );
+	if ( element.value.toString() != '' )
+	{
+		alert( 'Error: you have an unstored visit. Press |<< Previous| then press |Store| or |Reset|.' );
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+} // check_unstored_visits()
+
+function store_observation_to_memory(	form_number,
+					with_missing_observation_message )
+{
+	if ( store_observation_date_to_display_list( form_number ) )
+	{
+		store_observation_to_associative_array(
+			form_number,
+			observation_record_number );
+		observation_record_number++;
+		return true;
+	}
+	else
+	{
+		if ( with_missing_observation_message )
+		{
+			alert(
+			'Error: you must enter in an observation date.' );
+		}
+		return false;
+	}
+} // store_observation_to_memory()
+
+function store_observation_to_post_dictionary( form_number )
+{
+	var post_dictionary_element;
+	var drop_down_value;
+	var dictionary_string = "";
+	var observation_record_number;
+	var variable_name;
+
+	// Get the post_dictionary element
+	// -------------------------------
+	post_dictionary_element =
+		timlib_get_form_element( "post_dictionary", form_number );
+
+	for(	observation_record_number = 0;
+		observation_record_number < observation_date_array.length;
+		observation_record_number++ )
+	{
+		variable_name =
+			'observation_date_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				observation_date_array[
+					observation_record_number ] );
+		variable_name =
+			'nest_visit_number_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				nest_visit_number_array[
+					observation_record_number ] );
+
+		variable_name =
+			'observation_view_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				observation_view_array[
+					observation_record_number ] );
+
+		variable_name =
+			'female_behavior_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				female_behavior_array[
+					observation_record_number ] );
+
+		variable_name =
+			'hatchlings_count_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				hatchlings_count_array[
+					observation_record_number ] );
+
+		variable_name =
+			'total_eggs_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				total_eggs_array[
+					observation_record_number ] );
+
+		variable_name =
+			'banded_eggs_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				banded_eggs_array[
+					observation_record_number ] );
+
+		variable_name =
+			'not_banded_eggs_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				not_banded_eggs_array[
+					observation_record_number ] );
+
+		variable_name =
+			'hatched_eggs_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				hatched_eggs_array[
+					observation_record_number ] );
+
+		variable_name =
+			'flooded_eggs_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				flooded_eggs_array[
+					observation_record_number ] );
+
+		variable_name =
+			'predated_eggs_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				predated_eggs_array[
+					observation_record_number ] );
+
+		variable_name =
+			'crushed_eggs_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				crushed_eggs_array[
+					observation_record_number ] );
+
+		variable_name =
+			'other_egg_mortality_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				other_egg_mortality_array[
+					observation_record_number ] );
+
+		variable_name =
+			'water_depth_1_cm_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				water_depth_1_cm_array[
+					observation_record_number ] );
+
+		variable_name =
+			'water_depth_2_cm_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				water_depth_2_cm_array[
+					observation_record_number ] );
+
+		variable_name =
+			'water_depth_3_cm_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				water_depth_3_cm_array[
+					observation_record_number ] );
+
+		variable_name =
+			'water_depth_4_cm_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				water_depth_4_cm_array[
+					observation_record_number ] );
+
+		variable_name =
+			'nest_height_above_water_cm_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				nest_height_above_water_cm_array[
+					observation_record_number ] );
+
+		variable_name =
+			'observation_notepad_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				observation_notepad_array[
+					observation_record_number ] );
+
+		variable_name =
+			'female_size_cm_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				female_size_cm_array[
+					observation_record_number ] );
+
+		variable_name =
+			'habitat_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				habitat_array[
+					observation_record_number ] );
+
+		variable_name =
+			'materials_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				materials_array[
+					observation_record_number ] );
+
+		variable_name =
+			'nest_status_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				nest_status_array[
+					observation_record_number ] );
+
+		variable_name =
+			'nest_height_cm_' +
+			(observation_record_number).toString();
+		dictionary_string =
+			append_dictionary_variable(
+				dictionary_string,
+				variable_name,
+				nest_height_cm_array[
+					observation_record_number ] );
+
+	}
+
+	dictionary_string =
+		append_dictionary_variable(
+			dictionary_string,
+			"nest_number_0",
+			nest_number );
+
+	post_dictionary_element.value =
+		post_dictionary_element.value + '&' + dictionary_string;
+
+	return true;
+} // store_observation_to_post_dictionary()
+
+function copy_observation_date_to_subsequent_nest_visits()
+{
+	var observation_date_element;
+	var value;
+	var stored_observation_date_0_element;
+
+	observation_date_element =
+		timlib_get_form_element( "observation_date_0", 0 );
+	value = observation_date_element.value;
+
+	stored_observation_date_0_element =
+		timlib_get_element( "stored_observation_date_0" );
+
+	stored_observation_date_0_element.value = value;
+	return true;
+} // copy_observation_date_to_subsequent_nest_visits( element )
+
+</script>
+
+<div title="Subsequent Nest Visits">
+
+<h1>Insert Subsequent Nest Visits</h1>
+
+<table cellspacing=0 cellpadding=0 border=1>
+<tr><td>
+<table cellspacing=0 cellpadding=0 border=1>
+<form enctype="multipart/form-data">
+<tr>
+
+<td align=left>*Observation Date</td>
+<td><input name="observation_date_1" type="text" size="10" value="" maxlength="10" id="observation_date_1">
+<img id="trigger_1" src=/javascript/calendar.gif>
+<script type="text/javascript">
+Calendar.setup( {inputField : "observation_date_1",
+ifFormat: "%Y-%m-%d",
+fdow: 0,
+trigger: "trigger_1",
+align: "M",
+onSelect: function() { this.hide() } } );
+</script>
+</td>
+<tr>
+<td align=left>Nest Visit Number</td>
+<td><input name="nest_visit_number_1" type="text" size="1" value="" maxlength="1"></td>
+<tr>
+<td align=left>Observation View</td>
+<td align=left colspan=1>
+<select name="observation_view_1" size="1"><option value="select">Select
+.process=observation_view_wizard_list.sh application
+</select></td>
+<tr>
+<td align=left>Flooded Eggs</td>
+<td><input name="flooded_eggs_1" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Predated Eggs</td>
+<td><input name="predated_eggs_1" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Other Egg Mortality</td>
+<td><input name="other_egg_mortality_1" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Female Size cm</td>
+<td><input name="female_size_cm_1" type="text" size="3" value="" maxlength="3"></td>
+<tr>
+<td align=left>Female Behavior</td>
+<td align=left colspan=1>
+<select name="female_behavior_1" size="1"><option value="select">Select
+.process=female_behavior_wizard_list.sh application
+</select></td>
+<tr>
+<td align=left>Nest Status</td>
+<td align=left colspan=1>
+<select name="nest_status_1" size="1"><option value="select">Select
+.process=nest_status_wizard_list.sh application
+</select></td>
+<tr>
+<td align=left>Hatchlings Count</td>
+<td><input name="hatchlings_count_1" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Water Depth 1 Cm</td>
+<td><input name="water_depth_1_cm_1" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Water Depth 2 Cm</td>
+<td><input name="water_depth_2_cm_1" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Water Depth 3 Cm</td>
+<td><input name="water_depth_3_cm_1" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Water Depth 4 Cm</td>
+<td><input name="water_depth_4_cm_1" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Nest Height cm</td>
+<td><input name="nest_height_cm_1" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Hatched Eggs</td>
+<td><input name="hatched_eggs_1" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Crushed Eggs</td>
+<td><input name="crushed_eggs_1" type="text" size="2" value="" maxlength="2"></td>
+<tr>
+<td align=left>Nest Height Above Water Cm</td>
+<td><input name="nest_height_above_water_cm_1" type="text" size="6" value="" maxlength="6"></td>
+<tr>
+<td align=left>Observation Notepad</td>
+<td><textarea name="observation_notepad_1" cols=30 rows=4 onblur="timlib_check_notepad_size(this, 255);" wrap=physical></textarea>
+</td>
+</form>
+</table>
+
+<tr><td>
+<table>
+<td><input type="button" onclick="tab.prev();window.scrollTo(0,0)" value="<< Previous">
+<td><input type="button" value="Reset" onClick="form_reset(document.forms[1]);">
+<td><input type="button" value="Store" onClick="store_observation_to_memory( 1, true ) && form_reset(document.forms[1])">
+<td><input type="button" value="Top" onClick="window.scrollTo(0,0)">
+<td><input type="button" onclick="store_observation_to_memory( 1, false ) && form_reset(document.forms[1]);tab.next();window.scrollTo(0,0)" value="Next >>">
+</table>
+</td>
+
+<td valign=top>
+<table>
+<form enctype="multipart/form-data">
+<td><h3>Stored</h3>
+<tr>
+<td><input name=stored_observation_date_0 type="text" disabled=1>
+<tr>
+<td valign=top><select name=observation_list size=10 multiple></select>
+</form>
+</table>
+</table>
+</div>
+
+<div title="Submit">
+<h1>Submit Nest</h1>
+<form enctype="multipart/form-data" method=post name="prompt"
+.post_action
+target="edit_frame">
+<input name="post_dictionary" type="hidden">
+</form>
+<table border=1>
+<tr>
+<td><input type="button" onclick="tab.prev()" value="<< Previous">
+<td><input type="button" value="|    Submit    |"
+onClick="check_unstored_visits( 1 ) && store_observation_zero_to_associative_array( 0 ) && store_observation_to_post_dictionary( 3 ) && ( document.forms[3].submit() || window.close() );">
+</td>
+</table>
+</div>
+</div>
+</body>
+</html>
+

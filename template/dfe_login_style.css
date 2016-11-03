@@ -1,0 +1,29 @@
+HTML		{	color: ivory }
+BODY		{	color: ivory }
+H1 		{	text-align: left;
+			letter-spacing: .5em;
+			color: ivory;
+			font-size: 24pt }
+H2		{	text-align: left;
+			color: ivory;
+			font-size: 24pt }
+H3		{	text-align: center;
+			color: ivory;
+			font-size: 12pt }
+H9		{	text-align: left;
+			color: ivory;
+			font-size: 12pt }
+TH		{	color: ivory;
+			font-size: 12pt }
+TD		{	color: ivory;
+			font-weight: bold;
+			font-size: 14pt }
+P  		{	color: ivory;
+			font-size: 12pt }
+LI  		{	color: ivory;
+			font-size: 12pt }
+A 		{	color: ivory;
+			font-size: 12pt }
+.RIGHT		{	color: ivory;
+			font-size: 12pt;
+			text-align: right }

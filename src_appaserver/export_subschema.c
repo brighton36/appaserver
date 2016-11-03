@@ -1,0 +1,995 @@
+/* --------------------------------------------------- 	*/
+/* src_appaserver/export_subschema.c		       	*/
+/* --------------------------------------------------- 	*/
+/* 						       	*/
+/* Freely available software: see Appaserver.org	*/
+/* --------------------------------------------------- 	*/
+
+/* Includes */
+/* -------- */
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "appaserver_library.h"
+#include "timlib.h"
+#include "query.h"
+#include "document.h"
+#include "folder.h"
+#include "application.h"
+#include "list.h"
+#include "appaserver_parameter_file.h"
+#include "create_clone_filename.h"
+#include "dictionary2file.h"
+#include "dictionary_appaserver.h"
+#include "session.h"
+
+/* appaserver_link_file */
+
+/* Constants */
+/* --------- */
+#define SHELL_HERE_LABEL	"all_done"
+
+#define EXPORT_SUBSCHEMA_FILENAME_TEMPLATE		 			"%s/export_subschema.sh"
+
+/* Prototypes */
+/* ---------- */
+char *get_subschema(		char *application_name,
+				char *folder_name );
+
+LIST *get_javascript_filename_list(
+				char *application_name,
+				char *folder_name );
+
+void output_shell_script_header(	char *export_subschema_filename,
+					char *application_name,
+					LIST *folder_name_list );
+
+void output_shell_script_footer(
+			char *export_subschema_filename );
+
+void append_export_subschema_file(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name );
+
+void clone_table_folder(char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+void clone_table_relation(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+void clone_table_attribute(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+void clone_table_folder_attribute(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+void clone_table_javascript_folders(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+void clone_table_javascript_files(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+void clone_table_row_security_role_update(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+void clone_table_role_folder(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+void clone_table_subschema(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+void clone_table_role_operation(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name );
+
+int main( int argc, char **argv )
+{
+	char *application_name;
+	DOCUMENT *document;
+	LIST *folder_name_list;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	char *parameter_dictionary_string;
+	DICTIONARY *parameter_dictionary;
+	char *folder_name;
+	char export_subschema_filename[ 512 ];
+	char *session;
+	char *login_name;
+	char *role_name;
+	DICTIONARY_APPASERVER *dictionary_appaserver;
+
+	output_starting_argv_stderr( argc, argv );
+
+	if ( argc != 7 )
+	{
+		fprintf(stderr,
+"Usage: %s application session login_name role not_used_filler parameter_dictionary\n",
+			argv[ 0 ] );
+		exit( 1 );
+	}
+
+	application_name = argv[ 1 ];
+	session = argv[ 2 ];
+	login_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	parameter_dictionary_string = argv[ 6 ];
+
+	appaserver_parameter_file = new_appaserver_parameter_file();
+
+	parameter_dictionary = 
+		dictionary_index_string2dictionary(
+			parameter_dictionary_string );
+
+	if ( ! ( dictionary_appaserver =
+			dictionary_appaserver_new(
+				parameter_dictionary,
+				(char *)0 /* application_name */,
+				(LIST *)0 /* attribute_list */,
+				(LIST *)0 /* operation_name_list */ ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: exiting early.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	parameter_dictionary = dictionary_appaserver->
+				working_post_dictionary;
+
+	folder_name_list = 
+		dictionary_get_index_list( 	parameter_dictionary,
+						"folder" );
+
+	document = document_new( "", application_name );
+	document_set_output_content_type( document );
+
+	document_output_head(
+			document->application_name,
+			document->title,
+			document->output_content_type,
+			appaserver_parameter_file->appaserver_mount_point,
+			document->javascript_module_list,
+			document->stylesheet_filename,
+			application_get_relative_source_directory(
+				application_name ),
+			0 /* not with_dynarch_menu */ );
+
+	document_output_body(
+			document->application_name,
+			document->onload_control_string );
+
+	sprintf( export_subschema_filename,
+		 EXPORT_SUBSCHEMA_FILENAME_TEMPLATE,
+		 appaserver_parameter_file->appaserver_data_directory );
+
+	if ( !list_length( folder_name_list ) )
+	{
+		printf( "<P>No folders selected.\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	output_shell_script_header(	export_subschema_filename,
+					application_name,
+					folder_name_list );
+
+	list_rewind( folder_name_list );
+	do {
+		folder_name = list_get_pointer( folder_name_list );
+
+		clone_table_folder(	export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_relation(	export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_attribute(
+					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_folder_attribute(
+					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_role_folder(
+					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_row_security_role_update(
+					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_javascript_folders(
+					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_javascript_files(
+					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_subschema(
+					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_role_operation(
+					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+	} while( list_next( folder_name_list ) );
+
+	output_shell_script_footer( export_subschema_filename );
+
+	printf( "<p>Created %s\n", export_subschema_filename );
+
+	document_close();
+
+	exit( 0 );
+
+} /* main() */
+
+void clone_table_folder(char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+
+	where_data = folder_name;
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"folder",
+			"folder",
+			where_data,
+			where_data,
+			"y" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	system( sys_string );
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"folder" );
+
+} /* clone_table_folder() */
+
+void clone_table_relation(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+
+	where_data = folder_name;
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"relation",
+			"folder",
+			where_data,
+			where_data,
+			"y" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	system( sys_string );
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"relation" );
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"relation",
+			"related_folder",
+			where_data,
+			where_data,
+			"n" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	system( sys_string );
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"relation" );
+
+} /* clone_table_relation() */
+
+void clone_table_attribute(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+	char *attribute_name;
+	LIST *attribute_name_list;
+
+	attribute_name_list = 
+		appaserver_library_get_attribute_name_list(
+			application_name, folder_name );
+
+	if ( !list_rewind( attribute_name_list ) )
+	{
+		printf( "<p>ERROR: cannot find attributes for folder = %s\n",
+			folder_name );
+		document_close();
+		exit( 0 );
+	}
+	
+	do {
+		attribute_name = list_get_pointer( attribute_name_list );
+
+		where_data = attribute_name;
+	
+		sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+				application_name,
+				session,
+				login_name,
+				role_name,
+				application_name,
+				"attribute",
+				"attribute",
+				where_data,
+				where_data,
+				"y" /* delete_yn */,
+				"n" /* really_yn */,
+				"y" /* output2file_yn */ );
+	
+		system( sys_string );
+	
+		append_export_subschema_file(	export_subschema_filename,
+						application_name,
+						appaserver_data_directory,
+						"attribute" );
+	} while( list_next( attribute_name_list ) );
+
+} /* clone_table_attribute() */
+
+void clone_table_folder_attribute(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+
+	where_data = folder_name;
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"folder_attribute",
+			"folder",
+			where_data,
+			where_data,
+			"y" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	system( sys_string );
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"folder_attribute" );
+
+} /* clone_table_folder_attribute() */
+
+void clone_table_row_security_role_update(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+
+	where_data = folder_name;
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"row_security_role_update",
+			"folder",
+			where_data,
+			where_data,
+			"n" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	system( sys_string );
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"row_security_role_update" );
+
+} /* clone_table_row_security_role_update() */
+
+void clone_table_role_folder(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+
+	where_data = folder_name;
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"role_folder",
+			"folder",
+			where_data,
+			where_data,
+			"n" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	system( sys_string );
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"role_folder" );
+
+} /* clone_table_role_folder() */
+
+void clone_table_javascript_files(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+	char *javascript_filename;
+	LIST *javascript_filename_list;
+
+	javascript_filename_list = 
+		get_javascript_filename_list(
+			application_name, folder_name );
+
+	if ( !list_rewind( javascript_filename_list ) ) return;
+	
+	do {
+		javascript_filename =
+			list_get_pointer(
+				javascript_filename_list );
+
+		where_data = javascript_filename;
+	
+		sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+				application_name,
+				session,
+				login_name,
+				role_name,
+				application_name,
+				"javascript_files",
+				"javascript_filename",
+				where_data,
+				where_data,
+				"y" /* delete_yn */,
+				"n" /* really_yn */,
+				"y" /* output2file_yn */ );
+	
+		system( sys_string );
+	
+		append_export_subschema_file(	export_subschema_filename,
+						application_name,
+						appaserver_data_directory,
+						"javascript_files" );
+	} while( list_next( javascript_filename_list ) );
+
+} /* clone_table_javascript_files() */
+
+
+void clone_table_javascript_folders(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+
+	where_data = folder_name;
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"javascript_folders",
+			"folder",
+			where_data,
+			where_data,
+			"y" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	system( sys_string );
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"javascript_folders" );
+
+} /* clone_table_javascript_folders() */
+
+void clone_table_subschema(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+	char *subschema;
+
+	if ( ! ( subschema = get_subschema( application_name, folder_name ) ) )
+	{
+		return;
+	}
+
+	where_data = subschema;
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"subschemas",
+			"subschema",
+			where_data,
+			where_data,
+			"n" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	system( sys_string );
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"subschemas" );
+
+} /* clone_table_subschema() */
+
+void clone_table_role_operation(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+
+	where_data = folder_name;
+
+	sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+			application_name,
+			session,
+			login_name,
+			role_name,
+			application_name,
+			"role_operation",
+			"folder",
+			where_data,
+			where_data,
+			"n" /* delete_yn */,
+			"n" /* really_yn */,
+			"y" /* output2file_yn */ );
+
+	system( sys_string );
+
+	append_export_subschema_file(	export_subschema_filename,
+					application_name,
+					appaserver_data_directory,
+					"role_operation" );
+
+} /* clone_table_role_operation() */
+
+void append_export_subschema_file(	char *export_subschema_filename,
+					char *application_name,
+					char *appaserver_data_directory,
+					char *folder_name )
+{
+	CREATE_CLONE_FILENAME *create_clone_filename;
+	char clone_folder_filename[ 512 ];
+	char sys_string[ 1024 ];
+
+	create_clone_filename = create_clone_filename_new(
+					application_name,
+					appaserver_data_directory );
+
+	create_clone_filename_get_clone_folder_compressed_filename(
+				clone_folder_filename,
+				&create_clone_filename->directory_name,
+				create_clone_filename->application_name,
+				create_clone_filename->
+					appaserver_data_directory,
+				folder_name );
+
+	sprintf(sys_string,
+		"zcat %s						|"
+		"sed 's/^insert into %s/insert into $%s/'		|"
+		"sed 's/^delete from %s/delete from $%s/'		|"
+		"sed 's/^insert into %s_%s/insert into $%s/'		|"
+		"sed 's/^delete from %s_%s/delete from $%s/'		|"
+		"cat >> %s",
+		clone_folder_filename,
+		folder_name,
+		folder_name,
+		folder_name,
+		folder_name,
+		application_name,
+		folder_name,
+		folder_name,
+		application_name,
+		folder_name,
+		folder_name,
+		export_subschema_filename );
+
+	system( sys_string );
+
+	sprintf(sys_string,
+		"rm %s",
+		clone_folder_filename );
+
+	system( sys_string );
+
+} /* append_export_subschema_file() */
+
+void output_shell_script_footer( char *export_subschema_filename )
+{
+	char sys_string[ 512 ];
+	FILE *export_subschema_file;
+
+	export_subschema_file = fopen( export_subschema_filename, "a" );
+
+	fprintf(export_subschema_file,
+		"%s\n) | sql.e 2>&1 | grep -iv duplicate\n\nexit 0\n",
+		SHELL_HERE_LABEL );
+
+	fclose( export_subschema_file );
+
+	sprintf( sys_string,
+		 "chmod +x,g+w %s",
+		 export_subschema_filename );
+	system( sys_string );
+
+} /* output_shell_script_footer() */
+
+void output_shell_script_header(	char *export_subschema_filename,
+					char *application_name,
+					LIST *folder_name_list )
+{
+	FILE *output_file;
+	char *folder_name;
+
+	output_file = fopen( export_subschema_filename, "w" );
+
+	if ( !output_file )
+	{
+		printf( "<P>ERROR opening %s for write.\n",
+			export_subschema_filename );
+		document_close();
+		exit( 0 );
+	}
+
+	fprintf( output_file,
+	"#!/bin/sh\n" );
+	fprintf( output_file,
+	"if [ \"$#\" -ne 1 ]\n" );
+	fprintf( output_file,
+	"then\n" );
+	fprintf( output_file,
+	"\techo \"Usage: $0 application\" 1>&2\n" );
+	fprintf( output_file,
+	"\texit 1\n" );
+	fprintf( output_file,
+	"fi\n" );
+
+	fprintf( output_file, "application=$1\n\n" );
+
+	if ( !list_rewind( folder_name_list ) ) return;
+
+	do {
+		folder_name = list_get_pointer( folder_name_list );
+
+		if ( !appaserver_library_is_system_folder( folder_name ) )
+		{
+			fprintf( output_file,
+			"if [ \"$application\" != %s ]\n", application_name );
+			fprintf( output_file,
+			"then\n" );
+			fprintf( output_file,
+			"\texit 0\n" );
+			fprintf( output_file,
+			"fi\n\n" );
+
+			break;
+		}
+	} while( list_next( folder_name_list ) );
+
+	fprintf( output_file,
+	"folder=`get_table_name $application folder`\n" );
+
+	fprintf( output_file,
+	"relation=`get_table_name $application relation`\n" );
+
+	fprintf( output_file,
+	"attribute=`get_table_name $application attribute`\n" );
+
+	fprintf( output_file,
+	"folder_attribute=`get_table_name $application folder_attribute`\n" );
+
+	fprintf( output_file,
+	"role_folder=`get_table_name $application role_folder`\n" );
+
+	fprintf( output_file,
+"row_security_role_update=`get_table_name $application row_security_role_update`\n" );
+
+	fprintf( output_file,
+	"subschemas=`get_table_name $application subschemas`\n" );
+
+	fprintf( output_file,
+	"role_operation=`get_table_name $application role_operation`\n" );
+
+	fprintf( output_file,
+"javascript_folders=`get_table_name $application javascript_folders`\n" );
+
+	fprintf( output_file,
+"javascript_files=`get_table_name $application javascript_files`\n" );
+
+	fprintf(output_file,
+		"\n(\ncat << %s\n",
+		SHELL_HERE_LABEL );
+
+	fclose( output_file );
+} /* output_shell_script_header() */
+
+LIST *get_javascript_filename_list( char *application_name, char *folder_name )
+{
+	char sys_string[ 1024 ];
+	char where_clause[ 512 ];
+
+	sprintf(where_clause,
+		"folder = '%s'",
+		folder_name );
+
+	sprintf(sys_string,
+		"get_folder_data	application=%s			"
+		"			select=javascript_filename	"
+		"			folder=javascript_folders	"
+		"			where=\"%s\"			",
+		application_name,
+		where_clause );
+
+	return pipe2list( sys_string );
+} /* get_javascript_filename_list() */
+
+char *get_subschema(		char *application_name,
+				char *folder_name )
+{
+	char sys_string[ 1024 ];
+	char *results;
+	char where[ 256 ];
+
+	sprintf( where, "folder = '%s'", folder_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=subschema	"
+		 "			folder=folder		"
+		 "			where=\"%s\"		",
+		 application_name,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( !results || !*results )
+		return (char *)0;
+	else
+		return results;
+} /* get_subschema() */
+

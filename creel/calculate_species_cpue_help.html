@@ -1,0 +1,180 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Calculate Species CPUE Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h1>Calculate Species CPUE</h1>
+<p>Assume the following:
+A researcher accompanies a fishing vessel for a day trip.
+The researcher carries one stopwatch for each angler. When the
+vessel reaches the fishing area and the anglers have baited their
+hooks, the researcher announces "Go!" and starts each stopwatch.
+When an angler catches a fish, the researcher 1) stops that
+angler's stopwatch, 2) records in a logbook the species
+caught and the number of minutes, 3) resets the stopwatch,
+and 4) starts the stopwatch.
+<p>This activity would generate the most accurate minutes
+between catch for each species caught. The reciprocal of
+minutes per catch is catches per minute. Catches per
+minute divided by 60 is catches per hour. Catches
+per hour is catch per unit effort (CPUE). Catches
+per hour for each species caught is species CPUE.
+<p>However, researchers don't accompany anglers. Instead, a researcher
+takes a census at the ramp where fishing vessels return. The
+researcher asks the following relevant questions:
+<ol>
+<li>How many hours were you fishing?
+<li>How many anglers are on board?
+<li>How many of each species did you keep or release?
+<li>What species were you targeting?
+<li>Where did you fish?
+</ol>
+<p>Note, not asked are these questions:
+<ol>
+<li>How many hours were you fishing in each area?
+<li>For each species targeted, how many hours were you fishing?
+</ol>
+<p>By applying the following algorithms to the answers to these
+questions, the various species CPUEs are estimated.
+<h2>Detail Algorithm</h2>
+<p>The detail table provides an audit trail for the calculations
+in the Per Species Per Area and Per Species sections.
+<h3>For each fishing trip:</h3>
+<ul>
+<li><h3>For each species:</h3>
+	<ul>
+	<li>Catches  <i><small>fishing_trip species</small></i> = Kept  <i><small>fishing_trip</small></i>  <i><small>species</small></i> + Released  <i><small>fishing_trip</small></i>  <i><small>species</small></i>
+	<li>Effort Hours  <i><small>fishing_trip</small></i> = Hours Fishing <i><small>fishing_trip</small></i> X Party Count  <i><small>fishing_trip</small></i>
+	</ul>
+</ul>
+
+<h2>Weighted Effort</h2>
+<p>
+The weighted effort algorithm groups all the fishing vessels in an
+area into one big fishing
+activity. It is weighted in that zero catches do not distort
+the effort.
+
+<h2>Non-Weighted Effort</h2>
+<p>
+The non-weighted effort algorithm 
+treats each vessel individually, not one big fishing
+activity. Each vessel has a catch count and an effort. The ratio
+of catch count over effort is CPUE. All of the many individual CPUEs
+are averaged together with a corresponding standard deviation calculated.
+<p>However, a flaw arises when fishing trips fail to catch the
+targeted species. All of the fishing trips are treated
+equally even though they have different efforts. The numerator of the
+ratio is zero no matter what the denominator is.
+
+<!--
+<h2>Non-Weighted Complete Effort</h2>
+<p>The non-weighted complete effort algorithm 
+also treats each vessel individually,
+but it ignores the species targeted.
+Instead, the complete set of fishing trips are included,
+both those that caught this species and everyone else.
+Each vessel has a catch count and an effort. The ratio
+of catch count over effort is CPUE. 
+All of the many individual CPUEs
+are averaged together with a corresponding standard deviation calculated.
+-->
+
+<h2>Per Species Per Area Algorithm</h2>
+<h3>Weighted Effort</h3>
+<h3>For each fishing area:</h3>
+<ul>
+<li><h3>For each species:</h3>
+	<ul>
+	<li>Sum(Catches) = &Sigma;(Kept  <i><small>fishing_area</small></i>  <i><small>species</small></i> + Released  <i><small>fishing_area</small></i>  <i><small>species</small></i>)
+	<li>Sum(Effort Hours) = &Sigma;(Hours Fishing  <i><small>fishing_area</small></i>  <i><small>species</small></i> X Party Count  <i><small>fishing_area</small></i>  <i><small>species</small></i>)
+	<li>CPUE Sum(Catches) / Sum(Effort Hours) = Sum(Catches) / Sum(Effort Hours)
+	</ul>
+</ul>
+
+<h3>Non-Weighted Effort</h3>
+<h3>For each fishing area:</h3>
+<ul>
+<li><h3>For each species:</h3>
+	<ul>
+	<li><h3>For each fishing trip:</h3>
+		<ul>
+		<li>If caught this species:
+			<ul>
+			<li>Caught  <i><small>fishing_trip</small></i> = Kept  <i><small>fishing_trip</small></i>  <i><small>species</small></i> + Released  <i><small>fishing_trip</small></i>  <i><small>species</small></i>
+			<li>Effort  <i><small>fishing_trip</small></i> = Hours Fishing <i><small>fishing_trip</small></i> X Party Count <i><small>fishing_trip</small></i>
+			</ul>
+		<li>If targeted this species but did not catch it:
+			<ul>
+			<li>Caught <i><small>fishing_trip</small></i> = 0
+			<li>Effort <i><small>fishing_trip</small></i> = Hours Fishing <i><small>fishing_trip</small></i> X Party Count <i><small>fishing_trip</small></i>
+			</ul>
+		<li>CPUE <i><small>fishing_trip</small></i> = Caught <i><small>fishing_trip</small></i> / Effort <i><small>fishing_trip</small></i>
+		</ul>
+	<li>Sum(Catches / Effort Hours) <i><small>fishing_area</small></i>  <i><small>species</small></i> = &Sigma;CPUE <i><small>fishing_trip</small></i>
+	<li>Sample Size <i><small>fishing_area</small></i> = &Sigma;Fishing Trips <i><small>fishing_area</small></i>  <i><small>caught or targeted species</small></i>
+	<li>CPUE Sum(Catches / Effort Hours) / Sample Size = Sum(Catches / Effort Hours) <i><small>fishing_area</small></i>  <i><small>species</small></i> / Sample Size <i><small>fishing_area</small></i>
+	</ul>
+</ul>
+
+<h2>Per Species Algorithm</h2>
+<h3>Weighted Effort</h3>
+<h3>For each species:</h3>
+	<ul>
+	<li>Sum(Catches) = &Sigma;(Kept <i><small>species</small></i> + Released <i><small>species</small></i>)
+	<li>Sum(Effort Hours) = &Sigma;(Hours Fishing <i><small>species</small></i> X Party Count <i><small>species</small></i>)
+	<li>CPUE Sum(Catches) / Sum(Effort Hours) = Sum(Catches) / Sum(Effort Hours)
+</ul>
+
+<h3>Non-Weighted Effort</h3>
+<h3>For each species:</h3>
+	<ul>
+	<li><h3>For each fishing trip:</h3>
+		<ul>
+		<li>If caught this species:
+			<ul>
+			<li>Caught <i><small>fishing_trip</small></i> = Kept <i><small>fishing_trip</small></i>  <i><small>species</small></i> + Released <i><small>fishing_trip</small></i>  <i><small>species</small></i>
+			<li>Effort <i><small>fishing_trip</small></i> = Hours Fishing <i><small>fishing_trip</small></i> X Party Count <i><small>fishing_trip</small></i>
+			</ul>
+		<li>If targeted this species but did not catch it:
+			<ul>
+			<li>Caught <i><small>fishing_trip</small></i> = 0
+			<li>Effort <i><small>fishing_trip</small></i> = Hours Fishing <i><small>fishing_trip</small></i> X Party Count <i><small>fishing_trip</small></i>
+			</ul>
+		<li>CPUE <i><small>fishing_trip</small></i> = Caught <i><small>fishing_trip</small></i> / Effort <i><small>fishing_trip</small></i>
+		</ul>
+	<li>Sum(Catches / Effort Hours) <i><small>species</small></i> = &Sigma;CPUE <i><small>fishing_trip</small></i>
+	<li>Sample Size = &Sigma;Fishing Trips <i><small>caught or targeted species</small></i>
+	<li>CPUE Non-Weighted Effort = Sum(Catches / Effort Hours) <i><small>species</small></i> / Sample Size
+</ul>
+
+<!--
+<h3>Non-Weighted Complete Effort</h3>
+<h3>For each species:</h3>
+	<ul>
+	<li><h3>For each fishing trip:</h3>
+		<ul>
+		<li>If caught this species:
+			<ul>
+			<li>Caught <i><small>fishing_trip</small></i> = Kept <i><small>fishing_trip</small></i>  <i><small>species</small></i> + Released <i><small>fishing_trip</small></i>  <i><small>species</small></i>
+			<li>Effort <i><small>fishing_trip</small></i> = Hours Fishing <i><small>fishing_trip</small></i> X Party Count <i><small>fishing_trip</small></i>
+			</ul>
+		<li>If didn't catch species:
+			<ul>
+			<li>Caught <i><small>fishing_trip</small></i> = 0
+			<li>Effort <i><small>fishing_trip</small></i> = Hours Fishing <i><small>fishing_trip</small></i> X Party Count <i><small>fishing_trip</small></i>
+			</ul>
+		<li>CPUE <i><small>fishing_trip</small></i> = Caught <i><small>fishing_trip</small></i> / Effort <i><small>fishing_trip</small></i>
+		</ul>
+	<li>Sum(Catches / Complete Effort Hours) <i><small>species</small></i> = &Sigma;CPUE <i><small>fishing_trip</small></i>
+	<li>Complete Sample Size = &Sigma;Fishing Trips <i><small>caught or not caught</small></i>
+	<li>CPUE Non-Weighted Complete Effort = Sum(Catches / Complete Effort Hours) <i><small>species</small></i> / Complete Sample Size
+	</ul>
+-->
+
+</body>
+</HTML>

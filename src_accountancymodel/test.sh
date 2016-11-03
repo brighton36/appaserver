@@ -1,0 +1,2 @@
+:
+get_folder_data	application=capitolpops						select=entity_name,street_address,transaction_date_time,bank_description,bank_amount,bank_running_balance						folder=transaction					where="bank_description is not null and not exists ( select 1 from journal_ledger where transaction.entity_name = journal_ledger.entity_name and transaction.street_address = journal_ledger.street_address and transaction.transaction_date_time = journal_ledger.transaction_date_time )"						order=transaction_date_time	

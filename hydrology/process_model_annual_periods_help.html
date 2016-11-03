@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Output Model Annual Periods Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h2>Output Model Annual Periods</h2>
+<p>This process aggregates model results into periods, and then
+	outputs the aggregations per year.
+<ul>
+<li>Begin and End Dates
+	<ul>
+	<li>Leave both blank will report the entire period of record.
+	<li>Enter a full Begin Date and End Date will report on that date range.
+	<li>Enter only the year in Begin Date will report from January 1.
+	<li>Enter only the year in End Date will report to December 31.
+	<li>Enter only the year and month in Begin Date will report from the first day of that month.
+	<li>Enter only the year and month in End Date will report to the last day of that month.
+	<li>Enter a full Begin Date and leave the End Date blank will report on the single day.
+	<li>Enter a only the year in Begin Date and leave the End Date blank will report on the entire year.
+	<li>Enter a only the year and month in Begin Date and leave the End Date blank will report on the entire month.
+	<li>Leave blank the Begin Date but populate the End Date will report from the beginning of record to the End Date.
+	</ul>
+<li>Aggregate period
+	<ul>
+	<li>Annually: Model results between the date range will be aggregated per year, and the many years will be displayed.
+	<li>Seasonally: Model results between the date range will be aggregated per season, and the many years of the chosen season will be displayed. The seasons are:
+		<ul>
+		<li>Wet from 6/1 to 10/31
+		<li>Dry from 11/1 to 5/31
+		<li>Summer from 6/21 to 9/22
+		<li>Fall from 9/23 to 12/21
+		<li>Winter from 12/22 to 3/20
+		<li>Spring from 3/21 to 6/20
+		<li>Sparrow from 3/1 to 7/15
+		</ul>
+	<li>Monthly: Model results between the date range will be aggregated per month, and the many years of the chosen month will be displayed.
+	<li>Weekly: Model results between the date range will be aggregated per week. The week is determined by entering a date into the "Containing Date" field. Then the many years of this week will be displayed.
+	<li>Daily: Model results between the date range will be aggregated per day. The day is determined by entering a date into the "Containing Date" field. Then the many years of this day will be displayed.
+	</ul>
+<li>Season: If the Aggregate Period is Seasonally, then choose a season to aggregate on.
+<li>Month: If the Aggregate Period is Monthly, then choose a month to aggregate on.
+<li>Week Containing Date: If the Aggregate Period is Weekly, then enter a representative date of that week to aggregate on.
+<li>Exceedance Format yn: To display the results, the aggregation period is converted to a representative date for each year. Then for each year, the "Aggregate Statistic" is calculated on a block of model results containing this representative date.
+	<ul>
+	<li>If the "Exceedance Format yn" is set to "No", then the output is sorted by the representative date followed by the "Aggregate Statistic".
+	<li>If the "Exceedance Format yn" is set to "Yes", then the output is sorted in descending order by the "Aggregate Statistic". Next to the "Aggregate Statistic" is a count of the number of years the "Aggregate Statistic" was below each subsequent "Aggregate Statistic". Next to the count is the percentage with which the number of years the "Aggregate Statistic" was below each subsequent "Aggregate Statistic".
+	</ul>
+<li>Aggregate Statistic: The block of model results can be aggregated by: Average, Sum, Minimum, Medium, Maximum, Range, or Standard Deviation.
+<li>Output Medium: The output medium could be either a table displayed in the bottom window, a chart displayed in a new window, or a file ready to transmit to your computer.
+</ul>
+</body>
+</HTML>

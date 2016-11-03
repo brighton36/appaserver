@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Output Measurement Differences Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h2>Output Measurement Differences</h2>
+<p>This process subtracts measurements of the Negative Station-Negative Datatype
+from the Positive Station-Positive Datatype. It outputs both the difference
+and an accumulation of the difference.
+<ul>
+<li>Begin and End Dates
+	<ul>
+	<li>Leave both blank will report the entire period of record.
+	<li>Enter a full Begin Date and End Date will report on that date range.
+	<li>Enter only the year in Begin Date will report from January 1.
+	<li>Enter only the year in End Date will report to December 31.
+	<li>Enter only the year and month in Begin Date will report from the first day of that month.
+	<li>Enter only the year and month in End Date will report to the last day of that month.
+	<li>Enter a full Begin Date and leave the End Date blank will report on the single day.
+	<li>Enter a only the year in Begin Date and leave the End Date blank will report on the entire year.
+	<li>Enter a only the year and month in Begin Date and leave the End Date blank will report on the entire month.
+	<li>Leave blank the Begin Date but populate the End Date will report from the beginning of record to the End Date.
+	</ul>
+<li>Aggregate Level: Optionally select an aggregate level to calculate sum (if quantum datatype) or average (if flow datatype).
+<li>Units Converted:
+	<ul>
+	<li>If a single datatype were selected on the Prelookup Screen, then that datatype's possible units to convert to is available for selection.
+	<li>If more than one datatype were selected, then those datatypes' possible units to convert to are available for selection.  In this case, to convert the units, you need to know which unit the datatype selected is stored as.
+	<li>If no datatype were selected, then all of the possible units to convert to is available for selection.  In this case, to convert the units, you need to know which unit the datatype selected is stored as.
+	<li>Note: the units converted is displayed as units-the-datatype-is-stored-as, then a dash, then units-the-datatype-can-be-converted-to. The dash in the center is not part of the units, like "foot-seconds".
+	</ul>
+<li>Display Count yn: If the Merged Output is Table and if the Aggregate
+Level is Daily or longer, then you have the option of displaying the
+number of measurements that make up each aggregation.
+<li>Output Medium: The output medium could be either a table displayed in the bottom window, a Gracechart displayed in a new window, an Easychart displayed in a new window, or a file ready to transmit to your computer.
+</ul>
+</body>
+</HTML>

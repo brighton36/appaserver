@@ -1,0 +1,83 @@
+/* src_everglades/datatype.h				*/
+/* ---------------------------------------------------	*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------	*/
+
+#ifndef DATATYPE_H
+#define DATATYPE_H
+
+#include <string.h>
+#include <ctype.h>
+#include "aggregate_statistic.h"
+#include "appaserver_library.h"
+#include "boolean.h"
+#include "list.h"
+#include "timlib.h"
+#include "piece.h"
+
+/* Structures */
+/* ---------- */
+typedef struct
+{
+	char *datatype_name;
+	char *units;
+	boolean bar_chart;
+	boolean scale_graph_to_zero;
+	boolean aggregation_sum;
+} DATATYPE;
+
+/* Prototypes */
+/* ---------- */
+DATATYPE *datatype_new_datatype(
+			char *datatype_name,
+			char *units );
+
+LIST *datatype_get_datatype_list(
+			char *application_name,
+			char *station,
+			char plot_for_station_check_yn,
+			enum aggregate_statistic );
+
+LIST *datatype_list_get(
+			char *application_name );
+
+char *datatype_get_units_string(
+			boolean *bar_graph,
+			char *application_name,
+			char *datatype_name );
+
+DATATYPE *datatype_unit_record2datatype(
+			char *record );
+
+DATATYPE *datatype_record2datatype(
+			char *record );
+
+boolean datatype_list_exists(
+			LIST *datatype_list,
+			char *datatype_name );
+
+LIST *datatype_with_station_name_list_get_datatype_list(
+			char *application_name,
+			LIST *station_name_list );
+
+char *datatype_list_display(
+			LIST *datatype_list );
+
+LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
+			char *application_name,
+			LIST *station_name_list );
+
+boolean datatype_bar_chart(
+			char *application_name,
+			char *datatype_name );
+
+DATATYPE *datatype_list_seek(
+			LIST *datatype_list,
+			char *datatype_name );
+
+boolean datatype_get_bypass_data_collection_frequency(
+				char *application_name,
+				char *station,
+				char *datatype );
+
+#endif

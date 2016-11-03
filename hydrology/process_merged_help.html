@@ -1,0 +1,47 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Output Merged Datasets Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h2>Output Merged Datasets</h2>
+<p>This process compares the measurements from multiple datatypes
+with each other.
+<ul>
+<li>Begin and End Dates:
+	<ul>
+	<li>Leave both blank will report the entire period of record.
+	<li>Enter a full Begin Date and End Date will report on that date range.
+	<li>Enter only the year in Begin Date will report from January 1.
+	<li>Enter only the year in End Date will report to December 31.
+	<li>Enter only the year and month in Begin Date will report from the first day of that month.
+	<li>Enter only the year and month in End Date will report to the last day of that month.
+	<li>Enter a full Begin Date and leave the End Date blank will report on the single day.
+	<li>Enter a only the year in Begin Date and leave the End Date blank will report on the entire year.
+	<li>Enter a only the year and month in Begin Date and leave the End Date blank will report on the entire month.
+	<li>Leave blank the Begin Date but populate the End Date will report from the beginning of record to the End Date.
+	</ul>
+<li>Aggregate Level: Optionally select an aggregate level to compare sums (if quantum datatypes) or averages (if flow datatypes).
+	<ul>
+	<li>Real Time: Since measurements are stored in real-time, no aggregation will take place.
+	<li>Daily: Measurements between the date range will be aggregated per day.
+	<li>Weekly: Measurements between the date range will be aggregated per week.
+	<li>Monthly: Measurements between the date range will be aggregated per month.
+	<li>Annually: Measurements between the date range will be aggregated per year.
+	</ul>
+<li>Display Count yn: If the Merged Output is Table and if the Aggregate
+Level is Daily or longer, then you have the option of displaying the
+number of measurements that make up each aggregation.
+<li>Output Medium:
+	<ul>
+	<li>Table: A table is displayed in the bottom window.
+	<li>Gracechart: A chart is created using the Grace Chart generator.
+	<li>Easychart: A chart is created using the Easychart generator.
+	<li>Transmit: A text file is created to transmit to your computer.
+	</ul>
+</ul>
+</body>
+</HTML>

@@ -1,0 +1,434 @@
+# src_accountancymodel/makefile
+# -----------------------------
+
+CC=gcc
+#CFLAGS=-g
+#CFLAGS=-O3 -s -Wall -W
+CFLAGS=-O3 -s -Wall ${APPASERVER_UNUSED_PARAMETER_FLAG}
+
+LIBRARY=${APPASERVER_HOME}/library
+
+STANDARD_LIBRARY=							\
+		${LIBRARY}/date.o 					\
+		${LIBRARY}/julian.o 					\
+		${LIBRARY}/dictionary.o 				\
+		${LIBRARY}/list.o 					\
+		${LIBRARY}/list_usage.o 				\
+		${LIBRARY}/timlib.o 					\
+		${LIBRARY}/piece.o 					\
+		${LIBRARY}/column.o 					\
+		${LIBRARY}/date_convert.o 				\
+		${LIBRARY}/hashtbl.o
+
+EXECUTABLES=	trial_balance						\
+		income_statement					\
+		balance_sheet						\
+		program_profit						\
+		ledger_propagate					\
+		ledger_unbalance					\
+		propagate_purchase_order_accounts			\
+		propagate_customer_sale_accounts			\
+		ledger_debit_credit_audit				\
+		close_nominal_accounts					\
+		load_bank_spreadsheet					\
+		propagate_inventory_purchase_layers			\
+		propagate_inventory_sale_layers				\
+		post_change_inventory_purchase				\
+		post_change_supply_purchase				\
+		post_change_specific_inventory_purchase			\
+		post_change_service_purchase				\
+		post_change_fixed_asset_purchase			\
+		post_change_fixed_asset					\
+		post_change_inventory_sale				\
+		post_change_specific_inventory_sale			\
+		post_change_service_sale				\
+		post_change_purchase_order				\
+		post_change_customer_sale				\
+		post_change_customer_payment				\
+		post_change_vendor_payment				\
+		post_change_depreciation				\
+		update_sale_completed					\
+		post_reoccurring_transaction				\
+		collect_customer_payment				\
+		make_vendor_payment					\
+		post_change_self					\
+		inventory_cost_method_propagate
+
+EXTERNAL_LIBRARY=							\
+		${STANDARD_LIBRARY}					\
+		${LIBRARY}/date_aggregate.o 				\
+		${LIBRARY}/aggregate_level.o 				\
+		${LIBRARY}/aggregate_statistic.o 			\
+		${LIBRARY}/html_table.o 				\
+		${LIBRARY}/prompt_recursive.o 				\
+		${LIBRARY}/decode_html_post.o				\
+		${LIBRARY}/appaserver_parameter_file.o			\
+		${LIBRARY}/appaserver_library.o				\
+		${LIBRARY}/appaserver_error.o				\
+		${LIBRARY}/application_constants.o			\
+		${LIBRARY}/process_generic_output.o			\
+		${LIBRARY}/name_arg.o					\
+		${LIBRARY}/basename.o					\
+		${LIBRARY}/fopen_path.o					\
+		${LIBRARY}/environ.o					\
+		${LIBRARY}/document.o					\
+		${LIBRARY}/application.o				\
+		${LIBRARY}/appaserver_user.o				\
+		${LIBRARY}/process_parameter_list.o			\
+		${LIBRARY}/populate_helper_process.o			\
+		${LIBRARY}/appaserver_link_file.o			\
+		${LIBRARY}/related_folder.o				\
+		${LIBRARY}/folder.o					\
+		${LIBRARY}/role.o					\
+		${LIBRARY}/appaserver.o					\
+		${LIBRARY}/dictionary_appaserver.o			\
+		${LIBRARY}/query.o					\
+		${LIBRARY}/latex.o					\
+		${LIBRARY}/process.o					\
+		${LIBRARY}/attribute.o					\
+		${LIBRARY}/form.o					\
+		${LIBRARY}/element.o					\
+		${LIBRARY}/operation.o					\
+		${LIBRARY}/role_folder.o				\
+		${LIBRARY}/session.o					\
+		${LIBRARY}/frameset.o					\
+		${LIBRARY}/insert_database.o				\
+		${LIBRARY}/update_database.o				\
+		${LIBRARY}/operation_list.o				\
+		${LIBRARY}/validation_form.o				\
+		${LIBRARY}/post2dictionary.o				\
+		${LIBRARY}/dictionary2file.o
+
+SOURCE_LIBRARY= 							\
+		ledger.o						\
+		purchase.o						\
+		customer.o						\
+		inventory.o						\
+		depreciation.o						\
+		entity.o
+
+all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
+
+clean:
+	rm ${SOURCE_LIBRARY} ${EXECUTABLES}
+
+post_reoccurring_transaction: post_reoccurring_transaction.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_reoccurring_transaction.c				\
+		-o post_reoccurring_transaction
+
+ledger_propagate: ledger_propagate.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		ledger_propagate.c					\
+		-o ledger_propagate
+
+ledger_unbalance: ledger_unbalance.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		ledger_unbalance.c					\
+		-o ledger_unbalance
+
+propagate_purchase_order_accounts: propagate_purchase_order_accounts.c	\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		propagate_purchase_order_accounts.c			\
+		-o propagate_purchase_order_accounts
+
+propagate_customer_sale_accounts: propagate_customer_sale_accounts.c	\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		propagate_customer_sale_accounts.c			\
+		-o propagate_customer_sale_accounts
+
+ledger_debit_credit_audit: ledger_debit_credit_audit.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		ledger_debit_credit_audit.c				\
+		-o ledger_debit_credit_audit
+
+#purchase_sale_propagate: purchase_sale_propagate.c			\
+#	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+#	${CC}	${CFLAGS} -I${LIBRARY}					\
+#		${EXTERNAL_LIBRARY}					\
+#		${SOURCE_LIBRARY}					\
+#		purchase_sale_propagate.c				\
+#		-o purchase_sale_propagate
+
+trial_balance: trial_balance.c						\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		trial_balance.c						\
+		-o trial_balance
+
+program_profit: program_profit.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		program_profit.c					\
+		-o program_profit
+
+income_statement: income_statement.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		income_statement.c					\
+		-o income_statement
+	touch statement_of_activities
+	/bin/rm -f statement_of_activities
+	ln income_statement statement_of_activities
+
+balance_sheet: balance_sheet.c						\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		balance_sheet.c						\
+		-o balance_sheet
+	touch financial_position
+	/bin/rm -f financial_position
+	ln balance_sheet financial_position
+
+close_nominal_accounts: close_nominal_accounts.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		close_nominal_accounts.c				\
+		-o close_nominal_accounts
+
+load_bank_spreadsheet: load_bank_spreadsheet.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		load_bank_spreadsheet.c					\
+		-o load_bank_spreadsheet
+
+post_change_depreciation: post_change_depreciation.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_depreciation.c				\
+		-o post_change_depreciation
+
+post_change_inventory_purchase: post_change_inventory_purchase.c	\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_inventory_purchase.c			\
+		-o post_change_inventory_purchase
+
+post_change_supply_purchase: post_change_supply_purchase.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_supply_purchase.c				\
+		-o post_change_supply_purchase
+
+post_change_service_sale:						\
+	post_change_service_sale.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_service_sale.c				\
+		-o post_change_service_sale
+
+post_change_specific_inventory_purchase:				\
+	post_change_specific_inventory_purchase.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_specific_inventory_purchase.c		\
+		-o post_change_specific_inventory_purchase
+
+post_change_service_purchase: post_change_service_purchase.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_service_purchase.c				\
+		-o post_change_service_purchase
+
+post_change_fixed_asset_purchase:					\
+		post_change_fixed_asset_purchase.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_fixed_asset_purchase.c			\
+		-o post_change_fixed_asset_purchase
+
+post_change_fixed_asset:						\
+		post_change_fixed_asset.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_fixed_asset.c				\
+		-o post_change_fixed_asset
+
+propagate_inventory_purchase_layers:					\
+	propagate_inventory_purchase_layers.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		propagate_inventory_purchase_layers.c			\
+		-o propagate_inventory_purchase_layers
+
+propagate_inventory_sale_layers:					\
+	propagate_inventory_sale_layers.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		propagate_inventory_sale_layers.c			\
+		-o propagate_inventory_sale_layers
+
+post_change_inventory_sale: post_change_inventory_sale.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_inventory_sale.c				\
+		-o post_change_inventory_sale
+
+post_change_specific_inventory_sale:					\
+	post_change_specific_inventory_sale.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_specific_inventory_sale.c			\
+		-o post_change_specific_inventory_sale
+
+post_change_purchase_order: post_change_purchase_order.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_purchase_order.c				\
+		-o post_change_purchase_order
+
+post_change_vendor_payment: post_change_vendor_payment.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_vendor_payment.c				\
+		-o post_change_vendor_payment
+
+post_change_customer_payment: post_change_customer_payment.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_customer_payment.c				\
+		-o post_change_customer_payment
+
+post_change_customer_sale: post_change_customer_sale.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_customer_sale.c				\
+		-o post_change_customer_sale
+
+synchronize_customer_sale_transaction:					\
+	synchronize_customer_sale_transaction.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		synchronize_customer_sale_transaction.c			\
+		-o synchronize_customer_sale_transaction
+
+update_sale_completed: update_sale_completed.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		update_sale_completed.c					\
+		-o update_sale_completed
+	touch update_sale_not_completed
+	/bin/rm -f update_sale_not_completed
+	ln update_sale_completed update_sale_not_completed
+
+collect_customer_payment: collect_customer_payment.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		collect_customer_payment.c				\
+		-o collect_customer_payment
+
+make_vendor_payment: make_vendor_payment.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		make_vendor_payment.c					\
+		-o make_vendor_payment
+
+post_change_self: post_change_self.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_self.c					\
+		-o post_change_self
+
+inventory_cost_method_propagate: inventory_cost_method_propagate.c	\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		inventory_cost_method_propagate.c			\
+		-o inventory_cost_method_propagate
+
+ledger.o: ledger.c ledger.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c ledger.c
+
+inventory.o: inventory.c inventory.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c inventory.c
+
+purchase.o: purchase.c purchase.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c purchase.c
+
+customer.o: customer.c customer.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c customer.c
+
+depreciation.o: depreciation.c depreciation.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c depreciation.c
+
+entity.o: entity.c entity.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c entity.c

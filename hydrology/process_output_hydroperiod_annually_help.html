@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Output Hydroperiod Annually Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h2>Annual Hydroperiod Algorithm</h2>
+
+<h3>For each station:</h3>
+<ul>
+<li>For stage: Threshold = Ground Surface Elevation + Elevation Offset
+<li>For depth: Threshold = Elevation Offset
+
+<li>For each Year between Begin Year and End Year:
+	<ul>
+	<li>Begin Wetting Event = Date such that
+		<ul>
+		<li>Date >= January 1, Year and
+		<li>Date <= December 31, Year and
+		<li>Average stage for Day >= Threshold and
+		<li>Average stage for yesterday < Threshold
+		</ul>
+
+	<li>End Wetting Event = Date such that
+		<ul>
+		<li>Date > Begin Wetting Event and
+		<li>Date <= December 31, Year and
+		<li>Averge stage for Day < Threshold
+		</ul>
+
+	<li>Wetting Event = Period of Days between
+		Begin Wetting Event and End Wetting Event
+	<li>Wetting Event Count = Number of Wetting Events in Year.
+	<li>Discontinous = Count( days above threshold for Year )
+	<li>Minimum = Number of days of the shortest Wetting Event.
+	<li>Averge = Discontinous / Wetting Event Count
+	<li>Maximum = Number of days of the longest Wetting Event.
+	</ul>
+</ul>
+</body>
+</HTML>

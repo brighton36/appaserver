@@ -1,0 +1,169 @@
+/* ---------------------------------------------------------------	*/
+/* src_appaserver/delete_folder_row.c					*/
+/* ---------------------------------------------------------------	*/
+/* 									*/
+/* Freely available software: see Appaserver.org			*/
+/* ---------------------------------------------------------------	*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "list.h"
+#include "timlib.h"
+#include "delete_database.h"
+#include "appaserver_library.h"
+#include "appaserver_error.h"
+#include "environ.h"
+#include "document.h"
+
+/* Prototypes */
+/* ---------- */
+void delete_where_data_carrot_list_string(
+				char *application_name,
+				char *login_name,
+				char *role_name,
+				char *folder_name,
+				char *where_data_carrot_list_string,
+				char *sql_executable,
+				boolean dont_delete_mto1_isa );
+
+int main( int argc, char **argv )
+{
+	char *application_name;
+	char *login_name;
+	char *role_name;
+	char *folder_name;
+	char *primary_attribute_data_list_string;
+	char primary_attribute_data_list_string_buffer[ 1024 ];
+	char *database_string = {0};
+	char *sql_executable;
+	boolean dont_delete_mto1_isa = 0;
+
+	if ( argc < 8 )
+	{
+		fprintf( stderr,
+"Usage: %s application ignored login_name folder role_name primary_attribute_data_list sql_executable [dont_delete_mto1_isa_yn]\n",
+			 argv[ 0 ] );
+		exit( 1 );
+	}
+
+	application_name = argv[ 1 ];
+	/* session = argv[ 2 ]; */
+	login_name = argv[ 3 ];
+	folder_name = argv[ 4 ];
+	role_name = argv[ 5 ];
+	primary_attribute_data_list_string = argv[ 6 ];
+
+ 	sql_executable = argv[ 7 ];
+
+	if ( timlib_strncmp( sql_executable, "html_paragraph_wrapper" ) == 0 )
+	{
+		document_output_content_type();
+	}
+
+	if ( argc == 9 ) dont_delete_mto1_isa = (*argv[ 8 ] == 'y');
+
+	if ( timlib_parse_database_string(	&database_string,
+						application_name ) )
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
+	}
+
+	appaserver_error_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
+	if ( strcmp( primary_attribute_data_list_string, "stdin" ) == 0 )
+	{
+		while( get_line(
+				primary_attribute_data_list_string_buffer,
+				stdin ) )
+		{
+			delete_where_data_carrot_list_string(
+				application_name,
+				login_name,
+				role_name,
+				folder_name,
+				primary_attribute_data_list_string_buffer,
+				sql_executable,
+				dont_delete_mto1_isa );
+		}
+	}
+	else
+	{
+		delete_where_data_carrot_list_string(
+				application_name,
+				login_name,
+				role_name,
+				folder_name,
+				primary_attribute_data_list_string,
+				sql_executable,
+				dont_delete_mto1_isa );
+	}
+
+	return 0;
+
+} /* main() */
+
+void delete_where_data_carrot_list_string(
+				char *application_name,
+				char *login_name,
+				char *role_name,
+				char *folder_name,
+				char *primary_attribute_data_list_string,
+				char *sql_executable,
+				boolean dont_delete_mto1_isa )
+{
+	DELETE_DATABASE *delete_database;
+
+	delete_database =
+		delete_database_new(
+			application_name,
+			login_name,
+			role_name,
+			dont_delete_mto1_isa,
+			folder_name,
+			list_string2list( primary_attribute_data_list_string,
+					  '^' /* delimiter */ ),
+			sql_executable );
+
+	delete_database->delete_folder_list =
+		delete_database_get_delete_folder_list(
+			application_name,
+			delete_database->folder,
+			delete_database->dont_delete_mto1_isa,
+			delete_database->primary_attribute_data_list,
+			delete_database->login_name );
+
+	if ( !list_length( delete_database->delete_folder_list ) )
+	{
+		fprintf( stderr,
+"Error in %s/%s()/%d: for folder = (%s), have empty delete_folder_list for primary_attribute_data_list = (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 delete_database->folder->folder_name,
+			 list_display(
+				delete_database->
+					primary_attribute_data_list ) );
+		exit( 1 );
+	}
+
+/*
+fprintf( stderr, "%s/%s()/%d: Delete database = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+delete_database_display( delete_database ) );
+*/
+
+	delete_database_execute_delete_folder_list(
+		delete_database->application_name,
+		delete_database->delete_folder_list,
+		delete_database->sql_executable );
+
+} /* delete_where_data_carrot_list_string() */
+

@@ -1,0 +1,1354 @@
+\documentclass[letterpaper,12pt]{article}
+%\usepackage{palatino}
+%\usepackage{graphicx}
+%\usepackage{amsmath}
+\usepackage[letterpaper,margin=1.5cm]{geometry}
+\setcounter{tocdepth}{1}
+
+% Needed for sout{}
+% -----------------
+%\usepackage[normalem]{ulem}
+
+\newcommand{\hspacer}{\hspace*{1cm}}
+\newcommand{\vspacer}{\\*[0.5mm]}
+\newcommand{\fraction}[1]{\textrm{\normalsize{#1}}}
+
+\title{Harvest Report Algorithm}
+\author{Tim Riley}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Overview}
+
+The essence of the algorithm to estimate the total kept is to:
+\begin{enumerate}
+\item Estimate the number of fishing vessels each day based upon the number of trailers
+counted each day.
+\item Estimate the number of species kept per fishing vessel each day
+	based upon the answers to the creel census taken the previous weekend.
+\item Multiply (1) $\times$ (2) for each species for each day.
+\item Add up all the estimated kept for each day.
+\end {enumerate}
+
+\section{Proof of Concept}
+
+\begin{enumerate}
+
+\item
+\begin{tabular}{l@{ }}
+	Estimated Areas 1-5 Vessels 
+		$ \frac {vessels} {1} $ = \\
+		\hspacer 32.24 $+$
+		1.58 $\times$ Florida Bay Trailer Count
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Boating Vessels = Fishing Vessels $+$ Pleasure Vessels
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Fishing/Boating Ratio 
+		$ \frac {vessels} {vessels} $ =
+		$
+\frac
+	{\fraction{Fishing Vessels}}
+      	{\fraction{Boating Vessels}}
+		$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Estimated Fishing Vessels 
+		$ \frac {vessels} {1} $ =
+		& Estimated Areas 1-5 Vessels
+			$ \frac {vessels} {1} $ $\times$ \\
+		& Fishing/Boating Ratio
+			$ \frac {vessels} {vessels} $
+\end{tabular}
+
+\subsection{Estimated Kept}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Average Kept Per Fishing Vessel
+		$ \frac {kept} {vessel} $ =
+		& $ \frac	{\fraction{Interview Species Kept}
+				 \frac {kept} {1}}
+				{\fraction{Interview Fishing Vessels}
+				 \frac {vessels} {1}} $
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Estimated Kept $ \frac {kept} {1} $ =
+		& Average Kept Per Fishing Vessel
+			$ \frac {kept} {vessel} $ $\times$ \\
+		& Estimated Fishing Vessels
+			$ \frac {vessel} {1} $
+\end{tabular}
+
+\subsection{Estimated Fishing Hours}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Interview Fishing Effort Hours $ \frac {anglerhours} {1} $ =
+		& Angler Count $ \frac {angler} {1} $ $\times$ \\
+		& Interview Fishing Hours $ \frac {hours} {1} $ \\
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Average Effort Hours Per Fishing Vessel
+		$ \frac {anglerhours} {vessel} $ =
+		& $ \frac	{\fraction{Interview Fishing Effort Hours}
+				 \frac {anglerhours} {1}}
+				{\fraction{Interview Fishing Vessels}
+				 \frac {vessels} {1}} $
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Estimated Fishing Hours $ \frac {anglerhours} {1} $ =
+		& Average Effort Hours Per Fishing Vessel
+			$ \frac {anglerhours} {vessel} $ $\times$ \\
+		& Estimated Fishing Vessels
+			$ \frac {vessel} {1} $
+\end{tabular}
+
+\end{enumerate}
+
+\section{Algorithm}
+
+This algorithm is reliable for dates beginning January 1, 2006\footnotemark[1].
+
+\begin{enumerate}
+
+\item
+\begin{tabular}{l@{ }l@{ }l}
+	(D) Total Trailer Count$_{day}$ =
+		& Florida Bay Trailer Count$_{day}$ (B) & $+$ \\
+		& Whitewater Bay Trailer Count$_{day}$ (C)
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }l}
+	(E) Estimated Areas 1-5 Vessels$_{day}$ = \\
+		\hspacer 32.24 $+$
+		1.58 $\times$ Florida Bay Trailer Count$_{day}$ (B) See footnote \footnotemark[2]
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }l}
+	(F) Estimated Area 6 Vessels$_{day}$ = \\
+		\hspacer 41.77 $+$
+		3.14 $\times$ Whitewater Bay Trailer Count$_{day}$ (C) See footnote \footnotemark[2]
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }l}
+	(G) Estimated Areas 1-6 Vessels$_{day}$ =
+		& Estimated Areas 1-5 Vessels$_{day}$ (E) & $+$ \\
+		& Estimated Area 6 Vessels$_{day}$ (F)
+\end{tabular}
+
+\item
+\textbf{If day is Saturday and performed a Flamingo census on Saturday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	(H) Proforma Interviews Flamingo Fishing$_{day}$ =
+		& Interviews Flamingo Fishing$_{saturday}$ \\
+
+	(I) Proforma Interviews Flamingo Boating$_{day}$ =
+		& Interviews Flamingo Fishing$_{saturday}$ $+$ \\
+		& Interviews Flamingo Pleasure$_{saturday}$ \\
+
+	Proforma Flamingo Fishing Hours$_{day}$ =
+		& Flamingo Fishing Hours$_{saturday}$ \\
+
+	Proforma Flamingo Angler Count$_{day}$ =
+		& Flamingo Angler Count$_{saturday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Saturday and performed an Everglades City census on Saturday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	Proforma Interviews Everglades City Fishing$_{day}$ =
+		& Interviews Everglades City Fishing$_{saturday}$ \\
+
+	Proforma Interviews Everglades City Boating$_{day}$ =
+		& Interviews Everglades City Fishing$_{saturday}$ $+$ \\
+		& Interviews Everglades City Pleasure$_{saturday}$ \\
+
+	Proforma Everglades City Fishing Hours$_{day}$ =
+		& Everglades City Fishing Hours$_{saturday}$ \\
+
+	Proforma Everglades City Angler Count$_{day}$ =
+		& Everglades City Angler Count$_{saturday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and performed a Flamingo census on Sunday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	(H) Proforma Interviews Flamingo Fishing$_{day}$ =
+		& Interviews Flamingo Fishing$_{sunday}$ \\
+
+	(I) Proforma Interviews Flamingo Boating$_{day}$ =
+		& Interviews Flamingo Fishing$_{sunday}$ $+$ \\
+		& Interviews Flamingo Pleasure$_{sunday}$ \\
+
+	Proforma Flamingo Fishing Hours$_{day}$ =
+		& Flamingo Fishing Hours$_{sunday}$ \\
+
+	Proforma Flamingo Angler Count$_{day}$ =
+		& Flamingo Angler Count$_{sunday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and performed an Everglades City census on Sunday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	Proforma Interviews Everglades City Fishing$_{day}$ =
+		& Interviews Everglades City Fishing$_{sunday}$ \\
+
+	Proforma Interviews Everglades City Boating$_{day}$ =
+		& Interviews Everglades City Fishing$_{sunday}$ $+$ \\
+		& Interviews Everglades City Pleasure$_{sunday}$ \\
+
+	Proforma Everglades City Fishing Hours$_{day}$ =
+		& Everglades City Fishing Hours$_{sunday}$ \\
+
+	Proforma Everglades City Angler Count$_{day}$ =
+		& Everglades City Angler Count$_{sunday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Saturday and missed the Flamingo census on Saturday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed a Flamingo census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer Interviews Flamingo Fishing$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Interviews Flamingo Boating$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Pleasure$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{sunday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Pleasure$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Flamingo Fishing Hours$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Flamingo Fishing Hours$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Flamingo Fishing Hours$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Flamingo Angler Count$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Flamingo Angler Count$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Flamingo Angler Count$_{sunday}$\ $_{i}$ \\
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	(H) Proforma Interviews Flamingo Fishing$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Flamingo Fishing}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+	(I) Proforma Interviews Flamingo Boating$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Flamingo Boating}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+	Proforma Flamingo Fishing Hours$_{day}$ =
+		& $
+\frac
+	{\fraction{Flamingo Fishing Hours}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+	Proforma Flamingo Angler Count$_{day}$ =
+		& $
+\frac
+	{\fraction{Flamingo Angler Count}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Saturday and missed the Everglades City census on Saturday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed an Everglades City census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer Interviews Everglades City Fishing$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Interviews Everglades City Boating$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Pleasure$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{sunday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Pleasure$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Everglades City Fishing Hours$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Everglades City Fishing Hours$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Everglades City Fishing Hours$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Everglades City Angler Count$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Everglades City Angler Count$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Everglades City Angler Count$_{sunday}$\ $_{i}$ \\
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	Proforma Interviews Everglades City Fishing$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Everglades City Fishing}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+	Proforma Interviews Everglades City Boating$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Everglades City Boating}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+	Proforma Everglades City Fishing Hours$_{day}$ =
+		& $
+\frac
+	{\fraction{Everglades City Fishing Hours}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+	Proforma Everglades City Angler Count$_{day}$ =
+		& $
+\frac
+	{\fraction{Everglades City Angler Count}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and missed the Flamingo census but not Saturday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	(H) Proforma Interviews Flamingo Fishing$_{day}$ =
+		& Interviews Flamingo Fishing$_{saturday}$ \\
+
+	(I) Proforma Interviews Flamingo Boating$_{day}$ =
+		& Interviews Flamingo Fishing$_{saturday}$ $+$ \\
+		& Interviews Flamingo Pleasure$_{saturday}$ \\
+
+	Proforma Flamingo Fishing Hours$_{day}$ =
+		& Flamingo Fishing Hours$_{saturday}$ \\
+
+	Proforma Flamingo Angler Count$_{day}$ =
+		& Flamingo Angler Count$_{saturday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and missed the Everglades City census but not Saturday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	Proforma Interviews Everglades City Fishing$_{day}$ =
+		& Interviews Everglades City Fishing$_{saturday}$ \\
+
+	Proforma Interviews Everglades City Boating$_{day}$ =
+		& Interviews Everglades City Fishing$_{saturday}$ $+$ \\
+		& Interviews Everglades City Pleasure$_{saturday}$ \\
+
+	Proforma Everglades City Fishing Hours$_{day}$ =
+		& Everglades City Fishing Hours$_{saturday}$ \\
+
+	Proforma Everglades City Angler Count$_{day}$ =
+		& Everglades City Angler Count$_{saturday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and missed the Flamingo census all weekend:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed a Flamingo census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer Interviews Flamingo Fishing$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Interviews Flamingo Boating$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Pleasure$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{sunday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Pleasure$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Flamingo Fishing Hours$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Flamingo Fishing Hours$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Flamingo Fishing Hours$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Flamingo Angler Count$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Flamingo Angler Count$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Flamingo Angler Count$_{sunday}$\ $_{i}$ \\
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	(H) Proforma Interviews Flamingo Fishing$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Flamingo Fishing}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	(I) Proforma Interviews Flamingo Boating$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Flamingo Boating}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Proforma Flamingo Fishing Hours$_{day}$ =
+		& $
+\frac
+	{\fraction{Flamingo Fishing Hours}_{weekend}}
+	{\fraction{2}}
+		$ \\
+
+	Proforma Flamingo Angler Count$_{day}$ =
+		& $
+\frac
+	{\fraction{Flamingo Angler Count}_{weekend}}
+	{\fraction{2}}
+		$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and missed the Everglades City census all weekend:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed an Everglades City census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer Interviews Everglades City Fishing$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Interviews Everglades City Boating$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Pleasure$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{sunday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Pleasure$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Everglades City Fishing Hours$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Everglades City Fishing Hours$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Everglades City Fishing Hours$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Everglades City Angler Count$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Everglades City Angler Count$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Everglades City Angler Count$_{sunday}$\ $_{i}$ \\
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	Proforma Interviews Everglades City Fishing$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Everglades City Fishing}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+	Proforma Interviews Everglades City Boating$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Everglades City Boating}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+	Proforma Everglades City Fishing Hours$_{day}$ =
+		& $
+\frac
+	{\fraction{Everglades City Fishing Hours}_{weekend}}
+	{\fraction{2}}
+		$ \\
+	Proforma Everglades City Angler Count$_{day}$ =
+		& $
+\frac
+	{\fraction{Everglades City Angler Count}_{weekend}}
+	{\fraction{2}}
+		$ \\
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed a Flamingo census on Saturday only:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	(H) Proforma Interviews Flamingo Fishing$_{day}$ =
+		& Interviews Flamingo Fishing$_{saturday}$ \\
+
+	(I) Proforma Interviews Flamingo Boating$_{day}$ =
+		& Interviews Flamingo Fishing$_{saturday}$ $+$ \\
+		& Interviews Flamingo Pleasure$_{saturday}$ \\
+
+	Proforma Flamingo Fishing Hours$_{day}$ =
+		& Flamingo Fishing Hours$_{saturday}$ \\
+
+	Proforma Flamingo Angler Count$_{day}$ =
+		& Flamingo Angler Count$_{saturday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed an Everglades City census on Saturday only:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	Proforma Interviews Everglades City Fishing$_{day}$ =
+		& Interviews Everglades City Fishing$_{saturday}$ \\
+
+	Proforma Interviews Everglades City Boating$_{day}$ =
+		& Interviews Everglades City Fishing$_{saturday}$ $+$ \\
+		& Interviews Everglades City Pleasure$_{saturday}$ \\
+
+	Proforma Everglades City Fishing Hours$_{day}$ =
+		& Everglades City Fishing Hours$_{saturday}$ \\
+
+	Proforma Everglades City Angler Count$_{day}$ =
+		& Everglades City Angler Count$_{saturday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed a Flamingo census on Sunday only:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	(H) Proforma Interviews Flamingo Fishing$_{day}$ =
+		& Interviews Flamingo Fishing$_{sunday}$ \\
+
+	(I) Proforma Interviews Flamingo Boating$_{day}$ =
+		& Interviews Flamingo Fishing$_{sunday}$ $+$ \\
+		& Interviews Flamingo Pleasure$_{sunday}$ \\
+
+	Proforma Flamingo Fishing Hours$_{day}$ =
+		& Flamingo Fishing Hours$_{sunday}$ \\
+
+	Proforma Flamingo Angler Count$_{day}$ =
+		& Flamingo Angler Count$_{sunday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed an Everglades City census on Sunday only:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	Proforma Interviews Everglades City Fishing$_{day}$ =
+		& Interviews Everglades City Fishing$_{sunday}$ \\
+
+	Proforma Interviews Everglades City Boating$_{day}$ =
+		& Interviews Everglades City Fishing$_{sunday}$ $+$ \\
+		& Interviews Everglades City Pleasure$_{sunday}$ \\
+
+	Proforma Everglades City Fishing Hours$_{day}$ =
+		& Everglades City Fishing Hours$_{sunday}$ \\
+
+	Proforma Everglades City Angler Count$_{day}$ =
+		& Everglades City Angler Count$_{sunday}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed a Flamingo census on both Saturday and Sunday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	Interviews Flamingo Fishing$_{weekend}$ =
+		& Interviews Flamingo Fishing$_{saturday}$ $+$ \\
+		& Interviews Flamingo Fishing$_{sunday}$ \\
+
+	Interviews Flamingo Boating$_{weekend}$ =
+		& Interviews Flamingo Fishing$_{saturday}$ $+$ \\
+		& Interviews Flamingo Pleasure$_{saturday}$ $+$ \\
+		& Interviews Flamingo Fishing$_{sunday}$ $+$ \\
+		& Interviews Flamingo Pleasure$_{sunday}$ \\
+
+	Flamingo Fishing Hours$_{weekend}$ =
+		& Flamingo Fishing Hours$_{saturday}$ $+$ \\
+		& Flamingo Fishing Hours$_{sunday}$ \\
+
+	Flamingo Angler Count$_{weekend}$ =
+		& Flamingo Angler Count$_{saturday}$ $+$ \\
+		& Flamingo Angler Count$_{sunday}$ \\
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	(H) Proforma Interviews Flamingo Fishing$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Flamingo Fishing}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	(I) Proforma Interviews Flamingo Boating$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Flamingo Boating}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Proforma Flamingo Fishing Hours$_{day}$ =
+		& $
+\frac
+	{\fraction{Flamingo Fishing Hours}_{weekend}}
+	{\fraction{2}}
+		$ \\
+
+	Proforma Flamingo Angler Count$_{day}$ =
+		& $
+\frac
+	{\fraction{Flamingo Angler Count}_{weekend}}
+	{\fraction{2}}
+		$ \\
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed an Everglades City census on both Saturday and Sunday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	Interviews Everglades City Fishing$_{weekend}$ =
+		& Interviews Everglades City Fishing$_{saturday}$ $+$ \\
+		& Interviews Everglades City Fishing$_{sunday}$ \\
+
+	Interviews Everglades City Boating$_{weekend}$ =
+		& Interviews Everglades City Fishing$_{saturday}$ $+$ \\
+		& Interviews Everglades City Pleasure$_{saturday}$ $+$ \\
+		& Interviews Everglades City Fishing$_{sunday}$ $+$ \\
+		& Interviews Everglades City Pleasure$_{sunday}$ \\
+
+	Everglades City Fishing Hours$_{weekend}$ =
+		& Everglades City Fishing Hours$_{saturday}$ $+$ \\
+		& Everglades City Fishing Hours$_{sunday}$ \\
+
+	Everglades City Angler Count$_{weekend}$ =
+		& Everglades City Angler Count$_{saturday}$ $+$ \\
+		& Everglades City Angler Count$_{sunday}$ \\
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	Proforma Interviews Everglades City Fishing$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Everglades City Fishing}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Proforma Interviews Everglades City Boating$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Everglades City Boating}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Proforma Everglades City Fishing Hours$_{day}$ =
+		& $
+\frac
+	{\fraction{Everglades City Fishing Hours}_{weekend}}
+	{\fraction{2}}
+		$ \\
+
+	Proforma Everglades City Angler Count$_{day}$ =
+		& $
+\frac
+	{\fraction{Everglades City Angler Count}_{weekend}}
+	{\fraction{2}}
+		$ \\
+\end{tabular}
+
+\item
+\textbf{If day is weekday and missed the Flamingo census all weekend:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed a Flamingo census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer	Interviews Flamingo Fishing$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer	Interviews Flamingo Boating$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Pleasure$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Fishing$_{sunday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Flamingo Pleasure$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Flamingo Fishing Hours$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Flamingo Fishing Hours$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Flamingo Fishing Hours$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Flamingo Angler Count$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Flamingo Angler Count$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Flamingo Angler Count$_{sunday}$\ $_{i}$ \\
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	(H) Proforma Interviews Flamingo Fishing$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Flamingo Fishing}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	(I) Proforma Interviews Flamingo Boating$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Flamingo Boating}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Proforma Flamingo Fishing Hours$_{day}$ =
+		& $
+\frac
+	{\fraction{Flamingo Fishing Hours}_{weekend}}
+	{\fraction{2}}
+		$ \\
+
+	Proforma Flamingo Angler Count$_{day}$ =
+		& $
+\frac
+	{\fraction{Flamingo Angler Count}_{weekend}}
+	{\fraction{2}}
+		$ \\
+\end{tabular}
+
+\item
+\textbf{If day is weekday and missed the Everglades City census all weekend:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed an Everglades City census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer	Interviews Everglades City Fishing$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer	Interviews Everglades City Boating$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Pleasure$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Fishing$_{sunday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Interviews Everglades City Pleasure$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Everglades City Fishing Hours$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Everglades City Fishing Hours$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Everglades City Fishing Hours$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer Everglades City Angler Count$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Everglades City Angler Count$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Everglades City Angler Count$_{sunday}$\ $_{i}$ \\
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	Proforma Interviews Everglades City Fishing$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Everglades City Fishing}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Proforma Interviews Everglades City Boating$_{day}$ =
+		& $
+\frac
+	{\fraction{Interviews Everglades City Boating}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Proforma Everglades City Fishing Hours$_{day}$ =
+		& $
+\frac
+	{\fraction{Everglades City Fishing Hours}_{weekend}}
+	{\fraction{2}}
+		$ \\
+
+	Proforma Everglades City Angler Count$_{day}$ =
+		& $
+\frac
+	{\fraction{Everglades City Angler Count}_{weekend}}
+	{\fraction{2}}
+		$ \\
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }l}
+	(J) Proforma Interviews Park Fishing$_{day}$ =
+		& Proforma Interviews Flamingo Fishing$_{day}$ (H) $+$ \\
+		& Proforma Interviews Everglades City Fishing$_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }l}
+	(K) Proforma Interviews Park Boating$_{day}$ =
+		& Proforma Interviews Flamingo Boating$_{day}$ (I) $+$ \\
+		& Proforma Interviews Everglades City Boating$_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Flamingo Fishing/Boating Ratio$_{day}$ =
+		$
+\frac
+	{\fraction{Proforma Interviews Flamingo Fishing}_{day} \fraction{(H)}}
+      	{\fraction{Proforma Interviews Flamingo Boating}_{day} \fraction{(I)}}
+		$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Flamingo Fishing Effort Hours$_{day}$ =
+		& Flamingo Angler Count$_{day}$ $\times$ \\
+		& Proforma Flamingo Fishing Hours$_{day}$ \\
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Flamingo Average Effort Hours Per Fishing Vessel$_{day}$ = \\
+\hspacer	$
+\frac
+	{\fraction{Flamingo Fishing Effort Hours}_{day}}
+	{\fraction{Proforma Interviews Flamingo Fishing}_{day} \fraction{(H)}}
+		$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Everglades City Fishing Effort Hours$_{day}$ =
+		& Everglades City Angler Count$_{day}$ $\times$ \\
+		& Proforma Everglades City Fishing Hours$_{day}$ \\
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Everglades City Average Effort Hours Per Fishing Vessel$_{day}$ = \\
+\hspacer	$
+\frac
+	{\fraction{Everglades City Effort Fishing Hours}_{day}}
+	{\fraction{Proforma Interviews Everglades City Fishing}_{day}}
+		$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Estimated Flamingo Fishing Vessels$_{day}$ = 
+	& Estimated Areas 1-5 Vessels $\times$ \\
+	& Flamingo Fishing/Boating Ratio$_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Everglades City Fishing/Boating Ratio$_{day}$ =
+		$
+\frac
+	{\fraction{Proforma Interviews Everglades City Fishing}_{day}}
+      	{\fraction{Proforma Interviews Everglades City Boating}_{day}}
+		$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Estimated Everglades City Fishing Vessels$_{day}$ = 
+	& Estimated Area 6 Vessels $\times$ \\
+	& Everglades City Fishing/Boating Ratio$_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	(L) Estimated Park Fishing Vessels$_{day}$ =
+	& Estimated Flamingo Fishing Vessels$_{day}$ $+$ \\
+	& Estimated Everglades City Fishing Vessels$_{day}$ \\
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+Estimated Flamingo Effort Hours$_{day}$ = \\
+\hspacer Flamingo Average Effort Hours Per Fishing Vessel$_{day}$ $\times$ \\
+\hspacer Estimated Flamingo Fishing Vessels$_{day}$ \\
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+Estimated Everglades City Effort Hours$_{day}$ = \\
+\hspacer Everglades City Average Effort Hours Per Fishing Vessel$_{day}$
+		$\times$ \\
+\hspacer Estimated Everglades City Fishing Vessels$_{day}$ \\
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Estimated Park Effort Hours$_{day}$ =
+	& Estimated Flamingo Effort Hours$_{day}$ $+$ \\
+	& Estimated Everglades City Effort Hours$_{day}$ \\
+\end{tabular}
+
+\item
+\textbf{If day is Saturday and performed a Flamingo census on Saturday:} \\
+\begin{tabular}{l@{ }}
+	(M) Areas 1-5 Sample Kept$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Kept$_{species}$ $_{saturday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	(N) Areas 1-5 Sample Released$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Released$_{species}$ $_{saturday}$
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and performed a Flamingo census on Sunday:} \\
+\begin{tabular}{l@{ }}
+	(M) Areas 1-5 Sample Kept$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Kept$_{species}$ $_{sunday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	(N) Areas 1-5 Sample Released$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Released$_{species}$ $_{sunday}$
+\end{tabular}
+
+\item
+\textbf{If day is Saturday and missed the Flamingo census on Saturday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed a Flamingo census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer	Areas 1-5 Sample Kept$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Kept$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Kept$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer	Areas 1-5 Sample Released$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Released$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Released$_{sunday}$\ $_{i}$ $+$
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	(M) Areas 1-5 Sample Kept$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Areas 1-5 Sample Kept}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	(N) Areas 1-5 Sample Released$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Areas 1-5 Sample Released}_{weekend}}
+      	{\fraction{2}}
+		$
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and missed the Flamingo census but not Saturday:} \\
+\begin{tabular}{l@{ }}
+	(M) Areas 1-5 Sample Kept$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Kept$_{species}$ $_{saturday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	(N) Areas 1-5 Sample Released$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Released$_{species}$ $_{saturday}$
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and missed the Flamingo census all weekend:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed a Flamingo census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer	Areas 1-5 Sample Kept$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Kept$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Kept$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer	Areas 1-5 Sample Released$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Released$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Released$_{sunday}$\ $_{i}$ $+$
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	(M) Areas 1-5 Sample Kept$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Areas 1-5 Sample Kept}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	(N) Areas 1-5 Sample Released$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Areas 1-5 Sample Released}_{weekend}}
+      	{\fraction{2}}
+		$
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed a Flamingo census on Saturday only:} \\
+\begin{tabular}{l@{ }}
+	(M) Areas 1-5 Sample Kept$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Kept$_{species}$ $_{saturday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	(N) Areas 1-5 Sample Released$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Released$_{species}$ $_{saturday}$
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed an Flamingo census on Sunday only:} \\
+\begin{tabular}{l@{ }}
+	(M) Areas 1-5 Sample Kept$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Kept$_{species}$ $_{sunday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	(N) Areas 1-5 Sample Released$_{species}$ $_{day}$ =
+		Areas 1-5 Sample Released$_{species}$ $_{sunday}$
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed a Flamingo census on both Saturday and Sunday:} \\
+\begin{tabular}{l@{ }l@{ }}
+	Areas 1-5 Sample Kept$_{weekend}$ =
+	&  Areas 1-5 Sample Kept$_{saturday}$\ $_{i}$ $+$ \\
+	& Areas 1-5 Sample Kept$_{sunday}$\ $_{i}$ \\
+
+	Areas 1-5 Sample Released$_{weekend}$ =
+	& Areas 1-5 Sample Released$_{saturday}$\ $_{i}$ $+$ \\
+	& Areas 1-5 Sample Released$_{sunday}$\ $_{i}$ $+$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	(M) Areas 1-5 Sample Kept$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Areas 1-5 Sample Kept}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	(N) Areas 1-5 Sample Released$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Areas 1-5 Sample Released}_{weekend}}
+      	{\fraction{2}}
+		$
+\end{tabular}
+
+\item
+\textbf{If day is weekday and missed the Flamingo census on Saturday and Sunday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed a Flamingo census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer	Areas 1-5 Sample Kept$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Kept$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Kept$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer	Areas 1-5 Sample Released$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Released$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Areas 1-5 Sample Released$_{sunday}$\ $_{i}$ $+$
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	(M) Areas 1-5 Sample Kept$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Areas 1-5 Sample Kept}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	(N) Areas 1-5 Sample Released$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Areas 1-5 Sample Released}_{weekend}}
+      	{\fraction{2}}
+		$
+\end{tabular}
+
+\item
+\textbf{If day is Saturday and performed an Everglades City census on Saturday:} \\
+\begin{tabular}{l@{ }}
+	Area 6 Sample Kept$_{species}$ $_{day}$ =
+		Area 6 Sample Kept$_{species}$ $_{saturday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	Areas 6 Sample Released$_{species}$ $_{day}$ =
+		Area 6 Sample Released$_{species}$ $_{saturday}$
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and performed an Everglades City census on Sunday:} \\
+\begin{tabular}{l@{ }}
+	Area 6 Sample Kept$_{species}$ $_{day}$ =
+		Area 6 Sample Kept$_{species}$ $_{sunday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	Areas 6 Sample Released$_{species}$ $_{day}$ =
+		Area 6 Sample Released$_{species}$ $_{sunday}$
+\end{tabular}
+
+\item
+\textbf{If day is Saturday and missed the Everglades City census on Saturday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed an Everglades City census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer	Area 6 Sample Kept$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Area 6 Sample Kept$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Area 6 Sample Kept$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer	Area 6 Sample Released$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Area 6 Sample Released$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Area 6 Sample Released$_{sunday}$\ $_{i}$ $+$
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	Area 6 Sample Kept$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Area 6 Sample Kept}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Area 6 Sample Released$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Area 6 Sample Released}_{weekend}}
+      	{\fraction{2}}
+		$
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and missed the Everglades City census but not Saturday:} \\
+\begin{tabular}{l@{ }}
+	Area 6 Sample Kept$_{species}$ $_{day}$ =
+		Area 6 Sample Kept$_{species}$ $_{saturday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	Areas 6 Sample Released$_{species}$ $_{day}$ =
+		Area 6 Sample Released$_{species}$ $_{saturday}$
+\end{tabular}
+
+\item
+\textbf{If day is Sunday and missed the Everglades City census all weekend:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed an Everglades City census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer	Area 6 Sample Kept$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Area 6 Sample Kept$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Area 6 Sample Kept$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer	Area 6 Sample Released$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Area 6 Sample Released$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Area 6 Sample Released$_{sunday}$\ $_{i}$ $+$
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed an Everglades City census on Saturday only:} \\
+\begin{tabular}{l@{ }}
+	Area 6 Sample Kept$_{species}$ $_{day}$ =
+		Area 6 Sample Kept$_{species}$ $_{saturday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	Areas 6 Sample Released$_{species}$ $_{day}$ =
+		Area 6 Sample Released$_{species}$ $_{saturday}$
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed an Everglades City census on Sunday only:} \\
+\begin{tabular}{l@{ }}
+	Area 6 Sample Kept$_{species}$ $_{day}$ =
+		Area 6 Sample Kept$_{species}$ $_{sunday}$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	Areas 6 Sample Released$_{species}$ $_{day}$ =
+		Area 6 Sample Released$_{species}$ $_{sunday}$
+\end{tabular}
+
+\item
+\textbf{If day is weekday and performed an Everglades City census on both Saturday and Sunday:} \\
+\begin{tabular}{l@{ }l@{ }}
+	Area 6 Sample Kept$_{weekend}$ =
+	& Area 6 Sample Kept$_{saturday}$\ $_{i}$ $+$ \\
+	& Area 6 Sample Kept$_{sunday}$\ $_{i}$ \\
+
+	Area 6 Sample Released$_{weekend}$ =
+	& Area 6 Sample Released$_{saturday}$\ $_{i}$ $+$ \\
+	& Area 6 Sample Released$_{sunday}$\ $_{i}$ $+$
+\end{tabular}
+
+\begin{tabular}{l@{ }}
+	Area 6 Sample Kept$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Area 6 Sample Kept}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Area 6 Sample Released$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Area 6 Sample Released}_{weekend}}
+      	{\fraction{2}}
+		$
+\end{tabular}
+
+\item
+\textbf{If day is weekday and missed the Everglades City census on Saturday and Sunday:} \\
+\begin{tabular}{l@{ }l@{ }l}
+	For each preceeding weekend i: \\
+\hspacer If performed an Everglades City census on both i$_{saturday}$ and i$_{sunday}$: \\
+\hspacer \hspacer	Area 6 Sample Kept$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Area 6 Sample Kept$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Area 6 Sample Kept$_{sunday}$\ $_{i}$ \\
+
+\hspacer \hspacer	Area 6 Sample Released$_{weekend}$ = \\
+\hspacer \hspacer \hspacer Area 6 Sample Released$_{saturday}$\ $_{i}$ $+$ \\
+\hspacer \hspacer \hspacer Area 6 Sample Released$_{sunday}$\ $_{i}$ $+$
+\end{tabular}
+
+\begin{tabular}{l@{ }l@{ }l}
+	Area 6 Sample Kept$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Area 6 Sample Kept}_{weekend}}
+      	{\fraction{2}}
+		$ \\
+
+	Area 6 Sample Released$_{species}$ $_{day}$ =
+		$
+\frac
+	{\fraction{Area 6 Sample Released}_{weekend}}
+      	{\fraction{2}}
+		$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	(O) Areas 1-5 Sample Caught$_{species}$ $_{day}$ =
+		& Areas 1-5 Sample Kept$_{species}$ $_{day}$ (M) $+$ \\
+		& Areas 1-5 Sample Released$_{species}$ $_{day}$ (N)
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	Area 6 Sample Caught$_{species}$ $_{day}$ =
+		& Area 6 Sample Kept$_{species}$ $_{day}$ $+$ \\
+		& Area 6 Sample Released$_{species}$ $_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	(P) Areas 1-6 Sample Kept$_{species}$ $_{day}$ =
+		& Areas 1-5 Sample Kept$_{species}$ $_{day}$ (M) $+$ \\
+		& Area 6 Sample Kept$_{species}$ $_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	(Q) Areas 1-6 Sample Released$_{species}$ $_{day}$ =
+		& Areas 1-5 Sample Released$_{species}$ $_{day}$ (N) $+$ \\
+		& Area 6 Sample Released$_{species}$ $_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	(R) Areas 1-6 Sample Caught$_{species}$ $_{day}$ =
+		& Areas 1-6 Sample Kept$_{species}$ $_{day}$ (P) $+$ \\
+		& Areas 1-6 Sample Released$_{species}$ $_{day}$ (Q)
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Average Kept Per Flamingo Fishing Vessel$_{species}$ $_{day}$ = \\
+	\hspacer
+	$
+	\frac
+	{\fraction{Areas 1-5 Sample Kept}\ _{species}\ _{day} \fraction{(M})}
+	{\fraction{Proforma Interviews Flamingo Fishing} _{day}
+		\fraction{(H)}}
+	$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Average Released Per Flamingo Fishing Vessel$_{species}$ $_{day}$ = \\
+	\hspacer
+	$
+	\frac
+	{\fraction{Areas 1-5 Sample Released}\ _{species}\ _{day} \fraction{(N)}}
+	{\fraction{Proforma Interviews Flamingo Fishing} _{day}
+		\fraction{(H)}}
+	$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	(S) Areas 1-5 Estimated Kept$_{species}$ $_{day}$ = \\
+	 \hspacer Average Kept Per Flamingo Fishing Vessel$_{species}$ $_{day}$ $\times$ \\
+	 \hspacer Estimated Flamingo Fishing Vessels$_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }l@{ }}
+	(T) Areas 1-5 Estimated Released$_{species}$ $_{day}$ = \\
+	  \hspacer Average Released Per Flamingo Fishing Vessel$_{species}$ $_{day}$ $\times$ \\
+	  \hspacer Estimated Flamingo Fishing Vessels$_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	(U) Areas 1-5 Estimated Caught$_{species}$ $_{day}$ = \\
+		\hspacer Areas 1-5 Estimated Kept$_{species}$ $_{day}$ (S) $+$ \\
+		\hspacer Areas 1-5 Estimated Released$_{species}$ $_{day}$ (T)
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Average Kept Per Everglades City Fishing Vessel$_{species}$ $_{day}$ = \\
+		\hspacer 
+		$
+		\frac
+		{\fraction{Area 6 Sample Kept}\ _{species}\ _{day}}
+		{\fraction{Proforma Interviews Everglades City Fishing} _{day}}
+		$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Average Released Per Everglades City Fishing Vessel$_{species}$ $_{day}$ = \\
+		\hspacer 
+		$
+		\frac
+		{\fraction{Area 6 Sample Released}\ _{species}\ _{day}}
+		{\fraction{Proforma Interviews Everglades City Fishing} _{day}}
+		$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Area 6 Estimated Kept$_{species}$ $_{day}$ = \\
+	 \hspacer Average Kept Per Everglades City Fishing Vessel$_{species}$ $_{day}$ $\times$ \\
+	 \hspacer Estimated Everglades City Fishing Vessels$_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Area 6 Estimated Released$_{species}$ $_{day}$ = \\
+	 \hspacer Average Released Per Everglades City Fishing Vessel$_{species}$ $_{day}$ $\times$ \\
+	 \hspacer Estimated Everglades City Fishing Vessels$_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	Area 6 Estimated Caught$_{species}$ $_{day}$ = \\
+		\hspacer Area 6 Estimated Kept$_{species}$ $_{day}$ $+$ \\
+		\hspacer Area 6 Estimated Released$_{species}$ $_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	(V) Areas 1-6 Estimated Kept$_{species}$ $_{day}$ = \\
+		\hspacer Areas 1-5 Estimated Kept$_{species}$ $_{day}$ (S)$+$ \\
+		\hspacer Area 6 Estimated Kept$_{species}$ $_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	(W) Areas 1-6 Estimated Released$_{species}$ $_{day}$ = \\
+		\hspacer Areas 1-5 Estimated Released$_{species}$ $_{day}$ (T)$+$ \\
+		\hspacer Area 6 Estimated Released$_{species}$ $_{day}$
+\end{tabular}
+
+\item
+\begin{tabular}{l@{ }}
+	(X) Areas 1-6 Estimated Caught$_{species}$ $_{day}$ = \\
+		\hspacer Areas 1-6 Estimated Kept$_{species}$ $_{day}$ (V)$+$ \\
+		\hspacer Areas 1-6 Estimated Released$_{species}$ $_{day}$ (W)
+\end{tabular}
+
+\end{enumerate}
+
+\footnotetext[1]{Prior to the 2006-2007 aerial study by Ault, aerial studies
+didn't separate vessel counts of the backwater anglers from vessel counts
+in Florida Bay. The harvest specification method requires that
+computations be made separately for the Everglades City and
+Florida Bay regions.}
+
+\footnotetext[2]{See the output process called
+"Calculate Trailer Vessel Regression."}
+
+\end{document}

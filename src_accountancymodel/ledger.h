@@ -1,0 +1,709 @@
+/* -------------------------------------------------------------------- */
+/* src_accountancymodel/ledger.h					*/
+/* -------------------------------------------------------------------- */
+/* This is the appaserver ledger ADT.					*/
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------------- */
+
+#ifndef LEDGER_H
+#define LEDGER_H
+
+#include "list.h"
+#include "boolean.h"
+#include "html_table.h"
+#include "latex.h"
+#include "hash_table.h"
+
+/* Constants */
+/* --------- */
+#define LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS	\
+					"change_in_net_assets"
+
+#define LEDGER_ACCOUNT_NET_INCOME		\
+					"net_income"
+#define LEDGER_SUBCLASSIFICATION_NET_ASSETS	\
+					"net_assets"
+
+#define CLOSING_ENTRY_MEMO		"Closing entry"
+#define LEDGER_FOLDER_NAME		"journal_ledger"
+#define TRANSACTION_FOLDER_NAME		"transaction"
+#define ACCOUNT_FOLDER_NAME		"account"
+#define SUBCLASSIFICATION_FOLDER_NAME	"subclassification"
+#define ELEMENT_FOLDER_NAME		"element"
+#define REOCCURRING_TRANSACTION_FOLDER_NAME \
+					"reoccurring_transaction"
+#define LEDGER_ASSET_ELEMENT		"asset"
+#define LEDGER_LIABILITY_ELEMENT	"liability"
+#define LEDGER_EQUITY_ELEMENT		"equity"
+#define LEDGER_REVENUE_ELEMENT		"revenue"
+#define LEDGER_EXPENSE_ELEMENT		"expense"
+#define LEDGER_GAIN_ELEMENT		"gain"
+#define LEDGER_LOSS_ELEMENT		"loss"
+#define LEDGER_RETAINED_EARNINGS	"retained_earnings"
+
+#define LEDGER_CLOSING_TRANSACTION_TIME	"23:59:59"
+
+#define LEDGER_GENERAL_FUND		"general_fund"
+#define LEDGER_CASH_KEY			"cash_key"
+
+/* Structures */
+/* ---------- */
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *transaction_date_time;
+	char *account_name;
+	int transaction_count;
+	int database_transaction_count;
+	double previous_balance;
+	double database_previous_balance;
+	double debit_amount;
+	double credit_amount;
+	double balance;
+	double database_balance;
+	char *memo;
+} JOURNAL_LEDGER;
+
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *debit_account;
+	char *credit_account;
+	double transaction_amount;
+} REOCCURRING_TRANSACTION;
+
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *transaction_date_time;
+	double transaction_amount;
+	double database_transaction_amount;
+	char *memo;
+	LIST *journal_ledger_list;
+} TRANSACTION;
+
+typedef struct
+{
+	char *account_name;
+	char *fund_name;
+	char *subclassification_name;
+	int display_order;
+	char *hard_coded_account_key;
+	JOURNAL_LEDGER *latest_ledger;
+	LIST *journal_ledger_list;
+	boolean accumulate_debit;
+} ACCOUNT;
+
+typedef struct
+{
+	char *subclassification_name;
+	LIST *account_list;
+} SUBCLASSIFICATION;
+
+typedef struct
+{
+	char *element_name;
+	boolean accumulate_debit;
+	LIST *subclassification_list;
+} ELEMENT;
+
+typedef struct
+{
+	char *account_name;
+	char *contra_to_account_name;
+} CONTRA_ACCOUNT;
+
+typedef struct
+{
+	LIST *element_list;
+	LIST *contra_account_list;
+} LEDGER;
+
+/* Operations */
+/* ---------- */
+LEDGER *ledger_new(			void );
+
+LIST *ledger_get_contra_account_list(	char *application_name );
+
+CONTRA_ACCOUNT *ledger_contra_account_new(
+					char *account_name,
+					char *contra_to_account_name );
+
+JOURNAL_LEDGER *ledger_journal_ledger_calloc(
+					void );
+
+JOURNAL_LEDGER *journal_ledger_new(	char *full_name,
+					char *street_address,
+					char *transaction_date,
+					char *account_name );
+
+ACCOUNT *ledger_account_fetch(		char *application_name,
+					char *account_name );
+
+ACCOUNT *ledger_account_new(		char *account_name );
+
+SUBCLASSIFICATION *ledger_new_subclassification(
+					char *subclassification_name );
+
+ELEMENT *ledger_new_element(		char *element_name );
+
+ELEMENT *ledger_element_new(		char *element_name );
+
+ELEMENT *ledger_account_fetch_element(	char *application_name,
+					char *account_name );
+
+LIST *ledger_subclassification_get_account_list(
+					char *application_name,
+					char *subclassification_name,
+					char *fund_name,
+					char *as_of_date );
+
+LIST *ledger_element_get_subclassification_list(
+					char *application_name,
+					char *element_name,
+					char *fund_name,
+					char *as_of_date );
+
+LIST *ledger_get_element_list(		char *application_name,
+					LIST *filter_element_name_list,
+					char *fund_name,
+					char *as_of_date );
+
+JOURNAL_LEDGER *ledger_get_prior_ledger(char *application_name,
+					char *transaction_date_time,
+					char *account_name );
+
+void ledger_load(			int *transaction_count,
+					double *previous_balance,
+					double *debit_amount,
+					double *credit_amount,
+					double *balance,
+					char **memo,
+					char *transaction_date_time,
+					char *account_name,
+					char *application_name );
+
+boolean ledger_account_get_accumulate_debit(
+					char *application_name,
+					char *account_name );
+
+boolean ledger_element_get_accumulate_debit(
+					char *application_name,
+					char *element_name );
+
+void ledger_list_set_balances(		LIST *ledger_list,
+					boolean accumulate_debit );
+
+void ledger_journal_ledger_list_balance_update(
+					LIST *journal_ledger_list,
+					char *application_name );
+
+LIST *ledger_subclassification_quickly_get_account_list(
+					char *application_name,
+					char *subclassification_name );
+
+JOURNAL_LEDGER *ledger_get_latest_ledger(
+					char *application_name,
+					char *account_name,
+					char *as_of_date );
+
+double ledger_get_element_value(	LIST *subclassification_list,
+					boolean element_accumulate_debit );
+
+double ledger_output_subclassification_html_element(
+					HTML_TABLE *html_table,
+					LIST *subclassification_list,
+					char *element_name,
+					boolean element_accumulate_debit );
+
+double ledger_output_html_element(	HTML_TABLE *html_table,
+					LIST *subclassification_list,
+					char *element_name,
+					boolean element_accumulate_debit );
+
+double ledger_get_net_income(		double total_revenues,
+					double total_expenses,
+					double total_gains,
+					double total_losses );
+
+void ledger_output_subclassification_net_income(
+					HTML_TABLE *html_table,
+					double net_income,
+					boolean is_statement_of_activities );
+
+void ledger_output_net_income(		HTML_TABLE *html_table,
+					double net_income,
+					boolean is_statement_of_activities );
+
+ELEMENT *ledger_element_seek(		LIST *element_list,
+					char *element_name );
+
+ELEMENT *ledger_element_list_seek(	LIST *element_list,
+					char *element_name );
+
+char *ledger_transaction_display(	TRANSACTION *transaction );
+
+char *ledger_list_display(		LIST *ledger_list );
+
+char *ledger_propagate_account_list_display(
+					LIST *propagate_account_list );
+
+TRANSACTION *ledger_transaction_new(	char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *memo );
+
+TRANSACTION *ledger_transaction_fetch(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time );
+
+TRANSACTION *ledger_transaction_with_load_new(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time );
+
+boolean ledger_transaction_load(	double *transaction_amount,
+					double *database_transaction_amount,
+					char **memo,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time );
+
+void ledger_transaction_insert(		char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					double transaction_amount,
+					char *memo,
+					int check_number );
+
+void ledger_transaction_amount_update(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					double transaction_amount,
+					double database_transaction_amount );
+
+void ledger_entity_update(		char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *preupdate_full_name,
+					char *preupdate_street_address );
+
+void ledger_transaction_generic_update(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *attribute_name,
+					char *data );
+
+void ledger_journal_generic_update(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *attribute_name,
+					char *data );
+
+void ledger_transaction_memo_update(	char *application_name,
+					TRANSACTION *transction );
+
+LIST *ledger_get_journal_ledger_list(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *account_name );
+
+double ledger_inventory_purchase_get_sum_extension(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *purchase_date_time );
+
+void ledger_get_purchase_order_account_names(
+				char **inventory_account,
+				char **sales_tax_expense_account,
+				char **freight_in_expense_account,
+				char **account_payable_account,
+				char **cash_account,
+				char **uncleared_checks_account,
+				char *application_name,
+				char *fund_name );
+
+void ledger_get_customer_sale_account_names(
+				char **sales_revenue_account,
+				char **service_revenue_account,
+				char **sales_tax_payable_account,
+				char **shipping_revenue_account,
+				char **inventory_account,
+				char **cost_of_goods_sold_account,
+				char **account_receivable_account,
+				char *application_name,
+				char *fund_name );
+
+char *ledger_get_supply_expense_key_account(
+				char *application_name,
+				char *fund_name );
+
+void ledger_insert_purchase_order_journal_ledger(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *purchase_date_time,
+					double sum_inventory_extension,
+					double sum_supply_extension,
+					double sum_service_extension,
+					double sum_fixed_asset_extension,
+					double sales_tax,
+					double freight_in,
+					double purchase_amount );
+
+void ledger_insert_customer_sale_journal_ledger(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *completed_date_time,
+					double sum_inventory_extension,
+					double sum_service_extension,
+					double sum_cost_of_goods_sold,
+					double sales_tax,
+					double invoice_amount );
+
+void ledger_journal_ledger_insert(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *account_name,
+					double amount,
+					boolean is_debit );
+
+char *ledger_get_transaction_where(	char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *folder_name,
+					char *date_time_column );
+
+void ledger_get_customer_payment_account_names(
+					char **checking_account,
+					char **account_receivable_account,
+					char *application_name,
+					char *fund_name );
+
+void ledger_get_vendor_payment_account_names(
+					char **checking_account,
+					char **uncleared_checks_account,
+					char **account_payable_account,
+					char *application_name,
+					char *fund_name );
+
+void ledger_insert_customer_payment_journal_ledger(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *payment_date_time,
+					double payment_amount );
+
+LIST *ledger_get_propagate_journal_ledger_list(
+					char *application_name,
+					JOURNAL_LEDGER *prior_ledger,
+					char *account_name );
+
+void ledger_delete(			char *application_name,
+					char *folder_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time );
+
+void ledger_journal_delete(		char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *account_name );
+
+void ledger_propagate_accounts(		LIST *propagate_account_list,
+					char *application_name );
+
+void ledger_account_list_balance_update(LIST *propagate_account_list,
+					char *application_name );
+
+boolean ledger_transaction_exists(	char *application_name,
+					char *transaction_date_time );
+
+void ledger_propagate(			char *application_name,
+					char *transaction_date_time,
+					char *account_name );
+
+LIST *ledger_get_transaction_list(	char *application_name );
+
+REOCCURRING_TRANSACTION *ledger_reoccurring_transaction_new(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					double transaction_amount );
+
+boolean ledger_reoccurring_transaction_load(
+					char **debit_account,
+					char **credit_account,
+					double *transaction_amount,
+					char *application_name,
+					char *full_name,
+					char *street_address );
+
+LIST *ledger_transaction_date_time_account_name_list(
+					char *application_name,
+					char *transaction_date_time );
+
+TRANSACTION *ledger_transaction_calloc(	void );
+
+double ledger_get_account_debit_amount(	LIST *journal_ledger_list,
+					char *account_name );
+
+double ledger_get_account_credit_amount(LIST *journal_ledger_list,
+					char *account_name );
+
+void ledger_journal_ledger_update(	FILE *update_pipe,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *account_name,
+					double debit_amount,
+					double credit_amount );
+
+JOURNAL_LEDGER *ledger_journal_ledger_seek(
+					LIST *journal_ledger_list,
+					char *account_name );
+
+FILE *ledger_open_update_pipe(		char *application_name );
+
+char *ledger_transaction_get_select(	void );
+
+char *ledger_get_transaction_purchase_order_join_where(
+					void );
+
+char *ledger_get_transaction_customer_sale_join_where(
+					void );
+
+char *ledger_get_journal_ledger_purchase_order_join_where(
+					void );
+
+char *ledger_get_journal_ledger_customer_sale_join_where(
+					void );
+
+char *ledger_get_transaction_hash_table_key(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time );
+
+void ledger_transaction_parse(
+				char **full_name,
+				char **street_address,
+				char **transaction_date_time,
+				char **memo,
+				char *input_buffer );
+
+HASH_TABLE *ledger_get_transaction_hash_table(
+				char *application_name,
+				char *inventory_name );
+
+void ledger_set_transaction_hash_table(
+				HASH_TABLE *transaction_hash_table,
+				char *input_buffer );
+
+void ledger_set_journal_ledger_hash_table(
+				HASH_TABLE *journal_ledger_hash_table,
+				char *input_buffer );
+
+char *ledger_journal_ledger_get_select(	void );
+
+char *ledger_get_journal_ledger_hash_table_key(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *account_name );
+
+void ledger_journal_ledger_parse(
+				char **full_name,
+				char **street_address,
+				char **transaction_date_time,
+				char **account_name,
+				int *transaction_count,
+				int *database_transaction_count,
+				double *previous_balance,
+				double *database_previous_balance,
+				double *debit_amount,
+				double *credit_amount,
+				double *balance,
+				double *database_balance,
+				char *input_buffer );
+
+HASH_TABLE *ledger_get_journal_ledger_hash_table(
+				char *application_name,
+				char *inventory_name );
+
+TRANSACTION *ledger_purchase_transaction_fetch(
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				HASH_TABLE *transaction_hash_table,
+				HASH_TABLE *journal_ledger_hash_table );
+
+TRANSACTION *ledger_sale_transaction_fetch(
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				HASH_TABLE *transaction_hash_table,
+				HASH_TABLE *journal_ledger_hash_table );
+
+void ledger_set_transaction_hash_table(
+				HASH_TABLE *transaction_hash_table,
+				char *input_buffer );
+
+void ledger_set_journal_ledger_hash_table(
+				HASH_TABLE *journal_ledger_hash_table,
+				char *input_buffer );
+
+void ledger_update_transaction_date_time(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *new_transaction_date_time );
+
+char *ledger_get_transaction_date_time(
+				char *transaction_date );
+
+char *ledger_get_shipped_date_transaction_date_time(
+				char *shipped_date );
+
+char *ledger_get_account_subclassification_name(
+				char *application_name,
+				char *account_name );
+
+char *ledger_get_supply_expense_account(
+				char *application_name,
+				char *supply_name );
+
+char *ledger_get_inventory_account_name(
+				char *application_name,
+				char *fund_name );
+
+void ledger_get_depreciation_account_names(
+				char **depreciation_expense_account,
+				char **accumulated_depreciation_account,
+				char *application_name,
+				char *fund_name );
+
+CONTRA_ACCOUNT *ledger_seek_contra_account(
+				LIST *contra_account_list,
+				char *account_name );
+
+LIST *ledger_get_subclassification_latex_row_list(
+				double *total_element,
+				LIST *subclassification_list,
+				char *element_name,
+				boolean element_accumulate_debit );
+
+LIST *ledger_get_latex_row_list(
+				double *total_element,
+				LIST *subclassification_list,
+				char *element_name,
+				boolean element_accumulate_debit );
+
+LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
+				double net_income,
+				boolean is_statement_of_activities );
+
+LATEX_ROW *ledger_get_latex_net_income_row(
+				double net_income,
+				boolean is_statement_of_activities );
+
+LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
+				double liabilities_plus_equity );
+
+char *ledger_get_hard_coded_account_name(
+				char *application_name,
+				char *fund_name,
+				char *hard_coded_account_key,
+				boolean warning_only );
+
+char *ledger_get_hard_coded_dictionary_key(
+				char *fund_name,
+				char *hard_coded_account_key );
+
+void ledger_account_load(	char **fund_name,
+				char **subclassification_name,
+				int *display_order,
+				char **hard_coded_account_key,
+				boolean *accumulate_debit,
+				char *application_name,
+				char *account_name );
+
+void ledger_account_parse(	char **account_name,
+				char **fund_name,
+				char **subclassification_name,
+				int *display_order,
+				char **hard_coded_account_key,
+				char *input_buffer );
+
+LIST *ledger_get_account_list(	char *application_name );
+
+ACCOUNT *ledger_seek_account(	LIST *account_list,
+				char *account_name );
+
+ACCOUNT *ledger_account_calloc(	void );
+
+ACCOUNT *ledger_subclassification_fund_seek_account(
+				LIST *account_list,
+				char *subclassification_name,
+				char *fund_name );
+
+ACCOUNT *ledger_seek_hard_coded_account_key_account(
+				LIST *account_list,
+				char *fund_name,
+				char *hard_coded_account_key );
+
+int ledger_balance_match_function(
+				ACCOUNT *account_from_list,
+				ACCOUNT *account_compare );
+
+DICTIONARY *ledger_get_hard_coded_dictionary(
+				char *application_name );
+
+char *ledger_get_closing_transaction_date_time(
+				char *application_name,
+				char *as_of_date );
+
+void ledger_propagate_element_list(
+				char *application_name,
+				char *transaction_date_time_string,
+				LIST *element_list );
+
+char *ledger_nominal_accounts_beginning_transaction_date(
+				char *application_name,
+				char *fund_name,
+				char *ending_transaction_date );
+
+void ledger_get_report_title_sub_title(
+				char *title,
+				char *sub_title,
+				char *process_name,
+				char *application_name,
+				char *fund_name,
+				char *as_of_date,
+				int fund_name_list_length );
+
+LIST *ledger_get_fund_name_list(char *application_name );
+
+#endif

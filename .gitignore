@@ -1,0 +1,454 @@
+# $APPASERVER_HOME/.gitignore
+# ---------------------------
+# application output
+# ---------------------------
+*~
+appaserver.err
+trash/
+# -------
+# backups
+# -------
+backup/
+*.tar.gz
+*.cpio.gz
+# -----------
+# executables
+# -----------
+*.[oe]
+*.pyc
+# --------------------
+# src_accountancymodel
+# --------------------
+trial_balance
+program_profit
+schedule_e_report
+income_statement
+statement_of_activities
+balance_sheet
+financial_position
+update_sale_not_completed
+ledger_propagate
+ledger_unbalance
+propagate_purchase_order_accounts
+propagate_customer_sale_accounts
+ledger_debit_credit_audit
+close_nominal_accounts
+load_bank_spreadsheet
+propagate_inventory_purchase_layers
+propagate_inventory_sale_layers
+post_change_inventory_purchase
+post_change_supply_purchase
+post_change_specific_inventory_purchase
+post_change_service_purchase
+post_change_fixed_asset_purchase
+post_change_fixed_asset
+post_change_inventory_sale
+post_change_specific_inventory_sale
+post_change_service_sale
+post_change_purchase_order
+post_change_customer_sale
+post_change_customer_payment
+post_change_vendor_payment
+post_change_depreciation
+update_sale_completed
+post_reoccurring_transaction
+post_rental_property_reoccurring_transaction
+collect_customer_payment
+make_vendor_payment
+post_change_self
+inventory_cost_method_propagate
+# -------
+# utility
+# -------
+build_date_where
+cal2linear
+findgrep
+produce_socket_message
+consume_socket_message
+date2dayofyear
+dayofyear2date
+decode_html_post
+dos2unix
+html_paragraph_wrapper
+join_multi_line_delimited
+html_wrapper
+insert_string
+nothing
+parse_post
+piece
+piece_grep
+piece_replace
+piece_quote_comma
+round2five_minutes
+single_quotes_around
+double_quote_comma_delimited
+statistics
+descriptive_statistics
+delete_statement
+insert_statement
+update_statement
+gethostbyname
+queue_lines
+findbig
+findtoday
+menu
+unix2dos
+# --------------
+# src_appaserver
+# --------------
+sql
+sql_quick
+s
+view_pdf_files
+upgrade-appaserver-database
+clone_application
+get_appaserver_error_directory
+post_prompt_insert_form
+append_reference_number
+insert_mysql
+post_choose_folder
+get_random_session
+post_choose_isa_drop_down
+output_choose_isa_drop_down
+output_edit_table_form
+output_insert_table_form
+post_edit_table_form
+post_maintain_user_account
+output_results
+post_login
+post_login_cloudacus
+fix_orphans
+get_folder_data
+get_table_name
+dot_process2option_value
+table_rectification
+output_prompt_process_form
+post_prompt_process_form
+post_choose_process
+output_email
+output_transmit
+output_time_chart
+output_histogram
+output_group
+add_column
+generic_load
+post_generic_load
+post_report_writer
+merge_purge
+alter_column_datatype
+rename_table
+rename_column
+drop_column
+drop_table
+drop_application
+create_application
+create_empty_application
+create_table
+export_subschema
+export_process
+export_process_set
+clone_folder
+execute_select_statement
+export_application
+export_application_spreadsheet
+appaserver_folder_list
+attribute_list
+get_appaserver_mount_point
+stop_start_mysql_daemon
+detail
+s
+view_source
+view_diagrams
+view_csv_backup
+documentation_list
+delete_folder_row
+post_delete_folder_block
+post_change_sort_order
+statistics_folder
+output_open_html_document
+output_close_html_document
+output_choose_role_drop_down
+post_choose_role_drop_down
+output_choose_role_folder_process_form
+output_choose_folder_process_menu
+maintain_user_account
+output_frameset
+synchronize_mysql_produce
+synchronize_mysql_consume
+generic_output_text_file
+generic_output_annual_comparison
+generic_annual_comparison
+generic_statistics_report
+generic_gracechart
+generic_high_average_low
+generic_easychart
+generic_daily_moving_average
+generic_output_annual_periods
+generic_output_exceedance
+generic_output_multi_datatype_exceedance
+generic_histogram
+generic_overlay_output
+generic_output_merged_datasets
+post_merge_purge
+post_prompt_edit_form
+output_prompt_edit_form
+upgrade_appaserver_database
+grant_select_to_user
+google_map_operation
+upload_source_file
+output_prompt_insert_form
+# ------------------
+# src_freshwaterfish
+# ------------------
+load_throw_spreadsheet
+load_lab_spreadsheet
+output_habitat_input_spreadsheet
+output_lab_input_spreadsheet
+output_fiu_data
+load_fiu_data
+species_list
+calculate_checksum
+# -----------
+# src_panther
+# -----------
+load_observation_file
+extract_compare_date_columns
+panther_google_map_operation
+# -----------
+# src_benthic
+# -----------
+output_spss_ready_measurements
+output_spss_ready_counts
+select_spss_ready_counts
+output_quick_count
+output_wet_dry_annual
+load_field_sheet_scan
+output_scatterplot
+output_processing_time_sheet
+output_quality_control_checksum
+benthic_validation_form
+output_spss_ready_cover_abundance
+output_spss_ready_sampling_point_abiotic
+output_spss_ready_attempt_success
+compare_sampling_point_with_waypoint
+compare_sampling_point_with_waypoint_process
+post_benthic_validation_form
+generate_sampling_point_candidates
+benthic_species_list
+# ------------
+# src_timriley
+# ------------
+post_email_timriley
+load_institution_balance
+expected_ethernet_usage_percentage
+# ----------------
+# src_waterquality
+# ----------------
+load_sfwmd_file
+load_concentration_file
+output_results_exception
+google_map_station_operation
+google_map_project_process
+# ----------
+# src_sudoku
+# ----------
+sudoku_dvr
+post_sudoku
+# --------------
+# src_wadingbird
+# --------------
+wadingbird_google_map_operation
+species_list
+load_tablet_file
+bird_observation
+bird_observation_over_time
+cell_hydropattern_bird_count
+# -----------
+# src_sparrow
+# -----------
+output_bird_count
+bird_count_group_by
+output_observation_merge
+sparrow_validation_form
+post_sparrow_validation_form
+observation_merge
+output_spreadsheet
+upload_field_sheet
+# -------------
+# src_hydrology
+# -------------
+hydrology_verification_process
+interpolate_spike_calculate
+measurement_null_value_insert
+remove_chlorophyll_light_contamination
+measurement_block_delete
+output_measurement_easycharts
+output_measurement_data
+extract_measurements
+output_flow_daily_values
+output_measurement_delta
+output_measurement_data_sets
+estimation_stage_reversal
+estimation_linear_interpolation_spike
+estimation_linear_interpolation_spike_output
+estimation_constant_offset
+data_collection_frequency_list
+measurement_data_collection_frequency_list
+missing_measurement_report
+exceedance_curve
+calculate_evaporation
+exceedance_curve_output
+estimation_constant_offset_output
+estimation_linear_interpolation_drift
+estimation_linear_interpolation_drift_output
+estimation_linear_interpolation_malfunction
+estimation_linear_interpolation_malfunction_output
+estimation_nearest_neighbor
+rain_accumulate_to_delta
+annual_comparison
+google_map_station_process
+output_measurements_rectangle
+output_current_vs_historical
+hydrology_validation_form
+post_hydrology_validation_form
+post_hydrology_measurements_rectangle
+generic_measurement_load
+post_generic_measurement_load
+post_current_vs_historical
+exclude_conductivity_if_salinity
+shef_download
+measurement2shef
+shef_upload
+sl2_upload
+sl2_shef_to_comma_delimited
+shef_to_comma_delimited
+station_alias_to_station
+station_datatype_list
+shef_datatype_code_dvr
+conductivity2salinity
+hydrology_statistics_report
+hydrology_histogram
+adjust_measurement_time
+delete_measurements_day
+measurement_insert
+prepend_century_maybe
+load_cr10
+load_cr10_single
+load_sfwmd_single_file
+load_sfwmd_breakpoint_data
+load_biscayne_ysi_data
+load_ysi_data
+get_aggregation_sum_yn
+apply_position_translation_to_record
+restore_measurement_backup
+unvalidate_measurements
+google_earth_station_operation
+validate_midnight
+merge_position_translation_table
+station_bad_date_time_fix_update_date
+view_help
+view_maps_figs
+datatype_overlay
+custom_chart
+output_measurement_sets_easychart
+high_average_low_chart
+load_realdata
+hydrology_quick_measurement_form
+output_measurement_history
+post_hydrology_quick_measurement_form
+measurement_both_null_and_zero_time
+datatype_overlay_output
+daily_moving_statistic_output
+merged_datasets_output
+water_budget_flow
+output_measurement_differences
+output_hydroperiod
+output_annual_comparison
+calculate_hydroperiod
+calculate_oxygen_solubility
+get_date_time_slot_list
+annual_periods_output
+generate_data_collection_frequency
+output_hydroperiod_annually
+kml_extract
+# -----------------------
+# src_hydrology/reg_sched
+# -----------------------
+regulation_schedule_dvr
+wca2a_reg_sched
+WCA3A_reg_sched
+WCA3A_reg_sched20020225
+zone_array_print_dvr
+# -----------
+# src_co2flux
+# -----------
+parse_datatype_spreadsheet
+parse_data_spreadsheet
+# -------------
+# src_alligator
+# -------------
+load_srf_spreadsheet
+load_visit_spreadsheet
+nest_observation_report
+srf_dataentry_wizard
+visit_dataentry_wizard
+post_alligator_srf_dataentry_wizard
+post_alligator_visit_dataentry_wizard
+alligator_google_map_operation
+output_srf_spreadsheet
+output_visit_spreadsheet
+output_group_annually
+google_map_basin_process
+eggs_report
+alligator_dvr
+locate_cell_basin
+assign_nest_basin
+update_transect_basin
+# ---------
+# src_creel
+# ---------
+calculate_species_cpue
+catches_per_species
+creel_catches2minutes_between_fish
+creel_catches_report
+creel_census_report
+creel_guide_spreadsheet_file
+creel_spreadsheet_file
+delete_sport_creel_census
+estimated_fishing_effort_hours
+families_list
+guide_compliance_mail_merge
+insert_sport_catches
+insert_sport_creel_census
+insert_sport_fishing_trips
+load_fishing_permits
+load_guide_angler_submission
+load_guide_fishing_trips
+load_sport_fishing_trips
+load_sport_measurements
+load_trailer_count
+output_measurement_spreadsheet_file
+species_estimated_total_caught
+species_preferred_species_caught
+sport_measurement_report
+# ------------
+# src_modeland
+# ------------
+get_aggregation_sum_yn
+# ---------------
+# src_capitolpops
+# ---------------
+post_capitolpops
+parse_contact_list
+build_capitolpops
+post_change_dues_payment
+post_change_donation_program
+post_change_donation
+composition_venue_count_output
+composition_venue_count
+brews_and_boos_profit
+# --------------
+# src_autorepair
+# --------------
+generate_invoice
+generate_workorder

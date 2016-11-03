@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Output Model Results Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h2>Output Model Results</h2>
+<p>This is a set of output processes that share many common prompts.
+If a prompt does not apply to the selected process, then
+the prompt is "grayed-out."
+
+<ul>
+<li>Moving Average:
+	<ul>
+	<li>This process computes a moving average of model results for display.
+	<li>Days To Average: Optionally enter the number of days to average. If left blank, 30 days are used.
+	</ul>
+<li>Easychart: An Easychart is displayed.
+<li>Exceedance Table: The output is sorted by the model results in descending order. To the right of each model result is a count of the number of days the model results was below this model results. Next to the count is the percentage with which the number of days the model results was below this model results.
+<li>Exceedance Chart: Refer to the description of "Exceedance Table" above. The horizontal axis contains the percentage below, and the vertical axis contains the model results.
+<li>Gracechart: A chart is created using the Gracechart generator.
+<li>High Average Low: An Aggregate Level must be choosen. Then a "Cat Whiskers" chart is displayed.
+<li>Histogram: A Histogram is displayed.
+<li>Statistics Report: Statistics are calculated on the model results between the date range. Note: this is independent of the aggregate level selected.
+<li>Table: A table is displayed in the bottom window.
+<li>Chart: A chart is displayed in a new window.
+<li>Text File: A text file is created to transmit to your computer.
+<li>Aggregate Level: Optionally select an aggregate level to calculate sum (if quantum datatype) or average (if flow datatype).
+<li>Aggregate Statistic:
+	<ul>
+	<li>If an Aggregate Level is selected, the default Aggregate Statistic is either sum (if quantum datatype) or average (if flow datatype). However, other Aggregate Statistics are available here.
+	<li>Non Zero Percent: 
+   		This is useful for quantum datatypes (like rain), showing the
+   		percentage of time the quantum was on (it was raining).
+	</ul>
+<li>Accumulate yn: Have each row of output be the sum of all previous model results.
+<li>Email Address: Optionally email the results.
+<li>Begin and End Dates:
+	<ul>
+	<li>Leave both blank will report the entire period of record.
+	<li>Enter a full Begin Date and End Date will report on that date range.
+	<li>Enter only the year in Begin Date will report from January 1.
+	<li>Enter only the year in End Date will report to December 31.
+	<li>Enter only the year and month in Begin Date will report from the first day of that month.
+	<li>Enter only the year and month in End Date will report to the last day of that month.
+	<li>Enter a full Begin Date and leave the End Date blank will report on the single day.
+	<li>Enter a only the year in Begin Date and leave the End Date blank will report on the entire year.
+	<li>Enter a only the year and month in Begin Date and leave the End Date blank will report on the entire month.
+	<li>Leave blank the Begin Date but populate the End Date will report from the beginning of record to the End Date.
+	</ul>
+<li>Units Converted:
+	<ul>
+	<li>If a single datatype were selected on the Prelookup Screen, then that datatype's possible units to convert to is available for selection.
+	<li>If more than one datatype were selected, then those datatypes' possible units to convert to are available for selection.  In this case, to convert the units, you need to know which unit the datatype selected is stored as.
+	<li>If no datatype were selected, then all of the possible units to convert to is available for selection.  In this case, to convert the units, you need to know which unit the datatype selected is stored as.
+	<li>Note: the units converted is displayed as units-the-datatype-is-stored-as, then a dash, then units-the-datatype-can-be-converted-to. The dash in the center is not part of the units, like "foot-seconds".
+	</ul>
+</ul>
+</body>
+</HTML>

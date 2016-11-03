@@ -1,0 +1,70 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Output Measurements Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h2>Output Measurements</h2>
+<p>This is a set of output processes that display all the measurements
+for a single datatype.
+<ul>
+<li>Chart High Average Low: An Aggregate Level must be choosen. Then a "Cat Whiskers" chart is displayed.
+<li>Chart Measurements: A Gracechart is displayed.
+<li>Data Validation Form: The form used to validate data is displayed.
+<li>Easychart Measurements: An Easychart is displayed.
+<li>Histogram: A histogram is displayed.
+<li>Output Daily Moving Statistic:
+	<ul>
+	<li>This process computes a moving statistic of measurements for display.
+	<li>The statistic to display is selected using the Aggregate Statistic drop-down.
+	<li>Days To Average: Optionally enter the number of days in each statistic group. If left blank, 30 days are used.
+	</ul>
+<li>Output Exceedance Curve:
+Measurements are first sorted in descending order. Then a count is performed of the number of measurements below each measurement. Following the count is a calculation of the percentage of the number of measurements below each measurement. The horizontal axis contains the percentage below, and the vertical axis contains the measurement values.
+<li>Table: A table is displayed.
+<li>Quick Measurement Form: A form to quickly adjust measurements is displayed.
+<li>Statistics Report: Statistics are calculated on the measurements between the date range. Note: this is independent of the aggregate level selected.
+<li>Text File: A text file is created to transmit to your computer.
+<li>Aggregate Level: Optionally select an aggregate level to calculate sum (if quantum datatype) or average (if flow datatype).
+<li>Aggregate Statistic:
+	<ul>
+	<li>If an Aggregate Level is selected, the default Aggregate Statistic is either sum (if quantum datatype) or average (if flow datatype). However, other Aggregate Statistics are available here.
+	<li>Non Zero Percent: 
+   		This is useful for quantum datatypes (like rain), showing the
+   		percentage of time the quantum was on (it was raining).
+	</ul>
+<li>Validation Level:
+	<ul>
+	<li>Provisional: none of the measurements selected will have been validated yet.
+	<li>Validated: only validated measurements will be selected.
+	<li>Either: all measurements will be selected.
+	</ul>
+<li>Accumulate yn: Have each row of output be the sum of all previous measurements.
+<li>Email Address: Optionally email the results.
+<li>Transmit Validation Info yn: The validation date is also displayed if the Text File process is selected.
+<li>Units Converted:
+	<ul>
+	<li>If a single datatype were selected on the Prelookup Screen, then that datatype's possible units to convert to is available for selection.
+	<li>If more than one datatype were selected, then those datatypes' possible units to convert to are available for selection.  In this case, to convert the units, you need to know which unit the datatype selected is stored as.
+	<li>If no datatype were selected, then all of the possible units to convert to is available for selection.  In this case, to convert the units, you need to know which unit the datatype selected is stored as.
+	<li>Note: the units converted is displayed as units-the-datatype-is-stored-as, then a dash, then units-the-datatype-can-be-converted-to. The dash in the center is not part of the units, like "foot-seconds".
+	</ul>
+<li>Begin and End Dates:
+	<ul>
+	<li>Leave both blank will report the entire period of record.
+	<li>Enter a full Begin Date and End Date will report on that date range.
+	<li>Enter only the year in Begin Date will report from January 1.
+	<li>Enter only the year in End Date will report to December 31.
+	<li>Enter only the year and month in Begin Date will report from the first day of that month.
+	<li>Enter only the year and month in End Date will report to the last day of that month.
+	<li>Enter a full Begin Date and leave the End Date blank will report on the single day.
+	<li>Enter a only the year in Begin Date and leave the End Date blank will report on the entire year.
+	<li>Enter a only the year and month in Begin Date and leave the End Date blank will report on the entire month.
+	<li>Leave blank the Begin Date but populate the End Date will report from the beginning of record to the End Date.
+	</ul>
+</ul>
+</body>
+</HTML>

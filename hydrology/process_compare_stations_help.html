@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Output Model Compare Stations Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h2>Output Compare Stations</h2>
+<p>This process compares the measurements of one datatype with one or
+more other datatypes from either the same station or different stations.
+<ul>
+<li>Begin and End Dates:
+	<ul>
+	<li>Leave both blank will report the entire period of record.
+	<li>Enter a full Begin Date and End Date will report on that date range.
+	<li>Enter only the year in Begin Date will report from January 1.
+	<li>Enter only the year in End Date will report to December 31.
+	<li>Enter only the year and month in Begin Date will report from the first day of that month.
+	<li>Enter only the year and month in End Date will report to the last day of that month.
+	<li>Enter a full Begin Date and leave the End Date blank will report on the single day.
+	<li>Enter a only the year in Begin Date and leave the End Date blank will report on the entire year.
+	<li>Enter a only the year and month in Begin Date and leave the End Date blank will report on the entire month.
+	<li>Leave blank the Begin Date but populate the End Date will report from the beginning of record to the End Date.
+	</ul>
+<li>Aggregate Level: Optionally select an aggregate level to compare sums (if quantum datatypes) or averages (if flow datatypes).
+	<ul>
+	<li>Real Time: Since measurements are stored in real-time, no aggregation will take place.
+	<li>Daily: Measurements between the date range will be aggregated per day.
+	<li>Weekly: Measurements between the date range will be aggregated per week.
+	<li>Monthly: Measurements between the date range will be aggregated per month.
+	<li>Annually: Measurements between the date range will be aggregated per year.
+	</ul>
+<li>Output Medium:
+	<ul>
+	<li>Table: A table is displayed in the bottom window.
+	<li>Chart: A chart is displayed in a new window.
+	<li>Text File: A text file is created to transmit to your computer.
+	<li>Correlation:
+		<ul>
+		<li>Correlation: the Pearson Coefficient of Correlation (R) is a number between -1 and 1. It is used to predict how the value of one datatype affects the value of another datatype. -1 represents a completely inverse relationship; 0 represents no relationship, and 1 represents a completely positive relationship.
+		<li>Determination: the Coefficient of Determination (R squared) is a number between 0 and 1. It measures the explaination of the affect one datatype has on another. A value of 0 means one datatype has no affect on another. A value of 0.50 means one datatype has a 50% affect on another, with another 50% explained by some other means. A value of 1 means one datatype as a complete affect on another.
+		<li>Covariance: an unbounded measure of the affect one datatype has on another. A large negative number represents a strong inverse relation ship, zero represents no relationship, and a large positive number represents a strong positive relationship.
+		<li>Average, Count, and Standard Deviation: these statistics are provided to add perspective to the measures of relationship.
+		<li>Note: The first row is the one datatype compared with itself. The correlation and determination should be 1 (or very close to 1), and the covariance should be a positive number.
+		</ul>
+	<li>Scatter: For each datatype compared with, a scatter chart is produced. The scatter chart also displays the formula for producing the line of least squares (linear regression).
+	</ul>
+<li>New Station Datatype Group: Enter a group name for this comparison combination for later retrieval.
+<li>Station Datatype Groups: Select an existing group name to compare the corresponding Station/Datatypes.
+</ul>
+</body>
+</HTML>

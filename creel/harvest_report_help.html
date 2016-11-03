@@ -1,0 +1,40 @@
+<HTML>
+<HEAD>
+	<link rel=stylesheet type="text/css" href=style.css>
+	<TITLE>Harvest Report Help</TITLE>
+</HEAD>
+
+<body background="background.jpg" >
+<img 	src="nps_logo_single.gif" border="0">
+<hr>
+<h1>Harvest Report Help</h1>
+<p>Creating the Harvest Report (Species Estimated Total Caught) requires
+<ol>
+<li>maintaining vessel counts collected periodically from
+	aerial surveys.
+<li> maintaining trailer counts collected daily.
+</ol>
+<p>Creating the Harvest Report also
+requires updating two best-fit regression lines' coefficients and
+y-intercepts. The values are stored in APPLICATION_CONSTANTS.
+The two lines provide the estimated total vessels
+in each of Florida Bay and Ten Thousand Islands.
+
+<p>The two best-fit regression lines are calculated by running
+the output process called "Calculate Trailer Vessel Regression."
+Run this only after a new aerial survey takes place.
+
+<p>The Harvet Report proper (Output Total Estimated Catch)
+uses the two best-fit lines to estimate the number of
+vessels each day based upon the number of trailers counted
+each day.  The Harvest Report also estimates the number
+of catches per fishing
+vessel each day based upon the answers the the creel census taken
+the previous weekend. These two values are multiplied for
+every species for every day. 
+
+<p>The complete algorithm is available
+<a href=/src_creel/species_estimated_total_caught_algorithm.pdf target=_new>here</a>.
+
+</body>
+</HTML>

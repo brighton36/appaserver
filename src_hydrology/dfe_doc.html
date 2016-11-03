@@ -1,0 +1,870 @@
+<html>
+<head>
+<link rel=stylesheet type="text/css"
+	href="style.css">
+
+</link>
+<h1> DataForEVER Documentation</h1>
+</head>
+
+<body>
+
+<dl>
+<dt><h2> <a href="#general_concepts"> 1.0 General Concepts </a> </h1>
+<dd><h2> <a href="#loging in"> 1.1 Login</a>  </h2>
+<dd><h2> <a href="#interface"> 1.1 The Interface</a>  </h2>
+<dd><h2> <a href="#folders"> 1.2 Folders </a>  </h2>
+<dd><h2> <a href="#LookUp"> 1.3 LookUp Records from a database table (LookUp) </a> </h2> 
+<dd><h2> <a href="#UpDate"> 1.4 Changing Records in a database table (UpDate) </a> </h2> 
+<dd><h2> <a href="#stations_general"> Stations and Datatypes </a>  </h2>
+<dd><h2> <a href="#processes"> 1.5 Processes</a>  </h2>
+<dt><h2> <a href="#Process Guide"> 2.0 Process Guide </a> </h1>
+<h2> <a href="#measurements"> Measurements  </a>  </h2>
+<h2> <a href="#datums"> Datums  </a>  </h2>
+<h2> <a href="#date_format"> Date Format </a>  </h2>
+<h2> <a href="#common_tasks"> Guide to Common Tasks </a> </h2>
+<h2> <a href="#LookUp"> LookUp Records from a database table (LookUp) </a> </h2> 
+<h2> <a href="#output_measurements"> Getting Some Data </a>  </h2>
+<h2> <a href="#data_validation"> The Data Validation Process </a> </h2>
+<h2> <a href="#site_visit"> Site Visits </a> </h2> 
+<h2> <a href="#estimating_missing_data"> Data Estimation Processes </a> </h2> 
+<h2> <a href="#interpolation"> Interpolation </a> </h2> 
+<h3> <a href="#interpolation_drift"> Interpolation: StraightLine)</a> </h2> 
+<h3> <a href="#interpolation_drift"> Interpolation: (Drift)</a> </h2> 
+<h3> <a href="#interpolation_drift"> Interpolation: (Drift)</a> </h2> 
+<h2> <a href="#StationLocation"> Retrieving the Horizontal Coordinates of a station (LookUp) </a> </h2> 
+<h2> <a href="#StationElevation"> Retrieving the Ground Surface Elevation at a station (LookUp) </a> </h2> 
+<h2> <a href="#glossary"> Glossary  </a>  </h2>
+<h3> <a href="#Glossary"> Glossary of Terms </a> </h3> 
+
+Relational Database
+A relational database is way of organizing information in an efficient and systematic way.
+This database contains information about the entire monitoring program.  Since this is a great 
+deal of information the database is divided into tables that contain information about a specific
+aspect of the monitoring program.  Some aspects of the monitoring program that have tables are
+stations, the datatypes that are measured at stations, site visit information, etc.
+<br>
+Tables are further divided into colums or attributes that contain further information  
+about the feature describe by the table
+
+So, Databases contain tables, tables contain columns or attributes.  
+
+Attributes
+An attribute is basically a column of a database table. They represent some aspect 
+of the table that is important to us.  For example one of the columns of the site visit 
+table is the date of the site visit.  We say that the date is an attribute of the site visit. 
+
+Folders
+Folders are simply another name used for database tables.
+Database tables provide an efficient way of grouping data associated with a speific aspect
+of the system being represented in the database. For example, this database contains a 
+station table that contains various information pertaining to the stations, like the name
+of the station and where it is located. 
+<br>
+Database tables contain rows and colums. Information such as station name and location make
+up the colums of the table and entries for each station make up the rows.  
+A column in the table is also referred to as an attribute of the data.
+<br>
+Prompt Screen
+This is the screen that appears on the upper right panel of the browser interface
+when a user selects one of the options on the left panel.  The concept is that once
+a selection is made from the left side panel, the screen on the upper right is 
+used to "prompt" the user for additional information.  
+
+Process
+This system uses process to create data reports or do some type of work on the data.
+One common data report is the output measurement process which retrieves information 
+from the measurement table and puts it in either a table plot. 
+<br>
+One process that does some work on the data is the null value insert process.  This process
+prompts the user for information and inserts null values based on the infomation provided.
+
+Primary Key
+The Primary Key is a column or group of colums that identify a row as unique. Database tables have
+a necessary restriction that only one row can exist for a given primary key; in other words we can
+not have two rows with the same values entered for the primary key.    The
+station table offers a good example of why this is needed.  The primary key for the station
+table is the station name itself.  Imagine the confusion if we could have two entries for P36 in
+the station table; there would be two sets of coordinates, two ground surface elevations etc.  
+<br>
+Some tables utilize several columns to make a row unique.  The measurement table provides a good
+example.  A measurement is made of a specific datatype at a specific station at a date
+and a time.  Thus, the primary key for this table is made up of columns Station, Datatype, Measurement_DAte and Measurement_Time.  Obviously is would be confusing if for some reason we had two
+different values for the same datatype at the same station at the same time.  People would
+lose trust in your database system if this were allowed.  These restrictions provide a 
+mechanism of maintaining the integrity of the data.
+
+Null
+This is sometimes a difficult concept to understand fully. 
+
+<h3> <a href="#Tables"> Tables </a> </h3> 
+<a href="#process"> Processes </a>
+
+<h3> <a name=general_concepts> General Concepts </a> </h3>
+<p>
+DataForEVER is a comprehensive database management system 
+designed to maintain physical-earth science data. The application uses 
+the common web browser to provide an interface to 
+Everglade National Park's hydrologic database.  The database contains
+data from ENP's hydrologic monitoring network as 
+well as data through the wider Lake Okeechobee/Greater Everglades basin.
+Most of the additional data is provided by the South Florida Water Management
+District and the United States Geological Survey. 
+</p>
+<p>
+To use the system effectively it helps to understand some of the basic concepts employed
+to represent the monitoring network in the database system. Since the database is a computer
+representation of the monitoring network itself, it stands to reason that there should be 
+strong similarities.  
+The system, just at the real world monitoring network,  is built around the concept of the 
+station and the datatypes that are measured at them.  
+A station is basically any location where data is collected, they have names like 
+P33, NP201, or TSB.  The types of data collected at stations include stage (water level), rain
+conductivity, water temperature, air temperature, etc.  The most common use of the database
+is to obtain measurements of datatypes from these stations for a over some time period.  
+The database uses the term "measurement" to refer
+to these data. These individual measurements of various datatypes make up the records in 
+the measurement table. Thus, the measurment table is the table in the database where virtually all the 
+data that people are interested in is stored.  
+The rest of the database basically contains important data about these measurements.
+These measurement data can be retrieved directly from the measurement table by 
+selecting the desired values for the columns diplayed on the screeen, but the 
+easiest and most direct way is use one of the features of the system called a process.
+A process is simply a computer program.  Some of them retrieve data from the data base in 
+specific format. These are basically database reports.  Others perform some data management
+function like validating data or editing data.
+
+Generally, users who want data quickly without a great deal of effort would rely
+on one of the data report processes, like output measurements.  While others who
+have more specific needs may have the need to go to one of the database tables and
+lookup individual records.  For example if you want a graph of data from LO (Lostmans River)
+you can use the <font color=blue> ouput measurement </font>process.  But if you also  
+need the latitude and longitude of the station, you would have to do a lookup 
+on the station table itself.
+
+</p>
+<p>
+The system is specifically desinged for data management, data validation and data analysis.
+These features also make it an exception data disemination tool. Not only is the
+hydrologic data available but the system provides the ability to retrieve data 
+from other database tables.  Station Locations, Site Visit information, Ground Surface 
+Elevations are all available.
+</p>
+<p>
+The system contains real-time data from enp stations collected daily via radio telemtry.  In
+addition, the system contains data from over 600 other stations throughout the Lake Okeechobee / 
+Everglades drainage basin.  These other stations are operated by United States Geological Survey, USGS
+, the South Florida Water Management District, SFWMD, and NOAA. Generally, data from these stations
+are retrieved as validated data from the respective agency.  However, real-time data is also
+available from many of the other agency stations.  These are collected from ftp sites set up
+for inter-agency realtime data exchange.
+</p>
+
+<font color=blue> <a name=folders_and_processes> Folders (aka Tables) and Processes</a>  </font>
+<p>
+After logging in the user is presented with a panel on the left
+side of the screen that contains database folders (or tables) on
+the top section of the panel and
+a list of processes on the bottom.  The folders and processes displayed vary
+with user access level provided by the database administrator.
+</p>
+<p>
+This is an example of the interface after a successful login.  It shows the folders and
+processess available to this user.  
+</p>
+<img src="/data/dfe/doc/screen_shots/folder_process.jpg"  border="1" width=50% > 
+<p>
+<p>
+A table is simply a collection of rows and colums of data that are generally
+focused on a specific aspect of the data.  For example we have a table called
+the station table that contains information about all the stations maintained in the 
+database.  Aspects such as the station name, location, owner etc. make up the columns of
+the table, and there is a row for each station. 
+</p>
+<p>
+Generally 4 things can be done to a database table.<br>
+We can <a href="#lookup">Lookup</a>, or Query in database parlance, existing rows <br>
+After we do a LookUp we can then Change, or <a href="#update"> Update </a>, 
+the information in the rows we just selected<br>
+We can <a href="#insert"> Insert </a>new rows in the table or <a href="#delete"> delete </a>existing rows</br>
+</p>
+<p>
+DataForEVER provides access to these functions based on a users access rights.
+All users have access to lookup information in the folders listed in the left panel.
+To add new records to a folder the word "new" must be visible next to the folder name.
+If it is not shown, then the user does not have the access level necessary to add new 
+records.  For example, theu user public does not have access to add new records.  They
+can only view data in the database.  
+Folders are actually database tables that contain various data in rows and columns; while procesess
+are basically programs of some kind that either retrieve data
+and present it in some type of report or do some other action like validate a block of data, or
+correct data. 
+</p>
+<p>
+The system generally utilizes 3 panels or frames to display information. The left side panel
+contains the folders and processes available to the user.  After selecting a folder
+or process from the left panel, the top panel will contain a form
+to accept user input specific to the 
+selected table or process.  After inputing appropriate information in the top screen
+and pressing the submit button, the output is displayed in the bottom screen.  
+<p>
+
+<a name=stations_general> Stations and Datatypes
+
+<p>
+There are many ways to represent data collected from a hydrologic monitoring network in a 
+computer database.  All of them have some way to uniquely identify where the data values are
+comming from, when it was collected, what type of data it is, and what units the measurements are made in.  
+In DataForEVER the station represents where on the earth the data is collected from. 
+Stations "measure" the value of one or more datatypes. These, of course, are called datatypes.
+Stage, condcutivity, water temperatuure, etc, are all datatypes.  
+In keeping with a common human convention the system uses the standard calendar, and hours and minutes
+to specify when the data was collected.  This may sound elementary, but it is very important.
+</p>
+<p>
+If you use this system you will find yourself selecting stations and datatypes for a 
+specified time interval to retrieve most information.   
+Stations and their respective datatypes are so 
+much part of the data model that they appear together in many of the dropdown menus.
+</p>
+<p>
+Information about the station is stored in the <a href="station_table"> station table </a>
+This table contains information about where the station is, what hydrologic basin it 
+is in, what the land surface elevation is etc.  
+</p>
+<p>
+The datatypes measured at a station are stored in the station_datatype tables.
+</p>
+
+<font color=blue> <a name=measurements> Measurements  </a>  </font>
+<p>
+Measurement is the term used for the value measured by a sensor for a particular datatype.  
+In DataForEVER, 
+the concept is that stations have sensors that measure datatypes. 
+Measurements from these sensors are stored in the measurement table.
+</p>
+<p>
+The measurement table is the largest table in the database.  It contains all the data values, or
+measurements, from all the sensors for each station.  
+</p>
+<font color=blue> <a name=datums> Datums  </a>  </font>
+<p>
+Elevation Data, such as land surface elevation or stage in this system is expressed relative to NGVD29
+where possible.  Elevations at some stations have not been surveyed.  These stations have 
+what is termed local datum.  This information is in the station table.  To determine the datum
+of a specific station, go to the station table, enter the station name on the prompt screen and 
+press submit.  The lower screen will display the station table record for that station.  This will
+have the vertical datum. 
+</p>
+<p>
+Horizontal coordinates are expressed relative to NAD1927.  UTM coordinates are in meters.
+</p>
+
+<h2> <a name=date_format> Date Format </a>  </h2>
+<p>
+For best results enter dates as YYYY-MM-DD  
+<br>
+For example: 1998-05-01
+<br>
+</p>
+<h2> <a name=common_tasks> Guide to Common Tasks </a> </h2>
+<p>
+<font color=blue> <a name=LookUp> LookUp Records from a database table (LookUp) </a> </font> 
+</p>
+<p>
+To look up existing records from a database table,  select the 
+desired table from the menu on the left side panel by clicking on the table name.
+The system will then display a lookup prompt screen on the top panel.  This prompt screen will
+contain all the columns, or attributes, of the table with corresponding input boxes or
+pulldowns
+to accept data entry.  Using the input boxes and/or pulldowns select the desired
+attributes of the records you would like to retrieve.  
+</p>
+<p>
+On the lookup prompt screen the input boxes are preceded by a modifier pulldown.  
+This pulldown provides the opportunity to select a range of values for attribute.
+For example, in the station table lookup you can select all the stations that begin with p
+by selecting begin from the modifier pulldown and typing in a p in the corresponding 
+input box.
+</p>
+You should enter in the
+least amount of data possible to get the records you want.  Resist the common 
+urge to fill in something for every input box on the screen. For example, if you
+want the the record in the station table for NP201, just enter NP201 in the 
+station input box.  Since there is only one entry for NP201, this is all
+that is necessary to retrieve the record.
+</p>
+<img src="/data/dfe/doc/screen_shots/station_select.jpg"  border="1" width=50% > 
+<p>
+By default, upon submiting the lookup, all colums will be displayed for selected records.
+This can be adjusted with the No Display check boxes on lookup prompt screen.  For example,
+if you only want the UTM coordinates for all stations that begin with P, use a selection similar
+to the figure above, but this time click the No Display box for all columns except 
+UTM_X and UTM_Y.  After submit, the bottom screen will look something like:
+
+</p>
+<img src="/data/dfe/doc/screen_shots/station_utm_select.jpg"  border="1" width=50% > 
+<p>
+<p>
+
+panel will contain a form listing of every column in the database folder. The 
+user then fills in the form with desired values for one or more of the columns.  The
+concept to remember here is to fill in as few of the columns necessary to retieve
+the desired data.  A common urge is to begin filling out the entire form when in
+fact very few of the columns may require information.  Resist this temptation as it
+will tend to narrow the search to the point that the desired data is screened out.
+
+After entering the desired values for the column, press the submit button and the 
+system will lookup all the rows in the table that match the information entered. 
+
+The selected rows will be displayed in the bottom screen
+agency<br>
+agency
+</p>
+<font color=blue> <a name=output_measurements> Data Report </a> </font>
+</p>
+The most common data report is obtained through the output meaurements
+process.  This process will generate a time series for a selected 
+station and datatype in either tabular or graphical formats.
+</p>
+
+To obtain a data report, select <b> output measurements </b> from the process
+list on the left side panel.  A form will appear on the top screen to accept
+the following input:
+<br>
+<br>
+<img src="/data/dfe/doc/screen_shots/output_meas.jpg"  border="1" width=50% > 
+<br>
+<dl>
+<dt><font color=blue face=bold>Process </font>
+<br>
+This feature determines how data will be displayed. <br> <b> A selection from this
+	dropdown is required.</b> 
+<br>  
+<br>  
+Options included in the pull down menu:
+<br>	
+<table>
+<tbody>
+<tr>
+<td>Chart Measurements: 
+<td>Generates a time series plot for the selected data
+<tr>
+<td>Output Exceedance curve: 
+<td>Generates an Exceedance curve for selected data
+<tr>
+<td>Statistics Report: 
+<td>Generates a statistics summary for the selected data
+<tr>
+<td>Transmit measurments: 
+<td>Produces a tabular output that can be saved to disk
+</tbody>
+</table>
+<br>
+<dt><font color=blue face=bold>Station/Datatype: </font>
+<br>
+Select the desired station and datatype from the dropdown
+<br>
+<br>
+<font color=blue face=bold>Begin Date</font>
+<br>
+Enter the starting date of the time series
+Note the format is YYYY-MM-DD
+<br>
+<br>
+<font color=blue face=bold>End Date </font>
+<br>
+Enter the last date of the time series
+Note the format is YYYY-MM-DD
+<br>
+<br>
+<font color=blue face=bold>Aggregate Level</font>
+<br>
+Choose from hourly, daily, weekly, monthly aggregation levels. Default is Real Time
+so just leave as select for real-time
+<br>
+<br>
+<font color=blue face=bold>Aggregate Statistic</font>  
+
+<br>
+This controls the statistic of the aggregated data (e.g. avg, min, max, sum) 
+Default is average for all datatypes except rain for which the default is sum.
+This parameter is ignored if real-time is selected from the Aggregate Level.
+<br>
+<br>
+<font color=blue face=bold>Validation Level</font>  
+<br>
+Here you can choose whether you want only validated data, only unvalidated data (raw data)
+or either if you don't really care and want to get all you can. 
+<br>
+</dl>
+
+
+<h2> <a name=data_validation> Data Validation </a> </h2> 
+<p>
+Data validation is a step in the implementation of a quality control process that is aimed at
+ensuring that data collected is free from errors and reasonably accurate. 
+This process adds a 
+great deal of value to the raw data collected.  It allows for the data to be used for a wide 
+range of purposes with some
+level of confidence that it actually reflects the real world it is attempting to monitor.  
+</p>
+<p>
+It is not possible to remove all the subjectivity from data validation.
+It is necessary to become familar with what the data should look like, and how certain datatypes
+respond to various events at various stations.
+This simply comes with time as you review more and more data you begin to pick up on the 
+patterns that are expected.  Knowlegde of the work conducted in the field enables the technician to understand more about
+the causes of problems revealed in breaks in the
+expected pattern.  It is for this reason that the field technician must be involved in 
+reviewing and validating the data from the sites under their resposibility.
+</p>  
+<p>  
+Data validation is the was the primary reason behind the creation of 
+this database management system.  Prior to the implementation of DataForEVER
+spreadsheets and ad hoc scripts and programs were used to check and review data 
+and decide whether its good (valid) or not.  These processes were effective in many
+ways. Data integrity was maintained and the data was safely stored.  Nonetheless, 
+these systems were originally conceived as stop gaps until a more comprehensive system
+was available. DataForEVER is the first attempt at developing such a system.
+</p>
+The data valdation process begins with actually collecting the data itself.  It sounds
+elementary, but in this environment of electronic data loggers, radio telemetry and such
+this seamingly simple process can become quite complex.  
+Reasonalbe care must be taken to preserve these data.  This requires an understanding of 
+how the data from a station gets to the database.  If telemetry systems fail, data
+must be retrieved with a field computer.  The data must then be transferred to 
+the computer network so it can be loaded. 
+
+<h2> <a name=site_visit> Site Visits </a> </h2> 
+
+The site visit is a very important component of the data quality assurance and 
+validation process.  During the site
+visit the calibration for each sensor is checked; if the sensor is outside of the specification
+it is reset.  So, at the end of the site visit the goal is to have all sensors
+measuring accurately.  This facilitates the data review; Since we have a reference for 
+when the station was measuring everything accurately.  Additionally, the site
+visit is often the time where the data is actually extracted from the datalogger.
+So, the site visit does not end when you leave the station.  It is only complete when
+the data is safely loaded into the database system and the site visit information
+has been entered in as well.
+
+<h3> <a href="#site_visit_entry"> Entering a Site Visit </a> </h3> 
+
+The calibration checks are recorded in the field notes and entered into the
+system.  This serves two important functions.  
+<li> It ensures that the absolutely critical information from the field
+notes is recored safely. Field notes can disappear under chaotic circumstances.
+<li> It facilitates data validation by others if necessary.  
+<p>
+Generally, data is validated in blocks of time.  A convenient dataset is the 
+set of data collected between site visits.
+This is a convenient set because
+calibration data from the site visit provides two points in time
+when the accuracy of the sensors has been independently evaluated by the calibration
+checks.  
+</p>
+<p>
+So, the beginning of the time period of the dataset that is being
+validated corresponds to the end of the first site visit, when all sensors 
+have been checked and reset if necessary, and the
+end of the dataset corresponds to the beginning of the next site
+visit before any recalibration took place.  
+</p>
+<p>
+The next step is to review the datasetset.  Generally a plot 
+is made of the the time series and inspected visually for anomalies.
+With some understanding of the climatic and other environmental
+influences that occur at various stations, one should be able to
+explain the response of the data trace to various influences.  
+This is the process of becoming familar with your station  This 
+takes time and experience reviewing data.
+If the calibration checks during both site visits were within 
+<a href="#calibration_ranges"> acceptable ranges 
+</a>
+then there is a reasonable chance the data in between is also valid. 
+The graph is reviewed to find anomalies in the dataset.  This is 
+done by carefully and patiently tracing the curve with the eye.
+<p>
+Frequently it is useful to plot the data under review with either
+other datatypes at the same station, or similar datatype at nearby
+stations.
+</p>
+</p>
+<p>
+<a href="#plot_sets">  Plotting all data from a station </a>
+</p>
+<p>
+<a href="#plot_overlay">  Plotting various data from many stations </a>
+</p>
+
+<h3> <a name=estimating_missing_data>
+Estimating Missing Data
+</a>
+</h3>
+If the calibration checks are not within specified ranges, then something
+must be done.  The goal is to collect data that reasonably reflects the 
+reality.  There is no completely objective, deterministic way to 
+review and edit data.  If it is clear that the data are not representative
+of the datatype being measured, it must be removed.  This is done by
+removing the data value and <a href=#null_insert> inserting a "null" </a> reading.
+<p>
+If however, the data still reflect the nature of the parameter being measured, but
+the sensor's accuracy has changed between site visits due to gradual drift of 
+sensor response, it may be possible to 
+adjust the data so that it corresponds to the calibration data collected during 
+the site visits. This is done by using a process called <a href="#linear_interpolation_drift"> 
+linear interpolation drift </a> 
+</p>
+Another common occurence is a sensor malfunction during a time period
+short enough where it is reasonable to essentially substitute a straight
+line for the missing data.  For example, for stage data in the marsh, if there is
+no rain for a few days and the stage sensor malfunctions, it may be appropriate to 
+substitute a straight line for these missing data.  This straight line will connect
+the last good data value with the next good data value. This process is called
+<a href="#linear_interpolation_malfunction">  linear interpolation malfunction </a>
+
+<h2> <a name=calibration_specs> Calibration Specifications</a> </h2> 
+
+<h3><a href="#Relationships"> Relationships Between Tables </a></h3>
+<h3><a href="#Data Integrity"> Data Integrity </a></h3>
+<p>
+appaserver_sessions
+appaserver_session<br>
+last_access_time<br>
+login_name<br>
+</p>
+
+
+<h3> 
+<a name=site_visit_entry>
+Entering a Site Visit
+</a>
+</h3>
+<p>
+Site Visit information is stored in two tables.  The first table, the
+<font color=blue> 
+Site Visit Table 
+</font> 
+contains general information about the site visit. This is where 
+the time and date of the site visit are kept.  This table also contains
+information regarding the non-sensor equipment at the station such as the radio
+modem and data logger. There is also an opportunity to enter in notes pertaining
+to site visit needs, or things that have been done at the site such as replacing
+infrastructure or any other useful information.  
+</p>
+<p>
+The other table in the pair is the 
+<font color=blue>
+site visit calibrate table.
+</font>
+This table contains the information from the calibration checks done at 
+the site during the site visit.  When entering a site visit, the fact that
+you are entering data into two tables is somewhat transparent.  However, when looking
+up old site visits, understanding this concept is helpful.
+</p>
+
+<br>
+<img src="/data/dfe/doc/screen_shots/insert_site_visit.jpg"  border="1" width=50% > 
+<br>
+
+<h3> <a name=Tables > DataForEVER Hydrology Tables </a> </h3>
+
+<table border=1 cellpadding=2 width=100%>
+  <tbody>
+   <tr>
+     <td>
+        <a href=#agency>	agency			</a>
+     <td>
+        <a href=#basin>	basin			</a>
+     <td>
+        <a href=#daily_value_type>	daily_value_type			</a>
+   <tr>
+     <td>
+        <a href=#datatype>	datatype			</a>
+     <td>
+        <a href=#device>	device			</a>
+     <td>
+        <a href=#device_type>	device_type			</a>
+   <tr>
+     <td>
+        <a href=#equipment>	equipment			</a>
+     <td>
+        <a href=#estimation_event>	estimation_event			</a>
+     <td>
+        <a href=#estimation_event_parameter>	estimation_event_parameter			</a>
+   <tr>
+     <td>
+        <a href=#estimation_method>	estimation_method			</a>
+     <td>
+        <a href=#manual_validation_event>	manual_validation_event			</a>
+     <td>
+        <a href=#measurement>	measurement			</a>
+   <tr>
+     <td>
+        <a href=#measurement_backup>	measurement_backup			</a>
+     <td>
+        <a href=#parse>	parse			</a>
+     <td>
+        <a href=#reason_value_missing>	reason_value_missing			</a>
+   <tr>
+     <td>
+        <a href=#shef>	shef			</a>
+     <td>
+        <a href=#shef_download_datatype>	shef_download_datatype			</a>
+     <td>
+        <a href=#shef_upload_datatype>	shef_upload_datatype			</a>
+   <tr>
+     <td>
+        <a href=#site_visit>	site_visit			</a>
+     <td>
+        <a href=#site_visit_calibrate>	site_visit_calibrate			</a>
+     <td>
+        <a href=#site_visit_calibrate_action>	site_visit_calibrate_action			</a>
+   <tr>
+     <td>
+        <a href=#station>	station			</a>
+     <td>
+        <a href=#station_alias>	station_alias			</a>
+     <td>
+        <a href=#station_datatype>	station_datatype			</a>
+   <tr>
+     <td>
+        <a href=#station_type>	station_type			</a>
+     <td>
+        <a href=#units>	units			</a>
+     <td>
+        <a href=#validation_process>	validation_process			</a>
+   <tr>
+     <td>
+        <a href=#vertical_datum>	vertical_datum			</a>
+</table> 
+
+
+<h3> <a name=process > DataForEVER Processes </a> </h3>
+
+<table border=1 cellpadding=2 width=100%>
+  <tbody>
+   <tr>
+     <td>
+        <a href=#!HELP_ME!>	!HELP_ME!			</a>
+     <td>
+        <a href=#add_column>	add_column			</a>
+     <td>
+        <a href=#adjust_measurement_time>	adjust_measurement_time			</a>
+   <tr>
+     <td>
+        <a href=#alter_column_datatype>	alter_column_datatype			</a>
+     <td>
+        <a href=#chart_data_sets>	chart_data_sets			</a>
+     <td>
+        <a href=#chart_measurements>	chart_measurements			</a>
+   <tr>
+     <td>
+        <a href=#clone_application>	clone_application			</a>
+     <td>
+        <a href=#clone_folder>	clone_folder			</a>
+     <td>
+        <a href=#conductivity_to_salinity>	conductivity_to_salinity			</a>
+   <tr>
+     <td>
+        <a href=#create_application>	create_application			</a>
+     <td>
+        <a href=#create_table>	create_table			</a>
+     <td>
+        <a href=#data_validation_form>	data_validation_form			</a>
+   <tr>
+     <td>
+        <a href=#delete>	delete			</a>
+     <td>
+        <a href=#detail>	detail			</a>
+     <td>
+        <a href=#drop_column>	drop_column			</a>
+   <tr>
+     <td>
+        <a href=#dry_season_sums>	dry_season_sums			</a>
+     <td>
+        <a href=#estimation_constant_offset>	estimation_constant_offset			</a>
+     <td>
+        <a href=#estimation_linear_interpolation_spike>	estimation_linear_interpolation_spike			</a>
+   <tr>
+     <td>
+        <a href=#estimation_nearest_neighbor>	estimation_nearest_neighbor			</a>
+     <td>
+        <a href=#linear_interpolation_drift>	linear_interpolation_drift			</a>
+     <td>
+        <a href=#linear_interpolation_malfunction>	linear_interpolation_malfunction			</a>
+   <tr>
+     <td>
+        <a href=#load_cr10_data>	load_cr10_data			</a>
+     <td>
+        <a href=#load_realdata>	load_realdata			</a>
+     <td>
+        <a href=#load_shef_data>	load_shef_data			</a>
+   <tr>
+     <td>
+        <a href=#load_verification>	load_verification			</a>
+     <td>
+        <a href=#measurement_block_delete>	measurement_block_delete			</a>
+     <td>
+        <a href=#measurement_null_value_insert>	measurement_null_value_insert			</a>
+   <tr>
+     <td>
+        <a href=#null>	null			</a>
+     <td>
+        <a href=#output_datatype_overlay>	output_datatype_overlay			</a>
+     <td>
+        <a href=#output_exceedance_curve>	output_exceedance_curve			</a>
+   <tr>
+     <td>
+        <a href=#period_of_record>	period_of_record			</a>
+     <td>
+        <a href=#quick_measurement_form>	quick_measurement_form			</a>
+     <td>
+        <a href=#rain_accumulate_to_delta>	rain_accumulate_to_delta			</a>
+   <tr>
+     <td>
+        <a href=#rain_report>	rain_report			</a>
+     <td>
+        <a href=#rename_attribute>	rename_attribute			</a>
+     <td>
+        <a href=#rename_table>	rename_table			</a>
+   <tr>
+     <td>
+        <a href=#restore_measurement>	restore_measurement			</a>
+     <td>
+        <a href=#sets>	sets			</a>
+     <td>
+        <a href=#shef_download>	shef_download			</a>
+   <tr>
+     <td>
+        <a href=#shef_upload>	shef_upload			</a>
+     <td>
+        <a href=#station_datatype_list>	station_datatype_list			</a>
+     <td>
+        <a href=#station_list>	station_list			</a>
+   <tr>
+     <td>
+        <a href=#statistics_report>	statistics_report			</a>
+     <td>
+        <a href=#transmit_data_sets>	transmit_data_sets			</a>
+     <td>
+        <a href=#transmit_measurements>	transmit_measurements			</a>
+   <tr>
+     <td>
+        <a href=#valid_data>	valid_data			</a>
+     <td>
+        <a href=#valid_data_blocks>	valid_data_blocks			</a>
+     <td>
+        <a href=#valid_data_NOT>	valid_data_NOT			</a>
+   <tr>
+     <td>
+        <a href=#view_diagrams>	view_diagrams			</a>
+     <td>
+        <a href=#view_maps_and_figures>	view_maps_and_figures			</a>
+     <td>
+        <a href=#view_reports>	view_reports			</a>
+   <tr>
+     <td>
+        <a href=#view_source>	view_source			</a>
+</table>
+
+       <h3><a name=agency>	agency table description			</a></h3>
+       <a href=#agency_columns>	agency column definitions </a><br><br>
+	The agency table is a <a onmouseover > lookup </a> table that simply contains a listing of 
+	all the agencies that own stations that are contained in the database.
+
+       <h3> <a name=basin>	basin table description			</a></h3>
+       <h3> <a href=#basin_columns>	basin column definitions </a></h3><br><br>
+
+	The basin table is lookup table that contains a list of basins
+	in which stations are located.
+
+       <h3> <a name=daily_value_type>	daily_value_type table description			</a></h3>
+       <h3> <a href=#daily_value_type_columns>	daily_value_type column definitions </a></h3>
+
+       <h3> <a name=datatype>	datatype table description			</a></h3>
+       <h3> <a href=#datatype_columns>	datatype column definitions </a></h3>
+
+	The datatype table is a <a href=#glossary_lookup> lookup </a> table that contains a listing of all the datatypes that are available in the database.
+
+       <h3> <a name=device>	device table description			</a></h3>
+       <h3> <a href=#device_columns>	device column definitions </a></h3>
+
+	The device table is a lookup table containing a list of the devices and
+	sensors used at various hydrostations
+
+       <h3> <a name=device_type>	device_type table description			</a></h3>
+       <h3> <a href=#device_type_columns>	device_type column definitions </a></h3>
+
+
+       <h3> <a name=equipment>	equipment table description			</a></h3>
+       <h3> <a href=#equipment_columns>	equipment column definitions </a></h3>
+
+	The equipment table contains information about various equipment that
+	are not sensors.  For example dataloggers, radios and such are important
+	pieces of equipment, but do not specifically measure datatypes
+
+       <h3> <a name=estimation_event>	estimation_event table description			</a></h3>
+       <h3> <a href=#estimation_event_columns>	estimation_event column definitions </a></h3>
+
+	When a data estimation process (interpolation or datum adjustment etc)
+	is run this table logs pertinent information about the event. One of the primary 
+	objectives of this system is to maintain a complete history of data changes.  This
+	table also provides the ability to restore the "original" data in the event that
+	an error was made in the estimation
+
+       <h3> <a name=estimation_event_parameter>	estimation_event_parameter table description			</a></h3>
+       <h3> <a href=#estimation_event_parameter_columns>	estimation_event_parameter column definitions </a></h3>
+       <h3> <a name=estimation_method>	estimation_method table description			</a></h3>
+       <h3> <a href=#estimation_method_columns>	estimation_method column definitions </a></h3>
+       <h3> <a name=manual_validation_event>	manual_validation_event table description			</a></h3>
+       <h3> <a href=#manual_validation_event_columns>	manual_validation_event column definitions </a></h3>
+       <h3> <a name=measurement>	measurement table description			</a></h3>
+       <h3> <a href=#measurement_columns>	measurement column definitions </a></h3>
+       <h3> <a name=measurement_backup>	measurement_backup table description			</a></h3>
+       <h3> <a href=#measurement_backup_columns>	measurement_backup column definitions </a></h3>
+       <h3> <a name=parse>	parse table description			</a></h3>
+       <h3> <a href=#parse_columns>	parse column definitions </a></h3>
+       <h3> <a name=reason_value_missing>	reason_value_missing table description			</a></h3>
+       <h3> <a href=#reason_value_missing_columns>	reason_value_missing column definitions </a></h3>
+       <h3> <a name=shef>	shef table description			</a></h3>
+       <h3> <a href=#shef_columns>	shef column definitions </a></h3>
+       <h3> <a name=shef_download_datatype>	shef_download_datatype table description			</a></h3>
+       <h3> <a href=#shef_download_datatype_columns>	shef_download_datatype column definitions </a></h3>
+       <h3> <a name=shef_upload_datatype>	shef_upload_datatype table description			</a></h3>
+       <h3> <a href=#shef_upload_datatype_columns>	shef_upload_datatype column definitions </a></h3>
+       <h3> <a name=site_visit>	site_visit table description			</a></h3>
+       <h3> <a href=#site_visit_columns>	site_visit column definitions </a></h3>
+       <h3> <a name=site_visit_calibrate>	site_visit_calibrate table description			</a></h3>
+       <h3> <a href=#site_visit_calibrate_columns>	site_visit_calibrate column definitions </a></h3>
+       <h3> <a name=site_visit_calibrate_action>	site_visit_calibrate_action table description			</a></h3>
+       <h3> <a href=#site_visit_calibrate_action_columns>	site_visit_calibrate_action column definitions </a></h3>
+       <h3> <a name=station>	station table description			</a></h3>
+       <h3> <a href=#station_columns>	station column definitions </a></h3>
+       <h3> <a name=station_alias>	station_alias table description			</a></h3>
+       <h3> <a href=#station_alias_columns>	station_alias column definitions </a></h3>
+       <h3> <a name=station_datatype>	station_datatype table description			</a></h3>
+       <h3> <a href=#station_datatype_columns>	station_datatype column definitions </a></h3>
+       <h3> <a name=station_type>	station_type table description			</a></h3>
+       <h3> <a href=#station_type_columns>	station_type column definitions </a></h3>
+       <h3> <a name=units>	units table description			</a></h3>
+       <h3> <a href=#units_columns>	units column definitions </a></h3>
+       <h3> <a name=validation_process>	validation_process table description			</a></h3>
+       <h3> <a href=#validation_process_columns>	validation_process column definitions </a></h3>
+       <h3> <a name=vertical_datum>	vertical_datum table description			</a></h3>
+       <h3> <a href=#vertical_datum_columns>	vertical_datum column definitions </a></h3>
+
+
+
+
+<h3> <a name=Glossary> Glossary of Terms </a> </h3> 
+
+Lookup Table: This is a table that is used for maintaining a list of certain attributes.
+	In the DataForEVER application these tables are utilized primarily as drop down 
+	lists to limit the selection of the attributes.  This enhances data integrity by
+	removing the need to have the user type them in thereby removing the possibility
+	of misspelling.
+
+</body>
+</html>

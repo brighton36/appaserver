@@ -1,0 +1,27 @@
+# $APPASERVER_HOME/src_template/mysqldump_template.dat
+# -------------------------------------------------------------
+# This is the template parameter file for mysqldump_database.sh
+# -------------------------------------------------------------
+# son = daily
+# father = Sunday
+# grandfather = first of the month
+# greatgrandfather = January 1 and July 1
+# greatgreatgrandfather = January 1
+# =============================================================
+processes_in_parallel=10
+big_table_list=
+each_line_insert=yes
+appaserver_config=/etc/appaserver.config
+
+directory_root=/var/backups/appaserver/template
+output_directory=son
+father_directory=father
+grandfather_directory=grandfather
+greatgrandfather_directory=greatgrandfather
+greatgreatgrandfather_directory=greatgreatgrandfather
+
+son_keep_days=14
+father_keep_days=31
+grandfather_keep_days=185
+greatgrandfather_keep_days=1100
+greatgreatgrandfather_keep_days=1830

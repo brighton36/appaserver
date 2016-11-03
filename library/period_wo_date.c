@@ -443,37 +443,31 @@ PERIOD_WO_DATE_YEAR_SUM *period_wo_date_seek_period_wo_date_year_sum(
 
 } /* period_wo_date_seek_period_wo_date_year_sum() */
 
-#ifdef NOT_DEFINED
-double period_wo_date_get_aggregation_value(
+char *period_wo_date_get_aggregation_average_value(
 				double scalar_value,
-				enum aggregate_statistic aggregate_statistic,
-				boolean is_weekly,
-				int null_count )
+				boolean is_weekly )
 {
+	char return_value[ 16 ];
+	int denominator_value;
 
-	if ( aggregate_statistic == sum )
+	if ( is_weekly )
+		denominator_value = 52;
+	else
+		denominator_value = 12;
+
+	if ( !scalar_value )
 	{
-		return scalar_value;
+		return strdup( "null" );
 	}
 	else
 	{
-		int denominator_value;
-
-		if ( is_weekly )
-		{
-			denominator_value = 52 - null_count;
-		}
-		else
-		{
-			denominator_value = 12 - null_count;
-		}
-		if ( !denominator_value )
-			return 0;
-		else
-			return scalar_value / denominator_value;
+		sprintf(	return_value,
+				"%.2lf",
+				scalar_value / denominator_value );
+		return strdup( return_value );
 	}
-} /* period_wo_date_get_aggregation_value() */
-#endif
+
+} /* period_wo_date_get_aggregation_average_value() */
 
 char *period_wo_date_get_aggregation_value(
 				double scalar_value,
@@ -500,6 +494,7 @@ char *period_wo_date_get_aggregation_value(
 		{
 			denominator_value = 12 - null_count;
 		}
+
 		if ( !denominator_value )
 		{
 			return strdup( "null" );

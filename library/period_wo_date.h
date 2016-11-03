@@ -132,13 +132,10 @@ void period_wo_date_populate_minimum_average_maximum(
 			double *sum_maximum,
 			PERIOD_WO_DATE_PERIOD **period_array );
 
-/*
-double period_wo_date_get_aggregation_value(
-			double scalar_value,
-			enum aggregate_statistic,
-			boolean is_weekly,
-			int null_count );
-*/
+char *period_wo_date_get_aggregation_average_value(
+				double scalar_value,
+				boolean is_weekly );
+
 char *period_wo_date_get_aggregation_value(
 			double scalar_value,
 			enum aggregate_statistic,

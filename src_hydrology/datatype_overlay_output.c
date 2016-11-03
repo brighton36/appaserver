@@ -330,6 +330,16 @@ int main( int argc, char **argv )
 						0 );
 	}
 
+	if ( !anchor_station || !*anchor_station )
+	{
+		document_quick_output_body(	application_name,
+						appaserver_parameter_file->
+						appaserver_mount_point );
+		printf( "<h3>Error: please select a Station Datatype.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
 	dictionary_get_index_data( 	&begin_date, 
 					parameter_dictionary, 
 					"begin_date", 

@@ -32,6 +32,7 @@
 #include "query.h"
 #include "boolean.h"
 #include "period_wo_date.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
@@ -45,12 +46,16 @@
 #define GRACE_TICKLABEL_ANGLE		90
 #define PROCESS_NAME			"output_annual_periods"
 #define KEY_DELIMITER			'/'
+#define FILENAME_STEM			"annual_periods"
+
+/*
 #define OUTPUT_FILE_SPREADSHEET		"%s/%s/annual_periods_%d.csv"
 #define HTTP_FTP_FILE_SPREADSHEET	"%s://%s/%s/annual_periods_%d.csv"
 #define FTP_FILE_SPREADSHEET		"/%s/annual_periods_%d.csv"
 #define OUTPUT_FILE_TEXT_FILE		"%s/%s/annual_periods_%d.txt"
 #define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/annual_periods_%d.txt"
 #define FTP_FILE_TEXT_FILE		"/%s/annual_periods_%d.txt"
+*/
 
 #define ROWS_BETWEEN_HEADING		20
 #define SELECT_LIST			"measurement_date,measurement_value,station"
@@ -86,7 +91,7 @@ void period_wo_date_output_transmit(
 			enum aggregate_statistic aggregate_statistic,
 			char *begin_date_string,
 			char *end_date_string,
-			char *appaserver_mount_point,
+			char *document_root_directory,
 			char *application_name,
 			char *output_medium,
 			char *units_display_string );
@@ -131,7 +136,7 @@ void annual_periods_monthly_missing_month_output_spreadsheet(
 				char *station_name,
 				char *datatype_name,
 				enum aggregate_statistic aggregate_statistic,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				char *begin_date_string,
 				char *end_date_string,
 				char *output_medium,
@@ -142,7 +147,7 @@ void annual_periods_weekly_missing_week_output_spreadsheet(
 				char *station_name,
 				char *datatype_name,
 				enum aggregate_statistic aggregate_statistic,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				char *begin_date_string,
 				char *end_date_string,
 				char *output_medium,
@@ -604,7 +609,7 @@ int main( int argc, char **argv )
 					datatype_name,
 					aggregate_statistic,
 					appaserver_parameter_file->
-						appaserver_mount_point,
+						document_root,
 					begin_date_string,
 					end_date_string,
 					output_medium,
@@ -663,7 +668,7 @@ int main( int argc, char **argv )
 					datatype_name,
 					aggregate_statistic,
 					appaserver_parameter_file->
-						appaserver_mount_point,
+						document_root,
 					begin_date_string,
 					end_date_string,
 					output_medium,
@@ -837,19 +842,49 @@ sys_string );
 	else
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_filename[ 256 ];
+		char *output_filename;
+		char *ftp_filename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		FILE *output_file;
 		char output_sys_string[ 512 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
+/*
 		sprintf( output_filename, 
 			 OUTPUT_FILE_SPREADSHEET,
 			 appaserver_parameter_file->appaserver_mount_point,
 			 application_name, 
 			 process_id );
-	
+*/
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -889,6 +924,7 @@ sys_string );
 
 		output_pipe = popen( output_sys_string, "w" );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -906,6 +942,24 @@ sys_string );
 			 	application_name,
 			 	process_id );
 		}
+*/
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
 
 		if ( *exceedance_format_yn == 'y' )
 		{
@@ -958,18 +1012,48 @@ sys_string );
 	else
 	if ( strcmp( output_medium, "transmit" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_filename[ 256 ];
+		char *output_filename;
+		char *ftp_filename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		FILE *output_file;
 		char output_sys_string[ 512 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
+/*
 		sprintf( output_filename, 
 			 OUTPUT_FILE_TEXT_FILE,
 			 appaserver_parameter_file->appaserver_mount_point,
 			 application_name, 
 			 process_id );
+*/
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"txt" );
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 	
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -1010,6 +1094,7 @@ sys_string );
 
 		output_pipe = popen( output_sys_string, "w" );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -1027,6 +1112,25 @@ sys_string );
 			 	application_name,
 			 	process_id );
 		}
+*/
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 
 		if ( *exceedance_format_yn == 'y' )
 		{
@@ -2303,7 +2407,8 @@ void annual_periods_monthly_missing_month_output_table(
 	PERIOD_WO_DATE *period_wo_date;
 	char *units_display = {0};
 
-	period_wo_date = period_wo_date_new(
+	period_wo_date =
+		period_wo_date_new(
 			0 /* not is_weekly */,
 			aggregate_statistic,
 			delta_string,
@@ -2429,7 +2534,7 @@ void annual_periods_monthly_missing_month_output_spreadsheet(
 			char *station_name,
 			char *datatype_name,
 			enum aggregate_statistic aggregate_statistic,
-			char *appaserver_mount_point,
+			char *document_root_directory,
 			char *begin_date_string,
 			char *end_date_string,
 			char *output_medium,
@@ -2459,7 +2564,7 @@ void annual_periods_monthly_missing_month_output_spreadsheet(
 		station_name,
 		datatype_name,
 		aggregate_statistic,
-		appaserver_mount_point,
+		document_root_directory,
 		begin_date_string,
 		end_date_string,
 		period_wo_date->period_wo_date_delta,
@@ -2487,7 +2592,7 @@ void annual_periods_monthly_missing_month_output_spreadsheet(
 		aggregate_statistic,
 		begin_date_string,
 		end_date_string,
-		appaserver_mount_point,
+		document_root_directory,
 		application_name,
 		output_medium,
 		units_display );
@@ -2499,7 +2604,7 @@ void annual_periods_weekly_missing_week_output_spreadsheet(
 			char *station_name,
 			char *datatype_name,
 			enum aggregate_statistic aggregate_statistic,
-			char *appaserver_mount_point,
+			char *document_root_directory,
 			char *begin_date_string,
 			char *end_date_string,
 			char *output_medium,
@@ -2529,7 +2634,7 @@ void annual_periods_weekly_missing_week_output_spreadsheet(
 		station_name,
 		datatype_name,
 		aggregate_statistic,
-		appaserver_mount_point,
+		document_root_directory,
 		begin_date_string,
 		end_date_string,
 		period_wo_date->period_wo_date_delta,
@@ -2557,7 +2662,7 @@ void annual_periods_weekly_missing_week_output_spreadsheet(
 		aggregate_statistic,
 		begin_date_string,
 		end_date_string,
-		appaserver_mount_point,
+		document_root_directory,
 		application_name,
 		output_medium,
 		units_display );
@@ -3120,11 +3225,9 @@ void period_wo_date_output_table(
 
 	sprintf(output_buffer,
 		"%s",
-		period_wo_date_get_aggregation_value(
+		period_wo_date_get_aggregation_average_value(
 			sum_minimum,
-			aggregate_statistic,
-			is_weekly,
-			period_wo_date_year_sum->null_count ) );
+			is_weekly ) );
 
 	html_table_set_data(
 		html_table->data_list,
@@ -3132,11 +3235,9 @@ void period_wo_date_output_table(
 
 	sprintf(output_buffer,
 		"%s",
-		period_wo_date_get_aggregation_value(
+		period_wo_date_get_aggregation_average_value(
 			sum_average,
-			aggregate_statistic,
-			is_weekly,
-			period_wo_date_year_sum->null_count ) );
+			is_weekly ) );
 
 	html_table_set_data(
 		html_table->data_list,
@@ -3144,11 +3245,9 @@ void period_wo_date_output_table(
 
 	sprintf(output_buffer,
 		"%s",
-		period_wo_date_get_aggregation_value(
+		period_wo_date_get_aggregation_average_value(
 			sum_maximum,
-			aggregate_statistic,
-			is_weekly,
-			period_wo_date_year_sum->null_count ) );
+			is_weekly ) );
 
 	html_table_set_data(
 		html_table->data_list,
@@ -3193,13 +3292,13 @@ void period_wo_date_output_transmit(
 		enum aggregate_statistic aggregate_statistic,
 		char *begin_date_string,
 		char *end_date_string,
-		char *appaserver_mount_point,
+		char *document_root_directory,
 		char *application_name,
 		char *output_medium,
 		char *units_display_string )
 {
-	char ftp_filename[ 256 ];
-	char output_filename[ 256 ];
+	char *output_filename;
+	char *ftp_filename;
 	pid_t process_id = getpid();
 	FILE *output_pipe;
 	FILE *output_file;
@@ -3212,11 +3311,41 @@ void period_wo_date_output_transmit(
 
 	if ( !output_medium || strcmp( output_medium, "stdout" ) != 0 )
 	{
-		sprintf( output_filename, 
+		APPASERVER_LINK_FILE *appaserver_link_file;
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+				document_root_directory,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+/*
+		sprintf( output_filename,
 			 OUTPUT_FILE_SPREADSHEET,
 			 appaserver_mount_point,
 			 application_name, 
 			 process_id );
+*/
 		
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -3234,6 +3363,7 @@ void period_wo_date_output_transmit(
 		 	"tr '|' ',' > %s",
 		 	output_filename );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -3251,6 +3381,25 @@ void period_wo_date_output_transmit(
 			 	application_name,
 			 	process_id );
 		}
+*/
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 	}
 	else
 	{
@@ -3421,21 +3570,15 @@ void period_wo_date_output_transmit(
 
 	fprintf(output_pipe,
 		"|%s|%s|%s\n",
-		period_wo_date_get_aggregation_value(
+		period_wo_date_get_aggregation_average_value(
 				sum_minimum,
-				aggregate_statistic,
-				is_weekly,
-				period_wo_date_year_sum->null_count ),
-		period_wo_date_get_aggregation_value(
+				is_weekly ),
+		period_wo_date_get_aggregation_average_value(
 				sum_average,
-				aggregate_statistic,
-				is_weekly,
-				period_wo_date_year_sum->null_count ),
-		period_wo_date_get_aggregation_value(
+				is_weekly ),
+		period_wo_date_get_aggregation_average_value(
 				sum_maximum,
-				aggregate_statistic,
-				is_weekly,
-				period_wo_date_year_sum->null_count ) );
+				is_weekly ) );
 
 	pclose( output_pipe );
 

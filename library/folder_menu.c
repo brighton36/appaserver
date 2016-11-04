@@ -24,6 +24,16 @@ void folder_menu_create_spool_file(
 	char sys_string[ 1024 ];
 	char *filename;
 
+	if ( !appaserver_data_directory || !*appaserver_data_directory )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty appaserver_data_directory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	filename = folder_menu_get_filename(
 			application_name,
 			session,

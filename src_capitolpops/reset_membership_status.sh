@@ -40,8 +40,7 @@ statement="select count(*)
 from band_member
 where ${where};"
 
-echo "Content-type: text/html"
-echo ""
+content_type_cgi.sh
 
 echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
 echo "<body><h1>$process_title</h1>"

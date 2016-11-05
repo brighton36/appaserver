@@ -1,6 +1,4 @@
 :
-# echo "Content-type: text/html"
-# echo ""
 
 filename="/hydrology/enp_station.kml"
 

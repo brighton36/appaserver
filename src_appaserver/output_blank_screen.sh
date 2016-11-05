@@ -27,8 +27,7 @@ fi
 
 if [ "$3" = "y" ]
 then
-	echo "Content-type: text/html"
-	echo ""
+	content_type_cgi.sh
 fi
 
 cat << all_done

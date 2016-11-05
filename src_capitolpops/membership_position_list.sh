@@ -31,9 +31,9 @@ fi
 
 # Variables
 # ---------
-appaserver_home=$(get_appaserver_home.e)
-output_file="/$appaserver_home/$application/${process_name}_$$.csv"
-prompt_file="/$application/${process_name}_$$.csv"
+document_root=$(get_document_root.e)
+output_file="$document_root/$application/appaserver/${process_name}_$$.csv"
+prompt_file="/$application/appaserver/${process_name}_$$.csv"
 process_title=`echo "$process_name" | format_initial_capital.e`
 musician_file=/tmp/musician_file_$$.dat
 position_file=/tmp/position_file_$$.dat
@@ -93,8 +93,7 @@ cat >> $output_file
 # ------
 if [ "$output_medium" != "stdout" ]
 then
-	echo "Content-type: text/html"
-	echo ""
+	content_type_cgi.sh
 
 	echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
 	echo "<body><h1>$process_title</h1>"

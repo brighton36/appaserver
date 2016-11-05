@@ -25,13 +25,12 @@ then
 	end_date="2099-12-31"
 fi
 
-appaserver_home=$(get_appaserver_home.e)
+document_root=$(get_document_root.e)
 process_name=calculate_trailer_vessel_regression
-output_file="/$appaserver_home/$application/${process_name}_$$.csv"
-prompt_file="/$application/${process_name}_$$.csv"
+output_file="$document_root/$application/appaserver/${process_name}_$$.csv"
+prompt_file="/$application/appaserver/${process_name}_$$.csv"
 
-echo "Content-type: text/html"
-echo ""
+content_type_cgi.sh
 
 echo "<html><head><link rel=stylesheet type=text/css href=/creel/style.css></head>"
 echo "<body><h1>Trailer/Vessel Regression</h1>"

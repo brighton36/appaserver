@@ -54,8 +54,7 @@ cat > $output_file
 
 if [ "$output_medium" != "stdout" ]
 then
-	echo "Content-type: text/html"
-	echo ""
+	content_type_cgi.sh
 
 	echo "<html><head><link rel=stylesheet type=text/css href=/hydrology/style.css></head>"
 	echo "<body><h1>Biscayne Data Dump</h1>"

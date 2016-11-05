@@ -32,7 +32,6 @@ really_yn=$5
 
 # Constants
 # ---------
-appaserver_home=$(get_appaserver_home.e)
 
 # Variables
 # ---------
@@ -43,8 +42,7 @@ process_title=$(echo $process_name for ${station} | format_initial_capital.e)
 
 # Output
 # ------
-echo "Content-type: text/html"
-echo ""
+content_type_cgi.sh
 
 echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
 echo "<body><h1>$process_title</h1>"

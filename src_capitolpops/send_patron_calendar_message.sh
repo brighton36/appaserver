@@ -91,8 +91,7 @@ test_only ()
 	echo "</table>"
 }
 
-echo "Content-type: text/html"
-echo ""
+content_type_cgi.sh
 
 echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
 echo "<body><h1>$process_title</h1>"

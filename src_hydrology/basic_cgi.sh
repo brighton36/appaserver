@@ -1,4 +1,6 @@
 :
+# First Appaserver program.
+# -------------------------
 echo "Content-type: text/html"
 echo ""
 

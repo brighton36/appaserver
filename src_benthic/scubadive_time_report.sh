@@ -61,6 +61,7 @@ habitat_dive_minutes_file="$document_root/$application/appaserver/${process_name
 habitat_master_file="$document_root/$application/appaserver/${process_name}_habitat_master_$$.txt"
 water_depth_habitat_file="$document_root/$application/appaserver/${process_name}_water_depth_habitat_$$.txt"
 sort_file="$document_root/$application/appaserver/${process_name}_sort_$$.txt"
+
 output_file="$document_root/$application/appaserver/${process_name}_$$.csv"
 prompt_file="/$application/appaserver/${process_name}_$$.csv"
 

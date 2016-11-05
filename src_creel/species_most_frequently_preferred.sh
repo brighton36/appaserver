@@ -60,11 +60,11 @@ fi
 
 # Constants
 # ---------
-appaserver_home=$(get_appaserver_home.e)
+document_root=$(get_document_root.e)
 row_file="/tmp/row_${process_name}_$$"
 denominator_file="/tmp/denominator_${process_name}_$$"
-output_file="/$appaserver_home/$application/${process_name}_$$.csv"
-prompt_file="/$application/${process_name}_$$.csv"
+output_file="$document_root/$application/appaserver/${process_name}_$$.csv"
+prompt_file="/$application/appaserver/${process_name}_$$.csv"
 
 # Variables
 # ---------
@@ -281,8 +281,7 @@ fi
 # ------
 if [ "$output_medium" != "stdout" ]
 then
-	echo "Content-type: text/html"
-	echo ""
+	content_type_cgi.sh
 
 	echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
 	echo "<body><h1>$process_title</h1>"

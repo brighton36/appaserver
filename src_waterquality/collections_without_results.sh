@@ -35,9 +35,9 @@ fi
 
 # Constants
 # ---------
-appaserver_home=$(get_appaserver_home.e)
-output_file="$appaserver_home/$application/${process_name}_$$.csv"
-prompt_file="/$application/${process_name}_$$.csv"
+document_root=$(get_document_root.e)
+output_file="$document_root/$application/appaserver/${process_name}_$$.csv"
+prompt_file="/$application/appaserver/${process_name}_$$.csv"
 heading="Station,Collection Date,Collection Time"
 justification="left"
 

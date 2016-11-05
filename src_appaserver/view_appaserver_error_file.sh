@@ -27,8 +27,7 @@ filename=$directory/appaserver_${application}.err
 #	filename=$directory/appaserver.err
 #fi
 
-echo "Content-type: text/html"
-echo ""
+content_type_cgi.sh
 echo "<html>"
 echo "<head>"
 echo "<link rel=stylesheet type='text/css' href=/$application/style.css>"

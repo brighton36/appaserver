@@ -51,18 +51,18 @@ fi
 
 # Constants
 # ---------
-appaserver_home=$(get_appaserver_home.e)
-collection_file="$appaserver_home/$application/${process_name}_collection_$$.txt"
-collection_diver_minutes_file="$appaserver_home/$application/${process_name}_collection_minutes_between_$$.txt"
-collection_master_file="$appaserver_home/$application/${process_name}_collection_master_$$.txt"
-water_depth_collection_file="$appaserver_home/$application/${process_name}_water_depth_collection_$$.txt"
-habitat_file="$appaserver_home/$application/${process_name}_habitat_$$.txt"
-habitat_dive_minutes_file="$appaserver_home/$application/${process_name}_habitat_minutes_between_$$.txt"
-habitat_master_file="$appaserver_home/$application/${process_name}_habitat_master_$$.txt"
-water_depth_habitat_file="$appaserver_home/$application/${process_name}_water_depth_habitat_$$.txt"
-sort_file="$appaserver_home/$application/${process_name}_sort_$$.txt"
-output_file="$appaserver_home/$application/${process_name}_$$.csv"
-prompt_file="/$application/${process_name}_$$.csv"
+document_root=$(get_document_root.e)
+collection_file="$document_root/$application/appaserver/${process_name}_collection_$$.txt"
+collection_diver_minutes_file="$document_root/$application/appaserver/${process_name}_collection_minutes_between_$$.txt"
+collection_master_file="$document_root/$application/appaserver/${process_name}_collection_master_$$.txt"
+water_depth_collection_file="$document_root/$application/appaserver/${process_name}_water_depth_collection_$$.txt"
+habitat_file="$document_root/$application/appaserver/${process_name}_habitat_$$.txt"
+habitat_dive_minutes_file="$document_root/$application/appaserver/${process_name}_habitat_minutes_between_$$.txt"
+habitat_master_file="$document_root/$application/appaserver/${process_name}_habitat_master_$$.txt"
+water_depth_habitat_file="$document_root/$application/appaserver/${process_name}_water_depth_habitat_$$.txt"
+sort_file="$document_root/$application/appaserver/${process_name}_sort_$$.txt"
+output_file="$document_root/$application/appaserver/${process_name}_$$.csv"
+prompt_file="/$application/appaserver/${process_name}_$$.csv"
 
 # Tables
 # ------

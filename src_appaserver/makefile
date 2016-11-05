@@ -206,6 +206,9 @@ get_appaserver_mount_point: get_appaserver_mount_point.c 		\
 	touch get_appaserver_error_directory
 	/bin/rm -f get_appaserver_error_directory
 	ln get_appaserver_mount_point get_appaserver_error_directory
+	touch get_document_root.e
+	/bin/rm -f get_document_root.e
+	ln get_appaserver_mount_point get_document_root.e
 
 stop_start_mysql_daemon: stop_start_mysql_daemon.c 			\
 	${EXTERNAL_LIBS}

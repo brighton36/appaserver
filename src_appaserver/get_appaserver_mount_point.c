@@ -1,4 +1,4 @@
-/* get_appaserver_mount_point.c						*/
+/* src_appaserver/get_appaserver_mount_point.c				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -15,6 +15,13 @@ int main( int argc, char **argv )
 
 	argc = 1; /* stub */
 
+	if ( strcmp( *argv, "get_document_root" ) == 0
+	||   strcmp( *argv, "get_document_root.e" ) == 0 )
+	{
+		appaserver_mount_point =
+		appaserver_parameter_file_get_document_root();
+	}
+	else
 	if ( strcmp( *argv, "get_appaserver_error_directory" ) == 0
 	||   strcmp( *argv, "get_appaserver_error_directory.e" ) == 0 )
 	{

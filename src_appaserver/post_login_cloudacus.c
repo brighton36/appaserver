@@ -68,7 +68,7 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	post_dictionary =
 		post2dictionary(

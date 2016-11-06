@@ -174,6 +174,7 @@ int load_bank_spreadsheet(
 	int load_count = 0;
 	int sequence_number = 0;
 	boolean found_header = 0;
+	char error_filename[ 128 ] = {0};
 
 	if ( ! ( sequence_number =
 			get_sequence_number(
@@ -197,6 +198,20 @@ int load_bank_spreadsheet(
 			get_table_name(	application_name,
 					"bank_download" );
 
+		sprintf(	error_filename,
+				"/tmp/bank_download_%d.err",
+				getpid() );
+
+		sprintf( sys_string,
+		 "insert_statement table=%s field=%s del='%c' 		  |"
+		 "sql.e 2>&1						  |"
+		 "cat > %s						   ",
+		 	table_name,
+		 	INSERT_BANK_DOWNLOAD,
+		 	FOLDER_DATA_DELIMITER,
+			error_filename );
+
+/*
 		sprintf( sys_string,
 		 "insert_statement table=%s field=%s del='%c' 		  |"
 		 "sql.e 2>&1						  |"
@@ -204,6 +219,7 @@ int load_bank_spreadsheet(
 		 	table_name,
 		 	INSERT_BANK_DOWNLOAD,
 		 	FOLDER_DATA_DELIMITER );
+*/
 
 		bank_download_insert_pipe = popen( sys_string, "w" );
 	}
@@ -325,6 +341,20 @@ int load_bank_spreadsheet(
 	if ( execute )
 	{
 		pclose( bank_download_insert_pipe );
+		int error_file_lines;
+
+		sprintf( sys_string,
+			 "wc -l %s",
+			 error_filename );
+
+		error_file_lines = atoi( pipe2string( sys_string ) );
+		load_count -= error_file_lines;
+
+		sprintf( sys_string,
+			 "rm -f %s",
+			 error_filename );
+
+		system( sys_string );
 	}
 	else
 	{

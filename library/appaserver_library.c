@@ -2645,6 +2645,8 @@ boolean appaserver_library_application_exists(
 
 	results = pipe2string( sys_string );
 
+	return (boolean)results;
+/*
 	if ( (boolean)results ) return 1;
 
 	sprintf( sys_string,
@@ -2653,6 +2655,7 @@ boolean appaserver_library_application_exists(
 
 	results = pipe2string( sys_string );
 	return (boolean)results;
+*/
 } /* appaserver_library_application_exists() */
 
 char *appaserver_library_get_default_role_name(

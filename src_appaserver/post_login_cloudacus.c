@@ -47,7 +47,7 @@ int email_password(		char *login_name,
 				char *password );
 
 boolean application_exists(	char *application_name,
-				char *appaserver_mount_point );
+				char *document_root_directory );
 
 int main( int argc, char **argv )
 {
@@ -383,11 +383,11 @@ int email_password(	char *login_name,
 } /* email_password() */
 
 boolean application_exists(	char *application_name,
-				char *appaserver_mount_point )
+				char *document_root_directory )
 {
 	return appaserver_library_application_exists(
 				application_name,
-				appaserver_mount_point );
+				document_root_directory );
 } /* application_exists() */
 
 #ifdef NOT_DEFINED

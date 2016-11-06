@@ -418,7 +418,7 @@ boolean appaserver_library_get_from_php(
 
 boolean appaserver_library_application_exists(
 				char *application,
-				char *appaserver_mount_point );
+				char *document_root_directory );
 
 char *appaserver_library_get_default_role_name(
 				char *application_name,

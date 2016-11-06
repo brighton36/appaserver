@@ -2633,14 +2633,14 @@ boolean appaserver_library_get_from_php( DICTIONARY *post_dictionary )
 
 boolean appaserver_library_application_exists(
 				char *application,
-				char *appaserver_mount_point )
+				char *document_root_directory )
 {
 	char sys_string[ 1024 ];
 	char *results;
 
 	sprintf( sys_string,
 	 	"stat.e %s/%s 2>&1 | grep '^\\.filename'",
-	 	appaserver_mount_point,
+	 	document_root_directory,
 	 	application );
 
 	results = pipe2string( sys_string );

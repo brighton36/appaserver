@@ -52,7 +52,7 @@ function output_revenue()
 {
 element="revenue"
 
-where="${common_where} and subclassification.element = '$element'"
+where="${common_where} and subclassification.element = '$element' and credit_amount != 0.0"
 
 select="${common_select},credit_amount"
 
@@ -65,7 +65,7 @@ function output_expense()
 {
 element="expense"
 
-where="${common_where} and subclassification.element = '$element'"
+where="${common_where} and subclassification.element = '$element' and debit_amount != 0.0"
 
 select="${common_select},debit_amount"
 
@@ -79,7 +79,7 @@ function output_prepaid()
 element="asset"
 subclassification="prepaid"
 
-where="${common_where} and subclassification.element = '$element' and subclassification.subclassification = '$subclassification'"
+where="${common_where} and subclassification.element = '$element' and subclassification.subclassification = '$subclassification' and debit_amount != 0.0"
 
 select="${common_select},debit_amount"
 

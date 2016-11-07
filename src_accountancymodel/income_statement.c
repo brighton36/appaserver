@@ -392,9 +392,7 @@ void income_statement_consolidate_html_table(
 	double total_losses;
 	double net_income;
 
-	html_table = new_html_table(
-			title,
-			sub_title );
+	html_table = new_html_table( title, sub_title );
 
 	html_table->number_left_justified_columns = 1;
 	html_table->number_right_justified_columns = 2;
@@ -538,9 +536,7 @@ void income_statement_full_html_table(
 	double total_losses;
 	double net_income;
 
-	html_table = new_html_table(
-			title,
-			sub_title );
+	html_table = new_html_table( title, sub_title );
 
 	html_table->number_left_justified_columns = 1;
 	html_table->number_right_justified_columns = 3;

@@ -1123,7 +1123,8 @@ LIST *ledger_get_element_list(	char *application_name,
 } /* ledger_get_element_list() */
 
 LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
-					double liabilities_plus_equity )
+				double liabilities_plus_equity,
+				boolean consolidate_accounts )
 {
 	LATEX_ROW *latex_row;
 
@@ -1134,7 +1135,9 @@ LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 		"\\Large \\bf Liabilities Plus Equity" );
 
 	list_append_pointer( latex_row->column_data_list, "" );
-	list_append_pointer( latex_row->column_data_list, "" );
+
+	if ( !consolidate_accounts )
+		list_append_pointer( latex_row->column_data_list, "" );
 
 	list_append_pointer(
 		latex_row->column_data_list,

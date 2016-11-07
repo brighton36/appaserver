@@ -10,6 +10,8 @@
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_parameter_file.h"
+#include "appaserver.h"
+#include "application.h"
 #include "environ.h"
 
 char *resolve_environment_variables( char *return_string, char *s )
@@ -239,4 +241,135 @@ char *environ_get_http_referer_filename( void )
 	}
 
 } /* environ_get_http_referer_filename() */
+
+void add_standard_unix_to_path( void )
+{
+	add_local_bin_to_path();
+	set_path( "/bin:/usr/bin:/etc" );
+}
+
+void add_dot_to_path( void )
+{
+	set_path( "." );
+}
+
+void add_pwd_to_path( void )
+{
+	set_path( pipe2string( "pwd" ) );
+}
+
+void add_etc_to_path( void )
+{
+	set_path( "/etc" );
+}
+
+void add_local_bin_to_path( void )
+{
+	set_path( "/usr/local/bin" );
+}
+
+void add_utility_to_path( void )
+{
+	char *appaserver_mount_point;
+	char utility_path[ 128 ];
+
+	appaserver_mount_point =
+		appaserver_parameter_file_get_appaserver_mount_point();
+	sprintf( utility_path, "%s/utility", appaserver_mount_point );
+	set_path( utility_path );
+}
+
+void add_appaserver_home_to_environment( void )
+{
+	environ_set_environment(
+		"APPASERVER_HOME",
+		appaserver_parameter_file_get_appaserver_mount_point() );
+
+} /* add_appaserver_home_to_environment() */
+
+void add_src_appaserver_to_path( void )
+{
+	char *appaserver_mount_point;
+	char bin_path[ 256 ];
+
+	appaserver_mount_point =
+		appaserver_parameter_file_get_appaserver_mount_point();
+	sprintf(	bin_path,
+			"%s/%s",
+			appaserver_mount_point,
+			APPASERVER_RELATIVE_SOURCE_DIRECTORY );
+	set_path( bin_path );
+}
+
+void add_python_library_path( void )
+{
+	add_library_to_python_path();
+}
+
+void add_library_to_python_path( void )
+{
+	char *appaserver_mount_point;
+	char python_library_path[ 128 ];
+
+	appaserver_mount_point = 
+		appaserver_parameter_file_get_appaserver_mount_point();
+	sprintf( python_library_path,
+		 "%s/library", 
+		 appaserver_mount_point );
+	set_environment( "PYTHONPATH", python_library_path );
+}
+
+void add_appaserver_home_to_python_path( void )
+{
+	char *appaserver_mount_point;
+
+	appaserver_mount_point = 
+		appaserver_parameter_file_get_appaserver_mount_point();
+	set_environment( "PYTHONPATH", appaserver_mount_point );
+}
+
+void add_path( char *path_to_add )
+{
+	set_path( path_to_add );
+}
+
+void add_relative_source_directory_to_path( char *application_name )
+{
+	char *appaserver_mount_point;
+	char *relative_source_directory;
+	char piece_buffer[ 128 ];
+	char bin_path[ 128 ];
+	int index;
+	char delimiter;
+
+	appaserver_mount_point =
+		appaserver_parameter_file_get_appaserver_mount_point();
+
+	relative_source_directory =
+		application_get_relative_source_directory(
+			application_name );
+
+	if ( ! ( delimiter =
+			timlib_get_delimiter(
+				relative_source_directory ) ) )
+	{
+		/* No delimiter, so set it to anything. */
+		/* ------------------------------------ */
+		delimiter = ';';
+	}
+
+	for(	index = 0;
+		piece(	piece_buffer,
+			delimiter,
+			relative_source_directory,
+			index );
+		index++ )
+	{
+		sprintf(bin_path,
+			"%s/%s",
+			appaserver_mount_point,
+			piece_buffer );
+		set_path( bin_path );
+	}
+} /* add_relative_source_directory_to_path() */
 

@@ -139,7 +139,6 @@ int main( int argc, char **argv )
 	char title[ 512 ];
 	char sub_title[ 512 ];
 	DOCUMENT *document;
-	int results;
 
 	if ( argc != 11 )
 	{
@@ -247,7 +246,7 @@ int main( int argc, char **argv )
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	results = system( "date.sh" );
+	system( "date.sh" );
 	fflush( stdout );
 	printf( "</h2>\n" );
 
@@ -283,7 +282,7 @@ void output_catches_per_species(
 			char *fishing_purpose,
 			char *aggregate_level,
 			char *output_medium,
-			char *appaserver_mount_point,
+			char *document_root_directory,
 			pid_t process_id,
 			char *title,
 			char *sub_title,
@@ -307,6 +306,7 @@ void output_catches_per_species(
 	boolean omit_output_day = 0;
 	boolean omit_output_day_sum = 0;
 	boolean omit_output_month_sum = 0;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	input_pipe = get_input_pipe(
 			&heading,
@@ -330,6 +330,19 @@ void output_catches_per_species(
 			genus,
 			species );
 
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			process_name /* filename_stem */,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			"csv" );
+
 	if ( strcmp( output_medium, "text_file" ) == 0 )
 	{
 /*
@@ -339,7 +352,20 @@ void output_catches_per_species(
 		 	application_name, 
 		 	process_id );
 */
-	
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf(
@@ -399,6 +425,24 @@ void output_catches_per_species(
 		 		process_id );
 		}
 */
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
 
 		appaserver_library_output_ftp_prompt(
 			ftp_filename,

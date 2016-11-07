@@ -26,15 +26,18 @@
 #include "environ.h"
 #include "application.h"
 #include "benthic_library.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
 
 /* Constants */
 /* --------- */
+/*
 #define OUTPUT_FILE			"%s/%s/compare_waypoint_%d.csv"
 #define FTP_PREPEND_FILE		"%s://%s/%s/compare_waypoint_%d.csv"
 #define FTP_NONPREPEND_FILE		"/%s/compare_waypoint_%d.csv"
+*/
 
 /* Prototypes */
 /* ---------- */
@@ -51,10 +54,11 @@ void get_title_and_sub_title(	char *title,
 
 void output_compare_waypoint(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				pid_t process_id,
 				LIST *collection_list,
-				LIST *project_list );
+				LIST *project_list,
+				char *process_name );
 
 int main( int argc, char **argv )
 {
@@ -69,7 +73,6 @@ int main( int argc, char **argv )
 	LIST *project_list;
 	char title[ 128 ];
 	char sub_title[ 65536 ];
-	int results;
 
 	if ( argc != 5 )
 	{
@@ -102,7 +105,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -136,7 +139,7 @@ int main( int argc, char **argv )
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	results = system( "date '+%x %H:%M'" );
+	system( "date '+%x %H:%M'" );
 	fflush( stdout );
 	printf( "</h2>\n" );
 
@@ -152,10 +155,11 @@ int main( int argc, char **argv )
 	output_compare_waypoint(
 				application_name,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				getpid(),
 				collection_list,
-				project_list );
+				project_list,
+				process_name );
 
 	document_close();
 
@@ -168,35 +172,64 @@ int main( int argc, char **argv )
 
 void output_compare_waypoint(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				pid_t process_id,
 				LIST *collection_list,
-				LIST *project_list )
+				LIST *project_list,
+				char *process_name )
 {
 	char sys_string[ 1024 ];
-	char ftp_filename[ 256 ];
-	char process_output_filename[ 256 ];
+	char *process_output_filename;
+	char *ftp_filename;
 	FILE *input_pipe;
 	FILE *output_pipe;
 	char input_buffer[ 1024 ];
 	char *heading_string;
 	char delimiter = ',';
-	int results;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	heading_string =
 "Season,Basin,Cell,Date,Time,Latitude Sampled,Longitude Sampled,Sample Success,Latitude Targeted,Longitude Targeted,Distance Meters";
 
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			process_name /* filename_stem */,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			"csv" );
+
+/*
 	sprintf(process_output_filename,
 	 	OUTPUT_FILE,
 	 	appaserver_mount_point,
 	 	application_name,
 	 	process_id );
+*/
+
+		process_output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
 
 	sprintf(	sys_string,
 			"echo \"%s\" > %s",
 			heading_string,
 			process_output_filename );
-	results = system( sys_string );
+	system( sys_string );
 
 	sprintf( sys_string, "cat >> %s", process_output_filename );
 	output_pipe = popen( sys_string, "w" );
@@ -215,6 +248,7 @@ void output_compare_waypoint(
 	pclose( output_pipe );
 	pclose( input_pipe );
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 	{
@@ -232,6 +266,25 @@ void output_compare_waypoint(
 	 		application_name,
 	 		process_id );
 	}
+*/
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

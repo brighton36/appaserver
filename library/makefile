@@ -504,23 +504,16 @@ basename.o: basename.c
 	${CC} ${CFLAGS} -c basename.c			\
 		${APPASERVER_ERROR_FILE_FLAG}
 
-piece_dvr.e: piece_dvr.c piece.o list.o hashtbl.o
+piece_dvr.e: piece_dvr.c				\
+		piece.o					\
+		list.o					\
+		hashtbl.o				\
+		prompt_recursive.o
 	${CC} ${CFLAGS} piece_dvr.c			\
 		${APPASERVER_ERROR_FILE_FLAG}		\
-			list.o				\
-			date.o				\
-			julian.o			\
-			list_usage.o			\
-			date_convert.o 			\
-			dictionary.o			\
-			column.o			\
-			hashtbl.o			\
-			piece.o				\
-			timlib.o			\
-			environ.o			\
-			fopen_path.o			\
-			appaserver_parameter_file.o	\
-			appaserver_error.o		\
+		${STANDARD_LIBRARY}			\
+		${APPASERVER_LIBRARY}			\
+		prompt_recursive.o			\
 	-o piece_dvr.e
 
 piece.o: piece.c piece.h

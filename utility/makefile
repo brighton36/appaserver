@@ -37,6 +37,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/form.o					\
+		${LIBRARY}/environ.o					\
 		${LIBRARY}/dictionary_appaserver.o			\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/query.o					\
@@ -48,7 +49,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/application_constants.o			\
 		${LIBRARY}/aggregate_statistic.o			\
 		${LIBRARY}/fopen_path.o					\
-		${LIBRARY}/environ.o 					\
 		${LIBRARY}/expected_count.o 				\
 		${LIBRARY}/application.o
 
@@ -392,10 +392,7 @@ database_management_system.e: database_management_system.c
 	$(CC)    ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/environ.o					\
-		${LIBRARY}/appaserver_parameter_file.o			\
-		${LIBRARY}/fopen_path.o					\
-		${LIBRARY}/appaserver_error.o				\
+		${APPASERVER_LIBRARY}					\
 		database_management_system.c 				\
 		-o database_management_system.e
 
@@ -403,10 +400,7 @@ date2dayofyear.e: date2dayofyear.c
 	$(CC)    ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/environ.o					\
-		${LIBRARY}/appaserver_parameter_file.o			\
-		${LIBRARY}/fopen_path.o					\
-		${LIBRARY}/appaserver_error.o				\
+		${APPASERVER_LIBRARY}					\
 		date2dayofyear.c 					\
 		-o date2dayofyear.e
 	touch date2dayofyear
@@ -1172,18 +1166,14 @@ consume_socket_message.e: consume_socket_message.c
 	rm consume_socket_message
 	ln consume_socket_message.e consume_socket_message
 
-menu.e: menu.c menutree.o						\
-		${LIBRARY}/environ.o
+menu.e: menu.c menutree.o
 	$(CC)	${CFLAGS} -I${LIBRARY} menu.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		menutree.o						\
 		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
 		${LIBRARY}/stack.o					\
 		${LIBRARY}/queue.o					\
-		${LIBRARY}/environ.o					\
-		${LIBRARY}/appaserver_parameter_file.o			\
-		${LIBRARY}/appaserver_error.o				\
-		${LIBRARY}/fopen_path.o					\
 		-o menu.e
 	touch menu
 	rm menu

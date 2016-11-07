@@ -5197,6 +5197,8 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 		return date_get_yyyy_mm_dd_string( transaction_date );
 	}
 
+	/* No closing entries */
+	/* ------------------ */
 	select = "min( transaction_date_time )";
 
 	if ( fund_name )
@@ -5242,6 +5244,9 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 
 	if ( !results || !*results ) return (char *)0;
 
+	return strdup( column( transaction_date_string, 0, results )  );
+
+#ifdef NOT_DEFINED
 	/* Assume the opening entry was 11:59 the night before. */
 	/* ---------------------------------------------------- */
 	column( transaction_date_string, 0, results );
@@ -5252,6 +5257,7 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 
 	date_increment_days( transaction_date, 1 );
 	return date_get_yyyy_mm_dd_string( transaction_date );
+#endif
 
 } /* ledger_nominal_accounts_beginning_transaction_date() */
 

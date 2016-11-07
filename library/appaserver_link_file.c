@@ -264,6 +264,7 @@ char *appaserver_link_get_tail_half(
 		*key_part = '\0';
 	}
 
+/*
 	if ( !extension || !*extension )
 	{
 		fprintf( stderr,
@@ -273,6 +274,7 @@ char *appaserver_link_get_tail_half(
 			 __LINE__ );
 		exit( 1 );
 	}
+*/
 
 	*application_part = '\0';
 
@@ -290,7 +292,7 @@ char *appaserver_link_get_tail_half(
 		 filename_stem,
 		 (*date_part) ? date_part : "",
 		 key_part,
-		 extension );
+		 (extension) ? extension : "null" );
 
 	return tail_half;
 

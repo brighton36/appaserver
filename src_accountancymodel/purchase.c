@@ -1976,6 +1976,7 @@ void purchase_order_list_transaction_update(
 #ifdef REFRESH_COMPLETELY
 		purchase_order_journal_ledger_refresh(
 			application_name,
+			purchase_order->fund_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,

@@ -516,7 +516,7 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 		application_name,
 		purchase_order->inventory_purchase_list );
 
-is_latest = 0;
+/* is_latest = 0; */
 
 	if ( is_latest )
 	{

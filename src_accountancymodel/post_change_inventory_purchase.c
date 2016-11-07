@@ -516,6 +516,8 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 		application_name,
 		purchase_order->inventory_purchase_list );
 
+is_latest = 0;
+
 	if ( is_latest )
 	{
 		sprintf( sys_string,
@@ -536,6 +538,7 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 				? purchase_order->transaction_date_time
 				: "" );
 	}
+
 
 	system( sys_string );
 

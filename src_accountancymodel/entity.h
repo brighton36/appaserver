@@ -26,7 +26,7 @@ enum inventory_cost_method{	inventory_not_set,
 
 /* Constants */
 /* --------- */
-/* #define REFRESH_COMPLETELY	1 */
+#define REFRESH_COMPLETELY	1
 
 #define TITLE_PASSAGE_RULE_SHIPPED_DATE "FOB_shipping"
 #define TITLE_PASSAGE_RULE_ARRIVED_DATE "FOB_destination"

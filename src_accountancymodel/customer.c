@@ -996,13 +996,13 @@ LIST *customer_sale_ledger_refresh(
 				double invoice_amount,
 				double customer_sale_cost_of_goods_sold )
 {
-	char *sales_revenue_account;
-	char *service_revenue_account;
-	char *sales_tax_payable_account;
-	char *shipping_revenue_account;
-	char *inventory_account;
-	char *cost_of_goods_sold_account;
-	char *receivable_account;
+	char *sales_revenue_account = {0};
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	char *inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	char *receivable_account = {0};
 	LIST *propagate_account_list = {0};
 	ACCOUNT *account;
 	JOURNAL_LEDGER *prior_ledger;
@@ -1026,6 +1026,16 @@ LIST *customer_sale_ledger_refresh(
 
 	if ( invoice_amount )
 	{
+		if ( !receivable_account )
+		{
+			fprintf( stderr,
+			 "Error in %s/%s()/%d: empty receivable_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+			exit(1 );
+		}
+
 		ledger_journal_ledger_insert(
 			application_name,
 			full_name,
@@ -1055,6 +1065,16 @@ LIST *customer_sale_ledger_refresh(
 
 	if ( sales_tax )
 	{
+		if ( !sales_tax_payable_account )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: empty sales_tax_payable_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+			exit(1 );
+		}
+
 		ledger_journal_ledger_insert(
 			application_name,
 			full_name,
@@ -1085,6 +1105,16 @@ LIST *customer_sale_ledger_refresh(
 
 	if ( shipping_revenue )
 	{
+		if ( !shipping_revenue_account )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: empty shipping_revenue_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+			exit(1 );
+		}
+
 		ledger_journal_ledger_insert(
 			application_name,
 			full_name,
@@ -1115,6 +1145,16 @@ LIST *customer_sale_ledger_refresh(
 
 	if ( sum_inventory_extension )
 	{
+		if ( !sales_revenue_account )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: empty sales_revenue_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+			exit(1 );
+		}
+
 		ledger_journal_ledger_insert(
 			application_name,
 			full_name,
@@ -1145,6 +1185,16 @@ LIST *customer_sale_ledger_refresh(
 
 	if ( sum_service_extension )
 	{
+		if ( !service_revenue_account )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: empty service_revenue_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+			exit(1 );
+		}
+
 		ledger_journal_ledger_insert(
 			application_name,
 			full_name,
@@ -1175,6 +1225,16 @@ LIST *customer_sale_ledger_refresh(
 
 	if ( customer_sale_cost_of_goods_sold )
 	{
+		if ( !cost_of_goods_sold_account )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: empty cost_of_goods_sold_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+			exit(1 );
+		}
+
 		/* Cost of goods sold half */
 		/* ----------------------- */
 		ledger_journal_ledger_insert(
@@ -1203,6 +1263,16 @@ LIST *customer_sale_ledger_refresh(
 			propagate_account_list = list_new();
 
 		list_append_pointer( propagate_account_list, account );
+
+		if ( !inventory_account )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: empty inventory_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+			exit(1 );
+		}
 
 		/* Inventory half */
 		/* -------------- */
@@ -1769,7 +1839,6 @@ LIST *customer_get_customer_sale_list(
 		inventory_sale_list_set_extension(
 			customer_sale->inventory_sale_list );
 
-/*
 		customer_sale->sum_inventory_extension =
 			customer_sale_get_sum_inventory_extension(
 				customer_sale->inventory_sale_list );
@@ -1805,11 +1874,11 @@ LIST *customer_get_customer_sale_list(
 				&customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->inventory_sale_list,
+				customer_sale->specific_inventory_sale_list,
 				customer_sale->service_sale_list,
 				customer_sale->full_name,
 				customer_sale->street_address,
 				application_name );
-*/
 
 		if ( customer_sale->transaction_date_time )
 		{

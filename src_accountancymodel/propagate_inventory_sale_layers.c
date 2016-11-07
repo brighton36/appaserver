@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_accountancymodel/propagate_inventory_layers.c			*/
+/* src_accountancymodel/propagate_inventory_sale_layers.c		*/
 /* ---------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ---------------------------------------------------------------	*/
@@ -77,8 +77,6 @@ int main( int argc, char **argv )
 	inventory_name = argv[ 5 ];
 	propagate_transaction_date_time = argv[ 6 ];
 	is_latest = (*argv[ 7 ] == 'y');
-
-is_latest = 0;
 
 	if ( is_latest )
 	{
@@ -197,8 +195,6 @@ void propagate_inventory_sale_layers_not_latest(
 					inventory_cost_method,
 				char *propagate_transaction_date_time )
 {
-	LIST *fund_name_list = list_new();
-
 	inventory->inventory_balance_list =
 		inventory_get_average_cost_inventory_balance_list(
 			inventory->inventory_purchase_list,
@@ -268,6 +264,13 @@ void propagate_inventory_sale_layers_not_latest(
 	customer_sale_list_cost_of_goods_sold_set(
 		customer_sale_list );
 
+	customer_sale_list_transaction_update(
+		application_name,
+		customer_sale_list );
+
+/*
+	LIST *fund_name_list = list_new();
+
 	customer_sale_list_inventory_transaction_update_and_propagate(
 		application_name,
 		customer_sale_list,
@@ -300,6 +303,7 @@ void propagate_inventory_sale_layers_not_latest(
 
 		} while( list_next( customer_sale_list ) );
 	}
+*/
 
 } /* propagate_inventory_sale_layers_not_latest() */
 

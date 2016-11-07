@@ -74,8 +74,6 @@ int main( int argc, char **argv )
 	inventory_name = argv[ 5 ];
 	is_latest = (*argv[ 6 ] == 'y');
 
-is_latest = 0;
-
 	if ( is_latest )
 	{
 		INVENTORY *inventory;

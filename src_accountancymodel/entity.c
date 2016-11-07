@@ -322,13 +322,13 @@ void entity_propagate_customer_sale_ledger_accounts(
 				char *fund_name,
 				char *customer_sale_transaction_date_time )
 {
-	char *sales_revenue_account;
-	char *service_revenue_account;
-	char *sales_tax_payable_account;
-	char *shipping_revenue_account;
-	char *inventory_account;
-	char *cost_of_goods_sold_account;
-	char *receivable_account;
+	char *sales_revenue_account = {0};
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	char *inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	char *receivable_account = {0};
 
 	ledger_get_customer_sale_account_names(
 		&sales_revenue_account,
@@ -341,40 +341,61 @@ void entity_propagate_customer_sale_ledger_accounts(
 		application_name,
 		fund_name );
 
-	ledger_propagate(
-		application_name,
-		customer_sale_transaction_date_time,
-		sales_revenue_account );
+	if ( sales_revenue_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			sales_revenue_account );
+	}
 
-	ledger_propagate(
-		application_name,
-		customer_sale_transaction_date_time,
-		service_revenue_account );
+	if ( service_revenue_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			service_revenue_account );
+	}
 
-	ledger_propagate(
-		application_name,
-		customer_sale_transaction_date_time,
-		sales_tax_payable_account );
+	if ( sales_tax_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			sales_tax_payable_account );
+	}
 
-	ledger_propagate(
-		application_name,
-		customer_sale_transaction_date_time,
-		shipping_revenue_account );
+	if ( shipping_revenue_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			shipping_revenue_account );
+	}
 
-	ledger_propagate(
-		application_name,
-		customer_sale_transaction_date_time,
-		receivable_account );
+	if ( receivable_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			receivable_account );
+	}
 
-	ledger_propagate(
-		application_name,
-		customer_sale_transaction_date_time,
-		cost_of_goods_sold_account );
+	if ( cost_of_goods_sold_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			cost_of_goods_sold_account );
+	}
 
-	ledger_propagate(
-		application_name,
-		customer_sale_transaction_date_time,
-		inventory_account );
+	if ( inventory_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			inventory_account );
+	}
 
 } /* entity_propagate_customer_sale_ledger_accounts() */
 

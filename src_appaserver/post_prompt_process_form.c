@@ -84,7 +84,14 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	add_dot_to_path();
+	/* ----------------------------------------------------- */
+	/* Appaserver runs in Apache's chroot jail.		 */
+	/* Virtual hosts have their own appaserver.config files. */
+	/* Therefore, ./appaserver.config needs to be found	 */
+	/* before /etc/appaserver.config.			 */
+	/* ----------------------------------------------------- */
+	environ_prepend_dot_to_path();
+
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_appaserver_home_to_environment();

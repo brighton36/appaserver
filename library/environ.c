@@ -157,6 +157,27 @@ void set_environment( char *environment, char *datum )
 
 } /* set_environment() */
 
+void environ_prepend_path( char *path_to_add )
+{
+	char *path_environment;
+	char new_path[ 4096 ];
+
+	path_environment = getenv( "PATH" );
+	if ( !path_environment )
+	{
+		fprintf( stderr, 
+			 "%s/%s(%s) cannot get PATH\n", 
+			 __FILE__,
+			 __FUNCTION__,
+			 path_to_add );
+		exit( 1 );
+	}
+	sprintf( new_path, "PATH=%s:%s", path_to_add, path_environment );
+
+	putenv( strdup( new_path ) );
+
+} /* environ_prepend_path() */
+
 void set_path( char *path_to_add )
 {
 	char *path_environment;
@@ -246,6 +267,11 @@ void add_standard_unix_to_path( void )
 {
 	add_local_bin_to_path();
 	set_path( "/bin:/usr/bin:/etc" );
+}
+
+void environ_prepend_dot_to_path( void )
+{
+	environ_prepend_path( "." );
 }
 
 void add_dot_to_path( void )

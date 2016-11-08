@@ -117,10 +117,12 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
 	table_name = get_table_name( application_name, folder_name );
 

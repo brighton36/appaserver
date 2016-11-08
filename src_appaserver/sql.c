@@ -62,7 +62,7 @@ int main( int argc, char **argv )
 		delimiter = '^';
 	}
 
-	add_dot_to_path();
+	environ_prepend_dot_to_path();
 	add_local_bin_to_path();
 	add_dot_to_path();
 	add_etc_to_path();

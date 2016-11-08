@@ -98,10 +98,12 @@ output_starting_argv_stderr( argc, argv );
 
 	if ( !*dbms ) dbms = appaserver_parameter_file_get_dbms();
 
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
 	if( strcmp( select, "primary" ) == 0 )
 	{

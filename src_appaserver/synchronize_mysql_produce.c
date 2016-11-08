@@ -73,10 +73,12 @@ int main( int argc, char **argv )
 	application_name = argv[ 1 ];
 
 	add_standard_unix_to_path();
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
 	application_constants = application_constants_new();
 	application_constants->dictionary =

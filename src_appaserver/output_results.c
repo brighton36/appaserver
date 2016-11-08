@@ -75,10 +75,12 @@ int main( int argc, char **argv )
 	else
 		dictionary_string = "";
 
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
 	vertical_new_button_base_folder_name =
 		trim_quotes(	trim_buffer,

@@ -137,10 +137,12 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
 /*
 	if ( session_remote_ip_address_changed(

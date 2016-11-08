@@ -116,10 +116,12 @@ int main( int argc, char **argv )
 				argv,
 				current_application );
 
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( current_application );
+*/
 
 	if ( !session_access(	current_application,
 				session,

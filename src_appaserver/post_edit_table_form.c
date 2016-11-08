@@ -193,7 +193,7 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	add_dot_to_path();
+	environ_prepend_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_local_bin_to_path();

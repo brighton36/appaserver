@@ -110,10 +110,12 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
 	collection_list = list_string2list( collection_list_string, ',' );
 	project_list = list_string2list( project_list_string, ',' );
@@ -140,12 +142,16 @@ int main( int argc, char **argv )
 					project_list,
 					candidate_hash_table ) ) )
 	{
+		printf( "Error: no candidates for this collection.\n" );
+		exit( 0 );
+/*
 		fprintf( stderr,
 			 "ERROR In %s/%s()/%d: cannot get utm_distance_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
+*/
 	}
 
 	output_compare_waypoint_process(

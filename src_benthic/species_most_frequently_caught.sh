@@ -35,11 +35,11 @@ fi
 
 # System variables
 # ----------------
-appaserver_mount_point=$(cat /etc/appaserver.config | grep appaserver_mount_point | piece.e "=" 1)
-output_file="$appaserver_mount_point/$application/${process_name}_$$.csv"
+document_root_directory=`get_document_root.e`
+output_file="$document_root_directory/$application/appaserver/${process_name}_$$.csv"
 row_file="/tmp/row_${process_name}_$$"
 denominator_file="/tmp/denominator_${process_name}_$$"
-prompt_file="/$application/${process_name}_$$.csv"
+prompt_file="/$application/appaserver/${process_name}_$$.csv"
 exit_flag=0
 
 # User variables

@@ -64,7 +64,7 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	enum password_match_return password_match_return;
 
-	add_dot_to_path();
+	environ_prepend_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 

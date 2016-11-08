@@ -100,10 +100,12 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
+/* Already set in post_process_form.c
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

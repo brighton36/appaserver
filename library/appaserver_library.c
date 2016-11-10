@@ -2502,11 +2502,20 @@ boolean appaserver_library_get_from_php( DICTIONARY *post_dictionary )
 
 boolean appaserver_library_application_exists(
 				char *application,
-				char *document_root_directory )
+				char *appaserver_error_directory )
 {
 	char sys_string[ 1024 ];
 	char *results;
 
+	sprintf( sys_string,
+		 "stat.e %s/appaserver_%s.err 2>&1 | grep '^\\.filename'",
+		 appaserver_error_directory,
+		 application );
+
+	results = pipe2string( sys_string );
+
+	return (boolean)results;
+/*
 	sprintf( sys_string,
 	 	"stat.e %s/%s 2>&1 | grep '^\\.filename'",
 	 	document_root_directory,
@@ -2515,7 +2524,6 @@ boolean appaserver_library_application_exists(
 	results = pipe2string( sys_string );
 
 	return (boolean)results;
-/*
 	if ( (boolean)results ) return 1;
 
 	sprintf( sys_string,

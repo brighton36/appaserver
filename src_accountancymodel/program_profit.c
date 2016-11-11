@@ -211,11 +211,12 @@ void program_profit_html_table(	char *title,
 	double total_expense;
 	double profit;
 	LIST *heading_list;
+	char buffer[ 128 ];
 
 	heading_list = list_new();
 	list_append_pointer( heading_list, "Account" );
 	list_append_pointer( heading_list, "Entity" );
-	list_append_pointer( heading_list, "Date" );
+	list_append_pointer( heading_list, "Date/Time" );
 	list_append_pointer( heading_list, "Amount" );
 
 	html_table = new_html_table( title, sub_title );
@@ -247,9 +248,13 @@ void program_profit_html_table(	char *title,
 	html_table_set_data( html_table->data_list, "" );
 	html_table_set_data( html_table->data_list, "" );
 
+	sprintf( buffer,
+		 "<big>%s</big>",
+		 place_commas_in_money( total_revenue ) );
+
 	html_table_set_data(
 		html_table->data_list,
-		strdup( place_commas_in_money( total_revenue ) ) );
+		strdup( buffer ) );
 
 	html_table_output_data(
 			html_table->data_list,
@@ -286,9 +291,13 @@ void program_profit_html_table(	char *title,
 	html_table_set_data( html_table->data_list, "" );
 	html_table_set_data( html_table->data_list, "" );
 
+	sprintf( buffer,
+		 "<big>%s</big>",
+		 place_commas_in_money( total_expense ) );
+
 	html_table_set_data(
 		html_table->data_list,
-		strdup( place_commas_in_money( total_expense ) ) );
+		strdup( buffer ) );
 
 	html_table_output_data(
 			html_table->data_list,
@@ -311,9 +320,13 @@ void program_profit_html_table(	char *title,
 	html_table_set_data( html_table->data_list, "" );
 	html_table_set_data( html_table->data_list, "" );
 
+	sprintf( buffer,
+		 "<big>%s</big>",
+		 place_commas_in_money( profit ) );
+
 	html_table_set_data(
 		html_table->data_list,
-		strdup( place_commas_in_money( profit ) ) );
+		strdup( buffer ) );
 
 	html_table_output_data(
 			html_table->data_list,
@@ -340,7 +353,6 @@ double program_profit_html_table_element(
 	char *record;
 	char entity_name[ 128 ];
 	char transaction_date_time[ 128 ];
-	char transaction_date[ 128 ];
 	char account_name[ 128 ];
 	char buffer[ 128 ];
 	char amount_string[ 16 ];
@@ -368,8 +380,6 @@ double program_profit_html_table_element(
 			amount_string,
 			record );
 
-		column( transaction_date, 0, transaction_date_time );
-
 		html_table_set_data(
 			html_table->data_list,
 			strdup( format_initial_capital(
@@ -382,7 +392,7 @@ double program_profit_html_table_element(
 
 		html_table_set_data(
 			html_table->data_list,
-			strdup( transaction_date ) );
+			strdup( transaction_date_time ) );
 
 		amount_double = atof( amount_string );
 
@@ -431,6 +441,7 @@ void program_profit_PDF(	char *application_name,
 	double total_revenue;
 	double total_expense;
 	double profit;
+	char buffer[ 128 ];
 
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
@@ -509,7 +520,7 @@ void program_profit_PDF(	char *application_name,
 	list_append_pointer( latex_table->heading_list, table_heading );
 
 	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "Date";
+	table_heading->heading = "Date/Time";
 	table_heading->right_justified_flag = 0;
 	list_append_pointer( latex_table->heading_list, table_heading );
 
@@ -540,9 +551,13 @@ void program_profit_PDF(	char *application_name,
 	list_append_pointer( latex_row->column_data_list, "" );
 	list_append_pointer( latex_row->column_data_list, "" );
 
+	sprintf( buffer,
+		 "\\bf{%s}",
+		 place_commas_in_money( total_revenue ) );
+
 	list_append_pointer(
 		latex_row->column_data_list,
-		strdup( place_commas_in_money( total_revenue ) ) );
+		strdup( buffer ) );
 
 	/* Expense */
 	/* ------- */
@@ -572,9 +587,13 @@ void program_profit_PDF(	char *application_name,
 	list_append_pointer( latex_row->column_data_list, "" );
 	list_append_pointer( latex_row->column_data_list, "" );
 
+	sprintf( buffer,
+		 "\\bf{%s}",
+		 place_commas_in_money( total_expense ) );
+
 	list_append_pointer(
 		latex_row->column_data_list,
-		strdup( place_commas_in_money( total_expense ) ) );
+		strdup( buffer ) );
 
 	/* Profit */
 	/* ------ */
@@ -590,9 +609,13 @@ void program_profit_PDF(	char *application_name,
 	list_append_pointer( latex_row->column_data_list, "" );
 	list_append_pointer( latex_row->column_data_list, "" );
 
+	sprintf( buffer,
+		 "\\bf{%s}",
+		 place_commas_in_money( profit ) );
+
 	list_append_pointer(
 		latex_row->column_data_list,
-		strdup( place_commas_in_money( profit ) ) );
+		strdup( buffer ) );
 
 	/* Output */
 	/* ------ */
@@ -647,7 +670,6 @@ double program_profit_PDF_element(
 	char *record;
 	char entity_name[ 128 ];
 	char transaction_date_time[ 128 ];
-	char transaction_date[ 128 ];
 	char account_name[ 128 ];
 	char buffer[ 128 ];
 	char amount_string[ 16 ];
@@ -676,8 +698,6 @@ double program_profit_PDF_element(
 			amount_string,
 			record );
 
-		column( transaction_date, 0, transaction_date_time );
-
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
@@ -693,7 +713,7 @@ double program_profit_PDF_element(
 
 		list_append_pointer(
 			latex_row->column_data_list,
-			strdup( transaction_date ) );
+			strdup( transaction_date_time ) );
 
 		amount_double = atof( amount_string );
 		list_append_pointer(

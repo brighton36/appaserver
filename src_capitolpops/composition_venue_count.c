@@ -102,7 +102,7 @@ void composition_venue_summary(	char *composition,
 		 FOLDER_DATA_DELIMITER );
 
 	sprintf( select,
-"select concert.city,concert.venue,composition,max( concert.date ), count(*) from concert,program where concert.concert_title = program.concert_title and concert.date = program.date and %s and concert.date < '%s' group by concert.city,concert.venue,composition order by composition, concert.city, concert.venue;",
+"select concert.city,concert.venue,composition,max( concert.date ), count(*) from concert,concert_program where concert.concert_title = concert_program.concert_title and concert.date = concert_program.date and %s and concert.date < '%s' group by concert.city,concert.venue,composition order by composition, concert.city, concert.venue;",
 		 where,
 		 date_get_today_yyyy_mm_dd() );
 
@@ -139,7 +139,7 @@ void composition_summary( void )
 	int count_total = 0;
 
 	sprintf( select,
-"select composition, max( concert.date ), count(*) from concert,program where concert.concert_title = program.concert_title and concert.date = program.date and concert.date < '%s' group by composition order by count(*) desc;",
+"select composition, max( concert.date ), count(*) from concert,concert_program where concert.concert_title = concert_program.concert_title and concert.date = concert_program.date and concert.date < '%s' group by composition order by count(*) desc;",
 		 date_get_today_yyyy_mm_dd() );
 
 	sprintf( sys_string,

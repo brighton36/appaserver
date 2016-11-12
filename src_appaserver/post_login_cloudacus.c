@@ -47,7 +47,7 @@ int email_password(		char *login_name,
 				char *password );
 
 boolean application_exists(	char *application_name,
-				char *document_root_directory );
+				char *appaserver_error_directory );
 
 int main( int argc, char **argv )
 {
@@ -238,7 +238,7 @@ int main( int argc, char **argv )
 		||   !application_exists(
 					application_name,
 					appaserver_parameter_file->
-						document_root ) )
+						appaserver_error_directory ) )
 		{
 			post_login_redraw_index_screen(
 				APPLICATION_NAME,
@@ -383,11 +383,11 @@ int email_password(	char *login_name,
 } /* email_password() */
 
 boolean application_exists(	char *application_name,
-				char *document_root_directory )
+				char *appaserver_error_directory )
 {
 	return appaserver_library_application_exists(
 				application_name,
-				document_root_directory );
+				appaserver_error_directory );
 } /* application_exists() */
 
 #ifdef NOT_DEFINED

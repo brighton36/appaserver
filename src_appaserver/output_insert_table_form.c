@@ -36,6 +36,7 @@
 #include "lookup_before_drop_down.h"
 #include "dictionary_appaserver.h"
 #include "pair_one2m.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
@@ -273,7 +274,7 @@ int main( int argc, char **argv )
 
 	ignore_attribute_name_list = list_new_list();
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( list_length( folder->mto1_isa_related_folder_list ) )
 	{
@@ -594,43 +595,81 @@ else
 	if ( vertical_new_button_base_folder_name )
 	{
 		char onload_control_string[ 1024 ];
-		char blank_screen_filename[ 128 ];
 		char sys_string[ 1024 ];
+		char *output_filename;
+		char *prompt_filename;
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
 		/* Make the prompt screen blank. */
 		/* ----------------------------- */
-		sprintf(blank_screen_filename,
-			"/%s/blank_screen_%s.html",
-			application_name,
-			session );
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				"blank_screen" /* filename_stem */,
+				application_name,
+				0 /* process_id */,
+				session,
+				"html" );
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		prompt_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
 
 		if ( appaserver_get_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 		{
 			sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '' n n > %s%s 2>>%s",
+"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '' n n > %s 2>>%s",
 				timlib_get_parameter_application_name(
 					application_name,
 					database_string ),
 				session,
 				login_name,
 				role->role_name,
-				appaserver_parameter_file->
-					appaserver_mount_point,
-				blank_screen_filename,
+				output_filename,
 				appaserver_error_get_filename(
 					application_name ) );
 		}
 		else
 		{
 			sprintf(sys_string,
-		 		"output_blank_screen.sh '%s' '' n > %s%s 2>>%s",
+		 		"output_blank_screen.sh '%s' '' n > %s 2>>%s",
 		 		application_get_background_color(
 					application_name ),
-				appaserver_parameter_file->
-					appaserver_mount_point,
-				blank_screen_filename,
+				output_filename,
 		 		appaserver_error_get_filename(
 					application_name ) );
 		}
@@ -639,7 +678,7 @@ else
 
 		sprintf(onload_control_string,
 			"window.open('%s','%s');",
-			blank_screen_filename,
+			prompt_filename,
 			PROMPT_FRAME );
 
 		document->onload_control_string =

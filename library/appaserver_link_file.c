@@ -264,18 +264,6 @@ char *appaserver_link_get_tail_half(
 		*key_part = '\0';
 	}
 
-/*
-	if ( !extension || !*extension )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty extension.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-*/
-
 	*application_part = '\0';
 
 	if ( application_name )

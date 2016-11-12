@@ -141,6 +141,10 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 	LIST *foreign_attribute_name_list;
 	LIST *subtract_list;
 
+	/* ---------------------------------------------------- */
+	/* Don't list_display( include_attribute_name_list );	*/
+	/* See output_prompt_insert_form.c			*/
+	/* ---------------------------------------------------- */
 	if ( !list_rewind( mto1_related_folder_list ) )
 	{
 		return (RELATED_FOLDER *)0;
@@ -176,6 +180,8 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 		{
 			if ( list_length( include_attribute_name_list ) )
 			{
+				/* See output_prompt_insert_form.c */
+				/* ------------------------------- */
 				list_push( include_attribute_name_list );
 
 				subtract_list =
@@ -183,6 +189,8 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 						foreign_attribute_name_list,
 						include_attribute_name_list );
 
+				/* See output_prompt_insert_form.c */
+				/* ------------------------------- */
 				list_pop( include_attribute_name_list );
 
 				if ( list_length( subtract_list ) )

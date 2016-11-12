@@ -47,17 +47,17 @@
 
 /* Prototypes */
 /* ---------- */
-void save_ending_form_number(	char *appaserver_mount_point,
+void save_ending_form_number(	char *appaserver_data_directory,
 				char *folder_name,
 				int parent_pid,
 				int form_number );
 
-int get_starting_form_number(	char *appaserver_mount_point,
+int get_starting_form_number(	char *appaserver_data_directory,
 				char *folder_name,
 				int parent_pid );
 
 char *get_form_number_semaphore_filename(
-				char *appaserver_mount_point,
+				char *appaserver_data_directory,
 				char *folder_name,
 				int parent_pid );
 
@@ -390,9 +390,9 @@ int main( int argc, char **argv )
 	form_number =
 		get_starting_form_number(
 			appaserver_parameter_file->
-				appaserver_mount_point,
-				folder_name,
-				parent_pid );
+				appaserver_data_directory,
+			folder_name,
+			parent_pid );
 
 	primary_dictionary = output_folder_detail(
 		&form_number,
@@ -559,7 +559,7 @@ int main( int argc, char **argv )
 
 	save_ending_form_number(
 			appaserver_parameter_file->
-				appaserver_mount_point,
+				appaserver_data_directory,
 			folder_name,
 			parent_pid,
 			form_number );
@@ -571,15 +571,15 @@ int main( int argc, char **argv )
 } /* main() */
 
 char *get_form_number_semaphore_filename(
-				char *appaserver_mount_point,
+				char *appaserver_data_directory,
 				char *folder_name,
 				int parent_pid )
 {
 	static char semaphore_filename[ 128 ];
 
 	sprintf( semaphore_filename,
-		 "%s/data/%s_semaphore_%d",
-		 appaserver_mount_point,
+		 "%s/%s_semaphore_%d",
+		 appaserver_data_directory,
 		 folder_name,
 		 parent_pid );
 
@@ -587,7 +587,7 @@ char *get_form_number_semaphore_filename(
 
 } /* get_form_number_semaphore_filename() */
 
-int get_starting_form_number(	char *appaserver_mount_point,
+int get_starting_form_number(	char *appaserver_data_directory,
 				char *folder_name,
 				int parent_pid )
 {
@@ -599,7 +599,7 @@ int get_starting_form_number(	char *appaserver_mount_point,
 
 	semaphore_filename =
 		get_form_number_semaphore_filename(
-			appaserver_mount_point,
+			appaserver_data_directory,
 			folder_name,
 			parent_pid );
 
@@ -623,7 +623,7 @@ int get_starting_form_number(	char *appaserver_mount_point,
 
 } /* get_starting_form_number() */
 
-void save_ending_form_number(	char *appaserver_mount_point,
+void save_ending_form_number(	char *appaserver_data_directory,
 				char *folder_name,
 				int parent_pid,
 				int form_number )
@@ -635,7 +635,7 @@ void save_ending_form_number(	char *appaserver_mount_point,
 
 	semaphore_filename =
 		get_form_number_semaphore_filename(
-			appaserver_mount_point,
+			appaserver_data_directory,
 			folder_name,
 			parent_pid );
 
@@ -960,7 +960,8 @@ void output_mto1_folder_detail(	int *form_number,
 	do {
 		related_folder =
 			list_get_pointer(
-				appaserver->folder->
+				appaserver->
+					folder->
 					mto1_related_folder_list );
 
 		if ( !list_exists_string(
@@ -995,14 +996,14 @@ void output_mto1_folder_detail(	int *form_number,
 
 		if ( primary_dictionary )
 		{
-			primary_data_list = 
-			dictionary_using_list_get_index_data_list( 
-			primary_dictionary,
-			related_folder_get_foreign_attribute_name_list(
-			   folder_get_primary_attribute_name_list(
-			      related_folder->folder->attribute_list ),
-			      related_folder->related_attribute_name ),
-			0 /* row */ );
+			primary_data_list =
+			   dictionary_using_list_get_index_data_list( 
+			      primary_dictionary,
+			      related_folder_get_foreign_attribute_name_list(
+			         folder_get_primary_attribute_name_list(
+			            related_folder->folder->attribute_list ),
+			            related_folder->related_attribute_name ),
+			      0 /* row */ );
 
 			appaserver_library_list_database_convert_dates(
 					primary_data_list,
@@ -1062,8 +1063,7 @@ void output_mto1_folder_detail(	int *form_number,
 				omit_delete,
 				non_edit_folder_name_list,
 				1 /* make_primary_keys_non_edit */ );
-
-			list_free_container( primary_data_list );
+			/* list_free_container( primary_data_list ); */
 		}
 
 	} while( list_next(
@@ -1311,7 +1311,9 @@ DICTIONARY *output_folder_detail(
 
 	form_output_table_heading( form->regular_element_list, *form_number );
 
-	form_set_row_dictionary_list( form, fetched_dictionary_list );
+	/* form_set_row_dictionary_list( form, fetched_dictionary_list ); */
+
+	form->row_dictionary_list = fetched_dictionary_list;
 
 	if ( strcmp(	row_security->select_folder->folder_name,
 			"appaserver_user" ) == 0 )

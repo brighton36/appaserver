@@ -303,7 +303,7 @@ void document_output_javascript_source(
 			index );
 		index++ )
 	{
-		sprintf( source_directory_filename, 
+		sprintf(source_directory_filename, 
 		 	"%s/%s/%s",
 		 	appaserver_mount_point,
 		 	source_directory,

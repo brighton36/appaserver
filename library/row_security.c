@@ -896,8 +896,6 @@ LIST *row_security_get_update_element_list(
 		else
 			prompt_data_element_only = 0;
 
-/* try_consumes: */
-
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
 			       ignore_attribute_name_list,
@@ -905,7 +903,7 @@ LIST *row_security_get_update_element_list(
 					attribute_list ),
 			       mto1_append_isa_related_folder_list,
 			       attribute_name,
-			       include_attribute_name_list ) ) )
+			       (LIST *)0 /* include_attribute_name_list */ ) ) )
 		{
 			foreign_attribute_name_list =
 				related_folder->
@@ -933,21 +931,6 @@ LIST *row_security_get_update_element_list(
 			{
 				prompt_data_element_only = 1;
 			}
-
-/*
-			if ( related_folder->folder->lookup_before_drop_down
-			&&   lookup_before_drop_down_state == lookup_skipped )
-			{
-				ignore_attribute_name_list =
-					list_subtract_string_list(
-						ignore_attribute_name_list,
-						foreign_attribute_name_list );
-
-				related_folder->ignore_output = 1;
-				prompt_data_element_only = 1;
-				goto try_consumes;
-			}
-*/
 
 			if ( prompt_data_separate_folder
 			&&   prompt_data_element_only )

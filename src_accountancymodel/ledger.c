@@ -510,7 +510,9 @@ JOURNAL_LEDGER *ledger_get_latest_ledger(
 				results /* transaction_date_time */,
 				account_name );
 
-	ledger_load(		&ledger->transaction_count,
+	ledger_load(		&ledger->full_name,
+				&ledger->street_address,
+				&ledger->transaction_count,
 				&ledger->previous_balance,
 				&ledger->debit_amount,
 				&ledger->credit_amount,
@@ -568,7 +570,9 @@ JOURNAL_LEDGER *ledger_get_prior_ledger(
 				results /* transaction_date_time */,
 				account_name );
 
-	ledger_load(		&ledger->transaction_count,
+	ledger_load(		&ledger->full_name,
+				&ledger->street_address,
+				&ledger->transaction_count,
 				&ledger->previous_balance,
 				&ledger->debit_amount,
 				&ledger->credit_amount,
@@ -582,7 +586,9 @@ JOURNAL_LEDGER *ledger_get_prior_ledger(
 
 } /* ledger_get_prior_ledger() */
 
-void ledger_load(		int *transaction_count,
+void ledger_load(		char **full_name,
+				char **street_address,
+				int *transaction_count,
 				double *previous_balance,
 				double *debit_amount,
 				double *credit_amount,
@@ -594,14 +600,16 @@ void ledger_load(		int *transaction_count,
 {
 	char sys_string[ 1024 ];
 	char where[ 512 ];
-	char *select;
+	char select[ 256 ];
 	char folder[ 128 ];
 	char buffer[ 256 ];
 	char piece_buffer[ 256 ];
 	char *results;
 
-	select =
-"transaction_count,previous_balance,debit_amount,credit_amount,balance,memo";
+	sprintf( select,
+"%s.full_name,%s.street_address,transaction_count,previous_balance,debit_amount,credit_amount,balance,memo",
+		 LEDGER_FOLDER_NAME,
+		 LEDGER_FOLDER_NAME );
 
 	sprintf(	folder,
 			"%s,%s",
@@ -650,21 +658,27 @@ void ledger_load(		int *transaction_count,
 	}
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	*transaction_count = atoi( piece_buffer );
+	*full_name = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 1 );
-	*previous_balance = atof( piece_buffer );
+	*street_address = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
-	*debit_amount = atof( piece_buffer );
+	*transaction_count = atoi( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 3 );
-	*credit_amount = atof( piece_buffer );
+	*previous_balance = atof( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 4 );
-	*balance = atof( piece_buffer );
+	*debit_amount = atof( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 5 );
+	*credit_amount = atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 6 );
+	*balance = atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 7 );
 	*memo = strdup( piece_buffer );
 
 	free( results );

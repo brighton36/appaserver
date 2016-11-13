@@ -37,12 +37,14 @@
 /* Prototypes */
 /* ---------- */
 char *get_html_table_account_title(	char *account_name,
+					char *full_name,
 					double debit_amount,
 					double credit_amount,
 					char *transaction_date,
 					char *memo );
 
 char *get_latex_account_title(		char *account_name,
+					char *full_name,
 					double debit_amount,
 					double credit_amount,
 					char *transaction_date,
@@ -78,6 +80,7 @@ void output_html_table(			LIST *data_list,
 					char *element_name,
 					char *subclassification_name,
 					char *account_name,
+					char *full_name,
 					int transaction_count,
 					double balance,
 					char *transaction_date_time,
@@ -328,6 +331,9 @@ void trial_balance_html_table(
 					subclassification->
 						subclassification_name,
 					account->account_name,
+					account->
+						latest_ledger->
+						full_name,
 					account->
 						latest_ledger->
 						transaction_count,
@@ -720,6 +726,9 @@ LIST *build_PDF_row_list(	char *application_name,
 						account->account_name,
 						account->
 							latest_ledger->
+							full_name,
+						account->
+							latest_ledger->
 							debit_amount,
 						account->
 							latest_ledger->
@@ -860,6 +869,7 @@ void output_html_table(	LIST *data_list,
 			char *element_name,
 			char *subclassification_name,
 			char *account_name,
+			char *full_name,
 			int transaction_count,
 			double balance,
 			char *transaction_date_time,
@@ -909,6 +919,7 @@ void output_html_table(	LIST *data_list,
 	account_title =
 		get_html_table_account_title(
 			account_name,
+			full_name,
 			debit_amount,
 			credit_amount,
 			column( transaction_date_string,
@@ -959,6 +970,7 @@ void output_html_table(	LIST *data_list,
 } /* output_html_table() */
 
 char *get_latex_account_title(	char *account_name,
+				char *full_name,
 				double debit_amount,
 				double credit_amount,
 				char *transaction_date,
@@ -967,6 +979,7 @@ char *get_latex_account_title(	char *account_name,
 	static char account_title[ 128 ];
 	char *ptr = account_title;
 	char account_name_formatted[ 128 ];
+	char full_name_formatted[ 128 ];
 	char *transaction_amount_string;
 
 	if ( !transaction_date || !*transaction_date )
@@ -975,14 +988,16 @@ char *get_latex_account_title(	char *account_name,
 	*ptr = '\0';
 
 	format_initial_capital( account_name_formatted, account_name );
-
 	ptr += sprintf( ptr, "\\textbf{%s}", account_name_formatted );
 
 	ptr += sprintf( ptr, " (\\scriptsize{%s:", transaction_date );
 
+	format_initial_capital( full_name_formatted, full_name );
+	ptr += sprintf( ptr, " %s", full_name_formatted );
+
 	if ( memo && *memo )
 	{
-		ptr += sprintf( ptr, " %s", memo );
+		ptr += sprintf( ptr, "; %s", memo );
 	}
 
 	if ( debit_amount )
@@ -1011,6 +1026,7 @@ char *get_latex_account_title(	char *account_name,
 
 char *get_html_table_account_title(
 			char *account_name,
+			char *full_name,
 			double debit_amount,
 			double credit_amount,
 			char *transaction_date,
@@ -1019,22 +1035,28 @@ char *get_html_table_account_title(
 	static char account_title[ 128 ];
 	char *ptr = account_title;
 	char account_name_formatted[ 128 ];
+	char full_name_formatted[ 128 ];
 	char *transaction_amount_string;
 
 	if ( !transaction_date || !*transaction_date )
 		return "Can't get account title";
 
+	if ( !full_name || !*full_name )
+		return "Can't get full name";
+
 	*ptr = '\0';
 
 	format_initial_capital( account_name_formatted, account_name );
-
 	ptr += sprintf( ptr, "%s", account_name_formatted );
 
 	ptr += sprintf( ptr, " <br>(%s:", transaction_date );
 
+	format_initial_capital( full_name_formatted, full_name );
+	ptr += sprintf( ptr, " %s", full_name_formatted );
+
 	if ( memo && *memo )
 	{
-		ptr += sprintf( ptr, " %s", memo );
+		ptr += sprintf( ptr, "; %s", memo );
 	}
 
 	if ( debit_amount )
@@ -1058,30 +1080,5 @@ char *get_html_table_account_title(
 	ptr += sprintf( ptr, " $%s)", transaction_amount_string );
 
 	return account_title;
-
-
-/*
-	format_initial_capital(
-		account_title,
-		account_name );
-
-	if ( memo && *memo )
-	{
-		sprintf( account_title + strlen( account_title ),
-			 "<br>(%s: %s)",
-			 column( transaction_date_string,
-				 0,
-				 transaction_date_time ),
-			 memo );
-	}
-	else
-	{
-		sprintf( account_title + strlen( account_title ),
-			 "<br>(%s)",
-			 column( transaction_date_string,
-				 0,
-				 transaction_date_time ) );
-	}
-*/
 
 } /* get_html_table_account_title() */

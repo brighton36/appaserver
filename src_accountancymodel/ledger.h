@@ -177,7 +177,9 @@ JOURNAL_LEDGER *ledger_get_prior_ledger(char *application_name,
 					char *transaction_date_time,
 					char *account_name );
 
-void ledger_load(			int *transaction_count,
+void ledger_load(			char **full_name,
+					char **street_address,
+					int *transaction_count,
 					double *previous_balance,
 					double *debit_amount,
 					double *credit_amount,

@@ -252,6 +252,14 @@ void m2( char *application_name, char *message )
 	appaserver_output_error_message( application_name, message, (char *)0 );
 }
 
+void appaserver_error_stderr(		int argc,
+					char **argv )
+{
+	appaserver_error_output_starting_argv_stderr(
+					argc,
+					argv );
+}
+
 void appaserver_error_output_starting_argv_stderr(
 					int argc,
 					char **argv )

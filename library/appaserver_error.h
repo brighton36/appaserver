@@ -37,6 +37,9 @@ void appaserver_output_starting_argv_append_file(
 					char **argv,
 					char *application_name );
 
+void appaserver_error_stderr(		int argc,
+					char **argv );
+
 void appaserver_output_starting_argv_stderr(
 					int argc,
 					char **argv );

@@ -633,7 +633,7 @@ LATEX_ROW *ledger_get_latex_net_income_row(
 
 LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 				double liabilities_plus_equity,
-				boolean consolidate_accounts );
+				boolean aggregate_subclassification );
 
 char *ledger_get_hard_coded_account_name(
 				char *application_name,

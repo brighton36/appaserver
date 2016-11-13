@@ -92,14 +92,14 @@ double get_net_income(			char *application_name,
 void output_liabilities_plus_equity(
 					HTML_TABLE *html_table,
 					double liabilities_plus_equity,
-					boolean consolidate_accounts );
+					boolean aggregate_subclassification );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
 	char *fund_name;
-	boolean consolidate_accounts;
+	boolean aggregate_subclassification;
 	char *as_of_date;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -112,7 +112,7 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund as_of_date consolidate_accounts_yn output_medium\n",
+"Usage: %s application process fund as_of_date aggregate_subclassification_yn output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -138,7 +138,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	fund_name = argv[ 3 ];
 	as_of_date = argv[ 4 ];
-	consolidate_accounts = ( *argv[ 5 ] == 'y' );
+	aggregate_subclassification = ( *argv[ 5 ] == 'y' );
 	output_medium = argv[ 6 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
@@ -184,7 +184,7 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
-		if ( consolidate_accounts )
+		if ( aggregate_subclassification )
 		{
 			balance_sheet_consolidate_html_table(
 				application_name,
@@ -207,7 +207,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		if ( consolidate_accounts )
+		if ( aggregate_subclassification )
 		{
 			balance_sheet_consolidate_PDF(
 				application_name,
@@ -696,7 +696,7 @@ void balance_sheet_consolidate_html_table(
 	output_liabilities_plus_equity(
 					html_table,
 					total_liabilities + total_equity,
-					1 /* consolidate_accounts */ );
+					1 /* aggregate_subclassification */ );
 
 	html_table_close();
 
@@ -850,9 +850,9 @@ void balance_sheet_full_html_table(
 					element->accumulate_debit );
 
 	output_liabilities_plus_equity(
-					html_table,
-					total_liabilities + total_equity,
-					0 /* not consolidate_accounts */ );
+				html_table,
+				total_liabilities + total_equity,
+				0 /* not aggregate_subclassification */ );
 
 	html_table_close();
 
@@ -861,7 +861,7 @@ void balance_sheet_full_html_table(
 void output_liabilities_plus_equity(
 			HTML_TABLE *html_table,
 			double liabilities_plus_equity,
-			boolean consolidate_accounts )
+			boolean aggregate_subclassification )
 {
 	char element_title[ 128 ];
 
@@ -872,7 +872,7 @@ void output_liabilities_plus_equity(
 
 	html_table_set_data(	html_table->data_list, "" );
 
-	if ( !consolidate_accounts )
+	if ( !aggregate_subclassification )
 		html_table_set_data( html_table->data_list, "" );
 
 	html_table_set_data(	html_table->data_list,
@@ -1096,7 +1096,7 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 	list_append_pointer(	row_list,
 				ledger_get_latex_liabilities_plus_equity_row(
 					total_liabilities + total_equity,
-					1 /* consolidate_accounts */ ) );
+					1 /* aggregate_subclassification */ ) );
 
 	return row_list;
 
@@ -1224,10 +1224,11 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 					LEDGER_EQUITY_ELEMENT,
 					element->accumulate_debit ) );
 
-	list_append_pointer(	row_list,
-				ledger_get_latex_liabilities_plus_equity_row(
-					total_liabilities + total_equity,
-					0 /* not consolidate_accounts */ ) );
+	list_append_pointer(
+			row_list,
+			ledger_get_latex_liabilities_plus_equity_row(
+				total_liabilities + total_equity,
+				0 /* not aggregate_subclassification */ ) );
 
 	return row_list;
 

@@ -1138,7 +1138,7 @@ LIST *ledger_get_element_list(	char *application_name,
 
 LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 				double liabilities_plus_equity,
-				boolean consolidate_accounts )
+				boolean aggregate_subclassification )
 {
 	LATEX_ROW *latex_row;
 
@@ -1150,7 +1150,7 @@ LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 
 	list_append_pointer( latex_row->column_data_list, "" );
 
-	if ( !consolidate_accounts )
+	if ( !aggregate_subclassification )
 		list_append_pointer( latex_row->column_data_list, "" );
 
 	list_append_pointer(

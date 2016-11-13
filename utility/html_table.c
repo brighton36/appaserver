@@ -84,7 +84,6 @@ int main( int argc, char **argv )
 
 	while( get_line( buffer, stdin ) )
 	{
-
 		if ( list_length( heading_name_list )
 		&&   ++count == ROWS_BETWEEN_HEADING )
 		{

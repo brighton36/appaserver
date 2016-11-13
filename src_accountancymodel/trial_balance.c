@@ -31,15 +31,23 @@
 
 /* Constants */
 /* --------- */
+#define ROWS_BETWEEN_HEADING		10
 #define PROMPT				"Press here to view statement."
-/*
-#define FTP_OUTPUT_FILE_TEMPLATE	"http://%s/%s/trial_balance_%d.%s"
-#define LATEX_FILE_TEMPLATE		"trial_balance_%d.tex"
-#define LATEX_DVI_FILE_TEMPLATE		"trial_balance_%d.dvi"
-*/
 
 /* Prototypes */
 /* ---------- */
+char *get_html_table_account_title(	char *account_name,
+					double debit_amount,
+					double credit_amount,
+					char *transaction_date,
+					char *memo );
+
+char *get_latex_account_title(		char *account_name,
+					double debit_amount,
+					double credit_amount,
+					char *transaction_date,
+					char *memo );
+
 void trial_balance_html_table(
 					char *application_name,
 					char *title,
@@ -78,7 +86,9 @@ void output_html_table(			LIST *data_list,
 					int number_right_justified_columns,
 					boolean background_shaded,
 					LIST *justify_list,
-					boolean accumulate_debit );
+					boolean accumulate_debit,
+					double debit_amount,
+					double credit_amount );
 
 int main( int argc, char **argv )
 {
@@ -219,6 +229,7 @@ void trial_balance_html_table(
 	ACCOUNT *account;
 	boolean accumulate_debit;
 	double balance;
+	int count = 0;
 
 	element_list =
 		ledger_get_element_list(
@@ -299,6 +310,18 @@ void trial_balance_html_table(
 					accumulate_debit = 1 - accumulate_debit;
 				}
 
+				if ( ++count == ROWS_BETWEEN_HEADING )
+				{
+					html_table_output_data_heading(
+						html_table->heading_list,
+						html_table->
+						number_left_justified_columns,
+						html_table->
+						number_right_justified_columns,
+						html_table->justify_list );
+					count = 0;
+				}
+
 				output_html_table(
 					html_table->data_list,
 					element->element_name,
@@ -321,9 +344,18 @@ void trial_balance_html_table(
 					 number_right_justified_columns,
 					html_table->background_shaded,
 					html_table->justify_list,
-					accumulate_debit );
+					accumulate_debit,
+					account->
+						latest_ledger->
+						debit_amount,
+					account->
+						latest_ledger->
+						credit_amount );
 
+/*
 				list_free_container( html_table->data_list );
+*/
+				list_free( html_table->data_list );
 				html_table->data_list = list_new();
 
 				if ( accumulate_debit )
@@ -599,7 +631,7 @@ LIST *build_PDF_row_list(	char *application_name,
 	boolean accumulate_debit;
 	char element_title[ 128 ];
 	char subclassification_title[ 128 ];
-	char account_title[ 128 ];
+	char *account_title;
 	char transaction_count_string[ 16 ];
 	char transaction_date_string[ 16 ];
 	double balance;
@@ -633,6 +665,11 @@ LIST *build_PDF_row_list(	char *application_name,
 				if ( !account->latest_ledger
 				||   !account->latest_ledger->balance )
 					continue;
+
+				accumulate_debit =
+					ledger_account_get_accumulate_debit(
+						application_name,
+						account->account_name );
 
 				latex_row = latex_new_latex_row();
 				list_append_pointer( row_list, latex_row );
@@ -678,32 +715,19 @@ LIST *build_PDF_row_list(	char *application_name,
 						latest_ledger->
 						transaction_date_time ) );
 
-				sprintf( account_title,
-					 "\\textbf{%s}",
-					 account->account_name );
-
-				format_initial_capital(
-					account_title,
-					account_title );
-
-				if ( account->latest_ledger->memo
-				&&   *account->latest_ledger->memo )
-				{
-					sprintf(account_title +
-					       strlen( account_title ),
-				       	       " (\\scriptsize{%s: %s})",
-					       transaction_date_american,
-			 		       account->
+				account_title =
+					get_latex_account_title(
+						account->account_name,
+						account->
+							latest_ledger->
+							debit_amount,
+						account->
+							latest_ledger->
+							credit_amount,
+						transaction_date_american,
+						account->
 							latest_ledger->
 							memo );
-				}
-				else
-				{
-					sprintf(account_title +
-					  strlen( account_title ),
-					  " (\\scriptsize{%s})",
-					   transaction_date_american );
-				}
 
 				list_append_pointer(
 					latex_row->column_data_list,
@@ -718,11 +742,6 @@ LIST *build_PDF_row_list(	char *application_name,
 				list_append_pointer(
 					latex_row->column_data_list,
 					strdup( transaction_count_string ) );
-
-				accumulate_debit =
-					ledger_account_get_accumulate_debit(
-						application_name,
-						account->account_name );
 
 				balance = account->latest_ledger->balance;
 
@@ -849,11 +868,13 @@ void output_html_table(	LIST *data_list,
 			int number_right_justified_columns,
 			boolean background_shaded,
 			LIST *justify_list,
-			boolean accumulate_debit )
+			boolean accumulate_debit,
+			double debit_amount,
+			double credit_amount )
 {
 	char element_title[ 128 ];
 	char subclassification_title[ 128 ];
-	char account_title[ 256 ];
+	char *account_title;
 	char transaction_count_string[ 16 ];
 	char *debit_string;
 	char *credit_string;
@@ -867,10 +888,10 @@ void output_html_table(	LIST *data_list,
 
 		html_table_set_data(
 			data_list,
-			element_title );
+			strdup( element_title ) );
 	}
 	else
-		html_table_set_data( data_list, "" );
+		html_table_set_data( data_list, strdup( "" ) );
 
 	if ( subclassification_name && *subclassification_name )
 	{
@@ -880,36 +901,24 @@ void output_html_table(	LIST *data_list,
 
 		html_table_set_data(
 			data_list,
-			subclassification_title );
+			strdup( subclassification_title )  );
 	}
 	else
-		html_table_set_data( data_list, "" );
+		html_table_set_data( data_list, strdup( "" ) );
 
-	format_initial_capital(
-		account_title,
-		account_name );
-
-	if ( memo && *memo )
-	{
-		sprintf( account_title + strlen( account_title ),
-			 "<br>(%s: %s)",
-			 column( transaction_date_string,
-				 0,
-				 transaction_date_time ),
-			 memo );
-	}
-	else
-	{
-		sprintf( account_title + strlen( account_title ),
-			 "<br>(%s)",
-			 column( transaction_date_string,
-				 0,
-				 transaction_date_time ) );
-	}
+	account_title =
+		get_html_table_account_title(
+			account_name,
+			debit_amount,
+			credit_amount,
+			column( transaction_date_string,
+				0,
+				transaction_date_time ),
+			memo );
 
 	html_table_set_data(
 		data_list,
-		account_title );
+		strdup( account_title ) );
 
 	sprintf( transaction_count_string, "%d", transaction_count );
 
@@ -949,3 +958,130 @@ void output_html_table(	LIST *data_list,
 
 } /* output_html_table() */
 
+char *get_latex_account_title(	char *account_name,
+				double debit_amount,
+				double credit_amount,
+				char *transaction_date,
+				char *memo )
+{
+	static char account_title[ 128 ];
+	char *ptr = account_title;
+	char account_name_formatted[ 128 ];
+	char *transaction_amount_string;
+
+	if ( !transaction_date || !*transaction_date )
+		return "Can't get account title";
+
+	*ptr = '\0';
+
+	format_initial_capital( account_name_formatted, account_name );
+
+	ptr += sprintf( ptr, "\\textbf{%s}", account_name_formatted );
+
+	ptr += sprintf( ptr, " (\\scriptsize{%s:", transaction_date );
+
+	if ( memo && *memo )
+	{
+		ptr += sprintf( ptr, " %s", memo );
+	}
+
+	if ( debit_amount )
+	{
+		transaction_amount_string =
+			place_commas_in_money(
+				debit_amount );
+	}
+	else
+	if ( credit_amount )
+	{
+		transaction_amount_string =
+			place_commas_in_money(
+				credit_amount );
+	}
+	else
+	{
+		transaction_amount_string = "Unknown";
+	}
+
+	ptr += sprintf( ptr, " $%s})", transaction_amount_string );
+
+	return account_title;
+
+} /* get_latex_account_title() */
+
+char *get_html_table_account_title(
+			char *account_name,
+			double debit_amount,
+			double credit_amount,
+			char *transaction_date,
+			char *memo )
+{
+	static char account_title[ 128 ];
+	char *ptr = account_title;
+	char account_name_formatted[ 128 ];
+	char *transaction_amount_string;
+
+	if ( !transaction_date || !*transaction_date )
+		return "Can't get account title";
+
+	*ptr = '\0';
+
+	format_initial_capital( account_name_formatted, account_name );
+
+	ptr += sprintf( ptr, "%s", account_name_formatted );
+
+	ptr += sprintf( ptr, " <br>(%s:", transaction_date );
+
+	if ( memo && *memo )
+	{
+		ptr += sprintf( ptr, " %s", memo );
+	}
+
+	if ( debit_amount )
+	{
+		transaction_amount_string =
+			place_commas_in_money(
+				debit_amount );
+	}
+	else
+	if ( credit_amount )
+	{
+		transaction_amount_string =
+			place_commas_in_money(
+				credit_amount );
+	}
+	else
+	{
+		transaction_amount_string = "Unknown";
+	}
+
+	ptr += sprintf( ptr, " $%s)", transaction_amount_string );
+
+	return account_title;
+
+
+/*
+	format_initial_capital(
+		account_title,
+		account_name );
+
+	if ( memo && *memo )
+	{
+		sprintf( account_title + strlen( account_title ),
+			 "<br>(%s: %s)",
+			 column( transaction_date_string,
+				 0,
+				 transaction_date_time ),
+			 memo );
+	}
+	else
+	{
+		sprintf( account_title + strlen( account_title ),
+			 "<br>(%s)",
+			 column( transaction_date_string,
+				 0,
+				 transaction_date_time ) );
+	}
+*/
+
+} /* get_html_table_account_title() */

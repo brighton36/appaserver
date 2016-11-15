@@ -1763,6 +1763,7 @@ double ledger_output_subclassification_html_element(
 					0.0 - account->latest_ledger->balance;
 			}
 
+#ifdef NOT_DEFINED
 			/* -------------------------------------------- */
 			/* Display all the equity element accounts,	*/
 			/* except for change in net assets,		*/
@@ -1797,6 +1798,7 @@ double ledger_output_subclassification_html_element(
 				list_free_string_list( html_table->data_list );
 				html_table->data_list = list_new();
 			}
+#endif
 
 			total_element +=
 					latest_ledger_balance;

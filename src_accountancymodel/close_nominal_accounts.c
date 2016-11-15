@@ -164,7 +164,6 @@ boolean close_nominal_accounts_execute(
 	char *transaction_date_time;
 	char *fund_name;
 	LIST *fund_name_list;
-	char sys_string[ 512 ];
 
 	if ( ! ( transaction_date_time =
 			ledger_get_closing_transaction_date_time(
@@ -279,6 +278,8 @@ boolean close_nominal_accounts_fund_execute(
 				LEDGER_GAIN_ELEMENT );
 	list_append_pointer(	filter_element_name_list,
 				LEDGER_LOSS_ELEMENT );
+	list_append_pointer(	filter_element_name_list,
+				LEDGER_EQUITY_ELEMENT );
 
 	element_list =
 		ledger_get_element_list(
@@ -387,6 +388,31 @@ boolean close_nominal_accounts_fund_execute(
 			self->entity->street_address,
 			transaction_date_time_string );
 
+	/* Non-net_asset equity */
+	/* --------------------*/
+	if ( ! ( element = ledger_element_seek(	element_list,
+						LEDGER_EQUITY_ELEMENT ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 LEDGER_EQUITY_ELEMENT );
+		exit( 1 );
+	}
+
+	retained_earnings +=
+		insert_journal_ledger(
+			output_pipe,
+			element->subclassification_list,
+			element->accumulate_debit,
+			self->entity->full_name,
+			self->entity->street_address,
+			transaction_date_time_string );
+
+	/* Insert retained_earnings */
+	/* ------------------------ */
 	fprintf( output_pipe,
 		 "%s^%s^%s^%s^^%.2lf\n",
 		 self->entity->full_name,
@@ -504,15 +530,6 @@ void close_nominal_accounts_fund_display(
 		return;
 	}
 
-/*
-	if ( ledger_transaction_exists(	application_name,
-					transaction_date_time ) )
-	{
-		printf( "<h3>Error: a transaction already exists.</h3>\n" );
-		return;
-	}
-*/
-
 	/* Get the element list. */
 	/* --------------------- */
 	filter_element_name_list = list_new();
@@ -525,6 +542,8 @@ void close_nominal_accounts_fund_display(
 				LEDGER_GAIN_ELEMENT );
 	list_append_pointer(	filter_element_name_list,
 				LEDGER_LOSS_ELEMENT );
+	list_append_pointer(	filter_element_name_list,
+				LEDGER_EQUITY_ELEMENT );
 
 	element_list =
 		ledger_get_element_list(
@@ -643,6 +662,29 @@ void close_nominal_accounts_fund_display(
 			element->subclassification_list,
 			element->accumulate_debit );
 
+	/* Non-net_asset equity */
+	/* --------------------*/
+	if ( ! ( element = ledger_element_seek(	element_list,
+						LEDGER_EQUITY_ELEMENT ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 LEDGER_EQUITY_ELEMENT );
+		exit( 1 );
+	}
+
+	retained_earnings +=
+		output_subclassification_list(
+			html_table,
+			element->subclassification_list,
+			element->accumulate_debit );
+
+
+	/* Retained Earnings */
+	/* ----------------- */
 	html_table_set_data(
 		html_table->data_list,
 		strdup( format_initial_capital(
@@ -690,6 +732,12 @@ double output_subclassification_list(
 
 		if ( !list_rewind( subclassification->account_list ) )
 			continue;
+
+		if ( strcmp(	subclassification->subclassification_name,
+				LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		{
+			continue;
+		}
 
 		do {
 			account =
@@ -764,6 +812,12 @@ double insert_journal_ledger(
 
 		if ( !list_rewind( subclassification->account_list ) )
 			continue;
+
+		if ( strcmp(	subclassification->subclassification_name,
+				LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		{
+			continue;
+		}
 
 		do {
 			account =

@@ -131,23 +131,30 @@ void remove_parans( char *without_parans, char *source );
 
 int number_occurrences_char( int char_to_count, char *source );
 
-char *remove_quotes( char *d, char *s );
+char *remove_quotes(		char *d, char *s );
 
-char *place_commas_in_double( double d );
+char *place_commas_in_double(	double d );
 
-char *place_commas_in_number_string( char *s );
+char *place_commas_in_number_string(
+				char *s );
 
-char *place_commas_in_unsigned_int( unsigned int n );
+char *place_commas_in_unsigned_int(
+				unsigned int n );
 
-char *place_commas_in_integer( int n );
+char *place_commas_in_integer(	int n );
 
-char *place_commas_in_long( long n );
+char *place_commas_in_long(	long n );
 
-char *place_commas_in_unsigned_long( unsigned long n );
+char *place_commas_in_unsigned_long(
+				unsigned long n );
 
-char *place_commas_in_unsigned_long_long( unsigned long long n );
+char *place_commas_in_unsigned_long_long(
+				unsigned long long n );
 
 char *place_commas_in_money(	double d );
+
+char *timlib_place_commas_in_money(
+				double d );
 
 char *get_date( char *d );
 void extract_delimited( char *destination, char *source );

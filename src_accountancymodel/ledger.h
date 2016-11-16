@@ -95,6 +95,7 @@ typedef struct
 	char *subclassification_name;
 	int display_order;
 	char *hard_coded_account_key;
+	char *tax_form_category_name;
 	JOURNAL_LEDGER *latest_ledger;
 	LIST *journal_ledger_list;
 	boolean accumulate_debit;
@@ -124,6 +125,15 @@ typedef struct
 	LIST *element_list;
 	LIST *contra_account_list;
 } LEDGER;
+
+typedef struct
+{
+	char *tax_form_category_name;
+	char *tax_form_line;
+	boolean itemize_accounts;
+	LIST *account_list;
+	double balance_sum;
+} TAX_FORM_CATEGORY;
 
 /* Operations */
 /* ---------- */
@@ -651,6 +661,7 @@ void ledger_account_load(	char **fund_name,
 				char **subclassification_name,
 				int *display_order,
 				char **hard_coded_account_key,
+				char **tax_form_category_name,
 				boolean *accumulate_debit,
 				char *application_name,
 				char *account_name );
@@ -660,6 +671,7 @@ void ledger_account_parse(	char **account_name,
 				char **subclassification_name,
 				int *display_order,
 				char **hard_coded_account_key,
+				char **tax_form_category_name,
 				char *input_buffer );
 
 LIST *ledger_get_account_list(	char *application_name );
@@ -730,5 +742,21 @@ LIST *ledger_get_subclassification_beginning_latex_row_list(
 				double *total_element,
 				LIST *subclassification_list,
 				boolean element_accumulate_debit );
+
+LIST *ledger_tax_form_fetch_category_list(
+				char *application_name,
+				char *as_of_date );
+
+TAX_FORM_CATEGORY *ledger_tax_form_category_new(
+				char *tax_form_category_name,
+				char *tax_form_line,
+				boolean itemize_accounts );
+
+LIST *ledger_tax_form_get_account_list(
+				double *balance_sum,
+				char *application_name,
+				LIST *account_record_list,
+				char *tax_form_category_name,
+				char *as_of_date );
 
 #endif

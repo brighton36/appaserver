@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------	*/
-/* src_accountancymodel/trial_balance.c					*/
+/* src_accountancymodel/tax_form_report.c				*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -36,62 +36,32 @@
 
 /* Prototypes */
 /* ---------- */
-char *get_html_table_account_title(	char *account_name,
-					char *full_name,
-					double debit_amount,
-					double credit_amount,
-					char *transaction_date,
-					char *memo );
-
-char *get_latex_account_title(		char *account_name,
-					char *full_name,
-					double debit_amount,
-					double credit_amount,
-					char *transaction_date,
-					char *memo );
-
-void trial_balance_html_table(
+void tax_form_report_html_table(
 					char *application_name,
 					char *title,
 					char *sub_title,
-					char *fund_name,
 					char *as_of_date );
 
+/*
 LIST *build_PDF_row_list(		char *application_name,
 					LIST *element_list );
 
 LIST *build_PDF_heading_list(		void );
 
-void trial_balance_PDF(			char *application_name,
+void tax_form_report_PDF(			char *application_name,
 					char *fund_name,
 					char *as_of_date,
 					char *document_root_directory,
 					char *process_name,
 					char *aggregation );
 
-void trial_balance_PDF_fund(		
+void tax_form_report_PDF_fund(		
 					LATEX *latex,
 					char *application_name,
 					char *sub_title,
 					char *fund_name,
 					char *as_of_date );
-
-void output_html_table(			LIST *data_list,
-					char *element_name,
-					char *subclassification_name,
-					char *account_name,
-					char *full_name,
-					int transaction_count,
-					double balance,
-					char *transaction_date_time,
-					char *memo,
-					int number_left_justified_columns,
-					int number_right_justified_columns,
-					boolean background_shaded,
-					LIST *justify_list,
-					boolean accumulate_debit,
-					double debit_amount,
-					double credit_amount );
+*/
 
 int main( int argc, char **argv )
 {
@@ -101,16 +71,14 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char title[ 256 ];
 	char sub_title[ 256 ];
-	char *fund_name;
-	char *aggregation;
 	char *as_of_date;
 	char *database_string = {0};
 	char *output_medium;
 
-	if ( argc != 7 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund_name as_of_date aggregation output_medium\n",
+		"Usage: %s application process as_of_date output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -131,10 +99,8 @@ int main( int argc, char **argv )
 				application_name );
 
 	process_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	as_of_date = argv[ 4 ];
-	aggregation = argv[ 5 ];
-	output_medium = argv[ 6 ];
+	as_of_date = argv[ 3 ];
+	output_medium = argv[ 4 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
@@ -153,11 +119,9 @@ int main( int argc, char **argv )
 		sub_title,
 		process_name,
 		application_name,
-		fund_name,
+		(char *)0 /* fund_name */,
 		as_of_date,
-		list_length(
-			ledger_get_fund_name_list(
-				application_name ) ) );
+		0 /* length_fund_name_list */ );
 
 	document = document_new( title, application_name );
 	document->output_content_type = 1;
@@ -178,16 +142,16 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
-		trial_balance_html_table(
+		tax_form_report_html_table(
 			application_name,
 			title,
 			sub_title,
-			fund_name,
 			as_of_date );
 	}
+/*
 	else
 	{
-		trial_balance_PDF(
+		tax_form_report_PDF(
 			application_name,
 			fund_name,
 			as_of_date,
@@ -196,54 +160,42 @@ int main( int argc, char **argv )
 			process_name,
 			aggregation );
 	}
+*/
 
 	document_close();
 	exit( 0 );
 
 } /* main() */
 
-void trial_balance_html_table(
+void tax_form_report_html_table(
 			char *application_name,
 			char *title,
 			char *sub_title,
-			char *fund_name,
 			char *as_of_date )
 {
 	HTML_TABLE *html_table;
 	LIST *heading_list;
-	LIST *element_list;
-	char *debit_string;
-	char *credit_string;
-	double debit_sum = 0.0;
-	double credit_sum = 0.0;
-	ELEMENT *element;
-	SUBCLASSIFICATION *subclassification;
-	ACCOUNT *account;
-	boolean accumulate_debit;
-	double balance;
+	LIST *tax_form_category_list;
+	TAX_FORM_CATEGORY *tax_form_category;
+	char buffer[ 128 ];
 	int count = 0;
 
-	element_list =
-		ledger_get_element_list(
+	tax_form_category_list =
+		ledger_tax_form_fetch_category_list(
 			application_name,
-			(LIST *)0 /* filter_element_name_list */,
-			fund_name,
 			as_of_date );
 
 	heading_list = list_new();
-	list_append_string( heading_list, "Element" );
-	list_append_string( heading_list, "Subclassification" );
-	list_append_string( heading_list, "Account" );
-	list_append_string( heading_list, "Transactions" );
-	list_append_string( heading_list, "Debit" );
-	list_append_string( heading_list, "Credit" );
+	list_append_string( heading_list, "tax_form_line" );
+	list_append_string( heading_list, "tax_form_category" );
+	list_append_string( heading_list, "balance" );
 	
 	html_table = new_html_table(
 			title,
 			sub_title );
 
-	html_table->number_left_justified_columns = 3;
-	html_table->number_right_justified_columns = 3;
+	html_table->number_left_justified_columns = 2;
+	html_table->number_right_justified_columns = 1;
 	html_table_set_heading_list( html_table, heading_list );
 	html_table_output_table_heading(
 					html_table->title,
@@ -254,149 +206,66 @@ void trial_balance_html_table(
 		html_table->number_right_justified_columns,
 		html_table->justify_list );
 
-	if ( !list_rewind( element_list ) )
+	if ( !list_rewind( tax_form_category_list ) )
 	{
 		printf(
-	"<h3>ERROR: there are no elements for this statement.</h3>\n" );
+"<h3>ERROR: there are no tax form categories for this statement.</h3>\n" );
+		html_table_close();
 		document_close();
 		exit( 1 );
 	}
 
 	do {
-		element = list_get_pointer( element_list );
+		tax_form_category = list_get( tax_form_category_list );
 
-		if ( !list_rewind( element->subclassification_list ) )
-			continue;
+		if ( ++count == ROWS_BETWEEN_HEADING )
+		{
+			html_table_output_data_heading(
+				html_table->heading_list,
+				html_table->
+				number_left_justified_columns,
+				html_table->
+				number_right_justified_columns,
+				html_table->justify_list );
+			count = 0;
+		}
 
-		do {
-			subclassification =
-				list_get_pointer(
-					element->
-					   subclassification_list );
+		html_table_set_data(
+			html_table->data_list,
+			strdup( tax_form_category->tax_form_line ) );
 
-			if ( !list_rewind( subclassification->account_list ) )
-				continue;
+		format_initial_capital(
+			buffer,
+			tax_form_category->tax_form_category_name );
 
-			do {
-				account = 
-					list_get_pointer(
-						subclassification->
-							account_list );
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
 
-				if ( !account->latest_ledger
-				||   !account->latest_ledger->balance )
-					continue;
+		html_table_set_data(
+			html_table->data_list,
+			strdup( timlib_place_commas_in_money(
+					tax_form_category->
+						balance_sum ) ) );
 
-				accumulate_debit =
-					ledger_account_get_accumulate_debit(
-						application_name,
-						account->account_name );
+		html_table_output_data(
+			html_table->data_list,
+			html_table->number_left_justified_columns,
+			html_table->number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
 
-				balance = account->latest_ledger->balance;
+			list_free( html_table->data_list );
+			html_table->data_list = list_new();
 
-				/* See if negative balance. */
-				/* ------------------------ */
-				if ( balance < 0.0 )
-				{
-					balance = float_abs( balance );
-					accumulate_debit = 1 - accumulate_debit;
-				}
-
-				if ( ++count == ROWS_BETWEEN_HEADING )
-				{
-					html_table_output_data_heading(
-						html_table->heading_list,
-						html_table->
-						number_left_justified_columns,
-						html_table->
-						number_right_justified_columns,
-						html_table->justify_list );
-					count = 0;
-				}
-
-				output_html_table(
-					html_table->data_list,
-					element->element_name,
-					subclassification->
-						subclassification_name,
-					account->account_name,
-					account->
-						latest_ledger->
-						full_name,
-					account->
-						latest_ledger->
-						transaction_count,
-					balance,
-					account->
-						latest_ledger->
-						transaction_date_time,
-					account->
-						latest_ledger->
-						memo,
-					html_table->
-					 number_left_justified_columns,
-					html_table->
-					 number_right_justified_columns,
-					html_table->background_shaded,
-					html_table->justify_list,
-					accumulate_debit,
-					account->
-						latest_ledger->
-						debit_amount,
-					account->
-						latest_ledger->
-						credit_amount );
-
-/*
-				list_free_container( html_table->data_list );
-*/
-				list_free( html_table->data_list );
-				html_table->data_list = list_new();
-
-				if ( accumulate_debit )
-				{
-					debit_sum += balance;
-				}
-				else
-				{
-					credit_sum += balance;
-				}
-
-				subclassification->
-					subclassification_name =
-						(char *)0;
-
-				element->element_name = (char *)0;
-
-			} while( list_next( subclassification->account_list ) );
-
-		} while( list_next( element->subclassification_list ) );
-
-	} while( list_next( element_list ) );
-
-	html_table_set_data( html_table->data_list, "Total" );
-	html_table_set_data( html_table->data_list, "" );
-	html_table_set_data( html_table->data_list, "" );
-	html_table_set_data( html_table->data_list, "" );
-
-	debit_string = place_commas_in_money( debit_sum );
-	html_table_set_data( html_table->data_list, strdup( debit_string ) );
-
-	credit_string = place_commas_in_money( credit_sum );
-	html_table_set_data( html_table->data_list, strdup( credit_string ) );
-
-	html_table_output_data(
-		html_table->data_list,
-		html_table->number_left_justified_columns,
-		html_table->number_right_justified_columns,
-		html_table->background_shaded,
-		html_table->justify_list );
+	} while( list_next( tax_form_category_list ) );
 
 	html_table_close();
 
-} /* trial_balance_html_table() */
+} /* tax_form_report_html_table() */
 
-void trial_balance_PDF(
+#ifdef NOT_DEFINED
+void tax_form_report_PDF(
 			char *application_name,
 			char *fund_name,
 			char *as_of_date,
@@ -470,6 +339,21 @@ void trial_balance_PDF(
 
 	printf( "<h1>%s</h1>\n", title );
 
+/*
+	sprintf(	working_directory,
+			"%s/%s",
+			appaserver_mount_point,
+			application_name );
+
+	sprintf(	latex_filename,
+			LATEX_FILE_TEMPLATE,
+			pid );
+
+	sprintf(	dvi_filename,
+			LATEX_DVI_FILE_TEMPLATE,
+			pid );
+*/
+
 	latex = latex_new_latex(
 			latex_filename,
 			dvi_filename,
@@ -494,7 +378,7 @@ void trial_balance_PDF(
 				as_of_date,
 				0 /* fund_name_list_length */ );
 
-			trial_balance_PDF_fund(
+			tax_form_report_PDF_fund(
 					latex,
 					application_name,
 					sub_title,
@@ -507,7 +391,7 @@ void trial_balance_PDF(
 	{
 		/* Either single fund or consolidated. */
 		/* ----------------------------------- */
-		trial_balance_PDF_fund(
+		tax_form_report_PDF_fund(
 				latex,
 				application_name,
 				sub_title,
@@ -560,9 +444,9 @@ void trial_balance_PDF(
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
-} /* trial_balance_PDF() */
+} /* tax_form_report_PDF() */
 
-void trial_balance_PDF_fund(
+void tax_form_report_PDF_fund(
 			LATEX *latex,
 			char *application_name,
 			char *sub_title,
@@ -594,7 +478,7 @@ void trial_balance_PDF_fund(
 			application_name,
 			element_list );
 
-} /* trial_balance_PDF_fund() */
+} /* tax_form_report_PDF_fund() */
 
 LIST *build_PDF_row_list(	char *application_name,
 				LIST *element_list )
@@ -839,110 +723,6 @@ LIST *build_PDF_heading_list( void )
 
 } /* build_PDF_heading_list() */
 
-void output_html_table(	LIST *data_list,
-			char *element_name,
-			char *subclassification_name,
-			char *account_name,
-			char *full_name,
-			int transaction_count,
-			double balance,
-			char *transaction_date_time,
-			char *memo,
-			int number_left_justified_columns,
-			int number_right_justified_columns,
-			boolean background_shaded,
-			LIST *justify_list,
-			boolean accumulate_debit,
-			double debit_amount,
-			double credit_amount )
-{
-	char element_title[ 128 ];
-	char subclassification_title[ 128 ];
-	char *account_title;
-	char transaction_count_string[ 16 ];
-	char *debit_string;
-	char *credit_string;
-	char transaction_date_string[ 16 ];
-
-	if ( element_name && *element_name )
-	{
-		format_initial_capital(
-			element_title,
-			element_name );
-
-		html_table_set_data(
-			data_list,
-			strdup( element_title ) );
-	}
-	else
-		html_table_set_data( data_list, strdup( "" ) );
-
-	if ( subclassification_name && *subclassification_name )
-	{
-		format_initial_capital(
-			subclassification_title,
-			subclassification_name );
-
-		html_table_set_data(
-			data_list,
-			strdup( subclassification_title )  );
-	}
-	else
-		html_table_set_data( data_list, strdup( "" ) );
-
-	account_title =
-		get_html_table_account_title(
-			account_name,
-			full_name,
-			debit_amount,
-			credit_amount,
-			column( transaction_date_string,
-				0,
-				transaction_date_time ),
-			memo );
-
-	html_table_set_data(
-		data_list,
-		strdup( account_title ) );
-
-	sprintf( transaction_count_string, "%d", transaction_count );
-
-	html_table_set_data(	data_list,
-				strdup( transaction_count_string ) );
-
-	/* Set the debit account. */
-	/* ---------------------- */
-	if ( accumulate_debit )
-	{
-		debit_string = place_commas_in_money( balance );
-	}
-	else
-		debit_string = "";
-
-	html_table_set_data(	data_list,
-				strdup( debit_string ) );
-
-	/* Set the credit account. */
-	/* ----------------------- */
-	if ( !accumulate_debit )
-	{
-		credit_string = place_commas_in_money( balance );
-	}
-	else
-		credit_string = "";
-
-	html_table_set_data(	data_list,
-				strdup( credit_string ) );
-
-	html_table_output_data(
-		data_list,
-		number_left_justified_columns,
-		number_right_justified_columns,
-		background_shaded,
-		justify_list );
-
-} /* output_html_table() */
-
 char *get_latex_account_title(	char *account_name,
 				char *full_name,
 				double debit_amount,
@@ -997,62 +777,5 @@ char *get_latex_account_title(	char *account_name,
 	return account_title;
 
 } /* get_latex_account_title() */
+#endif
 
-char *get_html_table_account_title(
-			char *account_name,
-			char *full_name,
-			double debit_amount,
-			double credit_amount,
-			char *transaction_date,
-			char *memo )
-{
-	static char account_title[ 128 ];
-	char *ptr = account_title;
-	char account_name_formatted[ 128 ];
-	char full_name_formatted[ 128 ];
-	char *transaction_amount_string;
-
-	if ( !transaction_date || !*transaction_date )
-		return "Can't get account title";
-
-	if ( !full_name || !*full_name )
-		return "Can't get full name";
-
-	*ptr = '\0';
-
-	format_initial_capital( account_name_formatted, account_name );
-	ptr += sprintf( ptr, "%s", account_name_formatted );
-
-	ptr += sprintf( ptr, " <br>(%s:", transaction_date );
-
-	format_initial_capital( full_name_formatted, full_name );
-	ptr += sprintf( ptr, " %s", full_name_formatted );
-
-	if ( memo && *memo )
-	{
-		ptr += sprintf( ptr, "; %s", memo );
-	}
-
-	if ( debit_amount )
-	{
-		transaction_amount_string =
-			place_commas_in_money(
-				debit_amount );
-	}
-	else
-	if ( credit_amount )
-	{
-		transaction_amount_string =
-			place_commas_in_money(
-				credit_amount );
-	}
-	else
-	{
-		transaction_amount_string = "Unknown";
-	}
-
-	ptr += sprintf( ptr, " $%s)", transaction_amount_string );
-
-	return account_title;
-
-} /* get_html_table_account_title() */

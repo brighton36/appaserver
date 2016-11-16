@@ -20,6 +20,7 @@ backup/
 # src_accountancymodel
 # --------------------
 trial_balance
+tax_form_report
 program_profit
 schedule_e_report
 income_statement

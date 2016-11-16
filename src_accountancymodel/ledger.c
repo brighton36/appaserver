@@ -159,6 +159,7 @@ ACCOUNT *ledger_account_fetch(	char *application_name,
 				&account->subclassification_name,
 				&account->display_order,
 				&account->hard_coded_account_key,
+				&account->tax_form_category_name,
 				&account->accumulate_debit,
 				application_name,
 				account->account_name );
@@ -170,7 +171,7 @@ ACCOUNT *ledger_account_fetch(	char *application_name,
 char *ledger_account_get_select( void )
 {
 	return
-	"account,fund,subclassification,display_order,hard_coded_account_key";
+"account,fund,subclassification,display_order,hard_coded_account_key,tax_form_category";
 }
 
 ACCOUNT *ledger_subclassification_fund_seek_account(
@@ -279,6 +280,7 @@ LIST *ledger_get_account_list(	char *application_name )
 				&account->subclassification_name,
 				&account->display_order,
 				&account->hard_coded_account_key,
+				&account->tax_form_category_name,
 				input_buffer );
 
 		account->accumulate_debit =
@@ -298,6 +300,7 @@ void ledger_account_parse(	char **account_name,
 				char **subclassification_name,
 				int *display_order,
 				char **hard_coded_account_key,
+				char **tax_form_category_name,
 				char *input_buffer )
 {
 	char buffer[ 128 ];
@@ -325,12 +328,17 @@ void ledger_account_parse(	char **account_name,
 	if ( *buffer )
 		*hard_coded_account_key = strdup( buffer );
 
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+	if ( *buffer )
+		*tax_form_category_name = strdup( buffer );
+
 } /* ledger_account_parse() */
 
 void ledger_account_load(	char **fund_name,
 				char **subclassification_name,
 				int *display_order,
 				char **hard_coded_account_key,
+				char **tax_form_category_name,
 				boolean *accumulate_debit,
 				char *application_name,
 				char *account_name )
@@ -374,6 +382,7 @@ void ledger_account_load(	char **fund_name,
 				subclassification_name,
 				display_order,
 				hard_coded_account_key,
+				tax_form_category_name,
 				results );
 
 	*accumulate_debit =
@@ -915,6 +924,7 @@ LIST *ledger_subclassification_quickly_get_account_list(
 				&account->subclassification_name,
 				&account->display_order,
 				&account->hard_coded_account_key,
+				&account->tax_form_category_name,
 				input_buffer );
 
 		list_append_pointer( account_list, account );
@@ -5947,33 +5957,40 @@ void ledger_get_report_title_sub_title(
 	char beginning_date_american[ 16 ];
 	char ending_date_american[ 16 ];
 
+	*beginning_date_american = '\0';
+
 	sprintf(title,
 		"%s",
 		application_get_application_title(
 			application_name ) );
 
-	if ( ! ( beginning_date = 
+	if ( fund_name )
+	{
+		if ( ! ( beginning_date = 
 			ledger_nominal_accounts_beginning_transaction_date(
 				application_name,
 				fund_name,
 				as_of_date ) ) )
-	{
-		printf( "<h3>Error. No transactions.</h3.\n" );
-		document_close();
-		exit( 0 );
-	}
+		{
+			printf( "<h3>Error. No transactions.</h3.\n" );
+			document_close();
+			exit( 0 );
+		}
 
-	date_convert_source_international(
-		beginning_date_american,
-		american,
-		beginning_date );
+		date_convert_source_international(
+			beginning_date_american,
+			american,
+			beginning_date );
+	}
 
 	date_convert_source_international(
 		ending_date_american,
 		american,
 		as_of_date );
 
-	if ( *fund_name && strcmp( fund_name, "fund" ) != 0 )
+	if ( fund_name
+	&&   *fund_name
+	&&   strcmp( fund_name, "fund" ) != 0 )
 	{
 		sprintf(sub_title,
 	 		"%s, Fund: %s, Beginning: %s, Ending: %s",
@@ -5993,13 +6010,177 @@ void ledger_get_report_title_sub_title(
 	}
 	else
 	{
-		sprintf(sub_title,
-	 		"%s, Beginning: %s, Ending: %s",
-	 		process_name,
-			beginning_date_american,
-	 		ending_date_american );
+		if ( *beginning_date_american )
+		{
+			sprintf(sub_title,
+	 			"%s, Beginning: %s, Ending: %s",
+	 			process_name,
+				beginning_date_american,
+	 			ending_date_american );
+		}
+		else
+		{
+			sprintf(sub_title,
+	 			"%s, as of date: %s",
+	 			process_name,
+	 			ending_date_american );
+		}
 	}
 
 	format_initial_capital( sub_title, sub_title );
 
 } /* ledger_get_report_title_sub_title() */
+
+TAX_FORM_CATEGORY *ledger_tax_form_category_new(
+					char *tax_form_category_name,
+					char *tax_form_line,
+					boolean itemize_accounts )
+{
+	TAX_FORM_CATEGORY *e;
+
+	if ( ! ( e = calloc( 1, sizeof( TAX_FORM_CATEGORY ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	e->tax_form_category_name = tax_form_category_name;
+	e->tax_form_line = tax_form_line;
+	e->itemize_accounts = itemize_accounts;
+	return e;
+
+} /* ledger_tax_form_category_new() */
+
+LIST *ledger_tax_form_fetch_category_list(
+					char *application_name,
+					char *as_of_date )
+{
+	LIST *account_list;
+	TAX_FORM_CATEGORY *tax_form_category;
+	LIST *tax_form_category_list;
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder_name;
+	char *order;
+	FILE *input_pipe;
+	char input_buffer[ 512 ];
+	char tax_form_category_name[ 128 ];
+	char tax_form_line[ 128 ];
+	char itemize_accounts_yn[ 128 ];
+
+	account_list =
+		ledger_get_account_list(
+			application_name );
+
+	if ( !list_length( account_list ) ) return (LIST *)0;
+
+	select = "tax_form_category,tax_form_line,itemize_accounts_yn";
+	folder_name = "tax_form_category";
+	order = "tax_form_line";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	"
+		 "			order=%s	",
+		 application_name,
+		 select,
+		 folder_name,
+		 order );
+
+	input_pipe = popen( sys_string, "r" );
+
+	tax_form_category_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece(	tax_form_category_name,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	tax_form_line,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		piece(	itemize_accounts_yn,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		tax_form_category =
+			ledger_tax_form_category_new(
+				strdup( tax_form_category_name ),
+				strdup( tax_form_line ),
+				(*itemize_accounts_yn == 'y' ) );
+
+		tax_form_category->account_list =
+			ledger_tax_form_get_account_list(
+				&tax_form_category->balance_sum,
+				application_name,
+				account_list,
+				tax_form_category->tax_form_category_name,
+				as_of_date );
+
+		list_append_pointer(
+			tax_form_category_list,
+			tax_form_category );
+
+	} /* while( get_line() ) */
+
+	pclose( input_pipe );
+	return tax_form_category_list;
+
+} /* ledger_tax_form_fetch_category_list() */
+
+LIST *ledger_tax_form_get_account_list(
+				double *balance_sum,
+				char *application_name,
+				LIST *account_list,
+				char *tax_form_category_name,
+				char *as_of_date )
+{
+	LIST *tax_form_account_list;
+	ACCOUNT *account;
+
+	if ( !list_rewind( account_list ) ) return (LIST *)0;
+
+	tax_form_account_list = list_new();
+
+	do {
+		account = list_get( account_list );
+
+		if ( timlib_strcmp(
+				account->tax_form_category_name,
+				tax_form_category_name ) == 0 )
+		{
+			account->latest_ledger =
+				ledger_get_latest_ledger(
+					application_name,
+					account->account_name,
+					as_of_date );
+
+			if ( account->latest_ledger )
+			{
+				(*balance_sum) +=
+					account->
+						latest_ledger->
+						balance;
+			}
+
+			list_append_pointer(
+				tax_form_account_list,
+				account );
+		}
+
+	} while( list_next( account_list ) );
+
+	return tax_form_account_list;
+
+} /* ledger_tax_form_get_account_list() */
+

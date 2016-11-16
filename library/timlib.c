@@ -2227,6 +2227,11 @@ char *place_commas_in_double( double d )
 
 } /* place_commas_in_double() */
  
+char *timlib_place_commas_in_money( double d )
+{
+	return place_commas_in_money( d );
+}
+
 char *place_commas_in_money( double d )
 {
 	char *results;

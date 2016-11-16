@@ -21,6 +21,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/hashtbl.o
 
 EXECUTABLES=	trial_balance						\
+		tax_form_report						\
 		income_statement					\
 		balance_sheet						\
 		program_profit						\
@@ -175,6 +176,14 @@ trial_balance: trial_balance.c						\
 		${SOURCE_LIBRARY}					\
 		trial_balance.c						\
 		-o trial_balance
+
+tax_form_report: tax_form_report.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		tax_form_report.c					\
+		-o tax_form_report
 
 program_profit: program_profit.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

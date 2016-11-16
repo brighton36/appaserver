@@ -2251,6 +2251,10 @@ char *commas_in_double(		char *destination,
 	char *integer_part_pointer;
 	register int counter = 0;
 
+	/* Sometimes, d is -0.0 */
+	/* -------------------- */
+	if ( timlib_double_virtually_same( d, 0.0 ) ) d = 0.0;
+
 	sprintf( d_string, "%.3lf", d );
 
 	piece( integer_part, '.', d_string, 0 );

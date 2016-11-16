@@ -1057,11 +1057,13 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 	{
 		net_income_account =
 			ledger_account_new(
-				"change_in_net_assets" );
+				LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS );
 	}
 	else
 	{
-		net_income_account = ledger_account_new( "net_income" );
+		net_income_account =
+			ledger_account_new(
+				LEDGER_ACCOUNT_NET_INCOME );
 	}
 
 	net_income_account->accumulate_debit = 0;
@@ -1188,11 +1190,13 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 	{
 		net_income_account =
 			ledger_account_new(
-				"change_in_net_assets" );
+				LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS );
 	}
 	else
 	{
-		net_income_account = ledger_account_new( "net_income" );
+		net_income_account =
+			ledger_account_new(
+				LEDGER_ACCOUNT_NET_INCOME );
 	}
 
 	net_income_account->accumulate_debit = 0;

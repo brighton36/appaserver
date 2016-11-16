@@ -1244,12 +1244,53 @@ LIST *ledger_get_subclassification_latex_row_list(
 
 	*total_element = 0.0;
 
-	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
+	if ( !list_length( subclassification_list ) ) return (LIST *)0;
 
 	row_list = list_new();
 
+	/* For equity, always display the element title */
+	/* -------------------------------------------- */
+	if ( strcmp( element_name, LEDGER_EQUITY_ELEMENT ) ==  0 )
+	{
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		sprintf( format_buffer,
+			 "\\large \\bf %s",
+			 element_name );
+
+		list_append_pointer(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ) );
+
+		first_time = 0;
+
+		/* Maybe financial_position, so get beginning balance. */
+		/* --------------------------------------------------- */
+		list_append_list(
+			row_list,
+			ledger_get_subclassification_beginning_latex_row_list(
+				total_element,
+				subclassification_list,
+				element_accumulate_debit ) );
+	}
+
+	list_rewind( subclassification_list );
+
 	do {
 		subclassification = list_get_pointer( subclassification_list );
+
+		/* Don't do net assets. */
+		/* -------------------- */
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		{
+			continue;
+		}
 
 		if ( !list_rewind( subclassification->account_list ) )
 			continue;
@@ -1300,6 +1341,7 @@ LIST *ledger_get_subclassification_latex_row_list(
 			/* except for change in net assets,		*/
 			/* which gets displayed below.			*/
 			/* -------------------------------------------- */
+/*
 			if ( strcmp(	element_name,
 					LEDGER_EQUITY_ELEMENT ) ==  0
 			&&   strcmp(	account->account_name,
@@ -1321,11 +1363,11 @@ LIST *ledger_get_subclassification_latex_row_list(
 					strdup( place_commas_in_money(
 					   	latest_ledger_balance ) ) );
 			}
+*/
 
 			*total_element += latest_ledger_balance;
 
-			subclassification_amount +=
-					latest_ledger_balance;
+			subclassification_amount += latest_ledger_balance;
 
 		} while( list_next( subclassification->account_list ) );
 
@@ -1335,16 +1377,7 @@ LIST *ledger_get_subclassification_latex_row_list(
 			latex_row = latex_new_latex_row();
 			list_append_pointer( row_list, latex_row );
 
-			if ( strcmp(
-				subclassification->
-					subclassification_name,
-				LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
-			{
-				sprintf( format_buffer,
-					 "\\bf %s",
-					 "Equity Beginning Balance" );
-			}
-			else
+/*
 			if ( strcmp(
 				subclassification->
 					subclassification_name,
@@ -1361,6 +1394,12 @@ LIST *ledger_get_subclassification_latex_row_list(
 				 	 subclassification->
 						subclassification_name );
 			}
+*/
+
+			sprintf( format_buffer,
+			 	 "%s",
+			 	 subclassification->
+					subclassification_name );
 
 			list_append_pointer(
 				latex_row->column_data_list,
@@ -1425,6 +1464,128 @@ LIST *ledger_get_subclassification_latex_row_list(
 
 } /* ledger_get_subclassification_latex_row_list() */
 
+LIST *ledger_get_subclassification_beginning_latex_row_list(
+				double *total_element,
+				LIST *subclassification_list,
+				boolean element_accumulate_debit )
+{
+	LIST *row_list;
+	double subclassification_amount;
+	ACCOUNT *account;
+	SUBCLASSIFICATION *subclassification;
+	double latest_ledger_balance;
+	LATEX_ROW *latex_row;
+
+	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		subclassification = list_get_pointer( subclassification_list );
+
+		/* Only do net assets. */
+		/* ------------------- */
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) != 0 )
+		{
+			continue;
+		}
+
+		if ( !list_rewind( subclassification->account_list ) )
+			continue;
+
+		subclassification_amount = 0.0;
+
+		do {
+			account =
+				list_get_pointer(
+					subclassification->account_list );
+
+			if ( !account->latest_ledger
+			||   !account->latest_ledger->balance )
+				continue;
+
+			if (	element_accumulate_debit ==
+				account->accumulate_debit )
+			{
+				latest_ledger_balance =
+					account->latest_ledger->balance;
+			}
+			else
+			{
+				latest_ledger_balance =
+					0.0 - account->latest_ledger->balance;
+			}
+
+			/* -------------------------------------------- */
+			/* Display all the equity element accounts,	*/
+			/* except for change in net assets,		*/
+			/* which gets displayed below.			*/
+			/* -------------------------------------------- */
+/*
+			if ( strcmp(	element_name,
+					LEDGER_EQUITY_ELEMENT ) ==  0
+			&&   strcmp(	account->account_name,
+					LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS )
+					!= 0 )
+			{
+				latex_row = latex_new_latex_row();
+				list_append_pointer( row_list, latex_row );
+
+				list_append_pointer(
+					latex_row->column_data_list,
+					strdup( format_initial_capital(
+							format_buffer,
+							account->
+							    account_name ) ) );
+
+				list_append_pointer(
+					latex_row->column_data_list,
+					strdup( place_commas_in_money(
+					   	latest_ledger_balance ) ) );
+			}
+*/
+
+			*total_element += latest_ledger_balance;
+
+			subclassification_amount += latest_ledger_balance;
+
+		} while( list_next( subclassification->account_list ) );
+
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+/*
+		sprintf( format_buffer,
+			 "\\bf %s",
+			 "Equity Beginning Balance" );
+
+		list_append_pointer(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ) );
+*/
+
+		list_append_pointer(
+			latex_row->column_data_list,
+			strdup( LEDGER_BEGINNING_BALANCE_LABEL ) );
+
+		list_append_pointer(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   subclassification_amount ) ) );
+
+		return row_list;
+
+	} while( list_next( subclassification_list ) );
+
+	return (LIST *)0;
+
+} /* ledger_get_subclassification_beginning_latex_row_list() */
+
 LIST *ledger_get_latex_row_list(	double *total_element,
 					LIST *subclassification_list,
 					char *element_name,
@@ -1441,12 +1602,53 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 
 	*total_element = 0.0;
 
-	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
+	if ( !list_length( subclassification_list ) ) return (LIST *)0;
 
 	row_list = list_new();
 
+	/* For equity, always display the element title */
+	/* -------------------------------------------- */
+	if ( strcmp( element_name, LEDGER_EQUITY_ELEMENT ) ==  0 )
+	{
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		sprintf( format_buffer,
+			 "\\large \\bf %s",
+			 element_name );
+
+		list_append_pointer(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ) );
+
+		first_time = 0;
+
+		/* Maybe financial_position, so get beginning balance. */
+		/* --------------------------------------------------- */
+		list_append_list(
+			row_list,
+			ledger_get_beginning_balance_latex_row_list(
+				total_element,
+				subclassification_list,
+				element_accumulate_debit ) );
+	}
+
+	list_rewind( subclassification_list );
+
 	do {
 		subclassification = list_get_pointer( subclassification_list );
+
+		/* Don't do net assets. */
+		/* -------------------- */
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		{
+			continue;
+		}
 
 		if ( !list_rewind( subclassification->account_list ) )
 			continue;
@@ -1475,7 +1677,7 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 			list_append_pointer( row_list, latex_row );
 
 			sprintf( format_buffer,
-				 "\\bf Subclassification %s",
+				 "\\bf %s",
 				 subclassification->
 					subclassification_name );
 
@@ -1551,9 +1753,9 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 					subclassification_name,
 				LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
 			{
-				sprintf( format_buffer,
-					 "\\bf %s",
-					 "Equity Beginning Balance" );
+				sprintf(format_buffer,
+					"\\bf %s",
+					LEDGER_BEGINNING_BALANCE_LABEL );
 			}
 			else
 			if ( strcmp(
@@ -1568,7 +1770,7 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 			else
 			{
 				sprintf( format_buffer,
-				 	"\\bf Total Subclassification %s",
+				 	"\\bf Total %s",
 				 	subclassification->
 						subclassification_name );
 			}
@@ -1644,6 +1846,131 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 
 } /* ledger_get_latex_row_list() */
 
+LIST *ledger_get_beginning_balance_latex_row_list(
+				double *total_element,
+				LIST *subclassification_list,
+				boolean element_accumulate_debit )
+{
+	LIST *row_list;
+	double subclassification_amount;
+	ACCOUNT *account;
+	char format_buffer[ 128 ];
+	SUBCLASSIFICATION *subclassification;
+	double latest_ledger_balance;
+	LATEX_ROW *latex_row;
+
+	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		subclassification = list_get_pointer( subclassification_list );
+
+		/* Only do net assets. */
+		/* ------------------- */
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) != 0 )
+		{
+			continue;
+		}
+
+		if ( !list_rewind( subclassification->account_list ) )
+			continue;
+
+		if ( list_length( subclassification->account_list ) > 1 )
+		{
+			latex_row = latex_new_latex_row();
+			list_append_pointer( row_list, latex_row );
+
+			sprintf( format_buffer,
+				 "\\bf %s",
+				 subclassification->
+					subclassification_name );
+
+			list_append_pointer(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						format_buffer ) ) );
+		}
+
+		subclassification_amount = 0.0;
+
+		do {
+			account =
+				list_get_pointer(
+					subclassification->account_list );
+
+			if ( !account->latest_ledger
+			||   !account->latest_ledger->balance )
+				continue;
+
+			if (	element_accumulate_debit ==
+				account->accumulate_debit )
+			{
+				latest_ledger_balance =
+					account->latest_ledger->balance;
+			}
+			else
+			{
+				latest_ledger_balance =
+					0.0 - account->latest_ledger->balance;
+			}
+
+			latex_row = latex_new_latex_row();
+			list_append_pointer( row_list, latex_row );
+
+			list_append_pointer(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						account->
+						    account_name ) ) );
+
+			list_append_pointer(
+				latex_row->column_data_list,
+				strdup( place_commas_in_money(
+				   	latest_ledger_balance ) ) );
+	
+			*total_element += latest_ledger_balance;
+
+			subclassification_amount +=
+					latest_ledger_balance;
+
+		} while( list_next( subclassification->account_list ) );
+
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		sprintf( format_buffer,
+			 "\\bf %s",
+			 LEDGER_BEGINNING_BALANCE_LABEL );
+
+		list_append_pointer(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ) );
+
+		list_append_pointer(
+			latex_row->column_data_list,
+			"" );
+
+		list_append_pointer(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   subclassification_amount ) ) );
+
+		return row_list;
+
+	} while( list_next( subclassification_list ) );
+
+	return (LIST *)0;
+
+} /* ledger_get_beginning_balance_latex_row_list() */
+
 double ledger_get_element_value(	LIST *subclassification_list,
 					boolean element_accumulate_debit )
 {
@@ -1707,10 +2034,56 @@ double ledger_output_subclassification_html_element(
 	double latest_ledger_balance;
 	boolean first_time = 1;
 
+	/* For equity, always display the element title */
+	/* -------------------------------------------- */
+	if ( strcmp(	element_name,
+			LEDGER_EQUITY_ELEMENT ) ==  0 )
+	{
+		sprintf(	element_title,
+				"<h2>%s</h2>",
+				format_initial_capital(
+					format_buffer,
+					element_name ) );
+
+		html_table_set_data(
+				html_table->data_list,
+				element_title );
+
+		html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+		html_table->data_list = list_new();
+
+		/* Maybe financial_position, so display beginning balance. */
+		/* ------------------------------------------------------- */
+		total_element =
+		ledger_output_subclassification_beginning_balance_html_element(
+				html_table,
+				subclassification_list,
+				element_accumulate_debit );
+
+		first_time = 0;
+	}
+
 	if ( !list_rewind( subclassification_list ) ) return 0.0;
 
 	do {
 		subclassification = list_get_pointer( subclassification_list );
+
+		/* Don't display net assets. */
+		/* ------------------------- */
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		{
+			continue;
+		}
 
 		if ( !list_rewind( subclassification->account_list ) )
 			continue;
@@ -1763,43 +2136,6 @@ double ledger_output_subclassification_html_element(
 					0.0 - account->latest_ledger->balance;
 			}
 
-#ifdef NOT_DEFINED
-			/* -------------------------------------------- */
-			/* Display all the equity element accounts,	*/
-			/* except for change in net assets,		*/
-			/* which gets displayed below.			*/
-			/* -------------------------------------------- */
-			if ( strcmp(	element_name,
-					LEDGER_EQUITY_ELEMENT ) ==  0
-			&&   strcmp(	account->account_name,
-					LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS )
-					!= 0 )
-			{
-				html_table_set_data(
-					html_table->data_list,
-					strdup( format_initial_capital(
-						buffer,
-						account->account_name ) ) );
-	
-				html_table_set_data(
-					html_table->data_list,
-					strdup( place_commas_in_money(
-						   latest_ledger_balance ) ) );
-	
-				html_table_output_data(
-					html_table->data_list,
-					html_table->
-						number_left_justified_columns,
-					html_table->
-						number_right_justified_columns,
-					html_table->background_shaded,
-					html_table->justify_list );
-	
-				list_free_string_list( html_table->data_list );
-				html_table->data_list = list_new();
-			}
-#endif
-
 			total_element +=
 					latest_ledger_balance;
 
@@ -1808,36 +2144,16 @@ double ledger_output_subclassification_html_element(
 
 		} while( list_next( subclassification->account_list ) );
 
-		if ( subclassification_amount )
+		if ( !timlib_dollar_virtually_same(
+			subclassification_amount,
+			0.0 ) )
 		{
-			if ( strcmp(
-				subclassification->
-					subclassification_name,
-				LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
-			{
-				sprintf(buffer,
-				 	"<h2>%s</h2>",
-				 	"Equity Beginning Balance" );
-			}
-			else
-			if ( strcmp(
-				subclassification->
-					subclassification_name,
-				LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS ) == 0 )
-			{
-				sprintf(buffer,
-					"<h2>%s</h2>",
-					"Change in Net Assets" );
-			}
-			else
-			{
-				sprintf(buffer,
-				 	"%s",
-				 	format_initial_capital(
-						format_buffer,
-				 		subclassification->
-						    subclassification_name ) );
-			}
+			sprintf(buffer,
+			 	"%s",
+			 	format_initial_capital(
+					format_buffer,
+			 		subclassification->
+					    subclassification_name ) );
 
 			html_table_set_data(	html_table->data_list,
 						strdup( buffer ) );
@@ -1861,7 +2177,7 @@ double ledger_output_subclassification_html_element(
 
 	} while( list_next( subclassification_list ) );
 
-	if ( total_element )
+	if ( !timlib_double_virtually_same( total_element, 0.0 ) )
 	{
 		if ( strcmp(
 			subclassification->
@@ -1899,9 +2215,96 @@ double ledger_output_subclassification_html_element(
 					html_table->justify_list );
 		html_table->data_list = list_new();
 	}
+
 	return total_element;
 
 } /* ledger_output_subclassification_html_element() */
+
+double ledger_output_subclassification_beginning_balance_html_element(
+					HTML_TABLE *html_table,
+					LIST *subclassification_list,
+					boolean element_accumulate_debit )
+{
+	double subclassification_amount;
+	ACCOUNT *account;
+	char buffer[ 128 ];
+	SUBCLASSIFICATION *subclassification;
+	double latest_ledger_balance;
+
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	do {
+		subclassification = list_get_pointer( subclassification_list );
+
+		/* Only display net assets. */
+		/* ------------------------ */
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) != 0 )
+		{
+			continue;
+		}
+
+		if ( !list_rewind( subclassification->account_list ) )
+			continue;
+
+		subclassification_amount = 0.0;
+
+		do {
+			account =
+				list_get_pointer(
+					subclassification->account_list );
+
+			if ( !account->latest_ledger
+			||   !account->latest_ledger->balance )
+				continue;
+
+			if (	element_accumulate_debit ==
+				account->accumulate_debit )
+			{
+				latest_ledger_balance =
+					account->latest_ledger->balance;
+			}
+			else
+			{
+				latest_ledger_balance =
+					0.0 - account->latest_ledger->balance;
+			}
+
+			subclassification_amount +=
+					latest_ledger_balance;
+
+		} while( list_next( subclassification->account_list ) );
+
+		strcpy( buffer, LEDGER_BEGINNING_BALANCE_LABEL );
+
+		html_table_set_data(	html_table->data_list,
+					strdup( buffer ) );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_money(
+				subclassification_amount ) ) );
+	
+		html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+
+		html_table->data_list = list_new();
+
+		return subclassification_amount;
+
+	} while( list_next( subclassification_list ) );
+
+	return 0.0;
+
+} /* ledger_output_subclassification_beginning_balance_html_element() */
 
 double ledger_output_html_element(	HTML_TABLE *html_table,
 					LIST *subclassification_list,
@@ -1928,10 +2331,56 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 		exit( 1 );
 	}
 
+	/* For equity, always display the element title */
+	/* -------------------------------------------- */
+	if ( strcmp(	element_name,
+			LEDGER_EQUITY_ELEMENT ) ==  0 )
+	{
+		sprintf(	element_title,
+				"<h2>%s</h2>",
+				format_initial_capital(
+					format_buffer,
+					element_name ) );
+
+		html_table_set_data(
+				html_table->data_list,
+				element_title );
+
+		html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+		html_table->data_list = list_new();
+
+		/* Maybe financial_position, so display beginning balance. */
+		/* ------------------------------------------------------- */
+		total_element =
+			ledger_output_equity_beginning_balance_html_element(
+				html_table,
+				subclassification_list,
+				element_accumulate_debit );
+
+		first_time = 0;
+	}
+
 	if ( !list_rewind( subclassification_list ) ) return 0.0;
 
 	do {
 		subclassification = list_get_pointer( subclassification_list );
+
+		/* Skip net assets. */
+		/* ---------------- */
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		{
+			continue;
+		}
 
 		if ( !list_rewind( subclassification->account_list ) )
 			continue;
@@ -2047,62 +2496,48 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 
 		} while( list_next( subclassification->account_list ) );
 
-		if ( subclassification_amount
-		&&   list_length( subclassification_list ) > 1 )
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS ) == 0 )
 		{
-			if ( strcmp(
-				subclassification->
-					subclassification_name,
-				LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
-			{
-				sprintf( buffer,
-					 "<h3>%s</h3>",
-					 "Equity Beginning Balance" );
-			}
-			else
-			if ( strcmp(
-				subclassification->
-					subclassification_name,
-				LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS ) == 0 )
-			{
-				sprintf( buffer,
-					 "<h3>%s</h3>",
-					 "Change in Net Assets" );
-			}
-			else
-			{
-				sprintf( buffer,
-				 	"<h3>Total %s</h3>",
-				 	format_initial_capital(
-						format_buffer,
-				 		subclassification->
-						    subclassification_name ) );
-			}
-
-			html_table_set_data(	html_table->data_list,
-						strdup( buffer ) );
-			html_table_set_data( html_table->data_list, "" );
-
-			html_table_set_data(
-				html_table->data_list,
-				strdup( place_commas_in_money(
-					subclassification_amount ) ) );
-	
-			html_table_output_data(
-					html_table->data_list,
-					html_table->
-						number_left_justified_columns,
-					html_table->
-						number_right_justified_columns,
-					html_table->background_shaded,
-					html_table->justify_list );
-
-			html_table->data_list = list_new();
+			sprintf( buffer,
+				 "<h3>%s</h3>",
+				 "Change in Net Assets" );
 		}
+		else
+		{
+			sprintf( buffer,
+			 	"<h3>Total %s</h3>",
+			 	format_initial_capital(
+					format_buffer,
+			 		subclassification->
+					    subclassification_name ) );
+		}
+
+		html_table_set_data(	html_table->data_list,
+					strdup( buffer ) );
+		html_table_set_data( html_table->data_list, "" );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_money(
+				subclassification_amount ) ) );
+	
+		html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+
+		html_table->data_list = list_new();
 
 	} while( list_next( subclassification_list ) );
 
-	if ( total_element )
+	if ( !timlib_double_virtually_same( total_element, 0.0 ) )
 	{
 		if ( strcmp(
 			subclassification->
@@ -2144,6 +2579,153 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 	return total_element;
 
 } /* ledger_output_html_element() */
+
+double ledger_output_equity_beginning_balance_html_element(
+				HTML_TABLE *html_table,
+				LIST *subclassification_list,
+				boolean element_accumulate_debit )
+{
+	double subclassification_amount;
+	ACCOUNT *account;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	SUBCLASSIFICATION *subclassification;
+	char element_title[ 128 ];
+	double latest_ledger_balance;
+
+	if ( !html_table )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty html_table.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( subclassification_list ) ) return 0.0;
+
+	do {
+		subclassification = list_get_pointer( subclassification_list );
+
+		/* Only display net assets. */
+		/* ------------------------ */
+		if ( strcmp(
+			subclassification->
+				subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) != 0 )
+		{
+			continue;
+		}
+
+		if ( !list_rewind( subclassification->account_list ) )
+			continue;
+
+		if ( list_length( subclassification->account_list ) > 1 )
+		{
+			html_table->data_list = list_new();
+
+			sprintf(element_title,
+				"<h3>%s</h3>",
+				format_initial_capital(
+					format_buffer,
+					subclassification->
+						subclassification_name ) );
+
+			html_table_set_data(	html_table->data_list,
+						element_title );
+	
+			html_table_output_data(
+				html_table->data_list,
+				html_table->number_left_justified_columns,
+				html_table->number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+			html_table->data_list = list_new();
+		}
+
+		subclassification_amount = 0.0;
+
+		do {
+			account =
+				list_get_pointer(
+					subclassification->account_list );
+
+			if ( !account->latest_ledger
+			||   !account->latest_ledger->balance )
+				continue;
+
+			if (	element_accumulate_debit ==
+				account->accumulate_debit )
+			{
+				latest_ledger_balance =
+					account->latest_ledger->balance;
+			}
+			else
+			{
+				latest_ledger_balance =
+					0.0 - account->latest_ledger->balance;
+			}
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( format_initial_capital(
+					buffer,
+					account->account_name ) ) );
+	
+			html_table_set_data(
+				html_table->data_list,
+				strdup( place_commas_in_money(
+					   latest_ledger_balance ) ) );
+	
+			html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+	
+			list_free_string_list( html_table->data_list );
+			html_table->data_list = list_new();
+
+			subclassification_amount +=
+				latest_ledger_balance;
+
+		} while( list_next( subclassification->account_list ) );
+
+		sprintf( buffer,
+			 "<h3>%s</h3>",
+			 LEDGER_BEGINNING_BALANCE_LABEL );
+
+		html_table_set_data(	html_table->data_list,
+					strdup( buffer ) );
+		html_table_set_data( html_table->data_list, "" );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_money(
+				subclassification_amount ) ) );
+	
+		html_table_output_data(
+			html_table->data_list,
+			html_table->
+				number_left_justified_columns,
+			html_table->
+				number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+
+		html_table->data_list = list_new();
+
+		return subclassification_amount;
+
+	} while( list_next( subclassification_list ) );
+
+	return 0.0;
+
+} /* ledger_output_equity_beginning_balance_html_element() */
 
 double ledger_get_net_income(	double total_revenues,
 				double total_expenses,

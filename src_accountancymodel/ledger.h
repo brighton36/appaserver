@@ -17,6 +17,8 @@
 
 /* Constants */
 /* --------- */
+#define LEDGER_BEGINNING_BALANCE_LABEL	"Equity Beginning Balance"
+
 #define LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS	\
 					"change_in_net_assets"
 
@@ -708,5 +710,25 @@ void ledger_get_report_title_sub_title(
 				int fund_name_list_length );
 
 LIST *ledger_get_fund_name_list(char *application_name );
+
+double ledger_output_equity_beginning_balance_html_element(
+				HTML_TABLE *html_table,
+				LIST *subclassification_list,
+				boolean element_accumulate_debit );
+
+double ledger_output_subclassification_beginning_balance_html_element(
+				HTML_TABLE *html_table,
+				LIST *subclassification_list,
+				boolean element_accumulate_debit );
+
+LIST *ledger_get_beginning_balance_latex_row_list(
+				double *total_element,
+				LIST *subclassification_list,
+				boolean element_accumulate_debit );
+
+LIST *ledger_get_subclassification_beginning_latex_row_list(
+				double *total_element,
+				LIST *subclassification_list,
+				boolean element_accumulate_debit );
 
 #endif

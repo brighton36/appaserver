@@ -197,6 +197,7 @@ void latex_output_table_heading(	FILE *output_stream,
 {
 	LATEX_TABLE_HEADING *latex_table_heading;
 	int first_time;
+	char buffer[ 128 ];
 
 	if ( !WITH_CAPTION )
 	{
@@ -258,7 +259,9 @@ void latex_output_table_heading(	FILE *output_stream,
 		{
 			fprintf( output_stream,
 				 "%s",
-				 latex_table_heading->heading );
+				 format_initial_capital(
+					buffer,
+				 	latex_table_heading->heading ) );
 		}
 
 	} while( list_next( heading_list ) );

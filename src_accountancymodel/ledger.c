@@ -990,7 +990,9 @@ LIST *ledger_subclassification_get_account_list(
 				as_of_date );
 
 		if ( !account->latest_ledger
-		||   !account->latest_ledger->balance )
+		||   timlib_double_virtually_same(
+			account->latest_ledger->balance,
+			0.0 ) )
 		{
 			continue;
 		}
@@ -1346,65 +1348,19 @@ LIST *ledger_get_subclassification_latex_row_list(
 					0.0 - account->latest_ledger->balance;
 			}
 
-			/* -------------------------------------------- */
-			/* Display all the equity element accounts,	*/
-			/* except for change in net assets,		*/
-			/* which gets displayed below.			*/
-			/* -------------------------------------------- */
-/*
-			if ( strcmp(	element_name,
-					LEDGER_EQUITY_ELEMENT ) ==  0
-			&&   strcmp(	account->account_name,
-					LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS )
-					!= 0 )
-			{
-				latex_row = latex_new_latex_row();
-				list_append_pointer( row_list, latex_row );
-
-				list_append_pointer(
-					latex_row->column_data_list,
-					strdup( format_initial_capital(
-							format_buffer,
-							account->
-							    account_name ) ) );
-
-				list_append_pointer(
-					latex_row->column_data_list,
-					strdup( place_commas_in_money(
-					   	latest_ledger_balance ) ) );
-			}
-*/
-
 			*total_element += latest_ledger_balance;
 
 			subclassification_amount += latest_ledger_balance;
 
 		} while( list_next( subclassification->account_list ) );
 
-		if ( subclassification_amount
+		if ( !timlib_double_virtually_same(
+			subclassification_amount,
+			0.0 )
 		&&   list_length( subclassification_list ) > 1 )
 		{
 			latex_row = latex_new_latex_row();
 			list_append_pointer( row_list, latex_row );
-
-/*
-			if ( strcmp(
-				subclassification->
-					subclassification_name,
-				LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS ) == 0 )
-			{
-				sprintf( format_buffer,
-					 "\\bf %s",
-					 "Change in Net Assets" );
-			}
-			else
-			{
-				sprintf( format_buffer,
-				 	 "%s",
-				 	 subclassification->
-						subclassification_name );
-			}
-*/
 
 			sprintf( format_buffer,
 			 	 "%s",
@@ -6162,6 +6118,14 @@ LIST *ledger_tax_form_get_account_list(
 					account->account_name,
 					as_of_date );
 
+			if ( !account->latest_ledger
+			||   timlib_double_virtually_same(
+				account->latest_ledger->balance,
+				0.0 ) )
+			{
+				continue;
+			}
+
 			if ( account->latest_ledger )
 			{
 				(*balance_sum) +=
@@ -6170,9 +6134,16 @@ LIST *ledger_tax_form_get_account_list(
 						balance;
 			}
 
+			list_add_pointer_in_order(
+				tax_form_account_list,
+				account,
+				ledger_balance_match_function );
+
+/*
 			list_append_pointer(
 				tax_form_account_list,
 				account );
+*/
 		}
 
 	} while( list_next( account_list ) );

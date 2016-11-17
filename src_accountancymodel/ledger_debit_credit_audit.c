@@ -91,11 +91,14 @@ void ledger_debit_credit_audit( char *application_name )
 
 		balance_difference = 0.0;
 
-		if ( ( difference =
+		difference =
 			ledger_debit_credit_difference(
 				&balance_difference,
 				application_name,
-				transaction->journal_ledger_list ) ) )
+				transaction->journal_ledger_list );
+
+		if ( !timlib_double_virtually_same(
+			difference, 0.0 ) )
 		{
 			printf( "Transaction difference: (%s/%s/%s) = %.2lf\n",
 				transaction->full_name,

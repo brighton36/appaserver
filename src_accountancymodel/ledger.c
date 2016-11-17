@@ -5964,24 +5964,21 @@ void ledger_get_report_title_sub_title(
 		application_get_application_title(
 			application_name ) );
 
-	if ( fund_name )
+	if ( ! ( beginning_date = 
+		ledger_nominal_accounts_beginning_transaction_date(
+			application_name,
+			fund_name,
+			as_of_date ) ) )
 	{
-		if ( ! ( beginning_date = 
-			ledger_nominal_accounts_beginning_transaction_date(
-				application_name,
-				fund_name,
-				as_of_date ) ) )
-		{
-			printf( "<h3>Error. No transactions.</h3.\n" );
-			document_close();
-			exit( 0 );
-		}
-
-		date_convert_source_international(
-			beginning_date_american,
-			american,
-			beginning_date );
+		printf( "<h3>Error. No transactions.</h3.\n" );
+		document_close();
+		exit( 0 );
 	}
+
+	date_convert_source_international(
+		beginning_date_american,
+		american,
+		beginning_date );
 
 	date_convert_source_international(
 		ending_date_american,

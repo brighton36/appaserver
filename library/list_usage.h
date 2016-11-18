@@ -76,4 +76,9 @@ void list_usage_stdout_display( LIST *list );
 boolean list_usage_lists_equal(	LIST *list1,
 				LIST *list2 );
 
+/* Assume comma and dash delimited string. */
+/* --------------------------------------- */
+LIST *list_usage_expression2number_list(
+				char *expression );
+
 #endif

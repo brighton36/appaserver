@@ -1496,3 +1496,30 @@ void hydrology_library_output_data_collection_frequency_text_file(
 
 } /* hydrology_library_output_data_collection_frequency_text_file() */
 
+boolean hydrology_library_get_begin_end_year(
+		char **begin_year,
+		char **end_year,
+		char *year_expression )
+{
+	LIST *number_list;
+	int *number_ptr;
+	char buffer[ 8 ];
+
+	number_list =
+		list_usage_expression2number_list(
+			year_expression );
+
+	if ( !list_length( number_list ) ) return 0;
+
+	number_ptr = list_get_first_pointer( number_list );
+	sprintf( buffer, "%d", *number_ptr );
+	*begin_year = strdup( buffer );
+
+	number_ptr = list_get_last_pointer( number_list );
+	sprintf( buffer, "%d", *number_ptr );
+	*end_year = strdup( buffer );
+
+	return 1;
+
+} /* hydrology_library_get_begin_end_year() */
+

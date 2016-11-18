@@ -70,6 +70,7 @@ void annual_comparison_output(
 				int day_range,
 				int year_range,
 				DATE *begin_date,
-				int begin_year );
+				int begin_year,
+				LIST *number_list );
 
 #endif

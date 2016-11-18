@@ -768,3 +768,49 @@ boolean list_usage_lists_equal(	LIST *list1,
 
 } /* list_usage_lists_equal() */
 
+/* Assume comma and dash delimited string. */
+/* --------------------------------------- */
+LIST *list_usage_expression2number_list( char *expression )
+{
+	LIST *number_list = list_new();
+	char comma_buffer[ 16 ];
+	char from_range_buffer[ 16 ];
+	char to_range_buffer[ 16 ];
+	int from_range;
+	int to_range;
+	int p;
+	int range;
+	int *number_ptr;
+
+	for(	p = 0;
+		piece( comma_buffer, ',', expression, p );
+		p++ )
+	{
+		if ( character_exists( comma_buffer, '-' ) )
+		{
+			piece( from_range_buffer, '-', comma_buffer, 0 );
+			from_range = atoi( from_range_buffer );
+
+			piece( to_range_buffer, '-', comma_buffer, 1 );
+			to_range = atoi( to_range_buffer );
+
+			for(	range = from_range;
+				range <= to_range;
+				range++ )
+			{
+				number_ptr = calloc( 1, sizeof ( int ) );
+				*number_ptr = range;
+				list_append_pointer( number_list, number_ptr );
+			}
+			continue;
+		}
+
+		number_ptr = calloc( 1, sizeof ( int ) );
+		*number_ptr = atoi( comma_buffer );
+		list_append_pointer( number_list, number_ptr );
+	}
+
+	return number_list;
+
+} /* list_usage_expression2number_list() */
+

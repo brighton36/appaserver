@@ -1,4 +1,4 @@
-/* annual_comparison.c					   */
+/* src_hydrology/annual_comparison.c			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -12,9 +12,13 @@
 #include "aggregate_statistic.h"
 #include "date.h"
 #include "list.h"
+#include "list_usage.h"
 
 /* Prototypes */
 /* ---------- */
+boolean year_okay(		int year,
+				LIST *number_list );
+
 void parse_input_buffer(	char *measurement_date,
 				char *measurement_value,
 				char *input_buffer );
@@ -217,7 +221,8 @@ void annual_comparison_output(
 				int day_range,
 				int year_range,
 				DATE *begin_date,
-				int begin_year )
+				int begin_year,
+				LIST *number_list )
 {
 	int day;
 	int year;
@@ -232,6 +237,9 @@ void annual_comparison_output(
 
 		for( year = 0; year < year_range; year++ )
 		{
+			if ( !year_okay( begin_year + year, number_list ) )
+				continue;
+
 			if ( value_array[ day ][ year ] )
 			{
 				printf( ".year %d,%s\n",
@@ -270,8 +278,9 @@ int main( int argc, char **argv )
 	char *datatype_name;
 	char *begin_month_day;
 	char *end_month_day;
-	char *begin_year;
-	char *end_year;
+	char *year_expression;
+	char *begin_year = {0};
+	char *end_year = {0};
 	char *aggregate_statistic_string;
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
@@ -282,14 +291,15 @@ int main( int argc, char **argv )
 	char where_clause[ 1024 ];
 	enum aggregate_statistic aggregate_statistic;
 	char end_date[ 16 ];
+	LIST *number_list;
 	char *select = "measurement_date,measurement_time,measurement_value";
 
 	output_starting_argv_stderr( argc, argv );
 
-	if ( argc != 9 )
+	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s application station datatype begin_day_month end_day_month begin_year end_year aggregate_statistic\n",
+"Usage: %s application station datatype begin_day_month end_day_month year_expression aggregate_statistic\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -299,16 +309,24 @@ int main( int argc, char **argv )
 	datatype_name = argv[ 3 ];
 	begin_month_day = argv[ 4 ];
 	end_month_day = argv[ 5 ];
-	begin_year = argv[ 6 ];
-	end_year = argv[ 7 ];
-	aggregate_statistic_string = argv[ 8 ];
+	year_expression = argv[ 6 ];
+	aggregate_statistic_string = argv[ 7 ];
+
+	hydrology_library_get_begin_end_year(
+			&begin_year,
+			&end_year,
+			year_expression );
+
+	number_list =
+		list_usage_expression2number_list(
+			year_expression );
 
 	if ( ! ( annual_comparison =
-		annual_comparison_new(
-			begin_month_day,
-			end_month_day,
-			atoi( begin_year ),
-			atoi( end_year ) ) ) )
+			annual_comparison_new(
+				begin_month_day,
+				end_month_day,
+				atoi( begin_year ),
+				atoi( end_year ) ) ) )
 	{
 		exit( 0 );
 	}
@@ -382,8 +400,27 @@ int main( int argc, char **argv )
 			annual_comparison->day_range,
 			annual_comparison->year_range,
 			annual_comparison->begin_date,
-			annual_comparison->begin_year );
+			annual_comparison->begin_year,
+			number_list );
 
 	return 0;
 } /* main() */
+
+boolean year_okay(	int year,
+			LIST *number_list )
+{
+	int *number_ptr;
+
+	if ( !list_rewind( number_list ) ) return 0;
+
+	do {
+		number_ptr = list_get_pointer( number_list );
+
+		if ( *number_ptr == year ) return 1;
+
+	} while( list_next( number_list ) );
+
+	return 0;
+
+} /* year_okay() */
 

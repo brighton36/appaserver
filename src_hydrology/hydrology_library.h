@@ -221,4 +221,9 @@ void hydrology_library_output_data_collection_frequency_text_file(
 				char *station_name,
 				char *datatype_name );
 
+boolean hydrology_library_get_begin_end_year(
+				char **begin_year,
+				char **end_year,
+				char *year_expression );
+
 #endif

@@ -85,6 +85,7 @@ void output_annual_comparison_output_spreadsheet(
 					char *datatype_name,
 					char *begin_month_day,
 					char *end_month_day,
+					char *year_expression,
 					char *begin_year,
 					char *end_year,
 					char *aggregate_statistic_string );
@@ -96,6 +97,7 @@ void output_annual_comparison_output_text_file(
 					char *datatype_name,
 					char *begin_month_day,
 					char *end_month_day,
+					char *year_expression,
 					char *begin_year,
 					char *end_year,
 					char *aggregate_statistic_string );
@@ -106,6 +108,7 @@ void output_annual_comparison_output_table(
 					char *datatype_name,
 					char *begin_month_day,
 					char *end_month_day,
+					char *year_expression,
 					char *begin_year,
 					char *end_year,
 					char *process_name,
@@ -124,6 +127,7 @@ boolean output_annual_comparison_output_gracechart(
 				char *datatype_name,
 				char *begin_month_day,
 				char *end_month_day,
+				char *year_expression,
 				char *begin_year,
 				char *end_year,
 				char *process_name,
@@ -136,8 +140,7 @@ void build_sys_string(
 				char *datatype_name,
 				char *begin_month_day,
 				char *end_month_day,
-				char *begin_year,
-				char *end_year,
+				char *year_expression,
 				char *aggregate_statistic_string );
 
 int main( int argc, char **argv )
@@ -152,8 +155,9 @@ int main( int argc, char **argv )
 	char *datatype_name;
 	char *begin_month_day;
 	char *end_month_day;
-	char *begin_year;
-	char *end_year;
+	char *year_expression;
+	char *begin_year = {0};
+	char *end_year = {0};
 	char *aggregate_statistic_string;
 	char *output_medium;
 	char *ftp_filename;
@@ -164,10 +168,10 @@ int main( int argc, char **argv )
 	char sub_title[ 512 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
-	if ( argc != 12 )
+	if ( argc != 11 )
 	{
 		fprintf(stderr,
-"Usage: %s application session process station datatype begin_day_month end_day_month begin_year end_year aggregate_statistic output_medium\n",
+"Usage: %s application session process station datatype begin_day_month end_day_month year_expression aggregate_statistic output_medium\n",
 			argv[ 0 ] );
 		fprintf(stderr,
 "Note: output_medium = {chart,table,text_file,spreadsheet,stdout}\n" );
@@ -182,10 +186,9 @@ int main( int argc, char **argv )
 	datatype_name = argv[ 5 ];
 	begin_month_day = argv[ 6 ];
 	end_month_day = argv[ 7 ];
-	begin_year = argv[ 8 ];
-	end_year = argv[ 9 ];
-	aggregate_statistic_string = argv[ 10 ];
-	output_medium = argv[ 11 ];
+	year_expression = argv[ 8 ];
+	aggregate_statistic_string = argv[ 9 ];
+	output_medium = argv[ 10 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -200,10 +203,12 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -249,6 +254,16 @@ int main( int argc, char **argv )
 			document->onload_control_string );
 	}
 
+	if ( !hydrology_library_get_begin_end_year(
+			&begin_year,
+			&end_year,
+			year_expression ) )
+	{
+		printf(
+"<h3>Error: invalid year expression.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
 	if ( !character_exists( begin_month_day, '-' )
 	||   !character_exists( end_month_day, '-' ) )
 	{
@@ -276,6 +291,7 @@ int main( int argc, char **argv )
 					datatype_name,
 					begin_month_day,
 					end_month_day,
+					year_expression,
 					begin_year,
 					end_year,
 					process_name,
@@ -403,6 +419,7 @@ int main( int argc, char **argv )
 					datatype_name,
 					begin_month_day,
 					end_month_day,
+					year_expression,
 					begin_year,
 					end_year,
 					aggregate_statistic_string );
@@ -547,6 +564,7 @@ int main( int argc, char **argv )
 					datatype_name,
 					begin_month_day,
 					end_month_day,
+					year_expression,
 					begin_year,
 					end_year,
 					aggregate_statistic_string );
@@ -594,6 +612,7 @@ int main( int argc, char **argv )
 					datatype_name,
 					begin_month_day,
 					end_month_day,
+					year_expression,
 					begin_year,
 					end_year,
 					aggregate_statistic_string );
@@ -612,6 +631,7 @@ int main( int argc, char **argv )
 				datatype_name,
 				begin_month_day,
 				end_month_day,
+				year_expression,
 				begin_year,
 				end_year,
 				process_name,
@@ -640,19 +660,17 @@ void build_sys_string(
 		char *datatype_name,
 		char *begin_month_day,
 		char *end_month_day,
-		char *begin_year,
-		char *end_year,
+		char *year_expression,
 		char *aggregate_statistic_string )
 {
 	sprintf( sys_string,
-		 "annual_comparison %s %s %s %s %s %s %s %s",
+		 "annual_comparison %s %s %s %s %s '%s' %s",
 		 application_name,
 		 station_name,
 		 datatype_name,
 		 begin_month_day,
 		 end_month_day,
-		 begin_year,
-		 end_year,
+		 year_expression,
 		 aggregate_statistic_string );
 
 } /* build_sys_string() */
@@ -665,6 +683,7 @@ boolean output_annual_comparison_output_gracechart(
 				char *datatype_name,
 				char *begin_month_day,
 				char *end_month_day,
+				char *year_expression,
 				char *begin_year,
 				char *end_year,
 				char *process_name,
@@ -706,8 +725,7 @@ boolean output_annual_comparison_output_gracechart(
 		datatype_name,
 		begin_month_day,
 		end_month_day,
-		begin_year,
-		end_year,
+		year_expression,
 		aggregate_statistic_string );
 
 	get_report_title(	title,
@@ -813,8 +831,7 @@ boolean output_annual_comparison_output_gracechart(
 		datatype_name,
 		begin_month_day,
 		end_month_day,
-		begin_year,
-		end_year,
+		year_expression,
 		aggregate_statistic_string );
 
 	input_pipe = popen( sys_string, "r" );
@@ -1042,6 +1059,7 @@ void output_annual_comparison_output_table(
 					char *datatype_name,
 					char *begin_month_day,
 					char *end_month_day,
+					char *year_expression,
 					char *begin_year,
 					char *end_year,
 					char *process_name,
@@ -1088,8 +1106,7 @@ void output_annual_comparison_output_table(
 		datatype_name,
 		begin_month_day,
 		end_month_day,
-		begin_year,
-		end_year,
+		year_expression,
 		aggregate_statistic_string );
 
 	input_pipe = popen( sys_string, "r" );
@@ -1115,6 +1132,7 @@ void output_annual_comparison_output_text_file(
 					char *datatype_name,
 					char *begin_month_day,
 					char *end_month_day,
+					char *year_expression,
 					char *begin_year,
 					char *end_year,
 					char *aggregate_statistic_string )
@@ -1131,8 +1149,7 @@ void output_annual_comparison_output_text_file(
 		datatype_name,
 		begin_month_day,
 		end_month_day,
-		begin_year,
-		end_year,
+		year_expression,
 		aggregate_statistic_string );
 
 	input_pipe = popen( sys_string, "r" );
@@ -1162,6 +1179,7 @@ void output_annual_comparison_output_spreadsheet(
 					char *datatype_name,
 					char *begin_month_day,
 					char *end_month_day,
+					char *year_expression,
 					char *begin_year,
 					char *end_year,
 					char *aggregate_statistic_string )
@@ -1178,8 +1196,7 @@ void output_annual_comparison_output_spreadsheet(
 		datatype_name,
 		begin_month_day,
 		end_month_day,
-		begin_year,
-		end_year,
+		year_expression,
 		aggregate_statistic_string );
 
 	input_pipe = popen( sys_string, "r" );

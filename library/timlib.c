@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/utsname.h>
 #include <string.h>
 #include <strings.h>
@@ -2862,8 +2864,12 @@ char *timlib_get_in_clause( char *data_list_string )
 
 boolean timlib_file_exists( char *filename )
 {
-	FILE *f;
+	struct stat s;
 	boolean results;
+
+        results = ( stat( filename, &s ) != -1 );
+/*
+	FILE *f;
 
 	if ( ! ( f = fopen( filename, "r" ) ) )
 	{
@@ -2874,6 +2880,7 @@ boolean timlib_file_exists( char *filename )
 		fclose( f );
 		results = 1;
 	}
+*/
 	return results;
 } /* timlib_file_exists() */
 

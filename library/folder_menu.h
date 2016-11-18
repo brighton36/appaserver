@@ -41,4 +41,11 @@ boolean folder_menu_file_exists(
 					char *session,
 					char *appaserver_data_directory,
 					char *role_name );
+
+boolean folder_menu_remove_file(
+					char *application_name,
+					char *session,
+					char *appaserver_data_directory,
+					char *role_name );
+
 #endif

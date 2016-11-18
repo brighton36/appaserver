@@ -89,6 +89,7 @@ enum preupdate_change_state {		from_null_to_something,
 #define SORT_ORDER_ATTRIBUTE_NAME		"sort_order"
 #define SORT_ORDER_ELEMENT_NAME			"sort_order_1"
 #define DISPLAY_ORDER_ATTRIBUTE_NAME		"display_order"
+#define SEQUENCE_NUMBER_ATTRIBUTE_NAME		"sequence_number"
 #define SORT_ORDER_PUSH_BUTTON_NAME		"sort_order_button"
 #define QUANTUM_CHART_PUSH_BUTTON_NAME		"quantum_chart_button"
 #define STATISTICS_PUSH_BUTTON_NAME		"statistics_button"

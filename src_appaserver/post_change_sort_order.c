@@ -314,8 +314,7 @@ void change_sort_order_state_one(
 	FORM *form;
 	char action_string[ 512 ];
 	char *submit_control_string;
-	char *sort_order_column;
-
+	char *sort_order_column = {0};
 
 	folder->primary_attribute_name_list =
 		attribute_get_primary_attribute_name_list(
@@ -328,12 +327,32 @@ void change_sort_order_state_one(
 		sort_order_column = SORT_ORDER_ATTRIBUTE_NAME;
 	}
 	else
+	if ( attribute_list_exists(
+				folder->attribute_list,
+				DISPLAY_ORDER_ATTRIBUTE_NAME ) )
 	{
 		sort_order_column = DISPLAY_ORDER_ATTRIBUTE_NAME;
 	}
+	else
+	if ( attribute_list_exists(
+				folder->attribute_list,
+				SEQUENCE_NUMBER_ATTRIBUTE_NAME ) )
+	{
+		sort_order_column = SEQUENCE_NUMBER_ATTRIBUTE_NAME;
+	}
+	else
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: invalid sort_order_column.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	form = form_new( SORT_ORDER_ATTRIBUTE_NAME,
-			 application_get_title_string( application_name ) );
+			 application_get_title_string(
+				application_name ) );
 
 	sprintf(	action_string,
 			"%s/post_change_sort_order?%s+%s+%s+%s+%s+two",
@@ -448,6 +467,7 @@ void change_sort_order_state_two(
 	for( index = 1;; index++ )
 	{
 		sprintf( key, "%s_%d", SORT_ORDER_ATTRIBUTE_NAME, index );
+
 		if ( ! ( data = dictionary_fetch( post_dictionary, key ) ) )
 		{
 			break;
@@ -464,11 +484,25 @@ void change_sort_order_state_two(
 			 	 index );
 		}
 		else
+		if ( attribute_list_exists(
+					folder->attribute_list,
+					DISPLAY_ORDER_ATTRIBUTE_NAME ) )
 		{
 			fprintf( output_pipe,
 			 	 "%s^%s^%d\n",
 			 	 data,
 			 	 DISPLAY_ORDER_ATTRIBUTE_NAME,
+			 	 index );
+		}
+		else
+		if ( attribute_list_exists(
+					folder->attribute_list,
+					SEQUENCE_NUMBER_ATTRIBUTE_NAME ) )
+		{
+			fprintf( output_pipe,
+			 	 "%s^%s^%d\n",
+			 	 data,
+			 	 SEQUENCE_NUMBER_ATTRIBUTE_NAME,
 			 	 index );
 		}
 	}

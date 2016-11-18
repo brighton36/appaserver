@@ -246,6 +246,36 @@ char *folder_menu_get_filename(
 
 } /* folder_menu_get_filename() */
 
+boolean folder_menu_remove_file(
+				char *application_name,
+				char *session,
+				char *appaserver_data_directory,
+				char *role_name )
+{
+	char *filename;
+	char sys_string[ 1024 ];
+
+	if ( !( filename = folder_menu_get_filename(
+				application_name,
+				session,
+				appaserver_data_directory,
+				role_name ) ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot get filename.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	sprintf( sys_string,
+		 "rm %s",
+		 filename );
+
+	system( sys_string );
+
+} /* folder_menu_remove_file() */
 
 boolean folder_menu_file_exists(
 				char *application_name,
@@ -265,7 +295,12 @@ boolean folder_menu_file_exists(
 	}
 	else
 	{
-		return 0;
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot get filename.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
 } /* folder_menu_file_exists() */

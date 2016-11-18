@@ -152,11 +152,11 @@ int main( int argc, char **argv )
 	role = role_new_role( application_name, role_name );
 
 	folder_menu_create_spool_file(
-			application_name,
-			session,
-			appaserver_parameter_file_get_appaserver_mount_point(),
-			role_name,
-			(role->folder_count_yn == 'y' ) );
+		application_name,
+		session,
+		appaserver_parameter_file_get_appaserver_data_directory(),
+		role_name,
+		(role->folder_count_yn == 'y' ) );
 
 	sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' '%s' 2>>%s", 

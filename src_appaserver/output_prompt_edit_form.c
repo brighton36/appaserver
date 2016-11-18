@@ -546,7 +546,10 @@ void output_prompt_edit_form(
 			SORT_ORDER_ATTRIBUTE_NAME ) ||
 		  attribute_list_exists_name(
 			appaserver->folder->attribute_list,
-			DISPLAY_ORDER_ATTRIBUTE_NAME ) );
+			DISPLAY_ORDER_ATTRIBUTE_NAME ) ||
+		  attribute_list_exists_name(
+			appaserver->folder->attribute_list,
+			SEQUENCE_NUMBER_ATTRIBUTE_NAME ) );
 
 	form->regular_element_list =
 		get_element_list(

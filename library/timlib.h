@@ -199,20 +199,32 @@ int get_block_delimiter( 		char **block,
 			 		int columns_to_block,
 			 		FILE *input_file,
 					int max_lines );
+
 int string_array_search_offset( 	char **string_array, 
 					char *search_string );
+
 int count_character( 			int char_to_count, char *source );
+
 char *last_word_string(			char *s );
+
 char *mnemonic2upper_case( 		char *d, char *s );
+
 int is_mnemonic( 			char *s );
+
 char *search_replace_single_quoted_string(
 					char *source_destination,
 					char *search_string,
 					char *replace_string );
+
+char *timlib_escape_field(		char *source_destination );
+
 char *escape_field(			char *source_destination );
+
 char *escape_string( 			char *source_destination );
+
 void free_array_string_with_count( 	char **block, 
 					int block_count );
+
 char *right(				char *string,
 					char *substr,
 					int width );

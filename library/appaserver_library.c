@@ -2829,3 +2829,30 @@ enum preupdate_change_state appaserver_library_get_preupdate_change_state(
 
 } /* appaserver_library_get_preupdate_change_state() */
 
+char *appaserver_library_get_sort_attribute_name( LIST *attribute_list )
+{
+	if ( attribute_list_exists(
+				attribute_list,
+				SORT_ORDER_ATTRIBUTE_NAME ) )
+	{
+		return SORT_ORDER_ATTRIBUTE_NAME;
+	}
+	else
+	if ( attribute_list_exists(
+				attribute_list,
+				DISPLAY_ORDER_ATTRIBUTE_NAME ) )
+	{
+		return DISPLAY_ORDER_ATTRIBUTE_NAME;
+	}
+	else
+	if ( attribute_list_exists(
+				attribute_list,
+				SEQUENCE_NUMBER_ATTRIBUTE_NAME ) )
+	{
+		return SEQUENCE_NUMBER_ATTRIBUTE_NAME;
+	}
+
+	return (char *)0;
+
+} /* appaserver_library_get_sort_attribute_name() */
+

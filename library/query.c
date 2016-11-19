@@ -4873,3 +4873,90 @@ LIST *query_append_prompt_recursive_folder_list(
 
 } /* query_append_prompt_recursive_folder_list() */
 
+char *query_get_dictionary_where_clause(
+			DICTIONARY *dictionary,
+			LIST *primary_attribute_name_list,
+			char *dictionary_indexed_prefix )
+{
+	char where_clause[ 65536 ];
+	char piece_buffer[ 512 ];
+	char key[ 128 ];
+	char *data;
+	char *primary_attribute_name;
+	int first_time = 1;
+	char *ptr = where_clause;
+	int index;
+	int p;
+
+	if ( !list_length( primary_attribute_name_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty primary_attribute_name_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	*ptr = '\0';
+
+	for( index = 1; ; index++ )
+	{
+		sprintf( key, "%s_%d", dictionary_indexed_prefix, index );
+
+		if ( ! ( data = dictionary_fetch( dictionary, key ) ) )
+		{
+			break;
+		}
+
+		if ( first_time )
+			first_time = 0;
+		else
+			ptr += sprintf( ptr, " or " );
+
+		ptr += sprintf( ptr, "(" );
+
+		p = 0;
+		list_rewind( primary_attribute_name_list );
+
+		do {
+			primary_attribute_name =
+				list_get_pointer(
+					primary_attribute_name_list );
+
+			if ( !piece(	piece_buffer,
+					MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+					data,
+					p ) )
+			{
+				fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot piece(%d) in (%s).\n",
+			 		__FILE__,
+			 		__FUNCTION__,
+			 		__LINE__,
+					p,
+					data );
+				exit( 1 );
+			}
+
+			if ( p ) ptr += sprintf( ptr, " and " );
+
+			ptr += sprintf(
+			   		ptr,
+			   		"%s = '%s'",
+					primary_attribute_name,
+			   		timlib_escape_field( piece_buffer ) );
+
+			p++;
+
+		} while( list_next( primary_attribute_name_list ) );
+
+		ptr += sprintf( ptr, ")" );
+	}
+
+	if ( first_time ) strcpy( where_clause, "1 = 1" );
+
+	return strdup( where_clause );
+
+} /* query_get_dictionary_where_clause() */
+

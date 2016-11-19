@@ -532,10 +532,9 @@ char *query_drop_down_list_in_clause_display(
 char *query_get_process_drop_down_where_clause(
 				LIST *query_drop_down_list );
 
-/*
-boolean query_exists_relational_operator(
-				LIST *attribute_name_list,
-				DICTIONARY *dictionary );
-*/
+char *query_get_dictionary_where_clause(
+				DICTIONARY *dictionary,
+				LIST *primary_attribute_name_list,
+				char *dictionary_indexed_prefix );
 
 #endif

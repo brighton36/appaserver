@@ -450,4 +450,7 @@ enum preupdate_change_state appaserver_library_get_preupdate_change_state(
 char *appaserver_library_preupdate_change_state_display(
 			enum preupdate_change_state preupdate_change_state );
 
+char *appaserver_library_get_sort_attribute_name(
+				LIST *attribute_list );
+
 #endif

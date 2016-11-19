@@ -1911,6 +1911,11 @@ char *escape_string( char *source_destination )
 	return escape_field( source_destination );
 }
 
+char *timlib_escape_field( char *source_destination )
+{
+	return escape_field( source_destination );
+}
+
 char *escape_field( char *source_destination )
 {
 	char buffer[ 65536 ];
@@ -1939,7 +1944,8 @@ char *escape_field( char *source_destination )
 */
 
 	return source_destination;
-}
+
+} /* escape_field() */
 
 char *timlib_escape_single_quotes( char *destination, char *source )
 {

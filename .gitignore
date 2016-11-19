@@ -19,6 +19,7 @@ backup/
 # --------------------
 # src_accountancymodel
 # --------------------
+post_change_bank_download
 trial_balance
 tax_form_report
 program_profit

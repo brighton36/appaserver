@@ -1,7 +1,8 @@
 /* src_appaserver/post_change_sort_order.c			*/
 /* ------------------------------------------------------------	*/
 /* This process is triggered if you select the sort order radio	*/
-/* button on some of the lookup forms.				*/
+/* button on the lookup forms with attribute names of		*/
+/* sort_order, display_order, or sequence_number.		*/
 /*								*/
 /* Freely available software: see Appaserver.org		*/
 /* -----------------------------------------------------------	*/
@@ -40,6 +41,20 @@
 
 /* Prototypes */
 /* ---------- */
+void post_change_sort_order_post_change_process_execute(
+				PROCESS *post_change_process,
+				DICTIONARY *post_dictionary,
+				char *folder_name,
+				char *application_name );
+
+int get_sort_starting_number(
+				char *application_name,
+				DICTIONARY *post_dictionary,
+				char *folder_name,
+				LIST *primary_attribute_name_list,
+				char *sort_attribute_name,
+				char *dictionary_indexed_prefix );
+
 void change_sort_order_state_one(
 				char *application_name,
 				FOLDER *folder,
@@ -180,13 +195,15 @@ int main( int argc, char **argv )
 				application_name, session, login_name );
 	}
 
-	folder = folder_new_folder( 	application_name,
-					session,
-					folder_name );
-
 	role = role_new_role(	application_name,
 				role_name );
 
+	folder = folder_with_load_new( 	application_name,
+					session,
+					folder_name,
+					role );
+
+#ifdef NOT_DEFINED
 	folder_load(	&folder->insert_rows_number,
 			&folder->lookup_email_output,
 			&folder->row_level_non_owner_forbid,
@@ -218,6 +235,7 @@ int main( int argc, char **argv )
 		(char *)0 /* attribute_name */,
 		(LIST *)0 /* mto1_isa_related_folder_list */,
 		(char *)0 /* role_name */ );
+#endif
 
 	if ( folder->row_level_non_owner_view_only )
 		folder->row_level_non_owner_forbid = 1;
@@ -320,35 +338,9 @@ void change_sort_order_state_one(
 		attribute_get_primary_attribute_name_list(
 			folder->attribute_list );
 
-	if ( attribute_list_exists(
-				folder->attribute_list,
-				SORT_ORDER_ATTRIBUTE_NAME ) )
-	{
-		sort_order_column = SORT_ORDER_ATTRIBUTE_NAME;
-	}
-	else
-	if ( attribute_list_exists(
-				folder->attribute_list,
-				DISPLAY_ORDER_ATTRIBUTE_NAME ) )
-	{
-		sort_order_column = DISPLAY_ORDER_ATTRIBUTE_NAME;
-	}
-	else
-	if ( attribute_list_exists(
-				folder->attribute_list,
-				SEQUENCE_NUMBER_ATTRIBUTE_NAME ) )
-	{
-		sort_order_column = SEQUENCE_NUMBER_ATTRIBUTE_NAME;
-	}
-	else
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: invalid sort_order_column.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	sort_order_column =
+		appaserver_library_get_sort_attribute_name(
+			folder->attribute_list );
 
 	form = form_new( SORT_ORDER_ATTRIBUTE_NAME,
 			 application_get_title_string(
@@ -450,6 +442,21 @@ void change_sort_order_state_two(
 	int index;
 	char key[ 128 ];
 	char *data;
+	int sort_starting_number;
+	char *sort_attribute_name;
+
+	sort_attribute_name =
+		appaserver_library_get_sort_attribute_name(
+			folder->attribute_list );
+
+	sort_starting_number =
+		get_sort_starting_number(
+			application_name,
+			post_dictionary,
+			folder->folder_name,
+			folder->primary_attribute_name_list,
+			sort_attribute_name,
+			SORT_ORDER_ATTRIBUTE_NAME );
 
 	folder->primary_attribute_name_list =
 		attribute_get_primary_attribute_name_list(
@@ -473,41 +480,103 @@ void change_sort_order_state_two(
 			break;
 		}
 
-		if ( attribute_list_exists(
-					folder->attribute_list,
-					SORT_ORDER_ATTRIBUTE_NAME ) )
-		{
-			fprintf( output_pipe,
-			 	 "%s^%s^%d\n",
-			 	 data,
-			 	 SORT_ORDER_ATTRIBUTE_NAME,
-			 	 index );
-		}
-		else
-		if ( attribute_list_exists(
-					folder->attribute_list,
-					DISPLAY_ORDER_ATTRIBUTE_NAME ) )
-		{
-			fprintf( output_pipe,
-			 	 "%s^%s^%d\n",
-			 	 data,
-			 	 DISPLAY_ORDER_ATTRIBUTE_NAME,
-			 	 index );
-		}
-		else
-		if ( attribute_list_exists(
-					folder->attribute_list,
-					SEQUENCE_NUMBER_ATTRIBUTE_NAME ) )
-		{
-			fprintf( output_pipe,
-			 	 "%s^%s^%d\n",
-			 	 data,
-			 	 SEQUENCE_NUMBER_ATTRIBUTE_NAME,
-			 	 index );
-		}
+		fprintf( output_pipe,
+		 	 "%s^%s^%d\n",
+		 	 data,
+		 	 sort_attribute_name,
+		 	 sort_starting_number++ );
 	}
 
 	pclose( output_pipe );
 
+	if ( folder->post_change_process )
+	{
+		post_change_sort_order_post_change_process_execute(
+			folder->post_change_process,
+			post_dictionary,
+			folder->folder_name,
+			application_name );
+	}
+
 } /* change_sort_order_state_two() */
+
+int get_sort_starting_number(
+			char *application_name,
+			DICTIONARY *post_dictionary,
+			char *folder_name,
+			LIST *primary_attribute_name_list,
+			char *sort_attribute_name,
+			char *dictionary_indexed_prefix )
+{
+	char sys_string[ 65536 ];
+	char *where_clause;
+	char select[ 128 ];
+	char *results;
+
+	sprintf( select,
+		 "min(%s)",
+		 sort_attribute_name );
+
+	where_clause =
+		query_get_dictionary_where_clause(
+			post_dictionary,
+			primary_attribute_name_list,
+			dictionary_indexed_prefix );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=\"%s\"	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	",
+		 application_name,
+		 select,
+		 folder_name,
+		 where_clause );
+
+	if ( ! ( results = pipe2string( sys_string ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: fetch returned null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return atoi( results );
+
+} /* get_sort_starting_number() */
+
+void post_change_sort_order_post_change_process_execute(
+			PROCESS *post_change_process,
+			DICTIONARY *post_dictionary,
+			char *folder_name,
+			char *application_name )
+{
+	process_convert_parameters(
+		&post_change_process->executable,
+		application_name,
+		(char *)0 /* database_string */,
+		(char *)0 /* session */,
+		(char *)0 /* state */,
+		(char *)0 /* login_name */,
+		folder_name,
+		(char *)0 /* role_name */,
+		(char *)0 /* target_frame */,
+		post_dictionary /* parameter_dictionary */,
+		(LIST *)0 /* attribute_list */,
+		(LIST *)0 /* prompt_list */,
+		(LIST *)0 /* primary_attribute_name_list */,
+		(LIST *)0 /* primary_data_list */,
+		0 /* row */,
+		post_change_process->process_name,
+		(PROCESS_SET *)0,
+		(char *)0
+		/* one2m_folder_name_for_processes */,
+		(char *)0 /* operation_row_count_string */,
+		(char *)0 /* prompt */ );
+
+	system( post_change_process->executable );
+
+} /* post_change_sort_order_post_change_process_execute() */
 

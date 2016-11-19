@@ -541,6 +541,11 @@ void output_prompt_edit_form(
 				mto1_related_folder_list );
 
 	sort_order_button =
+		(boolean)
+		appaserver_library_get_sort_attribute_name(
+			appaserver->folder->attribute_list );
+
+/*
 		( attribute_list_exists_name(
 			appaserver->folder->attribute_list,
 			SORT_ORDER_ATTRIBUTE_NAME ) ||
@@ -550,6 +555,7 @@ void output_prompt_edit_form(
 		  attribute_list_exists_name(
 			appaserver->folder->attribute_list,
 			SEQUENCE_NUMBER_ATTRIBUTE_NAME ) );
+*/
 
 	form->regular_element_list =
 		get_element_list(

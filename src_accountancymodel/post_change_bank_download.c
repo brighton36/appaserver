@@ -21,9 +21,10 @@
 
 /* Prototypes */
 /* ---------- */
-double get_prior_bank_running_balance(
+double get_starting_bank_running_balance(
 				char *application_name,
-				char *max_prior_sequence_number );
+				char *bank_date,
+				char *bank_description );
 
 FILE *post_change_bank_download_open_output_pipe(
 				void );
@@ -31,12 +32,6 @@ FILE *post_change_bank_download_open_output_pipe(
 FILE *post_change_bank_download_open_input_pipe(
 				char *application_name,
 				char *sequence_number );
-
-char *get_max_prior_sequence_number(
-				char **sequence_number,
-				char *application_name,
-				char *bank_date,
-				char *bank_description );
 
 char *get_sequence_number(	char *application_name,
 				char *bank_date,
@@ -119,40 +114,26 @@ void post_change_bank_download_update(
 			char *bank_date,
 			char *bank_description )
 {
-	char *max_prior_sequence_number;
-	char *sequence_number = {0};
+	char *sequence_number;
 	FILE *input_pipe;
 	FILE *output_pipe;
 	char input_bank_date[ 16 ];
 	char input_bank_description[ 128 ];
 	char input_bank_amount[ 16 ];
-	double bank_running_balance = 0.0;
+	double bank_running_balance;
 	char input_buffer[ 512 ];
 
-	if ( ( max_prior_sequence_number =
-		get_max_prior_sequence_number(
-			&sequence_number,
+	sequence_number =
+		get_sequence_number(
 			application_name,
 			bank_date,
-			bank_description ) ) )
-	{
-		bank_running_balance =
-			get_prior_bank_running_balance(
-				application_name,
-				max_prior_sequence_number );
-	}
+			bank_description );
 
-	if ( !sequence_number )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot get sequence_number for (%s/%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 bank_date,
-			 bank_description );
-		exit( 1 );
-	}
+	bank_running_balance =
+		get_starting_bank_running_balance(
+			application_name,
+			bank_date,
+			bank_description );
 
 	input_pipe =
 		post_change_bank_download_open_input_pipe(
@@ -201,7 +182,6 @@ FILE *post_change_bank_download_open_output_pipe( void )
 		 "update_statement.e	table=bank_download	 "
 		 "			key=%s			 "
 		 "			carrot=y		|"
-"tee -a /var/log/appaserver/appaserver_capitolpops.err |"
 		 "sql.e						 ",
 		 key );
 
@@ -278,38 +258,34 @@ char *get_sequence_number(	char *application_name,
 
 } /* get_sequence_number() */
 
-char *get_max_prior_sequence_number(
-			char **sequence_number,
+double get_starting_bank_running_balance(
 			char *application_name,
 			char *bank_date,
 			char *bank_description )
 {
 	char where[ 512 ];
+	char buffer[ 512 ];
 	char *folder_name;
 	char *select;
+	char *results;
+	char bank_amount[ 16 ];
+	char bank_running_balance[ 16 ];
 	char sys_string[ 1024 ];
+	double starting_bank_running_balance;
 
-	*sequence_number = (char *)0;
-
-	if ( ! ( *sequence_number =
-			get_sequence_number(
-				application_name,
-				bank_date,
-				bank_description ) ) )
-	{
-		return (char *)0;
-	}
-
-	select = "max(sequence_number)";
+	select = "bank_amount,bank_running_balance";
 	folder_name = "bank_download";
 
-	sprintf(where,
-		"sequence_number < %s",
-		*sequence_number );
+	timlib_strcpy( buffer, bank_description, 512 );
+
+	sprintf(	where,
+			"bank_date = '%s' and bank_description = '%s'",
+			bank_date,
+			timlib_escape_field( buffer ) );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
-		 "			select=\"%s\"	"
+		 "			select=%s	"
 		 "			folder=%s	"
 		 "			where=\"%s\"	",
 		 application_name,
@@ -317,42 +293,33 @@ char *get_max_prior_sequence_number(
 		 folder_name,
 		 where );
 
-	return pipe2string( sys_string );
-
-} /* get_max_prior_sequence_number() */
-
-double get_prior_bank_running_balance(
-			char *application_name,
-			char *max_prior_sequence_number )
-{
-	char where[ 512 ];
-	char *folder_name;
-	char *select;
-	char sys_string[ 1024 ];
-
-	if ( !max_prior_sequence_number
-	||   !*max_prior_sequence_number )
+	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
-		return 0.0;
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot fetch (%s/%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 bank_date,
+			 bank_description );
+		exit( 1 );
 	}
 
-	select = "bank_running_balance";
-	folder_name = "bank_download";
+	piece(	bank_amount,
+		FOLDER_DATA_DELIMITER,
+		results,
+		0 );
 
-	sprintf(where,
-		"sequence_number = %s",
-		max_prior_sequence_number );
+	piece(	bank_running_balance,
+		FOLDER_DATA_DELIMITER,
+		results,
+		1 );
 
-	sprintf( sys_string,
-		 "get_folder_data	application=%s	"
-		 "			select=\"%s\"	"
-		 "			folder=%s	"
-		 "			where=\"%s\"	",
-		 application_name,
-		 select,
-		 folder_name,
-		 where );
+	starting_bank_running_balance =
+		atof( bank_running_balance ) -
+		atof( bank_amount );
 
-	return atof( pipe2string( sys_string ) );
+	return starting_bank_running_balance;
 
-} /* get_prior_bank_running_balance() */
+} /* get_starting_bank_running_balance() */
+

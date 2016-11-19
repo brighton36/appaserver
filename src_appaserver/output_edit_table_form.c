@@ -671,7 +671,7 @@ int main( int argc, char **argv )
 
 	if ( list_length(	row_security->
 					row_security_element_list_structure->
-					row_dictionary_list ) >
+					row_dictionary_list ) >=
 				FOLDER_MIN_ROWS_SORT_BUTTONS )
 	{
 		element_list_set_omit_heading_sort_button(

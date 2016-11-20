@@ -21,17 +21,29 @@
 
 /* Prototypes */
 /* ---------- */
-double get_starting_bank_running_balance(
+char *get_fund_name(
 				char *application_name,
 				char *bank_date,
 				char *bank_description );
+
+char *get_starting_sequence_number(
+				char *application_name,
+				char *sequence_number,
+				char *fund );
+
+double get_starting_bank_running_balance(
+				char **starting_sequence_number,
+				char *application_name,
+				char *sequence_number,
+				char *fund );
 
 FILE *post_change_bank_download_open_output_pipe(
 				void );
 
 FILE *post_change_bank_download_open_input_pipe(
 				char *application_name,
-				char *sequence_number );
+				char *starting_sequence_number,
+				char *fund );
 
 char *get_sequence_number(	char *application_name,
 				char *bank_date,
@@ -122,6 +134,13 @@ void post_change_bank_download_update(
 	char input_bank_amount[ 16 ];
 	double bank_running_balance;
 	char input_buffer[ 512 ];
+	char *starting_sequence_number = {0};
+	char *fund;
+
+	fund = get_fund_name(
+			application_name,
+			bank_date,
+			bank_description );
 
 	sequence_number =
 		get_sequence_number(
@@ -131,14 +150,26 @@ void post_change_bank_download_update(
 
 	bank_running_balance =
 		get_starting_bank_running_balance(
+			&starting_sequence_number,
 			application_name,
-			bank_date,
-			bank_description );
+			sequence_number,
+			fund );
+
+	if ( !starting_sequence_number )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot get starting sequence number.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	input_pipe =
 		post_change_bank_download_open_input_pipe(
 			application_name,
-			sequence_number );
+			starting_sequence_number,
+			fund );
 
 	output_pipe = post_change_bank_download_open_output_pipe();
 
@@ -191,7 +222,8 @@ FILE *post_change_bank_download_open_output_pipe( void )
 
 FILE *post_change_bank_download_open_input_pipe(
 			char *application_name,
-			char *sequence_number )
+			char *starting_sequence_number,
+			char *fund )
 {
 	char where[ 512 ];
 	char *folder_name;
@@ -202,9 +234,19 @@ FILE *post_change_bank_download_open_input_pipe(
 	select = "bank_date,bank_description,bank_amount";
 	folder_name = "bank_download";
 
-	sprintf(	where,
-			"sequence_number >= %s",
-			sequence_number );
+	if ( fund )
+	{
+		sprintf(	where,
+				"fund = '%s' and sequence_number > %s",
+				fund,
+				starting_sequence_number );
+	}
+	else
+	{
+		sprintf(	where,
+				"sequence_number > %s",
+				starting_sequence_number );
+	}
 
 	order = "sequence_number";
 
@@ -259,29 +301,47 @@ char *get_sequence_number(	char *application_name,
 } /* get_sequence_number() */
 
 double get_starting_bank_running_balance(
+			char **starting_sequence_number,
 			char *application_name,
-			char *bank_date,
-			char *bank_description )
+			char *sequence_number,
+			char *fund )
 {
 	char where[ 512 ];
-	char buffer[ 512 ];
 	char *folder_name;
 	char *select;
 	char *results;
-	char bank_amount[ 16 ];
-	char bank_running_balance[ 16 ];
 	char sys_string[ 1024 ];
-	double starting_bank_running_balance;
 
-	select = "bank_amount,bank_running_balance";
+	if ( ! ( *starting_sequence_number =
+			get_starting_sequence_number(
+				application_name,
+				sequence_number,
+				fund ) ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot get starting sequence number.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	select = "bank_running_balance";
 	folder_name = "bank_download";
 
-	timlib_strcpy( buffer, bank_description, 512 );
-
-	sprintf(	where,
-			"bank_date = '%s' and bank_description = '%s'",
-			bank_date,
-			timlib_escape_field( buffer ) );
+	if ( fund )
+	{
+		sprintf(where,
+			"fund = '%s' and sequence_number = %s",
+			fund,
+			*starting_sequence_number );
+	}
+	else
+	{
+		sprintf(where,
+			"sequence_number = %s",
+			*starting_sequence_number );
+	}
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
@@ -296,30 +356,90 @@ double get_starting_bank_running_balance(
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot fetch (%s/%s)\n",
+			 "ERROR in %s/%s()/%d: fetch failed.\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__,
-			 bank_date,
-			 bank_description );
+			 __LINE__ );
 		exit( 1 );
 	}
 
-	piece(	bank_amount,
-		FOLDER_DATA_DELIMITER,
-		results,
-		0 );
-
-	piece(	bank_running_balance,
-		FOLDER_DATA_DELIMITER,
-		results,
-		1 );
-
-	starting_bank_running_balance =
-		atof( bank_running_balance ) -
-		atof( bank_amount );
-
-	return starting_bank_running_balance;
+	return atof( results );;
 
 } /* get_starting_bank_running_balance() */
+
+char *get_fund_name(
+			char *application_name,
+			char *bank_date,
+			char *bank_description )
+{
+	char where[ 512 ];
+	char buffer[ 512 ];
+	char *folder_name;
+	char *select;
+	char sys_string[ 1024 ];
+
+	select = "fund";
+	folder_name = "bank_download";
+
+	timlib_strcpy( buffer, bank_description, 512 );
+
+	sprintf(	where,
+			"bank_date = '%s' and bank_description = '%s'",
+			bank_date,
+			timlib_escape_field( buffer ) );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=%s			"
+		 "			where=\"%s\" 2>/dev/null	",
+		 application_name,
+		 select,
+		 folder_name,
+		 where );
+
+	return pipe2string( sys_string );
+
+} /* get_fund_name() */
+
+char *get_starting_sequence_number(
+				char *application_name,
+				char *sequence_number,
+				char *fund )
+{
+	char where[ 512 ];
+	char *folder_name;
+	char *select;
+	char sys_string[ 1024 ];
+
+	select = "max(sequence_number)";
+	folder_name = "bank_download";
+
+	if ( fund )
+	{
+		sprintf(where,
+		"bank_amount is null and fund = '%s' and sequence_number < %s",
+			fund,
+			sequence_number );
+	}
+	else
+	{
+		sprintf(where,
+			"bank_amount is null and sequence_number < %s",
+			sequence_number );
+	}
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=\"%s\"	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	",
+		 application_name,
+		 select,
+		 folder_name,
+		 where );
+
+	return pipe2string( sys_string );
+
+} /* get_starting_sequence_number() */
 

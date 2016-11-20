@@ -280,12 +280,14 @@ int load_bank_spreadsheet(
 			}
 		}
 
+/*
 		if ( timlib_strncmp(
 			bank_description,
 			"beginning balance as of" ) == 0 )
 		{
 			continue;
 		}
+*/
 	
 		if ( !piece_quote_comma(
 				bank_amount,

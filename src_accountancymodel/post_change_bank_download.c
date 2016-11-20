@@ -312,11 +312,13 @@ double get_starting_bank_running_balance(
 	char *results;
 	char sys_string[ 1024 ];
 
-	if ( ! ( *starting_sequence_number =
+	*starting_sequence_number =
 			get_starting_sequence_number(
 				application_name,
 				sequence_number,
-				fund ) ) )
+				fund );
+
+	if ( !*starting_sequence_number )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: cannot get starting sequence number.\n",
@@ -353,7 +355,7 @@ double get_starting_bank_running_balance(
 		 folder_name,
 		 where );
 
-	if ( ! ( results = pipe2string( sys_string ) ) )
+	if ( ! ( results = pipe2string( sys_string ) ) || !*results )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: fetch failed.\n",
@@ -411,6 +413,7 @@ char *get_starting_sequence_number(
 	char *folder_name;
 	char *select;
 	char sys_string[ 1024 ];
+	char *results;
 
 	select = "max(sequence_number)";
 	folder_name = "bank_download";
@@ -418,14 +421,14 @@ char *get_starting_sequence_number(
 	if ( fund )
 	{
 		sprintf(where,
-		"bank_amount is null and fund = '%s' and sequence_number < %s",
+		"bank_amount is null and fund = '%s' and sequence_number <= %s",
 			fund,
 			sequence_number );
 	}
 	else
 	{
 		sprintf(where,
-			"bank_amount is null and sequence_number < %s",
+		"bank_amount is null and sequence_number <= %s",
 			sequence_number );
 	}
 
@@ -439,7 +442,19 @@ char *get_starting_sequence_number(
 		 folder_name,
 		 where );
 
-	return pipe2string( sys_string );
+	results = pipe2string( sys_string );
+
+	if ( !results || !*results )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get starting sequence number.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return results;
 
 } /* get_starting_sequence_number() */
 

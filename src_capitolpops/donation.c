@@ -336,6 +336,15 @@ char *donation_get_update_sys_string(
 
 } /* donation_get_update_sys_string() */
 
+DONATION_PROGRAM *donation_program_seek(
+			LIST *donation_program_list,
+			char *account_name )
+{
+	return donation_seek_donation_program(
+			donation_program_list,
+			account_name );
+}
+
 DONATION_PROGRAM *donation_seek_donation_program(
 			LIST *donation_program_list,
 			char *account_name )

@@ -3288,8 +3288,25 @@ void ledger_entity_update(		char *application_name,
 	char *key;
 	char entity_buffer1[ 128 ];
 	char entity_buffer2[ 128 ];
+	char *where_full_name;
+	char *where_street_address;
 
 	if ( !transaction_date_time || !*transaction_date_time ) return;
+
+	if ( strcmp( preupdate_full_name, "preupdate_full_name" ) != 0 )
+		where_full_name = preupdate_full_name;
+	else
+		where_full_name = full_name;
+
+	if ( strcmp(	preupdate_street_address,
+			"preupdate_street_address" ) != 0 )
+	{
+		where_street_address = preupdate_street_address;
+	}
+	else
+	{
+		where_street_address = street_address;
+	}
 
 	key = "full_name,street_address,transaction_date_time";
 
@@ -3301,7 +3318,8 @@ void ledger_entity_update(		char *application_name,
 			TRANSACTION_FOLDER_NAME );
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s | sql.e",
+		 "update_statement.e table=%s key=%s	|"
+		 "sql.e					 ",
 		 table_name,
 		 key );
 
@@ -3310,9 +3328,9 @@ void ledger_entity_update(		char *application_name,
 	fprintf( output_pipe,
 	 	"%s^%s^%s|full_name=%s|street_address=%s\n",
 	 	escape_character(	entity_buffer1,
-					preupdate_full_name,
+					where_full_name,
 					'\'' ),
-	 	preupdate_street_address,
+	 	where_street_address,
 	 	transaction_date_time,
 	 	escape_character(	entity_buffer2,
 					full_name,
@@ -3329,7 +3347,8 @@ void ledger_entity_update(		char *application_name,
 			LEDGER_FOLDER_NAME );
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s | sql.e",
+		 "update_statement.e table=%s key=%s	|"
+		 "sql.e					 ",
 		 table_name,
 		 key );
 
@@ -3338,9 +3357,9 @@ void ledger_entity_update(		char *application_name,
 	fprintf( output_pipe,
 	 	"%s^%s^%s|full_name=%s|street_address=%s\n",
 	 	escape_character(	entity_buffer1,
-					preupdate_full_name,
+					where_full_name,
 					'\'' ),
-	 	preupdate_street_address,
+	 	where_street_address,
 	 	transaction_date_time,
 	 	escape_character(	entity_buffer2,
 					full_name,
@@ -4472,7 +4491,9 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 		exit( 1 ); 
 	}
 
-	if ( debit_amount )
+	if ( !timlib_dollar_virtually_same(
+		debit_amount,
+		0.0 ) )
 	{
 		fprintf(update_pipe,
 		 	"%s^%s^%s^%s^debit_amount^%.2lf\n",
@@ -4483,6 +4504,9 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 		 	debit_amount );
 	}
 	else
+	if ( !timlib_dollar_virtually_same(
+		credit_amount,
+		0.0 ) )
 	{
 		fprintf(update_pipe,
 		 	"%s^%s^%s^%s^credit_amount^%.2lf\n",
@@ -4491,6 +4515,17 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 		 	transaction_date_time,
 		 	account_name,
 		 	credit_amount );
+	}
+	else
+	{
+		pclose( update_pipe );
+
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: both debit_amount and credit_amount are zero.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
 	fflush( update_pipe );
@@ -6138,12 +6173,6 @@ LIST *ledger_tax_form_get_account_list(
 				tax_form_account_list,
 				account,
 				ledger_balance_match_function );
-
-/*
-			list_append_pointer(
-				tax_form_account_list,
-				account );
-*/
 		}
 
 	} while( list_next( account_list ) );
@@ -6151,4 +6180,93 @@ LIST *ledger_tax_form_get_account_list(
 	return tax_form_account_list;
 
 } /* ledger_tax_form_get_account_list() */
+
+boolean ledger_journal_ledger_list_propagate(
+			char *application_name,
+			LIST *journal_ledger_list,
+			char *propagate_transaction_date_time )
+{
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( journal_ledger_list ) ) return 0;
+
+	do {
+		journal_ledger = list_get_pointer( journal_ledger_list );
+
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			journal_ledger->account_name );
+
+	} while( list_next( journal_ledger_list ) );
+
+	return 1;
+
+} /* ledger_journal_ledger_list_propagate() */
+
+boolean ledger_journal_ledger_list_set_amount(
+			char *application_name,
+			LIST *journal_ledger_list,
+			double amount )
+{
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( journal_ledger_list ) ) return 0;
+
+	do {
+		journal_ledger = list_get_pointer( journal_ledger_list );
+
+		if ( !timlib_dollar_virtually_same(
+			journal_ledger->debit_amount,
+			0.0 ) )
+		{
+			journal_ledger->debit_amount = amount;
+		}
+		else
+		if ( !timlib_dollar_virtually_same(
+			journal_ledger->credit_amount,
+			0.0 ) )
+		{
+			journal_ledger->credit_amount = amount;
+		}
+		else
+		{
+			return 0;
+		}
+
+	} while( list_next( journal_ledger_list ) );
+
+	return 1;
+
+} /* ledger_journal_ledger_list_set_amount() */
+
+boolean ledger_journal_ledger_list_amount_update(
+			char *application_name,
+			LIST *journal_ledger_list )
+{
+	JOURNAL_LEDGER *journal_ledger;
+	FILE *update_pipe;
+
+	if ( !list_rewind( journal_ledger_list ) ) return 0;
+
+	update_pipe = ledger_open_update_pipe( application_name );
+
+	do {
+		journal_ledger = list_get_pointer( journal_ledger_list );
+
+		ledger_journal_ledger_update(
+			update_pipe,
+			journal_ledger->full_name,
+			journal_ledger->street_address,
+			journal_ledger->transaction_date_time,
+			journal_ledger->account_name,
+			journal_ledger->debit_amount,
+			journal_ledger->credit_amount );
+
+	} while( list_next( journal_ledger_list ) );
+
+	pclose( update_pipe );
+	return 1;
+
+} /* ledger_journal_ledger_list_amount_update() */
 

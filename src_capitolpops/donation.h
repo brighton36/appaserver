@@ -129,6 +129,10 @@ DONATION_PROGRAM *donation_seek_donation_program(
 			LIST *donation_program_list,
 			char *account_name );
 
+DONATION_PROGRAM *donation_program_seek(
+			LIST *donation_program_list,
+			char *account_name );
+
 DONATION_FUND *donation_get_or_set_fund(
 			LIST *donation_fund_list,
 			char *fund_name );

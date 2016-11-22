@@ -21,6 +21,13 @@
 
 /* Prototypes */
 /* ---------- */
+void post_change_donation_date(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *donation_date,
+				char *preupdate_donation_date );
+
 void post_change_donation_entity(
 				char *application_name,
 				char *full_name,
@@ -71,12 +78,19 @@ int main( int argc, char **argv )
 	}
 
 	application_name = argv[ 1 ];
+
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
 	{
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	full_name = argv[ 2 ];
@@ -91,10 +105,10 @@ int main( int argc, char **argv )
 				argc,
 				argv );
 
-	/* If changing full_name or street_address only. */
-	/* --------------------------------------------- */
-	if ( strcmp( donation_date, "donation_date" ) == 0 ) exit( 0 );
-
+	/* ------------------------------------ */
+	/* Execute on predelete because there's	*/
+	/* DONATION.transaction_date_time.	*/
+	/* ------------------------------------ */
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0 )
@@ -233,8 +247,6 @@ void post_change_donation_update(
 	enum preupdate_change_state full_name_change_state;
 	enum preupdate_change_state street_address_change_state;
 	enum preupdate_change_state donation_date_change_state;
-	DONATION *donation;
-	char *propagate_transaction_date_time;
 
 	full_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -266,12 +278,19 @@ void post_change_donation_update(
 			preupdate_street_address );
 	}
 
-	if (	donation_date_change_state !=
-		from_something_to_something_else )
+	if ( donation_date_change_state == from_something_to_something_else )
 	{
-		return;
+		post_change_donation_date(
+			application_name,
+			full_name,
+			street_address,
+			donation_date,
+			preupdate_donation_date );
 	}
 
+#ifdef NOT_DEFINED
+	DONATION *donation;
+	char *propagate_transaction_date_time;
 	donation =
 		donation_fetch(
 			application_name,
@@ -348,6 +367,7 @@ void post_change_donation_update(
 			propagate_transaction_date_time,
 			donation->donation_fund_list,
 			1 /* propagate_only */ );
+#endif
 
 } /* post_change_donation_update() */
 
@@ -361,6 +381,11 @@ void post_change_donation_entity(
 {
 	DONATION *donation;
 
+	/* ------------------------------------------------------------ */
+	/* Expect donation_fetch() to not fully load the transaction	*/
+	/* because the DONATION.entity changed to something other	*/
+	/* than its corresponding TRANSACTION.entity.			*/
+	/* ------------------------------------------------------------ */
 	fprintf( stderr,
 		 "Warning in %s/%s()/%d: ignore following warning.\n",
 		 __FILE__,
@@ -398,9 +423,92 @@ void post_change_donation_entity(
 		application_name,
 		full_name,
 		street_address,
-		donation->transaction->transaction_date_time,
+		donation->transaction_date_time,
 		preupdate_full_name,
 		preupdate_street_address );
 
 } /* post_change_donation_entity() */
+
+void post_change_donation_date(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *donation_date,
+			char *preupdate_donation_date )
+{
+	DONATION *donation;
+	char *propagate_transaction_date_time;
+
+	donation =
+		donation_fetch(
+			application_name,
+			full_name,
+			street_address,
+			donation_date );
+
+	if ( !donation )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot find donation.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 0 );
+	}
+
+	if ( !donation->transaction )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty transaction for donation.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 0 );
+	}
+
+	donation->transaction_date_time =
+		ledger_get_transaction_date_time(
+			donation->donation_date );
+
+	/* Update DONATION.transaction_date_time */
+	/* ------------------------------------- */
+	donation_update(
+			application_name,
+			donation->full_name,
+			donation->street_address,
+			donation->donation_date,
+			donation->total_donation_amount,
+			donation->database_total_donation_amount,
+			donation->transaction_date_time,
+			donation->database_transaction_date_time );
+
+	/* ---------------------------------------- */
+	/* Update LEDGER.transaction_date_time      */
+	/* and JOURNAL_LEDGER.transaction_date_time */
+	/* ---------------------------------------- */
+	ledger_update_transaction_date_time(
+		application_name,
+		donation->transaction->full_name,
+		donation->transaction->street_address,
+		donation->transaction->transaction_date_time,
+		donation->transaction_date_time
+			/* new_transaction_date_time */ );
+
+	if ( strcmp( donation_date, preupdate_donation_date ) < 0 )
+	{
+		propagate_transaction_date_time =
+			donation->transaction_date_time;
+	}
+	else
+	{
+		propagate_transaction_date_time =
+			donation->transaction->transaction_date_time;
+	}
+
+	ledger_journal_ledger_list_propagate(
+		application_name,
+		donation->transaction->journal_ledger_list,
+		propagate_transaction_date_time );
+
+} /* post_change_donation_date() */
 

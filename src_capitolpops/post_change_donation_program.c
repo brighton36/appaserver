@@ -21,6 +21,20 @@
 
 /* Prototypes */
 /* ---------- */
+void post_change_donation_amount_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *donation_date,
+				char *account_name );
+
+void post_change_donation_account_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *donation_date,
+				char *preupdate_account_name );
+
 void post_change_donation_program_update(
 				char *application_name,
 				char *full_name,
@@ -83,14 +97,16 @@ int main( int argc, char **argv )
 				argc,
 				argv );
 
-	/* If changed the spelling of account name */
-	/* --------------------------------------- */
+	/* ------------------------------------------------------------ */
+	/* If executed via propagate, then everything is		*/
+	/* handled by the one_to_many folder's post_change_procecss. 	*/
+	/* ------------------------------------------------------------ */
 	if ( strcmp( full_name, "full_name" ) == 0 ) exit( 0 );
-
-	/* If changed the entiy */
-	/* -------------------- */
 	if ( strcmp( donation_date, "donation_date" ) == 0 ) exit( 0 );
+	if ( strcmp( account_name, "account" ) == 0 ) exit( 0 );
 
+	/* There's no DONATION_PROGRAM.transaction_date_time. */
+	/* -------------------------------------------------- */
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0 )
@@ -230,6 +246,50 @@ void post_change_donation_program_update(
 {
 	enum preupdate_change_state account_name_change_state;
 	enum preupdate_change_state donation_amount_change_state;
+
+	account_name_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_account_name,
+			account_name /* postupdate_data */,
+			"preupdate_account" );
+
+	donation_amount_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_donation_amount,
+			(char *)0 /* postupdate_data */,
+			"preupdate_donation_amount" );
+
+	if (	account_name_change_state ==
+		from_something_to_something_else )
+	{
+		post_change_donation_account_update(
+			application_name,
+			full_name,
+			street_address,
+			donation_date,
+			preupdate_account_name );
+	}
+
+	if (	donation_amount_change_state ==
+		from_something_to_something_else )
+	{
+		post_change_donation_amount_update(
+			application_name,
+			full_name,
+			street_address,
+			donation_date,
+			account_name );
+	}
+
+} /* post_change_donation_program_update() */
+
+void post_change_donation_account_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *donation_date,
+				char *preupdate_account_name )
+{
 	DONATION *donation;
 
 	donation =
@@ -246,25 +306,79 @@ void post_change_donation_program_update(
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
-		exit( 0 );
+		exit( 1 );
 	}
 
-	account_name_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_account_name,
-			account_name /* postupdate_data */,
-			"preupdate_account" );
+	if ( !donation->transaction )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty transaction.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
-	donation_amount_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_donation_amount,
-			(char *)0 /* postupdate_data */,
-			"preupdate_donation_amount" );
+	ledger_journal_ledger_list_propagate(
+			application_name,
+			donation->transaction->journal_ledger_list,
+			donation->transaction_date_time
+				/* propagate_transaction_date_time */ );
+
+	ledger_propagate(
+		application_name,
+		donation->transaction_date_time
+			/* propagate_transaction_date_time */,
+		preupdate_account_name );
+
+} /* post_change_donation_account_update() */
+
+void post_change_donation_amount_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *donation_date,
+				char *account_name )
+{
+	DONATION *donation;
+	DONATION_PROGRAM *donation_program;
+
+	donation =
+		donation_fetch(
+			application_name,
+			full_name,
+			street_address,
+			donation_date );
+
+	if ( !donation )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot find donation.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( donation_program =
+			donation_program_seek(
+				donation->donation_program_list,
+				account_name ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot find donation_program.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	donation->total_donation_amount =
 		donation_get_total_donation_amount(
 			donation->donation_program_list );
 
+	/* Update DONATION.total_donation_amount */
+	/* ------------------------------------- */
 	donation_update(
 			application_name,
 			donation->full_name,
@@ -275,47 +389,60 @@ void post_change_donation_program_update(
 			donation->transaction_date_time,
 			donation->database_transaction_date_time );
 
-	donation_journal_ledger_refresh_and_propagate(
-			application_name,
-			donation->full_name,
-			donation->street_address,
-			donation->transaction_date_time,
-			donation->donation_fund_list,
-			0 /* not propagate_only */ );
+	/* Update TRANSACTION.transaction_amount */
+	/* ------------------------------------- */
+	ledger_transaction_amount_update(
+		application_name,
+		donation->full_name,
+		donation->street_address,
+		donation->transaction_date_time,
+		donation->total_donation_amount,
+		donation->database_total_donation_amount );
 
-	if (	account_name_change_state ==
-		from_something_to_something_else )
+	/* Set JOURNAL_LEDGER.debit_amount and credit_amount */
+	/* ------------------------------------------------- */
+	if ( !ledger_journal_ledger_list_set_amount(
+		application_name,
+		donation->transaction->journal_ledger_list,
+		donation_program->donation_amount ) )
 	{
-/*
-		ledger_propagate(	application_name,
-					donation->transaction_date_time,
-					account_name );
-*/
-
-		ledger_propagate(	application_name,
-					donation->transaction_date_time,
-					preupdate_account_name );
-
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot set amount.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
-	if (  	donation_amount_change_state ==
-		from_something_to_something_else )
+	/* Update JOURNAL_LEDGER.debit_amount and credit_amount */
+	/* ---------------------------------------------------- */
+	if ( !ledger_journal_ledger_list_amount_update(
+		application_name,
+		donation->transaction->journal_ledger_list ) )
 	{
-		ledger_transaction_amount_update(
-			application_name,
-			donation->full_name,
-			donation->street_address,
-			donation->transaction_date_time,
-			donation->total_donation_amount,
-			donation->database_total_donation_amount );
-
-/*
-		ledger_propagate(
-			application_name,
-			donation->transaction_date_time,
-			account_name );
-*/
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot update amount.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
-} /* post_change_donation_program_update() */
+	/* Propagate JOURNAL_LEDGER */
+	/* ------------------------ */
+	if ( !ledger_journal_ledger_list_propagate(
+			application_name,
+			donation->transaction->journal_ledger_list,
+			donation->transaction_date_time
+				/* propagate_transaction_date_time */ ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot propagate ledger.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+} /* post_change_donation_amount_update() */
 

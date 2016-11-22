@@ -759,4 +759,18 @@ LIST *ledger_tax_form_get_account_list(
 				char *tax_form_category_name,
 				char *as_of_date );
 
+boolean ledger_journal_ledger_list_propagate(
+				char *application_name,
+				LIST *journal_ledger_list,
+				char *propagate_transaction_date_time );
+
+boolean ledger_journal_ledger_list_set_amount(
+				char *application_name,
+				LIST *journal_ledger_list,
+				double amount );
+
+boolean ledger_journal_ledger_list_amount_update(
+				char *application_name,
+				LIST *journal_ledger_list );
+
 #endif

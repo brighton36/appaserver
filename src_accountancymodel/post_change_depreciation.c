@@ -24,6 +24,14 @@
 
 /* Prototypes */
 /* ---------- */
+void post_change_depreciation_entity(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *preupdate_full_name,
+			char *preupdate_street_address,
+			char *application_name );
+
 void post_change_depreciation_date_update(
 			char *application_name,
 			char *full_name,
@@ -72,6 +80,9 @@ void post_change_depreciation_update(
 			char *asset_name,
 			char *serial_number,
 			char *depreciation_date,
+			char *preupdate_full_name,
+			char *preupdate_street_address,
+			char *preupdate_purchase_date_time,
 			char *preupdate_asset_name,
 			char *preupdate_serial_number,
 			char *preupdate_depreciation_date,
@@ -88,6 +99,9 @@ int main( int argc, char **argv )
 	char *serial_number;
 	char *depreciation_date;
 	char *state;
+	char *preupdate_full_name;
+	char *preupdate_street_address;
+	char *preupdate_purchase_date_time;
 	char *preupdate_asset_name;
 	char *preupdate_serial_number;
 	char *preupdate_depreciation_date;
@@ -97,10 +111,10 @@ int main( int argc, char **argv )
 				argc,
 				argv );
 
-	if ( argc != 13 )
+	if ( argc != 16 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address purchase_date_time asset_name serial_number depreciation_date state preupdate_asset_name preupdate_serial_number preupdate_depreciation_date preupdate_units_produced\n",
+"Usage: %s application full_name street_address purchase_date_time asset_name serial_number depreciation_date state preupdate_full_name preupdate_street_address preupdate_purchase_date_time preupdate_asset_name preupdate_serial_number preupdate_depreciation_date preupdate_units_produced\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -122,13 +136,21 @@ int main( int argc, char **argv )
 	serial_number = argv[ 6 ];
 	depreciation_date = argv[ 7 ];
 	state = argv[ 8 ];
-	preupdate_asset_name = argv[ 9 ];
-	preupdate_serial_number = argv[ 10 ];
-	preupdate_depreciation_date = argv[ 11 ];
-	preupdate_units_produced = argv[ 12 ];
+	preupdate_full_name = argv[ 9 ];
+	preupdate_street_address = argv[ 10 ];
+	preupdate_purchase_date_time = argv[ 11 ];
+	preupdate_asset_name = argv[ 12 ];
+	preupdate_serial_number = argv[ 13 ];
+	preupdate_depreciation_date = argv[ 14 ];
+	preupdate_units_produced = argv[ 15 ];
 
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );
+
+	/* ------------------------------------ */
+	/* Execute on preupdate because we have	*/
+	/* DEPRECIATION.transaction_date_time.  */
+	/* ------------------------------------ */
 
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
@@ -166,6 +188,9 @@ int main( int argc, char **argv )
 			asset_name,
 			serial_number,
 			depreciation_date,
+			preupdate_full_name,
+			preupdate_street_address,
+			preupdate_purchase_date_time,
 			preupdate_asset_name,
 			preupdate_serial_number,
 			preupdate_depreciation_date,
@@ -184,15 +209,39 @@ void post_change_depreciation_update(
 			char *asset_name,
 			char *serial_number,
 			char *depreciation_date,
+			char *preupdate_full_name,
+			char *preupdate_street_address,
+			char *preupdate_purchase_date_time,
 			char *preupdate_asset_name,
 			char *preupdate_serial_number,
 			char *preupdate_depreciation_date,
 			char *preupdate_units_produced )
 {
+	enum preupdate_change_state full_name_change_state;
+	enum preupdate_change_state street_address_change_state;
+	enum preupdate_change_state purchase_date_time_change_state;
 	enum preupdate_change_state asset_name_change_state;
 	enum preupdate_change_state serial_number_change_state;
 	enum preupdate_change_state depreciation_date_change_state;
 	enum preupdate_change_state units_produced_change_state;
+
+	full_name_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_full_name,
+			full_name /* postupdate_data */,
+			"preupdate_full_name" );
+
+	street_address_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_street_address,
+			street_address /* postupdate_data */,
+			"preupdate_street_address" );
+
+	purchase_date_time_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_purchase_date_time,
+			purchase_date_time /* postupdate_data */,
+			"preupdate_purchase_date_time" );
 
 	asset_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -218,8 +267,22 @@ void post_change_depreciation_update(
 			(char *)0 /* postupdate_data */,
 			"preupdate_units_produced" );
 
+	if ( full_name_change_state == from_something_to_something_else
+	||   street_address_change_state == from_something_to_something_else )
+	{
+		post_change_depreciation_entity(
+			full_name,
+			street_address,
+			purchase_date_time,
+			preupdate_full_name,
+			preupdate_street_address,
+			application_name );
+	}
+
 	if ( asset_name_change_state == from_something_to_something_else
-	||   serial_number_change_state == from_something_to_something_else )
+	||   serial_number_change_state == from_something_to_something_else
+	||   purchase_date_time_change_state ==
+		from_something_to_something_else )
 	{
 		/* Do nothing. */
 	}
@@ -680,4 +743,93 @@ void post_change_depreciation_insert(
 		purchase_fixed_asset->database_accumulated_depreciation );
 
 } /* post_change_depreciation_insert() */
+
+void post_change_depreciation_entity(
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *preupdate_full_name,
+			char *preupdate_street_address,
+			char *application_name )
+{
+	PURCHASE_ORDER *purchase_order;
+	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	DEPRECIATION *depreciation;
+
+	if ( ! ( purchase_order =
+			purchase_order_new(
+				application_name,
+				full_name,
+				street_address,
+				purchase_date_time ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load purchase_order.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( purchase_order->fixed_asset_purchase_list ) )
+		return;
+
+	do {
+		purchase_fixed_asset =
+			list_get_pointer(
+				purchase_order->
+					fixed_asset_purchase_list );
+
+		if ( !purchase_fixed_asset->depreciation_list )
+		{
+			purchase_fixed_asset->depreciation_list =
+				depreciation_fetch_list(
+					application_name,
+					purchase_fixed_asset->full_name,
+					purchase_fixed_asset->street_address,
+					purchase_fixed_asset->
+						purchase_date_time,
+					purchase_fixed_asset->asset_name,
+					purchase_fixed_asset->serial_number );
+		}
+
+
+		if ( !list_rewind(
+			purchase_fixed_asset->
+				depreciation_list ) )
+		{
+			continue;
+		}
+
+		do {
+			depreciation =
+				list_get_pointer(
+					purchase_fixed_asset->
+						depreciation_list );
+
+			if ( !depreciation->transaction )
+			{
+				fprintf( stderr,
+"ERROR in %s/%s()/%d: empty transaction for depreciation_date = (%s).\n",
+			 		__FILE__,
+			 		__FUNCTION__,
+			 		__LINE__,
+			 		depreciation->depreciation_date );
+				exit( 1 );
+			}
+
+
+			ledger_entity_update(
+				application_name,
+				full_name,
+				street_address,
+				depreciation->transaction_date_time,
+				preupdate_full_name,
+				preupdate_street_address );
+
+		} while( list_next( purchase_fixed_asset->depreciation_list ) );
+
+	} while( list_next( purchase_order->fixed_asset_purchase_list ) );
+
+} /* post_change_depreciation_entity() */
 

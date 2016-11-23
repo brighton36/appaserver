@@ -26,14 +26,6 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_purchase_order_entity(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *preupdate_full_name,
-			char *preupdate_street_address,
-			char *application_name );
-
 void post_change_purchase_order_new_transaction(
 			PURCHASE_ORDER *purchase_order,
 			char *transaction_date_time,
@@ -155,12 +147,16 @@ int main( int argc, char **argv )
 				argc,
 				argv );
 
-	/* Only execute state=predelete */
-	/* ---------------------------- */
+	/* -------------------------------------------- */
+	/* Only execute state=predelete because we have	*/
+	/* PURCHASE_ORDER.transaction_date_time.	*/
+	/* -------------------------------------------- */
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
-	/* If change full_name or street address only. */
-	/* --------------------------------------------- */
+	/* ------------------------------------------------------------ */
+	/* If changed ENTITY.full_name or ENTITY.street address,	*/
+	/* then this process is executed because of propagation.	*/
+	/* ------------------------------------------------------------ */
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );
 
@@ -689,13 +685,13 @@ void post_change_purchase_order_update(
 	{
 		if ( purchase_order->transaction_date_time )
 		{
-			post_change_purchase_order_entity(
+			ledger_entity_update(
+				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
 				purchase_order->transaction_date_time,
 				preupdate_full_name,
-				preupdate_street_address,
-				application_name );
+				preupdate_street_address );
 		}
 	}
 
@@ -1280,21 +1276,4 @@ void post_change_purchase_order_new_transaction(
 			application_name );
 
 } /* post_change_purchase_order_new_transaction() */
-
-void post_change_purchase_order_entity(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *preupdate_full_name,
-			char *preupdate_street_address,
-			char *application_name )
-{
-	ledger_entity_update(	application_name,
-				full_name,
-				street_address,
-				transaction_date_time,
-				preupdate_full_name,
-				preupdate_street_address );
-
-} /* post_change_purchase_order_entity() */
 

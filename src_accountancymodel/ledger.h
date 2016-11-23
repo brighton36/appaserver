@@ -765,7 +765,6 @@ boolean ledger_journal_ledger_list_propagate(
 				char *propagate_transaction_date_time );
 
 boolean ledger_journal_ledger_list_set_amount(
-				char *application_name,
 				LIST *journal_ledger_list,
 				double amount );
 

@@ -6205,13 +6205,23 @@ boolean ledger_journal_ledger_list_propagate(
 } /* ledger_journal_ledger_list_propagate() */
 
 boolean ledger_journal_ledger_list_set_amount(
-			char *application_name,
 			LIST *journal_ledger_list,
 			double amount )
 {
 	JOURNAL_LEDGER *journal_ledger;
 
-	if ( !list_rewind( journal_ledger_list ) ) return 0;
+	if ( list_length( journal_ledger_list ) != 2 )
+	{
+		fprintf( stderr,
+	"Warning in %s/%s()/%d: expecting list length of 2. Got %d, instead.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 list_length( journal_ledger_list ) );
+		return 0;
+	}
+
+	list_rewind( journal_ledger_list );
 
 	do {
 		journal_ledger = list_get_pointer( journal_ledger_list );

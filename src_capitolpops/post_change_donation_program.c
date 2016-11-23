@@ -402,7 +402,6 @@ void post_change_donation_amount_update(
 	/* Set JOURNAL_LEDGER.debit_amount and credit_amount */
 	/* ------------------------------------------------- */
 	if ( !ledger_journal_ledger_list_set_amount(
-		application_name,
 		donation->transaction->journal_ledger_list,
 		donation_program->donation_amount ) )
 	{

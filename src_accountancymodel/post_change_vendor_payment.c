@@ -27,7 +27,7 @@
 void post_change_vendor_payment_entity(
 				char *full_name,
 				char *street_address,
-				char *transaction_date_time,
+				LIST *vendor_payment_list,
 				char *preupdate_full_name,
 				char *preupdate_street_address,
 				char *application_name );
@@ -309,7 +309,7 @@ void post_change_vendor_payment_delete(
 	if ( !vendor_payment->transaction )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot empty transaction for payment_date_time = (%s).\n",
+"ERROR in %s/%s()/%d: empty transaction for payment_date_time = (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -389,7 +389,7 @@ void post_change_vendor_payment_update(
 {
 	enum preupdate_change_state full_name_change_state;
 	enum preupdate_change_state street_address_change_state;
-	enum preupdate_change_state payment_date_time_change_state;
+	enum preupdate_change_state payment_date_time_change_state = -1;
 	PURCHASE_ORDER *purchase_order;
 	VENDOR_PAYMENT *vendor_payment;
 
@@ -410,6 +410,7 @@ void post_change_vendor_payment_update(
 		exit( 0 );
 	}
 
+#ifdef NOT_DEFINED
 	if ( ! ( vendor_payment =
 			purchase_vendor_payment_seek(
 				purchase_order->vendor_payment_list,
@@ -426,6 +427,12 @@ void post_change_vendor_payment_update(
 
 		return;
 	}
+#endif
+
+	vendor_payment =
+		purchase_vendor_payment_seek(
+			purchase_order->vendor_payment_list,
+			payment_date_time );
 
 	full_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -443,30 +450,33 @@ void post_change_vendor_payment_update(
 	||   street_address_change_state == from_something_to_something_else )
 	{
 		post_change_vendor_payment_entity(
-			purchase_order->full_name,
-			purchase_order->street_address,
-			purchase_order->transaction_date_time,
+			full_name,
+			street_address,
+			purchase_order->vendor_payment_list,
 			preupdate_full_name,
 			preupdate_street_address,
 			application_name );
 	}
 
-	payment_date_time_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_payment_date_time,
-			vendor_payment->transaction_date_time
-				/* postupdate_data */,
-			"preupdate_payment_date_time" );
-
-	if ( !vendor_payment->transaction )
+	if ( vendor_payment )
 	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot empty transaction for payment_date_time = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 payment_date_time );
-		exit( 1 );
+		payment_date_time_change_state =
+			appaserver_library_get_preupdate_change_state(
+				preupdate_payment_date_time,
+				vendor_payment->transaction_date_time
+					/* postupdate_data */,
+				"preupdate_payment_date_time" );
+
+		if ( !vendor_payment->transaction )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: empty transaction for payment_date_time = (%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	payment_date_time );
+			exit( 1 );
+		}
 	}
 
 	if (	payment_date_time_change_state ==
@@ -557,17 +567,39 @@ void post_change_vendor_payment_date_time_update(
 void post_change_vendor_payment_entity(
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time,
+			LIST *vendor_payment_list,
 			char *preupdate_full_name,
 			char *preupdate_street_address,
 			char *application_name )
 {
-	ledger_entity_update(	application_name,
-				full_name,
-				street_address,
-				transaction_date_time,
-				preupdate_full_name,
-				preupdate_street_address );
+	VENDOR_PAYMENT *vendor_payment;
+
+	if ( !list_rewind( vendor_payment_list ) ) return;
+
+	do {
+		vendor_payment = list_get_pointer( vendor_payment_list );
+
+
+		if ( !vendor_payment->transaction )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: empty transaction for payment_date_time = (%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	vendor_payment->payment_date_time );
+			exit( 1 );
+		}
+
+
+		ledger_entity_update(	application_name,
+					full_name,
+					street_address,
+					vendor_payment->transaction_date_time,
+					preupdate_full_name,
+					preupdate_street_address );
+
+	} while( list_next( vendor_payment_list ) );
 
 } /* post_change_vendor_payment_entity() */
 

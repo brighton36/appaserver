@@ -47,6 +47,8 @@ typedef struct
 	double unit_cost;
 	double extension;
 	double database_extension;
+	double capitalized_extension;
+	double database_capitalized_extension;
 	int missing_quantity;
 	int arrived_quantity;
 	int database_arrived_quantity;
@@ -380,6 +382,8 @@ void inventory_purchase_pipe_update(
 				int database_quantity_on_hand,
 				double extension,
 				double database_extension,
+				double capitalized_extension,
+				double database_capitalized_extension,
 				double average_unit_cost,
 				double database_average_unit_cost );
 
@@ -395,6 +399,8 @@ void inventory_purchase_update(
 				int database_quantity_on_hand,
 				double extension,
 				double database_extension,
+				double capitalized_extension,
+				double database_capitalized_extension,
 				double average_unit_cost,
 				double database_average_unit_cost );
 
@@ -520,6 +526,8 @@ void inventory_purchase_parse(
 				double *unit_cost,
 				double *extension,
 				double *database_extension,
+				double *capitalized_extension,
+				double *database_capitalized_extension,
 				int *arrived_quantity,
 				int *database_arrived_quantity,
 				int *missing_quantity,

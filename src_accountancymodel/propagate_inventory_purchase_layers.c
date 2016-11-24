@@ -170,6 +170,8 @@ void propagate_inventory_purchase_layers_latest(
 		inventory_purchase->database_quantity_on_hand,
 		inventory_purchase->extension,
 		inventory_purchase->database_extension,
+		inventory_purchase->capitalized_extension,
+		inventory_purchase->database_capitalized_extension,
 		inventory_purchase->average_unit_cost,
 		inventory_purchase->database_average_unit_cost );
 

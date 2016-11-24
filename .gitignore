@@ -440,6 +440,7 @@ get_aggregation_sum_yn
 # ---------------
 # src_capitolpops
 # ---------------
+src_capitolpops/accountancy_model.pdf
 post_capitolpops
 parse_contact_list
 build_capitolpops

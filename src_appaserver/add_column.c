@@ -65,27 +65,25 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	ATTRIBUTE *attribute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *session;
 	char *login_name;
-	char *role_name;
 	char *database_string = {0};
 	char *database_datatype;
 	boolean is_system_attribute;
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s application session login_name role folder attribute really_yn\n",
+"Usage: %s application ignored login_name ignored folder attribute really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	session = argv[ 2 ];
+	/* session = argv[ 2 ]; */
 	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
+	/* role_name = argv[ 4 ]; */
 	folder_name = argv[ 5 ];
 	attribute_name = argv[ 6 ];
 
@@ -110,6 +108,12 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	appaserver_error_starting_argv_append_file(
@@ -189,9 +193,9 @@ int main( int argc, char **argv )
 		char sys_string[ 1024 ];
 
 		sprintf( process_filename,
-			 "%s/data/%s_add_column_%s.sh",
+			 "%s/%s_add_column_%s.sh",
 			 appaserver_parameter_file->
-				appaserver_mount_point,
+				appaserver_data_directory,
 			 application_name,
 			 attribute_name );
 
@@ -219,12 +223,10 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			int results;
-
 			sprintf( sys_string,
 				 "chmod +x,g+w %s",
 				 process_filename );
-			results = system( sys_string );
+			system( sys_string );
 			printf( "<BR><p>Created %s</p>\n", process_filename );
 		}
 	}

@@ -509,4 +509,8 @@ int related_folder_pair_match_function(
 			RELATED_FOLDER *related_folder_from_list,
 			RELATED_FOLDER *related_folder_compare );
 
+boolean related_folder_is_one2one_firewall(
+			LIST *foreign_attribute_name_list,
+			LIST *attribute_list );
+
 #endif

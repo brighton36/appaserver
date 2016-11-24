@@ -3680,3 +3680,40 @@ int related_folder_pair_match_function(
 
 } /* related_folder_pair_match_function() */
 
+boolean related_folder_is_one2one_firewall(
+					LIST *foreign_attribute_name_list,
+					LIST *attribute_list )
+{
+	char *attribute_name;
+	ATTRIBUTE *attribute;
+
+	if ( !list_rewind( foreign_attribute_name_list ) ) return 0;
+
+	do {
+		attribute_name =
+			list_get_pointer(
+				foreign_attribute_name_list );
+
+		if ( ! ( attribute =
+				attribute_seek(
+					attribute_list,
+					attribute_name ) ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot seek attribute_name = (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 attribute_name );
+			exit( 1 );
+		}
+
+		if ( attribute->omit_insert && attribute->omit_update )
+			return 1;
+
+	} while( list_next( foreign_attribute_name_list ) );
+
+	return 0;
+
+} /* related_folder_is_one2one_firewall() */
+

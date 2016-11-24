@@ -121,6 +121,14 @@ ATTRIBUTE *attribute_load_attribute(	char *application_name,
 	return (ATTRIBUTE *)list_get_first_element( attribute_list );
 } /* attribute_load_attribute() */
 
+ATTRIBUTE *attribute_seek(		LIST *attribute_list,
+					char *attribute_name )
+{
+	return attribute_seek_attribute(
+			attribute_list,
+			attribute_name );
+}
+
 ATTRIBUTE *attribute_seek_attribute(	LIST *attribute_list,
 					char *attribute_name )
 {

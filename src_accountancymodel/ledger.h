@@ -17,6 +17,9 @@
 
 /* Constants */
 /* --------- */
+#define LEDGER_LOCK_TRANSACTION_ATTRIBUTE	\
+					"lock_transaction_yn"
+
 #define LEDGER_BEGINNING_BALANCE_LABEL	"Equity Beginning Balance"
 
 #define LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS	\

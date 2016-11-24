@@ -24,7 +24,7 @@
 
 int main( int argc, char **argv )
 {
-	char *application_name;
+	char *application_name = {0};
 	char *fund_name;
 	char *transaction_date_time;
 	char *inventory_account = {0};
@@ -33,8 +33,30 @@ int main( int argc, char **argv )
 	char *account_payable_account = {0};
 	char *cash_account = {0};
 	char *uncleared_checks_account = {0};
-
 	char *database_string = {0};
+
+	if ( argc > 1 )
+	{
+		application_name = argv[ 1 ];
+
+		if ( timlib_parse_database_string(	&database_string,
+							application_name ) )
+		{
+			environ_set_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+				database_string );
+		}
+		else
+		{
+			environ_set_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+				application_name );
+		}
+	}
+
+	appaserver_error_output_starting_argv_stderr(
+				argc,
+				argv );
 
 	if ( argc != 4 )
 	{
@@ -44,21 +66,8 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	fund_name = argv[ 2 ];
 	transaction_date_time = argv[ 3 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
 
 	ledger_get_purchase_order_account_names(
 		&inventory_account,

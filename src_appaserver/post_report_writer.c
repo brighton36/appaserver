@@ -1415,18 +1415,6 @@ LIST *state_three_get_folder_element_list(
 			continue;
 		}
 
-#ifdef NOT_DEFINED
-		if ( ( related_folder =
-		       related_folder_attribute_consumes_related_folder(
-				(LIST *)0 /* done_attribute_name_list */,
-			        (LIST *)0 /* omit_update_attribute_name_list */,
-				mto1_append_isa_related_folder_list,
-				attribute->attribute_name,
-				(LIST *)0 /* include_attribute_name_list */ ) )
-		&&     !related_folder->folder->lookup_before_drop_down
-		&&     !related_folder->drop_down_multi_select )
-#endif
-
 		related_folder =
 		       related_folder_attribute_consumes_related_folder(
 				(LIST *)0 /* done_attribute_name_list */,

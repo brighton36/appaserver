@@ -809,7 +809,9 @@ int form_output_insert_rows(	int *form_current_reference_number,
 			form_output_table_heading( element_list, 0 );
 		}
 	}
+
 	return number_rows_outputted;
+
 } /* form_output_insert_rows() */
 
 

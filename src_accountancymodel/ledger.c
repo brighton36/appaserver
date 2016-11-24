@@ -3220,12 +3220,13 @@ void ledger_transaction_insert(		char *application_name,
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
 	char *transaction_table;
-	char *field;
+	char field[ 128 ];
 	char entity_buffer[ 128 ];
 	char memo_buffer[ 1024 ];
 
-	field =
-"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number";
+	sprintf( field,
+"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,%s",
+		 LEDGER_LOCK_TRANSACTION_ATTRIBUTE );
 
 	transaction_table =
 		get_table_name(
@@ -3267,9 +3268,13 @@ void ledger_transaction_insert(		char *application_name,
 	}
 
 	if ( check_number )
-		fprintf( output_pipe, "^%d\n", check_number );
+		fprintf( output_pipe, "^%d", check_number );
 	else
-		fprintf( output_pipe, "^\n" );
+		fprintf( output_pipe, "^" );
+
+	/* lock_transaction_yn */
+	/* ------------------- */
+	fprintf( output_pipe, "y\n" );
 
 	pclose( output_pipe );
 
@@ -3326,7 +3331,7 @@ void ledger_entity_update(		char *application_name,
 	output_pipe = popen( sys_string, "w" );
 
 	fprintf( output_pipe,
-	 	"%s^%s^%s|full_name=%s|street_address=%s\n",
+	 	"%s^%s^%s|full_name=%s|street_address=%s|%s=y\n",
 	 	escape_character(	entity_buffer1,
 					where_full_name,
 					'\'' ),
@@ -3335,7 +3340,8 @@ void ledger_entity_update(		char *application_name,
 	 	escape_character(	entity_buffer2,
 					full_name,
 					'\'' ),
-		street_address );
+		street_address,
+		LEDGER_LOCK_TRANSACTION_ATTRIBUTE );
 
 	pclose( output_pipe );
 
@@ -3418,14 +3424,27 @@ void ledger_transaction_generic_update(	char *application_name,
 
 	transaction_table =
 		get_table_name(
-			application_name, TRANSACTION_FOLDER_NAME );
+			application_name,
+			TRANSACTION_FOLDER_NAME );
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 "update_statement.e table=%s key=%s carrot=y	|"
+		 "sql.e						 ",
 		 transaction_table,
 		 key );
 
 	output_pipe = popen( sys_string, "w" );
+
+	/* Lock needs to go first in case changing transaction_date_time */
+	/* ------------------------------------------------------------- */
+	fprintf( output_pipe,
+	 	"%s^%s^%s^%s^y\n",
+	 	escape_character(	entity_buffer,
+					full_name,
+					'\'' ),
+	 	street_address,
+	 	transaction_date_time,
+		LEDGER_LOCK_TRANSACTION_ATTRIBUTE );
 
 	fprintf( output_pipe,
 	 	"%s^%s^%s^%s^%s\n",

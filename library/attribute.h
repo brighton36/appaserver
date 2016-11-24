@@ -98,6 +98,9 @@ ATTRIBUTE *attribute_load_folder_attribute(
 					char *folder_attribute,
 					char *attribute_name );
 
+ATTRIBUTE *attribute_seek(		LIST *attribute_list,
+					char *attribute_name );
+
 ATTRIBUTE *attribute_seek_attribute(	LIST *attribute_list,
 					char *attribute_name );
 
@@ -269,6 +272,9 @@ void attribute_list_remove_exclude_permission_list(
 					LIST *attribute_list );
 
 int attribute_get_width(		char *application_name,
+					char *attribute_name );
+
+ATTRIBUTE *attribute_seek(		LIST *attribute_list,
 					char *attribute_name );
 
 #endif

@@ -1219,7 +1219,8 @@ DICTIONARY *output_folder_detail(
 	}
 
 	form = form_new( INSERT_UPDATE_KEY,
-			 application_get_title_string( application_name ) );
+			 application_get_title_string(
+				application_name ) );
 
 	form->table_border = 1;
 	form_set_current_row( form, 1 );

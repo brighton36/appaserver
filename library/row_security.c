@@ -192,7 +192,7 @@ non_owner_view_only_dont_append:
 		{
 			ATTRIBUTE *attribute;
 			LIST *exclude_permission_list;
-	
+
 			if ( ! ( attribute =
 					attribute_seek_attribute(
 					row_security->
@@ -283,7 +283,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 		prompt_data_separate_folder = 1;
 	}
 
-
 	if ( attribute_not_null_folder
 	&&   strcmp(	attribute_not_null_folder->folder_name,
 			select_folder->folder_name ) != 0 )
@@ -357,7 +356,10 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 				query_dictionary,
 				row_dictionary_list_length,
 				state,
+				non_edit_folder_name_list,
+#ifdef NOT_DEFINED
 				(LIST *)0 /* non_edit_folder_name_list */,
+#endif
 				login_name,
 				'n' /* update_yn */,
 				omit_delete_with_placeholder,
@@ -845,7 +847,8 @@ LIST *row_security_get_update_element_list(
 	/* ------------------ */
 	do {
 		attribute_name = 
-			list_get_pointer( include_attribute_name_list );
+			list_get_pointer(
+				include_attribute_name_list );
 
 		if ( list_exists_string( ignore_attribute_name_list,
 					 attribute_name ) )
@@ -1136,6 +1139,21 @@ enum row_security_state row_security_get_row_security_state(
 						folder_name,
 					select_folder_name ) == 0 )
 			{
+
+				/* ------------------------------------ */
+				/* one2one firewall is like		*/
+				/* PURCHASE_ORDER.transaction_date_time	*/
+				/* ------------------------------------ */
+				if ( related_folder_is_one2one_firewall(
+					related_folder->
+						foreign_attribute_name_list,
+					related_folder->
+						one2m_related_folder->
+						attribute_list ) )
+				{
+					continue;
+				}
+
 				*attribute_not_null_folder =
 					role_update->folder;
 

@@ -136,31 +136,31 @@ PAIR_ONE2M *pair_one2m_new(
 
 	pair_one2m->pair_insert_folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
-		application_name,
-		session,
-		pair_one2m->pair_insert_folder->folder_name,
-		role->role_name,
-		list_new(),
-		0 /* isa_flag */,
-		related_folder_no_recursive,
-		role_get_override_row_restrictions(
-			role->override_row_restrictions_yn ),
-		(LIST *)0 /* root_primary_att..._name_list */,
-		0 /* recursive_level */ );
+			application_name,
+			session,
+			pair_one2m->pair_insert_folder->folder_name,
+			role->role_name,
+			list_new(),
+			0 /* isa_flag */,
+			related_folder_no_recursive,
+			role_get_override_row_restrictions(
+				role->override_row_restrictions_yn ),
+			(LIST *)0 /* root_primary_att..._name_list */,
+			0 /* recursive_level */ );
 
 	pair_one2m->pair_insert_folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
-		application_name,
-		session,
-		pair_one2m->pair_insert_folder->folder_name,
-		role->role_name,
-		list_new_list(),
-		1 /* isa_flag */,
-		related_folder_recursive_all,
-		role_get_override_row_restrictions(
-		role->override_row_restrictions_yn ),
-		(LIST *)0 /* root_primary_att..._name_list */,
-		0 /* recursive_level */ );
+			application_name,
+			session,
+			pair_one2m->pair_insert_folder->folder_name,
+			role->role_name,
+			list_new_list(),
+			1 /* isa_flag */,
+			related_folder_recursive_all,
+			role_get_override_row_restrictions(
+			role->override_row_restrictions_yn ),
+			(LIST *)0 /* root_primary_att..._name_list */,
+			0 /* recursive_level */ );
 	
 	pair_one2m->pair_insert_folder->attribute_list =
 		attribute_get_attribute_list(

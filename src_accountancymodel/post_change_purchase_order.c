@@ -102,7 +102,7 @@ void post_change_purchase_order_insert_title_passage_null(
 
 int main( int argc, char **argv )
 {
-	char *application_name;
+	char *application_name = {0};
 	char *full_name;
 	char *street_address;
 	char *purchase_date_time;
@@ -115,22 +115,35 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	PURCHASE_ORDER *purchase_order;
 
+	if ( argc > 1 )
+	{
+		application_name = argv[ 1 ];
+
+		if ( timlib_parse_database_string(	&database_string,
+							application_name ) )
+		{
+			environ_set_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+				database_string );
+		}
+		else
+		{
+			environ_set_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+				application_name );
+		}
+	}
+
+	appaserver_error_output_starting_argv_stderr(
+				argc,
+				argv );
+
 	if ( argc != 11 )
 	{
 		fprintf( stderr,
 "Usage: %s application full_name street_address purchase_date_time state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	full_name = argv[ 2 ];
@@ -142,10 +155,6 @@ int main( int argc, char **argv )
 	preupdate_title_passage_rule = argv[ 8 ];
 	preupdate_shipped_date = argv[ 9 ];
 	preupdate_arrived_date_time = argv[ 10 ];
-
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
 
 	/* -------------------------------------------- */
 	/* Only execute state=predelete because we have	*/
@@ -1013,8 +1022,9 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 		}
 
 		sprintf(sys_string,
-		 	"propagate_purchase_order_accounts %s \"%s\"",
+		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 	application_name,
+			purchase_order->fund_name,
 		 	propagate_transaction_date_time );
 
 		system( sys_string );
@@ -1135,8 +1145,9 @@ void post_change_purchase_order_FOB_shipping_new_title_passage_rule(
 		}
 
 		sprintf(sys_string,
-		 	"propagate_purchase_order_accounts %s \"%s\"",
+		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 	application_name,
+			purchase_order->fund_name,
 		 	propagate_transaction_date_time );
 
 		system( sys_string );
@@ -1207,8 +1218,9 @@ void post_change_purchase_order_fixed_arrived_date_time(
 		}
 
 		sprintf(sys_string,
-		 	"propagate_purchase_order_accounts %s \"%s\"",
+		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 	application_name,
+			purchase_order->fund_name,
 		 	propagate_transaction_date_time );
 
 		system( sys_string );

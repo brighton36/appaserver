@@ -556,7 +556,7 @@ LIST *inventory_purchase_entity_get_list(
 	FILE *input_pipe;
 	char input_buffer[ 512 ];
 	INVENTORY_PURCHASE *inventory_purchase;
-	LIST *purchase_list;
+	LIST *inventory_purchase_list;
 
 	if ( !inventory_name || !*inventory_name )
 	{
@@ -595,7 +595,7 @@ LIST *inventory_purchase_entity_get_list(
 		 where );
 
 	input_pipe = popen( sys_string, "r" );
-	purchase_list = list_new();
+	inventory_purchase_list = list_new();
 
 	while ( get_line( input_buffer, input_pipe ) )
 	{
@@ -623,12 +623,14 @@ LIST *inventory_purchase_entity_get_list(
 				&inventory_purchase->arrived_date_time,
 				input_buffer );
 
-		list_append_pointer( purchase_list, inventory_purchase );
+		list_append_pointer(
+			inventory_purchase_list,
+			inventory_purchase );
 	}
 
 	pclose( input_pipe );
 
-	return purchase_list;
+	return inventory_purchase_list;
 
 } /* inventory_purchase_entity_get_list() */
 
@@ -1111,7 +1113,7 @@ char *inventory_get_non_zero_quantity_on_hand_arrived_date_time(
 
 } /* inventory_get_non_zero_quantity_on_hand_arrived_date_time() */
 
-char *inventory_get_earliest_zero_quantity_on_hand_arrived_date_time(
+char *inventory_get_latest_zero_quantity_on_hand_arrived_date_time(
 				char *application_name,
 				char *inventory_name )
 {
@@ -1146,7 +1148,7 @@ char *inventory_get_earliest_zero_quantity_on_hand_arrived_date_time(
 
 	return pipe2string( sys_string );
 
-} /* inventory_get_earliest_zero_quantity_on_hand_arrived_date_time() */
+} /* inventory_get_latest_zero_quantity_on_hand_arrived_date_time() */
 
 void inventory_purchase_fifo_decrement_quantity_on_hand(
 				LIST *purchase_list,
@@ -3570,3 +3572,106 @@ char *inventory_balance_list_display( LIST *inventory_balance_list )
 
 } /* inventory_balance_list_display() */
 
+LIST *inventory_get_latest_inventory_purchase_list(
+				char *application_name,
+				char *inventory_name )
+{
+	char *latest_zero_quantity_on_hand_arrived_date_time;
+	char sys_string[ 2048 ];
+	char where[ 1024 ];
+	char arrived_where[ 128 ];
+	char *join_where;
+	char *select;
+	char *folder = "purchase_order,inventory_purchase";
+	FILE *input_pipe;
+	char input_buffer[ 512 ];
+	INVENTORY_PURCHASE *inventory_purchase;
+	LIST *inventory_purchase_list;
+
+	if ( !inventory_name || !*inventory_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty inventory_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	latest_zero_quantity_on_hand_arrived_date_time =
+		inventory_get_latest_zero_quantity_on_hand_arrived_date_time(
+			application_name,
+			inventory_name );
+
+	if ( latest_zero_quantity_on_hand_arrived_date_time
+	&&   *latest_zero_quantity_on_hand_arrived_date_time )
+	{
+		sprintf( arrived_where,
+			 "arrived_date_time > '%s'",
+			 latest_zero_quantity_on_hand_arrived_date_time );
+	}
+	else
+	{
+		strcpy( arrived_where, "1 = 1" );
+	}
+
+	select = inventory_purchase_get_select();
+
+	join_where = inventory_get_inventory_purchase_join_where();
+
+	sprintf( where,
+		 "%s and inventory_name = '%s' and %s",
+		 arrived_where,
+		 inventory_name,
+		 join_where );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			"
+		 "			order=arrived_date_time		",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+	inventory_purchase_list = list_new();
+
+	while ( get_line( input_buffer, input_pipe ) )
+	{
+		inventory_purchase = inventory_purchase_new();
+
+		inventory_purchase_parse(
+				&inventory_purchase->full_name,
+				&inventory_purchase->street_address,
+				&inventory_purchase->purchase_date_time,
+				&inventory_purchase->inventory_name,
+				&inventory_purchase->ordered_quantity,
+				&inventory_purchase->unit_cost,
+				&inventory_purchase->extension,
+				&inventory_purchase->database_extension,
+				&inventory_purchase->capitalized_unit_cost,
+				&inventory_purchase->
+					database_capitalized_unit_cost,
+				&inventory_purchase->arrived_quantity,
+				&inventory_purchase->database_arrived_quantity,
+				&inventory_purchase->missing_quantity,
+				&inventory_purchase->quantity_on_hand,
+				&inventory_purchase->database_quantity_on_hand,
+				&inventory_purchase->average_unit_cost,
+				&inventory_purchase->database_average_unit_cost,
+				&inventory_purchase->arrived_date_time,
+				input_buffer );
+
+		list_append_pointer(
+			inventory_purchase_list,
+			inventory_purchase );
+	}
+
+	pclose( input_pipe );
+
+	return inventory_purchase_list;
+
+} /* inventory_get_latest_inventory_purchase_list() */

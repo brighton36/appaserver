@@ -85,7 +85,7 @@ void inventory_cost_method_propagate(
 	while( get_line( inventory_name, input_pipe ) )
 	{
 		sprintf( sys_string,
-		"propagate_inventory_purchase_layers %s '' '' '' \"%s\" n",
+		"propagate_inventory_sale_layers %s '' '' '' \"%s\" '' n",
 			 application_name,
 			 inventory_name );
 

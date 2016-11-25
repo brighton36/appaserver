@@ -47,6 +47,8 @@ void post_change_inventory_sale_quantity_update(
 
 void post_change_inventory_sale_delete(
 				char *application_name,
+				char *full_name,
+				char *street_address,
 				char *sale_date_time,
 				char *inventory_name );
 
@@ -118,12 +120,18 @@ int main( int argc, char **argv )
 	/* ------------------------------------------------------------ */
 	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 ) exit( 0 );
 
-	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
+	/* ---------------------------------------------------- */
+	/* INVENTORY_SALE.transaction_date_time doesn't exist,	*/
+	/* so execute after delete.				*/
+	/* ---------------------------------------------------- */
+	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
-	if ( strcmp( state, "predelete" ) == 0 )
+	if ( strcmp( state, "delete" ) == 0 )
 	{
 		post_change_inventory_sale_delete(
 			application_name,
+			full_name,
+			street_address,
 			sale_date_time,
 			inventory_name );
 	}
@@ -526,6 +534,7 @@ void post_change_inventory_sale_quantity_update(
 
 } /* post_change_inventory_sale_quantity_update() */
 
+#ifdef NOT_DEFINED
 void post_change_inventory_sale_delete(
 			char *application_name,
 			char *sale_date_time,
@@ -602,8 +611,8 @@ void post_change_inventory_sale_delete(
 				customer_sale->sale_date_time,
 				application_name );
 	}
-
 } /* post_change_inventory_sale_delete() */
+#endif
 
 void post_change_inventory_sale_retail_price_update(
 			CUSTOMER_SALE *customer_sale,
@@ -877,3 +886,88 @@ void post_change_inventory_sale_inventory_name_update(
 
 } /* post_change_inventory_sale_inventory_name_update() */
 
+void post_change_inventory_sale_delete(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *inventory_name )
+{
+	CUSTOMER_SALE *customer_sale;
+	char sys_string[ 1024 ];
+
+	if ( ! (  customer_sale =
+			customer_sale_new(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: customer_sale_new() failed.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return;
+	}
+
+
+	customer_sale->invoice_amount =
+		customer_sale_get_invoice_amount(
+			&customer_sale->
+				sum_inventory_extension,
+			&customer_sale->
+				cost_of_goods_sold,
+			&customer_sale->
+				sum_service_extension,
+			&customer_sale->sum_extension,
+			&customer_sale->sales_tax,
+			customer_sale->shipping_revenue,
+			customer_sale->
+				inventory_sale_list,
+			customer_sale->
+				specific_inventory_sale_list,
+			customer_sale->service_sale_list,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			application_name );
+
+	customer_sale->amount_due =
+		customer_sale->invoice_amount -
+		customer_sale->total_payment
+			/* set in customer_sale_new() */;
+
+	customer_sale_update(
+		customer_sale->sum_extension,
+		customer_sale->database_sum_extension,
+		customer_sale->sales_tax,
+		customer_sale->database_sales_tax,
+		customer_sale->invoice_amount,
+		customer_sale->database_invoice_amount,
+		customer_sale->completed_date_time,
+		customer_sale->
+			database_completed_date_time,
+		customer_sale->shipped_date_time,
+		customer_sale->database_shipped_date_time,
+		customer_sale->arrived_date,
+		customer_sale->database_arrived_date,
+		customer_sale->total_payment,
+		customer_sale->database_total_payment,
+		customer_sale->amount_due,
+		customer_sale->database_amount_due,
+		customer_sale->transaction_date_time,
+		customer_sale->
+			database_transaction_date_time,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_sale->sale_date_time,
+		application_name );
+
+	sprintf( sys_string,
+		 "propagate_inventory_sale_layers %s '' '' '' \"%s\" '' n",
+		 application_name,
+		 inventory_name );
+
+	system( sys_string );
+
+} /* post_change_inventory_sale_delete() */

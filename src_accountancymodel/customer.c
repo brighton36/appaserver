@@ -1843,6 +1843,7 @@ LIST *customer_get_customer_sale_list(
 			customer_sale_get_sum_inventory_extension(
 				customer_sale->inventory_sale_list );
 
+/*
 		customer_sale->service_sale_list =
 			customer_sale_service_get_list(
 				application_name,
@@ -1853,6 +1854,7 @@ LIST *customer_get_customer_sale_list(
 		customer_sale->sum_service_extension =
 			customer_sale_get_sum_service_extension(
 				customer_sale->service_sale_list );
+*/
 
 		customer_sale->payment_list =
 			customer_payment_get_list(

@@ -69,6 +69,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	full_name = argv[ 2 ];
 	street_address = argv[ 3 ];
@@ -89,7 +95,13 @@ int main( int argc, char **argv )
 				sale_date_time,
 				inventory_name );
 
-		inventory = inventory_load_new(
+		inventory =
+			inventory_load_new(
+				application_name,
+				inventory_name );
+
+		inventory->inventory_purchase_list =
+			inventory_get_latest_inventory_purchase_list(
 				application_name,
 				inventory_name );
 
@@ -121,7 +133,7 @@ int main( int argc, char **argv )
 				inventory_name );
 	}
 
-	if ( *full_name )
+	if ( *full_name && inventory_sale )
 	{
 		printf( "%.2lf\n", inventory_sale->cost_of_goods_sold );
 	}
@@ -163,6 +175,12 @@ double propagate_inventory_sale_layers_latest(
 		inventory->inventory_purchase_list,
 		inventory_sale->quantity );
 
+	/* Update inventory_purchase->quantity_on_hand */
+	/* ------------------------------------------- */
+	inventory_purchase_list_update(
+		application_name,
+		inventory->inventory_purchase_list );
+
 	inventory_last_inventory_balance_update(
 		inventory->last_inventory_balance->quantity_on_hand,
 		inventory->last_inventory_balance->average_unit_cost,
@@ -196,6 +214,14 @@ void propagate_inventory_sale_layers_not_latest(
 		inventory_get_average_cost_inventory_balance_list(
 			inventory->inventory_purchase_list,
 			inventory->inventory_sale_list );
+
+/*
+fprintf( stderr, "%s/%s()/%d: inventory_balance_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+inventory_balance_list_display( inventory->inventory_balance_list ) );
+*/
 
 	if ( list_length( inventory->inventory_balance_list ) )
 	{

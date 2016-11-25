@@ -145,6 +145,10 @@ int main( int argc, char **argv )
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );
 
+	/* ------------------------------------------------------------ */
+	/* INVENTORY_PURCHASE.transaction_date_time doesn't exist,	*/
+	/* so execute after delete.					*/
+	/* ------------------------------------------------------------ */
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, "delete" ) == 0 )

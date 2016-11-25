@@ -267,7 +267,7 @@ void inventory_list_cost_of_goods_sold_update(
 				LIST *inventory_list,
 				char *application_name );
 
-char *inventory_get_earliest_zero_quantity_on_hand_arrived_date_time(
+char *inventory_get_latest_zero_quantity_on_hand_arrived_date_time(
 				char *application_name,
 				char *inventory_name );
 
@@ -651,6 +651,10 @@ void inventory_purchase_list_set_capitalized_unit_cost(
 
 char *inventory_balance_list_display(
 				LIST *inventory_balance_list );
+
+LIST *inventory_get_latest_inventory_purchase_list(
+				char *application_name,
+				char *inventory_name );
 
 #endif
 

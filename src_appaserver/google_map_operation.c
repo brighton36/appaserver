@@ -28,6 +28,7 @@
 #include "environ.h"
 #include "google_map.h"
 #include "application_constants.h"
+#include "appaserver_link_file.h"
 
 /* appaserver_link_file */
 
@@ -51,11 +52,9 @@ int main( int argc, char **argv )
 	char *utm_easting;
 	char *utm_northing;
 	char *label;
-	char url_filename[ 256 ];
-	char prompt_filename[ 256 ];
+	char *url_filename;
 	char semaphore_filename[ 256 ];
 	char window_name[ 128 ];
-	char *server_address;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
@@ -76,6 +75,7 @@ int main( int argc, char **argv )
 	char *folder_name;
 	DICTIONARY *dictionary;
 	char *balloon_attribute_name_list_string = {0};
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	output_starting_argv_stderr( argc, argv );
 
@@ -128,7 +128,7 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application_name );
 */
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 /*
 	if ( !appaserver_user_exists_role(
@@ -218,6 +218,33 @@ int main( int argc, char **argv )
 			application_name,
 			session );
 */
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		appaserver_parameter_file->
+				document_root,
+			process_name /* filename_stem */,
+			application_name,
+			0 /* process_id */,
+			session,
+			"html" );
+
+	url_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	if ( group_first_time )
 	{
@@ -335,6 +362,26 @@ int main( int argc, char **argv )
 
 	if ( group_last_time )
 	{
+		char *prompt_filename;
+
+		prompt_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		printf( "<body bgcolor=\"%s\" onload=\"",
 			application_get_background_color( application_name ) );
 

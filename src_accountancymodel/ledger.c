@@ -3636,6 +3636,7 @@ char *ledger_get_hard_coded_account_name(
 				hard_coded_dictionary,
 				key ) ) )
 	{
+/*
 		if ( warning_only )
 			fprintf( stderr, "Warning " );
 		else
@@ -3647,8 +3648,19 @@ char *ledger_get_hard_coded_account_name(
 			 __FUNCTION__,
 			 __LINE__,
 			 key );
-
 		if ( !warning_only ) exit( 1 );
+*/
+		if ( !warning_only )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot fetch %s from hard_coded_account_key.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 key );
+
+			exit( 1 );
+		}
 	}
 
 	return account_name;
@@ -5059,6 +5071,8 @@ char *ledger_get_journal_ledger_hash_table_key(
 {
 	static char key[ 256 ];
 
+	if ( !account_name ) return (char *)0;
+
 	sprintf(	key,
 			"%s^%s^%s^%s",
 			full_name,
@@ -5080,11 +5094,11 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 				HASH_TABLE *journal_ledger_hash_table )
 {
 	char *inventory_account = {0};
-	char *sales_tax_expense_account;
-	char *freight_in_expense_account;
-	char *account_payable_account;
-	char *cash_account;
-	char *uncleared_checks_account;
+	char *sales_tax_expense_account = {0};
+	char *freight_in_expense_account = {0};
+	char *account_payable_account = {0};
+	char *cash_account = {0};
+	char *uncleared_checks_account = {0};
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
 	char *key;
@@ -5138,65 +5152,6 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 			journal_ledger );
 	}
 
-#ifdef NOT_DEFINED
-	/* Supply expense */
-	/* -------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			supply_expense_account );
-
-
-	if ( ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Repairs and maintenance expense */
-	/* ------------------------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			repairs_maintenance_expense_account );
-
-
-	if ( ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Fixed asset */
-	/* ----------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			fixed_asset_account );
-
-
-	if ( ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-#endif
-
 	/* Sales tax expense */
 	/* ----------------- */
 	key = ledger_get_journal_ledger_hash_table_key(
@@ -5206,7 +5161,7 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 			sales_tax_expense_account );
 
 
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )
@@ -5225,7 +5180,7 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 			freight_in_expense_account );
 
 
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )
@@ -5244,7 +5199,7 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 			account_payable_account );
 
 
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )
@@ -5268,12 +5223,12 @@ TRANSACTION *ledger_sale_transaction_fetch(
 				HASH_TABLE *journal_ledger_hash_table )
 {
 	char *sales_revenue_account = {0};
-	char *service_revenue_account;
-	char *sales_tax_payable_account;
-	char *shipping_revenue_account;
-	char *inventory_account;
-	char *cost_of_goods_sold_account;
-	char *receivable_account;
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	char *inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	char *receivable_account = {0};
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
 	char *key;
@@ -5318,7 +5273,7 @@ TRANSACTION *ledger_sale_transaction_fetch(
 			sales_revenue_account );
 
 
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )
@@ -5337,7 +5292,7 @@ TRANSACTION *ledger_sale_transaction_fetch(
 			service_revenue_account );
 
 
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )
@@ -5355,7 +5310,7 @@ TRANSACTION *ledger_sale_transaction_fetch(
 			transaction_date_time,
 			sales_tax_payable_account );
 
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )
@@ -5373,8 +5328,7 @@ TRANSACTION *ledger_sale_transaction_fetch(
 			transaction_date_time,
 			shipping_revenue_account );
 
-
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )
@@ -5393,7 +5347,7 @@ TRANSACTION *ledger_sale_transaction_fetch(
 			inventory_account );
 
 
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )
@@ -5411,7 +5365,7 @@ TRANSACTION *ledger_sale_transaction_fetch(
 			transaction_date_time,
 			cost_of_goods_sold_account );
 
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )
@@ -5429,7 +5383,7 @@ TRANSACTION *ledger_sale_transaction_fetch(
 			transaction_date_time,
 			receivable_account );
 
-	if ( ( journal_ledger =
+	if ( key && ( journal_ledger =
 			hash_table_fetch( 
 				journal_ledger_hash_table,
 				key ) ) )

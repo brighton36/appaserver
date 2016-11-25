@@ -24,11 +24,13 @@
 
 /* Prototypes */
 /* ---------- */
+/*
 void propagate_inventory_purchase_layers_not_latest(
 				INVENTORY *purchase_inventory,
 				LIST *customer_sale_list,
 				char *application_name,
 				enum inventory_cost_method );
+*/
 
 void propagate_inventory_purchase_layers_latest(
 				INVENTORY_PURCHASE *inventory_purchase,
@@ -43,12 +45,9 @@ int main( int argc, char **argv )
 	char *purchase_date_time;
 	char *inventory_name;
 	boolean is_latest;
-	ENTITY_SELF *entity_self;
 	char *database_string = {0};
 
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
+	appaserver_error_output_starting_argv_stderr( argc, argv );
 
 	if ( argc != 7 )
 	{
@@ -98,6 +97,16 @@ int main( int argc, char **argv )
 	}
 	else
 	{
+		char sys_string[ 1024 ];
+
+		sprintf( sys_string,
+		"propagate_inventory_sale_layers %s '' '' '' \"%s\" '' n",
+			 application_name,
+			 inventory_name );
+
+		system( sys_string );
+/*
+	ENTITY_SELF *entity_self;
 		entity_self =
 			entity_self_purchase_inventory_load(
 				application_name,
@@ -108,6 +117,7 @@ int main( int argc, char **argv )
 			entity_self->customer_sale_list,
 			application_name,
 			entity_self->inventory_cost_method );
+*/
 	}
 
 	return 0;
@@ -177,6 +187,7 @@ void propagate_inventory_purchase_layers_latest(
 
 } /* propagate_inventory_purchase_layers_latest() */
 
+#ifdef NOT_DEFINED
 void propagate_inventory_purchase_layers_not_latest(
 				INVENTORY *purchase_inventory,
 				LIST *customer_sale_list,
@@ -264,4 +275,4 @@ void propagate_inventory_purchase_layers_not_latest(
 		customer_sale_list );
 
 } /* propagate_inventory_purchase_layers_not_latest() */
-
+#endif

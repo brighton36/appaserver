@@ -156,9 +156,9 @@ int main( int argc, char **argv )
 		char sys_string[ 1024 ];
 
 		sprintf( process_filename,
-			 "%s/data/rename_column.sh",
+			 "%s/rename_column.sh",
 			 appaserver_parameter_file->
-				appaserver_mount_point );
+				appaserver_data_directory );
 
 		printf( "<BR><h3>Process not executed.</h3>\n" );
 

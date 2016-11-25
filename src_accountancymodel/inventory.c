@@ -289,8 +289,8 @@ void inventory_purchase_list_update(
 			inventory_purchase->database_quantity_on_hand,
 			inventory_purchase->extension,
 			inventory_purchase->database_extension,
-			inventory_purchase->capitalized_extension,
-			inventory_purchase->database_capitalized_extension,
+			inventory_purchase->capitalized_unit_cost,
+			inventory_purchase->database_capitalized_unit_cost,
 			inventory_purchase->average_unit_cost,
 			inventory_purchase->database_average_unit_cost );
 
@@ -325,8 +325,8 @@ void inventory_purchase_arrived_quantity_update(
 			0 /* database_quantity_on_hand */,
 			0.0 /* extension */,
 			0.0 /* database_extension */,
-			0.0 /* capitalized_extension */,
-			0.0 /* database_capitalized_extension */,
+			0.0 /* capitalized_unit_cost */,
+			0.0 /* database_capitalized_unit_cost */,
 			0.0 /* average_unit_cost * */,
 			0.0 /* database_average_unit_cost */ );
 
@@ -346,8 +346,8 @@ void inventory_purchase_update(
 				int database_quantity_on_hand,
 				double extension,
 				double database_extension,
-				double capitalized_extension,
-				double database_capitalized_extension,
+				double capitalized_unit_cost,
+				double database_capitalized_unit_cost,
 				double average_unit_cost,
 				double database_average_unit_cost )
 {
@@ -367,8 +367,8 @@ void inventory_purchase_update(
 			database_quantity_on_hand,
 			extension,
 			database_extension,
-			capitalized_extension,
-			database_capitalized_extension,
+			capitalized_unit_cost,
+			database_capitalized_unit_cost,
 			average_unit_cost,
 			database_average_unit_cost );
 
@@ -427,8 +427,8 @@ void inventory_purchase_pipe_update(
 				int database_quantity_on_hand,
 				double extension,
 				double database_extension,
-				double capitalized_extension,
-				double database_capitalized_extension,
+				double capitalized_unit_cost,
+				double database_capitalized_unit_cost,
 				double average_unit_cost,
 				double database_average_unit_cost )
 {
@@ -483,16 +483,16 @@ void inventory_purchase_pipe_update(
 	}
 
 	if ( !timlib_dollar_virtually_same(
-			capitalized_extension,
-			database_capitalized_extension ) )
+			capitalized_unit_cost,
+			database_capitalized_unit_cost ) )
 	{
 		fprintf(update_pipe,
-			"%s^%s^%s^%s^capitalized_extension^%.2lf\n",
+			"%s^%s^%s^%s^capitalized_unit_cost^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		purchase_date_time,
 	 		inventory_name,
-	 		capitalized_extension );
+	 		capitalized_unit_cost );
 	}
 
 	if ( !timlib_double_virtually_same_places(
@@ -610,9 +610,9 @@ LIST *inventory_purchase_entity_get_list(
 				&inventory_purchase->unit_cost,
 				&inventory_purchase->extension,
 				&inventory_purchase->database_extension,
-				&inventory_purchase->capitalized_extension,
+				&inventory_purchase->capitalized_unit_cost,
 				&inventory_purchase->
-					database_capitalized_extension,
+					database_capitalized_unit_cost,
 				&inventory_purchase->arrived_quantity,
 				&inventory_purchase->database_arrived_quantity,
 				&inventory_purchase->missing_quantity,
@@ -696,9 +696,9 @@ LIST *inventory_purchase_date_get_list(
 				&inventory_purchase->unit_cost,
 				&inventory_purchase->extension,
 				&inventory_purchase->database_extension,
-				&inventory_purchase->capitalized_extension,
+				&inventory_purchase->capitalized_unit_cost,
 				&inventory_purchase->
-					database_capitalized_extension,
+					database_capitalized_unit_cost,
 				&inventory_purchase->arrived_quantity,
 				&inventory_purchase->database_arrived_quantity,
 				&inventory_purchase->missing_quantity,
@@ -808,9 +808,9 @@ LIST *inventory_purchase_arrived_date_get_list(
 				&inventory_purchase->unit_cost,
 				&inventory_purchase->extension,
 				&inventory_purchase->database_extension,
-				&inventory_purchase->capitalized_extension,
+				&inventory_purchase->capitalized_unit_cost,
 				&inventory_purchase->
-					database_capitalized_extension,
+					database_capitalized_unit_cost,
 				&inventory_purchase->arrived_quantity,
 				&inventory_purchase->database_arrived_quantity,
 				&inventory_purchase->missing_quantity,
@@ -939,9 +939,9 @@ LIST *inventory_purchase_get_list(
 				&inventory_purchase->unit_cost,
 				&inventory_purchase->extension,
 				&inventory_purchase->database_extension,
-				&inventory_purchase->capitalized_extension,
+				&inventory_purchase->capitalized_unit_cost,
 				&inventory_purchase->
-					database_capitalized_extension,
+					database_capitalized_unit_cost,
 				&inventory_purchase->arrived_quantity,
 				&inventory_purchase->database_arrived_quantity,
 				&inventory_purchase->missing_quantity,
@@ -1241,6 +1241,7 @@ double inventory_sale_get_sum_cost_of_goods_sold(
 	} while ( list_next( inventory_sale_list ) );
 
 	return sum_cost_of_goods_sold;
+
 } /* inventory_sale_get_sum_cost_of_goods_sold() */
 
 void inventory_reset_quantity_on_hand(
@@ -1329,7 +1330,8 @@ double inventory_decrement_quantity_on_hand_get_CGS_fifo(
 
 	do {
 		inventory_purchase =
-			list_get( inventory_purchase_list );
+			list_get(
+				inventory_purchase_list );
 
 		if ( !inventory_purchase->quantity_on_hand )
 		{
@@ -1340,7 +1342,7 @@ double inventory_decrement_quantity_on_hand_get_CGS_fifo(
 		     total_quantity_on_hand )
 		{
 			cost_of_goods_sold +=
-				inventory_purchase->unit_cost *
+				inventory_purchase->capitalized_unit_cost *
 				(double)inventory_purchase->quantity_on_hand;
 
 			total_quantity_on_hand -= 
@@ -1351,7 +1353,7 @@ double inventory_decrement_quantity_on_hand_get_CGS_fifo(
 		else
 		{
 			cost_of_goods_sold +=
-				( inventory_purchase->unit_cost *
+				( inventory_purchase->capitalized_unit_cost *
 				  (double)
 				      total_quantity_on_hand );
 
@@ -1424,7 +1426,7 @@ double inventory_decrement_quantity_on_hand_get_CGS_lifo(
 		     total_quantity_on_hand )
 		{
 			cost_of_goods_sold +=
-				inventory_purchase->unit_cost *
+				inventory_purchase->capitalized_unit_cost *
 				(double)inventory_purchase->quantity_on_hand;
 
 			total_quantity_on_hand -= 
@@ -1435,7 +1437,7 @@ double inventory_decrement_quantity_on_hand_get_CGS_lifo(
 		else
 		{
 			cost_of_goods_sold +=
-				( inventory_purchase->unit_cost *
+				( inventory_purchase->capitalized_unit_cost *
 				  (double)
 				      total_quantity_on_hand );
 
@@ -1450,44 +1452,6 @@ double inventory_decrement_quantity_on_hand_get_CGS_lifo(
 	return 0.0;
 
 } /* inventory_decrement_quantity_on_hand_get_CGS_lifo() */
-
-double inventory_sale_get_sum_extension(
-			LIST *inventory_sale_list )
-{
-	INVENTORY_SALE *inventory_sale;
-	double sum_extension;
-
-	if ( !list_rewind( inventory_sale_list ) ) return 0.0;
-
-	sum_extension = 0.0;
-
-	do {
-		inventory_sale = list_get( inventory_sale_list );
-		sum_extension += inventory_sale->extension;
-
-	} while ( list_next( inventory_sale_list ) );
-
-	return sum_extension;
-} /* inventory_sale_get_sum_extension() */
-
-double inventory_purchase_get_sum_extension(
-			LIST *inventory_purchase_list )
-{
-	INVENTORY_PURCHASE *inventory_purchase;
-	double sum_extension;
-
-	if ( !list_rewind( inventory_purchase_list ) ) return 0.0;
-
-	sum_extension = 0.0;
-
-	do {
-		inventory_purchase = list_get( inventory_purchase_list );
-		sum_extension += inventory_purchase->extension;
-
-	} while ( list_next( inventory_purchase_list ) );
-
-	return sum_extension;
-} /* inventory_purchase_get_sum_extension() */
 
 char *inventory_sale_list_display( LIST *sale_list )
 {
@@ -1547,7 +1511,7 @@ char *inventory_purchase_list_display( LIST *purchase_list )
 					"missing_quantity = %d, "
 					"quantity_on_hand = %d, "
 					"database_quantity_on_hand = %d, "
-					"unit_cost = %.2lf, "
+					"capitalized_unit_cost = %.4lf, "
 					"extension = %.2lf, "
 					"database_extension = %.2lf\n",
 					inventory_purchase->purchase_date_time,
@@ -1556,7 +1520,8 @@ char *inventory_purchase_list_display( LIST *purchase_list )
 					inventory_purchase->quantity_on_hand,
 					inventory_purchase->
 						database_quantity_on_hand,
-					inventory_purchase->unit_cost,
+					inventory_purchase->
+						capitalized_unit_cost,
 					inventory_purchase->extension,
 					inventory_purchase->
 						database_extension );
@@ -1938,7 +1903,7 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 				average_unit_cost =
 					inventory_balance->
 						inventory_purchase->
-						unit_cost;
+						capitalized_unit_cost;
 
 			inventory_balance->total_cost_balance =
 				(double)inventory_balance->
@@ -1972,7 +1937,7 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 					ordered_quantity *
 				inventory_balance->
 					inventory_purchase->
-					unit_cost;
+					capitalized_unit_cost;
 
 			inventory_balance->
 			total_cost_balance =
@@ -2421,25 +2386,25 @@ double inventory_purchase_get_total_cost_balance(
 			int *quantity_on_hand,
 			double *average_unit_cost,
 			double total_cost_balance,
-			double unit_cost,
+			double capitalized_unit_cost,
 			int ordered_quantity )
 {
-	double extension;
+	double capitalized_extension;
 
 	if ( double_virtually_same( *average_unit_cost, 0.0 ) )
 	{
 		*quantity_on_hand = ordered_quantity;
-		*average_unit_cost = unit_cost;
-		return (double)ordered_quantity * unit_cost;
+		*average_unit_cost = capitalized_unit_cost;
+		return (double)ordered_quantity * capitalized_unit_cost;
 	}
 
-	extension =
+	capitalized_extension =
 		inventory_purchase_get_extension(
 			ordered_quantity,
-			unit_cost );
+			capitalized_unit_cost );
 
 	*quantity_on_hand = *quantity_on_hand + ordered_quantity;
-	total_cost_balance += extension;
+	total_cost_balance += capitalized_extension;
 	*average_unit_cost = total_cost_balance / (double)*quantity_on_hand;
 
 	return total_cost_balance;
@@ -2572,7 +2537,7 @@ char *inventory_sale_get_select( void )
 char *inventory_purchase_get_select( void )
 {
 	char *select =
-"inventory_purchase.full_name,inventory_purchase.street_address,inventory_purchase.purchase_date_time,inventory_name,ordered_quantity,unit_cost,extension,capitalized_extension,arrived_quantity,missing_quantity,quantity_on_hand,average_unit_cost,purchase_order.arrived_date_time";
+"inventory_purchase.full_name,inventory_purchase.street_address,inventory_purchase.purchase_date_time,inventory_name,ordered_quantity,unit_cost,extension,capitalized_unit_cost,arrived_quantity,missing_quantity,quantity_on_hand,average_unit_cost,purchase_order.arrived_date_time";
 
 	return select;
 
@@ -2792,9 +2757,9 @@ LIST *inventory_get_inventory_purchase_list(
 				&inventory_purchase->unit_cost,
 				&inventory_purchase->extension,
 				&inventory_purchase->database_extension,
-				&inventory_purchase->capitalized_extension,
+				&inventory_purchase->capitalized_unit_cost,
 				&inventory_purchase->
-					database_capitalized_extension,
+					database_capitalized_unit_cost,
 				&inventory_purchase->arrived_quantity,
 				&inventory_purchase->database_arrived_quantity,
 				&inventory_purchase->missing_quantity,
@@ -2875,9 +2840,9 @@ LIST *inventory_get_specific_inventory_purchase_list(
 				&inventory_purchase->unit_cost,
 				&inventory_purchase->extension,
 				&inventory_purchase->database_extension,
-				&inventory_purchase->capitalized_extension,
+				&inventory_purchase->capitalized_unit_cost,
 				&inventory_purchase->
-					database_capitalized_extension,
+					database_capitalized_unit_cost,
 				&inventory_purchase->arrived_quantity,
 				&inventory_purchase->database_arrived_quantity,
 				&inventory_purchase->missing_quantity,
@@ -2908,8 +2873,8 @@ void inventory_purchase_parse(
 				double *unit_cost,
 				double *extension,
 				double *database_extension,
-				double *capitalized_extension,
-				double *database_capitalized_extension,
+				double *capitalized_unit_cost,
+				double *database_capitalized_unit_cost,
 				int *arrived_quantity,
 				int *database_arrived_quantity,
 				int *missing_quantity,
@@ -2953,8 +2918,8 @@ void inventory_purchase_parse(
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
 	if ( *piece_buffer )
-		*capitalized_extension =
-		*database_capitalized_extension = atof( piece_buffer );
+		*capitalized_unit_cost =
+		*database_capitalized_unit_cost = atof( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
 	if ( *piece_buffer )
@@ -3049,9 +3014,9 @@ HASH_TABLE *inventory_get_arrived_inventory_purchase_hash_table(
 				&inventory_purchase->unit_cost,
 				&inventory_purchase->extension,
 				&inventory_purchase->database_extension,
-				&inventory_purchase->capitalized_extension,
+				&inventory_purchase->capitalized_unit_cost,
 				&inventory_purchase->
-					database_capitalized_extension,
+					database_capitalized_unit_cost,
 				&inventory_purchase->arrived_quantity,
 				&inventory_purchase->database_arrived_quantity,
 				&inventory_purchase->missing_quantity,
@@ -3223,12 +3188,15 @@ char *inventory_sale_get_hash_table_key(
 
 } /* inventory_sale_get_hash_table_key() */
 
-void inventory_purchase_list_set_extension(
+double inventory_purchase_list_set_extension(
 			LIST *inventory_purchase_list )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
+	double sum_inventory_extension;
 
-	if ( !list_rewind( inventory_purchase_list ) ) return;
+	if ( !list_rewind( inventory_purchase_list ) ) return 0.0;
+
+	sum_inventory_extension = 0.0;
 
 	do {
 		inventory_purchase = list_get( inventory_purchase_list );
@@ -3238,7 +3206,11 @@ void inventory_purchase_list_set_extension(
 				inventory_purchase->ordered_quantity,
 				inventory_purchase->unit_cost );
 
+		sum_inventory_extension += inventory_purchase->extension;
+
 	} while( list_next( inventory_purchase_list ) );
+
+	return sum_inventory_extension;
 
 } /* inventory_purchase_list_set_extension() */
 
@@ -3480,4 +3452,121 @@ double inventory_sale_get_cost_of_goods_sold(
 	return cost_of_goods_sold;
 
 } /* inventory_sale_get_cost_of_goods_sold() */
+
+void inventory_purchase_list_set_capitalized_unit_cost(
+				LIST *inventory_purchase_list,
+				double sum_inventory_extension,
+				double sales_tax,
+				double freight_in )
+{
+	INVENTORY_PURCHASE *inventory_purchase;
+	double extra_cost;
+	double percent_of_total;
+	double capitalized_extra;
+
+	extra_cost = sales_tax + freight_in;
+
+	if ( !list_rewind( inventory_purchase_list ) ) return;
+
+	do {
+		inventory_purchase = list_get( inventory_purchase_list );
+
+		if ( !inventory_purchase->ordered_quantity ) continue;
+
+		if ( timlib_dollar_virtually_same(
+			inventory_purchase->extension,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		percent_of_total =
+			inventory_purchase->extension /
+			sum_inventory_extension;
+
+		capitalized_extra =
+			(extra_cost * percent_of_total) /
+			(double)inventory_purchase->ordered_quantity;
+
+		inventory_purchase->capitalized_unit_cost =
+			inventory_purchase->unit_cost +
+			capitalized_extra;
+
+	} while ( list_next( inventory_purchase_list ) );
+
+} /* inventory_purchase_list_set_capitalized_unit_cost() */
+
+char *inventory_balance_list_display( LIST *inventory_balance_list )
+{
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+	INVENTORY_BALANCE *inventory_balance;
+
+	if ( !list_rewind( inventory_balance_list ) ) return strdup( "" );
+
+	*ptr = '\0';
+
+	do {
+		inventory_balance = list_get( inventory_balance_list );
+
+		if ( inventory_balance->inventory_purchase )
+		{
+			ptr += sprintf( ptr,
+					"purchase_date_time = %s, "
+					"ordered_quantity = %d, "
+					"capitalized_unit_cost = %4lf, ",
+					inventory_balance->
+						inventory_purchase->
+						purchase_date_time,
+					inventory_balance->
+						inventory_purchase->
+						ordered_quantity,
+					inventory_balance->
+						inventory_purchase->
+						capitalized_unit_cost );
+		}
+		else
+		if ( inventory_balance->inventory_sale )
+		{
+			ptr += sprintf( ptr,
+					"sale_date_time = %s, "
+					"quantity = %d, "
+					"extension = %.2lf, "
+					"cost_of_goods_sold = %.2lf, ",
+					inventory_balance->
+						inventory_sale->
+						sale_date_time,
+					inventory_balance->
+						inventory_sale->
+						quantity,
+					inventory_balance->
+						inventory_sale->
+						extension,
+					inventory_balance->
+						inventory_sale->
+						cost_of_goods_sold );
+		}
+		else
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: both inventory_purchase and inventory_sale are missing.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		ptr += sprintf( ptr,
+				"quantity_on_hand = %d, "
+				"average_unit_cost = %.4lf, "
+				"total_cost_balance = %.2lf\n",
+				inventory_balance->quantity_on_hand,
+				inventory_balance->average_unit_cost,
+				inventory_balance->total_cost_balance );
+
+	} while ( list_next( inventory_balance_list ) );
+
+	return strdup( buffer );
+
+} /* inventory_balance_list_display() */
 

@@ -1,5 +1,5 @@
 {
-char msg[ 1024 ];
+char msg[ 65536 ];
 sprintf( msg, "%s/%s()/%d\n",
 __FILE__,
 __FUNCTION__,

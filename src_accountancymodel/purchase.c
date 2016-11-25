@@ -176,7 +176,7 @@ double purchase_order_get_purchase_amount(
 {
 	*sum_inventory_extension = 0.0;
 	*sum_inventory_extension =
-		purchase_get_sum_inventory_extension(
+		inventory_purchase_list_set_extension(
 			inventory_purchase_list );
 
 	*sum_specific_inventory_unit_cost = 0.0;
@@ -842,32 +842,6 @@ LIST *purchase_fixed_asset_get_list(	char *application_name,
 	return fixed_asset_purchase_list;
 
 } /* purchase_fixed_asset_get_list() */
-
-double purchase_get_sum_inventory_extension(
-			LIST *inventory_purchase_list )
-{
-	INVENTORY_PURCHASE *inventory_purchase;
-	double sum_extension;
-
-	if ( !list_rewind( inventory_purchase_list ) ) return 0.0;
-
-	sum_extension = 0.0;
-
-	do {
-		inventory_purchase = list_get( inventory_purchase_list );
-
-		inventory_purchase->extension =
-			inventory_purchase_get_extension(
-				inventory_purchase->ordered_quantity,
-				inventory_purchase->unit_cost );
-
-		sum_extension += inventory_purchase->extension;
-
-	} while( list_next( inventory_purchase_list ) );
-
-	return sum_extension;
-
-} /* purchase_get_sum_inventory_extension() */
 
 double purchase_get_sum_specific_inventory_unit_cost(
 			LIST *specific_inventory_purchase_list )
@@ -1800,8 +1774,15 @@ LIST *purchase_get_purchase_order_list(
 				inventory_purchase_hash_table,
 				inventory_purchase_name_list );
 
-		inventory_purchase_list_set_extension(
-			purchase_order->inventory_purchase_list );
+		purchase_order->sum_inventory_extension =
+			inventory_purchase_list_set_extension(
+				purchase_order->inventory_purchase_list );
+
+		inventory_purchase_list_set_capitalized_unit_cost(
+				purchase_order->inventory_purchase_list,
+				purchase_order->sum_inventory_extension,
+				purchase_order->sales_tax,
+				purchase_order->freight_in );
 
 		purchase_order->supply_purchase_list =
 			purchase_supply_get_list(

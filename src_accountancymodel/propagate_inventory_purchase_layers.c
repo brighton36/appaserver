@@ -148,7 +148,7 @@ void propagate_inventory_purchase_layers_latest(
 			&inventory->last_inventory_balance->quantity_on_hand,
 			&inventory->last_inventory_balance->average_unit_cost,
 			inventory->last_inventory_balance->total_cost_balance,
-			inventory_purchase->unit_cost,
+			inventory_purchase->capitalized_unit_cost,
 			inventory_purchase->ordered_quantity );
 
 	inventory_last_inventory_balance_update(
@@ -170,8 +170,8 @@ void propagate_inventory_purchase_layers_latest(
 		inventory_purchase->database_quantity_on_hand,
 		inventory_purchase->extension,
 		inventory_purchase->database_extension,
-		inventory_purchase->capitalized_extension,
-		inventory_purchase->database_capitalized_extension,
+		inventory_purchase->capitalized_unit_cost,
+		inventory_purchase->database_capitalized_unit_cost,
 		inventory_purchase->average_unit_cost,
 		inventory_purchase->database_average_unit_cost );
 

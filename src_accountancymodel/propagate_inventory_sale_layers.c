@@ -28,8 +28,7 @@ void propagate_inventory_sale_layers_not_latest(
 				INVENTORY *inventory,
 				LIST *customer_sale_list,
 				char *application_name,
-				enum inventory_cost_method,
-				char *propagate_transaction_date_time );
+				enum inventory_cost_method );
 
 double propagate_inventory_sale_layers_latest(
 				INVENTORY_SALE *inventory_sale,
@@ -75,7 +74,7 @@ int main( int argc, char **argv )
 	street_address = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
 	inventory_name = argv[ 5 ];
-	propagate_transaction_date_time = argv[ 6 ];
+	if ( ( propagate_transaction_date_time = argv[ 6 ] ) );
 	is_latest = (*argv[ 7 ] == 'y');
 
 	if ( is_latest )
@@ -111,8 +110,7 @@ int main( int argc, char **argv )
 			entity_self->sale_inventory,
 			entity_self->customer_sale_list,
 			application_name,
-			entity_self->inventory_cost_method,
-			propagate_transaction_date_time );
+			entity_self->inventory_cost_method );
 
 		inventory_sale =
 			inventory_sale_fetch(
@@ -192,8 +190,7 @@ void propagate_inventory_sale_layers_not_latest(
 				LIST *customer_sale_list,
 				char *application_name,
 				enum inventory_cost_method
-					inventory_cost_method,
-				char *propagate_transaction_date_time )
+					inventory_cost_method )
 {
 	inventory->inventory_balance_list =
 		inventory_get_average_cost_inventory_balance_list(

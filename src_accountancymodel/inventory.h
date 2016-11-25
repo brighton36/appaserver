@@ -47,8 +47,8 @@ typedef struct
 	double unit_cost;
 	double extension;
 	double database_extension;
-	double capitalized_extension;
-	double database_capitalized_extension;
+	double capitalized_unit_cost;
+	double database_capitalized_unit_cost;
 	int missing_quantity;
 	int arrived_quantity;
 	int database_arrived_quantity;
@@ -177,16 +177,6 @@ void inventory_update_quantity_on_hand_CGS_on_hand_variables(
 				char *state,
 				enum inventory_cost_method );
 
-/*
-double inventory_get_average_cost_of_goods_sold(
-				LIST *purchase_list,
-				int quantity );
-
-double inventory_get_fifo_cost_of_goods_sold(
-				LIST *purchase_list,
-				int quantity );
-*/
-
 void inventory_purchase_fifo_decrement_quantity_on_hand(
 				LIST *purchase_list,
 				int quantity );
@@ -310,11 +300,6 @@ void inventory_last_inventory_balance_update(
 				char *inventory_name,
 				char *application_name );
 
-/*
-void inventory_reset_arrived_quantity(
-				LIST *purchase_list );
-*/
-
 void inventory_reset_quantity_on_hand(
 				LIST *inventory_purchase_list );
 
@@ -382,8 +367,8 @@ void inventory_purchase_pipe_update(
 				int database_quantity_on_hand,
 				double extension,
 				double database_extension,
-				double capitalized_extension,
-				double database_capitalized_extension,
+				double capitalized_unit_cost,
+				double database_capitalized_unit_cost,
 				double average_unit_cost,
 				double database_average_unit_cost );
 
@@ -399,8 +384,8 @@ void inventory_purchase_update(
 				int database_quantity_on_hand,
 				double extension,
 				double database_extension,
-				double capitalized_extension,
-				double database_capitalized_extension,
+				double capitalized_unit_cost,
+				double database_capitalized_unit_cost,
 				double average_unit_cost,
 				double database_average_unit_cost );
 
@@ -459,7 +444,7 @@ double inventory_purchase_get_total_cost_balance(
 				int *quantity_on_hand,
 				double *average_unit_cost,
 				double total_cost_balance,
-				double unit_cost,
+				double capitalized_unit_cost,
 				int ordered_quantity );
 
 double inventory_sale_get_average_cost_of_goods_sold(
@@ -526,8 +511,8 @@ void inventory_purchase_parse(
 				double *unit_cost,
 				double *extension,
 				double *database_extension,
-				double *capitalized_extension,
-				double *database_capitalized_extension,
+				double *capitalized_unit_cost,
+				double *database_capitalized_unit_cost,
 				int *arrived_quantity,
 				int *database_arrived_quantity,
 				int *missing_quantity,
@@ -592,7 +577,7 @@ LIST *inventory_get_inventory_sale_list(
 				char *street_address,
 				char *sale_date_time );
 
-void inventory_purchase_list_set_extension(
+double inventory_purchase_list_set_extension(
 				LIST *inventory_purchase_list );
 
 void inventory_sale_list_set_extension(
@@ -657,6 +642,15 @@ int inventory_get_quantity_on_hand(
 void inventory_set_quantity_on_hand_fifo(
 				LIST *inventory_sale_list,
 				LIST *inventory_purchase_list );
+
+void inventory_purchase_list_set_capitalized_unit_cost(
+				LIST *inventory_purchase_list,
+				double sum_inventory_extension,
+				double sales_tax,
+				double freight_in );
+
+char *inventory_balance_list_display(
+				LIST *inventory_balance_list );
 
 #endif
 

@@ -168,9 +168,9 @@ int main( int argc, char **argv )
 		char sys_string[ 1024 ];
 
 		sprintf( process_filename,
-			 "%s/data/alter_column_datatype.sh",
+			 "%s/alter_column_datatype.sh",
 			 appaserver_parameter_file->
-				appaserver_mount_point );
+				appaserver_data_directory );
 
 		if ( !output_process_script(
 				process_filename,

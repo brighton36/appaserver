@@ -3274,7 +3274,7 @@ void ledger_transaction_insert(		char *application_name,
 
 	/* lock_transaction_yn */
 	/* ------------------- */
-	fprintf( output_pipe, "y\n" );
+	fprintf( output_pipe, "^y\n" );
 
 	pclose( output_pipe );
 

@@ -11,6 +11,7 @@
 #include "appaserver_user.h"
 #include "appaserver_library.h"
 #include "piece.h"
+#include "folder.h"
 #include "timlib.h"
 
 static APPASERVER_USER *global_appaserver_user = {0};

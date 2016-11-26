@@ -6177,7 +6177,9 @@ boolean ledger_journal_ledger_list_propagate(
 
 } /* ledger_journal_ledger_list_propagate() */
 
-boolean ledger_journal_ledger_list_set_amount(
+/* If debit_amount or credit_amount needs to be changed.*/
+/* ---------------------------------------------------- */
+boolean ledger_journal_ledger_list_reset_amount(
 			LIST *journal_ledger_list,
 			double amount )
 {
@@ -6221,7 +6223,7 @@ boolean ledger_journal_ledger_list_set_amount(
 
 	return 1;
 
-} /* ledger_journal_ledger_list_set_amount() */
+} /* ledger_journal_ledger_list_reset_amount() */
 
 boolean ledger_journal_ledger_list_amount_update(
 			char *application_name,

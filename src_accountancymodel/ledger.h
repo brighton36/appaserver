@@ -767,7 +767,9 @@ boolean ledger_journal_ledger_list_propagate(
 				LIST *journal_ledger_list,
 				char *propagate_transaction_date_time );
 
-boolean ledger_journal_ledger_list_set_amount(
+/* If debit_amount or credit_amount needs to be changed.*/
+/* ---------------------------------------------------- */
+boolean ledger_journal_ledger_list_reset_amount(
 				LIST *journal_ledger_list,
 				double amount );
 

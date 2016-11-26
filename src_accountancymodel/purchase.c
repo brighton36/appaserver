@@ -1255,6 +1255,7 @@ LIST *purchase_order_journal_ledger_refresh(
 					LIST *service_purchase_list,
 					LIST *fixed_asset_purchase_list )
 {
+	LIST *inventory_account_list = {0};
 	char *inventory_account = {0};
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
@@ -1274,7 +1275,7 @@ LIST *purchase_order_journal_ledger_refresh(
 					transaction_date_time );
 
 	ledger_get_purchase_order_account_names(
-		&inventory_account,
+		&inventory_account_list,
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
@@ -1282,6 +1283,11 @@ LIST *purchase_order_journal_ledger_refresh(
 		&uncleared_checks_account,
 		application_name,
 		fund_name );
+
+/* Stub */
+/* ---- */
+if ( list_length( inventory_account_list ) )
+inventory_account = list_get_first_pointer( inventory_account_list );
 
 	if ( inventory_account
 	&&   ( sum_inventory_extension + sum_specific_inventory_unit_cost ) )

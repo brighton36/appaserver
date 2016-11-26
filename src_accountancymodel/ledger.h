@@ -346,7 +346,7 @@ double ledger_inventory_purchase_get_sum_extension(
 					char *purchase_date_time );
 
 void ledger_get_purchase_order_account_names(
-				char **inventory_account,
+				LIST **inventory_account_name_list,
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
@@ -360,7 +360,7 @@ void ledger_get_customer_sale_account_names(
 				char **service_revenue_account,
 				char **sales_tax_payable_account,
 				char **shipping_revenue_account,
-				char **inventory_account,
+				LIST **inventory_account_name_list,
 				char **cost_of_goods_sold_account,
 				char **account_receivable_account,
 				char *application_name,
@@ -782,5 +782,13 @@ boolean ledger_journal_ledger_list_reset_amount(
 boolean ledger_journal_ledger_list_amount_update(
 				char *application_name,
 				LIST *journal_ledger_list );
+
+LIST *ledger_get_inventory_account_name_list(
+				char *application_name );
+
+void ledger_propagate_account_list(
+				char *application_name,
+				char *transaction_date_time,
+				LIST *account_list );
 
 #endif

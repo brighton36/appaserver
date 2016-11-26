@@ -27,6 +27,7 @@ int main( int argc, char **argv )
 	char *application_name = {0};
 	char *fund_name;
 	char *transaction_date_time;
+	LIST *inventory_account_list = {0};
 	char *inventory_account = {0};
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
@@ -70,7 +71,7 @@ int main( int argc, char **argv )
 	transaction_date_time = argv[ 3 ];
 
 	ledger_get_purchase_order_account_names(
-		&inventory_account,
+		&inventory_account_list,
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
@@ -79,7 +80,7 @@ int main( int argc, char **argv )
 		application_name,
 		fund_name );
 
-	if ( !inventory_account )
+	if ( !list_length( inventory_account_list ) )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: cannot get purchase order account names.\n",
@@ -88,6 +89,10 @@ int main( int argc, char **argv )
 			 __LINE__ );
 		exit( 1 );
 	}
+
+/* Stub */
+/* ---- */
+inventory_account = list_get_first_pointer( inventory_account_list );
 
 	ledger_propagate(	application_name,
 				transaction_date_time,

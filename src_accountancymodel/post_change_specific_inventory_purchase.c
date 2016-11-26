@@ -414,7 +414,7 @@ void post_change_specific_inventory_purchase_delete(
 
 	if ( purchase_order->transaction )
 	{
-		char *inventory_account = {0};
+		LIST *inventory_account_list = {0};
 		char *sales_tax_expense_account = {0};
 		char *freight_in_expense_account = {0};
 		char *account_payable_account = {0};
@@ -422,7 +422,7 @@ void post_change_specific_inventory_purchase_delete(
 		char *uncleared_checks_account = {0};
 
 		ledger_get_purchase_order_account_names(
-				&inventory_account,
+				&inventory_account_list,
 				&sales_tax_expense_account,
 				&freight_in_expense_account,
 				&account_payable_account,
@@ -457,12 +457,12 @@ void post_change_specific_inventory_purchase_delete(
 			purchase_order->propagate_account_list,
 			application_name );
 
-		ledger_propagate(
+		ledger_propagate_account_list(
 			application_name,
 			purchase_order->
 				transaction->
 				transaction_date_time,
-			inventory_account );
+			inventory_account_list );
 
 		ledger_propagate(
 			application_name,

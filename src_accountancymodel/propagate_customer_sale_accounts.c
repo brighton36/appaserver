@@ -28,11 +28,10 @@ int main( int argc, char **argv )
 	char *fund_name;
 	char *transaction_date_time;
 	char *sales_revenue_account = {0};
-	char *service_revenue_account;
-	char *sales_tax_payable_account;
-	char *shipping_revenue_account;
-	char *inventory_account;
-	char *cost_of_goods_sold_account;
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	char *cost_of_goods_sold_account = {0};
 	char *receivable_account;
 	char *database_string = {0};
 
@@ -65,7 +64,7 @@ int main( int argc, char **argv )
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		&inventory_account,
+		(LIST **)0 /* inventory_account_name_list */,
 		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,

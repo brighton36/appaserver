@@ -214,6 +214,7 @@ void entity_propagate_purchase_order_ledger_accounts(
 				char *fund_name,
 				char *purchase_order_transaction_date_time )
 {
+	LIST *inventory_account_list = {0};
 	char *inventory_account = {0};
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
@@ -222,7 +223,7 @@ void entity_propagate_purchase_order_ledger_accounts(
 	char *uncleared_checks_account = {0};
 
 	ledger_get_purchase_order_account_names(
-		&inventory_account,
+		&inventory_account_list,
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
@@ -231,12 +232,12 @@ void entity_propagate_purchase_order_ledger_accounts(
 		application_name,
 		fund_name );
 
-	if ( inventory_account )
+	if ( list_length( inventory_account_list ) )
 	{
-		ledger_propagate(
+		ledger_propagate_account_list(
 			application_name,
 			purchase_order_transaction_date_time,
-			inventory_account );
+			inventory_account_list );
 	}
 
 	if ( sales_tax_expense_account )
@@ -286,12 +287,12 @@ void entity_propagate_inventory_ledger_accounts(
 				char *fund_name,
 				char *customer_sale_transaction_date_time )
 {
-	char *sales_revenue_account;
-	char *service_revenue_account;
-	char *sales_tax_payable_account;
-	char *shipping_revenue_account;
-	char *inventory_account;
-	char *cost_of_goods_sold_account;
+	char *sales_revenue_account = {0};
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	LIST *inventory_account_name_list = {0};
+	char *cost_of_goods_sold_account = {0};
 	char *receivable_account;
 
 	ledger_get_customer_sale_account_names(
@@ -299,7 +300,7 @@ void entity_propagate_inventory_ledger_accounts(
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		&inventory_account,
+		&inventory_account_name_list,
 		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,
@@ -310,10 +311,10 @@ void entity_propagate_inventory_ledger_accounts(
 		customer_sale_transaction_date_time,
 		cost_of_goods_sold_account );
 
-	ledger_propagate(
+	ledger_propagate_account_list(
 		application_name,
 		customer_sale_transaction_date_time,
-		inventory_account );
+		inventory_account_name_list );
 
 } /* entity_propagate_inventory_ledger_accounts() */
 
@@ -326,7 +327,7 @@ void entity_propagate_customer_sale_ledger_accounts(
 	char *service_revenue_account = {0};
 	char *sales_tax_payable_account = {0};
 	char *shipping_revenue_account = {0};
-	char *inventory_account = {0};
+	LIST *inventory_account_name_list = {0};
 	char *cost_of_goods_sold_account = {0};
 	char *receivable_account = {0};
 
@@ -335,7 +336,7 @@ void entity_propagate_customer_sale_ledger_accounts(
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		&inventory_account,
+		&inventory_account_name_list,
 		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,
@@ -389,12 +390,12 @@ void entity_propagate_customer_sale_ledger_accounts(
 			cost_of_goods_sold_account );
 	}
 
-	if ( inventory_account )
+	if ( list_length( inventory_account_name_list ) )
 	{
-		ledger_propagate(
+		ledger_propagate_account_list(
 			application_name,
 			customer_sale_transaction_date_time,
-			inventory_account );
+			inventory_account_name_list );
 	}
 
 } /* entity_propagate_customer_sale_ledger_accounts() */

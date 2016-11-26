@@ -35,6 +35,11 @@ then
 	subclassification_where="subclassification = 'fixed_asset'"
 fi
 
+if [ "$one2m_folder" = "inventory" ]
+then
+	subclassification_where="subclassification = 'inventory'"
+fi
+
 if [ "$parameter_where" != "$where" ]
 then
 	where="$subclassification_where and $parameter_where"

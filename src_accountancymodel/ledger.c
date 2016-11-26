@@ -3807,7 +3807,7 @@ void ledger_get_customer_sale_account_names(
 				char **service_revenue_account,
 				char **sales_tax_payable_account,
 				char **shipping_revenue_account,
-				char **inventory_account,
+				LIST **inventory_account_name_list,
 				char **cost_of_goods_sold_account,
 				char **account_receivable_account,
 				char *application_name,
@@ -3847,6 +3847,7 @@ void ledger_get_customer_sale_account_names(
 			key,
 			1 /* warning_only */ );
 
+#ifdef NOT_DEFINED
 	key = "inventory_key";
 	*inventory_account =
 		ledger_get_hard_coded_account_name(
@@ -3854,6 +3855,14 @@ void ledger_get_customer_sale_account_names(
 			fund_name,
 			key,
 			1 /* warning_only */ );
+#endif
+
+	if ( inventory_account_name_list )
+	{
+		*inventory_account_name_list =
+			ledger_get_inventory_account_name_list(
+				application_name );
+	}
 
 	key = "cost_of_goods_sold_key";
 	*cost_of_goods_sold_account =
@@ -3874,7 +3883,7 @@ void ledger_get_customer_sale_account_names(
 } /* ledger_get_customer_sale_account_names() */
 
 void ledger_get_purchase_order_account_names(
-				char **inventory_account,
+				LIST **inventory_account_name_list,
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
@@ -3885,6 +3894,14 @@ void ledger_get_purchase_order_account_names(
 {
 	char *key;
 
+	if ( inventory_account_name_list )
+	{
+		*inventory_account_name_list =
+			ledger_get_inventory_account_name_list(
+				application_name );
+	}
+
+#ifdef NOT_DEFINED
 	key = "inventory_key";
 	*inventory_account =
 		ledger_get_hard_coded_account_name(
@@ -3892,6 +3909,7 @@ void ledger_get_purchase_order_account_names(
 			fund_name,
 			key,
 			1 /* warning_only */ );
+#endif
 
 	key = "sales_tax_expense_key";
 	*sales_tax_expense_account =
@@ -4058,6 +4076,27 @@ void ledger_journal_ledger_insert(	char *application_name,
 	pclose( output_pipe );
 
 } /* ledger_journal_ledger_insert() */
+
+void ledger_propagate_account_list(
+			char *application_name,
+			char *transaction_date_time,
+			LIST *account_list )
+{
+	char *account_name;
+
+	if ( !list_rewind( account_list ) ) return;
+
+	do {
+		account_name = list_get_pointer( account_list );
+
+		ledger_propagate(
+			application_name,
+			transaction_date_time,
+			account_name );
+
+	} while( list_next( account_list ) );
+
+} /* void ledger_propagate_account_list() */
 
 void ledger_propagate(			char *application_name,
 					char *transaction_date_time,
@@ -5119,6 +5158,7 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 				HASH_TABLE *transaction_hash_table,
 				HASH_TABLE *journal_ledger_hash_table )
 {
+	LIST *inventory_account_list = {0};
 	char *inventory_account = {0};
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
@@ -5143,7 +5183,7 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 	}
 
 	ledger_get_purchase_order_account_names(
-		&inventory_account,
+		&inventory_account_list,
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
@@ -5152,7 +5192,12 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 		application_name,
 		fund_name );
 
-	if ( !inventory_account ) return (TRANSACTION *)0;
+	if ( !list_length( inventory_account_list ) )
+		return (TRANSACTION *)0;
+
+/* Stub */
+/* ---- */
+inventory_account = list_get_first_pointer( inventory_account_list );
 
 	/* ========================= */
 	/* Build journal_ledger_list */
@@ -5166,7 +5211,6 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 			street_address,
 			transaction_date_time,
 			inventory_account );
-
 
 	if ( ( journal_ledger =
 			hash_table_fetch( 
@@ -5252,6 +5296,7 @@ TRANSACTION *ledger_sale_transaction_fetch(
 	char *service_revenue_account = {0};
 	char *sales_tax_payable_account = {0};
 	char *shipping_revenue_account = {0};
+	LIST *inventory_account_name_list = {0};
 	char *inventory_account = {0};
 	char *cost_of_goods_sold_account = {0};
 	char *receivable_account = {0};
@@ -5277,13 +5322,18 @@ TRANSACTION *ledger_sale_transaction_fetch(
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		&inventory_account,
+		&inventory_account_name_list,
 		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,
 		fund_name );
 
 	if ( !sales_revenue_account ) return (TRANSACTION *)0;
+
+/* Stub */
+/* ---- */
+if ( list_length( inventory_account_name_list ) )
+inventory_account = list_get_first_pointer( inventory_account_name_list );
 
 	/* ========================= */
 	/* Build journal_ledger_list */
@@ -6278,4 +6328,17 @@ boolean ledger_journal_ledger_list_amount_update(
 	return 1;
 
 } /* ledger_journal_ledger_list_amount_update() */
+
+LIST *ledger_get_inventory_account_name_list(
+			char *application_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "populate_account.sh %s inventory ''",
+		 application_name );
+
+	return pipe2list( sys_string );
+
+} /* ledger_get_inventory_account_name_list() */
 

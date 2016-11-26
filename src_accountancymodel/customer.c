@@ -1000,6 +1000,7 @@ LIST *customer_sale_ledger_refresh(
 	char *service_revenue_account = {0};
 	char *sales_tax_payable_account = {0};
 	char *shipping_revenue_account = {0};
+	LIST *inventory_account_name_list = {0};
 	char *inventory_account = {0};
 	char *cost_of_goods_sold_account = {0};
 	char *receivable_account = {0};
@@ -1018,11 +1019,16 @@ LIST *customer_sale_ledger_refresh(
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		&inventory_account,
+		&inventory_account_name_list,
 		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,
 		fund_name );
+
+/* Stub */
+/* ---- */
+if ( list_length( inventory_account_name_list ) )
+inventory_account = list_get_first_pointer( inventory_account_name_list );
 
 	if ( invoice_amount )
 	{
@@ -1313,13 +1319,14 @@ LIST *customer_sale_ledger_cost_of_goods_sold_update(
 				char *transaction_date_time,
 				double customer_sale_cost_of_goods_sold )
 {
-	char *sales_revenue_account;
-	char *service_revenue_account;
-	char *sales_tax_payable_account;
-	char *shipping_revenue_account;
-	char *inventory_account;
-	char *cost_of_goods_sold_account;
-	char *receivable_account;
+	char *sales_revenue_account = {0};
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	LIST *inventory_account_name_list = {0};
+	char *inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	char *receivable_account = {0};
 	LIST *propagate_account_list = {0};
 	ACCOUNT *account;
 	JOURNAL_LEDGER *prior_ledger;
@@ -1329,11 +1336,16 @@ LIST *customer_sale_ledger_cost_of_goods_sold_update(
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		&inventory_account,
+		&inventory_account_name_list,
 		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,
 		fund_name );
+
+/* Stub */
+/* ---- */
+if ( list_length( inventory_account_name_list ) )
+inventory_account = list_get_first_pointer( inventory_account_name_list );
 
 	propagate_account_list = list_new();
 
@@ -1399,13 +1411,14 @@ LIST *customer_sale_get_complete_propagate_account_list(
 				char *fund_name,
 				char *transaction_date_time )
 {
-	char *sales_revenue_account;
-	char *service_revenue_account;
-	char *sales_tax_payable_account;
-	char *shipping_revenue_account;
-	char *inventory_account;
-	char *cost_of_goods_sold_account;
-	char *receivable_account;
+	char *sales_revenue_account = {0};
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	LIST *inventory_account_name_list = {0};
+	char *inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	char *receivable_account = {0};
 	ACCOUNT *account;
 	JOURNAL_LEDGER *prior_ledger;
 	LIST *propagate_account_list = {0};
@@ -1417,11 +1430,16 @@ LIST *customer_sale_get_complete_propagate_account_list(
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		&inventory_account,
+		&inventory_account_name_list,
 		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,
 		fund_name );
+
+/* Stub */
+/* ---- */
+if ( list_length( inventory_account_name_list ) )
+inventory_account = list_get_first_pointer( inventory_account_name_list );
 
 	/* Sales revenue */
 	/* ------------- */
@@ -1981,13 +1999,14 @@ void customer_sale_list_inventory_transaction_update_and_propagate(
 		char *propagate_transaction_date_time )
 {
 	CUSTOMER_SALE *customer_sale;
-	char *sales_revenue_account;
-	char *service_revenue_account;
-	char *sales_tax_payable_account;
-	char *shipping_revenue_account;
-	char *inventory_account;
-	char *cost_of_goods_sold_account;
-	char *receivable_account;
+	char *sales_revenue_account = {0};
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	LIST *inventory_account_name_list = {0};
+	char *inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	char *receivable_account = {0};
 	FILE *update_pipe;
 	double debit_amount;
 	char *customer_sale_transaction_date_time = {0};
@@ -2008,11 +2027,16 @@ void customer_sale_list_inventory_transaction_update_and_propagate(
 			&service_revenue_account,
 			&sales_tax_payable_account,
 			&shipping_revenue_account,
-			&inventory_account,
+			&inventory_account_name_list,
 			&cost_of_goods_sold_account,
 			&receivable_account,
 			application_name,
 			customer_sale->fund_name );
+
+/* Stub */
+/* ---- */
+if ( list_length( inventory_account_name_list ) )
+inventory_account = list_get_first_pointer( inventory_account_name_list );
 
 		debit_amount =
 			ledger_get_account_debit_amount(

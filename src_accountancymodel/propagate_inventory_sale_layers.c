@@ -287,46 +287,9 @@ inventory_balance_list_display( inventory->inventory_balance_list ) );
 	customer_sale_list_cost_of_goods_sold_set(
 		customer_sale_list );
 
-	customer_sale_list_transaction_update(
+	customer_sale_list_cost_of_goods_sold_transaction_update(
 		application_name,
 		customer_sale_list );
-
-/*
-	LIST *fund_name_list = list_new();
-
-	customer_sale_list_inventory_transaction_update_and_propagate(
-		application_name,
-		customer_sale_list,
-		propagate_transaction_date_time );
-
-	if ( list_rewind( customer_sale_list ) )
-	{
-		CUSTOMER_SALE *customer_sale;
-
-		do {
-			customer_sale =
-				list_get_pointer(
-					customer_sale_list );
-
-			if ( list_exists_string(
-				fund_name_list,
-				customer_sale->fund_name ) )
-			{
-				continue;
-			}
-
-			entity_propagate_purchase_order_ledger_accounts(
-				application_name,
-				customer_sale->fund_name,
-				propagate_transaction_date_time );
-
-			list_append_pointer(
-				fund_name_list,
-				customer_sale->fund_name );
-
-		} while( list_next( customer_sale_list ) );
-	}
-*/
 
 } /* propagate_inventory_sale_layers_not_latest() */
 

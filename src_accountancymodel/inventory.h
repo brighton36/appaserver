@@ -71,6 +71,7 @@ typedef struct
 typedef struct
 {
 	char *inventory_name;
+	char *account_name;
 	double retail_price;
 	int reorder_quantity;
 	LIST *inventory_purchase_list;
@@ -101,7 +102,8 @@ INVENTORY_PURCHASE *inventory_purchase_new(
 INVENTORY *inventory_load_new(		char *application_name,
 					char *inventory_name );
 
-void inventory_load(			double *retail_price,
+void inventory_load(			char **account_name,
+					double *retail_price,
 					int *reorder_quantity,
 					int *quantity_on_hand,
 					double *average_unit_cost,

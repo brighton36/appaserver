@@ -399,14 +399,14 @@ void post_change_donation_amount_update(
 		donation->total_donation_amount,
 		donation->database_total_donation_amount );
 
-	/* Set JOURNAL_LEDGER.debit_amount and credit_amount */
-	/* ------------------------------------------------- */
-	if ( !ledger_journal_ledger_list_set_amount(
+	/* Reset JOURNAL_LEDGER.debit_amount and credit_amount */
+	/* --------------------------------------------------- */
+	if ( !ledger_journal_ledger_list_reset_amount(
 		donation->transaction->journal_ledger_list,
 		donation_program->donation_amount ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot set amount.\n",
+			 "ERROR in %s/%s()/%d: cannot reset amount.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );

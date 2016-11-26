@@ -105,19 +105,6 @@ int main( int argc, char **argv )
 			 inventory_name );
 
 		system( sys_string );
-/*
-	ENTITY_SELF *entity_self;
-		entity_self =
-			entity_self_purchase_inventory_load(
-				application_name,
-				inventory_name );
-
-		propagate_inventory_purchase_layers_not_latest(
-			entity_self->purchase_inventory,
-			entity_self->customer_sale_list,
-			application_name,
-			entity_self->inventory_cost_method );
-*/
 	}
 
 	return 0;

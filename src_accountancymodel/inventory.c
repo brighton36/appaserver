@@ -47,7 +47,8 @@ INVENTORY_PURCHASE *inventory_purchase_new( void )
 	return h;
 } /* inventory_purchase_new() */
 
-void inventory_load(			double *retail_price,
+void inventory_load(			char **account_name,
+					double *retail_price,
 					int *reorder_quantity,
 					int *quantity_on_hand,
 					double *average_unit_cost,
@@ -59,12 +60,18 @@ void inventory_load(			double *retail_price,
 	char where[ 512 ];
 	char *select;
 	char *results;
+	char escape_buffer[ 128 ];
 	char piece_buffer[ 128 ];
 
 	select =
-"retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance";
+"account,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance";
 
-	sprintf( where, "inventory_name = '%s'", inventory_name );
+	sprintf(	where,
+			"inventory_name = '%s'",
+		 	escape_character(
+				escape_buffer,
+				inventory_name,
+				'\'' ) );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -90,18 +97,21 @@ void inventory_load(			double *retail_price,
 	}
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	*retail_price = atof( piece_buffer );
+	*account_name = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 1 );
-	*reorder_quantity = atoi( piece_buffer );
+	*retail_price = atof( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
-	*quantity_on_hand = atoi( piece_buffer );
+	*reorder_quantity = atoi( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 3 );
-	*average_unit_cost = atof( piece_buffer );
+	*quantity_on_hand = atoi( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 4 );
+	*average_unit_cost = atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 5 );
 	*total_cost_balance = atof( piece_buffer );
 
 	free( results );
@@ -2031,7 +2041,8 @@ INVENTORY *inventory_load_new(	char *application_name,
 
 	inventory = inventory_new( inventory_name );
 
-	inventory_load(	&inventory->retail_price,
+	inventory_load(	&inventory->account_name,
+			&inventory->retail_price,
 			&inventory->reorder_quantity,
 			&inventory->
 				last_inventory_balance->

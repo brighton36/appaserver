@@ -1917,6 +1917,7 @@ void purchase_order_transaction_delete_with_propagate(
 
 } /* purchase_order_transaction_delete_with_propagate() */
 
+#ifdef NOT_DEFINED
 void purchase_order_list_transaction_update(
 		char *application_name,
 		LIST *purchase_order_list )
@@ -2271,6 +2272,7 @@ void purchase_order_list_transaction_update(
 	}
 
 } /* purchase_order_list_transaction_update() */
+#endif
 
 double purchase_get_sum_payment_amount(
 				LIST *vendor_payment_list )

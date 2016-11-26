@@ -3776,6 +3776,32 @@ void ledger_get_vendor_payment_account_names(
 
 } /* ledger_get_vendor_payment_account_names() */
 
+void ledger_get_cost_of_goods_sold_account_names(
+				char **cost_of_goods_sold_account,
+				char **inventory_account,
+				char *application_name,
+				char *fund_name )
+{
+	char *key;
+
+	key = "cost_of_goods_sold_key";
+	*cost_of_goods_sold_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+	key = "inventory_key";
+	*inventory_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+} /* ledger_get_cost_of_goods_sold_account_names() */
+
 void ledger_get_customer_sale_account_names(
 				char **sales_revenue_account,
 				char **service_revenue_account,

@@ -366,6 +366,12 @@ void ledger_get_customer_sale_account_names(
 				char *application_name,
 				char *fund_name );
 
+void ledger_get_cost_of_goods_sold_account_names(
+				char **cost_of_goods_sold_account,
+				char **inventory_account,
+				char *application_name,
+				char *fund_name );
+
 char *ledger_get_supply_expense_key_account(
 				char *application_name,
 				char *fund_name );

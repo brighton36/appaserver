@@ -370,9 +370,11 @@ void purchase_order_transaction_delete_with_propagate(
 				char *street_address,
 				char *transaction_date_time );
 
+/*
 void purchase_order_list_transaction_update(
 				char *application_name,
 				LIST *purchase_order_list );
+*/
 
 double purchase_get_sum_payment_amount(
 				LIST *vendor_payment_list );

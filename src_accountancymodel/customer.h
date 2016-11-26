@@ -342,7 +342,7 @@ boolean customer_sale_inventory_is_latest(
 				char *inventory_name,
 				char *sale_date_time );
 
-void customer_sale_list_transaction_update(
+void customer_sale_list_cost_of_goods_sold_transaction_update(
 					char *application_name,
 					LIST *customer_sale_list );
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+#----------
 if [ "$#" -ne 3 ]
 then
 	echo "Usage: $0 application one2m_folder where" 1>&2

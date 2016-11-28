@@ -14,6 +14,7 @@
 #include "html_table.h"
 #include "latex.h"
 #include "hash_table.h"
+#include "dictionary.h"
 
 /* Constants */
 /* --------- */
@@ -563,15 +564,6 @@ void ledger_journal_ledger_parse(
 HASH_TABLE *ledger_get_journal_ledger_hash_table(
 				char *application_name,
 				char *inventory_name );
-
-TRANSACTION *ledger_purchase_build_transaction(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table );
 
 TRANSACTION *ledger_sale_build_transaction(
 				char *application_name,

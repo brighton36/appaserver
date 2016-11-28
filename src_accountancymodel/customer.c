@@ -1594,11 +1594,6 @@ LIST *customer_get_inventory_customer_sale_list(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-fprintf( stderr, "%s/%s()/%d: input_buffer = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-input_buffer );
 		customer_sale = customer_sale_calloc();
 
 		customer_sale_parse(
@@ -1837,11 +1832,13 @@ void customer_sale_list_cost_of_goods_sold_transaction_update(
 					customer_sale->
 						cost_account_list );
 
+/*
 			if ( !dollar_virtually_same(
 				inventory_cost_account->
 					cost_of_goods_sold,
 				inventory_cost_account->
 					database_cost_of_goods_sold ) )
+*/
 			{
 				ledger_journal_ledger_update(
 					update_pipe,
@@ -1887,11 +1884,13 @@ void customer_sale_list_cost_of_goods_sold_transaction_update(
 					customer_sale->
 						inventory_account_list );
 
+/*
 			if ( !dollar_virtually_same(
 				inventory_cost_account->
 					cost_of_goods_sold,
 				inventory_cost_account->
 					database_cost_of_goods_sold ) )
+*/
 			{
 				ledger_journal_ledger_update(
 					update_pipe,

@@ -28,7 +28,6 @@ int main( int argc, char **argv )
 	char *fund_name;
 	char *transaction_date_time;
 	LIST *inventory_account_list;
-	char *inventory_account = {0};
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
@@ -91,13 +90,10 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-/* Stub */
-/* ---- */
-inventory_account = list_get_first_pointer( inventory_account_list );
-
-	ledger_propagate(	application_name,
+	ledger_propagate_account_list(
+				application_name,
 				transaction_date_time,
-				inventory_account );
+				inventory_account_list );
 
 	ledger_propagate(	application_name,
 				transaction_date_time,

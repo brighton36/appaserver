@@ -3848,45 +3848,60 @@ void ledger_get_purchase_order_account_names(
 {
 	char *key;
 
-	key = "sales_tax_expense_key";
-	*sales_tax_expense_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			1 /* warning_only */ );
+	if ( sales_tax_expense_account )
+	{
+		key = "sales_tax_expense_key";
+		*sales_tax_expense_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
 
-	key = "freight_in_expense_key";
-	*freight_in_expense_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			1 /* warning_only */ );
+	if ( freight_in_expense_account )
+	{
+		key = "freight_in_expense_key";
+		*freight_in_expense_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
 
-	key = "account_payable_key";
-	*account_payable_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			1 /* warning_only */ );
+	if ( account_payable_account )
+	{
+		key = "account_payable_key";
+		*account_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
 
-	key = "cash_key";
-	*cash_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
+	if ( cash_account )
+	{
+		key = "cash_key";
+		*cash_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
 
-	key = "uncleared_checks_key";
-	*uncleared_checks_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
+	if ( uncleared_checks_account )
+	{
+		key = "uncleared_checks_key";
+		*uncleared_checks_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
 
 } /* ledger_get_purchase_order_account_names() */
 
@@ -3980,6 +3995,19 @@ void ledger_journal_ledger_insert(	char *application_name,
 	char *field;
 	FILE *output_pipe;
 	char *table_name;
+
+	if ( !account_name )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty account_name for (%s/%s/%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 full_name,
+			 street_address,
+			 transaction_date_time );
+		exit( 1 );
+	}
 
 	if ( is_debit )
 	{
@@ -5085,150 +5113,6 @@ char *ledger_get_journal_ledger_hash_table_key(
 	return key;
 
 } /* ledger_get_journal_ledger_hash_table_key() */
-
-TRANSACTION *ledger_purchase_build_transaction(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table )
-{
-	char *inventory_account_name;
-	static LIST *inventory_account_name_list = {0};
-	static char *sales_tax_expense_account = {0};
-	static char *freight_in_expense_account = {0};
-	static char *account_payable_account = {0};
-	static char *cash_account = {0};
-	static char *uncleared_checks_account = {0};
-	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
-	char *key;
-
-	key = ledger_get_transaction_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time );
-
-	if ( ! ( transaction =
-			hash_table_fetch( 
-				transaction_hash_table,
-				key ) ) )
-	{
-		return (TRANSACTION *)0;
-	}
-
-	if ( !inventory_account_name_list )
-	{
-		inventory_account_name_list =
-			ledger_get_inventory_account_name_list(
-				application_name );
-
-		ledger_get_purchase_order_account_names(
-			&sales_tax_expense_account,
-			&freight_in_expense_account,
-			&account_payable_account,
-			&cash_account,
-			&uncleared_checks_account,
-			application_name,
-			fund_name );
-	}
-
-	/* ========================= */
-	/* Build journal_ledger_list */
-	/* ========================= */
-	transaction->journal_ledger_list = list_new();
-
-	/* Sales tax expense */
-	/* ----------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			sales_tax_expense_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Freight in expense */
-	/* ------------------ */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			freight_in_expense_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Account payable */
-	/* --------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			account_payable_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Inventory and cost of goods sold */
-	/* -------------------------------- */
-	if ( list_rewind( inventory_account_name_list ) )
-	{
-		do {
-			inventory_account_name =
-				list_get_pointer(
-					inventory_account_name_list );
-
-			key = ledger_get_journal_ledger_hash_table_key(
-					full_name,
-					street_address,
-					transaction_date_time,
-					inventory_account_name );
-
-
-			if ( key && ( journal_ledger =
-					hash_table_fetch( 
-						journal_ledger_hash_table,
-						key ) ) )
-			{
-				list_append_pointer(
-					transaction->journal_ledger_list,
-					journal_ledger );
-			}
-
-		} while( list_next( inventory_account_name_list ) );
-	}
-
-	return transaction;
-
-} /* ledger_purchase_build_transaction() */
 
 TRANSACTION *ledger_sale_build_transaction(
 				char *application_name,

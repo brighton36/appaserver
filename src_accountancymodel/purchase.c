@@ -155,6 +155,24 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 			p->purchase_amount,
 			p->sum_payment_amount );
 
+fprintf( stderr, "%s/%s()/%d: sum_inventory_extension = %.2lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+p->sum_inventory_extension );
+
+fprintf( stderr, "%s/%s()/%d: sales_tax = %.2lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+p->sales_tax );
+
+	inventory_purchase_list_set_capitalized_unit_cost(
+		p->inventory_purchase_list,
+		p->sum_inventory_extension,
+		p->sales_tax,
+		p->freight_in );
+
 	return p;
 
 } /* purchase_order_new() */
@@ -1819,8 +1837,12 @@ LIST *purchase_get_inventory_purchase_order_list(
 
 		if ( purchase_order->transaction_date_time )
 		{
+			/* -------------------------------------------- */
+			/* This exclude sales_tax and freight_in	*/
+			/* which are capitalized into inventory.	*/
+			/* -------------------------------------------- */
 			purchase_order->transaction =
-				ledger_purchase_build_transaction(
+				inventory_purchase_build_transaction(
 					application_name,
 					purchase_order->fund_name,
 					purchase_order->full_name,
@@ -2183,47 +2205,65 @@ LIST *purchase_inventory_journal_ledger_refresh(
 	INVENTORY_PURCHASE *inventory_purchase;
 	ACCOUNT *account;
 	JOURNAL_LEDGER *prior_ledger;
+	double extension_capitalized_addition;
 
 	propagate_account_list = list_new();
 
-	if ( list_rewind( inventory_purchase_list ) )
-	{
-		do {
-			inventory_purchase =
-				list_get_pointer(
-					inventory_purchase_list );
+	if ( !list_rewind( inventory_purchase_list ) ) return (LIST *)0;
 
-			ledger_journal_ledger_insert(
-				application_name,
-				full_name,
-				street_address,
-				transaction_date_time,
+	do {
+		inventory_purchase =
+			list_get_pointer(
+				inventory_purchase_list );
+
+		if ( !inventory_purchase->inventory_account_name )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: empty inventory_account_name for (%s/%s/%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 full_name,
+				 street_address );
+			exit( 1 );
+		}
+
+		extension_capitalized_addition =
+			( inventory_purchase->capitalized_unit_cost -
+			  inventory_purchase->unit_cost ) *
+			  (double)inventory_purchase->ordered_quantity;
+
+		ledger_journal_ledger_insert(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			inventory_purchase->
+				inventory_account_name,
+			inventory_purchase->extension +
+			extension_capitalized_addition,
+			1 /* is_debit */ );
+
+		account =
+			ledger_account_new(
 				inventory_purchase->
-					inventory_account_name,
-				inventory_purchase->extension,
-				1 /* is_debit */ );
+					inventory_account_name );
 
-			account =
-				ledger_account_new(
-					inventory_purchase->
-						inventory_account_name );
+		prior_ledger =
+			ledger_get_prior_ledger(
+				application_name,
+				transaction_date_time,
+				account->account_name );
 
-			prior_ledger =
-				ledger_get_prior_ledger(
-					application_name,
-					transaction_date_time,
-					account->account_name );
+		account->journal_ledger_list =
+			ledger_get_propagate_journal_ledger_list(
+				application_name,
+				prior_ledger,
+				account->account_name );
 
-			account->journal_ledger_list =
-				ledger_get_propagate_journal_ledger_list(
-					application_name,
-					prior_ledger,
-					account->account_name );
+		list_append_pointer( propagate_account_list, account );
 
-			list_append_pointer( propagate_account_list, account );
-
-		} while( list_next( inventory_purchase_list ) );
-	}
+	} while( list_next( inventory_purchase_list ) );
 
 	return propagate_account_list;
 

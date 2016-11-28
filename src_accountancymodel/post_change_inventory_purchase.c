@@ -524,32 +524,6 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 		application_name,
 		purchase_order->inventory_purchase_list );
 
-/* is_latest = 0; */
-
-	if ( is_latest )
-	{
-		sprintf( sys_string,
-	"propagate_inventory_purchase_layers %s \"%s\" \"%s\" \"%s\" \"%s\" y",
-	 		application_name,
-	 		purchase_order->full_name,
-	 		purchase_order->street_address,
-	 		purchase_order->purchase_date_time,
-	 		inventory_name );
-	}
-	else
-	{
-		sprintf( sys_string,
-"propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
-	 		application_name,
-	 		inventory_name,
-			(purchase_order->transaction_date_time)
-				? purchase_order->transaction_date_time
-				: "" );
-	}
-
-
-	system( sys_string );
-
 	if ( !purchase_order->transaction )
 	{
 		fprintf( stderr,
@@ -580,8 +554,8 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,
 			purchase_order->sum_fixed_asset_extension,
-			purchase_order->sales_tax,
-			purchase_order->freight_in,
+			0.0 /* purchase_order->sales_tax */,
+			0.0 /* purchase_order->freight_in */,
 			purchase_order->purchase_amount,
 			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
@@ -592,6 +566,29 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 		purchase_order->propagate_account_list,
 		application_name,
 		purchase_order->transaction_date_time );
+
+	if ( is_latest )
+	{
+		sprintf( sys_string,
+	"propagate_inventory_purchase_layers %s \"%s\" \"%s\" \"%s\" \"%s\" y",
+	 		application_name,
+	 		purchase_order->full_name,
+	 		purchase_order->street_address,
+	 		purchase_order->purchase_date_time,
+	 		inventory_name );
+	}
+	else
+	{
+		sprintf( sys_string,
+"propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
+	 		application_name,
+	 		inventory_name,
+			(purchase_order->transaction_date_time)
+				? purchase_order->transaction_date_time
+				: "" );
+	}
+
+	system( sys_string );
 
 } /* post_change_inventory_purchase_insert_title_passage_rule_null() */
 

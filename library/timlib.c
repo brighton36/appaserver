@@ -1793,12 +1793,14 @@ boolean dollar_virtually_same( double d1, double d2 )
 	boolean results;
 	
 	results = ( abs_float( difference ) < 0.005 );
+
 /*
 fprintf( stderr, "%s/%s(): d1 = %lf and d2 = %lf, virtually same? = %d\n",
 __FILE__,
 __FUNCTION__,
 d1, d2, results );
 */
+
 	return results;
 }
 

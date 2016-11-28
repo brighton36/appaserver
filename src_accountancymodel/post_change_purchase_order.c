@@ -890,6 +890,7 @@ void post_change_purchase_order_changed_rule_to_null(
 				purchase_order->sales_tax,
 				purchase_order->freight_in,
 				purchase_order->purchase_amount,
+				purchase_order->inventory_purchase_list,
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
 				purchase_order->fixed_asset_purchase_list );
@@ -1074,6 +1075,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 				purchase_order->sales_tax,
 				purchase_order->freight_in,
 				purchase_order->purchase_amount,
+				purchase_order->inventory_purchase_list,
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
 				purchase_order->fixed_asset_purchase_list );
@@ -1281,6 +1283,7 @@ void post_change_purchase_order_new_transaction(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );

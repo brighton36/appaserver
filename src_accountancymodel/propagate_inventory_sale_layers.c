@@ -127,15 +127,29 @@ int main( int argc, char **argv )
 			entity_self->inventory_cost_method,
 			entity_self->inventory_list );
 
-		inventory_sale =
-			inventory_sale_fetch(
-				application_name,
-				full_name,
-				street_address,
-				sale_date_time,
-				inventory_name );
+		if ( *full_name )
+		{
+			if ( ! ( inventory_sale =
+					inventory_sale_fetch(
+						application_name,
+						full_name,
+						street_address,
+						sale_date_time,
+						inventory_name ) ) )
+			{
+				fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot inventory_sale_fetch(%s)\n",
+				 	__FILE__,
+				 	__FUNCTION__,
+				 	__LINE__,
+				 	inventory_name );
+				exit( 1 );
+			}
 
-		cost_of_goods_sold = inventory_sale->cost_of_goods_sold;
+			cost_of_goods_sold =
+				inventory_sale->
+					cost_of_goods_sold;
+		}
 	}
 
 	if ( *full_name )
@@ -221,13 +235,11 @@ void propagate_inventory_sale_layers_not_latest(
 			inventory->inventory_purchase_list,
 			inventory->inventory_sale_list );
 
-/*
 fprintf( stderr, "%s/%s()/%d: inventory_balance_list = (%s)\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 inventory_balance_list_display( inventory->inventory_balance_list ) );
-*/
 
 	if ( list_length( inventory->inventory_balance_list ) )
 	{

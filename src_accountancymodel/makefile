@@ -35,7 +35,6 @@ EXECUTABLES=	trial_balance						\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
 		post_change_inventory_purchase				\
-		post_change_supply_purchase				\
 		post_change_fixed_asset_purchase			\
 		post_change_fixed_asset					\
 		post_change_inventory_sale				\

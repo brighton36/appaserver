@@ -27,7 +27,7 @@ int main( int argc, char **argv )
 	char *application_name = {0};
 	char *fund_name;
 	char *transaction_date_time;
-	LIST *inventory_account_list = {0};
+	LIST *inventory_account_list;
 	char *inventory_account = {0};
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
@@ -55,9 +55,7 @@ int main( int argc, char **argv )
 		}
 	}
 
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
+	appaserver_error_output_starting_argv_stderr( argc, argv );
 
 	if ( argc != 4 )
 	{
@@ -70,8 +68,11 @@ int main( int argc, char **argv )
 	fund_name = argv[ 2 ];
 	transaction_date_time = argv[ 3 ];
 
+	inventory_account_list =
+		ledger_get_inventory_account_name_list(
+			application_name );
+
 	ledger_get_purchase_order_account_names(
-		&inventory_account_list,
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,

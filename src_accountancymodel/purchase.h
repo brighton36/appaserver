@@ -281,6 +281,7 @@ LIST *purchase_order_journal_ledger_refresh(
 					double sales_tax,
 					double freight_in,
 					double purchase_amount,
+					LIST *inventory_purchase_list,
 					LIST *supply_purchase_list,
 					LIST *service_purchase_list,
 					LIST *fixed_asset_purchase_list );
@@ -350,7 +351,7 @@ LIST *purchase_get_inventory_purchase_list(
 				HASH_TABLE *inventory_purchase_hash_table,
 				LIST *inventory_purchase_name_list );
 
-LIST *purchase_get_purchase_order_list(
+LIST *purchase_get_inventory_purchase_order_list(
 				char *application_name,
 				char *inventory_name,
 				HASH_TABLE *inventory_purchase_hash_table,
@@ -438,6 +439,13 @@ void purchase_supply_update(
 				char *supply_name,
 				double extension,
 				double database_extension );
+
+LIST *purchase_inventory_journal_ledger_refresh(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				LIST *inventory_purchase_list );
 
 LIST *purchase_supply_journal_ledger_refresh(
 				char *application_name,

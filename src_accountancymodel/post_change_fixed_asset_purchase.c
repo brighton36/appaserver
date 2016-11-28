@@ -219,6 +219,7 @@ void post_change_fixed_asset_purchase_insert(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
@@ -313,6 +314,7 @@ void post_change_fixed_asset_purchase_delete(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
@@ -477,6 +479,7 @@ void post_change_fixed_asset_purchase_transaction_update(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );

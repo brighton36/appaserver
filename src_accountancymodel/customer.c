@@ -34,6 +34,9 @@ CUSTOMER_SALE *customer_sale_calloc( void )
 		exit(1 );
 	}
 
+	c->inventory_account_list = list_new();
+	c->cost_account_list = list_new();
+
 	return c;
 
 } /* customer_sale_calloc() */
@@ -144,9 +147,6 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 		CUSTOMER_GET_AMOUNT_DUE(
 			c->invoice_amount,
 			c->total_payment );
-
-	c->inventory_account_list = list_new();
-	c->cost_account_list = list_new();
 
 	inventory_list =
 		entity_get_inventory_list(
@@ -1411,41 +1411,6 @@ char *customer_sale_fetch_transaction_date_time(
 
 } /* customer_sale_fetch_transaction_date_time() */
 
-#ifdef NOT_DEFINED
-LIST *customer_sale_get_historical_inventory_sale_list(
-			LIST *historical_customer_sale_list,
-			char *inventory_name )
-{
-	CUSTOMER_SALE *customer_sale;
-	INVENTORY *inventory;
-	LIST *historical_sale_list = {0};
-
-	if ( !list_rewind( historical_customer_sale_list ) ) return (LIST *)0;
-
-	do {
-		customer_sale =
-			list_get_pointer(
-				historical_customer_sale_list );
-
-		if ( ( inventory = inventory_list_seek(
-				customer_sale->inventory_sale_list,
-				inventory_name ) ) )
-		{
-			if ( !historical_sale_list )
-				historical_sale_list = list_new();
-
-			list_append_pointer(
-				historical_sale_list,
-				inventory->inventory_sale );
-		}
-
-	} while( list_next( historical_customer_sale_list ) );
-
-	return historical_sale_list;
-
-} /* customer_sale_get_historical_inventory_sale_list() */
-#endif
-
 CUSTOMER_SALE *customer_sale_seek(
 				LIST *customer_sale_list,
 				char *sale_date_time )
@@ -1584,7 +1549,7 @@ LIST *customer_get_inventory_sale_list(
 
 } /* customer_get_inventory_sale_list() */
 
-LIST *customer_get_customer_sale_list(
+LIST *customer_get_inventory_customer_sale_list(
 			char *application_name,
 			char *inventory_name,
 			HASH_TABLE *inventory_sale_hash_table,
@@ -1629,6 +1594,11 @@ LIST *customer_get_customer_sale_list(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
+fprintf( stderr, "%s/%s()/%d: input_buffer = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+input_buffer );
 		customer_sale = customer_sale_calloc();
 
 		customer_sale_parse(
@@ -1721,15 +1691,14 @@ LIST *customer_get_customer_sale_list(
 		if ( customer_sale->transaction_date_time )
 		{
 			customer_sale->transaction =
-				ledger_sale_transaction_fetch(
+				ledger_sale_build_transaction(
 					application_name,
 					customer_sale->fund_name,
 					customer_sale->full_name,
 					customer_sale->street_address,
 					customer_sale->transaction_date_time,
 					transaction_hash_table,
-					journal_ledger_hash_table,
-					inventory_list );
+					journal_ledger_hash_table );
 		}
 
 		if ( !customer_sale_list )
@@ -1742,7 +1711,7 @@ LIST *customer_get_customer_sale_list(
 	pclose( input_pipe );
 	return customer_sale_list;
 
-} /* customer_get_customer_sale_list() */
+} /* customer_get_inventory_customer_sale_list() */
 
 void customer_sale_transaction_delete_with_propagate(
 				char *application_name,
@@ -2529,6 +2498,28 @@ void customer_sale_inventory_cost_account_list_set(
 			 	__FUNCTION__,
 			 	__LINE__,
 				inventory_sale->inventory_name );
+			exit(1 );
+		}
+
+		if ( !inventory->inventory_account_name )
+		{
+			fprintf( stderr,
+"Error in %s/%s()/%d: empty inventory account name for inventory_name = (%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+				inventory->inventory_name );
+			exit(1 );
+		}
+
+		if ( !inventory->cost_of_goods_sold_account_name )
+		{
+			fprintf( stderr,
+"Error in %s/%s()/%d: empty cost of goods sold account name for inventory_name = (%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+				inventory->inventory_name );
 			exit(1 );
 		}
 

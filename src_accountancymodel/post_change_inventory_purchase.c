@@ -365,6 +365,7 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 				purchase_order->sales_tax,
 				purchase_order->freight_in,
 				purchase_order->purchase_amount,
+				purchase_order->inventory_purchase_list,
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
 				purchase_order->fixed_asset_purchase_list );
@@ -473,6 +474,7 @@ void post_change_inventory_purchase_insert_FOB_destination(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 				purchase_order->fixed_asset_purchase_list );
@@ -581,6 +583,7 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
@@ -876,6 +879,7 @@ void post_change_inventory_purchase_ordered_quantity_update(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
@@ -968,6 +972,7 @@ void post_change_inventory_purchase_unit_cost_update(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
@@ -1070,6 +1075,7 @@ void post_change_inventory_purchase_delete(
 				purchase_order->sales_tax,
 				purchase_order->freight_in,
 				purchase_order->purchase_amount,
+				purchase_order->inventory_purchase_list,
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
 				purchase_order->fixed_asset_purchase_list );

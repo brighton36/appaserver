@@ -225,8 +225,6 @@ void post_change_inventory_sale_insert(
 
 	} /* if completed_date_time */
 
-	/* Recalculate customer_sale->cost_of_goods_sold */
-	/* --------------------------------------------- */
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->
@@ -280,6 +278,13 @@ void post_change_inventory_sale_insert(
 	/* ------------------------- */
 	if ( customer_sale->transaction )
 	{
+		customer_sale_inventory_cost_account_list_set(
+			customer_sale->inventory_account_list,
+			customer_sale->cost_account_list,
+			customer_sale->inventory_sale_list,
+			entity_get_inventory_list( application_name ),
+			0 /* not is_database */ );
+
 		customer_sale->propagate_account_list =
 			customer_sale_ledger_refresh(
 				application_name,

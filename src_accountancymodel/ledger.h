@@ -346,7 +346,6 @@ double ledger_inventory_purchase_get_sum_extension(
 					char *purchase_date_time );
 
 void ledger_get_purchase_order_account_names(
-				LIST **inventory_account_name_list,
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
@@ -363,14 +362,6 @@ void ledger_get_customer_sale_account_names(
 				char **account_receivable_account,
 				char *application_name,
 				char *fund_name );
-
-/*
-void ledger_get_cost_of_goods_sold_account_names(
-				char **cost_of_goods_sold_account,
-				char **inventory_account,
-				char *application_name,
-				char *fund_name );
-*/
 
 char *ledger_get_supply_expense_key_account(
 				char *application_name,
@@ -573,7 +564,7 @@ HASH_TABLE *ledger_get_journal_ledger_hash_table(
 				char *application_name,
 				char *inventory_name );
 
-TRANSACTION *ledger_purchase_transaction_fetch(
+TRANSACTION *ledger_purchase_build_transaction(
 				char *application_name,
 				char *fund_name,
 				char *full_name,
@@ -582,15 +573,14 @@ TRANSACTION *ledger_purchase_transaction_fetch(
 				HASH_TABLE *transaction_hash_table,
 				HASH_TABLE *journal_ledger_hash_table );
 
-TRANSACTION *ledger_sale_transaction_fetch(
+TRANSACTION *ledger_sale_build_transaction(
 				char *application_name,
 				char *fund_name,
 				char *full_name,
 				char *street_address,
 				char *transaction_date_time,
 				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table,
-				LIST *inventory_list );
+				HASH_TABLE *journal_ledger_hash_table );
 
 void ledger_set_transaction_hash_table(
 				HASH_TABLE *transaction_hash_table,

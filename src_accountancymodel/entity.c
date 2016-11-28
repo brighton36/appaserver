@@ -214,15 +214,18 @@ void entity_propagate_purchase_order_ledger_accounts(
 				char *fund_name,
 				char *purchase_order_transaction_date_time )
 {
-	LIST *inventory_account_name_list = {0};
+	LIST *inventory_account_name_list;
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
 	char *cash_account = {0};
 	char *uncleared_checks_account = {0};
 
+	inventory_account_name_list =
+		ledger_get_inventory_account_name_list(
+			application_name );
+
 	ledger_get_purchase_order_account_names(
-		&inventory_account_name_list,
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
@@ -398,7 +401,7 @@ ENTITY_SELF *entity_self_sale_inventory_load(
 			inventory_name );
 
 	entity_self->purchase_order_list =
-		purchase_get_purchase_order_list(
+		purchase_get_inventory_purchase_order_list(
 			application_name,
 			inventory_name,
 			entity_self->inventory_purchase_hash_table,
@@ -411,7 +414,7 @@ ENTITY_SELF *entity_self_sale_inventory_load(
 			application_name );
 
 	entity_self->customer_sale_list =
-		customer_get_customer_sale_list(
+		customer_get_inventory_customer_sale_list(
 			application_name,
 			inventory_name,
 			entity_self->inventory_sale_hash_table,

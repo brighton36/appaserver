@@ -366,7 +366,8 @@ void post_reoccurring_transaction(
 	/* ----------------------------- */
 	ledger_account_list_balance_update(
 			propagate_account_list,
-			application_name );
+			application_name,
+			transaction_date_time );
 
 } /* post_reoccurring_transaction() */
 

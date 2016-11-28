@@ -1,4 +1,3 @@
-make ledger.o
 make propagate_inventory_sale_layers
 
 #if [ "$?" -eq 0 ]

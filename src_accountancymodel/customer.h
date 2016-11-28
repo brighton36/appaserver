@@ -322,7 +322,7 @@ LIST *customer_get_inventory_sale_list(
 				HASH_TABLE *inventory_sale_hash_table,
 				LIST *inventory_sale_name_list );
 
-LIST *customer_get_customer_sale_list(
+LIST *customer_get_inventory_customer_sale_list(
 				char *application_name,
 				char *inventory_name,
 				HASH_TABLE *inventory_sale_hash_table,

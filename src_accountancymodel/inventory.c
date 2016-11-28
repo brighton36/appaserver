@@ -939,6 +939,11 @@ LIST *inventory_sale_get_list(
 		 folder,
 		 where );
 
+fprintf( stderr, "%s/%s()/%d: %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
 	input_pipe = popen( sys_string, "r" );
 	sale_list = list_new();
 

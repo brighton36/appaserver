@@ -243,7 +243,10 @@ void post_change_customer_payment_insert(
 	{
 		ledger_account_list_balance_update(
 			propagate_account_list,
-			application_name );
+			application_name,
+			customer_payment->
+				transaction->
+				transaction_date_time );
 	}
 
 	customer_payment_update(
@@ -308,7 +311,6 @@ void post_change_customer_payment_delete(
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->sum_inventory_extension,
-			&customer_sale->cost_of_goods_sold,
 			&customer_sale->sum_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
@@ -388,7 +390,10 @@ void post_change_customer_payment_delete(
 	{
 		ledger_account_list_balance_update(
 			propagate_account_list,
-			application_name );
+			application_name,
+			customer_payment->
+				transaction->
+				transaction_date_time );
 	}
 
 } /* post_change_customer_payment_delete() */

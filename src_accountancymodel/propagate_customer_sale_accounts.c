@@ -59,13 +59,17 @@ int main( int argc, char **argv )
 				argc,
 				argv );
 
+	entity_propagate_customer_sale_ledger_accounts(
+				application_name,
+				fund_name,
+				transaction_date_time );
+
+#ifdef NOT_DEFINED
 	ledger_get_customer_sale_account_names(
 		&sales_revenue_account,
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		(LIST **)0 /* inventory_account_name_list */,
-		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,
 		fund_name );
@@ -103,6 +107,7 @@ int main( int argc, char **argv )
 	ledger_propagate(	application_name,
 				transaction_date_time,
 				receivable_account );
+#endif
 
 	return 0;
 

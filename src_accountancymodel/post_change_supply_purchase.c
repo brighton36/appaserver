@@ -213,8 +213,9 @@ void post_change_supply_purchase_update(
 			purchase_order->fixed_asset_purchase_list );
 
 	ledger_account_list_balance_update(
-			purchase_order->propagate_account_list,
-			application_name );
+		purchase_order->propagate_account_list,
+		application_name,
+		purchase_order->transaction_date_time );
 
 	supply_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -363,8 +364,9 @@ void post_change_supply_purchase_insert(
 			purchase_order->fixed_asset_purchase_list );
 
 	ledger_account_list_balance_update(
-			purchase_order->propagate_account_list,
-			application_name );
+		purchase_order->propagate_account_list,
+		application_name,
+		purchase_order->transaction_date_time );
 
 } /* post_change_supply_purchase_insert() */
 
@@ -456,8 +458,9 @@ void post_change_supply_purchase_delete(
 				purchase_order->fixed_asset_purchase_list );
 
 		ledger_account_list_balance_update(
-				purchase_order->propagate_account_list,
-				application_name );
+			purchase_order->propagate_account_list,
+			application_name,
+			purchase_order->transaction_date_time );
 
 		if ( ( specific_supply_expense_account =
 				ledger_get_supply_expense_account(

@@ -76,8 +76,6 @@ typedef struct
 	double sales_tax;
 	double database_sales_tax;
 	double sum_inventory_extension;
-	double cost_of_goods_sold;
-	double database_cost_of_goods_sold;
 	double sum_service_extension;
 	double sum_extension;
 	double database_sum_extension;
@@ -97,6 +95,8 @@ typedef struct
 	LIST *payment_list;
 	TRANSACTION *transaction;
 	LIST *propagate_account_list;
+	LIST *inventory_account_list;
+	LIST *cost_account_list;
 } CUSTOMER_SALE;
 
 /* Operations */
@@ -221,7 +221,6 @@ void customer_sale_update(	double sum_extension,
 
 double customer_sale_get_invoice_amount(
 				double *sum_inventory_extension,
-				double *customer_sale_cost_of_goods_sold,
 				double *sum_service_extension,
 				double *sum_extension,
 				double *sales_tax,
@@ -263,8 +262,7 @@ LIST *customer_sale_ledger_refresh(
 				double sum_service_extension,
 				double sales_tax,
 				double shipping_revenue,
-				double invoice_amount,
-				double customer_sale_cost_of_goods_sold );
+				double invoice_amount );
 
 LIST *customer_sale_ledger_cost_of_goods_sold_update(
 				char *application_name,
@@ -274,10 +272,12 @@ LIST *customer_sale_ledger_cost_of_goods_sold_update(
 				char *transaction_date_time,
 				double customer_sale_cost_of_goods_sold );
 
+/*
 LIST *customer_sale_get_complete_propagate_account_list(
 				char *application_name,
 				char *fund_name,
 				char *transaction_date_time );
+*/
 
 double customer_sale_fetch_cost_of_goods_sold(
 				char *full_name,
@@ -328,7 +328,8 @@ LIST *customer_get_customer_sale_list(
 				HASH_TABLE *inventory_sale_hash_table,
 				LIST *sale_inventory_name_list,
 				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table );
+				HASH_TABLE *journal_ledger_hash_table,
+				LIST *inventory_list );
 
 void customer_sale_transaction_delete_with_propagate(
 				char *application_name,
@@ -343,8 +344,8 @@ boolean customer_sale_inventory_is_latest(
 				char *sale_date_time );
 
 void customer_sale_list_cost_of_goods_sold_transaction_update(
-					char *application_name,
-					LIST *customer_sale_list );
+				char *application_name,
+				LIST *customer_sale_list );
 
 void customer_sale_list_inventory_transaction_update_and_propagate(
 				char *application_name,
@@ -352,7 +353,8 @@ void customer_sale_list_inventory_transaction_update_and_propagate(
 				char *propagate_transaction_date_time );
 
 void customer_sale_list_cost_of_goods_sold_set(
-				LIST *customer_sale_list );
+				LIST *customer_sale_list,
+				LIST *inventory_list );
 
 LIST *customer_get_payment_list(
 				char *application_name,
@@ -427,6 +429,21 @@ double customer_sale_get_total_payment(	char *application_name,
 					char *sale_date_time );
 
 char *customer_sale_get_memo(		char *full_name );
+
+void customer_sale_inventory_cost_account_list_set(
+					LIST *inventory_account_list,
+					LIST *cost_account_list,
+					LIST *inventory_sale_list,
+					LIST *inventory_list,
+					boolean is_database );
+
+LIST *customer_sale_ledger_cost_of_goods_sold_insert(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					LIST *inventory_account_list,
+					LIST *cost_account_list );
 
 #endif
 

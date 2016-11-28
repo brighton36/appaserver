@@ -28,7 +28,8 @@ void propagate_inventory_sale_layers_not_latest(
 				INVENTORY *inventory,
 				LIST *customer_sale_list,
 				char *application_name,
-				enum inventory_cost_method );
+				enum inventory_cost_method,
+				LIST *inventory_list );
 
 double propagate_inventory_sale_layers_latest(
 				INVENTORY_SALE *inventory_sale,
@@ -45,6 +46,7 @@ int main( int argc, char **argv )
 	char *propagate_transaction_date_time;
 	boolean is_latest;
 	INVENTORY_SALE *inventory_sale;
+	double cost_of_goods_sold = 0.0;
 	ENTITY_SELF *entity_self;
 	char *database_string = {0};
 
@@ -105,7 +107,7 @@ int main( int argc, char **argv )
 				application_name,
 				inventory_name );
 
-		inventory_sale->cost_of_goods_sold =
+		cost_of_goods_sold =
 			propagate_inventory_sale_layers_latest(
 				inventory_sale,
 				inventory,
@@ -122,7 +124,8 @@ int main( int argc, char **argv )
 			entity_self->sale_inventory,
 			entity_self->customer_sale_list,
 			application_name,
-			entity_self->inventory_cost_method );
+			entity_self->inventory_cost_method,
+			entity_self->inventory_list );
 
 		inventory_sale =
 			inventory_sale_fetch(
@@ -131,11 +134,13 @@ int main( int argc, char **argv )
 				street_address,
 				sale_date_time,
 				inventory_name );
+
+		cost_of_goods_sold = inventory_sale->cost_of_goods_sold;
 	}
 
-	if ( *full_name && inventory_sale )
+	if ( *full_name )
 	{
-		printf( "%.2lf\n", inventory_sale->cost_of_goods_sold );
+		printf( "%.2lf\n", cost_of_goods_sold );
 	}
 
 	return 0;
@@ -208,7 +213,8 @@ void propagate_inventory_sale_layers_not_latest(
 				LIST *customer_sale_list,
 				char *application_name,
 				enum inventory_cost_method
-					inventory_cost_method )
+					inventory_cost_method,
+				LIST *inventory_list )
 {
 	inventory->inventory_balance_list =
 		inventory_get_average_cost_inventory_balance_list(
@@ -282,10 +288,13 @@ inventory_balance_list_display( inventory->inventory_balance_list ) );
 		inventory->inventory_sale_list,
 		inventory->inventory_name );
 
-	/* Set customer_sale->cost_of_goods_sold = sum(inventory_sale) */
-	/* ----------------------------------------------------------- */
+	/* ------------------------------------------------------------ */
+	/* Set customer_sale->inventory_cost->cost_of_goods_sold =	*/
+	/* sum(inventory_sale)						*/
+	/* ------------------------------------------------------------ */
 	customer_sale_list_cost_of_goods_sold_set(
-		customer_sale_list );
+		customer_sale_list,
+		inventory_list );
 
 	customer_sale_list_cost_of_goods_sold_transaction_update(
 		application_name,

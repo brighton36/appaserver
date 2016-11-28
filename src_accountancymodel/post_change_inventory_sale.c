@@ -232,8 +232,6 @@ void post_change_inventory_sale_insert(
 			&customer_sale->
 				sum_inventory_extension,
 			&customer_sale->
-				cost_of_goods_sold,
-			&customer_sale->
 				sum_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
@@ -247,10 +245,10 @@ void post_change_inventory_sale_insert(
 			customer_sale->street_address,
 			application_name );
 
-		customer_sale->amount_due =
-			customer_sale->invoice_amount -
-			customer_sale->total_payment
-				/* set in customer_sale_new() */;
+	customer_sale->amount_due =
+		customer_sale->invoice_amount -
+		customer_sale->total_payment
+			/* set in customer_sale_new() */;
 
 	customer_sale_update(
 		customer_sale->sum_extension,
@@ -294,12 +292,23 @@ void post_change_inventory_sale_insert(
 				customer_sale->sum_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
-				customer_sale->cost_of_goods_sold );
+				customer_sale->invoice_amount );
+
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
 
 		ledger_account_list_balance_update(
-				customer_sale->propagate_account_list,
-				application_name );
+			customer_sale->propagate_account_list,
+			application_name,
+			customer_sale->transaction_date_time );
 
 		ledger_transaction_amount_update(
 			application_name,
@@ -454,8 +463,6 @@ void post_change_inventory_sale_quantity_update(
 			&customer_sale->
 				sum_inventory_extension,
 			&customer_sale->
-				cost_of_goods_sold,
-			&customer_sale->
 				sum_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
@@ -516,12 +523,23 @@ void post_change_inventory_sale_quantity_update(
 				customer_sale->sum_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
-				customer_sale->cost_of_goods_sold );
+				customer_sale->invoice_amount );
+
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
 
 		ledger_account_list_balance_update(
-				customer_sale->propagate_account_list,
-				application_name );
+			customer_sale->propagate_account_list,
+			application_name,
+			customer_sale->transaction_date_time );
 
 		ledger_transaction_amount_update(
 			application_name,
@@ -565,8 +583,6 @@ void post_change_inventory_sale_retail_price_update(
 			&customer_sale->
 				sum_inventory_extension,
 			&customer_sale->
-				cost_of_goods_sold,
-			&customer_sale->
 				sum_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
@@ -626,12 +642,23 @@ void post_change_inventory_sale_retail_price_update(
 				customer_sale->sum_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
-				customer_sale->cost_of_goods_sold );
+				customer_sale->invoice_amount );
+
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
 
 		ledger_account_list_balance_update(
-				customer_sale->propagate_account_list,
-				application_name );
+			customer_sale->propagate_account_list,
+			application_name,
+			customer_sale->transaction_date_time );
 
 		ledger_transaction_amount_update(
 			application_name,
@@ -675,8 +702,6 @@ void post_change_inventory_sale_discount_amount_update(
 			&customer_sale->
 				sum_inventory_extension,
 			&customer_sale->
-				cost_of_goods_sold,
-			&customer_sale->
 				sum_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
@@ -736,12 +761,23 @@ void post_change_inventory_sale_discount_amount_update(
 				customer_sale->sum_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
-				customer_sale->cost_of_goods_sold );
+				customer_sale->invoice_amount );
+
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
 
 		ledger_account_list_balance_update(
-				customer_sale->propagate_account_list,
-				application_name );
+			customer_sale->propagate_account_list,
+			application_name,
+			customer_sale->transaction_date_time );
 
 		ledger_transaction_amount_update(
 			application_name,
@@ -836,8 +872,6 @@ void post_change_inventory_sale_delete(
 		customer_sale_get_invoice_amount(
 			&customer_sale->
 				sum_inventory_extension,
-			&customer_sale->
-				cost_of_goods_sold,
 			&customer_sale->
 				sum_service_extension,
 			&customer_sale->sum_extension,

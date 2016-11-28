@@ -178,12 +178,12 @@ int main( int argc, char **argv )
 	preupdate_arrived_date = argv[ 11 ];
 	preupdate_shipping_revenue = argv[ 12 ];
 
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
+	appaserver_error_output_starting_argv_stderr( argc, argv );
 
 	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 ) exit( 0 );
 
+	/* Execute the predelete because CUSTOMER_SALE.transaction_date_time */
+	/* ----------------------------------------------------------------- */
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
 	customer_sale =
@@ -998,8 +998,6 @@ void post_change_customer_sale_shipping_revenue_update(
 			&customer_sale->
 				sum_inventory_extension,
 			&customer_sale->
-				cost_of_goods_sold,
-			&customer_sale->
 				sum_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
@@ -1059,12 +1057,23 @@ void post_change_customer_sale_shipping_revenue_update(
 				customer_sale->sum_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
-				customer_sale->cost_of_goods_sold );
+				customer_sale->invoice_amount );
+
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
 
 		ledger_account_list_balance_update(
-				customer_sale->propagate_account_list,
-				application_name );
+			customer_sale->propagate_account_list,
+			application_name,
+			customer_sale->transaction_date_time );
 	}
 
 } /* post_change_customer_sale_shipping_revenue_update() */
@@ -1146,10 +1155,6 @@ void post_change_customer_sale_new_transaction(
 		customer_sale->transaction->memo,
 		0 /* check_number */ );
 
-	customer_sale->cost_of_goods_sold =
-		customer_sale_get_cost_of_goods_sold(
-			customer_sale->inventory_sale_list );
-
 	customer_sale->sum_inventory_extension =
 		customer_sale_get_sum_inventory_extension(
 			customer_sale->inventory_sale_list );
@@ -1166,12 +1171,23 @@ void post_change_customer_sale_new_transaction(
 			customer_sale->sum_service_extension,
 			customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
-			customer_sale->invoice_amount,
-			customer_sale->cost_of_goods_sold );
+			customer_sale->invoice_amount );
+
+	list_append_list(
+		customer_sale->propagate_account_list,
+		customer_sale_ledger_cost_of_goods_sold_insert(
+			application_name,
+			customer_sale->transaction->full_name,
+			customer_sale->transaction->street_address,
+			customer_sale->transaction->
+				transaction_date_time,
+			customer_sale->inventory_account_list,
+			customer_sale->cost_account_list ) );
 
 	ledger_account_list_balance_update(
-			customer_sale->propagate_account_list,
-			application_name );
+		customer_sale->propagate_account_list,
+		application_name,
+		customer_sale->transaction_date_time );
 
 } /* post_change_customer_sale_new_transaction() */
 
@@ -1216,10 +1232,6 @@ void post_change_customer_sale_FOB_destination_new_rule(
 			customer_sale->transaction->memo,
 			0 /* check_number */ );
 
-		customer_sale->cost_of_goods_sold =
-			customer_sale_get_cost_of_goods_sold(
-				customer_sale->inventory_sale_list );
-
 		customer_sale->sum_inventory_extension =
 			customer_sale_get_sum_inventory_extension(
 				customer_sale->inventory_sale_list );
@@ -1236,12 +1248,23 @@ void post_change_customer_sale_FOB_destination_new_rule(
 				customer_sale->sum_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
-				customer_sale->cost_of_goods_sold );
+				customer_sale->invoice_amount );
 	
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
+
 		ledger_account_list_balance_update(
-				customer_sale->propagate_account_list,
-				application_name );
+			customer_sale->propagate_account_list,
+			application_name,
+			customer_sale->transaction_date_time );
 	}
 
 } /* post_change_customer_sale_FOB_destination_new_rule() */

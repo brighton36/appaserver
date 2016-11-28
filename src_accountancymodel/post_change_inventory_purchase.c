@@ -370,8 +370,9 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 				purchase_order->fixed_asset_purchase_list );
 
 		ledger_account_list_balance_update(
-				purchase_order->propagate_account_list,
-				application_name );
+			purchase_order->propagate_account_list,
+			application_name,
+			purchase_order->transaction_date_time );
 	}
 
 } /* post_change_inventory_purchase_insert_FOB_shipping() */
@@ -477,8 +478,9 @@ void post_change_inventory_purchase_insert_FOB_destination(
 				purchase_order->fixed_asset_purchase_list );
 
 	ledger_account_list_balance_update(
-			purchase_order->propagate_account_list,
-			application_name );
+		purchase_order->propagate_account_list,
+		application_name,
+		purchase_order->transaction_date_time );
 
 } /* post_change_inventory_purchase_insert_FOB_destination() */
 
@@ -584,8 +586,9 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 			purchase_order->fixed_asset_purchase_list );
 
 	ledger_account_list_balance_update(
-			purchase_order->propagate_account_list,
-			application_name );
+		purchase_order->propagate_account_list,
+		application_name,
+		purchase_order->transaction_date_time );
 
 } /* post_change_inventory_purchase_insert_title_passage_rule_null() */
 
@@ -878,8 +881,9 @@ void post_change_inventory_purchase_ordered_quantity_update(
 			purchase_order->fixed_asset_purchase_list );
 
 	ledger_propagate_accounts(
-			purchase_order->propagate_account_list,
-			application_name );
+		purchase_order->propagate_account_list,
+		application_name,
+		purchase_order->transaction_date_time );
 
 } /* post_change_inventory_purchase_ordered_quantity_update() */
 
@@ -969,8 +973,9 @@ void post_change_inventory_purchase_unit_cost_update(
 			purchase_order->fixed_asset_purchase_list );
 
 	ledger_propagate_accounts(
-			purchase_order->propagate_account_list,
-			application_name );
+		purchase_order->propagate_account_list,
+		application_name,
+		purchase_order->transaction_date_time );
 
 } /* post_change_inventory_purchase_unit_cost_update() */
 
@@ -1070,8 +1075,9 @@ void post_change_inventory_purchase_delete(
 				purchase_order->fixed_asset_purchase_list );
 
 		ledger_account_list_balance_update(
-				purchase_order->propagate_account_list,
-				application_name );
+			purchase_order->propagate_account_list,
+			application_name,
+			purchase_order->transaction_date_time );
 	}
 
 	if ( purchase_order->arrived_date_time )

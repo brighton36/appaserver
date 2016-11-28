@@ -49,10 +49,13 @@ char *format_initial_capital_cr( char *destination, char *string );
 
 char *format_initial_capital( char *destination, char *string );
 
+char *format_initial_capital_not_parens( char *destination, char *string );
+
 char *format_initial_capital_delimiter(
 			char *destination,
 			char *string,
-			char delimiter );
+			char delimiter,
+			boolean with_inside_parens );
 
 char *format_mnemonic( char *mnemonic, char *string );
 

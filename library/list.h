@@ -244,11 +244,14 @@ void list_pop(			LIST *list );
 void list_push(			LIST *list );
 LIST *list_intersect_string_list(
 				LIST *list1, LIST *list2 );
+
 void list_append_unique_string_list(
 				LIST *destination_list,
 				LIST *source_list );
+
 void list_append_unique_string(	LIST *list,
 				char *this_item );
+
 char *list_buffered_display(	char *destination,
 				LIST *list, 
 				char delimiter );

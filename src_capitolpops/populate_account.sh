@@ -40,7 +40,7 @@ fi
 
 if [ "$one2m_folder" = "inventory" ]
 then
-	subclassification_where="subclassification = 'inventory'"
+	subclassification_where="subclassification = 'inventory' or subclassification = 'cost_of_goods_sold'"
 fi
 
 if [ "$parameter_where" != "$where" ]

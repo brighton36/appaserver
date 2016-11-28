@@ -319,8 +319,9 @@ void post_reoccurring_transaction(
 	/* Propagate the ledger balances */
 	/* ----------------------------- */
 	ledger_account_list_balance_update(
-			propagate_account_list,
-			application_name );
+		propagate_account_list,
+		application_name,
+		transaction_date_time );
 
 } /* post_reoccurring_transaction() */
 

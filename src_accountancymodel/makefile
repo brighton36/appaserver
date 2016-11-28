@@ -36,13 +36,9 @@ EXECUTABLES=	trial_balance						\
 		propagate_inventory_sale_layers				\
 		post_change_inventory_purchase				\
 		post_change_supply_purchase				\
-		post_change_specific_inventory_purchase			\
-		post_change_service_purchase				\
 		post_change_fixed_asset_purchase			\
 		post_change_fixed_asset					\
 		post_change_inventory_sale				\
-		post_change_specific_inventory_sale			\
-		post_change_service_sale				\
 		post_change_purchase_order				\
 		post_change_customer_sale				\
 		post_change_customer_payment				\

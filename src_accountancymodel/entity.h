@@ -61,10 +61,14 @@ typedef struct
 	LIST *inventory_sale_name_list;
 	HASH_TABLE *transaction_hash_table;
 	HASH_TABLE *journal_ledger_hash_table;
+	LIST *inventory_list;
 } ENTITY_SELF;
 
 /* Operations */
 /* ---------- */
+LIST *entity_get_inventory_list(
+					char *application_name );
+
 LIST *entity_get_purchase_order_list(
 					char *application_name,
 					char *inventory_name );
@@ -108,19 +112,23 @@ void entity_propagate_purchase_order_ledger_accounts(
 				char *fund_name,
 				char *purchase_order_transaction_date_time );
 
+/*
 void entity_propagate_inventory_ledger_accounts(
 				char *application_name,
 				char *fund_name,
 				char *customer_sale_transaction_date_time );
+*/
 
 void entity_propagate_customer_sale_ledger_accounts(
 				char *application_name,
 				char *fund_name,
 				char *customer_sale_transaction_date_time );
 
+/*
 ENTITY_SELF *entity_self_purchase_inventory_load(
 				char *application_name,
 				char *inventory_name );
+*/
 
 ENTITY_SELF *entity_self_sale_inventory_load(
 				char *application_name,

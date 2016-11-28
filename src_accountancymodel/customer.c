@@ -44,6 +44,7 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 					char *sale_date_time )
 {
 	CUSTOMER_SALE *c = customer_sale_calloc();
+	LIST *inventory_list;
 
 	c->full_name = full_name;
 	c->street_address = street_address;
@@ -96,6 +97,7 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 			c->street_address,
 			c->sale_date_time );
 
+/*
 	c->service_sale_list =
 		customer_sale_service_get_list(
 				application_name,
@@ -109,6 +111,7 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 				c->full_name,
 				c->street_address,
 				c->sale_date_time );
+*/
 
 	c->payment_list =
 		customer_payment_get_list(
@@ -126,7 +129,6 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 	c->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&c->sum_inventory_extension,
-			&c->cost_of_goods_sold,
 			&c->sum_service_extension,
 			&c->sum_extension,
 			&c->sales_tax,
@@ -142,6 +144,20 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 		CUSTOMER_GET_AMOUNT_DUE(
 			c->invoice_amount,
 			c->total_payment );
+
+	c->inventory_account_list = list_new();
+	c->cost_account_list = list_new();
+
+	inventory_list =
+		entity_get_inventory_list(
+			application_name );
+
+	customer_sale_inventory_cost_account_list_set(
+		c->inventory_account_list,
+		c->cost_account_list,
+		c->inventory_sale_list,
+		inventory_list,
+		1 /* is_database*/ );
 
 	return c;
 
@@ -784,7 +800,6 @@ void customer_sale_update(
 
 double customer_sale_get_invoice_amount(
 				double *sum_inventory_extension,
-				double *customer_sale_cost_of_goods_sold,
 				double *sum_service_extension,
 				double *sum_extension,
 				double *sales_tax,
@@ -804,11 +819,13 @@ double customer_sale_get_invoice_amount(
 		customer_sale_get_sum_specific_inventory_extension(
 			specific_inventory_sale_list );
 
+/*
 	*customer_sale_cost_of_goods_sold =
 		customer_sale_get_cost_of_goods_sold(
 			inventory_sale_list ) +
 		customer_sale_get_specific_inventory_cost_of_goods_sold(
 			specific_inventory_sale_list );
+*/
 
 	*sum_service_extension =
 		customer_sale_get_sum_service_extension(
@@ -983,6 +1000,105 @@ double customer_get_total_payment(
 
 } /* customer_get_total_payment() */
 
+LIST *customer_sale_ledger_cost_of_goods_sold_insert(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				LIST *inventory_account_list,
+				LIST *cost_account_list )
+{
+	LIST *propagate_account_list = {0};
+	ACCOUNT *account;
+	JOURNAL_LEDGER *prior_ledger;
+	INVENTORY_COST_ACCOUNT *inventory_cost_account;
+
+	/* Insert debit cost_of_goods_sold accounts */
+	/* ---------------------------------------- */
+	if ( !list_rewind( cost_account_list ) ) return (LIST *)0;
+
+	do {
+		inventory_cost_account =
+			list_get_pointer(
+				cost_account_list );
+
+		ledger_journal_ledger_insert(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			inventory_cost_account->account_name,
+			inventory_cost_account->cost_of_goods_sold,
+			1 /* is_debit */ );
+
+		if ( !propagate_account_list )
+			propagate_account_list = list_new();
+
+		account =
+			ledger_account_new(
+				inventory_cost_account->
+					account_name );
+
+		prior_ledger = ledger_get_prior_ledger(
+					application_name,
+					transaction_date_time,
+					account->account_name );
+
+		account->journal_ledger_list =
+			ledger_get_propagate_journal_ledger_list(
+				application_name,
+				prior_ledger,
+				account->account_name );
+
+		list_append_pointer( propagate_account_list, account );
+
+	} while( list_next( cost_account_list ) );
+
+	/* Insert credit inventory accounts */
+	/* -------------------------------- */
+	if ( !list_rewind( inventory_account_list ) ) return (LIST *)0;
+
+	do {
+		inventory_cost_account =
+			list_get_pointer(
+				inventory_account_list );
+
+		ledger_journal_ledger_insert(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			inventory_cost_account->account_name,
+			inventory_cost_account->cost_of_goods_sold,
+			0 /* not is_debit */ );
+
+		if ( !propagate_account_list )
+			propagate_account_list = list_new();
+
+		account =
+			ledger_account_new(
+				inventory_cost_account->
+					account_name );
+
+		prior_ledger = ledger_get_prior_ledger(
+					application_name,
+					transaction_date_time,
+					account->account_name );
+
+		account->journal_ledger_list =
+			ledger_get_propagate_journal_ledger_list(
+				application_name,
+				prior_ledger,
+				account->account_name );
+
+		list_append_pointer( propagate_account_list, account );
+
+	} while( list_next( inventory_account_list ) );
+
+	return propagate_account_list;
+
+} /* customer_sale_ledger_cost_of_goods_sold_insert() */
+
 LIST *customer_sale_ledger_refresh(
 				char *application_name,
 				char *fund_name,
@@ -993,16 +1109,12 @@ LIST *customer_sale_ledger_refresh(
 				double sum_service_extension,
 				double sales_tax,
 				double shipping_revenue,
-				double invoice_amount,
-				double customer_sale_cost_of_goods_sold )
+				double invoice_amount )
 {
 	char *sales_revenue_account = {0};
 	char *service_revenue_account = {0};
 	char *sales_tax_payable_account = {0};
 	char *shipping_revenue_account = {0};
-	LIST *inventory_account_name_list = {0};
-	char *inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
 	char *receivable_account = {0};
 	LIST *propagate_account_list = {0};
 	ACCOUNT *account;
@@ -1019,16 +1131,9 @@ LIST *customer_sale_ledger_refresh(
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		&inventory_account_name_list,
-		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,
 		fund_name );
-
-/* Stub */
-/* ---- */
-if ( list_length( inventory_account_name_list ) )
-inventory_account = list_get_first_pointer( inventory_account_name_list );
 
 	if ( invoice_amount )
 	{
@@ -1229,305 +1334,9 @@ inventory_account = list_get_first_pointer( inventory_account_name_list );
 		list_append_pointer( propagate_account_list, account );
 	}
 
-	if ( customer_sale_cost_of_goods_sold )
-	{
-		if ( !cost_of_goods_sold_account )
-		{
-			fprintf( stderr,
-		"Error in %s/%s()/%d: empty cost_of_goods_sold_account.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-			exit(1 );
-		}
-
-		/* Cost of goods sold half */
-		/* ----------------------- */
-		ledger_journal_ledger_insert(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			cost_of_goods_sold_account,
-			customer_sale_cost_of_goods_sold,
-			1 /* is_debit */ );
-
-		account = ledger_account_new( cost_of_goods_sold_account );
-
-		prior_ledger = ledger_get_prior_ledger(
-					application_name,
-					transaction_date_time,
-					cost_of_goods_sold_account );
-
-		account->journal_ledger_list =
-			ledger_get_propagate_journal_ledger_list(
-				application_name,
-				prior_ledger,
-				cost_of_goods_sold_account );
-
-		if ( !propagate_account_list )
-			propagate_account_list = list_new();
-
-		list_append_pointer( propagate_account_list, account );
-
-		if ( !inventory_account )
-		{
-			fprintf( stderr,
-		"Error in %s/%s()/%d: empty inventory_account.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-			exit(1 );
-		}
-
-		/* Inventory half */
-		/* -------------- */
-		ledger_journal_ledger_insert(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			inventory_account,
-			customer_sale_cost_of_goods_sold,
-			0 /* not is_debit */ );
-
-		account = ledger_account_new( inventory_account );
-
-		prior_ledger = ledger_get_prior_ledger(
-					application_name,
-					transaction_date_time,
-					inventory_account );
-
-		account->journal_ledger_list =
-			ledger_get_propagate_journal_ledger_list(
-				application_name,
-				prior_ledger,
-				inventory_account );
-
-		list_append_pointer( propagate_account_list, account );
-	}
-
 	return propagate_account_list;
 
 } /* customer_sale_ledger_refresh() */
-
-LIST *customer_sale_ledger_cost_of_goods_sold_update(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double customer_sale_cost_of_goods_sold )
-{
-	char *sales_revenue_account = {0};
-	char *service_revenue_account = {0};
-	char *sales_tax_payable_account = {0};
-	char *shipping_revenue_account = {0};
-	LIST *inventory_account_name_list = {0};
-	char *inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
-	char *receivable_account = {0};
-	LIST *propagate_account_list = {0};
-	ACCOUNT *account;
-	JOURNAL_LEDGER *prior_ledger;
-
-	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
-		&service_revenue_account,
-		&sales_tax_payable_account,
-		&shipping_revenue_account,
-		&inventory_account_name_list,
-		&cost_of_goods_sold_account,
-		&receivable_account,
-		application_name,
-		fund_name );
-
-/* Stub */
-/* ---- */
-if ( list_length( inventory_account_name_list ) )
-inventory_account = list_get_first_pointer( inventory_account_name_list );
-
-	propagate_account_list = list_new();
-
-	/* Cost of goods sold half */
-	/* ----------------------- */
-	ledger_journal_ledger_insert(
-		application_name,
-		full_name,
-		street_address,
-		transaction_date_time,
-		cost_of_goods_sold_account,
-		customer_sale_cost_of_goods_sold,
-		1 /* is_debit */ );
-
-
-	account = ledger_account_new( cost_of_goods_sold_account );
-
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				cost_of_goods_sold_account );
-
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			cost_of_goods_sold_account );
-
-	list_append_pointer( propagate_account_list, account );
-
-	/* Inventory half */
-	/* -------------- */
-	ledger_journal_ledger_insert(
-		application_name,
-		full_name,
-		street_address,
-		transaction_date_time,
-		inventory_account,
-		customer_sale_cost_of_goods_sold,
-		0 /* not is_debit */ );
-
-	account = ledger_account_new( inventory_account );
-
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				inventory_account );
-
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			inventory_account );
-
-	list_append_pointer( propagate_account_list, account );
-
-	return propagate_account_list;
-
-} /* customer_sale_ledger_cost_of_goods_sold_update() */
-
-LIST *customer_sale_get_complete_propagate_account_list(
-				char *application_name,
-				char *fund_name,
-				char *transaction_date_time )
-{
-	char *sales_revenue_account = {0};
-	char *service_revenue_account = {0};
-	char *sales_tax_payable_account = {0};
-	char *shipping_revenue_account = {0};
-	LIST *inventory_account_name_list = {0};
-	char *inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
-	char *receivable_account = {0};
-	ACCOUNT *account;
-	JOURNAL_LEDGER *prior_ledger;
-	LIST *propagate_account_list = {0};
-
-	propagate_account_list = list_new();
-
-	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
-		&service_revenue_account,
-		&sales_tax_payable_account,
-		&shipping_revenue_account,
-		&inventory_account_name_list,
-		&cost_of_goods_sold_account,
-		&receivable_account,
-		application_name,
-		fund_name );
-
-/* Stub */
-/* ---- */
-if ( list_length( inventory_account_name_list ) )
-inventory_account = list_get_first_pointer( inventory_account_name_list );
-
-	/* Sales revenue */
-	/* ------------- */
-	account = ledger_account_new( sales_revenue_account );
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				sales_revenue_account );
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			sales_revenue_account );
-	list_append_pointer( propagate_account_list, account );
-
-	/* Service revenue */
-	/* --------------- */
-	account = ledger_account_new( service_revenue_account );
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				service_revenue_account );
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			service_revenue_account );
-	list_append_pointer( propagate_account_list, account );
-
-	/* Sales tax payable */
-	/* ----------------- */
-	account = ledger_account_new( sales_tax_payable_account );
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				sales_tax_payable_account );
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			sales_tax_payable_account );
-	list_append_pointer( propagate_account_list, account );
-
-	/* Inventory asset */
-	/* --------------- */
-	account = ledger_account_new( inventory_account );
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				inventory_account );
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			inventory_account );
-	list_append_pointer( propagate_account_list, account );
-
-	/* Cost of goods sold */
-	/* ------------------ */
-	account = ledger_account_new( cost_of_goods_sold_account );
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				cost_of_goods_sold_account );
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			cost_of_goods_sold_account );
-	list_append_pointer( propagate_account_list, account );
-
-	/* Account receivable */
-	/* ------------------ */
-	account = ledger_account_new( receivable_account );
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				receivable_account );
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			receivable_account );
-	list_append_pointer( propagate_account_list, account );
-
-	return propagate_account_list;
-
-} /* customer_sale_get_complete_propagate_account_list() */
 
 char *customer_get_max_completed_date_time( char *application_name )
 {
@@ -1724,7 +1533,9 @@ char *customer_sale_get_inventory_sale_join_where( void )
 			"customer_sale.street_address =			"
 			"	inventory_sale.street_address and	"
 			"customer_sale.sale_date_time =			"
-			"	inventory_sale.sale_date_time		";
+			"	inventory_sale.sale_date_time and	"
+			"inventory_sale.inventory_name =		"
+			"inventory.inventory_name			";
 
 	return join_where;
 
@@ -1779,7 +1590,8 @@ LIST *customer_get_customer_sale_list(
 			HASH_TABLE *inventory_sale_hash_table,
 			LIST *inventory_sale_name_list,
 			HASH_TABLE *transaction_hash_table,
-			HASH_TABLE *journal_ledger_hash_table )
+			HASH_TABLE *journal_ledger_hash_table,
+			LIST *inventory_list )
 {
 	char sys_string[ 1024 ];
 	char where[ 512 ];
@@ -1854,6 +1666,13 @@ LIST *customer_get_customer_sale_list(
 				inventory_sale_hash_table,
 				inventory_sale_name_list );
 
+		customer_sale_inventory_cost_account_list_set(
+			customer_sale->inventory_account_list,
+			customer_sale->cost_account_list,
+			customer_sale->inventory_sale_list,
+			inventory_list,
+			1 /* is_database */ );
+
 		inventory_sale_list_set_extension(
 			customer_sale->inventory_sale_list );
 
@@ -1888,7 +1707,6 @@ LIST *customer_get_customer_sale_list(
 		customer_sale->invoice_amount =
 			customer_sale_get_invoice_amount(
 				&customer_sale->sum_inventory_extension,
-				&customer_sale->cost_of_goods_sold,
 				&customer_sale->sum_service_extension,
 				&customer_sale->sum_extension,
 				&customer_sale->sales_tax,
@@ -1910,7 +1728,8 @@ LIST *customer_get_customer_sale_list(
 					customer_sale->street_address,
 					customer_sale->transaction_date_time,
 					transaction_hash_table,
-					journal_ledger_hash_table );
+					journal_ledger_hash_table,
+					inventory_list );
 		}
 
 		if ( !customer_sale_list )
@@ -1969,12 +1788,34 @@ boolean customer_sale_inventory_is_latest(
 				application_name,
 				inventory_name );
 
+	if ( !inventory->last_inventory_balance->inventory_purchase )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot inventory_get_last_inventory_purchase(%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 inventory_name );
+		exit( 1 );
+	}
+
 	inventory->
 		last_inventory_balance->
 		inventory_sale =
 			inventory_get_last_inventory_sale(
 				application_name,
 				inventory_name );
+
+	if ( !inventory->last_inventory_balance->inventory_sale )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot inventory_get_last_inventory_sale(%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 inventory_name );
+		exit( 1 );
+	}
 
 	return inventory_is_latest_sale(
 		inventory->
@@ -1993,27 +1834,21 @@ boolean customer_sale_inventory_is_latest(
 
 } /* customer_sale_inventory_is_latest() */
 
-void customer_sale_list_inventory_transaction_update_and_propagate(
-		char *application_name,
-		LIST *customer_sale_list,
-		char *propagate_transaction_date_time )
+void customer_sale_list_cost_of_goods_sold_transaction_update(
+				char *application_name,
+				LIST *customer_sale_list )
 {
 	CUSTOMER_SALE *customer_sale;
-	char *sales_revenue_account = {0};
-	char *service_revenue_account = {0};
-	char *sales_tax_payable_account = {0};
-	char *shipping_revenue_account = {0};
-	LIST *inventory_account_name_list = {0};
-	char *inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
-	char *receivable_account = {0};
+	INVENTORY_COST_ACCOUNT *inventory_cost_account;
 	FILE *update_pipe;
-	double debit_amount;
 	char *customer_sale_transaction_date_time = {0};
+	LIST *propagate_account_name_list;
 
 	if ( !list_rewind( customer_sale_list ) ) return;
 
 	update_pipe = ledger_open_update_pipe( application_name );
+
+	propagate_account_name_list = list_new();
 
 	do {
 		customer_sale =
@@ -2022,241 +1857,105 @@ void customer_sale_list_inventory_transaction_update_and_propagate(
 
 		if ( !customer_sale->transaction ) continue;
 
-		ledger_get_customer_sale_account_names(
-			&sales_revenue_account,
-			&service_revenue_account,
-			&sales_tax_payable_account,
-			&shipping_revenue_account,
-			&inventory_account_name_list,
-			&cost_of_goods_sold_account,
-			&receivable_account,
-			application_name,
-			customer_sale->fund_name );
+		/* Update cost_of_goods_sold debit account */
+		/* --------------------------------------- */
+		if ( !list_rewind( customer_sale->cost_account_list ) )
+			continue;
 
-/* Stub */
-/* ---- */
-if ( list_length( inventory_account_name_list ) )
-inventory_account = list_get_first_pointer( inventory_account_name_list );
+		do {
+			inventory_cost_account =
+				list_get_pointer(
+					customer_sale->
+						cost_account_list );
 
-		debit_amount =
-			ledger_get_account_debit_amount(
-				customer_sale->
-					transaction->
-					journal_ledger_list,
-				cost_of_goods_sold_account );
-
-		if ( !dollar_virtually_same(
-			debit_amount,
-			customer_sale->cost_of_goods_sold ) )
-		{
-			/* Update cost_of_goods_sold */
-			/* ------------------------- */
-			ledger_journal_ledger_update(
-				update_pipe,
-				customer_sale->
-					transaction->
-					full_name,
-				customer_sale->
-					transaction->
-					street_address,
-				customer_sale->
-					transaction->
-					transaction_date_time,
-				cost_of_goods_sold_account,
-				customer_sale->cost_of_goods_sold,
-				0.0 /* credit_amount */ );
-
-			/* Update inventory */
-			/* ---------------- */
-			ledger_journal_ledger_update(
-				update_pipe,
-				customer_sale->
-					transaction->
-					full_name,
-				customer_sale->
-					transaction->
-					street_address,
-				customer_sale->
-					transaction->
-					transaction_date_time,
-				inventory_account,
-				0.0 /* debit_amount */,
-				customer_sale->cost_of_goods_sold );
-
-			if ( !customer_sale_transaction_date_time )
+			if ( !dollar_virtually_same(
+				inventory_cost_account->
+					cost_of_goods_sold,
+				inventory_cost_account->
+					database_cost_of_goods_sold ) )
 			{
-				if ( propagate_transaction_date_time
-				&&   *propagate_transaction_date_time
-				&&   strcmp(	propagate_transaction_date_time,
-						customer_sale->
-							transaction->
-							transaction_date_time )
-						< 0 )
-				{
-					customer_sale_transaction_date_time =
-						propagate_transaction_date_time;
-				}
-				else
+				ledger_journal_ledger_update(
+					update_pipe,
+					customer_sale->
+						transaction->
+						full_name,
+					customer_sale->
+						transaction->
+						street_address,
+					customer_sale->
+						transaction->
+						transaction_date_time,
+					inventory_cost_account->
+						account_name,
+					inventory_cost_account->
+						cost_of_goods_sold,
+					0.0 /* credit_amount */ );
+
+				if ( !customer_sale_transaction_date_time )
 				{
 					customer_sale_transaction_date_time =
 						customer_sale->
 							transaction->
 							transaction_date_time;
 				}
-			}
-		}
 
-	} while( list_next( customer_sale_list ) );
-
-	pclose( update_pipe );
-
-	if ( customer_sale_transaction_date_time )
-	{
-		LIST *fund_name_list = list_new();
-
-		list_rewind( customer_sale_list );
-
-		do {
-			customer_sale = list_get_pointer( customer_sale_list );
-	
-			if ( list_exists_string(
-				fund_name_list,
-				customer_sale->fund_name ) )
-			{
-				continue;
+				list_append_unique_string(
+					propagate_account_name_list,
+					inventory_cost_account->
+					      account_name );
 			}
 
-			entity_propagate_inventory_ledger_accounts(
-				application_name,
-				customer_sale->fund_name,
-				customer_sale_transaction_date_time );
+		} while( list_next( customer_sale->cost_account_list ) );
 
-			list_append_pointer(
-				fund_name_list,
-				customer_sale->fund_name );
-
-		} while( list_next( customer_sale_list ) );
-	}
-
-} /* customer_sale_list_inventory_transaction_update_and_propagate() */
-
-void customer_sale_list_cost_of_goods_sold_transaction_update(
-		char *application_name,
-		LIST *customer_sale_list )
-{
-	CUSTOMER_SALE *customer_sale;
-	char *inventory_account;
-	char *cost_of_goods_sold_account;
-	FILE *update_pipe;
-	double debit_amount;
-	double credit_amount;
-	char *customer_sale_transaction_date_time = {0};
-
-	if ( !list_rewind( customer_sale_list ) ) return;
-
-	update_pipe = ledger_open_update_pipe( application_name );
-
-	do {
-		customer_sale =
-			list_get_pointer(
-				customer_sale_list );
-
-		if ( !customer_sale->transaction ) continue;
-
-		ledger_get_cost_of_goods_sold_account_names(
-				&cost_of_goods_sold_account,
-				&inventory_account,
-				application_name,
-				customer_sale->fund_name );
-
-		/* ================================ */
-		/* Cost of goods sold and inventory */
-		/* ================================ */
-		debit_amount =
-			ledger_get_account_debit_amount(
-				customer_sale->
-					transaction->
-					journal_ledger_list,
-				cost_of_goods_sold_account );
-
-		/* If deleted the inventory sale. */
-		/* ------------------------------ */
-		if ( !customer_sale->cost_of_goods_sold
-		&&   debit_amount )
-		{
-			customer_sale_ledger_refresh(
-				application_name,
-				customer_sale->fund_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
-				customer_sale->sales_tax,
-				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
-				customer_sale->cost_of_goods_sold );
-
-			if ( !customer_sale_transaction_date_time )
-			{
-				customer_sale_transaction_date_time =
-					customer_sale->
-						transaction->
-						transaction_date_time;
-			}
+		/* Update inventory credit account */
+		/* ------------------------------- */
+		if ( !list_rewind( customer_sale->inventory_account_list ) )
 			continue;
-		}
 
-		/* ------------------------------ */
-		/* If changed the inventory sale. */
-		/* ------------------------------ */
-		if ( !dollar_virtually_same(
-			debit_amount,
-			customer_sale->cost_of_goods_sold ) )
-		{
-			/* Update cost_of_goods_sold */
-			/* ------------------------- */
-			ledger_journal_ledger_update(
-				update_pipe,
-				customer_sale->
-					transaction->
-					full_name,
-				customer_sale->
-					transaction->
-					street_address,
-				customer_sale->
-					transaction->
-					transaction_date_time,
-				cost_of_goods_sold_account,
-				customer_sale->cost_of_goods_sold,
-				0.0 /* credit_amount */ );
+		do {
+			inventory_cost_account =
+				list_get_pointer(
+					customer_sale->
+						inventory_account_list );
 
-			/* Update inventory */
-			/* ---------------- */
-			ledger_journal_ledger_update(
-				update_pipe,
-				customer_sale->
-					transaction->
-					full_name,
-				customer_sale->
-					transaction->
-					street_address,
-				customer_sale->
-					transaction->
-					transaction_date_time,
-				inventory_account,
-				0.0 /* debit_amount */,
-				customer_sale->cost_of_goods_sold );
-
-			if ( !customer_sale_transaction_date_time )
+			if ( !dollar_virtually_same(
+				inventory_cost_account->
+					cost_of_goods_sold,
+				inventory_cost_account->
+					database_cost_of_goods_sold ) )
 			{
-				customer_sale_transaction_date_time =
+				ledger_journal_ledger_update(
+					update_pipe,
 					customer_sale->
 						transaction->
-						transaction_date_time;
+						full_name,
+					customer_sale->
+						transaction->
+						street_address,
+					customer_sale->
+						transaction->
+						transaction_date_time,
+					inventory_cost_account->
+						account_name,
+					0.0 /* debit_amount */,
+					inventory_cost_account->
+						cost_of_goods_sold );
+
+				if ( !customer_sale_transaction_date_time )
+				{
+					customer_sale_transaction_date_time =
+						customer_sale->
+							transaction->
+							transaction_date_time;
+				}
+
+				list_append_unique_string(
+					propagate_account_name_list,
+					inventory_cost_account->
+					      account_name );
 			}
-		}
+
+		} while( list_next( customer_sale->cost_account_list ) );
 
 	} while( list_next( customer_sale_list ) );
 
@@ -2264,36 +1963,17 @@ void customer_sale_list_cost_of_goods_sold_transaction_update(
 
 	if ( customer_sale_transaction_date_time )
 	{
-		LIST *fund_name_list = list_new();
-
-		list_rewind( customer_sale_list );
-
-		do {
-			customer_sale = list_get_pointer( customer_sale_list );
-
-			if ( list_exists_string(
-				fund_name_list,
-				customer_sale->fund_name ) )
-			{
-				continue;
-			}
-
-			entity_propagate_customer_sale_ledger_accounts(
-				application_name,
-				customer_sale->fund_name,
-				customer_sale_transaction_date_time );
-
-			list_append_pointer(
-				fund_name_list,
-				customer_sale->fund_name );
-
-		} while( list_next( customer_sale_list ) );
+		ledger_propagate_account_list(
+			application_name,
+			customer_sale_transaction_date_time,
+			propagate_account_name_list );
 	}
 
 } /* customer_sale_list_cost_of_goods_sold_transaction_update() */
 
 void customer_sale_list_cost_of_goods_sold_set(
-			LIST *customer_sale_list )
+			LIST *customer_sale_list,
+			LIST *inventory_list )
 {
 	CUSTOMER_SALE *customer_sale;
 
@@ -2302,36 +1982,16 @@ void customer_sale_list_cost_of_goods_sold_set(
 	do {
 		customer_sale = list_get( customer_sale_list );
 
-		customer_sale->cost_of_goods_sold =
-			customer_sale_get_cost_of_goods_sold(
-				customer_sale->inventory_sale_list );
+		customer_sale_inventory_cost_account_list_set(
+			customer_sale->inventory_account_list,
+			customer_sale->cost_account_list,
+			customer_sale->inventory_sale_list,
+			inventory_list,
+			0 /* not is_database */ );
 
 	} while( list_next( customer_sale_list ) );
 
 } /* customer_sale_list_cost_of_goods_sold_set() */
-
-#ifdef NOT_DEFINED
-double customer_get_total_payment(
-				LIST *customer_payment_list )
-{
-	CUSTOMER_PAYMENT *customer_payment;
-	double total_payment;
-
-	if ( !list_rewind( customer_payment_list ) ) return 0.0;
-
-	total_payment = 0.0;
-
-	do {
-		customer_payment = list_get( customer_payment_list );
-
-		total_payment += customer_payment->payment_amount;
-
-	} while( list_next( customer_payment_list ) );
-
-	return total_payment;
-
-} /* customer_get_total_payment() */
-#endif
 
 CUSTOMER_PAYMENT *customer_payment_new(
 				char *payment_date_time )
@@ -2841,4 +2501,70 @@ char *customer_sale_get_memo( char *full_name )
 	return strdup( memo );
 
 } /* customer_sale_get_memo() */
+
+void customer_sale_inventory_cost_account_list_set(
+			LIST *inventory_account_list,
+			LIST *cost_account_list,
+			LIST *inventory_sale_list,
+			LIST *inventory_list,
+			boolean is_database )
+{
+	INVENTORY_SALE *inventory_sale;
+	INVENTORY *inventory;
+	INVENTORY_COST_ACCOUNT *inventory_cost_account;
+
+	if ( !list_rewind( inventory_sale_list ) ) return;
+
+	do {
+		inventory_sale = list_get_pointer( inventory_sale_list );
+
+		if ( ! ( inventory =
+				inventory_list_seek(
+					inventory_list,
+					inventory_sale->inventory_name ) ) )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: cannot seek inventory_name = (%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+				inventory_sale->inventory_name );
+			exit(1 );
+		}
+
+		inventory_cost_account =
+			inventory_get_or_set_cost_account(
+				inventory_account_list,
+				inventory->inventory_account_name );
+
+		if ( is_database )
+		{
+			inventory_cost_account->database_cost_of_goods_sold +=
+				inventory_sale->cost_of_goods_sold;
+		}
+		else
+		{
+			inventory_cost_account->cost_of_goods_sold +=
+				inventory_sale->cost_of_goods_sold;
+		}
+
+		inventory_cost_account =
+			inventory_get_or_set_cost_account(
+				cost_account_list,
+				inventory->cost_of_goods_sold_account_name );
+
+		if ( is_database )
+		{
+			inventory_cost_account->database_cost_of_goods_sold +=
+				inventory_sale->cost_of_goods_sold;
+		}
+		else
+		{
+			inventory_cost_account->cost_of_goods_sold +=
+				inventory_sale->cost_of_goods_sold;
+		}
+
+	} while( list_next( inventory_sale_list ) );
+
+} /* customer_sale_inventory_cost_account_list_set() */
 

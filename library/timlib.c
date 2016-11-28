@@ -342,13 +342,25 @@ char *format_initial_capital_cr( char *destination, char *string )
 
 char *format_initial_capital( char *destination, char *string )
 {
-	return format_initial_capital_delimiter( destination, string, ' ' );
+	return format_initial_capital_delimiter(
+			destination,
+			string, ' ',
+			1 /* with_inside_parens */ );
+}
+
+char *format_initial_capital_not_parens( char *destination, char *string )
+{
+	return format_initial_capital_delimiter(
+			destination,
+			string, ' ',
+			0 /* not with_inside_parens */ );
 }
 
 char *format_initial_capital_delimiter(
 				char *destination,
 				char *string,
-				char delimiter )
+				char delimiter,
+				boolean with_inside_parens )
 {
 	boolean beginning = 1;
 	char *destination_ptr = destination;
@@ -357,7 +369,7 @@ char *format_initial_capital_delimiter(
 
 	while( *string )
 	{
-		if ( *string == '(' )
+		if ( with_inside_parens && *string == '(' )
 		{
 			*destination_ptr++ = *string++;
 			beginning = 1;

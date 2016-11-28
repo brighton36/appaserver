@@ -713,7 +713,10 @@ void post_change_depreciation_insert(
 	{
 		ledger_account_list_balance_update(
 			propagate_account_list,
-			application_name );
+			application_name,
+			depreciation->
+				transaction->
+				transaction_date_time );
 	}
 
 	depreciation_update(

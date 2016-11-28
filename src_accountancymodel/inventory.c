@@ -23,6 +23,15 @@ INVENTORY *inventory_new( char *inventory_name )
 {
 	INVENTORY *h = (INVENTORY *)calloc( 1, sizeof( INVENTORY ) );
 
+	if ( !h )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
 	h->inventory_name = inventory_name;
 	h->last_inventory_balance = inventory_balance_new();
 
@@ -35,6 +44,15 @@ INVENTORY_SALE *inventory_sale_new( void )
 	INVENTORY_SALE *h =
 		(INVENTORY_SALE *)
 			calloc( 1, sizeof( INVENTORY_SALE ) );
+	if ( !h )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
 	return h;
 } /* inventory_sale_new() */
 
@@ -43,11 +61,21 @@ INVENTORY_PURCHASE *inventory_purchase_new( void )
 	INVENTORY_PURCHASE *h =
 		(INVENTORY_PURCHASE *)
 			calloc( 1, sizeof( INVENTORY_PURCHASE ) );
+	if ( !h )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
 
 	return h;
 } /* inventory_purchase_new() */
 
-void inventory_load(			char **account_name,
+void inventory_load(			char **inventory_account_name,
+					char **cost_of_goods_sold_account_name,
 					double *retail_price,
 					int *reorder_quantity,
 					int *quantity_on_hand,
@@ -64,7 +92,7 @@ void inventory_load(			char **account_name,
 	char piece_buffer[ 128 ];
 
 	select =
-"account,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance";
+"inventory_account,cost_of_goods_sold_account,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance";
 
 	sprintf(	where,
 			"inventory_name = '%s'",
@@ -97,21 +125,24 @@ void inventory_load(			char **account_name,
 	}
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	*account_name = strdup( piece_buffer );
+	*inventory_account_name = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 1 );
-	*retail_price = atof( piece_buffer );
+	*cost_of_goods_sold_account_name = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
-	*reorder_quantity = atoi( piece_buffer );
+	*retail_price = atof( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 3 );
-	*quantity_on_hand = atoi( piece_buffer );
+	*reorder_quantity = atoi( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 4 );
-	*average_unit_cost = atof( piece_buffer );
+	*quantity_on_hand = atoi( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 5 );
+	*average_unit_cost = atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 6 );
 	*total_cost_balance = atof( piece_buffer );
 
 	free( results );
@@ -530,7 +561,9 @@ char *inventory_get_inventory_sale_join_where( void )
 			"inventory_sale.street_address =		"
 			"	customer_sale.street_address and	"
 			"inventory_sale.sale_date_time =		"
-			"	customer_sale.sale_date_time		";
+			"	customer_sale.sale_date_time and	"
+			"inventory_sale.inventory_name =		"
+			"	inventory.inventory_name		";
 
 	return join_where;
 
@@ -842,138 +875,6 @@ LIST *inventory_purchase_arrived_date_get_list(
 
 } /* inventory_purchase_arrived_date_get_list() */
 
-#ifdef NOT_DEFINED
-LIST *inventory_purchase_get_list(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *inventory_name,
-				char *purchase_date_time,
-				char *earliest_arrived_date_time,
-				char *latest_arrived_date_time )
-{
-	char sys_string[ 2048 ];
-	char where[ 1024 ];
-	char *join_where;
-	char *select;
-	char *folder = "purchase_order,inventory_purchase";
-	FILE *input_pipe;
-	char input_buffer[ 512 ];
-	INVENTORY_PURCHASE *inventory_purchase;
-	LIST *purchase_list;
-
-	if ( !inventory_name || !*inventory_name )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty inventory_name.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	select = inventory_purchase_get_select();
-
-	join_where = inventory_get_inventory_purchase_join_where();
-
-	if (	full_name
-	&&	street_address
-	&&	purchase_date_time )
-	{
-		sprintf( where,
-			 "%s and inventory_name = '%s' and %s",
-			 ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					"inventory_purchase" /* folder_name */,
-					"purchase_date_time" ),
-			 inventory_name,
-			 join_where );
-	}
-	else
-	if ( purchase_date_time && *purchase_date_time )
-	{
-		sprintf( where,
-		"inventory_name = '%s' and				"
-		"inventory_purchase.purchase_date_time = '%s' and	"
-		"%s							",
-		 	 inventory_name,
-			 purchase_date_time,
-			 join_where );
-	}
-	else
-	if ( earliest_arrived_date_time && *earliest_arrived_date_time )
-	{
-		sprintf( where,
-		"inventory_name = '%s' and				"
-		"arrived_date_time is not null and			"
-		"purchase_order.arrived_date_time >= '%s' and		"
-		"%s							",
-		 	 inventory_name,
-			 earliest_arrived_date_time,
-			 join_where );
-	}
-	else
-	{
-		sprintf( where,
-		 	 "inventory_name = '%s' and			"
-			 "arrived_date_time is not null and		"
-			 "%s						",
-		 	 inventory_name,
-			 join_where );
-	}
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			"
-		 "			order=arrived_date_time		",
-		 application_name,
-		 select,
-		 folder,
-		 where );
-
-	input_pipe = popen( sys_string, "r" );
-	purchase_list = list_new();
-
-	while ( get_line( input_buffer, input_pipe ) )
-	{
-		inventory_purchase = inventory_purchase_new();
-
-		inventory_purchase_parse(
-				&inventory_purchase->full_name,
-				&inventory_purchase->street_address,
-				&inventory_purchase->purchase_date_time,
-				&inventory_purchase->inventory_name,
-				&inventory_purchase->ordered_quantity,
-				&inventory_purchase->unit_cost,
-				&inventory_purchase->extension,
-				&inventory_purchase->database_extension,
-				&inventory_purchase->capitalized_unit_cost,
-				&inventory_purchase->
-					database_capitalized_unit_cost,
-				&inventory_purchase->arrived_quantity,
-				&inventory_purchase->database_arrived_quantity,
-				&inventory_purchase->missing_quantity,
-				&inventory_purchase->quantity_on_hand,
-				&inventory_purchase->database_quantity_on_hand,
-				&inventory_purchase->average_unit_cost,
-				&inventory_purchase->database_average_unit_cost,
-				&inventory_purchase->arrived_date_time,
-				input_buffer );
-
-		list_append_pointer( purchase_list, inventory_purchase );
-	}
-
-	pclose( input_pipe );
-
-	return purchase_list;
-
-} /* inventory_purchase_get_list() */
-#endif
-
 LIST *inventory_sale_get_list(
 				char *application_name,
 				char *full_name,
@@ -985,36 +886,45 @@ LIST *inventory_sale_get_list(
 	char where[ 1024 ];
 	char *join_where;
 	char *select;
-	char *folder = "customer_sale,inventory_sale";
+	char *folder;
 	FILE *input_pipe;
 	char input_buffer[ 512 ];
 	INVENTORY_SALE *inventory_sale;
 	LIST *sale_list;
+	char escape_buffer[ 128 ];
 
 	select = inventory_sale_get_select();
+
+	folder = "customer_sale,inventory_sale,inventory";
 
 	join_where = inventory_get_inventory_sale_join_where();
 
 	if ( sale_date_time && *sale_date_time )
 	{
 		sprintf( where,
-			 "%s and inventory_name = '%s' and %s",
+			 "%s and inventory_sale.inventory_name = '%s' and %s",
 			 ledger_get_transaction_where(
 					full_name,
 					street_address,
 					sale_date_time,
 					"inventory_sale" /* folder_name */,
 					"sale_date_time" ),
-			 inventory_name,
+		 	 escape_character(
+				escape_buffer,
+				inventory_name,
+				'\'' ),
 			 join_where );
 	}
 	else
 	{
 		sprintf( where,
-		 	 "inventory_name = '%s' and			"
+		 	 "inventory_sale.inventory_name = '%s' and	"
 			 "completed_date_time is not null and		"
 			 "%s						",
-		 	 inventory_name,
+		 	 escape_character(
+				escape_buffer,
+				inventory_name,
+				'\'' ),
 			 join_where );
 	}
 
@@ -1037,19 +947,21 @@ LIST *inventory_sale_get_list(
 		inventory_sale = inventory_sale_new();
 
 		inventory_sale_parse(
-				&inventory_sale->full_name,
-				&inventory_sale->street_address,
-				&inventory_sale->sale_date_time,
-				&inventory_sale->inventory_name,
-				&inventory_sale->quantity,
-				&inventory_sale->retail_price,
-				&inventory_sale->discount_amount,
-				&inventory_sale->extension,
-				&inventory_sale->database_extension,
-				&inventory_sale->cost_of_goods_sold,
-				&inventory_sale->database_cost_of_goods_sold,
-				&inventory_sale->completed_date_time,
-				input_buffer );
+			&inventory_sale->full_name,
+			&inventory_sale->street_address,
+			&inventory_sale->sale_date_time,
+			&inventory_sale->inventory_name,
+			&inventory_sale->quantity,
+			&inventory_sale->retail_price,
+			&inventory_sale->discount_amount,
+			&inventory_sale->extension,
+			&inventory_sale->database_extension,
+			&inventory_sale->cost_of_goods_sold,
+			&inventory_sale->database_cost_of_goods_sold,
+			&inventory_sale->completed_date_time,
+			&inventory_sale->inventory_account_name,
+			&inventory_sale->cost_of_goods_sold_account_name,
+			input_buffer );
 
 		list_append_pointer( sale_list, inventory_sale );
 	}
@@ -1611,6 +1523,15 @@ INVENTORY_BALANCE *inventory_balance_new( void )
 	INVENTORY_BALANCE *h =
 		(INVENTORY_BALANCE *)
 			calloc( 1, sizeof( INVENTORY_BALANCE ) );
+	if ( !h )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
 
 	return h;
 
@@ -2024,6 +1945,8 @@ LIST *inventory_get_average_cost_inventory_balance_list(
 
 	} while ( list_next( inventory_balance_list ) );
 
+	/* Set the last balance attributes. */
+	/* -------------------------------- */
 	inventory_balance->quantity_on_hand -= total_missing_quantity;
 
 	inventory_balance->total_cost_balance =
@@ -2041,7 +1964,8 @@ INVENTORY *inventory_load_new(	char *application_name,
 
 	inventory = inventory_new( inventory_name );
 
-	inventory_load(	&inventory->account_name,
+	inventory_load(	&inventory->inventory_account_name,
+			&inventory->cost_of_goods_sold_account_name,
 			&inventory->retail_price,
 			&inventory->reorder_quantity,
 			&inventory->
@@ -2308,16 +2232,20 @@ char *inventory_get_max_completed_date_time(
 	char *select;
 	char *folder;
 	char where[ 1024 ];
+	char escape_buffer[ 128 ];
 
 	select = "max( customer_sale.completed_date_time )";
-	folder = "customer_sale,inventory_sale";
+	folder = "customer_sale,inventory_sale,inventory";
 
 	sprintf( where,
-		 "%s and			"
-		 "inventory_name = '%s' and	"
-		 "completed_date_time is not null",
+		 "%s and					"
+		 "inventory_sale.inventory_name = '%s' and	"
+		 "completed_date_time is not null		",
 		 inventory_get_inventory_sale_join_where(),
-		 inventory_name );
+		 escape_character(
+			escape_buffer,
+			inventory_name,
+			'\'' ) );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -2541,7 +2469,7 @@ void inventory_list_delete(	LIST *inventory_list,
 char *inventory_sale_get_select( void )
 {
 	char *select =
-"inventory_sale.full_name,inventory_sale.street_address,inventory_sale.sale_date_time,inventory_name,quantity,retail_price,discount_amount,extension,cost_of_goods_sold,customer_sale.completed_date_time";
+"inventory_sale.full_name,inventory_sale.street_address,inventory_sale.sale_date_time,inventory_sale.inventory_name,quantity,inventory_sale.retail_price,discount_amount,extension,cost_of_goods_sold,customer_sale.completed_date_time,inventory.inventory_account,inventory.cost_of_goods_sold_account";
 
 	return select;
 
@@ -2588,6 +2516,8 @@ void inventory_sale_parse(
 				double *cost_of_goods_sold,
 				double *database_cost_of_goods_sold,
 				char **completed_date_time,
+				char **inventory_account_name,
+				char **cost_of_goods_sold_account_name,
 				char *input_buffer )
 {
 	char piece_buffer[ 1024 ];
@@ -2634,6 +2564,14 @@ void inventory_sale_parse(
 	if ( *piece_buffer )
 		*completed_date_time = strdup( piece_buffer );
 
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
+	if ( *piece_buffer )
+		*inventory_account_name = strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
+	if ( *piece_buffer )
+		*cost_of_goods_sold_account_name = strdup( piece_buffer );
+
 } /* inventory_sale_parse() */
 
 LIST *inventory_get_inventory_sale_list(
@@ -2656,7 +2594,7 @@ LIST *inventory_get_inventory_sale_list(
 
 	select = inventory_sale_get_select();
 
-	folder_list_string = "inventory_sale,customer_sale";
+	folder_list_string = "inventory_sale,customer_sale,inventory";
 
 	sprintf( where,
 		 "inventory_sale.full_name = '%s' and			"
@@ -2687,19 +2625,21 @@ LIST *inventory_get_inventory_sale_list(
 		inventory_sale = inventory_sale_new();
 
 		inventory_sale_parse(
-				&inventory_sale->full_name,
-				&inventory_sale->street_address,
-				&inventory_sale->sale_date_time,
-				&inventory_sale->inventory_name,
-				&inventory_sale->quantity,
-				&inventory_sale->retail_price,
-				&inventory_sale->discount_amount,
-				&inventory_sale->extension,
-				&inventory_sale->database_extension,
-				&inventory_sale->cost_of_goods_sold,
-				&inventory_sale->database_cost_of_goods_sold,
-				&inventory_sale->completed_date_time,
-				input_buffer );
+			&inventory_sale->full_name,
+			&inventory_sale->street_address,
+			&inventory_sale->sale_date_time,
+			&inventory_sale->inventory_name,
+			&inventory_sale->quantity,
+			&inventory_sale->retail_price,
+			&inventory_sale->discount_amount,
+			&inventory_sale->extension,
+			&inventory_sale->database_extension,
+			&inventory_sale->cost_of_goods_sold,
+			&inventory_sale->database_cost_of_goods_sold,
+			&inventory_sale->completed_date_time,
+			&inventory_sale->inventory_account_name,
+			&inventory_sale->cost_of_goods_sold_account_name,
+			input_buffer );
 
 		list_append_pointer(
 			inventory_sale_list,
@@ -3098,7 +3038,7 @@ HASH_TABLE *inventory_get_completed_inventory_sale_hash_table(
 
 	select = inventory_sale_get_select();
 
-	folder_list_string = "inventory_sale,customer_sale";
+	folder_list_string = "inventory_sale,customer_sale,inventory";
 
 	inventory_subquery =
 		inventory_get_subquery(
@@ -3134,19 +3074,21 @@ HASH_TABLE *inventory_get_completed_inventory_sale_hash_table(
 		inventory_sale = inventory_sale_new();
 
 		inventory_sale_parse(
-				&inventory_sale->full_name,
-				&inventory_sale->street_address,
-				&inventory_sale->sale_date_time,
-				&inventory_sale->inventory_name,
-				&inventory_sale->quantity,
-				&inventory_sale->retail_price,
-				&inventory_sale->discount_amount,
-				&inventory_sale->extension,
-				&inventory_sale->database_extension,
-				&inventory_sale->cost_of_goods_sold,
-				&inventory_sale->database_cost_of_goods_sold,
-				&inventory_sale->completed_date_time,
-				input_buffer );
+			&inventory_sale->full_name,
+			&inventory_sale->street_address,
+			&inventory_sale->sale_date_time,
+			&inventory_sale->inventory_name,
+			&inventory_sale->quantity,
+			&inventory_sale->retail_price,
+			&inventory_sale->discount_amount,
+			&inventory_sale->extension,
+			&inventory_sale->database_extension,
+			&inventory_sale->cost_of_goods_sold,
+			&inventory_sale->database_cost_of_goods_sold,
+			&inventory_sale->completed_date_time,
+			&inventory_sale->inventory_account_name,
+			&inventory_sale->cost_of_goods_sold_account_name,
+			input_buffer );
 
 		key = inventory_sale_get_hash_table_key(
 				inventory_sale->full_name,
@@ -3598,6 +3540,7 @@ LIST *inventory_get_latest_inventory_purchase_list(
 	char input_buffer[ 512 ];
 	INVENTORY_PURCHASE *inventory_purchase;
 	LIST *inventory_purchase_list;
+	char escape_buffer[ 128 ];
 
 	if ( !inventory_name || !*inventory_name )
 	{
@@ -3633,7 +3576,10 @@ LIST *inventory_get_latest_inventory_purchase_list(
 	sprintf( where,
 		 "%s and inventory_name = '%s' and %s",
 		 arrived_where,
-		 inventory_name,
+		 escape_character(
+			escape_buffer,
+			inventory_name,
+			'\'' ),
 		 join_where );
 
 	sprintf( sys_string,
@@ -3686,3 +3632,75 @@ LIST *inventory_get_latest_inventory_purchase_list(
 	return inventory_purchase_list;
 
 } /* inventory_get_latest_inventory_purchase_list() */
+
+INVENTORY_COST_ACCOUNT *inventory_cost_account_new(
+				char *account_name )
+{
+	INVENTORY_COST_ACCOUNT *h =
+		(INVENTORY_COST_ACCOUNT *)
+			calloc(	1,
+				sizeof( INVENTORY_COST_ACCOUNT ) );
+
+	if ( !h )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	h->account_name = account_name;
+	return h;
+
+} /* inventory_cost_account_new() */
+
+INVENTORY_COST_ACCOUNT *inventory_get_or_set_cost_account(
+				LIST *inventory_cost_account_list,
+				char *account_name )
+{
+	INVENTORY_COST_ACCOUNT *inventory_cost_account;
+
+	if ( !inventory_cost_account_list )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: null inventory_cost_account_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( inventory_cost_account_list ) )
+	{
+		inventory_cost_account =
+			inventory_cost_account_new(
+				account_name );
+
+		list_append_pointer(	inventory_cost_account_list,
+					inventory_cost_account );
+
+		return inventory_cost_account;
+	}
+
+	do {
+		inventory_cost_account =
+			list_get_pointer(
+				inventory_cost_account_list );
+
+		if ( strcmp(	inventory_cost_account->account_name,
+				account_name ) == 0 )
+		{
+			return inventory_cost_account;
+		}
+
+	} while( list_next( inventory_cost_account_list ) );
+
+	list_append_pointer(	inventory_cost_account_list,
+				inventory_cost_account );
+
+	return inventory_cost_account;
+
+} /* inventory_get_or_set_cost_account() */
+

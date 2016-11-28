@@ -240,8 +240,17 @@ void post_change_service_sale_insert(
 				customer_sale->sum_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
-				customer_sale->cost_of_goods_sold );
+				customer_sale->invoice_amount );
+
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
 
 		ledger_account_list_balance_update(
 				customer_sale->propagate_account_list,
@@ -370,8 +379,17 @@ void post_change_service_sale_update(
 				customer_sale->sum_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
-				customer_sale->cost_of_goods_sold );
+				customer_sale->invoice_amount );
+
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
 
 		ledger_account_list_balance_update(
 				customer_sale->propagate_account_list,
@@ -449,15 +467,26 @@ void post_change_service_sale_delete(
 			customer_sale->sum_service_extension,
 			customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
-			customer_sale->invoice_amount,
-			customer_sale->cost_of_goods_sold );
+			customer_sale->invoice_amount );
 
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
+
+/*
 		customer_sale->propagate_account_list =
 			customer_sale_get_complete_propagate_account_list(
 				application_name,
 				customer_sale->fund_name,
 				customer_sale->transaction->
 					transaction_date_time );
+*/
 
 		ledger_account_list_balance_update(
 				customer_sale->propagate_account_list,

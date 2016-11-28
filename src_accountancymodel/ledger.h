@@ -360,17 +360,17 @@ void ledger_get_customer_sale_account_names(
 				char **service_revenue_account,
 				char **sales_tax_payable_account,
 				char **shipping_revenue_account,
-				LIST **inventory_account_name_list,
-				char **cost_of_goods_sold_account,
 				char **account_receivable_account,
 				char *application_name,
 				char *fund_name );
 
+/*
 void ledger_get_cost_of_goods_sold_account_names(
 				char **cost_of_goods_sold_account,
 				char **inventory_account,
 				char *application_name,
 				char *fund_name );
+*/
 
 char *ledger_get_supply_expense_key_account(
 				char *application_name,
@@ -452,10 +452,12 @@ void ledger_journal_delete(		char *application_name,
 					char *account_name );
 
 void ledger_propagate_accounts(		LIST *propagate_account_list,
-					char *application_name );
+					char *application_name,
+					char *propagate_transaction_date_time );
 
 void ledger_account_list_balance_update(LIST *propagate_account_list,
-					char *application_name );
+					char *application_name,
+					char *propagate_transaction_date_time );
 
 boolean ledger_transaction_exists(	char *application_name,
 					char *transaction_date_time );
@@ -587,7 +589,8 @@ TRANSACTION *ledger_sale_transaction_fetch(
 				char *street_address,
 				char *transaction_date_time,
 				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table );
+				HASH_TABLE *journal_ledger_hash_table,
+				LIST *inventory_list );
 
 void ledger_set_transaction_hash_table(
 				HASH_TABLE *transaction_hash_table,

@@ -214,8 +214,7 @@ void entity_propagate_purchase_order_ledger_accounts(
 				char *fund_name,
 				char *purchase_order_transaction_date_time )
 {
-	LIST *inventory_account_list = {0};
-	char *inventory_account = {0};
+	LIST *inventory_account_name_list = {0};
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
@@ -223,7 +222,7 @@ void entity_propagate_purchase_order_ledger_accounts(
 	char *uncleared_checks_account = {0};
 
 	ledger_get_purchase_order_account_names(
-		&inventory_account_list,
+		&inventory_account_name_list,
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
@@ -232,12 +231,12 @@ void entity_propagate_purchase_order_ledger_accounts(
 		application_name,
 		fund_name );
 
-	if ( list_length( inventory_account_list ) )
+	if ( list_length( inventory_account_name_list ) )
 	{
 		ledger_propagate_account_list(
 			application_name,
 			purchase_order_transaction_date_time,
-			inventory_account_list );
+			inventory_account_name_list );
 	}
 
 	if ( sales_tax_expense_account )
@@ -282,42 +281,6 @@ void entity_propagate_purchase_order_ledger_accounts(
 
 } /* entity_propagate_purchase_order_ledger_accounts() */
 
-void entity_propagate_inventory_ledger_accounts(
-				char *application_name,
-				char *fund_name,
-				char *customer_sale_transaction_date_time )
-{
-	char *sales_revenue_account = {0};
-	char *service_revenue_account = {0};
-	char *sales_tax_payable_account = {0};
-	char *shipping_revenue_account = {0};
-	LIST *inventory_account_name_list = {0};
-	char *cost_of_goods_sold_account = {0};
-	char *receivable_account;
-
-	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
-		&service_revenue_account,
-		&sales_tax_payable_account,
-		&shipping_revenue_account,
-		&inventory_account_name_list,
-		&cost_of_goods_sold_account,
-		&receivable_account,
-		application_name,
-		fund_name );
-
-	ledger_propagate(
-		application_name,
-		customer_sale_transaction_date_time,
-		cost_of_goods_sold_account );
-
-	ledger_propagate_account_list(
-		application_name,
-		customer_sale_transaction_date_time,
-		inventory_account_name_list );
-
-} /* entity_propagate_inventory_ledger_accounts() */
-
 void entity_propagate_customer_sale_ledger_accounts(
 				char *application_name,
 				char *fund_name,
@@ -327,17 +290,14 @@ void entity_propagate_customer_sale_ledger_accounts(
 	char *service_revenue_account = {0};
 	char *sales_tax_payable_account = {0};
 	char *shipping_revenue_account = {0};
-	LIST *inventory_account_name_list = {0};
-	char *cost_of_goods_sold_account = {0};
 	char *receivable_account = {0};
+	LIST *inventory_account_name_list;
 
 	ledger_get_customer_sale_account_names(
 		&sales_revenue_account,
 		&service_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
-		&inventory_account_name_list,
-		&cost_of_goods_sold_account,
 		&receivable_account,
 		application_name,
 		fund_name );
@@ -382,13 +342,9 @@ void entity_propagate_customer_sale_ledger_accounts(
 			receivable_account );
 	}
 
-	if ( cost_of_goods_sold_account )
-	{
-		ledger_propagate(
-			application_name,
-			customer_sale_transaction_date_time,
-			cost_of_goods_sold_account );
-	}
+	inventory_account_name_list =
+		ledger_get_inventory_account_name_list(
+			application_name );
 
 	if ( list_length( inventory_account_name_list ) )
 	{
@@ -399,69 +355,6 @@ void entity_propagate_customer_sale_ledger_accounts(
 	}
 
 } /* entity_propagate_customer_sale_ledger_accounts() */
-
-ENTITY_SELF *entity_self_purchase_inventory_load(
-			char *application_name,
-			char *inventory_name )
-{
-	ENTITY_SELF *entity_self;
-
-	entity_self = entity_self_load(	application_name );
-
-	entity_self->purchase_inventory =
-		inventory_load_new(
-			application_name,
-			inventory_name );
-
-	entity_self->inventory_purchase_hash_table =
-		inventory_get_arrived_inventory_purchase_hash_table(
-			&entity_self->
-				purchase_inventory->
-				inventory_purchase_list,
-			&entity_self->inventory_purchase_name_list,
-			application_name,
-			inventory_name );
-
-	entity_self->inventory_sale_hash_table =
-		inventory_get_completed_inventory_sale_hash_table(
-			&entity_self->
-				purchase_inventory->
-				inventory_sale_list,
-			&entity_self->inventory_sale_name_list,
-			application_name,
-			inventory_name );
-
-	entity_self->transaction_hash_table =
-		ledger_get_transaction_hash_table(
-			application_name,
-			inventory_name );
-
-	entity_self->journal_ledger_hash_table =
-		ledger_get_journal_ledger_hash_table(
-			application_name,
-			inventory_name );
-
-	entity_self->purchase_order_list =
-		purchase_get_purchase_order_list(
-			application_name,
-			inventory_name,
-			entity_self->inventory_purchase_hash_table,
-			entity_self->inventory_purchase_name_list,
-			entity_self->transaction_hash_table,
-			entity_self->journal_ledger_hash_table );
-
-	entity_self->customer_sale_list =
-		customer_get_customer_sale_list(
-			application_name,
-			inventory_name,
-			entity_self->inventory_sale_hash_table,
-			entity_self->inventory_sale_name_list,
-			entity_self->transaction_hash_table,
-			entity_self->journal_ledger_hash_table );
-
-	return entity_self;
-
-} /* entity_self_purchase_inventory_load() */
 
 ENTITY_SELF *entity_self_sale_inventory_load(
 			char *application_name,
@@ -513,6 +406,10 @@ ENTITY_SELF *entity_self_sale_inventory_load(
 			entity_self->transaction_hash_table,
 			entity_self->journal_ledger_hash_table );
 
+	entity_self->inventory_list =
+		entity_get_inventory_list(
+			application_name );
+
 	entity_self->customer_sale_list =
 		customer_get_customer_sale_list(
 			application_name,
@@ -520,7 +417,8 @@ ENTITY_SELF *entity_self_sale_inventory_load(
 			entity_self->inventory_sale_hash_table,
 			entity_self->inventory_sale_name_list,
 			entity_self->transaction_hash_table,
-			entity_self->journal_ledger_hash_table );
+			entity_self->journal_ledger_hash_table,
+			entity_self->inventory_list );
 
 	return entity_self;
 
@@ -569,4 +467,87 @@ enum title_passage_rule entity_get_title_passage_rule(
 	}
 
 } /* entity_get_title_passage_rule() */
+
+LIST *entity_get_inventory_list(
+			char *application_name )
+{
+	INVENTORY *inventory;
+	LIST *inventory_list;
+	char *select;
+	char sys_string[ 512 ];
+	char input_buffer[ 512 ];
+	char piece_buffer[ 128 ];
+	FILE *input_pipe;
+
+	select =
+"inventory_name,inventory_account,cost_of_goods_sold_account";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=inventory	",
+		 application_name,
+		 select );
+
+	input_pipe = popen( sys_string, "r" );
+
+	inventory_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece(	piece_buffer,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		inventory =
+			inventory_new(
+				strdup( piece_buffer ) );
+
+		piece(	piece_buffer,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		if ( !*piece_buffer )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: empty inventory_account_name for inventory = (%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 inventory->inventory_name );
+			pclose( input_pipe );
+			exit( 1 );
+		}
+
+		inventory->inventory_account_name = strdup( piece_buffer );
+
+		piece(	piece_buffer,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		if ( !*piece_buffer )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: empty cost_of_goods_sold_account_name for inventory = (%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 inventory->inventory_name );
+			pclose( input_pipe );
+			exit( 1 );
+		}
+
+		inventory->cost_of_goods_sold_account_name =
+			strdup( piece_buffer );
+
+		list_append_pointer( inventory_list, inventory );
+	}
+
+	pclose( input_pipe );
+	return inventory_list;
+
+} /* entity_get_inventory_list() */
 

@@ -724,7 +724,7 @@ void form_output_table_heading(	LIST *element_list,
 		if ( heading && *heading )
 		{
 			printf( "<th>%s", 
-				 format_initial_capital( 
+				 format_initial_capital_not_parens(
 					buffer, 
 					heading ) );
 
@@ -746,7 +746,7 @@ void form_output_table_heading(	LIST *element_list,
 		else
 		{
 			printf( "<th>%s</th>", 
-				 format_initial_capital( 
+				 format_initial_capital_not_parens(
 					buffer, 
 					element->name ) );
 		}

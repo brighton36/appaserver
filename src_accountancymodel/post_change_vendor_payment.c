@@ -250,7 +250,10 @@ void post_change_vendor_payment_insert(
 	{
 		ledger_account_list_balance_update(
 			propagate_account_list,
-			application_name );
+			application_name,
+			vendor_payment->
+				transaction->
+				transaction_date_time );
 	}
 
 	purchase_vendor_payment_update(
@@ -343,7 +346,10 @@ void post_change_vendor_payment_delete(
 	{
 		ledger_account_list_balance_update(
 			propagate_account_list,
-			application_name );
+			application_name,
+			vendor_payment->
+				transaction->
+				transaction_date_time );
 	}
 
 	list_delete_current( purchase_order->vendor_payment_list );

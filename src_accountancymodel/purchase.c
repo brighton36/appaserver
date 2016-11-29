@@ -155,18 +155,6 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 			p->purchase_amount,
 			p->sum_payment_amount );
 
-fprintf( stderr, "%s/%s()/%d: sum_inventory_extension = %.2lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-p->sum_inventory_extension );
-
-fprintf( stderr, "%s/%s()/%d: sales_tax = %.2lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-p->sales_tax );
-
 	inventory_purchase_list_set_capitalized_unit_cost(
 		p->inventory_purchase_list,
 		p->sum_inventory_extension,
@@ -1261,7 +1249,6 @@ LIST *purchase_order_journal_ledger_refresh(
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time,
-					double sum_inventory_extension,
 					double sum_specific_inventory_unit_cost,
 					double sum_supply_extension,
 					double sum_service_extension,
@@ -1277,11 +1264,21 @@ LIST *purchase_order_journal_ledger_refresh(
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
-	char *cash_account = {0};
-	char *uncleared_checks_account = {0};
 	LIST *propagate_account_list;
 	ACCOUNT *account;
 	JOURNAL_LEDGER *prior_ledger;
+
+	if ( list_length( inventory_purchase_list ) )
+	{
+		return purchase_order_inventory_journal_ledger_refresh(
+				application_name,
+				fund_name,
+				full_name,
+				street_address,
+				transaction_date_time,
+				purchase_amount,
+				inventory_purchase_list );
+	}
 
 	propagate_account_list = list_new();
 
@@ -1295,8 +1292,6 @@ LIST *purchase_order_journal_ledger_refresh(
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
-		&cash_account,
-		&uncleared_checks_account,
 		application_name,
 		fund_name );
 
@@ -1308,18 +1303,6 @@ LIST *purchase_order_journal_ledger_refresh(
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
-	}
-
-	if ( sum_inventory_extension )
-	{
-		list_append_list(
-			propagate_account_list,
-			purchase_inventory_journal_ledger_refresh(
-				application_name,
-				full_name,
-				street_address,
-				transaction_date_time,
-				inventory_purchase_list ) );
 	}
 
 	if ( sum_supply_extension )
@@ -1444,6 +1427,75 @@ LIST *purchase_order_journal_ledger_refresh(
 	return propagate_account_list;
 
 } /* purchase_order_journal_ledger_refresh() */
+
+/* Returns propagate_account_list */
+/* ------------------------------ */
+LIST *purchase_order_inventory_journal_ledger_refresh(
+					char *application_name,
+					char *fund_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					double purchase_amount,
+					LIST *inventory_purchase_list )
+{
+	char *account_payable_account = {0};
+	LIST *propagate_account_list;
+	ACCOUNT *account;
+	JOURNAL_LEDGER *prior_ledger;
+
+	propagate_account_list = list_new();
+
+	ledger_delete(			application_name,
+					LEDGER_FOLDER_NAME,
+					full_name,
+					street_address,
+					transaction_date_time );
+
+	ledger_get_purchase_order_inventory_account_names(
+		&account_payable_account,
+		application_name,
+		fund_name );
+
+	list_append_list(
+		propagate_account_list,
+		purchase_inventory_journal_ledger_refresh(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			inventory_purchase_list ) );
+
+	if ( account_payable_account && purchase_amount )
+	{
+		ledger_journal_ledger_insert(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			account_payable_account,
+			purchase_amount,
+			0 /* not is_debit */ );
+
+		account = ledger_account_new( account_payable_account );
+
+		prior_ledger = ledger_get_prior_ledger(
+					application_name,
+					transaction_date_time,
+					account_payable_account );
+
+		account->journal_ledger_list =
+			ledger_get_propagate_journal_ledger_list(
+				application_name,
+				prior_ledger,
+				account_payable_account );
+
+		list_append_pointer( propagate_account_list, account );
+	}
+
+	return propagate_account_list;
+
+} /* purchase_order_inventory_journal_ledger_refresh() */
 
 /* Returns propagate_account_list */
 /* ------------------------------ */
@@ -1794,29 +1846,6 @@ LIST *purchase_get_inventory_purchase_order_list(
 			purchase_order->sales_tax,
 			purchase_order->freight_in );
 
-/*
-		purchase_order->supply_purchase_list =
-			purchase_supply_get_list(
-				application_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				purchase_order->purchase_date_time );
-
-		purchase_order->service_purchase_list =
-			purchase_service_get_list(
-				application_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				purchase_order->purchase_date_time );
-
-		purchase_order->fixed_asset_purchase_list =
-			purchase_fixed_asset_get_list(
-				application_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				purchase_order->purchase_date_time );
-*/
-
 		purchase_order->purchase_amount =
 			purchase_order_get_purchase_amount(
 				&purchase_order->sum_inventory_extension,
@@ -1838,7 +1867,7 @@ LIST *purchase_get_inventory_purchase_order_list(
 		if ( purchase_order->transaction_date_time )
 		{
 			/* -------------------------------------------- */
-			/* This exclude sales_tax and freight_in	*/
+			/* This excludes sales_tax and freight_in	*/
 			/* which are capitalized into inventory.	*/
 			/* -------------------------------------------- */
 			purchase_order->transaction =
@@ -2224,7 +2253,8 @@ LIST *purchase_inventory_journal_ledger_refresh(
 				 __FUNCTION__,
 				 __LINE__,
 				 full_name,
-				 street_address );
+				 street_address,
+				 transaction_date_time );
 			exit( 1 );
 		}
 

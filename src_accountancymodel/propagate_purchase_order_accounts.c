@@ -31,8 +31,6 @@ int main( int argc, char **argv )
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
-	char *cash_account = {0};
-	char *uncleared_checks_account = {0};
 	char *database_string = {0};
 
 	if ( argc > 1 )
@@ -75,8 +73,6 @@ int main( int argc, char **argv )
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
-		&cash_account,
-		&uncleared_checks_account,
 		application_name,
 		fund_name );
 
@@ -106,14 +102,6 @@ int main( int argc, char **argv )
 	ledger_propagate(	application_name,
 				transaction_date_time,
 				account_payable_account );
-
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				cash_account );
-
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				uncleared_checks_account );
 
 	return 0;
 

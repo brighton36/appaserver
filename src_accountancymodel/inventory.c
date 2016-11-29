@@ -2666,7 +2666,6 @@ LIST *inventory_get_inventory_purchase_list(
 	FILE *input_pipe;
 	INVENTORY_PURCHASE *inventory_purchase;
 	LIST *inventory_purchase_list;
-	char *inventory_account_name;
 
 	inventory_purchase_list = list_new();
 
@@ -3451,29 +3450,13 @@ void inventory_purchase_list_set_capitalized_unit_cost(
 				inventory_purchase->extension /
 				sum_inventory_extension;
 
-fprintf( stderr, "%s/%s()/%d: percent_of_total = %.2lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-percent_of_total );
 			capitalized_extra =
 				(extra_cost * percent_of_total) /
 				(double)inventory_purchase->ordered_quantity;
 
-fprintf( stderr, "%s/%s()/%d: capitalized_extra = %.2lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-capitalized_extra );
 			inventory_purchase->capitalized_unit_cost =
 				inventory_purchase->unit_cost +
 				capitalized_extra;
-
-fprintf( stderr, "%s/%s()/%d: capitalized_unit_cost = %.2lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-inventory_purchase->capitalized_unit_cost );
 		}
 
 	} while ( list_next( inventory_purchase_list ) );

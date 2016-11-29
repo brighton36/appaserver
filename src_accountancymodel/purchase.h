@@ -273,7 +273,6 @@ LIST *purchase_order_journal_ledger_refresh(
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time,
-					double sum_inventory_extension,
 					double sum_specific_inventory_unit_cost,
 					double sum_supply_extension,
 					double sum_service_extension,
@@ -535,6 +534,15 @@ LIST *purchase_get_fixed_asset_account_name_list(
 double purchase_get_fixed_asset_account_debit_amount(
 				LIST *fixed_asset_purchase_list,
 				char *fixed_asset_account_name );
+
+LIST *purchase_order_inventory_journal_ledger_refresh(
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double purchase_amount,
+				LIST *inventory_purchase_list );
 
 #endif
 

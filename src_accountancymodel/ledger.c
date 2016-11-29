@@ -3837,12 +3837,30 @@ void ledger_get_customer_sale_account_names(
 
 } /* ledger_get_customer_sale_account_names() */
 
+void ledger_get_purchase_order_inventory_account_names(
+				char **account_payable_account,
+				char *application_name,
+				char *fund_name )
+{
+	char *key;
+
+	if ( account_payable_account )
+	{
+		key = "account_payable_key";
+		*account_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
+
+} /* ledger_get_purchase_order_inventory_account_names() */
+
 void ledger_get_purchase_order_account_names(
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
-				char **cash_account,
-				char **uncleared_checks_account,
 				char *application_name,
 				char *fund_name )
 {
@@ -3881,6 +3899,7 @@ void ledger_get_purchase_order_account_names(
 				0 /* not warning_only */ );
 	}
 
+#ifdef NOT_DEFINED
 	if ( cash_account )
 	{
 		key = "cash_key";
@@ -3902,6 +3921,7 @@ void ledger_get_purchase_order_account_names(
 				key,
 				0 /* not warning_only */ );
 	}
+#endif
 
 } /* ledger_get_purchase_order_account_names() */
 

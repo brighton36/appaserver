@@ -200,7 +200,6 @@ void post_change_supply_purchase_update(
 			purchase_order->full_name,
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,
-			purchase_order->sum_inventory_extension,
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,
@@ -208,6 +207,7 @@ void post_change_supply_purchase_update(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
@@ -351,7 +351,6 @@ void post_change_supply_purchase_insert(
 			purchase_order->full_name,
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,
-			purchase_order->sum_inventory_extension,
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,
@@ -359,6 +358,7 @@ void post_change_supply_purchase_insert(
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
+			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
@@ -444,7 +444,6 @@ void post_change_supply_purchase_delete(
 				purchase_order->full_name,
 				purchase_order->street_address,
 				purchase_order->transaction_date_time,
-				purchase_order->sum_inventory_extension,
 				purchase_order->
 					sum_specific_inventory_unit_cost,
 				purchase_order->sum_supply_extension,
@@ -453,6 +452,7 @@ void post_change_supply_purchase_delete(
 				purchase_order->sales_tax,
 				purchase_order->freight_in,
 				purchase_order->purchase_amount,
+				purchase_order->inventory_purchase_list,
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
 				purchase_order->fixed_asset_purchase_list );

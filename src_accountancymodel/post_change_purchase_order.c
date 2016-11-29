@@ -881,7 +881,6 @@ void post_change_purchase_order_changed_rule_to_null(
 				purchase_order->full_name,
 				purchase_order->street_address,
 				purchase_order->transaction_date_time,
-				purchase_order->sum_inventory_extension,
 				purchase_order->
 					sum_specific_inventory_unit_cost,
 				purchase_order->sum_supply_extension,
@@ -1066,7 +1065,6 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 				purchase_order->full_name,
 				purchase_order->street_address,
 				purchase_order->transaction_date_time,
-				purchase_order->sum_inventory_extension,
 				purchase_order->
 					sum_specific_inventory_unit_cost,
 				purchase_order->sum_supply_extension,
@@ -1275,7 +1273,6 @@ void post_change_purchase_order_new_transaction(
 			purchase_order->full_name,
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,
-			purchase_order->sum_inventory_extension,
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,

@@ -350,8 +350,11 @@ void ledger_get_purchase_order_account_names(
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
-				char **cash_account,
-				char **uncleared_checks_account,
+				char *application_name,
+				char *fund_name );
+
+void ledger_get_purchase_order_inventory_account_names(
+				char **account_payable_account,
 				char *application_name,
 				char *fund_name );
 

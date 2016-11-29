@@ -68,6 +68,7 @@ char *piece_multiple(	char *destination,
 			char delimiter, 
 			char *source, 
 			int columns_to_piece );
+
 int piece_string_to_record( char*, char );
 
 char *piece_field( int );

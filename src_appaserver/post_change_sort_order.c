@@ -62,7 +62,8 @@ void change_sort_order_state_one(
 				char *login_name,
 				char *session,
 				char *database_string,
-				char *role_name );
+				char *role_name,
+				DICTIONARY *ignore_dictionary );
 
 void change_sort_order_state_two(
 				char *application_name,
@@ -290,7 +291,9 @@ int main( int argc, char **argv )
 				login_name,
 				session,
 				database_string,
-				role_name );
+				role_name,
+				dictionary_appaserver->
+					ignore_dictionary );
 	}
 	else
 	if ( strcmp( state, "two" ) == 0 )
@@ -324,7 +327,8 @@ void change_sort_order_state_one(
 				char *login_name,
 				char *session,
 				char *database_string,
-				char *role_name )
+				char *role_name,
+				DICTIONARY *ignore_dictionary )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -333,10 +337,21 @@ void change_sort_order_state_one(
 	char action_string[ 512 ];
 	char *submit_control_string;
 	char *sort_order_column = {0};
+	LIST *display_attribute_name_list;
+	LIST *ignore_attribute_name_list;
 
-	folder->primary_attribute_name_list =
-		attribute_get_primary_attribute_name_list(
+	display_attribute_name_list =
+		attribute_get_attribute_name_list(
 			folder->attribute_list );
+
+	ignore_attribute_name_list =
+		appaserver_library_get_no_display_pressed_attribute_name_list(
+			ignore_dictionary, 
+			display_attribute_name_list );
+
+	display_attribute_name_list = 
+		list_subtract( 	display_attribute_name_list, 
+				ignore_attribute_name_list );
 
 	sort_order_column =
 		appaserver_library_get_sort_attribute_name(
@@ -389,7 +404,7 @@ void change_sort_order_state_one(
 		 "			where=\"%s\"		"
 		 "			order=%s		",
 		 application_name,
-		 list_display( folder->primary_attribute_name_list ),
+		 list_display( display_attribute_name_list ),
 		 folder->folder_name,
 		 where_clause,
 		 sort_order_column );
@@ -444,6 +459,8 @@ void change_sort_order_state_two(
 	char *data;
 	int sort_starting_number;
 	char *sort_attribute_name;
+	int length_primary_attribute_name_list;
+	char primary_data[ 1024 ];
 
 	sort_attribute_name =
 		appaserver_library_get_sort_attribute_name(
@@ -462,10 +479,14 @@ void change_sort_order_state_two(
 		attribute_get_primary_attribute_name_list(
 			folder->attribute_list );
 
+	length_primary_attribute_name_list =
+		list_length( folder->primary_attribute_name_list );
+
 	table_name = get_table_name( application_name, folder->folder_name );
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 "update_statement.e table=%s key=%s carrot=y	|"
+		 "sql.e						 ",
 		 table_name,
 		 list_display( folder->primary_attribute_name_list ) );
 
@@ -482,7 +503,11 @@ void change_sort_order_state_two(
 
 		fprintf( output_pipe,
 		 	 "%s^%s^%d\n",
-		 	 data,
+			 piece_multiple(
+				primary_data,
+				'^',
+				data,
+				length_primary_attribute_name_list ),
 		 	 sort_attribute_name,
 		 	 sort_starting_number++ );
 	}

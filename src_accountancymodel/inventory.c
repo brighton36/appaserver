@@ -3728,8 +3728,6 @@ TRANSACTION *inventory_purchase_build_transaction(
 	char *inventory_account_name;
 	static LIST *inventory_account_name_list = {0};
 	static char *account_payable_account = {0};
-	static char *cash_account = {0};
-	static char *uncleared_checks_account = {0};
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
 	char *key;
@@ -3753,12 +3751,8 @@ TRANSACTION *inventory_purchase_build_transaction(
 			ledger_get_inventory_account_name_list(
 				application_name );
 
-		ledger_get_purchase_order_account_names(
-			(char **)0 /* sales_tax_expense_account */,
-			(char **)0 /* freight_in_expense_account */,
+		ledger_get_purchase_order_inventory_account_names(
 			&account_payable_account,
-			&cash_account,
-			&uncleared_checks_account,
 			application_name,
 			fund_name );
 	}

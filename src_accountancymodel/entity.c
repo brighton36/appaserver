@@ -218,8 +218,6 @@ void entity_propagate_purchase_order_ledger_accounts(
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
-	char *cash_account = {0};
-	char *uncleared_checks_account = {0};
 
 	inventory_account_name_list =
 		ledger_get_inventory_account_name_list(
@@ -229,8 +227,6 @@ void entity_propagate_purchase_order_ledger_accounts(
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
-		&cash_account,
-		&uncleared_checks_account,
 		application_name,
 		fund_name );
 
@@ -264,22 +260,6 @@ void entity_propagate_purchase_order_ledger_accounts(
 			application_name,
 			purchase_order_transaction_date_time,
 			account_payable_account );
-	}
-
-	if ( cash_account )
-	{
-		ledger_propagate(
-			application_name,
-			purchase_order_transaction_date_time,
-			cash_account );
-	}
-
-	if ( uncleared_checks_account )
-	{
-		ledger_propagate(
-			application_name,
-			purchase_order_transaction_date_time,
-			uncleared_checks_account );
 	}
 
 } /* entity_propagate_purchase_order_ledger_accounts() */

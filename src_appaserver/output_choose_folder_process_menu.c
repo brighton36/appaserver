@@ -1,9 +1,9 @@
-/* ---------------------------------------------		*/
-/* output_choose_folder_process_menu.c				*/
-/* ---------------------------------------------		*/
+/* --------------------------------------------------		*/
+/* src_appaserver/output_choose_folder_process_menu.c		*/
+/* --------------------------------------------------		*/
 /*								*/
 /* Freely available software: see Appaserver.org		*/
-/* ---------------------------------------------		*/
+/* --------------------------------------------------		*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -152,6 +152,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_output_starting_argv_append_file(
 				argc,
@@ -210,6 +216,7 @@ int main( int argc, char **argv )
 			 session,
 			 (char *)list_get_first_pointer( process_record_list ),
 			 role_name );
+
 		exit( system( buffer ) );
 	}
 

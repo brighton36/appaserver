@@ -112,53 +112,6 @@ int main( int argc, char **argv )
 			session,
 			"html" );
 
-/*
-	char *cgi_directory;
-	sprintf( menu_frame_prompt_filename,
-	 	"/%s/%s_%s.html",
-	 	application_name, MENU_FRAME, session );
-
-	sprintf( menu_frame_create_filename,
-	 	"%s/%s/%s_%s.html",
-	 	appaserver_parameter_file->appaserver_mount_point,
-	 	application_name, MENU_FRAME, session );
-
-	sprintf( cgi_directory, "/%s", application_name );
-
-	sprintf( prompt_frame_prompt_filename,
-	 	 "%s/%s_%s.html",
-		 appaserver_library_get_http_prompt(
-				cgi_directory,
-				appaserver_library_get_server_address(),
-				application_get_ssl_support_yn(
-					application_name ),
-				application_get_prepend_http_protocol_yn(
-					application_name ) ),
-	 	PROMPT_FRAME,
-		session );
-
-	sprintf( prompt_frame_create_filename, 
-	 	 "%s/%s/%s_%s.html",
-	 	 appaserver_parameter_file->appaserver_mount_point,
-	 	 application_name, PROMPT_FRAME, session );
-
-	sprintf( edit_frame_prompt_filename, 
-	 	 "%s/%s_%s.html",
-		 appaserver_library_get_http_prompt(
-				cgi_directory,
-				appaserver_library_get_server_address(),
-				application_get_ssl_support_yn(
-					application_name ),
-				application_get_prepend_http_protocol_yn(
-					application_name ) ),
-	 	 EDIT_FRAME, session );
-
-	sprintf( edit_frame_create_filename, 
-	 	 "%s/%s/%s_%s.html",
-	 	 appaserver_parameter_file->appaserver_mount_point,
-	 	 application_name, EDIT_FRAME, session );
-*/
-
 	appaserver_link_file->filename_stem = MENU_FRAME;
 
 	menu_frame_prompt_filename =
@@ -452,3 +405,4 @@ void output_horizontal_frameset(	char *application_name,
 	edit_frame_prompt_filename );
 
 } /* output_horizontal_frameset() */
+

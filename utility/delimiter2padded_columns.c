@@ -17,7 +17,9 @@ typedef struct
 COLUMN *new_column( void );
 void append_column_text(	COLUMN *column, char *text );
 void output_column_list(	LIST *column_list,
-				int right_justified_columns_from_right );
+				int right_justified_columns_from_right,
+				boolean keep_delimiter,
+				char delimiter );
 
 int main( int argc, char **argv )
 {
@@ -29,21 +31,25 @@ int main( int argc, char **argv )
 	LIST *column_list = list_new_list();
 	COLUMN *column;
 	int right_justified_columns_from_right = 0;
+	boolean keep_delimiter = 0;
 
 	if ( argc < 2 )
 	{
-		fprintf( stderr, 
-		"Usage: %s delimiter [right_justified_columns_from_right]\n",
+		fprintf( stderr,
+"Usage: %s delimiter [right_justified_columns_from_right] [keep_delimiter_yn]\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
 	delimiter = *argv[ 1 ];
 
-	if ( argc == 3 )
+	if ( argc > 2 )
 	{
 		right_justified_columns_from_right =
 			atoi( argv[ 2 ] );
+
+		if ( argc == 4 )
+			keep_delimiter = (*argv[ 3 ] == 'y' );
 	}
 
 	/* If tab */
@@ -79,13 +85,17 @@ int main( int argc, char **argv )
 	}
 
 	output_column_list(	column_list,
-				right_justified_columns_from_right );
+				right_justified_columns_from_right,
+				keep_delimiter,
+				delimiter );
 
 	return 0;
 } /* main() */
 
 void output_column_list(	LIST *column_list,
-				int right_justified_columns_from_right )
+				int right_justified_columns_from_right,
+				boolean keep_delimiter,
+				char delimiter )
 {
 	COLUMN *column;
 	char buffer[ 1024 ];
@@ -118,6 +128,11 @@ void output_column_list(	LIST *column_list,
 		do {
 			column = list_get_pointer( column_list );
 
+			if ( keep_delimiter && !list_at_first( column_list ) )
+			{
+				printf( "%c", delimiter );
+			}
+
 			if ( start_right_justify_column_number
 			&&  	column_number >=
 				start_right_justify_column_number )
@@ -132,6 +147,7 @@ void output_column_list(	LIST *column_list,
 					pad_width =
 						column->max_length + 1;
 				}
+
 				printf( "%s",
 					timlib_pad_spaces_to_justify_right(
 					buffer,

@@ -129,18 +129,28 @@ void post_change_bank_download_update(
 	char *sequence_number;
 	FILE *input_pipe;
 	FILE *output_pipe;
-	char input_bank_date[ 16 ];
-	char input_bank_description[ 128 ];
-	char input_bank_amount[ 16 ];
+	char input_bank_date[ 32 ];
+	char input_bank_description[ 512 ];
+	char input_bank_amount[ 32 ];
 	double bank_running_balance;
-	char input_buffer[ 512 ];
+	char input_buffer[ 1024 ];
 	char *starting_sequence_number = {0};
 	char *fund;
 
-	fund = get_fund_name(
-			application_name,
-			bank_date,
-			bank_description );
+	if ( ! ( fund = get_fund_name(
+				application_name,
+				bank_date,
+				bank_description ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get fund_name for (%s/%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 bank_date,
+			 bank_description );
+		exit( 1 );
+	}
 
 	sequence_number =
 		get_sequence_number(
@@ -394,7 +404,7 @@ char *get_fund_name(
 		 "get_folder_data	application=%s			"
 		 "			select=%s			"
 		 "			folder=%s			"
-		 "			where=\"%s\" 2>/dev/null	",
+		 "			where=\"%s\"			",
 		 application_name,
 		 select,
 		 folder_name,

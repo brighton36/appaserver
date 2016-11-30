@@ -397,17 +397,22 @@ void change_sort_order_state_one(
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */ );
 
+/*
+		 "delimiter2padded_columns.e '%c' 1 y		|"
+*/
 	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=%s		"
-		 "			folder=%s		"
-		 "			where=\"%s\"		"
-		 "			order=%s		",
+		 "get_folder_data	application=%s		 "
+		 "			select=%s		 "
+		 "			folder=%s		 "
+		 "			where=\"%s\"		 "
+		 "			order=%s		|"
+		 "cat						 ",
 		 application_name,
 		 list_display( display_attribute_name_list ),
 		 folder->folder_name,
 		 where_clause,
-		 sort_order_column );
+		 sort_order_column,
+		 FOLDER_DATA_DELIMITER );
 
 	input_pipe = popen( sys_string, "r" );
 

@@ -25,7 +25,6 @@
 #include "application_constants.h"
 #include "environ.h"
 #include "application.h"
-#include "or_sequence.h"
 #include "benthic_species.h"
 
 /* Enumerated Types */
@@ -289,7 +288,7 @@ char *get_where_clause(
 	char *sweep_table_name;
 	char *throwtrap_replicate_table_name;
 	char *pink_assessment_area_table_name;
-	OR_SEQUENCE *or_sequence;
+	QUERY_OR_SEQUENCE *query_or_sequence;
 	LIST *attribute_name_list;
 	char attribute_name[ 128 ];
 
@@ -329,20 +328,20 @@ char *get_where_clause(
 			sampling_point_table_name );
 	list_append_pointer( attribute_name_list, strdup( attribute_name ) );
 
-	or_sequence = or_sequence_new( attribute_name_list );
+	query_or_sequence = query_or_sequence_new( attribute_name_list );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			collection_list );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			project_list );
 
 	strcpy( where_or_clause,
-		or_sequence_get_where_clause(
-				or_sequence->attribute_name_list,
-				or_sequence->data_list_list,
+		query_or_sequence_get_where_clause(
+				query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ ) );
 
 

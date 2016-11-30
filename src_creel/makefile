@@ -107,7 +107,6 @@ creel_census_report: creel_census_report.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_census_report.c					\
 		-o creel_census_report
@@ -118,7 +117,6 @@ load_sport_fishing_trips: load_sport_fishing_trips.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		load_sport_fishing_trips.c				\
 		-o load_sport_fishing_trips
@@ -129,7 +127,6 @@ load_sport_measurements: load_sport_measurements.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_load_library.o					\
 		load_sport_measurements.c				\
@@ -141,7 +138,6 @@ guide_compliance_mail_merge: guide_compliance_mail_merge.c		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_load_library.o					\
 		guide_compliance_mail_merge.c				\
@@ -153,7 +149,6 @@ load_guide_fishing_trips: load_guide_fishing_trips.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_load_library.o					\
 		load_guide_fishing_trips.c				\
@@ -166,7 +161,6 @@ load_trailer_count: load_trailer_count.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_load_library.o					\
 		load_trailer_count.c					\
@@ -179,7 +173,6 @@ load_guide_angler_submission: load_guide_angler_submission.c		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_load_library.o					\
 		load_guide_angler_submission.c				\
@@ -191,7 +184,6 @@ load_fishing_permits: load_fishing_permits.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_load_library.o					\
 		load_fishing_permits.c					\
@@ -205,7 +197,6 @@ creel_catches_report: creel_catches_report.c				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
 		${LIBRARY}/easycharts.o					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_catches_report.c					\
 		-o creel_catches_report
@@ -216,33 +207,28 @@ calculate_species_cpue: calculate_species_cpue.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		calculate_species_cpue.c				\
 		-o calculate_species_cpue
 
 species_estimated_total_caught: species_estimated_total_caught.c	\
 	${STANDARD_LIBRARY} 						\
-	${EXTERNAL_LIBS} total_caught.o					\
-		${LIBRARY}/or_sequence.o
+	${EXTERNAL_LIBS} total_caught.o
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		total_caught.o						\
 		species_estimated_total_caught.c			\
 		-o species_estimated_total_caught
 
 estimated_fishing_effort_hours: estimated_fishing_effort_hours.c	\
 	${STANDARD_LIBRARY} 						\
-	${EXTERNAL_LIBS} total_caught.o					\
-		${LIBRARY}/or_sequence.o
+	${EXTERNAL_LIBS} total_caught.o
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		total_caught.o						\
 		estimated_fishing_effort_hours.c			\
 		-o estimated_fishing_effort_hours
@@ -255,7 +241,6 @@ sport_measurement_report: sport_measurement_report.c			\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
 		${LIBRARY}/easycharts.o					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		sport_measurement_report.c				\
 		-o sport_measurement_report
@@ -266,7 +251,6 @@ creel_spreadsheet_file: creel_spreadsheet_file.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_spreadsheet_file.c				\
 		-o creel_spreadsheet_file
@@ -278,7 +262,6 @@ output_measurement_spreadsheet_file:					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		output_measurement_spreadsheet_file.c			\
 		-o output_measurement_spreadsheet_file
@@ -289,7 +272,6 @@ creel_guide_spreadsheet_file: creel_guide_spreadsheet_file.c		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		creel_guide_spreadsheet_file.c				\
 		-o creel_guide_spreadsheet_file
@@ -300,7 +282,6 @@ species_preferred_species_caught: species_preferred_species_caught.c	\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/or_sequence.o				\
 		creel_library.o						\
 		species_preferred_species_caught.c			\
 		-o species_preferred_species_caught
@@ -333,7 +314,6 @@ insert_sport_creel_census:						\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
-		${LIBRARY}/or_sequence.o				\
 		insert_sport_creel_census.c				\
 		creel_load_library.o					\
 		creel_library.o						\
@@ -347,7 +327,6 @@ insert_sport_fishing_trips:						\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
-		${LIBRARY}/or_sequence.o				\
 		insert_sport_fishing_trips.c				\
 		creel_load_library.o					\
 		creel_library.o						\
@@ -360,7 +339,6 @@ insert_sport_catches:							\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
-		${LIBRARY}/or_sequence.o				\
 		insert_sport_catches.c					\
 		creel_load_library.o					\
 		creel_library.o						\
@@ -372,22 +350,19 @@ delete_sport_creel_census:						\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
-		${LIBRARY}/or_sequence.o				\
 		delete_sport_creel_census.c				\
 		creel_load_library.o					\
 		creel_library.o						\
 		-o delete_sport_creel_census
 
 species_list:								\
-	species_list.c ${LIBRARY}/additional_drop_down_attribute.o	\
-		${LIBRARY}/or_sequence.o
+	species_list.c ${LIBRARY}/additional_drop_down_attribute.o
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
 		species_list.c						\
 		${LIBRARY}/additional_drop_down_attribute.o		\
-		${LIBRARY}/or_sequence.o				\
 		-o species_list
 
 families_list:								\
@@ -429,8 +404,7 @@ creel_dvr:	creel_dvr.c						\
 		creel.o							\
 		-o creel_dvr
 
-creel_library.o: creel_library.c creel_library.h			\
-		${LIBRARY}/or_sequence.h
+creel_library.o: creel_library.c creel_library.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c creel_library.c

@@ -49,6 +49,12 @@ enum relational_operator {	equals,
 
 /* Structures */
 /* ---------- */
+typedef struct 
+{
+	LIST *attribute_name_list;
+	LIST *data_list_list;
+} QUERY_OR_SEQUENCE;
+
 typedef struct
 {
 	LIST *attribute_name_list;
@@ -536,5 +542,21 @@ char *query_get_dictionary_where_clause(
 				DICTIONARY *dictionary,
 				LIST *primary_attribute_name_list,
 				char *dictionary_indexed_prefix );
+
+QUERY_OR_SEQUENCE *query_or_sequence_new(
+				LIST *attribute_name_list );
+
+int query_or_sequence_set_data_list_string(
+				LIST *data_list_list,
+				char *data_list_string );
+
+int query_or_sequence_set_data_list(
+				LIST *data_list_list,
+				LIST *data_list );
+
+char *query_or_sequence_get_where_clause(
+				LIST *attribute_name_list,
+				LIST *data_list_list,
+				boolean with_and_prefix );
 
 #endif

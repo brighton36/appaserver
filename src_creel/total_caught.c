@@ -14,9 +14,9 @@
 #include "list.h"
 #include "piece.h"
 #include "timlib.h"
+#include "query.h"
 #include "appaserver_library.h"
 #include "application_constants.h"
-#include "or_sequence.h"
 
 CATCH_AREA *total_caught_catch_area_new( void )
 {
@@ -329,8 +329,8 @@ LIST *total_caught_get_species_list(
 			char *genus_list_string,
 			char *species_list_string )
 {
-	OR_SEQUENCE *or_sequence = {0};
-	char *or_sequence_where_clause;
+	QUERY_OR_SEQUENCE *query_or_sequence = {0};
+	char *query_or_sequence_where_clause;
 	LIST *column_name_list;
 	char sys_string[ 1024 ];
 	char *select;
@@ -346,7 +346,7 @@ LIST *total_caught_get_species_list(
 	if ( !*family_list_string
 	||   strcmp( family_list_string, "family" ) == 0 )
 	{
-		or_sequence_where_clause = "1 = 1";
+		query_or_sequence_where_clause = "1 = 1";
 		*all_species = 1;
 	}
 	else
@@ -356,24 +356,24 @@ LIST *total_caught_get_species_list(
 		list_append_pointer( column_name_list, "genus" );
 		list_append_pointer( column_name_list, "species" );
 	
-		or_sequence = or_sequence_new( column_name_list );
+		query_or_sequence = query_or_sequence_new( column_name_list );
 	
-		or_sequence_set_data_list_string(
-			or_sequence->data_list_list,
+		query_or_sequence_set_data_list_string(
+			query_or_sequence->data_list_list,
 			family_list_string );
 	
-		or_sequence_set_data_list_string(
-			or_sequence->data_list_list,
+		query_or_sequence_set_data_list_string(
+			query_or_sequence->data_list_list,
 			genus_list_string );
 	
-		or_sequence_set_data_list_string(
-			or_sequence->data_list_list,
+		query_or_sequence_set_data_list_string(
+			query_or_sequence->data_list_list,
 			species_list_string );
 	
-		or_sequence_where_clause =
-			or_sequence_get_where_clause(
-					or_sequence->attribute_name_list,
-				or_sequence->data_list_list,
+		query_or_sequence_where_clause =
+			query_or_sequence_get_where_clause(
+					query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );
 	}
 
@@ -387,7 +387,7 @@ LIST *total_caught_get_species_list(
 		 "			order=florida_state_code	",
 		 application_name,
 		 select,
-		 or_sequence_where_clause );
+		 query_or_sequence_where_clause );
 
 	input_pipe = popen( sys_string, "r" );
 

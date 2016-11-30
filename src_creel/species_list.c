@@ -15,7 +15,6 @@
 #include "piece.h"
 #include "attribute.h"
 #include "appaserver_parameter_file.h"
-#include "or_sequence.h"
 
 /* Prototypes */
 /* ---------- */
@@ -306,7 +305,7 @@ void get_catches_species_in_clause(
 	char attribute_name[ 128 ];
 	char *record;
 	char *table_name;
-	OR_SEQUENCE *or_sequence;
+	QUERY_OR_SEQUENCE *query_or_sequence;
 	LIST *attribute_name_list;
 
 	strcpy( catches_species_in_clause, "1 = 1" );
@@ -348,7 +347,7 @@ void get_catches_species_in_clause(
 	sprintf( attribute_name, "%s.species", table_name );
 	list_append_pointer( attribute_name_list, strdup( attribute_name ) );
 
-	or_sequence = or_sequence_new( attribute_name_list );
+	query_or_sequence = query_or_sequence_new( attribute_name_list );
 
 	/* Set family */
 	/* ---------- */
@@ -366,8 +365,8 @@ void get_catches_species_in_clause(
 
 	} while( list_next( species_record_list ) );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			data_list );
 
 	/* Set genus */
@@ -386,8 +385,8 @@ void get_catches_species_in_clause(
 
 	} while( list_next( species_record_list ) );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			data_list );
 
 	/* Set species */
@@ -406,14 +405,14 @@ void get_catches_species_in_clause(
 
 	} while( list_next( species_record_list ) );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			data_list );
 
 	strcpy( catches_species_in_clause,
-		or_sequence_get_where_clause(
-				or_sequence->attribute_name_list,
-				or_sequence->data_list_list,
+		query_or_sequence_get_where_clause(
+				query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ ) );
 
 } /* get_catches_species_in_clause() */

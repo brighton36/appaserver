@@ -28,15 +28,19 @@
 #include "benthic_species.h"
 #include "benthic_library.h"
 #include "braun_blanque.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
 
 /* Constants */
 /* --------- */
+#define FILENAME_STEM			"spss_ready_bbq"
+/*
 #define OUTPUT_FILE			"%s/%s/spss_ready_bbq_%d.csv"
 #define FTP_PREPEND_FILE		"%s://%s/%s/spss_ready_bbq_%d.csv"
 #define FTP_NONPREPEND_FILE		"/%s/spss_ready_bbq_%d.csv"
+*/
 
 /* Prototypes */
 /* ---------- */
@@ -94,7 +98,7 @@ void get_title_and_sub_title(	char *title,
 
 void output_spss_ready_cover_abundance(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				LIST *collection_list,
 				LIST *project_list,
@@ -151,7 +155,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -202,7 +206,7 @@ int main( int argc, char **argv )
 	output_spss_ready_cover_abundance(
 				application_name,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				getpid(),
 				collection_list,
 				project_list,
@@ -219,27 +223,75 @@ int main( int argc, char **argv )
 
 void output_spss_ready_cover_abundance(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				LIST *collection_list,
 				LIST *project_list,
 				boolean avg_quads_boolean )
 {
-	char ftp_filename[ 256 ];
-	char process_output_filename[ 256 ];
+	char *process_output_filename;
+	char *ftp_filename;
 	FILE *input_pipe;
 	FILE *output_file;
 	char input_buffer[ 1024 ];
 	BRAUN_BLANQUE *braun_blanque;
 	boolean extra_output_needed = 0;
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+		   application_get_http_prefix(
+				application_name ),
+		   appaserver_library_get_server_address(),
+		   ( application_get_prepend_http_protocol_yn(
+			application_name ) == 'y' ),
+		   document_root_directory,
+		   FILENAME_STEM,
+		   application_name,
+		   process_id,
+		   (char *)0 /* session */,
+		   "csv" );
+
+	process_output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	braun_blanque = braun_blanque_new( application_name );
 
+/*
 	sprintf(process_output_filename,
 	 	OUTPUT_FILE,
 	 	appaserver_mount_point,
 	 	application_name,
 	 	process_id );
+*/
 
 	if ( ! ( output_file = fopen( process_output_filename, "w" ) ) )
 	{
@@ -276,11 +328,6 @@ void output_spss_ready_cover_abundance(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-/*
-fprintf( stderr, "%s(): got input_buffer = (%s)\n",
-__FUNCTION__, input_buffer );
-*/
-
 		extra_output_needed =
 			braun_blanque_set_input_buffer(
 				output_file,
@@ -309,6 +356,7 @@ __FUNCTION__, input_buffer );
 	fclose( output_file );
 	pclose( input_pipe );
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 	{
@@ -326,6 +374,7 @@ __FUNCTION__, input_buffer );
 	 		application_name,
 	 		process_id );
 	}
+*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

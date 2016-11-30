@@ -28,6 +28,7 @@
 #include "benthic_species.h"
 #include "benthic_library.h"
 #include "benthic_spss.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -35,9 +36,11 @@
 /* Constants */
 /* --------- */
 #define DEBUG 0
+#define FILENAME_STEM_SHRIMP		"spss_ready_shrimp_crab_counts"
+#define FILENAME_STEM_FISH		"spss_ready_fish_counts"
+#define TEMP_FILE			"%s/spss_ready_temp_file_%d.csv"
 
-#define TEMP_FILE			"%s/%s/spss_ready_temp_file_%d.csv"
-
+/*
 #define OUTPUT_SHRIMP_CRAB		"%s/%s/spss_ready_shrimp_crab_counts_%d.csv"
 #define FTP_PREPEND_SHRIMP_CRAB		"%s://%s/%s/spss_ready_shrimp_crab_counts_%d.csv"
 #define FTP_NONPREPEND_SHRIMP_CRAB	"/%s/spss_ready_shrimp_crab_counts_%d.csv"
@@ -45,6 +48,7 @@
 #define OUTPUT_FISH			"%s/%s/spss_ready_fish_counts_%d.csv"
 #define FTP_PREPEND_FISH		"%s://%s/%s/spss_ready_fish_counts_%d.csv"
 #define FTP_NONPREPEND_FISH		"/%s/spss_ready_fish_counts_%d.csv"
+*/
 
 /* Prototypes */
 /* ---------- */
@@ -52,7 +56,7 @@ char *create_rows(		char *application_name,
 				LIST *collection_list,
 				LIST *project_list,
 				char sum_sweeps_yn,
-				char *appaserver_mount_point,
+				char *appaserver_data_directory,
 				pid_t process_id );
 
 void get_title_and_sub_title(	char *title,
@@ -64,14 +68,14 @@ void get_title_and_sub_title(	char *title,
 
 void output_spss_ready_counts_shrimp_crab(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				char sum_sweeps_yn,
 				char *select_output_filename );
 
 void output_spss_ready_counts_fish(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				char sum_sweeps_yn,
 				char *select_output_filename );
@@ -124,7 +128,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -179,13 +183,13 @@ int main( int argc, char **argv )
 			project_list,
 			sum_sweeps_yn,
 			appaserver_parameter_file->
-				appaserver_mount_point,
+				appaserver_data_directory,
 			getpid() );
 
 	output_spss_ready_counts_shrimp_crab(
 				application_name,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				getpid(),
 				sum_sweeps_yn,
 				select_output_filename );
@@ -193,7 +197,7 @@ int main( int argc, char **argv )
 	output_spss_ready_counts_fish(
 				application_name,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				getpid(),
 				sum_sweeps_yn,
 				select_output_filename );
@@ -205,6 +209,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
+
 } /* main() */
 
 void get_title_and_sub_title(
@@ -231,7 +236,7 @@ char *create_rows(	char *application_name,
 			LIST *collection_list,
 			LIST *project_list,
 			char sum_sweeps_yn,
-			char *appaserver_mount_point,
+			char *appaserver_data_directory,
 			pid_t process_id )
 {
 	static char select_output_filename[ 128 ];
@@ -241,8 +246,7 @@ char *create_rows(	char *application_name,
 	/* --------------- */
 	sprintf(select_output_filename,
 	 	TEMP_FILE,
-	 	appaserver_mount_point,
-	 	application_name,
+	 	appaserver_data_directory,
 	 	process_id );
 
 	sprintf( sys_string,
@@ -255,22 +259,69 @@ char *create_rows(	char *application_name,
 
 	system( sys_string );
 	return select_output_filename;
+
 } /* create_rows() */
 
 void output_spss_ready_counts_shrimp_crab(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				char sum_sweeps_yn,
 				char *select_output_filename )
 {
-	char ftp_filename[ 256 ];
-	char process_output_filename[ 256 ];
+	char *process_output_filename;
+	char *ftp_filename;
 	FILE *output_file;
 	BENTHIC_SPSS *benthic_spss;
 	LIST *faunal_group_name_list;
 	SPSS_SAMPLING_POINT *spss_sampling_point;
 	int all_done = 0;
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+		   application_get_http_prefix(
+				application_name ),
+		   appaserver_library_get_server_address(),
+		   ( application_get_prepend_http_protocol_yn(
+			application_name ) == 'y' ),
+		   document_root_directory,
+		   FILENAME_STEM_SHRIMP,
+		   application_name,
+		   process_id,
+		   (char *)0 /* session */,
+		   "csv" );
+
+	process_output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	faunal_group_name_list = list_new();
 	list_append_pointer( faunal_group_name_list, "penaeid_shrimp" );
@@ -282,11 +333,13 @@ void output_spss_ready_counts_shrimp_crab(
 				faunal_group_name_list,
 				select_output_filename );
 
+/*
 	sprintf(process_output_filename,
 	 	OUTPUT_SHRIMP_CRAB,
 	 	appaserver_mount_point,
 	 	application_name,
 	 	process_id );
+*/
 
 	if ( ! ( output_file = fopen( process_output_filename, "w" ) ) )
 	{
@@ -322,6 +375,7 @@ void output_spss_ready_counts_shrimp_crab(
 
 	fclose( output_file );
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 	{
@@ -339,6 +393,7 @@ void output_spss_ready_counts_shrimp_crab(
 	 		application_name,
 	 		process_id );
 	}
+*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,
@@ -352,18 +407,64 @@ void output_spss_ready_counts_shrimp_crab(
 
 void output_spss_ready_counts_fish(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				char sum_sweeps_yn,
 				char *select_output_filename )
 {
-	char ftp_filename[ 256 ];
-	char process_output_filename[ 256 ];
+	char *process_output_filename;
+	char *ftp_filename;
 	FILE *output_file;
 	BENTHIC_SPSS *benthic_spss;
 	LIST *faunal_group_name_list;
 	SPSS_SAMPLING_POINT *spss_sampling_point;
 	int all_done = 0;
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+		   application_get_http_prefix(
+				application_name ),
+		   appaserver_library_get_server_address(),
+		   ( application_get_prepend_http_protocol_yn(
+			application_name ) == 'y' ),
+		   document_root_directory,
+		   FILENAME_STEM_FISH,
+		   application_name,
+		   process_id,
+		   (char *)0 /* session */,
+		   "csv" );
+
+	process_output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	faunal_group_name_list = list_new();
 	list_append_pointer( faunal_group_name_list, "fish" );
@@ -373,11 +474,13 @@ void output_spss_ready_counts_fish(
 				faunal_group_name_list,
 				select_output_filename );
 
+/*
 	sprintf(process_output_filename,
 	 	OUTPUT_FISH,
 	 	appaserver_mount_point,
 	 	application_name,
 	 	process_id );
+*/
 
 	if ( ! ( output_file = fopen( process_output_filename, "w" ) ) )
 	{
@@ -413,6 +516,7 @@ void output_spss_ready_counts_fish(
 
 	fclose( output_file );
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 	{
@@ -430,6 +534,7 @@ void output_spss_ready_counts_fish(
 	 		application_name,
 	 		process_id );
 	}
+*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

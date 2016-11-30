@@ -984,12 +984,11 @@ random_stream.e: random_stream.c
 		${STANDARD_LIBRARY}					\
 		-o random_stream.e
 
-or_sequence.e: or_sequence.c						\
-		${LIBRARY}/or_sequence.o
+or_sequence.e: or_sequence.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} or_sequence.c 			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/or_sequence.o				\
+		${APPASERVER_LIBRARY}					\
 		-o or_sequence.e
 
 in_clause.e: in_clause.c

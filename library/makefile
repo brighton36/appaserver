@@ -83,7 +83,6 @@ APPASERVER_LIBRARY=						\
 		row_security.o					\
 		dictionary_appaserver.o				\
 		additional_drop_down_attribute.o		\
-		or_sequence.o					\
 		scatterplot.o					\
 		regression.o					\
 		pivot_table.o					\
@@ -325,13 +324,6 @@ html_table_dvr.e: html_table_dvr.c
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 	   -o html_table_dvr.e
-
-or_sequence_dvr.e: or_sequence_dvr.c or_sequence.o
-	${CC} ${CFLAGS} -I${LIBRARY} or_sequence_dvr.c			\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${STANDARD_LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-	   -o or_sequence_dvr.e
 
 date_convert_dvr.e: date_convert_dvr.c date_convert.o
 	${CC} ${CFLAGS} -I${LIBRARY} date_convert_dvr.c			\
@@ -983,10 +975,6 @@ generic_load.o: generic_load.c generic_load.h
 
 report_writer.o: report_writer.c report_writer.h
 	${CC} ${CFLAGS} -c report_writer.c				\
-		${APPASERVER_ERROR_FILE_FLAG}
-
-or_sequence.o: or_sequence.c or_sequence.h
-	${CC} ${CFLAGS} -c or_sequence.c				\
 		${APPASERVER_ERROR_FILE_FLAG}
 
 scatterplot.o: scatterplot.c scatterplot.h

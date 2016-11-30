@@ -26,16 +26,19 @@
 #include "environ.h"
 #include "application.h"
 #include "benthic_library.h"
-#include "or_sequence.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
 
 /* Constants */
 /* --------- */
+#define FILENAME_STEM			"spss_ready_attempt"
+/*
 #define OUTPUT_FILE			"%s/%s/spss_ready_attempt_%d.csv"
 #define FTP_PREPEND_FILE		"%s://%s/%s/spss_ready_attempt_%d.csv"
 #define FTP_NONPREPEND_FILE		"/%s/spss_ready_attempt_%d.csv"
+*/
 
 /* Prototypes */
 /* ---------- */
@@ -48,7 +51,7 @@ char *get_select_string(
 				LIST *collection_list,
 				LIST *project_list );
 
-char *get_or_sequence_where_clause(
+char *get_query_or_sequence_where_clause(
 				char *application_name,
 				LIST *collection_list,
 				LIST *project_list );
@@ -61,7 +64,7 @@ void get_title_and_sub_title(	char *title,
 
 void output_spss_ready_attempt_success(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				LIST *collection_list,
 				LIST *project_list );
@@ -112,7 +115,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -162,7 +165,7 @@ int main( int argc, char **argv )
 	output_spss_ready_attempt_success(
 				application_name,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				getpid(),
 				collection_list,
 				project_list );
@@ -178,24 +181,54 @@ int main( int argc, char **argv )
 
 void output_spss_ready_attempt_success(
 				char *application_name,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				LIST *collection_list,
 				LIST *project_list )
 {
 	char sys_string[ 1024 ];
-	char ftp_filename[ 256 ];
-	char process_output_filename[ 256 ];
+	char *process_output_filename;
+	char *ftp_filename;
 	FILE *input_pipe;
 	FILE *output_pipe;
 	char input_buffer[ 1024 ];
 	char *datatype_comma_list;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
+	appaserver_link_file =
+		appaserver_link_file_new(
+		   application_get_http_prefix(
+				application_name ),
+		   appaserver_library_get_server_address(),
+		   ( application_get_prepend_http_protocol_yn(
+			application_name ) == 'y' ),
+		   document_root_directory,
+		   FILENAME_STEM,
+		   application_name,
+		   process_id,
+		   (char *)0 /* session */,
+		   "csv" );
+
+	process_output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+/*
 	sprintf(process_output_filename,
 	 	OUTPUT_FILE,
 	 	appaserver_mount_point,
 	 	application_name,
 	 	process_id );
+*/
 
 	datatype_comma_list = "Attempt1,Attempt2,Attempt3,Attempt4,Attempt5";
 
@@ -223,6 +256,7 @@ void output_spss_ready_attempt_success(
 	pclose( output_pipe );
 	pclose( input_pipe );
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 	{
@@ -240,6 +274,24 @@ void output_spss_ready_attempt_success(
 	 		application_name,
 	 		process_id );
 	}
+*/
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,
@@ -288,7 +340,7 @@ FILE *get_input_pipe(	char *application_name,
 
 } /* get_input_pipe() */
 
-char *get_or_sequence_where_clause(
+char *get_query_or_sequence_where_clause(
 				char *application_name,
 				LIST *collection_list,
 				LIST *project_list )
@@ -296,7 +348,7 @@ char *get_or_sequence_where_clause(
 	LIST *attribute_name_list;
 	char *sampling_point_table_name;
 	char attribute_name[ 128 ];
-	OR_SEQUENCE *or_sequence;
+	QUERY_OR_SEQUENCE *query_or_sequence;
 
 	attribute_name_list = list_new();
 
@@ -316,22 +368,22 @@ char *get_or_sequence_where_clause(
 
 	list_append_pointer( attribute_name_list, strdup( attribute_name ) );
 
-	or_sequence = or_sequence_new( attribute_name_list );
+	query_or_sequence = or_sequence_new( attribute_name_list );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			collection_list );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			project_list );
 
-	return or_sequence_get_where_clause(
-				or_sequence->attribute_name_list,
-				or_sequence->data_list_list,
+	return query_or_sequence_get_where_clause(
+				query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );
 
-} /* get_or_sequence_where_clause() */
+} /* get_query_or_sequence_where_clause() */
 
 char *get_select_string(
 			char *application_name,
@@ -449,7 +501,7 @@ char *get_select_string(
 		 pink_assessment_area_table_name );
 
 	where_or_clause =
-		get_or_sequence_where_clause(
+		get_query_or_sequence_where_clause(
 			application_name,
 			collection_list,
 			project_list );

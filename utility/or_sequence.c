@@ -1,17 +1,17 @@
-/* utility/or_sequence.c	       */
-/* ----------------------------------- */
-/* Utility program for OR_SEQUENCE ADT */
-/* ----------------------------------- */
+/* utility/or_sequence.c		     */
+/* ----------------------------------------- */
+/* Utility program for QUERY_OR_SEQUENCE ADT */
+/* ----------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
 #include "timlib.h"
-#include "or_sequence.h"
+#include "query.h"
 
 int main( int argc, char **argv )
 {
-	OR_SEQUENCE *or_sequence;
+	QUERY_OR_SEQUENCE *query_or_sequence;
 	LIST *attribute_name_list;
 	LIST *full_data_list;
 	LIST *partial_data_list;
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
 
 	division_results = length_data_list / length_attribute_list;
 
-	or_sequence = or_sequence_new( attribute_name_list );
+	query_or_sequence = query_or_sequence_new( attribute_name_list );
 	list_rewind( full_data_list );
 
 	for( i = 0; i < length_attribute_list; i++ )
@@ -69,15 +69,15 @@ int main( int argc, char **argv )
 			list_next( full_data_list );
 		}
 
-		or_sequence_set_data_list(
-				or_sequence->data_list_list,
+		query_or_sequence_set_data_list(
+				query_or_sequence->data_list_list,
 				partial_data_list );
 	}
 
 	printf( "(%s)\n",
-		or_sequence_get_where_clause(
-				or_sequence->attribute_name_list,
-				or_sequence->data_list_list,
+		query_or_sequence_get_where_clause(
+				query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ ) );
 
 	return 0;

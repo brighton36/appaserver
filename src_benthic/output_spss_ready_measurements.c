@@ -25,7 +25,6 @@
 #include "application_constants.h"
 #include "environ.h"
 #include "application.h"
-#include "or_sequence.h"
 #include "benthic_library.h"
 #include "appaserver_link_file.h"
 
@@ -764,7 +763,7 @@ char *get_where_collection_project(
 			LIST *collection_list,
 			LIST *project_list )
 {
-	OR_SEQUENCE *or_sequence;
+	QUERY_OR_SEQUENCE *query_or_sequence;
 	LIST *attribute_name_list;
 	char attribute_name[ 128 ];
 	attribute_name_list = list_new();
@@ -783,19 +782,19 @@ char *get_where_collection_project(
 			sampling_point_table_name );
 	list_append_pointer( attribute_name_list, strdup( attribute_name ) );
 
-	or_sequence = or_sequence_new( attribute_name_list );
+	query_or_sequence = query_or_sequence_new( attribute_name_list );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			collection_list );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			project_list );
 
-	return or_sequence_get_where_clause(
-				or_sequence->attribute_name_list,
-				or_sequence->data_list_list,
+	return query_or_sequence_get_where_clause(
+				query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );
 
 } /* get_where_collection_project() */

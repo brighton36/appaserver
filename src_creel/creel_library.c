@@ -12,11 +12,11 @@
 #include "timlib.h"
 #include "piece.h"
 #include "list.h"
+#include "query.h"
 #include "dictionary.h"
 #include "hashtbl.h"
 #include "date.h"
 #include "appaserver_library.h"
-#include "or_sequence.h"
 #include "document.h"
 #include "creel_library.h"
 #include "statistics_weighted.h"
@@ -1503,8 +1503,8 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 			char *fishing_purpose )
 {
 	char *fishing_trips_table_name;
-	OR_SEQUENCE *or_sequence = {0};
-	char *or_sequence_where_clause;
+	QUERY_OR_SEQUENCE *query_or_sequence = {0};
+	char *query_or_sequence_where_clause;
 	char fishing_purpose_where[ 128 ];
 	char *hours_fishing_where;
 
@@ -1537,21 +1537,21 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 		column_name_list = list_new();
 		list_append_pointer( column_name_list, "fishing_area" );
 
-		or_sequence = or_sequence_new( column_name_list );
+		query_or_sequence = query_or_sequence_new( column_name_list );
 
-		or_sequence_set_data_list_string(
-			or_sequence->data_list_list,
+		query_or_sequence_set_data_list_string(
+			query_or_sequence->data_list_list,
 			fishing_area_list_string );
 
-		or_sequence_where_clause =
-			or_sequence_get_where_clause(
-				or_sequence->attribute_name_list,
-				or_sequence->data_list_list,
+		query_or_sequence_where_clause =
+			query_or_sequence_get_where_clause(
+				query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );
 	}
 	else
 	{
-		or_sequence_where_clause = "1 = 1";
+		query_or_sequence_where_clause = "1 = 1";
 	}
 
 	fishing_trips_table_name =
@@ -1566,7 +1566,7 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 			fishing_trips_table_name,
 	 	begin_date_string,
 	 	end_date_string,
-		or_sequence_where_clause,
+		query_or_sequence_where_clause,
 		fishing_purpose_where,
 		hours_fishing_where );
 

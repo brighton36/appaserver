@@ -8,11 +8,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
+#include "query.h"
 #include "braun_blanque.h"
 #include "benthic_library.h"
 #include "piece.h"
 #include "appaserver_library.h"
-#include "or_sequence.h"
 
 BRAUN_BLANQUE *braun_blanque_new(	char *application_name )
 {
@@ -1458,7 +1458,7 @@ char *braun_blanque_or_sequence_get_where_clause(
 	LIST *column_name_list;
 	char *sampling_point_table_name;
 	char column_name[ 128 ];
-	OR_SEQUENCE *or_sequence;
+	QUERY_OR_SEQUENCE *query_or_sequence;
 
 	column_name_list = list_new();
 
@@ -1478,19 +1478,19 @@ char *braun_blanque_or_sequence_get_where_clause(
 
 	list_append_pointer( column_name_list, strdup( column_name ) );
 
-	or_sequence = or_sequence_new( column_name_list );
+	query_or_sequence = query_or_sequence_new( column_name_list );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			collection_list );
 
-	or_sequence_set_data_list(
-			or_sequence->data_list_list,
+	query_or_sequence_set_data_list(
+			query_or_sequence->data_list_list,
 			project_list );
 
-	return or_sequence_get_where_clause(
-				or_sequence->attribute_name_list,
-				or_sequence->data_list_list,
+	return query_or_sequence_get_where_clause(
+				query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );
 
 } /* braun_blanque_or_sequence_get_where_clause() */

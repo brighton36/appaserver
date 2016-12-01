@@ -64,6 +64,8 @@ then
 			if(execution_count,execution_count+1,1)
 		where process = '$process_name';"		|
 	sql.e
+
+	echo "<h3>Process complete.</h3"
 else
 	depreciate_select.sh			|
 	html_table.e '' "$heading" '^'

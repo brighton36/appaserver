@@ -24,6 +24,9 @@
 
 /* Prototypes */
 /* ---------- */
+void post_change_depreciation_stdin(
+			char *application_name );
+
 void post_change_depreciation_entity(
 			char *full_name,
 			char *street_address,
@@ -111,10 +114,17 @@ int main( int argc, char **argv )
 				argc,
 				argv );
 
+	if ( argc == 3 && strcmp( argv[ 2 ], "stdin" ) == 0 )
+	{
+		post_change_depreciation_stdin( argv[ 1 ] );
+
+		exit( 0 );
+	}
+
 	if ( argc != 16 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address purchase_date_time asset_name serial_number depreciation_date state preupdate_full_name preupdate_street_address preupdate_purchase_date_time preupdate_asset_name preupdate_serial_number preupdate_depreciation_date preupdate_units_produced\n",
+"Usage: %s application full_name|stdin street_address purchase_date_time asset_name serial_number depreciation_date state preupdate_full_name preupdate_street_address preupdate_purchase_date_time preupdate_asset_name preupdate_serial_number preupdate_depreciation_date preupdate_units_produced\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -200,6 +210,73 @@ int main( int argc, char **argv )
 	return 0;
 
 } /* main() */
+
+void post_change_depreciation_stdin( char *application_name )
+{
+	char input_buffer[ 1024 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char purchase_date_time[ 128 ];
+	char asset_name[ 128 ];
+	char serial_number[ 128 ];
+	char depreciation_date[ 128 ];
+
+	while( get_line( input_buffer, stdin ) )
+	{
+		if ( timlib_count_delimiters(
+			FOLDER_DATA_DELIMITER,
+			input_buffer ) != 5 )
+		{
+			fprintf( stderr,
+"Warning in %s/%s()/%d: not 5 delimiters in (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
+			continue;
+		}
+
+		piece(	full_name,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	street_address,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		piece(	purchase_date_time,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		piece(	asset_name,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			3 );
+
+		piece(	serial_number,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			4 );
+
+		piece(	depreciation_date,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			5 );
+
+		post_change_depreciation_insert(
+			application_name,
+			strdup( full_name ),
+			strdup( street_address ),
+			strdup( purchase_date_time ),
+			strdup( asset_name ),
+			strdup( serial_number ),
+			strdup( depreciation_date ) );
+	}
+
+} /* post_change_depreciation_stdin() */
 
 void post_change_depreciation_update(
 			char *application_name,

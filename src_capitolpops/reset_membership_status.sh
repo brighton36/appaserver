@@ -19,6 +19,8 @@ database=$(echo $1 | piece.e ':' 1 2>/dev/null)
 if [ "$database" != "" ]
 then
 	export DATABASE=$database
+else
+	export DATABASE=$application
 fi
 
 process_name=$2

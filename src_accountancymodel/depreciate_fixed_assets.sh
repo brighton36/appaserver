@@ -1,0 +1,74 @@
+:
+# src_accountancymodel/depreciate_fixed_assets.sh
+# -----------------------------------------------
+
+# Input
+# -----
+
+echo "$0" "$*" 1>&2
+
+if [ "$#" -ne 3 ]
+then
+	echo "Usage: $0 application process_name execute_yn" 1>&2
+	exit 1
+fi
+
+application=$(echo $1 | piece.e ':' 0)
+database=$(echo $1 | piece.e ':' 1 2>/dev/null)
+
+if [ "$database" != "" ]
+then
+	export DATABASE=$database
+else
+	export DATABASE=$application
+fi
+
+process_name=$2
+
+execute_yn=$3
+
+# Constants
+# ---------
+
+# Variables
+# ---------
+heading="full_name,street_address,purchase_date_time,asset_name,serial_number"
+field="$heading,depreciation_date"
+today=`now.sh ymd`
+process_title=`echo "$process_name" | format_initial_capital.e`
+
+# Process
+# -------
+content_type_cgi.sh
+
+echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
+echo "<body><h1>$process_title</h1>"
+
+if [ "$execute_yn" = 'y' ]
+then
+	depreciate_select.sh						|
+	sed "s/$/^$today/"						|
+	insert_statement.e table=depreciation field="$field" del="^"	|
+	sql.e 2>&1							|
+	html_paragraph_wrapper.e
+
+	depreciate_select.sh						|
+	sed "s/$/^$today/"						|
+	post_change_depreciation $application "stdin"			|
+	cat
+
+	process_table_name=`get_table_name $application process`
+
+	echo "	update $process_table_name
+		set execution_count =
+			if(execution_count,execution_count+1,1)
+		where process = '$process_name';"		|
+	sql.e
+else
+	depreciate_select.sh			|
+	html_table.e '' "$heading" '^'
+fi
+
+echo "</body></html>"
+
+exit 0

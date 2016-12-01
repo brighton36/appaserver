@@ -228,7 +228,8 @@ void post_change_customer_payment_insert(
 		customer_payment->transaction->transaction_date_time,
 		customer_payment->payment_amount /* transaction_amount */,
 		customer_payment->transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		1 /* lock_transaction */ );
 
 	if ( ( propagate_account_list =
 		customer_payment_journal_ledger_refresh(

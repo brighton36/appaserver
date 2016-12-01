@@ -234,7 +234,8 @@ void post_change_vendor_payment_insert(
 		vendor_payment->transaction->transaction_date_time,
 		vendor_payment->payment_amount /* transaction_amount */,
 		vendor_payment->transaction->memo,
-		vendor_payment->check_number );
+		vendor_payment->check_number,
+		1 /* lock_transaction */ );
 
 	if ( ( propagate_account_list =
 		purchase_vendor_payment_journal_ledger_refresh(

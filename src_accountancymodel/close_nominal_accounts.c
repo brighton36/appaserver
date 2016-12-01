@@ -440,7 +440,8 @@ boolean close_nominal_accounts_fund_execute(
 		transaction_date_time_string,
 		retained_earnings /* transaction_amount */,
 		transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		0 /* not lock_transaction */ );
 
 	return 1;
 

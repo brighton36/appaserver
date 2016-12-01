@@ -301,7 +301,8 @@ void ledger_transaction_insert(		char *application_name,
 					char *transaction_date_time,
 					double transaction_amount,
 					char *memo,
-					int check_number );
+					int check_number,
+					boolean lock_transaction );
 
 void ledger_transaction_amount_update(	char *application_name,
 					char *full_name,

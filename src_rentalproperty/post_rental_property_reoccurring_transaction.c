@@ -300,7 +300,8 @@ void post_reoccurring_transaction(
 		transaction->transaction_date_time,
 		reoccurring_transaction->transaction_amount,
 		transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		0 /* not lock_transaction */ );
 
 	ledger_transaction_generic_update(
 		application_name,

@@ -199,7 +199,8 @@ void post_change_dues_payment_insert(
 		dues_payment->transaction->transaction_date_time,
 		dues_payment->payment_amount /* transaction_amount */,
 		dues_payment->transaction->memo,
-		dues_payment->check_number );
+		dues_payment->check_number,
+		1 /* lock_transaction */ );
 
 	dues_payment_update(
 			application_name,

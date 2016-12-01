@@ -3223,7 +3223,8 @@ void ledger_transaction_insert(		char *application_name,
 					char *transaction_date_time,
 					double transaction_amount,
 					char *memo,
-					int check_number )
+					int check_number,
+					boolean lock_transaction )
 {
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
@@ -3280,9 +3281,10 @@ void ledger_transaction_insert(		char *application_name,
 	else
 		fprintf( output_pipe, "^" );
 
-	/* lock_transaction_yn */
-	/* ------------------- */
-	fprintf( output_pipe, "^y\n" );
+	if ( lock_transaction )
+		fprintf( output_pipe, "^y\n" );
+	else
+		fprintf( output_pipe, "^\n" );
 
 	pclose( output_pipe );
 

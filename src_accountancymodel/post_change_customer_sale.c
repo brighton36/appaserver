@@ -929,7 +929,8 @@ void post_change_customer_sale_insert_FOB_destination(
 		customer_sale->transaction->transaction_date_time,
 		0.0 /* transaction_amount */,
 		customer_sale->transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		1 /* lock_transaction */ );
 
 } /* post_change_customer_sale_insert_FOB_destination() */
 
@@ -957,7 +958,8 @@ void post_change_customer_sale_insert_FOB_shipping(
 		customer_sale->transaction->transaction_date_time,
 		0.0 /* transaction_amount */,
 		customer_sale->transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		1 /* lock_transaction */ );
 
 } /* post_change_customer_sale_insert_FOB_shipping() */
 
@@ -985,7 +987,8 @@ void post_change_customer_sale_insert_title_passage_null(
 		customer_sale->transaction->transaction_date_time,
 		0.0 /* transaction_amount */,
 		customer_sale->transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		1 /* lock_transaction */ );
 
 } /* post_change_customer_sale_insert_title_passage_null() */
 
@@ -1153,7 +1156,8 @@ void post_change_customer_sale_new_transaction(
 		customer_sale->transaction->transaction_date_time,
 		0.0 /* transaction_amount */,
 		customer_sale->transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		1 /* lock_transaction */ );
 
 	customer_sale->sum_inventory_extension =
 		customer_sale_get_sum_inventory_extension(
@@ -1230,7 +1234,8 @@ void post_change_customer_sale_FOB_destination_new_rule(
 			customer_sale->transaction->transaction_date_time,
 			0.0 /* transaction_amount */,
 			customer_sale->transaction->memo,
-			0 /* check_number */ );
+			0 /* check_number */,
+			1 /* lock_transaction */ );
 
 		customer_sale->sum_inventory_extension =
 			customer_sale_get_sum_inventory_extension(

@@ -181,7 +181,8 @@ void post_change_donation_insert(
 		donation->transaction->transaction_date_time,
 		donation->total_donation_amount /* transaction_amount */,
 		donation->transaction->memo,
-		donation->check_number );
+		donation->check_number,
+		1 /* lock_transaction */ );
 
 	donation_update(
 			application_name,

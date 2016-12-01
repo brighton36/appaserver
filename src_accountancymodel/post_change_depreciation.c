@@ -698,7 +698,8 @@ void post_change_depreciation_insert(
 		depreciation->transaction->transaction_date_time,
 		depreciation->depreciation_amount /* transaction_amount */,
 		depreciation->transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		1 /* lock_transaction */ );
 
 	if ( ( propagate_account_list =
 		depreciation_journal_ledger_refresh(

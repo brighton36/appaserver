@@ -357,7 +357,8 @@ void post_change_purchase_order_FOB_shipping_just_arrived(
 			purchase_order->transaction->transaction_date_time,
 			0.0 /* transaction_amount */,
 			purchase_order->transaction->memo,
-			0 /* check_number */ );
+			0 /* check_number */,
+			1 /* lock_transaction */ );
 	}
 
 } /* post_change_purchase_order_FOB_shipping_just_arrived() */
@@ -384,7 +385,8 @@ void post_change_purchase_order_FOB_shipping_just_shipped(
 		purchase_order->transaction->transaction_date_time,
 		0.0 /* transaction_amount */,
 		purchase_order->transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		1 /* lock_transaction */ );
 
 } /* post_change_purchase_order_FOB_shipping_just_shipped() */
 
@@ -570,7 +572,8 @@ void post_change_purchase_order_insert_FOB_shipping(
 			purchase_order->transaction->transaction_date_time,
 			0.0 /* transaction_amount */,
 			purchase_order->transaction->memo,
-			0 /* check_number */ );
+			0 /* check_number */,
+			1 /* lock_transaction */ );
 
 		/* ---------------------------------------------------- */
 		/* For propagate accounts see:				*/
@@ -603,7 +606,8 @@ void post_change_purchase_order_insert_FOB_destination(
 			purchase_order->transaction->transaction_date_time,
 			0.0 /* transaction_amount */,
 			purchase_order->transaction->memo,
-			0 /* check_number */ );
+			0 /* check_number */,
+			1 /* lock_transaction */ );
 	}
 
 } /* post_change_purchase_order_insert_FOB_destination() */
@@ -635,7 +639,8 @@ void post_change_purchase_order_insert_title_passage_null(
 		purchase_order->transaction->transaction_date_time,
 		0.0 /* transaction_amount */,
 		purchase_order->transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		1 /* lock_transaction */ );
 
 } /* post_change_purchase_order_insert_title_passage_null() */
 
@@ -872,7 +877,8 @@ void post_change_purchase_order_changed_rule_to_null(
 			purchase_order->transaction->transaction_date_time,
 			0.0 /* transaction_amount */,
 			purchase_order->transaction->memo,
-			0 /* check_number */ );
+			0 /* check_number */,
+			1 /* lock_transaction */ );
 
 		purchase_order->propagate_account_list =
 			purchase_order_journal_ledger_refresh(
@@ -1056,7 +1062,8 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 			purchase_order->transaction->transaction_date_time,
 			0.0 /* transaction_amount */,
 			purchase_order->transaction->memo,
-			0 /* check_number */ );
+			0 /* check_number */,
+			1 /* lock_transaction */ );
 
 		purchase_order->propagate_account_list =
 			purchase_order_journal_ledger_refresh(
@@ -1264,7 +1271,8 @@ void post_change_purchase_order_new_transaction(
 		purchase_order->transaction->transaction_date_time,
 		0.0 /* transaction_amount */,
 		purchase_order->transaction->memo,
-		0 /* check_number */ );
+		0 /* check_number */,
+		1 /* lock_transaction */ );
 
 	purchase_order->propagate_account_list =
 		purchase_order_journal_ledger_refresh(

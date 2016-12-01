@@ -761,7 +761,8 @@ void depreciation_list_update(
 					transaction_date_time,
 				depreciation->depreciation_amount,
 				depreciation->transaction->memo,
-				0 /* check_number */ );
+				0 /* check_number */,
+				1 /* lock_transaction */ );
 		}
 
 		if ( !propagate_transaction_date_time )

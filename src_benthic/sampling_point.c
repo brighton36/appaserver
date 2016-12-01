@@ -10,7 +10,6 @@
 #include "timlib.h"
 #include "folder.h"
 #include "sampling_point.h"
-#include "or_sequence.h"
 #include "piece.h"
 
 SAMPLING_POINT *sampling_point_new(

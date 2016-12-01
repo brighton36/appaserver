@@ -91,20 +91,17 @@ clean:
 
 output_spss_ready_measurements: output_spss_ready_measurements.c	\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/or_sequence.o				\
 		benthic_library.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS} 					\
-		${LIBRARY}/or_sequence.o				\
 		output_spss_ready_measurements.c			\
 		benthic_library.o					\
 		-o output_spss_ready_measurements
 
 output_spss_ready_counts: output_spss_ready_counts.c			\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/or_sequence.o				\
 		benthic_species.o					\
 		benthic_spss.o						\
 		sampling_point.o					\
@@ -113,7 +110,6 @@ output_spss_ready_counts: output_spss_ready_counts.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS} 					\
-		${LIBRARY}/or_sequence.o				\
 		benthic_species.o					\
 		benthic_library.o					\
 		sampling_point.o					\
@@ -123,20 +119,17 @@ output_spss_ready_counts: output_spss_ready_counts.c			\
 
 select_spss_ready_counts: select_spss_ready_counts.c			\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/or_sequence.o				\
 		benthic_species.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS} 					\
-		${LIBRARY}/or_sequence.o				\
 		benthic_species.o					\
 		select_spss_ready_counts.c				\
 		-o select_spss_ready_counts
 
 output_spss_ready_cover_abundance: output_spss_ready_cover_abundance.c	\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/or_sequence.o				\
 		benthic_library.o					\
 		braun_blanque.o						\
 		benthic_species.o
@@ -144,7 +137,6 @@ output_spss_ready_cover_abundance: output_spss_ready_cover_abundance.c	\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS} 					\
-		${LIBRARY}/or_sequence.o				\
 		benthic_library.o					\
 		braun_blanque.o						\
 		benthic_species.o					\
@@ -154,13 +146,11 @@ output_spss_ready_cover_abundance: output_spss_ready_cover_abundance.c	\
 output_spss_ready_sampling_point_abiotic:				\
 		output_spss_ready_sampling_point_abiotic.c		\
 		benthic_library.o					\
-		${STANDARD_LIBRARY}					\
-		${LIBRARY}/or_sequence.o
+		${STANDARD_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS} 					\
-		${LIBRARY}/or_sequence.o				\
 		benthic_library.o					\
 		output_spss_ready_sampling_point_abiotic.c		\
 		-o output_spss_ready_sampling_point_abiotic
@@ -168,13 +158,11 @@ output_spss_ready_sampling_point_abiotic:				\
 output_spss_ready_attempt_success:					\
 		output_spss_ready_attempt_success.c			\
 		benthic_library.o					\
-		${STANDARD_LIBRARY}					\
-		${LIBRARY}/or_sequence.o
+		${STANDARD_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS} 					\
-		${LIBRARY}/or_sequence.o				\
 		benthic_library.o					\
 		output_spss_ready_attempt_success.c			\
 		-o output_spss_ready_attempt_success
@@ -194,7 +182,6 @@ compare_sampling_point_with_waypoint:					\
 compare_sampling_point_with_waypoint_process:				\
 		compare_sampling_point_with_waypoint_process.c		\
 		benthic_library.o					\
-		${LIBRARY}/or_sequence.o				\
 		${LIBRARY}/waypoint.o					\
 		${LIBRARY}/distance.o					\
 		${STANDARD_LIBRARY}
@@ -203,7 +190,6 @@ compare_sampling_point_with_waypoint_process:				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS} 					\
 		benthic_library.o					\
-		${LIBRARY}/or_sequence.o				\
 		${LIBRARY}/waypoint.o					\
 		${LIBRARY}/distance.o					\
 		compare_sampling_point_with_waypoint_process.c		\

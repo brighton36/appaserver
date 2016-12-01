@@ -368,7 +368,7 @@ char *get_query_or_sequence_where_clause(
 
 	list_append_pointer( attribute_name_list, strdup( attribute_name ) );
 
-	query_or_sequence = or_sequence_new( attribute_name_list );
+	query_or_sequence = query_or_sequence_new( attribute_name_list );
 
 	query_or_sequence_set_data_list(
 			query_or_sequence->data_list_list,

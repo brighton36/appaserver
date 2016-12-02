@@ -274,7 +274,8 @@ int main( int argc, char **argv )
 				argv,
 				current_application );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file =
+		appaserver_parameter_default_file_new();
 
 	if ( !session_access(	current_application,
 				session,

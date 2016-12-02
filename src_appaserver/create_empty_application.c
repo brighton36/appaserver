@@ -32,11 +32,6 @@
 
 /* Prototypes */
 /* ---------- */
-void remove_appaserver_home_directory(
-					char *destination_application,
-					char *appaserver_home_directory,
-					char really_yn );
-
 char *get_error_filename(		char *appaserver_error_directory,
 					char *destination_application );
 
@@ -51,7 +46,6 @@ boolean delete_existing_application(
 					char create_database_yn,
 					char *appaserver_error_directory,
 					char *document_root_directory,
-					char *appaserver_home_directory,
 					char really_yn );
 
 boolean create_empty_application(	char *current_application,
@@ -154,28 +148,22 @@ void populate_document_root_directory(	char *destination_application,
 					char *appaserver_home_directory,
 					char really_yn );
 
-/*
-void link_appaserver_home_to_document_root(
-					char *destination_application,
-					char *appaserver_home_directory,
-					char *document_root_directory,
-					char really_yn );
-*/
-
 void make_document_root_directory(	char *destination_application,
 					char *document_root_directory,
 					char *appaserver_home_directory,
 					char really_yn );
 
-void remove_document_root_directory(	char *destination_application,
+void make_appaserver_home_directory(	char *destination_application,
+					char *appaserver_home_directory,
+					char really_yn );
+
+void remove_home_directory(		char *destination_application,
 					char *document_root_directory,
 					char really_yn );
 
-/*
 void remove_document_root_links(	char *destination_application,
 					char *document_root_directory,
 					char really_yn );
-*/
 
 void remove_dynarch_menu(		char *destination_application,
 					char really_yn );
@@ -359,7 +347,6 @@ int main( int argc, char **argv )
 					create_database_yn,
 					appaserver_error_directory,
 					document_root_directory,
-					appaserver_home_directory,
 					really_yn ) )
 		{
 			printf(
@@ -828,29 +815,6 @@ void make_document_root_directory(	char *destination_application,
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
-		 	"mkdir %s/src_%s && chmod g+rwxs %s/src_%s",
-		 	appaserver_home_directory,
-		 	destination_application,
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-"echo \"mkdir %s/src_%s && chmod g+rwxs %s/src_%s\" | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	destination_application,
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
 		 	"ln -s %s/%s/src_%s %s/%s",
 		 	appaserver_home_directory,
 		 	destination_application,
@@ -874,6 +838,37 @@ void make_document_root_directory(	char *destination_application,
 	fflush( stdout );
 
 } /* make_document_root_directory() */
+
+void make_appaserver_home_directory(	char *destination_application,
+					char *appaserver_home_directory,
+					char really_yn )
+{
+	char sys_string[ 1024 ];
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( sys_string,
+		 	"mkdir %s/src_%s && chmod g+rwxs %s/src_%s",
+		 	appaserver_home_directory,
+		 	destination_application,
+		 	appaserver_home_directory,
+		 	destination_application );
+	}
+	else
+	{
+		sprintf( sys_string,
+"echo \"mkdir %s/src_%s && chmod g+rwxs %s/src_%s\" | html_paragraph_wrapper.e",
+		 	appaserver_home_directory,
+		 	destination_application,
+		 	appaserver_home_directory,
+		 	destination_application );
+	}
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+} /* make_appaserver_home_directory() */
 
 void populate_document_root_directory(	char *destination_application,
 					char *document_root_directory,
@@ -1953,6 +1948,10 @@ boolean create_empty_application(
 					new_application_title,
 					really_yn );
 
+	make_appaserver_home_directory(	destination_application,
+					appaserver_home_directory,
+					really_yn );
+
 	make_document_root_directory(	destination_application,
 					document_root_directory,
 					appaserver_home_directory,
@@ -1969,21 +1968,6 @@ boolean create_empty_application(
 					new_application_title,
 					create_database_yn,
 					really_yn );
-
-/*
-	link_appaserver_home_to_document_root(
-					destination_application,
-					appaserver_home_directory,
-					document_root_directory,
-					really_yn );
-
-	integrate_dynarch_menu(		destination_application,
-					current_application,
-					document_root_directory,
-					dynarch_home_directory,
-					appaserver_home_directory,
-					really_yn );
-*/
 
 	create_system_tables(		destination_application,
 					current_application,
@@ -2021,17 +2005,6 @@ boolean create_empty_application(
 
 	make_appaserver_error_file(	destination_application,
 					appaserver_error_directory,
-					really_yn );
-
-	make_document_root_directory(	destination_application,
-					document_root_directory,
-					appaserver_home_directory,
-					really_yn );
-
-	populate_document_root_directory(
-					destination_application,
-					document_root_directory,
-					appaserver_home_directory,
 					really_yn );
 
 	if ( really_yn == 'y'
@@ -2104,11 +2077,30 @@ void drop_application_tables(		char *destination_application,
 
 } /* drop_application_tables() */
 
-void remove_appaserver_home_directory(	char *destination_application,
+void remove_home_directory(		char *destination_application,
 					char *appaserver_home_directory,
 					char really_yn )
 {
 	char sys_string[ 1024 ];
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( sys_string,
+		 	"rm -fr %s/%s 2>&1 | html_paragraph_wrapper",
+		 	appaserver_home_directory,
+		 	destination_application );
+	}
+	else
+	{
+		sprintf( sys_string,
+		 	"echo \"rm -fr %s/%s\" | html_paragraph_wrapper.e",
+		 	appaserver_home_directory,
+		 	destination_application );
+	}
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
 
 	if ( really_yn == 'y' )
 	{
@@ -2129,53 +2121,7 @@ void remove_appaserver_home_directory(	char *destination_application,
 	system( sys_string );
 	fflush( stdout );
 
-} /* remove_appaserver_home_directory() */
-
-void remove_document_root_directory(	char *destination_application,
-					char *document_root_directory,
-					char really_yn )
-{
-	char sys_string[ 1024 ];
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-		 	"rm -fr %s/%s 2>&1 | html_paragraph_wrapper",
-		 	document_root_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-		 	"echo \"rm -fr %s/%s\" | html_paragraph_wrapper.e",
-		 	document_root_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-		 	"rm %s/src_%s 2>&1 | html_paragraph_wrapper",
-		 	document_root_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-		 	"echo \"rm %s/src_%s\" | html_paragraph_wrapper.e",
-		 	document_root_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-} /* remove_document_root_directory() */
+} /* remove_home_directory() */
 
 void remove_appaserver_error_file(	char *destination_application,
 					char *appaserver_error_directory,
@@ -2203,7 +2149,6 @@ void remove_appaserver_error_file(	char *destination_application,
 
 } /* remove_appaserver_error_file() */
 
-#ifdef NOT_DEFINED
 void remove_document_root_links(
 				char *destination_application,
 				char *document_root_directory,
@@ -2251,6 +2196,7 @@ void remove_document_root_links(
 
 } /*remove_document_root_links() */
 
+#ifdef NOT_DEFINED
 void remove_dynarch_menu(		char *destination_application,
 					char *dynarch_home_directory,
 					char really_yn )
@@ -2305,7 +2251,6 @@ boolean delete_existing_application(
 				char create_database_yn,
 				char *appaserver_error_directory,
 				char *document_root_directory,
-				char *appaserver_home_directory,
 				char really_yn )
 {
 	if ( !appaserver_library_application_exists(
@@ -2327,14 +2272,15 @@ boolean delete_existing_application(
 					really_yn );
 	}
 
-	remove_document_root_directory(	destination_application,
+	remove_home_directory(		destination_application,
 					document_root_directory,
 					really_yn );
 
-	remove_appaserver_home_directory(
-					destination_application,
-					appaserver_home_directory,
+/*
+	remove_document_root_links(	destination_application,
+					document_root_directory,
 					really_yn );
+*/
 
 	remove_appaserver_error_file(	destination_application,
 					appaserver_error_directory,

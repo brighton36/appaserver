@@ -148,14 +148,12 @@ void populate_document_root_directory(	char *destination_application,
 					char *appaserver_home_directory,
 					char really_yn );
 
-void link_appaserver_home_to_document_root(
-					char *destination_application,
-					char *appaserver_home_directory,
-					char *document_root_directory,
-					char really_yn );
-
 void make_document_root_directory(	char *destination_application,
 					char *document_root_directory,
+					char *appaserver_home_directory,
+					char really_yn );
+
+void make_appaserver_home_directory(	char *destination_application,
 					char *appaserver_home_directory,
 					char really_yn );
 
@@ -817,29 +815,6 @@ void make_document_root_directory(	char *destination_application,
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
-		 	"mkdir %s/src_%s && chmod g+rwxs %s/src_%s",
-		 	appaserver_home_directory,
-		 	destination_application,
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-"echo \"mkdir %s/src_%s && chmod g+rwxs %s/src_%s\" | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	destination_application,
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
 		 	"ln -s %s/%s/src_%s %s/%s",
 		 	appaserver_home_directory,
 		 	destination_application,
@@ -863,6 +838,37 @@ void make_document_root_directory(	char *destination_application,
 	fflush( stdout );
 
 } /* make_document_root_directory() */
+
+void make_appaserver_home_directory(	char *destination_application,
+					char *appaserver_home_directory,
+					char really_yn )
+{
+	char sys_string[ 1024 ];
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( sys_string,
+		 	"mkdir %s/src_%s && chmod g+rwxs %s/src_%s",
+		 	appaserver_home_directory,
+		 	destination_application,
+		 	appaserver_home_directory,
+		 	destination_application );
+	}
+	else
+	{
+		sprintf( sys_string,
+"echo \"mkdir %s/src_%s && chmod g+rwxs %s/src_%s\" | html_paragraph_wrapper.e",
+		 	appaserver_home_directory,
+		 	destination_application,
+		 	appaserver_home_directory,
+		 	destination_application );
+	}
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+} /* make_appaserver_home_directory() */
 
 void populate_document_root_directory(	char *destination_application,
 					char *document_root_directory,
@@ -1093,6 +1099,7 @@ void fix_index_dot_php(			char *destination_application,
 
 } /* fix_index_dot_php() */
 
+#ifdef NOT_DEFINED
 void link_appaserver_home_to_document_root(
 					char *destination_application,
 					char *appaserver_home_directory,
@@ -1145,7 +1152,6 @@ void link_appaserver_home_to_document_root(
 
 }/* link_appaserver_home_to_document_root() */
 
-#ifdef NOT_DEFINED
 void integrate_dynarch_menu(		char *destination_application,
 					char *current_application,
 					char *document_root_directory,
@@ -1942,6 +1948,10 @@ boolean create_empty_application(
 					new_application_title,
 					really_yn );
 
+	make_appaserver_home_directory(	destination_application,
+					appaserver_home_directory,
+					really_yn );
+
 	make_document_root_directory(	destination_application,
 					document_root_directory,
 					appaserver_home_directory,
@@ -1958,21 +1968,6 @@ boolean create_empty_application(
 					new_application_title,
 					create_database_yn,
 					really_yn );
-
-/*
-	link_appaserver_home_to_document_root(
-					destination_application,
-					appaserver_home_directory,
-					document_root_directory,
-					really_yn );
-
-	integrate_dynarch_menu(		destination_application,
-					current_application,
-					document_root_directory,
-					dynarch_home_directory,
-					appaserver_home_directory,
-					really_yn );
-*/
 
 	create_system_tables(		destination_application,
 					current_application,
@@ -2010,17 +2005,6 @@ boolean create_empty_application(
 
 	make_appaserver_error_file(	destination_application,
 					appaserver_error_directory,
-					really_yn );
-
-	make_document_root_directory(	destination_application,
-					document_root_directory,
-					appaserver_home_directory,
-					really_yn );
-
-	populate_document_root_directory(
-					destination_application,
-					document_root_directory,
-					appaserver_home_directory,
 					really_yn );
 
 	if ( really_yn == 'y'

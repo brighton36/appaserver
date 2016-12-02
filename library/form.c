@@ -282,7 +282,8 @@ void form_output_heading(
 	{
 		printf( "<caption align=top><%s>%s</%s></caption>\n",
 			FORM_CAPTION_HEADING_TAG,
-			format_initial_capital( buffer, caption_string ),
+			format_initial_capital_not_parens(
+				buffer, caption_string ),
 			FORM_CAPTION_HEADING_TAG );
 	}
 

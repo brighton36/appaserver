@@ -131,11 +131,13 @@ void create_system_tables(		char *destination_application,
 					char create_database_yn,
 					char really_yn );
 
+/*
 void integrate_dynarch_menu(		char *destination_application,
 					char *current_application,
 					char *document_root_directory,
 					char *appaserver_data_directory,
 					char really_yn );
+*/
 
 void fix_index_dot_php(			char *destination_application,
 					char *document_root_directory,
@@ -905,6 +907,7 @@ void populate_document_root_directory(	char *destination_application,
 	system( sys_string );
 	fflush( stdout );
 
+#ifdef NOT_DEFINED
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
@@ -944,6 +947,7 @@ void populate_document_root_directory(	char *destination_application,
 	fflush( stdout );
 	system( sys_string );
 	fflush( stdout );
+#endif
 
 	if ( really_yn == 'y' )
 	{
@@ -961,6 +965,52 @@ void populate_document_root_directory(	char *destination_application,
 		 	appaserver_home_directory,
 		 	"template",
 		 	appaserver_home_directory,
+		 	destination_application );
+	}
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( sys_string,
+		 	"ln %s/%s/style.css %s/%s/appaserver",
+		 	document_root_directory,
+		 	destination_application,
+			document_root_directory,
+			destination_application );
+	}
+	else
+	{
+		sprintf( sys_string,
+"echo 'ln %s/%s/style.css %s/%s/appaserver' | html_paragraph_wrapper.e",
+		 	document_root_directory,
+		 	destination_application,
+		 	document_root_directory,
+		 	destination_application );
+	}
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( sys_string,
+		 	"ln %s/%s/index.php %s/%s/appaserver",
+		 	document_root_directory,
+		 	destination_application,
+			document_root_directory,
+			destination_application );
+	}
+	else
+	{
+		sprintf( sys_string,
+"echo 'ln %s/%s/index.php %s/%s/appaserver' | html_paragraph_wrapper.e",
+		 	document_root_directory,
+		 	destination_application,
+		 	document_root_directory,
 		 	destination_application );
 	}
 

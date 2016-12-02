@@ -1,4 +1,4 @@
-/* libraryh/appaserver_parameter_file.h					*/
+/* library/appaserver_parameter_file.h					*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -11,23 +11,8 @@
 
 /* Constants */
 /* --------- */
+#define APPASERVER_PARAMETER_DEFAULT_DIRECTORY	"/etc"
 #define APPASERVER_PARAMETER_FILE_NAME		"appaserver.config"
-
-/* These are being retired. */
-/* ------------------------ */
-#define NODE_PIECE				0
-#define PASSWORD_PIECE				1
-#define USER_PIECE				2
-#define FLAGS_PIECE				3
-#define DATABASE_PIECE				4
-#define MYSQL_HOST_PIECE			5
-#define MYSQL_TCP_PORT_PIECE			6
-#define MYSQL_PWD_PIECE				7
-#define APPASERVER_MOUNT_POINT_PIECE		8
-#define CGI_DIRECTORY_PIECE			9
-#define DBMS_PIECE			       10
-#define ORACLE_UIDPWD_PIECE		       11
-#define APPASERVER_PARAMETER_FILE_DELIMITER	'|'
 
 /* Type definitions */
 /* ---------------- */
@@ -55,18 +40,11 @@ typedef struct
 /* Prototypes */
 /* ---------- */
 void appaserver_parameter_file_get_dictionary_format(
-				APPASERVER_PARAMETER_FILE *s,
-				FILE *f );
+						APPASERVER_PARAMETER_FILE *s,
+						FILE *f );
 
-void appaserver_parameter_file_parse_single_line(
-				APPASERVER_PARAMETER_FILE *s,
-				char *buffer );
-
-APPASERVER_PARAMETER_FILE *new_appaserver_parameter_file( void );
-void appaserver_parameter_file_get_piece(	char *d, 
-						char *s, 
-						int p, 
-						char *filename );
+APPASERVER_PARAMETER_FILE *new_appaserver_parameter_file(
+						void );
 
 char *appaserver_parameter_file_get_appaserver_mount_point(
 						void );
@@ -106,6 +84,13 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 						int delimiter );
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new(
+						void );
+
+APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
+					FILE *f,
+					char *parameter_file_full_path );
+
+APPASERVER_PARAMETER_FILE *appaserver_parameter_default_file_new(
 						void );
 
 #endif

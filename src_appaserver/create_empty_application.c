@@ -404,8 +404,8 @@ void get_all_environment_variables(	char **appaserver_error_directory,
 {
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
-
+	appaserver_parameter_file =
+		appaserver_parameter_default_file_new();
 
 	*appaserver_error_directory =
 		appaserver_parameter_file->

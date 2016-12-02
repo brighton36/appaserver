@@ -1,4 +1,4 @@
-/* appaserver_parameter_file.c 						*/
+/* library/appaserver_parameter_file.c					*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -99,19 +99,45 @@ char *appaserver_parameter_file_get_document_root( void )
 	return global_appaserver_parameter_file->document_root;
 }
 
-APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
-{
-	return new_appaserver_parameter_file();
-}
-
 APPASERVER_PARAMETER_FILE *new_appaserver_parameter_file( void )
 {
-	char buffer[ 512 ];
+	return appaserver_parameter_file_new();
+}
+
+APPASERVER_PARAMETER_FILE *appaserver_parameter_default_file_new( void )
+{
+	char filename[ 128 ];
 	APPASERVER_PARAMETER_FILE *s;
 	FILE *f;
 
-	s = (APPASERVER_PARAMETER_FILE *)
-		calloc( 1, sizeof( APPASERVER_PARAMETER_FILE ) );
+	sprintf(	filename,
+			"%s/%s",
+			APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
+			APPASERVER_PARAMETER_FILE_NAME );
+
+	f = fopen( filename, "r" );
+	if ( !f )
+	{
+		fprintf(stderr,
+			 "ERROR in %s/%s/%d: cannot find (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			filename );
+		exit( 1 );
+	}
+
+	s = appaserver_parameter_file_fetch( f, strdup( filename ) );
+
+	fclose( f );
+	return s;
+
+} /* appaserver_parameter_default_file_new() */
+
+APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
+{
+	APPASERVER_PARAMETER_FILE *s;
+	FILE *f;
 
 	f = fopen_path( APPASERVER_PARAMETER_FILE_NAME, "r" );
 	if ( !f )
@@ -127,148 +153,155 @@ APPASERVER_PARAMETER_FILE *new_appaserver_parameter_file( void )
 		exit( 1 );
 	}
 
-	s->parameter_file_full_path = fopen_path_get_path_filename();
+	s = appaserver_parameter_file_fetch(
+			f,
+			fopen_path_get_path_filename() );
 
-	while( get_line_queue( buffer, f ) )
-	{
-		if ( !*buffer || *buffer == '#' ) continue;
-
-		if ( exists_character(	buffer,
-					APPASERVER_PARAMETER_FILE_DELIMITER ) )
-		{
-			appaserver_parameter_file_parse_single_line(
-				s, buffer );
-			fclose( f );
-			return s;
-		}
-		else
-		if ( exists_character(	buffer, '=' ) )
-		{
-			unget_line_queue( buffer );
-			appaserver_parameter_file_get_dictionary_format(
-				s, f );
-			fclose( f );
-			return s;
-		}
-	}
 	fclose( f );
-	fprintf(stderr,
-		"ERROR in %s/%s()/%d: cannot parse %s.\n",
-		__FILE__,
-		__FUNCTION__,
-		__LINE__,
-		APPASERVER_PARAMETER_FILE_NAME );
-	exit( 1 );
-} /* new_appaserver_parameter_file() */
+	return s;
 
-void appaserver_parameter_file_get_piece( 	char *d, 
-						char *s, 
-						int p, 
-						char *filename )
+} /* appaserver_parameter_file_new() */
+
+APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
+					FILE *f,
+					char *parameter_file_full_path )
 {
-	if ( !piece( d, APPASERVER_PARAMETER_FILE_DELIMITER, s, p ) )
+	APPASERVER_PARAMETER_FILE *s;
+	DICTIONARY *d;
+	char *a;
+	char dynarch_home_buffer[ 512 ];
+
+	s = (APPASERVER_PARAMETER_FILE *)
+		calloc( 1, sizeof( APPASERVER_PARAMETER_FILE ) );
+
+	s->parameter_file_full_path = parameter_file_full_path;
+
+	d = appaserver_parameter_file_load_record_dictionary( f, '=' );
+
+	a = "default_database";
+	if ( ! ( s->default_database_connection =
+			dictionary_fetch( d, a ) ) )
 	{
-		fprintf( stderr, 
-		"%s/%s() FORMAT ERROR in %s: cannot piece (%d) in (%s)\n",
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: Cannot fetch %s\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 filename,
-			 p,
-			 s );
+			 __LINE__,
+			 a );
+		fclose( f );
 		exit( 1 );
 	}
-}
 
-void appaserver_parameter_file_parse_single_line(
-			APPASERVER_PARAMETER_FILE *s,
-			char *buffer )
-{
-	char parameter[ 128 ];
+	a = "mysql_user";
+	if ( ! ( s->user = dictionary_fetch( d, a ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: Cannot fetch %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 a );
+		fclose( f );
+		exit( 1 );
+	}
 
-	appaserver_parameter_file_get_piece(	
-			parameter, 
-			buffer, 
-			DATABASE_PIECE, 
-			APPASERVER_PARAMETER_FILE_NAME );
-	s->default_database_connection = strdup( parameter );
+	a = "mysql_flags";
+	if ( ! ( s->flags = dictionary_fetch( d, a ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: Cannot fetch %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 a );
+		fclose( f );
+		exit( 1 );
+	}
 
-	appaserver_parameter_file_get_piece(	
-			parameter, 
-			buffer, 
-			USER_PIECE, 
-			APPASERVER_PARAMETER_FILE_NAME );
-	s->user = strdup( parameter );
+	a = "mysql_password";
+	if ( ! ( s->password = dictionary_fetch( d, a ) ) )
+	{
+		a = "password";
+		if ( ! ( s->password = dictionary_fetch( d, a ) ) )
+		{
+			fprintf( stderr,
+			 	"Error in %s/%s()/%d: Cannot fetch %s\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	a );
+			fclose( f );
+			exit( 1 );
+		}
+		s->mysql_password_syntax = 1;
+	}
 
-	appaserver_parameter_file_get_piece(	
-			parameter, 
-			buffer, 
-			FLAGS_PIECE, 
-			APPASERVER_PARAMETER_FILE_NAME );
-	s->flags = strdup( parameter );
 
-	appaserver_parameter_file_get_piece(	
-			parameter, 
-			buffer, 
-			PASSWORD_PIECE, 
-			APPASERVER_PARAMETER_FILE_NAME );
-	s->password = strdup( parameter );
+	a = "mysql_host";
+	s->MYSQL_HOST = dictionary_fetch( d, a );
 
-	appaserver_parameter_file_get_piece(	
-			parameter, 
-			buffer, 
-			MYSQL_HOST_PIECE, 
-			APPASERVER_PARAMETER_FILE_NAME );
-	s->MYSQL_HOST = strdup( parameter );
+	a = "mysql_tcp_port";
+	s->MYSQL_TCP_PORT = dictionary_fetch( d, a );
 
-	appaserver_parameter_file_get_piece(	
-			parameter, 
-			buffer, 
-			MYSQL_TCP_PORT_PIECE, 
-			APPASERVER_PARAMETER_FILE_NAME );
-	s->MYSQL_TCP_PORT = strdup( parameter );
+	a = "mysql_pwd";
+	s->MYSQL_PWD = dictionary_fetch( d, a );
 
-	appaserver_parameter_file_get_piece(	
-			parameter, 
-			buffer, 
-			MYSQL_PWD_PIECE, 
-			APPASERVER_PARAMETER_FILE_NAME );
-	s->MYSQL_PWD = strdup( parameter );
+	a = "appaserver_mount_point";
+	if ( ! ( s->appaserver_mount_point =
+			dictionary_fetch( d, a ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: Cannot fetch %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 a );
+		fclose( f );
+		exit( 1 );
+	}
 
-	appaserver_parameter_file_get_piece(	
-			parameter, 
-			buffer, 
-			APPASERVER_MOUNT_POINT_PIECE, 
-			APPASERVER_PARAMETER_FILE_NAME );
+	sprintf( dynarch_home_buffer,
+		 "%s/%s",
+		 s->appaserver_mount_point,
+		 HORIZONTAL_MENU_RELATIVE_DIRECTORY );
+	s->dynarch_home = strdup( dynarch_home_buffer );
 
-	s->appaserver_mount_point = strdup( parameter );
+	/* cgi home from the browser's perspective. */
+	/* ---------------------------------------- */
+	a = "apache_cgi_directory";
+	if ( ! ( s->apache_cgi_directory = dictionary_fetch( d, a ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: Cannot fetch %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 a );
+		fclose( f );
+		exit( 1 );
+	}
 
-	appaserver_parameter_file_get_piece(
-			parameter,
-			buffer,
-			CGI_DIRECTORY_PIECE,
-			APPASERVER_PARAMETER_FILE_NAME );
 
-	s->apache_cgi_directory = strdup( parameter );
+	a = "database_management_system";
+	s->database_management_system = dictionary_fetch( d, a );
 
-	appaserver_parameter_file_get_piece(
-			parameter,
-			buffer,
-			DBMS_PIECE,
-			APPASERVER_PARAMETER_FILE_NAME );
+	/* cgi home from the file system's perspective. */
+	/* -------------------------------------------- */
+	a = "cgi_home";
+	s->cgi_home = dictionary_fetch( d, a );
 
-	s->database_management_system = strdup( parameter );
+	a = "document_root";
+	s->document_root = dictionary_fetch( d, a );
 
-/*
-	appaserver_parameter_file_get_piece(
-			parameter,
-			buffer,
-			ORACLE_UIDPWD_PIECE,
-			APPASERVER_PARAMETER_FILE_NAME );
+	a = "appaserver_error_directory";
+	s->appaserver_error_directory = dictionary_fetch( d, a );
 
-	s->oracle_uidpwd = strdup( parameter );
-*/
+	a = "appaserver_data_directory";
+	s->appaserver_data_directory = dictionary_fetch( d, a );
 
-} /* appaserver_parameter_file_parse_single_line() */
+	return s;
+
+} /* appaserver_parameter_file_fetch() */
 
 void appaserver_parameter_file_get_dictionary_format(
 			APPASERVER_PARAMETER_FILE *s,
@@ -414,7 +447,7 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 	DICTIONARY *d = (DICTIONARY *)0;
 	int first_time = 1;
 
-	while( get_line_queue( buffer, input_pipe ) )
+	while( get_line( buffer, input_pipe ) )
 	{
 		if ( *buffer == '[' ) continue;
 
@@ -422,7 +455,7 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 
 		if ( first_time )
 		{
-			d = new_dictionary();
+			d = dictionary_new();
 			strcpy( first_key, key );
 			first_time = 0;
 		}
@@ -430,7 +463,6 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 		{
 			if ( strcmp( key, first_key ) == 0 )
 			{
-				unget_line_queue( buffer );
 				break;
 			}
 		}
@@ -442,6 +474,8 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 						strdup( data ) );
 		}
 	}
+
 	return d;
+
 } /* appaserver_parameter_file_load_record_dictionary() */
 

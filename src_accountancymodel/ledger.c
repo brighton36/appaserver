@@ -5690,7 +5690,7 @@ char *ledger_get_closing_transaction_date_time(
 
 } /* ledger_get_closing_transaction_date_time() */
 
-char *ledger_nominal_accounts_beginning_transaction_date(
+DATE *ledger_prior_closing_tranaction_date(
 				char *application_name,
 				char *fund_name,
 				char *ending_transaction_date )
@@ -5700,9 +5700,9 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 	char *select;
 	char folder[ 128 ];
 	char *results;
-	char transaction_date_string[ 16 ];
 	char ending_transaction_date_time[ 32 ];
-	DATE *transaction_date;
+	char transaction_date_string[ 16 ];
+	DATE *prior_closing_transaction_date = {0};
 
 	if ( fund_name && !*fund_name )
 		fund_name = (char *)0;
@@ -5710,8 +5710,6 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 	if ( fund_name && strcmp( fund_name, "fund" ) == 0 )
 		fund_name = (char *)0;
 
-	/* Get the prior closing entry then return its tomorrow. */
-	/* ----------------------------------------------------- */
 	strcpy( folder, TRANSACTION_FOLDER_NAME );
 	select = "max( transaction_date_time )";
 
@@ -5741,12 +5739,49 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 	{
 		column( transaction_date_string, 0, results );
 
-		transaction_date =
+		prior_closing_transaction_date =
 			date_yyyy_mm_dd_new(
 				transaction_date_string );
+	}
 
-		date_increment_days( transaction_date, 1 );
-		return date_get_yyyy_mm_dd_string( transaction_date );
+	return prior_closing_transaction_date;
+
+} /* ledger_prior_closing_tranaction_date() */
+
+char *ledger_nominal_accounts_beginning_transaction_date(
+				char *application_name,
+				char *fund_name,
+				char *ending_transaction_date )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *select;
+	char folder[ 128 ];
+	char *results;
+	char transaction_date_string[ 16 ];
+	char ending_transaction_date_time[ 32 ];
+	DATE *prior_closing_transaction_date;
+
+	if ( fund_name && !*fund_name )
+		fund_name = (char *)0;
+	else
+	if ( fund_name && strcmp( fund_name, "fund" ) == 0 )
+		fund_name = (char *)0;
+
+	/* Get the prior closing entry then return its tomorrow. */
+	/* ----------------------------------------------------- */
+	prior_closing_transaction_date =
+		ledger_prior_closing_tranaction_date(
+			application_name,
+			fund_name,
+			ending_transaction_date );
+
+	if ( prior_closing_transaction_date )
+	{
+		date_increment_days( prior_closing_transaction_date, 1 );
+
+		return date_get_yyyy_mm_dd_string(
+				prior_closing_transaction_date );
 	}
 
 	/* No closing entries */
@@ -5798,19 +5833,6 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 
 	return strdup( column( transaction_date_string, 0, results )  );
 
-#ifdef NOT_DEFINED
-	/* Assume the opening entry was 11:59 the night before. */
-	/* ---------------------------------------------------- */
-	column( transaction_date_string, 0, results );
-
-	transaction_date =
-		date_yyyy_mm_dd_new(
-			transaction_date_string );
-
-	date_increment_days( transaction_date, 1 );
-	return date_get_yyyy_mm_dd_string( transaction_date );
-#endif
-
 } /* ledger_nominal_accounts_beginning_transaction_date() */
 
 LIST *ledger_get_fund_name_list( char *application_name )
@@ -5848,10 +5870,10 @@ void ledger_get_report_title_sub_title(
 			application_name ) );
 
 	if ( ! ( beginning_date = 
-		ledger_nominal_accounts_beginning_transaction_date(
-			application_name,
-			fund_name,
-			as_of_date ) ) )
+			ledger_nominal_accounts_beginning_transaction_date(
+				application_name,
+				fund_name,
+				as_of_date ) ) )
 	{
 		printf( "<h3>Error. No transactions.</h3.\n" );
 		document_close();
@@ -6186,4 +6208,46 @@ LIST *ledger_get_inventory_account_name_list(
 	return pipe2list( sys_string );
 
 } /* ledger_get_inventory_account_name_list() */
+
+ACCOUNT *ledger_element_list_account_seek(
+			LIST *element_list,
+			char *account_name )
+{
+	ELEMENT *element;
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+
+	if ( !list_rewind( element_list ) ) return (ACCOUNT *)0;
+
+	do {
+		element = list_get_pointer( element_list );
+
+		if ( !list_rewind( element->subclassification_list ) )
+			continue;
+
+		do {
+			subclassification =
+				list_get_pointer(
+					element->
+						subclassification_list );
+
+			if ( !list_rewind( subclassification->account_list ) )
+				continue;
+
+
+			if ( ( account =
+				ledger_seek_account(
+					subclassification->account_list,
+					account_name ) ) )
+			{
+				return account;
+			}
+
+		} while( list_next( element->subclassification_list ) );
+
+	} while( list_next( element_list ) );
+
+	return (ACCOUNT *)0;
+
+} /* ledger_element_list_account_seek() */
 

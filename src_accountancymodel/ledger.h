@@ -12,6 +12,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "html_table.h"
+#include "date.h"
 #include "latex.h"
 #include "hash_table.h"
 #include "dictionary.h"
@@ -779,5 +780,14 @@ void ledger_propagate_account_list(
 				char *application_name,
 				char *transaction_date_time,
 				LIST *account_list );
+
+ACCOUNT *ledger_element_list_account_seek(
+				LIST *element_list,
+				char *account_name );
+
+DATE *ledger_prior_closing_tranaction_date(
+				char *application_name,
+				char *fund_name,
+				char *as_of_date );
 
 #endif

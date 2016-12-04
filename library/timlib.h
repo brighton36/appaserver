@@ -136,6 +136,9 @@ int number_occurrences_char( int char_to_count, char *source );
 
 char *remove_quotes(		char *d, char *s );
 
+char *timlib_place_commas_in_dollars(
+				double d );
+
 char *place_commas_in_double(	double d );
 
 char *place_commas_in_number_string(

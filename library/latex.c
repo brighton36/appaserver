@@ -162,8 +162,8 @@ void latex_output_document_heading(	FILE *output_stream,
 			output_stream,
 			"\\usepackage[labelformat=empty]{caption}\n"
 			"\\usepackage{longtable}\n"
-			"\\usepackage[  margin=2.5cm,"
-                			 "vmargin=2.5cm,"
+			"\\usepackage[  margin=1.5cm,"
+                			 "vmargin=1.5cm,"
                 			 "nohead]{geometry}\n" );
 		}
 		else
@@ -171,8 +171,8 @@ void latex_output_document_heading(	FILE *output_stream,
 			fprintf(
 			output_stream,
 			 "\\usepackage{longtable}\n"
-			 "\\usepackage[  margin=2.5cm,"
-                			 "vmargin=2.5cm,"
+			 "\\usepackage[  margin=1.5cm,"
+                			 "vmargin=1.5cm,"
                 			 "nohead]{geometry}\n" );
 		}
 	}

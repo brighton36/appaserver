@@ -2249,6 +2249,15 @@ char *place_commas_in_double( double d )
 
 } /* place_commas_in_double() */
  
+char *timlib_place_commas_in_dollars( double d )
+{
+	char s[ 20 ];
+
+	sprintf( s, "%.0lf", d );
+	return place_commas_in_number_string( s );
+
+} /* place_commas_in_dollars()  */
+
 char *timlib_place_commas_in_money( double d )
 {
 	return place_commas_in_money( d );
@@ -2258,8 +2267,8 @@ char *place_commas_in_money( double d )
 {
 	char *results;
 
-	/* Returns static memory */
-	/* --------------------- */
+	/* Returns static memory of 3 decimal places */
+	/* ----------------------------------------- */
 	results = place_commas_in_double( d );
 	*( results + strlen( results ) - 1 ) = '\0';
 	return results;

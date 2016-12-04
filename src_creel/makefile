@@ -98,8 +98,7 @@ EXTERNAL_LIBS=								\
 all: 	${EXECUTABLES}
 
 clean:
-	rm -f ${EXECUTABLES} *.o
-	touch appaserver.err && > appaserver.err
+	/bin/rm -f ${EXECUTABLES} *.o
 
 creel_census_report: creel_census_report.c				\
 	${EXTERNAL_LIBS} creel_library.o

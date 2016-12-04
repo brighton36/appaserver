@@ -84,6 +84,7 @@ all: 	${EXECUTABLES}
 
 clean:
 	rm -f ${EXECUTABLES} *.o
+	rm -f ${CGI_HOME}/post_capitolpops
 
 post_capitolpops: post_capitolpops.c					\
 	${EXTERNAL_LIBRARY} musician.o

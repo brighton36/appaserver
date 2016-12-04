@@ -78,6 +78,7 @@ all: 	${EXECUTABLES}
 
 clean:
 	rm -f *.o ${EXECUTABLES}
+	rm -f ${CGI_HOME}/post_sparrow_validation_form
 
 output_bird_count: output_bird_count.c					\
 		${STANDARD_LIBRARY}					\

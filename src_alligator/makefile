@@ -86,8 +86,9 @@ EXTERNAL_LIBS=								\
 all: 	${EXECUTABLES}
 
 clean:
-	rm -f *.o ${EXECUTABLES}					\
-	touch appaserver.err && > appaserver.err
+	rm -f *.o ${EXECUTABLES}
+	rm -f ${CGI_HOME}/post_alligator_srf_dataentry_wizard
+	rm -f ${CGI_HOME}/post_alligator_visit_dataentry_wizard
 
 nest_observation_report: nest_observation_report.c			\
 		alligator.o						\

@@ -107,7 +107,7 @@ SOURCE_LIBRARY= 							\
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 
 clean:
-	rm ${SOURCE_LIBRARY} ${EXECUTABLES}
+	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

@@ -73,7 +73,8 @@ SOURCE_LIBRARYS= 							\
 all: 	${SOURCE_LIBRARYS} ${EXECUTABLES}
 
 clean:
-	rm ${SOURCE_LIBRARYS} ${EXECUTABLES}
+	/bin/rm -f ${SOURCE_LIBRARYS} ${EXECUTABLES}
+	/bin/rm -f ${CGI_HOME}/post_sudoku
 
 post_sudoku: post_sudoku.c ${EXTERNAL_LIBRARYS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\

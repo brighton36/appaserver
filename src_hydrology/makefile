@@ -180,7 +180,7 @@ SOURCE_LIBS= 	${SOURCE_EVERGLADES}/measurement_update_parameter.o	\
 all: 	${SOURCE_LIBS} ${EXECUTABLES}
 
 clean:
-	rm -f *.o ${EXECUTABLES}					\
+	/bin/rm -f *.o ${EXECUTABLES}					\
 	${CGI_HOME}/post_hydrology_quick_measurement_form		\
 	${CGI_HOME}/post_hydrology_measurements_rectangle		\
 	${CGI_HOME}/post_current_vs_historical				\

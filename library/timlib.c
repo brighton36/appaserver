@@ -1432,6 +1432,9 @@ char *place_commas_in_number_string( char *s )
 	{
 		*r_ptr-- = *s_ptr--;
 
+		if ( *s_ptr == '-' )
+			*r_ptr-- = *s_ptr--;
+
 		if ( ++c == 3 )
 		{
 			c = 0;

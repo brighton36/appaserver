@@ -446,7 +446,7 @@ void post_change_dues_payment_amount_update(
 		dues_payment->street_address,
 		dues_payment->transaction_date_time,
 		dues_payment->payment_amount,
-		dues_payment->database_payment_amount );
+		dues_payment->transaction->database_transaction_amount );
 
 } /* post_change_dues_payment_amount_update() */
 

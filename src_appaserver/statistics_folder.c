@@ -179,16 +179,6 @@ int main( int argc, char **argv )
 			dictionary_appaserver->preprompt_dictionary,
 			folder->lookup_before_drop_down );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: state = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-lookup_before_drop_down_get_state_string(
-	lookup_before_drop_down->lookup_before_drop_down_state ) );
-m2( application_name, msg );
-}
 	query =	query_new(	application_name,
 				login_name,
 				folder_name,
@@ -211,15 +201,6 @@ m2( application_name, msg );
 
 	where_clause = query->query_output->where_clause;
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: where_clause = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-where_clause );
-m2( application_name, msg );
-}
 	document = document_new( "", application_name );
 	document->output_content_type = 1;
 

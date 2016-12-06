@@ -1,9 +1,6 @@
 # ===========================
 # $APPASERVER_HOME/.gitignore
 # ===========================
-# User source code
-# ----------------
-src_damon/
 # ------------------
 # application output
 # ------------------

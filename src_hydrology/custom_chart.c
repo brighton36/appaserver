@@ -30,9 +30,9 @@
 /* --------- */
 #define PROCESS_NAME		"output_custom_chart"
 
-#define INFRASTRUCTURE_PROCESS	"%s/%s/datatype_unit_record_list.sh %s %s %s %s %s | %s"
-#define PADDED_DATA_PROCESS	"%s/%s/measurement_record_list_missing_padded.sh %s %s %s:%s %s %s %s:%s n \"%s\" \"%s\""
-#define NON_PADDED_DATA_PROCESS	"%s/%s/measurement_record_list.sh %s %s %s:%s %s %s %s:%s n \"%s\" \"%s\""
+#define INFRASTRUCTURE_PROCESS	"datatype_unit_record_list.sh %s %s %s %s %s | %s"
+#define PADDED_DATA_PROCESS	"measurement_record_list_missing_padded.sh %s %s %s:%s %s %s %s:%s n \"%s\" \"%s\""
+#define NON_PADDED_DATA_PROCESS	"measurement_record_list.sh %s %s %s:%s %s %s %s:%s n \"%s\" \"%s\""
 
 /* #define GRACE_TICKLABEL_ANGLE	90 */
 
@@ -272,9 +272,6 @@ int main( int argc, char **argv )
 
 	sprintf(	infrastructure_process,
 			INFRASTRUCTURE_PROCESS,
-			appaserver_parameter_file->appaserver_mount_point,
-			application_get_relative_source_directory(
-				application_name ),
 			application_name,
 			station,
 			plot_for_station_check_yn,
@@ -287,10 +284,6 @@ int main( int argc, char **argv )
 	{
 		sprintf(	data_process,
 				PADDED_DATA_PROCESS,
-				appaserver_parameter_file->
-					appaserver_mount_point,
-				application_get_relative_source_directory(
-					application_name ),
 				application_name,
 				station,
 				begin_date_string,
@@ -307,10 +300,6 @@ int main( int argc, char **argv )
 	{
 		sprintf(	data_process,
 				NON_PADDED_DATA_PROCESS,
-				appaserver_parameter_file->
-					appaserver_mount_point,
-				application_get_relative_source_directory(
-					application_name ),
 				application_name,
 				station,
 				begin_date_string,

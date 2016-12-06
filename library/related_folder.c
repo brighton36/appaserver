@@ -2645,7 +2645,9 @@ LIST *related_folder_get_preselection_dictionary_list(
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
+					/* root_related_folder */,
+				lookup_unknown
+					/* lookup_before_drop_down_state */ );
 
 		related_folder_dictionary_list =
 			query_get_row_dictionary_list(

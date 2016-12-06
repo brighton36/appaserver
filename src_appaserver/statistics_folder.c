@@ -27,6 +27,7 @@
 #include "decode_html_post.h"
 #include "role.h"
 #include "dictionary_appaserver.h"
+#include "lookup_before_drop_down.h"
 
 /* Constants */
 /* --------- */
@@ -51,6 +52,7 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	QUERY *query;
+	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 
 	output_starting_argv_stderr( argc, argv );
 
@@ -106,7 +108,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	folder = folder_new_folder( 	application_name,
 					session,
@@ -161,6 +163,32 @@ int main( int argc, char **argv )
 			folder->mto1_isa_related_folder_list,
 			(char *)0 /* role_name */ );
 
+	lookup_before_drop_down =
+		lookup_before_drop_down_new(
+			application_name,
+			dictionary_appaserver->
+				lookup_before_drop_down_dictionary,
+			"lookup" /* state */ );
+
+	lookup_before_drop_down->lookup_before_drop_down_state =
+		lookup_before_drop_down_get_state(
+			lookup_before_drop_down->
+				lookup_before_drop_down_folder_list,
+			dictionary_appaserver->
+				lookup_before_drop_down_dictionary,
+			dictionary_appaserver->preprompt_dictionary,
+			folder->lookup_before_drop_down );
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: state = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+lookup_before_drop_down_get_state_string(
+	lookup_before_drop_down->lookup_before_drop_down_state ) );
+m2( application_name, msg );
+}
 	query =	query_new(	application_name,
 				login_name,
 				folder_name,
@@ -177,10 +205,21 @@ int main( int argc, char **argv )
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
+					/* root_related_folder */,
+				lookup_before_drop_down->
+					lookup_before_drop_down_state );
 
 	where_clause = query->query_output->where_clause;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: where_clause = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+where_clause );
+m2( application_name, msg );
+}
 	document = document_new( "", application_name );
 	document->output_content_type = 1;
 

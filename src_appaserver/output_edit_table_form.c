@@ -657,7 +657,9 @@ int main( int argc, char **argv )
 			make_primary_keys_non_edit,
 			omit_delete_dont_care,
 			0 /* omit_operation_buttons */,
-			role_folder->update_yn );
+			role_folder->update_yn,
+			lookup_before_drop_down->
+				lookup_before_drop_down_state );
 
 	form->regular_element_list =
 		row_security->

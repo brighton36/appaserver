@@ -802,7 +802,9 @@ char *process_generic_get_datatype_where_clause(
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
+					/* root_related_folder */,
+				lookup_unknown
+					/* lookup_before_drop_down_state */ );
 
 	return query->query_output->where_clause;
 	
@@ -2404,7 +2406,9 @@ char *process_generic_output_get_row_dictionary_where_clause(
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
+					/* root_related_folder */,
+				lookup_unknown
+					/* lookup_before_drop_down_state */ );
 
 	drop_down_where_clause =
 		query->query_output->where_clause;
@@ -2465,7 +2469,9 @@ char *process_generic_output_get_dictionary_where_clause(
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
+					/* root_related_folder */,
+				lookup_unknown
+					/* lookup_before_drop_down_state */ );
 
 	drop_down_where_clause = query->query_output->drop_down_where_clause;
 

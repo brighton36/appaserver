@@ -230,11 +230,13 @@ delete_folder_row: delete_folder_row.c					\
 
 statistics_folder: statistics_folder.c					\
 	${EXTERNAL_LIBS}						\
+	${LIB}/lookup_before_drop_down.o				\
 	${LIB}/query_attribute_statistics_list.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/query_attribute_statistics_list.o 		\
+		${LIB}/lookup_before_drop_down.o			\
 		statistics_folder.c					\
 		-o statistics_folder
 

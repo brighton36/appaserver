@@ -13,6 +13,7 @@
 #include "related_folder.h"
 #include "role.h"
 #include "operation_list.h"
+#include "lookup_before_drop_down.h"
 
 enum row_security_state {	security_supervisor,
 				security_user,
@@ -91,7 +92,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_element_list_structure_new(
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
-			char update_yn );
+			char update_yn,
+			enum lookup_before_drop_down_state );
 
 LIST *row_security_get_role_update_list(
 			char *application_name );
@@ -138,7 +140,8 @@ LIST *row_security_get_row_dictionary_list(
 			char *folder_name,
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
-			LIST *join_1tom_related_folder_list );
+			LIST *join_1tom_related_folder_list,
+			enum lookup_before_drop_down_state );
 			/* char *mto1_where_join ); */
 
 void row_security_append_join_1tom_related_folder_list(

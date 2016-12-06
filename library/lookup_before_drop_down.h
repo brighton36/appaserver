@@ -18,7 +18,8 @@ enum lookup_before_drop_down_state {
 			lookup_not_participating,
 			lookup_participating_not_root,
 			lookup_skipped,
-			lookup_participating_is_root_all_complete };
+			lookup_participating_is_root_all_complete,
+			lookup_unknown };
 
 /* Constants */
 /* --------- */

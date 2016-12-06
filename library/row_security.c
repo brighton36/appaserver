@@ -252,7 +252,9 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
-			char update_yn )
+			char update_yn,
+			enum lookup_before_drop_down_state
+				lookup_before_drop_down_state )
 {
 	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
 	int row_dictionary_list_length;
@@ -317,7 +319,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			query_select_folder_name,
 			where_clause_attribute_name_list,
 			where_clause_data_list,
-			select_folder->join_1tom_related_folder_list );
+			select_folder->join_1tom_related_folder_list,
+			lookup_before_drop_down_state );
 
 	row_dictionary_list_length =
 		list_length( element_list_structure->row_dictionary_list );
@@ -595,7 +598,9 @@ LIST *row_security_get_row_dictionary_list(
 			char *select_folder_name,
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
-			LIST *join_1tom_related_folder_list )
+			LIST *join_1tom_related_folder_list,
+			enum lookup_before_drop_down_state
+				lookup_before_drop_down_state )
 			/* char *mto1_where_join ) */
 {
 	QUERY *query;
@@ -627,7 +632,8 @@ LIST *row_security_get_row_dictionary_list(
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
+					/* root_related_folder */,
+				lookup_before_drop_down_state );
 
 	row_dictionary_list =
 		query_get_row_dictionary_list(

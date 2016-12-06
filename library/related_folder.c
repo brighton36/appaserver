@@ -338,7 +338,7 @@ LIST *related_folder_get_drop_down_element_list(
 
 	element = element_new(
 			prompt,
-			strdup( format_initial_capital( 
+			strdup( format_initial_capital_not_parens(
 					buffer, 
 					element_name ) ) );
 

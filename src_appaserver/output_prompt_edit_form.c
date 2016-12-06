@@ -2146,7 +2146,6 @@ void build_related_folder_element_list(
 		related_folder->
 			drop_down_multi_select;
 
-/* here1 */
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(

@@ -253,6 +253,7 @@ LIST *related_folder_get_drop_down_element_list(
 	char element_name[ 256 ];
 	LIST *return_list;
 	ELEMENT *element;
+	char relation_operator_equals[ 256 ];
 
 	return_list = list_new_list();
 
@@ -336,7 +337,8 @@ LIST *related_folder_get_drop_down_element_list(
 			 related_attribute_name );
 	}
 
-	element = element_new(
+	element =
+		element_new(
 			prompt,
 			strdup( format_initial_capital_not_parens(
 					buffer, 
@@ -454,6 +456,24 @@ LIST *related_folder_get_drop_down_element_list(
 				return_list, 
 				element );
 	}
+
+	/* Create the hidden equals operator */
+	/* --------------------------------- */
+	sprintf( relation_operator_equals,
+		 "%s%s",
+		 QUERY_RELATION_OPERATOR_STARTING_LABEL,
+		 element_name );
+
+	element =
+		element_new( 
+			hidden,
+			strdup( relation_operator_equals ) );
+
+	element->hidden->data = "equals";
+
+	list_append_pointer(
+			return_list, 
+			element );
 
 	return return_list;
 
@@ -2645,9 +2665,7 @@ LIST *related_folder_get_preselection_dictionary_list(
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */,
-				lookup_unknown
-					/* lookup_before_drop_down_state */ );
+					/* root_related_folder */ );
 
 		related_folder_dictionary_list =
 			query_get_row_dictionary_list(

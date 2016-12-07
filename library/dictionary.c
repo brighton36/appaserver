@@ -53,17 +53,24 @@ void dictionary_parse_multi_attribute_keys(
 	*(data_delimiter_string + 1) = '\0';
 
 	multi_attribute_key_list = dictionary_get_key_list( dictionary );
-	if ( !( multi_attribute_key_list
-	&&      list_reset( multi_attribute_key_list ) ) )
-	{
-		return;
-	}
-	
+
+	if ( !list_rewind( multi_attribute_key_list ) ) return;
+
 	do {
 		full_key = list_get_pointer( multi_attribute_key_list );
 
-		if ( ( prefix && *prefix )
+		if ( prefix
+		&&   *prefix
 		&&   strncmp( full_key, prefix, str_len ) != 0 )
+		{
+			continue;
+		}
+
+		/* Don't parse relational operators */
+		/* -------------------------------- */
+		if ( timlib_strncmp(
+			full_key + str_len,
+			QUERY_RELATION_OPERATOR_STARTING_LABEL ) == 0 )
 		{
 			continue;
 		}
@@ -78,14 +85,19 @@ void dictionary_parse_multi_attribute_keys(
 					key_without_index,
 					key_delimiter);
 
-			full_data = dictionary_get_data(
-					dictionary, full_key );
+			full_data =
+				dictionary_get_data(
+					dictionary,
+					full_key );
 
 			attribute_data_list = 
-				list_string2list( full_data, data_delimiter );
+				list_string2list(
+					full_data,
+					data_delimiter );
 
 			list_go_tail( attribute_key_list );
 			list_go_tail( attribute_data_list );
+
 			do {
 				key = list_get_pointer( attribute_key_list );
 
@@ -123,7 +135,9 @@ void dictionary_parse_multi_attribute_keys(
 
 			} while( list_previous( attribute_key_list ) );
 		}
+
 	} while( list_next( multi_attribute_key_list ) );
+
 } /* dictionary_parse_multi_attribute_keys() */
 
 void dictionary_delete_keys_with_prefix(

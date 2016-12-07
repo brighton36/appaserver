@@ -459,9 +459,7 @@ char *get_where_clause_string( 	char *application_name,
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */,
-				lookup_unknown
-					/* lookup_before_drop_down_state */ );
+					/* root_related_folder */ );
 
 	/* If executed from the user interface. */
 	/* ------------------------------------ */

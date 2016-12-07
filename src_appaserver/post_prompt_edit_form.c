@@ -128,7 +128,8 @@ int main( int argc, char **argv )
 	insert_update_key = target_frame;
 
 	original_post_dictionary =
-		post2dictionary(stdin,
+		post2dictionary(
+			stdin,
 			(char *)0 /* appaserver_data_directory */,
 			(char *)0 /* session */ );
 

@@ -632,8 +632,7 @@ LIST *row_security_get_row_dictionary_list(
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */,
-				lookup_before_drop_down_state );
+					/* root_related_folder */ );
 
 	row_dictionary_list =
 		query_get_row_dictionary_list(

@@ -15,7 +15,6 @@
 #include "piece.h"
 #include "prompt_recursive.h"
 #include "folder.h"
-#include "lookup_before_drop_down.h"
 
 /* Constants */
 /* --------- */
@@ -46,6 +45,7 @@ enum relational_operator {	equals,
 				query_or,
 				is_null,
 				not_null,
+				relational_operator_empty,
 				relational_operator_unknown };
 
 /* Structures */
@@ -150,8 +150,7 @@ QUERY *query_new(		char *application_name,
 				boolean include_root_folder,
 				LIST *one2m_subquery_folder_name_list,
 				LIST *mto1_join_folder_name_list,
-				RELATED_FOLDER *root_related_folder,
-				enum lookup_before_drop_down_state );
+				RELATED_FOLDER *root_related_folder );
 
 QUERY *query_primary_data_new(	char *application_name,
 				char *login_name,
@@ -181,9 +180,7 @@ QUERY_OUTPUT *query_output_new(	QUERY *query,
 				LIST *where_attribute_data_list,
 				FOLDER *folder,
 				LIST *subquery_one2m_related_folder_list,
-				PROMPT_RECURSIVE *prompt_recursive,
-				enum lookup_before_drop_down_state
-					lookup_before_drop_down_state );
+				PROMPT_RECURSIVE *prompt_recursive );
 
 LIST *query_get_row_dictionary_list(
 				char *application_name,

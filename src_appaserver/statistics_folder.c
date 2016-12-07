@@ -79,13 +79,6 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
 	decode_html_post(	decoded_dictionary_string, 
 				dictionary_string );
 
@@ -195,9 +188,7 @@ int main( int argc, char **argv )
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */,
-				lookup_before_drop_down->
-					lookup_before_drop_down_state );
+					/* root_related_folder */ );
 
 	where_clause = query->query_output->where_clause;
 

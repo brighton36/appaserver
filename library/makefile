@@ -110,7 +110,6 @@ all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
 		easycharts.o						\
 		pair_one2m.o						\
 		prompt_recursive.o					\
-		statistics_weighted_dvr.e				\
 		julian_time_double_list.o				\
 		token_dvr.e
 

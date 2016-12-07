@@ -4,5 +4,5 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	make statistics_folder
+	make output_prompt_edit_form statistics_folder
 fi

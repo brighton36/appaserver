@@ -36,11 +36,6 @@
 /* --------- */
 #define	QUEUE_TOP_BOTTOM_LINES		50
 #define FILENAME_STEM			"group_count"
-/*
-#define OUTPUT_FILE_TEMPLATE		"%s/%s/group_count_%s_%d.csv"
-#define HTTP_FTP_FILE_TEMPLATE		"%s://%s/%s/group_count_%s_%d.csv"
-#define FTP_FILE_TEMPLATE		"/%s/group_count_%s_%d.csv"
-*/
 
 /* Structures */
 /* ---------- */
@@ -262,9 +257,7 @@ int main( int argc, char **argv )
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */,
-				lookup_unknown
-					/* lookup_before_drop_down_state */ );
+					/* root_related_folder */ );
 
 	if ( ! ( total_count =
 			get_total_count(
@@ -474,35 +467,6 @@ void output_related_folder(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename,
-		 	HTTP_FTP_FILE_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-			output_file_unique_key,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-		 	FTP_FILE_TEMPLATE, 
-		 	application_name,
-			output_file_unique_key,
-		 	process_id );
-	}
-
-	sprintf( output_filename,
-		 OUTPUT_FILE_TEMPLATE,
-		 appaserver_mount_point,
-		 application_name,
-		 output_file_unique_key,
-		 process_id );
-*/
-
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		fprintf( stderr,
@@ -566,7 +530,7 @@ void output_related_folder(
 			 total_count->float_attribute_name );
 
 		sprintf( sys_string,
-		 "queue_top_bottom_lines.e %d				|"
+		 "queue_top_bottom_lines.e %d		|"
 		 "html_table.e '^^%s' '%s' '%c' '%s'	 ", 
 		 	QUEUE_TOP_BOTTOM_LINES,
 		 	title,
@@ -577,10 +541,17 @@ void output_related_folder(
 
 	table_output_pipe = popen( sys_string, "w" );
 
+/*
 	sprintf( sys_string,
 		 "tr '%c' ',' >> %s",
 		 FOLDER_DATA_DELIMITER,
 		 output_filename );
+*/
+	sprintf( sys_string,
+		 "double_quote_comma_delimited.e '%c' >> %s",
+		 FOLDER_DATA_DELIMITER,
+		 output_filename );
+
 	file_output_pipe = popen( sys_string, "w" );
 
 	while( get_line( input_buffer, input_pipe ) )
@@ -596,12 +567,14 @@ void output_related_folder(
 				FOLDER_DATA_DELIMITER ),
 			total_count->total_count );
 
+/*
 	fprintf(	file_output_pipe,
 			"%s%d\n",
 			get_total_delimiter_list(
 				attribute_list_length,
 				',' ),
 			total_count->total_count );
+*/
 
 	pclose( input_pipe );
 	pclose( table_output_pipe );

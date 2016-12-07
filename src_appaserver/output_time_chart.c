@@ -288,9 +288,7 @@ void output_chart(	char *application_name,
 				(LIST *)0
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
-					/* root_related_folder */,
-				lookup_unknown
-					/* lookup_before_drop_down_state */ );
+					/* root_related_folder */ );
 
 	query_record_list =
 		query_get_record_list(

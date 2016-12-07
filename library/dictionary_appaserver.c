@@ -202,6 +202,7 @@ DICTIONARY *dictionary_appaserver_get_send_dictionary(
 	dictionary_search_replace_special_characters( send_dictionary );
 
 	return send_dictionary;
+
 } /* dictionary_appaserver_get_get_send_dictionary() */
 
 DICTIONARY *dictionary_appaserver_get_working_post_dictionary(
@@ -214,24 +215,24 @@ DICTIONARY *dictionary_appaserver_get_working_post_dictionary(
 	working_post_dictionary = dictionary_copy( original_post_dictionary );
 
 	dictionary_appaserver_parse_multi_attribute_keys(
-				working_post_dictionary,
-				QUERY_STARTING_LABEL );
+		working_post_dictionary,
+		QUERY_STARTING_LABEL );
 
 	dictionary_appaserver_parse_multi_attribute_keys(
-				working_post_dictionary,
-				PREPROMPT_PREFIX );
+		working_post_dictionary,
+		PREPROMPT_PREFIX );
 
 	dictionary_appaserver_parse_multi_attribute_keys(
-				working_post_dictionary,
-				SORT_BUTTON_PREFIX );
+		working_post_dictionary,
+		SORT_BUTTON_PREFIX );
 
 	dictionary_appaserver_parse_multi_attribute_keys(
-				working_post_dictionary,
-				LOOKUP_BEFORE_DROP_DOWN_PREFIX );
+		working_post_dictionary,
+		LOOKUP_BEFORE_DROP_DOWN_PREFIX );
 
 	dictionary_appaserver_parse_multi_attribute_keys(
-				working_post_dictionary,
-				PAIR_ONE2M_PREFIX );
+		working_post_dictionary,
+		PAIR_ONE2M_PREFIX );
 
 	/* Trim the [common_non_primary_attribute data] */
 	/* -------------------------------------------- */
@@ -240,8 +241,8 @@ DICTIONARY *dictionary_appaserver_get_working_post_dictionary(
 	/* Remove the index appended to the multi-select lookup widget. */
 	/* ------------------------------------------------------------ */
 	dictionary_trim_multi_drop_down_index(
-			working_post_dictionary,
-			ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
+		working_post_dictionary,
+		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
 
 	if ( attribute_list )
 	{
@@ -297,8 +298,7 @@ DICTIONARY *dictionary_appaserver_get_preprompt_dictionary(
 
 	dictionary_add_suffix_zero( dictionary );
 
-	dictionary_appaserver_remove_from_starting_label(
-				dictionary );
+	dictionary_appaserver_remove_from_starting_label( dictionary );
 
 	return dictionary;
 

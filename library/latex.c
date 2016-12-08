@@ -319,10 +319,12 @@ void latex_output_table_row_list(	FILE *output_stream,
 					"&",
 					"\\&" );
 
+/*
 				search_replace_string(
 					buffer,
 					"$",
 					"\\$" );
+*/
 
 				search_replace_string(
 					buffer,

@@ -110,6 +110,7 @@ typedef struct
 {
 	char *subclassification_name;
 	LIST *account_list;
+	double subclassification_total;
 } SUBCLASSIFICATION;
 
 typedef struct
@@ -174,6 +175,7 @@ ELEMENT *ledger_account_fetch_element(	char *application_name,
 					char *account_name );
 
 LIST *ledger_subclassification_get_account_list(
+					double *subclassification_total,
 					char *application_name,
 					char *subclassification_name,
 					char *fund_name,
@@ -789,5 +791,8 @@ DATE *ledger_prior_closing_tranaction_date(
 				char *application_name,
 				char *fund_name,
 				char *as_of_date );
+
+boolean ledger_is_period_element(
+				char *element_name );
 
 #endif

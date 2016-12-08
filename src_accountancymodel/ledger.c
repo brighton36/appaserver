@@ -944,6 +944,7 @@ LIST *ledger_subclassification_quickly_get_account_list(
 } /* ledger_subclassification_quickly_get_account_list() */
 
 LIST *ledger_subclassification_get_account_list(
+					double *subclassification_total,
 					char *application_name,
 					char *subclassification_name,
 					char *fund_name,
@@ -1009,6 +1010,8 @@ LIST *ledger_subclassification_get_account_list(
 			account_list,
 			account,
 			ledger_balance_match_function );
+
+		*subclassification_total += account->latest_ledger->balance;
 	}
 
 	pclose( input_pipe );
@@ -1051,6 +1054,7 @@ LIST *ledger_element_get_subclassification_list(
 
 		subclassification->account_list =
 			ledger_subclassification_get_account_list(
+				&subclassification->subclassification_total,
 				application_name,
 				subclassification->subclassification_name,
 				fund_name,
@@ -6250,4 +6254,36 @@ ACCOUNT *ledger_element_list_account_seek(
 	return (ACCOUNT *)0;
 
 } /* ledger_element_list_account_seek() */
+
+boolean ledger_is_period_element( char *element_name )
+{
+	if ( !element_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty element_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( strcmp(	element_name,
+			LEDGER_REVENUE_ELEMENT ) == 0 )
+		return 1;
+	else
+	if ( strcmp(	element_name,
+			LEDGER_EXPENSE_ELEMENT ) == 0 )
+		return 1;
+	else
+	if ( strcmp(	element_name,
+			LEDGER_GAIN_ELEMENT ) == 0 )
+		return 1;
+	else
+	if ( strcmp(	element_name,
+			LEDGER_LOSS_ELEMENT ) == 0 )
+		return 1;
+	else
+		return 0;
+
+} /* ledger_is_period_element() */
 

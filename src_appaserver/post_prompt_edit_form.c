@@ -166,8 +166,6 @@ int main( int argc, char **argv )
 
 		if ( strcmp( base_folder_name, folder_name ) != 0 )
 		{
-/* #ifdef NOT_DEFINED */
-/* This breaks <Insert><Species Measurement> */
 			/* Copy over the preprompt dictionary */
 			/* ---------------------------------- */
 			dictionary_append_dictionary(
@@ -175,16 +173,6 @@ int main( int argc, char **argv )
 					preprompt_dictionary,
 				dictionary_appaserver->
 					non_prefixed_dictionary );
-/* #endif */
-
-#ifdef NOT_DEFINED
-/* This breaks <Lookup><Journal Ledger> where transaction.check_number = 426. */
-			/* Make the preprompt_dictionary only what's posted. */
-			/* ------------------------------------------------- */
-			dictionary_appaserver->preprompt_dictionary =
-				dictionary_appaserver->
-					non_prefixed_dictionary;
-#endif
 
 			post_prompt_edit_form_lookup_before_drop_down(
 				dictionary_appaserver,

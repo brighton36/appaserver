@@ -591,6 +591,7 @@ QUERY_OUTPUT *query_output_new(	QUERY *query,
 				query->dictionary );
 	}
 
+/*
 {
 char msg[ 65536 ];
 sprintf( msg, "\n%s/%s()/%d: for folder = %s, query_drop_down_list = %s\n",
@@ -602,6 +603,7 @@ query_drop_down_list_display(	folder->folder_name,
 				query_output->query_drop_down_list ) );
 m2( folder->application_name, msg );
 }
+*/
 
 
 	if ( folder

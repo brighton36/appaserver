@@ -146,6 +146,10 @@ LIST *lookup_before_drop_down_get_unfulfilled_folder_name_list(
 LIST *lookup_before_drop_down_get_folder_name_list(
 			LIST *lookup_before_drop_down_folder_list );
 
+char *lookup_before_drop_down_state_display(
+			enum lookup_before_drop_down_state
+				lookup_before_drop_down_state );
+
 char *lookup_before_drop_down_get_state_string(
 			enum lookup_before_drop_down_state
 				lookup_before_drop_down_state );
@@ -172,5 +176,8 @@ LOOKUP_BEFORE_DROP_DOWN_FOLDER *lookup_before_drop_down_folder_list_seek(
 LIST *lookup_before_drop_down_get_non_edit_folder_name_list(
 			LIST *lookup_before_drop_down_folder_list,
 			LIST *mto1_related_folder_list );
+
+boolean lookup_before_drop_down_preprompt_dictionary_empty(
+			DICTIONARY *preprompt_dictionary );
 
 #endif

@@ -806,7 +806,8 @@ enum lookup_before_drop_down_state
 	if ( timlib_strcmp(
 			state_string,
 			LOOKUP_BEFORE_DROP_DOWN_NON_INITIAL_STATE ) == 0
-	&&   !dictionary_length( preprompt_dictionary ) )
+	&&   lookup_before_drop_down_preprompt_dictionary_empty(
+			preprompt_dictionary ) )
 	{
 		lookup_before_drop_down_state = lookup_skipped;
 	}
@@ -824,6 +825,14 @@ enum lookup_before_drop_down_state
 	return lookup_before_drop_down_state;
 
 } /* lookup_before_drop_down_get_state() */
+
+char *lookup_before_drop_down_state_display(
+			enum lookup_before_drop_down_state
+				lookup_before_drop_down_state )
+{
+	return lookup_before_drop_down_get_state_string(
+			lookup_before_drop_down_state );
+}
 
 char *lookup_before_drop_down_get_state_string(
 			enum lookup_before_drop_down_state
@@ -974,4 +983,43 @@ LIST *lookup_before_drop_down_get_non_edit_folder_name_list(
 	return non_edit_folder_name_list;
 
 } /* lookup_before_drop_down_get_non_edit_folder_name_list() */
+
+boolean lookup_before_drop_down_preprompt_dictionary_empty(
+				DICTIONARY *preprompt_dictionary )
+{
+	LIST *key_list;
+	char *key;
+	char *data;
+	enum relational_operator relational_operator;
+
+	key_list = dictionary_get_key_list( preprompt_dictionary );
+
+	if ( !list_rewind( key_list ) ) return 1;
+
+	do {
+		key = list_get_pointer( key_list );
+
+		if ( timlib_strncmp(
+			key,
+			QUERY_RELATION_OPERATOR_STARTING_LABEL ) == 0 )
+		{
+			data = dictionary_safe_fetch(
+					preprompt_dictionary,
+					key );
+
+			relational_operator =
+				query_get_relational_operator(
+					data );
+
+			if ( relational_operator != equals ) return 0;
+		}
+		else
+		{
+			return 0;
+		}
+	} while( list_next( key_list ) );
+
+	return 1;
+
+} /* lookup_before_drop_down_preprompt_dictionary_empty() */
 

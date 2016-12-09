@@ -226,13 +226,13 @@ int main( int argc, char **argv )
 			process_parameter_list->process_parameter_list );
 
 	process = process_new_process(
-				application_name,
-				session,
-				process_or_process_set_name,
-				dictionary_appaserver->
-					non_prefixed_dictionary,
-				role_name,
-				WITH_CHECK_EXECUTABLE_OK );
+			application_name,
+			session,
+			process_or_process_set_name,
+			dictionary_appaserver->
+				non_prefixed_dictionary,
+			role_name,
+			WITH_CHECK_EXECUTABLE_OK );
 	
 	if ( !process )
 	{

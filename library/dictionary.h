@@ -83,6 +83,10 @@ void dictionary_parse_multi_attribute_keys(
 					char data_delimiter,
 					char *prefix );
 
+void dictionary_parse_multi_attribute_relation_operator_keys(
+				DICTIONARY *dictionary, 
+				char multi_attribute_drop_down_delimiter );
+
 void dictionary_add_string(		DICTIONARY *d,
 					char *key, 
 					char *data_string );

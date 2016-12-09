@@ -319,6 +319,10 @@ QUERY_ATTRIBUTE *query_attribute_new(
 				char *to_data,
 				int primary_key_index );
 
+boolean query_attribute_list_exists(
+				LIST *query_attribute_list,
+				char *attribute_name );
+
 char *query_get_process_where_clause(
 				char **drop_down_where_clause,
 				char **attribute_where_clause,
@@ -559,5 +563,15 @@ char *query_or_sequence_get_where_clause(
 				LIST *attribute_name_list,
 				LIST *data_list_list,
 				boolean with_and_prefix );
+
+QUERY *query_process_parameter_new(
+				char *application_name,
+				LIST *attribute_list,
+				DICTIONARY *parameter_dictionary );
+
+QUERY_OUTPUT *query_process_parameter_output_new(
+				DICTIONARY *dictionary,
+				char *application_name,
+				LIST *attribute_list );
 
 #endif

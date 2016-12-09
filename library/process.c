@@ -196,6 +196,10 @@ void process_convert_parameters(
 			dictionary_copy_dictionary(
 				parameter_dictionary );
 
+		dictionary_parse_multi_attribute_relation_operator_keys(
+			local_parameter_dictionary, 
+			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
+
 		dictionary_set_pointer(
 			local_parameter_dictionary,
 			PROCESS_ID_LABEL,
@@ -216,9 +220,9 @@ void process_convert_parameters(
 		}
 
 		if ( !dictionary_exists_key_index(
-					local_parameter_dictionary,
-					"login_name",
-					0 ) )
+				local_parameter_dictionary,
+				"login_name",
+				0 ) )
 		{
 			dictionary_set_pointer(	local_parameter_dictionary,
 						"login_name_0",
@@ -286,9 +290,9 @@ void process_convert_parameters(
 		}
 
 		dictionary_search_replace_command_arguments(
-						local_executable,
-						local_parameter_dictionary, 
-						row );
+			local_executable,
+			local_parameter_dictionary, 
+			row );
 
 	} /* if parameter_dictionary */
 
@@ -399,7 +403,7 @@ void process_convert_parameters(
 			application_name,
 			folder_name,
 			attribute_list,
-			parameter_dictionary );
+			local_parameter_dictionary );
 	}
 
 	sprintf(	local_executable + strlen( local_executable ),
@@ -1137,7 +1141,7 @@ void process_search_replace_executable_where(
 				parameter_dictionary,
 				(ROLE *)0,
 				0 /* max_rows; zero for unlimited */,
-				0 /* not include_root_folder */ );
+				1 /* include_root_folder */ );
 
 		where_clause = query->query_output->where_clause;
 
@@ -1156,6 +1160,12 @@ void process_search_replace_executable_where(
 	{
 		QUERY *query;
 
+		query = query_process_parameter_new(
+				application_name,
+				attribute_list,
+				parameter_dictionary );
+
+#ifdef NOT_DEFINED
 		query = query_new(
 				application_name,
 				(char *)0 /* login_name */,
@@ -1174,6 +1184,7 @@ void process_search_replace_executable_where(
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 		where_clause = query->query_output->where_clause;
 

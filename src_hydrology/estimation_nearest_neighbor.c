@@ -128,7 +128,7 @@ int main( int argc, char **argv )
 						appaserver_mount_point );
 
 		printf(
-	"<p>Please choose a station and datatype.\n" );
+		"<h3>Please choose a station and datatype.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}

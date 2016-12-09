@@ -47,6 +47,27 @@ QUERY_OUTPUT *query_output_calloc( void )
 
 } /* query_output_calloc() */
 
+QUERY *query_process_parameter_new(
+				char *application_name,
+				LIST *attribute_list,
+				DICTIONARY *parameter_dictionary )
+{
+	QUERY *query;
+
+	query = query_calloc();
+
+	query->dictionary = parameter_dictionary;
+
+	query->query_output =
+		query_process_parameter_output_new(
+			query->dictionary,
+			application_name,
+			attribute_list );
+
+	return query;
+
+} /* query_process_parameter_new() */
+
 QUERY *query_process_new(	char *application_name,
 				char *login_name,
 				char *folder_name,
@@ -532,6 +553,37 @@ QUERY_OUTPUT *query_primary_data_output_new(
 	return query_output;
 
 } /* query_primary_data_output_new() */
+
+QUERY_OUTPUT *query_process_parameter_output_new(
+				DICTIONARY *dictionary,
+				char *application_name,
+				LIST *attribute_list )
+{
+	QUERY_OUTPUT *query_output;
+
+	query_output = query_output_calloc();
+
+	query_output->query_attribute_list =
+		query_get_attribute_list(
+			attribute_list,
+			dictionary,
+			(LIST *)0
+				/* exclude_attribute_name_list */,
+			(char *)0
+				/* dictionary_prepend_folder_name */ );
+
+	query_output->where_clause =
+		query_get_where_clause(
+			&query_output->drop_down_where_clause,
+			&query_output->attribute_where_clause,
+			query_output->query_drop_down_list,
+			query_output->query_attribute_list,
+			application_name,
+			(char *)0 /* folder_name */ );
+
+	return query_output;
+
+} /* query_process_parameter_output_new() */
 
 QUERY_OUTPUT *query_output_new(	QUERY *query,
 				boolean include_root_folder,
@@ -2266,6 +2318,14 @@ char *query_get_operator_name(	char *attribute_name,
 		 starting_label,
 		 attribute_name );
 
+	if ( ( operator_name =
+		dictionary_fetch(
+			dictionary,
+			search_string ) ) )
+	{
+		return operator_name;
+	}
+
 	if ( dictionary_get_index_data(
 			&operator_name,
 			dictionary, 
@@ -2567,6 +2627,13 @@ LIST *query_get_attribute_list(
 
 		if ( list_exists_string(
 				exclude_attribute_name_list,
+				attribute->attribute_name ) )
+		{
+			continue;
+		}
+
+		if ( query_attribute_list_exists(
+				query_attribute_list,
 				attribute->attribute_name ) )
 		{
 			continue;
@@ -5081,4 +5148,27 @@ char *query_or_sequence_get_where_clause(	LIST *attribute_name_list,
 	return strdup( where_clause );
 
 } /* query_or_sequence_get_where_clause() */
+
+boolean query_attribute_list_exists(
+				LIST *query_attribute_list,
+				char *attribute_name )
+{
+	QUERY_ATTRIBUTE *query_attribute;
+
+	if ( !list_rewind( query_attribute_list ) ) return 0;
+
+	do {
+		query_attribute = list_get_pointer( query_attribute_list );
+
+		if ( strcmp(	query_attribute->attribute_name,
+				attribute_name ) == 0 )
+		{
+			return 1;
+		}
+	} while( list_next( query_attribute_list ) );
+
+	return 0;
+
+} /* query_attribute_list_exists() */
+
 

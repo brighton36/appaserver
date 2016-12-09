@@ -108,7 +108,7 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	decode_html_post(	decoded_dictionary_string, 
 				post_dictionary_string );
@@ -315,7 +315,7 @@ int main( int argc, char **argv )
 			dictionary2file_get_filename(
 				form->process_id,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					appaserver_data_directory,
 				INSERT_UPDATE_KEY,
 				FOLDER_NAME,
 				(char *)0 /* optional_related_attribute... */ ),

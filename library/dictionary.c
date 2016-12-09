@@ -140,6 +140,70 @@ void dictionary_parse_multi_attribute_keys(
 
 } /* dictionary_parse_multi_attribute_keys() */
 
+void dictionary_parse_multi_attribute_relation_operator_keys(
+				DICTIONARY *dictionary, 
+				char multi_attribute_drop_down_delimiter )
+{
+	LIST *multi_attribute_key_list;
+	LIST *attribute_key_list;
+	char *full_key;
+	char *key, *data;
+	char delimiter_string[ 2 ];
+
+	/* Set the delimiter string */
+	/* ------------------------ */
+	*delimiter_string = multi_attribute_drop_down_delimiter;
+	*(delimiter_string + 1) = '\0';
+
+	multi_attribute_key_list = dictionary_get_key_list( dictionary );
+
+	if ( !list_rewind( multi_attribute_key_list ) ) return;
+
+	do {
+		full_key = list_get_pointer( multi_attribute_key_list );
+
+		/* Only parse relational operators */
+		/* ------------------------------- */
+		if ( timlib_strncmp(
+			full_key,
+			QUERY_RELATION_OPERATOR_STARTING_LABEL ) != 0 )
+		{
+			continue;
+		}
+
+		if ( instr( delimiter_string, full_key, 1 ) == -1 )
+			continue;
+
+		attribute_key_list = 
+			list_string2list(
+				full_key,
+				multi_attribute_drop_down_delimiter );
+
+		data = dictionary_get_data( dictionary, full_key );
+
+		list_rewind( attribute_key_list );
+
+		do {
+			key = list_get_pointer( attribute_key_list );
+
+			if ( dictionary_exists_key(
+					dictionary,
+					key ) )
+			{
+				continue;
+			}
+
+			dictionary_set_pointer( 
+					dictionary, 
+					key,
+					data );
+
+		} while( list_next( attribute_key_list ) );
+
+	} while( list_next( multi_attribute_key_list ) );
+
+} /* dictionary_parse_multi_attribute_relation_operator_keys() */
+
 void dictionary_delete_keys_with_prefix(
 					DICTIONARY *dictionary, 
 					char *prefix )

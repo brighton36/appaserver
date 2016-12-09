@@ -6,7 +6,9 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
 
-echo "Starting: $0 $*" 1>&2
+# Goes to apache log.
+# -------------------
+# echo "Starting: $0 $*" 1>&2
 
 if [ "$#" -ne 5 ]
 then

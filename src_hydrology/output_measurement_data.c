@@ -322,7 +322,7 @@ int main( int argc, char **argv )
 	if ( output_medium == text_file
 	||   output_medium == output_medium_stdout )
 	{
-		appaserver_link_file->extension = "tex";
+		appaserver_link_file->extension = "txt";
 	}
 	else
 	{

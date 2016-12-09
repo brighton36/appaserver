@@ -32,13 +32,16 @@
 #include "hydrology_library.h"
 #include "application_constants.h"
 #include "dictionary_appaserver.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
 #define REPORT_TITLE				"Water Budget Flow"
 #define DEFAULT_OUTPUT_MEDIUM			"table"
 #define KEY_DELIMITER				'/'
+#define FILENAME_STEM				"water_budger_flow"
 
+/*
 #define OUTPUT_FILE_TEXT_FILE	"%s/%s/water_budget_flow_%s_%s_%d.txt"
 #define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/water_budget_flow_%s_%s_%d.txt"
 #define FTP_FILE_TEXT_FILE	"/%s/water_budget_flow_%s_%s_%d.txt"
@@ -46,6 +49,7 @@
 #define OUTPUT_FILE_SPREADSHEET	"%s/%s/water_budget_flow_%s_%s_%d.csv"
 #define HTTP_FTP_FILE_SPREADSHEET	"%s://%s/%s/water_budget_flow_%s_%s_%d.csv"
 #define FTP_FILE_SPREADSHEET	"/%s/water_budget_flow_%s_%s_%d.csv"
+*/
 
 #define ROWS_BETWEEN_HEADING			20
 #define SELECT_LIST				 "measurement_date,measurement_time,measurement_value"
@@ -464,12 +468,31 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *output_pipename;
+		char *ftp_filename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		appaserver_link_file->begin_date_string = begin_date;
+		appaserver_link_file->end_date_string = end_date;
+
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_SPREADSHEET,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -477,7 +500,21 @@ int main( int argc, char **argv )
 			 begin_date,
 			 end_date,
 			 process_id );
-	
+*/
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -534,6 +571,7 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -555,7 +593,25 @@ int main( int argc, char **argv )
 			 	end_date,
 			 	process_id );
 		}
-	
+*/
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		water_budget_flow_output_transmit(
 					output_pipe,
 					water_budget_flow->
@@ -586,12 +642,31 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "transmit" ) == 0
 	||   strcmp( output_medium, "text_file" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *output_pipename;
+		char *ftp_filename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"txt" );
+
+		appaserver_link_file->begin_date_string = begin_date;
+		appaserver_link_file->end_date_string = end_date;
+
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_TEXT_FILE,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -599,7 +674,21 @@ int main( int argc, char **argv )
 			 begin_date,
 			 end_date,
 			 process_id );
-	
+*/
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -663,6 +752,7 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -684,6 +774,7 @@ int main( int argc, char **argv )
 			 	end_date,
 			 	process_id );
 		}
+*/
 
 		water_budget_flow_output_transmit(
 					output_pipe,
@@ -704,7 +795,25 @@ int main( int argc, char **argv )
 		system( "date '+%x %H:%M'" );
 		fflush( stdout );
 		printf( "</h1>\n" );
-	
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		appaserver_library_output_ftp_prompt(
 				ftp_filename,
 				TRANSMIT_PROMPT,
@@ -2215,7 +2324,6 @@ boolean water_budget_flow_output_easychart(
 	EASYCHARTS *easycharts;
 	FILE *chart_file;
 	char title[ 512 ];
-	char applet_library_archive[ 128 ];
 	int easycharts_width;
 	int easycharts_height;
 
@@ -2271,6 +2379,18 @@ boolean water_budget_flow_output_easychart(
 	easycharts->output_chart_list =
 		easycharts_timeline_get_output_chart_list(
 			easycharts->input_chart_list );
+
+	chart_file = fopen( easycharts->chart_filename, "w" );
+
+	if ( !chart_file )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s(): cannot open %s\n",
+			__FILE__,
+			__FUNCTION__,
+			easycharts->chart_filename );
+		exit( 1 );
+	}
 
 	easycharts_output_all_charts(
 			chart_file,

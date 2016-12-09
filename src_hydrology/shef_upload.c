@@ -141,11 +141,6 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
-/*
-	sprintf( station_bad_file, STATION_BAD_FILE_TEMPLATE, getpid() );
-	sprintf( shef_bad_file, SHEF_BAD_FILE_TEMPLATE, getpid() );
-*/
-
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_get_http_prefix( application_name ),

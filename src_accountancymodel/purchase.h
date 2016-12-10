@@ -46,6 +46,20 @@ typedef struct
 	char *street_address;
 	char *purchase_date_time;
 	char *asset_name;
+	char *account_name;
+	double extension;
+	double accrual_period_years;
+	double accumulated_accrual;
+	double database_accumulated_accrual;
+	LIST *accrual_list;
+} PURCHASE_ACCRUAL_ASSET;
+
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *purchase_date_time;
+	char *asset_name;
 	char *serial_number;
 	char *account_name;
 	double extension;
@@ -155,6 +169,9 @@ PURCHASE_SUPPLY *purchase_supply_new(	char *supply_name );
 
 PURCHASE_SERVICE *purchase_service_new(	char *account_name );
 
+PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset_new(
+					void );
+
 PURCHASE_FIXED_ASSET *purchase_fixed_asset_new(
 					void );
 
@@ -166,6 +183,9 @@ LIST *purchase_get_fixed_asset_account_list(
 					LIST *fixed_asset_purchase_list );
 
 PURCHASE_FIXED_ASSET *purchase_fixed_asset_parse(
+					char *input_buffer );
+
+PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset_parse(
 					char *input_buffer );
 
 PURCHASE_FIXED_ASSET *purchase_fixed_asset_fetch(
@@ -421,6 +441,10 @@ PURCHASE_SUPPLY *purchase_supply_list_seek(
 				LIST *supply_purchase_list,
 				char *supply_name );
 
+PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset_list_seek(
+				LIST *accrual_asset_purchase_list,
+				char *asset_name );
+
 PURCHASE_FIXED_ASSET *purchase_fixed_asset_list_seek(
 				LIST *fixed_asset_purchase_list,
 				char *asset_name,
@@ -506,6 +530,12 @@ void purchase_fixed_asset_update(
 				double accumulated_depreciation,
 				double database_accumulated_depreciation );
 
+void purchase_accrual_asset_propagate(
+				PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset,
+				char *purchase_date_time,
+				char *application_name,
+				char *fund_name );
+
 void purchase_fixed_asset_depreciation_propagate(
 				PURCHASE_FIXED_ASSET *purchase_fixed_asset,
 				char *arrived_date_time,
@@ -514,6 +544,11 @@ void purchase_fixed_asset_depreciation_propagate(
 
 void purchase_fixed_asset_depreciation_delete(
 				PURCHASE_FIXED_ASSET *purchase_fixed_asset,
+				char *application_name,
+				char *fund_name );
+
+void purchase_accrual_asset_accrual_delete(
+				PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset,
 				char *application_name,
 				char *fund_name );
 

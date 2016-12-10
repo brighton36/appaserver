@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_accountancymodel/post_change_depreciation.c			*/
+/* src_accountancymodel/post_change_prepaid_asset_accrual.c		*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -17,17 +17,17 @@
 #include "ledger.h"
 #include "purchase.h"
 #include "column.h"
-#include "depreciation.h"
+#include "accrual.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void post_change_depreciation_stdin(
+void post_change_accrual_stdin(
 			char *application_name );
 
-void post_change_depreciation_entity(
+void post_change_accrual_entity(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
@@ -35,61 +35,42 @@ void post_change_depreciation_entity(
 			char *preupdate_street_address,
 			char *application_name );
 
-void post_change_depreciation_date_update(
+void post_change_accrual_date_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date );
+			char *accrual_date );
 
-/*
-void post_change_depreciation_asset_serial_update(
+void post_change_accrual_delete(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date,
-			char *preupdate_asset_name,
-			char *preupdate_serial_number );
-*/
+			char *accrual_date );
 
-void post_change_depreciation_delete(
+void post_change_accrual_insert(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date );
+			char *accrual_date );
 
-void post_change_depreciation_insert(
+void post_change_accrual_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date );
-
-void post_change_depreciation_update(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *serial_number,
-			char *depreciation_date,
+			char *accrual_date,
 			char *preupdate_full_name,
 			char *preupdate_street_address,
 			char *preupdate_purchase_date_time,
 			char *preupdate_asset_name,
-			char *preupdate_serial_number,
-			char *preupdate_depreciation_date,
-			char *preupdate_units_produced );
+			char *preupdate_accrual_date );
 
 int main( int argc, char **argv )
 {
@@ -99,32 +80,27 @@ int main( int argc, char **argv )
 	char *street_address;
 	char *purchase_date_time;
 	char *asset_name;
-	char *serial_number;
-	char *depreciation_date;
+	char *accrual_date;
 	char *state;
 	char *preupdate_full_name;
 	char *preupdate_street_address;
 	char *preupdate_purchase_date_time;
 	char *preupdate_asset_name;
-	char *preupdate_serial_number;
-	char *preupdate_depreciation_date;
-	char *preupdate_units_produced;
+	char *preupdate_accrual_date;
 
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
+	appaserver_error_output_starting_argv_stderr( argc, argv );
 
 	if ( argc == 3 && strcmp( argv[ 2 ], "stdin" ) == 0 )
 	{
-		post_change_depreciation_stdin( argv[ 1 ] );
+		post_change_accrual_stdin( argv[ 1 ] );
 
 		exit( 0 );
 	}
 
-	if ( argc != 16 )
+	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name|stdin street_address purchase_date_time asset_name serial_number depreciation_date state preupdate_full_name preupdate_street_address preupdate_purchase_date_time preupdate_asset_name preupdate_serial_number preupdate_depreciation_date preupdate_units_produced\n",
+"Usage: %s application full_name|stdin street_address purchase_date_time asset_name accrual_date state preupdate_full_name preupdate_street_address preupdate_purchase_date_time preupdate_asset_name preupdate_accrual_date\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -138,97 +114,94 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	full_name = argv[ 2 ];
 	street_address = argv[ 3 ];
 	purchase_date_time = argv[ 4 ];
 	asset_name = argv[ 5 ];
-	serial_number = argv[ 6 ];
-	depreciation_date = argv[ 7 ];
-	state = argv[ 8 ];
-	preupdate_full_name = argv[ 9 ];
-	preupdate_street_address = argv[ 10 ];
-	preupdate_purchase_date_time = argv[ 11 ];
-	preupdate_asset_name = argv[ 12 ];
-	preupdate_serial_number = argv[ 13 ];
-	preupdate_depreciation_date = argv[ 14 ];
-	preupdate_units_produced = argv[ 15 ];
+	accrual_date = argv[ 6 ];
+	state = argv[ 7 ];
+	preupdate_full_name = argv[ 8 ];
+	preupdate_street_address = argv[ 9 ];
+	preupdate_purchase_date_time = argv[ 10 ];
+	preupdate_asset_name = argv[ 11 ];
+	preupdate_accrual_date = argv[ 12 ];
 
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );
 
-	/* ------------------------------------ */
-	/* Execute on preupdate because we have	*/
-	/* DEPRECIATION.transaction_date_time.  */
-	/* ------------------------------------ */
+	/* -------------------------------------------- */
+	/* Execute on preupdate because we have		*/
+	/* PREPAID_ASSET_ACCRUAL.transaction_date_time. */
+	/* -------------------------------------------- */
 
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		post_change_depreciation_delete(
+		post_change_accrual_delete(
 			application_name,
 			full_name,
 			street_address,
 			purchase_date_time,
 			asset_name,
-			serial_number,
-			depreciation_date );
+			accrual_date );
 	}
 	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		post_change_depreciation_insert(
+		post_change_accrual_insert(
 			application_name,
 			full_name,
 			street_address,
 			purchase_date_time,
 			asset_name,
-			serial_number,
-			depreciation_date );
+			accrual_date );
 	}
 	else
 	if ( strcmp( state, "update" ) == 0 )
 	{
-		post_change_depreciation_update(
+		post_change_accrual_update(
 			application_name,
 			full_name,
 			street_address,
 			purchase_date_time,
 			asset_name,
-			serial_number,
-			depreciation_date,
+			accrual_date,
 			preupdate_full_name,
 			preupdate_street_address,
 			preupdate_purchase_date_time,
 			preupdate_asset_name,
-			preupdate_serial_number,
-			preupdate_depreciation_date,
-			preupdate_units_produced );
+			preupdate_accrual_date );
 	}
 
 	return 0;
 
 } /* main() */
 
-void post_change_depreciation_stdin( char *application_name )
+void post_change_accrual_stdin( char *application_name )
 {
 	char input_buffer[ 1024 ];
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char purchase_date_time[ 128 ];
 	char asset_name[ 128 ];
-	char serial_number[ 128 ];
-	char depreciation_date[ 128 ];
+	char accrual_date[ 128 ];
 
 	while( get_line( input_buffer, stdin ) )
 	{
 		if ( timlib_count_delimiters(
 			FOLDER_DATA_DELIMITER,
-			input_buffer ) != 5 )
+			input_buffer ) != 4 )
 		{
 			fprintf( stderr,
-"Warning in %s/%s()/%d: not 5 delimiters in (%s)\n",
+"Warning in %s/%s()/%d: not 4 delimiters in (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -256,51 +229,40 @@ void post_change_depreciation_stdin( char *application_name )
 			input_buffer,
 			3 );
 
-		piece(	serial_number,
+		piece(	accrual_date,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			4 );
 
-		piece(	depreciation_date,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			5 );
-
-		post_change_depreciation_insert(
+		post_change_accrual_insert(
 			application_name,
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( purchase_date_time ),
 			strdup( asset_name ),
-			strdup( serial_number ),
-			strdup( depreciation_date ) );
+			strdup( accrual_date ) );
 	}
 
-} /* post_change_depreciation_stdin() */
+} /* post_change_accrual_stdin() */
 
-void post_change_depreciation_update(
+void post_change_accrual_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date,
+			char *accrual_date,
 			char *preupdate_full_name,
 			char *preupdate_street_address,
 			char *preupdate_purchase_date_time,
 			char *preupdate_asset_name,
-			char *preupdate_serial_number,
-			char *preupdate_depreciation_date,
-			char *preupdate_units_produced )
+			char *preupdate_accrual_date )
 {
 	enum preupdate_change_state full_name_change_state;
 	enum preupdate_change_state street_address_change_state;
 	enum preupdate_change_state purchase_date_time_change_state;
 	enum preupdate_change_state asset_name_change_state;
-	enum preupdate_change_state serial_number_change_state;
-	enum preupdate_change_state depreciation_date_change_state;
-	enum preupdate_change_state units_produced_change_state;
+	enum preupdate_change_state accrual_date_change_state;
 
 	full_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -326,28 +288,16 @@ void post_change_depreciation_update(
 			asset_name /* postupdate_data */,
 			"preupdate_asset_name" );
 
-	serial_number_change_state =
+	accrual_date_change_state =
 		appaserver_library_get_preupdate_change_state(
-			preupdate_serial_number,
-			serial_number /* postupdate_data */,
-			"preupdate_serial_number" );
-
-	depreciation_date_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_depreciation_date,
-			depreciation_date /* postupdate_data */,
-			"preupdate_depreciation_date" );
-
-	units_produced_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_units_produced,
-			(char *)0 /* postupdate_data */,
-			"preupdate_units_produced" );
+			preupdate_accrual_date,
+			accrual_date /* postupdate_data */,
+			"preupdate_accrual_date" );
 
 	if ( full_name_change_state == from_something_to_something_else
 	||   street_address_change_state == from_something_to_something_else )
 	{
-		post_change_depreciation_entity(
+		post_change_accrual_entity(
 			full_name,
 			street_address,
 			purchase_date_time,
@@ -357,40 +307,37 @@ void post_change_depreciation_update(
 	}
 
 	if ( asset_name_change_state == from_something_to_something_else
-	||   serial_number_change_state == from_something_to_something_else
 	||   purchase_date_time_change_state ==
 		from_something_to_something_else )
 	{
 		/* Do nothing. */
 	}
 
-	if (	depreciation_date_change_state ==
+	if (	accrual_date_change_state ==
 		from_something_to_something_else )
 	{
-		post_change_depreciation_date_update(
+		post_change_accrual_date_update(
 			application_name,
 			full_name,
 			street_address,
 			purchase_date_time,
 			asset_name,
-			serial_number,
-			depreciation_date );
+			accrual_date );
 	}
 
-} /* post_change_depreciation_update() */
+} /* post_change_accrual_update() */
 
-void post_change_depreciation_date_update(
+void post_change_accrual_date_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date )
+			char *accrual_date )
 {
 	PURCHASE_ORDER *purchase_order;
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
-	DEPRECIATION *depreciation;
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
+	ACCRUAL *accrual;
 
 	if ( ! ( purchase_order =
 			purchase_order_new(
@@ -407,114 +354,99 @@ void post_change_depreciation_date_update(
 		exit( 1 );
 	}
 
-	if ( !purchase_order->arrived_date_time )
+	if ( ! ( purchase_prepaid_asset =
+			purchase_prepaid_asset_list_seek(
+				purchase_order->prepaid_asset_purchase_list,
+				asset_name ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: purchase_order has empty arrived_date_time.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( ! ( purchase_fixed_asset =
-			purchase_fixed_asset_list_seek(
-				purchase_order->fixed_asset_purchase_list,
-				asset_name,
-				serial_number ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot seek fixed_asset = (%s/%s).\n",
+	"ERROR in %s/%s()/%d: cannot seek prepaid_prepaid_asset = (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 asset_name,
-			 serial_number );
+			 asset_name );
 		exit( 1 );
 	}
 
-	if ( !purchase_fixed_asset->depreciation_list )
+	if ( !purchase_prepaid_asset->accrual_list )
 	{
-		purchase_fixed_asset->depreciation_list =
-			depreciation_fetch_list(
+		purchase_prepaid_asset->accrual_list =
+			accrual_fetch_list(
 				application_name,
-				purchase_fixed_asset->full_name,
-				purchase_fixed_asset->street_address,
-				purchase_fixed_asset->purchase_date_time,
-				purchase_fixed_asset->asset_name,
-				purchase_fixed_asset->serial_number );
+				purchase_prepaid_asset->full_name,
+				purchase_prepaid_asset->street_address,
+				purchase_prepaid_asset->purchase_date_time,
+				purchase_prepaid_asset->asset_name );
 	}
 
-	if ( ! ( depreciation =
-			depreciation_list_seek(
-				purchase_fixed_asset->depreciation_list,
-				depreciation_date ) ) )
+	if ( ! ( accrual =
+			accrual_list_seek(
+				purchase_prepaid_asset->accrual_list,
+				accrual_date ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot seek depreciation = (%s).\n",
+	"ERROR in %s/%s()/%d: cannot seek accrual = (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 depreciation_date );
+			 accrual_date );
 		exit( 1 );
 	}
 
-	depreciation->transaction_date_time =
+	accrual->transaction_date_time =
 		ledger_get_transaction_date_time(
-			depreciation_date );
+			accrual_date );
 
-	depreciation_update(
+	accrual_update(
 		application_name,
-		depreciation->full_name,
-		depreciation->street_address,
-		depreciation->purchase_date_time,
-		depreciation->asset_name,
-		depreciation->serial_number,
-		depreciation->depreciation_date,
-		depreciation->depreciation_amount,
-		depreciation->database_depreciation_amount,
-		depreciation->transaction_date_time,
-		depreciation->database_transaction_date_time );
+		accrual->full_name,
+		accrual->street_address,
+		accrual->purchase_date_time,
+		accrual->asset_name,
+		accrual->accrual_date,
+		accrual->accrual_amount,
+		accrual->database_accrual_amount,
+		accrual->transaction_date_time,
+		accrual->database_transaction_date_time );
 
 	ledger_transaction_generic_update(
 		application_name,
-		depreciation->full_name,
-		depreciation->street_address,
-		depreciation->transaction->transaction_date_time,
+		accrual->full_name,
+		accrual->street_address,
+		accrual->transaction->transaction_date_time,
 		"transaction_date_time" /* attribute_name */,
-		depreciation->transaction_date_time /* data */ );
+		accrual->transaction_date_time /* data */ );
 
 	ledger_journal_generic_update(
 		application_name,
-		depreciation->full_name,
-		depreciation->street_address,
-		depreciation->transaction->transaction_date_time,
+		accrual->full_name,
+		accrual->street_address,
+		accrual->transaction->transaction_date_time,
 		"transaction_date_time" /* attribute_name */,
-		depreciation->transaction_date_time /* data */ );
+		accrual->transaction_date_time /* data */ );
 
-	depreciation->transaction->transaction_date_time =
-		depreciation->transaction_date_time;
+	accrual->transaction->transaction_date_time =
+		accrual->transaction_date_time;
 
-	purchase_fixed_asset_depreciation_propagate(
-		purchase_fixed_asset,
-		purchase_order->arrived_date_time,
+	purchase_prepaid_asset_accrual_propagate(
+		purchase_prepaid_asset,
+		purchase_order->purchase_date_time,
 		application_name,
 		purchase_order->fund_name );
 
-} /* post_change_depreciation_date_update() */
+} /* post_change_accrual_date_update() */
 
-void post_change_depreciation_delete(
+void post_change_accrual_delete(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date )
+			char *accrual_date )
 {
 	PURCHASE_ORDER *purchase_order;
-	DEPRECIATION *depreciation;
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	ACCRUAL *accrual;
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
 	char *arrived_date_time;
 
 	if ( ! ( arrived_date_time =
@@ -543,38 +475,37 @@ void post_change_depreciation_delete(
 		exit( 1 );
 	}
 
-	if ( ! ( purchase_fixed_asset =
-			purchase_fixed_asset_fetch(
+	if ( ! ( purchase_prepaid_asset =
+			purchase_prepaid_asset_fetch(
 				application_name,
 				full_name,
 				street_address,
 				purchase_date_time,
-				asset_name,
-				serial_number ) ) )
+				asset_name ) ) )
 	{
 		fprintf( stderr,
-		"ERROR In %s/%s()/%d: cannot fetch purchase_fixed_asset.\n",
+		"ERROR In %s/%s()/%d: cannot fetch purchase_prepaid_asset.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( depreciation =
-			depreciation_list_seek(
-				purchase_fixed_asset->depreciation_list,
-				depreciation_date ) ) )
+	if ( ! ( accrual =
+			accrual_list_seek(
+				purchase_prepaid_asset->accrual_list,
+				accrual_date ) ) )
 	{
 		fprintf( stderr,
-		"ERROR In %s/%s()/%d: cannot seek depreciation = %s.\n",
+		"ERROR In %s/%s()/%d: cannot seek accrual = %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 depreciation_date );
+			 accrual_date );
 		exit( 1 );
 	}
 
-	if ( !depreciation->transaction )
+	if ( !accrual->transaction )
 	{
 		fprintf( stderr,
 			 "ERROR In %s/%s()/%d: empty transaction.\n",
@@ -588,9 +519,9 @@ void post_change_depreciation_delete(
 	/* ---------------------- */
 	ledger_delete(	application_name,
 			TRANSACTION_FOLDER_NAME,
-			depreciation->transaction->full_name,
-			depreciation->transaction->street_address,
-			depreciation->
+			accrual->transaction->full_name,
+			accrual->transaction->street_address,
+			accrual->
 				transaction->
 				transaction_date_time );
 
@@ -598,36 +529,35 @@ void post_change_depreciation_delete(
 	/* ---------------------- */
 	ledger_delete(	application_name,
 			LEDGER_FOLDER_NAME,
-			depreciation->transaction->full_name,
-			depreciation->transaction->street_address,
-			depreciation->
+			accrual->transaction->full_name,
+			accrual->transaction->street_address,
+			accrual->
 				transaction->
 				transaction_date_time );
 
-	list_delete_current( purchase_fixed_asset->depreciation_list );
+	list_delete_current( purchase_prepaid_asset->accrual_list );
 
-	purchase_fixed_asset_depreciation_propagate(
-		purchase_fixed_asset,
+	purchase_prepaid_asset_accrual_propagate(
+		purchase_prepaid_asset,
 		arrived_date_time,
 		application_name,
 		purchase_order->fund_name );
 
-} /* post_change_depreciation_delete() */
+} /* post_change_accrual_delete() */
 
-void post_change_depreciation_insert(
+void post_change_accrual_insert(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *serial_number,
-			char *depreciation_date )
+			char *accrual_date )
 {
 	PURCHASE_ORDER *purchase_order;
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
-	DEPRECIATION *depreciation;
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
+	ACCRUAL *accrual;
 	LIST *propagate_account_list;
-	char *prior_depreciation_date;
+	char *prior_accrual_date;
 	char arrived_date_string[ 16 ];
 
 	if ( ! ( purchase_order =
@@ -647,34 +577,31 @@ void post_change_depreciation_insert(
 
 	if ( !purchase_order->arrived_date_time )
 	{
-		depreciation_delete(
+		accrual_delete(
 			application_name,
 			full_name,
 			street_address,
 			purchase_date_time,
 			asset_name,
-			serial_number,
-			depreciation_date );
+			accrual_date );
 		return;
 	}
 
-	if ( ! ( purchase_fixed_asset =
-			purchase_fixed_asset_list_seek(
-				purchase_order->fixed_asset_purchase_list,
-				asset_name,
-				serial_number ) ) )
+	if ( ! ( purchase_prepaid_asset =
+			purchase_prepaid_asset_list_seek(
+				purchase_order->prepaid_asset_purchase_list,
+				asset_name ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot seek fixed_asset = (%s/%s).\n",
+	"ERROR in %s/%s()/%d: cannot seek prepaid_asset = (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 asset_name,
-			 serial_number );
+			 asset_name );
 		exit( 1 );
 	}
 
-	if ( !list_length( purchase_fixed_asset->depreciation_list ) )
+	if ( !list_length( purchase_prepaid_asset->accrual_list ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: empty deprecation_list.\n",
@@ -686,26 +613,26 @@ void post_change_depreciation_insert(
 
 	column( arrived_date_string, 0, purchase_order->arrived_date_time );
 
-	if ( list_length( purchase_fixed_asset->depreciation_list ) == 1 )
+	if ( list_length( purchase_prepaid_asset->accrual_list ) == 1 )
 	{
-		prior_depreciation_date = arrived_date_string;
+		prior_accrual_date = arrived_date_string;
 	}
 	else
 	{
-		depreciation =
-			depreciation_list_seek( 
-				purchase_fixed_asset->
-					depreciation_list,
-				depreciation_date );
+		accrual =
+			accrual_list_seek( 
+				purchase_prepaid_asset->
+					accrual_list,
+				accrual_date );
 
 		if ( !list_at_tail( 
-				purchase_fixed_asset->
-					depreciation_list ) )
+				purchase_prepaid_asset->
+					accrual_list ) )
 		{
-			/* If inserting a middle depreciation. */
+			/* If inserting a middle accrual. */
 			/* ----------------------------------- */
-			purchase_fixed_asset_depreciation_propagate(
-				purchase_fixed_asset,
+			purchase_prepaid_asset_accrual_propagate(
+				purchase_prepaid_asset,
 				purchase_order->arrived_date_time,
 				application_name,
 				purchase_order->fund_name );
@@ -716,116 +643,114 @@ void post_change_depreciation_insert(
 		/* Get the next to the last one. */
 		/* ----------------------------- */
 		list_previous(
-			purchase_fixed_asset->
-					depreciation_list );
+			purchase_prepaid_asset->
+					accrual_list );
 
-		depreciation =
+		accrual =
 			list_get(
-				purchase_fixed_asset->
-					depreciation_list );
+				purchase_prepaid_asset->
+					accrual_list );
 
-		prior_depreciation_date =
-			depreciation->depreciation_date;
+		prior_accrual_date =
+			accrual->accrual_date;
 	}
 
-	depreciation =
+	accrual =
 		list_get_last_pointer( 
-			purchase_fixed_asset->
-				depreciation_list );
+			purchase_prepaid_asset->
+				accrual_list );
 
-	depreciation->depreciation_amount =
-		depreciation_get_amount(
-			purchase_fixed_asset->depreciation_method,
-			purchase_fixed_asset->extension,
-			purchase_fixed_asset->estimated_residual_value,
-			purchase_fixed_asset->estimated_useful_life_years,
-			purchase_fixed_asset->estimated_useful_life_units,
-			purchase_fixed_asset->declining_balance_n,
-			prior_depreciation_date,
-			depreciation->depreciation_date,
-			purchase_fixed_asset->accumulated_depreciation,
+	accrual->accrual_amount =
+		accrual_get_amount(
+			purchase_prepaid_asset->accrual_method,
+			purchase_prepaid_asset->extension,
+			purchase_prepaid_asset->estimated_residual_value,
+			purchase_prepaid_asset->estimated_useful_life_years,
+			purchase_prepaid_asset->estimated_useful_life_units,
+			purchase_prepaid_asset->declining_balance_n,
+			prior_accrual_date,
+			accrual->accrual_date,
+			purchase_prepaid_asset->accumulated_accrual,
 			arrived_date_string,
-			depreciation->units_produced );
+			accrual->units_produced );
 
-	if ( depreciation->transaction_date_time )
+	if ( accrual->transaction_date_time )
 	{
 		fprintf( stderr,
 "Warning in %s/%s()/%d: not expecting transaction_date_time = (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 depreciation->transaction_date_time );
+			 accrual->transaction_date_time );
 	}
 
-	depreciation->transaction_date_time =
+	accrual->transaction_date_time =
 		ledger_get_transaction_date_time(
-			depreciation->depreciation_date );
+			accrual->accrual_date );
 	
-	depreciation->transaction =
+	accrual->transaction =
 		ledger_transaction_new(
-			depreciation->full_name,
-			depreciation->street_address,
-			depreciation->transaction_date_time,
-			DEPRECIATION_MEMO );
+			accrual->full_name,
+			accrual->street_address,
+			accrual->transaction_date_time,
+			ACCRUAL_MEMO );
 	
 	ledger_transaction_insert(
 		application_name,
-		depreciation->transaction->full_name,
-		depreciation->transaction->street_address,
-		depreciation->transaction->transaction_date_time,
-		depreciation->depreciation_amount /* transaction_amount */,
-		depreciation->transaction->memo,
+		accrual->transaction->full_name,
+		accrual->transaction->street_address,
+		accrual->transaction->transaction_date_time,
+		accrual->accrual_amount /* transaction_amount */,
+		accrual->transaction->memo,
 		0 /* check_number */,
 		1 /* lock_transaction */ );
 
 	if ( ( propagate_account_list =
-		depreciation_journal_ledger_refresh(
+		accrual_journal_ledger_refresh(
 			application_name,
 			purchase_order->fund_name,
-			depreciation->transaction->full_name,
-			depreciation->transaction->street_address,
-			depreciation->
+			accrual->transaction->full_name,
+			accrual->transaction->street_address,
+			accrual->
 				transaction->
 				transaction_date_time,
-			depreciation->depreciation_amount ) ) )
+			accrual->accrual_amount ) ) )
 	{
 		ledger_account_list_balance_update(
 			propagate_account_list,
 			application_name,
-			depreciation->
+			accrual->
 				transaction->
 				transaction_date_time );
 	}
 
-	depreciation_update(
+	accrual_update(
 		application_name,
-		depreciation->full_name,
-		depreciation->street_address,
-		depreciation->purchase_date_time,
-		depreciation->asset_name,
-		depreciation->serial_number,
-		depreciation->depreciation_date,
-		depreciation->depreciation_amount,
-		depreciation->database_depreciation_amount,
-		depreciation->transaction_date_time,
-		depreciation->database_transaction_date_time );
+		accrual->full_name,
+		accrual->street_address,
+		accrual->purchase_date_time,
+		accrual->asset_name,
+		accrual->accrual_date,
+		accrual->accrual_amount,
+		accrual->database_accrual_amount,
+		accrual->transaction_date_time,
+		accrual->database_transaction_date_time );
 
-	purchase_fixed_asset->accumulated_depreciation +=
-		depreciation->depreciation_amount;
+	purchase_prepaid_asset->accumulated_accrual +=
+		accrual->accrual_amount;
 
-	purchase_fixed_asset_update(
+	purchase_prepaid_asset_update(
 		application_name,
-		purchase_fixed_asset->full_name,
-		purchase_fixed_asset->street_address,
-		purchase_fixed_asset->purchase_date_time,
-		purchase_fixed_asset->asset_name,
-		purchase_fixed_asset->serial_number,
-		purchase_fixed_asset->accumulated_depreciation,
-		purchase_fixed_asset->database_accumulated_depreciation );
+		purchase_prepaid_asset->full_name,
+		purchase_prepaid_asset->street_address,
+		purchase_prepaid_asset->purchase_date_time,
+		purchase_prepaid_asset->asset_name,
+		purchase_prepaid_asset->accumulated_accrual,
+		purchase_prepaid_asset->database_accumulated_accrual );
 
-} /* post_change_depreciation_insert() */
+} /* post_change_accrual_insert() */
 
-void post_change_depreciation_entity(
+void post_change_accrual_entity(
 			char *full_name,
 			char *street_address,
 			char *purchase_date_time,
@@ -834,8 +759,8 @@ void post_change_depreciation_entity(
 			char *application_name )
 {
 	PURCHASE_ORDER *purchase_order;
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
-	DEPRECIATION *depreciation;
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
+	ACCRUAL *accrual;
 
 	if ( ! ( purchase_order =
 			purchase_order_new(
@@ -852,50 +777,48 @@ void post_change_depreciation_entity(
 		exit( 1 );
 	}
 
-	if ( !list_rewind( purchase_order->fixed_asset_purchase_list ) )
+	if ( !list_rewind( purchase_order->prepaid_asset_purchase_list ) )
 		return;
 
 	do {
-		purchase_fixed_asset =
+		purchase_prepaid_asset =
 			list_get_pointer(
 				purchase_order->
-					fixed_asset_purchase_list );
+					prepaid_asset_purchase_list );
 
-		if ( !purchase_fixed_asset->depreciation_list )
+		if ( !purchase_prepaid_asset->accrual_list )
 		{
-			purchase_fixed_asset->depreciation_list =
-				depreciation_fetch_list(
+			purchase_prepaid_asset->accrual_list =
+				accrual_fetch_list(
 					application_name,
-					purchase_fixed_asset->full_name,
-					purchase_fixed_asset->street_address,
-					purchase_fixed_asset->
+					purchase_prepaid_asset->full_name,
+					purchase_prepaid_asset->street_address,
+					purchase_prepaid_asset->
 						purchase_date_time,
-					purchase_fixed_asset->asset_name,
-					purchase_fixed_asset->serial_number );
+					purchase_prepaid_asset->asset_name );
 		}
 
-
 		if ( !list_rewind(
-			purchase_fixed_asset->
-				depreciation_list ) )
+			purchase_prepaid_asset->
+				accrual_list ) )
 		{
 			continue;
 		}
 
 		do {
-			depreciation =
+			accrual =
 				list_get_pointer(
-					purchase_fixed_asset->
-						depreciation_list );
+					purchase_prepaid_asset->
+						accrual_list );
 
-			if ( !depreciation->transaction )
+			if ( !accrual->transaction )
 			{
 				fprintf( stderr,
-"ERROR in %s/%s()/%d: empty transaction for depreciation_date = (%s).\n",
+"ERROR in %s/%s()/%d: empty transaction for accrual_date = (%s).\n",
 			 		__FILE__,
 			 		__FUNCTION__,
 			 		__LINE__,
-			 		depreciation->depreciation_date );
+			 		accrual->accrual_date );
 				exit( 1 );
 			}
 
@@ -904,13 +827,13 @@ void post_change_depreciation_entity(
 				application_name,
 				full_name,
 				street_address,
-				depreciation->transaction_date_time,
+				accrual->transaction_date_time,
 				preupdate_full_name,
 				preupdate_street_address );
 
-		} while( list_next( purchase_fixed_asset->depreciation_list ) );
+		} while( list_next( purchase_prepaid_asset->accrual_list ) );
 
-	} while( list_next( purchase_order->fixed_asset_purchase_list ) );
+	} while( list_next( purchase_order->prepaid_asset_purchase_list ) );
 
-} /* post_change_depreciation_entity() */
+} /* post_change_accrual_entity() */
 

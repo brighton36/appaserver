@@ -443,6 +443,14 @@ char *get_where_clause_string( 	char *application_name,
 
 	/* If forked from a process like nearest_neighbor. */
 	/* ----------------------------------------------- */
+	query = query_folder_new(
+			application_name,
+			(char *)0 /* login_name */,
+			"measurement" /* folder_name */,
+			query_dictionary,
+			(ROLE *)0 );
+
+#ifdef NOT_DEFINED
 	query =	query_new(	application_name,
 				(char *)0 /* login_name */,
 				"measurement" /* folder_name */,
@@ -460,6 +468,7 @@ char *get_where_clause_string( 	char *application_name,
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 	/* If executed from the user interface. */
 	/* ------------------------------------ */

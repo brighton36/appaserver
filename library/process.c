@@ -1165,27 +1165,6 @@ void process_search_replace_executable_where(
 				attribute_list,
 				parameter_dictionary );
 
-#ifdef NOT_DEFINED
-		query = query_new(
-				application_name,
-				(char *)0 /* login_name */,
-				(char *)0 /* folder_name */,
-				attribute_list,
-				parameter_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				(ROLE *)0,
-				(LIST *)0,
-				(LIST *)0,
-				0 /* max_rows */,
-				0 /* not_include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
-
 		where_clause = query->query_output->where_clause;
 
 		if ( where_clause )

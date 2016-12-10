@@ -2447,6 +2447,16 @@ char *process_generic_output_get_dictionary_where_clause(
 	char *drop_down_where_clause;
 	QUERY *query;
 
+	query = query_folder_new(
+			application_name,
+			(char *)0 /* login_name */,
+			process_generic_output->
+				value_folder->
+				value_folder_name,
+			dictionary /* query_dictionary */,
+			(ROLE *)0 );
+
+#ifdef NOT_DEFINED
 	query = query_new(	application_name,
 				(char *)0 /* login_name */,
 				process_generic_output->
@@ -2466,6 +2476,7 @@ char *process_generic_output_get_dictionary_where_clause(
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 	drop_down_where_clause = query->query_output->drop_down_where_clause;
 

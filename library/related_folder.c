@@ -2648,6 +2648,14 @@ LIST *related_folder_get_preselection_dictionary_list(
 	}
 	else
 	{
+		query = query_folder_new(
+				application_name,
+				login_name,
+				related_folder->folder_name,
+				query_dictionary,
+				(ROLE *)0 );
+
+#ifdef NOT_DEFINED
 		query = query_new(
 				application_name,
 				login_name,
@@ -2666,6 +2674,7 @@ LIST *related_folder_get_preselection_dictionary_list(
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 		related_folder_dictionary_list =
 			query_get_row_dictionary_list(

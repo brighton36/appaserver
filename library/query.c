@@ -191,6 +191,61 @@ QUERY *query_primary_data_new(	char *application_name,
 
 } /* query_primary_data_new() */
 
+QUERY *query_folder_new(	char *application_name,
+				char *login_name,
+				char *folder_name,
+				DICTIONARY *dictionary,
+				ROLE *role )
+{
+	QUERY *query;
+	char first_folder_name[ 128 ];
+
+	query = query_calloc();
+
+	piece( first_folder_name, ',', folder_name, 0 );
+
+	if ( ! ( query->folder =
+			folder_with_load_new(
+				application_name,
+				BOGUS_SESSION,
+				strdup( first_folder_name ),
+				role ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load folder.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( character_exists( folder_name, ',' ) )
+	{
+		query->mto1_join_folder_list =
+		       query_with_folder_name_get_mto1_join_folder_list(
+				application_name,
+				folder_name,
+				role );
+	}
+
+	query->login_name = login_name;
+	query->dictionary = dictionary;
+	query->max_rows = 0;
+
+	query->query_output =
+		query_output_new(
+			query,
+			0 /* not include_root_folder */,
+			(LIST *)0 /* where_attribute_name_list */,
+			(LIST *)0 /* where_attribute_data_list */,
+			query->folder,
+			(LIST *)0 /* one2m_subquery_related_folder_list */,
+			query->prompt_recursive );
+
+	return query;
+
+} /* query_folder_new() */
+
 QUERY *query_new(		char *application_name,
 				char *login_name,
 				char *folder_name,
@@ -835,6 +890,14 @@ generate_select_clause:
 					query_output->from_clause,
 					join_folder->folder_name );
 
+			mto1_query = query_folder_new(
+					folder->application_name,
+					query->login_name,
+					join_folder->folder_name,
+					query->dictionary,
+					(ROLE *)0 );
+
+#ifdef NOT_DEFINED
 			mto1_query =
 				query_new(
 				   folder->application_name,
@@ -854,6 +917,7 @@ generate_select_clause:
 					/* mto1_join_folder_name_list */,
 				   (RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 			query_output->where_clause =
 				query_append_where_clause(

@@ -241,6 +241,14 @@ char *get_families_sys_string(		char *application_name,
 				(LIST *)0 /* mto1_isa_related_folder_list */,
 				(char *)0 /* role_name */ );
 
+		query = query_folder_new(
+				application_name,
+				login_name,
+				folder->folder_name,
+				post_dictionary /* query_dictionary */,
+				(ROLE *)0 );
+
+#ifdef NOT_DEFINED
 		query =	query_new(
 				application_name,
 				login_name,
@@ -259,6 +267,7 @@ char *get_families_sys_string(		char *application_name,
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 		where_clause =
 			query->query_output->where_clause;

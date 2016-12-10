@@ -347,6 +347,14 @@ int main( int argc, char **argv )
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */ );
 
+	query = query_folder_new(
+			application_name,
+			login_name,
+			folder_name,
+			query_dictionary,
+			role_new( application_name, role_name ) );
+
+#ifdef NOT_DEFINED
 	query =	query_new(	application_name,
 				login_name,
 				folder_name,
@@ -364,6 +372,7 @@ int main( int argc, char **argv )
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 	attribute_list_remove_exclude_permission_list(
 		query->folder->append_isa_attribute_list );

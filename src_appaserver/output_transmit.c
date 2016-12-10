@@ -212,6 +212,14 @@ int main( int argc, char **argv )
 			role_name,
 			(LIST *)0 /* mto1_related_folder_list */ );
 
+	query = query_folder_new(
+			application_name,
+			login_name,
+			folder->folder_name,
+			dictionary_appaserver->query_dictionary,
+			role );
+
+#ifdef NOT_DEFINED
 	query =	query_new(	application_name,
 				login_name,
 				folder->folder_name,
@@ -229,6 +237,7 @@ int main( int argc, char **argv )
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 	row_dictionary_list =
 		query_get_row_dictionary_list(

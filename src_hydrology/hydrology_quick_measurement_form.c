@@ -189,6 +189,14 @@ int main( int argc, char **argv )
 					(LIST *)0 /* related_folder_list */,
 					(char *)0 /* role_name */ );
 
+	query = query_folder_new(
+			application_name,
+			login_name,
+			folder_name,
+			query_dictionary,
+			(ROLE *)0 );
+
+#ifdef NOT_DEFINED
 	query =	query_new(	application_name,
 				login_name,
 				folder_name,
@@ -206,6 +214,7 @@ int main( int argc, char **argv )
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 	query->query_output->where_clause =
 		get_where_clause(	query->dictionary,

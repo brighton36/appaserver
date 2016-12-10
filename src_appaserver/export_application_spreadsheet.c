@@ -483,6 +483,14 @@ void export_output_spreadsheet_folder(	char *output_filename,
 			(char *)0 /* role_name */,
 			(LIST *)0 /* mto1_related_folder_list */ );
 
+	query = query_folder_new(
+			application_name,
+			(char *)0 /* login_name */,
+			folder->folder_name,
+			(DICTIONARY *)0 /* query_dictionary */,
+			(ROLE *)0 );
+
+#ifdef NOT_DEFINED
 	query =	query_new(	application_name,
 				(char *)0 /* login_name */,
 				folder->folder_name,
@@ -500,6 +508,7 @@ void export_output_spreadsheet_folder(	char *output_filename,
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 	row_dictionary_list =
 		query_get_row_dictionary_list(

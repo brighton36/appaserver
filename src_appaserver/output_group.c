@@ -241,6 +241,14 @@ int main( int argc, char **argv )
 						mto1_related_folder_list,
 					exclude_attribute_name_list );
 
+	query = query_folder_new(
+			application_name,
+			login_name,
+			appaserver->folder->folder_name,
+			dictionary_appaserver->query_dictionary,
+			role_new( application_name, role_name ) );
+
+#ifdef NOT_DEFINED
 	query =	query_new(	application_name,
 				login_name,
 				appaserver->folder->folder_name,
@@ -258,6 +266,7 @@ int main( int argc, char **argv )
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 	if ( ! ( total_count =
 			get_total_count(

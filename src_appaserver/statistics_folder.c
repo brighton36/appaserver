@@ -172,6 +172,14 @@ int main( int argc, char **argv )
 			dictionary_appaserver->preprompt_dictionary,
 			folder->lookup_before_drop_down );
 
+	query = query_folder_new(
+			application_name,
+			login_name,
+			folder_name,
+			dictionary_appaserver->query_dictionary,
+			role_new( application_name, role_name ) );
+
+#ifdef NOT_DEFINED
 	query =	query_new(	application_name,
 				login_name,
 				folder_name,
@@ -189,6 +197,7 @@ int main( int argc, char **argv )
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 	where_clause = query->query_output->where_clause;
 

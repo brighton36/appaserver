@@ -574,4 +574,10 @@ QUERY_OUTPUT *query_process_parameter_output_new(
 				char *application_name,
 				LIST *attribute_list );
 
+QUERY *query_folder_new(	char *application_name,
+				char *login_name,
+				char *folder_name,
+				DICTIONARY *dictionary,
+				ROLE *role );
+
 #endif

@@ -203,6 +203,14 @@ int main( int argc, char **argv )
 				query_select_attribute_name_list,
 				select_attribute_name );
 
+		query = query_folder_new(
+				application_name,
+				login_name,
+				folder_name,
+				dictionary_appaserver->query_dictionary,
+				role_new( application_name, role_name ) );
+
+#ifdef NOT_DEFINED
 			query =	query_new(
 				application_name,
 				login_name,
@@ -222,6 +230,7 @@ int main( int argc, char **argv )
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
 
 			query_record_list =
 				query_get_record_list(

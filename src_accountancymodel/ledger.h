@@ -795,4 +795,8 @@ DATE *ledger_prior_closing_tranaction_date(
 boolean ledger_is_period_element(
 				char *element_name );
 
+double ledger_get_fraction_of_year(
+				char *prior_date_string,
+				char *date_string );
+
 #endif

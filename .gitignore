@@ -54,6 +54,7 @@ post_change_customer_sale
 post_change_customer_payment
 post_change_vendor_payment
 post_change_depreciation
+post_change_prepaid_asset_accrual
 update_sale_completed
 post_reoccurring_transaction
 post_rental_property_reoccurring_transaction

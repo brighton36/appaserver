@@ -40,6 +40,7 @@ char *depreciation_get_select( void )
 {
 	char *select =
 "full_name,street_address,purchase_date_time,asset_name,serial_number,depreciation_date,units_produced,depreciation_amount,transaction_date_time";
+
 	return select;
 }
 

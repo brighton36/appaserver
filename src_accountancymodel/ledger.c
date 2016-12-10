@@ -6287,3 +6287,28 @@ boolean ledger_is_period_element( char *element_name )
 
 } /* ledger_is_period_element() */
 
+double ledger_get_fraction_of_year(
+				char *prior_date_string,
+				char *date_string )
+{
+	int days_between;
+	DATE *prior_date;
+	DATE *date;
+
+	prior_date =
+		date_yyyy_mm_dd_new(
+			prior_date_string );
+
+	date =
+		date_yyyy_mm_dd_new(
+			date_string );
+
+	days_between =
+		date_subtract_days(
+			date /* later_date */,
+			prior_date /* earlier_date */ );
+
+	return (double)days_between / 365.0;
+
+} /* ledger_get_fraction_of_year() */
+

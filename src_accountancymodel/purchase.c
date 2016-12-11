@@ -17,6 +17,7 @@
 #include "ledger.h"
 #include "purchase.h"
 #include "depreciation.h"
+#include "accrual.h"
 #include "inventory.h"
 #include "entity.h"
 
@@ -112,6 +113,19 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 				p->street_address,
 				p->purchase_date_time );
 
+	p->prepaid_asset_purchase_list =
+		purchase_prepaid_asset_get_list(
+				application_name,
+				p->full_name,
+				p->street_address,
+				p->purchase_date_time );
+
+	p->purchase_asset_account_list =
+		purchase_get_asset_account_list(
+				application_name,
+				p->fixed_asset_purchase_list,
+				p->prepaid_asset_purchase_list );
+
 	if ( p->transaction_date_time )
 	{
 		p->transaction =
@@ -129,12 +143,14 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 			&p->sum_supply_extension,
 			&p->sum_service_extension,
 			&p->sum_fixed_asset_extension,
+			&p->sum_prepaid_asset_extension,
 			&p->sum_extension,
 			p->inventory_purchase_list,
 			p->specific_inventory_purchase_list,
 			p->supply_purchase_list,
 			p->service_purchase_list,
 			p->fixed_asset_purchase_list,
+			p->prepaid_asset_purchase_list,
 			p->sales_tax,
 			p->freight_in );
 
@@ -171,12 +187,14 @@ double purchase_order_get_purchase_amount(
 				double *sum_supply_extension,
 				double *sum_service_extension,
 				double *sum_fixed_asset_extension,
+				double *sum_prepaid_asset_extension,
 				double *sum_extension,
 				LIST *inventory_purchase_list,
 				LIST *specific_inventory_purchase_list,
 				LIST *supply_purchase_list,
 				LIST *service_purchase_list,
 				LIST *fixed_asset_purchase_list,
+				LIST *prepaid_asset_purchase_list,
 				double sales_tax,
 				double freight_in )
 {
@@ -205,11 +223,17 @@ double purchase_order_get_purchase_amount(
 		purchase_get_sum_fixed_asset_extension(
 			fixed_asset_purchase_list );
 
+	*sum_prepaid_asset_extension = 0.0;
+	*sum_prepaid_asset_extension =
+		purchase_get_sum_prepaid_asset_extension(
+			prepaid_asset_purchase_list );
+
 	*sum_extension =	*sum_inventory_extension +
 				*sum_specific_inventory_unit_cost +
 				*sum_supply_extension +
 				*sum_service_extension +
-				*sum_fixed_asset_extension;
+				*sum_fixed_asset_extension +
+				*sum_prepaid_asset_extension;
 
 	return *sum_extension + sales_tax + freight_in;
 
@@ -447,6 +471,26 @@ PURCHASE_FIXED_ASSET *purchase_fixed_asset_new( void )
 	return p;
 
 } /* purchase_fixed_asset_new() */
+
+PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_new( void )
+{
+	PURCHASE_PREPAID_ASSET *p =
+		(PURCHASE_PREPAID_ASSET *)
+			calloc( 1, sizeof( PURCHASE_PREPAID_ASSET ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return p;
+
+} /* purchase_prepaid_asset_new() */
 
 LIST *purchase_supply_get_list(
 					char *application_name,
@@ -927,6 +971,26 @@ double purchase_get_sum_fixed_asset_extension(
 	return sum_extension;
 } /* purchase_get_sum_fixed_asset_extension() */
 
+double purchase_get_sum_prepaid_asset_extension(
+			LIST *prepaid_asset_purchase_list )
+{
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
+	double sum_extension;
+
+	if ( !list_rewind( prepaid_asset_purchase_list ) ) return 0.0;
+
+	sum_extension = 0.0;
+
+	do {
+		purchase_prepaid_asset =
+			list_get( prepaid_asset_purchase_list );
+		sum_extension += purchase_prepaid_asset->extension;
+
+	} while( list_next( prepaid_asset_purchase_list ) );
+
+	return sum_extension;
+} /* purchase_get_sum_prepaid_asset_extension() */
+
 char *purchase_fixed_asset_get_update_sys_string(
 				char *application_name )
 {
@@ -946,6 +1010,30 @@ char *purchase_fixed_asset_get_update_sys_string(
 	return sys_string;
 
 } /* purchase_fixed_asset_get_update_sys_string() */
+
+char *purchase_prepaid_asset_get_update_sys_string(
+				char *application_name )
+{
+	static char sys_string[ 256 ];
+	char *table_name;
+	char *key;
+
+	table_name =
+		get_table_name(
+			application_name,
+			"prepaid_asset_purchase" );
+
+	key =
+"full_name,street_address,purchase_date_time,asset_name";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 table_name,
+		 key );
+
+	return sys_string;
+
+} /* purchase_prepaid_asset_get_update_sys_string() */
 
 char *purchase_order_get_update_sys_string(
 				char *application_name )
@@ -1252,14 +1340,13 @@ LIST *purchase_order_journal_ledger_refresh(
 					double sum_specific_inventory_unit_cost,
 					double sum_supply_extension,
 					double sum_service_extension,
-					double sum_fixed_asset_extension,
 					double sales_tax,
 					double freight_in,
 					double purchase_amount,
 					LIST *inventory_purchase_list,
 					LIST *supply_purchase_list,
 					LIST *service_purchase_list,
-					LIST *fixed_asset_purchase_list )
+					LIST *purchase_asset_account_list )
 {
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
@@ -1330,17 +1417,16 @@ LIST *purchase_order_journal_ledger_refresh(
 				service_purchase_list ) );
 	}
 
-	if ( sum_fixed_asset_extension )
+	if ( list_length( purchase_asset_account_list ) )
 	{
 		list_append_list(
 			propagate_account_list,
-			purchase_fixed_asset_journal_ledger_refresh(
+			purchase_asset_account_journal_ledger_refresh(
 				application_name,
 				full_name,
 				street_address,
 				transaction_date_time,
-				sum_fixed_asset_extension,
-				fixed_asset_purchase_list ) );
+				purchase_asset_account_list ) );
 	}
 
 	if ( sales_tax_expense_account && sales_tax )
@@ -1854,6 +1940,7 @@ LIST *purchase_get_inventory_purchase_order_list(
 				&purchase_order->sum_supply_extension,
 				&purchase_order->sum_service_extension,
 				&purchase_order->sum_fixed_asset_extension,
+				&purchase_order->sum_prepaid_asset_extension,
 				&purchase_order->sum_extension,
 				purchase_order->inventory_purchase_list,
 				purchase_order->
@@ -1861,6 +1948,7 @@ LIST *purchase_get_inventory_purchase_order_list(
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
 				purchase_order->fixed_asset_purchase_list,
+				purchase_order->prepaid_asset_purchase_list,
 				purchase_order->sales_tax,
 				purchase_order->freight_in );
 
@@ -2155,6 +2243,31 @@ PURCHASE_FIXED_ASSET *purchase_fixed_asset_list_seek(
 
 } /* purchase_fixed_asset_list_seek() */
 
+PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_list_seek(
+				LIST *prepaid_asset_purchase_list,
+				char *asset_name )
+{
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
+
+	if ( !list_rewind( prepaid_asset_purchase_list ) )
+		return (PURCHASE_PREPAID_ASSET *)0;
+
+	do {
+		purchase_prepaid_asset =
+			list_get( prepaid_asset_purchase_list );
+
+		if ( strcmp(	purchase_prepaid_asset->asset_name,
+				asset_name ) == 0 )
+		{
+			return purchase_prepaid_asset;
+		}
+
+	} while( list_next( prepaid_asset_purchase_list ) );
+
+	return (PURCHASE_PREPAID_ASSET *)0;
+
+} /* purchase_prepaid_asset_list_seek() */
+
 PURCHASE_SUPPLY *purchase_supply_list_seek(
 			LIST *supply_purchase_list,
 			char *supply_name )
@@ -2421,43 +2534,31 @@ LIST *purchase_service_journal_ledger_refresh(
 
 } /* purchase_service_journal_ledger_refresh() */
 
-LIST *purchase_fixed_asset_journal_ledger_refresh(
+LIST *purchase_asset_account_journal_ledger_refresh(
 					char *application_name,
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time,
-					double sum_fixed_asset_extension,
-					LIST *fixed_asset_purchase_list )
+					LIST *purchase_asset_account_list )
 {
 	LIST *propagate_account_list;
 	ACCOUNT *account;
 	JOURNAL_LEDGER *prior_ledger;
-	PURCHASE_FIXED_ASSET_ACCOUNT *purchase_fixed_asset_account;
-	LIST *fixed_asset_account_list;
+	PURCHASE_ASSET_ACCOUNT *purchase_asset_account;
 
-	if ( timlib_dollar_virtually_same( sum_fixed_asset_extension, 0.0 ) )
+	if ( !list_rewind( purchase_asset_account_list ) )
 		return (LIST *)0;
-
-	if ( !list_length( fixed_asset_purchase_list ) )
-		return (LIST *)0;
-
-	fixed_asset_account_list =
-		purchase_get_fixed_asset_account_list(
-					application_name,
-					fixed_asset_purchase_list );
-
-	if ( !list_rewind( fixed_asset_account_list ) ) return (LIST *)0;
 
 	propagate_account_list = list_new();
 
 	do {
-		purchase_fixed_asset_account =
-			list_get( fixed_asset_account_list );
+		purchase_asset_account =
+			list_get( purchase_asset_account_list );
 
-		if ( !purchase_fixed_asset_account->account_name )
+		if ( !purchase_asset_account->account_name )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: empty fixed_asset_account->account.\n",
+"ERROR in %s/%s()/%d: empty purchase_asset_account->account.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__ );
@@ -2469,33 +2570,33 @@ LIST *purchase_fixed_asset_journal_ledger_refresh(
 			full_name,
 			street_address,
 			transaction_date_time,
-			purchase_fixed_asset_account->account_name,
-			purchase_fixed_asset_account->debit_amount,
+			purchase_asset_account->account_name,
+			purchase_asset_account->debit_amount,
 			1 /* is_debit */ );
 
 		account =
 			ledger_account_new(
-				purchase_fixed_asset_account->account_name );
+				purchase_asset_account->account_name );
 
 		prior_ledger =
 			ledger_get_prior_ledger(
 				application_name,
 				transaction_date_time,
-				purchase_fixed_asset_account->account_name );
+				account->account_name );
 
 		account->journal_ledger_list =
 			ledger_get_propagate_journal_ledger_list(
 				application_name,
 				prior_ledger,
-				purchase_fixed_asset_account->account_name );
+				account->account_name );
 
 		list_append_pointer( propagate_account_list, account );
 
-	} while( list_next( fixed_asset_purchase_list ) );
+	} while( list_next( purchase_asset_account_list ) );
 
 	return propagate_account_list;
 
-} /* purchase_fixed_asset_journal_ledger_refresh() */
+} /* purchase_asset_account_journal_ledger_refresh() */
 
 double purchase_order_get_amount_due(	char *application_name,
 					char *full_name,
@@ -2707,12 +2808,12 @@ void purchase_fixed_asset_depreciation_propagate(
 
 } /* purchase_fixed_asset_depreciation_propagate() */
 
-PURCHASE_FIXED_ASSET_ACCOUNT *purchase_fixed_asset_account_new(
+PURCHASE_ASSET_ACCOUNT *purchase_asset_account_new(
 					char *account_name )
 {
-	PURCHASE_FIXED_ASSET_ACCOUNT *p =
-		(PURCHASE_FIXED_ASSET_ACCOUNT *)
-			calloc( 1, sizeof( PURCHASE_FIXED_ASSET_ACCOUNT ) );
+	PURCHASE_ASSET_ACCOUNT *p =
+		(PURCHASE_ASSET_ACCOUNT *)
+			calloc( 1, sizeof( PURCHASE_ASSET_ACCOUNT ) );
 
 	if ( !p )
 	{
@@ -2727,64 +2828,70 @@ PURCHASE_FIXED_ASSET_ACCOUNT *purchase_fixed_asset_account_new(
 	p->account_name = account_name;
 	return p;
 
-} /* purchase_fixed_asset_account_new() */
+} /* purchase_asset_account_new() */
 
-LIST *purchase_get_fixed_asset_account_list(
+LIST *purchase_get_asset_account_list(
 					char *application_name,
-					LIST *fixed_asset_purchase_list )
+					LIST *fixed_asset_purchase_list,
+					LIST *prepaid_asset_purchase_list )
 {
-	LIST *fixed_asset_account_name_list;
-	LIST *fixed_asset_account_list = {0};
-	PURCHASE_FIXED_ASSET_ACCOUNT *purchase_fixed_asset_account;
-	char *fixed_asset_account_name;
+	LIST *asset_account_name_list;
+	LIST *asset_account_list = {0};
+	PURCHASE_ASSET_ACCOUNT *purchase_asset_account;
+	char *asset_account_name;
 	double debit_amount;
 
-	if ( !list_length( fixed_asset_purchase_list ) ) return (LIST *)0;
+	if ( !list_length( fixed_asset_purchase_list )
+	&&   !list_length( prepaid_asset_purchase_list ) )
+		return (LIST *)0;
 
-	fixed_asset_account_name_list =
-		purchase_get_fixed_asset_account_name_list(
+	asset_account_name_list =
+		purchase_get_asset_account_name_list(
 			application_name );
 
-	if ( !list_rewind( fixed_asset_account_name_list ) ) return (LIST *)0;
+	if ( !list_rewind( asset_account_name_list ) ) return (LIST *)0;
 
 	do {
-		fixed_asset_account_name =
-			list_get( fixed_asset_account_name_list );
+		asset_account_name =
+			list_get( asset_account_name_list );
 
 		debit_amount =
-			purchase_get_fixed_asset_account_debit_amount(
+			purchase_get_asset_account_debit_amount(
 				fixed_asset_purchase_list,
-				fixed_asset_account_name );
+				prepaid_asset_purchase_list,
+				asset_account_name );
 
-		if ( debit_amount )
+		if ( !timlib_dollar_virtually_same(
+			debit_amount,
+			0.0 ) )
 		{
-			purchase_fixed_asset_account =
-				purchase_fixed_asset_account_new(
-					fixed_asset_account_name );
+			purchase_asset_account =
+				purchase_asset_account_new(
+					asset_account_name );
 
-			purchase_fixed_asset_account->debit_amount =
-				debit_amount;
+			purchase_asset_account->debit_amount = debit_amount;
 
-			if ( !fixed_asset_account_list )
-				fixed_asset_account_list = list_new();
+			if ( !asset_account_list )
+				asset_account_list = list_new();
 
-			list_append_pointer(	fixed_asset_account_list,
-						purchase_fixed_asset_account );
+			list_append_pointer(	asset_account_list,
+						purchase_asset_account );
 		}
 
-	} while( list_next( fixed_asset_account_name_list ) );
+	} while( list_next( asset_account_name_list ) );
 
-	return fixed_asset_account_list;
+	return asset_account_list;
 
-} /* purchase_get_fixed_asset_account_list() */
+} /* purchase_get_asset_account_list() */
 
-LIST *purchase_get_fixed_asset_account_name_list(
+LIST *purchase_get_asset_account_name_list(
 				char *application_name )
 {
 	char sys_string[ 1024 ];
 	char *where;
 
-	where = "subclassification = 'fixed_asset'";
+	where =
+"subclassification = 'fixed_asset' or subclassification = 'prepaid_asset'";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -2796,16 +2903,20 @@ LIST *purchase_get_fixed_asset_account_name_list(
 
 	return pipe2list( sys_string );
 
-} /* purchase_get_fixed_asset_account_name_list() */
+} /* purchase_get_asset_account_name_list() */
 
-double purchase_get_fixed_asset_account_debit_amount(
+double purchase_get_asset_account_debit_amount(
 				LIST *fixed_asset_purchase_list,
-				char *fixed_asset_account_name )
+				LIST *prepaid_asset_purchase_list,
+				char *asset_account_name )
 {
 	double debit_amount;
 	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
 
-	if ( !list_rewind( fixed_asset_purchase_list ) ) return 0.0;
+	if ( !list_rewind( fixed_asset_purchase_list )
+	&&   !list_rewind( prepaid_asset_purchase_list ) )
+		return 0.0;
 
 	debit_amount = 0.0;
 
@@ -2826,14 +2937,309 @@ double purchase_get_fixed_asset_account_debit_amount(
 
 		if ( timlib_strcmp(	purchase_fixed_asset->
 						account_name,
-					fixed_asset_account_name ) == 0 )
+					asset_account_name ) == 0 )
 		{
 			debit_amount += purchase_fixed_asset->extension;
 		}
 
 	} while( list_next( fixed_asset_purchase_list ) );
 
+	do {
+		purchase_prepaid_asset =
+			list_get( prepaid_asset_purchase_list );
+
+		if ( !purchase_prepaid_asset->asset_account_name )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty account for prepaid_asset = %s.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				purchase_prepaid_asset->asset_name );
+			exit( 1 );
+		}
+
+		if ( timlib_strcmp(	purchase_prepaid_asset->
+						asset_account_name,
+					asset_account_name ) == 0 )
+		{
+			debit_amount += purchase_fixed_asset->extension;
+		}
+
+	} while( list_next( prepaid_asset_purchase_list ) );
+
 	return debit_amount;
 
-} /* purchase_get_fixed_asset_account_debit_amount() */
+} /* purchase_get_asset_account_debit_amount() */
+
+char *purchase_prepaid_asset_get_select( void )
+{
+	char *select =
+"full_name,street_address,purchase_date_time,prepaid_asset_purchase.asset_name,prepaid_asset.asset_account,prepaid_asset.expense_account,extension,accrual_period_years,accumulated_accrual";
+	return select;
+}
+
+PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_parse( char *input_buffer )
+{
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
+	char piece_buffer[ 256 ];
+
+	purchase_prepaid_asset = purchase_prepaid_asset_new();
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+	purchase_prepaid_asset->full_name = strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+	purchase_prepaid_asset->street_address = strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+	purchase_prepaid_asset->purchase_date_time = strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	purchase_prepaid_asset->asset_name = strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+	if ( *piece_buffer )
+		purchase_prepaid_asset->asset_account_name =
+			strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+	if ( *piece_buffer )
+		purchase_prepaid_asset->expense_account_name =
+			strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+	if ( *piece_buffer )
+		purchase_prepaid_asset->extension = atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+	if ( *piece_buffer )
+		purchase_prepaid_asset->accrual_period_years =
+			atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
+	if ( *piece_buffer )
+		purchase_prepaid_asset->accumulated_accrual =
+		purchase_prepaid_asset->database_accumulated_accrual =
+			atof( piece_buffer );
+
+	return purchase_prepaid_asset;
+
+} /* purchase_prepaid_asset_parse() */
+
+PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_fetch(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *purchase_date_time,
+					char *asset_name )
+{
+	char sys_string[ 2048 ];
+	char *ledger_where;
+	char buffer[ 256 ];
+	char where[ 1024 ];
+	char *join_where;
+	char *select;
+	char *folder;
+	char *results;
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
+
+	select = purchase_prepaid_asset_get_select();
+
+	folder = "prepaid_asset_purchase,prepaid_asset";
+
+	ledger_where = ledger_get_transaction_where(
+					full_name,
+					street_address,
+					purchase_date_time,
+					(char *)0 /* folder_name */,
+					"purchase_date_time" );
+
+	join_where =
+	"prepaid_asset_purchase.asset_name = prepaid_asset.asset_name";
+
+	sprintf( where,
+		 "%s and prepaid_asset_purchase.asset_name = '%s' and %s",
+		 ledger_where,
+		 escape_character(	buffer,
+					asset_name,
+					'\'' ),
+		 join_where );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	if ( ! ( results = pipe2string( sys_string ) ) )
+	{
+		return (PURCHASE_PREPAID_ASSET *)0;
+	}
+
+	purchase_prepaid_asset = purchase_prepaid_asset_parse( results );
+
+	purchase_prepaid_asset->accrual_list =
+		accrual_fetch_list(
+			application_name,
+			purchase_prepaid_asset->full_name,
+			purchase_prepaid_asset->street_address,
+			purchase_prepaid_asset->purchase_date_time,
+			purchase_prepaid_asset->asset_name );
+
+	return purchase_prepaid_asset;
+
+} /* purchase_prepaid_asset_fetch() */
+
+LIST *purchase_prepaid_asset_get_list(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *purchase_date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 512 ];
+	char *ledger_where;
+	char *join_where;
+	char *select;
+	char *folder;
+	char input_buffer[ 2048 ];
+	FILE *input_pipe;
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
+	LIST *prepaid_asset_purchase_list;
+
+	select = purchase_prepaid_asset_get_select();
+
+	folder = "prepaid_asset_purchase,prepaid_asset";
+
+	join_where =
+	"prepaid_asset_purchase.asset_name = prepaid_asset.asset_name";
+
+	ledger_where = ledger_get_transaction_where(
+					full_name,
+					street_address,
+					purchase_date_time,
+					(char *)0 /* folder_name */,
+					"purchase_date_time" );
+
+	sprintf( where, "%s and %s", ledger_where, join_where );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+	prepaid_asset_purchase_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		purchase_prepaid_asset =
+			purchase_prepaid_asset_parse(
+				input_buffer );
+
+		purchase_prepaid_asset->accrual_list =
+			accrual_fetch_list(
+				application_name,
+				purchase_prepaid_asset->full_name,
+				purchase_prepaid_asset->street_address,
+				purchase_prepaid_asset->purchase_date_time,
+				purchase_prepaid_asset->asset_name );
+
+		list_append_pointer(	prepaid_asset_purchase_list,
+					purchase_prepaid_asset );
+	}
+
+	pclose( input_pipe );
+	return prepaid_asset_purchase_list;
+
+} /* purchase_prepaid_asset_get_list() */
+
+void purchase_prepaid_asset_update(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *asset_name,
+			double accumulated_accrual,
+			double database_accumulated_accrual )
+{
+	char *sys_string;
+	FILE *output_pipe;
+
+	if ( double_virtually_same(
+			accumulated_accrual,
+			database_accumulated_accrual ) )
+	{
+		return;
+	}
+
+	sys_string =
+		purchase_prepaid_asset_get_update_sys_string(
+			application_name );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf(output_pipe,
+		"%s^%s^%s^%s^accumulated_accrual^%.2lf\n",
+		full_name,
+		street_address,
+		purchase_date_time,
+		asset_name,
+		accumulated_accrual );
+
+	pclose( output_pipe );
+
+} /* purchase_prepaid_asset_update() */
+
+void purchase_prepaid_asset_accrual_propagate(
+			PURCHASE_PREPAID_ASSET *purchase_prepaid_asset,
+			char *arrived_date_string,
+			char *application_name )
+{
+	if ( !list_length( purchase_prepaid_asset->accrual_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty accrual_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	purchase_prepaid_asset->accumulated_accrual =
+		accrual_list_set(
+			purchase_prepaid_asset->accrual_list,
+			/* ----------------------------------- */
+			/* Arrived date is the effective date. */
+			/* ----------------------------------- */
+			arrived_date_string,
+			purchase_prepaid_asset->extension,
+			purchase_prepaid_asset->accrual_period_years );
+
+	accrual_list_update(
+		purchase_prepaid_asset->accrual_list,
+		application_name,
+		purchase_prepaid_asset->asset_account_name,
+		purchase_prepaid_asset->expense_account_name );
+
+	purchase_prepaid_asset_update(
+			application_name,
+			purchase_prepaid_asset->full_name,
+			purchase_prepaid_asset->street_address,
+			purchase_prepaid_asset->purchase_date_time,
+			purchase_prepaid_asset->asset_name,
+			purchase_prepaid_asset->accumulated_accrual,
+			purchase_prepaid_asset->
+				database_accumulated_accrual );
+
+} /* purchase_prepaid_asset_accrual_propagate() */
 

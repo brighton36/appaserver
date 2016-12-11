@@ -173,5 +173,8 @@ double depreciation_units_of_production_get_amount(
 			int units_produced,
 			double accumulated_depreciation );
 
+char *deprecation_get_prior_depreciation_date(
+			LIST *depreciation_list );
+
 #endif
 

@@ -75,13 +75,14 @@ double accrual_get_amount(
 			char *accrual_date_string,
 			double accumulated_accrual );
 
-LIST *accrual_journal_ledger_refresh(
+void accrual_journal_ledger_refresh(
 			char *application_name,
-			char *fund_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			double accrual_amount );
+			double accrual_amount,
+			char *asset_account_name,
+			char *expense_account_name );
 
 double accrual_get_fraction_of_year(
 			char *prior_accrual_date_string,
@@ -98,19 +99,24 @@ LIST *accrual_fetch_list(
 /* ------------------------------------ */
 double accrual_list_set(
 			LIST *accrual_list,
-			char *purchase_date,
+			/* ----------------------------------- */
+			/* Arrived date is the effective date. */
+			/* ----------------------------------- */
+			char *arrived_date_string,
 			double extension,
 			double accrual_period_years );
 
 void accrual_list_update(
 			LIST *accrual_list,
 			char *application_name,
-			char *fund_name );
+			char *asset_account_name,
+			char *expense_account_name );
 
 void accrual_list_delete(
 			LIST *accrual_list,
 			char *application_name,
-			char *fund_name );
+			char *asset_account_name,
+			char *expense_account_name );
 
 void accrual_delete(
 			char *application_name,
@@ -123,6 +129,9 @@ void accrual_delete(
 ACCRUAL *accrual_list_seek(
 			LIST *accrual_list,
 			char *accrual_date );
+
+char *accrual_get_prior_accrual_date(
+			LIST *accrual_list );
 
 #endif
 

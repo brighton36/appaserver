@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "piece.h"
-#include "column.h"
 #include "date.h"
 #include "appaserver_library.h"
 #include "ledger.h"
@@ -365,7 +364,7 @@ double depreciation_straight_line_get_amount(
 	double depreciation_amount;
 
 	fraction_of_year =
-		depreciation_get_fraction_of_year(
+		ledger_get_fraction_of_year(
 			prior_depreciation_date_string,
 			depreciation_date_string );
 
@@ -443,7 +442,7 @@ double depreciation_sum_of_years_digits_get_amount(
 		depreciation_fraction;
 
 	fraction_of_year =
-		depreciation_get_fraction_of_year(
+		ledger_get_fraction_of_year(
 			prior_depreciation_date_string,
 			depreciation_date_string );
 
@@ -548,6 +547,7 @@ LIST *depreciation_journal_ledger_refresh(
 
 } /* depreciation_journal_ledger_refresh() */
 
+#ifdef NOT_DEFINED
 double depreciation_get_fraction_of_year(
 				char *prior_depreciation_date_string,
 				char *depreciation_date_string )
@@ -572,6 +572,7 @@ double depreciation_get_fraction_of_year(
 	return (double)days_between / 365.0;
 
 } /* depreciation_get_fraction_of_year() */
+#endif
 
 double depreciation_n_declining_balance_get_amount(
 			double extension,
@@ -591,7 +592,7 @@ double depreciation_n_declining_balance_get_amount(
 	book_value = extension - accumulated_depreciation;
 
 	fraction_of_year =
-		depreciation_get_fraction_of_year(
+		ledger_get_fraction_of_year(
 			prior_depreciation_date_string,
 			depreciation_date_string );
 
@@ -961,4 +962,27 @@ DEPRECIATION *depreciation_list_seek(
 
 } /* depreciation_list_seek() */
 
+char *deprecation_get_prior_depreciation_date(
+				LIST *depreciation_list )
+{
+	DEPRECIATION *depreciation;
+	char *prior_depreciation_date;
 
+	if ( !list_length( depreciation_list )
+	||   list_at_head( depreciation_list ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: empty list or at beginning of list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	list_previous( depreciation_list );
+	depreciation = list_get( depreciation_list );
+	prior_depreciation_date = depreciation->depreciation_date;
+
+	return prior_depreciation_date;
+
+} /* deprecation_get_prior_depreciation_date() */

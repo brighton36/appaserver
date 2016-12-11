@@ -46,13 +46,14 @@ typedef struct
 	char *street_address;
 	char *purchase_date_time;
 	char *asset_name;
-	char *account_name;
+	char *asset_account_name;
+	char *expense_account_name;
 	double extension;
 	double accrual_period_years;
 	double accumulated_accrual;
 	double database_accumulated_accrual;
 	LIST *accrual_list;
-} PURCHASE_ACCRUAL_ASSET;
+} PURCHASE_PREPAID_ASSET;
 
 typedef struct
 {
@@ -77,7 +78,7 @@ typedef struct
 {
 	char *account_name;
 	double debit_amount;
-} PURCHASE_FIXED_ASSET_ACCOUNT;
+} PURCHASE_ASSET_ACCOUNT;
 
 typedef struct
 {
@@ -115,6 +116,7 @@ typedef struct
 	double sum_supply_extension;
 	double sum_service_extension;
 	double sum_fixed_asset_extension;
+	double sum_prepaid_asset_extension;
 	double sum_extension;
 	double database_sum_extension;
 	double sales_tax;
@@ -134,6 +136,8 @@ typedef struct
 	LIST *supply_purchase_list;
 	LIST *service_purchase_list;
 	LIST *fixed_asset_purchase_list;
+	LIST *prepaid_asset_purchase_list;
+	LIST *purchase_asset_account_list;
 	LIST *vendor_payment_list;
 	TRANSACTION *transaction;
 	LIST *propagate_account_list;
@@ -169,23 +173,23 @@ PURCHASE_SUPPLY *purchase_supply_new(	char *supply_name );
 
 PURCHASE_SERVICE *purchase_service_new(	char *account_name );
 
-PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset_new(
+PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_new(
 					void );
 
 PURCHASE_FIXED_ASSET *purchase_fixed_asset_new(
 					void );
 
-PURCHASE_FIXED_ASSET_ACCOUNT *purchase_fixed_asset_account_new(
+PURCHASE_ASSET_ACCOUNT *purchase_asset_account_new(
 					char *account_name );
 
-LIST *purchase_get_fixed_asset_account_list(
-					char *application_name,
-					LIST *fixed_asset_purchase_list );
+LIST *purchase_get_asset_account_list(	char *application_name,
+					LIST *fixed_asset_purchase_list,
+					LIST *prepaid_asset_purchase_list );
 
 PURCHASE_FIXED_ASSET *purchase_fixed_asset_parse(
 					char *input_buffer );
 
-PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset_parse(
+PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_parse(
 					char *input_buffer );
 
 PURCHASE_FIXED_ASSET *purchase_fixed_asset_fetch(
@@ -207,6 +211,9 @@ double purchase_get_sum_service_extension(
 
 double purchase_get_sum_fixed_asset_extension(
 					LIST *fixed_asset_purchase_list );
+
+double purchase_get_sum_prepaid_asset_extension(
+					LIST *prepaid_asset_purchase_list );
 
 boolean purchase_order_load(	double *sum_extension,
 				double *database_sum_extension,
@@ -270,12 +277,14 @@ double purchase_order_get_purchase_amount(
 				double *sum_supply_extension,
 				double *sum_service_extension,
 				double *sum_fixed_asset_extension,
+				double *sum_prepaid_asset_extension,
 				double *sum_extension,
 				LIST *inventory_purchase_list,
 				LIST *specific_inventory_purchase_list,
 				LIST *supply_purchase_list,
 				LIST *service_purchase_list,
 				LIST *fixed_asset_purchase_list,
+				LIST *fixed_prepaid_purchase_list,
 				double sales_tax,
 				double freight_in );
 
@@ -288,22 +297,21 @@ char *purchase_get_max_purchase_date_time(
 /* Returns propagate_account_list */
 /* ------------------------------ */
 LIST *purchase_order_journal_ledger_refresh(
-					char *application_name,
-					char *fund_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time,
-					double sum_specific_inventory_unit_cost,
-					double sum_supply_extension,
-					double sum_service_extension,
-					double sum_fixed_asset_extension,
-					double sales_tax,
-					double freight_in,
-					double purchase_amount,
-					LIST *inventory_purchase_list,
-					LIST *supply_purchase_list,
-					LIST *service_purchase_list,
-					LIST *fixed_asset_purchase_list );
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double sum_specific_inventory_unit_cost,
+				double sum_supply_extension,
+				double sum_service_extension,
+				double sales_tax,
+				double freight_in,
+				double purchase_amount,
+				LIST *inventory_purchase_list,
+				LIST *supply_purchase_list,
+				LIST *service_purchase_list,
+				LIST *purchase_asset_account_list );
 
 char *purchase_get_arrived_purchase_date_time(
 				char *application_name,
@@ -390,12 +398,6 @@ void purchase_order_transaction_delete_with_propagate(
 				char *street_address,
 				char *transaction_date_time );
 
-/*
-void purchase_order_list_transaction_update(
-				char *application_name,
-				LIST *purchase_order_list );
-*/
-
 double purchase_get_sum_payment_amount(
 				LIST *vendor_payment_list );
 
@@ -441,7 +443,7 @@ PURCHASE_SUPPLY *purchase_supply_list_seek(
 				LIST *supply_purchase_list,
 				char *supply_name );
 
-PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset_list_seek(
+PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_list_seek(
 				LIST *accrual_asset_purchase_list,
 				char *asset_name );
 
@@ -485,13 +487,13 @@ LIST *purchase_service_journal_ledger_refresh(
 				char *transaction_date_time,
 				LIST *service_purchase_list );
 
-LIST *purchase_fixed_asset_journal_ledger_refresh(
+LIST *purchase_fixed_prepaid_asset_journal_ledger_refresh(
 				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *transaction_date_time,
-				double sum_fixed_asset_extension,
-				LIST *fixed_asset_purchase_list );
+				LIST *fixed_asset_purchase_list,
+				LIST *prepaid_asset_purchase_list );
 
 LIST *purchase_specific_inventory_get_list(
 				char *application_name,
@@ -530,8 +532,8 @@ void purchase_fixed_asset_update(
 				double accumulated_depreciation,
 				double database_accumulated_depreciation );
 
-void purchase_accrual_asset_propagate(
-				PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset,
+void purchase_prepaid_asset_propagate(
+				PURCHASE_PREPAID_ASSET *purchase_prepaid_asset,
 				char *purchase_date_time,
 				char *application_name,
 				char *fund_name );
@@ -547,8 +549,8 @@ void purchase_fixed_asset_depreciation_delete(
 				char *application_name,
 				char *fund_name );
 
-void purchase_accrual_asset_accrual_delete(
-				PURCHASE_ACCRUAL_ASSET *purchase_accrual_asset,
+void purchase_prepaid_asset_accrual_delete(
+				PURCHASE_PREPAID_ASSET *purchase_prepaid_asset,
 				char *application_name,
 				char *fund_name );
 
@@ -563,12 +565,13 @@ void purchase_fixed_asset_list_depreciation_delete(
 				char *application_name,
 				char *fund_name );
 
-LIST *purchase_get_fixed_asset_account_name_list(
+LIST *purchase_get_asset_account_name_list(
 				char *application_name );
 
-double purchase_get_fixed_asset_account_debit_amount(
+double purchase_get_asset_account_debit_amount(
 				LIST *fixed_asset_purchase_list,
-				char *fixed_asset_account_name );
+				LIST *prepaid_asset_purchase_list,
+				char *asset_account_name );
 
 LIST *purchase_order_inventory_journal_ledger_refresh(
 				char *application_name,
@@ -578,6 +581,38 @@ LIST *purchase_order_inventory_journal_ledger_refresh(
 				char *transaction_date_time,
 				double purchase_amount,
 				LIST *inventory_purchase_list );
+
+PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_fetch(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time,
+				char *asset_name );
+
+LIST *purchase_prepaid_asset_get_list(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time );
+
+LIST *purchase_asset_account_journal_ledger_refresh(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				LIST *purchase_asset_account_list );
+
+void purchase_prepaid_asset_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time,
+				char *asset_name,
+				double accumulated_accrual,
+				double database_accumulated_accrual );
+
+char *purchase_prepaid_asset_get_update_sys_string(
+				char *application_name );
 
 #endif
 

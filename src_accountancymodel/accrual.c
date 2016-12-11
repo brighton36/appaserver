@@ -118,7 +118,7 @@ ACCRUAL *accrual_fetch(
 					"purchase_date_time" );
 
 	sprintf( where,
-"%s and asset_name = '%s' and accrual_date = '%s'",
+		 "%s and asset_name = '%s' and accrual_date = '%s'",
 		 ledger_where,
 		 escape_character(	buffer,
 					asset_name,
@@ -256,34 +256,40 @@ double accrual_get_amount(
 
 } /* accrual_get_amount() */
 
-#ifdef NOT_DEFINED
-/* Returns propagate_account_list */
-/* ------------------------------ */
-LIST *accrual_journal_ledger_refresh(
+void accrual_journal_ledger_refresh(
 				char *application_name,
-				char *fund_name,
 				char *full_name,
 				char *street_address,
 				char *transaction_date_time,
-				double accrual_amount )
+				double accrual_amount,
+				char *asset_account_name,
+				char *expense_account_name )
 {
-	char *accrual_expense_account;
-	char *accumulated_accrual_account;
-	LIST *propagate_account_list = {0};
-	ACCOUNT *account;
-	JOURNAL_LEDGER *prior_ledger;
+	if ( !asset_account_name || !*asset_account_name )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty asset_account_name.\n",
+		 	__FILE__,
+		 	__FUNCTION__,
+		 	__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !expense_account_name || !*expense_account_name )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty expense_account_name.\n",
+		 	__FILE__,
+		 	__FUNCTION__,
+		 	__LINE__ );
+		exit( 1 );
+	}
 
 	ledger_delete(	application_name,
 			LEDGER_FOLDER_NAME,
 			full_name,
 			street_address,
 			transaction_date_time );
-
-	ledger_get_accrual_account_names(
-		&accrual_expense_account,
-		&accumulated_accrual_account,
-		application_name,
-		fund_name );
 
 	if ( accrual_amount )
 	{
@@ -292,7 +298,7 @@ LIST *accrual_journal_ledger_refresh(
 			full_name,
 			street_address,
 			transaction_date_time,
-			accrual_expense_account,
+			expense_account_name,
 			accrual_amount,
 			1 /* is_debit */ );
 
@@ -301,47 +307,12 @@ LIST *accrual_journal_ledger_refresh(
 			full_name,
 			street_address,
 			transaction_date_time,
-			accumulated_accrual_account,
+			asset_account_name,
 			accrual_amount,
 			0 /* not is_debit */ );
 	}
 
-	propagate_account_list = list_new();
-
-	account = ledger_account_new( accrual_expense_account );
-
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				accrual_expense_account );
-
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			accrual_expense_account );
-
-	list_append_pointer( propagate_account_list, account );
-
-	account = ledger_account_new( accumulated_accrual_account );
-
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				accumulated_accrual_account );
-
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			accumulated_accrual_account );
-
-	list_append_pointer( propagate_account_list, account );
-
-	return propagate_account_list;
-
 } /* accrual_journal_ledger_refresh() */
-#endif
 
 LIST *accrual_fetch_list(
 			char *application_name,
@@ -410,7 +381,10 @@ LIST *accrual_fetch_list(
 /* ------------------------------------ */
 double accrual_list_set(
 		LIST *accrual_list,
-		char *purchase_date,
+		/* ----------------------------------- */
+		/* Arrived date is the effective date. */
+		/* ----------------------------------- */
+		char *arrived_date_string,
 		double extension,
 		double accrual_period_years )
 {
@@ -421,7 +395,7 @@ double accrual_list_set(
 	if ( !list_rewind( accrual_list ) ) return 0.0;
 
 	accumulated_accrual = 0.0;
-	prior_accrual_date_string = purchase_date;
+	prior_accrual_date_string = arrived_date_string;
 
 	do {
 		accrual = list_get( accrual_list );
@@ -447,9 +421,10 @@ double accrual_list_set(
 } /* accrual_list_set() */
 
 void accrual_list_update(
-		LIST *accrual_list,
-		char *application_name,
-		char *fund_name )
+				LIST *accrual_list,
+				char *application_name,
+				char *asset_account_name,
+				char *expense_account_name )
 {
 	ACCRUAL *accrual;
 	char *propagate_transaction_date_time = {0};
@@ -503,46 +478,36 @@ void accrual_list_update(
 			accrual->transaction_date_time,
 			accrual->database_transaction_date_time );
 
-/*
-	char *accrual_expense_account;
-	char *accumulated_accrual_account;
 		accrual_journal_ledger_refresh(
 			application_name,
-			fund_name,
 			accrual->transaction->full_name,
 			accrual->transaction->street_address,
 			accrual->
 				transaction->
 				transaction_date_time,
-			accrual->accrual_amount );
-*/
+			accrual->accrual_amount,
+			asset_account_name,
+			expense_account_name );
 
 	} while( list_next( accrual_list ) );
 
-/*
-	ledger_get_accrual_account_names(
-		&accrual_expense_account,
-		&accumulated_accrual_account,
+	ledger_propagate(
 		application_name,
-		fund_name );
+		propagate_transaction_date_time,
+		asset_account_name );
 
 	ledger_propagate(
 		application_name,
 		propagate_transaction_date_time,
-		accrual_expense_account );
-
-	ledger_propagate(
-		application_name,
-		propagate_transaction_date_time,
-		accumulated_accrual_account );
-*/
+		expense_account_name );
 
 } /* accrual_list_update() */
 
 void accrual_list_delete(
 			LIST *accrual_list,
 			char *application_name,
-			char *fund_name )
+			char *asset_account_name,
+			char *expense_account_name )
 {
 	ACCRUAL *accrual;
 	char *propagate_transaction_date_time = {0};
@@ -563,7 +528,7 @@ void accrual_list_delete(
 		if ( !accrual->transaction )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: expecting a transaction = (%s).\n",
+		"ERROR in %s/%s()/%d: expecting a transaction = (%s).\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__,
@@ -595,25 +560,15 @@ void accrual_list_delete(
 
 	} while( list_next( accrual_list ) );
 
-/*
-	char *accrual_expense_account;
-	char *accumulated_accrual_account;
-	ledger_get_accrual_account_names(
-		&accrual_expense_account,
-		&accumulated_accrual_account,
+	ledger_propagate(
 		application_name,
-		fund_name );
+		propagate_transaction_date_time,
+		asset_account_name );
 
 	ledger_propagate(
 		application_name,
 		propagate_transaction_date_time,
-		accrual_expense_account );
-
-	ledger_propagate(
-		application_name,
-		propagate_transaction_date_time,
-		accumulated_accrual_account );
-*/
+		expense_account_name );
 
 } /* accrual_list_delete() */
 
@@ -686,4 +641,29 @@ ACCRUAL *accrual_list_seek(
 	return (ACCRUAL *)0;
 
 } /* accrual_list_seek() */
+
+char *accrual_get_prior_accrual_date( LIST *accrual_list )
+{
+	ACCRUAL *accrual;
+	char *prior_accrual_date;
+
+	if ( !list_length( accrual_list )
+	||   list_at_head( accrual_list ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: empty list or at beginning of list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	list_previous( accrual_list );
+	accrual = list_get( accrual_list );
+	prior_accrual_date = accrual->accrual_date;
+	list_next( accrual_list );
+
+	return prior_accrual_date;
+
+} /* accrual_get_prior_accrual_date() */
 

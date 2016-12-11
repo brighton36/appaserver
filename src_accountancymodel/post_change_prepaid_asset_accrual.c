@@ -335,10 +335,49 @@ void post_change_accrual_date_update(
 			char *asset_name,
 			char *accrual_date )
 {
-	PURCHASE_ORDER *purchase_order;
 	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
 	ACCRUAL *accrual;
+	char *arrived_date_time;
+	char arrived_date_string[ 16 ];
 
+	if ( ! ( arrived_date_time =
+			purchase_order_fetch_arrived_date_time(
+				application_name,
+				full_name,
+				street_address,
+				purchase_date_time ) ) )
+	{
+		/* Shouldn't have inserted the row. */
+		/* -------------------------------- */
+		accrual_delete(
+			application_name,
+			full_name,
+			street_address,
+			purchase_date_time,
+			asset_name,
+			accrual_date );
+		return;
+	}
+
+	column( arrived_date_string, 0, arrived_date_time );
+
+	if ( ! ( purchase_prepaid_asset =
+			purchase_prepaid_asset_fetch(
+				application_name,
+				full_name,
+				street_address,
+				purchase_date_time,
+				asset_name ) ) )
+	{
+		fprintf( stderr,
+		"ERROR In %s/%s()/%d: cannot fetch purchase_prepaid_asset.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+/*
 	if ( ! ( purchase_order =
 			purchase_order_new(
 				application_name,
@@ -367,6 +406,7 @@ void post_change_accrual_date_update(
 			 asset_name );
 		exit( 1 );
 	}
+*/
 
 	if ( !purchase_prepaid_asset->accrual_list )
 	{
@@ -385,7 +425,7 @@ void post_change_accrual_date_update(
 				accrual_date ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot seek accrual = (%s).\n",
+			 "ERROR in %s/%s()/%d: cannot seek accrual = (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -430,9 +470,8 @@ void post_change_accrual_date_update(
 
 	purchase_prepaid_asset_accrual_propagate(
 		purchase_prepaid_asset,
-		purchase_order->purchase_date_time,
-		application_name,
-		purchase_order->fund_name );
+		arrived_date_string,
+		application_name );
 
 } /* post_change_accrual_date_update() */
 
@@ -444,36 +483,8 @@ void post_change_accrual_delete(
 			char *asset_name,
 			char *accrual_date )
 {
-	PURCHASE_ORDER *purchase_order;
-	ACCRUAL *accrual;
 	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
-	char *arrived_date_time;
-
-	if ( ! ( arrived_date_time =
-			purchase_order_fetch_arrived_date_time(
-				application_name,
-				full_name,
-				street_address,
-				purchase_date_time ) )
-	||      !*arrived_date_time )
-	{
-		return;
-	}
-
-	if ( ! ( purchase_order =
-			purchase_order_new(
-				application_name,
-				full_name,
-				street_address,
-				purchase_date_time ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load purchase_order.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	ACCRUAL *accrual;
 
 	if ( ! ( purchase_prepaid_asset =
 			purchase_prepaid_asset_fetch(
@@ -492,8 +503,9 @@ void post_change_accrual_delete(
 	}
 
 	if ( ! ( accrual =
-			accrual_list_seek(
-				purchase_prepaid_asset->accrual_list,
+			accrual_list_seek( 
+				purchase_prepaid_asset->
+					accrual_list,
 				accrual_date ) ) )
 	{
 		fprintf( stderr,
@@ -525,8 +537,8 @@ void post_change_accrual_delete(
 				transaction->
 				transaction_date_time );
 
-	/* Delete the TRANSACTION */
-	/* ---------------------- */
+	/* Delete the JOURNAL_LEDGER */
+	/* ------------------------- */
 	ledger_delete(	application_name,
 			LEDGER_FOLDER_NAME,
 			accrual->transaction->full_name,
@@ -535,13 +547,30 @@ void post_change_accrual_delete(
 				transaction->
 				transaction_date_time );
 
-	list_delete_current( purchase_prepaid_asset->accrual_list );
-
-	purchase_prepaid_asset_accrual_propagate(
-		purchase_prepaid_asset,
-		arrived_date_time,
+	/* Propagate the debit and credit accounts */
+	/* --------------------------------------- */
+	ledger_propagate(
 		application_name,
-		purchase_order->fund_name );
+		accrual->transaction_date_time,
+		purchase_prepaid_asset->asset_account_name );
+
+	ledger_propagate(
+		application_name,
+		accrual->transaction_date_time,
+		purchase_prepaid_asset->expense_account_name );
+
+	/* Subtract the accumulated_accrual */
+	/* -------------------------------- */
+	purchase_prepaid_asset->accumulated_accrual -= accrual->accrual_amount;
+
+	purchase_prepaid_asset_update(
+		application_name,
+		purchase_prepaid_asset->full_name,
+		purchase_prepaid_asset->street_address,
+		purchase_prepaid_asset->purchase_date_time,
+		purchase_prepaid_asset->asset_name,
+		purchase_prepaid_asset->accumulated_accrual,
+		purchase_prepaid_asset->database_accumulated_accrual );
 
 } /* post_change_accrual_delete() */
 
@@ -553,30 +582,22 @@ void post_change_accrual_insert(
 			char *asset_name,
 			char *accrual_date )
 {
-	PURCHASE_ORDER *purchase_order;
 	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
 	ACCRUAL *accrual;
 	LIST *propagate_account_list;
 	char *prior_accrual_date;
+	char *arrived_date_time;
 	char arrived_date_string[ 16 ];
 
-	if ( ! ( purchase_order =
-			purchase_order_new(
+	if ( ! ( arrived_date_time =
+			purchase_order_fetch_arrived_date_time(
 				application_name,
 				full_name,
 				street_address,
 				purchase_date_time ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load purchase_order.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !purchase_order->arrived_date_time )
-	{
+		/* Shouldn't have inserted the row. */
+		/* -------------------------------- */
 		accrual_delete(
 			application_name,
 			full_name,
@@ -587,31 +608,35 @@ void post_change_accrual_insert(
 		return;
 	}
 
+	column( arrived_date_string, 0, arrived_date_time );
+
 	if ( ! ( purchase_prepaid_asset =
-			purchase_prepaid_asset_list_seek(
-				purchase_order->prepaid_asset_purchase_list,
+			purchase_prepaid_asset_fetch(
+				application_name,
+				full_name,
+				street_address,
+				purchase_date_time,
 				asset_name ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot seek prepaid_asset = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 asset_name );
-		exit( 1 );
-	}
-
-	if ( !list_length( purchase_prepaid_asset->accrual_list ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty deprecation_list.\n",
+		"ERROR In %s/%s()/%d: cannot fetch purchase_prepaid_asset.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	column( arrived_date_string, 0, purchase_order->arrived_date_time );
+	if ( !list_length( purchase_prepaid_asset->accrual_list ) )
+	{
+		purchase_prepaid_asset->accrual_list =
+			accrual_fetch_list(
+				application_name,
+				purchase_prepaid_asset->full_name,
+				purchase_prepaid_asset->street_address,
+				purchase_prepaid_asset->
+					purchase_date_time,
+				purchase_prepaid_asset->asset_name );
+	}
 
 	if ( list_length( purchase_prepaid_asset->accrual_list ) == 1 )
 	{
@@ -619,40 +644,57 @@ void post_change_accrual_insert(
 	}
 	else
 	{
-		accrual =
-			accrual_list_seek( 
-				purchase_prepaid_asset->
-					accrual_list,
-				accrual_date );
+		if ( ! ( accrual =
+				accrual_list_seek( 
+					purchase_prepaid_asset->
+						accrual_list,
+					accrual_date ) ) )
+		{
+			fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek accrual = (%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	accrual_date );
+			exit( 1 );
+		}
 
 		if ( !list_at_tail( 
 				purchase_prepaid_asset->
 					accrual_list ) )
 		{
 			/* If inserting a middle accrual. */
-			/* ----------------------------------- */
+			/* ------------------------------ */
+			prior_accrual_date =
+				accrual_get_prior_accrual_date(
+					purchase_prepaid_asset->accrual_list );
+
+			accrual =
+				list_get(
+					purchase_prepaid_asset->
+						accrual_list );
+
+			accrual->accrual_amount =
+				accrual_get_amount(
+					purchase_prepaid_asset->extension,
+					purchase_prepaid_asset->
+						accrual_period_years,
+					prior_accrual_date,
+					accrual->accrual_date,
+					purchase_prepaid_asset->
+						accumulated_accrual );
+
 			purchase_prepaid_asset_accrual_propagate(
 				purchase_prepaid_asset,
-				purchase_order->arrived_date_time,
-				application_name,
-				purchase_order->fund_name );
+				arrived_date_string,
+				application_name );
 
-			return;
+			goto insert_transaction;
 		}
 
-		/* Get the next to the last one. */
-		/* ----------------------------- */
-		list_previous(
-			purchase_prepaid_asset->
-					accrual_list );
-
-		accrual =
-			list_get(
-				purchase_prepaid_asset->
-					accrual_list );
-
 		prior_accrual_date =
-			accrual->accrual_date;
+			accrual_get_prior_accrual_date(
+				purchase_prepaid_asset->accrual_list );
 	}
 
 	accrual =
@@ -662,17 +704,13 @@ void post_change_accrual_insert(
 
 	accrual->accrual_amount =
 		accrual_get_amount(
-			purchase_prepaid_asset->accrual_method,
 			purchase_prepaid_asset->extension,
-			purchase_prepaid_asset->estimated_residual_value,
-			purchase_prepaid_asset->estimated_useful_life_years,
-			purchase_prepaid_asset->estimated_useful_life_units,
-			purchase_prepaid_asset->declining_balance_n,
+			purchase_prepaid_asset->accrual_period_years,
 			prior_accrual_date,
 			accrual->accrual_date,
-			purchase_prepaid_asset->accumulated_accrual,
-			arrived_date_string,
-			accrual->units_produced );
+			purchase_prepaid_asset->accumulated_accrual );
+
+insert_transaction:
 
 	if ( accrual->transaction_date_time )
 	{
@@ -705,24 +743,26 @@ void post_change_accrual_insert(
 		0 /* check_number */,
 		1 /* lock_transaction */ );
 
-	if ( ( propagate_account_list =
-		accrual_journal_ledger_refresh(
-			application_name,
-			purchase_order->fund_name,
-			accrual->transaction->full_name,
-			accrual->transaction->street_address,
-			accrual->
-				transaction->
-				transaction_date_time,
-			accrual->accrual_amount ) ) )
-	{
-		ledger_account_list_balance_update(
-			propagate_account_list,
-			application_name,
-			accrual->
-				transaction->
-				transaction_date_time );
-	}
+	accrual_journal_ledger_refresh(
+		application_name,
+		accrual->transaction->full_name,
+		accrual->transaction->street_address,
+		accrual->
+			transaction->
+			transaction_date_time,
+		accrual->accrual_amount,
+		purchase_prepaid_asset->asset_account_name,
+		purchase_prepaid_asset->expense_account_name );
+
+	ledger_propagate(
+		application_name,
+		accrual->transaction_date_time,
+		purchase_prepaid_asset->asset_account_name );
+
+	ledger_propagate(
+		application_name,
+		accrual->transaction_date_time,
+		purchase_prepaid_asset->expense_account_name );
 
 	accrual_update(
 		application_name,
@@ -736,8 +776,9 @@ void post_change_accrual_insert(
 		accrual->transaction_date_time,
 		accrual->database_transaction_date_time );
 
-	purchase_prepaid_asset->accumulated_accrual +=
-		accrual->accrual_amount;
+	/* Add the accumulated_accrual */
+	/* --------------------------- */
+	purchase_prepaid_asset->accumulated_accrual += accrual->accrual_amount;
 
 	purchase_prepaid_asset_update(
 		application_name,
@@ -777,14 +818,14 @@ void post_change_accrual_entity(
 		exit( 1 );
 	}
 
-	if ( !list_rewind( purchase_order->prepaid_asset_purchase_list ) )
+	if ( !list_rewind( purchase_order->purchase_prepaid_asset_list ) )
 		return;
 
 	do {
 		purchase_prepaid_asset =
 			list_get_pointer(
 				purchase_order->
-					prepaid_asset_purchase_list );
+					purchase_prepaid_asset_list );
 
 		if ( !purchase_prepaid_asset->accrual_list )
 		{
@@ -833,7 +874,7 @@ void post_change_accrual_entity(
 
 		} while( list_next( purchase_prepaid_asset->accrual_list ) );
 
-	} while( list_next( purchase_order->prepaid_asset_purchase_list ) );
+	} while( list_next( purchase_order->purchase_prepaid_asset_list ) );
 
 } /* post_change_accrual_entity() */
 

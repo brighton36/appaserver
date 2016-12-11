@@ -704,28 +704,49 @@ void post_change_depreciation_insert(
 		{
 			/* If inserting a middle depreciation. */
 			/* ----------------------------------- */
+			prior_depreciation_date =
+				deprecation_get_prior_depreciation_date(
+					purchase_fixed_asset->
+						depreciation_list );
+
+			depreciation =
+				list_get(
+					purchase_fixed_asset->
+						depreciation_list );
+
+			depreciation->depreciation_amount =
+				depreciation_get_amount(
+					purchase_fixed_asset->
+						depreciation_method,
+					purchase_fixed_asset->extension,
+					purchase_fixed_asset->
+						estimated_residual_value,
+					purchase_fixed_asset->
+						estimated_useful_life_years,
+					purchase_fixed_asset->
+						estimated_useful_life_units,
+					purchase_fixed_asset->
+						declining_balance_n,
+					prior_depreciation_date,
+					depreciation->depreciation_date,
+					purchase_fixed_asset->
+						accumulated_depreciation,
+					arrived_date_string,
+					depreciation->units_produced );
+
 			purchase_fixed_asset_depreciation_propagate(
 				purchase_fixed_asset,
 				purchase_order->arrived_date_time,
 				application_name,
 				purchase_order->fund_name );
 
-			return;
+			goto insert_transaction;
 		}
 
-		/* Get the next to the last one. */
-		/* ----------------------------- */
-		list_previous(
-			purchase_fixed_asset->
-					depreciation_list );
-
-		depreciation =
-			list_get(
-				purchase_fixed_asset->
-					depreciation_list );
-
 		prior_depreciation_date =
-			depreciation->depreciation_date;
+			deprecation_get_prior_depreciation_date(
+				purchase_fixed_asset->depreciation_list );
+
 	}
 
 	depreciation =
@@ -746,6 +767,8 @@ void post_change_depreciation_insert(
 			purchase_fixed_asset->accumulated_depreciation,
 			arrived_date_string,
 			depreciation->units_produced );
+
+insert_transaction:
 
 	if ( depreciation->transaction_date_time )
 	{

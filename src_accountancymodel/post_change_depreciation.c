@@ -495,7 +495,7 @@ void post_change_depreciation_date_update(
 	depreciation->transaction->transaction_date_time =
 		depreciation->transaction_date_time;
 
-	purchase_fixed_asset_depreciation_propagate(
+	purchase_depreciation_update_and_transaction_propagate(
 		purchase_fixed_asset,
 		purchase_order->arrived_date_time,
 		application_name,
@@ -606,7 +606,7 @@ void post_change_depreciation_delete(
 
 	list_delete_current( purchase_fixed_asset->depreciation_list );
 
-	purchase_fixed_asset_depreciation_propagate(
+	purchase_depreciation_update_and_transaction_propagate(
 		purchase_fixed_asset,
 		arrived_date_time,
 		application_name,
@@ -734,13 +734,13 @@ void post_change_depreciation_insert(
 					arrived_date_string,
 					depreciation->units_produced );
 
-			purchase_fixed_asset_depreciation_propagate(
+			purchase_depreciation_update_and_transaction_propagate(
 				purchase_fixed_asset,
 				purchase_order->arrived_date_time,
 				application_name,
 				purchase_order->fund_name );
 
-			goto insert_transaction;
+			return;
 		}
 
 		prior_depreciation_date =
@@ -767,8 +767,6 @@ void post_change_depreciation_insert(
 			purchase_fixed_asset->accumulated_depreciation,
 			arrived_date_string,
 			depreciation->units_produced );
-
-insert_transaction:
 
 	if ( depreciation->transaction_date_time )
 	{

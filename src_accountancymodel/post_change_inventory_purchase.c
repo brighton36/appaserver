@@ -360,14 +360,13 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 					sum_specific_inventory_unit_cost,
 				purchase_order->sum_supply_extension,
 				purchase_order->sum_service_extension,
-				purchase_order->sum_fixed_asset_extension,
 				purchase_order->sales_tax,
 				purchase_order->freight_in,
 				purchase_order->purchase_amount,
 				purchase_order->inventory_purchase_list,
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
-				purchase_order->fixed_asset_purchase_list );
+				purchase_order->purchase_asset_account_list );
 
 		ledger_account_list_balance_update(
 			purchase_order->propagate_account_list,
@@ -468,14 +467,13 @@ void post_change_inventory_purchase_insert_FOB_destination(
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,
-			purchase_order->sum_fixed_asset_extension,
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
 			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
-				purchase_order->fixed_asset_purchase_list );
+			purchase_order->purchase_asset_account_list );
 
 	ledger_account_list_balance_update(
 		purchase_order->propagate_account_list,
@@ -550,14 +548,13 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,
-			purchase_order->sum_fixed_asset_extension,
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
 			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list );
+			purchase_order->purchase_asset_account_list );
 
 	ledger_account_list_balance_update(
 		purchase_order->propagate_account_list,
@@ -821,12 +818,14 @@ void post_change_inventory_purchase_ordered_quantity_update(
 			&purchase_order->sum_supply_extension,
 			&purchase_order->sum_service_extension,
 			&purchase_order->sum_fixed_asset_extension,
+			&purchase_order->sum_prepaid_asset_extension,
 			&purchase_order->sum_extension,
 			purchase_order->inventory_purchase_list,
 			purchase_order->specific_inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list,
+			purchase_order->prepaid_asset_purchase_list,
 			purchase_order->sales_tax,
 			purchase_order->freight_in );
 
@@ -868,14 +867,13 @@ void post_change_inventory_purchase_ordered_quantity_update(
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,
-			purchase_order->sum_fixed_asset_extension,
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
 			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list );
+			purchase_order->purchase_asset_account_list );
 
 	ledger_propagate_accounts(
 		purchase_order->propagate_account_list,
@@ -913,12 +911,14 @@ void post_change_inventory_purchase_unit_cost_update(
 			&purchase_order->sum_supply_extension,
 			&purchase_order->sum_service_extension,
 			&purchase_order->sum_fixed_asset_extension,
+			&purchase_order->sum_prepaid_asset_extension,
 			&purchase_order->sum_extension,
 			purchase_order->inventory_purchase_list,
 			purchase_order->specific_inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list,
+			purchase_order->prepaid_asset_purchase_list,
 			purchase_order->sales_tax,
 			purchase_order->freight_in );
 
@@ -960,14 +960,13 @@ void post_change_inventory_purchase_unit_cost_update(
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,
-			purchase_order->sum_fixed_asset_extension,
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
 			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list );
+			purchase_order->purchase_asset_account_list );
 
 	ledger_propagate_accounts(
 		purchase_order->propagate_account_list,
@@ -1012,12 +1011,14 @@ void post_change_inventory_purchase_delete(
 			&purchase_order->sum_supply_extension,
 			&purchase_order->sum_service_extension,
 			&purchase_order->sum_fixed_asset_extension,
+			&purchase_order->sum_prepaid_asset_extension,
 			&purchase_order->sum_extension,
 			purchase_order->inventory_purchase_list,
 			purchase_order->specific_inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list,
+			purchase_order->prepaid_asset_purchase_list,
 			purchase_order->sales_tax,
 			purchase_order->freight_in );
 
@@ -1062,14 +1063,13 @@ void post_change_inventory_purchase_delete(
 					sum_specific_inventory_unit_cost,
 				purchase_order->sum_supply_extension,
 				purchase_order->sum_service_extension,
-				purchase_order->sum_fixed_asset_extension,
 				purchase_order->sales_tax,
 				purchase_order->freight_in,
 				purchase_order->purchase_amount,
 				purchase_order->inventory_purchase_list,
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
-				purchase_order->fixed_asset_purchase_list );
+				purchase_order->purchase_asset_account_list );
 
 		ledger_account_list_balance_update(
 			purchase_order->propagate_account_list,

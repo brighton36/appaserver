@@ -214,14 +214,13 @@ void post_change_fixed_asset_purchase_insert(
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,
-			purchase_order->sum_fixed_asset_extension,
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
 			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list );
+			purchase_order->purchase_asset_account_list );
 
 	ledger_account_list_balance_update(
 		purchase_order->propagate_account_list,
@@ -262,12 +261,14 @@ void post_change_fixed_asset_purchase_delete(
 			&purchase_order->sum_supply_extension,
 			&purchase_order->sum_service_extension,
 			&purchase_order->sum_fixed_asset_extension,
+			&purchase_order->sum_prepaid_asset_extension,
 			&purchase_order->sum_extension,
 			purchase_order->inventory_purchase_list,
 			purchase_order->specific_inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list,
+			purchase_order->prepaid_asset_purchase_list,
 			purchase_order->sales_tax,
 			purchase_order->freight_in );
 
@@ -308,14 +309,13 @@ void post_change_fixed_asset_purchase_delete(
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
 			purchase_order->sum_service_extension,
-			purchase_order->sum_fixed_asset_extension,
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
 			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list );
+			purchase_order->purchase_asset_account_list );
 
 	ledger_account_list_balance_update(
 		purchase_order->propagate_account_list,
@@ -408,7 +408,7 @@ void post_change_fixed_asset_purchase_update(
 	if (	declining_balance_n_change_state ==
 		from_something_to_something_else )
 	{
-		purchase_fixed_asset_depreciation_propagate(
+		purchase_depreciation_update_and_transaction_propagate(
 			purchase_fixed_asset,
 			purchase_order->arrived_date_time,
 			application_name,
@@ -431,7 +431,7 @@ void post_change_fixed_asset_purchase_update(
 	||  	depreciation_method_change_state ==
 		from_something_to_null )
 	{
-		purchase_fixed_asset_depreciation_propagate(
+		purchase_depreciation_update_and_transaction_propagate(
 			purchase_fixed_asset,
 			purchase_order->arrived_date_time,
 			application_name,
@@ -471,15 +471,14 @@ void post_change_fixed_asset_purchase_transaction_update(
 			purchase_order->transaction_date_time,
 			purchase_order->sum_specific_inventory_unit_cost,
 			purchase_order->sum_supply_extension,
-			purchase_order->sum_fixed_asset_extension,
-			purchase_order->sum_fixed_asset_extension,
+			purchase_order->sum_service_extension,
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
 			purchase_order->purchase_amount,
 			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list );
+			purchase_order->purchase_asset_account_list );
 
 	ledger_account_list_balance_update(
 		purchase_order->propagate_account_list,

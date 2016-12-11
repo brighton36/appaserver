@@ -103,6 +103,7 @@ SOURCE_LIBRARY= 							\
 		customer.o						\
 		inventory.o						\
 		depreciation.o						\
+		accrual.o						\
 		entity.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}

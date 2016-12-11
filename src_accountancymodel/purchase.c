@@ -2708,7 +2708,7 @@ void purchase_fixed_asset_list_depreciation_method_update(
 	do {
 		purchase_fixed_asset = list_get( purchase_fixed_asset_list );
 
-		purchase_fixed_asset_depreciation_propagate(
+		purchase_depreciation_update_and_transaction_propagate(
 			purchase_fixed_asset,
 			arrived_date_time,
 			application_name,
@@ -2755,7 +2755,7 @@ void purchase_fixed_asset_depreciation_delete(
 
 } /* purchase_fixed_asset_depreciation_delete() */
 
-void purchase_fixed_asset_depreciation_propagate(
+void purchase_depreciation_update_and_transaction_propagate(
 			PURCHASE_FIXED_ASSET *purchase_fixed_asset,
 			char *arrived_date_time,
 			char *application_name,
@@ -2790,7 +2790,7 @@ void purchase_fixed_asset_depreciation_propagate(
 				0, 
 				arrived_date_time ) );
 
-	depreciation_list_update(
+	depreciation_list_update_and_transaction_propagate(
 		purchase_fixed_asset->depreciation_list,
 		application_name,
 		fund_name );
@@ -2806,7 +2806,7 @@ void purchase_fixed_asset_depreciation_propagate(
 			purchase_fixed_asset->
 				database_accumulated_depreciation );
 
-} /* purchase_fixed_asset_depreciation_propagate() */
+} /* purchase_depreciation_update_and_transaction_propagate() */
 
 PURCHASE_ASSET_ACCOUNT *purchase_asset_account_new(
 					char *account_name )
@@ -3200,7 +3200,7 @@ void purchase_prepaid_asset_update(
 
 } /* purchase_prepaid_asset_update() */
 
-void purchase_prepaid_asset_accrual_propagate(
+void purchase_accrual_update_and_transaction_propagate(
 			PURCHASE_PREPAID_ASSET *purchase_prepaid_asset,
 			char *arrived_date_string,
 			char *application_name )
@@ -3225,7 +3225,7 @@ void purchase_prepaid_asset_accrual_propagate(
 			purchase_prepaid_asset->extension,
 			purchase_prepaid_asset->accrual_period_years );
 
-	accrual_list_update(
+	accrual_list_update_and_transaction_propagate(
 		purchase_prepaid_asset->accrual_list,
 		application_name,
 		purchase_prepaid_asset->asset_account_name,
@@ -3241,5 +3241,5 @@ void purchase_prepaid_asset_accrual_propagate(
 			purchase_prepaid_asset->
 				database_accumulated_accrual );
 
-} /* purchase_prepaid_asset_accrual_propagate() */
+} /* purchase_accrual_update_and_transaction_propagate() */
 

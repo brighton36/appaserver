@@ -284,7 +284,7 @@ double purchase_order_get_purchase_amount(
 				LIST *supply_purchase_list,
 				LIST *service_purchase_list,
 				LIST *fixed_asset_purchase_list,
-				LIST *fixed_prepaid_purchase_list,
+				LIST *prepaid_asset_purchase_list,
 				double sales_tax,
 				double freight_in );
 
@@ -538,7 +538,7 @@ void purchase_prepaid_asset_propagate(
 				char *application_name,
 				char *fund_name );
 
-void purchase_fixed_asset_depreciation_propagate(
+void purchase_depreciation_update_and_transaction_propagate(
 				PURCHASE_FIXED_ASSET *purchase_fixed_asset,
 				char *arrived_date_time,
 				char *application_name,
@@ -612,6 +612,17 @@ void purchase_prepaid_asset_update(
 				double database_accumulated_accrual );
 
 char *purchase_prepaid_asset_get_update_sys_string(
+				char *application_name );
+
+void purchase_depreciation_update_and_transaction_propagate(
+				PURCHASE_FIXED_ASSET *purchase_fixed_asset,
+				char *arrived_date_time,
+				char *application_name,
+				char *fund_name );
+
+void purchase_accrual_update_and_transaction_propagate(
+				PURCHASE_PREPAID_ASSET *purchase_prepaid_asset,
+				char *arrived_date_string,
 				char *application_name );
 
 #endif

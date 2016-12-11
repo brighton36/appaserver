@@ -420,7 +420,7 @@ double accrual_list_set(
 
 } /* accrual_list_set() */
 
-void accrual_list_update(
+void accrual_list_update_and_transaction_propagate(
 				LIST *accrual_list,
 				char *application_name,
 				char *asset_account_name,
@@ -501,7 +501,7 @@ void accrual_list_update(
 		propagate_transaction_date_time,
 		expense_account_name );
 
-} /* accrual_list_update() */
+} /* accrual_list_update_and_transaction_propagate() */
 
 void accrual_list_delete(
 			LIST *accrual_list,

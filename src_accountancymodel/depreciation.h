@@ -143,7 +143,7 @@ double depreciation_list_set(
 			int declining_balance_n,
 			char *arrived_date_string );
 
-void depreciation_list_update(
+void depreciation_list_update_and_transaction_propagate(
 			LIST *depreciation_list,
 			char *application_name,
 			char *fund_name );

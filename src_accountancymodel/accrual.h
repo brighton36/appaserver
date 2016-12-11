@@ -106,7 +106,7 @@ double accrual_list_set(
 			double extension,
 			double accrual_period_years );
 
-void accrual_list_update(
+void accrual_list_update_and_transaction_propagate(
 			LIST *accrual_list,
 			char *application_name,
 			char *asset_account_name,

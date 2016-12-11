@@ -726,7 +726,7 @@ double depreciation_list_set(
 
 } /* depreciation_list_set() */
 
-void depreciation_list_update(
+void depreciation_list_update_and_transaction_propagate(
 		LIST *depreciation_list,
 		char *application_name,
 		char *fund_name )
@@ -814,7 +814,7 @@ void depreciation_list_update(
 		propagate_transaction_date_time,
 		accumulated_depreciation_account );
 
-} /* depreciation_list_update() */
+} /* depreciation_list_update_and_transaction_propagate() */
 
 void depreciation_list_delete(
 			LIST *depreciation_list,

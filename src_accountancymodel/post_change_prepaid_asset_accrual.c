@@ -377,37 +377,6 @@ void post_change_accrual_date_update(
 		exit( 1 );
 	}
 
-/*
-	if ( ! ( purchase_order =
-			purchase_order_new(
-				application_name,
-				full_name,
-				street_address,
-				purchase_date_time ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load purchase_order.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( ! ( purchase_prepaid_asset =
-			purchase_prepaid_asset_list_seek(
-				purchase_order->prepaid_asset_purchase_list,
-				asset_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot seek prepaid_prepaid_asset = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 asset_name );
-		exit( 1 );
-	}
-*/
-
 	if ( !purchase_prepaid_asset->accrual_list )
 	{
 		purchase_prepaid_asset->accrual_list =
@@ -468,7 +437,7 @@ void post_change_accrual_date_update(
 	accrual->transaction->transaction_date_time =
 		accrual->transaction_date_time;
 
-	purchase_prepaid_asset_accrual_propagate(
+	purchase_accrual_update_and_transaction_propagate(
 		purchase_prepaid_asset,
 		arrived_date_string,
 		application_name );
@@ -584,7 +553,6 @@ void post_change_accrual_insert(
 {
 	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
 	ACCRUAL *accrual;
-	LIST *propagate_account_list;
 	char *prior_accrual_date;
 	char *arrived_date_time;
 	char arrived_date_string[ 16 ];
@@ -684,12 +652,12 @@ void post_change_accrual_insert(
 					purchase_prepaid_asset->
 						accumulated_accrual );
 
-			purchase_prepaid_asset_accrual_propagate(
+			purchase_accrual_update_and_transaction_propagate(
 				purchase_prepaid_asset,
 				arrived_date_string,
 				application_name );
 
-			goto insert_transaction;
+			return;
 		}
 
 		prior_accrual_date =
@@ -709,8 +677,6 @@ void post_change_accrual_insert(
 			prior_accrual_date,
 			accrual->accrual_date,
 			purchase_prepaid_asset->accumulated_accrual );
-
-insert_transaction:
 
 	if ( accrual->transaction_date_time )
 	{
@@ -818,14 +784,14 @@ void post_change_accrual_entity(
 		exit( 1 );
 	}
 
-	if ( !list_rewind( purchase_order->purchase_prepaid_asset_list ) )
+	if ( !list_rewind( purchase_order->prepaid_asset_purchase_list ) )
 		return;
 
 	do {
 		purchase_prepaid_asset =
 			list_get_pointer(
 				purchase_order->
-					purchase_prepaid_asset_list );
+					prepaid_asset_purchase_list );
 
 		if ( !purchase_prepaid_asset->accrual_list )
 		{
@@ -839,9 +805,7 @@ void post_change_accrual_entity(
 					purchase_prepaid_asset->asset_name );
 		}
 
-		if ( !list_rewind(
-			purchase_prepaid_asset->
-				accrual_list ) )
+		if ( !list_rewind( purchase_prepaid_asset->accrual_list ) )
 		{
 			continue;
 		}
@@ -874,7 +838,7 @@ void post_change_accrual_entity(
 
 		} while( list_next( purchase_prepaid_asset->accrual_list ) );
 
-	} while( list_next( purchase_order->purchase_prepaid_asset_list ) );
+	} while( list_next( purchase_order->prepaid_asset_purchase_list ) );
 
 } /* post_change_accrual_entity() */
 

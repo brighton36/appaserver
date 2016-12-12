@@ -34,6 +34,7 @@ ACCRUAL *accrual_calloc( void )
 	}
 
 	return p;
+
 } /* accrual_calloc() */
 
 char *accrual_get_select( void )
@@ -44,7 +45,7 @@ char *accrual_get_select( void )
 	return select;
 }
 
-ACCRUAL *accrual_parse(	char *application_name,
+ACCRUAL *accrual_parse(			char *application_name,
 					char *input_buffer )
 {
 	ACCRUAL *accrual;
@@ -201,7 +202,11 @@ char *accrual_get_update_sys_string(
 	char *table_name;
 	char *key;
 
-	table_name = get_table_name( application_name, "accrual" );
+	table_name =
+		get_table_name(
+			application_name,
+			"prepaid_asset_accrual" );
+
 	key =
 "full_name,street_address,purchase_date_time,asset_name,accrual_date";
 
@@ -327,7 +332,7 @@ LIST *accrual_fetch_list(
 	char sys_string[ 1024 ];
 	char *ledger_where;
 	char buffer[ 128 ];
-	char where[ 256 ];
+	char where[ 512 ];
 	FILE *input_pipe;
 	char input_buffer[ 1024 ];
 

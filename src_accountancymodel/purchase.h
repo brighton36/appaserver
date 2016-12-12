@@ -625,5 +625,15 @@ void purchase_accrual_update_and_transaction_propagate(
 				char *arrived_date_string,
 				char *application_name );
 
+char *purchase_fixed_asset_get_account_name(
+				char *application_name,
+				char *asset_name );
+
+boolean purchase_prepaid_asset_get_account_names(
+				char **asset_account_name,
+				char **expense_account_name,
+				char *application_name,
+				char *asset_name );
+
 #endif
 

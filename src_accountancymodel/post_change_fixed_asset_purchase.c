@@ -26,6 +26,7 @@
 
 /* Prototypes */
 /* ---------- */
+/*
 void post_change_fixed_asset_purchase_transaction_update(
 			PURCHASE_ORDER *purchase_order,
 			char *application_name,
@@ -33,6 +34,7 @@ void post_change_fixed_asset_purchase_transaction_update(
 			char *serial_number,
 			char *preupdate_asset_name,
 			char *preupdate_serial_number );
+*/
 
 void post_change_fixed_asset_purchase_delete(
 			char *application_name,
@@ -340,6 +342,8 @@ void post_change_fixed_asset_purchase_update(
 	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
 	enum preupdate_change_state declining_balance_n_change_state;
 	enum preupdate_change_state depreciation_method_change_state;
+	enum preupdate_change_state asset_name_change_state;
+	enum preupdate_change_state serial_number_change_state;
 
 	purchase_order =
 		purchase_order_new(
@@ -405,6 +409,24 @@ void post_change_fixed_asset_purchase_update(
 			(char *)0 /* postupdate_data */,
 			"preupdate_declining_balance_n" );
 
+	asset_name_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_asset_name,
+			asset_name /* postupdate_data */,
+			"preupdate_asset_name" );
+
+	serial_number_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_serial_number,
+			serial_number /* postupdate_data */,
+			"preupdate_serial_number" );
+
+	if ( serial_number_change_state )
+	{
+		/* do nothing */
+	}
+
+
 	if (	declining_balance_n_change_state ==
 		from_something_to_something_else )
 	{
@@ -413,17 +435,6 @@ void post_change_fixed_asset_purchase_update(
 			purchase_order->arrived_date_time,
 			application_name,
 			purchase_order->fund_name );
-
-		if ( purchase_order->transaction )
-		{
-			post_change_fixed_asset_purchase_transaction_update(
-				purchase_order,
-				application_name,
-				asset_name,
-				serial_number,
-				preupdate_asset_name,
-				preupdate_serial_number );
-		}
 	}
 
 	if (	depreciation_method_change_state ==
@@ -436,21 +447,47 @@ void post_change_fixed_asset_purchase_update(
 			purchase_order->arrived_date_time,
 			application_name,
 			purchase_order->fund_name );
+	}
 
-		if ( purchase_order->transaction )
+	if ( !purchase_order->transaction ) return;
+
+	if (	asset_name_change_state ==
+		from_something_to_something_else )
+	{
+		char *preupdate_account_name;
+
+		ledger_propagate(
+			application_name,
+			purchase_order->transaction_date_time,
+			purchase_fixed_asset->account_name );
+
+		if ( ! ( preupdate_account_name =
+				purchase_fixed_asset_get_account_name(
+					application_name,
+					preupdate_asset_name ) ) )
 		{
-			post_change_fixed_asset_purchase_transaction_update(
-				purchase_order,
+			fprintf( stderr,
+"Warning in %s/%s()/%d: cannot get account_name for asset_name = (%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 preupdate_asset_name );
+			return;
+		}
+
+		if ( strcmp(	preupdate_account_name,
+				purchase_fixed_asset->account_name ) != 0 )
+		{
+			ledger_propagate(
 				application_name,
-				asset_name,
-				serial_number,
-				preupdate_asset_name,
-				preupdate_serial_number );
+				purchase_order->transaction_date_time,
+				preupdate_account_name );
 		}
 	}
 
 } /* post_change_fixed_asset_purchase_update() */
 
+#ifdef NOT_DEFINED
 void post_change_fixed_asset_purchase_transaction_update(
 			PURCHASE_ORDER *purchase_order,
 			char *application_name,
@@ -498,4 +535,5 @@ void post_change_fixed_asset_purchase_transaction_update(
 			"preupdate_serial_number" );
 
 } /* post_change_fixed_asset_purchase_transaction_update() */
+#endif
 

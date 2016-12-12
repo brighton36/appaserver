@@ -219,7 +219,7 @@ void post_change_vendor_payment_insert(
 		vendor_payment->transaction_date_time =
 			vendor_payment->payment_date_time;
 	}
-	
+
 	vendor_payment->transaction =
 		ledger_transaction_new(
 			full_name,

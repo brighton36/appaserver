@@ -539,7 +539,8 @@ void post_change_purchase_order_insert_FOB_shipping(
 {
 	/* If it arrived, then it must have been shipped. */
 	/* ---------------------------------------------- */
-	if ( purchase_order->arrived_date_time )
+	if ( purchase_order->arrived_date_time
+	&&   !purchase_order->shipped_date )
 	{
 		char buffer[ 16 ];
 

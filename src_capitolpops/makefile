@@ -74,6 +74,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/dictionary2file.o				\
 		${LEDGER_LIBRARY}/ledger.o				\
+		${LEDGER_LIBRARY}/accrual.o				\
 		${LEDGER_LIBRARY}/purchase.o				\
 		${LEDGER_LIBRARY}/depreciation.o			\
 		${LEDGER_LIBRARY}/customer.o				\

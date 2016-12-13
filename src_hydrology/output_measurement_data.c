@@ -218,93 +218,6 @@ int main( int argc, char **argv )
 	else
 		*end_date_suffix = '\0';
 
-/*
-	if ( output_medium == text_file
-	||   output_medium == output_medium_stdout )
-	{
-		sprintf(output_filename,
-		 	OUTPUT_FILE_TEXT_TEMPLATE,
-		 	appaserver_parameter_file->appaserver_mount_point,
-		 	application_name, 
-		 	station_name,
-		 	datatype,
-		 	begin_date,
-		 	end_date_suffix,
-		 	process_id );
-	}
-
-	if ( output_medium == spreadsheet )
-	{
-		sprintf(output_filename,
-		 	OUTPUT_FILE_CSV_TEMPLATE,
-		 	appaserver_parameter_file->appaserver_mount_point,
-		 	application_name, 
-		 	station_name,
-		 	datatype,
-		 	begin_date,
-		 	end_date_suffix,
-		 	process_id );
-	}
-
-	if ( output_medium == text_file )
-	{
-		if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_PREPEND_FILE_TEXT_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	station_name,
-			 	datatype,
-			 	begin_date,
-			 	end_date_suffix,
-			 	process_id );
-		}
-		else
-		{
-			sprintf( ftp_filename, 
-			 	FTP_NONPREPEND_FILE_TEXT_TEMPLATE, 
-			 	application_name,
-			 	station_name,
-			 	datatype,
-			 	begin_date,
-			 	end_date_suffix,
-			 	process_id );
-		}
-	}
-
-	if ( output_medium == spreadsheet )
-	{
-		if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_PREPEND_FILE_CSV_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	station_name,
-			 	datatype,
-			 	begin_date,
-			 	end_date_suffix,
-			 	process_id );
-		}
-		else
-		{
-			sprintf( ftp_filename, 
-			 	FTP_NONPREPEND_FILE_CSV_TEMPLATE, 
-			 	application_name,
-			 	station_name,
-			 	datatype,
-			 	begin_date,
-			 	end_date_suffix,
-			 	process_id );
-		}
-	}
-*/
-
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_get_http_prefix( application_name ),
@@ -430,26 +343,6 @@ int main( int argc, char **argv )
 		date_time_delimiter = '/';
 	}
 
-	sys_string = get_sys_string(	
-			application_name,
-			output_filename,
-			where_clause,
-			sort_process,
-			aggregate_level,
-			aggregate_statistic,
-			datatype,
-			DATE_PIECE,
-			VALUE_PIECE,
-			STATION_PIECE,
-			appaserver_parameter_file->appaserver_mount_point,
-			transmit_validation_info_yn,
-			units_converted,
-			end_date,
-			accumulate_flag,
-			format_process,
-			date_time_delimiter,
-			zulu_time );
-
 	if ( output_medium == table )
 	{
 		FILE *input_pipe;
@@ -457,6 +350,27 @@ int main( int argc, char **argv )
 		FILE *output_pipe;
 		char justify_column_list_string[ 256 ];
 		char title[ 512 ];
+
+		sys_string = get_sys_string(	
+				application_name,
+				(char *)0 /* output_filename */,
+				where_clause,
+				sort_process,
+				aggregate_level,
+				aggregate_statistic,
+				datatype,
+				DATE_PIECE,
+				VALUE_PIECE,
+				STATION_PIECE,
+				appaserver_parameter_file->
+					appaserver_mount_point,
+				transmit_validation_info_yn,
+				units_converted,
+				end_date,
+				accumulate_flag,
+				format_process,
+				date_time_delimiter,
+				zulu_time );
 
 		document = document_new( "", application_name );
 		document_set_output_content_type( document );
@@ -538,6 +452,27 @@ int main( int argc, char **argv )
 				station_name,
 				0 /* not with_zap_file */ );
 
+		sys_string = get_sys_string(	
+				application_name,
+				output_filename,
+				where_clause,
+				sort_process,
+				aggregate_level,
+				aggregate_statistic,
+				datatype,
+				DATE_PIECE,
+				VALUE_PIECE,
+				STATION_PIECE,
+				appaserver_parameter_file->
+					appaserver_mount_point,
+				transmit_validation_info_yn,
+				units_converted,
+				end_date,
+				accumulate_flag,
+				format_process,
+				date_time_delimiter,
+				zulu_time );
+
 		system( sys_string );
 		sprintf( sys_string, "cat %s", output_filename );
 		system( sys_string );
@@ -552,6 +487,27 @@ int main( int argc, char **argv )
 				application_name,
 				station_name,
 				0 /* not with_zap_file */ );
+
+		sys_string = get_sys_string(	
+				application_name,
+				output_filename,
+				where_clause,
+				sort_process,
+				aggregate_level,
+				aggregate_statistic,
+				datatype,
+				DATE_PIECE,
+				VALUE_PIECE,
+				STATION_PIECE,
+				appaserver_parameter_file->
+					appaserver_mount_point,
+				transmit_validation_info_yn,
+				units_converted,
+				end_date,
+				accumulate_flag,
+				format_process,
+				date_time_delimiter,
+				zulu_time );
 
 		system( sys_string );
 
@@ -616,13 +572,6 @@ int main( int argc, char **argv )
 		}
 		document_close();
 	}
-
-/*
-	process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
-*/
 
 	return 0;
 
@@ -898,7 +847,7 @@ char *get_sys_string(	char *application_name,
 			accumulate_label );
 	}
 
-	if ( *output_filename )
+	if ( output_filename && *output_filename )
 		sprintf( output_process, ">> %s", output_filename );
 	else
 		*output_process = '\0';

@@ -170,6 +170,8 @@ clean:
 	${CGI_HOME}/post_login						\
 	${CGI_HOME}/post_login_cloudacus				\
 	get_appaserver_error_directory					\
+	get_appaserver_data_directory					\
+	get_document_root						\
 	sql								\
 	sql_quick							\
 	s								\
@@ -200,15 +202,24 @@ get_appaserver_mount_point: get_appaserver_mount_point.c 		\
 	touch get_appaserver_home.e
 	/bin/rm -f get_appaserver_home.e
 	ln get_appaserver_mount_point get_appaserver_home.e
-	touch get_appaserver_error_directory.e
-	/bin/rm -f get_appaserver_error_directory.e
-	ln get_appaserver_mount_point get_appaserver_error_directory.e
 	touch get_appaserver_error_directory
 	/bin/rm -f get_appaserver_error_directory
 	ln get_appaserver_mount_point get_appaserver_error_directory
+	touch get_appaserver_error_directory.e
+	/bin/rm -f get_appaserver_error_directory.e
+	ln get_appaserver_mount_point get_appaserver_error_directory.e
+	touch get_document_root
+	/bin/rm -f get_document_root
+	ln get_appaserver_mount_point get_document_root
 	touch get_document_root.e
 	/bin/rm -f get_document_root.e
 	ln get_appaserver_mount_point get_document_root.e
+	touch get_appaserver_data_directory
+	/bin/rm -f get_appaserver_data_directory
+	ln get_appaserver_mount_point get_appaserver_data_directory
+	touch get_appaserver_data_directory.e
+	/bin/rm -f get_appaserver_data_directory.e
+	ln get_appaserver_mount_point get_appaserver_data_directory.e
 
 stop_start_mysql_daemon: stop_start_mysql_daemon.c 			\
 	${EXTERNAL_LIBS}

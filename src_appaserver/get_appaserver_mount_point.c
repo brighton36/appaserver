@@ -11,39 +11,46 @@
 
 int main( int argc, char **argv )
 {
-	char *appaserver_mount_point;
+	char *output;
 
 	argc = 1; /* stub */
 
+	if ( strcmp( *argv, "get_appaserver_data_directory" ) == 0
+	||   strcmp( *argv, "get_appaserver_data_directory.e" ) == 0 )
+	{
+		output =
+		appaserver_parameter_file_get_appaserver_data_directory();
+	}
+	else
 	if ( strcmp( *argv, "get_document_root" ) == 0
 	||   strcmp( *argv, "get_document_root.e" ) == 0 )
 	{
-		appaserver_mount_point =
+		output =
 		appaserver_parameter_file_get_document_root();
 	}
 	else
 	if ( strcmp( *argv, "get_appaserver_error_directory" ) == 0
 	||   strcmp( *argv, "get_appaserver_error_directory.e" ) == 0 )
 	{
-		appaserver_mount_point =
+		output =
 		appaserver_parameter_file_get_appaserver_error_directory();
 	}
 	else
 	{
-		appaserver_mount_point =
+		output =
 			appaserver_parameter_file_get_appaserver_mount_point();
 	}
 
 
-	if ( !appaserver_mount_point )
+	if ( !output )
 	{
 		fprintf( stderr,
-	 		 "%s failed. Check node in datafile.\n",
+	 		 "%s failed: Check appaserver.config\n",
 			 argv[ 0 ] );
 		exit( 1 );
 
 	}
-	printf( "%s\n", appaserver_mount_point );
+	printf( "%s\n", output );
 	return 0;
 }
 

@@ -34,6 +34,7 @@
 #include "hydrology_library.h"
 #include "expected_count.h"
 #include "application_constants.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
@@ -41,6 +42,7 @@
 #define PROCESS_NAME		"output_merged_datasets"
 #define KEY_DELIMITER				'/'
 
+/*
 #define OUTPUT_FILE_TEXT_FILE	"%s/%s/merged_datasets_%s_%s_%d.txt"
 #define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/merged_datasets_%s_%s_%d.txt"
 #define FTP_FILE_TEXT_FILE	"/%s/merged_datasets_%s_%s_%d.txt"
@@ -48,6 +50,7 @@
 #define OUTPUT_FILE_SPREADSHEET	"%s/%s/merged_datasets_%s_%s_%d.csv"
 #define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/merged_datasets_%s_%s_%d.csv"
 #define FTP_FILE_SPREADSHEET	"/%s/merged_datasets_%s_%s_%d.csv"
+*/
 
 #define ROWS_BETWEEN_HEADING			20
 #define SELECT_LIST				 "measurement_date,measurement_time,measurement_value"
@@ -205,9 +208,9 @@ int main( int argc, char **argv )
 	char *omit_output_if_any_missing_yn;
 	char *database_string = {0};
 	char *display_count_yn = {0};
-	int right_justified_columns_from_right;
 	boolean data_collection_frequency_out_of_sync = 0;
 	boolean date_range_period_of_record = 0;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	if ( argc != 7 )
 	{
@@ -318,7 +321,6 @@ int main( int argc, char **argv )
 		dictionary_get_index_list( 	parameter_dictionary,
 						"datatype" );
 
-	right_justified_columns_from_right = list_length( station_name_list );
 
 	if ( list_length( datatype_name_list ) == 0 )
 	{
@@ -518,13 +520,62 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( merged_output, "spreadsheet" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_filename[ 256 ];
+		char *output_filename;
+		char *ftp_filename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		FILE *output_file;
 		char sys_string[ 1024 ];
 
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				PROCESS_NAME /* filename_stem */,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		appaserver_link_file->begin_date_string = begin_date;
+		appaserver_link_file->end_date_string = end_date;
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+/*
 		sprintf( output_filename, 
 			 OUTPUT_FILE_SPREADSHEET,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -532,6 +583,7 @@ int main( int argc, char **argv )
 			 begin_date,
 			 end_date,
 			 process_id );
+*/
 	
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -551,6 +603,7 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -572,6 +625,7 @@ int main( int argc, char **argv )
 			 	end_date,
 			 	process_id );
 		}
+*/
 	
 		merged_datasets_output_transmit(
 					output_pipe,
@@ -613,13 +667,63 @@ int main( int argc, char **argv )
 	if ( strcmp( merged_output, "transmit" ) == 0
 	||   strcmp( merged_output, "text_file" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_filename[ 256 ];
+		char *output_filename;
+		char *ftp_filename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		FILE *output_file;
 		char sys_string[ 1024 ];
 
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				PROCESS_NAME /* filename_stem */,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"txt" );
+
+		appaserver_link_file->begin_date_string = begin_date;
+		appaserver_link_file->end_date_string = end_date;
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+
+/*
 		sprintf( output_filename, 
 			 OUTPUT_FILE_TEXT_FILE,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -627,6 +731,7 @@ int main( int argc, char **argv )
 			 begin_date,
 			 end_date,
 			 process_id );
+*/
 	
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -641,6 +746,8 @@ int main( int argc, char **argv )
 		}
 
 /*
+	int right_justified_columns_from_right;
+	right_justified_columns_from_right = list_length( station_name_list );
 		sprintf( sys_string,
 			 "delimiter2padded_columns.e '|' %d > %s",
 		 	 right_justified_columns_from_right,
@@ -653,6 +760,7 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -674,6 +782,7 @@ int main( int argc, char **argv )
 			 	end_date,
 			 	process_id );
 		}
+*/
 	
 		merged_datasets_output_transmit(
 					output_pipe,

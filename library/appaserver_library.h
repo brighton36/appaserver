@@ -28,6 +28,7 @@ enum preupdate_change_state {		from_null_to_something,
 
 /* Constants */
 /* ========= */
+#define MULTI_ATTRIBUTE_DATA_DISPLAY_DELIMITER	"&#151;"
 #define HORIZONTAL_MENU_RELATIVE_DIRECTORY	"zmenu"
 #define CALENDAR_RELATIVE_DIRECTORY		"zscal2"
 #define IMAGE_RELATIVE_DIRECTORY		"zimages"
@@ -67,7 +68,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define ERROR_HEADING				"appaserver error"
 #define INSERT_IDENTIFIER			"is_insert_row"
 #define MULTI_ATTRIBUTE_NON_DATE_DISPLAY_DELIMITER	"-"
-#define MULTI_ATTRIBUTE_DATE_DISPLAY_DELIMITER		"&#151;"
 #define ROWS_FOR_SUBMIT_AT_BOTTOM			5
 #define PROCESS_PROMPT_DEFAULT_WIDTH			25
 #define BOTTOM_FRAME_NAME			"bottomframe"

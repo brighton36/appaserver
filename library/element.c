@@ -2979,9 +2979,10 @@ char *element_data_delimiter2label_delimiter( char *source_destination )
 	search_replace_string(
 			source_destination,
 			multi_attribute_drop_down_delimiter_string, 
-			MULTI_ATTRIBUTE_DATE_DISPLAY_DELIMITER );
+			MULTI_ATTRIBUTE_DATA_DISPLAY_DELIMITER );
 
 	return source_destination;
+
 } /* element_data_delimiter2label_delimiter() */
 
 char *element_data2label(	char *destination,
@@ -3079,27 +3080,11 @@ char *element_delimit_drop_down_data(	char *destination,
 
 		if ( *source == MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER )
 		{
-/*
-			if ( date_piece_offset != -1
-			&& ( piece_count == date_piece_offset - 1
-			||   piece_count == date_piece_offset ) )
-			{
-				destination +=
-				sprintf(
-				destination,
-				"%s",
-				MULTI_ATTRIBUTE_DATE_DISPLAY_DELIMITER );
-			}
-			else
-			{
-				*destination++ = '-';
-			}
-*/
 			destination +=
 				sprintf(
 				destination,
 				"%s",
-				MULTI_ATTRIBUTE_DATE_DISPLAY_DELIMITER );
+				MULTI_ATTRIBUTE_DATA_DISPLAY_DELIMITER );
 
 			source++;
 			piece_count++;

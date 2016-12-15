@@ -401,6 +401,7 @@ void donation_journal_ledger_refresh_and_propagate(
 	char *debit_account_name;
 	DONATION_FUND *donation_fund;
 	DONATION_PROGRAM *donation_program;
+	double total_transaction_donation_amount = 0.0;
 
 	if ( !list_rewind( donation_fund_list ) ) return;
 
@@ -433,6 +434,9 @@ void donation_journal_ledger_refresh_and_propagate(
 				debit_account_name,
 				donation_fund->total_fund_donation_amount,
 				1 /* is_debit */ );
+
+			total_transaction_donation_amount +=
+				donation_fund->total_fund_donation_amount;
 		}
 
 		ledger_propagate(	application_name,
@@ -465,6 +469,14 @@ void donation_journal_ledger_refresh_and_propagate(
 		} while( list_next( donation_fund->donation_program_list ) );
 
 	} while( list_next( donation_fund_list ) );
+
+	ledger_transaction_amount_update(
+		application_name,
+		full_name,
+		street_address,
+		transaction_date_time,
+		total_transaction_donation_amount,
+		0.0 /* database_transaction_amount */ );
 
 } /* donation_journal_ledger_refresh_and_propagate() */
 

@@ -28,7 +28,6 @@ enum preupdate_change_state {		from_null_to_something,
 
 /* Constants */
 /* ========= */
-#define MULTI_ATTRIBUTE_DATA_DISPLAY_DELIMITER	"&#151;"
 #define HORIZONTAL_MENU_RELATIVE_DIRECTORY	"zmenu"
 #define CALENDAR_RELATIVE_DIRECTORY		"zscal2"
 #define IMAGE_RELATIVE_DIRECTORY		"zimages"

@@ -46,7 +46,12 @@ where_site_visit="$where_join and survey_year = $survey_year and site_visit.lati
 
 # Process
 # -------
-echo "$heading" > $output_file
+if [ "$output_medium" = "table" ]
+then
+	echo "" > $output_file
+else
+	echo "$heading" > $output_file
+fi
 
 echo "select $select_observation_site
 from site_visit,sparrow_observation,observation_site

@@ -2979,7 +2979,7 @@ char *element_data_delimiter2label_delimiter( char *source_destination )
 	search_replace_string(
 			source_destination,
 			multi_attribute_drop_down_delimiter_string, 
-			MULTI_ATTRIBUTE_DATA_DISPLAY_DELIMITER );
+			ELEMENT_MULTI_ATTRIBUTE_DISPLAY_DELIMITER );
 
 	return source_destination;
 
@@ -3084,7 +3084,7 @@ char *element_delimit_drop_down_data(	char *destination,
 				sprintf(
 				destination,
 				"%s",
-				MULTI_ATTRIBUTE_DATA_DISPLAY_DELIMITER );
+				ELEMENT_MULTI_ATTRIBUTE_DISPLAY_DELIMITER );
 
 			source++;
 			piece_count++;

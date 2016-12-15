@@ -22,19 +22,19 @@
 /* ---------- */
 typedef struct
 {
-	char *fund_name;
-	double total_fund_donation_amount;
-	LIST *donation_program_list;
-} DONATION_FUND;
-
-typedef struct
-{
 	char *full_name;
 	char *street_address;
 	char *donation_date;
 	char *account_name;
 	double donation_amount;
 } DONATION_PROGRAM;
+
+typedef struct
+{
+	char *fund_name;
+	double total_fund_donation_amount;
+	LIST *donation_program_list;
+} DONATION_FUND;
 
 typedef struct
 {

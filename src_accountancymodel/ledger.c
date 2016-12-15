@@ -771,18 +771,38 @@ void ledger_list_set_balances(	LIST *ledger_list,
 
 } /* ledger_list_set_balances() */
 
+void ledger_account_list_propagate(
+				LIST *propagate_account_list,
+				char *application_name )
+{
+	ACCOUNT *account;
+
+	if ( !list_rewind( propagate_account_list ) ) return;
+
+	do {
+		account = list_get_pointer( propagate_account_list );
+
+		ledger_journal_ledger_list_propagate(
+				account->journal_ledger_list,
+				application_name );
+
+	} while( list_next( propagate_account_list ) );
+
+} /* ledger_account_list_propagate() */
+
+#ifdef NOT_DEFINED
 void ledger_propagate_accounts(		LIST *propagate_account_list,
 					char *application_name,
 					char *propagate_transaction_date_time )
 {
-	ledger_account_list_balance_update(
+	ledger_account_list_balance_update_and_propagate(
 		propagate_account_list,
 		application_name,
 		propagate_transaction_date_time );
 
 } /* ledger_propagate_accounts() */
 
-void ledger_account_list_balance_update(
+void ledger_account_list_balance_update_and_propagate(
 				LIST *propagate_account_list,
 				char *application_name,
 				char *propagate_transaction_date_time )
@@ -805,9 +825,10 @@ void ledger_account_list_balance_update(
 
 	} while( list_next( propagate_account_list ) );
 
-} /* ledger_account_list_balance_update() */
+} /* ledger_account_list_balance_update_and_propagate() */
+#endif
 
-void ledger_journal_ledger_list_balance_update(
+void ledger_journal_ledger_list_propagate(
 				LIST *journal_ledger_list,
 				char *application_name )
 {
@@ -890,7 +911,7 @@ void ledger_journal_ledger_list_balance_update(
 
 	pclose( output_pipe );
 
-} /* ledger_journal_ledger_list_balance_update() */
+} /* ledger_journal_ledger_list_propagate() */
 
 LIST *ledger_subclassification_quickly_get_account_list(
 					char *application_name,
@@ -4068,26 +4089,49 @@ void ledger_journal_ledger_insert(	char *application_name,
 
 } /* ledger_journal_ledger_insert() */
 
-void ledger_propagate_account_list(
+boolean ledger_propagate_journal_ledger_list(
 			char *application_name,
 			char *transaction_date_time,
-			LIST *account_list )
+			LIST *journal_ledger_list )
+{
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( journal_ledger_list ) ) return 0;
+
+	do {
+		journal_ledger = list_get_pointer( journal_ledger_list );
+
+		ledger_propagate(
+			application_name,
+			transaction_date_time,
+			journal_ledger->account_name );
+
+	} while( list_next( journal_ledger_list ) );
+
+	return 1;
+
+} /* ledger_propagate_journal_ledger_list() */
+
+void ledger_propagate_account_name_list(
+			char *application_name,
+			char *transaction_date_time,
+			LIST *account_name_list )
 {
 	char *account_name;
 
-	if ( !list_rewind( account_list ) ) return;
+	if ( !list_rewind( account_name_list ) ) return;
 
 	do {
-		account_name = list_get_pointer( account_list );
+		account_name = list_get_pointer( account_name_list );
 
 		ledger_propagate(
 			application_name,
 			transaction_date_time,
 			account_name );
 
-	} while( list_next( account_list ) );
+	} while( list_next( account_name_list ) );
 
-} /* void ledger_propagate_account_list() */
+} /* void ledger_propagate_account_name_list() */
 
 void ledger_propagate(			char *application_name,
 					char *transaction_date_time,
@@ -4119,7 +4163,7 @@ void ledger_propagate(			char *application_name,
 			prior_ledger,
 			account_name );
 
-	ledger_journal_ledger_list_balance_update(
+	ledger_journal_ledger_list_propagate(
 			propagate_journal_ledger_list,
 			application_name );
 
@@ -6099,6 +6143,7 @@ LIST *ledger_tax_form_get_account_list(
 
 } /* ledger_tax_form_get_account_list() */
 
+#ifdef NOT_DEFINED
 boolean ledger_journal_ledger_list_propagate(
 			char *application_name,
 			LIST *journal_ledger_list,
@@ -6111,16 +6156,23 @@ boolean ledger_journal_ledger_list_propagate(
 	do {
 		journal_ledger = list_get_pointer( journal_ledger_list );
 
+void ledger_journal_ledger_list_balance_update(
+				LIST *journal_ledger_list,
+				char *application_name )
+here1
+/*
 		ledger_propagate(
 			application_name,
 			propagate_transaction_date_time,
 			journal_ledger->account_name );
+*/
 
 	} while( list_next( journal_ledger_list ) );
 
 	return 1;
 
 } /* ledger_journal_ledger_list_propagate() */
+#endif
 
 /* If debit_amount or credit_amount needs to be changed.*/
 /* ---------------------------------------------------- */

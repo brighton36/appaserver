@@ -368,10 +368,9 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 				purchase_order->service_purchase_list,
 				purchase_order->purchase_asset_account_list );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
-			application_name,
-			purchase_order->transaction_date_time );
+			application_name );
 	}
 
 } /* post_change_inventory_purchase_insert_FOB_shipping() */
@@ -475,10 +474,9 @@ void post_change_inventory_purchase_insert_FOB_destination(
 			purchase_order->service_purchase_list,
 			purchase_order->purchase_asset_account_list );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
-		application_name,
-		purchase_order->transaction_date_time );
+		application_name );
 
 } /* post_change_inventory_purchase_insert_FOB_destination() */
 
@@ -556,10 +554,9 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 			purchase_order->service_purchase_list,
 			purchase_order->purchase_asset_account_list );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
-		application_name,
-		purchase_order->transaction_date_time );
+		application_name );
 
 	if ( is_latest )
 	{
@@ -875,10 +872,9 @@ void post_change_inventory_purchase_ordered_quantity_update(
 			purchase_order->service_purchase_list,
 			purchase_order->purchase_asset_account_list );
 
-	ledger_propagate_accounts(
+	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
-		application_name,
-		purchase_order->transaction_date_time );
+		application_name );
 
 } /* post_change_inventory_purchase_ordered_quantity_update() */
 
@@ -968,10 +964,9 @@ void post_change_inventory_purchase_unit_cost_update(
 			purchase_order->service_purchase_list,
 			purchase_order->purchase_asset_account_list );
 
-	ledger_propagate_accounts(
+	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
-		application_name,
-		purchase_order->transaction_date_time );
+		application_name );
 
 } /* post_change_inventory_purchase_unit_cost_update() */
 
@@ -1071,10 +1066,9 @@ void post_change_inventory_purchase_delete(
 				purchase_order->service_purchase_list,
 				purchase_order->purchase_asset_account_list );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
-			application_name,
-			purchase_order->transaction_date_time );
+			application_name );
 	}
 
 	if ( purchase_order->arrived_date_time )

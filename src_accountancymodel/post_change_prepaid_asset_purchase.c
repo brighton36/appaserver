@@ -210,10 +210,9 @@ void post_change_prepaid_asset_purchase_insert(
 			purchase_order->service_purchase_list,
 			purchase_order->purchase_asset_account_list );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
-		application_name,
-		purchase_order->transaction_date_time );
+		application_name );
 
 } /* post_change_prepaid_asset_purchase_insert() */
 
@@ -305,10 +304,9 @@ void post_change_prepaid_asset_purchase_delete(
 			purchase_order->service_purchase_list,
 			purchase_order->purchase_asset_account_list );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
-		application_name,
-		purchase_order->transaction_date_time );
+		application_name );
 
 } /* post_change_prepaid_asset_purchase_delete() */
 

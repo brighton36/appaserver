@@ -232,7 +232,7 @@ void entity_propagate_purchase_order_ledger_accounts(
 
 	if ( list_length( inventory_account_name_list ) )
 	{
-		ledger_propagate_account_list(
+		ledger_propagate_account_name_list(
 			application_name,
 			purchase_order_transaction_date_time,
 			inventory_account_name_list );
@@ -331,7 +331,7 @@ void entity_propagate_customer_sale_ledger_accounts(
 
 	if ( list_length( inventory_account_name_list ) )
 	{
-		ledger_propagate_account_list(
+		ledger_propagate_account_name_list(
 			application_name,
 			customer_sale_transaction_date_time,
 			inventory_account_name_list );

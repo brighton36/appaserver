@@ -900,10 +900,9 @@ void post_change_purchase_order_changed_rule_to_null(
 				purchase_order->service_purchase_list,
 				purchase_order->purchase_asset_account_list );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
-			application_name,
-			purchase_order->transaction_date_time );
+			application_name );
 	}
 
 	if ( purchase_order->shipped_date )
@@ -1084,10 +1083,9 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 				purchase_order->service_purchase_list,
 				purchase_order->purchase_asset_account_list );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
-			application_name,
-			purchase_order->transaction_date_time );
+			application_name );
 	}
 
 } /* post_change_purchase_order_changed_to_FOB_shipping() */
@@ -1291,10 +1289,9 @@ void post_change_purchase_order_new_transaction(
 			purchase_order->service_purchase_list,
 			purchase_order->purchase_asset_account_list );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
-		application_name,
-		purchase_order->transaction_date_time );
+		application_name );
 
 } /* post_change_purchase_order_new_transaction() */
 

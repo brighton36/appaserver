@@ -506,7 +506,7 @@ void post_change_donation_date(
 			donation->transaction->transaction_date_time;
 	}
 
-	ledger_journal_ledger_list_propagate(
+	ledger_propagate_journal_ledger_list(
 		application_name,
 		donation->transaction->journal_ledger_list,
 		propagate_transaction_date_time );

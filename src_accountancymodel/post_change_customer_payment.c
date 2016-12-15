@@ -242,12 +242,9 @@ void post_change_customer_payment_insert(
 				transaction_date_time,
 			customer_payment->payment_amount ) ) )
 	{
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			propagate_account_list,
-			application_name,
-			customer_payment->
-				transaction->
-				transaction_date_time );
+			application_name );
 	}
 
 	customer_payment_update(
@@ -389,12 +386,9 @@ void post_change_customer_payment_delete(
 				transaction_date_time,
 			0.0 /* payment_amount */ ) ) )
 	{
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			propagate_account_list,
-			application_name,
-			customer_payment->
-				transaction->
-				transaction_date_time );
+			application_name );
 	}
 
 } /* post_change_customer_payment_delete() */

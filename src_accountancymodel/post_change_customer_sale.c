@@ -1073,10 +1073,9 @@ void post_change_customer_sale_shipping_revenue_update(
 				customer_sale->inventory_account_list,
 				customer_sale->cost_account_list ) );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			customer_sale->propagate_account_list,
-			application_name,
-			customer_sale->transaction_date_time );
+			application_name );
 	}
 
 } /* post_change_customer_sale_shipping_revenue_update() */
@@ -1188,10 +1187,9 @@ void post_change_customer_sale_new_transaction(
 			customer_sale->inventory_account_list,
 			customer_sale->cost_account_list ) );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 		customer_sale->propagate_account_list,
-		application_name,
-		customer_sale->transaction_date_time );
+		application_name );
 
 } /* post_change_customer_sale_new_transaction() */
 
@@ -1266,10 +1264,9 @@ void post_change_customer_sale_FOB_destination_new_rule(
 				customer_sale->inventory_account_list,
 				customer_sale->cost_account_list ) );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			customer_sale->propagate_account_list,
-			application_name,
-			customer_sale->transaction_date_time );
+			application_name );
 	}
 
 } /* post_change_customer_sale_FOB_destination_new_rule() */

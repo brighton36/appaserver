@@ -86,7 +86,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	ledger_propagate_account_list(
+	ledger_propagate_account_name_list(
 				application_name,
 				transaction_date_time,
 				inventory_account_list );

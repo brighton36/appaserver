@@ -219,9 +219,26 @@ boolean ledger_element_get_accumulate_debit(
 void ledger_list_set_balances(		LIST *ledger_list,
 					boolean accumulate_debit );
 
-void ledger_journal_ledger_list_balance_update(
+void ledger_account_list_propagate(	LIST *propagate_account_list,
+					char *application_name );
+
+void ledger_journal_ledger_list_propagate(
 					LIST *journal_ledger_list,
 					char *application_name );
+
+void ledger_propagate_account_name_list(
+					char *application_name,
+					char *transaction_date_time,
+					LIST *account_name_list );
+
+boolean ledger_propagate_journal_ledger_list(
+					char *application_name,
+					char *transaction_date_time,
+					LIST *journal_ledger_list );
+
+void ledger_propagate(			char *application_name,
+					char *transaction_date_time,
+					char *account_name );
 
 LIST *ledger_subclassification_quickly_get_account_list(
 					char *application_name,
@@ -454,16 +471,8 @@ void ledger_propagate_accounts(		LIST *propagate_account_list,
 					char *application_name,
 					char *propagate_transaction_date_time );
 
-void ledger_account_list_balance_update(LIST *propagate_account_list,
-					char *application_name,
-					char *propagate_transaction_date_time );
-
 boolean ledger_transaction_exists(	char *application_name,
 					char *transaction_date_time );
-
-void ledger_propagate(			char *application_name,
-					char *transaction_date_time,
-					char *account_name );
 
 LIST *ledger_get_transaction_list(	char *application_name );
 
@@ -760,10 +769,12 @@ LIST *ledger_tax_form_get_account_list(
 				char *tax_form_category_name,
 				char *as_of_date );
 
+/*
 boolean ledger_journal_ledger_list_propagate(
 				char *application_name,
 				LIST *journal_ledger_list,
 				char *propagate_transaction_date_time );
+*/
 
 /* If debit_amount or credit_amount needs to be changed.*/
 /* ---------------------------------------------------- */
@@ -777,11 +788,6 @@ boolean ledger_journal_ledger_list_amount_update(
 
 LIST *ledger_get_inventory_account_name_list(
 				char *application_name );
-
-void ledger_propagate_account_list(
-				char *application_name,
-				char *transaction_date_time,
-				LIST *account_list );
 
 ACCOUNT *ledger_element_list_account_seek(
 				LIST *element_list,

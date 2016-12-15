@@ -213,7 +213,7 @@ void post_change_specific_inventory_purchase_update(
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
 
@@ -301,7 +301,7 @@ void post_change_specific_inventory_purchase_insert(
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
 
@@ -414,7 +414,7 @@ void post_change_specific_inventory_purchase_delete(
 
 	if ( purchase_order->transaction )
 	{
-		LIST *inventory_account_list = {0};
+		LIST *inventory_account_name_list = {0};
 		char *sales_tax_expense_account = {0};
 		char *freight_in_expense_account = {0};
 		char *account_payable_account = {0};
@@ -422,7 +422,7 @@ void post_change_specific_inventory_purchase_delete(
 		char *uncleared_checks_account = {0};
 
 		ledger_get_purchase_order_account_names(
-				&inventory_account_list,
+				&inventory_account_name_list,
 				&sales_tax_expense_account,
 				&freight_in_expense_account,
 				&account_payable_account,
@@ -453,16 +453,16 @@ void post_change_specific_inventory_purchase_delete(
 
 		/* Doesn't refresh all the accounts. */
 		/* --------------------------------- */
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
 
-		ledger_propagate_account_list(
+		ledger_propagate_account_name_list(
 			application_name,
 			purchase_order->
 				transaction->
 				transaction_date_time,
-			inventory_account_list );
+			inventory_account_name_list );
 
 		ledger_propagate(
 			application_name,

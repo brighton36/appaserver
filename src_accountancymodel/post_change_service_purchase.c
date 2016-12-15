@@ -209,7 +209,7 @@ void post_change_service_purchase_update(
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
 
@@ -313,7 +313,7 @@ void post_change_service_purchase_insert(
 			purchase_order->service_purchase_list,
 			purchase_order->fixed_asset_purchase_list );
 
-	ledger_account_list_balance_update(
+	ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
 
@@ -404,7 +404,7 @@ void post_change_service_purchase_delete(
 				purchase_order->service_purchase_list,
 				purchase_order->fixed_asset_purchase_list );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
 	}

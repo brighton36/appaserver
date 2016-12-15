@@ -263,7 +263,7 @@ void post_change_inventory_sale_insert(
 				customer_sale->inventory_account_list,
 				customer_sale->cost_account_list ) );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 				customer_sale->propagate_account_list,
 				application_name );
 	}
@@ -406,7 +406,7 @@ void post_change_inventory_sale_update(
 				customer_sale->inventory_account_list,
 				customer_sale->cost_account_list ) );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 				customer_sale->propagate_account_list,
 				application_name );
 	}
@@ -504,7 +504,7 @@ void post_change_inventory_sale_delete(
 					transaction_date_time );
 */
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 				customer_sale->propagate_account_list,
 				application_name );
 	}

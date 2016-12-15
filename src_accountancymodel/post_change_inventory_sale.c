@@ -310,10 +310,9 @@ void post_change_inventory_sale_insert(
 				customer_sale->inventory_account_list,
 				customer_sale->cost_account_list ) );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			customer_sale->propagate_account_list,
-			application_name,
-			customer_sale->transaction_date_time );
+			application_name );
 
 		ledger_transaction_amount_update(
 			application_name,
@@ -541,10 +540,9 @@ void post_change_inventory_sale_quantity_update(
 				customer_sale->inventory_account_list,
 				customer_sale->cost_account_list ) );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			customer_sale->propagate_account_list,
-			application_name,
-			customer_sale->transaction_date_time );
+			application_name );
 
 		ledger_transaction_amount_update(
 			application_name,
@@ -655,15 +653,15 @@ void post_change_inventory_sale_retail_price_update(
 				application_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
-				customer_sale->transaction->
+				customer_sale->
+					transaction->
 					transaction_date_time,
 				customer_sale->inventory_account_list,
 				customer_sale->cost_account_list ) );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			customer_sale->propagate_account_list,
-			application_name,
-			customer_sale->transaction_date_time );
+			application_name );
 
 		ledger_transaction_amount_update(
 			application_name,
@@ -779,10 +777,9 @@ void post_change_inventory_sale_discount_amount_update(
 				customer_sale->inventory_account_list,
 				customer_sale->cost_account_list ) );
 
-		ledger_account_list_balance_update(
+		ledger_account_list_propagate(
 			customer_sale->propagate_account_list,
-			application_name,
-			customer_sale->transaction_date_time );
+			application_name );
 
 		ledger_transaction_amount_update(
 			application_name,

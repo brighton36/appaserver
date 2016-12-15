@@ -439,7 +439,7 @@ void post_change_donation_amount_update(
 
 	/* Propagate JOURNAL_LEDGER */
 	/* ------------------------ */
-	if ( !ledger_journal_ledger_list_propagate(
+	if ( !ledger_propagate_journal_ledger_list(
 			application_name,
 			donation->transaction->journal_ledger_list,
 			donation->transaction_date_time

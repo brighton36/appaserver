@@ -1931,7 +1931,7 @@ void customer_sale_list_cost_of_goods_sold_transaction_update(
 
 	if ( customer_sale_transaction_date_time )
 	{
-		ledger_propagate_account_list(
+		ledger_propagate_account_name_list(
 			application_name,
 			customer_sale_transaction_date_time,
 			propagate_account_name_list );

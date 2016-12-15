@@ -319,11 +319,21 @@ void post_change_donation_account_update(
 		exit( 1 );
 	}
 
+	donation_journal_ledger_refresh_and_propagate(
+			application_name,
+			donation->full_name,
+			donation->street_address,
+			donation->transaction_date_time,
+			donation->donation_fund_list,
+			0 /* not propagate_only */ );
+
+#ifdef NOT_DEFINED
 	ledger_journal_ledger_list_propagate(
 			application_name,
 			donation->transaction->journal_ledger_list,
 			donation->transaction_date_time
 				/* propagate_transaction_date_time */ );
+#endif
 
 	ledger_propagate(
 		application_name,

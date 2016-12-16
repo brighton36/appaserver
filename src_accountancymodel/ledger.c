@@ -790,44 +790,6 @@ void ledger_account_list_propagate(
 
 } /* ledger_account_list_propagate() */
 
-#ifdef NOT_DEFINED
-void ledger_propagate_accounts(		LIST *propagate_account_list,
-					char *application_name,
-					char *propagate_transaction_date_time )
-{
-	ledger_account_list_balance_update_and_propagate(
-		propagate_account_list,
-		application_name,
-		propagate_transaction_date_time );
-
-} /* ledger_propagate_accounts() */
-
-void ledger_account_list_balance_update_and_propagate(
-				LIST *propagate_account_list,
-				char *application_name,
-				char *propagate_transaction_date_time )
-{
-	ACCOUNT *account;
-
-	if ( !list_rewind( propagate_account_list ) ) return;
-
-	do {
-		account = list_get_pointer( propagate_account_list );
-
-		ledger_journal_ledger_list_balance_update(
-				account->journal_ledger_list,
-				application_name );
-
-		ledger_journal_ledger_list_propagate(
-				application_name,
-				account->journal_ledger_list,
-				propagate_transaction_date_time );
-
-	} while( list_next( propagate_account_list ) );
-
-} /* ledger_account_list_balance_update_and_propagate() */
-#endif
-
 void ledger_journal_ledger_list_propagate(
 				LIST *journal_ledger_list,
 				char *application_name )
@@ -3791,7 +3753,7 @@ void ledger_get_vendor_payment_account_names(
 			application_name,
 			fund_name,
 			key,
-			1 /* warning_only */ );
+			0 /* not warning_only */ );
 
 	key = "uncleared_checks_key";
 	*uncleared_checks_account =
@@ -3799,7 +3761,7 @@ void ledger_get_vendor_payment_account_names(
 			application_name,
 			fund_name,
 			key,
-			1 /* warning_only */ );
+			0 /* not warning_only */ );
 
 	key = "account_payable_key";
 	*account_payable_account =
@@ -3807,7 +3769,7 @@ void ledger_get_vendor_payment_account_names(
 			application_name,
 			fund_name,
 			key,
-			1 /* warning_only */ );
+			0 /* not warning_only */ );
 
 } /* ledger_get_vendor_payment_account_names() */
 
@@ -3925,30 +3887,6 @@ void ledger_get_purchase_order_account_names(
 				key,
 				0 /* not warning_only */ );
 	}
-
-#ifdef NOT_DEFINED
-	if ( cash_account )
-	{
-		key = "cash_key";
-		*cash_account =
-			ledger_get_hard_coded_account_name(
-				application_name,
-				fund_name,
-				key,
-				0 /* not warning_only */ );
-	}
-
-	if ( uncleared_checks_account )
-	{
-		key = "uncleared_checks_key";
-		*uncleared_checks_account =
-			ledger_get_hard_coded_account_name(
-				application_name,
-				fund_name,
-				key,
-				0 /* not warning_only */ );
-	}
-#endif
 
 } /* ledger_get_purchase_order_account_names() */
 
@@ -6143,39 +6081,8 @@ LIST *ledger_tax_form_get_account_list(
 
 } /* ledger_tax_form_get_account_list() */
 
-#ifdef NOT_DEFINED
-boolean ledger_journal_ledger_list_propagate(
-			char *application_name,
-			LIST *journal_ledger_list,
-			char *propagate_transaction_date_time )
-{
-	JOURNAL_LEDGER *journal_ledger;
-
-	if ( !list_rewind( journal_ledger_list ) ) return 0;
-
-	do {
-		journal_ledger = list_get_pointer( journal_ledger_list );
-
-void ledger_journal_ledger_list_balance_update(
-				LIST *journal_ledger_list,
-				char *application_name )
-here1
-/*
-		ledger_propagate(
-			application_name,
-			propagate_transaction_date_time,
-			journal_ledger->account_name );
-*/
-
-	} while( list_next( journal_ledger_list ) );
-
-	return 1;
-
-} /* ledger_journal_ledger_list_propagate() */
-#endif
-
-/* If debit_amount or credit_amount needs to be changed.*/
-/* ---------------------------------------------------- */
+/* Reset debit_amount and credit_amount without having to refresh. */
+/* --------------------------------------------------------------- */
 boolean ledger_journal_ledger_list_reset_amount(
 			LIST *journal_ledger_list,
 			double amount )
@@ -6364,3 +6271,28 @@ double ledger_get_fraction_of_year(
 
 } /* ledger_get_fraction_of_year() */
 
+void ledger_append_propagate_account_list(
+			LIST *propagate_account_list,
+			char *transaction_date_time,
+			char *account_name,
+			char *application_name )
+{
+	JOURNAL_LEDGER *prior_ledger;
+	ACCOUNT *account;
+
+	account = ledger_account_new( account_name );
+
+	prior_ledger = ledger_get_prior_ledger(
+				application_name,
+				transaction_date_time,
+				account->account_name );
+
+	account->journal_ledger_list =
+		ledger_get_propagate_journal_ledger_list(
+			application_name,
+			prior_ledger,
+			account->account_name );
+
+	list_append_pointer( propagate_account_list, account );
+
+} /* ledger_append_propagate_account_list() */

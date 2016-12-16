@@ -111,6 +111,8 @@ int main( int argc, char **argv )
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );
 
+	/* Execute on predelete because VENDOR_PAYMENT.transaction_date_time */
+	/* ----------------------------------------------------------------- */
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0 )
@@ -220,6 +222,17 @@ void post_change_vendor_payment_insert(
 			vendor_payment->payment_date_time;
 	}
 
+	purchase_vendor_payment_update(
+		application_name,
+		full_name,
+		street_address,
+		purchase_date_time,
+		payment_date_time,
+		vendor_payment->transaction_date_time,
+		vendor_payment->database_transaction_date_time );
+
+	/* Insert the TRANSACTION */
+	/* ---------------------- */
 	vendor_payment->transaction =
 		ledger_transaction_new(
 			full_name,
@@ -254,15 +267,6 @@ void post_change_vendor_payment_insert(
 			application_name );
 	}
 
-	purchase_vendor_payment_update(
-		application_name,
-		full_name,
-		street_address,
-		purchase_date_time,
-		payment_date_time,
-		vendor_payment->transaction_date_time,
-		vendor_payment->database_transaction_date_time );
-
 } /* post_change_vendor_payment_insert() */
 
 void post_change_vendor_payment_delete(
@@ -274,8 +278,12 @@ void post_change_vendor_payment_delete(
 {
 	PURCHASE_ORDER *purchase_order;
 	VENDOR_PAYMENT *vendor_payment;
-	LIST *propagate_account_list;
+	char *checking_account = {0};
+	char *uncleared_checks_account = {0};
+	char *account_payable_account = {0};
 
+	/* Update purchase_order->amount_due */
+	/* --------------------------------- */
 	purchase_order =
 		purchase_order_new(
 			application_name,
@@ -307,46 +315,6 @@ void post_change_vendor_payment_delete(
 		exit( 1 );
 	}
 
-	if ( !vendor_payment->transaction )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: empty transaction for payment_date_time = (%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 payment_date_time );
-		exit( 1 );
-	}
-
-	ledger_delete(	application_name,
-			TRANSACTION_FOLDER_NAME,
-			vendor_payment->transaction->full_name,
-			vendor_payment->transaction->street_address,
-			vendor_payment->transaction->transaction_date_time );
-
-	ledger_delete(	application_name,
-			LEDGER_FOLDER_NAME,
-			vendor_payment->transaction->full_name,
-			vendor_payment->transaction->street_address,
-			vendor_payment->transaction->transaction_date_time );
-
-	if ( ( propagate_account_list =
-		purchase_vendor_payment_journal_ledger_refresh(
-			application_name,
-			purchase_order->fund_name,
-			vendor_payment->transaction->full_name,
-			vendor_payment->transaction->street_address,
-			vendor_payment->
-				transaction->
-				transaction_date_time,
-			0.0 /* payment_amount */,
-			0 /* check_number */ ) ) )
-	{
-		ledger_account_list_propagate(
-			propagate_account_list,
-			application_name );
-	}
-
 	list_delete_current( purchase_order->vendor_payment_list );
 
 	purchase_order->sum_payment_amount =
@@ -375,6 +343,53 @@ void post_change_vendor_payment_delete(
 			purchase_order->database_arrived_date_time,
 			purchase_order->shipped_date,
 			purchase_order->database_shipped_date );
+
+	/* Delete TRANSACTION and JOURNAL_LEDGER */
+	/* ------------------------------------- */
+	if ( !vendor_payment->transaction )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: empty transaction for payment_date_time = (%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 payment_date_time );
+		exit( 1 );
+	}
+
+	ledger_delete(	application_name,
+			TRANSACTION_FOLDER_NAME,
+			vendor_payment->transaction->full_name,
+			vendor_payment->transaction->street_address,
+			vendor_payment->transaction->transaction_date_time );
+
+	ledger_delete(	application_name,
+			LEDGER_FOLDER_NAME,
+			vendor_payment->transaction->full_name,
+			vendor_payment->transaction->street_address,
+			vendor_payment->transaction->transaction_date_time );
+
+	ledger_get_vendor_payment_account_names(
+		&checking_account,
+		&uncleared_checks_account,
+		&account_payable_account,
+		application_name,
+		purchase_order->fund_name );
+
+	ledger_propagate(
+		application_name,
+		vendor_payment->transaction_date_time,
+		checking_account );
+
+	ledger_propagate(
+		application_name,
+		vendor_payment->transaction_date_time,
+		uncleared_checks_account );
+
+	ledger_propagate(
+		application_name,
+		vendor_payment->transaction_date_time,
+		account_payable_account );
 
 } /* post_change_vendor_payment_delete() */
 

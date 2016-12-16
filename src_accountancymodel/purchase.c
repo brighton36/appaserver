@@ -1615,9 +1615,16 @@ LIST *purchase_vendor_payment_journal_ledger_refresh(
 		application_name,
 		fund_name );
 
-	if ( !account_payable_account || !checking_account || !payment_amount )
+	if (	!account_payable_account
+	||	!checking_account
+	||	!account_payable_account )
 	{
-		return (LIST *)0;
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get vendor payment account names.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
 	ledger_journal_ledger_insert(
@@ -1629,7 +1636,7 @@ LIST *purchase_vendor_payment_journal_ledger_refresh(
 		payment_amount,
 		1 /* is_debit */ );
 
-	if ( uncleared_checks_account && check_number )
+	if ( check_number )
 		credit_account_name = uncleared_checks_account;
 	else
 		credit_account_name = checking_account;
@@ -1645,35 +1652,23 @@ LIST *purchase_vendor_payment_journal_ledger_refresh(
 
 	propagate_account_list = list_new();
 
-	account = ledger_account_new( account_payable_account );
+	ledger_append_propagate_account_list(
+		propagate_account_list,
+		transaction_date_time,
+		checking_account,
+		application_name );
 
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				account_payable_account );
+	ledger_append_propagate_account_list(
+		propagate_account_list,
+		transaction_date_time,
+		uncleared_checks_account,
+		application_name );
 
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			account_payable_account );
-
-	list_append_pointer( propagate_account_list, account );
-
-	account = ledger_account_new( credit_account_name );
-
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				credit_account_name );
-
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			credit_account_name );
-
-	list_append_pointer( propagate_account_list, account );
+	ledger_append_propagate_account_list(
+		propagate_account_list,
+		transaction_date_time,
+		account_payable_account,
+		application_name );
 
 	return propagate_account_list;
 

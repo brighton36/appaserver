@@ -1598,8 +1598,6 @@ LIST *purchase_vendor_payment_journal_ledger_refresh(
 	char *uncleared_checks_account = {0};
 	char *account_payable_account = {0};
 	LIST *propagate_account_list = {0};
-	ACCOUNT *account;
-	JOURNAL_LEDGER *prior_ledger;
 	char *credit_account_name;
 
 	ledger_delete(			application_name,

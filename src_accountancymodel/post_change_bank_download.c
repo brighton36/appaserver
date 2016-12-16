@@ -129,7 +129,7 @@ int main( int argc, char **argv )
 			application_name,
 			dictionary ) )
 	{
-		printf( "<h3>Error occurred.</h3>\n" );
+		fprintf( stderr, "Error occurred.\n" );
 	}
 
 	return 0;
@@ -148,7 +148,7 @@ boolean post_change_bank_download_update(
 
 	dictionary_list = bank_download_get_dictionary_list( dictionary );
 
-	if ( !list_length( dictionary_list ) ) return 0;
+	if ( !list_length( dictionary_list ) ) return 1;
 
 	starting_bank_download = list_get_first_pointer( dictionary_list );
 
@@ -164,7 +164,7 @@ boolean post_change_bank_download_update(
 			 __LINE__,
 			 starting_bank_download->bank_date,
 			 starting_bank_download->bank_description );
-		exit( 1 );
+		return 0;
 	}
 
 	table_list =
@@ -178,10 +178,11 @@ boolean post_change_bank_download_update(
 			dictionary_list,
 			table_list );
 
-	if ( !list_length( bank_download_list ) ) return 0;
+	if ( !list_length( bank_download_list ) ) return 1;
 
 	bank_download_list_set( bank_download_list );
 	bank_download_list_update( bank_download_list );
+
 	return 1;
 
 } /* post_change_bank_download_update() */

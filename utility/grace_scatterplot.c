@@ -54,7 +54,7 @@ void output_regression_statistics(
 				LINEAR_REGRESSION *linear_regression );
 
 char *get_statistics_output_filename(
-				char *appaserver_mount_point,
+				char *appaserver_data_directory,
 				char *session );
 
 int main( int argc, char **argv )
@@ -144,14 +144,14 @@ int main( int argc, char **argv )
 } /* main() */
 
 char *get_statistics_output_filename(
-				char *appaserver_mount_point,
+				char *appaserver_data_directory,
 				char *session )
 {
 	char filename[ 128 ];
 
 	sprintf( filename,
-		 "%s/data/grace_scatterplot_statistics_%s.dat",
-		 appaserver_mount_point,
+		 "%s/grace_scatterplot_statistics_%s.dat",
+		 appaserver_data_directory,
 		 session );
 
 	return strdup( filename );
@@ -683,7 +683,7 @@ void output_grace_scatterplot(
 	statistics_output_filename =
 		get_statistics_output_filename(
 			appaserver_parameter_file->
-				appaserver_mount_point,
+				appaserver_data_directory,
 			session );
 
 	output_regression_statistics(

@@ -31,11 +31,13 @@
 #include "session.h"
 #include "hydrology_library.h"
 #include "application_constants.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
 #define DEFAULT_COMPARE_OUTPUT	"table"
 
+/*
 #define OUTPUT_FILE_TEXT_FILE	"%s/%s/compare_%s%s_%d.txt"
 #define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/compare_%s%s_%d.txt"
 #define FTP_FILE_TEXT_FILE	"/%s/compare_%s%s_%d.txt"
@@ -43,6 +45,7 @@
 #define OUTPUT_FILE_SPREADSHEET	"%s/%s/compare_%s%s_%d.csv"
 #define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/compare_%s%s_%d.csv"
 #define FTP_FILE_SPREADSHEET	"/%s/compare_%s%s_%d.csv"
+*/
 
 #define PROCESS_NAME		"output_datatype_overlay"
 #define PDF_PROMPT		"Press to view chart."
@@ -106,6 +109,7 @@ void output_scatter_plot(
 			char *anchor_datatype,
 			char *sub_title,
 			char *appaserver_mount_point,
+			char *appaserver_data_directory,
 			LIST *compare_station_name_list,
 			LIST *compare_datatype_name_list,
 			enum aggregate_level aggregate_level );
@@ -124,6 +128,7 @@ LIST *get_datatype4station_list(char *application_name,
 				char *appaserver_mount_point,
 				char *relative_source_directory,
 				char *compare_output );
+
 GRACE_DATATYPE_OVERLAY_INPUT_GROUP *get_grace_datatype_overlay_input_group(
 				char *application_name,
 				char *anchor_station,
@@ -146,10 +151,10 @@ int main( int argc, char **argv )
 	char input_station[ 1024 ];
 	char input_datatype[ 1024 ];
 	char input_buffer[ 4096 ];
-	char text_output_filename[ 256 ];
+	char *text_output_filename;
 	char ftp_output_sys_string[ 256 ];
 	FILE *text_output_pipe = {0};
-	char text_ftp_filename[ 256 ];
+	char *text_ftp_filename;
 	char end_date_suffix[ 128 ];
 	char buffer[ 4096 ];
 	char sys_string[ 1024 ];
@@ -291,8 +296,8 @@ int main( int argc, char **argv )
 		if ( !anchor_station || !anchor_datatype )
 		{
 			document_quick_output_body(
-						application_name,
-						appaserver_parameter_file->
+					application_name,
+					appaserver_parameter_file->
 						appaserver_mount_point );
 
 			printf(
@@ -417,7 +422,8 @@ int main( int argc, char **argv )
 			list_get_first_string(
 				compare_station_name_list );
 
-		compare_datatype_name_list = get_datatype4station_list(
+		compare_datatype_name_list =
+			get_datatype4station_list(
 				application_name,
 				login_name,
 				compare_station,
@@ -469,10 +475,7 @@ int main( int argc, char **argv )
 	 	end_date );
 
 	sprintf(sys_string,
-"%s/%s/datatype_overlay %s %s %s %s %s '%s' '%s' %s",
-		appaserver_parameter_file->appaserver_mount_point,
-		application_get_relative_source_directory(
-			application_name ),
+"datatype_overlay %s %s %s %s %s '%s' '%s' %s",
 		application_name,
 		anchor_station,
 		anchor_datatype,
@@ -481,6 +484,11 @@ int main( int argc, char **argv )
 		list_display( compare_station_name_list ),
 		list_display( compare_datatype_name_list ),
 		aggregate_level_get_string( aggregate_level ) );
+
+	if ( end_date && *end_date )
+		sprintf( end_date_suffix, "_%s", end_date );
+	else
+		*end_date_suffix = '\0';
 
 	if ( strcmp( compare_output, "covariance" ) == 0
 	||   strcmp( compare_output, "correlation" ) == 0 )
@@ -505,6 +513,8 @@ int main( int argc, char **argv )
 					sub_title,
 					appaserver_parameter_file->
 						appaserver_mount_point,
+					appaserver_parameter_file->
+						appaserver_data_directory,
 					compare_station_name_list,
 					compare_datatype_name_list,
 					aggregate_level );
@@ -707,6 +717,25 @@ int main( int argc, char **argv )
 	||   strcmp( compare_output, "spreadsheet" ) == 0
 	||   strcmp( compare_output, "stdout" ) == 0 )
 	{
+		APPASERVER_LINK_FILE *appaserver_link_file;
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				PROCESS_NAME,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				(char *)0 /* extension */ );
+
+		appaserver_link_file->begin_date_string = begin_date;
+		appaserver_link_file->end_date_string = end_date_suffix;
+
 /*
 		if ( aggregate_level == real_time )
 		{
@@ -729,11 +758,7 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					appaserver_mount_point );
 
-			if ( end_date && *end_date )
-				sprintf( end_date_suffix, "_%s", end_date );
-			else
-				*end_date_suffix = '\0';
-
+/*
 			sprintf(text_output_filename,
 		 		OUTPUT_FILE_TEXT_FILE,
 		 		appaserver_parameter_file->
@@ -742,6 +767,40 @@ int main( int argc, char **argv )
 		 		begin_date,
 		 		end_date_suffix,
 		 		process_id );
+*/
+
+			appaserver_link_file->extension = "txt";
+
+			text_output_filename =
+				appaserver_link_get_output_filename(
+				   appaserver_link_file->
+					output_file->
+					document_root_directory,
+				   appaserver_link_file->application_name,
+				   appaserver_link_file->filename_stem,
+				   appaserver_link_file->begin_date_string,
+				   appaserver_link_file->end_date_string,
+				   appaserver_link_file->process_id,
+				   appaserver_link_file->session,
+				   appaserver_link_file->extension );
+
+			text_ftp_filename =
+				appaserver_link_get_link_prompt(
+				   appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				   appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				   appaserver_link_file->
+					link_prompt->server_address,
+				   appaserver_link_file->application_name,
+				   appaserver_link_file->filename_stem,
+				   appaserver_link_file->begin_date_string,
+				   appaserver_link_file->end_date_string,
+				   appaserver_link_file->process_id,
+				   appaserver_link_file->session,
+				   appaserver_link_file->extension );
 
 			if ( ! ( output_file =
 					fopen( text_output_filename, "w" ) ) )
@@ -792,6 +851,7 @@ int main( int argc, char **argv )
 
 			} while( list_next( compare_station_name_list ) );
 
+/*
 			if ( application_get_prepend_http_protocol_yn(
 						application_name ) == 'y' )
 			{
@@ -814,6 +874,7 @@ int main( int argc, char **argv )
 					end_date_suffix,
 					process_id );
 			}
+*/
 
 /*
 			sprintf(ftp_output_sys_string,
@@ -839,6 +900,7 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					appaserver_mount_point );
 
+/*
 			if ( end_date && *end_date )
 				sprintf( end_date_suffix, "_%s", end_date );
 			else
@@ -852,6 +914,40 @@ int main( int argc, char **argv )
 		 		begin_date,
 		 		end_date_suffix,
 		 		process_id );
+*/
+
+			appaserver_link_file->extension = "csv";
+
+			text_output_filename =
+				appaserver_link_get_output_filename(
+				   appaserver_link_file->
+					output_file->
+					document_root_directory,
+				   appaserver_link_file->application_name,
+				   appaserver_link_file->filename_stem,
+				   appaserver_link_file->begin_date_string,
+				   appaserver_link_file->end_date_string,
+				   appaserver_link_file->process_id,
+				   appaserver_link_file->session,
+				   appaserver_link_file->extension );
+
+			text_ftp_filename =
+				appaserver_link_get_link_prompt(
+				   appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				   appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				   appaserver_link_file->
+					link_prompt->server_address,
+				   appaserver_link_file->application_name,
+				   appaserver_link_file->filename_stem,
+				   appaserver_link_file->begin_date_string,
+				   appaserver_link_file->end_date_string,
+				   appaserver_link_file->process_id,
+				   appaserver_link_file->session,
+				   appaserver_link_file->extension );
 
 			if ( ! ( output_file =
 					fopen( text_output_filename, "w" ) ) )
@@ -902,6 +998,7 @@ int main( int argc, char **argv )
 
 			} while( list_next( compare_station_name_list ) );
 
+/*
 			if ( application_get_prepend_http_protocol_yn(
 						application_name ) == 'y' )
 			{
@@ -924,6 +1021,7 @@ int main( int argc, char **argv )
 					end_date_suffix,
 					process_id );
 			}
+*/
 
 			sprintf(ftp_output_sys_string,
 				"cat >> %s",
@@ -1771,8 +1869,8 @@ LIST *get_station_datatype_group_members_datatype_name_list(
 	if ( ! ( station_datatype_record = pipe2string( sys_string ) ) )
 	{
 		document_quick_output_body(
-					application_name,
-					appaserver_mount_point );
+			application_name,
+			appaserver_mount_point );
 
 		printf(
 "<p>ERROR: there is no anchor station|datatype for this group. Manual maintenance is required.\n" );
@@ -1962,6 +2060,7 @@ void output_scatter_plot(	char *application_name,
 				char *anchor_datatype,
 				char *sub_title,
 				char *appaserver_mount_point,
+				char *appaserver_data_directory,
 				LIST *compare_station_name_list,
 				LIST *compare_datatype_name_list,
 				enum aggregate_level aggregate_level )
@@ -2011,6 +2110,7 @@ fprintf( stderr, "%s(): got sys_string = (%s)\n", __FUNCTION__, sys_string );
 				anchor_datatype,
 				sub_title,
 				appaserver_mount_point,
+				appaserver_data_directory,
 				compare_station_name_list,
 				compare_datatype_name_list,
 				aggregate_level,

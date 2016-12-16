@@ -850,14 +850,6 @@ sys_string );
 		char output_sys_string[ 512 ];
 		APPASERVER_LINK_FILE *appaserver_link_file;
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
-
 		appaserver_link_file =
 			appaserver_link_file_new(
 				application_get_http_prefix( application_name ),
@@ -877,6 +869,24 @@ sys_string );
 				appaserver_link_file->
 					output_file->
 					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
 				appaserver_link_file->application_name,
 				appaserver_link_file->filename_stem,
 				appaserver_link_file->begin_date_string,
@@ -923,43 +933,6 @@ sys_string );
 		 	output_filename );
 
 		output_pipe = popen( output_sys_string, "w" );
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_SPREADSHEET, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET, 
-			 	application_name,
-			 	process_id );
-		}
-*/
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
 
 		if ( *exceedance_format_yn == 'y' )
 		{

@@ -1733,6 +1733,8 @@ boolean output_scatter(	char *application_name,
 				local_sub_title,
 				appaserver_parameter_file->
 					appaserver_mount_point,
+				appaserver_parameter_file->
+					appaserver_data_directory,
 				compare_entity_name_list,
 				compare_datatype_name_list,
 				aggregate_level,

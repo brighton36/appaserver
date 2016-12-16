@@ -376,6 +376,7 @@ void scatterplot_output_scatter_plot(
 				char *anchor_datatype,
 				char *sub_title,
 				char *appaserver_mount_point,
+				char *appaserver_data_directory,
 				LIST *compare_entity_name_list,
 				LIST *compare_datatype_name_list,
 				enum aggregate_level aggregate_level,
@@ -420,8 +421,8 @@ void scatterplot_output_scatter_plot(
 	if ( !list_length( scatterplot->compare_value_dictionary_list ) )
 	{
 		document_quick_output_body(
-					application_name,
-					appaserver_mount_point );
+			application_name,
+			appaserver_mount_point );
 
 		printf( "<h3>ERROR: please select datatypes to compare.</h3>" );
 		document_close();
@@ -443,8 +444,8 @@ void scatterplot_output_scatter_plot(
 	if ( !list_length( scatterplot->plot_list ) )
 	{
 		document_quick_output_body(
-					application_name,
-					appaserver_mount_point );
+			application_name,
+			appaserver_mount_point );
 
 		printf( "<h3>ERROR: no data retrieved.</h3>" );
 		document_close();
@@ -499,8 +500,8 @@ void scatterplot_output_scatter_plot(
 		search_replace_character( scatterplot_key, ' ', '_' );
 
 		sprintf(grace_scatterplot_filename,
-		 	"%s/%s/grace_scatterplot_%s.dat",
-		 	appaserver_mount_point,
+		 	"%s/grace_scatterplot_%s.dat",
+		 	appaserver_data_directory,
 		 	application_name,
 		 	scatterplot_key );
 

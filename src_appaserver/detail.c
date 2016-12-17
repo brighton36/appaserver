@@ -229,11 +229,11 @@ int main( int argc, char **argv )
 
 	appaserver->folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			appaserver->folder->mto1_related_folder_list,
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,
 			role_name,
-			appaserver->folder->mto1_related_folder_list,
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			role_get_override_row_restrictions(
@@ -442,11 +442,11 @@ int main( int argc, char **argv )
 
 	mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new() /* existing_related_folder_list */,
 			application_name,
 			session,
 			folder_name,
 			role_name,
-			list_new() /* existing_related_folder_list */,
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_get_override_row_restrictions(
@@ -768,18 +768,19 @@ omit_insert_flag = 0;
 
 			mto1_isa_related_folder_list =
 				related_folder_get_mto1_related_folder_list(
-				appaserver->application_name,
-				appaserver->session,
-				related_folder->
+				   list_new(),
+				   appaserver->application_name,
+				   appaserver->session,
+				   related_folder->
 					one2m_related_folder->
 						folder_name,
-				role_name,
-				list_new() /* existing_related_folder_list */,
-				1 /* isa_flag */,
-				related_folder_recursive_all,
-				override_row_restrictions,
-				(LIST *)0 /* root_primary_att..._name_list */,
-				0 /* recursive_level */ );
+				   role_name,
+				   1 /* isa_flag */,
+				   related_folder_recursive_all,
+				   override_row_restrictions,
+				   (LIST *)0
+					/* root_primary_att..._name_list */,
+				   0 /* recursive_level */ );
 
 			if ( related_folder->relation_type_isa )
 			{
@@ -810,14 +811,13 @@ omit_insert_flag = 0;
 					folder->
 					mto1_related_folder_list =
 				related_folder_get_mto1_related_folder_list(
+					(LIST *)0,
 					application_name,
 					session,
 					related_folder->
 						one2m_related_folder->
 						folder_name,
 					role_name,
-					(LIST *)0
-					/* existing_related_folder_list */,
 					0 /* isa_flag */,
 					related_folder_no_recursive,
 					override_row_restrictions,
@@ -943,11 +943,11 @@ void output_mto1_folder_detail(	int *form_number,
 
 	appaserver->folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			appaserver->folder->mto1_related_folder_list,
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,
 			role_name,
-			appaserver->folder->mto1_related_folder_list,
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			override_row_restrictions,

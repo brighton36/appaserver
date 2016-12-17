@@ -218,11 +218,11 @@ int main( int argc, char **argv )
 
 	appaserver->folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,
 			role_name,
-			list_new_list(),
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_get_override_row_restrictions(
@@ -245,11 +245,11 @@ int main( int argc, char **argv )
 
 	appaserver->folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,
 			role_name,
-			list_new_list(),
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			role_get_override_row_restrictions(
@@ -475,16 +475,16 @@ void output_prompt_edit_form(
 
 			mto1_related_folder_list =
 				related_folder_get_mto1_related_folder_list(
-				application_name,
-				session,
-				isa_related_folder->folder->folder_name,
-				role_name,
-				mto1_related_folder_list,
-				0 /* isa_flag */,
-				related_folder_no_recursive,
-				override_row_restrictions,
-				(LIST *)0 /* root_primary_..._name_list */,
-				0 /* recursive_level */ );
+				   mto1_related_folder_list,
+				   application_name,
+				   session,
+				   isa_related_folder->folder->folder_name,
+				   role_name,
+				   0 /* isa_flag */,
+				   related_folder_no_recursive,
+				   override_row_restrictions,
+				   (LIST *)0 /* root_primary_..._name_list */,
+				   0 /* recursive_level */ );
 
 		} while( list_next( mto1_isa_related_folder_list ) );
 	}

@@ -248,11 +248,11 @@ LIST *related_folder_get_related_folder_list(
 					LIST *existing_related_folder_list );
 
 LIST *related_folder_get_mto1_related_folder_list(
+				LIST *related_folder_list,
 				char *application_name,
 				char *session,
 				char *folder_name,
 				char *role_name,
-				LIST *related_folder_list,
 				boolean isa_flag,
 				enum related_folder_recursive_request_type,
 				boolean override_row_restrictions,
@@ -438,7 +438,8 @@ void related_folder_set_join_where_clause(
 LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				LIST *related_folder_list,
 				char *application_name,
-				char *folder_name );
+				char *folder_name,
+				int recursive_level );
 
 void related_folder_set_no_ignore_output(
 				LIST *mto1_related_folder_list );

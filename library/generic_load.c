@@ -139,11 +139,11 @@ FOLDER *generic_load_get_database_folder(
 	{
 		folder->mto1_related_folder_list =
 			related_folder_get_mto1_related_folder_list(
+				list_new_list(),
 				application_name,
 				session,
 				folder_name,
 				role_name,
-				list_new_list(),
 				0 /* isa_flag */,
 				related_folder_recursive_all,
 				0 /* override_row_restrictions */,

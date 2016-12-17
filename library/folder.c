@@ -96,11 +96,11 @@ FOLDER *folder_with_load_new(	char *application_name,
 
 	folder->mto1_recursive_related_folder_list =
 	     related_folder_get_mto1_related_folder_list(
+		list_new(),
 		application_name,
 		BOGUS_SESSION,
 		folder_name,
 		role_name,
-		list_new(),
 		0 /* isa_flag */,
 		related_folder_recursive_all,
 		0 /* dont override_row_restrictions */,
@@ -109,11 +109,11 @@ FOLDER *folder_with_load_new(	char *application_name,
 
 	folder->mto1_related_folder_list =
 	     related_folder_get_mto1_related_folder_list(
+		list_new(),
 		application_name,
 		BOGUS_SESSION,
 		folder_name,
 		role_name,
-		list_new(),
 		0 /* isa_flag */,
 		related_folder_no_recursive,
 		0 /* dont override_row_restrictions */,
@@ -154,11 +154,11 @@ FOLDER *folder_with_load_new(	char *application_name,
 
 	folder->mto1_isa_related_folder_list =
 	     related_folder_get_mto1_related_folder_list(
+		list_new(),
 		application_name,
 		BOGUS_SESSION,
 		folder_name,
 		role_name,
-		list_new(),
 		1 /* isa_flag */,
 		related_folder_recursive_all,
 		0 /* dont override_row_restrictions */,
@@ -1497,17 +1497,16 @@ LIST *folder_get_primary_text_element_list(
 	{
 		folder->mto1_related_folder_list =
 			related_folder_get_mto1_related_folder_list(
-			application_name,
-			session,
-			folder->folder_name,
-			role_name,
-			list_new_list(),
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			0 /* dont override_row_restrictions */,
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
-
+			   list_new_list(),
+			   application_name,
+			   session,
+			   folder->folder_name,
+			   role_name,
+			   0 /* isa_flag */,
+			   related_folder_no_recursive,
+			   0 /* dont override_row_restrictions */,
+			   (LIST *)0 /* root_primary_attribute_name_list */,
+			   0 /* recursive_level */ );
 	}
 
 	if ( !folder->attribute_list )
@@ -1786,11 +1785,11 @@ void folder_append_mto1_related_folder_list(
 
 		related_folder->folder->mto1_related_folder_list =
 			related_folder_get_mto1_related_folder_list(
+				list_new(),
 				application_name,
 				BOGUS_SESSION,
 				related_folder->folder->folder_name,
 				(char *)0 /* role_name */,
-				list_new(),
 				0 /* isa_flag */,
 				related_folder_no_recursive,
 				1 /* override_row_restrictions */,
@@ -1827,11 +1826,11 @@ LIST *folder_append_isa_mto1_related_folder_list(
 
 		related_folder->folder->mto1_related_folder_list =
 			related_folder_get_mto1_related_folder_list(
+				list_new_list(),
 				application_name,
 				session,
 				related_folder->folder->folder_name,
 				role_name,
-				list_new_list(),
 				0 /* isa_flag */,
 				related_folder_no_recursive,
 				override_row_restrictions,

@@ -288,11 +288,11 @@ void post_state_one(	char *application_name,
 
 	mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			(char *)0 /* session */,
 			folder_name,
 			role_name,
-			list_new_list(),
 			0 /* isa_flag */,
 			related_folder_recursive_all,
 			1 /* override_row_restrictions */,

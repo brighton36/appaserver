@@ -373,11 +373,11 @@ void output_relation(	FILE *output_file,
 
 	mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			(char *)0 /* session */,
 			folder_name,
 			(char *)0 /* role_name */,
-			list_new_list(),
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			1 /* override_row_restrictions */,

@@ -1168,11 +1168,11 @@ LIST *related_folder_get_edit_lookup_element_list(
 } /* related_folder_get_edit_lookup_element_list() */
 
 LIST *related_folder_get_mto1_related_folder_list(
+		LIST *related_folder_list,
 		char *application_name,
 		char *session,
 		char *folder_name,
 		char *role_name,
-		LIST *related_folder_list,
 		boolean isa_flag,
 		enum related_folder_recursive_request_type
 			recursive_request_type,
@@ -1210,12 +1210,16 @@ LIST *related_folder_get_mto1_related_folder_list(
 			continue;
 		}
 
+/*
 		if ( recursive_request_type == related_folder_recursive_all
 		||   recursive_request_type ==
 			related_folder_prompt_recursive_only )
 		{
 			related_folder->recursive_level = recursive_level;
 		}
+*/
+
+		related_folder->recursive_level = recursive_level;
 
 		if ( !related_folder->folder->attribute_list )
 		{
@@ -1333,16 +1337,16 @@ LIST *related_folder_get_mto1_related_folder_list(
 
 			related_folder_list =
 				related_folder_get_mto1_related_folder_list(
-				application_name,
-				session,
-				related_folder->folder->folder_name,
-				role_name,
-				related_folder_list,
-				isa_flag,
-				recursive_request_type,
-				override_row_restrictions,
-				local_root_primary_attribute_name_list,
-				++recursive_level );
+				   related_folder_list,
+				   application_name,
+				   session,
+				   related_folder->folder->folder_name,
+				   role_name,
+				   isa_flag,
+				   recursive_request_type,
+				   override_row_restrictions,
+				   local_root_primary_attribute_name_list,
+				   recursive_level + 1 );
 		}
 	} while( list_next( local_related_folder_list ) );
 
@@ -2138,11 +2142,11 @@ LIST *related_folder_get_isa_related_folder_list(
 
 	mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			session,
 			folder_name,
 			role_name,
-			list_new_list(),
 			1 /* isa_flag */,
 			recursive_request_type,
 			override_row_restrictions,
@@ -2452,11 +2456,11 @@ LIST *related_folder_get_mto1_common_non_primary_related_folder_list(
 
 	mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new(),
 			application_name,
 			session,
 			folder_name,
 			(char *)0 /* role_name */,
-			list_new(),
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			override_row_restrictions,
@@ -3122,7 +3126,8 @@ void related_folder_set_join_where_clause(
 LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				LIST *related_folder_list,
 				char *application_name,
-				char *folder_name )
+				char *folder_name,
+				int recursive_level )
 {
 	RELATED_FOLDER *related_folder;
 	LIST *local_related_folder_list;
@@ -3154,6 +3159,8 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 
 	do {
 		related_folder = list_get_pointer( local_related_folder_list );
+
+		related_folder->recursive_level = recursive_level;
 
 		folder_load(
 			&related_folder->folder->insert_rows_number,
@@ -3240,7 +3247,8 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 		related_folder_get_lookup_before_drop_down_related_folder_list(
 				related_folder_list,
 				application_name,
-				related_folder->folder->folder_name );
+				related_folder->folder->folder_name,
+				recursive_level + 1 );
 
 	} while( list_next( local_related_folder_list ) );
 

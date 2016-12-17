@@ -160,11 +160,11 @@ int main( int argc, char **argv )
 
 	appaserver->folder->mto1_related_folder_list = 
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			appaserver->application_name,
 			appaserver->session,
 			appaserver->folder->folder_name,
 			role_name,
-			list_new_list(),
 			0 /* isa_flag */,
 			related_folder_prompt_recursive_only,
 			role_get_override_row_restrictions(

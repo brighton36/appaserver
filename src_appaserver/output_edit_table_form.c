@@ -165,11 +165,11 @@ int main( int argc, char **argv )
 
 	folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			BOGUS_SESSION,
 			folder->folder_name,
 			role->role_name,
-			list_new_list(),
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			role_get_override_row_restrictions(
@@ -179,11 +179,11 @@ int main( int argc, char **argv )
 
 	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new(),
 			application_name,
 			session,
 			folder_name,
 			role_name,
-			list_new(),
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_get_override_row_restrictions(

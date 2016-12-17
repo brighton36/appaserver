@@ -83,14 +83,17 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 		related_folder_get_lookup_before_drop_down_related_folder_list(
 				list_new() /* related_folder_list */,
 				application_name,
-				folder->folder_name );
+				folder->folder_name,
+				0 /* recursive_level */ );
 
 	lookup_before_drop_down->base_folder = folder;
 
 	lookup_before_drop_down->lookup_before_drop_down_folder_list =
 		lookup_before_drop_down_get_folder_list(
+			application_name,
 			folder->mto1_recursive_related_folder_list,
-			state );
+			state,
+			base_folder_name );
 
 	lookup_before_drop_down_with_dictionary_set_fulfilled(
 		lookup_before_drop_down->
@@ -124,8 +127,10 @@ char *lookup_before_drop_down_get_base_folder_name(
 } /* lookup_before_drop_down_get_base_folder_name() */
 
 LIST *lookup_before_drop_down_get_folder_list(
+			char *application_name,
 			LIST *mto1_recursive_related_folder_list,
-			char *state )
+			char *state,
+			char *base_folder_name )
 {
 	RELATED_FOLDER *related_folder;
 	LOOKUP_BEFORE_DROP_DOWN_FOLDER *lookup_before_drop_down_folder;
@@ -147,10 +152,14 @@ LIST *lookup_before_drop_down_get_folder_list(
 	if ( related_folder->omit_lookup_before_drop_down ) return (LIST *)0;
 #endif
 
+	if ( lookup_before_drop_down_level_zero_omit(
+		mto1_recursive_related_folder_list ) )
+	{
+		return (LIST *)0;
+	}
+
 	done_folder_name_list = list_new();
 
-	/* Start at the end in case of a cycle. */
-	/* ------------------------------------ */
 	list_go_tail( mto1_recursive_related_folder_list );
 
 	do {
@@ -158,8 +167,10 @@ LIST *lookup_before_drop_down_get_folder_list(
 			list_get_pointer(
 				mto1_recursive_related_folder_list );
 
+/*
 		if ( related_folder->omit_lookup_before_drop_down )
 			continue;
+*/
 
 		if ( !related_folder->folder->lookup_before_drop_down )
 			continue;
@@ -211,10 +222,6 @@ LIST *lookup_before_drop_down_get_folder_list(
 					one2m_related_folder->
 					attribute_list );
 
-/*
-		if ( timlib_strcmp( state, "lookup" ) == 0
-		&&   list_length( omit_update_attribute_name_list ) )
-*/
 		if ( list_length( omit_update_attribute_name_list ) )
 		{
 			LIST *subtract_list;
@@ -255,6 +262,29 @@ LIST *lookup_before_drop_down_get_folder_list(
 	return folder_list;
 
 } /* lookup_before_drop_down_get_folder_list() */
+
+boolean lookup_before_drop_down_level_zero_omit(
+				LIST *mto1_recursive_related_folder_list )
+{
+	RELATED_FOLDER *related_folder;
+
+	if ( !list_rewind( mto1_recursive_related_folder_list ) ) return 0;
+
+	do {
+		related_folder =
+			list_get_pointer( 
+				mto1_recursive_related_folder_list );
+
+		if ( related_folder->recursive_level == 0
+		&&   !related_folder->omit_lookup_before_drop_down )
+		{
+			return 0;
+		}
+	} while( list_next( mto1_recursive_related_folder_list ) );
+
+	return 1;
+
+} /* lookup_before_drop_down_mark_consecutive_omit() */
 
 void lookup_before_drop_down_with_dictionary_set_fulfilled(
 		LIST *lookup_before_drop_down_folder_list,
@@ -619,9 +649,11 @@ void lookup_before_drop_down_set_dictionary_fulfilled(
 				lookup_before_drop_down_folder_list );
 
 		if ( folder->fulfilled )
+		{
 			list_append_pointer(
 				fulfilled_folder_name_list,
 				folder->folder_name );
+		}
 	} while( list_next( lookup_before_drop_down_folder_list ) );
 
 	dictionary_set_pointer(
@@ -910,13 +942,13 @@ char *lookup_before_drop_down_get_insert_pair_base_folder_name(
 
 		related_folder_list =
 			related_folder_get_mto1_related_folder_list(
+				list_new_list(),
 				application_name,
 				(char *)0 /* session */,
 				pair_related_folder->
 					one2m_related_folder->
 					folder_name,
 				(char *)0 /* role_name */,
-				list_new_list(),
 				0 /* isa_flag */,
 				related_folder_no_recursive,
 				1 /* override_row_restrictions */,

@@ -136,11 +136,11 @@ int main( int argc, char **argv )
 
 	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			session,
 			folder_name,
 			(char *)0 /* role_name */,
-			list_new_list(),
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_get_override_row_restrictions(

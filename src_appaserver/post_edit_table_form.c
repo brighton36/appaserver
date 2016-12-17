@@ -263,11 +263,11 @@ int main( int argc, char **argv )
 
 	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new(),
 			application_name,
 			session,
 			folder->folder_name,
 			role_name,
-			list_new(),
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_get_override_row_restrictions(
@@ -552,11 +552,11 @@ void post_state_insert(
 
 	mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			session,
 			folder->folder_name,
 			role_name,
-			list_new_list(),
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			role_override_row_restrictions,
@@ -777,11 +777,11 @@ void post_state_update(
 
 	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new(),
 			application_name,
 			session,
 			folder_name,
 			role_name,
-			list_new(),
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_override_row_restrictions,
@@ -1073,11 +1073,11 @@ void post_state_lookup(
 
 	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new(),
 			application_name,
 			session,
 			folder_name,
 			role_name,
-			list_new(),
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_override_row_restrictions,

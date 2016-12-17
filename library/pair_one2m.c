@@ -136,11 +136,11 @@ PAIR_ONE2M *pair_one2m_new(
 
 	pair_one2m->pair_insert_folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new(),
 			application_name,
 			session,
 			pair_one2m->pair_insert_folder->folder_name,
 			role->role_name,
-			list_new(),
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			role_get_override_row_restrictions(
@@ -150,11 +150,11 @@ PAIR_ONE2M *pair_one2m_new(
 
 	pair_one2m->pair_insert_folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			session,
 			pair_one2m->pair_insert_folder->folder_name,
 			role->role_name,
-			list_new_list(),
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_get_override_row_restrictions(

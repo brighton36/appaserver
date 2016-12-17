@@ -170,11 +170,11 @@ int main( int argc, char **argv )
 
 	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new(),
 			application_name,
 			session,
 			folder->folder_name,
 			role_name,
-			list_new(),
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_get_override_row_restrictions(
@@ -304,11 +304,11 @@ int main( int argc, char **argv )
 
 	folder->mto1_related_folder_list = 
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			session,
 			folder->folder_name,
 			role_name,
-			list_new_list(),
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			role_get_override_row_restrictions(
@@ -461,17 +461,18 @@ else
 
 			folder->mto1_related_folder_list =
 				related_folder_get_mto1_related_folder_list(
-				application_name,
-				session,
-				isa_related_folder->folder->folder_name,
-				role_name,
-				folder->mto1_related_folder_list,
-				0 /* isa_flag */,
-				related_folder_no_recursive,
-				role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-				(LIST *)0 /* root_primary_att..._name_list */,
-				0 /* recursive_level */ );
+				   folder->mto1_related_folder_list,
+				   application_name,
+				   session,
+				   isa_related_folder->folder->folder_name,
+				   role_name,
+				   0 /* isa_flag */,
+				   related_folder_no_recursive,
+				   role_get_override_row_restrictions(
+				   role->override_row_restrictions_yn ),
+				   (LIST *)0
+					/* root_primary_att..._name_list */,
+				   0 /* recursive_level */ );
 
 			list_append_string_list(
 				folder->attribute_name_list,
@@ -1049,17 +1050,17 @@ FOLDER *output_insert_table_form_get_pair_one2m_folder(
 
 	folder->mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
-		application_name,
-		session,
-		folder->folder_name,
-		role->role_name,
-		list_new(),
-		0 /* isa_flag */,
-		related_folder_no_recursive,
-		role_get_override_row_restrictions(
-			role->override_row_restrictions_yn ),
-		(LIST *)0 /* root_primary_att..._name_list */,
-		0 /* recursive_level */ );
+			list_new(),
+			application_name,
+			session,
+			folder->folder_name,
+			role->role_name,
+			0 /* isa_flag */,
+			related_folder_no_recursive,
+			role_get_override_row_restrictions(
+				role->override_row_restrictions_yn ),
+			(LIST *)0 /* root_primary_att..._name_list */,
+			0 /* recursive_level */ );
 
 	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(

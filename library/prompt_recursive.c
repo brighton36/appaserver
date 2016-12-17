@@ -106,11 +106,11 @@ LIST *prompt_recursive_get_mto1_folder_list(
 
 	mto1_recursive_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			BOGUS_SESSION,
 			prompt_folder_name,
 			(char *)0 /* role_name */,
-			list_new_list(),
 			0 /* isa_flag */,
 			related_folder_prompt_recursive_only,
 			0 /* dont override_row_restrictions */,

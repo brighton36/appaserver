@@ -404,11 +404,11 @@ int main( int argc, char **argv )
 
 	mto1_related_folder_list =
 		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
 			session_key,
 			folder_name,
 			role_name,
-			list_new_list(),
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			0 /* dont override_row_restrictions */,

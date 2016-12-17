@@ -7,9 +7,9 @@
 
 echo "$0" "$*" 1>&2
 
-if [ "$#" -ne 3 ]
+if [ "$#" -ne 5 ]
 then
-	echo "Usage: $0 application process_name output_medium" 1>&2
+	echo "Usage: $0 application process_name year aggregate output_medium" 1>&2
 	exit 1
 fi
 
@@ -24,8 +24,15 @@ else
 fi
 
 process_name=$2
+year=$3
 
-output_medium=$3
+aggregate=$4
+if [ "$aggregate" = "" -o "$aggregate" = "aggregate" ]
+then
+	output_medium="detail"		# Defaults to detail
+fi
+
+output_medium=$5
 if [ "$output_medium" = "" -o "$output_medium" = "output_medium" ]
 then
 	output_medium="table"		# Defaults to table
@@ -40,24 +47,33 @@ process_title=`echo "$process_name" | format_initial_capital.e`
 
 # Process
 # -------
-statement="select	
-			band_member.status,
-			band_member.full_name,
-			primary_instrument,
-			email_address,
-			home_phone,
-			cell_phone
-from band_member,musician,instrument,status
-where band_member.full_name = musician.full_name
-  and musician.primary_instrument = instrument.instrument
-  and band_member.status = status.status
-order by status.sort_order,musician.full_name;"
+if [ "$aggregate" = "detail" ]
+then
+	statement="select	full_name,
+				donation_date,
+				account,
+				donation_amount
+	from donation_program
+	where donation_date like '${year}%'
+	order by full_name,donation_date;"
 
-heading="Status,Full Name,Instrument,Email,Home,Cell"
-justification="left"
+	heading="Full Name,Date,Account,Amount"
+	justification="left,left,left,right"
+else
+	statement="select	full_name,
+				sum(donation_amount)
+	from donation_program
+	where donation_date like '${year}%'
+	group by full_name
+	order by sum(donation_amount) desc;"
+
+	heading="Full Name,Amount"
+	justification="left,right"
+fi
 
 echo "$heading" > $output_file
-echo "$statement" | sql.e ',' >> $output_file
+echo "$statement"		|
+sql.e ',' >> $output_file
 
 # Output
 # ------

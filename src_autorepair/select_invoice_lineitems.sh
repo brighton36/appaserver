@@ -10,12 +10,12 @@ echo "Starting: $0 $*" 1>&2
 
 if [ "$#" -ne 4 ]
 then
-	echo "Usage: $0 application entity_name street_address sale_date_time" 1>&2
+	echo "Usage: $0 application full_name street_address sale_date_time" 1>&2
 	exit 1
 fi
 
 application=$1
-entity_name=$2
+full_name=$2
 street_address=$3
 sale_date_time=$4
 
@@ -27,14 +27,14 @@ service_sale_select="service_name,'1',retail_price,discount_amount"
 
 echo "select ${inventory_sale_select}					\
 from ${inventory_sale}							\
-where entity_name = '$entity_name'					\
+where full_name = '$full_name'					\
 and street_address = '$street_address'					\
 and sale_date_time = '$sale_date_time';" 				|
 sql.e '^'
 
 echo "select ${service_sale_select}					\
 from ${service_sale}							\
-where entity_name = '$entity_name'					\
+where full_name = '$full_name'					\
 and street_address = '$street_address'					\
 and sale_date_time = '$sale_date_time';" 				|
 sql.e '^'

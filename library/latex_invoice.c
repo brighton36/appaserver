@@ -194,11 +194,11 @@ void latex_invoice_output_invoice_header(
 	}
 
 	fprintf( output_stream,
-"\\begin{center}{\\Huge \\bf %s} \\end{center}\n",
+"\\begin{center}{\\Large \\bf %s} \\end{center}\n",
 	 	 title );
 
 	fprintf( output_stream,
-"\\begin{center}{\\Huge \\bf For %s} \\end{center}\n",
+"\\begin{center}{\\Large \\bf For %s} \\end{center}\n",
 		 latex_invoice_customer->invoice_key );
 
 	if ( logo_filename && *logo_filename )

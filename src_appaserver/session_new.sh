@@ -1,7 +1,7 @@
 #!/bin/sh
-# ---------------
-# session_new.sh
-# ---------------
+# ----------------------------------------------
+# $APPASERVER_HOME/src_appaserver/session_new.sh
+# ----------------------------------------------
 #
 # Freely available software: see Appaserver.org
 # ---------------------------------------------

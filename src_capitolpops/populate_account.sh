@@ -30,7 +30,7 @@ subclassification_where="1 = 1"
 
 if [ "$one2m_folder" = "donation_program" ]
 then
-	subclassification_where="subclassification = 'donation'"
+	subclassification_where="subclassification = 'donation' or subclassification = 'dues'"
 fi
 
 if [ "$one2m_folder" = "fixed_asset" ]

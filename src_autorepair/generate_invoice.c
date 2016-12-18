@@ -1,6 +1,8 @@
-/* src_autorepair/generate_invoice.c					*/
+/* $APPASERVER_HOME/src_autorepair/generate_invoice.c			*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
+/* ----------------------------------------------------------------	*/
+/* Note: links to generate_workorder					*/
 /* ----------------------------------------------------------------	*/
 
 /* Includes */

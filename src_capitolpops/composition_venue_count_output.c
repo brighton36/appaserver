@@ -56,7 +56,7 @@ void composition_venue_count_output_table(
 			FILE *input_pipe );
 
 void composition_count_output(
-			char *output_medium );
+			void );
 
 void composition_venue_count_output(
 			char *application_name,
@@ -156,7 +156,7 @@ int main( int argc, char **argv )
 	&&   strcmp( city, "city" ) == 0
 	&&   strcmp( venue, "venue" ) == 0 )
 	{
-		composition_count_output( output_medium );
+		composition_count_output();
 	}
 	else
 	{
@@ -180,8 +180,7 @@ int main( int argc, char **argv )
 	exit( 0 );
 } /* main() */
 
-void composition_count_output(
-			char *output_medium )
+void composition_count_output( void )
 {
 	char sys_string[ 1024 ];
 	FILE *input_pipe;

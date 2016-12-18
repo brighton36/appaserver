@@ -6296,3 +6296,4 @@ void ledger_append_propagate_account_list(
 	list_append_pointer( propagate_account_list, account );
 
 } /* ledger_append_propagate_account_list() */
+

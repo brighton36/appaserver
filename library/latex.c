@@ -1,4 +1,4 @@
-/* library/latex.c					   */
+/* $APPASERVER_HOME/library/latex.c			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -100,6 +100,12 @@ LATEX_TABLE_HEADING *latex_new_latex_table_heading( void )
 void latex_output_table_footer( FILE *output_stream )
 {
 	fprintf( output_stream,
+		 "\n\\hline\n\\end{tabular}\n" );
+}
+
+void latex_output_longtable_footer( FILE *output_stream )
+{
+	fprintf( output_stream,
 		 "\n\\hline\n\\end{longtable}\n" );
 }
 
@@ -109,33 +115,13 @@ void latex_output_document_footer( FILE *output_stream )
 		 "\\end{document}\n" );
 }
 
-void latex_output_document_heading(	FILE *output_stream,
+void latex_output_longtable_document_heading(
+					FILE *output_stream,
 					boolean landscape_flag,
 					boolean table_package_flag,
-					char *logo_filename )
+					char *logo_filename,
+					boolean omit_page_numbers )
 {
-/*
-	fprintf( output_stream,
-		 "\\documentclass[letterpaper,12pt" );
-
-	if ( landscape_flag )
-	{
-		fprintf( output_stream,
-			 ",landscape" );
-	}
-
-	fprintf( output_stream,
-		 "]{article}\n" );
-
-	fprintf( output_stream, "\\usepackage[dvipdfmx]{graphicx}\n" );
-	fprintf( output_stream, "\\usepackage{bmpsize}\n" );
-	fprintf( output_stream, "\\usepackage{graphics}\n" );
-
-	fprintf( output_stream,
-"\\documentclass{letter}\n"
-"\\usepackage{graphics}\n" );
-*/
-
 	fprintf( output_stream,
 "\\documentclass{report}\n"
 "\\usepackage{graphics}\n" );
@@ -148,14 +134,6 @@ void latex_output_document_heading(	FILE *output_stream,
 
 	if ( table_package_flag )
 	{
-/*
-		fprintf( output_stream,
-			 "\\usepackage{longtable}\n"
-			 "\\usepackage[  margin=2.5cm,"
-                			 "vmargin={0pt,0.5cm},"
-                			 "nohead]{geometry}\n" );
-*/
-
 		if ( WITH_CAPTION )
 		{
 			fprintf(
@@ -176,6 +154,12 @@ void latex_output_document_heading(	FILE *output_stream,
                 			 "nohead]{geometry}\n" );
 		}
 	}
+ 
+	if ( omit_page_numbers )
+	{
+		fprintf( output_stream,
+			 "\\pagenumbering{gobble}\n" );
+	}
 
 	fprintf( output_stream,
 		 "\\begin{document}\n" );
@@ -189,9 +173,9 @@ void latex_output_document_heading(	FILE *output_stream,
 		 	 logo_filename );
 	}
 
-} /* latex_output_document_heading() */
+} /* latex_output_longtable_document_heading() */
 
-void latex_output_table_heading(	FILE *output_stream,
+void latex_output_longtable_heading(	FILE *output_stream,
 					char *caption,
 					LIST *heading_list )
 {
@@ -275,7 +259,7 @@ void latex_output_table_heading(	FILE *output_stream,
 	fprintf( output_stream, "\\endfoot\n" );
 	fprintf( output_stream, "\\endlastfoot\n" );
 
-} /* latex_output_table_heading() */
+} /* latex_output_longtable_heading() */
 
 void latex_output_table_row_list(	FILE *output_stream,
 					LIST *row_list )
@@ -296,6 +280,12 @@ void latex_output_table_row_list(	FILE *output_stream,
 			continue;
 		}
 
+		if  ( row->preceed_double_line )
+		{
+			fprintf( output_stream,
+				 "\\hline \\hline\n" );
+		}
+
 		first_time = 1;
 		do {
 			column_data = list_get_pointer( row->column_data_list );
@@ -307,40 +297,56 @@ void latex_output_table_row_list(	FILE *output_stream,
 
 			if ( column_data )
 			{
-				timlib_strcpy( buffer, column_data, 1024 );
+				if  ( row->preceed_double_line )
+				{
+					fprintf( output_stream,
+				 		"\\Large \\bf " );
+				}
 
-				search_replace_string(
-					buffer,
-					"#",
-					"Number " );
-
-				search_replace_string(
-					buffer,
-					"&",
-					"\\&" );
-
-/*
-				search_replace_string(
-					buffer,
-					"$",
-					"\\$" );
-*/
-
-				search_replace_string(
-					buffer,
-					"%",
-					"\\%" );
 
 				fprintf(output_stream,
 					"%s",
-					buffer );
+					latex_escape_data(
+						buffer,
+						column_data,
+						1024 ) );
 			}
 
 		} while( list_next( row->column_data_list ) );
+
 		fprintf( output_stream, "\\\\\n" );
+
 	} while( list_next( row_list ) );
 
 } /* latex_output_table_row_list() */
+
+void latex_output_table_vertical_padding(
+				FILE *output_stream,
+				int length_heading_list,
+				int empty_vertical_rows )
+{
+	int i;
+	int j;
+
+	if ( length_heading_list < 2 )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s(): invalid length_heading_list.\n",
+			 __FILE__,
+			 __FUNCTION__ );
+		exit( 1 );
+	}
+
+	for( i = 0; i < empty_vertical_rows; i++ )
+	{
+		for( j = 0; j < length_heading_list - 1; j++  )
+		{
+			fprintf( output_stream, "&" );
+		}
+		fprintf( output_stream, "\\\\\n" );
+	}
+
+} /* latex_output_table_vertical_padding() */
 
 LATEX_ROW *latex_new_latex_row( void )
 {
@@ -392,24 +398,27 @@ fprintf( stderr, "%s\n", sys_string );
 
 } /* latex_tex2pdf() */
 
-void latex_table_output(	FILE *output_stream,
+void latex_longtable_output(	FILE *output_stream,
 				boolean landscape_flag,
 				LIST *table_list,
-				char *logo_filename )
+				char *logo_filename,
+				boolean omit_page_numbers )
 {
 	LATEX_TABLE *table;
 
-	latex_output_document_heading(	output_stream,
+	latex_output_longtable_document_heading(
+					output_stream,
 					landscape_flag,
 					1 /* table_package_flag */,
-					logo_filename );
+					logo_filename,
+					omit_page_numbers );
 
 	if ( !list_rewind( table_list ) ) return;
 
 	do {
 		table = list_get_pointer( table_list );
 
-		latex_output_table_heading(
+		latex_output_longtable_heading(
 					output_stream,
 					table->caption,
 					table->heading_list );
@@ -418,12 +427,204 @@ void latex_table_output(	FILE *output_stream,
 					output_stream,
 					table->row_list );
 
-		latex_output_table_footer(
+		latex_output_longtable_footer(
 					output_stream );
 
 	} while( list_next( table_list ) );
 
 	latex_output_document_footer( output_stream );
 
-} /* latex_table_output() */
+} /* latex_longtable_output() */
 
+void latex_output_documentclass_letter(	FILE *output_stream,
+					boolean omit_page_numbers )
+{
+	fprintf( output_stream,
+"\\documentclass{letter}\n"
+"\\usepackage{graphics}\n"
+"\\usepackage[	margin=1in,\n"
+"		nohead]{geometry}\n" );
+
+	if ( omit_page_numbers )
+	{
+		fprintf( output_stream,
+			 "\\pagenumbering{gobble}\n" );
+	}
+
+	fprintf( output_stream,
+		 "\\begin{document}\n" );
+
+} /* latex_output_documentclass_letter() */
+
+void latex_output_letterhead_document_heading(
+					FILE *output_stream,
+					char *logo_filename,
+					char *organization_name,
+					char *street_address,
+					char *city_state_zip,
+					char *date_string )
+{
+	if ( !logo_filename || !*logo_filename )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: emtpy logo_filename.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	fprintf( output_stream,
+"\\parbox{1.5in}{\n"
+"\\includegraphics{%s}\n"
+"}\n"
+"\\hfill\n"
+"\\begin{tabular}{c}\n"
+"\\Large \\bf %s\\\\\n"
+"\\normalsize \\bf %s\\\\\n"
+"\\normalsize \\bf %s\\\\\n"
+"\\normalsize %s\n"
+"\\end{tabular}\n"
+"\\hfill\n"
+"\\parbox{2.5in}{ }\n\n",
+		 logo_filename,
+		 organization_name,
+		 street_address,
+		 city_state_zip,
+		 date_string );
+
+} /* latex_output_letterhead_document_heading() */
+
+void latex_output_indented_address(	FILE *output_stream,
+					char *full_name,
+					char *street_address,
+					char *city_state_zip )
+{
+	char full_name_buffer[ 128 ];
+	char street_address_buffer[ 128 ];
+	char city_state_zip_buffer[ 128 ];
+
+	fprintf( output_stream,
+"\\begin{tabular}{p{0.5in}l}\n"
+"& %s\\\\\n"
+"& %s\\\\\n"
+"& %s\n"
+"\\end{tabular}\n\n",
+		 latex_escape_data(
+			full_name_buffer,
+		 	full_name,
+			128 ),
+		 latex_escape_data(
+			street_address_buffer,
+			street_address,
+			128 ),
+		 latex_escape_data(
+			city_state_zip_buffer,
+			city_state_zip,
+			128 ) );
+
+} /* latex_output_indented_address() */
+
+void latex_output_table_heading(	FILE *output_stream,
+					char *caption,
+					LIST *heading_list )
+{
+	LATEX_TABLE_HEADING *latex_table_heading;
+	int first_time;
+	char buffer[ 128 ];
+
+	if ( !WITH_CAPTION )
+	{
+		if ( caption && *caption )
+		{
+			fprintf(output_stream,
+				"\\begin{center} { \\bf %s} \\end{center}\n",
+				caption );
+		}
+	}
+
+	fprintf( output_stream,
+		 "\\begin{tabular}{|" );
+
+	if ( !list_rewind( heading_list ) ) return;
+
+	do {
+		latex_table_heading = list_get_pointer( heading_list );
+
+		if ( latex_table_heading->paragraph_size )
+		{
+			fprintf(output_stream,
+				"p{%s}|",
+				latex_table_heading->paragraph_size );
+		}
+		else
+		if ( latex_table_heading->right_justified_flag )
+			fprintf( output_stream, "r|" );
+		else
+			fprintf( output_stream, "l|" );
+
+	} while( list_next( heading_list ) );
+
+	fprintf( output_stream, "} \\hline\n" );
+
+	if ( WITH_CAPTION )
+	{
+		if ( caption && *caption )
+		{
+			fprintf(	output_stream,
+					"\\caption {%s} \\\\ \\hline\n",
+					caption );
+		}
+	}
+
+	list_rewind( heading_list );
+
+	first_time = 1;
+	do {
+		latex_table_heading = list_get_pointer( heading_list );
+
+		if ( first_time )
+			first_time = 0;
+		else
+			fprintf( output_stream, " & " );
+
+		if ( latex_table_heading->heading
+		&&   *latex_table_heading->heading )
+		{
+			fprintf( output_stream,
+				 "%s",
+				 format_initial_capital(
+					buffer,
+				 	latex_table_heading->heading ) );
+		}
+
+	} while( list_next( heading_list ) );
+
+	fprintf( output_stream, "\\\\ \\hline \\hline\n" );
+
+} /* latex_output_table_heading() */
+
+char *latex_escape_data(	char *destination,
+				char *source,
+				int buffer_size )
+{
+	timlib_strcpy( destination, source, 1024 );
+
+	search_replace_string(
+		destination,
+		"#",
+		"Number " );
+
+	search_replace_string(
+		destination,
+		"&",
+		"\\&" );
+
+	search_replace_string(
+		destination,
+		"%",
+		"\\%" );
+
+	return destination;
+
+} /* latex_escape_data() */

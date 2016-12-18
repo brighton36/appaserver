@@ -458,11 +458,12 @@ void tax_form_report_PDF(
 		tax_form_report_detail_PDF_table_list(
 			tax_form_category_list ) );
 
-	latex_table_output(
+	latex_longtable_output(
 		latex->output_stream,
 		latex->landscape_flag,
 		latex->table_list,
-		latex->logo_filename );
+		latex->logo_filename,
+		0 /* not omit_page_numbers */ );
 
 	fclose( latex->output_stream );
 

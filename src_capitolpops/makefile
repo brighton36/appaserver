@@ -28,7 +28,7 @@ EXECUTABLES=	post_capitolpops					\
 		post_change_dues_payment				\
 		post_change_donation_program				\
 		post_change_donation					\
-		brews_and_boos_profit					\
+		donor_receipt						\
 		composition_venue_count_output				\
 		composition_venue_count
 
@@ -163,14 +163,14 @@ composition_venue_count: composition_venue_count.c			\
 		composition_venue_count.c				\
 		-o composition_venue_count
 
-brews_and_boos_profit: brews_and_boos_profit.c				\
+donor_receipt: donor_receipt.c						\
 	${EXTERNAL_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-I${LEDGER_LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBRARY}					\
-		brews_and_boos_profit.c					\
-		-o brews_and_boos_profit
+		donor_receipt.c						\
+		-o donor_receipt
 
 musician.o: musician.h musician.c
 	${CC} -c ${CFLAGS} -I${LIBRARY}					\

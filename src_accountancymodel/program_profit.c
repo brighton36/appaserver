@@ -864,11 +864,12 @@ void program_profit_aggregate_account_PDF(
 
 	/* Output */
 	/* ------ */
-	latex_table_output(
+	latex_longtable_output(
 		latex->output_stream,
 		latex->landscape_flag,
 		latex->table_list,
-		latex->logo_filename );
+		latex->logo_filename,
+		0 /* not omit_page_numbers */ );
 
 	fclose( latex->output_stream );
 
@@ -1103,11 +1104,12 @@ void program_profit_PDF(	char *application_name,
 
 	/* Output */
 	/* ------ */
-	latex_table_output(
+	latex_longtable_output(
 		latex->output_stream,
 		latex->landscape_flag,
 		latex->table_list,
-		latex->logo_filename );
+		latex->logo_filename,
+		0 /* not omit_page_numbers */ );
 
 	fclose( latex->output_stream );
 

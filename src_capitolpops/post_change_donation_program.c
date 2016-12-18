@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_capitolpops/post_change_donation_program.c			*/
+/* $APPASERVER_HOME/src_capitolpops/post_change_donation_program.c	*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -18,9 +18,16 @@
 
 /* Constants */
 /* --------- */
+#define STATUS_ACTIVE		"Active"
+#define MEMBER_DUES_ACCOUNT	"member_dues"
 
 /* Prototypes */
 /* ---------- */
+void post_change_set_status_active(
+				char *application_name,
+				char *full_name,
+				char *street_address );
+
 void post_change_donation_amount_update(
 				char *application_name,
 				char *full_name,
@@ -190,6 +197,16 @@ void post_change_donation_program_insert(
 			donation->transaction_date_time,
 			donation->donation_fund_list,
 			0 /* not propagate_only */ );
+
+	if ( (boolean)donation_program_seek(
+			donation->donation_program_list,
+			MEMBER_DUES_ACCOUNT ) )
+	{
+		post_change_set_status_active(
+			application_name,
+			donation->full_name,
+			donation->street_address );
+	}
 
 } /* post_change_donation_program_insert() */
 
@@ -454,4 +471,35 @@ void post_change_donation_amount_update(
 	}
 
 } /* post_change_donation_amount_update() */
+
+void post_change_set_status_active(
+				char *application_name,
+				char *full_name,
+				char *street_address )
+{
+	char sys_string[ 1024 ];
+	char *table_name;
+	char *key;
+	FILE *output_pipe;
+
+	table_name = get_table_name( application_name, "band_member" );
+	key = "full_name,street_address";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y	|"
+		 "sql.e						 ",
+		 table_name,
+		 key );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf( output_pipe,
+		 "%s^%s^status^%s\n",
+		 full_name,
+		 street_address,
+		 STATUS_ACTIVE );
+
+	pclose( output_pipe );
+
+} /* post_change_set_status_active() */
 

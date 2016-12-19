@@ -1,4 +1,4 @@
-/* src_appaserver/post_change_sort_order.c			*/
+/* $APPASERVER_HOME/src_appaserver/post_change_sort_order.c	*/
 /* ------------------------------------------------------------	*/
 /* This process is triggered if you select the sort order radio	*/
 /* button on the lookup forms with attribute names of		*/
@@ -41,6 +41,14 @@
 
 /* Prototypes */
 /* ---------- */
+LIST *get_option_list(
+				char *application_name,
+				LIST *display_attribute_name_list,
+				char *folder_name,
+				char *where_clause,
+				char *sort_order_column,
+				boolean with_padding );
+
 void post_change_sort_order_post_change_process_execute(
 				PROCESS *post_change_process,
 				DICTIONARY *post_dictionary,
@@ -305,15 +313,16 @@ void change_sort_order_state_one(
 				char *role_name,
 				DICTIONARY *ignore_dictionary )
 {
-	char sys_string[ 1024 ];
-	char input_buffer[ 1024 ];
-	FILE *input_pipe;
 	FORM *form;
 	char action_string[ 512 ];
 	char *submit_control_string;
 	char *sort_order_column = {0};
 	LIST *display_attribute_name_list;
 	LIST *ignore_attribute_name_list;
+	LIST *option_list;
+	LIST *display_list;
+	char *option;
+	char *display;
 
 	display_attribute_name_list =
 		attribute_get_attribute_name_list(
@@ -372,9 +381,25 @@ void change_sort_order_state_one(
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */ );
 
-/*
-		 "delimiter2padded_columns.e '%c' 1 y		|"
-*/
+	option_list =
+		get_option_list(
+			application_name,
+			display_attribute_name_list,
+			folder->folder_name,
+			where_clause,
+			sort_order_column,
+			0 /* not with padding */ );
+
+	display_list =
+		get_option_list(
+			application_name,
+			display_attribute_name_list,
+			folder->folder_name,
+			where_clause,
+			sort_order_column,
+			1 /* with padding */ );
+
+#ifdef NOT_DEFINED
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		 "
 		 "			select=%s		 "
@@ -390,12 +415,31 @@ void change_sort_order_state_one(
 		 FOLDER_DATA_DELIMITER );
 
 	input_pipe = popen( sys_string, "r" );
+#endif
 
 	printf( "<tr><td>\n" );
 
 	printf( "<select multiple name=\"%s\" size=15>\n",
 		SORT_ORDER_ELEMENT_NAME );
 
+	if ( list_rewind( option_list ) )
+	{
+		list_rewind( display_list );
+
+		do {
+			option = list_get_pointer( option_list );
+			display = list_get_pointer( display_list );
+
+			printf( "<option value=\"%s\">%s\n",
+				option,
+				display );
+
+			list_next( display_list );
+
+		} while( list_next( option_list ) );
+	}
+
+/*
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		printf( "<option value=\"%s\">%s\n",
@@ -404,6 +448,7 @@ void change_sort_order_state_one(
 	}
 
 	pclose( input_pipe );
+*/
 
 	printf( "</select>\n" );
 
@@ -584,4 +629,52 @@ void post_change_sort_order_post_change_process_execute(
 	system( post_change_process->executable );
 
 } /* post_change_sort_order_post_change_process_execute() */
+
+LIST *get_option_list(
+			char *application_name,
+			LIST *display_attribute_name_list,
+			char *folder_name,
+			char *where_clause,
+			char *sort_order_column,
+			boolean with_padding )
+{
+	char padding_process[ 128 ];
+	char sys_string[ 1024 ];
+
+if ( with_padding ){};
+
+#ifdef NOT_DEFINED
+	if ( with_padding )
+	{
+		sprintf( padding_process,
+			 "delimiter2padded_columns.e '%c' 1 y	|"
+			 "sed 's/ /\\&nbsp;/g'			|"
+			 "cat					 ",
+			 FOLDER_DATA_DELIMITER );
+	}
+	else
+	{
+		strcpy( padding_process, "cat" );
+	}
+#endif
+	strcpy( padding_process, "cat" );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		 "
+		 "			select=%s		 "
+		 "			folder=%s		 "
+		 "			where=\"%s\"		 "
+		 "			order=%s		|"
+		 "%s						|"
+		 "cat						 ",
+		 application_name,
+		 list_display( display_attribute_name_list ),
+		 folder_name,
+		 where_clause,
+		 sort_order_column,
+		 padding_process );
+
+	return pipe2list( sys_string );
+
+} /* get_option_list() */
 

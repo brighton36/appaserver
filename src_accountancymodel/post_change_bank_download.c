@@ -233,6 +233,7 @@ LIST *bank_download_merge_bank_download_list(
 
 		if ( !bank_download )
 		{
+/*
 			fprintf( stderr,
 			"Warning in %s/%s()/%d: cannot seek (%s -- %s).\n",
 			 __FILE__,
@@ -240,6 +241,7 @@ LIST *bank_download_merge_bank_download_list(
 			 __LINE__,
 			 	dictionary_bank_download->bank_date,
 			 	dictionary_bank_download->bank_description );
+*/
 
 			continue;
 		}

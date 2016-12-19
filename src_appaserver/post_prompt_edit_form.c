@@ -1,12 +1,12 @@
-/* ---------------------------------------------------	*/
-/* src_appaserver/post_prompt_edit_form.c		*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* This script is attached to the submit button on 	*/
-/* the lookup form.					*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/post_prompt_edit_form.c	*/
+/* -------------------------------------------------------	*/
+/*								*/
+/* This script is attached to the submit button on 		*/
+/* the lookup form.						*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* -------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -239,7 +239,7 @@ int main( int argc, char **argv )
 	}
 
 	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files();
+	appaserver_library_purge_temporary_files( application_name );
 
 	lookup_required_attribute_name_list =
 		attribute_get_lookup_required_attribute_name_list(

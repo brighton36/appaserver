@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_capitolpops/post_change_donation_program.c	*/
+/* $APPASERVER_HOME/src_capitolpops/post_change_donation_account.c	*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -42,7 +42,7 @@ void post_change_donation_account_update(
 				char *donation_date,
 				char *preupdate_account_name );
 
-void post_change_donation_program_update(
+void post_change_donation_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -51,13 +51,13 @@ void post_change_donation_program_update(
 				char *preupdate_account_name,
 				char *preupdate_donation_amount );
 
-void post_change_donation_program_delete(
+void post_change_donation_account_delete(
 				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *donation_date );
 
-void post_change_donation_program_insert(
+void post_change_donation_account_insert(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -112,13 +112,13 @@ int main( int argc, char **argv )
 	if ( strcmp( donation_date, "donation_date" ) == 0 ) exit( 0 );
 	if ( strcmp( account_name, "account" ) == 0 ) exit( 0 );
 
-	/* There's no DONATION_PROGRAM.transaction_date_time. */
+	/* There's no DONATION_ACCOUNT.transaction_date_time. */
 	/* -------------------------------------------------- */
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		post_change_donation_program_insert(
+		post_change_donation_account_insert(
 				application_name,
 				full_name,
 				street_address,
@@ -127,7 +127,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "update" ) == 0 )
 	{
-		post_change_donation_program_update(
+		post_change_donation_update(
 				application_name,
 				full_name,
 				street_address,
@@ -139,7 +139,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "delete" ) == 0 )
 	{
-		post_change_donation_program_delete(
+		post_change_donation_account_delete(
 				application_name,
 				full_name,
 				street_address,
@@ -150,7 +150,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_donation_program_insert(
+void post_change_donation_account_insert(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -170,7 +170,7 @@ void post_change_donation_program_insert(
 
 	donation->total_donation_amount =
 		donation_get_total_donation_amount(
-			donation->donation_program_list );
+			donation->donation_account_list );
 
 	donation_update(
 			application_name,
@@ -198,8 +198,8 @@ void post_change_donation_program_insert(
 			donation->donation_fund_list,
 			0 /* not propagate_only */ );
 
-	if ( (boolean)donation_program_seek(
-			donation->donation_program_list,
+	if ( (boolean)donation_account_seek(
+			donation->donation_account_list,
 			MEMBER_DUES_ACCOUNT ) )
 	{
 		post_change_set_status_active(
@@ -208,9 +208,9 @@ void post_change_donation_program_insert(
 			donation->street_address );
 	}
 
-} /* post_change_donation_program_insert() */
+} /* post_change_donation_account_insert() */
 
-void post_change_donation_program_delete(
+void post_change_donation_account_delete(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -230,7 +230,7 @@ void post_change_donation_program_delete(
 
 	donation->total_donation_amount =
 		donation_get_total_donation_amount(
-			donation->donation_program_list );
+			donation->donation_account_list );
 
 	donation_update(
 			application_name,
@@ -250,9 +250,9 @@ void post_change_donation_program_delete(
 			donation->donation_fund_list,
 			0 /* not propagate_only */ );
 
-} /* post_change_donation_program_delete() */
+} /* post_change_donation_account_delete() */
 
-void post_change_donation_program_update(
+void post_change_donation_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -298,7 +298,7 @@ void post_change_donation_program_update(
 			account_name );
 	}
 
-} /* post_change_donation_program_update() */
+} /* post_change_donation_update() */
 
 void post_change_donation_account_update(
 				char *application_name,
@@ -368,7 +368,7 @@ void post_change_donation_amount_update(
 				char *account_name )
 {
 	DONATION *donation;
-	DONATION_PROGRAM *donation_program;
+	DONATION_ACCOUNT *donation_account;
 
 	donation =
 		donation_fetch(
@@ -387,13 +387,13 @@ void post_change_donation_amount_update(
 		exit( 1 );
 	}
 
-	if ( ! ( donation_program =
-			donation_program_seek(
-				donation->donation_program_list,
+	if ( ! ( donation_account =
+			donation_account_seek(
+				donation->donation_account_list,
 				account_name ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot find donation_program.\n",
+			 "ERROR in %s/%s()/%d: cannot find donation_account.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -402,7 +402,7 @@ void post_change_donation_amount_update(
 
 	donation->total_donation_amount =
 		donation_get_total_donation_amount(
-			donation->donation_program_list );
+			donation->donation_account_list );
 
 	/* Update DONATION.total_donation_amount */
 	/* ------------------------------------- */
@@ -430,7 +430,7 @@ void post_change_donation_amount_update(
 	/* --------------------------------------------------- */
 	if ( !ledger_journal_ledger_list_reset_amount(
 		donation->transaction->journal_ledger_list,
-		donation_program->donation_amount ) )
+		donation_account->donation_amount ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot reset amount.\n",

@@ -323,7 +323,7 @@ int main( int argc, char **argv )
 	}
 
 	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files();
+	appaserver_library_purge_temporary_files( application_name );
 
 	appaserver_user_foreign_login_name =
 		related_folder_get_appaserver_user_foreign_login_name(

@@ -451,7 +451,7 @@ post_capitolpops
 parse_contact_list
 build_capitolpops
 post_change_dues_payment
-post_change_donation_program
+post_change_donation_account
 post_change_donation
 composition_venue_count_output
 composition_venue_count

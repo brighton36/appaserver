@@ -25,8 +25,7 @@ STANDARD_LIBRARY=							\
 EXECUTABLES=	post_capitolpops					\
 		parse_contact_list					\
 		build_capitolpops					\
-		post_change_dues_payment				\
-		post_change_donation_program				\
+		post_change_donation_account				\
 		post_change_donation					\
 		donor_receipt						\
 		composition_venue_count_output				\
@@ -135,25 +134,15 @@ post_change_donation: post_change_donation.c				\
 		donation.o						\
 		-o post_change_donation
 
-post_change_dues_payment: post_change_dues_payment.c			\
-	${STANDARD_LIBRARY} ${LEDGER_LIBRARY} dues_payment.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-I${LEDGER_LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBRARY}					\
-		post_change_dues_payment.c				\
-		dues_payment.o						\
-		-o post_change_dues_payment
-
-post_change_donation_program: post_change_donation_program.c		\
+post_change_donation_account: post_change_donation_account.c		\
 	${STANDARD_LIBRARY} ${LEDGER_LIBRARY} donation.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-I${LEDGER_LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBRARY}					\
-		post_change_donation_program.c				\
+		post_change_donation_account.c				\
 		donation.o						\
-		-o post_change_donation_program
+		-o post_change_donation_account
 
 composition_venue_count: composition_venue_count.c			\
 	${STANDARD_LIBRARY}

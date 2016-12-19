@@ -2677,11 +2677,14 @@ boolean appaserver_library_exists_javascript_folder(
 	return atoi( pipe2string( sys_string ) );
 } /* appaserver_library_exists_javascript_folder() */
 
-void appaserver_library_purge_temporary_files( void )
+void appaserver_library_purge_temporary_files( char *application_name )
 {
-	char *sys_string;
+	char sys_string[ 128 ];
 
-	sys_string = "appaserver_purge_temporary_files.sh &";
+	sprintf( sys_string,
+		 "appaserver_purge_temporary_files.sh %s &",
+		 application_name );
+
 	system( sys_string );
 }
 

@@ -34,16 +34,16 @@ DONATION_FUND *donation_fund_new( char *fund_name )
 	}
 
 	p->fund_name = fund_name;
-	p->donation_program_list = list_new();
+	p->donation_account_list = list_new();
 	return p;
 
 } /* donation_fund_new() */
 
-DONATION_PROGRAM *donation_program_new( void )
+DONATION_ACCOUNT *donation_account_new( void )
 {
-	DONATION_PROGRAM *p =
-		(DONATION_PROGRAM *)
-			calloc( 1, sizeof( DONATION_PROGRAM ) );
+	DONATION_ACCOUNT *p =
+		(DONATION_ACCOUNT *)
+			calloc( 1, sizeof( DONATION_ACCOUNT ) );
 
 	if ( !p )
 	{
@@ -56,7 +56,7 @@ DONATION_PROGRAM *donation_program_new( void )
 	}
 
 	return p;
-} /* donation_program_new() */
+} /* donation_account_new() */
 
 DONATION *donation_new( void )
 {
@@ -132,8 +132,8 @@ DONATION *donation_fetch(
 
 	donation = donation_parse( results );
 
-	donation->donation_program_list =
-		donation_fetch_donation_program_list(
+	donation->donation_account_list =
+		donation_fetch_donation_account_list(
 			application_name,
 			donation->full_name,
 			donation->street_address,
@@ -142,7 +142,7 @@ DONATION *donation_fetch(
 	donation->donation_fund_list =
 		donation_get_fund_list(
 			application_name,
-			donation->donation_program_list );
+			donation->donation_account_list );
 
 	if ( donation->transaction_date_time )
 	{
@@ -158,21 +158,21 @@ DONATION *donation_fetch(
 
 } /* donation_fetch() */
 
-LIST *donation_fetch_donation_program_list(
+LIST *donation_fetch_donation_account_list(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *donation_date )
 {
-	DONATION_PROGRAM *donation_program;
+	DONATION_ACCOUNT *donation_account;
 	char *select;
-	LIST *donation_program_list;
+	LIST *donation_account_list;
 	char sys_string[ 1024 ];
 	char *where;
 	FILE *input_pipe;
 	char input_buffer[ 1024 ];
 
-	select = donation_program_get_select();
+	select = donation_account_get_select();
 
 	where = donation_get_where(
 			full_name,
@@ -182,7 +182,7 @@ LIST *donation_fetch_donation_program_list(
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=%s			"
-		 "			folder=donation_program		"
+		 "			folder=donation_account		"
 		 "			where=\"%s\"			"
 		 "			order=account			",
 		 application_name,
@@ -191,21 +191,21 @@ LIST *donation_fetch_donation_program_list(
 
 	input_pipe = popen( sys_string, "r" );
 
-	donation_program_list = list_new();
+	donation_account_list = list_new();
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		donation_program =
-			donation_program_parse(
+		donation_account =
+			donation_account_parse(
 				input_buffer );
 
-		list_append_pointer( donation_program_list, donation_program );
+		list_append_pointer( donation_account_list, donation_account );
 	}
 
 	pclose( input_pipe );
-	return donation_program_list;
+	return donation_account_list;
 
-} /* donation_fetch_donation_program_list() */
+} /* donation_fetch_donation_account_list() */
 
 void donation_update(
 			char *application_name,
@@ -252,23 +252,23 @@ void donation_update(
 
 } /* donation_update() */
 
-DONATION_PROGRAM *donation_program_parse(
+DONATION_ACCOUNT *donation_account_parse(
 			char *input_buffer )
 {
-	DONATION_PROGRAM *donation_program;
+	DONATION_ACCOUNT *donation_account;
 	char piece_buffer[ 256 ];
 
-	donation_program = donation_program_new();
+	donation_account = donation_account_new();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-	donation_program->account_name = strdup( piece_buffer );
+	donation_account->account_name = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-	donation_program->donation_amount = atof( piece_buffer );
+	donation_account->donation_amount = atof( piece_buffer );
 
-	return donation_program;
+	return donation_account;
 
-} /* donation_program_parse() */
+} /* donation_account_parse() */
 
 DONATION *donation_parse(
 			char *input_buffer )
@@ -311,7 +311,7 @@ char *donation_get_select( void )
 	return select;
 }
 
-char *donation_program_get_select( void )
+char *donation_account_get_select( void )
 {
 	char *select = "account,donation_amount";
 	return select;
@@ -336,55 +336,55 @@ char *donation_get_update_sys_string(
 
 } /* donation_get_update_sys_string() */
 
-DONATION_PROGRAM *donation_program_seek(
-			LIST *donation_program_list,
+DONATION_ACCOUNT *donation_account_seek(
+			LIST *donation_account_list,
 			char *account_name )
 {
-	return donation_seek_donation_program(
-			donation_program_list,
+	return donation_seek_donation_account(
+			donation_account_list,
 			account_name );
 }
 
-DONATION_PROGRAM *donation_seek_donation_program(
-			LIST *donation_program_list,
+DONATION_ACCOUNT *donation_seek_donation_account(
+			LIST *donation_account_list,
 			char *account_name )
 {
-	DONATION_PROGRAM *donation_program;
+	DONATION_ACCOUNT *donation_account;
 
-	if ( !list_rewind( donation_program_list ) )
-		return (DONATION_PROGRAM *)0;
+	if ( !list_rewind( donation_account_list ) )
+		return (DONATION_ACCOUNT *)0;
 
 	do {
-		donation_program = list_get( donation_program_list );
+		donation_account = list_get( donation_account_list );
 
-		if ( strcmp(	donation_program->account_name,
+		if ( strcmp(	donation_account->account_name,
 				account_name ) == 0 )
 		{
-			return donation_program;
+			return donation_account;
 		}
 
-	} while( list_next( donation_program_list ) );
+	} while( list_next( donation_account_list ) );
 
-	return (DONATION_PROGRAM *)0;
+	return (DONATION_ACCOUNT *)0;
 
-} /* donation_seek_donation_program() */
+} /* donation_seek_donation_account() */
 
 double donation_get_total_donation_amount(
-			LIST *donation_program_list )
+			LIST *donation_account_list )
 {
 	double total_donation_amount;
-	DONATION_PROGRAM *donation_program;
+	DONATION_ACCOUNT *donation_account;
 
-	if ( !list_rewind( donation_program_list ) )
+	if ( !list_rewind( donation_account_list ) )
 		return 0.0;
 
 	total_donation_amount = 0.0;
 
 	do {
-		donation_program = list_get( donation_program_list );
-		total_donation_amount += donation_program->donation_amount;
+		donation_account = list_get( donation_account_list );
+		total_donation_amount += donation_account->donation_amount;
 
-	} while( list_next( donation_program_list ) );
+	} while( list_next( donation_account_list ) );
 
 	return total_donation_amount;
 
@@ -400,7 +400,7 @@ void donation_journal_ledger_refresh_and_propagate(
 {
 	char *debit_account_name;
 	DONATION_FUND *donation_fund;
-	DONATION_PROGRAM *donation_program;
+	DONATION_ACCOUNT *donation_account;
 	double total_transaction_donation_amount = 0.0;
 
 	if ( !list_rewind( donation_fund_list ) ) return;
@@ -414,7 +414,7 @@ void donation_journal_ledger_refresh_and_propagate(
 	do {
 		donation_fund = list_get_pointer( donation_fund_list );
 
-		if ( !list_rewind( donation_fund->donation_program_list ) )
+		if ( !list_rewind( donation_fund->donation_account_list ) )
 			continue;
 
 		debit_account_name =
@@ -444,10 +444,10 @@ void donation_journal_ledger_refresh_and_propagate(
 					debit_account_name );
 
 		do {
-			donation_program =
+			donation_account =
 				list_get_pointer(
 					donation_fund->
-						donation_program_list );
+						donation_account_list );
 
 			if ( !propagate_only )
 			{
@@ -456,17 +456,17 @@ void donation_journal_ledger_refresh_and_propagate(
 					full_name,
 					street_address,
 					transaction_date_time,
-					donation_program->account_name,
-					donation_program->donation_amount,
+					donation_account->account_name,
+					donation_account->donation_amount,
 					0 /* not is_debit */ );
 			}
 
 			ledger_propagate(
 				application_name,
 				transaction_date_time,
-				donation_program->account_name );
+				donation_account->account_name );
 
-		} while( list_next( donation_fund->donation_program_list ) );
+		} while( list_next( donation_fund->donation_account_list ) );
 
 	} while( list_next( donation_fund_list ) );
 
@@ -482,15 +482,15 @@ void donation_journal_ledger_refresh_and_propagate(
 
 LIST *donation_get_fund_list(
 			char *application_name,
-			LIST *donation_program_list )
+			LIST *donation_account_list )
 {
-	DONATION_PROGRAM *donation_program;
+	DONATION_ACCOUNT *donation_account;
 	DONATION_FUND *donation_fund;
 	LIST *donation_fund_list;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
 
-	if ( !list_length( donation_program_list ) ) return (LIST *)0;
+	if ( !list_length( donation_account_list ) ) return (LIST *)0;
 
 	subclassification = ledger_new_subclassification( "donation" );
 
@@ -512,23 +512,23 @@ LIST *donation_get_fund_list(
 				donation_fund_list,
 				account->fund_name );
 
-		list_rewind( donation_program_list );
+		list_rewind( donation_account_list );
 
 		do {
-			donation_program =
+			donation_account =
 				list_get_pointer(
-					donation_program_list );
+					donation_account_list );
 
-			if ( strcmp(	donation_program->account_name,
+			if ( strcmp(	donation_account->account_name,
 					account->account_name ) == 0 )
 			{
 				list_append_pointer(
-					donation_fund->donation_program_list,
-					donation_program );
+					donation_fund->donation_account_list,
+					donation_account );
 				break;
 			}
 
-		} while( list_next( donation_program_list ) );
+		} while( list_next( donation_account_list ) );
 
 	} while( list_next( subclassification->account_list ) );
 
@@ -583,25 +583,25 @@ void donation_fund_list_set_total_donation_amount(
 			LIST *donation_fund_list )
 {
 	DONATION_FUND *donation_fund;
-	DONATION_PROGRAM *donation_program;
+	DONATION_ACCOUNT *donation_account;
 
 	if ( !list_rewind( donation_fund_list ) ) return;
 
 	do {
 		donation_fund = list_get_pointer( donation_fund_list );
 
-		if ( !list_rewind( donation_fund->donation_program_list ) )
+		if ( !list_rewind( donation_fund->donation_account_list ) )
 			continue;
 
 		do {
-			donation_program =
+			donation_account =
 				list_get_pointer(
-					donation_fund->donation_program_list );
+					donation_fund->donation_account_list );
 
 			donation_fund->total_fund_donation_amount +=
-				donation_program->donation_amount;
+				donation_account->donation_amount;
 
-		} while( list_next( donation_fund->donation_program_list ) );
+		} while( list_next( donation_fund->donation_account_list ) );
 
 	} while( list_next( donation_fund_list ) );
 

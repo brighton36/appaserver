@@ -432,7 +432,7 @@ boolean appaserver_library_exists_javascript_folder(
 				char *folder_name );
 
 void appaserver_library_purge_temporary_files(
-				void );
+				char *application_name );
 
 void appaserver_library_automatically_set_login_name(
 				DICTIONARY *query_dictionary,

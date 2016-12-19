@@ -106,7 +106,7 @@ int main( int argc, char **argv )
 	}
 
 	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files();
+	appaserver_library_purge_temporary_files( application_name );
 
 	/* Get the parameters for this process */
 	/* ----------------------------------- */

@@ -502,7 +502,6 @@ void scatterplot_output_scatter_plot(
 		sprintf(grace_scatterplot_filename,
 		 	"%s/grace_scatterplot_%s.dat",
 		 	appaserver_data_directory,
-		 	application_name,
 		 	scatterplot_key );
 
 		sprintf(title,

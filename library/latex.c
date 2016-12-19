@@ -608,7 +608,7 @@ char *latex_escape_data(	char *destination,
 				char *source,
 				int buffer_size )
 {
-	timlib_strcpy( destination, source, 1024 );
+	timlib_strcpy( destination, source, buffer_size );
 
 	search_replace_string(
 		destination,

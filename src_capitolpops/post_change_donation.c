@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_capitolpops/post_change_donation.c				*/
+/* $APPASERVER_HOME/src_capitolpops/post_change_donation.c		*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -508,8 +508,8 @@ void post_change_donation_date(
 
 	ledger_propagate_journal_ledger_list(
 		application_name,
-		donation->transaction->journal_ledger_list,
-		propagate_transaction_date_time );
+		propagate_transaction_date_time,
+		donation->transaction->journal_ledger_list );
 
 } /* post_change_donation_date() */
 

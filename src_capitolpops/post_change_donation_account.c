@@ -344,14 +344,6 @@ void post_change_donation_account_update(
 			donation->donation_fund_list,
 			0 /* not propagate_only */ );
 
-#ifdef NOT_DEFINED
-	ledger_journal_ledger_list_propagate(
-			application_name,
-			donation->transaction->journal_ledger_list,
-			donation->transaction_date_time
-				/* propagate_transaction_date_time */ );
-#endif
-
 	ledger_propagate(
 		application_name,
 		donation->transaction_date_time
@@ -458,9 +450,9 @@ void post_change_donation_amount_update(
 	/* ------------------------ */
 	if ( !ledger_propagate_journal_ledger_list(
 			application_name,
-			donation->transaction->journal_ledger_list,
 			donation->transaction_date_time
-				/* propagate_transaction_date_time */ ) )
+				/* propagate_transaction_date_time */,
+			donation->transaction->journal_ledger_list ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot propagate ledger.\n",

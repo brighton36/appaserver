@@ -21,7 +21,6 @@
 #include "dictionary.h"
 #include "post2dictionary.h"
 #include "document.h"
-#include "appaserver_parameter_file.h"
 #include "application_constants.h"
 #include "capitolpops.h"
 #include "musician.h"
@@ -136,7 +135,6 @@ int main( int argc, char **argv )
 {
 	char *contact_message = "";
 	DICTIONARY *post_dictionary;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *http_referer_filename;
 
 	environ_set_environment(
@@ -147,8 +145,6 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( APPLICATION );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
 
 	appaserver_error_starting_argv_append_file(
 				argc,

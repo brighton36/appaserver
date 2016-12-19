@@ -28,7 +28,7 @@ select="account"
 
 subclassification_where="1 = 1"
 
-if [ "$one2m_folder" = "donation_program" ]
+if [ "$one2m_folder" = "donation_account" ]
 then
 	subclassification_where="subclassification = 'donation' or subclassification = 'dues'"
 fi

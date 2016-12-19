@@ -492,6 +492,10 @@ LIST *donation_get_fund_list(
 
 	if ( !list_length( donation_account_list ) ) return (LIST *)0;
 
+	donation_fund_list = list_new();
+
+	/* First, subclassification = donation */
+	/* ----------------------------------- */
 	subclassification = ledger_new_subclassification( "donation" );
 
 	subclassification->account_list =
@@ -499,38 +503,82 @@ LIST *donation_get_fund_list(
 			application_name,
 			subclassification->subclassification_name );
 
-	if ( !list_rewind( subclassification->account_list ) )
-		return (LIST *)0;
-
-	donation_fund_list = list_new();
-
-	do {
-		account = list_get_pointer( subclassification->account_list );
-
-		donation_fund =
-			donation_get_or_set_fund(
-				donation_fund_list,
-				account->fund_name );
-
-		list_rewind( donation_account_list );
-
+	if ( list_rewind( subclassification->account_list ) )
+	{
 		do {
-			donation_account =
+			account =
 				list_get_pointer(
-					donation_account_list );
+					subclassification->account_list );
 
-			if ( strcmp(	donation_account->account_name,
-					account->account_name ) == 0 )
-			{
-				list_append_pointer(
-					donation_fund->donation_account_list,
-					donation_account );
-				break;
-			}
+			donation_fund =
+				donation_get_or_set_fund(
+					donation_fund_list,
+					account->fund_name );
 
-		} while( list_next( donation_account_list ) );
+			list_rewind( donation_account_list );
 
-	} while( list_next( subclassification->account_list ) );
+			do {
+				donation_account =
+					list_get_pointer(
+						donation_account_list );
+
+				if ( strcmp(	donation_account->account_name,
+						account->account_name ) == 0 )
+				{
+					list_append_pointer(
+						donation_fund->
+							donation_account_list,
+						donation_account );
+					break;
+				}
+
+			} while( list_next( donation_account_list ) );
+
+		} while( list_next( subclassification->account_list ) );
+	}
+
+	/* Second, subclassification = dues */
+	/* -------------------------------- */
+	subclassification = ledger_new_subclassification( "dues" );
+
+	subclassification->account_list =
+		ledger_subclassification_quickly_get_account_list(
+			application_name,
+			subclassification->subclassification_name );
+
+	if ( list_rewind( subclassification->account_list ) )
+	{
+		do {
+			account =
+				list_get_pointer(
+					subclassification->account_list );
+
+			donation_fund =
+				donation_get_or_set_fund(
+					donation_fund_list,
+					account->fund_name );
+
+			list_rewind( donation_account_list );
+
+			do {
+				donation_account =
+					list_get_pointer(
+						donation_account_list );
+
+				if ( strcmp(	donation_account->account_name,
+						account->account_name ) == 0 )
+				{
+					list_append_pointer(
+						donation_fund->
+							donation_account_list,
+						donation_account );
+					break;
+				}
+
+			} while( list_next( donation_account_list ) );
+
+		} while( list_next( subclassification->account_list ) );
+	}
 
 	if ( list_length( donation_fund_list ) )
 	{

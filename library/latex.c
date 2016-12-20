@@ -262,12 +262,14 @@ void latex_output_longtable_heading(	FILE *output_stream,
 } /* latex_output_longtable_heading() */
 
 void latex_output_table_row_list(	FILE *output_stream,
-					LIST *row_list )
+					LIST *row_list,
+					int heading_list_length )
 {
 	int first_time;
 	char *column_data;
 	LATEX_ROW *row;
 	char buffer[ 1024 ];
+	int column_count;
 
 	if ( !row_list || !list_rewind( row_list ) ) return;
 
@@ -287,6 +289,8 @@ void latex_output_table_row_list(	FILE *output_stream,
 		}
 
 		first_time = 1;
+		column_count = 0;
+
 		do {
 			column_data = list_get_pointer( row->column_data_list );
 
@@ -312,7 +316,19 @@ void latex_output_table_row_list(	FILE *output_stream,
 						1024 ) );
 			}
 
+			column_count++;
+
 		} while( list_next( row->column_data_list ) );
+
+		if ( column_count < heading_list_length )
+		{
+			for( 	;
+				column_count < heading_list_length;
+				column_count++ )
+			{
+				fprintf( output_stream, " & " );
+			}
+		}
 
 		fprintf( output_stream, "\\\\\n" );
 
@@ -425,7 +441,8 @@ void latex_longtable_output(	FILE *output_stream,
 
 		latex_output_table_row_list(
 					output_stream,
-					table->row_list );
+					table->row_list,
+					list_length( table->heading_list ) );
 
 		latex_output_longtable_footer(
 					output_stream );

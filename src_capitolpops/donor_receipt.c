@@ -468,7 +468,8 @@ void donor_receipt_donor(	FILE *output_stream,
 
 	latex_output_table_row_list(
 		output_stream,
-		latex_table->row_list );
+		latex_table->row_list,
+		list_length( latex_table->heading_list ) );
 
 	latex_output_table_vertical_padding(
 		output_stream,
@@ -494,7 +495,8 @@ void donor_receipt_donor(	FILE *output_stream,
 
 	latex_output_table_row_list(
 		output_stream,
-		latex_table->row_list );
+		latex_table->row_list,
+		list_length( latex_table->heading_list ) );
 
 	latex_output_table_footer( output_stream );
 

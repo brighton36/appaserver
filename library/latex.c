@@ -442,7 +442,10 @@ void latex_output_documentclass_letter(	FILE *output_stream,
 	fprintf( output_stream,
 "\\documentclass{letter}\n"
 "\\usepackage{graphics}\n"
-"\\usepackage[	margin=1in,\n"
+"\\usepackage[	top=0.25in,\n"
+"		left=0.625in,\n"
+"		bottom=0.5in,\n"
+"		right=1.0in,\n"
 "		nohead]{geometry}\n" );
 
 	if ( omit_page_numbers )
@@ -477,23 +480,72 @@ void latex_output_letterhead_document_heading(
 	fprintf( output_stream,
 "\\parbox{1.5in}{\n"
 "\\includegraphics{%s}\n"
-"}\n"
+"}\n",
+		 logo_filename );
+
+	fprintf( output_stream,
 "\\hfill\n"
 "\\begin{tabular}{c}\n"
 "\\Large \\bf %s\\\\\n"
 "\\normalsize \\bf %s\\\\\n"
 "\\normalsize \\bf %s\\\\\n"
 "\\normalsize %s\n"
-"\\end{tabular}\n"
-"\\hfill\n"
-"\\parbox{2.5in}{ }\n\n",
-		 logo_filename,
+"\\end{tabular}\n",
 		 organization_name,
 		 street_address,
 		 city_state_zip,
 		 date_string );
 
+	fprintf( output_stream,
+"\\hfill\n"
+"\\parbox{2.5in}{ }\n\n" );
+
 } /* latex_output_letterhead_document_heading() */
+
+void latex_output_return_envelope_document_heading(
+					FILE *output_stream,
+					char *logo_filename,
+					char *organization_name,
+					char *street_address,
+					char *city_state_zip,
+					char *date_string )
+{
+	if ( !logo_filename || !*logo_filename )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: emtpy logo_filename.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+
+	fprintf( output_stream,
+"\\begin{tabular}{p{3.0in}c}\n"
+"\\vspace{-0.60in}\n"
+"\\begin{tabular}{l}\n"
+"%s\\\\\n"
+"%s\\\\\n"
+"%s\n"
+"\\end{tabular}\n",
+		 organization_name,
+		 street_address,
+		 city_state_zip );
+
+	fprintf( output_stream,
+"&\n" );
+
+	fprintf( output_stream,
+"\\begin{tabular}{c}\n"
+"\\includegraphics{%s}\\\\"
+"%s\n"
+"\\end{tabular}\n"
+"\\end{tabular}\n\n",
+		 logo_filename,
+		 date_string );
+
+} /* latex_output_return_envelope_document_heading() */
 
 void latex_output_indented_address(	FILE *output_stream,
 					char *full_name,

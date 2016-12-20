@@ -100,6 +100,14 @@ void latex_output_letterhead_document_heading(
 					char *city_state_zip,
 					char *date_string );
 
+void latex_output_return_envelope_document_heading(
+					FILE *output_stream,
+					char *logo_filename,
+					char *organization_name,
+					char *street_address,
+					char *city_state_zip,
+					char *date_string );
+
 void latex_output_indented_address(	FILE *output_stream,
 					char *full_name,
 					char *street_address,

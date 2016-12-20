@@ -347,7 +347,7 @@ void donor_receipt_donor(	FILE *output_stream,
 
 	date_string = pipe2string( "now.sh full" );
 
-	latex_output_letterhead_document_heading(
+	latex_output_return_envelope_document_heading(
 		output_stream,
 		logo_filename,
 		"Capitolpops Concert Band" /* organization_name */,

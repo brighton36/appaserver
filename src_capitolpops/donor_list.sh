@@ -32,7 +32,7 @@ year=$3
 aggregate=$4
 if [ "$aggregate" = "" -o "$aggregate" = "aggregate" ]
 then
-	output_medium="detail"		# Defaults to detail
+	aggregate="detail"		# Defaults to detail
 fi
 
 output_medium=$5
@@ -63,7 +63,7 @@ then
 				donation_date,
 				account,
 				donation_amount
-	from donation_program
+	from donation_account
 	where $where
 	order by full_name,donation_date;"
 
@@ -72,7 +72,7 @@ then
 elif [ "$aggregate" = "donor" ]
 then
 	statement="select distinct full_name
-	from donation_program
+	from donation_account
 	where $where
 	order by full_name,donation_date;"
 
@@ -82,7 +82,7 @@ elif [ "$aggregate" = "summary" ]
 then
 	statement="select	full_name,
 				sum(donation_amount)
-	from donation_program
+	from donation_account
 	where $where
 	group by full_name
 	order by sum(donation_amount) desc;"
@@ -96,7 +96,7 @@ else
 	statement="select	donation_date,
 				account,
 				donation_amount
-	from donation_program
+	from donation_account
 	where $where and full_name = '$aggregate'
 	order by donation_date;"
 

@@ -49,7 +49,7 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	while( --argc ) do_upgrade( *++argv, appaserver_parameter_file );
 
@@ -80,6 +80,12 @@ void do_upgrade(	char *application_name,
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	application_reset();

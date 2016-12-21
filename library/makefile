@@ -89,6 +89,7 @@ APPASERVER_LIBRARY=						\
 		generic_load.o					\
 		report_writer.o					\
 		semaphore.o					\
+		dollar.o					\
 		session.o
 
 all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
@@ -97,6 +98,7 @@ all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
 		post_login_library.o					\
 		covariance_dvr.e					\
 		semaphore_dvr.e						\
+		dollar_dvr.e						\
 		fork_control_dvr.e					\
 		piece_dvr.e						\
 		queue_dvr.e						\
@@ -129,6 +131,13 @@ semaphore_dvr.e: semaphore_dvr.c semaphore.o
 		${STANDARD_LIBRARY}					\
 		semaphore.o						\
 	   -o semaphore_dvr.e
+
+dollar_dvr.e: dollar.c dollar.o dollar_dvr.c
+	${CC} ${CFLAGS} -I${LIBRARY} dollar_dvr.c			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		dollar.o						\
+	   -o dollar_dvr.e
 
 covariance_dvr.e: covariance_dvr.c covariance.o
 	${CC} ${CFLAGS} -I${LIBRARY} covariance_dvr.c			\
@@ -1106,6 +1115,11 @@ semaphore.o: semaphore.c semaphore.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c semaphore.c
+
+dollar.o: dollar.c dollar.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c dollar.c
 
 fork_control.o: fork_control.c fork_control.h list.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\

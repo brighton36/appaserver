@@ -1,141 +1,179 @@
-/* invest2:$root/library/tim/dollar.c */
-/* ---------------------------------- */
+/* $APPASERVER_HOME/library/dollar.c			   */
+/* ------------------------------------------------------- */
+/* Freely available software: see Appaserver.org	   */
+/* ------------------------------------------------------- */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "timlib.h"
 #include "piece.h"
+#include "dollar.h"
 
-/********************************************************************/
-/*BOT
-MONEY_DOUBLE_TO_TEXT()
-
-Description:	This routine will take a double precision number and 
-		convert it to its equivilant text.
-
-Declaration:	char *money_double_to_text(amount);
-
-Parameters:	'amount' (a double) is the number to convert.
-
-Example:	double amount = 1234567
-		printf("%s\n", money_double_to_text(amount));
-		prints: 
-		twelve thousand three hundred forty five and 67/100 dollars
-
-Note:		Numbers that are negative or indeterminable will return a 
-		value of zero.
-
-EOT*/
-
-
-void num_str ( num , buff )
-int	num;					/* number to convert	*/
-char	*buff;
+void dollar_part(	char *destination,
+			int integer_part,
+			boolean need_comma,
+			boolean omit_dollars )
 {
+	boolean need_dash = 0;
+	boolean singular = 1;
+
+	if ( need_comma ) singular = 0;
+
 	static char *ones[]=
 	{
-		"invalid ones ",
-		"ONE ",
-		"TWO ",
-		"THREE ",
-		"FOUR ",
-		"FIVE ",
-		"SIX ",
-		"SEVEN ",
-		"EIGHT ",
-		"NINE "
+		"invalid ones",
+		"One",
+		"Two",
+		"Three",
+		"Four",
+		"Five",
+		"Six",
+		"Seven",
+		"Eight",
+		"Nine"
 	};
 	static char *teen[]=
 	{
-		"TEN ",
-		"ELEVEN ",
-		"TWELVE ",
-		"THIRTEEN ",
-		"FOURTEEN ",
-		"FIFTEEN ",
-		"SIXTEEN ",
-		"SEVENTEEN ",
-		"EIGHTEEN ",
-		"NINETEEN "
+		"Ten",
+		"Eleven",
+		"Twelve",
+		"Thirteen",
+		"Fourteen",
+		"Fifteen",
+		"Sixteen",
+		"Seventeen",
+		"Eighteen",
+		"Nineteen"
 	};
 	static char *tens[]=
 	{
 		"invalid tens0 ",
 		"invalid tens1 ",
-		"TWENTY ",
-		"THIRTY ",
-		"FORTY ",
-		"FIFTY ",
-		"SIXTY ",
-		"SEVENTY ",
-		"EIGHTY ",
-		"NINETY "
+		"Twenty",
+		"Thirty",
+		"Forty",
+		"Fifty",
+		"Sixty",
+		"Seventy",
+		"Eighty",
+		"Ninety"
 	};
 
-		if ( num >= 100 )
-		{
-			strcat ( buff , ones [ num/100 ] );
-			strcat ( buff , "HUNDRED " );
-			num = num % 100;
-		}
-		if ( num >= 20 )
-		{
-			strcat ( buff , tens [ num/10 ] );
-			num = num % 10;
-		}
-		if ( num >= 10 )
-		{
-			strcat ( buff , teen [ num % 10 ] );
-			num = 0;
-		}
-		if ( num >= 1 )
-		{
-			strcat ( buff , ones [ num ] );
-			num = 0;
-		}
+	if ( integer_part >= 100 )
+	{
+		if ( need_comma ) strcat( destination, ", " );
 
-} /* num_str() */
-
-void do_cents(num,buff)
-int num;
-char *buff;
-{
-	char temp[100];
-
-	if ( !num )
-		strcpy( temp, "0" );
-	else
-		sprintf( temp, "%d", num );
-
-	strcat(buff,"AND ");
-	strcat(buff,temp);
-	strcat(buff,"/100");
-}
-
-
-char *money_double_to_text( destination, num )
-char *destination;
-double num;
-{
-	void num_str(), do_cents();
-	char temp_str[20];
-	char piece_buffer[ 128 ];
-	int temp;
-
-	destination[0] = '\0';
-
-	sprintf(temp_str,"%13.2f",num);
-
-	if (!(int)num)			/* if no dollars then write ZERO */
-		strcpy(destination,"ZERO ");
-
-	if (num > 1000){
-		temp = (int)(num / 1000);
-		num_str(temp,destination);
-		strcat(destination,"THOUSAND ");
-		num = num - (int)(num/1000) * 1000;
+		strcat( destination, ones [ integer_part / 100 ] );
+		strcat( destination, " Hundred" );
+		integer_part = integer_part % 100;
+		need_comma = 1;
+		singular = 0;
 	}
 
-	num_str((int)num,destination);
-	do_cents(atoi(piece( piece_buffer, '.',temp_str,1)),destination);
+	if ( integer_part >= 20 )
+	{
+		if ( need_comma ) strcat( destination, ", " );
+		strcat ( destination, tens [ integer_part / 10 ] );
+		integer_part = integer_part % 10;
+		need_dash = 1;
+		singular = 0;
+	}
+
+	if ( integer_part >= 10 )
+	{
+		if ( need_comma ) strcat( destination, ", " );
+		if ( need_dash ) strcat( destination, "-" );
+		strcat ( destination, teen [ integer_part % 10 ] );
+		integer_part = 0;
+		need_comma = 0;
+		need_dash = 1;
+		singular = 0;
+	}
+
+	if ( integer_part >= 1 )
+	{
+		if ( need_dash )
+		{
+			strcat( destination, "-" );
+		}
+		else
+		{
+			if ( need_comma ) strcat( destination, ", " );
+		}
+		strcat( destination, ones [ integer_part ] );
+
+		if ( integer_part > 1 )
+			singular = 0;
+	}
+
+	if ( !omit_dollars )
+	{
+		if ( singular )
+			strcat( destination, " Dollar" );
+		else
+			strcat( destination, " Dollars" );
+	}
+
+} /* dollar_part() */
+
+void pennies_part(	char *destination,
+			int decimal_part )
+{
+	char pennies[ 3 ];
+
+	if ( !decimal_part )
+		strcpy( pennies, "0" );
+	else
+		sprintf( pennies, "%d", decimal_part );
+
+	strcat( destination, " and ");
+	strcat( destination, pennies);
+	strcat( destination, "/100");
+}
+
+char *dollar_text( char *destination, double dollar )
+{
+	char dollar_string[ 32 ];
+	char piece_buffer[ 128 ];
+	int integer_part;
+	boolean need_comma = 0;
+
+	*destination = '\0';
+
+	sprintf( dollar_string, "%13.2f", dollar);
+
+	if ( !(boolean)dollar )
+	{
+		strcpy( destination, "Zero");
+
+		/* Fool function into making "Dollars" plural. */
+		/* ------------------------------------------- */
+		need_comma = 1;
+	}
+
+	if ( dollar > 1000.0 )
+	{
+		integer_part = (int)( dollar / 1000.0 );
+
+		dollar_part(
+			destination,
+			integer_part,
+			0 /* not need_comma */,
+			1 /* omit_dollars */ );
+
+		strcat( destination, " Thousand");
+		dollar = dollar - (int)( dollar / 1000.0 ) * 1000;
+		need_comma = 1;
+	}
+
+	dollar_part(	destination,
+			(int)dollar,
+			need_comma,
+			0 /* not omit_dollars */ );
+
+	pennies_part(	destination,
+			atoi( piece( piece_buffer, '.', dollar_string, 1 ) ) );
 
 	return destination;
 }

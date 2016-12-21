@@ -4,6 +4,7 @@
 #include <errno.h>
 
 #ifndef SEMAPHORE_H
+#define SEMAPHORE_H
 
 #define SEMAPHORE_TEST_KEY1		1
 #define SEMAPHORE_TEST_KEY2		2

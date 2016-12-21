@@ -24,21 +24,30 @@
 
 /* Prototypes */
 /* ---------- */
+void make_check_document_heading(
+			FILE *latex_file );
+
+void make_check_document_footer(
+			FILE *latex_file );
+
 void make_check_argv(	int argc, char **argv );
 
 void make_check_stdin(	void );
 
-void make_check_file(	FILE *latex_file,
+void make_check_dollar_text(
+			FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
 			char *dollar_text_string,
 			char *memo,
+			char *check_date,
 			boolean with_newpage );
 
-void make_check(	char *latex_filename,
+void make_check(	FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
 			char *memo,
+			char *check_date,
 			boolean with_newpage );
 
 int main( int argc, char **argv )
@@ -65,6 +74,8 @@ void make_check_argv( int argc, char **argv )
 	char latex_filename[ 128 ];
 	char pdf_filename[ 128 ];
 	pid_t process_id = getpid();
+	FILE *latex_file;
+	char *check_date;
 
 	if ( argc != 4 )
 	{
@@ -79,6 +90,8 @@ void make_check_argv( int argc, char **argv )
 	memo = argv[ 3 ];
 
 	appaserver_error_stderr( argc, argv );
+
+	check_date = pipe2string( "now.sh full" );
 
 	appaserver_data_directory =
 		pipe2string(
@@ -105,11 +118,29 @@ void make_check_argv( int argc, char **argv )
 		 appaserver_data_directory,
 		 process_id );
 
-	make_check(	latex_filename,
+	if ( ! ( latex_file = fopen( latex_filename, "w" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for write.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 latex_filename );
+		exit( 1 );
+	}
+
+	make_check_document_heading( latex_file );
+
+	make_check(	latex_file,
 			payable_to,
 			dollar_amount,
 			memo,
+			check_date,
 			0 /* not with_newpage */ );
+
+	make_check_document_footer( latex_file );
+
+	fclose( latex_file );
 
 	/* Creates pdf_filename */
 	/* -------------------- */
@@ -134,6 +165,9 @@ void make_check_stdin( void )
 	char input_buffer[ 1024 ];
 	FILE *latex_file;
 	boolean first_time = 1;
+	char *check_date;
+
+	check_date = pipe2string( "now.sh full" );
 
 	appaserver_data_directory =
 		pipe2string(
@@ -171,7 +205,7 @@ void make_check_stdin( void )
 		exit( 1 );
 	}
 
-	fclose( latex_file );
+	make_check_document_heading( latex_file );
 
 	while( get_line( input_buffer, stdin ) )
 	{
@@ -192,15 +226,20 @@ void make_check_stdin( void )
 
 		dollar_amount_double = atof( dollar_amount_string );
 
-		make_check(	latex_filename,
+		make_check(	latex_file,
 				payable_to,
 				dollar_amount_double,
 				memo,
+				check_date,
 				1 - first_time /* with_newpage */ );
 
 		first_time = 0;
 
 	} /* while( get_line() */
+
+	make_check_document_footer( latex_file );
+
+	fclose( latex_file );
 
 	/* Creates pdf_filename */
 	/* -------------------- */
@@ -212,51 +251,31 @@ void make_check_stdin( void )
 
 } /* make_check_stdin */
 
-void make_check(	char *latex_filename,
+void make_check(	FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
 			char *memo,
+			char *check_date,
 			boolean with_newpage )
 {
-	FILE *latex_file;
 	char dollar_text_string[ 256 ];
-
-	if ( ! ( latex_file = fopen( latex_filename, "a" ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for write.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 latex_filename );
-		exit( 1 );
-	}
 
 	dollar_text( dollar_text_string, dollar_amount );
 
-	make_check_file(
+	make_check_dollar_text(
 		latex_file,
 		payable_to,
 		dollar_amount,
 		dollar_text_string,
 		memo,
+		check_date,
 		with_newpage );
-
-	fclose( latex_file );
 
 } /* make_check() */
 
-void make_check_file(	FILE *latex_file,
-			char *payable_to,
-			double dollar_amount,
-			char *dollar_text_string,
-			char *memo,
-			boolean with_newpage )
+void make_check_document_heading(
+			FILE *latex_file )
 {
-	char *check_date;
-
-	check_date = pipe2string( "now.sh full" );
-
 	fprintf( latex_file,
 "\\documentclass{report}\n"
 "\\usepackage[	top=0in,\n"
@@ -266,7 +285,34 @@ void make_check_file(	FILE *latex_file,
 "		noheadfoot]{geometry}\n"
 "\\usepackage{rotating}\n"
 "\\pagenumbering{gobble}\n"
-"\\begin{document}\n"
+"\\begin{document}\n" );
+
+} /* make_check_document_heading() */
+
+void make_check_document_footer(
+			FILE *latex_file )
+{
+	fprintf( latex_file,
+"\\end{document}\n" );
+
+} /* make_check_document_footer() */
+
+void make_check_dollar_text(
+			FILE *latex_file,
+			char *payable_to,
+			double dollar_amount,
+			char *dollar_text_string,
+			char *memo,
+			char *check_date,
+			boolean with_newpage )
+{
+	if ( with_newpage )
+	{
+		fprintf( latex_file,
+"\\newpage\n\n" );
+	}
+
+	fprintf( latex_file,
 "\\begin{sideways}\n"
 "\\begin{minipage}{8.0in}\n"
 "\\vspace{0.50in}\n"
@@ -307,8 +353,7 @@ void make_check_file(	FILE *latex_file,
 	fprintf( latex_file,
 "\\end{tabular}\n"
 "\\end{minipage}\n"
-"\\end{sideways}\n"
-"\\end{document}\n" );
+"\\end{sideways}\n" );
 
-} /* make_check_file() */
+} /* make_check_dollar_text() */
 

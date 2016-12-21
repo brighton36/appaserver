@@ -10,6 +10,53 @@
 #include "piece.h"
 #include "dollar.h"
 
+char *dollar_text( char *destination, double dollar )
+{
+	char dollar_string[ 32 ];
+	char piece_buffer[ 32 ];
+	int integer_part;
+	boolean need_comma = 0;
+
+	*destination = '\0';
+
+	sprintf( dollar_string, "%13.2f", dollar);
+
+	if ( !(boolean)dollar )
+	{
+		strcpy( destination, "Zero");
+
+		/* Fool function into making "Dollars" plural. */
+		/* ------------------------------------------- */
+		need_comma = 1;
+	}
+
+	if ( dollar > 1000.0 )
+	{
+		integer_part = (int)( dollar / 1000.0 );
+
+		dollar_part(
+			destination,
+			integer_part,
+			0 /* not need_comma */,
+			1 /* omit_dollars */ );
+
+		strcat( destination, " Thousand");
+		dollar = dollar - (int)( dollar / 1000.0 ) * 1000;
+		need_comma = 1;
+	}
+
+	dollar_part(	destination,
+			(int)dollar,
+			need_comma,
+			0 /* not omit_dollars */ );
+
+	pennies_part(	destination,
+			atoi( piece( piece_buffer, '.', dollar_string, 1 ) ) );
+
+	return destination;
+
+} /* dollar_text() */
+
 void dollar_part(	char *destination,
 			int integer_part,
 			boolean need_comma,
@@ -130,51 +177,5 @@ void pennies_part(	char *destination,
 	strcat( destination, " and ");
 	strcat( destination, pennies);
 	strcat( destination, "/100");
-}
-
-char *dollar_text( char *destination, double dollar )
-{
-	char dollar_string[ 32 ];
-	char piece_buffer[ 128 ];
-	int integer_part;
-	boolean need_comma = 0;
-
-	*destination = '\0';
-
-	sprintf( dollar_string, "%13.2f", dollar);
-
-	if ( !(boolean)dollar )
-	{
-		strcpy( destination, "Zero");
-
-		/* Fool function into making "Dollars" plural. */
-		/* ------------------------------------------- */
-		need_comma = 1;
-	}
-
-	if ( dollar > 1000.0 )
-	{
-		integer_part = (int)( dollar / 1000.0 );
-
-		dollar_part(
-			destination,
-			integer_part,
-			0 /* not need_comma */,
-			1 /* omit_dollars */ );
-
-		strcat( destination, " Thousand");
-		dollar = dollar - (int)( dollar / 1000.0 ) * 1000;
-		need_comma = 1;
-	}
-
-	dollar_part(	destination,
-			(int)dollar,
-			need_comma,
-			0 /* not omit_dollars */ );
-
-	pennies_part(	destination,
-			atoi( piece( piece_buffer, '.', dollar_string, 1 ) ) );
-
-	return destination;
 }
 

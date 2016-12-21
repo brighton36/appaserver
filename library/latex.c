@@ -388,26 +388,14 @@ void latex_tex2pdf(	char *tex_filename,
 
 	chdir( working_directory );
 
-/*
-	sprintf( sys_string,
-		 "latex %s",
-		 tex_filename );
-fprintf( stderr, "%s\n", sys_string );
-	system( sys_string );
-
-	sprintf( sys_string,
-		 "dvipdf %s",
-		 dvi_filename );
-fprintf( stderr, "%s\n", sys_string );
-	system( sys_string );
-*/
-
 	sprintf( sys_string,
 		 "pdflatex %s 1>&2",
 		 tex_filename );
 
-	/* Need to run it several times because header widths may be wrong. */
-	/* ---------------------------------------------------------------- */
+	/* ------------------------------------ */
+	/* Need to run it several times because	*/
+	/* header widths may need adjustments.	*/
+	/* ------------------------------------ */
 	system( sys_string );
 	system( sys_string );
 	system( sys_string );

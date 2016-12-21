@@ -1,7 +1,6 @@
 /* --------------------------------------------------- 	*/
-/* utility/grace_histogram.c			       	*/
+/* $APPASERVER_HOME/utility/grace_histogram.c	       	*/
 /* --------------------------------------------------- 	*/
-/* 						       	*/
 /* Freely available software: see Appaserver.org	*/
 /* --------------------------------------------------- 	*/
 
@@ -89,7 +88,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	histogram = histogram_new_histogram();
 
@@ -111,8 +110,8 @@ histogram_segment_list_display( histogram->segment_list );
 */
 
 	histogram_soft_delete_empty_edges(
-					&histogram->number_of_segments,
-					histogram->segment_list );
+		&histogram->number_of_segments,
+		histogram->segment_list );
 
 	if ( datatype_name )
 	{
@@ -286,6 +285,7 @@ histogram_segment_list_display( histogram->segment_list );
 		output_filename );
 
 	return 0;
+
 } /* main() */
 
 void populate_number_double_list( LIST *number_double_list )

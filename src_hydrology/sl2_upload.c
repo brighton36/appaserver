@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_hydrology/sl2_upload.c			       	*/
+/* $APPASERVER_HOME/src_hydrology/sl2_upload.c	       	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
@@ -27,10 +27,6 @@
 
 /* Constants */
 /* --------- */
-#define FILENAME_STEM		"satlink2_upload_ad_shef"
-/*
-#define SHEF_BAD_FILE_TEMPLATE	  "/tmp/satlink2_upload_bad_shef_%d.dat"
-*/
 
 /* Sample
 --------------------------------------------------------------------------------
@@ -48,20 +44,24 @@ shef
 
 /* Prototypes */
 /* ---------- */
-void satlink2_upload(	char *filename,
+char *get_station(	char *full_filename );
+
+void satlink_upload(	char *full_filename,
 			char *shef_bad_file,
 			boolean execute,
 			char *application_name,
-			char *station_name );
+			char *station_name,
+			char *argv_0 );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
 	char *station_name;
-	char *filename;
+	char *full_filename;
 	boolean execute;
 	DOCUMENT *document;
+	char *argv_0;
 	char *shef_bad_file;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
@@ -78,10 +78,11 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	argv_0 = argv[ 0 ];
 	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
 	station_name = argv[ 3 ];
-	filename = argv[ 4 ];
+	full_filename = argv[ 4 ];
 	execute = ( *argv[ 5 ] == 'y' );
 
 	if ( timlib_parse_database_string(	&database_string,
@@ -98,6 +99,13 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	if ( !*station_name || strcmp( station_name, "station" ) == 0 )
+	{
+		station_name = get_station( full_filename );
+
+		if ( !station_name ) station_name = "unknown";
+	}
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -117,6 +125,26 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
+	printf( "<h1>%s<br></h1>\n",
+		format_initial_capital(
+			buffer,
+			process_name ) );
+
+	printf( "<h2>\n" );
+	fflush( stdout );
+	system( "date '+%x %H:%M'" );
+	fflush( stdout );
+	printf( " Station: %s</h2>\n",
+		station_name );
+	fflush( stdout );
+
+	if ( !*full_filename || strcmp( full_filename, "filename" ) == 0 )
+	{
+		printf( "<h3> Please upload a file.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_get_http_prefix( application_name ),
@@ -125,7 +153,7 @@ int main( int argc, char **argv )
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->
 				document_root,
-			FILENAME_STEM,
+			process_name /* filename_stem */,
 			application_name,
 			getpid(),
 			(char *)0 /* session */,
@@ -144,25 +172,12 @@ int main( int argc, char **argv )
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf( shef_bad_file, SHEF_BAD_FILE_TEMPLATE, getpid() );
-*/
-
-	printf( "<h1>%s<br></h1>\n",
-		format_initial_capital( buffer, process_name ) );
-
-	printf( "<h1>\n" );
-	fflush( stdout );
-	system( "date '+%x %H:%M'" );
-	fflush( stdout );
-	printf( "</h1>\n" );
-	fflush( stdout );
-	
-	satlink2_upload(filename, 
+	satlink_upload(	full_filename, 
 			shef_bad_file,
 			execute,
 			application_name,
-			station_name );
+			station_name,
+			argv_0 );
 
 	if ( execute )
 	{
@@ -183,15 +198,17 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void satlink2_upload(	char *filename,
+void satlink_upload(	char *full_filename,
 			char *shef_bad_file,
 			boolean execute,
 			char *application_name,
-			char *station_name )
+			char *station_name,
+			char *argv_0 )
 {
 	char insert_process[ 512 ];
 	char remove_process[ 512 ];
 	char display_error_process[ 512 ];
+	char *shef_process;
 	char sys_string[ 1024 ];
 
 	sprintf(remove_process,
@@ -206,18 +223,25 @@ void satlink2_upload(	char *filename,
 		shef_bad_file );
 
 	sprintf( insert_process,
-"measurement_insert %s shef %c 2>&1	|"
 "queue_top_bottom_lines.e 50 		|"
-"html_paragraph_wrapper			 ",
+"measurement_insert %s shef %c 2>>%s	|"
+"cat					 ",
 		 application_name,
-		 (execute) ? 'y' : 'n' );
+		 (execute) ? 'y' : 'n',
+		 shef_bad_file );
+
+	if ( strcmp( argv_0, "sl2_upload" ) == 0 )
+		shef_process = "sl2_shef_to_comma_delimited";
+	else
+		shef_process = "sl3_shef_to_comma_delimited";
 
 	sprintf( sys_string,
-	"cat %s						      	     |"
-	"sl2_shef_to_comma_delimited %s %s 2>%s		  	     |"
-	"%s							     ;"
-	"%s							      ",
-			 filename,
+	"cat %s			      	     |"
+	"%s %s %s 2>%s		  	     |"
+	"%s				     ;"
+	"%s				      ",
+			 full_filename,
+			 shef_process,
 			 application_name,
 			 station_name,
 			 shef_bad_file,
@@ -232,4 +256,67 @@ void satlink2_upload(	char *filename,
 
 	system( sys_string );
 
-} /* shef_upload() */
+} /* satlink_upload() */
+
+char *get_station( char *full_filename )
+{
+	char *filename;
+	static char station[ 256 ];
+	char input_buffer[ 1024 ];
+	char piece_buffer[ 1024 ];
+	FILE *input_file;
+
+	filename = basename_get_filename( full_filename );
+
+	/* ------------------------------------ */
+	/* Sample filename:			*/
+	/* DBC1_log_20161216_header.csv		*/
+	/* ^					*/
+	/* |					*/
+	/* Station				*/
+	/* ------------------------------------ */
+	piece( station, '_', filename, 0 );
+
+	if ( ! ( input_file = fopen( full_filename, "r" ) ) )
+		return (char *)0;
+
+	/* -------------------------------------------- */
+	/* Sample input:				*/
+	/* Station Name, model and version, ...		*/
+	/* DBC1, Sutron Satlink 3 Logger V2 Version ...	*/
+	/* ^						*/
+	/* |						*/
+	/* Station					*/
+	/* -------------------------------------------- */
+	if ( !get_line( input_buffer, input_file ) )
+	{
+		fclose( input_file );
+		return station;
+	}
+
+	if ( piece( piece_buffer, ',', input_buffer, 0 ) )
+	{
+		if ( strcasecmp( piece_buffer, "Station Name" ) != 0 )
+		{
+			fclose( input_file );
+			return station;
+		}
+
+		if ( !get_line( input_buffer, input_file ) )
+		{
+			fclose( input_file );
+			return station;
+		}
+
+		if ( !piece( station, ',', input_buffer, 0 ) )
+		{
+			fclose( input_file );
+			return station;
+		}
+	}
+
+	fclose( input_file );
+	return station;
+
+} /* get_station() */
+

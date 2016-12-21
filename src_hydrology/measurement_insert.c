@@ -1,4 +1,4 @@
-/* measurement_insert.c					*/
+/* $APPASERVER_HOME/src_hydrology/measurement_insert.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -56,15 +56,21 @@ int main( int argc, char **argv )
 		appaserver_parameter_file_get_dbms();
 
 	m = measurement_new_measurement( application_name );
+
+	if ( really_yn != 'y' )
+	{
+		m->html_table_pipe = measurement_open_html_table_pipe();
+	}
+
 	measurement_open_input_process( m, load_process, really_yn );
 
 	while( get_line( comma_delimited_record, stdin ) )
 	{
 		measurement_set_comma_delimited_record(
-						m, 
-						comma_delimited_record,
-						argv[ 0 ],
-						database_management_system );
+			m, 
+			comma_delimited_record,
+			argv[ 0 ],
+			database_management_system );
 
 		if ( strcmp( load_process, "cr10" ) == 0
 		&&   really_yn != 'y' )
@@ -73,12 +79,18 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			measurement_insert( m, really_yn );
+			measurement_insert(
+				m,
+				really_yn,
+				m->html_table_pipe );
 		}
 	}
 	measurement_close_insert_pipe( m->insert_pipe );
+	measurement_close_html_table_pipe( m->html_table_pipe );
+
 	if ( not_loaded_count )
 		printf( "<p>Not loaded count = %d\n", not_loaded_count );
+
 	exit( 0 );
 } /* main() */
 

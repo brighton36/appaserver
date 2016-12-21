@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_hydrology/shef_upload.c			       	*/
+/* $APPASERVER_HOME/src_hydrology/shef_upload.c	       	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
@@ -30,10 +30,6 @@
 #define PROCESS_NAME		"shef_upload"
 #define STATION_FILENAME_STEM	"shef_upload_bad_station"
 #define SHEF_FILENAME_STEM	"shef_upload_bad_shef"
-/*
-#define STATION_BAD_FILE_TEMPLATE "/tmp/shef_upload_bad_station_%d.dat"
-#define SHEF_BAD_FILE_TEMPLATE	  "/tmp/shef_upload_bad_shef_%d.dat"
-*/
 
 /* Sample
 --------------------------------------------------------------------------------
@@ -121,7 +117,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );

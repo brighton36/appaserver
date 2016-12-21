@@ -19,6 +19,17 @@ MEASUREMENT *measurement_new_measurement(
 	MEASUREMENT *m;
 
 	m = (MEASUREMENT *)calloc( 1, sizeof( MEASUREMENT ) );
+
+	if ( !m )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	m->application_name = application_name;
 	m->argv_0 = "";
 
@@ -60,11 +71,24 @@ void measurement_set_comma_delimited_record(
 
 	if ( character_count( ',', comma_delimited_record ) != VALUE_PIECE )
 	{
-		fprintf( stderr,
+		if ( timlib_strncmp( comma_delimited_record, "skipped" ) == 0 )
+		{
+			m->measurement_record =
+				measurement_record_new(
+					comma_delimited_record,
+					"" /* datatype */,
+					"" /* date */,
+					"" /* time */,
+					"" /* value_string */ );
+		}
+		else
+		{
+			fprintf( stderr,
 			 "WARNING in %s/%s(): not enough fields in (%s)\n",
-			 argv_0,
-			 __FUNCTION__,
-			 comma_delimited_record );
+			 	argv_0,
+			 	__FUNCTION__,
+			 	comma_delimited_record );
+		}
 		return;
 	}
 
@@ -93,17 +117,20 @@ void measurement_set_comma_delimited_record(
 	piece( value_string, ',', comma_delimited_record, VALUE_PIECE );
 
 	if ( m->measurement_record ) 
+	{
 		measurement_record_free( m->measurement_record );
+	}
 
 	m->measurement_record =
-			new_measurement_record(	station,
+			measurement_record_new(	station,
 						datatype,
 						date,
 						time,
 						value_string );
+
 } /* measurement_set_comma_delimited_record() */
 
-MEASUREMENT_RECORD *new_measurement_record(	char *station,
+MEASUREMENT_RECORD *measurement_record_new(	char *station,
 						char *datatype,
 						char *date,
 						char *time,
@@ -112,6 +139,17 @@ MEASUREMENT_RECORD *new_measurement_record(	char *station,
 	MEASUREMENT_RECORD *m;
 
 	m = (MEASUREMENT_RECORD *)calloc( 1, sizeof( MEASUREMENT_RECORD ) );
+
+	if ( !m )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	m->station = strdup( station );
 	m->datatype = strdup( datatype );
 	m->measurement_date = strdup( date );	
@@ -120,7 +158,7 @@ MEASUREMENT_RECORD *new_measurement_record(	char *station,
 	m->measurement_value = 
 		measurement_get_value( &m->null_value, value_string );
 	return m;
-} /* new_measurement_record() */
+} /* measurement_record_new() */
 
 void measurement_record_free( MEASUREMENT_RECORD *measurement_record )
 {
@@ -131,7 +169,9 @@ void measurement_record_free( MEASUREMENT_RECORD *measurement_record )
 	free( measurement_record );
 }
 
-void measurement_insert( MEASUREMENT *measurement, int really_yn )
+void measurement_insert(	MEASUREMENT *measurement,
+				int really_yn,
+				FILE *html_table_pipe )
 {
 	if ( !measurement->measurement_record )
 	{
@@ -142,22 +182,47 @@ void measurement_insert( MEASUREMENT *measurement, int really_yn )
 
 	if ( really_yn != 'y' )
 	{
-		if ( !measurement->measurement_record->null_value )
+		if ( html_table_pipe )
 		{
-			printf( "Not inserting: %s,%s,%s,%s,%lf\n",
+			if ( !measurement->measurement_record->null_value )
+			{
+				fprintf(html_table_pipe,
+					"%s,%s,%s,%s,%lf\n",
 			measurement->measurement_record->station,
 			measurement->measurement_record->datatype,
 			measurement->measurement_record->measurement_date,
 			measurement->measurement_record->measurement_time,
 			measurement->measurement_record->measurement_value );
-		}
-		else
-		{
-			printf( "Not inserting: %s,%s,%s,%s,null\n",
+			}
+			else
+			{
+				fprintf(html_table_pipe,
+					"%s,%s,%s,%s,null\n",
 			measurement->measurement_record->station,
 			measurement->measurement_record->datatype,
 			measurement->measurement_record->measurement_date,
 			measurement->measurement_record->measurement_time );
+			}
+		}
+		else
+		{
+			if ( !measurement->measurement_record->null_value )
+			{
+				printf( "Not inserting: %s,%s,%s,%s,%lf\n",
+			measurement->measurement_record->station,
+			measurement->measurement_record->datatype,
+			measurement->measurement_record->measurement_date,
+			measurement->measurement_record->measurement_time,
+			measurement->measurement_record->measurement_value );
+			}
+			else
+			{
+				printf( "Not inserting: %s,%s,%s,%s,null\n",
+			measurement->measurement_record->station,
+			measurement->measurement_record->datatype,
+			measurement->measurement_record->measurement_date,
+			measurement->measurement_record->measurement_time );
+			}
 		}
 		return;
 	}
@@ -173,24 +238,40 @@ void measurement_insert( MEASUREMENT *measurement, int really_yn )
 			if ( measurement->measurement_record->db_null_value )
 			{
 				measurement_update_mysql(
-			measurement->application_name,
-			measurement->measurement_record->station,
-			measurement->measurement_record->datatype,
-			measurement->measurement_record->measurement_date,
-			measurement->measurement_record->measurement_time,
-			measurement->measurement_record->measurement_value );
+					measurement->application_name,
+					measurement->
+						measurement_record->
+						station,
+					measurement->
+						measurement_record->
+						datatype,
+					measurement->
+						measurement_record->
+						measurement_date,
+					measurement->
+						measurement_record->
+						measurement_time,
+					measurement->
+						measurement_record->
+						measurement_value );
 			}
 		}
 		else
 		{
 			measurement_output_insert_pipe(
-				 measurement->insert_pipe,
-			measurement->measurement_record->station,
-			measurement->measurement_record->datatype,
-			measurement->measurement_record->measurement_date,
-			measurement->measurement_record->measurement_time,
-			measurement->measurement_record->measurement_value,
-			measurement->measurement_record->null_value );
+				measurement->insert_pipe,
+				measurement->measurement_record->station,
+				measurement->measurement_record->datatype,
+				measurement->
+					measurement_record->
+					measurement_date,
+				measurement->
+					measurement_record->
+					measurement_time,
+				measurement->
+					measurement_record->
+					measurement_value,
+				measurement->measurement_record->null_value );
 		}
 	}
 	/* ------------- */
@@ -201,18 +282,25 @@ void measurement_insert( MEASUREMENT *measurement, int really_yn )
 		if ( !measurement_exists( measurement ) )
 		{
 			measurement_output_insert_pipe(
-				 measurement->insert_pipe,
-			measurement->measurement_record->station,
-			measurement->measurement_record->datatype,
-			measurement->measurement_record->measurement_date,
-			measurement->measurement_record->measurement_time,
-			measurement->measurement_record->measurement_value,
-			measurement->measurement_record->null_value );
+				measurement->insert_pipe,
+				measurement->measurement_record->station,
+				measurement->measurement_record->datatype,
+				measurement->
+					measurement_record->
+					measurement_date,
+				measurement->
+					measurement_record->
+					measurement_time,
+				measurement->
+					measurement_record->
+					measurement_value,
+				measurement->measurement_record->null_value );
 		}
 	}
 
 } /* measurement_insert() */
 
+#ifdef NOT_DEFINED
 double measurement_get_value_from_db(	
 				int *record_exists,
 				int *db_null_value,
@@ -271,6 +359,7 @@ double measurement_get_value_from_db(
 	return value;
 
 } /* measurement_get_value_from_db() */
+#endif
 
 void measurement_output_insert_pipe(	FILE *insert_pipe,
 					char *station,
@@ -306,6 +395,30 @@ void measurement_close_insert_pipe( FILE *insert_pipe )
 {
 	pclose( insert_pipe );
 }
+
+void measurement_close_html_table_pipe( FILE *html_table_pipe )
+{
+	if ( html_table_pipe )
+		pclose( html_table_pipe );
+}
+
+FILE *measurement_open_html_table_pipe(	void )
+{
+	char sys_string[ 1024 ];
+	char *heading_comma_string;
+	char *justify_string;
+
+	heading_comma_string = "station,datatype,date,time,value";
+	justify_string = "left,left,left,left,right";
+
+	sprintf( sys_string,
+		 "html_table.e '' '%s' ',' '%s'",
+		 heading_comma_string,
+		 justify_string );
+
+	return popen( sys_string, "w" );
+
+} /* measurement_open_html_table_pipe() */
 
 FILE *measurement_open_insert_pipe(	char *application_name,
 					int delete_measurements_day,
@@ -383,12 +496,11 @@ void measurement_update_mysql(	char *application_name,
 
 int measurement_exists(	MEASUREMENT *measurement )
 {
-	double value;
 
-	/* Temporary; until we link with ADT. */
-	/* ---------------------------------- */
 	return 0;
 
+/*
+	double value;
 	value = measurement_get_value_from_db(
 			&measurement->record_exists,
 			&measurement->measurement_record->db_null_value,
@@ -403,6 +515,7 @@ int measurement_exists(	MEASUREMENT *measurement )
 		measurement->measurement_record->measurement_value = value;
 
 	return measurement->record_exists;
+*/
 } /* measurement_exists() */
 
 double measurement_get_value(	int *null_value,

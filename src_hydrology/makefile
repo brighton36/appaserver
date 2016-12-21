@@ -66,6 +66,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		shef_upload						\
 		sl2_upload						\
 		sl2_shef_to_comma_delimited				\
+		sl3_shef_to_comma_delimited				\
 		shef_to_comma_delimited					\
 		station_alias_to_station				\
 		station_datatype_list					\
@@ -185,7 +186,8 @@ clean:
 	${CGI_HOME}/post_hydrology_measurements_rectangle		\
 	${CGI_HOME}/post_current_vs_historical				\
 	${CGI_HOME}/post_generic_measurement_load			\
-	${CGI_HOME}/post_hydrology_validation_form
+	${CGI_HOME}/post_hydrology_validation_form			\
+	sl3_upload
 
 kml_extract: kml_extract.c						\
 		${EXTERNAL_LIBS}					\
@@ -1107,6 +1109,17 @@ sl2_shef_to_comma_delimited: sl2_shef_to_comma_delimited.c		\
 		sl2_shef_to_comma_delimited.c				\
 		-o sl2_shef_to_comma_delimited
 
+sl3_shef_to_comma_delimited: sl3_shef_to_comma_delimited.c		\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-I${SOURCE_EVERGLADES}					\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		sl3_shef_to_comma_delimited.c				\
+		-o sl3_shef_to_comma_delimited
+
 station_alias_to_station: station_alias_to_station.c station_alias.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
@@ -1146,6 +1159,19 @@ sl2_upload: sl2_upload.c shef_datatype_code.o
 		${STANDARD_LIBRARY} 					\
 		sl2_upload.c						\
 		-o sl2_upload
+		touch sl3_upload
+		rm -f sl3_upload
+		ln sl2_upload sl3_upload
+
+sl3_upload: sl3_upload.c shef_datatype_code.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-I${SOURCE_EVERGLADES}					\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		sl3_upload.c						\
+		-o sl3_upload
 
 conductivity2salinity: conductivity2salinity.c 				\
 	${SOURCE_LIBS}							\

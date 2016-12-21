@@ -1,5 +1,5 @@
-/* $APPASERVER_HOME/src_hydrology/sl2_to_comma_delimited.c */
-/* ------------------------------------------------------- */
+/* $APPASERVER_HOME/src_hydrology/sl3_shef_to_comma_delimited.c */
+/* ------------------------------------------------------------ */
 
 #include <stdio.h>
 #include <string.h>
@@ -13,25 +13,30 @@
 
 /* Sample
 --------------------------------------------------------------------------------
-STG,2000/08/05,09:00/24.74,Good
- ^   ^           ^    ^     ^
- |   |           |    |     |
- |   |           |    |     |
- |   |           |    |    Status
- |   |           |  Value
- |   |         HH:MM
- |  Y/M/D
-shef
+12/12/2016,14:00:00,BV,13.65,ignore,G=good
+^          ^        ^    ^      ^   ^
+|          |        |    |      |   |
+MM/DD/YYYY |        |    |      |   |
+           |        |    |      |   |
+           HH:MM:SS |    |      |   |
+                    |    |      |   |
+                    Shef |      |   |
+                         |      |   |
+			 Value  |   |
+                                |   |
+			      Units |
+                                    |
+                                    Status
 --------------------------------------------------------------------------------
 */
 
 /* Constants */
 /* --------- */
-#define SHEF_COMMA_PIECE			0
-#define DATE_COMMA_PIECE			1
-#define TIME_COMMA_PIECE			2
+#define DATE_COMMA_PIECE			0
+#define TIME_COMMA_PIECE			1
+#define SHEF_COMMA_PIECE			2
 #define MEASUREMENT_COMMA_PIECE			3
-#define STATUS_COMMA_PIECE			4
+#define STATUS_COMMA_PIECE			5
 
 /* Prototypes */
 /* ---------- */
@@ -40,16 +45,16 @@ char *load_shef_comma_piece( char *destination, char *source, int offset );
 int main( int argc, char **argv )
 {
 	char input_line[ 1024 ];
-	char shef[ 128 ];
-	char measurement_date[ 128 ];
+	char shef[ 512 ];
+	char measurement_date[ 512 ];
 	char year[ 16 ];
 	char month[ 16 ];
 	char day[ 16 ];
-	char measurement_time[ 16 ];
+	char measurement_time[ 512 ];
 	char hour[ 16 ];
 	char minute[ 16 ];
-	char measurement_value_string[ 16 ];
-	char status[ 16 ];
+	char measurement_value_string[ 512 ];
+	char status[ 512 ];
 	SHEF_DATATYPE_CODE *shef_datatype_code;
 	char *datatype_name;
 	char *station_name;
@@ -74,6 +79,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	station_name = argv[ 2 ];
 
@@ -97,6 +108,20 @@ int main( int argc, char **argv )
 			fprintf( stderr, "%s\n", input_line );
 			continue;
 		}
+
+		if ( load_shef_comma_piece(	status,
+						input_line, 
+						STATUS_COMMA_PIECE ) )
+		{
+			if ( *status != 'G' )
+			{
+				fprintf( stderr,
+				 	"Warning, ignoring bad: %s\n",
+				 	input_line );
+				continue;
+			}
+		}
+
 		if ( !load_shef_comma_piece(	shef,
 						input_line, 
 						SHEF_COMMA_PIECE ) )
@@ -217,18 +242,6 @@ int main( int argc, char **argv )
 					measurement_time,
 		 		shef_upload_aggregate_measurement->
 					measurement_value );
-		}
-
-		if ( load_shef_comma_piece(	status,
-						input_line, 
-						STATUS_COMMA_PIECE ) )
-		{
-			if ( timlib_strcmp( status, "bad" ) == 0 )
-			{
-				fprintf( stderr,
-				 	"Warning, inserting bad: %s\n",
-				 	input_line );
-			}
 		}
 	}
 

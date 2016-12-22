@@ -8,9 +8,9 @@
 
 echo "Starting: $0 $*" 1>&2
 
-if [ "$#" -ne 1 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 application" 1>&2
+	echo "Usage: $0 application include_transaction_date_time_yn" 1>&2
 	exit 1
 fi
 
@@ -22,6 +22,15 @@ then
 	export DATABASE=$database
 else
 	export DATABASE=$application
+fi
+
+include_transaction_date_time_yn=$2
+
+if [ "$2" = "y" ]
+then
+	transaction_date_time_attribute="transaction_date_time"
+else
+	transaction_date_time_attribute="''"
 fi
 
 select_account="account"
@@ -58,7 +67,7 @@ do
 		continue
 	fi
 
-	select="full_name,street_address,'',concat(account,' [',balance,']')"
+	select="full_name,street_address,${transaction_date_time_attribute},concat(account,' [',balance,']')"
 	where="transaction_date_time = '$transaction_date_time' and account = '$account_escaped'"
 
 	echo "select $select from $table where $where;" | sql.e

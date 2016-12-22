@@ -345,56 +345,61 @@ double print_checks_get_balance(
 				char *account_name )
 {
 	char sys_string[ 128 ];
-	char input_buffer[ 256 ];
-	FILE *input_pipe;
+	char *results;
 	char input_full_name[ 128 ];
 	char input_street_address[ 128 ];
 	char input_transaction_date_time[ 32 ];
 	char input_account_name_balance[ 32 ];
 	char input_account_name[ 32 ];
 	char input_balance[ 16 ];
+	static LIST *journal_ledger_list = {0};
 
-	sprintf( sys_string,
-		 "populate_print_checks_journal_ledger.sh %s y",
-		 application_name );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( input_buffer, input_pipe ) )
+	if ( !journal_ledger_list )
 	{
+		sprintf( sys_string,
+		 	"populate_print_checks_journal_ledger.sh %s y",
+		 	application_name );
+
+		journal_ledger_list = pipe2list( sys_string );
+	}
+
+	if ( !list_rewind( journal_ledger_list ) ) return 0.0;
+
+	do {
+		results = list_get_pointer( journal_ledger_list );
+
 		if ( character_count(
 			FOLDER_DATA_DELIMITER,
-			input_buffer ) != 3 )
+			results ) != 3 )
 		{
 			fprintf( stderr,
 "ERROR in %s/%s()/%d: not three delimiters in (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
-				 input_buffer );
+				 results );
 
-			pclose( input_pipe );
 			return 0.0;
 		}
 
 		piece(	input_full_name,
 			FOLDER_DATA_DELIMITER,
-			input_buffer,
+			results,
 			0 );
 
 		piece(	input_street_address,
 			FOLDER_DATA_DELIMITER,
-			input_buffer,
+			results,
 			1 );
 
 		piece(	input_transaction_date_time,
 			FOLDER_DATA_DELIMITER,
-			input_buffer,
+			results,
 			2 );
 
 		piece(	input_account_name_balance,
 			FOLDER_DATA_DELIMITER,
-			input_buffer,
+			results,
 			3 );
 
 		piece( input_account_name, '[', input_account_name_balance, 0 );
@@ -407,16 +412,11 @@ double print_checks_get_balance(
 			*transaction_date_time =
 				strdup( input_transaction_date_time );
 
-			/* Prevent broken pipe error. */
-			/* -------------------------- */
-			while( get_line( input_buffer, input_pipe ) ){};
-
-			pclose( input_pipe );
 			return atof( input_balance );
 		}
-	}
 
-	pclose( input_pipe );
+	} while( list_next( journal_ledger_list ) );
+
 	return 0.0;
 
 } /* print_checks_get_balance() */

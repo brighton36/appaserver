@@ -31,6 +31,7 @@ EXECUTABLES=	trial_balance						\
 		propagate_customer_sale_accounts			\
 		ledger_debit_credit_audit				\
 		close_nominal_accounts					\
+		print_checks						\
 		load_bank_spreadsheet					\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
@@ -221,6 +222,14 @@ close_nominal_accounts: close_nominal_accounts.c			\
 		${SOURCE_LIBRARY}					\
 		close_nominal_accounts.c				\
 		-o close_nominal_accounts
+
+print_checks: print_checks.c						\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		print_checks.c						\
+		-o print_checks
 
 load_bank_spreadsheet: load_bank_spreadsheet.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

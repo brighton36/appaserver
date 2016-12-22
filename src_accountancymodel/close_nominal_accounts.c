@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_accountancymodel/close_nominal_accounts.c			*/
+/* $APPASERVER_HOME/src_accountancymodel/close_nominal_accounts.c	*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
@@ -100,7 +100,7 @@ int main( int argc, char **argv )
 	as_of_date = argv[ 3 ];
 	execute = ( *argv[ 4 ] == 'y' );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	format_initial_capital( title, process_name ),
 

@@ -120,6 +120,7 @@ kml_extract
 # --------------------
 # src_accountancymodel
 # --------------------
+print_checks
 post_change_bank_download
 trial_balance
 tax_form_report

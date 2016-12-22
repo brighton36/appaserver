@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/load_biscayne_ysi_data.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/load_biscayne_ysi_data.c	*/
+/* -------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>

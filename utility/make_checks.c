@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* $APPASERVER_HOME/utility/make_check.c	       	*/
+/* $APPASERVER_HOME/utility/make_checks.c	       	*/
 /* --------------------------------------------------- 	*/
 /* Freely available software: see Appaserver.org	*/
 /* --------------------------------------------------- 	*/
@@ -19,22 +19,22 @@
 
 /* Constants */
 /* --------- */
-#define LATEX_FILENAME_TEMPLATE	"%s/make_check_%d.tex"
-#define PDF_FILENAME_TEMPLATE	"%s/make_check_%d.pdf"
+#define LATEX_FILENAME_TEMPLATE	"%s/make_checks_%d.tex"
+#define PDF_FILENAME_TEMPLATE	"%s/make_checks_%d.pdf"
 
 /* Prototypes */
 /* ---------- */
-void make_check_document_heading(
+void make_checks_document_heading(
 			FILE *latex_file );
 
-void make_check_document_footer(
+void make_checks_document_footer(
 			FILE *latex_file );
 
-void make_check_argv(	int argc, char **argv );
+void make_checks_argv(	int argc, char **argv );
 
-void make_check_stdin(	void );
+void make_checks_stdin(	void );
 
-void make_check_dollar_text(
+void make_checks_dollar_text(
 			FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
@@ -43,7 +43,7 @@ void make_check_dollar_text(
 			char *check_date,
 			boolean with_newpage );
 
-void make_check(	FILE *latex_file,
+void make_checks(	FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
 			char *memo,
@@ -54,18 +54,18 @@ int main( int argc, char **argv )
 {
 	if ( argc == 2 && strcmp( argv[ 1 ], "stdin" ) == 0 )
 	{
-		make_check_stdin();
+		make_checks_stdin();
 	}
 	else
 	{
-		make_check_argv( argc, argv );
+		make_checks_argv( argc, argv );
 	}
 
 	return 0;
 
 } /* main() */
 
-void make_check_argv( int argc, char **argv )
+void make_checks_argv( int argc, char **argv )
 {
 	char *payable_to;
 	double dollar_amount;
@@ -129,16 +129,16 @@ void make_check_argv( int argc, char **argv )
 		exit( 1 );
 	}
 
-	make_check_document_heading( latex_file );
+	make_checks_document_heading( latex_file );
 
-	make_check(	latex_file,
+	make_checks(	latex_file,
 			payable_to,
 			dollar_amount,
 			memo,
 			check_date,
 			0 /* not with_newpage */ );
 
-	make_check_document_footer( latex_file );
+	make_checks_document_footer( latex_file );
 
 	fclose( latex_file );
 
@@ -150,9 +150,9 @@ void make_check_argv( int argc, char **argv )
 
 	printf(	"%s\n", pdf_filename );
 
-} /* make_check_argv() */
+} /* make_checks_argv() */
 
-void make_check_stdin( void )
+void make_checks_stdin( void )
 {
 	char payable_to[ 128 ];
 	char dollar_amount_string[ 128 ];
@@ -205,7 +205,7 @@ void make_check_stdin( void )
 		exit( 1 );
 	}
 
-	make_check_document_heading( latex_file );
+	make_checks_document_heading( latex_file );
 
 	while( get_line( input_buffer, stdin ) )
 	{
@@ -224,9 +224,11 @@ void make_check_stdin( void )
 		piece( dollar_amount_string, '^', input_buffer, 1 );
 		piece( memo, '^', input_buffer, 2 );
 
+		if ( strcmp( memo, "memo" ) == 0 ) *memo = '\0';
+
 		dollar_amount_double = atof( dollar_amount_string );
 
-		make_check(	latex_file,
+		make_checks(	latex_file,
 				payable_to,
 				dollar_amount_double,
 				memo,
@@ -237,7 +239,7 @@ void make_check_stdin( void )
 
 	} /* while( get_line() */
 
-	make_check_document_footer( latex_file );
+	make_checks_document_footer( latex_file );
 
 	fclose( latex_file );
 
@@ -249,9 +251,9 @@ void make_check_stdin( void )
 
 	printf(	"%s\n", pdf_filename );
 
-} /* make_check_stdin */
+} /* make_checks_stdin */
 
-void make_check(	FILE *latex_file,
+void make_checks(	FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
 			char *memo,
@@ -262,7 +264,7 @@ void make_check(	FILE *latex_file,
 
 	dollar_text( dollar_text_string, dollar_amount );
 
-	make_check_dollar_text(
+	make_checks_dollar_text(
 		latex_file,
 		payable_to,
 		dollar_amount,
@@ -271,9 +273,9 @@ void make_check(	FILE *latex_file,
 		check_date,
 		with_newpage );
 
-} /* make_check() */
+} /* make_checks() */
 
-void make_check_document_heading(
+void make_checks_document_heading(
 			FILE *latex_file )
 {
 	fprintf( latex_file,
@@ -287,17 +289,17 @@ void make_check_document_heading(
 "\\pagenumbering{gobble}\n"
 "\\begin{document}\n" );
 
-} /* make_check_document_heading() */
+} /* make_checks_document_heading() */
 
-void make_check_document_footer(
+void make_checks_document_footer(
 			FILE *latex_file )
 {
 	fprintf( latex_file,
 "\\end{document}\n" );
 
-} /* make_check_document_footer() */
+} /* make_checks_document_footer() */
 
-void make_check_dollar_text(
+void make_checks_dollar_text(
 			FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
@@ -355,5 +357,5 @@ void make_check_dollar_text(
 "\\end{minipage}\n"
 "\\end{sideways}\n" );
 
-} /* make_check_dollar_text() */
+} /* make_checks_dollar_text() */
 

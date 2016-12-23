@@ -31,7 +31,7 @@ EXECUTABLES=	trial_balance						\
 		propagate_customer_sale_accounts			\
 		ledger_debit_credit_audit				\
 		close_nominal_accounts					\
-		print_checks						\
+		print_checks_process					\
 		load_bank_spreadsheet					\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
@@ -223,13 +223,14 @@ close_nominal_accounts: close_nominal_accounts.c			\
 		close_nominal_accounts.c				\
 		-o close_nominal_accounts
 
-print_checks: print_checks.c						\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+print_checks_process: print_checks_process.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} print_checks.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		print_checks.c						\
-		-o print_checks
+		print_checks_process.c					\
+		print_checks.o						\
+		-o print_checks_process
 
 load_bank_spreadsheet: load_bank_spreadsheet.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -478,3 +479,8 @@ accrual.o: accrual.c accrual.h
 entity.o: entity.c entity.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c entity.c
+
+print_checks.o: print_checks.c print_checks.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c print_checks.c
+

@@ -6256,3 +6256,30 @@ void ledger_append_propagate_account_list(
 
 } /* ledger_append_propagate_account_list() */
 
+char *ledger_get_latest_zero_balance_transaction_date_time(
+					char *application_name,
+					char *account_name )
+{
+	char buffer[ 128 ];
+	char where[ 512 ];
+	char select[ 128 ];
+	char sys_string[ 1024 ];
+	char *table;
+
+	table = get_table_name( application_name, LEDGER_FOLDER_NAME );
+
+	sprintf( where,
+	"account = '%s' and balance = 0",
+		 timlib_escape_single_quotes( buffer, account_name ) );
+
+	strcpy( select, "max( transaction_date_time )" );
+
+	sprintf( sys_string,
+		 "echo \"select %s from %s where %s;\" | sql.e",
+		 select,
+		 table,
+		 where );
+
+	return pipe2string( sys_string );
+
+} /* ledger_get_latest_zero_balance_transaction_date_time() */

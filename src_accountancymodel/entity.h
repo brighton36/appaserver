@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/entity.h					*/
+/* $APPASERVER_HOME/src_accountancymodel/entity.h			*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver entity ADT.					*/
 /*									*/

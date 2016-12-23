@@ -811,4 +811,10 @@ void ledger_eppend_propagate_account_list(
 				char *account_name,
 				char *application_name );
 
+char *ledger_get_latest_zero_balance_transaction_date_time(
+				char *application_name,
+				char *account_name );
+
+char *ledger_account_get_select( void );
+
 #endif

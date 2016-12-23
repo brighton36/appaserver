@@ -32,9 +32,9 @@ join_where="journal_ledger.account = account.account"
 
 account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks'"
 
-having="sum( ifnull( credit_amount, 0 ) ) - sum( ifnull( debit_amount, 0 ) ) > 0"
-
 group="full_name, street_address"
+
+having="sum( ifnull( credit_amount, 0 ) ) - sum( ifnull( debit_amount, 0 ) ) > 0"
 
 where="$join_where and $account_where"
 

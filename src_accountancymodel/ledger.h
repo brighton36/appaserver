@@ -817,4 +817,10 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 
 char *ledger_account_get_select( void );
 
+void ledger_append_propagate_account_list(
+				LIST *propagate_account_list,
+				char *transaction_date_time,
+				char *account_name,
+				char *application_name );
+
 #endif

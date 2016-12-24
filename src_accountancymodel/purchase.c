@@ -3028,6 +3028,69 @@ PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_parse( char *input_buffer )
 
 } /* purchase_prepaid_asset_parse() */
 
+PURCHASE_ORDER *purchase_order_transaction_date_time_fetch(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time )
+{
+	char sys_string[ 2048 ];
+	char *where;
+	char *select;
+	char *results;
+	PURCHASE_ORDER *purchase_order;
+
+	select = purchase_order_get_select();
+
+	where = ledger_get_transaction_where(
+			full_name,
+			street_address,
+			transaction_date_time,
+			(char *)0 /* folder_name */,
+			"transaction_date_time" );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=purchase_order		"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 where );
+
+	if ( ! ( results = pipe2string( sys_string ) ) )
+		return (PURCHASE_ORDER *)0;
+
+	purchase_order = purchase_order_calloc();
+
+	purchase_order_parse(
+			&purchase_order->full_name,
+			&purchase_order->street_address,
+			&purchase_order->purchase_date_time,
+			&purchase_order->sum_extension,
+			&purchase_order->database_sum_extension,
+			&purchase_order->sales_tax,
+			&purchase_order->freight_in,
+			&purchase_order->purchase_amount,
+			&purchase_order->database_purchase_amount,
+			&purchase_order->amount_due,
+			&purchase_order->database_amount_due,
+			&purchase_order->title_passage_rule,
+			&purchase_order->shipped_date,
+			&purchase_order->database_shipped_date,
+			&purchase_order->arrived_date_time,
+			&purchase_order->database_arrived_date_time,
+			&purchase_order->transaction_date_time,
+			&purchase_order->database_transaction_date_time,
+			&purchase_order->fund_name,
+			results );
+
+	free( results );
+
+	return purchase_order;
+
+} /* purchase_order_transaction_date_time_fetch() */
+
 PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_fetch(
 					char *application_name,
 					char *full_name,

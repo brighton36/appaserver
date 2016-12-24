@@ -12,6 +12,7 @@
 /* Includes */
 /* -------- */
 #include "list.h"
+#include "purchase.h"
 #include "ledger.h"
 
 /* Enumerated types */
@@ -36,6 +37,7 @@ typedef struct
 	double check_amount;
 	int check_number;
 	LIST *entity_account_debit_list;
+	LIST *purchase_order_list;
 } ENTITY_CHECK_AMOUNT;
 
 typedef struct
@@ -77,6 +79,7 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 
 void print_checks_set_entity_account_debit_list(
 				LIST *entity_check_amount_list,
+				char *application_name,
 				LIST *current_liability_account_list );
 
 ENTITY_ACCOUNT_DEBIT *
@@ -108,9 +111,20 @@ void print_checks_insert_transaction_journal_ledger(
 				char *application_name,
 				LIST *print_checks_entity_check_amount_list );
 
-LIST *print_checks_seek_debit_entity_account_debit_list(
-				LIST *print_checks_entity_account_debit_list,
+LIST *print_checks_get_purchase_order_list(
+				char *application_name,
+				double check_amount,
+				LIST *current_liability_account_list,
 				char *full_name,
 				char *street_address );
+
+void print_checks_set_journal_ledger_purchase_order_list(
+				LIST *purchase_order_list,
+				double *remaining_check_amount,
+				char *application_name,
+				LIST *journal_ledger_list,
+				char *full_name,
+				char *street_address,
+				char *account_name );
 
 #endif

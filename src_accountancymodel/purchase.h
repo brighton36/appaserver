@@ -355,14 +355,15 @@ void purchase_order_parse(	char **full_name,
 PURCHASE_ORDER *purchase_order_calloc(
 				void );
 
-/*
-char *inventory_purchase_list_display(
-				LIST *inventory_purchase_list );
-*/
-
 PURCHASE_ORDER *purchase_order_seek(
 				LIST *purchase_order_list,
 				char *purchase_date_time );
+
+PURCHASE_ORDER *purchase_order_transaction_date_time_fetch(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time );
 
 void purchase_order_inventory_delete(
 				LIST *inventory_purchase_list,
@@ -634,6 +635,12 @@ boolean purchase_prepaid_asset_get_account_names(
 				char **expense_account_name,
 				char *application_name,
 				char *asset_name );
+
+PURCHASE_ORDER *purchase_order_transaction_date_time_fetch(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time );
 
 #endif
 

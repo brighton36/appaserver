@@ -205,7 +205,9 @@ char *print_checks(	char *application_name,
 	     list_length( street_address_list ) )
 	{
 		printf(
-		"<h3>An internal error occurred. Check punctuation.</h3>\n" );
+"<h3>An internal error occurred. The list lengths don't match: %d vs. %d.</h3>\n",
+		list_length( full_name_list ),
+		list_length( street_address_list ) );
 		return "";
 	}
 
@@ -326,8 +328,7 @@ char *print_checks_execute(
 
 		print_checks_insert_transaction_journal_ledger(
 			application_name,
-			print_checks->entity_check_amount_list,
-			print_checks->entity_account_debit_list );
+			print_checks->entity_check_amount_list );
 
 		printf(
 		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );

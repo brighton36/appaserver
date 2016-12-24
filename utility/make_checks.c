@@ -308,6 +308,10 @@ void make_checks_dollar_text(
 			char *check_date,
 			boolean with_newpage )
 {
+	char payable_to_escaped[ 128 ];
+
+	latex_escape_data( payable_to_escaped, payable_to, 128 );
+
 	if ( with_newpage )
 	{
 		fprintf( latex_file,
@@ -331,7 +335,7 @@ void make_checks_dollar_text(
 
 	fprintf( latex_file,
 "& %s & %.2lf\n",
-		 payable_to,
+		 payable_to_escaped,
 		 dollar_amount );
 
 	fprintf( latex_file,

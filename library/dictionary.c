@@ -1273,10 +1273,10 @@ void dictionary_search_replace_command_arguments(
 		column = list_get_pointer( column_list );
 
 		results = dictionary_get_index_data( 	
-						&data,
-						dictionary, 
-						column, 
-						index );
+				&data,
+				dictionary, 
+				column, 
+				index );
 
 		if ( results > -1 )
 		{
@@ -3057,6 +3057,7 @@ boolean dictionary_get_index_list_string(
 {
 	int highest_index, index, results;
 	char *data;
+	char escaped_data[ 1024 ];
 	boolean found_any = 0;
 	int first_time = 1;
 
@@ -3072,22 +3073,29 @@ boolean dictionary_get_index_list_string(
 							index );
 		if ( results == 1 )
 		{
+			escape_character( escaped_data, data, ',' );
+
 			if ( first_time )
 			{
 				destination +=
-					sprintf( destination, "%s", data );
+					sprintf(destination,
+						"%s",
+						escaped_data );
 				first_time = 0;
 			}
 			else
 			{
 				destination +=
-					sprintf( destination, ",%s", data );
+					sprintf(destination,
+						",%s",
+						escaped_data );
 			}
 			found_any = 1;
 		}
 	}
 
 	return found_any;
+
 } /* dictionary_get_index_list_string() */
 
 /* ------------------------------------------------------------ */

@@ -25,11 +25,9 @@
 /* ---------- */
 typedef struct
 {
-	char *full_name;
-	char *street_address;
 	char *account_name;
 	double debit_amount;
-} PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT;
+} ENTITY_ACCOUNT_DEBIT;
 
 typedef struct
 {
@@ -37,13 +35,13 @@ typedef struct
 	char *street_address;
 	double check_amount;
 	int check_number;
-} PRINT_CHECKS_ENTITY_CHECK_AMOUNT;
+	LIST *entity_account_debit_list;
+} ENTITY_CHECK_AMOUNT;
 
 typedef struct
 {
 	LIST *current_liability_account_list;
 	LIST *entity_check_amount_list;
-	LIST *entity_account_debit_list;
 } PRINT_CHECKS;
 
 /* Operations */
@@ -53,13 +51,11 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 				LIST *street_address_list,
 				int starting_check_number );
 
-PRINT_CHECKS_ENTITY_CHECK_AMOUNT *print_checks_entity_check_amount_new(
+ENTITY_CHECK_AMOUNT *print_checks_entity_check_amount_new(
 				char *full_name,
 				char *street_address );
 
-PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_new(
-				char *full_name,
-				char *street_address,
+ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_new(
 				char *account_name );
 
 LIST *print_checks_get_current_liability_account_list(
@@ -74,25 +70,22 @@ LIST *print_checks_get_entity_list(
 				char *full_name,
 				char *street_address );
 
-PRINT_CHECKS_ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
+ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 				char *application_name,
 				char *full_name,
 				char *street_address );
 
-LIST *print_checks_get_entity_account_debit_list(
-				LIST *current_liability_account_list,
-				LIST *entity_check_amount_list );
+void print_checks_set_entity_account_debit_list(
+				LIST *entity_check_amount_list,
+				LIST *current_liability_account_list );
 
-PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *
+ENTITY_ACCOUNT_DEBIT *
 	print_checks_get_or_set_entity_account_debit(
 				LIST *entity_account_debit_list,
-				char *full_name,
-				char *street_address,
 				char *account_name );
 
-void print_checks_set_entity_account_debit_list(
-				LIST *entity_account_debit_list,
-				double *remaining_check_amount,
+LIST *print_checks_get_entity_account_debit_list(
+				double check_amount,
 				LIST *current_liability_account_list,
 				char *full_name,
 				char *street_address );
@@ -113,8 +106,7 @@ LIST *print_checks_get_entity_check_amount_list(
 
 void print_checks_insert_transaction_journal_ledger(
 				char *application_name,
-				LIST *print_checks_entity_check_amount_list,
-				LIST *print_checks_entity_account_debit_list );
+				LIST *print_checks_entity_check_amount_list );
 
 LIST *print_checks_seek_debit_entity_account_debit_list(
 				LIST *print_checks_entity_account_debit_list,

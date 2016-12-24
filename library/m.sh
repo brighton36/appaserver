@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_capitolpops
-	make donor_receipt
+	cd ../utility
+	make make_checks.e
 fi

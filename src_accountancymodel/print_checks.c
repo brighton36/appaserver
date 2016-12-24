@@ -13,9 +13,13 @@
 #include "ledger.h"
 #include "appaserver_library.h"
 #include "piece.h"
+#include "date.h"
 #include "print_checks.h"
 
-PRINT_CHECKS *print_checks_new(	void )
+PRINT_CHECKS *print_checks_new(	char *application_name,
+				LIST *full_name_list,
+				LIST *street_address_list,
+				int starting_check_number )
 {
 	PRINT_CHECKS *p;
 
@@ -28,6 +32,22 @@ PRINT_CHECKS *print_checks_new(	void )
 			 __LINE__ );
 		exit( 1 );
 	}
+
+	p->current_liability_account_list =
+		print_checks_get_current_liability_account_list(
+			application_name );
+
+	p->entity_check_amount_list =
+		print_checks_get_entity_check_amount_list(
+			application_name,
+			full_name_list,
+			street_address_list,
+			starting_check_number );
+
+	p->entity_account_debit_list =
+		print_checks_get_entity_account_debit_list(
+			p->current_liability_account_list,
+			p->entity_check_amount_list );
 
 	return p;
 
@@ -161,7 +181,8 @@ LIST *print_checks_get_after_balance_zero_journal_ledger_list(
 LIST *print_checks_get_entity_check_amount_list(
 			char *application_name,
 			LIST *full_name_list,
-			LIST *street_address_list )
+			LIST *street_address_list,
+			int starting_check_number )
 {
 	char *full_name;
 	char *street_address;
@@ -194,6 +215,8 @@ LIST *print_checks_get_entity_check_amount_list(
 				 street_address );
 			exit( 1 );
 		}
+
+		entity_check_amount->check_number = starting_check_number++;
 
 		list_append_pointer(
 			entity_check_amount_list,
@@ -295,12 +318,10 @@ LIST *print_checks_get_entity_account_debit_list(
 				LIST *entity_check_amount_list )
 {
 	LIST *entity_account_debit_list;
-	ACCOUNT *account;
-	JOURNAL_LEDGER *journal_ledger;
 	PRINT_CHECKS_ENTITY_CHECK_AMOUNT *entity_check_amount;
-	PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+	double remaining_check_amount;
 
-	if ( list_rewind( entity_check_amount_list ) ) return (LIST *)0;
+	if ( !list_rewind( entity_check_amount_list ) ) return (LIST *)0;
 
 	entity_account_debit_list = list_new();
 
@@ -309,16 +330,28 @@ LIST *print_checks_get_entity_account_debit_list(
 			list_get_pointer(
 				entity_check_amount_list );
 
-		if ( ( entity_account_debit =
-			print_checks_get_entity_account_debit(
-				current_liability_account_list,
-				entity_check_amount->full_name,
-				entity_check_amount->street_address,
-				entity_check_amount->check_amount ) ) )
+		remaining_check_amount =
+			entity_check_amount->
+				check_amount;
+
+		print_checks_set_entity_account_debit_list(
+			entity_account_debit_list,
+			&remaining_check_amount,
+			current_liability_account_list,
+			entity_check_amount->full_name,
+			entity_check_amount->street_address );
+
+		if ( !timlib_dollar_virtually_same(
+			remaining_check_amount,
+			0.0 ) )
 		{
-			list_append_pointer(
-				entity_account_debit_list;
-				entity_account_debit ):
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: expecting remaining_check_amount of 0.00; instead, is (%.2lf)\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+				remaining_check_amount );
+			exit( 1 );
 		}
 
 	} while( list_next( entity_check_amount_list ) );
@@ -386,56 +419,244 @@ skip_list:
 
 } /* print_checks_get_or_set_entity_account_debit() */
 
-PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *
-		print_checks_get_entity_account_debit(
+void print_checks_set_entity_account_debit_list(
+				LIST *entity_account_debit_list,
+				double *remaining_check_amount,
 				LIST *current_liability_account_list,
 				char *full_name,
-				char *street_address,
-				double check_amount )
+				char *street_address )
 {
 	ACCOUNT *account;
-	PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *entity_account_debit = {0};
 
-	if ( !list_rewind( current_liability_account_list ) )
-		return (PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *)0;
+	if ( !list_rewind( current_liability_account_list ) ) return;
 
 	do {
 		account = list_get_pointer( current_liability_account_list );
 
-		entity_account_debit =
-			print_checks_get_journal_ledger_entity_account_debit(
-				entity_account_debit,
-				&check_amount,
-				full_name,
-				street_address,
-				account->account_name,
-				account->journal_ledger_list );
+		print_checks_set_journal_ledger_entity_account_debit_list(
+			entity_account_debit_list,
+			remaining_check_amount,
+			account->journal_ledger_list,
+			full_name,
+			street_address,
+			account->account_name );
 
 	} while( list_next( current_liability_account_list ) );
 
-	return entity_account_debit;
+} /* print_checks_set_entity_account_debit_list() */
 
-} /* print_checks_get_entity_account_debit() */
-
-PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *
-		print_checks_get_journal_ledger_entity_account_debit(
-			PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *
-				entity_account_debit,
-			double *check_amount,
+void print_checks_set_journal_ledger_entity_account_debit_list(
+			LIST *entity_account_debit_list,
+			double *remaining_check_amount,
+			LIST *journal_ledger_list,
 			char *full_name,
 			char *street_address,
-			char *account_name,
-			LIST *journal_ledger_list )
+			char *account_name )
 {
 	JOURNAL_LEDGER *journal_ledger;
+	PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *entity_account_debit;
 
-	if ( !list_rewind( journal_ledger_list ) )
-		return entity_account_debit;
+	if ( !list_go_tail( journal_ledger_list ) ) return;
 
 	do {
-	} while( list_next( journal_ledger_list ) );
+		journal_ledger =
+			list_get_pointer(
+				journal_ledger_list );
 
-	return entity_account_debit;
+		if ( strcmp(	journal_ledger->full_name,
+				full_name ) != 0
+		||   strcmp(	journal_ledger->street_address,
+				street_address ) != 0 )
+		{
+			continue;
+		}
+
+		entity_account_debit =
+			print_checks_get_or_set_entity_account_debit(
+				entity_account_debit_list,
+				full_name,
+				street_address,
+				account_name );
+
+		if ( journal_ledger->credit_amount )
+		{
+			/* If full payment */
+			/* --------------- */
+			if (	*remaining_check_amount >=
+				journal_ledger->credit_amount )
+			{
+				entity_account_debit->debit_amount +=
+					journal_ledger->credit_amount;
+
+				*remaining_check_amount -=
+					journal_ledger->credit_amount;
+			}
+			else
+			/* Else partial payment */
+			/* -------------------- */
+			{
+				entity_account_debit->debit_amount +=
+					*remaining_check_amount;
+
+				*remaining_check_amount = 0.0;
+			}
+		}
+
+		if ( timlib_dollar_virtually_same(
+			*remaining_check_amount,
+			0.0 ) )
+		{
+			return;
+		}
+
+	} while( list_previous( journal_ledger_list ) );
 
 } /* print_checks_get_journal_ledger_entity_account_debit() */
+
+void print_checks_insert_transaction_journal_ledger(
+			char *application_name,
+			LIST *print_checks_entity_check_amount_list,
+			LIST *print_checks_entity_account_debit_list )
+{
+	PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+	PRINT_CHECKS_ENTITY_CHECK_AMOUNT *entity_check_amount;
+	LIST *debit_entity_account_debit_list;
+	DATE *transaction_date_time;
+	char *transaction_date_time_string;
+	char *propagate_transaction_date_time = {0};
+	LIST *distinct_account_name_list;
+	TRANSACTION *transaction;
+
+	transaction_date_time = date_now_new();
+	distinct_account_name_list = list_new();
+
+	list_append_pointer( distinct_account_name_list, "uncleared_checks" );
+
+	if ( !list_rewind( print_checks_entity_check_amount_list ) ) return;
+
+	do {
+		entity_check_amount =
+			list_get(
+				print_checks_entity_check_amount_list );
+
+		debit_entity_account_debit_list =
+			print_checks_seek_debit_entity_account_debit_list(
+				print_checks_entity_account_debit_list,
+				entity_check_amount->full_name,
+				entity_check_amount->street_address );
+
+		if ( !list_rewind(
+			debit_entity_account_debit_list  ) )
+		{
+			fprintf( stderr,
+			 	 "ERROR in %s/%s()/%d: empty list.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__ );
+			exit( 1 );
+		}
+
+		transaction_date_time_string =
+			date_display_yyyy_mm_dd_colon_hms(
+				transaction_date_time );
+
+		transaction =
+			ledger_transaction_new(
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
+				transaction_date_time_string,
+				PRINT_CHECKS_MEMO );
+	
+		ledger_transaction_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			entity_check_amount->check_amount,
+			transaction->memo,
+			entity_check_amount->check_number,
+			0 /* not lock_transaction */ );
+
+		ledger_journal_ledger_insert(
+			application_name,
+			entity_check_amount->full_name,
+			entity_check_amount->street_address,
+			transaction_date_time_string,
+			"uncleared_checks",
+			entity_check_amount->check_amount,
+			0 /* not is_debit */ );
+
+		if ( !propagate_transaction_date_time )
+		{
+			propagate_transaction_date_time =
+				transaction_date_time_string;
+		}
+
+		do {
+			entity_account_debit =
+				list_get(
+				debit_entity_account_debit_list );
+
+			ledger_journal_ledger_insert(
+				application_name,
+				entity_account_debit->full_name,
+				entity_account_debit->street_address,
+				transaction_date_time_string,
+				entity_account_debit->account_name,
+				entity_account_debit->debit_amount,
+				1 /* is_debit */ );
+
+			list_append_unique_string(
+				distinct_account_name_list,
+				entity_account_debit->account_name );
+
+		} while( list_next( debit_entity_account_debit_list ) );
+
+		date_increment_seconds( transaction_date_time, 1 );
+
+	} while( list_next( print_checks_entity_check_amount_list ) );
+
+	ledger_propagate_account_name_list(
+		application_name,
+		propagate_transaction_date_time,
+		distinct_account_name_list );
+
+} /* print_checks_insert_transaction_journal_ledger() */
+
+LIST *print_checks_seek_debit_entity_account_debit_list(
+				LIST *print_checks_entity_account_debit_list,
+				char *full_name,
+				char *street_address )
+{
+	PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+	LIST *print_checks_debit_entity_account_debit_list;
+
+	if ( !list_rewind(
+		print_checks_entity_account_debit_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	print_checks_debit_entity_account_debit_list = list_new();
+
+	do {
+		entity_account_debit =
+			list_get(
+				print_checks_entity_account_debit_list );
+
+		if ( strcmp(	entity_account_debit->full_name,
+				full_name ) == 0
+		&&   strcmp(	entity_account_debit->street_address,
+				street_address ) == 0 )
+		{
+			list_append_pointer(
+				print_checks_debit_entity_account_debit_list,
+				entity_account_debit );
+		}
+
+	} while( list_next( print_checks_entity_account_debit_list ) );
+
+	return print_checks_debit_entity_account_debit_list;
+
+} /* print_checks_seek_debit_entity_account_debit_list() */
 

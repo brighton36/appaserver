@@ -22,19 +22,18 @@
 #include "application_constants.h"
 #include "environ.h"
 #include "latex.h"
+#include "print_checks.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
+#define PROMPT				"Press here to view check."
 
 /* Prototypes */
 /* ---------- */
 void insert_transaction_set_purchase_order(
 				char *application_name,
-				char *full_name,
-				char *street_address,
-				double balance,
-				int check_number );
+				PRINT_CHECKS *print_checks );
 
 double print_checks_get_balance(
 				char *application_name,
@@ -48,9 +47,10 @@ char *print_checks_execute(
 				int starting_check_number,
 				char *memo,
 				double check_amount,
-				boolean post,
+				boolean execute,
 				char *document_root_directory,
-				char *process_name );
+				char *process_name,
+				char *session );
 
 char *print_checks(		char *application_name,
 				char *full_name_list_string,
@@ -58,30 +58,32 @@ char *print_checks(		char *application_name,
 				int starting_check_number,
 				char *memo,
 				double check_amount,
-				boolean post,
+				boolean execute,
 				char *document_root_directory,
-				char *process_name );
+				char *process_name,
+				char *session );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
+	char *session;
 	char *full_name_list_string;
 	char *street_address_list_string;
 	int starting_check_number;
 	char *memo;
 	double check_amount;
-	boolean post;
+	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 	char title[ 128 ];
 	char *database_string = {0};
 	char *pdf_filename;
 
-	if ( argc != 9 )
+	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s application process full_name[,full_name] street_address[,street_address] starting_check_number memo check_amount post_yn\n",
+"Usage: %s application process session full_name[,full_name] street_address[,street_address] starting_check_number memo check_amount execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -108,12 +110,13 @@ int main( int argc, char **argv )
 				application_name );
 
 	process_name = argv[ 2 ];
-	full_name_list_string = argv[ 3 ];
-	street_address_list_string = argv[ 4 ];
-	starting_check_number = atoi( argv[ 5 ] );
-	memo = argv[ 6 ];
-	check_amount = atof( argv[ 7 ] );
-	post = ( *argv[ 8 ] == 'y' );
+	session = argv[ 3 ];
+	full_name_list_string = argv[ 4 ];
+	street_address_list_string = argv[ 5 ];
+	starting_check_number = atoi( argv[ 6 ] );
+	memo = argv[ 7 ];
+	check_amount = atof( argv[ 8 ] );
+	execute = ( *argv[ 9 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -145,12 +148,17 @@ int main( int argc, char **argv )
 				starting_check_number,
 				memo,
 				check_amount,
-				post,
+				execute,
 				appaserver_parameter_file->
 					document_root,
-				process_name );
+				process_name,
+				session );
 
-	printf( "<p>pdf_filename = %s\n", pdf_filename );
+	if ( !pdf_filename )
+	{
+		printf(
+		"<h3>Error: these checks have already been posted.</h3>\n" );
+	}
 
 	document_close();
 
@@ -164,9 +172,10 @@ char *print_checks(	char *application_name,
 			int starting_check_number,
 			char *memo,
 			double check_amount,
-			boolean post,
+			boolean execute,
 			char *document_root_directory,
-			char *process_name )
+			char *process_name,
+			char *session )
 {
 	LIST *full_name_list;
 	LIST *street_address_list;
@@ -182,9 +191,13 @@ char *print_checks(	char *application_name,
 			street_address_list_string,
 			',' );
 
-	if ( !list_length( full_name_list ) )
+	if ( ( !list_length( full_name_list ) )
+	||   ( list_length( full_name_list ) == 1
+		&& 	strcmp(	list_get_first_pointer(
+					full_name_list ),
+				"full_name" ) == 0 ) )
 	{
-		printf( "<h3>Please choose a Journal Ledger</h3>\n" );
+		printf( "<h3>Please choose an Entity</h3>\n" );
 		return "";
 	}
 
@@ -204,9 +217,10 @@ char *print_checks(	char *application_name,
 			starting_check_number,
 			memo,
 			check_amount,
-			post,
+			execute,
 			document_root_directory,
-			process_name );
+			process_name,
+			session );
 
 	return pdf_filename;
 
@@ -219,9 +233,10 @@ char *print_checks_execute(
 			int starting_check_number,
 			char *memo,
 			double check_amount,
-			boolean post,
+			boolean execute,
 			char *document_root_directory,
-			char *process_name )
+			char *process_name,
+			char *session )
 {
 	char *full_name;
 	char *street_address;
@@ -230,6 +245,8 @@ char *print_checks_execute(
 	FILE *output_pipe;
 	char *output_filename;
 	char *pdf_filename;
+	char *document_root_filename;
+	char *ftp_filename;
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	appaserver_link_file =
@@ -245,6 +262,8 @@ char *print_checks_execute(
 			(char *)0 /* session */,
 			"dat" );
 
+	/* make_checks.e places the pdf_filename into output_filename. */
+	/* ----------------------------------------------------------- */
 	output_filename =
 		appaserver_link_get_output_filename(
 			appaserver_link_file->
@@ -258,8 +277,6 @@ char *print_checks_execute(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-	/* Sends pdf_filename to output_filename */
-	/* ------------------------------------- */
 	sprintf( sys_string,
 		 "make_checks.e stdin 2>/dev/null > %s",
 		 output_filename );
@@ -273,20 +290,15 @@ char *print_checks_execute(
 		full_name = list_get_pointer( full_name_list );
 		street_address = list_get_pointer( street_address_list );
 
+		/* If no balance, then pressed <Submit> twice. */
+		/* ------------------------------------------- */
 		if ( ! ( balance =
 				print_checks_get_balance(
 					application_name,
 					full_name,
 					street_address ) ) )
 		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot get balance for (%s/%s)\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 full_name,
-				 street_address );
-			return "";
+			return (char *)0;
 		}
 
 		fprintf( output_pipe,
@@ -295,27 +307,87 @@ char *print_checks_execute(
 			 (check_amount) ? check_amount : balance,
 			 (*memo) ? memo : "" );
 
-		if ( post )
-		{
-			insert_transaction_set_purchase_order(
-				application_name,
-				full_name,
-				street_address,
-				balance,
-				starting_check_number++ );
-		}
-
 		list_next( street_address_list );
 
 	} while( list_next( full_name_list ) );
 
 	pclose( output_pipe );
 
+	if ( execute )
+	{
+		PRINT_CHECKS *print_checks = {0};
+
+		print_checks =
+			print_checks_new(
+				application_name,
+				full_name_list,
+				street_address_list,
+				starting_check_number );
+
+		print_checks_insert_transaction_journal_ledger(
+			application_name,
+			print_checks->entity_check_amount_list,
+			print_checks->entity_account_debit_list );
+
+		printf(
+		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
+	}
+
 	sprintf( sys_string,
 		 "cat %s",
 		 output_filename );
 
 	pdf_filename = pipe2string( sys_string );
+
+	appaserver_link_file->extension = "pdf";
+	appaserver_link_file->session = session;
+	appaserver_link_file->process_id = 0;
+
+	/* Copy pdf_filename to document_root_directory. */
+	/* --------------------------------------------- */
+	document_root_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	sprintf(	sys_string,
+			"cp %s %s",
+			pdf_filename,
+			document_root_filename );
+
+	system( sys_string );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	appaserver_library_output_ftp_prompt(
+			ftp_filename,
+			PROMPT,
+			(char *)0 /* target */,
+			(char *)0 /* application_type */ );
 
 	return pdf_filename;
 
@@ -390,14 +462,4 @@ double print_checks_get_balance(
 	return 0.0;
 
 } /* print_checks_get_balance() */
-
-void insert_transaction_set_purchase_order(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				double balance,
-				int check_number )
-{
-
-} /* insert_transaction_set_purchase_order() */
 

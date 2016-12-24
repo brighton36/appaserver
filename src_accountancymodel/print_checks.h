@@ -19,6 +19,7 @@
 
 /* Constants */
 /* --------- */
+#define PRINT_CHECKS_MEMO	"Automatic Check"
 
 /* Structures */
 /* ---------- */
@@ -35,6 +36,7 @@ typedef struct
 	char *full_name;
 	char *street_address;
 	double check_amount;
+	int check_number;
 } PRINT_CHECKS_ENTITY_CHECK_AMOUNT;
 
 typedef struct
@@ -46,7 +48,10 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-PRINT_CHECKS *print_checks_new(	void );
+PRINT_CHECKS *print_checks_new(	char *application_name,
+				LIST *full_name_list,
+				LIST *street_address_list,
+				int starting_check_number );
 
 PRINT_CHECKS_ENTITY_CHECK_AMOUNT *print_checks_entity_check_amount_new(
 				char *full_name,
@@ -84,5 +89,36 @@ PRINT_CHECKS_ENTITY_ACCOUNT_DEBIT *
 				char *full_name,
 				char *street_address,
 				char *account_name );
+
+void print_checks_set_entity_account_debit_list(
+				LIST *entity_account_debit_list,
+				double *remaining_check_amount,
+				LIST *current_liability_account_list,
+				char *full_name,
+				char *street_address );
+
+void print_checks_set_journal_ledger_entity_account_debit_list(
+				LIST *entity_account_debit_list,
+				double *remaining_check_amount,
+				LIST *journal_ledger_list,
+				char *full_name,
+				char *street_address,
+				char *account_name );
+
+LIST *print_checks_get_entity_check_amount_list(
+				char *application_name,
+				LIST *full_name_list,
+				LIST *street_address_list,
+				int starting_check_number );
+
+void print_checks_insert_transaction_journal_ledger(
+				char *application_name,
+				LIST *print_checks_entity_check_amount_list,
+				LIST *print_checks_entity_account_debit_list );
+
+LIST *print_checks_seek_debit_entity_account_debit_list(
+				LIST *print_checks_entity_account_debit_list,
+				char *full_name,
+				char *street_address );
 
 #endif

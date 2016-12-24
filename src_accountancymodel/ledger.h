@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/ledger.h					*/
+/* $APPASERVER_HOME/src_accountancymodel/ledger.h			*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver ledger ADT.					*/
 /*									*/

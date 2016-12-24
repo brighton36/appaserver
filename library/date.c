@@ -794,6 +794,11 @@ char *date_get_yesterday_yyyy_mm_dd_string()
 } /* date_get_yesterday_yyyy_mm_dd_string() */
 
 
+DATE *date_now_new( void )
+{
+	return date_get_today_new();
+}
+
 DATE *date_new_now( void )
 {
 	return date_get_today_new();

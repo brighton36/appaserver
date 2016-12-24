@@ -42,10 +42,15 @@ typedef struct
 /* Prototypes */
 /* ---------- */
 DATE *date_new( int year, int month, int day );
+
 DATE *date_time_new( int year, int month, int day, int hour, int minute );
+
 void increment_week( DATE *d );
+
 void date_increment_day( DATE *d );
+
 void date_decrement_day( DATE *d );
+
 void date_increment( DATE *d );
 
 DATE *date_yyyy_mm_dd_new( char *date_string );
@@ -93,8 +98,11 @@ char *date_get_yyyy_mm_dd_string( DATE *date );
 
 char *date_get_yesterday_yyyy_mm_dd_string( void );
 DATE *date_get_today_new( void );
+
 DATE *date_new_now( void );
+
 DATE *date_today_new( void );
+
 char *date_get_now_yyyy_mm_dd( void );
 char *date_get_now_hhmm( void );
 char *date_get_now_date_yyyy_mm_dd( void );
@@ -291,5 +299,7 @@ char *date_get_now_time_second(	void );
 
 char *date_subtract_colon_from_time(
 				char *time_string );
+
+DATE *date_now_new(		void );
 
 #endif

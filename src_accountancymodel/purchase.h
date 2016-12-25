@@ -642,5 +642,15 @@ PURCHASE_ORDER *purchase_order_transaction_date_time_fetch(
 				char *street_address,
 				char *transaction_date_time );
 
+void purchase_vendor_payment_insert(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time,
+				char *payment_date_time,
+				double payment_amount,
+				int check_number,
+				char *transaction_date_time );
+
 #endif
 

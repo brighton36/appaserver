@@ -273,10 +273,23 @@ void insert_vendor_payment(	char *application_name,
 				double payment_amount,
 				int check_number )
 {
+	
+	purchase_vendor_payment_insert(
+		application_name,
+		full_name,
+		street_address,
+		purchase_date_time,
+		payment_date_time,
+		payment_amount,
+		check_number,
+		(char *)0 /* transaction_date_time */ );
+
+/*
 	char sys_string[ 1024 ];
 	char *field_list_string;
 	FILE *output_pipe;
 	char *table_name;
+	char buffer[ 128 ];
 
 	field_list_string =
 "full_name,street_address,purchase_date_time,payment_date_time,payment_amount,check_number";
@@ -292,7 +305,9 @@ void insert_vendor_payment(	char *application_name,
 
 	fprintf( output_pipe,
 		 "%s|%s|%s|%s|%.2lf",
-		 full_name,
+		 escape_character(	buffer,
+					full_name,
+					'\'' ),
 		 street_address,
 		 purchase_date_time,
 		 payment_date_time,
@@ -310,6 +325,7 @@ void insert_vendor_payment(	char *application_name,
 	}
 
 	pclose( output_pipe );
+*/
 
 } /* insert_vendor_payment() */
 

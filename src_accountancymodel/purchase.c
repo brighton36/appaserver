@@ -3383,3 +3383,67 @@ boolean purchase_prepaid_asset_get_account_names(
 
 } /* purchase_fixed_asset_get_account_name() */
 
+void purchase_vendor_payment_insert(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time,
+				char *payment_date_time,
+				double payment_amount,
+				int check_number,
+				char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char *field_list_string;
+	FILE *output_pipe;
+	char *table_name;
+	char buffer[ 128 ];
+
+	field_list_string =
+"full_name,street_address,purchase_date_time,payment_date_time,payment_amount,check_number,transaction_date_time";
+
+	table_name = get_table_name( application_name, "vendor_payment" );
+
+	sprintf( sys_string,
+		 "insert_statement.e table=%s field=%s | sql.e",
+		 table_name,
+		 field_list_string );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf( output_pipe,
+		 "%s|%s|%s|%s|%.2lf",
+		 escape_character(	buffer,
+					full_name,
+					'\'' ),
+		 street_address,
+		 purchase_date_time,
+		 payment_date_time,
+		 payment_amount );
+
+	if ( check_number )
+	{
+		fprintf( output_pipe,
+			 "|%d",
+			 check_number );
+	}
+	else
+	{
+		fprintf( output_pipe, "|" );
+	}
+
+	if ( transaction_date_time )
+	{
+		fprintf( output_pipe,
+			 "|%s\n",
+			 transaction_date_time );
+	}
+	else
+	{
+		fprintf( output_pipe, "|\n" );
+	}
+
+	pclose( output_pipe );
+
+} /* purchase_vendor_payment_insert() */
+

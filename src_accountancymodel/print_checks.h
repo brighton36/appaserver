@@ -113,7 +113,9 @@ LIST *print_checks_get_entity_check_amount_list(
 				LIST *street_address_list,
 				int starting_check_number );
 
-void print_checks_insert_transaction_journal_ledger(
+/* Returns seconds_to_add to VENDOR_PAYMENT.transaction_date_time */
+/* -------------------------------------------------------------- */
+int print_checks_insert_transaction_journal_ledger(
 				char *application_name,
 				LIST *entity_check_amount_list,
 				double dialog_box_check_amount );
@@ -154,5 +156,11 @@ void print_checks_subtract_amount_due(
 
 void print_checks_set_transaction_date_time(
 				LIST *entity_check_amount_list );
+
+void print_checks_insert_purchase_order_vendor_payment(
+				char *application_name,
+				LIST *entity_check_amount_list,
+				double dialog_box_check_amount,
+				int seconds_to_add );
 
 #endif

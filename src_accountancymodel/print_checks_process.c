@@ -313,7 +313,8 @@ char *print_checks_execute(
 
 	if ( execute )
 	{
-		PRINT_CHECKS *print_checks = {0};
+		PRINT_CHECKS *print_checks;
+		int seconds_to_add;
 
 		print_checks =
 			print_checks_new(
@@ -330,10 +331,17 @@ char *print_checks_execute(
 		print_checks_set_transaction_date_time(
 			print_checks->entity_check_amount_list );
 
-		print_checks_insert_transaction_journal_ledger(
+		seconds_to_add =
+			print_checks_insert_transaction_journal_ledger(
+				application_name,
+				print_checks->entity_check_amount_list,
+				check_amount /* dialog_box_check_amount */ );
+
+		print_checks_insert_purchase_order_vendor_payment(
 			application_name,
 			print_checks->entity_check_amount_list,
-			check_amount /* dialog_box_check_amount */ );
+			check_amount /* dialog_box_check_amount */,
+			seconds_to_add );
 
 		printf(
 		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );

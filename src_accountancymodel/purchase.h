@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/purchase.h					*/
+/* $APPASERVER_HOME/src_accountancymodel/purchase.h			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel purchase ADT.				*/
 /*									*/

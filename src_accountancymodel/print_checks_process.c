@@ -31,10 +31,6 @@
 
 /* Prototypes */
 /* ---------- */
-void insert_transaction_set_purchase_order(
-				char *application_name,
-				PRINT_CHECKS *print_checks );
-
 double print_checks_get_balance(
 				char *application_name,
 				char *full_name,
@@ -324,11 +320,20 @@ char *print_checks_execute(
 				application_name,
 				full_name_list,
 				street_address_list,
-				starting_check_number );
+				starting_check_number,
+				check_amount /* dialog_box_check_amount */ );
+
+		print_checks_subtract_purchase_order_amount_due(
+			print_checks->entity_check_amount_list,
+			application_name );
+
+		print_checks_set_transaction_date_time(
+			print_checks->entity_check_amount_list );
 
 		print_checks_insert_transaction_journal_ledger(
 			application_name,
-			print_checks->entity_check_amount_list );
+			print_checks->entity_check_amount_list,
+			check_amount /* dialog_box_check_amount */ );
 
 		printf(
 		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );

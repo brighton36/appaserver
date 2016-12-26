@@ -223,7 +223,7 @@ int main( int argc, char **argv )
 						input_line, 
 						STATUS_COMMA_PIECE ) )
 		{
-			if ( timlib_strcmp( status, "bad" ) == 0 )
+			if ( toupper( *status ) != 'G' )
 			{
 				fprintf( stderr,
 				 	"Warning, inserting bad: %s\n",

@@ -222,6 +222,17 @@ void satlink_upload(	char *full_filename,
 		"echo \"<br><big>END Bad records</big>\"		 ",
 		shef_bad_file );
 
+	if ( execute )
+	{
+	sprintf( insert_process,
+"measurement_insert %s shef %c 2>>%s	|"
+"cat					 ",
+		 application_name,
+		 (execute) ? 'y' : 'n',
+		 shef_bad_file );
+	}
+	else
+	{
 	sprintf( insert_process,
 "queue_top_bottom_lines.e 50 		|"
 "measurement_insert %s shef %c 2>>%s	|"
@@ -229,6 +240,7 @@ void satlink_upload(	char *full_filename,
 		 application_name,
 		 (execute) ? 'y' : 'n',
 		 shef_bad_file );
+	}
 
 	if ( strcmp( argv_0, "sl2_upload" ) == 0 )
 		shef_process = "sl2_shef_to_comma_delimited";

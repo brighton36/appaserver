@@ -33,6 +33,7 @@
 /* ---------- */
 double print_checks_get_balance(
 				char *application_name,
+				char *fund_name,
 				char *full_name,
 				char *street_address );
 
@@ -46,7 +47,8 @@ char *print_checks_execute(
 				boolean execute,
 				char *document_root_directory,
 				char *process_name,
-				char *session );
+				char *session,
+				char *fund_name );
 
 char *print_checks(		char *application_name,
 				char *full_name_list_string,
@@ -57,13 +59,15 @@ char *print_checks(		char *application_name,
 				boolean execute,
 				char *document_root_directory,
 				char *process_name,
-				char *session );
+				char *session,
+				char *fund_name );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
 	char *session;
+	char *fund_name;
 	char *full_name_list_string;
 	char *street_address_list_string;
 	int starting_check_number;
@@ -76,10 +80,10 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *pdf_filename;
 
-	if ( argc != 10 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application process session full_name[,full_name] street_address[,street_address] starting_check_number memo check_amount execute_yn\n",
+"Usage: %s application process session fund full_name[,full_name] street_address[,street_address] starting_check_number memo check_amount execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -107,12 +111,13 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 2 ];
 	session = argv[ 3 ];
-	full_name_list_string = argv[ 4 ];
-	street_address_list_string = argv[ 5 ];
-	starting_check_number = atoi( argv[ 6 ] );
-	memo = argv[ 7 ];
-	check_amount = atof( argv[ 8 ] );
-	execute = ( *argv[ 9 ] == 'y' );
+	fund_name = argv[ 4 ];
+	full_name_list_string = argv[ 5 ];
+	street_address_list_string = argv[ 6 ];
+	starting_check_number = atoi( argv[ 7 ] );
+	memo = argv[ 8 ];
+	check_amount = atof( argv[ 9 ] );
+	execute = ( *argv[ 10 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -148,7 +153,8 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					document_root,
 				process_name,
-				session );
+				session,
+				fund_name );
 
 	if ( !pdf_filename )
 	{
@@ -171,7 +177,8 @@ char *print_checks(	char *application_name,
 			boolean execute,
 			char *document_root_directory,
 			char *process_name,
-			char *session )
+			char *session,
+			char *fund_name )
 {
 	LIST *full_name_list;
 	LIST *street_address_list;
@@ -218,7 +225,8 @@ char *print_checks(	char *application_name,
 			execute,
 			document_root_directory,
 			process_name,
-			session );
+			session,
+			fund_name );
 
 	return pdf_filename;
 
@@ -234,7 +242,8 @@ char *print_checks_execute(
 			boolean execute,
 			char *document_root_directory,
 			char *process_name,
-			char *session )
+			char *session,
+			char *fund_name )
 {
 	char *full_name;
 	char *street_address;
@@ -293,6 +302,7 @@ char *print_checks_execute(
 		if ( ! ( balance =
 				print_checks_get_balance(
 					application_name,
+					fund_name,
 					full_name,
 					street_address ) ) )
 		{
@@ -319,6 +329,7 @@ char *print_checks_execute(
 		print_checks =
 			print_checks_new(
 				application_name,
+				fund_name,
 				full_name_list,
 				street_address_list,
 				starting_check_number,
@@ -334,6 +345,7 @@ char *print_checks_execute(
 		seconds_to_add =
 			print_checks_insert_transaction_journal_ledger(
 				application_name,
+				fund_name,
 				print_checks->entity_check_amount_list,
 				check_amount /* dialog_box_check_amount */ );
 
@@ -409,6 +421,7 @@ char *print_checks_execute(
 
 double print_checks_get_balance(
 				char *application_name,
+				char *fund_name,
 				char *full_name,
 				char *street_address )
 {
@@ -423,8 +436,9 @@ double print_checks_get_balance(
 	if ( !entity_list )
 	{
 		sprintf( sys_string,
-		 	"populate_print_checks_entity.sh %s",
-		 	application_name );
+		 	"populate_print_checks_entity.sh %s '%s'",
+		 	application_name,
+			fund_name );
 
 		entity_list = pipe2list( sys_string );
 	}

@@ -17,6 +17,7 @@
 #include "print_checks.h"
 
 PRINT_CHECKS *print_checks_new(	char *application_name,
+				char *fund_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
@@ -41,6 +42,7 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 	p->entity_check_amount_list =
 		print_checks_get_entity_check_amount_list(
 			application_name,
+			fund_name,
 			full_name_list,
 			street_address_list,
 			starting_check_number );
@@ -178,6 +180,7 @@ LIST *print_checks_get_after_balance_zero_journal_ledger_list(
 
 LIST *print_checks_get_entity_check_amount_list(
 			char *application_name,
+			char *fund_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
 			int starting_check_number )
@@ -199,6 +202,7 @@ LIST *print_checks_get_entity_check_amount_list(
 		entity_check_amount =
 			print_checks_get_entity_check_amount(
 				application_name,
+				fund_name,
 				full_name,
 				street_address );
 
@@ -230,6 +234,7 @@ LIST *print_checks_get_entity_check_amount_list(
 
 ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 					char *application_name,
+					char *fund_name,
 					char *full_name,
 					char *street_address )
 {
@@ -245,8 +250,9 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 	if ( !entity_record_list )
 	{
 		sprintf( sys_string,
-	 		"populate_print_checks_entity.sh %s",
-	 		application_name );
+	 		"populate_print_checks_entity.sh %s '%s'",
+	 		application_name,
+			fund_name );
 
 		entity_record_list = pipe2list( sys_string );
 	}
@@ -538,15 +544,6 @@ void print_checks_set_purchase_order_list(
 				street_address,
 				journal_ledger->transaction_date_time ) ) )
 		{
-			/* Fetch it again to get everything. */
-			/* --------------------------------- */
-			purchase_order =
-				purchase_order_new(
-					application_name,
-					purchase_order->full_name,
-					purchase_order->street_address,
-					purchase_order->purchase_date_time );
-
 			list_append_pointer(
 				purchase_order_list,
 				purchase_order );
@@ -599,6 +596,7 @@ void print_checks_set_single_check_entity_account_debit_list(
 /* -------------------------------------------------------------- */
 int print_checks_insert_transaction_journal_ledger(
 			char *application_name,
+			char *fund_name,
 			LIST *entity_check_amount_list,
 			double dialog_box_check_amount )
 {
@@ -608,6 +606,7 @@ int print_checks_insert_transaction_journal_ledger(
 	char *propagate_transaction_date_time = {0};
 	LIST *distinct_account_name_list;
 	TRANSACTION *transaction;
+	char *loss_account = {0};
 	int seconds_to_add = 0;
 
 	distinct_account_name_list = list_new();
@@ -702,6 +701,28 @@ int print_checks_insert_transaction_journal_ledger(
 				entity_account_debit->account_name );
 
 		} while( list_next( entity_account_debit_list ) );
+
+		if ( entity_check_amount->loss_amount )
+		{
+			if ( !loss_account )
+			{
+				loss_account =
+					ledger_get_hard_coded_account_name(
+						application_name,
+						fund_name,
+						"loss_key",
+						0 /* not warning_only */ );
+			}
+
+			ledger_journal_ledger_insert(
+				application_name,
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
+				transaction->transaction_date_time,
+				loss_account,
+				entity_check_amount->loss_amount,
+				1 /* is_debit */ );
+		}
 
 	} while( list_next( entity_check_amount_list ) );
 
@@ -1045,6 +1066,29 @@ void print_checks_insert_purchase_order_vendor_payment(
 			list_append_unique_string(
 				distinct_account_name_list,
 				account_payable_account );
+
+			purchase_order->amount_due -=
+				(dialog_box_check_amount)
+					? dialog_box_check_amount
+					: purchase_order->amount_due;
+
+			purchase_order_update(
+				application_name,
+				purchase_order->full_name,
+				purchase_order->street_address,
+				purchase_order->purchase_date_time,
+				purchase_order->sum_extension,
+				purchase_order->database_sum_extension,
+				purchase_order->purchase_amount,
+				purchase_order->database_purchase_amount,
+				purchase_order->amount_due,
+				purchase_order->database_amount_due,
+				purchase_order->transaction_date_time,
+				purchase_order->database_transaction_date_time,
+				purchase_order->arrived_date_time,
+				purchase_order->database_arrived_date_time,
+				purchase_order->shipped_date,
+				purchase_order->database_shipped_date );
 
 		} while( list_next( purchase_order_list ) );
 

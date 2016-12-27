@@ -51,6 +51,7 @@ typedef struct
 /* Operations */
 /* ---------- */
 PRINT_CHECKS *print_checks_new(	char *application_name,
+				char *fund_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
@@ -77,6 +78,7 @@ LIST *print_checks_get_entity_list(
 
 ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 				char *application_name,
+				char *fund_name,
 				char *full_name,
 				char *street_address );
 
@@ -109,6 +111,7 @@ void print_checks_set_single_check_entity_account_debit_list(
 
 LIST *print_checks_get_entity_check_amount_list(
 				char *application_name,
+				char *fund_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number );
@@ -117,6 +120,7 @@ LIST *print_checks_get_entity_check_amount_list(
 /* -------------------------------------------------------------- */
 int print_checks_insert_transaction_journal_ledger(
 				char *application_name,
+				char *fund_name,
 				LIST *entity_check_amount_list,
 				double dialog_box_check_amount );
 

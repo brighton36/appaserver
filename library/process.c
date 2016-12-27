@@ -1,4 +1,4 @@
-/* library/process.c							*/
+/* $APPASERVER_HOME/library/process.c					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver process and process_set ADTs.			*/
 /*									*/

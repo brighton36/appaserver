@@ -46,6 +46,7 @@ int main( int argc, char **argv )
 	char *role_name;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	DICTIONARY *original_post_dictionary = {0};
+	DICTIONARY *parameter_dictionary;
 	PROCESS *process;
 	PROCESS_SET *process_set;
 	PROCESS_PARAMETER_LIST *process_parameter_list;
@@ -130,7 +131,7 @@ int main( int argc, char **argv )
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	role = role_new_role(	application_name,
 				role_name );
@@ -180,15 +181,13 @@ int main( int argc, char **argv )
 	{
 		char sys_string[ 65536 ];
 
-#ifdef NOT_DEFINED
-		/* Create the preprompt_dictionary */
-		/* ------------------------------- */
-		dictionary_append_dictionary(
-				dictionary_appaserver->
-					preprompt_dictionary,
-				dictionary_appaserver->
-					working_post_dictionary );
-#endif
+		/* State two: had preprompt and filled it out. */
+		/* ------------------------------------------- */
+		dictionary_appaserver->
+			preprompt_dictionary =
+				dictionary_copy_dictionary(
+					dictionary_appaserver->
+						non_prefixed_dictionary );
 
 		sprintf( sys_string, 
 		"output_prompt_process_form %s %s %s \"%s\" %s y \"%s\" 2>>%s",
@@ -364,6 +363,14 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	parameter_dictionary =
+		dictionary_copy(
+			dictionary_appaserver->non_prefixed_dictionary );
+
+	dictionary_append_dictionary(
+		parameter_dictionary,
+		dictionary_appaserver->preprompt_dictionary );
+
 	process_convert_parameters(
 		&process->executable,
 		application_name,
@@ -374,8 +381,7 @@ int main( int argc, char **argv )
 		(char *)0 /* folder */,
 		role_name,
 		(char *)0 /* target_frame */,
-		dictionary_appaserver->non_prefixed_dictionary
-			/* parameter_dictionary */,
+		parameter_dictionary,
 		process->attribute_list,
 		prompt_list,
 		(LIST *)0 /* primary_attribute_name_list */,

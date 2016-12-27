@@ -1,4 +1,4 @@
-/* src_appaserver/output_prompt_process_form.c				*/
+/* $APPASERVER_HOME/src_appaserver/output_prompt_process_form.c		*/
 /* --------------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* --------------------------------------------------------------------	*/
@@ -25,6 +25,7 @@
 #include "appaserver_parameter_file.h"
 #include "environ.h"
 #include "role.h"
+#include "query.h"
 #include "dictionary_appaserver.h"
 
 /* Constants */
@@ -35,6 +36,9 @@
 
 /* Prototypes */
 /* ---------- */
+LIST *get_hidden_preprompt_element_list(
+				DICTIONARY *preprompt_dictionary );
+
 char *get_preprompt_button_control_string(
 				char *application_name,
 				char *cgi_directory,
@@ -62,7 +66,8 @@ void populate_process_parameter_list_element_list(
 				boolean prompt_display_bottom,
 				char *document_root_directory,
 				char *database_string,
-				DICTIONARY *non_prefixed_dictionary );
+				DICTIONARY *non_prefixed_dictionary,
+				DICTIONARY *preprompt_dictionary );
 
 LIST *get_element_list(		char **preprompt_help_text,
 				char **post_change_javascript,
@@ -78,6 +83,7 @@ LIST *get_element_list(		char **preprompt_help_text,
 				char *role_name,
 				boolean override_row_restrictions,
 				DICTIONARY *non_prefixed_dictionary,
+				DICTIONARY *preprompt_dictionary,
 				char passed_preprompt_yn,
 				char *session,
 				char *document_root_directory,
@@ -225,6 +231,7 @@ int main( int argc, char **argv )
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
 			dictionary_appaserver->non_prefixed_dictionary,
+			dictionary_appaserver->preprompt_dictionary,
 			passed_preprompt_yn,
 			session,
 			appaserver_parameter_file->
@@ -539,6 +546,7 @@ LIST *get_element_list(	char **preprompt_help_text,
 			char *role_name,
 			boolean override_row_restrictions,
 			DICTIONARY *non_prefixed_dictionary,
+			DICTIONARY *preprompt_dictionary,
 			char passed_preprompt_yn,
 			char *session,
 			char *document_root_directory,
@@ -662,7 +670,8 @@ LIST *get_element_list(	char **preprompt_help_text,
 				local_prompt_display_bottom,
 				document_root_directory,
 				database_string,
-				non_prefixed_dictionary );
+				non_prefixed_dictionary,
+				preprompt_dictionary );
 
 		*target_frame = PROMPT_FRAME;
 		*process_parameter_doing_preprompt = 1;
@@ -706,7 +715,8 @@ LIST *get_element_list(	char **preprompt_help_text,
 				local_prompt_display_bottom,
 				document_root_directory,
 				database_string,
-				non_prefixed_dictionary );
+				non_prefixed_dictionary,
+				preprompt_dictionary );
 
 		*target_frame = EDIT_FRAME;
 
@@ -754,7 +764,8 @@ void populate_process_parameter_list_element_list(
 				boolean prompt_display_bottom,
 				char *document_root_directory,
 				char *database_string,
-				DICTIONARY *non_prefixed_dictionary )
+				DICTIONARY *non_prefixed_dictionary,
+				DICTIONARY *preprompt_dictionary )
 {
 	LIST *process_parameter_element_list;
 	PROCESS_PARAMETER *process_parameter;
@@ -1010,7 +1021,72 @@ void populate_process_parameter_list_element_list(
 			process_parameter_element_list );
 	}
 
+	if ( dictionary_length( preprompt_dictionary ) )
+	{
+		list_append_list(
+			element_list,
+			get_hidden_preprompt_element_list(
+				preprompt_dictionary ) );
+	}
+
 } /* populate_process_parameter_list_element_list() */
+
+LIST *get_hidden_preprompt_element_list(
+					DICTIONARY *preprompt_dictionary )
+{
+	LIST *key_list;
+	char *key;
+	char *data;
+	char element_name[ 128 ];
+	ELEMENT *element;
+	LIST *element_list;
+	int str_len;
+
+	key_list = dictionary_get_key_list( preprompt_dictionary );
+
+	if ( !list_rewind( key_list ) ) return (LIST *)0;
+
+	element_list = list_new();
+
+	do {
+		key = list_get( key_list );
+
+		if ( timlib_strncmp(
+			key,
+			QUERY_RELATION_OPERATOR_STARTING_LABEL ) == 0 )
+		{
+			continue;
+		}
+
+		str_len = strlen( key );
+
+		/* ---------------------------------------------------- */
+		/* Skip the suffix zero entry. The non-suffix version	*/
+		/* also exists.						*/
+		/* ---------------------------------------------------- */
+		if ( str_len > 2 && strcmp( key + str_len - 2, "_0" ) == 0 )
+		{
+			continue;
+		}
+
+		data = dictionary_fetch( preprompt_dictionary, key );
+
+		sprintf( element_name,
+			 "%s%s",
+			 PREPROMPT_PREFIX,
+			 key );
+
+		element = element_hidden_new_element(
+				strdup( element_name ),
+				data );
+
+		list_append_pointer( element_list, element );
+
+	} while( list_next( key_list ) );
+		
+	return element_list;
+
+} /* get_hidden_preprompt_element_list() */
 
 char *get_preprompt_button_control_string(
 				char *application_name,

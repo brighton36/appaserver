@@ -1,9 +1,9 @@
-/* ---------------------------------------------------	*/
-/* src_accountancymodel/load_bank_spreadsheet.c		*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* --------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/load_bank_spreadsheet.c	*/
+/* --------------------------------------------------------------	*/
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* --------------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -170,7 +170,7 @@ int load_bank_spreadsheet(
 	char bank_amount[ 128 ];
 	char bank_running_balance[ 128 ];
 	FILE *table_output_pipe = {0};
-	FILE *bank_download_insert_pipe = {0};
+	FILE *bank_upload_insert_pipe = {0};
 	int load_count = 0;
 	int sequence_number = 0;
 	boolean found_header = 0;
@@ -196,10 +196,11 @@ int load_bank_spreadsheet(
 	{
 		table_name =
 			get_table_name(	application_name,
-					"bank_download" );
+					"bank_upload" );
 
 		sprintf(	error_filename,
-				"/tmp/bank_download_%d.err",
+				"/tmp/%s_%d.err",
+				table_name,
 				getpid() );
 
 		sprintf( sys_string,
@@ -221,7 +222,7 @@ int load_bank_spreadsheet(
 		 	FOLDER_DATA_DELIMITER );
 */
 
-		bank_download_insert_pipe = popen( sys_string, "w" );
+		bank_upload_insert_pipe = popen( sys_string, "w" );
 	}
 	else
 	{
@@ -325,7 +326,7 @@ int load_bank_spreadsheet(
 		}
 		else
 		{
-			fprintf(bank_download_insert_pipe,
+			fprintf(bank_upload_insert_pipe,
 			 	"%s^%s^%d^%s^%s^%s\n",
 			 	bank_date_international,
 			 	bank_description,
@@ -342,7 +343,7 @@ int load_bank_spreadsheet(
 
 	if ( execute )
 	{
-		pclose( bank_download_insert_pipe );
+		pclose( bank_upload_insert_pipe );
 		int error_file_lines;
 
 		sprintf( sys_string,

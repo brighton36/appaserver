@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* src_accountancymodel/post_change_bank_download.c			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/post_change_bank_upload.c	*/
+/* -----------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -29,45 +29,45 @@ typedef struct
 	double bank_amount;
 	double bank_running_balance;
 	boolean touched;
-} BANK_DOWNLOAD;
+} BANK_UPLOAD;
 
 /* Prototypes */
 /* ---------- */
-void bank_download_list_set(	LIST *bank_download_list );
+void bank_upload_list_set(	LIST *bank_upload_list );
 
-void bank_download_list_update(	LIST *bank_download_list );
+void bank_upload_list_update(	LIST *bank_upload_list );
 
 void append_untouched_table_list(
-				LIST *bank_download_list,
+				LIST *bank_upload_list,
 				LIST *table_list );
 
-BANK_DOWNLOAD *bank_download_seek(
+BANK_UPLOAD *bank_upload_seek(
 				LIST *table_list,
 				char *dictionary_bank_date,
 				char *dictionary_bank_description );
 
-LIST *get_untouched_bank_download_list(
+LIST *get_untouched_bank_upload_list(
 				LIST *table_list,
 				char *first_bank_date,
 				char *first_bank_description );
 
-BANK_DOWNLOAD *bank_download_new(
+BANK_UPLOAD *bank_upload_new(
 				char *bank_date,
 				char *bank_description );
 
-LIST *bank_download_get_dictionary_list(
+LIST *bank_upload_get_dictionary_list(
 				DICTIONARY *dictionary );
 
-LIST *bank_download_get_table_list(
+LIST *bank_upload_get_table_list(
 				char *application_name,
 				char *starting_bank_date,
 				char *fund_name );
 
-LIST *bank_download_merge_bank_download_list(
+LIST *bank_upload_merge_bank_upload_list(
 				LIST *dictionary_list,
 				LIST *table_list );
 
-boolean post_change_bank_download_update(
+boolean post_change_bank_upload_update(
 				char *application_name,
 				DICTIONARY *dictionary );
 
@@ -81,12 +81,12 @@ int get_bank_balance_sequence_number(
 				char *bank_date,
 				char *fund_name );
 
-FILE *post_change_bank_download_open_input_pipe(
+FILE *post_change_bank_upload_open_input_pipe(
 				char *application_name,
 				int bank_balance_sequence_number,
 				char *fund_name );
 
-FILE *post_change_bank_download_open_output_pipe(
+FILE *post_change_bank_upload_open_output_pipe(
 				void );
 
 int main( int argc, char **argv )
@@ -125,7 +125,7 @@ int main( int argc, char **argv )
 		dictionary_string2dictionary(
 			argv[ 2 ] );
 
-	if ( !post_change_bank_download_update(
+	if ( !post_change_bank_upload_update(
 			application_name,
 			dictionary ) )
 	{
@@ -136,65 +136,65 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-boolean post_change_bank_download_update(
+boolean post_change_bank_upload_update(
 			char *application_name,
 			DICTIONARY *dictionary )
 {
 	LIST *dictionary_list;
 	LIST *table_list;
-	LIST *bank_download_list;
+	LIST *bank_upload_list;
 	char *fund_name;
-	BANK_DOWNLOAD *starting_bank_download;
+	BANK_UPLOAD *starting_bank_upload;
 
-	dictionary_list = bank_download_get_dictionary_list( dictionary );
+	dictionary_list = bank_upload_get_dictionary_list( dictionary );
 
 	if ( !list_length( dictionary_list ) ) return 1;
 
-	starting_bank_download = list_get_first_pointer( dictionary_list );
+	starting_bank_upload = list_get_first_pointer( dictionary_list );
 
 	if ( ! ( fund_name = get_fund_name(
 				application_name,
-				starting_bank_download->bank_date,
-				starting_bank_download->bank_description ) ) )
+				starting_bank_upload->bank_date,
+				starting_bank_upload->bank_description ) ) )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: cannot get fund_name for (%s/%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 starting_bank_download->bank_date,
-			 starting_bank_download->bank_description );
+			 starting_bank_upload->bank_date,
+			 starting_bank_upload->bank_description );
 		return 0;
 	}
 
 	table_list =
-		bank_download_get_table_list(
+		bank_upload_get_table_list(
 			application_name,
-			starting_bank_download->bank_date,
+			starting_bank_upload->bank_date,
 			fund_name );
 
-	bank_download_list =
-		bank_download_merge_bank_download_list(
+	bank_upload_list =
+		bank_upload_merge_bank_upload_list(
 			dictionary_list,
 			table_list );
 
-	if ( !list_length( bank_download_list ) ) return 1;
+	if ( !list_length( bank_upload_list ) ) return 1;
 
-	bank_download_list_set( bank_download_list );
-	bank_download_list_update( bank_download_list );
+	bank_upload_list_set( bank_upload_list );
+	bank_upload_list_update( bank_upload_list );
 
 	return 1;
 
-} /* post_change_bank_download_update() */
+} /* post_change_bank_upload_update() */
 
-LIST *bank_download_merge_bank_download_list(
+LIST *bank_upload_merge_bank_upload_list(
 			LIST *dictionary_list,
 			LIST *table_list )
 {
-	LIST *bank_download_list;
-	BANK_DOWNLOAD *first_dictionary_bank_download;
-	BANK_DOWNLOAD *dictionary_bank_download;
-	BANK_DOWNLOAD *bank_download;
+	LIST *bank_upload_list;
+	BANK_UPLOAD *first_dictionary_bank_upload;
+	BANK_UPLOAD *dictionary_bank_upload;
+	BANK_UPLOAD *bank_upload;
 
 	if ( !list_length( dictionary_list )
 	||   !list_length( table_list ) )
@@ -210,28 +210,28 @@ LIST *bank_download_merge_bank_download_list(
 		return (LIST *)0;
 	}
 
-	first_dictionary_bank_download =
+	first_dictionary_bank_upload =
 		list_get_first_pointer( dictionary_list );
 
-	bank_download_list =
-		get_untouched_bank_download_list(
+	bank_upload_list =
+		get_untouched_bank_upload_list(
 			table_list,
-			first_dictionary_bank_download->bank_date,
-			first_dictionary_bank_download->bank_description );
+			first_dictionary_bank_upload->bank_date,
+			first_dictionary_bank_upload->bank_description );
 
 	list_rewind( dictionary_list );
 
 	do {
-		dictionary_bank_download =
+		dictionary_bank_upload =
 			list_get_pointer( dictionary_list );
 
-		bank_download =
-			bank_download_seek(
+		bank_upload =
+			bank_upload_seek(
 				table_list,
-				dictionary_bank_download->bank_date,
-				dictionary_bank_download->bank_description );
+				dictionary_bank_upload->bank_date,
+				dictionary_bank_upload->bank_description );
 
-		if ( !bank_download )
+		if ( !bank_upload )
 		{
 /*
 			fprintf( stderr,
@@ -239,67 +239,67 @@ LIST *bank_download_merge_bank_download_list(
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 	dictionary_bank_download->bank_date,
-			 	dictionary_bank_download->bank_description );
+			 	dictionary_bank_upload->bank_date,
+			 	dictionary_bank_upload->bank_description );
 */
 
 			continue;
 		}
 
-		bank_download->touched = 1;
-		list_append_pointer( bank_download_list, bank_download );
+		bank_upload->touched = 1;
+		list_append_pointer( bank_upload_list, bank_upload );
 
 	} while( list_next( dictionary_list ) );
 
 	append_untouched_table_list(
-		bank_download_list,
+		bank_upload_list,
 		table_list );
 
-	return bank_download_list;
+	return bank_upload_list;
 
-} /* bank_download_merge_bank_download_list() */
+} /* bank_upload_merge_bank_upload_list() */
 
-LIST *get_untouched_bank_download_list(
+LIST *get_untouched_bank_upload_list(
 			LIST *table_list,
 			char *first_bank_date,
 			char *first_bank_description )
 {
-	BANK_DOWNLOAD *bank_download;
-	LIST *bank_download_list;
+	BANK_UPLOAD *bank_upload;
+	LIST *bank_upload_list;
 
-	bank_download_list = list_new();
+	bank_upload_list = list_new();
 
-	if ( !list_rewind( table_list ) ) return bank_download_list;
+	if ( !list_rewind( table_list ) ) return bank_upload_list;
 
 	do {
-		bank_download = list_get_pointer( table_list );
+		bank_upload = list_get_pointer( table_list );
 
-		bank_download->touched = 1;
+		bank_upload->touched = 1;
 		list_append_pointer(
-			bank_download_list,
-			bank_download );
+			bank_upload_list,
+			bank_upload );
 
-		if ( strcmp(	bank_download->bank_date,
+		if ( strcmp(	bank_upload->bank_date,
 				first_bank_date ) == 0
-		&&   strcmp(	bank_download->bank_description,
+		&&   strcmp(	bank_upload->bank_description,
 				first_bank_description ) == 0 )
 		{
-			return bank_download_list;
+			return bank_upload_list;
 		}
 
 	} while( list_next( table_list ) );
 
-	return bank_download_list;
+	return bank_upload_list;
 
-} /* get_untouched_bank_download_list() */
+} /* get_untouched_bank_upload_list() */
 
-BANK_DOWNLOAD *bank_download_new(
+BANK_UPLOAD *bank_upload_new(
 				char *bank_date,
 				char *bank_description )
 {
-	BANK_DOWNLOAD *b;
+	BANK_UPLOAD *b;
 
-	if ( ! ( b = (BANK_DOWNLOAD *)calloc( 1, sizeof( BANK_DOWNLOAD ) ) ) )
+	if ( ! ( b = (BANK_UPLOAD *)calloc( 1, sizeof( BANK_UPLOAD ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -313,13 +313,13 @@ BANK_DOWNLOAD *bank_download_new(
 	b->bank_description = bank_description;
 	return b;
 
-} /* bank_download_new() */
+} /* bank_upload_new() */
 
-LIST *bank_download_get_dictionary_list(
+LIST *bank_upload_get_dictionary_list(
 				DICTIONARY *dictionary )
 {
 	LIST *dictionary_list;
-	BANK_DOWNLOAD *bank_download;
+	BANK_UPLOAD *bank_upload;
 	char bank_date[ 16 ];
 	char bank_description[ 512 ];
 	char key[ 16 ];
@@ -346,20 +346,20 @@ LIST *bank_download_get_dictionary_list(
 			data,
 			1 );
 
-		bank_download =
-			bank_download_new(
+		bank_upload =
+			bank_upload_new(
 				strdup( bank_date ),
 				strdup( bank_description ) );
 
-		list_append_pointer( dictionary_list, bank_download );
+		list_append_pointer( dictionary_list, bank_upload );
 		index++;
 	}
 
 	return dictionary_list;
 
-} /* bank_download_get_dictionary_list() */
+} /* bank_upload_get_dictionary_list() */
 
-LIST *bank_download_get_table_list(
+LIST *bank_upload_get_table_list(
 				char *application_name,
 				char *starting_bank_date,
 				char *fund_name )
@@ -372,7 +372,7 @@ LIST *bank_download_get_table_list(
 	char input_sequence_number[ 32 ];
 	char input_bank_running_balance[ 32 ];
 	char input_buffer[ 1024 ];
-	BANK_DOWNLOAD *bank_download;
+	BANK_UPLOAD *bank_upload;
 	LIST *table_list;
 
 	bank_balance_sequence_number =
@@ -394,7 +394,7 @@ LIST *bank_download_get_table_list(
 	table_list = list_new();
 
 	input_pipe =
-		post_change_bank_download_open_input_pipe(
+		post_change_bank_upload_open_input_pipe(
 			application_name,
 			bank_balance_sequence_number,
 			fund_name );
@@ -411,8 +411,8 @@ LIST *bank_download_get_table_list(
 			input_buffer,
 			1 );
 
-		bank_download =
-			bank_download_new(
+		bank_upload =
+			bank_upload_new(
 				strdup( input_bank_date ),
 				strdup( input_bank_description ) );
 
@@ -420,28 +420,28 @@ LIST *bank_download_get_table_list(
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			2 );
-		bank_download->bank_amount = atof( input_bank_amount );
+		bank_upload->bank_amount = atof( input_bank_amount );
 
 		piece(	input_sequence_number,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			3 );
-		bank_download->sequence_number = atoi( input_sequence_number );
+		bank_upload->sequence_number = atoi( input_sequence_number );
 
 		piece(	input_bank_running_balance,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			4 );
-		bank_download->bank_running_balance =
+		bank_upload->bank_running_balance =
 			atof( input_bank_running_balance );
 
-		list_append_pointer( table_list, bank_download );
+		list_append_pointer( table_list, bank_upload );
 	}
 
 	pclose( input_pipe );
 	return table_list;
 
-} /* bank_download_get_table_list() */
+} /* bank_upload_get_table_list() */
 
 char *get_fund_name(
 			char *application_name,
@@ -455,7 +455,7 @@ char *get_fund_name(
 	char sys_string[ 1024 ];
 
 	select = "fund";
-	folder_name = "bank_download";
+	folder_name = "bank_upload";
 
 	timlib_strcpy( buffer, bank_description, 512 );
 
@@ -490,7 +490,7 @@ int get_bank_balance_sequence_number(
 	char *results;
 
 	select = "max(sequence_number)";
-	folder_name = "bank_download";
+	folder_name = "bank_upload";
 
 	if ( fund_name )
 	{
@@ -524,7 +524,7 @@ int get_bank_balance_sequence_number(
 
 } /* get_bank_balance_sequence_number() */
 
-FILE *post_change_bank_download_open_input_pipe(
+FILE *post_change_bank_upload_open_input_pipe(
 			char *application_name,
 			int bank_balance_sequence_number,
 			char *fund_name )
@@ -537,7 +537,7 @@ FILE *post_change_bank_download_open_input_pipe(
 
 	select =
 "bank_date,bank_description,bank_amount,sequence_number,bank_running_balance";
-	folder_name = "bank_download";
+	folder_name = "bank_upload";
 
 	if ( fund_name )
 	{
@@ -569,131 +569,131 @@ FILE *post_change_bank_download_open_input_pipe(
 
 	return popen( sys_string, "r" );
 
-} /* post_change_bank_download_open_input_pipe() */
+} /* post_change_bank_upload_open_input_pipe() */
 
-BANK_DOWNLOAD *bank_download_seek(
+BANK_UPLOAD *bank_upload_seek(
 				LIST *table_list,
 				char *dictionary_bank_date,
 				char *dictionary_bank_description )
 {
-	BANK_DOWNLOAD *bank_download;
+	BANK_UPLOAD *bank_upload;
 
 	list_rewind( table_list );
 
 	do {
-		bank_download = list_get_pointer( table_list );
+		bank_upload = list_get_pointer( table_list );
 
-		if ( !bank_download->touched
-		&&   strcmp(	bank_download->bank_date,
+		if ( !bank_upload->touched
+		&&   strcmp(	bank_upload->bank_date,
 				dictionary_bank_date ) == 0
-		&&   strcmp(	bank_download->bank_description,
+		&&   strcmp(	bank_upload->bank_description,
 				dictionary_bank_description ) == 0 )
 		{
-			return bank_download;
+			return bank_upload;
 		}
 	} while( list_next( table_list ) );
 
-	return (BANK_DOWNLOAD *)0;
+	return (BANK_UPLOAD *)0;
 
-} /* bank_download_seek() */
+} /* bank_upload_seek() */
 
 void append_untouched_table_list(
-			LIST *bank_download_list,
+			LIST *bank_upload_list,
 			LIST *table_list )
 {
-	BANK_DOWNLOAD *bank_download;
+	BANK_UPLOAD *bank_upload;
 
 	if ( list_at_tail( table_list ) ) return;
 
 	do {
-		bank_download = list_get_pointer( table_list );
+		bank_upload = list_get_pointer( table_list );
 
-		if ( !bank_download->touched )
+		if ( !bank_upload->touched )
 		{
-			bank_download->touched = 1;
+			bank_upload->touched = 1;
 
 			list_append_pointer(
-				bank_download_list,
-				bank_download );;
+				bank_upload_list,
+				bank_upload );;
 		}
 	} while( list_next( table_list ) );
 
 } /* append_untouched_table_list() */
 
-void bank_download_list_set( LIST *bank_download_list )
+void bank_upload_list_set( LIST *bank_upload_list )
 {
-	BANK_DOWNLOAD *bank_download;
+	BANK_UPLOAD *bank_upload;
 	double prior_bank_running_balance = {0};
 	int sequence_number = {0};
 
-	if ( !list_rewind( bank_download_list ) ) return;
+	if ( !list_rewind( bank_upload_list ) ) return;
 
 	do {
-		bank_download = list_get_pointer( bank_download_list );
+		bank_upload = list_get_pointer( bank_upload_list );
 
-		if ( list_at_first( bank_download_list ) )
+		if ( list_at_first( bank_upload_list ) )
 		{
-			if ( bank_download->bank_amount )
+			if ( bank_upload->bank_amount )
 			{
 				fprintf( stderr,
 		"ERROR in %s/%s()/%d: expecting Bank balance in (%s/%s).\n",
 				 	__FILE__,
 				 	__FUNCTION__,
 				 	__LINE__,
-				 	bank_download->bank_date,
-				 	bank_download->bank_description );
+				 	bank_upload->bank_date,
+				 	bank_upload->bank_description );
 				exit( 1 );
 			}
 
 			prior_bank_running_balance =
-				bank_download->bank_running_balance;
+				bank_upload->bank_running_balance;
 
 			sequence_number =
-				bank_download->sequence_number;
+				bank_upload->sequence_number;
 
 			continue;
 		}
 
-		if ( !bank_download->touched )
+		if ( !bank_upload->touched )
 		{
 			fprintf( stderr,
 				 "ERROR in %s/%s()/%d: not touched (%s/%s).\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
-				 bank_download->bank_date,
-				 bank_download->bank_description );
+				 bank_upload->bank_date,
+				 bank_upload->bank_description );
 			exit( 1 );
 		}
 
 		/* Skip Beginning balance records */
 		/* ------------------------------ */
-		if ( !bank_download->bank_amount )
+		if ( !bank_upload->bank_amount )
 		{
 			sequence_number++;
 			continue;
 		}
 
-		bank_download->bank_running_balance =
+		bank_upload->bank_running_balance =
 			prior_bank_running_balance +
-			bank_download->bank_amount;
+			bank_upload->bank_amount;
 
 		prior_bank_running_balance =
-			bank_download->bank_running_balance;
+			bank_upload->bank_running_balance;
 
-		bank_download->sequence_number = ++sequence_number;
+		bank_upload->sequence_number = ++sequence_number;
 
-	} while( list_next( bank_download_list ) );
+	} while( list_next( bank_upload_list ) );
 
-} /* bank_download_list_set() */
+} /* bank_upload_list_set() */
 
-FILE *post_change_bank_download_open_output_pipe( void )
+FILE *post_change_bank_upload_open_output_pipe( void )
 {
 	char sys_string[ 1024 ];
 	char *key = "bank_date,bank_description";
 
 	sprintf( sys_string,
-		 "update_statement.e	table=bank_download	 "
+		 "update_statement.e	table=bank_upload	 "
 		 "			key=%s			 "
 		 "			carrot=y		|"
 		 "sql.e						 ",
@@ -701,38 +701,38 @@ FILE *post_change_bank_download_open_output_pipe( void )
 
 	return popen( sys_string, "w" );
 
-} /* post_change_bank_download_open_output_pipe() */
+} /* post_change_bank_upload_open_output_pipe() */
 
-void bank_download_list_update(	LIST *bank_download_list )
+void bank_upload_list_update(	LIST *bank_upload_list )
 {
 	FILE *output_pipe;
-	BANK_DOWNLOAD *bank_download;
+	BANK_UPLOAD *bank_upload;
 
-	if ( !list_rewind( bank_download_list ) ) return;
+	if ( !list_rewind( bank_upload_list ) ) return;
 
-	output_pipe = post_change_bank_download_open_output_pipe();
+	output_pipe = post_change_bank_upload_open_output_pipe();
 
 	do {
-		bank_download = list_get_pointer( bank_download_list );
+		bank_upload = list_get_pointer( bank_upload_list );
 
-		if ( bank_download->bank_amount )
+		if ( bank_upload->bank_amount )
 		{
 			fprintf( output_pipe,
 			 	"%s^%s^bank_running_balance^%.2lf\n",
-			 	bank_download->bank_date,
-			 	bank_download->bank_description,
-			 	bank_download->bank_running_balance );
+			 	bank_upload->bank_date,
+			 	bank_upload->bank_description,
+			 	bank_upload->bank_running_balance );
 
 			fprintf( output_pipe,
 			 	"%s^%s^sequence_number^%d\n",
-			 	bank_download->bank_date,
-			 	bank_download->bank_description,
-			 	bank_download->sequence_number );
+			 	bank_upload->bank_date,
+			 	bank_upload->bank_description,
+			 	bank_upload->sequence_number );
 		}
 
-	} while( list_next( bank_download_list ) );
+	} while( list_next( bank_upload_list ) );
 
 	pclose( output_pipe );
 
-} /* bank_download_list_update() */
+} /* bank_upload_list_update() */
 

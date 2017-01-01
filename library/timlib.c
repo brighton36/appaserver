@@ -1407,7 +1407,7 @@ int number_occurrences_char( int char_to_count, char *source )
 
 char *place_commas_in_unsigned_long_long( unsigned long long n )
 {
-        char s[ 50 ];
+        char s[ 64 ];
 
         sprintf( s, "%llu", n );
 	return place_commas_in_number_string( s );
@@ -1416,7 +1416,7 @@ char *place_commas_in_unsigned_long_long( unsigned long long n )
  
 char *place_commas_in_number_string( char *s )
 {
-	static char return_string[ 50 ];
+	static char return_string[ 64 ];
 	char *r_ptr;
 	char *s_ptr;
 	int c = 0;
@@ -1464,7 +1464,7 @@ char *place_commas_in_unsigned_int( unsigned int n )
 
 char *place_commas_in_unsigned_long( unsigned long n )
 {
-	char s[ 50 ];
+	char s[ 64 ];
 
 	sprintf( s, "%lu", n );
 	return place_commas_in_number_string( s );
@@ -1473,7 +1473,7 @@ char *place_commas_in_unsigned_long( unsigned long n )
  
 char *place_commas_in_long( long n )
 {
-	char s[ 50 ];
+	char s[ 64 ];
 
 	sprintf( s, "%ld", n );
 	return place_commas_in_number_string( s );
@@ -2244,7 +2244,7 @@ char *mysql2american_date( char *date_buffer, char *mysql_date )
 
 char *place_commas_in_double( double d )
 {
-	static char destination[ 50 ];
+	static char destination[ 64 ];
 
 	commas_in_double(	destination, 
 				d );

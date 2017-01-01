@@ -432,10 +432,10 @@ void trial_balance_html_table(
 	html_table_set_data( html_table->data_list, "" );
 	html_table_set_data( html_table->data_list, "" );
 
-	debit_string = timlib_place_commas_in_dollars( debit_sum );
+	debit_string = timlib_place_commas_in_money( debit_sum );
 	html_table_set_data( html_table->data_list, strdup( debit_string ) );
 
-	credit_string = timlib_place_commas_in_dollars( credit_sum );
+	credit_string = timlib_place_commas_in_money( credit_sum );
 	html_table_set_data( html_table->data_list, strdup( credit_string ) );
 
 	html_table_output_data(
@@ -1030,7 +1030,7 @@ void output_html_table(	LIST *data_list,
 	/* ---------------------- */
 	if ( accumulate_debit )
 	{
-		debit_string = timlib_place_commas_in_dollars( balance );
+		debit_string = timlib_place_commas_in_money( balance );
 	}
 	else
 		debit_string = "";
@@ -1042,7 +1042,7 @@ void output_html_table(	LIST *data_list,
 	/* ----------------------- */
 	if ( !accumulate_debit )
 	{
-		credit_string = timlib_place_commas_in_dollars( balance );
+		credit_string = timlib_place_commas_in_money( balance );
 	}
 	else
 		credit_string = "";
@@ -1056,10 +1056,10 @@ void output_html_table(	LIST *data_list,
 			prior_balance_change,
 			0.0 ) )
 	{
-		char buffer[ 16 ];
+		char buffer[ 32 ];
 
 		prior_balance_change_string =
-			timlib_place_commas_in_dollars(
+			timlib_place_commas_in_money(
 				prior_balance_change );
 
 		sprintf( buffer, "&Delta;%s", prior_balance_change_string );
@@ -1319,7 +1319,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 	}
 
 	if ( *accumulate_debit )
-		debit_string = timlib_place_commas_in_dollars( *balance );
+		debit_string = timlib_place_commas_in_money( *balance );
 	else
 		debit_string = "";
 
@@ -1328,7 +1328,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 		strdup( debit_string ) );
 
 	if ( !*accumulate_debit )
-		credit_string = timlib_place_commas_in_dollars( *balance );
+		credit_string = timlib_place_commas_in_money( *balance );
 	else
 		credit_string = "";
 
@@ -1342,7 +1342,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 		prior_balance_change,
 		0.0 ) )
 	{
-		char buffer[ 16 ];
+		char buffer[ 32 ];
 
 		prior_balance_change_string =
 			timlib_place_commas_in_dollars(

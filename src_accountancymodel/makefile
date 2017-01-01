@@ -46,7 +46,7 @@ EXECUTABLES=	trial_balance						\
 		post_change_depreciation				\
 		post_change_prepaid_asset_purchase			\
 		post_change_prepaid_asset_accrual			\
-		post_change_bank_download				\
+		post_change_bank_upload					\
 		update_sale_completed					\
 		post_reoccurring_transaction				\
 		collect_customer_payment				\
@@ -256,13 +256,13 @@ post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 		post_change_prepaid_asset_accrual.c			\
 		-o post_change_prepaid_asset_accrual
 
-post_change_bank_download: post_change_bank_download.c			\
+post_change_bank_upload: post_change_bank_upload.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_change_bank_download.c				\
-		-o post_change_bank_download
+		post_change_bank_upload.c				\
+		-o post_change_bank_upload
 
 post_change_inventory_purchase: post_change_inventory_purchase.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

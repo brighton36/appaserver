@@ -16,7 +16,7 @@ appaserver_config_file="/etc/appaserver.config"
 integrity_check ()
 {
 	cgi_home=$1
-	execute=$1
+	execute=$2
 
 	if [ "$execute" = "execute" -a "$USER" != "root" ]
 	then

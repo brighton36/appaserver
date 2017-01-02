@@ -17,8 +17,9 @@ integrity_check ()
 {
 	group=$1
 	cgi_home=$2
+	execute=$3
 
-	if [ "$USER" != "root" ]
+	if [ "$execute" = "execute" -a "$USER" != "root" ]
 	then
 		echo "Error: You must be root to run this." 1>&2
 		echo "Try: sudo sh" 1>&2
@@ -56,20 +57,18 @@ integrity_check ()
 		exit 1
 	fi
 
-	if [ "$SUDO_USER" = "" ]
-	then
-		echo "Error: Cannot determine your regular user name." 1>&2
-		echo "Try: sudo sh" 1>&2
-		echo "Then: . ${profile_file}" 1>&2
-		exit 1
-	fi
-
 	group_exists=`grep "^${group}" /etc/group`
 
 	if [ "$group_exists" = "" ]
 	then
 		echo "Error: Group $group doesn't exist in /etc/group" 1>&2
 		exit 1
+	fi
+
+	if [ "$SUDO_USER" = "" ]
+	then
+		echo "Warning: Cannot determine your regular user name." 1>&2
+		return
 	fi
 
 	user_exists=`grep "^${group}" /etc/group | grep $SUDO_USER`
@@ -309,7 +308,7 @@ appaserver_data=`	cat $appaserver_config_file	|\
 	 		grep "^${label}"		|\
 	 		sed "s/$label//"`
 
-integrity_check $group $cgi_home
+integrity_check $group $cgi_home $execute
 protect_cgi_home $group $cgi_home $execute
 protect_appaserver_home $group $execute
 protect_appaserver_error_directory $group $appaserver_error $execute

@@ -18,13 +18,13 @@ integrity_check ()
 	group=$1
 	cgi_home=$2
 
-#	if [ "$USER" != "root" ]
-#	then
-#		echo "Error: You must be root to run this." 1>&2
-#		echo "Try: sudo sh" 1>&2
-#		echo "Then:. /etc/profile" 1>&2
-#		exit 1
-#	fi
+	if [ "$USER" != "root" ]
+	then
+		echo "Error: You must be root to run this." 1>&2
+		echo "Try: sudo sh" 1>&2
+		echo "Then: . ${profile_file}" 1>&2
+		exit 1
+	fi
 
 	if [ ! -d "${cgi_home}" ]
 	then
@@ -59,7 +59,7 @@ SUDO_USER=timriley
 	then
 		echo "Error: Cannot determine your regular user name." 1>&2
 		echo "Try: sudo sh" 1>&2
-		echo "Then:. /etc/profile" 1>&2
+		echo "Then: . ${profile_file}" 1>&2
 		exit 1
 	fi
 

@@ -48,20 +48,34 @@ integrity_check ()
 	fi
 }
 
+create_document_root_appaserver ()
+{
+	execute=$1
+
+	appaserver_directory="${DOCUMENT_ROOT}/appaserver"
+
+	if [ "$execute" = "execute" ]
+	then
+		mkdir $appaserver_directory
+	else
+		echo "mkdir $appaserver_directory"
+	fi
+}
+
 create_document_root_template ()
 {
 	execute=$1
 
-	template_directory="${DOCUMENT_ROOT}/template"
+	template_directory="${DOCUMENT_ROOT}/appaserver/template"
 
 	if [ "$execute" = "execute" ]
 	then
 		mkdir $template_directory
-		mkdir ${template_directory}/appaserver
+		mkdir ${template_directory}/data
 		mkdir ${template_directory}/images
 	else
 		echo "mkdir $template_directory"
-		echo "mkdir ${template_directory}/appaserver"
+		echo "mkdir ${template_directory}/data"
 		echo "mkdir ${template_directory}/images"
 	fi
 }
@@ -70,21 +84,21 @@ copy_document_root_template ()
 {
 	execute=$1
 
-	template_directory="${DOCUMENT_ROOT}/template"
+	template_directory="${DOCUMENT_ROOT}/appaserver/template"
 	logo_filename="images/logo_appaserver.jpg"
 
 	if [ "$execute" = "execute" ]
 	then
 		cp index.php $template_directory
-		ln ${template_directory}/index.php ${template_directory}/appaserver/index.php
+		ln ${template_directory}/index.php ${template_directory}/data/index.php
 		cp style.css $template_directory
-		ln ${template_directory}/style.css ${template_directory}/appaserver/style.css
+		ln ${template_directory}/style.css ${template_directory}/data/style.css
 		cp $logo_filename ${template_directory}/images
 	else
 		echo "cp index.php $template_directory"
-		echo "ln ${template_directory}/index.php ${template_directory}/appaserver/index.php"
+		echo "ln ${template_directory}/index.php ${template_directory}/data/index.php"
 		echo "cp style.css $template_directory"
-		echo "ln ${template_directory}/style.css ${template_directory}/appaserver/style.css"
+		echo "ln ${template_directory}/style.css ${template_directory}/data/style.css"
 		echo "cp $logo_filename ${template_directory}/images"
 	fi
 }
@@ -101,17 +115,17 @@ link_document_root ()
 
 	if [ "$execute" = "execute" ]
 	then
-		ln -s $src_template_directory $DOCUMENT_ROOT
-		ln -s $images_directory $DOCUMENT_ROOT
-		ln -s $menu_directory $DOCUMENT_ROOT
-		ln -s $calendar_directory $DOCUMENT_ROOT
-		ln -s $javascript_directory $DOCUMENT_ROOT
+		ln -s $src_template_directory $DOCUMENT_ROOT/appaserver
+		ln -s $images_directory $DOCUMENT_ROOT/appaserver
+		ln -s $menu_directory $DOCUMENT_ROOT/appaserver
+		ln -s $calendar_directory $DOCUMENT_ROOT/appaserver
+		ln -s $javascript_directory $DOCUMENT_ROOT/appaserver
 	else
-		echo "ln -s $src_template_directory $DOCUMENT_ROOT"
-		echo "ln -s $images_directory $DOCUMENT_ROOT"
-		echo "ln -s $menu_directory $DOCUMENT_ROOT"
-		echo "ln -s $calendar_directory $DOCUMENT_ROOT"
-		echo "ln -s $javascript_directory $DOCUMENT_ROOT"
+		echo "ln -s $src_template_directory $DOCUMENT_ROOT/appaserver"
+		echo "ln -s $images_directory $DOCUMENT_ROOT/appaserver"
+		echo "ln -s $menu_directory $DOCUMENT_ROOT/appaserver"
+		echo "ln -s $calendar_directory $DOCUMENT_ROOT/appaserver"
+		echo "ln -s $javascript_directory $DOCUMENT_ROOT/appaserver"
 	fi
 }
 
@@ -170,6 +184,18 @@ create_appaserver_data ()
 	fi
 }
 
+enable_apache_cgi ()
+{
+	if [ "$execute" = "execute" ]
+	then
+		a2enmod cgi
+		apache2ctl restart
+	else
+		echo "a2enmod cgi"
+		echo "apache2ctl restart"
+	fi
+}
+
 label="cgi_home="
 cgi_home=`	cat $appaserver_config_file	|\
 	 	grep "^${label}"		|\
@@ -190,8 +216,10 @@ create_appaserver_error_directory $appaserver_error $execute
 create_old_appaserver_error_file $execute
 create_appaserver_data $appaserver_data $execute
 create_error_file_template $appaserver_error $execute
+create_document_root_appaserver $execute
 create_document_root_template $execute
 copy_document_root_template $execute
 link_document_root $execute
+enable_apache_cgi $execute
 
 exit 0

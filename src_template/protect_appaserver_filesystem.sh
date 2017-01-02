@@ -104,7 +104,7 @@ protect_document_root_template ()
 	group=$1
 	execute=$2
 
-	template_directory="${DOCUMENT_ROOT}/template"
+	template_directory="${DOCUMENT_ROOT}/appaserver/template"
 
 	if [ "$execute" = "execute" ]
 	then
@@ -114,11 +114,11 @@ protect_document_root_template ()
 		chmod g+w ${template_directory}/index.php
 		chmod g+w ${template_directory}/style.css
 
-		chgrp $group ${template_directory}/appaserver
-		chmod g+rwxs $template_directory/appaserver
-		chmod o-w ${template_directory}/appaserver
-		chmod g+w ${template_directory}/appaserver/index.php
-		chmod g+w ${template_directory}/appaserver/style.css
+		chgrp $group ${template_directory}/data
+		chmod g+rwxs $template_directory/data
+		chmod o-w ${template_directory}/data
+		chmod g+w ${template_directory}/data/index.php
+		chmod g+w ${template_directory}/data/style.css
 
 		chgrp $group ${template_directory}/images
 		chmod g+rwxs $template_directory/images
@@ -131,11 +131,11 @@ protect_document_root_template ()
 		echo "chmod g+w ${template_directory}/index.php"
 		echo "chmod g+w ${template_directory}/style.css"
 
-		echo "chgrp $group ${template_directory}/appaserver"
-		echo "chmod g+rwxs $template_directory/appaserver"
-		echo "chmod o-w ${template_directory}/appaserver"
-		echo "chmod g+w ${template_directory}/appaserver/index.php"
-		echo "chmod g+w ${template_directory}/appaserver/style.css"
+		echo "chgrp $group ${template_directory}/data"
+		echo "chmod g+rwxs $template_directory/data"
+		echo "chmod o-w ${template_directory}/data"
+		echo "chmod g+w ${template_directory}/data/index.php"
+		echo "chmod g+w ${template_directory}/data/style.css"
 
 		echo "chgrp $group ${template_directory}/images"
 		echo "chmod g+rwxs $template_directory/images"
@@ -144,20 +144,20 @@ protect_document_root_template ()
 	fi
 }
 
-protect_document_root ()
+protect_document_root_appaserver ()
 {
 	group=$1
 	execute=$2
 
 	if [ "$execute" = "execute" ]
 	then
-		chgrp $group $DOCUMENT_ROOT
-		chmod g+rwxs $DOCUMENT_ROOT
-		chmod o-rwx $DOCUMENT_ROOT
+		chgrp $group $DOCUMENT_ROOT/appaserver
+		chmod g+rwxs $DOCUMENT_ROOT/appaserver
+		chmod o-rwx $DOCUMENT_ROOT/appaserver
 	else
-		echo "chgrp $group $DOCUMENT_ROOT"
-		echo "chmod g+rwxs $DOCUMENT_ROOT"
-		echo "chmod o-rwx $DOCUMENT_ROOT"
+		echo "chgrp $group $DOCUMENT_ROOT/appaserver"
+		echo "chmod g+rwxs $DOCUMENT_ROOT/appaserver"
+		echo "chmod o-rwx $DOCUMENT_ROOT/appaserver"
 	fi
 }
 
@@ -292,13 +292,13 @@ appaserver_data=`	cat $appaserver_config_file	|\
 
 integrity_check $group $cgi_home
 protect_cgi_home $group $cgi_home $execute
-protect_document_root $group $execute
 protect_appaserver_home $group $execute
 protect_appaserver_error_directory $group $appaserver_error $execute
 protect_old_appaserver_error_file $group $execute
 protect_appaserver_data $group $appaserver_data $execute
 protect_appaserver_config $group $execute
 protect_error_file_template $group $appaserver_error $execute
+protect_document_root_appaserver $group $execute
 protect_document_root_template $group $execute
 
 exit 0

@@ -1,0 +1,50 @@
+Group Centric Paradigm
+Tim Riley
+
+Purpose
+-------
+The purpose of the group centric paradigm is to allow multiple
+Linux users to write to common directories without having to
+be root.
+
+Vocabulary
+----------
+* User:	   Every login account has one user name.
+* Group:   Every user name belongs to one or more groups.
+	   Every group has a group name.
+* World:   Every user belongs to the world.
+	   The world does not have a name.
+	   Instead, it is represented by the letter 'o'.
+* Project: Colaborating users need group write access to project directories.
+	   Add projects in /etc/group.
+	   Add colaborating users to projects in /etc/group.
+
+Set umask
+---------
+1) Set umask to 002 or 0002 in /etc/profile.
+2) This instructs Linux to set the group write bit for new files
+   and sub-directories.
+
+File creation without group centric
+-----------------------------------
+* User:		receives full permissions
+* Group:	receives restricted permissions
+* World:	receives restricted permissions
+
+File creation with group centric
+--------------------------------
+* User:		receives full permissions
+* Group:	receives full permissions
+* World:	receives restricted permissions
+
+Access management
+-----------------
+1) Assign each new user to a project name that is the same as the user name.
+2) Each user may be assigned to more projects in the /etc/group file.
+3) For each working directory, set the group name: chgrp $project .
+4) For each working directory, set the group SUID bit: chmod g+s .
+5) For each working directory, set the write bit: chmod g+w .
+
+The SUID bit for a directory instructs Linux to change the behavior
+for new files and sub-directories. Instead of setting the group name
+to the user's group, it sets the group name to the directory's group name.

@@ -53,8 +53,6 @@ integrity_check ()
 		exit 1
 	fi
 
-SUDO_USER=timriley
-
 	if [ "$SUDO_USER" = "" ]
 	then
 		echo "Error: Cannot determine your regular user name." 1>&2
@@ -139,17 +137,29 @@ copy_document_root_template ()
 	fi
 }
 
-link_document_root_src_template ()
+link_document_root ()
 {
 	execute=$1
 
 	src_template_directory="${APPASERVER_HOME}/src_template"
+	images_directory="${APPASERVER_HOME}/zimages"
+	menu_directory="${APPASERVER_HOME}/zmenu"
+	calendar_directory="${APPASERVER_HOME}/zscal2"
+	javascript_directory="${APPASERVER_HOME}/javascript"
 
 	if [ "$execute" = "execute" ]
 	then
 		ln -s $src_template_directory $DOCUMENT_ROOT
+		ln -s $images_directory $DOCUMENT_ROOT
+		ln -s $menu_directory $DOCUMENT_ROOT
+		ln -s $calendar_directory $DOCUMENT_ROOT
+		ln -s $javascript_directory $DOCUMENT_ROOT
 	else
 		echo "ln -s $src_template_directory $DOCUMENT_ROOT"
+		echo "ln -s $images_directory $DOCUMENT_ROOT"
+		echo "ln -s $menu_directory $DOCUMENT_ROOT"
+		echo "ln -s $calendar_directory $DOCUMENT_ROOT"
+		echo "ln -s $javascript_directory $DOCUMENT_ROOT"
 	fi
 }
 
@@ -288,27 +298,26 @@ create_appaserver_data ()
 }
 
 label="appaserver_group="
-group=`cat $appaserver_config_file	| \
-	 grep "^${label}"		| \
-	 sed "s/$label//"`
+group=`	cat $appaserver_config_file	|\
+	grep "^${label}"		|\
+	sed "s/$label//"`
 
 label="cgi_home="
-cgi_home=`cat $appaserver_config_file	| \
-	 	grep "^${label}"	| \
+cgi_home=`	cat $appaserver_config_file	|\
+	 	grep "^${label}"		|\
 	 	sed "s/$label//"`
 
 label="appaserver_error_directory="
-appaserver_error=`cat $appaserver_config_file	| \
-	 		grep "^${label}"	| \
+appaserver_error=`	cat $appaserver_config_file	|\
+	 		grep "^${label}"		|\
 	 		sed "s/$label//"`
 
 label="appaserver_data_directory="
-appaserver_data=`cat $appaserver_config_file	| \
-	 		grep "^${label}"	| \
+appaserver_data=`	cat $appaserver_config_file	|\
+	 		grep "^${label}"		|\
 	 		sed "s/$label//"`
 
 integrity_check $group $cgi_home
-
 change_permissions_cgi_home $group $cgi_home $execute
 change_permissions_document_root $group $execute
 protect_appaserver_home $group $execute
@@ -319,6 +328,6 @@ protect_appaserver_config $group $execute
 create_error_file_template $group $appaserver_error $execute
 create_document_root_template $execute
 copy_document_root_template $execute
-link_document_root_src_template $execute
+link_document_root $execute
 
 exit 0

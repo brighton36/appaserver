@@ -270,6 +270,25 @@ protect_appaserver_data ()
 	fi
 }
 
+chgrp_appaserver_tree ()
+{
+	group=$1
+	execute=$2
+
+	if [ "$execute" = "execute" ]
+	then
+		cd $APPASERVER_HOME
+		find . -type d -exec chmod g+wxs \;
+		find . -exec chmod g+w \;
+		find . -exec chgrp $group \;
+	else
+		echo "cd $APPASERVER_HOME"
+		echo "find . -type d -exec chmod g+wxs \;"
+		echo "find . -exec chmod g+w \;"
+		echo "find . -exec chgrp $group \;"
+	fi
+}
+
 label="appaserver_group="
 group=`	cat $appaserver_config_file	|\
 	grep "^${label}"		|\
@@ -300,5 +319,6 @@ protect_appaserver_config $group $execute
 protect_error_file_template $group $appaserver_error $execute
 protect_document_root_appaserver $group $execute
 protect_document_root_template $group $execute
+chgrp_appaserver_tree $group $execute
 
 exit 0

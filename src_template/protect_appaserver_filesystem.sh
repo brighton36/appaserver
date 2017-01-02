@@ -277,14 +277,14 @@ chgrp_appaserver_tree ()
 	if [ "$execute" = "execute" ]
 	then
 		cd $APPASERVER_HOME
-		find . -type d -exec chmod g+wxs \;
-		find . -exec chmod g+w \;
-		find . -exec chgrp $group \;
+		find . -type d -exec chmod g+wxs {}\;
+		find . -exec chmod g+w {}\;
+		find . -exec chgrp $group {}\;
 	else
 		echo "cd $APPASERVER_HOME"
-		echo "find . -type d -exec chmod g+wxs \;"
-		echo "find . -exec chmod g+w \;"
-		echo "find . -exec chgrp $group \;"
+		echo "find . -type d -exec chmod g+wxs {}\;"
+		echo "find . -exec chmod g+w {}\;"
+		echo "find . -exec chgrp $group {}\;"
 	fi
 }
 

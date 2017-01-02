@@ -11,6 +11,7 @@
 /* Constants */
 /* --------- */
 #define APPASERVER_KEY		"appaserver"
+#define APPASERVER_DATA_KEY	"data"
 
 /* Type definitions */
 /* ---------------- */
@@ -91,6 +92,10 @@ char *appaserver_link_get_link_prompt(
 		char *extension );
 
 char *appaserver_link_get_source_directory(
+		char *document_root_directory,
+		char *application_name );
+
+char *appaserver_link_get_data_directory(
 		char *document_root_directory,
 		char *application_name );
 

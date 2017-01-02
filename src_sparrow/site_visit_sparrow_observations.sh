@@ -28,8 +28,8 @@ document_root_directory=`get_document_root.e`
 appaserver_data_directory=`get_appaserver_data_directory.e`
 observation_site_output_file="$appaserver_data_directory"/${application}_${process_name}_observation_site_$$.dat
 site_visit_output_file="$appaserver_data_directory"/${application}_${process_name}_site_visit_$$.dat
-output_file="$document_root_directory/$application/appaserver/${process_name}_$$.csv"
-prompt_file="/$application/appaserver/${process_name}_$$.csv"
+output_file="$document_root_directory/appaserver/$application/data/${process_name}_$$.csv"
+prompt_file="/appaserver/$application/data/${process_name}_$$.csv"
 exit_flag=0
 
 # User variables
@@ -72,7 +72,7 @@ if [ "$output_medium" != "stdout" ]
 then
 	content_type_cgi.sh
 
-	echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
+	echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$application/style.css></head>"
 	echo "<body><h1>$process_title</h1>"
 fi
 

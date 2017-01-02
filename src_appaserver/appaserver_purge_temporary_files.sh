@@ -14,11 +14,11 @@ fi
 
 application_name=$1
 
-delay_minutes=30
 document_root=`get_document_root.e`
 appaserver_data=`get_document_root.e`
 
-directory=${document_root}/${application_name}/appaserver
+delay_minutes=30
+directory=${document_root}/appaserver/${application_name}/data
 
 find	$directory						\
 	-xdev							\
@@ -27,6 +27,7 @@ find	$directory						\
 	-cmin +$delay_minutes					\
 	-exec rm -f {} \; 2>/dev/null
 
+delay_minutes=180
 directory=${appaserver_data}
 
 find	$directory						\
@@ -35,23 +36,5 @@ find	$directory						\
 	-name '*_[1-9][0-9][0-9][0-9]*'				\
 	-cmin +$delay_minutes					\
 	-exec rm -f {} \; 2>/dev/null
-
-#if [ -f ./appaserver.config ]
-#then
-#	appaserver_config="./appaserver.config"
-#else
-#	appaserver_config="/etc/appaserver.config"
-#fi
-#
-#appaserver_mount_point=`cat $appaserver_config			|
-#			grep '^appaserver_mount_point='		|
-#			piece.e '=' 1`
-#
-#find	$appaserver_mount_point					\
-#	-xdev							\
-#	-maxdepth 2						\
-#	-name '*_[1-9][0-9][0-9][0-9]*'				\
-#	-cmin +$delay_minutes					\
-#	-exec rm -f {} \; 2>/dev/null
 
 exit 0

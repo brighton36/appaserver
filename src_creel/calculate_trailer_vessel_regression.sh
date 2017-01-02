@@ -27,12 +27,12 @@ fi
 
 document_root=$(get_document_root.e)
 process_name=calculate_trailer_vessel_regression
-output_file="$document_root/$application/appaserver/${process_name}_$$.csv"
-prompt_file="/$application/appaserver/${process_name}_$$.csv"
+output_file="$document_root/appaserver/$application/data/${process_name}_$$.csv"
+prompt_file="/appaserver/$application/data/${process_name}_$$.csv"
 
 content_type_cgi.sh
 
-echo "<html><head><link rel=stylesheet type=text/css href=/creel/style.css></head>"
+echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$application/style.css></head>"
 echo "<body><h1>Trailer/Vessel Regression</h1>"
 echo "<h2>"
 echo "$parking_lot $begin_date $end_date" | format_initial_capital.e

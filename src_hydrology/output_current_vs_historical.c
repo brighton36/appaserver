@@ -388,7 +388,7 @@ int main( int argc, char **argv )
 
 		printf(
 "<html><head>\n"
-"<link rel=stylesheet type=text/css href=/%s/style.css>\n"
+"<link rel=stylesheet type=text/css href=/appaserver/%s/style.css>\n"
 "</head>\n"
 "<body>\n"
 "<h1>%s</h1>\n"

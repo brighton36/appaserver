@@ -1,12 +1,12 @@
-/* ---------------------------------------------------	*/
-/* src_appaserver/post_prompt_process_form.c		*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* This script is attached to the submit button on 	*/
-/* the prompt process form.				*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/post_prompt_process_form.c	*/
+/* ----------------------------------------------------------	*/
+/*								*/
+/* This script is attached to the submit button on 		*/
+/* the prompt process form.					*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ----------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>

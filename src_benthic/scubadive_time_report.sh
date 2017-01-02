@@ -31,7 +31,7 @@ if [ "$output_medium" != "stdout" ]
 then
 	content_type_cgi.sh
 
-	echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
+	echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$application/style.css></head>"
 	echo "<body><h1>$process_title</h1>"
 fi
 
@@ -52,18 +52,18 @@ fi
 # Constants
 # ---------
 document_root=$(get_document_root.e)
-collection_file="$document_root/$application/appaserver/${process_name}_collection_$$.txt"
-collection_diver_minutes_file="$document_root/$application/appaserver/${process_name}_collection_minutes_between_$$.txt"
-collection_master_file="$document_root/$application/appaserver/${process_name}_collection_master_$$.txt"
-water_depth_collection_file="$document_root/$application/appaserver/${process_name}_water_depth_collection_$$.txt"
-habitat_file="$document_root/$application/appaserver/${process_name}_habitat_$$.txt"
-habitat_dive_minutes_file="$document_root/$application/appaserver/${process_name}_habitat_minutes_between_$$.txt"
-habitat_master_file="$document_root/$application/appaserver/${process_name}_habitat_master_$$.txt"
-water_depth_habitat_file="$document_root/$application/appaserver/${process_name}_water_depth_habitat_$$.txt"
-sort_file="$document_root/$application/appaserver/${process_name}_sort_$$.txt"
+collection_file="$document_root/appaserver/$application/data/${process_name}_collection_$$.txt"
+collection_diver_minutes_file="$document_root/appaserver/$application/data/${process_name}_collection_minutes_between_$$.txt"
+collection_master_file="$document_root/appaserver/$application/data/${process_name}_collection_master_$$.txt"
+water_depth_collection_file="$document_root/appaserver/$application/data/${process_name}_water_depth_collection_$$.txt"
+habitat_file="$document_root/appaserver/$application/data/${process_name}_habitat_$$.txt"
+habitat_dive_minutes_file="$document_root/appaserver/$application/data/${process_name}_habitat_minutes_between_$$.txt"
+habitat_master_file="$document_root/appaserver/$application/data/${process_name}_habitat_master_$$.txt"
+water_depth_habitat_file="$document_root/appaserver/$application/data/${process_name}_water_depth_habitat_$$.txt"
+sort_file="$document_root/appaserver/$application/data/${process_name}_sort_$$.txt"
 
-output_file="$document_root/$application/appaserver/${process_name}_$$.csv"
-prompt_file="/$application/appaserver/${process_name}_$$.csv"
+output_file="$document_root/appaserver/$application/data/${process_name}_$$.csv"
+prompt_file="/appaserver/$application/data/${process_name}_$$.csv"
 
 # Tables
 # ------

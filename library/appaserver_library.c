@@ -1734,10 +1734,12 @@ void appaserver_library_output_style_sheet(
 
 	fprintf( output_file, "<style>\n" );
 	fflush( output_file );
+
 	sprintf( buffer,
-		 "%s/%s/style.css",
-		 appaserver_parameter_file_get_appaserver_mount_point(),
+		 "%s/appaserver/%s/style.css",
+		 appaserver_parameter_file_get_document_root(),
 		 application_name );
+
 	input_file = fopen( buffer, "r" );
 	if ( !input_file )
 	{
@@ -1748,8 +1750,10 @@ void appaserver_library_output_style_sheet(
 			 buffer );
 		exit( 1 );
 	}
+
 	while( get_line( buffer, input_file ) )
 		fprintf( output_file, "%s\n", buffer );
+
 	fclose( input_file );
 	fflush( stdout );
 	fprintf( output_file,

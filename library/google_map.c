@@ -397,7 +397,7 @@ void google_map_output_heading( FILE *output_file,
 "<style type=\"text/css\">\n"
 "%s\n"
 "</style>\n"
-"<link rel=stylesheet type=text/css href=/%s/style.css>\n"
+"<link rel=stylesheet type=text/css href=/appaserver/%s/style.css>\n"
 "<script type=\"text/javascript\"\n"
 "src=\"https://maps.googleapis.com/maps/api/js?key=%s&sensor=false\">\n"
 "</script>\n",

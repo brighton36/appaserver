@@ -168,7 +168,7 @@ void document_output_head_stream(
 	else
 	{
 		fprintf( output_stream,
-"<link rel=stylesheet type=\"text/css\" href=\"/%s/%s\">\n",
+"<link rel=stylesheet type=\"text/css\" href=\"/appaserver/%s/%s\">\n",
 		application_name,
 		stylesheet_filename );
 	}
@@ -199,47 +199,6 @@ void document_output_close_head( FILE *output_stream )
 {
 	fprintf( output_stream, "</head>\n" );
 }
-
-void document_output_head_with_inline_stylesheet(
-				char *application_name,
-				char *title,
-				boolean output_content_type,
-				char *appaserver_mount_point,
-				LIST *javascript_module_list,
-				char *stylesheet_filename,
-				char *relative_source_directory )
-{
-	if ( output_content_type ) document_output_content_type();
-
-	if ( !title || !*title ) title = application_name;
-
-	printf( "<html><head>\n" );
-
-	printf( "<TITLE>%s</TITLE>\n", title );
-
-	document_output_inline_stylesheet(
-			stdout,
-			application_name,
-			appaserver_mount_point,
-			stylesheet_filename );
-
-	if ( appaserver_mount_point
-	&&   list_length( javascript_module_list ) )
-	{
-		document_output_each_javascript_source(
-				application_name,
-				javascript_module_list,
-				appaserver_mount_point,
-				relative_source_directory );
-	}
-
-	/* This is necessary because a fork to "cat" might happen. */
-	/* ------------------------------------------------------- */
-	fflush( stdout );
-
-	printf( "</head>\n" );
-
-} /* document_output_head_with_inline_stylesheet() */
 
 void document_output_each_javascript_source(
 			char *application_name,
@@ -460,30 +419,6 @@ void document_quick_output_body(	char *application_name,
 
 } /* document_quick_output_body() */
 
-void document_quick_output_body_with_inline_stylesheet(
-					char *application_name,
-					char *appaserver_mount_point )
-{
-	DOCUMENT *document;
-
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head_with_inline_stylesheet(
-		document->application_name,
-		document->title,
-		document->output_content_type,
-		appaserver_mount_point,
-		document->javascript_module_list,
-		document->stylesheet_filename,
-		(char *)0 /* relative_source_directory */ );
-
-	document_output_body(
-		document->application_name,
-		document->onload_control_string );
-
-} /* document_quick_output_body_with_inline_stylesheet() */
-
 void document_set_folder_javascript_files(
 					DOCUMENT *document,
 					char *application_name,
@@ -633,55 +568,6 @@ void document_set_process_javascript_files(
 		} while( list_next( filename_list ) );
 	}
 } /* document_set_process_javascript_files() */
-
-void document_output_inline_stylesheet(	FILE *output_pipe,
-					char *application_name,
-					char *appaserver_mount_point,
-					char *stylesheet_filename )
-{
-	char sys_string[ 1024 ];
-	FILE *input_pipe;
-	char input_buffer[ 1024 ];
-
-	fprintf( output_pipe, "<style type=\"text/css\">\n" );
-
-	sprintf(	sys_string,
-			"cat %s/%s/%s",
-			appaserver_mount_point,
-			application_name,
-			stylesheet_filename );
-	fflush( output_pipe );
-	input_pipe = popen( sys_string, "r" );
-	while( get_line( input_buffer, input_pipe ) )
-		fprintf( output_pipe, "%s\n", input_buffer );
-	pclose( input_pipe );
-	fflush( output_pipe );
-	fprintf( output_pipe, "</style>\n" );
-/*
-	printf(
-"HTML		{	color: blue }		\n"
-"BODY		{	color: blue }		\n"
-"H1 		{	text-align: center;	\n"
-"			letter-spacing: .5em;	\n"
-"			color: blue;		\n"
-"			font-size: 14pt }	\n"
-"H2		{	text-align: left;	\n"
-"			color: blue;		\n"
-"			font-size: 12pt }	\n"
-"H3		{	text-align: left;	\n"
-"			color: blue;		\n"
-"			font-size: 12pt }	\n"
-"TH		{	color: blue;		\n"
-"			font-size: 10pt;	\n"
-"			font-weight: bold;	\n"
-"			text-align: center }	\n"
-"TD		{	color: blue;		\n"
-"			font-size: 10pt }	\n"
-"P  		{	color: blue;		\n"
-"			font-size: 10pt }	\n" );
-*/
-
-} /* document_output_inline_stylesheet() */
 
 DOCUMENT_JAVASCRIPT_MODULE *document_javascript_module_new(
 					LIST *javascript_module_list,

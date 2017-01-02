@@ -136,24 +136,6 @@ void document_set_process_javascript_files(
 					char *application_name,
 					char *process_name );
 
-void document_quick_output_body_with_inline_stylesheet(
-					char *application_name,
-					char *appaserver_mount_point );
-
-void document_output_head_with_inline_stylesheet(
-					char *application_name,
-					char *title,
-					boolean output_content_type,
-					char *appaserver_mount_point,
-					LIST *javascript_module_list,
-					char *stylesheet_filename,
-					char *relative_source_directory );
-
-void document_output_inline_stylesheet(	FILE *output_pipe,
-					char *application_name,
-					char *appaserver_mount_point,
-					char *stylesheet_filename );
-
 DOCUMENT_JAVASCRIPT_MODULE *document_javascript_module_new(
 					LIST *javascript_module_list,
 					char *javascript_filename );

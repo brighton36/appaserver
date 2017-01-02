@@ -123,7 +123,7 @@ int main( int argc, char **argv )
 "	<html>							\n"
 "	<head>							\n"
 "		<link rel=stylesheet type=\"text/css\"		\n"
-"			href=/%s/style.css>			\n"
+"			href=/appaserver/%s/style.css>		\n"
 "		<TITLE>Insert %s results</TITLE>		\n"
 "	</head>							\n",
 		application_name, folder );

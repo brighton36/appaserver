@@ -43,8 +43,8 @@ fi
 # Constants
 # ---------
 document_root=$(get_document_root.e)
-output_file="$document_root/$application/appaserver/${process_name}_$$.csv"
-prompt_file="/$application/appaserver/${process_name}_$$.csv"
+output_file="$document_root/appaserver/$application/data/${process_name}_$$.csv"
+prompt_file="/appaserver/$application/data/${process_name}_$$.csv"
 
 # Variables
 # ---------
@@ -76,7 +76,7 @@ if [ "$output_medium" != "stdout" ]
 then
 	content_type_cgi.sh
 
-	echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
+	echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$application/style.css></head>"
 	echo "<body><h1>$process_title</h1>"
 fi
 

@@ -61,10 +61,14 @@ char *appaserver_parameter_file_get_dbms( void )
 
 char *appaserver_parameter_file_get_database_management_system( void )
 {
+	return "mysql";
+
+/*
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
 			new_appaserver_parameter_file();
 	return global_appaserver_parameter_file->database_management_system;
+*/
 }
 
 char *appaserver_parameter_file_get_database( void )

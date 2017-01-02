@@ -45,6 +45,11 @@ integrity_check ()
 		exit 1
 	fi
 
+	if [ ! -x ${APPASERVER_HOME}/src_appaserver/sql.e ]
+	then
+		echo "sql.e doesn't exist. Did you compile?"
+		exit 1
+	fi
 }
 
 create_template_database ()
@@ -66,9 +71,9 @@ update_ssl_support ()
 	if [ "$execute" = "execute" ]
 	then
 		echo "update template_application set ssl_support_yn = 'n';" |
-		sql.e
+		sql.e '^' mysql template
 	else
-		echo 'echo "update template_application set ssl_support_yn = n;" | sql.e'
+		echo 'echo "update template_application set ssl_support_yn = n;" | sql.e ^ mysql template'
 
 	fi
 }

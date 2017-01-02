@@ -39,9 +39,11 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+/*
 void appaserver_parameter_file_get_dictionary_format(
 						APPASERVER_PARAMETER_FILE *s,
 						FILE *f );
+*/
 
 APPASERVER_PARAMETER_FILE *new_appaserver_parameter_file(
 						void );

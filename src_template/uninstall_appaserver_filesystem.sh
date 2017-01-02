@@ -137,9 +137,10 @@ remove_document_root_appaserver $execute
 
 echo ""
 echo "You may also need to:"
-echo '1) cd $APPASERVER_HOME && make clean'
-echo '2) rm -fr $APPASERVER_HOME'
-echo "3) rm /etc/appaserver.config"
-echo "4) trim /etc/profile of appaserver variables"
+echo '1) echo "drop database template;" | sql.e'
+echo '2) cd $APPASERVER_HOME && make clean'
+echo '3) rm -fr $APPASERVER_HOME'
+echo "4) rm /etc/appaserver.config"
+echo "5) trim /etc/profile of appaserver variables"
 
 exit 0

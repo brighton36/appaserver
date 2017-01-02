@@ -307,6 +307,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 
 } /* appaserver_parameter_file_fetch() */
 
+#ifdef NOT_DEFINED
 void appaserver_parameter_file_get_dictionary_format(
 			APPASERVER_PARAMETER_FILE *s,
 			FILE *f )
@@ -439,6 +440,7 @@ void appaserver_parameter_file_get_dictionary_format(
 	s->appaserver_data_directory = dictionary_fetch( d, a );
 
 } /* appaserver_parameter_file_get_dictionary_format() */
+#endif
 
 DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 			FILE *input_pipe,

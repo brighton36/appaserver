@@ -88,6 +88,8 @@ int main( int argc, char **argv )
 
 	if ( database_management_system )
 		h->database_management_system = database_management_system;
+	else
+		h->database_management_system = "mysql";
 
 /*
 	if ( strcmp( h->database_management_system, "oracle" ) == 0 )

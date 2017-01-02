@@ -35,21 +35,24 @@ integrity_check ()
 	if [ "$DOCUMENT_ROOT" = "" ]
 	then
 		echo "Error: DOCUMENT_ROOT must be set." 1>&2
-		echo "Try: . ${profile_file}" 1>&2
+		echo "Try: sudo sh" 1>&2
+		echo "Then: . ${profile_file}" 1>&2
 		exit 1
 	fi
 
 	if [ "$APPASERVER_HOME" = "" ]
 	then
 		echo "Error: APPASERVER_HOME must be set." 1>&2
-		echo "Try: . ${profile_file}" 1>&2
+		echo "Try: sudo sh" 1>&2
+		echo "Then: . ${profile_file}" 1>&2
 		exit 1
 	fi
 
 	if [ "`umask`" != "0002" ]
 	then
 		echo "Error: umask needs to be set to 0002." 1>&2
-		echo "Try: . ${profile_file}" 1>&2
+		echo "Try: sudo sh" 1>&2
+		echo "Then: . ${profile_file}" 1>&2
 		exit 1
 	fi
 

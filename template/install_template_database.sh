@@ -51,21 +51,43 @@ integrity_check ()
 
 create_template_database ()
 {
-	echo "create database template;" | sql.e
+	execute=$1
+
+	if [ "$execute" = "execute" ]
+	then
+		echo "create database template;" | sql.e
+	else
+		echo 'echo "create database template;" | sql.e'
+	fi
 }
 
 load_mysqldump_template ()
 {
-	cd /tmp
-	rm mysqldump_template.sql 2>/dev/null
-	wget timriley.net/download/appaserver/mysqldump_template.sql
-	cat mysqldump_template.sql | sql.e '^' mysql template
+	execute=$1
+
+	if [ "$execute" = "execute" ]
+	then
+		cd /tmp
+		rm mysqldump_template.sql.gz 2>/dev/null
+		wget timriley.net/download/appaserver/mysqldump_template.sql.gz
+		zcat mysqldump_template.sql.gz | sql.e '^' mysql template
+	else
+		echo "cd /tmp"
+		echo "rm mysqldump_template.sql.gz 2>/dev/null"
+		echo "wget timriley.net/download/appaserver/mysqldump_template.sql.gz"
+		echo "zcat mysqldump_template.sql.gz | sql.e '^' mysql template"
+	fi
 }
 
 integrity_check
-create_template_database
-load_mysqldump_template
+create_template_database $execute
+load_mysqldump_template $execute
 
-upgrade_appaserver_database template:template
+if [ "$execute" = "execute" ]
+then
+	upgrade_appaserver_database template:template
+else
+	echo "upgrade_appaserver_database template:template"
+fi
 
 exit 0

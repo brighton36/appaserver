@@ -1,0 +1,44 @@
+# $APPASERVER_HOME/INSTALL
+# ------------------------
+The challenge is to securely couple Appaserver, Mysql, and Apache.
+For example, shell users need to access their private databases, yet
+Apache needs to access all of them. Another example, Appaserver
+needs to create sensitive files in $DOCUMENT_ROOT. Also, you
+need to compile Appaserver which creates links to Apaches's
+CGI directory.
+
+The solution to this challenge is the Group Centric Paradigm.
+See $APPASERVER_HOME/src_template/group_centric.txt . 
+
+Appaserver's implementation of the Group Centric Paradigm 
+is to create group=appaserver in /etc/group.
+Then assign as group members, `who am i` and www-data.
+Alternatively, you could add yourself to the existing
+group=www-data. The important characteristic is the
+people who compile and Apache need write access,
+and everyone else can't even read.
+
+Here are the shell installation steps:
+
+$ cd $somewhere
+$ git clone git://github.com/timhriley/appaserver.git
+$ cd appaserver/src_template
+$ sudo cp appaserver_template.config /etc/appaserver.config
+$ sudo vi /etc/appaserver.config
+vi> set mysql password
+vi> set appaserver_group=appaserver|www-data
+vi> set other configurable variables
+$ sudo ./install_appaserver_profile.sh noexecute|execute
+$ sudo ./install_appaserver_filesystem.sh noexecute|execute
+$ sudo ./protect_appaserver_filesystem.sh noexecute|execute
+$ ./install_template_database.sh noexecute|execute
+
+Here are the browser login steps:
+
+1) Point your browser to: /appaserver/template
+2) Login using: login_name=nobody and password=changeit
+
+To uninstall Appaserver:
+$ cd $APPASERVER_HOME/src_template
+$ sudo ./uninstall_appaserver_filesystem.sh noexecute|execute
+

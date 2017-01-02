@@ -91,11 +91,11 @@ change_permissions_cgi_home ()
 	then
 		chgrp $group ${cgi_home}
 		chmod g+rwxs ${cgi_home}
-		chmod o-rwx ${cgi_home}
+		chmod o-w ${cgi_home}
 	else
 		echo "chgrp $group ${cgi_home}"
 		echo "chmod g+rwxs ${cgi_home}"
-		echo "chmod o-rwx ${cgi_home}"
+		echo "chmod o-w ${cgi_home}"
 	fi
 }
 

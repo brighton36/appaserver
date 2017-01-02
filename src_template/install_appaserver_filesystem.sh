@@ -21,8 +21,7 @@ integrity_check ()
 	if [ "$execute" = "execute" -a "$USER" != "root" ]
 	then
 		echo "Error: You must be root to run this." 1>&2
-		echo "Try: sudo sh" 1>&2
-		echo "Then: . ${profile_file}" 1>&2
+		echo "Try: sudo $0" 1>&2
 		exit 1
 	fi
 
@@ -35,16 +34,14 @@ integrity_check ()
 	if [ "$DOCUMENT_ROOT" = "" ]
 	then
 		echo "Error: DOCUMENT_ROOT must be set." 1>&2
-		echo "Try: sudo sh" 1>&2
-		echo "Then: . ${profile_file}" 1>&2
+		echo "Try: sudo $0" 1>&2
 		exit 1
 	fi
 
 	if [ "$APPASERVER_HOME" = "" ]
 	then
 		echo "Error: APPASERVER_HOME must be set." 1>&2
-		echo "Try: sudo sh" 1>&2
-		echo "Then: . ${profile_file}" 1>&2
+		echo "Try: sudo $0" 1>&2
 		exit 1
 	fi
 }
@@ -211,6 +208,8 @@ label="appaserver_data_directory="
 appaserver_data=`	cat $appaserver_config_file	|\
 	 		grep "^${label}"		|\
 	 		sed "s/$label//"`
+
+. $profile_file
 
 integrity_check $cgi_home $execute
 create_appaserver_error_directory $appaserver_error $execute

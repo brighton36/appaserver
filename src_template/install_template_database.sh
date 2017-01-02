@@ -29,21 +29,19 @@ integrity_check ()
 	if [ "$USER" = "root" ]
 	then
 		echo "You cannot be root to run this." 1>&2
-		echo "Dont't: sudo $0" 1>&2
+		echo "Don't: sudo $0" 1>&2
 		exit 1
 	fi
 
 	if [ "$DOCUMENT_ROOT" = "" ]
 	then
 		echo "DOCUMENT_ROOT must be set." 1>&2
-		echo "Try: . $profile_file" 1>&2
 		exit 1
 	fi
 
 	if [ "$APPASERVER_HOME" = "" ]
 	then
 		echo "APPASERVER_HOME must be set." 1>&2
-		echo "Try: . $profile_file" 1>&2
 		exit 1
 	fi
 
@@ -92,6 +90,8 @@ load_mysqldump_template ()
 		echo "zcat mysqldump_template.sql.gz | sql.e '^' mysql template"
 	fi
 }
+
+. $profile_file
 
 integrity_check
 create_template_database $execute

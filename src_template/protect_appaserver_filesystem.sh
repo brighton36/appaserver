@@ -22,8 +22,7 @@ integrity_check ()
 	if [ "$execute" = "execute" -a "$USER" != "root" ]
 	then
 		echo "Error: You must be root to run this." 1>&2
-		echo "Try: sudo sh" 1>&2
-		echo "Then: . ${profile_file}" 1>&2
+		echo "Try: sudo $0" 1>&2
 		exit 1
 	fi
 
@@ -36,24 +35,18 @@ integrity_check ()
 	if [ "$DOCUMENT_ROOT" = "" ]
 	then
 		echo "Error: DOCUMENT_ROOT must be set." 1>&2
-		echo "Try: sudo sh" 1>&2
-		echo "Then: . ${profile_file}" 1>&2
 		exit 1
 	fi
 
 	if [ "$APPASERVER_HOME" = "" ]
 	then
 		echo "Error: APPASERVER_HOME must be set." 1>&2
-		echo "Try: sudo sh" 1>&2
-		echo "Then: . ${profile_file}" 1>&2
 		exit 1
 	fi
 
 	if [ "`umask`" != "0002" ]
 	then
 		echo "Error: umask needs to be set to 0002." 1>&2
-		echo "Try: sudo sh" 1>&2
-		echo "Then: . ${profile_file}" 1>&2
 		exit 1
 	fi
 
@@ -277,14 +270,14 @@ chgrp_appaserver_tree ()
 	if [ "$execute" = "execute" ]
 	then
 		cd $APPASERVER_HOME
-		find . -type d -exec chmod g+wxs {}\;
-		find . -exec chmod g+w {}\;
-		find . -exec chgrp $group {}\;
+		find . -type d -exec chmod g+wxs {} \;
+		find . -exec chmod g+w {} \;
+		find . -exec chgrp $group {} \;
 	else
 		echo "cd $APPASERVER_HOME"
-		echo "find . -type d -exec chmod g+wxs {}\;"
-		echo "find . -exec chmod g+w {}\;"
-		echo "find . -exec chgrp $group {}\;"
+		echo "find . -type d -exec chmod g+wxs {} \;"
+		echo "find . -exec chmod g+w {} \;"
+		echo "find . -exec chgrp $group {} \;"
 	fi
 }
 
@@ -307,6 +300,8 @@ label="appaserver_data_directory="
 appaserver_data=`	cat $appaserver_config_file	|\
 	 		grep "^${label}"		|\
 	 		sed "s/$label//"`
+
+. $profile_file
 
 integrity_check $group $cgi_home $execute
 protect_cgi_home $group $cgi_home $execute

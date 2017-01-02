@@ -16,8 +16,9 @@ appaserver_config_file="/etc/appaserver.config"
 integrity_check ()
 {
 	cgi_home=$1
+	execute=$1
 
-	if [ "$USER" != "root" ]
+	if [ "$execute" = "execute" -a "$USER" != "root" ]
 	then
 		echo "Error: You must be root to run this." 1>&2
 		echo "Try: sudo sh" 1>&2
@@ -85,19 +86,19 @@ copy_document_root_template ()
 	execute=$1
 
 	template_directory="${DOCUMENT_ROOT}/appaserver/template"
-	logo_filename="images/logo_appaserver.jpg"
+	logo_filename="../template/images/logo_appaserver.jpg"
 
 	if [ "$execute" = "execute" ]
 	then
-		cp index.php $template_directory
+		cp ../template/index.php $template_directory
 		ln ${template_directory}/index.php ${template_directory}/data/index.php
-		cp style.css $template_directory
+		cp ../template/style.css $template_directory
 		ln ${template_directory}/style.css ${template_directory}/data/style.css
 		cp $logo_filename ${template_directory}/images
 	else
-		echo "cp index.php $template_directory"
+		echo "cp ../template/index.php $template_directory"
 		echo "ln ${template_directory}/index.php ${template_directory}/data/index.php"
-		echo "cp style.css $template_directory"
+		echo "cp ../template/style.css $template_directory"
 		echo "ln ${template_directory}/style.css ${template_directory}/data/style.css"
 		echo "cp $logo_filename ${template_directory}/images"
 	fi
@@ -211,7 +212,7 @@ appaserver_data=`	cat $appaserver_config_file	|\
 	 		grep "^${label}"		|\
 	 		sed "s/$label//"`
 
-integrity_check $cgi_home
+integrity_check $cgi_home $execute
 create_appaserver_error_directory $appaserver_error $execute
 create_old_appaserver_error_file $execute
 create_appaserver_data $appaserver_data $execute

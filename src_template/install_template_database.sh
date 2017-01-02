@@ -61,6 +61,20 @@ create_template_database ()
 	fi
 }
 
+update_ssl_support ()
+{
+	execute=$1
+
+	if [ "$execute" = "execute" ]
+	then
+		echo "update template_application set ssl_support_yn = 'n';" |
+		sql.e
+	else
+		echo 'echo "update template_application set ssl_support_yn = n;" | sql.e'
+
+	fi
+}
+
 load_mysqldump_template ()
 {
 	execute=$1
@@ -82,12 +96,13 @@ load_mysqldump_template ()
 integrity_check
 create_template_database $execute
 load_mysqldump_template $execute
+update_ssl_support $execute
 
 if [ "$execute" = "execute" ]
 then
-	upgrade_appaserver_database template:template
+	upgrade_appaserver_database template:template 2>&1 | grep -v duplicate
 else
-	echo "upgrade_appaserver_database template:template"
+	echo "upgrade_appaserver_database template:template 2>&1 | grep -v duplicate"
 fi
 
 exit 0

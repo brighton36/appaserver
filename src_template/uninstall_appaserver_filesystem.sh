@@ -15,33 +15,29 @@ appaserver_config_file="/etc/appaserver.config"
 
 integrity_check ()
 {
-	cgi_home=$1
-	execute=$2
+	execute=$1
 
 	if [ "$execute" = "execute" -a "$USER" != "root" ]
 	then
 		echo "Error: You must be root to run this." 1>&2
-		echo "Try: sudo $0" 1>&2
-		exit 1
-	fi
-
-	if [ ! -d "${cgi_home}" ]
-	then
-		echo "Error: ${cgi_home} is not found in $appaserver_config_file" 1>&2
 		exit 1
 	fi
 
 	if [ "$DOCUMENT_ROOT" = "" ]
 	then
 		echo "Error: DOCUMENT_ROOT must be set." 1>&2
-		echo "Try: sudo $0" 1>&2
 		exit 1
 	fi
 
 	if [ "$APPASERVER_HOME" = "" ]
 	then
 		echo "Error: APPASERVER_HOME must be set." 1>&2
-		echo "Try: sudo $0" 1>&2
+		exit 1
+	fi
+
+	if [ "$CGI_HOME" = "" ]
+	then
+		echo "Error: CGI_HOME must be set." 1>&2
 		exit 1
 	fi
 }
@@ -103,6 +99,20 @@ remove_appaserver_data ()
 	fi
 }
 
+reset_cgi_home ()
+{
+	execute=$1
+
+	if [ "$execute" = "execute" ]
+	then
+		chmod g-ws $CGI_HOME
+		chgrp root $CGI_HOME
+	else
+		echo "chmod g-ws $CGI_HOME"
+		echo "chgrp root $CGI_HOME"
+	fi
+}
+
 enable_apache_cgi ()
 {
 	if [ "$execute" = "execute" ]
@@ -114,11 +124,6 @@ enable_apache_cgi ()
 		echo "apache2ctl restart"
 	fi
 }
-
-label="cgi_home="
-cgi_home=`	cat $appaserver_config_file	|\
-	 	grep "^${label}"		|\
-	 	sed "s/$label//"`
 
 label="appaserver_error_directory="
 appaserver_error=`	cat $appaserver_config_file	|\
@@ -132,11 +137,12 @@ appaserver_data=`	cat $appaserver_config_file	|\
 
 . $profile_file
 
-integrity_check $cgi_home $execute
+integrity_check $execute
 remove_appaserver_error_directory $appaserver_error $execute
 remove_old_appaserver_error_file $execute
 remove_appaserver_data $appaserver_data $execute
 remove_document_root_appaserver $execute
+reset_cgi_home $execute
 
 echo ""
 echo "You may also need to:"
@@ -145,5 +151,7 @@ echo '2) cd $APPASERVER_HOME && make clean'
 echo '3) rm -fr $APPASERVER_HOME'
 echo "4) rm /etc/appaserver.config"
 echo "5) trim /etc/profile of appaserver variables"
+echo "6) remove group=appaserver in /etc/group (maybe)"
+echo ""
 
 exit 0

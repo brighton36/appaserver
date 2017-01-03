@@ -16,19 +16,12 @@ appaserver_config_file="/etc/appaserver.config"
 integrity_check ()
 {
 	group=$1
-	cgi_home=$2
-	execute=$3
+	execute=$2
 
 	if [ "$execute" = "execute" -a "$USER" != "root" ]
 	then
 		echo "Error: You must be root to run this." 1>&2
 		echo "Try: sudo $0" 1>&2
-		exit 1
-	fi
-
-	if [ ! -d "${cgi_home}" ]
-	then
-		echo "Error: ${cgi_home} is not found in $appaserver_config_file" 1>&2
 		exit 1
 	fi
 
@@ -41,6 +34,12 @@ integrity_check ()
 	if [ "$APPASERVER_HOME" = "" ]
 	then
 		echo "Error: APPASERVER_HOME must be set." 1>&2
+		exit 1
+	fi
+
+	if [ "$CGI_HOME" = "" ]
+	then
+		echo "Error: CGI_HOME must be set." 1>&2
 		exit 1
 	fi
 
@@ -76,18 +75,15 @@ integrity_check ()
 protect_cgi_home ()
 {
 	group=$1
-	cgi_home=$2
-	execute=$3
+	execute=$2
 
 	if [ "$execute" = "execute" ]
 	then
-		chgrp $group ${cgi_home}
-		chmod g+rwxs ${cgi_home}
-		chmod o-w ${cgi_home}
+		chgrp $group ${CGI_HOME}
+		chmod g+rwxs ${CGI_HOME}
 	else
-		echo "chgrp $group ${cgi_home}"
-		echo "chmod g+rwxs ${cgi_home}"
-		echo "chmod o-w ${cgi_home}"
+		echo "chgrp $group ${CGI_HOME}"
+		echo "chmod g+rwxs ${CGI_HOME}"
 	fi
 }
 
@@ -286,11 +282,6 @@ group=`	cat $appaserver_config_file	|\
 	grep "^${label}"		|\
 	sed "s/$label//"`
 
-label="cgi_home="
-cgi_home=`	cat $appaserver_config_file	|\
-	 	grep "^${label}"		|\
-	 	sed "s/$label//"`
-
 label="appaserver_error_directory="
 appaserver_error=`	cat $appaserver_config_file	|\
 	 		grep "^${label}"		|\
@@ -303,8 +294,8 @@ appaserver_data=`	cat $appaserver_config_file	|\
 
 . $profile_file
 
-integrity_check $group $cgi_home $execute
-protect_cgi_home $group $cgi_home $execute
+integrity_check $group $execute
+protect_cgi_home $group $execute
 protect_appaserver_home $group $execute
 protect_appaserver_error_directory $group $appaserver_error $execute
 protect_old_appaserver_error_file $group $execute

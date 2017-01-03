@@ -79,14 +79,6 @@ char *appaserver_parameter_file_get_database( void )
 	return global_appaserver_parameter_file->default_database_connection;
 }
 
-char *appaserver_parameter_file_get_dynarch_home( void )
-{
-	if ( !global_appaserver_parameter_file )
-		global_appaserver_parameter_file =
-			new_appaserver_parameter_file();
-	return global_appaserver_parameter_file->dynarch_home;
-}
-
 char *appaserver_parameter_file_get_cgi_home( void )
 {
 	if ( !global_appaserver_parameter_file )
@@ -173,7 +165,6 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	APPASERVER_PARAMETER_FILE *s;
 	DICTIONARY *d;
 	char *a;
-	char dynarch_home_buffer[ 512 ];
 
 	s = (APPASERVER_PARAMETER_FILE *)
 		calloc( 1, sizeof( APPASERVER_PARAMETER_FILE ) );
@@ -264,12 +255,6 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 		exit( 1 );
 	}
 
-	sprintf( dynarch_home_buffer,
-		 "%s/%s",
-		 s->appaserver_mount_point,
-		 HORIZONTAL_MENU_RELATIVE_DIRECTORY );
-	s->dynarch_home = strdup( dynarch_home_buffer );
-
 	/* cgi home from the browser's perspective. */
 	/* ---------------------------------------- */
 	a = "apache_cgi_directory";
@@ -306,141 +291,6 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	return s;
 
 } /* appaserver_parameter_file_fetch() */
-
-#ifdef NOT_DEFINED
-void appaserver_parameter_file_get_dictionary_format(
-			APPASERVER_PARAMETER_FILE *s,
-			FILE *f )
-{
-	DICTIONARY *d;
-	char *a;
-	char dynarch_home_buffer[ 512 ];
-
-	d = appaserver_parameter_file_load_record_dictionary( f, '=' );
-
-	a = "default_database";
-	if ( ! ( s->default_database_connection =
-			dictionary_fetch( d, a ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: Cannot fetch %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 a );
-		fclose( f );
-		exit( 1 );
-	}
-
-	a = "mysql_user";
-	if ( ! ( s->user = dictionary_fetch( d, a ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: Cannot fetch %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 a );
-		fclose( f );
-		exit( 1 );
-	}
-
-	a = "mysql_flags";
-	if ( ! ( s->flags = dictionary_fetch( d, a ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: Cannot fetch %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 a );
-		fclose( f );
-		exit( 1 );
-	}
-
-	a = "mysql_password";
-	if ( ! ( s->password = dictionary_fetch( d, a ) ) )
-	{
-		a = "password";
-		if ( ! ( s->password = dictionary_fetch( d, a ) ) )
-		{
-			fprintf( stderr,
-			 	"Error in %s/%s()/%d: Cannot fetch %s\n",
-			 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__,
-			 	a );
-			fclose( f );
-			exit( 1 );
-		}
-		s->mysql_password_syntax = 1;
-	}
-
-
-	a = "mysql_host";
-	s->MYSQL_HOST = dictionary_fetch( d, a );
-
-	a = "mysql_tcp_port";
-	s->MYSQL_TCP_PORT = dictionary_fetch( d, a );
-
-	a = "mysql_pwd";
-	s->MYSQL_PWD = dictionary_fetch( d, a );
-
-	a = "appaserver_mount_point";
-	if ( ! ( s->appaserver_mount_point =
-			dictionary_fetch( d, a ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: Cannot fetch %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 a );
-		fclose( f );
-		exit( 1 );
-	}
-
-	sprintf( dynarch_home_buffer,
-		 "%s/%s",
-		 s->appaserver_mount_point,
-		 HORIZONTAL_MENU_RELATIVE_DIRECTORY );
-	s->dynarch_home = strdup( dynarch_home_buffer );
-
-	/* cgi home from the browser's perspective. */
-	/* ---------------------------------------- */
-	a = "apache_cgi_directory";
-	if ( ! ( s->apache_cgi_directory = dictionary_fetch( d, a ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: Cannot fetch %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 a );
-		fclose( f );
-		exit( 1 );
-	}
-
-
-	a = "database_management_system";
-	s->database_management_system = dictionary_fetch( d, a );
-
-	/* cgi home from the file system's perspective. */
-	/* -------------------------------------------- */
-	a = "cgi_home";
-	s->cgi_home = dictionary_fetch( d, a );
-
-	a = "document_root";
-	s->document_root = dictionary_fetch( d, a );
-
-	a = "appaserver_error_directory";
-	s->appaserver_error_directory = dictionary_fetch( d, a );
-
-	a = "appaserver_data_directory";
-	s->appaserver_data_directory = dictionary_fetch( d, a );
-
-} /* appaserver_parameter_file_get_dictionary_format() */
-#endif
 
 DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 			FILE *input_pipe,

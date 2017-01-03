@@ -28,7 +28,6 @@ typedef struct
 	char *appaserver_mount_point;
 	char *apache_cgi_directory;
 	char *database_management_system;
-	char *dynarch_home;
 	char *cgi_home;
 	char *document_root;
 	char *appaserver_error_directory;
@@ -70,9 +69,6 @@ char *appaserver_parameter_file_get_dbms(
 						void );
 
 char *appaserver_parameter_file_get_database(
-						void );
-
-char *appaserver_parameter_file_get_dynarch_home(
 						void );
 
 char *appaserver_parameter_file_get_cgi_home(

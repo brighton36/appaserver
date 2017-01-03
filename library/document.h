@@ -165,4 +165,7 @@ DOCUMENT *document_output_menu_new(
 				char *onload_control_string,
 				boolean exists_date_attribute );
 
+void document_output_dynarch_heading(
+				FILE *output_stream );
+
 #endif

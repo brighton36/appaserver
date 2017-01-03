@@ -125,6 +125,23 @@ void document_output_head(	char *application_name,
 				1 /* with_close_head */ );
 }
 
+void document_output_dynarch_heading( FILE *output_stream )
+{
+		fprintf( output_stream,
+"<link rel=stylesheet type=text/css href=\"/%s/src/style-%s.css\">\n"
+"<link rel=stylesheet type=text/css href=\"/%s/src/skin-%s.css\">\n"
+"<script type=\"text/javascript\"> _dynarch_menu_url=\"/%s/src/\"; </script>\n"
+"<script type=\"text/javascript\"> _dynarch_top=\"/%s/\"; </script>\n"
+"<script type=\"text/javascript\" src=\"/%s/src/hmenu.js\"> </script>\n",
+			HORIZONTAL_MENU_RELATIVE_DIRECTORY,
+			"template" /* application_name */,
+			HORIZONTAL_MENU_RELATIVE_DIRECTORY,
+			"template" /* application_name */,
+			HORIZONTAL_MENU_RELATIVE_DIRECTORY,
+			HORIZONTAL_MENU_RELATIVE_DIRECTORY,
+			HORIZONTAL_MENU_RELATIVE_DIRECTORY );
+} /* document_output_dynarch_heading() */
+
 void document_output_head_stream(
 				FILE *output_stream,
 				char *application_name,
@@ -153,17 +170,7 @@ void document_output_head_stream(
 
 	if ( with_dynarch_menu )
 	{
-		fprintf( output_stream,
-"<link rel=stylesheet type=text/css href=\"/appaserver/%s/src/style-%s.css\">\n"
-"<link rel=stylesheet type=text/css href=\"/appaserver/%s/src/skin-%s.css\">\n"
-"<script type=\"text/javascript\"> _dynarch_menu_url=\"/appaserver/%s/src/\"; </script>\n"
-"<script type=\"text/javascript\" src=\"/appaserver/%s/src/hmenu.js\"> </script>\n",
-			HORIZONTAL_MENU_RELATIVE_DIRECTORY,
-			"template" /* application_name */,
-			HORIZONTAL_MENU_RELATIVE_DIRECTORY,
-			"template" /* application_name */,
-			HORIZONTAL_MENU_RELATIVE_DIRECTORY,
-			HORIZONTAL_MENU_RELATIVE_DIRECTORY );
+		document_output_dynarch_heading( output_stream );
 	}
 	else
 	{
@@ -300,7 +307,7 @@ void document_output_javascript_source(
 	else
 	{
 		printf( 
-		"<SCRIPT language=\"JavaScript1.2\" src=\"/%s/%s\"></SCRIPT>\n",
+"<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/%s/%s\"></SCRIPT>\n",
 			source_directory,
 			source_filename );
 	}

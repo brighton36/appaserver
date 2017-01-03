@@ -28,9 +28,9 @@ enum preupdate_change_state {		from_null_to_something,
 
 /* Constants */
 /* ========= */
-#define HORIZONTAL_MENU_RELATIVE_DIRECTORY	"zmenu"
-#define CALENDAR_RELATIVE_DIRECTORY		"zscal2"
-#define IMAGE_RELATIVE_DIRECTORY		"zimages"
+#define HORIZONTAL_MENU_RELATIVE_DIRECTORY	"appaserver/zmenu"
+#define CALENDAR_RELATIVE_DIRECTORY		"appaserver/zscal2"
+#define IMAGE_RELATIVE_DIRECTORY		"appaserver/zimages"
 #define PATH_DELIMITER				':'
 #define OUTPUT_TEXT_FILE_DELIMITER		'|'
 #define RECOUNT_BUTTON_LABEL			"Recount"

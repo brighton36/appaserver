@@ -1150,140 +1150,6 @@ void fix_index_dot_php(			char *destination_application,
 
 } /* fix_index_dot_php() */
 
-#ifdef NOT_DEFINED
-void link_appaserver_home_to_document_root(
-					char *destination_application,
-					char *appaserver_home_directory,
-					char *document_root_directory,
-					char really_yn )
-{
-	char sys_string[ 1024 ];
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-			"ln -s %s/%s %s",
-			appaserver_home_directory,
-		 	destination_application,
-		 	document_root_directory );
-	}
-	else
-	{
-		sprintf( sys_string,
-			"echo 'ln -s %s/%s %s' | html_paragraph_wrapper.e",
-			appaserver_home_directory,
-		 	destination_application,
-		 	document_root_directory );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-			"ln -s %s/src_%s %s",
-			appaserver_home_directory,
-		 	destination_application,
-		 	document_root_directory );
-	}
-	else
-	{
-		sprintf( sys_string,
-			"echo 'ln -s %s/src_%s %s' | html_paragraph_wrapper.e",
-			appaserver_home_directory,
-		 	destination_application,
-		 	document_root_directory );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-}/* link_appaserver_home_to_document_root() */
-
-void integrate_dynarch_menu(		char *destination_application,
-					char *current_application,
-					char *document_root_directory,
-					char *appaserver_home_directory,
-					char really_yn )
-{
-	char sys_string[ 1024 ];
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-			"cp %s/src/skin-%s.css %s/src/skin-%s.css",
-			dynarch_home_directory,
-		 	current_application,
-		 	dynarch_home_directory,
-			destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-"echo 'cp %s/src/skin-%s.css %s/src/skin-%s.css' | html_paragraph_wrapper.e",
-			dynarch_home_directory,
-		 	current_application,
-		 	dynarch_home_directory,
-			destination_application );
-	}
-
-	fflush( stdout );
-
-	system( sys_string );
-	fflush( stdout );
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-			"ln %s/src/skin-%s.css %s/%s",
-			dynarch_home_directory,
-		 	destination_application,
-		 	document_root_directory,
-			destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-	"echo 'ln %s/src/skin-%s.css %s/%s' | html_paragraph_wrapper.e",
-			dynarch_home_directory,
-		 	destination_application,
-		 	document_root_directory,
-			destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-			"ln %s/%s/style.css %s/src/style-%s.css",
-			appaserver_home_directory,
-		 	destination_application,
-		 	dynarch_home_directory,
-			destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-"echo 'ln %s/%s/style.css %s/src/style-%s.css' | html_paragraph_wrapper.e",
-			appaserver_home_directory,
-		 	destination_application,
-		 	dynarch_home_directory,
-			destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-} /* integrate_dynarch_menu() */
-#endif
-
 void create_system_tables(	char *destination_application,
 				char *current_application,
 				char *appaserver_data_directory,
@@ -2247,56 +2113,6 @@ void remove_document_root_links(
 
 } /*remove_document_root_links() */
 
-#ifdef NOT_DEFINED
-void remove_dynarch_menu(		char *destination_application,
-					char *dynarch_home_directory,
-					char really_yn )
-{
-	char sys_string[ 1024 ];
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-			"rm %s/src/skin-%s.css 2>&1 | html_paragraph_wrapper",
-			dynarch_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-			"echo \"rm %s/src/skin-%s.css\"	|"
-			"html_paragraph_wrapper.e",
-			dynarch_home_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-			"rm %s/src/style-%s.css 2>&1 | html_paragraph_wrapper",
-			dynarch_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-			"echo \"rm %s/src/style-%s.css\"	|"
-			"html_paragraph_wrapper.e",
-			dynarch_home_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-} /* remove_dynarch_menu() */
-#endif
-
 boolean delete_existing_application(
 				char *destination_application,
 				char create_database_yn,
@@ -2327,21 +2143,9 @@ boolean delete_existing_application(
 					document_root_directory,
 					really_yn );
 
-/*
-	remove_document_root_links(	destination_application,
-					document_root_directory,
-					really_yn );
-*/
-
 	remove_appaserver_error_file(	destination_application,
 					appaserver_error_directory,
 					really_yn );
-
-/*
-	remove_dynarch_menu(		destination_application,
-					dynarch_home_directory,
-					really_yn );
-*/
 
 	if ( really_yn != 'y' )
 		printf( "<p>Process simulation complete.\n" );

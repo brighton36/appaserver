@@ -697,17 +697,7 @@ void output_menu(		FILE *output_file,
 "</div>\n",
 		 menu_string );
 
-	fprintf( output_file,
-"<link rel=stylesheet type=text/css href=/appaserver/%s/src/style-%s.css>\n"
-"<link rel=stylesheet type=text/css href=/appaserver/%s/src/skin-%s.css>\n"
-"<script type=text/javascript> _dynarch_menu_url=\"/appaserver/%s/src/\"; </script>\n"
-"<script type=text/javascript src=/appaserver/%s/src/hmenu.js> </script>\n",
-		 HORIZONTAL_MENU_RELATIVE_DIRECTORY,
-		 "template" /* application_name */,
-		 HORIZONTAL_MENU_RELATIVE_DIRECTORY,
-		 "template" /* application_name */,
-		 HORIZONTAL_MENU_RELATIVE_DIRECTORY,
-		 HORIZONTAL_MENU_RELATIVE_DIRECTORY );
+	document_output_dynarch_heading( output_file );
 
 } /* output_menu() */
 

@@ -51,12 +51,15 @@ remove_document_root_appaserver ()
 	execute=$1
 
 	appaserver_directory="${DOCUMENT_ROOT}/appaserver"
+	zmenu_link="${DOCUMENT_ROOT}/zmenu"
 
 	if [ "$execute" = "execute" ]
 	then
 		rm -fr $appaserver_directory
+		rm $zmenu_link
 	else
 		echo "rm -fr $appaserver_directory"
+		echo "rm $zmenu_link"
 	fi
 }
 

@@ -116,12 +116,14 @@ link_document_root ()
 		ln -s $src_template_directory $DOCUMENT_ROOT/appaserver
 		ln -s $images_directory $DOCUMENT_ROOT/appaserver
 		ln -s $menu_directory $DOCUMENT_ROOT/appaserver
+		ln -s $menu_directory $DOCUMENT_ROOT
 		ln -s $calendar_directory $DOCUMENT_ROOT/appaserver
 		ln -s $javascript_directory $DOCUMENT_ROOT/appaserver
 	else
 		echo "ln -s $src_template_directory $DOCUMENT_ROOT/appaserver"
 		echo "ln -s $images_directory $DOCUMENT_ROOT/appaserver"
-		echo "ln -s $menu_directory $DOCUMENT_ROOT/appaserver"
+		echo "ln -s $new_menu_directory $DOCUMENT_ROOT/appaserver"
+		echo "ln -s $new_menu_directory $old_menu_reference"
 		echo "ln -s $calendar_directory $DOCUMENT_ROOT/appaserver"
 		echo "ln -s $javascript_directory $DOCUMENT_ROOT/appaserver"
 	fi

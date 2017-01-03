@@ -26,6 +26,7 @@ $ cd appaserver/src_template
 $ sudo cp appaserver_template.config /etc/appaserver.config
 $ sudo vi /etc/appaserver.config
 vi> set mysql password
+vi> set appaserver_mount_point
 vi> set appaserver_group=appaserver|www-data
 vi> set other configurable variables
 $ sudo ./install_appaserver_profile.sh noexecute|execute

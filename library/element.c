@@ -1417,8 +1417,9 @@ void element_date_output( 	FILE *output_file,
 	{
 		fprintf( output_file, " id=\"%s_%d\">\n", element_name, row );
 		fprintf(output_file,
-		"<img id=\"trigger_%d\" src=/zimages/calendar.gif>\n",
-			date_trigger_offset );
+		"<img id=\"trigger_%d\" src=/%s/calendar.gif>\n",
+			date_trigger_offset,
+			IMAGE_RELATIVE_DIRECTORY );
 	
 		format_string =
 			element_get_date_format_string(

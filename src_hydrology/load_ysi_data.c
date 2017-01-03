@@ -42,16 +42,15 @@ typedef struct
 
 /* Constants */
 /* --------- */
+#define STATION_LABEL			"Site"
 #define FEET_PER_METER			3.281
 #define FILENAME_STEM			"load_ysi_bad"
-/*
-#define ERROR_FILE_TEMPLATE		"%s/%s/load_ysi_bad_%d.txt"
-#define ERROR_FTP_TEMPLATE		"%s://%s/%s/load_ysi_bad_%d.txt"
-*/
 #define PROMPT	"&lt;Left Click&gt; to view bad records or &lt;Right Click&gt; to save."
 
 /* Prototypes */
 /* ---------- */
+char *station_fetch(		char *input_filespecification );
+
 boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 					JULIAN **file_end_date,
 					char *input_filespecification );
@@ -66,9 +65,7 @@ void delete_existing_measurements(
 char *get_datatype_name(		char *application_name,
 					char *datatype_heading );
 
-LIST *with_input_buffer_get_datatype_list(
-					char **error_message,
-					char *application_name,
+LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *input_buffer,
 					char *second_line );
 
@@ -116,7 +113,7 @@ int main( int argc, char **argv )
 	JULIAN *input_begin_date = {0};
 	JULIAN *input_end_date = {0};
 	LIST *datatype_list;
-	char *error_message;
+	char *error_message = {0};
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	if ( argc != 11 )
@@ -182,9 +179,12 @@ int main( int argc, char **argv )
 	if ( !*station
 	||   strcmp( station, "station" ) == 0 )
 	{
-		printf( "<h3>ERROR: Please choose a station.</h3>\n" );
-		document_close();
-		exit( 1 );
+		if ( ! ( station = station_fetch( input_filespecification ) ) )
+		{
+			printf( "<h3>ERROR: Please choose a station.</h3>\n" );
+			document_close();
+			exit( 1 );
+		}
 	}
 
 	if ( ! ( datatype_list = get_datatype_list(
@@ -192,9 +192,11 @@ int main( int argc, char **argv )
 					application_name,
 					input_filespecification ) ) )
 	{
-		printf( "<h3>ERROR: %s</h3>\n", error_message );
+		printf( "<h3>Warning: %s</h3>\n", error_message );
+/*
 		document_close();
 		exit( 1 );
+*/
 	}
 
 	input_directory = basename_get_directory( input_filespecification );
@@ -205,22 +207,6 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 0 );
 	}
-
-/*
-	sprintf( error_filespecification,
-		 ERROR_FILE_TEMPLATE,
-		 appaserver_parameter_file->
-		 	appaserver_mount_point,
-		 application_name,
-		 process_id );
-	
-	sprintf( error_ftp_filename, 
-		 ERROR_FTP_TEMPLATE, 
-		 application_get_http_prefix( application_name ),
-		 appaserver_library_get_server_address(),
-		 application_name,
-		 process_id );
-*/
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -496,6 +482,7 @@ int load_ysi_filespecification(
 				input_buffer,
 				0,
 				'"' );
+
 		date_convert_source_american(
 				measurement_date_international,
 				international,
@@ -505,7 +492,7 @@ int load_ysi_filespecification(
 				measurement_date_international ) )
 		{
 			fprintf( error_file,
-				 "Invalid date in line %d: %s\n",
+				 "Ignoring line %d: %s\n",
 				 line_number,
 				 input_buffer );
 			fflush( error_file );
@@ -672,6 +659,7 @@ LIST *get_datatype_list(	char **error_message,
 	FILE *input_file;
 	char input_buffer[ 1024 ];
 	char second_line[ 1024 ];
+	LIST *datatype_list = {0};
 
 	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
 	{
@@ -690,11 +678,23 @@ LIST *get_datatype_list(	char **error_message,
 		{
 			get_line( second_line, input_file );
 			fclose( input_file );
-			return with_input_buffer_get_datatype_list(
-						error_message,
+
+			datatype_list =
+				input_buffer_get_datatype_list(
+					application_name,
+					input_buffer,
+					(char *)0 /* second_line */ );
+
+			if ( !list_length( datatype_list ) )
+			{
+				datatype_list =
+					input_buffer_get_datatype_list(
 						application_name,
 						input_buffer,
 						second_line );
+			}
+
+			return datatype_list;
 		}
 	}
 	fclose( input_file );
@@ -702,10 +702,9 @@ LIST *get_datatype_list(	char **error_message,
 	return (LIST *)0;
 } /* get_datatype_list() */
 
-LIST *with_input_buffer_get_datatype_list(	char **error_message,
-						char *application_name,
-						char *input_buffer,
-						char *second_line )
+LIST *input_buffer_get_datatype_list(	char *application_name,
+					char *input_buffer,
+					char *second_line )
 {
 	LIST *datatype_list = list_new();
 	DATATYPE *datatype;
@@ -714,6 +713,8 @@ LIST *with_input_buffer_get_datatype_list(	char **error_message,
 	char two_line_datatype_heading[ 256 ];
 	char *datatype_name;
 	int piece_number;
+
+	*datatype_heading_second_line = '\0';
 
 	for(	piece_number = 0;
 		piece_quoted(	datatype_heading_first_line,
@@ -733,15 +734,18 @@ LIST *with_input_buffer_get_datatype_list(	char **error_message,
 			continue;
 		}
 
-		piece_quoted(	datatype_heading_second_line,
-				',',
-				second_line,
-				piece_number,
-				'"' );
+		if ( second_line )
+		{
+			piece_quoted(	datatype_heading_second_line,
+					',',
+					second_line,
+					piece_number,
+					'"' );
+		}
 
 		if ( *datatype_heading_second_line )
 		{
-			sprintf( two_line_datatype_heading,
+			sprintf(two_line_datatype_heading,
 			 	"%s %s",
 			 	datatype_heading_first_line,
 			 	datatype_heading_second_line );
@@ -771,13 +775,32 @@ LIST *with_input_buffer_get_datatype_list(	char **error_message,
 					application_name,
 					datatype_heading_first_line ) ) )
 		{
-			char buffer[ 256 ];
+/*
+			char buffer[ 1024 ];
 
-			sprintf( buffer,
-		"Cannot recognize heading of %s.",
+			if ( *error_message )
+			{
+				sprintf( buffer,
+					 "<br>%s",
+					 *error_message );
+			}
+			else
+			{
+				*buffer = '\0';
+			}
+
+			sprintf( buffer + strlen( buffer ),
+				 "Warning: cannot recognize heading of %s.",
 				 datatype_heading_first_line );
+
 			*error_message = strdup( buffer );
-			return (LIST *)0;
+fprintf( stderr, "%s/%s()/%d: error_message = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+*error_message );
+*/
+			continue;
 		}
 
 		datatype = new_datatype( datatype_name );
@@ -788,7 +811,8 @@ LIST *with_input_buffer_get_datatype_list(	char **error_message,
 		list_append_pointer( datatype_list, datatype );
 	}
 	return datatype_list;
-} /* with_input_buffer_get_datatype_list() */
+
+} /* input_buffer_get_datatype_list() */
 
 char *get_datatype_name(	char *application_name,
 				char *datatype_heading )
@@ -903,14 +927,6 @@ void delete_existing_measurements(
 		fflush( stdout );
 		system( sys_string );
 		fflush( stdout );
-
-/*
-		free( begin_date_string );
-		free( begin_time_string );
-		free( end_date_string );
-		free( end_time_string );
-		free( between_date_time_where );
-*/
 
 	} while( list_next( datatype_list ) );
 } /* delete_existing_measurements() */
@@ -1087,4 +1103,39 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 	return return_value;
 
 } /* get_file_begin_end_dates() */
+
+char *station_fetch( char *input_filespecification )
+{
+	char column_A[ 128 ];
+	char station[ 128 ];
+	FILE *input_file;
+	char input_buffer[ 1024 ];
+
+	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_filespecification );
+		return 0;
+	}
+
+	while( timlib_get_line( input_buffer, input_file, 1024 ) )
+	{
+		piece( column_A, ',', input_buffer, 0 );
+
+		if ( strcasecmp( column_A, STATION_LABEL ) == 0 )
+		{
+			piece( station, ',', input_buffer, 1 );
+			fclose( input_file );
+			return strdup( station );
+		}
+	}
+
+	fclose( input_file );
+	return (char *)0;
+
+} /* station_fetch() */
 

@@ -20,7 +20,8 @@ datatype=`get_table_name $application datatype`
 echo "select 	$datatype.datatype,					\
 		$datatype.bar_graph_yn,					\
 		$datatype.scale_graph_to_zero_yn,			\
-		$datatype.aggregation_sum_yn				\
+		$datatype.aggregation_sum_yn,				\
+		$datatype.set_negative_values_to_zero_yn		\
       from $datatype							\
       order by datatype;"						|
 sql.e '|'								|

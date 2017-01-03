@@ -29,16 +29,19 @@
 #include "session.h"
 #include "application.h"
 #include "hydrology_library.h"
+#include "datatype.h"
 #include "appaserver_link_file.h"
 
 /* Structures */
 /* ---------- */
+/*
 typedef struct
 {
 	char *datatype_name;
 	char *heading_string;
 	int piece_number;
 } DATATYPE;
+*/
 
 /* Constants */
 /* --------- */
@@ -72,8 +75,6 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 LIST *get_datatype_list(		char **error_message,
 					char *application_name,
 					char *input_filespecification );
-
-DATATYPE *new_datatype(			char *datatype_name );
 
 int load_ysi_filespecification(
 					int *measurement_count,
@@ -267,6 +268,7 @@ int main( int argc, char **argv )
 	{
 		if ( !isdigit( *begin_time_string ) )
 			begin_time_string = "0000";
+
 		input_begin_date = 
 			julian_yyyy_mm_dd_hhmm_new(	begin_date_string,
 							begin_time_string );
@@ -281,6 +283,7 @@ int main( int argc, char **argv )
 	{
 		if ( !isdigit( *end_time_string ) )
 			end_time_string = "2359";
+
 		input_end_date = 
 			julian_yyyy_mm_dd_hhmm_new(	end_date_string,
 							end_time_string );
@@ -384,6 +387,7 @@ int load_ysi_filespecification(
 	char measurement_date_international[ 32 ];
 	char measurement_time[ 32 ];
 	char measurement_value_string[ 32 ];
+	double measurement_value;
 	char sys_string[ 1024 ];
 	DATATYPE *datatype;
 	JULIAN *measurement_date_time = julian_new_julian( 0.0 );
@@ -586,6 +590,14 @@ int load_ysi_filespecification(
 				continue;
 			}
 
+			measurement_value = atof( measurement_value_string );
+
+			if ( datatype->set_negative_values_to_zero
+			&&   measurement_value < 0.0 )
+			{
+				measurement_value = 0.0;
+			}
+
 			if ( really_yn == 'y' )
 			{
 				strcpy(	format_buffer,
@@ -599,14 +611,14 @@ int load_ysi_filespecification(
 			}
 
 			fprintf(	measurement_insert_pipe,
-					"%s^%s^%s^%s^%s\n",
+					"%s^%s^%s^%s^%.3lf\n",
 					station,
 					format_buffer,
 					measurement_date_international,
 					julian_display_hhmm(
 						measurement_date_time->
 							current ),
-					measurement_value_string );
+					measurement_value );
 
 			if ( really_yn == 'y' )
 			{
@@ -633,24 +645,6 @@ int load_ysi_filespecification(
 	return line_number;
 
 } /* load_ysi_filespecification() */
-
-DATATYPE *new_datatype( char *datatype_name )
-{
-	DATATYPE *datatype;
-
-	if ( ! ( datatype = (DATATYPE *)calloc( 1, sizeof( DATATYPE ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	datatype->datatype_name = datatype_name;
-	return datatype;
-} /* datatype_new() */
 
 LIST *get_datatype_list(	char **error_message,
 				char *application_name,
@@ -706,13 +700,21 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *input_buffer,
 					char *second_line )
 {
-	LIST *datatype_list = list_new();
+	LIST *return_datatype_list;
+	static LIST *datatype_list = {0};
 	DATATYPE *datatype;
 	char datatype_heading_first_line[ 128 ];
 	char datatype_heading_second_line[ 128 ];
 	char two_line_datatype_heading[ 256 ];
 	char *datatype_name;
 	int piece_number;
+
+	return_datatype_list = list_new();
+
+	if ( !datatype_list )
+	{
+		datatype_list = datatype_get_list( application_name );
+	}
 
 	*datatype_heading_second_line = '\0';
 
@@ -761,12 +763,16 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 					application_name,
 					two_line_datatype_heading ) ) )
 		{
-			datatype = new_datatype( datatype_name );
+			datatype =
+				datatype_list_seek(
+					datatype_list,
+					datatype_name );
+
 			datatype->piece_number = piece_number;
 			datatype->heading_string =
 				strdup( two_line_datatype_heading );
 
-			list_append_pointer( datatype_list, datatype );
+			list_append_pointer( return_datatype_list, datatype );
 			continue;
 		}
 
@@ -775,42 +781,19 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 					application_name,
 					datatype_heading_first_line ) ) )
 		{
-/*
-			char buffer[ 1024 ];
-
-			if ( *error_message )
-			{
-				sprintf( buffer,
-					 "<br>%s",
-					 *error_message );
-			}
-			else
-			{
-				*buffer = '\0';
-			}
-
-			sprintf( buffer + strlen( buffer ),
-				 "Warning: cannot recognize heading of %s.",
-				 datatype_heading_first_line );
-
-			*error_message = strdup( buffer );
-fprintf( stderr, "%s/%s()/%d: error_message = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-*error_message );
-*/
 			continue;
 		}
 
-		datatype = new_datatype( datatype_name );
+		datatype = datatype_list_seek( datatype_list, datatype_name );
+
 		datatype->piece_number = piece_number;
 		datatype->heading_string =
 			strdup( datatype_heading_first_line );
 
-		list_append_pointer( datatype_list, datatype );
+		list_append_pointer( return_datatype_list, datatype );
 	}
-	return datatype_list;
+
+	return return_datatype_list;
 
 } /* input_buffer_get_datatype_list() */
 

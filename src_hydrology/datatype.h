@@ -24,6 +24,9 @@ typedef struct
 	boolean bar_chart;
 	boolean scale_graph_to_zero;
 	boolean aggregation_sum;
+	boolean set_negative_values_to_zero;
+	char *heading_string;
+	int piece_number;
 } DATATYPE;
 
 /* Prototypes */
@@ -39,6 +42,9 @@ LIST *datatype_get_datatype_list(
 			enum aggregate_statistic );
 
 LIST *datatype_list_get(
+			char *application_name );
+
+LIST *datatype_get_list(
 			char *application_name );
 
 char *datatype_get_units_string(

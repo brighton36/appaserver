@@ -12,7 +12,16 @@ DATATYPE *datatype_new_datatype(
 {
 	DATATYPE *datatype;
 
-	datatype = (DATATYPE *)calloc( 1, sizeof( DATATYPE ) );
+	if ( ! ( datatype = (DATATYPE *)calloc( 1, sizeof( DATATYPE ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	datatype->datatype_name = datatype_name;
 	datatype->units = units;
 	return datatype;
@@ -24,9 +33,10 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 	DATATYPE *datatype;
 	char datatype_name[ 128 ];
 	char units[ 128 ];
-	char bar_graph_yn[ 128 ];
-	char scale_graph_to_zero_yn[ 128 ];
-	char aggregation_sum_yn[ 128 ];
+	char bar_graph_yn[ 16 ];
+	char scale_graph_to_zero_yn[ 16 ];
+	char aggregation_sum_yn[ 16 ];
+	char set_negative_values_to_zero_yn[ 16 ];
 
 	piece( units, '|', record, 0 );
 	piece( datatype_name, '|', record, 1 );
@@ -34,6 +44,7 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 	piece( bar_graph_yn, '|', record, 3 );
 	piece( scale_graph_to_zero_yn, '|', record, 4 );
 	piece( aggregation_sum_yn, '|', record, 5 );
+	piece( set_negative_values_to_zero_yn, '|', record, 6 );
 
 	datatype =
 		datatype_new_datatype(
@@ -48,6 +59,9 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 
 	datatype->aggregation_sum =
 		( tolower( *aggregation_sum_yn ) == 'y' );
+
+	datatype->set_negative_values_to_zero =
+		( tolower( *set_negative_values_to_zero_yn ) == 'y' );
 
 	return datatype;
 
@@ -313,14 +327,16 @@ DATATYPE *datatype_record2datatype( char *record )
 {
 	DATATYPE *datatype;
 	char datatype_name[ 128 ];
-	char bar_graph_yn[ 128 ];
-	char scale_graph_to_zero_yn[ 128 ];
-	char aggregation_sum_yn[ 128 ];
+	char bar_graph_yn[ 16 ];
+	char scale_graph_to_zero_yn[ 16 ];
+	char aggregation_sum_yn[ 16 ];
+	char set_negative_values_to_zero_yn[ 16 ];
 
 	piece( datatype_name, '|', record, 0 );
 	piece( bar_graph_yn, '|', record, 1 );
 	piece( scale_graph_to_zero_yn, '|', record, 2 );
 	piece( aggregation_sum_yn, '|', record, 3 );
+	piece( set_negative_values_to_zero_yn, '|', record, 4 );
 
 	datatype =
 		datatype_new_datatype(
@@ -336,9 +352,17 @@ DATATYPE *datatype_record2datatype( char *record )
 	datatype->aggregation_sum =
 		( tolower( *aggregation_sum_yn ) == 'y' );
 
+	datatype->set_negative_values_to_zero =
+		( tolower( *set_negative_values_to_zero_yn ) == 'y' );
+
 	return datatype;
 
 } /* datatype_record2datatype() */
+
+LIST *datatype_get_list( char *application_name )
+{
+	return datatype_list_get( application_name );
+}
 
 LIST *datatype_list_get( char *application_name )
 {

@@ -33,7 +33,7 @@ $ sudo ./install_appaserver_profile.sh noexecute|execute
 $ sudo ./install_appaserver_filesystem.sh noexecute|execute
 $ sudo ./protect_appaserver_filesystem.sh noexecute|execute
 $ ./install_template_database.sh noexecute|execute
-$ upgrade_appaserver_database template:template
+$ upgrade_appaserver_database template
 
 Here are the browser login steps:
 

@@ -11,6 +11,8 @@
 
 /* Includes */
 /* -------- */
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/utsname.h>
 #include "dictionary.h"
 #include "list.h"
@@ -28,6 +30,7 @@ enum preupdate_change_state {		from_null_to_something,
 
 /* Constants */
 /* ========= */
+#define APPASERVER_UMASK			7
 #define HORIZONTAL_MENU_RELATIVE_DIRECTORY	"appaserver/zmenu"
 #define CALENDAR_RELATIVE_DIRECTORY		"appaserver/zscal2"
 #define IMAGE_RELATIVE_DIRECTORY		"appaserver/zimages"

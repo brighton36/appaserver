@@ -20,20 +20,24 @@ and everyone else can't even read.
 
 Here are the shell installation steps:
 
-$ cd $somewhere
-$ git clone git://github.com/timhriley/appaserver.git
-$ cd appaserver/src_template
-$ sudo cp appaserver_template.config /etc/appaserver.config
-$ sudo vi /etc/appaserver.config
-vi> set mysql password
-vi> set appaserver_mount_point
-vi> set appaserver_group=appaserver|www-data
-vi> set other configurable variables
-$ sudo ./install_appaserver_profile.sh noexecute|execute
-$ sudo ./install_appaserver_filesystem.sh noexecute|execute
-$ sudo ./protect_appaserver_filesystem.sh noexecute|execute
-$ ./install_template_database.sh noexecute|execute
-$ upgrade_appaserver_database template
+01) $ cd $somewhere
+02) $ git clone git://github.com/timhriley/appaserver.git
+03) less appaserver/src_template/group_centric.txt
+04) $ cd appaserver/src_template
+05) $ sudo cp appaserver_template.config /etc/appaserver.config
+06) $ sudo vi /etc/appaserver.config
+07) vi> set mysql password
+08) vi> set appaserver_mount_point
+09) vi> set appaserver_group=appaserver|www-data|$WhateverApacheGroup
+10) vi> set other configurable variables
+11) $ sudo ./install_appaserver_profile.sh noexecute|execute
+12) $ . /etc/profile
+13) $ sudo ./install_appaserver_filesystem.sh noexecute|execute
+14) $ sudo ./protect_appaserver_filesystem.sh noexecute|execute
+15) $ cd $APPASERVER_HOME
+16) $ make
+17) $ ./install_template_database.sh noexecute|execute
+18) $ upgrade_appaserver_database template
 
 Here are the browser login steps:
 

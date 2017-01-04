@@ -1,4 +1,4 @@
-/* library/appaserver_link_file.c					*/
+/* $APPASERVER_HOME/library/appaserver_link_file.c			*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */

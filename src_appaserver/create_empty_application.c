@@ -882,8 +882,18 @@ void populate_document_root_directory(	char *destination_application,
 
 	if ( really_yn == 'y' )
 	{
+#ifdef NOT_DEFINED
 		sprintf( sys_string,
 		 "umask 0002 && cp -r %s/%s/* %s/%s && chmod g+w %s/%s/*",
+		 	appaserver_home_directory,
+		 	"template",
+		 	document_root_directory,
+		 	destination_application,
+		 	document_root_directory,
+		 	destination_application );
+#endif
+		sprintf( sys_string,
+		 "cp -r %s/%s/* %s/%s && chmod g+w %s/%s/*",
 		 	appaserver_home_directory,
 		 	"template",
 		 	document_root_directory,
@@ -893,8 +903,18 @@ void populate_document_root_directory(	char *destination_application,
 	}
 	else
 	{
+#ifdef NOT_DEFINED
 		sprintf( sys_string,
 "echo 'umask 0002 && cp -r %s/%s/* %s/%s && chmod g+w %s/%s/*' | html_paragraph_wrapper.e",
+		 	appaserver_home_directory,
+		 	"template",
+		 	document_root_directory,
+		 	destination_application,
+		 	document_root_directory,
+		 	destination_application );
+#endif
+		sprintf( sys_string,
+"echo 'cp -r %s/%s/* %s/%s && chmod g+w %s/%s/*' | html_paragraph_wrapper.e",
 		 	appaserver_home_directory,
 		 	"template",
 		 	document_root_directory,
@@ -951,8 +971,16 @@ void populate_document_root_directory(	char *destination_application,
 
 	if ( really_yn == 'y' )
 	{
+#ifdef NOT_DEFINED
 		sprintf( sys_string,
 		 	"umask 0002 && ln %s/src_%s/*.pdf %s/src_%s/",
+		 	appaserver_home_directory,
+		 	"template",
+		 	appaserver_home_directory,
+		 	destination_application );
+#endif
+		sprintf( sys_string,
+		 	"ln %s/src_%s/*.pdf %s/src_%s/",
 		 	appaserver_home_directory,
 		 	"template",
 		 	appaserver_home_directory,
@@ -960,8 +988,16 @@ void populate_document_root_directory(	char *destination_application,
 	}
 	else
 	{
+#ifdef NOT_DEFINED
 		sprintf( sys_string,
 "echo 'umask 0002 && ln %s/src_%s/*.pdf %s/src_%s/' | html_paragraph_wrapper.e",
+		 	appaserver_home_directory,
+		 	"template",
+		 	appaserver_home_directory,
+		 	destination_application );
+#endif
+		sprintf( sys_string,
+"echo 'ln %s/src_%s/*.pdf %s/src_%s/' | html_paragraph_wrapper.e",
 		 	appaserver_home_directory,
 		 	"template",
 		 	appaserver_home_directory,

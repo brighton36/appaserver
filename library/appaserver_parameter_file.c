@@ -63,7 +63,7 @@ char *appaserver_parameter_file_get_database_management_system( void )
 {
 	return "mysql";
 
-/*
+/* Retired
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
 			new_appaserver_parameter_file();
@@ -126,6 +126,13 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_default_file_new( void )
 	s = appaserver_parameter_file_fetch( f, strdup( filename ) );
 
 	fclose( f );
+
+	/* ------------------------------------------------------------ */
+	/* umask() is here for convenience. However, need to move it	*/
+	/* to the many places where it's truly needed.			*/
+	/* ------------------------------------------------------------ */
+	umask( APPASERVER_UMASK );
+
 	return s;
 
 } /* appaserver_parameter_default_file_new() */
@@ -154,6 +161,13 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 			fopen_path_get_path_filename() );
 
 	fclose( f );
+
+	/* ------------------------------------------------------------ */
+	/* umask() is here for convenience. However, need to move it	*/
+	/* to the many places where it's truly needed.			*/
+	/* ------------------------------------------------------------ */
+	umask( APPASERVER_UMASK );
+
 	return s;
 
 } /* appaserver_parameter_file_new() */
@@ -271,8 +285,10 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	}
 
 
+/* Retired
 	a = "database_management_system";
 	s->database_management_system = dictionary_fetch( d, a );
+*/
 
 	/* cgi home from the file system's perspective. */
 	/* -------------------------------------------- */

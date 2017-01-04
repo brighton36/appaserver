@@ -200,7 +200,7 @@ int main( int argc, char **argv )
 	role = role_new_role(	application_name,
 				role_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	form = form_new( PROMPT_PROCESS_FORM_NAME,
 			 (char *)0 /* application_title */ );

@@ -15,10 +15,11 @@ fi
 application_name=$1
 
 document_root=`get_document_root.e`
-appaserver_data=`get_document_root.e`
+appaserver_data=`get_appaserver_data_directory.e`
 
 delay_minutes=30
-directory=${document_root}/appaserver/${application_name}/data
+#directory=${document_root}/appaserver/${application_name}/data
+directory=${document_root}/appaserver
 
 find	$directory						\
 	-xdev							\

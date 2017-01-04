@@ -1319,7 +1319,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 	}
 
 	if ( *accumulate_debit )
-		debit_string = timlib_place_commas_in_money( *balance );
+		debit_string = timlib_place_commas_in_dollars( *balance );
 	else
 		debit_string = "";
 
@@ -1328,7 +1328,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 		strdup( debit_string ) );
 
 	if ( !*accumulate_debit )
-		credit_string = timlib_place_commas_in_money( *balance );
+		credit_string = timlib_place_commas_in_dollars( *balance );
 	else
 		credit_string = "";
 

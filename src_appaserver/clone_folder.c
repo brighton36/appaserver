@@ -92,6 +92,12 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	boolean output2shell_script = 0;
 
+	application_name = argv[ 1 ];
+	appaserver_error_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc < 14 )
 	{
 		fprintf(stderr,
@@ -100,7 +106,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	shell_script_dont_output_if_statement_yn = *argv[ 2 ];
 	session = argv[ 3 ];
 	login_name = argv[ 4 ];
@@ -135,11 +140,6 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 /*
 	add_dot_to_path();

@@ -103,11 +103,4 @@ create_template_database $execute
 load_mysqldump_template $execute
 update_ssl_support $execute
 
-if [ "$execute" = "execute" ]
-then
-	upgrade_appaserver_database template:template 2>&1 | grep -v duplicate
-else
-	echo "upgrade_appaserver_database template:template 2>&1 | grep -v duplicate"
-fi
-
 exit 0

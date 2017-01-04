@@ -171,7 +171,7 @@ void donor_receipt(		char *application_name,
 			(char *)0 /* extension */ );
 
 	working_directory =
-		appaserver_link_get_data_directory(
+		appaserver_link_get_source_directory(
 			document_root_directory,
 			application_name );
 

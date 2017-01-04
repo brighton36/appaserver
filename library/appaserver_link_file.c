@@ -293,6 +293,7 @@ char *appaserver_link_get_tail_half(
 
 } /* appaserver_link_get_tail_half() */
 
+#ifdef NOT_DEFINED
 char *appaserver_link_get_data_directory(
 		char *document_root_directory,
 		char *application_name )
@@ -309,6 +310,7 @@ char *appaserver_link_get_data_directory(
 	return strdup( data_directory );
 
 } /* appaserver_link_get_data_directory() */
+#endif
 
 char *appaserver_link_get_source_directory(
 		char *document_root_directory,
@@ -324,7 +326,7 @@ char *appaserver_link_get_source_directory(
 		 APPASERVER_KEY );
 */
 	sprintf( source_directory,
-		 "%s/%s/%s",
+		 "%s/%s/%s/data",
 		 document_root_directory,
 		 APPASERVER_KEY,
 		 application_name );

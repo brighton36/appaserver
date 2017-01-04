@@ -95,9 +95,11 @@ char *appaserver_link_get_source_directory(
 		char *document_root_directory,
 		char *application_name );
 
+/*
 char *appaserver_link_get_data_directory(
 		char *document_root_directory,
 		char *application_name );
+*/
 
 char *appaserver_link_get_tail_half(
 		char *application_name,

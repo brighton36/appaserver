@@ -168,10 +168,22 @@ ACCOUNT *ledger_account_fetch(	char *application_name,
 
 } /* ledger_account_fetch() */
 
-char *ledger_account_get_select( void )
+char *ledger_account_get_select( boolean include_tax_form_category )
 {
-	return
+	char *select;
+
+	if ( include_tax_form_category )
+	{
+		select =
 "account,fund,subclassification,display_order,hard_coded_account_key,tax_form_category";
+	}
+	else
+	{
+		select =
+"account,fund,subclassification,display_order,hard_coded_account_key,''";
+	}
+
+	return select;
 }
 
 ACCOUNT *ledger_subclassification_fund_seek_account(
@@ -259,7 +271,7 @@ LIST *ledger_get_account_list(	char *application_name )
 	if ( account_list ) return account_list;
 
 	account_list = list_new();
-	select = ledger_account_get_select();
+	select = ledger_account_get_select( 0 );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -349,7 +361,7 @@ void ledger_account_load(	char **fund_name,
 	char sys_string[ 1024 ];
 	char *results;
 
-	select = ledger_account_get_select();
+	select = ledger_account_get_select( 0 );
 
 	sprintf(	where,
 			"account = '%s'",
@@ -888,7 +900,7 @@ LIST *ledger_subclassification_quickly_get_account_list(
 	FILE *input_pipe;
 
 	account_list = list_new();
-	select = ledger_account_get_select();
+	select = ledger_account_get_select( 0 );
 
 	sprintf(where,
 		"subclassification = '%s'",

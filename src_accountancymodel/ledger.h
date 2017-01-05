@@ -815,7 +815,8 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 				char *application_name,
 				char *account_name );
 
-char *ledger_account_get_select( void );
+char *ledger_account_get_select(
+				boolean include_tax_form_category );
 
 void ledger_append_propagate_account_list(
 				LIST *propagate_account_list,

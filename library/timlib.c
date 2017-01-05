@@ -2256,7 +2256,7 @@ char *timlib_place_commas_in_dollars( double d )
 {
 	char s[ 20 ];
 
-	sprintf( s, "%.0lf", d );
+	sprintf( s, "%.0lf", round_double( d ) );
 	return place_commas_in_number_string( s );
 
 } /* place_commas_in_dollars()  */

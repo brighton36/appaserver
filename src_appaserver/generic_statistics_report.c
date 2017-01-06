@@ -198,10 +198,12 @@ int main( int argc, char **argv )
 					"end_date",
 					0 );
 
-	if ( !process_generic_output_validate_begin_end_date(
+	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date,
 					&end_date,
 					application_name,
+					appaserver_parameter_file->
+						database_management_system,
 					process_generic_output,
 					post_dictionary ) )
 	{

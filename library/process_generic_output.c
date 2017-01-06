@@ -1218,6 +1218,7 @@ char *process_generic_output_get_text_file_sys_string(
 			post_dictionary,
 			1 /* with_set_dates */ ) );
 
+
 	select_list = process_generic_output_get_select_list(
 				datatype_entity_piece,
 				datatype_piece,
@@ -2450,7 +2451,10 @@ char *process_generic_output_get_drop_down_where_clause(
 				value_folder_name,
 			dictionary /* query_dictionary */ );
 
-	return query->query_output->drop_down_where_clause;
+	if ( !query->query_output )
+		return (char *)0;
+	else
+		return query->query_output->drop_down_where_clause;
 
 } /* process_generic_output_get_drop_down_where_clause() */
 
@@ -2466,6 +2470,7 @@ char *process_generic_output_get_dictionary_where_clause(
 	char *drop_down_where_clause;
 	QUERY *query;
 
+#ifdef NOT_DEFINED
 	query = query_folder_new(
 			application_name,
 			(char *)0 /* login_name */,
@@ -2474,8 +2479,13 @@ char *process_generic_output_get_dictionary_where_clause(
 				value_folder_name,
 			dictionary /* query_dictionary */,
 			(ROLE *)0 );
+#endif
 
-	drop_down_where_clause = query->query_output->drop_down_where_clause;
+	drop_down_where_clause =
+		process_generic_output_get_drop_down_where_clause(
+			application_name,
+			process_generic_output,
+			dictionary );
 
 	if ( drop_down_where_clause && *drop_down_where_clause )
 	{

@@ -700,6 +700,7 @@ QUERY_OUTPUT *query_process_drop_down_output_new(
 				folder->mto1_related_folder_list,
 				query->dictionary );
 
+/*
 {
 char msg[ 65536 ];
 sprintf( msg, "\n%s/%s()/%d: for folder = %s, query_drop_down_list = %s\n",
@@ -711,6 +712,16 @@ query_drop_down_list_display(	folder->folder_name,
 				query_output->query_drop_down_list ) );
 m2( folder->application_name, msg );
 }
+*/
+
+	query_output->where_clause =
+		query_get_where_clause(
+			&query_output->drop_down_where_clause,
+			&query_output->attribute_where_clause,
+			query_output->query_drop_down_list,
+			query_output->query_attribute_list,
+			folder->application_name,
+			(char *)0 /* folder_name */ );
 
 	return query_output;
 
@@ -1656,7 +1667,6 @@ LIST *query_process_drop_down_get_drop_down_list(
 
 		if ( ( query_drop_down =
 			query_process_drop_down_get_drop_down(
-				related_folder->folder->folder_name,
 				related_folder->foreign_attribute_name_list,
 				related_folder->folder->attribute_list,
 				dictionary ) ) )
@@ -2014,7 +2024,6 @@ QUERY_DROP_DOWN *query_get_primary_data_drop_down(
 } /* query_get_primary_data_drop_down() */
 
 QUERY_DROP_DOWN *query_process_drop_down_get_drop_down(
-				char *related_folder_name,
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,
 				DICTIONARY *dictionary )
@@ -2064,7 +2073,9 @@ QUERY_DROP_DOWN *query_process_drop_down_get_drop_down(
 			exit( 1 );
 		}
 
-		query_drop_down = query_drop_down_new( related_folder_name );
+		query_drop_down =
+			query_drop_down_new(
+				(char *)0 /* folder_name */ );
 
 		list_append_pointer(
 			query_drop_down->query_drop_down_row_list,

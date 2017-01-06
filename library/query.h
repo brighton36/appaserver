@@ -594,7 +594,6 @@ LIST *query_process_drop_down_get_drop_down_list(
 				DICTIONARY *dictionary );
 
 QUERY_DROP_DOWN *query_process_drop_down_get_drop_down(
-				char *related_folder_name,
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,
 				DICTIONARY *dictionary );

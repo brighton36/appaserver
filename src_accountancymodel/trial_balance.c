@@ -175,17 +175,6 @@ int main( int argc, char **argv )
 		as_of_date = date_get_now_yyyy_mm_dd();
 	}
 
-	ledger_get_report_title_sub_title(
-		title,
-		sub_title,
-		process_name,
-		application_name,
-		fund_name,
-		as_of_date,
-		list_length(
-			ledger_get_fund_name_list(
-				application_name ) ) );
-
 	document = document_new( title, application_name );
 	document->output_content_type = 1;
 
@@ -202,6 +191,22 @@ int main( int argc, char **argv )
 
 	document_output_body(	document->application_name,
 				document->onload_control_string );
+
+	if ( !ledger_get_report_title_sub_title(
+		title,
+		sub_title,
+		process_name,
+		application_name,
+		fund_name,
+		as_of_date,
+		list_length(
+			ledger_get_fund_name_list(
+				application_name ) ) ) )
+	{
+		printf( "<h3>Error. No transactions.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
@@ -268,7 +273,7 @@ void trial_balance_html_table(
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
 	prior_closing_transaction_date =
-		ledger_prior_closing_tranaction_date(
+		ledger_prior_closing_transaction_date(
 			application_name,
 			fund_name,
 			as_of_date /* ending_transaction_date */ );
@@ -282,7 +287,7 @@ void trial_balance_html_table(
 	else
 	{
 		prior_closing_transaction_date_string =
-			ledger_nominal_accounts_beginning_transaction_date(
+			ledger_beginning_transaction_date(
 				application_name,
 				fund_name,
 				as_of_date );
@@ -714,7 +719,7 @@ void trial_balance_PDF_fund(
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
 	prior_closing_transaction_date =
-		ledger_prior_closing_tranaction_date(
+		ledger_prior_closing_transaction_date(
 			application_name,
 			fund_name,
 			as_of_date /* ending_transaction_date */ );
@@ -728,7 +733,7 @@ void trial_balance_PDF_fund(
 	else
 	{
 		prior_closing_transaction_date_string =
-			ledger_nominal_accounts_beginning_transaction_date(
+			ledger_beginning_transaction_date(
 				application_name,
 				fund_name,
 				as_of_date );

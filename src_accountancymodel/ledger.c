@@ -271,7 +271,7 @@ LIST *ledger_get_account_list(	char *application_name )
 	if ( account_list ) return account_list;
 
 	account_list = list_new();
-	select = ledger_account_get_select( 0 );
+	select = ledger_account_get_select( 1 /* include_tax_form_category */ );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -5651,7 +5651,7 @@ char *ledger_get_closing_transaction_date_time(
 
 } /* ledger_get_closing_transaction_date_time() */
 
-DATE *ledger_prior_closing_tranaction_date(
+DATE *ledger_prior_closing_transaction_date(
 				char *application_name,
 				char *fund_name,
 				char *ending_transaction_date )
@@ -5680,7 +5680,7 @@ DATE *ledger_prior_closing_tranaction_date(
 		 LEDGER_CLOSING_TRANSACTION_TIME );
 
 	sprintf( where,
-		 "memo = '%s' and transaction_date_time <= '%s'",
+		 "memo = '%s' and transaction_date_time < '%s'",
 		 CLOSING_ENTRY_MEMO,
 		 ending_transaction_date_time );
 
@@ -5707,9 +5707,9 @@ DATE *ledger_prior_closing_tranaction_date(
 
 	return prior_closing_transaction_date;
 
-} /* ledger_prior_closing_tranaction_date() */
+} /* ledger_prior_closing_transaction_date() */
 
-char *ledger_nominal_accounts_beginning_transaction_date(
+char *ledger_beginning_transaction_date(
 				char *application_name,
 				char *fund_name,
 				char *ending_transaction_date )
@@ -5720,7 +5720,6 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 	char folder[ 128 ];
 	char *results;
 	char transaction_date_string[ 16 ];
-	char ending_transaction_date_time[ 32 ];
 	DATE *prior_closing_transaction_date;
 
 	if ( fund_name && !*fund_name )
@@ -5732,7 +5731,7 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 	/* Get the prior closing entry then return its tomorrow. */
 	/* ----------------------------------------------------- */
 	prior_closing_transaction_date =
-		ledger_prior_closing_tranaction_date(
+		ledger_prior_closing_transaction_date(
 			application_name,
 			fund_name,
 			ending_transaction_date );
@@ -5760,10 +5759,8 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 
 		sprintf(where,
 		 	"fund = '%s' and				"
-			"transaction_date_time <= '%s' and		"
 			"%s.account = %s.account			",
 		 	fund_name,
-		 	ending_transaction_date_time,
 			LEDGER_FOLDER_NAME,
 			ACCOUNT_FOLDER_NAME );
 	}
@@ -5773,9 +5770,7 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 		/* -------------------- */
 		strcpy( folder, LEDGER_FOLDER_NAME );
 
-		sprintf(where,
-		 	"transaction_date_time <= '%s'",
-		 	ending_transaction_date_time );
+		strcpy( where, "1 = 1" );
 	}
 
 	sprintf( sys_string,
@@ -5794,7 +5789,7 @@ char *ledger_nominal_accounts_beginning_transaction_date(
 
 	return strdup( column( transaction_date_string, 0, results )  );
 
-} /* ledger_nominal_accounts_beginning_transaction_date() */
+} /* ledger_beginning_transaction_date() */
 
 LIST *ledger_get_fund_name_list( char *application_name )
 {
@@ -5810,7 +5805,7 @@ LIST *ledger_get_fund_name_list( char *application_name )
 
 } /* ledger_get_fund_name_list() */
 
-void ledger_get_report_title_sub_title(
+boolean ledger_get_report_title_sub_title(
 		char *title,
 		char *sub_title,
 		char *process_name,
@@ -5831,14 +5826,12 @@ void ledger_get_report_title_sub_title(
 			application_name ) );
 
 	if ( ! ( beginning_date = 
-			ledger_nominal_accounts_beginning_transaction_date(
+			ledger_beginning_transaction_date(
 				application_name,
 				fund_name,
 				as_of_date ) ) )
 	{
-		printf( "<h3>Error. No transactions.</h3.\n" );
-		document_close();
-		exit( 0 );
+		return 0;
 	}
 
 	date_convert_source_international(
@@ -5891,6 +5884,8 @@ void ledger_get_report_title_sub_title(
 	}
 
 	format_initial_capital( sub_title, sub_title );
+
+	return 1;
 
 } /* ledger_get_report_title_sub_title() */
 

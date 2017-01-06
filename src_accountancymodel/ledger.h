@@ -717,12 +717,12 @@ void ledger_propagate_element_list(
 				char *transaction_date_time_string,
 				LIST *element_list );
 
-char *ledger_nominal_accounts_beginning_transaction_date(
+char *ledger_beginning_transaction_date(
 				char *application_name,
 				char *fund_name,
 				char *ending_transaction_date );
 
-void ledger_get_report_title_sub_title(
+boolean ledger_get_report_title_sub_title(
 				char *title,
 				char *sub_title,
 				char *process_name,
@@ -793,7 +793,7 @@ ACCOUNT *ledger_element_list_account_seek(
 				LIST *element_list,
 				char *account_name );
 
-DATE *ledger_prior_closing_tranaction_date(
+DATE *ledger_prior_closing_transaction_date(
 				char *application_name,
 				char *fund_name,
 				char *as_of_date );

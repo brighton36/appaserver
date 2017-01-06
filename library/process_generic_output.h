@@ -392,12 +392,19 @@ LIST *process_generic_output_get_compare_entity_name_list(
 			LIST *primary_attribute_name_list );
 
 LIST *process_generic_output_get_compare_datatype_units_list(
-				LIST *compare_datatype_list );
+			LIST *compare_datatype_list );
 
 enum aggregate_statistic
 		process_generic_output_get_database_aggregate_statistic(
-				char *application_name,
-				char *appaserver_mount_point,
-				LIST *primary_attribute_data_list );
+			char *application_name,
+			char *appaserver_mount_point,
+			LIST *primary_attribute_data_list );
+
+boolean process_generic_output_validate_begin_end_date(
+			char **begin_date,
+			char **end_date,
+			char *application_name,
+			PROCESS_GENERIC_OUTPUT *process_generic_output,
+			DICTIONARY *post_dictionary );
 
 #endif

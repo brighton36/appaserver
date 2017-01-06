@@ -180,7 +180,7 @@ char *ledger_account_get_select( boolean include_tax_form_category )
 	else
 	{
 		select =
-"account,fund,subclassification,display_order,hard_coded_account_key,''";
+"account,fund,subclassification,display_order,hard_coded_account_key";
 	}
 
 	return select;
@@ -340,9 +340,13 @@ void ledger_account_parse(	char **account_name,
 	if ( *buffer )
 		*hard_coded_account_key = strdup( buffer );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
-	if ( *buffer )
-		*tax_form_category_name = strdup( buffer );
+	/* Optionally selected */
+	/* ------------------- */
+	if ( piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 ) )
+	{
+		if ( *buffer )
+			*tax_form_category_name = strdup( buffer );
+	}
 
 } /* ledger_account_parse() */
 

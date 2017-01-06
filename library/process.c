@@ -172,7 +172,6 @@ void process_convert_parameters(
 {
 	char buffer[ 65536 ];
 	char local_executable[ 65536 ];
-	char *where_clause = {0};
 	LIST *attribute_name_list = {0};
 	DICTIONARY *local_parameter_dictionary = {0};
 	char *process_set_name = {0};

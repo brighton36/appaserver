@@ -226,21 +226,19 @@ void element_output_as_dictionary(
 	else
 	if ( element->element_type == hidden )
 	{
-		element_hidden_output_as_dictionary(
-						output_file,
-						element->name,
-						element->hidden->data,
-						row );
+		element_hidden_output(	output_file,
+					element->name,
+					element->hidden->data,
+					row );
 	}
 	else
 	if ( element->element_type == prompt_data
 	||   element->element_type == prompt_data_plus_hidden )
 	{
-		element_hidden_output_as_dictionary(
-						output_file,
-						element->name,
-						element->prompt_data->data,
-						row );
+		element_hidden_output(	output_file,
+					element->name,
+					element->prompt_data->data,
+					row );
 	}
 	if ( element->element_type == http_filename
 	&&   element->http_filename->data )
@@ -584,7 +582,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 
 		if ( element->element_type == prompt_data_plus_hidden )
 		{
-			element_hidden_output(	output_file,
+			element_hidden_name_dictionary_output(
+						output_file,
 						hidden_name_dictionary,
 						row,
 						element->name,
@@ -605,7 +604,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 	else
 	if ( element->element_type == hidden )
 	{
-		element_hidden_output(	output_file,
+		element_hidden_name_dictionary_output(
+					output_file,
 					hidden_name_dictionary,
 					row,
 					element->name,
@@ -1939,7 +1939,7 @@ void element_drop_down_output_as_dictionary(
 	&&      ( length_option_data_list > 
 		  max_drop_down_size ) )
 	{
-		element_hidden_output_as_dictionary(
+		element_hidden_output(
 			output_file,
 			element_name,
 		 	dictionary_trim_double_bracked_string( initial_data ),
@@ -2574,7 +2574,7 @@ void element_hidden_set_data( ELEMENT_HIDDEN *e, char *s )
 	if ( *s ) e->data = strdup( s );
 }
 
-void element_hidden_output_as_dictionary(
+void element_hidden_output(
 				FILE *output_file,
 				char *name,
 				char *data,
@@ -2601,9 +2601,10 @@ void element_hidden_output_as_dictionary(
 		 ELEMENT_DICTIONARY_DELIMITER,
 		 dictionary_trim_double_bracked_string( data ) );
 
-} /* element_hidden_output_as_dictionary() */
+} /* element_hidden_output() */
 
-void element_hidden_output(	FILE *output_file,
+void element_hidden_name_dictionary_output(
+				FILE *output_file,
 				DICTIONARY *hidden_name_dictionary,
 				int row,
 				char *name,
@@ -2618,9 +2619,14 @@ void element_hidden_output(	FILE *output_file,
 	/* multiple select drop down posts.				*/
 	/* ------------------------------------------------------------ */
 
+	if ( dictionary_exists_suffix( name ) )
+	{
+		strcpy( key_name, name );
+	}
+	else
 	if ( row == -1 )
 	{
-		 strcpy( key_name, name );
+		strcpy( key_name, name );
 	}
 	else
 	{
@@ -2641,16 +2647,12 @@ void element_hidden_output(	FILE *output_file,
 
 	if ( !data ) data = "";
 
-	/* For partial javascript population of primary keys */
-	/* ------------------------------------------------- */
-	/* if ( ispunct( *data ) ) data = ""; */
-
 	fprintf( output_file, "<input name=\"%s\"", key_name );
 
 	fprintf( output_file,
 	" type=\"hidden\" value=\"%s\">\n", data );
 
-} /* element_hidden_output() */
+} /* element_hidden_name_dictionary_output() */
 
 void element_upload_filename_output(	FILE *output_file,
 					int attribute_width,

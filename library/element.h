@@ -395,7 +395,9 @@ ELEMENT_HIDDEN *element_hidden_new( 		void );
 
 void element_hidden_set_data(			ELEMENT_HIDDEN *e,
 						char *s );
-void element_hidden_output( 		FILE *output_file,
+
+void element_hidden_name_dictionary_output(
+					FILE *output_file,
 					DICTIONARY *hidden_name_dictionary,
 					int row,
 					char *name,
@@ -599,7 +601,7 @@ void element_reference_number_output_as_dictionary(
 						char *data,
 						int row );
 
-void element_hidden_output_as_dictionary(
+void element_hidden_output(
 				FILE *output_file,
 				char *name,
 				char *data,

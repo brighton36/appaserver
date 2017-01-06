@@ -302,7 +302,11 @@ void dictionary_set_pointer(		DICTIONARY *d,
 DICTIONARY *dictionary_subtract_dictionary(
 					DICTIONARY *d1,
 					DICTIONARY *d2 );
-int dictionary_exists_index_in_key(	char *key );
+
+boolean dictionary_exists_index_in_key(	char *key );
+
+boolean dictionary_exists_suffix(	char *key );
+
 LIST *dictionary_get_non_populated_index_zero_key_list(
 					DICTIONARY *dictionary, 
 					LIST *required_attribute_name_list );

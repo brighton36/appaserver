@@ -580,4 +580,23 @@ QUERY *query_folder_new(	char *application_name,
 				DICTIONARY *dictionary,
 				ROLE *role );
 
+QUERY *query_process_drop_down_new(
+				char *application_name,
+				char *folder_name,
+				DICTIONARY *dictionary );
+
+QUERY_OUTPUT *query_process_drop_down_output_new(
+				QUERY *query,
+				FOLDER *folder );
+
+LIST *query_process_drop_down_get_drop_down_list(
+				LIST *mto1_related_folder_list,
+				DICTIONARY *dictionary );
+
+QUERY_DROP_DOWN *query_process_drop_down_get_drop_down(
+				char *related_folder_name,
+				LIST *foreign_attribute_name_list,
+				LIST *attribute_list,
+				DICTIONARY *dictionary );
+
 #endif

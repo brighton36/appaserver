@@ -1314,7 +1314,7 @@ boolean appaserver_library_validate_begin_end_date(
 					process_generic_output,
 					post_dictionary,
 					0 /* not with_set_dates */ );
-	
+
 			if ( !*where_clause ) return 0;
 	
 			process_generic_output_get_period_of_record_date(

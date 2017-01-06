@@ -2464,7 +2464,12 @@ DICTIONARY *dictionary_subtract_dictionary(
 	return d1;
 } /* dictionary_subtract_dictionary() */
 
-int dictionary_exists_index_in_key( char *key )
+boolean dictionary_exists_suffix( char *key )
+{
+	return dictionary_exists_index_in_key( key );
+}
+
+boolean dictionary_exists_index_in_key( char *key )
 {
 	char *end = key + strlen( key ) - 1;
 

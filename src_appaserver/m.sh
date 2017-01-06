@@ -4,6 +4,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd -
-	make maintain_user_account
+	make generic_statistics_report
 fi
 

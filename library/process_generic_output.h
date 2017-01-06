@@ -398,7 +398,8 @@ enum aggregate_statistic
 		process_generic_output_get_database_aggregate_statistic(
 			char *application_name,
 			char *appaserver_mount_point,
-			LIST *primary_attribute_data_list );
+			LIST *primary_attribute_data_list,
+			boolean exists_aggregation_sum );
 
 boolean process_generic_output_validate_begin_end_date(
 			char **begin_date,

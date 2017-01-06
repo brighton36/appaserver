@@ -250,7 +250,11 @@ int main( int argc, char **argv )
 				process_generic_output->
 					value_folder->
 					datatype->
-					primary_attribute_data_list );
+					primary_attribute_data_list,
+				process_generic_output->
+					value_folder->
+					datatype_folder->
+					exists_aggregation_sum );
 	}
 
 	if ( output_medium == table

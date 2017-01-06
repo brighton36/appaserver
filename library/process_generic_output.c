@@ -2839,10 +2839,13 @@ enum aggregate_statistic
 		process_generic_output_get_database_aggregate_statistic(
 				char *application_name,
 				char *appaserver_mount_point,
-				LIST *primary_attribute_data_list )
+				LIST *primary_attribute_data_list,
+				boolean exists_aggregation_sum )
 {
 	char *datatype_name;
 	enum aggregate_statistic aggregate_statistic;
+
+	if ( !exists_aggregation_sum ) return sum;
 
 	if ( !list_length( primary_attribute_data_list ) )
 	{

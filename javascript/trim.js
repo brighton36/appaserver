@@ -1,6 +1,8 @@
 //
 // trim.js
-// ---------------------------------------------------------------
+// ---------------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function trim_trailing_piece( source_string, delimiter )
 {

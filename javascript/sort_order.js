@@ -1,5 +1,7 @@
 // $DOCUMENT_ROOT/javascript/sort_order.js
 // ---------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function sort_order_set_all_selected()
 {

@@ -1,6 +1,8 @@
 //
 // exceedance_curve_process.js
 // ---------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_exceedance_curve( current_element )
 {

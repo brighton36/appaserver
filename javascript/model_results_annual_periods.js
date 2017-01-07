@@ -1,6 +1,8 @@
 //
 // model_results_annual_periods.js
 // -------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_annual_periods( current_element )
 {

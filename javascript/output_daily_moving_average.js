@@ -1,6 +1,8 @@
 //
 // output_daily_moving_average.js
 // ------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_output_daily_moving_average( current_element )
 {

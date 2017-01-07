@@ -4,6 +4,8 @@
 // This package is a set of functions that
 // saves elements in forms for later retrieval.
 // -------------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 var non_multi_form_cookie_object = 0;
 var multi_form_cookie_object = 0;

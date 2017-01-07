@@ -1,5 +1,7 @@
 // javascript/validate_date.js
 // ---------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function validate_time( element )
 {

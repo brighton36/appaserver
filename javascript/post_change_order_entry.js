@@ -1,6 +1,8 @@
 //
 // post_change_order_entry.js
-// ---------------------------------------------------------------
+// ---------------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function populate_inventory_sales_extension(	inventory_element_name,
 						quantity_element_name,

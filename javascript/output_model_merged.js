@@ -1,6 +1,8 @@
 //
 // output_model_merged.js
 // ----------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_output_model_merged( current_element )
 {

@@ -3,6 +3,8 @@
 
 // Usage: <input type="text" onkeyup="timlib_prevent_carrot(event,this);">
 // -----------------------------------------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 function timlib_prevent_carrot( theEvent, element )
 {
 	var len;

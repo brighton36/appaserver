@@ -5,6 +5,8 @@
 // by David Flanagan, published
 // by O'Rielly, 1998.
 // --------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 // COOKIE constructor
 // ------------------

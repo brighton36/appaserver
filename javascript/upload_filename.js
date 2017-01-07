@@ -1,5 +1,7 @@
 // upload_filename.js
-// -------------------------------------------
+// ---------------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function upload_filename_replace_slash( file_element )
 {

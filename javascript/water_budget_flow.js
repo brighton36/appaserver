@@ -1,6 +1,8 @@
 //
 // water_budget_flow.js
 // --------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_water_budget_flow( current_element )
 {

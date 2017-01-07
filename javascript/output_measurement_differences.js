@@ -1,6 +1,8 @@
 //
 // output_measurement_differences.js
 // ---------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_output_measurement_differences( current_element )
 {

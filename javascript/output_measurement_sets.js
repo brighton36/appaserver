@@ -1,6 +1,8 @@
 //
 // output_measurements_set.js
 // --------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_output_measurement_sets( current_element )
 {

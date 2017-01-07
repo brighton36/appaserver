@@ -1,5 +1,7 @@
 // post_change_multi_select.js
 // ---------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_multi_select_all( element_name )
 {

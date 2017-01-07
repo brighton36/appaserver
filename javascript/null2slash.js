@@ -1,6 +1,8 @@
 //
 // null2slash.js
 // ---------------------------------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function null2slash( element )
 {

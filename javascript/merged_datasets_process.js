@@ -1,6 +1,8 @@
 //
 // merged_datasets_process.js
 // --------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_merged_datasets( current_element )
 {

@@ -1,6 +1,8 @@
 //
 // post_generic_load.js
 // --------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function after_field(	position_element_name,
 			constant_element_name,

@@ -1,5 +1,7 @@
 // javascript/form.js
 // ------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function form_reset( form, index_delimiter )
 {

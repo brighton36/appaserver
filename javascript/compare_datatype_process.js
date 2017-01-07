@@ -1,6 +1,8 @@
 //
 // compare_datatype_process.js
 // ---------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_compare_datatype( current_element )
 {

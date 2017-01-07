@@ -4,6 +4,8 @@
 // This class connects html forms with
 // cookies to save the keystrokes.
 // --------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 // Constructor
 // -----------

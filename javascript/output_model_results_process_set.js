@@ -1,6 +1,8 @@
 //
 // output_model_results_process_set.js
 // -----------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_output_model_results( current_element )
 {

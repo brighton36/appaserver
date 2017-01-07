@@ -1,6 +1,8 @@
 //
 // clone_folder.js
 // ---------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function post_change_clone_folder( current_element )
 {

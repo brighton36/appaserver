@@ -1,5 +1,7 @@
 // frame.js
 // -----------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function frame_initialize(	frame_name,
 				element_name_string_array_string,

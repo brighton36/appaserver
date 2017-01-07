@@ -1,6 +1,8 @@
 //
 // verify_attribute_widths.js
-// ---------------------------------------------------------------
+// ---------------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 function verify_attribute_widths(
 					element_name_list_string,

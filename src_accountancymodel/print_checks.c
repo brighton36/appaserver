@@ -119,8 +119,8 @@ LIST *print_checks_get_current_liability_account_list(
 	account_list = list_new();
 
 	select =
-		ledger_account_get_select(
-			0 /* not include_tax_form_category */ );
+		ledger_account_get_select();
+
 	where =
 "subclassification = 'current_liability' and account <> 'uncleared_checks'";
 
@@ -145,7 +145,6 @@ LIST *print_checks_get_current_liability_account_list(
 				&account->subclassification_name,
 				&account->display_order,
 				&account->hard_coded_account_key,
-				&account->tax_form_category_name,
 				input_buffer );
 
 		account->journal_ledger_list =

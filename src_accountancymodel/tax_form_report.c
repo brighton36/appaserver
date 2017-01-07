@@ -73,15 +73,16 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char title[ 256 ];
 	char sub_title[ 256 ];
+	char *tax_form;
 	char *as_of_date;
 	char *database_string = {0};
 	char *output_medium;
 	LIST *tax_form_category_list;
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr,
-		"Usage: %s application process as_of_date output_medium\n",
+	"Usage: %s application process tax_form as_of_date output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -102,8 +103,9 @@ int main( int argc, char **argv )
 				application_name );
 
 	process_name = argv[ 2 ];
-	as_of_date = argv[ 3 ];
-	output_medium = argv[ 4 ];
+	tax_form = argv[ 3 ];
+	as_of_date = argv[ 4 ];
+	output_medium = argv[ 5 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
@@ -148,11 +150,10 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	
-
 	tax_form_category_list =
 		ledger_tax_form_fetch_category_list(
 			application_name,
+			tax_form,
 			as_of_date );
 
 	if ( strcmp( output_medium, "table" ) == 0 )

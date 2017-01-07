@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* view_diagrams.c					*/
+/* src_appaserver/view_diagrams.c			*/
 /* ---------------------------------------------------	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -39,7 +39,6 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char current_directory[ 256 ];
-	char piece_buffer[ 256 ];
 	DOCUMENT *document;
 	LIST *file_list;
 	char *file_to_process;
@@ -77,14 +76,7 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 	add_pwd_to_path();
 
 	sprintf( current_directory,
@@ -145,8 +137,9 @@ int main( int argc, char **argv )
 			basename_get_base_name(
 				file_to_process, 1 /* strip_extension */ ) );
 		printf(
-	"<li><a class=diagram target=\"%s\" href=\"/%s/%s\">%s</a>\n",
+"<li><a class=diagram target=\"%s\" href=\"/appaserver/%s/%s/%s\">%s</a>\n",
 			base_name,
+			application_name,
 		 	application_get_first_relative_source_directory(
 				application_name ),
 		 	file_to_process,

@@ -1,4 +1,9 @@
 :
+# $APPASERVER_HOME/src_accountancymodel/populate_inventory.sh
+# -----------------------------------------------------------
+#
+# Freely available software: see Appaserver.org
+# ---------------------------------------------------------------
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 application one2m_folder" 1>&2

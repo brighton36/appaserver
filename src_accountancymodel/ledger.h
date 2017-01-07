@@ -19,6 +19,9 @@
 
 /* Constants */
 /* --------- */
+#define TAX_FORM_CATEGORY_KEY		".tax_form_category "
+#define TAX_FORM_CATEGORY_ACCOUNT_KEY	".account "
+
 #define LEDGER_LOCK_TRANSACTION_ATTRIBUTE	\
 					"lock_transaction_yn"
 
@@ -100,7 +103,6 @@ typedef struct
 	char *subclassification_name;
 	int display_order;
 	char *hard_coded_account_key;
-	char *tax_form_category_name;
 	JOURNAL_LEDGER *latest_ledger;
 	LIST *journal_ledger_list;
 	boolean accumulate_debit;
@@ -134,6 +136,7 @@ typedef struct
 
 typedef struct
 {
+	char *tax_form;
 	char *tax_form_category_name;
 	char *tax_form_line;
 	boolean itemize_accounts;
@@ -671,7 +674,6 @@ void ledger_account_load(	char **fund_name,
 				char **subclassification_name,
 				int *display_order,
 				char **hard_coded_account_key,
-				char **tax_form_category_name,
 				boolean *accumulate_debit,
 				char *application_name,
 				char *account_name );
@@ -681,10 +683,10 @@ void ledger_account_parse(	char **account_name,
 				char **subclassification_name,
 				int *display_order,
 				char **hard_coded_account_key,
-				char **tax_form_category_name,
 				char *input_buffer );
 
-LIST *ledger_get_account_list(	char *application_name );
+LIST *ledger_get_account_list(	char *application_name,
+				char *as_of_date );
 
 ACCOUNT *ledger_seek_account(	LIST *account_list,
 				char *account_name );
@@ -755,26 +757,14 @@ LIST *ledger_get_subclassification_beginning_latex_row_list(
 
 LIST *ledger_tax_form_fetch_category_list(
 				char *application_name,
+				char *tax_form,
 				char *as_of_date );
 
 TAX_FORM_CATEGORY *ledger_tax_form_category_new(
+				char *tax_form,
 				char *tax_form_category_name,
 				char *tax_form_line,
 				boolean itemize_accounts );
-
-LIST *ledger_tax_form_get_account_list(
-				double *balance_sum,
-				char *application_name,
-				LIST *account_record_list,
-				char *tax_form_category_name,
-				char *as_of_date );
-
-/*
-boolean ledger_journal_ledger_list_propagate(
-				char *application_name,
-				LIST *journal_ledger_list,
-				char *propagate_transaction_date_time );
-*/
 
 /* If debit_amount or credit_amount needs to be changed.*/
 /* ---------------------------------------------------- */
@@ -815,13 +805,15 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 				char *application_name,
 				char *account_name );
 
-char *ledger_account_get_select(
-				boolean include_tax_form_category );
+char *ledger_account_get_select(void );
 
 void ledger_append_propagate_account_list(
 				LIST *propagate_account_list,
 				char *transaction_date_time,
 				char *account_name,
 				char *application_name );
+
+ACCOUNT *ledger_account_list_seek(	LIST *account_list,
+					char *account_name );
 
 #endif

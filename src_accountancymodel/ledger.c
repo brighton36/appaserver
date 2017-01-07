@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/ledger.c					*/
+/* $APPASERVER_HOME/src_accountancymodel/ledger.c			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel ledger ADT.				*/
 /*									*/
@@ -159,7 +159,6 @@ ACCOUNT *ledger_account_fetch(	char *application_name,
 				&account->subclassification_name,
 				&account->display_order,
 				&account->hard_coded_account_key,
-				&account->tax_form_category_name,
 				&account->accumulate_debit,
 				application_name,
 				account->account_name );
@@ -168,20 +167,12 @@ ACCOUNT *ledger_account_fetch(	char *application_name,
 
 } /* ledger_account_fetch() */
 
-char *ledger_account_get_select( boolean include_tax_form_category )
+char *ledger_account_get_select( void )
 {
 	char *select;
 
-	if ( include_tax_form_category )
-	{
-		select =
-"account,fund,subclassification,display_order,hard_coded_account_key,tax_form_category";
-	}
-	else
-	{
-		select =
+	select =
 "account,fund,subclassification,display_order,hard_coded_account_key";
-	}
 
 	return select;
 }
@@ -259,7 +250,8 @@ ACCOUNT *ledger_seek_account(	LIST *account_list,
 
 } /* ledger_seek_account() */
 
-LIST *ledger_get_account_list(	char *application_name )
+LIST *ledger_get_account_list(	char *application_name,
+				char *as_of_date )
 {
 	ACCOUNT *account;
 	char *select;
@@ -271,7 +263,7 @@ LIST *ledger_get_account_list(	char *application_name )
 	if ( account_list ) return account_list;
 
 	account_list = list_new();
-	select = ledger_account_get_select( 1 /* include_tax_form_category */ );
+	select = ledger_account_get_select();
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -292,12 +284,20 @@ LIST *ledger_get_account_list(	char *application_name )
 				&account->subclassification_name,
 				&account->display_order,
 				&account->hard_coded_account_key,
-				&account->tax_form_category_name,
 				input_buffer );
 
 		account->accumulate_debit =
 			ledger_account_get_accumulate_debit(
 				application_name, account->account_name );
+
+		if ( as_of_date )
+		{
+			account->latest_ledger =
+				ledger_get_latest_ledger(
+					application_name,
+					account->account_name,
+					as_of_date );
+		}
 
 		list_append_pointer( account_list, account );
 	}
@@ -312,7 +312,6 @@ void ledger_account_parse(	char **account_name,
 				char **subclassification_name,
 				int *display_order,
 				char **hard_coded_account_key,
-				char **tax_form_category_name,
 				char *input_buffer )
 {
 	char buffer[ 128 ];
@@ -340,21 +339,12 @@ void ledger_account_parse(	char **account_name,
 	if ( *buffer )
 		*hard_coded_account_key = strdup( buffer );
 
-	/* Optionally selected */
-	/* ------------------- */
-	if ( piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 ) )
-	{
-		if ( *buffer )
-			*tax_form_category_name = strdup( buffer );
-	}
-
 } /* ledger_account_parse() */
 
 void ledger_account_load(	char **fund_name,
 				char **subclassification_name,
 				int *display_order,
 				char **hard_coded_account_key,
-				char **tax_form_category_name,
 				boolean *accumulate_debit,
 				char *application_name,
 				char *account_name )
@@ -365,7 +355,7 @@ void ledger_account_load(	char **fund_name,
 	char sys_string[ 1024 ];
 	char *results;
 
-	select = ledger_account_get_select( 0 );
+	select = ledger_account_get_select();
 
 	sprintf(	where,
 			"account = '%s'",
@@ -398,7 +388,6 @@ void ledger_account_load(	char **fund_name,
 				subclassification_name,
 				display_order,
 				hard_coded_account_key,
-				tax_form_category_name,
 				results );
 
 	*accumulate_debit =
@@ -904,7 +893,7 @@ LIST *ledger_subclassification_quickly_get_account_list(
 	FILE *input_pipe;
 
 	account_list = list_new();
-	select = ledger_account_get_select( 0 );
+	select = ledger_account_get_select();
 
 	sprintf(where,
 		"subclassification = '%s'",
@@ -931,7 +920,6 @@ LIST *ledger_subclassification_quickly_get_account_list(
 				&account->subclassification_name,
 				&account->display_order,
 				&account->hard_coded_account_key,
-				&account->tax_form_category_name,
 				input_buffer );
 
 		list_append_pointer( account_list, account );
@@ -5890,6 +5878,7 @@ boolean ledger_get_report_title_sub_title(
 } /* ledger_get_report_title_sub_title() */
 
 TAX_FORM_CATEGORY *ledger_tax_form_category_new(
+					char *tax_form,
 					char *tax_form_category_name,
 					char *tax_form_line,
 					boolean itemize_accounts )
@@ -5906,49 +5895,43 @@ TAX_FORM_CATEGORY *ledger_tax_form_category_new(
 		exit( 1 );
 	}
 
+	e->tax_form = tax_form;
 	e->tax_form_category_name = tax_form_category_name;
 	e->tax_form_line = tax_form_line;
 	e->itemize_accounts = itemize_accounts;
+	e->account_list = list_new();
 	return e;
 
 } /* ledger_tax_form_category_new() */
 
 LIST *ledger_tax_form_fetch_category_list(
 					char *application_name,
+					char *tax_form,
 					char *as_of_date )
 {
 	LIST *account_list;
-	TAX_FORM_CATEGORY *tax_form_category;
+	TAX_FORM_CATEGORY *tax_form_category = {0};
 	LIST *tax_form_category_list;
 	char sys_string[ 1024 ];
-	char *select;
-	char *folder_name;
-	char *order;
 	FILE *input_pipe;
 	char input_buffer[ 512 ];
+	char *input_buffer_ptr;
 	char tax_form_category_name[ 128 ];
 	char tax_form_line[ 128 ];
 	char itemize_accounts_yn[ 128 ];
+	ACCOUNT *account;
 
 	account_list =
 		ledger_get_account_list(
-			application_name );
+			application_name,
+			as_of_date );
 
 	if ( !list_length( account_list ) ) return (LIST *)0;
 
-	select = "tax_form_category,tax_form_line,itemize_accounts_yn";
-	folder_name = "tax_form_category";
-	order = "tax_form_line";
-
 	sprintf( sys_string,
-		 "get_folder_data	application=%s	"
-		 "			select=%s	"
-		 "			folder=%s	"
-		 "			order=%s	",
+		 "select_tax_form_category.sh %s \"%s\"",
 		 application_name,
-		 select,
-		 folder_name,
-		 order );
+		 tax_form );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -5956,72 +5939,65 @@ LIST *ledger_tax_form_fetch_category_list(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		piece(	tax_form_category_name,
-			FOLDER_DATA_DELIMITER,
+		if ( timlib_strncmp(
 			input_buffer,
-			0 );
-
-		piece(	tax_form_line,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
-
-		piece(	itemize_accounts_yn,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			2 );
-
-		tax_form_category =
-			ledger_tax_form_category_new(
-				strdup( tax_form_category_name ),
-				strdup( tax_form_line ),
-				(*itemize_accounts_yn == 'y' ) );
-
-		tax_form_category->account_list =
-			ledger_tax_form_get_account_list(
-				&tax_form_category->balance_sum,
-				application_name,
-				account_list,
-				tax_form_category->tax_form_category_name,
-				as_of_date );
-
-		list_append_pointer(
-			tax_form_category_list,
-			tax_form_category );
-
-	} /* while( get_line() ) */
-
-	pclose( input_pipe );
-	return tax_form_category_list;
-
-} /* ledger_tax_form_fetch_category_list() */
-
-LIST *ledger_tax_form_get_account_list(
-				double *balance_sum,
-				char *application_name,
-				LIST *account_list,
-				char *tax_form_category_name,
-				char *as_of_date )
-{
-	LIST *tax_form_account_list;
-	ACCOUNT *account;
-
-	if ( !list_rewind( account_list ) ) return (LIST *)0;
-
-	tax_form_account_list = list_new();
-
-	do {
-		account = list_get( account_list );
-
-		if ( timlib_strcmp(
-				account->tax_form_category_name,
-				tax_form_category_name ) == 0 )
+			TAX_FORM_CATEGORY_KEY ) == 0 )
 		{
-			account->latest_ledger =
-				ledger_get_latest_ledger(
-					application_name,
-					account->account_name,
-					as_of_date );
+			input_buffer_ptr =
+				input_buffer +
+				strlen( TAX_FORM_CATEGORY_KEY );
+
+			piece(	tax_form_category_name,
+				FOLDER_DATA_DELIMITER,
+				input_buffer_ptr,
+				0 );
+	
+			piece(	tax_form_line,
+				FOLDER_DATA_DELIMITER,
+				input_buffer_ptr,
+				1 );
+	
+			piece(	itemize_accounts_yn,
+				FOLDER_DATA_DELIMITER,
+				input_buffer_ptr,
+				2 );
+	
+			tax_form_category =
+				ledger_tax_form_category_new(
+					tax_form,
+					strdup( tax_form_category_name ),
+					strdup( tax_form_line ),
+					(*itemize_accounts_yn == 'y' ) );
+
+			list_append_pointer(
+				tax_form_category_list,
+				tax_form_category );
+		}
+		else
+		if ( timlib_strncmp(
+			input_buffer,
+			TAX_FORM_CATEGORY_ACCOUNT_KEY ) == 0 )
+		{
+			input_buffer_ptr =
+				input_buffer +
+				strlen( TAX_FORM_CATEGORY_ACCOUNT_KEY );
+
+			if ( ! ( account =
+					ledger_account_list_seek(
+						account_list,
+						input_buffer_ptr
+							/* account_name */ ) ) )
+			{
+				fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot seek account = %s\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					input_buffer_ptr );
+
+				pclose( input_pipe );
+				exit( 1 );
+			}
 
 			if ( !account->latest_ledger
 			||   timlib_double_virtually_same(
@@ -6031,25 +6007,45 @@ LIST *ledger_tax_form_get_account_list(
 				continue;
 			}
 
-			if ( account->latest_ledger )
+			if ( !account->latest_ledger )
 			{
-				(*balance_sum) +=
+				continue;
+			}
+
+			if ( tax_form_category )
+			{
+				tax_form_category->balance_sum +=
 					account->
 						latest_ledger->
 						balance;
-			}
 
-			list_add_pointer_in_order(
-				tax_form_account_list,
-				account,
-				ledger_balance_match_function );
+				list_add_pointer_in_order(
+					tax_form_category->account_list,
+					account,
+					ledger_balance_match_function );
+			}
+		}
+		else
+		{
+			fprintf( stderr,
+
+"ERROR in %s/%s()/%d: invalid input key for record = (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
+
+			pclose( input_pipe );
+			exit( 1 );
 		}
 
-	} while( list_next( account_list ) );
+	} /* while( get_line() ) */
 
-	return tax_form_account_list;
+	pclose( input_pipe );
 
-} /* ledger_tax_form_get_account_list() */
+	return tax_form_category_list;
+
+} /* ledger_tax_form_fetch_category_list() */
 
 /* Reset debit_amount and credit_amount without having to refresh. */
 /* --------------------------------------------------------------- */
@@ -6294,3 +6290,10 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 	return pipe2string( sys_string );
 
 } /* ledger_get_latest_zero_balance_transaction_date_time() */
+
+ACCOUNT *ledger_account_list_seek(	LIST *account_list,
+					char *account_name )
+{
+	return ledger_seek_account( account_list, account_name );
+
+}

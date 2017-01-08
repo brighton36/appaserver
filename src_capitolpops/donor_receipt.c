@@ -384,7 +384,11 @@ void donor_receipt_donor(	FILE *output_stream,
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		if ( character_count( ',', input_buffer ) != 2 )
+		if ( timlib_strncmp( input_buffer, "Date," ) == 0 ) continue;
+
+		if ( character_count(
+			FOLDER_DATA_DELIMITER,
+			input_buffer ) != 2 )
 		{
 			fprintf( stderr,
 		"Warning in %s/%s()/%d: not two delimiters in (%s)\n",
@@ -395,9 +399,7 @@ void donor_receipt_donor(	FILE *output_stream,
 			continue;
 		}
 
-		piece( donation_date, ',', input_buffer, 0 );
-
-		if ( strcasecmp( donation_date, "date" ) == 0 ) continue;
+		piece( donation_date, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 
 		latex_row = latex_new_latex_row();
 		list_append_pointer( latex_table->row_list, latex_row );
@@ -411,13 +413,13 @@ void donor_receipt_donor(	FILE *output_stream,
 			latex_row->column_data_list,
 			strdup( american_date ) );
 
-		piece( account, ',', input_buffer, 1 );
+		piece( account, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 		format_initial_capital( account, account );
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( account ) );
 
-		piece( amount_string, ',', input_buffer, 2 );
+		piece( amount_string, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 		amount = atof( amount_string );
 		sprintf( amount_string, "\\$%.2lf", amount );
 		list_append_pointer(

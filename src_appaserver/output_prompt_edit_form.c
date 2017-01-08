@@ -63,7 +63,8 @@ void build_related_folder_element_list(
 			char *form_name,
 			boolean row_level_non_owner_forbid,
 			char *one2m_folder_name_for_processes,
-			boolean attribute_exists_in_preprompt_dictionary );
+			boolean attribute_exists_in_preprompt_dictionary,
+			char *state );
 
 char *get_done_folder_name(	char *folder_name,
 				char *related_attribute_name );
@@ -152,7 +153,8 @@ LIST *get_element_list(
 			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
 			boolean group_button,
 			boolean sort_order_button,
-			char *form_name );
+			char *form_name,
+			char *state );
 
 int main( int argc, char **argv )
 {
@@ -545,18 +547,6 @@ void output_prompt_edit_form(
 		appaserver_library_get_sort_attribute_name(
 			appaserver->folder->attribute_list );
 
-/*
-		( attribute_list_exists_name(
-			appaserver->folder->attribute_list,
-			SORT_ORDER_ATTRIBUTE_NAME ) ||
-		  attribute_list_exists_name(
-			appaserver->folder->attribute_list,
-			DISPLAY_ORDER_ATTRIBUTE_NAME ) ||
-		  attribute_list_exists_name(
-			appaserver->folder->attribute_list,
-			SEQUENCE_NUMBER_ATTRIBUTE_NAME ) );
-*/
-
 	form->regular_element_list =
 		get_element_list(
 			&post_change_javascript,
@@ -579,7 +569,8 @@ void output_prompt_edit_form(
 			lookup_before_drop_down,
 			group_button,
 			sort_order_button,
-			form->form_name );
+			form->form_name,
+			state );
 
 	if ( !list_length( form->regular_element_list ) )
 	{
@@ -613,11 +604,6 @@ void output_prompt_edit_form(
 	document_set_javascript_module( document, "form" );
 	document_set_javascript_module( document, "form_cookie" );
 	document_set_javascript_module( document, "keystrokes" );
-/*
-	document_set_javascript_module(
-			document,
-			"post_change_multi_select" );
-*/
 
 	list_rewind( form->regular_element_list );
 
@@ -927,7 +913,8 @@ LIST *get_element_list(
 			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
 			boolean group_button,
 			boolean sort_order_button,
-			char *form_name )
+			char *form_name,
+			char *state )
 {
 	LIST *return_list;
 	ATTRIBUTE *attribute;
@@ -1148,7 +1135,8 @@ LIST *get_element_list(
 			   form_name,
 			   row_level_non_owner_forbid,
 			   folder_name /* one2m_folder_name_for_processes */,
-			   attribute_exists_in_preprompt_dictionary );
+			   attribute_exists_in_preprompt_dictionary,
+			   state );
 
 			continue;
 		}
@@ -2048,7 +2036,8 @@ void build_related_folder_element_list(
 			char *form_name,
 			boolean row_level_non_owner_forbid,
 			char *one2m_folder_name_for_processes,
-			boolean attribute_exists_in_preprompt_dictionary )
+			boolean attribute_exists_in_preprompt_dictionary,
+			char *state )
 {
 	LIST *foreign_attribute_name_list;
 	char *hint_message;
@@ -2179,7 +2168,7 @@ void build_related_folder_element_list(
 			related_folder->
 				folder->
 				no_initial_capital,
-			"lookup" /* state */,
+			state /* was "lookup" */,
 			one2m_folder_name_for_processes,
 			0 /* tab_index */,
 			set_first_initial_data,
@@ -2190,12 +2179,6 @@ void build_related_folder_element_list(
 			/* appaserver_user_foreign_login_name */,
 			0 /* not prepend_folder_name */
 			) );
-
-/*
-	list_append_string_list( 
-			exclude_attribute_name_list,
-			foreign_attribute_name_list );
-*/
 
 	related_folder->ignore_output = 1;
 

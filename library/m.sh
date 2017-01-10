@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make generic_statistics_report
+	cd ../src_hydrology
+	make custom_chart
 fi

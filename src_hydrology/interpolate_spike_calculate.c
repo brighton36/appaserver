@@ -1,4 +1,4 @@
-/* interpolate_spike_calculate.c				*/
+/* src_hydrology/interpolate_spike_calculate.c			*/
 /* ------------------------------------------------------------ */
 /*								*/
 /* Freely available software: see Appaserver.org		*/
@@ -106,9 +106,7 @@ int main( int argc, char **argv )
 	}
 
 	sprintf( sys_string,
-"%s/%s/interpolate_spike_extract.sh %s %s %s %s %s",
-		 appaserver_parameter_file->appaserver_mount_point,
-		 application_get_relative_source_directory( application_name ),
+		 "extract_measurements.sh %s '%s' '%s' %s %s",
 		 application_name,
 		 station,
 		 datatype,
@@ -223,7 +221,6 @@ LIST *begin_list_buffer( char *old_buffer, char *buffer )
 	list_append_string( l, buffer );
 	return l;
 }
-
 
 void output_spike_records( LIST *list )
 {

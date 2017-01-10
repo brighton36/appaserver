@@ -13,6 +13,7 @@
 /* --------- */
 #define APPASERVER_PARAMETER_DEFAULT_DIRECTORY	"/etc"
 #define APPASERVER_PARAMETER_FILE_NAME		"appaserver.config"
+#define APPASERVER_PARAMETER_FILE_DBMS		"mysql"
 
 /* Type definitions */
 /* ---------------- */
@@ -27,13 +28,17 @@ typedef struct
 	char *MYSQL_PWD;
 	char *appaserver_mount_point;
 	char *apache_cgi_directory;
-	char *database_management_system;
 	char *cgi_home;
 	char *document_root;
 	char *appaserver_error_directory;
 	char *appaserver_data_directory;
 	char *parameter_file_full_path;
 	boolean mysql_password_syntax;
+
+	/* Trying to retire: */
+	/* ----------------- */
+	char *database_management_system;
+
 } APPASERVER_PARAMETER_FILE;
 
 /* Prototypes */

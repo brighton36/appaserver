@@ -1,6 +1,6 @@
 :
-# src_everglades/interpolate_spike_extract.sh
-# -------------------------------------------
+# src_hydrology/extract_measurements.sh
+# -------------------------------------
 
 echo "Starting: $0 $*" 1>&2
 

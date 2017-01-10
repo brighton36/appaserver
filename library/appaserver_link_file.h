@@ -1,4 +1,4 @@
-/* library/appaserver_link_file.h					*/
+/* $APPASERVER_HOME/library/appaserver_link_file.h			*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -10,8 +10,9 @@
 
 /* Constants */
 /* --------- */
-#define APPASERVER_KEY		"appaserver"
-#define APPASERVER_DATA_KEY	"data"
+#define APPASERVER_LINK_EVERGLADES 	0
+#define APPASERVER_KEY			"appaserver"
+#define APPASERVER_DATA_KEY		"data"
 
 /* Type definitions */
 /* ---------------- */
@@ -94,12 +95,6 @@ char *appaserver_link_get_link_prompt(
 char *appaserver_link_get_source_directory(
 		char *document_root_directory,
 		char *application_name );
-
-/*
-char *appaserver_link_get_data_directory(
-		char *document_root_directory,
-		char *application_name );
-*/
 
 char *appaserver_link_get_tail_half(
 		char *application_name,

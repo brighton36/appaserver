@@ -268,17 +268,21 @@ char *appaserver_link_get_tail_half(
 
 	if ( application_name )
 	{
-/*
-		sprintf( application_part,
-			 "/%s/%s/",
-			 application_name,
-		 	 APPASERVER_KEY );
-*/
-		sprintf( application_part,
-			 "/%s/%s/%s/",
-		 	 APPASERVER_KEY,
-			 application_name,
-			 APPASERVER_DATA_KEY );
+		if ( APPASERVER_LINK_EVERGLADES )
+		{
+			sprintf( application_part,
+			 	"/%s/%s/",
+			 	application_name,
+		 	 	APPASERVER_KEY );
+		}
+		else
+		{
+			sprintf( application_part,
+			 	"/%s/%s/%s/",
+		 	 	APPASERVER_KEY,
+			 	application_name,
+			 	APPASERVER_DATA_KEY );
+		}
 	}
 
 	sprintf( tail_half,
@@ -293,43 +297,29 @@ char *appaserver_link_get_tail_half(
 
 } /* appaserver_link_get_tail_half() */
 
-#ifdef NOT_DEFINED
-char *appaserver_link_get_data_directory(
-		char *document_root_directory,
-		char *application_name )
-{
-	char data_directory[ 128 ];
-
-	sprintf( data_directory,
-		 "%s/%s",
-		 appaserver_link_get_source_directory(
-			document_root_directory,
-			application_name ),
-		 APPASERVER_DATA_KEY );
-
-	return strdup( data_directory );
-
-} /* appaserver_link_get_data_directory() */
-#endif
-
 char *appaserver_link_get_source_directory(
 		char *document_root_directory,
 		char *application_name )
 {
 	char source_directory[ 128 ];
 
-/*
-	sprintf( source_directory,
-		 "%s/%s/%s",
-		 document_root_directory,
-		 application_name,
-		 APPASERVER_KEY );
-*/
-	sprintf( source_directory,
-		 "%s/%s/%s/data",
-		 document_root_directory,
-		 APPASERVER_KEY,
-		 application_name );
+	if ( APPASERVER_LINK_EVERGLADES )
+	{
+		sprintf( source_directory,
+			 "%s/%s/%s",
+			 document_root_directory,
+			 application_name,
+			 APPASERVER_KEY );
+	
+	}
+	else
+	{
+		sprintf( source_directory,
+			 "%s/%s/%s/data",
+			 document_root_directory,
+			 APPASERVER_KEY,
+			 application_name );
+	}
 
 	return strdup( source_directory );
 

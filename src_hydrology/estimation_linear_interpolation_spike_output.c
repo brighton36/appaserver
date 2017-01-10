@@ -1,9 +1,9 @@
-/* --------------------------------------------------- 	*/
-/* estimation_linear_interpolation_spike_output.c	*/
-/* --------------------------------------------------- 	*/
-/* 						       	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ------------------------------------------------------------ */
+/* src_hydrology/estimation_linear_interpolation_spike_output.c	*/
+/* ------------------------------------------------------------	*/
+/* 						       		*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -31,7 +31,7 @@
 /* Constants */
 /* --------- */
 #define PROCESS_NAME		"estimation_linear_interpolation"
-#define INFRASTRUCTURE_PROCESS	"%s/%s/estimation_datatype_unit_record_list.sh %s %s %s"
+#define INFRASTRUCTURE_PROCESS	"estimation_datatype_unit_record_list.sh %s %s %s"
 #define PDF_PROMPT		"Press to view chart."
 #define DATATYPE_ENTITY_PIECE	 0
 #define DATATYPE_PIECE		 1
@@ -44,7 +44,6 @@ void duplicate_value_to_spike_if_null( char *input_buffer, int value_piece );
 int main( int argc, char **argv )
 {
 	char *login_name;
-	char *session;
 	char *application_name;
 	char *role_name;
 	char *station;
@@ -71,13 +70,13 @@ int main( int argc, char **argv )
 	GRACE *grace = {0};
 	int chart_yn;
 	char graph_identifier[ 128 ];
+	GRACE_GRAPH *grace_graph;
 	char *notes;
 	char *ftp_output_filename;
 	char *output_filename;
 	char *agr_filename;
 	char *ftp_agr_filename;
 	char *postscript_filename;
-	enum aggregate_level aggregate_level;
 	int page_width_pixels;
 	int page_length_pixels;
 	char *distill_landscape_flag;
@@ -90,13 +89,13 @@ int main( int argc, char **argv )
 	if ( argc != 14 )
 	{
 		fprintf(stderr,
-"Usage: %s person session application role station datatype minimum_spike parameter_dictionary begin_date end_date chart_yn notes really_yn\n",
+"Usage: %s person ignored application role station datatype minimum_spike parameter_dictionary begin_date end_date chart_yn notes really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 2 ];
+	/* session = argv[ 2 ]; */
 	application_name = argv[ 3 ];
 	role_name = argv[ 4 ];
 	station = argv[ 5 ];
@@ -130,9 +129,6 @@ int main( int argc, char **argv )
 	appaserver_parameter_file = new_appaserver_parameter_file();
 
 	grace_output = application_get_grace_output( application_name );
-
-	aggregate_level =
-		aggregate_level_get_aggregate_level( "" );
 
 	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date,
@@ -220,9 +216,6 @@ int main( int argc, char **argv )
 	{
 		sprintf(infrastructure_process,
 			INFRASTRUCTURE_PROCESS,
-			appaserver_parameter_file->appaserver_mount_point,
-			application_get_relative_source_directory(
-				application_name ),
 			application_name,
 			station,
 			datatype );
@@ -497,6 +490,15 @@ int main( int argc, char **argv )
 			document_close();
 			exit( 0 );
 		}
+
+		grace_graph = list_get_first_pointer( grace->graph_list );
+
+		grace_move_legend_bottom_left(
+			grace_graph,
+			grace->landscape_mode );
+
+		grace_move_legend_up(	&grace_graph->legend_view_y,
+					0.08 /* up_increment */ );
 
 		if ( !grace_output_charts(
 				output_filename, 

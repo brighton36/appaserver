@@ -61,7 +61,7 @@ char *appaserver_parameter_file_get_dbms( void )
 
 char *appaserver_parameter_file_get_database_management_system( void )
 {
-	return "mysql";
+	return APPASERVER_PARAMETER_FILE_DBMS;
 
 /* Retired
 	if ( !global_appaserver_parameter_file )
@@ -289,6 +289,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	a = "database_management_system";
 	s->database_management_system = dictionary_fetch( d, a );
 */
+	s->database_management_system = APPASERVER_PARAMETER_FILE_DBMS;
 
 	/* cgi home from the file system's perspective. */
 	/* -------------------------------------------- */

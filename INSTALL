@@ -12,13 +12,28 @@ See $APPASERVER_HOME/src_template/group_centric.txt .
 
 Appaserver's implementation of the Group Centric Paradigm 
 is to create group=appaserver in /etc/group.
-Then assign as group members, `who am i` and www-data.
+Then assign as group members, `whoami` and www-data.
 Alternatively, you could add yourself to the existing
 group=www-data. The important characteristic is the
 people who compile and Apache need write access,
 and everyone else can't even read.
 
-Here are the shell installation steps:
+A) First, make sure LAMP is installed:
+
+https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-16-04
+
+B) Ensure proper permissions:
+
+Either add a new group=appaserver:
+1) sudo addgroup appaserver
+2) sudo adduser --ingroup appaserver `whoami`
+3) newgrp appaserver
+
+Or add yourself to group=www-data:
+1) sudo adduser --ingroup www-data `whoami`
+2) newgrp www-data
+
+C) Here are the shell installation steps:
 
 01) $ cd $somewhere
 02) $ git clone git://github.com/timhriley/appaserver.git
@@ -39,10 +54,11 @@ Here are the shell installation steps:
 17) $ ./install_template_database.sh noexecute|execute
 18) $ upgrade_appaserver_database template
 
-Here are the browser login steps:
+Point your browser to:
+http://localhost/appaserver/template/index.php
 
-1) Point your browser to: /appaserver/template
-2) Login using: login_name=nobody and password=changeit
+Login using:
+login_name=nobody and password=changeit
 
 To uninstall Appaserver:
 $ cd $APPASERVER_HOME/src_template

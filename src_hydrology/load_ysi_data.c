@@ -177,6 +177,15 @@ int main( int argc, char **argv )
 	printf( "<h1>%s</h1>\n",
 	 	format_initial_capital( format_buffer, process_name ) );
 
+	input_directory = basename_get_directory( input_filespecification );
+
+	if ( !input_directory || !*input_directory )
+	{
+		printf( "<h3>ERROR: Please transmit a file.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
 	if ( !*station
 	||   strcmp( station, "station" ) == 0 )
 	{
@@ -198,15 +207,6 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 1 );
 */
-	}
-
-	input_directory = basename_get_directory( input_filespecification );
-
-	if ( !input_directory || !*input_directory )
-	{
-		printf( "<h3>ERROR: Please transmit a file.</h3>\n" );
-		document_close();
-		exit( 0 );
 	}
 
 	appaserver_link_file =

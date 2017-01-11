@@ -31,7 +31,8 @@
 /* Constants */
 /* --------- */
 #define TABLE_ROWS			27
-#define PROMPT				"Press here to view statement."
+#define STATEMENT_PROMPT		"Press here to view statement."
+#define LATEX_PROMPT			"Press here to view latex file."
 
 /* Prototypes */
 /* ---------- */
@@ -152,6 +153,7 @@ void donor_receipt(		char *application_name,
 	char *dvi_filename;
 	char *working_directory;
 	char *ftp_output_filename;
+	char *tex_output_filename;
 	pid_t pid = getpid();
 	LATEX_TABLE_HEADING *table_heading;
 	APPASERVER_LINK_FILE *appaserver_link_file;
@@ -186,6 +188,24 @@ void donor_receipt(		char *application_name,
 				appaserver_link_file->process_id,
 				appaserver_link_file->session,
 				appaserver_link_file->extension ) );
+
+	tex_output_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	appaserver_link_file->extension = "dvi";
 
@@ -284,8 +304,16 @@ void donor_receipt(		char *application_name,
 
 	appaserver_library_output_ftp_prompt(
 		ftp_output_filename, 
-		PROMPT,
-		"trial_balance" /* target */,
+		STATEMENT_PROMPT,
+		process_name /* target */,
+		(char *)0 /* mime_type */ );
+
+	printf( "<br>\n" );
+
+	appaserver_library_output_ftp_prompt(
+		tex_output_filename, 
+		LATEX_PROMPT,
+		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
 } /* donor_receipt() */

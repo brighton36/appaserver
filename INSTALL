@@ -18,11 +18,13 @@ group=www-data. The important characteristic is the
 people who compile and Apache need write access,
 and everyone else can't even read.
 
-A) First, make sure LAMP is installed:
+A) Make sure LAMP is installed
+------------------------------
 
 https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-16-04
 
-B) Ensure proper permissions:
+B) Ensure proper permissions
+----------------------------
 
 Either add a new group=appaserver:
 1) sudo addgroup appaserver
@@ -33,7 +35,8 @@ Or add yourself to group=www-data:
 1) sudo adduser --ingroup www-data `whoami`
 2) newgrp www-data
 
-C) Here are the shell installation steps:
+C) Shell installation steps
+---------------------------
 
 01) $ cd $somewhere
 02) $ git clone git://github.com/timhriley/appaserver.git
@@ -54,13 +57,18 @@ C) Here are the shell installation steps:
 17) $ ./install_template_database.sh noexecute|execute
 18) $ upgrade_appaserver_database template
 
+D) Log in
+---------
+
 Point your browser to:
 http://localhost/appaserver/template/index.php
 
 Login using:
 login_name=nobody and password=changeit
 
-To uninstall Appaserver:
+E) Uninstall Appaserver
+-----------------------
+
 $ cd $APPASERVER_HOME/src_template
 $ sudo ./uninstall_appaserver_filesystem.sh noexecute|execute
 

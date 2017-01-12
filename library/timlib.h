@@ -39,8 +39,13 @@
 /* ---------- */
 void mail_tim( char *message );
 int get_index( char *attribute_name );
+
+char *timlib_trim_index( char *destination, char *attribute_name );
+
 char *trim_index( char *destination, char *attribute_name );
+
 char *trim_index_zero( char *destination, char *attribute_name );
+
 boolean exists_index( char *attribute_name );
 
 char *format_plural( char *destination, char *string );

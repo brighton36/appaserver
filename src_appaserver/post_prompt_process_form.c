@@ -363,13 +363,19 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	/* Start with the query_dictionary */
+	/* ------------------------------- */
 	parameter_dictionary =
 		dictionary_copy(
-			dictionary_appaserver->non_prefixed_dictionary );
+			dictionary_appaserver->
+				non_prefixed_dictionary );
 
+	/* Append the preprompt_dictionary without colliding keys. */
+	/* ------------------------------------------------------- */
 	dictionary_append_dictionary(
 		parameter_dictionary,
-		dictionary_appaserver->preprompt_dictionary );
+		dictionary_appaserver->
+			preprompt_dictionary );
 
 	process_convert_parameters(
 		&process->executable,

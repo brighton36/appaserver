@@ -137,6 +137,11 @@ int get_index( char *attribute_name )
 } /* get_index() */
 
 
+char *timlib_trim_index( char *destination, char *attribute_name )
+{
+	return trim_index( destination, attribute_name );
+}
+
 /* Sample: attribute_name = "station_1" */
 /* ------------------------------------ */
 char *trim_index( char *destination, char *attribute_name )

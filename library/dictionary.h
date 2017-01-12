@@ -200,10 +200,10 @@ DICTIONARY *dictionary_copy_dictionary( DICTIONARY *dictionary );
 DICTIONARY *copy_dictionary_dictionary(	DICTIONARY *dictionary );
 
 void dictionary_append_dictionary(	DICTIONARY *source_destination,
-					DICTIONARY *append_this );
+					DICTIONARY *append_dictionary );
 
 void dictionary_append_row_zero(	DICTIONARY *source_destination,
-					DICTIONARY *append_this );
+					DICTIONARY *append_dictionary );
 
 void dictionary_add_suffix_zero( 	DICTIONARY *dictionary );
 
@@ -516,5 +516,8 @@ LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
 LIST *dictionary_seek_delimited_list(
 					DICTIONARY *dictionary,
 					char *key );
+
+LIST *dictionary_get_non_indexed_key_list(
+					DICTIONARY *dictionary );
 
 #endif

@@ -1888,20 +1888,20 @@ char *dictionary_get_with_prefix_at_index_zero(
 /* --------------------------------------------------------------------------- 
 Two notes:
 1) No memory gets allocated. Both the key and data still exist
-   in the append_this dictionary.
+   in the append_dictionary dictionary.
 2) If a they share a key, then it doesn't clobber the source_destinatation.
 --------------------------------------------------------------------------- */
 void dictionary_append_row_zero(	DICTIONARY *source_destination,
-					DICTIONARY *append_this )
+					DICTIONARY *append_dictionary )
 {
 	LIST *key_list;
 	char *key;
 	int key_length;
 
-	if ( !append_this ) return;
+	if ( !append_dictionary ) return;
 	if ( !source_destination ) return;
 
-	key_list = dictionary_get_key_list( append_this );
+	key_list = dictionary_get_key_list( append_dictionary );
 
 	if ( list_reset( key_list ) )
 	{
@@ -1923,7 +1923,7 @@ void dictionary_append_row_zero(	DICTIONARY *source_destination,
 						source_destination,
 						key,
 						dictionary_get(
-							append_this,
+							append_dictionary,
 							key ) );
 			}
 		} while( list_next( key_list ) );
@@ -1933,38 +1933,47 @@ void dictionary_append_row_zero(	DICTIONARY *source_destination,
 /* --------------------------------------------------------------------------- 
 Two notes:
 1) No memory gets allocated. Both the key and data still exist
-   in the append_this dictionary.
+   in the append_dictionary dictionary.
 2) If a they share a key, then it doesn't clobber the source_destinatation.
 --------------------------------------------------------------------------- */
 void dictionary_append_dictionary(	DICTIONARY *source_destination,
-					DICTIONARY *append_this )
+					DICTIONARY *append_dictionary )
 {
 	LIST *key_list;
+	LIST *source_destination_non_indexed_key_list;
 	char *key;
+	char non_indexed_key[ 1024 ];
 
-	if ( !append_this ) return;
+
+	if ( !append_dictionary ) return;
 	if ( !source_destination ) return;
 
-	key_list = dictionary_get_key_list( append_this );
+	key_list = dictionary_get_key_list( append_dictionary );
 
-	if ( list_reset( key_list ) )
-	{
-		do {
-			key = list_get_string( key_list );
+	source_destination_non_indexed_key_list =
+		dictionary_get_non_indexed_key_list(
+			source_destination );
 
-			if ( !dictionary_exists_key(
-						source_destination,
-						key ) )
-			{
-				dictionary_set_pointer(
-						source_destination,
-						key,
-						dictionary_get(
-							append_this,
-							key ) );
-			}
-		} while( list_next( key_list ) );
-	}
+	if ( !list_rewind( key_list ) ) return;
+
+	do {
+		key = list_get_string( key_list );
+
+		timlib_trim_index( non_indexed_key, key );
+
+		if ( !list_exists_string(
+			source_destination_non_indexed_key_list,
+			non_indexed_key ) )
+		{
+			dictionary_set_pointer(
+					source_destination,
+					key,
+					dictionary_get(
+						append_dictionary,
+						key ) );
+		}
+	} while( list_next( key_list ) );
+
 } /* dictionary_append_dictionary() */
 
 void dictionary_add_index_zero( DICTIONARY *dictionary )
@@ -2161,11 +2170,11 @@ char *dictionary_new_index_key( DICTIONARY *d, char *key )
 	char new_key[ 1024 ];
 	int index;
 
-	
 	trim_index( key_without_index, key );
 	for ( index = 0 ;; index++ )
 	{
 		sprintf( new_key, "%s_%d", key_without_index, index );
+
 		if( !dictionary_key_exists( d, new_key ) )
 		{
 			return strdup( new_key );
@@ -3757,3 +3766,38 @@ LIST *dictionary_seek_delimited_list(
 	return list_delimiter_string_to_list( delimited_data, delimiter );
 
 } /* dictionary_seek_delimited_list() */
+
+LIST *dictionary_get_non_indexed_key_list(
+				DICTIONARY *dictionary )
+{
+	LIST *non_indexed_key_list;
+	LIST *key_list;
+	char *key;
+	char key_without_index[ 1024 ];
+
+	key_list = dictionary_get_key_list( dictionary );
+
+	if ( !list_rewind( key_list ) ) return (LIST *)0;
+
+	non_indexed_key_list = list_new();
+
+	do {
+		key = list_get_pointer( key_list );
+
+		timlib_trim_index( key_without_index, key );
+
+		if ( !list_exists_string(
+			non_indexed_key_list,
+			key_without_index ) )
+		{
+			list_append_pointer(
+				non_indexed_key_list,
+				strdup( key_without_index ) );
+		}
+
+	} while( list_next( key_list ) );
+
+	return non_indexed_key_list;
+
+} /* dictionary_get_non_indexed_key_list() */
+

@@ -1650,6 +1650,12 @@ boolean merged_datasets_output_gracechart(
 	if (	list_length( station_name_list ) !=
 	 	list_length( datatype_name_list ) )
 	{
+		printf(
+"<h3>An internal error occurred. The station_name_list should be paired with the datatype_name_list. However length( station_name_list ) = %d != length( datatype_name_list ) = %d. The station_name_list is (%s) and the datatype_name_list is (%s).</h3>\n",
+		list_length( station_name_list ),
+		list_length( datatype_name_list ),
+		list_display( station_name_list ),
+		list_display( datatype_name_list ) );
 		return 0;
 	}
 

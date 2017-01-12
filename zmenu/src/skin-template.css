@@ -5,7 +5,7 @@
 /* horizontal parts */
 
 div.dynarch-horiz-menu { padding: 0px; }
-div.dynarch-horiz-menu div.a { padding: 0px; background: url("img/rain/popup-bottom-right.gif") no-repeat 100% 100%; }
+div.dynarch-horiz-menu div.a { padding: 0px 10px; background: url("img/rain/popup-bottom-right.gif") no-repeat 100% 100%; }
 div.dynarch-horiz-menu div.b { background: url("img/rain/popup-top-left.gif") no-repeat 0% 0%; }
 div.dynarch-horiz-menu table,
 div.dynarch-popup-menu table {
@@ -20,7 +20,7 @@ div.dynarch-horiz-menu table tr td.separator div { border-left-color: #9d98bf; b
 
 /* vertical parts */
 
-div.dynarch-popup-menu div.a { padding: 0px; background: url("img/rain/popup-bottom-right.gif") no-repeat 100% 100%; }
+div.dynarch-popup-menu div.a { padding: 0px ; background: url("img/rain/popup-bottom-right.gif") no-repeat 100% 100%; }
 div.dynarch-popup-menu div.b { background: url("img/rain/popup-bottom-left.gif") no-repeat 0% 100%; }
 div.dynarch-popup-menu div.c { background: url("img/rain/popup-top-left.gif") no-repeat 0% 0%; }
 div.dynarch-popup-menu div.d { background: url("img/rain/popup-top-right.gif") no-repeat 100% 0%; }

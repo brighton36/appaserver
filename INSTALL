@@ -1,5 +1,5 @@
-# $APPASERVER_HOME/INSTALL
-# ------------------------
+$APPASERVER_HOME/INSTALL
+------------------------
 The challenge is to securely couple Appaserver, Mysql, and Apache.
 For example, shell users need to access their private databases, yet
 Apache needs to access all of them. Another example, Appaserver
@@ -27,13 +27,13 @@ B) Ensure proper permissions
 ----------------------------
 
 Either add a new group=appaserver:
-1) sudo addgroup appaserver
-2) sudo adduser --ingroup appaserver `whoami`
-3) newgrp appaserver
+1) $ sudo addgroup appaserver
+2) $ sudo adduser --ingroup appaserver `whoami`
+3) $ newgrp appaserver
 
 Or add yourself to group=www-data:
-1) sudo adduser --ingroup www-data `whoami`
-2) newgrp www-data
+1) $ sudo adduser --ingroup www-data `whoami`
+2) $ newgrp www-data
 
 C) Shell installation steps
 ---------------------------

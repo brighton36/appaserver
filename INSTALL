@@ -28,11 +28,11 @@ B) Ensure proper permissions
 
 Either add a new group=appaserver:
 1) $ sudo addgroup appaserver
-2) $ sudo adduser --ingroup appaserver `whoami`
+2) $ sudo usermod -a -G appaserver `whoami`
 3) $ newgrp appaserver
 
 Or add yourself to group=www-data:
-1) $ sudo adduser --ingroup www-data `whoami`
+1) $ sudo usermod -a -G www-data `whoami`
 2) $ newgrp www-data
 
 C) Shell installation steps

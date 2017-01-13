@@ -212,16 +212,6 @@ int load_bank_spreadsheet(
 		 	FOLDER_DATA_DELIMITER,
 			error_filename );
 
-/*
-		sprintf( sys_string,
-		 "insert_statement table=%s field=%s del='%c' 		  |"
-		 "sql.e 2>&1						  |"
-		 "html_paragraph_wrapper.e				   ",
-		 	table_name,
-		 	INSERT_BANK_DOWNLOAD,
-		 	FOLDER_DATA_DELIMITER );
-*/
-
 		bank_upload_insert_pipe = popen( sys_string, "w" );
 	}
 	else
@@ -281,15 +271,6 @@ int load_bank_spreadsheet(
 			}
 		}
 
-/*
-		if ( timlib_strncmp(
-			bank_description,
-			"beginning balance as of" ) == 0 )
-		{
-			continue;
-		}
-*/
-	
 		if ( !piece_quote_comma(
 				bank_amount,
 				input_string,
@@ -297,6 +278,10 @@ int load_bank_spreadsheet(
 		{
 			continue;
 		}
+
+		/* Skip beginning balance rows. */
+		/* ---------------------------- */
+		if ( !atof( bank_amount ) ) continue;
 
 		if ( !piece_quote_comma(
 				bank_running_balance,

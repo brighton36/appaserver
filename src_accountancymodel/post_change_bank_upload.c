@@ -25,7 +25,7 @@ typedef struct
 {
 	char *bank_date;
 	char *bank_description;
-	int sequence_number;
+	/* int sequence_number; */
 	double bank_amount;
 	double bank_running_balance;
 	boolean touched;
@@ -231,20 +231,7 @@ LIST *bank_upload_merge_bank_upload_list(
 				dictionary_bank_upload->bank_date,
 				dictionary_bank_upload->bank_description );
 
-		if ( !bank_upload )
-		{
-/*
-			fprintf( stderr,
-			"Warning in %s/%s()/%d: cannot seek (%s -- %s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 	dictionary_bank_upload->bank_date,
-			 	dictionary_bank_upload->bank_description );
-*/
-
-			continue;
-		}
+		if ( !bank_upload ) continue;
 
 		bank_upload->touched = 1;
 		list_append_pointer( bank_upload_list, bank_upload );
@@ -369,7 +356,7 @@ LIST *bank_upload_get_table_list(
 	char input_bank_date[ 32 ];
 	char input_bank_description[ 512 ];
 	char input_bank_amount[ 32 ];
-	char input_sequence_number[ 32 ];
+	/* char input_sequence_number[ 32 ]; */
 	char input_bank_running_balance[ 32 ];
 	char input_buffer[ 1024 ];
 	BANK_UPLOAD *bank_upload;
@@ -422,11 +409,13 @@ LIST *bank_upload_get_table_list(
 			2 );
 		bank_upload->bank_amount = atof( input_bank_amount );
 
+/*
 		piece(	input_sequence_number,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			3 );
 		bank_upload->sequence_number = atoi( input_sequence_number );
+*/
 
 		piece(	input_bank_running_balance,
 			FOLDER_DATA_DELIMITER,
@@ -624,7 +613,7 @@ void bank_upload_list_set( LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
 	double prior_bank_running_balance = {0};
-	int sequence_number = {0};
+	/* int sequence_number = {0}; */
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
@@ -648,8 +637,7 @@ void bank_upload_list_set( LIST *bank_upload_list )
 			prior_bank_running_balance =
 				bank_upload->bank_running_balance;
 
-			sequence_number =
-				bank_upload->sequence_number;
+			/* sequence_number = bank_upload->sequence_number; */
 
 			continue;
 		}
@@ -670,7 +658,7 @@ void bank_upload_list_set( LIST *bank_upload_list )
 		/* ------------------------------ */
 		if ( !bank_upload->bank_amount )
 		{
-			sequence_number++;
+			/* sequence_number++; */
 			continue;
 		}
 
@@ -681,7 +669,9 @@ void bank_upload_list_set( LIST *bank_upload_list )
 		prior_bank_running_balance =
 			bank_upload->bank_running_balance;
 
+/*
 		bank_upload->sequence_number = ++sequence_number;
+*/
 
 	} while( list_next( bank_upload_list ) );
 
@@ -723,11 +713,13 @@ void bank_upload_list_update(	LIST *bank_upload_list )
 			 	bank_upload->bank_description,
 			 	bank_upload->bank_running_balance );
 
+/*
 			fprintf( output_pipe,
 			 	"%s^%s^sequence_number^%d\n",
 			 	bank_upload->bank_date,
 			 	bank_upload->bank_description,
 			 	bank_upload->sequence_number );
+*/
 		}
 
 	} while( list_next( bank_upload_list ) );

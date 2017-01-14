@@ -243,7 +243,7 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 	char sys_string[ 128 ];
 	char *results;
 	char input_full_name[ 128 ];
-	char input_street_address_balance[ 32 ];
+	char input_street_address_balance[ 256 ];
 	char input_street_address[ 128 ];
 	char input_check_amount[ 16 ];
 	static LIST *entity_record_list = {0};

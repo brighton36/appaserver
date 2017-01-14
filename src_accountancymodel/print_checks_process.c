@@ -297,8 +297,8 @@ char *print_checks_execute(
 		full_name = list_get_pointer( full_name_list );
 		street_address = list_get_pointer( street_address_list );
 
-		/* If no balance, then pressed <Submit> twice. */
-		/* ------------------------------------------- */
+		/* If no balance, then user pressed <Submit> twice. */
+		/* ------------------------------------------------ */
 		if ( ! ( balance =
 				print_checks_get_balance(
 					application_name,
@@ -306,6 +306,7 @@ char *print_checks_execute(
 					full_name,
 					street_address ) ) )
 		{
+			pclose( output_pipe );
 			return (char *)0;
 		}
 
@@ -428,7 +429,7 @@ double print_checks_get_balance(
 	char sys_string[ 128 ];
 	char *results;
 	char input_full_name[ 128 ];
-	char input_street_address_balance[ 32 ];
+	char input_street_address_balance[ 128 ];
 	char input_street_address[ 128 ];
 	char input_balance[ 16 ];
 	static LIST *entity_list = {0};

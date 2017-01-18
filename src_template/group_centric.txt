@@ -3,8 +3,8 @@ Tim Riley
 
 Purpose
 -------
-The purpose of the group centric paradigm is to allow multiple
-Linux users to write to collaborating directories without having to
+The purpose of the group centric paradigm is to give multiple
+Linux users write access to collaborating directories without having to
 be root.
 
 Vocabulary

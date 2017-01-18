@@ -1,5 +1,10 @@
 $APPASERVER_HOME/INSTALL
 ------------------------
+
+-----------
+A) Security
+-----------
+
 The challenge is to securely couple Appaserver, Mysql, and Apache.
 For example, shell users need to access their private databases, yet
 Apache needs to access all of them. Another example, Appaserver
@@ -15,15 +20,17 @@ is to create group=appaserver in /etc/group.
 Then assign as group members, `whoami` and www-data.
 Alternatively, you could add yourself to the existing
 group=www-data. The important characteristic is the
-people who compile and Apache need write access,
-and everyone else can't even read.
+people who compile and the Apache process need write access,
+and everyone else doesn't even have read access.
 
-A) Make sure LAMP is installed
+------------------------------
+B) Make sure LAMP is installed
 ------------------------------
 
 https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-16-04
 
-B) Ensure proper permissions
+----------------------------
+C) Ensure proper permissions
 ----------------------------
 
 Either add a new group=appaserver:
@@ -35,7 +42,8 @@ Or add yourself to group=www-data:
 1) $ sudo usermod -a -G www-data `whoami`
 2) $ newgrp www-data
 
-C) Shell installation steps
+---------------------------
+D) Shell installation steps
 ---------------------------
 
 01) $ cd $somewhere
@@ -54,10 +62,13 @@ C) Shell installation steps
 14) $ sudo ./protect_appaserver_filesystem.sh noexecute|execute
 15) $ cd $APPASERVER_HOME
 16) $ make
-17) $ ./install_template_database.sh noexecute|execute
-18) $ upgrade_appaserver_database template
+17) $ echo "create database template;" | sql.e
+18) $ . set_project template
+19) $ ./install_template_database.sh noexecute|execute
+20) $ upgrade_appaserver_database template
 
-D) Log in
+---------
+E) Log in
 ---------
 
 Point your browser to:
@@ -66,9 +77,16 @@ http://localhost/appaserver/template/index.php
 Login using:
 login_name=nobody and password=changeit
 
-E) Uninstall Appaserver
+-----------------------
+F) Uninstall Appaserver
 -----------------------
 
-$ cd $APPASERVER_HOME/src_template
-$ sudo ./uninstall_appaserver_filesystem.sh noexecute|execute
+1) $ cd $APPASERVER_HOME/src_template
+2) $ sudo ./uninstall_appaserver_filesystem.sh noexecute|execute
+3) $ echo "drop database template;" | sql.e
+4) $ cd $APPASERVER_HOME && make clean
+5) $ rm -fr $APPASERVER_HOME
+6) $ rm /etc/appaserver.config
+7) trim /etc/profile of appaserver variables
+8) remove group=appaserver in /etc/group (maybe)
 

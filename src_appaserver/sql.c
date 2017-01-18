@@ -1,12 +1,13 @@
 /* sql.c		 						*/
 /* -------------------------------------------------------------------- */
 /* This compiles to sql, sql.e, and sql_quick.e.			*/
-/* To override the database_management_system found in			*/
-/* /etc/appaserver.config, pass as					*/
-/* parameters:								*/
+/* To override the database_name found in				*/
+/* /etc/appaserver.config, pass as parameters:				*/
 /* 1) the delimiter							*/
-/* 2) the database_management_system					*/
+/* 2) the database_management_system (retired)				*/
 /* 3) the database_name							*/
+/* --OR--								*/
+/* 1) the database_name							*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -23,22 +24,24 @@
 #include "environ.h"
 #include "basename.h"
 
-#define SLEEP_MICRO_SECONDS		10000
+/* #define SLEEP_MICRO_SECONDS		10000 */
 
 int main( int argc, char **argv )
 {
 	APPASERVER_PARAMETER_FILE *h;
 	char sys_string[ 8192 ];
-	char delimiter;
+	char delimiter = FOLDER_DATA_DELIMITER;
 	char *base_name;
 	char *quick_flag;
 	char *database_management_system = {0};
 	char *override_database = {0};
-	int results;
+	char *database_connection;
 
-	/* ------------------------------------------ */
-	/* Usage: sql.e [delimiter] [DBMS] [database] */
-	/* ------------------------------------------ */
+	/* --------------------------------------------	*/
+	/* Usage: sql.e [delimiter] ignored [database]	*/
+	/* --OR--					*/
+	/* Usage: sql.e [database]			*/
+	/* -------------------------------------------- */
 
 	if ( argc == 4 )
 	{
@@ -55,11 +58,10 @@ int main( int argc, char **argv )
 	else
 	if ( argc == 2 )
 	{
-		delimiter = *argv[ 1 ];
-	}
-	else
-	{
-		delimiter = '^';
+		if ( strlen( argv[ 1 ] ) == 1 )
+			delimiter = *argv[ 1 ];
+		else
+			override_database = argv[ 1 ];
 	}
 
 	environ_prepend_dot_to_path();
@@ -101,7 +103,6 @@ int main( int argc, char **argv )
 		results = system( sys_string );
 	}
 	else
-*/
 	if ( timlib_strcmp( h->database_management_system, "mysql" ) == 0 )
 	{
 		char *database_connection;
@@ -142,24 +143,62 @@ int main( int argc, char **argv )
 					h->default_database_connection;
 			}
 		}
+*/
 
-		if ( h->mysql_password_syntax )
+	if ( h->MYSQL_HOST ) 
+		environ_set_environment(
+			"MYSQL_HOST", h->MYSQL_HOST );
+
+	if ( h->MYSQL_TCP_PORT ) 
+		environ_set_environment(
+			"MYSQL_TCP_PORT", h->MYSQL_TCP_PORT );
+	
+	if ( h->MYSQL_PWD ) 
+		environ_set_environment( "MYSQL_PWD", h->MYSQL_PWD );
+
+	
+	if ( override_database && *override_database )
+	{
+		database_connection = override_database;
+	}
+	else
+	{
+		database_connection =
+			environ_get_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+
+		if ( !database_connection
+		||   !*database_connection )
 		{
-			sprintf( sys_string,
+			database_connection =
+				environ_get_environment( "DATABASE" );
+		}
+
+		if ( !database_connection
+		||   !*database_connection )
+		{
+			database_connection =
+				h->default_database_connection;
+		}
+	}
+
+	if ( h->mysql_password_syntax )
+	{
+		sprintf( sys_string,
 "mysql --defaults-extra-file=%s %s -u%s %s %s				|"
 "tr '\011' '%c'								|"
 "sed 's/NULL//g'							|"
 "cat									 ",
-		 	h->parameter_file_full_path,
-		 	h->flags,
-		 	h->user,
-		 	quick_flag,
-		 	database_connection,
-		 	delimiter );
-		}
-		else
-		{
-			sprintf( sys_string,
+	 	h->parameter_file_full_path,
+	 	h->flags,
+	 	h->user,
+	 	quick_flag,
+	 	database_connection,
+	 	delimiter );
+	}
+	else
+	{
+		sprintf( sys_string,
 "(							 "
 "	echo \"connect %s;\"				;"
 "	cat -						 "
@@ -168,25 +207,15 @@ int main( int argc, char **argv )
 "tr '\011' '%c'						|"
 "sed 's/NULL//g'					|"
 "cat							 ",
-		 	database_connection,
-		 	h->flags,
-		 	h->password,
-		 	h->user,
-		 	quick_flag,
-		 	delimiter );
-		}
+	 	database_connection,
+	 	h->flags,
+	 	h->password,
+	 	h->user,
+	 	quick_flag,
+	 	delimiter );
+	}
 
-		results = system( sys_string );
-	}
-	else
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s(): invalid database_management_system = (%s)\n",
-			__FILE__,
-			__FUNCTION__,
-			database_management_system );
-		exit( 1 );
-	}
+	system( sys_string );
 
 	return 0;
 

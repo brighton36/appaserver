@@ -782,7 +782,7 @@ LIST *build_PDF_row_list(	char *application_name,
 	char subclassification_title[ 128 ];
 	double balance;
 	double subclassification_total;
-	char *element_name = {0};
+	char *element_name;
 
 	if ( !list_rewind( current_element_list ) ) return (LIST *)0;
 
@@ -793,6 +793,8 @@ LIST *build_PDF_row_list(	char *application_name,
 
 		if ( !list_rewind( element->subclassification_list ) )
 			continue;
+
+		element_name = element->element_name;
 
 		do {
 			subclassification =
@@ -825,8 +827,6 @@ LIST *build_PDF_row_list(	char *application_name,
 					subclassification_total = 0.0;
 				}
 
-				element_name = element->element_name;
-
 				latex_row = latex_new_latex_row();
 				list_append_pointer( row_list, latex_row );
 
@@ -835,6 +835,8 @@ LIST *build_PDF_row_list(	char *application_name,
 					format_initial_capital(
 						element_title,
 						element_name );
+
+					element_name = (char *)0;
 
 				}
 				else
@@ -879,8 +881,6 @@ LIST *build_PDF_row_list(	char *application_name,
 				subclassification->
 					subclassification_name =
 						(char *)0;
-
-				element_name = (char *)0;
 
 			} while( list_next( subclassification->account_list ) );
 

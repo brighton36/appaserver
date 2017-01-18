@@ -7,8 +7,8 @@ A) Security
 
 The challenge is to securely couple Appaserver, Mysql, and Apache.
 For example, shell users need to access their private databases, yet
-Apache needs to access all of them. Another example, Appaserver
-needs to create sensitive files in $DOCUMENT_ROOT. Also, you
+Apache may need to access all of them. Another example, Appaserver
+creates sensitive files in $DOCUMENT_ROOT. Also, you
 need to compile Appaserver which creates links to Apaches's
 CGI directory.
 

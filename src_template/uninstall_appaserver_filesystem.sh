@@ -144,14 +144,4 @@ remove_appaserver_data $appaserver_data $execute
 remove_document_root_appaserver $execute
 reset_cgi_home $execute
 
-echo ""
-echo "You may also need to:"
-echo '1) echo "drop database template;" | sql.e'
-echo '2) cd $APPASERVER_HOME && make clean'
-echo '3) rm -fr $APPASERVER_HOME'
-echo "4) rm /etc/appaserver.config"
-echo "5) trim /etc/profile of appaserver variables"
-echo "6) remove group=appaserver in /etc/group (maybe)"
-echo ""
-
 exit 0

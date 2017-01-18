@@ -86,8 +86,8 @@ F) Uninstall Appaserver
 2) $ cd $APPASERVER_HOME && make clean
 3) $ cd $APPASERVER_HOME/src_template
 4) $ sudo ./uninstall_appaserver_filesystem.sh noexecute|execute
-5) $ rm -fr $APPASERVER_HOME
-6) $ rm /etc/appaserver.config
+5) $ sudo rm -fr $APPASERVER_HOME
+6) $ sudo rm /etc/appaserver.config
 7) trim /etc/profile of appaserver variables
 8) remove group=appaserver in /etc/group (maybe)
 

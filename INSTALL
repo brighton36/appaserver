@@ -82,10 +82,10 @@ login_name=nobody and password=changeit
 F) Uninstall Appaserver
 -----------------------
 
-1) $ cd $APPASERVER_HOME/src_template
-2) $ sudo ./uninstall_appaserver_filesystem.sh noexecute|execute
-3) $ echo "drop database template;" | sql.e
-4) $ cd $APPASERVER_HOME && make clean
+1) $ echo "drop database template;" | sql.e
+2) $ cd $APPASERVER_HOME && make clean
+3) $ cd $APPASERVER_HOME/src_template
+4) $ sudo ./uninstall_appaserver_filesystem.sh noexecute|execute
 5) $ rm -fr $APPASERVER_HOME
 6) $ rm /etc/appaserver.config
 7) trim /etc/profile of appaserver variables

@@ -8,11 +8,12 @@ A) Security
 The challenge is to securely couple Appaserver, Mysql, and Apache.
 For example, shell users need to access their private databases, yet
 Apache may need to access all of them. Another example, Appaserver
-creates sensitive files in $DOCUMENT_ROOT. Also, you
-need to compile Appaserver which creates links to Apaches's
-CGI directory.
+creates sensitive files in $DOCUMENT_ROOT that world users should
+read. Also, you need to compile Appaserver which creates links to
+Apaches's CGI directory.
 
-The solution to this challenge is the Group Centric Paradigm.
+The historical solution was to pass out the root password. However,
+Linux has an elegant solution -- the Group Centric Paradigm.
 See $APPASERVER_HOME/src_template/group_centric.txt . 
 
 Appaserver's implementation of the Group Centric Paradigm 

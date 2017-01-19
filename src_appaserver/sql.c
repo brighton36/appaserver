@@ -57,8 +57,12 @@ int main( int argc, char **argv )
 		if ( strlen( argv[ 1 ] ) == 1 )
 			delimiter = *argv[ 1 ];
 
-		if ( *argv[ 2 ] && strcmp( argv[ 2 ], "ignored" ) != 0 )
+		if ( *argv[ 2 ]
+		&&   strcmp( argv[ 2 ], "ignored" ) != 0
+		&&   strcmp( argv[ 2 ], "mysql" ) != 0 )
+		{
 			override_database = argv[ 2 ];
+		}
 	}
 	else
 	if ( argc == 2 )

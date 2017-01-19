@@ -38,7 +38,8 @@ Either add a new group=appaserver:
 1) $ sudo addgroup appaserver
 2) $ sudo usermod -a -G appaserver `whoami`
 3) $ sudo usermod -a -G appaserver www-data
-4) $ newgrp appaserver
+4) $ sudo service apache2 restart
+5) $ newgrp appaserver
 
 Or add yourself to group=www-data:
 1) $ sudo usermod -a -G www-data `whoami`

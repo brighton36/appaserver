@@ -123,7 +123,7 @@ link_document_root ()
 		echo "ln -s $src_template_directory $DOCUMENT_ROOT/appaserver"
 		echo "ln -s $images_directory $DOCUMENT_ROOT/appaserver"
 		echo "ln -s $menu_directory $DOCUMENT_ROOT/appaserver"
-		echo "ln -s $menu_directory $DOCUMENT_ROOT
+		echo "ln -s $menu_directory $DOCUMENT_ROOT"
 		echo "ln -s $calendar_directory $DOCUMENT_ROOT/appaserver"
 		echo "ln -s $javascript_directory $DOCUMENT_ROOT/appaserver"
 	fi

@@ -36,21 +36,16 @@ char *get_error_filename(		char *appaserver_error_directory,
 					char *destination_application );
 
 char *get_post_login_sed_executable(
-					char *destination_application,
-					char create_database_yn );
+					char *destination_application );
 
-void drop_application_tables(		char *destination_application,
-					char really_yn );
 boolean delete_existing_application(
 					char *destination_application,
-					char create_database_yn,
 					char *appaserver_error_directory,
 					char *document_root_directory,
 					char really_yn );
 
 boolean create_empty_application(	char *current_application,
 					char *destination_application,
-					char create_database_yn,
 					char *session,
 					char *login_name,
 					char *role_name,
@@ -72,19 +67,16 @@ void remove_appaserver_error_file(	char *destination_application,
 
 void delete_appaserver_user_rows(	char *destination_application,
 					char *database_string,
-					char create_database_yn,
 					char really_yn );
 
 void insert_appaserver_user_row(	char *destination_application,
 					char *database_string,
-					char create_database_yn,
 					char *login_name,
 					char really_yn );
 
 void delete_process_non_appaserver_rows(
 					char *destination_application,
 					char *database_string,
-					char create_database_yn,
 					char really_yn );
 
 void delete_attribute_non_appaserver_rows(
@@ -93,7 +85,6 @@ void delete_attribute_non_appaserver_rows(
 					char *database_string,
 					char *login_name,
 					char *role_name,
-					char create_database_yn,
 					char really_yn );
 
 void delete_folder_non_appaserver_rows(	char *destination_application,
@@ -101,7 +92,6 @@ void delete_folder_non_appaserver_rows(	char *destination_application,
 					char *database_string,
 					char *login_name,
 					char *role_name,
-					char create_database_yn,
 					char really_yn );
 
 void delete_non_appaserver_rows(	char *destination_application,
@@ -109,7 +99,6 @@ void delete_non_appaserver_rows(	char *destination_application,
 					char *database_string,
 					char *login_name,
 					char *role_name,
-					char create_database_yn,
 					char really_yn );
 
 void insert_appaserver_rows(		char *destination_application,
@@ -118,7 +107,6 @@ void insert_appaserver_rows(		char *destination_application,
 					char *session,
 					char *login_name,
 					char *database_string,
-					char create_database_yn,
 					char really_yn );
 
 void create_system_tables(		char *destination_application,
@@ -128,21 +116,11 @@ void create_system_tables(		char *destination_application,
 					char *login_name,
 					char *role_name,
 					char *database_string,
-					char create_database_yn,
 					char really_yn );
-
-/*
-void integrate_dynarch_menu(		char *destination_application,
-					char *current_application,
-					char *document_root_directory,
-					char *appaserver_data_directory,
-					char really_yn );
-*/
 
 void fix_index_dot_php(			char *destination_application,
 					char *document_root_directory,
 					char *new_application_title,
-					char create_database_yn,
 					char really_yn );
 
 void populate_document_root_directory(	char *destination_application,
@@ -159,11 +137,7 @@ void make_appaserver_home_directory(	char *destination_application,
 					char *appaserver_home_directory,
 					char really_yn );
 
-void remove_home_directory(		char *destination_application,
-					char *document_root_directory,
-					char really_yn );
-
-void remove_document_root_links(	char *destination_application,
+void remove_document_root_directory(	char *destination_application,
 					char *document_root_directory,
 					char really_yn );
 
@@ -172,7 +146,6 @@ void remove_dynarch_menu(		char *destination_application,
 
 void insert_application_row(		char *current_application,
 					char *destination_application,
-					char create_database_yn,
 					char *session,
 					char *login_name,
 					char *role_name,
@@ -181,7 +154,6 @@ void insert_application_row(		char *current_application,
 					char really_yn );
 
 void update_application_row(		char *destination_application,
-					char create_database_yn,
 					char *database_string,
 					char *new_application_title,
 					char really_yn );
@@ -193,16 +165,13 @@ void drop_database(			char *destination_application,
 					char really_yn );
 
 void set_database_environment(		char *destination_application,
-					char create_database_yn,
 					char really_yn );
 
 void restore_database_environment(	char *database_string,
-					char create_database_yn,
 					char really_yn );
 
 void create_application_table(		char *current_application,
 					char *destination_application,
-					char create_database_yn,
 					char *session,
 					char *login_name,
 					char *role_name,
@@ -224,7 +193,6 @@ int main( int argc, char **argv )
 	char *login_name;
 	char delete_application_yn;
 	char really_yn;
-	char create_database_yn;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *role_name;
@@ -241,7 +209,7 @@ int main( int argc, char **argv )
 	if ( argc != 11 )
 	{
 		fprintf(stderr,
-"Usage: %s current_application session login_name role process destination_application new_application_title create_database_yn delete_application_yn really_yn\n",
+"Usage: %s current_application session login_name role process destination_application new_application_title retired delete_application_yn really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -253,7 +221,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 5 ];
 	destination_application = argv[ 6 ];
 	new_application_title = argv[ 7 ];
-	create_database_yn = *argv[ 8 ];
+	/* create_database_yn = *argv[ 8 ]; */
 	delete_application_yn = *argv[ 9 ];
 	really_yn = *argv[ 10 ];
 
@@ -347,7 +315,6 @@ int main( int argc, char **argv )
 					appaserver_error_directory )
 		||   !delete_existing_application(
 					destination_application,
-					create_database_yn,
 					appaserver_error_directory,
 					document_root_directory,
 					really_yn ) )
@@ -364,7 +331,6 @@ int main( int argc, char **argv )
 		if ( !create_empty_application(
 					current_application,
 					destination_application,
-					create_database_yn,
 					session,
 					login_name,
 					role_name,
@@ -427,53 +393,45 @@ void get_all_environment_variables(	char **appaserver_error_directory,
 } /* get_all_environment_variables() */
 
 void restore_database_environment(	char *database_string,
-					char create_database_yn,
 					char really_yn )
 {
-	if ( create_database_yn == 'y' )
+	if ( database_string && *database_string )
 	{
-		if ( database_string && *database_string )
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
+
+		if ( really_yn != 'y' )
 		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			printf( "<p>Restoring environment: %s\n",
 				database_string );
-
-			if ( really_yn != 'y' )
-			{
-				printf( "<p>Restoring environment: %s\n",
-					database_string );
-			}
 		}
-		else
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				"" );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			"" );
 
-			if ( really_yn != 'y' )
-			{
-				printf( "<p>Restoring environment: %s\n",
-					"" );
-			}
+		if ( really_yn != 'y' )
+		{
+			printf( "<p>Restoring environment: %s\n",
+				"" );
 		}
 	}
 } /* restore_database_environment() */
 
 void set_database_environment(	char *destination_application,
-				char create_database_yn,
 				char really_yn )
 {
-	if ( create_database_yn == 'y' )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			destination_application );
+	environ_set_environment(
+		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+		destination_application );
 
-		if ( really_yn != 'y' )
-		{
-			printf( "<p>Setting environment: %s\n",
-				destination_application );
-		}
+	if ( really_yn != 'y' )
+	{
+		printf( "<p>Setting environment: %s\n",
+			destination_application );
 	}
 
 } /* set_database_environment() */
@@ -506,7 +464,6 @@ void create_database(		char *destination_application,
 
 void create_application_table(		char *current_application,
 					char *destination_application,
-					char create_database_yn,
 					char *session,
 					char *login_name,
 					char *role_name,
@@ -522,25 +479,7 @@ void create_application_table(		char *current_application,
 	else
 		*output_string = '\0';
 
-	if ( create_database_yn != 'y' )
-	{
-		sprintf( sys_string,
-"create_table %s %c %s %s \"%s\" %s application %c mysql nohtml %s",
-		 	current_application,
-		 	'n' /* build_shell_script_yn */,
-			session,
-			login_name,
-		 	role_name,
-		 	destination_application,
-		 	really_yn,
-			output_string );
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-	}
-	else
-	{
-		sprintf( sys_string,
+	sprintf(	sys_string,
 "create_table %s %c %s %s \"%s\" %s application %c mysql nohtml %s",
 			current_application,
 		 	'y' /* build_shell_script_yn */,
@@ -550,44 +489,41 @@ void create_application_table(		char *current_application,
 		 	destination_application,
 		 	'n' /* really_yn */,
 			output_string );
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
 
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
 
-		if ( really_yn == 'y' )
-		{
-			sprintf( sys_string,
-			 	"%s/create_table.sh %s",
-			 	appaserver_data_directory,
-			 	destination_application );
-		}
-		else
-		{
-			sprintf( sys_string,
-"echo \"Will execute %s/create_table.sh %s\" | html_paragraph_wrapper.e",
-			 	appaserver_data_directory,
-				destination_application );
-		}
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
+	set_database_environment(
+				destination_application,
+				really_yn );
 
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
+	if ( really_yn == 'y' )
+	{
+		sprintf( sys_string,
+		 	"%s/create_table.sh %s",
+		 	appaserver_data_directory,
+		 	destination_application );
 	}
+	else
+	{
+		sprintf( sys_string,
+"echo \"Will execute %s/create_table.sh %s\" | html_paragraph_wrapper.e",
+		 	appaserver_data_directory,
+			destination_application );
+	}
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	restore_database_environment(
+				database_string,
+				really_yn );
 
 } /* create_application_table() */
 
 void insert_application_row(		char *current_application,
 					char *destination_application,
-					char create_database_yn,
 					char *session,
 					char *login_name,
 					char *role_name,
@@ -604,26 +540,7 @@ void insert_application_row(		char *current_application,
 		*output_string = '\0';
 
 
-	if ( create_database_yn != 'y' )
-	{
-		sprintf( sys_string,
-"clone_folder %s n %s %s \"%s\" %s application application %s %s nohtml n %c mysql %s",
-		 	current_application,
-			session,
-			login_name,
-		 	role_name,
-		 	destination_application,
-		 	current_application,
-		 	destination_application,
-		 	really_yn,
-			output_string );
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-	}
-	else
-	{
-		sprintf( sys_string,
+	sprintf(	sys_string,
 "clone_folder %s n %s %s \"%s\" %s application application %s %s nohtml n n mysql y %s",
 		 	current_application,
 			session,
@@ -633,43 +550,41 @@ void insert_application_row(		char *current_application,
 		 	current_application,
 		 	destination_application,
 			output_string );
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
 
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
 
-		if ( really_yn == 'y' )
-		{
-			sprintf( sys_string,
+	set_database_environment(
+				destination_application,
+				really_yn );
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( sys_string,
 "zcat %s/insert_%s_application.sql.gz | sql.e",
-			 	appaserver_data_directory,
-			 	destination_application );
-		}
-		else
-		{
-			sprintf( sys_string,
-"zcat %s/insert_%s_application.sql.gz | html_paragraph_wrapper.e",
-			 	appaserver_data_directory,
-			 	destination_application );
-		}
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
+		 	appaserver_data_directory,
+		 	destination_application );
 	}
+	else
+	{
+		sprintf( sys_string,
+"zcat %s/insert_%s_application.sql.gz | html_paragraph_wrapper.e",
+		 	appaserver_data_directory,
+		 	destination_application );
+	}
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	restore_database_environment(
+				database_string,
+				really_yn );
 
 } /* insert_application_row() */
 
 void update_application_row(		char *destination_application,
-					char create_database_yn,
 					char *database_string,
 					char *new_application_title,
 					char really_yn )
@@ -697,64 +612,36 @@ void update_application_row(		char *destination_application,
 	 	destination_application,
 		destination_process );
 
-	if ( create_database_yn != 'y' )
-	{
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-	}
-	else
-	{
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
+	set_database_environment(
+				destination_application,
+				really_yn );
 
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
 
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
+	restore_database_environment(
+				database_string,
+				really_yn );
 
-	}
 
-	if ( create_database_yn != 'y' )
-	{
-		sprintf( sys_string,
-"echo \"update %s_application set only_one_primary_yn = 'n' where application = '%s';\" | %s",
-	 	destination_application,
-	 	destination_application,
-		destination_process );
+	set_database_environment(
+				destination_application,
+				really_yn );
 
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-	}
-	else
-	{
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
-
-		sprintf( sys_string,
+	sprintf(sys_string,
 "echo \"update %s_application set only_one_primary_yn = 'y' where application = '%s';\" | %s",
-	 	destination_application,
+		destination_application,
 	 	destination_application,
 		destination_process );
 
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
 
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
-	}
+	restore_database_environment(
+				database_string,
+				really_yn );
 
 } /* update_application_row() */
 
@@ -764,29 +651,6 @@ void make_document_root_directory(	char *destination_application,
 					char really_yn )
 {
 	char sys_string[ 1024 ];
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-		 	"mkdir %s/%s && chmod g+rwxs %s/%s",
-		 	document_root_directory,
-		 	destination_application,
-		 	document_root_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-	"echo \"mkdir %s/%s && chmod g+rwxs %s/%s\" | html_paragraph_wrapper.e",
-		 	document_root_directory,
-		 	destination_application,
-		 	document_root_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
 
 	if ( really_yn == 'y' )
 	{
@@ -818,21 +682,23 @@ void make_document_root_directory(	char *destination_application,
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
-		 	"ln -s %s/%s/src_%s %s/%s",
+"ln -s %s/%s/src_%s %s/%s/%s",
 		 	appaserver_home_directory,
 		 	destination_application,
 			destination_application,
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application );
 	}
 	else
 	{
 		sprintf( sys_string,
-"echo \"ln -l %s/%s/src_%s %s/%s\" | html_paragraph_wrapper.e",
+"echo \"ln -l %s/%s/src_%s %s/%s/%s\" | html_paragraph_wrapper.e",
 		 	appaserver_home_directory,
 		 	destination_application,
 		 	destination_application,
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application );
 	}
 
@@ -882,44 +748,28 @@ void populate_document_root_directory(	char *destination_application,
 
 	if ( really_yn == 'y' )
 	{
-#ifdef NOT_DEFINED
 		sprintf( sys_string,
-		 "umask 0002 && cp -r %s/%s/* %s/%s && chmod g+w %s/%s/*",
+"cp -r %s/%s/* %s/%s/%s && chmod g+w %s/%s/%s/*",
 		 	appaserver_home_directory,
 		 	"template",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application,
 		 	document_root_directory,
-		 	destination_application );
-#endif
-		sprintf( sys_string,
-		 "cp -r %s/%s/* %s/%s && chmod g+w %s/%s/*",
-		 	appaserver_home_directory,
-		 	"template",
-		 	document_root_directory,
-		 	destination_application,
-		 	document_root_directory,
+			"appaserver",
 		 	destination_application );
 	}
 	else
 	{
-#ifdef NOT_DEFINED
 		sprintf( sys_string,
-"echo 'umask 0002 && cp -r %s/%s/* %s/%s && chmod g+w %s/%s/*' | html_paragraph_wrapper.e",
+"echo 'cp -r %s/%s/* %s/%s/%s && chmod g+w %s/%s/%s/*' | html_paragraph_wrapper.e",
 		 	appaserver_home_directory,
 		 	"template",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application,
 		 	document_root_directory,
-		 	destination_application );
-#endif
-		sprintf( sys_string,
-"echo 'cp -r %s/%s/* %s/%s && chmod g+w %s/%s/*' | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	"template",
-		 	document_root_directory,
-		 	destination_application,
-		 	document_root_directory,
+			"appaserver",
 		 	destination_application );
 	}
 
@@ -930,55 +780,6 @@ void populate_document_root_directory(	char *destination_application,
 #ifdef NOT_DEFINED
 	if ( really_yn == 'y' )
 	{
-		sprintf( sys_string,
-		 	"rm -f %s/%s/*_[1-9][0-9]*",
-		 	document_root_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-	"echo 'rm -f %s/%s/*_[1-9][0-9]*' | html_paragraph_wrapper.e",
-		 	document_root_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-/*
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-		 	"rm -f %s/%s/skin*.css",
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-"echo 'rm -f %s/%s/skin*.css' | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-*/
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-#endif
-
-	if ( really_yn == 'y' )
-	{
-#ifdef NOT_DEFINED
-		sprintf( sys_string,
-		 	"umask 0002 && ln %s/src_%s/*.pdf %s/src_%s/",
-		 	appaserver_home_directory,
-		 	"template",
-		 	appaserver_home_directory,
-		 	destination_application );
-#endif
 		sprintf( sys_string,
 		 	"ln %s/src_%s/*.pdf %s/src_%s/",
 		 	appaserver_home_directory,
@@ -988,14 +789,12 @@ void populate_document_root_directory(	char *destination_application,
 	}
 	else
 	{
-#ifdef NOT_DEFINED
 		sprintf( sys_string,
 "echo 'umask 0002 && ln %s/src_%s/*.pdf %s/src_%s/' | html_paragraph_wrapper.e",
 		 	appaserver_home_directory,
 		 	"template",
 		 	appaserver_home_directory,
 		 	destination_application );
-#endif
 		sprintf( sys_string,
 "echo 'ln %s/src_%s/*.pdf %s/src_%s/' | html_paragraph_wrapper.e",
 		 	appaserver_home_directory,
@@ -1007,24 +806,31 @@ void populate_document_root_directory(	char *destination_application,
 	fflush( stdout );
 	system( sys_string );
 	fflush( stdout );
+#endif
 
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
-		 	"ln %s/%s/style.css %s/%s/appaserver",
+"ln %s/%s/%s/style.css %s/%s/%s/%s",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application,
 			document_root_directory,
-			destination_application );
+			"appaserver",
+			destination_application,
+			"data" );
 	}
 	else
 	{
 		sprintf( sys_string,
-"echo 'ln %s/%s/style.css %s/%s/appaserver' | html_paragraph_wrapper.e",
+"echo 'ln %s/%s/%s/style.css %s/%s/%s/%s' | html_paragraph_wrapper.e",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application,
 		 	document_root_directory,
-		 	destination_application );
+			"appaserver",
+		 	destination_application,
+			"data" );
 	}
 
 	fflush( stdout );
@@ -1034,20 +840,26 @@ void populate_document_root_directory(	char *destination_application,
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
-		 	"ln %s/%s/index.php %s/%s/appaserver",
+"ln %s/%s/%s/index.php %s/%s/%s/%s",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application,
 			document_root_directory,
-			destination_application );
+			"appaserver",
+			destination_application,
+			"data" );
 	}
 	else
 	{
 		sprintf( sys_string,
-"echo 'ln %s/%s/index.php %s/%s/appaserver' | html_paragraph_wrapper.e",
+"echo 'ln %s/%s/%s/index.php %s/%s/%s/%s' | html_paragraph_wrapper.e",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application,
 		 	document_root_directory,
-		 	destination_application );
+			"appaserver",
+		 	destination_application,
+			"data" );
 	}
 
 	fflush( stdout );
@@ -1059,7 +871,6 @@ void populate_document_root_directory(	char *destination_application,
 void fix_index_dot_php(			char *destination_application,
 					char *appaserver_home_directory,
 					char *new_application_title,
-					char create_database_yn,
 					char really_yn )
 {
 	char sys_string[ 2048 ];
@@ -1074,8 +885,7 @@ void fix_index_dot_php(			char *destination_application,
 
 	post_login_sed_executable =
 		get_post_login_sed_executable(
-			destination_application,
-			create_database_yn );
+			destination_application );
 
 	sprintf( execute_string,
 		 "cat %s						 |"
@@ -1193,7 +1003,6 @@ void create_system_tables(	char *destination_application,
 				char *login_name,
 				char *role_name,
 				char *database_string,
-				char create_database_yn,
 				char really_yn )
 {
 	char sys_string[ 1024 ];
@@ -1205,73 +1014,51 @@ void create_system_tables(	char *destination_application,
 		*output_string = '\0';
 
 
-	if ( create_database_yn != 'y' )
+	sprintf(sys_string,
+		"create_application %s %c %s %s \"%s\" %s y %c %c mysql %s",
+		 current_application,
+		 'y' /* build_shell_script_yn */,
+		 session,
+		 login_name,
+		 role_name,
+		 current_application,
+		 'y' /* no_content_type_yn */,
+		 'n' /* really_yn */,
+		 output_string );
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
-		"create_application %s %c %s %s \"%s\" %s y %c %c mysql %s",
-			 current_application,
-			 'n' /* build_shell_script_yn */,
-			 session,
-			 login_name,
-			 role_name,
-			 destination_application,
-			 'y' /* no_content_type_yn */,
-			 really_yn,
-			 output_string );
-
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
+		 	"%s/create_%s_appaserver.sh %s",
+		 	appaserver_data_directory,
+		 	current_application,
+			destination_application );
 	}
 	else
 	{
 		sprintf( sys_string,
-		"create_application %s %c %s %s \"%s\" %s y %c %c mysql %s",
-			 current_application,
-			 'y' /* build_shell_script_yn */,
-			 session,
-			 login_name,
-			 role_name,
-			 current_application,
-			 'y' /* no_content_type_yn */,
-			 'n' /* really_yn */,
-			 output_string );
-
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-
-		if ( really_yn == 'y' )
-		{
-			sprintf( sys_string,
-			 	"%s/create_%s_appaserver.sh %s",
-			 	appaserver_data_directory,
-			 	current_application,
-				destination_application );
-		}
-		else
-		{
-			sprintf( sys_string,
 	"echo '%s/create_%s_appaserver.sh %s' | html_paragraph_wrapper.e",
-			 	appaserver_data_directory,
-			 	current_application,
-				destination_application );
-		}
-
-		set_database_environment(
-				destination_application,
-				create_database_yn,
-				really_yn );
-
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-
-		restore_database_environment(
-				database_string,
-				create_database_yn,
-				really_yn );
+		 	appaserver_data_directory,
+		 	current_application,
+			destination_application );
 	}
+
+	set_database_environment(
+			destination_application,
+			really_yn );
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	restore_database_environment(
+			database_string,
+			really_yn );
+
 } /* create_system_tables() */
 
 void insert_appaserver_rows(		char *destination_application,
@@ -1280,7 +1067,6 @@ void insert_appaserver_rows(		char *destination_application,
 					char *session,
 					char *login_name,
 					char *database_string,
-					char create_database_yn,
 					char really_yn )
 {
 	char sys_string[ 1024 ];
@@ -1325,25 +1111,17 @@ void insert_appaserver_rows(		char *destination_application,
 			 destination_application );
 	}
 
-	if ( create_database_yn == 'y' )
-	{
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
-	}
+	set_database_environment(
+				destination_application,
+				really_yn );
 
 	fflush( stdout );
 	system( sys_string );
 	fflush( stdout );
 
-	if ( create_database_yn == 'y' )
-	{
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
-	}
+	restore_database_environment(
+				database_string,
+				really_yn );
 
 } /* insert_appaserver_rows() */
 
@@ -1352,39 +1130,24 @@ void delete_non_appaserver_rows(	char *destination_application,
 					char *database_string,
 					char *login_name,
 					char *role_name,
-					char create_database_yn,
 					char really_yn )
 {
-/*
-	delete_attribute_non_appaserver_rows(
-					destination_application,
-					current_application,
-					database_string,
-					login_name,
-					role_name,
-					create_database_yn,
-					really_yn );
-*/
-
 	delete_folder_non_appaserver_rows(
 				destination_application,
 				current_application,
 				database_string,
 				login_name,
 				role_name,
-				create_database_yn,
 				really_yn );
 
 	delete_process_non_appaserver_rows(
 				destination_application,
 				database_string,
-				create_database_yn,
 				really_yn );
 
 	delete_appaserver_user_rows(
 				destination_application,
 				database_string,
-				create_database_yn,
 				really_yn );
 
 } /* delete_non_appaserver_rows() */
@@ -1394,7 +1157,6 @@ void delete_folder_non_appaserver_rows(	char *destination_application,
 					char *database_string,
 					char *login_name,
 					char *role_name,
-					char create_database_yn,
 					char really_yn )
 {
 	char sys_string[ 1024 ];
@@ -1421,13 +1183,9 @@ void delete_folder_non_appaserver_rows(	char *destination_application,
 
 	input_pipe = popen( sys_string, "r" );
 
-	if ( create_database_yn == 'y' )
-	{
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
-	}
+	set_database_environment(
+				destination_application,
+				really_yn );
 
 	/* Open output pipe */
 	/* ---------------- */
@@ -1452,13 +1210,9 @@ void delete_folder_non_appaserver_rows(	char *destination_application,
 	pclose( input_pipe );
 	pclose( delete_pipe );
 
-	if ( create_database_yn == 'y' )
-	{
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
-	}
+	restore_database_environment(
+				database_string,
+				really_yn );
 
 } /* delete_folder_non_appaserver_rows() */
 
@@ -1468,7 +1222,6 @@ void delete_attribute_non_appaserver_rows(
 					char *database_string,
 					char *login_name,
 					char *role_name,
-					char create_database_yn,
 					char really_yn )
 {
 	char sys_string[ 65536 ];
@@ -1516,13 +1269,9 @@ void delete_attribute_non_appaserver_rows(
 
 	input_pipe = popen( sys_string, "r" );
 
-	if ( create_database_yn == 'y' )
-	{
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
-	}
+	set_database_environment(
+				destination_application,
+				really_yn );
 
 	/* Open output pipe */
 	/* ---------------- */
@@ -1547,20 +1296,15 @@ void delete_attribute_non_appaserver_rows(
 	pclose( delete_pipe );
 	pclose( input_pipe );
 
-	if ( create_database_yn == 'y' )
-	{
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
-	}
+	restore_database_environment(
+				database_string,
+				really_yn );
 
 } /* delete_attribute_non_appaserver_rows() */
 
 void delete_process_non_appaserver_rows(
 				char *destination_application,
 				char *database_string,
-				char create_database_yn,
 				char really_yn )
 {
 	char sys_string[ 1024 ];
@@ -1578,13 +1322,9 @@ void delete_process_non_appaserver_rows(
 		return;
 	}
 
-	if ( create_database_yn == 'y' )
-	{
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
-	}
+	set_database_environment(
+				destination_application,
+				really_yn );
 
 	where = "appaserver_yn is null or appaserver_yn != 'y'";
 	application_reset();
@@ -1600,20 +1340,15 @@ void delete_process_non_appaserver_rows(
 	system( sys_string );
 	fflush( stdout );
 
-	if ( create_database_yn == 'y' )
-	{
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
-	}
+	restore_database_environment(
+				database_string,
+				really_yn );
 
 } /* delete_process_non_appaserver_rows() */
 
 void delete_appaserver_user_rows(
 				char *destination_application,
 				char *database_string,
-				char create_database_yn,
 				char really_yn )
 {
 	char sys_string[ 1024 ];
@@ -1632,13 +1367,9 @@ void delete_appaserver_user_rows(
 		return;
 	}
 
-	if ( create_database_yn == 'y' )
-	{
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
-	}
+	set_database_environment(
+				destination_application,
+				really_yn );
 
 	application_reset();
 
@@ -1687,19 +1418,15 @@ void delete_appaserver_user_rows(
 	system( sys_string );
 	fflush( stdout );
 
-	if ( create_database_yn == 'y' )
-	{
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
-	}
+	restore_database_environment(
+				database_string,
+				really_yn );
+
 } /* delete_appaserver_user_rows() */
 
 void insert_appaserver_user_row(
 				char *destination_application,
 				char *database_string,
-				char create_database_yn,
 				char *login_name,
 				char really_yn )
 {
@@ -1737,13 +1464,9 @@ void insert_appaserver_user_row(
 		sql_executable = "html_paragraph_wrapper.e";
 	}
 
-	if ( create_database_yn == 'y' )
-	{
-		set_database_environment(
-					destination_application,
-					create_database_yn,
-					really_yn );
-	}
+	set_database_environment(
+				destination_application,
+				really_yn );
 
 	application_reset();
 
@@ -1801,13 +1524,9 @@ void insert_appaserver_user_row(
 	system( sys_string );
 	fflush( stdout );
 
-	if ( create_database_yn == 'y' )
-	{
-		restore_database_environment(
-					database_string,
-					create_database_yn,
-					really_yn );
-	}
+	restore_database_environment(
+				database_string,
+				really_yn );
 
 } /* insert_appaserver_user_row() */
 
@@ -1850,7 +1569,6 @@ void make_appaserver_error_file(	char *destination_application,
 boolean create_empty_application(
 				char *current_application,
 				char *destination_application,
-				char create_database_yn,
 				char *session,
 				char *login_name,
 				char *role_name,
@@ -1869,15 +1587,11 @@ boolean create_empty_application(
 		return 0;
 	}
 
-	if ( create_database_yn == 'y' )
-	{
-		create_database(	destination_application,
-					really_yn );
-	}
+	create_database(	destination_application,
+				really_yn );
 
 	create_application_table(	current_application,
 					destination_application,
-					create_database_yn,
 					session,
 					login_name,
 					role_name,
@@ -1887,7 +1601,6 @@ boolean create_empty_application(
 
 	insert_application_row(		current_application,
 					destination_application,
-					create_database_yn,
 					session,
 					login_name,
 					role_name,
@@ -1896,7 +1609,6 @@ boolean create_empty_application(
 					really_yn );
 
 	update_application_row(		destination_application,
-					create_database_yn,
 					database_string,
 					new_application_title,
 					really_yn );
@@ -1919,7 +1631,6 @@ boolean create_empty_application(
 	fix_index_dot_php(		destination_application,
 					document_root_directory,
 					new_application_title,
-					create_database_yn,
 					really_yn );
 
 	create_system_tables(		destination_application,
@@ -1929,7 +1640,6 @@ boolean create_empty_application(
 					login_name,
 					role_name,
 					database_string,
-					create_database_yn,
 					really_yn );
 
 	insert_appaserver_rows(		destination_application,
@@ -1938,7 +1648,6 @@ boolean create_empty_application(
 					session,
 					login_name,
 					database_string,
-					create_database_yn,
 					really_yn );
 
 	delete_non_appaserver_rows(	destination_application,
@@ -1946,13 +1655,11 @@ boolean create_empty_application(
 					database_string,
 					login_name,
 					role_name,
-					create_database_yn,
 					really_yn );
 
 	insert_appaserver_user_row(
 					destination_application,
 					database_string,
-					create_database_yn,
 					login_name,
 					really_yn );
 
@@ -1999,83 +1706,6 @@ void drop_database(		char *destination_application,
 
 } /* drop_database() */
 
-void drop_application_tables(		char *destination_application,
-					char really_yn )
-{
-	char sys_string[ 1024 ];
-	char *sql_executable;
-
-	if ( really_yn == 'y' )
-	{
-		sql_executable = "sql.e 2>&1";
-	}
-	else
-	{
-		sql_executable = "cat";
-	}
-
-	sprintf( sys_string,
-		 "echo \"show tables;\"					|"
-		 "sql.e							|"
-		 "grep '^%s_'						|"
-		 "sed 's/.*/drop table &;/'				|"
-		 "%s							|"
-		 "html_paragraph_wrapper.e				 ",
-		 destination_application,
-		 sql_executable );
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-} /* drop_application_tables() */
-
-void remove_home_directory(		char *destination_application,
-					char *appaserver_home_directory,
-					char really_yn )
-{
-	char sys_string[ 1024 ];
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-		 	"rm -fr %s/%s 2>&1 | html_paragraph_wrapper",
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-		 	"echo \"rm -fr %s/%s\" | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-		 	"rm -fr %s/src_%s 2>&1 | html_paragraph_wrapper",
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-		 	"echo \"rm -fr %s/src_%s\" | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-} /* remove_home_directory() */
-
 void remove_appaserver_error_file(	char *destination_application,
 					char *appaserver_error_directory,
 					char really_yn )
@@ -2102,7 +1732,7 @@ void remove_appaserver_error_file(	char *destination_application,
 
 } /* remove_appaserver_error_file() */
 
-void remove_document_root_links(
+void remove_document_root_directory(
 				char *destination_application,
 				char *document_root_directory,
 				char really_yn )
@@ -2111,16 +1741,18 @@ void remove_document_root_links(
 
 	if ( really_yn == 'y' )
 	{
-		sprintf( sys_string,
-			"rm %s/%s 2>&1 | html_paragraph_wrapper",
+		sprintf(sys_string,
+			"rm -fr %s/%s/%s 2>&1 | html_paragraph_wrapper",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application );
 	}
 	else
 	{
 		sprintf( sys_string,
-			"echo \"rm %s/%s\" | html_paragraph_wrapper.e",
+			"echo \"rm %s/%s/%s\" | html_paragraph_wrapper.e",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application );
 	}
 
@@ -2131,15 +1763,17 @@ void remove_document_root_links(
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
-			"rm %s/src_%s 2>&1 | html_paragraph_wrapper",
+			"rm %s/%s/src_%s 2>&1 | html_paragraph_wrapper",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application );
 	}
 	else
 	{
 		sprintf( sys_string,
-			"echo \"rm %s/src_%s\" | html_paragraph_wrapper.e",
+			"echo \"rm %s/%s/src_%s\" | html_paragraph_wrapper.e",
 		 	document_root_directory,
+			"appaserver",
 		 	destination_application );
 	}
 
@@ -2147,11 +1781,10 @@ void remove_document_root_links(
 	system( sys_string );
 	fflush( stdout );
 
-} /*remove_document_root_links() */
+} /*remove_document_root_directory() */
 
 boolean delete_existing_application(
 				char *destination_application,
-				char create_database_yn,
 				char *appaserver_error_directory,
 				char *document_root_directory,
 				char really_yn )
@@ -2163,19 +1796,10 @@ boolean delete_existing_application(
 		return 0;
 	}
 
-	if ( create_database_yn == 'y' )
-	{
-		drop_database(		destination_application,
-					really_yn );
-	}
-	else
-	{
-		drop_application_tables(
-					destination_application,
-					really_yn );
-	}
+	drop_database(	destination_application,
+			really_yn );
 
-	remove_home_directory(		destination_application,
+	remove_document_root_directory(	destination_application,
 					document_root_directory,
 					really_yn );
 
@@ -2193,27 +1817,17 @@ boolean delete_existing_application(
 } /* delete_existing_application() */
 
 char *get_post_login_sed_executable(
-			char *destination_application,
-			char create_database_yn )
+			char *destination_application )
 {
 	static char sed_executable[ 512 ];
 
-	if ( create_database_yn == 'y' )
-	{
-		sprintf( sed_executable,
+	sprintf( sed_executable,
 	 "sed \"s/post_login?.*\\\"/post_login?%s:%s\\\"/\"",
-			 destination_application,
-			 destination_application );
-	}
-	else
-	{
-		sprintf( sed_executable,
-	 "sed \"s/post_login?.*\\\"/post_login?%s:%s\\\"/\"",
-			 destination_application,
-			 appaserver_parameter_file_get_database() );
-	}
+		 destination_application,
+		 destination_application );
 
 	return sed_executable;
+
 } /* get_post_login_sed_executable() */
 
 char *get_error_filename(	char *appaserver_error_directory,

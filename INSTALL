@@ -63,10 +63,9 @@ D) Shell installation steps
 14) $ sudo ./protect_appaserver_filesystem.sh noexecute|execute
 15) $ cd $APPASERVER_HOME
 16) $ make
-17) $ echo "create database template;" | sql.e
-18) $ . set_project template
-19) $ install_template_database.sh noexecute|execute
-20) $ upgrade_appaserver_database template
+17) $ . set_project template
+18) $ install_template_database.sh noexecute|execute
+19) $ upgrade_appaserver_database template
 
 ---------
 E) Log in

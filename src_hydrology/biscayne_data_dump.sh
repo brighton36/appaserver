@@ -56,7 +56,7 @@ if [ "$output_medium" != "stdout" ]
 then
 	content_type_cgi.sh
 
-	echo "<html><head><link rel=stylesheet type=text/css href=/hydrology/style.css></head>"
+	echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/hydrology/style.css></head>"
 	echo "<body><h1>Biscayne Data Dump</h1>"
 fi
 

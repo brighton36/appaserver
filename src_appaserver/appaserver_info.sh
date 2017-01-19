@@ -23,7 +23,7 @@ cat <<all_done2
 
 <!-- Freely available software: see Appaserver.org -->
 
-<link rel=stylesheet type="text/css" href=/$application/style.css>
+<link rel=stylesheet type="text/css" href=/appaserver/$application/style.css>
 <TITLE>Appaserver Info</TITLE>
 </head>
 <body bgcolor="white" onload="window.open('http://appaserver.org','appaserver_info','menubar=no,resizeable=yes,scrollbars=yes,status=no,toolbar=no,location=no', 'false');">

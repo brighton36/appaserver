@@ -99,7 +99,7 @@ cat $wd/tmp1 $wd/tmp3 > $output_file
 
 echo "Content-type: text/html"
 echo ""
-echo "<link rel=stylesheet type="text/css" href=/hydrology/style.css> "
+echo "<link rel=stylesheet type="text/css" href=/appaserver/hydrology/style.css> "
 echo "<pre>"
 
 cat $output_file

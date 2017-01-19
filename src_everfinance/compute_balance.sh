@@ -13,7 +13,7 @@ account=$1
 content_type_cgi.sh
 echo "<html>"
 echo "<head>"
-echo "<link rel=stylesheet type='text/css' href=/hydrology/style.css>"
+echo "<link rel=stylesheet type='text/css' href=/appaserver/hydrology/style.css>"
 echo "</head>"
 echo "<body>"
 echo "<h1>Balance Report</h1>"

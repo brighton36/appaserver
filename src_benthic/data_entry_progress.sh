@@ -211,7 +211,7 @@ cat > $site_quad_sweep_abiotic_validated_join_file
 cat << all_done
 <html>
 <head>
-<link rel=stylesheet type="text/css" href="/$application/style.css">
+<link rel=stylesheet type="text/css" href="/appaserver/$application/style.css">
 <title>Data Entry Progress</title>
 </head>
 all_done

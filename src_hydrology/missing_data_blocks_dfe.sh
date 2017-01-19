@@ -31,7 +31,7 @@ echo ""
 
 echo "<pre>"
 
-echo "<link rel=stylesheet type="text/css" href=/hydrology/style.css> "
+echo "<link rel=stylesheet type="text/css" href=/appaserver/hydrology/style.css> "
 
 if [[ $5 == "count_per_day" ]]; then 
 

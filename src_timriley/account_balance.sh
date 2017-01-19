@@ -69,7 +69,6 @@ piece_sum.e '^' 3							|
 piece_commas_in_double.e 3						|
 format_initial_capital.e						|
 html_table.e "$process_name" "$heading" '^' "$justification"		|
-#html_wrapper "/${application}/style.css"				|
 html_wrapper "/style.css"						|
 cat
 

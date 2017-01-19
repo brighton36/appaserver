@@ -30,7 +30,7 @@ filename=$directory/appaserver_${application}.err
 content_type_cgi.sh
 echo "<html>"
 echo "<head>"
-echo "<link rel=stylesheet type='text/css' href=/$application/style.css>"
+echo "<link rel=stylesheet type='text/css' href=/appaserver/$application/style.css>"
 echo "</head>"
 echo "<body>"
 echo "<h1>Appaserver Log File</h1>"

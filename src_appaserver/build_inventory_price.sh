@@ -32,7 +32,7 @@ Content-type: text/html
 
 <html>
 <head>
-	<link rel=stylesheet type="text/css" href=/${application}/style.css>
+	<link rel=stylesheet type="text/css" href=/appaserver/${application}/style.css>
 </head>
 
 <body bgcolor=white>

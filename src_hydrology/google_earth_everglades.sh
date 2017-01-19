@@ -1,10 +1,10 @@
 :
 
-filename="/hydrology/enp_station.kml"
+filename="/appaserver/hydrology/enp_station.kml"
 
 echo "<html>"
 echo "<head>"
-echo '<link rel=stylesheet type="text/css" href="/hydrology/style.css">'
+echo '<link rel=stylesheet type="text/css" href="/appaserver/hydrology/style.css">'
 echo "</head>"
 echo "<body>"
 echo "<h1>Google Earth Everglades</h1>"

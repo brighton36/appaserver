@@ -29,13 +29,13 @@ count=$5
 echo "Content-type: text/html"
 echo ""
 
-echo "<link rel=stylesheet type="text/css" href=/hydrology/style.css> "
+echo "<link rel=stylesheet type="text/css" href=/appaserver/hydrology/style.css> "
 
 echo "<pre>"
 
 if [[ $5 == "count_per_day" ]]; then 
 
-echo "<link rel=stylesheet type="text/css" href=/hydrology/style.css> "
+echo "<link rel=stylesheet type="text/css" href=/appaserver/hydrology/style.css> "
 
 echo "Enter a count Please"
 

@@ -23,7 +23,7 @@ date="$4"
 
 content_type_cgi.sh
 
-echo "<html><head><link rel=stylesheet type=text/css href=/$application/style.css></head>"
+echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$application/style.css></head>"
 echo "<body><h1>$process_title</h1>"
 
 table=concert_program

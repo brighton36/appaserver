@@ -105,7 +105,7 @@ if [ "$output_medium" != "stdout" ]
 then
 	content_type_cgi.sh
 
-	echo "<html><head><link rel=stylesheet type=text/css href=/creel/style.css></head>"
+	echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/creel/style.css></head>"
 	echo "<body><h1>$process_title</h1>"
 fi
 

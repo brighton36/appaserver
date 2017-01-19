@@ -97,6 +97,8 @@ protect_document_root_template ()
 	if [ "$execute" = "execute" ]
 	then
 		chgrp $group $template_directory
+		chgrp $group $template_directory/index.php
+		chgrp $group $template_directory/style.css
 		chmod g+rwxs $template_directory
 		chmod o-w $template_directory
 		chmod g+w ${template_directory}/index.php
@@ -105,15 +107,16 @@ protect_document_root_template ()
 		chgrp $group ${template_directory}/data
 		chmod g+rwxs $template_directory/data
 		chmod o-w ${template_directory}/data
-		chmod g+w ${template_directory}/data/index.php
-		chmod g+w ${template_directory}/data/style.css
 
 		chgrp $group ${template_directory}/images
+		chgrp $group ${template_directory}/images/logo_appaserver.jpg
 		chmod g+rwxs $template_directory/images
 		chmod o-w ${template_directory}/images
 		chmod g+w ${template_directory}/images/logo_appaserver.jpg
 	else
 		echo "chgrp $group $template_directory"
+		echo "chgrp $group $template_directory/index.php"
+		echo "chgrp $group $template_directory/style.css"
 		echo "chmod g+rwxs $template_directory"
 		echo "chmod o-w $template_directory"
 		echo "chmod g+w ${template_directory}/index.php"
@@ -122,10 +125,9 @@ protect_document_root_template ()
 		echo "chgrp $group ${template_directory}/data"
 		echo "chmod g+rwxs $template_directory/data"
 		echo "chmod o-w ${template_directory}/data"
-		echo "chmod g+w ${template_directory}/data/index.php"
-		echo "chmod g+w ${template_directory}/data/style.css"
 
 		echo "chgrp $group ${template_directory}/images"
+		echo "chgrp $group ${template_directory}/images/logo_appaserver.jpg"
 		echo "chmod g+rwxs $template_directory/images"
 		echo "chmod o-w ${template_directory}/images"
 		echo "chmod g+w ${template_directory}/images/logo_appaserver.jpg"

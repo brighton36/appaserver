@@ -65,9 +65,8 @@ D) Shell installation steps
 16) $ make
 17) $ echo "create database template;" | sql.e
 18) $ . set_project template
-19) $ cd $APPASERVER_HOME/src_template
-20) $ ./install_template_database.sh noexecute|execute
-21) $ upgrade_appaserver_database template
+19) $ install_template_database.sh noexecute|execute
+20) $ upgrade_appaserver_database template
 
 ---------
 E) Log in

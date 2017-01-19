@@ -657,22 +657,22 @@ void make_document_root_directory(	char *destination_application,
 		sprintf( sys_string,
 		 	"mkdir %s/%s/%s && chmod g+rwxs %s/%s/%s",
 		 	document_root_directory,
-		 	destination_application,
 			"appaserver",
-		 	document_root_directory,
 		 	destination_application,
-			"appaserver" );
+		 	document_root_directory,
+			"appaserver",
+		 	destination_application );
 	}
 	else
 	{
 		sprintf( sys_string,
 "echo \"mkdir %s/%s/%s && chmod g+rwxs %s/%s/%s\" | html_paragraph_wrapper.e",
 		 	document_root_directory,
-		 	destination_application,
 			"appaserver",
-		 	document_root_directory,
 		 	destination_application,
-			"appaserver" );
+		 	document_root_directory,
+			"appaserver",
+		 	destination_application );
 	}
 
 	fflush( stdout );
@@ -682,9 +682,8 @@ void make_document_root_directory(	char *destination_application,
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
-"ln -s %s/%s/src_%s %s/%s/%s",
+"ln -s %s/src_%s %s/%s/%s",
 		 	appaserver_home_directory,
-		 	destination_application,
 			destination_application,
 		 	document_root_directory,
 			"appaserver",
@@ -693,13 +692,11 @@ void make_document_root_directory(	char *destination_application,
 	else
 	{
 		sprintf( sys_string,
-"echo \"ln -l %s/%s/src_%s %s/%s/%s\" | html_paragraph_wrapper.e",
+"echo \"ln -s %s/src_%s %s/%s\" | html_paragraph_wrapper.e",
 		 	appaserver_home_directory,
 		 	destination_application,
-		 	destination_application,
 		 	document_root_directory,
-			"appaserver",
-		 	destination_application );
+			"appaserver" );
 	}
 
 	fflush( stdout );

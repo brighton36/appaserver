@@ -1750,7 +1750,7 @@ void remove_document_root_directory(
 	else
 	{
 		sprintf( sys_string,
-			"echo \"rm %s/%s/%s\" | html_paragraph_wrapper.e",
+			"echo \"rm -fr %s/%s/%s\" | html_paragraph_wrapper.e",
 		 	document_root_directory,
 			"appaserver",
 		 	destination_application );

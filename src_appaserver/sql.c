@@ -7,6 +7,9 @@
 /* 2) the database_management_system (retired)				*/
 /* 3) the database_name							*/
 /* --OR--								*/
+/* 1) the delimiter							*/
+/* 2) the database_name							*/
+/* --OR--								*/
 /* 1) the database_name							*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
@@ -24,8 +27,6 @@
 #include "environ.h"
 #include "basename.h"
 
-/* #define SLEEP_MICRO_SECONDS		10000 */
-
 int main( int argc, char **argv )
 {
 	APPASERVER_PARAMETER_FILE *h;
@@ -33,12 +34,13 @@ int main( int argc, char **argv )
 	char delimiter = FOLDER_DATA_DELIMITER;
 	char *base_name;
 	char *quick_flag;
-	char *database_management_system = {0};
 	char *override_database = {0};
 	char *database_connection;
 
 	/* --------------------------------------------	*/
 	/* Usage: sql.e [delimiter] ignored [database]	*/
+	/* --OR--					*/
+	/* Usage: sql.e delimiter [database]		*/
 	/* --OR--					*/
 	/* Usage: sql.e [database]			*/
 	/* -------------------------------------------- */
@@ -46,14 +48,17 @@ int main( int argc, char **argv )
 	if ( argc == 4 )
 	{
 		delimiter = *argv[ 1 ];
-		database_management_system = argv[ 2 ];
+		/* database_management_system = argv[ 2 ]; */
 		override_database = argv[ 3 ];
 	}
 	else
 	if ( argc == 3 )
 	{
-		delimiter = *argv[ 1 ];
-		database_management_system = argv[ 2 ];
+		if ( strlen( argv[ 1 ] ) == 1 )
+			delimiter = *argv[ 1 ];
+
+		if ( *argv[ 2 ] && strcmp( argv[ 2 ], "ignored" ) != 0 )
+			override_database = argv[ 2 ];
 	}
 	else
 	if ( argc == 2 )
@@ -88,10 +93,12 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+/*
 	if ( database_management_system )
 		h->database_management_system = database_management_system;
 	else
 		h->database_management_system = "mysql";
+*/
 
 /*
 	if ( strcmp( h->database_management_system, "oracle" ) == 0 )

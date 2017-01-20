@@ -130,6 +130,10 @@ void populate_document_root_directory(	char *destination_application,
 
 void make_document_root_directory(	char *destination_application,
 					char *document_root_directory,
+					char really_yn );
+
+void make_appaserver_source_directory(	char *destination_application,
+					char *document_root_directory,
 					char *appaserver_home_directory,
 					char really_yn );
 
@@ -647,7 +651,6 @@ void update_application_row(		char *destination_application,
 
 void make_document_root_directory(	char *destination_application,
 					char *document_root_directory,
-					char *appaserver_home_directory,
 					char really_yn )
 {
 	char sys_string[ 1024 ];
@@ -679,6 +682,15 @@ void make_document_root_directory(	char *destination_application,
 	system( sys_string );
 	fflush( stdout );
 
+} /* make_document_root_directory() */
+
+void make_appaserver_source_directory(	char *destination_application,
+					char *document_root_directory,
+					char *appaserver_home_directory,
+					char really_yn )
+{
+	char sys_string[ 1024 ];
+
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
@@ -703,7 +715,7 @@ void make_document_root_directory(	char *destination_application,
 	system( sys_string );
 	fflush( stdout );
 
-} /* make_document_root_directory() */
+} /* make_appaserver_source_directory() */
 
 void make_appaserver_home_directory(	char *destination_application,
 					char *appaserver_home_directory,
@@ -1616,8 +1628,15 @@ boolean create_empty_application(
 
 	make_document_root_directory(	destination_application,
 					document_root_directory,
+					really_yn );
+
+/* Not until I get better at git.
+	make_appaserver_source_directory(
+					destination_application,
+					document_root_directory,
 					appaserver_home_directory,
 					really_yn );
+*/
 
 	populate_document_root_directory(
 					destination_application,

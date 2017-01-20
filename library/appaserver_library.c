@@ -2527,6 +2527,15 @@ boolean appaserver_library_application_exists(
 	char sys_string[ 1024 ];
 	char *results;
 
+	if ( timlib_strcmp( application, "mysql" ) == 0
+	||   timlib_strcmp( application, "appaserver" ) == 0
+	||   timlib_strcmp( application, "root" ) == 0
+	||   timlib_strcmp( application, "test" ) == 0
+	||   timlib_strcmp( application, "system" ) == 0 )
+	{
+		return 1;
+	}
+
 	sprintf( sys_string,
 		 "stat.e %s/appaserver_%s.err 2>&1 | grep '^\\.filename'",
 		 appaserver_error_directory,

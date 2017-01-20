@@ -408,4 +408,9 @@ boolean process_generic_output_validate_begin_end_date(
 			PROCESS_GENERIC_OUTPUT *process_generic_output,
 			DICTIONARY *post_dictionary );
 
+char *process_generic_output_get_drop_down_where_clause(
+			char *application_name,
+			PROCESS_GENERIC_OUTPUT *process_generic_output,
+			DICTIONARY *dictionary );
+
 #endif

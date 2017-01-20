@@ -23,7 +23,7 @@
 
 /* Constants */
 /* --------- */
-#define DELETE_OK			1
+#define DELETE_OK			0
 #define MAKE_SOURCE_DIRECTORY		0
 #define SYSTEM_ADMINISTRATION_ROLE	"system"
 #define SUPERVISOR_ROLE			"supervisor"
@@ -135,10 +135,6 @@ void make_document_root_directory(	char *destination_application,
 
 void make_appaserver_source_directory(	char *destination_application,
 					char *document_root_directory,
-					char *appaserver_home_directory,
-					char really_yn );
-
-void make_appaserver_home_directory(	char *destination_application,
 					char *appaserver_home_directory,
 					char really_yn );
 
@@ -726,6 +722,29 @@ void make_appaserver_source_directory(	char *destination_application,
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
+		 	"mkdir %s/src_%s && chmod g+rwxs %s/src_%s",
+		 	appaserver_home_directory,
+		 	destination_application,
+		 	appaserver_home_directory,
+		 	destination_application );
+	}
+	else
+	{
+		sprintf( sys_string,
+"echo \"mkdir %s/src_%s && chmod g+rwxs %s/src_%s\" | html_paragraph_wrapper.e",
+		 	appaserver_home_directory,
+		 	destination_application,
+		 	appaserver_home_directory,
+		 	destination_application );
+	}
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( sys_string,
 "ln -s %s/src_%s %s/%s/%s",
 		 	appaserver_home_directory,
 			destination_application,
@@ -748,37 +767,6 @@ void make_appaserver_source_directory(	char *destination_application,
 	fflush( stdout );
 
 } /* make_appaserver_source_directory() */
-
-void make_appaserver_home_directory(	char *destination_application,
-					char *appaserver_home_directory,
-					char really_yn )
-{
-	char sys_string[ 1024 ];
-
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-		 	"mkdir %s/src_%s && chmod g+rwxs %s/src_%s",
-		 	appaserver_home_directory,
-		 	destination_application,
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-"echo \"mkdir %s/src_%s && chmod g+rwxs %s/src_%s\" | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	destination_application,
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-} /* make_appaserver_home_directory() */
 
 void populate_document_root_directory(	char *destination_application,
 					char *document_root_directory,
@@ -920,8 +908,9 @@ void fix_index_dot_php(			char *destination_application,
 	char *post_login_sed_executable;
 
 	sprintf(	index_filename,
-			"%s/%s/index.php",
+			"%s/%s/%s/index.php",
 		 	appaserver_home_directory,
+			"appaserver",
 		 	destination_application );
 
 	post_login_sed_executable =
@@ -1652,10 +1641,6 @@ boolean create_empty_application(
 	update_application_row(		destination_application,
 					database_string,
 					new_application_title,
-					really_yn );
-
-	make_appaserver_home_directory(	destination_application,
-					appaserver_home_directory,
 					really_yn );
 
 	make_document_root_directory(	destination_application,

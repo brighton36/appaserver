@@ -23,6 +23,7 @@
 
 /* Constants */
 /* --------- */
+#define MAKE_SOURCE_DIRECTORY		0
 #define DELETE_OK			1
 #define SYSTEM_ADMINISTRATION_ROLE	"system"
 #define SUPERVISOR_ROLE			"supervisor"
@@ -1630,13 +1631,14 @@ boolean create_empty_application(
 					document_root_directory,
 					really_yn );
 
-/* Not until I get better at git.
-	make_appaserver_source_directory(
+	if ( MAKE_SOURCE_DIRECTORY )
+	{
+		make_appaserver_source_directory(
 					destination_application,
 					document_root_directory,
 					appaserver_home_directory,
 					really_yn );
-*/
+	}
 
 	populate_document_root_directory(
 					destination_application,
@@ -1776,21 +1778,24 @@ void remove_document_root_directory(
 	system( sys_string );
 	fflush( stdout );
 
-	if ( really_yn == 'y' )
+	if ( MAKE_SOURCE_DIRECTORY )
 	{
-		sprintf( sys_string,
+		if ( really_yn == 'y' )
+		{
+			sprintf( sys_string,
 			"rm %s/%s/src_%s 2>&1 | html_paragraph_wrapper",
-		 	document_root_directory,
-			"appaserver",
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
+		 		document_root_directory,
+				"appaserver",
+		 		destination_application );
+		}
+		else
+		{
+			sprintf( sys_string,
 			"echo \"rm %s/%s/src_%s\" | html_paragraph_wrapper.e",
-		 	document_root_directory,
-			"appaserver",
-		 	destination_application );
+		 		document_root_directory,
+				"appaserver",
+		 		destination_application );
+		}
 	}
 
 	fflush( stdout );

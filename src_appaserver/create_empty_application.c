@@ -23,8 +23,8 @@
 
 /* Constants */
 /* --------- */
-#define MAKE_SOURCE_DIRECTORY		0
 #define DELETE_OK			1
+#define MAKE_SOURCE_DIRECTORY		0
 #define SYSTEM_ADMINISTRATION_ROLE	"system"
 #define SUPERVISOR_ROLE			"supervisor"
 #define DATAENTRY_ROLE			"dataentry"
@@ -677,6 +677,37 @@ void make_document_root_directory(	char *destination_application,
 		 	document_root_directory,
 			"appaserver",
 		 	destination_application );
+	}
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( sys_string,
+		 	"mkdir %s/%s/%s/%s && chmod g+rwxs %s/%s/%s/%s",
+		 	document_root_directory,
+			"appaserver",
+		 	destination_application,
+			"data",
+		 	document_root_directory,
+			"appaserver",
+		 	destination_application,
+			"data" );
+	}
+	else
+	{
+		sprintf( sys_string,
+"echo \"mkdir %s/%s/%s/%s && chmod g+rwxs %s/%s/%s/%s\" | html_paragraph_wrapper.e",
+		 	document_root_directory,
+			"appaserver",
+		 	destination_application,
+			"data",
+		 	document_root_directory,
+			"appaserver",
+		 	destination_application,
+			"data" );
 	}
 
 	fflush( stdout );

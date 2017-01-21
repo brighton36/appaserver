@@ -62,7 +62,6 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *session;
 	char *login_name;
-	/* char *destination_application; */
 	char *folder_name;
 	char *delete_yn;
 	char sys_string[ 1024 ];
@@ -153,16 +152,6 @@ int main( int argc, char **argv )
 	document_output_body(
 			document->application_name,
 			document->onload_control_string );
-
-/*
-	if ( !*destination_application
-	||   strcmp( destination_application, "destination_application" ) == 0 )
-	{
-		printf( "<p>ERROR: please select a Destination Application\n" );
-		document_close();
-		exit( 0 );
-	}
-*/
 
 	create_clone_filename =
 		create_clone_filename_new(

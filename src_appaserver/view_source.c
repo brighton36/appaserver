@@ -35,7 +35,6 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char current_directory[ 256 ];
-	char piece_buffer[ 256 ];
 	DOCUMENT *document;
 	LIST *file_list;
 	char *file_to_process;

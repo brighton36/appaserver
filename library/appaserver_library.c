@@ -77,7 +77,6 @@ static char *system_folder_list[] = {
 					"row_security_role_update",
 					"select_statement",
 					"subschemas",
-					"tablespaces",
 					"upgrade_scripts",
 					(char *)0 };
 

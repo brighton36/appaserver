@@ -1,7 +1,7 @@
-/* appaserver_folder_list.c			 */
-/* --------------------------------------------- */
-/* Freely available software: see Appaserver.org */
-/* --------------------------------------------- */
+/* $APPASERVER_HOME/src_appaserver/appaserver_folder_list.c	*/
+/* --------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* --------------------------------------------------------	*/
 
 
 #include <stdio.h>

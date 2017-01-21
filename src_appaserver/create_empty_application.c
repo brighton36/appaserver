@@ -1812,11 +1812,11 @@ void remove_document_root_directory(
 				"appaserver",
 		 		destination_application );
 		}
-	}
 
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
+		fflush( stdout );
+		system( sys_string );
+		fflush( stdout );
+	}
 
 } /*remove_document_root_directory() */
 

@@ -130,8 +130,9 @@ int main( int argc, char **argv )
 		file_to_process = list_get_string( file_list );
 
 		printf(
-"<li><a class=external_link target=new_frame href=\"%s:/%s/%s\">%s</a>\n",
+"<li><a class=external_link target=new_frame href=\"%s:/%s/%s/%s\">%s</a>\n",
 			application_get_http_prefix( application_name ),
+			"appaserver",
 		 	application_get_first_relative_source_directory(
 				application_name ),
 		 	file_to_process,

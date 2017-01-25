@@ -1,5 +1,5 @@
 :
-# utility/createmysqluser.sh
+# utility/create_mysql_user.sh
 # ---------------------------------------------
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
@@ -13,8 +13,11 @@ fi
 username=$1
 password=$2
 
-echo "create user '$username'@'localhost' identified by '$password';" | sql.e
-echo "grant all on $username.* to '$username'@'localhost';" | sql.e
+echo "create user '$username'@'localhost' identified by 'password($password)';"|
+sql.e
+
+echo "grant all on $username.* to '$username'@'localhost';"		       |
+sql.e
 
 exit 0
 

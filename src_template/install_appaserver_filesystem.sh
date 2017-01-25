@@ -184,14 +184,18 @@ create_appaserver_data ()
 	fi
 }
 
-enable_apache_cgi ()
+enable_apache ()
 {
 	if [ "$execute" = "execute" ]
 	then
 		a2enmod cgi
+		a2enmod ssl
+		a2ensite default-ssl
 		apache2ctl restart
 	else
 		echo "a2enmod cgi"
+		echo "a2enmod ssl"
+		echo "a2ensite default-ssl"
 		echo "apache2ctl restart"
 	fi
 }
@@ -222,6 +226,6 @@ create_document_root_appaserver $execute
 create_document_root_template $execute
 copy_document_root_template $execute
 link_document_root $execute
-enable_apache_cgi $execute
+enable_apache $execute
 
 exit 0

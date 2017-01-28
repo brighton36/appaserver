@@ -70,7 +70,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	html_encode_quote_and_ampersand.e				\
 	date_grandfather_father_son.e					\
 	trim_until_character.e column_grep.e tee_process.e		\
-	group.e add_line.e update_statement.e label.e extract_from_to.e	\
+	group.e add_line.e update_statement.e label.e			\
 	group_sum.e							\
 	breakin_whitelist.e						\
 	group_date_time.e						\
@@ -1475,12 +1475,6 @@ tee_process.e: tee_process.c
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o tee_process.e
-
-extract_from_to.e: extract_from_to.c
-	$(CC)	${CFLAGS} -I${LIBRARY} extract_from_to.c		\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${STANDARD_LIBRARY}					\
-		-o extract_from_to.e
 
 trim_until_character.e: trim_until_character.c
 	$(CC)	${CFLAGS} -I${LIBRARY} trim_until_character.c		\

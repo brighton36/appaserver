@@ -136,6 +136,8 @@ int main( int argc, char **argv )
 		strcpy( base_name,
 			basename_get_base_name(
 				file_to_process, 1 /* strip_extension */ ) );
+
+/*
 		printf(
 "<li><a class=diagram target=\"%s\" href=\"/appaserver/%s/%s/%s\">%s</a>\n",
 			base_name,
@@ -144,7 +146,15 @@ int main( int argc, char **argv )
 				application_name ),
 		 	file_to_process,
 			format_initial_capital( buffer, file_to_process ) );
+*/
 
+		printf(
+"<li><a class=diagram target=\"%s\" href=\"/appaserver/%s/%s\">%s</a>\n",
+			base_name,
+		 	application_get_first_relative_source_directory(
+				application_name ),
+		 	file_to_process,
+			format_initial_capital( buffer, file_to_process ) );
 	} while( list_next( file_list ) );
 
 	printf( "</ul>\n" );

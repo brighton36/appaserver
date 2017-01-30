@@ -806,37 +806,6 @@ void populate_document_root_directory(	char *destination_application,
 	system( sys_string );
 	fflush( stdout );
 
-#ifdef NOT_DEFINED
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-		 	"ln %s/src_%s/*.pdf %s/src_%s/",
-		 	appaserver_home_directory,
-		 	"template",
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-"echo 'umask 0002 && ln %s/src_%s/*.pdf %s/src_%s/' | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	"template",
-		 	appaserver_home_directory,
-		 	destination_application );
-		sprintf( sys_string,
-"echo 'ln %s/src_%s/*.pdf %s/src_%s/' | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	"template",
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-#endif
-
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,

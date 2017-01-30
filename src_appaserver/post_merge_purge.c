@@ -331,7 +331,7 @@ void post_state_one(	char *application_name,
 			(DICTIONARY *)0 /* parameter_dictionary */,
 			(DICTIONARY *)0 /* where_clause_dictionary */,
 			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			folder->populate_drop_down_process,
+			(PROCESS *)0 /* populate_drop_down_process */,
 			folder->attribute_list,
 			(LIST *)0
 			/* common_non_pr...bute_name_list */,
@@ -393,7 +393,7 @@ void post_state_one(	char *application_name,
 			(DICTIONARY *)0
 				/* where_clause_dictionary */,
 			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			folder->populate_drop_down_process,
+			(PROCESS *)0 /* populate_drop_down_process */,
 			folder->attribute_list,
 			(LIST *)0
 			/* common_non_pr...bute_name_list */,

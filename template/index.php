@@ -2,7 +2,6 @@
 
 <head>
 <title>Template Database</title>
-</script>
 </head>
 
 <body bgcolor="FFFFFF" onload="document.login.login_name.focus()">

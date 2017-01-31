@@ -13,7 +13,7 @@ fi
 username=$1
 password=$2
 
-echo "create user '$username'@'localhost' identified by 'password($password)';"|
+echo "create user '$username'@'localhost' identified by '$password';"|
 sql.e
 
 echo "grant all on $username.* to '$username'@'localhost';"		       |

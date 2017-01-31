@@ -1,5 +1,5 @@
 :
-# utility/dropmysqluser.sh
+# utility/drop_mysql_user.sh
 # ---------------------------------------------
 # Freely available software: see Appaserver.org
 # ---------------------------------------------

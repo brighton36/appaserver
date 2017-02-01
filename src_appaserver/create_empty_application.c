@@ -301,12 +301,24 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	if ( !DIFFERENT_DESTINATION_APPLICATION_OK
+	&&   timlib_strcmp(	current_application,
+				TEMPLATE_APPLICATION ) != 0
+	&&   timlib_strcmp(	current_application,
+				destination_application ) != 0 )
+	{
+		printf(
+"<h3>Error: For security, you must run this from the template application.</h3>\n" );
+		document_close();
+		exit( 1 );
+	}
+
 	if ( !DELETE_OK && delete_application_yn == 'y' )
 	{
-			printf(
+		printf(
 "<h3>Error: the delete function is turned off for security. Set DELETE_OK to 1.</h3>\n" );
-			document_close();
-			exit( 1 );
+		document_close();
+		exit( 1 );
 	}
 	else
 	if ( delete_application_yn == 'y' )

@@ -26,11 +26,8 @@
 #include "application.h"
 #include "session.h"
 
-/* appaserver_link_file */
-
 /* Constants */
 /* --------- */
-#define DIFFERENT_DESTINATION_APPLICATION_OK	0
 #define SESSION_PROCESS_NAME			"create_table"
 #define CREATE_TABLE_FILENAME_TEMPLATE		 "%s/create_table.sh"
 
@@ -116,13 +113,6 @@ int main( int argc, char **argv )
 				argv,
 				current_application );
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( current_application );
-*/
-
 	if ( !session_access(	current_application,
 				session,
 				login_name ) )
@@ -137,10 +127,11 @@ int main( int argc, char **argv )
 		exit( 1 ); 
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	if ( *really_yn == 'y'
-	&&   !DIFFERENT_DESTINATION_APPLICATION_OK
+	if ( !DIFFERENT_DESTINATION_APPLICATION_OK
+	&&   timlib_strcmp(	current_application,
+				TEMPLATE_APPLICATION ) != 0
 	&&   timlib_strcmp(	current_application,
 				destination_application ) != 0 )
 	{

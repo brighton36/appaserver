@@ -29,8 +29,6 @@
 /* Constants */
 /* --------- */
 #define APPLICATION_NAME		"cloudacus"
-#define TEMPLATE_APPLICATION_DATABASE	"template:template"
-#define TEMPLATE_APPLICATION		"template"
 
 /* Prototypes */
 /* ---------- */

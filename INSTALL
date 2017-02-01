@@ -54,7 +54,7 @@ D) Shell installation steps
 02) $ git clone git://github.com/timhriley/appaserver.git
 03) less appaserver/src_template/group_centric.txt
 04) $ cd appaserver/src_template
-05) $ sudo cp appaserver_template.config /etc/appaserver.config
+05) $ sudo cp appaserver.config /etc
 06) $ sudo vi /etc/appaserver.config
 07) vi> set mysql password
 08) vi> set appaserver_mount_point

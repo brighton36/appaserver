@@ -2174,7 +2174,7 @@ QUERY_DROP_DOWN_ROW *query_process_drop_down_row_new(
 				&data,
 				datatype );
 		}
-		
+
 		list_set_pointer(
 			local_data_list,
 			timlib_sql_injection_escape( data ) );
@@ -2843,6 +2843,16 @@ QUERY_ATTRIBUTE *query_attribute_new(	char *attribute_name,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
+	}
+
+	if ( strcmp( datatype, "float" ) == 0
+	||   strcmp( datatype, "integer" ) == 0
+	||   strcmp( datatype, "reference_number" ) == 0 )
+	{
+		timlib_remove_character( from_data, ',' );
+		timlib_remove_character( from_data, '$' );
+		timlib_remove_character( to_data, ',' );
+		timlib_remove_character( to_data, '$' );
 	}
 
 	query_attribute->attribute_name = attribute_name;

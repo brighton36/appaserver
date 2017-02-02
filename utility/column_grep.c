@@ -30,8 +30,8 @@ int main( int argc, char **argv )
 
 void column_grep( int column_offset, char *pattern_to_search )
 {
-	char buffer[ 1024 ];
-	char column_buffer[ 128 ];
+	char buffer[ 65536 ];
+	char column_buffer[ 4096 ];
 
 	while( get_line( buffer, stdin ) )
 	{
@@ -40,14 +40,15 @@ void column_grep( int column_offset, char *pattern_to_search )
 				buffer ) )
 		{
 			fprintf( stderr, 
-			"column_grep.e: cannot get column: %d\n(%s)\n",
+			"%s: cannot get column: %d\n(%s)\n",
+				 __FILE__,
 				 column_offset,
 				 buffer );
 			continue;
 		}
 
 
-		if ( strcmp( pattern_to_search, column_buffer ) == 0 )
+		if ( timlib_strcmp( pattern_to_search, column_buffer ) == 0 )
 			printf( "%s\n", buffer );
 	}
 

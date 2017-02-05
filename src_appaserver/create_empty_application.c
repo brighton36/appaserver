@@ -23,7 +23,9 @@
 
 /* Constants */
 /* --------- */
-#define DELETE_OK			0
+/* Because of DIFFERENT_DESTINATION_APPLICATION_OK, deletes can always be OK. */
+/* -------------------------------------------------------------------------- */
+#define DELETE_OK			1
 #define MAKE_SOURCE_DIRECTORY		0
 #define SYSTEM_ADMINISTRATION_ROLE	"system"
 #define SUPERVISOR_ROLE			"supervisor"

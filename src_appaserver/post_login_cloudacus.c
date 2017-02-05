@@ -28,6 +28,7 @@
 
 /* Constants */
 /* --------- */
+#define LOCATION			"http://cloudacus.com:/index.php"
 #define APPLICATION_NAME		"cloudacus"
 
 /* Prototypes */
@@ -141,6 +142,7 @@ int main( int argc, char **argv )
 		{
 			post_login_redraw_index_screen(
 				APPLICATION_NAME,
+				LOCATION,
 				"invalid_application_key_yn=y" );
 			sleep( 2 );
 			exit( 0 );
@@ -155,6 +157,7 @@ int main( int argc, char **argv )
 
 		post_login_redraw_index_screen(
 				APPLICATION_NAME,
+				LOCATION,
 				"email_password_yn=y" );
 		exit( 0 );
 	}
@@ -203,12 +206,14 @@ int main( int argc, char **argv )
 			{
 				post_login_redraw_index_screen(
 					APPLICATION_NAME,
+					LOCATION,
 					"email_application_succeeded_yn=y" );
 			}
 			else
 			{
 				post_login_redraw_index_screen(
 					APPLICATION_NAME,
+					LOCATION,
 					"password_application_succeeded_yn=y" );
 			}
 		}
@@ -216,6 +221,7 @@ int main( int argc, char **argv )
 		{
 			post_login_redraw_index_screen(
 				APPLICATION_NAME,
+				LOCATION,
 				"password_application_succeeded_yn=n" );
 		}
 
@@ -240,6 +246,7 @@ int main( int argc, char **argv )
 		{
 			post_login_redraw_index_screen(
 				APPLICATION_NAME,
+				LOCATION,
 				"invalid_application_key_yn=y" );
 			sleep( 2 );
 			exit( 0 );
@@ -256,6 +263,7 @@ int main( int argc, char **argv )
 
 			post_login_redraw_index_screen(
 				APPLICATION_NAME,
+				LOCATION,
 				msg );
 
 			sleep( 2 );
@@ -325,6 +333,7 @@ if ( strcmp( application_name, "capitolpops" ) != 0 )
 
 			post_login_redraw_index_screen(
 					APPLICATION_NAME,
+					LOCATION,
 					"invalid_login_yn=y" );
 			sleep( 2 );
 			exit ( 1 );

@@ -24,6 +24,7 @@ boolean post_login_email_login(
 					char *email_http_filename );
 
 void post_login_redraw_index_screen(	char *application_name,
+					char *location,
 					char *message );
 
 enum password_match_return post_login_password_match(

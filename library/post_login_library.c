@@ -71,18 +71,37 @@ boolean post_login_email_login(
 } /* post_login_email_login() */
 
 void post_login_redraw_index_screen(	char *application_name,
+					char *location,
 					char *message )
 {
+	char local_location[ 128 ];
+
+	if ( location )
+	{
+		strcpy( local_location, location );
+		sprintf( local_location,
+			 "%s?%s",
+			 location,
+			 message );
+	}
+	else
+	{
+		sprintf( local_location,
+			 "/appaserver/%s/index.php?%s",
+			 application_name,
+			 message );
+	}
+
 	printf( 
 "Content-type: text/html						\n"
 "\n"
 "<html>									\n"
 "<script type=\"text/javascript\">					\n"
-"window.location = \"/%s/index.php?%s\"					\n"
+"window.location = \"%s\"						\n"
 "</script>								\n"
 "</html>								\n",
-		application_name,
-		message );
+		local_location );
+
 } /* post_login_redraw_index_screen() */
 
 enum password_match_return post_login_password_match(

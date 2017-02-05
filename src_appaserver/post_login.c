@@ -200,6 +200,7 @@ int main( int argc, char **argv )
 		{
 			post_login_redraw_index_screen(
 				application_name,
+				(char *)0 /* location */,
 				"invalid_login_yn=y" );
 		}
 

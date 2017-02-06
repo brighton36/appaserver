@@ -755,6 +755,16 @@ char *rtrim( char *buffer )
 
 } /* rtrim() */
 
+char *trim_length(	char *buffer,
+			int length )
+{
+	if ( strlen( buffer ) >= length ) return buffer;
+
+	buffer[ length - 1 ] = '\0';
+	return buffer;
+
+} /* trim_length() */
+
 char *trim( char *buffer )
 {
         char *buf_ptr = buffer;

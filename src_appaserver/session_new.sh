@@ -35,12 +35,14 @@ appaserver_sessions_table=`get_table_name $application appaserver_sessions`
 now_time=`date.e 0 | piece.e ':' 1`
 session_number=`session_number_new.sh $application`
 
+http_user_agent = `echo "$HTTP_USER_AGENT" | trim_length.e 80`
+
 echo "	insert into $appaserver_sessions_table				 \
 	(appaserver_session,login_name,http_user_agent,			 \
 	 remote_ip_address,login_date,login_time,			 \
 	 last_access_date,last_access_time)				 \
 	values								 \
-	('$session_number','$login_name','$HTTP_USER_AGENT',		 \
+	('$session_number','$login_name','$http_user_agent',		 \
 	 '$REMOTE_ADDR','$now_date','$now_time',			 \
 	 '$now_date','$now_time');"			 		|
 sql.e

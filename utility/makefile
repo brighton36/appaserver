@@ -76,6 +76,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	group_date_time.e						\
 	delimiter2padded_columns.e					\
 	trim.e count.e random.e start_time.e stop_time.e		\
+	trim_length.e							\
 	reverse.e							\
 	printer_control.e days_passed.e format_stamp.e			\
 	format_stamp_undo.e menu.e select2delimiter.e			\
@@ -1042,6 +1043,12 @@ trim.e: trim.c
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o trim.e
+
+trim_length.e: trim_length.c
+	$(CC) 	${CFLAGS} -I${LIBRARY} trim.c 				\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o trim_length.e
 
 group.e: group.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} group.c 				\

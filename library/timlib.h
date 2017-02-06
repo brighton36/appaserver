@@ -445,4 +445,7 @@ boolean timlib_login_name_email_address(
 boolean timlib_double_virtually_same_places(
 				double d1, double d2, int places );
 
+char *trim_length(		char *buffer,
+				int length );
+
 #endif

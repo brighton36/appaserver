@@ -1,5 +1,5 @@
-/* mysqldump_fork.c */
-/* ---------------- */
+/* $APPASERVER_HOME/utility/mysqldump_fork.c */
+/* ----------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>

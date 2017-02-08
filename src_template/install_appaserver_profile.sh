@@ -77,7 +77,6 @@ appaserver_home=`cat $appaserver_config_file	| \
 		 grep "^${label}"		| \
 		 sed "s/$label//"`
 
-
 label="document_root="
 document_root=`cat $appaserver_config_file	| \
 		 grep "^${label}"		| \

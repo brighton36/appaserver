@@ -1,7 +1,7 @@
 :
-# ------------------------------------
-# utility/mysqldump_database.sh
-# ------------------------------------
+# ----------------------------------------------
+# $APPASERVER_HOME/utility/mysqldump_database.sh
+# ----------------------------------------------
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 database parameter_file" 1>&2
@@ -10,6 +10,8 @@ fi
 
 database=$1
 parameter_file=$2
+
+export DATABASE=$database
 
 date_yyyy_mm_dd=`date.e 0 | piece.e ':' 0`
 appaserver_config=/etc/appaserver.config

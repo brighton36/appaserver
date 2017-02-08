@@ -48,7 +48,7 @@ then
 	output_directory=${directory_root}/$output_directory
 fi
 
-if [ "$appaserver_config" = "" ]
+if [ ! -f "$appaserver_config" ]
 then
 	appaserver_config=/etc/appaserver.config
 fi

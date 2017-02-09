@@ -83,7 +83,7 @@ then
 	statement="select distinct full_name
 	from donation_account
 	where $where
-	order by full_name,donation_date;"
+	order by full_name;"
 
 	heading="Full Name"
 	justification="left"

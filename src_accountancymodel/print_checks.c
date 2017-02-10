@@ -469,6 +469,15 @@ LIST *print_checks_get_entity_account_debit_list(
 	do {
 		account = list_get_pointer( current_liability_account_list );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: checking current liability account = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+account->account_name );
+m2( "capitolpops", msg );
+}
 		print_checks_set_single_check_entity_account_debit_list(
 			entity_account_debit_list,
 			&remaining_check_amount,
@@ -477,9 +486,18 @@ LIST *print_checks_get_entity_account_debit_list(
 			street_address,
 			account->account_name );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: length( entity_account_debit_list ) = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_length( entity_account_debit_list ) );
+m2( "capitolpops", msg );
+}
 	} while( list_next( current_liability_account_list ) );
 
-	if ( remaining_check_amount <= 0.01 )
+	if ( remaining_check_amount <= -0.01 )
 	{
 		fprintf( stderr,
 "Warning in %s/%s()/%d: returned a negative remaining_check_amount = %.2lf.\n",
@@ -868,6 +886,15 @@ ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_seek(
 	do {
 		entity_account_debit = list_get( entity_account_debit_list );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: checking entity_account_debit = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+entity_account_debit->account_name );
+m2( "capitolpops", msg );
+}
 		if ( strcmp(	account_payable_account,
 				entity_account_debit->account_name ) == 0 )
 		{

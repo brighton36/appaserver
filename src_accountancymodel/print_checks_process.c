@@ -1,8 +1,8 @@
-/* ----------------------------------------------------	*/
-/* $APPASERVER_HOME/src_accountancymodel/print_checks.c	*/
-/* ----------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ----------------------------------------------------	*/
+/* ------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/print_checks_process.c	*/
+/* ------------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -284,8 +284,13 @@ char *print_checks_execute(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
+/*
 	sprintf( sys_string,
 		 "make_checks.e stdin 2>/dev/null > %s",
+		 output_filename );
+*/
+	sprintf( sys_string,
+		 "make_checks.e stdin > %s",
 		 output_filename );
 
 	output_pipe = popen( sys_string, "w" );

@@ -3447,3 +3447,61 @@ void purchase_vendor_payment_insert(
 
 } /* purchase_vendor_payment_insert() */
 
+char *purchase_order_display( PURCHASE_ORDER *purchase_order )
+{
+	char buffer[ 65536 ];
+
+	sprintf(	buffer,
+			"\n"
+			"full_name = %s;"
+			"street_address = %s;"
+			"purchase_date_time = %s;"
+			"transaction_date_time = %s;"
+			"sum_extension = %.2lf;"
+			"sales_tax = %.2lf;"
+			"freight_in = %.2lf;"
+			"purchase_amount = %.2lf;"
+			"sum_payment_amount = %.2lf;"
+			"amount_due = %.2lf\n",
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->purchase_date_time,
+			purchase_order->transaction_date_time,
+			purchase_order->sum_extension,
+			purchase_order->sales_tax,
+			purchase_order->freight_in,
+			purchase_order->purchase_amount,
+			purchase_order->sum_payment_amount,
+			purchase_order->amount_due );
+
+	return strdup( buffer );
+
+} /* purchase_order_display() */
+
+char *purchase_order_list_display( LIST *purchase_order_list )
+{
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+	PURCHASE_ORDER *purchase_order;
+
+	*ptr = '\0';
+
+	if ( list_rewind( purchase_order_list ) )
+	{
+		do {
+			purchase_order = list_get( purchase_order_list );
+
+			ptr += sprintf(
+				ptr,
+				"\n"
+				"purchase_order: %s\n",
+				purchase_order_display( purchase_order ) );
+
+		} while( list_next( purchase_order_list ) );
+
+	}
+
+	return strdup( buffer );
+
+} /* purchase_order_list_display() */
+

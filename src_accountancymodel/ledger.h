@@ -290,6 +290,9 @@ char *ledger_transaction_display(	TRANSACTION *transaction );
 
 char *ledger_list_display(		LIST *ledger_list );
 
+char *ledger_journal_ledger_list_display(
+					LIST *journal_ledger_list );
+
 char *ledger_propagate_account_list_display(
 					LIST *propagate_account_list );
 

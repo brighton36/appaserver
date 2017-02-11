@@ -34,7 +34,7 @@ typedef struct
 {
 	char *full_name;
 	char *street_address;
-	double drop_down_check_amount;
+	double sum_credit_amount_check_amount;
 	int check_number;
 	LIST *entity_account_debit_list;
 	LIST *purchase_order_list;
@@ -46,6 +46,7 @@ typedef struct
 {
 	LIST *current_liability_account_list;
 	LIST *entity_check_amount_list;
+	double dialog_box_check_amount;
 } PRINT_CHECKS;
 
 /* Operations */
@@ -80,11 +81,7 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 				char *application_name,
 				char *fund_name,
 				char *full_name,
-				char *street_address );
-
-void print_checks_set_entity_account_debit_list(
-				LIST *entity_check_amount_list,
-				char *application_name,
+				char *street_address,
 				LIST *current_liability_account_list,
 				double dialog_box_check_amount );
 
@@ -94,12 +91,10 @@ ENTITY_ACCOUNT_DEBIT *
 				char *account_name );
 
 LIST *print_checks_get_entity_account_debit_list(
-				double *loss_amount,
+				double *remaining_check_amount,
 				LIST *current_liability_account_list,
 				char *full_name,
-				char *street_address,
-				double dialog_box_check_amount,
-				double drop_down_check_amount );
+				char *street_address );
 
 void print_checks_set_single_check_entity_account_debit_list(
 				LIST *entity_account_debit_list,
@@ -114,7 +109,9 @@ LIST *print_checks_get_entity_check_amount_list(
 				char *fund_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
-				int starting_check_number );
+				int starting_check_number,
+				LIST *current_liability_account_list,
+				double dialog_box_check_amount );
 
 /* Returns seconds_to_add to VENDOR_PAYMENT.transaction_date_time */
 /* -------------------------------------------------------------- */
@@ -125,12 +122,11 @@ int print_checks_insert_transaction_journal_ledger(
 				double dialog_box_check_amount );
 
 LIST *print_checks_get_purchase_order_list(
+				double *remaining_check_amount,
 				char *application_name,
 				LIST *current_liability_account_list,
 				char *full_name,
-				char *street_address,
-				double dialog_box_check_amount,
-				double drop_down_check_amount );
+				char *street_address );
 
 void print_checks_set_purchase_order_list(
 				LIST *purchase_order_list,
@@ -145,26 +141,29 @@ double print_checks_get_entity_account_credit_balance(
 				char *full_name,
 				char *street_address );
 
-void print_checks_subtract_purchase_order_amount_due(
-				LIST *entity_check_amount_list,
-				char *application_name );
-
 ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_seek(
 				LIST *entity_account_debit_list,
 				char *account_payable_account );
 
-void print_checks_subtract_amount_due(
+void print_checks_decrement_debit_amount(
 				LIST *entity_account_debit_list,
-				char *account_payable_account,
-				double amount_due );
+				double purchase_order_amount_due );
 
 void print_checks_set_transaction_date_time(
 				LIST *entity_check_amount_list );
 
-void print_checks_insert_purchase_order_vendor_payment(
+int print_checks_insert_vendor_payment(
 				char *application_name,
+				char *fund_name,
 				LIST *entity_check_amount_list,
-				double dialog_box_check_amount,
-				int seconds_to_add );
+				double dialog_box_check_amount );
+
+char *print_checks_entity_check_amount_list_display(
+				LIST *entity_check_amount_list );
+
+char *print_checks_current_liability_account_list_display(
+				LIST *current_liability_account_list );
+
+char *print_checks_display(	PRINT_CHECKS *print_checks );
 
 #endif

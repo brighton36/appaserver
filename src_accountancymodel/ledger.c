@@ -2790,6 +2790,12 @@ char *ledger_transaction_display( TRANSACTION *transaction )
 
 } /* ledger_transaction_display() */
 
+char *ledger_journal_ledger_list_display(
+					LIST *journal_ledger_list )
+{
+	return ledger_list_display( journal_ledger_list );
+}
+
 char *ledger_list_display( LIST *ledger_list )
 {
 	char buffer[ 65536 ];
@@ -2805,6 +2811,7 @@ char *ledger_list_display( LIST *ledger_list )
 
 			buf_ptr +=
 			   sprintf(	buf_ptr,
+					"\n"
 					"full_name = %s, "
 					"street_address = %s, "
 					"account=%s, "
@@ -3915,12 +3922,6 @@ void ledger_delete(			char *application_name,
 
 	output_pipe = popen( sys_string, "w" );
 
-/*
-	char buffer[ 256 ];
-		 	escape_character(	buffer,
-						full_name,
-						'\'' ),
-*/
 	fprintf(	output_pipe,
 			"%s^%s^%s\n",
 			full_name,
@@ -3972,6 +3973,7 @@ void ledger_journal_ledger_insert(	char *application_name,
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
+"tee -a /var/log/appaserver/appaserver_capitolpops.err |"
 		 "sql.e							      ",
 		 table_name,
 		 field );

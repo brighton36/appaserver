@@ -652,5 +652,10 @@ void purchase_vendor_payment_insert(
 				int check_number,
 				char *transaction_date_time );
 
+char *purchase_order_display(	PURCHASE_ORDER *purchase_order );
+
+char *purchase_order_list_display(
+				LIST *purchase_order_list );
+
 #endif
 

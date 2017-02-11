@@ -37,14 +37,20 @@ double print_checks_get_balance(
 				char *full_name,
 				char *street_address );
 
-char *print_checks_execute(
+void print_checks_post(
 				char *application_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
+				double check_amount,
+				char *fund_name );
+
+char *print_checks_create(
+				char *application_name,
+				LIST *full_name_list,
+				LIST *street_address_list,
 				char *memo,
 				double check_amount,
-				boolean execute,
 				char *document_root_directory,
 				char *process_name,
 				char *session,
@@ -214,32 +220,41 @@ char *print_checks(	char *application_name,
 		return "";
 	}
 
+/*
 	pdf_filename =
-		print_checks_execute(
+		print_checks_create(
 			application_name,
 			full_name_list,
 			street_address_list,
-			starting_check_number,
 			memo,
 			check_amount,
-			execute,
 			document_root_directory,
 			process_name,
 			session,
 			fund_name );
+*/
+
+	if ( execute )
+	{
+		print_checks_post(
+			application_name,
+			full_name_list,
+			street_address_list,
+			starting_check_number,
+			check_amount,
+			fund_name );
+	}
 
 	return pdf_filename;
 
 } /* print_checks() */
 
-char *print_checks_execute(
+char *print_checks_create(
 			char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
-			int starting_check_number,
 			char *memo,
 			double check_amount,
-			boolean execute,
 			char *document_root_directory,
 			char *process_name,
 			char *session,
@@ -327,44 +342,6 @@ char *print_checks_execute(
 
 	pclose( output_pipe );
 
-	if ( execute )
-	{
-		PRINT_CHECKS *print_checks;
-		int seconds_to_add;
-
-		print_checks =
-			print_checks_new(
-				application_name,
-				fund_name,
-				full_name_list,
-				street_address_list,
-				starting_check_number,
-				check_amount /* dialog_box_check_amount */ );
-
-		print_checks_subtract_purchase_order_amount_due(
-			print_checks->entity_check_amount_list,
-			application_name );
-
-		print_checks_set_transaction_date_time(
-			print_checks->entity_check_amount_list );
-
-		seconds_to_add =
-			print_checks_insert_transaction_journal_ledger(
-				application_name,
-				fund_name,
-				print_checks->entity_check_amount_list,
-				check_amount /* dialog_box_check_amount */ );
-
-		print_checks_insert_purchase_order_vendor_payment(
-			application_name,
-			print_checks->entity_check_amount_list,
-			check_amount /* dialog_box_check_amount */,
-			seconds_to_add );
-
-		printf(
-		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
-	}
-
 	sprintf( sys_string,
 		 "cat %s",
 		 output_filename );
@@ -423,7 +400,56 @@ char *print_checks_execute(
 
 	return pdf_filename;
 
-} /* print_checks_execute() */
+} /* print_checks_create() */
+
+void print_checks_post(
+			char *application_name,
+			LIST *full_name_list,
+			LIST *street_address_list,
+			int starting_check_number,
+			double check_amount,
+			char *fund_name )
+{
+	PRINT_CHECKS *print_checks;
+	int seconds_to_add;
+
+	print_checks =
+		print_checks_new(
+			application_name,
+			fund_name,
+			full_name_list,
+			street_address_list,
+			starting_check_number,
+			check_amount /* dialog_box_check_amount */ );
+
+
+	seconds_to_add =
+		print_checks_insert_vendor_payment(
+			application_name,
+			fund_name,
+			print_checks->entity_check_amount_list,
+			check_amount /* dialog_box_check_amount */ );
+exit( 0 );
+
+	seconds_to_add =
+		print_checks_insert_transaction_journal_ledger(
+			application_name,
+			fund_name,
+			print_checks->entity_check_amount_list,
+			check_amount /* dialog_box_check_amount */ );
+
+#ifdef NOT_DEFINED
+	print_checks_insert_purchase_order_vendor_payment(
+		application_name,
+		print_checks->entity_check_amount_list,
+		check_amount /* dialog_box_check_amount */,
+		seconds_to_add );
+#endif
+
+	printf(
+	"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
+
+} /* print_checks_post() */
 
 double print_checks_get_balance(
 				char *application_name,

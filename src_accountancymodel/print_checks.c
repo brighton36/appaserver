@@ -805,18 +805,21 @@ ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_seek(
 
 } /* print_checks_entity_account_debit_seek() */
 
-void print_checks_set_transaction_date_time(
-			LIST *entity_check_amount_list )
+void print_checks_insert_transaction_journal_ledger(
+				LIST *distinct_account_name_list,
+				char **propagate_transaction_date_time,
+				double remaining_check_amount,
+				LIST *entity_account_debit_list,
+				char *uncleared_checks_account,
+				int seconds_to_add )
 {
 	ENTITY_CHECK_AMOUNT *entity_check_amount;
-	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
 	DATE *transaction_date_time;
 	char *transaction_date_time_string;
+	TRANSACTION *transaction;
 	LIST *entity_account_debit_list;
 
 	if ( !list_rewind( entity_check_amount_list ) ) return;
-
-	transaction_date_time = date_now_new();
 
 	do {
 		entity_check_amount =
@@ -837,234 +840,250 @@ void print_checks_set_transaction_date_time(
 			exit( 1 );
 		}
 
+		transaction_date_time = date_now_new();
+		date_increment_seconds(
+			transaction_date_time,
+			seconds_to_add );
+
+		transaction_date_time_string =
+			date_display_yyyy_mm_dd_colon_hms(
+				transaction_date_time );
+
+		transaction =
+			ledger_transaction_new(
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
+				transaction_date_time_string,
+				PRINT_CHECKS_MEMO );
+
+		ledger_transaction_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			remaining_check_amount,
+			transaction->memo,
+			entity_check_amount->check_number,
+			0 /* not lock_transaction */ );
+
+		ledger_journal_ledger_insert(
+			application_name,
+			entity_check_amount->full_name,
+			entity_check_amount->street_address,
+			transaction->transaction_date_time,
+			uncleared_checks_account,
+			remaining_check_amount,
+			0 /* not is_debit */ );
+
+		if ( !*propagate_transaction_date_time )
+		{
+			*propagate_transaction_date_time =
+				transaction->transaction_date_time;
+		}
+
 		do {
 			entity_account_debit =
 				list_get(
-					entity_account_debit_list );
+				entity_account_debit_list );
 
-			if ( !timlib_dollar_virtually_same(
+			if ( timlib_dollar_virtually_same(
 				entity_account_debit->debit_amount,
 				0.0 ) )
 			{
-				transaction_date_time_string =
-					date_display_yyyy_mm_dd_colon_hms(
-						transaction_date_time );
+				continue;
+			}
 
-				entity_check_amount->
-					transaction_date_time =
-						transaction_date_time_string;
+			ledger_journal_ledger_insert(
+				application_name,
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
+				transaction->transaction_date_time,
+				entity_account_debit->account_name,
+				entity_account_debit->debit_amount,
+				1 /* is_debit */ );
 
-				date_increment_seconds(
-					transaction_date_time,
-					1 );
+			list_append_unique_string(
+				distinct_account_name_list,
+				entity_account_debit->account_name );
 
+			remaining_check_amount -=
+				entity_account_debit->debit_amount;
+
+			if ( timlib_dollar_virtually_same(
+				remaining_check_amount,
+				0.0 ) )
+			{
 				break;
 			}
 
 		} while( list_next( entity_account_debit_list ) );
 
-	} while( list_next( entity_check_amount_list ) );
-
-} /* print_checks_set_transaction_date_time() */
-
-/* Returns seconds_to_add */
-/* ---------------------- */
-int print_checks_insert_vendor_payment(
-			char *application_name,
-			char *fund_name,
-			LIST *entity_check_amount_list,
-			double dialog_box_check_amount )
-{
-	PURCHASE_ORDER *purchase_order;
-	ENTITY_CHECK_AMOUNT *entity_check_amount;
-	LIST *purchase_order_list;
-	DATE *transaction_date_time;
-	char *transaction_date_time_string;
-	LIST *distinct_account_name_list;
-	char *checking_account;
-	char *uncleared_checks_account;
-	char *account_payable_account;
-	char *propagate_transaction_date_time = {0};
-	TRANSACTION *transaction;
-	int seconds_to_add = 0;
-	double remaining_transaction_amount;
-
-	if ( !list_rewind( entity_check_amount_list ) ) return;
-
-	account_payable_account = (char *)0;
-
-	ledger_get_vendor_payment_account_names(
-		&checking_account,
-		&uncleared_checks_account,
-		&account_payable_account,
-		application_name,
-		fund_name );
-
-	if ( !account_payable_account )
-	{
-		fprintf( stderr,
-"ERRROR in %s/%s()/%d: cannot get account_payable_account for fund = (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 fund_name );
-		exit( 1 );
-	}
-
-	distinct_account_name_list = list_new();
-
-	list_append_pointer(
-		distinct_account_name_list,
-		uncleared_checks_account );
-
-	do {
-		entity_check_amount =
-			list_get(
-				entity_check_amount_list );
-
-		purchase_order_list =
-			entity_check_amount->
-				purchase_order_list;
-
-		if ( !list_rewind( purchase_order_list ) ) continue;
-
-		do {
-			purchase_order = list_get( purchase_order_list );
-
-			transaction_date_time = date_now_new();
-			date_increment_seconds(
-				transaction_date_time,
-				seconds_to_add );
-
-			transaction_date_time_string =
-				date_display_yyyy_mm_dd_colon_hms(
-					transaction_date_time );
-
-			remaining_transaction_amount =
-				(dialog_box_check_amount)
-					? dialog_box_check_amount
-					: purchase_order->amount_due,
-
-			purchase_vendor_payment_insert(
-				application_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				purchase_order->purchase_date_time,
-				transaction_date_time_string
-					/* payment_date_time */,
-				remaining_transaction_amount,
-				entity_check_amount->check_number,
-				transaction_date_time_string );
-
-			transaction =
-				ledger_transaction_new(
-					purchase_order->full_name,
-					purchase_order->street_address,
-					transaction_date_time_string,
-					PRINT_CHECKS_MEMO );
-
-			ledger_transaction_insert(
-				application_name,
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				remaining_transaction_amount,
-				transaction->memo,
-				entity_check_amount->check_number,
-				1 /* lock_transaction */ );
-
-			ledger_journal_ledger_insert(
-				application_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				transaction->transaction_date_time,
-				uncleared_checks_account,
-				remaining_transaction_amount,
-				0 /* not is_debit */ );
-
-			if ( !propagate_transaction_date_time )
+		if ( entity_check_amount->loss_amount )
+		{
+			if ( !loss_account )
 			{
-				propagate_transaction_date_time =
-					transaction->transaction_date_time;
+				loss_account =
+					ledger_get_hard_coded_account_name(
+						application_name,
+						fund_name,
+						"loss_key",
+						0 /* not warning_only */ );
 			}
 
 			ledger_journal_ledger_insert(
 				application_name,
-				transaction->full_name,
-				transaction->street_address,
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
 				transaction->transaction_date_time,
-				account_payable_account,
-				remaining_transaction_amount,
+				loss_account,
+				entity_check_amount->loss_amount,
 				1 /* is_debit */ );
 
 			list_append_unique_string(
 				distinct_account_name_list,
-				account_payable_account );
-
-			if ( timlib_dollar_virtually_same(
-				purchase_order->amount_due,
-				remaining_transaction_amount ) )
-			{
-				purchase_order->amount_due = 0.0;
-				remaining_transaction_amount = 0.0;
-			}
-			else
-			if ( remaining_transaction_amount <
-				purchase_order->amount_due )
-			{
-				purchase_order->amount_due -=
-					remaining_transaction_amount;
-
-				remain_transaction_amount = 0.0;
-			}
-			else
-			{
-				remain_transaction_amount -=
-					purchase_order->amount_due;
-
-				purchase_order->amount_due = 0.0;
-			}
-
-			purchase_order_update(
-				application_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				purchase_order->purchase_date_time,
-				purchase_order->sum_extension,
-				purchase_order->database_sum_extension,
-				purchase_order->purchase_amount,
-				purchase_order->database_purchase_amount,
-				purchase_order->amount_due,
-				purchase_order->database_amount_due,
-				purchase_order->transaction_date_time,
-				purchase_order->database_transaction_date_time,
-				purchase_order->arrived_date_time,
-				purchase_order->database_arrived_date_time,
-				purchase_order->shipped_date,
-				purchase_order->database_shipped_date );
+				loss_account );
 
 			seconds_to_add++;
-
-			if ( timlib_dollar_virtually_same(
-				remaining_transaction_amount,
-				0.0 ) )
-			{
-				break;
-			}
-
-		} while( list_next( purchase_order_list ) );
+		}
 
 	} while( list_next( entity_check_amount_list ) );
 
-	if ( propagate_transaction_date_time )
-	{
-		ledger_propagate_account_name_list(
-			application_name,
-			propagate_transaction_date_time,
-			distinct_account_name_list );
-	}
+} /* print_checks_insert_transaction_journal_ledger() */
 
-	return seconds_to_add;
+/* Returns seconds_to_add */
+/* ---------------------- */
+int print_checks_insert_vendor_payment(
+				LIST *distinct_account_name_list,
+				char **propagate_transaction_date_time,
+				double *remaining_check_amount,
+				LIST *purchase_order_list,
+				char *uncleared_checks_account,
+				int seconds_to_add )
+{
+	PURCHASE_ORDER *purchase_order;
+
+	if ( !list_rewind( purchase_order_list ) ) continue;
+
+	do {
+		purchase_order = list_get( purchase_order_list );
+
+		transaction_date_time = date_now_new();
+		date_increment_seconds(
+			transaction_date_time,
+			seconds_to_add );
+
+		transaction_date_time_string =
+			date_display_yyyy_mm_dd_colon_hms(
+				transaction_date_time );
+
+		purchase_vendor_payment_insert(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->purchase_date_time,
+			transaction_date_time_string
+				/* payment_date_time */,
+			remaining_transaction_amount,
+			entity_check_amount->check_number,
+			transaction_date_time_string );
+
+		transaction =
+			ledger_transaction_new(
+				purchase_order->full_name,
+				purchase_order->street_address,
+				transaction_date_time_string,
+				PRINT_CHECKS_MEMO );
+
+		ledger_transaction_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			remaining_transaction_amount,
+			transaction->memo,
+			entity_check_amount->check_number,
+			1 /* lock_transaction */ );
+
+		ledger_journal_ledger_insert(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			transaction->transaction_date_time,
+			uncleared_checks_account,
+			remaining_transaction_amount,
+			0 /* not is_debit */ );
+
+		if ( !propagate_transaction_date_time )
+		{
+			propagate_transaction_date_time =
+				transaction->transaction_date_time;
+		}
+
+		ledger_journal_ledger_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			account_payable_account,
+			remaining_transaction_amount,
+			1 /* is_debit */ );
+
+		list_append_unique_string(
+			distinct_account_name_list,
+			account_payable_account );
+
+		if ( timlib_dollar_virtually_same(
+			purchase_order->amount_due,
+			remaining_transaction_amount ) )
+		{
+			purchase_order->amount_due = 0.0;
+			remaining_transaction_amount = 0.0;
+		}
+		else
+		if ( remaining_transaction_amount <
+			purchase_order->amount_due )
+		{
+			purchase_order->amount_due -=
+				remaining_transaction_amount;
+
+			remaining_transaction_amount = 0.0;
+		}
+		else
+		{
+			remaining_transaction_amount -=
+				purchase_order->amount_due;
+
+			purchase_order->amount_due = 0.0;
+		}
+
+		purchase_order_update(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->purchase_date_time,
+			purchase_order->sum_extension,
+			purchase_order->database_sum_extension,
+			purchase_order->purchase_amount,
+			purchase_order->database_purchase_amount,
+			purchase_order->amount_due,
+			purchase_order->database_amount_due,
+			purchase_order->transaction_date_time,
+			purchase_order->database_transaction_date_time,
+			purchase_order->arrived_date_time,
+			purchase_order->database_arrived_date_time,
+			purchase_order->shipped_date,
+			purchase_order->database_shipped_date );
+
+		seconds_to_add++;
+
+		if ( timlib_dollar_virtually_same(
+			remaining_check_amount,
+			0.0 ) )
+		{
+			break;
+		}
+
+	} while( list_next( purchase_order_list ) );
 
 } /* print_checks_insert_vendor_payment() */
 
@@ -1173,4 +1192,361 @@ char *print_checks_display( PRINT_CHECKS *print_checks )
 	return strdup( buffer );
 
 } /* print_checks_display() */
+
+void print_checks_insert_entity_check_amount_list(
+				char *application_name,
+				char *fund_name,
+				LIST *entity_check_amount_list,
+				double dialog_box_check_amount )
+{
+	ENTITY_CHECK_AMOUNT *entity_check_amount;
+	LIST *entity_account_debit_list;
+	LIST *distinct_account_name_list;
+	char *propagate_transaction_date_time = {0};
+	TRANSACTION *transaction;
+	char *loss_account = {0};
+	char *uncleared_checks_account;
+	int seconds_to_add = 0;
+	double check_amount;
+
+	distinct_account_name_list = list_new();
+
+	uncleared_checks_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			"uncleared_checks_key",
+			0 /* not warning_only */ );
+
+	if ( !uncleared_checks_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get uncleared_checks_account for fund = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 fund_name );
+		exit( 1 );
+	}
+
+	list_append_pointer(
+		distinct_account_name_list,
+		uncleared_checks_account );
+
+	if ( !list_rewind( entity_check_amount_list ) ) return;
+
+	do {
+		entity_check_amount =
+			list_get(
+				entity_check_amount_list );
+
+		check_amount =
+			(dialog_box_check_amount)
+				? dialog_box_check_amount
+				: entity_check_amount->
+					sum_credit_amount_check_amount;
+
+		seconds_to_add +=
+			print_checks_insert_entity_check_amount(
+				application_name,
+				entity_check_amount,
+				check_amount,
+				uncleared_checks_account,
+				seconds_to_add );
+
+	} while( list_next( entity_check_amount_list ) );
+
+	if ( propagate_transaction_date_time )
+	{
+		ledger_propagate_account_name_list(
+			application_name,
+			propagate_transaction_date_time,
+			distinct_account_name_list );
+	}
+
+} /* print_checks_insert_entity_check_amount_list() */
+
+/* Returns seconds_to_add */
+/* ---------------------- */
+int print_checks_insert_entity_check_amount(
+				LIST *distinct_account_name_list,
+				char **propagate_transaction_date_time,
+				char *application_name,
+				ENTITY_CHECK_AMOUNT *entity_check_amount,
+				double check_amount,
+				char *uncleared_checks_account,
+				int seconds_to_add )
+{
+	if ( list_length( entity_check_amount->purchase_order_list ) )
+	{
+		seconds_to_add +=
+			print_checks_insert_vendor_payment(
+				distinct_account_name_list,
+				propagate_transaction_date_time,
+				&check_amount /* remaining_check_amount */,
+				entity_check_amount->
+					purchase_order_list,
+				uncleared_checks_account,
+				seconds_to_add );
+	}
+
+	if ( list_length( entity_check_amount->entity_account_debit_list ) )
+	{
+		print_checks_insert_entity_account_debit_list(
+			distinct_account_name_list,
+			propagate_transaction_date_time,
+			check_amount /* remaining_check_amount */,
+			application_name,
+			entity_check_amount->
+				entity_account_debit_list,
+			entity_check_amount->check_number,
+			uncleared_checks_account,
+			seconds_to_add,
+			entity_check_amount->full_name,
+			entity_check_amount->street_address );
+	}
+
+} /* print_checks_insert_entity_check_amount() */
+
+void print_checks_insert_entity_account_debit_list(
+				LIST *distinct_account_name_list,
+				char **propagate_transaction_date_time,
+				double remaining_check_amount,
+				char *application_name,
+				LIST *entity_account_debit_list,
+				int check_number,
+				char *uncleared_checks_account,
+				int seconds_to_add,
+				char *full_name,
+				char *street_address )
+{
+	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+	TRANSACTION *transaction;
+	DATE *transaction_date_time;
+	char *transaction_date_time_string;
+
+	if ( !list_rewind( entity_account_debit_list ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: empty entity_account_debit_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	transaction_date_time = date_now_new();
+	date_increment_seconds(
+		transaction_date_time,
+		seconds_to_add );
+
+	transaction_date_time_string =
+		date_display_yyyy_mm_dd_colon_hms(
+			transaction_date_time );
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time_string,
+			PRINT_CHECKS_MEMO );
+
+	ledger_transaction_insert(
+		application_name,
+		transaction->full_name,
+		transaction->street_address,
+		transaction->transaction_date_time,
+		check_amount,
+		transaction->memo,
+		check_number,
+		0 /* not lock_transaction */ );
+
+	ledger_journal_ledger_insert(
+		application_name,
+		entity_check_amount->full_name,
+		entity_check_amount->street_address,
+		transaction->transaction_date_time,
+		uncleared_checks_account,
+		*remaining_check_amount,
+		0 /* not is_debit */ );
+
+	if ( !*propagate_transaction_date_time )
+	{
+		*propagate_transaction_date_time =
+			transaction->transaction_date_time;
+	}
+
+	do {
+		entity_account_debit =
+			list_get(
+			entity_account_debit_list );
+
+		if ( timlib_dollar_virtually_same(
+			entity_account_debit->debit_amount,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		ledger_journal_ledger_insert(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time_string,
+			entity_account_debit->account_name,
+			entity_account_debit->debit_amount,
+			1 /* is_debit */ );
+
+		list_append_unique_string(
+			distinct_account_name_list,
+			entity_account_debit->account_name );
+
+			check_amount -= entity_account_debit->debit_amount;
+
+			if ( timlib_dollar_virtually_same(
+				check_amount,
+				0.0 ) )
+			{
+				break;
+			}
+
+		} while( list_next( entity_account_debit_list ) );
+
+		if ( entity_check_amount->loss_amount )
+		{
+			if ( !loss_account )
+			{
+				loss_account =
+					ledger_get_hard_coded_account_name(
+						application_name,
+						fund_name,
+						"loss_key",
+						0 /* not warning_only */ );
+			}
+
+			ledger_journal_ledger_insert(
+				application_name,
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
+				transaction->transaction_date_time,
+				loss_account,
+				entity_check_amount->loss_amount,
+				1 /* is_debit */ );
+
+			list_append_unique_string(
+				distinct_account_name_list,
+				loss_account );
+		}
+
+		seconds_to_add++;
+
+		entity_account_debit_list =
+			entity_check_amount->
+				entity_account_debit_list;
+
+		if ( !list_rewind( entity_account_debit_list  ) )
+		{
+			fprintf( stderr,
+			 	 "ERROR in %s/%s()/%d: empty list.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__ );
+			exit( 1 );
+		}
+
+		transaction =
+			ledger_transaction_new(
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
+				entity_check_amount->transaction_date_time,
+				PRINT_CHECKS_MEMO );
+
+		ledger_transaction_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			check_amount,
+			transaction->memo,
+			entity_check_amount->check_number,
+			0 /* not lock_transaction */ );
+
+		ledger_journal_ledger_insert(
+			application_name,
+			entity_check_amount->full_name,
+			entity_check_amount->street_address,
+			transaction->transaction_date_time,
+			uncleared_checks_account,
+			check_amount,
+			0 /* not is_debit */ );
+
+		if ( !propagate_transaction_date_time )
+		{
+			propagate_transaction_date_time =
+				transaction->transaction_date_time;
+		}
+
+		do {
+			entity_account_debit =
+				list_get(
+				entity_account_debit_list );
+
+			if ( timlib_dollar_virtually_same(
+				entity_account_debit->debit_amount,
+				0.0 ) )
+			{
+				continue;
+			}
+
+			ledger_journal_ledger_insert(
+				application_name,
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
+				transaction->transaction_date_time,
+				entity_account_debit->account_name,
+				entity_account_debit->debit_amount,
+				1 /* is_debit */ );
+
+			list_append_unique_string(
+				distinct_account_name_list,
+				entity_account_debit->account_name );
+
+			check_amount -= entity_account_debit->debit_amount;
+
+			if ( timlib_dollar_virtually_same(
+				check_amount,
+				0.0 ) )
+			{
+				break;
+			}
+
+		} while( list_next( entity_account_debit_list ) );
+
+		if ( entity_check_amount->loss_amount )
+		{
+			if ( !loss_account )
+			{
+				loss_account =
+					ledger_get_hard_coded_account_name(
+						application_name,
+						fund_name,
+						"loss_key",
+						0 /* not warning_only */ );
+			}
+
+			ledger_journal_ledger_insert(
+				application_name,
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
+				transaction->transaction_date_time,
+				loss_account,
+				entity_check_amount->loss_amount,
+				1 /* is_debit */ );
+
+			list_append_unique_string(
+				distinct_account_name_list,
+				loss_account );
+		}
+
+} /* print_checks_insert_entity_account_debit_list() */
 

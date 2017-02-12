@@ -113,14 +113,6 @@ LIST *print_checks_get_entity_check_amount_list(
 				LIST *current_liability_account_list,
 				double dialog_box_check_amount );
 
-/* Returns seconds_to_add to VENDOR_PAYMENT.transaction_date_time */
-/* -------------------------------------------------------------- */
-int print_checks_insert_transaction_journal_ledger(
-				char *application_name,
-				char *fund_name,
-				LIST *entity_check_amount_list,
-				double dialog_box_check_amount );
-
 LIST *print_checks_get_purchase_order_list(
 				double *remaining_check_amount,
 				char *application_name,
@@ -149,10 +141,7 @@ void print_checks_decrement_debit_amount(
 				LIST *entity_account_debit_list,
 				double purchase_order_amount_due );
 
-void print_checks_set_transaction_date_time(
-				LIST *entity_check_amount_list );
-
-int print_checks_insert_vendor_payment(
+void print_checks_insert_entity_check_amount_list(
 				char *application_name,
 				char *fund_name,
 				LIST *entity_check_amount_list,
@@ -165,5 +154,32 @@ char *print_checks_current_liability_account_list_display(
 				LIST *current_liability_account_list );
 
 char *print_checks_display(	PRINT_CHECKS *print_checks );
+
+int print_checks_insert_vendor_payment(
+				LIST *distinct_account_name_list,
+				char **propagate_transaction_date_time,
+				double *remaining_check_amount,
+				LIST *purchase_order_list,
+				char *uncleared_checks_account,
+				int seconds_to_add );
+
+int print_checks_insert_entity_check_amount(
+				LIST *distinct_account_name_list,
+				char **propagate_transaction_date_time,
+				char *application_name,
+				ENTITY_CHECK_AMOUNT *entity_check_amount,
+				double check_amount,
+				char *uncleared_checks_account,
+				int seconds_to_add );
+
+void print_checks_insert_entity_account_debit_list(
+				LIST *distinct_account_name_list,
+				char **propagate_transaction_date_time,
+				double *remaining_check_amount,
+				LIST *entity_account_debit_list,
+				char *uncleared_checks_account,
+				int seconds_to_add,
+				char *full_name,
+				char *street_address );
 
 #endif

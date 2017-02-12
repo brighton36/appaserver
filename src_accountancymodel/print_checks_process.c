@@ -411,7 +411,6 @@ void print_checks_post(
 			char *fund_name )
 {
 	PRINT_CHECKS *print_checks;
-	int seconds_to_add;
 
 	print_checks =
 		print_checks_new(
@@ -422,29 +421,11 @@ void print_checks_post(
 			starting_check_number,
 			check_amount /* dialog_box_check_amount */ );
 
-
-	seconds_to_add =
-		print_checks_insert_vendor_payment(
-			application_name,
-			fund_name,
-			print_checks->entity_check_amount_list,
-			check_amount /* dialog_box_check_amount */ );
-exit( 0 );
-
-	seconds_to_add =
-		print_checks_insert_transaction_journal_ledger(
-			application_name,
-			fund_name,
-			print_checks->entity_check_amount_list,
-			check_amount /* dialog_box_check_amount */ );
-
-#ifdef NOT_DEFINED
-	print_checks_insert_purchase_order_vendor_payment(
+	print_checks_insert_entity_check_amount_list(
 		application_name,
+		fund_name,
 		print_checks->entity_check_amount_list,
-		check_amount /* dialog_box_check_amount */,
-		seconds_to_add );
-#endif
+		print_checks->dialog_box_check_amount );
 
 	printf(
 	"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );

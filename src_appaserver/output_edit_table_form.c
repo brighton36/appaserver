@@ -268,12 +268,14 @@ int main( int argc, char **argv )
 			folder->folder_name /* query_folder_name */,
 			folder->mto1_related_folder_list );
 
+/*
 	if ( prompt_recursive_get_grandchild_query_folder_name(
 			prompt_recursive,
 			dictionary_appaserver->query_dictionary ) )
 	{
 		make_primary_keys_non_edit = 1;
 	}
+*/
 
 	folder->one2m_related_folder_list =
 		related_folder_get_1tom_related_folder_list(

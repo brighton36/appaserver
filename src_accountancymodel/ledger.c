@@ -6299,3 +6299,27 @@ ACCOUNT *ledger_account_list_seek(	LIST *account_list,
 	return ledger_seek_account( account_list, account_name );
 
 }
+
+LIST *ledger_get_after_balance_zero_journal_ledger_list(
+				char *application_name,
+				char *account_name )
+{
+	char *transaction_date_time;
+
+	if ( ! ( transaction_date_time =
+			ledger_get_latest_zero_balance_transaction_date_time(
+				application_name,
+				account_name ) ) )
+	{
+		return (LIST *)0;
+	}
+
+	return ledger_get_journal_ledger_list(
+				application_name,
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				transaction_date_time,
+				account_name );
+
+} /* ledger_get_after_balance_zero_journal_ledger_list() */
+

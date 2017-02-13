@@ -68,10 +68,6 @@ ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_new(
 LIST *print_checks_get_current_liability_account_list(
 				char *application_name );
 
-LIST *print_checks_get_after_balance_zero_journal_ledger_list(
-				char *application_name,
-				char *account_name );
-
 LIST *print_checks_get_entity_list(
 				char *application_name,
 				char *full_name,
@@ -113,7 +109,7 @@ LIST *print_checks_get_entity_check_amount_list(
 				LIST *current_liability_account_list,
 				double dialog_box_check_amount );
 
-LIST *print_checks_get_purchase_order_list(
+LIST *print_checks_fetch_purchase_order_list(
 				double *remaining_check_amount,
 				char *application_name,
 				LIST *current_liability_account_list,
@@ -156,12 +152,14 @@ char *print_checks_current_liability_account_list_display(
 char *print_checks_display(	PRINT_CHECKS *print_checks );
 
 int print_checks_insert_vendor_payment(
-				LIST *distinct_account_name_list,
 				char **propagate_transaction_date_time,
 				double *remaining_check_amount,
 				LIST *purchase_order_list,
+				char *application_name,
 				char *uncleared_checks_account,
-				int seconds_to_add );
+				char *account_payable_account,
+				int seconds_to_add,
+				int check_number );
 
 int print_checks_insert_entity_check_amount(
 				LIST *distinct_account_name_list,
@@ -170,16 +168,22 @@ int print_checks_insert_entity_check_amount(
 				ENTITY_CHECK_AMOUNT *entity_check_amount,
 				double check_amount,
 				char *uncleared_checks_account,
-				int seconds_to_add );
+				char *account_payable_account,
+				int seconds_to_add,
+				char *fund_name );
 
 void print_checks_insert_entity_account_debit_list(
 				LIST *distinct_account_name_list,
 				char **propagate_transaction_date_time,
-				double *remaining_check_amount,
+				double remaining_check_amount,
+				char *application_name,
 				LIST *entity_account_debit_list,
+				int check_number,
 				char *uncleared_checks_account,
 				int seconds_to_add,
 				char *full_name,
-				char *street_address );
+				char *street_address,
+				double loss_amount,
+				char *fund_name );
 
 #endif

@@ -816,7 +816,12 @@ void ledger_append_propagate_account_list(
 				char *account_name,
 				char *application_name );
 
-ACCOUNT *ledger_account_list_seek(	LIST *account_list,
-					char *account_name );
+ACCOUNT *ledger_account_list_seek(
+				LIST *account_list,
+				char *account_name );
+
+LIST *ledger_get_after_balance_zero_journal_ledger_list(
+				char *application_name,
+				char *account_name );
 
 #endif

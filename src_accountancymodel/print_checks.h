@@ -92,7 +92,7 @@ LIST *print_checks_get_entity_account_debit_list(
 				char *full_name,
 				char *street_address );
 
-void print_checks_set_single_check_entity_account_debit_list(
+void print_checks_set_entity_account_debit_list(
 				LIST *entity_account_debit_list,
 				double *remaining_check_amount,
 				LIST *journal_ledger_list,
@@ -185,5 +185,8 @@ void print_checks_insert_entity_account_debit_list(
 				char *street_address,
 				double loss_amount,
 				char *fund_name );
+
+char *print_checks_entity_account_debit_list_display(
+				LIST *entity_account_debit_list );
 
 #endif

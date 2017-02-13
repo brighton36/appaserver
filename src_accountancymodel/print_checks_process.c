@@ -220,7 +220,6 @@ char *print_checks(	char *application_name,
 		return "";
 	}
 
-/*
 	pdf_filename =
 		print_checks_create(
 			application_name,
@@ -232,7 +231,6 @@ char *print_checks(	char *application_name,
 			process_name,
 			session,
 			fund_name );
-*/
 
 	if ( execute )
 	{
@@ -421,11 +419,13 @@ void print_checks_post(
 			starting_check_number,
 			check_amount /* dialog_box_check_amount */ );
 
+/*
 fprintf( stderr, "%s/%s()/%d: print_checks: %s\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 print_checks_display( print_checks ) );
+*/
 
 	print_checks_insert_entity_check_amount_list(
 		application_name,

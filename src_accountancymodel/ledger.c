@@ -3973,10 +3973,18 @@ void ledger_journal_ledger_insert(	char *application_name,
 
 	sprintf( sys_string,
 		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
-"tee -a /var/log/appaserver/appaserver_capitolpops.err |"
 		 "sql.e							      ",
 		 table_name,
 		 field );
+
+/*
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
+"tee -a /var/log/appaserver/appaserver_capitolpops.err |"
+		 "html_paragraph_wrapper.e				      ",
+		 table_name,
+		 field );
+*/
 
 	output_pipe = popen( sys_string, "w" );
 

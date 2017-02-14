@@ -493,27 +493,6 @@ void print_checks_set_purchase_order_list(
 	PURCHASE_ORDER *purchase_order;
 	JOURNAL_LEDGER *journal_ledger;
 
-/*
-	double entity_account_credit_balance;
-
-	entity_account_credit_balance =
-		print_checks_get_entity_account_credit_balance(
-			journal_ledger_list,
-			full_name,
-			street_address );
-
-	if ( entity_account_credit_balance <= 0.0 ) return;
-			entity_account_credit_balance -=
-				journal_ledger->credit_amount;
-
-			if ( timlib_dollar_virtually_same(
-				entity_account_credit_balance,
-				0.0 ) )
-			{
-				return;
-			}
-*/
-
 	/* Set the purchase_order_list */
 	/* --------------------------- */
 	list_go_tail( journal_ledger_list );
@@ -536,7 +515,8 @@ void print_checks_set_purchase_order_list(
 				application_name,
 				full_name,
 				street_address,
-				journal_ledger->transaction_date_time ) ) )
+				journal_ledger->transaction_date_time ) )
+		&&     purchase_order->amount_due )
 		{
 			list_append_pointer(
 				purchase_order_list,

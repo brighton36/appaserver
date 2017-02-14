@@ -188,7 +188,7 @@ char *print_checks(	char *application_name,
 {
 	LIST *full_name_list;
 	LIST *street_address_list;
-	char *pdf_filename;
+	char *pdf_filename = {0};
 
 	full_name_list =
 		list_string_to_list(

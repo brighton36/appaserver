@@ -10,32 +10,18 @@ echo Starting: $0 $* 1>&2
 
 if [ $# -lt 2 ]
 then
-	echo "Usage: $0 application login_name [dbms]" 1>&2
+	echo "Usage: $0 application login_name" 1>&2
 	exit 1
 fi
 
 application=$1
 login_name=$2
 
-if [ "$#" -eq 3 ]
-then
-	dbms=$3
-else
-	dbms="mysql"
-fi
-
-if [ "$dbms" = "oracle" ]
-then
-	now_date=`date.e 0 | piece.e ':' 0 | date_convert.e '^' 0 military`
-else
-	now_date=`date.e 0 | piece.e ':' 0`
-fi
-
+now_date=`date.e 0 | piece.e ':' 0`
 appaserver_sessions_table=`get_table_name $application appaserver_sessions`
 now_time=`date.e 0 | piece.e ':' 1`
 session_number=`session_number_new.sh $application`
-
-http_user_agent = `echo "$HTTP_USER_AGENT" | trim_length.e 80`
+http_user_agent=`echo "$HTTP_USER_AGENT" | trim_length.e 80`
 
 echo "	insert into $appaserver_sessions_table				 \
 	(appaserver_session,login_name,http_user_agent,			 \

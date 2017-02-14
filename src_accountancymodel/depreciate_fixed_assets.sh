@@ -1,6 +1,6 @@
 :
-# src_accountancymodel/depreciate_fixed_assets.sh
-# -----------------------------------------------
+# $APPASERVER_HOME/src_accountancymodel/depreciate_fixed_assets.sh
+# ----------------------------------------------------------------
 
 # Input
 # -----
@@ -55,6 +55,7 @@ then
 	depreciate_select.sh						|
 	sed "s/$/^$today/"						|
 	post_change_depreciation $application "stdin"			|
+	xargs.e sleep 1							|
 	cat
 
 	process_table_name=`get_table_name $application process`

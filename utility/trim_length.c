@@ -18,7 +18,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	length = argv[ 1 ];
+	length = atoi( argv[ 1 ] );
 
 	while( get_line( buffer, stdin ) )
 	{

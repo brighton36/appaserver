@@ -30,7 +30,7 @@ echo "	insert into $appaserver_sessions_table				 \
 	values								 \
 	('$session_number','$login_name','$http_user_agent',		 \
 	 '$REMOTE_ADDR','$now_date','$now_time',			 \
-	 '$now_date','$now_time');"			 		|
+	 '$now_date','$now_time');"			 		 |
 sql.e
 
 echo $session_number

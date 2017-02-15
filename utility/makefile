@@ -1044,8 +1044,8 @@ trim.e: trim.c
 		${STANDARD_LIBRARY}					\
 		-o trim.e
 
-trim_length.e: trim_length.c
-	$(CC) 	${CFLAGS} -I${LIBRARY} trim.c 				\
+trim_length.e: trim_length.c ${APPASERVER_LIBRARY}
+	$(CC) 	${CFLAGS} -I${LIBRARY} trim_length.c 			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o trim_length.e

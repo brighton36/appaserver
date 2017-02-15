@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make output_edit_table_form
+	cd ../utility
+	make trim_length.e
 fi

@@ -758,7 +758,7 @@ char *rtrim( char *buffer )
 char *trim_length(	char *buffer,
 			int length )
 {
-	if ( strlen( buffer ) >= length ) return buffer;
+	if ( strlen( buffer ) <= length ) return buffer;
 
 	buffer[ length - 1 ] = '\0';
 	return buffer;

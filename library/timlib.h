@@ -205,6 +205,7 @@ char *escape_character( 		char *destination,
 char *unescape_character( 		char *destination,
 					char *data,
 					int character_to_unescape );
+
 int get_block_delimiter( 		char **block,
 			 		int delimiter,
 			 		int columns_to_block,
@@ -447,5 +448,9 @@ boolean timlib_double_virtually_same_places(
 
 char *trim_length(		char *buffer,
 				int length );
+
+char *timlib_escape_character_string(
+				char *source_destination,
+				char *character_string );
 
 #endif

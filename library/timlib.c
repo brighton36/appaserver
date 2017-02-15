@@ -1948,8 +1948,34 @@ char *timlib_escape_field( char *source_destination )
 	return escape_field( source_destination );
 }
 
+char *timlib_escape_character_string(
+				char *source_destination,
+				char *character_string )
+{
+	char buffer[ 65536 ];
+
+	strcpy( buffer, source_destination );
+
+	return timlib_escape_character_array(
+			source_destination /* destination */,
+			buffer /* source */,
+			character_string /* character_array */ );
+
+}
+
 char *escape_field( char *source_destination )
 {
+	char character_string[ 16 ];
+
+	sprintf( character_string,
+		 "',$()%c",
+		 '%' );
+
+	return timlib_escape_character_string(
+				source_destination,
+				character_string );
+
+/*
 	char buffer[ 65536 ];
 
 	strcpy( buffer, source_destination );
@@ -1970,12 +1996,13 @@ char *escape_field( char *source_destination )
 	strcpy( buffer, source_destination );
 	escape_character( source_destination, buffer, ')' );
 
-/*
+#ifdef NOT_DEFINED
 	strcpy( buffer, source_destination );
 	escape_character( source_destination, buffer, '&' );
-*/
+#endif
 
 	return source_destination;
+*/
 
 } /* escape_field() */
 

@@ -1313,8 +1313,6 @@ DICTIONARY *output_folder_detail(
 
 	form_output_table_heading( form->regular_element_list, *form_number );
 
-	/* form_set_row_dictionary_list( form, fetched_dictionary_list ); */
-
 	form->row_dictionary_list = fetched_dictionary_list;
 
 	if ( strcmp(	row_security->select_folder->folder_name,

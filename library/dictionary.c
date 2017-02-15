@@ -595,8 +595,6 @@ DICTIONARY *dictionary_string2dictionary( char *dictionary_string )
 	int i;
 	char delimiter;
 
-	/* unescape_string( dictionary_string ); */
-
 	if ( character_exists( dictionary_string, '=' ) )
 	{
 		delimiter = '=';
@@ -3301,7 +3299,8 @@ char *dictionary_get_attribute_where_clause(
 	char *translated_data;
 	char where_clause[ 65536 ];
 	char *where_ptr = where_clause;
-	char return_date[ 16 ];
+	char return_date[ 128 ];
+	char escaped_data[ 512 ];
 
 	key_list = dictionary_get_key_list( dictionary );
 
@@ -3335,10 +3334,13 @@ char *dictionary_get_attribute_where_clause(
 			}
 			else
 			{
+				strcpy( escaped_data, data );
+				timlib_escape_field( escaped_data );
+
 				where_ptr += sprintf(	where_ptr,
 							" and %s = '%s'",
 							key,
-							data );
+							escaped_data );
 			}
 		}
 	} while( list_next( key_list ) );

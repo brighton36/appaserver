@@ -1,4 +1,4 @@
-/* library/row_security.c				   */
+/* $APPASERVER_HOME/library/row_security.c		   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -667,15 +667,8 @@ void row_security_append_join_1tom_related_folder_list(
 {
 	DICTIONARY *row_dictionary;
 	RELATED_FOLDER *related_folder;
-/*	 LIST *key_list; */
 
 	if ( !list_rewind( row_dictionary_list ) ) return;
-
-/*
-	key_list =
-		dictionary_get_key_list(
-			list_get_first_pointer( row_dictionary_list ) );
-*/
 
 	do {
 		row_dictionary = list_get_pointer( row_dictionary_list );

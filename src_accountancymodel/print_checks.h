@@ -141,7 +141,8 @@ void print_checks_insert_entity_check_amount_list(
 				char *application_name,
 				char *fund_name,
 				LIST *entity_check_amount_list,
-				double dialog_box_check_amount );
+				double dialog_box_check_amount,
+				char *memo );
 
 char *print_checks_entity_check_amount_list_display(
 				LIST *entity_check_amount_list );
@@ -159,7 +160,8 @@ int print_checks_insert_vendor_payment(
 				char *uncleared_checks_account,
 				char *account_payable_account,
 				int seconds_to_add,
-				int check_number );
+				int check_number,
+				char *memo );
 
 int print_checks_insert_entity_check_amount(
 				LIST *distinct_account_name_list,
@@ -170,7 +172,8 @@ int print_checks_insert_entity_check_amount(
 				char *uncleared_checks_account,
 				char *account_payable_account,
 				int seconds_to_add,
-				char *fund_name );
+				char *fund_name,
+				char *memo );
 
 void print_checks_insert_entity_account_debit_list(
 				LIST *distinct_account_name_list,

@@ -43,7 +43,8 @@ void print_checks_post(
 				LIST *street_address_list,
 				int starting_check_number,
 				double check_amount,
-				char *fund_name );
+				char *fund_name,
+				char *memo );
 
 char *print_checks_create(
 				char *application_name,
@@ -240,7 +241,8 @@ char *print_checks(	char *application_name,
 			street_address_list,
 			starting_check_number,
 			check_amount,
-			fund_name );
+			fund_name,
+			memo );
 	}
 
 	return pdf_filename;
@@ -406,7 +408,8 @@ void print_checks_post(
 			LIST *street_address_list,
 			int starting_check_number,
 			double check_amount,
-			char *fund_name )
+			char *fund_name,
+			char *memo )
 {
 	PRINT_CHECKS *print_checks;
 
@@ -431,7 +434,8 @@ print_checks_display( print_checks ) );
 		application_name,
 		fund_name,
 		print_checks->entity_check_amount_list,
-		print_checks->dialog_box_check_amount );
+		print_checks->dialog_box_check_amount,
+		memo );
 
 	printf(
 	"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );

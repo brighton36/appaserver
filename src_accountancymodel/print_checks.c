@@ -658,7 +658,8 @@ int print_checks_insert_vendor_payment(
 				char *uncleared_checks_account,
 				char *account_payable_account,
 				int seconds_to_add,
-				int check_number )
+				int check_number,
+				char *memo )
 {
 	PURCHASE_ORDER *purchase_order;
 	DATE *transaction_date_time;
@@ -674,6 +675,9 @@ int print_checks_insert_vendor_payment(
 			 __LINE__ );
 		exit( 1 );
 	}
+
+	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
+		memo = PRINT_CHECKS_MEMO;
 
 	transaction_date_time = date_now_new();
 
@@ -704,7 +708,7 @@ int print_checks_insert_vendor_payment(
 				purchase_order->full_name,
 				purchase_order->street_address,
 				transaction_date_time_string,
-				PRINT_CHECKS_MEMO );
+				memo );
 
 		ledger_transaction_insert(
 			application_name,
@@ -919,7 +923,8 @@ void print_checks_insert_entity_check_amount_list(
 				char *application_name,
 				char *fund_name,
 				LIST *entity_check_amount_list,
-				double dialog_box_check_amount )
+				double dialog_box_check_amount,
+				char *memo )
 {
 	ENTITY_CHECK_AMOUNT *entity_check_amount;
 	LIST *distinct_account_name_list;
@@ -970,7 +975,8 @@ void print_checks_insert_entity_check_amount_list(
 				uncleared_checks_account,
 				account_payable_account,
 				seconds_to_add,
-				fund_name );
+				fund_name,
+				memo );
 
 	} while( list_next( entity_check_amount_list ) );
 
@@ -995,7 +1001,8 @@ int print_checks_insert_entity_check_amount(
 				char *uncleared_checks_account,
 				char *account_payable_account,
 				int seconds_to_add,
-				char *fund_name )
+				char *fund_name,
+				char *memo )
 {
 	if ( list_length( entity_check_amount->purchase_order_list ) )
 	{
@@ -1009,7 +1016,8 @@ int print_checks_insert_entity_check_amount(
 				uncleared_checks_account,
 				account_payable_account,
 				seconds_to_add,
-				entity_check_amount->check_number );
+				entity_check_amount->check_number,
+				memo );
 	}
 
 	if ( list_length( entity_check_amount->entity_account_debit_list ) )

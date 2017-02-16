@@ -1,4 +1,4 @@
-/* sql.c		 						*/
+/* $APPASERVER_HOME/src_appaserver/sql.c				*/
 /* -------------------------------------------------------------------- */
 /* This compiles to sql, sql.e, and sql_quick.e.			*/
 /* To override the database_name found in				*/

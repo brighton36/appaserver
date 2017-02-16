@@ -58,7 +58,8 @@ void post_change_fixed_asset_purchase_update(
 			char *preupdate_asset_name,
 			char *preupdate_serial_number,
 			char *preupdate_declining_balance_n,
-			char *preupdate_depreciation_method );
+			char *preupdate_depreciation_method,
+			char *preupdate_extension );
 
 int main( int argc, char **argv )
 {
@@ -106,7 +107,7 @@ int main( int argc, char **argv )
 	state = argv[ 7 ];
 	preupdate_asset_name = argv[ 8 ];
 	preupdate_serial_number = argv[ 9 ];
-	if ( ( preupdate_extension = argv[ 10 ] ) );
+	preupdate_extension = argv[ 10 ];
 	preupdate_declining_balance_n = argv[ 11 ];
 	preupdate_depreciation_method = argv[ 12 ];
 
@@ -132,7 +133,6 @@ int main( int argc, char **argv )
 			street_address,
 			purchase_date_time );
 	}
-
 	else
 	if ( strcmp( state, "update" ) == 0 )
 	{
@@ -146,7 +146,8 @@ int main( int argc, char **argv )
 			preupdate_asset_name,
 			preupdate_serial_number,
 			preupdate_declining_balance_n,
-			preupdate_depreciation_method );
+			preupdate_depreciation_method,
+			preupdate_extension );
 	}
 
 	return 0;
@@ -334,7 +335,8 @@ void post_change_fixed_asset_purchase_update(
 			char *preupdate_asset_name,
 			char *preupdate_serial_number,
 			char *preupdate_declining_balance_n,
-			char *preupdate_depreciation_method )
+			char *preupdate_depreciation_method,
+			char *preupdate_extension )
 {
 	PURCHASE_ORDER *purchase_order;
 	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
@@ -342,6 +344,7 @@ void post_change_fixed_asset_purchase_update(
 	enum preupdate_change_state depreciation_method_change_state;
 	enum preupdate_change_state asset_name_change_state;
 	enum preupdate_change_state serial_number_change_state;
+	enum preupdate_change_state extension_change_state;
 
 	purchase_order =
 		purchase_order_new(
@@ -419,6 +422,12 @@ void post_change_fixed_asset_purchase_update(
 			serial_number /* postupdate_data */,
 			"preupdate_serial_number" );
 
+	extension_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_extension,
+			(char *)0 /* postupdate_data */,
+			"preupdate_extension" );
+
 	if ( serial_number_change_state )
 	{
 		/* do nothing */
@@ -483,54 +492,41 @@ void post_change_fixed_asset_purchase_update(
 		}
 	}
 
-} /* post_change_fixed_asset_purchase_update() */
-
-#ifdef NOT_DEFINED
-void post_change_fixed_asset_purchase_transaction_update(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name,
-			char *asset_name,
-			char *serial_number,
-			char *preupdate_asset_name,
-			char *preupdate_serial_number )
-{
-	enum preupdate_change_state asset_name_change_state;
-	enum preupdate_change_state serial_number_change_state;
-
-	purchase_order->propagate_account_list =
-		purchase_order_journal_ledger_refresh(
+	if (	extension_change_state ==
+		from_something_to_something_else )
+	{
+		ledger_transaction_amount_update(
 			application_name,
-			purchase_order->fund_name,
-			purchase_order->full_name,
-			purchase_order->street_address,
-			purchase_order->transaction_date_time,
-			purchase_order->sum_specific_inventory_unit_cost,
-			purchase_order->sum_supply_extension,
-			purchase_order->sum_service_extension,
-			purchase_order->sales_tax,
-			purchase_order->freight_in,
-			purchase_order->purchase_amount,
-			purchase_order->inventory_purchase_list,
-			purchase_order->supply_purchase_list,
-			purchase_order->service_purchase_list,
-			purchase_order->purchase_asset_account_list );
+			purchase_order->transaction->full_name,
+			purchase_order->transaction->street_address,
+			purchase_order->transaction->transaction_date_time,
+			purchase_order->purchase_amount
+				/* transaction_amount */,
+			0.0 /* database_transaction_amount */ );
 
-	ledger_account_list_propagate(
-		purchase_order->propagate_account_list,
-		application_name );
+		purchase_order->propagate_account_list =
+			purchase_order_journal_ledger_refresh(
+				application_name,
+				purchase_order->fund_name,
+				purchase_order->full_name,
+				purchase_order->street_address,
+				purchase_order->transaction_date_time,
+				purchase_order->
+					sum_specific_inventory_unit_cost,
+				purchase_order->sum_supply_extension,
+				purchase_order->sum_service_extension,
+				purchase_order->sales_tax,
+				purchase_order->freight_in,
+				purchase_order->purchase_amount,
+				purchase_order->inventory_purchase_list,
+				purchase_order->supply_purchase_list,
+				purchase_order->service_purchase_list,
+				purchase_order->purchase_asset_account_list );
 
-	asset_name_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_asset_name,
-			asset_name /* postupdate_data */,
-			"preupdate_asset_name" );
+		ledger_account_list_propagate(
+			purchase_order->propagate_account_list,
+			application_name );
+	}
 
-	serial_number_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_serial_number,
-			serial_number /* postupdate_data */,
-			"preupdate_serial_number" );
-
-} /* post_change_fixed_asset_purchase_transaction_update() */
-#endif
+} /* post_change_fixed_asset_purchase_update() */
 

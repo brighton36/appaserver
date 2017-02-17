@@ -557,12 +557,12 @@ void print_checks_set_entity_account_debit_list(
 		print_checks_get_entity_account_credit_balance(
 			journal_ledger_list,
 			full_name,
-			street_address,
-			*remaining_check_amount );
+			street_address );
 
-	if ( timlib_dollar_virtually_same(
-		entity_account_credit_balance,
-		0.0 ) )
+	/* ----------------------------------------------------	*/
+	/* A negative value indicates a liability debit balance.*/
+	/* ---------------------------------------------------- */
+	if ( entity_account_credit_balance <= 0.0 )
 	{
 		return;
 	}
@@ -580,6 +580,9 @@ void print_checks_set_entity_account_debit_list(
 		*remaining_check_amount -= entity_account_credit_balance;
 	}
 	else
+	/* ---------------------------- */
+	/* If making a partial payment. */
+	/* ---------------------------- */
 	{
 		entity_account_debit->debit_amount =
 			*remaining_check_amount;
@@ -592,13 +595,12 @@ void print_checks_set_entity_account_debit_list(
 double print_checks_get_entity_account_credit_balance(
 			LIST *journal_ledger_list,
 			char *full_name,
-			char *street_address,
-			double remaining_check_amount )
+			char *street_address )
 {
 	double credit_balance;
 	JOURNAL_LEDGER *journal_ledger;
 
-	if ( !list_go_tail( journal_ledger_list ) ) return 0.0;
+	if ( !list_rewind( journal_ledger_list ) ) return 0.0;
 
 	credit_balance = 0.0;
 
@@ -618,32 +620,13 @@ double print_checks_get_entity_account_credit_balance(
 		if ( journal_ledger->credit_amount )
 		{
 			credit_balance += journal_ledger->credit_amount;
-
-			remaining_check_amount -=
-				journal_ledger->credit_amount;
 		}
-#ifdef NOT_DEFINED
-Needs work.
 		else
-		/* -------------------------------- */
-		/* If made a prior partial payment. */
-		/* -------------------------------- */
 		{
 			credit_balance -= journal_ledger->debit_amount;
-
-			remaining_check_amount +=
-				journal_ledger->debit_amount;
-		}
-#endif
-
-		if ( timlib_dollar_virtually_same(
-			remaining_check_amount,
-			0.0 ) )
-		{
-			break;
 		}
 
-	} while( list_previous( journal_ledger_list ) );
+	} while( list_next( journal_ledger_list ) );
 
 	return credit_balance;
 

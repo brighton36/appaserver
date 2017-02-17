@@ -922,6 +922,24 @@ char *date_get_now_time_second( void )
 	return date_get_now_hh_colon_mm_colon_ss();
 }
 
+char *date_get_yyyy_mm_dd_hh_mm_ss(
+				DATE *date_time )
+{
+	char buffer[ 32 ];
+
+	sprintf( 	buffer, 
+			"%d-%02d-%02d %02d:%02d:%02d",
+			date_get_year( date_time ),
+			date_get_month( date_time ),
+			date_get_day_of_month( date_time ),
+			date_get_hour( date_time ),
+			date_get_minutes( date_time ),
+			date_get_seconds( date_time ) );
+
+	return strdup( buffer );
+
+} /* date_get_yyyy_mm_dd_hh_mm_ss() */
+
 char *date_get_now_hh_colon_mm_colon_ss( void )
 {
 	char buffer[ 128 ];
@@ -949,7 +967,9 @@ char *date_get_now_time_hhmm_colon_ss( void )
 	now = time( (time_t *)0 );
 	tm = localtime( &now );
 	sprintf( buffer, "%02d%02d:%02d", tm->tm_hour, tm->tm_min, tm->tm_sec );
+
 	return strdup( buffer );
+
 } /* date_get_now_time_hhmm_colon_ss() */
 
 void date_set_tm_structures( DATE *d, time_t current )
@@ -1433,6 +1453,7 @@ char *date_display_yyyy_mm_dd_hhmm( DATE *date )
 			date_get_minutes( date ) );
 
 	return strdup( buffer );
+
 } /* date_display_yyyy_mm_dd_hhmm() */
 
 void date_increment_weekly_ceiling( DATE *date )

@@ -6234,9 +6234,7 @@ double ledger_get_fraction_of_year(
 		date_yyyy_mm_dd_new(
 			prior_date_string );
 
-	date =
-		date_yyyy_mm_dd_new(
-			date_string );
+	date = date_yyyy_mm_dd_new( date_string );
 
 	days_between =
 		date_subtract_days(
@@ -6312,21 +6310,33 @@ LIST *ledger_get_after_balance_zero_journal_ledger_list(
 				char *application_name,
 				char *account_name )
 {
-	char *transaction_date_time;
+	char *transaction_date_time_string;
 
-	if ( ! ( transaction_date_time =
+	if ( ( transaction_date_time_string =
 			ledger_get_latest_zero_balance_transaction_date_time(
 				application_name,
 				account_name ) ) )
 	{
-		return (LIST *)0;
+		DATE *transaction_date_time;
+
+		transaction_date_time =
+			date_yyyy_mm_dd_hms_new(
+				transaction_date_time_string );
+
+		/* Need to start with the transaction following zero balance. */
+		/* ---------------------------------------------------------- */
+		date_increment_seconds( transaction_date_time, 1 );
+
+		transaction_date_time_string =
+			date_get_yyyy_mm_dd_hh_mm_ss(
+				transaction_date_time );
 	}
 
 	return ledger_get_journal_ledger_list(
 				application_name,
 				(char *)0 /* full_name */,
 				(char *)0 /* street_address */,
-				transaction_date_time,
+				transaction_date_time_string,
 				account_name );
 
 } /* ledger_get_after_balance_zero_journal_ledger_list() */

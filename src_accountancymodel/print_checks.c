@@ -619,15 +619,28 @@ double print_checks_get_entity_account_credit_balance(
 		{
 			credit_balance += journal_ledger->credit_amount;
 
-			remaining_check_amount -= 
+			remaining_check_amount -=
 				journal_ledger->credit_amount;
+		}
+#ifdef NOT_DEFINED
+Needs work.
+		else
+		/* -------------------------------- */
+		/* If made a prior partial payment. */
+		/* -------------------------------- */
+		{
+			credit_balance -= journal_ledger->debit_amount;
 
-			if ( timlib_dollar_virtually_same(
-				remaining_check_amount,
-				0.0 ) )
-			{
-				break;
-			}
+			remaining_check_amount +=
+				journal_ledger->debit_amount;
+		}
+#endif
+
+		if ( timlib_dollar_virtually_same(
+			remaining_check_amount,
+			0.0 ) )
+		{
+			break;
 		}
 
 	} while( list_previous( journal_ledger_list ) );

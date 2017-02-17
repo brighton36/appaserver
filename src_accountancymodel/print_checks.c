@@ -553,16 +553,6 @@ void print_checks_set_entity_account_debit_list(
 		return;
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: account_name = %s, full_name = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-account_name,
-full_name );
-m2( "capitolpops", msg );
-}
 	entity_account_credit_balance =
 		print_checks_get_entity_account_credit_balance(
 			journal_ledger_list,
@@ -577,15 +567,6 @@ m2( "capitolpops", msg );
 		return;
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: entity_account_credit_balance = %.2lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-entity_account_credit_balance );
-m2( "capitolpops", msg );
-}
 	entity_account_debit =
 		print_checks_get_or_set_entity_account_debit(
 			entity_account_debit_list,

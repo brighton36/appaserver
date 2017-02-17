@@ -437,8 +437,7 @@ print_checks_display( print_checks ) );
 		print_checks->dialog_box_check_amount,
 		memo );
 
-	printf(
-	"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
+	printf( "<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
 
 } /* print_checks_post() */
 

@@ -127,7 +127,8 @@ void print_checks_set_purchase_order_list(
 double print_checks_get_entity_account_credit_balance(
 				LIST *journal_ledger_list,
 				char *full_name,
-				char *street_address );
+				char *street_address,
+				double remaining_check_amount );
 
 ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_seek(
 				LIST *entity_account_debit_list,
@@ -187,7 +188,8 @@ void print_checks_insert_entity_account_debit_list(
 				char *full_name,
 				char *street_address,
 				double loss_amount,
-				char *fund_name );
+				char *fund_name,
+				char *memo );
 
 char *print_checks_entity_account_debit_list_display(
 				LIST *entity_account_debit_list );

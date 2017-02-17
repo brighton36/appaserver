@@ -553,11 +553,22 @@ void print_checks_set_entity_account_debit_list(
 		return;
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: account_name = %s, full_name = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+account_name,
+full_name );
+m2( "capitolpops", msg );
+}
 	entity_account_credit_balance =
 		print_checks_get_entity_account_credit_balance(
 			journal_ledger_list,
 			full_name,
-			street_address );
+			street_address,
+			*remaining_check_amount );
 
 	if ( timlib_dollar_virtually_same(
 		entity_account_credit_balance,
@@ -566,6 +577,15 @@ void print_checks_set_entity_account_debit_list(
 		return;
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: entity_account_credit_balance = %.2lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+entity_account_credit_balance );
+m2( "capitolpops", msg );
+}
 	entity_account_debit =
 		print_checks_get_or_set_entity_account_debit(
 			entity_account_debit_list,
@@ -591,12 +611,13 @@ void print_checks_set_entity_account_debit_list(
 double print_checks_get_entity_account_credit_balance(
 			LIST *journal_ledger_list,
 			char *full_name,
-			char *street_address )
+			char *street_address,
+			double remaining_check_amount )
 {
 	double credit_balance;
 	JOURNAL_LEDGER *journal_ledger;
 
-	if ( !list_rewind( journal_ledger_list ) ) return 0.0;
+	if ( !list_go_tail( journal_ledger_list ) ) return 0.0;
 
 	credit_balance = 0.0;
 
@@ -614,11 +635,21 @@ double print_checks_get_entity_account_credit_balance(
 		}
 
 		if ( journal_ledger->credit_amount )
+		{
 			credit_balance += journal_ledger->credit_amount;
-		else
-			credit_balance -= journal_ledger->debit_amount;
 
-	} while( list_next( journal_ledger_list ) );
+			remaining_check_amount -= 
+				journal_ledger->credit_amount;
+
+			if ( timlib_dollar_virtually_same(
+				remaining_check_amount,
+				0.0 ) )
+			{
+				break;
+			}
+		}
+
+	} while( list_previous( journal_ledger_list ) );
 
 	return credit_balance;
 
@@ -676,10 +707,10 @@ int print_checks_insert_vendor_payment(
 		exit( 1 );
 	}
 
+	transaction_date_time = date_now_new();
+
 	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
 		memo = PRINT_CHECKS_MEMO;
-
-	transaction_date_time = date_now_new();
 
 	do {
 		purchase_order = list_get( purchase_order_list );
@@ -1035,7 +1066,8 @@ int print_checks_insert_entity_check_amount(
 			entity_check_amount->full_name,
 			entity_check_amount->street_address,
 			entity_check_amount->loss_amount,
-			fund_name );
+			fund_name,
+			memo );
 	}
 
 	return seconds_to_add;
@@ -1054,7 +1086,8 @@ void print_checks_insert_entity_account_debit_list(
 				char *full_name,
 				char *street_address,
 				double loss_amount,
-				char *fund_name )
+				char *fund_name,
+				char *memo )
 {
 	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
 	TRANSACTION *transaction;
@@ -1074,6 +1107,9 @@ void print_checks_insert_entity_account_debit_list(
 
 	transaction_date_time = date_now_new();
 
+	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
+		memo = PRINT_CHECKS_MEMO;
+
 	date_increment_seconds(
 		transaction_date_time,
 		seconds_to_add );
@@ -1087,7 +1123,7 @@ void print_checks_insert_entity_account_debit_list(
 			full_name,
 			street_address,
 			transaction_date_time_string,
-			PRINT_CHECKS_MEMO );
+			memo );
 
 	ledger_transaction_insert(
 		application_name,

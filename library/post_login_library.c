@@ -127,8 +127,8 @@ enum password_match_return post_login_password_match(
 	/* If no user exists or the user has a blanked out password */
 	/* -------------------------------------------------------- */
 	if ( !database_password
-	||  !*database_password
-	||  timlib_strcmp( database_password, "null" ) == 0 )
+	||   !*database_password
+	||   timlib_strcmp( database_password, "null" ) == 0 )
 	{
 		return password_fail;
 	}
@@ -299,6 +299,8 @@ char *post_login_get_encoded_password(
 		 password,
 		 table_name,
 		 application_name );
+
 	return pipe2string( sys_string );
+
 } /* post_login_get_encoded_password() */
 

@@ -1802,7 +1802,7 @@ void form_output_html_help_file_anchor(
 		else
 		{
 			sprintf(	full_pathname,
-					"/%s/%s",
+					"/appaserver/src_%s/%s",
 					application_name,
 					html_help_file_anchor );
 		}

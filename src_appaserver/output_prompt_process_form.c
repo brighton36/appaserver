@@ -530,6 +530,7 @@ int main( int argc, char **argv )
 
 	document_close();
 	exit( 0 );
+
 } /* main() */
 
 LIST *get_element_list(	char **preprompt_help_text,

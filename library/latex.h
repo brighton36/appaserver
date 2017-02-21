@@ -13,7 +13,7 @@
 
 /* Constants */
 /* --------- */
-#define WITH_CAPTION	0
+#define WITH_CAPTION	1
 
 /* Structures */
 /* ---------- */

@@ -556,6 +556,7 @@ void output_delete_statement(
 	char *data;
 	char *table_name;
 	LIST *foreign_data_key_list;
+	char data_buffer[ 4096 ];
 
 	foreign_data_key_list =
 		list_string2list(
@@ -610,14 +611,18 @@ void output_delete_statement(
 		{
 			fprintf( table_output_pipe, "%s", data );
 		}
+
 		fprintf( text_output_pipe, "%s", data );
 
 		if ( insert_delete_pipe )
 		{
+			strcpy( data_buffer, data );
+			escape_single_quotes( data_buffer );
+
 			fprintf( insert_delete_pipe,
 				 " and %s = '%s'",
 				 attribute_name,
-				 data );
+				 data_buffer );
 		}
 
 		list_next( foreign_data_key_list );

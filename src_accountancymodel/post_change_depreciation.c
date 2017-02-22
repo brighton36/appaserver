@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "timlib.h"
 #include "environ.h"
 #include "piece.h"
@@ -43,19 +44,6 @@ void post_change_depreciation_date_update(
 			char *asset_name,
 			char *serial_number,
 			char *depreciation_date );
-
-/*
-void post_change_depreciation_asset_serial_update(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *serial_number,
-			char *depreciation_date,
-			char *preupdate_asset_name,
-			char *preupdate_serial_number );
-*/
 
 void post_change_depreciation_delete(
 			char *application_name,
@@ -228,7 +216,7 @@ void post_change_depreciation_stdin( char *application_name )
 			input_buffer ) != 5 )
 		{
 			fprintf( stderr,
-"Warning in %s/%s()/%d: not 5 delimiters in (%s)\n",
+			"Warning in %s/%s()/%d: not 5 delimiters in (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -274,6 +262,12 @@ void post_change_depreciation_stdin( char *application_name )
 			strdup( asset_name ),
 			strdup( serial_number ),
 			strdup( depreciation_date ) );
+
+		/* ------------------------------------ */
+		/* Need to wait a second because of	*/
+		/* TRANSACTION.transaction_date_time.	*/
+		/* ------------------------------------ */
+		sleep( 1 );
 	}
 
 } /* post_change_depreciation_stdin() */
@@ -338,6 +332,8 @@ void post_change_depreciation_update(
 			depreciation_date /* postupdate_data */,
 			"preupdate_depreciation_date" );
 
+	/* Need to implement this. */
+	/* ----------------------- */
 	units_produced_change_state =
 		appaserver_library_get_preupdate_change_state(
 			preupdate_units_produced,

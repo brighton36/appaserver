@@ -69,7 +69,7 @@ char *get_datatype_name(		char *application_name,
 					char *datatype_heading );
 
 LIST *input_buffer_get_datatype_list(	char *application_name,
-					char *input_buffer,
+					char *first_line,
 					char *second_line );
 
 LIST *get_datatype_list(		char **error_message,
@@ -651,7 +651,7 @@ LIST *get_datatype_list(	char **error_message,
 				char *input_filespecification )
 {
 	FILE *input_file;
-	char input_buffer[ 1024 ];
+	char first_line[ 1024 ];
 	char second_line[ 1024 ];
 	LIST *datatype_list = {0};
 
@@ -666,9 +666,9 @@ LIST *get_datatype_list(	char **error_message,
 		exit( 1 );
 	}
 
-	while( get_line( input_buffer, input_file ) )
+	while( get_line( first_line, input_file ) )
 	{
-		if ( instr( "Date", input_buffer, 1 ) != -1 )
+		if ( instr( "Date", first_line, 1 ) != -1 )
 		{
 			get_line( second_line, input_file );
 			fclose( input_file );
@@ -676,17 +676,8 @@ LIST *get_datatype_list(	char **error_message,
 			datatype_list =
 				input_buffer_get_datatype_list(
 					application_name,
-					input_buffer,
-					(char *)0 /* second_line */ );
-
-			if ( !list_length( datatype_list ) )
-			{
-				datatype_list =
-					input_buffer_get_datatype_list(
-						application_name,
-						input_buffer,
-						second_line );
-			}
+					first_line,
+					second_line );
 
 			return datatype_list;
 		}
@@ -694,14 +685,15 @@ LIST *get_datatype_list(	char **error_message,
 	fclose( input_file );
 	*error_message = "No date header found in input file.";
 	return (LIST *)0;
+
 } /* get_datatype_list() */
 
 LIST *input_buffer_get_datatype_list(	char *application_name,
-					char *input_buffer,
+					char *first_line,
 					char *second_line )
 {
+	LIST *datatype_list;
 	LIST *return_datatype_list;
-	static LIST *datatype_list = {0};
 	DATATYPE *datatype;
 	char datatype_heading_first_line[ 128 ];
 	char datatype_heading_second_line[ 128 ];
@@ -711,17 +703,14 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 
 	return_datatype_list = list_new();
 
-	if ( !datatype_list )
-	{
-		datatype_list = datatype_get_list( application_name );
-	}
+	datatype_list = datatype_get_list( application_name );
 
 	*datatype_heading_second_line = '\0';
 
 	for(	piece_number = 0;
 		piece_quoted(	datatype_heading_first_line,
 				',',
-				input_buffer,
+				first_line,
 				piece_number,
 				'"' );
 		piece_number++ )
@@ -736,14 +725,11 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 			continue;
 		}
 
-		if ( second_line )
-		{
-			piece_quoted(	datatype_heading_second_line,
-					',',
-					second_line,
-					piece_number,
-					'"' );
-		}
+		piece_quoted(	datatype_heading_second_line,
+				',',
+				second_line,
+				piece_number,
+				'"' );
 
 		if ( *datatype_heading_second_line )
 		{

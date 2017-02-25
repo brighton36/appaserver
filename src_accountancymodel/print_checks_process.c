@@ -55,7 +55,8 @@ char *print_checks_create(
 				char *document_root_directory,
 				char *process_name,
 				char *session,
-				char *fund_name );
+				char *fund_name,
+				char with_stub_yn );
 
 char *print_checks(		char *application_name,
 				char *full_name_list_string,
@@ -67,7 +68,8 @@ char *print_checks(		char *application_name,
 				char *document_root_directory,
 				char *process_name,
 				char *session,
-				char *fund_name );
+				char *fund_name,
+				char with_stub_yn );
 
 int main( int argc, char **argv )
 {
@@ -80,6 +82,7 @@ int main( int argc, char **argv )
 	int starting_check_number;
 	char *memo;
 	double check_amount;
+	char with_stub_yn;
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
@@ -87,10 +90,10 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *pdf_filename;
 
-	if ( argc != 11 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s application process session fund full_name[,full_name] street_address[,street_address] starting_check_number memo check_amount execute_yn\n",
+"Usage: %s application process session fund full_name[,full_name] street_address[,street_address] starting_check_number memo check_amount with_stub_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -124,7 +127,8 @@ int main( int argc, char **argv )
 	starting_check_number = atoi( argv[ 7 ] );
 	memo = argv[ 8 ];
 	check_amount = atof( argv[ 9 ] );
-	execute = ( *argv[ 10 ] == 'y' );
+	with_stub_yn = *argv[ 10 ];
+	execute = ( *argv[ 11 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -161,7 +165,8 @@ int main( int argc, char **argv )
 					document_root,
 				process_name,
 				session,
-				fund_name );
+				fund_name,
+				with_stub_yn );
 
 	if ( !pdf_filename )
 	{
@@ -185,7 +190,8 @@ char *print_checks(	char *application_name,
 			char *document_root_directory,
 			char *process_name,
 			char *session,
-			char *fund_name )
+			char *fund_name,
+			char with_stub_yn )
 {
 	LIST *full_name_list;
 	LIST *street_address_list;
@@ -231,7 +237,8 @@ char *print_checks(	char *application_name,
 			document_root_directory,
 			process_name,
 			session,
-			fund_name );
+			fund_name,
+			with_stub_yn );
 
 	if ( execute )
 	{
@@ -258,7 +265,8 @@ char *print_checks_create(
 			char *document_root_directory,
 			char *process_name,
 			char *session,
-			char *fund_name )
+			char *fund_name,
+			char with_stub_yn )
 {
 	char *full_name;
 	char *street_address;
@@ -301,11 +309,13 @@ char *print_checks_create(
 
 /*
 	sprintf( sys_string,
-		 "make_checks.e stdin 2>/dev/null > %s",
+		 "make_checks.e stdin %c 2>/dev/null > %s",
+		 with_stub_yn,
 		 output_filename );
 */
 	sprintf( sys_string,
-		 "make_checks.e stdin > %s",
+		 "make_checks.e stdin %c > %s",
+		 with_stub_yn,
 		 output_filename );
 
 	output_pipe = popen( sys_string, "w" );

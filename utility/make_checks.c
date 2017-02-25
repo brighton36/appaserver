@@ -325,12 +325,15 @@ void make_checks_document_heading(
 "\\documentclass{report}\n"
 "\\usepackage[	top=0in,\n"
 "		left=0in,\n"
+"		paperheight=%din,\n"
+"		paperwidth=3.0in,\n"
 "		textheight=%din,\n"
 "		textwidth=3.0in,\n"
 "		noheadfoot]{geometry}\n"
 "\\usepackage{rotating}\n"
 "\\pagenumbering{gobble}\n"
 "\\begin{document}\n",
+		 text_height,
 		 text_height );
 
 } /* make_checks_document_heading() */
@@ -342,6 +345,18 @@ void make_checks_document_footer(
 "\\end{document}\n" );
 
 } /* make_checks_document_footer() */
+
+int get_text_height( boolean with_stub )
+{
+	int text_height;
+
+	if ( with_stub )
+		text_height = 12;
+	else
+		text_height = 8;
+
+	return text_height;
+}
 
 void make_checks_dollar_text(
 			FILE *latex_file,
@@ -399,16 +414,19 @@ void make_checks_dollar_text(
 		 dollar_text_string );
 
 	fprintf( latex_file,
-"\\end{tabular}\n\n"
+"\\end{tabular}\n\n" );
+
+	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
+	{
+		fprintf( latex_file,
 "\\vspace{0.52in}\n\n"
-"\\begin{tabular}{p{0.30in}l}\n" );
+"\\begin{tabular}{p{0.30in}l}\n"
+"& %s\n"
+"\\end{tabular}\n",
+		 	 memo );
+	}
 
 	fprintf( latex_file,
-"& %s\n",
-		 memo );
-
-	fprintf( latex_file,
-"\\end{tabular}\n"
 "\\end{minipage}\n"
 "\\end{sideways}\n" );
 
@@ -438,49 +456,67 @@ void make_checks_dollar_text_with_stub(
 "\\begin{minipage}{12.0in}\n" );
 
 	fprintf( latex_file,
-"\\vspace{0.50in}\n"
-"\\begin{tabular}{p{4.9in}l}\n"
+"\\vspace{0.25in}\n"
+"\\begin{tabular}{p{0.5in}l}\n"
 "& %s\n"
 "\\end{tabular}\n\n",
 		 check_date );
 
 	fprintf( latex_file,
-"\\vspace{0.25in}\n\n"
-"\\begin{tabular}{p{1.3in}p{4.9in}l}\n"
+"\\vspace{0.25in}\n"
+"\\begin{tabular}{p{8.9in}l}\n"
+"& %s\n"
+"\\end{tabular}\n\n",
+		 check_date );
+
+	fprintf( latex_file,
+"\\vspace{0.05in}\n\n"
+"\\begin{tabular}{p{0.5in}l}\n"
+"& %s\n"
+"\\end{tabular}\n\n",
+		 payable_to_escaped );
+
+	fprintf( latex_file,
+"\\vspace{0.20in}\n\n"
+"\\begin{tabular}{p{5.3in}p{4.9in}l}\n"
 "& %s & %s\n"
 "\\end{tabular}\n\n",
 		 payable_to_escaped,
 		 place_commas_in_money( dollar_amount ) );
 
-	fprintf( latex_file,
+	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
+	{
+		fprintf( latex_file,
 "\\vspace{0.20in}\n\n"
-"\\begin{tabular}{p{0.85in}l}\n"
+"\\begin{tabular}{p{0.5in}p{3.0in}p{1.85in}l}\n"
+"& %s & & %s\n"
+"\\end{tabular}\n\n",
+			memo,
+		 	dollar_text_string );
+	}
+	else
+	{
+		fprintf( latex_file,
+"\\vspace{0.20in}\n\n"
+"\\begin{tabular}{p{4.85in}l}\n"
 "& %s\n"
 "\\end{tabular}\n\n",
-		 dollar_text_string );
+		 	dollar_text_string );
+	}
 
-	fprintf( latex_file,
+	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
+	{
+		fprintf( latex_file,
 "\\vspace{0.52in}\n\n"
-"\\begin{tabular}{p{0.30in}l}\n"
+"\\begin{tabular}{p{4.30in}l}\n"
 "& %s\n"
 "\\end{tabular}\n",
-		 memo );
+		 	memo );
+	}
 
 	fprintf( latex_file,
 "\\end{minipage}\n"
 "\\end{sideways}\n" );
 
 } /* make_checks_dollar_text_with_stub() */
-
-int get_text_height( boolean with_stub )
-{
-	int text_height;
-
-	if ( with_stub )
-		text_height = 12;
-	else
-		text_height = 8;
-
-	return text_height;
-}
 

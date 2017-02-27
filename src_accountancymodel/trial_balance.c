@@ -92,7 +92,8 @@ void trial_balance_PDF(			char *application_name,
 					char *as_of_date,
 					char *document_root_directory,
 					char *process_name,
-					char *aggregation );
+					char *aggregation,
+					char *logo_filename );
 
 void trial_balance_PDF_fund(		
 					LATEX *latex,
@@ -133,6 +134,7 @@ int main( int argc, char **argv )
 	char *as_of_date;
 	char *database_string = {0};
 	char *output_medium;
+	char *logo_filename;
 
 	if ( argc != 7 )
 	{
@@ -192,6 +194,11 @@ int main( int argc, char **argv )
 	document_output_body(	document->application_name,
 				document->onload_control_string );
 
+	logo_filename =
+		application_constants_quick_fetch(
+			application_name,
+			"logo_filename" /* key */ );
+
 	if ( !ledger_get_report_title_sub_title(
 		title,
 		sub_title,
@@ -201,7 +208,8 @@ int main( int argc, char **argv )
 		as_of_date,
 		list_length(
 			ledger_get_fund_name_list(
-				application_name ) ) ) )
+				application_name ) ),
+		logo_filename ) )
 	{
 		printf( "<h3>Error. No transactions.</h3>\n" );
 		document_close();
@@ -226,7 +234,8 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->
 				document_root,
 			process_name,
-			aggregation );
+			aggregation,
+			logo_filename );
 	}
 
 	document_close();
@@ -530,7 +539,8 @@ void trial_balance_PDF(
 			char *as_of_date,
 			char *document_root_directory,
 			char *process_name,
-			char *aggregation )
+			char *aggregation,
+			char *logo_filename )
 {
 	LATEX *latex;
 	char *latex_filename;
@@ -594,7 +604,8 @@ void trial_balance_PDF(
 		application_name,
 		fund_name,
 		as_of_date,
-		list_length( fund_name_list ) );
+		list_length( fund_name_list ),
+		logo_filename );
 
 	printf( "<h1>%s</h1>\n", title );
 
@@ -620,7 +631,8 @@ void trial_balance_PDF(
 				application_name,
 				fund_name,
 				as_of_date,
-				0 /* fund_name_list_length */ );
+				0 /* fund_name_list_length */,
+				logo_filename );
 
 			trial_balance_PDF_fund(
 					latex,

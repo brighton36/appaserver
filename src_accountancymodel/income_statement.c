@@ -71,7 +71,8 @@ void income_statement_consolidate_PDF(
 					char *as_of_date,
 					char *document_root_directory,
 					boolean is_statement_of_activities,
-					char *process_name );
+					char *process_name,
+					char *logo_filename );
 
 void income_statement_full_PDF(
 					char *application_name,
@@ -81,7 +82,8 @@ void income_statement_full_PDF(
 					char *as_of_date,
 					char *document_root_directory,
 					boolean is_statement_of_activities,
-					char *process_name );
+					char *process_name,
+					char *logo_filename );
 
 double get_shares_outstanding(		char *appaserver_mount_point,
 					char *application_name,
@@ -108,6 +110,7 @@ int main( int argc, char **argv )
 	char title[ 256 ];
 	char sub_title[ 256 ];
 	boolean is_statement_of_activities;
+	char *logo_filename;
 /*
 	double shares_outstanding;
 */
@@ -189,6 +192,11 @@ int main( int argc, char **argv )
 	document_output_body(	document->application_name,
 				document->onload_control_string );
 
+	logo_filename =
+		application_constants_quick_fetch(
+			application_name,
+			"logo_filename" /* key */ );
+
 	if ( !ledger_get_report_title_sub_title(
 		title,
 		sub_title,
@@ -198,7 +206,8 @@ int main( int argc, char **argv )
 		as_of_date,
 		list_length(
 			ledger_get_fund_name_list(
-				application_name ) ) ) )
+				application_name ) ),
+		logo_filename ) )
 	{
 		printf( "<h3>Error. No transactions.</h3>\n" );
 		document_close();
@@ -241,7 +250,8 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					document_root,
 				is_statement_of_activities,
-				process_name );
+				process_name,
+				logo_filename );
 		}
 		else
 		{
@@ -254,7 +264,8 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					document_root,
 				is_statement_of_activities,
-				process_name );
+				process_name,
+				logo_filename );
 		}
 	}
 
@@ -690,7 +701,8 @@ void income_statement_consolidate_PDF(
 			char *as_of_date,
 			char *document_root_directory,
 			boolean is_statement_of_activities,
-			char *process_name )
+			char *process_name,
+			char *logo_filename )
 {
 	LATEX *latex;
 	LATEX_TABLE *latex_table;
@@ -753,9 +765,7 @@ void income_statement_consolidate_PDF(
 			dvi_filename,
 			working_directory,
 			0 /* not landscape_flag */,
-			application_constants_quick_fetch(
-				application_name,
-				"logo_filename" /* key */ ) );
+			logo_filename );
 
 	latex_table =
 		latex_new_latex_table(
@@ -843,7 +853,8 @@ void income_statement_full_PDF(
 			char *as_of_date,
 			char *document_root_directory,
 			boolean is_statement_of_activities,
-			char *process_name )
+			char *process_name,
+			char *logo_filename )
 {
 	LATEX *latex;
 	LATEX_TABLE *latex_table;
@@ -906,9 +917,7 @@ void income_statement_full_PDF(
 			dvi_filename,
 			working_directory,
 			0 /* not landscape_flag */,
-			application_constants_quick_fetch(
-				application_name,
-				"logo_filename" /* key */ ) );
+			logo_filename );
 
 	latex_table =
 		latex_new_latex_table(

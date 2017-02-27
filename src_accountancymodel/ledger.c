@@ -5810,7 +5810,8 @@ boolean ledger_get_report_title_sub_title(
 		char *application_name,
 		char *fund_name,
 		char *as_of_date,
-		int fund_list_length )
+		int fund_list_length,
+		char *logo_filename )
 {
 	char *beginning_date;
 	char beginning_date_american[ 16 ];
@@ -5879,6 +5880,14 @@ boolean ledger_get_report_title_sub_title(
 	 			process_name,
 	 			ending_date_american );
 		}
+	}
+
+	if ( !logo_filename || !*logo_filename )
+	{
+		char buffer[ 256 ];
+
+		sprintf( buffer, "%s %s", title, sub_title );
+		strcpy( sub_title, buffer );
 	}
 
 	format_initial_capital( sub_title, sub_title );

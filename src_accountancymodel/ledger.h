@@ -734,7 +734,8 @@ boolean ledger_get_report_title_sub_title(
 				char *application_name,
 				char *fund_name,
 				char *as_of_date,
-				int fund_name_list_length );
+				int fund_name_list_length,
+				char *logo_filename );
 
 LIST *ledger_get_fund_name_list(char *application_name );
 

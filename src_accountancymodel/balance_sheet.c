@@ -57,7 +57,8 @@ void balance_sheet_consolidate_PDF(
 					char *as_of_date,
 					char *document_root_directory,
 					char *process_name,
-					boolean is_financial_position );
+					boolean is_financial_position,
+					char *logo_filename );
 
 void balance_sheet_full_PDF(
 					char *application_name,
@@ -67,7 +68,8 @@ void balance_sheet_full_PDF(
 					char *as_of_date,
 					char *document_root_directory,
 					char *process_name,
-					boolean is_financial_position );
+					boolean is_financial_position,
+					char *logo_filename );
 
 void balance_sheet_consolidate_html_table(
 					char *application_name,
@@ -108,6 +110,7 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *output_medium;
 	boolean is_financial_position;
+	char *logo_filename;
 
 	if ( argc != 7 )
 	{
@@ -171,6 +174,11 @@ int main( int argc, char **argv )
 	document_output_body(	document->application_name,
 				document->onload_control_string );
 
+	logo_filename =
+		application_constants_quick_fetch(
+			application_name,
+			"logo_filename" /* key */ );
+
 	if ( !ledger_get_report_title_sub_title(
 		title,
 		sub_title,
@@ -180,7 +188,8 @@ int main( int argc, char **argv )
 		as_of_date,
 		list_length(
 			ledger_get_fund_name_list(
-				application_name ) ) ) )
+				application_name ) ),
+		logo_filename ) )
 	{
 		printf( "<h3>Error. No transactions.</h3>\n" );
 		document_close();
@@ -222,7 +231,8 @@ int main( int argc, char **argv )
 				as_of_date,
 				appaserver_parameter_file->document_root,
 				process_name,
-				is_financial_position );
+				is_financial_position,
+				logo_filename );
 		}
 		else
 		{
@@ -234,7 +244,8 @@ int main( int argc, char **argv )
 				as_of_date,
 				appaserver_parameter_file->document_root,
 				process_name,
-				is_financial_position );
+				is_financial_position,
+				logo_filename );
 		}
 	}
 
@@ -252,7 +263,8 @@ void balance_sheet_consolidate_PDF(
 				char *as_of_date,
 				char *document_root_directory,
 				char *process_name,
-				boolean is_financial_position )
+				boolean is_financial_position,
+				char *logo_filename )
 {
 	LATEX *latex;
 	LATEX_TABLE *latex_table;
@@ -313,9 +325,7 @@ void balance_sheet_consolidate_PDF(
 			dvi_filename,
 			working_directory,
 			0 /* not landscape_flag */,
-			application_constants_quick_fetch(
-				application_name,
-				"logo_filename" /* key */ ) );
+			logo_filename );
 
 	latex_table =
 		latex_new_latex_table(
@@ -406,7 +416,8 @@ void balance_sheet_full_PDF(	char *application_name,
 				char *as_of_date,
 				char *document_root_directory,
 				char *process_name,
-				boolean is_financial_position )
+				boolean is_financial_position,
+				char *logo_filename )
 {
 	LATEX *latex;
 	LATEX_TABLE *latex_table;
@@ -467,9 +478,7 @@ void balance_sheet_full_PDF(	char *application_name,
 			dvi_filename,
 			working_directory,
 			0 /* not landscape_flag */,
-			application_constants_quick_fetch(
-				application_name,
-				"logo_filename" /* key */ ) );
+			logo_filename );
 
 	latex_table =
 		latex_new_latex_table(

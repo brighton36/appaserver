@@ -63,7 +63,8 @@ void tax_form_report_PDF(		char *application_name,
 					char *sub_title,
 					char *document_root_directory,
 					char *process_name,
-					LIST *tax_form_category_list );
+					LIST *tax_form_category_list,
+					char *logo_filename );
 
 int main( int argc, char **argv )
 {
@@ -78,6 +79,7 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *output_medium;
 	LIST *tax_form_category_list;
+	char *logo_filename;
 
 	if ( argc != 6 )
 	{
@@ -136,6 +138,11 @@ int main( int argc, char **argv )
 	document_output_body(	document->application_name,
 				document->onload_control_string );
 
+	logo_filename =
+		application_constants_quick_fetch(
+			application_name,
+			"logo_filename" /* key */ );
+
 	if ( !ledger_get_report_title_sub_title(
 		title,
 		sub_title,
@@ -143,7 +150,8 @@ int main( int argc, char **argv )
 		application_name,
 		(char *)0 /* fund_name */,
 		as_of_date,
-		0 /* length_fund_name_list */ ) )
+		0 /* length_fund_name_list */,
+		logo_filename ) )
 	{
 		printf( "<h3>Error. No transactions.</h3>\n" );
 		document_close();
@@ -174,7 +182,8 @@ int main( int argc, char **argv )
 			sub_title,
 			appaserver_parameter_file->document_root,
 			process_name,
-			tax_form_category_list );
+			tax_form_category_list,
+			logo_filename );
 	}
 
 	document_close();
@@ -390,7 +399,8 @@ void tax_form_report_PDF(
 			char *sub_title,
 			char *document_root_directory,
 			char *process_name,
-			LIST *tax_form_category_list )
+			LIST *tax_form_category_list,
+			char *logo_filename )
 {
 	LATEX *latex;
 	char *latex_filename;
@@ -451,9 +461,7 @@ void tax_form_report_PDF(
 			dvi_filename,
 			working_directory,
 			0 /* not landscape_flag */,
-			application_constants_quick_fetch(
-				application_name,
-				"logo_filename" /* key */ ) );
+			logo_filename );
 
 	list_append_pointer(
 		latex->table_list,

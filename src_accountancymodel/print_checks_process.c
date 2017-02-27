@@ -51,6 +51,7 @@ char *print_checks_create(
 				LIST *full_name_list,
 				LIST *street_address_list,
 				char *memo,
+				int starting_check_number,
 				double check_amount,
 				char *document_root_directory,
 				char *process_name,
@@ -233,6 +234,7 @@ char *print_checks(	char *application_name,
 			full_name_list,
 			street_address_list,
 			memo,
+			starting_check_number,
 			check_amount,
 			document_root_directory,
 			process_name,
@@ -261,6 +263,7 @@ char *print_checks_create(
 			LIST *full_name_list,
 			LIST *street_address_list,
 			char *memo,
+			int starting_check_number,
 			double check_amount,
 			char *document_root_directory,
 			char *process_name,
@@ -341,10 +344,11 @@ char *print_checks_create(
 		}
 
 		fprintf( output_pipe,
-			 "%s^%.2lf^%s\n",
+			 "%s^%.2lf^%s^%d\n",
 			 full_name,
 			 (check_amount) ? check_amount : balance,
-			 (*memo) ? memo : "" );
+			 (*memo) ? memo : "",
+			 starting_check_number++ );
 
 		list_next( street_address_list );
 

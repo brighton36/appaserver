@@ -43,6 +43,7 @@ void make_checks_dollar_text_with_stub(
 			double dollar_amount,
 			char *dollar_text_string,
 			char *memo,
+			int check_number,
 			char *check_date,
 			boolean with_newpage );
 
@@ -59,6 +60,7 @@ void make_checks(	FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
 			char *memo,
+			int check_number,
 			char *check_date,
 			boolean with_newpage,
 			boolean with_stub );
@@ -94,12 +96,13 @@ void make_checks_argv( int argc, char **argv )
 	FILE *latex_file;
 	char *check_date;
 	boolean with_stub;
+	int check_number;
 	int text_height;
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-		"Usage: %s payable_to|stdin dollar_amount memo with_stub_yn\n",
+"Usage: %s payable_to|stdin dollar_amount memo check_number with_stub_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -107,7 +110,8 @@ void make_checks_argv( int argc, char **argv )
 	payable_to = argv[ 1 ];
 	dollar_amount = atof( argv[ 2 ] );
 	memo = argv[ 3 ];
-	with_stub = ( *argv[ 4 ] == 'y' );
+	check_number = atoi( argv[ 4 ] );
+	with_stub = ( *argv[ 5 ] == 'y' );
 
 	appaserver_error_stderr( argc, argv );
 
@@ -157,6 +161,7 @@ void make_checks_argv( int argc, char **argv )
 			payable_to,
 			dollar_amount,
 			memo,
+			check_number,
 			check_date,
 			0 /* not with_newpage */,
 			with_stub );
@@ -181,6 +186,7 @@ void make_checks_stdin( boolean with_stub )
 	char dollar_amount_string[ 128 ];
 	char memo[ 128 ];
 	double dollar_amount_double;
+	char check_number_string[ 16 ];
 	char *appaserver_data_directory;
 	char latex_filename[ 128 ];
 	char pdf_filename[ 128 ];
@@ -235,7 +241,7 @@ void make_checks_stdin( boolean with_stub )
 
 	while( get_line( input_buffer, stdin ) )
 	{
-		if ( character_count( '^', input_buffer ) != 2 )
+		if ( character_count( '^', input_buffer ) != 3 )
 		{
 			fprintf( stderr,
 "Warning in %s/%s()/%d: ignoring (%s)n",
@@ -252,12 +258,15 @@ void make_checks_stdin( boolean with_stub )
 
 		if ( strcmp( memo, "memo" ) == 0 ) *memo = '\0';
 
+		piece( check_number_string, '^', input_buffer, 3 );
+
 		dollar_amount_double = atof( dollar_amount_string );
 
 		make_checks(	latex_file,
 				payable_to,
 				dollar_amount_double,
 				memo,
+				atoi( check_number_string ),
 				check_date,
 				1 - first_time /* with_newpage */,
 				with_stub );
@@ -284,6 +293,7 @@ void make_checks(	FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
 			char *memo,
+			int check_number,
 			char *check_date,
 			boolean with_newpage,
 			boolean with_stub )
@@ -300,6 +310,7 @@ void make_checks(	FILE *latex_file,
 			dollar_amount,
 			dollar_text_string,
 			memo,
+			check_number,
 			check_date,
 			with_newpage );
 	}
@@ -438,6 +449,7 @@ void make_checks_dollar_text_with_stub(
 			double dollar_amount,
 			char *dollar_text_string,
 			char *memo,
+			int check_number,
 			char *check_date,
 			boolean with_newpage )
 {
@@ -508,10 +520,22 @@ void make_checks_dollar_text_with_stub(
 	{
 		fprintf( latex_file,
 "\\vspace{0.52in}\n\n"
-"\\begin{tabular}{p{4.30in}l}\n"
-"& %s\n"
+"\\begin{tabular}{p{0.5in}p{2.25in}p{0.5in}p{1.0in}l}\n"
+"& Check: %d & & %s & %s\n"
 "\\end{tabular}\n",
-		 	memo );
+			 check_number,
+		 	 place_commas_in_money( dollar_amount ),
+			 memo );
+	}
+	else
+	{
+		fprintf( latex_file,
+"\\vspace{0.52in}\n\n"
+"\\begin{tabular}{p{0.5in}p{2.25in}l}\n"
+"& %d & & %s\n"
+"\\end{tabular}\n",
+			 check_number,
+		 	 place_commas_in_money( dollar_amount ) );
 	}
 
 	fprintf( latex_file,

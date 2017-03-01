@@ -111,7 +111,9 @@ SOURCE_LIBRARY= 							\
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 
 clean:
-	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}
+	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}			\
+		financial_position					\
+		statement_of_activities
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

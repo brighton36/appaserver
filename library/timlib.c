@@ -1,4 +1,4 @@
-/* library/timlib.c					   */
+/* $APPASERVER_HOME/library/timlib.c			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -853,6 +853,146 @@ int timlib_get_line(	char *in_line,
 	int in_char;
 	char *anchor = in_line;
 	int size = 0;
+	static boolean first_character = 1;
+	static boolean is_utf_16 = 0;
+	static boolean utf_16_toggle = 1;
+
+	*in_line = '\0';
+
+	/* Exit in middle. */
+	/* --------------- */
+	while ( 1 )
+	{
+		in_char = fgetc( infile );
+
+		if ( first_character )
+		{
+			if ( in_char == 255 )
+			{
+				in_char = fgetc( infile );
+
+				if ( in_char == 254 )
+				{
+					is_utf_16 = 1;
+					continue;
+				}
+			}
+
+			first_character = 0;
+		}
+
+		if ( is_utf_16 )
+		{
+			utf_16_toggle = 1 - utf_16_toggle;
+
+			if ( utf_16_toggle )
+			{
+				continue;
+			}
+		}
+
+		/* Why are there zeros? */
+		/* -------------------- */
+		if ( !in_char ) continue;
+
+		if ( in_char == EOF )
+		{
+			/* If last line in file doesn't have a CR */
+			/* -------------------------------------- */
+			if ( in_line != anchor )
+			{
+				*in_line = '\0';
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+		if ( in_char == CR )
+		{
+			/* Clear out an optionally following LF */
+			/* ------------------------------------ */
+			in_char = fgetc(infile);
+			if ( in_char != LF ) ungetc( in_char, infile );
+
+			*in_line = '\0';
+			return 1;
+		}
+
+		if ( in_char == LF )
+		{
+			/* Clear out an optionally following CR */
+			/* ------------------------------------ */
+			in_char = fgetc(infile);
+			if ( in_char != CR ) ungetc( in_char, infile );
+
+			*in_line = '\0';
+			return 1;
+		}
+
+		/* If '\' then get the next character */
+		/* ---------------------------------- */
+		if ( in_char == '\\' )
+		{
+			in_char = fgetc( infile );
+
+			if ( in_char == CR ) in_char = ' ';
+
+			/* If escaping the <CR> */
+			/* -------------------- */
+			if ( in_char == LF)
+			{
+				if ( buffer_size && ( size++ == buffer_size ) )
+				{
+					fprintf( stderr,
+			"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
+						 __FILE__,
+						 __FUNCTION__,
+						 __LINE__,
+						 buffer_size );
+					*in_line = '\0';
+					return 1;
+				}
+
+				*in_line++ = ' ';
+				continue;
+			}
+			else
+			{
+				ungetc( in_char, infile );
+				in_char = '\\';
+				size--;
+			}
+		}
+
+		if ( buffer_size && ( size++ == buffer_size ) )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 buffer_size );
+			*in_line = '\0';
+			return 1;
+		}
+
+		*in_line++ = in_char;
+
+	} /* while( 1 ) */
+
+} /* timlib_get_line() */
+
+#ifdef NOT_DEFINED
+int timlib_get_line(	char *in_line,
+			FILE *infile,
+			int buffer_size )
+{
+	int in_char;
+	char *anchor = in_line;
+	int size = 0;
 
 	*in_line = '\0';
 
@@ -944,6 +1084,7 @@ int timlib_get_line(	char *in_line,
 		*in_line++ = in_char;
 	}
 } /* timlib_get_line() */
+#endif
 
 int get_line( char *in_line, FILE *infile )
 {

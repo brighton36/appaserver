@@ -95,7 +95,7 @@ char *trim( char * );
 char *up_string( char * );
 char *low_string( char * );
 int get_line( char *destination, FILE *infile );
-int timlib_get_line( char *destination, FILE *infile, int buffer_size );
+boolean timlib_get_line( char *destination, FILE *infile, int buffer_size );
 void skip_line( FILE *infile );
 int instr( char *substr, char *string, int occurrence );
 int instr_character( char delimiter, char *string );

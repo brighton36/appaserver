@@ -1,6 +1,6 @@
 :
-# utility/git_add.sh
-# ------------------
+# utility/git_revert.sh
+# ---------------------
 git status				|
 grep 'modified: '			|
 column.e 1				|

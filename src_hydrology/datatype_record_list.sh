@@ -21,6 +21,8 @@ echo "select 	$datatype.datatype,					\
 		$datatype.bar_graph_yn,					\
 		$datatype.scale_graph_to_zero_yn,			\
 		$datatype.aggregation_sum_yn,				\
+		$datatype.ysi_load_heading,				\
+		$datatype.exo_load_heading,				\
 		$datatype.set_negative_values_to_zero_yn		\
       from $datatype							\
       order by datatype;"						|

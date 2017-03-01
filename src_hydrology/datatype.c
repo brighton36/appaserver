@@ -1,4 +1,4 @@
-/* src_everglades/datatype.c				*/
+/* src_hydrology/datatype.c				*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -272,6 +272,7 @@ char *datatype_get_units_string(		boolean *bar_graph,
 
 		return results;
 	}
+
 } /* datatype_get_units_string() */
 
 char *datatype_list_display( LIST *datatype_list )
@@ -294,6 +295,7 @@ char *datatype_list_display( LIST *datatype_list )
 	} while( list_next( datatype_list ) );
 
 	return strdup( buffer );
+
 } /* datatype_list_display() */
 
 boolean datatype_bar_chart(
@@ -330,13 +332,17 @@ DATATYPE *datatype_record2datatype( char *record )
 	char bar_graph_yn[ 16 ];
 	char scale_graph_to_zero_yn[ 16 ];
 	char aggregation_sum_yn[ 16 ];
+	char ysi_load_heading[ 32 ];
+	char exo_load_heading[ 32 ];
 	char set_negative_values_to_zero_yn[ 16 ];
 
 	piece( datatype_name, '|', record, 0 );
 	piece( bar_graph_yn, '|', record, 1 );
 	piece( scale_graph_to_zero_yn, '|', record, 2 );
 	piece( aggregation_sum_yn, '|', record, 3 );
-	piece( set_negative_values_to_zero_yn, '|', record, 4 );
+	piece( ysi_load_heading, '|', record, 4 );
+	piece( exo_load_heading, '|', record, 5 );
+	piece( set_negative_values_to_zero_yn, '|', record, 6 );
 
 	datatype =
 		datatype_new_datatype(
@@ -351,6 +357,10 @@ DATATYPE *datatype_record2datatype( char *record )
 
 	datatype->aggregation_sum =
 		( tolower( *aggregation_sum_yn ) == 'y' );
+
+	datatype->ysi_load_heading = strdup( ysi_load_heading );
+
+	datatype->exo_load_heading = strdup( exo_load_heading );
 
 	datatype->set_negative_values_to_zero =
 		( tolower( *set_negative_values_to_zero_yn ) == 'y' );
@@ -423,4 +433,52 @@ boolean datatype_get_bypass_data_collection_frequency(
 	return ( *results == 'y' );
 
 } /* datatype_get_bypass_data_collection_frequency() */
+
+DATATYPE *datatype_list_ysi_load_heading_seek(
+			LIST *datatype_list,
+			char *two_line_datatype_heading )
+{
+	DATATYPE *datatype;
+
+	if ( !list_rewind( datatype_list ) ) return (DATATYPE *)0;
+
+	do {
+		datatype = list_get_pointer( datatype_list );
+
+		if ( strcasecmp(
+			two_line_datatype_heading,
+			datatype->ysi_load_heading ) == 0 )
+		{
+			return datatype;
+		}
+
+	} while( list_next( datatype_list ) );
+
+	return (DATATYPE *)0;
+
+} /* datatype_list_ysi_load_heading_seek() */
+
+DATATYPE *datatype_list_exo_load_heading_seek(
+			LIST *datatype_list,
+			char *two_line_datatype_heading )
+{
+	DATATYPE *datatype;
+
+	if ( !list_rewind( datatype_list ) ) return (DATATYPE *)0;
+
+	do {
+		datatype = list_get_pointer( datatype_list );
+
+		if ( strcasecmp(
+			two_line_datatype_heading,
+			datatype->exo_load_heading ) == 0 )
+		{
+			return datatype;
+		}
+
+	} while( list_next( datatype_list ) );
+
+	return (DATATYPE *)0;
+
+} /* datatype_list_exo_load_heading_seek() */
 

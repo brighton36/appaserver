@@ -34,14 +34,6 @@
 
 /* Structures */
 /* ---------- */
-/*
-typedef struct
-{
-	char *datatype_name;
-	char *heading_string;
-	int piece_number;
-} DATATYPE;
-*/
 
 /* Constants */
 /* --------- */
@@ -698,7 +690,6 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 	char datatype_heading_first_line[ 128 ];
 	char datatype_heading_second_line[ 128 ];
 	char two_line_datatype_heading[ 256 ];
-	char *datatype_name;
 	int piece_number;
 
 	return_datatype_list = list_new();
@@ -744,39 +735,25 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 			 	datatype_heading_first_line );
 		}
 
-		if ( ( datatype_name =
-				get_datatype_name(
-					application_name,
-					two_line_datatype_heading ) ) )
+		if ( ( datatype =
+			datatype_list_ysi_load_heading_seek(
+				datatype_list,
+				two_line_datatype_heading ) ) )
 		{
-			datatype =
-				datatype_list_seek(
-					datatype_list,
-					datatype_name );
-
 			datatype->piece_number = piece_number;
-			datatype->heading_string =
-				strdup( two_line_datatype_heading );
-
 			list_append_pointer( return_datatype_list, datatype );
 			continue;
 		}
 
-		if ( ! ( datatype_name =
-				get_datatype_name(
-					application_name,
-					datatype_heading_first_line ) ) )
+		if ( ( datatype =
+			datatype_list_exo_load_heading_seek(
+				datatype_list,
+				two_line_datatype_heading ) ) )
 		{
+			datatype->piece_number = piece_number;
+			list_append_pointer( return_datatype_list, datatype );
 			continue;
 		}
-
-		datatype = datatype_list_seek( datatype_list, datatype_name );
-
-		datatype->piece_number = piece_number;
-		datatype->heading_string =
-			strdup( datatype_heading_first_line );
-
-		list_append_pointer( return_datatype_list, datatype );
 	}
 
 	return return_datatype_list;
@@ -826,7 +803,9 @@ char *get_datatype_name(	char *application_name,
 			return strdup( datatype_name );
 		}
 	} while( list_next( datatype_record_list ) );
+
 	return (char *)0;
+
 } /* get_datatype_name() */
 
 void delete_existing_measurements(

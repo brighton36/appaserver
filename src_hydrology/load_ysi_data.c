@@ -365,8 +365,7 @@ int load_ysi_filespecification(
 			JULIAN *input_end_date,
 			LIST *datatype_list )
 {
-	FILE *input_pipe;
-	char input_sys_string[ 1024 ];
+	FILE *input_file;
 	char input_buffer[ 1024 ];
 	char format_buffer[ 128 ];
 	FILE *error_file;
@@ -443,13 +442,11 @@ int load_ysi_filespecification(
 		fflush( stdout );
 	}
 
-	sprintf( input_sys_string,
-		 "cat %s",
-		 input_filespecification );
+	input_file = fopen( input_filespecification, "r" );
 
-	input_pipe = popen( input_sys_string, "r" );
+	timlib_reset_get_line_first_character();
 
-	while( get_line( input_buffer, input_pipe ) )
+	while( timlib_get_line( input_buffer, input_file, 1024 ) )
 	{
 		line_number++;
 
@@ -631,7 +628,7 @@ int load_ysi_filespecification(
 	if ( station_datatype_insert_pipe )
 		pclose( station_datatype_insert_pipe );
 
-	pclose( input_pipe );
+	fclose( input_file );
 	fclose( error_file );
 
 	return line_number;
@@ -1069,6 +1066,8 @@ char *station_fetch( char *input_filespecification )
 			 input_filespecification );
 		return 0;
 	}
+
+	timlib_reset_get_line_first_character();
 
 	while( timlib_get_line( input_buffer, input_file, 1024 ) )
 	{

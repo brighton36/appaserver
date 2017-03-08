@@ -453,4 +453,7 @@ char *timlib_escape_character_string(
 				char *source_destination,
 				char *character_string );
 
+void timlib_reset_get_line_first_character(
+				void );
+
 #endif

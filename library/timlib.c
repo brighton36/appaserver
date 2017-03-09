@@ -515,9 +515,10 @@ char *pipe2string( char *sys_string )
 	int null_input = 0;
 
 	p = popen( sys_string, "r" );
-	timlib_reset_get_line_check_utf_16();
 
+	timlib_reset_get_line_check_utf_16();
 	if ( !get_line( buffer, p ) ) null_input = 1;
+	timlib_reset_get_line_check_utf_16();
 
 	pclose( p );
 

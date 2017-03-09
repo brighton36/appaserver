@@ -703,6 +703,7 @@ boolean station_exists(	char *application_name,
 {
 	char sys_string[ 1024 ];
 	char where[ 128 ];
+	char *return_value;
 
 	sprintf( where, "station = '%s'", station_name );
 
@@ -714,7 +715,8 @@ boolean station_exists(	char *application_name,
 		 application_name,
 		 where );
 
-	return (boolean) atoi( pipe2string( sys_string ) );
+	if ( ! ( return_value = pipe2string( sys_string ) ) ) return 0;
+
+	return (boolean) atoi( return_value );
 
 } /* station_exists() */
-

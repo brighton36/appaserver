@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	make trim_length.e
+	cd ../src_hydrology
+	make load_ysi_data
 fi

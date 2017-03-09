@@ -67,6 +67,10 @@ LIST *datatype_with_station_name_list_get_datatype_list(
 			char *application_name,
 			LIST *station_name_list );
 
+LIST *datatype_with_station_name_get_datatype_list(
+			char *application_name,
+			char *station_name );
+
 char *datatype_list_display(
 			LIST *datatype_list );
 

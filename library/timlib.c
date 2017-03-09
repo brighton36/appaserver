@@ -515,12 +515,17 @@ char *pipe2string( char *sys_string )
 	int null_input = 0;
 
 	p = popen( sys_string, "r" );
+	timlib_reset_get_line_check_utf_16();
+
 	if ( !get_line( buffer, p ) ) null_input = 1;
+
 	pclose( p );
+
 	if ( null_input )
 		return (char *)0;
 	else
 		return strdup( buffer );
+
 } /* pipe2string() */
 
 char *get_line_system( char *sys_string )
@@ -847,10 +852,14 @@ char *low_string ( char *s )
 } /* low_string() */
 
 static boolean get_line_check_utf_16 = 1;
+static boolean is_utf_16 = 0;
+static boolean utf_16_toggle = 1;
 
 void timlib_reset_get_line_check_utf_16( void )
 {
 	get_line_check_utf_16 = 1;
+	is_utf_16 = 0;
+	utf_16_toggle = 1;
 }
 
 int timlib_get_line(	char *in_line,
@@ -860,8 +869,6 @@ int timlib_get_line(	char *in_line,
 	int in_char;
 	char *anchor = in_line;
 	int size = 0;
-	static boolean is_utf_16 = 0;
-	static boolean utf_16_toggle = 1;
 
 	*in_line = '\0';
 
@@ -912,6 +919,7 @@ int timlib_get_line(	char *in_line,
 			}
 			else
 			{
+				timlib_reset_get_line_check_utf_16();
 				return 0;
 			}
 		}

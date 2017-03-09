@@ -35,6 +35,11 @@
 
 /* Structures */
 /* ---------- */
+typedef struct
+{
+	int special_code;
+	char *replacement_string;
+} SPECIAL_CODE_STRUCTURE;
 
 /* Constants */
 /* --------- */
@@ -45,6 +50,12 @@
 
 /* Prototypes */
 /* ---------- */
+void search_replace_special_codes(	char *two_line_datatype_heading );
+
+SPECIAL_CODE_STRUCTURE *special_code_structure_new(
+					int special_code,
+					char *replacement_string );
+
 char *station_fetch(			char *application_name,
 					char *input_filespecification );
 
@@ -59,16 +70,16 @@ void delete_existing_measurements(
 					JULIAN *input_end_date,
 					LIST *datatype_list );
 
-char *get_datatype_name(		char *application_name,
-					char *datatype_heading );
-
 LIST *input_buffer_get_datatype_list(	char *application_name,
+					char *station_name,
 					char *first_line,
 					char *second_line );
 
 LIST *get_datatype_list(		char **error_message,
 					char *application_name,
-					char *input_filespecification );
+					char *station_name,
+					char *input_filespecification,
+					boolean is_exo );
 
 int load_ysi_filespecification(
 					int *measurement_count,
@@ -84,6 +95,7 @@ int load_ysi_filespecification(
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char is_exo_yn;
 	char really_yn;
 	char change_existing_data_yn;
 	char *input_filespecification;
@@ -111,10 +123,10 @@ int main( int argc, char **argv )
 	char *error_message = {0};
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
-	if ( argc != 11 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process filename station begin_date begin_time end_date end_time change_existing_data_yn really_yn\n",
+"Usage: %s application process filename station begin_date begin_time end_date end_time change_existing_data_yn is_exo_yn really_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -128,7 +140,8 @@ int main( int argc, char **argv )
 	end_date_string = argv[ 7 ];
 	end_time_string = argv[ 8 ];
 	change_existing_data_yn = *argv[ 9 ];
-	really_yn = *argv[ 10 ];
+	is_exo_yn = *argv[ 10 ];
+	really_yn = *argv[ 11 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -183,9 +196,10 @@ int main( int argc, char **argv )
 	if ( !*station
 	||   strcmp( station, "station" ) == 0 )
 	{
-		if ( ! ( station = station_fetch(
-				application_name,
-				input_filespecification ) ) )
+		if ( ! ( station =
+				station_fetch(
+					application_name,
+					input_filespecification ) ) )
 		{
 			printf(
 			"<h3>ERROR: Could not identify the station.</h3>\n" );
@@ -197,7 +211,9 @@ int main( int argc, char **argv )
 	if ( ! ( datatype_list = get_datatype_list(
 					&error_message,
 					application_name,
-					input_filespecification ) ) )
+					station,
+					input_filespecification,
+					( is_exo_yn == 'y' ) ) ) )
 	{
 		printf( "<h3>Error: %s</h3>\n", error_message );
 		document_close();
@@ -629,6 +645,8 @@ int load_ysi_filespecification(
 		} while( list_next( datatype_list ) );
 	}
 
+	timlib_reset_get_line_check_utf_16();
+
 	pclose( measurement_insert_pipe );
 
 	if ( station_datatype_insert_pipe )
@@ -643,7 +661,9 @@ int load_ysi_filespecification(
 
 LIST *get_datatype_list(	char **error_message,
 				char *application_name,
-				char *input_filespecification )
+				char *station_name,
+				char *input_filespecification,
+				boolean is_exo )
 {
 	FILE *input_file;
 	char first_line[ 1024 ];
@@ -661,16 +681,23 @@ LIST *get_datatype_list(	char **error_message,
 		exit( 1 );
 	}
 
+	*second_line = '\0';
+
 	while( get_line( first_line, input_file ) )
 	{
 		if ( instr( "Date", first_line, 1 ) != -1 )
 		{
-			get_line( second_line, input_file );
+			if ( !is_exo )
+			{
+				get_line( second_line, input_file );
+			}
+
 			fclose( input_file );
 
 			datatype_list =
 				input_buffer_get_datatype_list(
 					application_name,
+					station_name,
 					first_line,
 					second_line );
 
@@ -691,6 +718,7 @@ LIST *get_datatype_list(	char **error_message,
 } /* get_datatype_list() */
 
 LIST *input_buffer_get_datatype_list(	char *application_name,
+					char *station_name,
 					char *first_line,
 					char *second_line )
 {
@@ -704,7 +732,10 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 
 	return_datatype_list = list_new();
 
-	datatype_list = datatype_get_list( application_name );
+	datatype_list =
+		datatype_with_station_name_get_datatype_list(
+			application_name,
+			station_name );
 
 	*datatype_heading_second_line = '\0';
 
@@ -726,11 +757,14 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 			continue;
 		}
 
-		piece_quoted(	datatype_heading_second_line,
-				',',
-				second_line,
-				piece_number,
-				'"' );
+		if ( *second_line )
+		{
+			piece_quoted(	datatype_heading_second_line,
+					',',
+					second_line,
+					piece_number,
+					'"' );
+		}
 
 		if ( *datatype_heading_second_line )
 		{
@@ -744,6 +778,10 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 			strcpy( two_line_datatype_heading,
 			 	datatype_heading_first_line );
 		}
+
+		trim( two_line_datatype_heading );
+
+		search_replace_special_codes( two_line_datatype_heading );
 
 		if ( ( datatype =
 			datatype_list_ysi_load_heading_seek(
@@ -769,54 +807,6 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 	return return_datatype_list;
 
 } /* input_buffer_get_datatype_list() */
-
-char *get_datatype_name(	char *application_name,
-				char *datatype_heading )
-{
-	static LIST *datatype_record_list = {0};
-	char datatype_name[ 128 ];
-	char *datatype_record;
-
-	if ( !datatype_record_list )
-	{
-		char sys_string[ 1024 ];
-		char *select;
-		char *where_clause;
-
-		select = "ysi_load_heading,datatype";
-		where_clause = "ysi_load_heading is not null";
-
-		sprintf( sys_string,
-		 	"get_folder_data	application=%s		"
-		 	"			select=%s		"
-		 	"			folder=datatype		"
-		 	"			where=\"%s\"		",
-		 	application_name,
-			select,
-		 	where_clause );
-		datatype_record_list = pipe2list( sys_string );
-	}
-
-	if ( !list_rewind( datatype_record_list ) ) return (char *)0;
-
-	do {
-		datatype_record = list_get_pointer( datatype_record_list );
-
-		if ( timlib_strncmp(
-				datatype_record,
-				datatype_heading ) == 0 )
-		{
-			piece(	datatype_name,
-				FOLDER_DATA_DELIMITER,
-				datatype_record,
-				1 );
-			return strdup( datatype_name );
-		}
-	} while( list_next( datatype_record_list ) );
-
-	return (char *)0;
-
-} /* get_datatype_name() */
 
 void delete_existing_measurements(
 				char *application_name,
@@ -887,6 +877,7 @@ void delete_existing_measurements(
 		fflush( stdout );
 
 	} while( list_next( datatype_list ) );
+
 } /* delete_existing_measurements() */
 
 boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
@@ -1116,8 +1107,78 @@ char *station_fetch(	char *application_name,
 		return strdup( station );
 	}
 
+	timlib_reset_get_line_check_utf_16();
+
 	fclose( input_file );
 	return (char *)0;
 
 } /* station_fetch() */
+
+void search_replace_special_codes( char *two_line_datatype_heading )
+{
+	static LIST *special_code_list = {0};
+	SPECIAL_CODE_STRUCTURE *s;
+	char *ptr = two_line_datatype_heading;
+	char buffer[ 1024 ];
+
+	if ( !special_code_list )
+	{
+		special_code_list = list_new();
+
+		s = special_code_structure_new(
+				-75,
+				"[mu]" );
+		list_append_pointer( special_code_list, s );
+
+		s = special_code_structure_new(
+				-80,
+				"[deg]" );
+		list_append_pointer( special_code_list, s );
+	}
+
+	while( *ptr )
+	{
+		list_rewind( special_code_list );
+
+		do {
+			s = list_get_pointer( special_code_list );
+
+			if ( *ptr == s->special_code )
+			{
+				strcpy( buffer, s->replacement_string );
+				strcat( buffer, ptr + 1 );
+				strcpy( ptr, buffer );
+				break;
+			}
+
+		} while( list_next( special_code_list ) );
+
+		ptr++;
+	}
+
+} /* search_replace_special_codes() */
+
+SPECIAL_CODE_STRUCTURE *special_code_structure_new(
+					int special_code,
+					char *replacement_string )
+{
+	SPECIAL_CODE_STRUCTURE *s;
+
+	if ( ! ( s = (SPECIAL_CODE_STRUCTURE *)
+			calloc( 1, sizeof( SPECIAL_CODE_STRUCTURE ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	s->special_code = special_code;
+	s->replacement_string = replacement_string;
+
+	return s;
+
+} /* special_code_structure_new() */
 

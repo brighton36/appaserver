@@ -2674,12 +2674,20 @@ void dictionary_trim_double_bracked_data( DICTIONARY *dictionary )
 char *dictionary_trim_double_bracked_string( char *string )
 {
 	int start, end;
+	int str_len;
 
-	if ( ( start = instr( "[", string, 1 ) ) != -1
-	&&   ( end = instr( "]", string, 1 ) ) != -1 )
+	str_len = strlen( string );
+
+	/* Don't trim middle brackets. */
+	/* --------------------------- */
+	if ( *( string + str_len ) == ']' )
 	{
-		strcpy( string + start, string + end + 1 );
-		right_trim( string );
+		if ( ( start = instr( "[", string, 1 ) ) != -1
+		&&   ( end = instr( "]", string, 1 ) ) != -1 )
+		{
+			strcpy( string + start, string + end + 1 );
+			right_trim( string );
+		}
 	}
 	return string;
 } /* dictionary_trim_double_bracked_string() */

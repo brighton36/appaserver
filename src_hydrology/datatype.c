@@ -156,6 +156,36 @@ LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
 
 } /* datatype_with_station_name_list_get_datatype_bar_graph_list() */
 
+LIST *datatype_with_station_name_get_datatype_list(
+			char *application_name,
+			char *station_name )
+{
+	DATATYPE *datatype;
+	char buffer[ 1024 ];
+	FILE *input_pipe;
+	LIST *datatype_list;
+
+	datatype_list = list_new_list();
+
+	sprintf(	buffer,
+			"station_datatype_record_list.sh %s %s",
+			application_name,
+			station_name );
+
+	input_pipe = popen( buffer, "r" );
+
+	while( get_line( buffer, input_pipe ) )
+	{
+		datatype = datatype_record2datatype( buffer );
+		list_append_pointer( datatype_list, datatype );
+	}
+
+	pclose( input_pipe );
+
+	return datatype_list;
+
+} /* datatype_with_station_name_get_datatype_list() */
+
 LIST *datatype_with_station_name_list_get_datatype_list(
 			char *application_name,
 			LIST *station_name_list )

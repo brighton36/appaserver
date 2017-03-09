@@ -698,3 +698,23 @@ LIST *station_get_station_type_list(
 
 } /* station_get_station_type_list() */
 
+boolean station_exists(	char *application_name,
+			char *station_name )
+{
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf( where, "station = '%s'", station_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=count	"
+		 "			folder=station	"
+		 "			where=\"%s\"	",
+		 application_name,
+		 where );
+
+	return (boolean) atoi( pipe2string( sys_string ) );
+
+} /* station_exists() */
+

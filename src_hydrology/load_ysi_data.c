@@ -29,6 +29,7 @@
 #include "session.h"
 #include "application.h"
 #include "hydrology_library.h"
+#include "station.h"
 #include "datatype.h"
 #include "appaserver_link_file.h"
 
@@ -44,7 +45,8 @@
 
 /* Prototypes */
 /* ---------- */
-char *station_fetch(		char *input_filespecification );
+char *station_fetch(			char *application_name,
+					char *input_filespecification );
 
 boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 					JULIAN **file_end_date,
@@ -181,9 +183,12 @@ int main( int argc, char **argv )
 	if ( !*station
 	||   strcmp( station, "station" ) == 0 )
 	{
-		if ( ! ( station = station_fetch( input_filespecification ) ) )
+		if ( ! ( station = station_fetch(
+				application_name,
+				input_filespecification ) ) )
 		{
-			printf( "<h3>ERROR: Please choose a station.</h3>\n" );
+			printf(
+			"<h3>ERROR: Could not identify the station.</h3>\n" );
 			document_close();
 			exit( 1 );
 		}
@@ -194,11 +199,9 @@ int main( int argc, char **argv )
 					application_name,
 					input_filespecification ) ) )
 	{
-		printf( "<h3>Warning: %s</h3>\n", error_message );
-/*
+		printf( "<h3>Error: %s</h3>\n", error_message );
 		document_close();
 		exit( 1 );
-*/
 	}
 
 	appaserver_link_file =
@@ -383,6 +386,8 @@ int load_ysi_filespecification(
 	DATATYPE *datatype;
 	JULIAN *measurement_date_time = julian_new_julian( 0.0 );
 
+	if ( !list_length( datatype_list ) ) return 0;
+
 	error_file = fopen( error_filespecification, "w" );
 	if ( !error_file )
 	{
@@ -444,7 +449,7 @@ int load_ysi_filespecification(
 
 	input_file = fopen( input_filespecification, "r" );
 
-	timlib_reset_get_line_first_character();
+	timlib_reset_get_line_check_utf_16();
 
 	while( timlib_get_line( input_buffer, input_file, 1024 ) )
 	{
@@ -562,6 +567,7 @@ int load_ysi_filespecification(
 		}
 
 		list_rewind( datatype_list );
+
 		do {
 			datatype = list_get_pointer( datatype_list );
 
@@ -667,6 +673,13 @@ LIST *get_datatype_list(	char **error_message,
 					application_name,
 					first_line,
 					second_line );
+
+			if ( !list_length( datatype_list ) )
+			{
+				*error_message =
+				"None of the headings matched a datatype.";
+				return (LIST *)0;
+			}
 
 			return datatype_list;
 		}
@@ -1049,9 +1062,9 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 
 } /* get_file_begin_end_dates() */
 
-char *station_fetch( char *input_filespecification )
+char *station_fetch(	char *application_name,
+			char *input_filespecification )
 {
-	char column_A[ 128 ];
 	char station[ 128 ];
 	FILE *input_file;
 	char input_buffer[ 1024 ];
@@ -1067,18 +1080,40 @@ char *station_fetch( char *input_filespecification )
 		return 0;
 	}
 
-	timlib_reset_get_line_first_character();
+	timlib_reset_get_line_check_utf_16();
 
 	while( timlib_get_line( input_buffer, input_file, 1024 ) )
 	{
-		piece( column_A, ',', input_buffer, 0 );
+		if ( timlib_strncmp( input_buffer, STATION_LABEL ) != 0 )
+			continue;
 
-		if ( strcasecmp( column_A, STATION_LABEL ) == 0 )
+		fclose( input_file );
+
+		if ( timlib_character_exists(
+			input_buffer,
+			',' ) )
 		{
 			piece( station, ',', input_buffer, 1 );
-			fclose( input_file );
-			return strdup( station );
 		}
+		else
+		{
+			strcpy(	station,
+				input_buffer + strlen( STATION_LABEL ) + 1 );
+
+			trim( station );
+		}
+
+		if ( !station_exists(
+				application_name,
+				station ) )
+		{
+			printf(
+		"<h3>Error: station = (%s) doesn't exist in STATION.</h3>\n",
+				station );
+			return (char *)0;
+		}
+
+		return strdup( station );
 	}
 
 	fclose( input_file );

@@ -846,11 +846,11 @@ char *low_string ( char *s )
 
 } /* low_string() */
 
-static boolean get_line_first_character = 1;
+static boolean get_line_check_utf_16 = 1;
 
-void timlib_reset_get_line_first_character( void )
+void timlib_reset_get_line_check_utf_16( void )
 {
-	get_line_first_character = 1;
+	get_line_check_utf_16 = 1;
 }
 
 int timlib_get_line(	char *in_line,
@@ -871,9 +871,9 @@ int timlib_get_line(	char *in_line,
 	{
 		in_char = fgetc( infile );
 
-		if ( get_line_first_character )
+		if ( get_line_check_utf_16 )
 		{
-			get_line_first_character = 0;
+			get_line_check_utf_16 = 0;
 
 			if ( in_char == 255 )
 			{

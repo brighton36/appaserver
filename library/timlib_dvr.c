@@ -295,12 +295,13 @@ void test_directory_filesystem( void )
 void test_get_line( void )
 {
 	char buffer[ 1024 ];
-	char *ptr;
 
 	while( timlib_get_line( buffer, stdin, 1024 ) )
 	{
-		/* printf( "%s\n", buffer ); */
+		printf( "%s\n", buffer );
 
+/*
+	char *ptr;
 		ptr = buffer;
 
 		while ( *ptr )
@@ -308,5 +309,6 @@ void test_get_line( void )
 			printf( "%d: %c\n", *ptr, *ptr );
 			ptr++;
 		}
+*/
 	}
 }

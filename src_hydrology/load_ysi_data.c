@@ -747,6 +747,8 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 				'"' );
 		piece_number++ )
 	{
+		if ( !*datatype_heading_first_line ) continue;
+
 		if ( strcmp( datatype_heading_first_line, "Date" ) == 0 )
 		{
 			continue;

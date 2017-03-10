@@ -3,6 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_hydrology
-	make load_ysi_data
+	cd ../utility
+	touch menu.c
+	make menu.e
 fi

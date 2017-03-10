@@ -909,8 +909,12 @@ int timlib_get_line(	char *in_line,
 		/* -------------------- */
 		if ( !in_char ) continue;
 
+		if ( in_char == CR ) continue;
+
 		if ( in_char == EOF )
 		{
+			timlib_reset_get_line_check_utf_16();
+
 			/* If last line in file doesn't have a CR */
 			/* -------------------------------------- */
 			if ( in_line != anchor )
@@ -920,11 +924,11 @@ int timlib_get_line(	char *in_line,
 			}
 			else
 			{
-				timlib_reset_get_line_check_utf_16();
 				return 0;
 			}
 		}
 
+#ifdef NOT_DEFINED
 		if ( in_char == CR )
 		{
 			/* Clear out an optionally following LF */
@@ -935,13 +939,16 @@ int timlib_get_line(	char *in_line,
 			*in_line = '\0';
 			return 1;
 		}
+#endif
 
 		if ( in_char == LF )
 		{
+#ifdef NOT_DEFINED
 			/* Clear out an optionally following CR */
 			/* ------------------------------------ */
 			in_char = fgetc(infile);
 			if ( in_char != CR ) ungetc( in_char, infile );
+#endif
 
 			*in_line = '\0';
 			return 1;

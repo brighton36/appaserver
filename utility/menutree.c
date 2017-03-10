@@ -53,7 +53,6 @@ MENU_TREE *menu_tree_init( void )
 
 } /* menu_tree_init() */
 
-
 void interact( MENU_TREE *m )
 {
 	char response[ 64 ];
@@ -543,7 +542,7 @@ NODE *menu_tree_pop( MENU_TREE *m )
 {
 	NODE *n;
 
-	n = (NODE *)pop( m->node_stack );
+	if ( ( n = (NODE *)pop( m->node_stack ) ) ){};
 	m->current = (NODE *)top( m->node_stack );
 	return m->current;
 }

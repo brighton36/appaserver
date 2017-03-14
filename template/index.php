@@ -7,7 +7,13 @@
 <body bgcolor="FFFFFF" onload="document.login.login_name.focus()">
 
 <form enctype="multipart/form-data"
-	name="login" method=POST action="/cgi-bin/post_login?template:template">
+
+<!--
+name="login" method=POST action="https://localhost/cgi-bin/post_login?template:template">
+-->
+
+name="login" method=POST action="/cgi-bin/post_login?template:template">
+
 <input type="hidden" name="filename" value="index.php">
 
 <table	border="0"

@@ -3,7 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	touch menu.c
-	make menu.e
+	cd ../src_appaserver
+	make post_login
 fi

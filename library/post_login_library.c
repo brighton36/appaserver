@@ -15,8 +15,6 @@
 #include "appaserver_error.h"
 #include "post_login_library.h"
 
-/* appaserver_link_file */
-
 boolean post_login_email_login(
 			char *login_name,
 			char *email_http_filename )

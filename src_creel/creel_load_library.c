@@ -1,5 +1,5 @@
-/* creel_load_library.c */
-/* -------------------- */
+/* src_creel/creel_load_library.c */
+/* ------------------------------ */
 
 #include <stdio.h>
 #include <stdlib.h>

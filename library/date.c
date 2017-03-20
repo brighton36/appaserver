@@ -447,6 +447,34 @@ int date_years_between( char *from_date, char *to_date )
 
 } /* date_years_between() */
 
+void date_time_parse(		int *hours,
+				int *minutes,
+				char *hhmm )
+{
+	char buffer[ 3 ];
+	char *ptr;
+
+	*hours = 0;
+	*minutes = 0;
+
+	if ( timlib_strlen( hhmm ) != 4 ) return;
+
+	ptr = buffer;
+	*ptr++ = *hhmm++;
+	*ptr++ = *hhmm++;
+	*ptr = '\0';
+
+	*hours = atoi( buffer );
+
+	ptr = buffer;
+	*ptr++ = *hhmm++;
+	*ptr++ = *hhmm++;
+	*ptr = '\0';
+
+	*minutes = atoi( buffer );
+
+} /* date_time_parse() */
+
 boolean date_parse(	int *year,
 			int *month,
 			int *day,

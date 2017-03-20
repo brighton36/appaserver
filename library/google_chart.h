@@ -22,6 +22,7 @@ enum google_chart_type{	google_column_chart,
 typedef struct
 {
 	char *xaxis_label;
+	char *hhmm;
 	double **point_array;
 } GOOGLE_CHART_XAXIS;
 
@@ -55,16 +56,19 @@ GOOGLE_CHART *google_chart_new(
 
 GOOGLE_CHART_XAXIS *google_chart_xaxis_new(
 					char *xaxis_label,
+					char *hhmm,
 					int length_datatype_name_list );
 
 GOOGLE_CHART_XAXIS *google_chart_append_xaxis(
 					LIST *xaxis_list,
 					char *xaxis_label,
+					char *hhmm,
 					int length_datatype_name_list );
 
 void google_chart_set_point(		LIST *xaxis_list,
 					LIST *google_datatype_name_list,
 					char *xaxis_label,
+					char *hhmm,
 					char *datatype_name,
 					double point );
 
@@ -76,6 +80,7 @@ void google_chart_set_point_string(	LIST *xaxis_list,
 GOOGLE_CHART_XAXIS *google_chart_get_or_set_xaxis(
 					LIST *xaxis_list,
 					char *xaxis_label,
+					char *hhmm,
 					int length_datatype_name_list );
 
 int google_chart_get_datatype_offset(
@@ -112,6 +117,7 @@ void google_chart_append_delimited_string_xaxis(
 					int length_datatype_name_list );
 
 char *google_chart_convert_date(	char *destination,
-					char *yyyy_mm_dd );
+					char *yyyy_mm_dd,
+					char *hhmm );
 
 #endif

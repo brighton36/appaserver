@@ -44,14 +44,6 @@ boolean populate_point_array_historical_fetch(
 				LIST *google_datatype_name_list,
 				char *sys_string );
 
-/*
-void pad_point_array_historical_current_zeros(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
-				char *datatype_name,
-				char *application_name );
-*/
-
 void output_historical_current(
 				FILE *output_file,
 				LIST *station_name_list,
@@ -254,20 +246,6 @@ int main( int argc, char **argv )
 	if ( state == initial )
 	{
 		APPASERVER_LINK_FILE *appaserver_link_file;
-/*
-		sprintf( output_filename,
-			 OUTPUT_FILE_TEMPLATE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name,
-			 session );
-	
-		sprintf( http_filename,
-			 HTTP_FILE_TEMPLATE,
-			 application_get_http_prefix( application_name ),
-			 appaserver_library_get_server_address(),
-			 application_name,
-			 session );
-*/
 
 		appaserver_link_file =
 			appaserver_link_file_new(
@@ -1029,10 +1007,6 @@ void output_historical(		FILE *output_file,
 			application_name,
 			datatype_name );
 
-/*
-	bar_chart = datatype_bar_chart( application_name, datatype_name );
-*/
-
 	if ( output_historical_long_term(
 				output_file,
 				station_name_list,
@@ -1382,6 +1356,7 @@ boolean populate_point_array_historical_fetch(
 				xaxis_list,
 				google_datatype_name_list,
 				month /* xaxis_label */,
+				(char *)0 /* hhmm */,
 				datatype_name,
 				atof( value_string ) );
 	}
@@ -1533,7 +1508,8 @@ void output_current(	FILE *output_file,
 	GOOGLE_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
-	if ( ! ( google_chart = get_google_current_chart(
+	if ( ! ( google_chart =
+			get_google_current_chart(
 				application_name,
 				station_name_list,
 				datatype_name ) ) )
@@ -1624,6 +1600,7 @@ boolean populate_point_array_current(
 				xaxis_list,
 				google_datatype_name_list,
 				xaxis_label,
+				(char *)0 /* hhmm */,
 				DATATYPE_QUANTUM_TOTAL,
 				total );
 		}
@@ -1799,65 +1776,6 @@ GOOGLE_CHART *get_google_historical_current_chart(
 	return google_chart;
 
 } /* get_google_historical_current_chart() */
-
-#ifdef NOT_DEFINED
-void pad_point_array_historical_current_zeros(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
-				char *datatype_name,
-				char *application_name )
-{
-	FILE *input_pipe;
-	char sys_string[ 1024 ];
-	char input_buffer[ 128 ];
-	char end_date_string[ 16 ];
-	char *por_historical_begin_date;
-	char *por_historical_end_date;
-	char *por_current_begin_date;
-	char *por_current_end_date;
-	char *current_begin_date;
-	char *current_end_date;
-	char current_year_string[ 5 ];
-	DATE *tomorrow;
-
-	current_vs_historical_get_dates(
-			&por_historical_begin_date,
-			&por_historical_end_date,
-			&por_current_begin_date,
-			&por_current_end_date,
-			&current_begin_date,
-			&current_end_date,
-			application_name );
-
-	piece( current_year_string, '-', current_end_date, 0 );
-	sprintf( end_date_string, "%s-12-31", current_year_string );
-
-	tomorrow = date_new_yyyy_mm_dd( current_end_date );
-	date_increment_days( tomorrow, 1.0 );
-
-	sprintf( sys_string,
-		 "time_ticker.e '|' daily %s %s ''		 |"
-		 "piece.e '|' 0					 |"
-		 "cat						  ",
-		 date_display_yyyy_mm_dd( tomorrow ),
-		 end_date_string );
- 
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		google_chart_set_point(
-				xaxis_list,
-				google_datatype_name_list,
-				input_buffer,
-				datatype_name,
-				0.0 );
-	}
-
-	pclose( input_pipe );
-
-} /* pad_point_array_historical_current_zeros() */
-#endif
 
 boolean populate_point_array_historical_current(
 				LIST *xaxis_list,

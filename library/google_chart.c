@@ -44,6 +44,7 @@ GOOGLE_CHART *google_chart_new(
 
 GOOGLE_CHART_XAXIS *google_chart_xaxis_new(
 				char *xaxis_label,
+				char *hhmm,
 				int length_datatype_name_list )
 {
 	GOOGLE_CHART_XAXIS *google_chart_xaxis;
@@ -63,6 +64,7 @@ GOOGLE_CHART_XAXIS *google_chart_xaxis_new(
 	}
 
 	google_chart_xaxis->xaxis_label = xaxis_label;
+	google_chart_xaxis->hhmm = hhmm;
 
 	google_chart_xaxis->point_array =
 		calloc( length_datatype_name_list, sizeof( double * ) );
@@ -74,12 +76,14 @@ GOOGLE_CHART_XAXIS *google_chart_xaxis_new(
 GOOGLE_CHART_XAXIS *google_chart_append_xaxis(
 				LIST *xaxis_list,
 				char *xaxis_label,
+				char *hhmm,
 				int length_datatype_name_list )
 {
 	GOOGLE_CHART_XAXIS *xaxis;
 
 	xaxis = google_chart_xaxis_new(
 				xaxis_label,
+				hhmm,
 				length_datatype_name_list );
 
 	list_append_pointer( xaxis_list, xaxis );
@@ -113,6 +117,7 @@ int google_chart_get_datatype_offset(
 GOOGLE_CHART_XAXIS *google_chart_get_or_set_xaxis(
 				LIST *xaxis_list,
 				char *xaxis_label,
+				char *hhmm,
 				int length_datatype_name_list )
 {
 	GOOGLE_CHART_XAXIS *xaxis;
@@ -125,14 +130,19 @@ GOOGLE_CHART_XAXIS *google_chart_get_or_set_xaxis(
 			if ( timlib_strcmp(	xaxis->xaxis_label,
 						xaxis_label ) == 0 )
 			{
-				return xaxis;
+				if ( !hhmm ) return xaxis;
+
+				if ( timlib_strcmp( xaxis->hhmm, hhmm ) == 0 )
+					return xaxis;
 			}
+
 		} while( list_next( xaxis_list ) );
 	}
 
 	return google_chart_append_xaxis(
 			xaxis_list,
 			strdup( xaxis_label ),
+			(hhmm) ? strdup( hhmm ) : (char *)0,
 			length_datatype_name_list );
 
 } /* google_chart_get_or_set_xaxis() */
@@ -165,6 +175,7 @@ void google_chart_set_point_string(	LIST *xaxis_list,
 	google_chart_set_point(	xaxis_list,
 				google_datatype_name_list,
 				xaxis_label,
+				(char *)0 /* hhmm */,
 				datatype_name,
 				atof( point_string ) );
 
@@ -173,6 +184,7 @@ void google_chart_set_point_string(	LIST *xaxis_list,
 void google_chart_set_point(	LIST *xaxis_list,
 				LIST *google_datatype_name_list,
 				char *xaxis_label,
+				char *hhmm,
 				char *datatype_name,
 				double point )
 {
@@ -180,9 +192,10 @@ void google_chart_set_point(	LIST *xaxis_list,
 	int offset;
 
 	xaxis = google_chart_get_or_set_xaxis(
-				xaxis_list,
-				xaxis_label,
-				list_length( google_datatype_name_list ) );
+			xaxis_list,
+			xaxis_label,
+			hhmm,
+			list_length( google_datatype_name_list ) );
 
 	if ( ( offset = google_chart_get_datatype_offset(
 			google_datatype_name_list,
@@ -259,17 +272,23 @@ void google_chart_append_delimited_string_xaxis(
 		google_chart_append_xaxis(
 			xaxis_list,
 			strdup( xaxis_label ),
+			(char *)0 /* hhmm */,
 			length_datatype_name_list );
 	}
 
 } /* google_chart_append_delimited_string_xaxis() */
 
-char *google_chart_convert_date(char *destination,
-				char *yyyy_mm_dd )
+char *google_chart_convert_date(	char *destination,
+					char *yyyy_mm_dd,
+					char *hhmm )
 {
 	char year[ 16 ];
 	char month[ 16 ];
 	char day[ 16 ];
+	char hours_string[ 16 ];
+	char minutes_string[ 16 ];
+	int hours = 0;
+	int minutes = 0;
 
 	if ( character_count( '-', yyyy_mm_dd ) != 2 )
 	{
@@ -281,13 +300,20 @@ char *google_chart_convert_date(char *destination,
 	piece( month, '-', yyyy_mm_dd, 1 );
 	piece( day, '-', yyyy_mm_dd, 2 );
 
+	date_time_parse(	&hours,
+				&minutes,
+				hhmm );
+
 	sprintf(	destination,
-			"new Date(%s,%d,%s)",
+			"new Date(%s,%d,%s,%d,%d,0)",
 			year,
 			GOOGLE_CHART_CONVERT_MONTH_EXPRESSION,
-			day );
+			day,
+			hours,
+			minutes );
 
 	return destination;
+
 } /* google_chart_convert_date() */
 
 void google_chart_output_draw_visualization_function(
@@ -399,7 +425,8 @@ void google_chart_output_draw_visualization_function(
 			 	"\t\t[%s",
 			 	google_chart_convert_date(
 					buffer,
-					xaxis->xaxis_label ) );
+					xaxis->xaxis_label,
+					xaxis->hhmm ) );
 		}
 		else
 		{

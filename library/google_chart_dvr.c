@@ -57,24 +57,28 @@ void test_bar( void )
 	google_chart_set_point(google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"jan",
+				(char *)0 /* hhmm */,
 				"periodofrecord",
 				1.3 );
 
 	google_chart_set_point(google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"jan",
+				(char *)0 /* hhmm */,
 				"current",
 				1.4 );
 
 	google_chart_set_point(google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"feb",
+				(char *)0 /* hhmm */,
 				"periodofrecord",
 				2.3 );
 
 	google_chart_set_point(google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"feb",
+				(char *)0 /* hhmm */,
 				"current",
 				2.4 );
 

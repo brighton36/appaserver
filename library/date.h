@@ -247,6 +247,10 @@ char *date_current_to_static_yyyy_mm_dd_string(
 				time_t current );
 char *date_static_display(	DATE *date );
 
+void date_time_parse(		int *hours,
+				int *minutes,
+				char *hhmm );
+
 boolean date_parse(		int *year,
 				int *month,
 				int *day,

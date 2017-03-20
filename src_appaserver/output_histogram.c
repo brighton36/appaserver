@@ -1,4 +1,4 @@
-/* output_histogram.c						*/
+/* $APPASERVER_HOME/src_appaserver/output_histogram.c		*/
 /* ------------------------------------------------------------	*/
 /* This process is triggered if you select the histogram radio	*/
 /* button in some of the lookup forms.				*/
@@ -94,13 +94,6 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
 	if ( argc == 8 && strcmp( argv[ 7 ], "dictionary_stdin" ) == 0 )
 	{
 		get_line( dictionary_string, stdin );
@@ -136,7 +129,7 @@ int main( int argc, char **argv )
 					(LIST *)0 /* operation_name_list */ );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	folder = folder_new_folder( 	application_name,
 					session,
@@ -191,46 +184,27 @@ int main( int argc, char **argv )
 					select_attribute_name_list );
 	
 			sprintf( grace_histogram_filename,
-		 		"%s/%s/grace_histogram_%s_%d.dat",
+		 		"%s/grace_histogram_%s_%d.dat",
 		 		appaserver_parameter_file->
-					appaserver_mount_point,
-		 		application_name,
+					appaserver_data_directory,
 		 		select_attribute_name,
 		 		getpid() );
 
 			query_select_attribute_name_list = list_new();
+
 			list_append_pointer(
 				query_select_attribute_name_list,
 				select_attribute_name );
 
-		query = query_folder_new(
-				application_name,
-				login_name,
-				folder_name,
-				dictionary_appaserver->query_dictionary,
-				role_new( application_name, role_name ) );
-
-#ifdef NOT_DEFINED
-			query =	query_new(
-				application_name,
-				login_name,
-				folder_name,
-				(LIST *)0 /* attribute_list */,
-				dictionary_appaserver->
-					query_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				role_new( application_name, role_name ),
-				(LIST *)0,
-				(LIST *)0,
-				0 /* max_rows */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
+			query = query_folder_new(
+					application_name,
+					login_name,
+					folder_name,
+					dictionary_appaserver->
+						query_dictionary,
+					role_new(
+						application_name,
+						role_name ) );
 
 			query_record_list =
 				query_get_record_list(
@@ -277,15 +251,20 @@ int main( int argc, char **argv )
 					grace_histogram_filename );
 
 			histogram_pipe = popen( sys_string, "w" );
+
 			do {
 				query_record =
 					list_get_pointer(
 						query_record_list );
+
 				fprintf( histogram_pipe, "%s\n", query_record );
+
 			} while( list_next( query_record_list ) );
+
 			pclose( histogram_pipe );
 
 			input_file = fopen( grace_histogram_filename, "r" );
+
 			if ( !input_file )
 			{
 				fprintf( stderr,

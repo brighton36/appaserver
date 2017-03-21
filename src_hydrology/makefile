@@ -28,6 +28,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		remove_chlorophyll_light_contamination			\
 		measurement_block_delete				\
 		output_measurement_easycharts				\
+		output_measurement_googlecharts				\
 		output_measurement_data					\
 		extract_measurements					\
 		output_flow_daily_values				\
@@ -462,6 +463,18 @@ output_measurement_easycharts: output_measurement_easycharts.c		\
 		${LIBRARY}/easycharts.o					\
 		output_measurement_easycharts.c				\
 		-o output_measurement_easycharts
+
+output_measurement_googlecharts: output_measurement_googlecharts.c	\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}					\
+		${LIBRARY}/google_chart.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		${LIBRARY}/google_chart.o				\
+		output_measurement_googlecharts.c			\
+		-o output_measurement_googlecharts
 
 output_measurement_data_sets: output_measurement_data_sets.c		\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS} ${STANDARD_LIBRARY}

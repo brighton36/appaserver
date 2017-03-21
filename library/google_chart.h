@@ -112,12 +112,20 @@ void google_chart_output_draw_visualization_function(
 				boolean dont_display_range_selector );
 
 void google_chart_append_delimited_string_xaxis(
-					LIST *xaxis_list,
-					char *comma_delimited_string,
-					int length_datatype_name_list );
+				LIST *xaxis_list,
+				char *comma_delimited_string,
+				int length_datatype_name_list );
 
-char *google_chart_convert_date(	char *destination,
-					char *yyyy_mm_dd,
-					char *hhmm );
+char *google_chart_convert_date(char *destination,
+				char *yyyy_mm_dd,
+				char *hhmm );
+
+void google_chart_get_chart_filename(
+				char **chart_filename,
+				char **prompt_filename,
+				char *application_name,
+				char *document_root_directory,
+				pid_t pid,
+				char *process_name );
 
 #endif

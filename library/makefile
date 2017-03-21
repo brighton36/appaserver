@@ -31,6 +31,7 @@ APPASERVER_LIBRARY=						\
 		name_arg.o					\
 		html_table.o					\
 		google_earth.o					\
+		google_chart.o					\
 		html_invoice.o					\
 		latex.o						\
 		latex_invoice.o					\

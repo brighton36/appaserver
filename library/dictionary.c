@@ -148,6 +148,7 @@ void dictionary_parse_multi_attribute_relation_operator_keys(
 	LIST *attribute_key_list;
 	char *full_key;
 	char *key, *data;
+	char full_parse_key[ 1024 ];
 	char delimiter_string[ 2 ];
 
 	/* Set the delimiter string */
@@ -186,16 +187,30 @@ void dictionary_parse_multi_attribute_relation_operator_keys(
 		do {
 			key = list_get_pointer( attribute_key_list );
 
+			if ( timlib_strncmp(
+				key,
+				QUERY_RELATION_OPERATOR_STARTING_LABEL ) == 0 )
+			{
+				strcpy( full_parse_key, key );
+			}
+			else
+			{
+				sprintf(full_parse_key,
+					"%s%s",
+					QUERY_RELATION_OPERATOR_STARTING_LABEL,
+					key );
+			}
+
 			if ( dictionary_exists_key(
 					dictionary,
-					key ) )
+					full_parse_key ) )
 			{
 				continue;
 			}
 
 			dictionary_set_pointer( 
 					dictionary, 
-					key,
+					strdup( full_parse_key ),
 					data );
 
 		} while( list_next( attribute_key_list ) );

@@ -128,9 +128,9 @@ int main( int argc, char **argv )
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
 	{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				database_string );
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
 	}
 
 	appaserver_output_starting_argv_append_file(

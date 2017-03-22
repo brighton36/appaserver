@@ -1698,7 +1698,8 @@ void output_historical_current(
 	GOOGLE_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
-	if ( ! ( google_chart = get_google_historical_current_chart(
+	if ( ! ( google_chart =
+			get_google_historical_current_chart(
 				station_name_list,
 				datatype_name,
 				bar_chart,

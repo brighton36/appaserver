@@ -38,6 +38,11 @@
 
 /* Prototypes */
 /* ---------- */
+boolean populate_point_array(
+				LIST *xaxis_list,
+				LIST *google_datatype_name_list,
+				char *sys_string );
+
 void output_measurement_googlecharts(
 			char *application_name,
 			char *where_clause,
@@ -666,6 +671,47 @@ char *get_sys_string(	char *application_name,
 
 } /* get_sys_string() */
 
+boolean populate_point_array(
+				LIST *xaxis_list,
+				LIST *google_datatype_name_list,
+				char *sys_string )
+{
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+	boolean got_one = 0;
+	char xaxis_label[ 128 ];
+	char point_string[ 128 ];
+	double total = 0.0;
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		got_one = 1;
+
+		google_chart_set_point_string(
+				xaxis_list,
+				google_datatype_name_list,
+				input_buffer,
+				FOLDER_DATA_DELIMITER );
+
+		piece(	xaxis_label, 
+			FOLDER_DATA_DELIMITER,
+			input_buffer, 
+			0 );
+
+		piece(	point_string, 
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+	}
+
+	pclose( input_pipe );
+
+	return got_one;
+
+} /* populate_point_array() */
+
 GOOGLE_CHART *get_google_chart(
 			char *application_name,
 			char *where_clause,
@@ -683,7 +729,7 @@ GOOGLE_CHART *get_google_chart(
 			boolean bypass_data_collection_frequency )
 {
 	GOOGLE_CHART *google_chart;
-	boolean bar_chart;
+	char *sys_string;
 
 	google_chart =
 		google_chart_new(
@@ -697,24 +743,29 @@ GOOGLE_CHART *get_google_chart(
 				 0 /* not legend_position_bottom */,
 				"annotatedtimeline" /* google_package_name */);
 
-	bar_chart = datatype_bar_chart( application_name, datatype_name );
+	sys_string = get_sys_string(	
+			application_name,
+			where_clause,
+			aggregate_level,
+			aggregate_statistic,
+			station_name,
+			datatype_name,
+			DATE_PIECE,
+			begin_date,
+			end_date,
+			units,
+			units_converted,
+			end_date,
+			accumulate_yn,
+			bypass_data_collection_frequency );
 
 	list_append_pointer(	google_chart->google_datatype_name_list,
 				datatype_name );
 
-	if ( bar_chart )
-	{
-		list_append_pointer(	google_chart->google_datatype_name_list,
-					DATATYPE_QUANTUM_TOTAL );
-	}
-
-	if ( !populate_point_array_current(
+	if ( !populate_point_array(
 				google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
-				station_name_list,
-				datatype_name,
-				bar_chart,
-				application_name ) )
+				sys_string );
 	{
 		return (GOOGLE_CHART *)0;;
 	}
@@ -746,7 +797,6 @@ void output_measurement_googlecharts(
 	char *chart_filename;
 	char *prompt_filename;
 	FILE *chart_file;
-	char *sys_string;
 
 	google_chart_get_chart_filename(
 			&chart_filename,
@@ -769,22 +819,6 @@ void output_measurement_googlecharts(
 		exit( 1 );
 	}
 
-	sys_string = get_sys_string(	
-			application_name,
-			where_clause,
-			aggregate_level,
-			aggregate_statistic,
-			station_name,
-			datatype_name,
-			DATE_PIECE,
-			begin_date,
-			end_date,
-			units,
-			units_converted,
-			end_date,
-			accumulate_yn,
-			bypass_data_collection_frequency );
-
 	google_chart_output_include( output_file );
 
 	google_chart_output_draw_visualization_function(
@@ -804,6 +838,26 @@ void output_measurement_googlecharts(
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
 				0 /* not dont_display_range_selector */ );
+
+	fclose( output_file );
+
+	printf(
+"<body bgcolor=\"%s\" onload=\"window.open('%s','%s');\">\n",
+		application_get_background_color( application_name ),
+		prompt_filename,
+		process_name );
+
+	printf( "<h1>Google Chart Viewer " );
+	fflush( stdout );
+	system( "date '+%x %H:%M'" );
+	printf( "</h1>\n" );
+
+	if ( where_clause && *where_clause )
+		printf( "<br>Search criteria: %s\n", where_clause );
+
+	printf( "<br><hr><a href=\"%s\" target=%s>Press to view chart.</a>\n",
+		prompt_filename,
+		process_name );
 
 } /* output_measurement_googlecharts() */
 

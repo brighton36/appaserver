@@ -1666,12 +1666,13 @@ void easycharts_output_graph_window(
 		prompt_filename,
 		window_name );
 
-	easycharts_output_grace_home_link();
+	easycharts_output_home_link();
 
 	if ( with_document_output ) document_close();
+
 } /* easycharts_output_graph_window() */
 
-void easycharts_output_grace_home_link( void )
+void easycharts_output_home_link( void )
 {
 	printf(
 "<br><p>For more information, visit the <a href=\"http://objectplanet.com/easycharts\" target=_new>Easycharts Home Page.</a>" );

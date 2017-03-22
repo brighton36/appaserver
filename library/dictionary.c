@@ -2661,6 +2661,7 @@ void dictionary_trim_double_bracked_data( DICTIONARY *dictionary )
 	{
 		do {
 			key = list_get_pointer( key_list );
+
 			data = dictionary_get_data(
 					dictionary,
 					key );
@@ -2680,7 +2681,8 @@ char *dictionary_trim_double_bracked_string( char *string )
 
 	/* Don't trim middle brackets. */
 	/* --------------------------- */
-	if ( *( string + str_len ) == ']' )
+	if ( str_len
+	&&   *( string + str_len - 1 ) == ']' )
 	{
 		if ( ( start = instr( "[", string, 1 ) ) != -1
 		&&   ( end = instr( "]", string, 1 ) ) != -1 )
@@ -2689,7 +2691,9 @@ char *dictionary_trim_double_bracked_string( char *string )
 			right_trim( string );
 		}
 	}
+
 	return string;
+
 } /* dictionary_trim_double_bracked_string() */
 
 int dictionary_delete_key( DICTIONARY *dictionary, char *key )

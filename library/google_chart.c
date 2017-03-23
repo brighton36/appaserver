@@ -134,7 +134,7 @@ GOOGLE_CHART_XAXIS *google_chart_get_or_set_xaxis(
 			if ( timlib_strcmp(	xaxis->xaxis_label,
 						xaxis_label ) == 0 )
 			{
-				if ( !hhmm ) return xaxis;
+				if ( !hhmm || !*hhmm ) return xaxis;
 
 				if ( timlib_strcmp( xaxis->hhmm, hhmm ) == 0 )
 					return xaxis;
@@ -159,8 +159,10 @@ void google_chart_set_point_string(	LIST *xaxis_list,
 	char xaxis_label[ 128 ];
 	char datatype_name[ 128 ];
 	char point_string[ 128 ];
+	char hhmm[ 128 ];
+	char buffer[ 128 ];
 
-	if ( character_count( delimiter, delimited_string ) != 2 )
+	if ( character_count( delimiter, delimited_string ) < 2 )
 	{
 		fprintf( stderr,
 "warning in %s/%s()/%d: not 2 delimiters (%c) in (%s)\n",
@@ -173,13 +175,33 @@ void google_chart_set_point_string(	LIST *xaxis_list,
 	}
 
 	piece( xaxis_label, delimiter, delimited_string, 0 );
+
+	if ( character_count( ':', xaxis_label ) == 1 )
+	{
+		piece( hhmm, ':', xaxis_label, 1 );
+
+		if ( strlen( hhmm ) != 4 )
+		{
+			*hhmm = '\0';
+		}
+		else
+		{
+			timlib_strcpy( buffer, xaxis_label, 128 );
+			piece( xaxis_label, ':', buffer, 0 );
+		}
+	}
+	else
+	{
+		*hhmm = '\0';
+	}
+
 	piece( datatype_name, delimiter, delimited_string, 1 );
 	piece( point_string, delimiter, delimited_string, 2 );
 
 	google_chart_set_point(	xaxis_list,
 				google_datatype_name_list,
 				xaxis_label,
-				(char *)0 /* hhmm */,
+				hhmm,
 				datatype_name,
 				atof( point_string ) );
 
@@ -627,60 +649,4 @@ void google_chart_output_draw_visualization_function(
 		 height );
 
 } /* google_chart_output_draw_visualization_function() */
-
-void google_chart_get_chart_filename(
-				char **chart_filename,
-				char **prompt_filename,
-				char *application_name,
-				char *document_root_directory,
-				pid_t pid,
-				char *process_name )
-{
-	APPASERVER_LINK_FILE *appaserver_link_file;
-
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-			document_root_directory,
-			process_name /* FILENAME_STEM */,
-			application_name,
-			pid,
-			(char *)0 /* session */,
-			"html" );
-
-	*chart_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	*prompt_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-} /* google_chart_get_chart_filename() */
 

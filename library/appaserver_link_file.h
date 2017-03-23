@@ -105,4 +105,13 @@ char *appaserver_link_get_tail_half(
 		char *session,
 		char *extension );
 
+void appaserver_link_get_pid_filename(
+		char **output_filename,
+		char **prompt_filename,
+		char *application_name,
+		char *document_root_directory,
+		pid_t pid,
+		char *process_name,
+		char *extension );
+
 #endif

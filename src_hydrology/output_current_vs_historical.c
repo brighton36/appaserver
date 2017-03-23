@@ -1110,11 +1110,11 @@ GOOGLE_CHART *get_google_current_chart(
 		google_chart_new(
 				 google_time_line,
 				 "Date" /* xaxis_datatype_name */,
-				 CHART_POSITION_LEFT,
-				 CHART_POSITION_TOP,
-				 CHART_WIDTH,
-				 CURRENT_CHART_HEIGHT,
-				 BACKGROUND_COLOR,
+				 GOOGLE_CHART_POSITION_LEFT,
+				 GOOGLE_CHART_POSITION_TOP,
+				 GOOGLE_CHART_WIDTH,
+				 GOOGLE_CHART_HEIGHT,
+				 GOOGLE_CHART_BACKGROUND_COLOR,
 				 0 /* not legend_position_bottom */,
 				"annotatedtimeline" /* google_package_name */);
 
@@ -1158,11 +1158,11 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 		google_chart_new(
 			google_column_chart,
 			"Month",
-			CHART_POSITION_LEFT,
-			CHART_POSITION_TOP,
-			CHART_WIDTH,
+			GOOGLE_CHART_POSITION_LEFT,
+			GOOGLE_CHART_POSITION_TOP,
+			GOOGLE_CHART_WIDTH,
 			HISTORICAL_CHART_HEIGHT,
-			BACKGROUND_COLOR,
+			GOOGLE_CHART_BACKGROUND_COLOR,
 			0 /* not legend_position_bottom */,
 			"corechart" /* google_package_name */ );
 
@@ -1750,15 +1750,15 @@ GOOGLE_CHART *get_google_historical_current_chart(
 
 	google_chart =
 		google_chart_new(
-			google_time_line,
-			"Date",
-			 CHART_POSITION_LEFT + 140,
-			 CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
-			 CHART_WIDTH - 280,
-			 HISTORICAL_CHART_HEIGHT / 3,
-			 BACKGROUND_COLOR,
-			 0 /* not legend_position_bottom */,
-			"annotatedtimeline" /* google_package_name */);
+		    google_time_line,
+		    "Date",
+		     GOOGLE_CHART_POSITION_LEFT + 140,
+		     GOOGLE_CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
+		     GOOGLE_CHART_WIDTH - 280,
+		     HISTORICAL_CHART_HEIGHT / 3,
+		     GOOGLE_CHART_BACKGROUND_COLOR,
+		     0 /* not legend_position_bottom */,
+		    "annotatedtimeline" /* google_package_name */);
 
 	list_append_pointer(	google_chart->google_datatype_name_list,
 				datatype_name );

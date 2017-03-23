@@ -1,5 +1,5 @@
-/* google_chart.h */
-/* -------------- */
+/* $APPASERVER_HOME/library/google_chart.h */
+/* --------------------------------------- */
 
 #ifndef GOOGLE_CHART_H
 #define GOOGLE_CHART_H
@@ -9,6 +9,11 @@
 
 /* Constants */
 /* --------- */
+#define GOOGLE_CHART_POSITION_TOP		50
+#define GOOGLE_CHART_POSITION_LEFT		265
+#define GOOGLE_CHART_WIDTH			800
+#define GOOGLE_CHART_HEIGHT			500
+#define GOOGLE_CHART_BACKGROUND_COLOR		"#effdff"
 #define GOOGLE_CHART_CONVERT_MONTH_EXPRESSION	atoi( month ) - 1
 
 /* Enumerations */
@@ -119,13 +124,5 @@ void google_chart_append_delimited_string_xaxis(
 char *google_chart_convert_date(char *destination,
 				char *yyyy_mm_dd,
 				char *hhmm );
-
-void google_chart_get_chart_filename(
-				char **chart_filename,
-				char **prompt_filename,
-				char *application_name,
-				char *document_root_directory,
-				pid_t pid,
-				char *process_name );
 
 #endif

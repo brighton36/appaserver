@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/output_measurement_googlecharts.c	*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/output_measurement_googlecharts.c	*/
+/* ----------------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org			*/
+/* ----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -277,11 +277,13 @@ int main( int argc, char **argv )
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	
+/*
 	document_output_body(
 				document->application_name,
 				document->onload_control_string );
 
 	printf( "<h1>%s</h1><h2>%s</h2>\n", title, sub_title );
+*/
 
 	units = hydrology_library_get_units_string(
 				&bar_chart,
@@ -366,6 +368,11 @@ char *get_sys_string(	char *application_name,
 	char *select_list_string;
 	char units_converted_process[ 128 ];
 
+if ( station_name ){};
+if ( begin_date_string ){};
+if ( end_date_string ){};
+if ( bypass_data_collection_frequency ){};
+
 	select_list_string = SELECT_LIST;
 
 	if ( aggregate_statistic == aggregate_statistic_none )
@@ -388,7 +395,7 @@ char *get_sys_string(	char *application_name,
 			 aggregate_statistic_get_string( aggregate_statistic ),
 			 date_piece,
 			 date_piece + 1,
-			 date_piece + 2,
+			 date_piece + 3,
 			 aggregate_level_get_string( aggregate_level ),
 			 end_date );
 
@@ -413,7 +420,7 @@ char *get_sys_string(	char *application_name,
 	{
 		sprintf( accumulate_process, 
 			 "accumulate.e %d '^' replace",
-			 date_piece + 2 );
+			 date_piece + 3 );
 	}
 
 	if ( units_converted
@@ -421,16 +428,18 @@ char *get_sys_string(	char *application_name,
 	&&   strcmp( units_converted, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s %s 2 '^' 3",
+			 "measurement_convert_units.e %s %s %s %d '^'",
 			 application_name,
 			 units,
-			 units_converted );
+			 units_converted,
+			 date_piece + 3 );
 	}
 	else
 	{
 		strcpy( units_converted_process, "cat" );
 	}
 
+/*
 	if ( !bypass_data_collection_frequency )
 	{
 		sprintf( sys_string,
@@ -484,6 +493,27 @@ char *get_sys_string(	char *application_name,
 		 	accumulate_process,
 		 	units_converted_process );
 	}
+*/
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			  "
+		 "			folder=%s			  "
+		 "			select='%s'			  "
+		 "			where=\"%s\"			  "
+		 "			quick=yes			 |"
+		 "%s							 |"
+		 "%s							 |"
+		 "%s							 |"
+		 "sed 's/\\^/:/1'					 |"
+		 "sed 's/:null//1'					 |"
+		 "cat							  ",
+		 	application_name,
+		 	SOURCE_FOLDER,
+		 	select_list_string,
+		 	where_clause,
+		 	real_time_aggregation_process,
+		 	accumulate_process,
+		 	units_converted_process );
 
 	return strdup( sys_string );
 
@@ -708,23 +738,11 @@ if ( bar_chart ){};
 
 	fclose( output_file );
 
-	printf(
-"<body bgcolor=\"%s\" onload=\"window.open('%s','%s');\">\n",
-		application_get_background_color( application_name ),
+	google_chart_output_prompt(
+		application_name,
 		prompt_filename,
-		process_name );
-
-	printf( "<h1>Google Chart Viewer " );
-	fflush( stdout );
-	system( "date '+%x %H:%M'" );
-	printf( "</h1>\n" );
-
-	if ( where_clause && *where_clause )
-		printf( "<br>Search criteria: %s\n", where_clause );
-
-	printf( "<br><hr><a href=\"%s\" target=%s>Press to view chart.</a>\n",
-		prompt_filename,
-		process_name );
+		process_name,
+		where_clause );
 
 } /* output_measurement_googlecharts() */
 

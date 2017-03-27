@@ -506,15 +506,29 @@ void google_chart_output_draw_visualization_function(
 "	]);\n\n" );
 
 	if ( chart_type_bar )
-		chart_type_string = "seriesType: \"bars\",";
+		chart_type_string = "seriesType: \"bars\"";
 	else
-		chart_type_string = "type: \"line\",";
+		chart_type_string = "type: \"line\"";
 
 	if ( legend_position_bottom )
 		legend_position_bottom_string = "bottom";
 	else
 		legend_position_bottom_string = "";
 
+	google_chart_output_options(
+		output_file,
+		title,
+		google_chart_type,
+		chart_type_string,
+		dont_display_range_selector,
+		yaxis_label,
+		width,
+		height,
+		background_color,
+		legend_position_bottom_string );
+
+
+/*
 	if ( google_chart_type == google_time_line )
 	{
 		if ( dont_display_range_selector )
@@ -582,6 +596,7 @@ void google_chart_output_draw_visualization_function(
 		 	background_color,
 		 	legend_position_bottom_string );
 	}
+*/
 
 	if ( google_chart_type == google_column_chart )
 		google_chart_instantiation = "ColumnChart";
@@ -649,4 +664,167 @@ void google_chart_output_draw_visualization_function(
 		 height );
 
 } /* google_chart_output_draw_visualization_function() */
+
+void google_chart_output_prompt(
+			char *application_name,
+			char *prompt_filename,
+			char *process_name,
+			char *where_clause )
+{
+	if ( application_name )
+	{
+		printf(
+"<body bgcolor=\"%s\" onload=\"window.open('%s','%s');\">\n",
+			application_get_background_color( application_name ),
+			prompt_filename,
+			process_name );
+	}
+
+	printf( "<h1>Google Chart Viewer " );
+	fflush( stdout );
+	system( "date '+%x %H:%M'" );
+	printf( "</h1>\n" );
+
+	if ( where_clause && *where_clause )
+		printf( "<br>Search criteria: %s\n", where_clause );
+
+	printf( "<br><hr><a href=\"%s\" target=%s>Press to view chart.</a>\n",
+		prompt_filename,
+		process_name );
+
+} /* google_chart_output_prompt() */
+
+void google_chart_output_options(
+			FILE *output_file,
+			char *title,
+			enum google_chart_type google_chart_type,
+			char *chart_type_string,
+			boolean dont_display_range_selector,
+			char *yaxis_label,
+			int width,
+			int height,
+			char *background_color,
+			char *legend_position_bottom_string )
+{
+	boolean got_one = 0;
+
+	fprintf( output_file,
+"	var options = {\n" );
+
+	if ( chart_type_string && *chart_type_string )
+	{
+		if ( got_one ) fprintf( output_file, ",\n" );
+
+		fprintf( output_file,
+"		%s",
+			 chart_type_string );
+
+		got_one = 1;
+	}
+
+	if ( dont_display_range_selector )
+	{
+		if ( got_one ) fprintf( output_file, ",\n" );
+
+		fprintf( output_file,
+"		displayRangeSelector: false,\n"
+"		displayZoomButtons: false" );
+
+		got_one = 1;
+	}
+
+	if ( yaxis_label && *yaxis_label )
+	{
+		if ( got_one ) fprintf( output_file, ",\n" );
+
+/*
+		fprintf( output_file,
+"		vAxis: {title: \"%s\",\n"
+"			viewWindowMode:'explicit',\n"
+"			viewWindow: {\n"
+"			max:50,\n"
+"			min:0\n"
+"			}\n"
+"		}",
+			 yaxis_label );
+*/
+		fprintf( output_file,
+"		vAxis: {title: \"%s\"}",
+			 yaxis_label );
+
+		got_one = 1;
+
+	}
+
+	if ( title && *title )
+	{
+		if ( got_one ) fprintf( output_file, ",\n" );
+
+		fprintf( output_file,
+"		title: \"%s\"",
+			 title );
+
+		got_one = 1;
+	}
+
+	if ( width )
+	{
+		if ( got_one ) fprintf( output_file, ",\n" );
+
+		fprintf( output_file,
+"		width: %d",
+			 width );
+
+		got_one = 1;
+	}
+
+	if ( height )
+	{
+		if ( got_one ) fprintf( output_file, ",\n" );
+
+		fprintf( output_file,
+"		height: %d",
+			 height );
+
+		got_one = 1;
+	}
+
+	if ( background_color && *background_color )
+	{
+		if ( got_one ) fprintf( output_file, ",\n" );
+
+		fprintf( output_file,
+"		backgroundColor: \"%s\"",
+			 background_color );
+
+		got_one = 1;
+	}
+
+	if ( legend_position_bottom_string && *legend_position_bottom_string )
+	{
+		if ( got_one ) fprintf( output_file, ",\n" );
+
+		fprintf( output_file,
+"		legend: { position: \"%s\" }",
+			 legend_position_bottom_string );
+
+		got_one = 1;
+	}
+
+	if ( google_chart_type == google_cat_whiskers )
+	{
+		if ( got_one ) fprintf( output_file, ",\n" );
+
+		fprintf( output_file,
+"		series: [\n"
+"		{color: 'blue',	visibleInLegend: true},\n"
+"		{color: 'red',	visibleInLegend: true}\n"
+"			]" );
+
+		got_one = 1;
+	}
+
+	fprintf( output_file, "\n}\n" );
+
+} /* google_chart_output_options() */
 

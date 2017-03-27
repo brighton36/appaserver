@@ -28,6 +28,8 @@
 
 /* Constants */
 /* --------- */
+#define LOCAL_CHART_POSITION_TOP		50
+#define LOCAL_CHART_POSITION_LEFT		265
 
 /* Prototypes */
 /* ---------- */
@@ -1110,8 +1112,8 @@ GOOGLE_CHART *get_google_current_chart(
 		google_chart_new(
 				 google_time_line,
 				 "Date" /* xaxis_datatype_name */,
-				 GOOGLE_CHART_POSITION_LEFT,
-				 GOOGLE_CHART_POSITION_TOP,
+				 LOCAL_CHART_POSITION_LEFT,
+				 LOCAL_CHART_POSITION_TOP,
 				 GOOGLE_CHART_WIDTH,
 				 GOOGLE_CHART_HEIGHT,
 				 GOOGLE_CHART_BACKGROUND_COLOR,
@@ -1158,7 +1160,7 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 		google_chart_new(
 			google_column_chart,
 			"Month",
-			GOOGLE_CHART_POSITION_LEFT,
+			LOCAL_CHART_POSITION_LEFT,
 			GOOGLE_CHART_POSITION_TOP,
 			GOOGLE_CHART_WIDTH,
 			HISTORICAL_CHART_HEIGHT,
@@ -1752,7 +1754,7 @@ GOOGLE_CHART *get_google_historical_current_chart(
 		google_chart_new(
 		    google_time_line,
 		    "Date",
-		     GOOGLE_CHART_POSITION_LEFT + 140,
+		     LOCAL_CHART_POSITION_LEFT + 140,
 		     GOOGLE_CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
 		     GOOGLE_CHART_WIDTH - 280,
 		     HISTORICAL_CHART_HEIGHT / 3,

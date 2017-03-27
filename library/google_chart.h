@@ -9,8 +9,8 @@
 
 /* Constants */
 /* --------- */
-#define GOOGLE_CHART_POSITION_TOP		50
-#define GOOGLE_CHART_POSITION_LEFT		265
+#define GOOGLE_CHART_POSITION_TOP		10
+#define GOOGLE_CHART_POSITION_LEFT		10
 #define GOOGLE_CHART_WIDTH			800
 #define GOOGLE_CHART_HEIGHT			500
 #define GOOGLE_CHART_BACKGROUND_COLOR		"#effdff"
@@ -124,5 +124,23 @@ void google_chart_append_delimited_string_xaxis(
 char *google_chart_convert_date(char *destination,
 				char *yyyy_mm_dd,
 				char *hhmm );
+
+void google_chart_output_prompt(
+				char *application_name,
+				char *prompt_filename,
+				char *process_name,
+				char *where_clause );
+
+void google_chart_output_options(
+				FILE *output_file,
+				char *title,
+				enum google_chart_type google_chart_type,
+				char *chart_type_string,
+				boolean dont_display_range_selector,
+				char *yaxis_label,
+				int width,
+				int height,
+				char *background_color,
+				char *legend_position_bottom_string );
 
 #endif

@@ -260,7 +260,7 @@ int main( int argc, char **argv )
 				end_date,
 				*accumulate_yn );
 
-	sprintf( chart_title, "%s\\n%s", title, sub_title );
+	sprintf( chart_title, "%s %s", title, sub_title );
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -281,7 +281,7 @@ int main( int argc, char **argv )
 				document->application_name,
 				document->onload_control_string );
 
-	printf( "<h1>%s</h1><br><h2>%s</h2>\n", title, sub_title );
+	printf( "<h1>%s</h1><h2>%s</h2>\n", title, sub_title );
 
 	units = hydrology_library_get_units_string(
 				&bar_chart,

@@ -10,7 +10,7 @@
 
 /* Constants */
 /* --------- */
-#define APPASERVER_LINK_EVERGLADES 	0
+#define APPASERVER_LINK_MINK	 	0
 #define APPASERVER_KEY			"appaserver"
 #define APPASERVER_DATA_KEY		"data"
 

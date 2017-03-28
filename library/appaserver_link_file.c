@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "application.h"
+#include "appaserver_library.h"
 #include "appaserver_link_file.h"
 
 APPASERVER_LINK_FILE *appaserver_link_file_new(
@@ -268,7 +270,7 @@ char *appaserver_link_get_tail_half(
 
 	if ( application_name )
 	{
-		if ( APPASERVER_LINK_EVERGLADES )
+		if ( APPASERVER_LINK_MINK )
 		{
 			sprintf( application_part,
 			 	"/%s/%s/",
@@ -303,7 +305,7 @@ char *appaserver_link_get_source_directory(
 {
 	char source_directory[ 128 ];
 
-	if ( APPASERVER_LINK_EVERGLADES )
+	if ( APPASERVER_LINK_MINK )
 	{
 		sprintf( source_directory,
 			 "%s/%s/%s",

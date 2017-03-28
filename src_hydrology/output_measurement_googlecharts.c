@@ -520,21 +520,25 @@ boolean populate_point_array(
 	FILE *input_pipe;
 	boolean got_one = 0;
 
+/*
 fprintf( stderr, "%s/%s()/%d: sys_string = (%s)\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 sys_string );
+*/
 
 	input_pipe = popen( sys_string, "r" );
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
+/*
 fprintf( stderr, "%s/%s()/%d: input_buffer = (%s)\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 input_buffer );
+*/
 		got_one = 1;
 
 		google_chart_set_point_string(
@@ -542,34 +546,6 @@ input_buffer );
 				google_datatype_name_list,
 				input_buffer,
 				FOLDER_DATA_DELIMITER );
-
-#ifdef NOT_DEFINED
-	char xaxis_label[ 128 ];
-	char point_string[ 128 ];
-	double total = 0.0;
-
-		if ( bar_chart )
-		{
-			total += atof( point_string );
-
-			google_chart_set_point(
-				xaxis_list,
-				google_datatype_name_list,
-				xaxis_label,
-				(char *)0 /* hhmm */,
-				DATATYPE_QUANTUM_TOTAL,
-				total );
-		}
-		piece(	xaxis_label, 
-			FOLDER_DATA_DELIMITER,
-			input_buffer, 
-			0 );
-
-		piece(	point_string, 
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			2 );
-#endif
 	}
 
 	pclose( input_pipe );
@@ -707,6 +683,12 @@ if ( bar_chart ){};
 			end_date,
 			accumulate_yn,
 			bypass_data_collection_frequency );
+
+	if ( !google_chart )
+	{
+		printf( "<h3>Warning: nothing selected.</h3>\n" );
+		return;
+	}
 
 	google_chart_output_include( output_file );
 

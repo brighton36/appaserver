@@ -111,6 +111,7 @@ function timlib_get_element( search_element_name )
 		for( i = 0; i < form.elements.length; i++ )
 		{
 			element = form.elements[ i ];
+
 			if ( element.name == search_element_name )
                         {
 				return element;
@@ -129,6 +130,7 @@ function timlib_get_element( search_element_name )
 		for( i = 0; i < form.elements.length; i++ )
 		{
 			element = form.elements[ i ];
+
 			if ( element.name == modified_element_name )
                         {
 				return element;
@@ -147,6 +149,7 @@ function timlib_get_element( search_element_name )
 		for( i = 0; i < form.elements.length; i++ )
 		{
 			element = form.elements[ i ];
+
 			if ( element.name == modified_element_name )
                         {
 				return element;
@@ -165,6 +168,7 @@ function timlib_get_element( search_element_name )
 		for( i = 0; i < form.elements.length; i++ )
 		{
 			element = form.elements[ i ];
+
 			if ( element.name == modified_element_name )
                         {
 				return element;

@@ -17,50 +17,47 @@ function post_change_output_measurements( current_element )
 	element =
 		timlib_get_element(
 			"original_datatype_1" );
-	if ( element )
-	{
-		// return post_change_output_measurements_preprompt();
-		return
-	}
+
+	if ( element ) return
 
 	element =
 		timlib_get_element(
-			"zulu_time_yn_0" );
+			"zulu_time_yn" );
 	element.disabled = 1;
 	element =
 		timlib_get_element(
-			"aggregate_level_0" );
+			"aggregate_level" );
 	element.disabled = 0;
 	element =
 		timlib_get_element(
-			"aggregate_statistic_0" );
+			"aggregate_statistic" );
 	element.disabled = 0;
 	element =
 		timlib_get_element(
-			"validation_level_0" );
+			"validation_level" );
 	element.disabled = 0;
 	element =
 		timlib_get_element(
-			"units^units_converted_0" );
+			"units^units_converted" );
 	element.disabled = 0;
 	element =
 		timlib_get_element(
-			"from_email_address_0" );
+			"email_address" );
 	element.disabled = 0;
 	element =
 		timlib_get_element(
-			"from_transmit_validation_info_yn_0" );
+			"transmit_validation_info_yn" );
 	element.disabled = 1;
 	element =
 		timlib_get_element(
-			"from_days_to_average_0" );
+			"days_to_average" );
 	element.disabled = 1;
 	element =
 		timlib_get_element(
-			"from_accumulate_yn_0" );
+			"accumulate_yn" );
 	element.disabled = 1;
 
-	process_element = timlib_get_element( "output_measurements_0" );
+	process_element = timlib_get_element( "output_measurements" );
 
 	process_value =
 		timlib_get_drop_down_element_value(
@@ -70,7 +67,7 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"zulu_time_yn_0" );
+				"zulu_time_yn" );
 		element.disabled = 0;
 	}
 	else
@@ -78,17 +75,17 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"from_email_address_0" );
+				"email_address" );
 		element.disabled = 1;
 
 		element =
 			timlib_get_element(
-				"aggregate_level_0" );
+				"aggregate_level" );
 		element.disabled = 0;
 
 		element =
 			timlib_get_element(
-				"aggregate_statistic_0" );
+				"aggregate_statistic" );
 		element.disabled = 1;
 	}
 	else
@@ -96,28 +93,40 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"from_email_address_0" );
+				"email_address" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"aggregate_level_0" );
+				"aggregate_level" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"from_days_to_average_0" );
+				"days_to_average" );
 		element.disabled = 0;
 
+	}
+	else
+	if ( process_value == 'output_measurement_googlecharts' )
+	{
+		element =
+			timlib_get_element(
+				"email_address" );
+		element.disabled = 1;
+		element =
+			timlib_get_element(
+				"accumulate_yn" );
+		element.disabled = 0;
 	}
 	else
 	if ( process_value == 'easychart_measurements' )
 	{
 		element =
 			timlib_get_element(
-				"from_email_address_0" );
+				"email_address" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"from_accumulate_yn_0" );
+				"accumulate_yn" );
 		element.disabled = 0;
 	}
 	else
@@ -125,7 +134,7 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"from_accumulate_yn_0" );
+				"accumulate_yn" );
 		element.disabled = 0;
 	}
 	else
@@ -133,12 +142,12 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"from_accumulate_yn_0" );
+				"accumulate_yn" );
 		element.disabled = 0;
 
 		element =
 			timlib_get_element(
-				"zulu_time_yn_0" );
+				"zulu_time_yn" );
 		element.disabled = 0;
 	}
 	else
@@ -146,15 +155,15 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"aggregate_level_0" );
+				"aggregate_level" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"aggregate_statistic_0" );
+				"aggregate_statistic" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"from_email_address_0" );
+				"email_address" );
 		element.disabled = 1;
 	}
 	else
@@ -163,16 +172,16 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"from_transmit_validation_info_yn_0" );
+				"transmit_validation_info_yn" );
 		element.disabled = 0;
 		element =
 			timlib_get_element(
-				"from_accumulate_yn_0" );
+				"accumulate_yn" );
 		element.disabled = 0;
 
 		element =
 			timlib_get_element(
-				"zulu_time_yn_0" );
+				"zulu_time_yn" );
 		element.disabled = 0;
 	}
 	else
@@ -180,23 +189,23 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"aggregate_level_0" );
+				"aggregate_level" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"aggregate_statistic_0" );
+				"aggregate_statistic0" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"from_email_address_0" );
+				"email_address" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"validation_level_0" );
+				"validation_level" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"units^units_converted_0" );
+				"units^units_converted" );
 		element.disabled = 1;
 	}
 	else
@@ -204,29 +213,29 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"aggregate_level_0" );
+				"aggregate_level" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"aggregate_statistic_0" );
+				"aggregate_statistic" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"from_email_address_0" );
+				"email_address" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"validation_level_0" );
+				"validation_level" );
 		element.disabled = 1;
 		element =
 			timlib_get_element(
-				"units^units_converted_0" );
+				"units^units_converted" );
 		element.disabled = 1;
 	}
 
 	element =
 		timlib_get_element(
-			"aggregate_level_0" );
+			"aggregate_level" );
 
 	aggregate_level_value =
 		timlib_get_drop_down_element_value(
@@ -239,7 +248,7 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"zulu_time_yn_0" );
+				"zulu_time_yn" );
 		element.disabled = 1;
 	}
 
@@ -251,11 +260,12 @@ function post_change_output_measurements( current_element )
 	{
 		element =
 			timlib_get_element(
-				"aggregate_statistic_0" );
+				"aggregate_statistic" );
 		element.disabled = 1;
 	}
 
 	return true;
+
 } // post_change_output_measurements()
 
 function post_change_output_measurements_preprompt()

@@ -6,7 +6,7 @@ then
 fi
 application=$1
 
-if [ "$application" != hydrology -o "$application" != audubon ]
+if [ "$application" != hydrology -a "$application" != audubon ]
 then
 	exit 0
 fi

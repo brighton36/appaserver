@@ -248,20 +248,6 @@ int main( int argc, char **argv )
 			" and last_validation_date is not null" );
 	}
 
-	hydrology_library_get_title(
-				title,
-				sub_title,
-				validation_level,
-				aggregate_statistic,
-				aggregate_level,
-				station_name,
-				(char *)0 /* datatype */,
-				begin_date,
-				end_date,
-				*accumulate_yn );
-
-	sprintf( chart_title, "%s %s", title, sub_title );
-
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
 	
@@ -277,14 +263,6 @@ int main( int argc, char **argv )
 					application_name ),
 				0 /* not with_dynarch_menu */ );
 	
-/*
-	document_output_body(
-				document->application_name,
-				document->onload_control_string );
-
-	printf( "<h1>%s</h1><h2>%s</h2>\n", title, sub_title );
-*/
-
 	units = hydrology_library_get_units_string(
 				&bar_chart,
 				application_name,
@@ -315,6 +293,20 @@ int main( int argc, char **argv )
 		units_display );
 
 	format_initial_capital( yaxis_label, yaxis_label );
+
+	hydrology_library_get_title(
+				title,
+				sub_title,
+				validation_level,
+				aggregate_statistic,
+				aggregate_level,
+				station_name,
+				yaxis_label /* datatype */,
+				begin_date,
+				end_date,
+				*accumulate_yn );
+
+	sprintf( chart_title, "%s %s", title, sub_title );
 
 	output_measurement_googlecharts(
 			application_name,

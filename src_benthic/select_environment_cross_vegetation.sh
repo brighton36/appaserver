@@ -1,4 +1,6 @@
 :
+echo "$0 $*" 1>&2
+
 if [ "$#" != 5 ]
 then
 	echo "Usage: $0 application begin_date end_date datatype vegetation_name" 1>&2

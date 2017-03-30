@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_benthic/output_scatterplot.c			*/
+/* $APPASERVER_HOME/src_benthic/output_scatterplot.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/

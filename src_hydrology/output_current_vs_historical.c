@@ -30,6 +30,8 @@
 /* --------- */
 #define LOCAL_CHART_POSITION_TOP		50
 #define LOCAL_CHART_POSITION_LEFT		265
+#define LOCAL_CHART_WIDTH			800
+#define LOCAL_CHART_HEIGHT			500
 
 /* Prototypes */
 /* ---------- */
@@ -1114,8 +1116,8 @@ GOOGLE_CHART *get_google_current_chart(
 				 "Date" /* xaxis_datatype_name */,
 				 LOCAL_CHART_POSITION_LEFT,
 				 LOCAL_CHART_POSITION_TOP,
-				 GOOGLE_CHART_WIDTH,
-				 GOOGLE_CHART_HEIGHT,
+				 LOCAL_CHART_WIDTH,
+				 LOCAL_CHART_HEIGHT,
 				 GOOGLE_CHART_BACKGROUND_COLOR,
 				 0 /* not legend_position_bottom */,
 				"annotatedtimeline" /* google_package_name */);

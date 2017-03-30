@@ -1,4 +1,4 @@
-/* hydrology_library.c 							*/
+/* $APPASERVER_HOME/src_hydrology/hydrology_library.c			*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -390,10 +390,13 @@ void hydrology_library_get_period_of_record_begin_date(
 			application_name,
 			select,
 			where_clause );
-	if ( ! ( return_pointer = pipe2string( sys_string ) ) )
-		return;
+
+	if ( ! ( return_pointer = pipe2string( sys_string ) ) ) return;
+
 	strcpy( local_begin_date_string, return_pointer );
+
 	*begin_date_string = local_begin_date_string;
+
 } /* hydrology_library_get_period_of_record_begin_date() */
 
 void hydrology_library_get_period_of_record_end_date(

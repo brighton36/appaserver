@@ -297,6 +297,8 @@ char *date_get_colon_now_time(
 
 void date_place_colon_in_time(	char *time_string );
 
+void date_remove_colon_in_time(	char *time_string );
+
 DATE *date_get_prior_day(	DATE *date,
 				int wday_parameter );
 

@@ -1672,6 +1672,23 @@ char *date_get_colon_now_time( void )
 
 } /* date_get_colon_now_time() */
 
+void date_remove_colon_in_time( char *time_string )
+{
+	char hour[ 3 ];
+	char minute[ 3 ];
+
+	if ( timlib_strlen( time_string ) != 5 ) return;
+
+	strncpy( hour, time_string, 2 );
+	*(hour + 2) = '\0';
+
+	strncpy( minute, time_string + 3, 2 );
+	*(minute + 2) = '\0';
+
+	sprintf( time_string, "%s%s", hour, minute );
+
+} /* date_remove_colon_in_time() */
+
 void date_place_colon_in_time( char *time_string )
 {
 	char hour[ 3 ];

@@ -692,31 +692,6 @@ void generic_load_attribute_set_is_participating(
 		if ( !*input_buffer ) continue;
 		if ( *input_buffer == '#' ) continue;
 
-/*
-		generic_load_set_international_date(
-				input_buffer,
-				application_name,
-				delimiter,
-				primary_key_date_offset );
-
-		generic_load_replace_time_2400_with_0000(
-				input_buffer,
-				delimiter,
-				primary_key_date_offset,
-				primary_key_time_offset );
-
-		if ( !generic_load_fix_time(
-				input_buffer,
-				delimiter,
-				primary_key_time_offset ) )
-		{
-			fprintf( error_file,
-			 	"Warning: bad time in %s\n",
-			 	input_buffer );
-			continue;
-		}
-*/
-
 		list_rewind( generic_load_folder_list );
 
 		do {
@@ -1482,47 +1457,6 @@ int generic_load_output_to_database(
 	return input_record_count;
 } /* generic_load_output_to_database() */
 
-void generic_load_set_international_date(
-				char *input_buffer,
-				char *application_name,
-				char delimiter,
-				int primary_key_date_offset )
-{
-	char date_string[ 16 ];
-
-	if ( primary_key_date_offset == -1 ) return;
-
-	if ( !piece(	date_string,
-			delimiter,
-			input_buffer,
-			primary_key_date_offset ) )
-	{
-		return;
-	}
-
-	if ( date_convert_date_get_format( date_string ) !=
-	     international )
-	{
-		DATE_CONVERT *date_convert;
-
-		date_convert =
-			date_convert_new_database_format_date_convert(
-				application_name,
-				date_string );
-	
-		if ( date_convert )
-		{
-			piece_replace(	input_buffer,
-					delimiter, 
-					date_convert->return_date,
-					primary_key_date_offset );
-
-			date_convert_free( date_convert );
-		}
-
-	}
-} /* generic_load_set_international_date() */
-
 int generic_load_get_position_integer(	DICTIONARY *position_dictionary,
 					char *attribute_name,
 					char *related_attribute_name )
@@ -1555,4 +1489,86 @@ int generic_load_get_position_integer(	DICTIONARY *position_dictionary,
 	}
 	return position_integer;
 } /* generic_load_get_position_integer() */
+
+void generic_load_set_international_date(
+				char *input_buffer,
+				char *application_name,
+				char delimiter,
+				int primary_key_date_offset )
+{
+	char date_time_string[ 1024 ];
+	char date_string[ 16 ];
+	char time_string[ 16 ];
+	boolean make_substitution = 0;
+
+	if ( primary_key_date_offset == -1 ) return;
+
+	if ( !piece(	date_time_string,
+			delimiter,
+			input_buffer,
+			primary_key_date_offset ) )
+	{
+		return;
+	}
+
+
+	if ( character_exists( date_time_string, ' ' ) )
+	{
+		piece( date_string, ' ', date_time_string, 0 );
+		piece( time_string, ' ', date_time_string, 1 );
+	}
+	else
+	{
+		timlib_strcpy( date_string, date_time_string, 16 );
+		*time_string = '\0';
+	}
+
+	if ( date_convert_date_get_format( date_string ) != international )
+	{
+		DATE_CONVERT *date_convert;
+
+		date_convert =
+			date_convert_new_database_format_date_convert(
+				application_name,
+				date_string );
+	
+		if ( date_convert )
+		{
+			strcpy( date_string, date_convert->return_date );
+
+			date_convert_free( date_convert );
+			make_substitution = 1;
+		}
+	}
+
+	/* If "2017-03-30 10:45" */
+	/* --------------------- */
+	if ( *time_string )
+	{
+		if ( character_exists( time_string, ':' ) )
+		{
+			date_remove_colon_in_time( time_string );
+			make_substitution = 1;
+		}
+
+		sprintf(	date_time_string,
+				"%s%c%s",
+				date_string,
+				delimiter,
+				time_string );
+	}
+	else
+	{
+		strcpy( date_time_string, date_string );
+	}
+
+	if ( make_substitution )
+	{
+		piece_replace(	input_buffer,
+				delimiter, 
+				date_time_string,
+				primary_key_date_offset );
+	}
+
+} /* generic_load_set_international_date() */
 

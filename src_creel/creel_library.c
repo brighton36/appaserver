@@ -4005,9 +4005,15 @@ FILE *creel_library_get_fishing_trips_input_pipe(
 		 " and %s",
 		 where_preferred_caught );
 
+/*
+Jason said:
+In the Output Catches Spreadsheet File (Guide), the output should 'output' the data - such that the interview # is sequential for each date (like it is in Sport).
+
 	sprintf( order,
 "substr( census_date, 1, 4 ), %s.code,census_date,interview_number",
 		 interview_locations_table );
+*/
+	strcpy( order, "census_date,interview_number" );
 
 	sprintf( sys_string,
 		 "get_folder_data				 "

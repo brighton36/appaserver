@@ -469,27 +469,21 @@ void make_checks_dollar_text_with_stub(
 
 	fprintf( latex_file,
 "\\vspace{0.25in}\n"
-"\\begin{tabular}{p{0.5in}l}\n"
+"\\begin{tabular}{p{0.2in}l}\n"
 "& %s\n"
 "\\end{tabular}\n\n",
 		 check_date );
 
 	fprintf( latex_file,
-"\\vspace{0.25in}\n"
-"\\begin{tabular}{p{8.9in}l}\n"
-"& %s\n"
+"\\vspace{0.14in}\n"
+"\\begin{tabular}{p{0.2in}p{8.7in}l}\n"
+"& %s & %s\n"
 "\\end{tabular}\n\n",
+		 payable_to_escaped,
 		 check_date );
 
 	fprintf( latex_file,
-"\\vspace{0.05in}\n\n"
-"\\begin{tabular}{p{0.5in}l}\n"
-"& %s\n"
-"\\end{tabular}\n\n",
-		 payable_to_escaped );
-
-	fprintf( latex_file,
-"\\vspace{0.20in}\n\n"
+"\\vspace{0.16in}\n\n"
 "\\begin{tabular}{p{5.3in}p{4.9in}l}\n"
 "& %s & %s\n"
 "\\end{tabular}\n\n",
@@ -500,8 +494,8 @@ void make_checks_dollar_text_with_stub(
 	{
 		fprintf( latex_file,
 "\\vspace{0.20in}\n\n"
-"\\begin{tabular}{p{0.5in}p{3.0in}p{1.85in}l}\n"
-"& %s & & %s\n"
+"\\begin{tabular}{p{0.2in}p{4.65in}l}\n"
+"& %s & %s\n"
 "\\end{tabular}\n\n",
 			memo,
 		 	dollar_text_string );
@@ -520,8 +514,8 @@ void make_checks_dollar_text_with_stub(
 	{
 		fprintf( latex_file,
 "\\vspace{0.52in}\n\n"
-"\\begin{tabular}{p{0.5in}p{2.25in}p{0.5in}p{1.0in}l}\n"
-"& Check: %d & & %s & %s\n"
+"\\begin{tabular}{p{0.2in}p{2.2in}p{1.6in}l}\n"
+"& Check: %d & %s & %s\n"
 "\\end{tabular}\n",
 			 check_number,
 		 	 place_commas_in_money( dollar_amount ),
@@ -530,9 +524,9 @@ void make_checks_dollar_text_with_stub(
 	else
 	{
 		fprintf( latex_file,
-"\\vspace{0.52in}\n\n"
-"\\begin{tabular}{p{0.5in}p{2.25in}l}\n"
-"& %d & & %s\n"
+"\\vspace{0.43in}\n\n"
+"\\begin{tabular}{p{0.2in}p{2.45in}l}\n"
+"& Check: %d & %s\n"
 "\\end{tabular}\n",
 			 check_number,
 		 	 place_commas_in_money( dollar_amount ) );

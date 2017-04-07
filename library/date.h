@@ -123,10 +123,14 @@ DATE *date_new_yyyy_mm_dd_date( char *date_field );
 DATE *date_new_yyyy_mm_dd(	char *date_field );
 DATE *date_new_yyyy_mm_dd_hhmm(	char *date_string,
 				char *time_string );
-int date_set_yyyy_mm_dd( DATE *date, char *yyyy_mm_dd );
-int date_set_yyyy_mm_dd_hhmm(	DATE *date,
+
+int date_set_yyyy_mm_dd(	DATE *date, char *yyyy_mm_dd );
+
+int date_set_yyyy_mm_dd_hhmm_delimited(
+				DATE *date,
 				char *yyyy_mm_dd_hhmm,
 				char delimiter );
+
 char *date_this_saturday_yyyy_mm_dd_string( DATE *date );
 char *date_new_get_yyyy_mm_dd( time_t current );
 DATE *date_populate_week_of_year_dictionary( char *year );
@@ -312,5 +316,18 @@ char *date_subtract_colon_from_time(
 				char *time_string );
 
 DATE *date_now_new(		void );
+
+void date_set_date_time_integers(
+				DATE *date,
+				int year,
+				int month,
+				int day,
+				int hours,
+				int minutes,
+				int seconds );
+
+int date_set_yyyy_mm_dd_hhmm(	DATE *date,
+				char *yyyy_mm_dd,
+				char *hhmm );
 
 #endif

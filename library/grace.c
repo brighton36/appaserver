@@ -1212,7 +1212,6 @@ boolean grace_output_point_list(
 	return output_any;
 } /* grace_output_point_list() */
 
-
 void grace_set_point(		boolean *inside_null,
 				LIST *dataset_list,
 				double x,
@@ -1248,8 +1247,9 @@ void grace_set_point(		boolean *inside_null,
 				grace_dataset = grace_new_grace_dataset(
 						datatype_number,
 						dataset_no_cycle_color );
-	
+
 				*inside_null = 1;
+
 				list_append_pointer(	dataset_list,
 							grace_dataset );
 				return;
@@ -2486,7 +2486,8 @@ int grace_populate_unit_graph_list(
 			if ( datatype_type_xyhilo )
 			{
 				grace_datatype->
-					datatype_type_bar_xy_xyhilo = "xyhilo";
+					datatype_type_bar_xy_xyhilo =
+						"xyhilo";
 			}
 			else
 			if ( *bar_graph_yn == 'y' )

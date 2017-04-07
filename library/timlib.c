@@ -1141,6 +1141,16 @@ void timlib_unget_line( char *in_line )
 
 void unget_line_queue( char *in_line )
 {
+	if ( queue_toggle )
+	{
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: queue full.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return;
+	}
+
 	strcpy( queue_static_buffer, in_line );
 	queue_toggle = 1;
 }

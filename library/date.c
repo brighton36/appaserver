@@ -99,7 +99,9 @@ DATE *date_new_date_time(
 	memcpy( &tm, localtime( &d->current ), sizeof( struct tm ) );
 	date_set_tm_structures( d, d->current );
 
+/*
 	if ( d->tm->tm_isdst ) date_increment_hours( d, -1.0 );
+*/
 
 	return d;
 } /* date_new_date_time() */
@@ -117,6 +119,8 @@ DATE *date_new( int year, int month, int day )
 
 time_t date_tm_to_current( struct tm *tm )
 {
+	tm->tm_isdst = 0;
+
 	if ( tm->tm_year < 70 )
 	{
 		return date_tm_to_current_pre_1970( tm );
@@ -152,6 +156,41 @@ time_t date_tm_to_current_pre_1970( struct tm *tm )
 
 } /* date_tm_to_current_pre_1970() */
 
+void date_set_date_time_integers(
+				DATE *date,
+				int year,
+				int month,
+				int day,
+				int hours,
+				int minutes,
+				int seconds )
+{
+	date->tm->tm_year = year - 1900;
+	date->tm->tm_mon = month - 1;
+	date->tm->tm_mday = day;
+	date->tm->tm_hour = hours;
+	date->tm->tm_min = minutes;
+	date->tm->tm_sec = seconds;
+
+	date->current = date_tm_to_current( date->tm );
+	date_set_tm_structures( date, date->current );
+
+} /* date_set_date_time_integers() */
+
+void date_set_time_integers(	DATE *date,
+				int hour,
+				int minute,
+				int seconds )
+{
+	date->tm->tm_hour = hour;
+	date->tm->tm_min = minute;
+	date->tm->tm_sec = seconds;
+
+	date->current = date_tm_to_current( date->tm );
+	date_set_tm_structures( date, date->current );
+
+} /* date_set_time_integers() */
+
 void date_set_date_integers(	DATE *date,
 				int year,
 				int month,
@@ -166,19 +205,7 @@ void date_set_date_integers(	DATE *date,
 
 } /* date_set_date_integers() */
 
-void date_set_time_integers(	DATE *date,
-				int hour,
-				int minute,
-				int seconds )
-{
-	date->tm->tm_hour = hour;
-	date->tm->tm_min = minute;
-	date->tm->tm_sec = seconds;
-
-	date->current = date_tm_to_current( date->tm );
-
-} /* date_set_time_integers() */
-
+#ifdef NOT_DEFINED
 int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 				char *yyyy_mm_dd_hhmm,
 				char delimiter )
@@ -200,6 +227,81 @@ int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 	{
 		return 1;
 	}
+
+} /* date_set_yyyy_mm_dd_hhmm() */
+#endif
+
+int date_set_yyyy_mm_dd_hhmm_delimited(
+				DATE *date,
+				char *yyyy_mm_dd_hhmm,
+				char delimiter )
+{
+	char yyyy_mm_dd[ 16 ];
+	char hhmm[ 16 ];
+
+	if ( !character_exists( yyyy_mm_dd_hhmm, delimiter ) )
+		return 0;
+
+	if ( strlen( yyyy_mm_dd_hhmm ) > 16 )
+		return 0;
+
+	piece( yyyy_mm_dd, delimiter, yyyy_mm_dd_hhmm, 0 );
+	piece( hhmm, delimiter, yyyy_mm_dd_hhmm, 1 );
+
+	if ( !*hhmm || strcasecmp( hhmm, "null" ) == 0 )
+		return date_set_yyyy_mm_dd( date, yyyy_mm_dd );
+
+	return date_set_yyyy_mm_dd_hhmm(
+		date,
+		yyyy_mm_dd,
+		hhmm );
+
+} /* date_set_yyyy_mm_dd_hhmm_delimited() */
+
+int date_set_yyyy_mm_dd_hhmm(	DATE *date,
+				char *yyyy_mm_dd,
+				char *hhmm )
+{
+	char year_string[ 128 ];
+	char month_string[ 128 ];
+	char day_string[ 128 ];
+	char delimiter;
+	int hours, minutes;
+	char buffer[ 3 ];
+
+	if ( count_character( '-', yyyy_mm_dd ) == 2 )
+		delimiter = '-';
+	else
+	if ( count_character( '.', yyyy_mm_dd ) == 2 )
+		delimiter = '.';
+	else
+		return 0;
+
+	piece( year_string, delimiter, yyyy_mm_dd, 0 );
+	piece( month_string, delimiter, yyyy_mm_dd, 1 );
+	piece( day_string, delimiter, yyyy_mm_dd, 2 );
+
+	if ( strlen( hhmm ) != 4 ) return 0;
+
+	*(buffer + 2) = '\0';
+	*buffer = *hhmm;
+	*(buffer + 1) = *(hhmm + 1);
+	hours = atoi( buffer );
+
+	*buffer = *(hhmm + 2);
+	*(buffer + 1) = *(hhmm + 3);
+	minutes = atoi( buffer );
+
+	date_set_date_time_integers(
+				date,
+				atoi( year_string ),
+				atoi( month_string ),
+				atoi( day_string ),
+				hours,
+				minutes,
+				0 /* seconds */ );
+
+	return 1;
 
 } /* date_set_yyyy_mm_dd_hhmm() */
 
@@ -228,7 +330,6 @@ int date_set_yyyy_mm_dd( DATE *date, char *yyyy_mm_dd )
 				atoi( day_string ) );
 	return 1;
 } /* date_set_yyyy_mm_dd() */
-
 
 void date_set_time( DATE *date, int hour, int minutes )
 {

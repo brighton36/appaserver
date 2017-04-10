@@ -386,7 +386,7 @@ void google_chart_output_draw_visualization_function(
 	}
 
 	if ( strcmp( google_package_name, "annotatedtimeline" ) == 0 )
-		first_column_datatype = "date";
+		first_column_datatype = "datetime";
 	else
 		first_column_datatype = "string";
 

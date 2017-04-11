@@ -356,7 +356,8 @@ void google_chart_output_draw_visualization_function(
 				boolean legend_position_bottom,
 				boolean chart_type_bar,
 				char *google_package_name,
-				boolean dont_display_range_selector )
+				boolean dont_display_range_selector,
+				enum aggregate_level aggregate_level )
 {
 	GOOGLE_CHART_XAXIS *xaxis;
 	int offset;
@@ -385,10 +386,35 @@ void google_chart_output_draw_visualization_function(
 		exit( 1 );
 	}
 
-	if ( strcmp( google_package_name, "annotatedtimeline" ) == 0 )
-		first_column_datatype = "datetime";
+	if ( !google_package_name )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: google_package_name is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( timlib_strcmp(	google_package_name,
+				GOOGLE_ANNOTATED_TIMELINE ) == 0 )
+	{
+		if ( aggregate_level == aggregate_level_none
+		||   aggregate_level == real_time
+		||   aggregate_level == half_hour
+		||   aggregate_level == hourly )
+		{
+			first_column_datatype = "datetime";
+		}
+		else
+		{
+			first_column_datatype = "date";
+		}
+	}
 	else
+	{
 		first_column_datatype = "string";
+	}
 
 	fprintf( output_file,
 "<script type=\"text/javascript\">\n"
@@ -443,7 +469,11 @@ void google_chart_output_draw_visualization_function(
 	do {
 		xaxis = list_get_pointer( xaxis_list );
 
+/*
 		if ( strcmp( google_package_name, "annotatedtimeline" ) == 0 )
+*/
+		if ( strcmp(	google_package_name,
+				GOOGLE_ANNOTATED_TIMELINE ) == 0 )
 		{
 			fprintf(output_file,
 			 	"\t\t[%s",
@@ -632,7 +662,8 @@ void google_chart_output_draw_visualization_function(
 
 	if ( title
 	&&   *title
-	&&   strcmp( google_package_name, "annotatedtimeline" ) == 0 )
+	&&   strcmp(	google_package_name,
+			GOOGLE_ANNOTATED_TIMELINE ) == 0 )
 	{
 		fprintf( output_file,
 "<div style=\"	position: absolute;	\n"

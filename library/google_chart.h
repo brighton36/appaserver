@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include "list.h"
+#include "aggregate_level.h"
 
 /* Constants */
 /* --------- */
@@ -15,6 +16,8 @@
 #define GOOGLE_CHART_HEIGHT			600
 #define GOOGLE_CHART_BACKGROUND_COLOR		"#effdff"
 #define GOOGLE_CHART_CONVERT_MONTH_EXPRESSION	atoi( month ) - 1
+#define GOOGLE_ANNOTATED_TIMELINE		"annotatedtimeline"
+#define GOOGLE_CORECHART			"corechart"
 
 /* Enumerations */
 /* ------------ */
@@ -114,7 +117,8 @@ void google_chart_output_draw_visualization_function(
 				boolean legend_position_bottom,
 				boolean chart_type_bar,
 				char *google_package_name,
-				boolean dont_display_range_selector );
+				boolean dont_display_range_selector,
+				enum aggregate_level );
 
 void google_chart_append_delimited_string_xaxis(
 				LIST *xaxis_list,

@@ -577,15 +577,16 @@ if ( date_piece ){};
 
 	google_chart =
 		google_chart_new(
-				 google_time_line,
-				 "Date" /* xaxis_datatype_name */,
-				 GOOGLE_CHART_POSITION_LEFT,
-				 GOOGLE_CHART_POSITION_TOP,
-				 GOOGLE_CHART_WIDTH,
-				 GOOGLE_CHART_HEIGHT,
-				 GOOGLE_CHART_BACKGROUND_COLOR,
-				 0 /* not legend_position_bottom */,
-				"annotatedtimeline" /* google_package_name */);
+			google_time_line,
+			"Date" /* xaxis_datatype_name */,
+			GOOGLE_CHART_POSITION_LEFT,
+			GOOGLE_CHART_POSITION_TOP,
+			GOOGLE_CHART_WIDTH,
+			GOOGLE_CHART_HEIGHT,
+			GOOGLE_CHART_BACKGROUND_COLOR,
+			0 /* not legend_position_bottom */,
+			GOOGLE_ANNOTATED_TIMELINE
+				/* google_package_name */ );
 
 	sys_string = get_sys_string(	
 			application_name,
@@ -708,7 +709,8 @@ if ( bar_chart ){};
 				google_chart->legend_position_bottom,
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
-				0 /* not dont_display_range_selector */ );
+				0 /* not dont_display_range_selector */,
+				aggregate_level );
 
 	fclose( output_file );
 

@@ -1096,7 +1096,8 @@ boolean output_historical_long_term(
 				google_chart->legend_position_bottom,
 				1 /* chart_type_bar */,
 				google_chart->google_package_name,
-				0 /* not dont_display_range_selector */ );
+				0 /* not dont_display_range_selector */,
+				daily /* aggregate_level */ );
 
 	return 1;
 
@@ -1112,15 +1113,16 @@ GOOGLE_CHART *get_google_current_chart(
 
 	google_chart =
 		google_chart_new(
-				 google_time_line,
-				 "Date" /* xaxis_datatype_name */,
-				 LOCAL_CHART_POSITION_LEFT,
-				 LOCAL_CHART_POSITION_TOP,
-				 LOCAL_CHART_WIDTH,
-				 LOCAL_CHART_HEIGHT,
-				 GOOGLE_CHART_BACKGROUND_COLOR,
-				 0 /* not legend_position_bottom */,
-				"annotatedtimeline" /* google_package_name */);
+			google_time_line,
+			"Date" /* xaxis_datatype_name */,
+			LOCAL_CHART_POSITION_LEFT,
+			LOCAL_CHART_POSITION_TOP,
+			LOCAL_CHART_WIDTH,
+			LOCAL_CHART_HEIGHT,
+			GOOGLE_CHART_BACKGROUND_COLOR,
+			0 /* not legend_position_bottom */,
+			GOOGLE_ANNOTATED_TIMELINE
+				/* google_package_name */ );
 
 	bar_chart = datatype_bar_chart( application_name, datatype_name );
 
@@ -1547,7 +1549,8 @@ void output_current(	FILE *output_file,
 				google_chart->legend_position_bottom,
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
-				0 /* not dont_display_range_selector */ );
+				0 /* not dont_display_range_selector */,
+				daily /* aggregate_level */ );
 
 } /* output_current() */
 
@@ -1739,7 +1742,8 @@ void output_historical_current(
 				google_chart->legend_position_bottom,
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
-				1 /* dont_display_range_selector */ );
+				1 /* dont_display_range_selector */,
+				daily /* aggregate_level */ );
 
 } /* output_historical_current() */
 
@@ -1762,7 +1766,8 @@ GOOGLE_CHART *get_google_historical_current_chart(
 		     HISTORICAL_CHART_HEIGHT / 3,
 		     GOOGLE_CHART_BACKGROUND_COLOR,
 		     0 /* not legend_position_bottom */,
-		    "annotatedtimeline" /* google_package_name */);
+		     GOOGLE_ANNOTATED_TIMELINE
+				/* google_package_name */);
 
 	list_append_pointer(	google_chart->google_datatype_name_list,
 				datatype_name );

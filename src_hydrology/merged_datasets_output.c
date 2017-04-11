@@ -1946,7 +1946,7 @@ boolean merged_datasets_output_easycharts(
 	}
 
 	sprintf(applet_library_archive,
-		"/%s/%s",
+		"/appaserver/%s/%s",
 		application_name,
 		EASYCHARTS_JAR_FILE );
 	easycharts->applet_library_archive = applet_library_archive;

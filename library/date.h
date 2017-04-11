@@ -1,5 +1,7 @@
-/* library/date.h */
-/* -------------- */
+/* $APPASERVER_HOME/library/date.h			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #ifndef DATE_H
 #define DATE_H
@@ -129,6 +131,8 @@ int date_set_yyyy_mm_dd(	DATE *date, char *yyyy_mm_dd );
 int date_set_yyyy_mm_dd_hhmm_delimited(
 				DATE *date,
 				char *yyyy_mm_dd_hhmm,
+				int date_piece,
+				int time_piece,
 				char delimiter );
 
 char *date_this_saturday_yyyy_mm_dd_string( DATE *date );

@@ -311,7 +311,7 @@ int main( int argc, char **argv )
 	easycharts->point_highlight_size = 0;
 
 	sprintf(applet_library_archive,
-		"/%s/%s",
+		"/appaserver/%s/%s",
 		application_name,
 		EASYCHARTS_JAR_FILE );
 

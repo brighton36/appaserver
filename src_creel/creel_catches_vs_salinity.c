@@ -393,7 +393,7 @@ void output_scatter(	char *everglades_application_name,
 	}
 
 	sprintf(applet_library_archive,
-		"/%s/%s",
+		"/appaserver/%s/%s",
 		creel_application_name,
 		EASYCHARTS_JAR_FILE );
 

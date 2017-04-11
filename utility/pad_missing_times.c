@@ -113,12 +113,12 @@ int main( int argc, char **argv )
 				input_buffer,
 				date_offset ) )
 		{
-			fprintf( stderr,
-	"ERROR in %s/%d: cannot get date from (%s)\n",
+			fprintf(stderr,
+				"Warning in %s/%d: cannot get date from (%s)\n",
 		 		argv[ 0 ],
 		 		__LINE__,
 		 		input_buffer );
-			exit( 1 );
+			continue;
 		}
 
 		if ( time_offset != -1 )
@@ -128,12 +128,12 @@ int main( int argc, char **argv )
 					input_buffer,
 					time_offset ) )
 			{
-				fprintf( stderr,
-		"ERROR in %s/%d: cannot get date from (%s)\n",
+				fprintf(stderr,
+				"Warning in %s/%d: cannot get date from (%s)\n",
 			 		argv[ 0 ],
 			 		__LINE__,
 			 		input_buffer );
-				exit( 1 );
+				continue;
 			}
 		}
 		else
@@ -149,15 +149,17 @@ int main( int argc, char **argv )
 		if ( !date_set_yyyy_mm_dd_hhmm_delimited(
 				input_date,
 				input_date_time_string,
+				date_offset,
+				time_offset,
 				'^' ) )
 		{
 			fprintf( stderr,
-			"ERROR in %s/%s()/%d: invalid date_time of (%s)\n",
+			"Warning in %s/%s()/%d: invalid date_time of (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
 				 input_date_time_string );
-			exit( 1 );
+			continue;
 		}
 
 		while( 1 )
@@ -171,6 +173,8 @@ int main( int argc, char **argv )
 			if ( !date_set_yyyy_mm_dd_hhmm_delimited(
 					ticker_date,
 					ticker_date_time_string,
+					0 /* date_piece */,
+					1 /* time_piece */,
 					'^' ) )
 			{
 				fprintf( stderr,

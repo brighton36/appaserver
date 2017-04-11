@@ -1,5 +1,7 @@
-/* library/date.c */
-/* -------------- */
+/* $APPASERVER_HOME/library/date.c			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -234,19 +236,34 @@ int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 int date_set_yyyy_mm_dd_hhmm_delimited(
 				DATE *date,
 				char *yyyy_mm_dd_hhmm,
+				int date_piece,
+				int time_piece,
 				char delimiter )
 {
-	char yyyy_mm_dd[ 16 ];
-	char hhmm[ 16 ];
+	char yyyy_mm_dd[ 128 ];
+	char hhmm[ 128 ];
 
-	if ( !character_exists( yyyy_mm_dd_hhmm, delimiter ) )
+	if ( !piece( yyyy_mm_dd, delimiter, yyyy_mm_dd_hhmm, date_piece ) )
+	{
+		fprintf( stderr,
+"Warning in %s/%s()/%d: cannot piece(%d) in (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 date_piece );
 		return 0;
+	}
 
-	if ( strlen( yyyy_mm_dd_hhmm ) > 16 )
+	if ( !piece( hhmm, delimiter, yyyy_mm_dd_hhmm, time_piece ) )
+	{
+		fprintf( stderr,
+"Warning in %s/%s()/%d: cannot piece(%d) in (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 time_piece );
 		return 0;
-
-	piece( yyyy_mm_dd, delimiter, yyyy_mm_dd_hhmm, 0 );
-	piece( hhmm, delimiter, yyyy_mm_dd_hhmm, 1 );
+	}
 
 	if ( !*hhmm || strcasecmp( hhmm, "null" ) == 0 )
 		return date_set_yyyy_mm_dd( date, yyyy_mm_dd );

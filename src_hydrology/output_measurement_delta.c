@@ -860,7 +860,7 @@ void output_easycharts(		char *application_name,
 	}
 
 	sprintf(applet_library_archive,
-		"/%s/%s",
+		"/appaserver/%s/%s",
 		application_name,
 		EASYCHARTS_JAR_FILE );
 

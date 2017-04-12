@@ -1,5 +1,8 @@
-/* $APPASERVER_HOME/library/google_chart.h */
-/* --------------------------------------- */
+/* $APPASERVER_HOME/library/google_chart.h		*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
+
 
 #ifndef GOOGLE_CHART_H
 #define GOOGLE_CHART_H

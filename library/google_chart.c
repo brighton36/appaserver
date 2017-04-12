@@ -1,5 +1,7 @@
-/* google_chart.c */
-/* -------------- */
+/* $APPASERVER_HOME/library/google_chart.c		*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -250,7 +250,8 @@ int date_set_yyyy_mm_dd_hhmm_delimited(
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 date_piece );
+			 date_piece,
+			 yyyy_mm_dd );
 		return 0;
 	}
 
@@ -261,7 +262,8 @@ int date_set_yyyy_mm_dd_hhmm_delimited(
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 time_piece );
+			 time_piece,
+			 yyyy_mm_dd );
 		return 0;
 	}
 

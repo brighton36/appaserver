@@ -2468,18 +2468,6 @@ char *process_generic_output_get_dictionary_where_clause(
 {
 	static char where_clause[ 4096 ];
 	char *drop_down_where_clause;
-	QUERY *query;
-
-#ifdef NOT_DEFINED
-	query = query_folder_new(
-			application_name,
-			(char *)0 /* login_name */,
-			process_generic_output->
-				value_folder->
-				value_folder_name,
-			dictionary /* query_dictionary */,
-			(ROLE *)0 );
-#endif
 
 	drop_down_where_clause =
 		process_generic_output_get_drop_down_where_clause(

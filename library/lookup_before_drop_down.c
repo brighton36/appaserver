@@ -90,10 +90,8 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 
 	lookup_before_drop_down->lookup_before_drop_down_folder_list =
 		lookup_before_drop_down_get_folder_list(
-			application_name,
 			folder->mto1_recursive_related_folder_list,
-			state,
-			base_folder_name );
+			state );
 
 	lookup_before_drop_down_with_dictionary_set_fulfilled(
 		lookup_before_drop_down->
@@ -127,10 +125,8 @@ char *lookup_before_drop_down_get_base_folder_name(
 } /* lookup_before_drop_down_get_base_folder_name() */
 
 LIST *lookup_before_drop_down_get_folder_list(
-			char *application_name,
 			LIST *mto1_recursive_related_folder_list,
-			char *state,
-			char *base_folder_name )
+			char *state )
 {
 	RELATED_FOLDER *related_folder;
 	LOOKUP_BEFORE_DROP_DOWN_FOLDER *lookup_before_drop_down_folder;
@@ -141,16 +137,6 @@ LIST *lookup_before_drop_down_get_folder_list(
 
 	if ( !list_rewind( mto1_recursive_related_folder_list ) )
 		return (LIST *)0;
-
-#ifdef NOT_DEFINED
-	/* If the first one is omit, then skip. */
-	/* ------------------------------------ */
-	related_folder =
-		list_get_pointer(
-			mto1_recursive_related_folder_list );
-
-	if ( related_folder->omit_lookup_before_drop_down ) return (LIST *)0;
-#endif
 
 	if ( lookup_before_drop_down_level_zero_omit(
 		mto1_recursive_related_folder_list ) )
@@ -166,11 +152,6 @@ LIST *lookup_before_drop_down_get_folder_list(
 		related_folder =
 			list_get_pointer(
 				mto1_recursive_related_folder_list );
-
-/*
-		if ( related_folder->omit_lookup_before_drop_down )
-			continue;
-*/
 
 		if ( !related_folder->folder->lookup_before_drop_down )
 			continue;

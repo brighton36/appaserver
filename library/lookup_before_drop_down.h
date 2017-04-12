@@ -78,10 +78,8 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 		char *state );
 
 LIST *lookup_before_drop_down_get_folder_list(
-		char *application_name,
 		LIST *mto1_recursive_related_folder_list,
-		char *state,
-		char *base_folder_name );
+		char *state );
 
 void lookup_before_drop_down_with_dictionary_set_fulfilled(
 		LIST *lookup_before_drop_down_folder_list,
@@ -185,5 +183,8 @@ boolean lookup_before_drop_down_preprompt_dictionary_empty(
 void lookup_before_drop_down_mark_consecutive_mark_omit(
 			LIST *mto1_recursive_related_folder_list,
 			char *base_folder_name );
+
+boolean lookup_before_drop_down_level_zero_omit(
+			LIST *mto1_recursive_related_folder_list );
 
 #endif

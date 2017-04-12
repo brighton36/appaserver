@@ -1200,8 +1200,7 @@ DICTIONARY *output_folder_detail(
 			make_primary_keys_non_edit,
 			omit_delete_operation,
 			omit_operation_buttons,
-			update_yn,
-			lookup_unknown );
+			update_yn );
 
 	fetched_dictionary_list =
 		row_security->

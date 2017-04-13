@@ -36,23 +36,20 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_SPREADSHEET		"%s/%s/output_scatterplot_%d.csv"
-#define FTP_PREPEND_SPREADSHEET	"%s://%s/%s/output_scatterplot_%d.csv"
-#define FTP_NONPREPEND_SPREADSHEET	"/%s/output_scatterplot_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
 char *get_dependent_variable_heading(
 				char *counts_measurements,
-				char *dependent_variable_folder );
+				char *dependent_variable_folder,
+				char *vegetation_habitat );
 
 void output_covariance(		FILE *input_pipe,
 				char *independent_variable,
 				char *counts_measurements,
 				pid_t process_id,
-				char *dependent_variable_folder );
+				char *dependent_variable_folder,
+				char *vegetation_habitat );
 
 FILE *get_input_pipe(		char **independent_variable,
 				char **dependent_variable_folder,
@@ -75,12 +72,14 @@ void output_spreadsheet(	FILE *input_pipe,
 				char *sub_title,
 				char *document_root_directory,
 				char *dependent_variable_folder,
+				char *vegetation_habitat,
 				char *process_name );
 
 void output_table(		FILE *input_pipe,
 				char *independent_variable,
 				char *counts_measurements,
-				char *dependent_variable_folder );
+				char *dependent_variable_folder,
+				char *vegetation_habitat );
 
 boolean output_scatterplot(	FILE *input_pipe,
 				char *application_name,
@@ -89,7 +88,8 @@ boolean output_scatterplot(	FILE *input_pipe,
 				char *sub_title,
 				char *appaserver_mount_point,
 				pid_t process_id,
-				char *dependent_variable_folder );
+				char *dependent_variable_folder,
+				char *vegetation_habitat );
 
 boolean get_title_and_sub_title(char *title,
 				char *sub_title,
@@ -256,7 +256,8 @@ int main( int argc, char **argv )
 		output_table(	input_pipe,
 				independent_variable,
 				counts_measurements,
-				dependent_variable_folder );
+				dependent_variable_folder,
+				vegetation_habitat );
 	}
 	else
 	if ( strcmp( output_medium, "scatterplot" ) == 0 )
@@ -270,7 +271,8 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					appaserver_mount_point,
 				process_id,
-				dependent_variable_folder ) )
+				dependent_variable_folder,
+				vegetation_habitat ) )
 		{
 			printf(
 		"<h3>There was nothing selected to display.</h3>\n" );
@@ -288,6 +290,7 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					document_root,
 				dependent_variable_folder,
+				vegetation_habitat,
 				process_name );
 	}
 	else
@@ -299,14 +302,16 @@ int main( int argc, char **argv )
 				independent_variable,
 				counts_measurements,
 				process_id,
-				dependent_variable_folder );
+				dependent_variable_folder,
+				vegetation_habitat );
 	}
 	else
 	{
 		output_table(	input_pipe,
 				independent_variable,
 				counts_measurements,
-				dependent_variable_folder );
+				dependent_variable_folder,
+				vegetation_habitat );
 	}
 
 	pclose( input_pipe );
@@ -400,7 +405,8 @@ boolean get_title_and_sub_title(	char *title,
 void output_table(	FILE *input_pipe,
 			char *independent_variable,
 			char *counts_measurements,
-			char *dependent_variable_folder )
+			char *dependent_variable_folder,
+			char *vegetation_habitat )
 {
 	char input_buffer[ 1024 ];
 	FILE *output_pipe;
@@ -414,12 +420,13 @@ void output_table(	FILE *input_pipe,
 	dependent_variable_heading =
 		get_dependent_variable_heading(
 			counts_measurements,
-			dependent_variable_folder );
+			dependent_variable_folder,
+			vegetation_habitat );
 
-	sprintf(	sys_string,
+	sprintf(sys_string,
 		"html_table.e '' 'Date,Time,%s,%s' '^' left,left,right,right",
-			independent_variable,
-			dependent_variable_heading );
+		independent_variable,
+		dependent_variable_heading );
 
 	output_pipe = popen( sys_string, "w" );
 
@@ -464,6 +471,7 @@ void output_spreadsheet(FILE *input_pipe,
 			char *sub_title,
 			char *document_root_directory,
 			char *dependent_variable_folder,
+			char *vegetation_habitat,
 			char *process_name )
 {
 	char *ftp_filename;
@@ -523,15 +531,8 @@ void output_spreadsheet(FILE *input_pipe,
 	dependent_variable_heading =
 		get_dependent_variable_heading(
 			counts_measurements,
-			dependent_variable_folder );
-
-/*
-	sprintf(output_filename, 
-	 	OUTPUT_SPREADSHEET,
-	 	appaserver_mount_point,
-	 	application_name,
-	 	process_id );
-*/
+			dependent_variable_folder,
+			vegetation_habitat );
 
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
@@ -590,7 +591,8 @@ void output_covariance(	FILE *input_pipe,
 			char *independent_variable,
 			char *counts_measurements,
 			pid_t process_id,
-			char *dependent_variable_folder )
+			char *dependent_variable_folder,
+			char *vegetation_habitat )
 {
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
@@ -617,8 +619,14 @@ void output_covariance(	FILE *input_pipe,
 	dependent_variable_heading =
 		get_dependent_variable_heading(
 			counts_measurements,
-			dependent_variable_folder );
+			dependent_variable_folder,
+			vegetation_habitat );
 
+fprintf( stderr, "%s/%s()/%d: got dependent_variable_heading = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dependent_variable_heading );
 
 	sprintf( temporary_filename,
 		 "/tmp/benthic_scatterplot_%d.dat",
@@ -797,13 +805,26 @@ FILE *get_input_pipe(		char **independent_variable,
 		*independent_variable = datatype;
 		*dependent_variable_folder = "vegetation_species";
 
-		sprintf( sys_string,
-"select_environment_cross_vegetation.sh %s %s %s \"%s\" \"%s\"",
-			 application_name,
-			 begin_date_string,
-			 end_date_string,
-			 datatype,
-			 vegetation_name );
+		if ( strcmp( vegetation_habitat, "height" ) == 0 )
+		{
+			sprintf( sys_string,
+"select_environment_cross_height.sh %s %s %s \"%s\" \"%s\"",
+			 	application_name,
+			 	begin_date_string,
+			 	end_date_string,
+			 	datatype,
+			 	vegetation_name );
+		}
+		else
+		{
+			sprintf( sys_string,
+"select_environment_cross_abundance.sh %s %s %s \"%s\" \"%s\"",
+			 	application_name,
+			 	begin_date_string,
+			 	end_date_string,
+			 	datatype,
+			 	vegetation_name );
+		}
 
 		return popen( sys_string, "r" );
 	}
@@ -979,7 +1000,8 @@ boolean output_scatterplot(
 			char *sub_title,
 			char *appaserver_mount_point,
 			pid_t process_id,
-			char *dependent_variable_folder )
+			char *dependent_variable_folder,
+			char *vegetation_habitat )
 {
 	char input_buffer[ 1024 ];
 	FILE *output_pipe;
@@ -999,7 +1021,8 @@ boolean output_scatterplot(
 	dependent_variable_heading =
 		get_dependent_variable_heading(
 			counts_measurements,
-			dependent_variable_folder );
+			dependent_variable_folder,
+			vegetation_habitat );
 
 	sprintf(grace_scatterplot_output_file,
 		"/tmp/output_scatterplot_%d",
@@ -1092,14 +1115,18 @@ boolean output_scatterplot(
 
 char *get_dependent_variable_heading(
 			char *counts_measurements,
-			char *dependent_variable_folder )
+			char *dependent_variable_folder,
+			char *vegetation_habitat )
 {
 	char *dependent_variable_heading;
 
 	if ( timlib_strcmp(	dependent_variable_folder,
 				"vegetation_species" ) == 0 )
 	{
-		dependent_variable_heading = "abundance_rating";
+		if ( timlib_strcmp( vegetation_habitat, "height" ) == 0 )
+			dependent_variable_heading = "height";
+		else
+			dependent_variable_heading = "abundance_rating";
 	}
 	else
 	{

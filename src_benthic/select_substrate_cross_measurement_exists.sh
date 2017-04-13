@@ -21,7 +21,7 @@ species_measurement=$(get_table_name $application species_measurement)
 
 select="$species_measurement.anchor_date,$species_measurement.anchor_time,'1',length_millimeters"
 
-where="$species_measurement.anchor_date between '$begin_date' and '$end_date' and substrate = '$substrate' and family_name = '$family_name' genus_name = '$genus_name' and species_name = '$species_name' and $species_measurement.anchor_date = $quad_substrate.anchor_date and $species_measurement.anchor_time = $quad_substrate.anchor_time and $quad_substrate.anchor_date = $quad_replicate.anchor_date and $quad_substrate.anchor_time = $quad_replicate.anchor_time and $quad_substrate.location = $quad_replicate.location and $quad_substrate.site_number = $quad_replicate.site_number and $quad_substrate.quad = $quad_replicate.quad and closest_to_trap_yn = 'y'"
+where="$species_measurement.anchor_date between '$begin_date' and '$end_date' and substrate = '$substrate' and family_name = '$family_name' and genus_name = '$genus_name' and species_name = '$species_name' and $species_measurement.anchor_date = $quad_substrate.anchor_date and $species_measurement.anchor_time = $quad_substrate.anchor_time and $quad_substrate.anchor_date = $quad_replicate.anchor_date and $quad_substrate.anchor_time = $quad_replicate.anchor_time and $quad_substrate.location = $quad_replicate.location and $quad_substrate.site_number = $quad_replicate.site_number and $quad_substrate.quad = $quad_replicate.quad and closest_to_trap_yn = 'y'"
 
 order="$species_measurement.anchor_date,$species_measurement.anchor_time"
 

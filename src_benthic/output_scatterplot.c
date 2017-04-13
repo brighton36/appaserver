@@ -622,12 +622,6 @@ void output_covariance(	FILE *input_pipe,
 			dependent_variable_folder,
 			vegetation_habitat );
 
-fprintf( stderr, "%s/%s()/%d: got dependent_variable_heading = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dependent_variable_heading );
-
 	sprintf( temporary_filename,
 		 "/tmp/benthic_scatterplot_%d.dat",
 		 process_id );

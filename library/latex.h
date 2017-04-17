@@ -26,6 +26,12 @@ typedef struct
 
 typedef struct
 {
+	char *column_data;
+	boolean large_bold;
+} LATEX_COLUMN_DATA;
+
+typedef struct
+{
 	LIST *column_data_list;
 	boolean preceed_double_line;
 	boolean large_bold;
@@ -48,6 +54,12 @@ typedef struct
 	LIST *table_list;
 	char *logo_filename;
 } LATEX;
+
+/* Prototypes */
+/* ---------- */
+LATEX_COLUMN_DATA *latex_column_data_new(
+					char *column_data,
+					boolean large_bold );
 
 void latex_tex2pdf(			char *tex_filename,
 					char *working_directory );
@@ -126,5 +138,9 @@ void latex_output_table_vertical_padding(
 char *latex_escape_data(		char *destination,
 					char *source,
 					int buffer_size );
+
+void latex_append_column_data_list(	LIST *column_data_list,
+					char *column_data,
+					boolean large_bold );
 
 #endif

@@ -528,6 +528,34 @@ int date_get_seconds( DATE *d )
 	return d->tm->tm_sec;
 }
 
+/* ------------------------------------------------------------- */
+/* Sample input: from_date = "2017-03-01" to_date = "2017-04-16" */
+/* ------------------------------------------------------------- */
+int date_days_between(	char *from_date_string,
+			char *to_date_string )
+{
+	DATE *from_date;
+	DATE *to_date;
+	time_t difference;
+
+	if ( ! ( from_date = date_yyyy_mm_dd_new( from_date_string ) ) )
+	{
+		return 0;
+	}
+
+	if ( ! ( to_date = date_yyyy_mm_dd_new( to_date_string ) ) )
+	{
+		return 0;
+	}
+
+	difference = to_date->current - from_date->current;
+
+	date_free( from_date );
+	date_free( to_date );
+
+	return (int) (difference / SECONDS_IN_DAY);
+
+} /* date_days_between() */
 
 /* --------------------------------------------------------- */
 /* Sample input: from_date = "10/06/60" to_date = "08/04/11" */

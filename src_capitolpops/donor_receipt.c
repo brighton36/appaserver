@@ -436,23 +436,46 @@ void donor_receipt_donor(	FILE *output_stream,
 			american_date,
 			american,
 			donation_date );
-
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( american_date ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( american_date ),
+			0 /* not large_bold */ );
 
 		piece( account, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 		format_initial_capital( account, account );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( account ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( account ),
+			0 /* not large_bold */ );
 
 		piece( amount_string, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 		amount = atof( amount_string );
 		sprintf( amount_string, "\\$%.2lf", amount );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( amount_string ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( amount_string ),
+			0 /* not large_bold */ );
+
 		total_amount += amount;
 
 		row_count++;
@@ -515,13 +538,33 @@ void donor_receipt_donor(	FILE *output_stream,
 	latex_row->large_bold = 1;
 	list_append_pointer( latex_table->row_list, latex_row );
 
+/*
 	list_append_pointer( latex_row->column_data_list, strdup( "Total" ) );
 	list_append_pointer( latex_row->column_data_list, strdup( "" ) );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"Total",
+		0 /* not large_bold */ );
+
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
 
 	sprintf( amount_string, "\\$%.2lf", total_amount );
+/*
 	list_append_pointer(
 		latex_row->column_data_list,
 		strdup( amount_string ) );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_bold */ );
 
 	latex_output_table_row_list(
 		output_stream,

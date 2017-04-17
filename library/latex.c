@@ -266,7 +266,7 @@ void latex_output_table_row_list(	FILE *output_stream,
 					int heading_list_length )
 {
 	int first_time;
-	char *column_data;
+	LATEX_COLUMN_DATA *column_data;
 	LATEX_ROW *row;
 	char buffer[ 1024 ];
 	int column_count;
@@ -301,19 +301,24 @@ void latex_output_table_row_list(	FILE *output_stream,
 
 			if ( column_data )
 			{
-				if  ( row->preceed_double_line )
+				if  ( row->preceed_double_line
+				||    column_data->large_bold )
 				{
 					fprintf( output_stream,
-				 		"\\Large \\bf " );
+				 		"\\large \\bf " );
 				}
 
 
-				fprintf(output_stream,
-					"%s",
-					latex_escape_data(
-						buffer,
-						column_data,
-						1024 ) );
+				if ( column_data->column_data )
+				{
+					fprintf(output_stream,
+						"%s",
+						latex_escape_data(
+							buffer,
+							column_data->
+								column_data,
+							1024 ) );
+				}
 			}
 
 			column_count++;
@@ -670,6 +675,8 @@ char *latex_escape_data(	char *destination,
 				char *source,
 				int buffer_size )
 {
+	if ( !source ) return "";
+
 	timlib_strcpy( destination, source, buffer_size );
 
 	search_replace_string(
@@ -690,3 +697,38 @@ char *latex_escape_data(	char *destination,
 	return destination;
 
 } /* latex_escape_data() */
+
+void latex_append_column_data_list(	LIST *column_data_list,
+					char *column_data,
+					boolean large_bold )
+{
+	LATEX_COLUMN_DATA *l;
+
+	l = latex_column_data_new( column_data, large_bold );
+	list_append_pointer( column_data_list, l );
+
+} /* latex_append_column_data_list() */
+
+LATEX_COLUMN_DATA *latex_column_data_new(
+					char *column_data,
+					boolean large_bold )
+{
+	LATEX_COLUMN_DATA *l;
+
+	l = (LATEX_COLUMN_DATA *)calloc( 1, sizeof( LATEX_COLUMN_DATA ) );
+	if ( !l )
+	{
+		fprintf(	stderr,
+				"ERROR in %s/%s(): memory allocation error.\n",
+				__FILE__,
+				__FUNCTION__ );
+		exit( 1 );
+	}
+
+	l->column_data = column_data;
+	l->large_bold = large_bold;
+
+	return l;
+
+} /* latex_column_data_new() */
+

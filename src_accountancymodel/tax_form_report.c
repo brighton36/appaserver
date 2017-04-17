@@ -537,23 +537,46 @@ LIST *build_PDF_row_list( LIST *tax_form_category_list )
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			tax_form_category->tax_form_line );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			tax_form_category->tax_form_line,
+			0 /* not large_bold */ );
 
 		format_initial_capital(
 			buffer,
 			tax_form_category->tax_form_category_name );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( buffer ) );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( timlib_place_commas_in_money(
 					tax_form_category->
 						balance_sum ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( timlib_place_commas_in_money(
+					tax_form_category->
+						balance_sum ) ),
+			0 /* not large_bold */ );
 
 	} while( list_next( tax_form_category_list ) );
 
@@ -707,16 +730,33 @@ LIST *build_detail_PDF_row_list( TAX_FORM_CATEGORY *tax_form_category )
 			buffer,
 			account->account_name );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( buffer ) );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( timlib_place_commas_in_money(
 					account->
 						latest_ledger->
 						balance ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( timlib_place_commas_in_money(
+					account->
+						latest_ledger->
+						balance ) ),
+			0 /* not large_bold */ );
 
 	} while( list_next( tax_form_category->account_list ) );
 

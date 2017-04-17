@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------	*/
-/* src_accountancymodel/trial_balance.c					*/
+/* $APPASERVER_HOME/src_accountancymodel/trial_balance.c		*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -31,6 +31,7 @@
 
 /* Constants */
 /* --------- */
+#define DAYS_FOR_EMPHASIS		35
 #define ROWS_BETWEEN_HEADING		10
 #define PROMPT				"Press here to view statement."
 
@@ -856,9 +857,16 @@ LIST *build_PDF_row_list(	char *application_name,
 					*element_title = '\0';
 				}
 
+/*
 				list_append_pointer(
 					latex_row->column_data_list,
 					strdup( element_title ) );
+*/
+
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( element_title ),
+					0 /* not large_bold */ );
 
 				if ( subclassification->subclassification_name )
 				{
@@ -872,9 +880,16 @@ LIST *build_PDF_row_list(	char *application_name,
 					*subclassification_title = '\0';
 				}
 
+/*
 				list_append_pointer(
 					latex_row->column_data_list,
 					strdup( subclassification_title ) );
+*/
+
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( subclassification_title ),
+					0 /* not large_bold */ );
 
 				build_PDF_account_row(
 					latex_row->column_data_list,
@@ -903,20 +918,55 @@ LIST *build_PDF_row_list(	char *application_name,
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
 
+/*
 	list_append_pointer( latex_row->column_data_list, "Total" );
 	list_append_pointer( latex_row->column_data_list, (char *)0 );
 	list_append_pointer( latex_row->column_data_list, (char *)0 );
 	list_append_pointer( latex_row->column_data_list, (char *)0 );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"Total",
+		0 /* not large_bold */ );
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
 
 	debit_amount = timlib_place_commas_in_dollars( debit_sum );
+
+/*
 	list_append_pointer(
 		latex_row->column_data_list,
 		strdup( debit_amount ) );
+*/
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( debit_amount ),
+		0 /* not large_bold */ );
 
 	credit_amount = timlib_place_commas_in_dollars( credit_sum );
+/*
 	list_append_pointer(
 		latex_row->column_data_list,
 		strdup( credit_amount ) );
+*/
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( credit_amount ),
+		0 /* not large_bold */ );
 
 	return row_list;
 
@@ -1273,6 +1323,10 @@ void build_PDF_account_row(	LIST *column_data_list,
 	char *prior_balance_change_string;
 	double prior_balance_change;
 	char subclassification_total_ratio_string[ 16 ];
+	char *today_date_string;
+	int days_between;
+
+	today_date_string = date_get_now_yyyy_mm_dd();
 
 	*accumulate_debit =
 		ledger_account_get_accumulate_debit(
@@ -1305,9 +1359,15 @@ void build_PDF_account_row(	LIST *column_data_list,
 				latest_ledger->
 				memo );
 
+/*
 	list_append_pointer(
 		column_data_list,
 		strdup( account_title ) );
+*/
+	latex_append_column_data_list(
+		column_data_list,
+		strdup( account_title ),
+		0 /* not large_bold */ );
 
 	sprintf( transaction_count_string,
 		 "%d",
@@ -1315,9 +1375,15 @@ void build_PDF_account_row(	LIST *column_data_list,
 			latest_ledger->
 			transaction_count );
 
+/*
 	list_append_pointer(
 		column_data_list,
 		strdup( transaction_count_string ) );
+*/
+	latex_append_column_data_list(
+		column_data_list,
+		strdup( transaction_count_string ),
+		0 /* not large_bold */ );
 
 	*balance = account->latest_ledger->balance;
 
@@ -1335,23 +1401,54 @@ void build_PDF_account_row(	LIST *column_data_list,
 		*accumulate_debit = 1 - *accumulate_debit;
 	}
 
+	days_between =
+		date_days_between(
+			transaction_date_string,
+			today_date_string );
+
 	if ( *accumulate_debit )
 		debit_string = timlib_place_commas_in_dollars( *balance );
 	else
 		debit_string = "";
 
+/*
 	list_append_pointer(
 		column_data_list,
 		strdup( debit_string ) );
+*/
+	latex_append_column_data_list(
+		column_data_list,
+		strdup( debit_string ),
+		(days_between <= DAYS_FOR_EMPHASIS) /* large_bold */ );
 
 	if ( !*accumulate_debit )
 		credit_string = timlib_place_commas_in_dollars( *balance );
 	else
 		credit_string = "";
-
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: account_name = (%s), transaction_date_string = (%s), debit_string = (%s), credit_string = (%s), days_between = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+account->account_name,
+transaction_date_string,
+debit_string,
+credit_string,
+days_between );
+m2( application_name, msg );
+}
+*/
+/*
 	list_append_pointer(
 		column_data_list,
 		strdup( credit_string ) );
+*/
+	latex_append_column_data_list(
+		column_data_list,
+		strdup( credit_string ),
+		(days_between <= DAYS_FOR_EMPHASIS) /* large_bold */ );
 
 	/* Set prior_balance_change (maybe) */
 	/* -------------------------------- */
@@ -1367,10 +1464,18 @@ void build_PDF_account_row(	LIST *column_data_list,
 
 		sprintf( buffer, "$\\Delta$%s", prior_balance_change_string );
 
+/*
 		list_append_pointer(
 			column_data_list,
 			strdup( buffer ) );
+*/
+		latex_append_column_data_list(
+			column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
 	}
+
 	/* Set subclassification_total ratio (maybe) */
 	/* ----------------------------------------- */
 	if ( !timlib_dollar_virtually_same(
@@ -1382,9 +1487,15 @@ void build_PDF_account_row(	LIST *column_data_list,
 			 (*balance / subclassification_total) * 100.0,
 			 '%' );
 
+/*
 		list_append_pointer(
 			column_data_list,
 			strdup( subclassification_total_ratio_string ) );
+*/
+		latex_append_column_data_list(
+			column_data_list,
+			strdup( subclassification_total_ratio_string ),
+			0 /* not large_bold */ );
 	}
 
 

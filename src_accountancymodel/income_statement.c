@@ -1109,9 +1109,17 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 	/* ---------- */
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
+
+/*
 	list_append_pointer(
 		latex_row->column_data_list,
 		"" );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( "" ),
+		0 /* not large_bold */ );
 
 	list_append_pointer(
 		row_list,
@@ -1234,9 +1242,17 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 	/* ---------- */
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
+
+/*
 	list_append_pointer(
 		latex_row->column_data_list,
 		"" );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( "" ),
+		0 /* not large_bold */ );
 
 	list_append_pointer(	row_list,
 				ledger_get_latex_net_income_row(

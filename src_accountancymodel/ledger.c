@@ -1155,19 +1155,51 @@ LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 
 	latex_row = latex_new_latex_row();
 
+/*
 	list_append_pointer(
 		latex_row->column_data_list,
 		"\\Large \\bf Liabilities Plus Equity" );
+*/
 
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( "Liabilities Plus Equity" ),
+		1 /* large_bold */ );
+
+/*
 	list_append_pointer( latex_row->column_data_list, "" );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( "" ),
+		0 /* not large_bold */ );
 
 	if ( !aggregate_subclassification )
+	{
+/*
 		list_append_pointer( latex_row->column_data_list, "" );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+	}
+
+/*
 	list_append_pointer(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   liabilities_plus_equity ) ) );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( place_commas_in_money(
+			   liabilities_plus_equity ) ),
+		0 /* not large_bold */ );
 
 	return latex_row;
 
@@ -1183,23 +1215,51 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 
 	if ( is_statement_of_activities )
 	{
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"\\bf Change in Net Assets" );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"\\bf Change in Net Assets",
+			0 /* not large_bold */ );
 	}
 	else
 	{
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"\\bf Net Income" );
+*/
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"\\bf Net Income",
+			0 /* not large_bold */ );
 	}
 
+/*
 	list_append_pointer( latex_row->column_data_list, "" );
+*/
 
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+/*
 	list_append_pointer(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   net_income ) ) );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( place_commas_in_money(
+			   net_income ) ),
+		0 /* not large_bold */ );
 
 	return latex_row;
 
@@ -1215,24 +1275,58 @@ LATEX_ROW *ledger_get_latex_net_income_row(
 
 	if ( is_statement_of_activities )
 	{
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"\\Large \\bf Change in Net Assets" );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"Change in Net Assets",
+			1 /* not large_bold */ );
 	}
 	else
 	{
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"\\Large \\bf Net Income" );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"Net Income",
+			1 /* not large_bold */ );
 	}
 
+/*
 	list_append_pointer( latex_row->column_data_list, "" );
 	list_append_pointer( latex_row->column_data_list, "" );
+*/
 
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+/*
 	list_append_pointer(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   net_income ) ) );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( place_commas_in_money(
+			   net_income ) ),
+		0 /* not large_bold */ );
 
 	return latex_row;
 
@@ -1270,11 +1364,20 @@ LIST *ledger_get_subclassification_latex_row_list(
 			 "\\large \\bf %s",
 			 element_name );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
 					format_buffer ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ),
+			0 /* not large_bold */ );
 
 		first_time = 0;
 
@@ -1315,11 +1418,20 @@ LIST *ledger_get_subclassification_latex_row_list(
 				 "\\large \\bf %s",
 				 element_name );
 
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						format_buffer ) ) );
+*/
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						format_buffer ) ),
+				0 /* not large_bold */ );
 
 			first_time = 0;
 		}
@@ -1366,16 +1478,33 @@ LIST *ledger_get_subclassification_latex_row_list(
 			 	 subclassification->
 					subclassification_name );
 
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						format_buffer ) ) );
+*/
 
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						format_buffer ) ),
+				0 /* not large_bold */ );
+
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( place_commas_in_money(
 					   subclassification_amount ) ) );
+*/
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( place_commas_in_money(
+					   subclassification_amount ) ),
+				0 /* not large_bold */ );
 		}
 
 	} while( list_next( subclassification_list ) );
@@ -1403,26 +1532,55 @@ LIST *ledger_get_subclassification_latex_row_list(
 
 		 format_initial_capital( format_buffer, format_buffer );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( format_buffer ) );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( format_buffer ),
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"" );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   *total_element ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   *total_element ) ),
+			0 /* not large_bold */ );
 
 		/* Blank line */
 		/* ---------- */
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"" );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
 	}
 
 	return row_list;
@@ -1493,14 +1651,29 @@ LIST *ledger_get_subclassification_beginning_latex_row_list(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( LEDGER_BEGINNING_BALANCE_LABEL ) );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			LEDGER_BEGINNING_BALANCE_LABEL,
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   subclassification_amount ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   subclassification_amount ) ),
+			0 /* not large_bold */ );
 
 		return row_list;
 
@@ -1541,11 +1714,20 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 			 "\\large \\bf %s",
 			 element_name );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
 					format_buffer ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ),
+			0 /* not large_bold */ );
 
 		first_time = 0;
 
@@ -1586,11 +1768,20 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				 "\\large \\bf %s",
 				 element_name );
 
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						format_buffer ) ) );
+*/
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						format_buffer ) ),
+				0 /* not large_bold */ );
 
 			first_time = 0;
 		}
@@ -1605,11 +1796,20 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				 subclassification->
 					subclassification_name );
 
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						format_buffer ) ) );
+*/
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						format_buffer ) ),
+				0 /* not large_bold */ );
 		}
 
 		subclassification_amount = 0.0;
@@ -1646,17 +1846,35 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				latex_row = latex_new_latex_row();
 				list_append_pointer( row_list, latex_row );
 
+/*
 				list_append_pointer(
 					latex_row->column_data_list,
 					strdup( format_initial_capital(
 							format_buffer,
 							account->
 							    account_name ) ) );
+*/
 
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( format_initial_capital(
+							format_buffer,
+							account->
+							    account_name ) ),
+					0 /* not large_bold */ );
+
+/*
 				list_append_pointer(
 					latex_row->column_data_list,
 					strdup( place_commas_in_money(
 					   	latest_ledger_balance ) ) );
+*/
+
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( place_commas_in_money(
+					   	     latest_ledger_balance ) ),
+					0 /* not large_bold */ );
 			}
 	
 			*total_element += latest_ledger_balance;
@@ -1699,20 +1917,44 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 						subclassification_name );
 			}
 
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						format_buffer ) ) );
+*/
 
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						format_buffer ) ),
+				0 /* not large_bold */ );
+
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				"" );
+*/
 
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				"",
+				0 /* not large_bold */ );
+
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( place_commas_in_money(
 					   subclassification_amount ) ) );
+*/
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( place_commas_in_money(
+					   subclassification_amount ) ),
+				0 /* not large_bold */ );
 		}
 
 	} while( list_next( subclassification_list ) );
@@ -1740,30 +1982,65 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 
 		 format_initial_capital( format_buffer, format_buffer );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( format_buffer ) );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( format_buffer ),
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"" );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"" );
+*/
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   *total_element ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   *total_element ) ),
+			0 /* not large_bold */ );
 
 		/* Blank line */
 		/* ---------- */
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"" );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
 	}
 
 	return row_list;
@@ -1813,11 +2090,20 @@ LIST *ledger_get_beginning_balance_latex_row_list(
 				 subclassification->
 					subclassification_name );
 
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						format_buffer ) ) );
+*/
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						format_buffer ) ),
+				0 /* not large_bold */ );
 		}
 
 		subclassification_amount = 0.0;
@@ -1846,17 +2132,35 @@ LIST *ledger_get_beginning_balance_latex_row_list(
 			latex_row = latex_new_latex_row();
 			list_append_pointer( row_list, latex_row );
 
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						account->
 						    account_name ) ) );
+*/
 
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						account->
+						    account_name ) ),
+				0 /* not large_bold */ );
+
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( place_commas_in_money(
 				   	latest_ledger_balance ) ) );
+*/
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( place_commas_in_money(
+				   	latest_ledger_balance ) ),
+				0 /* not large_bold */ );
 	
 			*total_element += latest_ledger_balance;
 
@@ -1872,20 +2176,44 @@ LIST *ledger_get_beginning_balance_latex_row_list(
 			 "\\bf %s",
 			 LEDGER_BEGINNING_BALANCE_LABEL );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
 					format_buffer ) ) );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ),
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			"" );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   subclassification_amount ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   subclassification_amount ) ),
+			0 /* not large_bold */ );
 
 		return row_list;
 

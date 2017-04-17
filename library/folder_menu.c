@@ -246,7 +246,7 @@ char *folder_menu_get_filename(
 
 } /* folder_menu_get_filename() */
 
-boolean folder_menu_remove_file(
+void folder_menu_remove_file(
 				char *application_name,
 				char *session,
 				char *appaserver_data_directory,

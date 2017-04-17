@@ -28,6 +28,7 @@ GOOGLE_CHART *google_chart_new(
 				char *google_package_name )
 {
 	GOOGLE_CHART *google_chart;
+	static int chart_number = 0;
 
 	google_chart =
 		(GOOGLE_CHART *)
@@ -44,6 +45,8 @@ GOOGLE_CHART *google_chart_new(
 	google_chart->xaxis_list = list_new();
 	google_chart->google_datatype_name_list = list_new();
 	google_chart->google_package_name = google_package_name;
+	google_chart->chart_number = ++chart_number;
+
 	return google_chart;
 
 } /* google_chart_new() */
@@ -342,7 +345,7 @@ char *google_chart_convert_date(	char *destination,
 
 } /* google_chart_convert_date() */
 
-void google_chart_output_draw_visualization_function(
+void google_chart_output_visualization_function(
 				FILE *output_file,
 				enum google_chart_type google_chart_type,
 				char *xaxis_datatype_name,
@@ -350,8 +353,6 @@ void google_chart_output_draw_visualization_function(
 				LIST *google_datatype_name_list,
 				char *title,
 				char *yaxis_label,
-				int left,
-				int top,
 		 		int width,
 		 		int height,
 		 		char *background_color,
@@ -359,7 +360,8 @@ void google_chart_output_draw_visualization_function(
 				boolean chart_type_bar,
 				char *google_package_name,
 				boolean dont_display_range_selector,
-				enum aggregate_level aggregate_level )
+				enum aggregate_level aggregate_level,
+				int chart_number )
 {
 	GOOGLE_CHART_XAXIS *xaxis;
 	int offset;
@@ -370,12 +372,11 @@ void google_chart_output_draw_visualization_function(
 	char *legend_position_bottom_string;
 	char *google_chart_instantiation;
 	char *first_column_datatype;
-	static int name_key = 0;
 	char draw_visualization_function_name[ 128 ];
 
 	sprintf( draw_visualization_function_name,
 		 "drawVisualization%d",
-		 ++name_key );
+		 chart_number );
 
 	if ( ! ( length_datatype_name_list =
 			list_length( google_datatype_name_list ) ) )
@@ -471,9 +472,6 @@ void google_chart_output_draw_visualization_function(
 	do {
 		xaxis = list_get_pointer( xaxis_list );
 
-/*
-		if ( strcmp( google_package_name, "annotatedtimeline" ) == 0 )
-*/
 		if ( strcmp(	google_package_name,
 				GOOGLE_ANNOTATED_TIMELINE ) == 0 )
 		{
@@ -559,77 +557,6 @@ void google_chart_output_draw_visualization_function(
 		background_color,
 		legend_position_bottom_string );
 
-
-/*
-	if ( google_chart_type == google_time_line )
-	{
-		if ( dont_display_range_selector )
-		{
-			fprintf( output_file,
-"	var options = {\n"
-"		displayRangeSelector: false,\n"
-"		displayZoomButtons: false\n"
-"	};\n"
-"\n"
-				);
-		}
-		else
-		{
-			fprintf( output_file,
-"	var options = {\n"
-"		vAxis: {title: \"%s\"}\n"
-"	};\n"
-"\n",
-				 yaxis_label );
-		}
-	}
-	else
-	if ( google_chart_type == google_cat_whiskers )
-	{
-		fprintf( output_file,
-"	var options = {\n"
-"		series: [\n"
-"		{color: 'blue',	visibleInLegend: true},\n"
-"		{color: 'red',	visibleInLegend: true}\n"
-"			],\n"
-"		title: '%s',\n"
-"		width: %d,\n"
-"		height: %d,\n"
-"		vAxis: {title: \"%s\"},\n"
-"		backgroundColor: '%s',\n"
-"		legend: { position: '%s' }\n"
-"	};\n"
-"\n",
-		 	title,
-		 	width,
-		 	height,
-		 	yaxis_label,
-		 	background_color,
-		 	legend_position_bottom_string );
-	}
-	else
-	{
-		fprintf( output_file,
-"	var options = {\n"
-"		title: '%s',\n"
-"		width: %d,\n"
-"		height: %d,\n"
-"		vAxis: {title: \"%s\"},\n"
-"		%s\n"
-"		backgroundColor: '%s',\n"
-"		legend: { position: '%s' }\n"
-"	};\n"
-"\n",
-		 	title,
-		 	width,
-		 	height,
-		 	yaxis_label,
-		 	chart_type_string,
-		 	background_color,
-		 	legend_position_bottom_string );
-	}
-*/
-
 	if ( google_chart_type == google_column_chart )
 		google_chart_instantiation = "ColumnChart";
 	else
@@ -655,13 +582,14 @@ void google_chart_output_draw_visualization_function(
 "	chart.draw(data, options);\n"
 "}\n",
 		google_chart_instantiation,
-		name_key );
+		chart_number );
 
 	fprintf( output_file,
 "google.setOnLoadCallback(%s);\n"
 "</script>\n",
 		 draw_visualization_function_name );
 
+/*
 	if ( title
 	&&   *title
 	&&   strcmp(	google_package_name,
@@ -695,8 +623,54 @@ void google_chart_output_draw_visualization_function(
 		 name_key,
 		 width,
 		 height );
+*/
 
-} /* google_chart_output_draw_visualization_function() */
+} /* google_chart_output_visualization_function() */
+
+void google_chart_output_body(	FILE *output_file,
+				char *title,
+				char *google_package_name,
+				int left,
+				int top,
+				int width,
+				int height,
+				int chart_number )
+{
+	if ( title
+	&&   *title
+	&&   strcmp(	google_package_name,
+			GOOGLE_ANNOTATED_TIMELINE ) == 0 )
+	{
+		fprintf( output_file,
+"<div style=\"	position: absolute;	\n"
+"		left: %dpx;		\n"
+"		top: %dpx;		\n"
+"		font-size: 16px\">	\n"
+"%s</div>\n",
+			 left,
+			 top,
+			 title );
+		top += 20;
+	}
+
+	fprintf( output_file,
+"<div style=\"position: absolute;\n"
+"	left: %dpx;\n"
+"	top: %dpx;\n"
+"	width: %dpx;\n"
+"	border-width: thin;\n"
+"	border-style: solid;\n"
+"	border-color: teal\" >\n"
+"	<div id=\"chart_div%d\" style=\"width: %dpx; height: %dpx\"></div>\n"
+"</div>\n",
+		 left,
+		 top,
+		 width,
+		 chart_number,
+		 width,
+		 height );
+
+} /* google_chart_output_body() */
 
 void google_chart_output_prompt(
 			char *application_name,
@@ -770,17 +744,6 @@ void google_chart_output_options(
 	{
 		if ( got_one ) fprintf( output_file, ",\n" );
 
-/*
-		fprintf( output_file,
-"		vAxis: {title: \"%s\",\n"
-"			viewWindowMode:'explicit',\n"
-"			viewWindow: {\n"
-"			max:50,\n"
-"			min:0\n"
-"			}\n"
-"		}",
-			 yaxis_label );
-*/
 		fprintf( output_file,
 "		vAxis: {title: \"%s\"}",
 			 yaxis_label );

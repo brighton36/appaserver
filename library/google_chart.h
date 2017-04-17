@@ -50,6 +50,7 @@ typedef struct
 	LIST *xaxis_list;
 	LIST *google_datatype_name_list;
 	char *google_package_name;
+	int chart_number;
 } GOOGLE_CHART;
 
 /* Prototypes */
@@ -104,7 +105,7 @@ void google_chart_display(		char *xaxis_datatype_name,
 
 void google_chart_output_include(	FILE *output_file );
 
-void google_chart_output_draw_visualization_function(
+void google_chart_output_visualization_function(
 				FILE *output_file,
 				enum google_chart_type google_chart_type,
 				char *xaxis_datatype_name,
@@ -112,8 +113,6 @@ void google_chart_output_draw_visualization_function(
 				LIST *google_datatype_name_list,
 				char *title,
 				char *yaxis_label,
-				int left,
-				int top,
 		 		int width,
 		 		int height,
 		 		char *background_color,
@@ -121,7 +120,17 @@ void google_chart_output_draw_visualization_function(
 				boolean chart_type_bar,
 				char *google_package_name,
 				boolean dont_display_range_selector,
-				enum aggregate_level );
+				enum aggregate_level,
+				int chart_number );
+
+void google_chart_output_body(	FILE *output_file,
+				char *title,
+				char *google_package_name,
+				int left,
+				int top,
+				int width,
+				int height,
+				int chart_number );
 
 void google_chart_append_delimited_string_xaxis(
 				LIST *xaxis_list,

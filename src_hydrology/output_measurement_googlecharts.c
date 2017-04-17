@@ -691,9 +691,12 @@ if ( bar_chart ){};
 		return;
 	}
 
+	fprintf( output_file, "<html>\n" );
+	fprintf( output_file, "<head>\n" );
+
 	google_chart_output_include( output_file );
 
-	google_chart_output_draw_visualization_function(
+	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
 				google_chart->xaxis_datatype_name,
@@ -701,8 +704,6 @@ if ( bar_chart ){};
 				google_chart->google_datatype_name_list,
 				chart_title,
 				yaxis_label,
-				google_chart->left,
-				google_chart->top,
 				google_chart->width,
 				google_chart->height,
 				google_chart->background_color,
@@ -710,7 +711,24 @@ if ( bar_chart ){};
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
 				0 /* not dont_display_range_selector */,
-				aggregate_level );
+				aggregate_level,
+				google_chart->chart_number );
+
+	fprintf( output_file, "</head>\n" );
+	fprintf( output_file, "<body>\n" );
+
+	google_chart_output_body(
+				output_file,
+				chart_title,
+				google_chart->google_package_name,
+				google_chart->left,
+				google_chart->top,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
+
+	fprintf( output_file, "</body>\n" );
+	fprintf( output_file, "</html>\n" );
 
 	fclose( output_file );
 

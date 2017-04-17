@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	make pad_missing_times.e
+	cd ../src_hydrology
+	make output_current_vs_historical
 fi

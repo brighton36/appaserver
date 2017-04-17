@@ -1069,7 +1069,9 @@ boolean output_historical_long_term(
 				datatype_name,
 				units );
 
+/*
 		google_chart->google_chart_type = google_cat_whiskers;
+*/
 	}
 
 	google_datatype_name_display_list =
@@ -1080,7 +1082,7 @@ boolean output_historical_long_term(
 
 	google_chart_output_include( output_file );
 
-	google_chart_output_draw_visualization_function(
+	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
 				google_chart->xaxis_datatype_name,
@@ -1088,8 +1090,6 @@ boolean output_historical_long_term(
 				google_datatype_name_display_list,
 				"" /* title */,
 				strdup( yaxis_label ),
-				google_chart->left,
-				google_chart->top,
 				google_chart->width,
 				google_chart->height,
 				google_chart->background_color,
@@ -1097,7 +1097,18 @@ boolean output_historical_long_term(
 				1 /* chart_type_bar */,
 				google_chart->google_package_name,
 				0 /* not dont_display_range_selector */,
-				daily /* aggregate_level */ );
+				daily /* aggregate_level */,
+				google_chart->chart_number );
+
+	google_chart_output_body(
+				output_file,
+				"" /* chart_title */,
+				google_chart->google_package_name,
+				google_chart->left,
+				google_chart->top,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
 
 	return 1;
 
@@ -1165,8 +1176,8 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 			google_column_chart,
 			"Month",
 			LOCAL_CHART_POSITION_LEFT,
-			GOOGLE_CHART_POSITION_TOP,
-			GOOGLE_CHART_WIDTH,
+			LOCAL_CHART_POSITION_TOP,
+			LOCAL_CHART_WIDTH,
 			HISTORICAL_CHART_HEIGHT,
 			GOOGLE_CHART_BACKGROUND_COLOR,
 			0 /* not legend_position_bottom */,
@@ -1179,6 +1190,7 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 				datatype_name,
 				AGGREGATION_SUM,
 				LONG_TERM_CURRENT );
+
 		list_append_pointer(
 			google_chart->google_datatype_name_list,
 			datatype_aggregation_name );
@@ -1188,6 +1200,7 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 				datatype_name,
 				AGGREGATION_SUM,
 				LONG_TERM_HISTORICAL );
+
 		list_append_pointer(
 			google_chart->google_datatype_name_list,
 			datatype_aggregation_name );
@@ -1197,35 +1210,9 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 		datatype_aggregation_name =
 			get_datatype_aggregation_name(
 				datatype_name,
-				AGGREGATION_MIN,
-				LONG_TERM_CURRENT );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
-
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
 				AGGREGATION_AVG,
 				LONG_TERM_CURRENT );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
 
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_MAX,
-				LONG_TERM_CURRENT );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
-
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_MIN,
-				LONG_TERM_HISTORICAL );
 		list_append_pointer(
 			google_chart->google_datatype_name_list,
 			datatype_aggregation_name );
@@ -1235,6 +1222,57 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 				datatype_name,
 				AGGREGATION_AVG,
 				LONG_TERM_HISTORICAL );
+
+		list_append_pointer(
+			google_chart->google_datatype_name_list,
+			datatype_aggregation_name );
+/*
+		datatype_aggregation_name =
+			get_datatype_aggregation_name(
+				datatype_name,
+				AGGREGATION_MIN,
+				LONG_TERM_CURRENT );
+
+		list_append_pointer(
+			google_chart->google_datatype_name_list,
+			datatype_aggregation_name );
+
+		datatype_aggregation_name =
+			get_datatype_aggregation_name(
+				datatype_name,
+				AGGREGATION_AVG,
+				LONG_TERM_CURRENT );
+
+		list_append_pointer(
+			google_chart->google_datatype_name_list,
+			datatype_aggregation_name );
+
+		datatype_aggregation_name =
+			get_datatype_aggregation_name(
+				datatype_name,
+				AGGREGATION_MAX,
+				LONG_TERM_CURRENT );
+
+		list_append_pointer(
+			google_chart->google_datatype_name_list,
+			datatype_aggregation_name );
+
+		datatype_aggregation_name =
+			get_datatype_aggregation_name(
+				datatype_name,
+				AGGREGATION_MIN,
+				LONG_TERM_HISTORICAL );
+
+		list_append_pointer(
+			google_chart->google_datatype_name_list,
+			datatype_aggregation_name );
+
+		datatype_aggregation_name =
+			get_datatype_aggregation_name(
+				datatype_name,
+				AGGREGATION_AVG,
+				LONG_TERM_HISTORICAL );
+
 		list_append_pointer(
 			google_chart->google_datatype_name_list,
 			datatype_aggregation_name );
@@ -1244,10 +1282,11 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 				datatype_name,
 				AGGREGATION_MAX,
 				LONG_TERM_HISTORICAL );
+
 		list_append_pointer(
 			google_chart->google_datatype_name_list,
 			datatype_aggregation_name );
-
+*/
 	}
 
 	google_chart_append_delimited_string_xaxis(
@@ -1533,7 +1572,7 @@ void output_current(	FILE *output_file,
 
 	google_chart_output_include( output_file );
 
-	google_chart_output_draw_visualization_function(
+	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
 				google_chart->xaxis_datatype_name,
@@ -1541,8 +1580,6 @@ void output_current(	FILE *output_file,
 				google_chart->google_datatype_name_list,
 				"" /* title */,
 				strdup( yaxis_label ),
-				google_chart->left,
-				google_chart->top,
 				google_chart->width,
 				google_chart->height,
 				google_chart->background_color,
@@ -1550,7 +1587,18 @@ void output_current(	FILE *output_file,
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
 				0 /* not dont_display_range_selector */,
-				daily /* aggregate_level */ );
+				daily /* aggregate_level */,
+				google_chart->chart_number );
+
+	google_chart_output_body(
+				output_file,
+				"" /* chart_title */,
+				google_chart->google_package_name,
+				google_chart->left,
+				google_chart->top,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
 
 } /* output_current() */
 
@@ -1726,7 +1774,7 @@ void output_historical_current(
 
 	google_chart_output_include( output_file );
 
-	google_chart_output_draw_visualization_function(
+	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
 				google_chart->xaxis_datatype_name,
@@ -1734,8 +1782,6 @@ void output_historical_current(
 				google_chart->google_datatype_name_list,
 				"" /* title */,
 				strdup( yaxis_label ),
-				google_chart->left,
-				google_chart->top,
 				google_chart->width,
 				google_chart->height,
 				google_chart->background_color,
@@ -1743,7 +1789,18 @@ void output_historical_current(
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
 				1 /* dont_display_range_selector */,
-				daily /* aggregate_level */ );
+				daily /* aggregate_level */,
+				google_chart->chart_number );
+
+	google_chart_output_body(
+				output_file,
+				"" /* chart_title */,
+				google_chart->google_package_name,
+				google_chart->left,
+				google_chart->top,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
 
 } /* output_historical_current() */
 
@@ -1761,8 +1818,8 @@ GOOGLE_CHART *get_google_historical_current_chart(
 		    google_time_line,
 		    "Date",
 		     LOCAL_CHART_POSITION_LEFT + 140,
-		     GOOGLE_CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
-		     GOOGLE_CHART_WIDTH - 280,
+		     LOCAL_CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
+		     LOCAL_CHART_WIDTH - 280,
 		     HISTORICAL_CHART_HEIGHT / 3,
 		     GOOGLE_CHART_BACKGROUND_COLOR,
 		     0 /* not legend_position_bottom */,

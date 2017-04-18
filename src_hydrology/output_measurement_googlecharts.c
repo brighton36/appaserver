@@ -578,7 +578,6 @@ if ( date_piece ){};
 	google_chart =
 		google_chart_new(
 			google_time_line,
-			"Date" /* xaxis_datatype_name */,
 			GOOGLE_CHART_POSITION_LEFT,
 			GOOGLE_CHART_POSITION_TOP,
 			GOOGLE_CHART_WIDTH,
@@ -691,6 +690,9 @@ if ( bar_chart ){};
 		return;
 	}
 
+	google_chart_display(	google_chart->xaxis_list,
+				google_chart->google_datatype_name_list );
+
 	fprintf( output_file, "<html>\n" );
 	fprintf( output_file, "<head>\n" );
 
@@ -699,7 +701,6 @@ if ( bar_chart ){};
 	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
-				google_chart->xaxis_datatype_name,
 				google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				chart_title,

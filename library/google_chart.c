@@ -18,7 +18,6 @@
 
 GOOGLE_CHART *google_chart_new(
 				enum google_chart_type google_chart_type,
-				char *xaxis_datatype_name,
 				int left,
 				int top,
 				int width,
@@ -35,14 +34,14 @@ GOOGLE_CHART *google_chart_new(
 			calloc( 1, sizeof( GOOGLE_CHART ) );
 
 	google_chart->google_chart_type = google_chart_type;
-	google_chart->xaxis_datatype_name = xaxis_datatype_name;
 	google_chart->left = left;
 	google_chart->top = top;
 	google_chart->width = width;
 	google_chart->height = height;
 	google_chart->background_color = background_color;
 	google_chart->legend_position_bottom = legend_position_bottom;
-	google_chart->xaxis_list = list_new();
+	google_chart->barchart_list = list_new();
+	google_chart->timeline_list = list_new();
 	google_chart->google_datatype_name_list = list_new();
 	google_chart->google_package_name = google_package_name;
 	google_chart->chart_number = ++chart_number;
@@ -246,8 +245,7 @@ void google_chart_set_point(	LIST *xaxis_list,
 
 } /* google_chart_set_point() */
 
-void google_chart_display(	char *xaxis_datatype_name,
-				LIST *xaxis_list,
+void google_chart_display(	LIST *xaxis_list,
 				LIST *google_datatype_name_list )
 {
 	GOOGLE_CHART_XAXIS *xaxis;
@@ -256,29 +254,34 @@ void google_chart_display(	char *xaxis_datatype_name,
 
 	length_datatype_name_list = list_length( google_datatype_name_list );
 
-	printf( "%s,%s\n",
-		xaxis_datatype_name,
+	fprintf(stderr,
+		"google_datatype_name_list = %s\n",
 		list_display( google_datatype_name_list ) );
 
 	if ( !list_rewind( xaxis_list ) ) return;
 
 	do {
 		xaxis = list_get_pointer( xaxis_list );
-		printf( "%s", xaxis->xaxis_label );
+		fprintf( stderr, "xaxis_label = %s", xaxis->xaxis_label );
+		fprintf( stderr, ",hhmm = %s", xaxis->hhmm );
 
 		for( offset = 0; offset < length_datatype_name_list; offset++ )
 		{
 			if ( xaxis->point_array[ offset ] )
 			{
-				printf(	",%.3lf",
+				fprintf(stderr,
+					", *point_array[%d] = %.3lf",
+					offset,
 					*xaxis->point_array[ offset ] );
 			}
 			else
 			{
-				printf(	",0.0" );
+				fprintf(stderr,
+					", *point_array[%d] is empty",
+					offset );
 			}
 		}
-		printf( "\n" );
+		fprintf( stderr, "\n" );
 
 	} while( list_next( xaxis_list ) );
 
@@ -348,7 +351,6 @@ char *google_chart_convert_date(	char *destination,
 void google_chart_output_visualization_function(
 				FILE *output_file,
 				enum google_chart_type google_chart_type,
-				char *xaxis_datatype_name,
 				LIST *xaxis_list,
 				LIST *google_datatype_name_list,
 				char *title,
@@ -382,7 +384,7 @@ void google_chart_output_visualization_function(
 			list_length( google_datatype_name_list ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: empty google_datatype_name_list.\n",
+		"ERROR in %s/%s()/%d: empty google_datatype_name_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -429,10 +431,9 @@ void google_chart_output_visualization_function(
 "{\n"
 "	var data = new google.visualization.DataTable();\n"
 "\n"
-"	data.addColumn('%s', '%s');\n",
+"	data.addColumn('%s', '');\n",
 		draw_visualization_function_name,
-		first_column_datatype,
-		format_initial_capital( buffer, xaxis_datatype_name ) );
+		first_column_datatype );
 
 	offset = 0;
 	list_rewind( google_datatype_name_list );
@@ -466,7 +467,7 @@ void google_chart_output_visualization_function(
 		exit( 1 );
 	}
 
-		fprintf( output_file,
+	fprintf( output_file,
 "	data.addRows([\n" );
 
 	do {

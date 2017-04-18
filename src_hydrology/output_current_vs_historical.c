@@ -1080,12 +1080,14 @@ boolean output_historical_long_term(
 
 	format_initial_capital( yaxis_label, yaxis_label );
 
+	google_chart_display(	google_chart->xaxis_list,
+				google_chart->google_datatype_name_list );
+
 	google_chart_output_include( output_file );
 
 	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
-				google_chart->xaxis_datatype_name,
 				google_chart->xaxis_list,
 				google_datatype_name_display_list,
 				"" /* title */,
@@ -1125,7 +1127,6 @@ GOOGLE_CHART *get_google_current_chart(
 	google_chart =
 		google_chart_new(
 			google_time_line,
-			"Date" /* xaxis_datatype_name */,
 			LOCAL_CHART_POSITION_LEFT,
 			LOCAL_CHART_POSITION_TOP,
 			LOCAL_CHART_WIDTH,
@@ -1174,7 +1175,6 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 	google_chart =
 		google_chart_new(
 			google_column_chart,
-			"Month",
 			LOCAL_CHART_POSITION_LEFT,
 			LOCAL_CHART_POSITION_TOP,
 			LOCAL_CHART_WIDTH,
@@ -1575,7 +1575,6 @@ void output_current(	FILE *output_file,
 	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
-				google_chart->xaxis_datatype_name,
 				google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"" /* title */,
@@ -1770,6 +1769,7 @@ void output_historical_current(
 			"Daily %s %s",
 			(bar_chart) ? "Sum" : "Average",
 			datatype_name );
+
 	format_initial_capital( yaxis_label, yaxis_label );
 
 	google_chart_output_include( output_file );
@@ -1777,7 +1777,6 @@ void output_historical_current(
 	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
-				google_chart->xaxis_datatype_name,
 				google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"" /* title */,
@@ -1816,7 +1815,6 @@ GOOGLE_CHART *get_google_historical_current_chart(
 	google_chart =
 		google_chart_new(
 		    google_time_line,
-		    "Date",
 		     LOCAL_CHART_POSITION_LEFT + 140,
 		     LOCAL_CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
 		     LOCAL_CHART_WIDTH - 280,

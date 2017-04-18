@@ -42,7 +42,7 @@ GOOGLE_CHART *google_chart_new(
 	google_chart->legend_position_bottom = legend_position_bottom;
 	google_chart->barchart_list = list_new();
 	google_chart->timeline_list = list_new();
-	google_chart->google_datatype_name_list = list_new();
+	google_chart->datatype_name_list = list_new();
 	google_chart->google_package_name = google_package_name;
 	google_chart->chart_number = ++chart_number;
 
@@ -50,18 +50,17 @@ GOOGLE_CHART *google_chart_new(
 
 } /* google_chart_new() */
 
-GOOGLE_CHART_XAXIS *google_chart_xaxis_new(
-				char *xaxis_label,
-				char *hhmm,
+GOOGLE_BARCHART *google_barchart_new(
+				char *datatype_name,
 				int length_datatype_name_list )
 {
-	GOOGLE_CHART_XAXIS *google_chart_xaxis;
+	GOOGLE_BARCHART *google_barchart;
 
-	google_chart_xaxis =
-		(GOOGLE_CHART_XAXIS *)
-			calloc( 1, sizeof( GOOGLE_CHART_XAXIS ) );
+	google_barchart =
+		(GOOGLE_BARCHART *)
+			calloc( 1, sizeof( GOOGLE_BARCHART ) );
 
-	if ( !google_chart_xaxis )
+	if ( !google_barchart )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -71,89 +70,169 @@ GOOGLE_CHART_XAXIS *google_chart_xaxis_new(
 		exit( 1 );
 	}
 
-	google_chart_xaxis->xaxis_label = xaxis_label;
-	google_chart_xaxis->hhmm = hhmm;
+	google_barchart->datatype_name = datatype_name;
 
-	google_chart_xaxis->point_array =
+	google_barchart->point_array =
 		calloc( length_datatype_name_list, sizeof( double * ) );
 
-	return google_chart_xaxis;
+	return google_barchart;
 
-} /* google_chart_xaxis_new() */
+} /* google_barchart_new() */
 
-GOOGLE_CHART_XAXIS *google_chart_append_xaxis(
-				LIST *xaxis_list,
-				char *xaxis_label,
-				char *hhmm,
+GOOGLE_TIMELINE *google_timeline_new(
+				char *date_string,
+				char *time_hhmm,
 				int length_datatype_name_list )
 {
-	GOOGLE_CHART_XAXIS *xaxis;
+	GOOGLE_TIMELINE *google_timeline;
 
-	xaxis = google_chart_xaxis_new(
-				xaxis_label,
-				hhmm,
+	google_timeline =
+		(GOOGLE_TIMELINE *)
+			calloc( 1, sizeof( GOOGLE_TIMELINE ) );
+
+	if ( !google_timeline )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	google_timeline->date_string = date_string;
+	google_timeline->time_hhmm = time_hhmm;
+
+	google_timeline->point_array =
+		calloc( length_datatype_name_list, sizeof( double * ) );
+
+	return google_timeline;
+
+} /* google_timeline_new() */
+
+GOOGLE_BARCHART *google_barchart_append(
+				LIST *barchart_list,
+				char *datatype_name,
+				int length_datatype_name_list )
+{
+	GOOGLE_BARCHART *barchart;
+
+	barchart = google_barchart_new(
+				datatype_name,
 				length_datatype_name_list );
 
-	list_append_pointer( xaxis_list, xaxis );
+	list_append_pointer( barchart_list, barchart );
 
-	return xaxis;
+	return barchart;
 
-} /* google_chart_append_xaxis() */
+} /* google_barchart_append() */
+
+GOOGLE_TIMELINE *google_timeline_append(
+				LIST *timeline_list,
+				char *date_string,
+				char *time_hhmm,
+				int length_datatype_name_list )
+{
+	GOOGLE_TIMELINE *timeline;
+
+	timeline = google_timeline_new(
+				date_string,
+				time_hhmm,
+				length_datatype_name_list );
+
+	list_append_pointer( timeline_list, timeline );
+
+	return timeline;
+
+} /* google_timeline_append() */
 
 int google_chart_get_datatype_offset(
-				LIST *google_datatype_name_list,
+				LIST *datatype_name_list,
 				char *datatype_name )
 {
 	int offset = 0;
 
-	if ( !list_rewind( google_datatype_name_list ) ) return -1;
+	if ( !list_rewind( datatype_name_list ) ) return -1;
 
 	do {
 		if ( timlib_strcmp(
-				list_get_pointer( google_datatype_name_list ),
+				list_get_pointer( datatype_name_list ),
 				datatype_name ) == 0 )
 		{
 			return offset;
 		}
 		offset++;
-	} while( list_next( google_datatype_name_list ) );
+	} while( list_next( datatype_name_list ) );
 
 	return -1;
 
 } /* google_chart_get_datatype_offset() */
 
-GOOGLE_CHART_XAXIS *google_chart_get_or_set_xaxis(
-				LIST *xaxis_list,
-				char *xaxis_label,
-				char *hhmm,
+GOOGLE_BARCHART *google_barchart_get_or_set(
+				LIST *barchart_list,
+				char *datatype_name,
 				int length_datatype_name_list )
 {
-	GOOGLE_CHART_XAXIS *xaxis;
+	GOOGLE_BARCHART *barchart;
 
-	if ( list_rewind( xaxis_list ) )
+	if ( list_rewind( barchart_list ) )
 	{
 		do {
-			xaxis = list_get_pointer( xaxis_list );
+			barchart = list_get_pointer( barchart_list );
 
-			if ( timlib_strcmp(	xaxis->xaxis_label,
-						xaxis_label ) == 0 )
+			if ( timlib_strcmp(	barchart->datatype_name,
+						datatype_name ) == 0 )
 			{
-				if ( !hhmm || !*hhmm ) return xaxis;
-
-				if ( timlib_strcmp( xaxis->hhmm, hhmm ) == 0 )
-					return xaxis;
+				return barchart;
 			}
 
-		} while( list_next( xaxis_list ) );
+		} while( list_next( barchart_list ) );
 	}
 
-	return google_chart_append_xaxis(
-			xaxis_list,
-			strdup( xaxis_label ),
-			(hhmm) ? strdup( hhmm ) : (char *)0,
+	return google_barchart_append(
+			barchart_list,
+			strdup( datatype_name ),
 			length_datatype_name_list );
 
-} /* google_chart_get_or_set_xaxis() */
+} /* google_barchart_get_or_set() */
+
+GOOGLE_TIMELINE *google_timeline_get_or_set(
+				LIST *timeline_list,
+				char *date_string,
+				char *time_hhmm,
+				int length_datatype_name_list )
+{
+	GOOGLE_TIMELINE *timeline;
+
+	if ( list_rewind( timeline_list ) )
+	{
+		do {
+			timeline = list_get_pointer( timeline_list );
+
+			if ( timlib_strcmp(	timeline->date_string,
+						date_string ) == 0 )
+			{
+				if ( !time_hhmm || !*time_hhmm )
+					return timeline;
+
+				if ( timlib_strcmp(
+					timeline->time_hhmm,
+					time_hhmm ) == 0 )
+				{
+					return timeline;
+				}
+			}
+
+		} while( list_next( timeline_list ) );
+	}
+
+	return google_timeline_append(
+			timeline_list,
+			strdup( date_string ),
+			(time_hhmm) ? strdup( time_hhmm ) : (char *)0,
+			length_datatype_name_list );
+
+} /* google_timeline_get_or_set() */
 
 void google_chart_set_point_string(	LIST *xaxis_list,
 					LIST *google_datatype_name_list,

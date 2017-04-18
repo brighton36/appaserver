@@ -32,10 +32,16 @@ enum google_chart_type{	google_column_chart,
 /* ---------- */
 typedef struct
 {
-	char *xaxis_label;
-	char *hhmm;
+	char *datatype_name;
 	double **point_array;
-} GOOGLE_CHART_XAXIS;
+} GOOGLE_BARCHART;
+
+typedef struct
+{
+	char *date_string;
+	char *time_hhmm;
+	double **point_array;
+} GOOGLE_TIMELINE; 
 
 typedef struct
 {
@@ -48,7 +54,7 @@ typedef struct
 	boolean legend_position_bottom;
 	LIST *barchart_list;
 	LIST *timeline_list;
-	LIST *google_datatype_name_list;
+	LIST *datatype_name_list;
 	char *google_package_name;
 	int chart_number;
 } GOOGLE_CHART;
@@ -65,54 +71,50 @@ GOOGLE_CHART *google_chart_new(
 					boolean legend_position_bottom,
 					char *google_package_name );
 
-GOOGLE_CHART_XAXIS *google_chart_xaxis_new(
-					char *xaxis_label,
-					char *hhmm,
+GOOGLE_BARCHART *google_barchart_new(	char *datatype_name,
 					int length_datatype_name_list );
 
-GOOGLE_BARCHART *google_chart_append_barchart(
+GOOGLE_TIMELINE *google_timeline_new(	char *date_string,
+					char *time_hhmm,
+					int length_datatype_name_list );
+
+GOOGLE_BARCHART *google_barchart_append(
 					LIST *barchart_list,
-					char *bar_label,
+					char *datatype_name,
 					int length_datatype_name_list );
 
-GOOGLE_TIMELINE *google_chart_append_timeline(
+GOOGLE_TIMELINE *google_timeline_append(
 					LIST *timeline_list,
 					char *date_string,
 					char *hhmm,
 					int length_datatype_name_list );
 
-GOOGLE_BARCHART *google_chart_append_barchart(
-					LIST *barchart_list,
-					char *xaxis_label,
-					char *hhmm,
-					int length_datatype_name_list );
-
 void google_barchart_set_point(		LIST *barchart_list,
-					LIST *google_datatype_name_list,
-					char *bar_label,
+					LIST *datatype_name_list,
+					char *datatype_name,
 					char *datatype_name,
 					double point );
 
 void google_timeline_set_point(		LIST *barchart_list,
-					LIST *google_datatype_name_list,
+					LIST *datatype_name_list,
 					char *date_string,
 					char *hhmm,
 					char *datatype_name,
 					double point );
 
 void google_barchart_set_point_string(	LIST *barchart_list,
-					LIST *google_datatype_name_list,
+					LIST *datatype_name_list,
 					char *delimited_string,
 					char delimiter );
 
 void google_timeline_set_point_string(	LIST *timeline_list,
-					LIST *google_datatype_name_list,
+					LIST *datatype_name_list,
 					char *delimited_string,
 					char delimiter );
 
 GOOGLE_BARCHART *google_barchart_get_or_set(
 					LIST *barchart_list,
-					char *bar_label,
+					char *datatype_name,
 					char *hhmm,
 					int length_datatype_name_list );
 
@@ -123,12 +125,12 @@ GOOGLE_TIMELINE *google_timeline_get_or_set(
 					int length_datatype_name_list );
 
 int google_chart_get_datatype_offset(
-					LIST *google_datatype_name_list,
+					LIST *datatype_name_list,
 					char *datatype_name );
 
 void google_chart_display(		LIST *barchart_list,
 					LIST *timeline_list,
-					LIST *google_datatype_name_list );
+					LIST *datatype_name_list );
 
 void google_chart_output_include(	FILE *output_file );
 
@@ -137,7 +139,7 @@ void google_chart_output_visualization_function(
 				enum google_chart_type google_chart_type,
 				LIST *barchart_list,
 				LIST *timeline_list,
-				LIST *google_datatype_name_list,
+				LIST *datatype_name_list,
 				char *title,
 				char *yaxis_label,
 		 		int width,

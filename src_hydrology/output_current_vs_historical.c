@@ -1088,7 +1088,8 @@ boolean output_historical_long_term(
 	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
-				google_chart->xaxis_list,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
 				google_datatype_name_display_list,
 				"" /* title */,
 				strdup( yaxis_label ),

@@ -38,9 +38,8 @@
 
 /* Prototypes */
 /* ---------- */
-boolean populate_point_array(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
+boolean populate_point_array(	LIST *timeline_list,
+				LIST *datatype_name_list,
 				char *sys_string );
 
 void output_measurement_googlecharts(
@@ -511,39 +510,34 @@ if ( bypass_data_collection_frequency ){};
 
 } /* get_sys_string() */
 
-boolean populate_point_array(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
+boolean populate_point_array(	LIST *timeline_list,
+				LIST *datatype_name_list,
 				char *sys_string )
 {
 	char input_buffer[ 1024 ];
 	FILE *input_pipe;
 	boolean got_one = 0;
 
-/*
 fprintf( stderr, "%s/%s()/%d: sys_string = (%s)\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 sys_string );
-*/
 
 	input_pipe = popen( sys_string, "r" );
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-/*
 fprintf( stderr, "%s/%s()/%d: input_buffer = (%s)\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 input_buffer );
-*/
 		got_one = 1;
 
-		google_chart_set_point_string(
-				xaxis_list,
-				google_datatype_name_list,
+		google_timeline_set_point_string(
+				timeline_list,
+				datatype_name_list,
 				input_buffer,
 				FOLDER_DATA_DELIMITER );
 	}
@@ -603,12 +597,12 @@ if ( date_piece ){};
 			accumulate_yn,
 			bypass_data_collection_frequency );
 
-	list_append_pointer(	google_chart->google_datatype_name_list,
+	list_append_pointer(	google_chart->datatype_name_list,
 				datatype_name );
 
 	if ( !populate_point_array(
-				google_chart->xaxis_list,
-				google_chart->google_datatype_name_list,
+				google_chart->timeline_list,
+				google_chart->datatype_name_list,
 				sys_string ) )
 	{
 		return (GOOGLE_CHART *)0;;
@@ -690,8 +684,8 @@ if ( bar_chart ){};
 		return;
 	}
 
-	google_chart_display(	google_chart->xaxis_list,
-				google_chart->google_datatype_name_list );
+	google_timeline_display(google_chart->timeline_list,
+				google_chart->datatype_name_list );
 
 	fprintf( output_file, "<html>\n" );
 	fprintf( output_file, "<head>\n" );
@@ -701,8 +695,9 @@ if ( bar_chart ){};
 	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
-				google_chart->xaxis_list,
-				google_chart->google_datatype_name_list,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
+				google_chart->datatype_name_list,
 				chart_title,
 				yaxis_label,
 				google_chart->width,

@@ -234,15 +234,19 @@ GOOGLE_TIMELINE *google_timeline_get_or_set(
 
 } /* google_timeline_get_or_set() */
 
-void google_chart_set_point_string(	LIST *xaxis_list,
-					LIST *google_datatype_name_list,
+/* Expecting:
+	2017-04-19:1445|stage|2.5
+     or 2017-04-19|stage|2.5
+*/
+void google_timeline_set_point_string(	LIST *timeline_list,
+					LIST *datatype_name_list,
 					char *delimited_string,
 					char delimiter )
 {
-	char xaxis_label[ 128 ];
+	char date_string[ 128 ];
+	char time_hhmm[ 128 ];
 	char datatype_name[ 128 ];
 	char point_string[ 128 ];
-	char hhmm[ 128 ];
 	char buffer[ 128 ];
 
 	if ( character_count( delimiter, delimited_string ) < 2 )
@@ -257,57 +261,53 @@ void google_chart_set_point_string(	LIST *xaxis_list,
 		return;
 	}
 
-	piece( xaxis_label, delimiter, delimited_string, 0 );
+	piece( date_string, delimiter, delimited_string, 0 );
 
-	if ( character_count( ':', xaxis_label ) == 1 )
+	if ( character_count( ':', date_string ) == 1 )
 	{
-		piece( hhmm, ':', xaxis_label, 1 );
+		piece( time_hhmm, ':', date_string, 1 );
 
-		if ( strlen( hhmm ) != 4 )
-		{
-			*hhmm = '\0';
-		}
-		else
-		{
-			timlib_strcpy( buffer, xaxis_label, 128 );
-			piece( xaxis_label, ':', buffer, 0 );
-		}
+		if ( strlen( time_hhmm ) != 4 ) *time_hhmm = '\0';
+
+		timlib_strcpy( buffer, date_string, 128 );
+		piece( date_string, ':', buffer, 0 );
 	}
 	else
 	{
-		*hhmm = '\0';
+		*time_hhmm = '\0';
 	}
 
 	piece( datatype_name, delimiter, delimited_string, 1 );
 	piece( point_string, delimiter, delimited_string, 2 );
 
-	google_chart_set_point(	xaxis_list,
-				google_datatype_name_list,
-				xaxis_label,
-				hhmm,
-				datatype_name,
-				atof( point_string ) );
+	google_timeline_set_point(	timeline_list,
+					datatype_name_list,
+					date_string,
+					time_hhmm,
+					datatype_name,
+					atof( point_string ) );
 
-} /* google_chart_set_point_string() */
+} /* google_timeline_set_point_string() */
 
-void google_chart_set_point(	LIST *xaxis_list,
-				LIST *google_datatype_name_list,
-				char *xaxis_label,
-				char *hhmm,
+void google_timeline_set_point(	LIST *timeline_list,
+				LIST *datatype_name_list,
+				char *date_string,
+				char *time_hhmm,
 				char *datatype_name,
 				double point )
 {
-	GOOGLE_CHART_XAXIS *xaxis;
+	GOOGLE_TIMELINE *timeline;
 	int offset;
 
-	xaxis = google_chart_get_or_set_xaxis(
-			xaxis_list,
-			xaxis_label,
-			hhmm,
-			list_length( google_datatype_name_list ) );
+	timeline =
+		google_timeline_get_or_set(
+			timeline_list,
+			date_string,
+			time_hhmm,
+			list_length( datatype_name_list ) );
 
 	if ( ( offset = google_chart_get_datatype_offset(
-			google_datatype_name_list,
+			datatype_name_list,
 			datatype_name ) ) < 0 )
 	{
 		fprintf( stderr,
@@ -319,39 +319,39 @@ void google_chart_set_point(	LIST *xaxis_list,
 		exit( 1 );
 	}
 
-	xaxis->point_array[ offset ] = calloc( 1, sizeof( double ) );
-	*xaxis->point_array[ offset ] = point;
+	timeline->point_array[ offset ] = calloc( 1, sizeof( double ) );
+	*timeline->point_array[ offset ] = point;
 
-} /* google_chart_set_point() */
+} /* google_timeline_set_point() */
 
-void google_chart_display(	LIST *xaxis_list,
-				LIST *google_datatype_name_list )
+void google_timeline_display(	LIST *timeline_list,
+				LIST *datatype_name_list )
 {
-	GOOGLE_CHART_XAXIS *xaxis;
+	GOOGLE_TIMELINE *timeline;
 	int offset;
 	int length_datatype_name_list;
 
-	length_datatype_name_list = list_length( google_datatype_name_list );
+	length_datatype_name_list = list_length( datatype_name_list );
 
 	fprintf(stderr,
-		"google_datatype_name_list = %s\n",
-		list_display( google_datatype_name_list ) );
+		"datatype_name_list = %s\n",
+		list_display( datatype_name_list ) );
 
-	if ( !list_rewind( xaxis_list ) ) return;
+	if ( !list_rewind( timeline_list ) ) return;
 
 	do {
-		xaxis = list_get_pointer( xaxis_list );
-		fprintf( stderr, "xaxis_label = %s", xaxis->xaxis_label );
-		fprintf( stderr, ",hhmm = %s", xaxis->hhmm );
+		timeline = list_get_pointer( timeline_list );
+		fprintf( stderr, "date_string = %s", timeline->date_string );
+		fprintf( stderr, ",time_hhmm = %s", timeline->time_hhmm );
 
 		for( offset = 0; offset < length_datatype_name_list; offset++ )
 		{
-			if ( xaxis->point_array[ offset ] )
+			if ( timeline->point_array[ offset ] )
 			{
 				fprintf(stderr,
 					", *point_array[%d] = %.3lf",
 					offset,
-					*xaxis->point_array[ offset ] );
+					*timeline->point_array[ offset ] );
 			}
 			else
 			{
@@ -362,34 +362,15 @@ void google_chart_display(	LIST *xaxis_list,
 		}
 		fprintf( stderr, "\n" );
 
-	} while( list_next( xaxis_list ) );
+	} while( list_next( timeline_list ) );
 
-} /* google_chart_display() */
+} /* google_timeline_display() */
 
 void google_chart_output_include( FILE *output_file )
 {
 	fprintf( output_file,
 "<script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>\n" );
 }
-
-void google_chart_append_delimited_string_xaxis(
-			LIST *xaxis_list,
-			char *comma_delimited_string,
-			int length_datatype_name_list )
-{
-	char xaxis_label[ 128 ];
-	int i = 0;
-
-	while( piece( xaxis_label, ',', comma_delimited_string, i++ ) )
-	{
-		google_chart_append_xaxis(
-			xaxis_list,
-			strdup( xaxis_label ),
-			(char *)0 /* hhmm */,
-			length_datatype_name_list );
-	}
-
-} /* google_chart_append_delimited_string_xaxis() */
 
 char *google_chart_convert_date(	char *destination,
 					char *yyyy_mm_dd,
@@ -430,8 +411,9 @@ char *google_chart_convert_date(	char *destination,
 void google_chart_output_visualization_function(
 				FILE *output_file,
 				enum google_chart_type google_chart_type,
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
+				LIST *timeline_list,
+				LIST *barchart_list,
+				LIST *datatype_name_list,
 				char *title,
 				char *yaxis_label,
 		 		int width,
@@ -444,11 +426,7 @@ void google_chart_output_visualization_function(
 				enum aggregate_level aggregate_level,
 				int chart_number )
 {
-	GOOGLE_CHART_XAXIS *xaxis;
-	int offset;
 	int length_datatype_name_list;
-	char *datatype_name;
-	char buffer[ 1024 ];
 	char *chart_type_string;
 	char *legend_position_bottom_string;
 	char *google_chart_instantiation;
@@ -460,10 +438,10 @@ void google_chart_output_visualization_function(
 		 chart_number );
 
 	if ( ! ( length_datatype_name_list =
-			list_length( google_datatype_name_list ) ) )
+			list_length( datatype_name_list ) ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty google_datatype_name_list.\n",
+		"ERROR in %s/%s()/%d: empty datatype_name_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -509,111 +487,30 @@ void google_chart_output_visualization_function(
 "function %s()\n"
 "{\n"
 "	var data = new google.visualization.DataTable();\n"
-"\n"
-"	data.addColumn('%s', '');\n",
-		draw_visualization_function_name,
-		first_column_datatype );
+"\n",
+		draw_visualization_function_name );
 
-	offset = 0;
-	list_rewind( google_datatype_name_list );
+	google_chart_output_datatype_column_heading(
+		output_file,
+		google_chart_type,
+		first_column_datatype,
+		datatype_name_list );
 
-	do {
-		datatype_name = list_get_pointer( google_datatype_name_list );
-
-		fprintf( output_file,
-"	data.addColumn('number', '%s');\n",
-		 	format_initial_capital( buffer, datatype_name ) );
-
-		if ( google_chart_type == google_cat_whiskers
-		&&   ( offset % 3 ) == 1 )
-		{
-			fprintf(
-			output_file,
-			"	data.addColumn('number', '');\n" );
-		}
-
-		offset++;
-
-	} while( list_next( google_datatype_name_list ) );
-
-	if ( !list_rewind( xaxis_list ) )
+	if ( list_length( timeline_list ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty xaxis_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
+		google_chart_output_timeline_list(
+			output_file,
+			timeline_list,
+			length_datatype_name_list );
 	}
 
-	fprintf( output_file,
-"	data.addRows([\n" );
-
-	do {
-		xaxis = list_get_pointer( xaxis_list );
-
-		if ( strcmp(	google_package_name,
-				GOOGLE_ANNOTATED_TIMELINE ) == 0 )
-		{
-			fprintf(output_file,
-			 	"\t\t[%s",
-			 	google_chart_convert_date(
-					buffer,
-					xaxis->xaxis_label,
-					xaxis->hhmm ) );
-		}
-		else
-		{
-			fprintf(output_file,
-			 	"\t\t['%s'",
-			 	format_initial_capital(
-					buffer,
-					xaxis->xaxis_label ) );
-		}
-
-		for( offset = 0; offset < length_datatype_name_list; offset++ )
-		{
-			if ( xaxis->point_array[ offset ] )
-			{
-				fprintf( output_file,
-				 	",%.3lf",
-				 	*xaxis->point_array[ offset ] );
-			}
-			else
-			{
-				fprintf( output_file,
-				 	",undefined" );
-			}
-
-			if ( google_chart_type == google_cat_whiskers
-			&&   ( offset % 3 ) == 1 )
-			{
-				if ( xaxis->point_array[ offset ] )
-				{
-					fprintf( output_file,
-			 			",%.3lf",
-			 			*xaxis->point_array[
-							offset ] );
-				}
-				else
-				{
-					fprintf( output_file,
-			 			",undefined" );
-				}
-			}
-		}
-
-		fprintf( output_file, "]" );
-
-		if ( !list_at_end( xaxis_list ) )
-			fprintf( output_file, ",\n" );
-		else
-			fprintf( output_file, "\n" );
-
-	} while( list_next( xaxis_list ) );
-
-	fprintf( output_file,
-"	]);\n\n" );
+	if ( list_length( barchart_list ) )
+	{
+		google_chart_output_barchart_list(
+			output_file,
+			barchart_list,
+			length_datatype_name_list );
+	}
 
 	if ( chart_type_bar )
 		chart_type_string = "seriesType: \"bars\"";
@@ -669,43 +566,165 @@ void google_chart_output_visualization_function(
 "</script>\n",
 		 draw_visualization_function_name );
 
-/*
-	if ( title
-	&&   *title
-	&&   strcmp(	google_package_name,
-			GOOGLE_ANNOTATED_TIMELINE ) == 0 )
+} /* google_chart_output_visualization_function() */
+
+void google_chart_output_barchart_list(
+			FILE *output_file,
+			LIST *barchart_list,
+			int length_datatype_name_list )
+{
+	GOOGLE_BARCHART *barchart;
+	int offset;
+	char buffer[ 128 ];
+
+	if ( !list_rewind( barchart_list ) )
 	{
-		fprintf( output_file,
-"<div style=\"	position: absolute;	\n"
-"		left: %dpx;		\n"
-"		top: %dpx;		\n"
-"		font-size: 16px\">	\n"
-"%s</div>\n",
-			 left,
-			 top,
-			 title );
-		top += 20;
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty barchart_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
 	fprintf( output_file,
-"<div style=\"position: absolute;\n"
-"	left: %dpx;\n"
-"	top: %dpx;\n"
-"	width: %dpx;\n"
-"	border-width: thin;\n"
-"	border-style: solid;\n"
-"	border-color: teal\" >\n"
-"	<div id=\"chart_div%d\" style=\"width: %dpx; height: %dpx\"></div>\n"
-"</div>\n",
-		 left,
-		 top,
-		 width,
-		 name_key,
-		 width,
-		 height );
-*/
+"	data.addRows([\n" );
 
-} /* google_chart_output_visualization_function() */
+	do {
+		barchart = list_get_pointer( barchart_list );
+
+		fprintf(output_file,
+		 	"\t\t['%s'",
+		 	format_initial_capital(
+				buffer,
+				barchart->datatype_name ) );
+
+		for( offset = 0; offset < length_datatype_name_list; offset++ )
+		{
+			if ( barchart->point_array[ offset ] )
+			{
+				fprintf(output_file,
+				 	",%.3lf",
+				 	*barchart->point_array[ offset ] );
+			}
+			else
+			{
+				fprintf(output_file,
+				 	",undefined" );
+			}
+		}
+
+		fprintf( output_file, "]" );
+
+		if ( !list_at_end( barchart_list ) )
+			fprintf( output_file, ",\n" );
+		else
+			fprintf( output_file, "\n" );
+
+	} while( list_next( barchart_list ) );
+
+	fprintf( output_file,
+"	]);\n\n" );
+
+} /* google_chart_output_barchart_list() */
+
+void google_chart_output_timeline_list(
+			FILE *output_file,
+			LIST *timeline_list,
+			int length_datatype_name_list )
+{
+	GOOGLE_TIMELINE *timeline;
+	int offset;
+	char buffer[ 128 ];
+
+	if ( !list_rewind( timeline_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty timeline_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	fprintf( output_file,
+"	data.addRows([\n" );
+
+	do {
+		timeline = list_get_pointer( timeline_list );
+
+		fprintf(output_file,
+		 	"\t\t[%s",
+		 	google_chart_convert_date(
+				buffer,
+				timeline->date_string,
+				timeline->time_hhmm ) );
+
+		for( offset = 0; offset < length_datatype_name_list; offset++ )
+		{
+			if ( timeline->point_array[ offset ] )
+			{
+				fprintf(output_file,
+				 	",%.3lf",
+				 	*timeline->point_array[ offset ] );
+			}
+			else
+			{
+				fprintf(output_file,
+				 	",undefined" );
+			}
+		}
+
+		fprintf( output_file, "]" );
+
+		if ( !list_at_end( timeline_list ) )
+			fprintf( output_file, ",\n" );
+		else
+			fprintf( output_file, "\n" );
+
+	} while( list_next( timeline_list ) );
+
+	fprintf( output_file,
+"	]);\n\n" );
+
+} /* google_chart_output_timeline_list() */
+
+void google_chart_output_datatype_column_heading(
+			FILE *output_file,
+			enum google_chart_type google_chart_type,
+			char *first_column_datatype,
+			LIST *datatype_name_list )
+{
+	int offset = 0;
+	char *datatype_name;
+	char buffer[ 128 ];
+
+	fprintf( output_file,
+"	data.addColumn('%s', '');\n",
+		first_column_datatype );
+
+	if ( !list_rewind( datatype_name_list ) ) return;
+
+	do {
+		datatype_name = list_get_pointer( datatype_name_list );
+
+		fprintf( output_file,
+"	data.addColumn('number', '%s');\n",
+		 	format_initial_capital( buffer, datatype_name ) );
+
+		if ( google_chart_type == google_cat_whiskers
+		&&   ( offset % 3 ) == 1 )
+		{
+			fprintf(
+			output_file,
+			"	data.addColumn('number', '');\n" );
+		}
+
+		offset++;
+
+	} while( list_next( datatype_name_list ) );
+
+} /* google_chart_output_datatype_column_heading() */
 
 void google_chart_output_body(	FILE *output_file,
 				char *title,

@@ -92,13 +92,12 @@ GOOGLE_TIMELINE *google_timeline_append(
 void google_barchart_set_point(		LIST *barchart_list,
 					LIST *datatype_name_list,
 					char *datatype_name,
-					char *datatype_name,
 					double point );
 
-void google_timeline_set_point(		LIST *barchart_list,
+void google_timeline_set_point(		LIST *timeline_list,
 					LIST *datatype_name_list,
 					char *date_string,
-					char *hhmm,
+					char *time_hhmm,
 					char *datatype_name,
 					double point );
 
@@ -115,7 +114,6 @@ void google_timeline_set_point_string(	LIST *timeline_list,
 GOOGLE_BARCHART *google_barchart_get_or_set(
 					LIST *barchart_list,
 					char *datatype_name,
-					char *hhmm,
 					int length_datatype_name_list );
 
 GOOGLE_TIMELINE *google_timeline_get_or_set(
@@ -128,8 +126,7 @@ int google_chart_get_datatype_offset(
 					LIST *datatype_name_list,
 					char *datatype_name );
 
-void google_chart_display(		LIST *barchart_list,
-					LIST *timeline_list,
+void google_timeline_display(		LIST *timeline_list,
 					LIST *datatype_name_list );
 
 void google_chart_output_include(	FILE *output_file );
@@ -192,5 +189,21 @@ void google_chart_output_options(
 				int height,
 				char *background_color,
 				char *legend_position_bottom_string );
+
+void google_chart_output_datatype_column_heading(
+				FILE *output_file,
+				enum google_chart_type,
+				char *first_column_datatype,
+				LIST *datatype_name_list );
+
+void google_chart_output_timeline_list(
+				FILE *output_file,
+				LIST *timeline_list,
+				int length_datatype_name_list );
+
+void google_chart_output_barchart_list(
+				FILE *output_file,
+				LIST *barchart_list,
+				int length_datatype_name_list );
 
 #endif

@@ -492,21 +492,29 @@ int main( int argc, char **argv )
 		appaserver_link_file->begin_date_string = begin_date;
 		appaserver_link_file->end_date_string = end_date;
 
-/*
-		sprintf( output_pipename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_date,
-			 end_date,
-			 process_id );
-*/
-
 		output_pipename =
 			appaserver_link_get_output_filename(
 				appaserver_link_file->
 					output_file->
 					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
 				appaserver_link_file->application_name,
 				appaserver_link_file->filename_stem,
 				appaserver_link_file->begin_date_string,
@@ -570,47 +578,6 @@ int main( int argc, char **argv )
 			 output_pipename );
 
 		output_pipe = popen( sys_string, "w" );
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_SPREADSHEET,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET,
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-*/
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
 
 		water_budget_flow_output_transmit(
 					output_pipe,

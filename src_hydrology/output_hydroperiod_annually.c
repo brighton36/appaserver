@@ -245,7 +245,7 @@ int main( int argc, char **argv )
 					argv[ 0 ],
 					application_name,
 					appaserver_parameter_file->
-						appaserver_mount_point,
+						document_root,
 					annual_hydroperiod->elevation_offset ) )
 		{
 			printf(

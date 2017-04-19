@@ -1626,7 +1626,9 @@ FILE *grace_open_output_pipe(
 		local_output_filename );
 
 	p = popen( sys_string, "w" );
+
 	return p;
+
 } /* grace_open_output_pipe() */
 
 void grace_get_filenames(		char **agr_filename,

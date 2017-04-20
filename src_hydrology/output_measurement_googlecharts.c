@@ -567,8 +567,6 @@ GOOGLE_CHART *get_google_chart(
 	GOOGLE_CHART *google_chart;
 	char *sys_string;
 
-if ( date_piece ){};
-
 	google_chart =
 		google_chart_new(
 			google_time_line,
@@ -588,7 +586,7 @@ if ( date_piece ){};
 			aggregate_statistic,
 			station_name,
 			datatype_name,
-			DATE_PIECE,
+			date_piece,
 			begin_date_string,
 			end_date_string,
 			units,
@@ -646,7 +644,7 @@ if ( bar_chart ){};
 			application_name,
 			document_root_directory,
 			getpid(),
-			process_name,
+			process_name /* filename_stem */,
 			"html" /* extension */ );
 
 	output_file = fopen( output_filename, "w" );
@@ -684,8 +682,10 @@ if ( bar_chart ){};
 		return;
 	}
 
+/*
 	google_timeline_display(google_chart->timeline_list,
 				google_chart->datatype_name_list );
+*/
 
 	fprintf( output_file, "<html>\n" );
 	fprintf( output_file, "<head>\n" );

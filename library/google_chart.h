@@ -129,6 +129,9 @@ int google_chart_get_datatype_offset(
 void google_timeline_display(		LIST *timeline_list,
 					LIST *datatype_name_list );
 
+void google_barchart_display(		LIST *barchar_list,
+					LIST *datatype_name_list );
+
 void google_chart_output_include(	FILE *output_file );
 
 void google_chart_output_visualization_function(
@@ -205,5 +208,11 @@ void google_chart_output_barchart_list(
 				FILE *output_file,
 				LIST *barchart_list,
 				int length_datatype_name_list );
+
+void google_barchart_append_datatype_name_string(
+				LIST *barchart_list,
+				char *datatype_name_list_string,
+				int length_datatype_name_list,
+				char delimiter );
 
 #endif

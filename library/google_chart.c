@@ -110,6 +110,30 @@ GOOGLE_TIMELINE *google_timeline_new(
 
 } /* google_timeline_new() */
 
+void google_barchart_append_datatype_name_string(
+				LIST *barchart_list,
+				char *datatype_name_list_string,
+				int length_datatype_name_list,
+				char delimiter )
+{
+	char datatype_name[ 128 ];
+	int offset;
+
+	for(	offset = 0;
+		piece(	datatype_name,
+			delimiter,
+			datatype_name_list_string,
+			offset );
+		offset++ )
+	{
+		google_barchart_append(
+			barchart_list,
+			strdup( datatype_name ),
+			length_datatype_name_list );
+	}
+
+} /* google_barchart_append_datatype_name_string() */
+
 GOOGLE_BARCHART *google_barchart_append(
 				LIST *barchart_list,
 				char *datatype_name,
@@ -175,7 +199,8 @@ GOOGLE_BARCHART *google_barchart_get_or_set(
 {
 	GOOGLE_BARCHART *barchart;
 
-	if ( list_rewind( barchart_list ) )
+	if ( length_datatype_name_list
+	&&   list_rewind( barchart_list ) )
 	{
 		do {
 			barchart = list_get_pointer( barchart_list );
@@ -204,7 +229,8 @@ GOOGLE_TIMELINE *google_timeline_get_or_set(
 {
 	GOOGLE_TIMELINE *timeline;
 
-	if ( list_rewind( timeline_list ) )
+	if ( length_datatype_name_list
+	&&   list_rewind( timeline_list ) )
 	{
 		do {
 			timeline = list_get_pointer( timeline_list );
@@ -306,7 +332,8 @@ void google_timeline_set_point(	LIST *timeline_list,
 			time_hhmm,
 			list_length( datatype_name_list ) );
 
-	if ( ( offset = google_chart_get_datatype_offset(
+	if ( ( offset =
+		google_chart_get_datatype_offset(
 			datatype_name_list,
 			datatype_name ) ) < 0 )
 	{
@@ -323,6 +350,50 @@ void google_timeline_set_point(	LIST *timeline_list,
 	*timeline->point_array[ offset ] = point;
 
 } /* google_timeline_set_point() */
+
+void google_barchart_display(	LIST *barchart_list,
+				LIST *datatype_name_list )
+{
+	GOOGLE_BARCHART *barchart;
+	int offset;
+	int length_datatype_name_list;
+
+	length_datatype_name_list = list_length( datatype_name_list );
+
+	fprintf(stderr,
+		"datatype_name_list = %s\n",
+		list_display( datatype_name_list ) );
+
+	if ( !list_rewind( barchart_list ) ) return;
+
+	do {
+		barchart = list_get_pointer( barchart_list );
+
+		fprintf(stderr,
+			"datatype_name = %s",
+			barchart->datatype_name );
+
+		for( offset = 0; offset < length_datatype_name_list; offset++ )
+		{
+			if ( barchart->point_array[ offset ] )
+			{
+				fprintf(stderr,
+					", *point_array[%d] = %.3lf",
+					offset,
+					*barchart->point_array[ offset ] );
+			}
+			else
+			{
+				fprintf(stderr,
+					", *point_array[%d] is empty",
+					offset );
+			}
+		}
+		fprintf( stderr, "\n" );
+
+	} while( list_next( barchart_list ) );
+
+} /* google_barchart_display() */
 
 void google_timeline_display(	LIST *timeline_list,
 				LIST *datatype_name_list )

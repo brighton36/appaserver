@@ -32,7 +32,7 @@ enum google_chart_type{	google_column_chart,
 /* ---------- */
 typedef struct
 {
-	char *datatype_name;
+	char *stratum_name;
 	double **point_array;
 } GOOGLE_BARCHART;
 
@@ -71,7 +71,7 @@ GOOGLE_CHART *google_chart_new(
 					boolean legend_position_bottom,
 					char *google_package_name );
 
-GOOGLE_BARCHART *google_barchart_new(	char *datatype_name,
+GOOGLE_BARCHART *google_barchart_new(	char *stratum_name,
 					int length_datatype_name_list );
 
 GOOGLE_TIMELINE *google_timeline_new(	char *date_string,
@@ -80,7 +80,7 @@ GOOGLE_TIMELINE *google_timeline_new(	char *date_string,
 
 GOOGLE_BARCHART *google_barchart_append(
 					LIST *barchart_list,
-					char *datatype_name,
+					char *stratum_name,
 					int length_datatype_name_list );
 
 GOOGLE_TIMELINE *google_timeline_append(
@@ -90,6 +90,7 @@ GOOGLE_TIMELINE *google_timeline_append(
 					int length_datatype_name_list );
 
 void google_barchart_set_point(		LIST *barchart_list,
+					char *stratum_name,
 					LIST *datatype_name_list,
 					char *datatype_name,
 					double point );
@@ -113,7 +114,7 @@ void google_timeline_set_point_string(	LIST *timeline_list,
 
 GOOGLE_BARCHART *google_barchart_get_or_set(
 					LIST *barchart_list,
-					char *datatype_name,
+					char *stratum_name,
 					int length_datatype_name_list );
 
 GOOGLE_TIMELINE *google_timeline_get_or_set(

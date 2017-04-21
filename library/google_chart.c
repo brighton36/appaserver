@@ -51,7 +51,7 @@ GOOGLE_CHART *google_chart_new(
 } /* google_chart_new() */
 
 GOOGLE_BARCHART *google_barchart_new(
-				char *datatype_name,
+				char *stratum_name,
 				int length_datatype_name_list )
 {
 	GOOGLE_BARCHART *google_barchart;
@@ -70,7 +70,7 @@ GOOGLE_BARCHART *google_barchart_new(
 		exit( 1 );
 	}
 
-	google_barchart->datatype_name = datatype_name;
+	google_barchart->stratum_name = stratum_name;
 
 	google_barchart->point_array =
 		calloc( length_datatype_name_list, sizeof( double * ) );
@@ -136,13 +136,13 @@ void google_barchart_append_datatype_name_string(
 
 GOOGLE_BARCHART *google_barchart_append(
 				LIST *barchart_list,
-				char *datatype_name,
+				char *stratum_name,
 				int length_datatype_name_list )
 {
 	GOOGLE_BARCHART *barchart;
 
 	barchart = google_barchart_new(
-				datatype_name,
+				stratum_name,
 				length_datatype_name_list );
 
 	list_append_pointer( barchart_list, barchart );
@@ -194,7 +194,7 @@ int google_chart_get_datatype_offset(
 
 GOOGLE_BARCHART *google_barchart_get_or_set(
 				LIST *barchart_list,
-				char *datatype_name,
+				char *stratum_name,
 				int length_datatype_name_list )
 {
 	GOOGLE_BARCHART *barchart;
@@ -205,8 +205,8 @@ GOOGLE_BARCHART *google_barchart_get_or_set(
 		do {
 			barchart = list_get_pointer( barchart_list );
 
-			if ( timlib_strcmp(	barchart->datatype_name,
-						datatype_name ) == 0 )
+			if ( timlib_strcmp(	barchart->stratum_name,
+						stratum_name ) == 0 )
 			{
 				return barchart;
 			}
@@ -216,7 +216,7 @@ GOOGLE_BARCHART *google_barchart_get_or_set(
 
 	return google_barchart_append(
 			barchart_list,
-			strdup( datatype_name ),
+			strdup( stratum_name ),
 			length_datatype_name_list );
 
 } /* google_barchart_get_or_set() */
@@ -315,6 +315,40 @@ void google_timeline_set_point_string(	LIST *timeline_list,
 
 } /* google_timeline_set_point_string() */
 
+void google_barchart_set_point(		LIST *barchart_list,
+					char *stratum_name,
+					LIST *datatype_name_list,
+					char *datatype_name,
+					double point )
+{
+	GOOGLE_BARCHART *barchart;
+	int offset;
+
+	barchart =
+		google_barchart_get_or_set(
+			barchart_list,
+			stratum_name,
+			list_length( datatype_name_list ) );
+
+	if ( ( offset =
+		google_chart_get_datatype_offset(
+			datatype_name_list,
+			datatype_name ) ) < 0 )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get datatype_name = %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			datatype_name );
+		exit( 1 );
+	}
+
+	barchart->point_array[ offset ] = calloc( 1, sizeof( double ) );
+	*barchart->point_array[ offset ] = point;
+
+} /* google_barchart_set_point() */
+
 void google_timeline_set_point(	LIST *timeline_list,
 				LIST *datatype_name_list,
 				char *date_string,
@@ -324,6 +358,16 @@ void google_timeline_set_point(	LIST *timeline_list,
 {
 	GOOGLE_TIMELINE *timeline;
 	int offset;
+	char local_date_string[ 16 ];
+	char local_time_hhmm[ 16 ];
+
+	if ( character_exists( date_string, ':' ) )
+	{
+		piece( local_date_string, ':', date_string, 0 );
+		piece( local_time_hhmm, ':', date_string, 1 );
+		date_string = local_date_string;
+		time_hhmm = local_time_hhmm;
+	}
 
 	timeline =
 		google_timeline_get_or_set(
@@ -370,8 +414,8 @@ void google_barchart_display(	LIST *barchart_list,
 		barchart = list_get_pointer( barchart_list );
 
 		fprintf(stderr,
-			"datatype_name = %s",
-			barchart->datatype_name );
+			"stratum_name = %s",
+			barchart->stratum_name );
 
 		for( offset = 0; offset < length_datatype_name_list; offset++ )
 		{
@@ -668,7 +712,7 @@ void google_chart_output_barchart_list(
 		 	"\t\t['%s'",
 		 	format_initial_capital(
 				buffer,
-				barchart->datatype_name ) );
+				barchart->stratum_name ) );
 
 		for( offset = 0; offset < length_datatype_name_list; offset++ )
 		{

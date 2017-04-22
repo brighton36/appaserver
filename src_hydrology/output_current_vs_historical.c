@@ -1080,9 +1080,6 @@ boolean output_historical_long_term(
 
 	format_initial_capital( yaxis_label, yaxis_label );
 
-	google_barchart_display(google_chart->barchart_list,
-				google_chart->datatype_name_list );
-
 	google_chart_output_include( output_file );
 
 	google_chart_output_visualization_function(
@@ -1254,7 +1251,7 @@ boolean populate_point_array_historical(
 		datatype_name,
 		STRATUM_DATATYPE_HISTORICAL );
 
-	populate_point_array_historical_fetch(
+	return populate_point_array_historical_fetch(
 		barchart_list,
 		month_name_list /* datatype_name_list */,
 		sys_string,
@@ -1284,14 +1281,6 @@ boolean populate_point_array_historical_fetch(
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			0 );
-
-/*
-	char datatype_name[ 128 ];
-		piece(	datatype_name,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
-*/
 
 		piece(	value_string,
 			FOLDER_DATA_DELIMITER,
@@ -1351,11 +1340,9 @@ void populate_point_array_historical_long_term_sys_string(
 	sprintf(select_clause,
 		"%s,				"
 		"'%s',				"
-		"'%s',				"
 		"%s( measurement_value )	",
 		group_clause,
 		stratum_datatype_name,
-		datatype_name,
 		aggregation_function );
 
 	if ( strcmp( stratum_datatype_name, STRATUM_DATATYPE_CURRENT ) == 0 )
@@ -1617,6 +1604,7 @@ void populate_point_array_current_sys_string(
 		 datatype_name,
 		 where_date_clause );
 
+/*
 	sprintf( sys_string,
 "echo \"	select %s,%s( measurement_value )	 	 "
 "		from measurement				 "
@@ -1637,6 +1625,21 @@ void populate_point_array_current_sys_string(
 		 where_clause,
 		 select_clause,
 		 FOLDER_DATA_DELIMITER,
+		 FOLDER_DATA_DELIMITER );
+*/
+
+	sprintf( sys_string,
+"echo \"	select %s,%s( measurement_value )	 	 "
+"		from measurement				 "
+"		where %s					 "
+"		group by %s;\"					|"
+"sql_quick.e '%c'						|"
+"grep -v '\\^$'							|"
+"cat								 ",
+		 select_clause,
+		 aggregation_function,
+		 where_clause,
+		 select_clause,
 		 FOLDER_DATA_DELIMITER );
 
 } /* populate_point_array_current_sys_string() */

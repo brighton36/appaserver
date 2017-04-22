@@ -28,6 +28,8 @@
 
 /* Constants */
 /* --------- */
+#define STRATUM_DATATYPE_CURRENT		"current"
+#define STRATUM_DATATYPE_HISTORICAL		"historical"
 #define LOCAL_CHART_POSITION_TOP		50
 #define LOCAL_CHART_POSITION_LEFT		265
 #define LOCAL_CHART_WIDTH			800
@@ -41,7 +43,8 @@ LIST *get_historical_long_term_datatype_name_display_list(
 boolean populate_point_array_historical_fetch(
 				LIST *barchart_list,
 				LIST *datatype_name_list,
-				char *sys_string );
+				char *sys_string,
+				char *stratum_datatype_name );
 
 void output_historical_current(
 				FILE *output_file,
@@ -82,7 +85,8 @@ void populate_point_array_historical_long_term_sys_string(
 				LIST *station_name_list,
 				char *aggregation_function,
 				char *application_name,
-				char *datatype_name );
+				char *datatype_name,
+				char *stratum_datatype_name );
 
 boolean populate_point_array_historical(
 				LIST *barchart_list,
@@ -1061,7 +1065,7 @@ boolean output_historical_long_term(
 	else
 	{
 		sprintf(	yaxis_label,
-				"Monthly %s (%s)",
+				"Monthly Average %s (%s)",
 				datatype_name,
 				units );
 
@@ -1185,8 +1189,13 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 	else
 		aggregation_function = AGGREGATION_AVG;
 
-	list_append_pointer( google_chart->datatype_name_list, "current" );
-	list_append_pointer( google_chart->datatype_name_list, "historical" );
+	list_append_pointer(
+		google_chart->datatype_name_list,
+		STRATUM_DATATYPE_CURRENT );
+
+	list_append_pointer(
+		google_chart->datatype_name_list,
+		STRATUM_DATATYPE_HISTORICAL );
 
 /*
 #define MONTH_LIST_STRING "jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec"
@@ -1224,23 +1233,40 @@ boolean populate_point_array_historical(
 	char sys_string[ 2048 ];
 
 	populate_point_array_historical_long_term_sys_string(
-				sys_string,
-				station_name_list,
-				aggregation_function,
-				application_name,
-				datatype_name );
+		sys_string,
+		station_name_list,
+		aggregation_function,
+		application_name,
+		datatype_name,
+		STRATUM_DATATYPE_CURRENT );
 
-	return populate_point_array_historical_fetch(
-			barchart_list,
-			month_name_list /* datatype_name_list */,
-			sys_string );
+	populate_point_array_historical_fetch(
+		barchart_list,
+		month_name_list /* datatype_name_list */,
+		sys_string,
+		STRATUM_DATATYPE_CURRENT );
+
+	populate_point_array_historical_long_term_sys_string(
+		sys_string,
+		station_name_list,
+		aggregation_function,
+		application_name,
+		datatype_name,
+		STRATUM_DATATYPE_HISTORICAL );
+
+	populate_point_array_historical_fetch(
+		barchart_list,
+		month_name_list /* datatype_name_list */,
+		sys_string,
+		STRATUM_DATATYPE_HISTORICAL );
 
 } /* populate_point_array_historical() */
 
 boolean populate_point_array_historical_fetch(
 				LIST *barchart_list,
 				LIST *datatype_name_list,
-				char *sys_string )
+				char *sys_string,
+				char *stratum_datatype_name )
 {
 	char input_buffer[ 1024 ];
 	FILE *input_pipe;
@@ -1274,8 +1300,9 @@ boolean populate_point_array_historical_fetch(
 
 		google_barchart_set_point(
 			barchart_list,
+			month /* stratum_name */,
 			datatype_name_list,
-			month /* datatype_name */,
+			stratum_datatype_name,
 			atof( value_string ) );
 	}
 
@@ -1290,7 +1317,8 @@ void populate_point_array_historical_long_term_sys_string(
 				LIST *station_name_list,
 				char *aggregation_function,
 				char *application_name,
-				char *datatype_name )
+				char *datatype_name,
+				char *stratum_datatype_name )
 {
 	char select_clause[ 1024 ];
 	char *group_clause;
@@ -1323,13 +1351,14 @@ void populate_point_array_historical_long_term_sys_string(
 	sprintf(select_clause,
 		"%s,				"
 		"'%s',				"
+		"'%s',				"
 		"%s( measurement_value )	",
 		group_clause,
+		stratum_datatype_name,
 		datatype_name,
 		aggregation_function );
 
-/*
-	if ( strcmp( long_term_period, LONG_TERM_CURRENT ) == 0 )
+	if ( strcmp( stratum_datatype_name, STRATUM_DATATYPE_CURRENT ) == 0 )
 	{
 		sprintf( where_date_clause,
 		 	"measurement_date >= '%s' and		"
@@ -1345,12 +1374,6 @@ void populate_point_array_historical_long_term_sys_string(
 			por_historical_begin_date,
 			por_historical_end_date );
 	}
-*/
-		sprintf(where_date_clause,
-		 	"measurement_date >= '%s' and		"
-			"measurement_date <= '%s'		",
-			por_historical_begin_date,
-			por_historical_end_date );
 
 	sprintf( where_clause,
 		 "station in (%s) and			"

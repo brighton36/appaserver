@@ -518,21 +518,10 @@ boolean populate_point_array(	LIST *timeline_list,
 	FILE *input_pipe;
 	boolean got_one = 0;
 
-fprintf( stderr, "%s/%s()/%d: sys_string = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-
 	input_pipe = popen( sys_string, "r" );
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-fprintf( stderr, "%s/%s()/%d: input_buffer = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-input_buffer );
 		got_one = 1;
 
 		google_timeline_set_point_string(
@@ -710,18 +699,25 @@ if ( bar_chart ){};
 				aggregate_level,
 				google_chart->chart_number );
 
+/*
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
+*/
+
 	fprintf( output_file, "</head>\n" );
 	fprintf( output_file, "<body>\n" );
 
-	google_chart_output_body(
+	google_chart_float_chart(
 				output_file,
 				chart_title,
-				google_chart->google_package_name,
-				google_chart->left,
-				google_chart->top,
 				google_chart->width,
 				google_chart->height,
 				google_chart->chart_number );
+
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
 
 	fprintf( output_file, "</body>\n" );
 	fprintf( output_file, "</html>\n" );

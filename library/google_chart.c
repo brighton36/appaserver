@@ -546,11 +546,11 @@ void google_chart_output_visualization_function(
 	char *legend_position_bottom_string;
 	char *google_chart_instantiation;
 	char *first_column_datatype;
-	char draw_visualization_function_name[ 128 ];
+	char *visualization_function_name;
 
-	sprintf( draw_visualization_function_name,
-		 "drawVisualization%d",
-		 chart_number );
+	visualization_function_name =
+		google_chart_get_visualization_function_name(
+			chart_number );
 
 	if ( ! ( length_datatype_name_list =
 			list_length( datatype_name_list ) ) )
@@ -603,7 +603,7 @@ void google_chart_output_visualization_function(
 "{\n"
 "	var data = new google.visualization.DataTable();\n"
 "\n",
-		draw_visualization_function_name );
+		visualization_function_name );
 
 	google_chart_output_datatype_column_heading(
 		output_file,
@@ -677,11 +677,47 @@ void google_chart_output_visualization_function(
 		chart_number );
 
 	fprintf( output_file,
+"</script>\n" );
+
+/*
+	fprintf( output_file,
 "google.setOnLoadCallback(%s);\n"
 "</script>\n",
 		 draw_visualization_function_name );
+*/
 
 } /* google_chart_output_visualization_function() */
+
+void google_chart_output_chart_instantiation(
+				FILE *output_file,
+				int chart_number )
+{
+	char *visualization_function_name;
+
+	visualization_function_name =
+		google_chart_get_visualization_function_name(
+			chart_number );
+
+	fprintf( output_file,
+"<script type=\"text/javascript\">\n"
+"google.setOnLoadCallback(%s);\n"
+"</script>\n",
+		 visualization_function_name );
+
+} /* google_chart_output_chart_instantiation() */
+
+char *google_chart_get_visualization_function_name(
+					int chart_number )
+{
+	static char visualization_function_name[ 32 ];
+
+	sprintf( visualization_function_name,
+		 "drawVisualization%d",
+		 chart_number );
+
+	return visualization_function_name;
+
+} /* google_chart_get_visualization_function_name() */
 
 void google_chart_output_barchart_list(
 			FILE *output_file,
@@ -841,7 +877,28 @@ void google_chart_output_datatype_column_heading(
 
 } /* google_chart_output_datatype_column_heading() */
 
-void google_chart_output_body(	FILE *output_file,
+void google_chart_float_chart(	FILE *output_file,
+				char *title,
+				int width,
+				int height,
+				int chart_number )
+{
+	if ( title && *title )
+	{
+		fprintf( output_file,
+"<h3>%s</h3>\n",
+			 title );
+	}
+
+	fprintf( output_file,
+"<div id=\"chart_div%d\" style=\"width: %dpx; height: %dpx\"></div>\n",
+		 chart_number,
+		 width,
+		 height );
+
+} /* google_chart_float_chart() */
+
+void google_chart_anchor_chart(	FILE *output_file,
 				char *title,
 				char *google_package_name,
 				int left,
@@ -850,6 +907,8 @@ void google_chart_output_body(	FILE *output_file,
 				int height,
 				int chart_number )
 {
+	/* Anchor the title */
+	/* ---------------- */
 	if ( title
 	&&   *title
 	&&   strcmp(	google_package_name,
@@ -867,6 +926,8 @@ void google_chart_output_body(	FILE *output_file,
 		top += 20;
 	}
 
+	/* Anchor the chart */
+	/* ---------------- */
 	fprintf( output_file,
 "<div style=\"position: absolute;\n"
 "	left: %dpx;\n"
@@ -884,7 +945,7 @@ void google_chart_output_body(	FILE *output_file,
 		 width,
 		 height );
 
-} /* google_chart_output_body() */
+} /* google_chart_anchor_chart() */
 
 void google_chart_output_prompt(
 			char *application_name,
@@ -1034,7 +1095,7 @@ void google_chart_output_options(
 		got_one = 1;
 	}
 
-	fprintf( output_file, "\n}\n" );
+	fprintf( output_file, "\n\t}\n" );
 
 } /* google_chart_output_options() */
 

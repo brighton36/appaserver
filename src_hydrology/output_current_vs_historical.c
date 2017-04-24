@@ -375,10 +375,10 @@ int main( int argc, char **argv )
 "<body>\n"
 "<h1>%s</h1>\n"
 "<table>\n"
-"<tr><td>Historical Period-of-record begin date (red whisker):<td>%s\n"
-"<tr><td>Historical Period-of-record end date (red whisker):<td>%s\n"
-"<tr><td>Current Period-of-record begin date (blue whisker):<td>%s\n"
-"<tr><td>Current Period-of-record end date (blue whisker):<td>%s\n"
+"<tr><td>Historical Period-of-record begin date (red bar):<td>%s\n"
+"<tr><td>Historical Period-of-record end date (red bar):<td>%s\n"
+"<tr><td>Current Period-of-record begin date (blue bar):<td>%s\n"
+"<tr><td>Current Period-of-record end date (blue bar):<td>%s\n"
 "<tr><td>Current begin date:<td>%s\n"
 "<tr><td>Current end date:<td>%s\n"
 "</table>\n"
@@ -1100,7 +1100,11 @@ boolean output_historical_long_term(
 				daily /* aggregate_level */,
 				google_chart->chart_number );
 
-	google_chart_output_body(
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
+
+	google_chart_anchor_chart(
 				output_file,
 				"" /* chart_title */,
 				google_chart->google_package_name,
@@ -1472,7 +1476,11 @@ void output_current(	FILE *output_file,
 				daily /* aggregate_level */,
 				google_chart->chart_number );
 
-	google_chart_output_body(
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
+
+	google_chart_anchor_chart(
 				output_file,
 				"" /* chart_title */,
 				google_chart->google_package_name,
@@ -1694,7 +1702,11 @@ void output_historical_current(
 				daily /* aggregate_level */,
 				google_chart->chart_number );
 
-	google_chart_output_body(
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
+
+	google_chart_anchor_chart(
 				output_file,
 				"" /* chart_title */,
 				google_chart->google_package_name,

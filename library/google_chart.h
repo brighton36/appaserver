@@ -153,7 +153,7 @@ void google_chart_output_visualization_function(
 				enum aggregate_level,
 				int chart_number );
 
-void google_chart_output_body(	FILE *output_file,
+void google_chart_anchor_chart(	FILE *output_file,
 				char *title,
 				char *google_package_name,
 				int left,
@@ -215,5 +215,18 @@ void google_barchart_append_datatype_name_string(
 				char *datatype_name_list_string,
 				int length_datatype_name_list,
 				char delimiter );
+
+void google_chart_float_chart(	FILE *output_file,
+				char *title,
+				int width,
+				int height,
+				int chart_number );
+
+char *google_chart_get_visualization_function_name(
+				int chart_number );
+
+void google_chart_output_chart_instantiation(
+				FILE *output_file,
+				int chart_number );
 
 #endif

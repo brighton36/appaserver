@@ -699,12 +699,6 @@ if ( bar_chart ){};
 				aggregate_level,
 				google_chart->chart_number );
 
-/*
-	google_chart_output_chart_instantiation(
-		output_file,
-		google_chart->chart_number );
-*/
-
 	fprintf( output_file, "</head>\n" );
 	fprintf( output_file, "<body>\n" );
 

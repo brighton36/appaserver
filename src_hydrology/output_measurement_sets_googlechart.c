@@ -1,8 +1,8 @@
-/* -----------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_hydrology/output_measurement_set_easychart.c	*/
-/* -----------------------------------------------------------------	*/
+/* -------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/output_measurement_set_googlechart.c	*/
+/* -------------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
-/* -----------------------------------------------------------------	*/
+/* -------------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -36,9 +36,16 @@
 
 /* Structures */
 /* ---------- */
+typedef struct
+{
+	LIST *chart_list;
+} GOOGLE_CHART_LIST;
 
 /* Prototypes */
 /* ---------- */
+GOOGLE_CHART_LIST *google_chart_list_new(
+			void );
+
 void populate_input_chart_list_datatypes(
 			LIST *input_chart_list,
 			LIST *datatype_list );
@@ -85,11 +92,6 @@ int main( int argc, char **argv )
 	char plot_for_station_check_yn;
 	char *database_string = {0};
 	LIST *datatype_list;
-	int easycharts_width;
-	int easycharts_height;
-/*
-	boolean aggregate_level_changed_to_daily = 0;
-*/
 
 	if ( argc != 9 )
 	{
@@ -130,20 +132,6 @@ int main( int argc, char **argv )
 
 	aggregate_level =
 		aggregate_level_get_aggregate_level( aggregate_level_string );
-
-/*
-	if ( ( !*begin_date || strcmp( begin_date, "begin_date" ) == 0 )
-	&&   ( !*end_date || strcmp( end_date, "end_date" ) == 0 ) )
-	{
-		if ( aggregate_level == real_time
-		||   aggregate_level == half_hour
-		||   aggregate_level == hourly )
-		{
-			aggregate_level = daily;
-			aggregate_level_changed_to_daily = 1;
-		}
-	}
-*/
 
 	hydrology_library_get_clean_begin_end_date(
 					&begin_date,
@@ -225,13 +213,15 @@ int main( int argc, char **argv )
 				document->application_name,
 				document->onload_control_string );
 
-	easycharts_get_chart_filename(
+	appaserver_link_get_pid_filename(
 			&chart_filename,
 			&prompt_filename,
 			application_name,
 			appaserver_parameter_file->
 				document_root,
-			getpid() );
+			getpid(),
+			process_name /* filename_stem */,
+			"html" /* extension */ );
 
 	chart_file = fopen( chart_filename, "w" );
 
@@ -244,29 +234,6 @@ int main( int argc, char **argv )
 			chart_filename );
 		exit( 1 );
 	}
-
-	sprintf(applet_library_archive,
-		"/appaserver/%s/%s",
-		application_name,
-		EASYCHARTS_JAR_FILE );
-
-	application_constants_get_easycharts_width_height(
-			&easycharts_width,
-			&easycharts_height,
-			application_name );
-
-	easycharts =
-		easycharts_new_timeline_easycharts(
-			easycharts_width, easycharts_height );
-
-	easycharts->point_highlight_size = 0;
-	easycharts->applet_library_archive = applet_library_archive;
-	easycharts->legend_on = 0;
-	easycharts->bold_labels = 0;
-	easycharts->bold_legends = 0;
-	easycharts->set_y_lower_range = 1;
-	easycharts->sample_scroller_on = 1;
-	easycharts->range_scroller_on = 1;
 
 	hydrology_library_get_title(
 		title,
@@ -283,8 +250,9 @@ int main( int argc, char **argv )
 	sprintf( title + strlen( title ),
 		 "\\n%s",
 		 sub_title );
-	easycharts->title = title;
 
+
+here1
 	populate_input_chart_list_datatypes(
 			easycharts->input_chart_list,
 			datatype_list );
@@ -613,4 +581,26 @@ m2( "audubon", msg );
 	return got_input;
 
 } /* populate_input_chart_list_data() */
+
+GOOGLE_CHART_LIST *google_chart_list_new( void )
+{
+	GOOGLE_CHART_LIST *google_chart_list;
+
+	if ( ! ( google_chart_list =
+			(GOOGLE_CHART_LIST *)calloc(
+				1, sizeof( GOOGLE_CHART_LIST ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	google_chart_list->chart_list = list_new();
+
+	return google_chart_list;
+
+} /* google_chart_list_new() */
 

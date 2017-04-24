@@ -97,7 +97,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		view_maps_figs						\
 		datatype_overlay					\
 		custom_chart						\
-		output_measurement_sets_easychart			\
+		output_measurement_sets_googlechart			\
 		high_average_low_chart					\
 		load_realdata						\
 		hydrology_quick_measurement_form			\
@@ -659,17 +659,18 @@ output_hydroperiod_annually: output_hydroperiod_annually.c		\
 		${LIBRARY}/grace.o					\
 		-o output_hydroperiod_annually
 
-output_measurement_sets_easychart: output_measurement_sets_easychart.c	\
+output_measurement_sets_googlechart:					\
+		output_measurement_sets_googlechart.c			\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
-		${LIBRARY}/easycharts.o
+		${LIBRARY}/googlechart.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
 		${LIBRARY}/easycharts.o					\
-		output_measurement_sets_easychart.c			\
-		-o output_measurement_sets_easychart
+		output_measurement_sets_googlechart.c			\
+		-o output_measurement_sets_googlechart
 
 annual_periods_output: annual_periods_output.c				\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\

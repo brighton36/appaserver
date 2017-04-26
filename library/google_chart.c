@@ -15,6 +15,27 @@
 #include "application.h"
 #include "appaserver_library.h"
 #include "appaserver_link_file.h"
+#include "document.h"
+
+GOOGLE_CHART *google_chart_new( void )
+{
+	GOOGLE_CHART *g;
+
+	g = (GOOGLE_CHART *)calloc( 1, sizeof( GOOGLE_CHART ) );
+
+	if ( !g )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return g;
+
+} /* google_chart_new() */
 
 GOOGLE_OUTPUT_CHART *google_output_chart_new(
 				enum google_chart_type google_chart_type,
@@ -57,6 +78,29 @@ GOOGLE_OUTPUT_CHART *google_output_chart_new(
 	return google_output_chart;
 
 } /* google_output_chart_new() */
+
+GOOGLE_INPUT_VALUE *google_chart_input_value_new(
+					char *date_time )
+{
+	GOOGLE_INPUT_VALUE *g;
+
+	g = (GOOGLE_INPUT_VALUE *)calloc( 1, sizeof( GOOGLE_INPUT_VALUE ) );
+
+	if ( !g )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	g->date_time = date_time;
+
+	return g;
+
+} /* google_chart_input_value_new() */
 
 GOOGLE_BARCHART *google_barchart_new(
 				char *stratum_name,
@@ -1495,4 +1539,112 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 	return output_chart;
 
 } /* google_chart_unit_get_output_chart() */
+
+void google_chart_output_all_charts(
+			FILE *output_file,
+			LIST *output_chart_list )
+{
+
+	GOOGLE_OUTPUT_CHART *google_chart;
+
+	fprintf( output_file, "<html>\n" );
+	fprintf( output_file, "<head>\n" );
+
+	google_chart_output_include( output_file );
+
+	fprintf( output_file, "</head>\n" );
+	fprintf( output_file, "<body>\n" );
+
+	if ( list_rewind( output_chart_list ) )
+	{
+		do {
+			google_chart = list_get_pointer( output_chart_list );
+
+			google_chart_output_visualization_function(
+				output_file,
+				google_chart->google_chart_type,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
+				google_chart->datatype_name_list,
+				(char *)0 /* chart_title */,
+				google_chart->yaxis_label,
+				google_chart->width,
+				google_chart->height,
+				google_chart->background_color,
+				google_chart->legend_position_bottom,
+				0 /* not chart_type_bar */,
+				google_chart->google_package_name,
+				0 /* not dont_display_range_selector */,
+				aggregate_level_none,
+				google_chart->chart_number );
+
+			google_chart_float_chart(
+				output_file,
+				(char *)0 /* chart_title */,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
+
+			google_chart_output_chart_instantiation(
+				output_file,
+				google_chart->chart_number );
+
+		} while( list_next( output_chart_list ) );
+
+	} /* if list_rewind() */
+
+	fprintf( output_file, "</body>\n" );
+	fprintf( output_file, "</html>\n" );
+
+} /* google_chart_output_all_charts() */
+
+void google_chart_output_graph_window(
+			char *application_name,
+			char *appaserver_mount_point,
+			boolean with_document_output,
+			char *window_name,
+			char *prompt_filename,
+			char *where_clause )
+{
+	DOCUMENT *document;
+
+	if ( with_document_output )
+	{
+		document = document_new( "", application_name );
+		document_set_output_content_type( document );
+	
+		document_output_head(
+				document->application_name,
+				document->title,
+				document->output_content_type,
+				appaserver_mount_point,
+				document->javascript_module_list,
+				document->stylesheet_filename,
+				application_get_relative_source_directory(
+					application_name ),
+				0 /* not with_dynarch_menu */ );
+	}
+
+
+	printf(
+"<body bgcolor=\"%s\" onload=\"window.open('%s','%s');\">\n",
+		application_get_background_color( application_name ),
+		prompt_filename,
+		window_name );
+
+	printf( "<h1>Easycharts Chart Viewer " );
+	fflush( stdout );
+	system( "date '+%x %H:%M'" );
+	printf( "</h1>\n" );
+
+	if ( where_clause && *where_clause )
+		printf( "<br>Search criteria: %s\n", where_clause );
+
+	printf( "<br><hr><a href=\"%s\" target=%s>Press to view chart.</a>\n",
+		prompt_filename,
+		window_name );
+
+	if ( with_document_output ) document_close();
+
+} /* google_chart_output_graph_window() */
 

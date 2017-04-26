@@ -671,11 +671,6 @@ if ( bar_chart ){};
 		return;
 	}
 
-/*
-	google_timeline_display(google_chart->timeline_list,
-				google_chart->datatype_name_list );
-*/
-
 	fprintf( output_file, "<html>\n" );
 	fprintf( output_file, "<head>\n" );
 

@@ -91,6 +91,8 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+GOOGLE_CHART *google_chart_new(		void );
+
 GOOGLE_INPUT_VALUE *google_chart_input_value_new(
 					char *date_time );
 
@@ -298,5 +300,17 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 
 LIST *google_chart_get_datatype_name_list(
 				LIST *datatype_list );
+
+void google_chart_output_all_charts(
+				FILE *output_file,
+				LIST *output_chart_list );
+
+void google_chart_output_graph_window(
+				char *application_name,
+				char *appaserver_mount_point,
+				boolean with_document_output,
+				char *window_name,
+				char *prompt_filename,
+				char *where_clause );
 
 #endif

@@ -23,6 +23,7 @@
 #include "document.h"
 #include "google_chart.h"
 #include "appaserver_parameter_file.h"
+#include "appaserver_link_file.h"
 #include "environ.h"
 #include "statistics_weighted.h"
 #include "application_constants.h"
@@ -54,7 +55,6 @@ LIST *get_unit_chart_list(
 
 boolean populate_unit_chart_list_data(
 			LIST *unit_chart_list,
-			LIST *datatype_list,
 			char *application_name,
 			char *station_name,
 			char *begin_date,
@@ -83,11 +83,10 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	enum aggregate_level aggregate_level;
 	enum validation_level validation_level;
-	GOOGLECHART *google_chart;
+	GOOGLE_CHART *google_chart;
 	char *chart_filename;
 	char *prompt_filename;
 	FILE *chart_file;
-	char applet_library_archive[ 128 ];
 	char title[ 256 ];
 	char sub_title[ 256 ];
 	char *process_name;
@@ -253,6 +252,8 @@ int main( int argc, char **argv )
 		 "\\n%s",
 		 sub_title );
 
+	google_chart = google_chart_new();
+
 	if ( ! ( google_chart->unit_chart_list =
 			get_unit_chart_list(
 				datatype_list ) ) )
@@ -264,8 +265,7 @@ int main( int argc, char **argv )
 	}
 
 	if ( !populate_unit_chart_list_data(
-			unit_chart->input_chart_list,
-			datatype_list,
+			google_chart->unit_chart_list,
 			application_name,
 			station_name,
 			begin_date,
@@ -286,8 +286,6 @@ int main( int argc, char **argv )
 	google_chart_output_all_charts(
 			chart_file,
 			google_chart->output_chart_list );
-
-	google_chart_output_html( chart_file );
 
 	fclose( chart_file );
 
@@ -438,7 +436,7 @@ LIST *get_unit_chart_list( LIST *datatype_list )
 			list_append_pointer(	unit_chart->datatype_list,
 						input_datatype );
 
-			unit_chart->bar_chart = input_datatype->bar_chart;
+			/* unit_chart->bar_chart = input_datatype->bar_chart; */
 
 			sprintf(yaxis_label,
 				"%s (%s)",
@@ -457,7 +455,6 @@ LIST *get_unit_chart_list( LIST *datatype_list )
 
 boolean populate_unit_chart_list_data(
 			LIST *unit_chart_list,
-			LIST *datatype_list,
 			char *application_name,
 			char *station_name,
 			char *begin_date,

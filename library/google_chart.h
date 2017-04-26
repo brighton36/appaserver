@@ -97,7 +97,7 @@ GOOGLE_UNIT_CHART *google_unit_chart_new(
 					char *unit );
 
 GOOGLE_INPUT_DATATYPE *google_input_datatype_new(
-					void );
+					char *datatype_name );
 
 GOOGLE_OUTPUT_CHART *google_output_chart_new(
 					enum google_chart_type,

@@ -1184,7 +1184,7 @@ GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
 
 } /* google_unit_chart_new() */
 
-GOOGLE_INPUT_DATATYPE *google_input_datatype_new( void )
+GOOGLE_INPUT_DATATYPE *google_input_datatype_new( char *datatype_name )
 {
 	GOOGLE_INPUT_DATATYPE *g;
 
@@ -1199,6 +1199,7 @@ GOOGLE_INPUT_DATATYPE *google_input_datatype_new( void )
 		exit( 1 );
 	}
 
+	g->datatype_name = datatype_name;
 	return g;
 
 } /* google_input_datatype_new() */

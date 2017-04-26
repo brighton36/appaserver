@@ -39,11 +39,20 @@
 
 /* Prototypes */
 /* ---------- */
+boolean populate_unit_chart_data(
+			LIST *unit_chart_datatype_list,
+			char *application_name,
+			char *station_name,
+			char *begin_date,
+			char *end_date,
+			enum validation_level validation_level,
+			enum aggregate_level aggregate_level );
+
 LIST *get_unit_chart_list(
 			LIST *datatype_list );
 
-boolean populate_input_chart_list_data(
-			LIST *input_chart_list,
+boolean populate_unit_chart_list_data(
+			LIST *unit_chart_list,
 			LIST *datatype_list,
 			char *application_name,
 			char *station_name,
@@ -253,8 +262,8 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( !populate_input_chart_list_data(
-			easycharts->input_chart_list,
+	if ( !populate_unit_chart_list_data(
+			unit_chart->input_chart_list,
 			datatype_list,
 			application_name,
 			station_name,
@@ -381,32 +390,6 @@ char *get_sys_string(	char *application_name,
 		}
 	}
 
-/*
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			  "
-		 "			folder=%s			  "
-		 "			select='%s'			  "
-		 "			where=\"%s\"			 |"
-		 "%s							 |"
-		 "piece_shift_left.e '^'				 |"
-		 "piece_shift_left.e '^'				 |"
-		 "pad_missing_times.e '^' 0,1,2 %s %s 0000 %s 2359 0 '%s'|"
-		 "piece_shift_right.e '^'				 |"
-		 "piece_shift_right.e '^'				 |"
-		 "sed 's/\\^/:/1'					 |"
-		 "cat							  ",
-		 application_name,
-		 SOURCE_FOLDER,
-		 select_list_string,
-		 where_clause,
-		 intermediate_process,
-		 aggregate_level_get_string( aggregate_level ),
-		 begin_date_string,
-		 end_date_string,
-		 hydrology_library_get_expected_count_list_string(
-			application_name, station_name, datatype_name, '|' ) );
-*/
-
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			  "
 		 "			folder=%s			  "
@@ -434,7 +417,7 @@ char *get_sys_string(	char *application_name,
 LIST *get_unit_chart_list( LIST *datatype_list )
 {
 	DATATYPE *datatype;
-	char y_axis_label[ 128 ];
+	char yaxis_label[ 128 ];
 	GOOGLE_UNIT_CHART *unit_chart;
 	GOOGLE_INPUT_DATATYPE *input_datatype;
 	LIST *unit_list;
@@ -450,57 +433,56 @@ LIST *get_unit_chart_list( LIST *datatype_list )
 
 	if ( !list_rewind( unit_list ) ) return (LIST *)0;
 
+	unit_chart_list = list_new();
+
 	do {
 		unit = list_get_pointer( unit_list );
 
+		datatypes_for_unit_list =
+			datatype_get_datatypes_for_unit(
+				datatype_list,
+				unit );
+
+		if ( !list_rewind( datatypes_for_unit_list ) )
+			continue;
+
 		unit_chart = google_unit_chart_new( unit );
 
-LIST *datatype_get_datatypes_for_unit(
-			LIST *datatype_list,
-			char *unit )
-		datatype = list_get_pointer( datatype_list );
+		list_append_pointer(
+			unit_chart_list,
+			unit_chart );
+			
+		do {
+			datatype =
+				list_get_pointer(
+					datatypes_for_unit_list );
 
-		/* Build the chart */
-		/* --------------- */
-		input_chart = easycharts_new_input_chart();
-		list_append_pointer(	input_chart_list,
-					input_chart );
+			input_datatype =
+				google_input_datatype_new(
+					datatype->datatype_name );
 
-		input_chart->bar_chart = datatype->bar_chart;
+			list_append_pointer(	unit_chart->datatype_list,
+						input_datatype );
 
-		if ( input_chart->bar_chart )
-		{
-			input_chart->applet_library_code =
-				EASYCHARTS_APPLET_LIBRARY_BAR_CHART;
-			input_chart->bar_labels_on = 1;
-		}
-		else
-		{
-			input_chart->applet_library_code =
-				EASYCHARTS_APPLET_LIBRARY_LINE_CHART;
-		}
+			unit_chart->bar_chart = input_datatype->bar_chart;
 
-		sprintf(y_axis_label,
-			"%s (%s)",
-			datatype->datatype_name,
-			datatype->units );
+			sprintf(yaxis_label,
+				"%s (%s)",
+				datatype->datatype_name,
+				datatype->units );
 	
-		input_chart->y_axis_label = strdup( y_axis_label );
+			unit_chart->yaxis_label = strdup( yaxis_label );
 	
-		/* Build the datatype */
-		/* ------------------ */
-		input_datatype = easycharts_new_input_datatype(
-					datatype->datatype_name,
-					datatype->units );
-		list_append_pointer(	input_chart->datatype_list,
-					input_datatype );
+		} while( list_next( datatypes_for_unit_list ) );
 
-	} while( list_next( datatype_list ) );
+	} while( list_next( unit_list ) );
+
+	return unit_chart_list;
 
 } /* get_unit_chart_list() */
 
-boolean populate_input_chart_list_data(
-			LIST *input_chart_list,
+boolean populate_unit_chart_list_data(
+			LIST *unit_chart_list,
 			LIST *datatype_list,
 			char *application_name,
 			char *station_name,
@@ -509,19 +491,54 @@ boolean populate_input_chart_list_data(
 			enum validation_level validation_level,
 			enum aggregate_level aggregate_level )
 {
+	GOOGLE_UNIT_CHART *unit_chart;
+
+	if ( !list_rewind( unit_chart_list ) ) return 0;
+
+	do {
+		unit_chart = list_get_pointer( unit_chart_list );
+
+		if ( !populate_unit_chart_data(
+			unit_chart->datatype_list,
+			application_name,
+			station_name,
+			begin_date,
+			end_date,
+			validation_level,
+			aggregate_level ) )
+		{
+			return 0;
+		}
+
+	} while( list_next( unit_chart_list ) );
+
+	return 1;
+
+} /* populate_unit_chart_list_data() */
+
+boolean populate_unit_chart_data(
+			LIST *unit_chart_datatype_list,
+			char *application_name,
+			char *station_name,
+			char *begin_date,
+			char *end_date,
+			enum validation_level validation_level,
+			enum aggregate_level aggregate_level )
+{
 	int got_input = 0;
-	DATATYPE *datatype;
+	GOOGLE_INPUT_DATATYPE *datatype;
 	char where_clause[ 1024 ];
 	char *sys_string;
 
-	if ( !list_rewind( datatype_list ) ) return 0;
+	if ( !list_rewind( unit_chart_datatype_list ) ) return 0;
+
 	do {
-		datatype = list_get_pointer( datatype_list );
+		datatype = list_get_pointer( unit_chart_datatype_list );
 
 		if ( *end_date
 		&&   strcmp( end_date, "end_date" ) != 0 )
 		{
-			sprintf( where_clause,
+			sprintf(where_clause,
 			 	"station = '%s' and			"
 			 	"datatype = '%s' and			"
 				"measurement_date between '%s' and '%s'	",
@@ -532,7 +549,7 @@ boolean populate_input_chart_list_data(
 		}
 		else
 		{
-			sprintf( where_clause,
+			sprintf(where_clause,
 			 	"station = '%s' and			"
 			 	"datatype = '%s' and			"
 				"measurement_date = '%s'		",
@@ -553,7 +570,8 @@ boolean populate_input_chart_list_data(
 				" and last_validation_date is not null" );
 		}
 	
-		sys_string = get_sys_string(	
+		sys_string =
+			get_sys_string(	
 				application_name,
 				where_clause,
 				aggregate_level,
@@ -564,7 +582,6 @@ boolean populate_input_chart_list_data(
 				begin_date,
 				end_date );
 
-/*
 {
 char msg[ 65536 ];
 sprintf( msg, "%s/%s()/%d: sys_string = %s\n",
@@ -574,9 +591,8 @@ __LINE__,
 sys_string );
 m2( "audubon", msg );
 }
-*/
-		if ( easycharts_set_all_input_values(
-				input_chart_list,
+		if ( google_value_hash_table_set(
+				datatype->value_hash_table,
 				sys_string,
 				2 /* datatype_piece */,
 				0  /* date_time_piece */,
@@ -588,9 +604,9 @@ m2( "audubon", msg );
 
 		free( sys_string );
 
-	} while( list_next( datatype_list ) );
+	} while( list_next( unit_chart_datatype_list ) );
 
 	return got_input;
 
-} /* populate_input_chart_list_data() */
+} /* populate_unit_chart_data() */
 

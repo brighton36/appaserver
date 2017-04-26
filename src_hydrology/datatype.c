@@ -512,3 +512,56 @@ DATATYPE *datatype_list_exo_load_heading_seek(
 
 } /* datatype_list_exo_load_heading_seek() */
 
+LIST *datatype_list_get_unique_unit_list(
+			LIST *datatype_list )
+{
+	DATATYPE *datatype;
+	LIST *unit_list;
+
+	if ( !list_rewind( datatype_list ) ) return (LIST *)0;
+
+	unit_list = list_new();
+
+	do {
+		datatype = list_get_pointer( datatype_list );
+
+		if ( !list_exists_string( unit_list, datatype->units ) )
+		{
+			list_append_pointer(
+				unit_list,
+				datatype->units );
+		}
+
+	} while( list_next( datatype_list ) );
+
+	return unit_list;
+
+} /* datatype_list_get_unique_unit_list() */
+
+LIST *datatype_get_datatypes_for_unit(
+			LIST *datatype_list,
+			char *unit )
+{
+	DATATYPE *datatype;
+	LIST *return_list;
+
+	if ( !list_rewind( datatype_list ) ) return (LIST *)0;
+
+	return_list = list_new();
+
+	do {
+		datatype = list_get_pointer( datatype_list );
+
+		if ( strcasecmp(
+			unit,
+			datatype->units ) == 0 )
+		{
+			list_append_pointer( return_list, datatype );
+		}
+
+	} while( list_next( datatype_list ) );
+
+	return return_list;
+
+} /* datatype_get_datatypes_for_unit() */
+

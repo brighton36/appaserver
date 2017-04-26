@@ -63,7 +63,7 @@ void output_measurement_googlecharts(
 			char *chart_title,
 			char *document_root_directory );
 
-GOOGLE_CHART *get_google_chart(
+GOOGLE_OUTPUT_CHART *get_google_chart(
 			char *application_name,
 			char *where_clause,
 			enum aggregate_level aggregate_level,
@@ -537,7 +537,7 @@ boolean populate_point_array(	LIST *timeline_list,
 
 } /* populate_point_array() */
 
-GOOGLE_CHART *get_google_chart(
+GOOGLE_OUTPUT_CHART *get_google_chart(
 			char *application_name,
 			char *where_clause,
 			enum aggregate_level aggregate_level,
@@ -553,11 +553,11 @@ GOOGLE_CHART *get_google_chart(
 			char accumulate_yn,
 			boolean bypass_data_collection_frequency )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char *sys_string;
 
 	google_chart =
-		google_chart_new(
+		google_output_chart_new(
 			google_time_line,
 			GOOGLE_CHART_POSITION_LEFT,
 			GOOGLE_CHART_POSITION_TOP,
@@ -592,7 +592,7 @@ GOOGLE_CHART *get_google_chart(
 				google_chart->datatype_name_list,
 				sys_string ) )
 	{
-		return (GOOGLE_CHART *)0;;
+		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;
@@ -620,7 +620,7 @@ void output_measurement_googlecharts(
 			char *chart_title,
 			char *document_root_directory )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char *output_filename;
 	char *prompt_filename;
 	FILE *output_file;

@@ -57,11 +57,49 @@ typedef struct
 	LIST *datatype_name_list;
 	char *google_package_name;
 	int chart_number;
+} GOOGLE_OUTPUT_CHART;
+
+typedef struct
+{
+	char *date_time;
+	double value;
+	boolean null_value;
+} GOOGLE_INPUT_VALUE;
+
+typedef struct
+{
+	char *datatype_name;
+	HASH_TABLE *value_hash_table;
+} GOOGLE_INPUT_DATATYPE;
+
+typedef struct
+{
+	char *unit;
+	LIST *datatype_list;
+	DICTIONARY *date_time_dictionary;
+	char *xaxis_label;
+	char *yaxis_label;
+	boolean bar_chart;
+} GOOGLE_UNIT_CHART;
+
+typedef struct
+{
+	LIST *unit_chart_list;
+	LIST *output_chart_list;
 } GOOGLE_CHART;
 
 /* Prototypes */
 /* ---------- */
-GOOGLE_CHART *google_chart_new(
+GOOGLE_INPUT_VALUE *google_input_value_new(
+					void );
+
+GOOGLE_UNIT_CHART *google_unit_chart_new(
+					char *unit );
+
+GOOGLE_INPUT_DATATYPE *google_input_datatype_new(
+					void );
+
+GOOGLE_OUTPUT_CHART *google_output_chart_new(
 					enum google_chart_type,
 					int left,
 					int top,

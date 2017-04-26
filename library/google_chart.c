@@ -16,7 +16,7 @@
 #include "appaserver_library.h"
 #include "appaserver_link_file.h"
 
-GOOGLE_CHART *google_chart_new(
+GOOGLE_OUTPUT_CHART *google_output_chart_new(
 				enum google_chart_type google_chart_type,
 				int left,
 				int top,
@@ -26,29 +26,37 @@ GOOGLE_CHART *google_chart_new(
 				boolean legend_position_bottom,
 				char *google_package_name )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_output_chart;
 	static int chart_number = 0;
 
-	google_chart =
-		(GOOGLE_CHART *)
-			calloc( 1, sizeof( GOOGLE_CHART ) );
+	if ( ! ( google_output_chart =
+			(GOOGLE_OUTPUT_CHART *)
+				calloc( 1, sizeof( GOOGLE_OUTPUT_CHART ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
-	google_chart->google_chart_type = google_chart_type;
-	google_chart->left = left;
-	google_chart->top = top;
-	google_chart->width = width;
-	google_chart->height = height;
-	google_chart->background_color = background_color;
-	google_chart->legend_position_bottom = legend_position_bottom;
-	google_chart->barchart_list = list_new();
-	google_chart->timeline_list = list_new();
-	google_chart->datatype_name_list = list_new();
-	google_chart->google_package_name = google_package_name;
-	google_chart->chart_number = ++chart_number;
+	google_output_chart->google_chart_type = google_chart_type;
+	google_output_chart->left = left;
+	google_output_chart->top = top;
+	google_output_chart->width = width;
+	google_output_chart->height = height;
+	google_output_chart->background_color = background_color;
+	google_output_chart->legend_position_bottom = legend_position_bottom;
+	google_output_chart->barchart_list = list_new();
+	google_output_chart->timeline_list = list_new();
+	google_output_chart->datatype_name_list = list_new();
+	google_output_chart->google_package_name = google_package_name;
+	google_output_chart->chart_number = ++chart_number;
 
-	return google_chart;
+	return google_output_chart;
 
-} /* google_chart_new() */
+} /* google_output_chart_new() */
 
 GOOGLE_BARCHART *google_barchart_new(
 				char *stratum_name,
@@ -72,8 +80,17 @@ GOOGLE_BARCHART *google_barchart_new(
 
 	google_barchart->stratum_name = stratum_name;
 
-	google_barchart->point_array =
-		calloc( length_datatype_name_list, sizeof( double * ) );
+	if ( ! ( google_barchart->point_array =
+			calloc(	length_datatype_name_list,
+				sizeof( double * ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	return google_barchart;
 
@@ -103,8 +120,17 @@ GOOGLE_TIMELINE *google_timeline_new(
 	google_timeline->date_string = date_string;
 	google_timeline->time_hhmm = time_hhmm;
 
-	google_timeline->point_array =
-		calloc( length_datatype_name_list, sizeof( double * ) );
+	if ( ! ( google_timeline->point_array =
+			calloc(	length_datatype_name_list,
+				sizeof( double * ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	return google_timeline;
 
@@ -344,7 +370,17 @@ void google_barchart_set_point(		LIST *barchart_list,
 		exit( 1 );
 	}
 
-	barchart->point_array[ offset ] = calloc( 1, sizeof( double ) );
+	if ( ! ( barchart->point_array[ offset ] =
+			calloc( 1, sizeof( double ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	*barchart->point_array[ offset ] = point;
 
 } /* google_barchart_set_point() */
@@ -390,7 +426,17 @@ void google_timeline_set_point(	LIST *timeline_list,
 		exit( 1 );
 	}
 
-	timeline->point_array[ offset ] = calloc( 1, sizeof( double ) );
+	if ( ! ( timeline->point_array[ offset ] =
+			calloc( 1, sizeof( double ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	*timeline->point_array[ offset ] = point;
 
 } /* google_timeline_set_point() */
@@ -1098,4 +1144,62 @@ void google_chart_output_options(
 	fprintf( output_file, "\n\t}\n" );
 
 } /* google_chart_output_options() */
+
+GOOGLE_INPUT_VALUE *google_input_value_new( void )
+{
+	GOOGLE_INPUT_VALUE *g;
+
+	if ( ! ( g = (GOOGLE_INPUT_VALUE *)
+			calloc( 1, sizeof( GOOGLE_INPUT_VALUE ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return g;
+
+} /* google_input_value_new() */
+
+GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
+{
+	GOOGLE_UNIT_CHART *g;
+
+	if ( ! ( g = (GOOGLE_UNIT_CHART *)
+			calloc( 1, sizeof( GOOGLE_UNIT_CHART ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	g->unit = unit;
+	return g;
+
+} /* google_unit_chart_new() */
+
+GOOGLE_INPUT_DATATYPE *google_input_datatype_new( void )
+{
+	GOOGLE_INPUT_DATATYPE *g;
+
+	if ( ! ( g = (GOOGLE_INPUT_DATATYPE *)
+			calloc( 1, sizeof( GOOGLE_INPUT_DATATYPE ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return g;
+
+} /* google_input_datatype_new() */
 

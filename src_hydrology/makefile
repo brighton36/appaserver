@@ -662,13 +662,13 @@ output_hydroperiod_annually: output_hydroperiod_annually.c		\
 output_measurement_sets_googlechart:					\
 		output_measurement_sets_googlechart.c			\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
-		${LIBRARY}/googlechart.o
+		${LIBRARY}/google_chart.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		output_measurement_sets_googlechart.c			\
 		-o output_measurement_sets_googlechart
 

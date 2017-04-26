@@ -96,19 +96,19 @@ boolean populate_point_array_historical(
 				char *aggregation_function,
 				char *datatype_name );
 
-GOOGLE_CHART *get_google_historical_long_term_chart(
+GOOGLE_OUTPUT_CHART *get_google_historical_long_term_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
 				char *application_name );
 
-GOOGLE_CHART *get_google_historical_current_chart(
+GOOGLE_OUTPUT_CHART *get_google_historical_current_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
 				char *application_name );
 
-GOOGLE_CHART *get_google_current_chart(
+GOOGLE_OUTPUT_CHART *get_google_current_chart(
 				char *application_name,
 				LIST *station_name_list,
 				char *datatype_name );
@@ -1037,7 +1037,7 @@ boolean output_historical_long_term(
 				char *units,
 				char *application_name )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
 	LIST *datatype_name_display_list;
 
@@ -1118,16 +1118,16 @@ boolean output_historical_long_term(
 
 } /* output_historical_long_term() */
 
-GOOGLE_CHART *get_google_current_chart(
+GOOGLE_OUTPUT_CHART *get_google_current_chart(
 				char *application_name,
 				LIST *station_name_list,
 				char *datatype_name )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	boolean bar_chart;
 
 	google_chart =
-		google_chart_new(
+		google_output_chart_new(
 			google_time_line,
 			LOCAL_CHART_POSITION_LEFT,
 			LOCAL_CHART_POSITION_TOP,
@@ -1157,25 +1157,25 @@ GOOGLE_CHART *get_google_current_chart(
 				bar_chart,
 				application_name ) )
 	{
-		return (GOOGLE_CHART *)0;;
+		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;
 
 } /* get_google_current_chart() */
 
-GOOGLE_CHART *get_google_historical_long_term_chart(
+GOOGLE_OUTPUT_CHART *get_google_historical_long_term_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
 				char *application_name )
 
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char *aggregation_function;
 
 	google_chart =
-		google_chart_new(
+		google_output_chart_new(
 			google_column_chart,
 			LOCAL_CHART_POSITION_LEFT,
 			LOCAL_CHART_POSITION_TOP,
@@ -1216,7 +1216,7 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 			aggregation_function,
 			datatype_name ) )
 	{
-		return (GOOGLE_CHART *)0;;
+		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;
@@ -1436,7 +1436,7 @@ void output_current(	FILE *output_file,
 			LIST *station_name_list,
 			char *datatype_name )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
 	if ( ! ( google_chart =
@@ -1659,7 +1659,7 @@ void output_historical_current(
 				boolean bar_chart,
 				char *application_name )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
 	if ( ! ( google_chart =
@@ -1718,17 +1718,17 @@ void output_historical_current(
 
 } /* output_historical_current() */
 
-GOOGLE_CHART *get_google_historical_current_chart(
+GOOGLE_OUTPUT_CHART *get_google_historical_current_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
 				char *application_name )
 
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 
 	google_chart =
-		google_chart_new(
+		google_output_chart_new(
 		    google_time_line,
 		     LOCAL_CHART_POSITION_LEFT + 140,
 		     LOCAL_CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
@@ -1750,7 +1750,7 @@ GOOGLE_CHART *get_google_historical_current_chart(
 				bar_chart,
 				application_name ) )
 	{
-		return (GOOGLE_CHART *)0;;
+		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;

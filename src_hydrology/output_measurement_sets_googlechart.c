@@ -36,18 +36,10 @@
 
 /* Structures */
 /* ---------- */
-typedef struct
-{
-	LIST *chart_list;
-} GOOGLE_CHART_LIST;
 
 /* Prototypes */
 /* ---------- */
-GOOGLE_CHART_LIST *google_chart_list_new(
-			void );
-
-void populate_input_chart_list_datatypes(
-			LIST *input_chart_list,
+LIST *get_unit_chart_list(
 			LIST *datatype_list );
 
 boolean populate_input_chart_list_data(
@@ -251,11 +243,15 @@ int main( int argc, char **argv )
 		 "\\n%s",
 		 sub_title );
 
-
-here1
-	populate_input_chart_list_datatypes(
-			easycharts->input_chart_list,
-			datatype_list );
+	if ( ! ( google_chart->unit_chart_list =
+			get_unit_chart_list(
+				datatype_list ) ) )
+	{
+		printf(
+		"<h2>Warning: no datatypes to display.</h2>\n" );
+		document_close();
+		exit( 0 );
+	}
 
 	if ( !populate_input_chart_list_data(
 			easycharts->input_chart_list,
@@ -430,22 +426,38 @@ char *get_sys_string(	char *application_name,
 		 end_date_string,
 		 hydrology_library_get_expected_count_list_string(
 			application_name, station_name, datatype_name, '|' ) );
+
 	return strdup( sys_string );
 
 } /* get_sys_string() */
 
-void populate_input_chart_list_datatypes(
-					LIST *input_chart_list,
-					LIST *datatype_list )
+LIST *get_unit_chart_list( LIST *datatype_list )
 {
 	DATATYPE *datatype;
 	char y_axis_label[ 128 ];
-	EASYCHARTS_INPUT_CHART *input_chart;
-	EASYCHARTS_INPUT_DATATYPE *input_datatype;
+	GOOGLE_UNIT_CHART *unit_chart;
+	GOOGLE_INPUT_DATATYPE *input_datatype;
+	LIST *unit_list;
+	char *unit;
+	LIST *unit_chart_list;
+	LIST *datatypes_for_unit_list;
 
-	if ( !list_rewind( datatype_list ) ) return;
+	if ( !list_length( datatype_list ) ) return (LIST *)0;
+
+	unit_list =
+		datatype_list_get_unique_unit_list(
+			datatype_list );
+
+	if ( !list_rewind( unit_list ) ) return (LIST *)0;
 
 	do {
+		unit = list_get_pointer( unit_list );
+
+		unit_chart = google_unit_chart_new( unit );
+
+LIST *datatype_get_datatypes_for_unit(
+			LIST *datatype_list,
+			char *unit )
 		datatype = list_get_pointer( datatype_list );
 
 		/* Build the chart */
@@ -485,7 +497,7 @@ void populate_input_chart_list_datatypes(
 
 	} while( list_next( datatype_list ) );
 
-} /* populate_input_chart_list_datatypes() */
+} /* get_unit_chart_list() */
 
 boolean populate_input_chart_list_data(
 			LIST *input_chart_list,
@@ -581,26 +593,4 @@ m2( "audubon", msg );
 	return got_input;
 
 } /* populate_input_chart_list_data() */
-
-GOOGLE_CHART_LIST *google_chart_list_new( void )
-{
-	GOOGLE_CHART_LIST *google_chart_list;
-
-	if ( ! ( google_chart_list =
-			(GOOGLE_CHART_LIST *)calloc(
-				1, sizeof( GOOGLE_CHART_LIST ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	google_chart_list->chart_list = list_new();
-
-	return google_chart_list;
-
-} /* google_chart_list_new() */
 

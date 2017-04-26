@@ -99,4 +99,11 @@ DATATYPE *datatype_list_exo_load_heading_seek(
 			LIST *datatype_list,
 			char *two_line_datatype_heading );
 
+LIST *datatype_list_get_unique_unit_list(
+			LIST *datatype_list );
+
+LIST *datatype_get_datatypes_for_unit(
+			LIST *datatype_list,
+			char *unit );
+
 #endif

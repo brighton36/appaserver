@@ -90,8 +90,8 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-GOOGLE_INPUT_VALUE *google_input_value_new(
-					void );
+GOOGLE_INPUT_VALUE *google_chart_input_value_new(
+					char *date_time );
 
 GOOGLE_UNIT_CHART *google_unit_chart_new(
 					char *unit );
@@ -266,5 +266,26 @@ char *google_chart_get_visualization_function_name(
 void google_chart_output_chart_instantiation(
 				FILE *output_file,
 				int chart_number );
+
+boolean google_chart_value_hash_table_set(
+				HASH_TABLE *value_hash_table,
+				DICTIONARY *date_time_dictionary,
+				char *sys_string,
+				int date_piece,
+				int time_piece,
+				int value_piece,
+				char delimiter );
+
+char *google_chart_get_date_time_key(
+				char *date_string,
+				char *time_string );
+
+boolean google_chart_set_input_value(
+				HASH_TABLE *value_hash_table,
+				DICTIONARY *date_time_dictionary,
+				char *date_string,
+				char *time_string,
+				double value,
+				boolean null_value );
 
 #endif

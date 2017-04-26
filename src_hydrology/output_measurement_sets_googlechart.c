@@ -32,7 +32,7 @@
 /* --------- */
 #define SOURCE_FOLDER				"measurement"
 #define DATE_PIECE				0
-#define SELECT_LIST				"measurement_date,measurement_time,measurement_value,datatype"
+#define SELECT_LIST				"measurement_date,measurement_time,measurement_value"
 
 /* Structures */
 /* ---------- */
@@ -41,6 +41,7 @@
 /* ---------- */
 boolean populate_unit_chart_data(
 			LIST *unit_chart_datatype_list,
+			DICTIONARY *date_time_dictionary,
 			char *application_name,
 			char *station_name,
 			char *begin_date,
@@ -278,48 +279,19 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	easycharts->output_chart_list =
-		easycharts_timeline_get_output_chart_list(
-			easycharts->input_chart_list );
+	google_chart->output_chart_list =
+		google_chart_timeline_get_output_chart_list(
+			google_chart->input_chart_list );
 
-	easycharts->yaxis_decimal_count =
-		easycharts_get_yaxis_decimal_count(
-			easycharts->output_chart_list );
-
-	easycharts_output_all_charts(
+	google_chart_output_all_charts(
 			chart_file,
-			easycharts->output_chart_list,
-			easycharts->highlight_on,
-			easycharts->highlight_style,
-			easycharts->point_highlight_size,
-			easycharts->series_labels,
-			easycharts->series_line_off,
-			easycharts->applet_library_archive,
-			easycharts->width,
-			easycharts->height,
-			easycharts->title,
-			easycharts->set_y_lower_range,
-			easycharts->legend_on,
-			easycharts->value_labels_on,
-			easycharts->sample_scroller_on,
-			easycharts->range_scroller_on,
-			easycharts->xaxis_decimal_count,
-			easycharts->yaxis_decimal_count,
-			easycharts->range_labels_off,
-			easycharts->value_lines_off,
-			easycharts->range_step,
-			easycharts->sample_label_angle,
-			easycharts->bold_labels,
-			easycharts->bold_legends,
-			easycharts->font_size,
-			easycharts->label_parameter_name,
-			1 /* include_sample_series_output */ );
+			google_chart->output_chart_list );
 
-	easycharts_output_html( chart_file );
+	google_chart_output_html( chart_file );
 
 	fclose( chart_file );
 
-	easycharts_output_graph_window(
+	google_chart_output_graph_window(
 				application_name,
 				appaserver_parameter_file->
 					appaserver_mount_point,
@@ -329,11 +301,14 @@ int main( int argc, char **argv )
 				(char *)0 /* where_clause */ );
 
 	document_close();
+
 	process_increment_execution_count(
 				application_name,
 				process_name,
 				appaserver_parameter_file_get_dbms() );
+
 	return 0;
+
 } /* main() */
 
 char *get_sys_string(	char *application_name,
@@ -397,7 +372,6 @@ char *get_sys_string(	char *application_name,
 		 "			where=\"%s\"			 |"
 		 "%s							 |"
 		 "pad_missing_times.e '^' 0,1,2 %s %s 0000 %s 2359 0 '%s'|"
-		 "sed 's/\\^/:/1'					 |"
 		 "cat							  ",
 		 application_name,
 		 SOURCE_FOLDER,
@@ -500,6 +474,7 @@ boolean populate_unit_chart_list_data(
 
 		if ( !populate_unit_chart_data(
 			unit_chart->datatype_list,
+			unit_chart->date_time_dictionary,
 			application_name,
 			station_name,
 			begin_date,
@@ -518,6 +493,7 @@ boolean populate_unit_chart_list_data(
 
 boolean populate_unit_chart_data(
 			LIST *unit_chart_datatype_list,
+			DICTIONARY *date_time_dictionary,
 			char *application_name,
 			char *station_name,
 			char *begin_date,
@@ -591,12 +567,13 @@ __LINE__,
 sys_string );
 m2( "audubon", msg );
 }
-		if ( google_value_hash_table_set(
+		if ( google_chart_value_hash_table_set(
 				datatype->value_hash_table,
+				date_time_dictionary,
 				sys_string,
-				2 /* datatype_piece */,
-				0  /* date_time_piece */,
-				1  /* value_piece */,
+				0  /* date_piece */,
+				1  /* time_piece */,
+				2  /* value_piece */,
 				'^'/* delimiter */ ) )
 		{
 			got_input = 1;

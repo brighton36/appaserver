@@ -1145,7 +1145,7 @@ void google_chart_output_options(
 
 } /* google_chart_output_options() */
 
-GOOGLE_INPUT_VALUE *google_input_value_new( void )
+GOOGLE_INPUT_VALUE *google_input_value_new( char *date_time )
 {
 	GOOGLE_INPUT_VALUE *g;
 
@@ -1160,6 +1160,7 @@ GOOGLE_INPUT_VALUE *google_input_value_new( void )
 		exit( 1 );
 	}
 
+	g->date_time = date_time;
 	return g;
 
 } /* google_input_value_new() */
@@ -1180,6 +1181,7 @@ GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
 	}
 
 	g->unit = unit;
+	g->date_time_dictionary = dictionary_large_new();
 	return g;
 
 } /* google_unit_chart_new() */
@@ -1203,4 +1205,154 @@ GOOGLE_INPUT_DATATYPE *google_input_datatype_new( char *datatype_name )
 	return g;
 
 } /* google_input_datatype_new() */
+
+boolean google_chart_value_hash_table_set(
+				HASH_TABLE *value_hash_table,
+				DICTIONARY *date_time_dictionary,
+				char *sys_string,
+				int date_piece,
+				int time_piece,
+				int value_piece,
+				char delimiter )
+{
+	FILE *input_pipe;
+	char date_string[ 128 ];
+	char time_string[ 128 ];
+	char value_string[ 128 ];
+	char input_buffer[ 1024 ];
+	boolean null_value;
+	boolean got_input = 0;
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		if ( !*input_buffer || *input_buffer == '#' )
+		{
+			continue;
+		}
+
+		piece(	date_string,
+			delimiter,
+			input_buffer,
+			date_piece );
+
+		if ( time_piece != -1 )
+		{
+			piece(	time_string,
+				delimiter,
+				input_buffer,
+				time_piece );
+		}
+		else
+		{
+			*time_string = '\0';
+		}
+
+		piece(	value_string,
+			delimiter,
+			input_buffer,
+			value_piece );
+
+		null_value = ( *value_string ) ? 0 : 1;
+
+		if ( !google_chart_set_input_value(
+			value_hash_table,
+			date_time_dictionary,
+			strdup( date_string ),
+			(*time_string) ? strdup( time_string ) : (char *)0,
+			atof( value_string ),
+			null_value ) )
+		{
+			pclose( input_pipe );
+			return 0;
+		}
+		got_input = 1;
+	}
+
+	pclose( input_pipe );
+	return got_input;
+
+} /* google_chart_value_hash_table_set() */
+
+char *google_chart_get_date_time_key(
+			char *date_string,
+			char *time_string )
+{
+	static char key[ 128 ];
+
+	if ( time_string && *time_string )
+	{
+		sprintf( key, "%s^%s", date_string, time_string );
+	}
+	else
+	{
+		strcpy( key, date_string );
+	}
+
+	return key;
+
+} /* google_chart_get_date_time_key() */
+
+boolean google_chart_set_input_value(
+				HASH_TABLE *value_hash_table,
+				DICTIONARY *date_time_dictionary,
+				char *date_string,
+				char *time_string,
+				double value,
+				boolean null_value )
+{
+	GOOGLE_INPUT_VALUE *input_value;
+	char *date_time_key;
+
+	if ( !value_hash_table )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty value_hash_table.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return 0;
+	}
+
+	if ( !date_time_dictionary )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty date_time_dictionary.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return 0;
+	}
+
+	date_time_key =
+		google_chart_get_date_time_key(
+			date_string,
+			time_string );
+
+	input_value =
+		google_chart_input_value_new(
+			strdup( date_time_key ) );
+
+	input_value->value = value;
+	input_value->null_value = null_value;
+
+	hash_table_set_pointer(
+		value_hash_table,
+		input_value->date_time,
+		(void *)input_value );
+
+	if ( !dictionary_exists_key(
+		date_time_dictionary,
+		input_value->date_time ) )
+	{
+		dictionary_set_pointer(
+			date_time_dictionary,
+			input_value->date_time,
+			"" );
+	}
+
+	return 1;
+
+} /* google_chart_set_input_value() */
 

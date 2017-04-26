@@ -280,8 +280,8 @@ int main( int argc, char **argv )
 	}
 
 	google_chart->output_chart_list =
-		google_chart_timeline_get_output_chart_list(
-			google_chart->input_chart_list );
+		google_chart_unit_get_output_chart_list(
+			google_chart->unit_chart_list );
 
 	google_chart_output_all_charts(
 			chart_file,

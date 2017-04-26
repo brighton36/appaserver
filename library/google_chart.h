@@ -45,6 +45,7 @@ typedef struct
 
 typedef struct
 {
+	int chart_number;
 	enum google_chart_type google_chart_type;
 	int left;
 	int top;
@@ -56,7 +57,7 @@ typedef struct
 	LIST *timeline_list;
 	LIST *datatype_name_list;
 	char *google_package_name;
-	int chart_number;
+	char *yaxis_label;
 } GOOGLE_OUTPUT_CHART;
 
 typedef struct
@@ -287,5 +288,15 @@ boolean google_chart_set_input_value(
 				char *time_string,
 				double value,
 				boolean null_value );
+
+LIST *google_chart_unit_get_output_chart_list(
+				LIST *unit_chart_list );
+
+GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
+				LIST *datatype_list,
+				LIST *date_time_key_list );
+
+LIST *google_chart_get_datatype_name_list(
+				LIST *datatype_list );
 
 #endif

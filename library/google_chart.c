@@ -1181,7 +1181,12 @@ GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
 	}
 
 	g->unit = unit;
+
+	g->yaxis_label = strdup( unit );
+	format_initial_capital( g->yaxis_label, g->yaxis_label );
+
 	g->date_time_dictionary = dictionary_large_new();
+
 	return g;
 
 } /* google_unit_chart_new() */
@@ -1283,7 +1288,7 @@ char *google_chart_get_date_time_key(
 
 	if ( time_string && *time_string )
 	{
-		sprintf( key, "%s^%s", date_string, time_string );
+		sprintf( key, "%s:%s", date_string, time_string );
 	}
 	else
 	{
@@ -1355,4 +1360,139 @@ boolean google_chart_set_input_value(
 	return 1;
 
 } /* google_chart_set_input_value() */
+
+LIST *google_chart_get_datatype_name_list(
+			LIST *datatype_list )
+{
+	GOOGLE_INPUT_DATATYPE *input_datatype;
+	LIST *datatype_name_list;
+
+	if ( !list_rewind( datatype_list ) ) return (LIST *)0;
+
+	datatype_name_list = list_new();
+
+	do {
+		input_datatype = list_get_pointer( datatype_list );
+
+		list_append_pointer(
+			datatype_name_list,
+			input_datatype->datatype_name );
+
+	} while( list_next( datatype_list ) );
+
+	return datatype_name_list;
+
+} /* google_chart_get_datatype_name_list() */
+
+LIST *google_chart_unit_get_output_chart_list(
+			LIST *unit_chart_list )
+{
+	GOOGLE_UNIT_CHART *unit_chart;
+	GOOGLE_OUTPUT_CHART *output_chart;
+	LIST *output_chart_list;
+	LIST *date_time_key_list;
+
+	if ( !list_rewind( unit_chart_list ) ) return (LIST *)0;
+
+	output_chart_list = list_new_list();
+
+	do {
+		unit_chart = list_get_pointer( unit_chart_list );
+
+		date_time_key_list =
+			dictionary_get_ordered_key_list(
+				unit_chart->date_time_dictionary );
+
+		if ( !date_time_key_list
+		||   !list_length( date_time_key_list ) )
+		{
+			continue;
+		}
+
+		output_chart =
+			google_chart_unit_get_output_chart(
+				unit_chart->datatype_list,
+				date_time_key_list );
+
+		if ( !output_chart ) continue;
+
+		/* Copy input parameters to output */
+		/* ------------------------------- */
+		/* output_chart->bar_chart = unit_chart->bar_chart; */
+		/* output_chart->xaxis_label = unit_chart->xaxis_label; */
+		output_chart->yaxis_label = unit_chart->yaxis_label;
+
+		list_append_pointer( output_chart_list, output_chart );
+		list_free_string_container( date_time_key_list );
+
+	} while( list_next( unit_chart_list ) );
+
+	return output_chart_list;
+
+} /* google_chart_unit_get_output_chart_list() */
+
+GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
+				LIST *datatype_list,
+				LIST *date_time_key_list )
+{
+	GOOGLE_INPUT_DATATYPE *input_datatype;
+	GOOGLE_OUTPUT_CHART *output_chart;
+	GOOGLE_INPUT_VALUE *input_value;
+	char *date_time_key;
+
+	if ( !list_length( datatype_list )
+	||   !list_length( date_time_key_list ) )
+	{
+		return (GOOGLE_OUTPUT_CHART *)0;
+	}
+
+	output_chart =
+		google_output_chart_new(
+			google_time_line,
+			0 /* left */,
+			0 /* top */,
+			GOOGLE_CHART_WIDTH,
+			GOOGLE_CHART_HEIGHT,
+			GOOGLE_CHART_BACKGROUND_COLOR,
+			0 /* not legend_position_bottom */,
+			GOOGLE_ANNOTATED_TIMELINE
+				/* google_package_name */ );
+
+	output_chart->datatype_name_list =
+		google_chart_get_datatype_name_list(
+			datatype_list );
+
+	list_rewind( datatype_list );
+
+	do {
+		input_datatype = list_get_pointer( datatype_list );
+
+		list_rewind( date_time_key_list );
+
+		do {
+			date_time_key = list_get_pointer( date_time_key_list );
+
+			input_value =
+				hash_table_get_pointer(
+					input_datatype->value_hash_table,
+					date_time_key );
+
+			if ( !input_value->null_value )
+			{
+				google_timeline_set_point(
+					output_chart->timeline_list,
+					output_chart->datatype_name_list,
+					input_value->date_time,
+					(char *)0 /* time_hhmm */,
+					input_datatype->datatype_name,
+					input_value->value );
+			}
+
+		} while( list_next( date_time_key_list ) );
+
+	} while( list_next( datatype_list ) );
+
+	return output_chart;
+
+} /* google_chart_unit_get_output_chart() */
 

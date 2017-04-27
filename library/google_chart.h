@@ -292,11 +292,15 @@ boolean google_chart_set_input_value(
 				boolean null_value );
 
 LIST *google_chart_unit_get_output_chart_list(
-				LIST *unit_chart_list );
+				LIST *unit_chart_list,
+				int width,
+				int height );
 
 GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 				LIST *datatype_list,
-				LIST *date_time_key_list );
+				LIST *date_time_key_list,
+				int width,
+				int height );
 
 LIST *google_chart_get_datatype_name_list(
 				LIST *datatype_list );

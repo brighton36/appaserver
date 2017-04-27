@@ -1431,7 +1431,9 @@ LIST *google_chart_get_datatype_name_list(
 } /* google_chart_get_datatype_name_list() */
 
 LIST *google_chart_unit_get_output_chart_list(
-			LIST *unit_chart_list )
+			LIST *unit_chart_list,
+			int width,
+			int height )
 {
 	GOOGLE_UNIT_CHART *unit_chart;
 	GOOGLE_OUTPUT_CHART *output_chart;
@@ -1458,7 +1460,9 @@ LIST *google_chart_unit_get_output_chart_list(
 		output_chart =
 			google_chart_unit_get_output_chart(
 				unit_chart->datatype_list,
-				date_time_key_list );
+				date_time_key_list,
+				width,
+				height );
 
 		if ( !output_chart ) continue;
 
@@ -1479,7 +1483,9 @@ LIST *google_chart_unit_get_output_chart_list(
 
 GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 				LIST *datatype_list,
-				LIST *date_time_key_list )
+				LIST *date_time_key_list,
+				int width,
+				int height )
 {
 	GOOGLE_INPUT_DATATYPE *input_datatype;
 	GOOGLE_OUTPUT_CHART *output_chart;
@@ -1497,8 +1503,8 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 			google_time_line,
 			0 /* left */,
 			0 /* top */,
-			GOOGLE_CHART_WIDTH,
-			GOOGLE_CHART_HEIGHT,
+			width,
+			height,
 			GOOGLE_CHART_BACKGROUND_COLOR,
 			0 /* not legend_position_bottom */,
 			GOOGLE_ANNOTATED_TIMELINE

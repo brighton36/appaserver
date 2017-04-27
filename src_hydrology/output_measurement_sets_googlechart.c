@@ -31,6 +31,7 @@
 
 /* Constants */
 /* --------- */
+#define CHART_HEIGHT				200
 #define SOURCE_FOLDER				"measurement"
 #define DATE_PIECE				0
 #define SELECT_LIST				"measurement_date,measurement_time,measurement_value"
@@ -66,10 +67,8 @@ char *get_sys_string(	char *application_name,
 			char *where_clause,
 			enum aggregate_level aggregate_level,
 			enum aggregate_statistic aggregate_statistic,
-			char *station_name,
 			char *datatype_name,
 			int date_piece,
-			char *begin_date_string,
 			char *end_date_string );
 
 int main( int argc, char **argv )
@@ -279,7 +278,9 @@ int main( int argc, char **argv )
 
 	google_chart->output_chart_list =
 		google_chart_unit_get_output_chart_list(
-			google_chart->unit_chart_list );
+			google_chart->unit_chart_list,
+			GOOGLE_CHART_WIDTH,
+			CHART_HEIGHT );
 
 	google_chart_output_all_charts(
 			chart_file,
@@ -315,10 +316,8 @@ char *get_sys_string(	char *application_name,
 			char *where_clause,
 			enum aggregate_level aggregate_level,
 			enum aggregate_statistic aggregate_statistic,
-			char *station_name,
 			char *datatype_name,
 			int date_piece,
-			char *begin_date_string,
 			char *end_date_string )
 {
 	char sys_string[ 4096 ];
@@ -563,10 +562,8 @@ boolean populate_unit_chart_data(
 				where_clause,
 				aggregate_level,
 				aggregate_statistic_none,
-				station_name,
 				datatype->datatype_name,
 				DATE_PIECE,
-				begin_date,
 				end_date );
 
 		if ( google_chart_value_hash_table_set(

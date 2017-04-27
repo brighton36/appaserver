@@ -244,13 +244,25 @@ LIST *datatype_get_datatype_list(
 	FILE *input_pipe;
 	LIST *datatype_list = list_new_list();
 
-	sprintf(	buffer,
-			"datatype_unit_record_list.sh %s %s %c %s",
+	if ( plot_for_station_check_yn )
+	{
+		sprintf(buffer,
+			"datatype_unit_record_list.sh %s %s '%c' %s",
 			application_name,
 			station_name,
 			plot_for_station_check_yn,
 			aggregate_statistic_get_string(
 				aggregate_statistic ) );
+	}
+	else
+	{
+		sprintf(buffer,
+			"datatype_unit_record_list.sh %s %s '' %s",
+			application_name,
+			station_name,
+			aggregate_statistic_get_string(
+				aggregate_statistic ) );
+	}
 
 	input_pipe = popen( buffer, "r" );
 

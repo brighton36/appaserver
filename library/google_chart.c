@@ -1230,6 +1230,7 @@ GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
 	format_initial_capital( g->yaxis_label, g->yaxis_label );
 
 	g->date_time_dictionary = dictionary_large_new();
+	g->datatype_list = list_new();
 
 	return g;
 
@@ -1251,6 +1252,7 @@ GOOGLE_INPUT_DATATYPE *google_input_datatype_new( char *datatype_name )
 	}
 
 	g->datatype_name = datatype_name;
+	g->value_hash_table = hash_table_new( hash_table_large );
 	return g;
 
 } /* google_input_datatype_new() */
@@ -1520,6 +1522,8 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 				hash_table_get_pointer(
 					input_datatype->value_hash_table,
 					date_time_key );
+
+			if ( !input_value ) continue;
 
 			if ( !input_value->null_value )
 			{

@@ -109,7 +109,7 @@ int main( int argc, char **argv )
 	end_date = argv[ 5 ];
 	aggregate_level_string = argv[ 6 ];
 	validation_level_string = argv[ 7 ];
-	plot_for_station_check_yn = *argv[ 8 ];
+	if ( ( plot_for_station_check_yn = *argv[ 8 ] ) ) {};
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -179,7 +179,7 @@ int main( int argc, char **argv )
 		datatype_get_datatype_list(
 					application_name,
 					station_name,
-					plot_for_station_check_yn,
+					0 /* plot_for_station_check_yn */,
 					aggregate_statistic_none );
 
 	if ( !list_length( datatype_list ) )
@@ -188,9 +188,7 @@ int main( int argc, char **argv )
 						appaserver_parameter_file->
 						appaserver_mount_point );
 
-		printf( "<p>Warning: no graphs to display.\n" );
-		printf(
-"<p>If data exists, check station_datatype.plot_for_station_check_yn, datatype.units, or station_datatype.validation_required_yn.\n" );
+		printf( "<p>Warning: datatypes for this station.\n" );
 		document_close();
 		exit( 0 );
 	}
@@ -298,6 +296,10 @@ int main( int argc, char **argv )
 				prompt_filename,
 				(char *)0 /* where_clause */ );
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 	document_close();
 
 	process_increment_execution_count(
@@ -363,6 +365,7 @@ char *get_sys_string(	char *application_name,
 		}
 	}
 
+/*
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			  "
 		 "			folder=%s			  "
@@ -381,6 +384,20 @@ char *get_sys_string(	char *application_name,
 		 end_date_string,
 		 hydrology_library_get_expected_count_list_string(
 			application_name, station_name, datatype_name, '|' ) );
+*/
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			  "
+		 "			folder=%s			  "
+		 "			select='%s'			  "
+		 "			where=\"%s\"			 |"
+		 "%s							 |"
+		 "cat							  ",
+		 application_name,
+		 SOURCE_FOLDER,
+		 select_list_string,
+		 where_clause,
+		 intermediate_process );
 
 	return strdup( sys_string );
 
@@ -469,7 +486,7 @@ boolean populate_unit_chart_list_data(
 	do {
 		unit_chart = list_get_pointer( unit_chart_list );
 
-		if ( !populate_unit_chart_data(
+		populate_unit_chart_data(
 			unit_chart->datatype_list,
 			unit_chart->date_time_dictionary,
 			application_name,
@@ -477,10 +494,7 @@ boolean populate_unit_chart_list_data(
 			begin_date,
 			end_date,
 			validation_level,
-			aggregate_level ) )
-		{
-			return 0;
-		}
+			aggregate_level );
 
 	} while( list_next( unit_chart_list ) );
 
@@ -555,15 +569,6 @@ boolean populate_unit_chart_data(
 				begin_date,
 				end_date );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sys_string = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-m2( "audubon", msg );
-}
 		if ( google_chart_value_hash_table_set(
 				datatype->value_hash_table,
 				date_time_dictionary,

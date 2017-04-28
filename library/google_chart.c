@@ -1642,7 +1642,7 @@ void google_chart_output_graph_window(
 		prompt_filename,
 		window_name );
 
-	printf( "<h1>Easycharts Chart Viewer " );
+	printf( "<h1>Google Chart Viewer " );
 	fflush( stdout );
 	system( "date '+%x %H:%M'" );
 	printf( "</h1>\n" );

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_appaserver/view_diagrams.c			*/
+/* $APPASERVER_HOME/src_appaserver/view_diagrams.c	*/
 /* ---------------------------------------------------	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -47,21 +47,25 @@ int main( int argc, char **argv )
 	char *login_name = "";
 	char *database_string = {0};
 	char base_name[ 128 ];
+	boolean all_documents = 0;
+	char *relative_directory = {0};
+	char *process_name = {0};
 				
 	if ( argc < 2 )
 	{
 		fprintf( stderr,
-	"Usage: %s application [ignored] [login_name] [ignored]\n",
+	"Usage: %s application [all_documents_yn] [login_name] [role] [relative_directory] [process_name]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	/* session = argv[ 2 ]; */
 
+	if ( argc >= 3 ) all_documents = (*argv[ 2 ] == 'y');
 	if ( argc >= 4 ) login_name = argv[ 3 ];
-
 	/* role_name = argv[ 4 ]; */
+	if ( argc >= 6 ) relative_directory = argv[ 5 ];
+	if ( argc >= 7 ) process_name = argv[ 6 ];
  
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -79,11 +83,21 @@ int main( int argc, char **argv )
 	appaserver_parameter_file = appaserver_parameter_file_new();
 	add_pwd_to_path();
 
-	sprintf( current_directory,
-		 "%s/%s", 
-		 appaserver_parameter_file->appaserver_mount_point,
-		 application_get_first_relative_source_directory(
-					application_name ) );
+	if ( relative_directory )
+	{
+		sprintf(current_directory,
+			"%s/%s",
+		 	appaserver_parameter_file->document_root,
+			relative_directory );
+	}
+	else
+	{
+		sprintf(current_directory,
+		 	"%s/%s", 
+		 	appaserver_parameter_file->appaserver_mount_point,
+		 	application_get_first_relative_source_directory(
+				application_name ) );
+	}
 
 	if ( chdir( current_directory ) == -1 )
 	{
@@ -93,7 +107,10 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	file_list = pipe2list( SYS_STRING );
+	if ( all_documents )
+		file_list = pipe2list( "ls -1 *" );
+	else
+		file_list = pipe2list( SYS_STRING );
 
 	document = document_new( "", application_name );
 
@@ -127,7 +144,18 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	printf( "<h1>Documentation List</h1>\n" );
+	if ( process_name )
+	{
+		printf(	"<h1>%s</h1>\n",
+			format_initial_capital(
+				buffer,
+				process_name ) );
+	}
+	else
+	{
+		printf( "<h1>Documentation List</h1>\n" );
+	}
+
 	printf( "<ul>\n" );
 
 	do {
@@ -135,26 +163,33 @@ int main( int argc, char **argv )
 
 		strcpy( base_name,
 			basename_get_base_name(
-				file_to_process, 1 /* strip_extension */ ) );
+				file_to_process,
+				1 /* strip_extension */ ) );
 
-/*
-		printf(
-"<li><a class=diagram target=\"%s\" href=\"/appaserver/%s/%s/%s\">%s</a>\n",
-			base_name,
-			application_name,
-		 	application_get_first_relative_source_directory(
-				application_name ),
-		 	file_to_process,
-			format_initial_capital( buffer, file_to_process ) );
-*/
-
-		printf(
+		if ( relative_directory )
+		{
+			printf(
+"<li><a class=diagram target=\"%s\" href=\"/%s/%s\">%s</a>\n",
+				base_name,
+				relative_directory,
+		 		file_to_process,
+				format_initial_capital(
+					buffer,
+					file_to_process ) );
+		}
+		else
+		{
+			printf(
 "<li><a class=diagram target=\"%s\" href=\"/appaserver/%s/%s\">%s</a>\n",
-			base_name,
-		 	application_get_first_relative_source_directory(
-				application_name ),
-		 	file_to_process,
-			format_initial_capital( buffer, file_to_process ) );
+				base_name,
+		 		application_get_first_relative_source_directory(
+					application_name ),
+		 		file_to_process,
+				format_initial_capital(
+					buffer,
+					file_to_process ) );
+		}
+
 	} while( list_next( file_list ) );
 
 	printf( "</ul>\n" );
@@ -163,10 +198,22 @@ int main( int argc, char **argv )
 
 	document_close();
 
-	process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
+	if ( process_name )
+	{
+		process_increment_execution_count(
+			application_name,
+			process_name,
+			appaserver_parameter_file_get_dbms() );
+	}
+	else
+	{
+		process_increment_execution_count(
+			application_name,
+			PROCESS_NAME,
+			appaserver_parameter_file_get_dbms() );
+	}
+
 	exit( 0 );
+
 } /* main() */
 

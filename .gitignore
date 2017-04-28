@@ -21,6 +21,7 @@ backup/
 # -------------
 # src_hydrology
 # -------------
+output_measurement_sets_googlechart
 output_measurement_googlecharts
 hydrology_verification_process
 interpolate_spike_calculate

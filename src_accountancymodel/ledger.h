@@ -825,4 +825,8 @@ LIST *ledger_get_after_balance_zero_journal_ledger_list(
 				char *application_name,
 				char *account_name );
 
+JOURNAL_LEDGER *ledger_get_or_set_journal_ledger(
+				LIST *journal_ledger_list,
+				char *account_name );
+
 #endif

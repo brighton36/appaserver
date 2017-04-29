@@ -466,7 +466,7 @@ void purchase_supply_update(
 				double extension,
 				double database_extension );
 
-LIST *purchase_inventory_journal_ledger_refresh(
+LIST *purchase_inventory_journal_ledger_debit_refresh(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -656,6 +656,9 @@ char *purchase_order_display(	PURCHASE_ORDER *purchase_order );
 
 char *purchase_order_list_display(
 				LIST *purchase_order_list );
+
+LIST *purchase_inventory_distinct_account_extract(
+				LIST *inventory_purchase_list );
 
 #endif
 

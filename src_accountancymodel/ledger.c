@@ -6678,3 +6678,43 @@ LIST *ledger_get_after_balance_zero_journal_ledger_list(
 
 } /* ledger_get_after_balance_zero_journal_ledger_list() */
 
+JOURNAL_LEDGER *ledger_get_or_set_journal_ledger(
+				LIST *journal_ledger_list,
+				char *account_name )
+{
+	JOURNAL_LEDGER *ledger;
+
+	if ( !journal_ledger_list )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: journal_ledger_list is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_rewind( journal_ledger_list ) )
+	{
+		do {
+			ledger = list_get_pointer( journal_ledger_list );
+
+			if ( strcmp( ledger->account_name, account_name ) == 0 )
+			{
+				return ledger;
+			}
+
+		} while( list_next( journal_ledger_list ) );
+	}
+
+	ledger = journal_ledger_new(	(char *)0 /* full_name */,
+					(char *)0 /* street_address */,
+					(char *)0 /* transaction_date_time */,
+					account_name );
+
+	list_append_pointer( journal_ledger_list, ledger );
+
+	return ledger;
+
+} /* ledger_get_or_set_journal_ledger() */
+

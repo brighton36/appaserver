@@ -1545,7 +1545,7 @@ LIST *purchase_order_inventory_journal_ledger_refresh(
 
 	list_append_list(
 		propagate_account_list,
-		purchase_inventory_journal_ledger_refresh(
+		purchase_inventory_journal_ledger_debit_refresh(
 			application_name,
 			full_name,
 			street_address,
@@ -2329,7 +2329,8 @@ void purchase_supply_update(
 
 } /* purchase_supply_update() */
 
-LIST *purchase_inventory_journal_ledger_refresh(
+#ifdef NOT_DEFINED
+LIST *purchase_inventory_journal_ledger_debit_refresh(
 					char *application_name,
 					char *full_name,
 					char *street_address,
@@ -2342,9 +2343,9 @@ LIST *purchase_inventory_journal_ledger_refresh(
 	JOURNAL_LEDGER *prior_ledger;
 	double extension_capitalized_addition;
 
-	propagate_account_list = list_new();
-
 	if ( !list_rewind( inventory_purchase_list ) ) return (LIST *)0;
+
+	propagate_account_list = list_new();
 
 	do {
 		inventory_purchase =
@@ -2403,7 +2404,121 @@ LIST *purchase_inventory_journal_ledger_refresh(
 
 	return propagate_account_list;
 
-} /* purchase_inventory_journal_ledger_refresh() */
+} /* purchase_inventory_journal_ledger_debit_refresh() */
+#endif
+
+/* Returns propagate_account_list */
+/* ------------------------------ */
+LIST *purchase_inventory_journal_ledger_debit_refresh(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					LIST *inventory_purchase_list )
+{
+	LIST *propagate_account_list;
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+	ACCOUNT *account;
+	JOURNAL_LEDGER *prior_ledger;
+
+	journal_ledger_list =
+		purchase_inventory_distinct_account_extract(
+			inventory_purchase_list );
+
+	if ( !list_rewind( journal_ledger_list ) ) return (LIST *)0;
+
+	propagate_account_list = list_new();
+
+	do {
+		journal_ledger = list_get_pointer( journal_ledger_list );
+
+		ledger_journal_ledger_insert(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			journal_ledger->account_name,
+			journal_ledger->debit_amount,
+			1 /* is_debit */ );
+
+		account =
+			ledger_account_new(
+				journal_ledger->account_name );
+
+		prior_ledger =
+			ledger_get_prior_ledger(
+				application_name,
+				transaction_date_time,
+				account->account_name );
+
+		account->journal_ledger_list =
+			ledger_get_propagate_journal_ledger_list(
+				application_name,
+				prior_ledger,
+				account->account_name );
+
+		list_append_pointer( propagate_account_list, account );
+
+	} while( list_next( journal_ledger_list ) );
+
+	return propagate_account_list;
+
+} /* purchase_inventory_journal_ledger_debit_refresh() */
+
+LIST *purchase_inventory_distinct_account_extract(
+					LIST *inventory_purchase_list )
+{
+	INVENTORY_PURCHASE *inventory_purchase;
+	double extension_capitalized_addition;
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+	double extension_plus_capitalized_addition;
+
+	if ( !list_rewind( inventory_purchase_list ) ) return (LIST *)0;
+
+	journal_ledger_list = list_new();
+
+	do {
+		inventory_purchase =
+			list_get_pointer(
+				inventory_purchase_list );
+
+		if ( !inventory_purchase->inventory_account_name )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: empty inventory_account_name for (%s/%s/%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 inventory_purchase->full_name,
+				 inventory_purchase->street_address,
+				 inventory_purchase->purchase_date_time );
+			exit( 1 );
+		}
+
+		journal_ledger =
+			ledger_get_or_set_journal_ledger(
+				journal_ledger_list,
+				inventory_purchase->inventory_account_name );
+
+		extension_capitalized_addition =
+			( inventory_purchase->capitalized_unit_cost -
+			  inventory_purchase->unit_cost ) *
+			  (double)inventory_purchase->ordered_quantity;
+
+		extension_plus_capitalized_addition =
+			inventory_purchase->extension +
+			extension_capitalized_addition;
+
+		journal_ledger->debit_amount += 
+			extension_plus_capitalized_addition;
+
+	} while( list_next( inventory_purchase_list ) );
+
+	return journal_ledger_list;
+
+} /* purchase_inventory_distinct_account_extract() */
 
 LIST *purchase_supply_journal_ledger_refresh(
 					char *application_name,

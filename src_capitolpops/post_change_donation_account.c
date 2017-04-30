@@ -418,6 +418,7 @@ void post_change_donation_amount_update(
 		donation->total_donation_amount,
 		donation->database_total_donation_amount );
 
+#ifdef NOT_DEFINED
 	/* Reset JOURNAL_LEDGER.debit_amount and credit_amount */
 	/* --------------------------------------------------- */
 	if ( !ledger_journal_ledger_list_reset_amount(
@@ -461,6 +462,15 @@ void post_change_donation_amount_update(
 			 __LINE__ );
 		exit( 1 );
 	}
+#endif
+
+	donation_journal_ledger_refresh_and_propagate(
+			application_name,
+			donation->full_name,
+			donation->street_address,
+			donation->transaction_date_time,
+			donation->donation_fund_list,
+			0 /* not propagate_only */ );
 
 } /* post_change_donation_amount_update() */
 

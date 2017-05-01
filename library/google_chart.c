@@ -1552,7 +1552,8 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 
 void google_chart_output_all_charts(
 			FILE *output_file,
-			LIST *output_chart_list )
+			LIST *output_chart_list,
+			char *title )
 {
 
 	GOOGLE_OUTPUT_CHART *google_chart;
@@ -1563,6 +1564,12 @@ void google_chart_output_all_charts(
 	google_chart_output_include( output_file );
 
 	fprintf( output_file, "</head>\n" );
+
+	if ( title && *title )
+	{
+		fprintf( output_file, "<h3>%s</h3>\n", title );
+	}
+
 	fprintf( output_file, "<body>\n" );
 
 	if ( list_rewind( output_chart_list ) )
@@ -1594,6 +1601,10 @@ void google_chart_output_all_charts(
 				google_chart->width,
 				google_chart->height,
 				google_chart->chart_number );
+
+			fprintf( output_file, "<br>\n" );
+			fprintf( output_file, "<hr>\n" );
+			fprintf( output_file, "<br>\n" );
 
 			google_chart_output_chart_instantiation(
 				output_file,

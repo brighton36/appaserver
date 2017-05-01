@@ -246,10 +246,12 @@ int main( int argc, char **argv )
 		'n' /* accumulate_yn */ );
 	
 	sprintf( title + strlen( title ),
-		 "\\n%s",
+		 " %s",
 		 sub_title );
 
 	google_chart = google_chart_new();
+
+	google_chart->title = title;
 
 	if ( ! ( google_chart->unit_chart_list =
 			get_unit_chart_list(
@@ -284,7 +286,8 @@ int main( int argc, char **argv )
 
 	google_chart_output_all_charts(
 			chart_file,
-			google_chart->output_chart_list );
+			google_chart->output_chart_list,
+			google_chart->title );
 
 	fclose( chart_file );
 
@@ -297,10 +300,6 @@ int main( int argc, char **argv )
 				prompt_filename,
 				(char *)0 /* where_clause */ );
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 	document_close();
 
 	process_increment_execution_count(

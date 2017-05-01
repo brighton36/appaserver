@@ -87,6 +87,7 @@ typedef struct
 {
 	LIST *unit_chart_list;
 	LIST *output_chart_list;
+	char *title;
 } GOOGLE_CHART;
 
 /* Prototypes */
@@ -307,7 +308,8 @@ LIST *google_chart_get_datatype_name_list(
 
 void google_chart_output_all_charts(
 				FILE *output_file,
-				LIST *output_chart_list );
+				LIST *output_chart_list,
+				char *title );
 
 void google_chart_output_graph_window(
 				char *application_name,

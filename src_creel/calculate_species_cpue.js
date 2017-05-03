@@ -1,6 +1,6 @@
 //
-// src_creel/calculate_species_cpue.js
-// -----------------------------------
+// $APPASERVER_HOME/src_creel/calculate_species_cpue.js
+// ----------------------------------------------------
 
 function post_change_calculate_species_cpue( current_element )
 {

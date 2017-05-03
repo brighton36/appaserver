@@ -1,6 +1,6 @@
 //
-// catches_per_species.js
-// ----------------------
+// $APPASERVER_HOME/src_creel/catches_per_species.js
+// -------------------------------------------------
 
 function post_change_catches_per_species( current_element )
 {
@@ -66,5 +66,6 @@ function post_change_catches_per_species( current_element )
 	}
 
 	return true;
+
 } // post_change_catches_per_species()
 

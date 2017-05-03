@@ -1,6 +1,6 @@
 //
-// creel_catches_report.js
-// -----------------------
+// $APPASERVER_HOME/src_creel/creel_catches_report.js
+// --------------------------------------------------
 
 function post_change_creel_catches_report( current_element )
 {

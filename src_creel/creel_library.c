@@ -4028,11 +4028,13 @@ In the Output Catches Spreadsheet File (Guide), the output should 'output' the d
 		 order );
 
 
+/*
 fprintf( stderr, "%s/%s()/%d: %s\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 sys_string );
+*/
 
 	return popen( sys_string, "r" );
 

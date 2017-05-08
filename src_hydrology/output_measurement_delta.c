@@ -23,7 +23,7 @@
 #include "environ.h"
 #include "process.h"
 #include "application.h"
-#include "easycharts.h"
+#include "google_chart.h"
 #include "datatype.h"
 #include "appaserver_link_file.h"
 
@@ -42,7 +42,6 @@
 #define STATION_DATATYPE_DELIMITER	'/'
 #define DATE_TIME_DELIMITER		':' 
 #define FILENAME_STEM			"measurement_delta"
-
 
 /*
 #define OUTPUT_FILE_SPREADSHEET	"%s/%s/measurement_delta_%s_%s_%s_%s%s.csv"
@@ -71,7 +70,7 @@ void populate_input_chart_list_datatypes(
 				LIST *datatype_list,
 				char *application_name );
 
-void output_easycharts(		char *application_name,
+void output_google_chart(	char *application_name,
 				LIST *station_list,
 				LIST *datatype_list,
 				char *begin_date,
@@ -320,9 +319,9 @@ int main( int argc, char **argv )
 				atof( delta_threshold_string ) );
 	}
 	else
-	if ( strcmp( output_medium, "easychart" ) == 0 )
+	if ( strcmp( output_medium, "googlechart" ) == 0 )
 	{
-		output_easycharts(
+		output_google_chart(
 				application_name,
 				station_list,
 				datatype_list,
@@ -947,7 +946,8 @@ char *get_heading_sys_string(	char *output_filename,
 	return sys_string;
 } /* get_heading_sys_string() */
 
-void output_easycharts(		char *application_name,
+#ifdef NOT_DEFINED
+void output_google_chart(	char *application_name,
 				LIST *station_list,
 				LIST *datatype_list,
 				char *begin_date,
@@ -1095,9 +1095,204 @@ void output_easycharts(		char *application_name,
 				prompt_filename,
 				(char *)0 /* where_clause */ );
 
-} /* output_easycharts() */
+} /* output_google_chart() */
+#endif
 
-void populate_input_chart_list_datatypes(
+void output_google_chart(	char *application_name,
+				LIST *station_list,
+				LIST *datatype_list,
+				char *begin_date,
+				char *end_date,
+				char *document_root_directory,
+				char *process_name,
+				double delta_threshold )
+{
+	GOOGLE_CHART *google_chart;
+	char *chart_filename;
+	char *prompt_filename;
+	FILE *chart_file;
+	char title[ 256 ];
+	char sub_title[ 256 ];
+
+	appaserver_link_get_pid_filename(
+			&chart_filename,
+			&prompt_filename,
+			application_name,
+			document_root_directory,
+			getpid(),
+			process_name /* filename_stem */,
+			"html" /* extension */ );
+
+	chart_file = fopen( chart_filename, "w" );
+
+	if ( !chart_file )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s(): cannot open %s\n",
+			__FILE__,
+			__FUNCTION__,
+			chart_filename );
+		exit( 1 );
+	}
+
+	if ( ! ( google_chart =
+			get_google_unit_chart(
+				application_name,
+				station_list,
+				datatype_list,
+				begin_date,
+				end_date,
+				document_root_directory,
+				process_name,
+				delta_threshold ) ) )
+	{
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: cannot get google_chart.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		fclose( chart_file );
+		return;
+	}
+
+	hydrology_library_get_title(
+		title,
+		sub_title,
+		either /* validation_level */,
+		aggregate_statistic_none,
+		delta /* aggregate_level */,
+		(char *)0 /* station */,
+		(char *)0 /* datatype */,
+		begin_date,
+		end_date,
+		'n' /* accumulate_yn */ );
+
+	sprintf( title + strlen( title ),
+		 " %s",
+		 sub_title );
+
+	google_chart->title = title;
+
+	google_chart->output_chart_list =
+		google_chart_unit_get_output_chart_list(
+			google_chart->unit_chart_list,
+			GOOGLE_CHART_WIDTH,
+			CHART_HEIGHT );
+
+	google_chart_output_all_charts(
+			chart_file,
+			google_chart->output_chart_list,
+			google_chart->title );
+
+	fclose( chart_file );
+
+	google_chart_output_graph_window(
+				application_name,
+				appaserver_parameter_file->
+					appaserver_mount_point,
+				0 /* not with_document_output */,
+				process_name,
+				prompt_filename,
+				(char *)0 /* where_clause */ );
+
+	easycharts->title = title;
+
+	easycharts->output_chart_list =
+		easycharts_timeline_get_output_chart_list(
+			easycharts->input_chart_list );
+
+	easycharts->yaxis_decimal_count =
+		easycharts_get_yaxis_decimal_count(
+			easycharts->output_chart_list );
+
+	easycharts_output_all_charts(
+			chart_file,
+			easycharts->output_chart_list,
+			easycharts->highlight_on,
+			easycharts->highlight_style,
+			easycharts->point_highlight_size,
+			easycharts->series_labels,
+			easycharts->series_line_off,
+			easycharts->applet_library_archive,
+			easycharts->width,
+			easycharts->height,
+			easycharts->title,
+			easycharts->set_y_lower_range,
+			easycharts->legend_on,
+			easycharts->value_labels_on,
+			easycharts->sample_scroller_on,
+			easycharts->range_scroller_on,
+			easycharts->xaxis_decimal_count,
+			easycharts->yaxis_decimal_count,
+			easycharts->range_labels_off,
+			easycharts->value_lines_off,
+			easycharts->range_step,
+			easycharts->sample_label_angle,
+			easycharts->bold_labels,
+			easycharts->bold_legends,
+			easycharts->font_size,
+			easycharts->label_parameter_name,
+			1 /* include_sample_series_output */ );
+
+	easycharts_output_html( chart_file );
+
+	fclose( chart_file );
+
+	easycharts_output_graph_window(
+				application_name,
+				(char *)0 /* appaserver_mount_point */,
+				0 /* not with_document_output */,
+				process_name,
+				prompt_filename,
+				(char *)0 /* where_clause */ );
+
+} /* output_google_chart() */
+
+
+GOOGLE_CHART *get_google_unit_chart(
+				char *application_name,
+				LIST *station_list,
+				LIST *datatype_list,
+				char *begin_date,
+				char *end_date,
+				char *document_root_directory,
+				char *process_name,
+				double delta_threshold )
+{
+	GOOGLE_CHART *google_chart;
+
+	google_chart = google_chart_new();
+
+	if ( ! ( google_chart->unit_chart_list =
+			get_unit_chart_list(
+				station_list,
+				datatype_list ) ) )
+	{
+		printf(
+		"<h2>Warning: no datatypes to display.</h2>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	if ( !populate_unit_chart_list_data(
+			google_chart->unit_chart_list,
+			application_name,
+			station_name,
+			begin_date,
+			end_date,
+			delta_threshold ) )
+	{
+		printf(
+		"<h2>Warning: nothing was selected to display.</h2>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	return google_chart;
+
+} /* get_google_unit_chart() */
+
+LIST *get_unit_chart_list(
 			LIST *input_chart_list,
 			LIST *station_list,
 			LIST *datatype_list,
@@ -1154,7 +1349,8 @@ void populate_input_chart_list_datatypes(
 
 		list_next( datatype_list );
 	} while( list_next( station_list ) );
-} /* populate_input_chart_list_datatypes() */
+
+} /* get_unit_chart_list() */
 
 boolean populate_input_chart_list_data(
 			LIST *input_chart_list,

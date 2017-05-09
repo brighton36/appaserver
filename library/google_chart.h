@@ -85,6 +85,16 @@ typedef struct
 
 typedef struct
 {
+	char *datatype_name;
+	LIST *input_value_list;
+	char *xaxis_label;
+	char *yaxis_label;
+	boolean bar_chart;
+} GOOGLE_DATATYPE_CHART;
+
+typedef struct
+{
+	LIST *datatype_chart_list;
 	LIST *unit_chart_list;
 	LIST *output_chart_list;
 	char *title;
@@ -99,6 +109,9 @@ GOOGLE_INPUT_VALUE *google_chart_input_value_new(
 
 GOOGLE_UNIT_CHART *google_unit_chart_new(
 					char *unit );
+
+GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
+					char *datatype_name );
 
 GOOGLE_INPUT_DATATYPE *google_input_datatype_new(
 					char *datatype_name );
@@ -153,6 +166,10 @@ void google_timeline_set_point_string(	LIST *timeline_list,
 					LIST *datatype_name_list,
 					char *delimited_string,
 					char delimiter );
+
+GOOGLE_DATATYPE_CHART *google_datatype_get_or_set(
+					LIST *datatype_chart_list,
+					char *datatype_name );
 
 GOOGLE_BARCHART *google_barchart_get_or_set(
 					LIST *barchart_list,
@@ -271,6 +288,14 @@ void google_chart_output_chart_instantiation(
 				FILE *output_file,
 				int chart_number );
 
+boolean google_datatype_input_value_list_set(
+				LIST *input_value_list,
+				char *sys_string,
+				int date_piece,
+				int time_piece,
+				int value_piece,
+				char delimiter );
+
 boolean google_chart_value_hash_table_set(
 				HASH_TABLE *value_hash_table,
 				DICTIONARY *date_time_dictionary,
@@ -291,6 +316,11 @@ boolean google_chart_set_input_value(
 				char *time_string,
 				double value,
 				boolean null_value );
+
+LIST *google_chart_datatype_get_output_chart_list(
+				LIST *datatype_chart_list,
+				int width,
+				int height );
 
 LIST *google_chart_unit_get_output_chart_list(
 				LIST *unit_chart_list,
@@ -318,5 +348,9 @@ void google_chart_output_graph_window(
 				char *window_name,
 				char *prompt_filename,
 				char *where_clause );
+
+GOOGLE_DATATYPE_CHART *google_datatype_append(
+				LIST *datatype_chart_list,
+				char *datatype_name );
 
 #endif

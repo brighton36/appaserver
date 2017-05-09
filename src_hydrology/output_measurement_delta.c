@@ -32,11 +32,14 @@
 
 /* Constants */
 /* --------- */
-#define QUEUE_LINES		100
-#define SELECT_LIST		"station,datatype,measurement_date,measurement_time,measurement_value"
-#define EASYCHART_DATATYPE_PIECE	0
-#define EASYCHART_DATE_TIME_PIECE	1
-#define EASYCHART_VALUE_PIECE		2
+#define QUEUE_LINES			100
+
+#define SELECT_LIST			\
+"station,datatype,measurement_date,measurement_time,measurement_value"
+
+#define DATATYPE_PIECE			0
+#define DATE_TIME_PIECE			1
+#define VALUE_PIECE			2
 #define DELTA_VALUE_PIECE		4
 #define DELIMITER			','
 #define STATION_DATATYPE_DELIMITER	'/'
@@ -55,6 +58,23 @@
 
 /* Prototypes */
 /* ---------- */
+char *get_google_station_datatype_name(
+				char *station,
+				char *datatype );
+
+LIST *get_datatype_chart_list(	LIST *station_list,
+				LIST *datatype_list );
+
+GOOGLE_CHART *get_google_datatype_chart(
+				char *application_name,
+				LIST *station_list,
+				LIST *datatype_list,
+				char *begin_date,
+				char *end_date,
+				char *document_root_directory,
+				char *process_name,
+				double delta_threshold );
+
 boolean populate_input_chart_list_data(
 				LIST *input_chart_list,
 				LIST *station_list,
@@ -884,6 +904,7 @@ char *get_sys_string(	char *output_filename,
 		output_clause );
 
 	return sys_string;
+
 } /* get_sys_string() */
 
 char *get_where_clause(		char *begin_date,
@@ -1136,7 +1157,7 @@ void output_google_chart(	char *application_name,
 	}
 
 	if ( ! ( google_chart =
-			get_google_unit_chart(
+			get_google_datatype_chart(
 				application_name,
 				station_list,
 				datatype_list,
@@ -1174,8 +1195,8 @@ void output_google_chart(	char *application_name,
 	google_chart->title = title;
 
 	google_chart->output_chart_list =
-		google_chart_unit_get_output_chart_list(
-			google_chart->unit_chart_list,
+		google_chart_datatype_get_output_chart_list(
+			google_chart->datatype_chart_list,
 			GOOGLE_CHART_WIDTH,
 			CHART_HEIGHT );
 
@@ -1195,61 +1216,10 @@ void output_google_chart(	char *application_name,
 				prompt_filename,
 				(char *)0 /* where_clause */ );
 
-	easycharts->title = title;
-
-	easycharts->output_chart_list =
-		easycharts_timeline_get_output_chart_list(
-			easycharts->input_chart_list );
-
-	easycharts->yaxis_decimal_count =
-		easycharts_get_yaxis_decimal_count(
-			easycharts->output_chart_list );
-
-	easycharts_output_all_charts(
-			chart_file,
-			easycharts->output_chart_list,
-			easycharts->highlight_on,
-			easycharts->highlight_style,
-			easycharts->point_highlight_size,
-			easycharts->series_labels,
-			easycharts->series_line_off,
-			easycharts->applet_library_archive,
-			easycharts->width,
-			easycharts->height,
-			easycharts->title,
-			easycharts->set_y_lower_range,
-			easycharts->legend_on,
-			easycharts->value_labels_on,
-			easycharts->sample_scroller_on,
-			easycharts->range_scroller_on,
-			easycharts->xaxis_decimal_count,
-			easycharts->yaxis_decimal_count,
-			easycharts->range_labels_off,
-			easycharts->value_lines_off,
-			easycharts->range_step,
-			easycharts->sample_label_angle,
-			easycharts->bold_labels,
-			easycharts->bold_legends,
-			easycharts->font_size,
-			easycharts->label_parameter_name,
-			1 /* include_sample_series_output */ );
-
-	easycharts_output_html( chart_file );
-
-	fclose( chart_file );
-
-	easycharts_output_graph_window(
-				application_name,
-				(char *)0 /* appaserver_mount_point */,
-				0 /* not with_document_output */,
-				process_name,
-				prompt_filename,
-				(char *)0 /* where_clause */ );
-
 } /* output_google_chart() */
 
 
-GOOGLE_CHART *get_google_unit_chart(
+GOOGLE_CHART *get_google_datatype_chart(
 				char *application_name,
 				LIST *station_list,
 				LIST *datatype_list,
@@ -1263,19 +1233,18 @@ GOOGLE_CHART *get_google_unit_chart(
 
 	google_chart = google_chart_new();
 
-	if ( ! ( google_chart->unit_chart_list =
-			get_unit_chart_list(
+	if ( ! ( google_chart->datatype_chart_list =
+			get_datatype_chart_list(
 				station_list,
 				datatype_list ) ) )
 	{
 		printf(
 		"<h2>Warning: no datatypes to display.</h2>\n" );
-		document_close();
-		exit( 0 );
+		return (GOOGLE_CHART *)0;
 	}
 
-	if ( !populate_unit_chart_list_data(
-			google_chart->unit_chart_list,
+	if ( !populate_datatype_chart_list_data(
+			google_chart->datatype_chart_list,
 			application_name,
 			station_name,
 			begin_date,
@@ -1284,51 +1253,60 @@ GOOGLE_CHART *get_google_unit_chart(
 	{
 		printf(
 		"<h2>Warning: nothing was selected to display.</h2>\n" );
-		document_close();
-		exit( 0 );
+		return (GOOGLE_CHART *)0;
 	}
 
 	return google_chart;
 
-} /* get_google_unit_chart() */
+} /* get_google_datatype_chart() */
 
-LIST *get_unit_chart_list(
-			LIST *input_chart_list,
+LIST *get_datatype_chart_list(
 			LIST *station_list,
-			LIST *datatype_list,
-			char *application_name )
+			LIST *datatype_list )
 {
-	char y_axis_label[ 128 ];
-	EASYCHARTS_INPUT_CHART *input_chart;
-	EASYCHARTS_INPUT_DATATYPE *input_datatype;
-	char station_datatype[ 128 ];
+	char yaxis_label[ 128 ];
+	GOOGLE_DATATYPE_CHART *datatype_chart;
+	char *google_station_datatype_name;
 	char *station;
 	char *datatype;
 	boolean bar_graph;
+	LIST *datatype_chart_list;
 
-	list_rewind( station_list );
+	if ( list_length( station_list ) != list_length( datatype_list ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: station_list of %d <> datatype_list of %d.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 list_length( station_list ),
+			 list_length( datatype_list ) );
+		return (LIST *)0;
+	}
+
+	if ( !list_rewind( station_list ) ) return (LIST *)0;
+
 	list_rewind( datatype_list );
+
+	datatype_chart_list = list_new();
 
 	do {
 		station = list_get_pointer( station_list );
 		datatype = list_get_pointer( datatype_list );
 
-		sprintf( station_datatype,
-			 "%s%c%s",
-			 station,
-			 STATION_DATATYPE_DELIMITER,
-			 datatype );
+		google_station_datatype_name =
+			get_google_station_datatype_name(
+				station,
+				datatype );
 
-		/* Build the chart */
-		/* --------------- */
-		input_chart = easycharts_new_input_chart();
+		datatype_chart =
+			google_datatype_chart_new(
+				google_station_datatype_name );
+
 		list_append_pointer(	input_chart_list,
 					input_chart );
 
-		input_chart->applet_library_code =
-			EASYCHARTS_APPLET_LIBRARY_LINE_CHART;
-
-		sprintf(y_axis_label,
+		sprintf(yaxis_label,
 			"%s (%s)",
 			station_datatype,
 			datatype_get_units_string(
@@ -1336,24 +1314,21 @@ LIST *get_unit_chart_list(
 				application_name,
 				datatype ) );
 	
-		input_chart->y_axis_label = strdup( y_axis_label );
+		datatype_chart->yaxis_label = strdup( yaxis_label );
 	
-		/* Build the datatype */
-		/* ------------------ */
-		input_datatype = easycharts_new_input_datatype(
-					strdup( station_datatype ),
-					(char *)0 /* units */ );
-
-		list_append_pointer(	input_chart->datatype_list,
-					input_datatype );
+		list_append_pointer(	datatype_chart_list,
+					datatype_chart );
 
 		list_next( datatype_list );
+
 	} while( list_next( station_list ) );
 
-} /* get_unit_chart_list() */
+	return datatype_chart_list;
 
-boolean populate_input_chart_list_data(
-			LIST *input_chart_list,
+} /* get_datatype_chart_list() */
+
+boolean populate_datatype_chart_list_data(
+			LIST *datatype_chart_list,
 			LIST *station_list,
 			LIST *datatype_list,
 			char *application_name,
@@ -1375,7 +1350,8 @@ boolean populate_input_chart_list_data(
 		station = list_get_pointer( station_list );
 		datatype = list_get_pointer( datatype_list );
 
-		where_clause = get_where_clause(
+		where_clause =
+			get_where_clause(
 				begin_date,
 				end_date,
 				station,
@@ -1398,21 +1374,35 @@ boolean populate_input_chart_list_data(
 			 DELIMITER,
 			 DATE_TIME_DELIMITER );
 
-		if ( easycharts_set_all_input_values(
-				input_chart_list,
+		if ( google_datatype_input_value_list_set(
+				LIST *input_value_list,
+				char *sys_string,
+				int date_piece,
+				int time_piece,
+				int value_piece,
+				char delimiter ) )
+		{
+			got_input = 1;
+		}
+
+		if ( google_datatype_set_all_input_values(
+				datatype_chart_list,
 				sys_string,
-				EASYCHART_DATATYPE_PIECE,
-				EASYCHART_DATE_TIME_PIECE,
-				EASYCHART_VALUE_PIECE,
+				DATATYPE_PIECE,
+				DATE_TIME_PIECE,
+				VALUE_PIECE,
 				DELIMITER ) )
 		{
 			got_input = 1;
 		}
 
 		list_next( datatype_list );
+
 	} while( list_next( station_list ) );
+
 	return got_input;
-} /* populate_input_chart_list_data() */
+
+} /* populate_datatype_chart_list_data() */
 
 void output_table(		char *application_name,
 				LIST *station_list,
@@ -1516,3 +1506,18 @@ void output_table(		char *application_name,
 
 } /* output_table() */
 
+char *get_google_station_datatype_name(
+				char *station,
+				char *datatype )
+{
+	char station_datatype_name[ 128 ];
+
+	sprintf( station_datatype_name,
+		 "%s%c%s",
+		 station,
+		 STATION_DATATYPE_DELIMITER,
+		 datatype );
+
+	return stdup( station_datatype_name );
+
+} /* get_google_station_datatype_name() */

@@ -1430,6 +1430,65 @@ LIST *google_chart_get_datatype_name_list(
 
 } /* google_chart_get_datatype_name_list() */
 
+LIST *google_chart_datatype_get_output_chart_list(
+			LIST *datatype_chart_list,
+			int width,
+			int height )
+{
+	GOOGLE_DATATYPE_CHART *datatype_chart;
+	GOOGLE_INPUT_VALUE *input_value;
+	GOOGLE_OUTPUT_CHART *output_chart;
+	LIST *output_chart_list;
+
+	if ( !list_rewind( datatype_chart_list ) ) return (LIST *)0;
+
+	output_chart_list = list_new_list();
+
+	do {
+		datatype_chart = list_get_pointer( datatype_chart_list );
+
+		if ( !list_rewind( datatype_chart->input_value_list ) )
+			continue;
+
+		output_chart =
+			google_output_chart_new(
+				google_time_line,
+				0 /* left */,
+				0 /* top */,
+				width,
+				height,
+				GOOGLE_CHART_BACKGROUND_COLOR,
+				0 /* not legend_position_bottom */,
+				GOOGLE_ANNOTATED_TIMELINE
+					/* google_package_name */ );
+
+		list_append_pointer(
+			output_chart->datatype_name_list,
+			datatype_chart->datatype_name );
+	
+		output_chart->yaxis_label = datatype_chart->yaxis_label;
+
+		do {
+			input_value =
+				list_get_pointer( 
+					datatype_chart->input_value_list );
+
+			google_timeline_append(
+				output_chart->timeline_list,
+				input_value->date_time,
+				(char *)0 /*time_hhmm */,
+				1 /* length_datatype_name_list */ );
+
+		} while( list_next( datatype_chart->input_value_list ) );
+
+		list_append_pointer( output_chart_list, output_chart );
+
+	} while( list_next( datatype_chart_list ) );
+
+	return output_chart_list;
+
+} /* google_chart_datatype_get_output_chart_list() */
+
 LIST *google_chart_unit_get_output_chart_list(
 			LIST *unit_chart_list,
 			int width,
@@ -1668,4 +1727,65 @@ void google_chart_output_graph_window(
 	if ( with_document_output ) document_close();
 
 } /* google_chart_output_graph_window() */
+
+GOOGLE_DATATYPE_CHART *google_datatype_get_or_set(
+					LIST *datatype_chart_list,
+					char *datatype_name )
+{
+	GOOGLE_DATATYPE_CHART *g;
+
+	if ( list_rewind( datatype_chart_list ) )
+	{
+		do {
+			g = list_get_pointer( datatype_chart_list );
+
+			if ( timlib_strcmp(	g->datatype_name,
+						datatype_name ) == 0 )
+			{
+				return g;
+			}
+
+		} while( list_next( datatype_chart_list ) );
+	}
+
+	return google_datatype_append(
+			datatype_chart_list,
+			strdup( datatype_name ) );
+
+} /* google_datatype_get_or_set() */
+
+GOOGLE_DATATYPE_CHART *google_datatype_append(
+				LIST *datatype_chart_list,
+				char *datatype_name )
+{
+	GOOGLE_DATATYPE_CHART *g;
+
+	g = google_datatype_chart_new( datatype_name );
+
+	list_append_pointer( datatype_chart_list, g );
+
+	return g;
+
+} /* google_datatype_append() */
+
+GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
+					char *datatype_name )
+{
+	GOOGLE_DATATYPE_CHART *g;
+
+	if ( ! ( g = (GOOGLE_DATATYPE_CHART *)
+			calloc( 1, sizeof( GOOGLE_DATATYPE_CHART ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	g->datatype_name = datatype_name;
+	return g;
+
+} /* google_datatype_chart_new() */
 

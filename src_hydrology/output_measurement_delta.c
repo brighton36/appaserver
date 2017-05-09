@@ -58,11 +58,21 @@
 
 /* Prototypes */
 /* ---------- */
+boolean populate_datatype_chart_list_data(
+				LIST *datatype_chart_list,
+				LIST *station_list,
+				LIST *datatype_list,
+				char *application_name,
+				char *begin_date,
+				char *end_date,
+				double delta_threshold );
+
 char *get_google_station_datatype_name(
 				char *station,
 				char *datatype );
 
-LIST *get_datatype_chart_list(	LIST *station_list,
+LIST *get_datatype_chart_list(	char *application_name,
+				LIST *station_list,
 				LIST *datatype_list );
 
 GOOGLE_CHART *get_google_datatype_chart(
@@ -71,8 +81,6 @@ GOOGLE_CHART *get_google_datatype_chart(
 				LIST *datatype_list,
 				char *begin_date,
 				char *end_date,
-				char *document_root_directory,
-				char *process_name,
 				double delta_threshold );
 
 boolean populate_input_chart_list_data(
@@ -1163,8 +1171,6 @@ void output_google_chart(	char *application_name,
 				datatype_list,
 				begin_date,
 				end_date,
-				document_root_directory,
-				process_name,
 				delta_threshold ) ) )
 	{
 		fprintf( stderr,
@@ -1198,7 +1204,7 @@ void output_google_chart(	char *application_name,
 		google_chart_datatype_get_output_chart_list(
 			google_chart->datatype_chart_list,
 			GOOGLE_CHART_WIDTH,
-			CHART_HEIGHT );
+			GOOGLE_CHART_HEIGHT );
 
 	google_chart_output_all_charts(
 			chart_file,
@@ -1209,8 +1215,7 @@ void output_google_chart(	char *application_name,
 
 	google_chart_output_graph_window(
 				application_name,
-				appaserver_parameter_file->
-					appaserver_mount_point,
+				(char *)0 /* appaserver_mount_point */,
 				0 /* not with_document_output */,
 				process_name,
 				prompt_filename,
@@ -1225,8 +1230,6 @@ GOOGLE_CHART *get_google_datatype_chart(
 				LIST *datatype_list,
 				char *begin_date,
 				char *end_date,
-				char *document_root_directory,
-				char *process_name,
 				double delta_threshold )
 {
 	GOOGLE_CHART *google_chart;
@@ -1235,6 +1238,7 @@ GOOGLE_CHART *get_google_datatype_chart(
 
 	if ( ! ( google_chart->datatype_chart_list =
 			get_datatype_chart_list(
+				application_name,
 				station_list,
 				datatype_list ) ) )
 	{
@@ -1245,8 +1249,9 @@ GOOGLE_CHART *get_google_datatype_chart(
 
 	if ( !populate_datatype_chart_list_data(
 			google_chart->datatype_chart_list,
+			station_list,
+			datatype_list,
 			application_name,
-			station_name,
 			begin_date,
 			end_date,
 			delta_threshold ) )
@@ -1261,6 +1266,7 @@ GOOGLE_CHART *get_google_datatype_chart(
 } /* get_google_datatype_chart() */
 
 LIST *get_datatype_chart_list(
+			char *application_name,
 			LIST *station_list,
 			LIST *datatype_list )
 {
@@ -1303,12 +1309,9 @@ LIST *get_datatype_chart_list(
 			google_datatype_chart_new(
 				google_station_datatype_name );
 
-		list_append_pointer(	input_chart_list,
-					input_chart );
-
 		sprintf(yaxis_label,
 			"%s (%s)",
-			station_datatype,
+			google_station_datatype_name,
 			datatype_get_units_string(
 				&bar_graph,
 				application_name,
@@ -1341,14 +1344,29 @@ boolean populate_datatype_chart_list_data(
 	char *table_name;
 	char *station;
 	char *datatype;
+	GOOGLE_DATATYPE_CHART *datatype_chart;
 	char *where_clause;
+
+	if ( list_length( station_list ) != list_length( datatype_list )
+	&&   list_length( station_list ) != list_length( datatype_chart_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: list lengths do not match.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return 0;
+	}
+
 
 	list_rewind( station_list );
 	list_rewind( datatype_list );
+	list_rewind( datatype_chart_list );
 
 	do {
 		station = list_get_pointer( station_list );
 		datatype = list_get_pointer( datatype_list );
+		datatype_chart = list_get_pointer( datatype_chart_list );
 
 		where_clause =
 			get_where_clause(
@@ -1374,22 +1392,11 @@ boolean populate_datatype_chart_list_data(
 			 DELIMITER,
 			 DATE_TIME_DELIMITER );
 
-		if ( google_datatype_input_value_list_set(
-				LIST *input_value_list,
-				char *sys_string,
-				int date_piece,
-				int time_piece,
-				int value_piece,
-				char delimiter ) )
-		{
-			got_input = 1;
-		}
-
-		if ( google_datatype_set_all_input_values(
-				datatype_chart_list,
+		if ( google_datatype_chart_input_value_list_set(
+				datatype_chart->input_value_list,
 				sys_string,
-				DATATYPE_PIECE,
 				DATE_TIME_PIECE,
+				-1 /* time_piece */,
 				VALUE_PIECE,
 				DELIMITER ) )
 		{
@@ -1397,6 +1404,7 @@ boolean populate_datatype_chart_list_data(
 		}
 
 		list_next( datatype_list );
+		list_next( datatype_chart_list );
 
 	} while( list_next( station_list ) );
 
@@ -1518,6 +1526,6 @@ char *get_google_station_datatype_name(
 		 STATION_DATATYPE_DELIMITER,
 		 datatype );
 
-	return stdup( station_datatype_name );
+	return strdup( station_datatype_name );
 
 } /* get_google_station_datatype_name() */

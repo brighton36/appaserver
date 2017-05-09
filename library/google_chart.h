@@ -353,4 +353,12 @@ GOOGLE_DATATYPE_CHART *google_datatype_append(
 				LIST *datatype_chart_list,
 				char *datatype_name );
 
+boolean google_datatype_chart_input_value_list_set(
+				LIST *input_value_list,
+				char *sys_string,
+				int date_piece,
+				int time_piece,
+				int value_piece,
+				char delimiter );
+
 #endif

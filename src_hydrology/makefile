@@ -442,13 +442,13 @@ output_flow_daily_values: output_flow_daily_values.c			\
 
 output_measurement_delta: output_measurement_delta.c			\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}					\
-		${LIBRARY}/easycharts.o
+		${LIBRARY}/google_chart.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		output_measurement_delta.c				\
 		-o output_measurement_delta
 

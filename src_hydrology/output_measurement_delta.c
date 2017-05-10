@@ -975,158 +975,6 @@ char *get_heading_sys_string(	char *output_filename,
 	return sys_string;
 } /* get_heading_sys_string() */
 
-#ifdef NOT_DEFINED
-void output_google_chart(	char *application_name,
-				LIST *station_list,
-				LIST *datatype_list,
-				char *begin_date,
-				char *end_date,
-				char *document_root_directory,
-				char *process_name,
-				double delta_threshold )
-{
-	EASYCHARTS *easycharts;
-	char *chart_filename;
-	char *prompt_filename;
-	FILE *chart_file;
-	char applet_library_archive[ 128 ];
-	char title[ 256 ];
-	char sub_title[ 256 ];
-	int easycharts_width;
-	int easycharts_height;
-
-	easycharts_get_chart_filename(
-			&chart_filename,
-			&prompt_filename,
-			application_name,
-			document_root_directory,
-			getpid() );
-
-	chart_file = fopen( chart_filename, "w" );
-
-	if ( !chart_file )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s(): cannot open %s\n",
-			__FILE__,
-			__FUNCTION__,
-			chart_filename );
-		exit( 1 );
-	}
-
-	sprintf(applet_library_archive,
-		"/appaserver/%s/%s",
-		application_name,
-		EASYCHARTS_JAR_FILE );
-
-	application_constants_get_easycharts_width_height(
-			&easycharts_width,
-			&easycharts_height,
-			application_name );
-
-	easycharts =
-		easycharts_new_timeline_easycharts(
-			easycharts_width, easycharts_height );
-
-	easycharts->point_highlight_size = 0;
-	easycharts->applet_library_archive = applet_library_archive;
-	easycharts->legend_on = 0;
-	easycharts->bold_labels = 0;
-	easycharts->bold_legends = 0;
-	easycharts->set_y_lower_range = 1;
-	easycharts->sample_scroller_on = 1;
-	easycharts->range_scroller_on = 1;
-
-	hydrology_library_get_title(
-		title,
-		sub_title,
-		either /* validation_level */,
-		aggregate_statistic_none,
-		delta /* aggregate_level */,
-		(char *)0 /* station */,
-		(char *)0 /* datatype */,
-		begin_date,
-		end_date,
-		'n' /* accumulate_yn */ );
-	
-	sprintf( title + strlen( title ),
-		 "\\n%s",
-		 sub_title );
-	easycharts->title = title;
-
-	populate_input_chart_list_datatypes(
-			easycharts->input_chart_list,
-			station_list,
-			datatype_list,
-			application_name );
-
-	if ( !populate_input_chart_list_data(
-			easycharts->input_chart_list,
-			station_list,
-			datatype_list,
-			application_name,
-			begin_date,
-			end_date,
-			delta_threshold ) )
-	{
-		printf(
-		"<h2>Warning: nothing was selected to display.</h2>\n" );
-		document_close();
-		exit( 0 );
-	}
-
-	easycharts->output_chart_list =
-		easycharts_timeline_get_output_chart_list(
-			easycharts->input_chart_list );
-
-	easycharts->yaxis_decimal_count =
-		easycharts_get_yaxis_decimal_count(
-			easycharts->output_chart_list );
-
-	easycharts_output_all_charts(
-			chart_file,
-			easycharts->output_chart_list,
-			easycharts->highlight_on,
-			easycharts->highlight_style,
-			easycharts->point_highlight_size,
-			easycharts->series_labels,
-			easycharts->series_line_off,
-			easycharts->applet_library_archive,
-			easycharts->width,
-			easycharts->height,
-			easycharts->title,
-			easycharts->set_y_lower_range,
-			easycharts->legend_on,
-			easycharts->value_labels_on,
-			easycharts->sample_scroller_on,
-			easycharts->range_scroller_on,
-			easycharts->xaxis_decimal_count,
-			easycharts->yaxis_decimal_count,
-			easycharts->range_labels_off,
-			easycharts->value_lines_off,
-			easycharts->range_step,
-			easycharts->sample_label_angle,
-			easycharts->bold_labels,
-			easycharts->bold_legends,
-			easycharts->font_size,
-			easycharts->label_parameter_name,
-			1 /* include_sample_series_output */ );
-
-	easycharts_output_html( chart_file );
-
-	fclose( chart_file );
-
-	easycharts_output_graph_window(
-				application_name,
-				(char *)0 /* appaserver_mount_point */,
-				0 /* not with_document_output */,
-				process_name,
-				prompt_filename,
-				(char *)0 /* where_clause */ );
-
-} /* output_google_chart() */
-#endif
-
 void output_google_chart(	char *application_name,
 				LIST *station_list,
 				LIST *datatype_list,
@@ -1144,13 +992,13 @@ void output_google_chart(	char *application_name,
 	char sub_title[ 256 ];
 
 	appaserver_link_get_pid_filename(
-			&chart_filename,
-			&prompt_filename,
-			application_name,
-			document_root_directory,
-			getpid(),
-			process_name /* filename_stem */,
-			"html" /* extension */ );
+		&chart_filename,
+		&prompt_filename,
+		application_name,
+		document_root_directory,
+		getpid(),
+		process_name /* filename_stem */,
+		"html" /* extension */ );
 
 	chart_file = fopen( chart_filename, "w" );
 
@@ -1391,6 +1239,8 @@ boolean populate_datatype_chart_list_data(
 			 STATION_DATATYPE_DELIMITER,
 			 DELIMITER,
 			 DATE_TIME_DELIMITER );
+
+		datatype_chart->input_value_list = list_new();
 
 		if ( google_datatype_chart_input_value_list_set(
 				datatype_chart->input_value_list,

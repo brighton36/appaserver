@@ -124,6 +124,11 @@ GOOGLE_BARCHART *google_barchart_new(
 
 	google_barchart->stratum_name = stratum_name;
 
+	google_barchart->point_array =
+		google_point_array_double_calloc(
+			length_datatype_name_list );
+
+/*
 	if ( ! ( google_barchart->point_array =
 			calloc(	length_datatype_name_list,
 				sizeof( double * ) ) ) )
@@ -135,6 +140,7 @@ GOOGLE_BARCHART *google_barchart_new(
 			 __LINE__ );
 		exit( 1 );
 	}
+*/
 
 	return google_barchart;
 
@@ -164,6 +170,11 @@ GOOGLE_TIMELINE *google_timeline_new(
 	google_timeline->date_string = date_string;
 	google_timeline->time_hhmm = time_hhmm;
 
+	google_timeline->point_array =
+		google_point_array_double_calloc(
+			length_datatype_name_list );
+
+/*
 	if ( ! ( google_timeline->point_array =
 			calloc(	length_datatype_name_list,
 				sizeof( double * ) ) ) )
@@ -175,6 +186,7 @@ GOOGLE_TIMELINE *google_timeline_new(
 			 __LINE__ );
 		exit( 1 );
 	}
+*/
 
 	return google_timeline;
 
@@ -414,6 +426,9 @@ void google_barchart_set_point(		LIST *barchart_list,
 		exit( 1 );
 	}
 
+	barchart->point_array[ offset ] = google_point_double_calloc();
+
+/*
 	if ( ! ( barchart->point_array[ offset ] =
 			calloc( 1, sizeof( double ) ) ) )
 	{
@@ -424,6 +439,7 @@ void google_barchart_set_point(		LIST *barchart_list,
 			 __LINE__ );
 		exit( 1 );
 	}
+*/
 
 	*barchart->point_array[ offset ] = point;
 
@@ -470,6 +486,9 @@ void google_timeline_set_point(	LIST *timeline_list,
 		exit( 1 );
 	}
 
+	timeline->point_array[ offset ] = google_point_double_calloc();
+
+/*
 	if ( ! ( timeline->point_array[ offset ] =
 			calloc( 1, sizeof( double ) ) ) )
 	{
@@ -480,10 +499,47 @@ void google_timeline_set_point(	LIST *timeline_list,
 			 __LINE__ );
 		exit( 1 );
 	}
+*/
 
 	*timeline->point_array[ offset ] = point;
 
 } /* google_timeline_set_point() */
+
+double *google_point_double_calloc( void )
+{
+	double *d;
+
+	if ( ! ( d = calloc( 1, sizeof( double * ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return d;
+
+} /* google_point_double_calloc() */
+
+double **google_point_array_double_calloc( int array_length )
+{
+	double **d;
+
+	if ( ! ( d = calloc( array_length, sizeof( double * ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return d;
+
+} /* google_point_array_double_calloc() */
 
 void google_barchart_display(	LIST *barchart_list,
 				LIST *datatype_name_list )
@@ -581,6 +637,8 @@ char *google_chart_convert_date(	char *destination,
 					char *yyyy_mm_dd,
 					char *hhmm )
 {
+	char date_half[ 64 ];
+	char time_half[ 64 ];
 	char year[ 16 ];
 	char month[ 16 ];
 	char day[ 16 ];
@@ -593,13 +651,25 @@ char *google_chart_convert_date(	char *destination,
 		return destination;
 	}
 
+	if ( character_count( ':', yyyy_mm_dd ) == 1 )
+	{
+		piece( date_half, ':', yyyy_mm_dd, 0 );
+		piece( time_half, ':', yyyy_mm_dd, 1 );
+
+		yyyy_mm_dd = date_half;
+		hhmm = time_half;
+	}
+
 	piece( year, '-', yyyy_mm_dd, 0 );
 	piece( month, '-', yyyy_mm_dd, 1 );
 	piece( day, '-', yyyy_mm_dd, 2 );
 
-	date_time_parse(	&hours,
-				&minutes,
-				hhmm );
+	if ( hhmm )
+	{
+		date_time_parse(	&hours,
+					&minutes,
+					hhmm );
+	}
 
 	sprintf(	destination,
 			"new Date(%s,%d,%s,%d,%d,0)",
@@ -1511,6 +1581,7 @@ LIST *google_chart_datatype_get_output_chart_list(
 	GOOGLE_DATATYPE_CHART *datatype_chart;
 	GOOGLE_INPUT_VALUE *input_value;
 	GOOGLE_OUTPUT_CHART *output_chart;
+	GOOGLE_TIMELINE *timeline;
 	LIST *output_chart_list;
 
 	if ( !list_rewind( datatype_chart_list ) ) return (LIST *)0;
@@ -1546,11 +1617,17 @@ LIST *google_chart_datatype_get_output_chart_list(
 				list_get_pointer( 
 					datatype_chart->input_value_list );
 
-			google_timeline_append(
-				output_chart->timeline_list,
-				input_value->date_time,
-				(char *)0 /*time_hhmm */,
-				1 /* length_datatype_name_list */ );
+			timeline =
+				google_timeline_append(
+					output_chart->timeline_list,
+					input_value->date_time,
+					(char *)0 /*time_hhmm */,
+					1 /* length_datatype_name_list */ );
+
+			timeline->point_array[ 0 ] =
+				google_point_double_calloc();
+
+			*timeline->point_array[ 0 ] = input_value->value;
 
 		} while( list_next( datatype_chart->input_value_list ) );
 
@@ -1861,4 +1938,87 @@ GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
 	return g;
 
 } /* google_datatype_chart_new() */
+
+char *google_chart_input_value_list_display(
+			LIST *input_value_list )
+{
+	GOOGLE_INPUT_VALUE *input_value;
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+
+	*ptr = '\0';
+
+	if ( list_rewind( input_value_list ) )
+	{
+		do {
+			input_value = list_get_pointer( input_value_list );
+
+			ptr += sprintf(
+			ptr,
+			"date_time = %s; value = %.2lf; null_value = %d\n",
+			input_value->date_time,
+			input_value->value,
+			input_value->null_value );
+
+		} while( list_next( input_value_list ) );
+	}
+
+	ptr += sprintf( ptr, "\n" );
+
+	return strdup( buffer );
+
+} /* google_chart_input_value_list_display() */
+
+char *google_datatype_chart_display( GOOGLE_DATATYPE_CHART *datatype_chart )
+{
+	char buffer[ 65536 ];
+	char *results;
+
+	sprintf(
+		buffer,
+		"datatype_name = %s, yaxis_label = %s, input_value_list = %s\n",
+		datatype_chart->datatype_name,
+		datatype_chart->yaxis_label,
+		(results = google_chart_input_value_list_display(
+			datatype_chart->input_value_list ) ) );
+
+	free( results );
+
+	return strdup( buffer );
+
+} /* google_datatype_chart_display() */
+
+char *google_datatype_chart_list_display(
+				LIST *datatype_chart_list )
+{
+	GOOGLE_DATATYPE_CHART *datatype_chart;
+	char buffer[ 65536 ];
+	char *results;
+	char *ptr = buffer;
+
+	*ptr = '\0';
+
+	if ( list_rewind( datatype_chart_list ) )
+	{
+		do {
+			datatype_chart =
+				list_get_pointer(
+					datatype_chart_list );
+
+			ptr += sprintf( ptr,
+					"%s\n",
+					(results =
+					   google_datatype_chart_display(
+						datatype_chart ) ) );
+
+			free( results );
+
+			ptr += sprintf( ptr, "\n" );
+
+		} while( list_next( datatype_chart_list ) );
+	}
+
+	return strdup( buffer );
+
+} /* google_datatype_chart_list_display() */
 

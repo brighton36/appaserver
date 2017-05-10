@@ -361,4 +361,19 @@ boolean google_datatype_chart_input_value_list_set(
 				int value_piece,
 				char delimiter );
 
+char *google_datatype_chart_list_display(
+				LIST *datatype_chart_list );
+
+char *google_datatype_chart_display(
+				GOOGLE_DATATYPE_CHART *datatype_chart );
+
+char *google_chart_input_value_list_display(
+				LIST *input_value_list );
+
+double *google_point_double_calloc(
+				void );
+
+double **google_point_array_double_calloc(
+				int array_length );
+
 #endif

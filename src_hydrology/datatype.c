@@ -37,6 +37,18 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 	char scale_graph_to_zero_yn[ 16 ];
 	char aggregation_sum_yn[ 16 ];
 	char set_negative_values_to_zero_yn[ 16 ];
+	char calibrated_yn[ 16 ];
+
+	if ( character_count( '|', record ) != 7 )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: not 7 delimiters in (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 record );
+		exit( 1 );
+	}
 
 	piece( units, '|', record, 0 );
 	piece( datatype_name, '|', record, 1 );
@@ -45,6 +57,7 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 	piece( scale_graph_to_zero_yn, '|', record, 4 );
 	piece( aggregation_sum_yn, '|', record, 5 );
 	piece( set_negative_values_to_zero_yn, '|', record, 6 );
+	piece( calibrated_yn, '|', record, 7 );
 
 	datatype =
 		datatype_new_datatype(
@@ -62,6 +75,9 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 
 	datatype->set_negative_values_to_zero =
 		( tolower( *set_negative_values_to_zero_yn ) == 'y' );
+
+	datatype->calibrated =
+		( tolower( *calibrated_yn ) == 'y' );
 
 	return datatype;
 
@@ -377,6 +393,18 @@ DATATYPE *datatype_record2datatype( char *record )
 	char ysi_load_heading[ 32 ];
 	char exo_load_heading[ 32 ];
 	char set_negative_values_to_zero_yn[ 16 ];
+	char calibrated_yn[ 16 ];
+
+	if ( character_count( '|', record ) != 7 )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: not 7 delimiters in (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 record );
+		exit( 1 );
+	}
 
 	piece( datatype_name, '|', record, 0 );
 	piece( bar_graph_yn, '|', record, 1 );
@@ -385,6 +413,7 @@ DATATYPE *datatype_record2datatype( char *record )
 	piece( ysi_load_heading, '|', record, 4 );
 	piece( exo_load_heading, '|', record, 5 );
 	piece( set_negative_values_to_zero_yn, '|', record, 6 );
+	piece( calibrated_yn, '|', record, 7 );
 
 	datatype =
 		datatype_new_datatype(
@@ -406,6 +435,9 @@ DATATYPE *datatype_record2datatype( char *record )
 
 	datatype->set_negative_values_to_zero =
 		( tolower( *set_negative_values_to_zero_yn ) == 'y' );
+
+	datatype->calibrated =
+		( tolower( *calibrated_yn ) == 'y' );
 
 	return datatype;
 

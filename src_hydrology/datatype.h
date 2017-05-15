@@ -25,6 +25,7 @@ typedef struct
 	boolean scale_graph_to_zero;
 	boolean aggregation_sum;
 	boolean set_negative_values_to_zero;
+	boolean calibrated;
 	char *ysi_load_heading;
 	char *exo_load_heading;
 	int piece_number;

@@ -27,7 +27,8 @@ echo "select 	$datatype.datatype,					\
 		$datatype.aggregation_sum_yn,				\
 		$datatype.ysi_load_heading,				\
 		$datatype.exo_load_heading,				\
-		$datatype.set_negative_values_to_zero_yn		\
+		$datatype.set_negative_values_to_zero_yn,		\
+		$datatype.calibrated_yn					\
       from $datatype							\
       order by datatype;"						|
 sql.e '|'								|

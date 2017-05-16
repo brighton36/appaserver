@@ -1,8 +1,8 @@
-/* --------------------------------------------------- 	*/
-/* merged_datasets_output.c			      	*/
-/* --------------------------------------------------- 	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/merged_datasets_output.c	*/
+/* ------------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -29,7 +29,7 @@
 #include "list_usage.h"
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
-#include "easycharts.h"
+#include "google_chart.h"
 #include "session.h"
 #include "hydrology_library.h"
 #include "expected_count.h"
@@ -94,7 +94,7 @@ void get_changed_to_daily_message(
 			boolean data_collection_frequency_out_of_sync,
 			boolean date_range_period_of_record );
 
-void merged_datasets_populate_easycharts_input_chart(
+void merged_datasets_populate_google_chart_input_chart(
 					EASYCHARTS_INPUT_CHART *input_chart,
 					LIST *station_datatype_list );
 
@@ -103,7 +103,7 @@ boolean any_missing_measurements(	LIST *station_datatype_list,
 
 boolean get_has_bar_graph(		LIST *station_datatype_list );
 
-EASYCHARTS_INPUT_DATATYPE *merged_datasets_get_easycharts_input_datatype(
+EASYCHARTS_INPUT_DATATYPE *merged_datasets_get_google_chart_input_datatype(
 					DICTIONARY *date_time_dictionary,
 					HASH_TABLE *measurement_hash_table,
 					char *station_datatype_name,
@@ -140,7 +140,7 @@ MERGED_DATASETS_STATION_DATATYPE *new_station_datatype(
 					char *station_name,
 					char *datatype_name );
 
-boolean merged_datasets_output_easycharts(
+boolean merged_datasets_output_google_chart(
 					char *application_name,
 					char *begin_date,
 					char *end_date,
@@ -440,9 +440,9 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( strcmp( merged_output, "easychart" ) == 0 )
+	if ( strcmp( merged_output, "googlechart" ) == 0 )
 	{
-		if ( !merged_datasets_output_easycharts(
+		if ( !merged_datasets_output_google_chart(
 					application_name,
 					begin_date,
 					end_date,
@@ -1500,7 +1500,7 @@ LIST *get_datatype4station_list(char *application_name,
 {
 	char sys_string[ 1024 ];
 
-	if ( strcmp( merged_output, "easychart" ) == 0
+	if ( strcmp( merged_output, "googlechart" ) == 0
 	||   strcmp( merged_output, "gracechart" ) == 0 )
 	{
 		sprintf( sys_string,
@@ -1883,7 +1883,7 @@ boolean merged_datasets_output_gracechart(
 	return 1;
 } /* merged_datasets_output_gracechart() */
 
-boolean merged_datasets_output_easycharts(
+boolean merged_datasets_output_google_chart(
 					char *application_name,
 					char *begin_date,
 					char *end_date,
@@ -1892,48 +1892,32 @@ boolean merged_datasets_output_easycharts(
 					char *document_root_directory,
 					char *omit_output_if_any_missing_yn )
 {
-	EASYCHARTS *easycharts;
+	GOOGLE_CHART *google_chart;
 	char *chart_filename;
 	char *prompt_filename;
 	FILE *chart_file;
 	char title[ 512 ];
 	char buffer[ 16 ];
 	boolean has_bar_graph;
-	char applet_library_archive[ 128 ];
-	EASYCHARTS_INPUT_CHART *input_chart;
-	int easycharts_width;
-	int easycharts_height;
 
-	application_constants_get_easycharts_width_height(
-			&easycharts_width,
-			&easycharts_height,
-			application_name );
-
-	easycharts =
-		easycharts_new_timeline_easycharts(
-			easycharts_width, easycharts_height );
-
-	input_chart = easycharts_new_input_chart();
-	list_append_pointer( easycharts->input_chart_list, input_chart );
-
-	input_chart->applet_library_code = EASYCHARTS_APPLET_LIBRARY_LINE_CHART;
+	appaserver_link_get_pid_filename(
+		&chart_filename,
+		&prompt_filename,
+		application_name,
+		document_root_directory,
+		getpid(),
+		PROCESS_NAME /* filename_stem */,
+		"html" /* extension */ );
 
 	has_bar_graph = get_has_bar_graph( station_datatype_list );
 
 	sprintf( title, 
-		 "Merged Datasets Easychart\\n%s From: %s to %s\n",
+		 "Merged Datasets Googlechart %s From: %s to %s\n",
 		 format_initial_capital( buffer,
 					 aggregate_level_get_string(
 						aggregate_level ) ),
 		 begin_date,
 		 end_date );
-
-	easycharts_get_chart_filename(
-			&chart_filename,
-			&prompt_filename,
-			application_name,
-			document_root_directory,
-			getpid() );
 
 	chart_file = fopen( chart_filename, "w" );
 
@@ -1945,14 +1929,9 @@ boolean merged_datasets_output_easycharts(
 		exit( 1 );
 	}
 
-	sprintf(applet_library_archive,
-		"/appaserver/%s/%s",
-		application_name,
-		EASYCHARTS_JAR_FILE );
-	easycharts->applet_library_archive = applet_library_archive;
 
-	merged_datasets_populate_easycharts_input_chart(
-			input_chart,
+	google_chart =
+		get_google_datatype_chart(
 			station_datatype_list );
 
 	if ( *omit_output_if_any_missing_yn == 'y' )
@@ -2030,9 +2009,9 @@ boolean merged_datasets_output_easycharts(
 
 	return 1;
 
-} /* merged_datasets_output_easycharts() */
+} /* merged_datasets_output_google_chart() */
 
-EASYCHARTS_INPUT_DATATYPE *merged_datasets_get_easycharts_input_datatype(
+EASYCHARTS_INPUT_DATATYPE *merged_datasets_get_google_input_datatype(
 			DICTIONARY *date_time_dictionary,
 			HASH_TABLE *measurement_hash_table,
 			char *station_datatype_name,
@@ -2086,8 +2065,10 @@ EASYCHARTS_INPUT_DATATYPE *merged_datasets_get_easycharts_input_datatype(
 					"" );
 
 	} while ( list_next( measurement_hash_table_key_list ) );
+
 	return input_datatype;
-} /* merged_datasets_get_easycharts_input_datatype() */
+
+} /* merged_datasets_get_google_chart_input_datatype() */
 
 boolean get_has_bar_graph( LIST *station_datatype_list )
 {
@@ -2130,8 +2111,7 @@ boolean any_missing_measurements(	LIST *station_datatype_list,
 	return 0;
 } /* any_missing_measurements() */
 
-void merged_datasets_populate_easycharts_input_chart(
-			EASYCHARTS_INPUT_CHART *input_chart,
+GOOGLE_CHART *get_google_datatype_chart(
 			LIST *station_datatype_list )
 {
 	char station_datatype_name[ 512 ];
@@ -2168,7 +2148,7 @@ void merged_datasets_populate_easycharts_input_chart(
 
 	} while( list_next( station_datatype_list ) );
 
-} /* merged_datasets_populate_easycharts_input_chart() */
+} /* get_google_datatype_chart() */
 
 void get_changed_to_daily_message(
 			char *changed_to_daily_message,

@@ -829,4 +829,7 @@ JOURNAL_LEDGER *ledger_get_or_set_journal_ledger(
 				LIST *journal_ledger_list,
 				char *account_name );
 
+int ledger_get_non_empty_subclassification_list_length(
+				LIST *subclassification_list );
+
 #endif

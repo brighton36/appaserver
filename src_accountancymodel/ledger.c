@@ -1339,13 +1339,11 @@ LIST *ledger_get_subclassification_latex_row_list(
 					boolean element_accumulate_debit )
 {
 	LIST *row_list;
-	double subclassification_amount;
-	ACCOUNT *account;
 	char format_buffer[ 128 ];
 	SUBCLASSIFICATION *subclassification;
-	double latest_ledger_balance;
 	int first_time = 1;
 	LATEX_ROW *latex_row;
+	int non_empty_subclassification_list_length;
 
 	*total_element = 0.0;
 
@@ -1363,14 +1361,6 @@ LIST *ledger_get_subclassification_latex_row_list(
 		sprintf( format_buffer,
 			 "\\large \\bf %s",
 			 element_name );
-
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( format_initial_capital(
-					format_buffer,
-					format_buffer ) ) );
-*/
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -1391,6 +1381,10 @@ LIST *ledger_get_subclassification_latex_row_list(
 				element_accumulate_debit ) );
 	}
 
+	non_empty_subclassification_list_length =
+		ledger_get_non_empty_subclassification_list_length(
+			subclassification_list );
+
 	list_rewind( subclassification_list );
 
 	do {
@@ -1406,9 +1400,15 @@ LIST *ledger_get_subclassification_latex_row_list(
 			continue;
 		}
 
-		if ( !list_rewind( subclassification->account_list ) )
+		if ( timlib_double_virtually_same(
+			subclassification->subclassification_total,
+			0.0 ) )
+		{
 			continue;
+		}
 
+		/* Display the element name for the first subclassification */
+		/* -------------------------------------------------------- */
 		if ( first_time )
 		{
 			latex_row = latex_new_latex_row();
@@ -1417,14 +1417,6 @@ LIST *ledger_get_subclassification_latex_row_list(
 			sprintf( format_buffer,
 				 "\\large \\bf %s",
 				 element_name );
-
-/*
-			list_append_pointer(
-				latex_row->column_data_list,
-				strdup( format_initial_capital(
-						format_buffer,
-						format_buffer ) ) );
-*/
 
 			latex_append_column_data_list(
 				latex_row->column_data_list,
@@ -1436,76 +1428,38 @@ LIST *ledger_get_subclassification_latex_row_list(
 			first_time = 0;
 		}
 
-		subclassification_amount = 0.0;
+		*total_element += subclassification->subclassification_total;
 
-		do {
-			account =
-				list_get_pointer(
-					subclassification->account_list );
-
-			if ( !account->latest_ledger
-			||   !account->latest_ledger->balance )
-				continue;
-
-			if (	element_accumulate_debit ==
-				account->accumulate_debit )
-			{
-				latest_ledger_balance =
-					account->latest_ledger->balance;
-			}
-			else
-			{
-				latest_ledger_balance =
-					0.0 - account->latest_ledger->balance;
-			}
-
-			*total_element += latest_ledger_balance;
-
-			subclassification_amount += latest_ledger_balance;
-
-		} while( list_next( subclassification->account_list ) );
-
-		if ( !timlib_double_virtually_same(
-			subclassification_amount,
-			0.0 )
-		&&   list_length( subclassification_list ) > 1 )
+		/* ------------------------------------- */
+		/* If only one subclassification,	 */
+		/* then only display the element total.	 */
+		/* ------------------------------------- */
+		if ( non_empty_subclassification_list_length == 1 )
 		{
-			latex_row = latex_new_latex_row();
-			list_append_pointer( row_list, latex_row );
-
-			sprintf( format_buffer,
-			 	 "%s",
-			 	 subclassification->
-					subclassification_name );
-
-/*
-			list_append_pointer(
-				latex_row->column_data_list,
-				strdup( format_initial_capital(
-						format_buffer,
-						format_buffer ) ) );
-*/
-
-			latex_append_column_data_list(
-				latex_row->column_data_list,
-				strdup( format_initial_capital(
-						format_buffer,
-						format_buffer ) ),
-				0 /* not large_bold */ );
-
-/*
-			list_append_pointer(
-				latex_row->column_data_list,
-				strdup( place_commas_in_money(
-					   subclassification_amount ) ) );
-*/
-
-			latex_append_column_data_list(
-				latex_row->column_data_list,
-				strdup( place_commas_in_money(
-					   subclassification_amount ) ),
-				0 /* not large_bold */ );
+			continue;
 		}
+
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		sprintf( format_buffer,
+		 	 "%s",
+		 	 subclassification->
+				subclassification_name );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ),
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   subclassification->
+					subclassification_total ) ),
+			0 /* not large_bold */ );
 
 	} while( list_next( subclassification_list ) );
 
@@ -1530,36 +1484,17 @@ LIST *ledger_get_subclassification_latex_row_list(
 			 	element_name );
 		}
 
-		 format_initial_capital( format_buffer, format_buffer );
-
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( format_buffer ) );
-*/
+		format_initial_capital( format_buffer, format_buffer );
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( format_buffer ),
 			0 /* not large_bold */ );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			"" );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			"",
 			0 /* not large_bold */ );
-
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( place_commas_in_money(
-				   *total_element ) ) );
-*/
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -1571,11 +1506,6 @@ LIST *ledger_get_subclassification_latex_row_list(
 		/* ---------- */
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			"" );
-*/
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -6718,3 +6648,26 @@ JOURNAL_LEDGER *ledger_get_or_set_journal_ledger(
 
 } /* ledger_get_or_set_journal_ledger() */
 
+int ledger_get_non_empty_subclassification_list_length(
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	int list_length = 0;
+
+	if ( !list_rewind( subclassification_list ) ) return 0;
+
+	do {
+		subclassification = list_get_pointer( subclassification_list );
+
+		if ( !timlib_double_virtually_same(
+			subclassification->subclassification_total,
+			0.0 ) )
+		{
+			list_length++;
+		}
+
+	} while( list_next( subclassification_list ) );
+
+	return list_length;
+
+} /* ledger_get_non_empty_subclassification_list_length() */

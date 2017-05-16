@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------	*/
-/* src_accountancymodel/income_statement.c				*/
+/* $APPASERVER_HOME/src_accountancymodel/income_statement.c		*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -735,25 +735,25 @@ void income_statement_consolidate_PDF(
 
 	latex_filename =
 		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+			(char *)0 /* application_name */,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension ) );
 
 	appaserver_link_file->extension = "dvi";
 
 	dvi_filename =
 		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+			(char *)0 /* application_name */,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension ) );
 
 	working_directory =
 		appaserver_link_get_source_directory(
@@ -1110,12 +1110,6 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		"" );
-*/
-
 	latex_append_column_data_list(
 		latex_row->column_data_list,
 		strdup( "" ),
@@ -1126,6 +1120,7 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 		ledger_get_subclassification_latex_net_income_row(
 			net_income,
 			is_statement_of_activities ) );
+
 	return row_list;
 
 } /* build_consolidate_PDF_row_list() */

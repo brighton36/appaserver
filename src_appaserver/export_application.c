@@ -404,6 +404,7 @@ char *get_clone_application_combine_shell_script_sys_string(
 				"shell_script" ) );
 
 	return strdup( buffer );
+
 } /* get_clone_application_combine_shell_script_sys_string() */
 
 char *get_clone_application_combine_sql_sys_string(

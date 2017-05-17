@@ -255,7 +255,8 @@ int date_set_yyyy_mm_dd_hhmm_delimited(
 		return 0;
 	}
 
-	if ( !piece( hhmm, delimiter, yyyy_mm_dd_hhmm, time_piece ) )
+	if ( time_piece != -1
+	&&   !piece( hhmm, delimiter, yyyy_mm_dd_hhmm, time_piece ) )
 	{
 		fprintf( stderr,
 "Warning in %s/%s()/%d: cannot piece(%d) in (%s)\n",
@@ -265,6 +266,10 @@ int date_set_yyyy_mm_dd_hhmm_delimited(
 			 time_piece,
 			 yyyy_mm_dd );
 		return 0;
+	}
+	else
+	{
+		*hhmm = '\0';
 	}
 
 	if ( !*hhmm || strcasecmp( hhmm, "null" ) == 0 )

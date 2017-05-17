@@ -41,16 +41,6 @@
 #define KEY_DELIMITER				'/'
 #define FILENAME_STEM				"water_budger_flow"
 
-/*
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/water_budget_flow_%s_%s_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/water_budget_flow_%s_%s_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/water_budget_flow_%s_%s_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/water_budget_flow_%s_%s_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET	"%s://%s/%s/water_budget_flow_%s_%s_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/water_budget_flow_%s_%s_%d.csv"
-*/
-
 #define ROWS_BETWEEN_HEADING			20
 #define SELECT_LIST				 "measurement_date,measurement_time,measurement_value"
 

@@ -1632,9 +1632,10 @@ boolean merged_datasets_output_gracechart(
 
 	grace->dataset_no_cycle_color = 1;
 
-	if ( !grace_set_begin_end_date(grace,
-					begin_date,
-					end_date ) )
+	if ( !grace_set_begin_end_date(
+		grace,
+		begin_date,
+		end_date ) )
 	{
 		document_quick_output_body(
 			application_name,
@@ -1744,7 +1745,7 @@ boolean merged_datasets_output_gracechart(
 
 			if ( !measurement || measurement->is_null ) continue;
 
-			sprintf( station_datatype_input_buffer,
+			sprintf(station_datatype_input_buffer,
 		 		"%s|%s|%s|%.3lf",
 		 		station_name,
 		 		datatype_name,
@@ -1880,7 +1881,9 @@ boolean merged_datasets_output_gracechart(
 				(char *)0 /* where_clause */ );
 
 	}
+
 	return 1;
+
 } /* merged_datasets_output_gracechart() */
 
 boolean merged_datasets_output_google_chart(
@@ -1929,11 +1932,18 @@ boolean merged_datasets_output_google_chart(
 		exit( 1 );
 	}
 
-
 	google_chart =
 		get_google_datatype_chart(
 			station_datatype_list );
 
+	google_chart->date_time_dictionary =
+		dictionary_huge_new();
+
+	if ( !populate_datatype_chart_list_data(
+			google_chart->date_time_dictionary,
+			HASH_TABLE *measurement_hash_table,
+			char *station_datatype_name,
+			char *units )
 	if ( *omit_output_if_any_missing_yn == 'y' )
 	{
 		input_chart->date_time_dictionary =
@@ -2068,7 +2078,7 @@ EASYCHARTS_INPUT_DATATYPE *merged_datasets_get_google_input_datatype(
 
 	return input_datatype;
 
-} /* merged_datasets_get_google_chart_input_datatype() */
+} /* merged_datasets_get_google_input_datatype() */
 
 boolean get_has_bar_graph( LIST *station_datatype_list )
 {
@@ -2111,11 +2121,6 @@ boolean any_missing_measurements(	LIST *station_datatype_list,
 	return 0;
 } /* any_missing_measurements() */
 
-GOOGLE_CHART *get_google_datatype_chart(
-			LIST *station_datatype_list )
-{
-	char station_datatype_name[ 512 ];
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
 	EASYCHARTS_INPUT_DATATYPE *input_datatype;
 
 	if ( !list_rewind( station_datatype_list ) ) return;

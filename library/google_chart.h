@@ -77,7 +77,6 @@ typedef struct
 {
 	char *unit;
 	LIST *datatype_list;
-	DICTIONARY *date_time_dictionary;
 	char *xaxis_label;
 	char *yaxis_label;
 	boolean bar_chart;
@@ -98,6 +97,7 @@ typedef struct
 	LIST *unit_chart_list;
 	LIST *output_chart_list;
 	char *title;
+	DICTIONARY *date_time_dictionary;
 } GOOGLE_CHART;
 
 /* Prototypes */

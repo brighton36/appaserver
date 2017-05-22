@@ -86,6 +86,12 @@ function export_catch_measurements()
 	cat >> $catch_measurements_output
 }
 
+if [ ! -r $input ]
+then
+	echo "Error: you must first populate $input" 1>&2
+	exit 1
+fi
+
 rm $family_output 2>/dev/null
 rm $genera_output 2>/dev/null
 rm $species_output 2>/dev/null

@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_creel/estimated_fishing_effort_hours.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_creel/estimated_fishing_effort_hours.c	*/
+/* -----------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -32,13 +32,8 @@ enum output_medium { output_medium_stdout, text_file, table };
 /* Constants */
 /* --------- */
 #define ROWS_BETWEEN_HEADING			20
-#define DEFAULT_OUTPUT_MEDIUM			output_medium_stdout
+#define DEFAULT_OUTPUT_MEDIUM			table
 
-/*
-#define OUTPUT_TEMPLATE		"%s/creel/estimated_effort_hours_%d_%s_%d.csv"
-#define FTP_PREPEND_TEMPLATE	"%s://creel/%s/estimated_effort_hours_%d_%s_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE "/creel/estimated_effort_hours_%d_%s_%d.csv"
-*/
 #define TOTALS_FILENAME_LABEL	"monthly_totals"
 
 /* Prototypes */
@@ -182,16 +177,16 @@ int main( int argc, char **argv )
 	}
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( begin_month_integer < 1
 	||   end_month_integer > 12
@@ -281,6 +276,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n",
 			format_initial_capital( buffer, process_name ) );
 		printf( "<h2>\n" );
+		printf( "Sport and Guide Combined\n" );
 		fflush( stdout );
 		system( "date '+%x %H:%M'" );
 		fflush( stdout );

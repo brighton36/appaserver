@@ -42,16 +42,6 @@
 #define PROCESS_NAME		"output_merged_datasets"
 #define KEY_DELIMITER				'/'
 
-/*
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/merged_datasets_%s_%s_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/merged_datasets_%s_%s_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/merged_datasets_%s_%s_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/merged_datasets_%s_%s_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/merged_datasets_%s_%s_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/merged_datasets_%s_%s_%d.csv"
-*/
-
 #define ROWS_BETWEEN_HEADING			20
 #define SELECT_LIST				 "measurement_date,measurement_time,measurement_value"
 
@@ -86,6 +76,10 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+char *get_datatype_name_key(
+			char *station_name,
+			char *datatype_name );
+
 int get_days_between(	char *begin_date_string,
 			char *end_date_string );
 
@@ -1902,6 +1896,7 @@ boolean merged_datasets_output_google_chart(
 	char buffer[ 512 ];
 	char *station_name;
 	char *datatype_name;
+	char *google_datatype_name_key;
 	char sys_string[ 1024 ];
 	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
@@ -1934,10 +1929,6 @@ boolean merged_datasets_output_google_chart(
 	if ( !list_rewind( datatype_name_list ) ) return 0;
 	list_rewind( station_name_list );
 
-	grace_graph = grace_new_grace_graph();
-	grace_graph->xaxis_ticklabel_angle = GRACE_TICKLABEL_ANGLE;
-	list_append_pointer( grace->graph_list, grace_graph );
-
 	do {
 		station_name = 
 			list_get_pointer( station_name_list );
@@ -1961,10 +1952,23 @@ boolean merged_datasets_output_google_chart(
 				station_name,
 				datatype_name );
 
-		grace_datatype =
-			grace_new_grace_datatype(
+		if ( !hash_table_length(
+			station_datatype->measurement_hash_table ) )
+		{
+			list_next( datatype_name_list );
+			continue;
+		}
+
+		/* Returns static memory */
+		/* --------------------- */
+		google_datatype_name_key =
+			get_datatype_name_key(
 				station_name,
 				datatype_name );
+
+		google_datatype_name =
+			google_datatype_name_new(
+				strdup( google_datatype_name_key ) );
 
 		sprintf(legend,
 			"%s/%s (%s)",
@@ -1975,23 +1979,10 @@ boolean merged_datasets_output_google_chart(
 		strcpy(	legend,
 			format_initial_capital( buffer, legend ) );
 
-		grace_datatype->legend = strdup( legend );
+		google_datatype_name->yaxis_label = strdup( legend );
+		google_datatype_name->bar_chart = station_datatype->bar_graph;
 
-		if ( station_datatype->bar_graph )
-		{
-			grace_datatype->datatype_type_bar_xy_xyhilo =
-				"bar";
-			grace_datatype->line_linestyle = 0;
-		}
-		else
-		{
-			grace_datatype->datatype_type_bar_xy_xyhilo =
-				"xy";
-		}
-
-		list_append_pointer(	grace_graph->datatype_list,
-					grace_datatype );
-
+#ifdef NOT_DEFINED
 		date_comma_time_key_list =
 			hash_table_get_ordered_key_list(
 				station_datatype->
@@ -2037,6 +2028,7 @@ boolean merged_datasets_output_google_chart(
 				(char *)0 /* optional_label */ );
 
 		} while( list_next( date_comma_time_key_list ) );	
+#endif
 
 		list_next( datatype_name_list );
 
@@ -2239,3 +2231,12 @@ int get_days_between(	char *begin_date_string,
 	return days_between;
 } /* get_days_between() */
 
+char *get_datatype_name_key(	char *station_name,
+				char *datatype_name )
+{
+	static char datatype_name_key[ 256 ];
+
+	sprintf( datatype_name_key, "%s^%s", station_name, datatype_name );
+	return datatype_name_key;
+
+} /* get_datatype_name_key() */

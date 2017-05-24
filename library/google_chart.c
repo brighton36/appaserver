@@ -1307,12 +1307,12 @@ GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
 
 } /* google_unit_chart_new() */
 
-GOOGLE_INPUT_DATATYPE *google_input_datatype_new( char *datatype_name )
+GOOGLE_UNIT_DATATYPE *google_unit_datatype_new( char *datatype_name )
 {
-	GOOGLE_INPUT_DATATYPE *g;
+	GOOGLE_UNIT_DATATYPE *g;
 
-	if ( ! ( g = (GOOGLE_INPUT_DATATYPE *)
-			calloc( 1, sizeof( GOOGLE_INPUT_DATATYPE ) ) ) )
+	if ( ! ( g = (GOOGLE_UNIT_DATATYPE *)
+			calloc( 1, sizeof( GOOGLE_UNIT_DATATYPE ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -1326,7 +1326,7 @@ GOOGLE_INPUT_DATATYPE *google_input_datatype_new( char *datatype_name )
 	g->value_hash_table = hash_table_new( hash_table_large );
 	return g;
 
-} /* google_input_datatype_new() */
+} /* google_unit_datatype_new() */
 
 boolean google_datatype_chart_input_value_list_set(
 				LIST *input_value_list,
@@ -1551,10 +1551,10 @@ boolean google_chart_set_input_value(
 
 } /* google_chart_set_input_value() */
 
-LIST *google_chart_get_datatype_name_list(
+LIST *google_chart_get_unit_datatype_name_list(
 			LIST *datatype_list )
 {
-	GOOGLE_INPUT_DATATYPE *input_datatype;
+	GOOGLE_UNIT_DATATYPE *unit_datatype;
 	LIST *datatype_name_list;
 
 	if ( !list_rewind( datatype_list ) ) return (LIST *)0;
@@ -1562,17 +1562,17 @@ LIST *google_chart_get_datatype_name_list(
 	datatype_name_list = list_new();
 
 	do {
-		input_datatype = list_get_pointer( datatype_list );
+		unit_datatype = list_get_pointer( datatype_list );
 
 		list_append_pointer(
 			datatype_name_list,
-			input_datatype->datatype_name );
+			unit_datatype->datatype_name );
 
 	} while( list_next( datatype_list ) );
 
 	return datatype_name_list;
 
-} /* google_chart_get_datatype_name_list() */
+} /* google_chart_get_unit_datatype_name_list() */
 
 LIST *google_chart_datatype_get_output_chart_list(
 			LIST *datatype_chart_list,
@@ -1721,7 +1721,7 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 				/* google_package_name */ );
 
 	output_chart->datatype_name_list =
-		google_chart_get_datatype_name_list(
+		google_chart_get_unit_datatype_name_list(
 			datatype_list );
 
 	list_rewind( datatype_list );
@@ -1919,8 +1919,7 @@ GOOGLE_DATATYPE_CHART *google_datatype_append(
 
 } /* google_datatype_append() */
 
-GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
-					char *datatype_name )
+GOOGLE_DATATYPE_CHART *google_datatype_chart_new( void )
 {
 	GOOGLE_DATATYPE_CHART *g;
 
@@ -1935,10 +1934,30 @@ GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
 		exit( 1 );
 	}
 
-	g->datatype_name = datatype_name;
 	return g;
 
 } /* google_datatype_chart_new() */
+
+GOOGLE_DATATYPE_NAME *google_datatype_name_new(
+					char *datatype_name )
+{
+	GOOGLE_DATATYPE_NAME *g;
+
+	if ( ! ( g = (GOOGLE_DATATYPE_NAME *)
+			calloc( 1, sizeof( GOOGLE_DATATYPE_NAME ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	g->datatype_name = datatype_name;
+	return g;
+
+} /* google_datatype_name_new() */
 
 char *google_chart_input_value_list_display(
 			LIST *input_value_list )

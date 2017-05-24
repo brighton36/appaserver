@@ -71,7 +71,7 @@ typedef struct
 {
 	char *datatype_name;
 	HASH_TABLE *value_hash_table;
-} GOOGLE_INPUT_DATATYPE;
+} GOOGLE_UNIT_DATATYPE;
 
 typedef struct
 {
@@ -80,15 +80,22 @@ typedef struct
 	char *xaxis_label;
 	char *yaxis_label;
 	boolean bar_chart;
+	DICTIONARY *date_time_dictionary;
 } GOOGLE_UNIT_CHART;
 
 typedef struct
 {
 	char *datatype_name;
-	LIST *input_value_list;
 	char *xaxis_label;
 	char *yaxis_label;
 	boolean bar_chart;
+} GOOGLE_DATATYPE_NAME;
+
+typedef struct
+{
+	LIST *datatype_name_list;
+	DICTIONARY *date_time_dictionary;
+	HASH_TABLE *value_hash_table;
 } GOOGLE_DATATYPE_CHART;
 
 typedef struct
@@ -111,9 +118,12 @@ GOOGLE_UNIT_CHART *google_unit_chart_new(
 					char *unit );
 
 GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
+					void );
+
+GOOGLE_DATATYPE_NAME *google_datatype_name_new(
 					char *datatype_name );
 
-GOOGLE_INPUT_DATATYPE *google_input_datatype_new(
+GOOGLE_UNIT_DATATYPE *google_unit_datatype_new(
 					char *datatype_name );
 
 GOOGLE_OUTPUT_CHART *google_output_chart_new(
@@ -333,7 +343,7 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 				int width,
 				int height );
 
-LIST *google_chart_get_datatype_name_list(
+LIST *google_chart_get_unit_datatype_name_list(
 				LIST *datatype_list );
 
 void google_chart_output_all_charts(

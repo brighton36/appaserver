@@ -821,7 +821,8 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 		timlib_integer2full_month(
 			begin_month );
 
-	appaserver_link_file->begin_date_string = begin_month_string;
+	appaserver_link_file->begin_date_string =
+		strdup( begin_month_string );
 
 	end_month_string =
 		timlib_integer2full_month(
@@ -829,7 +830,8 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 
 	sprintf( end_date_string, "%s-%d", end_month_string, year );
 
-	appaserver_link_file->end_date_string = end_date_string;
+	appaserver_link_file->end_date_string =
+		strdup( end_date_string );
 
 	output_filename =
 		appaserver_link_get_output_filename(
@@ -862,15 +864,6 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf( output_filename, 
-		 OUTPUT_TEMPLATE,
-		 appaserver_mount_point,
-		 year,
-		 TOTALS_FILENAME_LABEL,
-		 process_id );
-*/
-
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -879,35 +872,13 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 		exit( 1 );
 	}
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-			year,
-		 	TOTALS_FILENAME_LABEL,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_NONPREPEND_TEMPLATE, 
-			year,
-		 	TOTALS_FILENAME_LABEL,
-		 	process_id );
-	}
-*/
-
-	strcpy(	begin_month_string,
+	begin_month_string =
 		timlib_get_three_character_month_string(
-			begin_month - 1 ) );
+			begin_month - 1 );
 
-	strcpy(	end_month_string,
+	end_month_string =
 		timlib_get_three_character_month_string(
-		end_month - 1 ) );
+			end_month - 1 );
 
 	fprintf(	output_file,
 			"Estimated Park-wide Total for %s-%s/%d\n",
@@ -940,20 +911,6 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 	}
 
 	fclose( output_file );
-
-/*
-	output_total_sheet_total_row_list_text_file(
-				output_file,
-				total_sheet->total_row_list,
-				total_sheet->total_row->catch_area_list );
-
-	output_total_sheet_total_row_text_file(
-				output_file,
-				total_sheet->total_row,
-				total_sheet->total_row->catch_area_list );
-
-	fclose( output_file );
-*/
 
 	sprintf( ftp_prompt,
 	"%s: &lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",

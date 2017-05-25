@@ -2717,6 +2717,7 @@ char *timlib_get_three_character_month_string( int month_offset )
 	{
 		return timlib_month_array[ month_offset ];
 	}
+
 } /* timlib_get_three_character_month_string() */
 
 char *timlib_full_month_array[] = {

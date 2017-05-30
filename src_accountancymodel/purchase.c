@@ -1634,7 +1634,7 @@ LIST *purchase_vendor_payment_journal_ledger_refresh(
 		payment_amount,
 		1 /* is_debit */ );
 
-	if ( check_number )
+	if ( check_number && uncleared_checks_account )
 		credit_account_name = uncleared_checks_account;
 	else
 		credit_account_name = checking_account;

@@ -3983,13 +3983,15 @@ void ledger_get_vendor_payment_account_names(
 			key,
 			0 /* not warning_only */ );
 
+	*uncleared_checks_account = '\0';
+
 	key = "uncleared_checks_key";
 	*uncleared_checks_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			1 /* warning_only */ );
 
 	key = "account_payable_key";
 	*account_payable_account =
@@ -4085,7 +4087,7 @@ void ledger_get_purchase_order_account_names(
 
 	if ( sales_tax_expense_account )
 	{
-		key = "sales_tax_expense_key";
+		key = "sales_tax_key";
 		*sales_tax_expense_account =
 			ledger_get_hard_coded_account_name(
 				application_name,
@@ -4096,7 +4098,7 @@ void ledger_get_purchase_order_account_names(
 
 	if ( freight_in_expense_account )
 	{
-		key = "freight_in_expense_key";
+		key = "freight_in_key";
 		*freight_in_expense_account =
 			ledger_get_hard_coded_account_name(
 				application_name,
@@ -4413,12 +4415,15 @@ LIST *ledger_get_propagate_journal_ledger_list(
 
 	if ( !account_name )
 	{
+/*
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: account_name is null.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
+*/
+		return (LIST *)0;
 	}
 
 	accumulate_debit =

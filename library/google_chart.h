@@ -71,31 +71,25 @@ typedef struct
 {
 	char *datatype_name;
 	HASH_TABLE *value_hash_table;
-} GOOGLE_UNIT_DATATYPE;
+} GOOGLE_INPUT_DATATYPE;
 
 typedef struct
 {
 	char *unit;
 	LIST *datatype_list;
+	DICTIONARY *date_time_dictionary;
 	char *xaxis_label;
 	char *yaxis_label;
 	boolean bar_chart;
-	DICTIONARY *date_time_dictionary;
 } GOOGLE_UNIT_CHART;
 
 typedef struct
 {
 	char *datatype_name;
+	LIST *input_value_list;
 	char *xaxis_label;
 	char *yaxis_label;
 	boolean bar_chart;
-} GOOGLE_DATATYPE_NAME;
-
-typedef struct
-{
-	LIST *datatype_name_list;
-	DICTIONARY *date_time_dictionary;
-	HASH_TABLE *value_hash_table;
 } GOOGLE_DATATYPE_CHART;
 
 typedef struct
@@ -104,7 +98,6 @@ typedef struct
 	LIST *unit_chart_list;
 	LIST *output_chart_list;
 	char *title;
-	DICTIONARY *date_time_dictionary;
 } GOOGLE_CHART;
 
 /* Prototypes */
@@ -118,13 +111,9 @@ GOOGLE_UNIT_CHART *google_unit_chart_new(
 					char *unit );
 
 GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
-					void );
-
-GOOGLE_DATATYPE_NAME *google_datatype_name_new(
-					char *entity_name,
 					char *datatype_name );
 
-GOOGLE_UNIT_DATATYPE *google_unit_datatype_new(
+GOOGLE_INPUT_DATATYPE *google_input_datatype_new(
 					char *datatype_name );
 
 GOOGLE_OUTPUT_CHART *google_output_chart_new(
@@ -344,7 +333,7 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 				int width,
 				int height );
 
-LIST *google_chart_get_unit_datatype_name_list(
+LIST *google_chart_get_datatype_name_list(
 				LIST *datatype_list );
 
 void google_chart_output_all_charts(
@@ -372,13 +361,11 @@ boolean google_datatype_chart_input_value_list_set(
 				int value_piece,
 				char delimiter );
 
-/*
 char *google_datatype_chart_list_display(
 				LIST *datatype_chart_list );
 
 char *google_datatype_chart_display(
 				GOOGLE_DATATYPE_CHART *datatype_chart );
-*/
 
 char *google_chart_input_value_list_display(
 				LIST *input_value_list );
@@ -388,16 +375,5 @@ double *google_point_double_calloc(
 
 double **google_point_array_double_calloc(
 				int array_length );
-
-GOOGLE_DATATYPE_CHART *google_datatype_chart_new(
-				void );
-
-GOOGLE_DATATYPE_NAME *google_datatype_name_append(
-				LIST *datatype_name_list,
-				char *datatype_name );
-
-GOOGLE_DATATYPE_NAME *google_datatype_name_get_or_set(
-				LIST *datatype_name_list,
-				char *datatype_name );
 
 #endif

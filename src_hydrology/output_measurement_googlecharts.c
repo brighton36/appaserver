@@ -568,7 +568,8 @@ GOOGLE_OUTPUT_CHART *get_google_chart(
 			GOOGLE_ANNOTATED_TIMELINE
 				/* google_package_name */ );
 
-	sys_string = get_sys_string(	
+	sys_string =
+		get_sys_string(	
 			application_name,
 			where_clause,
 			aggregate_level,

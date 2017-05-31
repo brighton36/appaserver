@@ -575,7 +575,7 @@ daily_moving_statistic_output: daily_moving_statistic_output.c		\
 
 merged_datasets_output: merged_datasets_output.c			\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
@@ -583,7 +583,7 @@ merged_datasets_output: merged_datasets_output.c			\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
 		merged_datasets_output.c				\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o					\
 		-o merged_datasets_output
 

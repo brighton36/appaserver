@@ -1856,7 +1856,7 @@ boolean merged_datasets_output_google_chart(
 				/* google_package_name */ );
 
 	sprintf(chart_title,
-		"Merged Datasets %s from %s to %s\n",
+		"Merged Datasets %s from %s to %s",
 		format_initial_capital(
 			initial_capital_buffer,
 			aggregate_level_get_string( aggregate_level ) ),
@@ -1864,19 +1864,6 @@ boolean merged_datasets_output_google_chart(
 		end_date );
 
 	if ( !list_rewind( station_datatype_list ) ) return 0;
-
-/*
-	if ( aggregate_level == real_time
-	||   aggregate_level == half_hour
-	||   aggregate_level == hourly )
-	{
-		fprintf( output_pipe, "#Date:Time" );
-	}
-	else
-	{
-		fprintf( output_pipe, "#Date" );
-	}
-*/
 
 	do {
 		station_datatype = list_get_pointer( station_datatype_list );

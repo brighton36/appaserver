@@ -1359,7 +1359,8 @@ MERGED_DATASETS_STATION_DATATYPE *new_station_datatype(
 
 	station_datatype->station = station_name;
 	station_datatype->datatype = datatype_name;
-	station_datatype->measurement_hash_table =
+	station_datatype->
+		measurement_hash_table =
 			hash_table_new_hash_table(
 				hash_table_large );
 
@@ -1383,6 +1384,7 @@ MERGED_DATASETS_STATION_DATATYPE *new_station_datatype(
 	}
 
 	return station_datatype;
+
 } /* new_station_datatype() */
 
 MERGED_DATASETS_STATION_DATATYPE *get_station_datatype(
@@ -1408,6 +1410,7 @@ MERGED_DATASETS_STATION_DATATYPE *get_station_datatype(
 			datatype_name );
 
 	input_pipe = popen( sys_string, "r" );
+
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece( date_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
@@ -1890,6 +1893,7 @@ boolean merged_datasets_output_google_chart(
 	char *ftp_output_filename;
 	GOOGLE_CHART *google_chart;
 	GOOGLE_DATATYPE_CHART *google_datatype_chart;
+	GOOGLE_DATATYPE_NAME *google_datatype_name;
 	char legend[ 128 ];
 	LIST *date_comma_time_key_list;
 	char *date_comma_time;
@@ -1914,6 +1918,9 @@ boolean merged_datasets_output_google_chart(
 
 	google_chart = google_chart_new();
 
+	google_chart->datatype_chart =
+		google_datatype_chart_new();
+
 	if (	list_length( station_name_list ) !=
 	 	list_length( datatype_name_list ) )
 	{
@@ -1927,6 +1934,7 @@ boolean merged_datasets_output_google_chart(
 	}
 
 	if ( !list_rewind( datatype_name_list ) ) return 0;
+
 	list_rewind( station_name_list );
 
 	do {
@@ -1967,8 +1975,14 @@ boolean merged_datasets_output_google_chart(
 				datatype_name );
 
 		google_datatype_name =
-			google_datatype_name_new(
-				strdup( google_datatype_name_key ) );
+			google_datatype_name_get_or_set(
+				google_chart->
+					google_datatype_chart->
+					datatype_name_list,
+					/* ------------- */
+					/* Does strdup() */
+					/* ------------- */
+					google_datatype_name_key );
 
 		sprintf(legend,
 			"%s/%s (%s)",
@@ -1977,12 +1991,12 @@ boolean merged_datasets_output_google_chart(
 			station_datatype->units );
 
 		strcpy(	legend,
-			format_initial_capital( buffer, legend ) );
+			format_initial_capital(
+				buffer, legend ) );
 
 		google_datatype_name->yaxis_label = strdup( legend );
 		google_datatype_name->bar_chart = station_datatype->bar_graph;
 
-#ifdef NOT_DEFINED
 		date_comma_time_key_list =
 			hash_table_get_ordered_key_list(
 				station_datatype->
@@ -2007,7 +2021,7 @@ boolean merged_datasets_output_google_chart(
 
 			if ( !measurement || measurement->is_null ) continue;
 
-			sprintf( station_datatype_input_buffer,
+			sprintf(station_datatype_input_buffer,
 		 		"%s|%s|%s|%.3lf",
 		 		station_name,
 		 		datatype_name,
@@ -2028,7 +2042,6 @@ boolean merged_datasets_output_google_chart(
 				(char *)0 /* optional_label */ );
 
 		} while( list_next( date_comma_time_key_list ) );	
-#endif
 
 		list_next( datatype_name_list );
 
@@ -2176,7 +2189,8 @@ boolean any_missing_measurements(	LIST *station_datatype_list,
 		station_datatype =
 			list_get_pointer( station_datatype_list );
 
-		measurement = hash_table_get_pointer(
+		measurement =
+			hash_table_get_pointer(
 				station_datatype->
 					measurement_hash_table,
 				date_time_string );
@@ -2187,7 +2201,9 @@ boolean any_missing_measurements(	LIST *station_datatype_list,
 		}
 
 	} while( list_next( station_datatype_list ) );
+
 	return 0;
+
 } /* any_missing_measurements() */
 
 void get_changed_to_daily_message(

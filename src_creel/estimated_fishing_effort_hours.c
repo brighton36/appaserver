@@ -569,7 +569,6 @@ void output_month_sheet_list_text_file(
 	sprintf( year_string, "%d", year );
 	appaserver_link_file->begin_date_string = year_string;
 
-
 	if ( !list_rewind( month_sheet_list ) ) return;
 
 	do {
@@ -594,15 +593,6 @@ void output_month_sheet_list_text_file(
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_TEMPLATE,
-			 appaserver_mount_point,
-			 year,
-			 month_abbreviation, 
-			 process_id );
-*/
-
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -610,28 +600,6 @@ void output_month_sheet_list_text_file(
 			document_close();
 			exit( 1 );
 		}
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_PREPEND_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	year,
-			 	month_abbreviation,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_NONPREPEND_TEMPLATE, 
-			 	year,
-			 	month_abbreviation,
-			 	process_id );
-		}
-*/
 
 		ftp_filename =
 			appaserver_link_get_link_prompt(
@@ -663,16 +631,24 @@ void output_month_sheet_list_text_file(
 				output_file,
 				month_sheet );
 
-		fprintf( output_file,
-			 "Total,%.1lf,%.1lf\n",
-			 month_sheet->
-				total_row->
-				vessel->
-				estimated_park_fishing_vessels,
-			 month_sheet->
-				total_row->
-				fishing_trip->
-				park_effort_hours_day );
+		if ( month_sheet->total_row )
+		{
+			fprintf(output_file,
+			 	"Total,%.1lf,%.1lf\n",
+			 	month_sheet->
+					total_row->
+					vessel->
+					estimated_park_fishing_vessels,
+			 	month_sheet->
+					total_row->
+					fishing_trip->
+					park_effort_hours_day );
+		}
+		else
+		{
+			fprintf(output_file,
+			 	"Total,0.0,0.0\n" );
+		}
 
 		fclose( output_file );
 

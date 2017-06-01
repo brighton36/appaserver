@@ -1311,17 +1311,6 @@ boolean appaserver_library_validate_begin_end_date(
 				process_generic_output,
 				post_dictionary );
 
-#ifdef NOT_DEFINED
-			where_clause =
-			process_generic_output_get_dictionary_where_clause(
-					begin_date,
-					end_date,
-					application_name,
-					process_generic_output,
-					post_dictionary,
-					0 /* not with_set_dates */ );
-#endif
-
 			if ( !*where_clause ) return 0;
 	
 			process_generic_output_get_period_of_record_date(
@@ -1360,17 +1349,6 @@ boolean appaserver_library_validate_begin_end_date(
 				process_generic_output,
 				post_dictionary );
 
-#ifdef NOT_DEFINED
-			where_clause =
-			process_generic_output_get_dictionary_where_clause(
-					begin_date,
-					end_date,
-					application_name,
-					process_generic_output,
-					post_dictionary,
-					0 /* not with_set_dates */ );
-#endif
-	
 			process_generic_output_get_period_of_record_date(
 					begin_date,
 					application_name,

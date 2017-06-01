@@ -1,4 +1,4 @@
-/* hydrology_library.h 							*/
+/* $APPASERVER_HOME/src_hydrology/hydrology_library.h			*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -10,6 +10,7 @@
 /* Includes */
 /* -------- */
 #include "list.h"
+#include "list_usage.h"
 #include "aggregate_statistic.h"
 #include "aggregate_level.h"
 #include "validation_level.h"
@@ -78,34 +79,38 @@ void hydrology_library_get_period_of_record_begin_end_dates(
 					char *station,
 					char *datatype );
 
-void hydrology_library_get_period_of_record_end_date(
-					char **end_date_string,
+char *hydrology_library_get_period_of_record_end_date(
 					char *application_name,
 					char *station,
 					char *datatype );
-void hydrology_library_get_period_of_record_begin_date(
-					char **begin_date_string,
+
+char *hydrology_library_get_period_of_record_begin_date(
 					char *application_name,
 					char *station,
 					char *datatype );
+
 void hydrology_library_get_clean_begin_end_date(
 					char **begin_date,
 					char **end_date,
 					char *application_name,
 					char *station,
 					char *datatype );
+
 void hydrology_library_with_list_get_clean_begin_end_date(
 					char **begin_date,
 					char **end_date,
 					char *application_name,
 					LIST *station_name_list,
 					LIST *datatype_name_list );
+
 char *hydrology_library_get_units_string(
 					boolean *bar_graph,
 					char *application_name,
 					char *datatype );
+
 boolean hydrology_library_get_bar_graph(char *application_name,
 					char *datatype_name );
+
 void hydrology_library_get_title(
 					char *title,
 					char *sub_title,
@@ -117,9 +122,11 @@ void hydrology_library_get_title(
 					char *begin_date_string,
 					char *end_date_string,
 					char accumulate_yn);
+
 int get_latest_measurements_per_day( 	char *application,
 					char *station,
 					char *datatype );
+
 int hydrology_library_insert_null_measurements(
 					char *station,
 					char *datatype,
@@ -133,6 +140,7 @@ int hydrology_library_insert_null_measurements(
 					char *process_title,
 					boolean with_table_output,
 					char *application_name );
+
 double hydrology_library_get_switch_julian(
 					LIST *expected_count_list,
 					int minutes_offset );
@@ -144,24 +152,30 @@ char *hydrology_library_get_expected_count_list_string(
 					char delimiter );
 
 char *hydrology_library_get_flow_units(	char *application_name );
+
 char *hydrology_library_get_stage_units(char *application_name );
+
 char *hydrology_library_get_datatype_units(
 					char *application_name,
 					char *datatype_name );
+
 char *hydrology_library_get_datatype_units_display(
 					char *application_name,
 					char *datatype,
 					char *datatype_units,
 					char *datatype_units_converted,
 					enum aggregate_statistic );
+
 char *hydrology_library_get_output_invalid_units_error(
 					char *datatype,
 					char *units,
 					char *units_converted );
+
 boolean hydrology_library_can_convert_to_units(
 					char *application_name,
 					char *datatype,
 					char *units_converted );
+
 int hydrology_library_some_measurements_validated(
 					char *application_name,
 					char *where_clause,
@@ -169,6 +183,7 @@ int hydrology_library_some_measurements_validated(
 					char *datatype,
 					char *begin_measurement_date,
 					char *end_measurement_date );
+
 void hydrology_library_get_clean_begin_end_time(
 					char **begin_time_string,
 					char **end_time_string );

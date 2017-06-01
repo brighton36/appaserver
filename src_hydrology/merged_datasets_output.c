@@ -176,8 +176,8 @@ int main( int argc, char **argv )
 	LIST *station_name_list;
 	LIST *datatype_name_list;
 	char *station_name = {0};
-	char *begin_date;
-	char *end_date;
+	char *begin_date = {0};
+	char *end_date = {0};
 	char *merged_output = {0};
 	DOCUMENT *document = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -343,6 +343,13 @@ int main( int argc, char **argv )
 				application_name,
 				station_name_list,
 				datatype_name_list );
+
+fprintf( stderr, "%s/%s()/%d: got begin_date = (%s) and end_date = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+begin_date,
+end_date );
 
 	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date,
@@ -672,17 +679,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_date,
-			 end_date,
-			 process_id );
-*/
-	
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",

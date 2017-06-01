@@ -448,7 +448,7 @@ int main( int argc, char **argv )
 				data_collection_frequency_out_of_sync,
 				date_range_period_of_record );
 
-			printf( "<h2>%s</h2>\n",
+			printf( "<h3>%s</h3>\n",
 				changed_to_daily_message );
 		}
 	}
@@ -1833,7 +1833,6 @@ boolean merged_datasets_output_google_chart(
 	char *date_space_time;
 	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
-	char buffer[ 512 ];
 	HASH_TABLE *merged_date_space_time_key_hash_table;
 	char initial_capital_buffer[ 512 ];
 	GOOGLE_OUTPUT_CHART *google_chart;

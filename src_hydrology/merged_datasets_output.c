@@ -344,13 +344,6 @@ int main( int argc, char **argv )
 				station_name_list,
 				datatype_name_list );
 
-fprintf( stderr, "%s/%s()/%d: got begin_date = (%s) and end_date = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-begin_date,
-end_date );
-
 	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date,
 					&end_date,

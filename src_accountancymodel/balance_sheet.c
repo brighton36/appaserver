@@ -32,7 +32,8 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *build_consolidate_PDF_row_list(	LIST *element_list,
+LIST *build_aggregate_subclassification_PDF_row_list(
+					LIST *element_list,
 					char *application_name,
 					char *fund_name,
 					char *as_of_date,
@@ -49,7 +50,7 @@ LIST *build_consolidate_PDF_heading_list(
 
 LIST *build_full_PDF_heading_list(	void );
 
-void balance_sheet_consolidate_PDF(
+void balance_sheet_aggregate_subclassification_PDF(
 					char *application_name,
 					char *title,
 					char *sub_title,
@@ -223,7 +224,7 @@ int main( int argc, char **argv )
 	{
 		if ( aggregate_subclassification )
 		{
-			balance_sheet_consolidate_PDF(
+			balance_sheet_aggregate_subclassification_PDF(
 				application_name,
 				title,
 				sub_title,
@@ -255,7 +256,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void balance_sheet_consolidate_PDF(
+void balance_sheet_aggregate_subclassification_PDF(
 				char *application_name,
 				char *title,
 				char *sub_title,
@@ -351,7 +352,7 @@ void balance_sheet_consolidate_PDF(
 				as_of_date );
 
 	latex_table->row_list =
-		build_consolidate_PDF_row_list(
+		build_aggregate_subclassification_PDF_row_list(
 			element_list,
 			application_name,
 			fund_name,
@@ -407,7 +408,7 @@ void balance_sheet_consolidate_PDF(
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
-} /* balance_sheet_consolidate_PDF() */
+} /* balance_sheet_aggregate_subclassification_PDF() */
 
 void balance_sheet_full_PDF(	char *application_name,
 				char *title,
@@ -923,6 +924,7 @@ double get_net_income(	char *application_name,
 		"ignored" );
 
 	results_string = pipe2string( sys_string );
+
 	if ( !results_string )
 		return 0.0;
 	else
@@ -987,7 +989,8 @@ LIST *build_full_PDF_heading_list( void )
 
 } /* build_full_PDF_heading_list() */
 
-LIST *build_consolidate_PDF_row_list(	LIST *element_list,
+LIST *build_aggregate_subclassification_PDF_row_list(
+					LIST *element_list,
 					char *application_name,
 					char *fund_name,
 					char *as_of_date,
@@ -1095,7 +1098,10 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 
 	subclassification =
 		ledger_new_subclassification(
-					net_income_account->account_name );
+			net_income_account->account_name );
+
+	subclassification->subclassification_total = net_income;
+
 	subclassification->account_list = list_new();
 
 	list_append_pointer(	subclassification->account_list,
@@ -1118,7 +1124,7 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 
 	return row_list;
 
-} /* build_consolidate_PDF_row_list() */
+} /* build_aggregate_subclassification_PDF_row_list() */
 
 LIST *build_full_PDF_row_list(	LIST *element_list,
 				char *application_name,

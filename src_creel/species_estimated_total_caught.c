@@ -382,6 +382,20 @@ int main( int argc, char **argv )
 		printf( "</h2>\n" );
 	}
 
+
+fprintf( stderr, "%s/%s()/%d: length( species_list ) = %d, length( catch_area_list ) = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_length( estimated_total_caught->
+				input->
+				species_list ),
+list_length( estimated_total_caught->
+				output->
+				total_sheet->
+				total_row->
+				catch_area_list ) );
+
 	if (	!list_length( estimated_total_caught->input->species_list )
 	||	( list_length( estimated_total_caught->
 				input->

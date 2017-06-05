@@ -36,14 +36,6 @@ enum output_medium { output_medium_stdout, text_file, table };
 #define FILENAME_STEM_MONTHLY		"estimated_total_caught_monthly"
 #define FILENAME_STEM_GRAND		"estimated_total_caught_grand"
 
-/*
-#define OUTPUT_TEMPLATE		"%s/creel/estimated_total_caught_%d_%s_%d.csv"
-#define FTP_PREPEND_TEMPLATE	"%s://creel/%s/estimated_total_caught_%d_%s_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE "/creel/estimated_total_caught_%d_%s_%d.csv"
-#define TOTALS_FILENAME_LABEL	"monthly_totals"
-#define GRAND_FILENAME_LABEL	"grand"
-*/
-
 /* Prototypes */
 /* ---------- */
 void output_month_sheet_total_row_table(
@@ -382,7 +374,7 @@ int main( int argc, char **argv )
 		printf( "</h2>\n" );
 	}
 
-
+/*
 fprintf( stderr, "%s/%s()/%d: length( species_list ) = %d, length( catch_area_list ) = %d\n",
 __FILE__,
 __FUNCTION__,
@@ -395,6 +387,7 @@ list_length( estimated_total_caught->
 				total_sheet->
 				total_row->
 				catch_area_list ) );
+*/
 
 	if (	!list_length( estimated_total_caught->input->species_list )
 	||	( list_length( estimated_total_caught->
@@ -556,24 +549,28 @@ void output_text_file(	ESTIMATED_TOTAL_CAUGHT_OUTPUT *output,
 		species_list,
 		all_species );
 
-	output_month_total_sheet_text_file(
-		output->total_sheet,
-		year,
-		document_root_directory,
-		process_id,
-		application_name,
-		species_list );
+	if ( output->total_sheet
+	&&   output->total_sheet->total_row )
+	{
+		output_month_total_sheet_text_file(
+			output->total_sheet,
+			year,
+			document_root_directory,
+			process_id,
+			application_name,
+			species_list );
 
-	output_month_sheet_list_text_file(
-		output->month_sheet_list,
-		document_root_directory,
-		process_id,
-		application_name,
-		species_list,
-		begin_month,
-		year,
-		output->total_sheet->total_row->catch_area_list,
-		all_species );
+		output_month_sheet_list_text_file(
+			output->month_sheet_list,
+			document_root_directory,
+			process_id,
+			application_name,
+			species_list,
+			begin_month,
+			year,
+			output->total_sheet->total_row->catch_area_list,
+			all_species );
+	}
 
 	printf(
 "<br><a href=\"/src_creel/species_estimated_total_caught_algorithm.pdf\">Press to view the algorithm.</a><br>\n" );
@@ -640,15 +637,6 @@ void output_month_sheet_list_text_file(
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_TEMPLATE,
-			 appaserver_mount_point,
-			 year,
-			 month_abbreviation, 
-			 process_id );
-*/
-
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -656,28 +644,6 @@ void output_month_sheet_list_text_file(
 			document_close();
 			exit( 1 );
 		}
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_PREPEND_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	year,
-			 	month_abbreviation,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_NONPREPEND_TEMPLATE, 
-			 	year,
-			 	month_abbreviation,
-			 	process_id );
-		}
-*/
 
 		ftp_filename =
 			appaserver_link_get_link_prompt(
@@ -710,11 +676,14 @@ void output_month_sheet_list_text_file(
 				total_row_catch_area_list,
 				all_species );
 
-		output_month_sheet_total_row_text_file(
+		if ( month_sheet->total_row )
+		{
+			output_month_sheet_total_row_text_file(
 				output_file,
 				month_sheet->total_row,
 				total_row_catch_area_list,
 				all_species );
+		}
 
 		fclose( output_file );
 
@@ -922,6 +891,18 @@ void output_month_sheet_total_row_text_file(
 	CATCH_AREA *catch_area;
 	CATCH_AREA *total_row_catch_area;
 
+	if ( !total_row
+	||   !total_row->vessel
+	||   !total_row->fishing_trip )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty total_row.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	fprintf( output_file,
 	 "Total,%d,%d,%d,%.0lf,%.0lf,%.0lf,%.0lf,%.0lf,%.0lf,%.0lf,%.0lf",
 	 total_row->vessel->florida_bay_trailer_count,
@@ -1048,16 +1029,6 @@ void output_month_total_sheet_text_file(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-
-/*
-	sprintf( output_filename, 
-		 OUTPUT_TEMPLATE,
-		 appaserver_mount_point,
-		 year,
-		 TOTALS_FILENAME_LABEL,
-		 process_id );
-*/
-
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -1065,28 +1036,6 @@ void output_month_total_sheet_text_file(
 		document_close();
 		exit( 1 );
 	}
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-			year,
-		 	TOTALS_FILENAME_LABEL,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_NONPREPEND_TEMPLATE, 
-			year,
-		 	TOTALS_FILENAME_LABEL,
-		 	process_id );
-	}
-*/
 
 	output_month_total_sheet_text_file_heading(
 				output_file,
@@ -1811,7 +1760,15 @@ void output_month_sheet_list_table(	LIST *month_sheet_list,
 	char title[ 128 ];
 	char *heading;
 
-	list_rewind( month_sheet_list );
+	if ( !list_rewind( month_sheet_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty month_sheet_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	do {
 		month_sheet = list_get_pointer( month_sheet_list );
@@ -1840,11 +1797,16 @@ void output_month_sheet_list_table(	LIST *month_sheet_list,
 				total_row_catch_area_list,
 				all_species );
 
-		output_month_sheet_total_row_table(
+		if ( month_sheet->total_row
+		&&   month_sheet->total_row->fishing_trip
+		&&   month_sheet->total_row->vessel )
+		{
+			output_month_sheet_total_row_table(
 				output_pipe,
 				month_sheet->total_row,
 				total_row_catch_area_list,
 				all_species );
+		}
 
 		pclose( output_pipe );
 
@@ -1979,6 +1941,18 @@ void output_month_sheet_total_row_table(
 {
 	CATCH_AREA *catch_area;
 	CATCH_AREA *total_row_catch_area;
+
+	if ( !total_row
+	||   !total_row->vessel
+	||   !total_row->fishing_trip )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty total_row.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	fprintf( output_pipe,
 	 "Total^%d^%d^%d^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf",

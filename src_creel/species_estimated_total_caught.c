@@ -717,8 +717,12 @@ void output_month_sheet_text_file_heading(
 		 "%s,Trailers,,,Vessels,,,Interviews,,,,Trips",
 		 timlib_integer2full_month( this_month ) );
 
-	list_rewind( species_list );
-	list_rewind( total_row_catch_area_list );
+	if ( !list_rewind( species_list )
+	||   !list_rewind( total_row_catch_area_list ) )
+	{
+		fprintf( output_file, "\n" );
+		return;
+	}
 
 	do {
 		species = list_get_pointer( species_list );
@@ -738,7 +742,7 @@ void output_month_sheet_text_file_heading(
 				",Estimated Areas 1-5,,,Estimated Areas 1-6,,");
 		}
 
-		list_next( total_row_catch_area_list );
+		if ( !list_next( total_row_catch_area_list ) ) break;
 
 	} while( list_next( species_list ) );
 
@@ -784,7 +788,7 @@ void output_month_sheet_text_file_heading(
 				 species->florida_state_code );
 		}
 
-		list_next( total_row_catch_area_list );
+		if ( !list_next( total_row_catch_area_list ) ) break;
 
 	} while( list_next( species_list ) );
 

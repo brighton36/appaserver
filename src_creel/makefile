@@ -48,6 +48,7 @@ EXECUTABLES=								\
 		view_maps_figs						\
 		species_list						\
 		guide_compliance_mail_merge				\
+		additional_species					\
 		families_list
 
 EXTERNAL_LIBS=								\
@@ -363,6 +364,16 @@ species_list:								\
 		species_list.c						\
 		${LIBRARY}/additional_drop_down_attribute.o		\
 		-o species_list
+
+additional_species:							\
+	additional_species.c creel.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY} 					\
+		${EXTERNAL_LIBS}					\
+		additional_species.c					\
+		creel.o							\
+		-o additional_species
 
 families_list:								\
 	families_list.c ${LIBRARY}/additional_drop_down_attribute.o

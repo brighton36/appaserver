@@ -420,6 +420,8 @@ update_transect_basin
 # ---------
 # src_creel
 # ---------
+additional_species
+creel_dvr
 calculate_species_cpue
 catches_per_species
 creel_catches2minutes_between_fish

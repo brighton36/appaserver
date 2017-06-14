@@ -31,7 +31,7 @@ fi
 end_date=$5
 if [ "$end_date" = "" -o "$end_date" = "end_date" ]
 then
-	end_date="2099-12-31"
+	end_date=`now.sh ymd`
 fi
 
 family=$6
@@ -51,22 +51,23 @@ output_file="$document_root/appaserver/$application/data/${process_name}_$$.csv"
 prompt_file="/appaserver/$application/data/${process_name}_$$.csv"
 process_title_half=$(echo $process_name \(${fishing_purpose}\) for ${family}/${genus}							|
 format_initial_capital.e)
-process_title=${process_title_half}/$species
+process_title="${process_title_half}/$species from $begin_date to $end_date"
+process_title_table="${process_title_half}/$species<br>From $begin_date To $end_date"
 
 heading="Fishing Count,Family,Genus,Species"
 justification="right,left,left,left"
 
 echo "#${process_title}" > $output_file
 echo "$heading" >> $output_file
-additional_species	$application		\
-			$fishing_purpose	\
-			$begin_date		\
-			$end_date		\
-			"$family"		\
-			"$genus"		\
-			"$species"		|
-tr '^' ','					|
-tr '|' ','					|
+
+additional_species_select.sh	$fishing_purpose	\
+				$begin_date		\
+				$end_date		\
+				"$family"		\
+				"$genus"		\
+				"$species"		|
+tr '^' ','						|
+tr '|' ','						|
 cat >> $output_file
 
 # Output
@@ -76,7 +77,7 @@ then
 	content_type_cgi.sh
 
 	echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$application/style.css></head>"
-	echo "<body><h1>$process_title</h1>"
+	echo "<body><h1>$process_title_table</h1>"
 fi
 
 if [ "$output_medium" = "text_file" -o "$output_medium" = "spreadsheet" ]

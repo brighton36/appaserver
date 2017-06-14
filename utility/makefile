@@ -170,6 +170,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	search_replace_string.e						\
 	filename_date_older.e						\
 	in_clause.e							\
+	where.e								\
 	real_time2annual_period.e					\
 	mail_if_output.e						\
 	time_hhmm2hhcolonmm.e						\
@@ -1009,6 +1010,13 @@ in_clause.e: in_clause.c
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o in_clause.e
+
+where.e: where.c
+	$(CC) 	${CFLAGS} -I${LIBRARY} where.c	 			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		-o where.e
 
 pivot_table.e: pivot_table.c						\
 		${LIBRARY}/pivot_table.o

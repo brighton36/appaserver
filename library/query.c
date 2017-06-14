@@ -1,4 +1,4 @@
-/* library/query.c							*/
+/* $APPASERVER_LIBRARY/library/query.c					*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -5312,7 +5312,7 @@ int query_or_sequence_set_data_list_string(	LIST *data_list_list,
 } /* query_or_sequence_set_data_list_string() */
 
 int query_or_sequence_set_data_list(	LIST *data_list_list,
-				LIST *data_list )
+					LIST *data_list )
 {
 	char *data_list_string;
 
@@ -5432,4 +5432,47 @@ boolean query_attribute_list_exists(
 
 } /* query_attribute_list_exists() */
 
+char *query_where_clause(	LIST *primary_key_list,
+				char *input_buffer,
+				char delimiter )
+{
+	char *primary_key;
+	char piece_buffer[ 256 ];
+	char where[ 2048 ];
+	char *ptr = where;
+	char *escaped_data;
+	int i;
+
+	if ( !list_rewind( primary_key_list ) ) return (char *)0;
+
+
+	for(	i = 0;
+		piece(	piece_buffer,
+			delimiter,
+			input_buffer,
+			i );
+		i++ )
+	{
+		primary_key = list_get_pointer( primary_key_list );
+
+		if ( i ) ptr += sprintf( ptr, " and" );
+
+		escaped_data =
+			timlib_sql_injection_escape(
+				piece_buffer );
+
+		ptr += sprintf(
+		   		ptr,
+		   		" %s = '%s'",
+				primary_key,
+		   		escaped_data );
+
+		free( escaped_data );
+
+		if ( !list_next( primary_key_list ) ) break;
+	}
+
+	return strdup( where );
+
+} /* query_where_clause() */
 

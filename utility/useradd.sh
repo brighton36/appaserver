@@ -1,5 +1,5 @@
 :
-# utility/useradd.sh
+# $APPASERVER_HOME/utility/useradd.sh
 # ---------------------------------------------
 # Freely available software: see Appaserver.org
 # ---------------------------------------------

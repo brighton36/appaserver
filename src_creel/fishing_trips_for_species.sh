@@ -32,20 +32,12 @@ family=$5
 genus=$6
 species=$7
 
-#family="Sciaenidae"
-#genus="Cynoscion"
-#species="nebulosus"
-
-#fishing_purpose="sport"
-#begin="2015-01-01"
-#end="2015-01-31"
-
 select="fishing_purpose,census_date,interview_location,interview_number"
 folder="catches"
 where="fishing_purpose = '$fishing_purpose' and census_date between '$begin_date' and '$end_date' and family = '$family' and genus = '$genus' and species = '$species'"
 
 echo "select $select from $folder where $where;"	|
 sql.e							|
-sort
+sort -u
 
 exit 0

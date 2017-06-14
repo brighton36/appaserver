@@ -598,4 +598,8 @@ QUERY_DROP_DOWN *query_process_drop_down_get_drop_down(
 				LIST *attribute_list,
 				DICTIONARY *dictionary );
 
+char *query_where_clause(	LIST *primary_key_list,
+				char *input_buffer,
+				char delimiter );
+
 #endif

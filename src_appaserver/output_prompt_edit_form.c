@@ -1401,13 +1401,29 @@ LIST *get_radio_button_element_list(
 					element );
 		}
 	
+		/* First present "Grace Chart" */
+		/* --------------------------- */
 		element = element_new( 	radio_button,
 					LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value = 
-					TIME_CHART_PUSH_BUTTON_NAME;
+					GRACE_CHART_PUSH_BUTTON_NAME;
 	
-		element->radio_button->heading = "Time Chart";
+		element->radio_button->heading = "Grace Chart";
+	
+		list_append_pointer(
+				return_list, 
+				element );
+
+		/* Second present "Google Chart" */
+		/* ----------------------------- */
+		element = element_new( 	radio_button,
+					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+
+		element->radio_button->value = 
+					GOOGLE_CHART_PUSH_BUTTON_NAME;
+	
+		element->radio_button->heading = "Google Chart";
 	
 		list_append_pointer(
 				return_list, 

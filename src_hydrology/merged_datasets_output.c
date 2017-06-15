@@ -1833,15 +1833,10 @@ boolean merged_datasets_output_google_chart(
 
 	google_chart =
 		google_output_chart_new(
-			google_time_line,
 			GOOGLE_CHART_POSITION_LEFT,
 			GOOGLE_CHART_POSITION_TOP,
 			GOOGLE_CHART_WIDTH,
-			GOOGLE_CHART_HEIGHT,
-			GOOGLE_CHART_BACKGROUND_COLOR,
-			0 /* not legend_position_bottom */,
-			GOOGLE_ANNOTATED_TIMELINE
-				/* google_package_name */ );
+			GOOGLE_CHART_HEIGHT );
 
 	sprintf(chart_title,
 		"Merged Datasets %s from %s to %s",

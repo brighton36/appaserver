@@ -156,6 +156,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	format_initial_capital.e					\
 	database_management_system.e					\
 	grace_histogram.e						\
+	google_timechart.e						\
 	grace_scatterplot.e						\
 	make_checks.e							\
 	increment.e							\
@@ -225,6 +226,16 @@ fifowrite.e: fifowrite.c						\
 		${APPASERVER_LIBRARY}					\
 		fifowrite.c 						\
 		-o fifowrite.e
+
+google_timechart.e: google_timechart.c					\
+	${LIBRARY}/google_chart.o ${STANDARD_LIBRARY}
+	$(CC)    ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		google_timechart.c 					\
+		${LIBRARY}/google_chart.o				\
+		-o google_timechart.e
 
 grace_histogram.e: grace_histogram.c					\
 	${LIBRARY}/grace.o ${STANDARD_LIBRARY} ${LIBRARY}/histogram.o

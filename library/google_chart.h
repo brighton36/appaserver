@@ -117,14 +117,10 @@ GOOGLE_INPUT_DATATYPE *google_input_datatype_new(
 					char *datatype_name );
 
 GOOGLE_OUTPUT_CHART *google_output_chart_new(
-					enum google_chart_type,
 					int left,
 					int top,
 					int width,
-					int height,
-					char *background_color,
-					boolean legend_position_bottom,
-					char *google_package_name );
+					int height );
 
 GOOGLE_BARCHART *google_barchart_new(	char *stratum_name,
 					int length_datatype_name_list );

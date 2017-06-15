@@ -1,10 +1,10 @@
-/* output_time_chart.c						*/
-/* ------------------------------------------------------------	*/
-/* This process is triggered if you select the time chart radio	*/
-/* button in some of the lookup forms.				*/
-/*								*/
-/* Freely available software: see Appaserver.org		*/
-/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/output_grace_chart.c			*/
+/* -------------------------------------------------------------	*/
+/* This process is triggered if you select the grace chart radio	*/
+/* button in some of the lookup forms.					*/
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -92,13 +92,6 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
 	if ( argc == 8 && strcmp( argv[ 7 ], "dictionary_stdin" ) == 0 )
 	{
 		get_line( dictionary_string, stdin );
@@ -134,19 +127,19 @@ int main( int argc, char **argv )
 					(LIST *)0 /* operation_name_list */ );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	folder = folder_new_folder( 	application_name,
 					session,
 					folder_name );
 
 	folder->attribute_list =
-	attribute_get_attribute_list(
-		folder->application_name,
-		folder->folder_name,
-		(char *)0 /* attribute_name */,
-		(LIST *)0 /* mto1_isa_related_folder_list */,
-		role_name );
+		attribute_get_attribute_list(
+			folder->application_name,
+			folder->folder_name,
+			(char *)0 /* attribute_name */,
+			(LIST *)0 /* mto1_isa_related_folder_list */,
+			role_name );
 
 	date_primary_attribute_name_list =
 		attribute_list_get_primary_datatype_attribute_string_list(
@@ -175,16 +168,6 @@ int main( int argc, char **argv )
 	float_integer_attribute_name_list =
 		attribute_get_time_chart_attribute_name_list(
 					folder->attribute_list );
-
-/*
-	LIST *no_display_pressed_attribute_name_list = {0};
-	no_display_pressed_attribute_name_list =
-		appaserver_library_get_no_display_pressed_attribute_name_list(
-				dictionary_appaserver->
-					ignore_dictionary, 
-				folder_get_attribute_name_list(
-					folder->attribute_list ) );
-*/
 
 	if ( !list_length( float_integer_attribute_name_list ) )
 	{
@@ -278,26 +261,6 @@ void output_chart(	char *application_name,
 			folder_name,
 			query_dictionary,
 			role_new( application_name, role_name ) );
-
-#ifdef NOT_DEFINED
-	query =	query_new(	application_name,
-				login_name,
-				folder_name,
-				(LIST *)0 /* attribute_list */,
-				query_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				role_new( application_name, role_name ),
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
 
 	query_record_list =
 		query_get_record_list(

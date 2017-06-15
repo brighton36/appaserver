@@ -237,7 +237,8 @@ post_prompt_process_form
 post_choose_process
 output_email
 output_transmit
-output_time_chart
+output_grace_chart
+output_google_chart
 output_histogram
 output_group
 add_column

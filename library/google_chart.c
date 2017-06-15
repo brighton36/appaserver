@@ -38,14 +38,10 @@ GOOGLE_CHART *google_chart_new( void )
 } /* google_chart_new() */
 
 GOOGLE_OUTPUT_CHART *google_output_chart_new(
-				enum google_chart_type google_chart_type,
 				int left,
 				int top,
 				int width,
-				int height,
-				char *background_color,
-				boolean legend_position_bottom,
-				char *google_package_name )
+				int height )
 {
 	GOOGLE_OUTPUT_CHART *google_output_chart;
 	static int chart_number = 0;
@@ -62,17 +58,16 @@ GOOGLE_OUTPUT_CHART *google_output_chart_new(
 		exit( 1 );
 	}
 
-	google_output_chart->google_chart_type = google_chart_type;
+	google_output_chart->google_chart_type = google_time_line;
 	google_output_chart->left = left;
 	google_output_chart->top = top;
 	google_output_chart->width = width;
 	google_output_chart->height = height;
-	google_output_chart->background_color = background_color;
-	google_output_chart->legend_position_bottom = legend_position_bottom;
 	google_output_chart->barchart_list = list_new();
 	google_output_chart->timeline_list = list_new();
 	google_output_chart->datatype_name_list = list_new();
-	google_output_chart->google_package_name = google_package_name;
+	google_output_chart->google_package_name = GOOGLE_ANNOTATED_TIMELINE;
+	google_output_chart->background_color = GOOGLE_CHART_BACKGROUND_COLOR;
 	google_output_chart->chart_number = ++chart_number;
 
 	return google_output_chart;
@@ -345,6 +340,8 @@ GOOGLE_TIMELINE *google_timeline_get_or_set(
 /* Expecting:
 	2017-04-19:1445|stage|2.5
      or 2017-04-19|stage|2.5
+     or 2017-04-19||2.5
+     or 2017-04-19|2.5
 */
 void google_timeline_set_point_string(	LIST *timeline_list,
 					LIST *datatype_name_list,
@@ -357,15 +354,15 @@ void google_timeline_set_point_string(	LIST *timeline_list,
 	char point_string[ 128 ];
 	char buffer[ 128 ];
 
-	if ( character_count( delimiter, delimited_string ) < 2 )
+	if ( !delimited_string || !*delimited_string ) return;
+
+	if ( !character_count( delimiter, delimited_string ) )
 	{
 		fprintf( stderr,
-"warning in %s/%s()/%d: not 2 delimiters (%c) in (%s)\n",
+			"Warning in %s/%s()/%d: no delimiter of (%c) in (%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__,
-			 delimiter,
-			 delimited_string );
+			 __LINE__ );
 		return;
 	}
 
@@ -385,8 +382,16 @@ void google_timeline_set_point_string(	LIST *timeline_list,
 		*time_hhmm = '\0';
 	}
 
-	piece( datatype_name, delimiter, delimited_string, 1 );
-	piece( point_string, delimiter, delimited_string, 2 );
+	if ( character_count( delimiter, delimited_string ) == 1 )
+	{
+		piece( point_string, delimiter, delimited_string, 1 );
+		*datatype_name = '\0';
+	}
+	else
+	{
+		piece( datatype_name, delimiter, delimited_string, 1 );
+		piece( point_string, delimiter, delimited_string, 2 );
+	}
 
 	google_timeline_set_point(	timeline_list,
 					datatype_name_list,
@@ -454,21 +459,6 @@ void google_timeline_set_point(	LIST *timeline_list,
 {
 	GOOGLE_TIMELINE *timeline;
 	int offset;
-	char local_date_string[ 16 ];
-	char local_time_hhmm[ 16 ];
-
-#ifdef NOT_DEFINED
-	/* If not "2017-05-31 16:10", but is "2017-05-31:1610" */
-	/* --------------------------------------------------- */
-	if ( !character_exists( date_string, ' ' )
-	&&   character_exists( date_string, ':' ) )
-	{
-		piece( local_date_string, ':', date_string, 0 );
-		piece( local_time_hhmm, ':', date_string, 1 );
-		date_string = local_date_string;
-		time_hhmm = local_time_hhmm;
-	}
-#endif
 
 	timeline =
 		google_timeline_get_or_set(
@@ -477,35 +467,28 @@ void google_timeline_set_point(	LIST *timeline_list,
 			time_hhmm,
 			list_length( datatype_name_list ) );
 
-	if ( ( offset =
-		google_chart_get_datatype_offset(
-			datatype_name_list,
-			datatype_name ) ) < 0 )
+	if ( datatype_name && *datatype_name )
 	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot get datatype_name = %s.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			datatype_name );
-		exit( 1 );
+		if ( ( offset =
+			google_chart_get_datatype_offset(
+				datatype_name_list,
+				datatype_name ) ) < 0 )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: cannot get datatype_name = %s.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				datatype_name );
+			exit( 1 );
+	}
+	}
+	else
+	{
+		offset = 0;
 	}
 
 	timeline->point_array[ offset ] = google_point_double_calloc();
-
-/*
-	if ( ! ( timeline->point_array[ offset ] =
-			calloc( 1, sizeof( double ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-*/
-
 	*timeline->point_array[ offset ] = point;
 
 } /* google_timeline_set_point() */
@@ -1618,15 +1601,10 @@ LIST *google_chart_datatype_get_output_chart_list(
 
 		output_chart =
 			google_output_chart_new(
-				google_time_line,
 				0 /* left */,
 				0 /* top */,
 				width,
-				height,
-				GOOGLE_CHART_BACKGROUND_COLOR,
-				0 /* not legend_position_bottom */,
-				GOOGLE_ANNOTATED_TIMELINE
-					/* google_package_name */ );
+				height );
 
 		list_append_pointer(
 			output_chart->datatype_name_list,
@@ -1731,15 +1709,10 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 
 	output_chart =
 		google_output_chart_new(
-			google_time_line,
 			0 /* left */,
 			0 /* top */,
 			width,
-			height,
-			GOOGLE_CHART_BACKGROUND_COLOR,
-			0 /* not legend_position_bottom */,
-			GOOGLE_ANNOTATED_TIMELINE
-				/* google_package_name */ );
+			height );
 
 	output_chart->datatype_name_list =
 		google_chart_get_datatype_name_list(

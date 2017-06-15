@@ -729,7 +729,7 @@ boolean execute_radio_button_process_maybe(
 		}
 		else
 		if ( strcmp(	lookup_option_radio_button,
-				TIME_CHART_PUSH_BUTTON_NAME ) == 0 )
+				GRACE_CHART_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
 			dictionary_appaserver_escaped_send_dictionary_string(
@@ -738,7 +738,31 @@ boolean execute_radio_button_process_maybe(
 
 			sprintf(sys_string,
 "echo \"%s\"								|"
-"output_time_chart %s %s %s %s %s %s dictionary_stdin 2>>/%s 	 	 ",
+"output_grace_chart %s %s %s %s %s %s dictionary_stdin 2>>/%s 	 	 ",
+				escaped_dictionary_string,
+		 		login_name,
+				timlib_get_parameter_application_name(
+					application_name,
+					database_string ),
+		 		session,
+		 		folder_name,
+				role_name,
+				state,
+				appaserver_error_get_filename(
+					application_name ) );
+		}
+		else
+		if ( strcmp(	lookup_option_radio_button,
+				GOOGLE_CHART_PUSH_BUTTON_NAME ) == 0 )
+		{
+			escaped_dictionary_string =
+			dictionary_appaserver_escaped_send_dictionary_string(
+				dictionary_appaserver,
+				0 /* not with_non_prefixed_dictionary */ );
+
+			sprintf(sys_string,
+"echo \"%s\"								|"
+"output_google_chart %s %s %s %s %s %s dictionary_stdin 2>>/%s 	 	 ",
 				escaped_dictionary_string,
 		 		login_name,
 				timlib_get_parameter_application_name(

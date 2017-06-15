@@ -317,9 +317,11 @@ fprintf( stderr, "%s\n", sys_string );
 
 	pclose( input_pipe );
 
+/*
 	update_folder_row_access_count(	application_name,
 					folder_name,
 					row_access_count );
+*/
 
 	exit( 0 );
 } /* main() */

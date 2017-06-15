@@ -1128,15 +1128,10 @@ GOOGLE_OUTPUT_CHART *get_google_current_chart(
 
 	google_chart =
 		google_output_chart_new(
-			google_time_line,
 			LOCAL_CHART_POSITION_LEFT,
 			LOCAL_CHART_POSITION_TOP,
 			LOCAL_CHART_WIDTH,
-			LOCAL_CHART_HEIGHT,
-			GOOGLE_CHART_BACKGROUND_COLOR,
-			0 /* not legend_position_bottom */,
-			GOOGLE_ANNOTATED_TIMELINE
-				/* google_package_name */ );
+			LOCAL_CHART_HEIGHT );
 
 	bar_chart = datatype_bar_chart( application_name, datatype_name );
 
@@ -1176,14 +1171,13 @@ GOOGLE_OUTPUT_CHART *get_google_historical_long_term_chart(
 
 	google_chart =
 		google_output_chart_new(
-			google_column_chart,
 			LOCAL_CHART_POSITION_LEFT,
 			LOCAL_CHART_POSITION_TOP,
 			LOCAL_CHART_WIDTH,
-			HISTORICAL_CHART_HEIGHT,
-			GOOGLE_CHART_BACKGROUND_COLOR,
-			0 /* not legend_position_bottom */,
-			"corechart" /* google_package_name */ );
+			HISTORICAL_CHART_HEIGHT );
+
+	google_chart->google_chart_type = google_column_chart;
+	google_chart->google_package_name = GOOGLE_CORECHART;
 
 	if ( bar_chart )
 		aggregation_function = AGGREGATION_SUM;
@@ -1729,15 +1723,10 @@ GOOGLE_OUTPUT_CHART *get_google_historical_current_chart(
 
 	google_chart =
 		google_output_chart_new(
-		    google_time_line,
 		     LOCAL_CHART_POSITION_LEFT + 140,
 		     LOCAL_CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
 		     LOCAL_CHART_WIDTH - 280,
-		     HISTORICAL_CHART_HEIGHT / 3,
-		     GOOGLE_CHART_BACKGROUND_COLOR,
-		     0 /* not legend_position_bottom */,
-		     GOOGLE_ANNOTATED_TIMELINE
-				/* google_package_name */);
+		     HISTORICAL_CHART_HEIGHT / 3 );
 
 	list_append_pointer(	google_chart->datatype_name_list,
 				datatype_name );

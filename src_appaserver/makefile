@@ -36,7 +36,7 @@ EXECUTABLES=								\
 		post_choose_process					\
 		output_email						\
 		output_transmit						\
-		output_time_chart					\
+		output_grace_chart					\
 		output_histogram					\
 		output_group						\
 		add_column						\
@@ -606,14 +606,23 @@ output_transmit: output_transmit.c					\
 		output_transmit.c					\
 		-o output_transmit
 
-output_time_chart: output_time_chart.c					\
+output_grace_chart: output_grace_chart.c				\
 		${EXTERNAL_LIBS} ${LIB}/grace.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		output_time_chart.c					\
+		output_grace_chart.c					\
 		${LIB}/grace.o						\
-		-o output_time_chart
+		-o output_grace_chart
+
+output_google_chart: output_google_chart.c				\
+		${EXTERNAL_LIBS} ${LIB}/google_chart.o
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		output_google_chart.c					\
+		${LIB}/google_chart.o					\
+		-o output_google_chart
 
 generic_gracechart: generic_gracechart.c				\
 		${EXTERNAL_LIBS} ${LIB}/grace.o

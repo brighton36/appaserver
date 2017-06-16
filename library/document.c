@@ -145,7 +145,7 @@ void document_output_dynarch_heading( FILE *output_stream )
 void document_output_html_stream( FILE *output_stream )
 {
 	fprintf( output_stream,
-"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" );
+"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\">\n" );
 
 	fprintf( output_stream,
 "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" );

@@ -119,8 +119,9 @@ int main( int argc, char **argv )
 	if ( *content_type_yn == 'y' )
 		printf( "Content-type: text/html\n\n" );
 
+	document_output_html_stream( stdout );
+
 	printf(
-"	<html>							\n"
 "	<head>							\n"
 "		<link rel=stylesheet type=\"text/css\"		\n"
 "			href=/appaserver/%s/style.css>		\n"

@@ -368,8 +368,10 @@ int main( int argc, char **argv )
 			&current_end_date,
 			application_name );
 
+		document_output_html_stream( stdout );
+
 		printf(
-"<html><head>\n"
+"<head>\n"
 "<link rel=stylesheet type=text/css href=/appaserver/%s/style.css>\n"
 "</head>\n"
 "<body>\n"

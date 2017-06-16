@@ -37,6 +37,7 @@ EXECUTABLES=								\
 		output_email						\
 		output_transmit						\
 		output_grace_chart					\
+		output_google_chart					\
 		output_histogram					\
 		output_group						\
 		add_column						\

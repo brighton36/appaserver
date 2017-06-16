@@ -422,7 +422,12 @@ void post_state_one(	char *application_name,
 	document_set_javascript_module( document, "form_cookie" );
 	document_set_javascript_module( document, "keystrokes" );
 
+/*
 	printf( "<html>\n<head>\n" );
+*/
+	document_output_html_stream( stdout );
+	printf( "<head>\n" );
+
 
 	document_output_each_javascript_source(
 				application_name,

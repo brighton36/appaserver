@@ -156,16 +156,19 @@ void document_output_dynarch_hide_ul_contents(
 void document_output_close_head(	FILE *output_stream );
 
 DOCUMENT *document_output_menu_new(
-				char *application_name,
-				char *database_string,
-				char *login_name,
-				char *session,
-				char *role_name,
-				char *appaserver_mount_point,
-				char *onload_control_string,
-				boolean exists_date_attribute );
+					char *application_name,
+					char *database_string,
+					char *login_name,
+					char *session,
+					char *role_name,
+					char *appaserver_mount_point,
+					char *onload_control_string,
+					boolean exists_date_attribute );
 
 void document_output_dynarch_heading(
-				FILE *output_stream );
+					FILE *output_stream );
+
+void document_output_html_stream(
+					FILE *output_stream );
 
 #endif

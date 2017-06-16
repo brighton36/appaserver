@@ -25,6 +25,7 @@
 #include "appaserver_error.h"
 #include "document.h"
 #include "appaserver_parameter_file.h"
+#include "appaserver_link_file.h"
 #include "environ.h"
 #include "decode_html_post.h"
 #include "appaserver.h"
@@ -32,6 +33,7 @@
 
 /* Constants */
 /* --------- */
+#define FILENAME_STEM		"google_chart"
 
 /* Prototypes */
 /* ---------- */
@@ -88,9 +90,9 @@ int main( int argc, char **argv )
 	}
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc == 8 && strcmp( argv[ 7 ], "dictionary_stdin" ) == 0 )
 	{
@@ -222,7 +224,6 @@ void output_chart(	char *application_name,
 	char initcap_buffer[ 256 ];
 	DOCUMENT *document;
 	LIST *query_record_list;
-	char graph_identifier[ 128 ];
 	char begin_date_string[ 128 ];
 	char date_data[ 128 ];
 	char time_data[ 128 ];
@@ -234,6 +235,28 @@ void output_chart(	char *application_name,
 	int data_piece_offset;
 	char *query_record;
 	int value_piece_offset = 0;
+	FILE *output_file;
+
+	appaserver_link_get_pid_filename(
+			&output_filename,
+			&prompt_filename,
+			application_name,
+			document_root_directory,
+			getpid(),
+			FILENAME_STEM,
+			"html" /* extension */ );
+
+	output_file = fopen( output_filename, "w" );
+
+	if ( !output_file )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s(): cannot open %s\n",
+			__FILE__,
+			__FUNCTION__,
+			output_filename );
+		exit( 1 );
+	}
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -270,10 +293,10 @@ void output_chart(	char *application_name,
 		exit( 0 );
 	}
 
-	sprintf(	title,
-			"Chart %s", 
-			format_initial_capital( initcap_buffer,
-				format_plural( buffer, folder_name ) ) );
+	sprintf(title,
+		"Chart %s", 
+		format_initial_capital( initcap_buffer,
+			format_plural( buffer, folder_name ) ) );
 
 	strcpy( sub_title,
 		query_get_display_where_clause(
@@ -291,29 +314,14 @@ void output_chart(	char *application_name,
 
 	strcpy( sub_title, format_initial_capital( buffer, sub_title ) );
 
-here1
-	grace = grace_new_date_time_grace(
-				application_name,
-				role_name,
-				title,
-				sub_title );
+	google_output_chart =
+		google_output_chart_new(
+			GOOGLE_CHART_POSITION_LEFT,
+			GOOGLE_CHART_POSITION_TOP,
+			GOOGLE_CHART_WIDTH,
+			GOOGLE_CHART_HEIGHT );
 
-	sprintf( graph_identifier, "%d", getpid() );
-
-	grace->grace_output = application_get_grace_output( application_name );
-
-	grace_get_filenames(
-			&agr_filename,
-			&ftp_agr_filename,
-			&postscript_filename,
-			&output_filename,
-			&ftp_output_filename,
-			application_name,
-			document_root_directory,
-			graph_identifier,
-			grace->grace_output );
-
-	list_rewind( float_integer_attribute_name_list );
+	if ( !list_rewind( float_integer_attribute_name_list ) ) return;
 
 	if ( time_attribute_name )
 		data_piece_offset = 2;
@@ -325,11 +333,19 @@ here1
 			list_get_pointer(
 				float_integer_attribute_name_list );
 
-		grace_date_time_set_attribute_name(
-					grace->graph_list,
+		list_append_pointer(	google_output_chart->datatype_name_list,
 					float_integer_attribute_name );
 
-		if ( !list_rewind( query_record_list ) ) break;
+	} while( list_next( float_integer_attribute_name_list ) );
+
+	if ( !list_rewind( float_integer_attribute_name_list ) ) return;
+
+	do {
+		float_integer_attribute_name =
+			list_get_pointer(
+				float_integer_attribute_name_list );
+
+		if ( !list_rewind( query_record_list ) ) return;
 
 		do {
 			query_record = list_get_pointer( query_record_list );
@@ -346,7 +362,6 @@ here1
 			{
 				strcpy( begin_date_string, date_data );
 				first_time = 0;
-
 			}
 
 			if ( time_attribute_name )
@@ -368,12 +383,14 @@ here1
 
 			if ( *value_data )
 			{
-				grace_date_time_set_data(
-						grace->graph_list,
-						date_data,
-						time_data,
-						strdup( value_data ),
-						grace->dataset_no_cycle_color );
+				google_timeline_set_point(
+					google_output_chart->timeline_list,
+					google_output_chart->datatype_name_list,
+					date_data,
+					time_data,
+					float_integer_attribute_name
+						/* datatype_name */,
+					atof( value_data ) /* point */ );
 			}
 
 		} while( list_next( query_record_list ) );
@@ -382,145 +399,57 @@ here1
 
 	} while( list_next( float_integer_attribute_name_list ) );
 
-	if ( !grace_set_begin_end_date( 	grace,
-						begin_date_string,
-						date_data ) )
-	{
-		DOCUMENT *document;
-
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-		printf(
-	"<h2>ERROR: Invalid date format.</h2>" );
-		document_close();
-		exit( 1 );
-	}
-
-	grace_set_xaxis_ticklabel_angle(
-					grace->graph_list,
-					15 );
-
-	if ( !grace_set_structures(
-				&page_width_pixels,
-				&page_length_pixels,
-				&distill_landscape_flag,
-				&grace->landscape_mode,
-				grace,
-				grace->graph_list,
-				grace->anchor_graph_list,
-				grace->begin_date_julian,
-				grace->end_date_julian,
-				grace->number_of_days,
-				grace->grace_graph_type,
-				0 /* not force_landscape_mode */ ) )
-	{
-		DOCUMENT *document;
-
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-		printf( "<p>Warning: no graphs to display.\n" );
-		document_close();
-		exit( 0 );
-	}
-
-	if ( list_length( grace->graph_list ) == 1 )
-	{
-		grace_move_legend_bottom_left(
-				list_get_first_pointer( grace->graph_list ),
-				grace->landscape_mode );
 /*
-		grace_lower_legend( grace->graph_list, 0.08 );
+	fprintf( output_file, "<html>\n" );
 */
-	}
-	else
-	{
-		grace_lower_legend( grace->graph_list, -0.08 );
-	}
+	document_output_html_stream( output_file );
 
-	if ( grace_contains_multiple_datatypes( grace->graph_list ) )
-		grace->dataset_no_cycle_color = 1;
+	fprintf( output_file, "<head>\n" );
 
-	if ( !grace_output_charts(
-				output_filename, 
-				postscript_filename,
-				agr_filename,
-				grace->title,
-				grace->sub_title,
-				grace->xaxis_ticklabel_format,
-				grace->grace_graph_type,
-				grace->x_label_size,
-				page_width_pixels,
-				page_length_pixels,
-				application_get_grace_home_directory(
-					application_name ),
-				application_get_grace_execution_directory(
-					application_name ),
-				application_get_grace_free_option_yn(
-					application_name ),
-				grace->grace_output,
-				application_get_distill_directory(
-					application_name ),
-				distill_landscape_flag,
-				application_get_ghost_script_directory(
-					application_name ),
-				(LIST *)0 /* quantum_datatype_name_list */,
-				grace->symbols,
-				grace->world_min_x,
-				grace->world_max_x,
-				grace->xaxis_ticklabel_precision,
-				grace->graph_list,
-				grace->anchor_graph_list ) )
-	{
-		document_quick_output_body(
-					application_name,
-					appaserver_mount_point );
+	google_chart_output_include( output_file );
 
-		printf( "<h2>No data for selected parameters.</h2>\n" );
-		document_close();
-		exit( 0 );
-	}
-	else
-	{
-		grace_output_graph_window(
-				application_name,
-				ftp_output_filename,
-				ftp_agr_filename,
-				appaserver_mount_point,
-				0 /* not with_document_output */,
-				(char *)0 /* where_clause */ );
-	}
+	google_chart_output_visualization_function(
+				output_file,
+				google_output_chart->google_chart_type,
+				google_output_chart->timeline_list,
+				google_output_chart->barchart_list,
+				google_output_chart->datatype_name_list,
+				title,
+				(char *)0 /* yaxis_label */,
+				google_output_chart->width,
+				google_output_chart->height,
+				google_output_chart->background_color,
+				google_output_chart->legend_position_bottom,
+				0 /* not chart_type_bar */,
+				google_output_chart->google_package_name,
+				0 /* not dont_display_range_selector */,
+				aggregate_level_none,
+				google_output_chart->chart_number );
+
+	fprintf( output_file, "</head>\n" );
+	fprintf( output_file, "<body>\n" );
+
+	google_chart_float_chart(
+				output_file,
+				(char *)0 /* chart_title */,
+				google_output_chart->width,
+				google_output_chart->height,
+				google_output_chart->chart_number );
+
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_output_chart->chart_number );
+
+	fprintf( output_file, "</body>\n" );
+	fprintf( output_file, "</html>\n" );
+
+	fclose( output_file );
+
+	google_chart_output_prompt(
+		application_name,
+		prompt_filename,
+		FILENAME_STEM /* process_name */,
+		query->query_output->where_clause );
 
 	document_close();
 

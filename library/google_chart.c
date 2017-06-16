@@ -1762,7 +1762,11 @@ void google_chart_output_all_charts(
 
 	GOOGLE_OUTPUT_CHART *google_chart;
 
+	document_output_html_stream( output_file );
+
+/*
 	fprintf( output_file, "<html>\n" );
+*/
 	fprintf( output_file, "<head>\n" );
 
 	google_chart_output_include( output_file );

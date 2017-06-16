@@ -15,6 +15,10 @@ int main( int argc, char **argv )
 
 	if ( argc == 2 ) style_sheet = argv[ 1 ];
 
+/*
+	document_output_html_stream( stdout );
+*/
+
 	printf( "<html>\n" );
 
 	if ( style_sheet )

@@ -1,6 +1,6 @@
 :
-# $APPASERVER_HOME/src_creel/additional_species_select.sh
-# -------------------------------------------------------
+# $APPASERVER_HOME/src_creel/additional_species_select_summary.sh
+# ---------------------------------------------------------------
 
 if [ "$#" -ne 6 ]
 then

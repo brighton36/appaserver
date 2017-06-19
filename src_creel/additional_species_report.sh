@@ -1,4 +1,5 @@
 :
+# -------------------------------------------------------
 # $APPASERVER_HOME/src_creel/additional_species_report.sh
 # -------------------------------------------------------
 
@@ -7,9 +8,9 @@
 
 echo "$0" "$*" 1>&2
 
-if [ "$#" -ne 9 ]
+if [ "$#" -ne 10 ]
 then
-	echo "Usage: $0 application process_name fishing_purpose begin_date end_date family genus species output_medium" 1>&2
+	echo "Usage: $0 application process_name fishing_purpose begin_date end_date family genus species detail_yn output_medium" 1>&2
 	exit 1
 fi
 
@@ -38,7 +39,9 @@ family=$6
 genus=$7
 species=$8
 
-output_medium=$9
+detail_yn=$9
+
+output_medium=${10}
 if [ "$output_medium" = "" -o "$output_medium" = "output_medium" ]
 then
 	output_medium="table"		# Defaults to table
@@ -54,21 +57,57 @@ format_initial_capital.e)
 process_title="${process_title_half}/$species from $begin_date to $end_date"
 process_title_table="${process_title_half}/$species<br>From $begin_date To $end_date"
 
-heading="Fishing Count,Family,Genus,Species"
-justification="right,left,left,left"
+additional_species_report_detail()
+{
+	fishing_purpose=$1
+	begin_date=$2
+	end_date=$3
+	family=$4
+	genus=$5
+	species=$6
+	output_file=$7
 
-echo "#${process_title}" > $output_file
-echo "$heading" >> $output_file
+	heading="census_date,interview_location,interview_number,family,genus,species"
 
-additional_species_select.sh	$fishing_purpose	\
-				$begin_date		\
-				$end_date		\
-				"$family"		\
-				"$genus"		\
-				"$species"		|
-tr '^' ','						|
-tr '|' ','						|
-cat >> $output_file
+	echo "#${process_title}" > $output_file
+	echo "$heading" >> $output_file
+
+	additional_species_select_detail.sh	$fishing_purpose	\
+						$begin_date		\
+						$end_date		\
+						"$family"		\
+						"$genus"		\
+						"$species"		|
+	tr '^' ','							|
+	cat >> $output_file
+}
+
+additional_species_report_summary()
+{
+	fishing_purpose=$1
+	begin_date=$2
+	end_date=$3
+	family=$4
+	genus=$5
+	species=$6
+	output_file=$7
+
+	heading="Fishing Count,Family,Genus,Species"
+	justification="right,left,left,left"
+
+	echo "#${process_title}" > $output_file
+	echo "$heading" >> $output_file
+
+	additional_species_select_summary.sh	$fishing_purpose	\
+						$begin_date		\
+						$end_date		\
+						"$family"		\
+						"$genus"		\
+						"$species"		|
+	tr '^' ','							|
+	tr '|' ','							|
+	cat >> $output_file
+}
 
 # Output
 # ------
@@ -78,6 +117,25 @@ then
 
 	echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$application/style.css></head>"
 	echo "<body><h1>$process_title_table</h1>"
+fi
+
+if [ "$detail_yn" = "y" ]
+then
+	additional_species_report_detail	$fishing_purpose	\
+						$begin_date		\
+						$end_date		\
+						$family			\
+						$genus			\
+						$species		\
+						$output_file
+else
+	additional_species_report_summary	$fishing_purpose	\
+						$begin_date		\
+						$end_date		\
+						$family			\
+						$genus			\
+						$species		\
+						$output_file
 fi
 
 if [ "$output_medium" = "text_file" -o "$output_medium" = "spreadsheet" ]

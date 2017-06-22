@@ -404,14 +404,25 @@ QUERY_OUTPUT *query_process_output_new(
 				DICTIONARY *preprompt_dictionary )
 {
 	QUERY_OUTPUT *query_output;
+	LIST *exclude_attribute_name_list = list_new();
 
 	query_output = query_output_calloc();
 
 	query_output->query_drop_down_list =
 		query_get_process_drop_down_list(
+			exclude_attribute_name_list,
 			folder->folder_name,
 			folder->mto1_recursive_related_folder_list,
 			preprompt_dictionary );
+
+	query_output->query_attribute_list =
+		query_get_attribute_list(
+			folder->
+				append_isa_attribute_list,
+			preprompt_dictionary,
+			exclude_attribute_name_list,
+			folder->folder_name
+				/* dictionary_prepend_folder_name */ );
 
 /*
 {
@@ -1446,6 +1457,7 @@ LIST *query_get_subquery_drop_down_list(
 } /* query_get_subquery_drop_down_list() */
 
 LIST *query_get_process_drop_down_list(
+				LIST *exclude_attribute_name_list,
 				char *folder_name,
 				LIST *mto1_recursive_related_folder_list,
 				DICTIONARY *preprompt_dictionary )
@@ -1464,6 +1476,7 @@ LIST *query_get_process_drop_down_list(
 
 		if ( ( query_drop_down =
 			query_get_process_drop_down(
+					exclude_attribute_name_list,
 					folder_name,
 					related_folder->
 						foreign_attribute_name_list,
@@ -1852,6 +1865,7 @@ QUERY_DROP_DOWN *query_get_subquery_drop_down(
 } /* query_get_subquery_drop_down() */
 
 QUERY_DROP_DOWN *query_get_process_drop_down(
+				LIST *exclude_attribute_name_list,
 				char *folder_name,
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,
@@ -1903,16 +1917,30 @@ QUERY_DROP_DOWN *query_get_process_drop_down(
 
 		if ( list_length( data_list ) )
 		{
-			if ( ( drop_down_row =
+			if ( ! ( drop_down_row =
 				query_process_drop_down_row_new(
 					attribute_name,
 					attribute_list,
 					data_list ) ) )
 			{
+				fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get query_process_drop_down_row_new()\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
+			list_append_pointer(
+				query_drop_down->
+					query_drop_down_row_list,
+				drop_down_row );
+
+			if ( exclude_attribute_name_list )
+			{
 				list_append_pointer(
-					query_drop_down->
-						query_drop_down_row_list,
-					drop_down_row );
+					exclude_attribute_name_list,
+					attribute_name );
 			}
 		}
 

@@ -797,10 +797,6 @@ PARAMETER_FOLDER *parameter_folder_new(
 			DICTIONARY *parameter_dictionary,
 			char *role_name,
 			boolean with_populate_drop_downs,
-/*
-			LIST *preprompt_folder_name_list,
-			LIST *preprompt_attribute_name_list,
-*/
 			char *populate_drop_down_process_string,
 			char *process_name )
 {

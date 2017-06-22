@@ -518,11 +518,13 @@ QUERY_OUTPUT *query_process_output_new(
 				DICTIONARY *preprompt_dictionary );
 
 LIST *query_get_process_drop_down_list(
+				LIST *exclude_attribute_name_list,
 				char *folder_name,
 				LIST *mto1_recursive_related_folder_list,
 				DICTIONARY *preprompt_dictionary );
 
 QUERY_DROP_DOWN *query_get_process_drop_down(
+				LIST *exclude_attribute_name_list,
 				char *folder_name,
 				LIST *foreign_attribute_name_list,
 				LIST *attribute_list,

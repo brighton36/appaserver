@@ -648,6 +648,20 @@ LIST *get_element_list(	char **preprompt_help_text,
 				role_name,
 				session,
 				1 /* with_populate_drop_downs */ );
+#ifdef NOT_DEFINED
+		process_parameter_list = 
+			process_parameter_list_new(
+				login_name,
+				application_name,
+				process_name,
+				override_row_restrictions,
+				1 /* with_preprompt */,
+				preprompt_dictionary
+					/* parameter_dictionary */,
+				role_name,
+				session,
+				1 /* with_populate_drop_downs */ );
+#endif
 	}
 
 	if ( process_parameter_list

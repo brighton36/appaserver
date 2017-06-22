@@ -30,23 +30,24 @@ family=$4
 genus=$5
 species=$6
 
-exclude="${family}^${genus}^${species}"
+select="catches.census_date,catches.interview_location,catches.interview_number,catches.family,catches.genus,catches.species,species_preferred,dayname( catches.census_date ),trip_hours,number_of_people_fishing,hours_fishing,kept_count,released_count"
 
-select="census_date,interview_location,interview_number,family,genus,species"
-primary_key_list="fishing_purpose,census_date,interview_location,interview_number"
+primary_key_list="catches.fishing_purpose,catches.census_date,catches.interview_location,catches.interview_number"
 
-fishing_trips_for_species.sh	creel				\
-				$begin_date			\
-				$end_date			\
-				$fishing_purpose		\
-				$family				\
-				$genus				\
-				$species			|
-where.e $primary_key_list '^'					|
-sed "s/.*/select $select from catches where &;/"		|
-sql.e								|
-grep -v "$exclude"						|
-sort								|
+join_where=" and catches.fishing_purpose = fishing_trips.fishing_purpose and catches.census_date = fishing_trips.census_date and catches.interview_location = fishing_trips.interview_location and catches.interview_number = fishing_trips.interview_number"
+
+fishing_trips_for_species.sh	creel					\
+				$begin_date				\
+				$end_date				\
+				$fishing_purpose			\
+				$family					\
+				$genus					\
+				$species				|
+where.e $primary_key_list '^'						|
+sed "s/$/$join_where/"							|
+sed "s/.*/select $select from catches,fishing_trips where &;/"		|
+sql.e									|
+sort									|
 cat
 
 exit 0

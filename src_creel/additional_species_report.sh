@@ -67,7 +67,9 @@ additional_species_report_detail()
 	species=$6
 	output_file=$7
 
-	heading="census_date,interview_location,interview_number,family,genus,species,preferred,day_of_week,trip_hours,party_count,hours_fishing,kept,released"
+	heading="census_date,interview_location,interview_number,interview_time,family,genus,species,preferred,fishing_area,day_of_week,trip_hours,party_count,hours_fishing,kept,released"
+
+	justification="left,left,right,left,left,left,left,left,left,left,right"
 
 	echo "#${process_title}" > $output_file
 	echo "$heading" >> $output_file
@@ -93,6 +95,8 @@ additional_species_report_summary()
 	output_file=$7
 
 	heading="Fishing Count,Family,Genus,Species"
+
+	justification="right,left,left,left"
 
 	echo "#${process_title}" > $output_file
 	echo "$heading" >> $output_file
@@ -120,8 +124,6 @@ fi
 
 if [ "$detail_yn" = "y" ]
 then
-	justification="left,left,left,left,left,left,left,left,right"
-
 	additional_species_report_detail	$fishing_purpose	\
 						$begin_date		\
 						$end_date		\
@@ -130,8 +132,6 @@ then
 						$species		\
 						$output_file
 else
-	justification="right,left,left,left"
-
 	additional_species_report_summary	$fishing_purpose	\
 						$begin_date		\
 						$end_date		\

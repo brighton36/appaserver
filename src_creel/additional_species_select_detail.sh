@@ -30,7 +30,7 @@ family=$4
 genus=$5
 species=$6
 
-select="catches.census_date,catches.interview_location,catches.interview_number,catches.family,catches.genus,catches.species,species_preferred,dayname( catches.census_date ),trip_hours,number_of_people_fishing,hours_fishing,kept_count,released_count"
+select="catches.census_date,catches.interview_location,catches.interview_number,interview_time,catches.family,catches.genus,catches.species,species_preferred,fishing_area,dayname( catches.census_date ),trip_hours,number_of_people_fishing,hours_fishing,kept_count,released_count"
 
 primary_key_list="catches.fishing_purpose,catches.census_date,catches.interview_location,catches.interview_number"
 

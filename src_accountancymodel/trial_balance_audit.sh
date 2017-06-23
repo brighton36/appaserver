@@ -13,7 +13,7 @@ time_ticker.e ^ daily $begin_date $end_date ""		|
 piece.e '^' 0						|
 while read as_of_date
 do
-	/bin/echo -n $as_of_date
+	/bin/echo -n $as_of_date"^"
 
 	trial_balance	$application		\
 			trial_balance		\

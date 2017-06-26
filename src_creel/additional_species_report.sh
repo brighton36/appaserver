@@ -3,6 +3,10 @@
 # $APPASERVER_HOME/src_creel/additional_species_report.sh
 # -------------------------------------------------------
 
+# Constants
+# ---------
+queue_top_bottom=500
+
 # Input
 # -----
 
@@ -67,9 +71,9 @@ additional_species_report_detail()
 	species=$6
 	output_file=$7
 
-	heading="census_date,interview_location,interview_number,interview_time,family,genus,species,preferred,fishing_area,day_of_week,trip_hours,party_count,hours_fishing,kept,released"
+	heading="census_date,interview_location,interview_number,interview_time,family,genus,species,preferred,fishing_area,day_of_week,researcher,composition,residence,trip_hours,party_count,hours_fishing,kept,released"
 
-	justification="left,left,right,left,left,left,left,left,left,left,right"
+	justification="left,left,right,left,left,left,left,left,left,left,left,left,left,right"
 
 	echo "#${process_title}" > $output_file
 	echo "$heading" >> $output_file
@@ -149,6 +153,7 @@ then
 	cat $output_file				|
 	grep -v "$heading"				|
 	grep -v "^#"					|
+	queue_top_bottom_lines.e $queue_top_bottom	|
 	html_table.e "" "$heading" "," "$justification"
 elif [ "$output_medium" = "stdout" ]
 then

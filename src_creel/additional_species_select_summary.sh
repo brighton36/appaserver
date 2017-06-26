@@ -30,7 +30,7 @@ family=$4
 genus=$5
 species=$6
 
-exclude="${family}^${genus}^${species}"
+# exclude="${family}^${genus}^${species}"
 
 select="family,genus,species"
 primary_key_list="fishing_purpose,census_date,interview_location,interview_number"
@@ -45,7 +45,7 @@ fishing_trips_for_species.sh	creel				\
 where.e $primary_key_list '^'					|
 sed "s/.*/select $select from catches where &;/"		|
 sql.e								|
-grep -v "$exclude"						|
+# grep -v "$exclude"						|
 sort								|
 group.e								|
 sort -rn							|

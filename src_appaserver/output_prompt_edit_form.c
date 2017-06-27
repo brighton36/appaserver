@@ -760,23 +760,15 @@ void output_prompt_edit_form(
 		||   !lookup_before_drop_down->first_prelookup )
 		{
 			sprintf(form_title,
-"%s %s<br><h2>Prelookup <big>%s</big>:<br>Fill out 1 or 2 rows of this query form.</h2>\n",
+"%s %s<br><small>Prelookup %s:<br>Fill out 1 or 2 rows of this query form.</small>\n",
 				initial_capital_state,
 				initial_capital_related_folder,
 				initial_capital_folder );
 		}
 		else
 		{
-/*
 			sprintf(form_title,
-"%s %s<br><h2>Prelookup <big>%s</big>:<br>If you know exactly what you are looking for, then fill out 1 or 2 rows of this query form.<br>Otherwise, press submit without filling out this form.</h2>",
-				initial_capital_state,
-				initial_capital_related_folder,
-				initial_capital_folder );
-*/
-
-			sprintf(form_title,
-"%s %s<br><h2>Prelookup <big>%s</big>:<br>If you know exactly what you are looking for, then fill out 1 or 2 rows of this query form.</h2>",
+"%s %s<br><small>Prelookup %s:<br>If you know exactly what you are looking for, then fill out 1 or 2 rows of this query form.</small>",
 				initial_capital_state,
 				initial_capital_related_folder,
 				initial_capital_folder );

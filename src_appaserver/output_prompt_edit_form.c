@@ -767,12 +767,19 @@ void output_prompt_edit_form(
 		}
 		else
 		{
+/*
 			sprintf(form_title,
 "%s %s<br><h2>Prelookup <big>%s</big>:<br>If you know exactly what you are looking for, then fill out 1 or 2 rows of this query form.<br>Otherwise, press submit without filling out this form.</h2>",
 				initial_capital_state,
 				initial_capital_related_folder,
 				initial_capital_folder );
+*/
 
+			sprintf(form_title,
+"%s %s<br><h2>Prelookup <big>%s</big>:<br>If you know exactly what you are looking for, then fill out 1 or 2 rows of this query form.</h2>",
+				initial_capital_state,
+				initial_capital_related_folder,
+				initial_capital_folder );
 			with_prelookup_skip_button = 1;
 		}
 

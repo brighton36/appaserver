@@ -1805,7 +1805,7 @@ void form_output_reset_button(	char *post_change_javascript,
 void form_output_prelookup_skip_button(	int form_number )
 {
 	printf(
-"<input type=\"button\" value=\"Skip\" onClick=\"form_reset(document.forms[%d], '%c'); document.forms[%d].submit()",
+"<input type=\"button\" value=\"Skip\" title=\"Skip this form if you don't know exactly what you're looking for.\" onClick=\"form_reset(document.forms[%d], '%c'); document.forms[%d].submit()",
 		form_number,
 		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER,
 		form_number );
@@ -1857,9 +1857,6 @@ void form_output_submit_reset_buttons(
 {
 	if ( with_table_tags ) printf( "<tr><td>\n" );
 
-	if ( with_prelookup_skip_button )
-		form_output_prelookup_skip_button( form_number );
-
 	form_output_submit_button(
 			submit_control_string,
 			button_label,
@@ -1880,6 +1877,11 @@ void form_output_submit_reset_buttons(
 	{
 		form_output_remember_keystrokes_button(
 			remember_keystrokes_onload_control_string );
+	}
+
+	if ( with_prelookup_skip_button )
+	{
+		form_output_prelookup_skip_button( form_number );
 	}
 
 	if ( with_back_to_top_button )

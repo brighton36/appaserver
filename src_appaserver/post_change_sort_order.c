@@ -372,6 +372,7 @@ void change_sort_order_state_one(
 		form->insert_update_key,
 		form->target_frame,
 		0 /* output_submit_reset_buttons_in_heading */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,

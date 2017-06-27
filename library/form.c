@@ -185,7 +185,8 @@ void form_output_heading(
 			char *state,
 			char *insert_update_key,
 			char *target_frame,
-			int output_submit_reset_buttons,
+			boolean output_submit_reset_buttons,
+			boolean with_prelookup_skip_button,
 			char *submit_control_string,
 			int table_border,
 			char *caption_string,
@@ -268,7 +269,8 @@ void form_output_heading(
 			0 /* not with_submit_reset_button_table_tags */,
 			remember_keystrokes_onload_control_string,
 			application_name,
-			0 /* with_back_to_top_button */,
+			0 /* not with_back_to_top_button */,
+			with_prelookup_skip_button,
 			0 /* form_number */,
 			(char *)0 /* post_change_javascript */,
 			(LIST *)0 /* pair_one2m_related_folder_name_list */ );
@@ -454,6 +456,7 @@ void form_output_trailer_post_change_javascript(
 			remember_keystrokes_onload_control_string,
 			application_name,
 			with_back_to_top_button,
+			0 /* not with_prelookup_skip_button */,
 			form_number,
 			post_change_javascript,
 			pair_one2m_related_folder_name_list );
@@ -916,8 +919,13 @@ void form_output_back_to_top_button( void )
 
 void form_output_remember_keystrokes_button( char *control_string )
 {
+/*
 	printf(
 "<td valign=bottom><input type=\"button\" value=\"Recall\" onClick=\"%s\">\n",
+		control_string );
+*/
+	printf(
+"<input type=\"button\" value=\"Recall\" onClick=\"%s\">\n",
 		control_string );
 }
 
@@ -1773,8 +1781,15 @@ char **form_get_background_color_array(
 void form_output_reset_button(	char *post_change_javascript,
 				int form_number )
 {
+/*
 	printf(
 "<td valign=bottom><input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[%d], '%c')",
+		form_number,
+		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
+*/
+
+	printf(
+"<input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[%d], '%c')",
 		form_number,
 		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
 
@@ -1784,7 +1799,20 @@ void form_output_reset_button(	char *post_change_javascript,
 	}
 
 	printf( "\">\n" );
+
 } /* form_output_reset_button() */
+
+void form_output_prelookup_skip_button(	int form_number )
+{
+	printf(
+"<input type=\"button\" value=\"Skip\" onClick=\"form_reset(document.forms[%d], '%c'); document.forms[%d].submit()",
+		form_number,
+		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER,
+		form_number );
+
+	printf( "\">\n" );
+
+} /* form_output_prelookup_skip_button() */
 
 void form_output_html_help_file_anchor(
 			char *application_name,
@@ -1822,11 +1850,15 @@ void form_output_submit_reset_buttons(
 			char *remember_keystrokes_onload_control_string,
 			char *application_name,
 			boolean with_back_to_top_button,
+			boolean with_prelookup_skip_button,
 			int form_number,
 			char *post_change_javascript,
 			LIST *pair_one2m_related_folder_name_list )
 {
 	if ( with_table_tags ) printf( "<tr><td>\n" );
+
+	if ( with_prelookup_skip_button )
+		form_output_prelookup_skip_button( form_number );
 
 	form_output_submit_button(
 			submit_control_string,

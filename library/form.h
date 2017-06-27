@@ -141,7 +141,8 @@ void form_output_heading(
 			char *state,
 			char *insert_update_key,
 			char *target_frame,
-			int output_submit_reset_buttons,
+			boolean output_submit_reset_buttons,
+			boolean with_prelookup_skip_button,
 			char *submit_control_string,
 			int table_border,
 			char *caption_string,
@@ -243,6 +244,7 @@ void form_output_submit_reset_buttons(
 			char *remember_keystrokes_onload_control_string,
 			char *application_name,
 			boolean with_back_to_top_button,
+			boolean with_prelookup_skip_button,
 			int form_number,
 			char *post_change_javascript,
 			LIST *pair_one2m_related_folder_name_list );
@@ -421,6 +423,9 @@ void form_output_back_to_top_button(
 char **form_get_background_color_array(
 				int *background_color_array_length,
 				char *application_name );
+
+void form_output_prelookup_skip_button(
+				int form_number );
 
 void form_output_reset_button(	char *post_change_javascript,
 				int form_number );

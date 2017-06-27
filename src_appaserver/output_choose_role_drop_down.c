@@ -185,6 +185,7 @@ void output_vertical_frameset_choose_role_drop_down(
 		(char *)0 /* insert_update_key */,
 		MENU_FRAME /* target_frame is menu */,
 		0 /* output_submit_reset_buttons */,
+		0 /* not with_prelookup_skip_button */,
 		(char *)0 /* submit_control_string */,
 		0 /* table_border */,
 		(char *)0 /* caption_string */,

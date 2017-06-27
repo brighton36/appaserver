@@ -446,6 +446,7 @@ void output_prompt_edit_form(
 	boolean group_button;
 	boolean sort_order_button;
 	FORM *form;
+	boolean with_prelookup_skip_button = 0;
 
 	form = form_new( INSERT_UPDATE_KEY,
 			 application_get_title_string( application_name ) );
@@ -771,6 +772,8 @@ void output_prompt_edit_form(
 				initial_capital_state,
 				initial_capital_related_folder,
 				initial_capital_folder );
+
+			with_prelookup_skip_button = 1;
 		}
 
 		form->form_title = strdup( form_title );
@@ -845,6 +848,7 @@ void output_prompt_edit_form(
 				form->insert_update_key,
 				form->target_frame,
 				1 /* output_submit_reset_buttons */,
+				with_prelookup_skip_button,
 				form->submit_control_string,
 				form->table_border,
 				(char *)0 /* caption_string */,
@@ -1933,7 +1937,9 @@ LIST *get_preprompt_attribute_name_list(
 						strdup( key_without_index ) );
 		}
 	} while( list_next( key_list ) );
+
 	return preprompt_attribute_name_list;
+
 } /* get_preprompt_attribute_name_list() */
 
 void mark_ignore_for_prelookup_skipped(

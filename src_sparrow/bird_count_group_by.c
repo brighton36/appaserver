@@ -16,7 +16,8 @@
 
 /* Constants */
 /* --------- */
-#define SUBPOPULATION_SIZE	7
+#define REASON_NO_OBSERVATIONS_WHERE	"reason_no_observations is null"
+#define SUBPOPULATION_SIZE		7
 
 /* Structures */
 /* ---------- */
@@ -331,17 +332,6 @@ BIRD_COUNT_SUBPOPULATION *bird_count_subpopulation_new( void )
 		exit( 1 );
 	}
 
-/*
-	bird_count_subpopulation->site_visit_count = site_visit_count;
-	bird_count_subpopulation->bird_count = bird_count;
-
-	if ( site_visit_count )
-	{
-		bird_count_subpopulation->per_visit_ratio =
-			(double)bird_count / (double)site_visit_count;
-	}
-*/
-
 	return bird_count_subpopulation;
 
 } /* bird_count_subpopulation_new() */
@@ -371,8 +361,7 @@ BIRD_COUNT_YEAR *bird_count_year_new(
 
 } /* bird_count_year_new() */
 
-BIRD_COUNT *bird_count_new(
-				char *application_name )
+BIRD_COUNT *bird_count_new( char *application_name )
 {
 	BIRD_COUNT *bird_count;
 
@@ -543,11 +532,13 @@ void bird_count_populate_subpopulation_array_bird_count(
 	group_by_clause = "substr( visit_date, 1, 4 ), sub_population";
 
 	sprintf(	sys_string,
-	"echo \"select %s from %s,%s where %s group by %s;\" | sql.e '%c'",
+	"echo \"select %s from %s,%s where %s and %s group by %s;\" |"
+	"sql.e '%c'",
 		 	select,
 		 	sparrow_observation,
 			observation_site,
 			join_where,
+			REASON_NO_OBSERVATIONS_WHERE,
 		 	group_by_clause,
 			FOLDER_DATA_DELIMITER );
 
@@ -676,11 +667,13 @@ void bird_count_populate_subpopulation_array_site_visit(
 	group_by_clause = "substr( visit_date, 1, 4 ), sub_population";
 
 	sprintf(	sys_string,
-	"echo \"select %s from %s,%s where %s group by %s;\" | sql.e '%c'",
+	"echo \"select %s from %s,%s where %s and %s group by %s;\" |"
+	"sql.e '%c'",
 		 	select,
 		 	site_visit_table,
 			observation_site_table,
 			join_where,
+			REASON_NO_OBSERVATIONS_WHERE,
 		 	group_by_clause,
 			FOLDER_DATA_DELIMITER );
 

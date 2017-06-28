@@ -452,9 +452,10 @@ LIST *bird_count_get_year_list(	char *application_name )
 	select = "substr( visit_date, 1, 4 ), count(*)";
 
 	sprintf( sys_string,
-		"echo \"select %s from %s group by %s;\" | sql.e '%c'",
+		"echo \"select %s from %s where %s group by %s;\" | sql.e '%c'",
 		 	select,
 		 	site_visit,
+			REASON_NO_OBSERVATIONS_WHERE,
 		 	group_by_clause,
 			FOLDER_DATA_DELIMITER );
 
@@ -532,13 +533,12 @@ void bird_count_populate_subpopulation_array_bird_count(
 	group_by_clause = "substr( visit_date, 1, 4 ), sub_population";
 
 	sprintf(	sys_string,
-	"echo \"select %s from %s,%s where %s and %s group by %s;\" |"
+	"echo \"select %s from %s,%s where %s group by %s;\" |"
 	"sql.e '%c'",
 		 	select,
 		 	sparrow_observation,
 			observation_site,
 			join_where,
-			REASON_NO_OBSERVATIONS_WHERE,
 		 	group_by_clause,
 			FOLDER_DATA_DELIMITER );
 
@@ -815,9 +815,12 @@ void bird_count_set_per_visit_ratio(
 	do {
 		bird_count_year = list_get( bird_count_year_list );
 
-		bird_count_year->per_visit_ratio =
-			(double)bird_count_year->bird_count /
-			(double)bird_count_year->site_visit_count;
+		if ( bird_count_year->site_visit_count )
+		{
+			bird_count_year->per_visit_ratio =
+				(double)bird_count_year->bird_count /
+				(double)bird_count_year->site_visit_count;
+		}
 
 	} while( list_next( bird_count_year_list ) );
 

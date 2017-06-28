@@ -533,13 +533,12 @@ void bird_count_populate_subpopulation_array_bird_count(
 	group_by_clause = "substr( visit_date, 1, 4 ), sub_population";
 
 	sprintf(	sys_string,
-	"echo \"select %s from %s,%s where %s and %s group by %s;\" |"
+	"echo \"select %s from %s,%s where %s group by %s;\" |"
 	"sql.e '%c'",
 		 	select,
 		 	sparrow_observation,
 			observation_site,
 			join_where,
-			REASON_NO_OBSERVATIONS_WHERE,
 		 	group_by_clause,
 			FOLDER_DATA_DELIMITER );
 

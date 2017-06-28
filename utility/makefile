@@ -72,6 +72,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	trim_until_character.e column_grep.e tee_process.e		\
 	group.e add_line.e update_statement.e label.e			\
 	group_sum.e							\
+	group_trim.e							\
 	breakin_whitelist.e						\
 	group_date_time.e						\
 	delimiter2padded_columns.e					\
@@ -1074,6 +1075,12 @@ group.e: group.c
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o group.e
+
+group_trim.e: group_trim.c
+	$(CC) 	${CFLAGS} -I${LIBRARY} group_trim.c			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o group_trim.e
 
 group_sum.e: group_sum.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} group_sum.c 			\

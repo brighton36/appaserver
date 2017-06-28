@@ -1,11 +1,14 @@
-/* utility/group.c */
-/* --------------- */
+/* $APPASERVER_HOME/utility/group.c				*/
+/* ------------------------------------------------------------ */
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------ */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "timlib.h"
 #include "piece.h"
+#include "boolean.h"
 
 void group(	char delimiter,
 		char *operation,
@@ -44,7 +47,7 @@ void group( char delimiter, char *operation, char *argv_0 )
 	char value_buffer[ 1024 ] = {0};
 	int count = 0;
 	double sum = 0.0;
-	int first_time = 1;
+	boolean first_time = 1;
 
 	*old_compare_buffer = '\0';
 

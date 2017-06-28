@@ -71,9 +71,9 @@ additional_species_report_detail()
 	species=$6
 	output_file=$7
 
-	heading="census_date,interview_location,interview_number,interview_time,family,genus,species,preferred,fishing_area,day_of_week,researcher,composition,residence,trip_hours,party_count,hours_fishing,kept,released"
+	heading="census_date,interview_location,interview_number,interview_time,preferred,fishing_area,day_of_week,researcher,composition,residence,trip_hours,party_count,hours_fishing,family,genus,species,kept,released"
 
-	justification="left,left,right,left,left,left,left,left,left,left,left,left,left,right"
+	justification="left,left,right,left,left,left,left,left,left,left,right"
 
 	echo "#${process_title}" > $output_file
 	echo "$heading" >> $output_file
@@ -85,6 +85,7 @@ additional_species_report_detail()
 						"$genus"		\
 						"$species"		|
 	tr '^' ','							|
+	group_trim.e ',' 13						|
 	cat >> $output_file
 }
 

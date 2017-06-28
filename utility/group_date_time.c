@@ -1,4 +1,4 @@
-/* utility/group_date_time.c					*/
+/* $APPASERVER_HOME/utility/group_date_time.c			*/
 /* ------------------------------------------------------------ */
 /* Freely available software: see Appaserver.org		*/
 /* ------------------------------------------------------------ */

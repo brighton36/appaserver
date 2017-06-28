@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_sparrow/output_bird_count.c			*/
+/* $APPASERVER_HOME/src_sparrow/output_bird_count.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -31,16 +31,6 @@
 /* --------- */
 #define DEFAULT_OUTPUT_MEDIUM			"table"
 #define DEFAULT_GROUP_BY			"year"
-
-/*
-#define OUTPUT_SPREADSHEET_TEMPLATE		"%s/%s/output_bird_count_%s.csv"
-#define FTP_SPREADSHEET_PREPEND_TEMPLATE 	"%s://%s/%s/output_bird_count_%s.csv"
-#define FTP_SPREADSHEET_NOPREPEND_TEMPLATE	"/%s/output_bird_count_%s.csv"
-
-#define OUTPUT_TEXT_FILE_TEMPLATE		"%s/%s/output_bird_count_%s.txt"
-#define FTP_TEXT_FILE_PREPEND_TEMPLATE 	"%s://%s/%s/output_bird_count_%s.txt"
-#define FTP_TEXT_FILE_NOPREPEND_TEMPLATE	"/%s/output_bird_count_%s.txt"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -263,11 +253,6 @@ void output_table_year(
 	FILE *input_pipe;
 	char input_buffer[ 1024 ];
 	int row_count = -1;
-/*
-	char output_buffer[ 1024 ];
-	FILE *output_pipe;
-	char *justify;
-*/
 
 	sprintf( sys_string,
 		 "bird_count_group_by %s year '' '%s'",
@@ -275,17 +260,6 @@ void output_table_year(
 		 sort_by_per_visit_yn );
 
 	input_pipe = popen( sys_string, "r" );
-
-#ifdef NOT_DEFINED
-	justify = "left,right";
-
-	sprintf( sys_string,
-		 "html_table.e '' '%s' '^' %s",
-		 get_heading( "year", (char *)0 /* quad_sheet */ ),
-		 justify );
-
-	output_pipe = popen( sys_string, "w" );
-#endif
 
 	printf( "<table border>\n" );
 
@@ -318,11 +292,16 @@ void output_table_year_heading( void )
 	printf( "<th colspan=3>D\n" );
 	printf( "<th colspan=3>E\n" );
 	printf( "<th colspan=3>F\n" );
+	printf( "<th colspan=3>G\n" );
 	printf( "<th colspan=3>Total\n" );
 
 	printf( "<tr>\n" );
 
 	printf( "<th>Year\n" );
+	printf( "<th>Site Visit\n" );
+	printf( "<th>Bird Count\n" );
+	printf( "<th>Per Visit\n" );
+
 	printf( "<th>Site Visit\n" );
 	printf( "<th>Bird Count\n" );
 	printf( "<th>Per Visit\n" );
@@ -642,38 +621,6 @@ void output_text_file(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf( output_filename,
-		 OUTPUT_TEXT_FILE_TEMPLATE,
-		 appaserver_mount_point,
-		 application_name,
-		 session );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf( ftp_filename,
-			 FTP_TEXT_FILE_PREPEND_TEMPLATE,
-			 application_get_http_prefix( application_name ),
-			 appaserver_library_get_server_address(),
-		 	 application_name,
-		 	 session );
-	}
-	else
-	{
-		sprintf( ftp_filename,
-			 FTP_TEXT_FILE_NOPREPEND_TEMPLATE,
-		 	 application_name,
-		 	 session );
-	}
-*/
-
-/*
-	sprintf( sys_string,
-		 "delimiter2padded_columns.e ',' 99 > %s",
-		 output_filename );
-*/
-
 	sprintf( sys_string,
 		 "tr ',' '%c' > %s",
 		 OUTPUT_TEXT_FILE_DELIMITER,
@@ -727,8 +674,8 @@ char *get_heading(	char *group_by,
 	if ( strcmp( group_by, "year" ) == 0 )
 	{
 		sprintf(heading,
-",a,a,a,b,b,b,c,c,c,d,d,d,e,e,e,f,f,f,total,total,total\n"
-"year,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit" );
+",a,a,a,b,b,b,c,c,c,d,d,d,e,e,e,f,f,f,g,g,g,total,total,total\n"
+"year,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit" );
 	}
 	else
 	{

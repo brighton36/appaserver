@@ -17,7 +17,6 @@
 /* Constants */
 /* --------- */
 #define REASON_NO_OBSERVATIONS_WHERE	"reason_no_observations is null"
-#define SUBPOPULATION_SIZE		7
 
 /* Structures */
 /* ---------- */
@@ -34,7 +33,9 @@ typedef struct
 	int site_visit_count;
 	int bird_count;
 	double per_visit_ratio;
-	BIRD_COUNT_SUBPOPULATION *subpopulation_array[ SUBPOPULATION_SIZE ];
+	BIRD_COUNT_SUBPOPULATION *
+		subpopulation_array[
+			BIRD_COUNT_SUBPOPULATION_SIZE ];
 } BIRD_COUNT_YEAR;
 
 typedef struct
@@ -44,6 +45,10 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+BIRD_COUNT_YEAR *bird_count_year_get_or_set(
+				LIST *bird_count_year_list,
+				int year );
+
 int bird_count_match_function(	BIRD_COUNT_YEAR *bird_count_year_from_list,
 				BIRD_COUNT_YEAR *bird_count_year_compare );
 
@@ -56,7 +61,9 @@ void bird_count_set_per_visit_ratio(
 void bird_count_year_list_display(
 				LIST *bird_count_year_list );
 
+/*
 LIST *bird_count_get_year_list(	char *application_name );
+*/
 
 void bird_count_populate_subpopulation_array_bird_count(
 				LIST *bird_count_year_list,
@@ -70,8 +77,7 @@ BIRD_COUNT_SUBPOPULATION *bird_count_subpopulation_new(
 				void );
 
 BIRD_COUNT_YEAR *bird_count_year_new(
-				int year,
-				int site_visit_count );
+				int year );
 
 BIRD_COUNT *bird_count_new(
 				char *application_name );
@@ -337,8 +343,7 @@ BIRD_COUNT_SUBPOPULATION *bird_count_subpopulation_new( void )
 } /* bird_count_subpopulation_new() */
 
 BIRD_COUNT_YEAR *bird_count_year_new(
-				int year,
-				int site_visit_count )
+				int year )
 {
 	BIRD_COUNT_YEAR *bird_count_year;
 
@@ -355,7 +360,6 @@ BIRD_COUNT_YEAR *bird_count_year_new(
 	}
 
 	bird_count_year->year = year;
-	bird_count_year->site_visit_count = site_visit_count;
 
 	return bird_count_year;
 
@@ -377,17 +381,14 @@ BIRD_COUNT *bird_count_new( char *application_name )
 		exit( 1 );
 	}
 
-	bird_count->
-		bird_count_year_list =
-			bird_count_get_year_list(
-				application_name );
+	bird_count->bird_count_year_list = list_new();
+
+	bird_count_populate_subpopulation_array_site_visit(
+		bird_count->bird_count_year_list,
+		application_name );
 
 	if ( list_length( bird_count->bird_count_year_list ) )
 	{
-		bird_count_populate_subpopulation_array_site_visit(
-			bird_count->bird_count_year_list,
-			application_name );
-
 		bird_count_populate_subpopulation_array_bird_count(
 			bird_count->bird_count_year_list,
 			application_name );
@@ -429,6 +430,28 @@ BIRD_COUNT_YEAR *bird_count_year_seek(
 
 } /* bird_count_year_seek() */
 
+BIRD_COUNT_YEAR *bird_count_year_get_or_set(
+				LIST *bird_count_year_list,
+				int year )
+{
+	BIRD_COUNT_YEAR *bird_count_year;
+
+	if ( ! ( bird_count_year =
+			bird_count_year_seek(
+				bird_count_year_list,
+				year ) ) )
+	{
+		bird_count_year = bird_count_year_new( year );
+
+		list_append_pointer(	bird_count_year_list,
+					bird_count_year );
+	}
+
+	return bird_count_year;
+
+} /* bird_count_year_get_or_set() */
+
+#ifdef NOT_DEFINED
 LIST *bird_count_get_year_list(	char *application_name )
 {
 	char *site_visit;
@@ -451,7 +474,7 @@ LIST *bird_count_get_year_list(	char *application_name )
 
 	select = "substr( visit_date, 1, 4 ), count(*)";
 
-	sprintf( sys_string,
+	sprintf(sys_string,
 		"echo \"select %s from %s where %s group by %s;\" | sql.e '%c'",
 		 	select,
 		 	site_visit,
@@ -488,6 +511,7 @@ LIST *bird_count_get_year_list(	char *application_name )
 	return bird_count_year_list;
 
 } /* bird_count_get_year_list() */
+#endif
 
 void bird_count_populate_subpopulation_array_bird_count(
 				LIST *bird_count_year_list,
@@ -551,15 +575,6 @@ void bird_count_populate_subpopulation_array_bird_count(
 			input_buffer,
 			0 );
 
-		if ( ! ( bird_count_year =
-				bird_count_year_seek(
-					bird_count_year_list,
-					atoi( year_string ) ) ) )
-		{
-			pclose( input_pipe );
-			return;
-		}
-
 		piece(	subpopulation_string,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
@@ -570,15 +585,25 @@ void bird_count_populate_subpopulation_array_bird_count(
 				subpopulation_string );
 
 		if ( subpopulation_offset < 0
-		||   subpopulation_offset > SUBPOPULATION_SIZE )
+		||   subpopulation_offset >= BIRD_COUNT_SUBPOPULATION_SIZE )
+		{
+			continue;
+		}
+
+		if ( ! ( bird_count_year =
+				bird_count_year_seek(
+					bird_count_year_list,
+					atoi( year_string ) ) ) )
 		{
 			fprintf( stderr,
-		"ERROR in %s/%s()/%d: invalid subpopulation of (%s).\n",
+				 "ERROR in %s/%s()/%d: cannot seek year=%d.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
-				 subpopulation_string );
+				 atoi( year_string ) );
+
 			pclose( input_pipe );
+
 			return;
 		}
 
@@ -607,6 +632,9 @@ void bird_count_populate_subpopulation_array_bird_count(
 					bird_count_subpopulation;
 		}
 
+		bird_count_subpopulation->bird_count = bird_count;
+		bird_count_year->bird_count += bird_count;
+
 		if ( bird_count_subpopulation->site_visit_count )
 		{
 			bird_count_subpopulation->per_visit_ratio =
@@ -615,8 +643,13 @@ void bird_count_populate_subpopulation_array_bird_count(
 						site_visit_count;
 		}
 
-		bird_count_subpopulation->bird_count = bird_count;
-		bird_count_year->bird_count += bird_count;
+		if ( bird_count_year->site_visit_count )
+		{
+			bird_count_year->per_visit_ratio =
+				(double)bird_count_year->bird_count /
+				(double)bird_count_year->
+						site_visit_count;
+		}
 	}
 
 	pclose( input_pipe );
@@ -637,11 +670,11 @@ void bird_count_populate_subpopulation_array_site_visit(
 	char subpopulation_string[ 16 ];
 	char site_visit_string[ 16 ];
 	int site_visit_count;
-	BIRD_COUNT_YEAR *bird_count_year;
 	char *site_visit_table;
 	char *observation_site_table;
 	int subpopulation_offset;
 	BIRD_COUNT_SUBPOPULATION *bird_count_subpopulation;
+	BIRD_COUNT_YEAR *bird_count_year;
 
 	site_visit_table =
 		get_table_name(
@@ -686,15 +719,6 @@ void bird_count_populate_subpopulation_array_site_visit(
 			input_buffer,
 			0 );
 
-		if ( ! ( bird_count_year =
-				bird_count_year_seek(
-					bird_count_year_list,
-					atoi( year_string ) ) ) )
-		{
-			pclose( input_pipe );
-			return;
-		}
-
 		piece(	subpopulation_string,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
@@ -705,17 +729,15 @@ void bird_count_populate_subpopulation_array_site_visit(
 				subpopulation_string );
 
 		if ( subpopulation_offset < 0
-		||   subpopulation_offset > SUBPOPULATION_SIZE )
+		||   subpopulation_offset >= BIRD_COUNT_SUBPOPULATION_SIZE )
 		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: invalid subpopulation of (%s).\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 subpopulation_string );
-			pclose( input_pipe );
-			return;
+			continue;
 		}
+
+		bird_count_year =
+			bird_count_year_get_or_set(
+				bird_count_year_list,
+				atoi( year_string ) );
 
 		piece(	site_visit_string,
 			FOLDER_DATA_DELIMITER,
@@ -745,12 +767,16 @@ void bird_count_populate_subpopulation_array_site_visit(
 
 		bird_count_subpopulation->site_visit_count = site_visit_count;
 
+		bird_count_year->site_visit_count += site_visit_count;
+
+/*
 		if ( site_visit_count )
 		{
 			bird_count_subpopulation->per_visit_ratio =
 				(double)bird_count_subpopulation->bird_count /
 				(double)site_visit_count;
 		}
+*/
 	}
 
 	pclose( input_pipe );
@@ -772,7 +798,7 @@ void bird_count_year_list_display(
 			bird_count_year->year );
 
 		for(	offset = 0;
-			offset < SUBPOPULATION_SIZE;
+			offset < BIRD_COUNT_SUBPOPULATION_SIZE;
 			offset++ )
 		{
 			if ( bird_count_year->

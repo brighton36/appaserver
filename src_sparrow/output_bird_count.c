@@ -23,6 +23,7 @@
 #include "environ.h"
 #include "application.h"
 #include "appaserver_link_file.h"
+#include "sparrow_library.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -284,8 +285,19 @@ void output_table_year(
 
 void output_table_year_heading( void )
 {
+	int i;
+
 	printf( "<tr>\n" );
 	printf( "<th>\n" );
+
+	for(	i = 0;
+		i < BIRD_COUNT_SUBPOPULATION_SIZE;
+		i++ )
+	{
+		printf( "<th colspan=3>%c\n", i + 65 );
+	}
+
+/*
 	printf( "<th colspan=3>A\n" );
 	printf( "<th colspan=3>B\n" );
 	printf( "<th colspan=3>C\n" );
@@ -293,38 +305,20 @@ void output_table_year_heading( void )
 	printf( "<th colspan=3>E\n" );
 	printf( "<th colspan=3>F\n" );
 	printf( "<th colspan=3>G\n" );
+*/
 	printf( "<th colspan=3>Total\n" );
 
 	printf( "<tr>\n" );
-
 	printf( "<th>Year\n" );
-	printf( "<th>Site Visit\n" );
-	printf( "<th>Bird Count\n" );
-	printf( "<th>Per Visit\n" );
 
-	printf( "<th>Site Visit\n" );
-	printf( "<th>Bird Count\n" );
-	printf( "<th>Per Visit\n" );
-
-	printf( "<th>Site Visit\n" );
-	printf( "<th>Bird Count\n" );
-	printf( "<th>Per Visit\n" );
-
-	printf( "<th>Site Visit\n" );
-	printf( "<th>Bird Count\n" );
-	printf( "<th>Per Visit\n" );
-
-	printf( "<th>Site Visit\n" );
-	printf( "<th>Bird Count\n" );
-	printf( "<th>Per Visit\n" );
-
-	printf( "<th>Site Visit\n" );
-	printf( "<th>Bird Count\n" );
-	printf( "<th>Per Visit\n" );
-
-	printf( "<th>Site Visit\n" );
-	printf( "<th>Bird Count\n" );
-	printf( "<th>Per Visit\n" );
+	for(	i = 0;
+		i < BIRD_COUNT_SUBPOPULATION_SIZE;
+		i++ )
+	{
+		printf( "<th>Site Visit\n" );
+		printf( "<th>Bird Count\n" );
+		printf( "<th>Per Visit\n" );
+	}
 
 	printf( "<th>Site Visit\n" );
 	printf( "<th>Bird Count\n" );

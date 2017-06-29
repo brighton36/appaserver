@@ -651,7 +651,11 @@ char *get_heading(	char *group_by,
 			i < BIRD_COUNT_SUBPOPULATION_SIZE;
 			i++ )
 		{
-			ptr += sprintf( ptr, "%c,", i + 65 );
+			ptr += sprintf( ptr,
+					"%c,%c,%c,",
+					i + 65,
+					i + 65,
+					i + 65 );
 		}
 
 		ptr += sprintf( ptr, "total,total,total\n" );

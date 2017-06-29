@@ -489,33 +489,6 @@ void output_spreadsheet(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-
-/*
-	sprintf( output_filename,
-		 OUTPUT_SPREADSHEET_TEMPLATE,
-		 appaserver_mount_point,
-		 application_name,
-		 session );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf( ftp_filename,
-			 FTP_SPREADSHEET_PREPEND_TEMPLATE,
-			 application_get_http_prefix( application_name ),
-			 appaserver_library_get_server_address(),
-		 	 application_name,
-		 	 session );
-	}
-	else
-	{
-		sprintf( ftp_filename,
-			 FTP_SPREADSHEET_NOPREPEND_TEMPLATE,
-		 	 application_name,
-		 	 session );
-	}
-*/
-
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s</h2>\n",
@@ -667,9 +640,40 @@ char *get_heading(	char *group_by,
 	else
 	if ( strcmp( group_by, "year" ) == 0 )
 	{
+		char *ptr = heading;
+		int i;
+
+		/* Skip year column */
+		/* ---------------- */
+		ptr += sprintf( ptr, "," );
+
+		for(	i = 0;
+			i < BIRD_COUNT_SUBPOPULATION_SIZE;
+			i++ )
+		{
+			ptr += sprintf( ptr, "%c,", i + 65 );
+		}
+
+		ptr += sprintf( ptr, "total,total,total\n" );
+
+		ptr += sprintf( ptr, "year" );
+
+		for(	i = 0;
+			/* ---------------------------------- */
+			/* Include the total group of columns */
+			/* ---------------------------------- */
+			i <= BIRD_COUNT_SUBPOPULATION_SIZE;
+			i++ )
+		{
+			ptr += sprintf( ptr,
+					",site_visit,bird_count,per_year" );
+		}
+
+/*
 		sprintf(heading,
 ",a,a,a,b,b,b,c,c,c,d,d,d,e,e,e,f,f,f,g,g,g,total,total,total\n"
 "year,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit,site_visit,bird_count,per_visit" );
+*/
 	}
 	else
 	{

@@ -181,12 +181,15 @@ char *get_group_by_location_sys_string(
 	group_by_clause = "quad_sheet";
 
 	select = "quad_sheet, 'site_visit', count(*)";
-	sys_ptr += sprintf(
-			sys_ptr,
-		 	"(echo \"select %s from %s group by %s;\" | sql.e '^';",
-		 	select,
-		 	site_visit,
-		 	group_by_clause );
+	sys_ptr +=
+		sprintf(
+		sys_ptr,
+	 	"(echo \"select %s from %s where %s group by %s;\" |"
+		"sql.e '^';",
+	 	select,
+	 	site_visit,
+		REASON_NO_OBSERVATIONS_WHERE,
+	 	group_by_clause );
 
 	select = "quad_sheet, 'bird_count', sum(bird_count)";
 	sys_ptr += sprintf(
@@ -251,10 +254,11 @@ char *get_group_by_year_location_sys_string(
 
 	sys_ptr += sprintf(
 			sys_ptr,
-	"(echo \"select %s from %s where %s group by %s;\" | sql.e '^';",
+	"(echo \"select %s from %s where %s and %s group by %s;\" | sql.e '^';",
 		 	select,
 		 	site_visit,
 			quad_sheet_where,
+			REASON_NO_OBSERVATIONS_WHERE,
 		 	group_by_clause );
 
 	quad_sheet_where =

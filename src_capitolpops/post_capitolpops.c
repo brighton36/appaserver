@@ -1242,6 +1242,7 @@ void post_cloudacus_musician_list( DICTIONARY *post_dictionary )
 
 	post_capitolpops_redraw(
 			"membership_list_status=succeeded" );
+
 } /* post_cloudacus_musician_list() */
 
 char *get_section_leader_email_address(

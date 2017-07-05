@@ -93,6 +93,7 @@ EXECUTABLES=								\
 		generic_gracechart					\
 		generic_high_average_low				\
 		generic_easychart					\
+		generic_googlechart					\
 		generic_daily_moving_average				\
 		generic_output_annual_periods				\
 		generic_output_exceedance				\
@@ -666,6 +667,16 @@ generic_easychart: generic_easychart.c					\
 		${LIB}/easycharts.o					\
 		generic_easychart.c					\
 		-o generic_easychart
+
+generic_googlechart: generic_googlechart.c				\
+		${EXTERNAL_LIBS}					\
+		${LIB}/google_chart.o
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${LIB}/google_chart.o					\
+		generic_googlechart.c					\
+		-o generic_googlechart
 
 output_histogram: output_histogram.c					\
 		${EXTERNAL_LIBS} ${LIB}/grace.o

@@ -30,7 +30,8 @@
 /* Prototypes */
 /* ---------- */
 boolean populate_point_array(	LIST *timeline_list,
-				LIST *datatype_name_list );
+				LIST *datatype_name_list,
+				char delimiter );
 
 int main( int argc, char **argv )
 {
@@ -44,11 +45,12 @@ int main( int argc, char **argv )
 	GOOGLE_OUTPUT_CHART *google_output_chart;
 	LIST *datatype_name_list;
 	char chart_title[ 128 ];
+	char delimiter;
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s application title subtitle datatype_name[,datatype_name...]\n",
+"Usage: %s application title subtitle datatype_name[,datatype_name...] delimiter\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -57,16 +59,19 @@ int main( int argc, char **argv )
 	title = argv[ 2 ];
 	subtitle = argv[ 3 ];
 	datatype_name_list = list_string2list( argv[ 5 ], ',' );
+	delimiter = *argv[ 6 ];
 
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -102,7 +107,8 @@ int main( int argc, char **argv )
 
 	if ( !populate_point_array(
 				google_output_chart->timeline_list,
-				google_output_chart->datatype_name_list ) )
+				google_output_chart->datatype_name_list,
+				delimiter ) )
 	{
 		exit( 1 );
 	}
@@ -173,7 +179,8 @@ int main( int argc, char **argv )
 } /* main() */
 
 boolean populate_point_array(	LIST *timeline_list,
-				LIST *datatype_name_list )
+				LIST *datatype_name_list,
+				char delimiter )
 {
 	char input_buffer[ 1024 ];
 	boolean got_one = 0;
@@ -186,7 +193,7 @@ boolean populate_point_array(	LIST *timeline_list,
 				timeline_list,
 				datatype_name_list,
 				input_buffer,
-				FOLDER_DATA_DELIMITER );
+				delimiter );
 	}
 
 	return got_one;

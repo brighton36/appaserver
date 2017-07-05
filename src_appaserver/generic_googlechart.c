@@ -263,6 +263,22 @@ int main( int argc, char **argv )
 			piece_inverse( input_buffer, '^', time_piece );
 		}
 
+		if ( *input_buffer == '#' ) continue;
+
+		if ( !piece_delete_multiple(
+			input_buffer /* source_destination */,
+			delimiter,
+			length_select_list - 2 /* columns_to_piece */ ) )
+		{
+			fprintf( stderr,
+		"Warning in %s/%s()/%d: cannot piece_delete_multiple(%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
+			continue;
+		}
+
 		fprintf( output_pipe, "%s\n", input_buffer );
 	}
 

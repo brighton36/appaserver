@@ -456,6 +456,27 @@ char *piece_delete( char *source_destination, char delimiter, int piece_offset )
 	return piece_inverse( source_destination, delimiter, piece_offset );
 }
 
+char *piece_delete_multiple(
+			char *source_destination,
+			char delimiter,
+			int columns_to_piece )
+{
+	if ( columns_to_piece <= 0 ) return source_destination;
+
+	do {
+		if ( !piece_inverse(
+			source_destination,
+			delimiter,
+			0 ) )
+		{
+			return source_destination;
+		}
+	} while( --columns_to_piece );
+
+	return source_destination;
+
+} /* piece_delete_multiple() */
+
 char *piece_inverse( 	char *source_destination, 
 			char delimiter, 
 			int piece_offset )

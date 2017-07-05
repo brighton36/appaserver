@@ -337,12 +337,14 @@ GOOGLE_TIMELINE *google_timeline_get_or_set(
 
 } /* google_timeline_get_or_set() */
 
-/* Expecting:
+/* ==============================
+   Expecting:
 	2017-04-19:1445|stage|2.5
      or 2017-04-19|stage|2.5
      or 2017-04-19||2.5
      or 2017-04-19|2.5
-*/
+  
+   ============================== */
 void google_timeline_set_point_string(	LIST *timeline_list,
 					LIST *datatype_name_list,
 					char *delimited_string,

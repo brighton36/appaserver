@@ -57,7 +57,6 @@ int main( int argc, char **argv )
 	FILE *input_pipe;
 	char input_buffer[ 512 ];
 	FILE *output_pipe;
-	boolean first_time = 1;
 
 	if ( argc >= 1 )
 	{
@@ -250,17 +249,8 @@ int main( int argc, char **argv )
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		if ( first_time )
-		{
-			search_replace_character(
-				input_buffer,
-				' ',
-				'_' );
-			fprintf( output_pipe, "%s\n", input_buffer );
-			first_time = 0;
-			continue;
-		}
-
+		/* If aggregated, remove the time column */
+		/* ------------------------------------- */
 		if ( process_generic_output->
 			value_folder->
 			time_attribute_name

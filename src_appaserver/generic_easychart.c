@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* generic_easychart.c					*/
+/* $APPASERVER_HOME/src_appaserver/generic_easychart.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/

@@ -291,6 +291,7 @@ generic_output_annual_comparison
 generic_annual_comparison
 generic_statistics_report
 generic_gracechart
+generic_googlechart
 generic_high_average_low
 generic_easychart
 generic_daily_moving_average

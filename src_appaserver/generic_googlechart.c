@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/generic_output_text_file.c	*/
+/* $APPASERVER_HOME/src_appaserver/generic_googlechart.c	*/
 /* ----------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org		*/
 /* ----------------------------------------------------------	*/

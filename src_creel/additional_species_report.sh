@@ -71,7 +71,12 @@ additional_species_report_detail()
 	species=$6
 	output_file=$7
 
-	heading="census_date,interview_location,interview_number,interview_time,preferred,fishing_area,day_of_week,researcher,composition,residence,trip_hours,party_count,hours_fishing,family,genus,species,kept,released"
+	if [ "$fishing_purpose" = "guide" ]
+	then
+		heading="census_date,permit_code,interview_number,interview_time,preferred,fishing_area,day_of_week,researcher,composition,residence,trip_hours,party_count,hours_fishing,family,genus,species,kept,released"
+	else
+		heading="census_date,interview_location,interview_number,interview_time,preferred,fishing_area,day_of_week,researcher,composition,residence,trip_hours,party_count,hours_fishing,family,genus,species,kept,released"
+	fi
 
 	justification="left,left,right,left,left,left,left,left,left,left,right,right,right,left,left,left,right"
 

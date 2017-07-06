@@ -30,7 +30,12 @@ family=$4
 genus=$5
 species=$6
 
-select="catches.census_date,catches.interview_location,catches.interview_number,interview_time,species_preferred,fishing_area,dayname( catches.census_date ),researcher,fishing_party_composition,recreational_angler_reside,trip_hours,number_of_people_fishing,hours_fishing,catches.family,catches.genus,catches.species,kept_count,released_count"
+if [ "$fishing_purpose" = "guide" ]
+then
+	select="catches.census_date,fishing_trips.permit_code,catches.interview_number,interview_time,species_preferred,fishing_area,dayname( catches.census_date ),researcher,fishing_party_composition,recreational_angler_reside,trip_hours,number_of_people_fishing,hours_fishing,catches.family,catches.genus,catches.species,kept_count,released_count"
+else
+	select="catches.census_date,catches.interview_location,catches.interview_number,interview_time,species_preferred,fishing_area,dayname( catches.census_date ),researcher,fishing_party_composition,recreational_angler_reside,trip_hours,number_of_people_fishing,hours_fishing,catches.family,catches.genus,catches.species,kept_count,released_count"
+fi
 
 from="catches,fishing_trips,creel_census"
 

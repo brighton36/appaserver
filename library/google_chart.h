@@ -234,7 +234,7 @@ char *google_chart_convert_date(char *destination,
 void google_chart_output_prompt(
 				char *application_name,
 				char *prompt_filename,
-				char *process_name,
+				char *target_window,
 				char *where_clause );
 
 void google_chart_output_options(

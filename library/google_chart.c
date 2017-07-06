@@ -1117,7 +1117,7 @@ void google_chart_anchor_chart(	FILE *output_file,
 void google_chart_output_prompt(
 			char *application_name,
 			char *prompt_filename,
-			char *process_name,
+			char *target_window,
 			char *where_clause )
 {
 	if ( application_name )
@@ -1126,7 +1126,7 @@ void google_chart_output_prompt(
 "<body bgcolor=\"%s\" onload=\"window.open('%s','%s');\">\n",
 			application_get_background_color( application_name ),
 			prompt_filename,
-			process_name );
+			target_window );
 	}
 
 	printf( "<h1>Google Chart Viewer " );
@@ -1139,7 +1139,7 @@ void google_chart_output_prompt(
 
 	printf( "<br><hr><a href=\"%s\" target=%s>Press to view chart.</a>\n",
 		prompt_filename,
-		process_name );
+		target_window );
 
 } /* google_chart_output_prompt() */
 

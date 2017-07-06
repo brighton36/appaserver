@@ -50,7 +50,7 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s application title subtitle datatype_name[,datatype_name...] delimiter\n",
+"Usage: %s application title subtitle datatype_name[^datatype_name...] delimiter\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -58,20 +58,13 @@ int main( int argc, char **argv )
 	application_name = argv[ 1 ];
 	title = argv[ 2 ];
 	subtitle = argv[ 3 ];
-	datatype_name_list = list_string2list( argv[ 5 ], ',' );
-	delimiter = *argv[ 6 ];
+	datatype_name_list = list_string2list( argv[ 4 ], '^' );
+	delimiter = *argv[ 5 ];
 
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

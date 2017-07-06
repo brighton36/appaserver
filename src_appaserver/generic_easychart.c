@@ -546,6 +546,8 @@ char *get_title(		char *value_folder_name,
 		end_date_string );
 
 	format_initial_capital( title, title );
+
 	return title;
+
 } /* get_title() */
 

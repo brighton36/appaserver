@@ -22,6 +22,7 @@
 #include "environ.h"
 #include "process_generic_output.h"
 #include "appaserver.h"
+#include "google_chart.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -31,6 +32,13 @@
 
 /* Prototypes */
 /* ---------- */
+char *get_title(	char *value_folder_name,
+			LIST *foreign_attribute_data_list,
+			enum aggregate_level aggregate_level,
+			enum aggregate_statistic aggregate_statistic,
+			char *begin_date,
+			char *end_date,
+			char *accumulate_label );
 
 int main( int argc, char **argv )
 {
@@ -57,6 +65,10 @@ int main( int argc, char **argv )
 	FILE *input_pipe;
 	char input_buffer[ 512 ];
 	FILE *output_pipe;
+	char *title;
+	char google_chart_output_file[ 128 ];
+	char accumulate_label[ 32 ];
+	char *prompt_filename;
 
 	if ( argc >= 1 )
 	{
@@ -105,6 +117,15 @@ int main( int argc, char **argv )
 			"accumulate_yn" );
 
 	accumulate = (accumulate_yn && *accumulate_yn == 'y' );
+
+	if ( accumulate )
+	{
+		strcpy( accumulate_label, "(Accumulated)" );
+	}
+	else
+	{
+		*accumulate_label = '\0';
+	}
 
 	process_generic_output =
 		process_generic_output_new(
@@ -237,13 +258,36 @@ int main( int argc, char **argv )
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 	
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
 	input_pipe = popen( sys_string, "r" );
 
-	strcpy( sys_string, "html_paragraph_wrapper.e" );
+	title = get_title(	process_generic_output->
+					value_folder->value_folder_name,
+				process_generic_output->
+					value_folder->
+					datatype->
+					foreign_attribute_data_list,
+				aggregate_level,
+				aggregate_statistic,
+				begin_date,
+				end_date,
+				accumulate_label );
+
+	sprintf( google_chart_output_file,
+		 "/tmp/%s_%d.dat",
+		 process_name,
+		 getpid() );
+
+	sprintf( sys_string,
+		 "google_timechart.e %s \"%s\" '' \"%s\" '%c' > %s",
+		 application_name,
+		 title,
+		 list_display(
+			process_generic_output->
+			value_folder->
+			datatype->
+			primary_attribute_data_list ),
+		 delimiter,
+		 google_chart_output_file );
 
 	output_pipe = popen( sys_string, "w" );
 
@@ -285,6 +329,26 @@ int main( int argc, char **argv )
 	pclose( input_pipe );
 	pclose( output_pipe );
 
+	sprintf( sys_string,
+		 "cat %s | column.e 0",
+		 google_chart_output_file );
+
+	prompt_filename = pipe2string( sys_string );
+
+	sprintf( sys_string,
+		 "rm -f %s",
+		 google_chart_output_file );
+
+	system( sys_string );
+
+	google_chart_output_prompt(
+		application_name,
+		prompt_filename,
+		process_name /* target_window */,
+		(char *)0 /* where_clause */ );
+
+	document_close();
+
 	process_increment_execution_count(
 		application_name,
 		process_name,
@@ -293,4 +357,47 @@ int main( int argc, char **argv )
 	return 0;
 
 } /* main() */
+
+char *get_title(		char *value_folder_name,
+				LIST *foreign_attribute_data_list,
+				enum aggregate_level aggregate_level,
+				enum aggregate_statistic aggregate_statistic,
+				char *begin_date,
+				char *end_date,
+				char *accumulate_label )
+{
+	static char title[ 512 ];
+	char buffer[ 512 ];
+
+	if ( aggregate_level != aggregate_level_none
+	&&   aggregate_level != real_time )
+	{
+		sprintf(title,
+		 	"%s %s %s",
+			aggregate_level_get_string( aggregate_level ),
+			aggregate_statistic_get_string( aggregate_statistic ),
+			value_folder_name );
+	}
+	else
+	{
+		sprintf(title,
+		 	"%s",
+			value_folder_name );
+	}
+
+	sprintf(title + strlen( title ),
+		" %s%s From: %s To: %s",
+		format_initial_capital( buffer,
+			list_display_delimited(
+				foreign_attribute_data_list,
+				',' ) ),
+		accumulate_label,
+		begin_date,
+		end_date );
+
+	format_initial_capital( title, title );
+
+	return title;
+
+} /* get_title() */
 

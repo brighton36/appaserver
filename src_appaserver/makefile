@@ -270,11 +270,11 @@ post_delete_folder_block: post_delete_folder_block.c			\
 
 post_change_sort_order: post_change_sort_order.c			\
 	${EXTERNAL_LIBS}						\
-	${LIB}/query_attribute_statistics_list.o
+	${LIB}/row_security.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/query_attribute_statistics_list.o 		\
+		${LIB}/row_security.o			 		\
 		post_change_sort_order.c				\
 		-o post_change_sort_order
 	touch ${CGI_HOME}/post_change_sort_order

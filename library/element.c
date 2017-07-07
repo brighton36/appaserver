@@ -307,6 +307,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			background_color,
 			element->tab_index,
 			0 /* not without_td_tags */,
+			element->text_item->readonly,
 			element->text_item->state );
 	}
 	else
@@ -326,6 +327,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			application_name,
 			login_name,
 			1 /* with_calendar_popup */,
+			element->text_item->readonly,
 			element->tab_index );
 	}
 	else
@@ -357,6 +359,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			application_name,
 			login_name,
 			1 /* with_calendar_popup */,
+			element->text_item->readonly,
 			element->tab_index );
 	}
 	else
@@ -403,6 +406,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			application_name,
 			login_name,
 			1 /* with_calendar_popup */,
+			element->text_item->readonly,
 			element->tab_index );
 	}
 	else
@@ -422,6 +426,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			application_name,
 			login_name,
 			1 /* with_calendar_popup */,
+			element->text_item->readonly,
 			element->tab_index );
 	}
 	else
@@ -449,6 +454,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			background_color,
 			element->tab_index,
 			0 /* not without_td_tags */,
+			element->text_item->readonly,
 			element->text_item->state );
 	}
 	else
@@ -467,6 +473,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			background_color,
 			element->tab_index,
 			0 /* not without_td_tags */,
+			element->text_item->readonly,
 			element->text_item->state );
 	}
 	else
@@ -545,6 +552,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			background_color,
 			element->drop_down->date_piece_offset,
 			element->drop_down->no_initial_capital,
+			element->drop_down->readonly,
 			element->tab_index,
 			element->drop_down->state );
 	}
@@ -1326,6 +1334,7 @@ void element_date_output( 	FILE *output_file,
 				char *application_name,
 				char *login_name,
 				boolean with_calendar_popup,
+				boolean readonly,
 				int tab_index )
 {
 	int maxlength, size;
@@ -1377,6 +1386,11 @@ void element_date_output( 	FILE *output_file,
 				background_color );
 	}
 
+	if ( readonly )
+	{
+		fprintf( output_file, " readonly" );
+	}
+
 	if ( onchange_null2slash_yn == 'y'
 	|| ( post_change_javascript
 	&&   *post_change_javascript ) )
@@ -1405,7 +1419,8 @@ void element_date_output( 	FILE *output_file,
 	if ( on_focus_javascript_function
 	&&   *on_focus_javascript_function )
 	{
-		fprintf(output_file, " onFocus=\"%s\"",
+		fprintf(output_file,
+			" onFocus=\"%s\"",
 			element_replace_javascript_variables(
 				buffer,
 				on_focus_javascript_function,
@@ -1413,9 +1428,10 @@ void element_date_output( 	FILE *output_file,
 				(char *)0 /* state */ ) );
 	}
 
-	if ( with_calendar_popup )
+	if ( !readonly && with_calendar_popup )
 	{
 		fprintf( output_file, " id=\"%s_%d\">\n", element_name, row );
+
 		fprintf(output_file,
 		"<img id=\"trigger_%d\" src=/%s/calendar.gif>\n",
 			date_trigger_offset,
@@ -1444,6 +1460,10 @@ void element_date_output( 	FILE *output_file,
 
 		date_trigger_offset++;
 	}
+	else
+	{
+		fprintf( output_file, ">" );
+	}
 
 	fprintf( output_file, "</td>\n" );
 
@@ -1461,6 +1481,7 @@ void element_text_item_output( 	FILE *output_file,
 				char *background_color,
 				int tab_index,
 				boolean without_td_tags,
+				boolean readonly,
 				char *state )
 {
 	int maxlength, size;
@@ -1492,6 +1513,11 @@ void element_text_item_output( 	FILE *output_file,
 		fprintf( output_file,
 			 " tabindex=%d",
 			 tab_index );
+	}
+
+	if ( readonly )
+	{
+		fprintf( output_file, " readonly" );
 	}
 
 	fprintf( output_file,
@@ -2004,6 +2030,7 @@ void element_drop_down_output(
 				char *background_color,
 				int date_piece_offset,
 				boolean no_initial_capital,
+				boolean readonly,
 				int tab_index,
 				char *state )
 {
@@ -2033,6 +2060,39 @@ void element_drop_down_output(
 		 	 __LINE__ );
 		exit( 1 );
 	}
+
+	if ( readonly )
+	{
+		ELEMENT *element;
+
+		element = element_new( text_item, element_name );
+
+		element_text_item_set_attribute_width(
+			element->text_item, 
+			timlib_strlen( initial_data ) );
+
+		element->text_item->data = initial_data;
+		element->text_item->readonly = 1;
+
+		element_text_item_output(
+			output_file,
+			element->name,
+			element->text_item->data,
+			element->text_item->attribute_width,
+			row,
+			element->text_item->onchange_null2slash_yn,
+			element->text_item->post_change_javascript,
+			element->text_item->on_focus_javascript_function,
+			element->text_item->lookup_attribute_width,
+			background_color,
+			element->tab_index,
+			0 /* not without_td_tags */,
+			element->text_item->readonly,
+			element->text_item->state );
+
+		return;
+
+	} /* if readonly */
 
 	if ( 	max_drop_down_size
 	&&      ( list_length( option_data_list ) > 
@@ -2083,6 +2143,7 @@ void element_drop_down_output(
 			(char *)0 /* application_name */,
 			(char *)0 /* login_name */ );
 		return;
+
 	} /* if ( list_length( option_data_list ) > max_drop_down_size ) ) */
 
 	number_columns = (number_columns) ? number_columns : 1;
@@ -2174,7 +2235,8 @@ void element_drop_down_output(
 	if ( onblur_javascript_function
 	&&   *onblur_javascript_function )
 	{
-		fprintf(output_file, " onblur=\"%s\"",
+		fprintf(output_file,
+			" onblur=\"%s\"",
 			element_replace_javascript_variables(
 				buffer,
 				onblur_javascript_function,
@@ -2737,6 +2799,7 @@ void element_http_filename_output(	FILE *output_file,
 			background_color,
 			0 /* tab_index */,
 			1 /* without_td_tags */,
+			element_text_item->readonly,
 			element_text_item->state );
 	}
 
@@ -3197,9 +3260,12 @@ char *element_list_display( LIST *element_list )
 			ptr += sprintf(	ptr,
 					"%s\n",
 					element_display( element ) );
+
 		} while( list_next( element_list ) );
 	}
+
 	return strdup( buffer );
+
 } /* element_list_display() */
 
 char *element_display( ELEMENT *element )
@@ -3225,6 +3291,12 @@ char *element_display( ELEMENT *element )
 		sprintf( buffer + strlen( buffer ),
 			 ", heading = %s",
 			 element->text_item->heading );
+
+		if ( element->text_item->readonly )
+		{
+			sprintf( buffer + strlen( buffer ),
+				 ", readonly" );
+		}
 	}
 
 	if ( element->text_item
@@ -3260,9 +3332,16 @@ char *element_display( ELEMENT *element )
 			", no_initial_capital = %d, heading = %s",
 			element->drop_down->no_initial_capital,
 			element->drop_down->heading );
+
+		if ( element->drop_down->readonly )
+		{
+			sprintf( buffer + strlen( buffer ),
+				 ", readonly" );
+		}
 	}
 
 	return buffer;
+
 } /* element_display() */
 
 char *element_get_type_string( enum element_type element_type )
@@ -3693,3 +3772,26 @@ char *element_get_date_format_string(
 
 } /* element_get_date_format_string() */
 
+void element_list_set_readonly(
+			LIST *element_list )
+{
+	ELEMENT *element;
+
+	if ( !list_rewind( element_list ) ) return;
+
+	do {
+		element = list_get_pointer( element_list );
+
+		if ( element->text_item )
+		{
+			element->text_item->readonly = 1;
+		}
+		else
+		if ( element->drop_down )
+		{
+			element->drop_down->readonly = 1;
+		}
+
+	} while( list_next( element_list ) );
+
+} /* element_list_set_readonly() */

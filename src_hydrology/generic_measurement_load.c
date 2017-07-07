@@ -372,6 +372,7 @@ void generic_measurement_load(
 				(char *)0 /* background_color */,
 				element->drop_down->date_piece_offset,
 				element->drop_down->no_initial_capital,
+				element->drop_down->readonly,
 				0 /* tab_index */,
 				element->drop_down->state );
 			fflush( stdout );

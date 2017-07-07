@@ -1,4 +1,4 @@
-/* src_appaserver/output_edit_table_form.c				*/
+/* $APPASERVER_HOME/src_appaserver/output_edit_table_form.c		*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/

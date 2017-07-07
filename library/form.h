@@ -326,8 +326,10 @@ void form_append_remember_keystrokes_submit_control_string(
 
 char *form_get_onload_control_string( 
 				FORM *form );
+
 char *form_get_load_button_control_string( 
 				FORM *form );
+
 char *form_get_submit_control_string( 
 				FORM *form );
 

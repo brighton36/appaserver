@@ -240,6 +240,7 @@ void output_vertical_frameset_choose_role_drop_down(
 			(char *)0 /* background_color */,
 			-1 /* date_piece_offset */,
 			element->drop_down->no_initial_capital,
+			element->drop_down->readonly,
 			0 /* tab_index */,
 			element->drop_down->state );
 

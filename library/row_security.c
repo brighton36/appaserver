@@ -357,9 +357,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 				row_dictionary_list_length,
 				state,
 				non_edit_folder_name_list,
-#ifdef NOT_DEFINED
-				(LIST *)0 /* non_edit_folder_name_list */,
-#endif
 				login_name,
 				'n' /* update_yn */,
 				omit_delete_with_placeholder,

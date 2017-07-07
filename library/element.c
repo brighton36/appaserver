@@ -519,7 +519,9 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				element->radio_button->value,
 				element->radio_button->checked,
 				element->radio_button->heading,
-				element->name );
+				element->name,
+				element->radio_button->onclick,
+				row );
 	}
 	else
 	if ( element->element_type == drop_down )
@@ -1211,18 +1213,36 @@ void element_radio_button_output( 	FILE *output_file,
 					char *value,
 					int checked,
 					char *heading,
-					char *name )
+					char *name,
+					char *onclick,
+					int row )
 {
 	char buffer[ 256 ];
 
 	fprintf( output_file, "<td>" );
 
 	if ( image_source && *image_source )
+	{
 		fprintf( output_file, "<img src=\"%s\">", image_source );
+	}
 
 	fprintf( output_file,
-"<input name=\"%s\" type=\"radio\" value=\"%s\"",
-	   name, value );
+		 "<input name=\"%s\" type=\"radio\"",
+	   	 name );
+
+	if ( value )
+	{
+		fprintf( output_file,
+			 " value=\"%s\"",
+	   		 value );
+	}
+	else
+	{
+		fprintf( output_file,
+			 " value=\"%s_%d\"",
+			 name,
+			 row );
+	}
 
 	fprintf( output_file,
 		 " class=\"%s\"",
@@ -1245,6 +1265,13 @@ void element_radio_button_output( 	FILE *output_file,
 			 " onclick=\"radio_button_submit('%s')\"",
 			 form_name );
 	}
+	else
+	if ( onclick && *onclick )
+	{
+		fprintf( output_file,
+			 " onclick=\"%s\"",
+			 onclick );
+	}
 
 	fprintf( output_file,
 		 ">%s",
@@ -1255,6 +1282,7 @@ void element_radio_button_output( 	FILE *output_file,
 				name ) ) );
 
 	fprintf( output_file, "</td>\n" );
+
 } /* element_radio_button_output() */
 
 /* ELEMENT_TEXT_ITEM Operations */

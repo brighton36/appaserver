@@ -149,6 +149,7 @@ typedef struct
 	char *form_name;
 	char *image_source;
 	char *value;
+	char *onclick;
 } ELEMENT_RADIO_BUTTON;
 
 typedef struct
@@ -293,7 +294,9 @@ void element_radio_button_output(		FILE *output_file,
 						char *value,
 						int checked,
 						char *heading,
-						char *name );
+						char *name,
+						char *onclick,
+						int row );
 
 ELEMENT_NOTEPAD *element_notepad_new(		void );
 

@@ -25,7 +25,6 @@ typedef struct
 {
 	char *bank_date;
 	char *bank_description;
-	/* int sequence_number; */
 	double bank_amount;
 	double bank_running_balance;
 	boolean touched;
@@ -307,10 +306,9 @@ LIST *bank_upload_get_dictionary_list(
 {
 	LIST *dictionary_list;
 	BANK_UPLOAD *bank_upload;
-	char bank_date[ 16 ];
-	char bank_description[ 512 ];
-	char key[ 16 ];
-	char *data;
+	char *bank_date;
+	char *bank_description;
+	char key[ 128 ];
 	int index;
 
 	index = 1;
@@ -318,27 +316,28 @@ LIST *bank_upload_get_dictionary_list(
 
 	while( 1 )
 	{
-		sprintf( key, "%s_%d", SORT_ORDER_ATTRIBUTE_NAME, index );
+		sprintf( key, "%s_%d", "bank_date", index );
 
-		if ( ! ( data = dictionary_fetch( dictionary, key ) ) )
+		if ( ! ( bank_date = dictionary_fetch( dictionary, key ) ) )
+		{
 			break;
+		}
 
-		piece(	bank_date,
-			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			data,
-			0 );
+		sprintf( key, "%s_%d", "bank_description", index );
 
-		piece(	bank_description,
-			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			data,
-			1 );
+		if ( ! ( bank_description =
+				dictionary_fetch( dictionary, key ) ) )
+		{
+			break;
+		}
 
 		bank_upload =
 			bank_upload_new(
-				strdup( bank_date ),
-				strdup( bank_description ) );
+				bank_date,
+				bank_description );
 
 		list_append_pointer( dictionary_list, bank_upload );
+
 		index++;
 	}
 
@@ -712,14 +711,6 @@ void bank_upload_list_update(	LIST *bank_upload_list )
 			 	bank_upload->bank_date,
 			 	bank_upload->bank_description,
 			 	bank_upload->bank_running_balance );
-
-/*
-			fprintf( output_pipe,
-			 	"%s^%s^sequence_number^%d\n",
-			 	bank_upload->bank_date,
-			 	bank_upload->bank_description,
-			 	bank_upload->sequence_number );
-*/
 		}
 
 	} while( list_next( bank_upload_list ) );

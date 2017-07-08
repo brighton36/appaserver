@@ -995,28 +995,6 @@ generate_select_clause:
 					query->dictionary,
 					(ROLE *)0 );
 
-#ifdef NOT_DEFINED
-			mto1_query =
-				query_new(
-				   folder->application_name,
-				   query->login_name,
-				   join_folder->folder_name,
-				   (LIST *)0 /* append_isa_attribute_list */,
-				   query->dictionary,
-				   (DICTIONARY *)0 /* sort_dictionary */,
-				   (ROLE *)0,
-				   (LIST *)0 /* where_attribute_name_list */,
-				   (LIST *)0 /* where_attribute_data_list */,
-				   0 /* max_rows */,
-				   0 /* not include_root_folder */,
-				   (LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				   (LIST *)0
-					/* mto1_join_folder_name_list */,
-				   (RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
-
 			query_output->where_clause =
 				query_append_where_clause(
 					query_output->where_clause,
@@ -5260,7 +5238,7 @@ char *query_get_dictionary_where_clause(
 					p ) )
 			{
 				fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot piece(%d) in (%s).\n",
+			"ERROR in %s/%s()/%d: cannot piece(%d) in (%s).\n",
 			 		__FILE__,
 			 		__FUNCTION__,
 			 		__LINE__,

@@ -41,14 +41,6 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *get_option_list(
-				char *application_name,
-				LIST *display_attribute_name_list,
-				char *folder_name,
-				char *where_clause,
-				char *sort_order_column,
-				boolean with_padding );
-
 void post_change_sort_order_post_change_process_execute(
 				PROCESS *post_change_process,
 				DICTIONARY *post_dictionary,
@@ -286,7 +278,7 @@ void change_sort_order_state_one(
 {
 	FORM *form;
 	char action_string[ 512 ];
-	char *sort_order_column;
+	char *sort_attribute_name;
 	LIST *display_attribute_name_list;
 	LIST *ignore_attribute_name_list;
 	ROW_SECURITY *row_security;
@@ -307,14 +299,14 @@ void change_sort_order_state_one(
 		list_subtract( 	display_attribute_name_list, 
 				ignore_attribute_name_list );
 
-	sort_order_column =
+	sort_attribute_name =
 		appaserver_library_get_sort_attribute_name(
 			folder->attribute_list );
 
 	sort_dictionary = dictionary_small_new();
 
 	dictionary_set_pointer( sort_dictionary,
-				sort_order_column,
+				sort_attribute_name,
 				"yes" );
 
 	form = form_new( SORT_ORDER_ATTRIBUTE_NAME,
@@ -488,6 +480,16 @@ void change_sort_order_state_two(
 		appaserver_library_get_sort_attribute_name(
 			folder->attribute_list );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: sort_attribute_name = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sort_attribute_name );
+m2( application_name, msg );
+}
+
 	sort_starting_number =
 		get_sort_starting_number(
 			application_name,
@@ -497,6 +499,15 @@ void change_sort_order_state_two(
 			sort_attribute_name,
 			SORT_ORDER_ATTRIBUTE_NAME );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: sort_starting_number = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sort_starting_number );
+m2( application_name, msg );
+}
 	folder->primary_attribute_name_list =
 		attribute_get_primary_attribute_name_list(
 			folder->attribute_list );
@@ -508,6 +519,7 @@ void change_sort_order_state_two(
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y	|"
+"tee -a /var/log/appaserver/appaserver_capitolpops.err |"
 		 "sql.e						 ",
 		 table_name,
 		 list_display( folder->primary_attribute_name_list ) );
@@ -536,6 +548,7 @@ void change_sort_order_state_two(
 
 	pclose( output_pipe );
 
+/*
 	if ( folder->post_change_process )
 	{
 		post_change_sort_order_post_change_process_execute(
@@ -544,6 +557,7 @@ void change_sort_order_state_two(
 			folder->folder_name,
 			application_name );
 	}
+*/
 
 } /* change_sort_order_state_two() */
 
@@ -559,6 +573,16 @@ int get_sort_starting_number(
 	char *where_clause;
 	char select[ 128 ];
 	char *results;
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: primary_attribute_name_list = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_display( primary_attribute_name_list ) );
+m2( application_name, msg );
+}
 
 	sprintf( select,
 		 "min(%s)",
@@ -580,10 +604,20 @@ int get_sort_starting_number(
 		 folder_name,
 		 where_clause );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: sys_string = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+m2( application_name, msg );
+}
+
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: fetch returned null.\n",
+			 "ERROR in %s/%s()/%d: fetch returned null.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );

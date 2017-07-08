@@ -47,14 +47,6 @@ void post_change_sort_order_post_change_process_execute(
 				char *folder_name,
 				char *application_name );
 
-int get_sort_starting_number(
-				char *application_name,
-				DICTIONARY *post_dictionary,
-				char *folder_name,
-				LIST *primary_attribute_name_list,
-				char *sort_attribute_name,
-				char *dictionary_indexed_prefix );
-
 void change_sort_order_state_one(
 				char *application_name,
 				FOLDER *folder,
@@ -279,30 +271,69 @@ void change_sort_order_state_one(
 	FORM *form;
 	char action_string[ 512 ];
 	char *sort_attribute_name;
-	LIST *display_attribute_name_list;
+	LIST *move_attribute_name_list;
 	LIST *ignore_attribute_name_list;
 	ROW_SECURITY *row_security;
 	DICTIONARY *sort_dictionary;
 	ELEMENT *element;
 	char onclick[ 1024 ];
+	char key[ 128 ];
+	char *attribute_name;
 
-	display_attribute_name_list =
+	sort_attribute_name =
+		appaserver_library_get_sort_attribute_name(
+			folder->attribute_list );
+
+	/* Can't ignore the sort attribute */
+	/* ------------------------------- */
+	sprintf( key, "%s_0", sort_attribute_name );
+	dictionary_remove_key( ignore_dictionary, key );
+
+	/* Can't ignore any primary key */
+	/* ---------------------------- */
+	if ( !list_rewind( folder->primary_attribute_name_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty primary_attribute_name_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		attribute_name =
+			list_get_pointer(
+				folder->primary_attribute_name_list );
+
+		sprintf( key, "%s_0", attribute_name );
+		dictionary_remove_key( ignore_dictionary, key );
+
+	} while( list_next( folder->primary_attribute_name_list ) );
+
+	/* These are the attributes that javascript moves up or down. */
+	/* ---------------------------------------------------------- */
+	move_attribute_name_list =
 		attribute_get_attribute_name_list(
 			folder->attribute_list );
 
 	ignore_attribute_name_list =
 		appaserver_library_get_no_display_pressed_attribute_name_list(
 			ignore_dictionary, 
-			display_attribute_name_list );
+			move_attribute_name_list );
 
-	display_attribute_name_list = 
-		list_subtract( 	display_attribute_name_list, 
+	move_attribute_name_list = 
+		list_subtract( 	move_attribute_name_list, 
 				ignore_attribute_name_list );
 
-	sort_attribute_name =
-		appaserver_library_get_sort_attribute_name(
-			folder->attribute_list );
+	/* But don't move the sort_attribute_name */
+	/* -------------------------------------- */
+	list_subtract_string(
+		move_attribute_name_list,
+		sort_attribute_name );
 
+	/* Select in order by the sort_attribute_name */
+	/* ------------------------------------------ */
 	sort_dictionary = dictionary_small_new();
 
 	dictionary_set_pointer( sort_dictionary,
@@ -409,7 +440,7 @@ void change_sort_order_state_one(
 
 	sprintf( onclick,
 		 "sort_order_move( '%s' )",
-		 list_display( display_attribute_name_list ) );
+		 list_display( move_attribute_name_list ) );
 
 	element->radio_button->onclick = strdup( onclick );
 
@@ -468,87 +499,56 @@ void change_sort_order_state_two(
 	char *table_name;
 	FILE *output_pipe;
 	char sys_string[ 1024 ];
-	int index;
-	char key[ 128 ];
-	char *data;
-	int sort_starting_number;
+	int row;
 	char *sort_attribute_name;
-	int length_primary_attribute_name_list;
-	char primary_data[ 1024 ];
+	LIST *primary_data_list;
+	char key[ 128 ];
+	char *new_sort;
 
 	sort_attribute_name =
 		appaserver_library_get_sort_attribute_name(
 			folder->attribute_list );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sort_attribute_name = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sort_attribute_name );
-m2( application_name, msg );
-}
-
-	sort_starting_number =
-		get_sort_starting_number(
-			application_name,
-			post_dictionary,
-			folder->folder_name,
-			folder->primary_attribute_name_list,
-			sort_attribute_name,
-			SORT_ORDER_ATTRIBUTE_NAME );
-
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sort_starting_number = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sort_starting_number );
-m2( application_name, msg );
-}
 	folder->primary_attribute_name_list =
 		attribute_get_primary_attribute_name_list(
 			folder->attribute_list );
-
-	length_primary_attribute_name_list =
-		list_length( folder->primary_attribute_name_list );
 
 	table_name = get_table_name( application_name, folder->folder_name );
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y	|"
-"tee -a /var/log/appaserver/appaserver_capitolpops.err |"
 		 "sql.e						 ",
 		 table_name,
 		 list_display( folder->primary_attribute_name_list ) );
 
 	output_pipe = popen( sys_string, "w" );
 
-	for( index = 1;; index++ )
+	for( row = 1;; row++ )
 	{
-		sprintf( key, "%s_%d", SORT_ORDER_ATTRIBUTE_NAME, index );
+		primary_data_list =
+			dictionary_get_data_list(
+					folder->primary_attribute_name_list,
+					post_dictionary,
+					row );
 
-		if ( ! ( data = dictionary_fetch( post_dictionary, key ) ) )
+		if ( !list_length( primary_data_list ) ) break;
+
+		sprintf( key, "%s_%d", sort_attribute_name, row );
+
+		if ( ! ( new_sort = dictionary_fetch( post_dictionary, key ) ) )
 		{
 			break;
 		}
 
 		fprintf( output_pipe,
-		 	 "%s^%s^%d\n",
-			 piece_multiple(
-				primary_data,
-				'^',
-				data,
-				length_primary_attribute_name_list ),
+		 	 "%s^%s^%s\n",
+			 list_display_delimited( primary_data_list, '^' ),
 		 	 sort_attribute_name,
-		 	 sort_starting_number++ );
+		 	 new_sort );
 	}
 
 	pclose( output_pipe );
 
-/*
 	if ( folder->post_change_process )
 	{
 		post_change_sort_order_post_change_process_execute(
@@ -557,76 +557,8 @@ m2( application_name, msg );
 			folder->folder_name,
 			application_name );
 	}
-*/
 
 } /* change_sort_order_state_two() */
-
-int get_sort_starting_number(
-			char *application_name,
-			DICTIONARY *post_dictionary,
-			char *folder_name,
-			LIST *primary_attribute_name_list,
-			char *sort_attribute_name,
-			char *dictionary_indexed_prefix )
-{
-	char sys_string[ 65536 ];
-	char *where_clause;
-	char select[ 128 ];
-	char *results;
-
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: primary_attribute_name_list = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_display( primary_attribute_name_list ) );
-m2( application_name, msg );
-}
-
-	sprintf( select,
-		 "min(%s)",
-		 sort_attribute_name );
-
-	where_clause =
-		query_get_dictionary_where_clause(
-			post_dictionary,
-			primary_attribute_name_list,
-			dictionary_indexed_prefix );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s	"
-		 "			select=\"%s\"	"
-		 "			folder=%s	"
-		 "			where=\"%s\"	",
-		 application_name,
-		 select,
-		 folder_name,
-		 where_clause );
-
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sys_string = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-m2( application_name, msg );
-}
-
-	if ( ! ( results = pipe2string( sys_string ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: fetch returned null.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return atoi( results );
-
-} /* get_sort_starting_number() */
 
 void post_change_sort_order_post_change_process_execute(
 			PROCESS *post_change_process,

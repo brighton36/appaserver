@@ -2095,9 +2095,18 @@ void element_drop_down_output(
 
 		element = element_new( text_item, element_name );
 
-		element_text_item_set_attribute_width(
-			element->text_item, 
-			timlib_strlen( initial_data ) );
+		if ( initial_data && *initial_data )
+		{
+			element_text_item_set_attribute_width(
+				element->text_item, 
+				timlib_strlen( initial_data ) );
+		}
+		else
+		{
+			element_text_item_set_attribute_width(
+				element->text_item, 
+				1 );
+		}
 
 		element->text_item->data = initial_data;
 		element->text_item->readonly = 1;

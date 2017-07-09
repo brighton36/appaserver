@@ -356,6 +356,7 @@ void change_sort_order_state_one(
 			role->role_name );
 
 	form->action_string = action_string;
+	form->table_border = 1;
 
 	form_output_title(	form->application_title,
 				"sort" /* state */,

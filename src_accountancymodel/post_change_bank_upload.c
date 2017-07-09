@@ -25,52 +25,33 @@ typedef struct
 {
 	char *bank_date;
 	char *bank_description;
+	int sequence_number;
 	double bank_amount;
 	double bank_running_balance;
-	boolean touched;
+	char *fund_name;
 } BANK_UPLOAD;
 
 /* Prototypes */
 /* ---------- */
-void bank_upload_list_set(	LIST *bank_upload_list );
+int bank_upload_get_prior_sequence_number(
+				char *application_name,
+				char *fund_name,
+				int sequence_number );
 
-void bank_upload_list_update(	LIST *bank_upload_list );
-
-void append_untouched_table_list(
-				LIST *bank_upload_list,
-				LIST *table_list );
-
-BANK_UPLOAD *bank_upload_seek(
-				LIST *table_list,
-				char *dictionary_bank_date,
-				char *dictionary_bank_description );
-
-LIST *get_untouched_bank_upload_list(
-				LIST *table_list,
-				char *first_bank_date,
-				char *first_bank_description );
+BANK_UPLOAD *bank_upload_get_starting(
+				char *application_name,
+				DICTIONARY *dictionary );
 
 BANK_UPLOAD *bank_upload_new(
 				char *bank_date,
-				char *bank_description );
-
-LIST *bank_upload_get_dictionary_list(
-				DICTIONARY *dictionary );
-
-LIST *bank_upload_get_table_list(
-				char *application_name,
-				char *starting_bank_date,
-				char *fund_name );
-
-LIST *bank_upload_merge_bank_upload_list(
-				LIST *dictionary_list,
-				LIST *table_list );
+				char *bank_description,
+				int sequence_number );
 
 boolean post_change_bank_upload_update(
 				char *application_name,
 				DICTIONARY *dictionary );
 
-char *get_fund_name(
+char *bank_upload_get_fund_name(
 				char *application_name,
 				char *bank_date,
 				char *bank_description );
@@ -139,149 +120,85 @@ boolean post_change_bank_upload_update(
 			char *application_name,
 			DICTIONARY *dictionary )
 {
-	LIST *dictionary_list;
-	LIST *table_list;
-	LIST *bank_upload_list;
-	char *fund_name;
 	BANK_UPLOAD *starting_bank_upload;
+	int prior_sequence_number;
 
-	dictionary_list = bank_upload_get_dictionary_list( dictionary );
-
-	if ( !list_length( dictionary_list ) ) return 1;
-
-	starting_bank_upload = list_get_first_pointer( dictionary_list );
-
-	if ( ! ( fund_name = get_fund_name(
+	if ( ! ( starting_bank_upload =
+			bank_upload_get_starting(
 				application_name,
-				starting_bank_upload->bank_date,
-				starting_bank_upload->bank_description ) ) )
+				dictionary ) ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot get fund_name for (%s/%s).\n",
+		"ERROR in %s/%s()/%d: cannot get starting_bank_upload.\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__,
-			 starting_bank_upload->bank_date,
-			 starting_bank_upload->bank_description );
+			 __LINE__ );
 		return 0;
 	}
 
-	table_list =
-		bank_upload_get_table_list(
+	prior_sequence_number =
+		bank_upload_get_prior_sequence_number(
 			application_name,
-			starting_bank_upload->bank_date,
-			fund_name );
-
-	bank_upload_list =
-		bank_upload_merge_bank_upload_list(
-			dictionary_list,
-			table_list );
-
-	if ( !list_length( bank_upload_list ) ) return 1;
-
-	bank_upload_list_set( bank_upload_list );
-	bank_upload_list_update( bank_upload_list );
+			bank_upload->fund_name,
+			bank_upload->sequence_number );
 
 	return 1;
 
 } /* post_change_bank_upload_update() */
 
-LIST *bank_upload_merge_bank_upload_list(
-			LIST *dictionary_list,
-			LIST *table_list )
+int bank_upload_get_prior_sequence_number(
+			char *application_name,
+			char *fund_name,
+			int sequence_number )
 {
-	LIST *bank_upload_list;
-	BANK_UPLOAD *first_dictionary_bank_upload;
-	BANK_UPLOAD *dictionary_bank_upload;
-	BANK_UPLOAD *bank_upload;
+	char where[ 512 ];
+	char buffer[ 512 ];
+	char *folder_name;
+	char *select;
+	char sys_string[ 1024 ];
+	char *results;
 
-	if ( !list_length( dictionary_list )
-	||   !list_length( table_list ) )
+	select = "max( sequence_number )";
+	folder_name = "bank_upload";
+
+	timlib_strcpy( buffer, bank_description, 512 );
+
+	if ( fund_name )
 	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: empty list: dictionary_list = %d, table_list = %d.\n",
-		 	 __FILE__,
-		 	 __FUNCTION__,
-		 	 __LINE__,
-	 		 list_length( dictionary_list ),
-			 list_length( table_list ) );
-
-		return (LIST *)0;
+		sprintf(	where,
+				"fund_name = '%s' and		"
+				"sequence_number < %d		",
+				fund_name,
+				sequence_number );
+	}
+	else
+	{
+		sprintf(	where,
+				"sequence_number < %d",
+				sequence_number );
 	}
 
-	first_dictionary_bank_upload =
-		list_get_first_pointer( dictionary_list );
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder_name,
+		 where );
 
-	bank_upload_list =
-		get_untouched_bank_upload_list(
-			table_list,
-			first_dictionary_bank_upload->bank_date,
-			first_dictionary_bank_upload->bank_description );
+	if ( ! ( results = pipe2string( sys_string ) ) )
+		return 0;
+	else
+		return atoi( results );
 
-	list_rewind( dictionary_list );
-
-	do {
-		dictionary_bank_upload =
-			list_get_pointer( dictionary_list );
-
-		bank_upload =
-			bank_upload_seek(
-				table_list,
-				dictionary_bank_upload->bank_date,
-				dictionary_bank_upload->bank_description );
-
-		if ( !bank_upload ) continue;
-
-		bank_upload->touched = 1;
-		list_append_pointer( bank_upload_list, bank_upload );
-
-	} while( list_next( dictionary_list ) );
-
-	append_untouched_table_list(
-		bank_upload_list,
-		table_list );
-
-	return bank_upload_list;
-
-} /* bank_upload_merge_bank_upload_list() */
-
-LIST *get_untouched_bank_upload_list(
-			LIST *table_list,
-			char *first_bank_date,
-			char *first_bank_description )
-{
-	BANK_UPLOAD *bank_upload;
-	LIST *bank_upload_list;
-
-	bank_upload_list = list_new();
-
-	if ( !list_rewind( table_list ) ) return bank_upload_list;
-
-	do {
-		bank_upload = list_get_pointer( table_list );
-
-		bank_upload->touched = 1;
-		list_append_pointer(
-			bank_upload_list,
-			bank_upload );
-
-		if ( strcmp(	bank_upload->bank_date,
-				first_bank_date ) == 0
-		&&   strcmp(	bank_upload->bank_description,
-				first_bank_description ) == 0 )
-		{
-			return bank_upload_list;
-		}
-
-	} while( list_next( table_list ) );
-
-	return bank_upload_list;
-
-} /* get_untouched_bank_upload_list() */
+} /* bank_upload_get_prior_sequence_number() */
 
 BANK_UPLOAD *bank_upload_new(
 				char *bank_date,
-				char *bank_description )
+				char *bank_description,
+				int sequence_number )
 {
 	BANK_UPLOAD *b;
 
@@ -297,9 +214,59 @@ BANK_UPLOAD *bank_upload_new(
 
 	b->bank_date = bank_date;
 	b->bank_description = bank_description;
+	b->sequence_number = sequence_number;
 	return b;
 
 } /* bank_upload_new() */
+
+BANK_UPLOAD *bank_upload_get_starting(
+				char *application_name,
+				DICTIONARY *dictionary )
+{
+	char key[ 128 ];
+	BANK_UPLOAD *bank_upload;
+	char *sequence_number_string;
+	char *bank_date;
+	char *bank_description;
+
+	sprintf( key, "%s_1", "sequence_number" );
+
+	if ( ! ( sequence_number_string =
+			dictionary_fetch( dictionary, key ) ) )
+	{
+		return (BANK_UPLOAD *)0;
+	}
+
+	sprintf( key, "%s_1", "bank_date" );
+
+	if ( ! ( bank_date = dictionary_fetch( dictionary, key ) ) )
+	{
+		return (BANK_UPLOAD *)0;
+	}
+
+	sprintf( key, "%s_1", "bank_description" );
+
+	if ( ! ( bank_description =
+			dictionary_fetch( dictionary, key ) ) )
+	{
+		return (BANK_UPLOAD *)0;
+	}
+
+	bank_upload =
+		bank_upload_new(
+			bank_date,
+			bank_description,
+			atoi( sequence_number ) );
+
+	bank_upload->fund_name =
+		bank_upload_get_fund_name(
+			application_name,
+			bank_upload->bank_date,
+			bank_upload->bank_description );
+
+	return bank_upload;
+
+} /* bank_upload_get_starting() */
 
 LIST *bank_upload_get_dictionary_list(
 				DICTIONARY *dictionary )
@@ -431,7 +398,7 @@ LIST *bank_upload_get_table_list(
 
 } /* bank_upload_get_table_list() */
 
-char *get_fund_name(
+char *bank_upload_get_fund_name(
 			char *application_name,
 			char *bank_date,
 			char *bank_description )
@@ -464,53 +431,7 @@ char *get_fund_name(
 
 	return pipe2string( sys_string );
 
-} /* get_fund_name() */
-
-int get_bank_balance_sequence_number(
-				char *application_name,
-				char *starting_bank_date,
-				char *fund_name )
-{
-	char where[ 512 ];
-	char *folder_name;
-	char *select;
-	char sys_string[ 1024 ];
-	char *results;
-
-	select = "max(sequence_number)";
-	folder_name = "bank_upload";
-
-	if ( fund_name )
-	{
-		sprintf(where,
-		"bank_amount is null and fund = '%s' and bank_date <= '%s'",
-			fund_name,
-			starting_bank_date );
-	}
-	else
-	{
-		sprintf(where,
-		"bank_amount is null and bank_date <= %s",
-			starting_bank_date );
-	}
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s	"
-		 "			select=\"%s\"	"
-		 "			folder=%s	"
-		 "			where=\"%s\"	",
-		 application_name,
-		 select,
-		 folder_name,
-		 where );
-
-	results = pipe2string( sys_string );
-
-	if ( !results || !*results ) return 0;
-
-	return atoi( results );
-
-} /* get_bank_balance_sequence_number() */
+} /* bank_upload_get_fund_name() */
 
 FILE *post_change_bank_upload_open_input_pipe(
 			char *application_name,

@@ -1,8 +1,8 @@
-/* --------------------------------------------------- 	*/
-/* output_measurement_differences.c		      	*/
-/* --------------------------------------------------- 	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* --------------------------------------------------------------- 	*/
+/* $APPASERVER_HOME/src_hydrology/output_measurement_differences.c     	*/
+/* --------------------------------------------------------------- 	*/
+/* Freely available software: see Appaserver.org			*/
+/* --------------------------------------------------------------- 	*/
 
 /* Includes */
 /* -------- */
@@ -2109,6 +2109,184 @@ void get_report_title(	char *title,
 	}
 	format_initial_capital( title, title );
 } /* get_report_title() */
+
+void measurement_differences_output_googlechart(
+				FILE *output_pipe,
+				HASH_TABLE *positive_negative_hash_table,
+				enum aggregate_level aggregate_level,
+				char *positive_station_name,
+				char *positive_datatype_name,
+				char *negative_station_name,
+				char *negative_datatype_name,
+				boolean display_count,
+				char *units_display )
+{
+	LIST *date_colon_time_key_list;
+	char *date_colon_time;
+	MEASUREMENT_DIFFERENCES_POSITIVE_NEGATIVE *positive_negative;
+	char key_label[ 32 ];
+	char *cumulative_difference_string;
+	char title[ 512 ];
+
+	date_colon_time_key_list =
+		 hash_table_get_ordered_key_list(
+			positive_negative_hash_table );
+
+	if ( !list_length( date_colon_time_key_list ) )
+	{
+		printf( "<h3>ERROR: insufficient data to output</h3>\n" );
+		return;
+	}
+
+	get_report_title(	title,
+				aggregate_level,
+				positive_station_name,
+				positive_datatype_name,
+				units_display );
+
+	fprintf( output_pipe, "#%s\n", title );
+
+	if ( aggregate_level == real_time
+	||   aggregate_level == half_hour
+	||   aggregate_level == hourly )
+	{
+		fprintf( output_pipe, "#Date:Time" );
+	}
+	else
+	{
+		fprintf( output_pipe, "#Date" );
+	}
+
+	fprintf( output_pipe, "|Cumulative" );
+	fprintf( output_pipe, "|Difference" );
+	fprintf( output_pipe, "|Positive_%s/%s",
+		 positive_station_name,
+		 positive_datatype_name );
+
+	if ( display_count && aggregate_level != real_time )
+	{
+		fprintf( output_pipe, "|Count" );
+	}
+
+	fprintf( output_pipe, "|Negative_%s/%s",
+		 negative_station_name,
+		 negative_datatype_name );
+
+	if ( display_count && aggregate_level != real_time )
+	{
+		fprintf( output_pipe, "|Count" );
+	}
+
+	fprintf( output_pipe, "\n" );
+
+	list_rewind( date_colon_time_key_list );
+
+	do {
+		date_colon_time =
+			list_get_pointer(
+				date_colon_time_key_list );
+
+
+		if ( aggregate_level != real_time
+		&&   aggregate_level != half_hour
+		&&   aggregate_level != hourly )
+		{
+			piece( key_label, ':', date_colon_time, 0 );
+		}
+		else
+		{
+			strcpy( key_label, date_colon_time );
+		}
+
+		fprintf( output_pipe, "%s", key_label );
+
+		positive_negative =
+			hash_table_get_pointer(
+				positive_negative_hash_table,
+				date_colon_time );
+
+		cumulative_difference_string =
+			get_cumulative_difference_string(
+				positive_negative->cumulative,
+				positive_negative->difference_is_null );
+
+		fprintf(output_pipe,
+			"|%s",
+			cumulative_difference_string );
+
+		cumulative_difference_string =
+			get_cumulative_difference_string(
+				positive_negative->difference,
+				positive_negative->difference_is_null );
+
+		fprintf(output_pipe,
+			"|%s",
+			cumulative_difference_string );
+
+		if ( positive_negative->positive_measurement
+		&&  !positive_negative->positive_measurement->is_null )
+		{
+			fprintf(output_pipe,
+				"|%.3lf",
+				positive_negative->
+					positive_measurement->value );
+		}
+		else
+		{
+			fprintf( output_pipe, "|null" );
+		}
+
+		if ( display_count
+		&&   aggregate_level != real_time )
+		{
+			if ( positive_negative->positive_measurement
+			&&  !positive_negative->positive_measurement->is_null )
+			{
+				fprintf(output_pipe,
+					"|%d",
+					positive_negative->
+						positive_measurement->count );
+			}
+			else
+			{
+				fprintf( output_pipe, "|null" );
+			}
+		}
+
+		if ( positive_negative->negative_measurement
+		&&  !positive_negative->negative_measurement->is_null )
+		{
+			fprintf(output_pipe,
+				"|%.3lf",
+				positive_negative->
+					negative_measurement->value );
+		}
+		else
+		{
+			fprintf( output_pipe, "|null" );
+		}
+
+		if ( display_count
+		&&   aggregate_level != real_time )
+		{
+			if ( positive_negative->negative_measurement
+			&&  !positive_negative->negative_measurement->is_null )
+			{
+				fprintf(output_pipe,
+					"|%d",
+					positive_negative->
+						negative_measurement->count );
+			}
+			else
+			{
+				fprintf( output_pipe, "|null" );
+			}
+		}
+
+		fprintf( output_pipe, "\n" );
+	} while( list_next( date_colon_time_key_list ) );
+
+} /* measurement_differences_output_googlechart() */
 
 boolean measurement_differences_output_easychart(
 				char *application_name,

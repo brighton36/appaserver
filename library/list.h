@@ -1,4 +1,4 @@
-/* library/list.h					   */
+/* $APPASERVER_HOME/library/list.h			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */

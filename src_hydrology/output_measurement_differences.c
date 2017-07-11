@@ -31,6 +31,7 @@
 #include "easycharts.h"
 #include "hydrology_library.h"
 #include "application_constants.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
@@ -38,6 +39,7 @@
 #define DEFAULT_OUTPUT_MEDIUM			"table"
 #define KEY_DELIMITER				'/'
 
+/*
 #define OUTPUT_FILE_TEXT_FILE	"%s/%s/measurement_differences_%s_%s_%d.txt"
 #define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/measurement_differences_%s_%s_%d.txt"
 #define FTP_FILE_TEXT_FILE	"/%s/measurement_differences_%s_%s_%d.txt"
@@ -45,6 +47,7 @@
 #define OUTPUT_FILE_SPREADSHEET	"%s/%s/measurement_differences_%s_%s_%d.csv"
 #define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/measurement_differences_%s_%s_%d.csv"
 #define FTP_FILE_SPREADSHEET	"/%s/measurement_differences_%s_%s_%d.csv"
+*/
 
 #define ROWS_BETWEEN_HEADING			20
 #define SELECT_LIST				 "station,measurement_date,measurement_time,measurement_value,station"
@@ -243,7 +246,7 @@ int main( int argc, char **argv )
 	char *aggregate_level_string;
 	enum aggregate_level aggregate_level;
 	char *database_string = {0};
-	char *process_name;
+	char *process_name = {0};
 	char *display_count_yn = {0};
 	char *units_display;
 	char *datatype_units;
@@ -252,7 +255,6 @@ int main( int argc, char **argv )
 	char *negative_station_name;
 	char *positive_datatype_name;
 	char *negative_datatype_name;
-	int right_justified_columns_from_right;
 
 	if ( argc != 4 )
 	{
@@ -437,10 +439,12 @@ int main( int argc, char **argv )
 		application_name,
 		appaserver_parameter_file->appaserver_mount_point );
 
+/*
 	if ( *display_count_yn == 'y' )
 		right_justified_columns_from_right = 6;
 	else
 		right_justified_columns_from_right = 4;
+*/
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
@@ -480,12 +484,63 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *ftp_filename;
+		char *output_pipename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				process_name /* filename_stem */,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		appaserver_link_file->begin_date_string = begin_date;
+		appaserver_link_file->end_date_string = end_date;
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_SPREADSHEET,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -493,6 +548,7 @@ int main( int argc, char **argv )
 			 begin_date,
 			 end_date,
 			 process_id );
+*/
 	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
@@ -524,6 +580,7 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -545,6 +602,7 @@ int main( int argc, char **argv )
 			 	end_date,
 			 	process_id );
 		}
+*/
 	
 		measurement_differences_output_transmit(
 					output_pipe,
@@ -581,12 +639,63 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "transmit" ) == 0
 	||   strcmp( output_medium, "text_file" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *ftp_filename;
+		char *output_pipename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				process_name /* filename_stem */,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"txt" );
+
+		appaserver_link_file->begin_date_string = begin_date;
+		appaserver_link_file->end_date_string = end_date;
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_TEXT_FILE,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -594,6 +703,7 @@ int main( int argc, char **argv )
 			 begin_date,
 			 end_date,
 			 process_id );
+*/
 	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
@@ -620,6 +730,12 @@ int main( int argc, char **argv )
 				0 /* not with_zap_file */ );
 
 /*
+	int right_justified_columns_from_right;
+	if ( *display_count_yn == 'y' )
+		right_justified_columns_from_right = 6;
+	else
+		right_justified_columns_from_right = 4;
+
 		sprintf( sys_string,
 			 "delimiter2padded_columns.e '|' %d >> %s",
 		 	 right_justified_columns_from_right,
@@ -632,6 +748,7 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -653,6 +770,7 @@ int main( int argc, char **argv )
 			 	end_date,
 			 	process_id );
 		}
+*/
 	
 		measurement_differences_output_transmit(
 					output_pipe,

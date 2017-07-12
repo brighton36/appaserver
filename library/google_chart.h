@@ -163,7 +163,7 @@ void google_timeline_set_point_string(	LIST *timeline_list,
 					char *delimited_string,
 					char delimiter );
 
-GOOGLE_DATATYPE_CHART *google_datatype_get_or_set(
+GOOGLE_DATATYPE_CHART *google_datatype_chart_get_or_set(
 					LIST *datatype_chart_list,
 					char *datatype_name );
 

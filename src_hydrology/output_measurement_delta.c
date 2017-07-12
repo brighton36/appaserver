@@ -1071,7 +1071,6 @@ void output_google_chart(	char *application_name,
 
 } /* output_google_chart() */
 
-
 GOOGLE_CHART *get_google_datatype_chart(
 				char *application_name,
 				LIST *station_list,

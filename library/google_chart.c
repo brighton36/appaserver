@@ -1879,7 +1879,7 @@ void google_chart_output_graph_window(
 
 } /* google_chart_output_graph_window() */
 
-GOOGLE_DATATYPE_CHART *google_datatype_get_or_set(
+GOOGLE_DATATYPE_CHART *google_datatype_chart_get_or_set(
 					LIST *datatype_chart_list,
 					char *datatype_name )
 {
@@ -1899,11 +1899,16 @@ GOOGLE_DATATYPE_CHART *google_datatype_get_or_set(
 		} while( list_next( datatype_chart_list ) );
 	}
 
-	return google_datatype_append(
+	google_datatype_chart =
+		google_datatype_append(
 			datatype_chart_list,
 			strdup( datatype_name ) );
 
-} /* google_datatype_get_or_set() */
+	google_datatype_chart->input_value_list = list_new();
+
+	return google_datatype_chart;
+
+} /* google_datatype_chart_get_or_set() */
 
 GOOGLE_DATATYPE_CHART *google_datatype_append(
 				LIST *datatype_chart_list,

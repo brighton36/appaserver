@@ -28,26 +28,18 @@
 #include "list_usage.h"
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
-#include "easycharts.h"
 #include "hydrology_library.h"
 #include "application_constants.h"
 #include "appaserver_link_file.h"
+#include "google_chart.h"
 
 /* Constants */
 /* --------- */
 #define REPORT_TITLE				"Measurement Differences"
 #define DEFAULT_OUTPUT_MEDIUM			"table"
 #define KEY_DELIMITER				'/'
-
-/*
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/measurement_differences_%s_%s_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/measurement_differences_%s_%s_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/measurement_differences_%s_%s_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/measurement_differences_%s_%s_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/measurement_differences_%s_%s_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/measurement_differences_%s_%s_%d.csv"
-*/
+#define CUMULATIVE_DATATYPE			"Cumulative"
+#define DIFFERENCE_DATATYPE			"Difference"
 
 #define ROWS_BETWEEN_HEADING			20
 #define SELECT_LIST				 "station,measurement_date,measurement_time,measurement_value,station"
@@ -91,17 +83,14 @@ typedef struct
 	
 /* Prototypes */
 /* ---------- */
+GOOGLE_CHART *get_google_datatype_chart(
+				HASH_TABLE *positive_negative_hash_table,
+				LIST *date_colon_time_key_list,
+				enum aggregate_level );
+
 char *get_cumulative_difference_string(
 				double cumulative_difference,
 				boolean difference_is_null );
-
-boolean measurement_differences_populate_easycharts_input_chart_list_data(
-			LIST *input_chart_list,
-			HASH_TABLE *positive_negative_hash_table,
-			enum aggregate_level);
-
-void measurement_differences_populate_easycharts_input_chart_list_datatypes(
-				LIST *input_chart_list );
 
 void get_report_title(		char *title,
 				enum aggregate_level,
@@ -171,18 +160,6 @@ boolean populate_positive_negative_hash_table(
 
 MEASUREMENT_DIFFERENCES_MEASUREMENT *measurement_differences_new_measurement(
 				void );
-
-boolean measurement_differences_output_easychart(
-				char *application_name,
-				char *begin_date,
-				char *end_date,
-				HASH_TABLE *positive_negative_hash_table,
-				enum aggregate_level aggregate_level,
-				char *document_root_directory,
-				char *process_name,
-				char *positive_station_name,
-				char *positive_datatype_name,
-				char *units_display );
 
 boolean measurement_differences_output_gracechart(
 				char *application_name,
@@ -439,13 +416,6 @@ int main( int argc, char **argv )
 		application_name,
 		appaserver_parameter_file->appaserver_mount_point );
 
-/*
-	if ( *display_count_yn == 'y' )
-		right_justified_columns_from_right = 6;
-	else
-		right_justified_columns_from_right = 4;
-*/
-
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
 		document = document_new( "", application_name );
@@ -539,17 +509,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-
-/*
-		sprintf( output_pipename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_date,
-			 end_date,
-			 process_id );
-*/
-	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -580,30 +539,6 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename,
-			 	HTTP_FTP_FILE_SPREADSHEET, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename,
-			 	FTP_FILE_SPREADSHEET,
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-*/
-	
 		measurement_differences_output_transmit(
 					output_pipe,
 					measurement_differences->
@@ -694,17 +629,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-
-/*
-		sprintf( output_pipename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_date,
-			 end_date,
-			 process_id );
-*/
-	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -729,18 +653,6 @@ int main( int argc, char **argv )
 				negative_station_name,
 				0 /* not with_zap_file */ );
 
-/*
-	int right_justified_columns_from_right;
-	if ( *display_count_yn == 'y' )
-		right_justified_columns_from_right = 6;
-	else
-		right_justified_columns_from_right = 4;
-
-		sprintf( sys_string,
-			 "delimiter2padded_columns.e '|' %d >> %s",
-		 	 right_justified_columns_from_right,
-			 output_pipename );
-*/
 		sprintf(sys_string,
 		 	"tr '|' '%c' >> %s",
 			OUTPUT_TEXT_FILE_DELIMITER,
@@ -748,30 +660,6 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename,
-			 	HTTP_FTP_FILE_TEXT_FILE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename,
-			 	FTP_FILE_TEXT_FILE, 
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-*/
-	
 		measurement_differences_output_transmit(
 					output_pipe,
 					measurement_differences->
@@ -819,11 +707,6 @@ int main( int argc, char **argv )
 				application_name,
 				negative_station_name );
 
-/*
-		sprintf( sys_string,
-			 "delimiter2padded_columns.e '|' %d",
-		 	right_justified_columns_from_right );
-*/
 		sprintf(sys_string,
 		 	"tr '|' '%c'",
 			OUTPUT_TEXT_FILE_DELIMITER );
@@ -878,9 +761,9 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	if ( strcmp( output_medium, "easychart" ) == 0 )
+	if ( strcmp( output_medium, "googlechart" ) == 0 )
 	{
-		if ( !measurement_differences_output_easychart(
+		if ( !measurement_differences_output_googlechart(
 					application_name,
 					begin_date,
 					end_date,
@@ -911,7 +794,9 @@ int main( int argc, char **argv )
 				application_name,
 				process_name,
 				appaserver_parameter_file_get_dbms() );
+
 	exit( 0 );
+
 } /* main() */
 
 void measurement_differences_output_transmit(
@@ -1156,8 +1041,8 @@ void measurement_differences_output_table(
 		list_append_pointer( heading_list, "Date" );
 	}
 
-	list_append_pointer( heading_list, "Cumulative" );
-	list_append_pointer( heading_list, "Difference" );
+	list_append_pointer( heading_list, CUMULATIVE_DATATYPE );
+	list_append_pointer( heading_list, DIFFERENCE_DATATYPE );
 
 	sprintf( heading_buffer, "Positive %s/%s",
 		 positive_station_name,
@@ -1495,6 +1380,7 @@ MEASUREMENT_DIFFERENCES *measurement_differences_new(
 
 	differences->positive_station_name = positive_station_name;
 	differences->positive_datatype_name = positive_datatype_name;
+
 	if ( ! populate_positive_negative_hash_table(
 					differences->
 						positive_negative_hash_table,
@@ -1961,10 +1847,6 @@ boolean measurement_differences_output_gracechart(
 		begin_date,
 		end_date );
 
-/*
-	format_initial_capital( sub_title, sub_title );
-*/
-
 	grace = grace_new_unit_graph_grace(
 				application_name,
 				role_name,
@@ -2013,8 +1895,8 @@ boolean measurement_differences_output_gracechart(
 	list_append_pointer( grace->graph_list, grace_graph );
 
 	grace_datatype =
-		grace_new_grace_datatype( "cumulative", "" );
-	grace_datatype->legend = "Cumulative";
+		grace_new_grace_datatype( CUMULATIVE_DATATYPE, "" );
+	grace_datatype->legend = CUMULATIVE_DATATYPE;
 	grace_datatype->datatype_type_bar_xy_xyhilo = "xy";
 	list_append_pointer(	grace_graph->datatype_list,
 				grace_datatype );
@@ -2053,7 +1935,8 @@ boolean measurement_differences_output_gracechart(
 					difference_is_null );
 
 		sprintf( point_buffer,
-			 "cumulative||%s|%s|%s",
+			 "%c||%s|%s|%s",
+			 CUMULATIVE_DATATYPE,
 			 date_string,
 			 time_string,
 			 cumulative_difference_string );
@@ -2078,7 +1961,8 @@ boolean measurement_differences_output_gracechart(
 					difference_is_null );
 
 		sprintf( point_buffer,
-			 "difference||%s|%s|%s",
+			 "%s||%s|%s|%s",
+			 DIFFERENCE_DATATYPE,
 			 date_string,
 			 time_string,
 			 cumulative_difference_string );
@@ -2113,12 +1997,6 @@ boolean measurement_differences_output_gracechart(
 			document_root_directory,
 			graph_identifier,
 			grace->grace_output );
-
-#ifdef NOT_DEFINED
-	grace_graph_set_no_yaxis_grid_lines(
-			grace->graph_list,
-			0 /* graph_offset */ );
-#endif
 
 	if ( !grace_set_structures(
 				&grace->page_width_pixels,
@@ -2198,6 +2076,7 @@ boolean measurement_differences_output_gracechart(
 				(char *)0 /* where_clause */ );
 		return 1;
 	}
+
 } /* measurement_differences_output_gracechart() */
 
 void get_report_title(	char *title,
@@ -2228,10 +2107,14 @@ void get_report_title(	char *title,
 	format_initial_capital( title, title );
 } /* get_report_title() */
 
-void measurement_differences_output_googlechart(
-				FILE *output_pipe,
+boolean measurement_differences_output_googlechart(
+				char *application_name,
+				char *begin_date,
+				char *end_date,
 				HASH_TABLE *positive_negative_hash_table,
 				enum aggregate_level aggregate_level,
+				char *document_root_directory,
+				char *process_name,
 				char *positive_station_name,
 				char *positive_datatype_name,
 				char *negative_station_name,
@@ -2240,11 +2123,11 @@ void measurement_differences_output_googlechart(
 				char *units_display )
 {
 	LIST *date_colon_time_key_list;
-	char *date_colon_time;
-	MEASUREMENT_DIFFERENCES_POSITIVE_NEGATIVE *positive_negative;
-	char key_label[ 32 ];
-	char *cumulative_difference_string;
 	char title[ 512 ];
+	GOOGLE_CHART *google_chart;
+	char *chart_filename;
+	char *prompt_filename;
+	FILE *chart_file;
 
 	date_colon_time_key_list =
 		 hash_table_get_ordered_key_list(
@@ -2252,8 +2135,28 @@ void measurement_differences_output_googlechart(
 
 	if ( !list_length( date_colon_time_key_list ) )
 	{
-		printf( "<h3>ERROR: insufficient data to output</h3>\n" );
-		return;
+		return 0;
+	}
+
+	appaserver_link_get_pid_filename(
+		&chart_filename,
+		&prompt_filename,
+		application_name,
+		document_root_directory,
+		getpid(),
+		process_name /* filename_stem */,
+		"html" /* extension */ );
+
+	chart_file = fopen( chart_filename, "w" );
+
+	if ( !chart_file )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s(): cannot open %s\n",
+			__FILE__,
+			__FUNCTION__,
+			chart_filename );
+		exit( 1 );
 	}
 
 	get_report_title(	title,
@@ -2261,6 +2164,15 @@ void measurement_differences_output_googlechart(
 				positive_station_name,
 				positive_datatype_name,
 				units_display );
+
+	if ( ! ( google_chart =
+			get_google_datatype_chart(
+				positive_negative_hash_table,
+				date_colon_time_key_list,
+				aggregate_level ) ) )
+	{
+		return 0;
+	}
 
 	fprintf( output_pipe, "#%s\n", title );
 
@@ -2297,280 +2209,47 @@ void measurement_differences_output_googlechart(
 
 	fprintf( output_pipe, "\n" );
 
-	list_rewind( date_colon_time_key_list );
-
-	do {
-		date_colon_time =
-			list_get_pointer(
-				date_colon_time_key_list );
-
-
-		if ( aggregate_level != real_time
-		&&   aggregate_level != half_hour
-		&&   aggregate_level != hourly )
-		{
-			piece( key_label, ':', date_colon_time, 0 );
-		}
-		else
-		{
-			strcpy( key_label, date_colon_time );
-		}
-
-		fprintf( output_pipe, "%s", key_label );
-
-		positive_negative =
-			hash_table_get_pointer(
-				positive_negative_hash_table,
-				date_colon_time );
-
-		cumulative_difference_string =
-			get_cumulative_difference_string(
-				positive_negative->cumulative,
-				positive_negative->difference_is_null );
-
-		fprintf(output_pipe,
-			"|%s",
-			cumulative_difference_string );
-
-		cumulative_difference_string =
-			get_cumulative_difference_string(
-				positive_negative->difference,
-				positive_negative->difference_is_null );
-
-		fprintf(output_pipe,
-			"|%s",
-			cumulative_difference_string );
-
-		if ( positive_negative->positive_measurement
-		&&  !positive_negative->positive_measurement->is_null )
-		{
-			fprintf(output_pipe,
-				"|%.3lf",
-				positive_negative->
-					positive_measurement->value );
-		}
-		else
-		{
-			fprintf( output_pipe, "|null" );
-		}
-
-		if ( display_count
-		&&   aggregate_level != real_time )
-		{
-			if ( positive_negative->positive_measurement
-			&&  !positive_negative->positive_measurement->is_null )
-			{
-				fprintf(output_pipe,
-					"|%d",
-					positive_negative->
-						positive_measurement->count );
-			}
-			else
-			{
-				fprintf( output_pipe, "|null" );
-			}
-		}
-
-		if ( positive_negative->negative_measurement
-		&&  !positive_negative->negative_measurement->is_null )
-		{
-			fprintf(output_pipe,
-				"|%.3lf",
-				positive_negative->
-					negative_measurement->value );
-		}
-		else
-		{
-			fprintf( output_pipe, "|null" );
-		}
-
-		if ( display_count
-		&&   aggregate_level != real_time )
-		{
-			if ( positive_negative->negative_measurement
-			&&  !positive_negative->negative_measurement->is_null )
-			{
-				fprintf(output_pipe,
-					"|%d",
-					positive_negative->
-						negative_measurement->count );
-			}
-			else
-			{
-				fprintf( output_pipe, "|null" );
-			}
-		}
-
-		fprintf( output_pipe, "\n" );
-	} while( list_next( date_colon_time_key_list ) );
+	return 1;
 
 } /* measurement_differences_output_googlechart() */
 
-boolean measurement_differences_output_easychart(
-				char *application_name,
-				char *begin_date,
-				char *end_date,
+GOOGLE_CHART *get_google_datatype_chart(
 				HASH_TABLE *positive_negative_hash_table,
-				enum aggregate_level aggregate_level,
-				char *document_root_directory,
-				char *process_name,
-				char *positive_station_name,
-				char *positive_datatype_name,
-				char *units_display )
+				LIST *date_colon_time_key_list,
+				enum aggregate_level aggregate_level )
 {
-	EASYCHARTS *easycharts;
-	FILE *chart_file;
-	char title[ 512 ];
-	char applet_library_archive[ 128 ];
-	int easycharts_width;
-	int easycharts_height;
+	GOOGLE_CHART *google_chart;
 
-	get_report_title(	title,
-				aggregate_level,
-				positive_station_name,
-				positive_datatype_name,
-				units_display );
+	google_chart = google_chart_new();
 
-/*
-	sprintf(title + strlen( title ), 
-		 "\\nPositive: %s, Negative: %s, From: %s To %s\n",
-		positive_station_name,
-		negative_station_name,
-		begin_date,
-		end_date );
-*/
+	google_chart->datatype_chart_list = list_new();
 
-	sprintf(title + strlen( title ), 
-		 "\\nFrom: %s To %s\n",
-		begin_date,
-		end_date );
-
-	application_constants_get_easycharts_width_height(
-			&easycharts_width,
-			&easycharts_height,
-			application_name );
-
-	easycharts =
-		easycharts_new_timeline_easycharts(
-			easycharts_width, easycharts_height );
-
-	easycharts_get_chart_filename(
-			&easycharts->chart_filename,
-			&easycharts->prompt_filename,
-			application_name,
-			document_root_directory,
-			getpid() );
-
-	chart_file = fopen( easycharts->chart_filename, "w" );
-
-	if ( !chart_file )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s(): cannot open %s\n",
-			__FILE__,
-			__FUNCTION__,
-			easycharts->chart_filename );
-		exit( 1 );
-	}
-
-	easycharts->point_highlight_size = 0;
-
-	sprintf(applet_library_archive,
-		"/appaserver/%s/%s",
-		application_name,
-		EASYCHARTS_JAR_FILE );
-
-	easycharts->applet_library_archive = applet_library_archive;
-
-/*
-	easycharts->legend_on = 0;
-	easycharts->set_y_lower_range = 1;
-*/
-	easycharts->title = title;
-	easycharts->bold_labels = 0;
-	easycharts->bold_legends = 0;
-	easycharts->sample_scroller_on = 1;
-	easycharts->range_scroller_on = 1;
-
-	measurement_differences_populate_easycharts_input_chart_list_datatypes(
-			easycharts->input_chart_list );
-
-	if (
-	!measurement_differences_populate_easycharts_input_chart_list_data(
-			easycharts->input_chart_list,
+	if ( !populate_google_datatype_chart_list_data(
+			google_chart->datatype_chart_list,
 			positive_negative_hash_table,
+			date_colon_time_key_list,
 			aggregate_level ) )
 	{
-		printf( "<p>There are no charts to display\n" );
-		document_close();
-		exit( 0 );
+		return (GOOGLE_CHART *)0;
 	}
 
-	easycharts->output_chart_list =
-		easycharts_timeline_get_output_chart_list(
-			easycharts->input_chart_list );
+	return google_chart;
 
-	easycharts->yaxis_decimal_count =
-		easycharts_get_yaxis_decimal_count(
-			easycharts->output_chart_list );
+} /* get_google_datatype_chart() */
 
-	easycharts_output_all_charts(
-			chart_file,
-			easycharts->output_chart_list,
-			easycharts->highlight_on,
-			easycharts->highlight_style,
-			easycharts->point_highlight_size,
-			easycharts->series_labels,
-			easycharts->series_line_off,
-			easycharts->applet_library_archive,
-			easycharts->width,
-			easycharts->height,
-			easycharts->title,
-			easycharts->set_y_lower_range,
-			easycharts->legend_on,
-			easycharts->value_labels_on,
-			easycharts->sample_scroller_on,
-			easycharts->range_scroller_on,
-			easycharts->xaxis_decimal_count,
-			easycharts->yaxis_decimal_count,
-			easycharts->range_labels_off,
-			easycharts->value_lines_off,
-			easycharts->range_step,
-			easycharts->sample_label_angle,
-			easycharts->bold_labels,
-			easycharts->bold_legends,
-			easycharts->font_size,
-			easycharts->label_parameter_name,
-			1 /* include_sample_series_output */ );
-
-	easycharts_output_html( chart_file );
-
-	fclose( chart_file );
-
-	easycharts_output_graph_window(
-				application_name,
-				(char *)0 /* appaserver_mount_point */,
-				0 /* not with_document_output */,
-				process_name,
-				easycharts->prompt_filename,
-				(char *)0 /* where_clause */ );
-	return 1;
-} /* measurement_differences_output_easychart() */
-
-boolean measurement_differences_populate_easycharts_input_chart_list_data(
-			LIST *input_chart_list,
+boolean populate_google_datatype_chart_list_data(
+			LIST *datatype_chart_list,
 			HASH_TABLE *positive_negative_hash_table,
+			LIST *date_colon_time_key_list,
 			enum aggregate_level aggregate_level )
 {
-	LIST *date_colon_time_key_list;
 	char *date_colon_time;
-	MEASUREMENT_DIFFERENCES_POSITIVE_NEGATIVE *
-		differences_positive_negative;
-	char date_string[ 32 ];
-
-	date_colon_time_key_list =
-		hash_table_get_key_list(
-			positive_negative_hash_table );
+	MEASUREMENT_DIFFERENCES_POSITIVE_NEGATIVE *positive_negative;
+	char *cumulative_difference_string;
+	char *date_time_key;
+	boolean null_value;
+	GOOGLE_INPUT_VALUE *input_value;
+	GOOGLE_DATATYPE_CHART *google_datatype_chart;
 
 	if ( !list_rewind( date_colon_time_key_list ) ) return 0;
 
@@ -2584,92 +2263,89 @@ boolean measurement_differences_populate_easycharts_input_chart_list_data(
 					positive_negative_hash_table,
 					date_colon_time );
 
-		if ( aggregate_level != real_time
-		&&   aggregate_level != half_hour
-		&&   aggregate_level != hourly )
-		{
-			piece( date_string, ':', date_colon_time, 0 );
-			date_colon_time = strdup( date_string );
-		}
+		cumulative_difference_string =
+			get_cumulative_difference_string(
+				differences_positive_negative->cumulative,
+				differences_positive_negative->
+					difference_is_null );
 
-		if ( differences_positive_negative->difference_is_null )
-		{
-			if ( !easycharts_set_input_value(
-				input_chart_list,
-				"difference",
-				date_colon_time,
-			 	0.0,
-				1 /* is_null */ ) )
-			{
-				printf(
-				"<h3>ERROR: cannot allocate memory.</h3>\n" );
-				document_close();
-				exit( 0 );
-			}
-		}
-		else
-		{
-			if ( !easycharts_set_input_value(
-				input_chart_list,
-				"difference",
-				date_colon_time,
-			 	differences_positive_negative->difference,
-				0 /* not is_null */ ) )
-			{
-				printf(
-				"<h3>ERROR: cannot allocate memory.</h3>\n" );
-				document_close();
-				exit( 0 );
-			}
-		}
+		google_datatype_chart =
+			google_datatype_get_or_set(
+					datatype_chart_list,
+			 		CUMULATIVE_DATATYPE );
 
-		if ( !easycharts_set_input_value(
-				input_chart_list,
-				"cumulative",
-				date_colon_time,
-			 	differences_positive_negative->cumulative,
-				0 /* not is_null */ ) )
-		{
-			printf( "<h3>ERROR: cannot allocate memory.</h3>\n" );
-			document_close();
-			exit( 0 );
-		}
+		null_value = ( *value_string ) ? 0 : 1;
 
-	} while( list_next( date_colon_time_key_list ) );
-	return 1;
-} /* measurement_differences_populate_easycharts_input_chart_list_data() */
+		date_time_key =
+			google_chart_get_date_time_key(
+				date_string,
+				time_string );
 
-void measurement_differences_populate_easycharts_input_chart_list_datatypes(
-					LIST *input_chart_list )
-{
-	EASYCHARTS_INPUT_CHART *input_chart;
-	EASYCHARTS_INPUT_DATATYPE *input_datatype;
+		input_value =
+			google_chart_input_value_new(
+				strdup( date_time_key ) );
 
-	input_chart = easycharts_new_input_chart();
-	list_append_pointer( input_chart_list, input_chart );
+		input_value->value = atof( value_string );
+		input_value->null_value = null_value;
 
-	input_chart->double_range_adjusters = 1;
+		list_append_pointer(
+			google_datatype_chart->input_value_list,
+			input_value );
 
-	input_datatype =
-		easycharts_new_input_datatype(
-			"difference",
-			(char *)0 /* units */ );
+		sprintf( point_buffer,
+			 "%c||%s|%s|%s",
+			 CUMULATIVE_DATATYPE,
+			 date_string,
+			 time_string,
+			 cumulative_difference_string );
 
-	list_append_pointer(	input_chart->datatype_list,
-				input_datatype );
+		grace_set_string_to_point_list(
+				grace->graph_list, 
+				grace->datatype_entity_piece,
+				grace->datatype_piece,
+				grace->date_piece,
+				grace->time_piece,
+				grace->value_piece,
+				point_buffer,
+				grace->grace_graph_type,
+				grace->datatype_type_xyhilo,
+				grace->dataset_no_cycle_color,
+				(char *)0 /* optional_label */ );
 
-	input_datatype =
-		easycharts_new_input_datatype(
-			"cumulative",
-			(char *)0 /* units */ );
+		cumulative_difference_string =
+			get_cumulative_difference_string(
+				differences_positive_negative->difference,
+				differences_positive_negative->
+					difference_is_null );
 
-	list_append_pointer(	input_chart->datatype_list,
-				input_datatype );
+		google_datatype_chart =
+			google_datatype_get_or_set(
+					datatype_chart_list,
+			 		CUMULATIVE_DATATYPE );
 
-	input_chart->applet_library_code =
-		EASYCHARTS_APPLET_LIBRARY_LINE_CHART;
+		sprintf( point_buffer,
+			 "%s||%s|%s|%s",
+			 DIFFERENCE_DATATYPE,
+			 date_string,
+			 time_string,
+			 cumulative_difference_string );
 
-} /* measurement_differences_populate_easycharts_input_chart_list_datatypes() */
+		grace_set_string_to_point_list(
+				grace->graph_list,
+				grace->datatype_entity_piece,
+				grace->datatype_piece,
+				grace->date_piece,
+				grace->time_piece,
+				grace->value_piece,
+				point_buffer,
+				grace->grace_graph_type,
+				grace->datatype_type_xyhilo,
+				grace->dataset_no_cycle_color,
+				(char *)0 /* optional_label */ );
+
+	} while( list_next( date_colon_time_key_list ) );	
+
+} /* populate_google_datatype_chart_list_data() */
 
 char *get_cumulative_difference_string(
 				double cumulative_difference,
@@ -2687,6 +2363,8 @@ char *get_cumulative_difference_string(
 			"%.3lf",
 			cumulative_difference );
 	}
+
 	return cumulative_difference_string;
+
 } /* get_cumulative_difference_string() */
 

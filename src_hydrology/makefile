@@ -603,7 +603,7 @@ water_budget_flow: water_budget_flow.c					\
 
 output_measurement_differences: output_measurement_differences.c	\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
@@ -611,7 +611,7 @@ output_measurement_differences: output_measurement_differences.c	\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
 		output_measurement_differences.c			\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o					\
 		-o output_measurement_differences
 

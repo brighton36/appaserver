@@ -83,6 +83,21 @@ typedef struct
 	
 /* Prototypes */
 /* ---------- */
+boolean populate_google_datatype_chart_list_data(
+				LIST *datatype_chart_list,
+				HASH_TABLE *positive_negative_hash_table,
+				LIST *date_colon_time_key_list );
+
+boolean measurement_differences_output_googlechart(
+				char *application_name,
+				HASH_TABLE *positive_negative_hash_table,
+				enum aggregate_level aggregate_level,
+				char *document_root_directory,
+				char *process_name,
+				char *positive_station_name,
+				char *positive_datatype_name,
+				char *units_display );
+
 boolean measurement_differences_output_gracechart(
 				char *application_name,
 				char *role_name,
@@ -100,8 +115,7 @@ boolean measurement_differences_output_gracechart(
 
 GOOGLE_CHART *get_google_datatype_chart(
 				HASH_TABLE *positive_negative_hash_table,
-				LIST *date_colon_time_key_list,
-				enum aggregate_level );
+				LIST *date_colon_time_key_list );
 
 char *get_cumulative_difference_string(
 				double cumulative_difference,
@@ -780,8 +794,6 @@ int main( int argc, char **argv )
 	{
 		if ( !measurement_differences_output_googlechart(
 					application_name,
-					begin_date,
-					end_date,
 					measurement_differences->
 						positive_negative_hash_table,
 					aggregate_level,
@@ -1950,7 +1962,7 @@ boolean measurement_differences_output_gracechart(
 					difference_is_null );
 
 		sprintf( point_buffer,
-			 "%c||%s|%s|%s",
+			 "%s||%s|%s|%s",
 			 CUMULATIVE_DATATYPE,
 			 date_string,
 			 time_string,
@@ -2124,17 +2136,12 @@ void get_report_title(	char *title,
 
 boolean measurement_differences_output_googlechart(
 				char *application_name,
-				char *begin_date,
-				char *end_date,
 				HASH_TABLE *positive_negative_hash_table,
 				enum aggregate_level aggregate_level,
 				char *document_root_directory,
 				char *process_name,
 				char *positive_station_name,
 				char *positive_datatype_name,
-				char *negative_station_name,
-				char *negative_datatype_name,
-				boolean display_count,
 				char *units_display )
 {
 	LIST *date_colon_time_key_list;
@@ -2183,8 +2190,7 @@ boolean measurement_differences_output_googlechart(
 	if ( ! ( google_chart =
 			get_google_datatype_chart(
 				positive_negative_hash_table,
-				date_colon_time_key_list,
-				aggregate_level ) ) )
+				date_colon_time_key_list ) ) )
 	{
 		return 0;
 	}
@@ -2218,8 +2224,7 @@ boolean measurement_differences_output_googlechart(
 
 GOOGLE_CHART *get_google_datatype_chart(
 				HASH_TABLE *positive_negative_hash_table,
-				LIST *date_colon_time_key_list,
-				enum aggregate_level aggregate_level )
+				LIST *date_colon_time_key_list )
 {
 	GOOGLE_CHART *google_chart;
 
@@ -2230,8 +2235,7 @@ GOOGLE_CHART *get_google_datatype_chart(
 	if ( !populate_google_datatype_chart_list_data(
 			google_chart->datatype_chart_list,
 			positive_negative_hash_table,
-			date_colon_time_key_list,
-			aggregate_level ) )
+			date_colon_time_key_list ) )
 	{
 		return (GOOGLE_CHART *)0;
 	}
@@ -2243,14 +2247,12 @@ GOOGLE_CHART *get_google_datatype_chart(
 boolean populate_google_datatype_chart_list_data(
 			LIST *datatype_chart_list,
 			HASH_TABLE *positive_negative_hash_table,
-			LIST *date_colon_time_key_list,
-			enum aggregate_level aggregate_level )
+			LIST *date_colon_time_key_list )
 {
 	char *date_colon_time;
-	MEASUREMENT_DIFFERENCES_POSITIVE_NEGATIVE *positive_negative;
+	MEASUREMENT_DIFFERENCES_POSITIVE_NEGATIVE *
+		differences_positive_negative;
 	char *cumulative_difference_string;
-	char *date_time_key;
-	boolean null_value;
 	GOOGLE_INPUT_VALUE *input_value;
 	GOOGLE_DATATYPE_CHART *google_datatype_chart;
 

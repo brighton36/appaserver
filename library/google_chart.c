@@ -360,11 +360,13 @@ void google_timeline_set_point_string(	LIST *timeline_list,
 
 	if ( !character_count( delimiter, delimited_string ) )
 	{
-		fprintf( stderr,
+		fprintf(stderr,
 			"Warning in %s/%s()/%d: no delimiter of (%c) in (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			delimiter,
+			delimited_string );
 		return;
 	}
 
@@ -1899,14 +1901,13 @@ GOOGLE_DATATYPE_CHART *google_datatype_chart_get_or_set(
 		} while( list_next( datatype_chart_list ) );
 	}
 
-	google_datatype_chart =
-		google_datatype_append(
-			datatype_chart_list,
-			strdup( datatype_name ) );
+	g = google_datatype_append(
+		datatype_chart_list,
+		strdup( datatype_name ) );
 
-	google_datatype_chart->input_value_list = list_new();
+	g->input_value_list = list_new();
 
-	return google_datatype_chart;
+	return g;
 
 } /* google_datatype_chart_get_or_set() */
 

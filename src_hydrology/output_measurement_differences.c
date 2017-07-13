@@ -83,6 +83,21 @@ typedef struct
 	
 /* Prototypes */
 /* ---------- */
+boolean measurement_differences_output_gracechart(
+				char *application_name,
+				char *role_name,
+				char *begin_date,
+				char *end_date,
+				HASH_TABLE *positive_negative_hash_table,
+				enum aggregate_level aggregate_level,
+				char *document_root_directory,
+				char *argv_0,
+				char *positive_station_name,
+				char *positive_datatype_name,
+				char *negative_station_name,
+				char *negative_datatype_name,
+				char *units_display );
+
 GOOGLE_CHART *get_google_datatype_chart(
 				HASH_TABLE *positive_negative_hash_table,
 				LIST *date_colon_time_key_list,
@@ -2174,40 +2189,28 @@ boolean measurement_differences_output_googlechart(
 		return 0;
 	}
 
-	fprintf( output_pipe, "#%s\n", title );
+	google_chart->title = title;
 
-	if ( aggregate_level == real_time
-	||   aggregate_level == half_hour
-	||   aggregate_level == hourly )
-	{
-		fprintf( output_pipe, "#Date:Time" );
-	}
-	else
-	{
-		fprintf( output_pipe, "#Date" );
-	}
+	google_chart->output_chart_list =
+		google_chart_datatype_get_output_chart_list(
+			google_chart->datatype_chart_list,
+			GOOGLE_CHART_WIDTH,
+			GOOGLE_CHART_HEIGHT );
 
-	fprintf( output_pipe, "|Cumulative" );
-	fprintf( output_pipe, "|Difference" );
-	fprintf( output_pipe, "|Positive_%s/%s",
-		 positive_station_name,
-		 positive_datatype_name );
+	google_chart_output_all_charts(
+			chart_file,
+			google_chart->output_chart_list,
+			google_chart->title );
 
-	if ( display_count && aggregate_level != real_time )
-	{
-		fprintf( output_pipe, "|Count" );
-	}
+	fclose( chart_file );
 
-	fprintf( output_pipe, "|Negative_%s/%s",
-		 negative_station_name,
-		 negative_datatype_name );
-
-	if ( display_count && aggregate_level != real_time )
-	{
-		fprintf( output_pipe, "|Count" );
-	}
-
-	fprintf( output_pipe, "\n" );
+	google_chart_output_graph_window(
+				application_name,
+				(char *)0 /* appaserver_mount_point */,
+				0 /* not with_document_output */,
+				process_name,
+				prompt_filename,
+				(char *)0 /* where_clause */ );
 
 	return 1;
 
@@ -2270,47 +2273,23 @@ boolean populate_google_datatype_chart_list_data(
 					difference_is_null );
 
 		google_datatype_chart =
-			google_datatype_get_or_set(
+			google_datatype_chart_get_or_set(
 					datatype_chart_list,
 			 		CUMULATIVE_DATATYPE );
 
-		null_value = ( *value_string ) ? 0 : 1;
-
-		date_time_key =
-			google_chart_get_date_time_key(
-				date_string,
-				time_string );
-
 		input_value =
 			google_chart_input_value_new(
-				strdup( date_time_key ) );
+				date_colon_time );
 
-		input_value->value = atof( value_string );
-		input_value->null_value = null_value;
+		input_value->value = atof( cumulative_difference_string );
+
+		input_value->null_value =
+			differences_positive_negative->
+				difference_is_null;
 
 		list_append_pointer(
 			google_datatype_chart->input_value_list,
 			input_value );
-
-		sprintf( point_buffer,
-			 "%c||%s|%s|%s",
-			 CUMULATIVE_DATATYPE,
-			 date_string,
-			 time_string,
-			 cumulative_difference_string );
-
-		grace_set_string_to_point_list(
-				grace->graph_list, 
-				grace->datatype_entity_piece,
-				grace->datatype_piece,
-				grace->date_piece,
-				grace->time_piece,
-				grace->value_piece,
-				point_buffer,
-				grace->grace_graph_type,
-				grace->datatype_type_xyhilo,
-				grace->dataset_no_cycle_color,
-				(char *)0 /* optional_label */ );
 
 		cumulative_difference_string =
 			get_cumulative_difference_string(
@@ -2319,31 +2298,27 @@ boolean populate_google_datatype_chart_list_data(
 					difference_is_null );
 
 		google_datatype_chart =
-			google_datatype_get_or_set(
+			google_datatype_chart_get_or_set(
 					datatype_chart_list,
-			 		CUMULATIVE_DATATYPE );
+			 		DIFFERENCE_DATATYPE );
 
-		sprintf( point_buffer,
-			 "%s||%s|%s|%s",
-			 DIFFERENCE_DATATYPE,
-			 date_string,
-			 time_string,
-			 cumulative_difference_string );
+		input_value =
+			google_chart_input_value_new(
+				date_colon_time );
 
-		grace_set_string_to_point_list(
-				grace->graph_list,
-				grace->datatype_entity_piece,
-				grace->datatype_piece,
-				grace->date_piece,
-				grace->time_piece,
-				grace->value_piece,
-				point_buffer,
-				grace->grace_graph_type,
-				grace->datatype_type_xyhilo,
-				grace->dataset_no_cycle_color,
-				(char *)0 /* optional_label */ );
+		input_value->value = atof( cumulative_difference_string );
+
+		input_value->null_value =
+			differences_positive_negative->
+				difference_is_null;
+
+		list_append_pointer(
+			google_datatype_chart->input_value_list,
+			input_value );
 
 	} while( list_next( date_colon_time_key_list ) );	
+
+	return 1;
 
 } /* populate_google_datatype_chart_list_data() */
 

@@ -1057,7 +1057,9 @@ void output_google_chart(	char *application_name,
 	google_chart_output_all_charts(
 			chart_file,
 			google_chart->output_chart_list,
-			google_chart->title );
+			google_chart->title,
+			google_chart->sub_title,
+			google_chart->stylesheet );
 
 	fclose( chart_file );
 

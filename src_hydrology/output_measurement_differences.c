@@ -90,12 +90,16 @@ boolean populate_google_datatype_chart_list_data(
 
 boolean measurement_differences_output_googlechart(
 				char *application_name,
+				char *begin_date,
+				char *end_date,
 				HASH_TABLE *positive_negative_hash_table,
 				enum aggregate_level aggregate_level,
 				char *document_root_directory,
 				char *process_name,
 				char *positive_station_name,
 				char *positive_datatype_name,
+				char *negative_station_name,
+				char *negative_datatype_name,
 				char *units_display );
 
 boolean measurement_differences_output_gracechart(
@@ -121,10 +125,15 @@ char *get_cumulative_difference_string(
 				double cumulative_difference,
 				boolean difference_is_null );
 
-void get_report_title(		char *title,
+void get_report_title_sub_title(char *title,
+				char *sub_title,
 				enum aggregate_level,
 				char *positive_station_name,
 				char *positive_datatype_name,
+				char *negative_station_name,
+				char *negative_datatype_name,
+				char *begin_date,
+				char *end_date,
 				char *units_display );
 
 void differences_output_transmit_measurement_list(
@@ -794,6 +803,8 @@ int main( int argc, char **argv )
 	{
 		if ( !measurement_differences_output_googlechart(
 					application_name,
+					begin_date,
+					end_date,
 					measurement_differences->
 						positive_negative_hash_table,
 					aggregate_level,
@@ -804,6 +815,10 @@ int main( int argc, char **argv )
 						positive_station_name,
 					measurement_differences->
 						positive_datatype_name,
+					measurement_differences->
+						negative_station_name,
+					measurement_differences->
+						negative_datatype_name,
 					units_display ) )
 		{
 			printf( "<p>Warning: nothing selected to output.\n" );
@@ -854,10 +869,16 @@ void measurement_differences_output_transmit(
 		return;
 	}
 
-	get_report_title(	title,
+	get_report_title_sub_title(
+				title,
+				(char *)0 /* sub_title */,
 				aggregate_level,
 				positive_station_name,
 				positive_datatype_name,
+				negative_station_name,
+				negative_datatype_name,
+				(char *)0 /* begin_date */,
+				(char *)0 /* end_date */,
 				units_display );
 
 	fprintf( output_pipe, "#%s\n", title );
@@ -1045,10 +1066,16 @@ void measurement_differences_output_table(
 		return;
 	}
 
-	get_report_title(	title,
+	get_report_title_sub_title(
+				title,
+				(char *)0 /* sub_title */,
 				aggregate_level,
 				positive_station_name,
 				positive_datatype_name,
+				negative_station_name,
+				negative_datatype_name,
+				(char *)0 /* begin_date */,
+				(char *)0 /* end_date */,
 				units_display );
 
 	html_table = new_html_table(
@@ -1095,6 +1122,7 @@ void measurement_differences_output_table(
 	html_table->number_right_justified_columns = 99;
 
 	html_table_set_heading_list( html_table, heading_list );
+
 	html_table_output_table_heading(
 					html_table->title,
 					html_table->sub_title );
@@ -1859,12 +1887,19 @@ boolean measurement_differences_output_gracechart(
 
 	if ( !list_length( date_colon_time_key_list ) ) return 0;
 
-	get_report_title(	title,
+	get_report_title_sub_title(
+				title,
+				sub_title,
 				aggregate_level,
 				positive_station_name,
 				positive_datatype_name,
+				negative_station_name,
+				negative_datatype_name,
+				begin_date,
+				end_date,
 				units_display );
 
+/*
 	sprintf(sub_title,
 		"Positive: %s/%s, Negative: %s/%s, From %s To %s",
 		positive_station_name,
@@ -1873,6 +1908,7 @@ boolean measurement_differences_output_gracechart(
 		negative_datatype_name,
 		begin_date,
 		end_date );
+*/
 
 	grace = grace_new_unit_graph_grace(
 				application_name,
@@ -2106,10 +2142,16 @@ boolean measurement_differences_output_gracechart(
 
 } /* measurement_differences_output_gracechart() */
 
-void get_report_title(	char *title,
+void get_report_title_sub_title(
+			char *title,
+			char *sub_title,
 			enum aggregate_level aggregate_level,
 			char *positive_station_name,
 			char *positive_datatype_name,
+			char *negative_station_name,
+			char *negative_datatype_name,
+			char *begin_date,
+			char *end_date,
 			char *units_display )
 {
 	if ( aggregate_level == real_time )
@@ -2131,21 +2173,40 @@ void get_report_title(	char *title,
 				aggregate_level_get_string( aggregate_level ),
 				units_display );
 	}
+
 	format_initial_capital( title, title );
-} /* get_report_title() */
+
+	if ( sub_title )
+	{
+		sprintf(sub_title,
+			"Positive: %s/%s, Negative: %s/%s, From %s To %s",
+			positive_station_name,
+			positive_datatype_name,
+			negative_station_name,
+			negative_datatype_name,
+			begin_date,
+			end_date );
+	}
+
+} /* get_report_title_sub_title() */
 
 boolean measurement_differences_output_googlechart(
 				char *application_name,
+				char *begin_date,
+				char *end_date,
 				HASH_TABLE *positive_negative_hash_table,
 				enum aggregate_level aggregate_level,
 				char *document_root_directory,
 				char *process_name,
 				char *positive_station_name,
 				char *positive_datatype_name,
+				char *negative_station_name,
+				char *negative_datatype_name,
 				char *units_display )
 {
 	LIST *date_colon_time_key_list;
 	char title[ 512 ];
+	char sub_title[ 512 ];
 	GOOGLE_CHART *google_chart;
 	char *chart_filename;
 	char *prompt_filename;
@@ -2181,10 +2242,16 @@ boolean measurement_differences_output_googlechart(
 		exit( 1 );
 	}
 
-	get_report_title(	title,
+	get_report_title_sub_title(
+				title,
+				sub_title,
 				aggregate_level,
 				positive_station_name,
 				positive_datatype_name,
+				negative_station_name,
+				negative_datatype_name,
+				begin_date,
+				end_date,
 				units_display );
 
 	if ( ! ( google_chart =
@@ -2196,6 +2263,8 @@ boolean measurement_differences_output_googlechart(
 	}
 
 	google_chart->title = title;
+	google_chart->sub_title = sub_title;
+	google_chart->stylesheet = "style.css";
 
 	google_chart->output_chart_list =
 		google_chart_datatype_get_output_chart_list(
@@ -2206,7 +2275,9 @@ boolean measurement_differences_output_googlechart(
 	google_chart_output_all_charts(
 			chart_file,
 			google_chart->output_chart_list,
-			google_chart->title );
+			google_chart->title,
+			google_chart->sub_title,
+			google_chart->stylesheet );
 
 	fclose( chart_file );
 

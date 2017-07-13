@@ -287,7 +287,9 @@ int main( int argc, char **argv )
 	google_chart_output_all_charts(
 			chart_file,
 			google_chart->output_chart_list,
-			google_chart->title );
+			google_chart->title,
+			google_chart->sub_title,
+			google_chart->stylesheet );
 
 	fclose( chart_file );
 
@@ -406,7 +408,7 @@ LIST *get_unit_chart_list( LIST *datatype_list )
 	DATATYPE *datatype;
 	char yaxis_label[ 128 ];
 	GOOGLE_UNIT_CHART *unit_chart;
-	GOOGLE_INPUT_DATATYPE *input_datatype;
+	GOOGLE_UNIT_DATATYPE *unit_datatype;
 	LIST *unit_list;
 	char *unit;
 	LIST *unit_chart_list;
@@ -444,14 +446,14 @@ LIST *get_unit_chart_list( LIST *datatype_list )
 				list_get_pointer(
 					datatypes_for_unit_list );
 
-			input_datatype =
-				google_input_datatype_new(
+			unit_datatype =
+				google_unit_datatype_new(
 					datatype->datatype_name );
 
-			list_append_pointer(	unit_chart->datatype_list,
-						input_datatype );
+			list_append_pointer(	unit_chart->unit_datatype_list,
+						unit_datatype );
 
-			/* unit_chart->bar_chart = input_datatype->bar_chart; */
+			/* unit_chart->bar_chart = unit_datatype->bar_chart; */
 
 			sprintf(yaxis_label,
 				"%s (%s)",
@@ -485,7 +487,7 @@ boolean populate_unit_chart_list_data(
 		unit_chart = list_get_pointer( unit_chart_list );
 
 		populate_unit_chart_data(
-			unit_chart->datatype_list,
+			unit_chart->unit_datatype_list,
 			unit_chart->date_time_dictionary,
 			application_name,
 			station_name,
@@ -511,7 +513,7 @@ boolean populate_unit_chart_data(
 			enum aggregate_level aggregate_level )
 {
 	int got_input = 0;
-	GOOGLE_INPUT_DATATYPE *datatype;
+	GOOGLE_UNIT_DATATYPE *datatype;
 	char where_clause[ 1024 ];
 	char *sys_string;
 

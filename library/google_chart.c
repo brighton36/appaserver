@@ -1309,18 +1309,18 @@ GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
 	format_initial_capital( g->yaxis_label, g->yaxis_label );
 
 	g->date_time_dictionary = dictionary_large_new();
-	g->datatype_list = list_new();
+	g->unit_datatype_list = list_new();
 
 	return g;
 
 } /* google_unit_chart_new() */
 
-GOOGLE_INPUT_DATATYPE *google_input_datatype_new( char *datatype_name )
+GOOGLE_UNIT_DATATYPE *google_unit_datatype_new( char *datatype_name )
 {
-	GOOGLE_INPUT_DATATYPE *g;
+	GOOGLE_UNIT_DATATYPE *g;
 
-	if ( ! ( g = (GOOGLE_INPUT_DATATYPE *)
-			calloc( 1, sizeof( GOOGLE_INPUT_DATATYPE ) ) ) )
+	if ( ! ( g = (GOOGLE_UNIT_DATATYPE *)
+			calloc( 1, sizeof( GOOGLE_UNIT_DATATYPE ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -1334,7 +1334,7 @@ GOOGLE_INPUT_DATATYPE *google_input_datatype_new( char *datatype_name )
 	g->value_hash_table = hash_table_new( hash_table_large );
 	return g;
 
-} /* google_input_datatype_new() */
+} /* google_unit_datatype_new() */
 
 boolean google_datatype_chart_input_value_list_set(
 				LIST *input_value_list,
@@ -1559,28 +1559,51 @@ boolean google_chart_set_input_value(
 
 } /* google_chart_set_input_value() */
 
-LIST *google_chart_get_datatype_name_list(
-			LIST *datatype_list )
+LIST *google_chart_get_unit_datatype_name_list(
+			LIST *unit_datatype_list )
 {
-	GOOGLE_INPUT_DATATYPE *input_datatype;
+	GOOGLE_UNIT_DATATYPE *unit_datatype;
 	LIST *datatype_name_list;
 
-	if ( !list_rewind( datatype_list ) ) return (LIST *)0;
+	if ( !list_rewind( unit_datatype_list ) ) return (LIST *)0;
 
 	datatype_name_list = list_new();
 
 	do {
-		input_datatype = list_get_pointer( datatype_list );
+		unit_datatype = list_get_pointer( unit_datatype_list );
 
 		list_append_pointer(
 			datatype_name_list,
-			input_datatype->datatype_name );
+			unit_datatype->datatype_name );
 
-	} while( list_next( datatype_list ) );
+	} while( list_next( unit_datatype_list ) );
 
 	return datatype_name_list;
 
-} /* google_chart_get_datatype_name_list() */
+} /* google_chart_get_unit_datatype_name_list() */
+
+LIST *google_datatype_chart_get_datatype_name_list(
+			LIST *datatype_chart_list )
+{
+	LIST *datatype_name_list;
+	GOOGLE_DATATYPE_CHART *datatype_chart;
+
+	if ( !list_rewind( datatype_chart_list ) ) return (LIST *)0;
+
+	datatype_name_list = list_new();
+
+	do {
+		datatype_chart = list_get_pointer( datatype_chart_list );
+
+		list_append_pointer(
+			datatype_name_list,
+			datatype_chart->datatype_name );
+
+	} while( list_next( datatype_chart_list ) );
+
+	return datatype_name_list;
+
+} /* google_datatype_chart_list_get_datatype_name_list() */
 
 LIST *google_chart_datatype_get_output_chart_list(
 			LIST *datatype_chart_list,
@@ -1590,12 +1613,26 @@ LIST *google_chart_datatype_get_output_chart_list(
 	GOOGLE_DATATYPE_CHART *datatype_chart;
 	GOOGLE_INPUT_VALUE *input_value;
 	GOOGLE_OUTPUT_CHART *output_chart;
-	GOOGLE_TIMELINE *timeline;
 	LIST *output_chart_list;
 
-	if ( !list_rewind( datatype_chart_list ) ) return (LIST *)0;
+	if ( !list_length( datatype_chart_list ) ) return (LIST *)0;
 
 	output_chart_list = list_new_list();
+
+	output_chart =
+		google_output_chart_new(
+			0 /* left */,
+			0 /* top */,
+			width,
+			height );
+
+	output_chart->datatype_name_list =
+		google_datatype_chart_get_datatype_name_list(
+			datatype_chart_list );
+
+	list_append_pointer( output_chart_list, output_chart );
+
+	list_rewind( datatype_chart_list );
 
 	do {
 		datatype_chart = list_get_pointer( datatype_chart_list );
@@ -1603,17 +1640,6 @@ LIST *google_chart_datatype_get_output_chart_list(
 		if ( !list_rewind( datatype_chart->input_value_list ) )
 			continue;
 
-		output_chart =
-			google_output_chart_new(
-				0 /* left */,
-				0 /* top */,
-				width,
-				height );
-
-		list_append_pointer(
-			output_chart->datatype_name_list,
-			datatype_chart->datatype_name );
-	
 		output_chart->yaxis_label = datatype_chart->yaxis_label;
 
 		do {
@@ -1621,21 +1647,32 @@ LIST *google_chart_datatype_get_output_chart_list(
 				list_get_pointer( 
 					datatype_chart->input_value_list );
 
+			if ( !input_value->null_value )
+			{
+				google_timeline_set_point(
+					output_chart->timeline_list,
+					output_chart->datatype_name_list,
+					input_value->date_time,
+					(char *)0 /* time_hhmm */,
+					datatype_chart->datatype_name,
+					input_value->value );
+			}
+
+#ifdef NOT_DEFINED
 			timeline =
 				google_timeline_append(
 					output_chart->timeline_list,
 					input_value->date_time,
 					(char *)0 /*time_hhmm */,
-					1 /* length_datatype_name_list */ );
+					length_datatype_name_list );
 
 			timeline->point_array[ 0 ] =
 				google_point_double_calloc();
 
 			*timeline->point_array[ 0 ] = input_value->value;
+#endif
 
 		} while( list_next( datatype_chart->input_value_list ) );
-
-		list_append_pointer( output_chart_list, output_chart );
 
 	} while( list_next( datatype_chart_list ) );
 
@@ -1672,7 +1709,7 @@ LIST *google_chart_unit_get_output_chart_list(
 
 		output_chart =
 			google_chart_unit_get_output_chart(
-				unit_chart->datatype_list,
+				unit_chart->unit_datatype_list,
 				date_time_key_list,
 				width,
 				height );
@@ -1695,17 +1732,17 @@ LIST *google_chart_unit_get_output_chart_list(
 } /* google_chart_unit_get_output_chart_list() */
 
 GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
-				LIST *datatype_list,
+				LIST *unit_datatype_list,
 				LIST *date_time_key_list,
 				int width,
 				int height )
 {
-	GOOGLE_INPUT_DATATYPE *input_datatype;
+	GOOGLE_UNIT_DATATYPE *unit_datatype;
 	GOOGLE_OUTPUT_CHART *output_chart;
 	GOOGLE_INPUT_VALUE *input_value;
 	char *date_time_key;
 
-	if ( !list_length( datatype_list )
+	if ( !list_length( unit_datatype_list )
 	||   !list_length( date_time_key_list ) )
 	{
 		return (GOOGLE_OUTPUT_CHART *)0;
@@ -1719,13 +1756,13 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 			height );
 
 	output_chart->datatype_name_list =
-		google_chart_get_datatype_name_list(
-			datatype_list );
+		google_chart_get_unit_datatype_name_list(
+			unit_datatype_list );
 
-	list_rewind( datatype_list );
+	list_rewind( unit_datatype_list );
 
 	do {
-		input_datatype = list_get_pointer( datatype_list );
+		unit_datatype = list_get_pointer( unit_datatype_list );
 
 		list_rewind( date_time_key_list );
 
@@ -1734,7 +1771,7 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 
 			input_value =
 				hash_table_get_pointer(
-					input_datatype->value_hash_table,
+					unit_datatype->value_hash_table,
 					date_time_key );
 
 			if ( !input_value ) continue;
@@ -1746,13 +1783,13 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 					output_chart->datatype_name_list,
 					input_value->date_time,
 					(char *)0 /* time_hhmm */,
-					input_datatype->datatype_name,
+					unit_datatype->datatype_name,
 					input_value->value );
 			}
 
 		} while( list_next( date_time_key_list ) );
 
-	} while( list_next( datatype_list ) );
+	} while( list_next( unit_datatype_list ) );
 
 	return output_chart;
 
@@ -1761,28 +1798,39 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 void google_chart_output_all_charts(
 			FILE *output_file,
 			LIST *output_chart_list,
-			char *title )
+			char *title,
+			char *sub_title,
+			char *stylesheet )
 {
 
 	GOOGLE_OUTPUT_CHART *google_chart;
 
 	document_output_html_stream( output_file );
 
-/*
-	fprintf( output_file, "<html>\n" );
-*/
 	fprintf( output_file, "<head>\n" );
 
 	google_chart_output_include( output_file );
 
+	if ( stylesheet && *stylesheet )
+	{
+		fprintf( output_file,
+			 "<link rel=stylesheet type=text/css href=\"%s\">\n",
+			 stylesheet );
+	}
+
 	fprintf( output_file, "</head>\n" );
+
+	fprintf( output_file, "<body>\n" );
 
 	if ( title && *title )
 	{
-		fprintf( output_file, "<h3>%s</h3>\n", title );
+		fprintf( output_file, "<h1>%s</h1>\n", title );
 	}
 
-	fprintf( output_file, "<body>\n" );
+	if ( sub_title && *sub_title )
+	{
+		fprintf( output_file, "<h2>%s</h2>\n", sub_title );
+	}
 
 	if ( list_rewind( output_chart_list ) )
 	{

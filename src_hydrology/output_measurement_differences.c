@@ -2211,6 +2211,7 @@ boolean measurement_differences_output_googlechart(
 	char *chart_filename;
 	char *prompt_filename;
 	FILE *chart_file;
+	GOOGLE_OUTPUT_CHART *google_output_chart;
 
 	date_colon_time_key_list =
 		 hash_table_get_ordered_key_list(
@@ -2271,6 +2272,14 @@ boolean measurement_differences_output_googlechart(
 			google_chart->datatype_chart_list,
 			GOOGLE_CHART_WIDTH,
 			GOOGLE_CHART_HEIGHT );
+
+	/* Change package to corechart */
+	/* --------------------------- */
+	google_output_chart =
+		list_get_first_pointer(
+			google_chart->output_chart_list );
+
+	google_output_chart->google_package_name = GOOGLE_CORECHART;
 
 	google_chart_output_all_charts(
 			chart_file,

@@ -818,6 +818,14 @@ void google_chart_output_visualization_function(
 		background_color,
 		legend_position_bottom_string );
 
+	if ( strcmp( google_package_name, GOOGLE_ANNOTATED_TIMELINE ) == 0 )
+		google_chart_instantiation = "AnnotatedTimeLine";
+	else
+	if ( strcmp( google_package_name, GOOGLE_CORECHART ) == 0 )
+		google_chart_instantiation = "LineChart";
+	else
+		google_chart_instantiation = "corechart";
+/*
 	if ( google_chart_type == google_column_chart )
 		google_chart_instantiation = "ColumnChart";
 	else
@@ -836,6 +844,7 @@ void google_chart_output_visualization_function(
 			 google_chart_type );
 		exit( 1 );
 	}
+*/
 
 	fprintf( output_file,
 "	var chart = new google.visualization.%s(\n"

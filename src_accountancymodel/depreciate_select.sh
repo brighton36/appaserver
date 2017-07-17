@@ -1,7 +1,9 @@
 :
-select="full_name,street_address,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation"
+select="full_name,street_address,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumulated_depreciation"
 
-where="ifnull(extension,0) <> ifnull(accumulated_depreciation,0) and disposal_date is null"
+# where="ifnull(extension,0) <> ifnull(accumulated_depreciation,0) and disposal_date is null"
+
+where="ifnull(extension,0) <> ifnull(accumulated_depreciation,0)"
 
 folder="fixed_asset_purchase"
 

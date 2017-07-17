@@ -1155,7 +1155,7 @@ LIST *depreciation_fixed_asset_get_entity_list(
 	ENTITY *entity;
 
 	sprintf( sys_string,
-		 "depreciation_entity_select.sh %s",
+		 "depreciate_entity_select.sh %s",
 		 application_name );
 
 	input_pipe = popen( sys_string, "r" );

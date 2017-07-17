@@ -1107,6 +1107,80 @@ void depreciation_fetch_purchase_fixed_asset_depreciation_list(
 
 } /* depreciation_fetch_purchase_fixed_asset_depreciation_list() */
 
+void depreciation_fixed_asset_purchase_list_display(
+				LIST *depreciable_fixed_asset_purchase_list )
+{
+	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	DEPRECIATION *depreciation;
+
+	if ( !list_rewind( depreciable_fixed_asset_purchase_list ) )
+		return;
+
+	do {
+		purchase_fixed_asset =
+			list_get_pointer(
+				depreciable_fixed_asset_purchase_list );
+
+		printf( "%c%cFixed asset = %s/%s:\n",
+			9, 9,
+			purchase_fixed_asset->asset_name,
+			purchase_fixed_asset->serial_number );
+
+		printf( "%c%c%cExtension = %.2lf\n",
+			9, 9, 9,
+			purchase_fixed_asset->extension );
+
+		printf( "%c%c%cAccumulated depreciation = %.2lf\n",
+			9, 9, 9,
+			purchase_fixed_asset->accumulated_depreciation );
+
+		if ( !list_rewind( purchase_fixed_asset->depreciation_list ) )
+		{
+			printf( "Empty depreciation_list.\n" );
+			continue;
+		}
+
+		do {
+			depreciation =
+				list_get_pointer(
+					purchase_fixed_asset->
+						depreciation_list );
+
+			printf( "%c%c%cDepreciation amount = %.2lf\n",
+				9, 9, 9,
+				depreciation->depreciation_amount );
+
+		} while( list_next( purchase_fixed_asset->depreciation_list ) );
+
+	} while( list_next( depreciable_fixed_asset_purchase_list ) );
+
+} /* depreciation_fixed_asset_purchase_list_display() */
+
+void depreciation_fixed_asset_depreciation_display(
+				LIST *entity_list )
+{
+	ENTITY *entity;
+
+	if ( !list_rewind( entity_list ) ) return;
+
+	do {
+		entity = list_get_pointer( entity_list );
+
+		printf( "Entity = %s/%s:\n",
+			entity->full_name,
+			entity->street_address );
+
+		printf( "%cdepreciation_amount = %.2lf\n",
+			9,
+			entity->depreciation_amount );
+
+		depreciation_fixed_asset_purchase_list_display(
+			entity->depreciable_fixed_asset_purchase_list );
+
+	} while( list_next( entity_list ) );
+
+} /* depreciation_fixed_asset_depreciation_display() */
+
 void depreciation_fixed_asset_entity_set_depreciation(
 				double *entity_depreciation_amount,
 				LIST *depreciable_fixed_asset_purchase_list,
@@ -1186,6 +1260,10 @@ void depreciation_fixed_asset_entity_set_depreciation(
 		*entity_depreciation_amount +=
 			depreciation->depreciation_amount;
 
+		list_append_pointer(
+			purchase_fixed_asset->depreciation_list,
+			depreciation );
+
 	} while( list_next( depreciable_fixed_asset_purchase_list ) );
 
 } /* depreciation_fixed_asset_entity_set_depreciation() */
@@ -1260,7 +1338,7 @@ LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 			purchase_fixed_asset->street_address = street_address;
 
 /*
-select="full_name,street_address,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation,arrived_date_time"
+select="full_name,street_address,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation,arrived_date_time,extension"
 */
 			piece(	buffer, FOLDER_DATA_DELIMITER, record, 2 );
 
@@ -1309,6 +1387,11 @@ select="full_name,street_address,purchase_date_time,asset_name,serial_number,est
 
 			purchase_fixed_asset->arrived_date_time =
 				strdup( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 12 );
+
+			purchase_fixed_asset->extension =
+				atof( buffer );
 
 			purchase_fixed_asset->max_depreciation_date =
 				depreciation_fetch_max_depreciation_date(

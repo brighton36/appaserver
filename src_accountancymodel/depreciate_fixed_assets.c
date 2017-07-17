@@ -107,5 +107,8 @@ void depreciate_fixed_assets_display(	char *application_name,
 		fixed_asset_depreciation->entity_list,
 		depreciation_date );
 
+	depreciation_fixed_asset_depreciation_display(
+		fixed_asset_depreciation->entity_list );
+
 } /* depreciate_fixed_assets_display() */
 

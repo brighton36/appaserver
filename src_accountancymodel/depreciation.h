@@ -220,5 +220,10 @@ void depreciation_fixed_asset_entity_set_depreciation(
 			LIST *depreciable_fixed_asset_purchase_list,
 			char *depreciation_date );
 
-#endif
+void depreciation_fixed_asset_depreciation_display(
+			LIST *entity_list );
 
+void depreciation_fixed_asset_purchase_list_display(
+			LIST *depreciable_fixed_asset_purchase_list );
+
+#endif

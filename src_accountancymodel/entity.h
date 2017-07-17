@@ -12,6 +12,7 @@
 #include "boolean.h"
 #include "hash_table.h"
 #include "inventory.h"
+#include "depreciation.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -45,6 +46,8 @@ typedef struct
 	char *phone_number;
 	char *email_address;
 	boolean sales_tax_exempt;
+	LIST *depreciable_fixed_asset_purchase_list;
+	LIST *entity_depreciation_list;
 } ENTITY;
 
 typedef struct

@@ -35,6 +35,7 @@ EXECUTABLES=	trial_balance						\
 		load_bank_spreadsheet					\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
+		depreciate_fixed_assets					\
 		post_change_inventory_purchase				\
 		post_change_fixed_asset_purchase			\
 		post_change_fixed_asset					\
@@ -163,13 +164,13 @@ ledger_debit_credit_audit: ledger_debit_credit_audit.c			\
 		ledger_debit_credit_audit.c				\
 		-o ledger_debit_credit_audit
 
-#purchase_sale_propagate: purchase_sale_propagate.c			\
-#	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-#	${CC}	${CFLAGS} -I${LIBRARY}					\
-#		${EXTERNAL_LIBRARY}					\
-#		${SOURCE_LIBRARY}					\
-#		purchase_sale_propagate.c				\
-#		-o purchase_sale_propagate
+depreciate_fixed_assets: depreciate_fixed_assets.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		depreciate_fixed_assets.c				\
+		-o depreciate_fixed_assets
 
 trial_balance: trial_balance.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

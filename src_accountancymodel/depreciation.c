@@ -14,6 +14,7 @@
 #include "date.h"
 #include "appaserver_library.h"
 #include "ledger.h"
+#include "entity.h"
 #include "depreciation.h"
 
 DEPRECIATION *depreciation_calloc( void )
@@ -986,3 +987,65 @@ char *deprecation_get_prior_depreciation_date(
 	return prior_depreciation_date;
 
 } /* deprecation_get_prior_depreciation_date() */
+
+FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
+			char *application_name )
+{
+	FIXED_ASSET_DEPRECIATION *p =
+		(FIXED_ASSET_DEPRECIATION *)
+			calloc( 1, sizeof( FIXED_ASSET_DEPRECIATION ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	p->entity_list =
+		depreciation_fixed_asset_get_entity_list(
+			application_name );
+
+	return p;
+
+} /* depreciation_fixed_asset_depreciation_new() */
+
+LIST *depreciation_fixed_asset_get_entity_list(
+			char *application_name )
+{
+	LIST *entity_list;
+	char sys_string[ 1024 ];
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	ENTITY *entity;
+
+	sprintf( sys_string,
+		 "depreciation_entity_select.sh %s",
+		 application_name );
+
+	input_pipe = popen( sys_string, "r" );
+
+	entity_list = list_new();
+
+	while( timlib_get_line( input_buffer, input_pipe, 1024 ) )
+	{
+		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
+		entity = entity_new(	strdup( full_name ),
+					strdup( street_address ) );
+
+		list_append_pointer( entity_list, entity );
+	}
+
+	pclose( input_pipe );
+
+	return entity_list;
+
+} /* depreciation_fixed_asset_get_entity_list() */
+

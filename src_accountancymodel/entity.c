@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/entity.c					*/
+/* $APPASERVER_HOME/src_accountancymodel/entity.c			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel entity ADT.				*/
 /*									*/

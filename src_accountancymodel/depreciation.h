@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/depreciation.h					*/
+/* $APPASERVER_HOME/src_accountancymodel/depreciation.h			*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver depreciation ADT.				*/
 /*									*/
@@ -35,6 +35,12 @@ typedef struct
 	char *database_transaction_date_time;
 	TRANSACTION *transaction;
 } DEPRECIATION;
+
+typedef struct
+{
+	LIST *entity_list;
+
+} FIXED_ASSET_DEPRECIATION;
 
 /* Operations */
 /* ---------- */
@@ -175,6 +181,12 @@ double depreciation_units_of_production_get_amount(
 
 char *deprecation_get_prior_depreciation_date(
 			LIST *depreciation_list );
+
+FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
+			char *application_name );
+
+LIST *depreciation_fixed_asset_get_entity_list(
+			char *application_name );
 
 #endif
 

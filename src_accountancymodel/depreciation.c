@@ -15,6 +15,7 @@
 #include "appaserver_library.h"
 #include "ledger.h"
 #include "entity.h"
+#include "purchase.h"
 #include "depreciation.h"
 
 DEPRECIATION *depreciation_calloc( void )
@@ -1013,6 +1014,135 @@ FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
 
 } /* depreciation_fixed_asset_depreciation_new() */
 
+LIST *depreciation_get_depreciable_fixed_purchase_record_list(
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "depreciate_select.sh %s",
+		 application_name );
+
+	return pipe2list( sys_string );
+
+} /* depreciation_get_depreciable_fixed_purchase_record_list() */
+
+LIST *depreciation_get_depreciable_fixed_purchase_list(
+				char *application_name,
+				char *full_name,
+				char *street_address )
+{
+	LIST *depreciable_fixed_asset_purchase_record_list = {0};
+	LIST *depreciable_fixed_asset_purchase_list;
+	char *record;
+	char local_full_name[ 128 ];
+	char local_street_address[ 128 ];
+	char buffer[ 128 ];
+	LIST *depreciable_fixed_purchase_list;
+	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	boolean found_one = 0;
+
+	if ( !depreciable_fixed_asset_purchase_record_list )
+	{
+		depreciable_fixed_asset_purchase_record_list =
+			depreciation_get_depreciable_fixed_purchase_record_list(
+				application_name );
+	}
+
+	if ( !list_rewind( depreciable_fixed_asset_purchase_record_list ) )
+		return (LIST *)0;
+
+	depreciable_fixed_asset_purchase_list = list_new();
+
+	do {
+		record =
+			list_get_pointer(
+				depreciable_fixed_asset_purchase_record_list );
+
+		piece(	local_full_name,
+			FOLDER_DATA_DELIMITER,
+			record,
+			0 );
+
+		piece(	local_street_address,
+			FOLDER_DATA_DELIMITER,
+			record,
+			1 );
+
+		if ( strcmp( local_full_name, full_name ) == 0
+		&&   strcmp( local_street_address, street_address ) == 0 )
+		{
+			purchase_fixed_asset = purchase_fixed_asset_new();
+
+			purchase_fixed_asset->full_name = full_name;
+			purchase_fixed_asset->street_address = street_address;
+
+/*
+select="full_name,street_address,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation"
+*/
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 2 );
+
+			purchase_fixed_asset->purchase_date_time =
+				strdup( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 3 );
+
+			purchase_fixed_asset->asset_name = strdup( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 4 );
+
+			purchase_fixed_asset->serial_number = strdup( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 5 );
+
+			purchase_fixed_asset->estimated_useful_life_years =
+				atoi( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 6 );
+
+			purchase_fixed_asset->estimated_useful_life_units =
+				atoi( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 7 );
+
+			purchase_fixed_asset->estimated_residual_value =
+				atof( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 8 );
+
+			purchase_fixed_asset->declining_balance_n =
+				atoi( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 9 );
+
+			purchase_fixed_asset->depreciation_method =
+				strdup( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 10 );
+
+			purchase_fixed_asset->accumulated_depreciation =
+				atof( buffer );
+
+			list_append_pointer(
+				depreciable_fixed_asset_purchase_list,
+				purchase_fixed_asset );
+
+			found_one = 1;
+		}
+		else
+		{
+			if ( found_one )
+			{
+				return depreciable_fixed_asset_purchase_list;
+			}
+		}
+
+	} while( list_next( depreciable_fixed_asset_purchase_record_list ) );
+
+	return depreciable_fixed_asset_purchase_list;
+
+} /* depreciation_get_depreciable_fixed_purchase_list() */
+
 LIST *depreciation_fixed_asset_get_entity_list(
 			char *application_name )
 {
@@ -1039,6 +1169,12 @@ LIST *depreciation_fixed_asset_get_entity_list(
 
 		entity = entity_new(	strdup( full_name ),
 					strdup( street_address ) );
+
+		entity->depreciable_fixed_asset_purchase_list =
+			depreciation_get_depreciable_fixed_purchase_list(
+				application_name,
+				entity->full_name,
+				entity->street_address );
 
 		list_append_pointer( entity_list, entity );
 	}

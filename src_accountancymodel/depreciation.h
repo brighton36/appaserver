@@ -188,5 +188,13 @@ FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
 LIST *depreciation_fixed_asset_get_entity_list(
 			char *application_name );
 
+LIST *depreciation_get_depreciable_fixed_purchase_record_list(
+			char *application_name );
+
+LIST *depreciation_get_depreciable_fixed_purchase_list(
+			char *application_name,
+			char *full_name,
+			char *street_address );
+
 #endif
 

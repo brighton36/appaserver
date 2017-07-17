@@ -63,6 +63,7 @@ typedef struct
 	char *asset_name;
 	char *serial_number;
 	char *account_name;
+	char *arrived_date_time;
 	double extension;
 	int estimated_useful_life_years;
 	int estimated_useful_life_units;
@@ -198,7 +199,8 @@ PURCHASE_FIXED_ASSET *purchase_fixed_asset_fetch(
 					char *street_address,
 					char *purchase_date_time,
 					char *asset_name,
-					char *serial_number );
+					char *serial_number,
+					char *arrived_date_time );
 
 double purchase_get_sum_inventory_extension(
 					LIST *inventory_purchase_list );

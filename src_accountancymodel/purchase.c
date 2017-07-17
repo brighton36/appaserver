@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/purchase.c					*/
+/* $APPASERVER_HOME/src_accountancymodel/purchase.c			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel purchase ADT.				*/
 /*									*/
@@ -761,7 +761,8 @@ PURCHASE_FIXED_ASSET *purchase_fixed_asset_fetch(
 					char *street_address,
 					char *purchase_date_time,
 					char *asset_name,
-					char *serial_number )
+					char *serial_number,
+					char *arrived_date_time )
 {
 	char sys_string[ 2048 ];
 	char *ledger_where;
@@ -811,6 +812,8 @@ PURCHASE_FIXED_ASSET *purchase_fixed_asset_fetch(
 	}
 
 	purchase_fixed_asset = purchase_fixed_asset_parse( results );
+
+	purchase_fixed_asset->arrived_date_time = arrived_date_time;
 
 	purchase_fixed_asset->depreciation_list =
 		depreciation_fetch_list(

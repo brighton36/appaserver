@@ -1078,7 +1078,7 @@ LIST *depreciation_get_depreciable_fixed_purchase_list(
 			purchase_fixed_asset->street_address = street_address;
 
 /*
-select="full_name,street_address,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation"
+select="full_name,street_address,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation,arrived_date_time"
 */
 			piece(	buffer, FOLDER_DATA_DELIMITER, record, 2 );
 
@@ -1122,6 +1122,21 @@ select="full_name,street_address,purchase_date_time,asset_name,serial_number,est
 
 			purchase_fixed_asset->accumulated_depreciation =
 				atof( buffer );
+
+			piece(	buffer, FOLDER_DATA_DELIMITER, record, 11 );
+
+			purchase_fixed_asset->arrived_date_time =
+				strdup( buffer );
+
+			purchase_fixed_asset->depreciation_list =
+				depreciation_fetch_list(
+					application_name,
+					purchase_fixed_asset->full_name,
+					purchase_fixed_asset->street_address,
+					purchase_fixed_asset->
+						purchase_date_time,
+					purchase_fixed_asset->asset_name,
+					purchase_fixed_asset->serial_number );
 
 			list_append_pointer(
 				depreciable_fixed_asset_purchase_list,
@@ -1184,4 +1199,55 @@ LIST *depreciation_fixed_asset_get_entity_list(
 	return entity_list;
 
 } /* depreciation_fixed_asset_get_entity_list() */
+
+void depreciation_set_entity_list_transaction(
+			LIST *entity_list )
+{
+	ENTITY *entity;
+
+	if ( !list_rewind( entity_list ) ) return;
+
+	do {
+		entity = list_get_pointer( entity_list );
+
+		entity->depreciation_transaction =
+			depreciation_get_entity_depreciation_transaction(
+				&entity->depreciation_amount,
+				entity->depreciable_fixed_asset_purchase_list );
+
+	} while( list_next( entity_list ) );
+
+} /* depreciation_set_entity_list_transaction() */
+
+TRANSACTION *depreciation_get_entity_depreciation_transaction(
+			double **depreciation_amount,
+			LIST *depreciable_fixed_asset_purchase_list )
+{
+	*depreciation_amount = 0.0;
+	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	TRANSACTION *depreciation_transaction;
+
+	if ( !list_rewind( depreciable_fixed_asset_purchase_list ) )
+		return (TRANSACTION *)0;
+
+	do {
+		purchase_fixed_asset =
+			list_get_pointer(
+				depreciable_fixed_asset_purchase_list );
+
+double depreciation_get_amount(
+			char *depreciation_method,
+			double extension,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			int estimated_useful_life_units,
+			int declining_balance_n,
+			char *prior_depreciation_date_string,
+			char *depreciation_date_string,
+			double accumulated_depreciation,
+			char *arrived_date_string,
+			int units_produced )
+	} while( list_next( depreciable_fixed_asset_purchase_list ) );
+
+} /* depreciation_get_entity_depreciation_transaction() */
 

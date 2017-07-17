@@ -196,5 +196,8 @@ LIST *depreciation_get_depreciable_fixed_purchase_list(
 			char *full_name,
 			char *street_address );
 
+void depreciation_set_entity_list_transaction(
+			LIST *entity_list );
+
 #endif
 

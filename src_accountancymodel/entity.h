@@ -47,7 +47,8 @@ typedef struct
 	char *email_address;
 	boolean sales_tax_exempt;
 	LIST *depreciable_fixed_asset_purchase_list;
-	LIST *entity_depreciation_list;
+	double depreciation_amount;
+	TRANSACTION *depreciation_transaction;
 } ENTITY;
 
 typedef struct
@@ -115,23 +116,10 @@ void entity_propagate_purchase_order_ledger_accounts(
 				char *fund_name,
 				char *purchase_order_transaction_date_time );
 
-/*
-void entity_propagate_inventory_ledger_accounts(
-				char *application_name,
-				char *fund_name,
-				char *customer_sale_transaction_date_time );
-*/
-
 void entity_propagate_customer_sale_ledger_accounts(
 				char *application_name,
 				char *fund_name,
 				char *customer_sale_transaction_date_time );
-
-/*
-ENTITY_SELF *entity_self_purchase_inventory_load(
-				char *application_name,
-				char *inventory_name );
-*/
 
 ENTITY_SELF *entity_self_sale_inventory_load(
 				char *application_name,

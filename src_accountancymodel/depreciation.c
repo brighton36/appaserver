@@ -1226,6 +1226,7 @@ TRANSACTION *depreciation_get_entity_depreciation_transaction(
 	*depreciation_amount = 0.0;
 	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
 	TRANSACTION *depreciation_transaction;
+	char arrived_date[ 16 ];
 
 	if ( !list_rewind( depreciable_fixed_asset_purchase_list ) )
 		return (TRANSACTION *)0;
@@ -1235,18 +1236,22 @@ TRANSACTION *depreciation_get_entity_depreciation_transaction(
 			list_get_pointer(
 				depreciable_fixed_asset_purchase_list );
 
-double depreciation_get_amount(
-			char *depreciation_method,
-			double extension,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
-			int estimated_useful_life_units,
-			int declining_balance_n,
-			char *prior_depreciation_date_string,
-			char *depreciation_date_string,
-			double accumulated_depreciation,
-			char *arrived_date_string,
-			int units_produced )
+		purchase_fixed_asset->accumulated_depreciation =
+			depreciation_list_set(
+				purchase_fixed_asset->depreciation_list,
+				purchase_fixed_asset->depreciation_method,
+				purchase_fixed_asset->extension,
+				purchase_fixed_asset->estimated_residual_value,
+				purchase_fixed_asset->
+					estimated_useful_life_years,
+				purchase_fixed_asset->
+					estimated_useful_life_units,
+				purchase_fixed_asset->declining_balance_n,
+				column( arrived_date,
+					0, 
+					purchase_fixed_asset->
+						arrived_date_time ) );
+
 	} while( list_next( depreciable_fixed_asset_purchase_list ) );
 
 } /* depreciation_get_entity_depreciation_transaction() */

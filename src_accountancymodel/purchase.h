@@ -72,6 +72,7 @@ typedef struct
 	char *depreciation_method;
 	double accumulated_depreciation;
 	double database_accumulated_depreciation;
+	char *max_depreciation_date;
 	LIST *depreciation_list;
 } PURCHASE_FIXED_ASSET;
 

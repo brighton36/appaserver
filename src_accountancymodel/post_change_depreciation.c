@@ -546,7 +546,8 @@ void post_change_depreciation_delete(
 				street_address,
 				purchase_date_time,
 				asset_name,
-				serial_number ) ) )
+				serial_number,
+				arrived_date_time ) ) )
 	{
 		fprintf( stderr,
 		"ERROR In %s/%s()/%d: cannot fetch purchase_fixed_asset.\n",

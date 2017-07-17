@@ -191,13 +191,34 @@ LIST *depreciation_fixed_asset_get_entity_list(
 LIST *depreciation_get_depreciable_fixed_purchase_record_list(
 			char *application_name );
 
-LIST *depreciation_get_depreciable_fixed_purchase_list(
+LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 			char *application_name,
 			char *full_name,
 			char *street_address );
 
 void depreciation_set_entity_list_transaction(
 			LIST *entity_list );
+
+void depreciation_fetch_purchase_fixed_asset_depreciation_list(
+			LIST *depreciable_fixed_asset_purchase_list,
+			char *application_name );
+
+char *depreciation_fetch_max_depreciation_date(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *asset_name,
+			char *serial_number );
+
+void depreciation_fixed_asset_set_depreciation(
+			LIST *entity_list,
+			char *depreciation_date );
+
+void depreciation_fixed_asset_entity_set_depreciation(
+			double *entity_depreciation_amount,
+			LIST *depreciable_fixed_asset_purchase_list,
+			char *depreciation_date );
 
 #endif
 

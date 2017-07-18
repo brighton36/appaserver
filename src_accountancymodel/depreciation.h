@@ -183,10 +183,12 @@ char *deprecation_get_prior_depreciation_date(
 			LIST *depreciation_list );
 
 FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
-			char *application_name );
+			char *application_name,
+			char *depreciation_date );
 
 LIST *depreciation_fixed_asset_get_entity_list(
-			char *application_name );
+			char *application_name,
+			char *depreciation_date );
 
 LIST *depreciation_get_depreciable_fixed_purchase_record_list(
 			char *application_name );
@@ -194,7 +196,8 @@ LIST *depreciation_get_depreciable_fixed_purchase_record_list(
 LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 			char *application_name,
 			char *full_name,
-			char *street_address );
+			char *street_address,
+			char *depreciation_date );
 
 void depreciation_set_entity_list_transaction(
 			LIST *entity_list );
@@ -209,7 +212,8 @@ char *depreciation_fetch_max_depreciation_date(
 			char *street_address,
 			char *purchase_date_time,
 			char *asset_name,
-			char *serial_number );
+			char *serial_number,
+			char *depreciation_date );
 
 void depreciation_fixed_asset_set_depreciation(
 			LIST *entity_list,
@@ -220,10 +224,30 @@ void depreciation_fixed_asset_entity_set_depreciation(
 			LIST *depreciable_fixed_asset_purchase_list,
 			char *depreciation_date );
 
-void depreciation_fixed_asset_depreciation_display(
+void depreciation_fixed_asset_depreciation_table_display(
+			char *process_name,
 			LIST *entity_list );
 
-void depreciation_fixed_asset_purchase_list_display(
+void depreciation_fixed_asset_depreciation_tree_display(
+			LIST *entity_list );
+
+void depreciation_fixed_asset_purchase_list_tree_display(
 			LIST *depreciable_fixed_asset_purchase_list );
+
+void depreciation_fixed_asset_purchase_list_table_display(
+			FILE *output_pipe,
+			char *full_name,
+			char *street_address,
+			double depreciation_amount,
+			LIST *depreciable_fixed_asset_purchase_list );
+
+boolean depreciation_date_exists(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *asset_name,
+			char *serial_number,
+			char *depreciation_date );
 
 #endif

@@ -1126,20 +1126,11 @@ void depreciation_fixed_asset_purchase_list_display(
 			purchase_fixed_asset->asset_name,
 			purchase_fixed_asset->serial_number );
 
-		printf( "%c%c%cExtension = %.2lf\n",
-			9, 9, 9,
-			purchase_fixed_asset->extension );
-
-		printf( "%c%c%cAccumulated depreciation = %.2lf\n",
-			9, 9, 9,
-			purchase_fixed_asset->accumulated_depreciation );
-
 		if ( !list_rewind( purchase_fixed_asset->depreciation_list ) )
 		{
 			printf( "Empty depreciation_list.\n" );
-			continue;
 		}
-
+		else
 		do {
 			depreciation =
 				list_get_pointer(
@@ -1151,6 +1142,19 @@ void depreciation_fixed_asset_purchase_list_display(
 				depreciation->depreciation_amount );
 
 		} while( list_next( purchase_fixed_asset->depreciation_list ) );
+
+		printf( "%c%c%cExtension = %.2lf\n",
+			9, 9, 9,
+			purchase_fixed_asset->extension );
+
+		printf( "%c%c%cAccumulated depreciation = %.2lf\n",
+			9, 9, 9,
+			purchase_fixed_asset->accumulated_depreciation );
+
+		printf( "%c%c%cDatabase accumulated depreciation = %.2lf\n",
+			9, 9, 9,
+			purchase_fixed_asset->
+				database_accumulated_depreciation );
 
 	} while( list_next( depreciable_fixed_asset_purchase_list ) );
 
@@ -1200,10 +1204,17 @@ void depreciation_fixed_asset_entity_set_depreciation(
 			list_get_pointer(
 				depreciable_fixed_asset_purchase_list );
 
+		if ( strcmp(
+			purchase_fixed_asset->depreciation_method,
+			"units_of_production" ) == 0 )
+		{
+			continue;
+		}
+
 		if ( purchase_fixed_asset->depreciation_list )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: expecting empty depreciation_list.\n",
+		"ERROR in %s/%s()/%d: expecting empty depreciation_list.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__ );
@@ -1230,13 +1241,6 @@ void depreciation_fixed_asset_entity_set_depreciation(
 
 		depreciation->depreciation_date = depreciation_date;
 
-		if ( strcmp(
-			purchase_fixed_asset->depreciation_method,
-			"units_of_production" ) == 0 )
-		{
-			continue;
-		}
-
 		depreciation->depreciation_amount =
 			depreciation_get_amount(
 				purchase_fixed_asset->depreciation_method,
@@ -1256,6 +1260,9 @@ void depreciation_fixed_asset_entity_set_depreciation(
 					purchase_fixed_asset->
 						arrived_date_time ),
 				0 /* units_produced */ );
+
+		purchase_fixed_asset->accumulated_depreciation +=
+			depreciation->depreciation_amount;
 
 		*entity_depreciation_amount +=
 			depreciation->depreciation_amount;
@@ -1291,7 +1298,8 @@ void depreciation_fixed_asset_set_depreciation(
 LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 				char *application_name,
 				char *full_name,
-				char *street_address )
+				char *street_address,
+				char *depreciation_date )
 {
 	LIST *depreciable_fixed_asset_purchase_record_list = {0};
 	LIST *depreciable_fixed_asset_purchase_list;
@@ -1353,6 +1361,19 @@ select="full_name,street_address,purchase_date_time,asset_name,serial_number,est
 
 			purchase_fixed_asset->serial_number = strdup( buffer );
 
+			if ( depreciation_date_exists(
+					application_name,
+					purchase_fixed_asset->full_name,
+					purchase_fixed_asset->street_address,
+					purchase_fixed_asset->
+						purchase_date_time,
+					purchase_fixed_asset->asset_name,
+					purchase_fixed_asset->serial_number,
+					depreciation_date ) )
+			{
+				continue;
+			}
+
 			piece(	buffer, FOLDER_DATA_DELIMITER, record, 5 );
 
 			purchase_fixed_asset->estimated_useful_life_years =
@@ -1381,7 +1402,9 @@ select="full_name,street_address,purchase_date_time,asset_name,serial_number,est
 			piece(	buffer, FOLDER_DATA_DELIMITER, record, 10 );
 
 			purchase_fixed_asset->accumulated_depreciation =
-				atof( buffer );
+			purchase_fixed_asset->
+				database_accumulated_depreciation =
+					atof( buffer );
 
 			piece(	buffer, FOLDER_DATA_DELIMITER, record, 11 );
 
@@ -1424,7 +1447,8 @@ select="full_name,street_address,purchase_date_time,asset_name,serial_number,est
 } /* depreciation_get_depreciable_fixed_asset_purchase_list() */
 
 LIST *depreciation_fixed_asset_get_entity_list(
-			char *application_name )
+			char *application_name,
+			char *depreciation_date )
 {
 	LIST *entity_list;
 	char sys_string[ 1024 ];
@@ -1454,7 +1478,8 @@ LIST *depreciation_fixed_asset_get_entity_list(
 			depreciation_get_depreciable_fixed_asset_purchase_list(
 				application_name,
 				entity->full_name,
-				entity->street_address );
+				entity->street_address,
+				depreciation_date );
 
 		list_append_pointer( entity_list, entity );
 	}

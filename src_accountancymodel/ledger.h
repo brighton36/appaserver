@@ -841,4 +841,20 @@ TRANSACTION *ledger_inventory_purchase_build_transaction(
 				HASH_TABLE *transaction_hash_table,
 				HASH_TABLE *journal_ledger_hash_table );
 
+void ledger_transaction_insert_close_stream(
+				void );
+
+FILE *ledger_transaction_insert_open_stream(
+				char *application_name );
+
+void ledger_transaction_insert_stream(
+				FILE *output_pipe,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction );
+
 #endif

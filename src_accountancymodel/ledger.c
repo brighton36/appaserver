@@ -3432,7 +3432,9 @@ boolean ledger_transaction_load(	double *transaction_amount,
 
 } /* ledger_transaction_load() */
 
-void ledger_transaction_insert(		char *application_name,
+FILE *ledger_transaction_output_pipe = {0};
+
+void ledger_transaction_insert_stream(	FILE *output_pipe,
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time,
@@ -3441,29 +3443,8 @@ void ledger_transaction_insert(		char *application_name,
 					int check_number,
 					boolean lock_transaction )
 {
-	char sys_string[ 1024 ];
-	FILE *output_pipe;
-	char *transaction_table;
-	char field[ 128 ];
 	char entity_buffer[ 128 ];
 	char memo_buffer[ 1024 ];
-
-	sprintf( field,
-"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,%s",
-		 LEDGER_LOCK_TRANSACTION_ATTRIBUTE );
-
-	transaction_table =
-		get_table_name(
-			application_name, TRANSACTION_FOLDER_NAME );
-
-	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s del='^'	|"
-		 "sql.e 2>&1					|"
-		 "grep -vi duplicate				 ",
-		 transaction_table,
-		 field );
-
-	output_pipe = popen( sys_string, "w" );
 
 	if ( memo && *memo )
 	{
@@ -3501,7 +3482,68 @@ void ledger_transaction_insert(		char *application_name,
 	else
 		fprintf( output_pipe, "^\n" );
 
-	pclose( output_pipe );
+} /* ledger_transaction_insert_stream() */
+
+FILE *ledger_transaction_insert_open_stream( char *application_name )
+{
+	char sys_string[ 1024 ];
+	char field[ 128 ];
+	char *table_name;
+
+	sprintf( field,
+"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,%s",
+		 LEDGER_LOCK_TRANSACTION_ATTRIBUTE );
+
+	table_name =
+		get_table_name(
+			application_name,
+			TRANSACTION_FOLDER_NAME );
+
+	sprintf( sys_string,
+		 "insert_statement.e table=%s field=%s del='^'	|"
+		 "sql.e 2>&1					|"
+		 "grep -vi duplicate				 ",
+		 table_name,
+		 field );
+
+	ledger_transaction_output_pipe = popen( sys_string, "w" );
+
+	return ledger_transaction_output_pipe;
+
+} /* ledger_transaction_insert_open_stream() */
+
+void ledger_transaction_insert_close_stream( void )
+{
+	pclose( ledger_transaction_output_pipe );
+	ledger_transaction_output_pipe = (FILE *)0;
+}
+
+void ledger_transaction_insert(		char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					double transaction_amount,
+					char *memo,
+					int check_number,
+					boolean lock_transaction )
+{
+	FILE *output_pipe;
+
+	output_pipe =
+		ledger_transaction_insert_open_stream(
+			application_name );
+
+	ledger_transaction_insert_stream(
+		output_pipe,
+		full_name,
+		street_address,
+		transaction_date_time,
+		transaction_amount,
+		memo,
+		check_number,
+		lock_transaction );
+
+	ledger_transaction_insert_close_stream();
 
 } /* ledger_transaction_insert() */
 

@@ -253,6 +253,7 @@ boolean depreciation_date_exists(
 
 void depreciation_fixed_asset_execute(
 			LIST *entity_list,
+			char *application_name,
 			char *depreciation_date );
 
 void depreciation_fixed_asset_insert_depreciation(
@@ -264,6 +265,12 @@ void depreciation_fixed_asset_insert_depreciation(
 			char *transaction_date_time );
 
 void depreciation_fixed_asset_insert_depreciation_entity_list(
+			LIST *entity_list,
+			char *depreciation_date,
+			char *transaction_date_time );
+
+void depreciation_fixed_asset_insert_transaction_entity_list(
+			char *application_name,
 			LIST *entity_list,
 			char *depreciation_date,
 			char *transaction_date_time );

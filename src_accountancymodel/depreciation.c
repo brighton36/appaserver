@@ -917,7 +917,7 @@ void depreciation_list_delete(
 		if ( !depreciation->transaction )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: expecting a transaction = (%s).\n",
+		"ERROR in %s/%s()/%d: expecting a transaction = (%s).\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__,
@@ -1246,9 +1246,9 @@ void depreciation_fixed_asset_depreciation_table_display(
 	if ( !list_rewind( entity_list ) ) return;
 
 	heading =
-"Entity,Entity Depreciation,Asset,Extension,Prior Accumulated,Depreciation,Post Accumulated";
+"Entity,Entity Depreciation,Fund,Asset,Extension,Prior Accumulated,Depreciation,Post Accumulated";
 
-	justification = "left,right,left,right";
+	justification = "left,right,left,left,right";
 
 	sprintf( sys_string,
 		 "group_trim.e '^' 2			|"
@@ -1461,18 +1461,22 @@ LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 			purchase_fixed_asset->street_address = street_address;
 
 /*
-select="full_name,street_address,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation,arrived_date_time,extension"
+select="full_name,street_address,fund,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation,arrived_date_time,extension"
 */
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 2 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 2 );
+
+			purchase_fixed_asset->fund_name = strdup( buffer );
+
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 3 );
 
 			purchase_fixed_asset->purchase_date_time =
 				strdup( buffer );
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 3 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 4 );
 
 			purchase_fixed_asset->asset_name = strdup( buffer );
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 4 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 5 );
 
 			purchase_fixed_asset->serial_number = strdup( buffer );
 
@@ -1489,44 +1493,44 @@ select="full_name,street_address,purchase_date_time,asset_name,serial_number,est
 				continue;
 			}
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 5 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 6 );
 
 			purchase_fixed_asset->estimated_useful_life_years =
 				atoi( buffer );
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 6 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 7 );
 
 			purchase_fixed_asset->estimated_useful_life_units =
 				atoi( buffer );
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 7 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 8 );
 
 			purchase_fixed_asset->estimated_residual_value =
 				atof( buffer );
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 8 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 9 );
 
 			purchase_fixed_asset->declining_balance_n =
 				atoi( buffer );
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 9 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 10 );
 
 			purchase_fixed_asset->depreciation_method =
 				strdup( buffer );
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 10 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 11 );
 
 			purchase_fixed_asset->accumulated_depreciation =
 			purchase_fixed_asset->
 				database_accumulated_depreciation =
 					atof( buffer );
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 11 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 12 );
 
 			purchase_fixed_asset->arrived_date_time =
 				strdup( buffer );
 
-			piece(	buffer, FOLDER_DATA_DELIMITER, record, 12 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 13 );
 
 			purchase_fixed_asset->extension =
 				atof( buffer );
@@ -1755,8 +1759,66 @@ void depreciation_fixed_asset_insert_depreciation_entity_list(
 
 } /* depreciation_fixed_asset_insert_depreciation_entity_list() */
 
+void depreciation_fixed_asset_insert_transaction_entity_list(
+				char *application_name,
+				LIST *entity_list,
+				char *depreciation_date,
+				char *transaction_date_time )
+{
+	ENTITY *entity;
+	FILE *output_pipe;
+
+	output_pipe =
+		ledger_transaction_insert_open_stream(
+			application_name );
+
+	if ( !list_rewind( entity_list ) ) return;
+
+	do {
+		entity = list_get_pointer( entity_list );
+
+		if ( !entity->depreciation_transaction )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: expecting a transaction = (%s/%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	entity->full_name,
+				entity->street_address );
+			exit( 1 );
+		}
+
+		ledger_transaction_insert_stream(
+			output_pipe,
+			entity->full_name,
+			entity->street_address,
+			entity->depreciation_transaction->transaction_date_time,
+			entity->depreciation_amount
+				/* transaction_amount */,
+			entity->depreciation_transaction->memo,
+			0 /* check_number */,
+			1 /* lock_transaction */ );
+
+		depreciation_journal_ledger_refresh(
+			application_name,
+			fund_name,
+			depreciation->transaction->full_name,
+			depreciation->transaction->street_address,
+			depreciation->
+				transaction->
+				transaction_date_time,
+			depreciation->depreciation_amount );
+
+	} while( list_next( entity_list ) );
+
+	ledger_transaction_insert_close_stream();
+
+} /* depreciation_fixed_asset_insert_transaction_entity_list() */
+
 void depreciation_fixed_asset_execute(
 				LIST *entity_list,
+				char *application_name,
 				char *depreciation_date )
 {
 	char *transaction_date_time;
@@ -1770,6 +1832,12 @@ void depreciation_fixed_asset_execute(
 			transaction_date_time );
 
 	depreciation_fixed_asset_insert_depreciation_entity_list(
+			entity_list,
+			depreciation_date,
+			transaction_date_time );
+
+	depreciation_fixed_asset_insert_transaction_entity_list(
+			application_name,
 			entity_list,
 			depreciation_date,
 			transaction_date_time );

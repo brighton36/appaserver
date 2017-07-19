@@ -72,6 +72,7 @@ typedef struct
 	double accumulated_depreciation;
 	double database_accumulated_depreciation;
 	char *max_depreciation_date;
+	char *fund_name;
 	LIST *depreciation_list;
 } PURCHASE_FIXED_ASSET;
 

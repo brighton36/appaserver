@@ -13,7 +13,6 @@
 #include "boolean.h"
 #include "inventory.h"
 #include "ledger.h"
-#include "entity.h"
 #include "depreciation.h"
 
 /* Constants */

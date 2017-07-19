@@ -661,15 +661,6 @@ INVENTORY_COST_ACCOUNT *inventory_get_or_set_cost_account(
 				LIST *inventory_cost_account_list,
 				char *account_name );
 
-TRANSACTION *inventory_purchase_build_transaction(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table );
-
 char *inventory_get_inventory_account_name(
 				char *application_name,
 				char *inventory_name );

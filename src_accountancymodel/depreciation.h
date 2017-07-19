@@ -10,6 +10,7 @@
 #define DEPRECIATION_H
 
 #include "ledger.h"
+#include "entity.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -249,5 +250,22 @@ boolean depreciation_date_exists(
 			char *asset_name,
 			char *serial_number,
 			char *depreciation_date );
+
+void depreciation_fixed_asset_execute(
+			LIST *entity_list,
+			char *depreciation_date );
+
+void depreciation_fixed_asset_insert_depreciation(
+			FILE *output_pipe,
+			char *full_name,
+			char *street_address,
+			LIST *depreciable_fixed_asset_purchase_list,
+			char *depreciation_date,
+			char *transaction_date_time );
+
+void depreciation_fixed_asset_insert_depreciation_entity_list(
+			LIST *entity_list,
+			char *depreciation_date,
+			char *transaction_date_time );
 
 #endif

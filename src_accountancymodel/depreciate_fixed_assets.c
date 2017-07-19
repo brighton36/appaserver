@@ -125,6 +125,14 @@ void depreciate_fixed_assets_execute(	char *application_name,
 			application_name,
 			depreciation_date );
 
+	depreciation_fixed_asset_set_depreciation(
+		fixed_asset_depreciation->entity_list,
+		depreciation_date );
+
+	depreciation_fixed_asset_execute(
+		fixed_asset_depreciation->entity_list,
+		depreciation_date );
+
 } /* depreciate_fixed_assets_execute() */
 
 void depreciate_fixed_assets_display(	char *application_name,

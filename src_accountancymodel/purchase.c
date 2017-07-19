@@ -1955,7 +1955,7 @@ LIST *purchase_get_inventory_purchase_order_list(
 			/* which are capitalized into inventory.	*/
 			/* -------------------------------------------- */
 			purchase_order->transaction =
-				inventory_purchase_build_transaction(
+				ledger_inventory_purchase_build_transaction(
 					application_name,
 					purchase_order->fund_name,
 					purchase_order->full_name,

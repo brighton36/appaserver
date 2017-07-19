@@ -12,7 +12,6 @@
 #include "boolean.h"
 #include "hash_table.h"
 #include "inventory.h"
-#include "depreciation.h"
 
 /* Enumerated types */
 /* ---------------- */

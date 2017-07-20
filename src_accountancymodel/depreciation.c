@@ -1740,7 +1740,8 @@ void depreciation_fixed_asset_insert_depreciation_entity_list(
 	field = "full_name,street_address,purchase_date_time,asset_name,serial_number,depreciation_date,depreciation_amount,transaction_date_time";
 
 	sprintf( sys_string,
-		 "insert_statement.e table=depreciation field='%s' del='^'",
+		 "insert_statement.e table=depreciation field='%s' del='^' |"
+		 "sql.e",
 		 field );
 
 	output_pipe = popen( sys_string, "w" );

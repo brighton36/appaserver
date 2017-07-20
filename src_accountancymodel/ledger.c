@@ -3433,6 +3433,8 @@ boolean ledger_transaction_load(	double *transaction_amount,
 } /* ledger_transaction_load() */
 
 FILE *ledger_transaction_output_pipe = {0};
+FILE *ledger_journal_debit_account_output_pipe = {0};
+FILE *ledger_journal_credit_account_output_pipe = {0};
 
 void ledger_transaction_insert_stream(	FILE *output_pipe,
 					char *full_name,
@@ -3484,6 +3486,69 @@ void ledger_transaction_insert_stream(	FILE *output_pipe,
 
 } /* ledger_transaction_insert_stream() */
 
+void ledger_journal_insert_open_stream(
+				FILE **debit_account_pipe,
+				FILE **credit_account_pipe,
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *field;
+	char *table_name;
+
+	table_name = get_table_name( application_name, "journal_ledger" );
+
+	field=
+"full_name,street_address,transaction_date_time,account,debit_amount";
+
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
+		 "sql.e							      ",
+		 table_name,
+		 field );
+
+	*debit_account_pipe = popen( sys_string, "w" );
+
+	field=
+"full_name,street_address,transaction_date_time,account,credit_amount";
+
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
+		 "sql.e							      ",
+		 table_name,
+		 field );
+
+	*credit_account_pipe = popen( sys_string, "w" );
+
+} /* ledger_journal_insert_open_stream() */
+
+void ledger_journal_insert_stream(
+			FILE *debit_output_pipe,
+			FILE *credit_output_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double amount,
+			char *debit_account_name,
+			char *credit_account_name )
+{
+	fprintf(	debit_output_pipe,
+			"%s^%s^%s^%s^%.2lf\n",
+			full_name,
+			street_address,
+			transaction_date_time,
+			debit_account_name,
+			amount );
+
+	fprintf(	credit_output_pipe,
+			"%s^%s^%s^%s^%.2lf\n",
+			full_name,
+			street_address,
+			transaction_date_time,
+			credit_account_name,
+			amount );
+
+} /* ledger_journal_insert_stream() */
+
 FILE *ledger_transaction_insert_open_stream( char *application_name )
 {
 	char sys_string[ 1024 ];
@@ -3511,6 +3576,14 @@ FILE *ledger_transaction_insert_open_stream( char *application_name )
 	return ledger_transaction_output_pipe;
 
 } /* ledger_transaction_insert_open_stream() */
+
+void ledger_journal_insert_close_stream( void )
+{
+	pclose( ledger_journal_debit_account_output_pipe );
+	pclose( ledger_journal_credit_account_output_pipe );
+	ledger_journal_debit_account_output_pipe = (FILE *)0;
+	ledger_journal_credit_account_output_pipe = (FILE *)0;
+}
 
 void ledger_transaction_insert_close_stream( void )
 {

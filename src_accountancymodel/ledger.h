@@ -857,4 +857,22 @@ void ledger_transaction_insert_stream(
 				int check_number,
 				boolean lock_transaction );
 
+void ledger_journal_insert_open_stream(
+				FILE **debit_account_pipe,
+				FILE **credit_account_pipe,
+				char *application_name );
+
+void ledger_journal_insert_close_stream(
+				void );
+
+void ledger_journal_insert_stream(
+				FILE *debit_output_pipe,
+				FILE *credit_output_pipe,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double amount,
+				char *debit_account_name,
+				char *credit_account_name );
+
 #endif

@@ -1766,14 +1766,11 @@ void depreciation_fixed_asset_insert_depreciation_entity_list(
 
 void depreciation_fixed_asset_insert_transaction_entity_list(
 				char *application_name,
-				char *fund_name,
 				LIST *entity_list,
 				char *transaction_date_time )
 {
 	ENTITY *entity;
 	FILE *output_pipe;
-	char *depreciation_expense_account;
-	char *accumulated_depreciation_account;
 
 	output_pipe =
 		ledger_transaction_insert_open_stream(
@@ -1807,23 +1804,67 @@ void depreciation_fixed_asset_insert_transaction_entity_list(
 			0 /* check_number */,
 			1 /* lock_transaction */ );
 
-		depreciation_journal_ledger_refresh(
-			application_name,
-			fund_name,
-			entity->full_name,
-			entity->street_address,
-			transaction_date_time,
-			entity->depreciation_amount );
-
 	} while( list_next( entity_list ) );
 
 	ledger_transaction_insert_close_stream();
+
+} /* depreciation_fixed_asset_insert_transaction_entity_list() */
+
+void depreciation_fixed_asset_insert_ledger_entity_list(
+				char *application_name,
+				char *fund_name,
+				LIST *entity_list,
+				char *transaction_date_time )
+{
+	char *depreciation_expense_account = {0};
+	char *accumulated_depreciation_account = {0};
+	ENTITY *entity;
+	FILE *debit_account_pipe = {0};
+	FILE *credit_account_pipe = {0};
 
 	ledger_get_depreciation_account_names(
 		&depreciation_expense_account,
 		&accumulated_depreciation_account,
 		application_name,
 		fund_name );
+
+	ledger_journal_insert_open_stream(
+		&debit_account_pipe,
+		&credit_account_pipe,
+		application_name );
+
+	if ( !list_rewind( entity_list ) ) return;
+
+	do {
+		entity = list_get_pointer( entity_list );
+
+		if ( !entity->depreciation_transaction )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: expecting a transaction = (%s/%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	entity->full_name,
+				entity->street_address );
+			exit( 1 );
+		}
+
+		ledger_journal_insert_stream(
+			debit_account_pipe,
+			credit_account_pipe,
+			entity->full_name,
+			entity->street_address,
+			transaction_date_time,
+			entity->depreciation_amount,
+			depreciation_expense_account
+				/* debit_account_name */,
+			accumulated_depreciation_account
+				/* credit_account_name */ );
+
+	} while( list_next( entity_list ) );
+
+	ledger_journal_insert_close_stream();
 
 	ledger_propagate(
 		application_name,
@@ -1835,7 +1876,7 @@ void depreciation_fixed_asset_insert_transaction_entity_list(
 		transaction_date_time,
 		accumulated_depreciation_account );
 
-} /* depreciation_fixed_asset_insert_transaction_entity_list() */
+} /* depreciation_fixed_asset_insert_ledger_entity_list() */
 
 void depreciation_fixed_asset_execute(
 				LIST *entity_list,
@@ -1859,6 +1900,11 @@ void depreciation_fixed_asset_execute(
 			transaction_date_time );
 
 	depreciation_fixed_asset_insert_transaction_entity_list(
+			application_name,
+			entity_list,
+			transaction_date_time );
+
+	depreciation_fixed_asset_insert_ledger_entity_list(
 			application_name,
 			fund_name,
 			entity_list,

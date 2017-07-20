@@ -276,6 +276,11 @@ void depreciation_fixed_asset_insert_depreciation_entity_list(
 
 void depreciation_fixed_asset_insert_transaction_entity_list(
 			char *application_name,
+			LIST *entity_list,
+			char *transaction_date_time );
+
+void depreciation_fixed_asset_insert_ledger_entity_list(
+			char *application_name,
 			char *fund_name,
 			LIST *entity_list,
 			char *transaction_date_time );

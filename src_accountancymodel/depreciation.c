@@ -105,53 +105,28 @@ DEPRECIATION *depreciation_parse(	char *application_name,
 
 boolean depreciation_date_exists(
 			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *serial_number,
+			char *fund_name,
 			char *depreciation_date )
 {
 	char sys_string[ 1024 ];
-	char *ledger_where;
-	char buffer[ 128 ];
 	char where[ 256 ];
-	char *select;
-	char *results;
 
-	select = "'1'";
-
-	ledger_where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					(char *)0 /* folder_name */,
-					"purchase_date_time" );
-
+/* ------------------------------------------- */
+/* Need to join PURCHASE_ORDER where fund_name */
+/* ------------------------------------------- */
 	sprintf( where,
-"%s and asset_name = '%s' and serial_number = '%s' and depreciation_date = '%s'",
-		 ledger_where,
-		 escape_character(	buffer,
-					asset_name,
-					'\'' ),
-		 serial_number,
+		 "depreciation_date = '%s'",
 		 depreciation_date );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
+		 "			select=count			"
 		 "			folder=depreciation		"
 		 "			where=\"%s\"			",
 		 application_name,
-		 select,
 		 where );
 
-	results = pipe2string( sys_string );
-
-	if ( results && *results )
-		return atoi( results );
-	else
-		return 0;
+	return atoi( pipe2string( sys_string ) );
 
 } /* depreciation_date_exists() */
 
@@ -1118,10 +1093,12 @@ void depreciation_fixed_asset_purchase_list_table_display(
 	if ( !list_rewind( depreciable_fixed_asset_purchase_list ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: empty depreciable_fixed_asset_purchase_list.\n",
+"ERROR in %s/%s()/%d: empty depreciable_fixed_asset_purchase_list for (%s/%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__ );
+			 __LINE__,
+			 full_name,
+			 street_address );
 		return;
 	}
 
@@ -1479,19 +1456,6 @@ select="full_name,street_address,purchase_date_time,asset_name,serial_number,est
 			piece( buffer, FOLDER_DATA_DELIMITER, record, 4 );
 
 			purchase_fixed_asset->serial_number = strdup( buffer );
-
-			if ( depreciation_date_exists(
-					application_name,
-					purchase_fixed_asset->full_name,
-					purchase_fixed_asset->street_address,
-					purchase_fixed_asset->
-						purchase_date_time,
-					purchase_fixed_asset->asset_name,
-					purchase_fixed_asset->serial_number,
-					depreciation_date ) )
-			{
-				continue;
-			}
 
 			piece( buffer, FOLDER_DATA_DELIMITER, record, 5 );
 

@@ -42,13 +42,14 @@ int main( int argc, char **argv )
 	char *fund_name;
 	char *depreciation_date;
 	boolean execute;
+	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 
 	if ( argc != 6 )
 	{
 		fprintf(stderr,
-	"Usage: %s application process fund depreciation_date execute_yn\n",
+	"Usage: %s application process fund undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -57,7 +58,7 @@ int main( int argc, char **argv )
 	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
 	fund_name = argv[ 3 ];
-	depreciation_date = argv[ 4 ];
+	undo = (*argv[ 4 ]) == 'y';
 	execute = (*argv[ 5 ]) == 'y';
 
 	if ( timlib_parse_database_string(	&database_string,
@@ -80,12 +81,6 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = new_appaserver_parameter_file();
 
-	if ( *depreciation_date
-	&&   strcmp( depreciation_date, "depreciation_date" ) == 0 )
-	{
-		depreciation_date = pipe2string( "now.sh ymd" );
-	}
-
 	document = document_new( process_name /* title */, application_name );
 	document->output_content_type = 1;
 	
@@ -106,18 +101,56 @@ int main( int argc, char **argv )
 
 	if ( execute )
 	{
-		depreciate_fixed_assets_execute(
-			application_name,
-			fund_name,
-			depreciation_date );
+		if ( undo )
+		{
+		}
+		else
+		{
+			depreciation_date = pipe2string( "now.sh ymd" );
+
+			if ( depreciation_date_exists(
+				application_name,
+				fund_name,
+				depreciation_date ) )
+			{
+				printf(
+		"<h3>Error: depreciation date exists for today.</h3>\n" );
+			}
+			else
+			{
+				depreciate_fixed_assets_execute(
+					application_name,
+					fund_name,
+					depreciation_date );
+			}
+		}
 	}
 	else
 	{
-		depreciate_fixed_assets_display(
-			application_name,
-			fund_name,
-			depreciation_date,
-			process_name );
+		if ( undo )
+		{
+		}
+		else
+		{
+			depreciation_date = pipe2string( "now.sh ymd" );
+
+			if ( depreciation_date_exists(
+				application_name,
+				fund_name,
+				depreciation_date ) )
+			{
+				printf(
+		"<h3>Error: depreciation date exists for today.</h3>\n" );
+			}
+			else
+			{
+				depreciate_fixed_assets_display(
+					application_name,
+					fund_name,
+					depreciation_date,
+					process_name );
+			}
+		}
 	}
 
 	document_close();

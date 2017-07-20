@@ -248,11 +248,7 @@ void depreciation_fixed_asset_purchase_list_table_display(
 
 boolean depreciation_date_exists(
 			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *serial_number,
+			char *fund_name,
 			char *depreciation_date );
 
 void depreciation_fixed_asset_execute(

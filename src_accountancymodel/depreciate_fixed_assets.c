@@ -25,6 +25,10 @@
 
 /* Prototypes */
 /* ---------- */
+void depreciate_fixed_assets_undo(	char *application_name,
+					char *fund_name,
+					char *depreciation_date );
+
 void depreciate_fixed_assets_execute(	char *application_name,
 					char *fund_name,
 					char *depreciation_date );
@@ -42,6 +46,7 @@ int main( int argc, char **argv )
 	char *fund_name;
 	char *depreciation_date;
 	boolean execute;
+	char buffer[ 128 ];
 	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
@@ -101,8 +106,26 @@ int main( int argc, char **argv )
 
 	if ( execute )
 	{
+		printf( "<h1>%s</h1>\n",
+			format_initial_capital(
+				buffer,
+				process_name ) );
+
 		if ( undo )
 		{
+			depreciation_date =
+				depreciation_fetch_max_depreciation_date(
+					application_name,
+					fund_name );
+
+			depreciate_fixed_assets_undo(
+				application_name,
+				fund_name,
+				depreciation_date );
+
+			printf(
+			"<h3>Depreciation posted on %s is now deleted.</h3>\n",
+				depreciation_date );
 		}
 		else
 		{
@@ -129,6 +152,28 @@ int main( int argc, char **argv )
 	{
 		if ( undo )
 		{
+			depreciation_date =
+				depreciation_fetch_max_depreciation_date(
+					application_name,
+					fund_name );
+
+			printf( "<h1>%s</h1>\n",
+				format_initial_capital(
+					buffer,
+					process_name ) );
+
+			if ( !depreciation_date
+			||   !*depreciation_date )
+			{
+				printf(
+			"<h3>No depreciations are found.</h3>\n" );
+			}
+			else
+			{
+				printf(
+			"<h3>Will undo depreciation posted on %s.</h3>\n",
+					depreciation_date );
+			}
 		}
 		else
 		{
@@ -139,6 +184,11 @@ int main( int argc, char **argv )
 				fund_name,
 				depreciation_date ) )
 			{
+				printf( "<h1>%s</h1>\n",
+					format_initial_capital(
+						buffer,
+						process_name ) );
+
 				printf(
 		"<h3>Error: depreciation date exists for today.</h3>\n" );
 			}
@@ -210,4 +260,77 @@ void depreciate_fixed_assets_display(	char *application_name,
 		fixed_asset_depreciation->entity_list );
 
 } /* depreciate_fixed_assets_display() */
+
+void depreciate_fixed_assets_undo(	char *application_name,
+					char *fund_name,
+					char *depreciation_date )
+{
+	char *transaction_date_time;
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+	char *depreciation_expense_account = {0};
+	char *accumulated_depreciation_account = {0};
+
+	transaction_date_time =
+		depreciation_get_transaction_date_time(
+			application_name,
+			depreciation_date );
+
+	if ( !transaction_date_time || !*transaction_date_time )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get transaction_date_time for depreciation_date = (%s).\n",
+		 	__FILE__,
+		 	__FUNCTION__,
+		 	__LINE__,
+		 	depreciation_date );
+		exit( 1 );
+	}
+
+	sprintf(	where,
+			"transaction_date_time = '%s'",
+			transaction_date_time );
+
+	sprintf( sys_string,
+		 "echo \"delete from journal_ledger where %s;\" | sql.e",
+		 where );
+
+	system( sys_string );
+
+	sprintf( sys_string,
+		 "echo \"delete from transaction where %s;\" | sql.e",
+		 where );
+
+	system( sys_string );
+
+	sprintf( sys_string,
+		 "echo \"delete from depreciation where %s;\" | sql.e",
+		 where );
+
+	system( sys_string );
+
+	/* Error with an exit if failure. */
+	/* ------------------------------ */
+	ledger_get_depreciation_account_names(
+		&depreciation_expense_account,
+		&accumulated_depreciation_account,
+		application_name,
+		fund_name );
+
+	sprintf( sys_string,
+		 "ledger_propagate %s \"%s\" '' \"%s\" \"%s\"",
+		 application_name,
+		 transaction_date_time,
+		 depreciation_expense_account,
+		 accumulated_depreciation_account );
+
+	system( sys_string );
+
+	sprintf( sys_string,
+		 "accumulated_depreciation_reset.sh %s",
+		 application_name );
+
+	system( sys_string );
+
+} /* depreciate_fixed_assets_undo() */
 

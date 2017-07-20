@@ -211,7 +211,7 @@ void depreciation_fetch_purchase_fixed_asset_depreciation_list(
 			LIST *depreciable_fixed_asset_purchase_list,
 			char *application_name );
 
-char *depreciation_fetch_max_depreciation_date(
+char *depreciation_fetch_prior_depreciation_date(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -280,5 +280,13 @@ void depreciation_fixed_asset_insert_ledger_entity_list(
 			char *fund_name,
 			LIST *entity_list,
 			char *transaction_date_time );
+
+char *depreciation_fetch_max_depreciation_date(
+			char *application_name,
+			char *fund_name );
+
+char *depreciation_get_transaction_date_time(
+			char *application_name,
+			char *depreciation_date );
 
 #endif

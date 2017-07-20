@@ -109,28 +109,99 @@ boolean depreciation_date_exists(
 			char *depreciation_date )
 {
 	char sys_string[ 1024 ];
-	char where[ 256 ];
+	char fund_where[ 128 ];
+	char where[ 512 ];
+	char *folder;
+	char *results;
 
-/* ------------------------------------------- */
-/* Need to join PURCHASE_ORDER where fund_name */
-/* ------------------------------------------- */
+	folder = "purchase_order,depreciation";
+
+	sprintf( sys_string,
+		 "folder_attribute_exists.sh %s purchase_order fund",
+		 application_name );
+
+	if ( system( sys_string ) == 0 )
+	{
+		sprintf( fund_where,
+			 "fund = '%s'",
+			 fund_name );
+	}
+	else
+	{
+		strcpy( fund_where, "1 = 1" );
+	}
+		
 	sprintf( where,
-		 "depreciation_date = '%s'",
+"depreciation.full_name = purchase_order.full_name and depreciation.street_address = purchase_order.street_address and depreciation.purchase_date_time = purchase_order.purchase_date_time and %s and depreciation_date = '%s'",
+		 fund_where,
 		 depreciation_date );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=count			"
-		 "			folder=depreciation		"
+		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,
+		 folder,
 		 where );
 
-	return atoi( pipe2string( sys_string ) );
+	results = pipe2string( sys_string );
+
+	if ( results )
+		return atoi( results );
+	else
+		return 0;
 
 } /* depreciation_date_exists() */
 
 char *depreciation_fetch_max_depreciation_date(
+			char *application_name,
+			char *fund_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+	char fund_where[ 128 ];
+	char where[ 512 ];
+
+	select = "max(depreciation_date)";
+
+	folder = "purchase_order,depreciation";
+
+	sprintf( sys_string,
+		 "folder_attribute_exists.sh %s purchase_order fund",
+		 application_name );
+
+	if ( system( sys_string ) == 0 )
+	{
+		sprintf( fund_where,
+			 "fund = '%s'",
+			 fund_name );
+	}
+	else
+	{
+		strcpy( fund_where, "1 = 1" );
+	}
+		
+	sprintf( where,
+"depreciation.full_name = purchase_order.full_name and depreciation.street_address = purchase_order.street_address and depreciation.purchase_date_time = purchase_order.purchase_date_time and %s",
+		 fund_where );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	return pipe2string( sys_string );
+
+} /* depreciation_fetch_max_depreciation_date() */
+
+char *depreciation_fetch_prior_depreciation_date(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -174,7 +245,7 @@ char *depreciation_fetch_max_depreciation_date(
 
 	return pipe2string( sys_string );
 
-} /* depreciation_fetch_max_depreciation_date() */
+} /* depreciation_fetch_prior_depreciation_date() */
 
 DEPRECIATION *depreciation_fetch(
 			char *application_name,
@@ -548,8 +619,8 @@ LIST *depreciation_journal_ledger_refresh(
 				char *transaction_date_time,
 				double depreciation_amount )
 {
-	char *depreciation_expense_account;
-	char *accumulated_depreciation_account;
+	char *depreciation_expense_account = {0};
+	char *accumulated_depreciation_account = {0};
 	LIST *propagate_account_list = {0};
 	ACCOUNT *account;
 	JOURNAL_LEDGER *prior_ledger;
@@ -560,6 +631,8 @@ LIST *depreciation_journal_ledger_refresh(
 			street_address,
 			transaction_date_time );
 
+	/* Error with an exit if failure. */
+	/* ------------------------------ */
 	ledger_get_depreciation_account_names(
 		&depreciation_expense_account,
 		&accumulated_depreciation_account,
@@ -847,6 +920,8 @@ void depreciation_list_update_and_transaction_propagate(
 
 	} while( list_next( depreciation_list ) );
 
+	/* Error with an exit if failure. */
+	/* ------------------------------ */
 	ledger_get_depreciation_account_names(
 		&depreciation_expense_account,
 		&accumulated_depreciation_account,
@@ -924,6 +999,8 @@ void depreciation_list_delete(
 
 	} while( list_next( depreciation_list ) );
 
+	/* Error with an exit if failure. */
+	/* ------------------------------ */
 	ledger_get_depreciation_account_names(
 		&depreciation_expense_account,
 		&accumulated_depreciation_account,
@@ -1345,8 +1422,7 @@ void depreciation_fixed_asset_entity_set_depreciation(
 				purchase_fixed_asset->
 					estimated_useful_life_units,
 				purchase_fixed_asset->declining_balance_n,
-				purchase_fixed_asset->max_depreciation_date
-					/* prior_depreciation_date_string */,
+				purchase_fixed_asset->prior_depreciation_date,
 				depreciation->depreciation_date,
 				purchase_fixed_asset->accumulated_depreciation,
 				column( arrived_date,
@@ -1396,7 +1472,7 @@ LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 				char *fund_name,
 				char *depreciation_date )
 {
-	LIST *depreciable_fixed_asset_purchase_record_list = {0};
+	static LIST *depreciable_fixed_asset_purchase_record_list = {0};
 	LIST *depreciable_fixed_asset_purchase_list;
 	char *record;
 	char local_full_name[ 128 ];
@@ -1499,8 +1575,8 @@ select="full_name,street_address,purchase_date_time,asset_name,serial_number,est
 			purchase_fixed_asset->extension =
 				atof( buffer );
 
-			purchase_fixed_asset->max_depreciation_date =
-				depreciation_fetch_max_depreciation_date(
+			purchase_fixed_asset->prior_depreciation_date =
+				depreciation_fetch_prior_depreciation_date(
 					application_name,
 					purchase_fixed_asset->full_name,
 					purchase_fixed_asset->street_address,
@@ -1787,6 +1863,10 @@ void depreciation_fixed_asset_insert_ledger_entity_list(
 	FILE *debit_account_pipe = {0};
 	FILE *credit_account_pipe = {0};
 
+	if ( !list_rewind( entity_list ) ) return;
+
+	/* Error with an exit if failure. */
+	/* ------------------------------ */
 	ledger_get_depreciation_account_names(
 		&depreciation_expense_account,
 		&accumulated_depreciation_account,
@@ -1797,8 +1877,6 @@ void depreciation_fixed_asset_insert_ledger_entity_list(
 		&debit_account_pipe,
 		&credit_account_pipe,
 		application_name );
-
-	if ( !list_rewind( entity_list ) ) return;
 
 	do {
 		entity = list_get_pointer( entity_list );
@@ -1829,7 +1907,8 @@ void depreciation_fixed_asset_insert_ledger_entity_list(
 
 	} while( list_next( entity_list ) );
 
-	ledger_journal_insert_close_stream();
+	pclose( debit_account_pipe );
+	pclose( credit_account_pipe );
 
 	ledger_propagate(
 		application_name,
@@ -1842,6 +1921,72 @@ void depreciation_fixed_asset_insert_ledger_entity_list(
 		accumulated_depreciation_account );
 
 } /* depreciation_fixed_asset_insert_ledger_entity_list() */
+
+void depreciation_fixed_asset_update_accumulated_depreciation(
+				char *application_name,
+				LIST *entity_list )
+{
+	ENTITY *entity;
+	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	FILE *update_pipe;
+
+	if ( !list_rewind( entity_list ) ) return;
+
+	update_pipe =
+		purchase_fixed_asset_get_update_pipe(
+			application_name );
+
+	do {
+		entity = list_get_pointer( entity_list );
+
+		if ( !list_rewind(
+			entity->
+				depreciable_fixed_asset_purchase_list ) )
+		{
+			fprintf( stderr,
+"Warning in %s/%s()/%d: for (%s/%s), empty depreciable_fixed_asset_purchase_list.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	entity->full_name,
+			 	entity->street_address );
+			continue;
+		}
+
+		do {
+			purchase_fixed_asset =
+				list_get_pointer(
+					entity->
+					depreciable_fixed_asset_purchase_list );
+
+			if ( double_virtually_same(
+					purchase_fixed_asset->
+					   accumulated_depreciation,
+					purchase_fixed_asset->
+					   database_accumulated_depreciation ) )
+			{
+				continue;
+			}
+
+			purchase_fixed_asset_update_stream(
+				update_pipe,
+				purchase_fixed_asset->full_name,
+				purchase_fixed_asset->street_address,
+				purchase_fixed_asset->purchase_date_time,
+				purchase_fixed_asset->asset_name,
+				purchase_fixed_asset->serial_number,
+				purchase_fixed_asset->
+					accumulated_depreciation );
+
+		} while( list_next( 
+				entity->
+				depreciable_fixed_asset_purchase_list ) );
+
+	} while( list_next( entity_list ) );
+
+	pclose( update_pipe );
+
+} /* depreciation_fixed_asset_update_accumulated_depreciation() */
 
 void depreciation_fixed_asset_execute(
 				LIST *entity_list,
@@ -1875,5 +2020,37 @@ void depreciation_fixed_asset_execute(
 			entity_list,
 			transaction_date_time );
 
+	depreciation_fixed_asset_update_accumulated_depreciation(
+			application_name,
+			entity_list );
+
 } /* depreciation_fixed_asset_execute() */
+
+char *depreciation_get_transaction_date_time(
+			char *application_name,
+			char *depreciation_date )
+{
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+	char *select;
+
+	select = "transaction_date_time";
+
+	sprintf( where,
+		 "depreciation_date = '%s'",
+		 depreciation_date );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		 "
+		 "			select=\"%s\"		 "
+		 "			folder=depreciation	 "
+		 "			where=\"%s\"		|"
+		 "head -1					 ",
+		 application_name,
+		 select,
+		 where );
+
+	return pipe2string( sys_string );
+
+} /* depreciation_get_transaction_date_time() */
 

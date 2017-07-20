@@ -44,7 +44,7 @@ select="fixed_asset_purchase.full_name,fixed_asset_purchase.street_address"
 
 join_where="purchase_order.full_name = fixed_asset_purchase.full_name and purchase_order.street_address = fixed_asset_purchase.street_address and purchase_order.purchase_date_time = fixed_asset_purchase.purchase_date_time"
 
-where="ifnull(extension,0) <> ifnull(accumulated_depreciation,0) and disposal_date is null and $join_where"
+where="ifnull(extension,0) <> ifnull(accumulated_depreciation,0) and disposal_date is null and $join_where and $fund_where"
 
 folder="purchase_order,fixed_asset_purchase"
 

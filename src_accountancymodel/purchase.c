@@ -994,26 +994,6 @@ double purchase_get_sum_prepaid_asset_extension(
 	return sum_extension;
 } /* purchase_get_sum_prepaid_asset_extension() */
 
-char *purchase_fixed_asset_get_update_sys_string(
-				char *application_name )
-{
-	static char sys_string[ 256 ];
-	char *table_name;
-	char *key;
-
-	table_name = get_table_name( application_name, "fixed_asset_purchase" );
-	key =
-"full_name,street_address,purchase_date_time,asset_name,serial_number";
-
-	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql.e",
-		 table_name,
-		 key );
-
-	return sys_string;
-
-} /* purchase_fixed_asset_get_update_sys_string() */
-
 char *purchase_prepaid_asset_get_update_sys_string(
 				char *application_name )
 {
@@ -1203,6 +1183,26 @@ void purchase_order_arrived_date_time_update(
 
 } /* purchase_order_arrived_date_time_update() */
 
+FILE *purchase_fixed_asset_get_update_pipe(
+				char *application_name )
+{
+	char sys_string[ 256 ];
+	char *table_name;
+	char *key;
+
+	table_name = get_table_name( application_name, "fixed_asset_purchase" );
+	key =
+"full_name,street_address,purchase_date_time,asset_name,serial_number";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 table_name,
+		 key );
+
+	return popen( sys_string, "w" );
+
+} /* purchase_fixed_asset_get_update_pipe() */
+
 void purchase_fixed_asset_update(
 			char *application_name,
 			char *full_name,
@@ -1213,8 +1213,7 @@ void purchase_fixed_asset_update(
 			double accumulated_depreciation,
 			double database_accumulated_depreciation )
 {
-	char *sys_string;
-	FILE *output_pipe;
+	FILE *update_pipe;
 
 	if ( double_virtually_same(
 			accumulated_depreciation,
@@ -1223,13 +1222,33 @@ void purchase_fixed_asset_update(
 		return;
 	}
 
-	sys_string =
-		purchase_fixed_asset_get_update_sys_string(
+	update_pipe =
+		purchase_fixed_asset_get_update_pipe(
 			application_name );
 
-	output_pipe = popen( sys_string, "w" );
+	purchase_fixed_asset_update_stream(
+			update_pipe,
+			full_name,
+			street_address,
+			purchase_date_time,
+			asset_name,
+			serial_number,
+			accumulated_depreciation );
 
-	fprintf(output_pipe,
+	pclose( update_pipe );
+
+} /* purchase_fixed_asset_update() */
+
+void purchase_fixed_asset_update_stream(
+			FILE *update_pipe,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *asset_name,
+			char *serial_number,
+			double accumulated_depreciation )
+{
+	fprintf(update_pipe,
 		"%s^%s^%s^%s^%s^accumulated_depreciation^%.2lf\n",
 		full_name,
 		street_address,
@@ -1238,9 +1257,7 @@ void purchase_fixed_asset_update(
 		serial_number,
 		accumulated_depreciation );
 
-	pclose( output_pipe );
-
-} /* purchase_fixed_asset_update() */
+} /* purchase_fixed_asset_update_stream() */
 
 void purchase_vendor_payment_update(
 			char *application_name,

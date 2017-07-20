@@ -71,7 +71,7 @@ typedef struct
 	char *depreciation_method;
 	double accumulated_depreciation;
 	double database_accumulated_depreciation;
-	char *max_depreciation_date;
+	char *prior_depreciation_date;
 	LIST *depreciation_list;
 } PURCHASE_FIXED_ASSET;
 
@@ -522,7 +522,16 @@ double purchase_order_get_total_payment(
 char *purchase_fixed_asset_get_select(
 				void );
 
-char *purchase_fixed_asset_get_update_sys_string(
+void purchase_fixed_asset_update_stream(
+				FILE *update_pipe,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time,
+				char *asset_name,
+				char *serial_number,
+				double accumulated_depreciation );
+
+FILE *purchase_fixed_asset_get_update_pipe(
 				char *application_name );
 
 void purchase_fixed_asset_update(

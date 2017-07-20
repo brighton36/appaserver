@@ -3433,8 +3433,6 @@ boolean ledger_transaction_load(	double *transaction_amount,
 } /* ledger_transaction_load() */
 
 FILE *ledger_transaction_output_pipe = {0};
-FILE *ledger_journal_debit_account_output_pipe = {0};
-FILE *ledger_journal_credit_account_output_pipe = {0};
 
 void ledger_transaction_insert_stream(	FILE *output_pipe,
 					char *full_name,
@@ -3576,14 +3574,6 @@ FILE *ledger_transaction_insert_open_stream( char *application_name )
 	return ledger_transaction_output_pipe;
 
 } /* ledger_transaction_insert_open_stream() */
-
-void ledger_journal_insert_close_stream( void )
-{
-	pclose( ledger_journal_debit_account_output_pipe );
-	pclose( ledger_journal_credit_account_output_pipe );
-	ledger_journal_debit_account_output_pipe = (FILE *)0;
-	ledger_journal_credit_account_output_pipe = (FILE *)0;
-}
 
 void ledger_transaction_insert_close_stream( void )
 {

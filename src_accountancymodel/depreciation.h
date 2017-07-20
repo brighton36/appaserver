@@ -185,19 +185,23 @@ char *deprecation_get_prior_depreciation_date(
 
 FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
 			char *application_name,
+			char *fund_name,
 			char *depreciation_date );
 
 LIST *depreciation_fixed_asset_get_entity_list(
 			char *application_name,
+			char *fund_name,
 			char *depreciation_date );
 
 LIST *depreciation_get_depreciable_fixed_purchase_record_list(
-			char *application_name );
+			char *application_name,
+			char *fund_name );
 
 LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 			char *application_name,
 			char *full_name,
 			char *street_address,
+			char *fund_name,
 			char *depreciation_date );
 
 void depreciation_set_entity_list_transaction(
@@ -254,6 +258,7 @@ boolean depreciation_date_exists(
 void depreciation_fixed_asset_execute(
 			LIST *entity_list,
 			char *application_name,
+			char *fund_name,
 			char *depreciation_date );
 
 void depreciation_fixed_asset_insert_depreciation(
@@ -271,8 +276,8 @@ void depreciation_fixed_asset_insert_depreciation_entity_list(
 
 void depreciation_fixed_asset_insert_transaction_entity_list(
 			char *application_name,
+			char *fund_name,
 			LIST *entity_list,
-			char *depreciation_date,
 			char *transaction_date_time );
 
 #endif

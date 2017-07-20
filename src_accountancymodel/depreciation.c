@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/depreciation.c					*/
+/* $APPASERVER_HOME/src_accountancymodel/depreciation.c			*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver depreciation ADT.				*/
 /*									*/
@@ -1062,13 +1062,15 @@ char *deprecation_get_prior_depreciation_date(
 } /* deprecation_get_prior_depreciation_date() */
 
 LIST *depreciation_get_depreciable_fixed_purchase_record_list(
-				char *application_name )
+				char *application_name,
+				char *fund_name )
 {
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "depreciate_select.sh %s",
-		 application_name );
+		 "depreciate_select.sh %s '%s'",
+		 application_name,
+		 fund_name );
 
 	return pipe2list( sys_string );
 
@@ -1246,9 +1248,9 @@ void depreciation_fixed_asset_depreciation_table_display(
 	if ( !list_rewind( entity_list ) ) return;
 
 	heading =
-"Entity,Entity Depreciation,Fund,Asset,Extension,Prior Accumulated,Depreciation,Post Accumulated";
+"Entity,Entity Depreciation,Asset,Extension,Prior Accumulated,Depreciation,Post Accumulated";
 
-	justification = "left,right,left,left,right";
+	justification = "left,right,left,right";
 
 	sprintf( sys_string,
 		 "group_trim.e '^' 2			|"
@@ -1414,6 +1416,7 @@ LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 				char *application_name,
 				char *full_name,
 				char *street_address,
+				char *fund_name,
 				char *depreciation_date )
 {
 	LIST *depreciable_fixed_asset_purchase_record_list = {0};
@@ -1429,7 +1432,8 @@ LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 	{
 		depreciable_fixed_asset_purchase_record_list =
 			depreciation_get_depreciable_fixed_purchase_record_list(
-				application_name );
+				application_name,
+				fund_name );
 	}
 
 	if ( !list_rewind( depreciable_fixed_asset_purchase_record_list ) )
@@ -1461,22 +1465,18 @@ LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
 			purchase_fixed_asset->street_address = street_address;
 
 /*
-select="full_name,street_address,fund,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation,arrived_date_time,extension"
+select="full_name,street_address,purchase_date_time,asset_name,serial_number,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumualated_depreciation,arrived_date_time,extension"
 */
 			piece( buffer, FOLDER_DATA_DELIMITER, record, 2 );
-
-			purchase_fixed_asset->fund_name = strdup( buffer );
-
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 3 );
 
 			purchase_fixed_asset->purchase_date_time =
 				strdup( buffer );
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 4 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 3 );
 
 			purchase_fixed_asset->asset_name = strdup( buffer );
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 5 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 4 );
 
 			purchase_fixed_asset->serial_number = strdup( buffer );
 
@@ -1493,44 +1493,44 @@ select="full_name,street_address,fund,purchase_date_time,asset_name,serial_numbe
 				continue;
 			}
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 6 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 5 );
 
 			purchase_fixed_asset->estimated_useful_life_years =
 				atoi( buffer );
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 7 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 6 );
 
 			purchase_fixed_asset->estimated_useful_life_units =
 				atoi( buffer );
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 8 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 7 );
 
 			purchase_fixed_asset->estimated_residual_value =
 				atof( buffer );
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 9 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 8 );
 
 			purchase_fixed_asset->declining_balance_n =
 				atoi( buffer );
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 10 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 9 );
 
 			purchase_fixed_asset->depreciation_method =
 				strdup( buffer );
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 11 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 10 );
 
 			purchase_fixed_asset->accumulated_depreciation =
 			purchase_fixed_asset->
 				database_accumulated_depreciation =
 					atof( buffer );
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 12 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 11 );
 
 			purchase_fixed_asset->arrived_date_time =
 				strdup( buffer );
 
-			piece( buffer, FOLDER_DATA_DELIMITER, record, 13 );
+			piece( buffer, FOLDER_DATA_DELIMITER, record, 12 );
 
 			purchase_fixed_asset->extension =
 				atof( buffer );
@@ -1568,6 +1568,7 @@ select="full_name,street_address,fund,purchase_date_time,asset_name,serial_numbe
 
 LIST *depreciation_fixed_asset_get_entity_list(
 			char *application_name,
+			char *fund_name,
 			char *depreciation_date )
 {
 	LIST *entity_list;
@@ -1579,8 +1580,9 @@ LIST *depreciation_fixed_asset_get_entity_list(
 	ENTITY *entity;
 
 	sprintf( sys_string,
-		 "depreciate_entity_select.sh %s",
-		 application_name );
+		 "depreciate_entity_select.sh %s '%s'",
+		 application_name,
+		 fund_name );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -1599,6 +1601,7 @@ LIST *depreciation_fixed_asset_get_entity_list(
 				application_name,
 				entity->full_name,
 				entity->street_address,
+				fund_name,
 				depreciation_date );
 
 		list_append_pointer( entity_list, entity );
@@ -1612,6 +1615,7 @@ LIST *depreciation_fixed_asset_get_entity_list(
 
 FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
 				char *application_name,
+				char *fund_name,
 				char *depreciation_date )
 {
 	FIXED_ASSET_DEPRECIATION *p =
@@ -1631,6 +1635,7 @@ FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
 	p->entity_list =
 		depreciation_fixed_asset_get_entity_list(
 			application_name,
+			fund_name,
 			depreciation_date );
 
 	return p;
@@ -1761,12 +1766,14 @@ void depreciation_fixed_asset_insert_depreciation_entity_list(
 
 void depreciation_fixed_asset_insert_transaction_entity_list(
 				char *application_name,
+				char *fund_name,
 				LIST *entity_list,
-				char *depreciation_date,
 				char *transaction_date_time )
 {
 	ENTITY *entity;
 	FILE *output_pipe;
+	char *depreciation_expense_account;
+	char *accumulated_depreciation_account;
 
 	output_pipe =
 		ledger_transaction_insert_open_stream(
@@ -1793,7 +1800,7 @@ void depreciation_fixed_asset_insert_transaction_entity_list(
 			output_pipe,
 			entity->full_name,
 			entity->street_address,
-			entity->depreciation_transaction->transaction_date_time,
+			transaction_date_time,
 			entity->depreciation_amount
 				/* transaction_amount */,
 			entity->depreciation_transaction->memo,
@@ -1803,22 +1810,37 @@ void depreciation_fixed_asset_insert_transaction_entity_list(
 		depreciation_journal_ledger_refresh(
 			application_name,
 			fund_name,
-			depreciation->transaction->full_name,
-			depreciation->transaction->street_address,
-			depreciation->
-				transaction->
-				transaction_date_time,
-			depreciation->depreciation_amount );
+			entity->full_name,
+			entity->street_address,
+			transaction_date_time,
+			entity->depreciation_amount );
 
 	} while( list_next( entity_list ) );
 
 	ledger_transaction_insert_close_stream();
+
+	ledger_get_depreciation_account_names(
+		&depreciation_expense_account,
+		&accumulated_depreciation_account,
+		application_name,
+		fund_name );
+
+	ledger_propagate(
+		application_name,
+		transaction_date_time,
+		depreciation_expense_account );
+
+	ledger_propagate(
+		application_name,
+		transaction_date_time,
+		accumulated_depreciation_account );
 
 } /* depreciation_fixed_asset_insert_transaction_entity_list() */
 
 void depreciation_fixed_asset_execute(
 				LIST *entity_list,
 				char *application_name,
+				char *fund_name,
 				char *depreciation_date )
 {
 	char *transaction_date_time;
@@ -1838,8 +1860,8 @@ void depreciation_fixed_asset_execute(
 
 	depreciation_fixed_asset_insert_transaction_entity_list(
 			application_name,
+			fund_name,
 			entity_list,
-			depreciation_date,
 			transaction_date_time );
 
 } /* depreciation_fixed_asset_execute() */

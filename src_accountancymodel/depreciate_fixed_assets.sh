@@ -1,4 +1,5 @@
 :
+# ----------------------------------------------------------------
 # $APPASERVER_HOME/src_accountancymodel/depreciate_fixed_assets.sh
 # ----------------------------------------------------------------
 
@@ -24,7 +25,6 @@ else
 fi
 
 process_name=$2
-
 execute_yn=$3
 
 # Constants

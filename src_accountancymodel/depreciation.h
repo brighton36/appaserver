@@ -267,26 +267,22 @@ void depreciation_fixed_asset_insert_depreciation(
 
 void depreciation_fixed_asset_insert_depreciation_entity_list(
 			LIST *entity_list,
-			char *depreciation_date,
-			char *transaction_date_time );
+			char *depreciation_date );
 
 void depreciation_fixed_asset_insert_transaction_entity_list(
 			char *application_name,
-			LIST *entity_list,
-			char *transaction_date_time );
+			LIST *entity_list );
 
 void depreciation_fixed_asset_insert_ledger_entity_list(
 			char *application_name,
 			char *fund_name,
-			LIST *entity_list,
-			char *transaction_date_time );
+			LIST *entity_list );
 
 char *depreciation_fetch_max_depreciation_date(
 			char *application_name,
 			char *fund_name );
 
-char *depreciation_get_transaction_date_time(
-			char *application_name,
-			char *depreciation_date );
+void depreciation_fixed_asset_set_transaction(
+			LIST *entity_list );
 
 #endif

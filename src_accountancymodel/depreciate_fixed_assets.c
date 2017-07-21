@@ -225,6 +225,9 @@ void depreciate_fixed_assets_execute(	char *application_name,
 		fixed_asset_depreciation->entity_list,
 		depreciation_date );
 
+	depreciation_fixed_asset_set_transaction(
+		fixed_asset_depreciation->entity_list );
+
 	depreciation_fixed_asset_execute(
 		fixed_asset_depreciation->entity_list,
 		application_name,

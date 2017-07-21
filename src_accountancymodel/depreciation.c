@@ -1683,10 +1683,12 @@ FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
 } /* depreciation_fixed_asset_depreciation_new() */
 
 void depreciation_fixed_asset_set_transaction(
-				LIST *entity_list,
-				char *transaction_date_time )
+				LIST *entity_list )
 {
 	ENTITY *entity;
+	DATE *transaction_date_time;
+
+	transaction_date_time = date_now_new();
 
 	if ( !list_rewind( entity_list ) ) return;
 
@@ -1697,8 +1699,11 @@ void depreciation_fixed_asset_set_transaction(
 			ledger_transaction_new(
 				entity->full_name,
 				entity->street_address,
-				transaction_date_time,
+				date_display_yyyy_mm_dd_colon_hms(
+					transaction_date_time ),
 				DEPRECIATION_MEMO );
+
+		date_increment_seconds( transaction_date_time, 1 );
 
 	} while( list_next( entity_list ) );
 
@@ -1769,8 +1774,7 @@ void depreciation_fixed_asset_insert_depreciation(
 
 void depreciation_fixed_asset_insert_depreciation_entity_list(
 				LIST *entity_list,
-				char *depreciation_date,
-				char *transaction_date_time )
+				char *depreciation_date )
 {
 	ENTITY *entity;
 	char sys_string[ 1024 ];
@@ -1797,7 +1801,9 @@ void depreciation_fixed_asset_insert_depreciation_entity_list(
 				entity->street_address,
 				entity->depreciable_fixed_asset_purchase_list,
 				depreciation_date,
-				transaction_date_time );
+				entity->
+					depreciation_transaction->
+					transaction_date_time );
 
 	} while( list_next( entity_list ) );
 
@@ -1807,8 +1813,7 @@ void depreciation_fixed_asset_insert_depreciation_entity_list(
 
 void depreciation_fixed_asset_insert_transaction_entity_list(
 				char *application_name,
-				LIST *entity_list,
-				char *transaction_date_time )
+				LIST *entity_list )
 {
 	ENTITY *entity;
 	FILE *output_pipe;
@@ -1838,7 +1843,9 @@ void depreciation_fixed_asset_insert_transaction_entity_list(
 			output_pipe,
 			entity->full_name,
 			entity->street_address,
-			transaction_date_time,
+			entity->
+				depreciation_transaction->
+				transaction_date_time,
 			entity->depreciation_amount
 				/* transaction_amount */,
 			entity->depreciation_transaction->memo,
@@ -1854,14 +1861,14 @@ void depreciation_fixed_asset_insert_transaction_entity_list(
 void depreciation_fixed_asset_insert_ledger_entity_list(
 				char *application_name,
 				char *fund_name,
-				LIST *entity_list,
-				char *transaction_date_time )
+				LIST *entity_list )
 {
 	char *depreciation_expense_account = {0};
 	char *accumulated_depreciation_account = {0};
 	ENTITY *entity;
 	FILE *debit_account_pipe = {0};
 	FILE *credit_account_pipe = {0};
+	char *propagate_transaction_date_time = {0};
 
 	if ( !list_rewind( entity_list ) ) return;
 
@@ -1898,13 +1905,22 @@ void depreciation_fixed_asset_insert_ledger_entity_list(
 			credit_account_pipe,
 			entity->full_name,
 			entity->street_address,
-			transaction_date_time,
+			entity->
+				depreciation_transaction->
+				transaction_date_time,
 			entity->depreciation_amount,
 			depreciation_expense_account
 				/* debit_account_name */,
 			accumulated_depreciation_account
 				/* credit_account_name */ );
 
+		if ( !propagate_transaction_date_time )
+		{
+			propagate_transaction_date_time =
+				entity->
+					depreciation_transaction->
+					transaction_date_time;
+		}
 	} while( list_next( entity_list ) );
 
 	pclose( debit_account_pipe );
@@ -1912,12 +1928,12 @@ void depreciation_fixed_asset_insert_ledger_entity_list(
 
 	ledger_propagate(
 		application_name,
-		transaction_date_time,
+		propagate_transaction_date_time,
 		depreciation_expense_account );
 
 	ledger_propagate(
 		application_name,
-		transaction_date_time,
+		propagate_transaction_date_time,
 		accumulated_depreciation_account );
 
 } /* depreciation_fixed_asset_insert_ledger_entity_list() */
@@ -1994,31 +2010,18 @@ void depreciation_fixed_asset_execute(
 				char *fund_name,
 				char *depreciation_date )
 {
-	char *transaction_date_time;
-
-	transaction_date_time =
-		ledger_get_transaction_date_time(
-			depreciation_date );
-
-	depreciation_fixed_asset_set_transaction(
-			entity_list,
-			transaction_date_time );
-
 	depreciation_fixed_asset_insert_depreciation_entity_list(
 			entity_list,
-			depreciation_date,
-			transaction_date_time );
+			depreciation_date );
 
 	depreciation_fixed_asset_insert_transaction_entity_list(
 			application_name,
-			entity_list,
-			transaction_date_time );
+			entity_list );
 
 	depreciation_fixed_asset_insert_ledger_entity_list(
 			application_name,
 			fund_name,
-			entity_list,
-			transaction_date_time );
+			entity_list );
 
 	depreciation_fixed_asset_update_accumulated_depreciation(
 			application_name,

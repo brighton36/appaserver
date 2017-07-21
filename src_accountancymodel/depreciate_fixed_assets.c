@@ -268,49 +268,59 @@ void depreciate_fixed_assets_undo(	char *application_name,
 					char *fund_name,
 					char *depreciation_date )
 {
-	char *transaction_date_time;
+	char transaction_date_time[ 64 ];
 	char sys_string[ 1024 ];
 	char where[ 128 ];
 	char *depreciation_expense_account = {0};
 	char *accumulated_depreciation_account = {0};
+	char *propagate_transaction_date_time = {0};
+	FILE *input_pipe;
+	FILE *output_pipe;
 
-	transaction_date_time =
-		depreciation_get_transaction_date_time(
-			application_name,
-			depreciation_date );
+	sprintf(where,
+		"depreciation_date = '%s'",
+		depreciation_date );
 
-	if ( !transaction_date_time || !*transaction_date_time )
+	output_pipe = popen( "sql.e", "w" );
+
+	fprintf( output_pipe,
+	 	 "delete from depreciation where %s;\n",
+	 	 where );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=transaction_date_time	"
+		 "			folder=depreciation		"
+		 "			where=\"%s\"			"
+		 "			order=select			",
+		 application_name,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( transaction_date_time, input_pipe ) )
 	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot get transaction_date_time for depreciation_date = (%s).\n",
-		 	__FILE__,
-		 	__FUNCTION__,
-		 	__LINE__,
-		 	depreciation_date );
-		exit( 1 );
-	}
-
-	sprintf(	where,
+		sprintf(where,
 			"transaction_date_time = '%s'",
 			transaction_date_time );
 
-	sprintf( sys_string,
-		 "echo \"delete from journal_ledger where %s;\" | sql.e",
-		 where );
+		fprintf( output_pipe,
+		 	 "delete from journal_ledger where %s;\n",
+		 	 where );
 
-	system( sys_string );
+		fprintf( output_pipe,
+		 	 "delete from transaction where %s;\n",
+		 	 where );
 
-	sprintf( sys_string,
-		 "echo \"delete from transaction where %s;\" | sql.e",
-		 where );
+		if ( !propagate_transaction_date_time )
+		{
+			propagate_transaction_date_time =
+				strdup( transaction_date_time );
+		}
+	}
 
-	system( sys_string );
-
-	sprintf( sys_string,
-		 "echo \"delete from depreciation where %s;\" | sql.e",
-		 where );
-
-	system( sys_string );
+	pclose( input_pipe );
+	pclose( output_pipe );
 
 	/* Error with an exit if failure. */
 	/* ------------------------------ */
@@ -323,7 +333,7 @@ void depreciate_fixed_assets_undo(	char *application_name,
 	sprintf( sys_string,
 		 "ledger_propagate %s \"%s\" '' \"%s\" \"%s\"",
 		 application_name,
-		 transaction_date_time,
+		 propagate_transaction_date_time,
 		 depreciation_expense_account,
 		 accumulated_depreciation_account );
 

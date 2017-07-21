@@ -2029,31 +2029,3 @@ void depreciation_fixed_asset_execute(
 
 } /* depreciation_fixed_asset_execute() */
 
-char *depreciation_get_transaction_date_time(
-			char *application_name,
-			char *depreciation_date )
-{
-	char sys_string[ 1024 ];
-	char where[ 128 ];
-	char *select;
-
-	select = "transaction_date_time";
-
-	sprintf( where,
-		 "depreciation_date = '%s'",
-		 depreciation_date );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		 "
-		 "			select=\"%s\"		 "
-		 "			folder=depreciation	 "
-		 "			where=\"%s\"		|"
-		 "head -1					 ",
-		 application_name,
-		 select,
-		 where );
-
-	return pipe2string( sys_string );
-
-} /* depreciation_get_transaction_date_time() */
-

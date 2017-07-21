@@ -145,6 +145,10 @@ int main( int argc, char **argv )
 					application_name,
 					fund_name,
 					depreciation_date );
+
+				printf(
+				"<h3>Depreciation now posted on %s.</h3>\n",
+				depreciation_date );
 			}
 		}
 	}

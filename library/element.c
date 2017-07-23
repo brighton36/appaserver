@@ -521,7 +521,9 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				element->radio_button->heading,
 				element->name,
 				element->radio_button->onclick,
-				row );
+				row,
+				element->radio_button->state,
+				element->radio_button->post_change_javascript );
 	}
 	else
 	if ( element->element_type == drop_down )
@@ -1047,13 +1049,6 @@ void element_notepad_output( 	FILE *output_file,
 				 tab_index );
 		}
 
-/*
-	char buffer[ 1024 ];
-		fprintf( output_file,
-			 " wrap=%s>%s</textarea>\n",
-			 ELEMENT_TEXTAREA_WRAP,
-			 string_decode_cr( buffer, data ) );
-*/
 		fprintf( output_file,
 			 " wrap=%s>%s</textarea>\n",
 			 ELEMENT_TEXTAREA_WRAP,
@@ -1215,9 +1210,11 @@ void element_radio_button_output( 	FILE *output_file,
 					char *heading,
 					char *name,
 					char *onclick,
-					int row )
+					int row,
+					char *state,
+					char *post_change_javascript )
 {
-	char buffer[ 256 ];
+	char buffer[ 512 ];
 
 	fprintf( output_file, "<td>" );
 
@@ -1269,8 +1266,22 @@ void element_radio_button_output( 	FILE *output_file,
 	if ( onclick && *onclick )
 	{
 		fprintf( output_file,
-			 " onclick=\"%s\"",
+			 " onclick=\"%s",
 			 onclick );
+
+		if ( post_change_javascript
+		&&   *post_change_javascript )
+		{
+			fprintf(output_file,
+				" ;%s",
+				element_replace_javascript_variables(
+					buffer,
+					post_change_javascript,
+					row,
+					state ) );
+		}
+
+		fprintf(output_file, "\"" );
 	}
 
 	fprintf( output_file,

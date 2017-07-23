@@ -1,4 +1,4 @@
-/* document.c 								*/
+/* $APPASERVER_HOME/library/document.c					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver document ADT.					*/
 /*									*/
@@ -171,12 +171,6 @@ void document_output_head_stream(
 	if ( !title || !*title ) title = application_name;
 
 	document_output_html_stream( output_stream );
-
-/*
-	fprintf( output_stream,
-"<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-"<head>\n\n" );
-*/
 
 	fprintf( output_stream,
 "<head>\n\n" );

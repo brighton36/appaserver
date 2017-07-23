@@ -4,5 +4,5 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	make post_change_sort_order
+	make output_edit_table_form
 fi

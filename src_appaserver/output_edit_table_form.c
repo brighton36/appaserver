@@ -92,7 +92,6 @@ int main( int argc, char **argv )
 	int rows_inserted;
 	int columns_updated;
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
-	PROMPT_RECURSIVE *prompt_recursive;
 	boolean make_primary_keys_non_edit = 0;
 	char *appaserver_user_foreign_login_name;
 	/* --------------------------------------------------------------- */
@@ -262,20 +261,21 @@ int main( int argc, char **argv )
 					(LIST *)0 /* operation_name_list */ );
 	}
 
+#ifdef NOT_DEFINED
 	prompt_recursive =
 		prompt_recursive_new(
 			application_name,
 			folder->folder_name /* query_folder_name */,
 			folder->mto1_related_folder_list );
 
-/*
+	PROMPT_RECURSIVE *prompt_recursive;
 	if ( prompt_recursive_get_grandchild_query_folder_name(
 			prompt_recursive,
 			dictionary_appaserver->query_dictionary ) )
 	{
 		make_primary_keys_non_edit = 1;
 	}
-*/
+#endif
 
 	folder->one2m_related_folder_list =
 		related_folder_get_1tom_related_folder_list(
@@ -497,8 +497,12 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
+			application_get_relative_source_directory(
+				application_name ),
+/*
 			application_get_first_relative_source_directory(
 				application_name ),
+*/
 			with_dynarch_menu,
 			0 /* not with_close_head */ );
 

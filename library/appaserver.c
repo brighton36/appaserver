@@ -376,6 +376,8 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 
 		element_notepad_set_onchange_null2slash(
 				element->notepad );
+
+		element->notepad->state = "update";
 	}
 	else
 	if ( strcmp( datatype, "password" ) == 0 )
@@ -390,6 +392,8 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 		element_password_set_heading(
 				element->password, 
 				element->name );
+
+		element->password->state = "update";
 	}
 	else
 	if ( strcmp( datatype, "hidden_text" ) == 0 )
@@ -419,6 +423,8 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 				post_change_javascript,
 				1 /* with_is_null */,
 				0 /* not with_not_null */ );
+
+		element->drop_down->state = "update";
 	}
 	else
 	if ( strcmp( datatype, "reference_number" ) == 0 )
@@ -477,10 +483,14 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 
 		element_text_item_set_onchange_null2slash(
 				element->text_item );
+
 		element->text_item->post_change_javascript =
 			post_change_javascript;
+
 		element->text_item->on_focus_javascript_function =
 			on_focus_javascript_function;
+
+		element->text_item->state = "update";
 	}
 	else
 	{
@@ -508,10 +518,14 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 
 		element_text_item_set_onchange_null2slash(
 				element->text_item );
+
 		element->text_item->post_change_javascript =
 			post_change_javascript;
+
 		element->text_item->on_focus_javascript_function =
 			on_focus_javascript_function;
+
+		element->text_item->state = "update";
 	}
 
 	list_append_pointer( return_list, element );

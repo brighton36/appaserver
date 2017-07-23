@@ -204,6 +204,11 @@ int main( int argc, char **argv )
 	document_set_javascript_module( document, "sort_order" );
 	document_set_javascript_module( document, "form" );
 
+	document_set_folder_javascript_files(
+						document,
+						application_name,
+						folder_name );
+
 	document_output_head(
 			document->application_name,
 			document->title,
@@ -444,6 +449,11 @@ void change_sort_order_state_one(
 		 list_display( move_attribute_name_list ) );
 
 	element->radio_button->onclick = strdup( onclick );
+
+	element->radio_button->state = "sort";
+
+	element->radio_button->post_change_javascript =
+		folder->post_change_javascript;
 
 	list_prepend_pointer( form->regular_element_list, element );
 

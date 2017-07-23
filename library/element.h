@@ -150,6 +150,8 @@ typedef struct
 	char *image_source;
 	char *value;
 	char *onclick;
+	char *state;
+	char *post_change_javascript;
 } ELEMENT_RADIO_BUTTON;
 
 typedef struct
@@ -159,6 +161,7 @@ typedef struct
 	int number_rows;
 	char *heading;
 	char onchange_null2slash_yn;
+	char *state;
 } ELEMENT_NOTEPAD;
 
 typedef struct
@@ -190,6 +193,7 @@ typedef struct
 	char *data;
 	int attribute_width;
 	char *heading;
+	char *state;
 } ELEMENT_PASSWORD;
 
 typedef struct
@@ -296,7 +300,9 @@ void element_radio_button_output(		FILE *output_file,
 						char *heading,
 						char *name,
 						char *onclick,
-						int row );
+						int row,
+						char *state,
+						char *post_change_javascript );
 
 ELEMENT_NOTEPAD *element_notepad_new(		void );
 
@@ -305,13 +311,18 @@ void element_notepad_set_data(			ELEMENT_NOTEPAD *e,
 
 void element_notepad_set_attribute_width(	ELEMENT_NOTEPAD *e,
 						int w );
+
 void element_notepad_set_field_width(		ELEMENT_NOTEPAD *e,
 						int w );
+
 void element_notepad_set_number_rows(		ELEMENT_NOTEPAD *e,
 						int w );
+
 void element_notepad_set_heading(		ELEMENT_NOTEPAD *e,
 						char *s );
+
 char *element_notepad_get_heading( 		ELEMENT_NOTEPAD *e );
+
 void element_notepad_output( 			FILE *output_file,
 						int attribute_width,
 						char *element_name,
@@ -320,6 +331,7 @@ void element_notepad_output( 			FILE *output_file,
 						int number_rows,
 						char onchange_null2slash_yn,
 						int tab_index );
+
 void element_notepad_set_onchange_null2slash(	ELEMENT_NOTEPAD *e );
 
 

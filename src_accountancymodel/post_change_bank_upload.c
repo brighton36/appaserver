@@ -262,7 +262,7 @@ int bank_upload_get_prior_sequence_number(
 	select = "max(sequence_number)";
 	folder_name = "bank_upload";
 
-	if ( fund_name )
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
 		sprintf(	where,
 				"fund = '%s' and		"
@@ -417,7 +417,7 @@ FILE *bank_upload_open_input_pipe(
 
 	folder_name = "bank_upload";
 
-	if ( fund_name )
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
 		sprintf(	where,
 				"fund = '%s' and sequence_number >= %d",

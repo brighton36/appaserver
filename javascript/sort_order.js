@@ -20,7 +20,8 @@ function sort_order_get_index( value )
 
 } // sort_order_get_index()
 
-function sort_order_move_attribute_down(move_index,
+function sort_order_move_attribute_up_shift_down(
+					move_index,
 					here_index,
 					attribute_name )
 {
@@ -58,10 +59,10 @@ function sort_order_move_attribute_down(move_index,
 
 	return true;
 
+} // sort_order_move_attribute_up_shift_down()
 
-} // sort_order_move_attribute_down()
-
-function sort_order_move_attribute_up(	move_index,
+function sort_order_move_attribute_down_shift_up(
+					move_index,
 					here_index,
 					attribute_name )
 {
@@ -99,9 +100,10 @@ function sort_order_move_attribute_up(	move_index,
 
 	return true;
 
-} // sort_order_move_attribute_up()
+} // sort_order_move_attribute_down_shift_up()
 
-function sort_order_move_up(	move_index,
+function sort_order_move_down_shift_up(
+				move_index,
 				here_index,
 				attribute_list_string )
 {
@@ -116,16 +118,18 @@ function sort_order_move_up(	move_index,
 	{
 		attribute_name = attribute_name_list[ i ];
 
-		sort_order_move_attribute_up(	move_index,
-						here_index,
-						attribute_name );
+		sort_order_move_attribute_down_shift_up(
+			move_index,
+			here_index,
+			attribute_name );
 	}
 
 	return true;
 
-} // sort_order_move_up()
+} // sort_order_move_down_shift_up()
 
-function sort_order_move_down(	move_index,
+function sort_order_move_up_shift_down(
+				move_index,
 				here_index,
 				attribute_list_string )
 {
@@ -140,21 +144,24 @@ function sort_order_move_down(	move_index,
 	{
 		attribute_name = attribute_name_list[ i ];
 
-		sort_order_move_attribute_down(	move_index,
-						here_index,
-						attribute_name );
+		sort_order_move_attribute_up_shift_down(
+			move_index,
+			here_index,
+			attribute_name );
 	}
 
 	return true;
 
-} // sort_order_move_down()
+} // sort_order_move_up_shift_down()
 
 function sort_order_move( attribute_list_string )
 {
 	var move_value;
 	var move_index;
+	var move_index_integer;
 	var here_value;
 	var here_index;
+	var here_index_integer;
 
 	move_value = timlib_get_radio_selected_value( "move" );
 
@@ -162,25 +169,32 @@ function sort_order_move( attribute_list_string )
 
 	move_index = sort_order_get_index( move_value );
 
+	move_index_integer = move_index - 0;
+
 	here_value = timlib_get_radio_selected_value( "here" );
+
 	here_index = sort_order_get_index( here_value );
 
-	if ( move_index == here_index )
+	here_index_integer = here_index - 0;
+
+	if ( move_index_integer == here_index_integer )
 	{
 		return true;
 	}
 	else
-	if ( move_index > here_index )
+	if ( move_index_integer > here_index_integer )
 	{
-		sort_order_move_down(	move_index,
-					here_index,
-					attribute_list_string );
+		sort_order_move_up_shift_down(
+			move_index,
+			here_index,
+			attribute_list_string );
 	}
 	else
 	{
-		sort_order_move_up(	move_index,
-					here_index,
-					attribute_list_string );
+		sort_order_move_down_shift_up(
+			move_index,
+			here_index,
+			attribute_list_string );
 	}
 
 	return true;

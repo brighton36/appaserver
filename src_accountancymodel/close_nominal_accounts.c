@@ -164,6 +164,7 @@ boolean close_nominal_accounts_execute(
 	char *transaction_date_time;
 	char *fund_name;
 	LIST *fund_name_list;
+	char sys_string[ 1024 ];
 
 	if ( ! ( transaction_date_time =
 			ledger_get_closing_transaction_date_time(
@@ -181,9 +182,13 @@ boolean close_nominal_accounts_execute(
 		return 0;
 	}
 
-	fund_name_list = ledger_get_fund_name_list( application_name );
+	sprintf( sys_string,
+		 "folder_attribute_exists.sh %s account fund",
+		 application_name );
 
-	if ( !list_rewind( fund_name_list ) )
+	/* If no ACCOUNT.fund attribute */
+	/* ---------------------------- */
+	if ( system( sys_string ) != 0 )
 	{
 		return close_nominal_accounts_fund_execute(
 				application_name,
@@ -191,7 +196,19 @@ boolean close_nominal_accounts_execute(
 				transaction_date_time,
 				as_of_date );
 	}
-	else
+
+	fund_name_list = ledger_get_fund_name_list( application_name );
+
+	if ( !list_rewind( fund_name_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty fund_name_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	do {
 		fund_name = list_get_pointer( fund_name_list );
 
@@ -247,15 +264,6 @@ boolean close_nominal_accounts_fund_execute(
 			 __LINE__ );
 		return 0;
 	}
-
-/*
-	if ( ledger_transaction_exists(	application_name,
-					transaction_date_time_string ) )
-	{
-		printf( "<h3>Error: a transaction already exists.</h3>\n" );
-		return 0;
-	}
-*/
 
 	transaction = ledger_transaction_new(
 				self->entity->full_name,
@@ -457,14 +465,12 @@ void close_nominal_accounts_display(
 	char sys_string[ 512 ];
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s	"
-		 "			select=fund	"
-		 "			folder=fund	",
+		 "folder_attribute_exists.sh %s account fund",
 		 application_name );
 
-	fund_name_list = pipe2list( sys_string );
-
-	if ( !list_rewind( fund_name_list ) )
+	/* If no ACCOUNT.fund attribute */
+	/* ---------------------------- */
+	if ( system( sys_string ) != 0 )
 	{
 		transaction_date_time =
 			ledger_get_closing_transaction_date_time(
@@ -476,8 +482,28 @@ void close_nominal_accounts_display(
 			(char *)0 /* fund_name */,
 			transaction_date_time,
 			as_of_date );
+
+		return;
 	}
-	else
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=fund	"
+		 "			folder=fund	",
+		 application_name );
+
+	fund_name_list = pipe2list( sys_string );
+
+	if ( !list_rewind( fund_name_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty fund_name_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	do {
 		fund_name = list_get_pointer( fund_name_list );
 
@@ -560,9 +586,16 @@ void close_nominal_accounts_fund_display(
 	list_append_pointer( heading_list, "Debit" );
 	list_append_pointer( heading_list, "Credit" );
 
-	sprintf(	title,
-			"Fund: %s",
-			format_initial_capital( buffer, fund_name ) );
+	if ( fund_name && *fund_name )
+	{
+		sprintf(	title,
+				"Fund: %s",
+				format_initial_capital( buffer, fund_name ) );
+	}
+	else
+	{
+		*title = '\0';
+	}
 
 	sprintf(	sub_title,
 			"Transaction Date Time: %s",
@@ -734,8 +767,15 @@ double output_subclassification_list(
 		if ( !list_rewind( subclassification->account_list ) )
 			continue;
 
-		if ( strcmp(	subclassification->subclassification_name,
-				LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		if ( strcmp(
+			subclassification->subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0
+		||   strcmp(
+			subclassification->subclassification_name,
+			LEDGER_SUBCLASSIFICATION_CONTRIBUTED_CAPITAL ) == 0
+		||   strcmp(
+			subclassification->subclassification_name,
+			LEDGER_SUBCLASSIFICATION_RETAINED_EARNINGS ) == 0 )
 		{
 			continue;
 		}
@@ -814,8 +854,15 @@ double insert_journal_ledger(
 		if ( !list_rewind( subclassification->account_list ) )
 			continue;
 
-		if ( strcmp(	subclassification->subclassification_name,
-				LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0 )
+		if ( strcmp(
+			subclassification->subclassification_name,
+			LEDGER_SUBCLASSIFICATION_NET_ASSETS ) == 0
+		||   strcmp(
+			subclassification->subclassification_name,
+			LEDGER_SUBCLASSIFICATION_CONTRIBUTED_CAPITAL ) == 0
+		||   strcmp(
+			subclassification->subclassification_name,
+			LEDGER_SUBCLASSIFICATION_RETAINED_EARNINGS ) == 0 )
 		{
 			continue;
 		}

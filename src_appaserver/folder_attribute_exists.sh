@@ -13,6 +13,8 @@ application=$1
 folder=$2
 attribute=$3
 
+export DATABASE=$application
+
 results=$(attributes4folder.sh $application $folder | grep "^${attribute}$")
 
 if [ "$results" = "" ]

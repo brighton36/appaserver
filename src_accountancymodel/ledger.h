@@ -22,18 +22,25 @@
 #define TAX_FORM_CATEGORY_KEY		".tax_form_category "
 #define TAX_FORM_CATEGORY_ACCOUNT_KEY	".account "
 
-#define LEDGER_LOCK_TRANSACTION_ATTRIBUTE	\
+#define LEDGER_LOCK_TRANSACTION_ATTRIBUTE		\
 					"lock_transaction_yn"
 
 #define LEDGER_BEGINNING_BALANCE_LABEL	"Equity Beginning Balance"
 
-#define LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS	\
+#define LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS		\
 					"change_in_net_assets"
 
-#define LEDGER_ACCOUNT_NET_INCOME		\
+#define LEDGER_ACCOUNT_NET_INCOME			\
 					"net_income"
-#define LEDGER_SUBCLASSIFICATION_NET_ASSETS	\
+
+#define LEDGER_SUBCLASSIFICATION_NET_ASSETS		\
 					"net_assets"
+
+#define LEDGER_SUBCLASSIFICATION_CONTRIBUTED_CAPITAL	\
+					"contributed_capital"
+
+#define LEDGER_SUBCLASSIFICATION_RETAINED_EARNINGS	\
+					"retained_earnings"
 
 #define CLOSING_ENTRY_MEMO		"Closing entry"
 #define LEDGER_FOLDER_NAME		"journal_ledger"

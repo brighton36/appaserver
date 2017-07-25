@@ -38,15 +38,20 @@ int main( void )
 	email_address = dictionary_get( dictionary, "email_address" );
 	message = dictionary_get( dictionary, "message" );
 
-	sprintf( sys_string,
-		 "mailx -s \"Appahost message about %s from %s\" %s",
-		 reason,
-		 email_address,
-		 TIMRILEY_EMAIL_ADDRESS );
+	if ( reason && *reason
+	&&   email_address && *email_address
+	&&   message && *message )
+	{
+		sprintf( sys_string,
+		 	"mailx -s \"Appahost message about %s from %s\" %s",
+		 	reason,
+		 	email_address,
+		 	TIMRILEY_EMAIL_ADDRESS );
 
-	output_pipe = popen( sys_string, "w" );
-	fprintf( output_pipe, "%s\n", message );
-	pclose( output_pipe );
+		output_pipe = popen( sys_string, "w" );
+		fprintf( output_pipe, "%s\n", message );
+		pclose( output_pipe );
+	}
 
 	document_output_content_type();
 

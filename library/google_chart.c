@@ -1667,20 +1667,6 @@ LIST *google_chart_datatype_get_output_chart_list(
 					input_value->value );
 			}
 
-#ifdef NOT_DEFINED
-			timeline =
-				google_timeline_append(
-					output_chart->timeline_list,
-					input_value->date_time,
-					(char *)0 /*time_hhmm */,
-					length_datatype_name_list );
-
-			timeline->point_array[ 0 ] =
-				google_point_double_calloc();
-
-			*timeline->point_array[ 0 ] = input_value->value;
-#endif
-
 		} while( list_next( datatype_chart->input_value_list ) );
 
 	} while( list_next( datatype_chart_list ) );
@@ -2085,4 +2071,104 @@ char *google_datatype_chart_list_display(
 	return strdup( buffer );
 
 } /* google_datatype_chart_list_display() */
+
+GOOGLE_COMBO_CHART *google_combo_chart_new( void )
+{
+	GOOGLE_COMBO_CHART *g;
+
+	g = (GOOGLE_COMBO_CHART *)calloc( 1, sizeof( GOOGLE_COMBO_CHART ) );
+
+	if ( !g )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return g;
+
+} /* google_combo_chart_new() */
+
+GOOGLE_HAXIS *google_haxis_new( void )
+{
+	GOOGLE_HAXIS *g;
+
+	g = (GOOGLE_HAXIS *)calloc( 1, sizeof( GOOGLE_HAXIS ) );
+
+	if ( !g )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return g;
+
+} /* google_haxis_new() */
+
+GOOGLE_VAXIS *google_vaxis_new( void )
+{
+	GOOGLE_VAXIS *g;
+
+	g = (GOOGLE_VAXIS *)calloc( 1, sizeof( GOOGLE_VAXIS ) );
+
+	if ( !g )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return g;
+
+} /* google_vaxis_new() */
+
+GOOGLE_DATA *google_data_new( void )
+{
+	GOOGLE_DATA *g;
+
+	g = (GOOGLE_DATA *)calloc( 1, sizeof( GOOGLE_DATA ) );
+
+	if ( !g )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return g;
+
+} /* google_data_new() */
+
+GOOGLE_VAXIS_SERIES *google_vaxis_series_new( void )
+{
+	GOOGLE_VAXIS_SERIES *g;
+
+	g = (GOOGLE_VAXIS_SERIES *)calloc( 1, sizeof( GOOGLE_VAXIS_SERIES ) );
+
+	if ( !g )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return g;
+
+} /* google_vaxis_series() */
 

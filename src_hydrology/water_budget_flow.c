@@ -175,7 +175,7 @@ boolean populate_inflow_outflow_hash_table(
 WATER_BUDGET_FLOW_MEASUREMENT *new_measurement(
 					void );
 
-boolean water_budget_flow_output_easychart(
+boolean water_budget_flow_output_googlechart(
 				char *application_name,
 				char *begin_date,
 				char *end_date,
@@ -870,9 +870,9 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	if ( strcmp( output_medium, "easychart" ) == 0 )
+	if ( strcmp( output_medium, "googlechart" ) == 0 )
 	{
-		if ( !water_budget_flow_output_easychart(
+		if ( !water_budget_flow_output_googlechart(
 					application_name,
 					begin_date,
 					end_date,
@@ -2267,7 +2267,7 @@ void get_report_title(	char *title,
 	format_initial_capital( title, title );
 } /* get_report_title() */
 
-boolean water_budget_flow_output_easychart(
+boolean water_budget_flow_output_googlechart(
 				char *application_name,
 				char *begin_date,
 				char *end_date,
@@ -2278,51 +2278,8 @@ boolean water_budget_flow_output_easychart(
 				char *flow_units,
 				char *flow_units_converted )
 {
-	EASYCHARTS *easycharts;
-	FILE *chart_file;
-	char title[ 512 ];
-	int easycharts_width;
-	int easycharts_height;
 
-	get_report_title(	title,
-				aggregate_level,
-				flow_units,
-				flow_units_converted );
-
-	sprintf( title + strlen( title ), 
-		 "\\nFrom: %s to %s\n",
-		 begin_date,
-		 end_date );
-
-	application_constants_get_easycharts_width_height(
-			&easycharts_width,
-			&easycharts_height,
-			application_name );
-
-	easycharts =
-		easycharts_new_timeline_easycharts(
-			easycharts_width, easycharts_height );
-
-	easycharts_get_chart_filename(
-			&easycharts->chart_filename,
-			&easycharts->prompt_filename,
-			application_name,
-			document_root_directory,
-			getpid() );
-
-/*
-	easycharts->legend_on = 0;
-	easycharts->set_y_lower_range = 1;
-*/
-	easycharts->title = title;
-	easycharts->bold_labels = 0;
-	easycharts->bold_legends = 0;
-	easycharts->sample_scroller_on = 1;
-	easycharts->range_scroller_on = 1;
-
-	water_budget_flow_populate_easycharts_input_chart_list_datatypes(
-			easycharts->input_chart_list );
-
+#ifdef NOT_DEFINED
 	if ( !water_budget_flow_populate_easycharts_input_chart_list_data(
 			easycharts->input_chart_list,
 			inflow_outflow_hash_table,
@@ -2337,60 +2294,10 @@ boolean water_budget_flow_output_easychart(
 		easycharts_timeline_get_output_chart_list(
 			easycharts->input_chart_list );
 
-	chart_file = fopen( easycharts->chart_filename, "w" );
-
-	if ( !chart_file )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s(): cannot open %s\n",
-			__FILE__,
-			__FUNCTION__,
-			easycharts->chart_filename );
-		exit( 1 );
-	}
-
-	easycharts_output_all_charts(
-			chart_file,
-			easycharts->output_chart_list,
-			easycharts->highlight_on,
-			easycharts->highlight_style,
-			easycharts->point_highlight_size,
-			easycharts->series_labels,
-			easycharts->series_line_off,
-			easycharts->applet_library_archive,
-			easycharts->width,
-			easycharts->height,
-			easycharts->title,
-			easycharts->set_y_lower_range,
-			easycharts->legend_on,
-			easycharts->value_labels_on,
-			easycharts->sample_scroller_on,
-			easycharts->range_scroller_on,
-			easycharts->xaxis_decimal_count,
-			easycharts->yaxis_decimal_count,
-			easycharts->range_labels_off,
-			easycharts->value_lines_off,
-			easycharts->range_step,
-			easycharts->sample_label_angle,
-			easycharts->bold_labels,
-			easycharts->bold_legends,
-			easycharts->font_size,
-			easycharts->label_parameter_name,
-			1 /* include_sample_series_output */ );
-
-	easycharts_output_html( chart_file );
-
-	fclose( chart_file );
-
-	easycharts_output_graph_window(
-				application_name,
-				(char *)0 /* appaserver_mount_point */,
-				0 /* not with_document_output */,
-				process_name,
-				easycharts->prompt_filename,
-				(char *)0 /* where_clause */ );
+#endif
 	return 1;
-} /* water_budget_flow_output_easychart() */
+
+} /* water_budget_flow_output_googlechart() */
 
 boolean water_budget_flow_populate_easycharts_input_chart_list_data(
 			LIST *input_chart_list,

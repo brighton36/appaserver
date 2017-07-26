@@ -2273,16 +2273,6 @@ boolean measurement_differences_output_googlechart(
 			GOOGLE_CHART_WIDTH,
 			GOOGLE_CHART_HEIGHT );
 
-#ifdef NOT_DEFINED
-	/* Change package to corechart */
-	/* --------------------------- */
-	google_output_chart =
-		list_get_first_pointer(
-			google_chart->output_chart_list );
-
-	google_output_chart->google_package_name = GOOGLE_CORECHART;
-#endif
-
 	google_chart_output_all_charts(
 			chart_file,
 			google_chart->output_chart_list,

@@ -46,16 +46,6 @@
 #define DATE_TIME_DELIMITER		':' 
 #define FILENAME_STEM			"measurement_delta"
 
-/*
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/measurement_delta_%s_%s_%s_%s%s.csv"
-#define FTP_PREPEND_FILE_SPREADSHEET "%s://%s/%s/measurement_delta_%s_%s_%s_%s%s.csv"
-#define FTP_NONPREPEND_FILE_SPREADSHEET "/%s/measurement_delta_%s_%s_%s_%s%s.csv"
-
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/measurement_delta_%s_%s_%s_%s%s.txt"
-#define FTP_PREPEND_FILE_TEXT_FILE "%s://%s/%s/measurement_delta_%s_%s_%s_%s%s.txt"
-#define FTP_NONPREPEND_FILE_TEXT_FILE "/%s/measurement_delta_%s_%s_%s_%s%s.txt"
-*/
-
 /* Prototypes */
 /* ---------- */
 boolean populate_datatype_chart_list_data(

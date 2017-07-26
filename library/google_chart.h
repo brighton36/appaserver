@@ -32,6 +32,42 @@ enum google_chart_type{	google_column_chart,
 /* ---------- */
 typedef struct
 {
+	char *v_axis_data;
+	double **point_array;
+} GOOGLE_DATA;
+
+typedef struct
+{
+	char *column_heading;
+	char *series_type;
+	int min;
+	int max;
+	char *gridlines_color;
+} GOOGLE_VAXIS_SERIES;
+
+typedef struct
+{
+	char *title;
+	LIST *v_axis_series_list;
+	boolean two_sided;
+} GOOGLE_VAXIS;
+
+typedef struct
+{
+	char *title;
+} GOOGLE_HAXIS;
+
+typedef struct
+{
+	int chart_number;
+	char *title;
+	GOOGLE_HAXIS *h_axis;
+	GOOGLE_VAXIS *v_axis;
+	LIST *data_list;
+} GOOGLE_COMBO_CHART;
+
+typedef struct
+{
 	char *stratum_name;
 	double **point_array;
 } GOOGLE_BARCHART;
@@ -97,6 +133,7 @@ typedef struct
 	LIST *datatype_chart_list;
 	LIST *unit_chart_list;
 	LIST *output_chart_list;
+	LIST *combo_chart_list;
 	char *title;
 	char *sub_title;
 	char *stylesheet;
@@ -378,5 +415,17 @@ double **google_point_array_double_calloc(
 
 LIST *google_datatype_chart_get_datatype_name_list(
 				LIST *datatype_chart_list );
+
+GOOGLE_COMBO_CHART *google_combo_chart_new(
+				void );
+
+GOOGLE_HAXIS *google_haxis_new( void );
+
+GOOGLE_VAXIS *google_vaxis_new( void );
+
+GOOGLE_DATA *google_data_new( void );
+
+GOOGLE_VAXIS_SERIES *google_vaxis_series_new(
+				void );
 
 #endif

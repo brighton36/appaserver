@@ -667,9 +667,6 @@ if ( bar_chart ){};
 		return;
 	}
 
-/*
-	fprintf( output_file, "<html>\n" );
-*/
 	document_output_html_stream( output_file );
 
 	fprintf( output_file, "<head>\n" );

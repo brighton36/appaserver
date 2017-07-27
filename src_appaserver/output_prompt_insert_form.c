@@ -653,6 +653,16 @@ int main( int argc, char **argv )
 		lookup_before_drop_down_state ==
 			lookup_participating_is_root_all_complete )
 	{
+		char *back_to_prelookup_folder_name;
+
+		back_to_prelookup_folder_name =
+			( lookup_before_drop_down->
+					insert_folder_name )
+				? lookup_before_drop_down->
+					insert_folder_name
+				: lookup_before_drop_down->
+					base_folder->folder_name;
+
 		prelookup_button_control_string =
 			appaserver_library_get_prelookup_button_control_string(
 				application_name,
@@ -662,12 +672,7 @@ int main( int argc, char **argv )
 				database_string,
 				session,
 				folder_name,
-				lookup_before_drop_down->
-					insert_folder_name,
-/*
-				lookup_before_drop_down->
-					base_folder->folder_name,
-*/
+				back_to_prelookup_folder_name,
 				role_name,
 				state );
 	}

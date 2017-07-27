@@ -663,7 +663,11 @@ int main( int argc, char **argv )
 				session,
 				folder_name,
 				lookup_before_drop_down->
+					insert_folder_name,
+/*
+				lookup_before_drop_down->
 					base_folder->folder_name,
+*/
 				role_name,
 				state );
 	}
@@ -680,19 +684,6 @@ int main( int argc, char **argv )
 			0 /* form_number */,
 			(char *)0 /* post_change_javascript */,
 			pair_one2m->pair_one2m_folder_name_list );
-
-#ifdef NOT_DEFINED
-	form_output_trailer(
-			1 /* output_submit_reset_buttons */,
-			0 /* output_insert_flag */,
-			form->submit_control_string,
-			form->html_help_file_anchor,
-			remember_keystrokes_onload_control_string,
-			prelookup_button_control_string,
-			application_name,
-			with_dynarch_menu /* with_back_to_top_button */,
-			0 /* form_number */ );
-#endif
 
 	document_close();
 

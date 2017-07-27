@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_appaserver/post_choose_folder.c					*/
+/* $APPASERVER_HOME/src_appaserver/post_choose_folder.c			*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/

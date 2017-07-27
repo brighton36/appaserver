@@ -410,6 +410,14 @@ void post_prompt_edit_form_lookup_before_drop_down(
 				lookup_before_drop_down_dictionary,
 			state );
 
+	if ( strcmp( state, "insert" ) == 0 )
+	{
+		lookup_before_drop_down->insert_folder_name =
+		      lookup_before_drop_down_get_dictionary_insert_folder_name(
+				dictionary_appaserver->
+					lookup_before_drop_down_dictionary );
+	}
+
 	dictionary_set_pointer(
 		dictionary_appaserver->
 			lookup_before_drop_down_dictionary,

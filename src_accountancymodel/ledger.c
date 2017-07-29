@@ -167,12 +167,22 @@ ACCOUNT *ledger_account_fetch(	char *application_name,
 
 } /* ledger_account_fetch() */
 
-char *ledger_account_get_select( void )
+char *ledger_account_get_select( char *application_name )
 {
 	char *select;
 
-	select =
+	if ( ledger_fund_attribute_exists(
+			application_name,
+			"account" ) )
+	{
+		select =
 "account,fund,subclassification,display_order,hard_coded_account_key";
+	}
+	else
+	{
+		select =
+"account,'fund',subclassification,display_order,hard_coded_account_key";
+	}
 
 	return select;
 }
@@ -263,7 +273,7 @@ LIST *ledger_get_account_list(	char *application_name,
 	if ( account_list ) return account_list;
 
 	account_list = list_new();
-	select = ledger_account_get_select();
+	select = ledger_account_get_select( application_name );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -355,7 +365,7 @@ void ledger_account_load(	char **fund_name,
 	char sys_string[ 1024 ];
 	char *results;
 
-	select = ledger_account_get_select();
+	select = ledger_account_get_select( application_name );
 
 	sprintf(	where,
 			"account = '%s'",
@@ -365,7 +375,7 @@ void ledger_account_load(	char **fund_name,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=account		"
 		 "			where=\"%s\"		",
 		 application_name,
@@ -893,7 +903,7 @@ LIST *ledger_subclassification_quickly_get_account_list(
 	FILE *input_pipe;
 
 	account_list = list_new();
-	select = ledger_account_get_select();
+	select = ledger_account_get_select( application_name );
 
 	sprintf(where,
 		"subclassification = '%s'",
@@ -6114,7 +6124,7 @@ char *ledger_beginning_transaction_date(
 	/* ------------------ */
 	select = "min( transaction_date_time )";
 
-	if ( fund_name )
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
 		/* Get the first entry for the fund. */
 		/* --------------------------------- */
@@ -6160,6 +6170,13 @@ char *ledger_beginning_transaction_date(
 LIST *ledger_get_fund_name_list( char *application_name )
 {
 	char sys_string[ 512 ];
+
+	if ( !ledger_fund_attribute_exists(
+				application_name,
+				"account" ) )
+	{
+		return (LIST *)0;
+	}
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
@@ -6919,4 +6936,49 @@ TRANSACTION *ledger_inventory_purchase_build_transaction(
 	return transaction;
 
 } /* ledger_inventory_purchase_build_transaction() */
+
+boolean ledger_fund_attribute_exists(
+				char *application_name,
+				char *folder_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	 	"folder_attribute_exists.sh %s %s fund",
+	 	application_name,
+	 	folder_name );
+
+	return ( system( sys_string ) == 0 );
+
+} /* ledger_fund_attribute_exists() */
+
+char *ledger_get_fund_where(	char *application_name,
+				char *folder_name,
+				char *fund_name )
+{
+	char where[ 128 ];
+
+	if ( !fund_name
+	||   !*fund_name
+	||   strcmp( fund_name, "fund" ) == 0 )
+	{
+		strcpy( where, "1 = 1" );
+	}
+	else
+	if ( ledger_fund_attribute_exists(
+			application_name,
+			folder_name ) )
+	{
+		sprintf(where,
+		 	"fund = '%s'",
+		 	fund_name );
+	}
+	else
+	{
+		strcpy( where, "1 = 1" );
+	}
+
+	return strdup( where );
+
+} /* ledger_get_fund_where() */
 

@@ -816,7 +816,7 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 				char *application_name,
 				char *account_name );
 
-char *ledger_account_get_select(void );
+char *ledger_account_get_select(char *application_name );
 
 void ledger_append_propagate_account_list(
 				LIST *propagate_account_list,
@@ -881,5 +881,13 @@ void ledger_journal_insert_stream(
 				double amount,
 				char *debit_account_name,
 				char *credit_account_name );
+
+char *ledger_get_fund_where(	char *application_name,
+				char *folder_name,
+				char *fund_name );
+
+boolean ledger_fund_attribute_exists(
+				char *application_name,
+				char *folder_name );
 
 #endif

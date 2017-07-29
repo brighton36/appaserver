@@ -109,13 +109,14 @@ boolean depreciation_date_exists(
 			char *depreciation_date )
 {
 	char sys_string[ 1024 ];
-	char fund_where[ 128 ];
+	char *fund_where;
 	char where[ 512 ];
 	char *folder;
 	char *results;
 
 	folder = "purchase_order,depreciation";
 
+/*
 	sprintf( sys_string,
 		 "folder_attribute_exists.sh %s purchase_order fund",
 		 application_name );
@@ -130,7 +131,13 @@ boolean depreciation_date_exists(
 	{
 		strcpy( fund_where, "1 = 1" );
 	}
-		
+*/
+
+	ledger_get_fund_where(
+		application_name,
+		"purchase_order",
+		fund_name );
+
 	sprintf( where,
 "depreciation.full_name = purchase_order.full_name and depreciation.street_address = purchase_order.street_address and depreciation.purchase_date_time = purchase_order.purchase_date_time and %s and depreciation_date = '%s'",
 		 fund_where,

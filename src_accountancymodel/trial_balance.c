@@ -169,7 +169,7 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund_name as_of_date aggregation output_medium\n",
+"Usage: %s application process fund as_of_date aggregation output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

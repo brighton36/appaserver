@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* src_accountancymodel/post_change_customer_sale.c			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/post_change_customer_sale.c	*/
+/* -----------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -164,6 +164,12 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	full_name = argv[ 2 ];

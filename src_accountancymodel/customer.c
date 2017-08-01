@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------	*/
-/* src_accountancymodel/customer.c					*/
+/* $APPASERVER_HOME/src_accountancymodel/customer.c			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel customer_sale ADT.			*/
 /*									*/
@@ -132,13 +132,15 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 	c->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&c->sum_inventory_extension,
-			&c->sum_service_extension,
+			&c->sum_fixed_service_extension,
+			&c->sum_hourly_service_extension,
 			&c->sum_extension,
 			&c->sales_tax,
 			c->shipping_revenue,
 			c->inventory_sale_list,
 			c->specific_inventory_sale_list,
-			c->service_sale_list,
+			c->fixed_service_sale_list,
+			c->hourly_service_sale_list,
 			c->full_name,
 			c->street_address,
 			application_name );
@@ -257,7 +259,8 @@ LIST *customer_sale_specific_inventory_get_list(
 
 } /* customer_sale_specific_inventory_get_list() */
 
-LIST *customer_sale_service_get_list(	char *application_name,
+LIST *customer_fixed_service_sale_get_list(
+					char *application_name,
 					char *full_name,
 					char *street_address,
 					char *sale_date_time )
@@ -322,7 +325,7 @@ LIST *customer_sale_service_get_list(	char *application_name,
 	pclose( input_pipe );
 	return service_sale_list;
 
-} /* customer_sale_service_get_list() */
+} /* customer_fixed_service_sale_get_list() */
 
 SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_new(
 					char *inventory_name,
@@ -338,16 +341,30 @@ SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_new(
 
 } /* customer_specific_inventory_sale_new() */
 
-SERVICE_SALE *customer_service_sale_new( char *service_name )
+FIXED_SALE *customer_fixed_service_sale_new( char *service_name )
 {
-	SERVICE_SALE *p =
-		(SERVICE_SALE *)
-			calloc( 1, sizeof( SERVICE_SALE ) );
+	FIXED_SALE *p =
+		(FIXED_SALE *)
+			calloc( 1, sizeof( FIXED_SALE ) );
 
 	p->service_name = service_name;
 	return p;
 
-} /* customer_service_sale_new() */
+} /* customer_fixed_service_sale_new() */
+
+HOURLY_SALE *customer_hourly_service_sale_new(
+					char *service_name,
+					char *description )
+{
+	HOURLY_SALE *p =
+		(HOURLY_SALE *)
+			calloc( 1, sizeof( HOURLY_SALE ) );
+
+	p->service_name = service_name;
+	p->description = description;
+	return p;
+
+} /* customer_hourly_service_sale_new() */
 
 double customer_sale_get_cost_of_goods_sold(
 					LIST *inventory_sale_list )
@@ -414,25 +431,45 @@ double customer_sale_get_sum_inventory_extension(
 
 } /* customer_sale_get_sum_inventory_extension() */
 
-double customer_sale_get_sum_service_extension(
-					LIST *service_sale_list )
+double customer_sale_get_sum_fixed_service_extension(
+					LIST *fixed_service_sale_list )
 {
-	SERVICE_SALE *service_sale;
+	FIXED_SERVICE *s;
 	double sum_extension;
 
-	if ( !list_rewind( service_sale_list ) ) return 0.0;
+	if ( !list_rewind( fixed_service_sale_list ) ) return 0.0;
 
 	sum_extension = 0.0;
 
 	do {
-		service_sale = list_get( service_sale_list );
-		sum_extension += service_sale->extension;
+		s = list_get( fixed_service_sale_list );
+		sum_extension += s->extension;
 
-	} while( list_next( service_sale_list ) );
+	} while( list_next( fixed_service_sale_list ) );
 
 	return sum_extension;
 
-} /* customer_sale_get_sum_service_extension() */
+} /* customer_sale_get_sum_fixed_service_extension() */
+
+double customer_sale_get_sum_hourly_service_extension(
+					LIST *hourly_service_sale_list )
+{
+	HOURLY_SERVICE *s;
+	double sum_extension;
+
+	if ( !list_rewind( hourly_service_sale_list ) ) return 0.0;
+
+	sum_extension = 0.0;
+
+	do {
+		s = list_get( hourly_service_sale_list );
+		sum_extension += s->extension;
+
+	} while( list_next( hourly_service_sale_list ) );
+
+	return sum_extension;
+
+} /* customer_sale_get_sum_hourly_service_extension() */
 
 char *customer_sale_get_select( void )
 {
@@ -800,13 +837,15 @@ void customer_sale_update(
 
 double customer_sale_get_invoice_amount(
 				double *sum_inventory_extension,
-				double *sum_service_extension,
+				double *sum_fixed_service_extension,
+				double *sum_hourly_service_extension,
 				double *sum_extension,
 				double *sales_tax,
 				double shipping_revenue,
 				LIST *inventory_sale_list,
 				LIST *specific_inventory_sale_list,
-				LIST *service_sale_list,
+				LIST *fixed_service_sale_list,
+				LIST *hourly_service_sale_list,
 				char *full_name,
 				char *street_address,
 				char *application_name )
@@ -819,21 +858,18 @@ double customer_sale_get_invoice_amount(
 		customer_sale_get_sum_specific_inventory_extension(
 			specific_inventory_sale_list );
 
-/*
-	*customer_sale_cost_of_goods_sold =
-		customer_sale_get_cost_of_goods_sold(
-			inventory_sale_list ) +
-		customer_sale_get_specific_inventory_cost_of_goods_sold(
-			specific_inventory_sale_list );
-*/
+	*sum_fixed_service_extension =
+		customer_sale_get_sum_fixed_service_extension(
+			fixed_service_sale_list );
 
-	*sum_service_extension =
-		customer_sale_get_sum_service_extension(
-			service_sale_list );
+	*sum_hourly_service_extension =
+		customer_sale_get_sum_hourly_service_extension(
+			hourly_service_sale_list );
 
 	*sum_extension =
 			*sum_inventory_extension +
-			*sum_service_extension;
+			*sum_fixed_service_extension;
+			*sum_hourly_service_extension;
 
 	*sales_tax =
 		*sum_inventory_extension *
@@ -1106,7 +1142,8 @@ LIST *customer_sale_ledger_refresh(
 				char *street_address,
 				char *transaction_date_time,
 				double sum_inventory_extension,
-				double sum_service_extension,
+				double sum_fixed_service_extension,
+				double sum_hourly_service_extension,
 				double sales_tax,
 				double shipping_revenue,
 				double invoice_amount )
@@ -1294,7 +1331,7 @@ LIST *customer_sale_ledger_refresh(
 		list_append_pointer( propagate_account_list, account );
 	}
 
-	if ( sum_service_extension )
+	if ( sum_fixed_service_extension + sum_hourly_service_extension )
 	{
 		if ( !service_revenue_account )
 		{
@@ -1312,7 +1349,8 @@ LIST *customer_sale_ledger_refresh(
 			street_address,
 			transaction_date_time,
 			service_revenue_account,
-			sum_service_extension,
+			sum_fixed_service_extension +
+			sum_hourly_service_extension,
 			0 /* not is_debit */ );
 
 		if ( !propagate_account_list )
@@ -1437,29 +1475,56 @@ CUSTOMER_SALE *customer_sale_seek(
 
 } /* customer_sale_seek() */
 
-SERVICE_SALE *customer_service_sale_seek(
-			LIST *service_sale_list,
-			char *service_name )
+HOURLY_SERVICE *customer_fixed_service_sale_seek(
+			LIST *fixed_service_sale_list,
+			char *service_name,
+			char *description )
 {
-	SERVICE_SALE *service_sale;
+	HOURLY_SERVICE *fixed_service;
 
-	if ( !list_rewind( service_sale_list ) )
-		return (SERVICE_SALE *)0;
+	if ( !list_rewind( fixed_service_sale_list ) )
+		return (HOURLY_SERVICE *)0;
 
 	do {
-		service_sale = list_get( service_sale_list );
+		hourly_service = list_get( hourly_service_sale_list );
 
-		if ( strcmp(	service_sale->service_name,
-				service_name ) == 0 )
+		if ( strcmp(	hourly_service->service_name,
+				service_name ) == 0
+		&&   strcmp(	hourly_service->description,
+				description ) == 0 )
 		{
-			return service_sale;
+			return hourly_service;
 		}
 
-	} while( list_next( service_sale_list ) );
+	} while( list_next( hourly_service_sale_list ) );
 
-	return (SERVICE_SALE *)0;
+	return (HOURLY_SERVICE *)0;
 
-} /* customer_service_sale_seek() */
+} /* customer_hourly_service_sale_seek() */
+
+FIXED_SERVICE *customer_fixed_service_sale_seek(
+			LIST *fixed_service_sale_list,
+			char *service_name )
+{
+	FIXED_SERVICE *fixed_service;
+
+	if ( !list_rewind( fixed_service_sale_list ) )
+		return (FIXED_SERVICE *)0;
+
+	do {
+		fixed_service = list_get( fixed_service_sale_list );
+
+		if ( strcmp(	fixed_service->service_name,
+				service_name ) == 0 )
+		{
+			return fixed_service;
+		}
+
+	} while( list_next( fixed_service_sale_list ) );
+
+	return (FIXED_SERVICE *)0;
+
+} /* customer_fixed_service_sale_seek() */
 
 SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_seek(
 			LIST *specific_inventory_sale_list,
@@ -1645,18 +1710,27 @@ LIST *customer_get_inventory_customer_sale_list(
 			customer_sale_get_sum_inventory_extension(
 				customer_sale->inventory_sale_list );
 
-/*
-		customer_sale->service_sale_list =
-			customer_sale_service_get_list(
+		customer_sale->fixed_service_sale_list =
+			customer_fixed_service_sale_get_list(
 				application_name,
 				customer_sale->full_name,
 				customer_sale->street_address,
 				customer_sale->sale_date_time );
 
-		customer_sale->sum_service_extension =
-			customer_sale_get_sum_service_extension(
-				customer_sale->service_sale_list );
-*/
+		customer_sale->sum_fixed_service_extension =
+			customer_sale_get_sum_fixed_service_extension(
+				customer_sale->fixed_service_sale_list );
+
+		customer_sale->hourly_service_sale_list =
+			customer_hourly_service_sale_get_list(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->sale_date_time );
+
+		customer_sale->sum_hourly_service_extension =
+			customer_sale_get_sum_hourly_service_extension(
+				customer_sale->hourly_service_sale_list );
 
 		customer_sale->payment_list =
 			customer_payment_get_list(
@@ -1672,13 +1746,15 @@ LIST *customer_get_inventory_customer_sale_list(
 		customer_sale->invoice_amount =
 			customer_sale_get_invoice_amount(
 				&customer_sale->sum_inventory_extension,
-				&customer_sale->sum_service_extension,
+				&customer_sale->sum_fixed_service_extension,
+				&customer_sale->sum_hourly_service_extension,
 				&customer_sale->sum_extension,
 				&customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->inventory_sale_list,
 				customer_sale->specific_inventory_sale_list,
-				customer_sale->service_sale_list,
+				customer_sale->fixed_service_sale_list,
+				customer_sale->hourly_service_sale_list,
 				customer_sale->full_name,
 				customer_sale->street_address,
 				application_name );
@@ -2220,21 +2296,24 @@ char *customer_payment_get_update_sys_string(
 
 } /* customer_payment_get_update_sys_string() */
 
-void customer_service_sale_update(
+void customer_fixed_service_sale_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
 				char *service_name,
 				double extension,
-				double database_extension )
+				double database_extension,
+				double work_hours,
+				double database_work_hours )
 {
 	FILE *update_pipe;
 	char *table_name;
 	char *key_column_list_string;
 	char sys_string[ 1024 ];
 
-	if ( dollar_virtually_same( extension, database_extension ) )
+	if ( dollar_virtually_same( extension, database_extension )
+	&&   double_virtually_same( work_hours, database_work_hours ) )
 	{
 		return;
 	}
@@ -2263,9 +2342,17 @@ void customer_service_sale_update(
 	 	service_name,
 	 	extension );
 
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^work_hours^%.4lf\n",
+	 	full_name,
+	 	street_address,
+	 	sale_date_time,
+	 	service_name,
+	 	work_hours );
+
 	pclose( update_pipe );
 
-} /* customer_service_sale_update() */
+} /* customer_fixed_service_sale_update() */
 
 void customer_specific_inventory_update(
 				char *application_name,

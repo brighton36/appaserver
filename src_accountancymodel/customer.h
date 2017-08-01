@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/customer.h					*/
+/* $APPASERVER_HOME/src_accountancymodel/customer.h			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel customer_sale ADT.			*/
 /*									*/
@@ -34,12 +34,36 @@
 /* ---------- */
 typedef struct
 {
+	char *begin_date_time;
+	char *end_date_time;
+	double work_hours;
+	double database_work_hours;
+} SERVICE_WORK;
+
+typedef struct
+{
+	char *service_name;
+	char *description;
+	double hourly_rate;
+	double discount_amount;
+	double extension;
+	double database_extension;
+	double work_hours;
+	double database_work_hours;
+	LIST *service_work_list;
+} HOURLY_SERVICE;
+
+typedef struct
+{
 	char *service_name;
 	double retail_price;
 	double discount_amount;
 	double extension;
 	double database_extension;
-} SERVICE_SALE;
+	double work_hours;
+	double database_work_hours;
+	LIST *service_work_list;
+} FIXED_SERVICE;
 
 typedef struct
 {
@@ -76,8 +100,10 @@ typedef struct
 	double sales_tax;
 	double database_sales_tax;
 	double sum_inventory_extension;
-	double sum_service_extension;
-	double sum_extension;
+	double sum_fixed_service_extension;
+	double sum_fixed_extension;
+	double sum_hourly_service_extension;
+	double sum_hourly_extension;
 	double database_sum_extension;
 	double invoice_amount;
 	double database_invoice_amount;
@@ -91,7 +117,8 @@ typedef struct
 	double shipping_revenue;
 	LIST *inventory_sale_list;
 	LIST *specific_inventory_sale_list;
-	LIST *service_sale_list;
+	LIST *fixed_service_sale_list;
+	LIST *hourly_service_sale_list;
 	LIST *payment_list;
 	TRANSACTION *transaction;
 	LIST *propagate_account_list;
@@ -128,8 +155,12 @@ SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_new(
 					char *inventory_name,
 					char *serial_number );
 
-SERVICE_SALE *customer_service_sale_new(
+FIXED_SERVICE_SALE *customer_fixed_service_sale_new(
 					char *service_name );
+
+HOURLY_SERVICE_SALE *customer_hourly_service_sale_new(
+					char *service_name,
+					char *description );
 
 double customer_sale_get_sum_inventory_extension(
 					LIST *inventory_sale_list );
@@ -140,8 +171,11 @@ double customer_sale_get_sum_specific_inventory_extension(
 double customer_sale_get_cost_of_goods_sold(
 					LIST *inventory_sale_list );
 
-double customer_sale_get_sum_service_extension(
-					LIST *sale_service_list );
+double customer_sale_get_sum_fixed_service_extension(
+					LIST *fixed_service_sale_list );
+
+double customer_sale_get_sum_hourly_service_extension(
+					LIST *hourly_service_sale_list );
 
 void customer_sale_parse(	char **full_name,
 				char **street_address,
@@ -221,13 +255,15 @@ void customer_sale_update(	double sum_extension,
 
 double customer_sale_get_invoice_amount(
 				double *sum_inventory_extension,
-				double *sum_service_extension,
+				double *sum_fixed_service_extension,
+				double *sum_hourly_service_extension,
 				double *sum_extension,
 				double *sales_tax,
 				double shipping_revenue,
 				LIST *inventory_sale_list,
 				LIST *specific_inventory_sale_list,
-				LIST *sale_service_list,
+				LIST *fixed_service_sale_list,
+				LIST *hourly_service_sale_list,
 				char *full_name,
 				char *street_address,
 				char *application_name );
@@ -259,7 +295,8 @@ LIST *customer_sale_ledger_refresh(
 				char *street_address,
 				char *transaction_date_time,
 				double sum_inventory_extension,
-				double sum_service_extension,
+				double sum_fixed_service_extension,
+				double sum_hourly_service_extension,
 				double sales_tax,
 				double shipping_revenue,
 				double invoice_amount );
@@ -271,13 +308,6 @@ LIST *customer_sale_ledger_cost_of_goods_sold_update(
 				char *street_address,
 				char *transaction_date_time,
 				double customer_sale_cost_of_goods_sold );
-
-/*
-LIST *customer_sale_get_complete_propagate_account_list(
-				char *application_name,
-				char *fund_name,
-				char *transaction_date_time );
-*/
 
 double customer_sale_fetch_cost_of_goods_sold(
 				char *full_name,
@@ -410,9 +440,14 @@ SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_seek(
 				char *inventory_name,
 				char *serial_number );
 
-SERVICE_SALE *customer_service_sale_seek(
-				LIST *service_sale_list,
+FIXED_SERVICE_SALE *customer_fixed_service_sale_seek(
+				LIST *fixed_service_sale_list,
 				char *service_name );
+
+HOURLY_SERVICE_SALE *customer_hourly_service_sale_seek(
+				LIST *hourly_service_sale_list,
+				char *service_name,
+				char *description );
 
 double customer_sale_get_specific_inventory_cost_of_goods_sold(
 				LIST *specific_inventory_sale_list );
@@ -444,6 +479,17 @@ LIST *customer_sale_ledger_cost_of_goods_sold_insert(
 					char *transaction_date_time,
 					LIST *inventory_account_list,
 					LIST *cost_account_list );
+
+void customer_fixed_service_sale_update(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					double extension,
+					double database_extension,
+					double work_hours,
+					double database_work_hours );
 
 #endif
 

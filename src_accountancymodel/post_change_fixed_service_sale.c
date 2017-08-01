@@ -30,19 +30,21 @@ void post_change_fixed_service_sale_delete(
 				char *street_address,
 				char *sale_date_time );
 
-void post_change_fixed_service_sale_insert(
+void post_change_fixed_service_sale_insert_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
 				char *service_name );
 
+/*
 void post_change_fixed_service_sale_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
 				char *service_name );
+*/
 
 int main( int argc, char **argv )
 {
@@ -75,6 +77,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	full_name = argv[ 2 ];
 	street_address = argv[ 3 ];
@@ -99,7 +107,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		post_change_fixed_service_sale_insert(
+		post_change_fixed_service_sale_insert_update(
 			application_name,
 			full_name,
 			street_address,
@@ -108,7 +116,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		post_change_fixed_service_sale_update(
+		post_change_fixed_service_sale_insert_update(
 			application_name,
 			full_name,
 			street_address,
@@ -120,7 +128,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_fixed_service_sale_insert(
+void post_change_fixed_service_sale_insert_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -159,6 +167,7 @@ void post_change_fixed_service_sale_insert(
 		return;
 	}
 
+/*
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->
@@ -185,6 +194,13 @@ void post_change_fixed_service_sale_insert(
 			customer_sale->invoice_amount,
 			customer_sale->total_payment );
 
+	fixed_service->extension =
+		CUSTOMER_SALE_GET_EXTENSION(
+				fixed_service->retail_price,
+				fixed_service->discount_amount );
+
+*/
+
 	customer_sale_update(
 		customer_sale->sum_extension,
 		customer_sale->database_sum_extension,
@@ -210,11 +226,6 @@ void post_change_fixed_service_sale_insert(
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
 		application_name );
-
-	fixed_service->extension =
-		CUSTOMER_SALE_GET_EXTENSION(
-				fixed_service->retail_price,
-				fixed_service->discount_amount );
 
 	customer_fixed_service_sale_update(
 		application_name,
@@ -262,8 +273,9 @@ void post_change_fixed_service_sale_insert(
 				application_name );
 	}
 
-} /* post_change_fixed_service_sale_insert() */
+} /* post_change_fixed_service_sale_insert_update() */
 
+#ifdef NOT_DEFINED
 void post_change_fixed_service_sale_update(
 			char *application_name,
 			char *full_name,
@@ -303,6 +315,7 @@ void post_change_fixed_service_sale_update(
 		return;
 	}
 
+/*
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->
@@ -329,6 +342,13 @@ void post_change_fixed_service_sale_update(
 			customer_sale->invoice_amount,
 			customer_sale->total_payment );
 
+	fixed_service->extension =
+		CUSTOMER_SALE_GET_EXTENSION(
+				fixed_service->retail_price,
+				fixed_service->discount_amount );
+
+*/
+
 	customer_sale_update(
 		customer_sale->sum_extension,
 		customer_sale->database_sum_extension,
@@ -354,11 +374,6 @@ void post_change_fixed_service_sale_update(
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
 		application_name );
-
-	fixed_service->extension =
-		CUSTOMER_SALE_GET_EXTENSION(
-				fixed_service->retail_price,
-				fixed_service->discount_amount );
 
 	customer_fixed_service_sale_update(
 		application_name,
@@ -407,6 +422,7 @@ void post_change_fixed_service_sale_update(
 	}
 
 } /* post_change_fixed_service_sale_update() */
+#endif
 
 void post_change_fixed_service_sale_delete(
 			char *application_name,
@@ -430,13 +446,6 @@ void post_change_fixed_service_sale_delete(
 			 __LINE__ );
 		return;
 	}
-
-	/* ---------------------------- */
-	/* Expect to change:		*/
-	/* sum_extension,		*/
-	/* invoice_amount,		*/
-	/* amount_due			*/
-	/* ---------------------------- */
 
 	customer_sale_update(
 			customer_sale->sum_extension,

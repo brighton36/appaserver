@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* src_accountancymodel/post_change_customer_payment.c			*/
-/* ---------------------------------------------------------------	*/
+/* --------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/post_change_customer_payment.c	*/
+/* --------------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* --------------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -149,17 +149,15 @@ void post_change_customer_payment_insert(
 	LIST *propagate_account_list;
 
 	if ( !( customer_sale =
-		customer_sale_new(
-			application_name,
-			full_name,
-			street_address,
-			sale_date_time ) ) )
+			customer_sale_new(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time ) ) )
 	{
 		return;
 	}
 
-	/* amount_due set in customer_sale_new(). */
-	/* --------------------------------------- */
 	customer_sale_update(
 		customer_sale->sum_extension,
 		customer_sale->database_sum_extension,

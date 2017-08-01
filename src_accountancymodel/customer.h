@@ -473,6 +473,27 @@ LIST *customer_sale_ledger_cost_of_goods_sold_insert(
 					LIST *inventory_account_list,
 					LIST *cost_account_list );
 
+void customer_fixed_service_work_update(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *begin_date_time,
+					double work_hours,
+					double database_work_hours );
+
+void customer_hourly_service_work_update(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *description,
+					char *begin_date_time,
+					double work_hours,
+					double database_work_hours );
+
 void customer_fixed_service_sale_update(
 					char *application_name,
 					char *full_name,
@@ -526,6 +547,10 @@ LIST *customer_hourly_service_work_get_list(
 					char *description );
 
 SERVICE_WORK *customer_service_work_new(void );
+
+SERVICE_WORK *customer_service_work_seek(
+				LIST *service_work_list,
+				char *begin_date_time );
 
 #endif
 

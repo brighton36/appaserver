@@ -134,14 +134,12 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 				c->street_address,
 				c->sale_date_time );
 
-/*
 	c->specific_inventory_sale_list =
 		customer_sale_specific_inventory_get_list(
 				application_name,
 				c->full_name,
 				c->street_address,
 				c->sale_date_time );
-*/
 
 	c->payment_list =
 		customer_payment_get_list(
@@ -1663,6 +1661,30 @@ FIXED_SERVICE *customer_fixed_service_sale_seek(
 
 } /* customer_fixed_service_sale_seek() */
 
+SERVICE_WORK *customer_service_work_seek(
+				LIST *service_work_list,
+				char *begin_date_time )
+{
+	SERVICE_WORK *service_work;
+
+	if ( !list_rewind( service_work_list ) )
+		return (SERVICE_WORK *)0;
+
+	do {
+		service_work = list_get( service_work_list );
+
+		if ( strcmp(	service_work->begin_date_time,
+				begin_date_time ) == 0 )
+		{
+			return service_work;
+		}
+
+	} while( list_next( service_work_list ) );
+
+	return (SERVICE_WORK *)0;
+
+} /* customer_service_work_seek() */
+
 SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_seek(
 			LIST *specific_inventory_sale_list,
 			char *inventory_name,
@@ -2433,6 +2455,106 @@ char *customer_payment_get_update_sys_string(
 
 } /* customer_payment_get_update_sys_string() */
 
+void customer_fixed_service_work_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *service_name,
+				char *begin_date_time,
+				double work_hours,
+				double database_work_hours )
+{
+	FILE *update_pipe;
+	char *table_name;
+	char *key_column_list_string;
+	char sys_string[ 1024 ];
+
+	if ( double_virtually_same( work_hours, database_work_hours ) )
+	{
+		return;
+	}
+
+	table_name =
+		get_table_name(
+			application_name,
+			"fixed_service_work" );
+
+	key_column_list_string =
+	"full_name,street_address,sale_date_time,service_name,begin_date_time";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y		|"
+		 "sql.e							 ",
+		 table_name,
+		 key_column_list_string );
+
+	update_pipe = popen( sys_string, "w" );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^%s^work_hours^%.4lf\n",
+	 	full_name,
+	 	street_address,
+	 	sale_date_time,
+	 	service_name,
+		begin_date_time,
+	 	work_hours );
+
+	pclose( update_pipe );
+
+} /* customer_fixed_service_work_update() */
+
+void customer_hourly_service_work_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *service_name,
+				char *description,
+				char *begin_date_time,
+				double work_hours,
+				double database_work_hours )
+{
+	FILE *update_pipe;
+	char *table_name;
+	char *key_column_list_string;
+	char sys_string[ 1024 ];
+
+	if ( double_virtually_same( work_hours, database_work_hours ) )
+	{
+		return;
+	}
+
+	table_name =
+		get_table_name(
+			application_name,
+			"hourly_service_work" );
+
+	key_column_list_string =
+"full_name,street_address,sale_date_time,service_name,description,begin_date_time";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y		|"
+		 "sql.e							 ",
+		 table_name,
+		 key_column_list_string );
+
+	update_pipe = popen( sys_string, "w" );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^%s^%s^work_hours^%.4lf\n",
+	 	full_name,
+	 	street_address,
+	 	sale_date_time,
+	 	service_name,
+		description,
+		begin_date_time,
+	 	work_hours );
+
+	pclose( update_pipe );
+
+} /* customer_hourly_service_work_update() */
+
 void customer_fixed_service_sale_update(
 				char *application_name,
 				char *full_name,
@@ -2898,15 +3020,19 @@ LIST *customer_fixed_service_work_get_list(
 		begin_date = date_yyyy_mm_dd_hms_new( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-		end_date = date_yyyy_mm_dd_hms_new( piece_buffer );
 
-		service_work->work_hours =
-			(double)date_subtract_minutes(
+		if ( *piece_buffer )
+		{
+			end_date = date_yyyy_mm_dd_hms_new( piece_buffer );
+
+			service_work->work_hours =
+				(double)date_subtract_minutes(
 					end_date /* later_date */,
 					begin_date /* earlier_date */ ) /
-			60.0;
+				60.0;
 
-		*work_hours += service_work->work_hours;
+			*work_hours += service_work->work_hours;
+		}
 
 		list_append_pointer( service_work_list, service_work );
 	}

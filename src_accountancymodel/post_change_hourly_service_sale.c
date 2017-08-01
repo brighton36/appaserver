@@ -30,7 +30,7 @@ void post_change_hourly_service_sale_delete(
 				char *street_address,
 				char *sale_date_time );
 
-void post_change_hourly_service_sale_insert(
+void post_change_hourly_service_sale_insert_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -38,6 +38,7 @@ void post_change_hourly_service_sale_insert(
 				char *service_name,
 				char *description );
 
+/*
 void post_change_hourly_service_sale_update(
 				char *application_name,
 				char *full_name,
@@ -45,6 +46,7 @@ void post_change_hourly_service_sale_update(
 				char *sale_date_time,
 				char *service_name,
 				char *description );
+*/
 
 int main( int argc, char **argv )
 {
@@ -109,7 +111,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		post_change_hourly_service_sale_insert(
+		post_change_hourly_service_sale_insert_update(
 			application_name,
 			full_name,
 			street_address,
@@ -119,7 +121,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		post_change_hourly_service_sale_update(
+		post_change_hourly_service_sale_insert_update(
 			application_name,
 			full_name,
 			street_address,
@@ -132,7 +134,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_hourly_service_sale_insert(
+void post_change_hourly_service_sale_insert_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -174,32 +176,6 @@ void post_change_hourly_service_sale_insert(
 		return;
 	}
 
-	customer_sale->invoice_amount =
-		customer_sale_get_invoice_amount(
-			&customer_sale->
-				sum_inventory_extension,
-			&customer_sale->
-				sum_fixed_service_extension,
-			&customer_sale->
-				sum_hourly_service_extension,
-			&customer_sale->sum_extension,
-			&customer_sale->sales_tax,
-			customer_sale->shipping_revenue,
-			customer_sale->
-				inventory_sale_list,
-			customer_sale->
-				specific_inventory_sale_list,
-			customer_sale->fixed_service_sale_list,
-			customer_sale->hourly_service_sale_list,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			application_name );
-
-	customer_sale->amount_due =
-		CUSTOMER_GET_AMOUNT_DUE(
-			customer_sale->invoice_amount,
-			customer_sale->total_payment );
-
 	customer_sale_update(
 		customer_sale->sum_extension,
 		customer_sale->database_sum_extension,
@@ -225,12 +201,6 @@ void post_change_hourly_service_sale_insert(
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
 		application_name );
-
-	hourly_service->extension =
-		CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(
-			hourly_service->hourly_rate,
-			hourly_service->work_hours,
-			hourly_service->discount_amount );
 
 	customer_hourly_service_sale_update(
 		application_name,
@@ -279,8 +249,9 @@ void post_change_hourly_service_sale_insert(
 				application_name );
 	}
 
-} /* post_change_hourly_service_sale_insert() */
+} /* post_change_hourly_service_sale_insert_update() */
 
+#ifdef NOT_DEFINED
 void post_change_hourly_service_sale_update(
 			char *application_name,
 			char *full_name,
@@ -380,13 +351,13 @@ void post_change_hourly_service_sale_update(
 		CUSTOMER_SALE_GET_EXTENSION(
 				service_sale->retail_price,
 				service_sale->discount_amount );
-*/
 
 	hourly_service->extension =
 		CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(
 			hourly_service->hourly_rate,
 			hourly_service->work_hours,
 			hourly_service->discount_amount );
+*/
 
 	customer_hourly_service_sale_update(
 		application_name,
@@ -436,6 +407,7 @@ void post_change_hourly_service_sale_update(
 	}
 
 } /* post_change_hourly_service_sale_update() */
+#endif
 
 void post_change_hourly_service_sale_delete(
 			char *application_name,
@@ -459,13 +431,6 @@ void post_change_hourly_service_sale_delete(
 			 __LINE__ );
 		return;
 	}
-
-	/* ---------------------------- */
-	/* Expect to change:		*/
-	/* sum_extension,		*/
-	/* invoice_amount,		*/
-	/* amount_due			*/
-	/* ---------------------------- */
 
 	customer_sale_update(
 			customer_sale->sum_extension,

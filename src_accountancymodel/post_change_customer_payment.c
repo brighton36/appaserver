@@ -309,13 +309,15 @@ void post_change_customer_payment_delete(
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->sum_inventory_extension,
-			&customer_sale->sum_service_extension,
+			&customer_sale->sum_fixed_service_extension,
+			&customer_sale->sum_hourly_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
 			customer_sale->inventory_sale_list,
 			customer_sale->specific_inventory_sale_list,
-			customer_sale->service_sale_list,
+			customer_sale->fixed_service_sale_list,
+			customer_sale->hourly_service_sale_list,
 			customer_sale->full_name,
 			customer_sale->street_address,
 			application_name );

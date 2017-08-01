@@ -100,14 +100,21 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 			c->street_address,
 			c->sale_date_time );
 
-/*
-	c->service_sale_list =
-		customer_sale_service_get_list(
+	c->fixed_service_sale_list =
+		customer_fixed_service_sale_get_list(
 				application_name,
 				c->full_name,
 				c->street_address,
 				c->sale_date_time );
 
+	c->hourly_service_sale_list =
+		customer_hourly_service_sale_get_list(
+				application_name,
+				c->full_name,
+				c->street_address,
+				c->sale_date_time );
+
+/*
 	c->specific_inventory_sale_list =
 		customer_sale_specific_inventory_get_list(
 				application_name,
@@ -271,10 +278,11 @@ LIST *customer_fixed_service_sale_get_list(
 	char input_buffer[ 1024 ];
 	char piece_buffer[ 256 ];
 	FILE *input_pipe;
-	SERVICE_SALE *service_sale;
-	LIST *service_sale_list;
+	FIXED_SERVICE *fixed_service;
+	LIST *fixed_service_sale_list;
 
-	select = "service_name,retail_price,discount_amount,extension";
+	select =
+	"service_name,retail_price,discount_amount,extension,work_hours";
 
 	where = ledger_get_transaction_where(
 					full_name,
@@ -286,46 +294,137 @@ LIST *customer_fixed_service_sale_get_list(
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=%s			"
-		 "			folder=service_sale		"
+		 "			folder=fixed_service_sale	"
 		 "			where=\"%s\"			",
 		 application_name,
 		 select,
 		 where );
 
 	input_pipe = popen( sys_string, "r" );
-	service_sale_list = list_new();
+	fixed_service_sale_list = list_new();
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-		service_sale =
-			customer_service_sale_new(
+		fixed_service =
+			customer_fixed_service_sale_new(
 				strdup( piece_buffer ) );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 		if ( *piece_buffer )
-			service_sale->retail_price = atof( piece_buffer );
+			fixed_service->retail_price =
+				 atof( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 		if ( *piece_buffer )
-			service_sale->discount_amount = atof( piece_buffer );
+			fixed_service->discount_amount =
+				atof( piece_buffer );
 
-		service_sale->extension =
+		fixed_service->extension =
 			CUSTOMER_SALE_GET_EXTENSION(
-				service_sale->retail_price,
-				service_sale->discount_amount );
+				fixed_service->retail_price,
+				fixed_service->discount_amount );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 		if ( *piece_buffer )
-			service_sale->database_extension = atof( piece_buffer );
+			fixed_service->database_extension =
+				atof( piece_buffer );
 
-		list_append_pointer( service_sale_list, service_sale );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+		if ( *piece_buffer )
+			fixed_service->work_hours =
+			fixed_service->database_work_hours =
+				atof( piece_buffer );
+
+		list_append_pointer( fixed_service_sale_list, fixed_service );
 	}
 
 	pclose( input_pipe );
-	return service_sale_list;
+	return fixed_service_sale_list;
 
 } /* customer_fixed_service_sale_get_list() */
+
+LIST *customer_hourly_service_sale_get_list(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time )
+{
+	char sys_string[ 1024 ];
+	char *where;
+	char *select;
+	char input_buffer[ 1024 ];
+	char piece_buffer[ 256 ];
+	char service_name[ 256 ];
+	char description[ 256 ];
+	FILE *input_pipe;
+	HOURLY_SERVICE *hourly_service;
+	LIST *hourly_service_sale_list;
+
+	select =
+"service_name,description,hourly_rate,discount_amount,extension,work_hours";
+
+	where = ledger_get_transaction_where(
+					full_name,
+					street_address,
+					sale_date_time,
+					(char *)0 /* folder_name */,
+					"sale_date_time" );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=hourly_service_sale	"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+	hourly_service_sale_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece( service_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( description, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		hourly_service =
+			customer_hourly_service_sale_new(
+				strdup( service_name ),
+				strdup( description ) );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+		if ( *piece_buffer )
+			hourly_service->hourly_rate =
+				 atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+		if ( *piece_buffer )
+			hourly_service->discount_amount =
+				atof( piece_buffer );
+
+		hourly_service->extension =
+				(hourly_service->hourly_rate *
+				 hourly_service->work_hours) -
+				 hourly_service->discount_amount;
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+		if ( *piece_buffer )
+			hourly_service->database_extension =
+				atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+		if ( *piece_buffer )
+			hourly_service->work_hours =
+			hourly_service->database_work_hours =
+				atof( piece_buffer );
+
+		list_append_pointer( hourly_service_sale_list, hourly_service );
+	}
+
+	pclose( input_pipe );
+	return hourly_service_sale_list;
+
+} /* customer_hourly_service_sale_get_list() */
 
 SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_new(
 					char *inventory_name,
@@ -341,24 +440,24 @@ SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_new(
 
 } /* customer_specific_inventory_sale_new() */
 
-FIXED_SALE *customer_fixed_service_sale_new( char *service_name )
+FIXED_SERVICE *customer_fixed_service_sale_new( char *service_name )
 {
-	FIXED_SALE *p =
-		(FIXED_SALE *)
-			calloc( 1, sizeof( FIXED_SALE ) );
+	FIXED_SERVICE *p =
+		(FIXED_SERVICE *)
+			calloc( 1, sizeof( FIXED_SERVICE ) );
 
 	p->service_name = service_name;
 	return p;
 
 } /* customer_fixed_service_sale_new() */
 
-HOURLY_SALE *customer_hourly_service_sale_new(
+HOURLY_SERVICE *customer_hourly_service_sale_new(
 					char *service_name,
 					char *description )
 {
-	HOURLY_SALE *p =
-		(HOURLY_SALE *)
-			calloc( 1, sizeof( HOURLY_SALE ) );
+	HOURLY_SERVICE *p =
+		(HOURLY_SERVICE *)
+			calloc( 1, sizeof( HOURLY_SERVICE ) );
 
 	p->service_name = service_name;
 	p->description = description;
@@ -868,7 +967,7 @@ double customer_sale_get_invoice_amount(
 
 	*sum_extension =
 			*sum_inventory_extension +
-			*sum_fixed_service_extension;
+			*sum_fixed_service_extension +
 			*sum_hourly_service_extension;
 
 	*sales_tax =
@@ -1475,14 +1574,14 @@ CUSTOMER_SALE *customer_sale_seek(
 
 } /* customer_sale_seek() */
 
-HOURLY_SERVICE *customer_fixed_service_sale_seek(
-			LIST *fixed_service_sale_list,
+HOURLY_SERVICE *customer_hourly_service_sale_seek(
+			LIST *hourly_service_sale_list,
 			char *service_name,
 			char *description )
 {
-	HOURLY_SERVICE *fixed_service;
+	HOURLY_SERVICE *hourly_service;
 
-	if ( !list_rewind( fixed_service_sale_list ) )
+	if ( !list_rewind( hourly_service_sale_list ) )
 		return (HOURLY_SERVICE *)0;
 
 	do {

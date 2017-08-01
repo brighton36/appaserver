@@ -40,7 +40,8 @@ EXECUTABLES=	trial_balance						\
 		post_change_fixed_asset_purchase			\
 		post_change_fixed_asset					\
 		post_change_inventory_sale				\
-		post_change_service_sale				\
+		post_change_fixed_service_sale				\
+		post_change_hourly_service_sale				\
 		post_change_purchase_order				\
 		post_change_customer_sale				\
 		post_change_customer_payment				\
@@ -284,14 +285,23 @@ post_change_supply_purchase: post_change_supply_purchase.c		\
 		post_change_supply_purchase.c				\
 		-o post_change_supply_purchase
 
-post_change_service_sale:						\
-	post_change_service_sale.c					\
+post_change_fixed_service_sale:						\
+	post_change_fixed_service_sale.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_change_service_sale.c				\
-		-o post_change_service_sale
+		post_change_fixed_service_sale.c			\
+		-o post_change_fixed_service_sale
+
+post_change_hourly_service_sale:					\
+	post_change_hourly_service_sale.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_hourly_service_sale.c			\
+		-o post_change_hourly_service_sale
 
 post_change_specific_inventory_purchase:				\
 	post_change_specific_inventory_purchase.c			\

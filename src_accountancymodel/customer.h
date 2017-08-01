@@ -99,12 +99,13 @@ typedef struct
 	char *database_shipped_date_time;
 	double sales_tax;
 	double database_sales_tax;
+	double sum_extension;
+	double database_sum_extension;
 	double sum_inventory_extension;
 	double sum_fixed_service_extension;
 	double sum_fixed_extension;
 	double sum_hourly_service_extension;
 	double sum_hourly_extension;
-	double database_sum_extension;
 	double invoice_amount;
 	double database_invoice_amount;
 	enum title_passage_rule title_passage_rule;
@@ -140,11 +141,6 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 					char *street_address,
 					char *sale_date_time );
 
-LIST *customer_sale_service_get_list(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *sale_date_time );
-
 LIST *customer_sale_specific_inventory_get_list(
 					char *application_name,
 					char *full_name,
@@ -155,10 +151,10 @@ SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_new(
 					char *inventory_name,
 					char *serial_number );
 
-FIXED_SERVICE_SALE *customer_fixed_service_sale_new(
+FIXED_SERVICE *customer_fixed_service_sale_new(
 					char *service_name );
 
-HOURLY_SERVICE_SALE *customer_hourly_service_sale_new(
+HOURLY_SERVICE *customer_hourly_service_sale_new(
 					char *service_name,
 					char *description );
 
@@ -440,11 +436,11 @@ SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_seek(
 				char *inventory_name,
 				char *serial_number );
 
-FIXED_SERVICE_SALE *customer_fixed_service_sale_seek(
+FIXED_SERVICE *customer_fixed_service_sale_seek(
 				LIST *fixed_service_sale_list,
 				char *service_name );
 
-HOURLY_SERVICE_SALE *customer_hourly_service_sale_seek(
+HOURLY_SERVICE *customer_hourly_service_sale_seek(
 				LIST *hourly_service_sale_list,
 				char *service_name,
 				char *description );
@@ -490,6 +486,18 @@ void customer_fixed_service_sale_update(
 					double database_extension,
 					double work_hours,
 					double database_work_hours );
+
+LIST *customer_fixed_service_sale_get_list(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time );
+
+LIST *customer_hourly_service_sale_get_list(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time );
 
 #endif
 

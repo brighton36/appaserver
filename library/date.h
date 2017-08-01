@@ -147,7 +147,11 @@ DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string );
 void date_set_time( DATE *date, int hour, int minutes );
 char *date_display_hhmm( DATE *date );
 char *date_display_hhmmss( DATE *date );
+
 int date_subtract_days( DATE *later_date, DATE *earlier_date );
+
+int date_subtract_minutes( DATE *later_date, DATE *earlier_date );
+
 int date_get_week_number( DATE *date );
 int date_get_month_number( DATE *date );
 int date_get_year_number( DATE *date );

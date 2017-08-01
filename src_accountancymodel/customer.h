@@ -499,5 +499,24 @@ LIST *customer_hourly_service_sale_get_list(
 					char *street_address,
 					char *sale_date_time );
 
+LIST *customer_fixed_service_work_get_list(
+					double *work_hours,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name );
+
+LIST *customer_hourly_service_work_get_list(
+					double *work_hours,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *description );
+
+SERVICE_WORK *customer_service_work_new(void );
+
 #endif
 

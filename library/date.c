@@ -1499,6 +1499,16 @@ void date_increment_seconds( DATE *d, int seconds )
 	date_set_tm_structures( d, d->current );
 }
 
+int date_subtract_minutes( DATE *later_date, DATE *earlier_date )
+{
+	time_t difference;
+	int results;
+
+	difference = later_date->current - earlier_date->current;
+	results = (int)((double)difference / (double)SECONDS_IN_MINUTE);
+	return results;
+} /* date_subtract_minutes() */
+
 int date_subtract_days( DATE *later_date, DATE *earlier_date )
 {
 	time_t difference;

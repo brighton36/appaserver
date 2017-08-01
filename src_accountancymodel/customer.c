@@ -41,6 +41,26 @@ CUSTOMER_SALE *customer_sale_calloc( void )
 
 } /* customer_sale_calloc() */
 
+SERVICE_WORK *customer_service_work_new( void )
+{
+	SERVICE_WORK *c =
+		(SERVICE_WORK *)
+			calloc( 1, sizeof( SERVICE_WORK ) );
+
+	if ( !c )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	return c;
+
+} /* customer_service_work_new() */
+
 CUSTOMER_SALE *customer_sale_new(	char *application_name,
 					char *full_name,
 					char *street_address,
@@ -332,9 +352,17 @@ LIST *customer_fixed_service_sale_get_list(
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
 		if ( *piece_buffer )
-			fixed_service->work_hours =
 			fixed_service->database_work_hours =
 				atof( piece_buffer );
+
+		fixed_service->service_work_list =
+			customer_fixed_service_work_get_list(
+				&fixed_service->work_hours,
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time,
+				fixed_service->service_name );
 
 		list_append_pointer( fixed_service_sale_list, fixed_service );
 	}
@@ -414,9 +442,18 @@ LIST *customer_hourly_service_sale_get_list(
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 		if ( *piece_buffer )
-			hourly_service->work_hours =
 			hourly_service->database_work_hours =
 				atof( piece_buffer );
+
+		hourly_service->service_work_list =
+			customer_hourly_service_work_get_list(
+				&hourly_service->work_hours,
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time,
+				hourly_service->service_name,
+				hourly_service->description );
 
 		list_append_pointer( hourly_service_sale_list, hourly_service );
 	}
@@ -2743,4 +2780,153 @@ void customer_sale_inventory_cost_account_list_set(
 	} while( list_next( inventory_sale_list ) );
 
 } /* customer_sale_inventory_cost_account_list_set() */
+
+LIST *customer_fixed_service_work_get_list(
+				double *work_hours,
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *service_name )
+{
+	char sys_string[ 1024 ];
+	char *ledger_where;
+	char where[ 256 ];
+	char *select;
+	char input_buffer[ 1024 ];
+	char piece_buffer[ 256 ];
+	FILE *input_pipe;
+	SERVICE_WORK *service_work;
+	LIST *service_work_list;
+	DATE *begin_date;
+	DATE *end_date;
+
+	select =
+	"begin_date_time,end_date_time,hours_worked";
+
+	ledger_where = ledger_get_transaction_where(
+					full_name,
+					street_address,
+					sale_date_time,
+					(char *)0 /* folder_name */,
+					"sale_date_time" );
+
+	sprintf( where,
+		 "%s and service_name = '%s'",
+		 ledger_where,
+		 service_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=fixed_service_work	"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+	service_work_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		service_work = customer_service_work_new();
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		begin_date = date_yyyy_mm_dd_hms_new( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		end_date = date_yyyy_mm_dd_hms_new( piece_buffer );
+
+		service_work->work_hours =
+			(double)date_subtract_minutes(
+					end_date /* later_date */,
+					begin_date /* earlier_date */ ) /
+			60.0;
+
+		*work_hours += service_work->work_hours;
+
+		list_append_pointer( service_work_list, service_work );
+	}
+
+	pclose( input_pipe );
+	return service_work_list;
+
+} /* customer_fixed_service_work_get_list() */
+
+LIST *customer_hourly_service_work_get_list(
+				double *work_hours,
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *service_name,
+				char *description )
+{
+	char sys_string[ 1024 ];
+	char *ledger_where;
+	char where[ 256 ];
+	char buffer[ 128 ];
+	char *select;
+	char input_buffer[ 1024 ];
+	char piece_buffer[ 256 ];
+	FILE *input_pipe;
+	SERVICE_WORK *service_work;
+	LIST *service_work_list;
+	DATE *begin_date;
+	DATE *end_date;
+
+	select =
+	"begin_date_time,end_date_time,hours_worked";
+
+	ledger_where = ledger_get_transaction_where(
+					full_name,
+					street_address,
+					sale_date_time,
+					(char *)0 /* folder_name */,
+					"sale_date_time" );
+
+	sprintf( where,
+		 "%s and service_name = '%s' and description = '%s'",
+		 ledger_where,
+		 service_name,
+		 timlib_escape_single_quotes( buffer, description ) );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=fixed_service_work	"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+	service_work_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		service_work = customer_service_work_new();
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		begin_date = date_yyyy_mm_dd_hms_new( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		end_date = date_yyyy_mm_dd_hms_new( piece_buffer );
+
+		service_work->work_hours =
+			(double)date_subtract_minutes(
+					end_date /* later_date */,
+					begin_date /* earlier_date */ ) /
+			60.0;
+
+		*work_hours += service_work->work_hours;
+
+		list_append_pointer( service_work_list, service_work );
+	}
+
+	pclose( input_pipe );
+	return service_work_list;
+
+} /* customer_hourly_service_work_get_list() */
 

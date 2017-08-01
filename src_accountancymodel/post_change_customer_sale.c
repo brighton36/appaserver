@@ -1066,7 +1066,8 @@ void post_change_customer_sale_shipping_revenue_update(
 				customer_sale->transaction->
 					transaction_date_time,
 				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
+				customer_sale->sum_fixed_service_extension,
+				customer_sale->sum_hourly_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->invoice_amount );
@@ -1180,7 +1181,8 @@ void post_change_customer_sale_new_transaction(
 			customer_sale->transaction->
 				transaction_date_time,
 			customer_sale->sum_inventory_extension,
-			customer_sale->sum_service_extension,
+			customer_sale->sum_fixed_service_extension,
+			customer_sale->sum_hourly_service_extension,
 			customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
 			customer_sale->invoice_amount );
@@ -1257,7 +1259,8 @@ void post_change_customer_sale_FOB_destination_new_rule(
 				customer_sale->transaction->
 					transaction_date_time,
 				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
+				customer_sale->sum_fixed_service_extension,
+				customer_sale->sum_hourly_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->invoice_amount );

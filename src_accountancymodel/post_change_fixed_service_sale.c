@@ -128,7 +128,7 @@ void post_change_fixed_service_sale_insert(
 			char *service_name )
 {
 	CUSTOMER_SALE *customer_sale;
-	SERVICE_SALE *service_sale;
+	FIXED_SERVICE *fixed_service;
 
 	if ( ! (  customer_sale =
 			customer_sale_new(
@@ -145,9 +145,9 @@ void post_change_fixed_service_sale_insert(
 		return;
 	}
 
-	if ( ! ( service_sale =
-			customer_service_sale_seek(
-				customer_sale->service_sale_list,
+	if ( ! ( fixed_service =
+			customer_fixed_service_sale_seek(
+				customer_sale->fixed_service_sale_list,
 				service_name ) ) )
 	{
 		fprintf( stderr,
@@ -164,9 +164,9 @@ void post_change_fixed_service_sale_insert(
 			&customer_sale->
 				sum_inventory_extension,
 			&customer_sale->
-				cost_of_goods_sold,
+				sum_fixed_service_extension,
 			&customer_sale->
-				sum_service_extension,
+				sum_hourly_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
@@ -174,7 +174,8 @@ void post_change_fixed_service_sale_insert(
 				inventory_sale_list,
 			customer_sale->
 				specific_inventory_sale_list,
-			customer_sale->service_sale_list,
+			customer_sale->fixed_service_sale_list,
+			customer_sale->hourly_service_sale_list,
 			customer_sale->full_name,
 			customer_sale->street_address,
 			application_name );
@@ -210,19 +211,21 @@ void post_change_fixed_service_sale_insert(
 		customer_sale->sale_date_time,
 		application_name );
 
-	service_sale->extension =
+	fixed_service->extension =
 		CUSTOMER_SALE_GET_EXTENSION(
-				service_sale->retail_price,
-				service_sale->discount_amount );
+				fixed_service->retail_price,
+				fixed_service->discount_amount );
 
-	customer_service_sale_update(
+	customer_fixed_service_sale_update(
 		application_name,
 		customer_sale->full_name,
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
-		service_sale->service_name,
-		service_sale->extension,
-		service_sale->database_extension );
+		fixed_service->service_name,
+		fixed_service->extension,
+		fixed_service->database_extension,
+		fixed_service->work_hours,
+		fixed_service->database_work_hours );
 
 	/* Propagate ledger accounts */
 	/* ------------------------- */
@@ -237,7 +240,8 @@ void post_change_fixed_service_sale_insert(
 				customer_sale->transaction->
 					transaction_date_time,
 				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
+				customer_sale->sum_fixed_service_extension,
+				customer_sale->sum_hourly_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->invoice_amount );
@@ -245,6 +249,7 @@ void post_change_fixed_service_sale_insert(
 		list_append_list(
 			customer_sale->propagate_account_list,
 			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->
@@ -267,7 +272,7 @@ void post_change_fixed_service_sale_update(
 			char *service_name )
 {
 	CUSTOMER_SALE *customer_sale;
-	SERVICE_SALE *service_sale;
+	FIXED_SERVICE *fixed_service;
 
 	if ( ! (  customer_sale =
 			customer_sale_new(
@@ -284,9 +289,9 @@ void post_change_fixed_service_sale_update(
 		return;
 	}
 
-	if ( ! ( service_sale =
-			customer_service_sale_seek(
-				customer_sale->service_sale_list,
+	if ( ! ( fixed_service =
+			customer_fixed_service_sale_seek(
+				customer_sale->fixed_service_sale_list,
 				service_name ) ) )
 	{
 		fprintf( stderr,
@@ -303,9 +308,9 @@ void post_change_fixed_service_sale_update(
 			&customer_sale->
 				sum_inventory_extension,
 			&customer_sale->
-				cost_of_goods_sold,
+				sum_fixed_service_extension,
 			&customer_sale->
-				sum_service_extension,
+				sum_hourly_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
@@ -313,7 +318,8 @@ void post_change_fixed_service_sale_update(
 				inventory_sale_list,
 			customer_sale->
 				specific_inventory_sale_list,
-			customer_sale->service_sale_list,
+			customer_sale->fixed_service_sale_list,
+			customer_sale->hourly_service_sale_list,
 			customer_sale->full_name,
 			customer_sale->street_address,
 			application_name );
@@ -349,19 +355,21 @@ void post_change_fixed_service_sale_update(
 		customer_sale->sale_date_time,
 		application_name );
 
-	service_sale->extension =
+	fixed_service->extension =
 		CUSTOMER_SALE_GET_EXTENSION(
-				service_sale->retail_price,
-				service_sale->discount_amount );
+				fixed_service->retail_price,
+				fixed_service->discount_amount );
 
-	customer_service_sale_update(
+	customer_fixed_service_sale_update(
 		application_name,
 		customer_sale->full_name,
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
-		service_sale->service_name,
-		service_sale->extension,
-		service_sale->database_extension );
+		fixed_service->service_name,
+		fixed_service->extension,
+		fixed_service->database_extension,
+		fixed_service->work_hours,
+		fixed_service->database_work_hours );
 
 	/* Propagate ledger accounts */
 	/* ------------------------- */
@@ -376,7 +384,8 @@ void post_change_fixed_service_sale_update(
 				customer_sale->transaction->
 					transaction_date_time,
 				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
+				customer_sale->sum_fixed_service_extension,
+				customer_sale->sum_hourly_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->invoice_amount );
@@ -384,6 +393,7 @@ void post_change_fixed_service_sale_update(
 		list_append_list(
 			customer_sale->propagate_account_list,
 			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->
@@ -464,7 +474,8 @@ void post_change_fixed_service_sale_delete(
 			customer_sale->transaction->
 				transaction_date_time,
 			customer_sale->sum_inventory_extension,
-			customer_sale->sum_service_extension,
+			customer_sale->sum_fixed_service_extension,
+			customer_sale->sum_hourly_service_extension,
 			customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
 			customer_sale->invoice_amount );
@@ -472,6 +483,7 @@ void post_change_fixed_service_sale_delete(
 		list_append_list(
 			customer_sale->propagate_account_list,
 			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->

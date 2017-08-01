@@ -430,11 +430,6 @@ LIST *customer_hourly_service_sale_get_list(
 			hourly_service->discount_amount =
 				atof( piece_buffer );
 
-		hourly_service->extension =
-				(hourly_service->hourly_rate *
-				 hourly_service->work_hours) -
-				 hourly_service->discount_amount;
-
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
 		if ( *piece_buffer )
 			hourly_service->database_extension =
@@ -454,6 +449,12 @@ LIST *customer_hourly_service_sale_get_list(
 				sale_date_time,
 				hourly_service->service_name,
 				hourly_service->description );
+
+		hourly_service->extension =
+			CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(
+				hourly_service->hourly_rate,
+				hourly_service->work_hours,
+				hourly_service->discount_amount );
 
 		list_append_pointer( hourly_service_sale_list, hourly_service );
 	}
@@ -2457,7 +2458,7 @@ void customer_fixed_service_sale_update(
 	table_name =
 		get_table_name(
 			application_name,
-			"service_sale" );
+			"fixed_service_sale" );
 
 	key_column_list_string =
 		"full_name,street_address,sale_date_time,service_name";
@@ -2489,6 +2490,67 @@ void customer_fixed_service_sale_update(
 	pclose( update_pipe );
 
 } /* customer_fixed_service_sale_update() */
+
+void customer_hourly_service_sale_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *service_name,
+				char *description,
+				double extension,
+				double database_extension,
+				double work_hours,
+				double database_work_hours )
+{
+	FILE *update_pipe;
+	char *table_name;
+	char *key_column_list_string;
+	char sys_string[ 1024 ];
+
+	if ( dollar_virtually_same( extension, database_extension )
+	&&   double_virtually_same( work_hours, database_work_hours ) )
+	{
+		return;
+	}
+
+	table_name =
+		get_table_name(
+			application_name,
+			"hourly_service_sale" );
+
+	key_column_list_string =
+	"full_name,street_address,sale_date_time,service_name,description";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y		|"
+		 "sql.e							 ",
+		 table_name,
+		 key_column_list_string );
+
+	update_pipe = popen( sys_string, "w" );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^%s^extension^%.2lf\n",
+	 	full_name,
+	 	street_address,
+	 	sale_date_time,
+	 	service_name,
+		description,
+	 	extension );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^%s^work_hours^%.4lf\n",
+	 	full_name,
+	 	street_address,
+	 	sale_date_time,
+	 	service_name,
+		description,
+	 	work_hours );
+
+	pclose( update_pipe );
+
+} /* customer_hourly_service_sale_update() */
 
 void customer_specific_inventory_update(
 				char *application_name,

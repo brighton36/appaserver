@@ -35,14 +35,16 @@ void post_change_hourly_service_sale_insert(
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
-				char *service_name );
+				char *service_name,
+				char *description );
 
 void post_change_hourly_service_sale_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
-				char *service_name );
+				char *service_name,
+				char *description );
 
 int main( int argc, char **argv )
 {
@@ -52,16 +54,17 @@ int main( int argc, char **argv )
 	char *street_address;
 	char *sale_date_time;
 	char *service_name;
+	char *description;
 	char *state;
 
 	appaserver_error_output_starting_argv_stderr(
 				argc,
 				argv );
 
-	if ( argc != 7 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address sale_date_time service_name state\n",
+"Usage: %s application full_name street_address sale_date_time service_name description state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -75,12 +78,19 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	full_name = argv[ 2 ];
 	street_address = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
 	service_name = argv[ 5 ];
-	state = argv[ 6 ];
+	description = argv[ 6 ];
+	state = argv[ 7 ];
 
 	/* If change full_name or street address only. */
 	/* --------------------------------------------- */
@@ -104,7 +114,8 @@ int main( int argc, char **argv )
 			full_name,
 			street_address,
 			sale_date_time,
-			service_name );
+			service_name,
+			description );
 	}
 	else
 	{
@@ -113,7 +124,8 @@ int main( int argc, char **argv )
 			full_name,
 			street_address,
 			sale_date_time,
-			service_name );
+			service_name,
+			description );
 	}
 
 	return 0;
@@ -125,10 +137,11 @@ void post_change_hourly_service_sale_insert(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
-			char *service_name )
+			char *service_name,
+			char *description )
 {
 	CUSTOMER_SALE *customer_sale;
-	SERVICE_SALE *service_sale;
+	HOURLY_SERVICE *hourly_service;
 
 	if ( ! (  customer_sale =
 			customer_sale_new(
@@ -145,17 +158,19 @@ void post_change_hourly_service_sale_insert(
 		return;
 	}
 
-	if ( ! ( service_sale =
-			customer_service_sale_seek(
-				customer_sale->service_sale_list,
-				service_name ) ) )
+	if ( ! ( hourly_service =
+			customer_hourly_service_sale_seek(
+				customer_sale->hourly_service_sale_list,
+				service_name,
+				description ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek (%s).\n",
+			 "ERROR in %s/%s()/%d: cannot seek (%s/%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 service_name );
+			 service_name,
+			 description );
 		return;
 	}
 
@@ -164,9 +179,9 @@ void post_change_hourly_service_sale_insert(
 			&customer_sale->
 				sum_inventory_extension,
 			&customer_sale->
-				cost_of_goods_sold,
+				sum_fixed_service_extension,
 			&customer_sale->
-				sum_service_extension,
+				sum_hourly_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
@@ -174,7 +189,8 @@ void post_change_hourly_service_sale_insert(
 				inventory_sale_list,
 			customer_sale->
 				specific_inventory_sale_list,
-			customer_sale->service_sale_list,
+			customer_sale->fixed_service_sale_list,
+			customer_sale->hourly_service_sale_list,
 			customer_sale->full_name,
 			customer_sale->street_address,
 			application_name );
@@ -210,19 +226,23 @@ void post_change_hourly_service_sale_insert(
 		customer_sale->sale_date_time,
 		application_name );
 
-	service_sale->extension =
-		CUSTOMER_SALE_GET_EXTENSION(
-				service_sale->retail_price,
-				service_sale->discount_amount );
+	hourly_service->extension =
+		CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(
+			hourly_service->hourly_rate,
+			hourly_service->work_hours,
+			hourly_service->discount_amount );
 
-	customer_service_sale_update(
+	customer_hourly_service_sale_update(
 		application_name,
 		customer_sale->full_name,
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
-		service_sale->service_name,
-		service_sale->extension,
-		service_sale->database_extension );
+		hourly_service->service_name,
+		hourly_service->description,
+		hourly_service->extension,
+		hourly_service->database_extension,
+		hourly_service->work_hours,
+		hourly_service->database_work_hours );
 
 	/* Propagate ledger accounts */
 	/* ------------------------- */
@@ -237,7 +257,8 @@ void post_change_hourly_service_sale_insert(
 				customer_sale->transaction->
 					transaction_date_time,
 				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
+				customer_sale->sum_fixed_service_extension,
+				customer_sale->sum_hourly_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->invoice_amount );
@@ -245,6 +266,7 @@ void post_change_hourly_service_sale_insert(
 		list_append_list(
 			customer_sale->propagate_account_list,
 			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->
@@ -264,10 +286,11 @@ void post_change_hourly_service_sale_update(
 			char *full_name,
 			char *street_address,
 			char *sale_date_time,
-			char *service_name )
+			char *service_name,
+			char *description )
 {
 	CUSTOMER_SALE *customer_sale;
-	SERVICE_SALE *service_sale;
+	HOURLY_SERVICE *hourly_service;
 
 	if ( ! (  customer_sale =
 			customer_sale_new(
@@ -284,17 +307,19 @@ void post_change_hourly_service_sale_update(
 		return;
 	}
 
-	if ( ! ( service_sale =
-			customer_service_sale_seek(
-				customer_sale->service_sale_list,
-				service_name ) ) )
+	if ( ! ( hourly_service =
+			customer_hourly_service_sale_seek(
+				customer_sale->hourly_service_sale_list,
+				service_name,
+				description ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek (%s).\n",
+			 "ERROR in %s/%s()/%d: cannot seek (%s/%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 service_name );
+			 service_name,
+			 description );
 		return;
 	}
 
@@ -303,9 +328,9 @@ void post_change_hourly_service_sale_update(
 			&customer_sale->
 				sum_inventory_extension,
 			&customer_sale->
-				cost_of_goods_sold,
+				sum_fixed_service_extension,
 			&customer_sale->
-				sum_service_extension,
+				sum_hourly_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
@@ -313,7 +338,8 @@ void post_change_hourly_service_sale_update(
 				inventory_sale_list,
 			customer_sale->
 				specific_inventory_sale_list,
-			customer_sale->service_sale_list,
+			customer_sale->fixed_service_sale_list,
+			customer_sale->hourly_service_sale_list,
 			customer_sale->full_name,
 			customer_sale->street_address,
 			application_name );
@@ -349,19 +375,30 @@ void post_change_hourly_service_sale_update(
 		customer_sale->sale_date_time,
 		application_name );
 
+/*
 	service_sale->extension =
 		CUSTOMER_SALE_GET_EXTENSION(
 				service_sale->retail_price,
 				service_sale->discount_amount );
+*/
 
-	customer_service_sale_update(
+	hourly_service->extension =
+		CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(
+			hourly_service->hourly_rate,
+			hourly_service->work_hours,
+			hourly_service->discount_amount );
+
+	customer_hourly_service_sale_update(
 		application_name,
 		customer_sale->full_name,
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
-		service_sale->service_name,
-		service_sale->extension,
-		service_sale->database_extension );
+		hourly_service->service_name,
+		hourly_service->description,
+		hourly_service->extension,
+		hourly_service->database_extension,
+		hourly_service->work_hours,
+		hourly_service->database_work_hours );
 
 	/* Propagate ledger accounts */
 	/* ------------------------- */
@@ -376,7 +413,8 @@ void post_change_hourly_service_sale_update(
 				customer_sale->transaction->
 					transaction_date_time,
 				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
+				customer_sale->sum_fixed_service_extension,
+				customer_sale->sum_hourly_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->invoice_amount );
@@ -384,6 +422,7 @@ void post_change_hourly_service_sale_update(
 		list_append_list(
 			customer_sale->propagate_account_list,
 			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->
@@ -464,7 +503,8 @@ void post_change_hourly_service_sale_delete(
 			customer_sale->transaction->
 				transaction_date_time,
 			customer_sale->sum_inventory_extension,
-			customer_sale->sum_service_extension,
+			customer_sale->sum_fixed_service_extension,
+			customer_sale->sum_hourly_service_extension,
 			customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
 			customer_sale->invoice_amount );
@@ -472,6 +512,7 @@ void post_change_hourly_service_sale_delete(
 		list_append_list(
 			customer_sale->propagate_account_list,
 			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->

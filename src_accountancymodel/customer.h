@@ -27,6 +27,12 @@
 #define CUSTOMER_SALE_GET_EXTENSION( retail_price, discount_amount )	\
 				( retail_price - discount_amount )
 
+#define CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(				\
+		hourly_rate,						\
+		work_hours,						\
+		discount_amount )					\
+		( ( hourly_rate * work_hours ) - discount_amount )
+
 /* Enumerated types */
 /* ---------------- */
 
@@ -422,15 +428,6 @@ void customer_specific_inventory_update(
 				double extension,
 				double database_extension );
 
-void customer_service_sale_update(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *service_name,
-				double extension,
-				double database_extension );
-
 SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_seek(
 				LIST *specific_inventory_sale_list,
 				char *inventory_name,
@@ -482,6 +479,18 @@ void customer_fixed_service_sale_update(
 					char *street_address,
 					char *sale_date_time,
 					char *service_name,
+					double extension,
+					double database_extension,
+					double work_hours,
+					double database_work_hours );
+
+void customer_hourly_service_sale_update(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *description,
 					double extension,
 					double database_extension,
 					double work_hours,

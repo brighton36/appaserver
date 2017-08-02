@@ -331,39 +331,9 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->tab_index );
 	}
 	else
-	if ( element->element_type == element_current_date )
-	{
-		if ( !element->text_item->data )
-		{
-			DATE_CONVERT *date_convert;
-
-			date_convert =
-				date_convert_new_user_format_date_convert(
-				application_name,
-				login_name,
-				date_get_now_yyyy_mm_dd() );
-			element->text_item->data = date_convert->return_date;
-		}
-
-		element_date_output(
-			output_file,
-			element->name,
-			element->text_item->data,
-			element->text_item->attribute_width,
-			row,
-			element->text_item->onchange_null2slash_yn,
-			element->text_item->post_change_javascript,
-			element->text_item->on_focus_javascript_function,
-			element->text_item->lookup_attribute_width,
-			background_color,
-			application_name,
-			login_name,
-			1 /* with_calendar_popup */,
-			element->text_item->readonly,
-			element->tab_index );
-	}
-	else
-	if ( element->element_type == element_current_date_time )
+	if ( element->element_type == element_current_date_time
+	||   ( element->element_type == element_current_date
+	&&     element->text_item->attribute_width == 19 ) )
 	{
 		if ( !element->text_item->dont_initialize_data
 		&&   !element->text_item->data )
@@ -390,6 +360,38 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				 time_string );
 
 			element->text_item->data = strdup( data );
+		}
+
+		element_date_output(
+			output_file,
+			element->name,
+			element->text_item->data,
+			element->text_item->attribute_width,
+			row,
+			element->text_item->onchange_null2slash_yn,
+			element->text_item->post_change_javascript,
+			element->text_item->on_focus_javascript_function,
+			element->text_item->lookup_attribute_width,
+			background_color,
+			application_name,
+			login_name,
+			1 /* with_calendar_popup */,
+			element->text_item->readonly,
+			element->tab_index );
+	}
+	else
+	if ( element->element_type == element_current_date )
+	{
+		if ( !element->text_item->data )
+		{
+			DATE_CONVERT *date_convert;
+
+			date_convert =
+				date_convert_new_user_format_date_convert(
+				application_name,
+				login_name,
+				date_get_now_yyyy_mm_dd() );
+			element->text_item->data = date_convert->return_date;
 		}
 
 		element_date_output(
@@ -3337,8 +3339,9 @@ char *element_display( ELEMENT *element )
 	if ( element->text_item )
 	{
 		sprintf( buffer + strlen( buffer ),
-			 ", heading = %s",
-			 element->text_item->heading );
+			 ", heading = %s, attribute_width = %d",
+			 element->text_item->heading,
+			 element->text_item->attribute_width );
 
 		if ( element->text_item->readonly )
 		{

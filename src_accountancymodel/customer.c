@@ -418,6 +418,7 @@ LIST *customer_hourly_service_sale_get_list(
 	{
 		piece( service_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 		piece( description, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
 		hourly_service =
 			customer_hourly_service_sale_new(
 				strdup( service_name ),
@@ -463,6 +464,7 @@ LIST *customer_hourly_service_sale_get_list(
 	}
 
 	pclose( input_pipe );
+
 	return hourly_service_sale_list;
 
 } /* customer_hourly_service_sale_get_list() */
@@ -1710,7 +1712,7 @@ SERVICE_WORK *customer_service_work_seek(
 		return (SERVICE_WORK *)0;
 
 	do {
-		service_work = list_get( service_work_list );
+		service_work = list_get_pointer( service_work_list );
 
 		if ( strcmp(	service_work->begin_date_time,
 				begin_date_time ) == 0 )
@@ -3056,6 +3058,7 @@ LIST *customer_fixed_service_work_get_list(
 		service_work = customer_service_work_new();
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		service_work->begin_date_time = strdup( piece_buffer );
 		begin_date = date_yyyy_mm_dd_hms_new( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
@@ -3071,6 +3074,14 @@ LIST *customer_fixed_service_work_get_list(
 				60.0;
 
 			*work_hours += service_work->work_hours;
+		}
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+
+		if ( *piece_buffer )
+		{
+			service_work->database_work_hours =
+				atof( piece_buffer );
 		}
 
 		list_append_pointer( service_work_list, service_work );
@@ -3092,8 +3103,8 @@ LIST *customer_hourly_service_work_get_list(
 {
 	char sys_string[ 1024 ];
 	char *ledger_where;
-	char where[ 256 ];
-	char buffer[ 128 ];
+	char where[ 512 ];
+	char buffer[ 256 ];
 	char *select;
 	char input_buffer[ 1024 ];
 	char piece_buffer[ 256 ];
@@ -3136,18 +3147,31 @@ LIST *customer_hourly_service_work_get_list(
 		service_work = customer_service_work_new();
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		service_work->begin_date_time = strdup( piece_buffer );
 		begin_date = date_yyyy_mm_dd_hms_new( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-		end_date = date_yyyy_mm_dd_hms_new( piece_buffer );
 
-		service_work->work_hours =
-			(double)date_subtract_minutes(
+		if ( *piece_buffer )
+		{
+			end_date = date_yyyy_mm_dd_hms_new( piece_buffer );
+
+			service_work->work_hours =
+				(double)date_subtract_minutes(
 					end_date /* later_date */,
 					begin_date /* earlier_date */ ) /
-			60.0;
+				60.0;
 
-		*work_hours += service_work->work_hours;
+			*work_hours += service_work->work_hours;
+		}
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+
+		if ( *piece_buffer )
+		{
+			service_work->database_work_hours =
+				atof( piece_buffer );
+		}
 
 		list_append_pointer( service_work_list, service_work );
 	}

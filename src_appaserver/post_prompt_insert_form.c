@@ -1,12 +1,12 @@
-/* ---------------------------------------------------	*/
-/* src_appaserver/post_prompt_insert_form.c		*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* This script is attached to the submit button on 	*/
-/* the prompt form.					*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ---------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/post_prompt_insert_form.c	*/
+/* ---------------------------------------------------------	*/
+/*								*/
+/* This script is attached to the submit button on 		*/
+/* the prompt form.						*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ---------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -613,6 +613,7 @@ int post_prompt_insert_database(
 
 	insert_database->dont_remove_tmp_file =
 		INSERT_DATABASE_DONT_REMOVE_TMP_FILE;
+
 	insert_database->insert_row_zero_only = 1;
 
 	results =

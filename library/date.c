@@ -101,11 +101,14 @@ DATE *date_new_date_time(
 	memcpy( &tm, localtime( &d->current ), sizeof( struct tm ) );
 	date_set_tm_structures( d, d->current );
 
-/*
-	if ( d->tm->tm_isdst ) date_increment_hours( d, -1.0 );
-*/
+	if ( d->tm->tm_isdst )
+	{
+		date_increment_hours( d, -1.0 );
+		d->tm->tm_isdst = 0;
+	}
 
 	return d;
+
 } /* date_new_date_time() */
 
 DATE *date_new( int year, int month, int day )
@@ -783,7 +786,6 @@ DATE *date_yyyy_mm_dd_hms_new( char *date_time_string )
 			atoi( hour_string ),
 			atoi( minute_string ),
 			atoi( second_string ) );
-
 
 	return date;
 

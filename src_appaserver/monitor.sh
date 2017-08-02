@@ -6,12 +6,6 @@
 
 default_delay_seconds=8
 
-#if [ "$#" -ne 1 ]
-#then
-#	echo "Usage: $0 delay_seconds" 1>&2
-#	exit 1
-#fi
-
 if [ "$#" -eq 1 ]
 then
 	delay_seconds=$1

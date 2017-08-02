@@ -793,7 +793,7 @@ void post_change_customer_sale_just_completed(
 				 __LINE__ );
 			return;
 		}
-	
+
 		post_change_customer_sale_new_transaction(
 			customer_sale,
 			customer_sale->completed_date_time,

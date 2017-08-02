@@ -3576,6 +3576,7 @@ FILE *ledger_transaction_insert_open_stream( char *application_name )
 
 	sprintf( sys_string,
 		 "insert_statement.e table=%s field=%s del='^'	|"
+"tee -a /var/log/appaserver/appaserver_eves.err |"
 		 "sql.e 2>&1					|"
 		 "grep -vi duplicate				 ",
 		 table_name,

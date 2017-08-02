@@ -331,7 +331,7 @@ char *purchase_order_fetch_transaction_date_time(
 				char *street_address,
 				char *purchase_date_time );
 
-char *purchase_order_get_select( void );
+char *purchase_order_get_select(char *application_name );
 
 void purchase_order_parse(	char **full_name,
 				char **street_address,

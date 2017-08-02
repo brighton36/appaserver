@@ -327,7 +327,7 @@ char *customer_sale_fetch_transaction_date_time(
 				char *street_address,
 				char *sale_date_time );
 
-char *customer_sale_get_select(	void );
+char *customer_sale_get_select(	char *application_name );
 
 void customer_inventory_set_extension(
 				LIST *inventory_sale_list );

@@ -239,10 +239,22 @@ double purchase_order_get_purchase_amount(
 
 } /* purchase_order_get_purchase_amount() */
 
-char *purchase_order_get_select( void )
+char *purchase_order_get_select( char *application_name )
 {
-	char *select =
+	char *select;
+
+	if ( ledger_title_passage_rule_attribute_exists(
+				application_name,
+				"purchase_order" /* folder_name */ ) )
+	{
+		select =
 "full_name,street_address,purchase_date_time,sum_extension,sales_tax,freight_in,purchase_amount,amount_due,title_passage_rule,shipped_date,arrived_date_time,transaction_date_time,fund";
+	}
+	else
+	{
+		select =
+"full_name,street_address,purchase_date_time,sum_extension,sales_tax,freight_in,purchase_amount,amount_due,'',shipped_date,arrived_date_time,transaction_date_time,fund";
+	}
 
 	return select;
 
@@ -274,7 +286,7 @@ boolean purchase_order_load(	double *sum_extension,
 	char *select;
 	char *results;
 
-	select = purchase_order_get_select();
+	select = purchase_order_get_select( application_name );
 
 	where = ledger_get_transaction_where(
 			full_name,
@@ -285,7 +297,7 @@ boolean purchase_order_load(	double *sum_extension,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=purchase_order		"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -1876,7 +1888,7 @@ LIST *purchase_get_inventory_purchase_order_list(
 	PURCHASE_ORDER *purchase_order;
 	LIST *purchase_order_list = {0};
 
-	select = purchase_order_get_select();
+	select = purchase_order_get_select( application_name );
 
 	inventory_subquery =
 		inventory_get_subquery(
@@ -1891,7 +1903,7 @@ LIST *purchase_get_inventory_purchase_order_list(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=purchase_order		"
 		 "			where=\"%s\"			"
 		 "			order=arrived_date_time		",
@@ -3175,7 +3187,7 @@ PURCHASE_ORDER *purchase_order_transaction_date_time_fetch(
 	char *results;
 	PURCHASE_ORDER *purchase_order;
 
-	select = purchase_order_get_select();
+	select = purchase_order_get_select( application_name );
 
 	where = ledger_get_transaction_where(
 			full_name,
@@ -3186,7 +3198,7 @@ PURCHASE_ORDER *purchase_order_transaction_date_time_fetch(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=purchase_order		"
 		 "			where=\"%s\"			",
 		 application_name,

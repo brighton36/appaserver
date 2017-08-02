@@ -890,4 +890,11 @@ boolean ledger_fund_attribute_exists(
 				char *application_name,
 				char *folder_name );
 
+boolean ledger_title_passage_rule_attribute_exists(
+				char *application_name,
+				char *folder_name );
+
+boolean ledger_folder_exists(	char *application_name,
+				char *folder_name );
+
 #endif

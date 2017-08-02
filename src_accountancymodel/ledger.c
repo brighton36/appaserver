@@ -15,6 +15,7 @@
 #include "appaserver_library.h"
 #include "application_constants.h"
 #include "list.h"
+#include "folder.h"
 #include "column.h"
 #include "date_convert.h"
 #include "document.h"
@@ -6936,6 +6937,30 @@ TRANSACTION *ledger_inventory_purchase_build_transaction(
 	return transaction;
 
 } /* ledger_inventory_purchase_build_transaction() */
+
+boolean ledger_folder_exists(	char *application_name,
+				char *folder_name )
+{
+	return folder_exists_folder(
+			application_name,
+			folder_name );
+
+} /* ledger_folder_exists() */
+
+boolean ledger_title_passage_rule_attribute_exists(
+				char *application_name,
+				char *folder_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	 	"folder_attribute_exists.sh %s %s title_passage_rule",
+	 	application_name,
+	 	folder_name );
+
+	return ( system( sys_string ) == 0 );
+
+} /* ledger_title_passage_rule_attribute_exists() */
 
 boolean ledger_fund_attribute_exists(
 				char *application_name,

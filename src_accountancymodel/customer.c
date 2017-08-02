@@ -134,12 +134,17 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 				c->street_address,
 				c->sale_date_time );
 
-	c->specific_inventory_sale_list =
-		customer_sale_specific_inventory_get_list(
+	if ( ledger_folder_exists(
+		application_name,
+		"specific_inventory_sale" ) )
+	{
+		c->specific_inventory_sale_list =
+			customer_sale_specific_inventory_get_list(
 				application_name,
 				c->full_name,
 				c->street_address,
 				c->sale_date_time );
+	}
 
 	c->payment_list =
 		customer_payment_get_list(
@@ -606,14 +611,48 @@ double customer_sale_get_sum_hourly_service_extension(
 
 } /* customer_sale_get_sum_hourly_service_extension() */
 
-char *customer_sale_get_select( void )
+char *customer_sale_get_select( char *application_name )
 {
-	char *select;
+	char select[ 1024 ];
+	char *fund_select;
+	char *title_passage_rule_select;
+	char *shipped_date_time_select;
+	char *arrived_date_select;
 
-	select =
-"full_name,street_address,sale_date_time,sum_extension,sales_tax,invoice_amount,title_passage_rule,completed_date_time,shipped_date_time,arrived_date,total_payment,amount_due,transaction_date_time,shipping_revenue,fund";
+	if ( ledger_fund_attribute_exists(
+			application_name,
+			"customer_sale" /* folder_name */ ) )
+	{
+		fund_select = "fund";
+	}
+	else
+	{
+		fund_select = "''";
+	}
 
-	return select;
+	if ( ledger_title_passage_rule_attribute_exists(
+			application_name,
+			"customer_sale" /* folder_name */ ) )
+	{
+		title_passage_rule_select = "title_passage_rule";
+		shipped_date_time_select = "shipped_date_time";
+		arrived_date_select = "arrived_date";
+	}
+	else
+	{
+		title_passage_rule_select = "''";
+		shipped_date_time_select = "''";
+		arrived_date_select = "''";
+	}
+
+	sprintf( select,
+"full_name,street_address,sale_date_time,sum_extension,sales_tax,invoice_amount,%s,completed_date_time,%s,%s,total_payment,amount_due,transaction_date_time,shipping_revenue,%s",
+		 title_passage_rule_select,
+		 shipped_date_time_select,
+		 arrived_date_select,
+		 fund_select );
+
+	return strdup( select );
 
 } /* customer_sale_get_select() */
 
@@ -649,7 +688,7 @@ boolean customer_sale_load(
 	char *select;
 	char *results;
 
-	select = customer_sale_get_select();
+	select = customer_sale_get_select( application_name );
 
 	where = ledger_get_transaction_where(
 			full_name,
@@ -660,7 +699,7 @@ boolean customer_sale_load(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=customer_sale		"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -890,7 +929,7 @@ void customer_sale_update(
 			completed_date_time,
 			database_completed_date_time ) != 0 )
 	{
-		fprintf( output_pipe,
+		fprintf(output_pipe,
 		 	"%s^%s^%s^completed_date_time^%s\n",
 			full_name,
 			street_address,
@@ -904,7 +943,7 @@ void customer_sale_update(
 			shipped_date_time,
 			database_shipped_date_time ) != 0 )
 	{
-		fprintf( output_pipe,
+		fprintf(output_pipe,
 		 	"%s^%s^%s^shipped_date_time^%s\n",
 			full_name,
 			street_address,
@@ -1791,7 +1830,7 @@ LIST *customer_get_inventory_customer_sale_list(
 	CUSTOMER_SALE *customer_sale;
 	LIST *customer_sale_list = {0};
 
-	select = customer_sale_get_select();
+	select = customer_sale_get_select( application_name );
 
 	inventory_subquery =
 		inventory_get_subquery(
@@ -1806,7 +1845,7 @@ LIST *customer_get_inventory_customer_sale_list(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=customer_sale		"
 		 "			where=\"%s\"			"
 		 "			order=completed_date_time	",
@@ -2986,7 +3025,7 @@ LIST *customer_fixed_service_work_get_list(
 	DATE *end_date;
 
 	select =
-	"begin_date_time,end_date_time,hours_worked";
+	"begin_date_time,end_date_time,work_hours";
 
 	ledger_where = ledger_get_transaction_where(
 					full_name,
@@ -3065,7 +3104,7 @@ LIST *customer_hourly_service_work_get_list(
 	DATE *end_date;
 
 	select =
-	"begin_date_time,end_date_time,hours_worked";
+	"begin_date_time,end_date_time,work_hours";
 
 	ledger_where = ledger_get_transaction_where(
 					full_name,
@@ -3083,7 +3122,7 @@ LIST *customer_hourly_service_work_get_list(
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=%s			"
-		 "			folder=fixed_service_work	"
+		 "			folder=hourly_service_work	"
 		 "			where=\"%s\"			",
 		 application_name,
 		 select,

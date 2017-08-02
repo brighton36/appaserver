@@ -41,7 +41,7 @@ CUSTOMER_SALE *customer_sale_calloc( void )
 
 } /* customer_sale_calloc() */
 
-SERVICE_WORK *customer_service_work_new( void )
+SERVICE_WORK *customer_service_work_new( char *begin_date_time )
 {
 	SERVICE_WORK *c =
 		(SERVICE_WORK *)
@@ -57,6 +57,7 @@ SERVICE_WORK *customer_service_work_new( void )
 		exit(1 );
 	}
 
+	c->begin_date_time = begin_date_time;
 	return c;
 
 } /* customer_service_work_new() */
@@ -3055,10 +3056,13 @@ LIST *customer_fixed_service_work_get_list(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		service_work = customer_service_work_new();
-
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-		service_work->begin_date_time = strdup( piece_buffer );
+
+		service_work =
+			customer_service_work_new(
+				strdup( piece_buffer )
+					/* begin_date_time */ );
+
 		begin_date = date_yyyy_mm_dd_hms_new( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
@@ -3144,10 +3148,13 @@ LIST *customer_hourly_service_work_get_list(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		service_work = customer_service_work_new();
-
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-		service_work->begin_date_time = strdup( piece_buffer );
+
+		service_work =
+			customer_service_work_new(
+				strdup( piece_buffer )
+					/* begin_date_time */ );
+
 		begin_date = date_yyyy_mm_dd_hms_new( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );

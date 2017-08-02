@@ -186,7 +186,8 @@ char *ledger_account_get_select( char *application_name )
 	}
 
 	return select;
-}
+
+} /* ledger_account_get_select() */
 
 ACCOUNT *ledger_subclassification_fund_seek_account(
 				LIST *account_list,
@@ -3893,14 +3894,73 @@ void ledger_transaction_memo_update(	char *application_name,
 DICTIONARY *ledger_get_hard_coded_dictionary(
 				char *application_name )
 {
+	static DICTIONARY *return_dictionary = {0};
+
+	if ( return_dictionary ) return return_dictionary;
+
+	if ( ledger_fund_attribute_exists(
+				application_name,
+				"account" ) )
+	{
+		return_dictionary = 
+			ledger_get_fund_hard_coded_dictionary(
+				application_name );
+	}
+	else
+	{
+		return_dictionary = 
+			ledger_get_non_fund_hard_coded_dictionary(
+				application_name );
+	}
+
+	return return_dictionary;
+
+} /* ledger_get_hard_coded_dictionary() */
+
+DICTIONARY *ledger_get_non_fund_hard_coded_dictionary(
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+	char where[ 128 ];
+	DICTIONARY *return_dictionary;
+
+	folder = "account";
+
+	select = "hard_coded_account_key, account";
+
+	strcpy( where,
+	 	"hard_coded_account_key is not null" );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	return_dictionary =
+		pipe2dictionary(
+			sys_string,
+			FOLDER_DATA_DELIMITER );
+
+	return return_dictionary;
+
+} /* ledger_get_non_fund_hard_coded_dictionary() */
+
+DICTIONARY *ledger_get_fund_hard_coded_dictionary(
+				char *application_name )
+{
 	char sys_string[ 1024 ];
 	char *select;
 	char *folder;
 	char where[ 128 ];
 	DICTIONARY *non_fund_dictionary;
-	static DICTIONARY *return_dictionary = {0};
-
-	if ( return_dictionary ) return return_dictionary;
+	DICTIONARY *return_dictionary;
 
 	folder = "account";
 
@@ -3927,7 +3987,7 @@ DICTIONARY *ledger_get_hard_coded_dictionary(
 			FOLDER_DATA_DELIMITER );
 
 	/* Get non fund dictionary */
-	/* ------------------- */
+	/* ----------------------- */
 	select = "hard_coded_account_key, account";
 
 	strcpy( where,
@@ -3952,7 +4012,7 @@ DICTIONARY *ledger_get_hard_coded_dictionary(
 
 	return return_dictionary;
 
-} /* ledger_get_hard_coded_dictionary() */
+} /* ledger_get_fund_hard_coded_dictionary() */
 
 char *ledger_get_hard_coded_account_name(
 				char *application_name,
@@ -3969,8 +4029,8 @@ char *ledger_get_hard_coded_account_name(
 			application_name );
 
 	key = ledger_get_hard_coded_dictionary_key(
-					fund_name,
-					hard_coded_account_key );
+			fund_name,
+			hard_coded_account_key );
 
 	if ( ! ( account_name =
 			dictionary_fetch(

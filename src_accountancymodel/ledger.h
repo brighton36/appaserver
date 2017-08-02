@@ -720,6 +720,12 @@ int ledger_balance_match_function(
 DICTIONARY *ledger_get_hard_coded_dictionary(
 				char *application_name );
 
+DICTIONARY *ledger_get_fund_hard_coded_dictionary(
+				char *application_name );
+
+DICTIONARY *ledger_get_non_fund_hard_coded_dictionary(
+				char *application_name );
+
 char *ledger_get_closing_transaction_date_time(
 				char *application_name,
 				char *as_of_date );

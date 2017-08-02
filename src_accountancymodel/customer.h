@@ -546,7 +546,7 @@ LIST *customer_hourly_service_work_get_list(
 					char *service_name,
 					char *description );
 
-SERVICE_WORK *customer_service_work_new(void );
+SERVICE_WORK *customer_service_work_new(char *begin_date_time );
 
 SERVICE_WORK *customer_service_work_seek(
 				LIST *service_work_list,

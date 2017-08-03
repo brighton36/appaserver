@@ -755,13 +755,15 @@ void post_change_customer_sale_just_completed(
 {
 	INVENTORY_SALE *inventory_sale;
 	char sys_string[ 1024 ];
+	boolean reload = 0;
 
 	if ( list_rewind( customer_sale->inventory_sale_list )  )
 	{
 		do {
 			inventory_sale =
-				list_get(
-					customer_sale->inventory_sale_list );
+				list_get_pointer(
+					customer_sale->
+						inventory_sale_list );
 
 			sprintf( sys_string,
 "propagate_inventory_sale_layers %s \"%s\" \"%s\" \"%s\" \"%s\" '' %c",
@@ -792,6 +794,46 @@ void post_change_customer_sale_just_completed(
 				 __FUNCTION__,
 				 __LINE__ );
 			return;
+		}
+
+		if ( list_length( customer_sale->fixed_service_sale_list )
+		&&   customer_fixed_service_open(
+			customer_sale->fixed_service_sale_list ) )
+		{
+			customer_fixed_service_close(
+				customer_sale->fixed_service_sale_list );
+
+			reload = 1;
+		}
+
+		if ( list_length( customer_sale->hourly_service_sale_list )
+		&&   customer_hourly_service_open(
+			customer_sale->hourly_service_sale_list ) )
+		{
+			customer_hourly_service_close(
+				customer_sale->hourly_service_sale_list );
+
+			reload = 1;
+		}
+
+		if ( reload )
+		{
+			customer_sale =
+				customer_sale_new(
+					application_name,
+					customer_sale->full_name,
+					customer_sale->street_address,
+					customer_sale->sale_date_time );
+
+			if ( !customer_sale )
+			{
+				fprintf( stderr,
+			"ERROR in %s/%s()/%d: cannot reload customer_sale.\n",
+			 		__FILE__,
+			 		__FUNCTION__,
+			 		__LINE__ );
+				exit( 1 );
+			}
 		}
 
 		post_change_customer_sale_new_transaction(
@@ -933,7 +975,7 @@ void post_change_customer_sale_insert_FOB_destination(
 		customer_sale->transaction->full_name,
 		customer_sale->transaction->street_address,
 		customer_sale->transaction->transaction_date_time,
-		0.0 /* transaction_amount */,
+		customer_sale->invoice_amount /* transaction_amount */,
 		customer_sale->transaction->memo,
 		0 /* check_number */,
 		1 /* lock_transaction */ );
@@ -962,7 +1004,7 @@ void post_change_customer_sale_insert_FOB_shipping(
 		customer_sale->transaction->full_name,
 		customer_sale->transaction->street_address,
 		customer_sale->transaction->transaction_date_time,
-		0.0 /* transaction_amount */,
+		customer_sale->invoice_amount /* transaction_amount */,
 		customer_sale->transaction->memo,
 		0 /* check_number */,
 		1 /* lock_transaction */ );
@@ -991,7 +1033,7 @@ void post_change_customer_sale_insert_title_passage_null(
 		customer_sale->transaction->full_name,
 		customer_sale->transaction->street_address,
 		customer_sale->transaction->transaction_date_time,
-		0.0 /* transaction_amount */,
+		customer_sale->invoice_amount /* transaction_amount */,
 		customer_sale->transaction->memo,
 		0 /* check_number */,
 		1 /* lock_transaction */ );
@@ -1163,7 +1205,7 @@ void post_change_customer_sale_new_transaction(
 		customer_sale->transaction->full_name,
 		customer_sale->transaction->street_address,
 		customer_sale->transaction->transaction_date_time,
-		0.0 /* transaction_amount */,
+		customer_sale->invoice_amount /* transaction_amount */,
 		customer_sale->transaction->memo,
 		0 /* check_number */,
 		1 /* lock_transaction */ );
@@ -1241,7 +1283,7 @@ void post_change_customer_sale_FOB_destination_new_rule(
 			customer_sale->transaction->full_name,
 			customer_sale->transaction->street_address,
 			customer_sale->transaction->transaction_date_time,
-			0.0 /* transaction_amount */,
+			customer_sale->invoice_amount /* transaction_amount */,
 			customer_sale->transaction->memo,
 			0 /* check_number */,
 			1 /* lock_transaction */ );

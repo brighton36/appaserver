@@ -2504,6 +2504,7 @@ void customer_fixed_service_work_update(
 				char *sale_date_time,
 				char *service_name,
 				char *begin_date_time,
+				char *end_date_time,
 				double work_hours,
 				double database_work_hours )
 {
@@ -2512,7 +2513,8 @@ void customer_fixed_service_work_update(
 	char *key_column_list_string;
 	char sys_string[ 1024 ];
 
-	if ( double_virtually_same( work_hours, database_work_hours ) )
+	if ( double_virtually_same( work_hours, database_work_hours )
+	&&   !end_date_time )
 	{
 		return;
 	}
@@ -2533,14 +2535,29 @@ void customer_fixed_service_work_update(
 
 	update_pipe = popen( sys_string, "w" );
 
-	fprintf(update_pipe,
-	 	"%s^%s^%s^%s^%s^work_hours^%.4lf\n",
-	 	full_name,
-	 	street_address,
-	 	sale_date_time,
-	 	service_name,
-		begin_date_time,
-	 	work_hours );
+	if ( !double_virtually_same( work_hours, database_work_hours ) )
+	{
+		fprintf(update_pipe,
+	 		"%s^%s^%s^%s^%s^work_hours^%.4lf\n",
+	 		full_name,
+	 		street_address,
+	 		sale_date_time,
+	 		service_name,
+			begin_date_time,
+	 		work_hours );
+	}
+
+	if ( end_date_time )
+	{
+		fprintf(update_pipe,
+	 		"%s^%s^%s^%s^%s^end_date_time^%s\n",
+	 		full_name,
+	 		street_address,
+	 		sale_date_time,
+	 		service_name,
+			begin_date_time,
+	 		end_date_time );
+	}
 
 	pclose( update_pipe );
 
@@ -3007,6 +3024,26 @@ void customer_sale_inventory_cost_account_list_set(
 
 } /* customer_sale_inventory_cost_account_list_set() */
 
+double customer_get_work_hours(	char *end_date_time,
+				char *begin_date_time )
+{
+	DATE *end_date;
+	DATE *begin_date;
+	double work_hours;
+
+	end_date = date_yyyy_mm_dd_hms_new( end_date_time );
+	begin_date = date_yyyy_mm_dd_hms_new( begin_date_time );
+
+	work_hours =
+		(double)date_subtract_minutes(
+				end_date /* later_date */,
+				begin_date /* earlier_date */ ) /
+			60.0;
+
+	return work_hours;
+
+} /* customer_get_work_hours() */
+
 LIST *customer_fixed_service_work_get_list(
 				double *work_hours,
 				char *application_name,
@@ -3024,8 +3061,6 @@ LIST *customer_fixed_service_work_get_list(
 	FILE *input_pipe;
 	SERVICE_WORK *service_work;
 	LIST *service_work_list;
-	DATE *begin_date;
-	DATE *end_date;
 
 	select =
 	"begin_date_time,end_date_time,work_hours";
@@ -3063,19 +3098,16 @@ LIST *customer_fixed_service_work_get_list(
 				strdup( piece_buffer )
 					/* begin_date_time */ );
 
-		begin_date = date_yyyy_mm_dd_hms_new( piece_buffer );
-
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 
 		if ( *piece_buffer )
 		{
-			end_date = date_yyyy_mm_dd_hms_new( piece_buffer );
+			service_work->end_date_string = strdup( piece_buffer );
 
 			service_work->work_hours =
-				(double)date_subtract_minutes(
-					end_date /* later_date */,
-					begin_date /* earlier_date */ ) /
-				60.0;
+				customer_get_work_hours(
+					service_work->end_date_time,
+					service_work->begin_date_time );
 
 			*work_hours += service_work->work_hours;
 		}
@@ -3187,4 +3219,159 @@ LIST *customer_hourly_service_work_get_list(
 	return service_work_list;
 
 } /* customer_hourly_service_work_get_list() */
+
+boolean customer_service_work_open(
+				LIST *service_work_list )
+{
+	SERVICE_WORK *service_work;
+
+	if ( !list_rewind( service_work_list ) ) return 0;
+
+	do {
+		service_work = list_get_pointer( service_work_list );
+
+		if ( !service_work->end_date_time ) return 1;
+
+	} while( list_next( service_work_list ) );
+
+	return 0;
+
+} /* customer_service_work_open() */
+
+boolean customer_fixed_service_open(
+				LIST *fixed_service_sale_list )
+{
+	FIXED_SERVICE *fixed_service;
+
+	if ( !list_rewind( fixed_service_sale_list ) ) return 0;
+
+	do {
+		fixed_service = list_get_pointer( fixed_service_sale_list );
+
+		if ( customer_service_work_open(
+				fixed_service->service_work_list ) )
+		{
+			return 1;
+		}
+
+	} while( list_next( fixed_service_sale_list ) );
+
+	return 0;
+
+} /* customer_fixed_service_open() */
+
+boolean customer_hourly_service_open(
+				LIST *hourly_service_sale_list )
+{
+	HOURLY_SERVICE *hourly_service;
+
+	if ( !list_rewind( hourly_service_sale_list ) ) return 0;
+
+	do {
+		hourly_service = list_get_pointer( hourly_service_sale_list );
+
+		if ( customer_service_work_open(
+				hourly_service->service_work_list ) )
+		{
+			return 1;
+		}
+
+	} while( list_next( hourly_service_sale_list ) );
+
+	return 0;
+
+} /* customer_hourly_service_open() */
+
+double customer_fixed_service_work_close(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *begin_date_time,
+				char *end_date_time,
+				double database_work_hours )
+{
+	double work_hours;
+
+	work_hours =
+		customer_get_work_hours(
+			end_date_time,
+			begin_date_time );
+
+	customer_fixed_service_work_update(
+		application_name,
+		full_name,
+		street_address,
+		sale_date_time,
+		service_name,
+		begin_date_time,
+		end_date_time,
+		work_hours,
+		database_work_hours );
+
+	return work_hours;
+
+} /* customer_fixed_service_work_close() */
+
+void customer_fixed_service_work_list_close(
+				LIST *service_work_list,
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time )
+{
+	SERVICE_WORK *service_work;
+
+	if ( !list_rewind( service_work_list ) ) return;
+
+	do {
+		service_work = list_get_pointer( service_work_list );
+
+		if ( !service_work->end_date_time )
+		{
+			service_work->end_date_time =
+				ledger_get_transaction_date_time(
+					(char *)0 );
+
+			service_work->work_hours =
+				customer_fixed_service_work_close(
+					application_name,
+					full_name,
+					street_address,
+					sale_date_time,
+					service_work->begin_date_time,
+					service_work->end_date_time,
+					service_work->database_work_hours );
+		}
+
+	} while( list_next( service_work_list ) );
+
+} /* customer_fixed_service_work_list_close() */
+
+void customer_fixed_service_sale_list_close(
+				LIST *fixed_service_sale_list,
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *service_name )
+{
+	FIXED_SERVICE *fixed_service;
+
+	if ( !list_rewind( fixed_service_sale_list ) ) return 0;
+
+	do {
+		fixed_service = list_get_pointer( fixed_service_sale_list );
+
+		customer_fixed_service_work_list_close(
+			fixed_service->service_work_list,
+			application_name,
+			full_name,
+			street_address,
+			service_name );
+
+	} while( list_next( fixed_service_sale_list ) );
+
+	return 0;
+
+} /* customer_fixed_service_sale_list_close() */
 

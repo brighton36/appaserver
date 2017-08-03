@@ -755,7 +755,6 @@ void post_change_customer_sale_just_completed(
 {
 	INVENTORY_SALE *inventory_sale;
 	char sys_string[ 1024 ];
-	boolean reload = 0;
 
 	if ( list_rewind( customer_sale->inventory_sale_list )  )
 	{
@@ -802,8 +801,6 @@ void post_change_customer_sale_just_completed(
 		{
 			customer_fixed_service_close(
 				customer_sale->fixed_service_sale_list );
-
-			reload = 1;
 		}
 
 		if ( list_length( customer_sale->hourly_service_sale_list )
@@ -813,11 +810,6 @@ void post_change_customer_sale_just_completed(
 			customer_hourly_service_close(
 				customer_sale->hourly_service_sale_list );
 
-			reload = 1;
-		}
-
-		if ( reload )
-		{
 			customer_sale =
 				customer_sale_new(
 					application_name,

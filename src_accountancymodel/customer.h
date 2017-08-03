@@ -480,6 +480,7 @@ void customer_fixed_service_work_update(
 					char *sale_date_time,
 					char *service_name,
 					char *begin_date_time,
+					char *end_date_time,
 					double work_hours,
 					double database_work_hours );
 
@@ -549,8 +550,43 @@ LIST *customer_hourly_service_work_get_list(
 SERVICE_WORK *customer_service_work_new(char *begin_date_time );
 
 SERVICE_WORK *customer_service_work_seek(
-				LIST *service_work_list,
-				char *begin_date_time );
+					LIST *service_work_list,
+					char *begin_date_time );
+
+boolean customer_service_work_open(
+					LIST *service_work_list );
+
+boolean customer_fixed_service_open(
+					LIST *fixed_service_sale_list );
+
+boolean customer_hourly_service_open(
+					LIST *hourly_service_sale_list );
+
+double customer_fixed_service_work_close(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *begin_date_time,
+					char *end_date_time,
+					double database_work_hours );
+
+void customer_fixed_service_work_list_close(
+					LIST *service_work_list,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *service_name );
+
+void customer_fixed_service_sale_list_close(
+					LIST *fixed_service_sale_list,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *service_name );
+
+double customer_get_work_hours(		char *end_date_time,
+					char *begin_date_time );
 
 #endif
 

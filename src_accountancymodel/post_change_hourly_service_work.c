@@ -237,6 +237,7 @@ void post_change_hourly_service_work_insert_update(
 		hourly_service->service_name,
 		hourly_service->description,
 		service_work->begin_date_time,
+		(char *)0 /* end_date_time */,
 		service_work->work_hours,
 		service_work->database_work_hours );
 

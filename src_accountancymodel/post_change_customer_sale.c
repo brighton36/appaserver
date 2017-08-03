@@ -802,7 +802,7 @@ void post_change_customer_sale_just_completed(
 			customer_fixed_service_sale_list_close(
 				customer_sale->fixed_service_sale_list,
 				application_name,
-				customer_sale->first_name,
+				customer_sale->full_name,
 				customer_sale->street_address,
 				customer_sale->sale_date_time );
 		}
@@ -814,7 +814,7 @@ void post_change_customer_sale_just_completed(
 			customer_hourly_service_sale_list_close(
 				customer_sale->hourly_service_sale_list,
 				application_name,
-				customer_sale->first_name,
+				customer_sale->full_name,
 				customer_sale->street_address,
 				customer_sale->sale_date_time );
 

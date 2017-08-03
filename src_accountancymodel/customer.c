@@ -2571,6 +2571,7 @@ void customer_hourly_service_work_update(
 				char *service_name,
 				char *description,
 				char *begin_date_time,
+				char *end_date_time,
 				double work_hours,
 				double database_work_hours )
 {
@@ -2579,7 +2580,8 @@ void customer_hourly_service_work_update(
 	char *key_column_list_string;
 	char sys_string[ 1024 ];
 
-	if ( double_virtually_same( work_hours, database_work_hours ) )
+	if ( double_virtually_same( work_hours, database_work_hours )
+	&&   !end_date_time )
 	{
 		return;
 	}
@@ -2600,15 +2602,31 @@ void customer_hourly_service_work_update(
 
 	update_pipe = popen( sys_string, "w" );
 
-	fprintf(update_pipe,
-	 	"%s^%s^%s^%s^%s^%s^work_hours^%.4lf\n",
-	 	full_name,
-	 	street_address,
-	 	sale_date_time,
-	 	service_name,
-		description,
-		begin_date_time,
-	 	work_hours );
+	if ( !double_virtually_same( work_hours, database_work_hours ) )
+	{
+		fprintf(update_pipe,
+	 		"%s^%s^%s^%s^%s^%s^work_hours^%.4lf\n",
+	 		full_name,
+	 		street_address,
+	 		sale_date_time,
+	 		service_name,
+			description,
+			begin_date_time,
+	 		work_hours );
+	}
+
+	if ( end_date_time )
+	{
+		fprintf(update_pipe,
+	 		"%s^%s^%s^%s^%s^%s^end_date_time^%s\n",
+	 		full_name,
+	 		street_address,
+	 		sale_date_time,
+	 		service_name,
+			description,
+			begin_date_time,
+	 		end_date_time );
+	}
 
 	pclose( update_pipe );
 
@@ -3102,7 +3120,7 @@ LIST *customer_fixed_service_work_get_list(
 
 		if ( *piece_buffer )
 		{
-			service_work->end_date_string = strdup( piece_buffer );
+			service_work->end_date_time = strdup( piece_buffer );
 
 			service_work->work_hours =
 				customer_get_work_hours(
@@ -3294,6 +3312,16 @@ double customer_fixed_service_work_close(
 {
 	double work_hours;
 
+	if ( !end_date_time )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty end_date_time.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	work_hours =
 		customer_get_work_hours(
 			end_date_time,
@@ -3360,7 +3388,7 @@ void customer_fixed_service_sale_list_close(
 {
 	FIXED_SERVICE *fixed_service;
 
-	if ( !list_rewind( fixed_service_sale_list ) ) return 0;
+	if ( !list_rewind( fixed_service_sale_list ) ) return;
 
 	do {
 		fixed_service = list_get_pointer( fixed_service_sale_list );
@@ -3374,8 +3402,6 @@ void customer_fixed_service_sale_list_close(
 			fixed_service->service_name );
 
 	} while( list_next( fixed_service_sale_list ) );
-
-	return 0;
 
 } /* customer_fixed_service_sale_list_close() */
 
@@ -3391,6 +3417,16 @@ double customer_hourly_service_work_close(
 				double database_work_hours )
 {
 	double work_hours;
+
+	if ( !end_date_time )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty end_date_time.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	work_hours =
 		customer_get_work_hours(
@@ -3461,7 +3497,7 @@ void customer_hourly_service_sale_list_close(
 {
 	HOURLY_SERVICE *hourly_service;
 
-	if ( !list_rewind( hourly_service_sale_list ) ) return 0;
+	if ( !list_rewind( hourly_service_sale_list ) ) return;
 
 	do {
 		hourly_service = list_get_pointer( hourly_service_sale_list );

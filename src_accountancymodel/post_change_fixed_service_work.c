@@ -235,6 +235,7 @@ void post_change_fixed_service_work_insert_update(
 		customer_sale->sale_date_time,
 		fixed_service->service_name,
 		service_work->begin_date_time,
+		(char *)0 /* end_date_time */,
 		service_work->work_hours,
 		service_work->database_work_hours );
 

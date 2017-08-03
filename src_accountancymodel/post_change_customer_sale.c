@@ -254,28 +254,28 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "predelete" ) != 0 )
 	{
 		customer_sale_update(
-				customer_sale->sum_extension,
-				customer_sale->database_sum_extension,
-				customer_sale->sales_tax,
-				customer_sale->database_sales_tax,
-				customer_sale->invoice_amount,
-				customer_sale->database_invoice_amount,
-				customer_sale->completed_date_time,
-				customer_sale->database_completed_date_time,
-				customer_sale->shipped_date_time,
-				customer_sale->database_shipped_date_time,
-				customer_sale->arrived_date,
-				customer_sale->database_arrived_date,
-				customer_sale->total_payment,
-				customer_sale->database_total_payment,
-				customer_sale->amount_due,
-				customer_sale->database_amount_due,
-				customer_sale->transaction_date_time,
-				customer_sale->database_transaction_date_time,
-				customer_sale->full_name,
-				customer_sale->street_address,
-				customer_sale->sale_date_time,
-				application_name );
+			customer_sale->sum_extension,
+			customer_sale->database_sum_extension,
+			customer_sale->sales_tax,
+			customer_sale->database_sales_tax,
+			customer_sale->invoice_amount,
+			customer_sale->database_invoice_amount,
+			customer_sale->completed_date_time,
+			customer_sale->database_completed_date_time,
+			customer_sale->shipped_date_time,
+			customer_sale->database_shipped_date_time,
+			customer_sale->arrived_date,
+			customer_sale->database_arrived_date,
+			customer_sale->total_payment,
+			customer_sale->database_total_payment,
+			customer_sale->amount_due,
+			customer_sale->database_amount_due,
+			customer_sale->transaction_date_time,
+			customer_sale->database_transaction_date_time,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->sale_date_time,
+			application_name );
 
 		/* Update inventory_sale->cost_of_goods_sold */
 		/* ----------------------------------------- */
@@ -804,7 +804,8 @@ void post_change_customer_sale_just_completed(
 				application_name,
 				customer_sale->full_name,
 				customer_sale->street_address,
-				customer_sale->sale_date_time );
+				customer_sale->sale_date_time,
+				customer_sale->completed_date_time );
 		}
 
 		if ( list_length( customer_sale->hourly_service_sale_list )
@@ -816,7 +817,8 @@ void post_change_customer_sale_just_completed(
 				application_name,
 				customer_sale->full_name,
 				customer_sale->street_address,
-				customer_sale->sale_date_time );
+				customer_sale->sale_date_time,
+				customer_sale->completed_date_time );
 
 			customer_sale =
 				customer_sale_new(
@@ -838,7 +840,8 @@ void post_change_customer_sale_just_completed(
 
 		post_change_customer_sale_new_transaction(
 			customer_sale,
-			customer_sale->completed_date_time,
+			customer_sale->completed_date_time
+				/* transaction_date_time */,
 			application_name );
 	}
 
@@ -860,7 +863,8 @@ void post_change_customer_sale_just_shipped_FOB_shipping(
 
 	post_change_customer_sale_new_transaction(
 		customer_sale,
-		customer_sale->shipped_date_time,
+		customer_sale->shipped_date_time
+			/* transaction_date_time */,
 		application_name );
 
 } /* post_change_customer_sale_just_shipped_FOB_shipping() */
@@ -1044,6 +1048,7 @@ void post_change_customer_sale_shipping_revenue_update(
 			CUSTOMER_SALE *customer_sale,
 			char *application_name )
 {
+#ifdef NOT_DEFINED
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->
@@ -1094,6 +1099,7 @@ void post_change_customer_sale_shipping_revenue_update(
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
 		application_name );
+#endif
 
 	/* Propagate ledger accounts */
 	/* ------------------------- */
@@ -1190,6 +1196,15 @@ void post_change_customer_sale_new_transaction(
 			char *transaction_date_time,
 			char *application_name )
 {
+	if ( customer_sale->transaction_date_time )
+	{
+		fprintf( stderr,
+	"Warning in %s/%s()/%d: not expecting a transaction_date_time.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+	}
+
 	customer_sale->transaction_date_time = transaction_date_time;
 
 	customer_sale->transaction =
@@ -1229,16 +1244,19 @@ void post_change_customer_sale_new_transaction(
 			customer_sale->shipping_revenue,
 			customer_sale->invoice_amount );
 
-	list_append_list(
-		customer_sale->propagate_account_list,
-		customer_sale_ledger_cost_of_goods_sold_insert(
-			application_name,
-			customer_sale->transaction->full_name,
-			customer_sale->transaction->street_address,
-			customer_sale->transaction->
-				transaction_date_time,
-			customer_sale->inventory_account_list,
-			customer_sale->cost_account_list ) );
+	if ( customer_sale->sum_inventory_extension )
+	{
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
+	}
 
 	ledger_account_list_propagate(
 		customer_sale->propagate_account_list,
@@ -1254,7 +1272,8 @@ void post_change_customer_sale_FOB_shipping_new_rule(
 	{
 		post_change_customer_sale_new_transaction(
 			customer_sale,
-			customer_sale->shipped_date_time,
+			customer_sale->shipped_date_time
+				/* transaction_date_time */,
 			application_name );
 	}
 
@@ -1432,7 +1451,8 @@ void post_change_customer_sale_changed_to_FOB_shipping(
 		{
 			post_change_customer_sale_new_transaction(
 				customer_sale,
-				customer_sale->shipped_date_time,
+				customer_sale->shipped_date_time
+					/* transaction_date_time */,
 				application_name );
 		}
 	}
@@ -1502,7 +1522,8 @@ void post_change_customer_sale_title_rule_null(
 		{
 			post_change_customer_sale_new_transaction(
 				customer_sale,
-				customer_sale->completed_date_time,
+				customer_sale->completed_date_time
+					/* transaction_date_time */,
 				application_name );
 		}
 	}

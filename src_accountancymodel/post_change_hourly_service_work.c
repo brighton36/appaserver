@@ -32,7 +32,7 @@ void post_change_hourly_service_work_delete(
 				char *service_name,
 				char *description );
 
-void post_change_hourly_service_work_insert_update(
+void post_change_hourly_service_work_insert(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -40,6 +40,16 @@ void post_change_hourly_service_work_insert_update(
 				char *service_name,
 				char *description,
 				char *begin_date_time );
+
+void post_change_hourly_service_work_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *service_name,
+				char *description,
+				char *begin_date_time,
+				char *preupdate_end_date_time );
 
 int main( int argc, char **argv )
 {
@@ -110,7 +120,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		post_change_hourly_service_work_insert_update(
+		post_change_hourly_service_work_insert(
 			application_name,
 			full_name,
 			street_address,
@@ -121,21 +131,22 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		post_change_hourly_service_work_insert_update(
+		post_change_hourly_service_work_update(
 			application_name,
 			full_name,
 			street_address,
 			sale_date_time,
 			service_name,
 			description,
-			begin_date_time );
+			begin_date_time,
+			preupdate_end_date_time );
 	}
 
 	return 0;
 
 } /* main() */
 
-void post_change_hourly_service_work_insert_update(
+void post_change_hourly_service_work_insert(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -278,7 +289,188 @@ void post_change_hourly_service_work_insert_update(
 				application_name );
 	}
 
-} /* post_change_hourly_service_work_insert_update() */
+} /* post_change_hourly_service_work_insert() */
+
+void post_change_hourly_service_work_update(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			char *description,
+			char *begin_date_time,
+			char *preupdate_end_date_time )
+{
+	CUSTOMER_SALE *customer_sale;
+	HOURLY_SERVICE *hourly_service;
+	SERVICE_WORK *service_work;
+	enum preupdate_change_state end_date_time_change_state;
+	char *preupdate_completed_date_time = "";
+
+	if ( ! (  customer_sale =
+			customer_sale_new(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: customer_sale_new() failed.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return;
+	}
+
+	if ( ! ( hourly_service =
+			customer_hourly_service_sale_seek(
+				customer_sale->hourly_service_sale_list,
+				service_name,
+				description ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek (%s/%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 service_name,
+			 description );
+		return;
+	}
+
+	if ( ! ( service_work =
+			customer_service_work_seek(
+				hourly_service->service_work_list,
+				begin_date_time ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek (%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 begin_date_time );
+		return;
+	}
+
+	end_date_time_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_end_date_time,
+			(service_work->end_date_time)
+				? service_work->end_date_time
+				: "",
+			"preupdate_end_date_time" );
+
+	if ( end_date_time_change_state == from_something_to_null
+	&&   customer_sale->completed_date_time
+	&&   *customer_sale->completed_date_time )
+	{
+		preupdate_completed_date_time =
+			customer_sale->completed_date_time;
+
+		customer_sale->completed_date_time = (char *)0;
+	}
+
+	customer_sale_update(
+		customer_sale->sum_extension,
+		customer_sale->database_sum_extension,
+		customer_sale->sales_tax,
+		customer_sale->database_sales_tax,
+		customer_sale->invoice_amount,
+		customer_sale->database_invoice_amount,
+		customer_sale->completed_date_time,
+		customer_sale->
+			database_completed_date_time,
+		customer_sale->shipped_date_time,
+		customer_sale->database_shipped_date_time,
+		customer_sale->arrived_date,
+		customer_sale->database_arrived_date,
+		customer_sale->total_payment,
+		customer_sale->database_total_payment,
+		customer_sale->amount_due,
+		customer_sale->database_amount_due,
+		customer_sale->transaction_date_time,
+		customer_sale->
+			database_transaction_date_time,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_sale->sale_date_time,
+		application_name );
+
+	customer_hourly_service_sale_update(
+		application_name,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_sale->sale_date_time,
+		hourly_service->service_name,
+		hourly_service->description,
+		hourly_service->extension,
+		hourly_service->database_extension,
+		hourly_service->work_hours,
+		hourly_service->database_work_hours );
+
+	customer_hourly_service_work_update(
+		application_name,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_sale->sale_date_time,
+		hourly_service->service_name,
+		hourly_service->description,
+		service_work->begin_date_time,
+		(char *)0 /* end_date_time */,
+		service_work->work_hours,
+		service_work->database_work_hours );
+
+	/* Propagate ledger accounts */
+	/* ------------------------- */
+	if ( customer_sale->transaction )
+	{
+		customer_sale->propagate_account_list =
+			customer_sale_ledger_refresh(
+				application_name,
+				customer_sale->fund_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->sum_inventory_extension,
+				customer_sale->sum_hourly_service_extension,
+				customer_sale->sum_hourly_service_extension,
+				customer_sale->sales_tax,
+				customer_sale->shipping_revenue,
+				customer_sale->invoice_amount );
+
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
+
+		ledger_account_list_propagate(
+				customer_sale->propagate_account_list,
+				application_name );
+	}
+
+	if ( end_date_time_change_state == from_something_to_null
+	&&   customer_sale->completed_date_time
+	&&   *customer_sale->completed_date_time )
+	{
+		char sys_string[ 1024 ];
+
+		sprintf( sys_string,
+"post_change_customer_sale %s \"%s\" \"%s\" \"%s\" \"%s\" update preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_completed_date_time preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue",
+			 application_name,
+			 customer_sale->full_name,
+			 customer_sale->street_address,
+			 customer_sale->sale_date_time,
+			 preupdate_completed_date_time );
+	}
+
+} /* post_change_hourly_service_work_update() */
 
 void post_change_hourly_service_work_delete(
 			char *application_name,

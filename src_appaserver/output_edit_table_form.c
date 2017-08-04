@@ -261,22 +261,6 @@ int main( int argc, char **argv )
 					(LIST *)0 /* operation_name_list */ );
 	}
 
-#ifdef NOT_DEFINED
-	prompt_recursive =
-		prompt_recursive_new(
-			application_name,
-			folder->folder_name /* query_folder_name */,
-			folder->mto1_related_folder_list );
-
-	PROMPT_RECURSIVE *prompt_recursive;
-	if ( prompt_recursive_get_grandchild_query_folder_name(
-			prompt_recursive,
-			dictionary_appaserver->query_dictionary ) )
-	{
-		make_primary_keys_non_edit = 1;
-	}
-#endif
-
 	folder->one2m_related_folder_list =
 		related_folder_get_1tom_related_folder_list(
 			application_name,
@@ -499,10 +483,6 @@ int main( int argc, char **argv )
 			document->stylesheet_filename,
 			application_get_relative_source_directory(
 				application_name ),
-/*
-			application_get_first_relative_source_directory(
-				application_name ),
-*/
 			with_dynarch_menu,
 			0 /* not with_close_head */ );
 
@@ -642,6 +622,9 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				sort_dictionary,
 			no_display_pressed_attribute_name_list );
+
+	row_security->select_folder->join_1tom_related_folder_list =
+		folder->join_1tom_related_folder_list;
 
 	row_security->row_security_element_list_structure =
 		row_security_element_list_structure_new(

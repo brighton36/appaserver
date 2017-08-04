@@ -86,6 +86,7 @@ typedef struct
 {
 	char *payment_date_time;
 	double payment_amount;
+	int check_number;
 	char *transaction_date_time;
 	char *database_transaction_date_time;
 	TRANSACTION *transaction;
@@ -438,18 +439,17 @@ FIXED_SERVICE *customer_fixed_service_sale_seek(
 				char *service_name );
 
 HOURLY_SERVICE *customer_hourly_service_sale_seek(
-				LIST *hourly_service_sale_list,
-				char *service_name,
-				char *description );
+					LIST *hourly_service_sale_list,
+					char *service_name,
+					char *description );
 
 double customer_sale_get_specific_inventory_cost_of_goods_sold(
-				LIST *specific_inventory_sale_list );
+					LIST *specific_inventory_sale_list );
 
 double customer_sale_get_amount_due(	char *application_name,
 					char *full_name,
 					char *street_address,
-					char *sale_date_time );;
-
+					char *sale_date_time );
 
 double customer_sale_get_total_payment(	char *application_name,
 					char *full_name,

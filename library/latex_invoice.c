@@ -79,7 +79,8 @@ LATEX_INVOICE_CUSTOMER *latex_invoice_customer_new(
 double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					char *item_key,
 					char *item,
-					int quantity,
+					double quantity,
+					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount )
 {
@@ -89,6 +90,7 @@ double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					item_key,
 					item,
 					quantity,
+					quantity_decimal_places,
 					retail_price,
 					discount_amount );
 
@@ -100,7 +102,8 @@ double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 					char *item_key,
 					char *item,
-					int quantity,
+					double quantity,
+					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount )
 {
@@ -120,6 +123,7 @@ LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 	h->item_key = item_key;
 	h->item = item;
 	h->quantity = quantity;
+	h->quantity_decimal_places = quantity_decimal_places;
 	h->retail_price = retail_price;
 	h->discount_amount = discount_amount;
 	return h;
@@ -401,11 +405,10 @@ void latex_invoice_output_invoice_footer(
 
 	fprintf( output_stream,
 "& \\bf \\$%s \\\\\n",
-		 commas_in_double(	buffer,
-					extension_total +
-					sales_tax +
-					shipping_charge -
-					total_payment ) );
+		 timlib_place_commas_in_money(	extension_total +
+						sales_tax +
+						shipping_charge -
+						total_payment ) );
 
 } /* latex_invoice_output_invoice_footer() */
 
@@ -488,7 +491,7 @@ void latex_invoice_output_invoice_line_items(
 	LATEX_INVOICE_LINE_ITEM *line_item;
 	char buffer[ 256 ];
 	char dollar_string[ 3 ];
-	int quantity;
+	double quantity;
 	double retail_price;
 	double discount_amount;
 
@@ -514,11 +517,22 @@ void latex_invoice_output_invoice_line_items(
 			retail_price = line_item->retail_price;
 			discount_amount = line_item->discount_amount;
 
+/*
 			fprintf( output_stream,
 "%s & %s & %s%.2lf",
 			 	format_initial_capital(
 					buffer, line_item->item ),
-			 	place_commas_in_long( quantity ),
+			 	place_commas_in_double( quantity ),
+			 	dollar_string,
+			 	retail_price );
+*/
+
+			fprintf( output_stream,
+"%s & %.*lf & %s%.2lf",
+			 	format_initial_capital(
+					buffer, line_item->item ),
+				line_item->quantity_decimal_places,
+			 	quantity,
 			 	dollar_string,
 			 	retail_price );
 
@@ -540,10 +554,11 @@ void latex_invoice_output_invoice_line_items(
 		else
 		{
 			fprintf( output_stream,
-"%s & %s \\\\\n",
+"%s & %.*lf \\\\\n",
 			 	 format_initial_capital(
 					buffer, line_item->item ),
-			 	 place_commas_in_long( quantity ) );
+				 line_item->quantity_decimal_places,
+			 	 quantity );
 		}
 
 	} while( list_next( invoice_line_item_list ) );

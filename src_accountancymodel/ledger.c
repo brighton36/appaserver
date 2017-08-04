@@ -4522,14 +4522,14 @@ char *ledger_get_transaction_where(	char *full_name,
 					char *folder_name,
 					char *date_time_column )
 {
-	static char where[ 512 ];
-	char buffer[ 256 ];
+	static char where[ 1024 ];
+	char buffer[ 512 ];
 
 	if ( folder_name )
 	{
 		if ( full_name )
 		{
-			sprintf( where,
+			sprintf(where,
 		 		"%s.full_name = '%s' and		"
 	  	 		"%s.street_address = '%s' and		"
 	  	 		"%s.%s = '%s'		 		",
@@ -4545,7 +4545,7 @@ char *ledger_get_transaction_where(	char *full_name,
 		}
 		else
 		{
-			sprintf( where,
+			sprintf(where,
 	  	 		"%s.%s = '%s'",
 				folder_name,
 		 		date_time_column,
@@ -4556,7 +4556,7 @@ char *ledger_get_transaction_where(	char *full_name,
 	{
 		if ( full_name )
 		{
-			sprintf( where,
+			sprintf(where,
 		 		"full_name = '%s' and			"
 	  	 		"street_address = '%s' and		"
 	  	 		"%s = '%s'		 		",
@@ -4569,7 +4569,7 @@ char *ledger_get_transaction_where(	char *full_name,
 		}
 		else
 		{
-			sprintf( where,
+			sprintf(where,
 	  	 		"%s = '%s'",
 		 		date_time_column,
 		 		transaction_date_time );

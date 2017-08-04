@@ -1137,7 +1137,8 @@ LIST *customer_payment_get_list(	char *application_name,
 	CUSTOMER_PAYMENT *customer_payment;
 	LIST *payment_list;
 
-	select = "payment_date_time,payment_amount,transaction_date_time";
+	select =
+"payment_date_time,payment_amount,check_number,transaction_date_time";
 
 	where = ledger_get_transaction_where(
 					full_name,
@@ -1170,6 +1171,10 @@ LIST *customer_payment_get_list(	char *application_name,
 			customer_payment->payment_amount = atof( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+		if ( *piece_buffer )
+			customer_payment->check_number = atoi( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 		if ( *piece_buffer )
 		{
 			customer_payment->transaction_date_time =
@@ -2365,8 +2370,8 @@ LIST *customer_payment_journal_ledger_refresh(
 				char *transaction_date_time,
 				double payment_amount )
 {
-	char *checking_account;
-	char *account_receivable_account;
+	char *checking_account = {0};
+	char *account_receivable_account = {0};
 	LIST *propagate_account_list = {0};
 	ACCOUNT *account;
 	JOURNAL_LEDGER *prior_ledger;
@@ -2382,6 +2387,18 @@ LIST *customer_payment_journal_ledger_refresh(
 		&account_receivable_account,
 		application_name,
 		fund_name );
+
+fprintf( stderr, "%s/%s()/%d: got checking_account = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+checking_account );
+
+fprintf( stderr, "%s/%s()/%d: got account_receivable_account = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+account_receivable_account );
 
 	if ( payment_amount )
 	{
@@ -2610,7 +2627,6 @@ double customer_sale_get_amount_due(	char *application_name,
 					char *street_address,
 					char *sale_date_time )
 {
-	char *table_name;
 	char sys_string[ 1024 ];
 	char *select;
 	char *where;
@@ -2618,7 +2634,6 @@ double customer_sale_get_amount_due(	char *application_name,
 
 	select = "ifnull( invoice_amount, 0 ) - ifnull( total_payment, 0 )";
 
-	table_name = get_table_name( application_name, "customer_sale" );
 
 	where = ledger_get_transaction_where(
 					full_name,
@@ -2628,20 +2643,33 @@ double customer_sale_get_amount_due(	char *application_name,
 					"sale_date_time" );
 
 	sprintf( sys_string,
-		 "echo \"	select %s			 "
-		 "		from %s				 "
-		 "		where %s;\"			|"
-		 "sql.e						 ",
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=customer_sale	"
+		 "			where=\"%s\"		",
+		 application_name,
 		 select,
-		 table_name,
 		 where );
 
 	results_string = pipe2string( sys_string );
 
 	if ( !results_string )
-		return 0.0;
-	else
-		return atof( results_string );
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot get amount_due.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+fprintf( stderr, "%s/%s()/%d: returning %.2lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+atof( results_string ) );
+
+	return atof( results_string );
 
 } /* customer_sale_get_amount_due() */
 

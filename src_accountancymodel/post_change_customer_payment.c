@@ -39,7 +39,8 @@ void post_change_customer_payment_update(
 				char *street_address,
 				char *sale_date_time,
 				char *payment_date_time,
-				char *preupdate_payment_date_time );
+				char *preupdate_payment_date_time,
+				char *preupdate_payment_amount );
 
 void post_change_customer_payment_delete(
 				char *application_name,
@@ -64,17 +65,26 @@ int main( int argc, char **argv )
 	char *payment_date_time;
 	char *state;
 	char *preupdate_payment_date_time;
+	char *preupdate_payment_amount;
 	char *database_string = {0};
 
-	if ( argc != 8 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address sale_date_time payment_date_time state preupdate_payment_date_time\n",
+"Usage: %s application full_name street_address sale_date_time payment_date_time state preupdate_payment_date_time preupdate_payment_amount\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
+	full_name = argv[ 2 ];
+	street_address = argv[ 3 ];
+	sale_date_time = argv[ 4 ];
+	payment_date_time = argv[ 5 ];
+	state = argv[ 6 ];
+	preupdate_payment_date_time = argv[ 7 ];
+	preupdate_payment_amount = argv[ 8 ];
+
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
 	{
@@ -82,13 +92,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
-
-	full_name = argv[ 2 ];
-	street_address = argv[ 3 ];
-	sale_date_time = argv[ 4 ];
-	payment_date_time = argv[ 5 ];
-	state = argv[ 6 ];
-	preupdate_payment_date_time = argv[ 7 ];
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_error_output_starting_argv_stderr(
 				argc,
@@ -116,7 +125,8 @@ int main( int argc, char **argv )
 				street_address,
 				sale_date_time,
 				payment_date_time,
-				preupdate_payment_date_time );
+				preupdate_payment_date_time,
+				preupdate_payment_amount );
 	}
 	else
 	if ( strcmp( state, "predelete" ) == 0 )
@@ -157,32 +167,6 @@ void post_change_customer_payment_insert(
 	{
 		return;
 	}
-
-	customer_sale_update(
-		customer_sale->sum_extension,
-		customer_sale->database_sum_extension,
-		customer_sale->sales_tax,
-		customer_sale->database_sales_tax,
-		customer_sale->invoice_amount,
-		customer_sale->database_invoice_amount,
-		customer_sale->completed_date_time,
-		customer_sale->
-			database_completed_date_time,
-		customer_sale->shipped_date_time,
-		customer_sale->database_shipped_date_time,
-		customer_sale->arrived_date,
-		customer_sale->database_arrived_date,
-		customer_sale->total_payment,
-		customer_sale->database_total_payment,
-		customer_sale->amount_due,
-		customer_sale->database_amount_due,
-		customer_sale->transaction_date_time,
-		customer_sale->
-			database_transaction_date_time,
-		customer_sale->full_name,
-		customer_sale->street_address,
-		customer_sale->sale_date_time,
-		application_name );
 
 	if ( ! ( customer_payment =
 			customer_payment_seek(
@@ -226,7 +210,7 @@ void post_change_customer_payment_insert(
 		customer_payment->transaction->transaction_date_time,
 		customer_payment->payment_amount /* transaction_amount */,
 		customer_payment->transaction->memo,
-		0 /* check_number */,
+		customer_payment->check_number,
 		1 /* lock_transaction */ );
 
 	if ( ( propagate_account_list =
@@ -253,6 +237,32 @@ void post_change_customer_payment_insert(
 		payment_date_time,
 		customer_payment->transaction_date_time,
 		customer_payment->database_transaction_date_time );
+
+	customer_sale_update(
+		customer_sale->sum_extension,
+		customer_sale->database_sum_extension,
+		customer_sale->sales_tax,
+		customer_sale->database_sales_tax,
+		customer_sale->invoice_amount,
+		customer_sale->database_invoice_amount,
+		customer_sale->completed_date_time,
+		customer_sale->
+			database_completed_date_time,
+		customer_sale->shipped_date_time,
+		customer_sale->database_shipped_date_time,
+		customer_sale->arrived_date,
+		customer_sale->database_arrived_date,
+		customer_sale->total_payment,
+		customer_sale->database_total_payment,
+		customer_sale->amount_due,
+		customer_sale->database_amount_due,
+		customer_sale->transaction_date_time,
+		customer_sale->
+			database_transaction_date_time,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_sale->sale_date_time,
+		application_name );
 
 } /* post_change_customer_payment_insert() */
 
@@ -399,9 +409,11 @@ void post_change_customer_payment_update(
 				char *street_address,
 				char *sale_date_time,
 				char *payment_date_time,
-				char *preupdate_payment_date_time )
+				char *preupdate_payment_date_time,
+				char *preupdate_payment_amount )
 {
 	enum preupdate_change_state payment_date_time_change_state;
+	enum preupdate_change_state preupdate_payment_amount_change_state;
 	CUSTOMER_SALE *customer_sale;
 	CUSTOMER_PAYMENT *customer_payment;
 
@@ -427,6 +439,13 @@ void post_change_customer_payment_update(
 				customer_sale->payment_list,
 				payment_date_time ) ) )
 	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot find customer payment.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 0 );
+#ifdef NOT_DEFINED
 		post_change_customer_payment_date_time_update(
 			application_name,
 			customer_sale->fund_name,
@@ -437,6 +456,7 @@ void post_change_customer_payment_update(
 			preupdate_payment_date_time );
 
 		return;
+#endif
 	}
 
 	if ( !customer_payment->transaction )
@@ -468,6 +488,25 @@ void post_change_customer_payment_update(
 			sale_date_time,
 			payment_date_time,
 			preupdate_payment_date_time );
+	}
+
+	payment_amount_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_payment_amount,
+			(char *)0 /* postupdate_data */,
+			"preupdate_payment_amount" );
+
+	if (	payment_date_time_change_state ==
+		from_something_to_something_else )
+	{
+		post_change_customer_payment_amount_update(
+			application_name,
+			customer_sale->fund_name,
+			full_name,
+			street_address,
+			sale_date_time,
+			payment_date_time,
+			preupdate_payment_amount );
 	}
 
 } /* post_change_customer_payment_update() */

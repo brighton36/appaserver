@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* src_accountancymodel/collect_customer_payment.c			*/
-/* ---------------------------------------------------------------	*/
+/* ----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/collect_customer_payment.c	*/
+/* ----------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* ----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -93,18 +93,28 @@ int main( int argc, char **argv )
 	check_number = atoi( argv[ 7 ] );
 	paid_amount_due = ( *argv[ 8 ] == 'y' );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	payment_date_time = timlib_get_now_date_time();
 
 	if ( paid_amount_due )
 	{
+/*
 		payment_amount = 
 			customer_sale_get_amount_due(
 					application_name,
 					full_name,
 					street_address,
 					sale_date_time );
+*/
+
+payment_amount = 643.0;
+
+fprintf( stderr, "%s/%s()/%d: payment_amount = %.2lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+payment_amount );
 	}
 
 	total_payment =

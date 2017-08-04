@@ -253,13 +253,6 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) != 0 )
 	{
-fprintf( stderr, "%s/%s()/%d: got transaction_date_time = (%s) and database_transaction_date_time = (%s).\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-customer_sale->transaction_date_time,
-customer_sale->database_transaction_date_time );
-
 		customer_sale_update(
 			customer_sale->sum_extension,
 			customer_sale->database_sum_extension,
@@ -1519,13 +1512,6 @@ void post_change_customer_sale_new_transaction(
 	customer_sale->sum_inventory_extension =
 		customer_sale_get_sum_inventory_extension(
 			customer_sale->inventory_sale_list );
-
-fprintf( stderr, "%s/%s()/%d: got sum_fixed_service_extension = %.2lf and sum_hourly_service_extension = %.2lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-customer_sale->sum_fixed_service_extension,
-customer_sale->sum_hourly_service_extension );
 
 	customer_sale->propagate_account_list =
 		customer_sale_ledger_refresh(

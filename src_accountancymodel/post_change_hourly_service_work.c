@@ -306,6 +306,7 @@ void post_change_hourly_service_work_update(
 	SERVICE_WORK *service_work;
 	enum preupdate_change_state end_date_time_change_state;
 	char *preupdate_completed_date_time = "";
+	boolean execute_post_change_customer_sale = 0;
 
 	if ( ! (  customer_sale =
 			customer_sale_new(
@@ -368,6 +369,7 @@ void post_change_hourly_service_work_update(
 			customer_sale->completed_date_time;
 
 		customer_sale->completed_date_time = (char *)0;
+		execute_post_change_customer_sale = 1;
 	}
 
 	customer_sale_update(
@@ -455,19 +457,19 @@ void post_change_hourly_service_work_update(
 				application_name );
 	}
 
-	if ( end_date_time_change_state == from_something_to_null
-	&&   customer_sale->completed_date_time
-	&&   *customer_sale->completed_date_time )
+	if ( execute_post_change_customer_sale )
 	{
 		char sys_string[ 1024 ];
 
 		sprintf( sys_string,
-"post_change_customer_sale %s \"%s\" \"%s\" \"%s\" \"%s\" update preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_completed_date_time preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue",
+"post_change_customer_sale %s \"%s\" \"%s\" \"%s\" update preupdate_full_name preupdate_street_address preupdate_title_passage_rule \"%s\" preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue",
 			 application_name,
 			 customer_sale->full_name,
 			 customer_sale->street_address,
 			 customer_sale->sale_date_time,
 			 preupdate_completed_date_time );
+
+		system( sys_string );
 	}
 
 } /* post_change_hourly_service_work_update() */

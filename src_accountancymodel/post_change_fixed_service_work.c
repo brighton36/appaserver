@@ -59,15 +59,16 @@ int main( int argc, char **argv )
 	char *service_name;
 	char *begin_date_time;
 	char *state;
+	char *preupdate_end_date_time;
 
 	appaserver_error_output_starting_argv_stderr(
 				argc,
 				argv );
 
-	if ( argc != 8 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address sale_date_time service_name begin_date_time state\n",
+"Usage: %s application full_name street_address sale_date_time service_name begin_date_time state preupdate_end_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -94,6 +95,7 @@ int main( int argc, char **argv )
 	service_name = argv[ 5 ];
 	begin_date_time = argv[ 6 ];
 	state = argv[ 7 ];
+	preupdate_end_date_time = argv[ 8 ];
 
 	/* If change full_name or street address only. */
 	/* --------------------------------------------- */

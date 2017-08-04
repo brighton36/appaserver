@@ -253,6 +253,13 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) != 0 )
 	{
+fprintf( stderr, "%s/%s()/%d: got transaction_date_time = (%s) and database_transaction_date_time = (%s).\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+customer_sale->transaction_date_time,
+customer_sale->database_transaction_date_time );
+
 		customer_sale_update(
 			customer_sale->sum_extension,
 			customer_sale->database_sum_extension,
@@ -801,41 +808,58 @@ void post_change_customer_sale_just_completed(
 		{
 			customer_fixed_service_sale_list_close(
 				customer_sale->fixed_service_sale_list,
+				customer_sale->completed_date_time );
+
+			customer_fixed_service_sale_list_update(
+				customer_sale->fixed_service_sale_list,
 				application_name,
 				customer_sale->full_name,
 				customer_sale->street_address,
-				customer_sale->sale_date_time,
-				customer_sale->completed_date_time );
+				customer_sale->sale_date_time );
 		}
 
 		if ( list_length( customer_sale->hourly_service_sale_list )
 		&&   customer_hourly_service_open(
 			customer_sale->hourly_service_sale_list ) )
 		{
+			/* Sets hourly_service->extension */
+			/* ------------------------------ */
 			customer_hourly_service_sale_list_close(
+				customer_sale->hourly_service_sale_list,
+				customer_sale->completed_date_time );
+
+			customer_sale->invoice_amount =
+				customer_sale_get_invoice_amount(
+					&customer_sale->
+						sum_inventory_extension,
+					&customer_sale->
+						sum_fixed_service_extension,
+					&customer_sale->
+						sum_hourly_service_extension,
+					&customer_sale->sum_extension,
+					&customer_sale->sales_tax,
+					customer_sale->shipping_revenue,
+					customer_sale->
+						inventory_sale_list,
+					customer_sale->
+						specific_inventory_sale_list,
+					customer_sale->fixed_service_sale_list,
+					customer_sale->hourly_service_sale_list,
+					customer_sale->full_name,
+					customer_sale->street_address,
+					application_name );
+
+			customer_sale->amount_due =
+				CUSTOMER_GET_AMOUNT_DUE(
+					customer_sale->invoice_amount,
+					customer_sale->total_payment );
+
+			customer_hourly_service_sale_list_update(
 				customer_sale->hourly_service_sale_list,
 				application_name,
 				customer_sale->full_name,
 				customer_sale->street_address,
-				customer_sale->sale_date_time,
-				customer_sale->completed_date_time );
-
-			customer_sale =
-				customer_sale_new(
-					application_name,
-					customer_sale->full_name,
-					customer_sale->street_address,
-					customer_sale->sale_date_time );
-
-			if ( !customer_sale )
-			{
-				fprintf( stderr,
-			"ERROR in %s/%s()/%d: cannot reload customer_sale.\n",
-			 		__FILE__,
-			 		__FUNCTION__,
-			 		__LINE__ );
-				exit( 1 );
-			}
+				customer_sale->sale_date_time );
 		}
 
 		post_change_customer_sale_new_transaction(
@@ -1071,8 +1095,9 @@ void post_change_customer_sale_shipping_revenue_update(
 			application_name );
 
 	customer_sale->amount_due =
-		customer_sale->invoice_amount -
-		customer_sale->total_payment;
+		CUSTOMER_GET_AMOUNT_DUE(
+			customer_sale->invoice_amount,
+			customer_sale->total_payment );
 
 	customer_sale_update(
 		customer_sale->sum_extension,
@@ -1190,79 +1215,6 @@ void post_change_customer_sale_delete(
 	} while( list_next( customer_sale->inventory_sale_list ) );
 
 } /* post_change_customer_sale_delete() */
-
-void post_change_customer_sale_new_transaction(
-			CUSTOMER_SALE *customer_sale,
-			char *transaction_date_time,
-			char *application_name )
-{
-	if ( customer_sale->transaction_date_time )
-	{
-		fprintf( stderr,
-	"Warning in %s/%s()/%d: not expecting a transaction_date_time.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-	}
-
-	customer_sale->transaction_date_time = transaction_date_time;
-
-	customer_sale->transaction =
-		ledger_transaction_new(
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale_get_memo(
-				customer_sale->full_name ) );
-
-	ledger_transaction_insert(
-		application_name,
-		customer_sale->transaction->full_name,
-		customer_sale->transaction->street_address,
-		customer_sale->transaction->transaction_date_time,
-		customer_sale->invoice_amount /* transaction_amount */,
-		customer_sale->transaction->memo,
-		0 /* check_number */,
-		1 /* lock_transaction */ );
-
-	customer_sale->sum_inventory_extension =
-		customer_sale_get_sum_inventory_extension(
-			customer_sale->inventory_sale_list );
-
-	customer_sale->propagate_account_list =
-		customer_sale_ledger_refresh(
-			application_name,
-			customer_sale->fund_name,
-			customer_sale->transaction->full_name,
-			customer_sale->transaction->street_address,
-			customer_sale->transaction->
-				transaction_date_time,
-			customer_sale->sum_inventory_extension,
-			customer_sale->sum_fixed_service_extension,
-			customer_sale->sum_hourly_service_extension,
-			customer_sale->sales_tax,
-			customer_sale->shipping_revenue,
-			customer_sale->invoice_amount );
-
-	if ( customer_sale->sum_inventory_extension )
-	{
-		list_append_list(
-			customer_sale->propagate_account_list,
-			customer_sale_ledger_cost_of_goods_sold_insert(
-				application_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->inventory_account_list,
-				customer_sale->cost_account_list ) );
-	}
-
-	ledger_account_list_propagate(
-		customer_sale->propagate_account_list,
-		application_name );
-
-} /* post_change_customer_sale_new_transaction() */
 
 void post_change_customer_sale_FOB_shipping_new_rule(
 				CUSTOMER_SALE *customer_sale,
@@ -1529,4 +1481,84 @@ void post_change_customer_sale_title_rule_null(
 	}
 
 } /* post_change_customer_sale_title_rule_null() */
+
+void post_change_customer_sale_new_transaction(
+			CUSTOMER_SALE *customer_sale,
+			char *transaction_date_time,
+			char *application_name )
+{
+	if ( customer_sale->transaction_date_time )
+	{
+		fprintf( stderr,
+	"Warning in %s/%s()/%d: not expecting a transaction_date_time.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+	}
+
+	customer_sale->transaction_date_time = transaction_date_time;
+
+	customer_sale->transaction =
+		ledger_transaction_new(
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->transaction_date_time,
+			customer_sale_get_memo(
+				customer_sale->full_name ) );
+
+	ledger_transaction_insert(
+		application_name,
+		customer_sale->transaction->full_name,
+		customer_sale->transaction->street_address,
+		customer_sale->transaction->transaction_date_time,
+		customer_sale->invoice_amount /* transaction_amount */,
+		customer_sale->transaction->memo,
+		0 /* check_number */,
+		1 /* lock_transaction */ );
+
+	customer_sale->sum_inventory_extension =
+		customer_sale_get_sum_inventory_extension(
+			customer_sale->inventory_sale_list );
+
+fprintf( stderr, "%s/%s()/%d: got sum_fixed_service_extension = %.2lf and sum_hourly_service_extension = %.2lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+customer_sale->sum_fixed_service_extension,
+customer_sale->sum_hourly_service_extension );
+
+	customer_sale->propagate_account_list =
+		customer_sale_ledger_refresh(
+			application_name,
+			customer_sale->fund_name,
+			customer_sale->transaction->full_name,
+			customer_sale->transaction->street_address,
+			customer_sale->transaction->
+				transaction_date_time,
+			customer_sale->sum_inventory_extension,
+			customer_sale->sum_fixed_service_extension,
+			customer_sale->sum_hourly_service_extension,
+			customer_sale->sales_tax,
+			customer_sale->shipping_revenue,
+			customer_sale->invoice_amount );
+
+	if ( customer_sale->sum_inventory_extension )
+	{
+		list_append_list(
+			customer_sale->propagate_account_list,
+			customer_sale_ledger_cost_of_goods_sold_insert(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->inventory_account_list,
+				customer_sale->cost_account_list ) );
+	}
+
+	ledger_account_list_propagate(
+		customer_sale->propagate_account_list,
+		application_name );
+
+} /* post_change_customer_sale_new_transaction() */
 

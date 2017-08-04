@@ -563,33 +563,14 @@ boolean customer_fixed_service_open(
 boolean customer_hourly_service_open(
 					LIST *hourly_service_sale_list );
 
-double customer_fixed_service_work_close(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *sale_date_time,
-					char *service_name,
-					char *begin_date_time,
-					char *end_date_time,
-					double database_work_hours );
-
 /* Returns fixed_service->work_hours */
 /* --------------------------------- */
 double customer_fixed_service_work_list_close(
 					LIST *service_work_list,
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *sale_date_time,
-					char *service_name,
 					char *completed_date_time );
 
 void customer_fixed_service_sale_list_close(
 					LIST *fixed_service_sale_list,
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *sale_date_time,
 					char *completed_date_time );
 
 double customer_get_work_hours(		char *end_date_time,
@@ -597,25 +578,31 @@ double customer_get_work_hours(		char *end_date_time,
 
 void customer_hourly_service_sale_list_close(
 					LIST *hourly_service_sale_list,
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *sale_date_time,
 					char *completed_date_time );
 
 /* Returns hourly_service->work_hours */
 /* ---------------------------------- */
 double customer_hourly_service_work_list_close(
 					LIST *service_work_list,
+					char *completed_date_time );
+
+void customer_hourly_service_sale_list_update(
+					LIST *hourly_service_sale_list,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time );
+
+void customer_hourly_service_work_list_update(
+					LIST *hourly_service_work_list,
 					char *application_name,
 					char *full_name,
 					char *street_address,
 					char *sale_date_time,
 					char *service_name,
-					char *description,
-					char *completed_date_time );
+					char *description );
 
-double customer_hourly_service_work_close(
+void customer_hourly_service_work_update(
 					char *application_name,
 					char *full_name,
 					char *street_address,
@@ -624,7 +611,23 @@ double customer_hourly_service_work_close(
 					char *description,
 					char *begin_date_time,
 					char *end_date_time,
+					double work_hours,
 					double database_work_hours );
+
+void customer_fixed_service_sale_list_update(
+					LIST *fixed_service_sale_list,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time );
+
+void customer_fixed_service_work_list_update(
+					LIST *fixed_service_work_list,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name );
 
 #endif
 

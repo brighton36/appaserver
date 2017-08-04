@@ -3779,7 +3779,7 @@ void ledger_transaction_generic_update(	char *application_name,
 
 	/* Lock needs to go first in case changing transaction_date_time */
 	/* ------------------------------------------------------------- */
-	fprintf( output_pipe,
+	fprintf(output_pipe,
 	 	"%s^%s^%s^%s^y\n",
 	 	escape_character(	entity_buffer,
 					full_name,
@@ -3788,7 +3788,7 @@ void ledger_transaction_generic_update(	char *application_name,
 	 	transaction_date_time,
 		LEDGER_LOCK_TRANSACTION_ATTRIBUTE );
 
-	fprintf( output_pipe,
+	fprintf(output_pipe,
 	 	"%s^%s^%s^%s^%s\n",
 	 	escape_character(	entity_buffer,
 					full_name,
@@ -4952,6 +4952,52 @@ JOURNAL_LEDGER *ledger_journal_ledger_seek(
 	return (JOURNAL_LEDGER *)0;
 
 } /* ledger_journal_ledger_seek() */
+
+void ledger_debit_credit_update(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *debit_account_name,
+					char *credit_account_name,
+					double transaction_amount )
+{
+	FILE *update_pipe;
+
+	if (	!full_name
+	||	!street_address
+	||	!transaction_date_time
+	||	!debit_account_name
+	||	!credit_account_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty primary information.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 ); 
+	}
+
+	update_pipe = ledger_open_update_pipe( application_name );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^debit_amount^%.2lf\n",
+	 	full_name,
+	 	street_address,
+	 	transaction_date_time,
+	 	debit_account_name,
+	 	transaction_amount );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^credit_amount^%.2lf\n",
+	 	full_name,
+	 	street_address,
+	 	transaction_date_time,
+	 	credit_account_name,
+	 	transaction_amount );
+
+	pclose( update_pipe );
+
+} /* ledger_debit_credit_update() */
 
 void ledger_journal_ledger_update(	FILE *update_pipe,
 					char *full_name,

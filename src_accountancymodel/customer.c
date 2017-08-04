@@ -2388,18 +2388,6 @@ LIST *customer_payment_journal_ledger_refresh(
 		application_name,
 		fund_name );
 
-fprintf( stderr, "%s/%s()/%d: got checking_account = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-checking_account );
-
-fprintf( stderr, "%s/%s()/%d: got account_receivable_account = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-account_receivable_account );
-
 	if ( payment_amount )
 	{
 		ledger_journal_ledger_insert(
@@ -2632,8 +2620,7 @@ double customer_sale_get_amount_due(	char *application_name,
 	char *where;
 	char *results_string;
 
-	select = "ifnull( invoice_amount, 0 ) - ifnull( total_payment, 0 )";
-
+	select = "amount_due";
 
 	where = ledger_get_transaction_where(
 					full_name,
@@ -2662,12 +2649,6 @@ double customer_sale_get_amount_due(	char *application_name,
 			 __LINE__ );
 		exit( 1 );
 	}
-
-fprintf( stderr, "%s/%s()/%d: returning %.2lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-atof( results_string ) );
 
 	return atof( results_string );
 

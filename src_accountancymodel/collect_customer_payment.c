@@ -17,6 +17,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
+#include "customer.h"
 #include "ledger.h"
 
 /* Constants */
@@ -99,22 +100,12 @@ int main( int argc, char **argv )
 
 	if ( paid_amount_due )
 	{
-/*
 		payment_amount = 
 			customer_sale_get_amount_due(
 					application_name,
 					full_name,
 					street_address,
 					sale_date_time );
-*/
-
-payment_amount = 643.0;
-
-fprintf( stderr, "%s/%s()/%d: payment_amount = %.2lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-payment_amount );
 	}
 
 	total_payment =
@@ -211,7 +202,7 @@ payment_amount );
 	}
 
 	sprintf( sys_string,
-	"post_change_customer_payment %s \"%s\" \"%s\" '%s' '%s' insert ''",
+"post_change_customer_payment %s \"%s\" \"%s\" \"%s\" \"%s\" insert preupdate_payment_date_time preupdate_payment_amount",
 		 application_name,
 		 full_name,
 		 street_address,

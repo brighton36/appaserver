@@ -523,6 +523,14 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 					double debit_amount,
 					double credit_amount );
 
+void ledger_debit_credit_update(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *debit_account_name,
+					char *credit_account_name,
+					double transaction_amount );
+
 JOURNAL_LEDGER *ledger_journal_ledger_seek(
 					LIST *journal_ledger_list,
 					char *account_name );

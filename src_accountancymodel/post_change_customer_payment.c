@@ -413,7 +413,7 @@ void post_change_customer_payment_update(
 				char *preupdate_payment_amount )
 {
 	enum preupdate_change_state payment_date_time_change_state;
-	enum preupdate_change_state preupdate_payment_amount_change_state;
+	enum preupdate_change_state payment_amount_change_state;
 	CUSTOMER_SALE *customer_sale;
 	CUSTOMER_PAYMENT *customer_payment;
 
@@ -445,18 +445,6 @@ void post_change_customer_payment_update(
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 0 );
-#ifdef NOT_DEFINED
-		post_change_customer_payment_date_time_update(
-			application_name,
-			customer_sale->fund_name,
-			full_name,
-			street_address,
-			sale_date_time,
-			"0000-00-00 00:00:00" /* payment_date_time */,
-			preupdate_payment_date_time );
-
-		return;
-#endif
 	}
 
 	if ( !customer_payment->transaction )
@@ -470,12 +458,44 @@ void post_change_customer_payment_update(
 		exit( 1 );
 	}
 
+	customer_sale_update(
+		customer_sale->sum_extension,
+		customer_sale->database_sum_extension,
+		customer_sale->sales_tax,
+		customer_sale->database_sales_tax,
+		customer_sale->invoice_amount,
+		customer_sale->database_invoice_amount,
+		customer_sale->completed_date_time,
+		customer_sale->
+			database_completed_date_time,
+		customer_sale->shipped_date_time,
+		customer_sale->database_shipped_date_time,
+		customer_sale->arrived_date,
+		customer_sale->database_arrived_date,
+		customer_sale->total_payment,
+		customer_sale->database_total_payment,
+		customer_sale->amount_due,
+		customer_sale->database_amount_due,
+		customer_sale->transaction_date_time,
+		customer_sale->
+			database_transaction_date_time,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_sale->sale_date_time,
+		application_name );
+
 	payment_date_time_change_state =
 		appaserver_library_get_preupdate_change_state(
 			preupdate_payment_date_time,
 			customer_payment->transaction_date_time
 				/* postupdate_data */,
 			"preupdate_payment_date_time" );
+
+	payment_amount_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_payment_amount,
+			(char *)0 /* postupdate_data */,
+			"preupdate_payment_amount" );
 
 	if (	payment_date_time_change_state ==
 		from_something_to_something_else )
@@ -490,23 +510,45 @@ void post_change_customer_payment_update(
 			preupdate_payment_date_time );
 	}
 
-	payment_amount_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_payment_amount,
-			(char *)0 /* postupdate_data */,
-			"preupdate_payment_amount" );
-
-	if (	payment_date_time_change_state ==
+	if (	payment_amount_change_state ==
 		from_something_to_something_else )
 	{
-		post_change_customer_payment_amount_update(
+		char *checking_account;
+		char *account_receivable_account;
+
+		ledger_transaction_amount_update(
 			application_name,
-			customer_sale->fund_name,
-			full_name,
-			street_address,
-			sale_date_time,
-			payment_date_time,
-			preupdate_payment_amount );
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_payment->transaction_date_time,
+			customer_payment->payment_amount,
+			0.0 /* database_payment_amount */ );
+
+		ledger_get_customer_payment_account_names(
+			&checking_account,
+			&account_receivable_account,
+			application_name,
+			customer_sale->fund_name );
+
+		ledger_debit_credit_update(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_payment->transaction_date_time,
+			checking_account
+				/* debit_account_name */,
+			account_receivable_account
+				/* credit_account_name */,
+			customer_payment->payment_amount
+				/* transaction_amount  */ );
+
+		ledger_propagate(	application_name,
+					customer_payment->transaction_date_time,
+					checking_account );
+
+		ledger_propagate(	application_name,
+					customer_payment->transaction_date_time,
+					account_receivable_account );
 	}
 
 } /* post_change_customer_payment_update() */

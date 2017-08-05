@@ -95,7 +95,7 @@ double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					discount_amount );
 
 	list_append_pointer( invoice_line_item_list, line_item );
-	return LATEX_INVOICE_EXTENSION;
+	return LATEX_EXTENSION( quantity, retail_price, discount_amount );
 
 } /* latex_invoice_append_line_item() */
 
@@ -545,7 +545,13 @@ void latex_invoice_output_invoice_line_items(
 			 		 discount_amount );
 			}
 
+/*
 			extension = LATEX_INVOICE_EXTENSION;
+*/
+			extension = LATEX_EXTENSION(
+					quantity,
+					retail_price,
+					discount_amount );
 
 			fprintf( output_stream,
 "& %s%s \\\\\n",

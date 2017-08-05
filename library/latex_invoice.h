@@ -12,8 +12,13 @@
 
 /* Constants */
 /* --------- */
+#define LATEX_EXTENSION( quantity, retail_price, discount_amount )	\
+				( quantity * retail_price - discount_amount )
+
+/*
 #define LATEX_INVOICE_EXTENSION \
 	( (double)quantity * retail_price - discount_amount )
+*/
 
 /* Structures */
 /* ---------- */

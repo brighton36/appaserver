@@ -146,6 +146,8 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( APPLICATION );
 
+system( "env > /tmp/env.out" );
+
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
@@ -422,7 +424,8 @@ boolean post_cloudacus_save_contact(	char *contact_message,
 	}
 
 	if (	timlib_strcmp( full_name, "na" ) == 0
-	||	timlib_strcmp( full_name, "n/a" ) == 0 )
+	||	timlib_strcmp( full_name, "n/a" ) == 0
+	||	timlib_strncmp( full_name, "pharmacy" ) == 0 )
 	{
 		/* Full name is required. */
 		/* ---------------------- */
@@ -441,7 +444,8 @@ boolean post_cloudacus_save_contact(	char *contact_message,
 	}
 
 	if (	timlib_strcmp( email_address, "na" ) == 0
-	||	timlib_strcmp( email_address, "n/a" ) == 0 )
+	||	timlib_strcmp( email_address, "n/a" ) == 0
+	||	isdigit( *email_address ) )
 	{
 		/* Email is required. */
 		/* ------------------ */

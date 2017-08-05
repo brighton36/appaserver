@@ -54,10 +54,6 @@ char *appaserver_error_get_filename( char *application_name )
 {
 	static char filename[ 128 ] = {0};
 
-/*
-	if ( *filename ) return filename;
-*/
-
 	if ( !application_name )
 	{
 		application_name =
@@ -184,13 +180,31 @@ void appaserver_error_starting_argv_append_file(
 			char *application_name )
 {
 	FILE *f;
+	char *remote_ip_address;
 
 	f = appaserver_error_open_append_file( application_name );
 
-	fprintf( f, "%s %s: %s",
-		 date_get_now_yyyy_mm_dd(),
-		 date_get_now_hhmm(),
-		 argv[ 0 ] );
+	remote_ip_address =
+		environ_get_environment(
+			"REMOTE_ADDR" );
+
+	if ( remote_ip_address && *remote_ip_address )
+	{
+		fprintf(f,
+			"%s %s %s: %s",
+			remote_ip_address,
+		 	date_get_now_yyyy_mm_dd(),
+		 	date_get_now_hhmm(),
+		 	argv[ 0 ] );
+	}
+	else
+	{
+		fprintf(f,
+			"%s %s: %s",
+		 	date_get_now_yyyy_mm_dd(),
+		 	date_get_now_hhmm(),
+		 	argv[ 0 ] );
+	}
 
 	while( --argc ) fprintf( f, " %s", *++argv );
 

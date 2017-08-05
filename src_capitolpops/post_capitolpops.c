@@ -146,8 +146,6 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( APPLICATION );
 
-system( "env > /tmp/env.out" );
-
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,

@@ -80,11 +80,6 @@ void output_invoice_window(
 				int process_id,
 				char *process_name );
 
-/*
-char *get_sale_date_international(
-				char *sale_date );
-*/
-
 int main( int argc, char **argv )
 {
 	char *application_name;

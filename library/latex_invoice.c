@@ -388,7 +388,7 @@ void latex_invoice_output_invoice_footer(
 
 		fprintf( output_stream,
 "& -%s \\\\\n",
-		 	commas_in_double( buffer, total_payment ) );
+		 	timlib_place_commas_in_money( total_payment ) );
 
 	}
 
@@ -494,6 +494,7 @@ void latex_invoice_output_invoice_line_items(
 	double quantity;
 	double retail_price;
 	double discount_amount;
+	double extension;
 
 	strcpy( dollar_string, "\\$" );
 
@@ -544,10 +545,13 @@ void latex_invoice_output_invoice_line_items(
 			 		 discount_amount );
 			}
 
+			extension = LATEX_INVOICE_EXTENSION;
+
 			fprintf( output_stream,
-"& %s%.2lf \\\\\n",
+"& %s%s \\\\\n",
 			 	 dollar_string,
-			 	 LATEX_INVOICE_EXTENSION );
+			 	 timlib_place_commas_in_money(
+					extension ) );
 
 			if ( *dollar_string ) *dollar_string = '\0';
 		}

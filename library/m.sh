@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_autorepair
-	make generate_invoice
+	cd ../utility
+	make pad_missing_times.e
 fi

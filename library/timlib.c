@@ -1170,11 +1170,12 @@ int get_line_queue( char *in_line, FILE *infile )
 	}
 } /* get_line_queue() */
 
-int get_block_delimiter( char **block,
-			 int delimiter,
-			 int columns_to_block,
-			 FILE *input_file,
-			 int max_lines )
+int timlib_get_block_delimiter(
+				char **block,
+				int delimiter,
+				int columns_to_block,
+				FILE *input_file,
+				int max_lines )
 {
 	char buffer[ 65536 ];
 	char first_field[ 1024 ];
@@ -1182,6 +1183,7 @@ int get_block_delimiter( char **block,
 	int count = 0;
 
 	*old_first_field = '\0';
+
 	while( get_line_queue( buffer, input_file ) )
 	{
 		if ( count == max_lines )
@@ -1193,6 +1195,7 @@ int get_block_delimiter( char **block,
 		}
 
 		count++;
+
 		piece_multiple(	first_field, 
 				delimiter, 
 				buffer, 
@@ -1216,8 +1219,10 @@ int get_block_delimiter( char **block,
 			}
 		}
 	}
+
 	return count;
-} /* get_block_delimiter() */
+
+} /* timlib_get_block_delimiter() */
 
 void free_array_string_with_count( 	char **block, 
 					int block_count )

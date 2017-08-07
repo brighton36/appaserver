@@ -149,8 +149,8 @@ int main( int argc, char **argv )
 		if ( !date_set_yyyy_mm_dd_hhmm_delimited(
 				input_date,
 				input_date_time_string,
-				date_offset,
-				time_offset,
+				0 /* date_offset */,
+				1 /*time_offset */,
 				'^' ) )
 		{
 			fprintf( stderr,
@@ -185,13 +185,6 @@ int main( int argc, char **argv )
 				 	ticker_date_time_string );
 				exit( 1 );
 			}
-
-/*
-			if ( ticker_date->current >= input_date->current )
-			{
-				break;
-			}
-*/
 
 			if ( input_date->current == ticker_date->current )
 			{

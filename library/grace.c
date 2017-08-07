@@ -2415,7 +2415,7 @@ int grace_populate_unit_graph_list(
 	FILE *p;
 	GRACE_GRAPH *grace_graph;
 	GRACE_DATATYPE *grace_datatype;
-	char *block[ 1024 ];
+	char *block[ 4096 ];
 	int block_count;
 	char unit_string[ 128 ];
 	char datatype_entity_string[ 128 ];
@@ -2441,7 +2441,12 @@ int grace_populate_unit_graph_list(
 /* mS/cm|conductivity|BA|n|n			<-- block 3	            */
 /* volts|voltage|BA|n|n				<-- block 4	            */
 /* ------------------------------------------------------------------------ */
-	while( ( block_count = get_block_delimiter( block, '|', 1, p, 1023 ) ) )
+	while( ( block_count = timlib_get_block_delimiter(
+					block,
+					'|',
+					1,
+					p,
+					4095 ) ) )
 	{
 		if ( count_characters( '|', block[ 0 ] ) < 4 )
 		{

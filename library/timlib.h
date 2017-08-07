@@ -206,7 +206,7 @@ char *unescape_character( 		char *destination,
 					char *data,
 					int character_to_unescape );
 
-int get_block_delimiter( 		char **block,
+int timlib_get_block_delimiter( 	char **block,
 			 		int delimiter,
 			 		int columns_to_block,
 			 		FILE *input_file,

@@ -333,6 +333,15 @@ char *prompt_edit_form_get_sys_string(
 			lookup_before_drop_down_dictionary,
 			state );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got lookup_before_drop_down = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+lookup_before_drop_down_display( lookup_before_drop_down ) );
+m2( application_name, msg );
+}
 	if ( ! ( unfulfilled_folder_name =
 		lookup_before_drop_down_get_unfulfilled_folder_name(
 			lookup_before_drop_down->
@@ -416,7 +425,17 @@ char *prompt_insert_form_get_sys_string(
 			lookup_before_drop_down_dictionary,
 			state );
 
-	if ( ( lookup_before_drop_down->insert_pair_base_folder_name =
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got lookup_before_drop_down = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+lookup_before_drop_down_display( lookup_before_drop_down ) );
+m2( application_name, msg );
+}
+	if ( !lookup_before_drop_down->level_zero_omit
+	&&   ( lookup_before_drop_down->insert_pair_base_folder_name =
 		lookup_before_drop_down_get_insert_pair_base_folder_name(
 			application_name,
 			folder_name,
@@ -424,6 +443,16 @@ char *prompt_insert_form_get_sys_string(
 				base_folder->
 				pair_one2m_related_folder_list ) ) )
 	{
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got insert_pair_base_folder_name = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+lookup_before_drop_down->insert_pair_base_folder_name );
+m2( application_name, msg );
+}
 		lookup_before_drop_down_set_dictionary_insert_folder_name(
 			lookup_before_drop_down_dictionary,
 			folder_name );

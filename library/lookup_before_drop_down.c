@@ -90,6 +90,7 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 
 	lookup_before_drop_down->lookup_before_drop_down_folder_list =
 		lookup_before_drop_down_get_folder_list(
+			&lookup_before_drop_down->level_zero_omit,
 			folder->mto1_recursive_related_folder_list,
 			state );
 
@@ -125,6 +126,7 @@ char *lookup_before_drop_down_get_base_folder_name(
 } /* lookup_before_drop_down_get_base_folder_name() */
 
 LIST *lookup_before_drop_down_get_folder_list(
+			boolean *level_zero_omit,
 			LIST *mto1_recursive_related_folder_list,
 			char *state )
 {
@@ -138,8 +140,9 @@ LIST *lookup_before_drop_down_get_folder_list(
 	if ( !list_rewind( mto1_recursive_related_folder_list ) )
 		return (LIST *)0;
 
-	if ( lookup_before_drop_down_level_zero_omit(
-		mto1_recursive_related_folder_list ) )
+	if ( ( *level_zero_omit =
+			lookup_before_drop_down_level_zero_omit(
+				mto1_recursive_related_folder_list ) ) )
 	{
 		return (LIST *)0;
 	}
@@ -265,7 +268,7 @@ boolean lookup_before_drop_down_level_zero_omit(
 
 	return 1;
 
-} /* lookup_before_drop_down_mark_consecutive_omit() */
+} /* lookup_before_drop_down_level_zero_omit() */
 
 void lookup_before_drop_down_with_dictionary_set_fulfilled(
 		LIST *lookup_before_drop_down_folder_list,
@@ -680,6 +683,11 @@ char *lookup_before_drop_down_display(
 			"\n%s(): no base set\n",
 			__FUNCTION__ );
 	}
+
+	buf_ptr += sprintf(
+			buf_ptr,
+			"level_zero_omit = %d\n",
+			lookup_before_drop_down->level_zero_omit );
 
 	if ( list_length( lookup_before_drop_down->
 				base_folder->

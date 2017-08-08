@@ -85,13 +85,22 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 				p->street_address,
 				p->purchase_date_time );
 
-	p->specific_inventory_purchase_list =
-		purchase_specific_inventory_get_list(
+	if ( ledger_folder_exists(
+		application_name,
+		"specific_inventory_purchase" ) )
+	{
+		p->specific_inventory_purchase_list =
+			purchase_specific_inventory_get_list(
 				application_name,
 				p->full_name,
 				p->street_address,
 				p->purchase_date_time );
+	}
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 	p->supply_purchase_list =
 		purchase_supply_get_list(
 				application_name,
@@ -99,6 +108,10 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 				p->street_address,
 				p->purchase_date_time );
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 	p->service_purchase_list =
 		purchase_service_get_list(
 				application_name,
@@ -106,6 +119,10 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 				p->street_address,
 				p->purchase_date_time );
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 	p->fixed_asset_purchase_list =
 		purchase_fixed_asset_get_list(
 				application_name,
@@ -113,19 +130,36 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 				p->street_address,
 				p->purchase_date_time );
 
-	p->prepaid_asset_purchase_list =
-		purchase_prepaid_asset_get_list(
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+	if ( ledger_folder_exists(
+		application_name,
+		"prepaid_asset_purchase" ) )
+	{
+		p->prepaid_asset_purchase_list =
+			purchase_prepaid_asset_get_list(
 				application_name,
 				p->full_name,
 				p->street_address,
 				p->purchase_date_time );
+	}
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 	p->purchase_asset_account_list =
 		purchase_get_asset_account_list(
 				application_name,
 				p->fixed_asset_purchase_list,
 				p->prepaid_asset_purchase_list );
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 	if ( p->transaction_date_time )
 	{
 		p->transaction =
@@ -241,22 +275,38 @@ double purchase_order_get_purchase_amount(
 
 char *purchase_order_get_select( char *application_name )
 {
-	char *select;
+	char select[ 1024 ];
+	char *fund_select;
+	char *title_passage_rule_select;
 
-	if ( ledger_title_passage_rule_attribute_exists(
-				application_name,
-				"purchase_order" /* folder_name */ ) )
+	if ( ledger_fund_attribute_exists(
+			application_name,
+			"purchase_order" /* folder_name */ ) )
 	{
-		select =
-"full_name,street_address,purchase_date_time,sum_extension,sales_tax,freight_in,purchase_amount,amount_due,title_passage_rule,shipped_date,arrived_date_time,transaction_date_time,fund";
+		fund_select = "fund";
 	}
 	else
 	{
-		select =
-"full_name,street_address,purchase_date_time,sum_extension,sales_tax,freight_in,purchase_amount,amount_due,'',shipped_date,arrived_date_time,transaction_date_time,fund";
+		fund_select = "''";
 	}
 
-	return select;
+	if ( ledger_title_passage_rule_attribute_exists(
+			application_name,
+			"purchase_order" /* folder_name */ ) )
+	{
+		title_passage_rule_select = "title_passage_rule";
+	}
+	else
+	{
+		title_passage_rule_select = "''";
+	}
+
+	sprintf( select,
+"full_name,street_address,purchase_date_time,sum_extension,sales_tax,freight_in,purchase_amount,amount_due,%s,shipped_date,arrived_date_time,transaction_date_time,%s",
+		 title_passage_rule_select,
+		 fund_select );
+
+	return strdup( select );
 
 } /* purchase_order_get_select() */
 

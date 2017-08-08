@@ -1,6 +1,6 @@
 :
 
-make post_change_hourly_service_work
+make post_change_purchase_order
 
 #if [ "$?" -eq 0 ]
 #then

@@ -23,7 +23,7 @@ enum lookup_before_drop_down_state {
 
 /* Constants */
 /* --------- */
-#define LOOKUP_BEFORE_DROP_DOWN_UNFULFILLED_FOLDER_PREFIX \
+#define LOOKUP_BEFORE_DROP_DOWN_UNFULFILLED_FOLDER_PREFIX 	\
 		"uunfulfilled_lookup"
 #define LOOKUP_BEFORE_DROP_DOWN_INSERT_FOLDER_KEY		\
 		"insert_folder"
@@ -52,6 +52,7 @@ typedef struct
 	FOLDER *base_folder;
 	LIST *lookup_before_drop_down_folder_list;
 	boolean first_prelookup;
+	boolean level_zero_omit;
 	enum lookup_before_drop_down_state lookup_before_drop_down_state;
 	char *insert_pair_base_folder_name;
 	char *insert_folder_name;
@@ -78,6 +79,7 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 		char *state );
 
 LIST *lookup_before_drop_down_get_folder_list(
+		boolean *level_zero_omit,
 		LIST *mto1_recursive_related_folder_list,
 		char *state );
 

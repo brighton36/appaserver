@@ -74,6 +74,7 @@ typedef struct
 	LIST *mto1_isa_related_folder_list;
 	LIST *mto1_append_isa_related_folder_list;
 	LIST *mto1_recursive_related_folder_list;
+	LIST *mto1_lookup_before_drop_down_related_folder_list;
 	LIST *primary_attribute_name_list;
 	DICTIONARY *primary_data_dictionary;
 	char *subschema_name;

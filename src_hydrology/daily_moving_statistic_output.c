@@ -274,22 +274,6 @@ int main( int argc, char **argv )
 		aggregate_statistic_string = "average";
 	}
 
-/*
-	if ( aggregate_statistic_string
-	&&   *aggregate_statistic_string
-	&&   strcmp( aggregate_statistic_string, "aggregate_statistic" ) != 0 )
-	{
-		if ( strcmp( aggregate_statistic_string, "average" ) != 0
-		&&   strcmp( aggregate_statistic_string, "minimum" ) != 0
-		&&   strcmp( aggregate_statistic_string, "maximum" ) != 0
-		&&   strcmp( aggregate_statistic_string, "median" ) != 0
-		&&   strcmp( aggregate_statistic_string, "sum" ) != 0 )
-		{
-			aggregate_statistic_string = "average";
-		}
-	}
-*/
-
 	aggregate_statistic =
 			aggregate_statistic_get_aggregate_statistic(
 				aggregate_statistic_string,
@@ -783,10 +767,6 @@ int main( int argc, char **argv )
 
 		if ( exceedance_format_yn == 'y' )
 		{
-/*
-			sprintf( output_sys_string,
-		 		"delimiter2padded_columns.e '|' 2" );
-*/
 			sprintf(output_sys_string,
 		 		"tr '|' '%c'",
 				OUTPUT_TEXT_FILE_DELIMITER );
@@ -807,10 +787,6 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-/*
-			sprintf( output_sys_string,
-		 		"delimiter2padded_columns.e '|' 1" );
-*/
 			sprintf(output_sys_string,
 		 		"tr '|' '%c'",
 				OUTPUT_TEXT_FILE_DELIMITER );

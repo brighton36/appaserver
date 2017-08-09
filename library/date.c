@@ -210,32 +210,6 @@ void date_set_date_integers(	DATE *date,
 
 } /* date_set_date_integers() */
 
-#ifdef NOT_DEFINED
-int date_set_yyyy_mm_dd_hhmm(	DATE *date,
-				char *yyyy_mm_dd_hhmm,
-				char delimiter )
-{
-	char yyyy_mm_dd[ 16 ];
-	char hhmm[ 16 ];
-
-	piece( yyyy_mm_dd, delimiter, yyyy_mm_dd_hhmm, 0 );
-
-	if ( !date_set_yyyy_mm_dd( date, yyyy_mm_dd ) ) return 0;
-
-	piece( hhmm, delimiter, yyyy_mm_dd_hhmm, 1 );
-
-	if ( *hhmm && strcasecmp( hhmm, "null" ) != 0 )
-	{
-		return date_set_time_hhmm( date, hhmm );
-	}
-	else
-	{
-		return 1;
-	}
-
-} /* date_set_yyyy_mm_dd_hhmm() */
-#endif
-
 int date_set_yyyy_mm_dd_hhmm_delimited(
 				DATE *date,
 				char *yyyy_mm_dd_hhmm,
@@ -355,7 +329,20 @@ int date_set_yyyy_mm_dd( DATE *date, char *yyyy_mm_dd )
 				atoi( year_string ),
 				atoi( month_string ),
 				atoi( day_string ) );
+
+	date_set_time_integers(	date,
+				0 /* hour */,
+				0 /* minute */,
+				0 /* seconds */ );
+
+	if ( date->tm->tm_isdst )
+	{
+		date_increment_hours( date, -1.0 );
+		date->tm->tm_isdst = 0;
+	}
+
 	return 1;
+
 } /* date_set_yyyy_mm_dd() */
 
 void date_set_time( DATE *date, int hour, int minutes )
@@ -887,6 +874,7 @@ char *date_static_display_yyyy_mm_dd( DATE *date )
 			date_get_day_of_month( date ) );
 
 	return buffer;
+
 } /* date_static_display_yyyy_mm_dd() */
 
 char *date_static_display( DATE *date )

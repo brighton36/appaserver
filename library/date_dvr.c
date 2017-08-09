@@ -24,12 +24,14 @@ void test_cross_dst();
 void test_days_in_month();
 void test_minutes_between( void );
 void test_years_between( void );
+void test_2015_10_26( void );
 
 int main()
 {
-	test_subtract_second();
-	/* test_round(); */
+	test_2015_10_26();
 	/*
+	test_subtract_second();
+	test_round();
 	test_week_of_year();
 	test1();
 	test2();
@@ -382,3 +384,24 @@ void test_subtract_second( void )
 				transaction_date ) );
 	}
 } /* test_subtract_second() */
+
+void test_2015_10_26()
+{
+	DATE *date;
+	char *s;
+
+	date = date_new( 2015, 10, 26 );
+	date = date_new_now();
+
+	s = "2015-10-26^null";
+
+	date_set_yyyy_mm_dd_hhmm_delimited(
+			date,
+			s,
+			0 /* date_piece */,
+			1 /* time_piece */,
+			'^' );
+
+	printf( "expecting (2015-10-26), got (%s)\n",
+		date_display( date ) );
+}

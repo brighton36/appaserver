@@ -77,8 +77,7 @@ int main( int argc, char **argv )
 	time_offset = atoi( time_offset_buffer );
 	value_offset = atoi( value_offset_buffer );
 
-	aggregate_level =
-		aggregate_level_get_aggregate_level( argv[ 3 ] );
+	aggregate_level = aggregate_level_get_aggregate_level( argv[ 3 ] );
 	starting_date_string = argv[ 4 ];
 	starting_time_string = argv[ 5 ];
 	ending_date_string = argv[ 6 ];
@@ -213,7 +212,9 @@ int main( int argc, char **argv )
 					append_string );
 			}
 		}
+
 		printf( "%s\n", input_buffer );
+
 	}
 	pclose( ticker_date_time_pipe );
 	return 0;

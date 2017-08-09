@@ -117,7 +117,7 @@ LIST *print_checks_get_current_liability_account_list(
 	account_list = list_new();
 
 	select =
-		ledger_account_get_select();
+		ledger_account_get_select( application_name );
 
 	where =
 "subclassification = 'current_liability' and account <> 'uncleared_checks'";

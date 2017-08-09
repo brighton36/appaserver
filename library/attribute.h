@@ -1,4 +1,4 @@
-/* library/attribute.h							*/
+/* $APPASERVER_HOME/library/attribute.h					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver attribute ADT.				*/
 /*									*/

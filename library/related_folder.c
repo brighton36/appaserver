@@ -627,7 +627,7 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 	buf_ptr +=
 		sprintf(
 		buf_ptr,
-"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d",
+"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d, insert_permission = %d, update_permission = %d, lookup_permission = %d",
 			folder->folder_name,
 			(related_folder->related_attribute_name)
 				? related_folder->related_attribute_name
@@ -642,7 +642,10 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 			related_folder->drop_down_multi_select,
 			related_folder->recursive_level,
 			folder->row_level_non_owner_view_only,
-			folder->row_level_non_owner_forbid );
+			folder->row_level_non_owner_forbid,
+			folder->insert_permission,
+			folder->update_permission,
+			folder->lookup_permission );
 
 	if ( list_length(
 		folder->
@@ -3127,6 +3130,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				LIST *related_folder_list,
 				char *application_name,
 				char *folder_name,
+				LIST *base_folder_attribute_list,
 				int recursive_level )
 {
 	RELATED_FOLDER *related_folder;
@@ -3202,6 +3206,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				(LIST *)0 /* mto1_isa_related_folder_list */,
 				(char *)0 /* role_name */ );
 
+
 			related_folder->folder->primary_attribute_name_list =
 				attribute_get_primary_attribute_name_list(
 					related_folder->
@@ -3239,6 +3244,13 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 					primary_attribute_name_list,
 				related_folder->related_attribute_name );
 
+		if ( related_folder_is_one2one_firewall(
+			related_folder->foreign_attribute_name_list,
+			base_folder_attribute_list ) )
+		{
+			continue;
+		}
+
 		list_append_pointer(
 			related_folder_list,
 			related_folder );
@@ -3248,6 +3260,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				related_folder_list,
 				application_name,
 				related_folder->folder->folder_name,
+				base_folder_attribute_list,
 				recursive_level + 1 );
 
 	} while( list_next( local_related_folder_list ) );

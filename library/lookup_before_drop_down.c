@@ -1,4 +1,4 @@
-/* library/lookup_before_drop_down.c			   */
+/* $APPASERVER_HOME/library/lookup_before_drop_down.c	   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -84,18 +84,10 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 				list_new() /* related_folder_list */,
 				application_name,
 				folder->folder_name,
+				folder->attribute_list
+					/* base_folder_attribute_list */,
 				0 /* recursive_level */ );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: for folder_name = (%s), got mto1_lookup_before_drop_down_related_folder_list = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-folder->folder_name,
-related_folder_list_display( folder->mto1_lookup_before_drop_down_related_folder_list, mto1, '\n' ) );
-m2( application_name, msg );
-}
 	lookup_before_drop_down->base_folder = folder;
 
 	lookup_before_drop_down->lookup_before_drop_down_folder_list =
@@ -149,7 +141,10 @@ LIST *lookup_before_drop_down_get_folder_list(
 	LIST *omit_update_attribute_name_list;
 
 	if ( !list_rewind( mto1_lookup_before_drop_down_related_folder_list ) )
+	{
+		*level_zero_omit = 1;
 		return (LIST *)0;
+	}
 
 	if ( ( *level_zero_omit =
 			lookup_before_drop_down_level_zero_omit(

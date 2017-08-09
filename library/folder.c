@@ -1,4 +1,4 @@
-/* library/folder.c							*/
+/* $APPASERVER_LIBRARY/library/folder.c					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver folder ADT.					*/
 /*									*/

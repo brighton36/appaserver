@@ -1,4 +1,4 @@
-/* library/lookup_before_drop_down.h			   */
+/* $APPASERVER_HOME/library/lookup_before_drop_down.h	   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */

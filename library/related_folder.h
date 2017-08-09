@@ -439,6 +439,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				LIST *related_folder_list,
 				char *application_name,
 				char *folder_name,
+				LIST *base_folder_attribute_list,
 				int recursive_level );
 
 void related_folder_set_no_ignore_output(

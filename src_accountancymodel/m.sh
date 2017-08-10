@@ -1,6 +1,6 @@
 :
 
-make post_change_purchase_order
+make inventory_balance_list
 
 #if [ "$?" -eq 0 ]
 #then

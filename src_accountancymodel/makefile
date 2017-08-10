@@ -33,6 +33,7 @@ EXECUTABLES=	trial_balance						\
 		close_nominal_accounts					\
 		print_checks_process					\
 		load_bank_spreadsheet					\
+		inventory_balance_list					\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
 		depreciate_fixed_assets					\
@@ -384,6 +385,15 @@ propagate_inventory_sale_layers:					\
 		${SOURCE_LIBRARY}					\
 		propagate_inventory_sale_layers.c			\
 		-o propagate_inventory_sale_layers
+
+inventory_balance_list:							\
+	inventory_balance_list.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		inventory_balance_list.c				\
+		-o inventory_balance_list
 
 post_change_inventory_sale: post_change_inventory_sale.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

@@ -122,6 +122,7 @@ kml_extract
 # --------------------
 # src_accountancymodel
 # --------------------
+inventory_balance_list
 depreciate_fixed_assets
 print_checks_process
 post_change_bank_upload

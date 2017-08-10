@@ -1,4 +1,4 @@
-/* library/related_folder.c						*/
+/* $APPASERVER_HOME/library/related_folder.c				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver related_folder ADT.				*/
 /* It is used as an interface to the RELATION folder.			*/ 
@@ -3260,7 +3260,8 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				related_folder_list,
 				application_name,
 				related_folder->folder->folder_name,
-				base_folder_attribute_list,
+				related_folder->folder->attribute_list
+					/* base_folder_attribute_list */,
 				recursive_level + 1 );
 
 	} while( list_next( local_related_folder_list ) );

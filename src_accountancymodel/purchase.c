@@ -97,10 +97,6 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 				p->purchase_date_time );
 	}
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 	p->supply_purchase_list =
 		purchase_supply_get_list(
 				application_name,
@@ -108,10 +104,6 @@ __LINE__ );
 				p->street_address,
 				p->purchase_date_time );
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 	p->service_purchase_list =
 		purchase_service_get_list(
 				application_name,
@@ -119,10 +111,6 @@ __LINE__ );
 				p->street_address,
 				p->purchase_date_time );
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 	p->fixed_asset_purchase_list =
 		purchase_fixed_asset_get_list(
 				application_name,
@@ -130,10 +118,6 @@ __LINE__ );
 				p->street_address,
 				p->purchase_date_time );
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 	if ( ledger_folder_exists(
 		application_name,
 		"prepaid_asset_purchase" ) )
@@ -146,20 +130,12 @@ __LINE__ );
 				p->purchase_date_time );
 	}
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 	p->purchase_asset_account_list =
 		purchase_get_asset_account_list(
 				application_name,
 				p->fixed_asset_purchase_list,
 				p->prepaid_asset_purchase_list );
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 	if ( p->transaction_date_time )
 	{
 		p->transaction =

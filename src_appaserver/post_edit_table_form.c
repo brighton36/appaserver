@@ -251,7 +251,7 @@ int main( int argc, char **argv )
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	role = role_new_role(	application_name,
 				role_name );
@@ -1470,24 +1470,4 @@ void set_insert_flag( DICTIONARY *non_prefixed_dictionary )
 				strdup( search_key ),
 				"yes" );
 } /* set_insert_flag() */
-
-#ifdef NOT_DEFINED
-void add_login_name_if_necessary(
-				DICTIONARY *post_dictionary,
-				LIST *attribute_name_list,
-				char *login_name )
-{
-	if ( list_exists_string( attribute_name_list, "login_name" ) )
-	{
-		if ( !dictionary_exists_key_index( post_dictionary, 
-						   "login_name",
-						   0 ) )
-		{
-			dictionary_add_string(	post_dictionary,
-						"login_name_0",
-						login_name );
-		}
-	}
-} /* add_login_name_if_necessary() */
-#endif
 

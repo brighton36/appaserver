@@ -1,4 +1,4 @@
-/* library/related_folder.h						*/
+/* $APPASERVER_HOME/library/related_folder.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver related_folder ADT.				*/
 /* It is used as an interface to the RELATION folder.			*/ 

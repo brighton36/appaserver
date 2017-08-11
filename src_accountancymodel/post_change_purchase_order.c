@@ -522,7 +522,9 @@ void post_change_purchase_order_FOB_shipping_fixed_shipped_date(
 	sprintf( sys_string,
 		 "propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 application_name,
-		 purchase_order->fund_name,
+		 (purchase_order->fund_name)
+			? purchase_order->fund_name
+			: "fund",
 		 propagate_transaction_date_time );
 
 	system( sys_string );
@@ -1030,7 +1032,9 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 		sprintf(sys_string,
 		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 	application_name,
-			purchase_order->fund_name,
+			(purchase_order->fund_name)
+				? purchase_order->fund_name
+				: "fund",
 		 	propagate_transaction_date_time );
 
 		system( sys_string );
@@ -1153,7 +1157,9 @@ void post_change_purchase_order_FOB_shipping_new_title_passage_rule(
 		sprintf(sys_string,
 		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 	application_name,
-			purchase_order->fund_name,
+			(purchase_order->fund_name)
+				? purchase_order->fund_name
+				: "fund",
 		 	propagate_transaction_date_time );
 
 		system( sys_string );
@@ -1226,7 +1232,9 @@ void post_change_purchase_order_fixed_arrived_date_time(
 		sprintf(sys_string,
 		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 	application_name,
-			purchase_order->fund_name,
+			(purchase_order->fund_name)
+				? purchase_order->fund_name
+				: "fund",
 		 	propagate_transaction_date_time );
 
 		system( sys_string );

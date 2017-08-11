@@ -3750,7 +3750,7 @@ void inventory_balance_list_table_display(
 	INVENTORY_BALANCE *inventory_balance;
 
 	fprintf( output_pipe,
-	"Date^Operation^Quantity^Cost^OnHand^Avg^Balance\n" );
+	"Arrived/Completed^Operation^Quantity^Cost^OnHand^Avg^Balance\n" );
 
 	if ( !list_rewind( inventory_balance_list ) ) return;
 
@@ -3763,7 +3763,7 @@ void inventory_balance_list_table_display(
 				"%s^Purchase^%d^%.4lf",
 				inventory_balance->
 					inventory_purchase->
-					purchase_date_time,
+					arrived_date_time,
 				inventory_balance->
 					inventory_purchase->
 					ordered_quantity,
@@ -3778,7 +3778,7 @@ void inventory_balance_list_table_display(
 				"%s^Sale^%d^%.2lf",
 				inventory_balance->
 					inventory_sale->
-					sale_date_time,
+					completed_date_time,
 				inventory_balance->
 					inventory_sale->
 					quantity,

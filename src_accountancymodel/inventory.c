@@ -1585,22 +1585,6 @@ LIST *inventory_get_balance_list(
 		/* --------- */
 		if ( !inventory_purchase && !inventory_sale ) break;
 
-/* arrived_date_time and completed_date_time are in the where clause.
-		if (	inventory_sale
-		&&	!*inventory_sale->completed_date_time )
-		{
-			list_next( inventory_sale_list );
-			continue;
-		}
-
-		if (	inventory_purchase
-		&&	!*inventory_purchase->arrived_date_time )
-		{
-			list_next( inventory_purchase_list );
-			continue;
-		}
-*/
-
 		inventory_balance = inventory_balance_new();
 
 		/* If out of sales */
@@ -1609,6 +1593,7 @@ LIST *inventory_get_balance_list(
 		{
 			inventory_balance->inventory_purchase =
 				inventory_purchase;
+
 			list_next( inventory_purchase_list );
 		}
 		else
@@ -1619,6 +1604,7 @@ LIST *inventory_get_balance_list(
 		{
 			inventory_balance->inventory_sale =
 				inventory_sale;
+
 			list_next( inventory_sale_list );
 		}
 		else
@@ -1628,12 +1614,14 @@ LIST *inventory_get_balance_list(
 		{
 			inventory_balance->inventory_purchase =
 				inventory_purchase;
+
 			list_next( inventory_purchase_list );
 		}
 		else
 		{
 			inventory_balance->inventory_sale =
 				inventory_sale;
+
 			list_next( inventory_sale_list );
 		}
 
@@ -3750,7 +3738,7 @@ void inventory_balance_list_table_display(
 	INVENTORY_BALANCE *inventory_balance;
 
 	fprintf( output_pipe,
-	"Arrived/Completed^Operation^Quantity^Cost^OnHand^Avg^Balance\n" );
+	"Arrived/Completed^Operation^Quantity^Cost^OnHand^UnitCost^Balance\n" );
 
 	if ( !list_rewind( inventory_balance_list ) ) return;
 
@@ -3839,4 +3827,38 @@ void inventory_folder_table_display(
 	}
 
 } /* inventory_folder_table_display() */
+
+LIST *inventory_get_fifo_inventory_balance_list(
+				LIST *inventory_purchase_list,
+				LIST *inventory_sale_list )
+{
+	inventory_reset_quantity_on_hand(
+		inventory_purchase_list );
+
+	inventory_set_quantity_on_hand_CGS_fifo(
+		inventory_sale_list,
+		inventory_purchase_list );
+
+	return inventory_get_balance_list(
+			inventory_purchase_list,
+			inventory_sale_list );
+
+} /* inventory_get_fifo_inventory_balance_list() */
+
+LIST *inventory_get_lifo_inventory_balance_list(
+				LIST *inventory_purchase_list,
+				LIST *inventory_sale_list )
+{
+	inventory_reset_quantity_on_hand(
+		inventory_purchase_list );
+
+	inventory_set_quantity_on_hand_CGS_lifo(
+		inventory_sale_list,
+		inventory_purchase_list );
+
+	return inventory_get_balance_list(
+			inventory_purchase_list,
+			inventory_sale_list );
+
+} /* inventory_get_lifo_inventory_balance_list() */
 

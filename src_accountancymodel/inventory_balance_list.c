@@ -92,22 +92,18 @@ void inventory_balance_list(	char *application_name,
 
 	if ( inventory_cost_method == inventory_fifo )
 	{
-/*
 		inventory->inventory_balance_list =
 			inventory_get_fifo_inventory_balance_list(
 				inventory->inventory_purchase_list,
 				inventory->inventory_sale_list );
-*/
 	}
 	else
 	if ( inventory_cost_method == inventory_lifo )
 	{
-/*
 		inventory->inventory_balance_list =
 			inventory_get_lifo_inventory_balance_list(
 				inventory->inventory_purchase_list,
 				inventory->inventory_sale_list );
-*/
 	}
 	else
 	if ( inventory_cost_method == inventory_average )

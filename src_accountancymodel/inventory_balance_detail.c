@@ -1,8 +1,8 @@
-/* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_accountancymodel/inventory_balance_list.c	*/
-/* ---------------------------------------------------------------	*/
+/* ----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/inventory_balance_detail.c	*/
+/* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* ----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +25,7 @@
 
 /* Prototypes */
 /* ---------- */
-void inventory_balance_list(	char *application_name,
+void inventory_balance_detail(	char *application_name,
 				INVENTORY *inventory );
 
 int main( int argc, char **argv )
@@ -70,7 +70,7 @@ int main( int argc, char **argv )
 			application_name,
 			inventory_name );
 
-	inventory_balance_list(
+	inventory_balance_detail(
 			application_name,
 			entity_self->sale_inventory
 				/* inventory */ );
@@ -79,7 +79,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void inventory_balance_list(	char *application_name,
+void inventory_balance_detail(	char *application_name,
 				INVENTORY *inventory )
 {
 	FILE *output_pipe;
@@ -110,5 +110,5 @@ void inventory_balance_list(	char *application_name,
 
 	pclose( output_pipe );
 
-} /* inventory_balance_list_display() */
+} /* inventory_balance_detail_display() */
 

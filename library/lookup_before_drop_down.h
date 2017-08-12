@@ -52,7 +52,7 @@ typedef struct
 	FOLDER *base_folder;
 	LIST *lookup_before_drop_down_folder_list;
 	boolean first_prelookup;
-	boolean level_zero_omit;
+	boolean omit_lookup_before_drop_down;
 	enum lookup_before_drop_down_state lookup_before_drop_down_state;
 	char *insert_pair_base_folder_name;
 	char *insert_folder_name;
@@ -79,7 +79,7 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 		char *state );
 
 LIST *lookup_before_drop_down_get_folder_list(
-		boolean *level_zero_omit,
+		boolean *omit_lookup_before_drop_down,
 		LIST *mto1_lookup_before_drop_down_related_folder_list,
 		char *state );
 
@@ -182,7 +182,7 @@ LIST *lookup_before_drop_down_get_non_edit_folder_name_list(
 boolean lookup_before_drop_down_preprompt_dictionary_empty(
 			DICTIONARY *preprompt_dictionary );
 
-boolean lookup_before_drop_down_level_zero_omit(
+boolean lookup_before_drop_down_get_omit(
 		LIST *mto1_lookup_before_drop_down_related_folder_list );
 
 #endif

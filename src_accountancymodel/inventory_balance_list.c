@@ -26,8 +26,7 @@
 /* Prototypes */
 /* ---------- */
 void inventory_balance_list(	char *application_name,
-				INVENTORY *inventory,
-				enum inventory_cost_method );
+				INVENTORY *inventory );
 
 int main( int argc, char **argv )
 {
@@ -74,57 +73,25 @@ int main( int argc, char **argv )
 	inventory_balance_list(
 			application_name,
 			entity_self->sale_inventory
-				/* inventory */,
-			entity_self->inventory_cost_method );
+				/* inventory */ );
 
 	return 0;
 
 } /* main() */
 
 void inventory_balance_list(	char *application_name,
-				INVENTORY *inventory,
-				enum inventory_cost_method
-					inventory_cost_method )
+				INVENTORY *inventory )
 {
 	FILE *output_pipe;
 
 	output_pipe = popen( OUTPUT_PROCESS, "w" );
 
-	if ( inventory_cost_method == inventory_fifo )
-	{
-		inventory->inventory_balance_list =
-			inventory_get_fifo_inventory_balance_list(
-				inventory->inventory_purchase_list,
-				inventory->inventory_sale_list );
-	}
-	else
-	if ( inventory_cost_method == inventory_lifo )
-	{
-		inventory->inventory_balance_list =
-			inventory_get_lifo_inventory_balance_list(
-				inventory->inventory_purchase_list,
-				inventory->inventory_sale_list );
-	}
-	else
-	if ( inventory_cost_method == inventory_average )
-	{
-		inventory->inventory_balance_list =
-			inventory_get_average_cost_inventory_balance_list(
-				inventory->inventory_purchase_list,
-				inventory->inventory_sale_list );
-	}
-	else
-	/* ------------------------- */
-	/* Must be inventory_not_set */
-	/* ------------------------- */
-	{
-		inventory->inventory_balance_list =
-			inventory_get_average_cost_inventory_balance_list(
-				inventory->inventory_purchase_list,
-				inventory->inventory_sale_list );
-	}
+	inventory->inventory_balance_list =
+		inventory_get_average_cost_inventory_balance_list(
+			inventory->inventory_purchase_list,
+			inventory->inventory_sale_list );
 
-	printf( "\nInventory Balance List:\n" );
+	printf( "\nInventory Average Balance List:\n" );
 	
 	inventory_balance_list_table_display(
 		output_pipe,

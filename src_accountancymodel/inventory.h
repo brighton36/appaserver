@@ -674,13 +674,5 @@ void inventory_folder_table_display(
 				char *application_name,
 				char *inventory_name );
 
-LIST *inventory_get_fifo_inventory_balance_list(
-				LIST *inventory_purchase_list,
-				LIST *inventory_sale_list );
-
-LIST *inventory_get_lifo_inventory_balance_list(
-				LIST *inventory_purchase_list,
-				LIST *inventory_sale_list );
-
 #endif
 

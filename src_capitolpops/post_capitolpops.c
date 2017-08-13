@@ -441,6 +441,13 @@ boolean post_cloudacus_save_contact(	char *contact_message,
 		return 0;
 	}
 
+	if ( !isalpha( *email_address ) )
+	{
+		/* Email must begin with a letter. */
+		/* ------------------------------- */
+		return 0;
+	}
+
 	if (	timlib_strcmp( email_address, "na" ) == 0
 	||	timlib_strcmp( email_address, "n/a" ) == 0
 	||	isdigit( *email_address ) )

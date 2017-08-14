@@ -456,4 +456,6 @@ char *timlib_escape_character_string(
 void timlib_reset_get_line_check_utf_16(
 				void );
 
+char *timlib_generate_password(	void );
+
 #endif

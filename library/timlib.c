@@ -3502,3 +3502,10 @@ boolean timlib_login_name_email_address(
 {
 	return ( character_exists( login_name, '@' ) );
 }
+
+char *timlib_generate_password( void )
+{
+	return pipe2string( "generate_password.sh" );
+
+}
+

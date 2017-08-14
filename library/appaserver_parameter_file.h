@@ -1,4 +1,4 @@
-/* library/appaserver_parameter_file.h					*/
+/* $APPASERVER_HOME/library/appaserver_parameter_file.h			*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -11,9 +11,10 @@
 
 /* Constants */
 /* --------- */
-#define APPASERVER_PARAMETER_DEFAULT_DIRECTORY	"/etc"
-#define APPASERVER_PARAMETER_FILE_NAME		"appaserver.config"
-#define APPASERVER_PARAMETER_FILE_DBMS		"mysql"
+#define APPASERVER_PARAMETER_DEFAULT_DIRECTORY		"/etc"
+#define APPASERVER_PARAMETER_FILE_NAME			"appaserver.config"
+#define APPASERVER_PARAMETER_APPLICATION_FILE_NAME	"appaserver_%s.config"
+#define APPASERVER_PARAMETER_FILE_DBMS			"mysql"
 
 /* Type definitions */
 /* ---------------- */
@@ -95,5 +96,8 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_default_file_new(
 						void );
+
+APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
+						char *application_name );
 
 #endif

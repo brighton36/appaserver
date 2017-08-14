@@ -44,12 +44,12 @@ if ( $invalid_login_yn == 'y' )
 			<font color="blue">
 				Login name</td>
 		<td aligh="left">
-			<input type="text" name="login_name" size=21 value="">
+			<input type="text" name="login_name" size=50 value="">
 	<tr>	<td align="right">
 			<font color="blue">
 				Password</td>
 		<td aligh="left">
-			<input type="password" name="password" size=20 value="">
+			<input type="password" name="password" size=50 value="">
 	</td>
 	</table>
 	<tr>	<td align="center">

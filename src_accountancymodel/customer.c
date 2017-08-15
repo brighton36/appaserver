@@ -114,26 +114,41 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 					c->transaction_date_time );
 	}
 
-	c->inventory_sale_list =
-		inventory_get_inventory_sale_list(
-			application_name,
-			c->full_name,
-			c->street_address,
-			c->sale_date_time );
-
-	c->fixed_service_sale_list =
-		customer_fixed_service_sale_get_list(
+	if ( ledger_folder_exists(
+		application_name,
+		"inventory" ) )
+	{
+		c->inventory_sale_list =
+			inventory_get_inventory_sale_list(
 				application_name,
 				c->full_name,
 				c->street_address,
 				c->sale_date_time );
+	}
 
-	c->hourly_service_sale_list =
-		customer_hourly_service_sale_get_list(
+	if ( ledger_folder_exists(
+		application_name,
+		"fixed_service_sale" ) )
+	{
+		c->fixed_service_sale_list =
+			customer_fixed_service_sale_get_list(
 				application_name,
 				c->full_name,
 				c->street_address,
 				c->sale_date_time );
+	}
+
+	if ( ledger_folder_exists(
+		application_name,
+		"hourly_service_sale" ) )
+	{
+		c->hourly_service_sale_list =
+			customer_hourly_service_sale_get_list(
+				application_name,
+				c->full_name,
+				c->street_address,
+				c->sale_date_time );
+	}
 
 	if ( ledger_folder_exists(
 		application_name,
@@ -305,6 +320,13 @@ LIST *customer_fixed_service_sale_get_list(
 	FIXED_SERVICE *fixed_service;
 	LIST *fixed_service_sale_list;
 
+	if ( !ledger_folder_exists(
+		application_name,
+		"fixed_service_sale" ) )
+	{
+		return (LIST *)0;
+	}
+
 	select =
 	"service_name,retail_price,discount_amount,extension,work_hours";
 
@@ -392,6 +414,13 @@ LIST *customer_hourly_service_sale_get_list(
 	FILE *input_pipe;
 	HOURLY_SERVICE *hourly_service;
 	LIST *hourly_service_sale_list;
+
+	if ( !ledger_folder_exists(
+		application_name,
+		"hourly_service_sale" ) )
+	{
+		return (LIST *)0;
+	}
 
 	select =
 "service_name,description,hourly_rate,discount_amount,extension,work_hours";

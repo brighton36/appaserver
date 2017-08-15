@@ -3737,9 +3737,6 @@ void inventory_balance_list_table_display(
 {
 	INVENTORY_BALANCE *inventory_balance;
 
-	fprintf( output_pipe,
-	"Arrived/Completed^Operation^Quantity^Cost^OnHand^Avg.^Balance\n" );
-
 	if ( !list_rewind( inventory_balance_list ) ) return;
 
 	do {

@@ -143,13 +143,20 @@ int main( int argc, char **argv )
 	if ( really_yn == 'y' )
 	{
 		printf( "<p>Process complete.\n" );
-		printf( "<p>Password generated: %s\n", generated_password );
-		printf(
-		"<p>Place this password in %s:/etc/appaserver_%s.config\n",
+
+		if ( revoke_only_yn != 'y' )
+		{
+			printf(
+"<p>Password generated: %s\n", generated_password );
+
+			printf(
+"<p>Place this password in %s:/etc/appaserver_%s.config\n",
 			connect_from_host,
 			application_name );
-		printf(
+
+			printf(
 "<p>You may need to edit /etc/mysql/mysql.conf.d/mysqld.cnf and comment out \"bind-address = 127.0.0.1\"\n" );
+		}
 	}
 	else
 	{

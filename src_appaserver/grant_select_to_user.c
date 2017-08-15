@@ -189,7 +189,7 @@ char *get_sys_string(	char **generated_password,
 	if ( really_yn == 'y' )
 	{
 		sprintf( grant_update_process,
-"echo \"grant update on %s.process to %s;\" |"
+"echo \"grant update (execution_count ) on %s.process to %s;\" |"
 "sql.e '^'",
 			application_name,
 		 	login_host_name );
@@ -197,7 +197,7 @@ char *get_sys_string(	char **generated_password,
 	else
 	{
 		sprintf( grant_update_process,
-"echo \"grant update on %s.process to %s;\" |"
+"echo \"grant update (execution_count) on %s.process to %s;\" |"
 "html_paragraph_wrapper.e | html_table.e 'Grant Update' '' '|'",
 			application_name,
 		 	login_host_name );

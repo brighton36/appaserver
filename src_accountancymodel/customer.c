@@ -2143,13 +2143,11 @@ void customer_sale_list_cost_of_goods_sold_transaction_update(
 					customer_sale->
 						cost_account_list );
 
-/*
 			if ( !dollar_virtually_same(
 				inventory_cost_account->
 					cost_of_goods_sold,
 				inventory_cost_account->
 					database_cost_of_goods_sold ) )
-*/
 			{
 				ledger_journal_ledger_update(
 					update_pipe,
@@ -2195,13 +2193,11 @@ void customer_sale_list_cost_of_goods_sold_transaction_update(
 					customer_sale->
 						inventory_account_list );
 
-/*
 			if ( !dollar_virtually_same(
 				inventory_cost_account->
 					cost_of_goods_sold,
 				inventory_cost_account->
 					database_cost_of_goods_sold ) )
-*/
 			{
 				ledger_journal_ledger_update(
 					update_pipe,

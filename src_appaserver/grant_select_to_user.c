@@ -145,9 +145,11 @@ int main( int argc, char **argv )
 		printf( "<p>Process complete.\n" );
 		printf( "<p>Password generated: %s\n", generated_password );
 		printf(
-		"<p>Place this password in %s:/etc/appaserver_%s.config",
+		"<p>Place this password in %s:/etc/appaserver_%s.config\n",
 			connect_from_host,
 			application_name );
+		printf(
+"<p>You may need to edit /etc/mysql/mysql.conf.d/mysqld.cnf and comment out \"bind-address = 127.0.0.1\"\n" );
 	}
 	else
 	{
@@ -173,6 +175,7 @@ char *get_sys_string(	char **generated_password,
 	char sed_string[ 512 ];
 	char testing_processes[ 1024 ];
 	char grant_update_process[ 512 ];
+	char flush_privileges_process[ 512 ];
 
 	/* Grant update to PROCESS to increment execution_count */
 	/* ---------------------------------------------------- */
@@ -191,6 +194,19 @@ char *get_sys_string(	char **generated_password,
 "html_paragraph_wrapper.e | html_table.e 'Grant Update' '' '|'",
 			application_name,
 		 	login_host_name );
+	}
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( flush_privileges_process,
+"echo \"flush privileges;\" |"
+"sql.e '^'" );
+	}
+	else
+	{
+		sprintf( flush_privileges_process,
+"echo \"flush privileges;\" |"
+"html_paragraph_wrapper.e | html_table.e 'Flush Privileges' '' '|'" );
 	}
 
 	if ( really_yn == 'y' )
@@ -225,6 +241,7 @@ char *get_sys_string(	char **generated_password,
 	 "%s								|"
 	 "%s								|"
 	 "cat								;"
+	 "%s								;"
 	 "%s								 ",
 		 DROP_USER_COMMAND,
 		 login_host_name,
@@ -236,7 +253,8 @@ char *get_sys_string(	char **generated_password,
 		 sed_string,
 		 testing_processes,
 		 execution_process,
-		 grant_update_process );
+		 grant_update_process,
+		 flush_privileges_process );
 
 	return sys_string;
 

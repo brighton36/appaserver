@@ -3763,7 +3763,7 @@ void inventory_balance_list_table_display(
 		if ( inventory_balance->inventory_sale )
 		{
 			fprintf(output_pipe,
-				"%s^Sale^%s^%d^%.2lf",
+				"%s^Sale^%s^%d^%.4lf",
 				inventory_balance->
 					inventory_sale->
 					completed_date_time,

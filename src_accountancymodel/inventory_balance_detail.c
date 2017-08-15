@@ -28,7 +28,7 @@
 /* Constants */
 /* --------- */
 #define STDOUT_PROCESS		"delimiter2padded_columns.e '^'"
-#define TABLE_PROCESS		"html_table.e '' '%s' '^'"
+#define TABLE_PROCESS		"html_table.e '' '%s' '^' '%s'"
 #define HEADING			"Arrived/Completed^Operation^FullName^Quantity^CostPer^OnHand^Avg. Cost^Balance"
 #define FOLDER_TABLE_HEADING	"OnHand^Avg^Balance"
 #define PROMPT			"Press here to view report."
@@ -215,7 +215,9 @@ void inventory_balance_detail_table(	char *application_name,
 
 	sprintf( output_process,
 		 TABLE_PROCESS,
-		 HEADING );
+		 HEADING,
+		 "left,left,left,right"
+			/* justify_comma_list */ );
 
 	output_pipe = popen( output_process, "w" );
 

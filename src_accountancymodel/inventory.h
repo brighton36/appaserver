@@ -672,7 +672,8 @@ char *inventory_get_inventory_account_name(
 void inventory_folder_table_display(
 				FILE *output_pipe,
 				char *application_name,
-				char *inventory_name );
+				char *inventory_name,
+				char *heading );
 
 #endif
 

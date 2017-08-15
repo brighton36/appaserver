@@ -24,6 +24,7 @@ int main( int argc, char **argv )
 	LIST *heading_name_list;
 	char delimiter;
 	HTML_TABLE *html_table;
+	char heading_delimiter;
 	int count = -1;
 
 	/* This goes to the apache error file. :-( */
@@ -40,14 +41,12 @@ int main( int argc, char **argv )
 
 	title = argv[ 1 ];
 
-	if ( character_exists( argv[ 2 ], ',' ) )
+	if ( ! ( heading_delimiter = timlib_get_delimiter( argv[ 2 ] ) ) )
 	{
-		heading_name_list = list_string2list( argv[ 2 ], ',' );
+		heading_delimiter = ',';
 	}
-	else
-	{
-		heading_name_list = list_string2list( argv[ 2 ], '^' );
-	}
+
+	heading_name_list = list_string2list( argv[ 2 ], heading_delimiter );
 
 	delimiter = *argv[ 3 ];
 

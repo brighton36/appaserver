@@ -342,8 +342,8 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 					char *application_name )
 {
-	char filename[ 128 ];
-	char appaserver_filename[ 32 ];
+	char filename[ 256 ];
+	char appaserver_filename[ 128 ];
 	APPASERVER_PARAMETER_FILE *s;
 	FILE *f;
 

@@ -667,9 +667,7 @@ void trial_balance_PDF(
 			dvi_filename,
 			working_directory,
 			0 /* not landscape_flag */,
-			application_constants_quick_fetch(
-				application_name,
-				"logo_filename" /* key */ ) );
+			logo_filename );
 
 	if ( list_rewind( fund_name_list )
 	&&   strcmp( aggregation, "sequential" ) == 0 )
@@ -1402,11 +1400,6 @@ void build_PDF_account_row(	LIST *column_data_list,
 				latest_ledger->
 				memo );
 
-/*
-	list_append_pointer(
-		column_data_list,
-		strdup( account_title ) );
-*/
 	latex_append_column_data_list(
 		column_data_list,
 		strdup( account_title ),
@@ -1418,11 +1411,6 @@ void build_PDF_account_row(	LIST *column_data_list,
 			latest_ledger->
 			transaction_count );
 
-/*
-	list_append_pointer(
-		column_data_list,
-		strdup( transaction_count_string ) );
-*/
 	latex_append_column_data_list(
 		column_data_list,
 		strdup( transaction_count_string ),
@@ -1454,11 +1442,6 @@ void build_PDF_account_row(	LIST *column_data_list,
 	else
 		debit_string = "";
 
-/*
-	list_append_pointer(
-		column_data_list,
-		strdup( debit_string ) );
-*/
 	latex_append_column_data_list(
 		column_data_list,
 		strdup( debit_string ),
@@ -1468,26 +1451,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 		credit_string = timlib_place_commas_in_dollars( *balance );
 	else
 		credit_string = "";
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: account_name = (%s), transaction_date_string = (%s), debit_string = (%s), credit_string = (%s), days_between = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-account->account_name,
-transaction_date_string,
-debit_string,
-credit_string,
-days_between );
-m2( application_name, msg );
-}
-*/
-/*
-	list_append_pointer(
-		column_data_list,
-		strdup( credit_string ) );
-*/
+
 	latex_append_column_data_list(
 		column_data_list,
 		strdup( credit_string ),
@@ -1507,16 +1471,10 @@ m2( application_name, msg );
 
 		sprintf( buffer, "$\\Delta$%s", prior_balance_change_string );
 
-/*
-		list_append_pointer(
-			column_data_list,
-			strdup( buffer ) );
-*/
 		latex_append_column_data_list(
 			column_data_list,
 			strdup( buffer ),
 			0 /* not large_bold */ );
-
 	}
 
 	/* Set subclassification_total ratio (maybe) */

@@ -85,7 +85,14 @@ int main( int argc, char **argv )
 	else
 		quick_flag = "";
 
-	h = new_appaserver_parameter_file();
+	if ( override_database )
+	{
+		h = appaserver_parameter_file_application( override_database );
+	}
+	else
+	{
+		h = new_appaserver_parameter_file();
+	}
 
 	if ( !h )
 	{

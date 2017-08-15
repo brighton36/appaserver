@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "piece.h"
+#include "environ.h"
 #include "dictionary.h"
 #include "appaserver_error.h"
 #include "appaserver_library.h"
@@ -139,6 +140,22 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_default_file_new( void )
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 {
+	char *application;
+
+	application =
+		environ_get_environment(
+		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+
+	if ( !application
+	||   !*application )
+	{
+		application =
+			environ_get_environment( "DATABASE" );
+	}
+
+	return appaserver_parameter_file_application( application );
+
+#ifdef NOT_DEFINED
 	APPASERVER_PARAMETER_FILE *s;
 	FILE *f;
 
@@ -169,6 +186,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 	umask( APPASERVER_UMASK );
 
 	return s;
+#endif
 
 } /* appaserver_parameter_file_new() */
 
@@ -351,4 +369,57 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 	return d;
 
 } /* appaserver_parameter_file_load_record_dictionary() */
+
+APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
+					char *application_name )
+{
+	char filename[ 128 ];
+	char appaserver_filename[ 32 ];
+	APPASERVER_PARAMETER_FILE *s;
+	FILE *f;
+
+	if ( application_name && *application_name )
+	{
+		sprintf(	appaserver_filename,
+				APPASERVER_PARAMETER_APPLICATION_FILE_NAME,
+				application_name );
+	
+		sprintf(	filename,
+				"%s/%s",
+				APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
+				appaserver_filename );
+	
+		if ( ( f = fopen( filename, "r" ) ) ) goto fetch;
+	}
+
+	sprintf(	filename,
+			"%s/%s",
+			APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
+			APPASERVER_PARAMETER_FILE_NAME );
+
+	if ( ! ( f = fopen( filename, "r" ) ) )
+	{
+		fprintf(stderr,
+			 "ERROR in %s/%s/%d: cannot find (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			filename );
+		exit( 1 );
+	}
+
+fetch:
+	s = appaserver_parameter_file_fetch( f, strdup( filename ) );
+
+	fclose( f );
+
+	/* ------------------------------------------------------------ */
+	/* umask() is here for convenience. However, need to move it	*/
+	/* to the many places where it's truly needed.			*/
+	/* ------------------------------------------------------------ */
+	umask( APPASERVER_UMASK );
+
+	return s;
+
+} /* appaserver_parameter_file_application() */
 

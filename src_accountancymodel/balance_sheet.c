@@ -157,7 +157,7 @@ int main( int argc, char **argv )
 		as_of_date = date_get_now_yyyy_mm_dd();
 	}
 
-	document = document_new( title, application_name );
+	document = document_new( (char *)0 /* title */, application_name );
 	document->output_content_type = 1;
 
 	document_output_heading(

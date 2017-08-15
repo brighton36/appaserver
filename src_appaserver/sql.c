@@ -85,7 +85,14 @@ int main( int argc, char **argv )
 	else
 		quick_flag = "";
 
-	h = new_appaserver_parameter_file();
+	if ( override_database )
+	{
+		h = appaserver_parameter_file_application( override_database );
+	}
+	else
+	{
+		h = new_appaserver_parameter_file();
+	}
 
 	if ( !h )
 	{
@@ -104,10 +111,6 @@ int main( int argc, char **argv )
 	if ( h->MYSQL_TCP_PORT ) 
 		environ_set_environment(
 			"MYSQL_TCP_PORT", h->MYSQL_TCP_PORT );
-	
-	if ( h->MYSQL_PWD ) 
-		environ_set_environment( "MYSQL_PWD", h->MYSQL_PWD );
-
 	
 	if ( override_database && *override_database )
 	{

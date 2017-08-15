@@ -1487,7 +1487,17 @@ LIST *purchase_order_journal_ledger_refresh(
 				purchase_asset_account_list ) );
 	}
 
-	if ( sales_tax_expense_account && sales_tax )
+	if ( sales_tax && !sales_tax_expense_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: sales_tax exists without sales_tax_expense_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( sales_tax )
 	{
 		ledger_journal_ledger_insert(
 			application_name,
@@ -1514,7 +1524,17 @@ LIST *purchase_order_journal_ledger_refresh(
 		list_append_pointer( propagate_account_list, account );
 	}
 
-	if ( freight_in_expense_account && freight_in )
+	if ( freight_in && !freight_in_expense_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: freight_in exists without freight_in_expense_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( freight_in )
 	{
 		ledger_journal_ledger_insert(
 			application_name,

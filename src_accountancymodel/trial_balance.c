@@ -215,7 +215,10 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
-		document = document_new( title, application_name );
+		document = document_new(
+				(char *)0 /* title */,
+				application_name );
+
 		document->output_content_type = 1;
 
 		document_output_heading(

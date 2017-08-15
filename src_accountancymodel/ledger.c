@@ -4037,20 +4037,6 @@ char *ledger_get_hard_coded_account_name(
 				hard_coded_dictionary,
 				key ) ) )
 	{
-/*
-		if ( warning_only )
-			fprintf( stderr, "Warning " );
-		else
-			fprintf( stderr, "ERROR " );
-
-		fprintf( stderr,
-"in %s/%s()/%d: cannot fetch %s from hard_coded_account_key.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 key );
-		if ( !warning_only ) exit( 1 );
-*/
 		if ( !warning_only )
 		{
 			fprintf( stderr,
@@ -4074,7 +4060,7 @@ char *ledger_get_hard_coded_dictionary_key(
 {
 	static char key[ 128 ];
 
-	if ( fund_name )
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
 		sprintf(	key,
 				"%s|%s",
@@ -4269,7 +4255,7 @@ void ledger_get_purchase_order_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				1 /* warning_only */ );
 	}
 
 	if ( freight_in_expense_account )
@@ -4280,7 +4266,7 @@ void ledger_get_purchase_order_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				1 /* warning_only */ );
 	}
 
 	if ( account_payable_account )

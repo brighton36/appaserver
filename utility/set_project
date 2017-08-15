@@ -17,7 +17,8 @@ else
 
 	newpath=`echo "$PATH" | sed "s|${search}|${replace}|"`
 
-	export PATH=$newpath:${APPASERVER_HOME}/src_$database
+	#export PATH=$newpath:${APPASERVER_HOME}/src_$database
+	export PATH=${APPASERVER_HOME}/src_$database:$newpath
 	export DATABASE=$database
 fi
 

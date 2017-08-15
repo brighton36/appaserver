@@ -33,14 +33,22 @@ int main( int argc, char **argv )
 	if ( argc < 4 )
 	{
 		fprintf(stderr,
-"Usage: %s title[^sub_title^sub_sub_title] heading_comma_list delimiter [justify_comma_list]\n",
+"Usage: %s title[^sub_title^sub_sub_title] heading_list delimiter [justify_comma_list]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	title = argv[ 1 ];
 
-	heading_name_list = list_string2list( argv[ 2 ], ',' );
+	if ( character_exists( argv[ 2 ], ',' ) )
+	{
+		heading_name_list = list_string2list( argv[ 2 ], ',' );
+	}
+	else
+	{
+		heading_name_list = list_string2list( argv[ 2 ], '^' );
+	}
+
 	delimiter = *argv[ 3 ];
 
 	if ( character_exists( title, '^' ) )

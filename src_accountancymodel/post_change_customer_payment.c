@@ -105,6 +105,8 @@ int main( int argc, char **argv )
 
 	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 ) exit( 0 );
 
+	if ( strcmp( payment_date_time, "payment_date_time" ) == 0 ) exit( 0 );
+
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, "insert" ) == 0 )

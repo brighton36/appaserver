@@ -91,13 +91,19 @@ int main( int argc, char **argv )
 				transaction_date_time,
 				inventory_account_list );
 
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				sales_tax_expense_account );
+	if ( sales_tax_expense_account )
+	{
+		ledger_propagate(	application_name,
+					transaction_date_time,
+					sales_tax_expense_account );
+	}
 
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				freight_in_expense_account );
+	if ( freight_in_expense_account )
+	{
+		ledger_propagate(	application_name,
+					transaction_date_time,
+					freight_in_expense_account );
+	}
 
 	ledger_propagate(	application_name,
 				transaction_date_time,

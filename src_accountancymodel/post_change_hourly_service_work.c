@@ -105,6 +105,10 @@ int main( int argc, char **argv )
 	/* --------------------------------------------- */
 	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 ) exit( 0 );
 
+	/* If change sale_date_time. */
+	/* ------------------------- */
+	if ( strcmp( service_name, "service_name" ) == 0 ) exit( 0 );
+
 	if ( strcmp( state, "predelete" ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, "delete" ) == 0 )

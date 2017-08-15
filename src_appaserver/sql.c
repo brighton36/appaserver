@@ -85,23 +85,7 @@ int main( int argc, char **argv )
 	else
 		quick_flag = "";
 
-	database_connection =
-		environ_get_environment(
-		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
-
-	if ( !database_connection
-	||   !*database_connection )
-	{
-		database_connection =
-			environ_get_environment( "DATABASE" );
-	}
-
-	if ( override_database && *override_database )
-	{
-		database_connection = override_database;
-	}
-
-	h = appaserver_parameter_file_application( database_connection );
+	h = new_appaserver_parameter_file();
 
 	if ( !h )
 	{
@@ -131,7 +115,6 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-/*
 		database_connection =
 			environ_get_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
@@ -142,7 +125,6 @@ int main( int argc, char **argv )
 			database_connection =
 				environ_get_environment( "DATABASE" );
 		}
-*/
 
 		if ( !database_connection
 		||   !*database_connection )

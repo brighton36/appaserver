@@ -26,7 +26,6 @@ typedef struct
 	char *flags;
 	char *MYSQL_HOST;
 	char *MYSQL_TCP_PORT;
-	char *MYSQL_PWD;
 	char *appaserver_mount_point;
 	char *apache_cgi_directory;
 	char *cgi_home;

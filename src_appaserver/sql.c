@@ -112,10 +112,6 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			"MYSQL_TCP_PORT", h->MYSQL_TCP_PORT );
 	
-	if ( h->MYSQL_PWD ) 
-		environ_set_environment( "MYSQL_PWD", h->MYSQL_PWD );
-
-	
 	if ( override_database && *override_database )
 	{
 		database_connection = override_database;

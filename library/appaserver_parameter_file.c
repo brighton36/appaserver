@@ -155,39 +155,6 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 
 	return appaserver_parameter_file_application( application );
 
-#ifdef NOT_DEFINED
-	APPASERVER_PARAMETER_FILE *s;
-	FILE *f;
-
-	f = fopen_path( APPASERVER_PARAMETER_FILE_NAME, "r" );
-	if ( !f )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s/%d: cannot find (%s). pwd = (%s). path = (%s)\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			APPASERVER_PARAMETER_FILE_NAME,
-			pipe2string( "pwd" ),
-			getenv( "PATH" ) );
-		exit( 1 );
-	}
-
-	s = appaserver_parameter_file_fetch(
-			f,
-			fopen_path_get_path_filename() );
-
-	fclose( f );
-
-	/* ------------------------------------------------------------ */
-	/* umask() is here for convenience. However, need to move it	*/
-	/* to the many places where it's truly needed.			*/
-	/* ------------------------------------------------------------ */
-	umask( APPASERVER_UMASK );
-
-	return s;
-#endif
-
 } /* appaserver_parameter_file_new() */
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
@@ -270,8 +237,10 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	a = "mysql_tcp_port";
 	s->MYSQL_TCP_PORT = dictionary_fetch( d, a );
 
+/*
 	a = "mysql_pwd";
 	s->MYSQL_PWD = dictionary_fetch( d, a );
+*/
 
 	a = "appaserver_mount_point";
 	if ( ! ( s->appaserver_mount_point =

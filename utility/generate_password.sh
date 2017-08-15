@@ -10,6 +10,13 @@ else
 fi
 
 word_file=/usr/share/dict/words
+
+if [ ! -r $word_file ]
+then
+	get_random_session mysql 0
+	exit 0
+fi
+
 word_file_length=`cat $word_file | wc -l`
 
 while [ $how_many -gt 0 ]

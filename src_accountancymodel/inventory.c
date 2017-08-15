@@ -3745,10 +3745,13 @@ void inventory_balance_list_table_display(
 		if ( inventory_balance->inventory_purchase )
 		{
 			fprintf(output_pipe,
-				"%s^Purchase^%d^%.4lf",
+				"%s^Purchase^%s^%d^%.4lf",
 				inventory_balance->
 					inventory_purchase->
 					arrived_date_time,
+				inventory_balance->
+					inventory_purchase->
+					full_name,
 				inventory_balance->
 					inventory_purchase->
 					ordered_quantity,
@@ -3760,10 +3763,13 @@ void inventory_balance_list_table_display(
 		if ( inventory_balance->inventory_sale )
 		{
 			fprintf(output_pipe,
-				"%s^Sale^%d^%.2lf",
+				"%s^Sale^%s^%d^%.2lf",
 				inventory_balance->
 					inventory_sale->
 					completed_date_time,
+				inventory_balance->
+					inventory_sale->
+					full_name,
 				inventory_balance->
 					inventory_sale->
 					quantity,
@@ -3790,14 +3796,18 @@ void inventory_balance_list_table_display(
 void inventory_folder_table_display(
 			FILE *output_pipe,
 			char *application_name,
-			char *inventory_name )
+			char *inventory_name,
+			char *heading )
 {
 	char sys_string[ 1024 ];
 	char *select;
 	char *results;
 	char where[ 256 ];
 
-	fprintf( output_pipe, "OnHand^Avg^Balance\n" );
+	if ( heading && *heading )
+	{
+		fprintf( output_pipe, "%s\n", heading );
+	}
 
 	select = "quantity_on_hand, average_unit_cost, total_cost_balance";
 

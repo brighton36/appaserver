@@ -26,7 +26,8 @@
 /* --------- */
 #define STDOUT_PROCESS		"delimiter2padded_columns.e '^'"
 #define TABLE_PROCESS		"html_table.e '' '%s' '^'"
-#define HEADING			"Arrived/Completed^Operation^Quantity^Cost^OnHand^Avg. Cost^Balance"
+#define HEADING			"Arrived/Completed^Operation^FullName^Quantity^CostPer^OnHand^Avg. Cost^Balance"
+#define FOLDER_TABLE_HEADING	"OnHand^Avg^Balance"
 
 /* Prototypes */
 /* ---------- */
@@ -169,7 +170,8 @@ void inventory_balance_detail_stdout(	char *application_name,
 	inventory_folder_table_display(
 		output_pipe,
 		application_name,
-		inventory->inventory_name );
+		inventory->inventory_name,
+		FOLDER_TABLE_HEADING );
 
 	pclose( output_pipe );
 
@@ -206,18 +208,19 @@ void inventory_balance_detail_table(	char *application_name,
 
 	pclose( output_pipe );
 
-/*
-	output_pipe = popen( OUTPUT_PROCESS, "w" );
+	sprintf( output_process,
+		 "html_table.e 'INVENTORY' '%s' '^'",
+		 FOLDER_TABLE_HEADING );
 
-	printf( "\nINVENTORY:\n" );
-	
+	output_pipe = popen( output_process, "w" );
+
 	inventory_folder_table_display(
 		output_pipe,
 		application_name,
-		inventory->inventory_name );
+		inventory->inventory_name,
+		(char *)0 /* heading */ );
 
 	pclose( output_pipe );
-*/
 
 } /* inventory_balance_detail_table() */
 

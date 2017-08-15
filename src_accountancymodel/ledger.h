@@ -640,10 +640,6 @@ char *ledger_get_supply_expense_account(
 				char *application_name,
 				char *supply_name );
 
-char *ledger_get_inventory_account_name(
-				char *application_name,
-				char *fund_name );
-
 void ledger_get_depreciation_account_names(
 				char **depreciation_expense_account,
 				char **accumulated_depreciation_account,

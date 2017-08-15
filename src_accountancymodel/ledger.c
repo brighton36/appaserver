@@ -5824,25 +5824,6 @@ char *ledger_get_supply_expense_key_account(
 
 } /* ledger_get_supply_expense_key_account() */
 
-char *ledger_get_inventory_account_name(
-				char *application_name,
-				char *fund_name )
-{
-	char *key;
-	char *inventory_account;
-
-	key = "inventory_key";
-	inventory_account =
-		ledger_get_hard_coded_account_name(
-				application_name,
-				fund_name,
-				key,
-				1 /* warning_only */ );
-
-	return inventory_account;
-
-} /* ledger_get_inventory_account_name() */
-
 LEDGER *ledger_new( void )
 {
 	LEDGER *ledger;

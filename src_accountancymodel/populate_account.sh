@@ -1,7 +1,7 @@
 #!/bin/bash
-# -----------------------------------
-# src_capitolpops/populate_account.sh
-# -----------------------------------
+# ----------------------------------------
+# src_accountancymodel/populate_account.sh
+# ----------------------------------------
 if [ "$#" -ne 3 ]
 then
 	echo "Usage: $0 application one2m_folder where" 1>&2
@@ -28,10 +28,10 @@ select="account"
 
 subclassification_where="1 = 1"
 
-#if [ "$one2m_folder" = "inventory" ]
-#then
-#	subclassification_where="subclassification = 'inventory' or subclassification = 'cost_of_goods_sold'"
-#fi
+if [ "$one2m_folder" = "inventory" ]
+then
+	subclassification_where="subclassification = 'inventory' or subclassification = 'cost_of_goods_sold'"
+fi
 
 if [ "${parameter_where}" != "" ]
 then

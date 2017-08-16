@@ -444,14 +444,16 @@ __LINE__,
 print_checks_display( print_checks ) );
 */
 
-	print_checks_insert_entity_check_amount_list(
+	if ( print_checks_insert_entity_check_amount_list(
 		application_name,
 		fund_name,
 		print_checks->entity_check_amount_list,
 		print_checks->dialog_box_check_amount,
-		memo );
-
-	printf( "<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
+		memo ) )
+	{
+		printf(
+		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
+	}
 
 } /* print_checks_post() */
 

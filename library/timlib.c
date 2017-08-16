@@ -2482,6 +2482,11 @@ char *timlib_place_commas_in_dollars( double d )
 
 } /* timlib_place_commas_in_dollars()  */
 
+char *timlib_commas_in_dollars( double d )
+{
+	return place_commas_in_money( d );
+}
+
 char *timlib_place_commas_in_money( double d )
 {
 	return place_commas_in_money( d );

@@ -182,7 +182,7 @@ char *ledger_account_get_select( char *application_name )
 	else
 	{
 		select =
-"account,'fund',subclassification,display_order,hard_coded_account_key";
+"account,null,subclassification,display_order,hard_coded_account_key";
 	}
 
 	return select;
@@ -6748,6 +6748,7 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 	char select[ 128 ];
 	char sys_string[ 1024 ];
 	char *table;
+	char *results;
 
 	table = get_table_name( application_name, LEDGER_FOLDER_NAME );
 
@@ -6763,7 +6764,12 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 		 table,
 		 where );
 
-	return pipe2string( sys_string );
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+		return results;
+	else
+		return (char *)0;
 
 } /* ledger_get_latest_zero_balance_transaction_date_time() */
 

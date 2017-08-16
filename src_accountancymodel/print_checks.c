@@ -117,7 +117,8 @@ LIST *print_checks_get_current_liability_account_list(
 	account_list = list_new();
 
 	select =
-		ledger_account_get_select( application_name );
+		ledger_account_get_select(
+			application_name );
 
 	where =
 "subclassification = 'current_liability' and account <> 'uncleared_checks'";
@@ -195,6 +196,8 @@ LIST *print_checks_get_entity_check_amount_list(
 
 		if ( !entity_check_amount )
 		{
+			continue;
+/*
 			fprintf( stderr,
 	"ERROR in %s/%s()/%d: cannot get entity_check_amount for (%s/%s)\n",
 				 __FILE__,
@@ -203,6 +206,7 @@ LIST *print_checks_get_entity_check_amount_list(
 				 full_name,
 				 street_address );
 			exit( 1 );
+*/
 		}
 
 		entity_check_amount->check_number = starting_check_number++;
@@ -927,7 +931,7 @@ char *print_checks_display( PRINT_CHECKS *print_checks )
 
 } /* print_checks_display() */
 
-void print_checks_insert_entity_check_amount_list(
+boolean print_checks_insert_entity_check_amount_list(
 				char *application_name,
 				char *fund_name,
 				LIST *entity_check_amount_list,
@@ -960,7 +964,7 @@ void print_checks_insert_entity_check_amount_list(
 		distinct_account_name_list,
 		account_payable_account );
 
-	if ( !list_rewind( entity_check_amount_list ) ) return;
+	if ( !list_rewind( entity_check_amount_list ) ) return 0;
 
 	do {
 		entity_check_amount =
@@ -995,6 +999,8 @@ void print_checks_insert_entity_check_amount_list(
 			propagate_transaction_date_time,
 			distinct_account_name_list );
 	}
+
+	return 1;
 
 } /* print_checks_insert_entity_check_amount_list() */
 

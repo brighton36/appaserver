@@ -137,7 +137,7 @@ void print_checks_decrement_debit_amount(
 				LIST *entity_account_debit_list,
 				double purchase_order_amount_due );
 
-void print_checks_insert_entity_check_amount_list(
+boolean print_checks_insert_entity_check_amount_list(
 				char *application_name,
 				char *fund_name,
 				LIST *entity_check_amount_list,

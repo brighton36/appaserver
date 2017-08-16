@@ -387,7 +387,7 @@ void ledger_get_purchase_order_account_names(
 				char *application_name,
 				char *fund_name );
 
-void ledger_get_purchase_order_inventory_account_names(
+void ledger_get_account_payable_account_name(
 				char **account_payable_account,
 				char *application_name,
 				char *fund_name );

@@ -1616,7 +1616,9 @@ LIST *purchase_order_inventory_journal_ledger_refresh(
 					street_address,
 					transaction_date_time );
 
-	ledger_get_purchase_order_inventory_account_names(
+	/* Exits on not found */
+	/* ------------------ */
+	ledger_get_account_payable_account_name(
 		&account_payable_account,
 		application_name,
 		fund_name );
@@ -2406,84 +2408,6 @@ void purchase_supply_update(
 	pclose( update_pipe );
 
 } /* purchase_supply_update() */
-
-#ifdef NOT_DEFINED
-LIST *purchase_inventory_journal_ledger_debit_refresh(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time,
-					LIST *inventory_purchase_list )
-{
-	LIST *propagate_account_list;
-	INVENTORY_PURCHASE *inventory_purchase;
-	ACCOUNT *account;
-	JOURNAL_LEDGER *prior_ledger;
-	double extension_capitalized_addition;
-
-	if ( !list_rewind( inventory_purchase_list ) ) return (LIST *)0;
-
-	propagate_account_list = list_new();
-
-	do {
-		inventory_purchase =
-			list_get_pointer(
-				inventory_purchase_list );
-
-		if ( !inventory_purchase->inventory_account_name )
-		{
-			fprintf( stderr,
-"ERROR in %s/%s()/%d: empty inventory_account_name for (%s/%s/%s)\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 full_name,
-				 street_address,
-				 transaction_date_time );
-			exit( 1 );
-		}
-
-		extension_capitalized_addition =
-			( inventory_purchase->capitalized_unit_cost -
-			  inventory_purchase->unit_cost ) *
-			  (double)inventory_purchase->ordered_quantity;
-
-		ledger_journal_ledger_insert(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			inventory_purchase->
-				inventory_account_name,
-			inventory_purchase->extension +
-			extension_capitalized_addition,
-			1 /* is_debit */ );
-
-		account =
-			ledger_account_new(
-				inventory_purchase->
-					inventory_account_name );
-
-		prior_ledger =
-			ledger_get_prior_ledger(
-				application_name,
-				transaction_date_time,
-				account->account_name );
-
-		account->journal_ledger_list =
-			ledger_get_propagate_journal_ledger_list(
-				application_name,
-				prior_ledger,
-				account->account_name );
-
-		list_append_pointer( propagate_account_list, account );
-
-	} while( list_next( inventory_purchase_list ) );
-
-	return propagate_account_list;
-
-} /* purchase_inventory_journal_ledger_debit_refresh() */
-#endif
 
 /* Returns propagate_account_list */
 /* ------------------------------ */

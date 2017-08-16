@@ -4218,7 +4218,7 @@ void ledger_get_customer_sale_account_names(
 
 } /* ledger_get_customer_sale_account_names() */
 
-void ledger_get_purchase_order_inventory_account_names(
+void ledger_get_account_payable_account_name(
 				char **account_payable_account,
 				char *application_name,
 				char *fund_name )
@@ -4236,7 +4236,7 @@ void ledger_get_purchase_order_inventory_account_names(
 				0 /* not warning_only */ );
 	}
 
-} /* ledger_get_purchase_order_inventory_account_names() */
+} /* ledger_get_account_payable_account_name() */
 
 void ledger_get_purchase_order_account_names(
 				char **sales_tax_expense_account,
@@ -6914,7 +6914,7 @@ TRANSACTION *ledger_inventory_purchase_build_transaction(
 			ledger_get_inventory_account_name_list(
 				application_name );
 
-		ledger_get_purchase_order_inventory_account_names(
+		ledger_get_account_payable_account_name(
 			&account_payable_account,
 			application_name,
 			fund_name );

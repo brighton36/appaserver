@@ -602,7 +602,7 @@ HASH_TABLE *ledger_get_journal_ledger_hash_table(
 				char *application_name,
 				char *inventory_name );
 
-TRANSACTION *ledger_sale_build_transaction(
+TRANSACTION *ledger_sale_hash_table_build_transaction(
 				char *application_name,
 				char *fund_name,
 				char *full_name,
@@ -849,7 +849,7 @@ JOURNAL_LEDGER *ledger_get_or_set_journal_ledger(
 int ledger_get_non_empty_subclassification_list_length(
 				LIST *subclassification_list );
 
-TRANSACTION *ledger_inventory_purchase_build_transaction(
+TRANSACTION *ledger_inventory_purchase_hash_table_build_transaction(
 				char *application_name,
 				char *fund_name,
 				char *full_name,

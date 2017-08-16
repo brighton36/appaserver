@@ -4,6 +4,9 @@
 #
 # Freely available software: see Appaserver.org
 # ---------------------------------------------------------------
+
+echo $0 $* 1>&2
+
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 application one2m_folder" 1>&2
@@ -17,7 +20,7 @@ export DATABASE=$application
 
 table="inventory"
 
-select="concat( inventory_name, ' [', retail_price, ']' )"
+select="concat( inventory_name, ' [', retail_price, ',' , quantity_on_hand, ']' )"
 
 if [ "$one2m_folder" = "inventory_sale" ]
 then

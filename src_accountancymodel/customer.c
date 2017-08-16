@@ -1997,7 +1997,7 @@ LIST *customer_get_inventory_customer_sale_list(
 		if ( customer_sale->transaction_date_time )
 		{
 			customer_sale->transaction =
-				ledger_sale_build_transaction(
+				ledger_sale_hash_table_build_transaction(
 					application_name,
 					customer_sale->fund_name,
 					customer_sale->full_name,
@@ -2066,7 +2066,7 @@ boolean customer_sale_inventory_is_latest(
 	if ( !inventory->last_inventory_balance->inventory_purchase )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot inventory_get_last_inventory_purchase(%s)\n",
+"ERROR in %s/%s()/%d: This inventory item has never been purchased: (%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,

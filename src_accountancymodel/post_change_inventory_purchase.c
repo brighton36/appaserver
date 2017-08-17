@@ -238,24 +238,6 @@ void post_change_inventory_purchase_insert(
 			application_name );
 	}
 
-	purchase_order_update(
-		application_name,
-		purchase_order->full_name,
-		purchase_order->street_address,
-		purchase_order->purchase_date_time,
-		purchase_order->sum_extension,
-		purchase_order->database_sum_extension,
-		purchase_order->purchase_amount,
-		purchase_order->database_purchase_amount,
-		purchase_order->amount_due,
-		purchase_order->database_amount_due,
-		purchase_order->transaction_date_time,
-		purchase_order->database_transaction_date_time,
-		purchase_order->arrived_date_time,
-		purchase_order->database_arrived_date_time,
-		purchase_order->shipped_date,
-		purchase_order->database_shipped_date );
-
 } /* post_change_inventory_purchase_insert() */
 
 void post_change_inventory_purchase_insert_FOB_shipping(
@@ -373,6 +355,24 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 			application_name );
 	}
 
+	purchase_order_update(
+		application_name,
+		purchase_order->full_name,
+		purchase_order->street_address,
+		purchase_order->purchase_date_time,
+		purchase_order->sum_extension,
+		purchase_order->database_sum_extension,
+		purchase_order->purchase_amount,
+		purchase_order->database_purchase_amount,
+		purchase_order->amount_due,
+		purchase_order->database_amount_due,
+		purchase_order->transaction_date_time,
+		purchase_order->database_transaction_date_time,
+		purchase_order->arrived_date_time,
+		purchase_order->database_arrived_date_time,
+		purchase_order->shipped_date,
+		purchase_order->database_shipped_date );
+
 } /* post_change_inventory_purchase_insert_FOB_shipping() */
 
 void post_change_inventory_purchase_insert_FOB_destination(
@@ -477,6 +477,24 @@ void post_change_inventory_purchase_insert_FOB_destination(
 	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
 		application_name );
+
+	purchase_order_update(
+		application_name,
+		purchase_order->full_name,
+		purchase_order->street_address,
+		purchase_order->purchase_date_time,
+		purchase_order->sum_extension,
+		purchase_order->database_sum_extension,
+		purchase_order->purchase_amount,
+		purchase_order->database_purchase_amount,
+		purchase_order->amount_due,
+		purchase_order->database_amount_due,
+		purchase_order->transaction_date_time,
+		purchase_order->database_transaction_date_time,
+		purchase_order->arrived_date_time,
+		purchase_order->database_arrived_date_time,
+		purchase_order->shipped_date,
+		purchase_order->database_shipped_date );
 
 } /* post_change_inventory_purchase_insert_FOB_destination() */
 
@@ -1019,10 +1037,19 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 			inventory_name,
 			purchase_order->purchase_date_time );
 
-	inventory_purchase =
-		inventory_purchase_list_seek(
-			purchase_order->inventory_purchase_list,
-			inventory_name );
+	if ( ! ( inventory_purchase =
+			inventory_purchase_list_seek(
+				purchase_order->inventory_purchase_list,
+				inventory_name ) ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot seek inventory_name = (%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 inventory_name );
+		exit( 1 );
+	}
 
 	if ( !inventory_purchase->arrived_quantity )
 	{
@@ -1054,50 +1081,19 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,
 			purchase_order->transaction->memo,
-			purchase_order->
-				transaction->
-				database_transaction_amount,
 			purchase_order->inventory_purchase_list,
-			purchase_order->sales_tax,
-			purchase_order->freight_in,
 			purchase_order->fund_name );
 
-	purchase_order->propagate_account_list =
-		ledger_transaction_refresh(
+	ledger_transaction_refresh(
 			application_name,
-			purchase_order->transaction );
-
-/*
-	ledger_transaction_amount_update(
-		application_name,
-		purchase_order->full_name,
-		purchase_order->street_address,
-		purchase_order->transaction_date_time,
-		purchase_order->purchase_amount,
-		purchase_order->database_purchase_amount );
-
-	purchase_order->propagate_account_list =
-		purchase_order_journal_ledger_refresh(
-			application_name,
-			purchase_order->fund_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,
-			purchase_order->sum_specific_inventory_unit_cost,
-			purchase_order->sum_supply_extension,
-			purchase_order->sum_service_extension,
-			purchase_order->sales_tax,
-			purchase_order->freight_in,
-			purchase_order->purchase_amount,
-			purchase_order->inventory_purchase_list,
-			purchase_order->supply_purchase_list,
-			purchase_order->service_purchase_list,
-			purchase_order->purchase_asset_account_list );
-*/
-
-	ledger_account_list_propagate(
-		purchase_order->propagate_account_list,
-		application_name );
+			purchase_order->transaction->transaction_amount,
+			purchase_order->transaction->memo,
+			0 /* check_number */,
+			1 /* lock_transaction */,
+			purchase_order->transaction->journal_ledger_list );
 
 	if ( is_latest )
 	{
@@ -1121,6 +1117,24 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 	}
 
 	system( sys_string );
+
+	purchase_order_update(
+		application_name,
+		purchase_order->full_name,
+		purchase_order->street_address,
+		purchase_order->purchase_date_time,
+		purchase_order->sum_extension,
+		purchase_order->database_sum_extension,
+		purchase_order->purchase_amount,
+		purchase_order->database_purchase_amount,
+		purchase_order->amount_due,
+		purchase_order->database_amount_due,
+		purchase_order->transaction_date_time,
+		purchase_order->database_transaction_date_time,
+		purchase_order->arrived_date_time,
+		purchase_order->database_arrived_date_time,
+		purchase_order->shipped_date,
+		purchase_order->database_shipped_date );
 
 } /* post_change_inventory_purchase_insert_title_passage_rule_null() */
 

@@ -669,6 +669,7 @@ char *purchase_order_list_display(
 				LIST *purchase_order_list );
 
 LIST *purchase_inventory_distinct_account_extract(
+				double *sum_debit_amount,
 				LIST *inventory_purchase_list );
 
 #endif

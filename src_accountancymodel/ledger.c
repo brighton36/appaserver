@@ -3445,8 +3445,6 @@ boolean ledger_transaction_load(	double *transaction_amount,
 
 } /* ledger_transaction_load() */
 
-FILE *ledger_transaction_output_pipe = {0};
-
 void ledger_transaction_insert_stream(	FILE *output_pipe,
 					char *full_name,
 					char *street_address,
@@ -3571,6 +3569,7 @@ FILE *ledger_transaction_insert_open_stream( char *application_name )
 	char sys_string[ 1024 ];
 	char field[ 128 ];
 	char *table_name;
+	FILE *output_pipe;
 
 	sprintf( field,
 "full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,%s",
@@ -3588,17 +3587,11 @@ FILE *ledger_transaction_insert_open_stream( char *application_name )
 		 table_name,
 		 field );
 
-	ledger_transaction_output_pipe = popen( sys_string, "w" );
+	output_pipe = popen( sys_string, "w" );
 
-	return ledger_transaction_output_pipe;
+	return output_pipe;
 
 } /* ledger_transaction_insert_open_stream() */
-
-void ledger_transaction_insert_close_stream( void )
-{
-	pclose( ledger_transaction_output_pipe );
-	ledger_transaction_output_pipe = (FILE *)0;
-}
 
 void ledger_transaction_insert(		char *application_name,
 					char *full_name,
@@ -3625,7 +3618,7 @@ void ledger_transaction_insert(		char *application_name,
 		check_number,
 		lock_transaction );
 
-	ledger_transaction_insert_close_stream();
+	pclose( output_pipe );
 
 } /* ledger_transaction_insert() */
 
@@ -7080,53 +7073,69 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 
 } /* ledger_sale_hash_table_build_transaction() */
 
-/* Returns propagate_account_list */
-/* ------------------------------ */
-LIST *ledger_transaction_refresh(
+void ledger_transaction_refresh(
 				char *application_name,
-				TRANSACTION *transaction )
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				LIST *journal_ledger_list )
 {
-	LIST *propagate_account_list;
+	LIST *account_name_list;
+	char *account_name;
 	JOURNAL_LEDGER *journal_ledger;
 	FILE *debit_account_pipe = {0};
 	FILE *credit_account_pipe = {0};
 
-	if ( list_length( transaction->journal_ledger_list ) < 2 )
+	if ( list_length( journal_ledger_list ) < 2 )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: list_length( journal_ledger_list ) = %d.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 list_length( transaction->journal_ledger_list ) );
+			 list_length( journal_ledger_list ) );
 		exit( 1 );
 	}
 
-	propagate_account_list = list_new();
+	account_name_list = list_new();
 
 	ledger_delete(	application_name,
 			TRANSACTION_FOLDER_NAME,
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time );
+			full_name,
+			street_address,
+			transaction_date_time );
 
 	ledger_delete(	application_name,
 			LEDGER_FOLDER_NAME,
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time );
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	ledger_transaction_insert(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			check_number,
+			lock_transaction );
 
 	ledger_journal_insert_open_stream(
 			&debit_account_pipe,
 			&credit_account_pipe,
 			application_name );
 
-	list_rewind( transaction->journal_ledger_list );
+	list_rewind( journal_ledger_list );
 
 	do {
 		journal_ledger =
 			list_get_pointer( 
-				transaction->journal_ledger_list );
+				journal_ledger_list );
 
 		if ( timlib_dollar_virtually_same(
 			journal_ledger->debit_amount,
@@ -7150,9 +7159,9 @@ LIST *ledger_transaction_refresh(
 			ledger_journal_insert_stream(
 				debit_account_pipe,
 				(FILE *)0 /* credit_account_pipe */,
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
+				full_name,
+				street_address,
+				transaction_date_time,
 				journal_ledger->debit_amount
 					/* amount */,
 				journal_ledger->account_name
@@ -7164,9 +7173,9 @@ LIST *ledger_transaction_refresh(
 			ledger_journal_insert_stream(
 				(FILE *)0 /* debit_account_pipe */,
 				credit_account_pipe,
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
+				full_name,
+				street_address,
+				transaction_date_time,
 				journal_ledger->credit_amount
 					/* amount */,
 				(char *)0 /* debit_account_name */,
@@ -7174,18 +7183,27 @@ LIST *ledger_transaction_refresh(
 					/* credit_account_name */ );
 		}
 
-		ledger_append_propagate_account_list(
-			propagate_account_list,
-			transaction->transaction_date_time,
-			journal_ledger->account_name,
-			application_name );
+		list_append_pointer(
+			account_name_list,
+			journal_ledger->account_name );
 
-	} while( list_next( transaction->journal_ledger_list ) );
+	} while( list_next( journal_ledger_list ) );
 
 	pclose( debit_account_pipe );
 	pclose( credit_account_pipe );
 
-	return propagate_account_list;
+	if ( list_rewind( account_name_list ) )
+	{
+		do {
+			account_name = list_get_pointer( account_name_list );
+
+			ledger_propagate(
+				application_name,
+				transaction_date_time,
+				account_name );
+
+		} while( list_next( account_name_list ) );
+	}
 
 } /* ledger_transaction_refresh() */
 
@@ -7195,39 +7213,50 @@ TRANSACTION *ledger_inventory_purchase_order_build_transaction(
 				char *street_address,
 				char *transaction_date_time,
 				char *memo,
-				double database_transaction_amount,
 				LIST *inventory_purchase_list,
-				double sales_tax,
-				double freight_in,
 				char *fund_name )
 {
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	char *sales_revenue_account = {0};
-	char *service_revenue_account = {0};
-	char *sales_tax_payable_account = {0};
-	char *shipping_revenue_account = {0};
-	char *receivable_account = {0};
+	char *account_payable_account = {0};
+	double sum_debit_amount = 0.0;
 
-	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
-		&service_revenue_account,
-		&sales_tax_payable_account,
-		&shipping_revenue_account,
-		&receivable_account,
-		application_name,
-		fund_name );
+	/* Exits if account_payable_account is not found. */
+	/* ---------------------------------------------- */
+	ledger_get_account_payable_account_name(
+				&account_payable_account,
+				application_name,
+				fund_name );
 
-	if ( !sales_revenue_account ) return (TRANSACTION *)0;
-
-	transaction = ledger_transaction_calloc();
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			memo );
 
 	transaction->journal_ledger_list =
 		purchase_inventory_distinct_account_extract(
+			&sum_debit_amount,
 			inventory_purchase_list );
 
 	if ( !list_rewind( transaction->journal_ledger_list ) )
 		return (TRANSACTION *)0;
+
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			account_payable_account );
+
+	journal_ledger->credit_amount = sum_debit_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	transaction->transaction_amount = sum_debit_amount;
 
 	return transaction;
 

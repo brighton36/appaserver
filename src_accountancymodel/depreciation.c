@@ -1861,7 +1861,7 @@ void depreciation_fixed_asset_insert_transaction_entity_list(
 
 	} while( list_next( entity_list ) );
 
-	ledger_transaction_insert_close_stream();
+	pclose( output_pipe );
 
 } /* depreciation_fixed_asset_insert_transaction_entity_list() */
 

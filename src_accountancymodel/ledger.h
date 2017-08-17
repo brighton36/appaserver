@@ -858,9 +858,6 @@ TRANSACTION *ledger_inventory_purchase_hash_table_build_transaction(
 				HASH_TABLE *transaction_hash_table,
 				HASH_TABLE *journal_ledger_hash_table );
 
-void ledger_transaction_insert_close_stream(
-				void );
-
 FILE *ledger_transaction_insert_open_stream(
 				char *application_name );
 
@@ -913,17 +910,19 @@ TRANSACTION *ledger_inventory_purchase_order_build_transaction(
 				char *street_address,
 				char *transaction_date_time,
 				char *memo,
-				double database_transaction_amount,
 				LIST *inventory_purchase_list,
-				double sales_tax,
-				double freight_in,
 				char *fund_name );
 
-/* Returns propagate_account_list */
-/* ------------------------------ */
-LIST *ledger_transaction_refresh(
+void ledger_transaction_refresh(
 				char *application_name,
-				TRANSACTION *transaction );
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				LIST *journal_ledger_list );
 
 boolean ledger_propagate_account_list_exists(
 				LIST *propagate_account_list,

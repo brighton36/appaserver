@@ -2426,6 +2426,7 @@ LIST *purchase_inventory_journal_ledger_debit_refresh(
 
 	journal_ledger_list =
 		purchase_inventory_distinct_account_extract(
+			(double *)0 /* sum_debit_amount */,
 			inventory_purchase_list );
 
 	if ( !list_rewind( journal_ledger_list ) ) return (LIST *)0;
@@ -2471,6 +2472,7 @@ LIST *purchase_inventory_journal_ledger_debit_refresh(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *purchase_inventory_distinct_account_extract(
+					double *sum_debit_amount,
 					LIST *inventory_purchase_list )
 {
 	INVENTORY_PURCHASE *inventory_purchase;
@@ -2517,6 +2519,12 @@ LIST *purchase_inventory_distinct_account_extract(
 
 		journal_ledger->debit_amount += 
 			extension_plus_capitalized_addition;
+
+		if ( sum_debit_amount )
+		{
+			*sum_debit_amount += 
+				extension_plus_capitalized_addition;
+		}
 
 	} while( list_next( inventory_purchase_list ) );
 

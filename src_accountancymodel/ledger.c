@@ -7270,7 +7270,9 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				char *transaction_date_time,
 				char *memo,
 				LIST *inventory_sale_list,
+				LIST *specific_inventory_sale_list,
 				double sum_inventory_extension,
+				double specific_inventory_sale_extension,
 				double sum_fixed_service_extension,
 				double sum_hourly_service_extension,
 				double sales_tax,
@@ -7325,12 +7327,20 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				transaction_date_time,
 				sales_revenue_account );
 
-		journal_ledger->credit_amount = sum_inventory_extension;
+		journal_ledger->credit_amount =
+			sum_inventory_extension +
+			specific_inventory_sale_extension;
 
 		list_append_pointer(
 			transaction->journal_ledger_list,
 			journal_ledger );
 	}
+/*
+	else
+	if ( specific_inventory_sale_extension )
+	{
+	}
+*/
 
 	/* HOURLY_SERVICE_SALE and FIXED_SERVICE_SALE */
 	/* ------------------------------------------ */
@@ -7433,4 +7443,109 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 	return transaction;
 
 } /* ledger_customer_sale_build_transaction() */
+
+TRANSACTION *ledger_purchase_order_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				double sales_tax,
+				double freight_in,
+				LIST *supply_purchase_list,
+				LIST *service_purchase_list,
+				LIST *specific_inventory_purchase_list,
+				LIST *purchase_fixed_asset_purchase_list,
+				LIST *prepaid_asset_purchase_list,
+				char *fund_name )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *sales_tax_expense_account = {0};
+	char *freight_in_expense_account = {0};
+	char *account_payable_account = {0};
+	char *inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	double sum_debit_amount = 0.0;
+
+	/* Exits if account_payable_account is not found. */
+	/* ---------------------------------------------- */
+	ledger_get_purchase_order_account_names(
+				&sales_tax_expense_account,
+				&freight_in_expense_account,
+				&account_payable_account,
+				&inventory_account,
+				&cost_of_goods_sold_account,
+				application_name,
+				fund_name );
+
+	if ( sales_tax && !sales_tax_expense_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: sales tax exists without sales tax expense account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( freight_in && !freight_in_expense_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: freight in exists without freight in expense account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_length( specific_inventory_purchase_list )
+	&&   !inventory_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: specific inventory exists without inventory account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_length( specific_inventory_purchase_list )
+	&&   !cost_of_goods_sold_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: specific inventory exists without CGS account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			memo );
+
+	transaction->journal_ledger_list = list_new();
+
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			account_payable_account );
+
+	journal_ledger->credit_amount = sum_debit_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	transaction->transaction_amount = sum_debit_amount;
+
+	return transaction;
+
+} /* ledger_purchase_order_build_transaction() */
 

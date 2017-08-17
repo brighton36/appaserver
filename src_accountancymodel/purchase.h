@@ -78,14 +78,7 @@ typedef struct
 typedef struct
 {
 	char *account_name;
-	double debit_amount;
-} PURCHASE_ASSET_ACCOUNT;
-
-typedef struct
-{
-	char *account_name;
 	double extension;
-	double database_extension;
 } PURCHASE_SERVICE;
 
 typedef struct

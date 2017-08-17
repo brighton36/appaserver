@@ -253,7 +253,9 @@ void post_change_fixed_service_sale_insert_update(
 					transaction_date_time,
 				customer_sale->transaction->memo,
 				customer_sale->inventory_sale_list,
+				0.0 /* 
 				customer_sale->sum_inventory_extension,
+				0.0 /* specific_inventory_sale_extension */,
 				customer_sale->sum_fixed_service_extension,
 				customer_sale->sum_hourly_service_extension,
 				customer_sale->sales_tax,

@@ -1065,93 +1065,36 @@ void post_change_customer_sale_shipping_revenue_update(
 			CUSTOMER_SALE *customer_sale,
 			char *application_name )
 {
-#ifdef NOT_DEFINED
-	customer_sale->invoice_amount =
-		customer_sale_get_invoice_amount(
-			&customer_sale->
-				sum_inventory_extension,
-			&customer_sale->
-				sum_fixed_service_extension,
-			&customer_sale->
-				sum_hourly_service_extension,
-			&customer_sale->sum_extension,
-			&customer_sale->sales_tax,
-			customer_sale->shipping_revenue,
-			customer_sale->
-				inventory_sale_list,
-			customer_sale->
-				specific_inventory_sale_list,
-			customer_sale->fixed_service_sale_list,
-			customer_sale->hourly_service_sale_list,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			application_name );
-
-	customer_sale->amount_due =
-		CUSTOMER_GET_AMOUNT_DUE(
-			customer_sale->invoice_amount,
-			customer_sale->total_payment );
-
-	customer_sale_update(
-		customer_sale->sum_extension,
-		customer_sale->database_sum_extension,
-		customer_sale->sales_tax,
-		customer_sale->database_sales_tax,
-		customer_sale->invoice_amount,
-		customer_sale->database_invoice_amount,
-		customer_sale->completed_date_time,
-		customer_sale->
-			database_completed_date_time,
-		customer_sale->shipped_date_time,
-		customer_sale->database_shipped_date_time,
-		customer_sale->arrived_date,
-		customer_sale->database_arrived_date,
-		customer_sale->total_payment,
-		customer_sale->database_total_payment,
-		customer_sale->amount_due,
-		customer_sale->database_amount_due,
-		customer_sale->transaction_date_time,
-		customer_sale->
-			database_transaction_date_time,
-		customer_sale->full_name,
-		customer_sale->street_address,
-		customer_sale->sale_date_time,
-		application_name );
-#endif
-
-	/* Propagate ledger accounts */
-	/* ------------------------- */
-	if ( customer_sale->transaction )
+	if ( customer_sale->transaction_date_time )
 	{
-		customer_sale->propagate_account_list =
-			customer_sale_ledger_refresh(
+		customer_sale->transaction =
+			ledger_customer_sale_build_transaction(
 				application_name,
-				customer_sale->fund_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->
 					transaction_date_time,
+				customer_sale->transaction->memo,
+				customer_sale->inventory_sale_list,
 				customer_sale->sum_inventory_extension,
+				0.0 /* specific_inventory_sale_extension */,
 				customer_sale->sum_fixed_service_extension,
 				customer_sale->sum_hourly_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount );
+				customer_sale->invoice_amount,
+				customer_sale->fund_name );
 
-		list_append_list(
-			customer_sale->propagate_account_list,
-			customer_sale_ledger_cost_of_goods_sold_insert(
-				application_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->inventory_account_list,
-				customer_sale->cost_account_list ) );
-
-		ledger_account_list_propagate(
-			customer_sale->propagate_account_list,
-			application_name );
+		ledger_transaction_refresh(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->transaction_date_time,
+			customer_sale->transaction->transaction_amount,
+			customer_sale->transaction->memo,
+			0 /* check_number */,
+			1 /* lock_transaction */,
+			customer_sale->transaction->journal_ledger_list );
 	}
 
 } /* post_change_customer_sale_shipping_revenue_update() */
@@ -1256,35 +1199,34 @@ void post_change_customer_sale_FOB_destination_new_rule(
 			customer_sale_get_sum_inventory_extension(
 				customer_sale->inventory_sale_list );
 
-		customer_sale->propagate_account_list =
-			customer_sale_ledger_refresh(
+		customer_sale->transaction =
+			ledger_customer_sale_build_transaction(
 				application_name,
-				customer_sale->fund_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->
 					transaction_date_time,
+				customer_sale->transaction->memo,
+				customer_sale->inventory_sale_list,
 				customer_sale->sum_inventory_extension,
+				0.0 /* specific_inventory_sale_extension */,
 				customer_sale->sum_fixed_service_extension,
 				customer_sale->sum_hourly_service_extension,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount );
-	
-		list_append_list(
-			customer_sale->propagate_account_list,
-			customer_sale_ledger_cost_of_goods_sold_insert(
-				application_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->inventory_account_list,
-				customer_sale->cost_account_list ) );
+				customer_sale->invoice_amount,
+				customer_sale->fund_name );
 
-		ledger_account_list_propagate(
-			customer_sale->propagate_account_list,
-			application_name );
+		ledger_transaction_refresh(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->transaction_date_time,
+			customer_sale->transaction->transaction_amount,
+			customer_sale->transaction->memo,
+			0 /* check_number */,
+			1 /* lock_transaction */,
+			customer_sale->transaction->journal_ledger_list );
 	}
 
 } /* post_change_customer_sale_FOB_destination_new_rule() */

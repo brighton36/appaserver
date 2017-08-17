@@ -813,7 +813,7 @@ void post_change_purchase_order_changed_rule_to_null(
 			purchase_order->purchase_date_time;
 	}
 
-	if ( purchase_order->transaction )
+	if ( purchase_order->transaction_date_time )
 	{
 		char *propagate_transaction_date_time;
 
@@ -866,6 +866,9 @@ void post_change_purchase_order_changed_rule_to_null(
 		purchase_order->transaction_date_time =
 			purchase_order->arrived_date_time;
 
+here1
+
+#ifdef NOT_DEFINED
 		purchase_order->transaction =
 			ledger_transaction_new(
 				purchase_order->full_name,
@@ -905,6 +908,7 @@ void post_change_purchase_order_changed_rule_to_null(
 		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
+#endif
 	}
 
 	if ( purchase_order->shipped_date )

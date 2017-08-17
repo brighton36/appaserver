@@ -384,6 +384,8 @@ void ledger_get_purchase_order_account_names(
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
+				char **inventory_account,
+				char **cost_of_goods_sold_account,
 				char *application_name,
 				char *fund_name );
 
@@ -941,6 +943,21 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				double sales_tax,
 				double shipping_revenue,
 				double invoice_amount,
+				char *fund_name );
+
+TRANSACTION *ledger_purchase_order_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				double sales_tax,
+				double freight_in,
+				LIST *supply_purchase_list,
+				LIST *service_purchase_list,
+				LIST *specific_inventory_purchase_list,
+				LIST *purchase_fixed_asset_purchase_list,
+				LIST *prepaid_asset_purchase_list,
 				char *fund_name );
 
 #endif

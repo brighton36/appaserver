@@ -518,16 +518,30 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 		application_name,
 		purchase_order->inventory_purchase_list );
 
-	if ( !purchase_order->transaction )
+	if ( !purchase_order->transaction_date_time )
 	{
-		fprintf( stderr,
-"Warning in %s/%s()/%d: empty purchase_order->transaction.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
 		return;
 	}
 
+	purchase_order->transaction =
+		ledger_inventory_purchase_order_build_transaction(
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->transaction_date_time,
+			purchase_order->transaction->memo,
+			purchase_order->
+				transaction->
+				database_transaction_amount,
+			purchase_order->inventory_purchase_list,
+			purchase_order->sales_tax,
+			purchase_order->freight_in );
+
+	purchase_order->propagate_account_list =
+		ledger_transaction_refresh(
+			application_name,
+			purchase_order->transaction );
+
+/*
 	ledger_transaction_amount_update(
 		application_name,
 		purchase_order->full_name,
@@ -553,6 +567,7 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
 			purchase_order->purchase_asset_account_list );
+*/
 
 	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,

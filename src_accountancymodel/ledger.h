@@ -907,4 +907,14 @@ boolean ledger_title_passage_rule_attribute_exists(
 boolean ledger_folder_exists(	char *application_name,
 				char *folder_name );
 
+TRANSACTION *ledger_inventory_purchase_order_build_transaction(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				double database_transaction_amount,
+				LIST *inventory_purchase_list,
+				double sales_tax,
+				double freight_in );
+
 #endif

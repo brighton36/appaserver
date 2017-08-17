@@ -928,4 +928,19 @@ boolean ledger_propagate_account_list_exists(
 				LIST *propagate_account_list,
 				char *account_name );
 
+TRANSACTION *ledger_customer_sale_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *inventory_sale_list,
+				double sum_inventory_extension,
+				double sum_fixed_service_extension,
+				double sum_hourly_service_extension,
+				double sales_tax,
+				double shipping_revenue,
+				double invoice_amount,
+				char *fund_name );
+
 #endif

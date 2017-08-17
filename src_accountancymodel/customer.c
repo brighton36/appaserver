@@ -3598,7 +3598,6 @@ void customer_hourly_service_sale_list_update(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_inventory_distinct_account_extract(
-					double *sum_credit_amount,
 					LIST *inventory_sale_list )
 {
 	INVENTORY_SALE *inventory_sale;
@@ -3663,14 +3662,6 @@ LIST *customer_sale_inventory_distinct_account_extract(
 
 		journal_ledger->credit_amount +=
 			inventory_sale->cost_of_goods_sold;
-
-		/* Accumulate sum_credit_amount */
-		/* ----------------------------- */
-		if ( sum_credit_amount )
-		{
-			*sum_credit_amount += 
-				inventory_sale->cost_of_goods_sold;
-		}
 
 	} while( list_next( inventory_sale_list ) );
 

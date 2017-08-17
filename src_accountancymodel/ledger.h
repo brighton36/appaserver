@@ -908,6 +908,7 @@ boolean ledger_folder_exists(	char *application_name,
 				char *folder_name );
 
 TRANSACTION *ledger_inventory_purchase_order_build_transaction(
+				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *transaction_date_time,
@@ -915,6 +916,17 @@ TRANSACTION *ledger_inventory_purchase_order_build_transaction(
 				double database_transaction_amount,
 				LIST *inventory_purchase_list,
 				double sales_tax,
-				double freight_in );
+				double freight_in,
+				char *fund_name );
+
+/* Returns propagate_account_list */
+/* ------------------------------ */
+LIST *ledger_transaction_refresh(
+				char *application_name,
+				TRANSACTION *transaction );
+
+boolean ledger_propagate_account_list_exists(
+				LIST *propagate_account_list,
+				char *account_name );
 
 #endif

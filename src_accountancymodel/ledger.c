@@ -21,6 +21,7 @@
 #include "document.h"
 #include "application.h"
 #include "ledger.h"
+#include "purchase.h"
 #include "inventory.h"
 
 ELEMENT *ledger_element_new( char *element_name )
@@ -3541,21 +3542,27 @@ void ledger_journal_insert_stream(
 			char *debit_account_name,
 			char *credit_account_name )
 {
-	fprintf(	debit_output_pipe,
-			"%s^%s^%s^%s^%.2lf\n",
-			full_name,
-			street_address,
-			transaction_date_time,
-			debit_account_name,
-			amount );
+	if ( debit_output_pipe )
+	{
+		fprintf(	debit_output_pipe,
+				"%s^%s^%s^%s^%.2lf\n",
+				full_name,
+				street_address,
+				transaction_date_time,
+				debit_account_name,
+				amount );
+	}
 
-	fprintf(	credit_output_pipe,
-			"%s^%s^%s^%s^%.2lf\n",
-			full_name,
-			street_address,
-			transaction_date_time,
-			credit_account_name,
-			amount );
+	if ( credit_output_pipe )
+	{
+		fprintf(	credit_output_pipe,
+				"%s^%s^%s^%s^%.2lf\n",
+				full_name,
+				street_address,
+				transaction_date_time,
+				credit_account_name,
+				amount );
+	}
 
 } /* ledger_journal_insert_stream() */
 
@@ -6533,6 +6540,26 @@ double ledger_get_fraction_of_year(
 
 } /* ledger_get_fraction_of_year() */
 
+boolean ledger_propagate_account_list_exists(
+		LIST *propagate_account_list,
+		char *account_name )
+{
+	ACCOUNT *account;
+
+	if ( !list_rewind( propagate_account_list ) ) return 0;
+
+	do {
+		account = list_get_pointer( propagate_account_list );
+
+		if ( strcmp( account_name, account->account_name ) == 0 )
+			return 1;
+
+	} while( list_next( propagate_account_list ) );
+
+	return 0;
+
+} /* ledger_propagate_account_list_exists() */
+
 void ledger_append_propagate_account_list(
 			LIST *propagate_account_list,
 			char *transaction_date_time,
@@ -6541,6 +6568,13 @@ void ledger_append_propagate_account_list(
 {
 	JOURNAL_LEDGER *prior_ledger;
 	ACCOUNT *account;
+
+	if ( ledger_propagate_account_list_exists(
+		propagate_account_list,
+		account_name ) )
+	{
+		return;
+	}
 
 	account = ledger_account_new( account_name );
 
@@ -6744,46 +6778,6 @@ TRANSACTION *ledger_inventory_purchase_hash_table_build_transaction(
 	/* Build journal_ledger_list */
 	/* ========================= */
 	transaction->journal_ledger_list = list_new();
-
-#ifdef NOT_DEFINED
-	/* Sales tax expense */
-	/* ----------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			sales_tax_expense_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Freight in expense */
-	/* ------------------ */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			freight_in_expense_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-#endif
 
 	/* Account payable */
 	/* --------------- */
@@ -7086,7 +7080,117 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 
 } /* ledger_sale_hash_table_build_transaction() */
 
+/* Returns propagate_account_list */
+/* ------------------------------ */
+LIST *ledger_transaction_refresh(
+				char *application_name,
+				TRANSACTION *transaction )
+{
+	LIST *propagate_account_list;
+	JOURNAL_LEDGER *journal_ledger;
+	FILE *debit_account_pipe = {0};
+	FILE *credit_account_pipe = {0};
+
+	if ( list_length( transaction->journal_ledger_list ) < 2 )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: list_length( journal_ledger_list ) = %d.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 list_length( transaction->journal_ledger_list ) );
+		exit( 1 );
+	}
+
+	propagate_account_list = list_new();
+
+	ledger_delete(	application_name,
+			TRANSACTION_FOLDER_NAME,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time );
+
+	ledger_delete(	application_name,
+			LEDGER_FOLDER_NAME,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time );
+
+	ledger_journal_insert_open_stream(
+			&debit_account_pipe,
+			&credit_account_pipe,
+			application_name );
+
+	list_rewind( transaction->journal_ledger_list );
+
+	do {
+		journal_ledger =
+			list_get_pointer( 
+				transaction->journal_ledger_list );
+
+		if ( timlib_dollar_virtually_same(
+			journal_ledger->debit_amount,
+			0.0 )
+		&&   timlib_dollar_virtually_same(
+			journal_ledger->credit_amount,
+			0.0 ) )
+		{
+			fprintf( stderr,
+"Warning in %s/%s()/%d: both debit_amount and credit_amount are zero.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			continue;
+		}
+
+		if ( !timlib_dollar_virtually_same(
+			journal_ledger->debit_amount,
+			0.0 ) )
+		{
+			ledger_journal_insert_stream(
+				debit_account_pipe,
+				(FILE *)0 /* credit_account_pipe */,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				journal_ledger->debit_amount
+					/* amount */,
+				journal_ledger->account_name
+					/* debit_account_name */,
+				(char *)0 /* credit_account_name */ );
+		}
+		else
+		{
+			ledger_journal_insert_stream(
+				(FILE *)0 /* debit_account_pipe */,
+				credit_account_pipe,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				journal_ledger->credit_amount
+					/* amount */,
+				(char *)0 /* debit_account_name */,
+				journal_ledger->account_name
+					/* credit_account_name */ );
+		}
+
+		ledger_append_propagate_account_list(
+			propagate_account_list,
+			transaction->transaction_date_time,
+			journal_ledger->account_name,
+			application_name );
+
+	} while( list_next( transaction->journal_ledger_list ) );
+
+	pclose( debit_account_pipe );
+	pclose( credit_account_pipe );
+
+	return propagate_account_list;
+
+} /* ledger_transaction_refresh() */
+
 TRANSACTION *ledger_inventory_purchase_order_build_transaction(
+				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *transaction_date_time,
@@ -7094,7 +7198,38 @@ TRANSACTION *ledger_inventory_purchase_order_build_transaction(
 				double database_transaction_amount,
 				LIST *inventory_purchase_list,
 				double sales_tax,
-				double freight_in )
+				double freight_in,
+				char *fund_name )
 {
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *sales_revenue_account = {0};
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	char *receivable_account = {0};
+
+	ledger_get_customer_sale_account_names(
+		&sales_revenue_account,
+		&service_revenue_account,
+		&sales_tax_payable_account,
+		&shipping_revenue_account,
+		&receivable_account,
+		application_name,
+		fund_name );
+
+	if ( !sales_revenue_account ) return (TRANSACTION *)0;
+
+	transaction = ledger_transaction_calloc();
+
+	transaction->journal_ledger_list =
+		purchase_inventory_distinct_account_extract(
+			inventory_purchase_list );
+
+	if ( !list_rewind( transaction->journal_ledger_list ) )
+		return (TRANSACTION *)0;
+
+	return transaction;
+
 } /* ledger_inventory_purchase_order_build_transaction() */
 

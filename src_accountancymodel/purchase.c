@@ -2468,6 +2468,8 @@ LIST *purchase_inventory_journal_ledger_debit_refresh(
 
 } /* purchase_inventory_journal_ledger_debit_refresh() */
 
+/* Returns journal_ledger_list */
+/* --------------------------- */
 LIST *purchase_inventory_distinct_account_extract(
 					LIST *inventory_purchase_list )
 {

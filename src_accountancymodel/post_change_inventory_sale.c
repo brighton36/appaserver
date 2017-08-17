@@ -277,17 +277,45 @@ void post_change_inventory_sale_insert(
 		customer_sale->sale_date_time,
 		application_name );
 
-	/* Propagate ledger accounts */
-	/* ------------------------- */
-	if ( customer_sale->transaction )
+	if ( customer_sale->transaction_date_time )
 	{
+#ifdef NOT_DEFINED
 		customer_sale_inventory_cost_account_list_set(
 			customer_sale->inventory_account_list,
 			customer_sale->cost_account_list,
 			customer_sale->inventory_sale_list,
 			entity_get_inventory_list( application_name ),
 			0 /* not is_database */ );
+#endif
 
+		customer_sale->transaction =
+			ledger_inventory_customer_sale_build_transaction(
+				application_name,
+				customer_sale->transaction->full_name,
+				customer_sale->transaction->street_address,
+				customer_sale->transaction->
+					transaction_date_time,
+				customer_sale->transaction->memo,
+				customer_sale->inventory_sale_list,
+				customer_sale->sum_fixed_service_extension,
+				customer_sale->sum_hourly_service_extension,
+				customer_sale->sales_tax,
+				customer_sale->shipping_revenue,
+				customer_sale->invoice_amount,
+				customer_sale->fund_name );
+
+		ledger_transaction_refresh(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->transaction_date_time,
+			customer_sale->transaction->transaction_amount,
+			customer_sale->transaction->memo,
+			0 /* check_number */,
+			1 /* lock_transaction */,
+			customer_sale->transaction->journal_ledger_list );
+
+#ifdef NOT_DEFINED
 		customer_sale->propagate_account_list =
 			customer_sale_ledger_refresh(
 				application_name,
@@ -325,6 +353,7 @@ void post_change_inventory_sale_insert(
 			customer_sale->transaction_date_time,
 			customer_sale->invoice_amount,
 			customer_sale->database_invoice_amount );
+#endif
 	}
 
 } /* post_change_inventory_sale_insert() */

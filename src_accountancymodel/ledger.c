@@ -4182,7 +4182,7 @@ void ledger_get_customer_sale_account_names(
 			application_name,
 			fund_name,
 			key,
-			1 /* warning_only */ );
+			0 /* not warning_only */ );
 
 	key = "service_revenue_key";
 	*service_revenue_account =
@@ -7261,4 +7261,72 @@ TRANSACTION *ledger_inventory_purchase_order_build_transaction(
 	return transaction;
 
 } /* ledger_inventory_purchase_order_build_transaction() */
+
+TRANSACTION *ledger_inventory_customer_sale_build_transaction(
+				application_name,
+				char *transaction->full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *inventory_sale_list,
+				double sum_fixed_service_extension,
+				double sum_hourly_service_extension,
+				double sales_tax,
+				double shipping_revenue,
+				double invoice_amount );
+				char *fund_name )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *sales_revenue_account = {0};
+	char *service_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	char *receivable_account = {0};
+	double sum_credit_amount = 0.0;
+
+	/* Exits if sales_revenue_account is not found. */
+	/* -------------------------------------------- */
+	ledger_get_customer_sale_account_names(
+		&sales_revenue_account,
+		&service_revenue_account,
+		&sales_tax_payable_account,
+		&shipping_revenue_account,
+		&receivable_account,
+		application_name,
+		fund_name );
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			memo );
+
+	transaction->journal_ledger_list =
+		customer_sale_inventory_distinct_account_extract(
+			&sum_credit_amount,
+			inventory_sale_list );
+
+	if ( !list_rewind( transaction->journal_ledger_list ) )
+		return (TRANSACTION *)0;
+
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			account_payable_account );
+
+	journal_ledger->credit_amount = sum_debit_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	transaction->transaction_amount = sum_debit_amount;
+
+	return transaction;
+
+} /* ledger_inventory_customer_sale_build_transaction() */
 

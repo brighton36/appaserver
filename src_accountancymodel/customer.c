@@ -3595,3 +3595,85 @@ void customer_hourly_service_sale_list_update(
 
 } /* customer_hourly_service_sale_list_update() */
 
+/* Returns journal_ledger_list */
+/* --------------------------- */
+LIST *customer_sale_inventory_distinct_account_extract(
+					double *sum_credit_amount,
+					LIST *inventory_sale_list )
+{
+	INVENTORY_SALE *inventory_sale;
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( inventory_sale_list ) ) return (LIST *)0;
+
+	journal_ledger_list = list_new();
+
+	do {
+		inventory_sale =
+			list_get_pointer(
+				inventory_sale_list );
+
+		/* Debit cost of goods sold */
+		/* ------------------------ */
+		if ( !inventory_sale->cost_of_goods_sold_account_name )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: empty cost_of_goods_sold_account_name for (%s/%s/%s/%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 inventory_sale->full_name,
+				 inventory_sale->street_address,
+				 inventory_sale->sale_date_time,
+				 inventory_sale->inventory_name );
+			exit( 1 );
+		}
+
+		journal_ledger =
+			ledger_get_or_set_journal_ledger(
+				journal_ledger_list,
+				inventory_sale->
+					cost_of_goods_sold_account_name );
+
+		journal_ledger->debit_amount +=
+			inventory_sale->cost_of_goods_sold;
+
+
+		/* Credit inventory */
+		/* ---------------- */
+		if ( !inventory_sale->inventory_account_name )
+		{
+			fprintf( stderr,
+	"ERROR in %s/%s()/%d: empty inventory_account_name for (%s/%s/%s/%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 inventory_sale->full_name,
+				 inventory_sale->street_address,
+				 inventory_sale->sale_date_time,
+				 inventory_sale->inventory_name );
+			exit( 1 );
+		}
+
+		journal_ledger =
+			ledger_get_or_set_journal_ledger(
+				journal_ledger_list,
+				inventory_sale->inventory_account_name );
+
+		journal_ledger->credit_amount +=
+			inventory_sale->cost_of_goods_sold;
+
+		/* Accumulate sum_credit_amount */
+		/* ----------------------------- */
+		if ( sum_credit_amount )
+		{
+			*sum_credit_amount += 
+				inventory_sale->cost_of_goods_sold;
+		}
+
+	} while( list_next( inventory_sale_list ) );
+
+	return journal_ledger_list;
+
+} /* customer_sale_inventory_distinct_account_extract() */

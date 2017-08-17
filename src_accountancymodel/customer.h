@@ -629,5 +629,9 @@ void customer_fixed_service_work_list_update(
 					char *sale_date_time,
 					char *service_name );
 
+LIST *customer_sale_inventory_distinct_account_extract(
+					double *sum_credit_amount,
+					LIST *inventory_sale_list );
+
 #endif
 

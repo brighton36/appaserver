@@ -2493,13 +2493,14 @@ LIST *purchase_inventory_distinct_account_extract(
 		if ( !inventory_purchase->inventory_account_name )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: empty inventory_account_name for (%s/%s/%s)\n",
+	"ERROR in %s/%s()/%d: empty inventory_account_name for (%s/%s/%s/%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
 				 inventory_purchase->full_name,
 				 inventory_purchase->street_address,
-				 inventory_purchase->purchase_date_time );
+				 inventory_purchase->purchase_date_time,
+				 inventory_purchase->inventory_name );
 			exit( 1 );
 		}
 

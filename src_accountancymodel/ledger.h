@@ -909,15 +909,6 @@ boolean ledger_title_passage_rule_attribute_exists(
 boolean ledger_folder_exists(	char *application_name,
 				char *folder_name );
 
-TRANSACTION *ledger_inventory_purchase_order_build_transaction(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *memo,
-				LIST *inventory_purchase_list,
-				char *fund_name );
-
 void ledger_transaction_refresh(
 				char *application_name,
 				char *full_name,
@@ -958,9 +949,26 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 				double freight_in,
 				LIST *supply_purchase_list,
 				LIST *service_purchase_list,
-				LIST *specific_inventory_purchase_list,
 				LIST *fixed_asset_purchase_list,
 				LIST *prepaid_asset_purchase_list,
+				char *fund_name );
+
+TRANSACTION *ledger_specific_inventory_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *specific_inventory_purchase_list,
+				char *fund_name );
+
+TRANSACTION *ledger_inventory_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *inventory_purchase_list,
 				char *fund_name );
 
 #endif

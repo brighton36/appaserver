@@ -31,6 +31,8 @@ int main( int argc, char **argv )
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
+	char *specific_inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
 	char *database_string = {0};
 
 	if ( argc > 1 )
@@ -73,6 +75,8 @@ int main( int argc, char **argv )
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
+		&specific_inventory_account,
+		&cost_of_goods_sold_account,
 		application_name,
 		fund_name );
 

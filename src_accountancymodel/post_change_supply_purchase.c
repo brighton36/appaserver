@@ -193,30 +193,33 @@ void post_change_supply_purchase_update(
 
 	if ( !purchase_order->transaction_date_time ) return;
 
-#ifdef NOT_DEFINED
-	purchase_order->propagate_account_list =
-		purchase_order_journal_ledger_refresh(
+	purchase_order->transaction =
+		ledger_purchase_order_build_transaction(
 			application_name,
-			purchase_order->fund_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,
-			purchase_order->sum_specific_inventory_unit_cost,
-			purchase_order->sum_supply_extension,
-			purchase_order->sum_service_extension,
-			purchase_order->sum_fixed_asset_extension,
+			purchase_order->transaction->memo,
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
-			purchase_order->purchase_amount,
-			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list );
+			purchase_order->
+				fixed_asset_purchase_list,
+			purchase_order->
+				prepaid_asset_purchase_list,
+			purchase_order->fund_name );
 
-	ledger_account_list_propagate(
-		purchase_order->propagate_account_list,
-		application_name );
-#endif
+	ledger_transaction_refresh(
+		application_name,
+		purchase_order->full_name,
+		purchase_order->street_address,
+		purchase_order->transaction_date_time,
+		purchase_order->transaction->transaction_amount,
+		purchase_order->transaction->memo,
+		0 /* check_number */,
+		1 /* lock_transaction */,
+		purchase_order->transaction->journal_ledger_list );
 
 	supply_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -295,24 +298,6 @@ void post_change_supply_purchase_insert(
 				purchase_supply->database_extension );
 	}
 
-/*
-	purchase_order->purchase_amount =
-		purchase_order_get_purchase_amount(
-			&purchase_order->sum_inventory_extension,
-			&purchase_order->sum_specific_inventory_unit_cost,
-			&purchase_order->sum_supply_extension,
-			&purchase_order->sum_service_extension,
-			&purchase_order->sum_fixed_asset_extension,
-			&purchase_order->sum_extension,
-			purchase_order->inventory_purchase_list,
-			purchase_order->specific_inventory_purchase_list,
-			purchase_order->supply_purchase_list,
-			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list,
-			purchase_order->sales_tax,
-			purchase_order->freight_in );
-*/
-
 	purchase_order_update(
 			application_name,
 			purchase_order->full_name,
@@ -333,30 +318,33 @@ void post_change_supply_purchase_insert(
 
 	if ( !purchase_order->transaction_date_time ) return;
 
-#ifdef NOT_DEFINED
-	purchase_order->propagate_account_list =
-		purchase_order_journal_ledger_refresh(
+	purchase_order->transaction =
+		ledger_purchase_order_build_transaction(
 			application_name,
-			purchase_order->fund_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,
-			purchase_order->sum_specific_inventory_unit_cost,
-			purchase_order->sum_supply_extension,
-			purchase_order->sum_service_extension,
-			purchase_order->sum_fixed_asset_extension,
+			purchase_order->transaction->memo,
 			purchase_order->sales_tax,
 			purchase_order->freight_in,
-			purchase_order->purchase_amount,
-			purchase_order->inventory_purchase_list,
 			purchase_order->supply_purchase_list,
 			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list );
+			purchase_order->
+				fixed_asset_purchase_list,
+			purchase_order->
+				prepaid_asset_purchase_list,
+			purchase_order->fund_name );
 
-	ledger_account_list_propagate(
-		purchase_order->propagate_account_list,
-		application_name );
-#endif
+	ledger_transaction_refresh(
+		application_name,
+		purchase_order->full_name,
+		purchase_order->street_address,
+		purchase_order->transaction_date_time,
+		purchase_order->transaction->transaction_amount,
+		purchase_order->transaction->memo,
+		0 /* check_number */,
+		1 /* lock_transaction */,
+		purchase_order->transaction->journal_ledger_list );
 
 } /* post_change_supply_purchase_insert() */
 
@@ -368,7 +356,6 @@ void post_change_supply_purchase_delete(
 			char *supply_name )
 {
 	PURCHASE_ORDER *purchase_order;
-	char *supply_expense_account;
 
 	purchase_order =
 		purchase_order_new(
@@ -386,24 +373,6 @@ void post_change_supply_purchase_delete(
 			 __LINE__ );
 		exit( 1 );
 	}
-
-/*
-	purchase_order->purchase_amount =
-		purchase_order_get_purchase_amount(
-			&purchase_order->sum_inventory_extension,
-			&purchase_order->sum_specific_inventory_unit_cost,
-			&purchase_order->sum_supply_extension,
-			&purchase_order->sum_service_extension,
-			&purchase_order->sum_fixed_asset_extension,
-			&purchase_order->sum_extension,
-			purchase_order->inventory_purchase_list,
-			purchase_order->specific_inventory_purchase_list,
-			purchase_order->supply_purchase_list,
-			purchase_order->service_purchase_list,
-			purchase_order->fixed_asset_purchase_list,
-			purchase_order->sales_tax,
-			purchase_order->freight_in );
-*/
 
 	purchase_order_update(
 			application_name,
@@ -427,52 +396,35 @@ void post_change_supply_purchase_delete(
 
 	if ( purchase_order->transaction_date_time )
 	{
-#ifdef NOT_DEFINED
-		purchase_order->propagate_account_list =
-			purchase_order_journal_ledger_refresh(
+		purchase_order->transaction =
+			ledger_purchase_order_build_transaction(
 				application_name,
-				purchase_order->fund_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
 				purchase_order->transaction_date_time,
-				purchase_order->
-					sum_specific_inventory_unit_cost,
-				purchase_order->sum_supply_extension,
-				purchase_order->sum_service_extension,
-				purchase_order->sum_fixed_asset_extension,
+				purchase_order->transaction->memo,
 				purchase_order->sales_tax,
 				purchase_order->freight_in,
-				purchase_order->purchase_amount,
-				purchase_order->inventory_purchase_list,
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
-				purchase_order->fixed_asset_purchase_list );
+				purchase_order->
+					specific_inventory_purchase_list,
+				purchase_order->
+					fixed_asset_purchase_list,
+				purchase_order->
+					prepaid_asset_purchase_list,
+				purchase_order->fund_name );
 
-		ledger_account_list_propagate(
-			purchase_order->propagate_account_list,
-			application_name );
-#endif
-
-		if ( ! ( specific_supply_expense_account =
-				ledger_get_supply_expense_account(
-					application_name,
-					supply_name ) )
-		{
-			fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot get supply_expense_account for (%s).\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 preupdate_supply_name );
-			exit( 1 );
-		}
-
-		ledger_propagate(
+		ledger_transaction_refresh(
 			application_name,
-			purchase_order->
-				transaction->
-				transaction_date_time,
-			specific_supply_expense_account );
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->transaction_date_time,
+			purchase_order->transaction->transaction_amount,
+			purchase_order->transaction->memo,
+			0 /* check_number */,
+			1 /* lock_transaction */,
+			purchase_order->transaction->journal_ledger_list );
 	}
 
 } /* post_change_supply_purchase_delete() */

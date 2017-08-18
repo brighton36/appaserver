@@ -314,7 +314,7 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_purchase_order_build_transaction(
+			ledger_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -421,7 +421,7 @@ void post_change_inventory_purchase_insert_FOB_destination(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_purchase_order_build_transaction(
+			ledger_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -690,7 +690,7 @@ void post_change_inventory_purchase_ordered_quantity_update(
 	purchase_order->purchase_amount =
 		purchase_order_get_purchase_amount(
 			&purchase_order->sum_inventory_extension,
-			&purchase_order->sum_specific_inventory_unit_cost,
+			&purchase_order->sum_specific_inventory_extension,
 			&purchase_order->sum_supply_extension,
 			&purchase_order->sum_service_extension,
 			&purchase_order->sum_fixed_asset_extension,
@@ -726,7 +726,7 @@ void post_change_inventory_purchase_ordered_quantity_update(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_purchase_order_build_transaction(
+			ledger_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -774,7 +774,7 @@ void post_change_inventory_purchase_unit_cost_update(
 	purchase_order->purchase_amount =
 		purchase_order_get_purchase_amount(
 			&purchase_order->sum_inventory_extension,
-			&purchase_order->sum_specific_inventory_unit_cost,
+			&purchase_order->sum_specific_inventory_extension,
 			&purchase_order->sum_supply_extension,
 			&purchase_order->sum_service_extension,
 			&purchase_order->sum_fixed_asset_extension,
@@ -810,7 +810,7 @@ void post_change_inventory_purchase_unit_cost_update(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_purchase_order_build_transaction(
+			ledger_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -865,7 +865,7 @@ void post_change_inventory_purchase_delete(
 	purchase_order->purchase_amount =
 		purchase_order_get_purchase_amount(
 			&purchase_order->sum_inventory_extension,
-			&purchase_order->sum_specific_inventory_unit_cost,
+			&purchase_order->sum_specific_inventory_extension,
 			&purchase_order->sum_supply_extension,
 			&purchase_order->sum_service_extension,
 			&purchase_order->sum_fixed_asset_extension,
@@ -903,7 +903,7 @@ void post_change_inventory_purchase_delete(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_purchase_order_build_transaction(
+			ledger_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
@@ -1010,7 +1010,7 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 	if ( purchase_order->transaction_date_time )
 	{
 		purchase_order->transaction =
-			ledger_inventory_purchase_order_build_transaction(
+			ledger_inventory_build_transaction(
 				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,

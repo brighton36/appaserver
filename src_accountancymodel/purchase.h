@@ -95,7 +95,9 @@ typedef struct
 {
 	char *inventory_name;
 	char *serial_number;
-	double unit_cost;
+	double extension;
+	double capitalized_extension;
+	double database_capitalized_extension;
 } PURCHASE_SPECIFIC_INVENTORY;
 
 typedef struct
@@ -107,7 +109,7 @@ typedef struct
 	char *transaction_date_time;
 	char *database_transaction_date_time;
 	double sum_inventory_extension;
-	double sum_specific_inventory_unit_cost;
+	double sum_specific_inventory_extension;
 	double sum_supply_extension;
 	double sum_service_extension;
 	double sum_fixed_asset_extension;
@@ -173,13 +175,6 @@ PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_new(
 
 PURCHASE_FIXED_ASSET *purchase_fixed_asset_new(
 					void );
-
-PURCHASE_ASSET_ACCOUNT *purchase_asset_account_new(
-					char *account_name );
-
-LIST *purchase_get_asset_account_list(	char *application_name,
-					LIST *fixed_asset_purchase_list,
-					LIST *prepaid_asset_purchase_list );
 
 PURCHASE_FIXED_ASSET *purchase_fixed_asset_parse(
 					char *input_buffer );
@@ -298,7 +293,7 @@ LIST *purchase_order_journal_ledger_refresh(
 				char *full_name,
 				char *street_address,
 				char *transaction_date_time,
-				double sum_specific_inventory_unit_cost,
+				double sum_specific_inventory_extension,
 				double sum_supply_extension,
 				double sum_service_extension,
 				double sales_tax,
@@ -500,7 +495,7 @@ LIST *purchase_specific_inventory_get_list(
 				char *street_address,
 				char *purchase_date_time );
 
-double purchase_get_sum_specific_inventory_unit_cost(
+double purchase_get_sum_specific_inventory_extension(
 				LIST *specific_inventory_purchase_list );
 
 double purchase_order_get_amount_due(
@@ -671,6 +666,20 @@ LIST *purchase_inventory_distinct_account_extract(
 LIST *purchase_supply_distinct_account_extract(
 				double *sum_debit_amount,
 				LIST *supply_purchase_list );
+
+LIST *purchase_fixed_asset_distinct_account_extract(
+				double *sum_debit_amount,
+				LIST *fixed_asset_purchase_list );
+
+void purchase_specific_inventory_set_capitalized_extension(
+				LIST *specific_inventory_purchase_list,
+				double sum_specific_inventory_extension,
+				double sales_tax,
+				double freight_in );
+
+LIST *purchase_prepaid_asset_distinct_account_extract(
+				double *sum_debit_amount,
+				LIST *prepaid_asset_purchase_list );
 
 #endif
 

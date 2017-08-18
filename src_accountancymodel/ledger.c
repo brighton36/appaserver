@@ -7470,13 +7470,14 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 				LIST *supply_purchase_list,
 				LIST *service_purchase_list,
 				LIST *specific_inventory_purchase_list,
-				LIST *purchase_fixed_asset_purchase_list,
+				LIST *fixed_asset_purchase_list,
 				LIST *prepaid_asset_purchase_list,
 				char *fund_name )
 {
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	PURCHASE_SUPPLY *purchase_supply;
+	PURCHASE_SPECIFIC_INVENTORY *purchase_specific_inventory;
+	PURCHASE_SERVICE *purchase_service;
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
@@ -7516,7 +7517,7 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 	}
 
 	if ( list_length( specific_inventory_purchase_list )
-	&&   !inventory_account )
+	&&   !specific_inventory_account )
 	{
 		fprintf( stderr,
 "ERROR in %s/%s()/%d: specific inventory exists without inventory account.\n",
@@ -7554,10 +7555,106 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 			transaction->journal_ledger_list,
 			purchase_supply_distinct_account_extract(
 				&sum_debit_amount,
-				supply_purchase_list );
+				supply_purchase_list ) );
 	}
 
-	transaction->transaction_amount = purchase_amount;
+	/* SERVICE_PURCHASE */
+	/* ---------------- */
+	if ( list_rewind( service_purchase_list ) )
+	{
+		do {
+			purchase_service =
+				list_get_pointer(
+					service_purchase_list );
+
+			journal_ledger =
+				journal_ledger_new(
+					full_name,
+					street_address,
+					transaction_date_time,
+					purchase_service->account_name );
+
+			journal_ledger->debit_amount =
+				purchase_service->extension;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+			sum_debit_amount += purchase_service->extension;
+
+		} while( list_next( service_purchase_list ) );
+	}
+
+	/* SPECIFIC_INVENTORY_PURCHASE */
+	/* --------------------------- */
+	if ( list_rewind( specific_inventory_purchase_list ) )
+	{
+		do {
+			purchase_specific_inventory =
+				list_get_pointer(
+					specific_inventory_purchase_list );
+
+			journal_ledger =
+				journal_ledger_new(
+					full_name,
+					street_address,
+					transaction_date_time,
+					specific_inventory_account );
+
+			journal_ledger->debit_amount =
+				purchase_specific_inventory->
+					capitalized_extension;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+			sum_debit_amount +=
+				purchase_specific_inventory->
+					capitalized_extension;
+
+		} while( list_next( specific_inventory_purchase_list ) );
+	}
+
+	/* FIXED_ASSET_PURCHASE */
+	/* -------------------- */
+	if ( list_length( fixed_asset_purchase_list ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			purchase_fixed_asset_distinct_account_extract(
+				&sum_debit_amount,
+				fixed_asset_purchase_list ) );
+	}
+
+	/* PREPAID_ASSET_PURCHASE */
+	/* ---------------------- */
+	if ( list_length( prepaid_asset_purchase_list ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			purchase_prepaid_asset_distinct_account_extract(
+				&sum_debit_amount,
+				prepaid_asset_purchase_list ) );
+	}
+
+	/* account_payable */
+	/* --------------- */
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			account_payable_account );
+
+	journal_ledger->credit_amount = sum_debit_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	transaction->transaction_amount = sum_debit_amount;
 
 	return transaction;
 

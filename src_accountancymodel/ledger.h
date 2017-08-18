@@ -958,7 +958,7 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 				LIST *supply_purchase_list,
 				LIST *service_purchase_list,
 				LIST *specific_inventory_purchase_list,
-				LIST *purchase_fixed_asset_purchase_list,
+				LIST *fixed_asset_purchase_list,
 				LIST *prepaid_asset_purchase_list,
 				char *fund_name );
 

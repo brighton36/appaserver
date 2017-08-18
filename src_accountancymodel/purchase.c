@@ -41,6 +41,9 @@ PURCHASE_ORDER *purchase_order_calloc( void )
 
 } /* purchase_order_calloc() */
 
+/* ------------------------------------------------------------------------- */
+/* Need to add integrity checks making sure of mutually exclusive inventory. */
+/* ------------------------------------------------------------------------- */
 PURCHASE_ORDER *purchase_order_new(	char *application_name,
 					char *full_name,
 					char *street_address,
@@ -130,12 +133,6 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 				p->purchase_date_time );
 	}
 
-	p->purchase_asset_account_list =
-		purchase_get_asset_account_list(
-				application_name,
-				p->fixed_asset_purchase_list,
-				p->prepaid_asset_purchase_list );
-
 	if ( p->transaction_date_time )
 	{
 		p->transaction =
@@ -149,7 +146,7 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 	p->purchase_amount =
 		purchase_order_get_purchase_amount(
 			&p->sum_inventory_extension,
-			&p->sum_specific_inventory_unit_cost,
+			&p->sum_specific_inventory_extension,
 			&p->sum_supply_extension,
 			&p->sum_service_extension,
 			&p->sum_fixed_asset_extension,
@@ -187,13 +184,19 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 		p->sales_tax,
 		p->freight_in );
 
+	purchase_specific_inventory_set_capitalized_extension(
+		p->specific_inventory_purchase_list,
+		p->sum_specific_inventory_extension,
+		p->sales_tax,
+		p->freight_in );
+
 	return p;
 
 } /* purchase_order_new() */
 
 double purchase_order_get_purchase_amount(
 				double *sum_inventory_extension,
-				double *sum_specific_inventory_unit_cost,
+				double *sum_specific_inventory_extension,
 				double *sum_supply_extension,
 				double *sum_service_extension,
 				double *sum_fixed_asset_extension,
@@ -213,9 +216,9 @@ double purchase_order_get_purchase_amount(
 		inventory_purchase_list_set_extension(
 			inventory_purchase_list );
 
-	*sum_specific_inventory_unit_cost = 0.0;
-	*sum_specific_inventory_unit_cost =
-		purchase_get_sum_specific_inventory_unit_cost(
+	*sum_specific_inventory_extension = 0.0;
+	*sum_specific_inventory_extension =
+		purchase_get_sum_specific_inventory_extension(
 			specific_inventory_purchase_list );
 
 	*sum_supply_extension = 0.0;
@@ -239,7 +242,7 @@ double purchase_order_get_purchase_amount(
 			prepaid_asset_purchase_list );
 
 	*sum_extension =	*sum_inventory_extension +
-				*sum_specific_inventory_unit_cost +
+				*sum_specific_inventory_extension +
 				*sum_supply_extension +
 				*sum_service_extension +
 				*sum_fixed_asset_extension +
@@ -611,7 +614,7 @@ LIST *purchase_specific_inventory_get_list(
 	PURCHASE_SPECIFIC_INVENTORY *purchase_specific_inventory;
 	LIST *specific_inventory_purchase_list;
 
-	select = "inventory_name,serial_number,unit_cost";
+	select = "inventory_name,serial_number,extension,capitalized_extension";
 
 	folder = "specific_inventory_purchase";
 
@@ -647,7 +650,12 @@ LIST *purchase_specific_inventory_get_list(
 			strdup( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
-		purchase_specific_inventory->unit_cost = atof( piece_buffer );
+		purchase_specific_inventory->extension = atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+		purchase_specific_inventory->capitalized_extension =
+		purchase_specific_inventory->database_capitalized_extension =
+			atof( piece_buffer );
 
 		list_append_pointer(
 			specific_inventory_purchase_list,
@@ -710,8 +718,7 @@ LIST *purchase_service_get_list(	char *application_name,
 				strdup( piece_buffer ) );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-		purchase_service->extension =
-		purchase_service->database_extension = atof( piece_buffer );
+		purchase_service->extension = atof( piece_buffer );
 
 		list_append_pointer( service_purchase_list, purchase_service );
 	}
@@ -934,26 +941,28 @@ LIST *purchase_fixed_asset_get_list(	char *application_name,
 
 } /* purchase_fixed_asset_get_list() */
 
-double purchase_get_sum_specific_inventory_unit_cost(
+double purchase_get_sum_specific_inventory_extension(
 			LIST *specific_inventory_purchase_list )
 {
 	PURCHASE_SPECIFIC_INVENTORY *purchase_specific_inventory;
-	double sum_unit_cost;
+	double sum_extension;
 
 	if ( !list_rewind( specific_inventory_purchase_list ) ) return 0.0;
 
-	sum_unit_cost = 0.0;
+	sum_extension = 0.0;
 
 	do {
 		purchase_specific_inventory =
-			list_get( specific_inventory_purchase_list );
+			list_get_pointer(
+				specific_inventory_purchase_list );
 
-		sum_unit_cost += purchase_specific_inventory->unit_cost;
+		sum_extension += purchase_specific_inventory->extension;
 
 	} while( list_next( specific_inventory_purchase_list ) );
 
-	return sum_unit_cost;
-} /* purchase_get_sum_specific_inventory_unit_cost() */
+	return sum_extension;
+
+} /* purchase_get_sum_specific_inventory_extension() */
 
 double purchase_get_sum_supply_extension(
 			LIST *supply_purchase_list )
@@ -2011,7 +2020,7 @@ LIST *purchase_get_inventory_purchase_order_list(
 			purchase_order_get_purchase_amount(
 				&purchase_order->sum_inventory_extension,
 				&purchase_order->
-					sum_specific_inventory_unit_cost,
+					sum_specific_inventory_extension,
 				&purchase_order->sum_supply_extension,
 				&purchase_order->sum_service_extension,
 				&purchase_order->sum_fixed_asset_extension,
@@ -2544,7 +2553,9 @@ LIST *purchase_supply_journal_ledger_refresh(
 	return propagate_account_list;
 
 } /* purchase_supply_journal_ledger_refresh() */
+#endif
 
+#ifdef NOT_DEFINED
 LIST *purchase_service_journal_ledger_refresh(
 					char *application_name,
 					char *full_name,
@@ -2595,7 +2606,9 @@ LIST *purchase_service_journal_ledger_refresh(
 	return propagate_account_list;
 
 } /* purchase_service_journal_ledger_refresh() */
+#endif
 
+#ifdef NOT_DEFINED
 LIST *purchase_asset_account_journal_ledger_refresh(
 					char *application_name,
 					char *full_name,
@@ -2871,6 +2884,7 @@ void purchase_depreciation_update_and_transaction_propagate(
 
 } /* purchase_depreciation_update_and_transaction_propagate() */
 
+#ifdef NOT_DEFINED
 PURCHASE_ASSET_ACCOUNT *purchase_asset_account_new(
 					char *account_name )
 {
@@ -2892,7 +2906,9 @@ PURCHASE_ASSET_ACCOUNT *purchase_asset_account_new(
 	return p;
 
 } /* purchase_asset_account_new() */
+#endif
 
+#ifdef NOT_DEFINED
 LIST *purchase_get_asset_account_list(
 					char *application_name,
 					LIST *fixed_asset_purchase_list,
@@ -2946,7 +2962,9 @@ LIST *purchase_get_asset_account_list(
 	return asset_account_list;
 
 } /* purchase_get_asset_account_list() */
+#endif
 
+#ifdef NOT_DEFINED
 LIST *purchase_get_asset_account_name_list(
 				char *application_name )
 {
@@ -2967,6 +2985,7 @@ LIST *purchase_get_asset_account_name_list(
 	return pipe2list( sys_string );
 
 } /* purchase_get_asset_account_name_list() */
+#endif
 
 double purchase_get_asset_account_debit_amount(
 				LIST *fixed_asset_purchase_list,
@@ -3575,6 +3594,56 @@ char *purchase_order_list_display( LIST *purchase_order_list )
 
 } /* purchase_order_list_display() */
 
+void purchase_specific_inventory_set_capitalized_extension(
+				LIST *specific_inventory_purchase_list,
+				double sum_specific_inventory_extension,
+				double sales_tax,
+				double freight_in )
+{
+	PURCHASE_SPECIFIC_INVENTORY *purchase_specific_inventory;
+	double extra_cost;
+	double percent_of_total;
+	double capitalized_extra;
+
+	extra_cost = sales_tax + freight_in;
+
+	if ( !list_rewind( specific_inventory_purchase_list ) ) return;
+
+	do {
+		purchase_specific_inventory =
+			list_get_pointer(
+				specific_inventory_purchase_list );
+
+		if ( timlib_dollar_virtually_same(
+			purchase_specific_inventory->extension,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		if ( timlib_dollar_virtually_same( extra_cost, 0.0 ) )
+		{
+			purchase_specific_inventory->capitalized_extension =
+				purchase_specific_inventory->extension;
+		}
+		else
+		{
+			percent_of_total =
+				purchase_specific_inventory->extension /
+				sum_specific_inventory_extension;
+
+			capitalized_extra =
+				extra_cost * percent_of_total;
+
+			purchase_specific_inventory->capitalized_extension =
+				purchase_specific_inventory->extension +
+				capitalized_extra;
+		}
+
+	} while ( list_next( specific_inventory_purchase_list ) );
+
+} /* purchase_specific_inventory_set_capitalized_extension() */
+
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *purchase_inventory_distinct_account_extract(
@@ -3599,13 +3668,10 @@ LIST *purchase_inventory_distinct_account_extract(
 		if ( !inventory_purchase->inventory_account_name )
 		{
 			fprintf( stderr,
-	"ERROR in %s/%s()/%d: empty inventory_account_name for (%s/%s/%s/%s)\n",
+	"ERROR in %s/%s()/%d: empty inventory_account_name for (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
-				 inventory_purchase->full_name,
-				 inventory_purchase->street_address,
-				 inventory_purchase->purchase_date_time,
 				 inventory_purchase->inventory_name );
 			exit( 1 );
 		}
@@ -3624,7 +3690,7 @@ LIST *purchase_inventory_distinct_account_extract(
 			inventory_purchase->extension +
 			extension_capitalized_addition;
 
-		journal_ledger->debit_amount += 
+		journal_ledger->debit_amount +=
 			extension_plus_capitalized_addition;
 
 		if ( sum_debit_amount )
@@ -3649,7 +3715,7 @@ LIST *purchase_supply_distinct_account_extract(
 	LIST *journal_ledger_list;
 	JOURNAL_LEDGER *journal_ledger;
 
-	if ( !list_rewind( purchase_supply_list ) ) return (LIST *)0;
+	if ( !list_rewind( supply_purchase_list ) ) return (LIST *)0;
 
 	journal_ledger_list = list_new();
 
@@ -3661,7 +3727,7 @@ LIST *purchase_supply_distinct_account_extract(
 		if ( !purchase_supply->account_name )
 		{
 			fprintf( stderr,
-	"ERROR in %s/%s()/%d: empty account_name for (%s)\n",
+			"ERROR in %s/%s()/%d: empty account_name for (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -3674,7 +3740,7 @@ LIST *purchase_supply_distinct_account_extract(
 				journal_ledger_list,
 				purchase_supply->account_name );
 
-		journal_ledger->debit_amount += 
+		journal_ledger->debit_amount +=
 			purchase_supply->extension;
 
 		if ( sum_debit_amount )
@@ -3688,4 +3754,104 @@ LIST *purchase_supply_distinct_account_extract(
 	return journal_ledger_list;
 
 } /* purchase_supply_distinct_account_extract() */
+
+/* Returns journal_ledger_list */
+/* --------------------------- */
+LIST *purchase_fixed_asset_distinct_account_extract(
+					double *sum_debit_amount,
+					LIST *fixed_asset_purchase_list )
+{
+	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
+
+	journal_ledger_list = list_new();
+
+	do {
+		purchase_fixed_asset =
+			list_get_pointer(
+				fixed_asset_purchase_list );
+
+		if ( !purchase_fixed_asset->account_name )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty account_name for (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 purchase_fixed_asset->asset_name );
+			exit( 1 );
+		}
+
+		journal_ledger =
+			ledger_get_or_set_journal_ledger(
+				journal_ledger_list,
+				purchase_fixed_asset->account_name );
+
+		journal_ledger->debit_amount +=
+			purchase_fixed_asset->extension;
+
+		if ( sum_debit_amount )
+		{
+			*sum_debit_amount += 
+				purchase_fixed_asset->extension;
+		}
+
+	} while( list_next( fixed_asset_purchase_list ) );
+
+	return journal_ledger_list;
+
+} /* purchase_fixed_asset_distinct_account_extract() */
+
+/* Returns journal_ledger_list */
+/* --------------------------- */
+LIST *purchase_prepaid_asset_distinct_account_extract(
+					double *sum_debit_amount,
+					LIST *prepaid_asset_purchase_list )
+{
+	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( prepaid_asset_purchase_list ) ) return (LIST *)0;
+
+	journal_ledger_list = list_new();
+
+	do {
+		purchase_prepaid_asset =
+			list_get_pointer(
+				prepaid_asset_purchase_list );
+
+		if ( !purchase_prepaid_asset->asset_account_name )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty asset_account_name for (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 purchase_prepaid_asset->asset_name );
+			exit( 1 );
+		}
+
+		journal_ledger =
+			ledger_get_or_set_journal_ledger(
+				journal_ledger_list,
+				purchase_prepaid_asset->asset_account_name );
+
+		journal_ledger->debit_amount +=
+			purchase_prepaid_asset->extension;
+
+		if ( sum_debit_amount )
+		{
+			*sum_debit_amount += 
+				purchase_prepaid_asset->extension;
+		}
+
+	} while( list_next( prepaid_asset_purchase_list ) );
+
+	return journal_ledger_list;
+
+} /* purchase_prepaid_asset_distinct_account_extract() */
 

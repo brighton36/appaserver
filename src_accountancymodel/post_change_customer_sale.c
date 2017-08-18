@@ -1076,10 +1076,9 @@ void post_change_customer_sale_shipping_revenue_update(
 					transaction_date_time,
 				customer_sale->transaction->memo,
 				customer_sale->inventory_sale_list,
-				customer_sale->sum_inventory_extension,
-				0.0 /* specific_inventory_sale_extension */,
-				customer_sale->sum_fixed_service_extension,
-				customer_sale->sum_hourly_service_extension,
+				customer_sale->specific_inventory_sale_list,
+				customer_sale->fixed_service_sale_list,
+				customer_sale->hourly_service_sale_list,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->invoice_amount,
@@ -1208,10 +1207,9 @@ void post_change_customer_sale_FOB_destination_new_rule(
 					transaction_date_time,
 				customer_sale->transaction->memo,
 				customer_sale->inventory_sale_list,
-				customer_sale->sum_inventory_extension,
-				0.0 /* specific_inventory_sale_extension */,
-				customer_sale->sum_fixed_service_extension,
-				customer_sale->sum_hourly_service_extension,
+				customer_sale->specific_inventory_sale_list,
+				customer_sale->fixed_service_sale_list,
+				customer_sale->hourly_service_sale_list,
 				customer_sale->sales_tax,
 				customer_sale->shipping_revenue,
 				customer_sale->invoice_amount,
@@ -1434,6 +1432,35 @@ void post_change_customer_sale_new_transaction(
 	customer_sale->transaction_date_time = transaction_date_time;
 
 	customer_sale->transaction =
+		ledger_customer_sale_build_transaction(
+			application_name,
+			customer_sale->transaction->full_name,
+			customer_sale->transaction->street_address,
+			customer_sale->transaction->
+				transaction_date_time,
+			customer_sale->transaction->memo,
+			customer_sale->inventory_sale_list,
+			customer_sale->specific_inventory_sale_list,
+			customer_sale->fixed_service_sale_list,
+			customer_sale->hourly_service_sale_list,
+			customer_sale->sales_tax,
+			customer_sale->shipping_revenue,
+			customer_sale->invoice_amount,
+			customer_sale->fund_name );
+
+	ledger_transaction_refresh(
+		application_name,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_sale->transaction_date_time,
+		customer_sale->transaction->transaction_amount,
+		customer_sale->transaction->memo,
+		0 /* check_number */,
+		1 /* lock_transaction */,
+		customer_sale->transaction->journal_ledger_list );
+
+#ifdef NOT_DEFINED
+	customer_sale->transaction =
 		ledger_transaction_new(
 			customer_sale->full_name,
 			customer_sale->street_address,
@@ -1487,6 +1514,7 @@ void post_change_customer_sale_new_transaction(
 	ledger_account_list_propagate(
 		customer_sale->propagate_account_list,
 		application_name );
+#endif
 
 } /* post_change_customer_sale_new_transaction() */
 

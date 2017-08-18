@@ -332,8 +332,9 @@ void post_change_fixed_asset_purchase_delete(
 			purchase_order->shipped_date,
 			purchase_order->database_shipped_date );
 
-	if ( !purchase_order->transaction ) return;
+	if ( !purchase_order->transaction_date_time ) return;
 
+#ifdef NOT_DEFINED
 	purchase_order->propagate_account_list =
 		purchase_order_journal_ledger_refresh(
 			application_name,
@@ -355,6 +356,7 @@ void post_change_fixed_asset_purchase_delete(
 	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
 		application_name );
+#endif
 
 } /* post_change_fixed_asset_purchase_delete() */
 
@@ -528,6 +530,7 @@ void post_change_fixed_asset_purchase_update(
 	if (	extension_change_state ==
 		from_something_to_something_else )
 	{
+#ifdef NOT_DEFINED
 		ledger_transaction_amount_update(
 			application_name,
 			purchase_order->transaction->full_name,
@@ -559,6 +562,7 @@ void post_change_fixed_asset_purchase_update(
 		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
+#endif
 	}
 
 } /* post_change_fixed_asset_purchase_update() */

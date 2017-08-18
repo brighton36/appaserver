@@ -88,6 +88,7 @@ typedef struct
 	double unit_cost;
 	double extension;
 	double database_extension;
+	char *account_name;
 } PURCHASE_SUPPLY;
 
 typedef struct
@@ -461,6 +462,7 @@ void purchase_supply_update(
 				double extension,
 				double database_extension );
 
+/*
 LIST *purchase_inventory_journal_ledger_debit_refresh(
 				char *application_name,
 				char *full_name,
@@ -490,6 +492,7 @@ LIST *purchase_fixed_prepaid_asset_journal_ledger_refresh(
 				char *transaction_date_time,
 				LIST *fixed_asset_purchase_list,
 				LIST *prepaid_asset_purchase_list );
+*/
 
 LIST *purchase_specific_inventory_get_list(
 				char *application_name,
@@ -664,6 +667,10 @@ char *purchase_order_list_display(
 LIST *purchase_inventory_distinct_account_extract(
 				double *sum_debit_amount,
 				LIST *inventory_purchase_list );
+
+LIST *purchase_supply_distinct_account_extract(
+				double *sum_debit_amount,
+				LIST *supply_purchase_list );
 
 #endif
 

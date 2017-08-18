@@ -385,9 +385,11 @@ void customer_sale_list_inventory_transaction_update_and_propagate(
 				LIST *customer_sale_list,
 				char *propagate_transaction_date_time );
 
+/*
 void customer_sale_list_cost_of_goods_sold_set(
 				LIST *customer_sale_list,
 				LIST *inventory_list );
+*/
 
 LIST *customer_get_payment_list(
 				char *application_name,

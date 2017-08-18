@@ -384,7 +384,7 @@ void ledger_get_purchase_order_account_names(
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
-				char **inventory_account,
+				char **specific_inventory_account,
 				char **cost_of_goods_sold_account,
 				char *application_name,
 				char *fund_name );
@@ -403,9 +403,11 @@ void ledger_get_customer_sale_account_names(
 				char *application_name,
 				char *fund_name );
 
+/*
 char *ledger_get_supply_expense_key_account(
 				char *application_name,
 				char *fund_name );
+*/
 
 void ledger_insert_purchase_order_journal_ledger(
 					char *application_name,

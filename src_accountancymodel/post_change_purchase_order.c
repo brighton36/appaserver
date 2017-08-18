@@ -1062,6 +1062,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 				purchase_order->transaction_date_time,
 				PURCHASE_ORDER_MEMO );
 
+#ifdef NOT_DEFINED
 		ledger_transaction_insert(
 			application_name,
 			purchase_order->transaction->full_name,
@@ -1094,6 +1095,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
+#endif
 	}
 
 } /* post_change_purchase_order_changed_to_FOB_shipping() */
@@ -1273,6 +1275,7 @@ void post_change_purchase_order_new_transaction(
 			purchase_order->transaction_date_time,
 			PURCHASE_ORDER_MEMO );
 	
+#ifdef NOT_DEFINED
 	ledger_transaction_insert(
 		application_name,
 		purchase_order->transaction->full_name,
@@ -1304,6 +1307,7 @@ void post_change_purchase_order_new_transaction(
 	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
 		application_name );
+#endif
 
 } /* post_change_purchase_order_new_transaction() */
 

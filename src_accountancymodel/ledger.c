@@ -4243,6 +4243,8 @@ void ledger_get_purchase_order_account_names(
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
+				char **specific_inventory_account,
+				char **cost_of_goods_sold_account,
 				char *application_name,
 				char *fund_name )
 {
@@ -4279,6 +4281,17 @@ void ledger_get_purchase_order_account_names(
 				fund_name,
 				key,
 				0 /* not warning_only */ );
+	}
+
+	if ( specific_inventory_account )
+	{
+		key = "specific_inventory_key";
+		*specific_inventory_acccount =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				1 /* warning_only */ );
 	}
 
 } /* ledger_get_purchase_order_account_names() */
@@ -5626,6 +5639,7 @@ char *ledger_get_supply_expense_account(
 
 } /* ledger_get_supply_expense_account() */
 
+#ifdef NOT_DEFINED
 char *ledger_get_supply_expense_key_account(
 				char *application_name,
 				char *fund_name )
@@ -5644,6 +5658,7 @@ char *ledger_get_supply_expense_key_account(
 	return supply_expense_account;
 
 } /* ledger_get_supply_expense_key_account() */
+#endif
 
 LEDGER *ledger_new( void )
 {
@@ -7461,10 +7476,11 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
+	PURCHASE_SUPPLY *purchase_supply;
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
-	char *inventory_account = {0};
+	char *specific_inventory_account = {0};
 	char *cost_of_goods_sold_account = {0};
 	double sum_debit_amount = 0.0;
 
@@ -7474,7 +7490,7 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 				&sales_tax_expense_account,
 				&freight_in_expense_account,
 				&account_payable_account,
-				&inventory_account,
+				&specific_inventory_account,
 				&cost_of_goods_sold_account,
 				application_name,
 				fund_name );
@@ -7530,20 +7546,18 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 
 	transaction->journal_ledger_list = list_new();
 
-	journal_ledger =
-		journal_ledger_new(
-			full_name,
-			street_address,
-			transaction_date_time,
-			account_payable_account );
+	/* SUPPLY_PURCHASE */
+	/* --------------- */
+	if ( list_length( supply_purchase_list ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			purchase_supply_distinct_account_extract(
+				&sum_debit_amount,
+				supply_purchase_list );
+	}
 
-	journal_ledger->credit_amount = sum_debit_amount;
-
-	list_append_pointer(
-		transaction->journal_ledger_list,
-		journal_ledger );
-
-	transaction->transaction_amount = sum_debit_amount;
+	transaction->transaction_amount = purchase_amount;
 
 	return transaction;
 

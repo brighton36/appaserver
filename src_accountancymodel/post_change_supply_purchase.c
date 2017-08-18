@@ -191,8 +191,9 @@ void post_change_supply_purchase_update(
 			purchase_order->shipped_date,
 			purchase_order->database_shipped_date );
 
-	if ( !purchase_order->transaction ) return;
+	if ( !purchase_order->transaction_date_time ) return;
 
+#ifdef NOT_DEFINED
 	purchase_order->propagate_account_list =
 		purchase_order_journal_ledger_refresh(
 			application_name,
@@ -215,6 +216,7 @@ void post_change_supply_purchase_update(
 	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
 		application_name );
+#endif
 
 	supply_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -224,40 +226,28 @@ void post_change_supply_purchase_update(
 
 	if ( supply_name_change_state == from_something_to_something_else )
 	{
-		char *specific_supply_expense_account;
+		char *supply_expense_account;
 
-		if ( ( specific_supply_expense_account =
+		if ( ! ( supply_expense_account =
 				ledger_get_supply_expense_account(
 					application_name,
 					preupdate_supply_name ) )
-		&&    *specific_supply_expense_account )
 		{
-			ledger_propagate(
-				application_name,
-				purchase_order->
-					transaction->
-					transaction_date_time,
-				specific_supply_expense_account );
+			fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get supply_expense_account for (%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 preupdate_supply_name );
+			exit( 1 );
 		}
-		else
-		{
-			char *supply_expense_account = {0};
 
-			supply_expense_account =
-				ledger_get_supply_expense_key_account(
-					application_name,
-					(char *)0 /* fund_name */ );
-
-			if ( supply_expense_account )
-			{
-				ledger_propagate(
-					application_name,
-					purchase_order->
-						transaction->
-						transaction_date_time,
-					supply_expense_account );
-			}
-		}
+		ledger_propagate(
+			application_name,
+			purchase_order->
+				transaction->
+				transaction_date_time,
+			supply_expense_account );
 	}
 
 } /* post_change_supply_purchase_update() */
@@ -341,8 +331,9 @@ void post_change_supply_purchase_insert(
 			purchase_order->shipped_date,
 			purchase_order->database_shipped_date );
 
-	if ( !purchase_order->transaction ) return;
+	if ( !purchase_order->transaction_date_time ) return;
 
+#ifdef NOT_DEFINED
 	purchase_order->propagate_account_list =
 		purchase_order_journal_ledger_refresh(
 			application_name,
@@ -365,6 +356,7 @@ void post_change_supply_purchase_insert(
 	ledger_account_list_propagate(
 		purchase_order->propagate_account_list,
 		application_name );
+#endif
 
 } /* post_change_supply_purchase_insert() */
 
@@ -376,7 +368,7 @@ void post_change_supply_purchase_delete(
 			char *supply_name )
 {
 	PURCHASE_ORDER *purchase_order;
-	char *specific_supply_expense_account;
+	char *supply_expense_account;
 
 	purchase_order =
 		purchase_order_new(
@@ -433,8 +425,9 @@ void post_change_supply_purchase_delete(
 			purchase_order->shipped_date,
 			purchase_order->database_shipped_date );
 
-	if ( purchase_order->transaction )
+	if ( purchase_order->transaction_date_time )
 	{
+#ifdef NOT_DEFINED
 		purchase_order->propagate_account_list =
 			purchase_order_journal_ledger_refresh(
 				application_name,
@@ -458,36 +451,28 @@ void post_change_supply_purchase_delete(
 		ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
+#endif
 
-		if ( ( specific_supply_expense_account =
+		if ( ! ( specific_supply_expense_account =
 				ledger_get_supply_expense_account(
 					application_name,
 					supply_name ) )
-		&&    *specific_supply_expense_account )
 		{
-			ledger_propagate(
-				application_name,
-				purchase_order->
-					transaction->
-					transaction_date_time,
-				specific_supply_expense_account );
+			fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get supply_expense_account for (%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 preupdate_supply_name );
+			exit( 1 );
 		}
-		else
-		{
-			char *supply_expense_account;
 
-			supply_expense_account =
-				ledger_get_supply_expense_key_account(
-					application_name,
-					(char *)0 /* fund_name */ );
-
-			ledger_propagate(
-				application_name,
-				purchase_order->
-					transaction->
-					transaction_date_time,
-				supply_expense_account );
-		}
+		ledger_propagate(
+			application_name,
+			purchase_order->
+				transaction->
+				transaction_date_time,
+			specific_supply_expense_account );
 	}
 
 } /* post_change_supply_purchase_delete() */

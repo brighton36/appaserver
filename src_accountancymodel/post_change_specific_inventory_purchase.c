@@ -192,8 +192,9 @@ void post_change_specific_inventory_purchase_update(
 			purchase_order->shipped_date,
 			purchase_order->database_shipped_date );
 
-	if ( !purchase_order->transaction ) return;
+	if ( !purchase_order->transaction_date_time ) return;
 
+#ifdef NOT_DEFINED
 	purchase_order->propagate_account_list =
 		purchase_order_journal_ledger_refresh(
 			application_name,
@@ -216,6 +217,7 @@ void post_change_specific_inventory_purchase_update(
 	ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
+#endif
 
 } /* post_change_specific_inventory_purchase_update() */
 
@@ -280,8 +282,9 @@ void post_change_specific_inventory_purchase_insert(
 			purchase_order->shipped_date,
 			purchase_order->database_shipped_date );
 
-	if ( !purchase_order->transaction ) return;
+	if ( !purchase_order->transaction_date_time ) return;
 
+#ifdef NOT_DEFINED
 	purchase_order->propagate_account_list =
 		purchase_order_journal_ledger_refresh(
 			application_name,
@@ -304,6 +307,7 @@ void post_change_specific_inventory_purchase_insert(
 	ledger_account_list_propagate(
 			purchase_order->propagate_account_list,
 			application_name );
+#endif
 
 } /* post_change_specific_inventory_purchase_insert() */
 
@@ -412,8 +416,9 @@ void post_change_specific_inventory_purchase_delete(
 			purchase_order->shipped_date,
 			purchase_order->database_shipped_date );
 
-	if ( purchase_order->transaction )
+	if ( purchase_order->transaction_date_time )
 	{
+#ifdef NOT_DEFINED
 		LIST *inventory_account_name_list = {0};
 		char *sales_tax_expense_account = {0};
 		char *freight_in_expense_account = {0};
@@ -484,6 +489,7 @@ void post_change_specific_inventory_purchase_delete(
 				transaction->
 				transaction_date_time,
 			account_payable_account );
+#endif
 
 	}
 

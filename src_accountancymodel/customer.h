@@ -56,6 +56,7 @@ typedef struct
 	double database_extension;
 	double work_hours;
 	double database_work_hours;
+	char *account_name;
 	LIST *service_work_list;
 } HOURLY_SERVICE;
 
@@ -68,6 +69,7 @@ typedef struct
 	double database_extension;
 	double work_hours;
 	double database_work_hours;
+	char *account_name;
 	LIST *service_work_list;
 } FIXED_SERVICE;
 
@@ -291,6 +293,7 @@ LIST *customer_payment_get_list(char *application_name,
 CUSTOMER_PAYMENT *customer_payment_new(
 				char *payment_date_time );
 
+/*
 LIST *customer_sale_ledger_refresh(
 				char *application_name,
 				char *fund_name,
@@ -303,6 +306,7 @@ LIST *customer_sale_ledger_refresh(
 				double sales_tax,
 				double shipping_revenue,
 				double invoice_amount );
+*/
 
 LIST *customer_sale_ledger_cost_of_goods_sold_update(
 				char *application_name,
@@ -633,6 +637,12 @@ void customer_fixed_service_work_list_update(
 
 LIST *customer_sale_inventory_distinct_account_extract(
 					LIST *inventory_sale_list );
+
+LIST *customer_sale_fixed_service_distinct_account_extract(
+					LIST *fixed_service_sale_list );
+
+LIST *customer_sale_hourly_service_distinct_account_extract(
+					LIST *hourly_service_sale_list );
 
 #endif
 

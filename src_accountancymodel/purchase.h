@@ -285,6 +285,7 @@ char *purchase_order_get_update_sys_string(
 char *purchase_get_max_purchase_date_time(
 				char *application_name );
 
+#ifdef NOT_DEFINED
 /* Returns propagate_account_list */
 /* ------------------------------ */
 LIST *purchase_order_journal_ledger_refresh(
@@ -303,6 +304,7 @@ LIST *purchase_order_journal_ledger_refresh(
 				LIST *supply_purchase_list,
 				LIST *service_purchase_list,
 				LIST *purchase_asset_account_list );
+#endif
 
 char *purchase_get_arrived_purchase_date_time(
 				char *application_name,

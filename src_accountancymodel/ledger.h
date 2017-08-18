@@ -396,10 +396,11 @@ void ledger_get_account_payable_account_name(
 
 void ledger_get_customer_sale_account_names(
 				char **sales_revenue_account,
-				char **service_revenue_account,
 				char **sales_tax_payable_account,
 				char **shipping_revenue_account,
 				char **account_receivable_account,
+				char **specific_inventory_account,
+				char **cost_of_goods_sold_account,
 				char *application_name,
 				char *fund_name );
 
@@ -939,9 +940,9 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				char *transaction_date_time,
 				char *memo,
 				LIST *inventory_sale_list,
-				double sum_inventory_extension,
-				double sum_fixed_service_extension,
-				double sum_hourly_service_extension,
+				LIST *specific_inventory_sale_list,
+				LIST *fixed_service_sale_list,
+				LIST *hourly_service_sale_list,
 				double sales_tax,
 				double shipping_revenue,
 				double invoice_amount,

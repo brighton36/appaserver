@@ -331,7 +331,7 @@ LIST *customer_fixed_service_sale_get_list(
 	}
 
 	select =
-"fixed_service.service_name,retail_price,discount_amount,extension,work_hours,account";
+"fixed_service.service_name,fixed_service.retail_price,discount_amount,extension,work_hours,account";
 
 	folder = "fixed_service_sale,fixed_service";
 
@@ -454,7 +454,7 @@ LIST *customer_hourly_service_sale_get_list(
 	}
 
 	select =
-"hourly_service.service_name,description,hourly_rate,discount_amount,extension,work_hours,account";
+"hourly_service.service_name,description,hourly_service.hourly_rate,discount_amount,extension,work_hours,account";
 
 	folder = "hourly_service_sale,hourly_service";
 

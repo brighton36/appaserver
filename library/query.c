@@ -4601,14 +4601,19 @@ char *query_with_sort_multi_attribute_get_order_clause(
 		descending = 1;
 	}
 	else
-	if ( timlib_strncmp(
+	/* ------------------------------------ */
+	/* Allow attribute = sort_order,	*/
+	/* but trim prefix = sort_$attribute 	*/
+	/* ------------------------------------ */
+	if ( timlib_strcmp(	sort_multi_attribute,
+				"sort_order" ) != 0
+	&&   timlib_strncmp(
 			sort_multi_attribute,
 			FORM_SORT_LABEL ) == 0 )
 	{
 		strcpy(	sort_multi_attribute,
 			sort_multi_attribute +
 			strlen( FORM_SORT_LABEL ) );
-
 	}
 
 	return query_parse_multi_attribute_get_order_clause(
@@ -4630,6 +4635,7 @@ char *query_parse_multi_attribute_get_order_clause(
 	char sort_attribute[ 128 ];
 	char *descending_label;
 	int i = 0;
+
 
 	if ( descending )
 		descending_label = " desc";

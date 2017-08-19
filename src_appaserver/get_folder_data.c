@@ -206,7 +206,8 @@ output_starting_argv_stderr( argc, argv );
 
 	/* Set order by clause */
 	/* ------------------- */
-	if ( strcmp( order_clause, "select" ) == 0 )
+	if ( strcmp( order_clause, "select" ) == 0
+	||   strcmp( order_clause, "order" ) == 0 )
 	{
 		sprintf(order_by_clause, 
 		 	"order by %s",

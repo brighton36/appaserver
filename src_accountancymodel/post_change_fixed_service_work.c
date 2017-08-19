@@ -264,16 +264,21 @@ void post_change_fixed_service_work_insert(
 				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale->transaction->transaction_amount,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			customer_sale->transaction->journal_ledger_list );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 	}
 
 } /* post_change_fixed_service_work_insert() */
@@ -424,16 +429,21 @@ void post_change_fixed_service_work_update(
 				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale->transaction->transaction_amount,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			customer_sale->transaction->journal_ledger_list );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 	}
 
 	if ( execute_post_change_customer_sale )
@@ -548,16 +558,21 @@ void post_change_fixed_service_work_delete(
 				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale->transaction->transaction_amount,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			customer_sale->transaction->journal_ledger_list );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 	}
 
 } /* post_change_fixed_service_work_delete() */

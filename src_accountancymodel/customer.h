@@ -636,6 +636,7 @@ void customer_fixed_service_work_list_update(
 					char *service_name );
 
 LIST *customer_sale_inventory_distinct_account_extract(
+					double *sales_revenue_amount,
 					LIST *inventory_sale_list );
 
 LIST *customer_sale_fixed_service_distinct_account_extract(

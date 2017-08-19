@@ -33,6 +33,11 @@ then
 	subclassification_where="subclassification = 'inventory' or subclassification = 'cost_of_goods_sold'"
 fi
 
+if [ "$one2m_folder" = "fixed_service" -o "$one2m_folder" = "hourly_service" ]
+then
+	subclassification_where="subclassification = 'revenue'"
+fi
+
 if [ "${parameter_where}" != "" ]
 then
 	where="$subclassification_where and $parameter_where"

@@ -331,7 +331,7 @@ LIST *customer_fixed_service_sale_get_list(
 	}
 
 	select =
-"fixed_service.service_name,fixed_service.retail_price,discount_amount,extension,work_hours,account";
+"fixed_service.service_name,fixed_service_sale.retail_price,discount_amount,extension,work_hours,account";
 
 	folder = "fixed_service_sale,fixed_service";
 
@@ -454,7 +454,7 @@ LIST *customer_hourly_service_sale_get_list(
 	}
 
 	select =
-"hourly_service.service_name,description,hourly_service.hourly_rate,discount_amount,extension,work_hours,account";
+"hourly_service.service_name,description,hourly_service_sale.hourly_rate,discount_amount,extension,work_hours,account";
 
 	folder = "hourly_service_sale,hourly_service";
 
@@ -1104,6 +1104,8 @@ double customer_sale_get_invoice_amount(
 				char *street_address,
 				char *application_name )
 {
+	double invoice_amount;
+
 	*sum_inventory_extension =
 		customer_sale_get_sum_inventory_extension(
 			inventory_sale_list );
@@ -1132,9 +1134,16 @@ double customer_sale_get_invoice_amount(
 			full_name,
 			street_address );
 
-	return	*sum_extension +
+	*sales_tax = timlib_round_money( *sales_tax );
+
+	invoice_amount =
+		*sum_extension +
 		*sales_tax +
 		shipping_revenue;
+
+	/* invoice_amount = timlib_round_money( invoice_amount ); */
+
+	return invoice_amount;
 
 } /* customer_sale_get_invoice_amount() */
 
@@ -3648,6 +3657,7 @@ void customer_hourly_service_sale_list_update(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_inventory_distinct_account_extract(
+					double *sales_revenue_amount,
 					LIST *inventory_sale_list )
 {
 	INVENTORY_SALE *inventory_sale;
@@ -3705,6 +3715,8 @@ LIST *customer_sale_inventory_distinct_account_extract(
 
 		journal_ledger->credit_amount +=
 			inventory_sale->cost_of_goods_sold;
+
+		*sales_revenue_amount += inventory_sale->extension;
 
 	} while( list_next( inventory_sale_list ) );
 

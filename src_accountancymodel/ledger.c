@@ -6472,6 +6472,19 @@ LIST *ledger_get_inventory_account_name_list(
 
 } /* ledger_get_inventory_account_name_list() */
 
+LIST *ledger_get_service_account_name_list(
+			char *application_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "populate_account.sh %s hourly_service ''",
+		 application_name );
+
+	return pipe2list( sys_string );
+
+} /* ledger_get_service_account_name_list() */
+
 ACCOUNT *ledger_element_list_account_seek(
 			LIST *element_list,
 			char *account_name )
@@ -7270,7 +7283,8 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 	char *shipping_revenue_account = {0};
 	char *receivable_account = {0};
 	char *specific_inventory_account = {0};
-	char *cost_of_goods_sold_account ={0};
+	char *cost_of_goods_sold_account = {0};
+	double sales_revenue_amount = {0};
 
 	if ( !invoice_amount ) return (TRANSACTION *)0;
 
@@ -7302,6 +7316,7 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 		list_append_list(
 			transaction->journal_ledger_list,
 			customer_sale_inventory_distinct_account_extract(
+				&sales_revenue_amount,
 				inventory_sale_list ) );
 	}
 
@@ -7314,6 +7329,25 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				list_get_pointer(
 					specific_inventory_sale_list );
 
+			/* Debit cost_of_goods_sold */
+			/* ------------------------ */
+			journal_ledger =
+				journal_ledger_new(
+					full_name,
+					street_address,
+					transaction_date_time,
+					cost_of_goods_sold_account );
+
+			journal_ledger->debit_amount =
+				specific_inventory_sale->
+					cost_of_goods_sold;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+			/* Credit specific_inventory */
+			/* ------------------------- */
 			journal_ledger =
 				journal_ledger_new(
 					full_name,
@@ -7322,11 +7356,16 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 					specific_inventory_account );
 
 			journal_ledger->credit_amount =
-				specific_inventory_sale->cost_of_goods_sold;
+				specific_inventory_sale->
+					cost_of_goods_sold;
 
 			list_append_pointer(
 				transaction->journal_ledger_list,
 				journal_ledger );
+
+			sales_revenue_amount +=
+				specific_inventory_sale->
+					extension;
 
 		} while( list_next( specific_inventory_sale_list ) );
 	}
@@ -7377,6 +7416,8 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 		list_append_pointer(
 			transaction->journal_ledger_list,
 			journal_ledger );
+
+		sales_revenue_amount += shipping_revenue;
 	}
 
 	/* sales_tax */
@@ -7419,6 +7460,24 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				receivable_account );
 
 		journal_ledger->debit_amount = invoice_amount;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* sales_revenue */
+	/* ------------- */
+	if ( sales_revenue_amount )
+	{
+		journal_ledger =
+			journal_ledger_new(
+				full_name,
+				street_address,
+				transaction_date_time,
+				sales_revenue_account );
+
+		journal_ledger->credit_amount = sales_revenue_amount;
 
 		list_append_pointer(
 			transaction->journal_ledger_list,
@@ -7728,10 +7787,44 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 
 	/* sales_tax */
 	/* --------- */
+	if ( sales_tax )
+	{
+		journal_ledger =
+			journal_ledger_new(
+				full_name,
+				street_address,
+				transaction_date_time,
+				sales_tax_expense_account );
+
+		journal_ledger->debit_amount = sales_tax;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		sum_debit_amount += sales_tax;
+	}
 
 
 	/* freight_in */
 	/* ---------- */
+	if ( freight_in )
+	{
+		journal_ledger =
+			journal_ledger_new(
+				full_name,
+				street_address,
+				transaction_date_time,
+				freight_in_expense_account );
+
+		journal_ledger->debit_amount = freight_in;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		sum_debit_amount += freight_in;
+	}
 
 	/* account_payable */
 	/* --------------- */

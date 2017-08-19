@@ -805,6 +805,9 @@ boolean ledger_journal_ledger_list_amount_update(
 LIST *ledger_get_inventory_account_name_list(
 				char *application_name );
 
+LIST *ledger_get_service_account_name_list(
+				char *application_name );
+
 ACCOUNT *ledger_element_list_account_seek(
 				LIST *element_list,
 				char *account_name );

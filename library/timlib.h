@@ -193,6 +193,7 @@ boolean double_virtually_same( 		double d1, double d2 );
 boolean dollar_virtually_same( 		double d1, double d2 );
 boolean timlib_double_virtually_same( 	double d1, double d2 );
 boolean timlib_dollar_virtually_same( 	double d1, double d2 );
+double timlib_round_money(		double d );
 double round_double(			double d );
 double ceiling( 			double d );
 double floor(				double d );

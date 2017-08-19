@@ -279,7 +279,7 @@ void entity_propagate_customer_sale_ledger_accounts(
 	char *receivable_account = {0};
 	char *specific_inventory_account = {0};
 	char *cost_of_goods_sold_account = {0};
-	LIST *inventory_account_name_list;
+	LIST *account_name_list;
 
 	ledger_get_customer_sale_account_names(
 		&sales_revenue_account,
@@ -323,16 +323,40 @@ void entity_propagate_customer_sale_ledger_accounts(
 			receivable_account );
 	}
 
-	inventory_account_name_list =
+	if ( specific_inventory_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			specific_inventory_account );
+	}
+
+	/* Propagate INVENTORY accounts */
+	/* ---------------------------- */
+	account_name_list =
 		ledger_get_inventory_account_name_list(
 			application_name );
 
-	if ( list_length( inventory_account_name_list ) )
+	if ( list_length( account_name_list ) )
 	{
 		ledger_propagate_account_name_list(
 			application_name,
 			customer_sale_transaction_date_time,
-			inventory_account_name_list );
+			account_name_list );
+	}
+
+	/* Propagate HOURLY_SERVICE and FIXED_SERVICE accounts */
+	/* --------------------------------------------------- */
+	account_name_list =
+		ledger_get_service_account_name_list(
+			application_name );
+
+	if ( list_length( account_name_list ) )
+	{
+		ledger_propagate_account_name_list(
+			application_name,
+			customer_sale_transaction_date_time,
+			account_name_list );
 	}
 
 } /* entity_propagate_customer_sale_ledger_accounts() */

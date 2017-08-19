@@ -296,16 +296,21 @@ void post_change_inventory_sale_insert(
 				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale->transaction->transaction_amount,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			customer_sale->transaction->journal_ledger_list );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 	}
 
 } /* post_change_inventory_sale_insert() */
@@ -431,22 +436,6 @@ void post_change_inventory_sale_quantity_update(
 			inventory_sale->quantity,
 			inventory_sale->discount_amount );
 
-	if ( customer_sale->completed_date_time )
-	{
-		sprintf( sys_string,
-"propagate_inventory_sale_layers %s \"%s\" \"%s\" \"%s\" \"%s\" '' %c",
-			 application_name,
-			 customer_sale->full_name,
-			 customer_sale->street_address,
-			 customer_sale->sale_date_time,
-			 inventory_name,
-			 'n' );
-
-		inventory_sale->cost_of_goods_sold =
-			atof( pipe2string( sys_string ) );
-
-	} /* if completed_date_time */
-
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->
@@ -518,17 +507,38 @@ void post_change_inventory_sale_quantity_update(
 				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale->transaction->transaction_amount,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			customer_sale->transaction->journal_ledger_list );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 	}
+
+	if ( customer_sale->completed_date_time )
+	{
+		sprintf( sys_string,
+"propagate_inventory_sale_layers %s \"%s\" \"%s\" \"%s\" \"%s\" '' %c",
+			 application_name,
+			 customer_sale->full_name,
+			 customer_sale->street_address,
+			 customer_sale->sale_date_time,
+			 inventory_name,
+			 'n' );
+
+		inventory_sale->cost_of_goods_sold =
+			atof( pipe2string( sys_string ) );
+
+	} /* if completed_date_time */
 
 } /* post_change_inventory_sale_quantity_update() */
 
@@ -628,16 +638,21 @@ void post_change_inventory_sale_retail_price_update(
 				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale->transaction->transaction_amount,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			customer_sale->transaction->journal_ledger_list );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 	}
 
 } /* post_change_inventory_sale_retail_price_update() */
@@ -738,16 +753,21 @@ void post_change_inventory_sale_discount_amount_update(
 				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale->transaction->transaction_amount,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			customer_sale->transaction->journal_ledger_list );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 	}
 
 } /* post_change_inventory_sale_discount_amount_update() */

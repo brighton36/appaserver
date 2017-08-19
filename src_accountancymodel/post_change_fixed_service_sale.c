@@ -261,16 +261,21 @@ void post_change_fixed_service_sale_insert_update(
 				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale->transaction->transaction_amount,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			customer_sale->transaction->journal_ledger_list );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 	}
 
 } /* post_change_fixed_service_sale_insert_update() */
@@ -343,16 +348,21 @@ void post_change_fixed_service_sale_delete(
 				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale->transaction->transaction_amount,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			customer_sale->transaction->journal_ledger_list );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 	}
 
 } /* post_change_fixed_service_sale_delete() */

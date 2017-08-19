@@ -2115,7 +2115,7 @@ double timlib_round_money( double d )
 
 	if ( timlib_double_virtually_same( d, 0.0 ) ) return 0.0;
 
-	sprintf( string, "%.2lf", d + 0.005 );
+	sprintf( string, "%.2lf", d );
 	return atof( string );
 
 } /* timlib_round_money() */

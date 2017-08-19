@@ -2113,6 +2113,8 @@ double timlib_round_money( double d )
 {
 	char string[ 32 ];
 
+	if ( timlib_double_virtually_same( d, 0.0 ) ) return 0.0;
+
 	sprintf( string, "%.2lf", d + 0.005 );
 	return atof( string );
 

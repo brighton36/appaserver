@@ -5066,10 +5066,11 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 	else
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: both debit_amount and credit_amount are zero.\n",
+"ERROR in %s/%s()/%d: both debit_amount and credit_amount are zero for account = (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__ );
+			 __LINE__,
+			 account_name );
 
 		pclose( update_pipe );
 		exit( 1 );

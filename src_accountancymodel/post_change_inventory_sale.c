@@ -436,6 +436,10 @@ void post_change_inventory_sale_quantity_update(
 			inventory_sale->quantity,
 			inventory_sale->discount_amount );
 
+	inventory_sale_list_update(
+		customer_sale->inventory_sale_list,
+		application_name );
+
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->
@@ -457,10 +461,10 @@ void post_change_inventory_sale_quantity_update(
 			customer_sale->street_address,
 			application_name );
 
-		customer_sale->amount_due =
-			customer_sale->invoice_amount -
-			customer_sale->total_payment
-				/* set in customer_sale_new() */;
+	customer_sale->amount_due =
+		CUSTOMER_GET_AMOUNT_DUE(
+			customer_sale->invoice_amount,
+			customer_sale->total_payment );
 
 	customer_sale_update(
 		customer_sale->sum_extension,
@@ -487,6 +491,22 @@ void post_change_inventory_sale_quantity_update(
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
 		application_name );
+
+	if ( customer_sale->completed_date_time )
+	{
+		sprintf( sys_string,
+"propagate_inventory_sale_layers %s \"%s\" \"%s\" \"%s\" \"%s\" '' %c",
+			 application_name,
+			 customer_sale->full_name,
+			 customer_sale->street_address,
+			 customer_sale->sale_date_time,
+			 inventory_name,
+			 'n' );
+
+		inventory_sale->cost_of_goods_sold =
+			atof( pipe2string( sys_string ) );
+
+	} /* if completed_date_time */
 
 	if ( customer_sale->transaction_date_time )
 	{
@@ -523,22 +543,6 @@ void post_change_inventory_sale_quantity_update(
 					journal_ledger_list );
 		}
 	}
-
-	if ( customer_sale->completed_date_time )
-	{
-		sprintf( sys_string,
-"propagate_inventory_sale_layers %s \"%s\" \"%s\" \"%s\" \"%s\" '' %c",
-			 application_name,
-			 customer_sale->full_name,
-			 customer_sale->street_address,
-			 customer_sale->sale_date_time,
-			 inventory_name,
-			 'n' );
-
-		inventory_sale->cost_of_goods_sold =
-			atof( pipe2string( sys_string ) );
-
-	} /* if completed_date_time */
 
 } /* post_change_inventory_sale_quantity_update() */
 

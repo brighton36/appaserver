@@ -294,7 +294,6 @@ void propagate_inventory_sale_layers_not_latest(
 		inventory->inventory_sale_list,
 		inventory->inventory_name );
 
-#ifdef NOT_DEFINED
 	/* ------------------------------------------------------------ */
 	/* Set customer_sale->inventory_cost->cost_of_goods_sold =	*/
 	/* sum(inventory_sale)						*/
@@ -302,7 +301,6 @@ void propagate_inventory_sale_layers_not_latest(
 	customer_sale_list_cost_of_goods_sold_set(
 		customer_sale_list,
 		inventory_list );
-#endif
 
 	customer_sale_list_cost_of_goods_sold_transaction_update(
 		application_name,

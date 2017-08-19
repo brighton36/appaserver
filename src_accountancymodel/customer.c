@@ -1141,8 +1141,6 @@ double customer_sale_get_invoice_amount(
 		*sales_tax +
 		shipping_revenue;
 
-	/* invoice_amount = timlib_round_money( invoice_amount ); */
-
 	return invoice_amount;
 
 } /* customer_sale_get_invoice_amount() */
@@ -2303,7 +2301,6 @@ void customer_sale_list_cost_of_goods_sold_transaction_update(
 
 } /* customer_sale_list_cost_of_goods_sold_transaction_update() */
 
-#ifdef NOT_DEFINED
 void customer_sale_list_cost_of_goods_sold_set(
 			LIST *customer_sale_list,
 			LIST *inventory_list )
@@ -2325,7 +2322,6 @@ void customer_sale_list_cost_of_goods_sold_set(
 	} while( list_next( customer_sale_list ) );
 
 } /* customer_sale_list_cost_of_goods_sold_set() */
-#endif
 
 CUSTOMER_PAYMENT *customer_payment_new(
 				char *payment_date_time )

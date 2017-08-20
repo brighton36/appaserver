@@ -7883,6 +7883,10 @@ TRANSACTION *ledger_sales_tax_payable_build_transaction(
 
 	journal_ledger->debit_amount = sales_tax;
 
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
 	/* Credit sales_tax_payable */
 	/* ------------------------ */
 	journal_ledger =

@@ -12,6 +12,7 @@
 #include "boolean.h"
 #include "hash_table.h"
 #include "inventory.h"
+#include "ledger.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -130,6 +131,9 @@ enum title_passage_rule
 
 char *entity_get_title_passage_rule_string(
 				enum title_passage_rule title_passage_rule );
+
+ENTITY *entity_get_sales_tax_payable_entity(
+				char *application_name );
 
 #endif
 

@@ -556,3 +556,37 @@ LIST *entity_get_inventory_list(
 
 } /* entity_get_inventory_list() */
 
+ENTITY *entity_get_sales_tax_payable_entity(
+				char *application_name )
+{
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+	char *results;
+
+	select = "full_name,street_address";
+
+	folder = "sales_tax_payable_entity";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=%s		",
+		 application_name,
+		 select,
+		 folder );
+
+	results = pipe2string( sys_string );
+
+	if ( !results ) return (ENTITY *)0;
+
+	piece( full_name, FOLDER_DATA_DELIMITER, results, 0 );
+	piece( street_address, FOLDER_DATA_DELIMITER, results, 1 );
+
+	return entity_new(	strdup( full_name ),
+				strdup( street_address ) );
+
+} /* entity_get_sales_tax_payable_entity() */
+

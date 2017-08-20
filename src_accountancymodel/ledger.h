@@ -937,7 +937,6 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				LIST *specific_inventory_sale_list,
 				LIST *fixed_service_sale_list,
 				LIST *hourly_service_sale_list,
-				double sales_tax,
 				double shipping_revenue,
 				double invoice_amount,
 				char *fund_name );
@@ -972,6 +971,15 @@ TRANSACTION *ledger_inventory_build_transaction(
 				char *transaction_date_time,
 				char *memo,
 				LIST *inventory_purchase_list,
+				char *fund_name );
+
+TRANSACTION *ledger_sales_tax_payable_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				double sales_tax,
 				char *fund_name );
 
 #endif

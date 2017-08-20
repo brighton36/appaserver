@@ -20,6 +20,7 @@
 /* --------- */
 #define CUSTOMER_SALE_MEMO		"Customer Sale"
 #define CUSTOMER_PAYMENT_MEMO		"Customer Payment"
+#define SALES_TAX_PAYABLE_MEMO		"Sales Tax Collection"
 
 #define CUSTOMER_GET_AMOUNT_DUE( invoice_amount, total_payment )	\
 				( invoice_amount - total_payment )

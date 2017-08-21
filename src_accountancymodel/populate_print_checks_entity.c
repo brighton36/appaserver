@@ -13,12 +13,10 @@
 #include "timlib.h"
 #include "piece.h"
 #include "list.h"
-#include "date.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "application.h"
 #include "environ.h"
-#include "ledger.h"
+#include "entity.h"
 
 /* Constants */
 /* --------- */
@@ -139,6 +137,25 @@ void populate_print_checks_taxes(
 	char sys_string[ 1024 ];
 	char input_buffer[ 512 ];
 	FILE *input_pipe;
+	ENTITY *entity;
+	char tax_payable_entity[ 512 ];
+
+	if ( ! ( entity =
+			entity_get_sales_tax_payable_entity(
+				application_name ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(tax_payable_entity,
+		"%s^%s",
+		entity->full_name,
+		entity->street_address );
 
 	sprintf( sys_string,
 		 "populate_print_checks_entity.sh %s \"%s\" taxes",
@@ -149,6 +166,7 @@ void populate_print_checks_taxes(
 
 	while( timlib_get_line( input_buffer, input_pipe, 512 ) )
 	{
+		replace_piece( input_buffer, '[', tax_payable_entity, 0 );
 		fprintf( output_pipe, "%s\n", input_buffer );
 	}
 

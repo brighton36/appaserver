@@ -21,7 +21,9 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
-				double dialog_box_check_amount )
+				double dialog_box_check_amount,
+				char *sales_tax_payable_full_name,
+				char *sales_tax_payable_street_address )
 {
 	PRINT_CHECKS *p;
 
@@ -49,7 +51,9 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 			street_address_list,
 			starting_check_number,
 			p->current_liability_account_list,
-			p->dialog_box_check_amount );
+			p->dialog_box_check_amount,
+			sales_tax_payable_full_name,
+			sales_tax_payable_street_address );
 
 	return p;
 
@@ -169,7 +173,9 @@ LIST *print_checks_get_entity_check_amount_list(
 			LIST *street_address_list,
 			int starting_check_number,
 			LIST *current_liability_account_list,
-			double dialog_box_check_amount )
+			double dialog_box_check_amount,
+			char *sales_tax_payable_full_name,
+			char *sales_tax_payable_street_address )
 {
 	char *full_name;
 	char *street_address;
@@ -192,22 +198,11 @@ LIST *print_checks_get_entity_check_amount_list(
 				full_name,
 				street_address,
 				current_liability_account_list,
-				dialog_box_check_amount );
+				dialog_box_check_amount,
+				sales_tax_payable_full_name,
+				sales_tax_payable_street_address );
 
-		if ( !entity_check_amount )
-		{
-			continue;
-/*
-			fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot get entity_check_amount for (%s/%s)\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 full_name,
-				 street_address );
-			exit( 1 );
-*/
-		}
+		if ( !entity_check_amount ) continue;
 
 		entity_check_amount->check_number = starting_check_number++;
 
@@ -229,10 +224,12 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 					char *full_name,
 					char *street_address,
 					LIST *current_liability_account_list,
-					double dialog_box_check_amount )
+					double dialog_box_check_amount,
+					char *sales_tax_payable_full_name,
+					char *sales_tax_payable_street_address )
 {
 	char sys_string[ 128 ];
-	char *results;
+	char *entity_record;
 	char input_full_name[ 128 ];
 	char input_street_address_balance[ 256 ];
 	char input_street_address[ 128 ];
@@ -244,7 +241,7 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 	if ( !entity_record_list )
 	{
 		sprintf( sys_string,
-	 		"populate_print_checks_entity.sh %s '%s'",
+	 		"populate_print_checks_entity %s '%s'",
 	 		application_name,
 			fund_name );
 
@@ -255,30 +252,30 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 		return (ENTITY_CHECK_AMOUNT *)0;
 
 	do {
-		results = list_get_pointer( entity_record_list );
+		entity_record = list_get_pointer( entity_record_list );
 
 		if ( character_count(
 			FOLDER_DATA_DELIMITER,
-			results ) != 1 )
+			entity_record ) != 1 )
 		{
 			fprintf( stderr,
 			"ERROR in %s/%s()/%d: not one delimiter in (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
-				 results );
+				 entity_record );
 
 			exit( 1 );
 		}
 
 		piece(	input_full_name,
 			FOLDER_DATA_DELIMITER,
-			results,
+			entity_record,
 			0 );
 
 		piece(	input_street_address_balance,
 			FOLDER_DATA_DELIMITER,
-			results,
+			entity_record,
 			1 );
 
 		piece(	input_street_address,
@@ -306,6 +303,22 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 					? dialog_box_check_amount
 					: entity_check_amount->
 						sum_credit_amount_check_amount;
+
+			if ( timlib_strcmp(
+				full_name,
+				sales_tax_payable_full_name ) == 0
+			&&   timlib_strcmp(
+				street_address,
+				sales_tax_payable_street_address ) == 0 )
+			{
+				print_checks_set_sales_tax_payable(
+					entity_check_amount,
+					application_name,
+					fund_name,
+					check_amount );
+
+				return entity_check_amount;
+			}
 
 			entity_check_amount->purchase_order_list =
 				print_checks_fetch_purchase_order_list(
@@ -430,6 +443,46 @@ LIST *print_checks_fetch_purchase_order_list(
 	return purchase_order_list;
 
 } /* print_checks_fetch_purchase_order_list() */
+
+void print_checks_set_sales_tax_payable(
+				ENTITY_CHECK_AMOUNT *entity_check_amount,
+				char *application_name,
+				char *fund_name,
+				double check_amount )
+{
+	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+	char *payable_account;
+
+	payable_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			"sales_tax_payable_key",
+			0 /* not warning_only */ );
+
+	entity_check_amount->loss_amount =
+		check_amount -
+		entity_check_amount->sum_credit_amount_check_amount;
+
+	entity_account_debit =
+		print_checks_entity_account_debit_new(
+			payable_account );
+
+	entity_account_debit->debit_amount =
+		entity_check_amount->
+			sum_credit_amount_check_amount;
+
+	if ( !entity_check_amount->entity_account_debit_list )
+	{
+		entity_check_amount->entity_account_debit_list =
+			list_new();
+	}
+
+	list_append_pointer(	entity_check_amount->
+					entity_account_debit_list,
+				entity_account_debit );
+
+} /* print_checks_set_sales_tax_payable() */
 
 LIST *print_checks_get_entity_account_debit_list(
 				double *remaining_check_amount,
@@ -808,16 +861,13 @@ char *print_checks_entity_check_amount_list_display(
 				"street_address = %s;"
 				"sum_credit_amount_check_amount = %.2lf;"
 				"check_number = %d;"
-				"loss_amount = %.2lf;"
-				"transaction_date_time = %s\n",
+				"loss_amount = %.2lf\n",
 				entity_check_amount->full_name,
 				entity_check_amount->street_address,
 				entity_check_amount->
 					sum_credit_amount_check_amount,
 				entity_check_amount->check_number,
-				entity_check_amount->loss_amount,
-				entity_check_amount->
-					transaction_date_time );
+				entity_check_amount->loss_amount );
 
 			ptr += sprintf(
 				ptr,

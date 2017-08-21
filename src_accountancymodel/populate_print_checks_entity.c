@@ -17,6 +17,7 @@
 #include "appaserver_error.h"
 #include "environ.h"
 #include "entity.h"
+#include "ledger.h"
 
 /* Constants */
 /* --------- */
@@ -24,7 +25,7 @@
 /* Prototypes */
 /* ---------- */
 double get_sales_tax_payable_amount(
-				void );
+				char *application_name );
 
 void populate_print_checks_not_taxes(
 				FILE *output_pipe,
@@ -94,7 +95,7 @@ void populate_print_checks_entity(
 				application_name ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
+		"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -114,7 +115,8 @@ void populate_print_checks_entity(
 			fund_name );
 
 	sales_tax_payable_amount =
-		get_sales_tax_payable_amount();
+		get_sales_tax_payable_amount(
+			application_name );
 
 	if ( sales_tax_payable_amount )
 	{
@@ -153,32 +155,20 @@ void populate_print_checks_not_taxes(
 
 } /* populate_print_checks_not_taxes() */
 
-double get_sales_tax_payable_amount( void )
+double get_sales_tax_payable_amount( char *application_name )
 {
-	char sys_string[ 1024 ];
-	char *select;
-	double debit_amount;
-	double credit_amount;
+	JOURNAL_LEDGER *latest_journal_ledger;
 
-	select =
-"select sum( credit_amount ) from journal_ledger where account = 'sales_tax_payable' and credit_amount is not null;";
+	if ( ! ( latest_journal_ledger =
+			ledger_get_latest_ledger(
+				application_name,
+				"sales_tax_payable",
+				(char *)0 /* as_of_date */ ) ) )
+	{
+		return 0.0;
+	}
 
-	sprintf( sys_string,
-		 "echo \"%s\" | sql.e",
-		 select  );
-
-	credit_amount = atof( pipe2string( sys_string ) );
-
-	select =
-"select sum( debit_amount ) from journal_ledger where account = 'sales_tax_payable' and debit_amount is not null;";
-
-	sprintf( sys_string,
-		 "echo \"%s\" | sql.e",
-		 select  );
-
-	debit_amount = atof( pipe2string( sys_string ) );
-
-	return credit_amount - debit_amount;
+	return latest_journal_ledger->balance;
 
 } /* get_sales_tax_payable_amount() */
 

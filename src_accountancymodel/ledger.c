@@ -7846,20 +7846,23 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 
 	/* account_receivable */
 	/* ------------------ */
-	journal_ledger =
-		journal_ledger_new(
-			transaction->full_name,
-			transaction->street_address,
-			transaction_date_time,
-			receivable_account );
+	if ( invoice_amount )
+	{
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				receivable_account );
 
-	journal_ledger->debit_amount = invoice_amount;
+		journal_ledger->debit_amount = invoice_amount;
 
-	list_append_pointer(
-		transaction->journal_ledger_list,
-		journal_ledger );
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
 
-	transaction->transaction_amount = invoice_amount;
+		transaction->transaction_amount = invoice_amount;
+	}
 
 	return transaction;
 

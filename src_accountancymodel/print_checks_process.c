@@ -436,14 +436,6 @@ void print_checks_post(
 			starting_check_number,
 			check_amount /* dialog_box_check_amount */ );
 
-/*
-fprintf( stderr, "%s/%s()/%d: print_checks: %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-print_checks_display( print_checks ) );
-*/
-
 	if ( print_checks_insert_entity_check_amount_list(
 		application_name,
 		fund_name,
@@ -474,7 +466,7 @@ double print_checks_get_balance(
 	if ( !entity_list )
 	{
 		sprintf( sys_string,
-		 	"populate_print_checks_entity.sh %s '%s'",
+		 	"populate_print_checks_entity %s '%s'",
 		 	application_name,
 			fund_name );
 

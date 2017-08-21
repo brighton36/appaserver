@@ -23,10 +23,8 @@
 
 /* Prototypes */
 /* ---------- */
-void populate_print_checks_taxes(
-				FILE *output_pipe,
-				char *application_name,
-				char *fund_name );
+double get_sales_tax_payable_amount(
+				void );
 
 void populate_print_checks_not_taxes(
 				FILE *output_pipe,
@@ -87,6 +85,26 @@ void populate_print_checks_entity(
 				char *fund_name )
 {
 	FILE *output_pipe;
+	ENTITY *entity;
+	char tax_payable_entity[ 512 ];
+	double sales_tax_payable_amount;
+
+	if ( ! ( entity =
+			entity_get_sales_tax_payable_entity(
+				application_name ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(tax_payable_entity,
+		"%s^%s",
+		entity->full_name,
+		entity->street_address );
 
 	output_pipe = popen( "sort", "w" );
 
@@ -95,10 +113,16 @@ void populate_print_checks_entity(
 			application_name,
 			fund_name );
 
-	populate_print_checks_taxes(
-			output_pipe,
-			application_name,
-			fund_name );
+	sales_tax_payable_amount =
+		get_sales_tax_payable_amount();
+
+	if ( sales_tax_payable_amount )
+	{
+		fprintf(output_pipe,
+			"%s [%.2lf]\n",
+			tax_payable_entity,
+			sales_tax_payable_amount );
+	}
 
 	pclose( output_pipe );
 
@@ -129,48 +153,32 @@ void populate_print_checks_not_taxes(
 
 } /* populate_print_checks_not_taxes() */
 
-void populate_print_checks_taxes(
-				FILE *output_pipe,
-				char *application_name,
-				char *fund_name )
+double get_sales_tax_payable_amount( void )
 {
 	char sys_string[ 1024 ];
-	char input_buffer[ 512 ];
-	FILE *input_pipe;
-	ENTITY *entity;
-	char tax_payable_entity[ 512 ];
+	char *select;
+	double debit_amount;
+	double credit_amount;
 
-	if ( ! ( entity =
-			entity_get_sales_tax_payable_entity(
-				application_name ) ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(tax_payable_entity,
-		"%s^%s",
-		entity->full_name,
-		entity->street_address );
+	select =
+"select sum( credit_amount ) from journal_ledger where account = 'sales_tax_payable' and credit_amount is not null;";
 
 	sprintf( sys_string,
-		 "populate_print_checks_entity.sh %s \"%s\" taxes",
-		 application_name,
-		 fund_name );
+		 "echo \"%s\" | sql.e",
+		 select  );
 
-	input_pipe = popen( sys_string, "r" );
+	credit_amount = atof( pipe2string( sys_string ) );
 
-	while( timlib_get_line( input_buffer, input_pipe, 512 ) )
-	{
-		replace_piece( input_buffer, '[', tax_payable_entity, 0 );
-		fprintf( output_pipe, "%s\n", input_buffer );
-	}
+	select =
+"select sum( debit_amount ) from journal_ledger where account = 'sales_tax_payable' and debit_amount is not null;";
 
-	pclose( input_pipe );
+	sprintf( sys_string,
+		 "echo \"%s\" | sql.e",
+		 select  );
 
-} /* populate_print_checks_taxes() */
+	debit_amount = atof( pipe2string( sys_string ) );
+
+	return credit_amount - debit_amount;
+
+} /* get_sales_tax_payable_amount() */
 

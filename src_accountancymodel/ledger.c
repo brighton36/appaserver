@@ -7627,105 +7627,6 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 
 } /* ledger_purchase_order_build_transaction() */
 
-TRANSACTION *ledger_sales_tax_payable_build_transaction(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *memo,
-				double sales_tax,
-				char *fund_name )
-{
-	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
-	char *sales_revenue_account = {0};
-	char *sales_tax_payable_account = {0};
-	char *shipping_revenue_account = {0};
-	char *receivable_account = {0};
-	char *specific_inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
-
-	if ( !full_name )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty full_name.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	/* Exits if sales_revenue_account is not found. */
-	/* -------------------------------------------- */
-	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
-		&sales_tax_payable_account,
-		&shipping_revenue_account,
-		&receivable_account,
-		&specific_inventory_account,
-		&cost_of_goods_sold_account,
-		application_name,
-		fund_name );
-
-	if ( !sales_tax_payable_account )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: sales_tax exists without sales_tax_payable_account set.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	transaction =
-		ledger_transaction_new(
-			full_name,
-			street_address,
-			transaction_date_time,
-			memo );
-
-	/* If deleting */
-	/* ----------- */
-	if ( !sales_tax ) return transaction;
-
-	transaction->journal_ledger_list = list_new();
-
-	/* Debit receivable_account */
-	/* ------------------------ */
-	journal_ledger =
-		journal_ledger_new(
-			transaction->full_name,
-			transaction->street_address,
-			transaction_date_time,
-			receivable_account );
-
-	journal_ledger->debit_amount = sales_tax;
-
-	list_append_pointer(
-		transaction->journal_ledger_list,
-		journal_ledger );
-
-	/* Credit sales_tax_payable */
-	/* ------------------------ */
-	journal_ledger =
-		journal_ledger_new(
-			transaction->full_name,
-			transaction->street_address,
-			transaction_date_time,
-			sales_tax_payable_account );
-
-	journal_ledger->credit_amount = sales_tax;
-
-	list_append_pointer(
-		transaction->journal_ledger_list,
-		journal_ledger );
-
-	transaction->transaction_amount = sales_tax;
-
-	return transaction;
-
-} /* ledger_sales_tax_payable_build_transaction() */
-
 TRANSACTION *ledger_customer_sale_build_transaction(
 				char *application_name,
 				char *full_name,
@@ -7737,6 +7638,8 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				LIST *fixed_service_sale_list,
 				LIST *hourly_service_sale_list,
 				double shipping_revenue,
+				double sales_tax,
+				double invoice_amount,
 				char *fund_name )
 {
 	TRANSACTION *transaction;
@@ -7750,7 +7653,6 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 	char *cost_of_goods_sold_account = {0};
 	double sales_revenue_amount = {0};
 	double service_revenue_amount = {0};
-	double account_receivable_amount = {0};
 
 	if ( !full_name )
 	{
@@ -7914,29 +7816,50 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 			journal_ledger );
 	}
 
-	account_receivable_amount =
-		sales_revenue_amount +
-		service_revenue_amount;
-
-	/* account_receivable */
-	/* ------------------ */
-	if ( account_receivable_amount )
+	/* sales_tax */
+	/* --------- */
+	if ( sales_tax )
 	{
+		if ( !sales_tax_payable_account )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: sales_tax exists without sales_tax_payable_account set.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
 		journal_ledger =
 			journal_ledger_new(
 				transaction->full_name,
 				transaction->street_address,
 				transaction_date_time,
-				receivable_account );
+				sales_tax_payable_account );
 
-		journal_ledger->debit_amount = account_receivable_amount;
+		journal_ledger->credit_amount = sales_tax;
 
 		list_append_pointer(
 			transaction->journal_ledger_list,
 			journal_ledger );
 	}
 
-	transaction->transaction_amount = account_receivable_amount;
+	/* account_receivable */
+	/* ------------------ */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction_date_time,
+			receivable_account );
+
+	journal_ledger->debit_amount = invoice_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	transaction->transaction_amount = invoice_amount;
 
 	return transaction;
 

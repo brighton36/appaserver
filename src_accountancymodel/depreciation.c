@@ -109,8 +109,8 @@ boolean depreciation_date_exists(
 			char *depreciation_date )
 {
 	char sys_string[ 1024 ];
-	char *fund_where;
 	char where[ 512 ];
+	char *fund_where;
 	char *folder;
 	char *results;
 
@@ -133,10 +133,11 @@ boolean depreciation_date_exists(
 	}
 */
 
-	ledger_get_fund_where(
-		application_name,
-		"purchase_order",
-		fund_name );
+	fund_where =
+		ledger_get_fund_where(
+			application_name,
+			"purchase_order",
+			fund_name );
 
 	sprintf( where,
 "depreciation.full_name = purchase_order.full_name and depreciation.street_address = purchase_order.street_address and depreciation.purchase_date_time = purchase_order.purchase_date_time and %s and depreciation_date = '%s'",

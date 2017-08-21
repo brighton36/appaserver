@@ -3,9 +3,9 @@
 # $APPASERVER_HOME/src_accountancymodel/refresh_inventory_layers.sh
 # -----------------------------------------------------------------
 
-if [ "$#" -ne 2 ]
+if [ "$#" -eq 0 ]
 then
-	echo "Usage: $0 application inventory" 1>&2
+	echo "Usage: $0 application [inventory]" 1>&2
 	exit 1
 fi
 
@@ -19,8 +19,18 @@ else
 	export DATABASE=$application
 fi
 
-inventory=$2
+if [ "$#" -eq 2 ]
+then
+	inventory=$2
+	propagate_inventory_sale_layers $application '' '' '' "$inventory" '' n
+	exit 0
+fi
 
-propagate_inventory_sale_layers $application '' '' '' "$inventory" '' n
+echo "select inventory_name from inventory;"		|
+sql.e							|
+while read inventory
+do
+	propagate_inventory_sale_layers $application '' '' '' "$inventory" '' n
+done
 
 exit $?

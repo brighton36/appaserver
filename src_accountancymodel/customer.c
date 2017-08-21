@@ -2079,6 +2079,8 @@ void customer_sale_transaction_delete_with_propagate(
 				char *fund_name,
 				char *full_name,
 				char *street_address,
+				char *sales_tax_payable_full_name,
+				char *sales_tax_payable_street_address,
 				char *transaction_date_time )
 {
 	ledger_delete(	application_name,
@@ -2093,7 +2095,22 @@ void customer_sale_transaction_delete_with_propagate(
 			street_address,
 			transaction_date_time );
 
-	entity_propagate_customer_sale_ledger_accounts(
+	if ( sales_tax_payable_full_name )
+	{
+		ledger_delete(	application_name,
+				TRANSACTION_FOLDER_NAME,
+				sales_tax_payable_full_name,
+				sales_tax_payable_street_address,
+				transaction_date_time );
+
+		ledger_delete(	application_name,
+				LEDGER_FOLDER_NAME,
+				sales_tax_payable_full_name,
+				sales_tax_payable_street_address,
+				transaction_date_time );
+	}
+
+	customer_propagate_customer_sale_ledger_accounts(
 		application_name,
 		fund_name,
 		transaction_date_time );
@@ -3723,6 +3740,7 @@ LIST *customer_sale_inventory_distinct_account_extract(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_fixed_service_distinct_account_extract(
+					double *service_revenue_amount,
 					LIST *fixed_service_sale_list )
 {
 	FIXED_SERVICE *fixed_service;
@@ -3758,6 +3776,9 @@ LIST *customer_sale_fixed_service_distinct_account_extract(
 		journal_ledger->credit_amount +=
 			fixed_service->extension;
 
+		*service_revenue_amount +=
+			fixed_service->extension;
+
 	} while( list_next( fixed_service_sale_list ) );
 
 	return journal_ledger_list;
@@ -3767,6 +3788,7 @@ LIST *customer_sale_fixed_service_distinct_account_extract(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_hourly_service_distinct_account_extract(
+					double *service_revenue_amount,
 					LIST *hourly_service_sale_list )
 {
 	HOURLY_SERVICE *hourly_service;
@@ -3802,9 +3824,105 @@ LIST *customer_sale_hourly_service_distinct_account_extract(
 		journal_ledger->credit_amount +=
 			hourly_service->extension;
 
+		*service_revenue_amount +=
+			hourly_service->extension;
+
 	} while( list_next( hourly_service_sale_list ) );
 
 	return journal_ledger_list;
 
 } /* customer_sale_hourly_service_distinct_account_extract() */
+
+void customer_propagate_customer_sale_ledger_accounts(
+				char *application_name,
+				char *fund_name,
+				char *customer_sale_transaction_date_time )
+{
+	char *sales_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	char *receivable_account = {0};
+	char *specific_inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	LIST *account_name_list;
+
+	ledger_get_customer_sale_account_names(
+		&sales_revenue_account,
+		&sales_tax_payable_account,
+		&shipping_revenue_account,
+		&receivable_account,
+		&specific_inventory_account,
+		&cost_of_goods_sold_account,
+		application_name,
+		fund_name );
+
+	if ( sales_revenue_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			sales_revenue_account );
+	}
+
+	if ( sales_tax_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			sales_tax_payable_account );
+	}
+
+	if ( shipping_revenue_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			shipping_revenue_account );
+	}
+
+	if ( receivable_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			receivable_account );
+	}
+
+	if ( specific_inventory_account )
+	{
+		ledger_propagate(
+			application_name,
+			customer_sale_transaction_date_time,
+			specific_inventory_account );
+	}
+
+	/* Propagate INVENTORY accounts */
+	/* ---------------------------- */
+	account_name_list =
+		ledger_get_inventory_account_name_list(
+			application_name );
+
+	if ( list_length( account_name_list ) )
+	{
+		ledger_propagate_account_name_list(
+			application_name,
+			customer_sale_transaction_date_time,
+			account_name_list );
+	}
+
+	/* Propagate HOURLY_SERVICE and FIXED_SERVICE accounts */
+	/* --------------------------------------------------- */
+	account_name_list =
+		ledger_get_service_account_name_list(
+			application_name );
+
+	if ( list_length( account_name_list ) )
+	{
+		ledger_propagate_account_name_list(
+			application_name,
+			customer_sale_transaction_date_time,
+			account_name_list );
+	}
+
+} /* customer_propagate_customer_sale_ledger_accounts() */
 

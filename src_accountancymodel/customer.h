@@ -171,6 +171,9 @@ HOURLY_SERVICE *customer_hourly_service_sale_new(
 double customer_sale_get_sum_inventory_extension(
 					LIST *inventory_sale_list );
 
+double customer_sale_get_sum_fixed_inventory_extension(
+					LIST *inventory_fixed_sale_list );
+
 double customer_sale_get_sum_specific_inventory_extension(
 					LIST *specific_inventory_sale_list );
 
@@ -294,21 +297,6 @@ LIST *customer_payment_get_list(char *application_name,
 CUSTOMER_PAYMENT *customer_payment_new(
 				char *payment_date_time );
 
-/*
-LIST *customer_sale_ledger_refresh(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double sum_inventory_extension,
-				double sum_fixed_service_extension,
-				double sum_hourly_service_extension,
-				double sales_tax,
-				double shipping_revenue,
-				double invoice_amount );
-*/
-
 LIST *customer_sale_ledger_cost_of_goods_sold_update(
 				char *application_name,
 				char *fund_name,
@@ -374,6 +362,8 @@ void customer_sale_transaction_delete_with_propagate(
 				char *fund_name,
 				char *full_name,
 				char *street_address,
+				char *sales_tax_payable_full_name,
+				char *sales_tax_payable_street_address,
 				char *transaction_date_time );
 
 boolean customer_sale_inventory_is_latest(
@@ -639,10 +629,17 @@ LIST *customer_sale_inventory_distinct_account_extract(
 					LIST *inventory_sale_list );
 
 LIST *customer_sale_fixed_service_distinct_account_extract(
+					double *service_revenue_amount,
 					LIST *fixed_service_sale_list );
 
 LIST *customer_sale_hourly_service_distinct_account_extract(
+					double *service_revenue_amount,
 					LIST *hourly_service_sale_list );
+
+void customer_propagate_customer_sale_ledger_accounts(
+				char *application_name,
+				char *fund_name,
+				char *customer_sale_transaction_date_time );
 
 #endif
 

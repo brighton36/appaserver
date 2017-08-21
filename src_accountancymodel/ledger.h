@@ -938,7 +938,6 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				LIST *fixed_service_sale_list,
 				LIST *hourly_service_sale_list,
 				double shipping_revenue,
-				double invoice_amount,
 				char *fund_name );
 
 TRANSACTION *ledger_purchase_order_build_transaction(

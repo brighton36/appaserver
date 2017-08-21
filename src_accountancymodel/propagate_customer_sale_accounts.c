@@ -59,55 +59,10 @@ int main( int argc, char **argv )
 				argc,
 				argv );
 
-	entity_propagate_customer_sale_ledger_accounts(
+	customer_propagate_customer_sale_ledger_accounts(
 				application_name,
 				fund_name,
 				transaction_date_time );
-
-#ifdef NOT_DEFINED
-	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
-		&service_revenue_account,
-		&sales_tax_payable_account,
-		&shipping_revenue_account,
-		&receivable_account,
-		application_name,
-		fund_name );
-
-	if ( !sales_revenue_account )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot get customer sale account name.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				sales_revenue_account );
-
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				service_revenue_account );
-
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				sales_tax_payable_account );
-
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				shipping_revenue_account );
-
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				cost_of_goods_sold_account );
-
-	ledger_propagate(	application_name,
-				transaction_date_time,
-				receivable_account );
-#endif
 
 	return 0;
 

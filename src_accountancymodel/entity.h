@@ -116,11 +116,6 @@ void entity_propagate_purchase_order_ledger_accounts(
 				char *fund_name,
 				char *purchase_order_transaction_date_time );
 
-void entity_propagate_customer_sale_ledger_accounts(
-				char *application_name,
-				char *fund_name,
-				char *customer_sale_transaction_date_time );
-
 ENTITY_SELF *entity_self_sale_inventory_load(
 				char *application_name,
 				char *inventory_name );

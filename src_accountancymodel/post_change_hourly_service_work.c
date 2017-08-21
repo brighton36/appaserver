@@ -260,6 +260,9 @@ void post_change_hourly_service_work_insert(
 
 	if ( customer_sale->transaction_date_time )
 	{
+		TRANSACTION *sales_tax_payable_transaction;
+		ENTITY *sales_tax_payable_entity;
+
 		customer_sale->transaction =
 			ledger_customer_sale_build_transaction(
 				application_name,
@@ -273,7 +276,6 @@ void post_change_hourly_service_work_insert(
 				customer_sale->fixed_service_sale_list,
 				customer_sale->hourly_service_sale_list,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
 		if ( customer_sale->transaction )
@@ -292,58 +294,52 @@ void post_change_hourly_service_work_insert(
 					journal_ledger_list );
 		}
 
-		if ( customer_sale->sales_tax )
+		if ( ! ( sales_tax_payable_entity =
+				entity_get_sales_tax_payable_entity(
+					application_name ) ) )
 		{
-			TRANSACTION *sales_tax_payable_transaction;
-			ENTITY *sales_tax_payable_entity;
-
-			if ( ! ( sales_tax_payable_entity =
-					entity_get_sales_tax_payable_entity(
-						application_name ) ) )
-			{
-				fprintf( stderr,
+			fprintf( stderr,
 		"ERROR in %s/%s()/%d: cannot get sales_tax_payable_entity.\n",
-				 	__FILE__,
-				 	__FUNCTION__,
-				 	__LINE__ );
-				exit( 1 );
-			}
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__ );
+			exit( 1 );
+		}
 
-			sales_tax_payable_transaction =
-				ledger_sales_tax_payable_build_transaction(
-					application_name,
-					sales_tax_payable_entity->full_name,
-					sales_tax_payable_entity->
-						street_address,
-					customer_sale->
-						transaction_date_time,
-					SALES_TAX_PAYABLE_MEMO,
-					customer_sale->sales_tax,
-					customer_sale->fund_name );
+		sales_tax_payable_transaction =
+			ledger_sales_tax_payable_build_transaction(
+				application_name,
+				sales_tax_payable_entity->full_name,
+				sales_tax_payable_entity->
+					street_address,
+				customer_sale->
+					transaction_date_time,
+				SALES_TAX_PAYABLE_MEMO,
+				customer_sale->sales_tax,
+				customer_sale->fund_name );
 
-			if ( sales_tax_payable_transaction )
-			{
-				ledger_transaction_refresh(
-					application_name,
-					sales_tax_payable_transaction->
-						full_name,
-					sales_tax_payable_transaction->
-						street_address,
-					sales_tax_payable_transaction->
-						transaction_date_time,
-					sales_tax_payable_transaction->
-						transaction_amount,
-					sales_tax_payable_transaction->
-						memo,
-					0 /* check_number */,
-					1 /* lock_transaction */,
-					sales_tax_payable_transaction->
-						journal_ledger_list );
+		if ( sales_tax_payable_transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				sales_tax_payable_transaction->
+					full_name,
+				sales_tax_payable_transaction->
+					street_address,
+				sales_tax_payable_transaction->
+					transaction_date_time,
+				sales_tax_payable_transaction->
+					transaction_amount,
+				sales_tax_payable_transaction->
+					memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				sales_tax_payable_transaction->
+					journal_ledger_list );
 
-			} /* if sales_tax_payable_transaction */
+		} /* if sales_tax_payable_transaction */
 
-		} /* if sales_tax */
-	}
+	} /* if transaction_date_time */
 
 } /* post_change_hourly_service_work_insert() */
 
@@ -480,6 +476,9 @@ void post_change_hourly_service_work_update(
 
 	if ( customer_sale->transaction_date_time )
 	{
+		TRANSACTION *sales_tax_payable_transaction;
+		ENTITY *sales_tax_payable_entity;
+
 		customer_sale->transaction =
 			ledger_customer_sale_build_transaction(
 				application_name,
@@ -493,7 +492,6 @@ void post_change_hourly_service_work_update(
 				customer_sale->fixed_service_sale_list,
 				customer_sale->hourly_service_sale_list,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
 		if ( customer_sale->transaction )
@@ -512,59 +510,52 @@ void post_change_hourly_service_work_update(
 					journal_ledger_list );
 		}
 
-		if ( customer_sale->sales_tax )
+		if ( ! ( sales_tax_payable_entity =
+				entity_get_sales_tax_payable_entity(
+					application_name ) ) )
 		{
-			TRANSACTION *sales_tax_payable_transaction;
-			ENTITY *sales_tax_payable_entity;
-
-			if ( ! ( sales_tax_payable_entity =
-					entity_get_sales_tax_payable_entity(
-						application_name ) ) )
-			{
-				fprintf( stderr,
+			fprintf( stderr,
 		"ERROR in %s/%s()/%d: cannot get sales_tax_payable_entity.\n",
-				 	__FILE__,
-				 	__FUNCTION__,
-				 	__LINE__ );
-				exit( 1 );
-			}
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__ );
+			exit( 1 );
+		}
 
-			sales_tax_payable_transaction =
-				ledger_sales_tax_payable_build_transaction(
-					application_name,
-					sales_tax_payable_entity->full_name,
-					sales_tax_payable_entity->
-						street_address,
-					customer_sale->
-						transaction_date_time,
-					SALES_TAX_PAYABLE_MEMO,
-					customer_sale->sales_tax,
-					customer_sale->fund_name );
+		sales_tax_payable_transaction =
+			ledger_sales_tax_payable_build_transaction(
+				application_name,
+				sales_tax_payable_entity->full_name,
+				sales_tax_payable_entity->
+					street_address,
+				customer_sale->
+					transaction_date_time,
+				SALES_TAX_PAYABLE_MEMO,
+				customer_sale->sales_tax,
+				customer_sale->fund_name );
 
-			if ( sales_tax_payable_transaction )
-			{
-				ledger_transaction_refresh(
-					application_name,
-					sales_tax_payable_transaction->
-						full_name,
-					sales_tax_payable_transaction->
-						street_address,
-					sales_tax_payable_transaction->
-						transaction_date_time,
-					sales_tax_payable_transaction->
-						transaction_amount,
-					sales_tax_payable_transaction->
-						memo,
-					0 /* check_number */,
-					1 /* lock_transaction */,
-					sales_tax_payable_transaction->
-						journal_ledger_list );
+		if ( sales_tax_payable_transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				sales_tax_payable_transaction->
+					full_name,
+				sales_tax_payable_transaction->
+					street_address,
+				sales_tax_payable_transaction->
+					transaction_date_time,
+				sales_tax_payable_transaction->
+					transaction_amount,
+				sales_tax_payable_transaction->
+					memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				sales_tax_payable_transaction->
+					journal_ledger_list );
 
-			} /* if sales_tax_payable_transaction */
+		} /* if sales_tax_payable_transaction */
 
-		} /* if sales_tax */
-
-	}
+	} /* if transaction_date_time */
 
 	if ( execute_post_change_customer_sale )
 	{
@@ -665,6 +656,9 @@ void post_change_hourly_service_work_delete(
 
 	if ( customer_sale->transaction_date_time )
 	{
+		TRANSACTION *sales_tax_payable_transaction;
+		ENTITY *sales_tax_payable_entity;
+
 		customer_sale->transaction =
 			ledger_customer_sale_build_transaction(
 				application_name,
@@ -678,7 +672,6 @@ void post_change_hourly_service_work_delete(
 				customer_sale->fixed_service_sale_list,
 				customer_sale->hourly_service_sale_list,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount,
 				customer_sale->fund_name );
 
 		if ( customer_sale->transaction )
@@ -697,59 +690,52 @@ void post_change_hourly_service_work_delete(
 					journal_ledger_list );
 		}
 
-		if ( customer_sale->sales_tax )
+		if ( ! ( sales_tax_payable_entity =
+				entity_get_sales_tax_payable_entity(
+					application_name ) ) )
 		{
-			TRANSACTION *sales_tax_payable_transaction;
-			ENTITY *sales_tax_payable_entity;
-
-			if ( ! ( sales_tax_payable_entity =
-					entity_get_sales_tax_payable_entity(
-						application_name ) ) )
-			{
-				fprintf( stderr,
+			fprintf( stderr,
 		"ERROR in %s/%s()/%d: cannot get sales_tax_payable_entity.\n",
-				 	__FILE__,
-				 	__FUNCTION__,
-				 	__LINE__ );
-				exit( 1 );
-			}
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__ );
+			exit( 1 );
+		}
 
-			sales_tax_payable_transaction =
-				ledger_sales_tax_payable_build_transaction(
-					application_name,
-					sales_tax_payable_entity->full_name,
-					sales_tax_payable_entity->
-						street_address,
-					customer_sale->
-						transaction_date_time,
-					SALES_TAX_PAYABLE_MEMO,
-					customer_sale->sales_tax,
-					customer_sale->fund_name );
+		sales_tax_payable_transaction =
+			ledger_sales_tax_payable_build_transaction(
+				application_name,
+				sales_tax_payable_entity->full_name,
+				sales_tax_payable_entity->
+					street_address,
+				customer_sale->
+					transaction_date_time,
+				SALES_TAX_PAYABLE_MEMO,
+				customer_sale->sales_tax,
+				customer_sale->fund_name );
 
-			if ( sales_tax_payable_transaction )
-			{
-				ledger_transaction_refresh(
-					application_name,
-					sales_tax_payable_transaction->
-						full_name,
-					sales_tax_payable_transaction->
-						street_address,
-					sales_tax_payable_transaction->
-						transaction_date_time,
-					sales_tax_payable_transaction->
-						transaction_amount,
-					sales_tax_payable_transaction->
-						memo,
-					0 /* check_number */,
-					1 /* lock_transaction */,
-					sales_tax_payable_transaction->
-						journal_ledger_list );
+		if ( sales_tax_payable_transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				sales_tax_payable_transaction->
+					full_name,
+				sales_tax_payable_transaction->
+					street_address,
+				sales_tax_payable_transaction->
+					transaction_date_time,
+				sales_tax_payable_transaction->
+					transaction_amount,
+				sales_tax_payable_transaction->
+					memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				sales_tax_payable_transaction->
+					journal_ledger_list );
 
-			} /* if sales_tax_payable_transaction */
+		} /* if sales_tax_payable_transaction */
 
-		} /* if sales_tax */
-
-	}
+	} /* if transaction_date_time */
 
 } /* post_change_hourly_service_work_delete() */
 

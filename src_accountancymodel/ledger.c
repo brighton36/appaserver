@@ -1021,6 +1021,7 @@ LIST *ledger_subclassification_get_account_list(
 } /* ledger_subclassification_get_account_list() */
 
 LIST *ledger_element_get_subclassification_list(
+					double *element_total,
 					char *application_name,
 					char *element_name,
 					char *fund_name,
@@ -1032,6 +1033,8 @@ LIST *ledger_element_get_subclassification_list(
 	char where[ 256 ];
 	char subclassification_name[ 128 ];
 	FILE *input_pipe;
+
+	*element_total = 0.0;
 
 	sprintf( where, "element = '%s'", element_name );
 
@@ -1060,6 +1063,8 @@ LIST *ledger_element_get_subclassification_list(
 				subclassification->subclassification_name,
 				fund_name,
 				as_of_date );
+
+		*element_total += subclassification->subclassification_total;
 
 		list_append_pointer(	subclassification_list,
 					subclassification );
@@ -1146,6 +1151,7 @@ LIST *ledger_get_element_list(	char *application_name,
 
 		element->subclassification_list =
 			ledger_element_get_subclassification_list(
+				&element->element_total,
 				application_name,
 				element->element_name,
 				fund_name,
@@ -1169,21 +1175,10 @@ LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 
 	latex_row = latex_new_latex_row();
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		"\\Large \\bf Liabilities Plus Equity" );
-*/
-
-
 	latex_append_column_data_list(
 		latex_row->column_data_list,
 		strdup( "Liabilities Plus Equity" ),
 		1 /* large_bold */ );
-
-/*
-	list_append_pointer( latex_row->column_data_list, "" );
-*/
 
 	latex_append_column_data_list(
 		latex_row->column_data_list,
@@ -1192,22 +1187,11 @@ LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 
 	if ( !aggregate_subclassification )
 	{
-/*
-		list_append_pointer( latex_row->column_data_list, "" );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( "" ),
 			0 /* not large_bold */ );
 	}
-
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		strdup( place_commas_in_money(
-			   liabilities_plus_equity ) ) );
-*/
 
 	latex_append_column_data_list(
 		latex_row->column_data_list,
@@ -1221,7 +1205,8 @@ LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 
 LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 				double net_income,
-				boolean is_statement_of_activities )
+				boolean is_statement_of_activities,
+				double percent_denominator )
 {
 	LATEX_ROW *latex_row;
 
@@ -1229,12 +1214,6 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 
 	if ( is_statement_of_activities )
 	{
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			"\\bf Change in Net Assets" );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			"\\bf Change in Net Assets",
@@ -1242,38 +1221,42 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 	}
 	else
 	{
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			"\\bf Net Income" );
-*/
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			"\\bf Net Income",
 			0 /* not large_bold */ );
 	}
 
-/*
-	list_append_pointer( latex_row->column_data_list, "" );
-*/
-
 	latex_append_column_data_list(
 		latex_row->column_data_list,
 		"",
 		0 /* not large_bold */ );
-
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		strdup( place_commas_in_money(
-			   net_income ) ) );
-*/
 
 	latex_append_column_data_list(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   net_income ) ),
 		0 /* not large_bold */ );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+		double percent_of_total;
+
+		percent_of_total =
+			( net_income /
+	  		percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+	 		"%.1lf%c",
+	 		percent_of_total,
+	 		'%' );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+	}
 
 	return latex_row;
 
@@ -1281,7 +1264,8 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 
 LATEX_ROW *ledger_get_latex_net_income_row(
 				double net_income,
-				boolean is_statement_of_activities )
+				boolean is_statement_of_activities,
+				double percent_denominator )
 {
 	LATEX_ROW *latex_row;
 
@@ -1289,12 +1273,6 @@ LATEX_ROW *ledger_get_latex_net_income_row(
 
 	if ( is_statement_of_activities )
 	{
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			"\\Large \\bf Change in Net Assets" );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			"Change in Net Assets",
@@ -1302,23 +1280,12 @@ LATEX_ROW *ledger_get_latex_net_income_row(
 	}
 	else
 	{
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			"\\Large \\bf Net Income" );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			"Net Income",
 			1 /* not large_bold */ );
 	}
 
-/*
-	list_append_pointer( latex_row->column_data_list, "" );
-	list_append_pointer( latex_row->column_data_list, "" );
-*/
-
 	latex_append_column_data_list(
 		latex_row->column_data_list,
 		"",
@@ -1328,19 +1295,32 @@ LATEX_ROW *ledger_get_latex_net_income_row(
 		latex_row->column_data_list,
 		"",
 		0 /* not large_bold */ );
-
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		strdup( place_commas_in_money(
-			   net_income ) ) );
-*/
 
 	latex_append_column_data_list(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
 			   net_income ) ),
 		0 /* not large_bold */ );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+		double percent_of_total;
+
+		percent_of_total =
+			( net_income /
+	  		percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+	 		"%.1lf%c",
+	 		percent_of_total,
+	 		'%' );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+	}
 
 	return latex_row;
 
@@ -1507,7 +1487,7 @@ LIST *ledger_get_subclassification_latex_row_list(
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"",
+			strdup( "" ),
 			0 /* not large_bold */ );
 
 		latex_append_column_data_list(
@@ -1523,7 +1503,7 @@ LIST *ledger_get_subclassification_latex_row_list(
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"",
+			strdup( "" ),
 			0 /* not large_bold */ );
 	}
 
@@ -1630,7 +1610,8 @@ LIST *ledger_get_subclassification_beginning_latex_row_list(
 LIST *ledger_get_latex_row_list(	double *total_element,
 					LIST *subclassification_list,
 					char *element_name,
-					boolean element_accumulate_debit )
+					boolean element_accumulate_debit,
+					double percent_denominator )
 {
 	LIST *row_list;
 	double subclassification_amount;
@@ -1640,6 +1621,7 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 	double latest_ledger_balance;
 	int first_time = 1;
 	LATEX_ROW *latex_row;
+	double percent_of_total;
 
 	*total_element = 0.0;
 
@@ -1657,14 +1639,6 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 		sprintf( format_buffer,
 			 "\\large \\bf %s",
 			 element_name );
-
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( format_initial_capital(
-					format_buffer,
-					format_buffer ) ) );
-*/
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -1712,14 +1686,6 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				 "\\large \\bf %s",
 				 element_name );
 
-/*
-			list_append_pointer(
-				latex_row->column_data_list,
-				strdup( format_initial_capital(
-						format_buffer,
-						format_buffer ) ) );
-*/
-
 			latex_append_column_data_list(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
@@ -1739,14 +1705,6 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				 "\\bf %s",
 				 subclassification->
 					subclassification_name );
-
-/*
-			list_append_pointer(
-				latex_row->column_data_list,
-				strdup( format_initial_capital(
-						format_buffer,
-						format_buffer ) ) );
-*/
 
 			latex_append_column_data_list(
 				latex_row->column_data_list,
@@ -1790,15 +1748,6 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				latex_row = latex_new_latex_row();
 				list_append_pointer( row_list, latex_row );
 
-/*
-				list_append_pointer(
-					latex_row->column_data_list,
-					strdup( format_initial_capital(
-							format_buffer,
-							account->
-							    account_name ) ) );
-*/
-
 				latex_append_column_data_list(
 					latex_row->column_data_list,
 					strdup( format_initial_capital(
@@ -1807,18 +1756,40 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 							    account_name ) ),
 					0 /* not large_bold */ );
 
-/*
-				list_append_pointer(
-					latex_row->column_data_list,
-					strdup( place_commas_in_money(
-					   	latest_ledger_balance ) ) );
-*/
-
 				latex_append_column_data_list(
 					latex_row->column_data_list,
 					strdup( place_commas_in_money(
 					   	     latest_ledger_balance ) ),
 					0 /* not large_bold */ );
+
+				if ( percent_denominator )
+				{
+					char buffer[ 128 ];
+
+					latex_append_column_data_list(
+						latex_row->column_data_list,
+						strdup( "" ),
+						0 /* not large_bold */ );
+
+					latex_append_column_data_list(
+						latex_row->column_data_list,
+						strdup( "" ),
+						0 /* not large_bold */ );
+
+					percent_of_total =
+						( latest_ledger_balance /
+				  		percent_denominator ) * 100.0;
+
+					sprintf( buffer,
+				 		"%.1lf%c",
+				 		percent_of_total,
+				 		'%' );
+
+					latex_append_column_data_list(
+						latex_row->column_data_list,
+						strdup( buffer ),
+						0 /* not large_bold */ );
+				}
 			}
 	
 			*total_element += latest_ledger_balance;
@@ -1861,14 +1832,6 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 						subclassification_name );
 			}
 
-/*
-			list_append_pointer(
-				latex_row->column_data_list,
-				strdup( format_initial_capital(
-						format_buffer,
-						format_buffer ) ) );
-*/
-
 			latex_append_column_data_list(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
@@ -1876,29 +1839,40 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 						format_buffer ) ),
 				0 /* not large_bold */ );
 
-/*
-			list_append_pointer(
-				latex_row->column_data_list,
-				"" );
-*/
-
 			latex_append_column_data_list(
 				latex_row->column_data_list,
-				"",
+				strdup( "" ),
 				0 /* not large_bold */ );
-
-/*
-			list_append_pointer(
-				latex_row->column_data_list,
-				strdup( place_commas_in_money(
-					   subclassification_amount ) ) );
-*/
 
 			latex_append_column_data_list(
 				latex_row->column_data_list,
 				strdup( place_commas_in_money(
 					   subclassification_amount ) ),
 				0 /* not large_bold */ );
+
+			if ( percent_denominator )
+			{
+				char buffer[ 128 ];
+
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( "" ),
+					0 /* not large_bold */ );
+
+				percent_of_total =
+					( subclassification_amount /
+			  		percent_denominator ) * 100.0;
+
+				sprintf( buffer,
+			 		"%.1lf%c",
+			 		percent_of_total,
+			 		'%' );
+
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( buffer ),
+					0 /* not large_bold */ );
+			}
 		}
 
 	} while( list_next( subclassification_list ) );
@@ -1926,44 +1900,20 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 
 		 format_initial_capital( format_buffer, format_buffer );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( format_buffer ) );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( format_buffer ),
 			0 /* not large_bold */ );
 
-/*
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"" );
-*/
+			strdup( "" ),
+			0 /* not large_bold */ );
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"",
+			strdup( "" ),
 			0 /* not large_bold */ );
-
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			"" );
-*/
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			"",
-			0 /* not large_bold */ );
-
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( place_commas_in_money(
-				   *total_element ) ) );
-*/
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -1971,19 +1921,33 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				   *total_element ) ),
 			0 /* not large_bold */ );
 
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( *total_element /
+		  		percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+		 		"%.1lf%c",
+		 		percent_of_total,
+		 		'%' );
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( buffer ),
+				0 /* not large_bold */ );
+		}
+
 		/* Blank line */
 		/* ---------- */
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			"" );
-*/
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"",
+			strdup( "" ),
 			0 /* not large_bold */ );
 	}
 
@@ -2135,23 +2099,10 @@ LIST *ledger_get_beginning_balance_latex_row_list(
 					format_buffer ) ),
 			0 /* not large_bold */ );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			"" );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"",
+			strdup( "" ),
 			0 /* not large_bold */ );
-
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( place_commas_in_money(
-				   subclassification_amount ) ) );
-*/
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -2218,7 +2169,8 @@ double ledger_output_subclassification_html_element(
 					HTML_TABLE *html_table,
 					LIST *subclassification_list,
 					char *element_name,
-					boolean element_accumulate_debit )
+					boolean element_accumulate_debit,
+					double percent_denominator )
 {
 	double total_element = 0.0;
 	double subclassification_amount;
@@ -2229,6 +2181,7 @@ double ledger_output_subclassification_html_element(
 	char element_title[ 128 ];
 	double latest_ledger_balance;
 	boolean first_time = 1;
+	double percent_of_total;
 
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
@@ -2394,12 +2347,30 @@ double ledger_output_subclassification_html_element(
 		html_table_set_data(	html_table->data_list,
 					element_title );
 	
-		html_table_set_data( html_table->data_list, "" );
+		html_table_set_data( html_table->data_list, strdup( "" ) );
 
 		html_table_set_data(
 			html_table->data_list,
 			strdup( place_commas_in_money(
 				total_element ) ) );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( total_element /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+					html_table->data_list,
+					strdup( buffer ) );
+		}
 
 		html_table_output_data(
 					html_table->data_list,
@@ -2505,7 +2476,8 @@ double ledger_output_subclassification_beginning_balance_html_element(
 double ledger_output_html_element(	HTML_TABLE *html_table,
 					LIST *subclassification_list,
 					char *element_name,
-					boolean element_accumulate_debit )
+					boolean element_accumulate_debit,
+					double percent_denominator )
 {
 	double total_element = 0.0;
 	double subclassification_amount;
@@ -2516,6 +2488,7 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 	char element_title[ 128 ];
 	double latest_ledger_balance;
 	boolean first_time = 1;
+	double percent_of_total;
 
 	if ( !html_table )
 	{
@@ -2670,7 +2643,33 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 					html_table->data_list,
 					strdup( place_commas_in_money(
 						   latest_ledger_balance ) ) );
-	
+
+				if ( percent_denominator )
+				{
+					char buffer[ 128 ];
+
+					percent_of_total =
+						( latest_ledger_balance /
+						  percent_denominator ) * 100.0;
+
+					sprintf( buffer,
+						 "%.1lf%c",
+						 percent_of_total,
+						 '%' );
+
+					html_table_set_data(
+						html_table->data_list,
+						strdup( "" ) );
+
+					html_table_set_data(
+						html_table->data_list,
+						strdup( "" ) );
+
+					html_table_set_data(
+						html_table->data_list,
+						strdup( buffer ) );
+				}
+
 				html_table_output_data(
 					html_table->data_list,
 					html_table->
@@ -2713,13 +2712,36 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 
 		html_table_set_data(	html_table->data_list,
 					strdup( buffer ) );
-		html_table_set_data( html_table->data_list, "" );
+
+		html_table_set_data( html_table->data_list, strdup( "" ) );
 
 		html_table_set_data(
 			html_table->data_list,
 			strdup( place_commas_in_money(
 				subclassification_amount ) ) );
 	
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( subclassification_amount /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( buffer ) );
+		}
+
 		html_table_output_data(
 				html_table->data_list,
 				html_table->
@@ -2754,13 +2776,31 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 		html_table_set_data(	html_table->data_list,
 					element_title );
 	
-		html_table_set_data( html_table->data_list, "" );
-		html_table_set_data( html_table->data_list, "" );
+		html_table_set_data( html_table->data_list, strdup( "" ) );
+		html_table_set_data( html_table->data_list, strdup( "" ) );
 
 		html_table_set_data(
 			html_table->data_list,
 			strdup( place_commas_in_money(
 				total_element ) ) );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( total_element /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( buffer ) );
+		}
 
 		html_table_output_data(
 					html_table->data_list,
@@ -2897,7 +2937,7 @@ double ledger_output_equity_beginning_balance_html_element(
 
 		html_table_set_data(	html_table->data_list,
 					strdup( buffer ) );
-		html_table_set_data( html_table->data_list, "" );
+		html_table_set_data( html_table->data_list, strdup( "" ) );
 
 		html_table_set_data(
 			html_table->data_list,
@@ -2938,8 +2978,11 @@ double ledger_get_net_income(	double total_revenues,
 void ledger_output_subclassification_net_income(
 					HTML_TABLE *html_table,
 					double net_income,
-					boolean is_statement_of_activities )
+					boolean is_statement_of_activities,
+					double percent_denominator )
 {
+	double percent_of_total;
+
 	if ( !html_table )
 	{
 		fprintf( stderr,
@@ -2964,10 +3007,28 @@ void ledger_output_subclassification_net_income(
 			html_table->data_list,
 			"<h2>Net Income</h2>" );
 	}
-	html_table_set_data( html_table->data_list, "" );
+	html_table_set_data( html_table->data_list, strdup( "" ) );
 
 	html_table_set_data(	html_table->data_list,
 				strdup( place_commas_in_money( net_income ) ) );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+
+		percent_of_total =
+			( net_income /
+			  percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+			 "%.1lf%c",
+			 percent_of_total,
+			 '%' );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+	}
 
 	html_table_output_data( html_table->data_list,
 				html_table->number_left_justified_columns,
@@ -2980,8 +3041,11 @@ void ledger_output_subclassification_net_income(
 
 void ledger_output_net_income(		HTML_TABLE *html_table,
 					double net_income,
-					boolean is_statement_of_activities )
+					boolean is_statement_of_activities,
+					double percent_denominator )
 {
+	double percent_of_total;
+
 	html_table->data_list = list_new();
 
 	if ( is_statement_of_activities )
@@ -2996,11 +3060,29 @@ void ledger_output_net_income(		HTML_TABLE *html_table,
 			html_table->data_list,
 			"<h2>Net Income</h2>" );
 	}
-	html_table_set_data( html_table->data_list, "" );
-	html_table_set_data( html_table->data_list, "" );
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+	html_table_set_data( html_table->data_list, strdup( "" ) );
 
 	html_table_set_data(	html_table->data_list,
 				strdup( place_commas_in_money( net_income ) ) );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+
+		percent_of_total =
+			( net_income /
+			  percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+			 "%.1lf%c",
+			 percent_of_total,
+			 '%' );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+	}
 
 	html_table_output_data( html_table->data_list,
 				html_table->number_left_justified_columns,

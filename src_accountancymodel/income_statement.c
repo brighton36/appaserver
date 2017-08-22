@@ -45,7 +45,8 @@ LIST *build_full_PDF_row_list(		LIST *element_list,
 					boolean is_statement_of_activities );
 
 LIST *build_consolidate_PDF_row_list(	LIST *element_list,
-					boolean is_statement_of_activities );
+					boolean is_statement_of_activities,
+					double revenues_total );
 
 void income_statement_consolidate_html_table(
 					char *application_name,
@@ -453,7 +454,9 @@ void income_statement_consolidate_html_table(
 				html_table,
 				element->subclassification_list,
 				LEDGER_REVENUE_ELEMENT,
-				element->accumulate_debit );
+				element->accumulate_debit,
+				element->element_total
+					/* percent_denominator */ );
 
 	/* Compute total expenses */
 	/* ---------------------- */ 
@@ -474,7 +477,8 @@ void income_statement_consolidate_html_table(
 				html_table,
 				element->subclassification_list,
 				LEDGER_EXPENSE_ELEMENT,
-				element->accumulate_debit );
+				element->accumulate_debit,
+				total_revenues /* percent_denominator */ );
 
 	/* Compute total gains */
 	/* ------------------- */ 
@@ -495,7 +499,8 @@ void income_statement_consolidate_html_table(
 				html_table,
 				element->subclassification_list,
 				LEDGER_GAIN_ELEMENT,
-				element->accumulate_debit );
+				element->accumulate_debit,
+				total_revenues /* percent_denominator */ );
 
 	/* Compute total losses */
 	/* -------------------- */ 
@@ -516,7 +521,9 @@ void income_statement_consolidate_html_table(
 				html_table,
 				element->subclassification_list,
 				LEDGER_LOSS_ELEMENT,
-				element->accumulate_debit );
+				element->accumulate_debit,
+				total_revenues
+					/* percent_denominator */ );
 
 	net_income = ledger_get_net_income(
 				total_revenues,
@@ -527,7 +534,8 @@ void income_statement_consolidate_html_table(
 	ledger_output_subclassification_net_income(
 		html_table,
 		net_income,
-		is_statement_of_activities );
+		is_statement_of_activities,
+		total_revenues /* percent_denominator */ );
 
 	html_table_close();
 	document_close();
@@ -555,7 +563,7 @@ void income_statement_full_html_table(
 	html_table = new_html_table( title, sub_title );
 
 	html_table->number_left_justified_columns = 1;
-	html_table->number_right_justified_columns = 3;
+	html_table->number_right_justified_columns = 4;
 
 	html_table_output_table_heading(
 					html_table->title,
@@ -594,10 +602,12 @@ void income_statement_full_html_table(
 	}
 
 	total_revenues = ledger_output_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_REVENUE_ELEMENT,
-					element->accumulate_debit );
+				html_table,
+				element->subclassification_list,
+				LEDGER_REVENUE_ELEMENT,
+				element->accumulate_debit,
+				element->element_total
+					/* percent_denominator */ );
 
 	/* Compute total expenses */
 	/* ---------------------- */ 
@@ -618,7 +628,9 @@ void income_statement_full_html_table(
 					html_table,
 					element->subclassification_list,
 					LEDGER_EXPENSE_ELEMENT,
-					element->accumulate_debit );
+					element->accumulate_debit,
+					total_revenues
+						/* percent_denominator */ );
 
 	/* Compute total gains */
 	/* ------------------- */ 
@@ -639,7 +651,9 @@ void income_statement_full_html_table(
 					html_table,
 					element->subclassification_list,
 					LEDGER_GAIN_ELEMENT,
-					element->accumulate_debit );
+					element->accumulate_debit,
+					total_revenues
+						/* percent_denominator */ );
 
 	/* Compute total losses */
 	/* -------------------- */ 
@@ -660,7 +674,9 @@ void income_statement_full_html_table(
 					html_table,
 					element->subclassification_list,
 					LEDGER_LOSS_ELEMENT,
-					element->accumulate_debit );
+					element->accumulate_debit,
+					total_revenues
+						/* percent_denominator */ );
 
 	net_income = ledger_get_net_income(
 				total_revenues,
@@ -671,7 +687,8 @@ void income_statement_full_html_table(
 	ledger_output_net_income(
 		html_table,
 		net_income,
-		is_statement_of_activities );
+		is_statement_of_activities,
+		total_revenues );
 
 /*
 		shares_outstanding = get_shares_outstanding(
@@ -714,6 +731,8 @@ void income_statement_consolidate_PDF(
 	char *ftp_output_filename;
 	int pid = getpid();
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	ELEMENT *element;
+	double revenues_total;
 
 	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>%s</h2>\n", sub_title );
@@ -792,10 +811,26 @@ void income_statement_consolidate_PDF(
 				fund_name,
 				as_of_date );
 
+	if ( ! ( element =
+			ledger_element_list_seek(
+				element_list,
+				LEDGER_REVENUE_ELEMENT ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 LEDGER_REVENUE_ELEMENT );
+	}
+
+	revenues_total = element->element_total;
+
 	latex_table->row_list =
 		build_consolidate_PDF_row_list(
 			element_list,
-			is_statement_of_activities );
+			is_statement_of_activities,
+			revenues_total );
 
 	if ( !list_length( latex_table->row_list ) )
 	{
@@ -998,7 +1033,8 @@ void income_statement_full_PDF(
 } /* income_statement_full_PDF() */
 
 LIST *build_consolidate_PDF_row_list(	LIST *element_list,
-					boolean is_statement_of_activities )
+					boolean is_statement_of_activities,
+					double revenues_total )
 {
 	ELEMENT *element;
 	double total_revenues = 0.0;
@@ -1119,7 +1155,9 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 		row_list,
 		ledger_get_subclassification_latex_net_income_row(
 			net_income,
-			is_statement_of_activities ) );
+			is_statement_of_activities,
+			total_revenues
+				/* percent_denominator */ ) );
 
 	return row_list;
 
@@ -1159,7 +1197,9 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 					&total_revenues,
 					element->subclassification_list,
 					LEDGER_REVENUE_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					element->element_total
+						/* percent_denominator */ ) );
 
 	/* Compute total expenses */
 	/* ---------------------- */ 
@@ -1181,7 +1221,9 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 					&total_expenses,
 					element->subclassification_list,
 					LEDGER_EXPENSE_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					total_revenues
+						/* percent_denominator */ ) );
 
 	/* Compute total gains */
 	/* ------------------- */ 
@@ -1203,7 +1245,9 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 					&total_gains,
 					element->subclassification_list,
 					LEDGER_GAIN_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					total_revenues
+						/* percent_denominator */ ) );
 
 	/* Compute total losses */
 	/* -------------------- */ 
@@ -1225,7 +1269,9 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 					&total_losses,
 					element->subclassification_list,
 					LEDGER_LOSS_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					total_revenues
+						/* percent_denominator */ ) );
 
 	net_income = ledger_get_net_income(
 				total_revenues,
@@ -1238,12 +1284,6 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
 
-/*
-	list_append_pointer(
-		latex_row->column_data_list,
-		"" );
-*/
-
 	latex_append_column_data_list(
 		latex_row->column_data_list,
 		strdup( "" ),
@@ -1252,7 +1292,10 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 	list_append_pointer(	row_list,
 				ledger_get_latex_net_income_row(
 					net_income,
-					is_statement_of_activities ) );
+					is_statement_of_activities,
+					total_revenues
+						/* percent_denominator */ ) );
+
 	return row_list;
 
 } /* build_full_PDF_row_list() */
@@ -1377,6 +1420,11 @@ LIST *build_full_PDF_heading_list( void )
 
 	table_heading = latex_new_latex_table_heading();
 	table_heading->heading = "Element";
+	table_heading->right_justified_flag = 1;
+	list_append_pointer( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "Percent";
 	table_heading->right_justified_flag = 1;
 	list_append_pointer( heading_list, table_heading );
 

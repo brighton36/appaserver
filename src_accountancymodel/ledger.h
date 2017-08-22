@@ -127,6 +127,7 @@ typedef struct
 	char *element_name;
 	boolean accumulate_debit;
 	LIST *subclassification_list;
+	double element_total;
 } ELEMENT;
 
 typedef struct
@@ -192,6 +193,7 @@ LIST *ledger_subclassification_get_account_list(
 					char *as_of_date );
 
 LIST *ledger_element_get_subclassification_list(
+					double *element_total,
 					char *application_name,
 					char *element_name,
 					char *fund_name,
@@ -266,12 +268,14 @@ double ledger_output_subclassification_html_element(
 					HTML_TABLE *html_table,
 					LIST *subclassification_list,
 					char *element_name,
-					boolean element_accumulate_debit );
+					boolean element_accumulate_debit,
+					double percent_denominator );
 
 double ledger_output_html_element(	HTML_TABLE *html_table,
 					LIST *subclassification_list,
 					char *element_name,
-					boolean element_accumulate_debit );
+					boolean element_accumulate_debit,
+					double percent_denominator );
 
 double ledger_get_net_income(		double total_revenues,
 					double total_expenses,
@@ -281,11 +285,13 @@ double ledger_get_net_income(		double total_revenues,
 void ledger_output_subclassification_net_income(
 					HTML_TABLE *html_table,
 					double net_income,
-					boolean is_statement_of_activities );
+					boolean is_statement_of_activities,
+					double percent_denominator );
 
 void ledger_output_net_income(		HTML_TABLE *html_table,
 					double net_income,
-					boolean is_statement_of_activities );
+					boolean is_statement_of_activities,
+					double percent_denominator );
 
 ELEMENT *ledger_element_seek(		LIST *element_list,
 					char *element_name );
@@ -665,15 +671,18 @@ LIST *ledger_get_latex_row_list(
 				double *total_element,
 				LIST *subclassification_list,
 				char *element_name,
-				boolean element_accumulate_debit );
+				boolean element_accumulate_debit,
+				double percent_denominator );
 
 LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 				double net_income,
-				boolean is_statement_of_activities );
+				boolean is_statement_of_activities,
+				double percent_denominator );
 
 LATEX_ROW *ledger_get_latex_net_income_row(
 				double net_income,
-				boolean is_statement_of_activities );
+				boolean is_statement_of_activities,
+				double percent_denominator );
 
 LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 				double liabilities_plus_equity,

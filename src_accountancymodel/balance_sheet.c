@@ -624,7 +624,8 @@ void balance_sheet_consolidate_html_table(
 					html_table,
 					element->subclassification_list,
 					LEDGER_ASSET_ELEMENT,
-					element->accumulate_debit );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ );
 
 	/* Calculate total_liabilities */
 	/* --------------------------- */
@@ -645,7 +646,8 @@ void balance_sheet_consolidate_html_table(
 					html_table,
 					element->subclassification_list,
 					LEDGER_LIABILITY_ELEMENT,
-					element->accumulate_debit );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -708,7 +710,8 @@ void balance_sheet_consolidate_html_table(
 					html_table,
 					element->subclassification_list,
 					LEDGER_EQUITY_ELEMENT,
-					element->accumulate_debit );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ );
 
 	output_liabilities_plus_equity(
 					html_table,
@@ -780,7 +783,8 @@ void balance_sheet_full_html_table(
 	ledger_output_html_element(	html_table,
 					element->subclassification_list,
 					LEDGER_ASSET_ELEMENT,
-					element->accumulate_debit );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ );
 
 	/* Calculate total_liabilities */
 	/* --------------------------- */
@@ -801,7 +805,8 @@ void balance_sheet_full_html_table(
 					html_table,
 					element->subclassification_list,
 					LEDGER_LIABILITY_ELEMENT,
-					element->accumulate_debit );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -864,7 +869,8 @@ void balance_sheet_full_html_table(
 					html_table,
 					element->subclassification_list,
 					LEDGER_EQUITY_ELEMENT,
-					element->accumulate_debit );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ );
 
 	output_liabilities_plus_equity(
 				html_table,
@@ -1163,7 +1169,8 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 					&total_assets,
 					element->subclassification_list,
 					LEDGER_ASSET_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ ) );
 
 	/* Compute total_liabilities */
 	/* ------------------------- */
@@ -1185,7 +1192,8 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 					&total_liabilities,
 					element->subclassification_list,
 					LEDGER_LIABILITY_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ ) );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -1248,7 +1256,8 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 					&total_equity,
 					element->subclassification_list,
 					LEDGER_EQUITY_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ ) );
 
 	list_append_pointer(
 			row_list,

@@ -449,15 +449,6 @@ void change_sort_order_state_one(
 			row_security_element_list_structure->
 			regular_element_list;
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got regular_element_list = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-element_list_display( form->regular_element_list ) );
-m2( application_name, msg );
-}
 	/* ------------------------------------------------- */
 	/* Create the move and here radio buttons.	     */
 	/* Setting in reverse order because they're stacked. */

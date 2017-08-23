@@ -629,6 +629,9 @@ DICTIONARY *dictionary_string2dictionary( char *dictionary_string )
 	if ( character_exists( dictionary_string, '&' ) )
 		pair_delimiter = '&';
 	else
+	if ( character_exists( dictionary_string, '@' ) )
+		pair_delimiter = '@';
+	else
 		pair_delimiter = ',';
 
 	d = dictionary_large_new();

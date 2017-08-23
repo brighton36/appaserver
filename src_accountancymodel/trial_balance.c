@@ -37,6 +37,15 @@
 
 /* Prototypes */
 /* ---------- */
+char *get_action_string(
+					char *application_name,
+					char *session,
+					char *login_name,
+					char *role_name,
+					char *beginning_date,
+					char *as_of_date,
+					char *account_name );
+
 void output_stdout(			char *element_name,
 					char *subclassification_name,
 					char *account_name,
@@ -78,7 +87,12 @@ void trial_balance_account_html_table(
 					LIST *prior_element_list,
 					char *element_name,
 					char *subclassification_name,
-					double subclassification_total );
+					double subclassification_total,
+					char *beginning_date,
+					char *as_of_date,
+					char *session,
+					char *login_name,
+					char *role_name );
 
 void trial_balance_account_stdout(
 					double *balance,
@@ -109,7 +123,10 @@ void trial_balance_html_table(
 					char *title,
 					char *sub_title,
 					char *fund_name,
-					char *as_of_date );
+					char *as_of_date,
+					char *session,
+					char *login_name,
+					char *role_name );
 
 LIST *build_PDF_row_list(		char *application_name,
 					LIST *current_element_list,
@@ -149,11 +166,20 @@ void output_html_table(			LIST *data_list,
 					double debit_amount,
 					double credit_amount,
 					double prior_balance_change,
-					double subclassification_total );
+					double subclassification_total,
+					char *application_name,
+					char *beginning_date,
+					char *as_of_date,
+					char *session,
+					char *login_name,
+					char *role_name );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *session;
+	char *login_name;
+	char *role_name;
 	char *process_name;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -166,10 +192,10 @@ int main( int argc, char **argv )
 	char *output_medium;
 	char *logo_filename;
 
-	if ( argc != 7 )
+	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund as_of_date aggregation output_medium\n",
+"Usage: %s application session login_name role process fund as_of_date aggregation output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -195,11 +221,14 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	process_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	as_of_date = argv[ 4 ];
-	aggregation = argv[ 5 ];
-	output_medium = argv[ 6 ];
+	session = argv[ 2 ];
+	login_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	process_name = argv[ 5 ];
+	fund_name = argv[ 6 ];
+	as_of_date = argv[ 7 ];
+	aggregation = argv[ 8 ];
+	output_medium = argv[ 9 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
@@ -266,7 +295,10 @@ int main( int argc, char **argv )
 			title,
 			sub_title,
 			fund_name,
-			as_of_date );
+			as_of_date,
+			session,
+			login_name,
+			role_name );
 	}
 	else
 	if ( strcmp( output_medium, "PDF" ) == 0 )
@@ -301,7 +333,10 @@ void trial_balance_html_table(
 			char *title,
 			char *sub_title,
 			char *fund_name,
-			char *as_of_date )
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name )
 {
 	HTML_TABLE *html_table;
 	LIST *heading_list;
@@ -322,6 +357,22 @@ void trial_balance_html_table(
 	double subclassification_total;
 	int count = 0;
 	char *element_name = {0};
+	char *beginning_date;
+
+	if ( ! ( beginning_date = 
+			ledger_beginning_transaction_date(
+				application_name,
+				fund_name,
+				as_of_date ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot get beginning_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 
 	/* Populate the current_element_list */
 	/* --------------------------------- */
@@ -471,7 +522,12 @@ void trial_balance_html_table(
 					element_name,
 					subclassification->
 						subclassification_name,
-					subclassification_total );
+					subclassification_total,
+					beginning_date,
+					as_of_date,
+					session,
+					login_name,
+					role_name );
 
 				list_free( html_table->data_list );
 				html_table->data_list = list_new();
@@ -528,7 +584,12 @@ void trial_balance_account_html_table(
 					LIST *prior_element_list,
 					char *element_name,
 					char *subclassification_name,
-					double subclassification_total )
+					double subclassification_total,
+					char *beginning_date,
+					char *as_of_date,
+					char *session,
+					char *login_name,
+					char *role_name )
 {
 	double prior_balance_change;
 
@@ -585,7 +646,13 @@ void trial_balance_account_html_table(
 			latest_ledger->
 			credit_amount,
 		prior_balance_change,
-		subclassification_total );
+		subclassification_total,
+		application_name,
+		beginning_date,
+		as_of_date,
+		session,
+		login_name,
+		role_name );
 
 } /* trial_balance_account_html_table() */
 
@@ -1079,7 +1146,13 @@ void output_html_table(	LIST *data_list,
 			double debit_amount,
 			double credit_amount,
 			double prior_balance_change,
-			double subclassification_total )
+			double subclassification_total,
+			char *application_name,
+			char *beginning_date,
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name )
 {
 	char element_title[ 128 ];
 	char subclassification_title[ 128 ];
@@ -1090,6 +1163,17 @@ void output_html_table(	LIST *data_list,
 	char *prior_balance_change_string;
 	char subclassification_total_ratio_string[ 16 ];
 	char transaction_date_string[ 16 ];
+	char *action_string;
+
+	action_string =
+		get_action_string(
+			application_name,
+			session,
+			login_name,
+			role_name,
+			beginning_date,
+			as_of_date,
+			account_name );
 
 	if ( element_name && *element_name )
 	{
@@ -1142,7 +1226,8 @@ void output_html_table(	LIST *data_list,
 	if ( accumulate_debit )
 	{
 		sprintf( debit_string,
-"<a href=\"https://rick/cgi-bin/post_prompt_edit_form?timriley^capitolpops:capitolpops^1836211591^journal_ledger^supervisor^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup,llookup_before_drop_down_state~skipped,relation_operator_account_0~equals,account_1~bank_of_america_checking|17,ppreprompt_relation_operator_program~equals,llookup_before_drop_down_base_folder~journal_ledger,relation_operator_transaction_date_time_0~between,from_transaction_date_time_0~2016-09-01 00:00:00,to_transaction_date_time_0~2017-08-22 23:59:59'\">%s</a>",
+			 "<a href=\"%s\">%s</a>",
+			 action_string,
 			 timlib_place_commas_in_money( balance ) );
 	}
 	else
@@ -1158,7 +1243,8 @@ void output_html_table(	LIST *data_list,
 	if ( !accumulate_debit )
 	{
 		sprintf( credit_string,
-"<a href=\"https://rick/cgi-bin/post_prompt_edit_form?timriley^capitolpops:capitolpops^1836211591^journal_ledger^supervisor^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup,llookup_before_drop_down_state~skipped,relation_operator_account_0~equals,account_1~bank_of_america_checking|17,ppreprompt_relation_operator_program~equals,llookup_before_drop_down_base_folder~journal_ledger,relation_operator_transaction_date_time_0~between,from_transaction_date_time_0~2016-09-01 00:00:00,to_transaction_date_time_0~2017-08-22 23:59:59'\">%s</a>",
+			 "<a href=\"%s\">%s</a>",
+			 action_string,
 			 timlib_place_commas_in_money( balance ) );
 	}
 	else
@@ -1881,4 +1967,30 @@ void output_stdout(	char *element_name,
 	printf( "%s\n", list_display_delimited( data_list, '^' ) );
 
 } /* output_stdout() */
+
+char *get_action_string(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date,
+			char *account_name )
+{
+	char action_string[ 4096 ];
+
+	sprintf( action_string,
+"/cgi-bin/post_prompt_edit_form?%s^%s:%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s 23:59:59",
+		 login_name,
+		 application_name,
+		 application_name,
+		 session,
+		 role_name,
+		 account_name,
+		 beginning_date,
+		 as_of_date );
+
+	return strdup( action_string );
+
+} /* get_action_string() */
 

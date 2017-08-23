@@ -36,4 +36,15 @@ echo "	update fixed_asset_purchase				\
 		where disposal_date is null;"			|
 sql.e
 
+echo "	update prior_fixed_asset					\
+	set accumulated_depreciation = (				\
+		select sum( depreciation_amount )			\
+		from prior_fixed_asset_depreciation			\
+		where	prior_fixed_asset_depreciation.asset_name =	\
+			prior_fixed_asset.asset_name			\
+		  and	prior_fixed_asset_depreciation.serial_number =	\
+			prior_fixed_asset.serial_number )		\
+		where disposal_date is null;"				|
+sql.e
+
 exit 0

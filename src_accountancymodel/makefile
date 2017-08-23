@@ -50,7 +50,6 @@ EXECUTABLES=	trial_balance						\
 		post_change_customer_sale				\
 		post_change_customer_payment				\
 		post_change_vendor_payment				\
-		post_change_depreciation				\
 		post_change_prepaid_asset_purchase			\
 		post_change_prepaid_asset_accrual			\
 		post_change_bank_upload					\
@@ -271,14 +270,6 @@ load_bank_spreadsheet: load_bank_spreadsheet.c				\
 		${SOURCE_LIBRARY}					\
 		load_bank_spreadsheet.c					\
 		-o load_bank_spreadsheet
-
-post_change_depreciation: post_change_depreciation.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_depreciation.c				\
-		-o post_change_depreciation
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

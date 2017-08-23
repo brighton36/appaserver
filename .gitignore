@@ -125,6 +125,7 @@ kml_extract
 populate_print_checks_entity
 inventory_balance_detail
 depreciate_fixed_assets
+depreciate_prior_fixed_assets
 print_checks_process
 post_change_bank_upload
 trial_balance
@@ -160,7 +161,6 @@ post_change_purchase_order
 post_change_customer_sale
 post_change_customer_payment
 post_change_vendor_payment
-post_change_depreciation
 post_change_prepaid_asset_accrual
 post_change_fixed_service_sale
 post_change_hourly_service_sale

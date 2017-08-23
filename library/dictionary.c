@@ -609,6 +609,7 @@ DICTIONARY *dictionary_string2dictionary( char *dictionary_string )
         char data[ 65536 ];
 	int i;
 	char delimiter;
+	char pair_delimiter;
 
 	if ( character_exists( dictionary_string, '=' ) )
 	{
@@ -625,9 +626,16 @@ DICTIONARY *dictionary_string2dictionary( char *dictionary_string )
 		return (DICTIONARY *)0;
 	}
 
+	if ( character_exists( dictionary_string, '&' ) )
+		pair_delimiter = '&';
+	else
+		pair_delimiter = ',';
+
 	d = dictionary_large_new();
 
- 	for( i = 0; piece( pair_string, '&', dictionary_string, i ); i++ )
+ 	for(	i = 0;
+		piece( pair_string, pair_delimiter, dictionary_string, i );
+		i++ )
         {
                 piece( attribute, delimiter, pair_string, 0 );
 

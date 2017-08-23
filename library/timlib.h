@@ -241,7 +241,9 @@ void free_array_string_with_count( 	char **block,
 char *right(				char *string,
 					char *substr,
 					int width );
+
 void unescape_string(			char *s );
+
 char *escape_dollar_sign(		char *data );
 unsigned long get_file_size(		char *filename );
 char *escape_dollar_signs(		char *data );

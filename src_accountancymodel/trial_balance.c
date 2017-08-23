@@ -390,9 +390,12 @@ void trial_balance_html_table(
 	html_table->number_left_justified_columns = 3;
 	html_table->number_right_justified_columns = 4;
 	html_table_set_heading_list( html_table, heading_list );
+
 	html_table_output_table_heading(
+
 					html_table->title,
 					html_table->sub_title );
+
 	html_table_output_data_heading(
 		html_table->heading_list,
 		html_table->number_left_justified_columns,
@@ -1082,8 +1085,8 @@ void output_html_table(	LIST *data_list,
 	char subclassification_title[ 128 ];
 	char *account_title;
 	char transaction_count_string[ 16 ];
-	char *debit_string;
-	char *credit_string;
+	char debit_string[ 4096 ];
+	char credit_string[ 4096 ];
 	char *prior_balance_change_string;
 	char subclassification_total_ratio_string[ 16 ];
 	char transaction_date_string[ 16 ];
@@ -1138,10 +1141,14 @@ void output_html_table(	LIST *data_list,
 	/* ---------------------- */
 	if ( accumulate_debit )
 	{
-		debit_string = timlib_place_commas_in_money( balance );
+		sprintf( debit_string,
+"<a href=\"https://rick/cgi-bin/post_prompt_edit_form?timriley^capitolpops:capitolpops^1836211591^journal_ledger^supervisor^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup,llookup_before_drop_down_state~skipped,relation_operator_account_0~equals,account_1~bank_of_america_checking|17,ppreprompt_relation_operator_program~equals,llookup_before_drop_down_base_folder~journal_ledger,relation_operator_transaction_date_time_0~between,from_transaction_date_time_0~2016-09-01 00:00:00,to_transaction_date_time_0~2017-08-22 23:59:59'\">%s</a>",
+			 timlib_place_commas_in_money( balance ) );
 	}
 	else
-		debit_string = "";
+	{
+		*debit_string = '\0';
+	}
 
 	html_table_set_data(	data_list,
 				strdup( debit_string ) );
@@ -1150,10 +1157,14 @@ void output_html_table(	LIST *data_list,
 	/* ----------------------- */
 	if ( !accumulate_debit )
 	{
-		credit_string = timlib_place_commas_in_money( balance );
+		sprintf( credit_string,
+"<a href=\"https://rick/cgi-bin/post_prompt_edit_form?timriley^capitolpops:capitolpops^1836211591^journal_ledger^supervisor^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup,llookup_before_drop_down_state~skipped,relation_operator_account_0~equals,account_1~bank_of_america_checking|17,ppreprompt_relation_operator_program~equals,llookup_before_drop_down_base_folder~journal_ledger,relation_operator_transaction_date_time_0~between,from_transaction_date_time_0~2016-09-01 00:00:00,to_transaction_date_time_0~2017-08-22 23:59:59'\">%s</a>",
+			 timlib_place_commas_in_money( balance ) );
 	}
 	else
-		credit_string = "";
+	{
+		*credit_string = '\0';
+	}
 
 	html_table_set_data(	data_list,
 				strdup( credit_string ) );

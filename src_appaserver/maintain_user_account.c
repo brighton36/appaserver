@@ -346,7 +346,8 @@ int main( int argc, char **argv )
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	query = query_folder_new(
 			application_name,
@@ -470,7 +471,9 @@ int main( int argc, char **argv )
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		0 /* not with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
+
 	document_close();
 
 	process_increment_execution_count(

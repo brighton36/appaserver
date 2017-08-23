@@ -826,7 +826,8 @@ else
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	include_attribute_name_list =
 		list_subtract(	folder->attribute_name_list,
@@ -907,7 +908,8 @@ else
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		with_dynarch_menu /* with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 

@@ -417,7 +417,8 @@ void delete_folder_block_state_one(
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	dictionary_appaserver->send_dictionary =
 		dictionary_appaserver_get_send_dictionary(

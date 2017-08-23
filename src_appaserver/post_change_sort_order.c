@@ -284,10 +284,22 @@ void change_sort_order_state_one(
 	char onclick[ 1024 ];
 	char key[ 128 ];
 	char *attribute_name;
+	LIST *form_button_list;
+	FORM_BUTTON *form_button;
 
 	sort_attribute_name =
 		appaserver_library_get_sort_attribute_name(
 			folder->attribute_list );
+
+	/* Build the renumber button */
+	/* ------------------------- */
+	sprintf( onclick,
+		 "sort_order_renumber( '%s' )",
+		 sort_attribute_name );
+
+	form_button = form_button_new( "Renumber", strdup( onclick ) );
+	form_button_list = list_new();
+	list_append_pointer( form_button_list, form_button );
 
 	/* Can't ignore the sort attribute */
 	/* ------------------------------- */
@@ -393,7 +405,8 @@ void change_sort_order_state_one(
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		form_button_list );
 
 	row_security =
 		row_security_new(
@@ -498,7 +511,8 @@ void change_sort_order_state_one(
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		0 /* not with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		form_button_list );
 
 } /* change_sort_order_state_one() */
 

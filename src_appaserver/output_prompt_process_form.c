@@ -486,7 +486,8 @@ int main( int argc, char **argv )
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	form_output_body(
 		&form->current_reference_number,
@@ -527,7 +528,8 @@ int main( int argc, char **argv )
 		with_dynarch_menu /* with_back_to_top_button */,
 		0 /* form_number */,
 		post_change_javascript,
-		(LIST *)0 /* pair_one2m_related_folder_name_list */ );
+		(LIST *)0 /* pair_one2m_related_folder_name_list */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 	exit( 0 );

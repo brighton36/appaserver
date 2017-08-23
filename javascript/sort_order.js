@@ -201,3 +201,23 @@ function sort_order_move( attribute_list_string )
 
 } // sort_order_move()
 
+function sort_order_renumber( sort_attribute_name )
+{
+	var element_name;
+	var element;
+	var i;
+
+	for(	i = 1;
+		1 == 1;
+		i++ )
+	{
+		element_name = sort_attribute_name + '_' + i;
+		element = timlib_get_form_element( element_name, 0 );
+
+		if ( element == "" ) break;
+
+		element.value = i;
+	}
+
+} // sort_order_renumber()
+

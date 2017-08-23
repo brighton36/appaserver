@@ -238,6 +238,7 @@ int main( int argc, char **argv )
 	validation_form_output_body( validation_form );
 	output_dictionary_string_as_hidden( post_dictionary_string );
 	validation_form_output_trailer();
+
 	document_close();
 
 	process_increment_execution_count(

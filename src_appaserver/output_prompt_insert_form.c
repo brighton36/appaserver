@@ -535,7 +535,8 @@ int main( int argc, char **argv )
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==
@@ -678,17 +679,18 @@ int main( int argc, char **argv )
 	}
 
 	form_output_trailer_post_change_javascript(
-			1 /* output_submit_reset_buttons */,
-			0 /* not output_insert_button */,
-			form->submit_control_string,
-			form->html_help_file_anchor,
-			remember_keystrokes_onload_control_string,
-			prelookup_button_control_string,
-			application_name,
-			with_dynarch_menu /* with_back_to_top_button */,
-			0 /* form_number */,
-			(char *)0 /* post_change_javascript */,
-			pair_one2m->pair_one2m_folder_name_list );
+		1 /* output_submit_reset_buttons */,
+		0 /* not output_insert_button */,
+		form->submit_control_string,
+		form->html_help_file_anchor,
+		remember_keystrokes_onload_control_string,
+		prelookup_button_control_string,
+		application_name,
+		with_dynarch_menu /* with_back_to_top_button */,
+		0 /* form_number */,
+		(char *)0 /* post_change_javascript */,
+		pair_one2m->pair_one2m_folder_name_list,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 

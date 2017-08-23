@@ -595,7 +595,8 @@ int main( int argc, char **argv )
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==
@@ -736,7 +737,8 @@ int main( int argc, char **argv )
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		with_dynarch_menu /* with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 

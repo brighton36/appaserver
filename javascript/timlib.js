@@ -196,7 +196,9 @@ function timlib_get_form_element( search_element_name, form_number )
 			return element;
 		}
 	}
+
 	return "";
+
 } // timlib_get_form_element()
 
 function timlib_get_radio_selected_value( search_element_name )

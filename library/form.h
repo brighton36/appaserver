@@ -48,6 +48,12 @@
 
 typedef struct
 {
+	char *button_label;
+	char *onclick_control_string;
+} FORM_BUTTON;
+
+typedef struct
+{
 	char *form_name;
 	char *insert_update_key;
 	char *state;
@@ -103,12 +109,17 @@ typedef struct
 	char *onclick_keystrokes_save_string;
 	char *subtitle_string;
 	DICTIONARY *hidden_name_dictionary;
+	LIST *form_button_list;
 } FORM;
 
 /* Operations */
 /* ---------- */
+FORM_BUTTON *form_button_new(		char *button_label,
+					char *onclick_control_string );
+
 FORM *form_new(				char *form_name,
 					char *application_title );
+
 FORM *form_new_form( void );
 void form_set_output_pairs( 		FORM *form );
 void form_set_submit_button_in_heading(	FORM *form );
@@ -150,7 +161,8 @@ void form_output_heading(
 			pid_t process_id,
 			char *server_address,
 			char *optional_related_attribute_name,
-			char *remember_keystrokes_onload_control_string );
+			char *remember_keystrokes_onload_control_string,
+			LIST *form_button_list );
 
 int form_output_body(	int *form_current_reference_number,
 			DICTIONARY *hidden_name_dictionary,
@@ -176,7 +188,8 @@ void form_output_trailer_post_change_javascript(
 			boolean with_back_to_top_button,
 			int form_number,
 			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list );
+			LIST *pair_one2m_related_folder_name_list,
+			LIST *form_button_list );
 
 void form_output_trailer(
 			boolean output_submit_reset_buttons,
@@ -187,7 +200,8 @@ void form_output_trailer(
 			char *prelookup_button_control_string,
 			char *application_name,
 			boolean with_back_to_top_button,
-			int form_number );
+			int form_number,
+			LIST *form_button_list );
 
 void form_output_row(	int *form_current_reference_number,
 			DICTIONARY *hidden_name_dictionary,
@@ -247,7 +261,8 @@ void form_output_submit_reset_buttons(
 			boolean with_prelookup_skip_button,
 			int form_number,
 			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list );
+			LIST *pair_one2m_related_folder_name_list,
+			LIST *form_button_list );
 
 void form_set_insert_rows_number( 	FORM *form, 
 					int insert_rows_number );
@@ -439,6 +454,9 @@ void form_output_insert_pair_one2m_submit_buttons(
 void form_output_html_help_file_anchor(
 				char *application_name,
 				char *html_help_file_anchor );
+
+void form_output_generic_button(char *onclick_control_string,
+				char *button_label );
 
 #endif
 

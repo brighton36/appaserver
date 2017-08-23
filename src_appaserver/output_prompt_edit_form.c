@@ -855,7 +855,8 @@ void output_prompt_edit_form(
 				form->process_id,
 				appaserver_library_get_server_address(),
 				form->optional_related_attribute_name,
-				remember_keystrokes_onload_control_string );
+				remember_keystrokes_onload_control_string,
+				(LIST *)0 /* form_button_list */ );
 
 	form_output_row(&form->current_reference_number,
 			form->hidden_name_dictionary,
@@ -889,7 +890,8 @@ void output_prompt_edit_form(
 		prelookup_button_control_string,
 		application_name,
 		1 /* with_back_to_top_button, independent upon dynarch */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 

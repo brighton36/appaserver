@@ -31,7 +31,16 @@ FORM *form_new_form( void )
 {
 	FORM *form;
 
-	form = (FORM *)calloc( 1, sizeof( FORM ) );
+	if ( ! ( form = (FORM *)calloc( 1, sizeof( FORM ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	form->hidden_name_dictionary = dictionary_small_new();
 	return form;
 }
@@ -194,7 +203,8 @@ void form_output_heading(
 			pid_t process_id,
 			char *server_address,
 			char *optional_related_attribute_name,
-			char *remember_keystrokes_onload_control_string )
+			char *remember_keystrokes_onload_control_string,
+			LIST *form_button_list )
 {
 	char buffer[ 128 ];
 
@@ -273,7 +283,8 @@ void form_output_heading(
 			with_prelookup_skip_button,
 			0 /* form_number */,
 			(char *)0 /* post_change_javascript */,
-			(LIST *)0 /* pair_one2m_related_folder_name_list */ );
+			(LIST *)0 /* pair_one2m_related_folder_name_list */,
+			form_button_list );
 	}
 
 	printf( "<table cellspacing=0 cellpadding=0" );
@@ -382,7 +393,8 @@ void form_output_trailer(
 			char *prelookup_button_control_string,
 			char *application_name,
 			boolean with_back_to_top_button,
-			int form_number )
+			int form_number,
+			LIST *form_button_list )
 {
 	form_output_trailer_post_change_javascript(
 			output_submit_reset_buttons,
@@ -395,7 +407,8 @@ void form_output_trailer(
 			with_back_to_top_button,
 			form_number,
 			(char *)0 /* post_change_javascript */,
-			(LIST *)0 /* pair_one2m_related_folder_name_list */ );
+			(LIST *)0 /* pair_one2m_related_folder_name_list */,
+			form_button_list );
 
 } /* form_output_trailer() */
 
@@ -410,7 +423,8 @@ void form_output_trailer_post_change_javascript(
 			boolean with_back_to_top_button,
 			int form_number,
 			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list )
+			LIST *pair_one2m_related_folder_name_list,
+			LIST *form_button_list )
 {
 	printf( "</table>\n" );
 
@@ -459,7 +473,8 @@ void form_output_trailer_post_change_javascript(
 			0 /* not with_prelookup_skip_button */,
 			form_number,
 			post_change_javascript,
-			pair_one2m_related_folder_name_list );
+			pair_one2m_related_folder_name_list,
+			form_button_list );
 
 		with_back_to_top_button = 0;
 	}
@@ -1853,7 +1868,8 @@ void form_output_submit_reset_buttons(
 			boolean with_prelookup_skip_button,
 			int form_number,
 			char *post_change_javascript,
-			LIST *pair_one2m_related_folder_name_list )
+			LIST *pair_one2m_related_folder_name_list,
+			LIST *form_button_list )
 {
 	if ( with_table_tags ) printf( "<tr><td>\n" );
 
@@ -1887,6 +1903,21 @@ void form_output_submit_reset_buttons(
 	if ( with_back_to_top_button )
 	{
 		form_output_back_to_top_button();
+	}
+
+	if ( list_rewind( form_button_list ) )
+	{
+		FORM_BUTTON *form_button;
+
+		do {
+			form_button = list_get_pointer( form_button_list );
+
+			printf(
+"<input type=\"button\" value=\"%s\" onClick=\"%s;\">\n",
+				form_button->button_label,
+				form_button->onclick_control_string );
+
+		} while( list_next( form_button_list ) );
 	}
 
 	if ( with_table_tags ) printf( "</td>\n" );
@@ -1932,6 +1963,17 @@ void form_output_submit_button(	char *submit_control_string,
 	}
 
 } /* form_output_submit_button() */
+
+void form_output_generic_button(char *onclick_control_string,
+				char *button_label )
+{
+		printf(
+"	<input type=\"button\" value=\"%s\" 	\n"
+"	onClick=\"%s;\">			\n",
+			button_label,
+			onclick_control_string );
+
+} /* form_output_generic_button() */
 
 void form_output_insert_pair_one2m_submit_buttons(
 				char *submit_control_string,
@@ -1991,16 +2033,6 @@ void form_output_insert_pair_one2m_submit_buttons(
 		/* The submit_control_string is assumed to	*/
 		/* have "&&" appended to it.			*/
 		/* -------------------------------------------- */
-/*
-		printf(
-"	<input type=\"button\" value=\"%s\" 			\n"
-"	onClick=\"%s %s document.forms[0].submit();\">		\n",
-			format_initial_capital_cr(
-				buffer,
-				related_folder_name ) ,
-			submit_control_string,
-			pair_one2m_submit_folder_javascript );
-*/
 		printf(
 "<td valign=bottom><button onClick=\"%s %s document.forms[0].submit();\"> "
 "%s</button>							        \n",
@@ -2013,4 +2045,26 @@ void form_output_insert_pair_one2m_submit_buttons(
 	} while( list_next( pair_one2m_related_folder_name_list ) );
 
 } /* form_output_insert_pair_one2m_submit_buttons() */
+
+FORM_BUTTON *form_button_new(		char *button_label,
+					char *onclick_control_string )
+{
+	FORM_BUTTON *f;
+
+	if ( ! ( f = (FORM_BUTTON *)calloc( 1, sizeof( FORM_BUTTON ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	f->button_label = button_label;
+	f->onclick_control_string = onclick_control_string;
+
+	return f;
+
+} /* form_button_new() */
 

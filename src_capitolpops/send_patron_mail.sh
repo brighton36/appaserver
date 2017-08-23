@@ -73,6 +73,11 @@ else
 	message_email_send=`select_director_email.sh`
 fi
 
+if [ "$message_email_send" = "" ]
+then
+	exit 0
+fi
+
 mailfile="/tmp/mailfile_$$"
 
 echo "To: $message_email_send" > $mailfile

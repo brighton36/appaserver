@@ -2108,6 +2108,7 @@ void element_drop_down_output(
 
 		element = element_new( text_item, element_name );
 
+/*
 		if ( initial_data && *initial_data )
 		{
 			element_text_item_set_attribute_width(
@@ -2120,6 +2121,11 @@ void element_drop_down_output(
 				element->text_item, 
 				1 );
 		}
+*/
+
+		element_text_item_set_attribute_width(
+			element->text_item, 
+			ELEMENT_MAX_TEXT_WIDTH );
 
 		element->text_item->data = initial_data;
 		element->text_item->readonly = 1;

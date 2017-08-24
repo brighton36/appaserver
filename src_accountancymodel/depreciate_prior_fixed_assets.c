@@ -207,23 +207,31 @@ void depreciate_prior_fixed_assets_execute(
 					char *application_name,
 					char *depreciation_date )
 {
-	DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset;
+	ENTITY *entity_self;
+	DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
+		depreciate_prior_fixed_asset_depreciation;
 
-	depreciate_fixed_asset =
-		depreciation_prior_fixed_asset_new(
+	if ( ! ( entity_self = entity_self_load( application_name ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load entity self.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	depreciate_prior_fixed_asset_depreciation =
+		depreciate_prior_fixed_asset_depreciation_new(
 			application_name,
-			depreciation_date );
+			entity_self->full_name,
+			entity_self->street_address );
 
 	depreciation_prior_fixed_asset_set_depreciation(
-		fixed_asset_depreciation->entity_list,
-		depreciation_date );
-
-	depreciation_prior_fixed_asset_set_transaction(
-		fixed_asset_depreciation->entity_list );
-
-	depreciation_prior_fixed_asset_execute(
-		fixed_asset_depreciation->entity_list,
-		application_name,
+		&depreciate_prior_fixed_asset_depreciation->
+			depreciation_amount,
+		depreciate_prior_fixed_asset_depreciation->
+			depreciate_prior_fixed_asset_list,
 		depreciation_date );
 
 } /* depreciate_prior_fixed_assets_execute() */
@@ -254,7 +262,9 @@ void depreciate_prior_fixed_assets_display(
 			entity_self->street_address );
 
 	depreciation_prior_fixed_asset_set_depreciation(
-		depreciation_prior_fixed_asset_depreciation->
+		&depreciate_prior_fixed_asset_depreciation->
+			depreciation_amount,
+		depreciate_prior_fixed_asset_depreciation->
 			depreciate_prior_fixed_asset_list,
 		depreciation_date );
 

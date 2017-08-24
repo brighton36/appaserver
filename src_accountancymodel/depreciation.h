@@ -65,6 +65,7 @@ typedef struct
 	char *self_full_name;
 	char *self_street_address;
 	char *depreciation_date;
+	double depreciation_amount;
 	char *transaction_date_time;
 	char *database_transaction_date_time;
 	TRANSACTION *transaction;

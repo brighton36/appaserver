@@ -2302,3 +2302,63 @@ void depreciation_prior_fixed_asset_table_display(
 
 } /* depreciation_prior_fixed_asset_table_display() */
 
+void depreciation_fixed_asset_entity_set_depreciation(
+				double *depreciation_amount,
+				LIST *depreciate_prior_fixed_asset_list,
+				char *depreciation_date )
+{
+	DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset;
+
+	if ( !list_rewind( depreciate_prior_fixed_asset_list ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: empty depreciate_prior_fixed_asset_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return;
+	}
+
+	*depreciation_amount = 0.0;
+
+	do {
+		depreciate_prior_fixed_asset =
+			list_get_pointer(
+				depreciate_prior_fixed_asset_list );
+
+		if ( strcmp(
+			depreciate_prior_fixed_asset->depreciation_method,
+			"units_of_production" ) == 0 )
+		{
+			continue;
+		}
+
+		depreciate_prior_fixed_asset->depreciation_amount =
+			depreciation_get_amount(
+				depreciate_prior_fixed_asset->depreciation_method,
+				depreciate_prior_fixed_asset->extension,
+				depreciate_prior_fixed_asset->estimated_residual_value,
+				depreciate_prior_fixed_asset->
+					estimated_useful_life_years,
+				depreciate_prior_fixed_asset->
+					estimated_useful_life_units,
+				depreciate_prior_fixed_asset->declining_balance_n,
+				depreciate_prior_fixed_asset->prior_depreciation_date,
+				depreciate_prior_fixed_asset->depreciation_date,
+				depreciate_prior_fixed_asset->accumulated_depreciation,
+				column( arrived_date,
+					0, 
+					purchase_fixed_asset->
+						arrived_date_time ),
+				0 /* units_produced */ );
+
+		depreciate_prior_fixed_asset->accumulated_depreciation +=
+			depreciate_prior_fixed_asset->depreciation_amount;
+
+		*depreciation_amount +=
+			depreciate_prior_fixed_asset->depreciation_amount;
+
+	} while( list_next( depreciable_fixed_asset_purchase_list ) );
+
+} /* depreciation_fixed_asset_entity_set_depreciation() */
+

@@ -546,13 +546,17 @@ double depreciation_straight_line_get_amount(
 {
 	double depreciation_base;
 	double annual_depreciation_amount;
-	double fraction_of_year;
+	double fraction_of_year = 0.0;
 	double depreciation_amount;
 
-	fraction_of_year =
-		ledger_get_fraction_of_year(
-			prior_depreciation_date_string,
-			depreciation_date_string );
+	if ( prior_depreciation_date_string
+	&&   *prior_depreciation_date_string )
+	{
+		fraction_of_year =
+			ledger_get_fraction_of_year(
+				prior_depreciation_date_string,
+				depreciation_date_string );
+	}
 
 	depreciation_base = extension - (double)estimated_residual_value;
 
@@ -2091,7 +2095,7 @@ DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_new( void )
 char *depreciate_prior_fixed_asset_get_select( void )
 {
 	char *select =
-"asset_name,serial_number,estimated_purchase_date,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumulated_depreciation";
+"asset_name,serial_number,recorded_date,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumulated_depreciation";
 
 	return select;
 }
@@ -2112,7 +2116,7 @@ DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_parse(
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 	if ( *piece_buffer )
-		depreciate_prior_fixed_asset->estimated_purchase_date =
+		depreciate_prior_fixed_asset->recorded_date =
 			strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
@@ -2169,7 +2173,7 @@ LIST *depreciate_prior_fixed_asset_get_list(
 
 	select = depreciate_prior_fixed_asset_get_select();
 
-	folder = "prior_fixed_asset_depreciation,fixed_asset";
+	folder = "prior_fixed_asset";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -2302,12 +2306,14 @@ void depreciation_prior_fixed_asset_table_display(
 
 } /* depreciation_prior_fixed_asset_table_display() */
 
-void depreciation_fixed_asset_entity_set_depreciation(
+void depreciation_prior_fixed_asset_set_depreciation(
 				double *depreciation_amount,
 				LIST *depreciate_prior_fixed_asset_list,
+				char *prior_depreciation_date,
 				char *depreciation_date )
 {
 	DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset;
+	char *local_prior_depreciation_date;
 
 	if ( !list_rewind( depreciate_prior_fixed_asset_list ) )
 	{
@@ -2326,39 +2332,103 @@ void depreciation_fixed_asset_entity_set_depreciation(
 			list_get_pointer(
 				depreciate_prior_fixed_asset_list );
 
-		if ( strcmp(
+		if ( timlib_strcmp(
 			depreciate_prior_fixed_asset->depreciation_method,
 			"units_of_production" ) == 0 )
 		{
 			continue;
 		}
 
+		if ( prior_depreciation_date
+		&&   *prior_depreciation_date )
+		{
+			local_prior_depreciation_date =
+				prior_depreciation_date;
+		}
+		else
+		{
+			local_prior_depreciation_date =
+				depreciate_prior_fixed_asset->
+					recorded_date;
+		}
+
 		depreciate_prior_fixed_asset->depreciation_amount =
 			depreciation_get_amount(
-				depreciate_prior_fixed_asset->depreciation_method,
+				depreciate_prior_fixed_asset->
+					depreciation_method,
 				depreciate_prior_fixed_asset->extension,
-				depreciate_prior_fixed_asset->estimated_residual_value,
+				depreciate_prior_fixed_asset->
+					estimated_residual_value,
 				depreciate_prior_fixed_asset->
 					estimated_useful_life_years,
 				depreciate_prior_fixed_asset->
 					estimated_useful_life_units,
-				depreciate_prior_fixed_asset->declining_balance_n,
-				depreciate_prior_fixed_asset->prior_depreciation_date,
-				depreciate_prior_fixed_asset->depreciation_date,
-				depreciate_prior_fixed_asset->accumulated_depreciation,
-				column( arrived_date,
-					0, 
-					purchase_fixed_asset->
-						arrived_date_time ),
+				depreciate_prior_fixed_asset->
+					declining_balance_n,
+				local_prior_depreciation_date,
+				depreciation_date,
+				depreciate_prior_fixed_asset->
+					accumulated_depreciation,
+				depreciate_prior_fixed_asset->
+					recorded_date,
 				0 /* units_produced */ );
 
 		depreciate_prior_fixed_asset->accumulated_depreciation +=
 			depreciate_prior_fixed_asset->depreciation_amount;
 
 		*depreciation_amount +=
-			depreciate_prior_fixed_asset->depreciation_amount;
+			depreciate_prior_fixed_asset->
+				depreciation_amount;
 
-	} while( list_next( depreciable_fixed_asset_purchase_list ) );
+	} while( list_next( depreciate_prior_fixed_asset_list ) );
 
-} /* depreciation_fixed_asset_entity_set_depreciation() */
+} /* depreciation_prior_fixed_asset_set_depreciation() */
+
+void depreciation_prior_fixed_asset_insert_depreciation(
+			char *full_name,
+			char *street_address,
+			LIST *depreciate_prior_fixed_asset_list,
+			char *depreciation_date,
+			char *transaction_date_time )
+{
+	DEPRECIATE_PRIOR_FIXED_ASSET *
+		depreciate_prior_fixed_asset;
+	char sys_string[ 1024 ];
+	char *field;
+	FILE *output_pipe;
+
+	if ( !list_rewind( depreciate_prior_fixed_asset_list ) )
+	{
+		return;
+	}
+
+	field = "full_name,street_address,asset_name,serial_number,depreciation_date,depreciation_amount,transaction_date_time";
+
+	sprintf( sys_string,
+		 "insert_statement.e table=depreciation field='%s' del='^' |"
+		 "sql.e",
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		depreciate_prior_fixed_asset =
+			list_get_pointer(
+				depreciate_prior_fixed_asset_list );
+
+		fprintf( output_pipe,
+			 "%s^%s^%s^%s^%s^%.2lf^%s\n",
+			 full_name,
+			 street_address,
+			 depreciate_prior_fixed_asset->asset_name,
+			 depreciate_prior_fixed_asset->serial_number,
+			 depreciation_date,
+			 depreciate_prior_fixed_asset->depreciation_amount,
+			 transaction_date_time );
+
+	} while( list_next( depreciate_prior_fixed_asset_list ) );
+
+	pclose( output_pipe );
+
+} /* depreciation_prior_fixed_asset_insert_depreciation() */
 

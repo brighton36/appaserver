@@ -18,6 +18,7 @@
 #include "application.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
+#include "entity.h"
 #include "depreciation.h"
 
 /* Constants */
@@ -25,15 +26,30 @@
 
 /* Prototypes */
 /* ---------- */
+void depreciate_prior_fixed_assets_process_display(
+					char *application_name,
+					char *process_name,
+					boolean undo );
+
+void depreciate_prior_fixed_assets_process_execute(
+					char *application_name,
+					char *fund_name,
+					char *process_name,
+					boolean undo );
+
 void depreciate_prior_fixed_assets_undo(char *application_name,
+					char *fund_name,
 					char *depreciation_date );
 
-void depreciate_prior_fixed_assets_execute(
+boolean depreciate_prior_fixed_assets_execute(
 					char *application_name,
+					char *fund_name,
+					char *prior_depreciation_date,
 					char *depreciation_date );
 
-void depreciate_prior_fixed_assets_display(
+boolean depreciate_prior_fixed_assets_display(
 					char *application_name,
+					char *prior_depreciation_date,
 					char *depreciation_date,
 					char *process_name );
 
@@ -42,17 +58,16 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *database_string = {0};
 	char *process_name;
-	char *depreciation_date;
+	char *fund_name;
 	boolean execute;
-	char buffer[ 128 ];
 	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-	"Usage: %s application process undo_yn execute_yn\n",
+	"Usage: %s application process fund undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -60,6 +75,7 @@ int main( int argc, char **argv )
 
 	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
+	fund_name = argv[ 3 ];
 	undo = (*argv[ 4 ]) == 'y';
 	execute = (*argv[ 5 ]) == 'y';
 
@@ -103,98 +119,18 @@ int main( int argc, char **argv )
 
 	if ( execute )
 	{
-		printf( "<h1>%s</h1>\n",
-			format_initial_capital(
-				buffer,
-				process_name ) );
-
-		if ( undo )
-		{
-			depreciation_date =
-				depreciation_fetch_max_prior_depreciation_date(
-					application_name );
-
-			depreciate_prior_fixed_assets_undo(
-				application_name,
-				depreciation_date );
-
-			printf(
-			"<h3>Depreciation posted on %s is now deleted.</h3>\n",
-				depreciation_date );
-		}
-		else
-		{
-			depreciation_date = pipe2string( "now.sh ymd" );
-
-			if ( depreciation_date_prior_exists(
-				application_name,
-				depreciation_date ) )
-			{
-				printf(
-		"<h3>Error: depreciation date exists for today.</h3>\n" );
-			}
-			else
-			{
-				depreciate_prior_fixed_assets_execute(
-					application_name,
-					depreciation_date );
-
-				printf(
-				"<h3>Depreciation now posted on %s.</h3>\n",
-				depreciation_date );
-			}
-		}
+		depreciate_prior_fixed_assets_process_execute(
+			application_name,
+			fund_name,
+			process_name,
+			undo );
 	}
 	else
 	{
-		if ( undo )
-		{
-			depreciation_date =
-				depreciation_fetch_max_prior_depreciation_date(
-					application_name );
-
-			printf( "<h1>%s</h1>\n",
-				format_initial_capital(
-					buffer,
-					process_name ) );
-
-			if ( !depreciation_date
-			||   !*depreciation_date )
-			{
-				printf(
-			"<h3>No depreciations are found.</h3>\n" );
-			}
-			else
-			{
-				printf(
-			"<h3>Will undo depreciation posted on %s.</h3>\n",
-					depreciation_date );
-			}
-		}
-		else
-		{
-			depreciation_date = pipe2string( "now.sh ymd" );
-
-			if ( depreciation_date_prior_exists(
-				application_name,
-				depreciation_date ) )
-			{
-				printf( "<h1>%s</h1>\n",
-					format_initial_capital(
-						buffer,
-						process_name ) );
-
-				printf(
-		"<h3>Error: depreciation date exists for today.</h3>\n" );
-			}
-			else
-			{
-				depreciate_prior_fixed_assets_display(
-					application_name,
-					depreciation_date,
-					process_name );
-			}
-		}
+		depreciate_prior_fixed_assets_process_display(
+			application_name,
+			process_name,
+			undo );
 	}
 
 	document_close();
@@ -203,11 +139,154 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void depreciate_prior_fixed_assets_execute(
+void depreciate_prior_fixed_assets_process_execute(
 					char *application_name,
+					char *fund_name,
+					char *process_name,
+					boolean undo )
+{
+	char buffer[ 128 ];
+	char *depreciation_date;
+	char *prior_depreciation_date;
+
+	printf( "<h1>%s</h1>\n",
+		format_initial_capital(
+			buffer,
+			process_name ) );
+
+	if ( undo )
+	{
+		depreciation_date =
+			depreciation_fetch_max_prior_depreciation_date(
+				application_name );
+
+		depreciate_prior_fixed_assets_undo(
+			application_name,
+			fund_name,
+			depreciation_date );
+
+		printf(
+		"<h3>Depreciation posted on %s is now deleted.</h3>\n",
+			depreciation_date );
+
+		return;
+	}
+
+	depreciation_date = pipe2string( "now.sh ymd" );
+
+	if ( depreciation_date_prior_exists(
+		application_name,
+		depreciation_date ) )
+	{
+		printf(
+	"<h3>Error: depreciation date exists for today.</h3>\n" );
+
+		return;
+	}
+
+	prior_depreciation_date =
+		depreciation_fetch_max_prior_depreciation_date(
+			application_name );
+
+	if ( !depreciate_prior_fixed_assets_execute(
+		application_name,
+		fund_name,
+		prior_depreciation_date,
+		depreciation_date ) )
+	{
+		printf(
+	"<h3>Error: no prior fixed assets in database.</h3>\n" );
+	}
+	else
+	{
+		printf( "<h3>Depreciation now posted on %s.</h3>\n",
+			depreciation_date );
+	}
+
+} /* depreciate_prior_fixed_assets_process_execute() */
+
+void depreciate_prior_fixed_assets_process_display(
+					char *application_name,
+					char *process_name,
+					boolean undo )
+{
+	char buffer[ 128 ];
+	char *depreciation_date;
+	char *prior_depreciation_date;
+
+	if ( undo )
+	{
+		depreciation_date =
+			depreciation_fetch_max_prior_depreciation_date(
+				application_name );
+
+		printf( "<h1>%s</h1>\n",
+			format_initial_capital(
+				buffer,
+				process_name ) );
+
+		if ( !depreciation_date
+		||   !*depreciation_date )
+		{
+			printf(
+		"<h3>No depreciations are found.</h3>\n" );
+		}
+		else
+		{
+			printf(
+		"<h3>Will undo depreciation posted on %s.</h3>\n",
+				depreciation_date );
+		}
+
+		return;
+	}
+
+	depreciation_date = pipe2string( "now.sh ymd" );
+
+	if ( depreciation_date_prior_exists(
+		application_name,
+		depreciation_date ) )
+	{
+		printf( "<h1>%s</h1>\n",
+			format_initial_capital(
+				buffer,
+				process_name ) );
+
+		printf(
+	"<h3>Error: depreciation date exists for today.</h3>\n" );
+
+		return;
+	}
+
+	prior_depreciation_date =
+		depreciation_fetch_max_prior_depreciation_date(
+			application_name );
+
+	if ( !depreciate_prior_fixed_assets_display(
+		application_name,
+		prior_depreciation_date,
+		depreciation_date,
+		process_name ) )
+	{
+		printf(
+	"<h3>Error: no prior fixed assets in database.</h3>\n" );
+	}
+
+} /* depreciate_prior_fixed_assets_process_display() */
+
+boolean depreciate_prior_fixed_assets_execute(
+					char *application_name,
+					char *fund_name,
+					char *prior_depreciation_date,
 					char *depreciation_date )
 {
-	ENTITY *entity_self;
+	FILE *output_pipe;
+	FILE *debit_account_pipe = {0};
+	FILE *credit_account_pipe = {0};
+	char *depreciation_expense_account = {0};
+	char *accumulated_depreciation_account = {0};
+	ENTITY_SELF *entity_self;
+	char *transaction_date_time;
 	DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
 		depreciate_prior_fixed_asset_depreciation;
 
@@ -221,27 +300,101 @@ void depreciate_prior_fixed_assets_execute(
 		exit( 1 );
 	}
 
+	transaction_date_time =
+		ledger_get_transaction_date_time(
+			(char *)0 /* transaction_date */ );
+
 	depreciate_prior_fixed_asset_depreciation =
 		depreciate_prior_fixed_asset_depreciation_new(
 			application_name,
-			entity_self->full_name,
-			entity_self->street_address );
+			entity_self->entity->full_name,
+			entity_self->entity->street_address );
+
+	if ( !list_length( 
+		depreciate_prior_fixed_asset_depreciation->
+			depreciate_prior_fixed_asset_list ) )
+	{
+		return 0;
+	}
 
 	depreciation_prior_fixed_asset_set_depreciation(
 		&depreciate_prior_fixed_asset_depreciation->
 			depreciation_amount,
 		depreciate_prior_fixed_asset_depreciation->
 			depreciate_prior_fixed_asset_list,
+		prior_depreciation_date,
 		depreciation_date );
+
+	depreciation_prior_fixed_asset_insert_depreciation(
+			depreciate_prior_fixed_asset_depreciation->
+				self_full_name,
+			depreciate_prior_fixed_asset_depreciation->
+				self_street_address,
+			depreciate_prior_fixed_asset_depreciation->
+				depreciate_prior_fixed_asset_list,
+			depreciation_date,
+			transaction_date_time );
+
+	output_pipe =
+		ledger_transaction_insert_open_stream(
+			application_name );
+
+	ledger_transaction_insert_stream(
+		output_pipe,
+		depreciate_prior_fixed_asset_depreciation->
+			self_full_name,
+		depreciate_prior_fixed_asset_depreciation->
+			self_street_address,
+		transaction_date_time,
+		depreciate_prior_fixed_asset_depreciation->
+			depreciation_amount
+				/* transaction_amount */,
+		DEPRECIATION_MEMO,
+		0 /* check_number */,
+		1 /* lock_transaction */ );
+
+	pclose( output_pipe );
+
+	/* Error with an exit if failure. */
+	/* ------------------------------ */
+	ledger_get_depreciation_account_names(
+		&depreciation_expense_account,
+		&accumulated_depreciation_account,
+		application_name,
+		fund_name );
+
+	ledger_journal_insert_open_stream(
+		&debit_account_pipe,
+		&credit_account_pipe,
+		application_name );
+
+	ledger_journal_insert_stream(
+		debit_account_pipe,
+		credit_account_pipe,
+		entity_self->entity->full_name,
+		entity_self->entity->street_address,
+		transaction_date_time,
+		depreciate_prior_fixed_asset_depreciation->
+			depreciation_amount,
+		depreciation_expense_account
+			/* debit_account_name */,
+		accumulated_depreciation_account
+			/* credit_account_name */ );
+
+	pclose( debit_account_pipe );
+	pclose( credit_account_pipe );
+
+	return 1;
 
 } /* depreciate_prior_fixed_assets_execute() */
 
-void depreciate_prior_fixed_assets_display(
+boolean depreciate_prior_fixed_assets_display(
 					char *application_name,
+					char *prior_depreciation_date,
 					char *depreciation_date,
 					char *process_name )
 {
-	ENTITY *entity_self;
+	ENTITY_SELF *entity_self;
 	DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
 		depreciate_prior_fixed_asset_depreciation;
 
@@ -258,24 +411,35 @@ void depreciate_prior_fixed_assets_display(
 	depreciate_prior_fixed_asset_depreciation =
 		depreciate_prior_fixed_asset_depreciation_new(
 			application_name,
-			entity_self->full_name,
-			entity_self->street_address );
+			entity_self->entity->full_name,
+			entity_self->entity->street_address );
+
+	if ( !list_length( 
+		depreciate_prior_fixed_asset_depreciation->
+			depreciate_prior_fixed_asset_list ) )
+	{
+		return 0;
+	}
 
 	depreciation_prior_fixed_asset_set_depreciation(
 		&depreciate_prior_fixed_asset_depreciation->
 			depreciation_amount,
 		depreciate_prior_fixed_asset_depreciation->
 			depreciate_prior_fixed_asset_list,
+		prior_depreciation_date,
 		depreciation_date );
 
-	depreciation_prior_fixed_asset_depreciation_table_display(
+	depreciation_prior_fixed_asset_table_display(
 		process_name,
-		depreciation_prior_fixed_asset_depreciation->
+		depreciate_prior_fixed_asset_depreciation->
 			depreciate_prior_fixed_asset_list );
+
+	return 1;
 
 } /* depreciate_prior_fixed_assets_display() */
 
 void depreciate_prior_fixed_assets_undo(char *application_name,
+					char *fund_name,
 					char *depreciation_date )
 {
 	char *transaction_date_time;
@@ -308,7 +472,7 @@ void depreciate_prior_fixed_assets_undo(char *application_name,
 	if ( ! ( transaction_date_time = pipe2string( sys_string ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot get transaction_date_time.\n",
+		"ERROR in %s/%s()/%d: cannot get transaction_date_time.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -341,7 +505,7 @@ void depreciate_prior_fixed_assets_undo(char *application_name,
 		&depreciation_expense_account,
 		&accumulated_depreciation_account,
 		application_name,
-		(char *)0 /* fund_name */ );
+		fund_name );
 
 	sprintf( sys_string,
 		 "ledger_propagate %s \"%s\" '' \"%s\" \"%s\"",

@@ -47,6 +47,7 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_number;
+	char *estimated_purchase_date;
 	double extension;
 	int estimated_useful_life_years;
 	int estimated_useful_life_units;

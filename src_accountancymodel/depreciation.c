@@ -2091,7 +2091,7 @@ DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_new( void )
 char *depreciate_prior_fixed_asset_get_select( void )
 {
 	char *select =
-"asset_name,serial_number,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumulated_depreciation";
+"asset_name,serial_number,estimated_purchase_date,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumulated_depreciation";
 
 	return select;
 }
@@ -2112,35 +2112,40 @@ DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_parse(
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 	if ( *piece_buffer )
+		depreciate_prior_fixed_asset->estimated_purchase_date =
+			strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->extension =
 			atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->estimated_useful_life_years =
 			atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->estimated_useful_life_units =
 			atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->estimated_residual_value =
 			atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->declining_balance_n =
 			atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->depreciation_method =
 			strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->accumulated_depreciation =
 		depreciate_prior_fixed_asset->

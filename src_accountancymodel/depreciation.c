@@ -179,7 +179,7 @@ boolean depreciation_date_exists(
 
 } /* depreciation_date_exists() */
 
-char *depreciation_fetch_max_prior_depreciation_date(
+char *depreciation_prior_fetch_max_depreciation_date(
 			char *application_name )
 {
 	char sys_string[ 1024 ];
@@ -200,7 +200,7 @@ char *depreciation_fetch_max_prior_depreciation_date(
 
 	return pipe2string( sys_string );
 
-} /* depreciation_fetch_max_prior_depreciation_date() */
+} /* depreciation_prior_fetch_max_depreciation_date() */
 
 char *depreciation_fetch_max_depreciation_date(
 			char *application_name,

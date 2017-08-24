@@ -318,7 +318,7 @@ boolean depreciation_date_prior_exists(
 			char *application_name,
 			char *depreciation_date );
 
-char *depreciation_fetch_max_prior_depreciation_date(
+char *depreciation_prior_fetch_max_depreciation_date(
 			char *application_name );
 
 LIST *depreciate_prior_fixed_asset_get_list(

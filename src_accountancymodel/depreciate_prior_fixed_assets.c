@@ -157,7 +157,7 @@ void depreciate_prior_fixed_assets_process_execute(
 	if ( undo )
 	{
 		depreciation_date =
-			depreciation_fetch_max_prior_depreciation_date(
+			depreciation_prior_fetch_max_depreciation_date(
 				application_name );
 
 		depreciate_prior_fixed_assets_undo(
@@ -185,7 +185,7 @@ void depreciate_prior_fixed_assets_process_execute(
 	}
 
 	prior_depreciation_date =
-		depreciation_fetch_max_prior_depreciation_date(
+		depreciation_prior_fetch_max_depreciation_date(
 			application_name );
 
 	if ( !depreciate_prior_fixed_assets_execute(
@@ -217,7 +217,7 @@ void depreciate_prior_fixed_assets_process_display(
 	if ( undo )
 	{
 		depreciation_date =
-			depreciation_fetch_max_prior_depreciation_date(
+			depreciation_prior_fetch_max_depreciation_date(
 				application_name );
 
 		printf( "<h1>%s</h1>\n",
@@ -259,7 +259,7 @@ void depreciate_prior_fixed_assets_process_display(
 	}
 
 	prior_depreciation_date =
-		depreciation_fetch_max_prior_depreciation_date(
+		depreciation_prior_fetch_max_depreciation_date(
 			application_name );
 
 	if ( !depreciate_prior_fixed_assets_display(
@@ -287,6 +287,7 @@ boolean depreciate_prior_fixed_assets_execute(
 	char *accumulated_depreciation_account = {0};
 	ENTITY_SELF *entity_self;
 	char *transaction_date_time;
+	char sys_string[ 1024 ];
 	DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
 		depreciate_prior_fixed_asset_depreciation;
 
@@ -383,6 +384,21 @@ boolean depreciate_prior_fixed_assets_execute(
 
 	pclose( debit_account_pipe );
 	pclose( credit_account_pipe );
+
+	sprintf( sys_string,
+		 "ledger_propagate %s \"%s\" '' \"%s\" \"%s\"",
+		 application_name,
+		 transaction_date_time,
+		 depreciation_expense_account,
+		 accumulated_depreciation_account );
+
+	system( sys_string );
+
+	sprintf( sys_string,
+		 "accumulated_depreciation_reset.sh %s",
+		 application_name );
+
+	system( sys_string );
 
 	return 1;
 

@@ -233,25 +233,27 @@ void depreciate_prior_fixed_assets_display(
 					char *depreciation_date,
 					char *process_name )
 {
-	FIXED_ASSET_PRIOR_DEPRECIATION *fixed_prior_asset_depreciation;
+	ENTITY *entity_self;
+	DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
+		depreciate_prior_fixed_asset_depreciation;
 
-	fixed_prior_asset_depreciation =
-		depreciation_prior_fixed_asset_depreciation_new(
+	entity_self = entity_self_load( application_name );
+
+	depreciate_prior_fixed_asset_depreciation =
+		depreciate_prior_fixed_asset_depreciation_new(
 			application_name,
-			depreciation_date );
+			entity_self->full_name,
+			entity_self->street_address );
 
 	depreciation_prior_fixed_asset_set_depreciation(
-		fixed_prior_asset_depreciation->entity_list,
+		depreciation_prior_fixed_asset_depreciation->
+			depreciate_prior_fixed_asset_list,
 		depreciation_date );
-
-/*
-	depreciation_fixed_prior_asset_depreciation_tree_display(
-		fixed_prior_asset_depreciation->entity_list );
-*/
 
 	depreciation_prior_fixed_asset_depreciation_table_display(
 		process_name,
-		fixed_prior_asset_depreciation->entity_list );
+		depreciation_prior_fixed_asset_depreciation->
+			depreciate_prior_fixed_asset_list );
 
 } /* depreciate_prior_fixed_assets_display() */
 

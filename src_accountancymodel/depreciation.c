@@ -36,6 +36,7 @@ DEPRECIATION *depreciation_calloc( void )
 	}
 
 	return p;
+
 } /* depreciation_calloc() */
 
 char *depreciation_get_select( void )
@@ -2066,4 +2067,173 @@ void depreciation_fixed_asset_execute(
 			entity_list );
 
 } /* depreciation_fixed_asset_execute() */
+
+DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_new( void )
+{
+	DEPRECIATE_PRIOR_FIXED_ASSET *p =
+		(DEPRECIATE_PRIOR_FIXED_ASSET *)
+			calloc( 1, sizeof( DEPRECIATE_PRIOR_FIXED_ASSET ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	return p;
+
+} /* depreciate_fixed_asset_depreciation_new() */
+
+char *depreciate_prior_fixed_asset_get_select( void )
+{
+	char *select =
+"prior_fixed_asset.asset_name,serial_number,account,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumulated_depreciation";
+
+	return select;
+}
+
+DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_parse(
+					char *input_buffer )
+{
+	DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset;
+	char piece_buffer[ 256 ];
+
+	depreciate_prior_fixed_asset = depreciate_prior_fixed_asset_new();
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+	depreciate_prior_fixed_asset->asset_name = strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+	depreciate_prior_fixed_asset->serial_number = strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+	if ( *piece_buffer )
+		depreciate_prior_fixed_asset->account_name =
+			strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	if ( *piece_buffer )
+		depreciate_prior_fixed_asset->extension =
+			atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+	if ( *piece_buffer )
+		depreciate_prior_fixed_asset->estimated_useful_life_years =
+			atoi( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+	if ( *piece_buffer )
+		depreciate_prior_fixed_asset->estimated_useful_life_units =
+			atoi( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+	if ( *piece_buffer )
+		depreciate_prior_fixed_asset->estimated_residual_value =
+			atoi( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+	if ( *piece_buffer )
+		depreciate_prior_fixed_asset->declining_balance_n =
+			atoi( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
+	if ( *piece_buffer )
+		depreciate_prior_fixed_asset->depreciation_method =
+			strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
+	if ( *piece_buffer )
+		depreciate_prior_fixed_asset->accumulated_depreciation =
+		depreciate_prior_fixed_asset->
+			database_accumulated_depreciation =
+			atof( piece_buffer );
+
+	return depreciate_prior_fixed_asset;
+
+} /* depreciate_prior_fixed_asset_parse() */
+
+LIST *depreciate_prior_fixed_asset_get_list(
+					char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *where;
+	char *select;
+	char *folder;
+	char input_buffer[ 2048 ];
+	FILE *input_pipe;
+	DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset;
+	LIST *depreciate_prior_fixed_asset_list;
+
+	select = depreciate_prior_fixed_asset_get_select();
+
+	folder = "prior_fixed_asset_depreciation,fixed_asset";
+
+	where =
+	"prior_fixed_asset_depreciation.asset_name = fixed_asset.asset_name";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	depreciate_prior_fixed_asset_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		depreciate_prior_fixed_asset =
+			depreciate_prior_fixed_asset_parse(
+				input_buffer );
+
+		list_append_pointer(	depreciate_prior_fixed_asset_list,
+					depreciate_prior_fixed_asset );
+	}
+
+	pclose( input_pipe );
+	return depreciate_prior_fixed_asset_list;
+
+} /* depreciate_prior_fixed_asset_get_list() */
+
+DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
+	depreciate_prior_fixed_asset_depreciation_new(
+			char *application_name,
+			char *self_full_name,
+			char *self_street_address )
+{
+	DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *p =
+		(DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *)
+			calloc( 1,
+				sizeof(
+				DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	p->self_full_name = self_full_name;
+	p->self_street_address = self_street_address;
+
+	p->depreciate_prior_fixed_asset_list =
+		depreciate_prior_fixed_asset_get_list(
+			application_name );
+
+	return p;
+
+} /* depreciate_prior_fixed_asset_depreciation_new() */
 

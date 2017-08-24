@@ -47,6 +47,7 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_number;
+	char *account_name;
 	double extension;
 	int estimated_useful_life_years;
 	int estimated_useful_life_units;
@@ -318,5 +319,23 @@ boolean depreciation_date_prior_exists(
 
 char *depreciation_fetch_max_prior_depreciation_date(
 			char *application_name );
+
+LIST *depreciate_prior_fixed_asset_get_list(
+			char *application_name );
+
+DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_new(
+			void );
+
+DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_parse(
+			char *input_buffer );
+
+char *depreciate_prior_fixed_asset_get_select(
+			void );
+
+DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
+	depreciate_prior_fixed_asset_depreciation_new(
+			char *application_name,
+			char *self_full_name,
+			char *self_street_address );
 
 #endif

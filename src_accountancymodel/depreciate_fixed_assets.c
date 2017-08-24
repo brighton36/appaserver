@@ -217,7 +217,7 @@ void depreciate_fixed_assets_execute(	char *application_name,
 					char *fund_name,
 					char *depreciation_date )
 {
-	FIXED_ASSET_DEPRECIATION *fixed_asset_depreciation;
+	DEPRECIATE_FIXED_ASSET *fixed_asset_depreciation;
 
 	fixed_asset_depreciation =
 		depreciation_fixed_asset_depreciation_new(
@@ -245,7 +245,7 @@ void depreciate_fixed_assets_display(	char *application_name,
 					char *depreciation_date,
 					char *process_name )
 {
-	FIXED_ASSET_DEPRECIATION *fixed_asset_depreciation;
+	DEPRECIATE_FIXED_ASSET *fixed_asset_depreciation;
 
 	fixed_asset_depreciation =
 		depreciation_fixed_asset_depreciation_new(
@@ -287,10 +287,6 @@ void depreciate_fixed_assets_undo(	char *application_name,
 
 	output_pipe = popen( "sql.e", "w" );
 
-	fprintf( output_pipe,
-	 	 "delete from depreciation where %s;\n",
-	 	 where );
-
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=transaction_date_time	"
@@ -324,6 +320,11 @@ void depreciate_fixed_assets_undo(	char *application_name,
 	}
 
 	pclose( input_pipe );
+
+	fprintf( output_pipe,
+	 	 "delete from depreciation where %s;\n",
+	 	 where );
+
 	pclose( output_pipe );
 
 	/* Error with an exit if failure. */

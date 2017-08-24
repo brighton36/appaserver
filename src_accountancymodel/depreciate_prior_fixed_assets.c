@@ -126,7 +126,7 @@ int main( int argc, char **argv )
 		{
 			depreciation_date = pipe2string( "now.sh ymd" );
 
-			if ( depreciation_date_exists(
+			if ( depreciation_date_prior_exists(
 				application_name,
 				depreciation_date ) )
 			{
@@ -207,10 +207,10 @@ void depreciate_prior_fixed_assets_execute(
 					char *application_name,
 					char *depreciation_date )
 {
-	FIXED_ASSET_DEPRECIATION *fixed_asset_depreciation;
+	DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset;
 
-	fixed_asset_depreciation =
-		depreciation_prior_fixed_asset_depreciation_new(
+	depreciate_fixed_asset =
+		depreciation_prior_fixed_asset_new(
 			application_name,
 			depreciation_date );
 
@@ -258,13 +258,11 @@ void depreciate_prior_fixed_assets_display(
 void depreciate_prior_fixed_assets_undo(char *application_name,
 					char *depreciation_date )
 {
-	char transaction_date_time[ 64 ];
+	char *transaction_date_time;
 	char sys_string[ 1024 ];
 	char where[ 128 ];
 	char *depreciation_expense_account = {0};
 	char *accumulated_depreciation_account = {0};
-	char *propagate_transaction_date_time = {0};
-	FILE *input_pipe;
 	FILE *output_pipe;
 	char *folder_name;
 
@@ -274,46 +272,47 @@ void depreciate_prior_fixed_assets_undo(char *application_name,
 		"depreciation_date = '%s'",
 		depreciation_date );
 
+	/* They all have the same transaction_date_time */
+	/* -------------------------------------------- */
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			 "
+		 "			select=transaction_date_time	 "
+		 "			folder=%s			 "
+		 "			where=\"%s\"			 "
+		 "			order=select			|"
+		 "head -1						 ",
+		 application_name,
+		 folder_name,
+		 where );
+
+	if ( ! ( transaction_date_time = pipe2string( sys_string ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get transaction_date_time.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	output_pipe = popen( "sql.e", "w" );
+
+	sprintf(where,
+		"transaction_date_time = '%s'",
+		transaction_date_time );
+
+	fprintf( output_pipe,
+	 	 "delete from journal_ledger where %s;\n",
+	 	 where );
+
+	fprintf( output_pipe,
+	 	 "delete from transaction where %s;\n",
+	 	 where );
 
 	fprintf( output_pipe,
 	 	 "delete from prior_fixed_asset_depreciation where %s;\n",
 	 	 where );
 
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=transaction_date_time	"
-		 "			folder=%s			"
-		 "			where=\"%s\"			"
-		 "			order=select			",
-		 application_name,
-		 folder_name,
-		 where );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( transaction_date_time, input_pipe ) )
-	{
-		sprintf(where,
-			"transaction_date_time = '%s'",
-			transaction_date_time );
-
-		fprintf( output_pipe,
-		 	 "delete from journal_ledger where %s;\n",
-		 	 where );
-
-		fprintf( output_pipe,
-		 	 "delete from transaction where %s;\n",
-		 	 where );
-
-		if ( !propagate_transaction_date_time )
-		{
-			propagate_transaction_date_time =
-				strdup( transaction_date_time );
-		}
-	}
-
-	pclose( input_pipe );
 	pclose( output_pipe );
 
 	/* Error with an exit if failure. */
@@ -322,12 +321,12 @@ void depreciate_prior_fixed_assets_undo(char *application_name,
 		&depreciation_expense_account,
 		&accumulated_depreciation_account,
 		application_name,
-		fund_name );
+		(char *)0 /* fund_name */ );
 
 	sprintf( sys_string,
 		 "ledger_propagate %s \"%s\" '' \"%s\" \"%s\"",
 		 application_name,
-		 propagate_transaction_date_time,
+		 transaction_date_time,
 		 depreciation_expense_account,
 		 accumulated_depreciation_account );
 

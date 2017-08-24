@@ -41,7 +41,34 @@ typedef struct
 {
 	LIST *entity_list;
 
-} FIXED_ASSET_DEPRECIATION;
+} DEPRECIATE_FIXED_ASSET;
+
+typedef struct
+{
+	char *asset_name;
+	char *serial_number;
+	double extension;
+	int estimated_useful_life_years;
+	int estimated_useful_life_units;
+	int estimated_residual_value;
+	int declining_balance_n;
+	char *depreciation_method;
+	double accumulated_depreciation;
+	double database_accumulated_depreciation;
+	double depreciation_amount;
+	double database_depreciation_amount;
+} DEPRECIATE_PRIOR_FIXED_ASSET;
+
+typedef struct
+{
+	char *self_full_name;
+	char *self_street_address;
+	char *depreciation_date;
+	char *transaction_date_time;
+	char *database_transaction_date_time;
+	TRANSACTION *transaction;
+	LIST *depreciate_prior_fixed_asset_list;
+} DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION;
 
 /* Operations */
 /* ---------- */
@@ -183,7 +210,7 @@ double depreciation_units_of_production_get_amount(
 char *deprecation_get_prior_depreciation_date(
 			LIST *depreciation_list );
 
-FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
+DEPRECIATE_FIXED_ASSET *depreciation_fixed_asset_depreciation_new(
 			char *application_name,
 			char *fund_name,
 			char *depreciation_date );
@@ -284,5 +311,12 @@ char *depreciation_fetch_max_depreciation_date(
 
 void depreciation_fixed_asset_set_transaction(
 			LIST *entity_list );
+
+boolean depreciation_date_prior_exists(
+			char *application_name,
+			char *depreciation_date );
+
+char *depreciation_fetch_max_prior_depreciation_date(
+			char *application_name );
 
 #endif

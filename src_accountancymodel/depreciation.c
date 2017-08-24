@@ -103,6 +103,39 @@ DEPRECIATION *depreciation_parse(	char *application_name,
 
 } /* depreciation_parse() */
 
+boolean depreciation_date_prior_exists(
+			char *application_name,
+			char *depreciation_date )
+{
+	char sys_string[ 1024 ];
+	char where[ 512 ];
+	char *folder;
+	char *results;
+
+	folder = "prior_fixed_asset_depreciation";
+
+	sprintf( where,
+		 "depreciation_date = '%s'",
+		 depreciation_date );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=count			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 folder,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( results )
+		return atoi( results );
+	else
+		return 0;
+
+} /* depreciation_date_prior_exists() */
+
 boolean depreciation_date_exists(
 			char *application_name,
 			char *fund_name,
@@ -115,23 +148,6 @@ boolean depreciation_date_exists(
 	char *results;
 
 	folder = "purchase_order,depreciation";
-
-/*
-	sprintf( sys_string,
-		 "folder_attribute_exists.sh %s purchase_order fund",
-		 application_name );
-
-	if ( system( sys_string ) == 0 )
-	{
-		sprintf( fund_where,
-			 "fund = '%s'",
-			 fund_name );
-	}
-	else
-	{
-		strcpy( fund_where, "1 = 1" );
-	}
-*/
 
 	fund_where =
 		ledger_get_fund_where(
@@ -162,6 +178,29 @@ boolean depreciation_date_exists(
 
 } /* depreciation_date_exists() */
 
+char *depreciation_fetch_max_prior_depreciation_date(
+			char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+
+	select = "max(depreciation_date)";
+
+	folder = "prior_fixed_asset_depreciation";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			",
+		 application_name,
+		 select,
+		 folder );
+
+	return pipe2string( sys_string );
+
+} /* depreciation_fetch_max_prior_depreciation_date() */
+
 char *depreciation_fetch_max_depreciation_date(
 			char *application_name,
 			char *fund_name )
@@ -169,28 +208,19 @@ char *depreciation_fetch_max_depreciation_date(
 	char sys_string[ 1024 ];
 	char *select;
 	char *folder;
-	char fund_where[ 128 ];
+	char *fund_where;
 	char where[ 512 ];
 
 	select = "max(depreciation_date)";
 
 	folder = "purchase_order,depreciation";
 
-	sprintf( sys_string,
-		 "folder_attribute_exists.sh %s purchase_order fund",
-		 application_name );
+	fund_where =
+		ledger_get_fund_where(
+			application_name,
+			"purchase_order",
+			fund_name );
 
-	if ( system( sys_string ) == 0 )
-	{
-		sprintf( fund_where,
-			 "fund = '%s'",
-			 fund_name );
-	}
-	else
-	{
-		strcpy( fund_where, "1 = 1" );
-	}
-		
 	sprintf( where,
 "depreciation.full_name = purchase_order.full_name and depreciation.street_address = purchase_order.street_address and depreciation.purchase_date_time = purchase_order.purchase_date_time and %s",
 		 fund_where );
@@ -1661,14 +1691,14 @@ LIST *depreciation_fixed_asset_get_entity_list(
 
 } /* depreciation_fixed_asset_get_entity_list() */
 
-FIXED_ASSET_DEPRECIATION *depreciation_fixed_asset_depreciation_new(
+DEPRECIATE_FIXED_ASSET *depreciation_fixed_asset_depreciation_new(
 				char *application_name,
 				char *fund_name,
 				char *depreciation_date )
 {
-	FIXED_ASSET_DEPRECIATION *p =
-		(FIXED_ASSET_DEPRECIATION *)
-			calloc( 1, sizeof( FIXED_ASSET_DEPRECIATION ) );
+	DEPRECIATE_FIXED_ASSET *p =
+		(DEPRECIATE_FIXED_ASSET *)
+			calloc( 1, sizeof( DEPRECIATE_FIXED_ASSET ) );
 
 	if ( !p )
 	{

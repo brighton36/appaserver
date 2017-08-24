@@ -195,7 +195,7 @@ void depreciate_prior_fixed_assets_process_execute(
 		depreciation_date ) )
 	{
 		printf(
-	"<h3>Error: no prior fixed assets in database.</h3>\n" );
+		"<h3>Error: no prior fixed assets in database.</h3>\n" );
 	}
 	else
 	{

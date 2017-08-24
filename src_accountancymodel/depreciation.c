@@ -2396,6 +2396,7 @@ void depreciation_prior_fixed_asset_insert_depreciation(
 	char sys_string[ 1024 ];
 	char *field;
 	FILE *output_pipe;
+	char *table;
 
 	if ( !list_rewind( depreciate_prior_fixed_asset_list ) )
 	{
@@ -2404,9 +2405,12 @@ void depreciation_prior_fixed_asset_insert_depreciation(
 
 	field = "full_name,street_address,asset_name,serial_number,depreciation_date,depreciation_amount,transaction_date_time";
 
+	table = "prior_fixed_asset_depreciation";
+
 	sprintf( sys_string,
-		 "insert_statement.e table=depreciation field='%s' del='^' |"
+		 "insert_statement.e table=%s field='%s' del='^' |"
 		 "sql.e",
+		 table,
 		 field );
 
 	output_pipe = popen( sys_string, "w" );

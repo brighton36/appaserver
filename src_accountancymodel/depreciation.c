@@ -2091,7 +2091,7 @@ DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_new( void )
 char *depreciate_prior_fixed_asset_get_select( void )
 {
 	char *select =
-"prior_fixed_asset.asset_name,serial_number,account,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumulated_depreciation";
+"asset_name,serial_number,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumulated_depreciation";
 
 	return select;
 }
@@ -2112,40 +2112,35 @@ DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_parse(
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 	if ( *piece_buffer )
-		depreciate_prior_fixed_asset->account_name =
-			strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
-	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->extension =
 			atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->estimated_useful_life_years =
 			atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->estimated_useful_life_units =
 			atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->estimated_residual_value =
 			atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->declining_balance_n =
 			atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->depreciation_method =
 			strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
 	if ( *piece_buffer )
 		depreciate_prior_fixed_asset->accumulated_depreciation =
 		depreciate_prior_fixed_asset->
@@ -2160,7 +2155,6 @@ LIST *depreciate_prior_fixed_asset_get_list(
 					char *application_name )
 {
 	char sys_string[ 1024 ];
-	char *where;
 	char *select;
 	char *folder;
 	char input_buffer[ 2048 ];
@@ -2172,18 +2166,13 @@ LIST *depreciate_prior_fixed_asset_get_list(
 
 	folder = "prior_fixed_asset_depreciation,fixed_asset";
 
-	where =
-	"prior_fixed_asset_depreciation.asset_name = fixed_asset.asset_name";
-
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=%s			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			",
+		 "			folder=%s			",
 		 application_name,
 		 select,
-		 folder,
-		 where );
+		 folder );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -2236,4 +2225,75 @@ DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
 	return p;
 
 } /* depreciate_prior_fixed_asset_depreciation_new() */
+
+void depreciation_prior_fixed_asset_table_display(
+				char *process_name,
+				LIST *depreciate_prior_fixed_asset_list )
+{
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	char *heading;
+	char *justification;
+	char buffer[ 128 ];
+	DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset;
+
+	if ( !list_rewind( depreciate_prior_fixed_asset_list ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: empty depreciate_prior_fixed_asset_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return;
+	}
+
+	heading =
+"Asset,Serial,Extension,Prior Accumulated,Depreciation,Post Accumulated";
+
+	justification = "left,left,right";
+
+	sprintf( sys_string,
+		 "html_table.e '%s' '%s' '^' '%s'",
+		 format_initial_capital( buffer, process_name ),
+		 heading,
+		 justification );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		depreciate_prior_fixed_asset =
+			list_get_pointer(
+				depreciate_prior_fixed_asset_list );
+
+		fprintf(output_pipe,
+			"%s^%s",
+			format_initial_capital(
+				buffer,
+				depreciate_prior_fixed_asset->asset_name ),
+			depreciate_prior_fixed_asset->serial_number );
+
+		fprintf(output_pipe,
+			"^%.2lf",
+			depreciate_prior_fixed_asset->extension );
+
+		fprintf(output_pipe,
+			"^%.2lf",
+			depreciate_prior_fixed_asset->
+				database_accumulated_depreciation );
+
+		fprintf(output_pipe,
+			"^%.2lf",
+			depreciate_prior_fixed_asset->
+				depreciation_amount );
+
+		fprintf(output_pipe,
+			"^%.2lf\n",
+			depreciate_prior_fixed_asset->
+				accumulated_depreciation );
+
+	} while( list_next( depreciate_prior_fixed_asset_list ) );
+
+	pclose( output_pipe );
+
+} /* depreciation_prior_fixed_asset_table_display() */
 

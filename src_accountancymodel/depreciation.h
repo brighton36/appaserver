@@ -47,7 +47,6 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_number;
-	char *account_name;
 	double extension;
 	int estimated_useful_life_years;
 	int estimated_useful_life_units;
@@ -337,5 +336,9 @@ DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
 			char *application_name,
 			char *self_full_name,
 			char *self_street_address );
+
+void depreciation_prior_fixed_asset_table_display(
+			char *process_name,
+			LIST *depreciate_prior_fixed_asset_list );
 
 #endif

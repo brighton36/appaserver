@@ -237,7 +237,15 @@ void depreciate_prior_fixed_assets_display(
 	DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
 		depreciate_prior_fixed_asset_depreciation;
 
-	entity_self = entity_self_load( application_name );
+	if ( ! ( entity_self = entity_self_load( application_name ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load entity self.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	depreciate_prior_fixed_asset_depreciation =
 		depreciate_prior_fixed_asset_depreciation_new(

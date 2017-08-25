@@ -29,11 +29,11 @@ void depreciate_fixed_assets_undo(	char *application_name,
 					char *fund_name,
 					char *depreciation_date );
 
-void depreciate_fixed_assets_execute(	char *application_name,
+boolean depreciate_fixed_assets_execute(char *application_name,
 					char *fund_name,
 					char *depreciation_date );
 
-void depreciate_fixed_assets_display(	char *application_name,
+boolean depreciate_fixed_assets_display(char *application_name,
 					char *fund_name,
 					char *depreciation_date,
 					char *process_name );
@@ -118,6 +118,14 @@ int main( int argc, char **argv )
 					application_name,
 					fund_name );
 
+			if ( !depreciation_date
+			||   !*depreciation_date )
+			{
+				printf(
+				"<h3>Error: no depreciated fixed assets.\n" );
+				return;
+			}
+
 			depreciate_fixed_assets_undo(
 				application_name,
 				fund_name,
@@ -141,14 +149,20 @@ int main( int argc, char **argv )
 			}
 			else
 			{
-				depreciate_fixed_assets_execute(
+				if ( !depreciate_fixed_assets_execute(
 					application_name,
 					fund_name,
-					depreciation_date );
-
-				printf(
+					depreciation_date ) )
+				{
+					printf(
+		"<h3>Error: no fixed asset purchases to depreciate.</h3>\n" );
+				}
+				else
+				{
+					printf(
 				"<h3>Depreciation now posted on %s.</h3>\n",
-				depreciation_date );
+					depreciation_date );
+				}
 			}
 		}
 	}
@@ -198,11 +212,15 @@ int main( int argc, char **argv )
 			}
 			else
 			{
-				depreciate_fixed_assets_display(
+				if ( !depreciate_fixed_assets_display(
 					application_name,
 					fund_name,
 					depreciation_date,
-					process_name );
+					process_name ) )
+				{
+					printf(
+		"<h3>Error: no fixed asset purchases to depreciate.</h3>\n" );
+				}
 			}
 		}
 	}
@@ -213,7 +231,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void depreciate_fixed_assets_execute(	char *application_name,
+boolean depreciate_fixed_assets_execute(char *application_name,
 					char *fund_name,
 					char *depreciation_date )
 {
@@ -224,6 +242,9 @@ void depreciate_fixed_assets_execute(	char *application_name,
 			application_name,
 			fund_name,
 			depreciation_date );
+
+	if ( !list_length( fixed_asset_depreciation->entity_list ) )
+		return 0;
 
 	depreciation_fixed_asset_set_depreciation(
 		fixed_asset_depreciation->entity_list,
@@ -238,9 +259,11 @@ void depreciate_fixed_assets_execute(	char *application_name,
 		fund_name,
 		depreciation_date );
 
+	return 1;
+
 } /* depreciate_fixed_assets_execute() */
 
-void depreciate_fixed_assets_display(	char *application_name,
+boolean depreciate_fixed_assets_display(char *application_name,
 					char *fund_name,
 					char *depreciation_date,
 					char *process_name )
@@ -252,6 +275,9 @@ void depreciate_fixed_assets_display(	char *application_name,
 			application_name,
 			fund_name,
 			depreciation_date );
+
+	if ( !list_length( fixed_asset_depreciation->entity_list ) )
+		return 0;
 
 	depreciation_fixed_asset_set_depreciation(
 		fixed_asset_depreciation->entity_list,
@@ -265,6 +291,8 @@ void depreciate_fixed_assets_display(	char *application_name,
 	depreciation_fixed_asset_depreciation_table_display(
 		process_name,
 		fixed_asset_depreciation->entity_list );
+
+	return 1;
 
 } /* depreciate_fixed_assets_display() */
 

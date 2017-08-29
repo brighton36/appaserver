@@ -1,6 +1,8 @@
 :
-# utility/userdel.sh
-# ------------------
+# $APPASERVER_HOME/utility/userdel.sh
+# ---------------------------------------------
+# Freely available software: see Appaserver.org
+# ---------------------------------------------
 
 if [ "$#" -ne 1 ]
 then

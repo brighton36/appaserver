@@ -27,7 +27,7 @@ sudo usermod -a -G $username $username
 # --------------------------
 if [ "$group" != "" ]
 then
-	sudo addgroup $group
+	sudo addgroup $group 2>/dev/null
 	sudo usermod -a -G $group $username
 fi
 

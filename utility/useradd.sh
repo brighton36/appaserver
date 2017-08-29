@@ -20,14 +20,14 @@ fi
 # Create the username and default group
 # -------------------------------------
 sudo useradd -m $username
-sudo addgroup $username
 sudo usermod -a -G $username $username
+sudo usermod $username -s /bin/bash
 
 # Assign to additional group
 # --------------------------
 if [ "$group" != "" ]
 then
-	sudo addgroup $group 2>/dev/null
+	sudo addgroup $group
 	sudo usermod -a -G $group $username
 fi
 

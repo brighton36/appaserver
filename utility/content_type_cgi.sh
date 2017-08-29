@@ -1,5 +1,5 @@
 :
-# utility/content_type_cgi.sh
+# $APPASERVER_HOME/utility/content_type_cgi.sh
 # ---------------------------------------------
 # Freely available software: see Appaserver.org
 # ---------------------------------------------

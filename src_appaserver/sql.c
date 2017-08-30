@@ -91,7 +91,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		h = new_appaserver_parameter_file();
+		h = appaserver_parameter_file_new();
 	}
 
 	if ( !h )

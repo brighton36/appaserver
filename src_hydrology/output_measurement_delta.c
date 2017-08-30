@@ -171,6 +171,9 @@ int main( int argc, char **argv )
 		fprintf( stderr,
 "Usage: %s application session process station datatype begin_date end_date delta_threshold output_medium\n",
 			 argv[ 0 ] );
+
+		fprintf( stderr,
+"Note: output_medium = {table,spreadsheet,text_file,stdout}\n" );
 		exit ( 1 );
 	}
 

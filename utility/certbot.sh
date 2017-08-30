@@ -16,6 +16,11 @@ operation=$1
 domain=$2
 document_root_leaf=$3
 
+if [ "$#" -eq 4 -a "$4" = "staging" ]
+then
+	testing=yes
+fi
+
 if [ "$#" -eq 4 -a "$4" = "testing" ]
 then
 	testing=yes

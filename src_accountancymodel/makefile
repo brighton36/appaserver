@@ -59,7 +59,8 @@ EXECUTABLES=	trial_balance						\
 		collect_customer_payment				\
 		make_vendor_payment					\
 		post_change_self					\
-		inventory_cost_method_propagate
+		inventory_cost_method_propagate				\
+		load_receipt_scan
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -151,6 +152,14 @@ ledger_propagate: ledger_propagate.c					\
 		${SOURCE_LIBRARY}					\
 		ledger_propagate.c					\
 		-o ledger_propagate
+
+load_receipt_scan: load_receipt_scan.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		load_receipt_scan.c					\
+		-o load_receipt_scan
 
 ledger_unbalance: ledger_unbalance.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

@@ -22,20 +22,16 @@ delay_minutes=30
 directory=${document_root}/appaserver
 
 find	$directory						\
-	-xdev							\
-	-maxdepth 2						\
 	-name '*_[1-9][0-9][0-9][0-9]*'				\
-	-cmin +$delay_minutes					\
+	-mmin +$delay_minutes					\
 	-exec rm -f {} \; 2>/dev/null
 
 delay_minutes=180
 directory=${appaserver_data}
 
 find	$directory						\
-	-xdev							\
-	-maxdepth 2						\
 	-name '*_[1-9][0-9][0-9][0-9]*'				\
-	-cmin +$delay_minutes					\
+	-mmin +$delay_minutes					\
 	-exec rm -f {} \; 2>/dev/null
 
 exit 0

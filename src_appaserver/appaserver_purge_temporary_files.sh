@@ -22,7 +22,7 @@ directory=${document_root}/appaserver/${application_name}/data
 #directory=${document_root}/appaserver
 
 find	$directory						\
-	-name '*_[1-9][0-9][0-9][0-9]*'				\
+	-name '*_[1-9][0-9][0-9]*'				\
 	-mmin +$delay_minutes					\
 	-exec rm -f {} \; 2>/dev/null
 
@@ -30,7 +30,7 @@ delay_minutes=180
 directory=${appaserver_data}
 
 find	$directory						\
-	-name '*_[1-9][0-9][0-9][0-9]*'				\
+	-name '*_[1-9][0-9][0-9]*'				\
 	-mmin +$delay_minutes					\
 	-exec rm -f {} \; 2>/dev/null
 

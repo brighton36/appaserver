@@ -19,6 +19,7 @@ fi
 
 outputfile=/tmp/mysqldump_${application}_`date.e 0 | tr ':' '-'`.sql.gz
 
+grep '^password' /etc/appaserver.config
 
 nice -9 mysqldump $options $application				|
 gzip 								|

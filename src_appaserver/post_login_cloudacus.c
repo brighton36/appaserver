@@ -58,16 +58,29 @@ int main( int argc, char **argv )
 	char *signup_yn = "";
 	char *login_yn = "";
 	char *application_name = "";
-	char *database_string;
 	char *application_title = "";
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	enum password_match_return password_match_return;
+	char *database_string = {0};
 
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
+	if ( argc == 2 )
+	{
+		application_name = argv[ 1 ];
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
+		if ( timlib_parse_database_string(	&database_string,
+							application_name ) )
+		{
+			environ_set_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+				database_string );
+		}
+		else
+		{
+			environ_set_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+				application_name );
+		}
+	}
 
 	post_dictionary =
 		post2dictionary(
@@ -75,17 +88,38 @@ int main( int argc, char **argv )
 			(char *)0 /* appaserver_data_directory */,
 			(char *)0 /* session */ );
 
-	dictionary_get_index_data(
-			&application_name,
-			post_dictionary,
-			"application_key",
-			0 );
+	if ( !*application_name )
+	{
+		dictionary_get_index_data(
+				&application_name,
+				post_dictionary,
+				"application_key",
+				0 );
+	}
+
+	if ( !*application_name )
+	{
+		fprintf( stderr,
+			"ERROR in %s/%s()/%d: cannot get application_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	appaserver_parameter_file =
+		appaserver_parameter_file_application(
+			application_name );
 
 	dictionary_get_index_data(
 			&login_name,
 			post_dictionary,
 			"login_name",
 			0 );
+
+	environ_prepend_dot_to_path();
+	add_utility_to_path();
+	add_src_appaserver_to_path();
 
 	appaserver_error_login_name_append_file(
 				argc,

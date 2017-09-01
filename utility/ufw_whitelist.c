@@ -1,4 +1,5 @@
-/* $APPASERVER_HOME/utility/breakin_whitelist.c		*/
+/* $APPASERVER_HOME/utility/ufw_whitelist.c		*/
+/* Note: links to ufw_blacklist.e			*/
 /* ---------------------------------------------------- */
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
@@ -11,16 +12,27 @@
 #include "fopen_path.h"
 
 #define WHITELIST_FILE	"ufw_whitelist.dat"
+#define BLACKLIST_FILE	"ufw_blacklist.dat"
 
-int main( void )
+int main( int argc, char **argv )
 {
 	FILE *input_file;
 	char buffer[ 1024 ];
 	FILE *output_pipe;
+	char *input_filename;
+
+/* stub */
+/* ---- */
+argc = 1;
+
+	if ( strcmp( argv[ 0 ], "ufw_blacklist.e" ) == 0 )
+		input_filename = BLACKLIST_FILE;
+	else
+		input_filename = WHITELIST_FILE;
 
 	output_pipe = popen( "sort -n", "w" );
 
-	if ( ( input_file = fopen_path( WHITELIST_FILE, "r" ) ) )
+	if ( ( input_file = fopen_path( input_filename, "r" ) ) )
 	{
 		while( get_line( buffer, input_file ) )
 		{

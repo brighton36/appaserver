@@ -1094,6 +1094,9 @@ ufw_whitelist.e: ufw_whitelist.c ${APPASERVER_LIBRARY}
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o ufw_whitelist.e
+		touch ufw_blacklist.e
+		rm ufw_blacklist.e
+		ln ufw_whitelist.e ufw_blacklist.e
 
 group_date_time.e: group_date_time.c					\
 	${LIBRARY}/name_arg.o

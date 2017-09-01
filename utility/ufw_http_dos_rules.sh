@@ -75,6 +75,7 @@ rules_file_write()
 }
 
 rules_file_write
+cp $rules /tmp
 insert_http_identifiers
 append_http_limit
 rules_file_no_write

@@ -1,4 +1,8 @@
 :
+# -----------------------------------------------
+# $APPASERVER_HOME/utility/ufw_whitelist_check.sh
+# -----------------------------------------------
+
 
 whitelist=/tmp/ufw_whitelist.dat
 

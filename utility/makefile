@@ -73,7 +73,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	group.e add_line.e update_statement.e label.e			\
 	group_sum.e							\
 	group_trim.e							\
-	breakin_whitelist.e						\
+	ufw_whitelist.e							\
 	group_date_time.e						\
 	delimiter2padded_columns.e					\
 	trim.e count.e random.e start_time.e stop_time.e		\
@@ -1088,12 +1088,12 @@ group_sum.e: group_sum.c
 		${STANDARD_LIBRARY}					\
 		-o group_sum.e
 
-breakin_whitelist.e: breakin_whitelist.c ${APPASERVER_LIBRARY}
-	$(CC) 	${CFLAGS} -I${LIBRARY} breakin_whitelist.c		\
+ufw_whitelist.e: ufw_whitelist.c ${APPASERVER_LIBRARY}
+	$(CC) 	${CFLAGS} -I${LIBRARY} ufw_whitelist.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
-		-o breakin_whitelist.e
+		-o ufw_whitelist.e
 
 group_date_time.e: group_date_time.c					\
 	${LIBRARY}/name_arg.o

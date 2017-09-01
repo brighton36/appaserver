@@ -1,7 +1,7 @@
 :
-# ------------------------
-# utility/breakin_setup.sh
-# ------------------------
+# ----------------------------------------------
+# $APPASERVER_HOME/utility/ufw_http_dos_rules.sh
+# ----------------------------------------------
 # sudo ufw app list
 # sudo lsof -i -nP
 # sudo netstat -p
@@ -15,6 +15,8 @@ insert_http_identifiers()
 {
 temp="/tmp/ufw_$$"
 
+# Will append a new commit later.
+# -------------------------------
 cat $rules			|
 sed 's/^COMMIT/#COMMIT/' > $temp
 cat $temp > $rules
@@ -72,32 +74,9 @@ rules_file_write()
 	sudo chown `whoami` $rules
 }
 
-remote_ip=`echo ${SSH_CONNECTION} | column.e 0`
-sudo ufw disable
-echo 'y' | sudo ufw reset >/dev/null
-sudo ufw logging low
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow from $remote_ip
-sudo ufw allow from 127.0.0.1
-sudo ufw allow http
-sudo ufw allow https
-sudo ufw allow domain
-sudo ufw allow smtp
-sudo ufw allow time
-sudo ufw allow sftp
-sudo ufw allow remoteping
-sudo ufw allow ssh
-sudo ufw limit ssh
-# sudo ufw allow nfs
-
-# Doesn't work :-(
-# ----------------
-# rules_file_write
-# insert_http_identifiers
-# append_http_limit
-# rules_file_no_write
-
-echo 'y' | sudo ufw enable >/dev/null
+rules_file_write
+insert_http_identifiers
+append_http_limit
+rules_file_no_write
 
 exit 0

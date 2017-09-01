@@ -1,5 +1,6 @@
 :
-breakin_whitelist=~/breakin_whitelist.dat
+
+whitelist=/tmp/ufw_whitelist.dat
 
 whitelist_check_b()
 {
@@ -12,7 +13,7 @@ whitelist_check_b()
 	
 	for i in `cat $ufw_status_class_b`
 	do
-		grep "^${i}" $breakin_whitelist
+		grep "^${i}" $whitelist
 	done
 }
 
@@ -27,10 +28,11 @@ whitelist_check_c()
 	
 	for i in `cat $ufw_status_class_c`
 	do
-		grep "^${i}" $breakin_whitelist
+		grep "^${i}" $whitelist
 	done
 }
 
+ufw_whitelist.e > $whitelist
 whitelist_check_b
 whitelist_check_c
 

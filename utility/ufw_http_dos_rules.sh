@@ -2,6 +2,8 @@
 # ----------------------------------------------
 # $APPASERVER_HOME/utility/ufw_http_dos_rules.sh
 # ----------------------------------------------
+# Test with "siege $server"
+# ----------------------------------------------
 
 rules="/etc/ufw/before.rules"
 
@@ -49,7 +51,7 @@ cat >> $rules << all_done1
 # Finally accept
 -A ufw-http -j ACCEPT
 
-# Log-A ufw-http-logdrop -m limit --limit 3/min --limit-burst 10 -j LOG --log-prefix "[UFW HTTP DROP] "
+-A ufw-http-logdrop -m limit --limit 3/min --limit-burst 10 -j LOG --log-prefix "[UFW HTTP DROP] "
 -A ufw-http-logdrop -j DROP
 
 ### End HTTP ###

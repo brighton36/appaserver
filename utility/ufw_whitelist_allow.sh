@@ -5,7 +5,6 @@
 
 ufw_whitelist.e					|
 grep -v '^$'					|
-xargs.e sudo ufw insert 1 allow from {}		|
-cat
+xargs.e sudo ufw allow from {}
 
 exit 0

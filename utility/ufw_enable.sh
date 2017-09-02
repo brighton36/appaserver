@@ -5,12 +5,11 @@
 # sudo ufw app list
 # sudo lsof -i -nP
 # sudo netstat -p
-# siege $target
 
 remote_ip=`echo ${SSH_CONNECTION} | column.e 0`
+
 sudo ufw disable
-echo 'y' | sudo ufw reset >/dev/null
-sudo ufw logging low
+# sudo ufw logging low
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow from $remote_ip

@@ -2,10 +2,6 @@
 # ----------------------------------------------
 # $APPASERVER_HOME/utility/ufw_http_dos_rules.sh
 # ----------------------------------------------
-# sudo ufw app list
-# sudo lsof -i -nP
-# sudo netstat -p
-# siege $target
 
 rules="/etc/ufw/before.rules"
 
@@ -34,30 +30,30 @@ append_http_limit()
 cat >> $rules << all_done1
 
 ### Start HTTP ###
- 
+
 # Enter rule
 -A ufw-before-input -p tcp --dport 80 -j ufw-http
 -A ufw-before-input -p tcp --dport 443 -j ufw-http
- 
+
 # Limit connections per Class C
 -A ufw-http -p tcp --syn -m connlimit --connlimit-above 50 --connlimit-mask 24 -j ufw-http-logdrop
- 
+
 # Limit connections per IP
 -A ufw-http -m state --state NEW -m recent --name conn_per_ip --set
 -A ufw-http -m state --state NEW -m recent --name conn_per_ip --update --seconds 10 --hitcount 20 -j ufw-http-logdrop
- 
+
 # Limit packets per IP
 -A ufw-http -m recent --name pack_per_ip --set
 -A ufw-http -m recent --name pack_per_ip --update --seconds 1 --hitcount 20 -j ufw-http-logdrop
- 
+
 # Finally accept
 -A ufw-http -j ACCEPT
- 
+
 # Log-A ufw-http-logdrop -m limit --limit 3/min --limit-burst 10 -j LOG --log-prefix "[UFW HTTP DROP] "
 -A ufw-http-logdrop -j DROP
- 
+
 ### End HTTP ###
- 
+
 COMMIT
 
 all_done1

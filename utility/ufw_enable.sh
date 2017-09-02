@@ -9,7 +9,7 @@
 remote_ip=`echo ${SSH_CONNECTION} | column.e 0`
 
 sudo ufw disable
-# sudo ufw logging low
+sudo ufw logging low
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow from $remote_ip

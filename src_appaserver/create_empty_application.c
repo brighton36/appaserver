@@ -244,8 +244,16 @@ int main( int argc, char **argv )
 				argv,
 				current_application );
 
-	appaserver_parameter_file =
-		appaserver_parameter_default_file_new();
+	if ( ! ( appaserver_parameter_file =
+			appaserver_parameter_default_file_new() ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot appaserver_parameter_default_file_new()\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( !session_access(	current_application,
 				session,
@@ -375,8 +383,16 @@ void get_all_environment_variables(	char **appaserver_error_directory,
 {
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	appaserver_parameter_file =
-		appaserver_parameter_default_file_new();
+	if ( ! ( appaserver_parameter_file =
+			appaserver_parameter_default_file_new() ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot appaserver_parameter_default_file_new()\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	*appaserver_error_directory =
 		appaserver_parameter_file->

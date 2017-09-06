@@ -73,6 +73,7 @@ int main( int argc, char **argv )
 			override_database = argv[ 1 ];
 	}
 
+
 	environ_prepend_dot_to_path();
 	add_local_bin_to_path();
 	add_dot_to_path();

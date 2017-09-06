@@ -113,16 +113,8 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_default_file_new( void )
 			APPASERVER_PARAMETER_FILE_NAME );
 
 	f = fopen( filename, "r" );
-	if ( !f )
-	{
-		fprintf(stderr,
-			 "ERROR in %s/%s/%d: cannot find (%s).\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			filename );
-		exit( 1 );
-	}
+
+	if ( !f ) return (APPASERVER_PARAMETER_FILE *)0;
 
 	s = appaserver_parameter_file_fetch( f, strdup( filename ) );
 
@@ -347,37 +339,41 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 	APPASERVER_PARAMETER_FILE *s;
 	FILE *f;
 
-	if ( application_name && *application_name )
-	{
-		sprintf(	appaserver_filename,
-				APPASERVER_PARAMETER_APPLICATION_FILE_NAME,
-				application_name );
-	
-		sprintf(	filename,
-				"%s/%s",
-				APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
-				appaserver_filename );
-	
-		if ( ( f = fopen( filename, "r" ) ) ) goto fetch;
-	}
+	/* If have read permission to /etc/appaserver.config */
+	/* ------------------------------------------------- */
+	if ( ( s = appaserver_parameter_default_file_new() ) )
+		return s;
 
-	sprintf(	filename,
-			"%s/%s",
-			APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
-			APPASERVER_PARAMETER_FILE_NAME );
-
-	if ( ! ( f = fopen( filename, "r" ) ) )
+	if ( !application_name || !*application_name )
 	{
-		fprintf(stderr,
-			 "ERROR in %s/%s/%d: cannot find (%s).\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			filename );
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty application_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 		exit( 1 );
 	}
 
-fetch:
+	sprintf(	appaserver_filename,
+			APPASERVER_PARAMETER_APPLICATION_FILE_NAME,
+			application_name );
+	
+	sprintf(	filename,
+			"%s/%s",
+			APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
+			appaserver_filename );
+	
+	if ( !( f = fopen( filename, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 filename );
+		exit( 1 );
+	}
+
 	s = appaserver_parameter_file_fetch( f, strdup( filename ) );
 
 	fclose( f );

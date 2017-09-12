@@ -39,7 +39,6 @@ typedef struct
 	LIST *entity_account_debit_list;
 	LIST *purchase_order_list;
 	double loss_amount;
-	/* char *transaction_date_time; */
 } ENTITY_CHECK_AMOUNT;
 
 typedef struct

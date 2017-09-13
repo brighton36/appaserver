@@ -6,8 +6,8 @@
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef CUSTOMER_SALE_H
-#define CUSTOMER_SALE_H
+#ifndef CUSTOMER_H
+#define CUSTOMER_H
 
 #include "list.h"
 #include "boolean.h"

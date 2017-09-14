@@ -727,6 +727,11 @@ drop_column: drop_column.c						\
 		${EXTERNAL_LIBS}					\
 		drop_column.c						\
 		-o drop_column
+	touch ${CGI_HOME}/drop_column
+	/bin/rm -f ${CGI_HOME}/drop_column
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_appaserver/drop_column			\
+	${CGI_HOME}
 
 drop_table: drop_table.c						\
 	${EXTERNAL_LIBS}

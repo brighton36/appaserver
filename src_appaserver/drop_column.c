@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* drop_column.c				       	*/
+/* $APPASERVER_HOME/src_appaserver/drop_column.c       	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
@@ -74,15 +74,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	/* Check permissions because this is executed from fix_orphans. */
-	/* ------------------------------------------------------------ */
+	/* ---------------------------------------------------- */
+	/* Check permissions because this is executed from	*/
+	/* fix_orphans and table_rectification.			*/
+	/* ---------------------------------------------------- */
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )

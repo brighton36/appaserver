@@ -137,6 +137,8 @@ int main( int argc, char **argv )
 	DICTIONARY *post_dictionary;
 	char *http_referer_filename;
 
+exit( 0 );
+
 	environ_set_environment(
 		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 		DATABASE );

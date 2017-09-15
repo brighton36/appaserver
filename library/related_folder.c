@@ -401,12 +401,13 @@ LIST *related_folder_get_drop_down_element_list(
 			output_select_option;
 	}
 
-	element->tab_index = tab_index;
+
 	element->drop_down->post_change_javascript =
 		post_change_javascript;
 
 	element->drop_down->max_drop_down_size = max_drop_down_size;
 	element->drop_down->no_initial_capital = no_initial_capital;
+	element->tab_index = tab_index;
 
 	element_drop_down_set_option_data_option_label_list(
 		&element->drop_down->option_data_list,

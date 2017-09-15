@@ -516,6 +516,8 @@ LIST *folder_get_primary_data_list(
 	LIST *folder_data_list;
 	QUERY *query;
 
+	/* if row level non-owner forbid */
+	/* ----------------------------- */
 	if ( filter_out_login_name && login_name )
 	{
 		char operator_entry[ 128 ];
@@ -567,7 +569,8 @@ LIST *folder_get_primary_data_list(
 						EQUAL_OPERATOR );
 
 		}
-	}
+
+	} /* if row level non-owner forbid */
 
 	if ( populate_drop_down_process )
 	{
@@ -617,7 +620,7 @@ LIST *folder_get_primary_data_list(
 				exclude_attribute_name_list );
 	}
 
-	if ( !list_rewind( primary_attribute_name_list ) )
+	if ( !list_length( primary_attribute_name_list ) )
 		return list_new();
 
 	query =	query_primary_data_new(
@@ -639,7 +642,8 @@ LIST *folder_get_primary_data_list(
 	folder_data_list =
 		folder_get_data_list(
 			application_name,
-			folder_name,
+			query->query_output->from_clause
+				/* folder_name */,
 			primary_attribute_name_list,
 			where_clause,
 			delimiter,

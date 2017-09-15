@@ -622,6 +622,8 @@ QUERY_OUTPUT *query_primary_data_output_new(
 		exit( 1 );
 	}
 
+	query_output->from_clause = folder->folder_name;
+
 	query_output->
 		query_drop_down_list =
 			query_get_primary_data_drop_down_list(
@@ -651,6 +653,46 @@ QUERY_OUTPUT *query_primary_data_output_new(
 			query_output->query_attribute_list,
 			folder->application_name,
 			folder->folder_name );
+
+	if ( folder->row_level_non_owner_forbid
+	&&   list_length( folder->mto1_isa_related_folder_list ) )
+	{
+		RELATED_FOLDER *isa_related_folder;
+		LIST *foreign_attribute_name_list;
+
+		list_rewind( folder->mto1_isa_related_folder_list );
+
+		do {
+			isa_related_folder =
+				list_get_pointer(
+					folder->mto1_isa_related_folder_list );
+
+			foreign_attribute_name_list =
+				   folder_get_primary_attribute_name_list(
+					isa_related_folder->folder->
+						attribute_list );
+
+			query_output->where_clause =
+				query_append_where_clause_related_join(
+					folder->application_name,
+					query_output->where_clause,
+					folder_get_primary_attribute_name_list(
+						folder->attribute_list ),
+					foreign_attribute_name_list,
+					folder->folder_name,
+					isa_related_folder->
+						folder->
+						folder_name );
+
+			query_output->from_clause =
+				query_append_folder_name(
+					query_output->from_clause,
+					isa_related_folder->
+						folder->
+						folder_name );
+
+		} while( list_next( folder->mto1_isa_related_folder_list ) );
+	}
 
 	return query_output;
 

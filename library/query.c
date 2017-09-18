@@ -934,12 +934,11 @@ generate_select_clause:
 	}
 
 	if ( folder
-	&&   list_length( folder->mto1_isa_related_folder_list ) )
+	&&   list_rewind( folder->mto1_isa_related_folder_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *foreign_attribute_name_list;
 
-		list_rewind( folder->mto1_isa_related_folder_list );
 		do {
 			isa_related_folder =
 				list_get_pointer(
@@ -1043,6 +1042,18 @@ m2( folder->application_name, msg );
 }
 */
 		}
+	}
+
+	/* ------------------------------------------------------------ */
+	/* If row_level_non_owner_forbid where a m:1 isa ENTITY.	*/
+	/* See EMPLOYEE_WORK_DAY --> EMPLOYEE isa ENTITY.		*/
+	/* ------------------------------------------------------------ */
+	if ( folder->row_level_non_owner_forbid
+	&&   list_length( folder->mto1_related_folder_list ) )
+	{
+		query_output_set_row_level_non_owner_forbid_join(
+			query_output,
+			folder );
 	}
 
 	return query_output;

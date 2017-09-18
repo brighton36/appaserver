@@ -320,7 +320,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			select_folder->join_1tom_related_folder_list );
 
 	row_dictionary_list_length =
-		list_length( element_list_structure->row_dictionary_list );
+		list_length( element_list_structure->
+				row_dictionary_list );
 
 	element_list_structure->regular_element_list =
 		row_security_get_element_list(

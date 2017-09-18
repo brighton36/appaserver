@@ -282,11 +282,12 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 				boolean is_primary_attribute )
 {
 	LIST *return_list;
-	ELEMENT *element;
+	ELEMENT *element = {0};
 
 	return_list = list_new();
 
-	if ( strcmp(	datatype,
+	if ( timlib_strcmp(
+			datatype,
 			element_get_type_string( http_filename ) ) == 0 )
 	{
 		element = element_new(
@@ -328,7 +329,8 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 			return (LIST *)0;
 		}
 
-		if ( strcmp( 	datatype, 
+		if ( timlib_strcmp(
+				datatype, 
 				"password" ) == 0 )
 		{
 			return (LIST *)0;
@@ -358,10 +360,12 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 				return_list, 
 				element );
 		}
+
 		return return_list;
+
 	} /* if view only */
 
-	if ( strcmp( datatype, "notepad" ) == 0 )
+	if ( timlib_strcmp( datatype, "notepad" ) == 0 )
 	{
 		element = element_new( 	notepad,
 					attribute_name);
@@ -380,7 +384,7 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 		element->notepad->state = "update";
 	}
 	else
-	if ( strcmp( datatype, "password" ) == 0 )
+	if ( timlib_strcmp( datatype, "password" ) == 0 )
 	{
 		element = element_new( 	password,
 					attribute_name);
@@ -396,14 +400,14 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 		element->password->state = "update";
 	}
 	else
-	if ( strcmp( datatype, "hidden_text" ) == 0 )
+	if ( timlib_strcmp( datatype, "hidden_text" ) == 0 )
 	{
 		element = element_new(
 				hidden, 
 				attribute_name );
 	}
 	else
-	if ( strcmp( datatype, "timestamp" ) == 0 )
+	if ( timlib_strcmp( datatype, "timestamp" ) == 0 )
 	{
 		element = element_new( 
 				prompt_data,
@@ -427,7 +431,7 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 		element->drop_down->state = "update";
 	}
 	else
-	if ( strcmp( datatype, "reference_number" ) == 0 )
+	if ( timlib_strcmp( datatype, "reference_number" ) == 0 )
 	{
 		element = element_new(
 				hidden, 
@@ -455,9 +459,9 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 		}
 	}
 	else
-	if ( strcmp( datatype, "date" ) == 0
-	||   strcmp( datatype, "current_date" ) == 0
-	||   strcmp( datatype, "date_time" ) == 0 )
+	if ( timlib_strcmp( datatype, "date" ) == 0
+	||   timlib_strcmp( datatype, "current_date" ) == 0
+	||   timlib_strcmp( datatype, "date_time" ) == 0 )
 	{
 		element = element_new( 	element_date,
 					attribute_name);
@@ -493,6 +497,7 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 		element->text_item->state = "update";
 	}
 	else
+	if ( timlib_strcmp( datatype, "text" ) == 0 )
 	{
 		element = element_new( 	text_item,
 					attribute_name);
@@ -528,7 +533,10 @@ LIST *appaserver_get_update_lookup_attribute_element_list(
 		element->text_item->state = "update";
 	}
 
-	list_append_pointer( return_list, element );
+	if ( element )
+	{
+		list_append_pointer( return_list, element );
+	}
 
 	return return_list;
 

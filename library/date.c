@@ -1111,6 +1111,23 @@ char *date_get_yyyy_mm_dd_hh_mm_ss(
 
 } /* date_get_yyyy_mm_dd_hh_mm_ss() */
 
+char *date_get_now_hh_colon_mm( void )
+{
+	char buffer[ 128 ];
+	time_t now;
+	struct tm *tm;
+
+	now = time( (time_t *)0 );
+	tm = localtime( &now );
+	sprintf(	buffer,
+			"%02d:%02d",
+			tm->tm_hour,
+			tm->tm_min );
+
+	return strdup( buffer );
+
+} /* date_get_now_hh_colon_mm() */
+
 char *date_get_now_hh_colon_mm_colon_ss( void )
 {
 	char buffer[ 128 ];

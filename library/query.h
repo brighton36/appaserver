@@ -29,6 +29,8 @@
 #define QUERY_NOT_NULL_EXPRESSION		\
 			 " (%s <> 'null' or %s <> '' or %s is not null)"
 
+#define QUERY_LOGIN_NAME_ATTRIBUTE_NAME		"login_name"
+
 /* Enumerated types */
 /* ---------------- */
 enum relational_operator {	equals,
@@ -603,5 +605,18 @@ QUERY_DROP_DOWN *query_process_drop_down_get_drop_down(
 char *query_where_clause(	LIST *primary_key_list,
 				char *input_buffer,
 				char delimiter );
+
+QUERY_OUTPUT *query_folder_output_new(
+				QUERY *query,
+				FOLDER *folder,
+				PROMPT_RECURSIVE *prompt_recursive );
+
+void query_output_set_row_level_non_owner_forbid_join(
+				QUERY_OUTPUT *query_output,
+				FOLDER *folder );
+
+void query_set_row_level_non_owner_forbid_dictionary(
+				QUERY *query,
+				FOLDER *folder );
 
 #endif

@@ -352,7 +352,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				time_string =
 					date_get_now_hh_colon_mm_colon_ss();
 			else
-				time_string = date_get_now_hhmm();
+				time_string = date_get_now_hh_colon_mm();
 
 			sprintf( data,
 				 "%s %s",

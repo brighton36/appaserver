@@ -118,7 +118,10 @@ char *date_get_now_time_hhmm( void );
 char *date_get_now_time_hhmm_colon_ss( void );
 char *date_get_now_hhmm_colon_ss( void );
 
-char *date_get_now_hh_colon_mm_colon_ss( void );
+char *date_get_now_hh_colon_mm_colon_ss(
+				void );
+
+char *date_get_now_hh_colon_mm(	void );
 
 char *date_get_yyyy_mm_dd_hh_mm_ss(
 				DATE *date_time );

@@ -650,7 +650,7 @@ LIST *get_attribute_element_list(	int *objects_outputted,
 	return_list = list_new();
 
 	element_list =
-		appaserver_get_update_lookup_attribute_element_list(
+		appaserver_library_get_update_lookup_attribute_element_list(
 				'y' /* update_yn */,
 				primary_attribute_name_list,
 				attribute->exclude_permission_list,

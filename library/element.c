@@ -1,4 +1,4 @@
-/* library/element.c 							*/
+/* $APPASERVER_HOME/library/element.c					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver element ADT.					*/
 /*									*/
@@ -2108,21 +2108,6 @@ void element_drop_down_output(
 
 		element = element_new( text_item, element_name );
 
-/*
-		if ( initial_data && *initial_data )
-		{
-			element_text_item_set_attribute_width(
-				element->text_item, 
-				timlib_strlen( initial_data ) );
-		}
-		else
-		{
-			element_text_item_set_attribute_width(
-				element->text_item, 
-				1 );
-		}
-*/
-
 		element_text_item_set_attribute_width(
 			element->text_item, 
 			ELEMENT_MAX_TEXT_WIDTH );
@@ -3196,10 +3181,6 @@ char *element_delimit_drop_down_data(	char *destination,
 	piece_count = 0;
 	while( *source )
 	{
-/*
-		if ( *source == '^' ) *source = '|';
-*/
-
 		if ( *source == MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER )
 		{
 			destination +=
@@ -3417,7 +3398,6 @@ char *element_get_destination_multi_select_element_name( LIST *element_list )
 
 		if ( element->element_type == drop_down
 		&&   element->drop_down->multi_select )
-		/* &&   element->drop_down->multi_select_element_name ) */
 		{
 			static char name_with_suffix[ 512 ];
 

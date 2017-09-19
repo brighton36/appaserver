@@ -459,4 +459,15 @@ char *appaserver_library_preupdate_change_state_display(
 char *appaserver_library_get_sort_attribute_name(
 				LIST *attribute_list );
 
+LIST *appaserver_library_get_update_lookup_attribute_element_list(
+					char update_yn,
+					LIST *primary_attribute_name_list,
+					LIST *exclude_permission_list,
+					char *attribute_name,
+					char *datatype,
+					int width,
+					char *post_change_javascript,
+					char *on_focus_javascript_function,
+					boolean is_primary_attribute );
+
 #endif

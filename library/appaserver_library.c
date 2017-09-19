@@ -991,7 +991,7 @@ LIST *appaserver_library_get_update_attribute_element_list(
 	}
 
 	element_list =
-		appaserver_get_update_lookup_attribute_element_list(
+		appaserver_library_get_update_lookup_attribute_element_list(
 				update_yn,
 				primary_attribute_name_list,
 				attribute->exclude_permission_list,
@@ -2864,4 +2864,288 @@ char *appaserver_library_get_sort_attribute_name( LIST *attribute_list )
 	return (char *)0;
 
 } /* appaserver_library_get_sort_attribute_name() */
+
+LIST *appaserver_library_get_update_lookup_attribute_element_list(
+				char update_yn,
+				LIST *primary_attribute_name_list,
+				LIST *exclude_permission_list,
+				char *attribute_name,
+				char *datatype,
+				int width,
+				char *post_change_javascript,
+				char *on_focus_javascript_function,
+				boolean is_primary_attribute )
+{
+	LIST *return_list;
+	ELEMENT *element = {0};
+
+	return_list = list_new();
+
+	if ( timlib_strcmp(
+			datatype,
+			element_get_type_string( http_filename ) ) == 0 )
+	{
+		element = element_new(
+				http_filename, 
+				attribute_name );
+
+		if ( update_yn == 'y' )
+		{
+			ELEMENT *temp_element;
+
+			temp_element =
+				element_get_text_item_variant_element(
+					attribute_name,
+					element_get_type_string( text_item ),
+					width,
+					post_change_javascript,
+					on_focus_javascript_function );
+
+			element_text_item_set_onchange_null2slash(
+					temp_element->text_item );
+
+			element->http_filename->update_text_item =
+				temp_element->text_item;
+		}
+
+		list_append_pointer( return_list, element );
+		return return_list;
+	}
+
+	if ( update_yn != 'y' 
+	||   appaserver_exclude_permission(
+			exclude_permission_list,
+			"update" ) )
+	{
+		if ( appaserver_exclude_permission(
+			exclude_permission_list,
+			"lookup" ) )
+		{
+			return (LIST *)0;
+		}
+
+		if ( timlib_strcmp(
+				datatype, 
+				"password" ) == 0 )
+		{
+			return (LIST *)0;
+		}
+
+		element = element_new( 
+				prompt_data_plus_hidden,
+				attribute_name );
+
+		element_prompt_data_set_heading(
+				element->prompt_data,
+				element->name );
+
+		list_append_pointer(
+				return_list, 
+				element );
+
+		if ( list_exists_string(
+			primary_attribute_name_list,
+			attribute_name ) )
+		{
+			element = element_new(
+				hidden, 
+				attribute_name );
+
+			list_append_pointer(
+				return_list, 
+				element );
+		}
+
+		return return_list;
+
+	} /* if view only */
+
+	if ( timlib_strcmp( datatype, "notepad" ) == 0 )
+	{
+		element = element_new( 	notepad,
+					attribute_name);
+
+		element_notepad_set_attribute_width(
+				element->notepad,
+				width );
+
+		element_notepad_set_heading(
+				element->notepad, 
+				element->name );
+
+		element_notepad_set_onchange_null2slash(
+				element->notepad );
+
+		element->notepad->state = "update";
+	}
+	else
+	if ( timlib_strcmp( datatype, "password" ) == 0 )
+	{
+		element = element_new( 	password,
+					attribute_name);
+
+		element_password_set_attribute_width(
+				element->password,
+				width );
+
+		element_password_set_heading(
+				element->password, 
+				element->name );
+
+		element->password->state = "update";
+	}
+	else
+	if ( timlib_strcmp( datatype, "hidden_text" ) == 0 )
+	{
+		element = element_new(
+				hidden, 
+				attribute_name );
+	}
+	else
+	if ( timlib_strcmp( datatype, "timestamp" ) == 0 )
+	{
+		element = element_new( 
+				prompt_data,
+				attribute_name );
+
+		element_prompt_data_set_heading(
+				element->prompt_data,
+				element->name );
+	}
+	else
+	if ( process_parameter_list_element_name_boolean( attribute_name ) )
+	{
+		element =
+			element_get_yes_no_drop_down(
+				attribute_name,
+				(char *)0 /* prepend_folder_name */,
+				post_change_javascript,
+				1 /* with_is_null */,
+				0 /* not with_not_null */ );
+
+		element->drop_down->state = "update";
+	}
+	else
+	if ( timlib_strcmp( datatype, "reference_number" ) == 0 )
+	{
+		element = element_new(
+				hidden, 
+				attribute_name );
+
+		list_append_pointer( return_list, element );
+
+		element = element_new( 
+				prompt_data,
+				attribute_name );
+
+		if ( is_primary_attribute )
+		{
+			char heading[ 128 ];
+			sprintf( heading, "*%s", element->name );
+			element_prompt_data_set_heading(
+					element->prompt_data,
+					strdup( heading ) );
+		}
+		else
+		{
+			element_prompt_data_set_heading(
+					element->prompt_data,
+					element->name );
+		}
+	}
+	else
+	if ( timlib_strcmp( datatype, "date" ) == 0
+	||   timlib_strcmp( datatype, "current_date" ) == 0
+	||   timlib_strcmp( datatype, "date_time" ) == 0 )
+	{
+		element = element_new( 	element_date,
+					attribute_name);
+
+		element_text_item_set_attribute_width(
+				element->text_item, 
+				width );
+
+		if ( is_primary_attribute )
+		{
+			char heading[ 128 ];
+			sprintf( heading, "*%s", element->name );
+			element_text_item_set_heading(
+					element->text_item,
+					strdup( heading ) );
+		}
+		else
+		{
+			element_text_item_set_heading(
+					element->text_item,
+					element->name );
+		}
+
+		element_text_item_set_onchange_null2slash(
+				element->text_item );
+
+		element->text_item->post_change_javascript =
+			post_change_javascript;
+
+		element->text_item->on_focus_javascript_function =
+			on_focus_javascript_function;
+
+		element->text_item->state = "update";
+	}
+	else
+	if ( timlib_strcmp( datatype, "text" ) == 0
+	||   timlib_strcmp( datatype, "integer" ) == 0
+	||   timlib_strcmp( datatype, "float" ) == 0 )
+	{
+		element = element_new( 	text_item,
+					attribute_name);
+
+		element_text_item_set_attribute_width(
+				element->text_item, 
+				width );
+
+		if ( is_primary_attribute )
+		{
+			char heading[ 128 ];
+			sprintf( heading, "*%s", element->name );
+			element_text_item_set_heading(
+					element->text_item,
+					strdup( heading ) );
+		}
+		else
+		{
+			element_text_item_set_heading(
+					element->text_item,
+					element->name );
+		}
+
+		element_text_item_set_onchange_null2slash(
+				element->text_item );
+
+		element->text_item->post_change_javascript =
+			post_change_javascript;
+
+		element->text_item->on_focus_javascript_function =
+			on_focus_javascript_function;
+
+		element->text_item->state = "update";
+	}
+
+	if ( element )
+	{
+		list_append_pointer( return_list, element );
+	}
+	else
+	if ( datatype )
+	{
+		fprintf( stderr,
+"Warning in %s/%s()/%d: could not assign an element to datatype = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 datatype );
+	}
+
+	return return_list;
+
+} /* appaserver_library_get_update_lookup_attribute_element_list() */
 

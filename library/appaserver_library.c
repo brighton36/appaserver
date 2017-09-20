@@ -1101,6 +1101,8 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 	LIST *return_list;
 	ELEMENT *element;
 
+	if ( !datatype ) return (LIST *)0;
+
 	return_list = list_new();
 
 	if ( posted_attribute_name_list
@@ -3055,11 +3057,10 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	}
 	else
 	if ( timlib_strcmp( datatype, "date" ) == 0
-	||   timlib_strcmp( datatype, "current_date" ) == 0
 	||   timlib_strcmp( datatype, "date_time" ) == 0 )
 	{
 		element = element_new( 	element_date,
-					attribute_name);
+					attribute_name );
 
 		element_text_item_set_attribute_width(
 				element->text_item, 
@@ -3068,7 +3069,89 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 		if ( is_primary_attribute )
 		{
 			char heading[ 128 ];
+
 			sprintf( heading, "*%s", element->name );
+
+			element_text_item_set_heading(
+					element->text_item,
+					strdup( heading ) );
+		}
+		else
+		{
+			element_text_item_set_heading(
+					element->text_item,
+					element->name );
+		}
+
+		element_text_item_set_onchange_null2slash(
+				element->text_item );
+
+		element->text_item->post_change_javascript =
+			post_change_javascript;
+
+		element->text_item->on_focus_javascript_function =
+			on_focus_javascript_function;
+
+		element->text_item->state = "update";
+	}
+	else
+	if ( timlib_strcmp( datatype, "current_date" ) == 0 )
+	{
+		element = element_new( 	element_current_date,
+					attribute_name );
+
+		element_text_item_set_attribute_width(
+				element->text_item, 
+				width );
+
+		element->text_item->dont_create_current_date = 1;
+
+		if ( is_primary_attribute )
+		{
+			char heading[ 128 ];
+
+			sprintf( heading, "*%s", element->name );
+
+			element_text_item_set_heading(
+					element->text_item,
+					strdup( heading ) );
+		}
+		else
+		{
+			element_text_item_set_heading(
+					element->text_item,
+					element->name );
+		}
+
+		element_text_item_set_onchange_null2slash(
+				element->text_item );
+
+		element->text_item->post_change_javascript =
+			post_change_javascript;
+
+		element->text_item->on_focus_javascript_function =
+			on_focus_javascript_function;
+
+		element->text_item->state = "update";
+	}
+	else
+	if ( timlib_strcmp( datatype, "current_date_time" ) == 0 )
+	{
+		element = element_new( 	element_current_date_time,
+					attribute_name );
+
+		element_text_item_set_attribute_width(
+				element->text_item, 
+				width );
+
+		element->text_item->dont_create_current_date = 1;
+
+		if ( is_primary_attribute )
+		{
+			char heading[ 128 ];
+
+			sprintf( heading, "*%s", element->name );
+
 			element_text_item_set_heading(
 					element->text_item,
 					strdup( heading ) );

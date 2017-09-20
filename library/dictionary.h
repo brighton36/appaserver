@@ -431,11 +431,14 @@ void dictionary_delete_keys_with_prefix(
 					DICTIONARY *dictionary, 
 					char *prefix );
 DICTIONARY *dictionary_copy(		DICTIONARY *dictionary );
+
 LIST *dictionary_get_key_data_list(	DICTIONARY *dictionary,
 					LIST *key_list,
 					char delimiter );
+
 void dictionary_clear_key_list(		DICTIONARY *dictionary,
 					LIST *key_list );
+
 void dictionary_clear_key_list_index_zero(
 					DICTIONARY *dictionary,
 					LIST *key_list );

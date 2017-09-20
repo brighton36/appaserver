@@ -1434,8 +1434,11 @@ DICTIONARY *copy_dictionary( DICTIONARY *dictionary )
 							key ) ) );
 		} while( list_next( key_list ) );
 	}
+
 	list_free_container( key_list );
+
 	return destination;
+
 } /* copy_dictionary() */
 
 DICTIONARY *dictionary_prepend_key(	DICTIONARY *dictionary,
@@ -3557,8 +3560,10 @@ void dictionary_set_indexed_date_time_to_current(
 		do {
 			attribute = list_get( attribute_list );
 
-			if ( strcmp(	attribute->datatype,
-					"date_time" ) != 0 )
+			if ( timlib_strcmp(	attribute->datatype,
+						"date_time" ) != 0
+			&&   timlib_strcmp(	attribute->datatype,
+						"current_date_time" ) != 0 )
 			{
 				continue;
 			}
@@ -3584,7 +3589,9 @@ void dictionary_set_indexed_date_time_to_current(
 					strdup( date_time_string ) );
 			}
 		} while( list_next( attribute_list ) );
+
 	} /* for( index ) */
+
 } /* dictionary_set_indexed_date_time_to_current() */
 
 void dictionary_set_date_time_to_current(
@@ -3601,10 +3608,10 @@ void dictionary_set_date_time_to_current(
 	do {
 		attribute = list_get( attribute_list );
 
-		if ( strcmp(	attribute->datatype,
-				"date_time" ) != 0
-		&&   strcmp(	attribute->datatype,
-				"current_date_time" ) != 0 )
+		if ( timlib_strcmp(	attribute->datatype,
+					"date_time" ) != 0
+		&&   timlib_strcmp(	attribute->datatype,
+					"current_date_time" ) != 0 )
 		{
 			continue;
 		}

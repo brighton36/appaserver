@@ -165,7 +165,7 @@ boolean entity_load(	char **unit,
 "unit,city,state_code,zip_code,phone_number,email_address,sales_tax_exempt_yn";
 
 	sprintf( where,
-		 "full_name = '%s' and		"
+		 "full_name = '%s' and			"
 		 "street_address = '%s' 		",
 		 escape_character(	buffer,
 					full_name,

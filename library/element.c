@@ -332,11 +332,15 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 	}
 	else
 	if ( element->element_type == element_current_date_time
-	||   ( element->element_type == element_current_date
-	&&     element->text_item->attribute_width == 19 ) )
+	||   element->element_type == element_current_date )
 	{
-		if ( !element->text_item->dont_initialize_data
-		&&   !element->text_item->data )
+		boolean with_calendar_popup = 1;
+
+		/* If okay to create the date and if no existing date. */
+		/* --------------------------------------------------- */
+		if ( !element->text_item->dont_create_current_date
+		&&   ( !element->text_item->data
+		||     !*element->text_item->data ) )
 		{
 			DATE_CONVERT *date_convert;
 			char *time_string;
@@ -348,18 +352,40 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				login_name,
 				date_get_now_yyyy_mm_dd() );
 
-			if ( element->text_item->attribute_width == 19 )
-				time_string =
-					date_get_now_hh_colon_mm_colon_ss();
+			if ( element->element_type == element_current_date )
+			{
+				strcpy( data, date_convert->return_date );
+			}
 			else
-				time_string = date_get_now_hh_colon_mm();
+			/* --------------------------------- */
+			/* Must be element_current_date_time */
+			/* --------------------------------- */
+			{
+				if ( element->text_item->attribute_width == 19 )
+					time_string =
+					    date_get_now_hh_colon_mm_colon_ss();
+				else
+					time_string =
+					    date_get_now_hh_colon_mm();
 
-			sprintf( data,
-				 "%s %s",
-				 date_convert->return_date,
-				 time_string );
+				sprintf( data,
+				 	"%s %s",
+				 	date_convert->return_date,
+				 	time_string );
+			}
 
 			element->text_item->data = strdup( data );
+			with_calendar_popup = 0;
+		}
+		else
+		/* -------------------------------------------------- */
+		/* The calendar doesn't work with a time in the date. */
+		/* -------------------------------------------------- */
+		if ( element->element_type == element_current_date_time
+		&&   element->text_item->data
+		&&   *element->text_item->data )
+		{
+			with_calendar_popup = 0;
 		}
 
 		element_date_output(
@@ -375,7 +401,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			background_color,
 			application_name,
 			login_name,
-			1 /* with_calendar_popup */,
+			with_calendar_popup,
 			element->text_item->readonly,
 			element->tab_index );
 	}
@@ -391,6 +417,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				application_name,
 				login_name,
 				date_get_now_yyyy_mm_dd() );
+
 			element->text_item->data = date_convert->return_date;
 		}
 
@@ -414,6 +441,15 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 	else
 	if ( element->element_type == element_date_time )
 	{
+		boolean with_calendar_popup = 1;
+
+		/* The calendar doesn't work with a time in the date. */
+		/* -------------------------------------------------- */
+		if ( element->text_item->data )
+		{
+			with_calendar_popup = 0;
+		}
+
 		element_date_output(
 			output_file,
 			element->name,
@@ -427,7 +463,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			background_color,
 			application_name,
 			login_name,
-			1 /* with_calendar_popup */,
+			with_calendar_popup,
 			element->text_item->readonly,
 			element->tab_index );
 	}
@@ -710,20 +746,32 @@ void element_output_non_element( char *s, FILE *output_file )
 
 void element_set_data( ELEMENT *e, char *s )
 {
-	if ( e->element_type == element_date )
+	if ( e->element_type == element_date
+	||   e->element_type == element_current_date
+	||   e->element_type == element_current_date_time )
+	{
 		element_text_item_set_data( e->text_item, s );
+	}
 	else
 	if ( e->element_type == text_item )
+	{
 		element_text_item_set_data( e->text_item, s );
+	}
 	else
 	if ( e->element_type == password )
+	{
 		element_password_set_data( e->password, s );
+	}
 	else
 	if ( e->element_type == notepad )
+	{
 		element_notepad_set_data( e->notepad, s );
+	}
 	else
 	if ( e->element_type == drop_down )
+	{
 		e->drop_down->initial_data = s;
+	}
 	else
 	if ( e->element_type == prompt_data
 	||   e->element_type == prompt_data_plus_hidden )
@@ -732,26 +780,27 @@ void element_set_data( ELEMENT *e, char *s )
 	}
 	else
 	if ( e->element_type == reference_number )
+	{
 		element_reference_number_set_data( e->reference_number, s );
+	}
 	else
 	if ( e->element_type == hidden )
+	{
 		element_hidden_set_data( e->hidden, s );
+	}
 	else
 	if ( e->element_type == http_filename )
+	{
 		e->http_filename->data = s;
+	}
 	else
 	if ( e->element_type == non_edit_multi_select )
+	{
 		e->non_edit_multi_select->option_label_list =
 			list_string2list(
 				s,
 				MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER );
-#ifdef NOT_DEFINED
-	else
-	{
-		/* No big deal */
 	}
-#endif
-
 } /* element_set_data() */
 
 int element_get_attribute_width( ELEMENT *e )

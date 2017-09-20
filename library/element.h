@@ -178,7 +178,7 @@ typedef struct
 	char *post_change_javascript;
 	char *on_focus_javascript_function;
 	char *state;
-	boolean dont_initialize_data;
+	boolean dont_create_current_date;
 	boolean readonly;
 } ELEMENT_TEXT_ITEM;
 

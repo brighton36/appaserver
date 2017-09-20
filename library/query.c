@@ -1082,7 +1082,7 @@ char *query_get_sys_string( 	char *application_name,
 
 	sprintf(sys_string,
 		"get_folder_data	application=%s			 "
-		"			select=%s			 "
+		"			select=\"%s\"			 "
 		"			folder=%s			 "
 		"			where_clause=\"%s and %s\"	 "
 		"			order_clause=\"%s\"		 "
@@ -1294,6 +1294,8 @@ char *query_get_select_clause(	char *application_name,
 	do {
 		attribute = list_get( append_isa_attribute_list );
 
+		if ( !attribute->datatype ) continue;
+
 		if ( !list_exists_string(
 				lookup_allowed_attribute_name_list,
 				attribute->attribute_name ) )
@@ -1312,12 +1314,30 @@ char *query_get_select_clause(	char *application_name,
 
 		if ( attribute->folder_name )
 		{
-			ptr += sprintf( ptr,
-					"%s.%s",
-					get_table_name(
-						application_name,
-						attribute->folder_name ),
-					attribute->attribute_name );
+			if ( ( strcmp(	attribute->datatype,
+					"current_date_time" ) == 0
+			||     strcmp(	attribute->datatype,
+					"date_time" ) == 0 )
+			&&     attribute->width == 16 )
+			{
+				ptr += sprintf( ptr,
+						"substr(%s.%s,1,16)",
+						get_table_name(
+							application_name,
+							attribute->
+								folder_name ),
+						attribute->attribute_name );
+			}
+			else
+			{
+				ptr += sprintf( ptr,
+						"%s.%s",
+						get_table_name(
+							application_name,
+							attribute->
+								folder_name ),
+						attribute->attribute_name );
+			}
 		}
 		else
 		{

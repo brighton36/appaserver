@@ -114,6 +114,7 @@ SOURCE_LIBRARY= 							\
 		inventory.o						\
 		depreciation.o						\
 		accrual.o						\
+		employee.o						\
 		entity.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
@@ -556,6 +557,10 @@ accrual.o: accrual.c accrual.h
 entity.o: entity.c entity.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c entity.c
+
+employee.o: employee.c employee.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c employee.c
 
 print_checks.o: print_checks.c print_checks.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

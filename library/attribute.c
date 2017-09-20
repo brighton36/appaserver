@@ -1481,7 +1481,8 @@ LIST *attribute_get_attribute_element_list(
 						element_date_time,
 						strdup( element_name ) );
 
-				element->text_item->dont_initialize_data = 1;
+				element->text_item->
+					dont_create_current_date = 1;
 			}
 			else
 			if ( strcmp( datatype, "current_date_time" ) == 0 )
@@ -1490,7 +1491,8 @@ LIST *attribute_get_attribute_element_list(
 						element_current_date_time,
 						strdup( element_name ) );
 
-				element->text_item->dont_initialize_data = 1;
+				element->text_item->
+					dont_create_current_date = 1;
 			}
 			else
 			{
@@ -1550,7 +1552,8 @@ LIST *attribute_get_attribute_element_list(
 						element_date_time,
 						strdup( element_name ) );
 
-				element->text_item->dont_initialize_data = 1;
+				element->text_item->
+					dont_create_current_date = 1;
 			}
 			else
 			if ( strcmp( datatype, "current_date_time" ) == 0 )
@@ -1559,7 +1562,8 @@ LIST *attribute_get_attribute_element_list(
 						element_current_date_time,
 						strdup( element_name ) );
 
-				element->text_item->dont_initialize_data = 1;
+				element->text_item->
+					dont_create_current_date = 1;
 			}
 			else
 			{

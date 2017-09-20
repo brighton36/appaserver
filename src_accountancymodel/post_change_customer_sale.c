@@ -1109,7 +1109,8 @@ void post_change_customer_sale_insert_FOB_destination(
 	if ( !customer_sale->arrived_date ) return;
 
 	customer_sale->transaction_date_time =
-		strdup( date_append_hhmmss( customer_sale->arrived_date ) );
+		ledger_get_transaction_date_time(
+			customer_sale->arrived_date );
 
 	customer_sale->transaction =
 		ledger_transaction_new(

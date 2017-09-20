@@ -317,14 +317,14 @@ void post_reoccurring_transaction(
 			application_name,
 			reoccurring_transaction->full_name,
 			reoccurring_transaction->street_address,
-			transaction_date_time,
+			transaction->transaction_date_time,
 			reoccurring_transaction->debit_account,
 			reoccurring_transaction->transaction_amount,
 			1 /* is_debit */ );
 
 	prior_ledger = ledger_get_prior_ledger(
 				application_name,
-				transaction_date_time,
+				transaction->transaction_date_time,
 				reoccurring_transaction->debit_account );
 
 	account = ledger_account_new( reoccurring_transaction->debit_account );
@@ -343,14 +343,14 @@ void post_reoccurring_transaction(
 			application_name,
 			reoccurring_transaction->full_name,
 			reoccurring_transaction->street_address,
-			transaction_date_time,
+			transaction->transaction_date_time,
 			reoccurring_transaction->credit_account,
 			reoccurring_transaction->transaction_amount,
 			0 /* not is_debit */ );
 
 	prior_ledger = ledger_get_prior_ledger(
 				application_name,
-				transaction_date_time,
+				transaction->transaction_date_time,
 				reoccurring_transaction->credit_account );
 
 	account = ledger_account_new( reoccurring_transaction->credit_account );

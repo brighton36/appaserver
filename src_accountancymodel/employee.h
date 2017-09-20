@@ -30,7 +30,7 @@ typedef struct
 	double state_tax_withholding_amount;
 	double social_security_employee_tax_amount;
 	double social_security_employer_tax_amount;
-	double medicare_employee_tax_amout;
+	double medicare_employee_tax_amount;
 	double medicare_employer_tax_amount;
 	double retirement_contribution_plan_employee_amount;
 	double retirement_contribution_plan_employer_amount;

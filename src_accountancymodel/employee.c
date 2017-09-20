@@ -67,23 +67,142 @@ LIST *employee_get_work_period_list(	char *application_name,
 				strdup( piece_buffer )
 					/* begin_work_date */ );
 
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 
 		if ( *piece_buffer )
 			employee_work_period->end_work_date =
 				strdup( piece_buffer );
 
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			2 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 
 		if ( *piece_buffer )
 			employee_work_period->employee_work_hours =
 				atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+
+		if ( *piece_buffer )
+			employee_work_period->gross_pay =
+				atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				federal_tax_withholding_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				state_tax_withholding_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				social_security_employee_tax_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				social_security_employer_tax_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				medicare_employee_tax_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				medicare_employer_tax_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				retirement_contribution_plan_employee_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				retirement_contribution_plan_employer_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				health_insurance_employee_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				health_insurance_employer_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				federal_unemployment_tax_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				state_unemployment_tax_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 16 );
+
+		if ( *piece_buffer )
+			employee_work_period->
+				union_dues_amount =
+					atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 17 );
+
+		if ( *piece_buffer )
+		{
+			employee_work_period->
+				transaction_date_time =
+					strdup( piece_buffer );
+		}
+		else
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty transaction_date_time.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+
+			pclose( input_pipe );
+			exit( 1 );
+		}
+
+		employee_work_period->transaction =
+			ledger_transaction_with_load_new(
+				application_name,
+				full_name,
+				street_address,
+				employee_work_period->
+					transaction_date_time );
 
 		list_append_pointer(
 			employee_work_period_list,
@@ -138,29 +257,20 @@ LIST *employee_get_work_day_list(	char *application_name,
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			0 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 
 		employee_work_day =
 			employee_work_day_new(
 				strdup( piece_buffer )
 					/* begin_work_date_time */ );
 
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 
 		if ( *piece_buffer )
 			employee_work_day->end_work_date_time =
 				strdup( piece_buffer );
 
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			2 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 
 		if ( *piece_buffer )
 		{
@@ -286,9 +396,70 @@ boolean employee_load(
 
 	if ( ! ( results = pipe2string( sys_string ) ) ) return 0;
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
+
 	if ( *piece_buffer )
 		*hourly_wage = atoi( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
+
+	if ( *piece_buffer )
+		*hourly_wage = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
+
+	if ( *piece_buffer )
+		*annual_salary = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
+
+	if ( *piece_buffer )
+		*commission_sum_extension_percent = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 3 );
+
+	if ( *piece_buffer )
+		*marital_status = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 4 );
+
+	if ( *piece_buffer )
+		*withholding_allowances = atoi( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 5 );
+
+	if ( *piece_buffer )
+		*withholding_additional_amount = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 6 );
+
+	if ( *piece_buffer )
+		*retirement_contribution_plan_employee_period_amount =
+			atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 7 );
+
+	if ( *piece_buffer )
+		*retirement_contribution_plan_employer_period_amount =
+			atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 8 );
+
+	if ( *piece_buffer )
+		*health_insurance_employee_period_amount =
+			atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 9 );
+
+	if ( *piece_buffer )
+		*health_insurance_employer_period_amount =
+			atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 10 );
+
+	if ( *piece_buffer )
+		*union_dues_period_amount =
+			atof( buffer );
 
 	free( results );
 

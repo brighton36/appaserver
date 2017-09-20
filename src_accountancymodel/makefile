@@ -59,6 +59,7 @@ EXECUTABLES=	trial_balance						\
 		collect_customer_payment				\
 		make_vendor_payment					\
 		post_change_self					\
+		post_change_employee_work_day				\
 		inventory_cost_method_propagate				\
 		load_receipt_scan
 
@@ -521,6 +522,14 @@ post_change_self: post_change_self.c					\
 		${SOURCE_LIBRARY}					\
 		post_change_self.c					\
 		-o post_change_self
+
+post_change_employee_work_day: post_change_employee_work_day.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_employee_work_day.c				\
+		-o post_change_employee_work_day
 
 inventory_cost_method_propagate: inventory_cost_method_propagate.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

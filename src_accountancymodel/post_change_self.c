@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_accountancymodel/post_change_self.c				*/
+/* $APPASERVER_HOME/src_accountancymodel/post_change_self.c		*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/

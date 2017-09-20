@@ -122,6 +122,7 @@ kml_extract
 # --------------------
 # src_accountancymodel
 # --------------------
+post_change_employee_work_day
 load_receipt_scan
 populate_print_checks_entity
 inventory_balance_detail

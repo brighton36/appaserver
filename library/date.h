@@ -59,6 +59,8 @@ DATE *date_yyyy_mm_dd_new( char *date_string );
 
 DATE *date_yyyy_mm_dd_hms_new( char *date_time_string );
 
+DATE *date_yyyy_mm_dd_hm_new( char *date_time_string );
+
 void date_increment_days( DATE *d, float days );
 
 void date_increment_hours( DATE *d, float hours );
@@ -325,7 +327,7 @@ char *date_append_hhmmss(	char *date_string );
 
 char *date_get_now_time_second(	void );
 
-char *date_subtract_colon_from_time(
+char *date_remove_colon_from_time(
 				char *time_string );
 
 DATE *date_now_new(		void );

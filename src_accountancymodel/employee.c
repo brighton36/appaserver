@@ -12,6 +12,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "folder.h"
+#include "date.h"
 #include "employee.h"
 
 LIST *employee_get_work_period_list(	char *application_name,
@@ -22,7 +23,7 @@ LIST *employee_get_work_period_list(	char *application_name,
 	EMPLOYEE_WORK_PERIOD *employee_work_period;
 	LIST *employee_work_period_list;
 	char *select;
-	char sys_string[ 512 ];
+	char sys_string[ 1024 ];
 	char where[ 256 ];
 	char input_buffer[ 512 ];
 	char piece_buffer[ 128 ];
@@ -40,7 +41,9 @@ LIST *employee_get_work_period_list(	char *application_name,
 					full_name,
 					'\'' ),
 		 street_address,
-		 begin_work_date );
+		 (begin_work_date)
+			? begin_work_date
+			: "1900-01-01" );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -222,15 +225,15 @@ LIST *employee_get_work_day_list(	char *application_name,
 	EMPLOYEE_WORK_DAY *employee_work_day;
 	LIST *employee_work_day_list;
 	char *select;
-	char sys_string[ 512 ];
-	char where[ 256 ];
+	char sys_string[ 1024 ];
+	char where[ 512 ];
 	char input_buffer[ 512 ];
 	char piece_buffer[ 128 ];
 	char buffer[ 256 ];
 	FILE *input_pipe;
 
 	select =
-"begin_work_date_time,end_work_date_time,employee_work_hours";
+"substr(begin_work_date_time,1,16),substr(end_work_date_time,1,16),employee_work_hours";
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -244,7 +247,7 @@ LIST *employee_get_work_day_list(	char *application_name,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=employee_work_day	"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -274,10 +277,60 @@ LIST *employee_get_work_day_list(	char *application_name,
 
 		if ( *piece_buffer )
 		{
-			employee_work_day->employee_work_hours =
 			employee_work_day->database_employee_work_hours =
 				atof( piece_buffer );
 		}
+
+		if ( employee_work_day->end_work_date_time )
+		{
+			DATE *begin_date_time;
+			DATE *end_date_time;
+
+			begin_date_time =
+				date_yyyy_mm_dd_hm_new(
+					employee_work_day->
+						begin_work_date_time );
+
+			if ( !begin_date_time )
+			{
+				fprintf( stderr,
+			"ERROR in %s/%s()/%d: cannot strip seconds off (%s).\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__,
+					 employee_work_day->
+					 	begin_work_date_time );
+
+				pclose( input_pipe );
+				exit( 1 );
+			}
+
+			end_date_time =
+				date_yyyy_mm_dd_hm_new(
+					employee_work_day->
+						end_work_date_time );
+
+			if ( !end_date_time )
+			{
+				fprintf( stderr,
+			"ERROR in %s/%s()/%d: cannot strip seconds off (%s).\n",
+				 	__FILE__,
+				 	__FUNCTION__,
+				 	__LINE__,
+				 	employee_work_day->
+					 	end_work_date_time );
+
+				pclose( input_pipe );
+				exit( 1 );
+			}
+
+			employee_work_day->employee_work_hours =
+				(double)date_subtract_minutes(
+					end_date_time /* later_date */,
+					begin_date_time /* earlier_date */ )
+				/ 60.0;
+
+		} /* if ( employee_work_day->end_work_date_time ) */
 
 		list_append_pointer(
 			employee_work_day_list,
@@ -347,6 +400,48 @@ EMPLOYEE *employee_new(			char *full_name,
 	return e;
 
 } /* employee_new() */
+
+EMPLOYEE *employee_with_load_new(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *begin_work_date )
+{
+	EMPLOYEE *e;
+
+	e = employee_new( full_name, street_address );
+
+	if ( !employee_load(
+		&e->hourly_wage,
+		&e->annual_salary,
+		&e->commission_sum_extension_percent,
+		&e->marital_status,
+		&e->withholding_allowances,
+		&e->withholding_additional_amount,
+		&e->retirement_contribution_plan_employee_period_amount,
+		&e->retirement_contribution_plan_employer_period_amount,
+		&e->health_insurance_employee_period_amount,
+		&e->health_insurance_employer_period_amount,
+		&e->union_dues_period_amount,
+		&e->employee_work_day_list,
+		&e->employee_work_period_list,
+		application_name,
+		full_name,
+		street_address,
+		begin_work_date ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot load %s/%s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 full_name,
+			 street_address );
+		exit( 1 );
+	}
+
+	return e;
+
+} /* employee_with_load_new() */
 
 boolean employee_load(
 		double *hourly_wage,
@@ -480,4 +575,87 @@ boolean employee_load(
 	return 1;
 
 } /* employee_load() */
+
+void employee_work_day_update(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *begin_work_date_time,
+			double employee_work_hours,
+			double database_employee_work_hours )
+{
+	char *sys_string;
+	FILE *output_pipe;
+
+	if ( double_virtually_same(
+			employee_work_hours,
+			database_employee_work_hours ) )
+	{
+		return;
+	}
+
+	sys_string =
+		employee_work_day_update_get_sys_string(
+			application_name );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf(output_pipe,
+		"%s^%s^%s^employee_work_hours^%.2lf\n",
+		full_name,
+		street_address,
+		begin_work_date_time,
+		employee_work_hours );
+
+	pclose( output_pipe );
+
+} /* employee_work_day_update() */
+
+char *employee_work_day_update_get_sys_string(
+				char *application_name )
+{
+	static char sys_string[ 256 ];
+	char *table_name;
+	char *key;
+
+	table_name =
+		get_table_name(
+			application_name,
+			"employee_work_day" );
+
+	key =
+"full_name,street_address,begin_work_date_time";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 table_name,
+		 key );
+
+	return sys_string;
+
+} /* employee_work_day_update_get_sys_string() */
+
+EMPLOYEE_WORK_DAY *employee_work_day_seek(
+				LIST *employee_work_day_list,
+				char *begin_work_date_time )
+{
+	EMPLOYEE_WORK_DAY *employee_work_day;
+
+	if ( !list_rewind( employee_work_day_list ) )
+		return (EMPLOYEE_WORK_DAY *)0;
+
+	do {
+		employee_work_day = list_get( employee_work_day_list );
+
+		if ( timlib_strcmp(	employee_work_day->begin_work_date_time,
+					begin_work_date_time ) == 0 )
+		{
+			return employee_work_day;
+		}
+
+	} while( list_next( employee_work_day_list ) );
+
+	return (EMPLOYEE_WORK_DAY *)0;
+
+} /* employee_work_day_seek() */
 

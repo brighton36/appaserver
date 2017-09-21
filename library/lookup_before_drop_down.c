@@ -52,7 +52,6 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,

@@ -1,6 +1,6 @@
 :
 
-make inventory_balance_detail
+make post_change_employee_work_day
 
 #if [ "$?" -eq 0 ]
 #then

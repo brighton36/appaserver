@@ -110,5 +110,24 @@ LIST *employee_get_work_period_list(	char *application_name,
 					char *street_address,
 					char *begin_work_date );
 
+char *employee_work_day_update_get_sys_string(
+					char *application_name );
+
+void employee_work_day_update(		char *application_name,
+					char *full_name,
+					char *street_address,
+					char *begin_work_date_time,
+					double employee_work_hours,
+					double database_employee_work_hours );
+
+EMPLOYEE *employee_with_load_new(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *begin_work_date );
+
+EMPLOYEE_WORK_DAY *employee_work_day_seek(
+					LIST *employee_work_day_list,
+					char *begin_work_date_time );
+
 #endif
 

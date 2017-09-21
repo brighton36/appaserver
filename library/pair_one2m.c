@@ -183,7 +183,6 @@ PAIR_ONE2M *pair_one2m_new(
 		&pair_one2m->pair_insert_folder->notepad,
 		&pair_one2m->pair_insert_folder->html_help_file_anchor,
 		&pair_one2m->pair_insert_folder->post_change_javascript,
-		&pair_one2m->pair_insert_folder->row_access_count,
 		&pair_one2m->pair_insert_folder->lookup_before_drop_down,
 		&pair_one2m->pair_insert_folder->data_directory,
 		&pair_one2m->pair_insert_folder->index_directory,

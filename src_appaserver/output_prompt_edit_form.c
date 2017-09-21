@@ -512,7 +512,6 @@ void output_prompt_edit_form(
 			&appaserver->folder->notepad,
 			&appaserver->folder->html_help_file_anchor,
 			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->row_access_count,
 			&appaserver->folder->lookup_before_drop_down,
 			&appaserver->folder->data_directory,
 			&appaserver->folder->index_directory,

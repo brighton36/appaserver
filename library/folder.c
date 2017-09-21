@@ -135,7 +135,6 @@ FOLDER *folder_with_load_new(	char *application_name,
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -906,7 +905,6 @@ boolean folder_load(	int *insert_rows_number,
 			char **notepad,
 			char **html_help_file_anchor,
 			char **post_change_javascript,
-			long *row_access_count,
 			boolean *lookup_before_drop_down,
 			char **data_directory,
 			char **index_directory,
@@ -1005,8 +1003,10 @@ boolean folder_load(	int *insert_rows_number,
 	piece( buffer, '^', record, FOLDER_POST_CHANGE_JAVASCRIPT_PIECE );
 	*post_change_javascript = strdup( buffer );
 
+/*
 	piece( buffer, '^', record, FOLDER_ROW_ACCESS_COUNT_PIECE );
 	*row_access_count = atol( buffer );
+*/
 
 	piece( buffer, '^', record, FOLDER_LOOKUP_BEFORE_DROP_DOWN_PIECE );
 	*lookup_before_drop_down = (*buffer == 'y');
@@ -1300,7 +1300,6 @@ LIST *folder_get_folder_list(
 				&folder->notepad,
 				&folder->html_help_file_anchor,
 				&folder->post_change_javascript,
-				&folder->row_access_count,
 				&folder->lookup_before_drop_down,
 				&folder->data_directory,
 				&folder->index_directory,

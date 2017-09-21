@@ -778,6 +778,49 @@ DATE *date_yyyy_mm_dd_hms_new( char *date_time_string )
 
 } /* date_yyyy_mm_dd_hms_new() */
 
+DATE *date_yyyy_mm_dd_hm_new( char *date_time_string )
+{
+	char year_string[ 16 ];
+	char month_string[ 16 ];
+	char day_string[ 16 ];
+	char hour_string[ 16 ];
+	char minute_string[ 16 ];
+	char date_half[ 32 ];
+	char time_half[ 32 ];
+	DATE *date;
+
+	if ( count_character( '-', date_time_string ) != 2 )
+		return (DATE *)0;
+
+	if ( count_character( ' ', date_time_string ) != 1 )
+		return (DATE *)0;
+
+	if ( count_character( ':', date_time_string ) == 0 )
+		return (DATE *)0;
+
+	column( date_half, 0, date_time_string );
+	column( time_half, 1, date_time_string );
+
+	piece( year_string, '-', date_half, 0 );
+	piece( month_string, '-', date_half, 1 );
+	piece( day_string, '-', date_half, 2 );
+
+	piece( hour_string, ':', time_half, 0 );
+	piece( minute_string, ':', time_half, 1 );
+
+	date = date_new_date_time(
+			atoi( year_string ),
+			atoi( month_string ),
+			atoi( day_string ),
+			atoi( hour_string ),
+			atoi( minute_string ),
+			0 /*seconds */ );
+
+	return date;
+
+} /* date_yyyy_mm_dd_hm_new() */
+
+
 DATE *date_yyyy_mm_dd_new( char *date_string )
 {
 	char year_string[ 128 ];
@@ -1896,7 +1939,7 @@ char *date_append_hhmmss( char *date_string )
 
 } /* date_append_hhmmss() */
 
-char *date_subtract_colon_from_time( char *time_string )
+char *date_remove_colon_from_time( char *time_string )
 {
 	static char buffer[ 128 ];
 
@@ -1929,5 +1972,5 @@ char *date_subtract_colon_from_time( char *time_string )
 		return (char *)0;
 	}
 
-} /* date_subtract_colon_from_time() */
+} /* date_remove_colon_from_time() */
 

@@ -1060,15 +1060,6 @@ output_choose_folder_process_menu: 					\
 		${LIB}/horizontal_menu.o				\
 		-o output_choose_folder_process_menu
 
-accumulate_folder_row_access_count: 					\
-		accumulate_folder_row_access_count.c 			\
-			${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		accumulate_folder_row_access_count.c			\
-		-o accumulate_folder_row_access_count
-
 output_choose_role_menu: output_choose_role_menu.c 			\
 			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\

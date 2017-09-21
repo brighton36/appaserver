@@ -871,7 +871,6 @@ LIST *related_folder_get_insert_element_list(
 		&related_folder->folder->html_help_file_anchor,
 		&related_folder->folder->
 			post_change_javascript,
-		&related_folder->folder->row_access_count,
 		&related_folder->folder->lookup_before_drop_down,
 		&related_folder->folder->data_directory,
 		&related_folder->folder->index_directory,
@@ -1085,7 +1084,6 @@ LIST *related_folder_get_update_element_list(
 		&related_folder->folder->html_help_file_anchor,
 		&related_folder->folder->
 			post_change_javascript,
-		&related_folder->folder->row_access_count,
 		&related_folder->folder->lookup_before_drop_down,
 		&related_folder->folder->data_directory,
 		&related_folder->folder->index_directory,
@@ -1254,7 +1252,6 @@ LIST *related_folder_get_mto1_related_folder_list(
 			&related_folder->folder->html_help_file_anchor,
 			&related_folder->folder->
 				post_change_javascript,
-			&related_folder->folder->row_access_count,
 			&related_folder->folder->lookup_before_drop_down,
 			&related_folder->folder->data_directory,
 			&related_folder->folder->index_directory,
@@ -1435,9 +1432,6 @@ LIST *related_folder_get_1tom_related_folder_list(
 			&related_folder->
 				one2m_related_folder->
 				post_change_javascript,
-			&related_folder->
-				one2m_related_folder->
-				row_access_count,
 			&related_folder->
 				one2m_related_folder->
 				lookup_before_drop_down,
@@ -2609,7 +2603,6 @@ LIST *related_folder_get_preselection_dictionary_list(
 			&related_folder->html_help_file_anchor,
 			&related_folder->
 				post_change_javascript,
-			&related_folder->row_access_count,
 			&related_folder->lookup_before_drop_down,
 			&related_folder->data_directory,
 			&related_folder->index_directory,
@@ -3179,7 +3172,6 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 			&related_folder->folder->html_help_file_anchor,
 			&related_folder->folder->
 				post_change_javascript,
-			&related_folder->folder->row_access_count,
 			&related_folder->folder->lookup_before_drop_down,
 			&related_folder->folder->data_directory,
 			&related_folder->folder->index_directory,

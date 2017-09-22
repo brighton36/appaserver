@@ -1428,57 +1428,32 @@ DATE *date_get_prior_sunday( DATE *date )
 	return date_get_prior_day( date, WDAY_SUNDAY );
 }
 
-DATE *date_populate_week_of_year_dictionary( char *year )
+int date_get_week_of_year( DATE *date )
 {
-	DATE *date;
-	char *date_string;
-	int wday;
-	int week;
-	char week_string[ 64 ];
+	char week_of_year_string[ 16 ];
+	int week_of_year;
 
-	date = date_new( atoi( year ), 1, 1 );
-	date->week_of_year_dictionary = dictionary_new();
-
-	date_set_tm_structures( date, date->current );
-
-	wday = date->tm->tm_wday;
-
-	week = 0;
-	sprintf( week_string, "%d", week );
-
-	while( 1 )
+	if ( !date )
 	{
-		date_string = date_get_yyyy_mm_dd_string( date );
-
-		if( wday != ( WDAY_SATURDAY + 1 ) )
-		{
-			wday++;
-		}
-		else
-		{
-			wday = 1;
-			week++;
-			sprintf( week_string, "%d", week );
-		}
-		dictionary_set_string(	date->week_of_year_dictionary,
-					date_string,
-					week_string );
-
-		/* If at end of year */
-		/* ----------------- */
-		if ( strcmp( date_string + 5, "12-31" ) == 0 ) break;
-
-		date_increment_day( date );
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
-	return date;
-} /* date_populate_week_of_year_dictionary() */
 
-int date_get_week_of_year( DATE *date, char *yyyy_mm_dd )
-{
-	char *week_string = 
-		dictionary_get( date->week_of_year_dictionary, yyyy_mm_dd );
-	return atoi( week_string );
-}
+	/* Returns 00-52 */
+	/* ------------- */
+	strftime( week_of_year_string, 15, "%U", date->tm );
+
+	week_of_year = atoi( week_of_year_string ) + 1;
+
+	if ( week_of_year == 53 ) week_of_year = 1;
+
+	return week_of_year;
+
+} /* date_get_week_of_year() */
 
 DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string )
 {
@@ -1658,7 +1633,7 @@ boolean date_copy( DATE *d1, DATE *d2 )
 
 	d1->current = d2->current;
 	d1->format_yyyy_mm_dd = d2->format_yyyy_mm_dd;
-	d1->week_of_year_dictionary = d2->week_of_year_dictionary;
+	/* d1->week_of_year_dictionary = d2->week_of_year_dictionary; */
 	memcpy( d1->tm, d2->tm, sizeof( struct tm ) );
 	return 1;
 }

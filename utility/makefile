@@ -126,7 +126,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	piece_shift_left.e						\
 	piece_shift_right.e						\
 	html_paragraph_wrapper.e piece_replace.e			\
-	yesterday.e julian_time_list.e date.e date2week.e piece_grep.e	\
+	yesterday.e julian_time_list.e date.e piece_grep.e		\
 	findbig.e padspace.e insert_string.e date_add_days.e		\
 	julian_add_hours.e						\
 	findtoday.e							\
@@ -1461,12 +1461,6 @@ date_min_max.e: date_min_max.c ${LIBRARY}/date.o ${LIBRARY}/julian.o
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o date_min_max.e
-
-date2week.e: date2week.c
-	$(CC)	${CFLAGS} -I${LIBRARY} date2week.c			\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${STANDARD_LIBRARY}					\
-		-o date2week.e
 
 julian_time_list.e: julian_time_list.c					\
 		${LIBRARY}/julian_time_double_list.o

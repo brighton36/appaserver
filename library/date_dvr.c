@@ -28,18 +28,17 @@ void test_2015_10_26( void );
 
 int main()
 {
-	test_2015_10_26();
+	test_week_of_year();
 	/*
+	test_2015_10_26();
 	test_subtract_second();
 	test_round();
-	test_week_of_year();
 	test1();
 	test2();
 	test3();
 	test4();
 	test5();
 	test6();
-	test_week_of_year();
 	test_richie();
 	printf( "Got appaserver.err = (%s)\n",
 		APPASERVER_ERROR_FILE );
@@ -106,24 +105,32 @@ void test_week_of_year()
 {
 	DATE *d;
 
-	d = date_populate_week_of_year_dictionary( "1999" );
+	system( "ncal -w -3 1 1999" );
 
-	printf( "should be week 0 is: %d\n",
-		date_get_week_of_year( d, "1999-01-01" ) );
-	printf( "should be week 0 is: %d\n",
-		date_get_week_of_year( d, "1999-01-02" ) );
-	printf( "should be week 1 is: %d\n",
-		date_get_week_of_year( d, "1999-01-03" ) );
-	printf( "should be week 1 is: %d\n",
-		date_get_week_of_year( d, "1999-01-04" ) );
-	printf( "should be week 1 is: %d\n",
-		date_get_week_of_year( d, "1999-01-09" ) );
-	printf( "should be week 2 is: %d\n",
-		date_get_week_of_year( d, "1999-01-10" ) );
-	printf( "should be week 52 is: %d\n",
-		date_get_week_of_year( d, "1999-12-26" ) );
-	printf( "should be week 52 is: %d\n",
-		date_get_week_of_year( d, "1999-12-31" ) );
+	d = date_yyyy_mm_dd_new( "1998-12-26" );
+	printf( "1998-12-26 should be week 52 is: %d\n",
+		date_get_week_of_year( d ) );
+
+	d = date_yyyy_mm_dd_new( "1998-12-27" );
+	printf( "1998-12-27 should be week 1 is: %d\n",
+		date_get_week_of_year( d ) );
+
+	d = date_yyyy_mm_dd_new( "1998-12-31" );
+	printf( "1998-12-31 should be week 1 is: %d\n",
+		date_get_week_of_year( d ) );
+
+	d = date_yyyy_mm_dd_new( "1999-01-01" );
+	printf( "1999-01-01 should be week 1 is: %d\n",
+		date_get_week_of_year( d ) );
+
+	d = date_yyyy_mm_dd_new( "1999-01-02" );
+	printf( "1999-01-02 should be week 1 is: %d\n",
+		date_get_week_of_year( d ) );
+
+	d = date_yyyy_mm_dd_new( "1999-01-03" );
+	printf( "1999-01-03 should be week 2 is: %d\n",
+		date_get_week_of_year( d ) );
+
 }
 
 void test2()

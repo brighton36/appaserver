@@ -1,13 +1,7 @@
-/* name_arg.c */
-/* ---------- */
-/* ------------------------------------------------------- */
-/* Freely available software: see Appaserver.org	   */
-/* ------------------------------------------------------- */
-/* ----------------------------------------------------------------------- */
-/* This package provides the abstract data type NAME_ARG which facilitates */
-/* named command line arguments.                                           */
-/* ----------------------------------------------------------------------- */
-
+/* $APPASERVER_HOME/library/name_arg.c		 */
+/* --------------------------------------------- */
+/* Freely available software: see Appaserver.org */
+/* --------------------------------------------- */
 
 #include <stdio.h>
 #include <string.h>
@@ -140,7 +134,10 @@ char *fetch_arg( NAME_ARG *arg, char *option )
 	return (char *)0;
 } /* fetch_arg */
 
-
+NAME_ARG *name_arg_new( char *argv_0 )
+{
+	return init_arg( argv_0 );
+}
 
 NAME_ARG *init_arg( char *argv_0 )
 /* --------------------------------------- */
@@ -175,6 +172,11 @@ void free_arg( NAME_ARG *arg )
 
 
 void name_arg_insert_argv( NAME_ARG *arg, int argc, char **argv )
+{
+	insert_argv( arg, argc, argv );
+}
+
+void name_arg_insert( NAME_ARG *arg, int argc, char **argv )
 {
 	insert_argv( arg, argc, argv );
 }

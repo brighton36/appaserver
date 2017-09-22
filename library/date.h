@@ -85,7 +85,9 @@ int date_minutes_between(	char *from_date_string,
 
 int age( char *birth_date );
 void add_slashes_maybe( char *d, char *s );
+
 char *date_yyyy_mm_dd( DATE *date );
+
 char *date_get_yyyy_mm_dd( char *destination, DATE *date );
 char *date_get_hhmm( char *destination, DATE *date );
 

@@ -66,6 +66,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	escape_character.e						\
 	binary_count.e							\
 	decimal_count.e							\
+	payroll_period.e						\
 	location_convert.e						\
 	html_encode_quote_and_ampersand.e				\
 	date_grandfather_father_son.e					\
@@ -108,7 +109,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	append_escaped_backslash_cr.e joinfiles.e count_alpha.e		\
 	isolate_line.e delete_statement.e remove_duplicate_rows.e	\
 	trim_right_until_character.e make_pleasant.e 			\
-	append_radio_html.e merge_n_groups.e sedmv.e			\
+	append_radio_html.e merge_n_groups.e 				\
 	commas_in_long.e each_week.e table.e				\
 	statistics_on_group.e range.e parse_post.e			\
 	decode_html_post.e dayofyear2date.e html_wrapper.e		\
@@ -1661,4 +1662,12 @@ subtract_list.e: subtract_list.c
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o subtract_list.e
+
+payroll_period.e: payroll_period.c ${APPASERVER_LIBRARY}		\
+		${LIBRARY}/name_arg.o
+	$(CC)	${CFLAGS} -I${LIBRARY} payroll_period.c			\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${LIBRARY}/name_arg.o					\
+		-o payroll_period.e
 

@@ -18,6 +18,12 @@
 
 /* Prototypes */
 /* ---------- */
+void payroll_period_biweekly_period(
+				int year,
+				int period_number );
+
+void payroll_period_biweekly_date(char *date_string );
+
 void payroll_period_weekly_period(
 				int year,
 				int period_number );
@@ -129,6 +135,25 @@ void payroll_period(	char *argv_0,
 			output_error = 1;		
 		}
 	}
+	else
+	if ( timlib_strcmp( period, "biweekly" ) == 0 )
+	{
+		if ( *date_string )
+		{
+			payroll_period_biweekly_date( date_string );
+		}
+		else
+		if ( period_number )
+		{
+			payroll_period_biweekly_period(
+				year,
+				period_number );
+		}
+		else
+		{
+			output_error = 1;		
+		}
+	}
 
 	if ( output_error )
 	{
@@ -149,7 +174,7 @@ void payroll_period_weekly_date( char *date_string )
 		PAYROLL_PERIOD_NUMBER_LABEL,
 		date_get_week_of_year( d ) );
 
-} /* payroll_period_weekly() */
+} /* payroll_period_weekly_date() */
 
 void payroll_period_weekly_period(
 				int year,
@@ -219,4 +244,90 @@ void payroll_period_weekly_period(
 		date_yyyy_mm_dd( d ) );
 
 } /* payroll_period_weekly_period() */
+
+void payroll_period_biweekly_date( char *date_string )
+{
+	DATE *d;
+	int week_of_year;
+	int payroll_period;
+
+	d = date_yyyy_mm_dd_new( date_string );
+
+	week_of_year = date_get_week_of_year( d );
+	payroll_period = (int)( ( (double)week_of_year / 2.0 ) + 0.5 );
+
+	printf( "%s %d\n",
+		PAYROLL_PERIOD_NUMBER_LABEL,
+		payroll_period );
+
+} /* payroll_period_biweekly_date() */
+
+void payroll_period_biweekly_period(
+				int year,
+				int period_number )
+{
+	DATE *d;
+	char date_string[ 16 ];
+	int week_of_year;
+	boolean all_done = 0;
+	boolean first_time = 1;
+
+	if ( period_number == 1 )
+	{
+		sprintf( date_string, "%d-12-25", year - 1 );
+	}
+	else
+	if ( period_number == 52 )
+	{
+		sprintf( date_string, "%d-12-15", year );
+	}
+	else
+	{
+		sprintf( date_string, "%d-01-01", year );
+	}
+
+	d = date_yyyy_mm_dd_new( date_string );
+
+	week_of_year = date_get_week_of_year( d );
+
+	while ( !all_done )
+	{
+		if ( week_of_year == period_number )
+		{
+			if ( first_time )
+			{
+				printf( "%s %s\n",
+					PAYROLL_BEGIN_DATE_LABEL,
+					date_yyyy_mm_dd( d ) );
+				first_time = 0;
+			}
+		}
+
+		date_increment_days( d, 1 );
+
+		week_of_year = date_get_week_of_year( d );
+
+		if ( period_number == 1 )
+		{
+			if ( week_of_year == 2 ) all_done = 1;
+		}
+		else
+		if ( period_number == 52 )
+		{
+			if ( week_of_year == 1 ) all_done = 1;
+		}
+		else
+		if ( week_of_year > period_number )
+		{
+			all_done = 1;
+		}
+	}
+
+	date_increment_days( d, -1 );
+
+	printf( "%s %s\n",
+		PAYROLL_END_DATE_LABEL,
+		date_yyyy_mm_dd( d ) );
+
+} /* payroll_period_biweekly_period() */
 

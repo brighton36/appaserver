@@ -37,7 +37,6 @@ typedef struct
 {
 	time_t current;
 	int format_yyyy_mm_dd;
-	/* DICTIONARY *week_of_year_dictionary; */
 	struct tm *tm;
 } DATE;
 
@@ -146,8 +145,6 @@ int date_set_yyyy_mm_dd_hhmm_delimited(
 
 char *date_this_saturday_yyyy_mm_dd_string( DATE *date );
 char *date_new_get_yyyy_mm_dd( time_t current );
-
-/* DATE *date_populate_week_of_year_dictionary( char *year ); */
 
 int date_get_week_of_year( DATE *date );
 

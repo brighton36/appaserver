@@ -459,25 +459,25 @@ int date_get_day_of_week( DATE *d )
 
 char *date_get_day_of_week_string( DATE *d )
 {
-	if ( d->tm->tm_wday == 0 )
+	if ( d->tm->tm_wday == WDAY_SUNDAY )
 		return "Sunday";
 	else
-	if ( d->tm->tm_wday == 1 )
+	if ( d->tm->tm_wday == WDAY_MONDAY )
 		return "Monday";
 	else
-	if ( d->tm->tm_wday == 2 )
+	if ( d->tm->tm_wday == WDAY_TUESDAY )
 		return "Tuesday";
 	else
-	if ( d->tm->tm_wday == 3 )
+	if ( d->tm->tm_wday == WDAY_WEDNESDAY )
 		return "Wednesday";
 	else
-	if ( d->tm->tm_wday == 4 )
+	if ( d->tm->tm_wday == WDAY_THURSDAY )
 		return "Thursday";
 	else
-	if ( d->tm->tm_wday == 5 )
+	if ( d->tm->tm_wday == WDAY_FRIDAY )
 		return "Friday";
 	else
-	if ( d->tm->tm_wday == 6 )
+	if ( d->tm->tm_wday == WDAY_SATURDAY )
 		return "Saturday";
 	else
 		return "Unknown";
@@ -1428,33 +1428,6 @@ DATE *date_get_prior_sunday( DATE *date )
 	return date_get_prior_day( date, WDAY_SUNDAY );
 }
 
-int date_get_week_of_year( DATE *date )
-{
-	char week_of_year_string[ 16 ];
-	int week_of_year;
-
-	if ( !date )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty date.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	/* Returns 00-52 */
-	/* ------------- */
-	strftime( week_of_year_string, 15, "%U", date->tm );
-
-	week_of_year = atoi( week_of_year_string ) + 1;
-
-	if ( week_of_year == 53 ) week_of_year = 1;
-
-	return week_of_year;
-
-} /* date_get_week_of_year() */
-
 DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string )
 {
 	DATE *date;
@@ -1633,7 +1606,6 @@ boolean date_copy( DATE *d1, DATE *d2 )
 
 	d1->current = d2->current;
 	d1->format_yyyy_mm_dd = d2->format_yyyy_mm_dd;
-	/* d1->week_of_year_dictionary = d2->week_of_year_dictionary; */
 	memcpy( d1->tm, d2->tm, sizeof( struct tm ) );
 	return 1;
 }
@@ -1948,4 +1920,44 @@ char *date_remove_colon_from_time( char *time_string )
 	}
 
 } /* date_remove_colon_from_time() */
+
+int date_get_week_of_year( DATE *date )
+{
+	char week_of_year_string[ 16 ];
+	int week_of_year;
+	int year;
+	DATE *january_1st;
+
+	if ( !date )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	year = date_get_year( date );
+
+	january_1st = date_new( year, 1, 1 );
+
+	/* Returns 00-53 */
+	/* ------------- */
+	strftime( week_of_year_string, 16, "%U", date->tm );
+
+fprintf( stderr, "%s week_of_year_string = %s\n",
+date_display( date ), week_of_year_string );
+
+	week_of_year = atoi( week_of_year_string );
+
+	strftime( week_of_year_string, 16, "%U", january_1st->tm );
+
+fprintf( stderr, "january 1st day_of_week = %s and week_of_year_string = %s\n",
+date_get_day_of_week_string( january_1st ),
+week_of_year_string );
+
+	return week_of_year;
+
+} /* date_get_week_of_year() */
 

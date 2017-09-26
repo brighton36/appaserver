@@ -809,7 +809,6 @@ void test_week_of_year_2038()
 {
 	DATE *d;
 
-/*
 	fflush( stdout );
 	system( "ncal -w -3 12 2038" );
 	fflush( stdout );
@@ -822,14 +821,12 @@ void test_week_of_year_2038()
 	printf( "2038-01-01 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
-*/
 
 	d = date_yyyy_mm_dd_new( "2038-12-25" );
 	printf( "2038-12-25 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-/*
 	d = date_yyyy_mm_dd_new( "2038-12-26" );
 	printf( "2038-12-26 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
@@ -871,7 +868,6 @@ void test_week_of_year_2038()
 	d = date_yyyy_mm_dd_new( "2039-01-07" );
 	printf( "2039-01-07 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
-*/
 }
 
 void test_week_of_year_2045()

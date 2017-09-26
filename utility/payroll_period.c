@@ -18,6 +18,9 @@
 
 /* Prototypes */
 /* ---------- */
+int payroll_period_get_biweekly_period(
+				int week_of_year );
+
 void payroll_period_biweekly_period(
 				int year,
 				int period_number );
@@ -266,8 +269,10 @@ void payroll_period_biweekly_date( char *date_string )
 	d = date_yyyy_mm_dd_new( date_string );
 
 	week_of_year = date_get_week_of_year( d );
-	payroll_period = (int)( ( (double)week_of_year / 2.0 ) + 0.5 );
 
+	payroll_period =
+		payroll_period_get_biweekly_period(
+			week_of_year );
 	printf( "%s %d\n",
 		PAYROLL_PERIOD_NUMBER_LABEL,
 		payroll_period );
@@ -342,4 +347,14 @@ void payroll_period_biweekly_period(
 		date_yyyy_mm_dd( d ) );
 
 } /* payroll_period_biweekly_period() */
+
+int payroll_period_get_biweekly_period(
+			int week_of_year )
+{
+	int payroll_period;
+
+	payroll_period = (int)( ( (double)week_of_year / 2.0 ) + 0.5 );
+
+	return payroll_period;
+}
 

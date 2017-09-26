@@ -27,6 +27,7 @@ int main( int argc, char **argv )
 		if ( one_line_yn == 'y' )
 		{
 			if ( count != 1 ) printf( "," );
+
 			printf( "%d", count );
 		}
 		else

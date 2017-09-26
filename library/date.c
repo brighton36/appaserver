@@ -88,6 +88,16 @@ DATE *date_new_date_time(
 	DATE *d;
 	struct tm tm;
 
+	if ( year >= 2038 && sizeof( time_t ) == 4 )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: year must be earlier than 2038 for 32 bit hardware.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	d = date_new_date();
 	d->tm->tm_year = year - 1900;
 	d->tm->tm_mon = month - 1;
@@ -124,7 +134,9 @@ DATE *date_new( int year, int month, int day )
 
 time_t date_tm_to_current( struct tm *tm )
 {
-	tm->tm_isdst = 0;
+	/* Commented out 2017-09-26 */
+	/* ------------------------ */
+	/* tm->tm_isdst = 0; */
 
 	if ( tm->tm_year < 70 )
 	{
@@ -1247,6 +1259,11 @@ time_t date_mktime( struct tm *tm )
 	struct tm local_tm;
 
 	memcpy( &local_tm, tm, sizeof (struct tm ) );
+
+	/* Tried 2017-09-26 */
+	/* ---------------- */
+	/* local_tm.tm_isdst = 0; */
+
 	return_value = mktime( &local_tm );
 
 	return return_value;
@@ -1450,8 +1467,11 @@ DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string )
 	minutes = atoi( buffer );
 
 	date = date_new( year, month, day );
+
 	date_set_time( date, hour, minutes );
+
 	return date;
+
 } /* date_yyyy_mm_dd_hhmm_new() */
 
 int date_set_time_hhmm( DATE *date, char *hhmm )
@@ -1927,6 +1947,9 @@ int date_get_week_of_year( DATE *date )
 	int week_of_year;
 	int year;
 	DATE *january_1st;
+	DATE *december_23rd;
+	boolean january_1st_sunday;
+	boolean december_23rd_friday_or_saturday;
 
 	if ( !date )
 	{
@@ -1942,20 +1965,46 @@ int date_get_week_of_year( DATE *date )
 
 	january_1st = date_new( year, 1, 1 );
 
+	january_1st_sunday =
+		( date_get_day_of_week( january_1st ) == WDAY_SUNDAY );
+
 	/* Returns 00-53 */
 	/* ------------- */
 	strftime( week_of_year_string, 16, "%U", date->tm );
 
-fprintf( stderr, "%s week_of_year_string = %s\n",
-date_display( date ), week_of_year_string );
-
 	week_of_year = atoi( week_of_year_string );
 
-	strftime( week_of_year_string, 16, "%U", january_1st->tm );
+	if ( january_1st_sunday )
+	{
+		if ( week_of_year == 53 ) week_of_year = 1;
+	}
+	else
+	{
+		week_of_year++;
 
-fprintf( stderr, "january 1st day_of_week = %s and week_of_year_string = %s\n",
-date_get_day_of_week_string( january_1st ),
-week_of_year_string );
+		if ( week_of_year == 54 )
+		{
+			week_of_year = 1;
+		}
+		if ( week_of_year == 53 )
+		{
+			december_23rd = date_new( year, 12, 23 );
+
+			strftime(	week_of_year_string,
+					16,
+					"%U",
+					december_23rd->tm );
+
+			december_23rd_friday_or_saturday =
+				( ( date_get_day_of_week( december_23rd ) ==
+				    WDAY_FRIDAY )
+			||        ( date_get_day_of_week( december_23rd ) ==
+				    WDAY_SATURDAY ) );
+
+			if ( !december_23rd_friday_or_saturday )
+				week_of_year = 1;
+		}
+	}
 
 	return week_of_year;
 

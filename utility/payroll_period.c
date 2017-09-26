@@ -228,7 +228,19 @@ void payroll_period_weekly_period(
 		else
 		if ( period_number == 52 )
 		{
-			if ( week_of_year == 1 ) all_done = 1;
+			if ( week_of_year == 53
+			||   week_of_year == 1 )
+			{
+				all_done = 1;
+			}
+		}
+		else
+		if ( period_number == 53 )
+		{
+			if ( week_of_year == 1 )
+			{
+				all_done = 1;
+			}
 		}
 		else
 		if ( week_of_year > period_number )

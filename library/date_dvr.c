@@ -36,14 +36,14 @@ void test_2015_10_26( void );
 
 int main()
 {
-	test_week_of_year_2038();
+	test_week_of_year_2000();
 	/*
 	test_week_of_year_1995();
 	test_week_of_year_1998();
 	test_week_of_year_1999();
-	test_week_of_year_2000();
 	test_week_of_year_2001();
 	test_week_of_year_2037();
+	test_week_of_year_2038();
 	test_week_of_year_2045();
 	test_strftime( 1995 );
 	test_strftime( 1996 );
@@ -858,7 +858,7 @@ void test_week_of_year_2038()
 		date_get_week_of_year( d ) );
 
 	d = date_yyyy_mm_dd_new( "2039-01-02" );
-	printf( "2039-01-02 should be week 1 is: %d\n",
+	printf( "2039-01-02 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 
 	d = date_yyyy_mm_dd_new( "2039-01-03" );

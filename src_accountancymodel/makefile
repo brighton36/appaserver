@@ -56,6 +56,7 @@ EXECUTABLES=	trial_balance						\
 		post_change_bank_upload					\
 		update_sale_completed					\
 		post_reoccurring_transaction				\
+		post_employee_work_period				\
 		collect_customer_payment				\
 		make_vendor_payment					\
 		post_change_self					\
@@ -146,6 +147,14 @@ post_reoccurring_transaction: post_reoccurring_transaction.c		\
 		${SOURCE_LIBRARY}					\
 		post_reoccurring_transaction.c				\
 		-o post_reoccurring_transaction
+
+post_employee_work_period: post_employee_work_period.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_employee_work_period.c				\
+		-o post_employee_work_period
 
 ledger_propagate: ledger_propagate.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

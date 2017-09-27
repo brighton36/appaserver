@@ -56,7 +56,7 @@ typedef struct
 	char *full_name;
 	char *street_address;
 	double hourly_wage;
-	double annual_salary;
+	double period_salary;
 	double commission_sum_extension_percent;
 	char *marital_status;
 	int withholding_allowances;
@@ -82,7 +82,7 @@ EMPLOYEE *employee_new(			char *full_name,
 
 boolean employee_load(
 		double *hourly_wage,
-		double *annual_salary,
+		double *period_salary,
 		double *commission_sum_extension_percent,
 		char **marital_status,
 		int *withholding_allowances,

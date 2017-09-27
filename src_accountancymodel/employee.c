@@ -412,7 +412,7 @@ EMPLOYEE *employee_with_load_new(	char *application_name,
 
 	if ( !employee_load(
 		&e->hourly_wage,
-		&e->annual_salary,
+		&e->period_salary,
 		&e->commission_sum_extension_percent,
 		&e->marital_status,
 		&e->withholding_allowances,
@@ -445,7 +445,7 @@ EMPLOYEE *employee_with_load_new(	char *application_name,
 
 boolean employee_load(
 		double *hourly_wage,
-		double *annual_salary,
+		double *period_salary,
 		double *commission_sum_extension_percent,
 		char **marital_status,
 		int *withholding_allowances,
@@ -470,7 +470,7 @@ boolean employee_load(
 	char piece_buffer[ 128 ];
 
 	select =
-"hourly_wage,annual_salary,commission_sum_extension_percent,marital_status,withholding_allowances,withholding_additional_amount,retirement_contribution_plan_employee_period_amount,retirement_contribution_plan_employer_period_amount,health_insurance_employee_period_amount,health_insurance_employer_period_amount,union_dues_period_amount";
+"hourly_wage,period_salary,commission_sum_extension_percent,marital_status,withholding_allowances,withholding_additional_amount,retirement_contribution_plan_employee_period_amount,retirement_contribution_plan_employer_period_amount,health_insurance_employee_period_amount,health_insurance_employer_period_amount,union_dues_period_amount";
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -504,7 +504,7 @@ boolean employee_load(
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
 
 	if ( *piece_buffer )
-		*annual_salary = atof( buffer );
+		*period_salary = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
 

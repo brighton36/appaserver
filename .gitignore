@@ -170,7 +170,7 @@ post_change_fixed_service_work
 post_change_hourly_service_work
 update_sale_completed
 post_reoccurring_transaction
-post_rental_property_reoccurring_transaction
+post_employee_work_period
 collect_customer_payment
 make_vendor_payment
 post_change_self
@@ -465,7 +465,6 @@ get_aggregation_sum_yn
 # ---------------
 # src_capitolpops
 # ---------------
-src_capitolpops/accountancy_model.pdf
 post_capitolpops
 parse_contact_list
 build_capitolpops
@@ -480,3 +479,7 @@ donor_receipt
 # --------------
 generate_invoice
 generate_workorder
+# ------------------
+# src_rentalproperty
+# ------------------
+post_rental_property_reoccurring_transaction

@@ -347,4 +347,7 @@ int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 				char *yyyy_mm_dd,
 				char *hhmm );
 
+int date_get_last_month_day(	int month,
+				int year );
+
 #endif

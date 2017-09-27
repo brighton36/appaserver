@@ -15,22 +15,40 @@
 #define PAYROLL_PERIOD_NUMBER_LABEL	".payroll_period_number"
 #define PAYROLL_BEGIN_DATE_LABEL	".payroll_begin_date"
 #define PAYROLL_END_DATE_LABEL		".payroll_end_date"
+#define MIDMONTH_DAY			15
 
 /* Prototypes */
 /* ---------- */
-int payroll_period_get_biweekly_period(
-				int week_of_year );
-
-void payroll_period_output_biweekly_period(
-				int year,
-				int period_number );
-
-void payroll_period_output_biweekly_date(
+void payroll_period_output_monthly_period(
 				char *date_string );
 
-void payroll_period_output_weekly_period(
+void payroll_period_output_monthly_dates(
 				int year,
 				int period_number );
+
+void payroll_period_output_semimonthly_period(
+				char *date_string );
+
+void payroll_period_output_semimonthly_dates(
+				int year,
+				int period_number );
+
+void payroll_period_output_biweekly_period(
+				char *date_string );
+
+void payroll_period_output_biweekly_dates(
+				int year,
+				int period_number );
+
+void payroll_period_output_weekly_period(
+				char *date_string );
+
+void payroll_period_output_weekly_dates(
+				int year,
+				int period_number );
+
+int payroll_period_get_biweekly_period(
+				int week_of_year );
 
 boolean payroll_period_get_weekly_dates(
 				char *begin_work_date,
@@ -38,8 +56,17 @@ boolean payroll_period_get_weekly_dates(
 				int year,
 				int period_number );
 
-void payroll_period_output_weekly_date(
-				char *date_string );
+boolean payroll_period_get_semimonthly_dates(
+				char *begin_work_date,
+				char *end_work_date,
+				int year,
+				int period_number );
+
+boolean payroll_period_get_monthly_dates(
+				char *begin_work_date,
+				char *end_work_date,
+				int year,
+				int period_number );
 
 void payroll_period(		char *argv_0,
 				char *period,
@@ -132,12 +159,12 @@ void payroll_period(	char *argv_0,
 	{
 		if ( *date_string )
 		{
-			payroll_period_output_weekly_date( date_string );
+			payroll_period_output_weekly_period( date_string );
 		}
 		else
 		if ( period_number )
 		{
-			payroll_period_output_weekly_period(
+			payroll_period_output_weekly_dates(
 				year,
 				period_number );
 		}
@@ -151,12 +178,50 @@ void payroll_period(	char *argv_0,
 	{
 		if ( *date_string )
 		{
-			payroll_period_output_biweekly_date( date_string );
+			payroll_period_output_biweekly_period( date_string );
 		}
 		else
 		if ( period_number )
 		{
-			payroll_period_output_biweekly_period(
+			payroll_period_output_biweekly_dates(
+				year,
+				period_number );
+		}
+		else
+		{
+			output_error = 1;		
+		}
+	}
+	else
+	if ( timlib_strcmp( period, "semimonthly" ) == 0 )
+	{
+		if ( *date_string )
+		{
+			payroll_period_output_semimonthly_period( date_string );
+		}
+		else
+		if ( period_number )
+		{
+			payroll_period_output_semimonthly_dates(
+				year,
+				period_number );
+		}
+		else
+		{
+			output_error = 1;		
+		}
+	}
+	else
+	if ( timlib_strcmp( period, "monthly" ) == 0 )
+	{
+		if ( *date_string )
+		{
+			payroll_period_output_monthly_period( date_string );
+		}
+		else
+		if ( period_number )
+		{
+			payroll_period_output_monthly_dates(
 				year,
 				period_number );
 		}
@@ -175,7 +240,7 @@ void payroll_period(	char *argv_0,
 
 } /* payroll_period() */
 
-void payroll_period_output_weekly_date( char *date_string )
+void payroll_period_output_weekly_period( char *date_string )
 {
 	DATE *d;
 
@@ -185,9 +250,9 @@ void payroll_period_output_weekly_date( char *date_string )
 		PAYROLL_PERIOD_NUMBER_LABEL,
 		date_get_week_of_year( d ) );
 
-} /* payroll_period_output_weekly_date() */
+} /* payroll_period_output_weekly_period() */
 
-void payroll_period_output_weekly_period(
+void payroll_period_output_weekly_dates(
 				int year,
 				int period_number )
 {
@@ -214,7 +279,7 @@ void payroll_period_output_weekly_period(
 			end_work_date );
 	}
 
-} /* payroll_period_output_weekly_period() */
+} /* payroll_period_output_weekly_dates() */
 
 boolean payroll_period_get_weekly_dates(
 				char *begin_work_date,
@@ -302,7 +367,7 @@ boolean payroll_period_get_weekly_dates(
 
 } /* payroll_period_get_weekly_dates() */
 
-void payroll_period_output_biweekly_date( char *date_string )
+void payroll_period_output_biweekly_period( char *date_string )
 {
 	DATE *d;
 	int week_of_year;
@@ -320,9 +385,9 @@ void payroll_period_output_biweekly_date( char *date_string )
 		PAYROLL_PERIOD_NUMBER_LABEL,
 		payroll_period );
 
-} /* payroll_period_output_biweekly_date() */
+} /* payroll_period_output_biweekly_period() */
 
-void payroll_period_output_biweekly_period(
+void payroll_period_output_biweekly_dates(
 				int year,
 				int period_number )
 {
@@ -378,7 +443,7 @@ void payroll_period_output_biweekly_period(
 		PAYROLL_END_DATE_LABEL,
 		end_work_date );
 
-} /* payroll_period_output_biweekly_period() */
+} /* payroll_period_output_biweekly_dates() */
 
 int payroll_period_get_biweekly_period(
 			int week_of_year )
@@ -390,4 +455,154 @@ int payroll_period_get_biweekly_period(
 	return payroll_period;
 
 } /* payroll_period_get_biweekly_period() */
+
+void payroll_period_output_semimonthly_period( char *date_string )
+{
+	DATE *d;
+	int month;
+	int day;
+	int payroll_period;
+
+	d = date_yyyy_mm_dd_new( date_string );
+
+	if ( !d ) return;
+
+	month = date_get_month( d );
+	day = date_get_day( d );
+
+	if ( day < MIDMONTH_DAY )
+	{
+		payroll_period = ( month * 2 ) - 1;
+	}
+	else
+	{
+		payroll_period = month * 2;
+	}
+
+	printf( "%s %d\n",
+		PAYROLL_PERIOD_NUMBER_LABEL,
+		payroll_period );
+
+} /* payroll_period_output_semimonthly_period() */
+
+void payroll_period_output_semimonthly_dates(
+				int year,
+				int period_number )
+{
+	char begin_work_date[ 16 ];
+	char end_work_date[ 16 ];
+
+	if ( period_number < 1 || period_number > 24 ) return;
+
+	if ( payroll_period_get_semimonthly_dates(
+				begin_work_date,
+				end_work_date,
+				year,
+				period_number ) )
+	{
+		printf( "%s %s\n",
+			PAYROLL_BEGIN_DATE_LABEL,
+			begin_work_date );
+
+		printf( "%s %s\n",
+			PAYROLL_END_DATE_LABEL,
+			end_work_date );
+	}
+
+} /* payroll_period_output_semimonthly_dates() */
+
+boolean payroll_period_get_semimonthly_dates(
+				char *begin_work_date,
+				char *end_work_date,
+				int year,
+				int period_number )
+{
+	boolean payroll_period_odd;
+	int month;
+	int begin_day;
+	int end_day;
+
+	payroll_period_odd = ( period_number % 2 );
+
+	if ( payroll_period_odd )
+	{
+		month = ( period_number / 2 ) + 1;
+		begin_day = 1;
+		end_day = MIDMONTH_DAY;
+	}
+	else
+	{
+		month = period_number / 2;
+		begin_day = MIDMONTH_DAY + 1;
+		end_day = date_get_last_month_day(
+				month,
+				year );
+	}
+
+	sprintf( begin_work_date, "%d-%.2d-%.2d", year, month, begin_day );
+	sprintf( end_work_date, "%d-%.2d-%d", year, month, end_day );
+
+	return 1;
+
+} /* payroll_period_get_semimonthly_dates() */
+
+boolean payroll_period_get_monthly_dates(
+				char *begin_work_date,
+				char *end_work_date,
+				int year,
+				int period_number )
+{
+	int end_day;
+
+	end_day = date_get_last_month_day(
+			period_number,
+			year );
+
+	sprintf( begin_work_date, "%d-%.2d-01", year, period_number );
+	sprintf( end_work_date, "%d-%.2d-%d", year, period_number, end_day );
+
+	return 1;
+
+} /* payroll_period_get_monthly_dates() */
+
+void payroll_period_output_monthly_period(
+				char *date_string )
+{
+	DATE *d;
+
+	d = date_yyyy_mm_dd_new( date_string );
+
+	if ( !d ) return;
+
+	printf( "%s %d\n",
+		PAYROLL_PERIOD_NUMBER_LABEL,
+		date_get_month( d ) );
+
+} /* payroll_period_output_monthly_period() */
+
+void payroll_period_output_monthly_dates(
+				int year,
+				int period_number )
+{
+	char begin_work_date[ 16 ];
+	char end_work_date[ 16 ];
+
+	if ( period_number < 1 || period_number > 12 ) return;
+
+	if ( payroll_period_get_monthly_dates(
+				begin_work_date,
+				end_work_date,
+				year,
+				period_number ) )
+	{
+		printf( "%s %s\n",
+			PAYROLL_BEGIN_DATE_LABEL,
+			begin_work_date );
+
+		printf( "%s %s\n",
+			PAYROLL_END_DATE_LABEL,
+			end_work_date );
+	}
+
+} /* payroll_period_output_monthly_dates() */
 

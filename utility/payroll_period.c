@@ -21,17 +21,25 @@
 int payroll_period_get_biweekly_period(
 				int week_of_year );
 
-void payroll_period_biweekly_period(
+void payroll_period_output_biweekly_period(
 				int year,
 				int period_number );
 
-void payroll_period_biweekly_date(char *date_string );
+void payroll_period_output_biweekly_date(
+				char *date_string );
 
-void payroll_period_weekly_period(
+void payroll_period_output_weekly_period(
 				int year,
 				int period_number );
 
-void payroll_period_weekly_date(char *date_string );
+boolean payroll_period_get_weekly_dates(
+				char *begin_work_date,
+				char *end_work_date,
+				int year,
+				int period_number );
+
+void payroll_period_output_weekly_date(
+				char *date_string );
 
 void payroll_period(		char *argv_0,
 				char *period,
@@ -124,12 +132,12 @@ void payroll_period(	char *argv_0,
 	{
 		if ( *date_string )
 		{
-			payroll_period_weekly_date( date_string );
+			payroll_period_output_weekly_date( date_string );
 		}
 		else
 		if ( period_number )
 		{
-			payroll_period_weekly_period(
+			payroll_period_output_weekly_period(
 				year,
 				period_number );
 		}
@@ -143,12 +151,12 @@ void payroll_period(	char *argv_0,
 	{
 		if ( *date_string )
 		{
-			payroll_period_biweekly_date( date_string );
+			payroll_period_output_biweekly_date( date_string );
 		}
 		else
 		if ( period_number )
 		{
-			payroll_period_biweekly_period(
+			payroll_period_output_biweekly_period(
 				year,
 				period_number );
 		}
@@ -167,7 +175,7 @@ void payroll_period(	char *argv_0,
 
 } /* payroll_period() */
 
-void payroll_period_weekly_date( char *date_string )
+void payroll_period_output_weekly_date( char *date_string )
 {
 	DATE *d;
 
@@ -177,9 +185,40 @@ void payroll_period_weekly_date( char *date_string )
 		PAYROLL_PERIOD_NUMBER_LABEL,
 		date_get_week_of_year( d ) );
 
-} /* payroll_period_weekly_date() */
+} /* payroll_period_output_weekly_date() */
 
-void payroll_period_weekly_period(
+void payroll_period_output_weekly_period(
+				int year,
+				int period_number )
+{
+	char begin_work_date[ 16 ];
+	char end_work_date[ 16 ];
+
+	*begin_work_date = '\0';
+	*end_work_date = '\0';
+
+	if ( period_number < 1 || period_number > 53 ) return;
+
+	if ( payroll_period_get_weekly_dates(
+				begin_work_date,
+				end_work_date,
+				year,
+				period_number ) )
+	{
+		printf( "%s %s\n",
+			PAYROLL_BEGIN_DATE_LABEL,
+			begin_work_date );
+
+		printf( "%s %s\n",
+			PAYROLL_END_DATE_LABEL,
+			end_work_date );
+	}
+
+} /* payroll_period_output_weekly_period() */
+
+boolean payroll_period_get_weekly_dates(
+				char *begin_work_date,
+				char *end_work_date,
 				int year,
 				int period_number )
 {
@@ -189,12 +228,14 @@ void payroll_period_weekly_period(
 	boolean all_done = 0;
 	boolean first_time = 1;
 
+	if ( period_number > 53 ) return 0;
+
 	if ( period_number == 1 )
 	{
 		sprintf( date_string, "%d-12-25", year - 1 );
 	}
 	else
-	if ( period_number == 52 )
+	if ( period_number >= 52 )
 	{
 		sprintf( date_string, "%d-12-15", year );
 	}
@@ -213,9 +254,9 @@ void payroll_period_weekly_period(
 		{
 			if ( first_time )
 			{
-				printf( "%s %s\n",
-					PAYROLL_BEGIN_DATE_LABEL,
+				strcpy( begin_work_date,
 					date_yyyy_mm_dd( d ) );
+
 				first_time = 0;
 			}
 		}
@@ -254,13 +295,14 @@ void payroll_period_weekly_period(
 
 	date_increment_days( d, -1 );
 
-	printf( "%s %s\n",
-		PAYROLL_END_DATE_LABEL,
+	strcpy( end_work_date,
 		date_yyyy_mm_dd( d ) );
 
-} /* payroll_period_weekly_period() */
+	return 1;
 
-void payroll_period_biweekly_date( char *date_string )
+} /* payroll_period_get_weekly_dates() */
+
+void payroll_period_output_biweekly_date( char *date_string )
 {
 	DATE *d;
 	int week_of_year;
@@ -273,80 +315,70 @@ void payroll_period_biweekly_date( char *date_string )
 	payroll_period =
 		payroll_period_get_biweekly_period(
 			week_of_year );
+
 	printf( "%s %d\n",
 		PAYROLL_PERIOD_NUMBER_LABEL,
 		payroll_period );
 
-} /* payroll_period_biweekly_date() */
+} /* payroll_period_output_biweekly_date() */
 
-void payroll_period_biweekly_period(
+void payroll_period_output_biweekly_period(
 				int year,
 				int period_number )
 {
-	DATE *d;
-	char date_string[ 16 ];
-	int week_of_year;
-	boolean all_done = 0;
-	boolean first_time = 1;
+	char begin_work_date[ 16 ];
+	char ignore_work_date[ 16 ];
+	char end_work_date[ 16 ];
+	int period_number_times_two;
 
-	if ( period_number == 1 )
+	if ( period_number < 1 || period_number > 27 ) return;
+
+	*begin_work_date = '\0';
+	*end_work_date = '\0';
+
+	if ( period_number == 27 )
 	{
-		sprintf( date_string, "%d-12-25", year - 1 );
+		payroll_period_get_weekly_dates(
+				begin_work_date,
+				end_work_date,
+				year,
+				53 );
 	}
 	else
-	if ( period_number == 52 )
 	{
-		sprintf( date_string, "%d-12-15", year );
-	}
-	else
-	{
-		sprintf( date_string, "%d-01-01", year );
-	}
+		period_number_times_two = period_number * 2;
 
-	d = date_yyyy_mm_dd_new( date_string );
+		if ( period_number_times_two >= 54 )
+			period_number_times_two = 53;
 
-	week_of_year = date_get_week_of_year( d );
-
-	while ( !all_done )
-	{
-		if ( week_of_year == period_number )
+		if ( !payroll_period_get_weekly_dates(
+					begin_work_date,
+					ignore_work_date,
+					year,
+					period_number_times_two - 1 ) )
 		{
-			if ( first_time )
-			{
-				printf( "%s %s\n",
-					PAYROLL_BEGIN_DATE_LABEL,
-					date_yyyy_mm_dd( d ) );
-				first_time = 0;
-			}
+			return;
 		}
 
-		date_increment_days( d, 1 );
-
-		week_of_year = date_get_week_of_year( d );
-
-		if ( period_number == 1 )
+		if ( !payroll_period_get_weekly_dates(
+					ignore_work_date,
+					end_work_date,
+					year,
+					period_number_times_two ) )
 		{
-			if ( week_of_year == 2 ) all_done = 1;
+			strcpy( end_work_date, ignore_work_date );
 		}
-		else
-		if ( period_number == 52 )
-		{
-			if ( week_of_year == 1 ) all_done = 1;
-		}
-		else
-		if ( week_of_year > period_number )
-		{
-			all_done = 1;
-		}
-	}
+	} /* if not ( period_number == 27 ) */
 
-	date_increment_days( d, -1 );
+	printf( "%s %s\n",
+		PAYROLL_BEGIN_DATE_LABEL,
+		begin_work_date );
 
 	printf( "%s %s\n",
 		PAYROLL_END_DATE_LABEL,
-		date_yyyy_mm_dd( d ) );
+		end_work_date );
 
-} /* payroll_period_biweekly_period() */
+} /* payroll_period_output_biweekly_period() */
 
 int payroll_period_get_biweekly_period(
 			int week_of_year )
@@ -356,5 +388,6 @@ int payroll_period_get_biweekly_period(
 	payroll_period = (int)( ( (double)week_of_year / 2.0 ) + 0.5 );
 
 	return payroll_period;
-}
+
+} /* payroll_period_get_biweekly_period() */
 

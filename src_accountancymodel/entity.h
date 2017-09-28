@@ -25,6 +25,12 @@ enum inventory_cost_method{	inventory_not_set,
 				inventory_average,
 				inventory_lifo };
 
+enum payroll_pay_period{	pay_period_not_set,
+				pay_period_weekly,
+				pay_period_biweekly,
+				pay_period_semimonthly,
+				pay_period_monthly };
+
 /* Constants */
 /* --------- */
 /* #define REFRESH_COMPLETELY	1 */
@@ -67,6 +73,17 @@ typedef struct
 	HASH_TABLE *journal_ledger_hash_table;
 	LIST *inventory_list;
 	LIST *employee_list;
+	enum payroll_pay_period payroll_pay_period;
+	double social_security_combined_tax_rate;
+	int social_security_payroll_ceiling;
+	double medicare_combined_tax_rate;
+	int federal_unemployment_gross_pay_ceiling;
+	double federal_unemployment_tax_minimum_rate;
+	double federal_unemployment_tax_standard_rate;
+	int state_unemployment_gross_pay_ceiling;
+	double state_unemployment_tax_rate;
+	double state_unemployment_threshold_rate;
+	double withholding_allowance_period_value;
 } ENTITY_SELF;
 
 /* Operations */

@@ -440,7 +440,8 @@ EMPLOYEE *employee_with_load_new(	char *application_name,
 		application_name,
 		full_name,
 		street_address,
-		begin_work_date ) )
+		begin_work_date,
+		end_work_date ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot load %s/%s\n",
@@ -775,46 +776,67 @@ boolean employee_get_payroll_begin_end_work_dates(
 
 } /* employee_get_payroll_begin_end_work_dates() */
 
-char *employee_get_prior_period_begin_work_date(
+boolean employee_get_prior_period(
+				char **begin_work_date,
+				char **end_work_date,
+				int *period_year,
+				int *period_number,
 				enum payroll_pay_period
 					payroll_pay_period )
 {
-	char *include_date;
 	char *payroll_pay_period_string;
-	char *payroll_begin_work_date = {0};
-	char *payroll_end_work_date = {0};
-	DATE *yesterday;
-
-	include_date = date_get_now_yyyy_mm_dd();
+	char sys_string[ 1024 ];
+	FILE *input_pipe;
+	char input_buffer[ 128 ];
+	char column_buffer[ 128 ];
+	int results = 0;
 
 	payroll_pay_period_string =
 		entity_get_payroll_pay_period_string(
 			payroll_pay_period );
 
-	if ( !employee_get_payroll_begin_end_work_dates(
-			&payroll_begin_work_date,
-			&payroll_end_work_date,
-			payroll_pay_period_string,
-			include_date ) )
+	sprintf( sys_string,
+		 "payroll_period.e"
+		 " period=%s"
+		 " prior=yes",
+		 payroll_pay_period_string );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( timlib_get_line( input_buffer, input_pipe, 128 ) )
 	{
-		return (char *)0;
+		if ( timlib_strncmp(	input_buffer,
+					PAYROLL_BEGIN_DATE_LABEL ) == 0 )
+		{
+			column( column_buffer, 1, input_buffer );
+			*begin_work_date = strdup( column_buffer );
+			results++;
+			continue;
+		}
+
+		if ( timlib_strncmp(	input_buffer,
+					PAYROLL_END_DATE_LABEL ) == 0 )
+		{
+			column( column_buffer, 1, input_buffer );
+			*end_work_date = strdup( column_buffer );
+			*period_year = atoi( column_buffer );
+			results++;
+			continue;
+		}
+
+		if ( timlib_strncmp(	input_buffer,
+					PAYROLL_PERIOD_NUMBER_LABEL ) == 0 )
+		{
+			column( column_buffer, 1, input_buffer );
+			*period_number = atoi( column_buffer );
+			results++;
+			continue;
+		}
 	}
 
-	yesterday = date_yyyy_mm_dd_new( payroll_begin_work_date );
-	date_increment_days( yesterday, -1 );
+	pclose( input_pipe );
 
-	include_date = date_yyyy_mm_dd( yesterday );
+	return (boolean)(results == 3);
 
-	if ( !employee_get_payroll_begin_end_work_dates(
-			&payroll_begin_work_date,
-			&payroll_end_work_date,
-			payroll_pay_period_string,
-			include_date ) )
-	{
-		return (char *)0;
-	}
-
-	return payroll_begin_work_date;
-
-} /* employee_get_prior_period_begin_work_date() */
+} /* employee_get_prior_period() */
 

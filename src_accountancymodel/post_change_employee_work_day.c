@@ -112,7 +112,8 @@ void post_change_employee_pay_day_update(
 				application_name,
 				full_name,
 				street_address,
-				begin_work_date ) ) )
+				begin_work_date,
+				(char *)0 /* end_work_date */ ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot load %s/%s\n",

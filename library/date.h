@@ -111,7 +111,9 @@ DATE *date_new_now( void );
 DATE *date_today_new( void );
 
 char *date_get_now_yyyy_mm_dd( void );
+
 char *date_get_now_hhmm( void );
+
 char *date_get_now_date_yyyy_mm_dd( void );
 char *date_get_now_date_oracle_format( void );
 char *date_get_now_date_hhmm( void );

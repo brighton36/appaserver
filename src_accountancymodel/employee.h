@@ -21,8 +21,9 @@
 
 /* See also $APPASERVER_HOME/utility/payroll_period.c */
 /* -------------------------------------------------- */
-#define PAYROLL_BEGIN_DATE_LABEL	".payroll_begin_date "
-#define PAYROLL_END_DATE_LABEL		".payroll_end_date "
+#define PAYROLL_PERIOD_NUMBER_LABEL	".payroll_period_number"
+#define PAYROLL_BEGIN_DATE_LABEL	".payroll_begin_date"
+#define PAYROLL_END_DATE_LABEL		".payroll_end_date"
 
 /* Structures */
 /* ---------- */
@@ -143,7 +144,11 @@ LIST *employee_get_list(		char *application_name,
 					char *begin_work_date,
 					char *end_work_date );
 
-char *employee_get_prior_period_begin_work_date(
+boolean employee_get_prior_period(
+					char **begin_work_date,
+					char **end_work_date,
+					int *period_year,
+					int *period_number,
 					enum payroll_pay_period );
 
 boolean employee_get_payroll_begin_end_work_dates(

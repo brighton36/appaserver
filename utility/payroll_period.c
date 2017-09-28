@@ -23,6 +23,13 @@
 
 /* Prototypes */
 /* ---------- */
+char *payroll_period_get_begin_date_string(
+				char *period,
+				int year,
+				int period_number );
+
+void payroll_period_prior(	char *period );
+
 int payroll_period_output_monthly_period(
 				char *date_string );
 
@@ -88,12 +95,14 @@ void fetch_parameters(		char **period,
 				char **date_string,
 				char **period_number_string,
 				char **year_string,
+				char **prior_yn,
 				NAME_ARG *arg );
 
 int main( int argc, char **argv )
 {
         NAME_ARG *arg;
 	char *period = {0};
+	char *prior_yn = "";
 	char *date_string = "";
 	char *period_number_string = "";
 	char *year_string = "";
@@ -107,29 +116,38 @@ int main( int argc, char **argv )
 				&date_string,
 				&period_number_string,
 				&year_string,
+				&prior_yn,
 				arg );
 
-	period_number =
-		payroll_period(	argv[ 0 ],
-			period,
-			date_string,
-			atoi( period_number_string ),
-			atoi( year_string ) );
-
-	if ( *date_string && period_number )
+	if ( strcmp( prior_yn, "yes" ) == 0 )
 	{
-		char sys_string[ 1024 ];
+		payroll_period_prior( period );
+	}
+	else
+	{
+		period_number =
+			payroll_period(
+				argv[ 0 ],
+				period,
+				date_string,
+				atoi( period_number_string ),
+				atoi( year_string ) );
 
-		sprintf(sys_string,
-			"payroll_period.e"
-			" period=%s"
-			" number=%d"
-			" year=%d",
-			period,
-			period_number,
-			atoi( date_string ) /* year */ );
+		if ( *date_string && period_number )
+		{
+			char sys_string[ 1024 ];
 
-		system( sys_string );
+			sprintf(sys_string,
+				"payroll_period.e"
+				" period=%s"
+				" number=%d"
+				" year=%d",
+				period,
+				period_number,
+				atoi( date_string ) /* year */ );
+
+			system( sys_string );
+		}
 	}
 
 	return 0;
@@ -145,6 +163,11 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 	add_possible_value( arg, ticket, "biweekly" );
 	add_possible_value( arg, ticket, "semimonthly" );
 	add_possible_value( arg, ticket, "monthly" );
+
+        ticket = add_valid_option( arg, "prior" );
+	add_possible_value( arg, ticket, "yes" );
+	add_possible_value( arg, ticket, "no" );
+        set_default_value( arg, ticket, "no" );
 
         ticket = add_valid_option( arg, "date" );
         set_default_value( arg, ticket, "" );
@@ -163,12 +186,14 @@ void fetch_parameters(	char **period,
 			char **date_string,
 			char **period_number_string,
 			char **year_string,
+			char **prior_yn,
 			NAME_ARG *arg )
 {
 	*period = fetch_arg( arg, "period" );
 	*date_string = fetch_arg( arg, "date" );
 	*period_number_string = fetch_arg( arg, "number" );
 	*year_string = fetch_arg( arg, "year" );
+	*prior_yn = fetch_arg( arg, "prior" );
 }
 
 int payroll_period(	char *argv_0,
@@ -411,21 +436,21 @@ int payroll_period_output_biweekly_period( char *date_string )
 {
 	DATE *d;
 	int week_of_year;
-	int payroll_period;
+	int period_number;
 
 	d = date_yyyy_mm_dd_new( date_string );
 
 	week_of_year = date_get_week_of_year( d );
 
-	payroll_period =
+	period_number =
 		payroll_period_get_biweekly_period(
 			week_of_year );
 
 	printf( "%s %d\n",
 		PAYROLL_PERIOD_NUMBER_LABEL,
-		payroll_period );
+		period_number );
 
-	return payroll_period;
+	return period_number;
 
 } /* payroll_period_output_biweekly_period() */
 
@@ -490,11 +515,11 @@ void payroll_period_output_biweekly_dates(
 int payroll_period_get_biweekly_period(
 			int week_of_year )
 {
-	int payroll_period;
+	int period_number;
 
-	payroll_period = (int)( ( (double)week_of_year / 2.0 ) + 0.5 );
+	period_number = (int)( ( (double)week_of_year / 2.0 ) + 0.5 );
 
-	return payroll_period;
+	return period_number;
 
 } /* payroll_period_get_biweekly_period() */
 
@@ -503,7 +528,7 @@ int payroll_period_output_semimonthly_period( char *date_string )
 	DATE *d;
 	int month;
 	int day;
-	int payroll_period;
+	int period_number;
 
 	d = date_yyyy_mm_dd_new( date_string );
 
@@ -512,20 +537,20 @@ int payroll_period_output_semimonthly_period( char *date_string )
 	month = date_get_month( d );
 	day = date_get_day( d );
 
-	if ( day < MIDMONTH_DAY )
+	if ( day <= MIDMONTH_DAY )
 	{
-		payroll_period = ( month * 2 ) - 1;
+		period_number = ( month * 2 ) - 1;
 	}
 	else
 	{
-		payroll_period = month * 2;
+		period_number = month * 2;
 	}
 
 	printf( "%s %d\n",
 		PAYROLL_PERIOD_NUMBER_LABEL,
-		payroll_period );
+		period_number );
 
-	return payroll_period;
+	return period_number;
 
 } /* payroll_period_output_semimonthly_period() */
 
@@ -613,19 +638,19 @@ int payroll_period_output_monthly_period(
 				char *date_string )
 {
 	DATE *d;
-	int payroll_period;
+	int period_number;
 
 	d = date_yyyy_mm_dd_new( date_string );
 
 	if ( !d ) return 0;
 
-	payroll_period = date_get_month( d );
+	period_number = date_get_month( d );
 
 	printf( "%s %d\n",
 		PAYROLL_PERIOD_NUMBER_LABEL,
-		payroll_period );
+		period_number );
 
-	return payroll_period;
+	return period_number;
 
 } /* payroll_period_output_monthly_period() */
 
@@ -654,4 +679,110 @@ void payroll_period_output_monthly_dates(
 	}
 
 } /* payroll_period_output_monthly_dates() */
+
+char *payroll_period_get_begin_date_string(
+					char *period,
+					int year,
+					int period_number )
+{
+	char sys_string[ 1024 ];
+	char *results;
+
+	sprintf(sys_string,
+		"payroll_period.e	 "
+		" period=%s		 "
+		" number=%d		 "
+		" year=%d		|"
+		"grep %s		|"
+		"column.e 1		 ",
+		period,
+		period_number,
+		year,
+		PAYROLL_BEGIN_DATE_LABEL );
+
+	results = pipe2string( sys_string );
+
+	if ( !results || !*results )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot get begin_date_string.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return results;
+
+} /* payroll_period_get_begin_date_string() */
+
+void payroll_period_prior( char *period )
+{
+	DATE *d;
+	int week_of_year;
+	int period_number;
+	int month;
+	int day;
+	int year;
+	char *begin_date_string;
+	char sys_string[ 1024 ];
+
+	d = date_now_new();
+
+	month = date_get_month( d );
+	day = date_get_day( d );
+	year = date_get_year( d );
+
+	if ( timlib_strcmp( period, "weekly" ) == 0 )
+	{
+		period_number = date_get_week_of_year( d );
+
+	}
+	else
+	if ( timlib_strcmp( period, "biweekly" ) == 0 )
+	{
+		week_of_year = date_get_week_of_year( d );
+
+		period_number =
+			payroll_period_get_biweekly_period(
+				week_of_year );
+	}
+	else
+	if ( timlib_strcmp( period, "semimonthly" ) == 0 )
+	{
+		if ( day < MIDMONTH_DAY )
+		{
+			period_number = ( month * 2 ) - 1;
+		}
+		else
+		{
+			period_number = month * 2;
+		}
+	}
+	else
+	if ( timlib_strcmp( period, "monthly" ) == 0 )
+	{
+		period_number = month;
+	}
+
+	begin_date_string =
+		payroll_period_get_begin_date_string(
+			period,
+			year,
+			period_number );
+
+	d = date_yyyy_mm_dd_new( begin_date_string );
+	date_increment_days( d, -1 );
+	begin_date_string = date_yyyy_mm_dd( d );
+
+	sprintf(sys_string,
+		"payroll_period.e"
+		" period=%s"
+		" date=%s",
+		period,
+		begin_date_string );
+
+	system( sys_string );
+
+} /* payroll_period_prior() */
 

@@ -46,10 +46,10 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	boolean delete;
-	int period_year;
-	int period_number;
-	char *begin_work_date;
-	char *end_work_date;
+	char *begin_work_date = {0};
+	char *end_work_date = {0};
+	int period_year = 0;
+	int period_number = 0;
 	boolean with_html;
 	boolean execute;
 	char title[ 128 ];
@@ -125,32 +125,30 @@ int main( int argc, char **argv )
 
 	self = entity_self_load( application_name );
 
-	if (	!*begin_work_date
-	||	strcmp( begin_work_date, "begin_work_date" ) == 0 )
+	if ( !period_year )
 	{
-		begin_work_date =
-			employee_get_prior_period_begin_end_work_dates(
-				&end_work_date,
-				self->payroll_pay_period );
-	}
-	else
-	{
-		/* employee_get_list() select all records. */
-		/* --------------------------------------- */
-		begin_work_date = (char *)0;
-		end_work_date = (char *)0;
+		employee_get_prior_period(
+			&begin_work_date,
+			&end_work_date,
+			&period_year,
+			&period_number,
+			self->payroll_pay_period );
 	}
 
-fprintf( stderr, "%s/%s()/%d: got begin_work_date = %s\n",
+fprintf( stderr, "%s/%s()/%d: got begin_work_date = %s, end_work_date = %s, period_year = %d, period_number = %d\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
-begin_work_date );
+begin_work_date,
+end_work_date,
+period_year,
+period_number );
 
 	self->employee_list =
 		employee_get_list(
 			application_name,
-			begin_work_date );
+			begin_work_date,
+			end_work_date );
 
 	if ( !execute )
 	{

@@ -66,6 +66,7 @@ typedef struct
 	HASH_TABLE *transaction_hash_table;
 	HASH_TABLE *journal_ledger_hash_table;
 	LIST *inventory_list;
+	LIST *employee_list;
 } ENTITY_SELF;
 
 /* Operations */

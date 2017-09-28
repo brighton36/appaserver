@@ -235,15 +235,17 @@ LIST *employee_get_work_day_list(	char *application_name,
 	select =
 "substr(begin_work_date_time,1,16),substr(end_work_date_time,1,16),employee_work_hours";
 
-	sprintf( where,
-		 "full_name = '%s' and			"
-		 "street_address = '%s' and		"
-		 "begin_work_date_time >= '%s'		",
-		 escape_character(	buffer,
+	sprintf(where,
+	 	"full_name = '%s' and			"
+	 	"street_address = '%s' and		"
+	 	"begin_work_date_time >= '%s'		",
+	 	escape_character(	buffer,
 					full_name,
 					'\'' ),
-		 street_address,
-		 begin_work_date );
+	 	street_address,
+	 	(begin_work_date)
+			? begin_work_date
+			: "1999-01-01" );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -430,7 +432,7 @@ EMPLOYEE *employee_with_load_new(	char *application_name,
 		begin_work_date ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot load %s/%s\n",
+			 "ERROR in %s/%s()/%d: cannot load %s/%s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -658,4 +660,61 @@ EMPLOYEE_WORK_DAY *employee_work_day_seek(
 	return (EMPLOYEE_WORK_DAY *)0;
 
 } /* employee_work_day_seek() */
+
+LIST *employee_get_list(	char *application_name,
+				char *begin_work_date )
+{
+	LIST *employee_list;
+	EMPLOYEE *employee;
+	char sys_string[ 1024 ];
+	char *where;
+	char *select;
+	FILE *input_pipe;
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char input_buffer[ 256 ];
+
+	employee_list = list_new();
+
+	select = "full_name,street_address";
+	where = "terminated_date is not null";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=employee		"
+		 "			where=\"%s\"		"
+		 "			order=select		",
+		 application_name,
+		 select,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( timlib_get_line( input_buffer, input_pipe, 256 ) )
+	{
+		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
+		employee =
+			employee_with_load_new(
+				application_name,
+				strdup( full_name ),
+				strdup( street_address ),
+				begin_work_date );
+
+		list_append_pointer( employee_list, employee );
+	}
+
+	pclose( input_pipe );
+
+	return employee_list;
+
+} /* employee_get_list() */
+
+char *employee_get_begin_work_date( char *application_name )
+{
+	return (char *)0;
+
+} /* employee_get_begin_work_date() */
 

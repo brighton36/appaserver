@@ -66,6 +66,7 @@ typedef struct
 	double health_insurance_employee_period_amount;
 	double health_insurance_employer_period_amount;
 	double union_dues_period_amount;
+	char *terminated_date;
 	LIST *employee_work_day_list;
 	LIST *employee_work_period_list;
 } EMPLOYEE;
@@ -128,6 +129,12 @@ EMPLOYEE *employee_with_load_new(	char *application_name,
 EMPLOYEE_WORK_DAY *employee_work_day_seek(
 					LIST *employee_work_day_list,
 					char *begin_work_date_time );
+
+LIST *employee_get_list(		char *application_name,
+					char *begin_work_date );
+
+char *employee_get_begin_work_date(
+					char *application_name );
 
 #endif
 

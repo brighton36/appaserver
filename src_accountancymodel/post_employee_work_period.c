@@ -46,7 +46,10 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	boolean delete;
+	int period_year;
+	int period_number;
 	char *begin_work_date;
+	char *end_work_date;
 	boolean with_html;
 	boolean execute;
 	char title[ 128 ];
@@ -55,11 +58,13 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	ENTITY_SELF *self;
 
-	if ( argc != 7 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application process delete_yn begin_work_date withhtml_yn execute_yn\n",
+"Usage: %s application process delete_yn period_year period_number withhtml_yn execute_yn\n",
 			 argv[ 0 ] );
+		fprintf( stderr,
+"Note: if period_year and period_number are missing, then the prior period will be posted.\n" );
 		exit ( 1 );
 	}
 
@@ -86,9 +91,10 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 2 ];
 	delete = (*argv[ 3 ] == 'y');
-	begin_work_date = argv[ 4 ];
-	with_html = (*argv[ 5 ] == 'y');
-	execute = (*argv[ 6 ] == 'y');
+	period_year = atoi( argv[ 4 ] );
+	period_number = atoi( argv[ 5 ] );
+	with_html = (*argv[ 6 ] == 'y');
+	execute = (*argv[ 7 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -123,15 +129,23 @@ int main( int argc, char **argv )
 	||	strcmp( begin_work_date, "begin_work_date" ) == 0 )
 	{
 		begin_work_date =
-			employee_get_begin_work_date(
+			employee_get_prior_period_begin_end_work_dates(
+				&end_work_date,
 				self->payroll_pay_period );
 	}
 	else
 	{
-		/* employee_get_list() will omit begin_work_date in where */
-		/* ------------------------------------------------------ */
+		/* employee_get_list() select all records. */
+		/* --------------------------------------- */
 		begin_work_date = (char *)0;
+		end_work_date = (char *)0;
 	}
+
+fprintf( stderr, "%s/%s()/%d: got begin_work_date = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+begin_work_date );
 
 	self->employee_list =
 		employee_get_list(

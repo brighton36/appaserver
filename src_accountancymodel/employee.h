@@ -82,7 +82,8 @@ typedef struct
 LIST *employee_get_work_day_list(	char *application_name,
 					char *full_name,
 					char *street_address,
-					char *begin_work_date );
+					char *begin_work_date,
+					char *end_work_date );
 
 EMPLOYEE *employee_new(			char *full_name,
 					char *street_address );
@@ -104,7 +105,8 @@ boolean employee_load(
 		char *application_name,
 		char *full_name,
 		char *street_address,
-		char *begin_work_date );
+		char *begin_work_date,
+		char *end_work_date );
 
 EMPLOYEE_WORK_DAY *employee_work_day_new(
 					char *begin_work_date_time );
@@ -130,16 +132,25 @@ void employee_work_day_update(		char *application_name,
 EMPLOYEE *employee_with_load_new(	char *application_name,
 					char *full_name,
 					char *street_address,
-					char *begin_work_date );
+					char *begin_work_date,
+					char *end_work_date );
 
 EMPLOYEE_WORK_DAY *employee_work_day_seek(
 					LIST *employee_work_day_list,
 					char *begin_work_date_time );
 
 LIST *employee_get_list(		char *application_name,
-					char *begin_work_date );
+					char *begin_work_date,
+					char *end_work_date );
 
-char *employee_get_begin_work_date(	enum payroll_pay_period );
+char *employee_get_prior_period_begin_work_date(
+					enum payroll_pay_period );
+
+boolean employee_get_payroll_begin_end_work_dates(
+					char **payroll_begin_work_date,
+					char **payroll_end_work_date,
+					char *payroll_pay_period_string,
+					char *include_date );
 
 #endif
 

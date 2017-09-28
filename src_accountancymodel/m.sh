@@ -1,6 +1,6 @@
 :
 
-make post_change_employee_work_day
+make post_employee_work_period
 
 #if [ "$?" -eq 0 ]
 #then

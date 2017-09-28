@@ -221,7 +221,8 @@ LIST *employee_get_work_period_list(	char *application_name,
 LIST *employee_get_work_day_list(	char *application_name,
 					char *full_name,
 					char *street_address,
-					char *begin_work_date )
+					char *begin_work_date,
+					char *end_work_date )
 {
 	EMPLOYEE_WORK_DAY *employee_work_day;
 	LIST *employee_work_day_list;
@@ -232,21 +233,29 @@ LIST *employee_get_work_day_list(	char *application_name,
 	char piece_buffer[ 128 ];
 	char buffer[ 256 ];
 	FILE *input_pipe;
+	char end_work_date_time[ 32 ];
+
+	sprintf( end_work_date_time,
+		 "%s 23:59:59",
+		 (end_work_date)
+			? end_work_date
+			: "2999-12-31" );
 
 	select =
 "substr(begin_work_date_time,1,16),substr(end_work_date_time,1,16),employee_work_hours";
 
 	sprintf(where,
-	 	"full_name = '%s' and			"
-	 	"street_address = '%s' and		"
-	 	"begin_work_date_time >= '%s'		",
+	 	"full_name = '%s' and				"
+	 	"street_address = '%s' and			"
+	 	"begin_work_date_time between '%s' and '%s'	",
 	 	escape_character(	buffer,
 					full_name,
 					'\'' ),
 	 	street_address,
 	 	(begin_work_date)
 			? begin_work_date
-			: "1999-01-01" );
+			: "1999-01-01",
+		end_work_date_time );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -407,7 +416,8 @@ EMPLOYEE *employee_new(			char *full_name,
 EMPLOYEE *employee_with_load_new(	char *application_name,
 					char *full_name,
 					char *street_address,
-					char *begin_work_date )
+					char *begin_work_date,
+					char *end_work_date )
 {
 	EMPLOYEE *e;
 
@@ -463,7 +473,8 @@ boolean employee_load(
 		char *application_name,
 		char *full_name,
 		char *street_address,
-		char *begin_work_date )
+		char *begin_work_date,
+		char *end_work_date )
 {
 	char sys_string[ 1024 ];
 	char where[ 512 ];
@@ -566,7 +577,8 @@ boolean employee_load(
 			application_name,
 			full_name,
 			street_address,
-			begin_work_date );
+			begin_work_date,
+			end_work_date );
 
 	*employee_work_period_list =
 		employee_get_work_period_list(
@@ -663,7 +675,8 @@ EMPLOYEE_WORK_DAY *employee_work_day_seek(
 } /* employee_work_day_seek() */
 
 LIST *employee_get_list(	char *application_name,
-				char *begin_work_date )
+				char *begin_work_date,
+				char *end_work_date )
 {
 	LIST *employee_list;
 	EMPLOYEE *employee;
@@ -702,7 +715,8 @@ LIST *employee_get_list(	char *application_name,
 				application_name,
 				strdup( full_name ),
 				strdup( street_address ),
-				begin_work_date );
+				begin_work_date,
+				end_work_date );
 
 		list_append_pointer( employee_list, employee );
 	}
@@ -717,7 +731,7 @@ boolean employee_get_payroll_begin_end_work_dates(
 					char **payroll_begin_work_date,
 					char **payroll_end_work_date,
 					char *payroll_pay_period_string,
-					char *today )
+					char *include_date )
 {
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
@@ -730,7 +744,7 @@ boolean employee_get_payroll_begin_end_work_dates(
 		 " period=%s"
 		 " date=%s",
 		 payroll_pay_period_string,
-		 today );
+		 include_date );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -761,15 +775,17 @@ boolean employee_get_payroll_begin_end_work_dates(
 
 } /* employee_get_payroll_begin_end_work_dates() */
 
-char *employee_get_begin_work_date( enum payroll_pay_period
+char *employee_get_prior_period_begin_work_date(
+				enum payroll_pay_period
 					payroll_pay_period )
 {
-	char *today;
+	char *include_date;
 	char *payroll_pay_period_string;
 	char *payroll_begin_work_date = {0};
 	char *payroll_end_work_date = {0};
+	DATE *yesterday;
 
-	today = date_get_now_yyyy_mm_dd();
+	include_date = date_get_now_yyyy_mm_dd();
 
 	payroll_pay_period_string =
 		entity_get_payroll_pay_period_string(
@@ -779,14 +795,26 @@ char *employee_get_begin_work_date( enum payroll_pay_period
 			&payroll_begin_work_date,
 			&payroll_end_work_date,
 			payroll_pay_period_string,
-			today ) )
+			include_date ) )
 	{
 		return (char *)0;
 	}
-	else
+
+	yesterday = date_yyyy_mm_dd_new( payroll_begin_work_date );
+	date_increment_days( yesterday, -1 );
+
+	include_date = date_yyyy_mm_dd( yesterday );
+
+	if ( !employee_get_payroll_begin_end_work_dates(
+			&payroll_begin_work_date,
+			&payroll_end_work_date,
+			payroll_pay_period_string,
+			include_date ) )
 	{
-		return payroll_begin_work_date;
+		return (char *)0;
 	}
 
-} /* employee_get_begin_work_date() */
+	return payroll_begin_work_date;
+
+} /* employee_get_prior_period_begin_work_date() */
 

@@ -568,3 +568,33 @@ ENTITY *entity_get_sales_tax_payable_entity(
 
 } /* entity_get_sales_tax_payable_entity() */
 
+char *entity_get_payroll_pay_period_string(
+				enum payroll_pay_period
+					payroll_pay_period )
+{
+	if ( payroll_pay_period == pay_period_not_set )
+		return "weekly";
+	else
+	if ( payroll_pay_period == pay_period_weekly )
+		return "weekly";
+	else
+	if ( payroll_pay_period == pay_period_biweekly )
+		return "biweekly";
+	else
+	if ( payroll_pay_period == pay_period_semimonthly )
+		return "semimonthly";
+	else
+	if ( payroll_pay_period == pay_period_monthly )
+		return "monthly";
+
+	fprintf( stderr,
+"ERROR in %s/%s()/%d: unrecognized payroll_pay_period = %d.\n",
+		 __FILE__,
+		 __FUNCTION__,
+		 __LINE__,
+		 payroll_pay_period );
+
+	exit( 1 );
+
+} /* entity_get_payroll_pay_period_string() */
+

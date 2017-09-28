@@ -11,12 +11,18 @@
 
 #include "list.h"
 #include "ledger.h"
+#include "entity.h"
 
 /* Enumerated types */
 /* ---------------- */
 
 /* Constants */
 /* --------- */
+
+/* See also $APPASERVER_HOME/utility/payroll_period.c */
+/* -------------------------------------------------- */
+#define PAYROLL_BEGIN_DATE_LABEL	".payroll_begin_date "
+#define PAYROLL_END_DATE_LABEL		".payroll_end_date "
 
 /* Structures */
 /* ---------- */
@@ -133,8 +139,7 @@ EMPLOYEE_WORK_DAY *employee_work_day_seek(
 LIST *employee_get_list(		char *application_name,
 					char *begin_work_date );
 
-char *employee_get_begin_work_date(
-					char *application_name );
+char *employee_get_begin_work_date(	enum payroll_pay_period );
 
 #endif
 

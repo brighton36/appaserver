@@ -148,5 +148,8 @@ char *entity_get_title_passage_rule_string(
 ENTITY *entity_get_sales_tax_payable_entity(
 				char *application_name );
 
+char *entity_get_payroll_pay_period_string(
+				enum payroll_pay_period );
+
 #endif
 

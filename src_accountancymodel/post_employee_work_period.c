@@ -117,15 +117,21 @@ int main( int argc, char **argv )
 		fflush( stdout );
 	}
 
+	self = entity_self_load( application_name );
+
 	if (	!*begin_work_date
 	||	strcmp( begin_work_date, "begin_work_date" ) == 0 )
 	{
 		begin_work_date =
 			employee_get_begin_work_date(
-				application_name );
+				self->payroll_pay_period );
 	}
-
-	self = entity_self_load( application_name );
+	else
+	{
+		/* employee_get_list() will omit begin_work_date in where */
+		/* ------------------------------------------------------ */
+		begin_work_date = (char *)0;
+	}
 
 	self->employee_list =
 		employee_get_list(

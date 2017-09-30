@@ -34,12 +34,21 @@ void post_employee_work_period(
 			char *application_name,
 			boolean delete,
 			boolean with_html,
-			LIST *employee_list );
+			LIST *employee_list,
+			int payroll_year,
+			int payroll_period_number,
+			char *begin_work_date,
+			char *end_work_date );
 
 void post_employee_work_period_display(
 			char *application_name,
 			boolean delete,
-			LIST *employee_list );
+			LIST *employee_list,
+			int payroll_year,
+			int payroll_period_number,
+			char *begin_work_date,
+			char *end_work_date,
+			PAYROLL_POSTING *payroll_posting );
 
 int main( int argc, char **argv )
 {
@@ -48,8 +57,8 @@ int main( int argc, char **argv )
 	boolean delete;
 	char *begin_work_date = {0};
 	char *end_work_date = {0};
-	int period_year = 0;
-	int period_number = 0;
+	int payroll_year = 0;
+	int payroll_period_number = 0;
 	boolean with_html;
 	boolean execute;
 	char title[ 128 ];
@@ -61,10 +70,10 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application process delete_yn period_year period_number withhtml_yn execute_yn\n",
+"Usage: %s application process delete_yn payroll_year period_number withhtml_yn execute_yn\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
-"Note: if period_year and period_number are missing, then the prior period will be posted.\n" );
+"Note: if payroll_year and period_number are missing, then the prior period will be posted.\n" );
 		exit ( 1 );
 	}
 
@@ -91,8 +100,8 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 2 ];
 	delete = (*argv[ 3 ] == 'y');
-	period_year = atoi( argv[ 4 ] );
-	period_number = atoi( argv[ 5 ] );
+	payroll_year = atoi( argv[ 4 ] );
+	payroll_period_number = atoi( argv[ 5 ] );
 	with_html = (*argv[ 6 ] == 'y');
 	execute = (*argv[ 7 ] == 'y');
 
@@ -125,24 +134,15 @@ int main( int argc, char **argv )
 
 	self = entity_self_load( application_name );
 
-	if ( !period_year )
+	if ( !payroll_year )
 	{
 		employee_get_prior_period(
 			&begin_work_date,
 			&end_work_date,
-			&period_year,
-			&period_number,
+			&payroll_year,
+			&payroll_period_number,
 			self->payroll_pay_period );
 	}
-
-fprintf( stderr, "%s/%s()/%d: got begin_work_date = %s, end_work_date = %s, period_year = %d, period_number = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-begin_work_date,
-end_work_date,
-period_year,
-period_number );
 
 	self->employee_list =
 		employee_get_list(
@@ -155,7 +155,12 @@ period_number );
 		post_employee_work_period_display(
 			application_name,
 			delete,
-			self->employee_list );
+			self->employee_list,
+			payroll_year,
+			payroll_period_number,
+			begin_work_date,
+			end_work_date,
+			(PAYROLL_POSTING *)0 );
 	}
 	else
 	{
@@ -163,7 +168,11 @@ period_number );
 			application_name,
 			delete,
 			with_html,
-			self->employee_list );
+			self->employee_list,
+			payroll_year,
+			payroll_period_number,
+			begin_work_date,
+			end_work_date );
 
 		if ( with_html )
 		{
@@ -180,7 +189,12 @@ period_number );
 void post_employee_work_period_display(
 			char *application_name,
 			boolean delete,
-			LIST *employee_list )
+			LIST *employee_list,
+			int payroll_year,
+			int payroll_period_number,
+			char *begin_work_date,
+			char *end_work_date,
+			PAYROLL_POSTING *payroll_posting )
 {
 
 } /* post_employee_work_period_display() */
@@ -189,14 +203,33 @@ void post_employee_work_period(
 			char *application_name,
 			boolean delete,
 			boolean with_html,
-			LIST *employee_list )
+			LIST *employee_list,
+			int payroll_year,
+			int payroll_period_number,
+			char *begin_work_date,
+			char *end_work_date )
 {
+	PAYROLL_POSTING *payroll_posting = {0};
+
+	payroll_posting =
+		employee_get_payroll_posting(
+			employee_list,
+			payroll_year,
+			payroll_period_number,
+			begin_work_date,
+			end_work_date );
+
 	if ( with_html )
 	{
 		post_employee_work_period_display(
 			application_name,
 			delete,
-			employee_list );
+			employee_list,
+			payroll_year,
+			payroll_period_number,
+			begin_work_date,
+			end_work_date,
+			payroll_posting );
 	}
 
 } /* post_employee_work_period() */

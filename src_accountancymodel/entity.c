@@ -17,6 +17,25 @@
 #include "ledger.h"
 #include "entity.h"
 
+enum payroll_pay_period entity_get_payroll_pay_period(
+				char *payroll_pay_period_string )
+{
+	if ( strcasecmp( payroll_pay_period_string, "weekly" ) == 0 )
+		return pay_period_weekly;
+	else
+	if ( strcasecmp( payroll_pay_period_string, "biweekly" ) == 0 )
+		return pay_period_biweekly;
+	else
+	if ( strcasecmp( payroll_pay_period_string, "semimonthly" ) == 0 )
+		return pay_period_semimonthly;
+	else
+	if ( strcasecmp( payroll_pay_period_string, "monthly" ) == 0 )
+		return pay_period_monthly;
+	else
+		return pay_period_not_set;
+
+} /* entity_get_payroll_pay_period() */
+
 enum inventory_cost_method entity_get_inventory_cost_method(
 				char *inventory_cost_method_string )
 {
@@ -34,14 +53,6 @@ enum inventory_cost_method entity_get_inventory_cost_method(
 		return inventory_average;
 	else
 		return inventory_not_set;
-
-	fprintf( stderr,
-"ERROR in %s/%s()/%d: unrecognizable inventory_cost_method of (%s).\n",
-		 __FILE__,
-		 __FUNCTION__,
-		 __LINE__,
-		 inventory_cost_method_string );
-	exit( 1 );
 
 } /* entity_get_inventory_cost_method() */
 
@@ -98,7 +109,7 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 	char *results;
 
 	select =
-"full_name, street_address, inventory_cost_method, social_security_combined_tax_rate, social_security_payroll_ceiling, medicare_combined_tax_rate, federal_unemployment_gross_pay_ceiling, federal_unemployment_tax_minimum_rate, federal_unemployment_tax_standard_rate, state_unemployment_gross_pay_ceiling, state_unemployment_tax_rate, state_unemployment_threshold_rate, withholding_allowance_period_value";
+"full_name, street_address, inventory_cost_method, social_security_combined_tax_rate, social_security_payroll_ceiling, medicare_combined_tax_rate, federal_unemployment_gross_pay_ceiling, federal_unemployment_tax_minimum_rate, federal_unemployment_tax_standard_rate, state_unemployment_gross_pay_ceiling, state_unemployment_tax_rate, state_unemployment_threshold_rate, withholding_allowance_period_value,payroll_pay_period";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -132,85 +143,45 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 		return (ENTITY_SELF *)0;
 	}
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		2 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
 	self->inventory_cost_method =
 		entity_get_inventory_cost_method(
 			piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		3 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 3 );
 	self->social_security_combined_tax_rate = atof( piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		4 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 4 );
 	self->social_security_payroll_ceiling = atoi( piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		5 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 5 );
 	self->medicare_combined_tax_rate = atof( piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		6 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 6 );
 	self->federal_unemployment_gross_pay_ceiling = atoi( piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		7 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 7 );
 	self->federal_unemployment_tax_minimum_rate = atof( piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		8 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 8 );
 	self->federal_unemployment_tax_standard_rate = atof( piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		9 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 9 );
 	self->state_unemployment_gross_pay_ceiling = atoi( piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		10 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 10 );
 	self->state_unemployment_tax_rate = atof( piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		11 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 11 );
 	self->state_unemployment_threshold_rate = atof( piece_buffer );
 
-	piece(	piece_buffer,
-		FOLDER_DATA_DELIMITER,
-		results,
-		12 );
-
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 12 );
 	self->withholding_allowance_period_value = atof( piece_buffer );
 
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 13 );
+	self->payroll_pay_period =
+		entity_get_payroll_pay_period(
+			piece_buffer );
 	return self;
 
 } /* entity_self_load() */

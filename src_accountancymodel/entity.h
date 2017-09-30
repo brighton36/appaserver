@@ -151,5 +151,8 @@ ENTITY *entity_get_sales_tax_payable_entity(
 char *entity_get_payroll_pay_period_string(
 				enum payroll_pay_period );
 
+enum payroll_pay_period entity_get_payroll_pay_period(
+				char *payroll_pay_period_string );
+
 #endif
 

@@ -19,7 +19,8 @@
 LIST *employee_get_work_period_list(	char *application_name,
 					char *full_name,
 					char *street_address,
-					char *begin_work_date )
+					char *begin_work_date,
+					char *end_work_date )
 {
 	EMPLOYEE_WORK_PERIOD *employee_work_period;
 	LIST *employee_work_period_list;
@@ -28,23 +29,29 @@ LIST *employee_get_work_period_list(	char *application_name,
 	char where[ 256 ];
 	char input_buffer[ 512 ];
 	char piece_buffer[ 128 ];
+	int payroll_year;
+	int payroll_period_number;
 	char buffer[ 256 ];
 	FILE *input_pipe;
 
 	select =
-"begin_work_date,end_work_date,employee_work_hours,gross_pay,federal_tax_withholding_amount,state_tax_withholding_amount,social_security_employee_tax_amount,social_security_employer_tax_amount,medicare_employee_tax_amout,medicare_employer_tax_amount,retirement_contribution_plan_employee_amount,retirement_contribution_plan_employer_amount,health_insurance_employee_amount,health_insurance_employer_amount,federal_unemployment_tax_amount,state_unemployment_tax_amount,union_dues_amount,transaction_date_time";
+"payroll_year,payroll_period_number,begin_work_date,end_work_date,employee_work_hours,gross_pay,federal_tax_withholding_amount,state_tax_withholding_amount,social_security_employee_tax_amount,social_security_employer_tax_amount,medicare_employee_tax_amout,medicare_employer_tax_amount,retirement_contribution_plan_employee_amount,retirement_contribution_plan_employer_amount,health_insurance_employee_amount,health_insurance_employer_amount,federal_unemployment_tax_amount,state_unemployment_tax_amount,union_dues_amount,transaction_date_time";
 
 	sprintf( where,
 		 "full_name = '%s' and			"
 		 "street_address = '%s' and		"
-		 "begin_work_date >= '%s'		",
+		 "begin_work_date >= '%s' and		"
+		 "end_work_date <= '%s'			",
 		 escape_character(	buffer,
 					full_name,
 					'\'' ),
 		 street_address,
 		 (begin_work_date)
 			? begin_work_date
-			: "1900-01-01" );
+			: "1900-01-01",
+		 (end_work_date)
+			? end_work_date
+			: "2999-12-31" );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -66,122 +73,121 @@ LIST *employee_get_work_period_list(	char *application_name,
 			input_buffer,
 			0 );
 
+		payroll_year = atoi( piece_buffer );
+
+		piece(	piece_buffer,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		payroll_period_number = atoi( piece_buffer );
+
 		employee_work_period =
 			employee_work_period_new(
-				strdup( piece_buffer )
-					/* begin_work_date */ );
+				full_name,
+				street_address,
+				payroll_year,
+				payroll_period_number );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+		if ( *piece_buffer )
+			employee_work_period->begin_work_date =
+				strdup( piece_buffer );
 
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 		if ( *piece_buffer )
 			employee_work_period->end_work_date =
 				strdup( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
 		if ( *piece_buffer )
 			employee_work_period->employee_work_hours =
 				atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 		if ( *piece_buffer )
 			employee_work_period->gross_pay =
 				atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
 		if ( *piece_buffer )
 			employee_work_period->
 				federal_tax_withholding_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
 		if ( *piece_buffer )
 			employee_work_period->
 				state_tax_withholding_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
 		if ( *piece_buffer )
 			employee_work_period->
 				social_security_employee_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
 		if ( *piece_buffer )
 			employee_work_period->
 				social_security_employer_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
 		if ( *piece_buffer )
 			employee_work_period->
 				medicare_employee_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
 		if ( *piece_buffer )
 			employee_work_period->
 				medicare_employer_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
 		if ( *piece_buffer )
 			employee_work_period->
 				retirement_contribution_plan_employee_amount =
-					atof( piece_buffer );
+					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
 		if ( *piece_buffer )
 			employee_work_period->
 				retirement_contribution_plan_employer_amount =
-					atof( piece_buffer );
+					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
 		if ( *piece_buffer )
 			employee_work_period->
 				health_insurance_employee_amount =
-					atof( piece_buffer );
+					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
 		if ( *piece_buffer )
 			employee_work_period->
 				health_insurance_employer_amount =
-					atof( piece_buffer );
+					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 16 );
 		if ( *piece_buffer )
 			employee_work_period->
 				federal_unemployment_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 17 );
 		if ( *piece_buffer )
 			employee_work_period->
 				state_unemployment_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 16 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 18 );
 		if ( *piece_buffer )
 			employee_work_period->
 				union_dues_amount =
-					atof( piece_buffer );
+					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 17 );
-
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 19 );
 		if ( *piece_buffer )
 		{
 			employee_work_period->
@@ -354,7 +360,11 @@ LIST *employee_get_work_day_list(	char *application_name,
 
 } /* employee_get_work_day_list() */
 
-EMPLOYEE_WORK_PERIOD *employee_work_period_new( char *begin_work_date )
+EMPLOYEE_WORK_PERIOD *employee_work_period_new(
+					char *full_name,
+					char *street_address,
+					int payroll_year,
+					int payroll_period_number )
 {
 	EMPLOYEE_WORK_PERIOD *e;
 
@@ -368,7 +378,10 @@ EMPLOYEE_WORK_PERIOD *employee_work_period_new( char *begin_work_date )
 		exit( 1 );
 	}
 
-	e->begin_work_date = begin_work_date;
+	e->full_name = full_name;
+	e->street_address = street_address;
+	e->payroll_year = payroll_year;
+	e->payroll_period_number = payroll_period_number;
 	return e;
 
 } /* employee_work_period_new() */
@@ -429,7 +442,7 @@ EMPLOYEE *employee_with_load_new(	char *application_name,
 		&e->commission_sum_extension_percent,
 		&e->marital_status,
 		&e->withholding_allowances,
-		&e->withholding_additional_amount,
+		&e->withholding_additional_period_amount,
 		&e->retirement_contribution_plan_employee_period_amount,
 		&e->retirement_contribution_plan_employer_period_amount,
 		&e->health_insurance_employee_period_amount,
@@ -463,12 +476,12 @@ boolean employee_load(
 		double *commission_sum_extension_percent,
 		char **marital_status,
 		int *withholding_allowances,
-		double *withholding_additional_amount,
-		double *retirement_contribution_plan_employee_period_amount,
-		double *retirement_contribution_plan_employer_period_amount,
-		double *health_insurance_employee_period_amount,
-		double *health_insurance_employer_period_amount,
-		double *union_dues_period_amount,
+		int *withholding_additional_period_amount,
+		int *retirement_contribution_plan_employee_period_amount,
+		int *retirement_contribution_plan_employer_period_amount,
+		int *health_insurance_employee_period_amount,
+		int *health_insurance_employer_period_amount,
+		int *union_dues_period_amount,
 		LIST **employee_work_day_list,
 		LIST **employee_work_period_list,
 		char *application_name,
@@ -485,7 +498,7 @@ boolean employee_load(
 	char piece_buffer[ 128 ];
 
 	select =
-"hourly_wage,period_salary,commission_sum_extension_percent,marital_status,withholding_allowances,withholding_additional_amount,retirement_contribution_plan_employee_period_amount,retirement_contribution_plan_employer_period_amount,health_insurance_employee_period_amount,health_insurance_employer_period_amount,union_dues_period_amount";
+"hourly_wage,period_salary,commission_sum_extension_percent,marital_status,withholding_allowances,withholding_additional_period_amount,retirement_contribution_plan_employee_period_amount,retirement_contribution_plan_employer_period_amount,health_insurance_employee_period_amount,health_insurance_employer_period_amount,union_dues_period_amount";
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -507,69 +520,57 @@ boolean employee_load(
 	if ( ! ( results = pipe2string( sys_string ) ) ) return 0;
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
-
 	if ( *piece_buffer )
 		*hourly_wage = atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
-
 	if ( *piece_buffer )
 		*hourly_wage = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
-
 	if ( *piece_buffer )
 		*period_salary = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
-
 	if ( *piece_buffer )
 		*commission_sum_extension_percent = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 3 );
-
 	if ( *piece_buffer )
 		*marital_status = strdup( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 4 );
-
 	if ( *piece_buffer )
 		*withholding_allowances = atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 5 );
-
 	if ( *piece_buffer )
-		*withholding_additional_amount = atof( buffer );
+		*withholding_additional_period_amount = atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 6 );
-
 	if ( *piece_buffer )
 		*retirement_contribution_plan_employee_period_amount =
-			atof( buffer );
+			atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 7 );
-
 	if ( *piece_buffer )
 		*retirement_contribution_plan_employer_period_amount =
-			atof( buffer );
+			atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 8 );
-
 	if ( *piece_buffer )
 		*health_insurance_employee_period_amount =
-			atof( buffer );
+			atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 9 );
-
 	if ( *piece_buffer )
 		*health_insurance_employer_period_amount =
-			atof( buffer );
+			atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 10 );
-
 	if ( *piece_buffer )
 		*union_dues_period_amount =
-			atof( buffer );
+			atoi( buffer );
 
 	free( results );
 
@@ -586,7 +587,8 @@ boolean employee_load(
 			application_name,
 			full_name,
 			street_address,
-			begin_work_date );
+			begin_work_date,
+			end_work_date );
 
 	return 1;
 
@@ -779,8 +781,8 @@ boolean employee_get_payroll_begin_end_work_dates(
 boolean employee_get_prior_period(
 				char **begin_work_date,
 				char **end_work_date,
-				int *period_year,
-				int *period_number,
+				int *payroll_year,
+				int *payroll_period_number,
 				enum payroll_pay_period
 					payroll_pay_period )
 {
@@ -819,7 +821,7 @@ boolean employee_get_prior_period(
 		{
 			column( column_buffer, 1, input_buffer );
 			*end_work_date = strdup( column_buffer );
-			*period_year = atoi( column_buffer );
+			*payroll_year = atoi( column_buffer );
 			results++;
 			continue;
 		}
@@ -828,7 +830,7 @@ boolean employee_get_prior_period(
 					PAYROLL_PERIOD_NUMBER_LABEL ) == 0 )
 		{
 			column( column_buffer, 1, input_buffer );
-			*period_number = atoi( column_buffer );
+			*payroll_period_number = atoi( column_buffer );
 			results++;
 			continue;
 		}
@@ -839,4 +841,204 @@ boolean employee_get_prior_period(
 	return (boolean)(results == 3);
 
 } /* employee_get_prior_period() */
+
+PAYROLL_POSTING *employee_payroll_posting_new(
+					int payroll_year,
+					int payroll_period_number,
+					char *begin_work_date,
+					char *end_work_date )
+{
+	PAYROLL_POSTING *e;
+
+	if ( ! ( e = calloc( 1, sizeof( PAYROLL_POSTING ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	e->payroll_year = payroll_year;
+	e->payroll_period_number = payroll_period_number;
+	e->begin_work_date = begin_work_date;
+	e->end_work_date = end_work_date;
+
+	return e;
+
+} /* employee_payroll_posting_new() */
+
+PAYROLL_POSTING *employee_get_payroll_posting(
+					LIST *employee_list,
+					int payroll_year,
+					int payroll_period_number,
+					char *begin_work_date,
+					char *end_work_date )
+{
+	PAYROLL_POSTING *payroll_posting;
+
+	payroll_posting =
+		employee_payroll_posting_new(
+			payroll_year,
+			payroll_period_number,
+			begin_work_date,
+			end_work_date );
+
+	payroll_posting->employee_work_period_list =
+		employee_posting_calculate_work_period_list(
+			&payroll_posting->employee_work_hours,
+			&payroll_posting->gross_pay,
+			&payroll_posting->federal_tax_withholding_amount,
+			&payroll_posting->state_tax_withholding_amount,
+			&payroll_posting->social_security_employee_tax_amount,
+			&payroll_posting->social_security_employer_tax_amount,
+			&payroll_posting->medicare_employee_tax_amount,
+			&payroll_posting->medicare_employer_tax_amount,
+			&payroll_posting->
+				retirement_contribution_plan_employee_amount,
+			&payroll_posting->
+				retirement_contribution_plan_employer_amount,
+			&payroll_posting->health_insurance_employee_amount,
+			&payroll_posting->health_insurance_employer_amount,
+			&payroll_posting->federal_unemployment_tax_amount,
+			&payroll_posting->state_unemployment_tax_amount,
+			&payroll_posting->union_dues_amount,
+			employee_list,
+			payroll_year,
+			payroll_period_number );
+
+	return payroll_posting;
+
+} /* employee_get_payroll_posting() */
+
+LIST *employee_posting_calculate_work_period_list(
+			double *employee_work_hours,
+			double *gross_pay,
+			double *federal_tax_withholding_amount,
+			double *state_tax_withholding_amount,
+			double *social_security_employee_tax_amount,
+			double *social_security_employer_tax_amount,
+			double *medicare_employee_tax_amount,
+			double *medicare_employer_tax_amount,
+			int *retirement_contribution_plan_employee_amount,
+			int *retirement_contribution_plan_employer_amount,
+			int *health_insurance_employee_amount,
+			int *health_insurance_employer_amount,
+			double *federal_unemployment_tax_amount,
+			double *state_unemployment_tax_amount,
+			int *union_dues_amount,
+			LIST *employee_list,
+			int payroll_year,
+			int payroll_period_number )
+{
+	LIST *employee_work_period_list;
+	EMPLOYEE *employee;
+	EMPLOYEE_WORK_PERIOD *employee_work_period;
+
+	if ( !list_rewind( employee_list ) ) return (LIST *)0;
+
+	employee_work_period_list = list_new();
+
+	do {
+		employee = list_get_pointer( employee_list );
+
+		employee_work_period =
+			employee_get_work_period(
+			  employee_work_hours,
+			  gross_pay,
+			  federal_tax_withholding_amount,
+			  state_tax_withholding_amount,
+			  social_security_employee_tax_amount,
+			  social_security_employer_tax_amount,
+			  medicare_employee_tax_amount,
+			  medicare_employer_tax_amount,
+			  retirement_contribution_plan_employee_amount,
+			  retirement_contribution_plan_employer_amount,
+			  health_insurance_employee_amount,
+			  health_insurance_employer_amount,
+			  federal_unemployment_tax_amount,
+			  state_unemployment_tax_amount,
+			  union_dues_amount,
+			  employee->employee_work_day_list,
+			  employee->hourly_wage,
+			  employee->period_salary,
+			  employee->commission_sum_extension_percent,
+			  employee->marital_status,
+			  employee->withholding_allowances,
+			  employee->withholding_additional_period_amount,
+			  employee->
+			    retirement_contribution_plan_employee_period_amount,
+			  employee->
+			    retirement_contribution_plan_employer_period_amount,
+			  employee->
+			  	health_insurance_employee_period_amount,
+			  employee->
+			  	health_insurance_employer_period_amount,
+			  employee->
+			  	union_dues_period_amount,
+			  employee->full_name,
+			  employee->street_address,
+			  payroll_year,
+			  payroll_period_number );
+
+		list_append_pointer(
+			employee->employee_work_period_list,
+			employee_work_period );
+
+		list_append_pointer(
+			employee_work_period_list,
+			employee_work_period );
+
+	} while( list_next( employee_list ) );
+
+	return employee_work_period_list;
+
+} /* employee_posting_calculate_work_period_list() */
+
+EMPLOYEE_WORK_PERIOD *employee_get_work_period(
+		double *employee_work_hours,
+		double *gross_pay,
+		double *federal_tax_withholding_amount,
+		double *state_tax_withholding_amount,
+		double *social_security_employee_tax_amount,
+		double *social_security_employer_tax_amount,
+		double *medicare_employee_tax_amount,
+		double *medicare_employer_tax_amount,
+		int *retirement_contribution_plan_employee_amount,
+		int *retirement_contribution_plan_employer_amount,
+		int *health_insurance_employee_amount,
+		int *health_insurance_employer_amount,
+		double *federal_unemployment_tax_amount,
+		double *state_unemployment_tax_amount,
+		int *union_dues_amount,
+		LIST *employee_work_day_list,
+		double hourly_wage,
+		double period_salary,
+		double commission_sum_extension_percent,
+		char *marital_status,
+		int withholding_allowances,
+		int withholding_additional_period_amount,
+		int retirement_contribution_plan_employee_period_amount,
+		int retirement_contribution_plan_employer_period_amount,
+		int health_insurance_employee_period_amount,
+		int health_insurance_employer_period_amount,
+		int union_dues_period_amount,
+		char *full_name,
+		char *street_address,
+		int payroll_year,
+		int payroll_period_number )
+{
+	EMPLOYEE_WORK_PERIOD *employee_work_period;
+
+	employee_work_period =
+		employee_work_period_new(
+			full_name,
+			street_address,
+			payroll_year,
+			payroll_period_number );
+
+	return employee_work_period;
+
+} /* employee_get_work_period() */
 

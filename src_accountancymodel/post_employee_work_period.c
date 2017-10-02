@@ -38,7 +38,8 @@ void post_employee_work_period(
 			int payroll_year,
 			int payroll_period_number,
 			char *begin_work_date,
-			char *end_work_date );
+			char *end_work_date,
+			ENTITY_SELF *self );
 
 void post_employee_work_period_display(
 			char *application_name,
@@ -172,7 +173,8 @@ int main( int argc, char **argv )
 			payroll_year,
 			payroll_period_number,
 			begin_work_date,
-			end_work_date );
+			end_work_date,
+			self );
 
 		if ( with_html )
 		{
@@ -207,7 +209,8 @@ void post_employee_work_period(
 			int payroll_year,
 			int payroll_period_number,
 			char *begin_work_date,
-			char *end_work_date )
+			char *end_work_date,
+			ENTITY_SELF *self )
 {
 	PAYROLL_POSTING *payroll_posting = {0};
 
@@ -217,7 +220,8 @@ void post_employee_work_period(
 			payroll_year,
 			payroll_period_number,
 			begin_work_date,
-			end_work_date );
+			end_work_date,
+			self );
 
 	if ( with_html )
 	{

@@ -108,7 +108,7 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-LIST *employee_get_work_day_list(	char *application_name,
+LIST *employee_fetch_work_day_list(	char *application_name,
 					char *full_name,
 					char *street_address,
 					char *begin_work_date,
@@ -199,7 +199,7 @@ boolean employee_get_payroll_begin_end_work_dates(
 					char *payroll_pay_period_string,
 					char *include_date );
 
-LIST *employee_get_work_period_list(	char *application_name,
+LIST *employee_fetch_work_period_list(	char *application_name,
 					char *full_name,
 					char *street_address,
 					char *begin_work_date,
@@ -210,7 +210,8 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 					int payroll_year,
 					int payroll_period_number,
 					char *begin_work_date,
-					char *end_work_date );
+					char *end_work_date,
+					ENTITY_SELF *self );
 
 LIST *employee_posting_calculate_work_period_list(
 			double *employee_work_hours,
@@ -230,7 +231,8 @@ LIST *employee_posting_calculate_work_period_list(
 			int *union_dues_amount,
 			LIST *employee_list,
 			int payroll_year,
-			int payroll_period_number );
+			int payroll_period_number,
+			ENTITY_SELF *self );
 
 EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			double *employee_work_hours,
@@ -263,7 +265,8 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			char *full_name,
 			char *street_address,
 			int payroll_year,
-			int payroll_period_number );
+			int payroll_period_number,
+			ENTITY_SELF *self );
 
 #endif
 

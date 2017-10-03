@@ -93,6 +93,8 @@ typedef struct
 	double hourly_wage;
 	double period_salary;
 	double commission_sum_extension_percent;
+	double gross_pay_year_to_date;
+	double database_gross_pay_year_to_date;
 	char *marital_status;
 	int withholding_allowances;
 	int withholding_additional_period_amount;
@@ -121,6 +123,8 @@ boolean employee_load(
 		double *hourly_wage,
 		double *period_salary,
 		double *commission_sum_extension_percent,
+		double *gross_pay_year_to_date,
+		double *database_gross_pay_year_to_date,
 		char **marital_status,
 		int *withholding_allowances,
 		int *withholding_additional_period_amount,
@@ -232,6 +236,8 @@ LIST *employee_posting_calculate_work_period_list(
 			LIST *employee_list,
 			int payroll_year,
 			int payroll_period_number,
+			char *begin_work_date,
+			char *end_work_date,
 			ENTITY_SELF *self );
 
 EMPLOYEE_WORK_PERIOD *employee_get_work_period(
@@ -250,6 +256,7 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			double *federal_unemployment_tax_amount,
 			double *state_unemployment_tax_amount,
 			int *union_dues_amount,
+			double *gross_pay_year_to_date,
 			LIST *employee_work_day_list,
 			double hourly_wage,
 			double period_salary,
@@ -266,7 +273,21 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			char *street_address,
 			int payroll_year,
 			int payroll_period_number,
+			char *begin_work_date,
+			char *end_work_date,
 			ENTITY_SELF *self );
+
+char *employee_update_get_sys_string(
+				char *application_name );
+
+void employee_update(	char *application_name,
+			char *full_name,
+			char *street_address,
+			double gross_pay_year_to_date,
+			double database_gross_pay_year_to_date );
+
+double employee_calculate_employee_work_hours(
+			LIST *employee_work_day_list );
 
 #endif
 

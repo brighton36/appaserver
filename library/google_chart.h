@@ -3,7 +3,6 @@
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
 
-
 #ifndef GOOGLE_CHART_H
 #define GOOGLE_CHART_H
 

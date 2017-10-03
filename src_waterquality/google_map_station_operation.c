@@ -27,10 +27,10 @@
 #include "google_map.h"
 #include "application_constants.h"
 #include "appaserver_link_file.h"
+#include "semaphore.h"
 
 /* Constants */
 /* --------- */
-#define SEMAPHORE_TEMPLATE	"%s/%s_google_map_semaphore_%s.dat"
 
 /* Prototypes */
 /* ---------- */
@@ -45,23 +45,18 @@ int main( int argc, char **argv )
 	char label[ 128 ];
 	char *url_filename;
 	char *prompt_filename;
-	char semaphore_filename[ 256 ];
 	char window_name[ 128 ];
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
 	FILE *output_file;
-	char *parent_process_id_string;
-	char *operation_row_count_string;
-	char sys_string[ 1024 ];
-	char *results;
-	char increment_string[ 16];
 	char *session;
-	boolean group_first_time;
-	boolean group_last_time;
 	GOOGLE_MAP *google_map;
 	char *mode;
 	APPASERVER_LINK_FILE *google_map_appaserver_link_file;
+	SEMAPHORE_OPERATION *semaphore_operation;
+	char *parent_process_id_string;
+	char *operation_row_total_string;
 
 	if ( argc != 9 )
 	{
@@ -77,7 +72,7 @@ int main( int argc, char **argv )
 	latitude = argv[ 4 ];
 	longitude = argv[ 5 ];
 	parent_process_id_string = argv[ 6 ];
-	operation_row_count_string = argv[ 7 ];
+	operation_row_total_string = argv[ 7 ];
 	session = argv[ 8 ];
 
 	if ( timlib_parse_database_string(	&database_string,
@@ -98,47 +93,31 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	sprintf(	semaphore_filename,
-			SEMAPHORE_TEMPLATE,
+	semaphore_operation =
+		semaphore_operation_new(
+			application_name,
 			appaserver_parameter_file->
 				appaserver_data_directory,
-			application_name,
-			parent_process_id_string );
+			atoi( parent_process_id_string ),
+			atoi( operation_row_total_string ) );
 
-	if ( !timlib_file_exists( semaphore_filename ) )
-	{
-		char sys_string[ 1024 ];
-		sprintf( sys_string, "echo 0 > %s", semaphore_filename );
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-		group_first_time = 1;
-	}
-	else
-	{
-		group_first_time = 0;
-	}
+	semaphore_operation->semaphore_filename =
+		semaphore_operation_get_filename(
+				semaphore_operation->application_name,
+				semaphore_operation->appaserver_data_directory,
+				semaphore_operation->parent_process_id );
 
-	sprintf( sys_string, "cat %s", semaphore_filename );
-	results = pipe2string( sys_string );
-	sprintf( increment_string, "%d", atoi( results ) + 1 );
-	sprintf( sys_string,
-		 "echo %s > %s",
-		 increment_string,
-		 semaphore_filename );
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-	group_last_time =
-		( strcmp(	operation_row_count_string,
-				increment_string ) == 0 );
+	semaphore_operation_check(
+				&semaphore_operation->group_first_time,
+				&semaphore_operation->group_last_time,
+				semaphore_operation->operation_row_total,
+				semaphore_operation->semaphore_filename );
 
 	document = document_new( "", application_name );
 	
-	if ( group_first_time )
+	if ( semaphore_operation->group_first_time )
 	{
 		document_set_output_content_type( document );
 
@@ -160,7 +139,7 @@ int main( int argc, char **argv )
 		printf(
 		"<p>Warning: for station = %s, missing coordinates.</p>\n",
 			station );
-		if ( group_last_time ) document_close();
+		if ( semaphore_operation->group_last_time ) document_close();
 		exit( 0 );
 	}
 
@@ -190,7 +169,25 @@ int main( int argc, char **argv )
 			google_map_appaserver_link_file->session,
 			google_map_appaserver_link_file->extension );
 
-	if ( group_first_time )
+	prompt_filename =
+		appaserver_link_get_link_prompt(
+			google_map_appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			google_map_appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			google_map_appaserver_link_file->
+				link_prompt->server_address,
+			google_map_appaserver_link_file->application_name,
+			google_map_appaserver_link_file->filename_stem,
+			google_map_appaserver_link_file->begin_date_string,
+			google_map_appaserver_link_file->end_date_string,
+			google_map_appaserver_link_file->process_id,
+			google_map_appaserver_link_file->session,
+			google_map_appaserver_link_file->extension );
+
+	if ( semaphore_operation->group_first_time )
 	{
 		mode = "w";
 	}
@@ -210,7 +207,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( group_first_time )
+	if ( semaphore_operation->group_first_time )
 	{
 		char *google_map_key_data;
 
@@ -252,7 +249,7 @@ int main( int argc, char **argv )
 
 	google_map_output_point_list( output_file, google_map->point_list );
 
-	if ( group_last_time )
+	if ( semaphore_operation->group_last_time )
 	{
 		google_map_output_heading_close( output_file );
 
@@ -267,7 +264,7 @@ int main( int argc, char **argv )
 
 	fclose( output_file );
 
-	if ( group_last_time )
+	if ( semaphore_operation->group_last_time )
 	{
 		printf( "<body bgcolor=\"%s\" onload=\"",
 			application_get_background_color( application_name ) );
@@ -296,6 +293,7 @@ int main( int argc, char **argv )
 			process_name,
 			appaserver_parameter_file_get_dbms() );
 
-	exit( 0 );
+	return 0;
+
 } /* main() */
 

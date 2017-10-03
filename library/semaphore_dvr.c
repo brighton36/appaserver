@@ -1,11 +1,28 @@
+/* $APPASERVER_HOME/library/semaphore_dvr.c		*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include "semaphore.h"
 
+#define SEMAPHORE_TEST_KEY1		1
+#define SEMAPHORE_TEST_KEY2		2
+#define SEMAPHORE_TEST_KEY3		3
+#define SEMAPHORE_TEST_KEY4		4
+#define SEMAPHORE_TEST_KEY5		5
+#define SEMAPHORE_TEST_KEY6		6
+#define SEMAPHORE_TEST_KEY7		7
+#define SEMAPHORE_TEST_KEY8		8
+#define SEMAPHORE_TEST_KEY9		9
+#define SEMAPHORE_TEST_KEY65536		65536
+
 int main( void )
 {
-	key_t key = SEMAPHORE_TEST_KEY1;
+	/* key_t key = SEMAPHORE_TEST_KEY1; */
+	key_t key = SEMAPHORE_TEST_KEY65536;
 	int semid, pid = getpid();
 
 	if ( ( semid = semaphore( key ) ) < 0 )

@@ -1,28 +1,60 @@
+/* ---------------------------------------------------- */
+/* $APPASERVER_HOME/library/semaphore.h			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
+
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <errno.h>
+#include "boolean.h"
 
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
-#define SEMAPHORE_TEST_KEY1		1
-#define SEMAPHORE_TEST_KEY2		2
-#define SEMAPHORE_TEST_KEY3		3
-#define SEMAPHORE_TEST_KEY4		4
-#define SEMAPHORE_TEST_KEY5		5
-#define SEMAPHORE_TEST_KEY6		6
-#define SEMAPHORE_TEST_KEY7		7
-#define SEMAPHORE_TEST_KEY8		8
-#define SEMAPHORE_TEST_KEY9		9
-#define SEMAPHORE_TEST_KEY65536		65536
-
+/* External variables */
+/* ------------------ */
 extern int errno;
 
+/* Constants */
+/* --------- */
+#define SEMAPHORE_TEMPLATE	"%s/%s_semaphore_%d.dat"
 #define SEMPERM 0600
 
-int semaphore( key_t semkey );
-void semaphore_wait( int semid );
-void semaphore_signal( int semid );
+/* Structures */
+/* ---------- */
+typedef struct
+{
+	char *application_name;
+	char *appaserver_data_directory;
+	char *semaphore_filename;
+	boolean group_first_time;
+	boolean group_last_time;
+	int parent_process_id;
+	int operation_row_total;
+	int operation_row_current;
+} SEMAPHORE_OPERATION;
+
+int semaphore(		key_t semkey );
+void semaphore_wait(	int semid );
+void semaphore_signal(	int semid );
+
+SEMAPHORE_OPERATION *semaphore_operation_new(
+				char *application_name,
+				char *appaserver_data_directory,
+				int parent_process_id,
+				int operation_row_total );
+
+char *semaphore_operation_get_filename(
+				char *application_name,
+				char *appaserver_data_directory,
+				int parent_process_id );
+
+void semaphore_operation_check(
+				boolean *group_first_time,
+				boolean *group_last_time,
+				int operation_row_total,
+				char *semaphore_filename );
 
 #endif

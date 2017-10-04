@@ -131,6 +131,12 @@ void semaphore_operation_check(
 	int operation_row_current;
 	char sys_string[ 1024 ];
 
+	if ( operation_row_total == 1 )
+	{
+		*group_first_time = 1;
+		*group_last_time = 1;
+	}
+
 	if ( !timlib_file_exists( semaphore_filename ) )
 	{
 		sprintf( sys_string, "echo 1 > %s", semaphore_filename );

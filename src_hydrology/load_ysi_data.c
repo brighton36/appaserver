@@ -653,6 +653,9 @@ int load_ysi_filespecification(
 		pclose( station_datatype_insert_pipe );
 
 	fclose( input_file );
+
+	timlib_reset_get_line_check_utf_16();
+
 	fclose( error_file );
 
 	return line_number;
@@ -683,16 +686,23 @@ LIST *get_datatype_list(	char **error_message,
 
 	*second_line = '\0';
 
-	while( get_line( first_line, input_file ) )
+	timlib_reset_get_line_check_utf_16();
+
+	while( timlib_get_line( first_line, input_file, 1024 ) )
 	{
 		if ( instr( "Date", first_line, 1 ) != -1 )
 		{
 			if ( !is_exo )
 			{
-				get_line( second_line, input_file );
+				timlib_get_line(
+					second_line,
+					input_file,
+					1024 );
 			}
 
 			fclose( input_file );
+
+			timlib_reset_get_line_check_utf_16();
 
 			datatype_list =
 				input_buffer_get_datatype_list(
@@ -711,8 +721,13 @@ LIST *get_datatype_list(	char **error_message,
 			return datatype_list;
 		}
 	}
+
 	fclose( input_file );
+
+	timlib_reset_get_line_check_utf_16();
+
 	*error_message = "No date header found in input file.";
+
 	return (LIST *)0;
 
 } /* get_datatype_list() */
@@ -959,7 +974,11 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 					measurement_time );
 		}
 	}
+
 	fclose( input_file );
+
+	timlib_reset_get_line_check_utf_16();
+
 	pclose( output_pipe );
 
 	if ( ! ( input_file = fopen( tmp_filename, "r" ) ) )
@@ -1046,7 +1065,10 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 		}
 
 	}
+
 	fclose( input_file );
+
+	timlib_reset_get_line_check_utf_16();
 
 	sprintf( sys_string, "rm -f %s", tmp_filename );
 	system( sys_string );
@@ -1082,6 +1104,8 @@ char *station_fetch(	char *application_name,
 
 		fclose( input_file );
 
+		timlib_reset_get_line_check_utf_16();
+
 		if ( timlib_character_exists(
 			input_buffer,
 			',' ) )
@@ -1109,9 +1133,10 @@ char *station_fetch(	char *application_name,
 		return strdup( station );
 	}
 
+	fclose( input_file );
+
 	timlib_reset_get_line_check_utf_16();
 
-	fclose( input_file );
 	return (char *)0;
 
 } /* station_fetch() */

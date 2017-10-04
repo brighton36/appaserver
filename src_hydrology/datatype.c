@@ -190,7 +190,7 @@ LIST *datatype_with_station_name_get_datatype_list(
 
 	input_pipe = popen( buffer, "r" );
 
-	while( get_line( buffer, input_pipe ) )
+	while( timlib_get_line( buffer, input_pipe, 1024 ) )
 	{
 		datatype = datatype_record2datatype( buffer );
 		list_append_pointer( datatype_list, datatype );

@@ -66,7 +66,8 @@ void build_related_folder_element_list(
 				char *state,
 				LOOKUP_BEFORE_DROP_DOWN *
 					lookup_before_drop_down,
-				char *appaserver_user_foreign_login_name );
+				char *appaserver_user_foreign_login_name,
+				LIST *foreign_attribute_name_list );
 
 LIST *get_attribute_element_list(	int *current_reference_number,
 					char *application_name,
@@ -737,6 +738,7 @@ LIST *get_element_list(
 	char *ignore_push_button_prefix = {0};
 	char *ignore_push_button_heading = {0};
 	RELATED_FOLDER *related_folder;
+	LIST *foreign_attribute_name_list = {0};
 
 	if ( !omit_push_buttons )
 	{
@@ -807,6 +809,7 @@ LIST *get_element_list(
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
+				&foreign_attribute_name_list,
 				done_attribute_name_list,
 			        (LIST *)0 /* omit_update_attribute_name_list */,
 				mto1_related_folder_list,
@@ -838,7 +841,8 @@ LIST *get_element_list(
 				row_level_non_owner_forbid,
 				state,
 				lookup_before_drop_down,
-				appaserver_user_foreign_login_name );
+				appaserver_user_foreign_login_name,
+				foreign_attribute_name_list );
 
 			continue;
 		}
@@ -1596,11 +1600,11 @@ void build_related_folder_element_list(
 				char *state,
 				LOOKUP_BEFORE_DROP_DOWN
 					*lookup_before_drop_down,
-				char *appaserver_user_foreign_login_name )
+				char *appaserver_user_foreign_login_name,
+				LIST *foreign_attribute_name_list )
 {
 	char *hint_message;
 	ATTRIBUTE *attribute;
-	LIST *foreign_attribute_name_list;
 	LIST *common_non_primary_attribute_name_list;
 	boolean set_first_initial_data;
 

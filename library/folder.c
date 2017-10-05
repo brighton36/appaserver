@@ -1532,6 +1532,7 @@ LIST *folder_get_primary_text_element_list(
 		if ( !attribute->primary_key_index ) continue;
 
 		if ( related_folder_attribute_consumes_related_folder(
+				(LIST **)0 /* foreign_attribute_name_list */,
 				(LIST *)0 /* done_attribute_name_list */,
 			        (LIST *)0 /* omit_update_attribute_name_list */,
 				folder->mto1_related_folder_list,

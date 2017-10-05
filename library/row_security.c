@@ -793,7 +793,7 @@ LIST *row_security_get_update_element_list(
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
 	ELEMENT *element;
-	LIST *foreign_attribute_name_list;
+	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
 	LIST *primary_attribute_name_list;
 	boolean prompt_data_element_only;
@@ -891,6 +891,7 @@ LIST *row_security_get_update_element_list(
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
+			       &foreign_attribute_name_list,
 			       ignore_attribute_name_list,
 			       attribute_get_omit_update_attribute_name_list(
 					attribute_list ),
@@ -898,6 +899,7 @@ LIST *row_security_get_update_element_list(
 			       attribute_name,
 			       (LIST *)0 /* include_attribute_name_list */ ) ) )
 		{
+/*
 			if ( related_folder->
 				folder_foreign_attribute_name_list )
 			{
@@ -911,6 +913,7 @@ LIST *row_security_get_update_element_list(
 					related_folder->
 						foreign_attribute_name_list;
 			}
+*/
 
 			if ( list_exists_string(
 					 non_edit_folder_name_list,

@@ -64,7 +64,8 @@ void build_related_folder_element_list(
 			boolean row_level_non_owner_forbid,
 			char *one2m_folder_name_for_processes,
 			boolean attribute_exists_in_preprompt_dictionary,
-			char *state );
+			char *state,
+			LIST *foreign_attribute_name_list );
 
 char *get_done_folder_name(	char *folder_name,
 				char *related_attribute_name );
@@ -923,7 +924,7 @@ LIST *get_element_list(
 	LIST *return_list;
 	ATTRIBUTE *attribute;
 	RELATED_FOLDER *related_folder;
-	LIST *foreign_attribute_name_list;
+	LIST *foreign_attribute_name_list = {0};
 	LIST *element_list;
 	LIST *radio_button_element_list = {0};
 	LIST *isa_folder_list;
@@ -1114,6 +1115,7 @@ LIST *get_element_list(
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
+				&foreign_attribute_name_list,
 				exclude_attribute_name_list,
 				omit_update_attribute_name_list,
 				mto1_related_folder_list,
@@ -1140,7 +1142,8 @@ LIST *get_element_list(
 			   row_level_non_owner_forbid,
 			   folder_name /* one2m_folder_name_for_processes */,
 			   attribute_exists_in_preprompt_dictionary,
-			   state );
+			   state,
+			   foreign_attribute_name_list );
 
 			continue;
 		}
@@ -2059,9 +2062,9 @@ void build_related_folder_element_list(
 			boolean row_level_non_owner_forbid,
 			char *one2m_folder_name_for_processes,
 			boolean attribute_exists_in_preprompt_dictionary,
-			char *state )
+			char *state,
+			LIST *foreign_attribute_name_list )
 {
-	LIST *foreign_attribute_name_list;
 	char *hint_message;
 	boolean set_first_initial_data;
 	boolean output_null_option;
@@ -2104,11 +2107,13 @@ void build_related_folder_element_list(
 			related_folder->
 			related_attribute_name ) ) );
 
+/*
 	foreign_attribute_name_list =
 		related_folder_get_foreign_attribute_name_list(
    			folder_get_primary_attribute_name_list(
 				related_folder->folder->attribute_list ),
    			related_folder->related_attribute_name );
+*/
 
 	hint_message =
 		related_folder_get_hint_message(

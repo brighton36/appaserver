@@ -347,6 +347,7 @@ void post_state_one(	char *application_name,
 
 		if ( ( related_folder =
 	       		related_folder_attribute_consumes_related_folder(
+			       (LIST **)0 /* foreign_attribute_name_list */,
 			       (LIST *)0 /* done_attribute_name_list */,
 			       (LIST *)0 /* omit_update_attribute_name_list */,
 			       mto1_related_folder_list,

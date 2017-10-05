@@ -133,6 +133,7 @@ LIST *related_folder_get_foreign_attribute_name_list(
 } /* related_folder_get_foreign_attribute_name_list() */
 
 RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
+		LIST **foreign_attribute_name_list,
 		LIST *done_attribute_name_list,
 		LIST *omit_update_attribute_name_list,
 		LIST *mto1_related_folder_list,
@@ -144,7 +145,7 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 		LIST *include_attribute_name_list )
 {
 	RELATED_FOLDER *related_folder;
-	LIST *foreign_attribute_name_list;
+	LIST *local_foreign_attribute_name_list = {0};
 	LIST *subtract_list;
 
 	if ( !list_rewind( mto1_related_folder_list ) )
@@ -161,12 +162,12 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 
 		if ( related_folder->folder_foreign_attribute_name_list )
 		{
-			foreign_attribute_name_list =
+			local_foreign_attribute_name_list =
 				related_folder->
 					folder_foreign_attribute_name_list;
 
 			if ( !list_exists_string(
-				foreign_attribute_name_list,
+				local_foreign_attribute_name_list,
 				attribute_name ) )
 			{
 				continue;
@@ -174,7 +175,7 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 		}
 		else
 		{
-			foreign_attribute_name_list =
+			local_foreign_attribute_name_list =
 				related_folder_get_foreign_attribute_name_list(
 			   	folder_get_primary_attribute_name_list(
 						related_folder->folder->
@@ -184,17 +185,18 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 
 		subtract_list =
 			list_subtract(
-				foreign_attribute_name_list,
+				local_foreign_attribute_name_list,
 				omit_update_attribute_name_list );
 
 		if (	list_length( subtract_list ) !=
-			list_length( foreign_attribute_name_list ) )
+			list_length( local_foreign_attribute_name_list ) )
 		{
 			continue;
 		}
 
-		if ( list_exists_string(	foreign_attribute_name_list,
-						attribute_name ) )
+		if ( list_exists_string(
+			local_foreign_attribute_name_list,
+			attribute_name ) )
 		{
 			if ( list_length( include_attribute_name_list ) )
 			{
@@ -204,8 +206,8 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 
 				subtract_list =
 					list_subtract(
-						foreign_attribute_name_list,
-						include_attribute_name_list );
+					     local_foreign_attribute_name_list,
+					     include_attribute_name_list );
 
 				/* See output_prompt_insert_form.c */
 				/* ------------------------------- */
@@ -219,7 +221,13 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 			{
 				list_append_string_list(
 					done_attribute_name_list,
-					foreign_attribute_name_list );
+					local_foreign_attribute_name_list );
+			}
+
+			if ( foreign_attribute_name_list )
+			{
+				*foreign_attribute_name_list =
+					local_foreign_attribute_name_list;
 			}
 
 			return related_folder;

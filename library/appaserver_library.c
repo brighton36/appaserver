@@ -766,7 +766,7 @@ LIST *appaserver_library_get_insert_table_element_list(
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
 	ELEMENT *element;
-	LIST *foreign_attribute_name_list;
+	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
 	LIST *primary_attribute_name_list;
 	LIST *isa_folder_list;
@@ -830,6 +830,7 @@ drop-down needing SWEEP.sweep_number in the where clause.
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
+			       &foreign_attribute_name_list,
 			       ignore_attribute_name_list,
 			       (LIST *)0 /* omit_update_attribute_name_list */,
 			       mto1_related_folder_list,
@@ -870,12 +871,14 @@ drop-down needing SWEEP.sweep_number in the where clause.
 				continue;
 			}
 
+/*
 			foreign_attribute_name_list =
 				related_folder_get_foreign_attribute_name_list(
 			   	   folder_get_primary_attribute_name_list(
 					related_folder->folder->
 						attribute_list ),
 			   	   related_folder->related_attribute_name );
+*/
 
 			list_append_list(
 				return_list,
@@ -902,12 +905,6 @@ drop-down needing SWEEP.sweep_number in the where clause.
 							no_initial_capital,
 					 one2m_folder_name_for_processes
 					) );
-
-/*
-			list_append_string_list( 
-					ignore_attribute_name_list,
-					foreign_attribute_name_list );
-*/
 
 			related_folder->ignore_output = 1;
 

@@ -499,7 +499,7 @@ LIST *get_element_list(		char *login_name,
 	LIST *ignore_attribute_name_list;
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
-	LIST *foreign_attribute_name_list;
+	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
 	LIST *primary_attribute_name_list;
 	int prompt_data_element_only = 0;
@@ -536,6 +536,7 @@ LIST *get_element_list(		char *login_name,
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
+			       &foreign_attribute_name_list,
 			       ignore_attribute_name_list,
 			       (LIST *)0 /* omit_update_attribute_name_list */,
 			       mto1_related_folder_list,
@@ -544,12 +545,14 @@ LIST *get_element_list(		char *login_name,
 		{
 			if ( related_folder->ignore_output ) continue;
 
+/*
 			foreign_attribute_name_list =
 				related_folder_get_foreign_attribute_name_list(
 			   	   folder_get_primary_attribute_name_list(
 					related_folder->folder->
 						attribute_list ),
 			   	   related_folder->related_attribute_name );
+*/
 
 			list_append_list(
 				return_list,
@@ -583,12 +586,6 @@ LIST *get_element_list(		char *login_name,
 					(char *)0
 					/* one2m_folder_name_for_processes */
 				) );
-
-/*
-			list_append_string_list( 
-					ignore_attribute_name_list,
-					foreign_attribute_name_list );
-*/
 
 			related_folder->ignore_output = 1;
 			objects_outputted++;

@@ -3790,18 +3790,28 @@ LIST *related_folder_fetch_folder_foreign_attribute_record_list(
 {
 	char sys_string[ 1024 ];
 	char *select;
+	char *folder_name;
 	char *order;
+
+	folder_name = "foreign_attribute";
+
+	if ( !folder_exists_folder(	application_name,
+					folder_name ) )
+	{
+		return (LIST *)0;
+	}
 
 	select = "folder,related_folder,foreign_attribute";
 	order = "primary_key_index";
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=%s			"
-		 "			folder=foreign_attribute	"
-		 "			order=%s			",
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	"
+		 "			order=%s	",
 		 application_name,
 		 select,
+		 folder_name,
 		 order );
 
 	return pipe2list( sys_string );

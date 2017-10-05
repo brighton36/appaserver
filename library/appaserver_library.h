@@ -1,4 +1,5 @@
-/* library/appaserver_library.h						*/
+/* --------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/library/appaserver_library.h			*/
 /* --------------------------------------------------------------------	*/
 /*									*/
 /* These are the generic Appaserver functions.				*/

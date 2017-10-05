@@ -1,4 +1,5 @@
-/* library/appaserver_library.c						*/
+/* --------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/library/appaserver_library.c			*/
 /* --------------------------------------------------------------------	*/
 /*									*/
 /* These are the generic Appaserver functions.				*/
@@ -47,6 +48,7 @@ static char *system_folder_list[] = {
 					"folder",
 					"folder_attribute",
 					"folder_row_level_restrictions",
+					"foreign_attribute",
 					"form",
 					"grace_output",
 					"javascript_files",
@@ -3177,6 +3179,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	else
 	if ( timlib_strcmp( datatype, "text" ) == 0
 	||   timlib_strcmp( datatype, "integer" ) == 0
+	||   timlib_strcmp( datatype, "time" ) == 0
 	||   timlib_strcmp( datatype, "float" ) == 0 )
 	{
 		element = element_new( 	text_item,

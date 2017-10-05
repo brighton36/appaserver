@@ -47,11 +47,12 @@ APPLICATION *application_new_application( char *application_string )
 		char msg[ 1024 ];
 
 		sprintf( msg,
-"ERROR in %s/%s()/%d: cannot get application record from application_record.sh for application = (%s)\n",
+"warning in %s/%s()/%d: cannot get application record from application_record.sh for application = (%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 application_string );
+
 		appaserver_output_error_message(
 			application_string,
 			msg,
@@ -63,12 +64,13 @@ APPLICATION *application_new_application( char *application_string )
 			 __FUNCTION__,
 			 __LINE__,
 			database_string );
+
 		appaserver_output_error_message(
 			application_string,
 			msg,
 			(char *)0 /* login_name */ );
 
-		exit( 1 );
+		return (APPLICATION *)0;
 	}
 
 	if ( character_count(	APPLICATION_RECORD_DELIMITER,

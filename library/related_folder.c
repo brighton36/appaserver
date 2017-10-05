@@ -71,7 +71,7 @@ LIST *related_folder_get_primary_data_list(
 
 } /* related_folder_get_primary_data_list() */
 
-RELATED_FOLDER *related_folder_new_related_folder(
+RELATED_FOLDER *related_folder_new(
 					char *application_name,
 					char *session,
 					char *related_folder_name,
@@ -89,7 +89,7 @@ RELATED_FOLDER *related_folder_new_related_folder(
 	related_folder->related_attribute_name = related_attribute_name;
 	return related_folder;
 
-} /* related_folder_new_related_folder() */
+} /* related_folder_new() */
 
 RELATED_FOLDER *related_folder_calloc( void )
 {
@@ -127,24 +127,26 @@ LIST *related_folder_get_foreign_attribute_name_list(
 			related_attribute_name_list,
 			related_attribute_name );
 	}
+
 	return related_attribute_name_list;
+
 } /* related_folder_get_foreign_attribute_name_list() */
 
 RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
-				LIST *done_attribute_name_list,
-				LIST *omit_update_attribute_name_list,
-				LIST *mto1_related_folder_list,
-				char *attribute_name,
-				LIST *include_attribute_name_list )
+		LIST *done_attribute_name_list,
+		LIST *omit_update_attribute_name_list,
+		LIST *mto1_related_folder_list,
+		char *attribute_name,
+		/* ---------------------------------------------------- */
+		/* Don't list_display( include_attribute_name_list );	*/
+		/* See output_prompt_insert_form.c			*/
+		/* ---------------------------------------------------- */
+		LIST *include_attribute_name_list )
 {
 	RELATED_FOLDER *related_folder;
 	LIST *foreign_attribute_name_list;
 	LIST *subtract_list;
 
-	/* ---------------------------------------------------- */
-	/* Don't list_display( include_attribute_name_list );	*/
-	/* See output_prompt_insert_form.c			*/
-	/* ---------------------------------------------------- */
 	if ( !list_rewind( mto1_related_folder_list ) )
 	{
 		return (RELATED_FOLDER *)0;
@@ -157,12 +159,28 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 
 		if ( related_folder->ignore_output ) continue;
 
-		foreign_attribute_name_list =
-			related_folder_get_foreign_attribute_name_list(
-			   folder_get_primary_attribute_name_list(
-					related_folder->folder->
-						attribute_list ),
-			   related_folder->related_attribute_name );
+		if ( related_folder->folder_foreign_attribute_name_list )
+		{
+			foreign_attribute_name_list =
+				related_folder->
+					folder_foreign_attribute_name_list;
+
+			if ( !list_exists_string(
+				foreign_attribute_name_list,
+				attribute_name ) )
+			{
+				continue;
+			}
+		}
+		else
+		{
+			foreign_attribute_name_list =
+				related_folder_get_foreign_attribute_name_list(
+			   	folder_get_primary_attribute_name_list(
+						related_folder->folder->
+							attribute_list ),
+			   	related_folder->related_attribute_name );
+		}
 
 		subtract_list =
 			list_subtract(
@@ -1724,11 +1742,17 @@ LIST *related_folder_get_global_related_folder_list(
 			RELATED_FOLDER_RELATED_ATTRIBUTE_PIECE );
 
 		related_folder =
-			related_folder_new_related_folder(
+			related_folder_new(
 				application_name,
 				session,
 				strdup( related_folder_name ),
 				strdup( related_attribute_name ) );
+
+		related_folder->folder_foreign_attribute_name_list =
+			related_folder_fetch_folder_foreign_attribute_name_list(
+				application_name,
+				folder_name,
+				related_folder_name );
 
 		folder = folder_new_folder(
 				application_name,
@@ -3760,4 +3784,92 @@ boolean related_folder_is_one2one_firewall(
 	return 0;
 
 } /* related_folder_is_one2one_firewall() */
+
+LIST *related_folder_fetch_folder_foreign_attribute_record_list(
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *order;
+
+	select = "folder,related_folder,foreign_attribute";
+	order = "primary_key_index";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=foreign_attribute	"
+		 "			order=%s			",
+		 application_name,
+		 select,
+		 order );
+
+	return pipe2list( sys_string );
+
+} /* related_folder_fetch_folder_foreign_attribute_record_list() */
+
+LIST *related_folder_fetch_folder_foreign_attribute_name_list(
+				char *application_name,
+				char *folder_name,
+				char *related_folder_name )
+{
+	static LIST *folder_foreign_attribute_record_list = {0};
+	LIST *folder_foreign_attribute_name_list = {0};
+	char *record;
+	char local_folder_name[ 128 ];
+	char local_related_folder_name[ 128 ];
+	char foreign_attribute_name[ 128 ];
+
+	if ( !folder_foreign_attribute_record_list )
+	{
+		folder_foreign_attribute_record_list =
+		     related_folder_fetch_folder_foreign_attribute_record_list(
+			application_name );
+	}
+
+	if ( !list_rewind( folder_foreign_attribute_record_list ) )
+		return (LIST *)0;
+
+	do {
+		record =
+			list_get_pointer(
+				folder_foreign_attribute_record_list );
+
+		piece(	local_folder_name,
+			FOLDER_DATA_DELIMITER,
+			record,
+			0 );
+
+		if ( strcmp( local_folder_name, folder_name ) != 0 ) continue;
+
+		piece(	local_related_folder_name,
+			FOLDER_DATA_DELIMITER,
+			record,
+			1 );
+
+		if ( strcmp(	local_related_folder_name,
+				related_folder_name ) != 0 )
+		{
+			continue;
+		}
+
+		piece(	foreign_attribute_name,
+			FOLDER_DATA_DELIMITER,
+			record,
+			2 );
+
+		if ( !folder_foreign_attribute_name_list )
+		{
+			folder_foreign_attribute_name_list = list_new();
+		}
+
+		list_append_pointer(
+			folder_foreign_attribute_name_list,
+			strdup( foreign_attribute_name ) );
+
+	} while( list_next( folder_foreign_attribute_record_list ) );
+
+	return folder_foreign_attribute_name_list;
+
+} /* related_folder_fetch_folder_foreign_attribute_name_list() */
 

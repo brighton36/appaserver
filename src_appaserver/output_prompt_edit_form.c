@@ -2106,9 +2106,9 @@ void build_related_folder_element_list(
 
 	foreign_attribute_name_list =
 		related_folder_get_foreign_attribute_name_list(
-   		folder_get_primary_attribute_name_list(
-			related_folder->folder->attribute_list ),
-   		related_folder->related_attribute_name );
+   			folder_get_primary_attribute_name_list(
+				related_folder->folder->attribute_list ),
+   			related_folder->related_attribute_name );
 
 	hint_message =
 		related_folder_get_hint_message(

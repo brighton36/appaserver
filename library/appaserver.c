@@ -114,9 +114,8 @@ LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 
 			foreign_attribute_name_list =
 			    related_folder_get_foreign_attribute_name_list(
-					primary_attribute_name_list,
-				     	related_folder->
-					related_attribute_name );
+				primary_attribute_name_list,
+			     	related_folder->related_attribute_name );
 
 			if ( list_length( 
 				list_subtract( 
@@ -157,9 +156,8 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 
 			foreign_attribute_name_list =
 			    related_folder_get_foreign_attribute_name_list(
-					primary_attribute_name_list,
-				     	related_folder->
-					related_attribute_name );
+				primary_attribute_name_list,
+			     	related_folder->related_attribute_name );
 
 			if ( list_length( 
 				list_subtract( 

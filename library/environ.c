@@ -48,7 +48,6 @@ char *resolve_environment_variables( char *return_string, char *s )
 
 } /* resolve_environment_variables() */
 
-
 boolean environ_variable_exists( char *variable_name, char *looking_string )
 {
 	int next_delimiter;
@@ -80,7 +79,6 @@ boolean environ_variable_exists( char *variable_name, char *looking_string )
 	return 0;
 
 } /* environ_variable_exists() */
-
 
 int environ_next_delimiter( char *looking_string )
 {
@@ -206,10 +204,8 @@ boolean environ_get_browser_internet_explorer( void )
 	if ( !environ_name_to_value( http_user_agent, "HTTP_USER_AGENT" ) )
 		return 0;
 
-/*
-	fprintf( stderr, "got http_user_agent = (%s)\n", http_user_agent );
-*/
 	return ( instr( "MSIE", http_user_agent, 1 ) != -1 );
+
 } /* environ_get_browser_internet_explorer() */
 
 char *environ_get_http_referer(	void )
@@ -320,10 +316,12 @@ void add_src_appaserver_to_path( void )
 
 	appaserver_mount_point =
 		appaserver_parameter_file_get_appaserver_mount_point();
+
 	sprintf(	bin_path,
 			"%s/%s",
 			appaserver_mount_point,
 			APPASERVER_RELATIVE_SOURCE_DIRECTORY );
+
 	set_path( bin_path );
 }
 
@@ -351,6 +349,7 @@ void add_appaserver_home_to_python_path( void )
 
 	appaserver_mount_point = 
 		appaserver_parameter_file_get_appaserver_mount_point();
+
 	set_environment( "PYTHONPATH", appaserver_mount_point );
 }
 

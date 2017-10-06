@@ -21,9 +21,9 @@ void test_week_of_year_1998();
 void test_week_of_year_1999();
 void test_week_of_year_2000();
 void test_week_of_year_2001();
-void test_week_of_year_2045();
 void test_week_of_year_2037();
 void test_week_of_year_2038();
+void test_week_of_year_2045();
 void test_1969();
 void test_richie();
 void test_11pm();
@@ -36,15 +36,19 @@ void test_2015_10_26( void );
 
 int main()
 {
-	test_week_of_year_2000();
-	/*
+/*
 	test_week_of_year_1995();
 	test_week_of_year_1998();
 	test_week_of_year_1999();
+	test_week_of_year_2000();
 	test_week_of_year_2001();
+*/
+/*
 	test_week_of_year_2037();
 	test_week_of_year_2038();
 	test_week_of_year_2045();
+*/
+/*
 	test_strftime( 1995 );
 	test_strftime( 1996 );
 	test_strftime( 2000 );
@@ -54,22 +58,22 @@ int main()
 	test_2015_10_26();
 	test_subtract_second();
 	test_round();
+*/
 	test1();
+/*
 	test2();
 	test3();
 	test4();
 	test5();
 	test6();
 	test_richie();
-	printf( "Got appaserver.err = (%s)\n",
-		APPASERVER_ERROR_FILE );
 	test_11pm();
 	test_1am();
 	test_days_in_month();
 	test_minutes_between();
 	test_years_between();
 	test_grandfather_father_son();
-	*/
+*/
 
 	return 0;
 }
@@ -238,7 +242,6 @@ void test_1969()
 {
 	DATE *d;
 
-/*
 	d = date_yyyy_mm_dd_hhmm_new( "1962-01-01", "0000" );
 	printf( "should be 1962-01-01 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
@@ -246,13 +249,11 @@ void test_1969()
 	d = date_yyyy_mm_dd_hhmm_new( "1970-01-01", "0000" );
 	printf( "should be 1970-01-01:0000 is (%s)\n", 
 		date_display_yyyy_mm_dd_hhmm( d ) );
-*/
 
 	d = date_yyyy_mm_dd_hhmm_new( "1969-12-31", "2359" );
 	printf( "should be 1969-12-31:2359 is (%s)\n", 
 		date_display_yyyy_mm_dd_hhmm( d ) );
 
-/*
 	d = date_yyyy_mm_dd_hhmm_new( "1969-12-31", "2358" );
 	printf( "should be 1969-12-31:2358 is (%s)\n", 
 		date_display_yyyy_mm_dd_hhmm( d ) );
@@ -265,7 +266,6 @@ void test_1969()
 
 	printf( "should be 1969-12-30:2258 is (%s)\n",
 		date_display_yyyy_mm_dd_hhmm( d ) );
-*/
 }
 
 void test_richie()
@@ -292,13 +292,13 @@ void test_cross_dst()
 
 	date_increment_hours( d, 1 );
 
-	printf( "should be 2009-03-08:0300 is (%s:%s)\n", 
+	printf( "should be 2009-03-08:0200 is (%s:%s)\n", 
 		date_display_yyyy_mm_dd( d ),
 		date_display_hhmm( d ) );
 
 	date_increment_hours( d, 1 );
 
-	printf( "should be 2009-03-08:0400 is (%s:%s)\n", 
+	printf( "should be 2009-03-08:0300 is (%s:%s)\n", 
 		date_display_yyyy_mm_dd( d ),
 		date_display_hhmm( d ) );
 }
@@ -379,7 +379,7 @@ void test_subtract_second( void )
 		date_increment_seconds( transaction_date, -1 );
 
 		printf( "%d seconds ago = %s\n",
-			seconds_offset,
+			seconds_offset + 1,
 			date_display_yyyy_mm_dd_colon_hms(
 				transaction_date ) );
 	}
@@ -742,7 +742,6 @@ void test_strftime( int year )
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
-
 }
 
 void test_week_of_year_2037()

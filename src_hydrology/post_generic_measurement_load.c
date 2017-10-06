@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_hydrology/post_measurement_generic_load.c			*/
+/* $APPASERVER_HOME/src_hydrology/post_measurement_generic_load.c	*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -634,6 +634,7 @@ enum event_parameter_return_value get_measurement_update_event_parameters(
 				date_set_yyyy_mm_dd(
 						measurement_date,
 						measurement_date_string );
+
 				date_set_time_hhmm(
 						measurement_date,
 						piece_buffer );

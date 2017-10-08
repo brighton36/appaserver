@@ -157,4 +157,9 @@ char *piece_replace_quote_comma(
 			char *new_data, 
 			int piece_offset );
 
+char *piece_delete_multiple(
+			char *source_destination,
+			char delimiter,
+			int columns_to_piece );
+
 #endif

@@ -24,11 +24,6 @@
 
 /* Prototypes */
 /* ---------- */
-void update_folder_row_access_count(
-				char *application_name,
-				char *folder_name,
-				long row_access_count );
-
 void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 
 void fetch_parameters(	char **application_name,
@@ -206,7 +201,8 @@ output_starting_argv_stderr( argc, argv );
 
 	/* Set order by clause */
 	/* ------------------- */
-	if ( strcmp( order_clause, "select" ) == 0 )
+	if ( strcmp( order_clause, "select" ) == 0
+	||   strcmp( order_clause, "order" ) == 0 )
 	{
 		sprintf(order_by_clause, 
 		 	"order by %s",
@@ -317,11 +313,8 @@ fprintf( stderr, "%s\n", sys_string );
 
 	pclose( input_pipe );
 
-	update_folder_row_access_count(	application_name,
-					folder_name,
-					row_access_count );
-
 	exit( 0 );
+
 } /* main() */
 
 void fetch_parameters(	char **application_name,
@@ -390,27 +383,4 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         ins_all( arg, argc, argv );
 
 } /* setup_arg() */
-
-void update_folder_row_access_count(
-				char *application_name,
-				char *folder_name,
-				long row_access_count )
-{
-	char sys_string[ 1024 ];
-	char *table_name;
-	char first_folder_name[ 128 ];
-
-	table_name = get_table_name( application_name, "folder" );
-
-	piece( first_folder_name, ',', folder_name, 0 );
-
-	sprintf( sys_string,
-"echo \"update %s set row_access_count = row_access_count + %ld where folder = '%s';\" | sql.e &",
-		 table_name,
-		 row_access_count,
-		 first_folder_name );
-
-	system( sys_string );
-
-} /* update_folder_row_access_count() */
 

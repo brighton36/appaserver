@@ -896,14 +896,6 @@ boolean annual_hydroperiod_output_chart_discontinuous(
 	grace_graph->world_min_y = -10;
 	grace_graph->y_tick_major = 30;
 
-#ifdef NOT_DEFINED
-	station_datatype =
-		station_datatype_get_station_datatype(
-			application_name,
-			(char *)0 /* station */,
-			"stage" );
-#endif
-
 	list_rewind( annual_hydroperiod->station_list );
 	do {
 		station = list_get_pointer( annual_hydroperiod->station_list );
@@ -934,12 +926,14 @@ boolean annual_hydroperiod_output_chart_discontinuous(
 
 		list_append_pointer(	grace_graph->datatype_list,
 					grace_datatype );
+
 	} while( list_next( annual_hydroperiod->station_list ) );
 
 	list_append_pointer( grace->graph_list, grace_graph );
 
 	grace->grace_output =
-		application_get_grace_output( application_name );
+		application_get_grace_output(
+			application_name );
 
 	sprintf( graph_identifier, "%d", getpid() );
 
@@ -955,6 +949,7 @@ boolean annual_hydroperiod_output_chart_discontinuous(
 			grace->grace_output );
 
 	list_rewind( annual_hydroperiod->station_list );
+
 	do {
 		station = list_get_pointer( annual_hydroperiod->station_list );
 
@@ -970,7 +965,7 @@ boolean annual_hydroperiod_output_chart_discontinuous(
 		 		year->year,
 		 		year->above_threshold_count );
 
-			grace_set_string_to_point_list(
+			if ( !grace_set_string_to_point_list(
 				grace->graph_list, 
 				GRACE_DATATYPE_ENTITY_PIECE,
 				GRACE_DATATYPE_PIECE,
@@ -981,8 +976,18 @@ boolean annual_hydroperiod_output_chart_discontinuous(
 				unit_graph,
 				grace->datatype_type_xyhilo,
 				grace->dataset_no_cycle_color,
-				(char *)0 /* optional_label */ );
+				(char *)0 /* optional_label */ ) )
+			{
+				fprintf( stderr,
+			"Warning in %s/%s()/%d: grace will now accept (%s).\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__,
+					 point_list_string );
+			}
+
 		} while( list_next( station->year_list ) );
+
 	} while( list_next( annual_hydroperiod->station_list ) );
 
 	if ( !grace_set_structures(

@@ -1212,7 +1212,6 @@ boolean grace_output_point_list(
 	return output_any;
 } /* grace_output_point_list() */
 
-
 void grace_set_point(		boolean *inside_null,
 				LIST *dataset_list,
 				double x,
@@ -1248,8 +1247,9 @@ void grace_set_point(		boolean *inside_null,
 				grace_dataset = grace_new_grace_dataset(
 						datatype_number,
 						dataset_no_cycle_color );
-	
+
 				*inside_null = 1;
+
 				list_append_pointer(	dataset_list,
 							grace_dataset );
 				return;
@@ -1626,7 +1626,9 @@ FILE *grace_open_output_pipe(
 		local_output_filename );
 
 	p = popen( sys_string, "w" );
+
 	return p;
+
 } /* grace_open_output_pipe() */
 
 void grace_get_filenames(		char **agr_filename,
@@ -2413,7 +2415,7 @@ int grace_populate_unit_graph_list(
 	FILE *p;
 	GRACE_GRAPH *grace_graph;
 	GRACE_DATATYPE *grace_datatype;
-	char *block[ 1024 ];
+	char *block[ 4096 ];
 	int block_count;
 	char unit_string[ 128 ];
 	char datatype_entity_string[ 128 ];
@@ -2439,7 +2441,12 @@ int grace_populate_unit_graph_list(
 /* mS/cm|conductivity|BA|n|n			<-- block 3	            */
 /* volts|voltage|BA|n|n				<-- block 4	            */
 /* ------------------------------------------------------------------------ */
-	while( ( block_count = get_block_delimiter( block, '|', 1, p, 1023 ) ) )
+	while( ( block_count = timlib_get_block_delimiter(
+					block,
+					'|',
+					1,
+					p,
+					4095 ) ) )
 	{
 		if ( count_characters( '|', block[ 0 ] ) < 4 )
 		{
@@ -2486,7 +2493,8 @@ int grace_populate_unit_graph_list(
 			if ( datatype_type_xyhilo )
 			{
 				grace_datatype->
-					datatype_type_bar_xy_xyhilo = "xyhilo";
+					datatype_type_bar_xy_xyhilo =
+						"xyhilo";
 			}
 			else
 			if ( *bar_graph_yn == 'y' )

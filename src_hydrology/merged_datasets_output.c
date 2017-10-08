@@ -1,8 +1,8 @@
-/* --------------------------------------------------- 	*/
-/* merged_datasets_output.c			      	*/
-/* --------------------------------------------------- 	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ------------------------------------------------------- 	*/
+/* $APPASERVER_HOME/src_hydrology/merged_datasets_output.c     	*/
+/* ------------------------------------------------------- 	*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------- 	*/
 
 /* Includes */
 /* -------- */
@@ -29,28 +29,18 @@
 #include "list_usage.h"
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
-#include "easycharts.h"
 #include "session.h"
 #include "hydrology_library.h"
 #include "expected_count.h"
 #include "application_constants.h"
 #include "appaserver_link_file.h"
+#include "google_chart.h"
 
 /* Constants */
 /* --------- */
 #define MIN_DAYS_FOR_SYNCH_CHECK	32
-#define PROCESS_NAME		"output_merged_datasets"
+#define PROCESS_NAME			"output_merged_datasets"
 #define KEY_DELIMITER				'/'
-
-/*
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/merged_datasets_%s_%s_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/merged_datasets_%s_%s_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/merged_datasets_%s_%s_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/merged_datasets_%s_%s_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/merged_datasets_%s_%s_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/merged_datasets_%s_%s_%d.csv"
-*/
 
 #define ROWS_BETWEEN_HEADING			20
 #define SELECT_LIST				 "measurement_date,measurement_time,measurement_value"
@@ -69,7 +59,7 @@
 /* ---------- */
 typedef struct
 {
-	char *date_comma_time;
+	char *date_space_time;
 	double measurement_value;
 	boolean is_null;
 	int count;
@@ -94,22 +84,12 @@ void get_changed_to_daily_message(
 			boolean data_collection_frequency_out_of_sync,
 			boolean date_range_period_of_record );
 
-void merged_datasets_populate_easycharts_input_chart(
-					EASYCHARTS_INPUT_CHART *input_chart,
-					LIST *station_datatype_list );
-
 boolean any_missing_measurements(	LIST *station_datatype_list,
 					char *date_time_string );
 
 boolean get_has_bar_graph(		LIST *station_datatype_list );
 
-EASYCHARTS_INPUT_DATATYPE *merged_datasets_get_easycharts_input_datatype(
-					DICTIONARY *date_time_dictionary,
-					HASH_TABLE *measurement_hash_table,
-					char *station_datatype_name,
-					char *units );
-
-HASH_TABLE *get_merged_date_comma_time_key_hash_table(
+HASH_TABLE *get_merged_date_space_time_key_hash_table(
 					LIST *station_datatype_list );
 
 LIST *get_datatype4station_list(	char *application_name,
@@ -133,14 +113,14 @@ LIST *get_station_datatype_list(	char *application_name,
 					enum aggregate_level );
 
 MERGED_MEASUREMENT *new_merged_measurement(
-					char *date_comma_time );
+					char *date_space_time );
 
 MERGED_DATASETS_STATION_DATATYPE *new_station_datatype(
 					char *application_name,
 					char *station_name,
 					char *datatype_name );
 
-boolean merged_datasets_output_easycharts(
+boolean merged_datasets_output_google_chart(
 					char *application_name,
 					char *begin_date,
 					char *end_date,
@@ -196,8 +176,8 @@ int main( int argc, char **argv )
 	LIST *station_name_list;
 	LIST *datatype_name_list;
 	char *station_name = {0};
-	char *begin_date;
-	char *end_date;
+	char *begin_date = {0};
+	char *end_date = {0};
 	char *merged_output = {0};
 	DOCUMENT *document = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -440,9 +420,10 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( strcmp( merged_output, "easychart" ) == 0 )
+	if ( strcmp( merged_output, "googlechart" ) == 0
+	||   strcmp( merged_output, "easychart" ) == 0 )
 	{
-		if ( !merged_datasets_output_easycharts(
+		if ( !merged_datasets_output_google_chart(
 					application_name,
 					begin_date,
 					end_date,
@@ -466,7 +447,8 @@ int main( int argc, char **argv )
 				changed_to_daily_message,
 				data_collection_frequency_out_of_sync,
 				date_range_period_of_record );
-			printf( "<h2>%s</h2>\n",
+
+			printf( "<h3>%s</h3>\n",
 				changed_to_daily_message );
 		}
 	}
@@ -500,6 +482,7 @@ int main( int argc, char **argv )
 				changed_to_daily_message,
 				data_collection_frequency_out_of_sync,
 				date_range_period_of_record );
+
 			printf( "<h2>%s</h2>\n",
 				changed_to_daily_message );
 		}
@@ -575,16 +558,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_date,
-			 end_date,
-			 process_id );
-*/
-	
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -603,30 +576,6 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_SPREADSHEET,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET,
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-*/
-	
 		merged_datasets_output_transmit(
 					output_pipe,
 					station_datatype_list,
@@ -653,6 +602,7 @@ int main( int argc, char **argv )
 				changed_to_daily_message,
 				data_collection_frequency_out_of_sync,
 				date_range_period_of_record );
+
 			printf( "<h2>%s</h2>\n",
 				changed_to_daily_message );
 		}
@@ -722,17 +672,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_date,
-			 end_date,
-			 process_id );
-*/
-	
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -810,6 +749,7 @@ int main( int argc, char **argv )
 				changed_to_daily_message,
 				data_collection_frequency_out_of_sync,
 				date_range_period_of_record );
+
 			printf( "<h2>%s</h2>\n",
 				changed_to_daily_message );
 		}
@@ -851,11 +791,14 @@ int main( int argc, char **argv )
 	{
 		document_close();
 	}
+
 	process_increment_execution_count(
 				application_name,
 				PROCESS_NAME,
 				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
+
+	return 0;
+
 } /* main() */
 
 void merged_datasets_output_transmit(
@@ -866,12 +809,12 @@ void merged_datasets_output_transmit(
 					char *begin_date,
 					char *end_date )
 {
-	LIST *date_comma_time_key_list;
-	char *date_comma_time;
+	LIST *date_space_time_key_list;
+	char *date_space_time;
 	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 	char buffer[ 512 ];
-	HASH_TABLE *merged_date_comma_time_key_hash_table;
+	HASH_TABLE *merged_date_space_time_key_hash_table;
 	char initial_capital_buffer[ 512 ];
 
 	fprintf(output_pipe,
@@ -908,39 +851,39 @@ void merged_datasets_output_transmit(
 
 	fprintf( output_pipe, "\n" );
 
-	merged_date_comma_time_key_hash_table =
-		get_merged_date_comma_time_key_hash_table(
+	merged_date_space_time_key_hash_table =
+		get_merged_date_space_time_key_hash_table(
 			station_datatype_list );
 
-	date_comma_time_key_list =
+	date_space_time_key_list =
 		 hash_table_get_ordered_key_list(
-			merged_date_comma_time_key_hash_table );
+			merged_date_space_time_key_hash_table );
 
-	if ( !list_length( date_comma_time_key_list ) )
+	if ( !list_length( date_space_time_key_list ) )
 	{
 		printf( "<h2>ERROR: insufficient data to output</h2>\n" );
 		return;
 	}
 
-	list_rewind( date_comma_time_key_list );
+	list_rewind( date_space_time_key_list );
 
 	do {
-		date_comma_time =
+		date_space_time =
 			list_get_pointer(
-				date_comma_time_key_list );
+				date_space_time_key_list );
 
 		if ( *omit_output_if_any_missing_yn == 'y' )
 		{
 			if ( any_missing_measurements(
 					station_datatype_list,
-					date_comma_time ) )
+					date_space_time ) )
 			{
 				continue;
 			}
 
 		}
 
-		fprintf( output_pipe, "%s", date_comma_time );
+		fprintf( output_pipe, "%s", date_space_time );
 
 		list_rewind( station_datatype_list );
 
@@ -952,7 +895,7 @@ void merged_datasets_output_transmit(
 				hash_table_get_pointer(
 					station_datatype->
 						measurement_hash_table,
-					date_comma_time );
+					date_space_time );
 
 			if ( measurement && !measurement->is_null )
 			{
@@ -962,7 +905,6 @@ void merged_datasets_output_transmit(
 			}
 			else
 			{
-				/* *buffer = '\0'; */
 				strcpy( buffer, "null" );
 			}
 
@@ -972,7 +914,7 @@ void merged_datasets_output_transmit(
 
 		fprintf( output_pipe, "\n" );
 
-	} while( list_next( date_comma_time_key_list ) );	
+	} while( list_next( date_space_time_key_list ) );	
 
 } /* merged_datasets_output_transmit() */
 
@@ -986,15 +928,15 @@ void merged_datasets_output_table(
 				boolean data_collection_frequency_out_of_sync,
 				boolean date_range_period_of_record )
 {
-	LIST *date_comma_time_key_list;
-	char *date_comma_time;
+	LIST *date_space_time_key_list;
+	char *date_space_time;
 	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 	LIST *heading_list;
 	HTML_TABLE *html_table = {0};
 	char buffer[ 512 ];
 	char initial_capital_buffer[ 512 ];
-	HASH_TABLE *merged_date_comma_time_key_hash_table;
+	HASH_TABLE *merged_date_space_time_key_hash_table;
 	register int count = 0;
 	char title[ 512 ];
 	char changed_to_daily_message[ 512 ];
@@ -1068,33 +1010,33 @@ void merged_datasets_output_table(
 				html_table->number_right_justified_columns,
 				html_table->justify_list );
 
-	merged_date_comma_time_key_hash_table =
-		get_merged_date_comma_time_key_hash_table(
+	merged_date_space_time_key_hash_table =
+		get_merged_date_space_time_key_hash_table(
 			station_datatype_list );
 
-	date_comma_time_key_list =
+	date_space_time_key_list =
 		 hash_table_get_ordered_key_list(
-			merged_date_comma_time_key_hash_table );
+			merged_date_space_time_key_hash_table );
 
-	if ( !list_length( date_comma_time_key_list ) )
+	if ( !list_length( date_space_time_key_list ) )
 	{
 		printf( "</table>\n" );
 		printf( "<h2>ERROR: insufficient data to output</h2>\n" );
 		return;
 	}
 
-	list_rewind( date_comma_time_key_list );
+	list_rewind( date_space_time_key_list );
 
 	do {
-		date_comma_time =
+		date_space_time =
 			list_get_pointer(
-				date_comma_time_key_list );
+				date_space_time_key_list );
 
 		if ( *omit_output_if_any_missing_yn == 'y' )
 		{
 			if ( any_missing_measurements(
 					station_datatype_list,
-					date_comma_time ) )
+					date_space_time ) )
 			{
 				continue;
 			}
@@ -1102,7 +1044,7 @@ void merged_datasets_output_table(
 		}
 
 		html_table_set_data(	html_table->data_list,
-					strdup( date_comma_time ) );
+					strdup( date_space_time ) );
 
 		list_rewind( station_datatype_list );
 
@@ -1114,7 +1056,7 @@ void merged_datasets_output_table(
 				hash_table_get_pointer(
 					station_datatype->
 						measurement_hash_table,
-					date_comma_time );
+					date_space_time );
 
 			if ( measurement && !measurement->is_null )
 			{
@@ -1173,7 +1115,7 @@ void merged_datasets_output_table(
 		list_free_string_list( html_table->data_list );
 		html_table->data_list = list_new();
 
-	} while( list_next( date_comma_time_key_list ) );	
+	} while( list_next( date_space_time_key_list ) );	
 
 	html_table_close();
 
@@ -1313,32 +1255,6 @@ void build_sys_string(
 			end_date );
 	}
 
-/*
-	sys_string += sprintf( sys_string,
-	"get_folder_data	application=%s		    "
-	"			folder=measurement	    "
-	"			select=\"%s\"		    "
-	"			where=\"%s\"		    "
-	"			quick=yes		   |"
-	"tr '%c' '%c' 					   |"
-	"%s	 					   |"
-	"%s	 					   |"
-	"sed 's/,/%c/2'					   |"
-	"%s						   |"
-	"sed 's/,/:/1'					   |"
-	"sed 's/:null//1'				   |"
-	"cat						    ",
-		application_name,
-		SELECT_LIST,
-		where_clause,
-		FOLDER_DATA_DELIMITER,
-		INPUT_DELIMITER,
-		pre_intermediate_process_sort,
-		intermediate_process,
-		PIECE_DELIMITER,
-		round_down_hourly_process );
-*/
-
 	sys_string += sprintf( sys_string,
 	"get_folder_data	application=%s		    "
 	"			folder=measurement	    "
@@ -1373,7 +1289,8 @@ MERGED_DATASETS_STATION_DATATYPE *new_station_datatype(
 
 	station_datatype->station = station_name;
 	station_datatype->datatype = datatype_name;
-	station_datatype->measurement_hash_table =
+	station_datatype->
+		measurement_hash_table =
 			hash_table_new_hash_table(
 				hash_table_large );
 
@@ -1397,6 +1314,7 @@ MERGED_DATASETS_STATION_DATATYPE *new_station_datatype(
 	}
 
 	return station_datatype;
+
 } /* new_station_datatype() */
 
 MERGED_DATASETS_STATION_DATATYPE *get_station_datatype(
@@ -1422,6 +1340,7 @@ MERGED_DATASETS_STATION_DATATYPE *get_station_datatype(
 			datatype_name );
 
 	input_pipe = popen( sys_string, "r" );
+
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece( date_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
@@ -1434,6 +1353,7 @@ MERGED_DATASETS_STATION_DATATYPE *get_station_datatype(
 		else
 		{
 			date_place_colon_in_time( time_buffer );
+
 			sprintf( key_buffer,
 				 "%s %s",
 				 date_buffer,
@@ -1472,7 +1392,7 @@ MERGED_DATASETS_STATION_DATATYPE *get_station_datatype(
 
 		hash_table_add_pointer(
 			station_datatype->measurement_hash_table,
-			measurement->date_comma_time,
+			measurement->date_space_time,
 			measurement );
 	}
 
@@ -1482,12 +1402,12 @@ MERGED_DATASETS_STATION_DATATYPE *get_station_datatype(
 
 } /* get_station_datatype() */
 
-MERGED_MEASUREMENT *new_merged_measurement( char *date_comma_time )
+MERGED_MEASUREMENT *new_merged_measurement( char *date_space_time )
 {
 	MERGED_MEASUREMENT *m =
 		(MERGED_MEASUREMENT *)
 			calloc( 1, sizeof( MERGED_MEASUREMENT ) );
-	m->date_comma_time = date_comma_time;
+	m->date_space_time = date_space_time;
 	return m;
 } /* new_merged_measurement() */
 
@@ -1500,7 +1420,7 @@ LIST *get_datatype4station_list(char *application_name,
 {
 	char sys_string[ 1024 ];
 
-	if ( strcmp( merged_output, "easychart" ) == 0
+	if ( strcmp( merged_output, "googlechart" ) == 0
 	||   strcmp( merged_output, "gracechart" ) == 0 )
 	{
 		sprintf( sys_string,
@@ -1521,51 +1441,54 @@ LIST *get_datatype4station_list(char *application_name,
 		 	login_name,
 		 	station );
 	}
+
 	return pipe2list( sys_string );
+
 } /* get_datatype4station_list() */
 
-HASH_TABLE *get_merged_date_comma_time_key_hash_table(
+HASH_TABLE *get_merged_date_space_time_key_hash_table(
 				LIST *station_datatype_list )
 {
-	HASH_TABLE *merged_date_comma_time_key_hash_table;
+	HASH_TABLE *merged_date_space_time_key_hash_table;
 	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
-	LIST *date_comma_time_key_list;
-	char *date_comma_time_key;
+	LIST *date_space_time_key_list;
+	char *date_space_time_key;
 
-	merged_date_comma_time_key_hash_table =
+	merged_date_space_time_key_hash_table =
 		hash_table_new_hash_table(
 			hash_table_large );
 
 	if ( !list_rewind( station_datatype_list ) )
-		return merged_date_comma_time_key_hash_table;
+		return merged_date_space_time_key_hash_table;
 
 	do {
 		station_datatype =
 			list_get_pointer(
 				station_datatype_list );
 
-		date_comma_time_key_list =
+		date_space_time_key_list =
 			hash_table_get_key_list(
 				station_datatype->measurement_hash_table );
 
-		if ( list_rewind( date_comma_time_key_list ) )
+		if ( list_rewind( date_space_time_key_list ) )
 		{
 			do {
-				date_comma_time_key =
+				date_space_time_key =
 					list_get_pointer(
-						date_comma_time_key_list );
+						date_space_time_key_list );
 
 				hash_table_set_pointer(
-					merged_date_comma_time_key_hash_table,
-					date_comma_time_key,
+					merged_date_space_time_key_hash_table,
+					date_space_time_key,
 					"" );
-			} while( list_next( date_comma_time_key_list ) );
+
+			} while( list_next( date_space_time_key_list ) );
 		}
 	} while( list_next( station_datatype_list ) );
 
-	return merged_date_comma_time_key_hash_table;
+	return merged_date_space_time_key_hash_table;
 
-} /* get_merged_date_comma_time_key_hash_table() */
+} /* get_merged_date_space_time_key_hash_table() */
 
 boolean merged_datasets_output_gracechart(
 				char *application_name,
@@ -1594,8 +1517,8 @@ boolean merged_datasets_output_gracechart(
 	GRACE_GRAPH *grace_graph;
 	GRACE_DATATYPE *grace_datatype;
 	char legend[ 128 ];
-	LIST *date_comma_time_key_list;
-	char *date_comma_time;
+	LIST *date_space_time_key_list;
+	char *date_space_time;
 	char buffer[ 512 ];
 	char *station_name;
 	char *datatype_name;
@@ -1632,9 +1555,10 @@ boolean merged_datasets_output_gracechart(
 
 	grace->dataset_no_cycle_color = 1;
 
-	if ( !grace_set_begin_end_date(grace,
-					begin_date,
-					end_date ) )
+	if ( !grace_set_begin_end_date(
+		grace,
+		begin_date,
+		end_date ) )
 	{
 		document_quick_output_body(
 			application_name,
@@ -1720,27 +1644,27 @@ boolean merged_datasets_output_gracechart(
 		list_append_pointer(	grace_graph->datatype_list,
 					grace_datatype );
 
-		date_comma_time_key_list =
+		date_space_time_key_list =
 			hash_table_get_ordered_key_list(
 				station_datatype->
 					measurement_hash_table );
 
-		if ( !list_rewind( date_comma_time_key_list ) )
+		if ( !list_rewind( date_space_time_key_list ) )
 		{
 			list_next( datatype_name_list );
 			continue;
 		}
 
 		do {
-			date_comma_time =
+			date_space_time =
 				list_get_pointer(
-					date_comma_time_key_list );
+					date_space_time_key_list );
 
 			measurement =
 				hash_table_get_pointer(
 					station_datatype->
 						measurement_hash_table,
-					date_comma_time );
+					date_space_time );
 
 			if ( !measurement || measurement->is_null ) continue;
 
@@ -1748,7 +1672,7 @@ boolean merged_datasets_output_gracechart(
 		 		"%s|%s|%s|%.3lf",
 		 		station_name,
 		 		datatype_name,
-		 		date_comma_time,
+		 		date_space_time,
 				measurement->measurement_value );
 
 			grace_set_string_to_point_list(
@@ -1764,7 +1688,7 @@ boolean merged_datasets_output_gracechart(
 				grace->dataset_no_cycle_color,
 				(char *)0 /* optional_label */ );
 
-		} while( list_next( date_comma_time_key_list ) );	
+		} while( list_next( date_space_time_key_list ) );	
 
 		list_next( datatype_name_list );
 
@@ -1880,10 +1804,12 @@ boolean merged_datasets_output_gracechart(
 				(char *)0 /* where_clause */ );
 
 	}
+
 	return 1;
+
 } /* merged_datasets_output_gracechart() */
 
-boolean merged_datasets_output_easycharts(
+boolean merged_datasets_output_google_chart(
 					char *application_name,
 					char *begin_date,
 					char *end_date,
@@ -1892,202 +1818,188 @@ boolean merged_datasets_output_easycharts(
 					char *document_root_directory,
 					char *omit_output_if_any_missing_yn )
 {
-	EASYCHARTS *easycharts;
-	char *chart_filename;
+	LIST *date_space_time_key_list;
+	char *date_space_time;
+	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
+	MERGED_MEASUREMENT *measurement;
+	HASH_TABLE *merged_date_space_time_key_hash_table;
+	char initial_capital_buffer[ 512 ];
+	GOOGLE_OUTPUT_CHART *google_chart;
+	char *output_filename;
 	char *prompt_filename;
-	FILE *chart_file;
-	char title[ 512 ];
-	char buffer[ 16 ];
-	boolean has_bar_graph;
-	char applet_library_archive[ 128 ];
-	EASYCHARTS_INPUT_CHART *input_chart;
-	int easycharts_width;
-	int easycharts_height;
+	FILE *output_file;
+	char chart_title[ 256 ];
+	char google_datatype_name[ 128 ];
 
-	application_constants_get_easycharts_width_height(
-			&easycharts_width,
-			&easycharts_height,
-			application_name );
+	google_chart =
+		google_output_chart_new(
+			GOOGLE_CHART_POSITION_LEFT,
+			GOOGLE_CHART_POSITION_TOP,
+			GOOGLE_CHART_WIDTH,
+			GOOGLE_CHART_HEIGHT );
 
-	easycharts =
-		easycharts_new_timeline_easycharts(
-			easycharts_width, easycharts_height );
+	sprintf(chart_title,
+		"Merged Datasets %s from %s to %s",
+		format_initial_capital(
+			initial_capital_buffer,
+			aggregate_level_get_string( aggregate_level ) ),
+		begin_date,
+		end_date );
 
-	input_chart = easycharts_new_input_chart();
-	list_append_pointer( easycharts->input_chart_list, input_chart );
+	if ( !list_rewind( station_datatype_list ) ) return 0;
 
-	input_chart->applet_library_code = EASYCHARTS_APPLET_LIBRARY_LINE_CHART;
+	do {
+		station_datatype = list_get_pointer( station_datatype_list );
 
-	has_bar_graph = get_has_bar_graph( station_datatype_list );
+		sprintf(google_datatype_name,
+			"%s/%s",
+			station_datatype->station,
+			station_datatype->datatype );
 
-	sprintf( title, 
-		 "Merged Datasets Easychart\\n%s From: %s to %s\n",
-		 format_initial_capital( buffer,
-					 aggregate_level_get_string(
-						aggregate_level ) ),
-		 begin_date,
-		 end_date );
+		list_append_pointer(
+			google_chart->datatype_name_list,
+			strdup( google_datatype_name ) );
 
-	easycharts_get_chart_filename(
-			&chart_filename,
+	} while( list_next( station_datatype_list ) );
+
+	merged_date_space_time_key_hash_table =
+		get_merged_date_space_time_key_hash_table(
+			station_datatype_list );
+
+	date_space_time_key_list =
+		 hash_table_get_ordered_key_list(
+			merged_date_space_time_key_hash_table );
+
+	if ( !list_length( date_space_time_key_list ) )
+	{
+		printf( "<h2>ERROR: insufficient data to output</h2>\n" );
+		return 0;
+	}
+
+	list_rewind( date_space_time_key_list );
+
+	do {
+		date_space_time =
+			list_get_pointer(
+				date_space_time_key_list );
+
+		if ( *omit_output_if_any_missing_yn == 'y' )
+		{
+			if ( any_missing_measurements(
+					station_datatype_list,
+					date_space_time ) )
+			{
+				continue;
+			}
+
+		}
+
+		list_rewind( station_datatype_list );
+
+		do {
+			station_datatype =
+				list_get_pointer(
+					station_datatype_list );
+
+			sprintf(google_datatype_name,
+				"%s/%s",
+				station_datatype->station,
+				station_datatype->datatype );
+
+			measurement =
+				hash_table_get_pointer(
+					station_datatype->
+						measurement_hash_table,
+					date_space_time );
+
+			if ( measurement && !measurement->is_null )
+			{
+				google_timeline_set_point(
+					google_chart->timeline_list,
+					google_chart->datatype_name_list,
+					date_space_time /* date_string */,
+					(char *)0 /* time_hhmm */,
+					google_datatype_name,
+					measurement->measurement_value );
+			}
+
+		} while( list_next( station_datatype_list ) );
+
+	} while( list_next( date_space_time_key_list ) );	
+
+	appaserver_link_get_pid_filename(
+			&output_filename,
 			&prompt_filename,
 			application_name,
 			document_root_directory,
-			getpid() );
+			getpid(),
+			PROCESS_NAME /* filename_stem */,
+			"html" /* extension */ );
 
-	chart_file = fopen( chart_filename, "w" );
+	output_file = fopen( output_filename, "w" );
 
-	if ( !chart_file )
+	if ( !output_file )
 	{
-		printf( "<p>ERROR: cannot open %s for write.\n",
-			chart_filename );
-		document_close();
+		fprintf(stderr,
+			"ERROR in %s/%s(): cannot open %s\n",
+			__FILE__,
+			__FUNCTION__,
+			output_filename );
 		exit( 1 );
 	}
 
-	sprintf(applet_library_archive,
-		"/%s/%s",
+	document_output_html_stream( output_file );
+
+	fprintf( output_file, "<head>\n" );
+
+	google_chart_output_include( output_file );
+
+	google_chart_output_visualization_function(
+				output_file,
+				google_chart->google_chart_type,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
+				google_chart->datatype_name_list,
+				chart_title,
+				(char *)0 /* yaxis_label */,
+				google_chart->width,
+				google_chart->height,
+				google_chart->background_color,
+				google_chart->legend_position_bottom,
+				0 /* not chart_type_bar */,
+				google_chart->google_package_name,
+				0 /* not dont_display_range_selector */,
+				aggregate_level,
+				google_chart->chart_number );
+
+	fprintf( output_file, "</head>\n" );
+	fprintf( output_file, "<body>\n" );
+
+	google_chart_float_chart(
+				output_file,
+				chart_title,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
+
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
+
+	fprintf( output_file, "</body>\n" );
+	fprintf( output_file, "</html>\n" );
+
+	fclose( output_file );
+
+	google_chart_output_prompt(
 		application_name,
-		EASYCHARTS_JAR_FILE );
-	easycharts->applet_library_archive = applet_library_archive;
-
-	merged_datasets_populate_easycharts_input_chart(
-			input_chart,
-			station_datatype_list );
-
-	if ( *omit_output_if_any_missing_yn == 'y' )
-	{
-		input_chart->date_time_dictionary =
-			easycharts_remove_key_if_any_missing_key_dictionary(
-				input_chart->datatype_list,
-				input_chart->date_time_dictionary );
-	}
-
-	easycharts->output_chart_list =
-		easycharts_timeline_get_output_chart_list(
-			easycharts->input_chart_list );
-
-	easycharts->yaxis_decimal_count =
-		easycharts_get_yaxis_decimal_count(
-			easycharts->output_chart_list );
-
-	easycharts->range_step =
-		easycharts_get_range_step(
-			easycharts->output_chart_list );
-
-	/* easycharts->sample_label_angle = 90; */
-	easycharts->bold_labels = 0;
-	easycharts->bold_legends = 0;
-	easycharts->font_size = 12;
-	easycharts->sample_scroller_on = 1;
-	easycharts->range_scroller_on = 1;
-
-	if ( has_bar_graph )
-		easycharts->series_line_off = 1;
-
-	easycharts->title = title;
-
-	easycharts_output_all_charts(
-			chart_file,
-			easycharts->output_chart_list,
-			easycharts->highlight_on,
-			easycharts->highlight_style,
-			easycharts->point_highlight_size,
-			easycharts->series_labels,
-			easycharts->series_line_off,
-			easycharts->applet_library_archive,
-			easycharts->width,
-			easycharts->height,
-			easycharts->title,
-			easycharts->set_y_lower_range,
-			easycharts->legend_on,
-			easycharts->value_labels_on,
-			easycharts->sample_scroller_on,
-			easycharts->range_scroller_on,
-			easycharts->xaxis_decimal_count,
-			easycharts->yaxis_decimal_count,
-			easycharts->range_labels_off,
-			easycharts->value_lines_off,
-			easycharts->range_step,
-			easycharts->sample_label_angle,
-			easycharts->bold_labels,
-			easycharts->bold_legends,
-			easycharts->font_size,
-			easycharts->label_parameter_name,
-			1 /* include_sample_series_output */ );
-
-	easycharts_output_html( chart_file );
-
-	fclose( chart_file );
-
-	easycharts_output_graph_window(
-				application_name,
-				(char *)0 /* appaserver_mount_point */,
-				0 /* not with_document_output */,
-				PROCESS_NAME,
-				prompt_filename,
-				(char *)0 /* where_clause */ );
+		prompt_filename,
+		PROCESS_NAME,
+		(char *)0 /* where_clause */ );
 
 	return 1;
 
-} /* merged_datasets_output_easycharts() */
-
-EASYCHARTS_INPUT_DATATYPE *merged_datasets_get_easycharts_input_datatype(
-			DICTIONARY *date_time_dictionary,
-			HASH_TABLE *measurement_hash_table,
-			char *station_datatype_name,
-			char *units )
-{
-	EASYCHARTS_INPUT_DATATYPE *input_datatype;
-	EASYCHARTS_INPUT_VALUE *input_value;
-	LIST *measurement_hash_table_key_list;
-	MERGED_MEASUREMENT *merged_measurement;
-	char *hash_table_key;
-
-	if ( !measurement_hash_table )
-	{
-		return (EASYCHARTS_INPUT_DATATYPE *)0;
-	}
-
-	input_datatype =
-		easycharts_new_input_datatype(
-			station_datatype_name,
-			units );
-
-	measurement_hash_table_key_list =
-		hash_table_get_key_list(
-			measurement_hash_table );
-
-	if ( !list_rewind( measurement_hash_table_key_list ) )
-		return (EASYCHARTS_INPUT_DATATYPE *)0;
-
-	do {
-		hash_table_key =
-			list_get_pointer(
-				measurement_hash_table_key_list );
-
-		merged_measurement =
-			hash_table_get_pointer(
-				measurement_hash_table,
-				hash_table_key );
-
-		input_value =
-			easycharts_new_input_value(
-				merged_measurement->date_comma_time,
-				merged_measurement->measurement_value,
-				0 /* not null_value */ );
-
-		hash_table_set_pointer( input_datatype->value_hash_table,
-					input_value->date_time,
-					input_value );
-
-		dictionary_set_pointer( date_time_dictionary,
-					input_value->date_time,
-					"" );
-
-	} while ( list_next( measurement_hash_table_key_list ) );
-	return input_datatype;
-} /* merged_datasets_get_easycharts_input_datatype() */
+} /* merged_datasets_output_google_chart() */
 
 boolean get_has_bar_graph( LIST *station_datatype_list )
 {
@@ -2116,7 +2028,8 @@ boolean any_missing_measurements(	LIST *station_datatype_list,
 		station_datatype =
 			list_get_pointer( station_datatype_list );
 
-		measurement = hash_table_get_pointer(
+		measurement =
+			hash_table_get_pointer(
 				station_datatype->
 					measurement_hash_table,
 				date_time_string );
@@ -2127,48 +2040,10 @@ boolean any_missing_measurements(	LIST *station_datatype_list,
 		}
 
 	} while( list_next( station_datatype_list ) );
+
 	return 0;
+
 } /* any_missing_measurements() */
-
-void merged_datasets_populate_easycharts_input_chart(
-			EASYCHARTS_INPUT_CHART *input_chart,
-			LIST *station_datatype_list )
-{
-	char station_datatype_name[ 512 ];
-	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
-	EASYCHARTS_INPUT_DATATYPE *input_datatype;
-
-	if ( !list_rewind( station_datatype_list ) ) return;
-
-	do {
-		station_datatype =
-			list_get_pointer(
-				station_datatype_list );
-
-		sprintf( station_datatype_name,
-			 "%s%c%s",
-			 station_datatype->station,
-			 KEY_DELIMITER,
-			 station_datatype->datatype );
-
-		input_datatype =
-			merged_datasets_get_easycharts_input_datatype(
-				input_chart->date_time_dictionary,
-				station_datatype->measurement_hash_table,
-				strdup( station_datatype_name ),
-				station_datatype->units );
-
-		if ( input_datatype )
-		{
-			list_append_pointer(
-				input_chart->datatype_list,
-				input_datatype );
-		}
-
-
-	} while( list_next( station_datatype_list ) );
-
-} /* merged_datasets_populate_easycharts_input_chart() */
 
 void get_changed_to_daily_message(
 			char *changed_to_daily_message,

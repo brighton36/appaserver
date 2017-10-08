@@ -145,7 +145,7 @@ LIST *musician_get_band_member_list(	char **email_address,
 	from = "band_member,musician,entity";
 
 	where =
-"band_member.full_name = musician.full_name and band_member.street_address = musician.street_address and musician.full_name = entity.full_name and musician.street_address = entity.street_address";
+"band_member.full_name = musician.full_name and band_member.street_address = musician.street_address and musician.full_name = entity.full_name and musician.street_address = entity.street_address and status <> 'Not Paid'";
 
 	sprintf( sys_string,
 		 "echo \"	select %s			"

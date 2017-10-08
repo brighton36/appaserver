@@ -30,7 +30,7 @@ void post_change_inventory_sale_delete(
 				char *street_address,
 				char *sale_date_time );
 
-void post_change_inventory_sale_insert(
+void post_change_inventory_sale_insert_update(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -38,6 +38,7 @@ void post_change_inventory_sale_insert(
 				char *inventory_name,
 				char *serial_number );
 
+/*
 void post_change_inventory_sale_update(
 				char *application_name,
 				char *full_name,
@@ -45,6 +46,7 @@ void post_change_inventory_sale_update(
 				char *sale_date_time,
 				char *inventory_name,
 				char *serial_number );
+*/
 
 int main( int argc, char **argv )
 {
@@ -78,6 +80,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	full_name = argv[ 2 ];
 	street_address = argv[ 3 ];
@@ -103,7 +111,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		post_change_inventory_sale_insert(
+		post_change_inventory_sale_insert_update(
 			application_name,
 			full_name,
 			street_address,
@@ -113,7 +121,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		post_change_inventory_sale_update(
+		post_change_inventory_sale_insert_update(
 			application_name,
 			full_name,
 			street_address,
@@ -126,7 +134,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_inventory_sale_insert(
+void post_change_inventory_sale_insert_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -168,31 +176,6 @@ void post_change_inventory_sale_insert(
 		return;
 	}
 
-	customer_sale->invoice_amount =
-		customer_sale_get_invoice_amount(
-			&customer_sale->
-				sum_inventory_extension,
-			&customer_sale->
-				cost_of_goods_sold,
-			&customer_sale->
-				sum_service_extension,
-			&customer_sale->sum_extension,
-			&customer_sale->sales_tax,
-			customer_sale->shipping_revenue,
-			customer_sale->
-				inventory_sale_list,
-			customer_sale->
-				specific_inventory_sale_list,
-			customer_sale->service_sale_list,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			application_name );
-
-	customer_sale->amount_due =
-		CUSTOMER_GET_AMOUNT_DUE(
-			customer_sale->invoice_amount,
-			customer_sale->total_payment );
-
 	customer_sale_update(
 		customer_sale->sum_extension,
 		customer_sale->database_sum_extension,
@@ -219,11 +202,6 @@ void post_change_inventory_sale_insert(
 		customer_sale->sale_date_time,
 		application_name );
 
-	specific_inventory_sale->extension =
-		CUSTOMER_SALE_GET_EXTENSION(
-				specific_inventory_sale->retail_price,
-				specific_inventory_sale->discount_amount );
-
 	customer_specific_inventory_update(
 		application_name,
 		customer_sale->full_name,
@@ -234,184 +212,45 @@ void post_change_inventory_sale_insert(
 		specific_inventory_sale->extension,
 		specific_inventory_sale->database_extension );
 
-	/* Propagate ledger accounts */
-	/* ------------------------- */
-	if ( customer_sale->transaction )
+	if ( customer_sale->transaction_date_time )
 	{
-		customer_sale->propagate_account_list =
-			customer_sale_ledger_refresh(
+		customer_sale->transaction =
+			ledger_customer_sale_build_transaction(
 				application_name,
-				customer_sale->fund_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->
 					transaction_date_time,
+				customer_sale->transaction->memo,
+				customer_sale->inventory_sale_list,
 				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
-				customer_sale->sales_tax,
+				specific_inventory_sale->extension,
+				customer_sale->sum_fixed_service_extension,
+				customer_sale->sum_hourly_service_extension,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount );
-
-		list_append_list(
-			customer_sale->propagate_account_list,
-			customer_sale_ledger_cost_of_goods_sold_insert(
-				application_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->inventory_account_list,
-				customer_sale->cost_account_list ) );
-
-		ledger_account_list_propagate(
-				customer_sale->propagate_account_list,
-				application_name );
-	}
-
-} /* post_change_inventory_sale_insert() */
-
-void post_change_inventory_sale_update(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *sale_date_time,
-			char *inventory_name,
-			char *serial_number )
-{
-	CUSTOMER_SALE *customer_sale;
-	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
-
-	if ( ! (  customer_sale =
-			customer_sale_new(
-				application_name,
-				full_name,
-				street_address,
-				sale_date_time ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: customer_sale_new() failed.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		return;
-	}
-
-	if ( ! ( specific_inventory_sale =
-			customer_specific_inventory_sale_seek(
-				customer_sale->specific_inventory_sale_list,
-				inventory_name,
-				serial_number ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek (%s/%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 inventory_name,
-			 serial_number );
-		return;
-	}
-
-	customer_sale->invoice_amount =
-		customer_sale_get_invoice_amount(
-			&customer_sale->
-				sum_inventory_extension,
-			&customer_sale->
-				cost_of_goods_sold,
-			&customer_sale->
-				sum_service_extension,
-			&customer_sale->sum_extension,
-			&customer_sale->sales_tax,
-			customer_sale->shipping_revenue,
-			customer_sale->
-				inventory_sale_list,
-			customer_sale->
-				specific_inventory_sale_list,
-			customer_sale->service_sale_list,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			application_name );
-
-	customer_sale->amount_due =
-		CUSTOMER_GET_AMOUNT_DUE(
-			customer_sale->invoice_amount,
-			customer_sale->total_payment );
-
-	customer_sale_update(
-		customer_sale->sum_extension,
-		customer_sale->database_sum_extension,
-		customer_sale->sales_tax,
-		customer_sale->database_sales_tax,
-		customer_sale->invoice_amount,
-		customer_sale->database_invoice_amount,
-		customer_sale->completed_date_time,
-		customer_sale->
-			database_completed_date_time,
-		customer_sale->shipped_date_time,
-		customer_sale->database_shipped_date_time,
-		customer_sale->arrived_date,
-		customer_sale->database_arrived_date,
-		customer_sale->total_payment,
-		customer_sale->database_total_payment,
-		customer_sale->amount_due,
-		customer_sale->database_amount_due,
-		customer_sale->transaction_date_time,
-		customer_sale->
-			database_transaction_date_time,
-		customer_sale->full_name,
-		customer_sale->street_address,
-		customer_sale->sale_date_time,
-		application_name );
-
-	specific_inventory_sale->extension =
-		CUSTOMER_SALE_GET_EXTENSION(
-				specific_inventory_sale->retail_price,
-				specific_inventory_sale->discount_amount );
-
-	customer_specific_inventory_update(
-		application_name,
-		customer_sale->full_name,
-		customer_sale->street_address,
-		customer_sale->sale_date_time,
-		specific_inventory_sale->inventory_name,
-		specific_inventory_sale->serial_number,
-		specific_inventory_sale->extension,
-		specific_inventory_sale->database_extension );
-
-	/* Propagate ledger accounts */
-	/* ------------------------- */
-	if ( customer_sale->transaction )
-	{
-		customer_sale->propagate_account_list =
-			customer_sale_ledger_refresh(
-				application_name,
-				customer_sale->fund_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
 				customer_sale->sales_tax,
-				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount );
+				customer_sale->invoice_amount,
+				customer_sale->fund_name );
 
-		list_append_list(
-			customer_sale->propagate_account_list,
-			customer_sale_ledger_cost_of_goods_sold_insert(
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->inventory_account_list,
-				customer_sale->cost_account_list ) );
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 
-		ledger_account_list_propagate(
-				customer_sale->propagate_account_list,
-				application_name );
-	}
+	} /* if transaction_date_time */
 
-} /* post_change_inventory_sale_update() */
+} /* post_change_inventory_sale_insert_update() */
 
 void post_change_inventory_sale_delete(
 			char *application_name,
@@ -470,44 +309,43 @@ void post_change_inventory_sale_delete(
 			customer_sale->sale_date_time,
 			application_name );
 
-	if ( customer_sale->transaction )
+	if ( customer_sale->transaction_date_time )
 	{
-		customer_sale_ledger_refresh(
-			application_name,
-			customer_sale->fund_name,
-			customer_sale->transaction->full_name,
-			customer_sale->transaction->street_address,
-			customer_sale->transaction->
-				transaction_date_time,
-			customer_sale->sum_inventory_extension,
-			customer_sale->sum_service_extension,
-			customer_sale->sales_tax,
-			customer_sale->shipping_revenue,
-			customer_sale->invoice_amount );
-
-		list_append_list(
-			customer_sale->propagate_account_list,
-			customer_sale_ledger_cost_of_goods_sold_insert(
+		customer_sale->transaction =
+			ledger_customer_sale_build_transaction(
+				application_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->
 					transaction_date_time,
-				customer_sale->inventory_account_list,
-				customer_sale->cost_account_list ) );
+				customer_sale->transaction->memo,
+				customer_sale->inventory_sale_list,
+				customer_sale->sum_inventory_extension,
+				0.0 /* specific_inventory_sale_extension */,
+				customer_sale->sum_fixed_service_extension,
+				customer_sale->sum_hourly_service_extension,
+				customer_sale->shipping_revenue,
+				customer_sale->sales_tax,
+				customer_sale->invoice_amount,
+				customer_sale->fund_name );
 
-/*
-		customer_sale->propagate_account_list =
-			customer_sale_get_complete_propagate_account_list(
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
 				application_name,
-				customer_sale->fund_name,
-				customer_sale->transaction->
-					transaction_date_time );
-*/
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 
-		ledger_account_list_propagate(
-				customer_sale->propagate_account_list,
-				application_name );
-	}
+	} /* if transaction_date_time */
 
 } /* post_change_inventory_sale_delete() */
 

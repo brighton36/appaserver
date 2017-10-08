@@ -1,6 +1,6 @@
-/* src_appaserver/output_edit_table_form.c				*/
 /* ----------------------------------------------------------------	*/
-/*									*/
+/* $APPASERVER_HOME/src_appaserver/output_edit_table_form.c		*/
+/* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
 
@@ -92,7 +92,6 @@ int main( int argc, char **argv )
 	int rows_inserted;
 	int columns_updated;
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
-	PROMPT_RECURSIVE *prompt_recursive;
 	boolean make_primary_keys_non_edit = 0;
 	char *appaserver_user_foreign_login_name;
 	/* --------------------------------------------------------------- */
@@ -214,7 +213,6 @@ int main( int argc, char **argv )
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -260,19 +258,6 @@ int main( int argc, char **argv )
 					(char *)0 /* application_name */,
 					(LIST *)0 /* attribute_list */,
 					(LIST *)0 /* operation_name_list */ );
-	}
-
-	prompt_recursive =
-		prompt_recursive_new(
-			application_name,
-			folder->folder_name /* query_folder_name */,
-			folder->mto1_related_folder_list );
-
-	if ( prompt_recursive_get_grandchild_query_folder_name(
-			prompt_recursive,
-			dictionary_appaserver->query_dictionary ) )
-	{
-		make_primary_keys_non_edit = 1;
 	}
 
 	folder->one2m_related_folder_list =
@@ -495,7 +480,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
-			application_get_first_relative_source_directory(
+			application_get_relative_source_directory(
 				application_name ),
 			with_dynarch_menu,
 			0 /* not with_close_head */ );
@@ -601,6 +586,7 @@ int main( int argc, char **argv )
 		form->insert_update_key,
 		form->target_frame,
 		output_submit_reset_buttons_in_heading,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -608,7 +594,8 @@ int main( int argc, char **argv )
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==
@@ -636,6 +623,9 @@ int main( int argc, char **argv )
 				sort_dictionary,
 			no_display_pressed_attribute_name_list );
 
+	row_security->select_folder->join_1tom_related_folder_list =
+		folder->join_1tom_related_folder_list;
+
 	row_security->row_security_element_list_structure =
 		row_security_element_list_structure_new(
 			application_name,
@@ -657,9 +647,7 @@ int main( int argc, char **argv )
 			make_primary_keys_non_edit,
 			omit_delete_dont_care,
 			0 /* omit_operation_buttons */,
-			role_folder->update_yn,
-			lookup_before_drop_down->
-				lookup_before_drop_down_state );
+			role_folder->update_yn );
 
 	form->regular_element_list =
 		row_security->
@@ -748,7 +736,8 @@ int main( int argc, char **argv )
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		with_dynarch_menu /* with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 

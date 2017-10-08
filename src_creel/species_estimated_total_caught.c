@@ -36,14 +36,6 @@ enum output_medium { output_medium_stdout, text_file, table };
 #define FILENAME_STEM_MONTHLY		"estimated_total_caught_monthly"
 #define FILENAME_STEM_GRAND		"estimated_total_caught_grand"
 
-/*
-#define OUTPUT_TEMPLATE		"%s/creel/estimated_total_caught_%d_%s_%d.csv"
-#define FTP_PREPEND_TEMPLATE	"%s://creel/%s/estimated_total_caught_%d_%s_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE "/creel/estimated_total_caught_%d_%s_%d.csv"
-#define TOTALS_FILENAME_LABEL	"monthly_totals"
-#define GRAND_FILENAME_LABEL	"grand"
-*/
-
 /* Prototypes */
 /* ---------- */
 void output_month_sheet_total_row_table(
@@ -382,6 +374,20 @@ int main( int argc, char **argv )
 		printf( "</h2>\n" );
 	}
 
+#ifdef NOT_DEFINED
+fprintf( stderr, "%s/%s()/%d: length( species_list ) = %d, length( catch_area_list ) = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_length( estimated_total_caught->
+				input->
+				species_list ),
+list_length( estimated_total_caught->
+				output->
+				total_sheet->
+				total_row->
+				catch_area_list ) );
+
 	if (	!list_length( estimated_total_caught->input->species_list )
 	||	( list_length( estimated_total_caught->
 				input->
@@ -412,6 +418,7 @@ int main( int argc, char **argv )
 
 		exit( 1 );
 	}
+#endif
 
 	if ( output_medium == table )
 	{
@@ -542,24 +549,28 @@ void output_text_file(	ESTIMATED_TOTAL_CAUGHT_OUTPUT *output,
 		species_list,
 		all_species );
 
-	output_month_total_sheet_text_file(
-		output->total_sheet,
-		year,
-		document_root_directory,
-		process_id,
-		application_name,
-		species_list );
+	if ( output->total_sheet
+	&&   output->total_sheet->total_row )
+	{
+		output_month_total_sheet_text_file(
+			output->total_sheet,
+			year,
+			document_root_directory,
+			process_id,
+			application_name,
+			species_list );
 
-	output_month_sheet_list_text_file(
-		output->month_sheet_list,
-		document_root_directory,
-		process_id,
-		application_name,
-		species_list,
-		begin_month,
-		year,
-		output->total_sheet->total_row->catch_area_list,
-		all_species );
+		output_month_sheet_list_text_file(
+			output->month_sheet_list,
+			document_root_directory,
+			process_id,
+			application_name,
+			species_list,
+			begin_month,
+			year,
+			output->total_sheet->total_row->catch_area_list,
+			all_species );
+	}
 
 	printf(
 "<br><a href=\"/src_creel/species_estimated_total_caught_algorithm.pdf\">Press to view the algorithm.</a><br>\n" );
@@ -626,15 +637,6 @@ void output_month_sheet_list_text_file(
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_TEMPLATE,
-			 appaserver_mount_point,
-			 year,
-			 month_abbreviation, 
-			 process_id );
-*/
-
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -642,28 +644,6 @@ void output_month_sheet_list_text_file(
 			document_close();
 			exit( 1 );
 		}
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_PREPEND_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	year,
-			 	month_abbreviation,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_NONPREPEND_TEMPLATE, 
-			 	year,
-			 	month_abbreviation,
-			 	process_id );
-		}
-*/
 
 		ftp_filename =
 			appaserver_link_get_link_prompt(
@@ -696,11 +676,14 @@ void output_month_sheet_list_text_file(
 				total_row_catch_area_list,
 				all_species );
 
-		output_month_sheet_total_row_text_file(
+		if ( month_sheet->total_row )
+		{
+			output_month_sheet_total_row_text_file(
 				output_file,
 				month_sheet->total_row,
 				total_row_catch_area_list,
 				all_species );
+		}
 
 		fclose( output_file );
 
@@ -734,8 +717,12 @@ void output_month_sheet_text_file_heading(
 		 "%s,Trailers,,,Vessels,,,Interviews,,,,Trips",
 		 timlib_integer2full_month( this_month ) );
 
-	list_rewind( species_list );
-	list_rewind( total_row_catch_area_list );
+	if ( !list_rewind( species_list )
+	||   !list_rewind( total_row_catch_area_list ) )
+	{
+		fprintf( output_file, "\n" );
+		return;
+	}
 
 	do {
 		species = list_get_pointer( species_list );
@@ -755,7 +742,7 @@ void output_month_sheet_text_file_heading(
 				",Estimated Areas 1-5,,,Estimated Areas 1-6,,");
 		}
 
-		list_next( total_row_catch_area_list );
+		if ( !list_next( total_row_catch_area_list ) ) break;
 
 	} while( list_next( species_list ) );
 
@@ -801,7 +788,7 @@ void output_month_sheet_text_file_heading(
 				 species->florida_state_code );
 		}
 
-		list_next( total_row_catch_area_list );
+		if ( !list_next( total_row_catch_area_list ) ) break;
 
 	} while( list_next( species_list ) );
 
@@ -907,6 +894,18 @@ void output_month_sheet_total_row_text_file(
 {
 	CATCH_AREA *catch_area;
 	CATCH_AREA *total_row_catch_area;
+
+	if ( !total_row
+	||   !total_row->vessel
+	||   !total_row->fishing_trip )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty total_row.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	fprintf( output_file,
 	 "Total,%d,%d,%d,%.0lf,%.0lf,%.0lf,%.0lf,%.0lf,%.0lf,%.0lf,%.0lf",
@@ -1034,16 +1033,6 @@ void output_month_total_sheet_text_file(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-
-/*
-	sprintf( output_filename, 
-		 OUTPUT_TEMPLATE,
-		 appaserver_mount_point,
-		 year,
-		 TOTALS_FILENAME_LABEL,
-		 process_id );
-*/
-
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -1051,28 +1040,6 @@ void output_month_total_sheet_text_file(
 		document_close();
 		exit( 1 );
 	}
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-			year,
-		 	TOTALS_FILENAME_LABEL,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_NONPREPEND_TEMPLATE, 
-			year,
-		 	TOTALS_FILENAME_LABEL,
-		 	process_id );
-	}
-*/
 
 	output_month_total_sheet_text_file_heading(
 				output_file,
@@ -1140,39 +1107,41 @@ void output_total_sheet_total_row_list_text_file(
 			continue;
 		}
 
-		list_rewind( total_row_catch_area_list );
+		if ( list_rewind( total_row_catch_area_list ) )
+		{
+			do {
+				catch_area =
+					list_get_pointer(
+						total_row->catch_area_list );
 
-		do {
-			catch_area =
-				list_get_pointer(
-					total_row->catch_area_list );
+				total_row_catch_area =
+					list_get_pointer(
+						total_row_catch_area_list );
 
-			total_row_catch_area =
-				list_get_pointer(
-					total_row_catch_area_list );
-
-			if ( total_row_catch_area->
-				areas_1_6_estimated_caught )
-			{
-				fprintf( output_file,
+				if ( total_row_catch_area->
+					areas_1_6_estimated_caught )
+				{
+					fprintf( output_file,
 				 ",%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf",
-				 catch_area->
-					areas_1_5_estimated_kept,
-				 catch_area->
-					areas_1_5_estimated_released,
-				 catch_area->
-					areas_1_5_estimated_caught,
-				 catch_area->
-					areas_1_6_estimated_kept,
-				 catch_area->
-					areas_1_6_estimated_released,
-				 catch_area->
-					areas_1_6_estimated_caught );
-			}
+				 	catch_area->
+						areas_1_5_estimated_kept,
+				 	catch_area->
+						areas_1_5_estimated_released,
+				 	catch_area->
+						areas_1_5_estimated_caught,
+				 	catch_area->
+						areas_1_6_estimated_kept,
+				 	catch_area->
+						areas_1_6_estimated_released,
+				 	catch_area->
+						areas_1_6_estimated_caught );
+				}
 
-			list_next( total_row_catch_area_list );
+				if ( !list_next( total_row_catch_area_list ) )
+					break;
 
-		} while( list_next( total_row->catch_area_list ) );
+			} while( list_next( total_row->catch_area_list ) );
+		}
 
 		fprintf( output_file, "\n" );
 
@@ -1192,8 +1161,12 @@ void output_month_total_sheet_text_file_heading(
 	fprintf( output_file,
 		 ",Trailers,,,Vessels,,,Interviews,,,,Trips" );
 
-	list_rewind( species_list );
-	list_rewind( catch_area_list );
+	if ( !list_rewind( species_list )
+	||   !list_rewind( catch_area_list ) )
+	{
+		fprintf( output_file, "\n" );
+		return;
+	}
 
 	do {
 		species = list_get_pointer( species_list );
@@ -1201,11 +1174,11 @@ void output_month_total_sheet_text_file_heading(
 
 		if ( catch_area->areas_1_6_estimated_caught )
 		{
-			fprintf( output_file,
-			",Estimated Areas 1-5,,,Estimated Areas 1-6,," );
+		       fprintf( output_file,
+		       ",Estimated Areas 1-5,,,Estimated Areas 1-6,," );
 		}
 
-		list_next( catch_area_list );
+		if ( !list_next( catch_area_list ) ) break;
 
 	} while( list_next( species_list ) );
 
@@ -1228,15 +1201,15 @@ void output_month_total_sheet_text_file_heading(
 		{
 			fprintf( output_file,
 		",%d Kept,%d Released,%d Caught,%d Kept,%d Released,%d Caught",
-			 	species->florida_state_code,
-			 	species->florida_state_code,
-			 	species->florida_state_code,
-			 	species->florida_state_code,
-			 	species->florida_state_code,
-			 	species->florida_state_code );
+		 		species->florida_state_code,
+		 		species->florida_state_code,
+		 		species->florida_state_code,
+		 		species->florida_state_code,
+		 		species->florida_state_code,
+		 		species->florida_state_code );
 		}
 
-		list_next( catch_area_list );
+		if ( !list_next( catch_area_list ) ) break;
 
 	} while( list_next( species_list ) );
 
@@ -1265,7 +1238,11 @@ void output_total_sheet_total_row_text_file(
 	 total_row->park_boating_day,
 	 total_row->estimated_park_fishing_vessels );
 
-	list_rewind( catch_area_list );
+	if ( !list_rewind( catch_area_list ) )
+	{
+		fprintf( output_file, "\n" );
+		return;
+	}
 
 	do {
 		catch_area =
@@ -1353,9 +1330,9 @@ void output_grand_total_table(	double grand_areas_1_5_estimated_kept,
 				 species->florida_state_code );
 	
 		} while( list_next( species_list ) );
+
 		fprintf( output_pipe, "\n" );
 	}
-
 
 	fprintf( output_pipe,
 		 "Areas 1-5 Estimated Kept^%.1lf\n",
@@ -1427,15 +1404,6 @@ void output_grand_total_sheet_text_file(
 	sprintf( year_string, "%d", year );
 	appaserver_link_file->begin_date_string = year_string;
 
-/*
-	sprintf( output_filename, 
-		 OUTPUT_TEMPLATE,
-		 appaserver_mount_point,
-		 year,
-		 GRAND_FILENAME_LABEL,
-		 process_id );
-*/
-
 	output_filename =
 		appaserver_link_get_output_filename(
 			appaserver_link_file->
@@ -1456,28 +1424,6 @@ void output_grand_total_sheet_text_file(
 		document_close();
 		exit( 1 );
 	}
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	year,
-		 	GRAND_FILENAME_LABEL,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_NONPREPEND_TEMPLATE, 
-		 	year,
-		 	GRAND_FILENAME_LABEL,
-		 	process_id );
-	}
-*/
 
 	ftp_filename =
 		appaserver_link_get_link_prompt(
@@ -1524,6 +1470,7 @@ void output_grand_total_sheet_text_file(
 			fprintf( output_file,
 				 ",%d",
 				 species->florida_state_code );
+
 		} while( list_next( species_list ) );
 	
 		fprintf( output_file, "\n" );
@@ -1636,13 +1583,13 @@ void output_total_sheet_total_row_list_table(
 			 total_row->park_boating_day,
 			 total_row->estimated_park_fishing_vessels );
 
-		if ( all_species || !list_rewind( total_row->catch_area_list ) )
+		if ( all_species
+		||   !list_rewind( total_row->catch_area_list )
+		||   !list_rewind( total_row_catch_area_list ) )
 		{
 			fprintf( output_pipe, "\n" );
 			continue;
 		}
-
-		list_rewind( total_row_catch_area_list );
 
 		do {
 			catch_area =
@@ -1671,7 +1618,8 @@ void output_total_sheet_total_row_list_table(
 					areas_1_6_estimated_caught );
 			}
 
-			list_next( total_row_catch_area_list );
+			if ( !list_next( total_row_catch_area_list ) )
+				break;
 
 		} while( list_next( total_row->catch_area_list ) );
 
@@ -1689,6 +1637,8 @@ void output_total_sheet_total_row_table(
 {
 	CATCH_AREA *catch_area;
 
+	if ( !total_row ) return;
+
 	fprintf( output_pipe,
 	 "Total^%d^%d^%d^%.1lf^%.1lf^%.1lf^%.1lf^%.1lf^%.1lf^%.1lf^%.1lf",
 	 total_row->florida_bay_trailer_count,
@@ -1703,13 +1653,12 @@ void output_total_sheet_total_row_table(
 	 total_row->park_boating_day,
 	 total_row->estimated_park_fishing_vessels );
 
-	if ( all_species )
+	if ( all_species
+	||   !list_rewind( catch_area_list ) )
 	{
 		fprintf( output_pipe, "\n" );
 		return;
 	}
-
-	list_rewind( catch_area_list );
 
 	do {
 		catch_area =
@@ -1755,10 +1704,12 @@ char *get_month_total_sheet_table_heading(
 "%d,Trailers<br>Florida Bay,Trailers<br>Whitewater Bay,Trailers<br>Total,Estimated Vessels<br>Area 1-5,Estimated Vessels<br>Area 6,Estimated Vessels<br>Area 1-6,Sample Interviews<br>Flamingo Fishing,Sample Interviews<br>Flamingo Boating,Sample Interviews<br>Park Fishing,Sample Interviews<br>Park Boating,Estimated Trips<br>Park Fishing",
 		 year );
 
-	if ( all_species ) return strdup( heading );
-
-	list_rewind( species_list );
-	list_rewind( catch_area_list );
+	if ( all_species
+	||   !list_rewind( species_list )
+	||   !list_rewind( catch_area_list ) )
+	{
+		return strdup( heading );
+	}
 
 	do {
 		species = list_get_pointer( species_list );
@@ -1778,7 +1729,7 @@ char *get_month_total_sheet_table_heading(
 			 	species->florida_state_code );
 		}
 
-		list_next( catch_area_list );
+		if ( !list_next( catch_area_list ) ) break;
 
 	} while( list_next( species_list ) );
 
@@ -1797,7 +1748,15 @@ void output_month_sheet_list_table(	LIST *month_sheet_list,
 	char title[ 128 ];
 	char *heading;
 
-	list_rewind( month_sheet_list );
+	if ( !list_rewind( month_sheet_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty month_sheet_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	do {
 		month_sheet = list_get_pointer( month_sheet_list );
@@ -1826,11 +1785,16 @@ void output_month_sheet_list_table(	LIST *month_sheet_list,
 				total_row_catch_area_list,
 				all_species );
 
-		output_month_sheet_total_row_table(
+		if ( month_sheet->total_row
+		&&   month_sheet->total_row->fishing_trip
+		&&   month_sheet->total_row->vessel )
+		{
+			output_month_sheet_total_row_table(
 				output_pipe,
 				month_sheet->total_row,
 				total_row_catch_area_list,
 				all_species );
+		}
 
 		pclose( output_pipe );
 
@@ -1851,15 +1815,18 @@ char *get_month_sheet_table_heading(
 	ptr += sprintf( ptr,
 "Day,Trailers<br>Florida Bay,Trailers<br>Whitewater Bay,Trailers<br>Total,Estimated Vessels<br>Area 1-5,Estimated Vessels<br>Area 6,Estimated Vessels<br>Area 1-6,Sample Interviews<br>Flamingo Fishing,Sample Interviews<br>Flamingo Boating,Sample Interviews<br>Park Fishing,Sample Interviews<br>Park Boating,Estimated Trips<br>Park Fishing" );
 
-	if ( all_species ) return strdup( heading );
-
-	list_rewind( species_list );
-	list_rewind( total_row_catch_area_list );
+	if ( all_species
+	||   !list_rewind( species_list )
+	||   !list_rewind( total_row_catch_area_list ) )
+	{
+		return strdup( heading );
+	}
 
 	do {
 		species = list_get_pointer( species_list );
 
-		catch_area = list_get_pointer(
+		catch_area =
+			list_get_pointer(
 				total_row_catch_area_list );
 
 		if ( catch_area->areas_1_6_estimated_caught )
@@ -1874,14 +1841,13 @@ char *get_month_sheet_table_heading(
 				 	species->florida_state_code );
 		}
 
-		list_next( total_row_catch_area_list );
+		if ( !list_next( total_row_catch_area_list ) ) break;
 
 	} while( list_next( species_list ) );
 
 	return strdup( heading );
 
 } /* get_month_sheet_table_heading() */
-
 
 void output_month_sheet_table(		FILE *output_pipe,
 					MONTH_SHEET *month_sheet,
@@ -1912,16 +1878,17 @@ void output_month_sheet_table(		FILE *output_pipe,
 			 month_row->fishing_trip->park_boating_day,
 			 month_row->vessel->estimated_park_fishing_vessels );
 
-		if ( all_species || !list_rewind( month_row->catch_area_list ) )
+		if ( all_species
+		||   !list_rewind( month_row->catch_area_list )
+		||   !list_rewind( total_row_catch_area_list ) )
 		{
 			fprintf( output_pipe, "\n" );
 			continue;
 		}
 
-		list_rewind( total_row_catch_area_list );
-
 		do {
-			catch_area = list_get_pointer(
+			catch_area =
+				list_get_pointer(
 					month_row->catch_area_list );
 
 			total_row_catch_area =
@@ -1947,7 +1914,8 @@ void output_month_sheet_table(		FILE *output_pipe,
 					   areas_1_6_estimated_caught );
 			}
 
-			list_next( total_row_catch_area_list );
+			if ( !list_next( total_row_catch_area_list ) )
+				break;
 
 		} while( list_next( month_row->catch_area_list ) );
 
@@ -1966,6 +1934,18 @@ void output_month_sheet_total_row_table(
 	CATCH_AREA *catch_area;
 	CATCH_AREA *total_row_catch_area;
 
+	if ( !total_row
+	||   !total_row->vessel
+	||   !total_row->fishing_trip )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty total_row.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	fprintf( output_pipe,
 	 "Total^%d^%d^%d^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf",
 	 total_row->vessel->florida_bay_trailer_count,
@@ -1980,13 +1960,13 @@ void output_month_sheet_total_row_table(
 	 total_row->fishing_trip->park_boating_day,
 	 total_row->vessel->estimated_park_fishing_vessels );
 
-	if ( all_species || !list_rewind( total_row->catch_area_list ) )
+	if ( all_species
+	||   !list_rewind( total_row_catch_area_list )
+	||   !list_rewind( total_row->catch_area_list ) )
 	{
 		fprintf( output_pipe, "\n" );
 		return;
 	}
-
-	list_rewind( total_row_catch_area_list );
 
 	do {
 		catch_area =
@@ -2003,21 +1983,21 @@ void output_month_sheet_total_row_table(
 
 			fprintf( output_pipe,
 			 "^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf^%.0lf",
-			 catch_area->
+		 	catch_area->
 				areas_1_5_estimated_kept,
-			 catch_area->
+		 	catch_area->
 				areas_1_5_estimated_released,
-			 catch_area->
+		 	catch_area->
 				areas_1_5_estimated_caught,
-			 catch_area->
+		 	catch_area->
 				areas_1_6_estimated_kept,
-			 catch_area->
+		 	catch_area->
 				areas_1_6_estimated_released,
-			 catch_area->
+		 	catch_area->
 				areas_1_6_estimated_caught );
 		}
 
-		list_next( total_row_catch_area_list );
+		if ( !list_next( total_row_catch_area_list ) ) break;
 
 	} while( list_next( total_row->catch_area_list ) );
 

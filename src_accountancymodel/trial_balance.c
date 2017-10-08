@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------	*/
-/* src_accountancymodel/trial_balance.c					*/
+/* $APPASERVER_HOME/src_accountancymodel/trial_balance.c		*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -31,11 +31,40 @@
 
 /* Constants */
 /* --------- */
+#define DAYS_FOR_EMPHASIS		35
 #define ROWS_BETWEEN_HEADING		10
 #define PROMPT				"Press here to view statement."
 
 /* Prototypes */
 /* ---------- */
+char *get_action_string(
+					char *application_name,
+					char *session,
+					char *login_name,
+					char *role_name,
+					char *beginning_date,
+					char *as_of_date,
+					char *account_name );
+
+void output_stdout(			char *element_name,
+					char *subclassification_name,
+					char *account_name,
+					char *full_name,
+					int transaction_count,
+					double balance,
+					char *transaction_date_time,
+					char *memo,
+					boolean accumulate_debit,
+					double debit_amount,
+					double credit_amount,
+					double prior_balance_change,
+					double subclassification_total );
+
+void trial_balance_stdout(
+					char *application_name,
+					char *fund_name,
+					char *as_of_date );
+
 void build_PDF_account_row(		LIST *column_data_list,
 					boolean *accumulate_debit,
 					double *balance,
@@ -53,6 +82,21 @@ void trial_balance_account_html_table(
 					double *balance,
 					boolean *accumulate_debit,
 					HTML_TABLE *html_table,
+					char *application_name,
+					ACCOUNT *account,
+					LIST *prior_element_list,
+					char *element_name,
+					char *subclassification_name,
+					double subclassification_total,
+					char *beginning_date,
+					char *as_of_date,
+					char *session,
+					char *login_name,
+					char *role_name );
+
+void trial_balance_account_stdout(
+					double *balance,
+					boolean *accumulate_debit,
 					char *application_name,
 					ACCOUNT *account,
 					LIST *prior_element_list,
@@ -79,7 +123,10 @@ void trial_balance_html_table(
 					char *title,
 					char *sub_title,
 					char *fund_name,
-					char *as_of_date );
+					char *as_of_date,
+					char *session,
+					char *login_name,
+					char *role_name );
 
 LIST *build_PDF_row_list(		char *application_name,
 					LIST *current_element_list,
@@ -92,7 +139,8 @@ void trial_balance_PDF(			char *application_name,
 					char *as_of_date,
 					char *document_root_directory,
 					char *process_name,
-					char *aggregation );
+					char *aggregation,
+					char *logo_filename );
 
 void trial_balance_PDF_fund(		
 					LATEX *latex,
@@ -118,11 +166,20 @@ void output_html_table(			LIST *data_list,
 					double debit_amount,
 					double credit_amount,
 					double prior_balance_change,
-					double subclassification_total );
+					double subclassification_total,
+					char *application_name,
+					char *beginning_date,
+					char *as_of_date,
+					char *session,
+					char *login_name,
+					char *role_name );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *session;
+	char *login_name;
+	char *role_name;
 	char *process_name;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -133,11 +190,12 @@ int main( int argc, char **argv )
 	char *as_of_date;
 	char *database_string = {0};
 	char *output_medium;
+	char *logo_filename;
 
-	if ( argc != 7 )
+	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund_name as_of_date aggregation output_medium\n",
+"Usage: %s application session login_name role process fund as_of_date aggregation output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -151,22 +209,31 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	process_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	as_of_date = argv[ 4 ];
-	aggregation = argv[ 5 ];
-	output_medium = argv[ 6 ];
+	session = argv[ 2 ];
+	login_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	process_name = argv[ 5 ];
+	fund_name = argv[ 6 ];
+	as_of_date = argv[ 7 ];
+	aggregation = argv[ 8 ];
+	output_medium = argv[ 9 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !*as_of_date
 	||   strcmp(	as_of_date,
@@ -175,10 +242,15 @@ int main( int argc, char **argv )
 		as_of_date = date_get_now_yyyy_mm_dd();
 	}
 
-	document = document_new( title, application_name );
-	document->output_content_type = 1;
+	if ( strcmp( output_medium, "stdout" ) != 0 )
+	{
+		document = document_new(
+				(char *)0 /* title */,
+				application_name );
 
-	document_output_heading(
+		document->output_content_type = 1;
+
+		document_output_heading(
 			document->application_name,
 			document->title,
 			document->output_content_type,
@@ -189,8 +261,15 @@ int main( int argc, char **argv )
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
-	document_output_body(	document->application_name,
+		document_output_body(
+				document->application_name,
 				document->onload_control_string );
+	}
+
+	logo_filename =
+		application_constants_quick_fetch(
+			application_name,
+			"logo_filename" /* key */ );
 
 	if ( !ledger_get_report_title_sub_title(
 		title,
@@ -201,7 +280,8 @@ int main( int argc, char **argv )
 		as_of_date,
 		list_length(
 			ledger_get_fund_name_list(
-				application_name ) ) ) )
+				application_name ) ),
+		logo_filename ) )
 	{
 		printf( "<h3>Error. No transactions.</h3>\n" );
 		document_close();
@@ -215,9 +295,13 @@ int main( int argc, char **argv )
 			title,
 			sub_title,
 			fund_name,
-			as_of_date );
+			as_of_date,
+			session,
+			login_name,
+			role_name );
 	}
 	else
+	if ( strcmp( output_medium, "PDF" ) == 0 )
 	{
 		trial_balance_PDF(
 			application_name,
@@ -226,10 +310,20 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->
 				document_root,
 			process_name,
-			aggregation );
+			aggregation,
+			logo_filename );
+	}
+	else
+	{
+		trial_balance_stdout(
+			application_name,
+			fund_name,
+			as_of_date );
 	}
 
-	document_close();
+	if ( strcmp( output_medium, "stdout" ) != 0 )
+		document_close();
+
 	exit( 0 );
 
 } /* main() */
@@ -239,7 +333,10 @@ void trial_balance_html_table(
 			char *title,
 			char *sub_title,
 			char *fund_name,
-			char *as_of_date )
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name )
 {
 	HTML_TABLE *html_table;
 	LIST *heading_list;
@@ -260,6 +357,22 @@ void trial_balance_html_table(
 	double subclassification_total;
 	int count = 0;
 	char *element_name = {0};
+	char *beginning_date;
+
+	if ( ! ( beginning_date = 
+			ledger_beginning_transaction_date(
+				application_name,
+				fund_name,
+				as_of_date ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot get beginning_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 
 	/* Populate the current_element_list */
 	/* --------------------------------- */
@@ -328,9 +441,12 @@ void trial_balance_html_table(
 	html_table->number_left_justified_columns = 3;
 	html_table->number_right_justified_columns = 4;
 	html_table_set_heading_list( html_table, heading_list );
+
 	html_table_output_table_heading(
+
 					html_table->title,
 					html_table->sub_title );
+
 	html_table_output_data_heading(
 		html_table->heading_list,
 		html_table->number_left_justified_columns,
@@ -406,7 +522,12 @@ void trial_balance_html_table(
 					element_name,
 					subclassification->
 						subclassification_name,
-					subclassification_total );
+					subclassification_total,
+					beginning_date,
+					as_of_date,
+					session,
+					login_name,
+					role_name );
 
 				list_free( html_table->data_list );
 				html_table->data_list = list_new();
@@ -463,7 +584,12 @@ void trial_balance_account_html_table(
 					LIST *prior_element_list,
 					char *element_name,
 					char *subclassification_name,
-					double subclassification_total )
+					double subclassification_total,
+					char *beginning_date,
+					char *as_of_date,
+					char *session,
+					char *login_name,
+					char *role_name )
 {
 	double prior_balance_change;
 
@@ -520,7 +646,13 @@ void trial_balance_account_html_table(
 			latest_ledger->
 			credit_amount,
 		prior_balance_change,
-		subclassification_total );
+		subclassification_total,
+		application_name,
+		beginning_date,
+		as_of_date,
+		session,
+		login_name,
+		role_name );
 
 } /* trial_balance_account_html_table() */
 
@@ -530,7 +662,8 @@ void trial_balance_PDF(
 			char *as_of_date,
 			char *document_root_directory,
 			char *process_name,
-			char *aggregation )
+			char *aggregation,
+			char *logo_filename )
 {
 	LATEX *latex;
 	char *latex_filename;
@@ -594,7 +727,8 @@ void trial_balance_PDF(
 		application_name,
 		fund_name,
 		as_of_date,
-		list_length( fund_name_list ) );
+		list_length( fund_name_list ),
+		logo_filename );
 
 	printf( "<h1>%s</h1>\n", title );
 
@@ -603,9 +737,7 @@ void trial_balance_PDF(
 			dvi_filename,
 			working_directory,
 			0 /* not landscape_flag */,
-			application_constants_quick_fetch(
-				application_name,
-				"logo_filename" /* key */ ) );
+			logo_filename );
 
 	if ( list_rewind( fund_name_list )
 	&&   strcmp( aggregation, "sequential" ) == 0 )
@@ -620,7 +752,8 @@ void trial_balance_PDF(
 				application_name,
 				fund_name,
 				as_of_date,
-				0 /* fund_name_list_length */ );
+				0 /* fund_name_list_length */,
+				logo_filename );
 
 			trial_balance_PDF_fund(
 					latex,
@@ -844,9 +977,16 @@ LIST *build_PDF_row_list(	char *application_name,
 					*element_title = '\0';
 				}
 
+/*
 				list_append_pointer(
 					latex_row->column_data_list,
 					strdup( element_title ) );
+*/
+
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( element_title ),
+					0 /* not large_bold */ );
 
 				if ( subclassification->subclassification_name )
 				{
@@ -860,9 +1000,16 @@ LIST *build_PDF_row_list(	char *application_name,
 					*subclassification_title = '\0';
 				}
 
+/*
 				list_append_pointer(
 					latex_row->column_data_list,
 					strdup( subclassification_title ) );
+*/
+
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( subclassification_title ),
+					0 /* not large_bold */ );
 
 				build_PDF_account_row(
 					latex_row->column_data_list,
@@ -891,20 +1038,46 @@ LIST *build_PDF_row_list(	char *application_name,
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
 
+/*
 	list_append_pointer( latex_row->column_data_list, "Total" );
 	list_append_pointer( latex_row->column_data_list, (char *)0 );
 	list_append_pointer( latex_row->column_data_list, (char *)0 );
 	list_append_pointer( latex_row->column_data_list, (char *)0 );
+*/
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"Total",
+		0 /* not large_bold */ );
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
 
 	debit_amount = timlib_place_commas_in_dollars( debit_sum );
-	list_append_pointer(
+
+	latex_append_column_data_list(
 		latex_row->column_data_list,
-		strdup( debit_amount ) );
+		strdup( debit_amount ),
+		0 /* not large_bold */ );
 
 	credit_amount = timlib_place_commas_in_dollars( credit_sum );
-	list_append_pointer(
+
+	latex_append_column_data_list(
 		latex_row->column_data_list,
-		strdup( credit_amount ) );
+		strdup( credit_amount ),
+		0 /* not large_bold */ );
 
 	return row_list;
 
@@ -973,17 +1146,34 @@ void output_html_table(	LIST *data_list,
 			double debit_amount,
 			double credit_amount,
 			double prior_balance_change,
-			double subclassification_total )
+			double subclassification_total,
+			char *application_name,
+			char *beginning_date,
+			char *as_of_date,
+			char *session,
+			char *login_name,
+			char *role_name )
 {
 	char element_title[ 128 ];
 	char subclassification_title[ 128 ];
 	char *account_title;
 	char transaction_count_string[ 16 ];
-	char *debit_string;
-	char *credit_string;
+	char debit_string[ 4096 ];
+	char credit_string[ 4096 ];
 	char *prior_balance_change_string;
 	char subclassification_total_ratio_string[ 16 ];
 	char transaction_date_string[ 16 ];
+	char *action_string;
+
+	action_string =
+		get_action_string(
+			application_name,
+			session,
+			login_name,
+			role_name,
+			beginning_date,
+			as_of_date,
+			account_name );
 
 	if ( element_name && *element_name )
 	{
@@ -1035,10 +1225,15 @@ void output_html_table(	LIST *data_list,
 	/* ---------------------- */
 	if ( accumulate_debit )
 	{
-		debit_string = timlib_place_commas_in_money( balance );
+		sprintf( debit_string,
+			 "<a href=\"%s\">%s</a>",
+			 action_string,
+			 timlib_place_commas_in_money( balance ) );
 	}
 	else
-		debit_string = "";
+	{
+		*debit_string = '\0';
+	}
 
 	html_table_set_data(	data_list,
 				strdup( debit_string ) );
@@ -1047,10 +1242,15 @@ void output_html_table(	LIST *data_list,
 	/* ----------------------- */
 	if ( !accumulate_debit )
 	{
-		credit_string = timlib_place_commas_in_money( balance );
+		sprintf( credit_string,
+			 "<a href=\"%s\">%s</a>",
+			 action_string,
+			 timlib_place_commas_in_money( balance ) );
 	}
 	else
-		credit_string = "";
+	{
+		*credit_string = '\0';
+	}
 
 	html_table_set_data(	data_list,
 				strdup( credit_string ) );
@@ -1261,6 +1461,10 @@ void build_PDF_account_row(	LIST *column_data_list,
 	char *prior_balance_change_string;
 	double prior_balance_change;
 	char subclassification_total_ratio_string[ 16 ];
+	char *today_date_string;
+	int days_between;
+
+	today_date_string = date_get_now_yyyy_mm_dd();
 
 	*accumulate_debit =
 		ledger_account_get_accumulate_debit(
@@ -1293,9 +1497,10 @@ void build_PDF_account_row(	LIST *column_data_list,
 				latest_ledger->
 				memo );
 
-	list_append_pointer(
+	latex_append_column_data_list(
 		column_data_list,
-		strdup( account_title ) );
+		strdup( account_title ),
+		0 /* not large_bold */ );
 
 	sprintf( transaction_count_string,
 		 "%d",
@@ -1303,9 +1508,10 @@ void build_PDF_account_row(	LIST *column_data_list,
 			latest_ledger->
 			transaction_count );
 
-	list_append_pointer(
+	latex_append_column_data_list(
 		column_data_list,
-		strdup( transaction_count_string ) );
+		strdup( transaction_count_string ),
+		0 /* not large_bold */ );
 
 	*balance = account->latest_ledger->balance;
 
@@ -1323,23 +1529,30 @@ void build_PDF_account_row(	LIST *column_data_list,
 		*accumulate_debit = 1 - *accumulate_debit;
 	}
 
+	days_between =
+		date_days_between(
+			transaction_date_string,
+			today_date_string );
+
 	if ( *accumulate_debit )
 		debit_string = timlib_place_commas_in_dollars( *balance );
 	else
 		debit_string = "";
 
-	list_append_pointer(
+	latex_append_column_data_list(
 		column_data_list,
-		strdup( debit_string ) );
+		strdup( debit_string ),
+		(days_between <= DAYS_FOR_EMPHASIS) /* large_bold */ );
 
 	if ( !*accumulate_debit )
 		credit_string = timlib_place_commas_in_dollars( *balance );
 	else
 		credit_string = "";
 
-	list_append_pointer(
+	latex_append_column_data_list(
 		column_data_list,
-		strdup( credit_string ) );
+		strdup( credit_string ),
+		(days_between <= DAYS_FOR_EMPHASIS) /* large_bold */ );
 
 	/* Set prior_balance_change (maybe) */
 	/* -------------------------------- */
@@ -1355,10 +1568,12 @@ void build_PDF_account_row(	LIST *column_data_list,
 
 		sprintf( buffer, "$\\Delta$%s", prior_balance_change_string );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			column_data_list,
-			strdup( buffer ) );
+			strdup( buffer ),
+			0 /* not large_bold */ );
 	}
+
 	/* Set subclassification_total ratio (maybe) */
 	/* ----------------------------------------- */
 	if ( !timlib_dollar_virtually_same(
@@ -1370,11 +1585,412 @@ void build_PDF_account_row(	LIST *column_data_list,
 			 (*balance / subclassification_total) * 100.0,
 			 '%' );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			column_data_list,
+			strdup( subclassification_total_ratio_string ),
+			0 /* not large_bold */ );
+	}
+
+} /* build_PDF_account_row() */
+
+void trial_balance_stdout(
+			char *application_name,
+			char *fund_name,
+			char *as_of_date )
+{
+	LIST *heading_list;
+	char *debit_string;
+	char *credit_string;
+	double debit_sum = 0.0;
+	double credit_sum = 0.0;
+	ELEMENT *element;
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+	boolean accumulate_debit;
+	double balance;
+	LIST *current_element_list;
+	LIST *prior_element_list;
+	LIST *prior_filter_element_name_list;
+	DATE *prior_closing_transaction_date;
+	char *prior_closing_transaction_date_string = {0};
+	double subclassification_total;
+	char *element_name = {0};
+	LIST *data_list = list_new();
+
+	/* Populate the current_element_list */
+	/* --------------------------------- */
+	current_element_list =
+		ledger_get_element_list(
+			application_name,
+			(LIST *)0 /* filter_element_name_list */,
+			fund_name,
+			as_of_date );
+
+	/* Populate the prior_element_list */
+	/* ------------------------------- */
+	prior_closing_transaction_date =
+		ledger_prior_closing_transaction_date(
+			application_name,
+			fund_name,
+			as_of_date /* ending_transaction_date */ );
+
+	if ( prior_closing_transaction_date )
+	{
+		prior_closing_transaction_date_string =
+			date_get_yyyy_mm_dd_string(
+				prior_closing_transaction_date );
+	}
+	else
+	{
+		prior_closing_transaction_date_string =
+			ledger_beginning_transaction_date(
+				application_name,
+				fund_name,
+				as_of_date );
+	}
+
+	prior_filter_element_name_list = list_new();
+
+	list_append_pointer(
+		prior_filter_element_name_list, 
+		LEDGER_ASSET_ELEMENT );
+
+	list_append_pointer(
+		prior_filter_element_name_list, 
+		LEDGER_LIABILITY_ELEMENT );
+
+	prior_element_list =
+		ledger_get_element_list(
+			application_name,
+			prior_filter_element_name_list,
+			fund_name,
+			prior_closing_transaction_date_string );
+
+	/* Create the table heading */
+	/* ------------------------ */
+	heading_list = list_new();
+	list_append_string( heading_list, "Element" );
+	list_append_string( heading_list, "Subclassification" );
+	list_append_string( heading_list, "Account" );
+	list_append_string( heading_list, "Count" );
+	list_append_string( heading_list, "Debit" );
+	list_append_string( heading_list, "Credit" );
+	list_append_string( heading_list, "change_or_percent" );
+	
+	printf( "%s\n", list_display_delimited( heading_list, '^' ) );
+
+	if ( !list_rewind( current_element_list ) )
+	{
+		printf(
+	"ERROR: there are no elements for this statement.\n" );
+		exit( 1 );
+	}
+
+	do {
+		element = list_get_pointer( current_element_list );
+
+		if ( !list_rewind( element->subclassification_list ) )
+			continue;
+
+		element_name = element->element_name;
+
+		do {
+			subclassification =
+				list_get_pointer(
+					element->
+					   subclassification_list );
+
+			if ( !list_rewind( subclassification->account_list ) )
+				continue;
+
+			do {
+				account = 
+					list_get_pointer(
+						subclassification->
+							account_list );
+
+				if ( !account->latest_ledger
+				||   !account->latest_ledger->balance )
+					continue;
+
+				if ( ledger_is_period_element(
+					element->element_name ) )
+				{
+					subclassification_total =
+						subclassification->
+							subclassification_total;
+				}
+				else
+				{
+					subclassification_total = 0.0;
+				}
+
+				trial_balance_account_stdout(
+					&balance,
+					&accumulate_debit,
+					application_name,
+					account,
+					prior_element_list,
+					element_name,
+					subclassification->
+						subclassification_name,
+					subclassification_total );
+
+				if ( accumulate_debit )
+				{
+					debit_sum += balance;
+				}
+				else
+				{
+					credit_sum += balance;
+				}
+
+				subclassification->
+					subclassification_name =
+						(char *)0;
+
+				element_name = (char *)0;
+
+			} while( list_next( subclassification->account_list ) );
+
+		} while( list_next( element->subclassification_list ) );
+
+	} while( list_next( current_element_list ) );
+
+	list_append_pointer( data_list, "Total" );
+	list_append_pointer( data_list, "" );
+	list_append_pointer( data_list, "" );
+	list_append_pointer( data_list, "" );
+
+	debit_string = timlib_place_commas_in_money( debit_sum );
+	list_append_pointer( data_list, strdup( debit_string ) );
+
+	credit_string = timlib_place_commas_in_money( credit_sum );
+	list_append_pointer( data_list, strdup( credit_string ) );
+
+	printf( "%s\n", list_display_delimited( data_list, '^' ) );
+
+} /* trial_balance_stdout() */
+
+void trial_balance_account_stdout(
+					double *balance,
+					boolean *accumulate_debit,
+					char *application_name,
+					ACCOUNT *account,
+					LIST *prior_element_list,
+					char *element_name,
+					char *subclassification_name,
+					double subclassification_total )
+{
+	double prior_balance_change;
+
+	*accumulate_debit =
+		ledger_account_get_accumulate_debit(
+			application_name,
+			account->account_name );
+
+	*balance = account->latest_ledger->balance;
+
+	prior_balance_change =
+		trial_balance_get_prior_balance_change(
+			prior_element_list,
+			account->account_name,
+			*balance /* current_balance */ );
+
+	/* See if negative balance. */
+	/* ------------------------ */
+	if ( *balance < 0.0 )
+	{
+		*balance = float_abs( *balance );
+		*accumulate_debit = 1 - *accumulate_debit;
+	}
+
+	output_stdout(
+		element_name,
+		subclassification_name,
+		account->account_name,
+		account->
+			latest_ledger->
+			full_name,
+		account->
+			latest_ledger->
+			transaction_count,
+		*balance,
+		account->
+			latest_ledger->
+			transaction_date_time,
+		account->
+			latest_ledger->
+			memo,
+		*accumulate_debit,
+		account->
+			latest_ledger->
+			debit_amount,
+		account->
+			latest_ledger->
+			credit_amount,
+		prior_balance_change,
+		subclassification_total );
+
+} /* trial_balance_account_stdout() */
+
+void output_stdout(	char *element_name,
+			char *subclassification_name,
+			char *account_name,
+			char *full_name,
+			int transaction_count,
+			double balance,
+			char *transaction_date_time,
+			char *memo,
+			boolean accumulate_debit,
+			double debit_amount,
+			double credit_amount,
+			double prior_balance_change,
+			double subclassification_total )
+{
+	char element_title[ 128 ];
+	char subclassification_title[ 128 ];
+	char *account_title;
+	char transaction_count_string[ 16 ];
+	char *debit_string;
+	char *credit_string;
+	char *prior_balance_change_string;
+	char subclassification_total_ratio_string[ 16 ];
+	char transaction_date_string[ 16 ];
+	LIST *data_list = list_new();
+
+	if ( element_name && *element_name )
+	{
+		format_initial_capital(
+			element_title,
+			element_name );
+
+		list_append_pointer(
+			data_list,
+			strdup( element_title ) );
+	}
+	else
+		list_append_pointer( data_list, strdup( "" ) );
+
+	if ( subclassification_name && *subclassification_name )
+	{
+		format_initial_capital(
+			subclassification_title,
+			subclassification_name );
+
+		list_append_pointer(
+			data_list,
+			strdup( subclassification_title )  );
+	}
+	else
+		list_append_pointer( data_list, strdup( "" ) );
+
+	account_title =
+		get_html_table_account_title(
+			account_name,
+			full_name,
+			debit_amount,
+			credit_amount,
+			column( transaction_date_string,
+				0,
+				transaction_date_time ),
+			memo );
+
+	list_append_pointer(
+		data_list,
+		strdup( account_title ) );
+
+	sprintf( transaction_count_string, "%d", transaction_count );
+
+	list_append_pointer(	data_list,
+				strdup( transaction_count_string ) );
+
+	/* Set the debit account. */
+	/* ---------------------- */
+	if ( accumulate_debit )
+	{
+		debit_string = timlib_place_commas_in_money( balance );
+	}
+	else
+		debit_string = "";
+
+	list_append_pointer(	data_list,
+				strdup( debit_string ) );
+
+	/* Set the credit account. */
+	/* ----------------------- */
+	if ( !accumulate_debit )
+	{
+		credit_string = timlib_place_commas_in_money( balance );
+	}
+	else
+		credit_string = "";
+
+	list_append_pointer(	data_list,
+				strdup( credit_string ) );
+
+	/* Set prior_balance_change (maybe) */
+	/* -------------------------------- */
+	if ( !timlib_dollar_virtually_same(
+			prior_balance_change,
+			0.0 ) )
+	{
+		char buffer[ 32 ];
+
+		prior_balance_change_string =
+			timlib_place_commas_in_money(
+				prior_balance_change );
+
+		sprintf( buffer, "&Delta;%s", prior_balance_change_string );
+
+		list_append_pointer(
+			data_list,
+			strdup( buffer ) );
+	}
+	else
+	/* Set subclassification_total ratio (maybe) */
+	/* ----------------------------------------- */
+	if ( !timlib_dollar_virtually_same(
+			subclassification_total,
+			0.0 ) )
+	{
+		sprintf( subclassification_total_ratio_string,
+			 "%.0lf%c",
+			 (balance / subclassification_total) * 100.0,
+			 '%' );
+
+		list_append_pointer(
+			data_list,
 			strdup( subclassification_total_ratio_string ) );
 	}
 
+	printf( "%s\n", list_display_delimited( data_list, '^' ) );
 
-} /* build_PDF_account_row() */
+} /* output_stdout() */
+
+char *get_action_string(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date,
+			char *account_name )
+{
+	char action_string[ 4096 ];
+
+	sprintf( action_string,
+"/cgi-bin/post_prompt_edit_form?%s^%s:%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s 23:59:59",
+		 login_name,
+		 application_name,
+		 application_name,
+		 session,
+		 role_name,
+		 account_name,
+		 beginning_date,
+		 as_of_date );
+
+	return strdup( action_string );
+
+} /* get_action_string() */
 

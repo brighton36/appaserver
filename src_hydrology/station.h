@@ -115,4 +115,7 @@ DICTIONARY *station_load_dictionary(
 			char *application_name,
 			char *station_name );
 
+boolean station_exists(	char *application_name,
+			char *station_name );
+
 #endif

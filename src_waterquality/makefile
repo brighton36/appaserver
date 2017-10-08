@@ -131,7 +131,8 @@ output_results_exception: output_results_exception.c			\
 
 google_map_station_operation: google_map_station_operation.c		\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/google_map.o
+		${LIBRARY}/google_map.o					\
+		${LIBRARY}/semaphore.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-I${SOURCE_EVERGLADES}					\
@@ -140,6 +141,7 @@ google_map_station_operation: google_map_station_operation.c		\
 		${STANDARD_LIBRARY} 					\
 		google_map_station_operation.c				\
 		${LIBRARY}/google_map.o					\
+		${LIBRARY}/semaphore.o					\
 		-o google_map_station_operation
 
 google_map_project_process: google_map_project_process.c		\

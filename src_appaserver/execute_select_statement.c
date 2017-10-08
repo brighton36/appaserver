@@ -96,10 +96,11 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
 	char output_sys_string[ 1024 ];
-	char sys_string[ 1024 ];
+	char sys_string[ 4096 ];
+	char asteric_sed[ 1024 ];
 	LIST *column_name_list;
 	char *output_filename;
-	char *ftp_filename;
+	char *ftp_filename = {0};
 	char *error_message = {0};
 	char *select_statement_title;
 	char *select_statement_login_name;
@@ -136,33 +137,6 @@ int main( int argc, char **argv )
 				argc,
 				argv,
 				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-/*
-	if ( session_remote_ip_address_changed(
-		application_name,
-		session ) )
-	{
-		session_message_ip_address_changed_exit(
-				application_name,
-				login_name );
-	}
-
-	if ( !appaserver_user_exists_session(
-					application_name,
-					login_name,
-					session ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-*/
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -316,6 +290,14 @@ int main( int argc, char **argv )
 				application_name,
 				role_name,
 				table_name );
+
+		sprintf( asteric_sed,
+		 	 "sed 's/^select[ ][ ]*\\*/select %s/'",
+		 	 list_display( column_name_list ) );
+	}
+	else
+	{
+		strcpy( asteric_sed, "cat" );
 	}
 
 	if ( !*output_medium
@@ -392,32 +374,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEMPLATE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
-
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -457,11 +413,11 @@ int main( int argc, char **argv )
 		 "cat \"%s\"				|"
 		 "grep -v '^#'				|"
 		 "sed 's/;//g'				|"
-		 "sed 's/\\*/%s/g'			|"
+		 "%s					|"
 		 "sql.e '%c' 2>&1			|"
 		 "%s",
 		 input_filename,
-		 list_display( column_name_list ),
+		 asteric_sed,
 		 FOLDER_DATA_DELIMITER,
 		 output_sys_string );
 
@@ -556,6 +512,7 @@ LIST *get_column_name_list(	char **error_message,
         	while( 1 )
         	{
                 	token_ptr = get_token( &buf_ptr );
+
                 	if ( !*token_ptr ) break;
 
 			if ( strcasecmp( token_ptr, "password" ) == 0 )
@@ -587,6 +544,7 @@ LIST *get_column_name_list(	char **error_message,
 				list_append_pointer(
 					column_name_list,
 					strdup( column_name ) );
+
 				return column_name_list;
 			}
 			else

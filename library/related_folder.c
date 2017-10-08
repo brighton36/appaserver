@@ -1,4 +1,4 @@
-/* library/related_folder.c						*/
+/* $APPASERVER_HOME/library/related_folder.c				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver related_folder ADT.				*/
 /* It is used as an interface to the RELATION folder.			*/ 
@@ -401,12 +401,13 @@ LIST *related_folder_get_drop_down_element_list(
 			output_select_option;
 	}
 
-	element->tab_index = tab_index;
+
 	element->drop_down->post_change_javascript =
 		post_change_javascript;
 
 	element->drop_down->max_drop_down_size = max_drop_down_size;
 	element->drop_down->no_initial_capital = no_initial_capital;
+	element->tab_index = tab_index;
 
 	element_drop_down_set_option_data_option_label_list(
 		&element->drop_down->option_data_list,
@@ -627,7 +628,7 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 	buf_ptr +=
 		sprintf(
 		buf_ptr,
-"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d",
+"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d, insert_permission = %d, update_permission = %d, lookup_permission = %d",
 			folder->folder_name,
 			(related_folder->related_attribute_name)
 				? related_folder->related_attribute_name
@@ -642,7 +643,10 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 			related_folder->drop_down_multi_select,
 			related_folder->recursive_level,
 			folder->row_level_non_owner_view_only,
-			folder->row_level_non_owner_forbid );
+			folder->row_level_non_owner_forbid,
+			folder->insert_permission,
+			folder->update_permission,
+			folder->lookup_permission );
 
 	if ( list_length(
 		folder->
@@ -867,7 +871,6 @@ LIST *related_folder_get_insert_element_list(
 		&related_folder->folder->html_help_file_anchor,
 		&related_folder->folder->
 			post_change_javascript,
-		&related_folder->folder->row_access_count,
 		&related_folder->folder->lookup_before_drop_down,
 		&related_folder->folder->data_directory,
 		&related_folder->folder->index_directory,
@@ -1081,7 +1084,6 @@ LIST *related_folder_get_update_element_list(
 		&related_folder->folder->html_help_file_anchor,
 		&related_folder->folder->
 			post_change_javascript,
-		&related_folder->folder->row_access_count,
 		&related_folder->folder->lookup_before_drop_down,
 		&related_folder->folder->data_directory,
 		&related_folder->folder->index_directory,
@@ -1250,7 +1252,6 @@ LIST *related_folder_get_mto1_related_folder_list(
 			&related_folder->folder->html_help_file_anchor,
 			&related_folder->folder->
 				post_change_javascript,
-			&related_folder->folder->row_access_count,
 			&related_folder->folder->lookup_before_drop_down,
 			&related_folder->folder->data_directory,
 			&related_folder->folder->index_directory,
@@ -1431,9 +1432,6 @@ LIST *related_folder_get_1tom_related_folder_list(
 			&related_folder->
 				one2m_related_folder->
 				post_change_javascript,
-			&related_folder->
-				one2m_related_folder->
-				row_access_count,
 			&related_folder->
 				one2m_related_folder->
 				lookup_before_drop_down,
@@ -2605,7 +2603,6 @@ LIST *related_folder_get_preselection_dictionary_list(
 			&related_folder->html_help_file_anchor,
 			&related_folder->
 				post_change_javascript,
-			&related_folder->row_access_count,
 			&related_folder->lookup_before_drop_down,
 			&related_folder->data_directory,
 			&related_folder->index_directory,
@@ -3127,6 +3124,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				LIST *related_folder_list,
 				char *application_name,
 				char *folder_name,
+				LIST *base_folder_attribute_list,
 				int recursive_level )
 {
 	RELATED_FOLDER *related_folder;
@@ -3174,7 +3172,6 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 			&related_folder->folder->html_help_file_anchor,
 			&related_folder->folder->
 				post_change_javascript,
-			&related_folder->folder->row_access_count,
 			&related_folder->folder->lookup_before_drop_down,
 			&related_folder->folder->data_directory,
 			&related_folder->folder->index_directory,
@@ -3201,6 +3198,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				(char *)0 /* attribute_name */,
 				(LIST *)0 /* mto1_isa_related_folder_list */,
 				(char *)0 /* role_name */ );
+
 
 			related_folder->folder->primary_attribute_name_list =
 				attribute_get_primary_attribute_name_list(
@@ -3239,6 +3237,13 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 					primary_attribute_name_list,
 				related_folder->related_attribute_name );
 
+		if ( related_folder_is_one2one_firewall(
+			related_folder->foreign_attribute_name_list,
+			base_folder_attribute_list ) )
+		{
+			continue;
+		}
+
 		list_append_pointer(
 			related_folder_list,
 			related_folder );
@@ -3248,6 +3253,8 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				related_folder_list,
 				application_name,
 				related_folder->folder->folder_name,
+				related_folder->folder->attribute_list
+					/* base_folder_attribute_list */,
 				recursive_level + 1 );
 
 	} while( list_next( local_related_folder_list ) );

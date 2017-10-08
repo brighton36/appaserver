@@ -520,6 +520,7 @@ enum event_parameter_return_value get_measurement_update_event_parameters(
 		}
 
 		if ( !*input_buffer ) continue;
+
 		if ( *input_buffer == '#' ) continue;
 
 		generic_load_set_international_date(

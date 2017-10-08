@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_hydrology/water_budget_flow.c		      	*/
+/* $APPASERVER_HOME/src_hydrology/water_budget_flow.c  	*/
 /* --------------------------------------------------- 	*/
 /* Freely available software: see Appaserver.org	*/
 /* --------------------------------------------------- 	*/
@@ -40,16 +40,6 @@
 #define DEFAULT_OUTPUT_MEDIUM			"table"
 #define KEY_DELIMITER				'/'
 #define FILENAME_STEM				"water_budger_flow"
-
-/*
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/water_budget_flow_%s_%s_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/water_budget_flow_%s_%s_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/water_budget_flow_%s_%s_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/water_budget_flow_%s_%s_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET	"%s://%s/%s/water_budget_flow_%s_%s_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/water_budget_flow_%s_%s_%d.csv"
-*/
 
 #define ROWS_BETWEEN_HEADING			20
 #define SELECT_LIST				 "measurement_date,measurement_time,measurement_value"
@@ -185,7 +175,7 @@ boolean populate_inflow_outflow_hash_table(
 WATER_BUDGET_FLOW_MEASUREMENT *new_measurement(
 					void );
 
-boolean water_budget_flow_output_easychart(
+boolean water_budget_flow_output_googlechart(
 				char *application_name,
 				char *begin_date,
 				char *end_date,
@@ -492,21 +482,29 @@ int main( int argc, char **argv )
 		appaserver_link_file->begin_date_string = begin_date;
 		appaserver_link_file->end_date_string = end_date;
 
-/*
-		sprintf( output_pipename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_date,
-			 end_date,
-			 process_id );
-*/
-
 		output_pipename =
 			appaserver_link_get_output_filename(
 				appaserver_link_file->
 					output_file->
 					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
 				appaserver_link_file->application_name,
 				appaserver_link_file->filename_stem,
 				appaserver_link_file->begin_date_string,
@@ -570,47 +568,6 @@ int main( int argc, char **argv )
 			 output_pipename );
 
 		output_pipe = popen( sys_string, "w" );
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_SPREADSHEET,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET,
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-*/
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
 
 		water_budget_flow_output_transmit(
 					output_pipe,
@@ -913,9 +870,9 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	if ( strcmp( output_medium, "easychart" ) == 0 )
+	if ( strcmp( output_medium, "googlechart" ) == 0 )
 	{
-		if ( !water_budget_flow_output_easychart(
+		if ( !water_budget_flow_output_googlechart(
 					application_name,
 					begin_date,
 					end_date,
@@ -2310,7 +2267,7 @@ void get_report_title(	char *title,
 	format_initial_capital( title, title );
 } /* get_report_title() */
 
-boolean water_budget_flow_output_easychart(
+boolean water_budget_flow_output_googlechart(
 				char *application_name,
 				char *begin_date,
 				char *end_date,
@@ -2321,51 +2278,8 @@ boolean water_budget_flow_output_easychart(
 				char *flow_units,
 				char *flow_units_converted )
 {
-	EASYCHARTS *easycharts;
-	FILE *chart_file;
-	char title[ 512 ];
-	int easycharts_width;
-	int easycharts_height;
 
-	get_report_title(	title,
-				aggregate_level,
-				flow_units,
-				flow_units_converted );
-
-	sprintf( title + strlen( title ), 
-		 "\\nFrom: %s to %s\n",
-		 begin_date,
-		 end_date );
-
-	application_constants_get_easycharts_width_height(
-			&easycharts_width,
-			&easycharts_height,
-			application_name );
-
-	easycharts =
-		easycharts_new_timeline_easycharts(
-			easycharts_width, easycharts_height );
-
-	easycharts_get_chart_filename(
-			&easycharts->chart_filename,
-			&easycharts->prompt_filename,
-			application_name,
-			document_root_directory,
-			getpid() );
-
-/*
-	easycharts->legend_on = 0;
-	easycharts->set_y_lower_range = 1;
-*/
-	easycharts->title = title;
-	easycharts->bold_labels = 0;
-	easycharts->bold_legends = 0;
-	easycharts->sample_scroller_on = 1;
-	easycharts->range_scroller_on = 1;
-
-	water_budget_flow_populate_easycharts_input_chart_list_datatypes(
-			easycharts->input_chart_list );
-
+#ifdef NOT_DEFINED
 	if ( !water_budget_flow_populate_easycharts_input_chart_list_data(
 			easycharts->input_chart_list,
 			inflow_outflow_hash_table,
@@ -2380,60 +2294,10 @@ boolean water_budget_flow_output_easychart(
 		easycharts_timeline_get_output_chart_list(
 			easycharts->input_chart_list );
 
-	chart_file = fopen( easycharts->chart_filename, "w" );
-
-	if ( !chart_file )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s(): cannot open %s\n",
-			__FILE__,
-			__FUNCTION__,
-			easycharts->chart_filename );
-		exit( 1 );
-	}
-
-	easycharts_output_all_charts(
-			chart_file,
-			easycharts->output_chart_list,
-			easycharts->highlight_on,
-			easycharts->highlight_style,
-			easycharts->point_highlight_size,
-			easycharts->series_labels,
-			easycharts->series_line_off,
-			easycharts->applet_library_archive,
-			easycharts->width,
-			easycharts->height,
-			easycharts->title,
-			easycharts->set_y_lower_range,
-			easycharts->legend_on,
-			easycharts->value_labels_on,
-			easycharts->sample_scroller_on,
-			easycharts->range_scroller_on,
-			easycharts->xaxis_decimal_count,
-			easycharts->yaxis_decimal_count,
-			easycharts->range_labels_off,
-			easycharts->value_lines_off,
-			easycharts->range_step,
-			easycharts->sample_label_angle,
-			easycharts->bold_labels,
-			easycharts->bold_legends,
-			easycharts->font_size,
-			easycharts->label_parameter_name,
-			1 /* include_sample_series_output */ );
-
-	easycharts_output_html( chart_file );
-
-	fclose( chart_file );
-
-	easycharts_output_graph_window(
-				application_name,
-				(char *)0 /* appaserver_mount_point */,
-				0 /* not with_document_output */,
-				process_name,
-				easycharts->prompt_filename,
-				(char *)0 /* where_clause */ );
+#endif
 	return 1;
-} /* water_budget_flow_output_easychart() */
+
+} /* water_budget_flow_output_googlechart() */
 
 boolean water_budget_flow_populate_easycharts_input_chart_list_data(
 			LIST *input_chart_list,

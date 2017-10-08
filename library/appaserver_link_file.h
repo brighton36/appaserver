@@ -10,7 +10,7 @@
 
 /* Constants */
 /* --------- */
-#define APPASERVER_LINK_EVERGLADES 	0
+#define APPASERVER_LINK_MINK	 	0
 #define APPASERVER_KEY			"appaserver"
 #define APPASERVER_DATA_KEY		"data"
 
@@ -103,6 +103,15 @@ char *appaserver_link_get_tail_half(
 		char *end_date_string,
 		pid_t process_id,
 		char *session,
+		char *extension );
+
+void appaserver_link_get_pid_filename(
+		char **output_filename,
+		char **prompt_filename,
+		char *application_name,
+		char *document_root_directory,
+		pid_t pid,
+		char *process_name,
 		char *extension );
 
 #endif

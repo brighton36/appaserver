@@ -63,7 +63,8 @@ void tax_form_report_PDF(		char *application_name,
 					char *sub_title,
 					char *document_root_directory,
 					char *process_name,
-					LIST *tax_form_category_list );
+					LIST *tax_form_category_list,
+					char *logo_filename );
 
 int main( int argc, char **argv )
 {
@@ -78,6 +79,7 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *output_medium;
 	LIST *tax_form_category_list;
+	char *logo_filename;
 
 	if ( argc != 6 )
 	{
@@ -136,6 +138,11 @@ int main( int argc, char **argv )
 	document_output_body(	document->application_name,
 				document->onload_control_string );
 
+	logo_filename =
+		application_constants_quick_fetch(
+			application_name,
+			"logo_filename" /* key */ );
+
 	if ( !ledger_get_report_title_sub_title(
 		title,
 		sub_title,
@@ -143,7 +150,8 @@ int main( int argc, char **argv )
 		application_name,
 		(char *)0 /* fund_name */,
 		as_of_date,
-		0 /* length_fund_name_list */ ) )
+		0 /* length_fund_name_list */,
+		logo_filename ) )
 	{
 		printf( "<h3>Error. No transactions.</h3>\n" );
 		document_close();
@@ -174,7 +182,8 @@ int main( int argc, char **argv )
 			sub_title,
 			appaserver_parameter_file->document_root,
 			process_name,
-			tax_form_category_list );
+			tax_form_category_list,
+			logo_filename );
 	}
 
 	document_close();
@@ -390,7 +399,8 @@ void tax_form_report_PDF(
 			char *sub_title,
 			char *document_root_directory,
 			char *process_name,
-			LIST *tax_form_category_list )
+			LIST *tax_form_category_list,
+			char *logo_filename )
 {
 	LATEX *latex;
 	char *latex_filename;
@@ -451,9 +461,7 @@ void tax_form_report_PDF(
 			dvi_filename,
 			working_directory,
 			0 /* not landscape_flag */,
-			application_constants_quick_fetch(
-				application_name,
-				"logo_filename" /* key */ ) );
+			logo_filename );
 
 	list_append_pointer(
 		latex->table_list,
@@ -529,23 +537,46 @@ LIST *build_PDF_row_list( LIST *tax_form_category_list )
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			tax_form_category->tax_form_line );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			tax_form_category->tax_form_line,
+			0 /* not large_bold */ );
 
 		format_initial_capital(
 			buffer,
 			tax_form_category->tax_form_category_name );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( buffer ) );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( timlib_place_commas_in_money(
 					tax_form_category->
 						balance_sum ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( timlib_place_commas_in_money(
+					tax_form_category->
+						balance_sum ) ),
+			0 /* not large_bold */ );
 
 	} while( list_next( tax_form_category_list ) );
 
@@ -699,16 +730,33 @@ LIST *build_detail_PDF_row_list( TAX_FORM_CATEGORY *tax_form_category )
 			buffer,
 			account->account_name );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( buffer ) );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( timlib_place_commas_in_money(
 					account->
 						latest_ledger->
 						balance ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( timlib_place_commas_in_money(
+					account->
+						latest_ledger->
+						balance ) ),
+			0 /* not large_bold */ );
 
 	} while( list_next( tax_form_category->account_list ) );
 

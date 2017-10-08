@@ -65,7 +65,8 @@ echo "select 	$units_select,						\
 		$datatype.bar_graph_yn,					\
 		$datatype.scale_graph_to_zero_yn,			\
 		$datatype.aggregation_sum_yn,				\
-		$datatype.set_negative_values_to_zero_yn		\
+		$datatype.set_negative_values_to_zero_yn,		\
+		$datatype.calibrated_yn					\
       from $datatype,$station_datatype 					\
       where ${station_datatype}.station = '$station'			\
         and $datatype.units is not null					\

@@ -205,7 +205,6 @@ int main( int argc, char **argv )
 			&appaserver->folder->notepad,
 			&appaserver->folder->html_help_file_anchor,
 			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->row_access_count,
 			&appaserver->folder->lookup_before_drop_down,
 			&appaserver->folder->data_directory,
 			&appaserver->folder->index_directory,
@@ -1131,7 +1130,6 @@ DICTIONARY *output_folder_detail(
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -1200,8 +1198,7 @@ DICTIONARY *output_folder_detail(
 			make_primary_keys_non_edit,
 			omit_delete_operation,
 			omit_operation_buttons,
-			update_yn,
-			lookup_unknown );
+			update_yn );
 
 	fetched_dictionary_list =
 		row_security->
@@ -1302,6 +1299,7 @@ DICTIONARY *output_folder_detail(
 		form->insert_update_key,
 		form->target_frame,
 		0 /* output_submit_reset_buttons_in_heading */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		caption_string,
@@ -1309,11 +1307,10 @@ DICTIONARY *output_folder_detail(
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	form_output_table_heading( form->regular_element_list, *form_number );
-
-	/* form_set_row_dictionary_list( form, fetched_dictionary_list ); */
 
 	form->row_dictionary_list = fetched_dictionary_list;
 
@@ -1358,13 +1355,6 @@ DICTIONARY *output_folder_detail(
 		( update_yn == 'y' ||
 		  !omit_operation_buttons );
 
-#ifdef OUTPUT_INSERT_BUTTON
-	output_insert_button =
-		(  role_folder->insert_yn == 'y' &&
-		  !omit_insert_flag &&
-		  !folder->row_level_non_owner_view_only );
-#endif
-
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
 		output_insert_button,
@@ -1374,7 +1364,8 @@ DICTIONARY *output_folder_detail(
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		0 /* not with_back_to_top_button */,
-		*form_number );
+		*form_number,
+		(LIST *)0 /* form_button_list */ );
 
 	(*form_number)++;
 

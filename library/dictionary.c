@@ -148,6 +148,7 @@ void dictionary_parse_multi_attribute_relation_operator_keys(
 	LIST *attribute_key_list;
 	char *full_key;
 	char *key, *data;
+	char full_parse_key[ 1024 ];
 	char delimiter_string[ 2 ];
 
 	/* Set the delimiter string */
@@ -186,16 +187,30 @@ void dictionary_parse_multi_attribute_relation_operator_keys(
 		do {
 			key = list_get_pointer( attribute_key_list );
 
+			if ( timlib_strncmp(
+				key,
+				QUERY_RELATION_OPERATOR_STARTING_LABEL ) == 0 )
+			{
+				strcpy( full_parse_key, key );
+			}
+			else
+			{
+				sprintf(full_parse_key,
+					"%s%s",
+					QUERY_RELATION_OPERATOR_STARTING_LABEL,
+					key );
+			}
+
 			if ( dictionary_exists_key(
 					dictionary,
-					key ) )
+					full_parse_key ) )
 			{
 				continue;
 			}
 
 			dictionary_set_pointer( 
 					dictionary, 
-					key,
+					strdup( full_parse_key ),
 					data );
 
 		} while( list_next( attribute_key_list ) );
@@ -594,8 +609,7 @@ DICTIONARY *dictionary_string2dictionary( char *dictionary_string )
         char data[ 65536 ];
 	int i;
 	char delimiter;
-
-	/* unescape_string( dictionary_string ); */
+	char pair_delimiter;
 
 	if ( character_exists( dictionary_string, '=' ) )
 	{
@@ -612,9 +626,19 @@ DICTIONARY *dictionary_string2dictionary( char *dictionary_string )
 		return (DICTIONARY *)0;
 	}
 
+	if ( character_exists( dictionary_string, '&' ) )
+		pair_delimiter = '&';
+	else
+	if ( character_exists( dictionary_string, '@' ) )
+		pair_delimiter = '@';
+	else
+		pair_delimiter = ',';
+
 	d = dictionary_large_new();
 
- 	for( i = 0; piece( pair_string, '&', dictionary_string, i ); i++ )
+ 	for(	i = 0;
+		piece( pair_string, pair_delimiter, dictionary_string, i );
+		i++ )
         {
                 piece( attribute, delimiter, pair_string, 0 );
 
@@ -1410,8 +1434,11 @@ DICTIONARY *copy_dictionary( DICTIONARY *dictionary )
 							key ) ) );
 		} while( list_next( key_list ) );
 	}
+
 	list_free_container( key_list );
+
 	return destination;
+
 } /* copy_dictionary() */
 
 DICTIONARY *dictionary_prepend_key(	DICTIONARY *dictionary,
@@ -2663,6 +2690,7 @@ void dictionary_trim_double_bracked_data( DICTIONARY *dictionary )
 	{
 		do {
 			key = list_get_pointer( key_list );
+
 			data = dictionary_get_data(
 					dictionary,
 					key );
@@ -2676,14 +2704,25 @@ void dictionary_trim_double_bracked_data( DICTIONARY *dictionary )
 char *dictionary_trim_double_bracked_string( char *string )
 {
 	int start, end;
+	int str_len;
 
-	if ( ( start = instr( "[", string, 1 ) ) != -1
-	&&   ( end = instr( "]", string, 1 ) ) != -1 )
+	str_len = strlen( string );
+
+	/* Don't trim middle brackets. */
+	/* --------------------------- */
+	if ( str_len
+	&&   *( string + str_len - 1 ) == ']' )
 	{
-		strcpy( string + start, string + end + 1 );
-		right_trim( string );
+		if ( ( start = instr( "[", string, 1 ) ) != -1
+		&&   ( end = instr( "]", string, 1 ) ) != -1 )
+		{
+			strcpy( string + start, string + end + 1 );
+			right_trim( string );
+		}
 	}
+
 	return string;
+
 } /* dictionary_trim_double_bracked_string() */
 
 int dictionary_delete_key( DICTIONARY *dictionary, char *key )
@@ -3301,7 +3340,8 @@ char *dictionary_get_attribute_where_clause(
 	char *translated_data;
 	char where_clause[ 65536 ];
 	char *where_ptr = where_clause;
-	char return_date[ 16 ];
+	char return_date[ 128 ];
+	char escaped_data[ 512 ];
 
 	key_list = dictionary_get_key_list( dictionary );
 
@@ -3335,10 +3375,13 @@ char *dictionary_get_attribute_where_clause(
 			}
 			else
 			{
+				strcpy( escaped_data, data );
+				timlib_escape_field( escaped_data );
+
 				where_ptr += sprintf(	where_ptr,
 							" and %s = '%s'",
 							key,
-							data );
+							escaped_data );
 			}
 		}
 	} while( list_next( key_list ) );
@@ -3517,8 +3560,10 @@ void dictionary_set_indexed_date_time_to_current(
 		do {
 			attribute = list_get( attribute_list );
 
-			if ( strcmp(	attribute->datatype,
-					"date_time" ) != 0 )
+			if ( timlib_strcmp(	attribute->datatype,
+						"date_time" ) != 0
+			&&   timlib_strcmp(	attribute->datatype,
+						"current_date_time" ) != 0 )
 			{
 				continue;
 			}
@@ -3544,7 +3589,9 @@ void dictionary_set_indexed_date_time_to_current(
 					strdup( date_time_string ) );
 			}
 		} while( list_next( attribute_list ) );
+
 	} /* for( index ) */
+
 } /* dictionary_set_indexed_date_time_to_current() */
 
 void dictionary_set_date_time_to_current(
@@ -3561,10 +3608,10 @@ void dictionary_set_date_time_to_current(
 	do {
 		attribute = list_get( attribute_list );
 
-		if ( strcmp(	attribute->datatype,
-				"date_time" ) != 0
-		&&   strcmp(	attribute->datatype,
-				"current_date_time" ) != 0 )
+		if ( timlib_strcmp(	attribute->datatype,
+					"date_time" ) != 0
+		&&   timlib_strcmp(	attribute->datatype,
+					"current_date_time" ) != 0 )
 		{
 			continue;
 		}

@@ -16,7 +16,7 @@ typedef struct
 {
 	char *application_name;
 	char *application_title;
-	char only_one_primary_yn;
+	/* char only_one_primary_yn; */
 	char *relative_source_directory;
 	char *background_color;
 	char *distill_directory;
@@ -61,8 +61,10 @@ boolean application_get_is_primary_application(	char *application_string );
 boolean application_is_primary_application(	char *application_string );
 char *application_get_chart_email_command_line(	char *application_string );
 
+/*
 boolean application_get_alternative_is_primary_application(
 						char *application_string );
+*/
 
 char *application_get_version(			char *application_string );
 

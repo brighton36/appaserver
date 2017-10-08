@@ -1,4 +1,4 @@
-/* library/insert_database.h						*/
+/* $APPASERVER_HOME/library/insert_database.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver insert_database ADT.				*/
 /*									*/

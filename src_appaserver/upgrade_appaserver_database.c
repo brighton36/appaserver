@@ -1,12 +1,12 @@
-/* --------------------------------------------------- 	*/
-/* upgrade_appaserver_databaase.c		       	*/
-/* --------------------------------------------------- 	*/
-/* 						       	*/
-/* Run this program after upgrading to a new version	*/
-/* of Appaserver.					*/
-/* 							*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* -------------------------------------------------------------- 	*/
+/* $APPASERVER_HOME/src_appaserver/upgrade_appaserver_databaase.c      	*/
+/* -------------------------------------------------------------- 	*/
+/* 						       			*/
+/* Run this program after upgrading to a new version			*/
+/* of Appaserver.							*/
+/* 									*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------- 	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -100,6 +100,8 @@ void do_upgrade(	char *application_name,
 			appaserver_parameter_file->appaserver_mount_point );
 
 	this_version = application_get_version( application_name );
+
+	if ( strcmp( this_version, "0.0" ) == 0 ) return;
 
 	do {
 		if ( strcmp( this_version, MINIMUM_VERSION ) <= 0 ) continue;

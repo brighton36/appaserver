@@ -1,16 +1,10 @@
 :
-# src_appaserver/monitor.sh
+# $APPASERVER_HOME/src_appaserver/monitor.sh
 # ---------------------------------------------
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
 
 default_delay_seconds=8
-
-#if [ "$#" -ne 1 ]
-#then
-#	echo "Usage: $0 delay_seconds" 1>&2
-#	exit 1
-#fi
 
 if [ "$#" -eq 1 ]
 then
@@ -56,18 +50,18 @@ do
 	df -h
 	sleep $delay_seconds
 
-	# Login log
-	# ---------
-	clear
-	echo "Login log"
-	tail -10 /var/log/auth.log
-	sleep $delay_seconds
-
 	# System messages
 	# ---------------
 	clear
 	echo "System messages"
-	tail -10 /var/log/messages
+
+	if [ -r /var/log/messages ]
+	then
+		tail -10 /var/log/messages
+	else
+		tail -10 /var/log/syslog
+	fi
+
 	sleep $delay_seconds
 
 	# MySQL log
@@ -77,13 +71,6 @@ do
 	tail -10 /var/log/mysql/error.log
 	sleep $delay_seconds
 
-	# Mail log
-	# --------
-	clear
-	echo "Mail log"
-	tail -10 /var/log/mail.log
-	sleep $delay_seconds
-
 	# Apache error log
 	# ----------------
 	clear
@@ -91,6 +78,20 @@ do
 	tail -10 /var/log/apache2/error.log
 	sleep $delay_seconds
 
+	# All the others
+	# --------------
+	find /var/log -name '*.log' -mtime 1 2>/dev/null	|
+	while read logfile
+	do
+		if [ -r $logfile ]
+		then
+			clear
+			echo "$logfile"
+			tail -10 $logfile
+			sleep $delay_seconds
+		fi
+
+	done
 done
 
 exit 0

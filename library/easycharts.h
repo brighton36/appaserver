@@ -320,7 +320,7 @@ LIST *easycharts_get_regression_point_list(
 				double *y_intercept,
 				double *standard_error_estimate,
 				LIST *point_list );
-void easycharts_output_grace_home_link(
+void easycharts_output_home_link(
 				void );
 void easycharts_output_graph_window(
 				char *application_name,

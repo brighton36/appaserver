@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/depreciation.h					*/
+/* $APPASERVER_HOME/src_accountancymodel/depreciation.h			*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver depreciation ADT.				*/
 /*									*/
@@ -10,6 +10,7 @@
 #define DEPRECIATION_H
 
 #include "ledger.h"
+#include "entity.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -35,6 +36,41 @@ typedef struct
 	char *database_transaction_date_time;
 	TRANSACTION *transaction;
 } DEPRECIATION;
+
+typedef struct
+{
+	LIST *entity_list;
+
+} DEPRECIATE_FIXED_ASSET;
+
+typedef struct
+{
+	char *asset_name;
+	char *serial_number;
+	char *recorded_date;
+	double extension;
+	int estimated_useful_life_years;
+	int estimated_useful_life_units;
+	int estimated_residual_value;
+	int declining_balance_n;
+	char *depreciation_method;
+	double accumulated_depreciation;
+	double database_accumulated_depreciation;
+	double depreciation_amount;
+	double database_depreciation_amount;
+} DEPRECIATE_PRIOR_FIXED_ASSET;
+
+typedef struct
+{
+	char *self_full_name;
+	char *self_street_address;
+	char *depreciation_date;
+	double depreciation_amount;
+	char *transaction_date_time;
+	char *database_transaction_date_time;
+	TRANSACTION *transaction;
+	LIST *depreciate_prior_fixed_asset_list;
+} DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION;
 
 /* Operations */
 /* ---------- */
@@ -176,5 +212,148 @@ double depreciation_units_of_production_get_amount(
 char *deprecation_get_prior_depreciation_date(
 			LIST *depreciation_list );
 
-#endif
+DEPRECIATE_FIXED_ASSET *depreciation_fixed_asset_depreciation_new(
+			char *application_name,
+			char *fund_name,
+			char *depreciation_date );
 
+LIST *depreciation_fixed_asset_get_entity_list(
+			char *application_name,
+			char *fund_name,
+			char *depreciation_date );
+
+LIST *depreciation_get_depreciable_fixed_purchase_record_list(
+			char *application_name,
+			char *fund_name );
+
+LIST *depreciation_get_depreciable_fixed_asset_purchase_list(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *fund_name,
+			char *depreciation_date );
+
+void depreciation_set_entity_list_transaction(
+			LIST *entity_list );
+
+void depreciation_fetch_purchase_fixed_asset_depreciation_list(
+			LIST *depreciable_fixed_asset_purchase_list,
+			char *application_name );
+
+char *depreciation_fetch_prior_depreciation_date(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *asset_name,
+			char *serial_number,
+			char *depreciation_date );
+
+void depreciation_fixed_asset_set_depreciation(
+			LIST *entity_list,
+			char *depreciation_date );
+
+void depreciation_fixed_asset_entity_set_depreciation(
+			double *entity_depreciation_amount,
+			LIST *depreciable_fixed_asset_purchase_list,
+			char *depreciation_date );
+
+void depreciation_fixed_asset_depreciation_table_display(
+			char *process_name,
+			LIST *entity_list );
+
+void depreciation_fixed_asset_depreciation_tree_display(
+			LIST *entity_list );
+
+void depreciation_fixed_asset_purchase_list_tree_display(
+			LIST *depreciable_fixed_asset_purchase_list );
+
+void depreciation_fixed_asset_purchase_list_table_display(
+			FILE *output_pipe,
+			char *full_name,
+			char *street_address,
+			double depreciation_amount,
+			LIST *depreciable_fixed_asset_purchase_list );
+
+boolean depreciation_date_exists(
+			char *application_name,
+			char *fund_name,
+			char *depreciation_date );
+
+void depreciation_fixed_asset_execute(
+			LIST *entity_list,
+			char *application_name,
+			char *fund_name,
+			char *depreciation_date );
+
+void depreciation_fixed_asset_insert_depreciation(
+			FILE *output_pipe,
+			char *full_name,
+			char *street_address,
+			LIST *depreciable_fixed_asset_purchase_list,
+			char *depreciation_date,
+			char *transaction_date_time );
+
+void depreciation_fixed_asset_insert_depreciation_entity_list(
+			LIST *entity_list,
+			char *depreciation_date );
+
+void depreciation_fixed_asset_insert_transaction_entity_list(
+			char *application_name,
+			LIST *entity_list );
+
+void depreciation_fixed_asset_insert_ledger_entity_list(
+			char *application_name,
+			char *fund_name,
+			LIST *entity_list );
+
+char *depreciation_fetch_max_depreciation_date(
+			char *application_name,
+			char *fund_name );
+
+void depreciation_fixed_asset_set_transaction(
+			LIST *entity_list );
+
+boolean depreciation_date_prior_exists(
+			char *application_name,
+			char *depreciation_date );
+
+char *depreciation_prior_fetch_max_depreciation_date(
+			char *application_name );
+
+LIST *depreciate_prior_fixed_asset_get_list(
+			char *application_name );
+
+DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_new(
+			void );
+
+DEPRECIATE_PRIOR_FIXED_ASSET *depreciate_prior_fixed_asset_parse(
+			char *input_buffer );
+
+char *depreciate_prior_fixed_asset_get_select(
+			void );
+
+DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION *
+	depreciate_prior_fixed_asset_depreciation_new(
+			char *application_name,
+			char *self_full_name,
+			char *self_street_address );
+
+void depreciation_prior_fixed_asset_table_display(
+			char *process_name,
+			LIST *depreciate_prior_fixed_asset_list );
+
+void depreciation_prior_fixed_asset_set_depreciation(
+			double *depreciation_amount,
+			LIST *depreciate_prior_fixed_asset_list,
+			char *prior_depreciation_date,
+			char *depreciation_date );
+
+void depreciation_prior_fixed_asset_insert_depreciation(
+			char *full_name,
+			char *street_address,
+			LIST *depreciate_prior_fixed_asset_list,
+			char *depreciation_date,
+			char *transaction_date_time );
+
+#endif

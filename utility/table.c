@@ -15,6 +15,7 @@
 /* Prototypes */
 /* ---------- */
 void setup_arg( NAME_ARG *arg, int argc, char **argv );
+
 void fetch_parameters(	NAME_ARG *arg, 
 			char **config_filename, 
 			char **input_filename, 

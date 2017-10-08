@@ -13,12 +13,7 @@
 #define MESSAGE_LEFT_POSITION			265
 #define MAP_POSITION_TOP			25
 #define MAP_POSITION_LEFT			220
-#define CHART_POSITION_TOP			50
-#define CHART_POSITION_LEFT			265
-#define CHART_WIDTH				800
 #define HISTORICAL_CHART_HEIGHT			400
-#define CURRENT_CHART_HEIGHT			500
-#define BACKGROUND_COLOR			"#effdff"
 #define MONTH_LIST_STRING "jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec"
 #define DATATYPE_QUANTUM_TOTAL			"total"
 #define LONG_TERM_CURRENT			"current"

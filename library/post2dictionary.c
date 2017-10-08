@@ -1,4 +1,4 @@
-/* post2dictionary.h 							*/
+/* $APPASERVER_HOME/library/post2dictionary.c				*/
 /* -------------------------------------------------------------------- */
 /* This is the post2dictionary function.				*/
 /*									*/
@@ -193,12 +193,6 @@ void post2dictionary_set_dictionary(	DICTIONARY *dictionary,
 	trim_index( trimmed_key, key );
 	search_replace_string( data, "\"", "'" );
 
-/*
-	char search_string[ 2 ];
-	sprintf( search_string, "%c", FOLDER_DATA_DELIMITER );
-	search_replace_string( data, search_string, "**" );
-*/
-
 	if ( strcmp( trimmed_key, key ) == 0 )
 	{
 		dictionary_set_pointer(	dictionary,
@@ -285,6 +279,7 @@ void post2dictionary_fetch(	char *destination,
 	char input_buffer[ MAX_INPUT_LINE ];
 
 	*destination = '\0';
+
 	while( get_line( input_buffer, input_stream ) )
 	{
 		if ( timlib_strncmp( input_buffer, post_key ) == 0 ) break;
@@ -352,12 +347,15 @@ boolean post2dictionary_spool_file(	char *spool_filename,
 	skip_line( input_stream );
 
 	false_alarm_buffer_length = 0;
+
 	while( ( c = getc( input_stream ) ) != EOF )
 	{
 		if ( c == *post_key )
 		{
 			post_key++;
+
 			if ( !*post_key ) break;
+
 			false_alarm_buffer[ false_alarm_buffer_length++ ] = c;
 		}
 		else
@@ -373,6 +371,7 @@ boolean post2dictionary_spool_file(	char *spool_filename,
 				}
 
 				post_key = post_key_anchor;
+
 				false_alarm_buffer_length = 0;
 
 				if ( c == *post_key )
@@ -394,6 +393,8 @@ boolean post2dictionary_spool_file(	char *spool_filename,
 	}
 
 	fclose( output_stream );
+
 	return 1;
+
 } /* post2dictionary_spool_file() */
 

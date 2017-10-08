@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* grant_select_to_user.c				*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/grant_select_to_user.c	*/
+/* ------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,18 +27,24 @@
 
 /* Constants */
 /* --------- */
+#define CREATE_USER_COMMAND	"create user"
+#define DROP_USER_COMMAND 	"drop user"
+
 #define ENCRYPTED_PASSWORD_LENGTH	41
 
 /* Prototypes */
 /* ---------- */
+/*
 char *get_ip_address(	char *application_name );
+*/
 
 char *get_revoke_only_sys_string(
-			char *login_name,
+			char *login_host_name,
 			char really_yn );
 
-char *get_sys_string(	char *application_name,
-			char *login_name,
+char *get_sys_string(	char **generated_password,
+			char *application_name,
+			char *login_host_name,
 			char really_yn );
 
 int main( int argc, char **argv )
@@ -47,18 +53,20 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *login_name;
 	char buffer[ 128 ];
+	char *connect_from_host;
+	char login_host_name[ 256 ];
 	char revoke_only_yn;
 	char really_yn;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
 	char *sys_string;
-	int results;
+	char *generated_password = {0};
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process login_name revoke_only_yn really_yn\n",
+"Usage: %s application process login_name connect_from_host revoke_only_yn really_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -66,8 +74,9 @@ int main( int argc, char **argv )
 	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
 	login_name = argv[ 3 ];
-	revoke_only_yn = *argv[ 4 ];
-	really_yn = *argv[ 5 ];
+	connect_from_host = argv[ 4 ];
+	revoke_only_yn = *argv[ 5 ];
+	really_yn = *argv[ 6 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -82,14 +91,7 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -111,30 +113,50 @@ int main( int argc, char **argv )
 
 	printf( "<h2>%s\n", format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	results = system( "date '+%x %H:%M'" );
+	system( "date '+%x %H:%M'" );
 	printf( "</h2>\n" );
 	fflush( stdout );
+
+	sprintf( login_host_name,
+		 "'%s'@'%s'",
+		 login_name,
+		 connect_from_host );
 
 	if ( revoke_only_yn == 'y' )
 	{
 		sys_string = get_revoke_only_sys_string(
-					login_name,
+					login_host_name,
 					really_yn );
 	}
 	else
 	{
-		sys_string = get_sys_string(	application_name,
-						login_name,
+		sys_string = get_sys_string(	&generated_password,
+						application_name,
+						login_host_name,
 						really_yn );
 	}
 
 /* fprintf( stderr, "%s\n", sys_string ); */
 
-	results = system( sys_string );
+	system( sys_string );
 
 	if ( really_yn == 'y' )
 	{
 		printf( "<p>Process complete.\n" );
+
+		if ( revoke_only_yn != 'y' )
+		{
+			printf(
+"<p>Password generated: %s\n", generated_password );
+
+			printf(
+"<p>Place this password in %s:/etc/appaserver_%s.config\n",
+			connect_from_host,
+			application_name );
+
+			printf(
+"<p>You may need to edit /etc/mysql/mysql.conf.d/mysqld.cnf and comment out \"bind-address = 127.0.0.1\"\n" );
+		}
 	}
 	else
 	{
@@ -150,243 +172,74 @@ int main( int argc, char **argv )
 	exit( 0 );
 } /* main() */
 
-#ifdef NOT_DEFINED
-char *get_sys_string(	char *application_name,
-			char *login_name,
+char *get_sys_string(	char **generated_password,
+			char *application_name,
+			char *login_host_name,
 			char really_yn )
 {
 	static char sys_string[ 2048 ];
-	char where[ 1024 ];
-	char where_join[ 512 ];
-	char *folder;
-	char sed_string[ 512 ];
 	char execution_process[ 512 ];
-	char delete_process[ 512 ];
+	char sed_string[ 512 ];
 	char testing_processes[ 1024 ];
-	char update_password_process[ 512 ];
 	char grant_update_process[ 512 ];
-	char *password;
-	char *ip_address;
+	char flush_privileges_process[ 512 ];
 
-	password = appaserver_user_get_password(
-					application_name,
-					login_name );
-
-	folder = "role_appaserver_user,role_folder";
-
-	strcpy( where_join, "role_appaserver_user.role = role_folder.role" );
-
-	sprintf( where,
-		 "( role_appaserver_user.login_name = '%s' and		"
-		 "permission in ('lookup','update') ) or		"
-		 "( role_folder.role like 'public%c' and		"
-		 "permission in ('lookup','update') ) or		"
-		 "( role_folder.folder = 'application' ) and		"
-		 "%s							",
-		 login_name,
-		 '%',
-		 where_join );
-
-	sprintf( update_password_process, "echo '' > /dev/null" );
-
-	/* Delete process */
-	/* -------------- */
-	if ( really_yn == 'y' )
-	{
-		sprintf( delete_process,
-"echo \"delete from user where user = '%s' and password = '';\" |"
-"sql.e '^' mysql mysql",
-		 	login_name );
-
-/*
-		if ( strlen( password ) == ENCRYPTED_PASSWORD_LENGTH
-		&&   *password == '*' )
-		{
-*/
-			sprintf( update_password_process,
-"echo \"update user set password = '%s' where user = '%s';flush privileges;\" |"
-"sql.e '^' mysql mysql",
-			password,
-			login_name );
-/*
-		}
-*/
-	}
-	else
-	{
-		sprintf( delete_process,
-"echo \"delete from user where user = '%s' and password = '';\" |"
-"html_paragraph_wrapper.e | html_table.e 'Delete Statement' '' '|'",
-		 	login_name );
-	}
-
-	/* Grant update process */
-	/* -------------------- */
+	/* Grant update to PROCESS to increment execution_count */
+	/* ---------------------------------------------------- */
 	if ( really_yn == 'y' )
 	{
 		sprintf( grant_update_process,
-"echo \"grant update on process to '%s';\" |"
+"echo \"grant update (execution_count ) on %s.process to %s;\" |"
 "sql.e '^'",
-		 	login_name );
-
+			application_name,
+		 	login_host_name );
 	}
 	else
 	{
 		sprintf( grant_update_process,
-"echo \"grant update on process to '%s';\" |"
+"echo \"grant update (execution_count) on %s.process to %s;\" |"
 "html_paragraph_wrapper.e | html_table.e 'Grant Update' '' '|'",
-		 	login_name );
+			application_name,
+		 	login_host_name );
+	}
+
+	if ( really_yn == 'y' )
+	{
+		sprintf( flush_privileges_process,
+"echo \"flush privileges;\" |"
+"sql.e '^'" );
+	}
+	else
+	{
+		sprintf( flush_privileges_process,
+"echo \"flush privileges;\" |"
+"html_paragraph_wrapper.e | html_table.e 'Flush Privileges' '' '|'" );
 	}
 
 	if ( really_yn == 'y' )
 	{
 		strcpy( testing_processes, "cat" );
 		strcpy( execution_process, "sql.e" );
+		*generated_password = timlib_generate_password();
 	}
 	else
 	{
 		sprintf(testing_processes,
 		 	"queue_top_bottom_lines.e 50			|"
 		 	"html_table.e 'Grant Statements' '' '|'	 " );
+
+		*generated_password = "**************************";
 		strcpy( execution_process, "cat" );
-		element_password_erase_data( password );
 	}
 
 	sprintf(	sed_string,
-			"sed 's/.*/grant select on & to %s;/'",
-			login_name );
-
-	ip_address = get_ip_address( application_name );
-
-	sprintf( sys_string,
-	"(echo \"grant usage on *.* to '%s'@'%s' identified by '%s';\"	;"
-	 "echo \"revoke all on *.* from %s;\"				;"
-	 "get_folder_data	application=%s				 "
-	 "			select=folder				 "
-	 "			folder=%s				 "
-	 "			where=\"%s\"				|"
-	 "grep -v '^null$'						|"
-	 "sed 's/^application$/%s_application/'				|"
-	 "%s								|"
-	 "sort -u)							|"
-	 "%s								|"
-	 "%s								|"
-	 "cat								;"
-	 "%s								;"
-	 "%s								;"
-	 "%s								 ",
-		 login_name,
-		 ip_address,
-		 password,
-		 login_name,
-		 application_name,
-		 folder,
-		 where,
-		 application_name,
-		 sed_string,
-		 testing_processes,
-		 execution_process,
-		 delete_process,
-		 update_password_process,
-		 grant_update_process );
-
-	return sys_string;
-
-} /* get_sys_string() */
-#endif
-
-char *get_sys_string(	char *application_name,
-			char *login_name,
-			char really_yn )
-{
-	static char sys_string[ 2048 ];
-	char sed_string[ 512 ];
-	char execution_process[ 512 ];
-	char delete_process[ 512 ];
-	char testing_processes[ 1024 ];
-	char update_password_process[ 512 ];
-	char grant_update_process[ 512 ];
-	char *password;
-	char *ip_address;
-
-	password = appaserver_user_get_password(
-					application_name,
-					login_name );
-
-	sprintf( update_password_process, "echo '' > /dev/null" );
-
-	/* Delete process */
-	/* -------------- */
-	if ( really_yn == 'y' )
-	{
-		sprintf( delete_process,
-"echo \"delete from user where user = '%s' and password = '';\" |"
-"sql.e '^' mysql mysql",
-		 	login_name );
-
-/*
-		if ( strlen( password ) == ENCRYPTED_PASSWORD_LENGTH
-		&&   *password == '*' )
-		{
-*/
-			sprintf( update_password_process,
-"echo \"update user set password = '%s' where user = '%s';flush privileges;\" |"
-"sql.e '^' mysql mysql",
-			password,
-			login_name );
-/*
-		}
-*/
-	}
-	else
-	{
-		sprintf( delete_process,
-"echo \"delete from user where user = '%s' and password = '';\" |"
-"html_paragraph_wrapper.e | html_table.e 'Delete Statement' '' '|'",
-		 	login_name );
-	}
-
-	/* Grant update process */
-	/* -------------------- */
-	if ( really_yn == 'y' )
-	{
-		sprintf( grant_update_process,
-"echo \"grant update on process to '%s';\" |"
-"sql.e '^'",
-		 	login_name );
-
-	}
-	else
-	{
-		sprintf( grant_update_process,
-"echo \"grant update on process to '%s';\" |"
-"html_paragraph_wrapper.e | html_table.e 'Grant Update' '' '|'",
-		 	login_name );
-	}
-
-	if ( really_yn == 'y' )
-	{
-		strcpy( testing_processes, "cat" );
-		strcpy( execution_process, "sql.e" );
-	}
-	else
-	{
-		sprintf(testing_processes,
-		 	"queue_top_bottom_lines.e 50			|"
-		 	"html_table.e 'Grant Statements' '' '|'	 " );
-		strcpy( execution_process, "cat" );
-		element_password_erase_data( password );
-	}
-
-	sprintf(	sed_string,
-			"sed 's/.*/grant select on & to %s;/'",
-			login_name );
-
-	ip_address = get_ip_address( application_name );
+			"sed \"s/.*/grant select on %s.& to %s;/\"",
+			application_name,
+			login_host_name );
 
 	sprintf( sys_string,
-	"(echo \"grant usage on *.* to '%s'@'%s' identified by '%s';\"	;"
-	 "echo \"revoke all on *.* from %s;\"				;"
+	 "(echo \"%s if exists %s;\"					;"
+	 "echo \"%s %s identified by '%s';\"				;"
 	 "application_folder_list.sh %s n				|"
 	 "grep -v '^null$'						|"
 	 "sed 's/^application$/%s_application/'				|"
@@ -396,27 +249,26 @@ char *get_sys_string(	char *application_name,
 	 "%s								|"
 	 "cat								;"
 	 "%s								;"
-	 "%s								;"
 	 "%s								 ",
-		 login_name,
-		 ip_address,
-		 password,
-		 login_name,
+		 DROP_USER_COMMAND,
+		 login_host_name,
+		 CREATE_USER_COMMAND,
+		 login_host_name,
+		 *generated_password,
 		 application_name,
 		 application_name,
 		 sed_string,
 		 testing_processes,
 		 execution_process,
-		 delete_process,
-		 update_password_process,
-		 grant_update_process );
+		 grant_update_process,
+		 flush_privileges_process );
 
 	return sys_string;
 
 } /* get_sys_string() */
 
 char *get_revoke_only_sys_string(
-			char *login_name,
+			char *login_host_name,
 			char really_yn )
 {
 	static char sys_string[ 1024 ];
@@ -425,41 +277,21 @@ char *get_revoke_only_sys_string(
 	{
 		sprintf( sys_string,
 	"echo \"revoke all on *.* from %s;\" | sql.e;"
-	"echo \"delete from user where user = '%s';\" | sql.e '^' mysql mysql;"
+	"echo \"drop user %s;\" | sql.e '^' mysql mysql;"
 	"echo \"flush privileges;\" | sql.e '^' mysql mysql",
-			 login_name,
-			 login_name );
+			 login_host_name,
+			 login_host_name );
 	}
 	else
 	{
 		sprintf( sys_string,
 "echo \"revoke all on *.* from %s; | sql.e\" | html_paragraph_wrapper;"
-"echo \"delete from user where user = '%s' | sql.e '^' mysql mysql\" | html_paragraph_wrapper;"
+"echo \"drop user %s | sql.e '^' mysql mysql\" | html_paragraph_wrapper;"
 "echo \"flush privileges; | sql.e '^' mysql mysql\" | html_paragraph_wrapper",
-			 login_name,
-			 login_name );
+			 login_host_name,
+			 login_host_name );
 	}
 
 	return sys_string;
 
 } /* get_revoke_only_sys_string() */
-
-char *get_ip_address( char *application_name )
-{
-	char *ip_address;
-	APPLICATION_CONSTANTS *application_constants;
-
-	application_constants = application_constants_new();
-	application_constants->dictionary =
-		application_constants_get_dictionary(
-			application_name );
-
-	if ( ! ( ip_address =
-		application_constants_fetch(
-			application_constants->dictionary,
-			"grant_select_ip_address" ) ) )
-	{
-		return "localhost";
-	}
-	return ip_address;
-} /* get_ip_address() */

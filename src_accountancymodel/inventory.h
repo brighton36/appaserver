@@ -650,6 +650,10 @@ void inventory_purchase_list_set_capitalized_unit_cost(
 char *inventory_balance_list_display(
 				LIST *inventory_balance_list );
 
+void inventory_balance_list_table_display(
+				FILE *output_pipe,
+				LIST *inventory_balance_list );
+
 LIST *inventory_get_latest_inventory_purchase_list(
 				char *application_name,
 				char *inventory_name );
@@ -661,18 +665,15 @@ INVENTORY_COST_ACCOUNT *inventory_get_or_set_cost_account(
 				LIST *inventory_cost_account_list,
 				char *account_name );
 
-TRANSACTION *inventory_purchase_build_transaction(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table );
-
 char *inventory_get_inventory_account_name(
 				char *application_name,
 				char *inventory_name );
+
+void inventory_folder_table_display(
+				FILE *output_pipe,
+				char *application_name,
+				char *inventory_name,
+				char *heading );
 
 #endif
 

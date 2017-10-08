@@ -66,16 +66,19 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	escape_character.e						\
 	binary_count.e							\
 	decimal_count.e							\
+	payroll_period.e						\
 	location_convert.e						\
 	html_encode_quote_and_ampersand.e				\
 	date_grandfather_father_son.e					\
 	trim_until_character.e column_grep.e tee_process.e		\
 	group.e add_line.e update_statement.e label.e			\
 	group_sum.e							\
-	breakin_whitelist.e						\
+	group_trim.e							\
+	ufw_whitelist.e							\
 	group_date_time.e						\
 	delimiter2padded_columns.e					\
 	trim.e count.e random.e start_time.e stop_time.e		\
+	trim_length.e							\
 	reverse.e							\
 	printer_control.e days_passed.e format_stamp.e			\
 	format_stamp_undo.e menu.e select2delimiter.e			\
@@ -106,7 +109,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	append_escaped_backslash_cr.e joinfiles.e count_alpha.e		\
 	isolate_line.e delete_statement.e remove_duplicate_rows.e	\
 	trim_right_until_character.e make_pleasant.e 			\
-	append_radio_html.e merge_n_groups.e sedmv.e			\
+	append_radio_html.e merge_n_groups.e 				\
 	commas_in_long.e each_week.e table.e				\
 	statistics_on_group.e range.e parse_post.e			\
 	decode_html_post.e dayofyear2date.e html_wrapper.e		\
@@ -124,7 +127,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	piece_shift_left.e						\
 	piece_shift_right.e						\
 	html_paragraph_wrapper.e piece_replace.e			\
-	yesterday.e julian_time_list.e date.e date2week.e piece_grep.e	\
+	yesterday.e julian_time_list.e date.e piece_grep.e		\
 	findbig.e padspace.e insert_string.e date_add_days.e		\
 	julian_add_hours.e						\
 	findtoday.e							\
@@ -155,6 +158,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	format_initial_capital.e					\
 	database_management_system.e					\
 	grace_histogram.e						\
+	google_timechart.e						\
 	grace_scatterplot.e						\
 	make_checks.e							\
 	increment.e							\
@@ -169,6 +173,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	search_replace_string.e						\
 	filename_date_older.e						\
 	in_clause.e							\
+	where.e								\
 	real_time2annual_period.e					\
 	mail_if_output.e						\
 	time_hhmm2hhcolonmm.e						\
@@ -223,6 +228,16 @@ fifowrite.e: fifowrite.c						\
 		${APPASERVER_LIBRARY}					\
 		fifowrite.c 						\
 		-o fifowrite.e
+
+google_timechart.e: google_timechart.c					\
+	${LIBRARY}/google_chart.o ${STANDARD_LIBRARY}
+	$(CC)    ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		google_timechart.c 					\
+		${LIBRARY}/google_chart.o				\
+		-o google_timechart.e
 
 grace_histogram.e: grace_histogram.c					\
 	${LIBRARY}/grace.o ${STANDARD_LIBRARY} ${LIBRARY}/histogram.o
@@ -1009,6 +1024,13 @@ in_clause.e: in_clause.c
 		${STANDARD_LIBRARY}					\
 		-o in_clause.e
 
+where.e: where.c
+	$(CC) 	${CFLAGS} -I${LIBRARY} where.c	 			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		-o where.e
+
 pivot_table.e: pivot_table.c						\
 		${LIBRARY}/pivot_table.o
 	$(CC) 	${CFLAGS} -I${LIBRARY} pivot_table.c 			\
@@ -1043,11 +1065,23 @@ trim.e: trim.c
 		${STANDARD_LIBRARY}					\
 		-o trim.e
 
+trim_length.e: trim_length.c ${APPASERVER_LIBRARY}
+	$(CC) 	${CFLAGS} -I${LIBRARY} trim_length.c 			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o trim_length.e
+
 group.e: group.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} group.c 				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o group.e
+
+group_trim.e: group_trim.c
+	$(CC) 	${CFLAGS} -I${LIBRARY} group_trim.c			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o group_trim.e
 
 group_sum.e: group_sum.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} group_sum.c 			\
@@ -1055,12 +1089,15 @@ group_sum.e: group_sum.c
 		${STANDARD_LIBRARY}					\
 		-o group_sum.e
 
-breakin_whitelist.e: breakin_whitelist.c ${APPASERVER_LIBRARY}
-	$(CC) 	${CFLAGS} -I${LIBRARY} breakin_whitelist.c		\
+ufw_whitelist.e: ufw_whitelist.c ${APPASERVER_LIBRARY}
+	$(CC) 	${CFLAGS} -I${LIBRARY} ufw_whitelist.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
-		-o breakin_whitelist.e
+		-o ufw_whitelist.e
+		touch ufw_blacklist.e
+		rm ufw_blacklist.e
+		ln ufw_whitelist.e ufw_blacklist.e
 
 group_date_time.e: group_date_time.c					\
 	${LIBRARY}/name_arg.o
@@ -1426,12 +1463,6 @@ date_min_max.e: date_min_max.c ${LIBRARY}/date.o ${LIBRARY}/julian.o
 		${STANDARD_LIBRARY}					\
 		-o date_min_max.e
 
-date2week.e: date2week.c
-	$(CC)	${CFLAGS} -I${LIBRARY} date2week.c			\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${STANDARD_LIBRARY}					\
-		-o date2week.e
-
 julian_time_list.e: julian_time_list.c					\
 		${LIBRARY}/julian_time_double_list.o
 	$(CC)	${CFLAGS} -I${LIBRARY} julian_time_list.c		\
@@ -1631,4 +1662,12 @@ subtract_list.e: subtract_list.c
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o subtract_list.e
+
+payroll_period.e: payroll_period.c ${APPASERVER_LIBRARY}		\
+		${LIBRARY}/name_arg.o
+	$(CC)	${CFLAGS} -I${LIBRARY} payroll_period.c			\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${LIBRARY}/name_arg.o					\
+		-o payroll_period.e
 

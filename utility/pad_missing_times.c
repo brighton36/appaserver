@@ -1,4 +1,4 @@
-/* utility/pad_missing_times.c				*/
+/* $APPASERVER_HOME/utility/pad_missing_times.c		*/
 /* ---------------------------------------------------- */
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
@@ -77,8 +77,7 @@ int main( int argc, char **argv )
 	time_offset = atoi( time_offset_buffer );
 	value_offset = atoi( value_offset_buffer );
 
-	aggregate_level =
-		aggregate_level_get_aggregate_level( argv[ 3 ] );
+	aggregate_level = aggregate_level_get_aggregate_level( argv[ 3 ] );
 	starting_date_string = argv[ 4 ];
 	starting_time_string = argv[ 5 ];
 	ending_date_string = argv[ 6 ];
@@ -103,6 +102,8 @@ int main( int argc, char **argv )
 
 	ticker_date_time_pipe = popen( sys_string, "r" );
 
+	timlib_reset_line_queue();
+
 	while( get_line( input_buffer, stdin ) )
 	{
 		if ( ! piece(
@@ -111,12 +112,12 @@ int main( int argc, char **argv )
 				input_buffer,
 				date_offset ) )
 		{
-			fprintf( stderr,
-	"ERROR in %s/%d: cannot get date from (%s)\n",
+			fprintf(stderr,
+				"Warning in %s/%d: cannot get date from (%s)\n",
 		 		argv[ 0 ],
 		 		__LINE__,
 		 		input_buffer );
-			exit( 1 );
+			continue;
 		}
 
 		if ( time_offset != -1 )
@@ -126,12 +127,12 @@ int main( int argc, char **argv )
 					input_buffer,
 					time_offset ) )
 			{
-				fprintf( stderr,
-		"ERROR in %s/%d: cannot get date from (%s)\n",
+				fprintf(stderr,
+				"Warning in %s/%d: cannot get date from (%s)\n",
 			 		argv[ 0 ],
 			 		__LINE__,
 			 		input_buffer );
-				exit( 1 );
+				continue;
 			}
 		}
 		else
@@ -144,30 +145,59 @@ int main( int argc, char **argv )
 				input_date_string,
 				input_time_string );
 
-		date_set_yyyy_mm_dd_hhmm(
+		if ( !date_set_yyyy_mm_dd_hhmm_delimited(
 				input_date,
 				input_date_time_string,
-				'^' );
+				0 /* date_offset */,
+				1 /*time_offset */,
+				'^' ) )
+		{
+			fprintf( stderr,
+			"Warning in %s/%s()/%d: invalid date_time of (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_date_time_string );
+			continue;
+		}
 
 		while( 1 )
 		{
-			if ( !get_line(	ticker_date_time_string,
-					ticker_date_time_pipe ) )
+			if ( !get_line_queue(	ticker_date_time_string,
+						ticker_date_time_pipe ) )
 			{
 				break;
 			}
 
-			date_set_yyyy_mm_dd_hhmm(
+			if ( !date_set_yyyy_mm_dd_hhmm_delimited(
 					ticker_date,
 					ticker_date_time_string,
-					'^' );
+					0 /* date_piece */,
+					1 /* time_piece */,
+					'^' ) )
+			{
+				fprintf( stderr,
+			"ERROR in %s/%s()/%d: invalid date_time of (%s)\n",
+				 	__FILE__,
+				 	__FUNCTION__,
+				 	__LINE__,
+				 	ticker_date_time_string );
+				exit( 1 );
+			}
 
-			if ( ticker_date->current >= input_date->current )
+			if ( input_date->current == ticker_date->current )
 			{
 				break;
 			}
-
-			output_null_value(
+			else
+			if ( input_date->current < ticker_date->current )
+			{
+				unget_line_queue( ticker_date_time_string );
+				break;
+			}
+			else
+			{
+				output_null_value(
 					delimiter,
 					date_get_yyyy_mm_dd(
 						ticker_date_buffer,
@@ -180,7 +210,9 @@ int main( int argc, char **argv )
 					time_offset,
 				        value_offset,
 					append_string );
+			}
 		}
+
 		printf( "%s\n", input_buffer );
 
 	}

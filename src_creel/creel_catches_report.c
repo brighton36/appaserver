@@ -1719,7 +1719,7 @@ void creel_catches_report_output_stacked_chart(
 		easycharts_height = EASYCHARTS_HEIGHT;
 
 	sprintf(applet_library_archive,
-		"/%s/%s",
+		"/appaserver/%s/%s",
 		application_name,
 		EASYCHARTS_JAR_FILE );
 

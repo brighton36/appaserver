@@ -15,12 +15,15 @@
 #include "appaserver_library.h"
 #include "application_constants.h"
 #include "list.h"
+#include "folder.h"
 #include "column.h"
 #include "date_convert.h"
 #include "document.h"
 #include "application.h"
 #include "ledger.h"
+#include "purchase.h"
 #include "inventory.h"
+#include "customer.h"
 
 ELEMENT *ledger_element_new( char *element_name )
 {
@@ -167,15 +170,26 @@ ACCOUNT *ledger_account_fetch(	char *application_name,
 
 } /* ledger_account_fetch() */
 
-char *ledger_account_get_select( void )
+char *ledger_account_get_select( char *application_name )
 {
 	char *select;
 
-	select =
+	if ( ledger_fund_attribute_exists(
+			application_name,
+			"account" ) )
+	{
+		select =
 "account,fund,subclassification,display_order,hard_coded_account_key";
+	}
+	else
+	{
+		select =
+"account,null,subclassification,display_order,hard_coded_account_key";
+	}
 
 	return select;
-}
+
+} /* ledger_account_get_select() */
 
 ACCOUNT *ledger_subclassification_fund_seek_account(
 				LIST *account_list,
@@ -263,7 +277,7 @@ LIST *ledger_get_account_list(	char *application_name,
 	if ( account_list ) return account_list;
 
 	account_list = list_new();
-	select = ledger_account_get_select();
+	select = ledger_account_get_select( application_name );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -355,7 +369,7 @@ void ledger_account_load(	char **fund_name,
 	char sys_string[ 1024 ];
 	char *results;
 
-	select = ledger_account_get_select();
+	select = ledger_account_get_select( application_name );
 
 	sprintf(	where,
 			"account = '%s'",
@@ -365,7 +379,7 @@ void ledger_account_load(	char **fund_name,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=account		"
 		 "			where=\"%s\"		",
 		 application_name,
@@ -893,7 +907,7 @@ LIST *ledger_subclassification_quickly_get_account_list(
 	FILE *input_pipe;
 
 	account_list = list_new();
-	select = ledger_account_get_select();
+	select = ledger_account_get_select( application_name );
 
 	sprintf(where,
 		"subclassification = '%s'",
@@ -1007,6 +1021,7 @@ LIST *ledger_subclassification_get_account_list(
 } /* ledger_subclassification_get_account_list() */
 
 LIST *ledger_element_get_subclassification_list(
+					double *element_total,
 					char *application_name,
 					char *element_name,
 					char *fund_name,
@@ -1018,6 +1033,8 @@ LIST *ledger_element_get_subclassification_list(
 	char where[ 256 ];
 	char subclassification_name[ 128 ];
 	FILE *input_pipe;
+
+	*element_total = 0.0;
 
 	sprintf( where, "element = '%s'", element_name );
 
@@ -1046,6 +1063,8 @@ LIST *ledger_element_get_subclassification_list(
 				subclassification->subclassification_name,
 				fund_name,
 				as_of_date );
+
+		*element_total += subclassification->subclassification_total;
 
 		list_append_pointer(	subclassification_list,
 					subclassification );
@@ -1132,6 +1151,7 @@ LIST *ledger_get_element_list(	char *application_name,
 
 		element->subclassification_list =
 			ledger_element_get_subclassification_list(
+				&element->element_total,
 				application_name,
 				element->element_name,
 				fund_name,
@@ -1155,19 +1175,29 @@ LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 
 	latex_row = latex_new_latex_row();
 
-	list_append_pointer(
+	latex_append_column_data_list(
 		latex_row->column_data_list,
-		"\\Large \\bf Liabilities Plus Equity" );
+		strdup( "Liabilities Plus Equity" ),
+		1 /* large_bold */ );
 
-	list_append_pointer( latex_row->column_data_list, "" );
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		strdup( "" ),
+		0 /* not large_bold */ );
 
 	if ( !aggregate_subclassification )
-		list_append_pointer( latex_row->column_data_list, "" );
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+	}
 
-	list_append_pointer(
+	latex_append_column_data_list(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
-			   liabilities_plus_equity ) ) );
+			   liabilities_plus_equity ) ),
+		0 /* not large_bold */ );
 
 	return latex_row;
 
@@ -1175,7 +1205,8 @@ LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 
 LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 				double net_income,
-				boolean is_statement_of_activities )
+				boolean is_statement_of_activities,
+				double percent_denominator )
 {
 	LATEX_ROW *latex_row;
 
@@ -1183,23 +1214,49 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 
 	if ( is_statement_of_activities )
 	{
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"\\bf Change in Net Assets" );
+			"\\bf Change in Net Assets",
+			0 /* not large_bold */ );
 	}
 	else
 	{
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"\\bf Net Income" );
+			"\\bf Net Income",
+			0 /* not large_bold */ );
 	}
 
-	list_append_pointer( latex_row->column_data_list, "" );
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
 
-	list_append_pointer(
+	latex_append_column_data_list(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
-			   net_income ) ) );
+			   net_income ) ),
+		0 /* not large_bold */ );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+		double percent_of_total;
+
+		percent_of_total =
+			( net_income /
+	  		percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+	 		"%.1lf%c",
+	 		percent_of_total,
+	 		'%' );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+	}
 
 	return latex_row;
 
@@ -1207,7 +1264,8 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 
 LATEX_ROW *ledger_get_latex_net_income_row(
 				double net_income,
-				boolean is_statement_of_activities )
+				boolean is_statement_of_activities,
+				double percent_denominator )
 {
 	LATEX_ROW *latex_row;
 
@@ -1215,24 +1273,54 @@ LATEX_ROW *ledger_get_latex_net_income_row(
 
 	if ( is_statement_of_activities )
 	{
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"\\Large \\bf Change in Net Assets" );
+			"Change in Net Assets",
+			1 /* not large_bold */ );
 	}
 	else
 	{
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"\\Large \\bf Net Income" );
+			"Net Income",
+			1 /* not large_bold */ );
 	}
 
-	list_append_pointer( latex_row->column_data_list, "" );
-	list_append_pointer( latex_row->column_data_list, "" );
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
 
-	list_append_pointer(
+	latex_append_column_data_list(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_append_column_data_list(
 		latex_row->column_data_list,
 		strdup( place_commas_in_money(
-			   net_income ) ) );
+			   net_income ) ),
+		0 /* not large_bold */ );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+		double percent_of_total;
+
+		percent_of_total =
+			( net_income /
+	  		percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+	 		"%.1lf%c",
+	 		percent_of_total,
+	 		'%' );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( buffer ),
+			0 /* not large_bold */ );
+	}
 
 	return latex_row;
 
@@ -1245,13 +1333,11 @@ LIST *ledger_get_subclassification_latex_row_list(
 					boolean element_accumulate_debit )
 {
 	LIST *row_list;
-	double subclassification_amount;
-	ACCOUNT *account;
 	char format_buffer[ 128 ];
 	SUBCLASSIFICATION *subclassification;
-	double latest_ledger_balance;
 	int first_time = 1;
 	LATEX_ROW *latex_row;
+	int non_empty_subclassification_list_length;
 
 	*total_element = 0.0;
 
@@ -1270,11 +1356,12 @@ LIST *ledger_get_subclassification_latex_row_list(
 			 "\\large \\bf %s",
 			 element_name );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
-					format_buffer ) ) );
+					format_buffer ) ),
+			0 /* not large_bold */ );
 
 		first_time = 0;
 
@@ -1287,6 +1374,10 @@ LIST *ledger_get_subclassification_latex_row_list(
 				subclassification_list,
 				element_accumulate_debit ) );
 	}
+
+	non_empty_subclassification_list_length =
+		ledger_get_non_empty_subclassification_list_length(
+			subclassification_list );
 
 	list_rewind( subclassification_list );
 
@@ -1303,9 +1394,15 @@ LIST *ledger_get_subclassification_latex_row_list(
 			continue;
 		}
 
-		if ( !list_rewind( subclassification->account_list ) )
+		if ( timlib_double_virtually_same(
+			subclassification->subclassification_total,
+			0.0 ) )
+		{
 			continue;
+		}
 
+		/* Display the element name for the first subclassification */
+		/* -------------------------------------------------------- */
 		if ( first_time )
 		{
 			latex_row = latex_new_latex_row();
@@ -1315,68 +1412,48 @@ LIST *ledger_get_subclassification_latex_row_list(
 				 "\\large \\bf %s",
 				 element_name );
 
-			list_append_pointer(
+			latex_append_column_data_list(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
-						format_buffer ) ) );
+						format_buffer ) ),
+				0 /* not large_bold */ );
 
 			first_time = 0;
 		}
 
-		subclassification_amount = 0.0;
+		*total_element += subclassification->subclassification_total;
 
-		do {
-			account =
-				list_get_pointer(
-					subclassification->account_list );
-
-			if ( !account->latest_ledger
-			||   !account->latest_ledger->balance )
-				continue;
-
-			if (	element_accumulate_debit ==
-				account->accumulate_debit )
-			{
-				latest_ledger_balance =
-					account->latest_ledger->balance;
-			}
-			else
-			{
-				latest_ledger_balance =
-					0.0 - account->latest_ledger->balance;
-			}
-
-			*total_element += latest_ledger_balance;
-
-			subclassification_amount += latest_ledger_balance;
-
-		} while( list_next( subclassification->account_list ) );
-
-		if ( !timlib_double_virtually_same(
-			subclassification_amount,
-			0.0 )
-		&&   list_length( subclassification_list ) > 1 )
+		/* ------------------------------------- */
+		/* If only one subclassification,	 */
+		/* then only display the element total.	 */
+		/* ------------------------------------- */
+		if ( non_empty_subclassification_list_length == 1 )
 		{
-			latex_row = latex_new_latex_row();
-			list_append_pointer( row_list, latex_row );
-
-			sprintf( format_buffer,
-			 	 "%s",
-			 	 subclassification->
-					subclassification_name );
-
-			list_append_pointer(
-				latex_row->column_data_list,
-				strdup( format_initial_capital(
-						format_buffer,
-						format_buffer ) ) );
-
-			list_append_pointer(
-				latex_row->column_data_list,
-				strdup( place_commas_in_money(
-					   subclassification_amount ) ) );
+			continue;
 		}
+
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		sprintf( format_buffer,
+		 	 "%s",
+		 	 subclassification->
+				subclassification_name );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ),
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   subclassification->
+					subclassification_total ) ),
+			0 /* not large_bold */ );
 
 	} while( list_next( subclassification_list ) );
 
@@ -1401,28 +1478,33 @@ LIST *ledger_get_subclassification_latex_row_list(
 			 	element_name );
 		}
 
-		 format_initial_capital( format_buffer, format_buffer );
+		format_initial_capital( format_buffer, format_buffer );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			strdup( format_buffer ) );
+			strdup( format_buffer ),
+			0 /* not large_bold */ );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"" );
+			strdup( "" ),
+			0 /* not large_bold */ );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
-				   *total_element ) ) );
+				   *total_element ) ),
+			0 /* not large_bold */ );
 
 		/* Blank line */
 		/* ---------- */
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
-		list_append_pointer(
+
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"" );
+			strdup( "" ),
+			0 /* not large_bold */ );
 	}
 
 	return row_list;
@@ -1493,14 +1575,29 @@ LIST *ledger_get_subclassification_beginning_latex_row_list(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( LEDGER_BEGINNING_BALANCE_LABEL ) );
+*/
 
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			LEDGER_BEGINNING_BALANCE_LABEL,
+			0 /* not large_bold */ );
+
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
 				   subclassification_amount ) ) );
+*/
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( place_commas_in_money(
+				   subclassification_amount ) ),
+			0 /* not large_bold */ );
 
 		return row_list;
 
@@ -1513,7 +1610,8 @@ LIST *ledger_get_subclassification_beginning_latex_row_list(
 LIST *ledger_get_latex_row_list(	double *total_element,
 					LIST *subclassification_list,
 					char *element_name,
-					boolean element_accumulate_debit )
+					boolean element_accumulate_debit,
+					double percent_denominator )
 {
 	LIST *row_list;
 	double subclassification_amount;
@@ -1523,6 +1621,7 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 	double latest_ledger_balance;
 	int first_time = 1;
 	LATEX_ROW *latex_row;
+	double percent_of_total;
 
 	*total_element = 0.0;
 
@@ -1541,11 +1640,12 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 			 "\\large \\bf %s",
 			 element_name );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
-					format_buffer ) ) );
+					format_buffer ) ),
+			0 /* not large_bold */ );
 
 		first_time = 0;
 
@@ -1586,11 +1686,12 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				 "\\large \\bf %s",
 				 element_name );
 
-			list_append_pointer(
+			latex_append_column_data_list(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
-						format_buffer ) ) );
+						format_buffer ) ),
+				0 /* not large_bold */ );
 
 			first_time = 0;
 		}
@@ -1605,11 +1706,12 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				 subclassification->
 					subclassification_name );
 
-			list_append_pointer(
+			latex_append_column_data_list(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
-						format_buffer ) ) );
+						format_buffer ) ),
+				0 /* not large_bold */ );
 		}
 
 		subclassification_amount = 0.0;
@@ -1646,17 +1748,48 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 				latex_row = latex_new_latex_row();
 				list_append_pointer( row_list, latex_row );
 
-				list_append_pointer(
+				latex_append_column_data_list(
 					latex_row->column_data_list,
 					strdup( format_initial_capital(
 							format_buffer,
 							account->
-							    account_name ) ) );
+							    account_name ) ),
+					0 /* not large_bold */ );
 
-				list_append_pointer(
+				latex_append_column_data_list(
 					latex_row->column_data_list,
 					strdup( place_commas_in_money(
-					   	latest_ledger_balance ) ) );
+					   	     latest_ledger_balance ) ),
+					0 /* not large_bold */ );
+
+				if ( percent_denominator )
+				{
+					char buffer[ 128 ];
+
+					latex_append_column_data_list(
+						latex_row->column_data_list,
+						strdup( "" ),
+						0 /* not large_bold */ );
+
+					latex_append_column_data_list(
+						latex_row->column_data_list,
+						strdup( "" ),
+						0 /* not large_bold */ );
+
+					percent_of_total =
+						( latest_ledger_balance /
+				  		percent_denominator ) * 100.0;
+
+					sprintf( buffer,
+				 		"%.1lf%c",
+				 		percent_of_total,
+				 		'%' );
+
+					latex_append_column_data_list(
+						latex_row->column_data_list,
+						strdup( buffer ),
+						0 /* not large_bold */ );
+				}
 			}
 	
 			*total_element += latest_ledger_balance;
@@ -1699,20 +1832,47 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 						subclassification_name );
 			}
 
-			list_append_pointer(
+			latex_append_column_data_list(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
-						format_buffer ) ) );
+						format_buffer ) ),
+				0 /* not large_bold */ );
 
-			list_append_pointer(
+			latex_append_column_data_list(
 				latex_row->column_data_list,
-				"" );
+				strdup( "" ),
+				0 /* not large_bold */ );
 
-			list_append_pointer(
+			latex_append_column_data_list(
 				latex_row->column_data_list,
 				strdup( place_commas_in_money(
-					   subclassification_amount ) ) );
+					   subclassification_amount ) ),
+				0 /* not large_bold */ );
+
+			if ( percent_denominator )
+			{
+				char buffer[ 128 ];
+
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( "" ),
+					0 /* not large_bold */ );
+
+				percent_of_total =
+					( subclassification_amount /
+			  		percent_denominator ) * 100.0;
+
+				sprintf( buffer,
+			 		"%.1lf%c",
+			 		percent_of_total,
+			 		'%' );
+
+				latex_append_column_data_list(
+					latex_row->column_data_list,
+					strdup( buffer ),
+					0 /* not large_bold */ );
+			}
 		}
 
 	} while( list_next( subclassification_list ) );
@@ -1740,30 +1900,55 @@ LIST *ledger_get_latex_row_list(	double *total_element,
 
 		 format_initial_capital( format_buffer, format_buffer );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			strdup( format_buffer ) );
+			strdup( format_buffer ),
+			0 /* not large_bold */ );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"" );
+			strdup( "" ),
+			0 /* not large_bold */ );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"" );
+			strdup( "" ),
+			0 /* not large_bold */ );
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
-				   *total_element ) ) );
+				   *total_element ) ),
+			0 /* not large_bold */ );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( *total_element /
+		  		percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+		 		"%.1lf%c",
+		 		percent_of_total,
+		 		'%' );
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( buffer ),
+				0 /* not large_bold */ );
+		}
 
 		/* Blank line */
 		/* ---------- */
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
-		list_append_pointer(
+
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"" );
+			strdup( "" ),
+			0 /* not large_bold */ );
 	}
 
 	return row_list;
@@ -1813,11 +1998,20 @@ LIST *ledger_get_beginning_balance_latex_row_list(
 				 subclassification->
 					subclassification_name );
 
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						format_buffer ) ) );
+*/
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						format_buffer ) ),
+				0 /* not large_bold */ );
 		}
 
 		subclassification_amount = 0.0;
@@ -1846,17 +2040,35 @@ LIST *ledger_get_beginning_balance_latex_row_list(
 			latex_row = latex_new_latex_row();
 			list_append_pointer( row_list, latex_row );
 
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( format_initial_capital(
 						format_buffer,
 						account->
 						    account_name ) ) );
+*/
 
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( format_initial_capital(
+						format_buffer,
+						account->
+						    account_name ) ),
+				0 /* not large_bold */ );
+
+/*
 			list_append_pointer(
 				latex_row->column_data_list,
 				strdup( place_commas_in_money(
 				   	latest_ledger_balance ) ) );
+*/
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( place_commas_in_money(
+				   	latest_ledger_balance ) ),
+				0 /* not large_bold */ );
 	
 			*total_element += latest_ledger_balance;
 
@@ -1872,20 +2084,31 @@ LIST *ledger_get_beginning_balance_latex_row_list(
 			 "\\bf %s",
 			 LEDGER_BEGINNING_BALANCE_LABEL );
 
+/*
 		list_append_pointer(
 			latex_row->column_data_list,
 			strdup( format_initial_capital(
 					format_buffer,
 					format_buffer ) ) );
+*/
 
-		list_append_pointer(
+		latex_append_column_data_list(
 			latex_row->column_data_list,
-			"" );
+			strdup( format_initial_capital(
+					format_buffer,
+					format_buffer ) ),
+			0 /* not large_bold */ );
 
-		list_append_pointer(
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money(
-				   subclassification_amount ) ) );
+				   subclassification_amount ) ),
+			0 /* not large_bold */ );
 
 		return row_list;
 
@@ -1946,7 +2169,8 @@ double ledger_output_subclassification_html_element(
 					HTML_TABLE *html_table,
 					LIST *subclassification_list,
 					char *element_name,
-					boolean element_accumulate_debit )
+					boolean element_accumulate_debit,
+					double percent_denominator )
 {
 	double total_element = 0.0;
 	double subclassification_amount;
@@ -1957,6 +2181,7 @@ double ledger_output_subclassification_html_element(
 	char element_title[ 128 ];
 	double latest_ledger_balance;
 	boolean first_time = 1;
+	double percent_of_total;
 
 	/* For equity, always display the element title */
 	/* -------------------------------------------- */
@@ -2122,12 +2347,30 @@ double ledger_output_subclassification_html_element(
 		html_table_set_data(	html_table->data_list,
 					element_title );
 	
-		html_table_set_data( html_table->data_list, "" );
+		html_table_set_data( html_table->data_list, strdup( "" ) );
 
 		html_table_set_data(
 			html_table->data_list,
 			strdup( place_commas_in_money(
 				total_element ) ) );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( total_element /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+					html_table->data_list,
+					strdup( buffer ) );
+		}
 
 		html_table_output_data(
 					html_table->data_list,
@@ -2233,7 +2476,8 @@ double ledger_output_subclassification_beginning_balance_html_element(
 double ledger_output_html_element(	HTML_TABLE *html_table,
 					LIST *subclassification_list,
 					char *element_name,
-					boolean element_accumulate_debit )
+					boolean element_accumulate_debit,
+					double percent_denominator )
 {
 	double total_element = 0.0;
 	double subclassification_amount;
@@ -2244,6 +2488,7 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 	char element_title[ 128 ];
 	double latest_ledger_balance;
 	boolean first_time = 1;
+	double percent_of_total;
 
 	if ( !html_table )
 	{
@@ -2398,7 +2643,33 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 					html_table->data_list,
 					strdup( place_commas_in_money(
 						   latest_ledger_balance ) ) );
-	
+
+				if ( percent_denominator )
+				{
+					char buffer[ 128 ];
+
+					percent_of_total =
+						( latest_ledger_balance /
+						  percent_denominator ) * 100.0;
+
+					sprintf( buffer,
+						 "%.1lf%c",
+						 percent_of_total,
+						 '%' );
+
+					html_table_set_data(
+						html_table->data_list,
+						strdup( "" ) );
+
+					html_table_set_data(
+						html_table->data_list,
+						strdup( "" ) );
+
+					html_table_set_data(
+						html_table->data_list,
+						strdup( buffer ) );
+				}
+
 				html_table_output_data(
 					html_table->data_list,
 					html_table->
@@ -2441,13 +2712,36 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 
 		html_table_set_data(	html_table->data_list,
 					strdup( buffer ) );
-		html_table_set_data( html_table->data_list, "" );
+
+		html_table_set_data( html_table->data_list, strdup( "" ) );
 
 		html_table_set_data(
 			html_table->data_list,
 			strdup( place_commas_in_money(
 				subclassification_amount ) ) );
 	
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( subclassification_amount /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( buffer ) );
+		}
+
 		html_table_output_data(
 				html_table->data_list,
 				html_table->
@@ -2482,13 +2776,31 @@ double ledger_output_html_element(	HTML_TABLE *html_table,
 		html_table_set_data(	html_table->data_list,
 					element_title );
 	
-		html_table_set_data( html_table->data_list, "" );
-		html_table_set_data( html_table->data_list, "" );
+		html_table_set_data( html_table->data_list, strdup( "" ) );
+		html_table_set_data( html_table->data_list, strdup( "" ) );
 
 		html_table_set_data(
 			html_table->data_list,
 			strdup( place_commas_in_money(
 				total_element ) ) );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( total_element /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( buffer ) );
+		}
 
 		html_table_output_data(
 					html_table->data_list,
@@ -2625,7 +2937,7 @@ double ledger_output_equity_beginning_balance_html_element(
 
 		html_table_set_data(	html_table->data_list,
 					strdup( buffer ) );
-		html_table_set_data( html_table->data_list, "" );
+		html_table_set_data( html_table->data_list, strdup( "" ) );
 
 		html_table_set_data(
 			html_table->data_list,
@@ -2666,8 +2978,11 @@ double ledger_get_net_income(	double total_revenues,
 void ledger_output_subclassification_net_income(
 					HTML_TABLE *html_table,
 					double net_income,
-					boolean is_statement_of_activities )
+					boolean is_statement_of_activities,
+					double percent_denominator )
 {
+	double percent_of_total;
+
 	if ( !html_table )
 	{
 		fprintf( stderr,
@@ -2692,10 +3007,28 @@ void ledger_output_subclassification_net_income(
 			html_table->data_list,
 			"<h2>Net Income</h2>" );
 	}
-	html_table_set_data( html_table->data_list, "" );
+	html_table_set_data( html_table->data_list, strdup( "" ) );
 
 	html_table_set_data(	html_table->data_list,
 				strdup( place_commas_in_money( net_income ) ) );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+
+		percent_of_total =
+			( net_income /
+			  percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+			 "%.1lf%c",
+			 percent_of_total,
+			 '%' );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+	}
 
 	html_table_output_data( html_table->data_list,
 				html_table->number_left_justified_columns,
@@ -2708,8 +3041,11 @@ void ledger_output_subclassification_net_income(
 
 void ledger_output_net_income(		HTML_TABLE *html_table,
 					double net_income,
-					boolean is_statement_of_activities )
+					boolean is_statement_of_activities,
+					double percent_denominator )
 {
+	double percent_of_total;
+
 	html_table->data_list = list_new();
 
 	if ( is_statement_of_activities )
@@ -2724,11 +3060,29 @@ void ledger_output_net_income(		HTML_TABLE *html_table,
 			html_table->data_list,
 			"<h2>Net Income</h2>" );
 	}
-	html_table_set_data( html_table->data_list, "" );
-	html_table_set_data( html_table->data_list, "" );
+	html_table_set_data( html_table->data_list, strdup( "" ) );
+	html_table_set_data( html_table->data_list, strdup( "" ) );
 
 	html_table_set_data(	html_table->data_list,
 				strdup( place_commas_in_money( net_income ) ) );
+
+	if ( percent_denominator )
+	{
+		char buffer[ 128 ];
+
+		percent_of_total =
+			( net_income /
+			  percent_denominator ) * 100.0;
+
+		sprintf( buffer,
+			 "%.1lf%c",
+			 percent_of_total,
+			 '%' );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+	}
 
 	html_table_output_data( html_table->data_list,
 				html_table->number_left_justified_columns,
@@ -2790,6 +3144,12 @@ char *ledger_transaction_display( TRANSACTION *transaction )
 
 } /* ledger_transaction_display() */
 
+char *ledger_journal_ledger_list_display(
+					LIST *journal_ledger_list )
+{
+	return ledger_list_display( journal_ledger_list );
+}
+
 char *ledger_list_display( LIST *ledger_list )
 {
 	char buffer[ 65536 ];
@@ -2805,6 +3165,7 @@ char *ledger_list_display( LIST *ledger_list )
 
 			buf_ptr +=
 			   sprintf(	buf_ptr,
+					"\n"
 					"full_name = %s, "
 					"street_address = %s, "
 					"account=%s, "
@@ -2889,6 +3250,7 @@ TRANSACTION *ledger_transaction_with_load_new(
 					transaction->street_address,
 					transaction->transaction_date_time ) )
 	{
+/* Occurs if many folder deleted it first.
 		fprintf( stderr,
 		"Warning in %s/%s()/%d: cannot load transaction = (%s/%s/%s)\n",
 			 __FILE__,
@@ -2897,6 +3259,7 @@ TRANSACTION *ledger_transaction_with_load_new(
 			 transaction->full_name,
 			 transaction->street_address,
 			 transaction->transaction_date_time );
+*/
 		return transaction;
 	}
 
@@ -3167,7 +3530,7 @@ boolean ledger_transaction_load(	double *transaction_amount,
 
 } /* ledger_transaction_load() */
 
-void ledger_transaction_insert(		char *application_name,
+void ledger_transaction_insert_stream(	FILE *output_pipe,
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time,
@@ -3176,29 +3539,8 @@ void ledger_transaction_insert(		char *application_name,
 					int check_number,
 					boolean lock_transaction )
 {
-	char sys_string[ 1024 ];
-	FILE *output_pipe;
-	char *transaction_table;
-	char field[ 128 ];
 	char entity_buffer[ 128 ];
 	char memo_buffer[ 1024 ];
-
-	sprintf( field,
-"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,%s",
-		 LEDGER_LOCK_TRANSACTION_ATTRIBUTE );
-
-	transaction_table =
-		get_table_name(
-			application_name, TRANSACTION_FOLDER_NAME );
-
-	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s del='^'	|"
-		 "sql.e 2>&1					|"
-		 "grep -vi duplicate				 ",
-		 transaction_table,
-		 field );
-
-	output_pipe = popen( sys_string, "w" );
 
 	if ( memo && *memo )
 	{
@@ -3235,6 +3577,131 @@ void ledger_transaction_insert(		char *application_name,
 		fprintf( output_pipe, "^y\n" );
 	else
 		fprintf( output_pipe, "^\n" );
+
+} /* ledger_transaction_insert_stream() */
+
+void ledger_journal_insert_open_stream(
+				FILE **debit_account_pipe,
+				FILE **credit_account_pipe,
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *field;
+	char *table_name;
+
+	table_name = get_table_name( application_name, "journal_ledger" );
+
+	field=
+"full_name,street_address,transaction_date_time,account,debit_amount";
+
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
+		 "sql.e							      ",
+		 table_name,
+		 field );
+
+	*debit_account_pipe = popen( sys_string, "w" );
+
+	field=
+"full_name,street_address,transaction_date_time,account,credit_amount";
+
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
+		 "sql.e							      ",
+		 table_name,
+		 field );
+
+	*credit_account_pipe = popen( sys_string, "w" );
+
+} /* ledger_journal_insert_open_stream() */
+
+void ledger_journal_insert_stream(
+			FILE *debit_output_pipe,
+			FILE *credit_output_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double amount,
+			char *debit_account_name,
+			char *credit_account_name )
+{
+	if ( debit_output_pipe )
+	{
+		fprintf(	debit_output_pipe,
+				"%s^%s^%s^%s^%.2lf\n",
+				full_name,
+				street_address,
+				transaction_date_time,
+				debit_account_name,
+				amount );
+	}
+
+	if ( credit_output_pipe )
+	{
+		fprintf(	credit_output_pipe,
+				"%s^%s^%s^%s^%.2lf\n",
+				full_name,
+				street_address,
+				transaction_date_time,
+				credit_account_name,
+				amount );
+	}
+
+} /* ledger_journal_insert_stream() */
+
+FILE *ledger_transaction_insert_open_stream( char *application_name )
+{
+	char sys_string[ 1024 ];
+	char field[ 128 ];
+	char *table_name;
+	FILE *output_pipe;
+
+	sprintf( field,
+"full_name,street_address,transaction_date_time,transaction_amount,memo,check_number,%s",
+		 LEDGER_LOCK_TRANSACTION_ATTRIBUTE );
+
+	table_name =
+		get_table_name(
+			application_name,
+			TRANSACTION_FOLDER_NAME );
+
+	sprintf( sys_string,
+		 "insert_statement.e table=%s field=%s del='^'	|"
+		 "sql.e 2>&1					|"
+		 "grep -vi duplicate				 ",
+		 table_name,
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	return output_pipe;
+
+} /* ledger_transaction_insert_open_stream() */
+
+void ledger_transaction_insert(		char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					double transaction_amount,
+					char *memo,
+					int check_number,
+					boolean lock_transaction )
+{
+	FILE *output_pipe;
+
+	output_pipe =
+		ledger_transaction_insert_open_stream(
+			application_name );
+
+	ledger_transaction_insert_stream(
+		output_pipe,
+		full_name,
+		street_address,
+		transaction_date_time,
+		transaction_amount,
+		memo,
+		check_number,
+		lock_transaction );
 
 	pclose( output_pipe );
 
@@ -3397,7 +3864,7 @@ void ledger_transaction_generic_update(	char *application_name,
 
 	/* Lock needs to go first in case changing transaction_date_time */
 	/* ------------------------------------------------------------- */
-	fprintf( output_pipe,
+	fprintf(output_pipe,
 	 	"%s^%s^%s^%s^y\n",
 	 	escape_character(	entity_buffer,
 					full_name,
@@ -3406,7 +3873,7 @@ void ledger_transaction_generic_update(	char *application_name,
 	 	transaction_date_time,
 		LEDGER_LOCK_TRANSACTION_ATTRIBUTE );
 
-	fprintf( output_pipe,
+	fprintf(output_pipe,
 	 	"%s^%s^%s^%s^%s\n",
 	 	escape_character(	entity_buffer,
 					full_name,
@@ -3512,14 +3979,73 @@ void ledger_transaction_memo_update(	char *application_name,
 DICTIONARY *ledger_get_hard_coded_dictionary(
 				char *application_name )
 {
+	static DICTIONARY *return_dictionary = {0};
+
+	if ( return_dictionary ) return return_dictionary;
+
+	if ( ledger_fund_attribute_exists(
+				application_name,
+				"account" ) )
+	{
+		return_dictionary = 
+			ledger_get_fund_hard_coded_dictionary(
+				application_name );
+	}
+	else
+	{
+		return_dictionary = 
+			ledger_get_non_fund_hard_coded_dictionary(
+				application_name );
+	}
+
+	return return_dictionary;
+
+} /* ledger_get_hard_coded_dictionary() */
+
+DICTIONARY *ledger_get_non_fund_hard_coded_dictionary(
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+	char where[ 128 ];
+	DICTIONARY *return_dictionary;
+
+	folder = "account";
+
+	select = "hard_coded_account_key, account";
+
+	strcpy( where,
+	 	"hard_coded_account_key is not null" );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	return_dictionary =
+		pipe2dictionary(
+			sys_string,
+			FOLDER_DATA_DELIMITER );
+
+	return return_dictionary;
+
+} /* ledger_get_non_fund_hard_coded_dictionary() */
+
+DICTIONARY *ledger_get_fund_hard_coded_dictionary(
+				char *application_name )
+{
 	char sys_string[ 1024 ];
 	char *select;
 	char *folder;
 	char where[ 128 ];
 	DICTIONARY *non_fund_dictionary;
-	static DICTIONARY *return_dictionary = {0};
-
-	if ( return_dictionary ) return return_dictionary;
+	DICTIONARY *return_dictionary;
 
 	folder = "account";
 
@@ -3546,7 +4072,7 @@ DICTIONARY *ledger_get_hard_coded_dictionary(
 			FOLDER_DATA_DELIMITER );
 
 	/* Get non fund dictionary */
-	/* ------------------- */
+	/* ----------------------- */
 	select = "hard_coded_account_key, account";
 
 	strcpy( where,
@@ -3571,7 +4097,7 @@ DICTIONARY *ledger_get_hard_coded_dictionary(
 
 	return return_dictionary;
 
-} /* ledger_get_hard_coded_dictionary() */
+} /* ledger_get_fund_hard_coded_dictionary() */
 
 char *ledger_get_hard_coded_account_name(
 				char *application_name,
@@ -3588,28 +4114,14 @@ char *ledger_get_hard_coded_account_name(
 			application_name );
 
 	key = ledger_get_hard_coded_dictionary_key(
-					fund_name,
-					hard_coded_account_key );
+			fund_name,
+			hard_coded_account_key );
 
 	if ( ! ( account_name =
 			dictionary_fetch(
 				hard_coded_dictionary,
 				key ) ) )
 	{
-/*
-		if ( warning_only )
-			fprintf( stderr, "Warning " );
-		else
-			fprintf( stderr, "ERROR " );
-
-		fprintf( stderr,
-"in %s/%s()/%d: cannot fetch %s from hard_coded_account_key.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 key );
-		if ( !warning_only ) exit( 1 );
-*/
 		if ( !warning_only )
 		{
 			fprintf( stderr,
@@ -3633,7 +4145,7 @@ char *ledger_get_hard_coded_dictionary_key(
 {
 	static char key[ 128 ];
 
-	if ( fund_name )
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
 		sprintf(	key,
 				"%s|%s",
@@ -3718,13 +4230,15 @@ void ledger_get_vendor_payment_account_names(
 			key,
 			0 /* not warning_only */ );
 
+	*uncleared_checks_account = '\0';
+
 	key = "uncleared_checks_key";
 	*uncleared_checks_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			1 /* warning_only */ );
 
 	key = "account_payable_key";
 	*account_payable_account =
@@ -3738,10 +4252,11 @@ void ledger_get_vendor_payment_account_names(
 
 void ledger_get_customer_sale_account_names(
 				char **sales_revenue_account,
-				char **service_revenue_account,
 				char **sales_tax_payable_account,
 				char **shipping_revenue_account,
 				char **account_receivable_account,
+				char **specific_inventory_account,
+				char **cost_of_goods_sold_account,
 				char *application_name,
 				char *fund_name )
 {
@@ -3753,15 +4268,7 @@ void ledger_get_customer_sale_account_names(
 			application_name,
 			fund_name,
 			key,
-			1 /* warning_only */ );
-
-	key = "service_revenue_key";
-	*service_revenue_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			1 /* warning_only */ );
+			0 /* not warning_only */ );
 
 	key = "sales_tax_payable_key";
 	*sales_tax_payable_account =
@@ -3787,9 +4294,25 @@ void ledger_get_customer_sale_account_names(
 			key,
 			1 /* warning_only */ );
 
+	key = "specific_inventory_key";
+	*specific_inventory_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			1 /* warning_only */ );
+
+	key = "cost_of_goods_sold_key";
+	*cost_of_goods_sold_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			1 /* warning_only */ );
+
 } /* ledger_get_customer_sale_account_names() */
 
-void ledger_get_purchase_order_inventory_account_names(
+void ledger_get_account_payable_account_name(
 				char **account_payable_account,
 				char *application_name,
 				char *fund_name )
@@ -3807,12 +4330,14 @@ void ledger_get_purchase_order_inventory_account_names(
 				0 /* not warning_only */ );
 	}
 
-} /* ledger_get_purchase_order_inventory_account_names() */
+} /* ledger_get_account_payable_account_name() */
 
 void ledger_get_purchase_order_account_names(
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
+				char **specific_inventory_account,
+				char **cost_of_goods_sold_account,
 				char *application_name,
 				char *fund_name )
 {
@@ -3820,24 +4345,24 @@ void ledger_get_purchase_order_account_names(
 
 	if ( sales_tax_expense_account )
 	{
-		key = "sales_tax_expense_key";
+		key = "sales_tax_key";
 		*sales_tax_expense_account =
 			ledger_get_hard_coded_account_name(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				1 /* warning_only */ );
 	}
 
 	if ( freight_in_expense_account )
 	{
-		key = "freight_in_expense_key";
+		key = "freight_in_key";
 		*freight_in_expense_account =
 			ledger_get_hard_coded_account_name(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				1 /* warning_only */ );
 	}
 
 	if ( account_payable_account )
@@ -3849,6 +4374,28 @@ void ledger_get_purchase_order_account_names(
 				fund_name,
 				key,
 				0 /* not warning_only */ );
+	}
+
+	if ( specific_inventory_account )
+	{
+		key = "specific_inventory_key";
+		*specific_inventory_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				1 /* warning_only */ );
+	}
+
+	if ( cost_of_goods_sold_account )
+	{
+		key = "cost_of_goods_sold_key";
+		*cost_of_goods_sold_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				1 /* warning_only */ );
 	}
 
 } /* ledger_get_purchase_order_account_names() */
@@ -3915,12 +4462,6 @@ void ledger_delete(			char *application_name,
 
 	output_pipe = popen( sys_string, "w" );
 
-/*
-	char buffer[ 256 ];
-		 	escape_character(	buffer,
-						full_name,
-						'\'' ),
-*/
 	fprintf(	output_pipe,
 			"%s^%s^%s\n",
 			full_name,
@@ -4076,14 +4617,14 @@ char *ledger_get_transaction_where(	char *full_name,
 					char *folder_name,
 					char *date_time_column )
 {
-	static char where[ 512 ];
-	char buffer[ 256 ];
+	static char where[ 1024 ];
+	char buffer[ 512 ];
 
 	if ( folder_name )
 	{
 		if ( full_name )
 		{
-			sprintf( where,
+			sprintf(where,
 		 		"%s.full_name = '%s' and		"
 	  	 		"%s.street_address = '%s' and		"
 	  	 		"%s.%s = '%s'		 		",
@@ -4099,7 +4640,7 @@ char *ledger_get_transaction_where(	char *full_name,
 		}
 		else
 		{
-			sprintf( where,
+			sprintf(where,
 	  	 		"%s.%s = '%s'",
 				folder_name,
 		 		date_time_column,
@@ -4110,7 +4651,7 @@ char *ledger_get_transaction_where(	char *full_name,
 	{
 		if ( full_name )
 		{
-			sprintf( where,
+			sprintf(where,
 		 		"full_name = '%s' and			"
 	  	 		"street_address = '%s' and		"
 	  	 		"%s = '%s'		 		",
@@ -4123,7 +4664,7 @@ char *ledger_get_transaction_where(	char *full_name,
 		}
 		else
 		{
-			sprintf( where,
+			sprintf(where,
 	  	 		"%s = '%s'",
 		 		date_time_column,
 		 		transaction_date_time );
@@ -4145,12 +4686,15 @@ LIST *ledger_get_propagate_journal_ledger_list(
 
 	if ( !account_name )
 	{
+/*
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: account_name is null.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
+*/
+		return (LIST *)0;
 	}
 
 	accumulate_debit =
@@ -4504,6 +5048,52 @@ JOURNAL_LEDGER *ledger_journal_ledger_seek(
 
 } /* ledger_journal_ledger_seek() */
 
+void ledger_debit_credit_update(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *debit_account_name,
+					char *credit_account_name,
+					double transaction_amount )
+{
+	FILE *update_pipe;
+
+	if (	!full_name
+	||	!street_address
+	||	!transaction_date_time
+	||	!debit_account_name
+	||	!credit_account_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty primary information.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 ); 
+	}
+
+	update_pipe = ledger_open_update_pipe( application_name );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^debit_amount^%.2lf\n",
+	 	full_name,
+	 	street_address,
+	 	transaction_date_time,
+	 	debit_account_name,
+	 	transaction_amount );
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^credit_amount^%.2lf\n",
+	 	full_name,
+	 	street_address,
+	 	transaction_date_time,
+	 	credit_account_name,
+	 	transaction_amount );
+
+	pclose( update_pipe );
+
+} /* ledger_debit_credit_update() */
+
 void ledger_journal_ledger_update(	FILE *update_pipe,
 					char *full_name,
 					char *street_address,
@@ -4551,10 +5141,11 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 	else
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: both debit_amount and credit_amount are zero.\n",
+"ERROR in %s/%s()/%d: both debit_amount and credit_amount are zero for account = (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__ );
+			 __LINE__,
+			 account_name );
 
 		pclose( update_pipe );
 		exit( 1 );
@@ -5085,186 +5676,6 @@ char *ledger_get_journal_ledger_hash_table_key(
 
 } /* ledger_get_journal_ledger_hash_table_key() */
 
-TRANSACTION *ledger_sale_build_transaction(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table )
-{
-	static LIST *inventory_account_name_list = {0};
-	static char *sales_revenue_account = {0};
-	static char *service_revenue_account = {0};
-	static char *sales_tax_payable_account = {0};
-	static char *shipping_revenue_account = {0};
-	static char *receivable_account = {0};
-	char *inventory_account_name;
-	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
-	char *key;
-
-	key = ledger_get_transaction_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time );
-
-	if ( ! ( transaction =
-			hash_table_fetch( 
-				transaction_hash_table,
-				key ) ) )
-	{
-		return (TRANSACTION *)0;
-	}
-
-	if ( !inventory_account_name_list )
-	{
-		inventory_account_name_list =
-			ledger_get_inventory_account_name_list(
-				application_name );
-
-		ledger_get_customer_sale_account_names(
-			&sales_revenue_account,
-			&service_revenue_account,
-			&sales_tax_payable_account,
-			&shipping_revenue_account,
-			&receivable_account,
-			application_name,
-			fund_name );
-	}
-
-	if ( !sales_revenue_account ) return (TRANSACTION *)0;
-
-	/* ========================= */
-	/* Build journal_ledger_list */
-	/* ========================= */
-	transaction->journal_ledger_list = list_new();
-
-	/* Sales revenue */
-	/* ------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			sales_revenue_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Service revenue */
-	/* --------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			service_revenue_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Sales tax payable */
-	/* ----------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			sales_tax_payable_account );
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Shipping revenue */
-	/* ---------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			shipping_revenue_account );
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Accounts receivable */
-	/* ------------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			receivable_account );
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Inventory and cost_of_goods_sold */
-	/* -------------------------------- */
-	if ( list_rewind( inventory_account_name_list ) )
-	{
-		do {
-			inventory_account_name =
-				list_get_pointer(
-					inventory_account_name_list );
-
-			key = ledger_get_journal_ledger_hash_table_key(
-					full_name,
-					street_address,
-					transaction_date_time,
-					inventory_account_name );
-
-			if ( key && ( journal_ledger =
-					hash_table_fetch( 
-						journal_ledger_hash_table,
-						key ) ) )
-			{
-				list_append_pointer(
-					transaction->journal_ledger_list,
-					journal_ledger );
-			}
-
-		} while( list_next( inventory_account_name_list ) );
-	}
-
-	return transaction;
-
-} /* ledger_sale_build_transaction() */
-
 char *ledger_get_shipped_date_transaction_date_time(
 				char *shipped_date )
 {
@@ -5323,44 +5734,6 @@ char *ledger_get_supply_expense_account(
 	return pipe2string( sys_string );
 
 } /* ledger_get_supply_expense_account() */
-
-char *ledger_get_supply_expense_key_account(
-				char *application_name,
-				char *fund_name )
-{
-	char *key;
-	char *supply_expense_account;
-
-	key = "supply_expense_key";
-	supply_expense_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			1 /* warning_only */ );
-
-	return supply_expense_account;
-
-} /* ledger_get_supply_expense_key_account() */
-
-char *ledger_get_inventory_account_name(
-				char *application_name,
-				char *fund_name )
-{
-	char *key;
-	char *inventory_account;
-
-	key = "inventory_key";
-	inventory_account =
-		ledger_get_hard_coded_account_name(
-				application_name,
-				fund_name,
-				key,
-				1 /* warning_only */ );
-
-	return inventory_account;
-
-} /* ledger_get_inventory_account_name() */
 
 LEDGER *ledger_new( void )
 {
@@ -5736,7 +6109,7 @@ char *ledger_beginning_transaction_date(
 	/* ------------------ */
 	select = "min( transaction_date_time )";
 
-	if ( fund_name )
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 	{
 		/* Get the first entry for the fund. */
 		/* --------------------------------- */
@@ -5783,6 +6156,13 @@ LIST *ledger_get_fund_name_list( char *application_name )
 {
 	char sys_string[ 512 ];
 
+	if ( !ledger_fund_attribute_exists(
+				application_name,
+				"account" ) )
+	{
+		return (LIST *)0;
+	}
+
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
 		 "			select=fund	"
@@ -5800,7 +6180,8 @@ boolean ledger_get_report_title_sub_title(
 		char *application_name,
 		char *fund_name,
 		char *as_of_date,
-		int fund_list_length )
+		int fund_list_length,
+		char *logo_filename )
 {
 	char *beginning_date;
 	char beginning_date_american[ 16 ];
@@ -5869,6 +6250,14 @@ boolean ledger_get_report_title_sub_title(
 	 			process_name,
 	 			ending_date_american );
 		}
+	}
+
+	if ( !logo_filename || !*logo_filename )
+	{
+		char buffer[ 256 ];
+
+		sprintf( buffer, "%s %s", title, sub_title );
+		strcpy( sub_title, buffer );
 	}
 
 	format_initial_capital( sub_title, sub_title );
@@ -6138,6 +6527,19 @@ LIST *ledger_get_inventory_account_name_list(
 
 } /* ledger_get_inventory_account_name_list() */
 
+LIST *ledger_get_service_account_name_list(
+			char *application_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "populate_account.sh %s hourly_service ''",
+		 application_name );
+
+	return pipe2list( sys_string );
+
+} /* ledger_get_service_account_name_list() */
+
 ACCOUNT *ledger_element_list_account_seek(
 			LIST *element_list,
 			char *account_name )
@@ -6224,9 +6626,7 @@ double ledger_get_fraction_of_year(
 		date_yyyy_mm_dd_new(
 			prior_date_string );
 
-	date =
-		date_yyyy_mm_dd_new(
-			date_string );
+	date = date_yyyy_mm_dd_new( date_string );
 
 	days_between =
 		date_subtract_days(
@@ -6237,6 +6637,26 @@ double ledger_get_fraction_of_year(
 
 } /* ledger_get_fraction_of_year() */
 
+boolean ledger_propagate_account_list_exists(
+		LIST *propagate_account_list,
+		char *account_name )
+{
+	ACCOUNT *account;
+
+	if ( !list_rewind( propagate_account_list ) ) return 0;
+
+	do {
+		account = list_get_pointer( propagate_account_list );
+
+		if ( strcmp( account_name, account->account_name ) == 0 )
+			return 1;
+
+	} while( list_next( propagate_account_list ) );
+
+	return 0;
+
+} /* ledger_propagate_account_list_exists() */
+
 void ledger_append_propagate_account_list(
 			LIST *propagate_account_list,
 			char *transaction_date_time,
@@ -6245,6 +6665,13 @@ void ledger_append_propagate_account_list(
 {
 	JOURNAL_LEDGER *prior_ledger;
 	ACCOUNT *account;
+
+	if ( ledger_propagate_account_list_exists(
+		propagate_account_list,
+		account_name ) )
+	{
+		return;
+	}
 
 	account = ledger_account_new( account_name );
 
@@ -6272,6 +6699,7 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 	char select[ 128 ];
 	char sys_string[ 1024 ];
 	char *table;
+	char *results;
 
 	table = get_table_name( application_name, LEDGER_FOLDER_NAME );
 
@@ -6287,7 +6715,12 @@ char *ledger_get_latest_zero_balance_transaction_date_time(
 		 table,
 		 where );
 
-	return pipe2string( sys_string );
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+		return results;
+	else
+		return (char *)0;
 
 } /* ledger_get_latest_zero_balance_transaction_date_time() */
 
@@ -6297,3 +6730,1223 @@ ACCOUNT *ledger_account_list_seek(	LIST *account_list,
 	return ledger_seek_account( account_list, account_name );
 
 }
+
+LIST *ledger_get_after_balance_zero_journal_ledger_list(
+				char *application_name,
+				char *account_name )
+{
+	char *transaction_date_time_string;
+
+	if ( ( transaction_date_time_string =
+			ledger_get_latest_zero_balance_transaction_date_time(
+				application_name,
+				account_name ) ) )
+	{
+		DATE *transaction_date_time;
+
+		transaction_date_time =
+			date_yyyy_mm_dd_hms_new(
+				transaction_date_time_string );
+
+		/* Need to start with the transaction following zero balance. */
+		/* ---------------------------------------------------------- */
+		date_increment_seconds( transaction_date_time, 1 );
+
+		transaction_date_time_string =
+			date_get_yyyy_mm_dd_hh_mm_ss(
+				transaction_date_time );
+	}
+
+	return ledger_get_journal_ledger_list(
+				application_name,
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				transaction_date_time_string,
+				account_name );
+
+} /* ledger_get_after_balance_zero_journal_ledger_list() */
+
+JOURNAL_LEDGER *ledger_get_or_set_journal_ledger(
+				LIST *journal_ledger_list,
+				char *account_name )
+{
+	JOURNAL_LEDGER *ledger;
+
+	if ( !journal_ledger_list )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: journal_ledger_list is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_rewind( journal_ledger_list ) )
+	{
+		do {
+			ledger = list_get_pointer( journal_ledger_list );
+
+			if ( strcmp( ledger->account_name, account_name ) == 0 )
+			{
+				return ledger;
+			}
+
+		} while( list_next( journal_ledger_list ) );
+	}
+
+	ledger = journal_ledger_new(	(char *)0 /* full_name */,
+					(char *)0 /* street_address */,
+					(char *)0 /* transaction_date_time */,
+					account_name );
+
+	list_append_pointer( journal_ledger_list, ledger );
+
+	return ledger;
+
+} /* ledger_get_or_set_journal_ledger() */
+
+int ledger_get_non_empty_subclassification_list_length(
+			LIST *subclassification_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	int list_length = 0;
+
+	if ( !list_rewind( subclassification_list ) ) return 0;
+
+	do {
+		subclassification = list_get_pointer( subclassification_list );
+
+		if ( !timlib_double_virtually_same(
+			subclassification->subclassification_total,
+			0.0 ) )
+		{
+			list_length++;
+		}
+
+	} while( list_next( subclassification_list ) );
+
+	return list_length;
+
+} /* ledger_get_non_empty_subclassification_list_length() */
+
+TRANSACTION *ledger_inventory_purchase_hash_table_build_transaction(
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				HASH_TABLE *transaction_hash_table,
+				HASH_TABLE *journal_ledger_hash_table )
+{
+	char *inventory_account_name;
+	static LIST *inventory_account_name_list = {0};
+	static char *account_payable_account = {0};
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *key;
+
+	key = ledger_get_transaction_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	if ( ! ( transaction =
+			hash_table_fetch( 
+				transaction_hash_table,
+				key ) ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	if ( !inventory_account_name_list )
+	{
+		inventory_account_name_list =
+			ledger_get_inventory_account_name_list(
+				application_name );
+
+		ledger_get_account_payable_account_name(
+			&account_payable_account,
+			application_name,
+			fund_name );
+	}
+
+	/* ========================= */
+	/* Build journal_ledger_list */
+	/* ========================= */
+	transaction->journal_ledger_list = list_new();
+
+	/* Account payable */
+	/* --------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			account_payable_account );
+
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* Inventory and cost of goods sold */
+	/* -------------------------------- */
+	if ( list_rewind( inventory_account_name_list ) )
+	{
+		do {
+			inventory_account_name =
+				list_get_pointer(
+					inventory_account_name_list );
+
+			key = ledger_get_journal_ledger_hash_table_key(
+					full_name,
+					street_address,
+					transaction_date_time,
+					inventory_account_name );
+
+
+			if ( key && ( journal_ledger =
+					hash_table_fetch( 
+						journal_ledger_hash_table,
+						key ) ) )
+			{
+				list_append_pointer(
+					transaction->journal_ledger_list,
+					journal_ledger );
+			}
+
+		} while( list_next( inventory_account_name_list ) );
+	}
+
+	return transaction;
+
+} /* ledger_inventory_purchase_hash_table_build_transaction() */
+
+boolean ledger_folder_exists(	char *application_name,
+				char *folder_name )
+{
+	return folder_exists_folder(
+			application_name,
+			folder_name );
+
+} /* ledger_folder_exists() */
+
+boolean ledger_title_passage_rule_attribute_exists(
+				char *application_name,
+				char *folder_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	 	"folder_attribute_exists.sh %s %s title_passage_rule",
+	 	application_name,
+	 	folder_name );
+
+	return ( system( sys_string ) == 0 );
+
+} /* ledger_title_passage_rule_attribute_exists() */
+
+boolean ledger_fund_attribute_exists(
+				char *application_name,
+				char *folder_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	 	"folder_attribute_exists.sh %s %s fund",
+	 	application_name,
+	 	folder_name );
+
+	return ( system( sys_string ) == 0 );
+
+} /* ledger_fund_attribute_exists() */
+
+char *ledger_get_fund_where(	char *application_name,
+				char *folder_name,
+				char *fund_name )
+{
+	char where[ 128 ];
+
+	if ( !fund_name
+	||   !*fund_name
+	||   strcmp( fund_name, "fund" ) == 0 )
+	{
+		strcpy( where, "1 = 1" );
+	}
+	else
+	if ( ledger_fund_attribute_exists(
+			application_name,
+			folder_name ) )
+	{
+		sprintf(where,
+		 	"fund = '%s'",
+		 	fund_name );
+	}
+	else
+	{
+		strcpy( where, "1 = 1" );
+	}
+
+	return strdup( where );
+
+} /* ledger_get_fund_where() */
+
+TRANSACTION *ledger_sale_hash_table_build_transaction(
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				HASH_TABLE *transaction_hash_table,
+				HASH_TABLE *journal_ledger_hash_table )
+{
+	static LIST *inventory_account_name_list = {0};
+	static char *sales_revenue_account = {0};
+	static char *sales_tax_payable_account = {0};
+	static char *shipping_revenue_account = {0};
+	static char *receivable_account = {0};
+	static char *specific_inventory_account = {0};
+	static char *cost_of_goods_sold_account = {0};
+	char *inventory_account_name;
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *key;
+
+	key = ledger_get_transaction_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	if ( ! ( transaction =
+			hash_table_fetch( 
+				transaction_hash_table,
+				key ) ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	if ( !inventory_account_name_list )
+	{
+		inventory_account_name_list =
+			ledger_get_inventory_account_name_list(
+				application_name );
+
+		ledger_get_customer_sale_account_names(
+			&sales_revenue_account,
+			&sales_tax_payable_account,
+			&shipping_revenue_account,
+			&receivable_account,
+			&specific_inventory_account,
+			&cost_of_goods_sold_account,
+			application_name,
+			fund_name );
+	}
+
+	if ( !sales_revenue_account ) return (TRANSACTION *)0;
+
+	/* ========================= */
+	/* Build journal_ledger_list */
+	/* ========================= */
+	transaction->journal_ledger_list = list_new();
+
+	/* Sales revenue */
+	/* ------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			sales_revenue_account );
+
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+#ifdef NOT_DEFINED
+	/* Service revenue */
+	/* --------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			service_revenue_account );
+#endif
+
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* Sales tax payable */
+	/* ----------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			sales_tax_payable_account );
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* Shipping revenue */
+	/* ---------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			shipping_revenue_account );
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* Accounts receivable */
+	/* ------------------- */
+	key = ledger_get_journal_ledger_hash_table_key(
+			full_name,
+			street_address,
+			transaction_date_time,
+			receivable_account );
+
+	if ( key && ( journal_ledger =
+			hash_table_fetch( 
+				journal_ledger_hash_table,
+				key ) ) )
+	{
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* Inventory and cost_of_goods_sold */
+	/* -------------------------------- */
+	if ( list_rewind( inventory_account_name_list ) )
+	{
+		do {
+			inventory_account_name =
+				list_get_pointer(
+					inventory_account_name_list );
+
+			key = ledger_get_journal_ledger_hash_table_key(
+					full_name,
+					street_address,
+					transaction_date_time,
+					inventory_account_name );
+
+			if ( key && ( journal_ledger =
+					hash_table_fetch( 
+						journal_ledger_hash_table,
+						key ) ) )
+			{
+				list_append_pointer(
+					transaction->journal_ledger_list,
+					journal_ledger );
+			}
+
+		} while( list_next( inventory_account_name_list ) );
+	}
+
+	return transaction;
+
+} /* ledger_sale_hash_table_build_transaction() */
+
+void ledger_transaction_refresh(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				LIST *journal_ledger_list )
+{
+	LIST *account_name_list;
+	char *account_name;
+	JOURNAL_LEDGER *journal_ledger;
+	FILE *debit_account_pipe = {0};
+	FILE *credit_account_pipe = {0};
+
+	if ( !full_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty full_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	ledger_delete(	application_name,
+			TRANSACTION_FOLDER_NAME,
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	ledger_delete(	application_name,
+			LEDGER_FOLDER_NAME,
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	if ( !list_length( journal_ledger_list ) ) return;
+
+	if ( list_length( journal_ledger_list ) == 1 )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: list_length( journal_ledger_list ) = %d.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 list_length( journal_ledger_list ) );
+		exit( 1 );
+	}
+
+	account_name_list = list_new();
+
+	ledger_transaction_insert(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			check_number,
+			lock_transaction );
+
+	ledger_journal_insert_open_stream(
+			&debit_account_pipe,
+			&credit_account_pipe,
+			application_name );
+
+	list_rewind( journal_ledger_list );
+
+	do {
+		journal_ledger =
+			list_get_pointer( 
+				journal_ledger_list );
+
+		if ( timlib_dollar_virtually_same(
+			journal_ledger->debit_amount,
+			0.0 )
+		&&   timlib_dollar_virtually_same(
+			journal_ledger->credit_amount,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		if ( !timlib_dollar_virtually_same(
+			journal_ledger->debit_amount,
+			0.0 ) )
+		{
+			ledger_journal_insert_stream(
+				debit_account_pipe,
+				(FILE *)0 /* credit_account_pipe */,
+				full_name,
+				street_address,
+				transaction_date_time,
+				journal_ledger->debit_amount
+					/* amount */,
+				journal_ledger->account_name
+					/* debit_account_name */,
+				(char *)0 /* credit_account_name */ );
+		}
+		else
+		{
+			ledger_journal_insert_stream(
+				(FILE *)0 /* debit_account_pipe */,
+				credit_account_pipe,
+				full_name,
+				street_address,
+				transaction_date_time,
+				journal_ledger->credit_amount
+					/* amount */,
+				(char *)0 /* debit_account_name */,
+				journal_ledger->account_name
+					/* credit_account_name */ );
+		}
+
+		list_append_pointer(
+			account_name_list,
+			journal_ledger->account_name );
+
+	} while( list_next( journal_ledger_list ) );
+
+	pclose( debit_account_pipe );
+	pclose( credit_account_pipe );
+
+	if ( list_rewind( account_name_list ) )
+	{
+		do {
+			account_name = list_get_pointer( account_name_list );
+
+			ledger_propagate(
+				application_name,
+				transaction_date_time,
+				account_name );
+
+		} while( list_next( account_name_list ) );
+	}
+
+} /* ledger_transaction_refresh() */
+
+TRANSACTION *ledger_inventory_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *inventory_purchase_list,
+				char *fund_name )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *account_payable_account = {0};
+	double sum_debit_amount = 0.0;
+
+	if ( !full_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty full_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	/* Exits if account_payable_account is not found. */
+	/* ---------------------------------------------- */
+	ledger_get_account_payable_account_name(
+				&account_payable_account,
+				application_name,
+				fund_name );
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			memo );
+
+	transaction->journal_ledger_list =
+		purchase_inventory_distinct_account_extract(
+			&sum_debit_amount,
+			inventory_purchase_list );
+
+	if ( !list_rewind( transaction->journal_ledger_list ) )
+		return (TRANSACTION *)0;
+
+	/* account_payable */
+	/* --------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction_date_time,
+			account_payable_account );
+
+	journal_ledger->credit_amount = sum_debit_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	transaction->transaction_amount = sum_debit_amount;
+
+	return transaction;
+
+} /* ledger_inventory_build_transaction() */
+
+TRANSACTION *ledger_specific_inventory_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *specific_inventory_purchase_list,
+				char *fund_name )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	PURCHASE_SPECIFIC_INVENTORY *purchase_specific_inventory;
+	char *sales_tax_expense_account = {0};
+	char *freight_in_expense_account = {0};
+	char *account_payable_account = {0};
+	char *specific_inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	double sum_debit_amount = 0.0;
+
+	if ( !full_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty full_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	/* Exits if account_payable_account is not found. */
+	/* ---------------------------------------------- */
+	ledger_get_purchase_order_account_names(
+				&sales_tax_expense_account,
+				&freight_in_expense_account,
+				&account_payable_account,
+				&specific_inventory_account,
+				&cost_of_goods_sold_account,
+				application_name,
+				fund_name );
+
+	if ( list_length( specific_inventory_purchase_list )
+	&&   !specific_inventory_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: specific inventory exists without inventory account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_length( specific_inventory_purchase_list )
+	&&   !cost_of_goods_sold_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: specific inventory exists without CGS account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			memo );
+
+	transaction->journal_ledger_list = list_new();
+
+	/* SPECIFIC_INVENTORY_PURCHASE */
+	/* --------------------------- */
+	if ( list_rewind( specific_inventory_purchase_list ) )
+	{
+		do {
+			purchase_specific_inventory =
+				list_get_pointer(
+					specific_inventory_purchase_list );
+
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction_date_time,
+					specific_inventory_account );
+
+			journal_ledger->debit_amount =
+				purchase_specific_inventory->
+					capitalized_extension;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+			sum_debit_amount +=
+				purchase_specific_inventory->
+					capitalized_extension;
+
+		} while( list_next( specific_inventory_purchase_list ) );
+	}
+
+	/* account_payable */
+	/* --------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction_date_time,
+			account_payable_account );
+
+	journal_ledger->credit_amount = sum_debit_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	transaction->transaction_amount = sum_debit_amount;
+
+	return transaction;
+
+} /* ledger_specific_inventory_build_transaction() */
+
+TRANSACTION *ledger_purchase_order_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				double sales_tax,
+				double freight_in,
+				LIST *supply_purchase_list,
+				LIST *service_purchase_list,
+				LIST *fixed_asset_purchase_list,
+				LIST *prepaid_asset_purchase_list,
+				char *fund_name )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	PURCHASE_SERVICE *purchase_service;
+	char *sales_tax_expense_account = {0};
+	char *freight_in_expense_account = {0};
+	char *account_payable_account = {0};
+	char *specific_inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	double sum_debit_amount = 0.0;
+
+	if ( !full_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty full_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	/* Exits if account_payable_account is not found. */
+	/* ---------------------------------------------- */
+	ledger_get_purchase_order_account_names(
+				&sales_tax_expense_account,
+				&freight_in_expense_account,
+				&account_payable_account,
+				&specific_inventory_account,
+				&cost_of_goods_sold_account,
+				application_name,
+				fund_name );
+
+	if ( sales_tax && !sales_tax_expense_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: sales tax exists without sales tax expense account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( freight_in && !freight_in_expense_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: freight in exists without freight in expense account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			memo );
+
+	transaction->journal_ledger_list = list_new();
+
+	/* SUPPLY_PURCHASE */
+	/* --------------- */
+	if ( list_length( supply_purchase_list ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			purchase_supply_distinct_account_extract(
+				&sum_debit_amount,
+				supply_purchase_list ) );
+	}
+
+	/* SERVICE_PURCHASE */
+	/* ---------------- */
+	if ( list_rewind( service_purchase_list ) )
+	{
+		do {
+			purchase_service =
+				list_get_pointer(
+					service_purchase_list );
+
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction_date_time,
+					purchase_service->account_name );
+
+			journal_ledger->debit_amount =
+				purchase_service->extension;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+			sum_debit_amount += purchase_service->extension;
+
+		} while( list_next( service_purchase_list ) );
+	}
+
+	/* FIXED_ASSET_PURCHASE */
+	/* -------------------- */
+	if ( list_length( fixed_asset_purchase_list ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			purchase_fixed_asset_distinct_account_extract(
+				&sum_debit_amount,
+				fixed_asset_purchase_list ) );
+	}
+
+	/* PREPAID_ASSET_PURCHASE */
+	/* ---------------------- */
+	if ( list_length( prepaid_asset_purchase_list ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			purchase_prepaid_asset_distinct_account_extract(
+				&sum_debit_amount,
+				prepaid_asset_purchase_list ) );
+	}
+
+	/* sales_tax */
+	/* --------- */
+	if ( sales_tax )
+	{
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				sales_tax_expense_account );
+
+		journal_ledger->debit_amount = sales_tax;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		sum_debit_amount += sales_tax;
+	}
+
+
+	/* freight_in */
+	/* ---------- */
+	if ( freight_in )
+	{
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				freight_in_expense_account );
+
+		journal_ledger->debit_amount = freight_in;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		sum_debit_amount += freight_in;
+	}
+
+	/* account_payable */
+	/* --------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction_date_time,
+			account_payable_account );
+
+	journal_ledger->credit_amount = sum_debit_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	transaction->transaction_amount = sum_debit_amount;
+
+	return transaction;
+
+} /* ledger_purchase_order_build_transaction() */
+
+TRANSACTION *ledger_customer_sale_build_transaction(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *inventory_sale_list,
+				LIST *specific_inventory_sale_list,
+				LIST *fixed_service_sale_list,
+				LIST *hourly_service_sale_list,
+				double shipping_revenue,
+				double sales_tax,
+				double invoice_amount,
+				char *fund_name )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
+	char *sales_revenue_account = {0};
+	char *sales_tax_payable_account = {0};
+	char *shipping_revenue_account = {0};
+	char *receivable_account = {0};
+	char *specific_inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
+	double sales_revenue_amount = {0};
+	double service_revenue_amount = {0};
+
+	if ( !full_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty full_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	/* Exits if sales_revenue_account is not found. */
+	/* -------------------------------------------- */
+	ledger_get_customer_sale_account_names(
+		&sales_revenue_account,
+		&sales_tax_payable_account,
+		&shipping_revenue_account,
+		&receivable_account,
+		&specific_inventory_account,
+		&cost_of_goods_sold_account,
+		application_name,
+		fund_name );
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			memo );
+
+	transaction->journal_ledger_list = list_new();
+
+	/* INVENTORY_SALE */
+	/* -------------- */
+	if ( list_length( inventory_sale_list ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			customer_sale_inventory_distinct_account_extract(
+				&sales_revenue_amount,
+				inventory_sale_list ) );
+	}
+
+	/* SPECIFIC_INVENTORY_SALE */
+	/* ----------------------- */
+	if ( list_rewind( specific_inventory_sale_list ) )
+	{
+		do {
+			specific_inventory_sale =
+				list_get_pointer(
+					specific_inventory_sale_list );
+
+			/* Debit cost_of_goods_sold */
+			/* ------------------------ */
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction_date_time,
+					cost_of_goods_sold_account );
+
+			journal_ledger->debit_amount =
+				specific_inventory_sale->
+					cost_of_goods_sold;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+			/* Credit specific_inventory */
+			/* ------------------------- */
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction_date_time,
+					specific_inventory_account );
+
+			journal_ledger->credit_amount =
+				specific_inventory_sale->
+					cost_of_goods_sold;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+			sales_revenue_amount +=
+				specific_inventory_sale->
+					extension;
+
+		} while( list_next( specific_inventory_sale_list ) );
+	}
+
+	/* FIXED_SERVICE_SALE */
+	/* ------------------ */
+	if ( list_length( fixed_service_sale_list ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			customer_sale_fixed_service_distinct_account_extract(
+				&service_revenue_amount,
+				fixed_service_sale_list ) );
+	}
+
+	/* HOURLY_SERVICE_SALE */
+	/* ------------------- */
+	if ( list_length( hourly_service_sale_list ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			customer_sale_hourly_service_distinct_account_extract(
+				&service_revenue_amount,
+				hourly_service_sale_list ) );
+	}
+
+	/* shipping_revenue */
+	/* ---------------- */
+	if ( shipping_revenue )
+	{
+		if ( !shipping_revenue_account )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: shipping_revenue exists without shipping_revenue_account set.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				shipping_revenue_account );
+
+		journal_ledger->credit_amount = shipping_revenue;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		sales_revenue_amount += shipping_revenue;
+	}
+
+	/* sales_revenue */
+	/* ------------- */
+	if ( sales_revenue_amount )
+	{
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				sales_revenue_account );
+
+		journal_ledger->credit_amount = sales_revenue_amount;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* sales_tax */
+	/* --------- */
+	if ( sales_tax )
+	{
+		if ( !sales_tax_payable_account )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: sales_tax exists without sales_tax_payable_account set.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				sales_tax_payable_account );
+
+		journal_ledger->credit_amount = sales_tax;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* account_receivable */
+	/* ------------------ */
+	if ( invoice_amount )
+	{
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction_date_time,
+				receivable_account );
+
+		journal_ledger->debit_amount = invoice_amount;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		transaction->transaction_amount = invoice_amount;
+	}
+
+	return transaction;
+
+} /* ledger_customer_sale_build_transaction() */
+

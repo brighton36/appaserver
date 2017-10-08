@@ -31,12 +31,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_DIRECTORY_TEMPLATE "%s/%s"
-#define OUTPUT_FILE_TEMPLATE	 "%s/%s/invoice_%d.tex"
-#define PDF_FILE_TEMPLATE	 "invoice_%d.pdf"
-#define FTP_OUTPUT_FILE_TEMPLATE "%s://%s/%s/invoice_%d.pdf"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -86,11 +80,6 @@ void output_invoice_window(
 				int process_id,
 				char *process_name );
 
-/*
-char *get_sale_date_international(
-				char *sale_date );
-*/
-
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -102,7 +91,6 @@ int main( int argc, char **argv )
 	int process_id = getpid();
 	FILE *output_stream;
 	char *output_filename;
-	char *pdf_filename;
 	char *output_directory;
 	char *ftp_output_filename;
 	DOCUMENT *document;
@@ -182,34 +170,6 @@ int main( int argc, char **argv )
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-	appaserver_link_file->extension = "pdf";
-
-	pdf_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-/*
-	sprintf(	output_filename,
-			OUTPUT_FILE_TEMPLATE, 
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			application_name,
-			process_id );
-
-	sprintf(	pdf_filename,
-			PDF_FILE_TEMPLATE, 
-			process_id );
-*/
-
 	if ( ! ( output_stream = fopen( output_filename, "w" ) ) )
 	{
 		fprintf(stderr,
@@ -281,13 +241,6 @@ int main( int argc, char **argv )
 			appaserver_parameter_file->
 				document_root,
 			application_name );
-/*
-	sprintf( output_directory,
-		 OUTPUT_DIRECTORY_TEMPLATE,
-		 appaserver_parameter_file->
-			appaserver_mount_point,
-		application_name );
-*/
 
 	sprintf( sys_string,
 		 "cd %s && pdflatex %s 1>&2",
@@ -323,15 +276,6 @@ int main( int argc, char **argv )
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	sprintf(	ftp_output_filename,
-			FTP_OUTPUT_FILE_TEMPLATE,
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			application_name,
-			process_id );
-*/
 
 	output_invoice_window(
 			application_name,
@@ -647,7 +591,8 @@ double populate_line_item_list(
 					invoice_line_item_list,
 					(char *)0 /* line_item_key */,
 					strdup( inventory_key ),
-					atoi( quantity_string ),
+					atof( quantity_string ),
+					4 /* quantity_decimal_places */,
 					atof( retail_price_string ),
 					atof( discount_amount_string ) );
 	}

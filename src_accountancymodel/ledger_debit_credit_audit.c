@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* src_accountancymodel/ledger_debit_credit_audit.c			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/ledger_debit_credit_audit.c	*/
+/* -----------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -19,6 +19,7 @@
 
 /* Constants */
 /* --------- */
+#define DEBUG_MODE	0
 
 /* Prototypes */
 /* ---------- */
@@ -138,14 +139,15 @@ double ledger_debit_credit_difference(	double *balance_difference,
 		sum_debit_amount += journal_ledger->debit_amount;
 		sum_credit_amount += journal_ledger->credit_amount;
 
-/*
+if ( DEBUG_MODE )
+{
 printf( "account = %s; previous_balance = %.2lf; debit_amount = %.2lf; credit_amount = %.2lf; balance = %.2lf\n",
 journal_ledger->account_name,
 journal_ledger->previous_balance,
 journal_ledger->debit_amount,
 journal_ledger->credit_amount,
 journal_ledger->balance );
-*/
+}
 
 		if ( ledger_account_get_accumulate_debit(
 			application_name,

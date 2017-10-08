@@ -91,17 +91,6 @@ LIST *appaserver_get_exclude_permission_list(
 boolean appaserver_exclude_permission(	LIST *exclude_permission_list,
 					char *permission );
 
-LIST *appaserver_get_update_lookup_attribute_element_list(
-					char update_yn,
-					LIST *primary_attribute_name_list,
-					LIST *exclude_permission_list,
-					char *attribute_name,
-					char *datatype,
-					int width,
-					char *post_change_javascript,
-					char *on_focus_javascript_function,
-					boolean is_primary_attribute );
-
 void appaserver_append_isa_related_attribute_list(
 					LIST *attribute_list,
 					LIST *mto1_isa_related_folder_list );

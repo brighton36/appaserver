@@ -1,5 +1,7 @@
-/* library/date.h */
-/* -------------- */
+/* $APPASERVER_HOME/library/date.h			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #ifndef DATE_H
 #define DATE_H
@@ -35,7 +37,6 @@ typedef struct
 {
 	time_t current;
 	int format_yyyy_mm_dd;
-	DICTIONARY *week_of_year_dictionary;
 	struct tm *tm;
 } DATE;
 
@@ -57,6 +58,8 @@ DATE *date_yyyy_mm_dd_new( char *date_string );
 
 DATE *date_yyyy_mm_dd_hms_new( char *date_time_string );
 
+DATE *date_yyyy_mm_dd_hm_new( char *date_time_string );
+
 void date_increment_days( DATE *d, float days );
 
 void date_increment_hours( DATE *d, float hours );
@@ -69,6 +72,8 @@ void date_add_minutes( DATE *d, int minutes );
 int get_month( DATE *d );
 int get_year( DATE *d );
 
+int date_days_between(		char *from_date, char *to_date );
+
 int date_years_between(		char *from_date, char *to_date );
 
 int date_minutes_between(	char *from_date_string,
@@ -79,7 +84,9 @@ int date_minutes_between(	char *from_date_string,
 
 int age( char *birth_date );
 void add_slashes_maybe( char *d, char *s );
+
 char *date_yyyy_mm_dd( DATE *date );
+
 char *date_get_yyyy_mm_dd( char *destination, DATE *date );
 char *date_get_hhmm( char *destination, DATE *date );
 
@@ -104,7 +111,9 @@ DATE *date_new_now( void );
 DATE *date_today_new( void );
 
 char *date_get_now_yyyy_mm_dd( void );
+
 char *date_get_now_hhmm( void );
+
 char *date_get_now_date_yyyy_mm_dd( void );
 char *date_get_now_date_oracle_format( void );
 char *date_get_now_date_hhmm( void );
@@ -113,26 +122,45 @@ char *date_get_yesterday_yyyy_mm_dd( void );
 char *date_get_now_time_hhmm( void );
 char *date_get_now_time_hhmm_colon_ss( void );
 char *date_get_now_hhmm_colon_ss( void );
-char *date_get_now_hh_colon_mm_colon_ss( void );
+
+char *date_get_now_hh_colon_mm_colon_ss(
+				void );
+
+char *date_get_now_hh_colon_mm(	void );
+
+char *date_get_yyyy_mm_dd_hh_mm_ss(
+				DATE *date_time );
+
 DATE *date_new_yyyy_mm_dd_date( char *date_field );
 DATE *date_new_yyyy_mm_dd(	char *date_field );
 DATE *date_new_yyyy_mm_dd_hhmm(	char *date_string,
 				char *time_string );
-int date_set_yyyy_mm_dd( DATE *date, char *yyyy_mm_dd );
-int date_set_yyyy_mm_dd_hhmm(	DATE *date,
+
+int date_set_yyyy_mm_dd(	DATE *date, char *yyyy_mm_dd );
+
+int date_set_yyyy_mm_dd_hhmm_delimited(
+				DATE *date,
 				char *yyyy_mm_dd_hhmm,
+				int date_piece,
+				int time_piece,
 				char delimiter );
+
 char *date_this_saturday_yyyy_mm_dd_string( DATE *date );
 char *date_new_get_yyyy_mm_dd( time_t current );
-DATE *date_populate_week_of_year_dictionary( char *year );
-int date_get_week_of_year( DATE *date, char *yyyy_mm_dd );
+
+int date_get_week_of_year( DATE *date );
+
 void date_free( DATE *d );
 DATE *new_date( void );
 DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string );
 void date_set_time( DATE *date, int hour, int minutes );
 char *date_display_hhmm( DATE *date );
 char *date_display_hhmmss( DATE *date );
+
 int date_subtract_days( DATE *later_date, DATE *earlier_date );
+
+int date_subtract_minutes( DATE *later_date, DATE *earlier_date );
+
 int date_get_week_number( DATE *date );
 int date_get_month_number( DATE *date );
 int date_get_year_number( DATE *date );
@@ -242,6 +270,10 @@ char *date_current_to_static_yyyy_mm_dd_string(
 				time_t current );
 char *date_static_display(	DATE *date );
 
+void date_time_parse(		int *hours,
+				int *minutes,
+				char *hhmm );
+
 boolean date_parse(		int *year,
 				int *month,
 				int *day,
@@ -288,6 +320,8 @@ char *date_get_colon_now_time(
 
 void date_place_colon_in_time(	char *time_string );
 
+void date_remove_colon_in_time(	char *time_string );
+
 DATE *date_get_prior_day(	DATE *date,
 				int wday_parameter );
 
@@ -297,9 +331,25 @@ char *date_append_hhmmss(	char *date_string );
 
 char *date_get_now_time_second(	void );
 
-char *date_subtract_colon_from_time(
+char *date_remove_colon_from_time(
 				char *time_string );
 
 DATE *date_now_new(		void );
+
+void date_set_date_time_integers(
+				DATE *date,
+				int year,
+				int month,
+				int day,
+				int hours,
+				int minutes,
+				int seconds );
+
+int date_set_yyyy_mm_dd_hhmm(	DATE *date,
+				char *yyyy_mm_dd,
+				char *hhmm );
+
+int date_get_last_month_day(	int month,
+				int year );
 
 #endif

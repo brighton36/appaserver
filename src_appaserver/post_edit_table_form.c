@@ -1,12 +1,12 @@
-/* ---------------------------------------------------	*/
-/* src_appaserver/post_edit_table_form.c		*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* This script is attached to the submit button on 	*/
-/* the edit table form.					*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/post_edit_table_form.c	*/
+/* ------------------------------------------------------	*/
+/*								*/
+/* This script is attached to the submit button on 		*/
+/* the edit table form.						*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -187,6 +187,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_output_starting_argv_append_file(
 				argc,
@@ -251,7 +257,7 @@ int main( int argc, char **argv )
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	role = role_new_role(	application_name,
 				role_name );
@@ -506,7 +512,6 @@ void post_state_insert(
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -822,7 +827,6 @@ void post_state_update(
 				&folder->notepad,
 				&folder->html_help_file_anchor,
 				&folder->post_change_javascript,
-				&folder->row_access_count,
 				&folder->lookup_before_drop_down,
 				&folder->data_directory,
 				&folder->index_directory,
@@ -1050,7 +1054,6 @@ void post_state_lookup(
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -1470,24 +1473,4 @@ void set_insert_flag( DICTIONARY *non_prefixed_dictionary )
 				strdup( search_key ),
 				"yes" );
 } /* set_insert_flag() */
-
-#ifdef NOT_DEFINED
-void add_login_name_if_necessary(
-				DICTIONARY *post_dictionary,
-				LIST *attribute_name_list,
-				char *login_name )
-{
-	if ( list_exists_string( attribute_name_list, "login_name" ) )
-	{
-		if ( !dictionary_exists_key_index( post_dictionary, 
-						   "login_name",
-						   0 ) )
-		{
-			dictionary_add_string(	post_dictionary,
-						"login_name_0",
-						login_name );
-		}
-	}
-} /* add_login_name_if_necessary() */
-#endif
 

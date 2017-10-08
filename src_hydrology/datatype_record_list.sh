@@ -5,6 +5,10 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
 
+# ---------------------------------------------------------------
+# This select the same columns as station_datatype_record_list.sh
+# ---------------------------------------------------------------
+
 echo "Starting: $0 $*" 1>&2
 
 if [ "$#" -ne 1 ]
@@ -21,7 +25,10 @@ echo "select 	$datatype.datatype,					\
 		$datatype.bar_graph_yn,					\
 		$datatype.scale_graph_to_zero_yn,			\
 		$datatype.aggregation_sum_yn,				\
-		$datatype.set_negative_values_to_zero_yn		\
+		$datatype.ysi_load_heading,				\
+		$datatype.exo_load_heading,				\
+		$datatype.set_negative_values_to_zero_yn,		\
+		$datatype.calibrated_yn					\
       from $datatype							\
       order by datatype;"						|
 sql.e '|'								|

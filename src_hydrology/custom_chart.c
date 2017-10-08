@@ -1,4 +1,4 @@
-/* custom_chart.c			       		*/
+/* $APPASERVER_HOME/src_hydrology/custom_chart.c	*/
 /* --------------------------------------------------- 	*/
 /* Freely available software: see Appaserver.org	*/
 /* --------------------------------------------------- 	*/
@@ -142,18 +142,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
-
-#ifdef NOT_DEFINED
-	/* Set default to 'y' */
-	/* ------------------ */
-	if ( !*plot_for_station_check_yn
-	||   strcmp(	plot_for_station_check_yn,
-			"plot_for_station_check_yn" ) == 0 )
-	{
-		plot_for_station_check_yn = "y";
-	}
-#endif
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !*gridlines_yn
 	||   strcmp(	gridlines_yn,
@@ -332,21 +321,8 @@ int main( int argc, char **argv )
 		value_piece = 4;
 	}
 
-	if ( strcmp(	appaserver_parameter_file->database_management_system,
-			"oracle" ) == 0 )
-	{
-		strcpy( grace_begin_date_string,
-			timlib_oracle_date2mysql( begin_date_string ) );
-		strcpy( grace_end_date_string,
-			timlib_oracle_date2mysql( end_date_string ) );
-	}
-	else
-	{
-		strcpy( grace_begin_date_string,
-			begin_date_string );
-		strcpy( grace_end_date_string,
-			end_date_string );
-	}
+	strcpy( grace_begin_date_string, begin_date_string );
+	strcpy( grace_end_date_string, end_date_string );
 
 	if ( *session && strcmp( session, "session" ) != 0 )
 	{
@@ -437,7 +413,7 @@ int main( int argc, char **argv )
 		grace->sub_title = sub_title;
 	}
 
-	if ( ! grace_set_begin_end_date( 	grace,
+	if ( !grace_set_begin_end_date( 	grace,
 						grace_begin_date_string,
 						grace_end_date_string ) )
 	{

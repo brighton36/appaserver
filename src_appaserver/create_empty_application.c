@@ -23,15 +23,11 @@
 
 /* Constants */
 /* --------- */
-/* Because of DIFFERENT_DESTINATION_APPLICATION_OK, deletes can always be OK. */
-/* -------------------------------------------------------------------------- */
-#define DELETE_OK			1
 #define MAKE_SOURCE_DIRECTORY		0
 #define SYSTEM_ADMINISTRATION_ROLE	"system"
 #define SUPERVISOR_ROLE			"supervisor"
 #define DATAENTRY_ROLE			"dataentry"
 #define PROFILE_FILENAME		"/etc/profile"
-#define RESETTED_PASSWORD		"changeit"
 
 /* Prototypes */
 /* ---------- */
@@ -75,6 +71,7 @@ void delete_appaserver_user_rows(	char *destination_application,
 void insert_appaserver_user_row(	char *destination_application,
 					char *database_string,
 					char *login_name,
+					char *new_password,
 					char really_yn );
 
 void delete_process_non_appaserver_rows(
@@ -247,8 +244,16 @@ int main( int argc, char **argv )
 				argv,
 				current_application );
 
-	appaserver_parameter_file =
-		appaserver_parameter_default_file_new();
+	if ( ! ( appaserver_parameter_file =
+			appaserver_parameter_default_file_new() ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot appaserver_parameter_default_file_new()\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( !session_access(	current_application,
 				session,
@@ -315,14 +320,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !DELETE_OK && delete_application_yn == 'y' )
-	{
-		printf(
-"<h3>Error: the delete function is turned off for security. Set DELETE_OK to 1.</h3>\n" );
-		document_close();
-		exit( 1 );
-	}
-	else
 	if ( delete_application_yn == 'y' )
 	{
 		if ( !appaserver_library_application_exists(
@@ -386,8 +383,16 @@ void get_all_environment_variables(	char **appaserver_error_directory,
 {
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	appaserver_parameter_file =
-		appaserver_parameter_default_file_new();
+	if ( ! ( appaserver_parameter_file =
+			appaserver_parameter_default_file_new() ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot appaserver_parameter_default_file_new()\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	*appaserver_error_directory =
 		appaserver_parameter_file->
@@ -1441,17 +1446,17 @@ void insert_appaserver_user_row(
 				char *destination_application,
 				char *database_string,
 				char *login_name,
+				char *new_password,
 				char really_yn )
 {
 	char sys_string[ 1024 ];
 	char *sql_executable;
-	char *password;
+	char password_expression[ 256 ];
 
 	if ( really_yn == 'y'
 	&&   timlib_login_name_email_address( login_name ) )
 	{
 		char sys_string[ 256 ];
-		char password_expression[ 256 ];
 
 		sprintf( sys_string,
 			 "session_number_new.sh %s",
@@ -1460,12 +1465,12 @@ void insert_appaserver_user_row(
 		sprintf( password_expression,
 			 "password('%s')",
 			 pipe2string( sys_string ) );
-
-		password = strdup( password_expression );
 	}
 	else
 	{
-		password = RESETTED_PASSWORD;
+		sprintf( password_expression,
+			 "password('%s')",
+			 new_password );
 	}
 
 	if ( really_yn == 'y' )
@@ -1486,7 +1491,7 @@ void insert_appaserver_user_row(
 	sprintf( sys_string,
 "echo \"%s^%s^%s\" | insert_statement.e table=%s field=%s delimiter='^' | %s",
 		 login_name,
-		 password,
+		 password_expression,
 		 "international",
 		 "appaserver_user",
 		 "login_name,password,user_date_format",
@@ -1593,6 +1598,8 @@ boolean create_empty_application(
 				char *appaserver_home_directory,
 				char really_yn )
 {
+	char *new_password;
+
 	if ( appaserver_library_application_exists(
 					destination_application,
 					appaserver_error_directory ) )
@@ -1674,10 +1681,13 @@ boolean create_empty_application(
 					role_name,
 					really_yn );
 
+	new_password = timlib_generate_password();
+
 	insert_appaserver_user_row(
 					destination_application,
 					database_string,
 					login_name,
+					new_password,
 					really_yn );
 
 	make_appaserver_error_file(	destination_application,
@@ -1688,9 +1698,9 @@ boolean create_empty_application(
 	&&   !timlib_login_name_email_address( login_name ) )
 	{
 		printf(
-"<p>Process completed. Log into %s using password = %s.\n",
+"<p>Process completed. Log into %s using password: %s\n",
 			destination_application,
-			RESETTED_PASSWORD );
+			new_password );
 	}
 
 	return 1;

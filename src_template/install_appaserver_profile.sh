@@ -66,7 +66,7 @@ append_etc_profile_execute ()
 	echo "export APPASERVER_UNUSED_PARAMETER_FLAG=-Wunused-parameter" >> ${profile_file}
 	echo "export DOCUMENT_ROOT=${document_root}" >> ${profile_file}
 	echo 'export PATH=$PATH:$APPASERVER_HOME/utility:$APPASERVER_HOME/src_appaserver:.' >> ${profile_file}
-	echo "# Uncomment is APPASERVER_HOME and CGI_HOME are on different filesystems" >> ${profile_file}
+	echo "# Uncomment if APPASERVER_HOME and CGI_HOME are on different filesystems" >> ${profile_file}
 	echo "#export APPASERVER_LINK_FLAGS=-s" >> ${profile_file}
 }
 
@@ -76,7 +76,6 @@ label="appaserver_mount_point="
 appaserver_home=`cat $appaserver_config_file	| \
 		 grep "^${label}"		| \
 		 sed "s/$label//"`
-
 
 label="document_root="
 document_root=`cat $appaserver_config_file	| \

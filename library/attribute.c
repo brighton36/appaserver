@@ -1,4 +1,4 @@
-/* attribute.c 								*/
+/* $APPASERVER_HOME/library/attribute.c					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver attribute ADT.				*/
 /*									*/
@@ -187,6 +187,7 @@ char *attribute_display( ATTRIBUTE *attribute )
 	}
 
 	return buffer;
+
 } /* attribute_display() */
 
 char *attribute_list_display( LIST *attribute_list )
@@ -222,51 +223,27 @@ char *attribute_get_database_datatype(	ATTRIBUTE *attribute,
 		exit( 1 );
 	}
 
-	if ( strcmp( attribute->datatype, "timestamp" ) == 0 )
+	if ( timlib_strcmp( attribute->datatype, "timestamp" ) == 0 )
 	{
-/*
-		if ( database_management_system
-		&&   strcmp( database_management_system, "oracle" ) == 0 )
-		{
-			sprintf(buffer,
-			 	"char (%d)",
-			 	attribute->width );
-		}
-		else
-		{
-			sprintf( buffer,
-			 	"timestamp (%d)",
-			 	attribute->width );
-		}
-			strcpy( buffer, "timestamp (14)" );
-*/
 			strcpy( buffer, "timestamp" );
 	}
 	else
-	if ( strcmp( attribute->datatype, "password" ) == 0 )
+	if ( timlib_strcmp( attribute->datatype, "password" ) == 0 )
 	{
 		sprintf( buffer,
 			 "char (%d)",
 			 attribute->width );
 	}
 	else
-	if ( strcmp( attribute->datatype, "text" ) == 0
-	||   strcmp( attribute->datatype, "hidden_text" ) == 0
-	||   strcmp( attribute->datatype, "notepad" ) == 0
-	||   strcmp( attribute->datatype, "http_filename" ) == 0 )
+	if ( timlib_strcmp( attribute->datatype, "text" ) == 0
+	||   timlib_strcmp( attribute->datatype, "hidden_text" ) == 0
+	||   timlib_strcmp( attribute->datatype, "notepad" ) == 0
+	||   timlib_strcmp( attribute->datatype, "http_filename" ) == 0 )
 	{
 		if ( attribute->width < 256)
 		{
 			sprintf( buffer,
 			 	"char (%d)",
-			 	attribute->width );
-		}
-		else
-		if ( database_management_system
-		&&   strcmp( database_management_system, "oracle" ) == 0 )
-		{
-			sprintf( buffer,
-			 	"varchar2 (%d)",
 			 	attribute->width );
 		}
 		else
@@ -283,20 +260,20 @@ char *attribute_get_database_datatype(	ATTRIBUTE *attribute,
 		}
 	}
 	else
-	if ( strcmp( attribute->datatype, "integer" ) == 0 )
+	if ( timlib_strcmp( attribute->datatype, "integer" ) == 0 )
 	{
 		sprintf( buffer,
 			 "integer" );
 	}
 	else
-	if ( strcmp( attribute->datatype, "date" ) == 0
-	||   strcmp( attribute->datatype, "current_date" ) == 0 )
+	if ( timlib_strcmp( attribute->datatype, "date" ) == 0
+	||   timlib_strcmp( attribute->datatype, "current_date" ) == 0 )
 	{
 		sprintf( buffer,
 			 "date" );
 	}
 	else
-	if ( strcmp( attribute->datatype, "float" ) == 0 )
+	if ( timlib_strcmp( attribute->datatype, "float" ) == 0 )
 	{
 		if ( database_management_system
 		&&   strcmp( database_management_system, "oracle" ) == 0 )
@@ -315,22 +292,22 @@ char *attribute_get_database_datatype(	ATTRIBUTE *attribute,
 		}
 	}
 	else
-	if ( strcmp( attribute->datatype, "reference_number" ) == 0 )
+	if ( timlib_strcmp( attribute->datatype, "reference_number" ) == 0 )
 	{
 		sprintf( buffer,
 			 "integer" );
 	}
 	else
-	if ( strcmp( attribute->datatype, "time" ) == 0
-	||   strcmp( attribute->datatype, "current_time" ) == 0 )
+	if ( timlib_strcmp( attribute->datatype, "time" ) == 0
+	||   timlib_strcmp( attribute->datatype, "current_time" ) == 0 )
 	{
 		sprintf( buffer,
 			 "char (%d)",
 			 attribute->width );
 	}
 	else
-	if ( strcmp( attribute->datatype, "date_time" ) == 0
-	||   strcmp( attribute->datatype, "current_date_time" ) == 0 )
+	if ( timlib_strcmp( attribute->datatype, "date_time" ) == 0
+	||   timlib_strcmp( attribute->datatype, "current_date_time" ) == 0 )
 	{
 		sprintf( buffer,
 			 "datetime" );
@@ -365,8 +342,9 @@ LIST *attribute_list_get_datatype_attribute_string_list(
 		list_rewind( datatype_list );
 		do {
 			datatype_string = list_get_string( datatype_list );
-			if ( strcmp(	datatype_string,
-					attribute->datatype ) == 0 )
+			if ( timlib_strcmp(
+				datatype_string,
+				attribute->datatype ) == 0 )
 			{
 				if ( !attribute_name_list )
 					attribute_name_list = list_new();
@@ -402,8 +380,10 @@ LIST *attribute_list_get_primary_datatype_attribute_string_list(
 		list_rewind( datatype_list );
 		do {
 			datatype_string = list_get_string( datatype_list );
-			if ( strcmp(	datatype_string,
-					attribute->datatype ) == 0 )
+
+			if ( timlib_strcmp(
+				datatype_string,
+				attribute->datatype ) == 0 )
 			{
 				if ( !attribute_name_list )
 					attribute_name_list = list_new();
@@ -806,6 +786,8 @@ boolean attribute_exists_date_attribute( LIST *attribute_list )
 		do {
 			attribute = list_get_pointer( attribute_list );
 
+			if ( !attribute->datatype ) continue;
+
 			if ( strcmp( attribute->datatype, "date" ) == 0
 			||   strcmp( attribute->datatype, "current_date" ) == 0
 			||   strcmp(	attribute->datatype,
@@ -828,6 +810,8 @@ boolean attribute_exists_reference_number(
 	{
 		do {
 			attribute = list_get_pointer( attribute_list );
+
+			if ( !attribute->datatype ) continue;
 
 			if ( strcmp(	attribute->datatype,
 					"reference_number" ) == 0  )
@@ -1042,12 +1026,12 @@ LIST *attribute_get_date_attribute_position_list(
 			attribute = (ATTRIBUTE *)
 				list_get_pointer( attribute_list );
 
-			if ( attribute->datatype
-			&& ( strcmp( attribute->datatype, "date" ) == 0
-			||   strcmp(	attribute->datatype,
-					"current_date" ) == 0 ) )
+			if ( timlib_strcmp( attribute->datatype, "date" ) == 0
+			||   timlib_strcmp(	attribute->datatype,
+					"current_date" ) == 0 )
 			{
 				sprintf( position_string, "%d", position );
+
 				list_append_pointer(
 					date_attribute_position_list,
 					strdup( position_string ) );
@@ -1126,8 +1110,10 @@ LIST *attribute_get_date_attribute_name_list( LIST *attribute_list )
 			attribute = (ATTRIBUTE *)
 				list_get_pointer( attribute_list );
 
-			if ( strcmp( attribute->datatype, "date" ) == 0
-			||   strcmp( attribute->datatype, "current_date" ) == 0)
+			if ( timlib_strcmp( attribute->datatype, "date" ) == 0
+			||   timlib_strcmp(
+				attribute->datatype,
+				"current_date" ) == 0)
 			{
 				list_append_pointer(
 					attribute_name_list,
@@ -1495,7 +1481,8 @@ LIST *attribute_get_attribute_element_list(
 						element_date_time,
 						strdup( element_name ) );
 
-				element->text_item->dont_initialize_data = 1;
+				element->text_item->
+					dont_create_current_date = 1;
 			}
 			else
 			if ( strcmp( datatype, "current_date_time" ) == 0 )
@@ -1504,7 +1491,8 @@ LIST *attribute_get_attribute_element_list(
 						element_current_date_time,
 						strdup( element_name ) );
 
-				element->text_item->dont_initialize_data = 1;
+				element->text_item->
+					dont_create_current_date = 1;
 			}
 			else
 			{
@@ -1564,7 +1552,8 @@ LIST *attribute_get_attribute_element_list(
 						element_date_time,
 						strdup( element_name ) );
 
-				element->text_item->dont_initialize_data = 1;
+				element->text_item->
+					dont_create_current_date = 1;
 			}
 			else
 			if ( strcmp( datatype, "current_date_time" ) == 0 )
@@ -1573,7 +1562,8 @@ LIST *attribute_get_attribute_element_list(
 						element_current_date_time,
 						strdup( element_name ) );
 
-				element->text_item->dont_initialize_data = 1;
+				element->text_item->
+					dont_create_current_date = 1;
 			}
 			else
 			{
@@ -1628,14 +1618,18 @@ int attribute_get_date_piece_offset(	LIST *attribute_list,
 			continue;
 		}
 
-		if ( strcmp( attribute->datatype, "date" ) == 0
-		||   strcmp( attribute->datatype, "current_date" ) == 0 )
+		if ( timlib_strcmp( attribute->datatype, "date" ) == 0
+		||   timlib_strcmp( attribute->datatype, "current_date" ) == 0 )
 		{
 			return date_piece_offset;
 		}
+
 		date_piece_offset++;
+
 	} while( list_next( attribute_list ) );
+
 	return -1;
+
 } /* attribute_get_date_piece_offset() */
 
 char *attribute_get_reference_number_attribute_name(
@@ -1663,10 +1657,17 @@ char *attribute_get_reference_number_attribute_name(
 			exit( 1 );
 		}
 
-		if ( strcmp( attribute->datatype, "reference_number" ) == 0 )
+		if ( timlib_strcmp(
+			attribute->datatype,
+			"reference_number" ) == 0 )
+		{
 			return attribute_name;
+		}
+
 	} while( list_next( attribute_name_list ) );
+
 	return (char *)0;
+
 } /* attribute_get_reference_number_attribute_name() */
 
 boolean attribute_list_exists_name(
@@ -1747,7 +1748,7 @@ LIST *attribute_get_non_primary_float_list(
 	do {
 		attribute = list_get_pointer( attribute_list );
 
-		if ( strcmp( attribute->datatype, "float" ) == 0
+		if ( timlib_strcmp( attribute->datatype, "float" ) == 0
 		&&   attribute->display_order )
 		{
 			if ( !attribute_float_list )
@@ -1796,8 +1797,8 @@ void attribute_set_dictionary_date_international(
 			continue;
 		}
 
-		if ( strcmp( attribute->datatype, "date" ) == 0
-		||   strcmp( attribute->datatype, "current_date" ) == 0 )
+		if ( timlib_strcmp( attribute->datatype, "date" ) == 0
+		||   timlib_strcmp( attribute->datatype, "current_date" ) == 0 )
 		{
 			date_string = dictionary_fetch( dictionary, key );
 

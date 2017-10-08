@@ -12,6 +12,7 @@
 #include "boolean.h"
 #include "hash_table.h"
 #include "inventory.h"
+#include "ledger.h"
 
 /* Enumerated types */
 /* ---------------- */
@@ -23,6 +24,12 @@ enum inventory_cost_method{	inventory_not_set,
 				inventory_fifo,
 				inventory_average,
 				inventory_lifo };
+
+enum payroll_pay_period{	pay_period_not_set,
+				pay_period_weekly,
+				pay_period_biweekly,
+				pay_period_semimonthly,
+				pay_period_monthly };
 
 /* Constants */
 /* --------- */
@@ -45,6 +52,9 @@ typedef struct
 	char *phone_number;
 	char *email_address;
 	boolean sales_tax_exempt;
+	LIST *depreciable_fixed_asset_purchase_list;
+	double depreciation_amount;
+	TRANSACTION *depreciation_transaction;
 } ENTITY;
 
 typedef struct
@@ -62,6 +72,18 @@ typedef struct
 	HASH_TABLE *transaction_hash_table;
 	HASH_TABLE *journal_ledger_hash_table;
 	LIST *inventory_list;
+	LIST *employee_list;
+	enum payroll_pay_period payroll_pay_period;
+	double social_security_combined_tax_rate;
+	int social_security_payroll_ceiling;
+	double medicare_combined_tax_rate;
+	int federal_unemployment_gross_pay_ceiling;
+	double federal_unemployment_tax_minimum_rate;
+	double federal_unemployment_tax_standard_rate;
+	int state_unemployment_gross_pay_ceiling;
+	double state_unemployment_tax_rate;
+	double state_unemployment_threshold_rate;
+	double withholding_allowance_period_value;
 } ENTITY_SELF;
 
 /* Operations */
@@ -112,24 +134,6 @@ void entity_propagate_purchase_order_ledger_accounts(
 				char *fund_name,
 				char *purchase_order_transaction_date_time );
 
-/*
-void entity_propagate_inventory_ledger_accounts(
-				char *application_name,
-				char *fund_name,
-				char *customer_sale_transaction_date_time );
-*/
-
-void entity_propagate_customer_sale_ledger_accounts(
-				char *application_name,
-				char *fund_name,
-				char *customer_sale_transaction_date_time );
-
-/*
-ENTITY_SELF *entity_self_purchase_inventory_load(
-				char *application_name,
-				char *inventory_name );
-*/
-
 ENTITY_SELF *entity_self_sale_inventory_load(
 				char *application_name,
 				char *inventory_name );
@@ -140,6 +144,15 @@ enum title_passage_rule
 
 char *entity_get_title_passage_rule_string(
 				enum title_passage_rule title_passage_rule );
+
+ENTITY *entity_get_sales_tax_payable_entity(
+				char *application_name );
+
+char *entity_get_payroll_pay_period_string(
+				enum payroll_pay_period );
+
+enum payroll_pay_period entity_get_payroll_pay_period(
+				char *payroll_pay_period_string );
 
 #endif
 

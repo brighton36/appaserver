@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_appaserver/generic_output_text_file.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/generic_output_text_file.c	*/
+/* ----------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* ----------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -30,15 +30,6 @@ enum output_medium { text_file, output_medium_stdout, table, spreadsheet };
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_FILE_SPREADSHEET		"%s/%s/%s_%s%s_%d.csv"
-#define PREPEND_HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/%s_%s%s_%d.csv"
-#define FTP_FILE_SPREADSHEET		"/%s/%s_%s%s_%d.csv"
-
-#define OUTPUT_FILE_TEXT_FILE		"%s/%s/%s_%s%s_%d.txt"
-#define PREPEND_HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/%s_%s%s_%d.txt"
-#define FTP_FILE_TEXT_FILE		"/%s/%s_%s%s_%d.txt"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -148,13 +139,6 @@ int main( int argc, char **argv )
 				argc,
 				argv,
 				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
 
 	accumulate_yn =
 		dictionary_fetch_index_zero(
@@ -465,48 +449,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf(output_filename,
-		 	OUTPUT_FILE_TEXT_FILE,
-		 	appaserver_parameter_file->
-				appaserver_mount_point,
-		 	application_name, 
-		 	process_generic_output->
-				value_folder->
-				value_folder_name,
-		 	begin_date,
-		 	end_date_suffix,
-		 	process_id );
-
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	PREPEND_HTTP_FTP_FILE_TEXT_FILE,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_generic_output->
-					value_folder->
-					value_folder_name,
-			 	begin_date,
-			 	end_date_suffix,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEXT_FILE,
-			 	application_name,
-			 	process_generic_output->
-					value_folder->
-					value_folder_name,
-			 	begin_date,
-			 	end_date_suffix,
-			 	process_id );
-		}
-*/
-
 		document = document_new( "", application_name );
 		document_set_output_content_type( document );
 	
@@ -678,48 +620,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf(output_filename,
-		 	OUTPUT_FILE_SPREADSHEET,
-		 	appaserver_parameter_file->
-				appaserver_mount_point,
-		 	application_name, 
-		 	process_generic_output->
-				value_folder->
-				value_folder_name,
-		 	begin_date,
-		 	end_date_suffix,
-		 	process_id );
-
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	PREPEND_HTTP_FTP_FILE_SPREADSHEET,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_generic_output->
-					value_folder->
-					value_folder_name,
-			 	begin_date,
-			 	end_date_suffix,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET,
-			 	application_name,
-			 	process_generic_output->
-					value_folder->
-					value_folder_name,
-			 	begin_date,
-			 	end_date_suffix,
-			 	process_id );
-		}
-*/
-
 		input_pipe = popen( sys_string, "r" );
 
 		sprintf(sys_string,
@@ -857,19 +757,6 @@ int main( int argc, char **argv )
 
 		/* The frequency per period */
 		/* ------------------------ */
-/*
-		int right_justify_count = 1;
-		if ( aggregate_level != real_time
-		&&   aggregate_level != aggregate_level_none )
-		{
-			right_justify_count++;
-		}
-
-		sprintf(sys_string,
-			"delimiter2padded_columns.e '^' %d",
-			right_justify_count );
-*/
-
 		sprintf(sys_string,
 			"tr '^' '%c'",
 			OUTPUT_TEXT_FILE_DELIMITER );

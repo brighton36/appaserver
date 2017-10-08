@@ -1,5 +1,13 @@
+/* ---------------------------------------------------- */
+/* $APPASERVER_HOME/library/semaphore.c			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
+
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include "timlib.h"
 #include "semaphore.h"
 
 int semaphore( key_t key )
@@ -12,9 +20,6 @@ int semaphore( key_t key )
 		if ( errno == EEXIST )
 		{
 			semid = semget( key, 1, 0 );
-		}
-		else
-		{
 		}
 	}
 	else
@@ -66,4 +71,101 @@ void semaphore_signal( int semid )
 		exit( 1 );
 	}
 }
+
+SEMAPHORE_OPERATION *semaphore_operation_new(
+				char *application_name,
+				char *appaserver_data_directory,
+				int parent_process_id,
+				int operation_row_total )
+{
+	SEMAPHORE_OPERATION *semaphore_operation;
+
+	if ( ! ( semaphore_operation =
+			(SEMAPHORE_OPERATION *)calloc(
+				1, sizeof( SEMAPHORE_OPERATION ) ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	semaphore_operation->application_name = application_name;
+
+	semaphore_operation->appaserver_data_directory =
+		appaserver_data_directory;
+
+	semaphore_operation->parent_process_id = parent_process_id;
+	semaphore_operation->operation_row_total = operation_row_total;
+
+	return semaphore_operation;
+
+} /* semaphore_operation_new() */
+
+char *semaphore_operation_get_filename(
+				char *application_name,
+				char *appaserver_data_directory,
+				int parent_process_id )
+{
+	char semaphore_filename[ 256 ];
+
+	sprintf(	semaphore_filename,
+			SEMAPHORE_TEMPLATE,
+			appaserver_data_directory,
+			application_name,
+			parent_process_id );
+
+	return strdup( semaphore_filename );
+
+} /* semaphore_operation_get_filename() */
+
+void semaphore_operation_check(
+				boolean *group_first_time,
+				boolean *group_last_time,
+				int operation_row_total,
+				char *semaphore_filename )
+{
+	char *operation_row_current_string;
+	int operation_row_current;
+	char sys_string[ 1024 ];
+
+	if ( operation_row_total == 1 )
+	{
+		*group_first_time = 1;
+		*group_last_time = 1;
+	}
+
+	if ( !timlib_file_exists( semaphore_filename ) )
+	{
+		sprintf( sys_string, "echo 1 > %s", semaphore_filename );
+
+		fflush( stdout );
+		system( sys_string );
+		fflush( stdout );
+
+		*group_first_time = 1;
+
+		return;
+	}
+
+	*group_first_time = 0;
+
+	sprintf( sys_string, "cat %s", semaphore_filename );
+
+	operation_row_current_string = pipe2string( sys_string );
+
+	operation_row_current = atoi( operation_row_current_string ) + 1;
+
+	sprintf( sys_string,
+		 "echo %d > %s",
+		 operation_row_current,
+		 semaphore_filename );
+
+	system( sys_string );
+
+	*group_last_time = ( operation_row_current == operation_row_total );
+
+} /* semaphore_operation_check() */
 

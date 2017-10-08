@@ -137,6 +137,8 @@ int main( int argc, char **argv )
 	DICTIONARY *post_dictionary;
 	char *http_referer_filename;
 
+exit( 0 );
+
 	environ_set_environment(
 		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 		DATABASE );
@@ -422,7 +424,8 @@ boolean post_cloudacus_save_contact(	char *contact_message,
 	}
 
 	if (	timlib_strcmp( full_name, "na" ) == 0
-	||	timlib_strcmp( full_name, "n/a" ) == 0 )
+	||	timlib_strcmp( full_name, "n/a" ) == 0
+	||	timlib_strncmp( full_name, "pharmacy" ) == 0 )
 	{
 		/* Full name is required. */
 		/* ---------------------- */
@@ -440,8 +443,16 @@ boolean post_cloudacus_save_contact(	char *contact_message,
 		return 0;
 	}
 
+	if ( !isalpha( *email_address ) )
+	{
+		/* Email must begin with a letter. */
+		/* ------------------------------- */
+		return 0;
+	}
+
 	if (	timlib_strcmp( email_address, "na" ) == 0
-	||	timlib_strcmp( email_address, "n/a" ) == 0 )
+	||	timlib_strcmp( email_address, "n/a" ) == 0
+	||	isdigit( *email_address ) )
 	{
 		/* Email is required. */
 		/* ------------------ */
@@ -1242,6 +1253,7 @@ void post_cloudacus_musician_list( DICTIONARY *post_dictionary )
 
 	post_capitolpops_redraw(
 			"membership_list_status=succeeded" );
+
 } /* post_cloudacus_musician_list() */
 
 char *get_section_leader_email_address(

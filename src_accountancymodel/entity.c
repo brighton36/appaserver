@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/entity.c					*/
+/* $APPASERVER_HOME/src_accountancymodel/entity.c			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel entity ADT.				*/
 /*									*/
@@ -16,6 +16,25 @@
 #include "customer.h"
 #include "ledger.h"
 #include "entity.h"
+
+enum payroll_pay_period entity_get_payroll_pay_period(
+				char *payroll_pay_period_string )
+{
+	if ( strcasecmp( payroll_pay_period_string, "weekly" ) == 0 )
+		return pay_period_weekly;
+	else
+	if ( strcasecmp( payroll_pay_period_string, "biweekly" ) == 0 )
+		return pay_period_biweekly;
+	else
+	if ( strcasecmp( payroll_pay_period_string, "semimonthly" ) == 0 )
+		return pay_period_semimonthly;
+	else
+	if ( strcasecmp( payroll_pay_period_string, "monthly" ) == 0 )
+		return pay_period_monthly;
+	else
+		return pay_period_not_set;
+
+} /* entity_get_payroll_pay_period() */
 
 enum inventory_cost_method entity_get_inventory_cost_method(
 				char *inventory_cost_method_string )
@@ -34,14 +53,6 @@ enum inventory_cost_method entity_get_inventory_cost_method(
 		return inventory_average;
 	else
 		return inventory_not_set;
-
-	fprintf( stderr,
-"ERROR in %s/%s()/%d: unrecognizable inventory_cost_method of (%s).\n",
-		 __FILE__,
-		 __FUNCTION__,
-		 __LINE__,
-		 inventory_cost_method_string );
-	exit( 1 );
 
 } /* entity_get_inventory_cost_method() */
 
@@ -92,16 +103,17 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 	ENTITY_SELF *self;
 	char full_name[ 128 ];
 	char street_address[ 128 ];
-	char inventory_cost_method_string[ 128 ];
+	char piece_buffer[ 128 ];
 	char sys_string[ 1024 ];
 	char *select;
 	char *results;
 
-	select = "full_name,street_address,inventory_cost_method";
+	select =
+"full_name, street_address, inventory_cost_method, social_security_combined_tax_rate, social_security_payroll_ceiling, medicare_combined_tax_rate, federal_unemployment_gross_pay_ceiling, federal_unemployment_tax_minimum_rate, federal_unemployment_tax_standard_rate, state_unemployment_gross_pay_ceiling, state_unemployment_tax_rate, state_unemployment_threshold_rate, withholding_allowance_period_value,payroll_pay_period";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=self		",
 		 application_name,
 		 select );
@@ -112,11 +124,6 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 
 	piece( full_name, FOLDER_DATA_DELIMITER, results, 0 );
 	piece( street_address, FOLDER_DATA_DELIMITER, results, 1 );
-
-	piece(	inventory_cost_method_string,
-		FOLDER_DATA_DELIMITER,
-		results,
-		2 );
 
 	self = entity_self_new(
 			strdup( full_name ),
@@ -136,10 +143,45 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 		return (ENTITY_SELF *)0;
 	}
 
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
 	self->inventory_cost_method =
 		entity_get_inventory_cost_method(
-			inventory_cost_method_string );
+			piece_buffer );
 
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 3 );
+	self->social_security_combined_tax_rate = atof( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 4 );
+	self->social_security_payroll_ceiling = atoi( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 5 );
+	self->medicare_combined_tax_rate = atof( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 6 );
+	self->federal_unemployment_gross_pay_ceiling = atoi( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 7 );
+	self->federal_unemployment_tax_minimum_rate = atof( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 8 );
+	self->federal_unemployment_tax_standard_rate = atof( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 9 );
+	self->state_unemployment_gross_pay_ceiling = atoi( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 10 );
+	self->state_unemployment_tax_rate = atof( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 11 );
+	self->state_unemployment_threshold_rate = atof( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 12 );
+	self->withholding_allowance_period_value = atof( piece_buffer );
+
+	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 13 );
+	self->payroll_pay_period =
+		entity_get_payroll_pay_period(
+			piece_buffer );
 	return self;
 
 } /* entity_self_load() */
@@ -165,7 +207,7 @@ boolean entity_load(	char **unit,
 "unit,city,state_code,zip_code,phone_number,email_address,sales_tax_exempt_yn";
 
 	sprintf( where,
-		 "full_name = '%s' and		"
+		 "full_name = '%s' and			"
 		 "street_address = '%s' 		",
 		 escape_character(	buffer,
 					full_name,
@@ -218,6 +260,8 @@ void entity_propagate_purchase_order_ledger_accounts(
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
+	char *specific_inventory_account = {0};
+	char *cost_of_goods_sold_account = {0};
 
 	inventory_account_name_list =
 		ledger_get_inventory_account_name_list(
@@ -227,6 +271,8 @@ void entity_propagate_purchase_order_ledger_accounts(
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
+		&specific_inventory_account,
+		&cost_of_goods_sold_account,
 		application_name,
 		fund_name );
 
@@ -263,81 +309,6 @@ void entity_propagate_purchase_order_ledger_accounts(
 	}
 
 } /* entity_propagate_purchase_order_ledger_accounts() */
-
-void entity_propagate_customer_sale_ledger_accounts(
-				char *application_name,
-				char *fund_name,
-				char *customer_sale_transaction_date_time )
-{
-	char *sales_revenue_account = {0};
-	char *service_revenue_account = {0};
-	char *sales_tax_payable_account = {0};
-	char *shipping_revenue_account = {0};
-	char *receivable_account = {0};
-	LIST *inventory_account_name_list;
-
-	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
-		&service_revenue_account,
-		&sales_tax_payable_account,
-		&shipping_revenue_account,
-		&receivable_account,
-		application_name,
-		fund_name );
-
-	if ( sales_revenue_account )
-	{
-		ledger_propagate(
-			application_name,
-			customer_sale_transaction_date_time,
-			sales_revenue_account );
-	}
-
-	if ( service_revenue_account )
-	{
-		ledger_propagate(
-			application_name,
-			customer_sale_transaction_date_time,
-			service_revenue_account );
-	}
-
-	if ( sales_tax_payable_account )
-	{
-		ledger_propagate(
-			application_name,
-			customer_sale_transaction_date_time,
-			sales_tax_payable_account );
-	}
-
-	if ( shipping_revenue_account )
-	{
-		ledger_propagate(
-			application_name,
-			customer_sale_transaction_date_time,
-			shipping_revenue_account );
-	}
-
-	if ( receivable_account )
-	{
-		ledger_propagate(
-			application_name,
-			customer_sale_transaction_date_time,
-			receivable_account );
-	}
-
-	inventory_account_name_list =
-		ledger_get_inventory_account_name_list(
-			application_name );
-
-	if ( list_length( inventory_account_name_list ) )
-	{
-		ledger_propagate_account_name_list(
-			application_name,
-			customer_sale_transaction_date_time,
-			inventory_account_name_list );
-	}
-
-} /* entity_propagate_customer_sale_ledger_accounts() */
 
 ENTITY_SELF *entity_self_sale_inventory_load(
 			char *application_name,
@@ -533,4 +504,68 @@ LIST *entity_get_inventory_list(
 	return inventory_list;
 
 } /* entity_get_inventory_list() */
+
+ENTITY *entity_get_sales_tax_payable_entity(
+				char *application_name )
+{
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+	char *results;
+
+	select = "full_name,street_address";
+
+	folder = "sales_tax_payable_entity";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=%s		",
+		 application_name,
+		 select,
+		 folder );
+
+	results = pipe2string( sys_string );
+
+	if ( !results ) return (ENTITY *)0;
+
+	piece( full_name, FOLDER_DATA_DELIMITER, results, 0 );
+	piece( street_address, FOLDER_DATA_DELIMITER, results, 1 );
+
+	return entity_new(	strdup( full_name ),
+				strdup( street_address ) );
+
+} /* entity_get_sales_tax_payable_entity() */
+
+char *entity_get_payroll_pay_period_string(
+				enum payroll_pay_period
+					payroll_pay_period )
+{
+	if ( payroll_pay_period == pay_period_not_set )
+		return "weekly";
+	else
+	if ( payroll_pay_period == pay_period_weekly )
+		return "weekly";
+	else
+	if ( payroll_pay_period == pay_period_biweekly )
+		return "biweekly";
+	else
+	if ( payroll_pay_period == pay_period_semimonthly )
+		return "semimonthly";
+	else
+	if ( payroll_pay_period == pay_period_monthly )
+		return "monthly";
+
+	fprintf( stderr,
+"ERROR in %s/%s()/%d: unrecognized payroll_pay_period = %d.\n",
+		 __FILE__,
+		 __FUNCTION__,
+		 __LINE__,
+		 payroll_pay_period );
+
+	exit( 1 );
+
+} /* entity_get_payroll_pay_period_string() */
 

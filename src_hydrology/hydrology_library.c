@@ -1,4 +1,4 @@
-/* hydrology_library.c 							*/
+/* $APPASERVER_HOME/src_hydrology/hydrology_library.c			*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -339,29 +339,26 @@ void hydrology_library_get_period_of_record_begin_end_dates(
 				char *station,
 				char *datatype )
 {
-	hydrology_library_get_period_of_record_begin_date(
-				begin_date_string,
-				application_name,
-				station,
-				datatype );
+	*begin_date_string =
+		hydrology_library_get_period_of_record_begin_date(
+			application_name,
+			station,
+			datatype );
 
-	hydrology_library_get_period_of_record_end_date(
-				end_date_string,
-				application_name,
-				station,
-				datatype );
+	*end_date_string =
+		hydrology_library_get_period_of_record_end_date(
+			application_name,
+			station,
+			datatype );
 
 } /* hydrology_library_get_period_of_record_begin_end_dates() */
 
-void hydrology_library_get_period_of_record_begin_date(
-				char **begin_date_string,
+char *hydrology_library_get_period_of_record_begin_date(
 				char *application_name,
 				char *station,
 				char *datatype )
 {
 	char sys_string[ 1024 ];
-	char *return_pointer;
-	static char local_begin_date_string[ 16 ] = {0};
 	char where_clause[ 1024 ];
 	char *select;
 
@@ -390,21 +387,17 @@ void hydrology_library_get_period_of_record_begin_date(
 			application_name,
 			select,
 			where_clause );
-	if ( ! ( return_pointer = pipe2string( sys_string ) ) )
-		return;
-	strcpy( local_begin_date_string, return_pointer );
-	*begin_date_string = local_begin_date_string;
+
+	return pipe2string( sys_string );
+
 } /* hydrology_library_get_period_of_record_begin_date() */
 
-void hydrology_library_get_period_of_record_end_date(
-				char **end_date_string,
+char *hydrology_library_get_period_of_record_end_date(
 				char *application_name,
 				char *station,
 				char *datatype )
 {
 	char sys_string[ 1024 ];
-	char *return_pointer;
-	static char local_end_date_string[ 16 ] = {0};
 	char where_clause[ 1024 ];
 	char *select;
 
@@ -433,10 +426,9 @@ void hydrology_library_get_period_of_record_end_date(
 			application_name,
 			select,
 			where_clause );
-	if ( ! ( return_pointer = pipe2string( sys_string ) ) )
-		return;
-	strcpy( local_end_date_string, return_pointer );
-	*end_date_string = local_end_date_string;
+
+	return pipe2string( sys_string );
+
 } /* hydrology_library_get_period_of_record_end_date() */
 
 void hydrology_library_with_list_get_clean_begin_end_date(
@@ -446,83 +438,114 @@ void hydrology_library_with_list_get_clean_begin_end_date(
 					LIST *station_name_list,
 					LIST *datatype_name_list )
 {
-	int seeked_begin_date = 0;
 	char *station_name;
 	char *datatype_name;
+	char *local_begin_date;
+	char *local_end_date;
+
+	if (	!list_length( station_name_list )
+	||      ( list_length( station_name_list ) !=
+		list_length( datatype_name_list ) ) )
+	{
+		return;
+	}
 
 	if ( !*begin_date
 	||   !**begin_date
 	||   strcmp( *begin_date, "begin_date" ) == 0 )
 	{
-		static char minimum_begin_date[ 16 ];
+		char minimum_begin_date[ 16 ];
 
-		strcpy( minimum_begin_date, "2999-12-31" );
+		*minimum_begin_date = '\0';
 
-		if (	list_length( station_name_list ) !=
-			list_length( datatype_name_list ) )
-		{
-			return;
-		}
+		list_rewind( station_name_list );
+		list_rewind( datatype_name_list );
 
-		if ( !list_rewind( station_name_list ) ) return;
-		if ( !list_rewind( datatype_name_list ) ) return;
 		do {
 			station_name = list_get_pointer( station_name_list );
 			datatype_name = list_get_pointer( datatype_name_list );
 
-			hydrology_library_get_period_of_record_begin_date(
-				begin_date,
+			local_begin_date =
+			     hydrology_library_get_period_of_record_begin_date(
 				application_name,
 				station_name,
 				datatype_name );
 
-			if ( strcmp( minimum_begin_date, *begin_date ) > 0 )
-				strcpy( minimum_begin_date, *begin_date );
+			if ( local_begin_date
+			&&   *local_begin_date )
+			{
+				if ( !*minimum_begin_date )
+				{
+					strcpy(	minimum_begin_date,
+						local_begin_date );
+				}
+				else
+				{
+					if ( strcmp(local_begin_date,
+						    minimum_begin_date ) < 0 )
+					{
+						strcpy(	minimum_begin_date,
+							local_begin_date );
+					}
+				}
+
+				free( local_begin_date );
+			}
 
 			list_next( datatype_name_list );
+
 		} while( list_next( station_name_list ) );
-		seeked_begin_date = 1;
-		*begin_date = minimum_begin_date;
+
+		*begin_date = strdup( minimum_begin_date );
 	}
 
 	if ( !*end_date
 	||   !**end_date
 	||   strcmp( *end_date, "end_date" ) == 0 )
 	{
-		static char maximum_end_date[ 16 ];
+		char maximum_end_date[ 16 ];
 
-		if ( !seeked_begin_date )
-		{
-			*end_date = *begin_date;
-			return;
-		}
+		*maximum_end_date = '\0';
 
-		strcpy( maximum_end_date, "0000-00-00" );
+		list_rewind( station_name_list );
+		list_rewind( datatype_name_list );
 
-		if (	list_length( station_name_list ) !=
-			list_length( datatype_name_list ) )
-		{
-			return;
-		}
-
-		if ( !list_rewind( station_name_list ) ) return;
-		if ( !list_rewind( datatype_name_list ) ) return;
 		do {
 			station_name = list_get_pointer( station_name_list );
 			datatype_name = list_get_pointer( datatype_name_list );
 
-			hydrology_library_get_period_of_record_end_date(
-				end_date,
-				application_name,
-				station_name,
-				datatype_name );
+			local_end_date =
+				hydrology_library_get_period_of_record_end_date(
+					application_name,
+					station_name,
+					datatype_name );
 
-			if ( strcmp( maximum_end_date, *end_date ) < 0 )
-				strcpy( maximum_end_date, *end_date );
+			if ( local_end_date
+			&&   *local_end_date )
+			{
+				if ( !*maximum_end_date )
+				{
+					strcpy(	maximum_end_date,
+						local_end_date );
+				}
+				else
+				{
+					if ( strcmp(local_end_date,
+						    maximum_end_date ) > 0 )
+					{
+						strcpy(	maximum_end_date,
+							local_end_date );
+					}
+				}
+
+				free( local_end_date );
+			}
 
 			list_next( datatype_name_list );
+
 		} while( list_next( station_name_list ) );
-		*end_date = maximum_end_date;
+
+		*end_date = strdup( maximum_end_date );
 	}
 
 } /* hydrology_library_with_list_get_clean_begin_end_date() */
@@ -542,11 +565,12 @@ void hydrology_library_get_clean_begin_end_date(
 	||   !**begin_date
 	||   strcmp( *begin_date, "begin_date" ) == 0 )
 	{
-		hydrology_library_get_period_of_record_begin_date(
-				begin_date,
+		*begin_date =
+			hydrology_library_get_period_of_record_begin_date(
 				application_name,
 				station,
 				datatype );
+
 		seeked_begin_date = 1;
 	}
 
@@ -556,8 +580,8 @@ void hydrology_library_get_clean_begin_end_date(
 	{
 		if ( seeked_begin_date )
 		{
-			hydrology_library_get_period_of_record_end_date(
-					end_date,
+			*end_date =
+				hydrology_library_get_period_of_record_end_date(
 					application_name,
 					station,
 					datatype );

@@ -8,6 +8,10 @@
 
 #include <string.h>
 
+/* Constants */
+/* --------- */
+#define BIRD_COUNT_SUBPOPULATION_SIZE		6
+
 /* Prototypes */
 /* ---------- */
 char *sparrow_library_get_observation_where(

@@ -80,7 +80,7 @@ then
 	echo "<body><h1>$process_title</h1>"
 fi
 
-if [ "$output_medium" = "text_file" ]
+if [ "$output_medium" = "text_file" -o "$output_medium" = "spreadsheet" ]
 then
 	echo "<a href=$prompt_file>Press to transmit file.</a>"
 elif [ "$output_medium" = "table" ]

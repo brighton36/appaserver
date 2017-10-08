@@ -32,27 +32,37 @@ EXECUTABLES=	trial_balance						\
 		ledger_debit_credit_audit				\
 		close_nominal_accounts					\
 		print_checks_process					\
+		populate_print_checks_entity				\
 		load_bank_spreadsheet					\
+		inventory_balance_detail				\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
+		depreciate_fixed_assets					\
+		depreciate_prior_fixed_assets				\
 		post_change_inventory_purchase				\
 		post_change_fixed_asset_purchase			\
 		post_change_fixed_asset					\
 		post_change_inventory_sale				\
+		post_change_fixed_service_sale				\
+		post_change_hourly_service_sale				\
+		post_change_fixed_service_work				\
+		post_change_hourly_service_work				\
 		post_change_purchase_order				\
 		post_change_customer_sale				\
 		post_change_customer_payment				\
 		post_change_vendor_payment				\
-		post_change_depreciation				\
 		post_change_prepaid_asset_purchase			\
 		post_change_prepaid_asset_accrual			\
 		post_change_bank_upload					\
 		update_sale_completed					\
 		post_reoccurring_transaction				\
+		post_employee_work_period				\
 		collect_customer_payment				\
 		make_vendor_payment					\
 		post_change_self					\
-		inventory_cost_method_propagate
+		post_change_employee_work_day				\
+		inventory_cost_method_propagate				\
+		load_receipt_scan
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -106,12 +116,29 @@ SOURCE_LIBRARY= 							\
 		inventory.o						\
 		depreciation.o						\
 		accrual.o						\
+		employee.o						\
 		entity.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 
 clean:
-	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}
+	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}			\
+		financial_position					\
+		statement_of_activities					\
+		${CGI_HOME}/post_trial_balance
+
+post_trial_balance: post_trial_balance.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_trial_balance.c					\
+		-o post_trial_balance
+	touch ${CGI_HOME}/post_trial_balance
+	/bin/rm -f ${CGI_HOME}/post_trial_balance
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_accountancymodel/post_trial_balance	\
+	${CGI_HOME}
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -121,6 +148,14 @@ post_reoccurring_transaction: post_reoccurring_transaction.c		\
 		post_reoccurring_transaction.c				\
 		-o post_reoccurring_transaction
 
+post_employee_work_period: post_employee_work_period.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_employee_work_period.c				\
+		-o post_employee_work_period
+
 ledger_propagate: ledger_propagate.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -128,6 +163,14 @@ ledger_propagate: ledger_propagate.c					\
 		${SOURCE_LIBRARY}					\
 		ledger_propagate.c					\
 		-o ledger_propagate
+
+load_receipt_scan: load_receipt_scan.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		load_receipt_scan.c					\
+		-o load_receipt_scan
 
 ledger_unbalance: ledger_unbalance.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -161,13 +204,21 @@ ledger_debit_credit_audit: ledger_debit_credit_audit.c			\
 		ledger_debit_credit_audit.c				\
 		-o ledger_debit_credit_audit
 
-#purchase_sale_propagate: purchase_sale_propagate.c			\
-#	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-#	${CC}	${CFLAGS} -I${LIBRARY}					\
-#		${EXTERNAL_LIBRARY}					\
-#		${SOURCE_LIBRARY}					\
-#		purchase_sale_propagate.c				\
-#		-o purchase_sale_propagate
+depreciate_fixed_assets: depreciate_fixed_assets.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		depreciate_fixed_assets.c				\
+		-o depreciate_fixed_assets
+
+depreciate_prior_fixed_assets: depreciate_prior_fixed_assets.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		depreciate_prior_fixed_assets.c				\
+		-o depreciate_prior_fixed_assets
 
 trial_balance: trial_balance.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -232,6 +283,15 @@ print_checks_process: print_checks_process.c				\
 		print_checks.o						\
 		-o print_checks_process
 
+populate_print_checks_entity: populate_print_checks_entity.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} print_checks.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		populate_print_checks_entity.c				\
+		print_checks.o						\
+		-o populate_print_checks_entity
+
 load_bank_spreadsheet: load_bank_spreadsheet.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -239,14 +299,6 @@ load_bank_spreadsheet: load_bank_spreadsheet.c				\
 		${SOURCE_LIBRARY}					\
 		load_bank_spreadsheet.c					\
 		-o load_bank_spreadsheet
-
-post_change_depreciation: post_change_depreciation.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_depreciation.c				\
-		-o post_change_depreciation
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -280,14 +332,41 @@ post_change_supply_purchase: post_change_supply_purchase.c		\
 		post_change_supply_purchase.c				\
 		-o post_change_supply_purchase
 
-post_change_service_sale:						\
-	post_change_service_sale.c					\
+post_change_fixed_service_sale:						\
+	post_change_fixed_service_sale.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_change_service_sale.c				\
-		-o post_change_service_sale
+		post_change_fixed_service_sale.c			\
+		-o post_change_fixed_service_sale
+
+post_change_hourly_service_sale:					\
+	post_change_hourly_service_sale.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_hourly_service_sale.c			\
+		-o post_change_hourly_service_sale
+
+post_change_fixed_service_work:						\
+	post_change_fixed_service_work.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_fixed_service_work.c			\
+		-o post_change_fixed_service_work
+
+post_change_hourly_service_work:					\
+	post_change_hourly_service_work.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_hourly_service_work.c			\
+		-o post_change_hourly_service_work
 
 post_change_specific_inventory_purchase:				\
 	post_change_specific_inventory_purchase.c			\
@@ -350,6 +429,15 @@ propagate_inventory_sale_layers:					\
 		${SOURCE_LIBRARY}					\
 		propagate_inventory_sale_layers.c			\
 		-o propagate_inventory_sale_layers
+
+inventory_balance_detail:						\
+	inventory_balance_detail.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		inventory_balance_detail.c				\
+		-o inventory_balance_detail
 
 post_change_inventory_sale: post_change_inventory_sale.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -444,6 +532,14 @@ post_change_self: post_change_self.c					\
 		post_change_self.c					\
 		-o post_change_self
 
+post_change_employee_work_day: post_change_employee_work_day.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_employee_work_day.c				\
+		-o post_change_employee_work_day
+
 inventory_cost_method_propagate: inventory_cost_method_propagate.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -479,6 +575,10 @@ accrual.o: accrual.c accrual.h
 entity.o: entity.c entity.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c entity.c
+
+employee.o: employee.c employee.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c employee.c
 
 print_checks.o: print_checks.c print_checks.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

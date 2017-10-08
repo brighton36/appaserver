@@ -95,7 +95,7 @@ char *trim( char * );
 char *up_string( char * );
 char *low_string( char * );
 int get_line( char *destination, FILE *infile );
-int timlib_get_line( char *destination, FILE *infile, int buffer_size );
+boolean timlib_get_line( char *destination, FILE *infile, int buffer_size );
 void skip_line( FILE *infile );
 int instr( char *substr, char *string, int occurrence );
 int instr_character( char delimiter, char *string );
@@ -193,6 +193,7 @@ boolean double_virtually_same( 		double d1, double d2 );
 boolean dollar_virtually_same( 		double d1, double d2 );
 boolean timlib_double_virtually_same( 	double d1, double d2 );
 boolean timlib_dollar_virtually_same( 	double d1, double d2 );
+double timlib_round_money(		double d );
 double round_double(			double d );
 double ceiling( 			double d );
 double floor(				double d );
@@ -205,7 +206,8 @@ char *escape_character( 		char *destination,
 char *unescape_character( 		char *destination,
 					char *data,
 					int character_to_unescape );
-int get_block_delimiter( 		char **block,
+
+int timlib_get_block_delimiter( 	char **block,
 			 		int delimiter,
 			 		int columns_to_block,
 			 		FILE *input_file,
@@ -239,7 +241,9 @@ void free_array_string_with_count( 	char **block,
 char *right(				char *string,
 					char *substr,
 					int width );
+
 void unescape_string(			char *s );
+
 char *escape_dollar_sign(		char *data );
 unsigned long get_file_size(		char *filename );
 char *escape_dollar_signs(		char *data );
@@ -444,5 +448,19 @@ boolean timlib_login_name_email_address(
 
 boolean timlib_double_virtually_same_places(
 				double d1, double d2, int places );
+
+char *trim_length(		char *buffer,
+				int length );
+
+char *timlib_escape_character_string(
+				char *source_destination,
+				char *character_string );
+
+void timlib_reset_get_line_check_utf_16(
+				void );
+
+char *timlib_generate_password(	void );
+
+char *timlib_commas_in_dollars( double d );
 
 #endif

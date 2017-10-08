@@ -151,7 +151,6 @@ LIST *folder_menu_get_choose_folder_list(
 				&folder->notepad,
 				&folder->html_help_file_anchor,
 				&folder->post_change_javascript,
-				&folder->row_access_count,
 				&folder->lookup_before_drop_down,
 				&folder->data_directory,
 				&folder->index_directory,
@@ -246,7 +245,7 @@ char *folder_menu_get_filename(
 
 } /* folder_menu_get_filename() */
 
-boolean folder_menu_remove_file(
+void folder_menu_remove_file(
 				char *application_name,
 				char *session,
 				char *appaserver_data_directory,

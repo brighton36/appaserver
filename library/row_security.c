@@ -1,4 +1,4 @@
-/* library/row_security.c				   */
+/* $APPASERVER_HOME/library/row_security.c		   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -252,9 +252,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
-			char update_yn,
-			enum lookup_before_drop_down_state
-				lookup_before_drop_down_state )
+			char update_yn )
 {
 	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
 	int row_dictionary_list_length;
@@ -319,11 +317,11 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			query_select_folder_name,
 			where_clause_attribute_name_list,
 			where_clause_data_list,
-			select_folder->join_1tom_related_folder_list,
-			lookup_before_drop_down_state );
+			select_folder->join_1tom_related_folder_list );
 
 	row_dictionary_list_length =
-		list_length( element_list_structure->row_dictionary_list );
+		list_length( element_list_structure->
+				row_dictionary_list );
 
 	element_list_structure->regular_element_list =
 		row_security_get_element_list(
@@ -360,9 +358,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 				row_dictionary_list_length,
 				state,
 				non_edit_folder_name_list,
-#ifdef NOT_DEFINED
-				(LIST *)0 /* non_edit_folder_name_list */,
-#endif
 				login_name,
 				'n' /* update_yn */,
 				omit_delete_with_placeholder,
@@ -598,10 +593,7 @@ LIST *row_security_get_row_dictionary_list(
 			char *select_folder_name,
 			LIST *where_clause_attribute_name_list,
 			LIST *where_clause_data_list,
-			LIST *join_1tom_related_folder_list,
-			enum lookup_before_drop_down_state
-				lookup_before_drop_down_state )
-			/* char *mto1_where_join ) */
+			LIST *join_1tom_related_folder_list )
 {
 	QUERY *query;
 	LIST *row_dictionary_list;
@@ -667,15 +659,8 @@ void row_security_append_join_1tom_related_folder_list(
 {
 	DICTIONARY *row_dictionary;
 	RELATED_FOLDER *related_folder;
-/*	 LIST *key_list; */
 
 	if ( !list_rewind( row_dictionary_list ) ) return;
-
-/*
-	key_list =
-		dictionary_get_key_list(
-			list_get_first_pointer( row_dictionary_list ) );
-*/
 
 	do {
 		row_dictionary = list_get_pointer( row_dictionary_list );

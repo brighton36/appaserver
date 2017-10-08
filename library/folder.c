@@ -1,4 +1,4 @@
-/* library/folder.c							*/
+/* $APPASERVER_LIBRARY/library/folder.c					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver folder ADT.					*/
 /*									*/
@@ -135,7 +135,6 @@ FOLDER *folder_with_load_new(	char *application_name,
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -516,6 +515,8 @@ LIST *folder_get_primary_data_list(
 	LIST *folder_data_list;
 	QUERY *query;
 
+	/* if row level non-owner forbid */
+	/* ----------------------------- */
 	if ( filter_out_login_name && login_name )
 	{
 		char operator_entry[ 128 ];
@@ -567,7 +568,8 @@ LIST *folder_get_primary_data_list(
 						EQUAL_OPERATOR );
 
 		}
-	}
+
+	} /* if row level non-owner forbid */
 
 	if ( populate_drop_down_process )
 	{
@@ -617,7 +619,7 @@ LIST *folder_get_primary_data_list(
 				exclude_attribute_name_list );
 	}
 
-	if ( !list_rewind( primary_attribute_name_list ) )
+	if ( !list_length( primary_attribute_name_list ) )
 		return list_new();
 
 	query =	query_primary_data_new(
@@ -639,7 +641,8 @@ LIST *folder_get_primary_data_list(
 	folder_data_list =
 		folder_get_data_list(
 			application_name,
-			folder_name,
+			query->query_output->from_clause
+				/* folder_name */,
 			primary_attribute_name_list,
 			where_clause,
 			delimiter,
@@ -902,7 +905,6 @@ boolean folder_load(	int *insert_rows_number,
 			char **notepad,
 			char **html_help_file_anchor,
 			char **post_change_javascript,
-			long *row_access_count,
 			boolean *lookup_before_drop_down,
 			char **data_directory,
 			char **index_directory,
@@ -1001,8 +1003,10 @@ boolean folder_load(	int *insert_rows_number,
 	piece( buffer, '^', record, FOLDER_POST_CHANGE_JAVASCRIPT_PIECE );
 	*post_change_javascript = strdup( buffer );
 
+/*
 	piece( buffer, '^', record, FOLDER_ROW_ACCESS_COUNT_PIECE );
 	*row_access_count = atol( buffer );
+*/
 
 	piece( buffer, '^', record, FOLDER_LOOKUP_BEFORE_DROP_DOWN_PIECE );
 	*lookup_before_drop_down = (*buffer == 'y');
@@ -1296,7 +1300,6 @@ LIST *folder_get_folder_list(
 				&folder->notepad,
 				&folder->html_help_file_anchor,
 				&folder->post_change_javascript,
-				&folder->row_access_count,
 				&folder->lookup_before_drop_down,
 				&folder->data_directory,
 				&folder->index_directory,

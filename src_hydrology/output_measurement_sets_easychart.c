@@ -51,8 +51,7 @@ boolean populate_input_chart_list_data(
 			char *begin_date,
 			char *end_date,
 			enum validation_level validation_level,
-			enum aggregate_level aggregate_level,
-			char *appaserver_mount_point );
+			enum aggregate_level aggregate_level );
 
 char *get_sys_string(	char *application_name,
 			char *where_clause,
@@ -61,7 +60,6 @@ char *get_sys_string(	char *application_name,
 			char *station_name,
 			char *datatype_name,
 			int date_piece,
-			char *appaserver_mount_point,
 			char *begin_date_string,
 			char *end_date_string );
 
@@ -89,7 +87,9 @@ int main( int argc, char **argv )
 	LIST *datatype_list;
 	int easycharts_width;
 	int easycharts_height;
+/*
 	boolean aggregate_level_changed_to_daily = 0;
+*/
 
 	if ( argc != 9 )
 	{
@@ -131,6 +131,7 @@ int main( int argc, char **argv )
 	aggregate_level =
 		aggregate_level_get_aggregate_level( aggregate_level_string );
 
+/*
 	if ( ( !*begin_date || strcmp( begin_date, "begin_date" ) == 0 )
 	&&   ( !*end_date || strcmp( end_date, "end_date" ) == 0 ) )
 	{
@@ -142,6 +143,7 @@ int main( int argc, char **argv )
 			aggregate_level_changed_to_daily = 1;
 		}
 	}
+*/
 
 	hydrology_library_get_clean_begin_end_date(
 					&begin_date,
@@ -244,7 +246,7 @@ int main( int argc, char **argv )
 	}
 
 	sprintf(applet_library_archive,
-		"/%s/%s",
+		"/appaserver/%s/%s",
 		application_name,
 		EASYCHARTS_JAR_FILE );
 
@@ -295,8 +297,7 @@ int main( int argc, char **argv )
 			begin_date,
 			end_date,
 			validation_level,
-			aggregate_level,
-			appaserver_parameter_file->appaserver_mount_point ) )
+			aggregate_level ) )
 	{
 		printf(
 		"<h2>Warning: nothing was selected to display.</h2>\n" );
@@ -369,7 +370,6 @@ char *get_sys_string(	char *application_name,
 			char *station_name,
 			char *datatype_name,
 			int date_piece,
-			char *appaserver_mount_point,
 			char *begin_date_string,
 			char *end_date_string )
 {
@@ -417,6 +417,7 @@ char *get_sys_string(	char *application_name,
 		}
 	}
 
+/*
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			  "
 		 "			folder=%s			  "
@@ -440,7 +441,27 @@ char *get_sys_string(	char *application_name,
 		 end_date_string,
 		 hydrology_library_get_expected_count_list_string(
 			application_name, station_name, datatype_name, '|' ) );
+*/
 
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			  "
+		 "			folder=%s			  "
+		 "			select='%s'			  "
+		 "			where=\"%s\"			 |"
+		 "%s							 |"
+		 "pad_missing_times.e '^' 0,1,2 %s %s 0000 %s 2359 0 '%s'|"
+		 "sed 's/\\^/:/1'					 |"
+		 "cat							  ",
+		 application_name,
+		 SOURCE_FOLDER,
+		 select_list_string,
+		 where_clause,
+		 intermediate_process,
+		 aggregate_level_get_string( aggregate_level ),
+		 begin_date_string,
+		 end_date_string,
+		 hydrology_library_get_expected_count_list_string(
+			application_name, station_name, datatype_name, '|' ) );
 	return strdup( sys_string );
 
 } /* get_sys_string() */
@@ -506,8 +527,7 @@ boolean populate_input_chart_list_data(
 			char *begin_date,
 			char *end_date,
 			enum validation_level validation_level,
-			enum aggregate_level aggregate_level,
-			char *appaserver_mount_point )
+			enum aggregate_level aggregate_level )
 {
 	int got_input = 0;
 	DATATYPE *datatype;
@@ -561,10 +581,20 @@ boolean populate_input_chart_list_data(
 				station_name,
 				datatype->datatype_name,
 				DATE_PIECE,
-				appaserver_mount_point,
 				begin_date,
 				end_date );
 
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: sys_string = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+m2( "audubon", msg );
+}
+*/
 		if ( easycharts_set_all_input_values(
 				input_chart_list,
 				sys_string,
@@ -579,6 +609,8 @@ boolean populate_input_chart_list_data(
 		free( sys_string );
 
 	} while( list_next( datatype_list ) );
+
 	return got_input;
+
 } /* populate_input_chart_list_data() */
 

@@ -1,4 +1,4 @@
-/* library/timlib.c					   */
+/* $APPASERVER_HOME/library/timlib.c			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -26,6 +26,7 @@ int timlib_strlen( char *s )
 
 boolean timlib_strcmp( char *s1, char *s2 )
 {
+	if ( !s1 && !s2 ) return 0;
 	if ( !s2 ) return -1;
 	if ( !s1 ) return 1;
 
@@ -515,12 +516,18 @@ char *pipe2string( char *sys_string )
 	int null_input = 0;
 
 	p = popen( sys_string, "r" );
+
+	timlib_reset_get_line_check_utf_16();
 	if ( !get_line( buffer, p ) ) null_input = 1;
+	timlib_reset_get_line_check_utf_16();
+
 	pclose( p );
+
 	if ( null_input )
 		return (char *)0;
 	else
 		return strdup( buffer );
+
 } /* pipe2string() */
 
 char *get_line_system( char *sys_string )
@@ -755,6 +762,16 @@ char *rtrim( char *buffer )
 
 } /* rtrim() */
 
+char *trim_length(	char *buffer,
+			int length )
+{
+	if ( strlen( buffer ) <= length ) return buffer;
+
+	buffer[ length - 1 ] = '\0';
+	return buffer;
+
+} /* trim_length() */
+
 char *trim( char *buffer )
 {
         char *buf_ptr = buffer;
@@ -836,6 +853,162 @@ char *low_string ( char *s )
 
 } /* low_string() */
 
+static boolean get_line_check_utf_16 = 1;
+static boolean is_utf_16 = 0;
+static boolean utf_16_toggle = 1;
+
+void timlib_reset_get_line_check_utf_16( void )
+{
+	get_line_check_utf_16 = 1;
+	is_utf_16 = 0;
+	utf_16_toggle = 1;
+}
+
+int timlib_get_line(	char *in_line,
+			FILE *infile,
+			int buffer_size )
+{
+	int in_char;
+	char *anchor = in_line;
+	int size = 0;
+
+	*in_line = '\0';
+
+	/* Exit in middle. */
+	/* --------------- */
+	while ( 1 )
+	{
+		in_char = fgetc( infile );
+
+		if ( get_line_check_utf_16 )
+		{
+			get_line_check_utf_16 = 0;
+
+			if ( in_char == 255 )
+			{
+				in_char = fgetc( infile );
+
+				if ( in_char == 254 )
+				{
+					is_utf_16 = 1;
+					continue;
+				}
+			}
+		}
+
+		if ( is_utf_16 )
+		{
+			utf_16_toggle = 1 - utf_16_toggle;
+
+			if ( utf_16_toggle )
+			{
+				continue;
+			}
+		}
+
+		/* Why are there zeros? */
+		/* -------------------- */
+		if ( !in_char ) continue;
+
+		if ( in_char == CR ) continue;
+
+		if ( in_char == EOF )
+		{
+			timlib_reset_get_line_check_utf_16();
+
+			/* If last line in file doesn't have a CR */
+			/* -------------------------------------- */
+			if ( in_line != anchor )
+			{
+				*in_line = '\0';
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+#ifdef NOT_DEFINED
+		if ( in_char == CR )
+		{
+			/* Clear out an optionally following LF */
+			/* ------------------------------------ */
+			in_char = fgetc(infile);
+			if ( in_char != LF ) ungetc( in_char, infile );
+
+			*in_line = '\0';
+			return 1;
+		}
+#endif
+
+		if ( in_char == LF )
+		{
+#ifdef NOT_DEFINED
+			/* Clear out an optionally following CR */
+			/* ------------------------------------ */
+			in_char = fgetc(infile);
+			if ( in_char != CR ) ungetc( in_char, infile );
+#endif
+
+			*in_line = '\0';
+			return 1;
+		}
+
+		/* If '\' then get the next character */
+		/* ---------------------------------- */
+		if ( in_char == '\\' )
+		{
+			in_char = fgetc( infile );
+
+			if ( in_char == CR ) in_char = ' ';
+
+			/* If escaping the <CR> */
+			/* -------------------- */
+			if ( in_char == LF)
+			{
+				if ( buffer_size && ( size++ == buffer_size ) )
+				{
+					fprintf( stderr,
+			"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
+						 __FILE__,
+						 __FUNCTION__,
+						 __LINE__,
+						 buffer_size );
+					*in_line = '\0';
+					return 1;
+				}
+
+				*in_line++ = ' ';
+				continue;
+			}
+			else
+			{
+				ungetc( in_char, infile );
+				in_char = '\\';
+				size--;
+			}
+		}
+
+		if ( buffer_size && ( size++ == buffer_size ) )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 buffer_size );
+			*in_line = '\0';
+			return 1;
+		}
+
+		*in_line++ = in_char;
+
+	} /* while( 1 ) */
+
+} /* timlib_get_line() */
+
+#ifdef NOT_DEFINED
 int timlib_get_line(	char *in_line,
 			FILE *infile,
 			int buffer_size )
@@ -934,6 +1107,7 @@ int timlib_get_line(	char *in_line,
 		*in_line++ = in_char;
 	}
 } /* timlib_get_line() */
+#endif
 
 int get_line( char *in_line, FILE *infile )
 {
@@ -968,6 +1142,16 @@ void timlib_unget_line( char *in_line )
 
 void unget_line_queue( char *in_line )
 {
+	if ( queue_toggle )
+	{
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: queue full.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return;
+	}
+
 	strcpy( queue_static_buffer, in_line );
 	queue_toggle = 1;
 }
@@ -986,11 +1170,12 @@ int get_line_queue( char *in_line, FILE *infile )
 	}
 } /* get_line_queue() */
 
-int get_block_delimiter( char **block,
-			 int delimiter,
-			 int columns_to_block,
-			 FILE *input_file,
-			 int max_lines )
+int timlib_get_block_delimiter(
+				char **block,
+				int delimiter,
+				int columns_to_block,
+				FILE *input_file,
+				int max_lines )
 {
 	char buffer[ 65536 ];
 	char first_field[ 1024 ];
@@ -998,6 +1183,7 @@ int get_block_delimiter( char **block,
 	int count = 0;
 
 	*old_first_field = '\0';
+
 	while( get_line_queue( buffer, input_file ) )
 	{
 		if ( count == max_lines )
@@ -1009,6 +1195,7 @@ int get_block_delimiter( char **block,
 		}
 
 		count++;
+
 		piece_multiple(	first_field, 
 				delimiter, 
 				buffer, 
@@ -1032,8 +1219,10 @@ int get_block_delimiter( char **block,
 			}
 		}
 	}
+
 	return count;
-} /* get_block_delimiter() */
+
+} /* timlib_get_block_delimiter() */
 
 void free_array_string_with_count( 	char **block, 
 					int block_count )
@@ -1862,9 +2051,78 @@ double ceiling( double d )
 		return -floor( -d );
 }
 
+#ifdef NOT_DEFINED
+double timlib_round_money( double d )
+{
+	double hundred_times;
+	double hundred_times_plus;
+	int hundred_times_int;
+	double results;
+
+/*
+fprintf( stderr, "%s/%s()/%d: d = %.6lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+d );
+*/
+	hundred_times = d * 100.0;
+
+/*
+fprintf( stderr, "%s/%s()/%d: hundred_times = %.6lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+hundred_times );
+*/
+
+	hundred_times_plus = hundred_times + 0.5;
+
+/*
+fprintf( stderr, "%s/%s()/%d: hundred_times_plus = %.6lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+hundred_times_plus );
+*/
+
+	hundred_times_int = (int)hundred_times_plus;
+
+/*
+fprintf( stderr, "%s/%s()/%d: hundred_times_int = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+hundred_times_int );
+*/
+
+	results = (double)hundred_times_int / 100.0;
+
+fprintf( stderr, "%s/%s()/%d: returning results = %.6lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+results );
+
+	return results;
+
+} /* timlib_round_money() */
+#endif
+
+double timlib_round_money( double d )
+{
+	char string[ 32 ];
+
+	if ( timlib_double_virtually_same( d, 0.0 ) ) return 0.0;
+
+	sprintf( string, "%.2lf", d );
+	return atof( string );
+
+} /* timlib_round_money() */
+
 double round_double( double d )
 {
-	if ( d >= 0 )
+	if ( d >= 0.0 )
 		return (double)(int)(d + 0.5);
 	else
 		return -floor( -d );
@@ -1938,8 +2196,34 @@ char *timlib_escape_field( char *source_destination )
 	return escape_field( source_destination );
 }
 
+char *timlib_escape_character_string(
+				char *source_destination,
+				char *character_string )
+{
+	char buffer[ 65536 ];
+
+	strcpy( buffer, source_destination );
+
+	return timlib_escape_character_array(
+			source_destination /* destination */,
+			buffer /* source */,
+			character_string /* character_array */ );
+
+}
+
 char *escape_field( char *source_destination )
 {
+	char character_string[ 16 ];
+
+	sprintf( character_string,
+		 "',$()%c",
+		 '%' );
+
+	return timlib_escape_character_string(
+				source_destination,
+				character_string );
+
+/*
 	char buffer[ 65536 ];
 
 	strcpy( buffer, source_destination );
@@ -1960,12 +2244,13 @@ char *escape_field( char *source_destination )
 	strcpy( buffer, source_destination );
 	escape_character( source_destination, buffer, ')' );
 
-/*
+#ifdef NOT_DEFINED
 	strcpy( buffer, source_destination );
 	escape_character( source_destination, buffer, '&' );
-*/
+#endif
 
 	return source_destination;
+*/
 
 } /* escape_field() */
 
@@ -2264,7 +2549,12 @@ char *timlib_place_commas_in_dollars( double d )
 	sprintf( s, "%.0lf", round_double( d ) );
 	return place_commas_in_number_string( s );
 
-} /* place_commas_in_dollars()  */
+} /* timlib_place_commas_in_dollars()  */
+
+char *timlib_commas_in_dollars( double d )
+{
+	return place_commas_in_money( d );
+}
 
 char *timlib_place_commas_in_money( double d )
 {
@@ -2507,6 +2797,7 @@ char *timlib_get_three_character_month_string( int month_offset )
 	{
 		return timlib_month_array[ month_offset ];
 	}
+
 } /* timlib_get_three_character_month_string() */
 
 char *timlib_full_month_array[] = {
@@ -3285,3 +3576,10 @@ boolean timlib_login_name_email_address(
 {
 	return ( character_exists( login_name, '@' ) );
 }
+
+char *timlib_generate_password( void )
+{
+	return pipe2string( "generate_password.sh" );
+
+}
+

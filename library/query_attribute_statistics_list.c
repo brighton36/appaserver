@@ -937,6 +937,8 @@ boolean query_attribute_is_valid_non_date_datatype(
 boolean query_attribute_is_valid_date_datatype(
 					char *attribute_datatype )
 {
+	if ( !attribute_datatype ) return 0;
+
 	if ( strcmp( attribute_datatype, "date" ) == 0
 	||   strcmp( attribute_datatype, "current_date" ) == 0
 	||   strcmp( attribute_datatype, "date_time" ) == 0

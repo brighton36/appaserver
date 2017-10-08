@@ -450,26 +450,6 @@ char *get_where_clause_string( 	char *application_name,
 			query_dictionary,
 			(ROLE *)0 );
 
-#ifdef NOT_DEFINED
-	query =	query_new(	application_name,
-				(char *)0 /* login_name */,
-				"measurement" /* folder_name */,
-				(LIST *)0 /* attribute_list */,
-				query_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				(ROLE *)0 /* role */,
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
-
 	/* If executed from the user interface. */
 	/* ------------------------------------ */
 	date_time_where_clause =

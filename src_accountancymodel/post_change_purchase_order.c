@@ -26,6 +26,10 @@
 
 /* Prototypes */
 /* ---------- */
+void post_change_purchase_order_changed_sales_tax(
+			PURCHASE_ORDER *purchase_order,
+			char *application_name );
+
 void post_change_purchase_order_new_transaction(
 			PURCHASE_ORDER *purchase_order,
 			char *transaction_date_time,
@@ -86,6 +90,7 @@ void post_change_purchase_order_update(
 			char *preupdate_title_passage_rule,
 			char *preupdate_shipped_date,
 			char *preupdate_arrived_date_time,
+			char *preupdate_sales_tax,
 			char *application_name );
 
 void post_change_purchase_order_insert_FOB_shipping(
@@ -112,6 +117,7 @@ int main( int argc, char **argv )
 	char *preupdate_title_passage_rule;
 	char *preupdate_shipped_date;
 	char *preupdate_arrived_date_time;
+	char *preupdate_sales_tax;
 	char *database_string = {0};
 	PURCHASE_ORDER *purchase_order;
 
@@ -138,10 +144,10 @@ int main( int argc, char **argv )
 				argc,
 				argv );
 
-	if ( argc != 11 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address purchase_date_time state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time\n",
+"Usage: %s application full_name street_address purchase_date_time state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -155,6 +161,7 @@ int main( int argc, char **argv )
 	preupdate_title_passage_rule = argv[ 8 ];
 	preupdate_shipped_date = argv[ 9 ];
 	preupdate_arrived_date_time = argv[ 10 ];
+	preupdate_sales_tax = argv[ 11 ];
 
 	/* -------------------------------------------- */
 	/* Only execute state=predelete because we have	*/
@@ -211,6 +218,7 @@ int main( int argc, char **argv )
 			preupdate_title_passage_rule,
 			preupdate_shipped_date,
 			preupdate_arrived_date_time,
+			preupdate_sales_tax,
 			application_name );
 	}
 	else
@@ -522,7 +530,9 @@ void post_change_purchase_order_FOB_shipping_fixed_shipped_date(
 	sprintf( sys_string,
 		 "propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 application_name,
-		 purchase_order->fund_name,
+		 (purchase_order->fund_name)
+			? purchase_order->fund_name
+			: "fund",
 		 propagate_transaction_date_time );
 
 	system( sys_string );
@@ -652,13 +662,15 @@ void post_change_purchase_order_update(
 			char *preupdate_title_passage_rule,
 			char *preupdate_shipped_date,
 			char *preupdate_arrived_date_time,
+			char *preupdate_sales_tax,
 			char *application_name )
 {
 	enum preupdate_change_state full_name_change_state;
 	enum preupdate_change_state street_address_change_state;
 	enum preupdate_change_state shipped_date_change_state;
-	enum preupdate_change_state arrived_date_time_change_state;
 	enum preupdate_change_state title_passage_rule_change_state;
+	enum preupdate_change_state arrived_date_time_change_state;
+	enum preupdate_change_state sales_tax_change_state;
 
 	full_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -680,6 +692,13 @@ void post_change_purchase_order_update(
 				: "",
 			"preupdate_shipped_date" );
 
+	title_passage_rule_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_title_passage_rule,
+			entity_get_title_passage_rule_string(
+				purchase_order->title_passage_rule ),
+			"preupdate_title_passage_rule" );
+
 	arrived_date_time_change_state =
 		appaserver_library_get_preupdate_change_state(
 			preupdate_arrived_date_time,
@@ -688,12 +707,11 @@ void post_change_purchase_order_update(
 				: "",
 			"preupdate_arrived_date_time" );
 
-	title_passage_rule_change_state =
+	sales_tax_change_state =
 		appaserver_library_get_preupdate_change_state(
-			preupdate_title_passage_rule,
-			entity_get_title_passage_rule_string(
-				purchase_order->title_passage_rule ),
-			"preupdate_title_passage_rule" );
+			preupdate_sales_tax,
+			(char *)0 /* postupdate_data */,
+			"preupdate_sales_tax" );
 
 	if ( full_name_change_state == from_something_to_something_else
 	||   street_address_change_state == from_something_to_something_else )
@@ -797,6 +815,13 @@ void post_change_purchase_order_update(
 			application_name );
 	}
 
+	if ( sales_tax_change_state == from_something_to_something_else )
+	{
+		post_change_purchase_order_changed_sales_tax(
+			purchase_order,
+			application_name );
+	}
+
 } /* post_change_purchase_order_update() */
 
 void post_change_purchase_order_changed_rule_to_null(
@@ -811,7 +836,7 @@ void post_change_purchase_order_changed_rule_to_null(
 			purchase_order->purchase_date_time;
 	}
 
-	if ( purchase_order->transaction )
+	if ( purchase_order->transaction_date_time )
 	{
 		char *propagate_transaction_date_time;
 
@@ -861,48 +886,73 @@ void post_change_purchase_order_changed_rule_to_null(
 	}
 	else
 	{
+		char *memo;
+
+		if ( purchase_order->transaction )
+			memo = purchase_order->transaction->memo;
+		else
+			memo = PURCHASE_ORDER_MEMO;
+
 		purchase_order->transaction_date_time =
 			purchase_order->arrived_date_time;
 
-		purchase_order->transaction =
-			ledger_transaction_new(
+		if ( list_length( purchase_order->inventory_purchase_list ) )
+		{
+			purchase_order->transaction =
+			     ledger_inventory_build_transaction(
+				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
 				purchase_order->transaction_date_time,
-				PURCHASE_ORDER_MEMO );
+				memo,
+				purchase_order->inventory_purchase_list,
+				purchase_order->fund_name );
+		}
+		else
+		if ( list_length( purchase_order->
+					specific_inventory_purchase_list ) )
+		{
+			purchase_order->transaction =
+			     ledger_specific_inventory_build_transaction(
+				application_name,
+				purchase_order->full_name,
+				purchase_order->street_address,
+				purchase_order->transaction_date_time,
+				memo,
+				purchase_order->
+					specific_inventory_purchase_list,
+				purchase_order->fund_name );
+		}
+		else
+		{
+			purchase_order->transaction =
+				ledger_purchase_order_build_transaction(
+					application_name,
+					purchase_order->full_name,
+					purchase_order->street_address,
+					purchase_order->transaction_date_time,
+					memo,
+					purchase_order->sales_tax,
+					purchase_order->freight_in,
+					purchase_order->supply_purchase_list,
+					purchase_order->service_purchase_list,
+					purchase_order->
+					     fixed_asset_purchase_list,
+					purchase_order->
+						prepaid_asset_purchase_list,
+					purchase_order->fund_name );
+		}
 
-		ledger_transaction_insert(
+		ledger_transaction_refresh(
 			application_name,
-			purchase_order->transaction->full_name,
-			purchase_order->transaction->street_address,
-			purchase_order->transaction->transaction_date_time,
-			0.0 /* transaction_amount */,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->transaction_date_time,
+			purchase_order->transaction->transaction_amount,
 			purchase_order->transaction->memo,
 			0 /* check_number */,
-			1 /* lock_transaction */ );
-
-		purchase_order->propagate_account_list =
-			purchase_order_journal_ledger_refresh(
-				application_name,
-				purchase_order->fund_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				purchase_order->transaction_date_time,
-				purchase_order->
-					sum_specific_inventory_unit_cost,
-				purchase_order->sum_supply_extension,
-				purchase_order->sum_service_extension,
-				purchase_order->sales_tax,
-				purchase_order->freight_in,
-				purchase_order->purchase_amount,
-				purchase_order->inventory_purchase_list,
-				purchase_order->supply_purchase_list,
-				purchase_order->service_purchase_list,
-				purchase_order->purchase_asset_account_list );
-
-		ledger_account_list_propagate(
-			purchase_order->propagate_account_list,
-			application_name );
+			1 /* lock_transaction */,
+			purchase_order->transaction->journal_ledger_list );
 	}
 
 	if ( purchase_order->shipped_date )
@@ -1030,7 +1080,9 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 		sprintf(sys_string,
 		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 	application_name,
-			purchase_order->fund_name,
+			(purchase_order->fund_name)
+				? purchase_order->fund_name
+				: "fund",
 		 	propagate_transaction_date_time );
 
 		system( sys_string );
@@ -1043,49 +1095,74 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 	if ( purchase_order->shipped_date
 	&&   *purchase_order->shipped_date )
 	{
+		char *memo;
+
+		if ( purchase_order->transaction )
+			memo = purchase_order->transaction->memo;
+		else
+			memo = PURCHASE_ORDER_MEMO;
+
 		purchase_order->transaction_date_time =
 			ledger_get_shipped_date_transaction_date_time(
 				purchase_order->shipped_date );
 
-		purchase_order->transaction =
-			ledger_transaction_new(
+		if ( list_length( purchase_order->inventory_purchase_list ) )
+		{
+			purchase_order->transaction =
+			     ledger_inventory_build_transaction(
+				application_name,
 				purchase_order->full_name,
 				purchase_order->street_address,
 				purchase_order->transaction_date_time,
-				PURCHASE_ORDER_MEMO );
+				memo,
+				purchase_order->inventory_purchase_list,
+				purchase_order->fund_name );
+		}
+		else
+		if ( list_length( purchase_order->
+					specific_inventory_purchase_list ) )
+		{
+			purchase_order->transaction =
+			     ledger_specific_inventory_build_transaction(
+				application_name,
+				purchase_order->full_name,
+				purchase_order->street_address,
+				purchase_order->transaction_date_time,
+				memo,
+				purchase_order->
+					specific_inventory_purchase_list,
+				purchase_order->fund_name );
+		}
+		else
+		{
+			purchase_order->transaction =
+				ledger_purchase_order_build_transaction(
+					application_name,
+					purchase_order->full_name,
+					purchase_order->street_address,
+					purchase_order->transaction_date_time,
+					memo,
+					purchase_order->sales_tax,
+					purchase_order->freight_in,
+					purchase_order->supply_purchase_list,
+					purchase_order->service_purchase_list,
+					purchase_order->
+					     fixed_asset_purchase_list,
+					purchase_order->
+						prepaid_asset_purchase_list,
+					purchase_order->fund_name );
+		}
 
-		ledger_transaction_insert(
+		ledger_transaction_refresh(
 			application_name,
-			purchase_order->transaction->full_name,
-			purchase_order->transaction->street_address,
-			purchase_order->transaction->transaction_date_time,
-			0.0 /* transaction_amount */,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->transaction_date_time,
+			purchase_order->transaction->transaction_amount,
 			purchase_order->transaction->memo,
 			0 /* check_number */,
-			1 /* lock_transaction */ );
-
-		purchase_order->propagate_account_list =
-			purchase_order_journal_ledger_refresh(
-				application_name,
-				purchase_order->fund_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				purchase_order->transaction_date_time,
-				purchase_order->
-					sum_specific_inventory_unit_cost,
-				purchase_order->sum_supply_extension,
-				purchase_order->sum_service_extension,
-				purchase_order->sales_tax,
-				purchase_order->freight_in,
-				purchase_order->purchase_amount,
-				purchase_order->inventory_purchase_list,
-				purchase_order->supply_purchase_list,
-				purchase_order->service_purchase_list,
-				purchase_order->purchase_asset_account_list );
-
-		ledger_account_list_propagate(
-			purchase_order->propagate_account_list,
-			application_name );
+			1 /* lock_transaction */,
+			purchase_order->transaction->journal_ledger_list );
 	}
 
 } /* post_change_purchase_order_changed_to_FOB_shipping() */
@@ -1153,7 +1230,9 @@ void post_change_purchase_order_FOB_shipping_new_title_passage_rule(
 		sprintf(sys_string,
 		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 	application_name,
-			purchase_order->fund_name,
+			(purchase_order->fund_name)
+				? purchase_order->fund_name
+				: "fund",
 		 	propagate_transaction_date_time );
 
 		system( sys_string );
@@ -1226,7 +1305,9 @@ void post_change_purchase_order_fixed_arrived_date_time(
 		sprintf(sys_string,
 		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
 		 	application_name,
-			purchase_order->fund_name,
+			(purchase_order->fund_name)
+				? purchase_order->fund_name
+				: "fund",
 		 	propagate_transaction_date_time );
 
 		system( sys_string );
@@ -1254,44 +1335,129 @@ void post_change_purchase_order_new_transaction(
 {
 	purchase_order->transaction_date_time = transaction_date_time;
 
-	purchase_order->transaction =
-		ledger_transaction_new(
+	if ( list_length( purchase_order->inventory_purchase_list ) )
+	{
+		purchase_order->transaction =
+		     ledger_inventory_build_transaction(
+			application_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,
-			PURCHASE_ORDER_MEMO );
-	
-	ledger_transaction_insert(
+			PURCHASE_ORDER_MEMO,
+			purchase_order->inventory_purchase_list,
+			purchase_order->fund_name );
+	}
+	else
+	if ( list_length( purchase_order->
+				specific_inventory_purchase_list ) )
+	{
+		purchase_order->transaction =
+		     ledger_specific_inventory_build_transaction(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->transaction_date_time,
+			PURCHASE_ORDER_MEMO,
+			purchase_order->
+				specific_inventory_purchase_list,
+			purchase_order->fund_name );
+	}
+	else
+	{
+		purchase_order->transaction =
+			ledger_purchase_order_build_transaction(
+				application_name,
+				purchase_order->full_name,
+				purchase_order->street_address,
+				purchase_order->transaction_date_time,
+				PURCHASE_ORDER_MEMO,
+				purchase_order->sales_tax,
+				purchase_order->freight_in,
+				purchase_order->supply_purchase_list,
+				purchase_order->service_purchase_list,
+				purchase_order->
+				     fixed_asset_purchase_list,
+				purchase_order->
+					prepaid_asset_purchase_list,
+				purchase_order->fund_name );
+	}
+
+	ledger_transaction_refresh(
 		application_name,
-		purchase_order->transaction->full_name,
-		purchase_order->transaction->street_address,
-		purchase_order->transaction->transaction_date_time,
-		0.0 /* transaction_amount */,
+		purchase_order->full_name,
+		purchase_order->street_address,
+		purchase_order->transaction_date_time,
+		purchase_order->transaction->transaction_amount,
 		purchase_order->transaction->memo,
 		0 /* check_number */,
-		1 /* lock_transaction */ );
+		1 /* lock_transaction */,
+		purchase_order->transaction->journal_ledger_list );
 
-	purchase_order->propagate_account_list =
-		purchase_order_journal_ledger_refresh(
+} /* post_change_purchase_order_new_transaction() */
+
+void post_change_purchase_order_changed_sales_tax(
+			PURCHASE_ORDER *purchase_order,
+			char *application_name )
+{
+	if ( !purchase_order->transaction_date_time ) return;
+
+	if ( list_length( purchase_order->inventory_purchase_list ) )
+	{
+		purchase_order->transaction =
+		     ledger_inventory_build_transaction(
 			application_name,
-			purchase_order->fund_name,
 			purchase_order->full_name,
 			purchase_order->street_address,
 			purchase_order->transaction_date_time,
-			purchase_order->sum_specific_inventory_unit_cost,
-			purchase_order->sum_supply_extension,
-			purchase_order->sum_service_extension,
-			purchase_order->sales_tax,
-			purchase_order->freight_in,
-			purchase_order->purchase_amount,
+			purchase_order->transaction->memo,
 			purchase_order->inventory_purchase_list,
-			purchase_order->supply_purchase_list,
-			purchase_order->service_purchase_list,
-			purchase_order->purchase_asset_account_list );
+			purchase_order->fund_name );
+	}
+	else
+	if ( list_length( purchase_order->
+				specific_inventory_purchase_list ) )
+	{
+		purchase_order->transaction =
+		     ledger_specific_inventory_build_transaction(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->transaction_date_time,
+			purchase_order->transaction->memo,
+			purchase_order->
+				specific_inventory_purchase_list,
+			purchase_order->fund_name );
+	}
+	else
+	{
+		purchase_order->transaction =
+			ledger_purchase_order_build_transaction(
+				application_name,
+				purchase_order->full_name,
+				purchase_order->street_address,
+				purchase_order->transaction_date_time,
+				purchase_order->transaction->memo,
+				purchase_order->sales_tax,
+				purchase_order->freight_in,
+				purchase_order->supply_purchase_list,
+				purchase_order->service_purchase_list,
+				purchase_order->
+				     fixed_asset_purchase_list,
+				purchase_order->
+					prepaid_asset_purchase_list,
+				purchase_order->fund_name );
+	}
 
-	ledger_account_list_propagate(
-		purchase_order->propagate_account_list,
-		application_name );
+	ledger_transaction_refresh(
+		application_name,
+		purchase_order->full_name,
+		purchase_order->street_address,
+		purchase_order->transaction_date_time,
+		purchase_order->transaction->transaction_amount,
+		purchase_order->transaction->memo,
+		0 /* check_number */,
+		1 /* lock_transaction */,
+		purchase_order->transaction->journal_ledger_list );
 
-} /* post_change_purchase_order_new_transaction() */
+} /* post_change_purchase_order_changed_sales_tax() */
 

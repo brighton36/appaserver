@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* generic_easychart.c					*/
+/* $APPASERVER_HOME/src_appaserver/generic_easychart.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -311,7 +311,7 @@ int main( int argc, char **argv )
 	easycharts->point_highlight_size = 0;
 
 	sprintf(applet_library_archive,
-		"/%s/%s",
+		"/appaserver/%s/%s",
 		application_name,
 		EASYCHARTS_JAR_FILE );
 
@@ -546,6 +546,8 @@ char *get_title(		char *value_folder_name,
 		end_date_string );
 
 	format_initial_capital( title, title );
+
 	return title;
+
 } /* get_title() */
 

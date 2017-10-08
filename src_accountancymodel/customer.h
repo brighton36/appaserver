@@ -1,13 +1,13 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/customer.h					*/
+/* $APPASERVER_HOME/src_accountancymodel/customer.h			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel customer_sale ADT.			*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef CUSTOMER_SALE_H
-#define CUSTOMER_SALE_H
+#ifndef CUSTOMER_H
+#define CUSTOMER_H
 
 #include "list.h"
 #include "boolean.h"
@@ -20,12 +20,19 @@
 /* --------- */
 #define CUSTOMER_SALE_MEMO		"Customer Sale"
 #define CUSTOMER_PAYMENT_MEMO		"Customer Payment"
+#define SALES_TAX_PAYABLE_MEMO		"Sales Tax Collection"
 
 #define CUSTOMER_GET_AMOUNT_DUE( invoice_amount, total_payment )	\
 				( invoice_amount - total_payment )
 
 #define CUSTOMER_SALE_GET_EXTENSION( retail_price, discount_amount )	\
 				( retail_price - discount_amount )
+
+#define CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(				\
+		hourly_rate,						\
+		work_hours,						\
+		discount_amount )					\
+		( ( hourly_rate * work_hours ) - discount_amount )
 
 /* Enumerated types */
 /* ---------------- */
@@ -34,12 +41,38 @@
 /* ---------- */
 typedef struct
 {
+	char *begin_date_time;
+	char *end_date_time;
+	double work_hours;
+	double database_work_hours;
+} SERVICE_WORK;
+
+typedef struct
+{
+	char *service_name;
+	char *description;
+	double hourly_rate;
+	double discount_amount;
+	double extension;
+	double database_extension;
+	double work_hours;
+	double database_work_hours;
+	char *account_name;
+	LIST *service_work_list;
+} HOURLY_SERVICE;
+
+typedef struct
+{
 	char *service_name;
 	double retail_price;
 	double discount_amount;
 	double extension;
 	double database_extension;
-} SERVICE_SALE;
+	double work_hours;
+	double database_work_hours;
+	char *account_name;
+	LIST *service_work_list;
+} FIXED_SERVICE;
 
 typedef struct
 {
@@ -56,6 +89,7 @@ typedef struct
 {
 	char *payment_date_time;
 	double payment_amount;
+	int check_number;
 	char *transaction_date_time;
 	char *database_transaction_date_time;
 	TRANSACTION *transaction;
@@ -75,10 +109,13 @@ typedef struct
 	char *database_shipped_date_time;
 	double sales_tax;
 	double database_sales_tax;
-	double sum_inventory_extension;
-	double sum_service_extension;
 	double sum_extension;
 	double database_sum_extension;
+	double sum_inventory_extension;
+	double sum_fixed_service_extension;
+	double sum_fixed_extension;
+	double sum_hourly_service_extension;
+	double sum_hourly_extension;
 	double invoice_amount;
 	double database_invoice_amount;
 	enum title_passage_rule title_passage_rule;
@@ -91,7 +128,8 @@ typedef struct
 	double shipping_revenue;
 	LIST *inventory_sale_list;
 	LIST *specific_inventory_sale_list;
-	LIST *service_sale_list;
+	LIST *fixed_service_sale_list;
+	LIST *hourly_service_sale_list;
 	LIST *payment_list;
 	TRANSACTION *transaction;
 	LIST *propagate_account_list;
@@ -113,11 +151,6 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 					char *street_address,
 					char *sale_date_time );
 
-LIST *customer_sale_service_get_list(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *sale_date_time );
-
 LIST *customer_sale_specific_inventory_get_list(
 					char *application_name,
 					char *full_name,
@@ -128,11 +161,18 @@ SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_new(
 					char *inventory_name,
 					char *serial_number );
 
-SERVICE_SALE *customer_service_sale_new(
+FIXED_SERVICE *customer_fixed_service_sale_new(
 					char *service_name );
+
+HOURLY_SERVICE *customer_hourly_service_sale_new(
+					char *service_name,
+					char *description );
 
 double customer_sale_get_sum_inventory_extension(
 					LIST *inventory_sale_list );
+
+double customer_sale_get_sum_fixed_inventory_extension(
+					LIST *inventory_fixed_sale_list );
 
 double customer_sale_get_sum_specific_inventory_extension(
 					LIST *specific_inventory_sale_list );
@@ -140,8 +180,11 @@ double customer_sale_get_sum_specific_inventory_extension(
 double customer_sale_get_cost_of_goods_sold(
 					LIST *inventory_sale_list );
 
-double customer_sale_get_sum_service_extension(
-					LIST *sale_service_list );
+double customer_sale_get_sum_fixed_service_extension(
+					LIST *fixed_service_sale_list );
+
+double customer_sale_get_sum_hourly_service_extension(
+					LIST *hourly_service_sale_list );
 
 void customer_sale_parse(	char **full_name,
 				char **street_address,
@@ -221,13 +264,15 @@ void customer_sale_update(	double sum_extension,
 
 double customer_sale_get_invoice_amount(
 				double *sum_inventory_extension,
-				double *sum_service_extension,
+				double *sum_fixed_service_extension,
+				double *sum_hourly_service_extension,
 				double *sum_extension,
 				double *sales_tax,
 				double shipping_revenue,
 				LIST *inventory_sale_list,
 				LIST *specific_inventory_sale_list,
-				LIST *sale_service_list,
+				LIST *fixed_service_sale_list,
+				LIST *hourly_service_sale_list,
 				char *full_name,
 				char *street_address,
 				char *application_name );
@@ -252,18 +297,6 @@ LIST *customer_payment_get_list(char *application_name,
 CUSTOMER_PAYMENT *customer_payment_new(
 				char *payment_date_time );
 
-LIST *customer_sale_ledger_refresh(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double sum_inventory_extension,
-				double sum_service_extension,
-				double sales_tax,
-				double shipping_revenue,
-				double invoice_amount );
-
 LIST *customer_sale_ledger_cost_of_goods_sold_update(
 				char *application_name,
 				char *fund_name,
@@ -271,13 +304,6 @@ LIST *customer_sale_ledger_cost_of_goods_sold_update(
 				char *street_address,
 				char *transaction_date_time,
 				double customer_sale_cost_of_goods_sold );
-
-/*
-LIST *customer_sale_get_complete_propagate_account_list(
-				char *application_name,
-				char *fund_name,
-				char *transaction_date_time );
-*/
 
 double customer_sale_fetch_cost_of_goods_sold(
 				char *full_name,
@@ -295,7 +321,7 @@ char *customer_sale_fetch_transaction_date_time(
 				char *street_address,
 				char *sale_date_time );
 
-char *customer_sale_get_select(	void );
+char *customer_sale_get_select(	char *application_name );
 
 void customer_inventory_set_extension(
 				LIST *inventory_sale_list );
@@ -336,6 +362,8 @@ void customer_sale_transaction_delete_with_propagate(
 				char *fund_name,
 				char *full_name,
 				char *street_address,
+				char *sales_tax_payable_full_name,
+				char *sales_tax_payable_street_address,
 				char *transaction_date_time );
 
 boolean customer_sale_inventory_is_latest(
@@ -396,32 +424,27 @@ void customer_specific_inventory_update(
 				double extension,
 				double database_extension );
 
-void customer_service_sale_update(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *service_name,
-				double extension,
-				double database_extension );
-
 SPECIFIC_INVENTORY_SALE *customer_specific_inventory_sale_seek(
 				LIST *specific_inventory_sale_list,
 				char *inventory_name,
 				char *serial_number );
 
-SERVICE_SALE *customer_service_sale_seek(
-				LIST *service_sale_list,
+FIXED_SERVICE *customer_fixed_service_sale_seek(
+				LIST *fixed_service_sale_list,
 				char *service_name );
 
+HOURLY_SERVICE *customer_hourly_service_sale_seek(
+					LIST *hourly_service_sale_list,
+					char *service_name,
+					char *description );
+
 double customer_sale_get_specific_inventory_cost_of_goods_sold(
-				LIST *specific_inventory_sale_list );
+					LIST *specific_inventory_sale_list );
 
 double customer_sale_get_amount_due(	char *application_name,
 					char *full_name,
 					char *street_address,
-					char *sale_date_time );;
-
+					char *sale_date_time );
 
 double customer_sale_get_total_payment(	char *application_name,
 					char *full_name,
@@ -444,6 +467,179 @@ LIST *customer_sale_ledger_cost_of_goods_sold_insert(
 					char *transaction_date_time,
 					LIST *inventory_account_list,
 					LIST *cost_account_list );
+
+void customer_fixed_service_work_update(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *begin_date_time,
+					char *end_date_time,
+					double work_hours,
+					double database_work_hours );
+
+void customer_hourly_service_work_update(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *description,
+					char *begin_date_time,
+					char *end_date_time,
+					double work_hours,
+					double database_work_hours );
+
+void customer_fixed_service_sale_update(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					double extension,
+					double database_extension,
+					double work_hours,
+					double database_work_hours );
+
+void customer_hourly_service_sale_update(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *description,
+					double extension,
+					double database_extension,
+					double work_hours,
+					double database_work_hours );
+
+LIST *customer_fixed_service_sale_get_list(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time );
+
+LIST *customer_hourly_service_sale_get_list(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time );
+
+LIST *customer_fixed_service_work_get_list(
+					double *work_hours,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name );
+
+LIST *customer_hourly_service_work_get_list(
+					double *work_hours,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *description );
+
+SERVICE_WORK *customer_service_work_new(char *begin_date_time );
+
+SERVICE_WORK *customer_service_work_seek(
+					LIST *service_work_list,
+					char *begin_date_time );
+
+boolean customer_service_work_open(
+					LIST *service_work_list );
+
+boolean customer_fixed_service_open(
+					LIST *fixed_service_sale_list );
+
+boolean customer_hourly_service_open(
+					LIST *hourly_service_sale_list );
+
+/* Returns fixed_service->work_hours */
+/* --------------------------------- */
+double customer_fixed_service_work_list_close(
+					LIST *service_work_list,
+					char *completed_date_time );
+
+void customer_fixed_service_sale_list_close(
+					LIST *fixed_service_sale_list,
+					char *completed_date_time );
+
+double customer_get_work_hours(		char *end_date_time,
+					char *begin_date_time );
+
+void customer_hourly_service_sale_list_close(
+					LIST *hourly_service_sale_list,
+					char *completed_date_time );
+
+/* Returns hourly_service->work_hours */
+/* ---------------------------------- */
+double customer_hourly_service_work_list_close(
+					LIST *service_work_list,
+					char *completed_date_time );
+
+void customer_hourly_service_sale_list_update(
+					LIST *hourly_service_sale_list,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time );
+
+void customer_hourly_service_work_list_update(
+					LIST *hourly_service_work_list,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *description );
+
+void customer_hourly_service_work_update(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name,
+					char *description,
+					char *begin_date_time,
+					char *end_date_time,
+					double work_hours,
+					double database_work_hours );
+
+void customer_fixed_service_sale_list_update(
+					LIST *fixed_service_sale_list,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time );
+
+void customer_fixed_service_work_list_update(
+					LIST *fixed_service_work_list,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *sale_date_time,
+					char *service_name );
+
+LIST *customer_sale_inventory_distinct_account_extract(
+					double *sales_revenue_amount,
+					LIST *inventory_sale_list );
+
+LIST *customer_sale_fixed_service_distinct_account_extract(
+					double *service_revenue_amount,
+					LIST *fixed_service_sale_list );
+
+LIST *customer_sale_hourly_service_distinct_account_extract(
+					double *service_revenue_amount,
+					LIST *hourly_service_sale_list );
+
+void customer_propagate_customer_sale_ledger_accounts(
+				char *application_name,
+				char *fund_name,
+				char *customer_sale_transaction_date_time );
 
 #endif
 

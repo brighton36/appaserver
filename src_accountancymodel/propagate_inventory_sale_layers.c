@@ -235,14 +235,6 @@ void propagate_inventory_sale_layers_not_latest(
 			inventory->inventory_purchase_list,
 			inventory->inventory_sale_list );
 
-/*
-fprintf( stderr, "%s/%s()/%d: inventory_balance_list = (\n%s\n)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-inventory_balance_list_display( inventory->inventory_balance_list ) );
-*/
-
 	if ( list_length( inventory->inventory_balance_list ) )
 	{
 		inventory->last_inventory_balance =

@@ -21,6 +21,8 @@ backup/
 # -------------
 # src_hydrology
 # -------------
+output_measurement_sets_googlechart
+output_measurement_googlecharts
 hydrology_verification_process
 interpolate_spike_calculate
 measurement_null_value_insert
@@ -120,6 +122,12 @@ kml_extract
 # --------------------
 # src_accountancymodel
 # --------------------
+post_change_employee_work_day
+load_receipt_scan
+populate_print_checks_entity
+inventory_balance_detail
+depreciate_fixed_assets
+depreciate_prior_fixed_assets
 print_checks_process
 post_change_bank_upload
 trial_balance
@@ -144,6 +152,7 @@ post_change_inventory_purchase
 post_change_supply_purchase
 post_change_specific_inventory_purchase
 post_change_service_purchase
+post_change_service_sale
 post_change_fixed_asset_purchase
 post_change_prepaid_asset_purchase
 post_change_fixed_asset
@@ -154,11 +163,14 @@ post_change_purchase_order
 post_change_customer_sale
 post_change_customer_payment
 post_change_vendor_payment
-post_change_depreciation
 post_change_prepaid_asset_accrual
+post_change_fixed_service_sale
+post_change_hourly_service_sale
+post_change_fixed_service_work
+post_change_hourly_service_work
 update_sale_completed
 post_reoccurring_transaction
-post_rental_property_reoccurring_transaction
+post_employee_work_period
 collect_customer_payment
 make_vendor_payment
 post_change_self
@@ -235,7 +247,8 @@ post_prompt_process_form
 post_choose_process
 output_email
 output_transmit
-output_time_chart
+output_grace_chart
+output_google_chart
 output_histogram
 output_group
 add_column
@@ -288,6 +301,7 @@ generic_output_annual_comparison
 generic_annual_comparison
 generic_statistics_report
 generic_gracechart
+generic_googlechart
 generic_high_average_low
 generic_easychart
 generic_daily_moving_average
@@ -418,6 +432,8 @@ update_transect_basin
 # ---------
 # src_creel
 # ---------
+additional_species
+creel_dvr
 calculate_species_cpue
 catches_per_species
 creel_catches2minutes_between_fish
@@ -449,7 +465,6 @@ get_aggregation_sum_yn
 # ---------------
 # src_capitolpops
 # ---------------
-src_capitolpops/accountancy_model.pdf
 post_capitolpops
 parse_contact_list
 build_capitolpops
@@ -464,3 +479,7 @@ donor_receipt
 # --------------
 generate_invoice
 generate_workorder
+# ------------------
+# src_rentalproperty
+# ------------------
+post_rental_property_reoccurring_transaction

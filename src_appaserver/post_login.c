@@ -42,7 +42,6 @@ int main( int argc, char **argv )
 	int login_denied = 0;
 	enum password_match_return password_match_return;
 
-	environ_prepend_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 

@@ -1,4 +1,5 @@
-/* library/appaserver_library.h						*/
+/* --------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/library/appaserver_library.h			*/
 /* --------------------------------------------------------------------	*/
 /*									*/
 /* These are the generic Appaserver functions.				*/
@@ -88,7 +89,8 @@ enum preupdate_change_state {		from_null_to_something,
 #define TRANSMIT_PUSH_BUTTON_NAME		"transmit_button"
 #define TRANSMIT_PUSH_BUTTON_LABEL		"Spreadsheet"
 #define INSERT_NEW_PUSH_BUTTON_LABEL		"Insert"
-#define TIME_CHART_PUSH_BUTTON_NAME		"time_chart_button"
+#define GRACE_CHART_PUSH_BUTTON_NAME		"grace_chart_button"
+#define GOOGLE_CHART_PUSH_BUTTON_NAME		"google_chart_button"
 #define HISTOGRAM_PUSH_BUTTON_NAME		"histogram_button"
 #define GROUP_PUSH_BUTTON_NAME			"group_button"
 #define SORT_ORDER_ATTRIBUTE_NAME		"sort_order"
@@ -457,5 +459,16 @@ char *appaserver_library_preupdate_change_state_display(
 
 char *appaserver_library_get_sort_attribute_name(
 				LIST *attribute_list );
+
+LIST *appaserver_library_get_update_lookup_attribute_element_list(
+					char update_yn,
+					LIST *primary_attribute_name_list,
+					LIST *exclude_permission_list,
+					char *attribute_name,
+					char *datatype,
+					int width,
+					char *post_change_javascript,
+					char *on_focus_javascript_function,
+					boolean is_primary_attribute );
 
 #endif

@@ -24,7 +24,6 @@
 #include "environ.h"
 #include "process.h"
 #include "easycharts.h"
-/* #include "hydrology_library.h" */
 #include "appaserver_link_file.h"
 
 /* Enumerated Types */
@@ -394,7 +393,7 @@ void output_scatter(	char *everglades_application_name,
 	}
 
 	sprintf(applet_library_archive,
-		"/%s/%s",
+		"/appaserver/%s/%s",
 		creel_application_name,
 		EASYCHARTS_JAR_FILE );
 

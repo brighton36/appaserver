@@ -371,6 +371,7 @@ void post_state_one(	char *application_name,
 				(char *)0 /* background_color */,
 				element->drop_down->date_piece_offset,
 				1 /* no_initial_capital */,
+				element->drop_down->readonly,
 				0 /* tab_index */,
 				element->drop_down->state );
 			fflush( stdout );
@@ -433,6 +434,7 @@ void post_state_one(	char *application_name,
 				(char *)0 /* background_color */,
 				element->drop_down->date_piece_offset,
 				1 /* no_initial_capital */,
+				element->drop_down->readonly,
 				0 /* tab_index */,
 				element->drop_down->state );
 			fflush( stdout );
@@ -480,6 +482,7 @@ void post_state_one(	char *application_name,
 				(char *)0 /* background_color */,
 				element->drop_down->date_piece_offset,
 				element->drop_down->no_initial_capital,
+				element->drop_down->readonly,
 				0 /* tab_index */,
 				element->drop_down->state );
 			fflush( stdout );

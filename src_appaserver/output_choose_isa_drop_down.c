@@ -130,7 +130,6 @@ int main( int argc, char **argv )
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -275,6 +274,7 @@ int main( int argc, char **argv )
 		form->target_frame,
 		form->target_frame,
 		0 /* no output_submit_reset_buttons */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -282,7 +282,8 @@ int main( int argc, char **argv )
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	form_output_body(
 			&form->current_reference_number,
@@ -307,7 +308,8 @@ int main( int argc, char **argv )
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		with_dynarch_menu /* with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 

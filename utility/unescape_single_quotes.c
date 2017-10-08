@@ -8,7 +8,7 @@
  
 int main( int argc, char **argv )
 {
-	char input_buffer[ 1024 ];
+	char input_buffer[ 65536 ];
 	char *ptr;
 
 	while( get_line( input_buffer, stdin ) )

@@ -47,10 +47,10 @@ if ( $invalid_yn == 'y' )
 }
 ?>
 	<tr><td align="right"><p>Login name:
-	    <td align="center"><input type="text" name="login_name" size=20
+	    <td align="center"><input type="text" name="login_name" size=50
 		value="">
 	<tr><td align="right"><p>Password:
-	    <td align="center"><input type="password" name="password" size=20
+	    <td align="center"><input type="password" name="password" size=50
 		value="">
 	<tr><td align="center" colspan=2>
 				<input type="submit" value="Login">

@@ -1,5 +1,7 @@
-/* library/date.c */
-/* -------------- */
+/* $APPASERVER_HOME/library/date.c			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,6 +88,16 @@ DATE *date_new_date_time(
 	DATE *d;
 	struct tm tm;
 
+	if ( year >= 2038 && sizeof( time_t ) == 4 )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: year must be earlier than 2038 for 32 bit hardware.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	d = date_new_date();
 	d->tm->tm_year = year - 1900;
 	d->tm->tm_mon = month - 1;
@@ -99,9 +111,14 @@ DATE *date_new_date_time(
 	memcpy( &tm, localtime( &d->current ), sizeof( struct tm ) );
 	date_set_tm_structures( d, d->current );
 
-	if ( d->tm->tm_isdst ) date_increment_hours( d, -1.0 );
+	if ( d->tm->tm_isdst )
+	{
+		date_increment_hours( d, -1.0 );
+		d->tm->tm_isdst = 0;
+	}
 
 	return d;
+
 } /* date_new_date_time() */
 
 DATE *date_new( int year, int month, int day )
@@ -117,6 +134,10 @@ DATE *date_new( int year, int month, int day )
 
 time_t date_tm_to_current( struct tm *tm )
 {
+	/* Commented out 2017-09-26 */
+	/* ------------------------ */
+	/* tm->tm_isdst = 0; */
+
 	if ( tm->tm_year < 70 )
 	{
 		return date_tm_to_current_pre_1970( tm );
@@ -152,6 +173,41 @@ time_t date_tm_to_current_pre_1970( struct tm *tm )
 
 } /* date_tm_to_current_pre_1970() */
 
+void date_set_date_time_integers(
+				DATE *date,
+				int year,
+				int month,
+				int day,
+				int hours,
+				int minutes,
+				int seconds )
+{
+	date->tm->tm_year = year - 1900;
+	date->tm->tm_mon = month - 1;
+	date->tm->tm_mday = day;
+	date->tm->tm_hour = hours;
+	date->tm->tm_min = minutes;
+	date->tm->tm_sec = seconds;
+
+	date->current = date_tm_to_current( date->tm );
+	date_set_tm_structures( date, date->current );
+
+} /* date_set_date_time_integers() */
+
+void date_set_time_integers(	DATE *date,
+				int hour,
+				int minute,
+				int seconds )
+{
+	date->tm->tm_hour = hour;
+	date->tm->tm_min = minute;
+	date->tm->tm_sec = seconds;
+
+	date->current = date_tm_to_current( date->tm );
+	date_set_tm_structures( date, date->current );
+
+} /* date_set_time_integers() */
+
 void date_set_date_integers(	DATE *date,
 				int year,
 				int month,
@@ -166,40 +222,99 @@ void date_set_date_integers(	DATE *date,
 
 } /* date_set_date_integers() */
 
-void date_set_time_integers(	DATE *date,
-				int hour,
-				int minute,
-				int seconds )
-{
-	date->tm->tm_hour = hour;
-	date->tm->tm_min = minute;
-	date->tm->tm_sec = seconds;
-
-	date->current = date_tm_to_current( date->tm );
-
-} /* date_set_time_integers() */
-
-int date_set_yyyy_mm_dd_hhmm(	DATE *date,
+int date_set_yyyy_mm_dd_hhmm_delimited(
+				DATE *date,
 				char *yyyy_mm_dd_hhmm,
+				int date_piece,
+				int time_piece,
 				char delimiter )
 {
-	char yyyy_mm_dd[ 16 ];
-	char hhmm[ 16 ];
+	char yyyy_mm_dd[ 128 ];
+	char hhmm[ 128 ];
 
-	piece( yyyy_mm_dd, delimiter, yyyy_mm_dd_hhmm, 0 );
-
-	if ( !date_set_yyyy_mm_dd( date, yyyy_mm_dd ) ) return 0;
-
-	piece( hhmm, delimiter, yyyy_mm_dd_hhmm, 1 );
-
-	if ( *hhmm && strcasecmp( hhmm, "null" ) != 0 )
+	if ( !piece( yyyy_mm_dd, delimiter, yyyy_mm_dd_hhmm, date_piece ) )
 	{
-		return date_set_time_hhmm( date, hhmm );
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: cannot piece(%d) in (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 date_piece,
+			 yyyy_mm_dd );
+		return 0;
+	}
+
+	if ( time_piece == -1 )
+	{
+		*hhmm = '\0';
 	}
 	else
+	if ( !piece( hhmm, delimiter, yyyy_mm_dd_hhmm, time_piece ) )
 	{
-		return 1;
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: cannot piece(%d) in (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 time_piece,
+			 yyyy_mm_dd );
+		return 0;
 	}
+
+	if ( !*hhmm || strcasecmp( hhmm, "null" ) == 0 )
+		return date_set_yyyy_mm_dd( date, yyyy_mm_dd );
+
+	return date_set_yyyy_mm_dd_hhmm(
+		date,
+		yyyy_mm_dd,
+		hhmm );
+
+} /* date_set_yyyy_mm_dd_hhmm_delimited() */
+
+int date_set_yyyy_mm_dd_hhmm(	DATE *date,
+				char *yyyy_mm_dd,
+				char *hhmm )
+{
+	char year_string[ 128 ];
+	char month_string[ 128 ];
+	char day_string[ 128 ];
+	char delimiter;
+	int hours, minutes;
+	char buffer[ 3 ];
+
+	if ( count_character( '-', yyyy_mm_dd ) == 2 )
+		delimiter = '-';
+	else
+	if ( count_character( '.', yyyy_mm_dd ) == 2 )
+		delimiter = '.';
+	else
+		return 0;
+
+	piece( year_string, delimiter, yyyy_mm_dd, 0 );
+	piece( month_string, delimiter, yyyy_mm_dd, 1 );
+	piece( day_string, delimiter, yyyy_mm_dd, 2 );
+
+	if ( strlen( hhmm ) != 4 ) return 0;
+
+	*(buffer + 2) = '\0';
+	*buffer = *hhmm;
+	*(buffer + 1) = *(hhmm + 1);
+	hours = atoi( buffer );
+
+	*buffer = *(hhmm + 2);
+	*(buffer + 1) = *(hhmm + 3);
+	minutes = atoi( buffer );
+
+	date_set_date_time_integers(
+				date,
+				atoi( year_string ),
+				atoi( month_string ),
+				atoi( day_string ),
+				hours,
+				minutes,
+				0 /* seconds */ );
+
+	return 1;
 
 } /* date_set_yyyy_mm_dd_hhmm() */
 
@@ -226,9 +341,21 @@ int date_set_yyyy_mm_dd( DATE *date, char *yyyy_mm_dd )
 				atoi( year_string ),
 				atoi( month_string ),
 				atoi( day_string ) );
-	return 1;
-} /* date_set_yyyy_mm_dd() */
 
+	date_set_time_integers(	date,
+				0 /* hour */,
+				0 /* minute */,
+				0 /* seconds */ );
+
+	if ( date->tm->tm_isdst )
+	{
+		date_increment_hours( date, -1.0 );
+		date->tm->tm_isdst = 0;
+	}
+
+	return 1;
+
+} /* date_set_yyyy_mm_dd() */
 
 void date_set_time( DATE *date, int hour, int minutes )
 {
@@ -344,25 +471,25 @@ int date_get_day_of_week( DATE *d )
 
 char *date_get_day_of_week_string( DATE *d )
 {
-	if ( d->tm->tm_wday == 0 )
+	if ( d->tm->tm_wday == WDAY_SUNDAY )
 		return "Sunday";
 	else
-	if ( d->tm->tm_wday == 1 )
+	if ( d->tm->tm_wday == WDAY_MONDAY )
 		return "Monday";
 	else
-	if ( d->tm->tm_wday == 2 )
+	if ( d->tm->tm_wday == WDAY_TUESDAY )
 		return "Tuesday";
 	else
-	if ( d->tm->tm_wday == 3 )
+	if ( d->tm->tm_wday == WDAY_WEDNESDAY )
 		return "Wednesday";
 	else
-	if ( d->tm->tm_wday == 4 )
+	if ( d->tm->tm_wday == WDAY_THURSDAY )
 		return "Thursday";
 	else
-	if ( d->tm->tm_wday == 5 )
+	if ( d->tm->tm_wday == WDAY_FRIDAY )
 		return "Friday";
 	else
-	if ( d->tm->tm_wday == 6 )
+	if ( d->tm->tm_wday == WDAY_SATURDAY )
 		return "Saturday";
 	else
 		return "Unknown";
@@ -408,6 +535,34 @@ int date_get_seconds( DATE *d )
 	return d->tm->tm_sec;
 }
 
+/* ------------------------------------------------------------- */
+/* Sample input: from_date = "2017-03-01" to_date = "2017-04-16" */
+/* ------------------------------------------------------------- */
+int date_days_between(	char *from_date_string,
+			char *to_date_string )
+{
+	DATE *from_date;
+	DATE *to_date;
+	time_t difference;
+
+	if ( ! ( from_date = date_yyyy_mm_dd_new( from_date_string ) ) )
+	{
+		return 0;
+	}
+
+	if ( ! ( to_date = date_yyyy_mm_dd_new( to_date_string ) ) )
+	{
+		return 0;
+	}
+
+	difference = to_date->current - from_date->current;
+
+	date_free( from_date );
+	date_free( to_date );
+
+	return (int) (difference / SECONDS_IN_DAY);
+
+} /* date_days_between() */
 
 /* --------------------------------------------------------- */
 /* Sample input: from_date = "10/06/60" to_date = "08/04/11" */
@@ -446,6 +601,34 @@ int date_years_between( char *from_date, char *to_date )
 	return diff_year;
 
 } /* date_years_between() */
+
+void date_time_parse(		int *hours,
+				int *minutes,
+				char *hhmm )
+{
+	char buffer[ 3 ];
+	char *ptr;
+
+	*hours = 0;
+	*minutes = 0;
+
+	if ( timlib_strlen( hhmm ) != 4 ) return;
+
+	ptr = buffer;
+	*ptr++ = *hhmm++;
+	*ptr++ = *hhmm++;
+	*ptr = '\0';
+
+	*hours = atoi( buffer );
+
+	ptr = buffer;
+	*ptr++ = *hhmm++;
+	*ptr++ = *hhmm++;
+	*ptr = '\0';
+
+	*minutes = atoi( buffer );
+
+} /* date_time_parse() */
 
 boolean date_parse(	int *year,
 			int *month,
@@ -603,10 +786,52 @@ DATE *date_yyyy_mm_dd_hms_new( char *date_time_string )
 			atoi( minute_string ),
 			atoi( second_string ) );
 
-
 	return date;
 
 } /* date_yyyy_mm_dd_hms_new() */
+
+DATE *date_yyyy_mm_dd_hm_new( char *date_time_string )
+{
+	char year_string[ 16 ];
+	char month_string[ 16 ];
+	char day_string[ 16 ];
+	char hour_string[ 16 ];
+	char minute_string[ 16 ];
+	char date_half[ 32 ];
+	char time_half[ 32 ];
+	DATE *date;
+
+	if ( count_character( '-', date_time_string ) != 2 )
+		return (DATE *)0;
+
+	if ( count_character( ' ', date_time_string ) != 1 )
+		return (DATE *)0;
+
+	if ( count_character( ':', date_time_string ) == 0 )
+		return (DATE *)0;
+
+	column( date_half, 0, date_time_string );
+	column( time_half, 1, date_time_string );
+
+	piece( year_string, '-', date_half, 0 );
+	piece( month_string, '-', date_half, 1 );
+	piece( day_string, '-', date_half, 2 );
+
+	piece( hour_string, ':', time_half, 0 );
+	piece( minute_string, ':', time_half, 1 );
+
+	date = date_new_date_time(
+			atoi( year_string ),
+			atoi( month_string ),
+			atoi( day_string ),
+			atoi( hour_string ),
+			atoi( minute_string ),
+			0 /*seconds */ );
+
+	return date;
+
+} /* date_yyyy_mm_dd_hm_new() */
+
 
 DATE *date_yyyy_mm_dd_new( char *date_string )
 {
@@ -704,6 +929,7 @@ char *date_static_display_yyyy_mm_dd( DATE *date )
 			date_get_day_of_month( date ) );
 
 	return buffer;
+
 } /* date_static_display_yyyy_mm_dd() */
 
 char *date_static_display( DATE *date )
@@ -922,6 +1148,41 @@ char *date_get_now_time_second( void )
 	return date_get_now_hh_colon_mm_colon_ss();
 }
 
+char *date_get_yyyy_mm_dd_hh_mm_ss(
+				DATE *date_time )
+{
+	char buffer[ 32 ];
+
+	sprintf( 	buffer, 
+			"%d-%02d-%02d %02d:%02d:%02d",
+			date_get_year( date_time ),
+			date_get_month( date_time ),
+			date_get_day_of_month( date_time ),
+			date_get_hour( date_time ),
+			date_get_minutes( date_time ),
+			date_get_seconds( date_time ) );
+
+	return strdup( buffer );
+
+} /* date_get_yyyy_mm_dd_hh_mm_ss() */
+
+char *date_get_now_hh_colon_mm( void )
+{
+	char buffer[ 128 ];
+	time_t now;
+	struct tm *tm;
+
+	now = time( (time_t *)0 );
+	tm = localtime( &now );
+	sprintf(	buffer,
+			"%02d:%02d",
+			tm->tm_hour,
+			tm->tm_min );
+
+	return strdup( buffer );
+
+} /* date_get_now_hh_colon_mm() */
+
 char *date_get_now_hh_colon_mm_colon_ss( void )
 {
 	char buffer[ 128 ];
@@ -949,7 +1210,9 @@ char *date_get_now_time_hhmm_colon_ss( void )
 	now = time( (time_t *)0 );
 	tm = localtime( &now );
 	sprintf( buffer, "%02d%02d:%02d", tm->tm_hour, tm->tm_min, tm->tm_sec );
+
 	return strdup( buffer );
+
 } /* date_get_now_time_hhmm_colon_ss() */
 
 void date_set_tm_structures( DATE *d, time_t current )
@@ -996,6 +1259,11 @@ time_t date_mktime( struct tm *tm )
 	struct tm local_tm;
 
 	memcpy( &local_tm, tm, sizeof (struct tm ) );
+
+	/* Tried 2017-09-26 */
+	/* ---------------- */
+	/* local_tm.tm_isdst = 0; */
+
 	return_value = mktime( &local_tm );
 
 	return return_value;
@@ -1177,58 +1445,6 @@ DATE *date_get_prior_sunday( DATE *date )
 	return date_get_prior_day( date, WDAY_SUNDAY );
 }
 
-DATE *date_populate_week_of_year_dictionary( char *year )
-{
-	DATE *date;
-	char *date_string;
-	int wday;
-	int week;
-	char week_string[ 64 ];
-
-	date = date_new( atoi( year ), 1, 1 );
-	date->week_of_year_dictionary = dictionary_new();
-
-	date_set_tm_structures( date, date->current );
-
-	wday = date->tm->tm_wday;
-
-	week = 0;
-	sprintf( week_string, "%d", week );
-
-	while( 1 )
-	{
-		date_string = date_get_yyyy_mm_dd_string( date );
-
-		if( wday != ( WDAY_SATURDAY + 1 ) )
-		{
-			wday++;
-		}
-		else
-		{
-			wday = 1;
-			week++;
-			sprintf( week_string, "%d", week );
-		}
-		dictionary_set_string(	date->week_of_year_dictionary,
-					date_string,
-					week_string );
-
-		/* If at end of year */
-		/* ----------------- */
-		if ( strcmp( date_string + 5, "12-31" ) == 0 ) break;
-
-		date_increment_day( date );
-	}
-	return date;
-} /* date_populate_week_of_year_dictionary() */
-
-int date_get_week_of_year( DATE *date, char *yyyy_mm_dd )
-{
-	char *week_string = 
-		dictionary_get( date->week_of_year_dictionary, yyyy_mm_dd );
-	return atoi( week_string );
-}
-
 DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string )
 {
 	DATE *date;
@@ -1251,8 +1467,11 @@ DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string )
 	minutes = atoi( buffer );
 
 	date = date_new( year, month, day );
+
 	date_set_time( date, hour, minutes );
+
 	return date;
+
 } /* date_yyyy_mm_dd_hhmm_new() */
 
 int date_set_time_hhmm( DATE *date, char *hhmm )
@@ -1297,6 +1516,16 @@ void date_increment_seconds( DATE *d, int seconds )
 	d->current += (long)seconds;
 	date_set_tm_structures( d, d->current );
 }
+
+int date_subtract_minutes( DATE *later_date, DATE *earlier_date )
+{
+	time_t difference;
+	int results;
+
+	difference = later_date->current - earlier_date->current;
+	results = (int)((double)difference / (double)SECONDS_IN_MINUTE);
+	return results;
+} /* date_subtract_minutes() */
 
 int date_subtract_days( DATE *later_date, DATE *earlier_date )
 {
@@ -1397,7 +1626,6 @@ boolean date_copy( DATE *d1, DATE *d2 )
 
 	d1->current = d2->current;
 	d1->format_yyyy_mm_dd = d2->format_yyyy_mm_dd;
-	d1->week_of_year_dictionary = d2->week_of_year_dictionary;
 	memcpy( d1->tm, d2->tm, sizeof( struct tm ) );
 	return 1;
 }
@@ -1433,6 +1661,7 @@ char *date_display_yyyy_mm_dd_hhmm( DATE *date )
 			date_get_minutes( date ) );
 
 	return strdup( buffer );
+
 } /* date_display_yyyy_mm_dd_hhmm() */
 
 void date_increment_weekly_ceiling( DATE *date )
@@ -1623,6 +1852,23 @@ char *date_get_colon_now_time( void )
 
 } /* date_get_colon_now_time() */
 
+void date_remove_colon_in_time( char *time_string )
+{
+	char hour[ 3 ];
+	char minute[ 3 ];
+
+	if ( timlib_strlen( time_string ) != 5 ) return;
+
+	strncpy( hour, time_string, 2 );
+	*(hour + 2) = '\0';
+
+	strncpy( minute, time_string + 3, 2 );
+	*(minute + 2) = '\0';
+
+	sprintf( time_string, "%s%s", hour, minute );
+
+} /* date_remove_colon_in_time() */
+
 void date_place_colon_in_time( char *time_string )
 {
 	char hour[ 3 ];
@@ -1660,7 +1906,7 @@ char *date_append_hhmmss( char *date_string )
 
 } /* date_append_hhmmss() */
 
-char *date_subtract_colon_from_time( char *time_string )
+char *date_remove_colon_from_time( char *time_string )
 {
 	static char buffer[ 128 ];
 
@@ -1693,5 +1939,101 @@ char *date_subtract_colon_from_time( char *time_string )
 		return (char *)0;
 	}
 
-} /* date_subtract_colon_from_time() */
+} /* date_remove_colon_from_time() */
 
+int date_get_week_of_year( DATE *date )
+{
+	char week_of_year_string[ 16 ];
+	int week_of_year;
+	int year;
+	DATE *january_1st;
+	DATE *december_23rd;
+	boolean january_1st_sunday;
+	boolean december_23rd_friday_or_saturday;
+
+	if ( !date )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	year = date_get_year( date );
+
+	january_1st = date_new( year, 1, 1 );
+
+	january_1st_sunday =
+		( date_get_day_of_week( january_1st ) == WDAY_SUNDAY );
+
+	/* Returns 00-53 */
+	/* ------------- */
+	strftime( week_of_year_string, 16, "%U", date->tm );
+
+	week_of_year = atoi( week_of_year_string );
+
+	if ( january_1st_sunday )
+	{
+		if ( week_of_year == 53 ) week_of_year = 1;
+	}
+	else
+	{
+		week_of_year++;
+
+		if ( week_of_year == 54 )
+		{
+			week_of_year = 1;
+		}
+		if ( week_of_year == 53 )
+		{
+			december_23rd = date_new( year, 12, 23 );
+
+			strftime(	week_of_year_string,
+					16,
+					"%U",
+					december_23rd->tm );
+
+			december_23rd_friday_or_saturday =
+				( ( date_get_day_of_week( december_23rd ) ==
+				    WDAY_FRIDAY )
+			||        ( date_get_day_of_week( december_23rd ) ==
+				    WDAY_SATURDAY ) );
+
+			if ( !december_23rd_friday_or_saturday )
+				week_of_year = 1;
+		}
+	}
+
+	return week_of_year;
+
+} /* date_get_week_of_year() */
+
+int date_get_last_month_day(	int month,
+				int year )
+{
+	if ( month == 1
+	||   month == 3
+	||   month == 5
+	||   month == 7
+	||   month == 8
+	||   month == 10
+	||   month == 12 )
+	{
+		return 31;
+	}
+
+	if ( month != 2 )
+	{
+		return 30;
+	}
+
+	if ( year % 4 )
+	{
+		return 28;
+	}
+
+	return 29;
+
+} /* date_get_last_month_day() */

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* post_current_vs_historical.c				*/
+/* src_hydrology/post_current_vs_historical.c		*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -57,7 +57,7 @@ int main( int argc, char **argv )
 	if ( argc < 8 )
 	{
 		fprintf( stderr, 
- "Usage: %s application login_name session process state station_name_list datatype [station_type]\n",
+"Usage: %s application login_name session process state station_name_list datatype [station_type]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

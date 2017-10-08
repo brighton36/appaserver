@@ -29,7 +29,11 @@
 #define FOLDER_NOTEPAD_PIECE				6
 #define FOLDER_HTML_HELP_FILE_ANCHOR_PIECE		7
 #define FOLDER_POST_CHANGE_JAVASCRIPT_PIECE		8
+
+/* row_access_count has been retired */
+/* --------------------------------- */
 #define FOLDER_ROW_ACCESS_COUNT_PIECE			9
+
 #define FOLDER_LOOKUP_BEFORE_DROP_DOWN_PIECE		10
 #define FOLDER_NO_INITIAL_CAPITAL_PIECE			11
 #define FOLDER_SUBSCHEMA_PIECE				12
@@ -58,7 +62,6 @@ typedef struct
 	boolean row_level_non_owner_forbid;
 	boolean row_level_non_owner_view_only;
 	long row_count;
-	long row_access_count;
 	boolean insert_permission;
 	boolean update_permission;
 	boolean lookup_permission;
@@ -74,6 +77,7 @@ typedef struct
 	LIST *mto1_isa_related_folder_list;
 	LIST *mto1_append_isa_related_folder_list;
 	LIST *mto1_recursive_related_folder_list;
+	LIST *mto1_lookup_before_drop_down_related_folder_list;
 	LIST *primary_attribute_name_list;
 	DICTIONARY *primary_data_dictionary;
 	char *subschema_name;
@@ -168,7 +172,6 @@ boolean folder_load(	int *insert_rows_number,
 			char **notepad,
 			char **html_help_file_anchor,
 			char **post_change_javascript,
-			long *row_access_count,
 			boolean *lookup_before_drop_down,
 			char **data_directory,
 			char **index_directory,

@@ -369,6 +369,7 @@ void output_refresh_submit_button_form(	char *application_name,
 		(char *)0 /* insert_update_key */,
 		MENU_FRAME /* target_frame is menu */,
 		0 /* output_submit_reset_buttons */,
+		0 /* not with_prelookup_skip_button */,
 		(char *)0 /* submit_control_string */,
 		0 /* table_border */,
 		(char *)0 /* caption_string */,
@@ -376,7 +377,8 @@ void output_refresh_submit_button_form(	char *application_name,
 		form->process_id,
 		appaserver_library_get_server_address(),
 			form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	printf( "<td colspan=3>" );
 	form_output_submit_button(
@@ -397,7 +399,8 @@ void output_refresh_submit_button_form(	char *application_name,
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		0 /* not with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
 
 } /* output_refresh_submit_button_form() */
 

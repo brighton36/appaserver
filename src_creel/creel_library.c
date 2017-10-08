@@ -4005,9 +4005,15 @@ FILE *creel_library_get_fishing_trips_input_pipe(
 		 " and %s",
 		 where_preferred_caught );
 
+/*
+Jason said:
+In the Output Catches Spreadsheet File (Guide), the output should 'output' the data - such that the interview # is sequential for each date (like it is in Sport).
+
 	sprintf( order,
 "substr( census_date, 1, 4 ), %s.code,census_date,interview_number",
 		 interview_locations_table );
+*/
+	strcpy( order, "census_date,interview_number" );
 
 	sprintf( sys_string,
 		 "get_folder_data				 "
@@ -4020,6 +4026,15 @@ FILE *creel_library_get_fishing_trips_input_pipe(
 		 select,
 		 where_clause,
 		 order );
+
+
+/*
+fprintf( stderr, "%s/%s()/%d: %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+*/
 
 	return popen( sys_string, "r" );
 
@@ -4034,14 +4049,34 @@ char *creel_library_get_where_preferred_caught(
 	char where_clause[ 4096 ];
 	char *fishing_trips_table_name;
 	char *catches_table_name;
+	char *catches_species_where;
+	char *fishing_trips_species_where;
 
 	if ( !family && !*family ) return "1 = 1";
 
 	catches_table_name =
 		get_table_name( application_name, "catches" );
+
 	fishing_trips_table_name =
 		get_table_name( application_name, "fishing_trips" );
 
+	catches_species_where =
+		creel_library_get_species_where(
+			family,
+			genus,
+			species_preferred,
+			"species",
+			catches_table_name );
+
+	fishing_trips_species_where =
+		creel_library_get_species_where(
+			family,
+			genus,
+			species_preferred,
+			"species_preferred",
+			fishing_trips_table_name );
+
+/*
 	sprintf( where_clause,
 		 "(  (	family = '%s' and				"
 		 "	genus = '%s' and				"
@@ -4077,8 +4112,93 @@ char *creel_library_get_where_preferred_caught(
 		 genus,
 		 catches_table_name,
 		 species_preferred );
+*/
+
+	sprintf( where_clause,
+		 "((%s)							"
+		 "or exists						"
+		 "   (	select *					"
+		 "	from %s						"
+		 "	where %s.fishing_purpose =			"
+		 "		%s.fishing_purpose and			"
+		 "	      %s.interview_location =			"
+		 "		%s.interview_location and		"
+		 "	      %s.census_date = %s.census_date and	"
+		 "	      %s.interview_number =			"
+		 "		%s.interview_number and			"
+		 "	      %s ) )					",
+		 fishing_trips_species_where,
+		 catches_table_name,
+		 catches_table_name,
+		 fishing_trips_table_name,
+		 catches_table_name,
+		 fishing_trips_table_name,
+		 catches_table_name,
+		 fishing_trips_table_name,
+		 catches_table_name,
+		 fishing_trips_table_name,
+		 catches_species_where );
 
 	return strdup( where_clause );
 
 } /* creel_library_get_where_preferred_caught() */
+
+char *creel_library_get_species_where(
+			char *family,
+			char *genus,
+			char *species,
+			char *species_attribute_name,
+			char *catches_table_name )
+{
+	char where_clause[ 1024 ];
+	char family_where[ 256 ];
+	char species_where[ 256 ];
+	char genus_where[ 256 ];
+
+	if ( species && *species && strcmp( species, "species" ) != 0 )
+	{
+		sprintf(species_where,
+			"%s.%s = '%s'",
+			catches_table_name,
+			species_attribute_name,
+			species );
+	}
+	else
+	{
+		strcpy( species_where, "1 = 1" );
+	}
+
+	if ( genus && *genus && strcmp( genus, "genus" ) != 0 )
+	{
+		sprintf(genus_where,
+			"%s.genus = '%s'",
+			catches_table_name,
+			genus );
+	}
+	else
+	{
+		strcpy( genus_where, "1 = 1" );
+	}
+
+	if ( family && *family && strcmp( family, "family" ) != 0 )
+	{
+		sprintf(family_where,
+			"%s.family = '%s'",
+			catches_table_name,
+			family );
+	}
+	else
+	{
+		strcpy( family_where, "1 = 1" );
+	}
+
+	sprintf( where_clause,
+		 "%s and %s and %s",
+		 family_where,
+		 genus_where,
+		 species_where );
+
+	return strdup( where_clause );
+
+} /* creel_library_get_species_where() */
 

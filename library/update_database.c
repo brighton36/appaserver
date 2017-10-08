@@ -53,7 +53,7 @@ UPDATE_DATABASE *update_database_new(
 	update_database->session = session;
 	update_database->login_name = login_name;
 	update_database->role_name = role_name;
-	update_database->row_dictionary = row_dictionary;
+	update_database->row_dictionary = dictionary_copy( row_dictionary );
 	update_database->file_dictionary = file_dictionary;
 
 	update_database->foreign_attribute_dictionary = dictionary_small_new();
@@ -65,6 +65,10 @@ UPDATE_DATABASE *update_database_new(
 					role_new_role(
 						application_name,
 						role_name ) );
+
+	dictionary_set_indexed_date_time_to_current(
+		update_database->row_dictionary,
+		update_database->folder->attribute_list );
 
 	if ( update_database->folder->row_level_non_owner_forbid )
 	{

@@ -52,6 +52,7 @@ int main( int argc, char **argv )
 				printf( " %s", component );
 		}
 		printf( "\n" );
+		fflush( stdout );
 	}
 	return 0;
 } /* main() */

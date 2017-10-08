@@ -1,4 +1,4 @@
-/* utility/group_date_time.c					*/
+/* $APPASERVER_HOME/utility/group_date_time.c			*/
 /* ------------------------------------------------------------ */
 /* Freely available software: see Appaserver.org		*/
 /* ------------------------------------------------------------ */
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
 
 	value_offset = atoi( value_offset_string );
 
-	while( ( block_count = get_block_delimiter(
+	while( ( block_count = timlib_get_block_delimiter(
 			block,
 			*delimiter_string,
 			2 /* columns_in_group */,

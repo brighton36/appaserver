@@ -1,4 +1,4 @@
-/* src_appaserver/output_prompt_insert_form.c				*/
+/* $APPASERVER_HOME/src_appaserver/output_prompt_insert_form.c		*/
 /* --------------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* --------------------------------------------------------------------	*/
@@ -527,6 +527,7 @@ int main( int argc, char **argv )
 		form->target_frame,
 		form->target_frame,
 		0 /* no output_submit_reset_buttons */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -534,7 +535,8 @@ int main( int argc, char **argv )
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==
@@ -652,6 +654,16 @@ int main( int argc, char **argv )
 		lookup_before_drop_down_state ==
 			lookup_participating_is_root_all_complete )
 	{
+		char *back_to_prelookup_folder_name;
+
+		back_to_prelookup_folder_name =
+			( lookup_before_drop_down->
+					insert_folder_name )
+				? lookup_before_drop_down->
+					insert_folder_name
+				: lookup_before_drop_down->
+					base_folder->folder_name;
+
 		prelookup_button_control_string =
 			appaserver_library_get_prelookup_button_control_string(
 				application_name,
@@ -661,37 +673,24 @@ int main( int argc, char **argv )
 				database_string,
 				session,
 				folder_name,
-				lookup_before_drop_down->
-					base_folder->folder_name,
+				back_to_prelookup_folder_name,
 				role_name,
 				state );
 	}
 
 	form_output_trailer_post_change_javascript(
-			1 /* output_submit_reset_buttons */,
-			0 /* not output_insert_button */,
-			form->submit_control_string,
-			form->html_help_file_anchor,
-			remember_keystrokes_onload_control_string,
-			prelookup_button_control_string,
-			application_name,
-			with_dynarch_menu /* with_back_to_top_button */,
-			0 /* form_number */,
-			(char *)0 /* post_change_javascript */,
-			pair_one2m->pair_one2m_folder_name_list );
-
-#ifdef NOT_DEFINED
-	form_output_trailer(
-			1 /* output_submit_reset_buttons */,
-			0 /* output_insert_flag */,
-			form->submit_control_string,
-			form->html_help_file_anchor,
-			remember_keystrokes_onload_control_string,
-			prelookup_button_control_string,
-			application_name,
-			with_dynarch_menu /* with_back_to_top_button */,
-			0 /* form_number */ );
-#endif
+		1 /* output_submit_reset_buttons */,
+		0 /* not output_insert_button */,
+		form->submit_control_string,
+		form->html_help_file_anchor,
+		remember_keystrokes_onload_control_string,
+		prelookup_button_control_string,
+		application_name,
+		with_dynarch_menu /* with_back_to_top_button */,
+		0 /* form_number */,
+		(char *)0 /* post_change_javascript */,
+		pair_one2m->pair_one2m_folder_name_list,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 
@@ -989,7 +988,6 @@ void get_without_isa_variables(	LIST **mto1_related_folder_list,
 			&appaserver->folder->notepad,
 			&appaserver->folder->html_help_file_anchor,
 			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->row_access_count,
 			&appaserver->folder->lookup_before_drop_down,
 			&appaserver->folder->data_directory,
 			&appaserver->folder->index_directory,
@@ -1165,7 +1163,6 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 			&appaserver->folder->notepad,
 			&appaserver->folder->html_help_file_anchor,
 			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->row_access_count,
 			&appaserver->folder->lookup_before_drop_down,
 			&appaserver->folder->data_directory,
 			&appaserver->folder->index_directory,
@@ -1308,7 +1305,6 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 			&appaserver->folder->notepad,
 			&appaserver->folder->html_help_file_anchor,
 			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->row_access_count,
 			&appaserver->folder->lookup_before_drop_down,
 			&appaserver->folder->data_directory,
 			&appaserver->folder->index_directory,

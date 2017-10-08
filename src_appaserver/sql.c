@@ -1,4 +1,4 @@
-/* sql.c		 						*/
+/* $APPASERVER_HOME/src_appaserver/sql.c				*/
 /* -------------------------------------------------------------------- */
 /* This compiles to sql, sql.e, and sql_quick.e.			*/
 /* To override the database_name found in				*/
@@ -73,6 +73,7 @@ int main( int argc, char **argv )
 			override_database = argv[ 1 ];
 	}
 
+
 	environ_prepend_dot_to_path();
 	add_local_bin_to_path();
 	add_dot_to_path();
@@ -85,7 +86,14 @@ int main( int argc, char **argv )
 	else
 		quick_flag = "";
 
-	h = new_appaserver_parameter_file();
+	if ( override_database )
+	{
+		h = appaserver_parameter_file_application( override_database );
+	}
+	else
+	{
+		h = appaserver_parameter_file_new();
+	}
 
 	if ( !h )
 	{
@@ -97,65 +105,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-/*
-	if ( database_management_system )
-		h->database_management_system = database_management_system;
-	else
-		h->database_management_system = "mysql";
-*/
-
-/*
-	if ( strcmp( h->database_management_system, "oracle" ) == 0 )
-	{
-		sprintf(	sys_string,
-				"sqlplus.sh %s '%c'",
-				h->oracle_uidpwd,
-				delimiter );
-		results = system( sys_string );
-	}
-	else
-	if ( timlib_strcmp( h->database_management_system, "mysql" ) == 0 )
-	{
-		char *database_connection;
-
-		if ( h->MYSQL_HOST ) 
-			environ_set_environment(
-				"MYSQL_HOST", h->MYSQL_HOST );
-
-		if ( h->MYSQL_TCP_PORT ) 
-			environ_set_environment(
-				"MYSQL_TCP_PORT", h->MYSQL_TCP_PORT );
-		
-		if ( h->MYSQL_PWD ) 
-			environ_set_environment( "MYSQL_PWD", h->MYSQL_PWD );
-
-		
-		if ( override_database && *override_database )
-		{
-			database_connection = override_database;
-		}
-		else
-		{
-			database_connection =
-				environ_get_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
-	
-			if ( !database_connection
-			||   !*database_connection )
-			{
-				database_connection =
-					environ_get_environment( "DATABASE" );
-			}
-	
-			if ( !database_connection
-			||   !*database_connection )
-			{
-				database_connection =
-					h->default_database_connection;
-			}
-		}
-*/
-
 	if ( h->MYSQL_HOST ) 
 		environ_set_environment(
 			"MYSQL_HOST", h->MYSQL_HOST );
@@ -163,10 +112,6 @@ int main( int argc, char **argv )
 	if ( h->MYSQL_TCP_PORT ) 
 		environ_set_environment(
 			"MYSQL_TCP_PORT", h->MYSQL_TCP_PORT );
-	
-	if ( h->MYSQL_PWD ) 
-		environ_set_environment( "MYSQL_PWD", h->MYSQL_PWD );
-
 	
 	if ( override_database && *override_database )
 	{

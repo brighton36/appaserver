@@ -422,7 +422,12 @@ void post_state_one(	char *application_name,
 	document_set_javascript_module( document, "form_cookie" );
 	document_set_javascript_module( document, "keystrokes" );
 
+/*
 	printf( "<html>\n<head>\n" );
+*/
+	document_output_html_stream( stdout );
+	printf( "<head>\n" );
+
 
 	document_output_each_javascript_source(
 				application_name,
@@ -478,6 +483,7 @@ void post_state_one(	char *application_name,
 		form->insert_update_key,
 		form->target_frame,
 		0 /* output_submit_reset_buttons */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -485,7 +491,8 @@ void post_state_one(	char *application_name,
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	if ( !list_length( folder_name_list ) )
 	{
@@ -550,7 +557,8 @@ void post_state_one(	char *application_name,
 		0 /* not with_dynarch_menu */,
 		0 /* form_number */,
 		(char *)0 /* post_change_javascript */,
-		(LIST *)0 /* pair_one2m_related_folder_name_list */ );
+		(LIST *)0 /* pair_one2m_related_folder_name_list */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 
@@ -749,6 +757,7 @@ void post_state_two(	char *application_name,
 		form->insert_update_key,
 		form->target_frame,
 		0 /* output_submit_reset_buttons */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -756,7 +765,8 @@ void post_state_two(	char *application_name,
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	form_output_body(
 		&form->current_reference_number,
@@ -811,7 +821,8 @@ void post_state_two(	char *application_name,
 		0 /* not with_dynarch_menu */,
 		0 /* form_number */,
 		(char *)0 /* post_change_javascript */,
-		(LIST *)0 /* pair_one2m_related_folder_name_list */ );
+		(LIST *)0 /* pair_one2m_related_folder_name_list */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 
@@ -1136,6 +1147,7 @@ void post_state_three(	char *application_name,
 		form->insert_update_key,
 		form->target_frame,
 		0 /* output_submit_reset_buttons */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -1143,7 +1155,8 @@ void post_state_three(	char *application_name,
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	form_output_body(
 		&form->current_reference_number,
@@ -1202,7 +1215,8 @@ void post_state_three(	char *application_name,
 		1 /* with_back_to_top_button */,
 		0 /* form_number */,
 		(char *)0 /* post_change_javascript */,
-		(LIST *)0 /* pair_one2m_related_folder_name_list */ );
+		(LIST *)0 /* pair_one2m_related_folder_name_list */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 
@@ -1731,6 +1745,7 @@ void post_table_state_four(
 		form->insert_update_key,
 		form->target_frame,
 		1 /* output_submit_reset_buttons_in_heading */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -1738,7 +1753,8 @@ void post_table_state_four(
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	form_output_table_heading(	form->viewonly_element_list,
 					0 /* form_number */ );
@@ -1772,7 +1788,8 @@ void post_table_state_four(
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		1 /* with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 

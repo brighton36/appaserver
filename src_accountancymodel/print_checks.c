@@ -21,7 +21,9 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
-				double dialog_box_check_amount )
+				double dialog_box_check_amount,
+				char *sales_tax_payable_full_name,
+				char *sales_tax_payable_street_address )
 {
 	PRINT_CHECKS *p;
 
@@ -35,6 +37,8 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 		exit( 1 );
 	}
 
+	p->dialog_box_check_amount = dialog_box_check_amount;
+
 	p->current_liability_account_list =
 		print_checks_get_current_liability_account_list(
 			application_name );
@@ -45,13 +49,11 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 			fund_name,
 			full_name_list,
 			street_address_list,
-			starting_check_number );
-
-	print_checks_set_entity_account_debit_list(
-		p->entity_check_amount_list,
-		application_name,
-		p->current_liability_account_list,
-		dialog_box_check_amount );
+			starting_check_number,
+			p->current_liability_account_list,
+			p->dialog_box_check_amount,
+			sales_tax_payable_full_name,
+			sales_tax_payable_street_address );
 
 	return p;
 
@@ -119,7 +121,8 @@ LIST *print_checks_get_current_liability_account_list(
 	account_list = list_new();
 
 	select =
-		ledger_account_get_select();
+		ledger_account_get_select(
+			application_name );
 
 	where =
 "subclassification = 'current_liability' and account <> 'uncleared_checks'";
@@ -148,11 +151,14 @@ LIST *print_checks_get_current_liability_account_list(
 				input_buffer );
 
 		account->journal_ledger_list =
-			print_checks_get_after_balance_zero_journal_ledger_list(
+			ledger_get_after_balance_zero_journal_ledger_list(
 				application_name,
 				account->account_name );
 
-		list_append_pointer( account_list, account );
+		if ( list_length( account->journal_ledger_list ) )
+		{
+			list_append_pointer( account_list, account );
+		}
 	}
 
 	pclose( input_pipe );
@@ -160,32 +166,16 @@ LIST *print_checks_get_current_liability_account_list(
 
 } /* print_checks_get_current_liability_account_list() */
 
-LIST *print_checks_get_after_balance_zero_journal_ledger_list(
-				char *application_name,
-				char *account_name )
-{
-	char *transaction_date_time;
-
-	transaction_date_time =
-		ledger_get_latest_zero_balance_transaction_date_time(
-			application_name,
-			account_name );
-
-	return ledger_get_journal_ledger_list(
-				application_name,
-				(char *)0 /* full_name */,
-				(char *)0 /* street_address */,
-				transaction_date_time,
-				account_name );
-
-} /* print_checks_get_after_balance_zero_journal_ledger_list() */
-
 LIST *print_checks_get_entity_check_amount_list(
 			char *application_name,
 			char *fund_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
-			int starting_check_number )
+			int starting_check_number,
+			LIST *current_liability_account_list,
+			double dialog_box_check_amount,
+			char *sales_tax_payable_full_name,
+			char *sales_tax_payable_street_address )
 {
 	char *full_name;
 	char *street_address;
@@ -206,19 +196,13 @@ LIST *print_checks_get_entity_check_amount_list(
 				application_name,
 				fund_name,
 				full_name,
-				street_address );
+				street_address,
+				current_liability_account_list,
+				dialog_box_check_amount,
+				sales_tax_payable_full_name,
+				sales_tax_payable_street_address );
 
-		if ( !entity_check_amount )
-		{
-			fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot get entity_check_amount for (%s/%s)\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 full_name,
-				 street_address );
-			exit( 1 );
-		}
+		if ( !entity_check_amount ) continue;
 
 		entity_check_amount->check_number = starting_check_number++;
 
@@ -238,21 +222,26 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 					char *application_name,
 					char *fund_name,
 					char *full_name,
-					char *street_address )
+					char *street_address,
+					LIST *current_liability_account_list,
+					double dialog_box_check_amount,
+					char *sales_tax_payable_full_name,
+					char *sales_tax_payable_street_address )
 {
 	char sys_string[ 128 ];
-	char *results;
+	char *entity_record;
 	char input_full_name[ 128 ];
 	char input_street_address_balance[ 256 ];
 	char input_street_address[ 128 ];
 	char input_check_amount[ 16 ];
 	static LIST *entity_record_list = {0};
 	ENTITY_CHECK_AMOUNT *entity_check_amount;
+	double check_amount;
 
 	if ( !entity_record_list )
 	{
 		sprintf( sys_string,
-	 		"populate_print_checks_entity.sh %s '%s'",
+	 		"populate_print_checks_entity %s '%s'",
 	 		application_name,
 			fund_name );
 
@@ -263,30 +252,30 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 		return (ENTITY_CHECK_AMOUNT *)0;
 
 	do {
-		results = list_get_pointer( entity_record_list );
+		entity_record = list_get_pointer( entity_record_list );
 
 		if ( character_count(
 			FOLDER_DATA_DELIMITER,
-			results ) != 1 )
+			entity_record ) != 1 )
 		{
 			fprintf( stderr,
 			"ERROR in %s/%s()/%d: not one delimiter in (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
-				 results );
+				 entity_record );
 
 			exit( 1 );
 		}
 
 		piece(	input_full_name,
 			FOLDER_DATA_DELIMITER,
-			results,
+			entity_record,
 			0 );
 
 		piece(	input_street_address_balance,
 			FOLDER_DATA_DELIMITER,
-			results,
+			entity_record,
 			1 );
 
 		piece(	input_street_address,
@@ -307,8 +296,63 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 					strdup( full_name ),
 					strdup( street_address ) );
 
-			entity_check_amount->drop_down_check_amount =
+			entity_check_amount->sum_credit_amount_check_amount =
 				atof( input_check_amount );
+
+			check_amount = (dialog_box_check_amount)
+					? dialog_box_check_amount
+					: entity_check_amount->
+						sum_credit_amount_check_amount;
+
+			if ( timlib_strcmp(
+				full_name,
+				sales_tax_payable_full_name ) == 0
+			&&   timlib_strcmp(
+				street_address,
+				sales_tax_payable_street_address ) == 0 )
+			{
+				print_checks_set_sales_tax_payable(
+					entity_check_amount,
+					application_name,
+					fund_name,
+					check_amount );
+
+				return entity_check_amount;
+			}
+
+			entity_check_amount->purchase_order_list =
+				print_checks_fetch_purchase_order_list(
+					&check_amount
+						/* remaining_check_amount */,
+					application_name,
+					current_liability_account_list,
+					entity_check_amount->full_name,
+					entity_check_amount->street_address );
+
+			if ( !timlib_dollar_virtually_same(
+				check_amount,
+				0.0 ) )
+			{
+				entity_check_amount->
+				entity_account_debit_list =
+				     print_checks_get_entity_account_debit_list(
+						&check_amount
+						   /* remaining_check_amount */,
+						current_liability_account_list,
+						entity_check_amount->full_name,
+						entity_check_amount->
+							street_address );
+			}
+	
+			/* ----------------------------------------- */
+			/* If dialog_box_check_amount > amount_owed, */
+			/* then still need to print the check, so    */
+			/* record the difference as a loss.          */
+			/* ----------------------------------------- */
+			if ( check_amount >= 0.01 )
+			{
+				entity_check_amount->loss_amount = check_amount;
+			}
 
 			return entity_check_amount;
 		}
@@ -318,43 +362,6 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 	return (ENTITY_CHECK_AMOUNT *)0;
 
 } /* print_checks_get_entity_check_amount() */
-
-void print_checks_set_entity_account_debit_list(
-				LIST *entity_check_amount_list,
-				char *application_name,
-				LIST *current_liability_account_list,
-				double dialog_box_check_amount )
-{
-	ENTITY_CHECK_AMOUNT *entity_check_amount;
-
-	if ( !list_rewind( entity_check_amount_list ) ) return;
-
-	do {
-		entity_check_amount =
-			list_get_pointer(
-				entity_check_amount_list );
-
-		entity_check_amount->entity_account_debit_list =
-			print_checks_get_entity_account_debit_list(
-				&entity_check_amount->loss_amount,
-				current_liability_account_list,
-				entity_check_amount->full_name,
-				entity_check_amount->street_address,
-				dialog_box_check_amount,
-				entity_check_amount->drop_down_check_amount );
-
-		entity_check_amount->purchase_order_list =
-			print_checks_get_purchase_order_list(
-				application_name,
-				current_liability_account_list,
-				entity_check_amount->full_name,
-				entity_check_amount->street_address,
-				dialog_box_check_amount,
-				entity_check_amount->drop_down_check_amount );
-
-	} while( list_next( entity_check_amount_list ) );
-
-} /* print_checks_set_entity_account_debit_list() */
 
 ENTITY_ACCOUNT_DEBIT *
 	print_checks_get_or_set_entity_account_debit(
@@ -405,25 +412,18 @@ set_list:
 
 } /* print_checks_get_or_set_entity_account_debit() */
 
-LIST *print_checks_get_purchase_order_list(
+LIST *print_checks_fetch_purchase_order_list(
+				double *remaining_check_amount,
 				char *application_name,
 				LIST *current_liability_account_list,
 				char *full_name,
-				char *street_address,
-				double dialog_box_check_amount,
-				double drop_down_check_amount )
+				char *street_address )
 {
 	LIST *purchase_order_list;
 	ACCOUNT *account;
-	double remaining_check_amount;
 
 	if ( !list_rewind( current_liability_account_list ) )
 		return (LIST *)0;
-
-	if ( dialog_box_check_amount )
-		remaining_check_amount = dialog_box_check_amount;
-	else
-		remaining_check_amount = drop_down_check_amount;
 
 	purchase_order_list = list_new();
 
@@ -432,7 +432,7 @@ LIST *print_checks_get_purchase_order_list(
 
 		print_checks_set_purchase_order_list(
 			purchase_order_list,
-			&remaining_check_amount,
+			remaining_check_amount,
 			application_name,
 			account->journal_ledger_list,
 			full_name,
@@ -442,58 +442,97 @@ LIST *print_checks_get_purchase_order_list(
 
 	return purchase_order_list;
 
-} /* print_checks_get_purchase_order_list() */
+} /* print_checks_fetch_purchase_order_list() */
+
+void print_checks_set_sales_tax_payable(
+				ENTITY_CHECK_AMOUNT *entity_check_amount,
+				char *application_name,
+				char *fund_name,
+				double check_amount )
+{
+	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+	char *payable_account;
+
+	payable_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			"sales_tax_payable_key",
+			0 /* not warning_only */ );
+
+	entity_check_amount->loss_amount =
+		check_amount -
+		entity_check_amount->sum_credit_amount_check_amount;
+
+	entity_account_debit =
+		print_checks_entity_account_debit_new(
+			payable_account );
+
+	entity_account_debit->debit_amount =
+		entity_check_amount->
+			sum_credit_amount_check_amount;
+
+	if ( !entity_check_amount->entity_account_debit_list )
+	{
+		entity_check_amount->entity_account_debit_list =
+			list_new();
+	}
+
+	list_append_pointer(	entity_check_amount->
+					entity_account_debit_list,
+				entity_account_debit );
+
+} /* print_checks_set_sales_tax_payable() */
 
 LIST *print_checks_get_entity_account_debit_list(
-				double *loss_amount,
+				double *remaining_check_amount,
 				LIST *current_liability_account_list,
 				char *full_name,
-				char *street_address,
-				double dialog_box_check_amount,
-				double drop_down_check_amount )
+				char *street_address )
 {
 	LIST *entity_account_debit_list;
 	ACCOUNT *account;
-	double remaining_check_amount;
 
 	if ( !list_rewind( current_liability_account_list ) )
 		return (LIST *)0;
 
-	if ( dialog_box_check_amount )
-		remaining_check_amount = dialog_box_check_amount;
-	else
-		remaining_check_amount = drop_down_check_amount;
+	if ( timlib_dollar_virtually_same(
+		*remaining_check_amount,
+		0.0 ) )
+	{
+		return (LIST *)0;
+	}
 
 	entity_account_debit_list = list_new();
 
 	do {
 		account = list_get_pointer( current_liability_account_list );
 
-		print_checks_set_single_check_entity_account_debit_list(
+		print_checks_set_entity_account_debit_list(
 			entity_account_debit_list,
-			&remaining_check_amount,
+			remaining_check_amount,
 			account->journal_ledger_list,
 			full_name,
 			street_address,
 			account->account_name );
 
+		if ( timlib_dollar_virtually_same(
+			*remaining_check_amount,
+			0.0 ) )
+		{
+			return entity_account_debit_list;
+		}
+
 	} while( list_next( current_liability_account_list ) );
 
-	if ( remaining_check_amount <= 0.01 )
+	if ( *remaining_check_amount <= -0.01 )
 	{
 		fprintf( stderr,
 "Warning in %s/%s()/%d: returned a negative remaining_check_amount = %.2lf.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 remaining_check_amount );
-	}
-
-	if ( !timlib_dollar_virtually_same(
-		remaining_check_amount,
-		0.0 ) )
-	{
-		*loss_amount = remaining_check_amount;
+			 *remaining_check_amount );
 	}
 
 	return entity_account_debit_list;
@@ -510,17 +549,6 @@ void print_checks_set_purchase_order_list(
 {
 	PURCHASE_ORDER *purchase_order;
 	JOURNAL_LEDGER *journal_ledger;
-	double entity_account_credit_balance;
-
-	entity_account_credit_balance =
-		print_checks_get_entity_account_credit_balance(
-			journal_ledger_list,
-			full_name,
-			street_address );
-
-	if ( entity_account_credit_balance <= 0.0 ) return;
-
-	*remaining_check_amount -= entity_account_credit_balance;
 
 	/* Set the purchase_order_list */
 	/* --------------------------- */
@@ -544,27 +572,27 @@ void print_checks_set_purchase_order_list(
 				application_name,
 				full_name,
 				street_address,
-				journal_ledger->transaction_date_time ) ) )
+				journal_ledger->transaction_date_time ) )
+		&&     purchase_order->amount_due )
 		{
 			list_append_pointer(
 				purchase_order_list,
 				purchase_order );
-		}
 
-		entity_account_credit_balance -= journal_ledger->credit_amount;
+			*remaining_check_amount -=
+				purchase_order->amount_due;
 
-		if ( timlib_dollar_virtually_same(
-			entity_account_credit_balance,
-			0.0 ) )
-		{
-			return;
+			if ( *remaining_check_amount <= 0.0 )
+			{
+				return;
+			}
 		}
 
 	} while( list_previous( journal_ledger_list ) );
 
 } /* print_checks_set_purchase_order_list() */
 
-void print_checks_set_single_check_entity_account_debit_list(
+void print_checks_set_entity_account_debit_list(
 			LIST *entity_account_debit_list,
 			double *remaining_check_amount,
 			LIST *journal_ledger_list,
@@ -575,167 +603,51 @@ void print_checks_set_single_check_entity_account_debit_list(
 	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
 	double entity_account_credit_balance;
 
+	if ( timlib_dollar_virtually_same(
+		*remaining_check_amount,
+		0.0 ) )
+	{
+		return;
+	}
+
 	entity_account_credit_balance =
 		print_checks_get_entity_account_credit_balance(
 			journal_ledger_list,
 			full_name,
 			street_address );
 
-	if ( entity_account_credit_balance <= 0.0 ) return;
-
-	*remaining_check_amount -= entity_account_credit_balance;
+	/* ----------------------------------------------------	*/
+	/* A negative value indicates a liability debit balance.*/
+	/* ---------------------------------------------------- */
+	if ( entity_account_credit_balance <= 0.0 )
+	{
+		return;
+	}
 
 	entity_account_debit =
 		print_checks_get_or_set_entity_account_debit(
 			entity_account_debit_list,
 			account_name );
 
-	entity_account_debit->debit_amount += entity_account_credit_balance;
+	if ( entity_account_credit_balance <= *remaining_check_amount )
+	{
+		entity_account_debit->debit_amount =
+			entity_account_credit_balance;
 
-} /* print_checks_set_single_check_entity_account_debit_list() */
+		*remaining_check_amount -= entity_account_credit_balance;
+	}
+	else
+	/* ---------------------------- */
+	/* If making a partial payment. */
+	/* ---------------------------- */
+	{
+		entity_account_debit->debit_amount =
+			*remaining_check_amount;
 
-/* Returns seconds_to_add to VENDOR_PAYMENT.transaction_date_time */
-/* -------------------------------------------------------------- */
-int print_checks_insert_transaction_journal_ledger(
-			char *application_name,
-			char *fund_name,
-			LIST *entity_check_amount_list,
-			double dialog_box_check_amount )
-{
-	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
-	ENTITY_CHECK_AMOUNT *entity_check_amount;
-	LIST *entity_account_debit_list;
-	char *propagate_transaction_date_time = {0};
-	LIST *distinct_account_name_list;
-	TRANSACTION *transaction;
-	char *loss_account = {0};
-	int seconds_to_add = 0;
+		*remaining_check_amount = 0.0;
+	}
 
-	distinct_account_name_list = list_new();
-
-	list_append_pointer( distinct_account_name_list, "uncleared_checks" );
-
-	if ( !list_rewind( entity_check_amount_list ) ) return 0;
-
-	do {
-		entity_check_amount =
-			list_get(
-				entity_check_amount_list );
-
-		if ( !entity_check_amount->transaction_date_time )
-			continue;
-
-		seconds_to_add++;
-
-		entity_account_debit_list =
-			entity_check_amount->
-				entity_account_debit_list;
-
-		if ( !list_rewind( entity_account_debit_list  ) )
-		{
-			fprintf( stderr,
-			 	 "ERROR in %s/%s()/%d: empty list.\n",
-			 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__ );
-			exit( 1 );
-		}
-
-		transaction =
-			ledger_transaction_new(
-				entity_check_amount->full_name,
-				entity_check_amount->street_address,
-				entity_check_amount->transaction_date_time,
-				PRINT_CHECKS_MEMO );
-
-		ledger_transaction_insert(
-			application_name,
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			(dialog_box_check_amount)
-				? dialog_box_check_amount
-				: entity_check_amount->drop_down_check_amount,
-			transaction->memo,
-			entity_check_amount->check_number,
-			0 /* not lock_transaction */ );
-
-		ledger_journal_ledger_insert(
-			application_name,
-			entity_check_amount->full_name,
-			entity_check_amount->street_address,
-			transaction->transaction_date_time,
-			"uncleared_checks",
-			(dialog_box_check_amount)
-				? dialog_box_check_amount
-				: entity_check_amount->drop_down_check_amount,
-			0 /* not is_debit */ );
-
-		if ( !propagate_transaction_date_time )
-		{
-			propagate_transaction_date_time =
-				transaction->transaction_date_time;
-		}
-
-		do {
-			entity_account_debit =
-				list_get(
-				entity_account_debit_list );
-
-			if ( timlib_dollar_virtually_same(
-				entity_account_debit->debit_amount,
-				0.0 ) )
-			{
-				continue;
-			}
-
-			ledger_journal_ledger_insert(
-				application_name,
-				entity_check_amount->full_name,
-				entity_check_amount->street_address,
-				transaction->transaction_date_time,
-				entity_account_debit->account_name,
-				entity_account_debit->debit_amount,
-				1 /* is_debit */ );
-
-			list_append_unique_string(
-				distinct_account_name_list,
-				entity_account_debit->account_name );
-
-		} while( list_next( entity_account_debit_list ) );
-
-		if ( entity_check_amount->loss_amount )
-		{
-			if ( !loss_account )
-			{
-				loss_account =
-					ledger_get_hard_coded_account_name(
-						application_name,
-						fund_name,
-						"loss_key",
-						0 /* not warning_only */ );
-			}
-
-			ledger_journal_ledger_insert(
-				application_name,
-				entity_check_amount->full_name,
-				entity_check_amount->street_address,
-				transaction->transaction_date_time,
-				loss_account,
-				entity_check_amount->loss_amount,
-				1 /* is_debit */ );
-		}
-
-	} while( list_next( entity_check_amount_list ) );
-
-	ledger_propagate_account_name_list(
-		application_name,
-		propagate_transaction_date_time,
-		distinct_account_name_list );
-
-	return seconds_to_add + 1;
-
-} /* print_checks_insert_transaction_journal_ledger() */
+} /* print_checks_set_entity_account_debit_list() */
 
 double print_checks_get_entity_account_credit_balance(
 			LIST *journal_ledger_list,
@@ -763,98 +675,19 @@ double print_checks_get_entity_account_credit_balance(
 		}
 
 		if ( journal_ledger->credit_amount )
+		{
 			credit_balance += journal_ledger->credit_amount;
+		}
 		else
+		{
 			credit_balance -= journal_ledger->debit_amount;
+		}
 
 	} while( list_next( journal_ledger_list ) );
 
 	return credit_balance;
 
 } /* print_checks_get_entity_account_credit_balance() */
-
-void print_checks_subtract_purchase_order_amount_due(
-			LIST *entity_check_amount_list,
-			char *application_name )
-{
-	ENTITY_CHECK_AMOUNT *entity_check_amount;
-	PURCHASE_ORDER *purchase_order;
-	char *checking_account;
-	char *uncleared_checks_account;
-	char *account_payable_account;
-
-	if ( !list_rewind( entity_check_amount_list ) ) return;
-
-	do {
-		entity_check_amount = list_get( entity_check_amount_list );
-
-
-		if ( !list_rewind( entity_check_amount->purchase_order_list ) )
-			continue;
-
-		do {
-			purchase_order =
-				list_get( entity_check_amount->
-						purchase_order_list );
-
-
-			account_payable_account = (char *)0;
-
-			ledger_get_vendor_payment_account_names(
-				&checking_account,
-				&uncleared_checks_account,
-				&account_payable_account,
-				application_name,
-				purchase_order->fund_name );
-
-			if ( !account_payable_account )
-			{
-				fprintf( stderr,
-"ERRROR in %s/%s()/%d: cannot get account_payable_account for fund = (%s)\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__,
-					 purchase_order->fund_name );
-				exit( 1 );
-			}
-
-			print_checks_subtract_amount_due(
-				entity_check_amount->
-					entity_account_debit_list,
-				account_payable_account,
-				purchase_order->amount_due );
-
-		} while( list_next( entity_check_amount->
-					purchase_order_list ) );
-
-	} while( list_next( entity_check_amount_list ) );
-
-} /* print_checks_subtract_purchase_order_amount_due() */
-
-void print_checks_subtract_amount_due(
-				LIST *entity_account_debit_list,
-				char *account_payable_account,
-				double amount_due )
-{
-	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
-
-	if ( ! ( entity_account_debit =
-			print_checks_entity_account_debit_seek(
-				entity_account_debit_list,
-				account_payable_account ) ) )
-	{
-		fprintf( stderr,
-"ERRROR in %s/%s()/%d: cannot get entity_account_debit for account = (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 account_payable_account );
-		exit( 1 );
-	}
-
-	entity_account_debit->debit_amount -= amount_due;
-
-} /* print_checks_subtract_amount_due() */
 
 ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_seek(
 				LIST *entity_account_debit_list,
@@ -880,226 +713,545 @@ ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_seek(
 
 } /* print_checks_entity_account_debit_seek() */
 
-void print_checks_set_transaction_date_time(
-			LIST *entity_check_amount_list )
+/* Returns seconds_to_add */
+/* ---------------------- */
+int print_checks_insert_vendor_payment(
+				char **propagate_transaction_date_time,
+				double *remaining_check_amount,
+				LIST *purchase_order_list,
+				char *application_name,
+				char *uncleared_checks_account,
+				char *account_payable_account,
+				int seconds_to_add,
+				int check_number,
+				char *memo )
 {
-	ENTITY_CHECK_AMOUNT *entity_check_amount;
-	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+	PURCHASE_ORDER *purchase_order;
 	DATE *transaction_date_time;
 	char *transaction_date_time_string;
-	LIST *entity_account_debit_list;
+	TRANSACTION *transaction;
 
-	if ( !list_rewind( entity_check_amount_list ) ) return;
+	if ( !list_rewind( purchase_order_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty purchase_order_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	transaction_date_time = date_now_new();
 
+	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
+		memo = PRINT_CHECKS_MEMO;
+
 	do {
-		entity_check_amount =
-			list_get(
-				entity_check_amount_list );
+		purchase_order = list_get( purchase_order_list );
 
-		entity_account_debit_list =
-			entity_check_amount->
-				entity_account_debit_list;
+		date_increment_seconds(
+			transaction_date_time,
+			seconds_to_add );
 
-		if ( !list_rewind( entity_account_debit_list  ) )
+		transaction_date_time_string =
+			date_display_yyyy_mm_dd_colon_hms(
+				transaction_date_time );
+
+		purchase_vendor_payment_insert(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->purchase_date_time,
+			transaction_date_time_string
+				/* payment_date_time */,
+			purchase_order->amount_due,
+			check_number,
+			transaction_date_time_string );
+
+		transaction =
+			ledger_transaction_new(
+				purchase_order->full_name,
+				purchase_order->street_address,
+				transaction_date_time_string,
+				memo );
+
+		ledger_transaction_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			purchase_order->amount_due,
+			transaction->memo,
+			check_number,
+			1 /* lock_transaction */ );
+
+		ledger_journal_ledger_insert(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			transaction->transaction_date_time,
+			account_payable_account,
+			purchase_order->amount_due,
+			1 /* is_debit */ );
+
+		ledger_journal_ledger_insert(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			transaction->transaction_date_time,
+			uncleared_checks_account,
+			purchase_order->amount_due,
+			0 /* not is_debit */ );
+
+		if ( !*propagate_transaction_date_time )
 		{
-			fprintf( stderr,
-			 	 "ERROR in %s/%s()/%d: empty list.\n",
-			 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__ );
-			exit( 1 );
+			*propagate_transaction_date_time =
+				transaction->transaction_date_time;
 		}
 
+		*remaining_check_amount -= purchase_order->amount_due;
+
+		purchase_order->amount_due = 0.0;
+
+		purchase_order_update(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->purchase_date_time,
+			purchase_order->sum_extension,
+			purchase_order->database_sum_extension,
+			purchase_order->purchase_amount,
+			purchase_order->database_purchase_amount,
+			purchase_order->amount_due,
+			purchase_order->database_amount_due,
+			purchase_order->transaction_date_time,
+			purchase_order->database_transaction_date_time,
+			purchase_order->arrived_date_time,
+			purchase_order->database_arrived_date_time,
+			purchase_order->shipped_date,
+			purchase_order->database_shipped_date );
+
+		seconds_to_add++;
+
+	} while( list_next( purchase_order_list ) );
+
+	return seconds_to_add;
+
+} /* print_checks_insert_vendor_payment() */
+
+char *print_checks_entity_check_amount_list_display(
+			LIST *entity_check_amount_list )
+{
+	ENTITY_CHECK_AMOUNT *entity_check_amount;
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+
+	*ptr = '\0';
+
+	if ( list_rewind( entity_check_amount_list ) )
+	{
+		do {
+			entity_check_amount =
+				list_get(
+					entity_check_amount_list );
+
+			ptr += sprintf(
+				ptr,
+				"\nfull_name = %s;"
+				"street_address = %s;"
+				"sum_credit_amount_check_amount = %.2lf;"
+				"check_number = %d;"
+				"loss_amount = %.2lf\n",
+				entity_check_amount->full_name,
+				entity_check_amount->street_address,
+				entity_check_amount->
+					sum_credit_amount_check_amount,
+				entity_check_amount->check_number,
+				entity_check_amount->loss_amount );
+
+			ptr += sprintf(
+				ptr,
+				"\n"
+				"purchase_order_list: %s\n",
+				purchase_order_list_display(
+					entity_check_amount->
+						purchase_order_list ) );
+
+			ptr += sprintf(
+				ptr,
+				"\n"
+				"entity_account_debit_list: %s\n",
+				print_checks_entity_account_debit_list_display(
+					entity_check_amount->
+						entity_account_debit_list ) );
+
+		} while( list_next( entity_check_amount_list ) );
+
+		ptr += sprintf( ptr, "\n" );
+	}
+
+	return strdup( buffer );
+
+} /* print_checks_entity_check_amount_list_display() */
+
+char *print_checks_entity_account_debit_list_display(
+			LIST *entity_account_debit_list )
+{
+	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+
+	*ptr = '\0';
+
+	if ( list_rewind( entity_account_debit_list ) )
+	{
 		do {
 			entity_account_debit =
 				list_get(
 					entity_account_debit_list );
 
-			if ( !timlib_dollar_virtually_same(
-				entity_account_debit->debit_amount,
-				0.0 ) )
-			{
-				transaction_date_time_string =
-					date_display_yyyy_mm_dd_colon_hms(
-						transaction_date_time );
-
-				entity_check_amount->
-					transaction_date_time =
-						transaction_date_time_string;
-
-				date_increment_seconds(
-					transaction_date_time,
-					1 );
-
-				break;
-			}
+			ptr += sprintf( ptr,
+					"\n"
+					"account_name = %s;"
+					"debit_amount = %.2lf;",
+					entity_account_debit->account_name,
+					entity_account_debit->debit_amount );
 
 		} while( list_next( entity_account_debit_list ) );
 
-	} while( list_next( entity_check_amount_list ) );
+		ptr += sprintf( ptr, "\n" );
+	}
 
-} /* print_checks_set_transaction_date_time() */
+	return strdup( buffer );
 
-void print_checks_insert_purchase_order_vendor_payment(
-			char *application_name,
-			LIST *entity_check_amount_list,
-			double dialog_box_check_amount,
-			int seconds_to_add )
+} /* print_checks_entity_account_debit_list_display() */
+
+char *print_checks_current_liability_account_list_display(
+			LIST *current_liability_account_list )
 {
-	PURCHASE_ORDER *purchase_order;
+	ACCOUNT *account;
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+
+	*ptr = '\0';
+
+	if ( list_rewind( current_liability_account_list ) )
+	{
+		do {
+			account = list_get( current_liability_account_list );
+
+			ptr += sprintf( ptr,
+					"\n"
+					"liability_account = %s;"
+					"journal_ledger_list = %s;",
+					account->account_name,
+					ledger_journal_ledger_list_display(
+						account->
+							journal_ledger_list ) );
+
+		} while( list_next( current_liability_account_list ) );
+
+		ptr += sprintf( ptr, "\n" );
+	}
+
+	return strdup( buffer );
+
+} /* print_checks_current_liability_account_list_display() */
+
+char *print_checks_display( PRINT_CHECKS *print_checks )
+{
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+
+	*ptr = '\0';
+
+	ptr += sprintf(
+		ptr,
+		"current_liability_account_list: %s\n",
+		print_checks_current_liability_account_list_display(
+			print_checks->current_liability_account_list ) );
+
+	ptr += sprintf(
+		ptr,
+		"entity_check_amount_list: %s\n",
+		print_checks_entity_check_amount_list_display(
+			print_checks->entity_check_amount_list ) );
+
+	return strdup( buffer );
+
+} /* print_checks_display() */
+
+boolean print_checks_insert_entity_check_amount_list(
+				char *application_name,
+				char *fund_name,
+				LIST *entity_check_amount_list,
+				double dialog_box_check_amount,
+				char *memo )
+{
 	ENTITY_CHECK_AMOUNT *entity_check_amount;
-	LIST *purchase_order_list;
-	DATE *transaction_date_time;
-	char *transaction_date_time_string;
 	LIST *distinct_account_name_list;
-	char *checking_account;
-	char *uncleared_checks_account;
-	char *account_payable_account;
 	char *propagate_transaction_date_time = {0};
-	TRANSACTION *transaction;
-
-	if ( !list_rewind( entity_check_amount_list ) ) return;
-
-	transaction_date_time = date_now_new();
-	date_increment_seconds( transaction_date_time, seconds_to_add );
+	char *checking_account = {0};
+	char *uncleared_checks_account = {0};
+	char *account_payable_account = {0};
+	int seconds_to_add = 0;
+	double check_amount;
 
 	distinct_account_name_list = list_new();
+
+	ledger_get_vendor_payment_account_names(
+				&checking_account,
+				&uncleared_checks_account,
+				&account_payable_account,
+				application_name,
+				fund_name );
+
+	list_append_pointer(
+		distinct_account_name_list,
+		uncleared_checks_account );
+
+	list_append_pointer(
+		distinct_account_name_list,
+		account_payable_account );
+
+	if ( !list_rewind( entity_check_amount_list ) ) return 0;
 
 	do {
 		entity_check_amount =
 			list_get(
 				entity_check_amount_list );
 
-		purchase_order_list =
-			entity_check_amount->
-				purchase_order_list;
+		check_amount =
+			(dialog_box_check_amount)
+				? dialog_box_check_amount
+				: entity_check_amount->
+					sum_credit_amount_check_amount;
 
-		if ( !list_rewind( purchase_order_list ) ) continue;
-
-		do {
-			purchase_order = list_get( purchase_order_list );
-
-			transaction_date_time_string =
-				date_display_yyyy_mm_dd_colon_hms(
-					transaction_date_time );
-
-			purchase_vendor_payment_insert(
-				application_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				purchase_order->purchase_date_time,
-				transaction_date_time_string
-					/* payment_date_time */,
-				(dialog_box_check_amount)
-					? dialog_box_check_amount
-					: purchase_order->amount_due,
-				entity_check_amount->check_number,
-				transaction_date_time_string );
-
-			transaction =
-				ledger_transaction_new(
-					purchase_order->full_name,
-					purchase_order->street_address,
-					transaction_date_time_string,
-					PRINT_CHECKS_MEMO );
-
-			ledger_transaction_insert(
-				application_name,
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				(dialog_box_check_amount)
-					? dialog_box_check_amount
-					: purchase_order->amount_due,
-				transaction->memo,
-				entity_check_amount->check_number,
-				1 /* lock_transaction */ );
-
-			ledger_journal_ledger_insert(
-				application_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				transaction->transaction_date_time,
-				"uncleared_checks",
-				(dialog_box_check_amount)
-					? dialog_box_check_amount
-					: purchase_order->amount_due,
-				0 /* not is_debit */ );
-
-			if ( !propagate_transaction_date_time )
-			{
-				propagate_transaction_date_time =
-					transaction->transaction_date_time;
-			}
-
-			account_payable_account = (char *)0;
-
-			ledger_get_vendor_payment_account_names(
-				&checking_account,
-				&uncleared_checks_account,
-				&account_payable_account,
-				application_name,
-				purchase_order->fund_name );
-
-			if ( !account_payable_account )
-			{
-				fprintf( stderr,
-"ERRROR in %s/%s()/%d: cannot get account_payable_account for fund = (%s)\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__,
-					 purchase_order->fund_name );
-				exit( 1 );
-			}
-
-			ledger_journal_ledger_insert(
-				application_name,
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				account_payable_account,
-				(dialog_box_check_amount)
-					? dialog_box_check_amount
-					: purchase_order->amount_due,
-				1 /* is_debit */ );
-
-			list_append_unique_string(
+		seconds_to_add +=
+			print_checks_insert_entity_check_amount(
 				distinct_account_name_list,
-				account_payable_account );
-
-			purchase_order->amount_due -=
-				(dialog_box_check_amount)
-					? dialog_box_check_amount
-					: purchase_order->amount_due;
-
-			purchase_order_update(
+				&propagate_transaction_date_time,
 				application_name,
-				purchase_order->full_name,
-				purchase_order->street_address,
-				purchase_order->purchase_date_time,
-				purchase_order->sum_extension,
-				purchase_order->database_sum_extension,
-				purchase_order->purchase_amount,
-				purchase_order->database_purchase_amount,
-				purchase_order->amount_due,
-				purchase_order->database_amount_due,
-				purchase_order->transaction_date_time,
-				purchase_order->database_transaction_date_time,
-				purchase_order->arrived_date_time,
-				purchase_order->database_arrived_date_time,
-				purchase_order->shipped_date,
-				purchase_order->database_shipped_date );
-
-		} while( list_next( purchase_order_list ) );
+				entity_check_amount,
+				check_amount,
+				uncleared_checks_account,
+				account_payable_account,
+				seconds_to_add,
+				fund_name,
+				memo );
 
 	} while( list_next( entity_check_amount_list ) );
 
-	ledger_propagate_account_name_list(
-		application_name,
-		propagate_transaction_date_time,
-		distinct_account_name_list );
+	if ( propagate_transaction_date_time )
+	{
+		ledger_propagate_account_name_list(
+			application_name,
+			propagate_transaction_date_time,
+			distinct_account_name_list );
+	}
 
-} /* print_checks_insert_purchase_order_vendor_payment() */
+	return 1;
+
+} /* print_checks_insert_entity_check_amount_list() */
+
+/* Returns seconds_to_add */
+/* ---------------------- */
+int print_checks_insert_entity_check_amount(
+				LIST *distinct_account_name_list,
+				char **propagate_transaction_date_time,
+				char *application_name,
+				ENTITY_CHECK_AMOUNT *entity_check_amount,
+				double check_amount,
+				char *uncleared_checks_account,
+				char *account_payable_account,
+				int seconds_to_add,
+				char *fund_name,
+				char *memo )
+{
+	if ( list_length( entity_check_amount->purchase_order_list ) )
+	{
+		seconds_to_add +=
+			print_checks_insert_vendor_payment(
+				propagate_transaction_date_time,
+				&check_amount /* remaining_check_amount */,
+				entity_check_amount->
+					purchase_order_list,
+				application_name,
+				uncleared_checks_account,
+				account_payable_account,
+				seconds_to_add,
+				entity_check_amount->check_number,
+				memo );
+	}
+
+	if ( list_length( entity_check_amount->entity_account_debit_list ) )
+	{
+		print_checks_insert_entity_account_debit_list(
+			distinct_account_name_list,
+			propagate_transaction_date_time,
+			check_amount /* remaining_check_amount */,
+			application_name,
+			entity_check_amount->
+				entity_account_debit_list,
+			entity_check_amount->check_number,
+			uncleared_checks_account,
+			seconds_to_add,
+			entity_check_amount->full_name,
+			entity_check_amount->street_address,
+			entity_check_amount->loss_amount,
+			fund_name,
+			memo );
+	}
+
+	return seconds_to_add;
+
+} /* print_checks_insert_entity_check_amount() */
+
+void print_checks_insert_entity_account_debit_list(
+				LIST *distinct_account_name_list,
+				char **propagate_transaction_date_time,
+				double remaining_check_amount,
+				char *application_name,
+				LIST *entity_account_debit_list,
+				int check_number,
+				char *uncleared_checks_account,
+				int seconds_to_add,
+				char *full_name,
+				char *street_address,
+				double loss_amount,
+				char *fund_name,
+				char *memo )
+{
+	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+	TRANSACTION *transaction;
+	DATE *transaction_date_time;
+	char *transaction_date_time_string;
+	static char *loss_account = {0};
+
+	if ( !list_rewind( entity_account_debit_list ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: empty entity_account_debit_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	transaction_date_time = date_now_new();
+
+	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
+		memo = PRINT_CHECKS_MEMO;
+
+	date_increment_seconds(
+		transaction_date_time,
+		seconds_to_add );
+
+	transaction_date_time_string =
+		date_display_yyyy_mm_dd_colon_hms(
+			transaction_date_time );
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time_string,
+			memo );
+
+	ledger_transaction_insert(
+		application_name,
+		transaction->full_name,
+		transaction->street_address,
+		transaction->transaction_date_time,
+		remaining_check_amount,
+		transaction->memo,
+		check_number,
+		0 /* not lock_transaction */ );
+
+	ledger_journal_ledger_insert(
+		application_name,
+		transaction->full_name,
+		transaction->street_address,
+		transaction->transaction_date_time,
+		uncleared_checks_account,
+		remaining_check_amount,
+		0 /* not is_debit */ );
+
+	if ( !*propagate_transaction_date_time )
+	{
+		*propagate_transaction_date_time =
+			transaction->transaction_date_time;
+	}
+
+	do {
+		entity_account_debit =
+			list_get(
+			entity_account_debit_list );
+
+		if ( timlib_dollar_virtually_same(
+			entity_account_debit->debit_amount,
+			0.0 ) )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: debit_amount shouldn't be 0.0\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		ledger_journal_ledger_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			entity_account_debit->account_name,
+			entity_account_debit->debit_amount,
+			1 /* is_debit */ );
+
+		list_append_unique_string(
+			distinct_account_name_list,
+			entity_account_debit->account_name );
+
+		remaining_check_amount -= entity_account_debit->debit_amount;
+
+		if ( timlib_dollar_virtually_same(
+			remaining_check_amount,
+			0.0 ) )
+		{
+			break;
+		}
+
+	} while( list_next( entity_account_debit_list ) );
+
+	if ( loss_amount )
+	{
+		if ( !loss_account )
+		{
+			loss_account =
+				ledger_get_hard_coded_account_name(
+					application_name,
+					fund_name,
+					"loss_key",
+					0 /* not warning_only */ );
+
+			list_append_unique_string(
+				distinct_account_name_list,
+				loss_account );
+		}
+
+		ledger_journal_ledger_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			loss_account,
+			loss_amount,
+			1 /* is_debit */ );
+
+	} /* if loss_amount */
+
+	seconds_to_add++;
+
+} /* print_checks_insert_entity_account_debit_list() */
 

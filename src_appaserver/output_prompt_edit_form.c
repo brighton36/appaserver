@@ -446,6 +446,7 @@ void output_prompt_edit_form(
 	boolean group_button;
 	boolean sort_order_button;
 	FORM *form;
+	boolean with_prelookup_skip_button = 0;
 
 	form = form_new( INSERT_UPDATE_KEY,
 			 application_get_title_string( application_name ) );
@@ -511,7 +512,6 @@ void output_prompt_edit_form(
 			&appaserver->folder->notepad,
 			&appaserver->folder->html_help_file_anchor,
 			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->row_access_count,
 			&appaserver->folder->lookup_before_drop_down,
 			&appaserver->folder->data_directory,
 			&appaserver->folder->index_directory,
@@ -759,7 +759,7 @@ void output_prompt_edit_form(
 		||   !lookup_before_drop_down->first_prelookup )
 		{
 			sprintf(form_title,
-"%s %s<br><h2>Prelookup <big>%s</big>:<br>Fill out 1 or 2 rows of this query form.</h2>\n",
+"%s %s<br><small>Prelookup %s:<br>Fill out 1 or 2 rows of this query form.</small>\n",
 				initial_capital_state,
 				initial_capital_related_folder,
 				initial_capital_folder );
@@ -767,10 +767,11 @@ void output_prompt_edit_form(
 		else
 		{
 			sprintf(form_title,
-"%s %s<br><h2>Prelookup <big>%s</big>:<br>If you know exactly what you are looking for, then fill out 1 or 2 rows of this query form.<br>Otherwise, press submit without filling out this form.</h2>",
+"%s %s<br><small>Prelookup %s:<br>If you know exactly what you are looking for, then fill out 1 or 2 rows of this query form.</small>",
 				initial_capital_state,
 				initial_capital_related_folder,
 				initial_capital_folder );
+			with_prelookup_skip_button = 1;
 		}
 
 		form->form_title = strdup( form_title );
@@ -845,6 +846,7 @@ void output_prompt_edit_form(
 				form->insert_update_key,
 				form->target_frame,
 				1 /* output_submit_reset_buttons */,
+				with_prelookup_skip_button,
 				form->submit_control_string,
 				form->table_border,
 				(char *)0 /* caption_string */,
@@ -852,7 +854,8 @@ void output_prompt_edit_form(
 				form->process_id,
 				appaserver_library_get_server_address(),
 				form->optional_related_attribute_name,
-				remember_keystrokes_onload_control_string );
+				remember_keystrokes_onload_control_string,
+				(LIST *)0 /* form_button_list */ );
 
 	form_output_row(&form->current_reference_number,
 			form->hidden_name_dictionary,
@@ -886,7 +889,8 @@ void output_prompt_edit_form(
 		prelookup_button_control_string,
 		application_name,
 		1 /* with_back_to_top_button, independent upon dynarch */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 
@@ -1401,13 +1405,29 @@ LIST *get_radio_button_element_list(
 					element );
 		}
 	
+		/* First present "Grace Chart" */
+		/* --------------------------- */
 		element = element_new( 	radio_button,
 					LOOKUP_OPTION_RADIO_BUTTON_NAME );
 
 		element->radio_button->value = 
-					TIME_CHART_PUSH_BUTTON_NAME;
+					GRACE_CHART_PUSH_BUTTON_NAME;
 	
-		element->radio_button->heading = "Time Chart";
+		element->radio_button->heading = "Grace Chart";
+	
+		list_append_pointer(
+				return_list, 
+				element );
+
+		/* Second present "Google Chart" */
+		/* ----------------------------- */
+		element = element_new( 	radio_button,
+					LOOKUP_OPTION_RADIO_BUTTON_NAME );
+
+		element->radio_button->value = 
+					GOOGLE_CHART_PUSH_BUTTON_NAME;
+	
+		element->radio_button->heading = "Google Chart";
 	
 		list_append_pointer(
 				return_list, 
@@ -1917,7 +1937,9 @@ LIST *get_preprompt_attribute_name_list(
 						strdup( key_without_index ) );
 		}
 	} while( list_next( key_list ) );
+
 	return preprompt_attribute_name_list;
+
 } /* get_preprompt_attribute_name_list() */
 
 void mark_ignore_for_prelookup_skipped(

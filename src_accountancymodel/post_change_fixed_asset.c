@@ -21,6 +21,8 @@
 
 /* Prototypes */
 /* ---------- */
+/*
+Don't want to change prior JOURNAL_LEDGER.account transactions.
 void post_change_fixed_asset_account_update(
 			char *application_name,
 			char *asset_name,
@@ -32,6 +34,7 @@ void post_change_fixed_asset_update(
 			char *asset_name,
 			char *account_name,
 			char *preupdate_account );
+*/
 
 int main( int argc, char **argv )
 {
@@ -65,15 +68,16 @@ int main( int argc, char **argv )
 	}
 
 	asset_name = argv[ 2 ];
-	account_name = argv[ 3 ];
-	state = argv[ 4 ];
-	preupdate_account = argv[ 5 ];
+	if ( ( account_name = argv[ 3 ] ) ) {};
+	if ( ( state = argv[ 4 ] ) ) {};
+	if ( ( preupdate_account = argv[ 5 ] ) ) {};
 
 	/* If renamed ACCOUNT.account, then exit. */
 	/* -------------------------------------- */
 	if ( !*asset_name || strcmp( asset_name, "asset_name" ) == 0 )
 		exit( 0 );
 
+#ifdef NOT_DEFINED
 	if ( strcmp( state, "update" ) == 0 )
 	{
 		post_change_fixed_asset_update(
@@ -82,11 +86,13 @@ int main( int argc, char **argv )
 			account_name,
 			preupdate_account );
 	}
+#endif
 
 	return 0;
 
 } /* main() */
 
+#ifdef NOT_DEFINED
 void post_change_fixed_asset_update(
 			char *application_name,
 			char *asset_name,
@@ -202,3 +208,4 @@ void post_change_fixed_asset_account_update(
 	}
 
 } /* post_change_fixed_asset_account_update() */
+#endif

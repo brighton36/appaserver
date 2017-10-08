@@ -1,8 +1,8 @@
-/* --------------------------------------------------- 	*/
-/* src_hydrology/output_current_vs_historical.c	      	*/
-/* --------------------------------------------------- 	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ------------------------------------------------------------- 	*/
+/* $APPASERVER_HOME/src_hydrology/output_current_vs_historical.c      	*/
+/* ------------------------------------------------------------- 	*/
+/* Freely available software: see Appaserver.org			*/
+/* ------------------------------------------------------------- 	*/
 
 /* Includes */
 /* -------- */
@@ -28,29 +28,23 @@
 
 /* Constants */
 /* --------- */
+#define STRATUM_DATATYPE_CURRENT		"current"
+#define STRATUM_DATATYPE_HISTORICAL		"historical"
+#define LOCAL_CHART_POSITION_TOP		50
+#define LOCAL_CHART_POSITION_LEFT		265
+#define LOCAL_CHART_WIDTH			800
+#define LOCAL_CHART_HEIGHT			500
 
 /* Prototypes */
 /* ---------- */
 LIST *get_historical_long_term_datatype_name_display_list(
-				LIST *google_datatype_name_list );
-
-char *get_datatype_aggregation_name(
-				char *datatype_name,
-				char *aggregation_function,
-				char *long_term_period );
+				LIST *datatype_name_list );
 
 boolean populate_point_array_historical_fetch(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
-				char *sys_string );
-
-/*
-void pad_point_array_historical_current_zeros(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
-				char *datatype_name,
-				char *application_name );
-*/
+				LIST *barchart_list,
+				LIST *datatype_name_list,
+				char *sys_string,
+				char *stratum_datatype_name );
 
 void output_historical_current(
 				FILE *output_file,
@@ -71,16 +65,16 @@ void populate_point_array_current_sys_string(
 				char *application_name );
 
 boolean populate_point_array_historical_current(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
+				LIST *timeline_list,
+				LIST *datatype_name_list,
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
 				char *application_name );
 
 boolean populate_point_array_current(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
+				LIST *timeline_list,
+				LIST *datatype_name_list,
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
@@ -89,30 +83,32 @@ boolean populate_point_array_current(
 void populate_point_array_historical_long_term_sys_string(
 				char *sys_string,
 				LIST *station_name_list,
-				char *datatype_name,
-				char *long_term_period,
 				char *aggregation_function,
-				char *application_name );
+				char *application_name,
+				char *datatype_name,
+				char *stratum_datatype_name );
 
 boolean populate_point_array_historical(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
+				LIST *barchart_list,
+				LIST *month_name_list,
 				LIST *station_name_list,
-				char *application_name );
+				char *application_name,
+				char *aggregation_function,
+				char *datatype_name );
 
-GOOGLE_CHART *get_google_historical_long_term_chart(
-				LIST *station_name_list,
-				char *datatype_name,
-				boolean bar_chart,
-				char *application_name );
-
-GOOGLE_CHART *get_google_historical_current_chart(
+GOOGLE_OUTPUT_CHART *get_google_historical_long_term_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
 				char *application_name );
 
-GOOGLE_CHART *get_google_current_chart(
+GOOGLE_OUTPUT_CHART *get_google_historical_current_chart(
+				LIST *station_name_list,
+				char *datatype_name,
+				boolean bar_chart,
+				char *application_name );
+
+GOOGLE_OUTPUT_CHART *get_google_current_chart(
 				char *application_name,
 				LIST *station_name_list,
 				char *datatype_name );
@@ -254,20 +250,6 @@ int main( int argc, char **argv )
 	if ( state == initial )
 	{
 		APPASERVER_LINK_FILE *appaserver_link_file;
-/*
-		sprintf( output_filename,
-			 OUTPUT_FILE_TEMPLATE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name,
-			 session );
-	
-		sprintf( http_filename,
-			 HTTP_FILE_TEMPLATE,
-			 application_get_http_prefix( application_name ),
-			 appaserver_library_get_server_address(),
-			 application_name,
-			 session );
-*/
 
 		appaserver_link_file =
 			appaserver_link_file_new(
@@ -386,17 +368,19 @@ int main( int argc, char **argv )
 			&current_end_date,
 			application_name );
 
+		document_output_html_stream( stdout );
+
 		printf(
-"<html><head>\n"
+"<head>\n"
 "<link rel=stylesheet type=text/css href=/appaserver/%s/style.css>\n"
 "</head>\n"
 "<body>\n"
 "<h1>%s</h1>\n"
 "<table>\n"
-"<tr><td>Historical Period-of-record begin date (red whisker):<td>%s\n"
-"<tr><td>Historical Period-of-record end date (red whisker):<td>%s\n"
-"<tr><td>Current Period-of-record begin date (blue whisker):<td>%s\n"
-"<tr><td>Current Period-of-record end date (blue whisker):<td>%s\n"
+"<tr><td>Historical Period-of-record begin date (red bar):<td>%s\n"
+"<tr><td>Historical Period-of-record end date (red bar):<td>%s\n"
+"<tr><td>Current Period-of-record begin date (blue bar):<td>%s\n"
+"<tr><td>Current Period-of-record end date (blue bar):<td>%s\n"
 "<tr><td>Current begin date:<td>%s\n"
 "<tr><td>Current end date:<td>%s\n"
 "</table>\n"
@@ -1021,17 +1005,13 @@ void output_historical(		FILE *output_file,
 				LIST *station_name_list,
 				char *datatype_name )
 {
-	boolean bar_chart;
+	boolean bar_chart = 0;
 	char *units;
 
 	units = datatype_get_units_string(
 			&bar_chart,
 			application_name,
 			datatype_name );
-
-/*
-	bar_chart = datatype_bar_chart( application_name, datatype_name );
-*/
 
 	if ( output_historical_long_term(
 				output_file,
@@ -1059,9 +1039,9 @@ boolean output_historical_long_term(
 				char *units,
 				char *application_name )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
-	LIST *google_datatype_name_display_list;
+	LIST *datatype_name_display_list;
 
 	if ( ! ( google_chart =
 			get_google_historical_long_term_chart(
@@ -1087,201 +1067,152 @@ boolean output_historical_long_term(
 	else
 	{
 		sprintf(	yaxis_label,
-				"Monthly %s (%s)",
+				"Monthly Average %s (%s)",
 				datatype_name,
 				units );
 
+/*
 		google_chart->google_chart_type = google_cat_whiskers;
+*/
 	}
 
-	google_datatype_name_display_list =
+	datatype_name_display_list =
 		get_historical_long_term_datatype_name_display_list(
-			google_chart->google_datatype_name_list );
+			google_chart->datatype_name_list );
 
 	format_initial_capital( yaxis_label, yaxis_label );
 
 	google_chart_output_include( output_file );
 
-	google_chart_output_draw_visualization_function(
+	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
-				google_chart->xaxis_datatype_name,
-				google_chart->xaxis_list,
-				google_datatype_name_display_list,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
+				datatype_name_display_list,
 				"" /* title */,
 				strdup( yaxis_label ),
-				google_chart->left,
-				google_chart->top,
 				google_chart->width,
 				google_chart->height,
 				google_chart->background_color,
 				google_chart->legend_position_bottom,
 				1 /* chart_type_bar */,
 				google_chart->google_package_name,
-				0 /* not dont_display_range_selector */ );
+				0 /* not dont_display_range_selector */,
+				daily /* aggregate_level */,
+				google_chart->chart_number );
+
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
+
+	google_chart_anchor_chart(
+				output_file,
+				"" /* chart_title */,
+				google_chart->google_package_name,
+				google_chart->left,
+				google_chart->top,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
 
 	return 1;
 
 } /* output_historical_long_term() */
 
-GOOGLE_CHART *get_google_current_chart(
+GOOGLE_OUTPUT_CHART *get_google_current_chart(
 				char *application_name,
 				LIST *station_name_list,
 				char *datatype_name )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	boolean bar_chart;
 
 	google_chart =
-		google_chart_new(
-				 google_time_line,
-				 "Date" /* xaxis_datatype_name */,
-				 CHART_POSITION_LEFT,
-				 CHART_POSITION_TOP,
-				 CHART_WIDTH,
-				 CURRENT_CHART_HEIGHT,
-				 BACKGROUND_COLOR,
-				 0 /* not legend_position_bottom */,
-				"annotatedtimeline" /* google_package_name */);
+		google_output_chart_new(
+			LOCAL_CHART_POSITION_LEFT,
+			LOCAL_CHART_POSITION_TOP,
+			LOCAL_CHART_WIDTH,
+			LOCAL_CHART_HEIGHT );
 
 	bar_chart = datatype_bar_chart( application_name, datatype_name );
 
-	list_append_pointer(	google_chart->google_datatype_name_list,
+	list_append_pointer(	google_chart->datatype_name_list,
 				datatype_name );
 
 	if ( bar_chart )
 	{
-		list_append_pointer(	google_chart->google_datatype_name_list,
+		list_append_pointer(	google_chart->datatype_name_list,
 					DATATYPE_QUANTUM_TOTAL );
 	}
 
 	if ( !populate_point_array_current(
-				google_chart->xaxis_list,
-				google_chart->google_datatype_name_list,
+				google_chart->timeline_list,
+				google_chart->datatype_name_list,
 				station_name_list,
 				datatype_name,
 				bar_chart,
 				application_name ) )
 	{
-		return (GOOGLE_CHART *)0;;
+		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;
 
 } /* get_google_current_chart() */
 
-GOOGLE_CHART *get_google_historical_long_term_chart(
+GOOGLE_OUTPUT_CHART *get_google_historical_long_term_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
 				char *application_name )
 
 {
-	GOOGLE_CHART *google_chart;
-	char *datatype_aggregation_name;
+	GOOGLE_OUTPUT_CHART *google_chart;
+	char *aggregation_function;
 
 	google_chart =
-		google_chart_new(
-			google_column_chart,
-			"Month",
-			CHART_POSITION_LEFT,
-			CHART_POSITION_TOP,
-			CHART_WIDTH,
-			HISTORICAL_CHART_HEIGHT,
-			BACKGROUND_COLOR,
-			0 /* not legend_position_bottom */,
-			"corechart" /* google_package_name */ );
+		google_output_chart_new(
+			LOCAL_CHART_POSITION_LEFT,
+			LOCAL_CHART_POSITION_TOP,
+			LOCAL_CHART_WIDTH,
+			HISTORICAL_CHART_HEIGHT );
+
+	google_chart->google_chart_type = google_column_chart;
+	google_chart->google_package_name = GOOGLE_CORECHART;
 
 	if ( bar_chart )
-	{
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_SUM,
-				LONG_TERM_CURRENT );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
-
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_SUM,
-				LONG_TERM_HISTORICAL );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
-	}
+		aggregation_function = AGGREGATION_SUM;
 	else
-	{
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_MIN,
-				LONG_TERM_CURRENT );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
+		aggregation_function = AGGREGATION_AVG;
 
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_AVG,
-				LONG_TERM_CURRENT );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
+	list_append_pointer(
+		google_chart->datatype_name_list,
+		STRATUM_DATATYPE_CURRENT );
 
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_MAX,
-				LONG_TERM_CURRENT );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
+	list_append_pointer(
+		google_chart->datatype_name_list,
+		STRATUM_DATATYPE_HISTORICAL );
 
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_MIN,
-				LONG_TERM_HISTORICAL );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
-
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_AVG,
-				LONG_TERM_HISTORICAL );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
-
-		datatype_aggregation_name =
-			get_datatype_aggregation_name(
-				datatype_name,
-				AGGREGATION_MAX,
-				LONG_TERM_HISTORICAL );
-		list_append_pointer(
-			google_chart->google_datatype_name_list,
-			datatype_aggregation_name );
-
-	}
-
-	google_chart_append_delimited_string_xaxis(
-		google_chart->xaxis_list,
-		MONTH_LIST_STRING,
-		list_length( google_chart->google_datatype_name_list ) );
+/*
+#define MONTH_LIST_STRING "jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec"
+*/
+	google_barchart_append_datatype_name_string(
+		google_chart->barchart_list,
+		MONTH_LIST_STRING /* datatype_name_list_string */,
+		list_length( google_chart->datatype_name_list ),
+		',' /* delimiter */ );
 
 	if ( !populate_point_array_historical(
-				google_chart->xaxis_list,
-				google_chart->google_datatype_name_list,
-				station_name_list,
-				application_name ) )
+			google_chart->barchart_list,
+			google_chart->datatype_name_list
+				/* month_name_list */ ,
+			station_name_list,
+			application_name,
+			aggregation_function,
+			datatype_name ) )
 	{
-		return (GOOGLE_CHART *)0;;
+		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;
@@ -1289,70 +1220,53 @@ GOOGLE_CHART *get_google_historical_long_term_chart(
 } /* get_google_historical_long_term_chart() */
 
 boolean populate_point_array_historical(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
+				LIST *barchart_list,
+				LIST *month_name_list,
 				LIST *station_name_list,
-				char *application_name )
+				char *application_name,
+				char *aggregation_function,
+				char *datatype_name )
 {
 	char sys_string[ 2048 ];
-	char *google_datatype_name;
-	char datatype_name[ 128 ];
-	char aggregation_function[ 16 ];
-	char long_term_period[ 16 ];
-	boolean got_one = 0;
 
-	if ( !list_rewind( google_datatype_name_list ) ) return 0;
+	populate_point_array_historical_long_term_sys_string(
+		sys_string,
+		station_name_list,
+		aggregation_function,
+		application_name,
+		datatype_name,
+		STRATUM_DATATYPE_CURRENT );
 
-	do {
-		google_datatype_name =
-			list_get_pointer(
-				google_datatype_name_list );
+	populate_point_array_historical_fetch(
+		barchart_list,
+		month_name_list /* datatype_name_list */,
+		sys_string,
+		STRATUM_DATATYPE_CURRENT );
 
-		piece(	datatype_name,
-			DATATYPE_AGGREGATION_DELIMITER,
-			google_datatype_name,
-			0 );
+	populate_point_array_historical_long_term_sys_string(
+		sys_string,
+		station_name_list,
+		aggregation_function,
+		application_name,
+		datatype_name,
+		STRATUM_DATATYPE_HISTORICAL );
 
-		piece(	aggregation_function,
-			DATATYPE_AGGREGATION_DELIMITER,
-			google_datatype_name,
-			1 );
-
-		piece(	long_term_period,
-			DATATYPE_AGGREGATION_DELIMITER,
-			google_datatype_name,
-			2 );
-
-		populate_point_array_historical_long_term_sys_string(
-					sys_string,
-					station_name_list,
-					datatype_name,
-					long_term_period,
-					aggregation_function,
-					application_name );
-
-		if ( populate_point_array_historical_fetch(
-					xaxis_list,
-					google_datatype_name_list,
-					sys_string ) )
-		{
-			got_one = 1;
-		}
-
-	} while( list_next( google_datatype_name_list ) );
-
-	return got_one;
+	return populate_point_array_historical_fetch(
+		barchart_list,
+		month_name_list /* datatype_name_list */,
+		sys_string,
+		STRATUM_DATATYPE_HISTORICAL );
 
 } /* populate_point_array_historical() */
 
 boolean populate_point_array_historical_fetch(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
-				char *sys_string )
+				LIST *barchart_list,
+				LIST *datatype_name_list,
+				char *sys_string,
+				char *stratum_datatype_name )
 {
 	char input_buffer[ 1024 ];
 	FILE *input_pipe;
-	char datatype_name[ 128 ];
 	char month[ 16 ];
 	char value_string[ 16 ];
 	boolean got_one = 0;
@@ -1368,22 +1282,17 @@ boolean populate_point_array_historical_fetch(
 			input_buffer,
 			0 );
 
-		piece(	datatype_name,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
-
 		piece(	value_string,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			2 );
 
-		google_chart_set_point(
-				xaxis_list,
-				google_datatype_name_list,
-				month /* xaxis_label */,
-				datatype_name,
-				atof( value_string ) );
+		google_barchart_set_point(
+			barchart_list,
+			month /* stratum_name */,
+			datatype_name_list,
+			stratum_datatype_name,
+			atof( value_string ) );
 	}
 
 	pclose( input_pipe );
@@ -1395,12 +1304,11 @@ boolean populate_point_array_historical_fetch(
 void populate_point_array_historical_long_term_sys_string(
 				char *sys_string,
 				LIST *station_name_list,
-				char *datatype_name,
-				char *long_term_period,
 				char *aggregation_function,
-				char *application_name )
+				char *application_name,
+				char *datatype_name,
+				char *stratum_datatype_name )
 {
-	char *datatype_select_clause;
 	char select_clause[ 1024 ];
 	char *group_clause;
 	char *station_in_clause;
@@ -1429,21 +1337,15 @@ void populate_point_array_historical_long_term_sys_string(
 	group_clause =
 	"concat( station, date_format( measurement_date, '%Y-%b' ) )";
 
-	datatype_select_clause =
-		get_datatype_aggregation_name(
-				datatype_name,
-				aggregation_function,
-				long_term_period );
-
-	sprintf( select_clause,
+	sprintf(select_clause,
 		"%s,				"
 		"'%s',				"
 		"%s( measurement_value )	",
 		group_clause,
-		datatype_select_clause,
+		stratum_datatype_name,
 		aggregation_function );
 
-	if ( strcmp( long_term_period, LONG_TERM_CURRENT ) == 0 )
+	if ( strcmp( stratum_datatype_name, STRATUM_DATATYPE_CURRENT ) == 0 )
 	{
 		sprintf( where_date_clause,
 		 	"measurement_date >= '%s' and		"
@@ -1453,7 +1355,7 @@ void populate_point_array_historical_long_term_sys_string(
 	}
 	else
 	{
-		sprintf( where_date_clause,
+		sprintf(where_date_clause,
 		 	"measurement_date >= '%s' and		"
 			"measurement_date <= '%s'		",
 			por_historical_begin_date,
@@ -1468,7 +1370,7 @@ void populate_point_array_historical_long_term_sys_string(
 		 datatype_name,
 		 where_date_clause );
 
-	sprintf( sys_string,
+	sprintf(sys_string,
 "echo \"	select %s				 "
 "		from measurement			 "
 "		where %s				 "
@@ -1530,10 +1432,11 @@ void output_current(	FILE *output_file,
 			LIST *station_name_list,
 			char *datatype_name )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
-	if ( ! ( google_chart = get_google_current_chart(
+	if ( ! ( google_chart =
+			get_google_current_chart(
 				application_name,
 				station_name_list,
 				datatype_name ) ) )
@@ -1551,29 +1454,43 @@ void output_current(	FILE *output_file,
 
 	google_chart_output_include( output_file );
 
-	google_chart_output_draw_visualization_function(
+	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
-				google_chart->xaxis_datatype_name,
-				google_chart->xaxis_list,
-				google_chart->google_datatype_name_list,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
+				google_chart->datatype_name_list,
 				"" /* title */,
 				strdup( yaxis_label ),
-				google_chart->left,
-				google_chart->top,
 				google_chart->width,
 				google_chart->height,
 				google_chart->background_color,
 				google_chart->legend_position_bottom,
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
-				0 /* not dont_display_range_selector */ );
+				0 /* not dont_display_range_selector */,
+				daily /* aggregate_level */,
+				google_chart->chart_number );
+
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
+
+	google_chart_anchor_chart(
+				output_file,
+				"" /* chart_title */,
+				google_chart->google_package_name,
+				google_chart->left,
+				google_chart->top,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
 
 } /* output_current() */
 
 boolean populate_point_array_current(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
+				LIST *timeline_list,
+				LIST *datatype_name_list,
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
@@ -1583,16 +1500,16 @@ boolean populate_point_array_current(
 	char input_buffer[ 1024 ];
 	FILE *input_pipe;
 	boolean got_one = 0;
-	char xaxis_label[ 128 ];
+	char date_time_string[ 128 ];
 	char point_string[ 128 ];
 	double total = 0.0;
 
 	populate_point_array_current_sys_string(
-					sys_string,
-					station_name_list,
-					datatype_name,
-					bar_chart,
-					application_name );
+		sys_string,
+		station_name_list,
+		datatype_name,
+		bar_chart,
+		application_name );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -1600,13 +1517,13 @@ boolean populate_point_array_current(
 	{
 		got_one = 1;
 
-		google_chart_set_point_string(
-				xaxis_list,
-				google_datatype_name_list,
-				input_buffer,
-				FOLDER_DATA_DELIMITER );
+		google_timeline_set_point_string(
+			timeline_list,
+			datatype_name_list,
+			input_buffer,
+			FOLDER_DATA_DELIMITER );
 
-		piece(	xaxis_label, 
+		piece(	date_time_string, 
 			FOLDER_DATA_DELIMITER,
 			input_buffer, 
 			0 );
@@ -1620,10 +1537,11 @@ boolean populate_point_array_current(
 		{
 			total += atof( point_string );
 
-			google_chart_set_point(
-				xaxis_list,
-				google_datatype_name_list,
-				xaxis_label,
+			google_timeline_set_point(
+				timeline_list,
+				datatype_name_list,
+				date_time_string,
+				(char *)0 /* hhmm */,
 				DATATYPE_QUANTUM_TOTAL,
 				total );
 		}
@@ -1672,8 +1590,11 @@ void populate_point_array_current_sys_string(
 		timlib_with_list_get_in_clause(
 			station_name_list );
 
+/*
 	select_clause =
 		"concat( station, '/', measurement_date, '/', datatype )";
+*/
+	select_clause = "measurement_date,datatype";
 
 	sprintf( where_date_clause,
 	 	"measurement_date >= '%s'",
@@ -1687,6 +1608,7 @@ void populate_point_array_current_sys_string(
 		 datatype_name,
 		 where_date_clause );
 
+/*
 	sprintf( sys_string,
 "echo \"	select %s,%s( measurement_value )	 	 "
 "		from measurement				 "
@@ -1708,6 +1630,21 @@ void populate_point_array_current_sys_string(
 		 select_clause,
 		 FOLDER_DATA_DELIMITER,
 		 FOLDER_DATA_DELIMITER );
+*/
+
+	sprintf( sys_string,
+"echo \"	select %s,%s( measurement_value )	 	 "
+"		from measurement				 "
+"		where %s					 "
+"		group by %s;\"					|"
+"sql_quick.e '%c'						|"
+"grep -v '\\^$'							|"
+"cat								 ",
+		 select_clause,
+		 aggregation_function,
+		 where_clause,
+		 select_clause,
+		 FOLDER_DATA_DELIMITER );
 
 } /* populate_point_array_current_sys_string() */
 
@@ -1718,10 +1655,11 @@ void output_historical_current(
 				boolean bar_chart,
 				char *application_name )
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char yaxis_label[ 128 ];
 
-	if ( ! ( google_chart = get_google_historical_current_chart(
+	if ( ! ( google_chart =
+			get_google_historical_current_chart(
 				station_name_list,
 				datatype_name,
 				bar_chart,
@@ -1737,131 +1675,82 @@ void output_historical_current(
 			"Daily %s %s",
 			(bar_chart) ? "Sum" : "Average",
 			datatype_name );
+
 	format_initial_capital( yaxis_label, yaxis_label );
 
 	google_chart_output_include( output_file );
 
-	google_chart_output_draw_visualization_function(
+	google_chart_output_visualization_function(
 				output_file,
 				google_chart->google_chart_type,
-				google_chart->xaxis_datatype_name,
-				google_chart->xaxis_list,
-				google_chart->google_datatype_name_list,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
+				google_chart->datatype_name_list,
 				"" /* title */,
 				strdup( yaxis_label ),
-				google_chart->left,
-				google_chart->top,
 				google_chart->width,
 				google_chart->height,
 				google_chart->background_color,
 				google_chart->legend_position_bottom,
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
-				1 /* dont_display_range_selector */ );
+				1 /* dont_display_range_selector */,
+				daily /* aggregate_level */,
+				google_chart->chart_number );
+
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
+
+	google_chart_anchor_chart(
+				output_file,
+				"" /* chart_title */,
+				google_chart->google_package_name,
+				google_chart->left,
+				google_chart->top,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
 
 } /* output_historical_current() */
 
-GOOGLE_CHART *get_google_historical_current_chart(
+GOOGLE_OUTPUT_CHART *get_google_historical_current_chart(
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
 				char *application_name )
 
 {
-	GOOGLE_CHART *google_chart;
+	GOOGLE_OUTPUT_CHART *google_chart;
 
 	google_chart =
-		google_chart_new(
-			google_time_line,
-			"Date",
-			 CHART_POSITION_LEFT + 140,
-			 CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
-			 CHART_WIDTH - 280,
-			 HISTORICAL_CHART_HEIGHT / 3,
-			 BACKGROUND_COLOR,
-			 0 /* not legend_position_bottom */,
-			"annotatedtimeline" /* google_package_name */);
+		google_output_chart_new(
+		     LOCAL_CHART_POSITION_LEFT + 140,
+		     LOCAL_CHART_POSITION_TOP + HISTORICAL_CHART_HEIGHT + 2,
+		     LOCAL_CHART_WIDTH - 280,
+		     HISTORICAL_CHART_HEIGHT / 3 );
 
-	list_append_pointer(	google_chart->google_datatype_name_list,
+	list_append_pointer(	google_chart->datatype_name_list,
 				datatype_name );
 
 	if ( !populate_point_array_historical_current(
-				google_chart->xaxis_list,
-				google_chart->google_datatype_name_list,
+				google_chart->timeline_list,
+				google_chart->datatype_name_list,
 				station_name_list,
 				datatype_name,
 				bar_chart,
 				application_name ) )
 	{
-		return (GOOGLE_CHART *)0;;
+		return (GOOGLE_OUTPUT_CHART *)0;;
 	}
 
 	return google_chart;
 
 } /* get_google_historical_current_chart() */
 
-#ifdef NOT_DEFINED
-void pad_point_array_historical_current_zeros(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
-				char *datatype_name,
-				char *application_name )
-{
-	FILE *input_pipe;
-	char sys_string[ 1024 ];
-	char input_buffer[ 128 ];
-	char end_date_string[ 16 ];
-	char *por_historical_begin_date;
-	char *por_historical_end_date;
-	char *por_current_begin_date;
-	char *por_current_end_date;
-	char *current_begin_date;
-	char *current_end_date;
-	char current_year_string[ 5 ];
-	DATE *tomorrow;
-
-	current_vs_historical_get_dates(
-			&por_historical_begin_date,
-			&por_historical_end_date,
-			&por_current_begin_date,
-			&por_current_end_date,
-			&current_begin_date,
-			&current_end_date,
-			application_name );
-
-	piece( current_year_string, '-', current_end_date, 0 );
-	sprintf( end_date_string, "%s-12-31", current_year_string );
-
-	tomorrow = date_new_yyyy_mm_dd( current_end_date );
-	date_increment_days( tomorrow, 1.0 );
-
-	sprintf( sys_string,
-		 "time_ticker.e '|' daily %s %s ''		 |"
-		 "piece.e '|' 0					 |"
-		 "cat						  ",
-		 date_display_yyyy_mm_dd( tomorrow ),
-		 end_date_string );
- 
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		google_chart_set_point(
-				xaxis_list,
-				google_datatype_name_list,
-				input_buffer,
-				datatype_name,
-				0.0 );
-	}
-
-	pclose( input_pipe );
-
-} /* pad_point_array_historical_current_zeros() */
-#endif
-
 boolean populate_point_array_historical_current(
-				LIST *xaxis_list,
-				LIST *google_datatype_name_list,
+				LIST *timeline_list,
+				LIST *datatype_name_list,
 				LIST *station_name_list,
 				char *datatype_name,
 				boolean bar_chart,
@@ -1873,11 +1762,11 @@ boolean populate_point_array_historical_current(
 	boolean got_one = 0;
 
 	populate_point_array_current_sys_string(
-					sys_string,
-					station_name_list,
-					datatype_name,
-					bar_chart,
-					application_name );
+		sys_string,
+		station_name_list,
+		datatype_name,
+		bar_chart,
+		application_name );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -1885,11 +1774,11 @@ boolean populate_point_array_historical_current(
 	{
 		got_one = 1;
 
-		google_chart_set_point_string(
-				xaxis_list,
-				google_datatype_name_list,
-				input_buffer,
-				FOLDER_DATA_DELIMITER );
+		google_timeline_set_point_string(
+			timeline_list,
+			datatype_name_list,
+			input_buffer,
+			FOLDER_DATA_DELIMITER );
 	}
 
 	pclose( input_pipe );
@@ -1898,67 +1787,31 @@ boolean populate_point_array_historical_current(
 
 } /* populate_point_array_historical_current() */
 
-char *get_datatype_aggregation_name(
-				char *datatype_name,
-				char *aggregation_function,
-				char *long_term_period )
-{
-	char datatype_aggregation_name[ 128 ];
-
-	sprintf( datatype_aggregation_name,
-		 "%s%c%s%c%s",
-		 datatype_name,
-		 DATATYPE_AGGREGATION_DELIMITER,
-		 aggregation_function,
-		 DATATYPE_AGGREGATION_DELIMITER,
-		 long_term_period );
-
-	return strdup( datatype_aggregation_name );
-
-} /* get_datatype_aggregation_name() */
-
 LIST *get_historical_long_term_datatype_name_display_list(
-				LIST *google_datatype_name_list )
+				LIST *datatype_name_list )
 {
+	char *datatype_name;
 	char datatype_name_display[ 128 ];
 	LIST *datatype_name_display_list;
-	char *google_datatype_name;
-	int count;
-	
+
 	datatype_name_display_list = list_new();
 
-	if ( list_rewind( google_datatype_name_list ) )
+	if ( list_rewind( datatype_name_list ) )
 	{
 		do {
-			google_datatype_name =
+			datatype_name =
 				list_get_pointer(
-					google_datatype_name_list );
+					datatype_name_list );
 
-			count = character_count(
-					DATATYPE_AGGREGATION_DELIMITER,
-					google_datatype_name );
-
-			if ( count != 2 )
-			{
-				fprintf( stderr,
-			"ERROR in %s/%s()/%d: not 2 delimiters in %s\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__,
-					 google_datatype_name );
-				exit( 1 );
-			}
-
-			piece(	datatype_name_display,
-				DATATYPE_AGGREGATION_DELIMITER,
-				google_datatype_name,
-				count );
+			format_initial_capital(
+				datatype_name_display,
+				datatype_name );
 
 			list_append_pointer(
 				datatype_name_display_list,
 				strdup( datatype_name_display ) );
 
-		} while( list_next( google_datatype_name_list ) );
+		} while( list_next( datatype_name_list ) );
 	}
 
 	return datatype_name_display_list;

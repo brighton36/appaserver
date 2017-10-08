@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_appaserver/fix_orphans.c			       	*/
+/* $APPASERVER_HOME/src_appaserver/fix_orphans.c       	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
@@ -21,8 +21,6 @@
 #include "appaserver_parameter_file.h"
 #include "environ.h"
 #include "process.h"
-
-/* appaserver_link_file */
 
 /* Constants */
 /* --------- */
@@ -125,14 +123,7 @@ int main( int argc, char **argv )
 		output_medium_stdout = ( strcmp( argv[ 6 ], "stdout" ) == 0 );
 	}
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !output_medium_stdout )
 	{
@@ -565,6 +556,7 @@ void output_delete_statement(
 	char *data;
 	char *table_name;
 	LIST *foreign_data_key_list;
+	char data_buffer[ 4096 ];
 
 	foreign_data_key_list =
 		list_string2list(
@@ -619,14 +611,18 @@ void output_delete_statement(
 		{
 			fprintf( table_output_pipe, "%s", data );
 		}
+
 		fprintf( text_output_pipe, "%s", data );
 
 		if ( insert_delete_pipe )
 		{
+			strcpy( data_buffer, data );
+			escape_single_quotes( data_buffer );
+
 			fprintf( insert_delete_pipe,
 				 " and %s = '%s'",
 				 attribute_name,
-				 data );
+				 data_buffer );
 		}
 
 		list_next( foreign_data_key_list );

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_appaserver/post_choose_folder.c					*/
+/* $APPASERVER_HOME/src_appaserver/post_choose_folder.c			*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -416,7 +416,8 @@ char *prompt_insert_form_get_sys_string(
 			lookup_before_drop_down_dictionary,
 			state );
 
-	if ( ( lookup_before_drop_down->insert_pair_base_folder_name =
+	if ( !lookup_before_drop_down->omit_lookup_before_drop_down
+	&&   ( lookup_before_drop_down->insert_pair_base_folder_name =
 		lookup_before_drop_down_get_insert_pair_base_folder_name(
 			application_name,
 			folder_name,

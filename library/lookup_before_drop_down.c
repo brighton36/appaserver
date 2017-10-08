@@ -1,4 +1,4 @@
-/* library/lookup_before_drop_down.c			   */
+/* $APPASERVER_HOME/library/lookup_before_drop_down.c	   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -30,9 +30,9 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 			calloc( 1, sizeof( LOOKUP_BEFORE_DROP_DOWN ) );
 
 	if ( ! ( base_folder_name =
-		dictionary_get_pointer(
-			lookup_before_drop_down_dictionary,
-			LOOKUP_BEFORE_DROP_DOWN_BASE_FOLDER_KEY ) ) )
+			dictionary_get_pointer(
+				lookup_before_drop_down_dictionary,
+				LOOKUP_BEFORE_DROP_DOWN_BASE_FOLDER_KEY ) ) )
 	{
 		return lookup_before_drop_down;
 	}
@@ -52,7 +52,6 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -79,21 +78,23 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 				folder->folder_name,
 				(char *)0 /* role_name */ );
 
-	folder->mto1_recursive_related_folder_list =
+	folder->mto1_lookup_before_drop_down_related_folder_list =
 		related_folder_get_lookup_before_drop_down_related_folder_list(
 				list_new() /* related_folder_list */,
 				application_name,
 				folder->folder_name,
+				folder->attribute_list
+					/* base_folder_attribute_list */,
 				0 /* recursive_level */ );
 
 	lookup_before_drop_down->base_folder = folder;
 
 	lookup_before_drop_down->lookup_before_drop_down_folder_list =
 		lookup_before_drop_down_get_folder_list(
-			application_name,
-			folder->mto1_recursive_related_folder_list,
-			state,
-			base_folder_name );
+			&lookup_before_drop_down->omit_lookup_before_drop_down,
+			folder->
+			      mto1_lookup_before_drop_down_related_folder_list,
+			state );
 
 	lookup_before_drop_down_with_dictionary_set_fulfilled(
 		lookup_before_drop_down->
@@ -127,10 +128,9 @@ char *lookup_before_drop_down_get_base_folder_name(
 } /* lookup_before_drop_down_get_base_folder_name() */
 
 LIST *lookup_before_drop_down_get_folder_list(
-			char *application_name,
-			LIST *mto1_recursive_related_folder_list,
-			char *state,
-			char *base_folder_name )
+			boolean *omit_lookup_before_drop_down,
+			LIST *mto1_lookup_before_drop_down_related_folder_list,
+			char *state )
 {
 	RELATED_FOLDER *related_folder;
 	LOOKUP_BEFORE_DROP_DOWN_FOLDER *lookup_before_drop_down_folder;
@@ -139,38 +139,27 @@ LIST *lookup_before_drop_down_get_folder_list(
 	LIST *omit_insert_attribute_name_list;
 	LIST *omit_update_attribute_name_list;
 
-	if ( !list_rewind( mto1_recursive_related_folder_list ) )
+	if ( !list_rewind( mto1_lookup_before_drop_down_related_folder_list ) )
+	{
+		*omit_lookup_before_drop_down = 1;
 		return (LIST *)0;
+	}
 
-#ifdef NOT_DEFINED
-	/* If the first one is omit, then skip. */
-	/* ------------------------------------ */
-	related_folder =
-		list_get_pointer(
-			mto1_recursive_related_folder_list );
-
-	if ( related_folder->omit_lookup_before_drop_down ) return (LIST *)0;
-#endif
-
-	if ( lookup_before_drop_down_level_zero_omit(
-		mto1_recursive_related_folder_list ) )
+	if ( ( *omit_lookup_before_drop_down =
+			lookup_before_drop_down_get_omit(
+			  mto1_lookup_before_drop_down_related_folder_list ) ) )
 	{
 		return (LIST *)0;
 	}
 
 	done_folder_name_list = list_new();
 
-	list_go_tail( mto1_recursive_related_folder_list );
+	list_go_tail( mto1_lookup_before_drop_down_related_folder_list );
 
 	do {
 		related_folder =
 			list_get_pointer(
-				mto1_recursive_related_folder_list );
-
-/*
-		if ( related_folder->omit_lookup_before_drop_down )
-			continue;
-*/
+			     mto1_lookup_before_drop_down_related_folder_list );
 
 		if ( !related_folder->folder->lookup_before_drop_down )
 			continue;
@@ -257,34 +246,40 @@ LIST *lookup_before_drop_down_get_folder_list(
 			done_folder_name_list,
 			related_folder->folder->folder_name );
 
-	} while( list_previous(	mto1_recursive_related_folder_list ) );
+	} while( list_previous(
+			mto1_lookup_before_drop_down_related_folder_list ) );
 
 	return folder_list;
 
 } /* lookup_before_drop_down_get_folder_list() */
 
-boolean lookup_before_drop_down_level_zero_omit(
-				LIST *mto1_recursive_related_folder_list )
+boolean lookup_before_drop_down_get_omit(
+			LIST *mto1_lookup_before_drop_down_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
 
-	if ( !list_rewind( mto1_recursive_related_folder_list ) ) return 0;
+	if ( !list_rewind(
+		mto1_lookup_before_drop_down_related_folder_list ) )
+	{
+		return 0;
+	}
 
 	do {
 		related_folder =
 			list_get_pointer( 
-				mto1_recursive_related_folder_list );
+			     mto1_lookup_before_drop_down_related_folder_list );
 
 		if ( related_folder->recursive_level == 0
 		&&   !related_folder->omit_lookup_before_drop_down )
 		{
 			return 0;
 		}
-	} while( list_next( mto1_recursive_related_folder_list ) );
+	} while( list_next(
+			mto1_lookup_before_drop_down_related_folder_list ) );
 
 	return 1;
 
-} /* lookup_before_drop_down_mark_consecutive_omit() */
+} /* lookup_before_drop_down_get_omit() */
 
 void lookup_before_drop_down_with_dictionary_set_fulfilled(
 		LIST *lookup_before_drop_down_folder_list,
@@ -700,26 +695,32 @@ char *lookup_before_drop_down_display(
 			__FUNCTION__ );
 	}
 
-	if ( list_length( lookup_before_drop_down->
-				base_folder->
-				mto1_recursive_related_folder_list ) )
+	buf_ptr += sprintf(
+			buf_ptr,
+			"omit_lookup_before_drop_down = %d\n",
+			lookup_before_drop_down->omit_lookup_before_drop_down );
+
+	if ( list_length(
+		lookup_before_drop_down->
+			base_folder->
+			mto1_lookup_before_drop_down_related_folder_list ) )
 	{
 		buf_ptr += sprintf(
 			buf_ptr,
-			"%s(): mto1_recursive_related_folder_list = %s\n",
+		"%s(): mto1_lookup_before_drop_down_related_folder_list = %s\n",
 			__FUNCTION__,
 			related_folder_list_display(
-				lookup_before_drop_down->
-					base_folder->
-					mto1_recursive_related_folder_list,
-				mto1,
-				'\n' ) );
+			lookup_before_drop_down->
+			   base_folder->
+			   mto1_lookup_before_drop_down_related_folder_list,
+			mto1,
+			'\n' ) );
 	}
 	else
 	{
 		buf_ptr += sprintf(
 			buf_ptr,
-			"%s(): no mto1_recursive_related_folder_list\n",
+		"%s(): no mto1_lookup_before_drop_down_related_folder_list\n",
 			__FUNCTION__ );
 	}
 

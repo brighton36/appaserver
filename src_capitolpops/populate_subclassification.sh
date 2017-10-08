@@ -23,6 +23,14 @@ state=$3
 table=subclassification
 select="subclassification"
 
+# --------------------------------------------------------------------
+# This doesn't fully work. We want to force donation inserts through
+# <Insert> <Donation> <Donation>, not <Insert> <Ledger> <Transaction>.
+#
+# However, this prevents new donation revenue accounts from being
+# inserted via <Insert> <Ledger> <Account>. If you need to insert a
+# new donation revenue account, then comment this out.
+# --------------------------------------------------------------------
 if [ "$state" = "insert" ]
 then
 	where="$parameter_where and subclassification != 'donation'"

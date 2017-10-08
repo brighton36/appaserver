@@ -26,16 +26,17 @@ void test_bar( void )
 {
 	GOOGLE_CHART *google_chart;
 
-	google_chart = google_chart_new(
-				google_column_chart,
-				"Month",
-				265 /* left */,
-				50 /* top */,
-				800 /* width */,
-				500 /* height */,
-				"#effdff" /* background_color */,
-				0 /* not legend_position_bottom */,
-				"corechart" /* google_package_name */ );
+	google_chart =
+		google_chart_new(
+			google_column_chart,
+			"Month",
+			265 /* left */,
+			50 /* top */,
+			800 /* width */,
+			500 /* height */,
+			"#effdff" /* background_color */,
+			0 /* not legend_position_bottom */,
+			GOOGLE_CORECHART /* google_package_name */ );
 
 	list_append_pointer(	google_chart->google_datatype_name_list,
 				"periodofrecord" );
@@ -57,24 +58,28 @@ void test_bar( void )
 	google_chart_set_point(google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"jan",
+				(char *)0 /* hhmm */,
 				"periodofrecord",
 				1.3 );
 
 	google_chart_set_point(google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"jan",
+				(char *)0 /* hhmm */,
 				"current",
 				1.4 );
 
 	google_chart_set_point(google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"feb",
+				(char *)0 /* hhmm */,
 				"periodofrecord",
 				2.3 );
 
 	google_chart_set_point(google_chart->xaxis_list,
 				google_chart->google_datatype_name_list,
 				"feb",
+				(char *)0 /* hhmm */,
 				"current",
 				2.4 );
 
@@ -102,7 +107,8 @@ void test_bar( void )
 				google_chart->legend_position_bottom,
 				1 /* chart_type_bar */,
 				google_chart->google_package_name,
-				0 /* not dont_display_range_selector */ );
+				0 /* not dont_display_range_selector */,
+				daily /* aggregate_level */ );
 
 	printf( "</body></html>\n" );
 } /* test_bar() */
@@ -111,16 +117,17 @@ void test_timeline( void )
 {
 	GOOGLE_CHART *google_chart;
 
-	google_chart = google_chart_new(
-				google_time_line,
-				"Date",
-				265 /* left */,
-				50 /* top */,
-				800 /* width */,
-				500 /* height */,
-				"#effdff" /* background_color */,
-				0 /* not legend_position_bottom */,
-				"annotatedtimeline" /* google_package_name */);
+	google_chart =
+		google_chart_new(
+			google_time_line,
+			"Date",
+			265 /* left */,
+			50 /* top */,
+			800 /* width */,
+			500 /* height */,
+			"#effdff" /* background_color */,
+			0 /* not legend_position_bottom */,
+			GOOGLE_ANNOTATED_TIMELINE /* google_package_name */);
 
 	list_append_pointer(	google_chart->google_datatype_name_list,
 				"stage" );
@@ -191,7 +198,8 @@ void test_timeline( void )
 				google_chart->legend_position_bottom,
 				0 /* not chart_type_bar */,
 				google_chart->google_package_name,
-				0 /* not dont_display_range_selector */ );
+				0 /* not dont_display_range_selector */,
+				daily /* aggregate_level */ );
 
 	printf( "</body></html>\n" );
 } /* test_timeline() */

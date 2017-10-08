@@ -36,7 +36,8 @@ EXECUTABLES=								\
 		post_choose_process					\
 		output_email						\
 		output_transmit						\
-		output_time_chart					\
+		output_grace_chart					\
+		output_google_chart					\
 		output_histogram					\
 		output_group						\
 		add_column						\
@@ -92,6 +93,7 @@ EXECUTABLES=								\
 		generic_gracechart					\
 		generic_high_average_low				\
 		generic_easychart					\
+		generic_googlechart					\
 		generic_daily_moving_average				\
 		generic_output_annual_periods				\
 		generic_output_exceedance				\
@@ -268,11 +270,11 @@ post_delete_folder_block: post_delete_folder_block.c			\
 
 post_change_sort_order: post_change_sort_order.c			\
 	${EXTERNAL_LIBS}						\
-	${LIB}/query_attribute_statistics_list.o
+	${LIB}/row_security.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/query_attribute_statistics_list.o 		\
+		${LIB}/row_security.o			 		\
 		post_change_sort_order.c				\
 		-o post_change_sort_order
 	touch ${CGI_HOME}/post_change_sort_order
@@ -606,14 +608,23 @@ output_transmit: output_transmit.c					\
 		output_transmit.c					\
 		-o output_transmit
 
-output_time_chart: output_time_chart.c					\
+output_grace_chart: output_grace_chart.c				\
 		${EXTERNAL_LIBS} ${LIB}/grace.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		output_time_chart.c					\
+		output_grace_chart.c					\
 		${LIB}/grace.o						\
-		-o output_time_chart
+		-o output_grace_chart
+
+output_google_chart: output_google_chart.c				\
+		${EXTERNAL_LIBS} ${LIB}/google_chart.o
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		output_google_chart.c					\
+		${LIB}/google_chart.o					\
+		-o output_google_chart
 
 generic_gracechart: generic_gracechart.c				\
 		${EXTERNAL_LIBS} ${LIB}/grace.o
@@ -656,6 +667,16 @@ generic_easychart: generic_easychart.c					\
 		${LIB}/easycharts.o					\
 		generic_easychart.c					\
 		-o generic_easychart
+
+generic_googlechart: generic_googlechart.c				\
+		${EXTERNAL_LIBS}					\
+		${LIB}/google_chart.o
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${LIB}/google_chart.o					\
+		generic_googlechart.c					\
+		-o generic_googlechart
 
 output_histogram: output_histogram.c					\
 		${EXTERNAL_LIBS} ${LIB}/grace.o
@@ -706,6 +727,11 @@ drop_column: drop_column.c						\
 		${EXTERNAL_LIBS}					\
 		drop_column.c						\
 		-o drop_column
+	touch ${CGI_HOME}/drop_column
+	/bin/rm -f ${CGI_HOME}/drop_column
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_appaserver/drop_column			\
+	${CGI_HOME}
 
 drop_table: drop_table.c						\
 	${EXTERNAL_LIBS}
@@ -1033,15 +1059,6 @@ output_choose_folder_process_menu: 					\
 		${LIB}/folder_menu.o					\
 		${LIB}/horizontal_menu.o				\
 		-o output_choose_folder_process_menu
-
-accumulate_folder_row_access_count: 					\
-		accumulate_folder_row_access_count.c 			\
-			${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		accumulate_folder_row_access_count.c			\
-		-o accumulate_folder_row_access_count
 
 output_choose_role_menu: output_choose_role_menu.c 			\
 			${EXTERNAL_LIBS}

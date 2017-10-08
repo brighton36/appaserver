@@ -1,4 +1,4 @@
-/* document.c 								*/
+/* $APPASERVER_HOME/library/document.c					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver document ADT.					*/
 /*									*/
@@ -142,6 +142,18 @@ void document_output_dynarch_heading( FILE *output_stream )
 			HORIZONTAL_MENU_RELATIVE_DIRECTORY );
 } /* document_output_dynarch_heading() */
 
+void document_output_html_stream( FILE *output_stream )
+{
+	fprintf( output_stream,
+"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\">\n" );
+
+	fprintf( output_stream,
+"<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" );
+
+	fflush( output_stream );
+
+} /* document_output_html_stream() */
+
 void document_output_head_stream(
 				FILE *output_stream,
 				char *application_name,
@@ -158,8 +170,9 @@ void document_output_head_stream(
 
 	if ( !title || !*title ) title = application_name;
 
+	document_output_html_stream( output_stream );
+
 	fprintf( output_stream,
-"<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
 "<head>\n\n" );
 
 	fprintf( output_stream,

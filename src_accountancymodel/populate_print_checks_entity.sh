@@ -8,9 +8,11 @@
 
 echo "Starting: $0 $*" 1>&2
 
-if [ "$#" -ne 2 ]
+if [ "$#" -ne 3 ]
 then
-	echo "Usage: $0 application fund" 1>&2
+	echo "Usage: $0 application fund filter" 1>&2
+
+	echo "filter = {both,taxes,not_taxes}" 1>&2
 	exit 1
 fi
 
@@ -25,6 +27,7 @@ else
 fi
 
 fund=$2
+filter=$3
 
 select="full_name, concat( street_address, ' [', sum( ifnull( credit_amount, 0) ) - sum( ifnull( debit_amount, 0 ) ),']' )"
 
@@ -39,15 +42,52 @@ else
 	fund_where="1 = 1"
 fi
 
-account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks'"
-
 group="full_name, street_address"
 
 having="sum( ifnull( credit_amount, 0 ) ) - sum( ifnull( debit_amount, 0 ) ) > 0"
 
-where="$join_where and $account_where and $fund_where"
+function select_both ()
+{
+	account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks'"
 
-echo "select $select from $from where $where group by $group having $having;" |
-sql.e
+	where="$join_where and $account_where and $fund_where"
+
+	echo "select $select from $from where $where group by $group having $having;" |
+	sql.e
+
+}
+
+function select_taxes ()
+{
+	account_where="account.account = 'sales_tax_payable'"
+
+	where="$join_where and $account_where and $fund_where"
+
+	echo "select $select from $from where $where group by $group having $having;" |
+	sql.e
+
+}
+
+function select_not_taxes ()
+{
+	account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks' and account.account <> 'sales_tax_payable'"
+
+	where="$join_where and $account_where and $fund_where"
+
+	echo "select $select from $from where $where group by $group having $having;" |
+	sql.e
+
+}
+
+if [ "$filter" = "both" ]
+then
+	select_both
+elif [ "$filter" = "taxes" ]
+then
+	select_taxes
+elif [ "$filter" = "not_taxes" ]
+then
+	select_not_taxes
+fi
 
 exit 0

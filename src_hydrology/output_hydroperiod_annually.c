@@ -1,8 +1,8 @@
-/* --------------------------------------------------- 	*/
-/* output_hydroperiod_annually.c		      	*/
-/* --------------------------------------------------- 	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ------------------------------------------------------------ 	*/
+/* $APPASERVER_HOME/src_hydrology/output_hydroperiod_annually.c	      	*/
+/* ------------------------------------------------------------ 	*/
+/* Freely available software: see Appaserver.org			*/
+/* ------------------------------------------------------------ 	*/
 
 /* Includes */
 /* -------- */
@@ -39,7 +39,9 @@
 /* --------- */
 #define REPORT_TITLE				"Annual Hydroperiod"
 #define DEFAULT_OUTPUT_MEDIUM			"summary_table"
+#define FILENAME_STEM				"hydroperiod"
 
+/*
 #define OUTPUT_FILE_TEXT_FILE	"%s/%s/hydroperiod_%d_%d_%d.txt"
 #define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/hydroperiod_%d_%d_%d.txt"
 #define FTP_FILE_TEXT_FILE	"/%s/hydroperiod_%d_%d_%d.txt"
@@ -47,6 +49,7 @@
 #define OUTPUT_FILE_SPREADSHEET	"%s/%s/hydroperiod_%d_%d_%d.csv"
 #define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/hydroperiod_%d_%d_%d.csv"
 #define FTP_FILE_SPREADSHEET	"/%s/hydroperiod_%d_%d_%d.csv"
+*/
 
 #define DATE_PIECE		 		0
 #define TIME_PIECE		 		1
@@ -77,6 +80,8 @@ int main( int argc, char **argv )
 	DOCUMENT *document = {0};
 	ANNUAL_HYDROPERIOD *annual_hydroperiod;
 	char *station_elevation_null;
+	char begin_year_string[ 16 ];
+	char end_year_string[ 16 ];
 
 	if ( argc != 9 )
 	{
@@ -133,6 +138,9 @@ int main( int argc, char **argv )
 				"measurement",
 				"measurement_date" );
 	}
+
+	sprintf( begin_year_string, "%d", begin_year );
+	sprintf( end_year_string, "%d", end_year );
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -237,7 +245,7 @@ int main( int argc, char **argv )
 					argv[ 0 ],
 					application_name,
 					appaserver_parameter_file->
-						appaserver_mount_point,
+						document_root,
 					annual_hydroperiod->elevation_offset ) )
 		{
 			printf(
@@ -275,12 +283,61 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "detail_transmit" ) == 0
 	||   strcmp( output_medium, "detail_text_file" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *ftp_filename;
+		char *output_pipename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"txt" );
+
+		appaserver_link_file->begin_date_string = begin_year_string;
+		appaserver_link_file->end_date_string = end_year_string;
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
 
 		annual_hydroperiod_get_report_title(
 					title,
@@ -288,6 +345,7 @@ int main( int argc, char **argv )
 					begin_year,
 					end_year );
 
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_TEXT_FILE,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -295,6 +353,7 @@ int main( int argc, char **argv )
 			 begin_year,
 			 end_year,
 			 process_id );
+*/
 	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
@@ -308,6 +367,7 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -329,6 +389,7 @@ int main( int argc, char **argv )
 			 	end_year,
 			 	process_id );
 		}
+*/
 	
 /*
 		sprintf( sys_string,
@@ -367,12 +428,62 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "detail_spreadsheet" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *ftp_filename;
+		char *output_pipename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		appaserver_link_file->begin_date_string = begin_year_string;
+		appaserver_link_file->end_date_string = end_year_string;
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 
 		annual_hydroperiod_get_report_title(
 					title,
@@ -380,6 +491,7 @@ int main( int argc, char **argv )
 					begin_year,
 					end_year );
 
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_SPREADSHEET,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -387,6 +499,7 @@ int main( int argc, char **argv )
 			 begin_year,
 			 end_year,
 			 process_id );
+*/
 	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
@@ -400,6 +513,7 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 					application_name ) == 'y' )
 		{
@@ -421,6 +535,7 @@ int main( int argc, char **argv )
 			 	end_year,
 			 	process_id );
 		}
+*/
 	
 		sprintf( sys_string,
 			 "tr '|' ',' > %s",
@@ -453,12 +568,61 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "summary_spreadsheet" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *ftp_filename;
+		char *output_pipename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		appaserver_link_file->begin_date_string = begin_year_string;
+		appaserver_link_file->end_date_string = end_year_string;
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
 
 		annual_hydroperiod_get_report_title(
 					title,
@@ -466,6 +630,7 @@ int main( int argc, char **argv )
 					begin_year,
 					end_year );
 
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_SPREADSHEET,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -473,6 +638,7 @@ int main( int argc, char **argv )
 			 begin_year,
 			 end_year,
 			 process_id );
+*/
 	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
@@ -486,12 +652,14 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
+/*
 		sprintf( ftp_filename, 
 			 FTP_FILE_SPREADSHEET,
 			 application_name,
 			 begin_year,
 			 end_year,
 			 process_id );
+*/
 	
 		sprintf( sys_string,
 			 "tr '|' ',' > %s",
@@ -524,12 +692,61 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "summary_transmit" ) == 0
 	||   strcmp( output_medium, "summary_text_file" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *ftp_filename;
+		char *output_pipename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"txt" );
+
+		appaserver_link_file->begin_date_string = begin_year_string;
+		appaserver_link_file->end_date_string = end_year_string;
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
 
 		annual_hydroperiod_get_report_title(
 					title,
@@ -537,6 +754,7 @@ int main( int argc, char **argv )
 					begin_year,
 					end_year );
 
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_TEXT_FILE,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -544,6 +762,7 @@ int main( int argc, char **argv )
 			 begin_year,
 			 end_year,
 			 process_id );
+*/
 	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
@@ -557,12 +776,14 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
+/*
 		sprintf( ftp_filename, 
 			 FTP_FILE_TEXT_FILE, 
 			 application_name,
 			 begin_year,
 			 end_year,
 			 process_id );
+*/
 	
 /*
 		sprintf( sys_string,

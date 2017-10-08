@@ -8,9 +8,9 @@
 
 echo "Starting: $0 $*" 1>&2
 
-if [ "$#" -lt 3 ]
+if [ "$#" -ne 9 ]
 then
-	echo "Usage: $0 application login_name process [station] [datatype] [plot_for_station_check_yn] [dont_filter_manipulate_yn] [validation_required_yn]" 1>&2
+	echo "Usage: $0 application login_name process station datatype plot_for_station_check_yn dont_filter_manipulate_yn validation_required_yn filter_calibrated_yn" 1>&2
 	exit 1
 fi
 
@@ -24,43 +24,44 @@ datatype=`get_table_name $application datatype`
 process=`get_table_name $application process`
 appaserver_user_agency=`get_table_name $application appaserver_user_agency`
 
-if [ "$#" -ge 4 -a "$4" != "station" ]
+if [ "$4" != "station" ]
 then
 	station_and_clause="and ($station_datatype.station in (`single_quotes_around.e $4`)"
 else
 	station_and_clause="and (1 = 1"
-#	if [ "$#" -ge 5 -a "$5" != "datatype" ]
-#	then
-#		station_and_clause="and (1 = 2"
-#	else
-#		station_and_clause="and (1 = 1"
-#	fi
 fi
 
-if [ "$#" -ge 5 -a "$5" != "datatype" ]
+if [ "$5" != "datatype" ]
 then
 	datatype_and_clause="and $station_datatype.datatype in (`single_quotes_around.e $5`))"
 else
 	datatype_and_clause="and 1 = 1)"
 fi
 
-if [ "$#" -ge 6 -a "$6" != "plot_for_station_check_yn" ]
+if [ "$6" != "plot_for_station_check_yn" ]
 then
 	plot_for_station_check_yn_and_clause="and $station_datatype.plot_for_station_check_yn = '$6'"
 else
 	plot_for_station_check_yn_and_clause="and 1 = 1"
 fi
 
-if [ "$#" -ge 7 -a "$7" = "y" ]
+if [ "$7" = "y" ]
 then
 	dont_filter_manipulate_yn="y"
 fi
 
-if [ "$#" -ge 8 -a "$8" != "validation_required_yn" ]
+if [ "$8" != "validation_required_yn" ]
 then
 	validation_required_yn_and_clause="and $station_datatype.validation_required_yn = '$8'"
 else
 	validation_required_yn_and_clause="and 1 = 1"
+fi
+
+if [ "$9" = "y" ]
+then
+	calibrated_yn_and_clause="and $datatype.calibrated_yn = 'y'"
+else
+	calibrated_yn_and_clause="and 1 = 1"
 fi
 
 process_group=`echo "	select process_group
@@ -108,6 +109,7 @@ echo "	select $select							\
 	  $datatype_and_clause						\
 	  $plot_for_station_check_yn_and_clause				\
 	  $validation_required_yn_and_clause				\
+	  $calibrated_yn_and_clause					\
 	  $station_datatype_and_clause					\
 	order by $station_table.station, $station_datatype.datatype;"	|
 sql.e '^'								|

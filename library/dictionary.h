@@ -294,11 +294,14 @@ void dictionary_new_index_key_list_for_data_list(
 					LIST *old_key_list,
 					LIST *new_key_list,
 					int index );
+
 void dictionary_search_replace_special_characters(
 					DICTIONARY *post_dictionary );
+
 void dictionary_set_pointer(		DICTIONARY *d,
 					char *key,
 					char *data );
+
 DICTIONARY *dictionary_subtract_dictionary(
 					DICTIONARY *d1,
 					DICTIONARY *d2 );
@@ -324,6 +327,7 @@ boolean dictionary_populated_key_exists_index_one(
 boolean dictionary_non_populated_key_exists_index_zero(
 					DICTIONARY *dictionary,
 					char *key );
+
 LIST *dictionary_get_index_zero_data_list(
 					DICTIONARY *dictionary,
 					LIST *attribute_name_list );
@@ -347,14 +351,17 @@ LIST *dictionary_get_indexed_data_list(
 LIST *dictionary_get_populated_index_list(
 					DICTIONARY *dictionary,
 					char *key_prefix );
+
 LIST *dictionary_with_populated_index_list_get_index_data_list(
 					DICTIONARY *dictionary,
 					LIST *populated_index_list,
 					char *key_prefix );
+
 DICTIONARY *dictionary_record_to_dictionary(
 					LIST *key_list,
 					char *record,
 					char delimiter );
+
 void dictionary_trim_double_bracked_data(DICTIONARY *dictionary );
 
 LIST *dictionary_extract_prefixed_key_list(
@@ -408,10 +415,12 @@ void dictionary_output_html_table(
 					char *heading1,
 					char *heading2,
 					boolean align_right );
+
 LIST *dictionary_using_list_get_index_data_list(
 					DICTIONARY *dictionary,
 					LIST *key_list,
 					int index );
+
 void dictionary_convert_index_to_index_zero(
 					DICTIONARY *dictionary,
 					int index );
@@ -422,11 +431,14 @@ void dictionary_delete_keys_with_prefix(
 					DICTIONARY *dictionary, 
 					char *prefix );
 DICTIONARY *dictionary_copy(		DICTIONARY *dictionary );
+
 LIST *dictionary_get_key_data_list(	DICTIONARY *dictionary,
 					LIST *key_list,
 					char delimiter );
+
 void dictionary_clear_key_list(		DICTIONARY *dictionary,
 					LIST *key_list );
+
 void dictionary_clear_key_list_index_zero(
 					DICTIONARY *dictionary,
 					LIST *key_list );

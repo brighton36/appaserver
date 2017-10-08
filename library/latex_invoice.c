@@ -79,7 +79,8 @@ LATEX_INVOICE_CUSTOMER *latex_invoice_customer_new(
 double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					char *item_key,
 					char *item,
-					int quantity,
+					double quantity,
+					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount )
 {
@@ -89,18 +90,20 @@ double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					item_key,
 					item,
 					quantity,
+					quantity_decimal_places,
 					retail_price,
 					discount_amount );
 
 	list_append_pointer( invoice_line_item_list, line_item );
-	return LATEX_INVOICE_EXTENSION;
+	return LATEX_EXTENSION( quantity, retail_price, discount_amount );
 
 } /* latex_invoice_append_line_item() */
 
 LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 					char *item_key,
 					char *item,
-					int quantity,
+					double quantity,
+					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount )
 {
@@ -120,6 +123,7 @@ LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 	h->item_key = item_key;
 	h->item = item;
 	h->quantity = quantity;
+	h->quantity_decimal_places = quantity_decimal_places;
 	h->retail_price = retail_price;
 	h->discount_amount = discount_amount;
 	return h;
@@ -338,8 +342,6 @@ void latex_invoice_output_invoice_footer(
 					boolean exists_discount_amount,
 					boolean is_estimate )
 {
-	char buffer[ 128 ];
-
 	if ( sales_tax )
 	{
 		fprintf( output_stream, "Sales tax &" );
@@ -352,7 +354,7 @@ void latex_invoice_output_invoice_footer(
 
 		fprintf( output_stream,
 "& %s \\\\\n",
-		 	commas_in_double( buffer, sales_tax ) );
+		 	timlib_commas_in_dollars( sales_tax ) );
 
 	}
 
@@ -368,7 +370,7 @@ void latex_invoice_output_invoice_footer(
 
 		fprintf( output_stream,
 "& %s \\\\\n",
-		 	commas_in_double( buffer, shipping_charge ) );
+		 	timlib_commas_in_dollars( shipping_charge ) );
 
 	}
 
@@ -384,7 +386,7 @@ void latex_invoice_output_invoice_footer(
 
 		fprintf( output_stream,
 "& -%s \\\\\n",
-		 	commas_in_double( buffer, total_payment ) );
+		 	timlib_commas_in_dollars( total_payment ) );
 
 	}
 
@@ -401,11 +403,10 @@ void latex_invoice_output_invoice_footer(
 
 	fprintf( output_stream,
 "& \\bf \\$%s \\\\\n",
-		 commas_in_double(	buffer,
-					extension_total +
-					sales_tax +
-					shipping_charge -
-					total_payment ) );
+		 timlib_place_commas_in_money(	extension_total +
+						sales_tax +
+						shipping_charge -
+						total_payment ) );
 
 } /* latex_invoice_output_invoice_footer() */
 
@@ -488,9 +489,10 @@ void latex_invoice_output_invoice_line_items(
 	LATEX_INVOICE_LINE_ITEM *line_item;
 	char buffer[ 256 ];
 	char dollar_string[ 3 ];
-	int quantity;
+	double quantity;
 	double retail_price;
 	double discount_amount;
+	double extension;
 
 	strcpy( dollar_string, "\\$" );
 
@@ -515,10 +517,11 @@ void latex_invoice_output_invoice_line_items(
 			discount_amount = line_item->discount_amount;
 
 			fprintf( output_stream,
-"%s & %s & %s%.2lf",
+"%s & %.*lf & %s%.2lf",
 			 	format_initial_capital(
 					buffer, line_item->item ),
-			 	place_commas_in_long( quantity ),
+				line_item->quantity_decimal_places,
+			 	quantity,
 			 	dollar_string,
 			 	retail_price );
 
@@ -530,20 +533,27 @@ void latex_invoice_output_invoice_line_items(
 			 		 discount_amount );
 			}
 
+			extension = LATEX_EXTENSION(
+					quantity,
+					retail_price,
+					discount_amount );
+
 			fprintf( output_stream,
-"& %s%.2lf \\\\\n",
+"& %s%s \\\\\n",
 			 	 dollar_string,
-			 	 LATEX_INVOICE_EXTENSION );
+			 	 timlib_place_commas_in_money(
+					extension ) );
 
 			if ( *dollar_string ) *dollar_string = '\0';
 		}
 		else
 		{
 			fprintf( output_stream,
-"%s & %s \\\\\n",
+"%s & %.*lf \\\\\n",
 			 	 format_initial_capital(
 					buffer, line_item->item ),
-			 	 place_commas_in_long( quantity ) );
+				 line_item->quantity_decimal_places,
+			 	 quantity );
 		}
 
 	} while( list_next( invoice_line_item_list ) );

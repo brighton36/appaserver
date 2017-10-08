@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_creel/estimated_fishing_effort_hours.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_creel/estimated_fishing_effort_hours.c	*/
+/* -----------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -32,13 +32,8 @@ enum output_medium { output_medium_stdout, text_file, table };
 /* Constants */
 /* --------- */
 #define ROWS_BETWEEN_HEADING			20
-#define DEFAULT_OUTPUT_MEDIUM			output_medium_stdout
+#define DEFAULT_OUTPUT_MEDIUM			table
 
-/*
-#define OUTPUT_TEMPLATE		"%s/creel/estimated_effort_hours_%d_%s_%d.csv"
-#define FTP_PREPEND_TEMPLATE	"%s://creel/%s/estimated_effort_hours_%d_%s_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE "/creel/estimated_effort_hours_%d_%s_%d.csv"
-*/
 #define TOTALS_FILENAME_LABEL	"monthly_totals"
 
 /* Prototypes */
@@ -182,16 +177,16 @@ int main( int argc, char **argv )
 	}
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( begin_month_integer < 1
 	||   end_month_integer > 12
@@ -281,6 +276,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n",
 			format_initial_capital( buffer, process_name ) );
 		printf( "<h2>\n" );
+		printf( "Sport and Guide Combined\n" );
 		fflush( stdout );
 		system( "date '+%x %H:%M'" );
 		fflush( stdout );
@@ -573,7 +569,6 @@ void output_month_sheet_list_text_file(
 	sprintf( year_string, "%d", year );
 	appaserver_link_file->begin_date_string = year_string;
 
-
 	if ( !list_rewind( month_sheet_list ) ) return;
 
 	do {
@@ -598,15 +593,6 @@ void output_month_sheet_list_text_file(
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_TEMPLATE,
-			 appaserver_mount_point,
-			 year,
-			 month_abbreviation, 
-			 process_id );
-*/
-
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -614,28 +600,6 @@ void output_month_sheet_list_text_file(
 			document_close();
 			exit( 1 );
 		}
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_PREPEND_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	year,
-			 	month_abbreviation,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_NONPREPEND_TEMPLATE, 
-			 	year,
-			 	month_abbreviation,
-			 	process_id );
-		}
-*/
 
 		ftp_filename =
 			appaserver_link_get_link_prompt(
@@ -667,16 +631,24 @@ void output_month_sheet_list_text_file(
 				output_file,
 				month_sheet );
 
-		fprintf( output_file,
-			 "Total,%.1lf,%.1lf\n",
-			 month_sheet->
-				total_row->
-				vessel->
-				estimated_park_fishing_vessels,
-			 month_sheet->
-				total_row->
-				fishing_trip->
-				park_effort_hours_day );
+		if ( month_sheet->total_row )
+		{
+			fprintf(output_file,
+			 	"Total,%.1lf,%.1lf\n",
+			 	month_sheet->
+					total_row->
+					vessel->
+					estimated_park_fishing_vessels,
+			 	month_sheet->
+					total_row->
+					fishing_trip->
+					park_effort_hours_day );
+		}
+		else
+		{
+			fprintf(output_file,
+			 	"Total,0.0,0.0\n" );
+		}
 
 		fclose( output_file );
 
@@ -825,7 +797,8 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 		timlib_integer2full_month(
 			begin_month );
 
-	appaserver_link_file->begin_date_string = begin_month_string;
+	appaserver_link_file->begin_date_string =
+		strdup( begin_month_string );
 
 	end_month_string =
 		timlib_integer2full_month(
@@ -833,7 +806,8 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 
 	sprintf( end_date_string, "%s-%d", end_month_string, year );
 
-	appaserver_link_file->end_date_string = end_date_string;
+	appaserver_link_file->end_date_string =
+		strdup( end_date_string );
 
 	output_filename =
 		appaserver_link_get_output_filename(
@@ -866,15 +840,6 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf( output_filename, 
-		 OUTPUT_TEMPLATE,
-		 appaserver_mount_point,
-		 year,
-		 TOTALS_FILENAME_LABEL,
-		 process_id );
-*/
-
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -883,35 +848,13 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 		exit( 1 );
 	}
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-			year,
-		 	TOTALS_FILENAME_LABEL,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_NONPREPEND_TEMPLATE, 
-			year,
-		 	TOTALS_FILENAME_LABEL,
-		 	process_id );
-	}
-*/
-
-	strcpy(	begin_month_string,
+	begin_month_string =
 		timlib_get_three_character_month_string(
-			begin_month - 1 ) );
+			begin_month - 1 );
 
-	strcpy(	end_month_string,
+	end_month_string =
 		timlib_get_three_character_month_string(
-		end_month - 1 ) );
+			end_month - 1 );
 
 	fprintf(	output_file,
 			"Estimated Park-wide Total for %s-%s/%d\n",
@@ -944,20 +887,6 @@ void output_month_total_sheet_text_file(TOTAL_SHEET *total_sheet,
 	}
 
 	fclose( output_file );
-
-/*
-	output_total_sheet_total_row_list_text_file(
-				output_file,
-				total_sheet->total_row_list,
-				total_sheet->total_row->catch_area_list );
-
-	output_total_sheet_total_row_text_file(
-				output_file,
-				total_sheet->total_row,
-				total_sheet->total_row->catch_area_list );
-
-	fclose( output_file );
-*/
 
 	sprintf( ftp_prompt,
 	"%s: &lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",

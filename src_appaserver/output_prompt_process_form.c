@@ -478,6 +478,7 @@ int main( int argc, char **argv )
 		form->insert_update_key,
 		form->target_frame,
 		0 /* output_submit_reset_buttons */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -485,7 +486,8 @@ int main( int argc, char **argv )
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	form_output_body(
 		&form->current_reference_number,
@@ -526,10 +528,12 @@ int main( int argc, char **argv )
 		with_dynarch_menu /* with_back_to_top_button */,
 		0 /* form_number */,
 		post_change_javascript,
-		(LIST *)0 /* pair_one2m_related_folder_name_list */ );
+		(LIST *)0 /* pair_one2m_related_folder_name_list */,
+		(LIST *)0 /* form_button_list */ );
 
 	document_close();
 	exit( 0 );
+
 } /* main() */
 
 LIST *get_element_list(	char **preprompt_help_text,
@@ -647,6 +651,20 @@ LIST *get_element_list(	char **preprompt_help_text,
 				role_name,
 				session,
 				1 /* with_populate_drop_downs */ );
+#ifdef NOT_DEFINED
+		process_parameter_list = 
+			process_parameter_list_new(
+				login_name,
+				application_name,
+				process_name,
+				override_row_restrictions,
+				1 /* with_preprompt */,
+				preprompt_dictionary
+					/* parameter_dictionary */,
+				role_name,
+				session,
+				1 /* with_populate_drop_downs */ );
+#endif
 	}
 
 	if ( process_parameter_list

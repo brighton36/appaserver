@@ -12,8 +12,13 @@
 
 /* Constants */
 /* --------- */
+#define LATEX_EXTENSION( quantity, retail_price, discount_amount )	\
+				( quantity * retail_price - discount_amount )
+
+/*
 #define LATEX_INVOICE_EXTENSION \
 	( (double)quantity * retail_price - discount_amount )
+*/
 
 /* Structures */
 /* ---------- */
@@ -21,7 +26,8 @@ typedef struct
 {
 	char *item_key;
 	char *item;
-	int quantity;
+	double quantity;
+	int quantity_decimal_places;
 	double retail_price;
 	double discount_amount;
 } LATEX_INVOICE_LINE_ITEM;
@@ -101,14 +107,16 @@ void latex_invoice_customer_free(	LATEX_INVOICE_CUSTOMER *
 double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					char *item_key,
 					char *item,
-					int quantity,
+					double quantity,
+					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount );
 
 LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 					char *item_key,
 					char *item,
-					int quantity,
+					double quantity,
+					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount );
 

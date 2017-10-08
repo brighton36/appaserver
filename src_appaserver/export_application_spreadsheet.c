@@ -24,25 +24,19 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_FILE_TEMPLATE		"%s/%s/%s_%d.csv"
-#define FILE_TEMPLATE			"%s_%d.csv"
-#define OUTPUT_ZIP_FILE_TEMPLATE	"%s/%s/%s_%d.zip"
-#define PREPEND_FTP_FILE_TEMPLATE	"%s://%s/%s/%s_%d.zip"
-*/
 
 /* Prototypes */
 /* ---------- */
 void remove_files(	LIST *folder_name_list,
 			char *document_root_directory,
-			pid_t process_id,
+			char *date_string,
 			char *application_name );
 
 /* Returns link_prompt */
 /* ------------------- */
 char *output_zip_file(	LIST *folder_name_list,
 			char *document_root_directory,
-			pid_t process_id,
+			char *date_string,
 			char *application_name );
 
 void export_output_spreadsheet_folder(	char *output_filename,
@@ -67,6 +61,7 @@ int main( int argc, char **argv )
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	char *output_filename;
 	char *link_prompt;
+	char *date_string;
 
 	output_starting_argv_stderr( argc, argv );
 
@@ -89,6 +84,8 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
+	date_string = pipe2string( "now.sh ymd" );
+
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	appaserver_link_file =
@@ -100,8 +97,8 @@ int main( int argc, char **argv )
 	 		appaserver_parameter_file->document_root,
 			(char *)0 /* filename_stem */,
 			application_name,
-			process_id,
-			(char *)0 /* session */,
+			0 /* process_id */,
+			date_string /* session */,
 			"csv" );
 
 	document = document_new( "", application_name );
@@ -151,15 +148,6 @@ int main( int argc, char **argv )
 		if ( strcmp( folder_name, "appaserver_sessions" ) == 0 )
 			continue;
 
-/*
-		sprintf(output_filename, 
-		 	OUTPUT_FILE_TEMPLATE,
-			appaserver_parameter_file->
-		 		appaserver_mount_point,
-		 	application_name, 
-		 	folder_name,
-		 	process_id );
-*/
 		appaserver_link_file->filename_stem = folder_name;
 
 		output_filename =
@@ -187,24 +175,14 @@ int main( int argc, char **argv )
 			folder_name_list,
 			appaserver_parameter_file->
 		 		document_root,
-			process_id,
+			date_string,
 			application_name );
 
 	remove_files(	folder_name_list,
 			appaserver_parameter_file->
 				document_root,
-			process_id,
+			date_string,
 			application_name );
-
-/*
-	sprintf(	ftp_filename,
-			PREPEND_FTP_FILE_TEMPLATE,
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			application_name,
-			application_name,
-			process_id );
-*/
 
 	appaserver_library_output_ftp_prompt(
 				link_prompt,
@@ -220,7 +198,7 @@ int main( int argc, char **argv )
 
 void remove_files(	LIST *folder_name_list,
 			char *document_root_directory,
-			pid_t process_id,
+			char *date_string,
 			char *application_name )
 {
 	APPASERVER_LINK_FILE *appaserver_link_file;
@@ -239,8 +217,8 @@ void remove_files(	LIST *folder_name_list,
 	 		document_root_directory,
 			application_name /* filename_stem */,
 			application_name,
-			process_id,
-			(char *)0 /* session */,
+			0 /* process_id */,
+			date_string /* session */,
 			"csv" );
 
 	do {
@@ -284,7 +262,7 @@ void remove_files(	LIST *folder_name_list,
 /* ------------------- */
 char *output_zip_file(	LIST *folder_name_list,
 			char *document_root_directory,
-			pid_t process_id,
+			char *date_string,
 			char *application_name )
 {
 	APPASERVER_LINK_FILE *appaserver_link_file;
@@ -304,8 +282,8 @@ char *output_zip_file(	LIST *folder_name_list,
 	 		document_root_directory,
 			application_name /* filename_stem */,
 			application_name,
-			process_id,
-			(char *)0 /* session */,
+			0 /* process_id */,
+			date_string /* session */,
 			"zip" );
 
 	output_filename =
@@ -470,7 +448,6 @@ void export_output_spreadsheet_folder(	char *output_filename,
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -489,26 +466,6 @@ void export_output_spreadsheet_folder(	char *output_filename,
 			folder->folder_name,
 			(DICTIONARY *)0 /* query_dictionary */,
 			(ROLE *)0 );
-
-#ifdef NOT_DEFINED
-	query =	query_new(	application_name,
-				(char *)0 /* login_name */,
-				folder->folder_name,
-				(LIST *)0 /* append_isa_attribute_list */,
-				(DICTIONARY *)0 /* query_dictionary */,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				(ROLE *)0,
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
 
 	row_dictionary_list =
 		query_get_row_dictionary_list(

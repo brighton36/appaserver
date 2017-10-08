@@ -72,7 +72,7 @@ int main( int argc, char **argv )
 	char *role_name, *state;
 	char *insert_update_key;
 	char *target_frame;
-	DICTIONARY *original_post_dictionary;
+	DICTIONARY *original_post_dictionary = {0};
 	char *lookup_option_radio_button;
 	pid_t dictionary_process_id;
 	ROLE *role;
@@ -82,25 +82,86 @@ int main( int argc, char **argv )
 	char *base_folder_name = {0};
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 
+	if ( argc == 2 )
+	{
+		char buffer[ 65536 ];
+		char piece_buffer[ 4096 ];
+
+		timlib_strcpy( buffer, argv[ 1 ], 65536 );
+
+		unescape_string( buffer );
+
+		if ( character_count( '^', buffer ) != 9 )
+		{
+			fprintf( stderr,
+				 "Usage error for %s.\n",
+				 argv[ 0 ] );
+			exit( 1 );
+		}
+
+		piece( piece_buffer, '^', buffer, 0 );
+		login_name = strdup( piece_buffer );
+
+		piece( piece_buffer, '^', buffer, 1 );
+		application_name = strdup( piece_buffer );
+
+		piece( piece_buffer, '^', buffer, 2 );
+		session = strdup( piece_buffer );
+
+		piece( piece_buffer, '^', buffer, 3 );
+		folder_name = strdup( piece_buffer );
+
+		piece( piece_buffer, '^', buffer, 4 );
+		role_name = strdup( piece_buffer );
+
+		piece( piece_buffer, '^', buffer, 5 );
+		state = strdup( piece_buffer );
+
+		piece( piece_buffer, '^', buffer, 6 );
+		insert_update_key = strdup( piece_buffer );
+
+		piece( piece_buffer, '^', buffer, 7 );
+		target_frame = strdup( piece_buffer );
+
+		piece( piece_buffer, '^', buffer, 8 );
+		dictionary_process_id = atoi( piece_buffer );
+
+		piece( piece_buffer, '^', buffer, 9 );
+
+		original_post_dictionary =
+			dictionary_string2dictionary(
+				piece_buffer );
+	}
+	else
 	if ( argc < 10 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state insert_update_key target_frame dictionary_process_id [ignored]\n",
+"Usage: %s login_name application session folder role state insert_update_key target_frame dictionary_process_id [dictionary]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
-
-	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
-	session = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	state = argv[ 6 ];
-	insert_update_key = argv[ 7 ];
-	target_frame = argv[ 8 ];
-	dictionary_process_id = atoi( argv[ 9 ] );
-
-	/* optional_related_attribute_name = argv[ 10 ]; */
+	else
+	{
+		login_name = argv[ 1 ];
+		application_name = argv[ 2 ];
+		session = argv[ 3 ];
+		folder_name = argv[ 4 ];
+		role_name = argv[ 5 ];
+		state = argv[ 6 ];
+		insert_update_key = argv[ 7 ];
+		target_frame = argv[ 8 ];
+		dictionary_process_id = atoi( argv[ 9 ] );
+	
+		if ( argc == 11
+		&&   *argv[ 10 ]
+		&&   strcmp( argv[ 10 ], "null" ) != 0
+		&&   strcmp( argv[ 10 ], "ignored" ) != 0 )
+		{
+			original_post_dictionary =
+				dictionary_string2dictionary(
+					argv[ 10 ] );
+		}
+	}
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -127,11 +188,14 @@ int main( int argc, char **argv )
 	/* -------------------- */
 	insert_update_key = target_frame;
 
-	original_post_dictionary =
-		post2dictionary(
-			stdin,
-			(char *)0 /* appaserver_data_directory */,
-			(char *)0 /* session */ );
+	if ( !original_post_dictionary )
+	{
+		original_post_dictionary =
+			post2dictionary(
+				stdin,
+				(char *)0 /* appaserver_data_directory */,
+				(char *)0 /* session */ );
+	}
 
 	attribute_list =
 		attribute_get_attribute_list(
@@ -409,6 +473,14 @@ void post_prompt_edit_form_lookup_before_drop_down(
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
 			state );
+
+	if ( strcmp( state, "insert" ) == 0 )
+	{
+		lookup_before_drop_down->insert_folder_name =
+		      lookup_before_drop_down_get_dictionary_insert_folder_name(
+				dictionary_appaserver->
+					lookup_before_drop_down_dictionary );
+	}
 
 	dictionary_set_pointer(
 		dictionary_appaserver->
@@ -729,7 +801,7 @@ boolean execute_radio_button_process_maybe(
 		}
 		else
 		if ( strcmp(	lookup_option_radio_button,
-				TIME_CHART_PUSH_BUTTON_NAME ) == 0 )
+				GRACE_CHART_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
 			dictionary_appaserver_escaped_send_dictionary_string(
@@ -738,7 +810,31 @@ boolean execute_radio_button_process_maybe(
 
 			sprintf(sys_string,
 "echo \"%s\"								|"
-"output_time_chart %s %s %s %s %s %s dictionary_stdin 2>>/%s 	 	 ",
+"output_grace_chart %s %s %s %s %s %s dictionary_stdin 2>>/%s 	 	 ",
+				escaped_dictionary_string,
+		 		login_name,
+				timlib_get_parameter_application_name(
+					application_name,
+					database_string ),
+		 		session,
+		 		folder_name,
+				role_name,
+				state,
+				appaserver_error_get_filename(
+					application_name ) );
+		}
+		else
+		if ( strcmp(	lookup_option_radio_button,
+				GOOGLE_CHART_PUSH_BUTTON_NAME ) == 0 )
+		{
+			escaped_dictionary_string =
+			dictionary_appaserver_escaped_send_dictionary_string(
+				dictionary_appaserver,
+				0 /* not with_non_prefixed_dictionary */ );
+
+			sprintf(sys_string,
+"echo \"%s\"								|"
+"output_google_chart %s %s %s %s %s %s dictionary_stdin 2>>/%s 	 	 ",
 				escaped_dictionary_string,
 		 		login_name,
 				timlib_get_parameter_application_name(

@@ -1,4 +1,6 @@
 :
+echo "$0 $*" 1>&2
+
 if [ "$#" != 8 ]
 then
 	echo "Usage: $0 application begin_date end_date vegetation_name family genus species total_indicator" 1>&2

@@ -25,7 +25,6 @@
 #include "appaserver_user.h"
 #include "dictionary.h"
 #include "query.h"
-#include "query_attribute_statistics_list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
@@ -35,42 +34,27 @@
 #include "role.h"
 #include "role_folder.h"
 #include "dictionary_appaserver.h"
+#include "row_security.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-LIST *get_option_list(
-				char *application_name,
-				LIST *display_attribute_name_list,
-				char *folder_name,
-				char *where_clause,
-				char *sort_order_column,
-				boolean with_padding );
-
 void post_change_sort_order_post_change_process_execute(
 				PROCESS *post_change_process,
 				DICTIONARY *post_dictionary,
 				char *folder_name,
 				char *application_name );
 
-int get_sort_starting_number(
-				char *application_name,
-				DICTIONARY *post_dictionary,
-				char *folder_name,
-				LIST *primary_attribute_name_list,
-				char *sort_attribute_name,
-				char *dictionary_indexed_prefix );
-
 void change_sort_order_state_one(
 				char *application_name,
 				FOLDER *folder,
-				char *where_clause,
 				char *login_name,
 				char *session,
 				char *database_string,
-				char *role_name,
+				ROLE *role,
+				DICTIONARY *query_dictionary,
 				DICTIONARY *ignore_dictionary );
 
 void change_sort_order_state_two(
@@ -87,14 +71,12 @@ int main( int argc, char **argv )
 	DICTIONARY *post_dictionary;
 	FOLDER *folder;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *where_clause;
 	ROLE *role;
 	ROLE_FOLDER *role_folder;
 	char *role_name;
 	char *database_string = {0};
 	char *state;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	QUERY *query;
 
 	if ( argc < 7 )
 	{
@@ -215,40 +197,17 @@ int main( int argc, char **argv )
 	if ( folder->row_level_non_owner_view_only )
 		folder->row_level_non_owner_forbid = 1;
 
-	query = query_folder_new(
-			application_name,
-			login_name,
-			folder_name,
-			dictionary_appaserver->query_dictionary,
-			role_new( application_name, role_name ) );
-
-#ifdef NOT_DEFINED
-	query =	query_new(	application_name,
-				login_name,
-				folder_name,
-				(LIST *)0 /* attribute_list */,
-				dictionary_appaserver->query_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				role_new( application_name, role_name ),
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
-
-	where_clause = query->query_output->where_clause;
-
 	document = document_new( "", application_name );
 	document->output_content_type = 1;
 
 	document_set_javascript_module( document, "timlib" );
 	document_set_javascript_module( document, "sort_order" );
+	document_set_javascript_module( document, "form" );
+
+	document_set_folder_javascript_files(
+						document,
+						application_name,
+						folder_name );
 
 	document_output_head(
 			document->application_name,
@@ -270,11 +229,12 @@ int main( int argc, char **argv )
 		change_sort_order_state_one(
 				application_name,
 				folder,
-				where_clause,
 				login_name,
 				session,
 				database_string,
-				role_name,
+				role,
+				dictionary_appaserver->
+					query_dictionary,
 				dictionary_appaserver->
 					ignore_dictionary );
 	}
@@ -306,40 +266,96 @@ int main( int argc, char **argv )
 void change_sort_order_state_one(
 				char *application_name,
 				FOLDER *folder,
-				char *where_clause,
 				char *login_name,
 				char *session,
 				char *database_string,
-				char *role_name,
+				ROLE *role,
+				DICTIONARY *query_dictionary,
 				DICTIONARY *ignore_dictionary )
 {
 	FORM *form;
 	char action_string[ 512 ];
-	char *submit_control_string;
-	char *sort_order_column = {0};
-	LIST *display_attribute_name_list;
+	char *sort_attribute_name;
+	LIST *move_attribute_name_list;
 	LIST *ignore_attribute_name_list;
-	LIST *option_list;
-	LIST *display_list;
-	char *option;
-	char *display;
+	ROW_SECURITY *row_security;
+	DICTIONARY *sort_dictionary;
+	ELEMENT *element;
+	char onclick[ 1024 ];
+	char key[ 128 ];
+	char *attribute_name;
+	LIST *form_button_list;
+	FORM_BUTTON *form_button;
 
-	display_attribute_name_list =
+	sort_attribute_name =
+		appaserver_library_get_sort_attribute_name(
+			folder->attribute_list );
+
+	/* Build the renumber button */
+	/* ------------------------- */
+	sprintf( onclick,
+		 "sort_order_renumber( '%s' )",
+		 sort_attribute_name );
+
+	form_button = form_button_new( "Renumber", strdup( onclick ) );
+	form_button_list = list_new();
+	list_append_pointer( form_button_list, form_button );
+
+	/* Can't ignore the sort attribute */
+	/* ------------------------------- */
+	sprintf( key, "%s_0", sort_attribute_name );
+	dictionary_remove_key( ignore_dictionary, key );
+
+	/* Can't ignore any primary key */
+	/* ---------------------------- */
+	if ( !list_rewind( folder->primary_attribute_name_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty primary_attribute_name_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		attribute_name =
+			list_get_pointer(
+				folder->primary_attribute_name_list );
+
+		sprintf( key, "%s_0", attribute_name );
+		dictionary_remove_key( ignore_dictionary, key );
+
+	} while( list_next( folder->primary_attribute_name_list ) );
+
+	/* These are the attributes that javascript moves up or down. */
+	/* ---------------------------------------------------------- */
+	move_attribute_name_list =
 		attribute_get_attribute_name_list(
 			folder->attribute_list );
 
 	ignore_attribute_name_list =
 		appaserver_library_get_no_display_pressed_attribute_name_list(
 			ignore_dictionary, 
-			display_attribute_name_list );
+			move_attribute_name_list );
 
-	display_attribute_name_list = 
-		list_subtract( 	display_attribute_name_list, 
+	move_attribute_name_list = 
+		list_subtract( 	move_attribute_name_list, 
 				ignore_attribute_name_list );
 
-	sort_order_column =
-		appaserver_library_get_sort_attribute_name(
-			folder->attribute_list );
+	/* But don't move the sort_attribute_name */
+	/* -------------------------------------- */
+	list_subtract_string(
+		move_attribute_name_list,
+		sort_attribute_name );
+
+	/* Select in order by the sort_attribute_name */
+	/* ------------------------------------------ */
+	sort_dictionary = dictionary_small_new();
+
+	dictionary_set_pointer( sort_dictionary,
+				sort_attribute_name,
+				"yes" );
 
 	form = form_new( SORT_ORDER_ATTRIBUTE_NAME,
 			 application_get_title_string(
@@ -354,9 +370,18 @@ void change_sort_order_state_one(
 				database_string ),
 			session,
 			folder->folder_name,
-			role_name );
+			role->role_name );
 
 	form->action_string = action_string;
+	form->table_border = 1;
+
+	form_output_title(	form->application_title,
+				"sort" /* state */,
+				form->form_title,
+				folder->folder_name,
+				form->target_frame,
+				form->subtitle_string,
+				0 /* not omit_format_initial_capital */ );
 
 	form_output_heading(
 		form->login_name,
@@ -371,7 +396,8 @@ void change_sort_order_state_one(
 		form->state,
 		form->insert_update_key,
 		form->target_frame,
-		0 /* output_submit_reset_buttons_in_heading */,
+		1 /* output_submit_reset_buttons_in_heading */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -379,95 +405,114 @@ void change_sort_order_state_one(
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		form_button_list );
 
-	option_list =
-		get_option_list(
+	row_security =
+		row_security_new(
 			application_name,
-			display_attribute_name_list,
-			folder->folder_name,
-			where_clause,
-			sort_order_column,
-			0 /* not with padding */ );
+			role,
+			folder->folder_name /* select_folder_name */,
+			login_name,
+			(char *)0 /* state */,
+			(DICTIONARY *)0 /* preprompt_dictionary */,
+			query_dictionary,
+			sort_dictionary,
+			ignore_attribute_name_list
+				/* no_display_pressed_attribute_name_list */ );
 
-	display_list =
-		get_option_list(
+	row_security->row_security_element_list_structure =
+		row_security_element_list_structure_new(
 			application_name,
-			display_attribute_name_list,
-			folder->folder_name,
-			where_clause,
-			sort_order_column,
-			1 /* with padding */ );
+			row_security->row_security_state,
+			row_security->login_name,
+			row_security->state,
+			row_security->login_role,
+			row_security->preprompt_dictionary,
+			row_security->query_dictionary,
+			row_security->sort_dictionary,
+			row_security->
+				no_display_pressed_attribute_name_list,
+			row_security->select_folder,
+			row_security->attribute_not_null_folder,
+			row_security->foreign_login_name_folder,
+			(LIST *)0 /* where_clause_attribute_name_list */,
+			(LIST *)0 /* where_clause_data_list */,
+			(LIST *)0 /* non_edit_folder_name_list */,
+			0 /* not make_primary_keys_non_edit */,
+			omit_delete_dont_care,
+			1 /* omit_operation_buttons */,
+			'y' /* update_yn */ );
 
-#ifdef NOT_DEFINED
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		 "
-		 "			select=%s		 "
-		 "			folder=%s		 "
-		 "			where=\"%s\"		 "
-		 "			order=%s		|"
-		 "cat						 ",
-		 application_name,
-		 list_display( display_attribute_name_list ),
-		 folder->folder_name,
-		 where_clause,
-		 sort_order_column,
-		 FOLDER_DATA_DELIMITER );
+	form->regular_element_list =
+		row_security->
+			row_security_element_list_structure->
+			regular_element_list;
 
-	input_pipe = popen( sys_string, "r" );
-#endif
+	/* ------------------------------------------------- */
+	/* Create the move and here radio buttons.	     */
+	/* Setting in reverse order because they're stacked. */
+	/* ------------------------------------------------- */
+	element = element_new(
+			radio_button,
+			"here" );
 
-	printf( "<tr><td>\n" );
+	sprintf( onclick,
+		 "sort_order_move( '%s' )",
+		 list_display( move_attribute_name_list ) );
 
-	printf( "<select multiple name=\"%s\" size=15>\n",
-		SORT_ORDER_ELEMENT_NAME );
+	element->radio_button->onclick = strdup( onclick );
 
-	if ( list_rewind( option_list ) )
-	{
-		list_rewind( display_list );
+	element->radio_button->state = "sort";
 
-		do {
-			option = list_get_pointer( option_list );
-			display = list_get_pointer( display_list );
+	element->radio_button->post_change_javascript =
+		folder->post_change_javascript;
 
-			printf( "<option value=\"%s\">%s\n",
-				option,
-				display );
+	list_prepend_pointer( form->regular_element_list, element );
 
-			list_next( display_list );
+	element = element_new(
+			radio_button,
+			"move" );
 
-		} while( list_next( option_list ) );
-	}
+	list_prepend_pointer( form->regular_element_list, element );
 
-/*
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		printf( "<option value=\"%s\">%s\n",
-			input_buffer,
-			input_buffer );
-	}
+	/* Set the readonly flags */
+	/* ---------------------- */
+	element_list_set_readonly( form->regular_element_list );
 
-	pclose( input_pipe );
-*/
+	form_output_table_heading(	form->regular_element_list,
+					0 /* form_number */ );
 
-	printf( "</select>\n" );
+	form->row_dictionary_list =
+		row_security->
+			row_security_element_list_structure->
+				row_dictionary_list;
 
-	printf(
-"<td><input type=button value=Up onClick=sort_order_move_up();>\n" );
-	printf(
-"<td><input type=button value=Down onClick=sort_order_move_down();>\n" );
-	printf( "<tr><td>\n" );
+	form_output_body(
+		&form->current_reference_number,
+		form->hidden_name_dictionary,
+		form->output_row_zero_only,
+		form->row_dictionary_list,
+		form->regular_element_list,
+		form->viewonly_element_list,
+		(char *)0 /* spool_filename */,
+		folder->row_level_non_owner_view_only,
+		application_name,
+		login_name,
+		row_security->attribute_not_null_string,
+		(char *)0 /* appaserver_user_foreign_login_name */ );
 
-	submit_control_string = "sort_order_set_all_selected() &&";
-
-	form_output_submit_button(
-			submit_control_string,
-			"Submit",
-			0 /* form_number */,
-			(LIST *)0 /* pair_one2m_related_folder_name_list */ );
-
-	printf( "</table>\n" );
-	printf( "</form>\n" );
+	form_output_trailer(
+		1 /* output_submit_reset_buttons_in_trailer */,
+		0 /* output_insert_flag */,
+		form->submit_control_string,
+		form->html_help_file_anchor,
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(char *)0 /* preprompt_button_control_string */,
+		application_name,
+		0 /* not with_back_to_top_button */,
+		0 /* form_number */,
+		form_button_list );
 
 } /* change_sort_order_state_one() */
 
@@ -479,33 +524,19 @@ void change_sort_order_state_two(
 	char *table_name;
 	FILE *output_pipe;
 	char sys_string[ 1024 ];
-	int index;
-	char key[ 128 ];
-	char *data;
-	int sort_starting_number;
+	int row;
 	char *sort_attribute_name;
-	int length_primary_attribute_name_list;
-	char primary_data[ 1024 ];
+	LIST *primary_data_list;
+	char key[ 128 ];
+	char *new_sort;
 
 	sort_attribute_name =
 		appaserver_library_get_sort_attribute_name(
 			folder->attribute_list );
 
-	sort_starting_number =
-		get_sort_starting_number(
-			application_name,
-			post_dictionary,
-			folder->folder_name,
-			folder->primary_attribute_name_list,
-			sort_attribute_name,
-			SORT_ORDER_ATTRIBUTE_NAME );
-
 	folder->primary_attribute_name_list =
 		attribute_get_primary_attribute_name_list(
 			folder->attribute_list );
-
-	length_primary_attribute_name_list =
-		list_length( folder->primary_attribute_name_list );
 
 	table_name = get_table_name( application_name, folder->folder_name );
 
@@ -517,24 +548,28 @@ void change_sort_order_state_two(
 
 	output_pipe = popen( sys_string, "w" );
 
-	for( index = 1;; index++ )
+	for( row = 1;; row++ )
 	{
-		sprintf( key, "%s_%d", SORT_ORDER_ATTRIBUTE_NAME, index );
+		primary_data_list =
+			dictionary_get_data_list(
+					folder->primary_attribute_name_list,
+					post_dictionary,
+					row );
 
-		if ( ! ( data = dictionary_fetch( post_dictionary, key ) ) )
+		if ( !list_length( primary_data_list ) ) break;
+
+		sprintf( key, "%s_%d", sort_attribute_name, row );
+
+		if ( ! ( new_sort = dictionary_fetch( post_dictionary, key ) ) )
 		{
 			break;
 		}
 
 		fprintf( output_pipe,
-		 	 "%s^%s^%d\n",
-			 piece_multiple(
-				primary_data,
-				'^',
-				data,
-				length_primary_attribute_name_list ),
+		 	 "%s^%s^%s\n",
+			 list_display_delimited( primary_data_list, '^' ),
 		 	 sort_attribute_name,
-		 	 sort_starting_number++ );
+		 	 new_sort );
 	}
 
 	pclose( output_pipe );
@@ -549,53 +584,6 @@ void change_sort_order_state_two(
 	}
 
 } /* change_sort_order_state_two() */
-
-int get_sort_starting_number(
-			char *application_name,
-			DICTIONARY *post_dictionary,
-			char *folder_name,
-			LIST *primary_attribute_name_list,
-			char *sort_attribute_name,
-			char *dictionary_indexed_prefix )
-{
-	char sys_string[ 65536 ];
-	char *where_clause;
-	char select[ 128 ];
-	char *results;
-
-	sprintf( select,
-		 "min(%s)",
-		 sort_attribute_name );
-
-	where_clause =
-		query_get_dictionary_where_clause(
-			post_dictionary,
-			primary_attribute_name_list,
-			dictionary_indexed_prefix );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s	"
-		 "			select=\"%s\"	"
-		 "			folder=%s	"
-		 "			where=\"%s\"	",
-		 application_name,
-		 select,
-		 folder_name,
-		 where_clause );
-
-	if ( ! ( results = pipe2string( sys_string ) ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: fetch returned null.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return atoi( results );
-
-} /* get_sort_starting_number() */
 
 void post_change_sort_order_post_change_process_execute(
 			PROCESS *post_change_process,
@@ -629,52 +617,4 @@ void post_change_sort_order_post_change_process_execute(
 	system( post_change_process->executable );
 
 } /* post_change_sort_order_post_change_process_execute() */
-
-LIST *get_option_list(
-			char *application_name,
-			LIST *display_attribute_name_list,
-			char *folder_name,
-			char *where_clause,
-			char *sort_order_column,
-			boolean with_padding )
-{
-	char padding_process[ 128 ];
-	char sys_string[ 1024 ];
-
-if ( with_padding ){};
-
-#ifdef NOT_DEFINED
-	if ( with_padding )
-	{
-		sprintf( padding_process,
-			 "delimiter2padded_columns.e '%c' 1 y	|"
-			 "sed 's/ /\\&nbsp;/g'			|"
-			 "cat					 ",
-			 FOLDER_DATA_DELIMITER );
-	}
-	else
-	{
-		strcpy( padding_process, "cat" );
-	}
-#endif
-	strcpy( padding_process, "cat" );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		 "
-		 "			select=%s		 "
-		 "			folder=%s		 "
-		 "			where=\"%s\"		 "
-		 "			order=%s		|"
-		 "%s						|"
-		 "cat						 ",
-		 application_name,
-		 list_display( display_attribute_name_list ),
-		 folder_name,
-		 where_clause,
-		 sort_order_column,
-		 padding_process );
-
-	return pipe2list( sys_string );
-
-} /* get_option_list() */
 

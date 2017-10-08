@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* src_accountancymodel/post_change_customer_payment.c			*/
-/* ---------------------------------------------------------------	*/
+/* --------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/post_change_customer_payment.c	*/
+/* --------------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* --------------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -39,7 +39,8 @@ void post_change_customer_payment_update(
 				char *street_address,
 				char *sale_date_time,
 				char *payment_date_time,
-				char *preupdate_payment_date_time );
+				char *preupdate_payment_date_time,
+				char *preupdate_payment_amount );
 
 void post_change_customer_payment_delete(
 				char *application_name,
@@ -64,17 +65,26 @@ int main( int argc, char **argv )
 	char *payment_date_time;
 	char *state;
 	char *preupdate_payment_date_time;
+	char *preupdate_payment_amount;
 	char *database_string = {0};
 
-	if ( argc != 8 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address sale_date_time payment_date_time state preupdate_payment_date_time\n",
+"Usage: %s application full_name street_address sale_date_time payment_date_time state preupdate_payment_date_time preupdate_payment_amount\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
+	full_name = argv[ 2 ];
+	street_address = argv[ 3 ];
+	sale_date_time = argv[ 4 ];
+	payment_date_time = argv[ 5 ];
+	state = argv[ 6 ];
+	preupdate_payment_date_time = argv[ 7 ];
+	preupdate_payment_amount = argv[ 8 ];
+
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
 	{
@@ -82,19 +92,20 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
-
-	full_name = argv[ 2 ];
-	street_address = argv[ 3 ];
-	sale_date_time = argv[ 4 ];
-	payment_date_time = argv[ 5 ];
-	state = argv[ 6 ];
-	preupdate_payment_date_time = argv[ 7 ];
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_error_output_starting_argv_stderr(
 				argc,
 				argv );
 
 	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 ) exit( 0 );
+
+	if ( strcmp( payment_date_time, "payment_date_time" ) == 0 ) exit( 0 );
 
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
@@ -116,7 +127,8 @@ int main( int argc, char **argv )
 				street_address,
 				sale_date_time,
 				payment_date_time,
-				preupdate_payment_date_time );
+				preupdate_payment_date_time,
+				preupdate_payment_amount );
 	}
 	else
 	if ( strcmp( state, "predelete" ) == 0 )
@@ -149,42 +161,14 @@ void post_change_customer_payment_insert(
 	LIST *propagate_account_list;
 
 	if ( !( customer_sale =
-		customer_sale_new(
-			application_name,
-			full_name,
-			street_address,
-			sale_date_time ) ) )
+			customer_sale_new(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time ) ) )
 	{
 		return;
 	}
-
-	/* amount_due set in customer_sale_new(). */
-	/* --------------------------------------- */
-	customer_sale_update(
-		customer_sale->sum_extension,
-		customer_sale->database_sum_extension,
-		customer_sale->sales_tax,
-		customer_sale->database_sales_tax,
-		customer_sale->invoice_amount,
-		customer_sale->database_invoice_amount,
-		customer_sale->completed_date_time,
-		customer_sale->
-			database_completed_date_time,
-		customer_sale->shipped_date_time,
-		customer_sale->database_shipped_date_time,
-		customer_sale->arrived_date,
-		customer_sale->database_arrived_date,
-		customer_sale->total_payment,
-		customer_sale->database_total_payment,
-		customer_sale->amount_due,
-		customer_sale->database_amount_due,
-		customer_sale->transaction_date_time,
-		customer_sale->
-			database_transaction_date_time,
-		customer_sale->full_name,
-		customer_sale->street_address,
-		customer_sale->sale_date_time,
-		application_name );
 
 	if ( ! ( customer_payment =
 			customer_payment_seek(
@@ -228,7 +212,7 @@ void post_change_customer_payment_insert(
 		customer_payment->transaction->transaction_date_time,
 		customer_payment->payment_amount /* transaction_amount */,
 		customer_payment->transaction->memo,
-		0 /* check_number */,
+		customer_payment->check_number,
 		1 /* lock_transaction */ );
 
 	if ( ( propagate_account_list =
@@ -255,6 +239,32 @@ void post_change_customer_payment_insert(
 		payment_date_time,
 		customer_payment->transaction_date_time,
 		customer_payment->database_transaction_date_time );
+
+	customer_sale_update(
+		customer_sale->sum_extension,
+		customer_sale->database_sum_extension,
+		customer_sale->sales_tax,
+		customer_sale->database_sales_tax,
+		customer_sale->invoice_amount,
+		customer_sale->database_invoice_amount,
+		customer_sale->completed_date_time,
+		customer_sale->
+			database_completed_date_time,
+		customer_sale->shipped_date_time,
+		customer_sale->database_shipped_date_time,
+		customer_sale->arrived_date,
+		customer_sale->database_arrived_date,
+		customer_sale->total_payment,
+		customer_sale->database_total_payment,
+		customer_sale->amount_due,
+		customer_sale->database_amount_due,
+		customer_sale->transaction_date_time,
+		customer_sale->
+			database_transaction_date_time,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_sale->sale_date_time,
+		application_name );
 
 } /* post_change_customer_payment_insert() */
 
@@ -309,13 +319,15 @@ void post_change_customer_payment_delete(
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->sum_inventory_extension,
-			&customer_sale->sum_service_extension,
+			&customer_sale->sum_fixed_service_extension,
+			&customer_sale->sum_hourly_service_extension,
 			&customer_sale->sum_extension,
 			&customer_sale->sales_tax,
 			customer_sale->shipping_revenue,
 			customer_sale->inventory_sale_list,
 			customer_sale->specific_inventory_sale_list,
-			customer_sale->service_sale_list,
+			customer_sale->fixed_service_sale_list,
+			customer_sale->hourly_service_sale_list,
 			customer_sale->full_name,
 			customer_sale->street_address,
 			application_name );
@@ -399,9 +411,11 @@ void post_change_customer_payment_update(
 				char *street_address,
 				char *sale_date_time,
 				char *payment_date_time,
-				char *preupdate_payment_date_time )
+				char *preupdate_payment_date_time,
+				char *preupdate_payment_amount )
 {
 	enum preupdate_change_state payment_date_time_change_state;
+	enum preupdate_change_state payment_amount_change_state;
 	CUSTOMER_SALE *customer_sale;
 	CUSTOMER_PAYMENT *customer_payment;
 
@@ -427,16 +441,12 @@ void post_change_customer_payment_update(
 				customer_sale->payment_list,
 				payment_date_time ) ) )
 	{
-		post_change_customer_payment_date_time_update(
-			application_name,
-			customer_sale->fund_name,
-			full_name,
-			street_address,
-			sale_date_time,
-			"0000-00-00 00:00:00" /* payment_date_time */,
-			preupdate_payment_date_time );
-
-		return;
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot find customer payment.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 0 );
 	}
 
 	if ( !customer_payment->transaction )
@@ -450,12 +460,44 @@ void post_change_customer_payment_update(
 		exit( 1 );
 	}
 
+	customer_sale_update(
+		customer_sale->sum_extension,
+		customer_sale->database_sum_extension,
+		customer_sale->sales_tax,
+		customer_sale->database_sales_tax,
+		customer_sale->invoice_amount,
+		customer_sale->database_invoice_amount,
+		customer_sale->completed_date_time,
+		customer_sale->
+			database_completed_date_time,
+		customer_sale->shipped_date_time,
+		customer_sale->database_shipped_date_time,
+		customer_sale->arrived_date,
+		customer_sale->database_arrived_date,
+		customer_sale->total_payment,
+		customer_sale->database_total_payment,
+		customer_sale->amount_due,
+		customer_sale->database_amount_due,
+		customer_sale->transaction_date_time,
+		customer_sale->
+			database_transaction_date_time,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_sale->sale_date_time,
+		application_name );
+
 	payment_date_time_change_state =
 		appaserver_library_get_preupdate_change_state(
 			preupdate_payment_date_time,
 			customer_payment->transaction_date_time
 				/* postupdate_data */,
 			"preupdate_payment_date_time" );
+
+	payment_amount_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_payment_amount,
+			(char *)0 /* postupdate_data */,
+			"preupdate_payment_amount" );
 
 	if (	payment_date_time_change_state ==
 		from_something_to_something_else )
@@ -468,6 +510,47 @@ void post_change_customer_payment_update(
 			sale_date_time,
 			payment_date_time,
 			preupdate_payment_date_time );
+	}
+
+	if (	payment_amount_change_state ==
+		from_something_to_something_else )
+	{
+		char *checking_account;
+		char *account_receivable_account;
+
+		ledger_transaction_amount_update(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_payment->transaction_date_time,
+			customer_payment->payment_amount,
+			0.0 /* database_payment_amount */ );
+
+		ledger_get_customer_payment_account_names(
+			&checking_account,
+			&account_receivable_account,
+			application_name,
+			customer_sale->fund_name );
+
+		ledger_debit_credit_update(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_payment->transaction_date_time,
+			checking_account
+				/* debit_account_name */,
+			account_receivable_account
+				/* credit_account_name */,
+			customer_payment->payment_amount
+				/* transaction_amount  */ );
+
+		ledger_propagate(	application_name,
+					customer_payment->transaction_date_time,
+					checking_account );
+
+		ledger_propagate(	application_name,
+					customer_payment->transaction_date_time,
+					account_receivable_account );
 	}
 
 } /* post_change_customer_payment_update() */

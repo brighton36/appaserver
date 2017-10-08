@@ -209,9 +209,7 @@ passed_security_check:
 		}
 	}
 
-	if ( strcmp( folder_name, "application" ) == 0
-	||  !application_get_alternative_is_primary_application(
-					destination_application ) )
+	if ( strcmp( folder_name, "application" ) == 0 )
 	{
 		static char local_table_name[ 128 ];
 		sprintf( local_table_name,

@@ -1,0 +1,840 @@
+./src_hydrology/hydrology_quick_measurement_form.c
+   488: 						element->text_item, 
+   491: 				element->
+   509: 						element->prompt_data,
+   510: 						element->name );
+./src_hydrology/generic_measurement_load.c
+   284: 				element->drop_down,
+   357: 				element->name,
+   358: 				element->drop_down->option_data_list,
+   359: 				element->drop_down->option_label_list,
+   360: 				element->drop_down->number_columns,
+   361: 				element->drop_down->multi_select,
+   363: 				element->drop_down->initial_data,
+   364: 				element->drop_down->output_null_option,
+   365: 				element->drop_down->output_not_null_option,
+   366: 				element->drop_down->output_select_option,
+   367: 				element->drop_down->folder_name,
+   369: 				element->drop_down->max_drop_down_size,
+   370: 				element->drop_down->multi_select_element_name,
+   371: 				element->drop_down->onblur_javascript_function,
+   373: 				element->drop_down->date_piece_offset,
+   374: 				element->drop_down->no_initial_capital,
+   375: 				element->drop_down->readonly,
+   377: 				element->drop_down->state );
+./library/element.c
+   177: 	if ( element->element_type == notepad )
+   181: 				element->name,
+   182: 				element->notepad->data,
+   186: 	if ( element->element_type == text_item )
+   190: 			element->name,
+   191: 			element->text_item->data,
+   195: 	if ( element->element_type == password )
+   199: 				element->name,
+   200: 				element->password->data,
+   204: 	if ( element->element_type == drop_down )
+   208: 				element->name,
+   210: 				element->drop_down->initial_data,
+   211: 				element->drop_down->folder_name,
+   213: 					element->drop_down->option_data_list ),
+   214: 				element->drop_down->max_drop_down_size
+   218: 	if ( element->element_type == reference_number )
+   222: 					element->name,
+   223: 					element->reference_number->data,
+   227: 	if ( element->element_type == hidden )
+   230: 					element->name,
+   231: 					element->hidden->data,
+   235: 	if ( element->element_type == prompt_data
+   236: 	||   element->element_type == prompt_data_plus_hidden )
+   239: 					element->name,
+   240: 					element->prompt_data->data,
+   243: 	if ( element->element_type == http_filename
+   244: 	&&   element->http_filename->data )
+   248: 			element->name,
+   249: 			element->http_filename->data,
+   253: 	if ( element->text_item )
+   257: 			element->name,
+   258: 			element->text_item->data,
+   272: 	if ( element->element_type == linebreak )
+   277: 	if ( element->element_type == notepad )
+   281: 				element->notepad->attribute_width,
+   282: 				element->name,
+   283: 				element->notepad->data,
+   285: 				element->notepad->number_rows,
+   286: 				element->notepad->onchange_null2slash_yn,
+   287: 				element->tab_index );
+   290: 	if ( element->element_type == blank )
+   295: 	if ( element->element_type == text_item )
+   299: 			element->name,
+   300: 			element->text_item->data,
+   301: 			element->text_item->attribute_width,
+   303: 			element->text_item->onchange_null2slash_yn,
+   304: 			element->text_item->post_change_javascript,
+   305: 			element->text_item->on_focus_javascript_function,
+   306: 			element->text_item->lookup_attribute_width,
+   308: 			element->tab_index,
+   310: 			element->text_item->readonly,
+   311: 			element->text_item->state );
+   314: 	if ( element->element_type == element_date )
+   318: 			element->name,
+   319: 			element->text_item->data,
+   320: 			element->text_item->attribute_width,
+   322: 			element->text_item->onchange_null2slash_yn,
+   323: 			element->text_item->post_change_javascript,
+   324: 			element->text_item->on_focus_javascript_function,
+   325: 			element->text_item->lookup_attribute_width,
+   330: 			element->text_item->readonly,
+   331: 			element->tab_index );
+   334: 	if ( element->element_type == element_current_date_time
+   335: 	||   element->element_type == element_current_date )
+   339: 		if ( !element->text_item->dont_initialize_data
+   340: 		&&   !element->text_item->data )
+   352: 			if ( element->element_type == element_current_date )
+   361: 				if ( element->text_item->attribute_width == 19 )
+   374: 			element->text_item->data = strdup( data );
+   380: 			element->name,
+   381: 			element->text_item->data,
+   382: 			element->text_item->attribute_width,
+   384: 			element->text_item->onchange_null2slash_yn,
+   385: 			element->text_item->post_change_javascript,
+   386: 			element->text_item->on_focus_javascript_function,
+   387: 			element->text_item->lookup_attribute_width,
+   392: 			element->text_item->readonly,
+   393: 			element->tab_index );
+   396: 	if ( element->element_type == element_current_date )
+   398: 		if ( !element->text_item->data )
+   408: 			element->text_item->data = date_convert->return_date;
+   413: 			element->name,
+   414: 			element->text_item->data,
+   415: 			element->text_item->attribute_width,
+   417: 			element->text_item->onchange_null2slash_yn,
+   418: 			element->text_item->post_change_javascript,
+   419: 			element->text_item->on_focus_javascript_function,
+   420: 			element->text_item->lookup_attribute_width,
+   425: 			element->text_item->readonly,
+   426: 			element->tab_index );
+   429: 	if ( element->element_type == element_date_time )
+   433: 			element->name,
+   434: 			element->text_item->data,
+   435: 			element->text_item->attribute_width,
+   437: 			element->text_item->onchange_null2slash_yn,
+   438: 			element->text_item->post_change_javascript,
+   439: 			element->text_item->on_focus_javascript_function,
+   440: 			element->text_item->lookup_attribute_width,
+   445: 			element->text_item->readonly,
+   446: 			element->tab_index );
+   449: 	if ( element->element_type == element_current_time )
+   451: 		if ( !element->text_item->data )
+   453: 			if ( element->text_item->attribute_width >= 7 )
+   454: 				element->text_item->data =
+   457: 				element->text_item->data = date_get_now_hhmm();
+   462: 			element->name,
+   463: 			element->text_item->data,
+   464: 			element->text_item->attribute_width,
+   466: 			element->text_item->onchange_null2slash_yn,
+   467: 			element->text_item->post_change_javascript,
+   468: 			element->text_item->on_focus_javascript_function,
+   469: 			element->text_item->lookup_attribute_width,
+   471: 			element->tab_index,
+   473: 			element->text_item->readonly,
+   474: 			element->text_item->state );
+   477: 	if ( element->element_type == element_time )
+   481: 			element->name,
+   482: 			element->text_item->data,
+   483: 			element->text_item->attribute_width,
+   485: 			element->text_item->onchange_null2slash_yn,
+   486: 			element->text_item->post_change_javascript,
+   487: 			element->text_item->on_focus_javascript_function,
+   488: 			element->text_item->lookup_attribute_width,
+   490: 			element->tab_index,
+   492: 			element->text_item->readonly,
+   493: 			element->text_item->state );
+   496: 	if ( element->element_type == password )
+   500: 				element->name,
+   501: 				element->password->data,
+   502: 				element->password->attribute_width,
+   504: 				element->tab_index );
+   507: 	if ( element->element_type == push_button )
+   513: 				element->name,
+   514: 				element->push_button->heading,
+   515: 				element->push_button->checked,
+   517: 				element->push_button->onchange_submit_yn,
+   518: 				element->push_button->form_name,
+   519: 				element->push_button->image_source,
+   520: 				element->push_button->
+   522: 				element->push_button->onclick_function );
+   528: 	if ( element->element_type == radio_button )
+   532: 				element->radio_button->onchange_submit_yn,
+   533: 				element->radio_button->form_name,
+   534: 				element->radio_button->image_source,
+   535: 				element->radio_button->value,
+   536: 				element->radio_button->checked,
+   537: 				element->radio_button->heading,
+   538: 				element->name,
+   539: 				element->radio_button->onclick,
+   541: 				element->radio_button->state,
+   542: 				element->radio_button->post_change_javascript );
+   545: 	if ( element->element_type == drop_down )
+   547: 		if ( !list_length( element->drop_down->option_label_list ) )
+   550: 					&element->drop_down->option_data_list,
+   551: 					&element->drop_down->option_label_list,
+   552: 					element->drop_down->option_data_list );
+   557: 			element->name,
+   558: 			element->drop_down->option_data_list,
+   559: 			element->drop_down->option_label_list,
+   560: 			element->drop_down->number_columns,
+   561: 			element->drop_down->multi_select,
+   563: 			element->drop_down->initial_data,
+   564: 			element->drop_down->output_null_option,
+   565: 			element->drop_down->output_not_null_option,
+   566: 			element->drop_down->output_select_option,
+   567: 			element->drop_down->folder_name,
+   568: 			element->drop_down->post_change_javascript,
+   569: 			element->drop_down->max_drop_down_size,
+   570: 			element->drop_down->multi_select_element_name,
+   571: 			element->drop_down->onblur_javascript_function,
+   573: 			element->drop_down->date_piece_offset,
+   574: 			element->drop_down->no_initial_capital,
+   575: 			element->drop_down->readonly,
+   576: 			element->tab_index,
+   577: 			element->drop_down->state );
+   580: 	if ( element->element_type == non_edit_multi_select )
+   584: 			element->name,
+   585: 			element->non_edit_multi_select->option_label_list );
+   588: 	if ( element->element_type == prompt )
+   591: 					element->name,
+   595: 	if ( element->element_type == prompt_heading )
+   598: 					element->name,
+   602: 	if ( element->element_type == prompt_data
+   603: 	||   element->element_type == prompt_data_plus_hidden )
+   607: 				element->prompt_data->align,
+   608: 				element->prompt_data->data,
+   609: 				element->prompt_data->format_initial_capital );
+   611: 		if ( element->element_type == prompt_data_plus_hidden )
+   617: 						element->name,
+   618: 						element->prompt_data->data );
+   622: 	if ( element->element_type == reference_number )
+   626: 				element->name,
+   627: 				element->reference_number->data,
+   629: 				element->reference_number->attribute_width,
+   630: 				element->reference_number->omit_update );
+   633: 	if ( element->element_type == hidden )
+   639: 					element->name,
+   640: 					element->hidden->data );
+   643: 	if ( element->element_type == upload_filename )
+   647: 				element->upload_filename->attribute_width,
+   649: 				element->name );
+   652: 	if ( element->element_type == javascript_filename )
+   656: 				element->name );
+   659: 	if ( element->element_type == http_filename )
+   663: 						element->http_filename,
+   666: 						element->name );
+   669: 	if ( element->element_type == anchor )
+   672: 					element->anchor->prompt,
+   673: 					element->anchor->href );
+   676: 	if ( element->element_type == table_opening )
+   681: 	if ( element->element_type == table_row )
+   686: 	if ( element->element_type == table_closing )
+   691: 	if ( element->element_type == empty_column )
+   696: 	if ( element->element_type == non_edit_text )
+   700: 					element->non_edit_text->text,
+   701: 					element->non_edit_text->column_span,
+   702: 					element->non_edit_text->padding_em );
+   711: 			 element->name,
+   713: 			 element->element_type );
+  2126: 			element->text_item, 
+  2129: 		element->text_item->data = initial_data;
+  2130: 		element->text_item->readonly = 1;
+  2134: 			element->name,
+  2135: 			element->text_item->data,
+  2136: 			element->text_item->attribute_width,
+  2138: 			element->text_item->onchange_null2slash_yn,
+  2139: 			element->text_item->post_change_javascript,
+  2140: 			element->text_item->on_focus_javascript_function,
+  2141: 			element->text_item->lookup_attribute_width,
+  2143: 			element->tab_index,
+  2145: 			element->text_item->readonly,
+  2146: 			element->text_item->state );
+  2955: 	element->element_type = non_edit_text;
+  2956: 	element->name = name;
+  2957: 	element->non_edit_text = element_new_non_edit_text();
+  2958: 	element->non_edit_text->text = text;
+  2959: 	element->non_edit_text->column_span = column_span;
+  2960: 	element->non_edit_text->padding_em = padding_em;
+  2970: 	element->element_type = hidden;
+  2971: 	element->name = name;
+  2972: 	element->hidden = element_hidden_new();
+  2973: 	element->hidden->data = data;
+  3023: 			if ( element->element_type == element_type )
+  3078: 			element->drop_down,
+  3084: 		element->drop_down->post_change_javascript =
+  3279: 			element->text_item, 
+  3282: 	if ( element->text_item
+  3286: 		element->text_item->post_change_javascript =
+  3288: 				element->text_item->post_change_javascript,
+  3293: 	element->text_item->on_focus_javascript_function =
+  3328: 			element->name,
+  3330: 				element->element_type ),
+  3331: 			element->omit_heading_sort_button );
+  3333: 	if ( element->element_type == prompt_data_plus_hidden )
+  3337: 			 element->prompt_data->heading );
+  3340: 	if ( element->text_item )
+  3344: 			 element->text_item->heading,
+  3345: 			 element->text_item->attribute_width );
+  3347: 		if ( element->text_item->readonly )
+  3354: 	if ( element->text_item
+  3355: 	&&   element->text_item->post_change_javascript
+  3356: 	&&   *element->text_item->post_change_javascript )
+  3360: 			 element->text_item->post_change_javascript );
+  3363: 	if ( element->element_type == hidden )
+  3367: 			 (element->hidden->data)
+  3368: 			 	? element->hidden->data : "null" );
+  3371: 	if ( element->element_type == prompt_data )
+  3375: 			(element->prompt_data->data)
+  3376: 			 	? element->prompt_data->data : "null",
+  3377: 			(element->prompt_data->heading)
+  3378: 				? element->prompt_data->heading : "null" );
+  3381: 	if ( element->element_type == drop_down )
+  3385: 			element->drop_down->no_initial_capital,
+  3386: 			element->drop_down->heading );
+  3388: 		if ( element->drop_down->readonly )
+  3413: 		if ( element->element_type == drop_down
+  3414: 		&&   element->drop_down->multi_select )
+  3420: 				element->drop_down->multi_select_element_name );
+  3438: 		if ( element->element_type == reference_number ) return 1;
+  3451: 		if ( element->element_type == upload_filename ) return 1;
+  3473: 		if ( element->remember_keystrokes_ok )
+  3475: 			if ( element->element_type == text_item
+  3476: 			||   element->element_type == element_date
+  3477: 			||   element->element_type == element_current_date
+  3478: 			||   element->element_type == element_time
+  3479: 			||   element->element_type == element_current_time
+  3480: 			||   element->element_type == element_date_time
+  3481: 			||   element->element_type == element_current_date_time
+  3482: 			||   ( element->element_type == drop_down
+  3483: 			&&     !element->drop_down->multi_select ) )
+  3485: 				sprintf( element_name, "%s_0", element->name );
+  3514: 		if ( element->remember_keystrokes_ok )
+  3516: 			if ( element->element_type == drop_down
+  3517: 			&&   element->drop_down->multi_select )
+  3519: 				sprintf( element_name, "%s_1", element->name );
+  3779: 					element->name ) == 0 )
+  3781: 				element->omit_heading_sort_button = 1;
+  3836: 		if ( element->text_item )
+  3838: 			element->text_item->readonly = 1;
+  3841: 		if ( element->drop_down )
+  3843: 			element->drop_down->readonly = 1;
+./library/process_parameter_list.c
+   334: 	element->drop_down->option_data_list =
+   338: 	element->drop_down->multi_select =
+   340: 	element->drop_down->multi_select_element_name =
+   344: 	element->drop_down->post_change_javascript =
+   370: 	element_hidden_set_data(	element->hidden,
+   438: 		element->drop_down->multi_select_element_name =
+   444: 	element->drop_down->option_data_list = primary_data_list;
+   446: 	element->drop_down->multi_select = multi_select;
+   448: 	element->drop_down->post_change_javascript =
+   451: 	element->drop_down->no_initial_capital =
+   468: 	element_hidden_set_data(	element->hidden,
+   527: 		element->anchor->prompt = populate_helper_process->key;
+   528: 		element->anchor->href =
+   574: 		element->drop_down->multi_select_element_name =
+   580: 		element->drop_down->option_data_list = primary_data_list;
+   584: 		element->drop_down->option_data_list =
+   595: 	element->drop_down->multi_select = multi_select;
+   597: 	element->drop_down->no_initial_capital =
+   655: 	element->drop_down->option_data_list = option_data_list;
+   657: 	element->drop_down->option_label_list = option_label_list;
+   672: 	element_text_item_set_attribute_width( 	element->text_item,
+  1097: 			element->hidden,
+  1113: 		element->upload_filename->attribute_width =
+  1137: 				element->text_item,
+  1148: 		element->text_item->post_change_javascript =
+  1159: 				element->text_item,
+  1163: 		element->text_item->post_change_javascript =
+  1179: 		element->non_edit_text->column_span=99;
+  1232: 	element->drop_down->post_change_javascript =
+  1307: 	element->drop_down->option_data_list =
+  1353: 				element->text_item,
+  1359: 		element->text_item->post_change_javascript =
+  1398: 				element->text_item,
+  1404: 		element->text_item->post_change_javascript =
+  1460: 	element->drop_down->post_change_javascript =
+  1783: 		element->drop_down->multi_select_element_name =
+  1787: 	element->drop_down->option_data_list =
+  1804: 	element->drop_down->multi_select = multi_select;
+  1850: 		element->drop_down->multi_select_element_name =
+  1854: 	element->drop_down->option_data_list =
+  1864: 	element->drop_down->multi_select = multi_select;
+./library/attribute.c
+  1302: 			element->push_button, "no_display" );
+  1376: 				element->drop_down,
+  1408: 			element->text_item->attribute_width = width;
+  1410: 			element->text_item->lookup_attribute_width =
+  1442: 			element->notepad->attribute_width = width;
+  1445: 					element->notepad, 1 );
+  1484: 				element->text_item->dont_initialize_data = 1;
+  1493: 				element->text_item->dont_initialize_data = 1;
+  1502: 			element->text_item->attribute_width = width;
+  1504: 			element->text_item->lookup_attribute_width =
+  1553: 				element->text_item->dont_initialize_data = 1;
+  1562: 				element->text_item->dont_initialize_data = 1;
+  1571: 			element->text_item->attribute_width = width;
+./library/form.c
+   544: 		&&   element->element_type == password
+   549: 			non_edit_element->name = element->name;
+   556: 		&&   element->element_type != push_button
+   557: 		&&   element->element_type != hidden
+   562: 			non_edit_element->name = element->name;
+   567: 		&&   element->element_type == push_button
+   568: 		&&   element->name
+   569: 		&&   strcmp( element->name, "delete" )  == 0
+   574: 			non_edit_element->name = "";
+   579: 		if ( element->element_type == reference_number )
+   593: 			&&   element->name
+   597: 				element->name,
+   652: 				if ( element->element_type == hidden )
+   655: 				if ( element->element_type == push_button
+   656: 				||   element->omit_heading_sort_button )
+   666: 						element->name );
+   733: 		if ( element->element_type == hidden )
+   756: 					 element->name );
+   770: 					element->name ) );
+   888: 						element->text_item, 
+   892: 						element->text_item,
+   908: 						element->prompt_data,
+   909: 						element->name );
+  1490: 		if ( element->element_type == push_button
+  1491: 		&&   timlib_strncmp(element->name,
+  1494: 			element->push_button->onclick_keystrokes_save_string =
+./library/related_folder.c
+   285: 			element->push_button,
+   384: 		element->drop_down->multi_select = 1;
+   385: 		element->drop_down->multi_select_element_name =
+   394: 		element->drop_down->output_null_option =
+   397: 		element->drop_down->output_not_null_option =
+   400: 		element->drop_down->output_select_option =
+   405: 	element->drop_down->post_change_javascript =
+   408: 	element->drop_down->max_drop_down_size = max_drop_down_size;
+   409: 	element->drop_down->no_initial_capital = no_initial_capital;
+   410: 	element->tab_index = tab_index;
+   413: 		&element->drop_down->option_data_list,
+   414: 		&element->drop_down->option_label_list,
+   436: 	&&   list_length( element->drop_down->option_data_list ) )
+   438: 		element->drop_down->initial_data =
+   440: 				element->drop_down->option_data_list );
+   473: 	element->hidden->data = "equals";
+   810: 		element->prompt_data->heading = strdup( element_heading );
+   814: 			element->prompt_data->format_initial_capital = 1;
+   846: 	element->drop_down->post_change_javascript =
+   849: 	element->drop_down->max_drop_down_size =
+   852: 	element->drop_down->multi_select =
+   855: 	element->drop_down->no_initial_capital =
+   858: 	element->drop_down->heading = strdup( element_heading );
+   860: 	element->drop_down->state = "insert";
+   888: 		&element->drop_down->option_data_list,
+   889: 		&element->drop_down->option_label_list,
+   997: 		element->prompt_data->heading = strdup( element_heading );
+  1000: 			element->prompt_data->format_initial_capital = 1;
+  1033: 	element->drop_down->post_change_javascript =
+  1036: 	element->drop_down->max_drop_down_size =
+  1039: 	element->drop_down->multi_select =
+  1042: 	element->drop_down->no_initial_capital =
+  1045: 	element->drop_down->heading = strdup( element_heading );
+  1047: 	element->drop_down->state = state;
+  1050: 		element->drop_down->output_null_option = 1;
+  1107: 		&element->drop_down->option_data_list,
+  1108: 		&element->drop_down->option_label_list,
+  2441: 			element->push_button, "New" );
+  2443: 		element->push_button->form_name = form_name;
+  2444: 		element->push_button->onchange_submit_yn = 'y';
+./library/appaserver_library.c
+  1123: 				element->notepad,
+  1127: 				element->notepad,
+  1128: 				element->name );
+  1137: 				element->password,
+  1141: 				element->password,
+  1142: 				element->name );
+  1169: 				element->reference_number,
+  1175: 			sprintf( heading, "*%s", element->name );
+  1177: 					element->reference_number,
+  1183: 					element->reference_number,
+  1184: 					element->name );
+  1186: 		element->reference_number->omit_update = omit_update;
+  1209: 				element->text_item, 
+  1212: 		element->text_item->state = "insert";
+  1217: 			sprintf( heading, "*%s", element->name );
+  1219: 					element->text_item,
+  1225: 					element->text_item,
+  1226: 					element->name );
+  1254: 			element->text_item->post_change_javascript =
+  1260: 			element->text_item->on_focus_javascript_function =
+  1697: 		element->prompt_data->heading =
+  1862: 		element_name = element->name;
+  2624: 				element->push_button->heading =
+  2629: 			element->push_button->image_source =
+  2636: 			element->push_button->image_source =
+  2639: 			element->push_button->onclick_function =
+  2650: 			element->push_button->image_source =
+  2653: 			element->push_button->image_source =
+  2907: 					temp_element->text_item );
+  2909: 			element->http_filename->update_text_item =
+  2910: 				temp_element->text_item;
+  2941: 				element->prompt_data,
+  2942: 				element->name );
+  2971: 				element->notepad,
+  2975: 				element->notepad, 
+  2976: 				element->name );
+  2979: 				element->notepad );
+  2981: 		element->notepad->state = "update";
+  2990: 				element->password,
+  2994: 				element->password, 
+  2995: 				element->name );
+  2997: 		element->password->state = "update";
+  3014: 				element->prompt_data,
+  3015: 				element->name );
+  3028: 		element->drop_down->state = "update";
+  3046: 			sprintf( heading, "*%s", element->name );
+  3048: 					element->prompt_data,
+  3054: 					element->prompt_data,
+  3055: 					element->name );
+  3066: 				element->text_item, 
+  3073: 			sprintf( heading, "*%s", element->name );
+  3076: 					element->text_item,
+  3082: 					element->text_item,
+  3083: 					element->name );
+  3087: 				element->text_item );
+  3089: 		element->text_item->post_change_javascript =
+  3092: 		element->text_item->on_focus_javascript_function =
+  3095: 		element->text_item->state = "update";
+  3104: 				element->text_item, 
+  3107: 		element->text_item->dont_initialize_data = 1;
+  3113: 			sprintf( heading, "*%s", element->name );
+  3116: 					element->text_item,
+  3122: 					element->text_item,
+  3123: 					element->name );
+  3127: 				element->text_item );
+  3129: 		element->text_item->post_change_javascript =
+  3132: 		element->text_item->on_focus_javascript_function =
+  3135: 		element->text_item->state = "update";
+  3144: 				element->text_item, 
+  3147: 		element->text_item->dont_initialize_data = 1;
+  3153: 			sprintf( heading, "*%s", element->name );
+  3156: 					element->text_item,
+  3162: 					element->text_item,
+  3163: 					element->name );
+  3167: 				element->text_item );
+  3169: 		element->text_item->post_change_javascript =
+  3172: 		element->text_item->on_focus_javascript_function =
+  3175: 		element->text_item->state = "update";
+  3186: 				element->text_item, 
+  3192: 			sprintf( heading, "*%s", element->name );
+  3194: 					element->text_item,
+  3200: 					element->text_item,
+  3201: 					element->name );
+  3205: 				element->text_item );
+  3207: 		element->text_item->post_change_javascript =
+  3210: 		element->text_item->on_focus_javascript_function =
+  3213: 		element->text_item->state = "update";
+./src_appaserver/output_prompt_edit_form.c
+  1318: 				element->push_button,
+  1361: 	element->push_button->heading = NO_DISPLAY_PUSH_BUTTON_HEADING;
+  1365: 	element->push_button->onclick_function = strdup( onclick_function );
+  1380: 	element->radio_button->value = 
+  1383: 	element->radio_button->heading = "Statistics";
+  1414: 		element->radio_button->value = 
+  1417: 		element->radio_button->heading = "Grace Chart";
+  1428: 		element->radio_button->value = 
+  1431: 		element->radio_button->heading = "Google Chart";
+  1456: 		element->radio_button->value = 
+  1459: 		element->radio_button->heading = "Histogram";
+  1484: 		element->radio_button->value =
+  1487: 		element->radio_button->heading = "Group Count";
+  1512: 		element->radio_button->value = 
+  1515: 		element->radio_button->heading = TRANSMIT_PUSH_BUTTON_LABEL;
+  1540: 		element->radio_button->value =
+  1544: 			element->radio_button,
+  1561: 		element->radio_button->value = DELETE_PUSH_BUTTON_NAME;
+  1562: 		element->radio_button->heading = "delete";
+  1563: 		element->radio_button->checked = 0;
+  1587: 		element->radio_button->value = SORT_ORDER_PUSH_BUTTON_NAME;
+  1589: 		element->radio_button->heading = "Sort Order";
+  1606: 		element->radio_button->value = "lookup";
+  1607: 		element->radio_button->heading = "lookup";
+  1608: 		element->radio_button->checked = 1;
+  1658: 		element->text_item->attribute_width = EMAIL_TEXT_ITEM_WIDTH;
+  1659: 		element->text_item->post_change_javascript =
+./src_appaserver/post_generic_load.c
+   380: 				element->drop_down,
+   464: 				element->name,
+   465: 				element->drop_down->option_data_list,
+   466: 				element->drop_down->option_label_list,
+   467: 				element->drop_down->number_columns,
+   468: 				element->drop_down->multi_select,
+   470: 				element->drop_down->initial_data,
+   471: 				element->drop_down->output_null_option,
+   472: 				element->drop_down->output_not_null_option,
+   473: 				element->drop_down->output_select_option,
+   474: 				element->drop_down->folder_name,
+   476: 				element->drop_down->max_drop_down_size,
+   477: 				element->drop_down->multi_select_element_name,
+   478: 				element->drop_down->onblur_javascript_function,
+   480: 				element->drop_down->date_piece_offset,
+   481: 				element->drop_down->no_initial_capital,
+   482: 				element->drop_down->readonly,
+   484: 				element->drop_down->state );
+./src_appaserver/post_merge_purge.c
+   325: 		element->drop_down,
+   356: 				element->name,
+   357: 				element->drop_down->option_data_list,
+   358: 				element->drop_down->option_label_list,
+   359: 				element->drop_down->number_columns,
+   360: 				element->drop_down->multi_select,
+   362: 				element->drop_down->initial_data,
+   363: 				element->drop_down->output_null_option,
+   364: 				element->drop_down->output_not_null_option,
+   365: 				element->drop_down->output_select_option,
+   366: 				element->drop_down->folder_name,
+   368: 				element->drop_down->max_drop_down_size,
+   369: 				element->drop_down->multi_select_element_name,
+   370: 				element->drop_down->onblur_javascript_function,
+   372: 				element->drop_down->date_piece_offset,
+   374: 				element->drop_down->readonly,
+   376: 				element->drop_down->state );
+   386: 		element->drop_down,
+   419: 				element->name,
+   420: 				element->drop_down->option_data_list,
+   421: 				element->drop_down->option_label_list,
+   422: 				element->drop_down->number_columns,
+   423: 				element->drop_down->multi_select,
+   425: 				element->drop_down->initial_data,
+   426: 				element->drop_down->output_null_option,
+   427: 				element->drop_down->output_not_null_option,
+   428: 				element->drop_down->output_select_option,
+   429: 				element->drop_down->folder_name,
+   431: 				element->drop_down->max_drop_down_size,
+   432: 				element->drop_down->multi_select_element_name,
+   433: 				element->drop_down->onblur_javascript_function,
+   435: 				element->drop_down->date_piece_offset,
+   437: 				element->drop_down->readonly,
+   439: 				element->drop_down->state );
+   451: 	element_drop_down_set_option_data_list(	element->drop_down,
+   459: 	element_drop_down_set_option_label_list(element->drop_down,
+   467: 				element->name,
+   468: 				element->drop_down->option_data_list,
+   469: 				element->drop_down->option_label_list,
+   470: 				element->drop_down->number_columns,
+   471: 				element->drop_down->multi_select,
+   473: 				element->drop_down->initial_data,
+   474: 				element->drop_down->output_null_option,
+   475: 				element->drop_down->output_not_null_option,
+   476: 				element->drop_down->output_select_option,
+   477: 				element->drop_down->folder_name,
+   479: 				element->drop_down->max_drop_down_size,
+   480: 				element->drop_down->multi_select_element_name,
+   481: 				element->drop_down->onblur_javascript_function,
+   483: 				element->drop_down->date_piece_offset,
+   484: 				element->drop_down->no_initial_capital,
+   485: 				element->drop_down->readonly,
+   487: 				element->drop_down->state );
+./src_appaserver/output_choose_role_drop_down.c
+   204: 	element->drop_down->post_change_javascript =
+   208: 		element->drop_down->initial_data = role_name;
+   226: 			element->name,
+   229: 			element->drop_down->number_columns,
+   230: 			element->drop_down->multi_select,
+   232: 			element->drop_down->initial_data,
+   233: 			element->drop_down->output_null_option,
+   234: 			element->drop_down->output_not_null_option,
+   235: 			element->drop_down->output_select_option,
+   236: 			element->drop_down->folder_name,
+   237: 			element->drop_down->post_change_javascript,
+   238: 			element->drop_down->max_drop_down_size,
+   239: 			element->drop_down->multi_select_element_name,
+   240: 			element->drop_down->onblur_javascript_function,
+   243: 			element->drop_down->no_initial_capital,
+   244: 			element->drop_down->readonly,
+   246: 			element->drop_down->state );
+./src_appaserver/post_change_sort_order.c
+   464: 	element->radio_button->onclick = strdup( onclick );
+   466: 	element->radio_button->state = "sort";
+   468: 	element->radio_button->post_change_javascript =
+./src_appaserver/output_prompt_insert_form.c
+   895: 		element_hidden_set_data(	element->hidden,
+   917: 			element->push_button, "lookup" );
+  1409: 				element->push_button, "ignore" );
+  1450: 				element->notepad,
+  1454: 				element->notepad, 
+  1455: 				element->name );
+  1471: 				element->reference_number, 
+  1491: 						element->password,
+  1534: 	element->tab_index = tab_index;
+  1566: 	element_hidden_set_data(	element->hidden,
+./src_appaserver/output_choose_isa_drop_down.c
+   370: 		element->drop_down,
+   400: 	element_hidden_set_data(	element->hidden,
+   418: 		element->push_button, "lookup" );
+   437: 	element_hidden_set_data(	element->hidden,
+./src_appaserver/post_report_writer.c
+   507: 		element->drop_down,
+   671: 	element->drop_down->multi_select = 1;
+   672: 	element->drop_down->multi_select_element_name =
+   691: 		element->drop_down,
+  1385: 	element->drop_down->option_data_list = list_new();
+  1386: 	list_append_pointer(	element->drop_down->option_data_list,
+  1388: 	list_append_pointer(	element->drop_down->option_data_list,
+  1390: 	list_append_pointer(	element->drop_down->option_data_list,
+./src_accountancymodel/balance_sheet.c
+   625: 					element->subclassification_list,
+   627: 					element->accumulate_debit,
+   647: 					element->subclassification_list,
+   649: 					element->accumulate_debit,
+   706: 	list_append_pointer(	element->subclassification_list,
+   711: 					element->subclassification_list,
+   713: 					element->accumulate_debit,
+   784: 					element->subclassification_list,
+   786: 					element->accumulate_debit,
+   806: 					element->subclassification_list,
+   808: 					element->accumulate_debit,
+   865: 	list_append_pointer(	element->subclassification_list,
+   870: 					element->subclassification_list,
+   872: 					element->accumulate_debit,
+  1034: 					element->subclassification_list,
+  1036: 					element->accumulate_debit ) );
+  1056: 					element->subclassification_list,
+  1058: 					element->accumulate_debit ) );
+  1116: 	list_append_pointer(	element->subclassification_list,
+  1122: 					element->subclassification_list,
+  1124: 					element->accumulate_debit ) );
+  1170: 					element->subclassification_list,
+  1172: 					element->accumulate_debit,
+  1193: 					element->subclassification_list,
+  1195: 					element->accumulate_debit,
+  1251: 	list_append_pointer(	element->subclassification_list,
+  1257: 					element->subclassification_list,
+  1259: 					element->accumulate_debit,
+./src_accountancymodel/ledger.c
+    47: 	element->element_name = element_name;
+   120: 	element->accumulate_debit = ( *accumulate_debit_yn == 'y' );
+  1095: 		if ( strcmp( element->element_name, element_name ) == 0 )
+  1150: 		element->accumulate_debit = ( *accumulate_debit_yn == 'y' );
+  1152: 		element->subclassification_list =
+  1154: 				&element->element_total,
+  1156: 				element->element_name,
+  5889: 		return 1 - element->accumulate_debit;
+  5893: 		return element->accumulate_debit;
+  5896: 	return element->accumulate_debit;
+  5946: 		if ( !list_rewind( element->subclassification_list ) ) continue;
+  5951: 					element->subclassification_list );
+  5974: 		} while( list_next( element->subclassification_list ) );
+  6556: 		if ( !list_rewind( element->subclassification_list ) )
+  6562: 					element->
+  6577: 		} while( list_next( element->subclassification_list ) );
+./src_accountancymodel/close_nominal_accounts.c
+   324: 			element->subclassification_list,
+   325: 			element->accumulate_debit,
+   347: 			element->subclassification_list,
+   348: 			element->accumulate_debit,
+   370: 			element->subclassification_list,
+   371: 			element->accumulate_debit,
+   393: 			element->subclassification_list,
+   394: 			element->accumulate_debit,
+   416: 			element->subclassification_list,
+   417: 			element->accumulate_debit,
+   636: 			element->subclassification_list,
+   637: 			element->accumulate_debit );
+   656: 			element->subclassification_list,
+   657: 			element->accumulate_debit );
+   676: 			element->subclassification_list,
+   677: 			element->accumulate_debit );
+   696: 			element->subclassification_list,
+   697: 			element->accumulate_debit );
+   716: 			element->subclassification_list,
+   717: 			element->accumulate_debit );
+./src_accountancymodel/income_statement.c
+   324: 					element->subclassification_list,
+   325: 					element->accumulate_debit );
+   343: 					element->subclassification_list,
+   344: 					element->accumulate_debit );
+   362: 				element->subclassification_list,
+   363: 				element->accumulate_debit );
+   381: 					element->subclassification_list,
+   382: 					element->accumulate_debit );
+   455: 				element->subclassification_list,
+   457: 				element->accumulate_debit,
+   458: 				element->element_total
+   478: 				element->subclassification_list,
+   480: 				element->accumulate_debit,
+   500: 				element->subclassification_list,
+   502: 				element->accumulate_debit,
+   522: 				element->subclassification_list,
+   524: 				element->accumulate_debit,
+   606: 				element->subclassification_list,
+   608: 				element->accumulate_debit,
+   609: 				element->element_total
+   629: 					element->subclassification_list,
+   631: 					element->accumulate_debit,
+   652: 					element->subclassification_list,
+   654: 					element->accumulate_debit,
+   675: 					element->subclassification_list,
+   677: 					element->accumulate_debit,
+   827: 	revenues_total = element->element_total;
+  1068: 					element->subclassification_list,
+  1070: 					element->accumulate_debit ) );
+  1090: 					element->subclassification_list,
+  1092: 					element->accumulate_debit ) );
+  1112: 					element->subclassification_list,
+  1114: 					element->accumulate_debit ) );
+  1134: 					element->subclassification_list,
+  1136: 					element->accumulate_debit ) );
+  1198: 					element->subclassification_list,
+  1200: 					element->accumulate_deb[?1049h[?1h=[1;24r[?12;25h[?12l[?25h[27m[23m[m[H[2J[?25l[24;1H"./src_hydrology/hydrology_quick_measurement_form.c" 596 lines, 14894 character
+[23;80Hs[24;1H
+[32mPress ENTER or type command to continue[?12l[?25h[m[1;1H[2L[?25l[1;1H/* hydrology_quick_measurement_form.c[35C*/
+/* ----------------------------------------------------------------     */
+/*[70C*/
+/* Freely available software: see Appaserver.org[24C*/
+/* ----------------------------------------------------------------     */
+
+/* Includes */
+/* -------- */
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include "timlib.h"
+#include "list.h"
+#include "form.h"
+#include "folder.h"
+#include "application.h"
+#include "operation.h"
+#include "dictionary.h"
+#include "attribute.h"
+#include "query.h"
+#include "decode_html_post.h"
+#include "appaserver_library.h"[24;1H[K[1;1H[?12l[?25h[24;1H
+[?1l>[?1049l[?1049h[?1h=[?12;25h[?12l[?25h[27m[23m[m[H[2J[?25l[1;1H/* hydrology_quick_measurement_form.c[35C*/
+/* ----------------------------------------------------------------     */
+/*[70C*/
+/* Freely available software: see Appaserver.org[24C*/
+/* ----------------------------------------------------------------     */
+
+/* Includes */
+/* -------- */
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include "timlib.h"
+#include "list.h"
+#include "form.h"
+#include "folder.h"
+#include "application.h"
+#include "operation.h"
+#include "dictionary.h"
+#include "attribute.h"
+#include "query.h"
+#include "decode_html_post.h"
+#include "appaserver_library.h"[1;1H[?12l[?25h[24;1H[?1l>[?1049lVim: Caught deadly signal HUP
+Vim: Finished.
+[24;1H

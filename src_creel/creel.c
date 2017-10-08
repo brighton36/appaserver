@@ -39,9 +39,6 @@ CREEL *creel_new(			char *application_name,
 			end_census_date,
 			fishing_purpose );
 
-	printf( "length creel_census_hash_table = %d\n",
-		hash_table_length( creel->creel_census_hash_table ) );
-
 	creel->fishing_trips_hash_table =
 		creel_get_fishing_trips_hash_table(
 			application_name,
@@ -49,18 +46,12 @@ CREEL *creel_new(			char *application_name,
 			end_census_date,
 			fishing_purpose );
 
-	printf( "length fishing_trips_hash_table = %d\n",
-		hash_table_length( creel->fishing_trips_hash_table ) );
-
 	creel->catches_hash_table =
 		creel_get_catches_hash_table(
 			application_name,
 			begin_census_date,
 			end_census_date,
 			fishing_purpose );
-
-	printf( "length catches_hash_table = %d\n",
-		hash_table_length( creel->catches_hash_table ) );
 
 	creel_append_fishing_trips(
 		creel->creel_census_hash_table,

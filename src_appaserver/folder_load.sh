@@ -21,6 +21,8 @@ application=$1
 
 table_folder=`get_table_name $application folder`
 
+row_access_count="'0'"
+
 echo "select 		$table_folder.folder,				\
 			insert_rows_number,				\
 			lookup_email_output_yn,				\
@@ -30,7 +32,7 @@ echo "select 		$table_folder.folder,				\
 			notepad,					\
 			html_help_file_anchor,				\
 			post_change_javascript,				\
-			row_access_count,				\
+			$row_access_count,				\
 			lookup_before_drop_down_yn,			\
 			no_initial_capital_yn,				\
 			subschema,					\

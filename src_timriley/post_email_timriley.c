@@ -15,6 +15,7 @@
 #define TIMRILEY_EMAIL_ADDRESS	"timriley@appahost.com"
 #define RICK_DOCUMENT_ROOT	"/var/www/appahost"
 #define SUGAR_DOCUMENT_ROOT	"/home/timriley/public_html/appahost"
+#define APPAHOST_DOCUMENT_ROOT	"/var/www/html/appahost_com"
 
 int main( void )
 {
@@ -37,15 +38,20 @@ int main( void )
 	email_address = dictionary_get( dictionary, "email_address" );
 	message = dictionary_get( dictionary, "message" );
 
-	sprintf( sys_string,
-		 "mailx -s \"Appahost message about %s from %s\" %s",
-		 reason,
-		 email_address,
-		 TIMRILEY_EMAIL_ADDRESS );
+	if ( reason && *reason
+	&&   email_address && *email_address
+	&&   message && *message )
+	{
+		sprintf( sys_string,
+		 	"mailx -s \"Appahost message about %s from %s\" %s",
+		 	reason,
+		 	email_address,
+		 	TIMRILEY_EMAIL_ADDRESS );
 
-	output_pipe = popen( sys_string, "w" );
-	fprintf( output_pipe, "%s\n", message );
-	pclose( output_pipe );
+		output_pipe = popen( sys_string, "w" );
+		fprintf( output_pipe, "%s\n", message );
+		pclose( output_pipe );
+	}
 
 	document_output_content_type();
 
@@ -57,7 +63,7 @@ int main( void )
 	if ( strcmp( node_name, "sugar.he.net" ) == 0 )
 		document_root = SUGAR_DOCUMENT_ROOT;
 	else
-		document_root = RICK_DOCUMENT_ROOT;
+		document_root = APPAHOST_DOCUMENT_ROOT;
 
 	sprintf( output_process, "cat %s/message_sent.html", document_root );
 	system( output_process );

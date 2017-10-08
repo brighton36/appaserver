@@ -613,4 +613,11 @@ FILE *creel_library_date_range_get_fishing_trip_input_pipe(
 				char *preferred_species_string,
 				boolean exclude_zero_catches );
 
+char *creel_library_get_species_where(
+				char *family,
+				char *genus,
+				char *species,
+				char *species_attribute_name,
+				char *catches_table_name );
+
 #endif

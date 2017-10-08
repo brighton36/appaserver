@@ -196,26 +196,6 @@ int main( int argc, char **argv )
 			query_dictionary,
 			(ROLE *)0 );
 
-#ifdef NOT_DEFINED
-	query =	query_new(	application_name,
-				login_name,
-				folder_name,
-				(LIST *)0 /* attribute_list */,
-				query_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				(ROLE *)0 /* role */,
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
-
 	query->query_output->where_clause =
 		get_where_clause(	query->dictionary,
 					application_name,
@@ -302,6 +282,7 @@ int main( int argc, char **argv )
 		form->insert_update_key,
 		form->target_frame,
 		output_submit_reset_buttons_in_heading,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -309,7 +290,8 @@ int main( int argc, char **argv )
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	form_output_table_heading(	form->regular_element_list,
 					0 /* form_number */ );
@@ -348,7 +330,9 @@ int main( int argc, char **argv )
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		0 /* not with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
+
 	document_close();
 
 	process_increment_execution_count(

@@ -137,8 +137,9 @@ void output_solved_sudoku( DICTIONARY *post_dictionary )
 
 void output_html_heading( void )
 {
+	document_output_html_stream( stdout );
+
 	printf(
-"<html>\n"
 "<head>\n"
 "<title>Sudoku</title>\n"
 "</head>\n"

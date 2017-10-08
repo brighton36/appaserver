@@ -35,8 +35,8 @@ site_quad_sweep_throwtrap_abiotic_join_file=/tmp/${application}_site_quad_sweep_
 site_quad_sweep_abiotic_validated_join_file=/tmp/${application}_site_quad_sweep_abiotic_validated_join_$$.dat
 
 select="collection_number, collection.collection_name, sampling_point.location, count(*)"
-group="collection_number, location"
-order="collection_number desc, location"
+group="collection_number, collection.collection_name, sampling_point.location"
+order="collection_number desc, sampling_point.location"
 
 # Process
 # =======

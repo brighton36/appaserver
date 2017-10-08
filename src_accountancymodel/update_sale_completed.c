@@ -218,6 +218,22 @@ void update_sale_completed(	CUSTOMER_SALE *customer_sale,
 				customer_sale->sale_date_time,
 				application_name );
 
+	sprintf( sys_string,
+"post_change_customer_sale %s \"%s\" \"%s\" \"%s\" update preupdate_full_name preupdate_street_address preupdate_title_passage_rule '' preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue",
+		 application_name,
+		 customer_sale->full_name,
+		 customer_sale->street_address,
+		 customer_sale->sale_date_time );
+
+	system( sys_string );
+
+	customer_sale =
+		customer_sale_new(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->sale_date_time );
+
 	display_customer_sale(	application_name,
 				customer_sale->full_name,
 				customer_sale->street_address,
@@ -226,15 +242,6 @@ void update_sale_completed(	CUSTOMER_SALE *customer_sale,
 	printf( "<p>Marked sale completed.\n" );
 
 	document_close();
-
-	sprintf( sys_string,
-"post_change_customer_sale %s \"%s\" \"%s\" \"%s\" update preupdate_title_passage_rule '' preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue",
-		 application_name,
-		 customer_sale->full_name,
-		 customer_sale->street_address,
-		 customer_sale->sale_date_time );
-
-	system( sys_string );
 
 } /* update_sale_completed() */
 
@@ -282,7 +289,7 @@ void update_sale_not_completed(	CUSTOMER_SALE *customer_sale,
 				application_name );
 
 	sprintf( sys_string,
-"post_change_customer_sale %s \"%s\" \"%s\" \"%s\" update preupdate_title_passage_rule \"%s\" preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue",
+"post_change_customer_sale %s \"%s\" \"%s\" \"%s\" update preupdate_full_name preupdate_street_address preupdate_title_passage_rule \"%s\" preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue",
 		 application_name,
 		 customer_sale->full_name,
 		 customer_sale->street_address,
@@ -290,6 +297,13 @@ void update_sale_not_completed(	CUSTOMER_SALE *customer_sale,
 		 preupdate_completed_date_time );
 
 	system( sys_string );
+
+	customer_sale =
+		customer_sale_new(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->sale_date_time );
 
 	display_customer_sale(	application_name,
 				customer_sale->full_name,

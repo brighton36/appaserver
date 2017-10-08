@@ -28,6 +28,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		remove_chlorophyll_light_contamination			\
 		measurement_block_delete				\
 		output_measurement_easycharts				\
+		output_measurement_googlecharts				\
 		output_measurement_data					\
 		extract_measurements					\
 		output_flow_daily_values				\
@@ -96,7 +97,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		view_maps_figs						\
 		datatype_overlay					\
 		custom_chart						\
-		output_measurement_sets_easychart			\
+		output_measurement_sets_googlechart			\
 		high_average_low_chart					\
 		load_realdata						\
 		hydrology_quick_measurement_form			\
@@ -441,13 +442,13 @@ output_flow_daily_values: output_flow_daily_values.c			\
 
 output_measurement_delta: output_measurement_delta.c			\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}					\
-		${LIBRARY}/easycharts.o
+		${LIBRARY}/google_chart.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		output_measurement_delta.c				\
 		-o output_measurement_delta
 
@@ -462,6 +463,18 @@ output_measurement_easycharts: output_measurement_easycharts.c		\
 		${LIBRARY}/easycharts.o					\
 		output_measurement_easycharts.c				\
 		-o output_measurement_easycharts
+
+output_measurement_googlecharts: output_measurement_googlecharts.c	\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}					\
+		${LIBRARY}/google_chart.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		${LIBRARY}/google_chart.o				\
+		output_measurement_googlecharts.c			\
+		-o output_measurement_googlecharts
 
 output_measurement_data_sets: output_measurement_data_sets.c		\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS} ${STANDARD_LIBRARY}
@@ -562,7 +575,7 @@ daily_moving_statistic_output: daily_moving_statistic_output.c		\
 
 merged_datasets_output: merged_datasets_output.c			\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
@@ -570,7 +583,7 @@ merged_datasets_output: merged_datasets_output.c			\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
 		merged_datasets_output.c				\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o					\
 		-o merged_datasets_output
 
@@ -590,7 +603,7 @@ water_budget_flow: water_budget_flow.c					\
 
 output_measurement_differences: output_measurement_differences.c	\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
@@ -598,7 +611,7 @@ output_measurement_differences: output_measurement_differences.c	\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
 		output_measurement_differences.c			\
-		${LIBRARY}/easycharts.o					\
+		${LIBRARY}/google_chart.o				\
 		${LIBRARY}/grace.o					\
 		-o output_measurement_differences
 
@@ -646,17 +659,18 @@ output_hydroperiod_annually: output_hydroperiod_annually.c		\
 		${LIBRARY}/grace.o					\
 		-o output_hydroperiod_annually
 
-output_measurement_sets_easychart: output_measurement_sets_easychart.c	\
+output_measurement_sets_googlechart:					\
+		output_measurement_sets_googlechart.c			\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
-		${LIBRARY}/easycharts.o
+		${LIBRARY}/google_chart.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
-		${LIBRARY}/easycharts.o					\
-		output_measurement_sets_easychart.c			\
-		-o output_measurement_sets_easychart
+		${LIBRARY}/google_chart.o				\
+		output_measurement_sets_googlechart.c			\
+		-o output_measurement_sets_googlechart
 
 annual_periods_output: annual_periods_output.c				\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\

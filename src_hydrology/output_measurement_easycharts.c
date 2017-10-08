@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* output_measurement_easycharts.c			*/
+/* src_hydrology/output_measurement_easycharts.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -269,8 +269,9 @@ int main( int argc, char **argv )
 	easycharts->point_highlight_size = 0;
 
 	sprintf(applet_library_archive,
-		"/%s/%s",
-		application_name,
+		"/appaserver/%s/%s",
+		application_get_relative_source_directory(
+			application_name ),
 		EASYCHARTS_JAR_FILE );
 
 	easycharts->applet_library_archive = applet_library_archive;

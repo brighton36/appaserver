@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* src_accountancymodel/post_change_customer_sale.c			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/post_change_customer_sale.c	*/
+/* -----------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -165,6 +165,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	full_name = argv[ 2 ];
 	street_address = argv[ 3 ];
@@ -248,28 +254,28 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "predelete" ) != 0 )
 	{
 		customer_sale_update(
-				customer_sale->sum_extension,
-				customer_sale->database_sum_extension,
-				customer_sale->sales_tax,
-				customer_sale->database_sales_tax,
-				customer_sale->invoice_amount,
-				customer_sale->database_invoice_amount,
-				customer_sale->completed_date_time,
-				customer_sale->database_completed_date_time,
-				customer_sale->shipped_date_time,
-				customer_sale->database_shipped_date_time,
-				customer_sale->arrived_date,
-				customer_sale->database_arrived_date,
-				customer_sale->total_payment,
-				customer_sale->database_total_payment,
-				customer_sale->amount_due,
-				customer_sale->database_amount_due,
-				customer_sale->transaction_date_time,
-				customer_sale->database_transaction_date_time,
-				customer_sale->full_name,
-				customer_sale->street_address,
-				customer_sale->sale_date_time,
-				application_name );
+			customer_sale->sum_extension,
+			customer_sale->database_sum_extension,
+			customer_sale->sales_tax,
+			customer_sale->database_sales_tax,
+			customer_sale->invoice_amount,
+			customer_sale->database_invoice_amount,
+			customer_sale->completed_date_time,
+			customer_sale->database_completed_date_time,
+			customer_sale->shipped_date_time,
+			customer_sale->database_shipped_date_time,
+			customer_sale->arrived_date,
+			customer_sale->database_arrived_date,
+			customer_sale->total_payment,
+			customer_sale->database_total_payment,
+			customer_sale->amount_due,
+			customer_sale->database_amount_due,
+			customer_sale->transaction_date_time,
+			customer_sale->database_transaction_date_time,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->sale_date_time,
+			application_name );
 
 		/* Update inventory_sale->cost_of_goods_sold */
 		/* ----------------------------------------- */
@@ -448,11 +454,42 @@ void post_change_customer_sale_update(
 	{
 		if ( customer_sale->completed_date_time )
 		{
+			char *sales_tax_payable_full_name = {0};
+			char *sales_tax_payable_street_address = {0};
+
+			if ( customer_sale->sales_tax )
+			{
+				ENTITY *sales_tax_payable_entity;
+
+				if ( ! ( sales_tax_payable_entity =
+					    entity_get_sales_tax_payable_entity(
+							application_name ) ) )
+				{
+					fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get sales_tax_payable_entity.\n",
+			 			__FILE__,
+			 			__FUNCTION__,
+			 			__LINE__ );
+					exit( 1 );
+				}
+
+				sales_tax_payable_full_name =
+					sales_tax_payable_entity->
+						full_name;
+
+				sales_tax_payable_street_address =
+					sales_tax_payable_entity->
+						street_address;
+
+			}
+
 			customer_sale_transaction_delete_with_propagate(
 				application_name,
 				customer_sale->fund_name,
 				customer_sale->full_name,
 				customer_sale->street_address,
+				sales_tax_payable_full_name,
+				sales_tax_payable_street_address,
 				customer_sale->transaction_date_time );
 
 			customer_sale->transaction = (TRANSACTION *)0;
@@ -578,13 +615,44 @@ void post_change_customer_sale_mistakenly_completed(
 
 	if ( customer_sale->title_passage_rule == title_passage_rule_null )
 	{
+		char *sales_tax_payable_full_name = {0};
+		char *sales_tax_payable_street_address = {0};
+
 		if ( !customer_sale->transaction )
 		{
 			fprintf( stderr,
-		"Warning in %s/%s()/%d: empty customer_sale->transaction.\n",
+		"ERROR in %s/%s()/%d: empty customer_sale->transaction.\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__ );
+			exit( 1 );
+		}
+
+
+		if ( customer_sale->sales_tax )
+		{
+			ENTITY *sales_tax_payable_entity;
+
+			if ( ! ( sales_tax_payable_entity =
+				    entity_get_sales_tax_payable_entity(
+						application_name ) ) )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get sales_tax_payable_entity.\n",
+		 			__FILE__,
+		 			__FUNCTION__,
+		 			__LINE__ );
+				exit( 1 );
+			}
+
+			sales_tax_payable_full_name =
+				sales_tax_payable_entity->
+					full_name;
+
+			sales_tax_payable_street_address =
+				sales_tax_payable_entity->
+					street_address;
+
 		}
 
 		customer_sale_transaction_delete_with_propagate(
@@ -592,6 +660,8 @@ void post_change_customer_sale_mistakenly_completed(
 			customer_sale->fund_name,
 			customer_sale->full_name,
 			customer_sale->street_address,
+			sales_tax_payable_full_name,
+			sales_tax_payable_street_address,
 			customer_sale->transaction_date_time );
 
 		customer_sale->transaction = (TRANSACTION *)0;
@@ -695,6 +765,9 @@ void post_change_customer_sale_mistakenly_shipped_FOB_shipping(
 			CUSTOMER_SALE *customer_sale,
 			char *application_name )
 {
+	char *sales_tax_payable_full_name = {0};
+	char *sales_tax_payable_street_address = {0};
+
 	if ( customer_sale->transaction )
 	{
 		fprintf( stderr,
@@ -705,11 +778,40 @@ void post_change_customer_sale_mistakenly_shipped_FOB_shipping(
 		exit( 1 );
 	}
 
+
+	if ( customer_sale->sales_tax )
+	{
+		ENTITY *sales_tax_payable_entity;
+
+		if ( ! ( sales_tax_payable_entity =
+			    entity_get_sales_tax_payable_entity(
+					application_name ) ) )
+		{
+			fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get sales_tax_payable_entity.\n",
+	 			__FILE__,
+	 			__FUNCTION__,
+	 			__LINE__ );
+			exit( 1 );
+		}
+
+		sales_tax_payable_full_name =
+			sales_tax_payable_entity->
+				full_name;
+
+		sales_tax_payable_street_address =
+			sales_tax_payable_entity->
+				street_address;
+
+	}
+
 	customer_sale_transaction_delete_with_propagate(
 		application_name,
 		customer_sale->fund_name,
 		customer_sale->full_name,
 		customer_sale->street_address,
+		sales_tax_payable_full_name,
+		sales_tax_payable_street_address,
 		customer_sale->transaction_date_time );
 
 	customer_sale->transaction = (TRANSACTION *)0;
@@ -721,6 +823,9 @@ void post_change_customer_sale_mistakenly_arrived_FOB_destination(
 			CUSTOMER_SALE *customer_sale,
 			char *application_name )
 {
+	char *sales_tax_payable_full_name = {0};
+	char *sales_tax_payable_street_address = {0};
+
 	if ( customer_sale->transaction )
 	{
 		fprintf( stderr,
@@ -731,11 +836,40 @@ void post_change_customer_sale_mistakenly_arrived_FOB_destination(
 		exit( 1 );
 	}
 
+
+	if ( customer_sale->sales_tax )
+	{
+		ENTITY *sales_tax_payable_entity;
+
+		if ( ! ( sales_tax_payable_entity =
+			    entity_get_sales_tax_payable_entity(
+					application_name ) ) )
+		{
+			fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get sales_tax_payable_entity.\n",
+	 			__FILE__,
+	 			__FUNCTION__,
+	 			__LINE__ );
+			exit( 1 );
+		}
+
+		sales_tax_payable_full_name =
+			sales_tax_payable_entity->
+				full_name;
+
+		sales_tax_payable_street_address =
+			sales_tax_payable_entity->
+				street_address;
+
+	}
+
 	customer_sale_transaction_delete_with_propagate(
 		application_name,
 		customer_sale->fund_name,
 		customer_sale->full_name,
 		customer_sale->street_address,
+		sales_tax_payable_full_name,
+		sales_tax_payable_street_address,
 		customer_sale->transaction_date_time );
 
 	customer_sale->transaction = (TRANSACTION *)0;
@@ -754,8 +888,9 @@ void post_change_customer_sale_just_completed(
 	{
 		do {
 			inventory_sale =
-				list_get(
-					customer_sale->inventory_sale_list );
+				list_get_pointer(
+					customer_sale->
+						inventory_sale_list );
 
 			sprintf( sys_string,
 "propagate_inventory_sale_layers %s \"%s\" \"%s\" \"%s\" \"%s\" '' %c",
@@ -781,16 +916,77 @@ void post_change_customer_sale_just_completed(
 		if ( customer_sale->transaction )
 		{
 			fprintf( stderr,
-"Warning in %s/%s()/%d: not expecting a transaction for this customer_sale.\n",
+"ERROR in %s/%s()/%d: not expecting a transaction for this customer_sale.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__ );
-			return;
+			exit( 1 );
 		}
-	
+
+		if ( list_length( customer_sale->fixed_service_sale_list )
+		&&   customer_fixed_service_open(
+			customer_sale->fixed_service_sale_list ) )
+		{
+			customer_fixed_service_sale_list_close(
+				customer_sale->fixed_service_sale_list,
+				customer_sale->completed_date_time );
+
+			customer_fixed_service_sale_list_update(
+				customer_sale->fixed_service_sale_list,
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->sale_date_time );
+		}
+
+		if ( list_length( customer_sale->hourly_service_sale_list )
+		&&   customer_hourly_service_open(
+			customer_sale->hourly_service_sale_list ) )
+		{
+			/* Sets hourly_service->extension */
+			/* ------------------------------ */
+			customer_hourly_service_sale_list_close(
+				customer_sale->hourly_service_sale_list,
+				customer_sale->completed_date_time );
+
+			customer_sale->invoice_amount =
+				customer_sale_get_invoice_amount(
+					&customer_sale->
+						sum_inventory_extension,
+					&customer_sale->
+						sum_fixed_service_extension,
+					&customer_sale->
+						sum_hourly_service_extension,
+					&customer_sale->sum_extension,
+					&customer_sale->sales_tax,
+					customer_sale->shipping_revenue,
+					customer_sale->
+						inventory_sale_list,
+					customer_sale->
+						specific_inventory_sale_list,
+					customer_sale->fixed_service_sale_list,
+					customer_sale->hourly_service_sale_list,
+					customer_sale->full_name,
+					customer_sale->street_address,
+					application_name );
+
+			customer_sale->amount_due =
+				CUSTOMER_GET_AMOUNT_DUE(
+					customer_sale->invoice_amount,
+					customer_sale->total_payment );
+
+			customer_hourly_service_sale_list_update(
+				customer_sale->hourly_service_sale_list,
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->sale_date_time );
+		}
+
 		post_change_customer_sale_new_transaction(
 			customer_sale,
-			customer_sale->completed_date_time,
+			customer_sale->completed_date_time
+				/* transaction_date_time */,
 			application_name );
 	}
 
@@ -812,7 +1008,8 @@ void post_change_customer_sale_just_shipped_FOB_shipping(
 
 	post_change_customer_sale_new_transaction(
 		customer_sale,
-		customer_sale->shipped_date_time,
+		customer_sale->shipped_date_time
+			/* transaction_date_time */,
 		application_name );
 
 } /* post_change_customer_sale_just_shipped_FOB_shipping() */
@@ -912,7 +1109,8 @@ void post_change_customer_sale_insert_FOB_destination(
 	if ( !customer_sale->arrived_date ) return;
 
 	customer_sale->transaction_date_time =
-		strdup( date_append_hhmmss( customer_sale->arrived_date ) );
+		ledger_get_transaction_date_time(
+			customer_sale->arrived_date );
 
 	customer_sale->transaction =
 		ledger_transaction_new(
@@ -927,7 +1125,7 @@ void post_change_customer_sale_insert_FOB_destination(
 		customer_sale->transaction->full_name,
 		customer_sale->transaction->street_address,
 		customer_sale->transaction->transaction_date_time,
-		0.0 /* transaction_amount */,
+		customer_sale->invoice_amount /* transaction_amount */,
 		customer_sale->transaction->memo,
 		0 /* check_number */,
 		1 /* lock_transaction */ );
@@ -956,7 +1154,7 @@ void post_change_customer_sale_insert_FOB_shipping(
 		customer_sale->transaction->full_name,
 		customer_sale->transaction->street_address,
 		customer_sale->transaction->transaction_date_time,
-		0.0 /* transaction_amount */,
+		customer_sale->invoice_amount /* transaction_amount */,
 		customer_sale->transaction->memo,
 		0 /* check_number */,
 		1 /* lock_transaction */ );
@@ -985,7 +1183,7 @@ void post_change_customer_sale_insert_title_passage_null(
 		customer_sale->transaction->full_name,
 		customer_sale->transaction->street_address,
 		customer_sale->transaction->transaction_date_time,
-		0.0 /* transaction_amount */,
+		customer_sale->invoice_amount /* transaction_amount */,
 		customer_sale->transaction->memo,
 		0 /* check_number */,
 		1 /* lock_transaction */ );
@@ -996,87 +1194,42 @@ void post_change_customer_sale_shipping_revenue_update(
 			CUSTOMER_SALE *customer_sale,
 			char *application_name )
 {
-	customer_sale->invoice_amount =
-		customer_sale_get_invoice_amount(
-			&customer_sale->
-				sum_inventory_extension,
-			&customer_sale->
-				sum_service_extension,
-			&customer_sale->sum_extension,
-			&customer_sale->sales_tax,
-			customer_sale->shipping_revenue,
-			customer_sale->
-				inventory_sale_list,
-			customer_sale->
-				specific_inventory_sale_list,
-			customer_sale->service_sale_list,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			application_name );
-
-	customer_sale->amount_due =
-		customer_sale->invoice_amount -
-		customer_sale->total_payment;
-
-	customer_sale_update(
-		customer_sale->sum_extension,
-		customer_sale->database_sum_extension,
-		customer_sale->sales_tax,
-		customer_sale->database_sales_tax,
-		customer_sale->invoice_amount,
-		customer_sale->database_invoice_amount,
-		customer_sale->completed_date_time,
-		customer_sale->
-			database_completed_date_time,
-		customer_sale->shipped_date_time,
-		customer_sale->database_shipped_date_time,
-		customer_sale->arrived_date,
-		customer_sale->database_arrived_date,
-		customer_sale->total_payment,
-		customer_sale->database_total_payment,
-		customer_sale->amount_due,
-		customer_sale->database_amount_due,
-		customer_sale->transaction_date_time,
-		customer_sale->
-			database_transaction_date_time,
-		customer_sale->full_name,
-		customer_sale->street_address,
-		customer_sale->sale_date_time,
-		application_name );
-
-	/* Propagate ledger accounts */
-	/* ------------------------- */
-	if ( customer_sale->transaction )
+	if ( customer_sale->transaction_date_time )
 	{
-		customer_sale->propagate_account_list =
-			customer_sale_ledger_refresh(
+		customer_sale->transaction =
+			ledger_customer_sale_build_transaction(
 				application_name,
-				customer_sale->fund_name,
 				customer_sale->transaction->full_name,
 				customer_sale->transaction->street_address,
 				customer_sale->transaction->
 					transaction_date_time,
-				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
-				customer_sale->sales_tax,
+				customer_sale->transaction->memo,
+				customer_sale->inventory_sale_list,
+				customer_sale->specific_inventory_sale_list,
+				customer_sale->fixed_service_sale_list,
+				customer_sale->hourly_service_sale_list,
 				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount );
+				customer_sale->sales_tax,
+				customer_sale->invoice_amount,
+				customer_sale->fund_name );
 
-		list_append_list(
-			customer_sale->propagate_account_list,
-			customer_sale_ledger_cost_of_goods_sold_insert(
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
 				application_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->inventory_account_list,
-				customer_sale->cost_account_list ) );
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
 
-		ledger_account_list_propagate(
-			customer_sale->propagate_account_list,
-			application_name );
-	}
+	} /* if transaction_date_time */
 
 } /* post_change_customer_sale_shipping_revenue_update() */
 
@@ -1090,16 +1243,43 @@ void post_change_customer_sale_delete(
 
 	if ( customer_sale->transaction )
 	{
+		char *sales_tax_payable_full_name = {0};
+		char *sales_tax_payable_street_address = {0};
+		ENTITY *sales_tax_payable_entity;
+
+		if ( ! ( sales_tax_payable_entity =
+			    entity_get_sales_tax_payable_entity(
+					application_name ) ) )
+		{
+			fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get sales_tax_payable_entity.\n",
+		 		__FILE__,
+		 		__FUNCTION__,
+		 		__LINE__ );
+			exit( 1 );
+		}
+
+		sales_tax_payable_full_name =
+			sales_tax_payable_entity->
+				full_name;
+
+		sales_tax_payable_street_address =
+			sales_tax_payable_entity->
+				street_address;
+
 		customer_sale_transaction_delete_with_propagate(
 			application_name,
 			customer_sale->fund_name,
 			customer_sale->full_name,
 			customer_sale->street_address,
+			sales_tax_payable_full_name,
+			sales_tax_payable_street_address,
 			customer_sale->transaction_date_time );
 
 		customer_sale->transaction = (TRANSACTION *)0;
 		customer_sale->transaction_date_time = (char *)0;
-	}
+
+	} /* if transation */
 
 	if ( !list_rewind( customer_sale->inventory_sale_list )  ) return;
 
@@ -1133,66 +1313,6 @@ void post_change_customer_sale_delete(
 
 } /* post_change_customer_sale_delete() */
 
-void post_change_customer_sale_new_transaction(
-			CUSTOMER_SALE *customer_sale,
-			char *transaction_date_time,
-			char *application_name )
-{
-	customer_sale->transaction_date_time = transaction_date_time;
-
-	customer_sale->transaction =
-		ledger_transaction_new(
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->transaction_date_time,
-			customer_sale_get_memo(
-				customer_sale->full_name ) );
-
-	ledger_transaction_insert(
-		application_name,
-		customer_sale->transaction->full_name,
-		customer_sale->transaction->street_address,
-		customer_sale->transaction->transaction_date_time,
-		0.0 /* transaction_amount */,
-		customer_sale->transaction->memo,
-		0 /* check_number */,
-		1 /* lock_transaction */ );
-
-	customer_sale->sum_inventory_extension =
-		customer_sale_get_sum_inventory_extension(
-			customer_sale->inventory_sale_list );
-
-	customer_sale->propagate_account_list =
-		customer_sale_ledger_refresh(
-			application_name,
-			customer_sale->fund_name,
-			customer_sale->transaction->full_name,
-			customer_sale->transaction->street_address,
-			customer_sale->transaction->
-				transaction_date_time,
-			customer_sale->sum_inventory_extension,
-			customer_sale->sum_service_extension,
-			customer_sale->sales_tax,
-			customer_sale->shipping_revenue,
-			customer_sale->invoice_amount );
-
-	list_append_list(
-		customer_sale->propagate_account_list,
-		customer_sale_ledger_cost_of_goods_sold_insert(
-			application_name,
-			customer_sale->transaction->full_name,
-			customer_sale->transaction->street_address,
-			customer_sale->transaction->
-				transaction_date_time,
-			customer_sale->inventory_account_list,
-			customer_sale->cost_account_list ) );
-
-	ledger_account_list_propagate(
-		customer_sale->propagate_account_list,
-		application_name );
-
-} /* post_change_customer_sale_new_transaction() */
-
 void post_change_customer_sale_FOB_shipping_new_rule(
 				CUSTOMER_SALE *customer_sale,
 				char *application_name )
@@ -1201,7 +1321,8 @@ void post_change_customer_sale_FOB_shipping_new_rule(
 	{
 		post_change_customer_sale_new_transaction(
 			customer_sale,
-			customer_sale->shipped_date_time,
+			customer_sale->shipped_date_time
+				/* transaction_date_time */,
 			application_name );
 	}
 
@@ -1217,57 +1338,48 @@ void post_change_customer_sale_FOB_destination_new_rule(
 			ledger_get_transaction_date_time(
 				customer_sale->arrived_date );
 
-		customer_sale->transaction =
-			ledger_transaction_new(
-				customer_sale->full_name,
-				customer_sale->street_address,
-				customer_sale->transaction_date_time,
-				customer_sale_get_memo(
-					customer_sale->full_name ) );
-	
-		ledger_transaction_insert(
-			application_name,
-			customer_sale->transaction->full_name,
-			customer_sale->transaction->street_address,
-			customer_sale->transaction->transaction_date_time,
-			0.0 /* transaction_amount */,
-			customer_sale->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */ );
-
 		customer_sale->sum_inventory_extension =
 			customer_sale_get_sum_inventory_extension(
 				customer_sale->inventory_sale_list );
 
-		customer_sale->propagate_account_list =
-			customer_sale_ledger_refresh(
-				application_name,
-				customer_sale->fund_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->sum_inventory_extension,
-				customer_sale->sum_service_extension,
-				customer_sale->sales_tax,
-				customer_sale->shipping_revenue,
-				customer_sale->invoice_amount );
-	
-		list_append_list(
-			customer_sale->propagate_account_list,
-			customer_sale_ledger_cost_of_goods_sold_insert(
-				application_name,
-				customer_sale->transaction->full_name,
-				customer_sale->transaction->street_address,
-				customer_sale->transaction->
-					transaction_date_time,
-				customer_sale->inventory_account_list,
-				customer_sale->cost_account_list ) );
+		customer_sale->sum_inventory_extension +=
+			customer_sale_get_sum_specific_inventory_extension(
+				customer_sale->specific_inventory_sale_list );
 
-		ledger_account_list_propagate(
-			customer_sale->propagate_account_list,
-			application_name );
-	}
+		customer_sale->transaction =
+			ledger_customer_sale_build_transaction(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale_get_memo(
+					customer_sale->full_name ),
+				customer_sale->inventory_sale_list,
+				customer_sale->specific_inventory_sale_list,
+				customer_sale->fixed_service_sale_list,
+				customer_sale->hourly_service_sale_list,
+				customer_sale->shipping_revenue,
+				customer_sale->sales_tax,
+				customer_sale->invoice_amount,
+				customer_sale->fund_name );
+
+		if ( customer_sale->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				customer_sale->full_name,
+				customer_sale->street_address,
+				customer_sale->transaction_date_time,
+				customer_sale->transaction->transaction_amount,
+				customer_sale->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				customer_sale->
+					transaction->
+					journal_ledger_list );
+		}
+
+	} /* if arrived_date */
 
 } /* post_change_customer_sale_FOB_destination_new_rule() */
 
@@ -1378,7 +1490,8 @@ void post_change_customer_sale_changed_to_FOB_shipping(
 		{
 			post_change_customer_sale_new_transaction(
 				customer_sale,
-				customer_sale->shipped_date_time,
+				customer_sale->shipped_date_time
+					/* transaction_date_time */,
 				application_name );
 		}
 	}
@@ -1404,6 +1517,9 @@ void post_change_customer_sale_changed_to_FOB_destination(
 		}
 		else
 		{
+			char *sales_tax_payable_full_name = {0};
+			char *sales_tax_payable_street_address = {0};
+
 			if ( !customer_sale->transaction )
 			{
 				fprintf( stderr,
@@ -1414,17 +1530,48 @@ void post_change_customer_sale_changed_to_FOB_destination(
 				return;
 			}
 
+
+			if ( customer_sale->sales_tax )
+			{
+				ENTITY *sales_tax_payable_entity;
+
+				if ( ! ( sales_tax_payable_entity =
+					    entity_get_sales_tax_payable_entity(
+							application_name ) ) )
+				{
+					fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get sales_tax_payable_entity.\n",
+			 			__FILE__,
+			 			__FUNCTION__,
+			 			__LINE__ );
+					exit( 1 );
+				}
+
+				sales_tax_payable_full_name =
+					sales_tax_payable_entity->
+						full_name;
+
+				sales_tax_payable_street_address =
+					sales_tax_payable_entity->
+						street_address;
+
+			}
+
 			customer_sale_transaction_delete_with_propagate(
 				application_name,
 				customer_sale->fund_name,
 				customer_sale->full_name,
 				customer_sale->street_address,
+				sales_tax_payable_full_name,
+				sales_tax_payable_street_address,
 				customer_sale->transaction_date_time );
 
 			customer_sale->transaction = (TRANSACTION *)0;
 			customer_sale->transaction_date_time = (char *)0;
-		}
-	}
+
+		} /* if not arrived */
+
+	} /* if shipped_date_time */
 
 } /* post_change_customer_sale_changed_to_FOB_destination() */
 
@@ -1448,10 +1595,60 @@ void post_change_customer_sale_title_rule_null(
 		{
 			post_change_customer_sale_new_transaction(
 				customer_sale,
-				customer_sale->completed_date_time,
+				customer_sale->completed_date_time
+					/* transaction_date_time */,
 				application_name );
 		}
 	}
 
 } /* post_change_customer_sale_title_rule_null() */
+
+void post_change_customer_sale_new_transaction(
+			CUSTOMER_SALE *customer_sale,
+			char *transaction_date_time,
+			char *application_name )
+{
+	if ( customer_sale->transaction_date_time )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: not expecting a transaction_date_time.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	customer_sale->transaction_date_time = transaction_date_time;
+
+	customer_sale->transaction =
+		ledger_customer_sale_build_transaction(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->transaction_date_time,
+			CUSTOMER_SALE_MEMO,
+			customer_sale->inventory_sale_list,
+			customer_sale->specific_inventory_sale_list,
+			customer_sale->fixed_service_sale_list,
+			customer_sale->hourly_service_sale_list,
+			customer_sale->shipping_revenue,
+			customer_sale->sales_tax,
+			customer_sale->invoice_amount,
+			customer_sale->fund_name );
+
+	if ( customer_sale->transaction )
+	{
+		ledger_transaction_refresh(
+			application_name,
+			customer_sale->full_name,
+			customer_sale->street_address,
+			customer_sale->transaction_date_time,
+			customer_sale->transaction->transaction_amount,
+			customer_sale->transaction->memo,
+			0 /* check_number */,
+			1 /* lock_transaction */,
+			customer_sale->transaction->journal_ledger_list );
+	}
+
+} /* post_change_customer_sale_new_transaction() */
 

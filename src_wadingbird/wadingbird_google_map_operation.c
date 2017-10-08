@@ -50,7 +50,6 @@ int main( int argc, char **argv )
 	char *prompt_filename;
 	char semaphore_filename[ 256 ];
 	char window_name[ 128 ];
-	char *server_address;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
@@ -215,15 +214,6 @@ int main( int argc, char **argv )
 			google_map_appaserver_link_file->session,
 			google_map_appaserver_link_file->extension );
 
-/*
-	sprintf(	url_filename,
-			GOOGLE_MAP_URL_TEMPLATE,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			application_name,
-			session );
-*/
-
 	if ( group_first_time )
 	{
 		mode = "w";
@@ -280,15 +270,6 @@ int main( int argc, char **argv )
 
 	google_map = google_map_new();
 
-/*
-	latitude_double =
-		timlib_latitude_longitude_degrees_minutes_to_decimal(
-					latitude );
-	longitude_double =
-		timlib_latitude_longitude_degrees_minutes_to_decimal(
-					longitude );
-*/
-
 	google_map_set_point(
 			google_map->point_list,
 			strdup( label ),
@@ -316,27 +297,6 @@ int main( int argc, char **argv )
 	}
 
 	fclose( output_file );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		server_address = appaserver_library_get_server_address();
-
-		sprintf(	prompt_filename,
-				GOOGLE_MAP_HTTP_PROMPT_TEMPLATE,
-				server_address,
-				application_name,
-				session );
-	}
-	else
-	{
-		sprintf(	prompt_filename,
-				GOOGLE_MAP_PROMPT_TEMPLATE,
-				application_name,
-				session );
-	}
-*/
 
 	if ( group_last_time )
 	{
@@ -368,5 +328,6 @@ int main( int argc, char **argv )
 			appaserver_parameter_file_get_dbms() );
 
 	exit( 0 );
+
 } /* main() */
 

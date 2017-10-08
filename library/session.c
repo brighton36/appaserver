@@ -634,7 +634,9 @@ boolean session_remote_ip_address_changed(
 	char sys_string[ 512 ];
 	char *remote_ip_address;
 	char *old_remote_ip_address;
-return 0;
+
+/* return 0; */
+
 	remote_ip_address =
 		environ_get_environment(
 			SESSION_REMOTE_IP_ADDRESS_VARIABLE );

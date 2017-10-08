@@ -797,10 +797,6 @@ PARAMETER_FOLDER *parameter_folder_new(
 			DICTIONARY *parameter_dictionary,
 			char *role_name,
 			boolean with_populate_drop_downs,
-/*
-			LIST *preprompt_folder_name_list,
-			LIST *preprompt_attribute_name_list,
-*/
 			char *populate_drop_down_process_string,
 			char *process_name )
 {
@@ -989,7 +985,6 @@ FOLDER *process_parameter_get_and_set_distinct_folder(
 				&folder->notepad,
 				&folder->html_help_file_anchor,
 				&folder->post_change_javascript,
-				&folder->row_access_count,
 				&folder->
 				lookup_before_drop_down,
 				&folder->data_directory,
@@ -1030,7 +1025,6 @@ FOLDER *process_parameter_get_and_set_distinct_folder(
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -2335,7 +2329,6 @@ boolean process_parameter_get_no_initial_capital(
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,

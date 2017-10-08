@@ -204,7 +204,6 @@ int main( int argc, char **argv )
 			&folder->notepad,
 			&folder->html_help_file_anchor,
 			&folder->post_change_javascript,
-			&folder->row_access_count,
 			&folder->lookup_before_drop_down,
 			&folder->data_directory,
 			&folder->index_directory,
@@ -408,7 +407,8 @@ void delete_folder_block_state_one(
 		form->state,
 		form->insert_update_key,
 		form->target_frame,
-		0 /* output_submit_reset_buttons_in_heading */,
+		0 /* not output_submit_reset_buttons_in_heading */,
+		0 /* not with_prelookup_skip_button */,
 		form->submit_control_string,
 		form->table_border,
 		(char *)0 /* caption_string */,
@@ -416,7 +416,8 @@ void delete_folder_block_state_one(
 		form->process_id,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	dictionary_appaserver->send_dictionary =
 		dictionary_appaserver_get_send_dictionary(

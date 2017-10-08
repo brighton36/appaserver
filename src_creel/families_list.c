@@ -1,4 +1,4 @@
-/* families_list.c					   */
+/* src_creel/families_list.c				   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -63,7 +63,6 @@ int main( int argc, char **argv )
 	char *sys_string;
 	char *folder_name;
 	DICTIONARY *post_dictionary = {0};
-	int results;
 
 	output_starting_argv_stderr( argc, argv );
 
@@ -88,17 +87,11 @@ int main( int argc, char **argv )
 	if ( strcmp( folder_name, "fish_families" ) == 0 )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: fish_families is not longer in use.\n",
+		"ERROR in %s/%s()/%d: fish_families is no longer in use.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
-/*
-		sys_string = get_fish_families_sys_string(
-					application_name,
-					login_name,
-					post_dictionary );
-*/
 	}
 	else
 	if ( strcmp( folder_name, "families" ) == 0 )
@@ -119,7 +112,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	results = system( sys_string );
+	system( sys_string );
 
 	return 0;
 } /* main() */

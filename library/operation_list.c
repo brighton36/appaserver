@@ -89,7 +89,8 @@ LIST *operation_list_get_operation_list(char *application_name,
 				}
 			}
 
-			operation = operation_new_operation(
+			operation =
+				operation_new_operation(
 					application_name,
 					session,
 					strdup( operation_name ),
@@ -101,7 +102,9 @@ LIST *operation_list_get_operation_list(char *application_name,
 
 		} while( list_next( operation_string_list ) );
 	}
+
 	return operation_list;
+
 } /* operation_list_get_operation_list() */
 
 int operation_list_perform_operations(

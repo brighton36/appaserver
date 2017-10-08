@@ -185,6 +185,7 @@ void output_vertical_frameset_choose_role_drop_down(
 		(char *)0 /* insert_update_key */,
 		MENU_FRAME /* target_frame is menu */,
 		0 /* output_submit_reset_buttons */,
+		0 /* not with_prelookup_skip_button */,
 		(char *)0 /* submit_control_string */,
 		0 /* table_border */,
 		(char *)0 /* caption_string */,
@@ -192,7 +193,8 @@ void output_vertical_frameset_choose_role_drop_down(
 		form->process_id,
 		appaserver_library_get_server_address(),
 			form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */ );
+		(char *)0 /* remember_keystrokes_onload_control_string */,
+		(LIST *)0 /* form_button_list */ );
 
 	element =
 		element_new(	drop_down,
@@ -239,6 +241,7 @@ void output_vertical_frameset_choose_role_drop_down(
 			(char *)0 /* background_color */,
 			-1 /* date_piece_offset */,
 			element->drop_down->no_initial_capital,
+			element->drop_down->readonly,
 			0 /* tab_index */,
 			element->drop_down->state );
 
@@ -253,7 +256,8 @@ void output_vertical_frameset_choose_role_drop_down(
 		(char *)0 /* preprompt_button_control_string */,
 		application_name,
 		0 /* not with_back_to_top_button */,
-		0 /* form_number */ );
+		0 /* form_number */,
+		(LIST *)0 /* form_button_list */ );
 
 } /* output_vertical_frameset_choose_role_drop_down() */
 

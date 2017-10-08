@@ -253,129 +253,13 @@ char *piece_quoted(	char *destination,
 	}
  
         *buf_ptr = '\0';
-	/* trim_quotes( destination, destination ); */
+
 	if ( piece_do_trim ) trim( destination );
+
 	return destination;
  
 } /* piece_quoted */
  
-#ifdef NOT_DEFINED
-char *piece_quoted(	char *destination,
-			char delimiter,
-			char *source,
-			int offset,
-			char quote_character )
-{
-        int mark = 0;
-        char *buf_ptr = destination;
-	boolean inside_quote = 0;
- 
-	*destination = '\0';
-
-	if ( !delimiter )
-	{
-		return (char *)0;
-	}
-
-	if ( delimiter == 't' ) delimiter = 9;
-
-        *buf_ptr = '\0';
- 
-        /* if offset is not zero, find occurrence */
-        /* --------------------------------------- */
-        if ( offset )
-	{
-                while( *source )
-		{
-			if ( *source == '\\' )
-			{
-				source++;
-				if ( *source ) source++;
-				continue;
-			}
-
-			/* If opening quote */
-			/* ---------------- */
-			if ( *source == quote_character
-			&& !inside_quote )
-			{
-				source++;
-				inside_quote = 1;
-				continue;
-			}
-
-			/* If closing quote */
-			/* ---------------- */
-			if ( *source == quote_character && inside_quote )
-			{
-				source++;
-				inside_quote = 0;
-				continue;
-			}
-
-			if ( inside_quote )
-			{
-				source++;
-				continue;
-			}
-
-                       	if ( *source++ == delimiter )
-			{
-                               	if ( ++mark == offset ) break;
-			}
-		}
-	}
- 
-	/* If ran off the end */
-	/* ------------------ */
-        if ( mark != offset ) return (char *)0;
- 
-	inside_quote = 0;
-
-        while( *source )
-	{
-		if ( *source == '\\' )
-		{
-			if ( *( source + 1 ) == delimiter )
-			{
-				source++;
-				*buf_ptr++ = *source++;
-				continue;
-			}
-		}
-
-		if ( *source == quote_character
-		&&   !inside_quote )
-		{
-			inside_quote = 1;
-			*buf_ptr++ = *source++;
-			continue;
-		}
-
-		if ( *source == quote_character && inside_quote )
-		{
-			inside_quote = 0;
-			*buf_ptr++ = *source++;
-			continue;
-		}
-
-		if ( *source == delimiter
-		&&   !inside_quote )
-		{
-			break;
-		}
-		*buf_ptr++ = *source++;
-	}
- 
-        *buf_ptr = '\0';
-	trim_quotes( destination, destination );
-	if ( piece_do_trim ) trim( destination );
-	return destination;
- 
-} /* piece_quoted */
-#endif
- 
-
 char *piece_multiple(	char *destination, 
 			char delimiter, 
 			char *source, 
@@ -571,6 +455,27 @@ char *piece_delete( char *source_destination, char delimiter, int piece_offset )
 {
 	return piece_inverse( source_destination, delimiter, piece_offset );
 }
+
+char *piece_delete_multiple(
+			char *source_destination,
+			char delimiter,
+			int columns_to_piece )
+{
+	if ( columns_to_piece <= 0 ) return source_destination;
+
+	do {
+		if ( !piece_inverse(
+			source_destination,
+			delimiter,
+			0 ) )
+		{
+			return source_destination;
+		}
+	} while( --columns_to_piece );
+
+	return source_destination;
+
+} /* piece_delete_multiple() */
 
 char *piece_inverse( 	char *source_destination, 
 			char delimiter, 

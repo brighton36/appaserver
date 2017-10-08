@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/output_measurement_data.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* --------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/output_measurement_data.c	*/
+/* --------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* --------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -46,15 +46,6 @@ enum output_medium { output_medium_stdout, text_file, table, spreadsheet };
 #define STATION_PIECE				0
 #define SELECT_LIST				 "station,datatype,measurement_date,measurement_time,measurement_value"
 #define SELECT_WITH_VALIDATION_LIST		 "station,datatype,measurement_date,measurement_time,measurement_value,last_validation_date"
-/*
-#define OUTPUT_FILE_CSV_TEMPLATE	"%s/%s/measurements_%s_%s_%s_%s%d.csv"
-#define FTP_PREPEND_FILE_CSV_TEMPLATE	"%s://%s/%s/measurements_%s_%s_%s_%s%d.csv"
-#define FTP_NONPREPEND_FILE_CSV_TEMPLATE "/%s/measurements_%s_%s_%s_%s%d.csv"
-#define OUTPUT_FILE_TEXT_TEMPLATE	"%s/%s/measurements_%s_%s_%s_%s%d.txt"
-#define FTP_PREPEND_FILE_TEXT_TEMPLATE	"%s://%s/%s/measurements_%s_%s_%s_%s%d.txt"
-#define FTP_NONPREPEND_FILE_TEXT_TEMPLATE "/%s/measurements_%s_%s_%s_%s%d.txt"
-*/
-
 
 /* Prototypes */
 /* ---------- */
@@ -326,11 +317,6 @@ int main( int argc, char **argv )
 	if ( output_medium == output_medium_stdout
 	||   output_medium == text_file )
 	{
-/*
-		sprintf( format_process,
-			 "delimiter2padded_columns.e ',' %d",
-			 right_justified_columns_from_right );
-*/
 		sprintf(format_process,
 		 	"tr ',' '%c'",
 			OUTPUT_TEXT_FILE_DELIMITER );

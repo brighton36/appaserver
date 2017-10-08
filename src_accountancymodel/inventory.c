@@ -1585,22 +1585,6 @@ LIST *inventory_get_balance_list(
 		/* --------- */
 		if ( !inventory_purchase && !inventory_sale ) break;
 
-/* arrived_date_time and completed_date_time are in the where clause.
-		if (	inventory_sale
-		&&	!*inventory_sale->completed_date_time )
-		{
-			list_next( inventory_sale_list );
-			continue;
-		}
-
-		if (	inventory_purchase
-		&&	!*inventory_purchase->arrived_date_time )
-		{
-			list_next( inventory_purchase_list );
-			continue;
-		}
-*/
-
 		inventory_balance = inventory_balance_new();
 
 		/* If out of sales */
@@ -1609,6 +1593,7 @@ LIST *inventory_get_balance_list(
 		{
 			inventory_balance->inventory_purchase =
 				inventory_purchase;
+
 			list_next( inventory_purchase_list );
 		}
 		else
@@ -1619,6 +1604,7 @@ LIST *inventory_get_balance_list(
 		{
 			inventory_balance->inventory_sale =
 				inventory_sale;
+
 			list_next( inventory_sale_list );
 		}
 		else
@@ -1628,12 +1614,14 @@ LIST *inventory_get_balance_list(
 		{
 			inventory_balance->inventory_purchase =
 				inventory_purchase;
+
 			list_next( inventory_purchase_list );
 		}
 		else
 		{
 			inventory_balance->inventory_sale =
 				inventory_sale;
+
 			list_next( inventory_sale_list );
 		}
 
@@ -3463,7 +3451,7 @@ void inventory_purchase_list_set_capitalized_unit_cost(
 
 } /* inventory_purchase_list_set_capitalized_unit_cost() */
 
-char *inventory_balance_list_display( LIST *inventory_balance_list )
+char *inventory_balance_list_display(LIST *inventory_balance_list )
 {
 	char buffer[ 65536 ];
 	char *ptr = buffer;
@@ -3716,144 +3704,6 @@ INVENTORY_COST_ACCOUNT *inventory_get_or_set_cost_account(
 
 } /* inventory_get_or_set_cost_account() */
 
-TRANSACTION *inventory_purchase_build_transaction(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				HASH_TABLE *transaction_hash_table,
-				HASH_TABLE *journal_ledger_hash_table )
-{
-	char *inventory_account_name;
-	static LIST *inventory_account_name_list = {0};
-	static char *account_payable_account = {0};
-	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
-	char *key;
-
-	key = ledger_get_transaction_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time );
-
-	if ( ! ( transaction =
-			hash_table_fetch( 
-				transaction_hash_table,
-				key ) ) )
-	{
-		return (TRANSACTION *)0;
-	}
-
-	if ( !inventory_account_name_list )
-	{
-		inventory_account_name_list =
-			ledger_get_inventory_account_name_list(
-				application_name );
-
-		ledger_get_purchase_order_inventory_account_names(
-			&account_payable_account,
-			application_name,
-			fund_name );
-	}
-
-	/* ========================= */
-	/* Build journal_ledger_list */
-	/* ========================= */
-	transaction->journal_ledger_list = list_new();
-
-#ifdef NOT_DEFINED
-	/* Sales tax expense */
-	/* ----------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			sales_tax_expense_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Freight in expense */
-	/* ------------------ */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			freight_in_expense_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-#endif
-
-	/* Account payable */
-	/* --------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			account_payable_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	/* Inventory and cost of goods sold */
-	/* -------------------------------- */
-	if ( list_rewind( inventory_account_name_list ) )
-	{
-		do {
-			inventory_account_name =
-				list_get_pointer(
-					inventory_account_name_list );
-
-			key = ledger_get_journal_ledger_hash_table_key(
-					full_name,
-					street_address,
-					transaction_date_time,
-					inventory_account_name );
-
-
-			if ( key && ( journal_ledger =
-					hash_table_fetch( 
-						journal_ledger_hash_table,
-						key ) ) )
-			{
-				list_append_pointer(
-					transaction->journal_ledger_list,
-					journal_ledger );
-			}
-
-		} while( list_next( inventory_account_name_list ) );
-	}
-
-	return transaction;
-
-} /* inventory_purchase_build_transaction() */
-
 char *inventory_get_inventory_account_name(
 				char *application_name,
 				char *inventory_name )
@@ -3880,3 +3730,108 @@ char *inventory_get_inventory_account_name(
 	return pipe2string( sys_string );
 
 } /* inventory_get_inventory_account_name() */
+
+void inventory_balance_list_table_display(
+				FILE *output_pipe,
+				LIST *inventory_balance_list )
+{
+	INVENTORY_BALANCE *inventory_balance;
+
+	if ( !list_rewind( inventory_balance_list ) ) return;
+
+	do {
+		inventory_balance = list_get( inventory_balance_list );
+
+		if ( inventory_balance->inventory_purchase )
+		{
+			fprintf(output_pipe,
+				"%s^Purchase^%s^%d^%.4lf",
+				inventory_balance->
+					inventory_purchase->
+					arrived_date_time,
+				inventory_balance->
+					inventory_purchase->
+					full_name,
+				inventory_balance->
+					inventory_purchase->
+					ordered_quantity,
+				inventory_balance->
+					inventory_purchase->
+					capitalized_unit_cost );
+		}
+		else
+		if ( inventory_balance->inventory_sale )
+		{
+			fprintf(output_pipe,
+				"%s^Sale^%s^%d^%.4lf",
+				inventory_balance->
+					inventory_sale->
+					completed_date_time,
+				inventory_balance->
+					inventory_sale->
+					full_name,
+				inventory_balance->
+					inventory_sale->
+					quantity,
+				inventory_balance->
+					inventory_sale->
+					cost_of_goods_sold );
+		}
+		else
+		{
+			fprintf( output_pipe,
+	"ERROR both inventory_purchase and inventory_sale are missing.\n" );
+		}
+
+		fprintf(output_pipe,
+			"^%d^%.4lf^%.2lf\n",
+			inventory_balance->quantity_on_hand,
+			inventory_balance->average_unit_cost,
+			inventory_balance->total_cost_balance );
+
+	} while ( list_next( inventory_balance_list ) );
+
+} /* inventory_balance_list_table_display() */
+
+void inventory_folder_table_display(
+			FILE *output_pipe,
+			char *application_name,
+			char *inventory_name,
+			char *heading )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *results;
+	char where[ 256 ];
+
+	if ( heading && *heading )
+	{
+		fprintf( output_pipe, "%s\n", heading );
+	}
+
+	select = "quantity_on_hand, average_unit_cost, total_cost_balance";
+
+	sprintf( where, "inventory_name = '%s'", inventory_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=inventory	"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( !results )
+	{
+		fprintf( output_pipe, "Error: cannot fetch\n" );
+	}
+	else
+	{
+		fprintf( output_pipe, "%s\n", results );
+	}
+
+} /* inventory_folder_table_display() */
+

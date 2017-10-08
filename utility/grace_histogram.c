@@ -22,6 +22,7 @@
 #include "histogram.h"
 #include "session.h"
 #include "list.h"
+#include "environ.h"
 
 /* Constants */
 /* --------- */

@@ -24,6 +24,7 @@ int main( int argc, char **argv )
 	LIST *heading_name_list;
 	char delimiter;
 	HTML_TABLE *html_table;
+	char heading_delimiter;
 	int count = -1;
 
 	/* This goes to the apache error file. :-( */
@@ -33,14 +34,20 @@ int main( int argc, char **argv )
 	if ( argc < 4 )
 	{
 		fprintf(stderr,
-"Usage: %s title[^sub_title^sub_sub_title] heading_comma_list delimiter [justify_comma_list]\n",
+"Usage: %s title[^sub_title^sub_sub_title] heading_list delimiter [justify_comma_list]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	title = argv[ 1 ];
 
-	heading_name_list = list_string2list( argv[ 2 ], ',' );
+	if ( ! ( heading_delimiter = timlib_get_delimiter( argv[ 2 ] ) ) )
+	{
+		heading_delimiter = ',';
+	}
+
+	heading_name_list = list_string2list( argv[ 2 ], heading_delimiter );
+
 	delimiter = *argv[ 3 ];
 
 	if ( character_exists( title, '^' ) )

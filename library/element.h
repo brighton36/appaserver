@@ -92,6 +92,7 @@ typedef struct
 	char *onblur_javascript_function;
 	int date_piece_offset;
 	boolean no_initial_capital;
+	boolean readonly;
 	char *state;
 } ELEMENT_DROP_DOWN;
 
@@ -148,6 +149,9 @@ typedef struct
 	char *form_name;
 	char *image_source;
 	char *value;
+	char *onclick;
+	char *state;
+	char *post_change_javascript;
 } ELEMENT_RADIO_BUTTON;
 
 typedef struct
@@ -157,6 +161,7 @@ typedef struct
 	int number_rows;
 	char *heading;
 	char onchange_null2slash_yn;
+	char *state;
 } ELEMENT_NOTEPAD;
 
 typedef struct
@@ -173,7 +178,8 @@ typedef struct
 	char *post_change_javascript;
 	char *on_focus_javascript_function;
 	char *state;
-	boolean dont_initialize_data;
+	boolean dont_create_current_date;
+	boolean readonly;
 } ELEMENT_TEXT_ITEM;
 
 typedef struct
@@ -187,6 +193,7 @@ typedef struct
 	char *data;
 	int attribute_width;
 	char *heading;
+	char *state;
 } ELEMENT_PASSWORD;
 
 typedef struct
@@ -291,7 +298,11 @@ void element_radio_button_output(		FILE *output_file,
 						char *value,
 						int checked,
 						char *heading,
-						char *name );
+						char *name,
+						char *onclick,
+						int row,
+						char *state,
+						char *post_change_javascript );
 
 ELEMENT_NOTEPAD *element_notepad_new(		void );
 
@@ -300,13 +311,18 @@ void element_notepad_set_data(			ELEMENT_NOTEPAD *e,
 
 void element_notepad_set_attribute_width(	ELEMENT_NOTEPAD *e,
 						int w );
+
 void element_notepad_set_field_width(		ELEMENT_NOTEPAD *e,
 						int w );
+
 void element_notepad_set_number_rows(		ELEMENT_NOTEPAD *e,
 						int w );
+
 void element_notepad_set_heading(		ELEMENT_NOTEPAD *e,
 						char *s );
+
 char *element_notepad_get_heading( 		ELEMENT_NOTEPAD *e );
+
 void element_notepad_output( 			FILE *output_file,
 						int attribute_width,
 						char *element_name,
@@ -315,22 +331,30 @@ void element_notepad_output( 			FILE *output_file,
 						int number_rows,
 						char onchange_null2slash_yn,
 						int tab_index );
+
 void element_notepad_set_onchange_null2slash(	ELEMENT_NOTEPAD *e );
 
 
 ELEMENT_TEXT_ITEM *element_text_item_new(	void );
+
 void element_text_item_set_data(		ELEMENT_TEXT_ITEM *e,
 						char *s );
+
 void element_text_item_set_default(		ELEMENT_TEXT_ITEM *e,
 						char *s );
+
 void element_text_item_set_attribute_width(	ELEMENT_TEXT_ITEM *e,
 						int w );
+
 void element_text_item_set_field_width(		ELEMENT_TEXT_ITEM *e,
 						int w );
+
 void element_text_item_set_heading(		ELEMENT_TEXT_ITEM *e,
 						char *s );
+
 char *element_text_item_get_heading(		char *element_name,
 						char *heading );
+
 void element_text_item_output( 		FILE *output_file,
 					char *element_name,
 					char *data,
@@ -343,27 +367,36 @@ void element_text_item_output( 		FILE *output_file,
 					char *background_color,
 					int tab_index,
 					boolean without_td_tags,
+					boolean readonly,
 					char *state );
+
 void element_text_item_set_onchange_null2slash(
 						ELEMENT_TEXT_ITEM *e );
 
 ELEMENT_PASSWORD *element_password_new( 	void );
+
 void element_password_set_data(			ELEMENT_PASSWORD *e,
 						char *s );
+
 void element_password_set_default(		ELEMENT_PASSWORD *e,
 						char *s );
+
 void element_password_set_attribute_width(	ELEMENT_PASSWORD *e,
 						int w );
+
 void element_password_set_heading(		ELEMENT_PASSWORD *e,
 						char *s );
+
 char *element_password_get_heading(		char *element_name,
 						char *heading );
+
 void element_password_output( 			FILE *output_file,
 						char *element_name,
 						char *data,
 						int attribute_width,
 						int row,
 						int tab_index );
+
 ELEMENT_REFERENCE_NUMBER *element_reference_number_new(
 						void );
 
@@ -451,6 +484,7 @@ void element_drop_down_output(		FILE *output_file,
 					char *background_color,
 					int date_piece_offset,
 					boolean no_initial_capital,
+					boolean readonly,
 					int tab_index,
 					char *state );
 
@@ -622,18 +656,28 @@ void element_non_edit_text_output_as_dictionary(
 
 ELEMENT *element_hidden_new_element(	char *name,
 					char *data );
+
 char *element_list_display(		LIST *element_list );
+
 char *element_display(			ELEMENT *element );
+
 char *element_get_type_string(		enum element_type element_type );
+
 char *element_get_destination_multi_select_element_name(
 					LIST *element_list );
+
 boolean element_exists_upload_filename( LIST *element_list );
+
 boolean element_exists_reference_number(LIST *element_list );
+
 LIST *element_list2remember_keystrokes_non_multi_element_name_list(
 					LIST *element_list );
+
 LIST *element_list2remember_keystrokes_multi_element_name_list(
 					LIST *element_list );
+
 char *element_get_element_type_string(	enum element_type );
+
 void element_date_output( 		FILE *output_file,
 					char *element_name,
 					char *data,
@@ -647,7 +691,9 @@ void element_date_output( 		FILE *output_file,
 					char *application_name,
 					char *login_name,
 					boolean with_calendar_popup,
+					boolean readonly,
 					int tab_index );
+
 char *element_data_delimiter2label_delimiter(
 					char *source_destination );
 
@@ -676,6 +722,9 @@ void element_list_set_omit_heading_sort_button(
 					LIST *join_1tom_related_folder_list );
 
 char *element_get_date_format_string(
-				enum date_convert_format date_convert_format );
+					enum date_convert_format );
+
+void element_list_set_readonly(
+					LIST *element_list );
 
 #endif

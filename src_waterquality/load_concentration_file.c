@@ -777,7 +777,7 @@ boolean extract_station_collection_attributes(
 
 	timlib_strcpy(
 		collection_time_without_colon,
-		date_subtract_colon_from_time(
+		date_remove_colon_from_time(
 			collection_time ),
 		sizeof( collection_time_without_colon ) );
 

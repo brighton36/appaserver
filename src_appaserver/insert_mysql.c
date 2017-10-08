@@ -19,7 +19,7 @@ int main( int argc, char **argv )
 	char *application_name, *folder;
 	char *attribute_comma_string;
 	char *carrot_delimited_row_filename;
-	char buffer[ 4096 ];
+	char buffer[ 65536 ];
 	FILE *p;
 	int rows_inserted;
 	char *table_name;

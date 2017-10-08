@@ -1,8 +1,8 @@
-/* ----------------------------------------------------	*/
-/* $APPASERVER_HOME/src_accountancymodel/print_checks.c	*/
-/* ----------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ----------------------------------------------------	*/
+/* ------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/print_checks_process.c	*/
+/* ------------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -37,18 +37,27 @@ double print_checks_get_balance(
 				char *full_name,
 				char *street_address );
 
-char *print_checks_execute(
+void print_checks_post(
 				char *application_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
-				char *memo,
 				double check_amount,
-				boolean execute,
+				char *fund_name,
+				char *memo );
+
+char *print_checks_create(
+				char *application_name,
+				LIST *full_name_list,
+				LIST *street_address_list,
+				char *memo,
+				int starting_check_number,
+				double check_amount,
 				char *document_root_directory,
 				char *process_name,
 				char *session,
-				char *fund_name );
+				char *fund_name,
+				char with_stub_yn );
 
 char *print_checks(		char *application_name,
 				char *full_name_list_string,
@@ -60,7 +69,8 @@ char *print_checks(		char *application_name,
 				char *document_root_directory,
 				char *process_name,
 				char *session,
-				char *fund_name );
+				char *fund_name,
+				char with_stub_yn );
 
 int main( int argc, char **argv )
 {
@@ -73,6 +83,7 @@ int main( int argc, char **argv )
 	int starting_check_number;
 	char *memo;
 	double check_amount;
+	char with_stub_yn;
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
@@ -80,10 +91,10 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *pdf_filename;
 
-	if ( argc != 11 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s application process session fund full_name[,full_name] street_address[,street_address] starting_check_number memo check_amount execute_yn\n",
+"Usage: %s application process session fund full_name[,full_name] street_address[,street_address] starting_check_number memo check_amount with_stub_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -117,7 +128,8 @@ int main( int argc, char **argv )
 	starting_check_number = atoi( argv[ 7 ] );
 	memo = argv[ 8 ];
 	check_amount = atof( argv[ 9 ] );
-	execute = ( *argv[ 10 ] == 'y' );
+	with_stub_yn = *argv[ 10 ];
+	execute = ( *argv[ 11 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -154,7 +166,8 @@ int main( int argc, char **argv )
 					document_root,
 				process_name,
 				session,
-				fund_name );
+				fund_name,
+				with_stub_yn );
 
 	if ( !pdf_filename )
 	{
@@ -178,11 +191,12 @@ char *print_checks(	char *application_name,
 			char *document_root_directory,
 			char *process_name,
 			char *session,
-			char *fund_name )
+			char *fund_name,
+			char with_stub_yn )
 {
 	LIST *full_name_list;
 	LIST *street_address_list;
-	char *pdf_filename;
+	char *pdf_filename = {0};
 
 	full_name_list =
 		list_string_to_list(
@@ -215,35 +229,47 @@ char *print_checks(	char *application_name,
 	}
 
 	pdf_filename =
-		print_checks_execute(
+		print_checks_create(
+			application_name,
+			full_name_list,
+			street_address_list,
+			memo,
+			starting_check_number,
+			check_amount,
+			document_root_directory,
+			process_name,
+			session,
+			fund_name,
+			with_stub_yn );
+
+	if ( execute )
+	{
+		print_checks_post(
 			application_name,
 			full_name_list,
 			street_address_list,
 			starting_check_number,
-			memo,
 			check_amount,
-			execute,
-			document_root_directory,
-			process_name,
-			session,
-			fund_name );
+			fund_name,
+			memo );
+	}
 
 	return pdf_filename;
 
 } /* print_checks() */
 
-char *print_checks_execute(
+char *print_checks_create(
 			char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
-			int starting_check_number,
 			char *memo,
+			int starting_check_number,
 			double check_amount,
-			boolean execute,
 			char *document_root_directory,
 			char *process_name,
 			char *session,
-			char *fund_name )
+			char *fund_name,
+			char with_stub_yn )
 {
 	char *full_name;
 	char *street_address;
@@ -285,8 +311,15 @@ char *print_checks_execute(
 			appaserver_link_file->extension );
 
 	sprintf( sys_string,
-		 "make_checks.e stdin 2>/dev/null > %s",
+		 "make_checks.e stdin %c 2>/dev/null > %s",
+		 with_stub_yn,
 		 output_filename );
+/*
+	sprintf( sys_string,
+		 "make_checks.e stdin %c > %s",
+		 with_stub_yn,
+		 output_filename );
+*/
 
 	output_pipe = popen( sys_string, "w" );
 
@@ -311,54 +344,17 @@ char *print_checks_execute(
 		}
 
 		fprintf( output_pipe,
-			 "%s^%.2lf^%s\n",
+			 "%s^%.2lf^%s^%d\n",
 			 full_name,
 			 (check_amount) ? check_amount : balance,
-			 (*memo) ? memo : "" );
+			 (*memo) ? memo : "",
+			 starting_check_number++ );
 
 		list_next( street_address_list );
 
 	} while( list_next( full_name_list ) );
 
 	pclose( output_pipe );
-
-	if ( execute )
-	{
-		PRINT_CHECKS *print_checks;
-		int seconds_to_add;
-
-		print_checks =
-			print_checks_new(
-				application_name,
-				fund_name,
-				full_name_list,
-				street_address_list,
-				starting_check_number,
-				check_amount /* dialog_box_check_amount */ );
-
-		print_checks_subtract_purchase_order_amount_due(
-			print_checks->entity_check_amount_list,
-			application_name );
-
-		print_checks_set_transaction_date_time(
-			print_checks->entity_check_amount_list );
-
-		seconds_to_add =
-			print_checks_insert_transaction_journal_ledger(
-				application_name,
-				fund_name,
-				print_checks->entity_check_amount_list,
-				check_amount /* dialog_box_check_amount */ );
-
-		print_checks_insert_purchase_order_vendor_payment(
-			application_name,
-			print_checks->entity_check_amount_list,
-			check_amount /* dialog_box_check_amount */,
-			seconds_to_add );
-
-		printf(
-		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
-	}
 
 	sprintf( sys_string,
 		 "cat %s",
@@ -418,7 +414,55 @@ char *print_checks_execute(
 
 	return pdf_filename;
 
-} /* print_checks_execute() */
+} /* print_checks_create() */
+
+void print_checks_post(
+			char *application_name,
+			LIST *full_name_list,
+			LIST *street_address_list,
+			int starting_check_number,
+			double check_amount,
+			char *fund_name,
+			char *memo )
+{
+	PRINT_CHECKS *print_checks;
+	ENTITY *sales_tax_entity;
+
+	if ( ! ( sales_tax_entity =
+			entity_get_sales_tax_payable_entity(
+				application_name ) ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	print_checks =
+		print_checks_new(
+			application_name,
+			fund_name,
+			full_name_list,
+			street_address_list,
+			starting_check_number,
+			check_amount /* dialog_box_check_amount */,
+			sales_tax_entity->full_name,
+			sales_tax_entity->street_address );
+
+	if ( print_checks_insert_entity_check_amount_list(
+		application_name,
+		fund_name,
+		print_checks->entity_check_amount_list,
+		print_checks->dialog_box_check_amount,
+		memo ) )
+	{
+		printf(
+		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
+	}
+
+} /* print_checks_post() */
 
 double print_checks_get_balance(
 				char *application_name,
@@ -437,7 +481,7 @@ double print_checks_get_balance(
 	if ( !entity_list )
 	{
 		sprintf( sys_string,
-		 	"populate_print_checks_entity.sh %s '%s'",
+		 	"populate_print_checks_entity %s '%s'",
 		 	application_name,
 			fund_name );
 
@@ -454,7 +498,7 @@ double print_checks_get_balance(
 			results ) != 1 )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: not one delimiter in (%s)\n",
+			"ERROR in %s/%s()/%d: not one delimiter in (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,

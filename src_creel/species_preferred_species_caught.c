@@ -24,6 +24,7 @@
 #include "environ.h"
 #include "application.h"
 #include "creel_library.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -31,18 +32,26 @@
 /* Constants */
 /* --------- */
 #define GUIDE_FISHING_PURPOSE			"guide"
+#define FILENAME_STEM_WITH_CODES		"preferred_caught_with_codes"
+#define FILENAME_STEM_NO_CODES			"preferred_caught_no_codes"
+
+/*
 #define OUTPUT_CODES_WITH_BETWEEN		"%s/%s/preferred_caught_with_codes_%s_%s_%d.csv"
-#define OUTPUT_CODES_NO_BETWEEN			"%s/%s/preferred_caught_with_codes_%s_%d.csv"
 #define FTP_PREPEND_CODES_WITH_BETWEEN 		"%s://%s/%s/preferred_caught_with_codes_%s_%s_%d.csv"
-#define FTP_PREPEND_CODES_NO_BETWEEN 		"%s://%s/%s/preferred_caught_with_codes_%s_%d.csv"
 #define FTP_NONPREPEND_CODES_WITH_BETWEEN	"/%s/preferred_caught_with_codes_%s_%s_%d.csv"
-#define FTP_NONPREPEND_CODES_NO_BETWEEN		"/%s/preferred_caught_with_codes_%s_%d.csv"
+
 #define OUTPUT_NO_CODES_WITH_BETWEEN		"%s/%s/preferred_caught_no_codes_%s_%s_%d.csv"
-#define OUTPUT_NO_CODES_NO_BETWEEN		"%s/%s/preferred_caught_no_codes_%s_%d.csv"
 #define FTP_PREPEND_NO_CODES_WITH_BETWEEN 	"%s://%s/%s/preferred_caught_no_codes_%s_%s_%d.csv"
-#define FTP_PREPEND_NO_CODES_NO_BETWEEN 	"%s://%s/%s/preferred_caught_no_codes_%s_%d.csv"
 #define FTP_NONPREPEND_NO_CODES_WITH_BETWEEN	"/%s/preferred_caught_no_codes_%s_%s_%d.csv"
+
+#define OUTPUT_CODES_NO_BETWEEN			"%s/%s/preferred_caught_with_codes_%s_%d.csv"
+#define FTP_PREPEND_CODES_NO_BETWEEN 		"%s://%s/%s/preferred_caught_with_codes_%s_%d.csv"
+#define FTP_NONPREPEND_CODES_NO_BETWEEN		"/%s/preferred_caught_with_codes_%s_%d.csv"
+
+#define OUTPUT_NO_CODES_NO_BETWEEN		"%s/%s/preferred_caught_no_codes_%s_%d.csv"
+#define FTP_PREPEND_NO_CODES_NO_BETWEEN 	"%s://%s/%s/preferred_caught_no_codes_%s_%d.csv"
 #define FTP_NONPREPEND_NO_CODES_NO_BETWEEN	"/%s/preferred_caught_no_codes_%s_%d.csv"
+*/
 
 /* Prototypes */
 /* ---------- */
@@ -96,7 +105,7 @@ void species_preferred_species_caught(
 				char *application_name,
 				char *begin_date_string,
 				char *end_date_string,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				boolean with_between,
 				char *display_data,
 				pid_t process_id,
@@ -180,6 +189,8 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = new_appaserver_parameter_file();
 
+appaserver_parameter_file->appaserver_mount_point = "/appaserver";
+
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
 	
@@ -210,8 +221,7 @@ int main( int argc, char **argv )
 			application_name,
 			begin_date_string,
 			end_date_string,
-			appaserver_parameter_file->
-				appaserver_mount_point,
+			appaserver_parameter_file->document_root,
 			with_between,
 			display_data,
 			getpid(),
@@ -230,12 +240,11 @@ int main( int argc, char **argv )
 	return 0;
 } /* main() */
 
-
 void species_preferred_species_caught(
 			char *application_name,
 			char *begin_date_string,
 			char *end_date_string,
-			char *appaserver_mount_point,
+			char *document_root_directory,
 			boolean with_between,
 			char *display_data,
 			pid_t process_id,
@@ -245,11 +254,11 @@ void species_preferred_species_caught(
 			char *species_preferred,
 			char *fishing_purpose )
 {
-	char ftp_codes_filename[ 256 ];
-	char output_codes_filename[ 256 ];
+	char *ftp_codes_filename;
+	char *output_codes_filename;
 	FILE *output_codes_file;
-	char ftp_no_codes_filename[ 256 ];
-	char output_no_codes_filename[ 256 ];
+	char *ftp_no_codes_filename;
+	char *output_no_codes_filename;
 	FILE *output_no_codes_file;
 	FISHING_TRIPS fishing_trips;
 	char title[ 128 ];
@@ -257,8 +266,103 @@ void species_preferred_species_caught(
 	DATE *date;
 	char species_preferred_display[ 128 ];
 	char *species_preferred_code;
-	int results;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
+	appaserver_link_file =
+		appaserver_link_file_new(
+		   application_get_http_prefix(
+				application_name ),
+		   appaserver_library_get_server_address(),
+		   ( application_get_prepend_http_protocol_yn(
+			application_name ) == 'y' ),
+		   document_root_directory,
+		   (char *)0 /* filename_stem */,
+		   application_name,
+		   process_id,
+		   (char *)0 /* session */,
+		   "csv" );
+
+	if ( with_between )
+	{
+		appaserver_link_file->begin_date_string = begin_date_string;
+		appaserver_link_file->end_date_string = end_date_string;
+	}
+	else
+	{
+		appaserver_link_file->begin_date_string = begin_date_string;
+	}
+
+	/* With codes */
+	/* ========== */
+	appaserver_link_file->filename_stem = FILENAME_STEM_WITH_CODES;
+
+	output_codes_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_codes_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	/* Without codes */
+	/* ============= */
+	appaserver_link_file->filename_stem = FILENAME_STEM_NO_CODES;
+
+	output_no_codes_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_no_codes_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+/*
 	if ( with_between )
 	{
 		sprintf(output_codes_filename, 
@@ -293,6 +397,7 @@ void species_preferred_species_caught(
 		 	begin_date_string,
 			process_id );
 	}
+*/
 
 	if ( ! ( output_codes_file = fopen( output_codes_filename, "w" ) ) )
 	{
@@ -311,6 +416,7 @@ void species_preferred_species_caught(
 		exit( 1 );
 	}
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 	{
@@ -387,6 +493,7 @@ void species_preferred_species_caught(
 				process_id );
 		}
 	}
+*/
 
 	if ( !*display_data
 	||   strcmp( display_data, DISPLAY_CATCHES_HORIZONTALLY ) == 0 )
@@ -553,7 +660,7 @@ void species_preferred_species_caught(
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	results = system( "date '+%x %H:%M'" );
+	system( "date '+%x %H:%M'" );
 	fflush( stdout );
 	printf( "</h2>\n" );
 		

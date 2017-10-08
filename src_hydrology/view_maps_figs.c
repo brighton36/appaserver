@@ -98,7 +98,7 @@ int main( int argc, char **argv )
 
 	sprintf( current_directory, 
 		 "%s/%s/maps_and_figs", 
-		 appaserver_parameter_file->appaserver_mount_point,
+		 appaserver_parameter_file->document_root,
 		 RELATIVE_DIRECTORY );
 
 	if ( chdir( current_directory ) == -1 )

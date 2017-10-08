@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/output_measurement_delta.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ---------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/output_measurement_delta.c	*/
+/* ---------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* ---------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -23,34 +23,56 @@
 #include "environ.h"
 #include "process.h"
 #include "application.h"
-#include "easycharts.h"
+#include "google_chart.h"
 #include "datatype.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
 
 /* Constants */
 /* --------- */
-#define QUEUE_LINES		100
-#define SELECT_LIST		"station,datatype,measurement_date,measurement_time,measurement_value"
-#define EASYCHART_DATATYPE_PIECE	0
-#define EASYCHART_DATE_TIME_PIECE	1
-#define EASYCHART_VALUE_PIECE		2
+#define QUEUE_LINES			100
+
+#define SELECT_LIST			\
+"station,datatype,measurement_date,measurement_time,measurement_value"
+
+#define DATATYPE_PIECE			0
+#define DATE_TIME_PIECE			1
+#define VALUE_PIECE			2
 #define DELTA_VALUE_PIECE		4
 #define DELIMITER			','
 #define STATION_DATATYPE_DELIMITER	'/'
-#define DATE_TIME_DELIMITER		':'
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/measurement_delta_%s_%s_%s_%s%s.csv"
-#define FTP_PREPEND_FILE_SPREADSHEET "%s://%s/%s/measurement_delta_%s_%s_%s_%s%s.csv"
-#define FTP_NONPREPEND_FILE_SPREADSHEET "/%s/measurement_delta_%s_%s_%s_%s%s.csv"
-
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/measurement_delta_%s_%s_%s_%s%s.txt"
-#define FTP_PREPEND_FILE_TEXT_FILE "%s://%s/%s/measurement_delta_%s_%s_%s_%s%s.txt"
-#define FTP_NONPREPEND_FILE_TEXT_FILE "/%s/measurement_delta_%s_%s_%s_%s%s.txt"
+#define DATE_TIME_DELIMITER		':' 
+#define FILENAME_STEM			"measurement_delta"
 
 /* Prototypes */
 /* ---------- */
+boolean populate_datatype_chart_list_data(
+				LIST *datatype_chart_list,
+				LIST *station_list,
+				LIST *datatype_list,
+				char *application_name,
+				char *begin_date,
+				char *end_date,
+				double delta_threshold );
+
+char *get_google_station_datatype_name(
+				char *station,
+				char *datatype );
+
+LIST *get_datatype_chart_list(	char *application_name,
+				LIST *station_list,
+				LIST *datatype_list );
+
+GOOGLE_CHART *get_google_datatype_chart(
+				char *application_name,
+				LIST *station_list,
+				LIST *datatype_list,
+				char *begin_date,
+				char *end_date,
+				double delta_threshold );
+
 boolean populate_input_chart_list_data(
 				LIST *input_chart_list,
 				LIST *station_list,
@@ -66,7 +88,7 @@ void populate_input_chart_list_datatypes(
 				LIST *datatype_list,
 				char *application_name );
 
-void output_easycharts(		char *application_name,
+void output_google_chart(	char *application_name,
 				LIST *station_list,
 				LIST *datatype_list,
 				char *begin_date,
@@ -88,7 +110,7 @@ void output_spreadsheet(	char *application_name,
 				LIST *datatype_list,
 				char *begin_date,
 				char *end_date,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				double delta_threshold );
 
 void output_text_file(		char *application_name,
@@ -97,7 +119,7 @@ void output_text_file(		char *application_name,
 				LIST *datatype_list,
 				char *begin_date,
 				char *end_date,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				double delta_threshold );
 
 void output_stdout(		char *application_name,
@@ -149,6 +171,9 @@ int main( int argc, char **argv )
 		fprintf( stderr,
 "Usage: %s application session process station datatype begin_date end_date delta_threshold output_medium\n",
 			 argv[ 0 ] );
+
+		fprintf( stderr,
+"Note: output_medium = {table,spreadsheet,text_file,stdout}\n" );
 		exit ( 1 );
 	}
 
@@ -286,7 +311,7 @@ int main( int argc, char **argv )
 				parameter_begin_date,
 				parameter_end_date,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				atof( delta_threshold_string ) );
 	}
 	else
@@ -300,7 +325,7 @@ int main( int argc, char **argv )
 				parameter_begin_date,
 				parameter_end_date,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				atof( delta_threshold_string ) );
 	}
 	else
@@ -315,9 +340,9 @@ int main( int argc, char **argv )
 				atof( delta_threshold_string ) );
 	}
 	else
-	if ( strcmp( output_medium, "easychart" ) == 0 )
+	if ( strcmp( output_medium, "googlechart" ) == 0 )
 	{
-		output_easycharts(
+		output_google_chart(
 				application_name,
 				station_list,
 				datatype_list,
@@ -430,13 +455,13 @@ void output_text_file(		char *application_name,
 				LIST *datatype_list,
 				char *begin_date,
 				char *end_date,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				double delta_threshold )
 {
 	char *station;
 	char *datatype;
-	char output_filename[ 256 ] = {0};
-	char ftp_filename[ 256 ];
+	char *output_filename;
+	char *ftp_filename;
 	char end_date_suffix[ 128 ];
 	char *where_clause;
 	int record_count;
@@ -446,6 +471,21 @@ void output_text_file(		char *application_name,
 	FILE *input_pipe;
 	FILE *output_pipe;
 	char input_buffer[ 1024 ];
+	char date_station_datatype_string[ 256 ];
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			FILENAME_STEM,
+			application_name,
+			0 /* process_id */,
+			session,
+			"txt" );
 
 	printf( "<table>\n" );
 
@@ -457,10 +497,18 @@ void output_text_file(		char *application_name,
 		datatype = list_get_pointer( datatype_list );
 
 		if ( strcmp( end_date, "end_date" ) != 0 )
-			sprintf( end_date_suffix, "%s_", end_date );
+			sprintf( end_date_suffix, "_%s", end_date );
 		else
 			*end_date_suffix = '\0';
 
+		sprintf(date_station_datatype_string,
+			"%s_%s_%s%s",
+			station,
+			datatype,
+			begin_date,
+			end_date_suffix );
+
+/*
 		sprintf(output_filename,
 	 		OUTPUT_FILE_TEXT_FILE,
 	 		appaserver_mount_point,
@@ -470,6 +518,41 @@ void output_text_file(		char *application_name,
 	 		begin_date,
 	 		end_date_suffix,
 	 		session );
+*/
+
+		appaserver_link_file->begin_date_string =
+			date_station_datatype_string;
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
 
 		if ( ! ( output_pipe = fopen( output_filename, "w" ) ) )
 		{
@@ -489,6 +572,7 @@ void output_text_file(		char *application_name,
 			station,
 			0 /* not with_zap_file */ );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 		{
@@ -514,6 +598,7 @@ void output_text_file(		char *application_name,
 		 		end_date_suffix,
 		 		session );
 		}
+*/
 
 		where_clause = get_where_clause(
 				begin_date,
@@ -584,19 +669,34 @@ void output_spreadsheet(	char *application_name,
 				LIST *datatype_list,
 				char *begin_date,
 				char *end_date,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				double delta_threshold )
 {
 	char *station;
 	char *datatype;
-	char output_filename[ 256 ] = {0};
+	char *output_filename;
 	FILE *output_file;
-	char ftp_filename[ 256 ];
+	char *ftp_filename;
 	char end_date_suffix[ 128 ];
 	char *where_clause;
 	int record_count;
 	char sys_string[ 1024 ];
 	char *table_name;
+	char date_station_datatype_string[ 256 ];
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			FILENAME_STEM,
+			application_name,
+			0 /* process_id */,
+			session,
+			"csv" );
 
 	printf( "<table>\n" );
 
@@ -608,10 +708,18 @@ void output_spreadsheet(	char *application_name,
 		datatype = list_get_pointer( datatype_list );
 
 		if ( strcmp( end_date, "end_date" ) != 0 )
-			sprintf( end_date_suffix, "%s_", end_date );
+			sprintf( end_date_suffix, "_%s", end_date );
 		else
 			*end_date_suffix = '\0';
 
+		sprintf(date_station_datatype_string,
+			"%s_%s_%s%s",
+			station,
+			datatype,
+			begin_date,
+			end_date_suffix );
+
+/*
 		sprintf(output_filename,
 	 		OUTPUT_FILE_SPREADSHEET,
 	 		appaserver_mount_point,
@@ -621,6 +729,40 @@ void output_spreadsheet(	char *application_name,
 	 		begin_date,
 	 		end_date_suffix,
 	 		session );
+*/
+		appaserver_link_file->begin_date_string =
+			date_station_datatype_string;
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -640,6 +782,7 @@ void output_spreadsheet(	char *application_name,
 			station,
 			0 /* not with_zap_file */ );
 
+/*
 		if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 		{
@@ -665,6 +808,7 @@ void output_spreadsheet(	char *application_name,
 		 		end_date_suffix,
 		 		session );
 		}
+*/
 
 		where_clause = get_where_clause(
 				begin_date,
@@ -707,9 +851,11 @@ void output_spreadsheet(	char *application_name,
 			TRANSMIT_PROMPT );
 
 		list_next( datatype_list );
+
 	} while( list_next( station_list ) );
 
 	printf( "</table>\n" );
+
 } /* output_spreadsheet() */
 
 char *get_sys_string(	char *output_filename,
@@ -759,6 +905,7 @@ char *get_sys_string(	char *output_filename,
 		output_clause );
 
 	return sys_string;
+
 } /* get_sys_string() */
 
 char *get_where_clause(		char *begin_date,
@@ -821,7 +968,7 @@ char *get_heading_sys_string(	char *output_filename,
 	return sys_string;
 } /* get_heading_sys_string() */
 
-void output_easycharts(		char *application_name,
+void output_google_chart(	char *application_name,
 				LIST *station_list,
 				LIST *datatype_list,
 				char *begin_date,
@@ -830,22 +977,21 @@ void output_easycharts(		char *application_name,
 				char *process_name,
 				double delta_threshold )
 {
-	EASYCHARTS *easycharts;
+	GOOGLE_CHART *google_chart;
 	char *chart_filename;
 	char *prompt_filename;
 	FILE *chart_file;
-	char applet_library_archive[ 128 ];
 	char title[ 256 ];
 	char sub_title[ 256 ];
-	int easycharts_width;
-	int easycharts_height;
 
-	easycharts_get_chart_filename(
-			&chart_filename,
-			&prompt_filename,
-			application_name,
-			document_root_directory,
-			getpid() );
+	appaserver_link_get_pid_filename(
+		&chart_filename,
+		&prompt_filename,
+		application_name,
+		document_root_directory,
+		getpid(),
+		process_name /* filename_stem */,
+		"html" /* extension */ );
 
 	chart_file = fopen( chart_filename, "w" );
 
@@ -859,28 +1005,23 @@ void output_easycharts(		char *application_name,
 		exit( 1 );
 	}
 
-	sprintf(applet_library_archive,
-		"/%s/%s",
-		application_name,
-		EASYCHARTS_JAR_FILE );
-
-	application_constants_get_easycharts_width_height(
-			&easycharts_width,
-			&easycharts_height,
-			application_name );
-
-	easycharts =
-		easycharts_new_timeline_easycharts(
-			easycharts_width, easycharts_height );
-
-	easycharts->point_highlight_size = 0;
-	easycharts->applet_library_archive = applet_library_archive;
-	easycharts->legend_on = 0;
-	easycharts->bold_labels = 0;
-	easycharts->bold_legends = 0;
-	easycharts->set_y_lower_range = 1;
-	easycharts->sample_scroller_on = 1;
-	easycharts->range_scroller_on = 1;
+	if ( ! ( google_chart =
+			get_google_datatype_chart(
+				application_name,
+				station_list,
+				datatype_list,
+				begin_date,
+				end_date,
+				delta_threshold ) ) )
+	{
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: cannot get google_chart.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		fclose( chart_file );
+		return;
+	}
 
 	hydrology_library_get_title(
 		title,
@@ -893,20 +1034,63 @@ void output_easycharts(		char *application_name,
 		begin_date,
 		end_date,
 		'n' /* accumulate_yn */ );
-	
+
 	sprintf( title + strlen( title ),
-		 "\\n%s",
+		 " %s",
 		 sub_title );
-	easycharts->title = title;
 
-	populate_input_chart_list_datatypes(
-			easycharts->input_chart_list,
-			station_list,
-			datatype_list,
-			application_name );
+	google_chart->title = title;
 
-	if ( !populate_input_chart_list_data(
-			easycharts->input_chart_list,
+	google_chart->output_chart_list =
+		google_chart_datatype_get_output_chart_list(
+			google_chart->datatype_chart_list,
+			GOOGLE_CHART_WIDTH,
+			GOOGLE_CHART_HEIGHT );
+
+	google_chart_output_all_charts(
+			chart_file,
+			google_chart->output_chart_list,
+			google_chart->title,
+			google_chart->sub_title,
+			google_chart->stylesheet );
+
+	fclose( chart_file );
+
+	google_chart_output_graph_window(
+				application_name,
+				(char *)0 /* appaserver_mount_point */,
+				0 /* not with_document_output */,
+				process_name,
+				prompt_filename,
+				(char *)0 /* where_clause */ );
+
+} /* output_google_chart() */
+
+GOOGLE_CHART *get_google_datatype_chart(
+				char *application_name,
+				LIST *station_list,
+				LIST *datatype_list,
+				char *begin_date,
+				char *end_date,
+				double delta_threshold )
+{
+	GOOGLE_CHART *google_chart;
+
+	google_chart = google_chart_new();
+
+	if ( ! ( google_chart->datatype_chart_list =
+			get_datatype_chart_list(
+				application_name,
+				station_list,
+				datatype_list ) ) )
+	{
+		printf(
+		"<h2>Warning: no datatypes to display.</h2>\n" );
+		return (GOOGLE_CHART *)0;
+	}
+
+	if ( !populate_datatype_chart_list_data(
+			google_chart->datatype_chart_list,
 			station_list,
 			datatype_list,
 			application_name,
@@ -916,122 +1100,80 @@ void output_easycharts(		char *application_name,
 	{
 		printf(
 		"<h2>Warning: nothing was selected to display.</h2>\n" );
-		document_close();
-		exit( 0 );
+		return (GOOGLE_CHART *)0;
 	}
 
-	easycharts->output_chart_list =
-		easycharts_timeline_get_output_chart_list(
-			easycharts->input_chart_list );
+	return google_chart;
 
-	easycharts->yaxis_decimal_count =
-		easycharts_get_yaxis_decimal_count(
-			easycharts->output_chart_list );
+} /* get_google_datatype_chart() */
 
-	easycharts_output_all_charts(
-			chart_file,
-			easycharts->output_chart_list,
-			easycharts->highlight_on,
-			easycharts->highlight_style,
-			easycharts->point_highlight_size,
-			easycharts->series_labels,
-			easycharts->series_line_off,
-			easycharts->applet_library_archive,
-			easycharts->width,
-			easycharts->height,
-			easycharts->title,
-			easycharts->set_y_lower_range,
-			easycharts->legend_on,
-			easycharts->value_labels_on,
-			easycharts->sample_scroller_on,
-			easycharts->range_scroller_on,
-			easycharts->xaxis_decimal_count,
-			easycharts->yaxis_decimal_count,
-			easycharts->range_labels_off,
-			easycharts->value_lines_off,
-			easycharts->range_step,
-			easycharts->sample_label_angle,
-			easycharts->bold_labels,
-			easycharts->bold_legends,
-			easycharts->font_size,
-			easycharts->label_parameter_name,
-			1 /* include_sample_series_output */ );
-
-	easycharts_output_html( chart_file );
-
-	fclose( chart_file );
-
-	easycharts_output_graph_window(
-				application_name,
-				(char *)0 /* appaserver_mount_point */,
-				0 /* not with_document_output */,
-				process_name,
-				prompt_filename,
-				(char *)0 /* where_clause */ );
-
-} /* output_easycharts() */
-
-void populate_input_chart_list_datatypes(
-			LIST *input_chart_list,
+LIST *get_datatype_chart_list(
+			char *application_name,
 			LIST *station_list,
-			LIST *datatype_list,
-			char *application_name )
+			LIST *datatype_list )
 {
-	char y_axis_label[ 128 ];
-	EASYCHARTS_INPUT_CHART *input_chart;
-	EASYCHARTS_INPUT_DATATYPE *input_datatype;
-	char station_datatype[ 128 ];
+	char yaxis_label[ 128 ];
+	GOOGLE_DATATYPE_CHART *datatype_chart;
+	char *google_station_datatype_name;
 	char *station;
 	char *datatype;
 	boolean bar_graph;
+	LIST *datatype_chart_list;
 
-	list_rewind( station_list );
+	if ( list_length( station_list ) != list_length( datatype_list ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: station_list of %d <> datatype_list of %d.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 list_length( station_list ),
+			 list_length( datatype_list ) );
+		return (LIST *)0;
+	}
+
+	if ( !list_rewind( station_list ) ) return (LIST *)0;
+
 	list_rewind( datatype_list );
+
+	datatype_chart_list = list_new();
 
 	do {
 		station = list_get_pointer( station_list );
 		datatype = list_get_pointer( datatype_list );
 
-		sprintf( station_datatype,
-			 "%s%c%s",
-			 station,
-			 STATION_DATATYPE_DELIMITER,
-			 datatype );
+		google_station_datatype_name =
+			get_google_station_datatype_name(
+				station,
+				datatype );
 
-		/* Build the chart */
-		/* --------------- */
-		input_chart = easycharts_new_input_chart();
-		list_append_pointer(	input_chart_list,
-					input_chart );
+		datatype_chart =
+			google_datatype_chart_new(
+				google_station_datatype_name );
 
-		input_chart->applet_library_code =
-			EASYCHARTS_APPLET_LIBRARY_LINE_CHART;
-
-		sprintf(y_axis_label,
+		sprintf(yaxis_label,
 			"%s (%s)",
-			station_datatype,
+			google_station_datatype_name,
 			datatype_get_units_string(
 				&bar_graph,
 				application_name,
 				datatype ) );
 	
-		input_chart->y_axis_label = strdup( y_axis_label );
+		datatype_chart->yaxis_label = strdup( yaxis_label );
 	
-		/* Build the datatype */
-		/* ------------------ */
-		input_datatype = easycharts_new_input_datatype(
-					strdup( station_datatype ),
-					(char *)0 /* units */ );
-
-		list_append_pointer(	input_chart->datatype_list,
-					input_datatype );
+		list_append_pointer(	datatype_chart_list,
+					datatype_chart );
 
 		list_next( datatype_list );
-	} while( list_next( station_list ) );
-} /* populate_input_chart_list_datatypes() */
 
-boolean populate_input_chart_list_data(
-			LIST *input_chart_list,
+	} while( list_next( station_list ) );
+
+	return datatype_chart_list;
+
+} /* get_datatype_chart_list() */
+
+boolean populate_datatype_chart_list_data(
+			LIST *datatype_chart_list,
 			LIST *station_list,
 			LIST *datatype_list,
 			char *application_name,
@@ -1044,16 +1186,32 @@ boolean populate_input_chart_list_data(
 	char *table_name;
 	char *station;
 	char *datatype;
+	GOOGLE_DATATYPE_CHART *datatype_chart;
 	char *where_clause;
+
+	if ( list_length( station_list ) != list_length( datatype_list )
+	&&   list_length( station_list ) != list_length( datatype_chart_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: list lengths do not match.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return 0;
+	}
+
 
 	list_rewind( station_list );
 	list_rewind( datatype_list );
+	list_rewind( datatype_chart_list );
 
 	do {
 		station = list_get_pointer( station_list );
 		datatype = list_get_pointer( datatype_list );
+		datatype_chart = list_get_pointer( datatype_chart_list );
 
-		where_clause = get_where_clause(
+		where_clause =
+			get_where_clause(
 				begin_date,
 				end_date,
 				station,
@@ -1076,21 +1234,27 @@ boolean populate_input_chart_list_data(
 			 DELIMITER,
 			 DATE_TIME_DELIMITER );
 
-		if ( easycharts_set_all_input_values(
-				input_chart_list,
+		datatype_chart->input_value_list = list_new();
+
+		if ( google_datatype_chart_input_value_list_set(
+				datatype_chart->input_value_list,
 				sys_string,
-				EASYCHART_DATATYPE_PIECE,
-				EASYCHART_DATE_TIME_PIECE,
-				EASYCHART_VALUE_PIECE,
+				DATE_TIME_PIECE,
+				-1 /* time_piece */,
+				VALUE_PIECE,
 				DELIMITER ) )
 		{
 			got_input = 1;
 		}
 
 		list_next( datatype_list );
+		list_next( datatype_chart_list );
+
 	} while( list_next( station_list ) );
+
 	return got_input;
-} /* populate_input_chart_list_data() */
+
+} /* populate_datatype_chart_list_data() */
 
 void output_table(		char *application_name,
 				LIST *station_list,
@@ -1194,3 +1358,18 @@ void output_table(		char *application_name,
 
 } /* output_table() */
 
+char *get_google_station_datatype_name(
+				char *station,
+				char *datatype )
+{
+	char station_datatype_name[ 128 ];
+
+	sprintf( station_datatype_name,
+		 "%s%c%s",
+		 station,
+		 STATION_DATATYPE_DELIMITER,
+		 datatype );
+
+	return strdup( station_datatype_name );
+
+} /* get_google_station_datatype_name() */

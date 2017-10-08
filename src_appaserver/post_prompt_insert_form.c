@@ -1,12 +1,12 @@
-/* ---------------------------------------------------	*/
-/* src_appaserver/post_prompt_insert_form.c		*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* This script is attached to the submit button on 	*/
-/* the prompt form.					*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ---------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/post_prompt_insert_form.c	*/
+/* ---------------------------------------------------------	*/
+/*								*/
+/* This script is attached to the submit button on 		*/
+/* the prompt form.						*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ---------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -128,9 +128,9 @@ int main( int argc, char **argv )
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
 	{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				database_string );
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
 	}
 
 	appaserver_output_starting_argv_append_file(
@@ -323,7 +323,6 @@ int main( int argc, char **argv )
 			&appaserver->folder->notepad,
 			&appaserver->folder->html_help_file_anchor,
 			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->row_access_count,
 			&appaserver->folder->lookup_before_drop_down,
 			&appaserver->folder->data_directory,
 			&appaserver->folder->index_directory,
@@ -613,6 +612,7 @@ int post_prompt_insert_database(
 
 	insert_database->dont_remove_tmp_file =
 		INSERT_DATABASE_DONT_REMOVE_TMP_FILE;
+
 	insert_database->insert_row_zero_only = 1;
 
 	results =

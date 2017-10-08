@@ -22,7 +22,8 @@ function post_change_output_measurement_sets( current_element )
 	element.disabled = 0;
 
 	if ( process_value == 'data_sets_transmit'
-	||   process_value == 'data_sets_table' )
+	||   process_value == 'data_sets_table'
+	||   process_value == 'data_sets_googlechart' )
 	{
 		element.disabled = 1;
 	}

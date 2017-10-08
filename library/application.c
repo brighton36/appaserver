@@ -47,11 +47,12 @@ APPLICATION *application_new_application( char *application_string )
 		char msg[ 1024 ];
 
 		sprintf( msg,
-"ERROR in %s/%s()/%d: cannot get application record from application_record.sh for application = (%s)\n",
+"warning in %s/%s()/%d: cannot get application record from application_record.sh for application = (%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 application_string );
+
 		appaserver_output_error_message(
 			application_string,
 			msg,
@@ -63,12 +64,13 @@ APPLICATION *application_new_application( char *application_string )
 			 __FUNCTION__,
 			 __LINE__,
 			database_string );
+
 		appaserver_output_error_message(
 			application_string,
 			msg,
 			(char *)0 /* login_name */ );
 
-		exit( 1 );
+		return (APPLICATION *)0;
 	}
 
 	if ( character_count(	APPLICATION_RECORD_DELIMITER,
@@ -89,8 +91,10 @@ APPLICATION *application_new_application( char *application_string )
 	piece( piece_buffer, APPLICATION_RECORD_DELIMITER, input_string, 0 );
 	application->application_title = strdup( piece_buffer );
 
+/* Retired.
 	piece( piece_buffer, APPLICATION_RECORD_DELIMITER, input_string, 1 );
 	application->only_one_primary_yn = *piece_buffer;
+*/
 
 	piece( piece_buffer, APPLICATION_RECORD_DELIMITER, input_string, 2 );
 	application->relative_source_directory = strdup( piece_buffer );
@@ -256,6 +260,10 @@ boolean application_is_primary_application( char *application_name )
 
 boolean application_get_is_primary_application( char *application_name )
 {
+application_name = "";
+	return 1;
+
+#ifdef NOT_DEFINED
 	if ( is_primary_application != -1 )
 	{
 		return is_primary_application;
@@ -275,9 +283,11 @@ boolean application_get_is_primary_application( char *application_name )
 		}
 		return is_primary_application;
 	}
+#endif
 
 } /* application_get_is_primary_application() */
 
+#ifdef NOT_DEFINED
 boolean application_get_alternative_is_primary_application(
 					char *application_string )
 {
@@ -301,6 +311,7 @@ boolean application_get_alternative_is_primary_application(
 	else
 		return ( *results_string == 'y' );
 } /* application_get_alternative_is_primary_application() */
+#endif
 
 char *application_get_grace_home_directory( char *application_string )
 {

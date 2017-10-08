@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* src_accountancymodel/collect_customer_payment.c			*/
-/* ---------------------------------------------------------------	*/
+/* ----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_accountancymodel/collect_customer_payment.c	*/
+/* ----------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* ----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +17,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
+#include "customer.h"
 #include "ledger.h"
 
 /* Constants */
@@ -93,7 +94,7 @@ int main( int argc, char **argv )
 	check_number = atoi( argv[ 7 ] );
 	paid_amount_due = ( *argv[ 8 ] == 'y' );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	payment_date_time = timlib_get_now_date_time();
 
@@ -201,7 +202,7 @@ int main( int argc, char **argv )
 	}
 
 	sprintf( sys_string,
-	"post_change_customer_payment %s \"%s\" \"%s\" '%s' '%s' insert ''",
+"post_change_customer_payment %s \"%s\" \"%s\" \"%s\" \"%s\" insert preupdate_payment_date_time preupdate_payment_amount",
 		 application_name,
 		 full_name,
 		 street_address,

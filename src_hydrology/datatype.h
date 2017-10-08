@@ -1,4 +1,4 @@
-/* src_everglades/datatype.h				*/
+/* src_hydrology/datatype.h				*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -25,7 +25,9 @@ typedef struct
 	boolean scale_graph_to_zero;
 	boolean aggregation_sum;
 	boolean set_negative_values_to_zero;
-	char *heading_string;
+	boolean calibrated;
+	char *ysi_load_heading;
+	char *exo_load_heading;
 	int piece_number;
 } DATATYPE;
 
@@ -66,6 +68,10 @@ LIST *datatype_with_station_name_list_get_datatype_list(
 			char *application_name,
 			LIST *station_name_list );
 
+LIST *datatype_with_station_name_get_datatype_list(
+			char *application_name,
+			char *station_name );
+
 char *datatype_list_display(
 			LIST *datatype_list );
 
@@ -85,5 +91,20 @@ boolean datatype_get_bypass_data_collection_frequency(
 				char *application_name,
 				char *station,
 				char *datatype );
+
+DATATYPE *datatype_list_ysi_load_heading_seek(
+			LIST *datatype_list,
+			char *two_line_datatype_heading );
+
+DATATYPE *datatype_list_exo_load_heading_seek(
+			LIST *datatype_list,
+			char *two_line_datatype_heading );
+
+LIST *datatype_list_get_unique_unit_list(
+			LIST *datatype_list );
+
+LIST *datatype_get_datatypes_for_unit(
+			LIST *datatype_list,
+			char *unit );
 
 #endif

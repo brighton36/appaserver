@@ -1,4 +1,4 @@
-/* post2dictionary.c 							*/
+/* $APPASERVER_HOME/library/post2dictionary.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the post2dictionary function.				*/
 /*									*/

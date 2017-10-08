@@ -14,6 +14,7 @@ void test_latitude_longitude( void );
 void test_search_replace( void );
 void test_pad_time( void );
 void test_directory_filesystem( void );
+void test_get_line( void );
 
 int main()
 {
@@ -32,7 +33,9 @@ int main()
 	/* test_search_replace(); */
 	/* test_pad_time(); */
 	/* test_commas_in_integer(); */
-	test_directory_filesystem();
+	/* test_directory_filesystem(); */
+	test_get_line();
+
 	return 0;
 }
 
@@ -278,7 +281,7 @@ void test_pad_time( void )
 void test_directory_filesystem( void )
 {
 	char *directory = "/var/appaserver/utility";
-	int available_megabytes = 0;
+	long int available_megabytes = 0;
 
 	printf( "Filesystem should be (/var)\n" );
 	printf( "Filesystem is be (%s)\n",
@@ -286,5 +289,26 @@ void test_directory_filesystem( void )
 			&available_megabytes,
 			directory ) );
 
-	printf( "Available meg = %d\n", available_megabytes );
+	printf( "Available meg = %ld\n", available_megabytes );
+}
+
+void test_get_line( void )
+{
+	char buffer[ 1024 ];
+
+	while( timlib_get_line( buffer, stdin, 1024 ) )
+	{
+		printf( "%s\n", buffer );
+
+/*
+	char *ptr;
+		ptr = buffer;
+
+		while ( *ptr )
+		{
+			printf( "%d: %c\n", *ptr, *ptr );
+			ptr++;
+		}
+*/
+	}
 }

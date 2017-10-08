@@ -7,7 +7,7 @@
 
 if [ "$#" -lt 1 ]
 then
-	echo "Usage: vi_top.sh directory [-number]" 1>&2
+	echo "Usage: $0 directory [-number]" 1>&2
 	exit 1
 fi
 

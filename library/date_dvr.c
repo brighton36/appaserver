@@ -36,21 +36,12 @@ void test_2015_10_26( void );
 
 int main()
 {
-	test_week_of_year_1995();
 /*
+	test_week_of_year_1995();
 	test_week_of_year_1998();
 	test_week_of_year_1999();
 	test_week_of_year_2000();
 	test_week_of_year_2001();
-#ifdef NOT_DEFINED
-	test_week_of_year_2037();
-	test_week_of_year_2038();
-	test_week_of_year_2045();
-	test_strftime( 1995 );
-	test_strftime( 1996 );
-	test_strftime( 2000 );
-	test_strftime( 2001 );
-#endif
 	test_1969();
 	test_cross_dst();
 	test_2015_10_26();
@@ -68,7 +59,18 @@ int main()
 	test_days_in_month();
 	test_minutes_between();
 	test_years_between();
+*/
 	test_grandfather_father_son();
+/*
+#ifdef NOT_DEFINED
+	test_week_of_year_2037();
+	test_week_of_year_2038();
+	test_week_of_year_2045();
+	test_strftime( 1995 );
+	test_strftime( 1996 );
+	test_strftime( 2000 );
+	test_strftime( 2001 );
+#endif
 */
 
 	return 0;
@@ -540,7 +542,7 @@ void test_week_of_year_1999()
 		date_get_week_of_year( d ) );
 
 	d = date_yyyy_mm_dd_new( "2000-01-02" );
-	printf( "2000-01-02 should be week 1 is: %d\n",
+	printf( "2000-01-02 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 
 	d = date_yyyy_mm_dd_new( "2000-01-03" );

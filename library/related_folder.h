@@ -71,6 +71,7 @@ typedef struct
 	boolean omit_lookup_before_drop_down;
 	LIST *automatic_preselection_dictionary_list;
 	LIST *foreign_attribute_name_list;
+	LIST *folder_foreign_attribute_name_list;
 	char *hint_message;
 	LIST *parent_primary_attribute_name_list;
 	char *join_where_clause;
@@ -80,7 +81,7 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-RELATED_FOLDER *related_folder_new_related_folder(
+RELATED_FOLDER *related_folder_new(
 					char *application_name,
 					char *session,
 					char *folder_name,
@@ -98,6 +99,7 @@ LIST *related_folder_get_primary_data_list(
 				LIST *primary_data_list );
 
 RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
+				LIST **foreign_attribute_name_list,
 				LIST *done_attribute_name_list,
 				LIST *omit_update_attribute_name_list,
 				LIST *mto1_related_folder_list,
@@ -514,5 +516,13 @@ int related_folder_pair_match_function(
 boolean related_folder_is_one2one_firewall(
 			LIST *foreign_attribute_name_list,
 			LIST *attribute_list );
+
+LIST *related_folder_fetch_folder_foreign_attribute_name_list(
+			char *application_name,
+			char *folder_name,
+			char *related_folder_name );
+
+LIST *related_folder_fetch_folder_foreign_attribute_record_list(
+			char *application_name );
 
 #endif

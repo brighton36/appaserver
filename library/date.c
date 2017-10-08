@@ -27,6 +27,7 @@ DATE *date_new_date( void )
 	}
 
 	d->tm = ( struct tm *)calloc( 1, sizeof( struct tm ) );
+
 	if ( !d->tm )
 	{
 		fprintf(stderr,
@@ -38,6 +39,7 @@ DATE *date_new_date( void )
 	}
 
 	return d;
+
 } /* date_new_date() */
 
 DATE *date_current_new( time_t current )
@@ -86,7 +88,6 @@ DATE *date_new_date_time(
 			int seconds )
 {
 	DATE *d;
-	struct tm tm;
 
 	if ( year >= 2038 && sizeof( time_t ) == 4 )
 	{
@@ -108,14 +109,7 @@ DATE *date_new_date_time(
 
 	d->current = date_tm_to_current( d->tm );
 
-	memcpy( &tm, localtime( &d->current ), sizeof( struct tm ) );
 	date_set_tm_structures( d, d->current );
-
-	if ( d->tm->tm_isdst )
-	{
-		date_increment_hours( d, -1.0 );
-		d->tm->tm_isdst = 0;
-	}
 
 	return d;
 
@@ -134,10 +128,6 @@ DATE *date_new( int year, int month, int day )
 
 time_t date_tm_to_current( struct tm *tm )
 {
-	/* Commented out 2017-09-26 */
-	/* ------------------------ */
-	/* tm->tm_isdst = 0; */
-
 	if ( tm->tm_year < 70 )
 	{
 		return date_tm_to_current_pre_1970( tm );
@@ -156,7 +146,11 @@ time_t date_tm_to_current_pre_1970( struct tm *tm )
 
 	future_tm.tm_year = 2026 - 1900;
 	future_tm.tm_mon = 0;
-	future_tm.tm_mday = 0;
+
+	/* 2017-10-06 */
+	/* ---------- */
+	future_tm.tm_mday = 1;
+
 	future_tm.tm_hour = 0;
 	future_tm.tm_min = 0;
 	future_tm.tm_sec = 0;
@@ -347,11 +341,13 @@ int date_set_yyyy_mm_dd( DATE *date, char *yyyy_mm_dd )
 				0 /* minute */,
 				0 /* seconds */ );
 
+/*
 	if ( date->tm->tm_isdst )
 	{
 		date_increment_hours( date, -1.0 );
 		date->tm->tm_isdst = 0;
 	}
+*/
 
 	return 1;
 
@@ -1225,7 +1221,7 @@ void date_set_tm_structures( DATE *d, time_t current )
 	}
 	else
 	{
-		memcpy( d->tm, localtime( &current ), sizeof( struct tm ) );
+		memcpy( d->tm, gmtime( &current ), sizeof( struct tm ) );
 	}
 
 } /* date_set_tm_structures() */
@@ -1239,7 +1235,7 @@ void date_set_tm_structures_pre_1970(	DATE *d,
 
 	future_tm.tm_year = 2026 - 1900;
 	future_tm.tm_mon = 0;
-	future_tm.tm_mday = 0;
+	future_tm.tm_mday = 1;
 	future_tm.tm_hour = 0;
 	future_tm.tm_min = 0;
 	future_tm.tm_sec = 0;
@@ -1248,7 +1244,7 @@ void date_set_tm_structures_pre_1970(	DATE *d,
 
 	new_current = future_time_t + current;
 
-	memcpy( d->tm, localtime( &new_current ), sizeof( struct tm ) );
+	memcpy( d->tm, gmtime( &new_current ), sizeof( struct tm ) );
 	d->tm->tm_year -= 56;
 
 } /* date_set_tm_structures_pre_1970() */
@@ -1256,15 +1252,9 @@ void date_set_tm_structures_pre_1970(	DATE *d,
 time_t date_mktime( struct tm *tm )
 {
 	time_t return_value;
-	struct tm local_tm;
 
-	memcpy( &local_tm, tm, sizeof (struct tm ) );
-
-	/* Tried 2017-09-26 */
-	/* ---------------- */
-	/* local_tm.tm_isdst = 0; */
-
-	return_value = mktime( &local_tm );
+	return_value = mktime( tm );
+	return_value -= SECONDS_IN_HOUR * HOURS_WEST_GMT;
 
 	return return_value;
 
@@ -1318,9 +1308,8 @@ boolean date_is_day_of_week(	DATE *d,
 				int day_of_week )
 {
 	int wday;
-	struct tm *tm = localtime( &d->current );
 	
-	wday = tm->tm_wday;
+	wday = d->tm->tm_wday;
 	return( wday == day_of_week );
 
 } /* date_is_day_of_week() */
@@ -1375,9 +1364,8 @@ DATE *date_back_to_first_month( DATE *d )
 {
 	int mday;
 	time_t current;
-	struct tm *tm = localtime( &d->current );
-	
-	mday = tm->tm_mday;
+
+	mday = d->tm->tm_mday;
 	current = d->current;
 
 	while( mday > 1 )
@@ -1393,9 +1381,8 @@ char *date_this_saturday_yyyy_mm_dd_string( DATE *d )
 {
 	int wday;
 	time_t current;
-	struct tm *tm = localtime( &d->current );
-	
-	wday = tm->tm_wday;
+
+	wday = d->tm->tm_wday;
 	current = d->current;
 
 	while( wday != WDAY_SATURDAY )
@@ -1414,9 +1401,8 @@ DATE *date_get_prior_day(	DATE *date,
 {
 	int wday;
 	time_t current;
-	struct tm *tm = localtime( &date->current );
-	
-	wday = tm->tm_wday;
+
+	wday = date->tm->tm_wday;
 	current = date->current;
 
 	wday--;
@@ -1765,9 +1751,8 @@ char *date_prior_day_of_week_yyyy_mm_dd_string(	DATE *d,
 {
 	int wday;
 	time_t current;
-	struct tm *tm = localtime( &d->current );
-	
-	wday = tm->tm_wday;
+
+	wday = d->tm->tm_wday;
 	current = d->current;
 
 	while( wday != day_of_week )

@@ -1729,6 +1729,7 @@ LIST *query_get_drop_down_list(	LIST *exclude_attribute_name_list,
 	RELATED_FOLDER *related_folder;
 	RELATED_FOLDER *sub_related_folder;
 	QUERY_DROP_DOWN *query_drop_down;
+	LIST *foreign_attribute_name_list;
 
 	if ( include_root_folder )
 	{
@@ -1756,6 +1757,19 @@ LIST *query_get_drop_down_list(	LIST *exclude_attribute_name_list,
 			list_get(
 				mto1_related_folder_list );
 
+
+		if ( related_folder->folder_foreign_attribute_name_list )
+		{
+			foreign_attribute_name_list =
+				related_folder->
+					folder_foreign_attribute_name_list;
+		}
+		else
+		{
+			foreign_attribute_name_list =
+				related_folder->foreign_attribute_name_list;
+		}
+
 		if ( ( query_drop_down =
 			query_get_drop_down(
 				exclude_attribute_name_list,
@@ -1765,8 +1779,7 @@ LIST *query_get_drop_down_list(	LIST *exclude_attribute_name_list,
 					folder->
 					folder_name
 				   /* dictionary_prepend_folder_name */,
-				related_folder->
-					foreign_attribute_name_list,
+				foreign_attribute_name_list,
 				related_folder->folder->attribute_list,
 				dictionary ) ) )
 		{
@@ -1856,6 +1869,13 @@ QUERY_DROP_DOWN *query_get_subquery_drop_down(
 	QUERY_DROP_DOWN *query_drop_down = {0};
 	int highest_index;
 	int index;
+
+
+fprintf( stderr, "%s/%s()/%d: got dictionary = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( dictionary ) );
 
 	highest_index =
 		dictionary_attribute_name_list_get_highest_index(

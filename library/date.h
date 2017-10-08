@@ -15,6 +15,7 @@
 
 /* Constants */
 /* --------- */
+#define HOURS_WEST_GMT		8
 #define SECONDS_IN_DAY		86400
 #define SECONDS_IN_MINUTE	60
 #define SECONDS_IN_WEEK		( SECONDS_IN_DAY * 7 )

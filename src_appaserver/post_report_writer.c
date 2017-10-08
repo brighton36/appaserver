@@ -1414,6 +1414,7 @@ LIST *state_three_get_folder_element_list(
 	ATTRIBUTE *attribute;
 	RELATED_FOLDER *related_folder;
 	LIST *element_list;
+	LIST *foreign_attribute_name_list = {0};
 
 	return_list = list_new_list();
 
@@ -1431,6 +1432,7 @@ LIST *state_three_get_folder_element_list(
 
 		related_folder =
 		       related_folder_attribute_consumes_related_folder(
+				&foreign_attribute_name_list,
 				(LIST *)0 /* done_attribute_name_list */,
 			        (LIST *)0 /* omit_update_attribute_name_list */,
 				mto1_append_isa_related_folder_list,
@@ -1462,8 +1464,7 @@ LIST *state_three_get_folder_element_list(
 					populate_drop_down_process,
 			       related_folder->folder->
 					attribute_list,
-			       related_folder->
-					foreign_attribute_name_list,
+			       foreign_attribute_name_list,
 			       1 /* omit_drop_down_new_push_button */,
 			       1 /* omit_ignore_push_buttons */,
 			       (DICTIONARY *)0

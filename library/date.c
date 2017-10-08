@@ -1038,7 +1038,7 @@ DATE *date_get_today_new( void )
 	DATE *return_date;
 
 	now = time( (time_t *)0 );
-	tm = gmtime( &now );
+	tm = localtime( &now );
 	return_date =
 		date_new_date_time(
 			tm->tm_year + 1900,
@@ -1129,7 +1129,7 @@ char *date_get_now_time_hhmm( void )
 	struct tm *tm;
 
 	now = time( (time_t *)0 );
-	tm = gmtime( &now );
+	tm = localtime( &now );
 	sprintf( buffer, "%02d%02d", tm->tm_hour, tm->tm_min );
 	return strdup( buffer );
 } /* date_get_now_time_hhmm() */
@@ -1169,7 +1169,7 @@ char *date_get_now_hh_colon_mm( void )
 	struct tm *tm;
 
 	now = time( (time_t *)0 );
-	tm = gmtime( &now );
+	tm = localtime( &now );
 	sprintf(	buffer,
 			"%02d:%02d",
 			tm->tm_hour,
@@ -1186,7 +1186,7 @@ char *date_get_now_hh_colon_mm_colon_ss( void )
 	struct tm *tm;
 
 	now = time( (time_t *)0 );
-	tm = gmtime( &now );
+	tm = localtime( &now );
 	sprintf(	buffer,
 			"%02d:%02d:%02d",
 			tm->tm_hour,
@@ -1204,7 +1204,7 @@ char *date_get_now_time_hhmm_colon_ss( void )
 	struct tm *tm;
 
 	now = time( (time_t *)0 );
-	tm = gmtime( &now );
+	tm = localtime( &now );
 	sprintf( buffer, "%02d%02d:%02d", tm->tm_hour, tm->tm_min, tm->tm_sec );
 
 	return strdup( buffer );
@@ -1308,9 +1308,8 @@ boolean date_is_day_of_week(	DATE *d,
 				int day_of_week )
 {
 	int wday;
-	struct tm *tm = gmtime( &d->current );
 	
-	wday = tm->tm_wday;
+	wday = d->tm->tm_wday;
 	return( wday == day_of_week );
 
 } /* date_is_day_of_week() */
@@ -1365,9 +1364,8 @@ DATE *date_back_to_first_month( DATE *d )
 {
 	int mday;
 	time_t current;
-	struct tm *tm = gmtime( &d->current );
-	
-	mday = tm->tm_mday;
+
+	mday = d->tm->tm_mday;
 	current = d->current;
 
 	while( mday > 1 )
@@ -1383,9 +1381,8 @@ char *date_this_saturday_yyyy_mm_dd_string( DATE *d )
 {
 	int wday;
 	time_t current;
-	struct tm *tm = gmtime( &d->current );
-	
-	wday = tm->tm_wday;
+
+	wday = d->tm->tm_wday;
 	current = d->current;
 
 	while( wday != WDAY_SATURDAY )
@@ -1404,9 +1401,8 @@ DATE *date_get_prior_day(	DATE *date,
 {
 	int wday;
 	time_t current;
-	struct tm *tm = gmtime( &date->current );
-	
-	wday = tm->tm_wday;
+
+	wday = date->tm->tm_wday;
 	current = date->current;
 
 	wday--;
@@ -1755,9 +1751,8 @@ char *date_prior_day_of_week_yyyy_mm_dd_string(	DATE *d,
 {
 	int wday;
 	time_t current;
-	struct tm *tm = gmtime( &d->current );
-	
-	wday = tm->tm_wday;
+
+	wday = d->tm->tm_wday;
 	current = d->current;
 
 	while( wday != day_of_week )

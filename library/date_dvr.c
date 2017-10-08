@@ -36,31 +36,27 @@ void test_2015_10_26( void );
 
 int main()
 {
-/*
 	test_week_of_year_1995();
+/*
 	test_week_of_year_1998();
 	test_week_of_year_1999();
 	test_week_of_year_2000();
 	test_week_of_year_2001();
-*/
-/*
+#ifdef NOT_DEFINED
 	test_week_of_year_2037();
 	test_week_of_year_2038();
 	test_week_of_year_2045();
-*/
-/*
 	test_strftime( 1995 );
 	test_strftime( 1996 );
 	test_strftime( 2000 );
 	test_strftime( 2001 );
+#endif
 	test_1969();
 	test_cross_dst();
 	test_2015_10_26();
 	test_subtract_second();
 	test_round();
-*/
 	test1();
-/*
 	test2();
 	test3();
 	test4();
@@ -163,7 +159,7 @@ void test3()
 {
 	DATE *d = date_get_today_new();
 	printf( "got today = (%s)\n",
-		date_display_yyyy_mm_dd( d ) );
+		date_display_yyyy_mm_dd_colon_hms( d ) );
 }
 
 void test5()

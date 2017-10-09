@@ -12,7 +12,7 @@ void test_grandfather_father_son();
 void test_round();
 void test1();
 void test2();
-void test3();
+void test_today();
 void test4();
 void test5();
 void test6();
@@ -36,7 +36,6 @@ void test_2015_10_26( void );
 
 int main()
 {
-/*
 	test_week_of_year_1995();
 	test_week_of_year_1998();
 	test_week_of_year_1999();
@@ -46,10 +45,9 @@ int main()
 	test_cross_dst();
 	test_2015_10_26();
 	test_subtract_second();
-	test_round();
 	test1();
 	test2();
-	test3();
+	test_today();
 	test4();
 	test5();
 	test6();
@@ -59,10 +57,10 @@ int main()
 	test_days_in_month();
 	test_minutes_between();
 	test_years_between();
-*/
 	test_grandfather_father_son();
-/*
+
 #ifdef NOT_DEFINED
+	test_round();
 	test_week_of_year_2037();
 	test_week_of_year_2038();
 	test_week_of_year_2045();
@@ -71,7 +69,6 @@ int main()
 	test_strftime( 2000 );
 	test_strftime( 2001 );
 #endif
-*/
 
 	return 0;
 }
@@ -157,9 +154,9 @@ void test1()
 	printf( "after increment week: %2d %2d\n", month, day );
 }
 
-void test3()
+void test_today()
 {
-	DATE *d = date_get_today_new();
+	DATE *d = date_today_new();
 	printf( "got today = (%s)\n",
 		date_display_yyyy_mm_dd_colon_hms( d ) );
 }
@@ -179,30 +176,43 @@ void test6()
 	DATE *d;
 
 	d = date_new( 2020, 1, 1 );
+
 	printf( "should be 2020-01-01: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
+
 	date_free( d );
+
+/*
 	d = date_new( 2130, 1, 1 );
 	printf( "should be 2130-01-01: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
+*/
+
 	d = date_new( 1969, 12, 31 );
+
 	printf( "should be 1969-12-31: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
+
 	date_free( d );
+
 	d = date_new( 1970, 1, 1 );
+
 	printf( "should be 1970-01-01: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
+
 	date_free( d );
 
 	d = date_new( 1968, 12, 31 );
+
 	printf( "should be 1968-12-31: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
 
 	date_decrement_days( d, 1.0 );
+
 	printf( "should be 1968-12-30: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
-	date_free( d );
 
+	date_free( d );
 }
 
 void test_1am()

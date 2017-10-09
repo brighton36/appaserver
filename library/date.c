@@ -108,7 +108,6 @@ DATE *date_new_date_time(
 	d->tm->tm_sec = seconds;
 
 	d->current = date_tm_to_current( d->tm );
-
 	date_set_tm_structures( d, d->current );
 
 	return d;
@@ -340,14 +339,6 @@ int date_set_yyyy_mm_dd( DATE *date, char *yyyy_mm_dd )
 				0 /* hour */,
 				0 /* minute */,
 				0 /* seconds */ );
-
-/*
-	if ( date->tm->tm_isdst )
-	{
-		date_increment_hours( date, -1.0 );
-		date->tm->tm_isdst = 0;
-	}
-*/
 
 	return 1;
 
@@ -1048,7 +1039,7 @@ char *date_get_yyyy_mm_dd_string( DATE *date )
 char *date_get_day_of_week_yyyy_mm_dd( int wday_of_week )
 {
 	char *date_string;
-	DATE *date = date_get_today_new();
+	DATE *date = date_today_new();
 
 	while( date->tm->tm_wday != wday_of_week )
 		date_increment_days( date, -1.0 );
@@ -1066,7 +1057,7 @@ char *date_get_yesterday_yyyy_mm_dd_string()
 {
 	DATE *date;
 
-	date = date_get_today_new();
+	date = date_today_new();
 	date_increment_days( date, -1.0 );
 	return date_get_yyyy_mm_dd_string( date );
 } /* date_get_yesterday_yyyy_mm_dd_string() */
@@ -1074,20 +1065,15 @@ char *date_get_yesterday_yyyy_mm_dd_string()
 
 DATE *date_now_new( void )
 {
-	return date_get_today_new();
+	return date_today_new();
 }
 
 DATE *date_new_now( void )
 {
-	return date_get_today_new();
+	return date_today_new();
 }
 
 DATE *date_today_new( void )
-{
-	return date_get_today_new();
-}
-
-DATE *date_get_today_new( void )
 {
 	time_t now;
 	struct tm *tm;
@@ -1095,6 +1081,7 @@ DATE *date_get_today_new( void )
 
 	now = time( (time_t *)0 );
 	tm = localtime( &now );
+
 	return_date =
 		date_new_date_time(
 			tm->tm_year + 1900,
@@ -1103,8 +1090,15 @@ DATE *date_get_today_new( void )
 			tm->tm_hour,
 			tm->tm_min,
 			tm->tm_sec );
+
 	return return_date;
-} /* date_get_today_new() */
+
+} /* date_today_new() */
+
+DATE *date_get_today_new( void )
+{
+	return date_today_new();
+}
 
 char *date_get_now_hhmm()
 {
@@ -1133,13 +1127,11 @@ char *date_get_current_yyyy_mm_dd()
 
 char *date_get_now_date_hhmm()
 {
+	DATE *date = date_today_new();
+	return date_display_hhmm( date );
+/*
 	char *date_time_string;
 	static char hhmm[ 8 ];
-
-/*
-	DATE *date = date_get_today_new();
-	return date_display_hhmm( date );
-*/
 	date_time_string = date_get_unix_now_string();
 
 	if ( !piece( hhmm, ':', date_time_string, 1 ) )
@@ -1154,6 +1146,7 @@ char *date_get_now_date_hhmm()
 	}
 
 	return hhmm;
+*/
 } /* date_get_now_date_hhmm() */
 
 char *date_get_now_date_oracle_format()
@@ -1164,10 +1157,9 @@ char *date_get_now_date_oracle_format()
 
 char *date_get_now_date_yyyy_mm_dd()
 {
-/*
-	DATE *date = date_get_today_new();
+	DATE *date = date_today_new();
 	return date_display_yyyy_mm_dd( date );
-*/
+/*
 	char *date_time_string;
 	static char yyyy_mm_dd[ 16 ];
 
@@ -1175,19 +1167,21 @@ char *date_get_now_date_yyyy_mm_dd()
 
 	piece( yyyy_mm_dd, ':', date_time_string, 0 );
 	return yyyy_mm_dd;
+*/
 
 } /* date_get_now_date_yyyy_mm_dd() */
 
 char *date_get_now_time_hhmm( void )
 {
 	char buffer[ 128 ];
-	time_t now;
-	struct tm *tm;
+	DATE *d;
 
-	now = time( (time_t *)0 );
-	tm = localtime( &now );
-	sprintf( buffer, "%02d%02d", tm->tm_hour, tm->tm_min );
+	d = date_today_new();
+
+	sprintf( buffer, "%02d%02d", d->tm->tm_hour, d->tm->tm_min );
+
 	return strdup( buffer );
+
 } /* date_get_now_time_hhmm() */
 
 char *date_get_now_hhmm_colon_ss( void )
@@ -1221,15 +1215,14 @@ char *date_get_yyyy_mm_dd_hh_mm_ss(
 char *date_get_now_hh_colon_mm( void )
 {
 	char buffer[ 128 ];
-	time_t now;
-	struct tm *tm;
+	DATE *d;
 
-	now = time( (time_t *)0 );
-	tm = localtime( &now );
+	d = date_today_new();
+
 	sprintf(	buffer,
 			"%02d:%02d",
-			tm->tm_hour,
-			tm->tm_min );
+			d->tm->tm_hour,
+			d->tm->tm_min );
 
 	return strdup( buffer );
 
@@ -1238,16 +1231,15 @@ char *date_get_now_hh_colon_mm( void )
 char *date_get_now_hh_colon_mm_colon_ss( void )
 {
 	char buffer[ 128 ];
-	time_t now;
-	struct tm *tm;
+	DATE *d;
 
-	now = time( (time_t *)0 );
-	tm = localtime( &now );
+	d = date_today_new();
+
 	sprintf(	buffer,
 			"%02d:%02d:%02d",
-			tm->tm_hour,
-			tm->tm_min,
-			tm->tm_sec );
+			d->tm->tm_hour,
+			d->tm->tm_min,
+			d->tm->tm_sec );
 
 	return strdup( buffer );
 
@@ -1256,12 +1248,15 @@ char *date_get_now_hh_colon_mm_colon_ss( void )
 char *date_get_now_time_hhmm_colon_ss( void )
 {
 	char buffer[ 128 ];
-	time_t now;
-	struct tm *tm;
+	DATE *d;
 
-	now = time( (time_t *)0 );
-	tm = localtime( &now );
-	sprintf( buffer, "%02d%02d:%02d", tm->tm_hour, tm->tm_min, tm->tm_sec );
+	d = date_today_new();
+
+	sprintf(	buffer,
+			"%02d%02d:%02d",
+			d->tm->tm_hour,
+			d->tm->tm_min,
+			d->tm->tm_sec );
 
 	return strdup( buffer );
 
@@ -1309,6 +1304,7 @@ time_t date_mktime( struct tm *tm )
 {
 	time_t return_value;
 
+	tm->tm_isdst = 0;
 	return_value = mktime( tm );
 	return_value -= SECONDS_IN_HOUR * HOURS_WEST_GMT;
 
@@ -1829,7 +1825,9 @@ char *date_get_unix_now_string(	void )
 	sprintf( sys_string,
 		 "date +'%cF:%cH%cM'",
 		 '%', '%', '%' );
+
 	return pipe2string( sys_string );
+
 } /* date_get_unix_now_string() */
 
 boolean date_is_greatgreatgrandfather( DATE *d )

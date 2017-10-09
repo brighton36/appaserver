@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_hydrology
-	make generic_measurement_load
+	cd ../utility
+	make minutes_ticker.e
 fi

@@ -58,6 +58,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	times_ten_to_power.e						\
 	cdmenu.e piece.e nl.e nl_ff.e column.e				\
 	minutes_between.e						\
+	minutes_ticker.e						\
 	horizontal_menu_yn.e						\
 	piece_quoted.e							\
 	piece_quote_comma.e						\
@@ -1638,6 +1639,12 @@ minutes_between.e: minutes_between.c
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o minutes_between.e
+
+minutes_ticker.e: minutes_ticker.c
+	$(CC)	${CFLAGS} -I${LIBRARY} minutes_ticker.c			\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		-o minutes_ticker.e
 
 filename_date_older.e: filename_date_older.c
 	$(CC)	${CFLAGS} -I${LIBRARY} filename_date_older.c		\

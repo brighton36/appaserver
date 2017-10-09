@@ -786,6 +786,48 @@ DATE *date_yyyy_mm_dd_hms_new( char *date_time_string )
 
 } /* date_yyyy_mm_dd_hms_new() */
 
+DATE *date_yyyy_mm_dd_colon_hm_new( char *date_time_string )
+{
+	char year_string[ 16 ];
+	char month_string[ 16 ];
+	char day_string[ 16 ];
+	char hour_string[ 3 ] = {0};
+	char minute_string[ 3 ] = {0};
+	char date_half[ 32 ];
+	char time_half[ 32 ];
+	DATE *date;
+
+	if ( count_character( '-', date_time_string ) != 2 )
+		return (DATE *)0;
+
+	if ( count_character( ':', date_time_string ) != 1 )
+		return (DATE *)0;
+
+	piece( date_half, ':', date_time_string, 0 );
+	piece( time_half, ':', date_time_string, 1 );
+
+	piece( year_string, '-', date_half, 0 );
+	piece( month_string, '-', date_half, 1 );
+	piece( day_string, '-', date_half, 2 );
+
+	*hour_string = *time_half;
+	*( hour_string + 1 ) = *( time_half + 1 );
+
+	*minute_string = *( time_half + 2 );
+	*( minute_string + 1 ) = *( time_half + 3 );
+
+	date = date_new_date_time(
+			atoi( year_string ),
+			atoi( month_string ),
+			atoi( day_string ),
+			atoi( hour_string ),
+			atoi( minute_string ),
+			0 /*seconds */ );
+
+	return date;
+
+} /* date_yyyy_mm_dd_hm_new() */
+
 DATE *date_yyyy_mm_dd_hm_new( char *date_time_string )
 {
 	char year_string[ 16 ];
@@ -827,7 +869,6 @@ DATE *date_yyyy_mm_dd_hm_new( char *date_time_string )
 	return date;
 
 } /* date_yyyy_mm_dd_hm_new() */
-
 
 DATE *date_yyyy_mm_dd_new( char *date_string )
 {
@@ -878,15 +919,6 @@ char *date_get_yyyy_mm_dd( char *destination, DATE *date )
 	return destination;
 }
 
-char *date_get_hhmm( char *destination, DATE *date )
-{
-	sprintf( 	destination, 
-			"%02d%02d",
-			date_get_hour( date ),
-			date_get_minutes( date ) );
-	return destination;
-}
-
 char *date_get_colon_hhmmss( char *destination, DATE *date )
 {
 	sprintf( 	destination, 
@@ -904,6 +936,15 @@ char *date_get_hhmmss( char *destination, DATE *date )
 			date_get_hour( date ),
 			date_get_minutes( date ),
 			date_get_seconds( date ) );
+	return destination;
+}
+
+char *date_get_hhmm( char *destination, DATE *date )
+{
+	sprintf( 	destination, 
+			"%02d%02d",
+			date_get_hour( date ),
+			date_get_minutes( date ) );
 	return destination;
 }
 
@@ -932,6 +973,21 @@ char *date_static_display( DATE *date )
 {
 	return date_static_display_yyyy_mm_dd( date );
 }
+
+char *date_display_yyyy_mm_dd_colon_hm( DATE *date )
+{
+	char buffer[ 128 ];
+	
+	sprintf( buffer,
+		 "%s ",
+		 date_static_display_yyyy_mm_dd( date ) );
+
+	date_get_hhmm(
+		 buffer + strlen( buffer ), date );
+
+	return strdup( buffer );
+
+} /* date_display_yyyy_mm_dd_colon_hm() */
 
 char *date_display_yyyy_mm_dd_colon_hms( DATE *date )
 {

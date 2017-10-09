@@ -89,7 +89,9 @@ void add_slashes_maybe( char *d, char *s );
 char *date_yyyy_mm_dd( DATE *date );
 
 char *date_get_yyyy_mm_dd( char *destination, DATE *date );
-char *date_get_hhmm( char *destination, DATE *date );
+
+char *date_get_hhmm(		char *destination,
+				DATE *date );
 
 char *date_get_colon_hhmmss(	char *destination,
 				DATE *date );
@@ -102,9 +104,13 @@ char *date_display_yyyy_mm_dd(	DATE *date );
 char *date_display_yyyy_mm_dd_colon_hms(
 				DATE *date );
 
+char *date_display_yyyy_mm_dd_colon_hm(
+				DATE *date );
+
 char *date_get_yyyy_mm_dd_string( DATE *date );
 
 char *date_get_yesterday_yyyy_mm_dd_string( void );
+
 DATE *date_get_today_new( void );
 
 DATE *date_new_now( void );
@@ -352,5 +358,8 @@ int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 
 int date_get_last_month_day(	int month,
 				int year );
+
+DATE *date_yyyy_mm_dd_colon_hm_new(
+				char *date_time_string );
 
 #endif

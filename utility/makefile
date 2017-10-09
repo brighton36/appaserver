@@ -1566,43 +1566,50 @@ trim_right_until_character.e: trim_right_until_character.c
 		${STANDARD_LIBRARY}					\
 		-o trim_right_until_character.e
 
-skip_lines.e: skip_lines.c
+skip_lines.e: skip_lines.c						\
+		${STANDARD_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} skip_lines.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o skip_lines.e
 
-commit.e: commit.c
+commit.e: commit.c							\
+		${STANDARD_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} commit.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o commit.e
 
-filter_anomaly.e: filter_anomaly.c
+filter_anomaly.e: filter_anomaly.c					\
+		${STANDARD_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} filter_anomaly.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o filter_anomaly.e
 
-strncmp.e: strncmp.c
+strncmp.e: strncmp.c							\
+		${STANDARD_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} strncmp.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o strncmp.e
 
-strcmp.e: strcmp.c
+strcmp.e: strcmp.c							\
+		${STANDARD_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} strcmp.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o strcmp.e
 
-strlen.e: strlen.c
+strlen.e: strlen.c							\
+		${STANDARD_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} strlen.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o strlen.e
 
-character_count.e: character_count.c
+character_count.e: character_count.c					\
+		${STANDARD_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} character_count.c		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
@@ -1618,7 +1625,8 @@ increment.e: increment.c
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-o increment.e
 
-reverse.e: reverse.c
+reverse.e: reverse.c							\
+		${STANDARD_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} reverse.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
@@ -1628,49 +1636,65 @@ gethostbyname: gethostbyname.c
 	$(CC)	gethostbyname.c						\
 		-o gethostbyname
 
-piece_commas_in_double.e: piece_commas_in_double.c
+piece_commas_in_double.e: piece_commas_in_double.c			\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} piece_commas_in_double.c		\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o piece_commas_in_double.e
 
-minutes_between.e: minutes_between.c
+minutes_between.e: minutes_between.c					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} minutes_between.c		\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o minutes_between.e
 
-minutes_ticker.e: minutes_ticker.c
+minutes_ticker.e: minutes_ticker.c					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} minutes_ticker.c			\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o minutes_ticker.e
 
-filename_date_older.e: filename_date_older.c
+filename_date_older.e: filename_date_older.c				\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} filename_date_older.c		\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o filename_date_older.e
 
-mail_if_output.e: mail_if_output.c
+mail_if_output.e: mail_if_output.c					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} mail_if_output.c			\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o mail_if_output.e
 
-time_hhmm2hhcolonmm.e: time_hhmm2hhcolonmm.c
+time_hhmm2hhcolonmm.e: time_hhmm2hhcolonmm.c				\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} time_hhmm2hhcolonmm.c		\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o time_hhmm2hhcolonmm.e
 
-subtract_list.e: subtract_list.c
+subtract_list.e: subtract_list.c					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} subtract_list.c			\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		-o subtract_list.e
 
 payroll_period.e: payroll_period.c ${APPASERVER_LIBRARY}		\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
 		${LIBRARY}/name_arg.o
 	$(CC)	${CFLAGS} -I${LIBRARY} payroll_period.c			\
 		${STANDARD_LIBRARY}					\

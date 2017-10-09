@@ -525,4 +525,7 @@ LIST *related_folder_fetch_folder_foreign_attribute_name_list(
 LIST *related_folder_fetch_folder_foreign_attribute_record_list(
 			char *application_name );
 
+void related_folder_mark_ignore_multi_attribute_primary_keys(
+			LIST *mto1_related_folder_list );
+
 #endif

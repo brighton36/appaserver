@@ -202,6 +202,9 @@ void generic_measurement_load(
 			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
 
+	related_folder_mark_ignore_multi_attribute_primary_keys(
+		mto1_related_folder_list );
+
 	printf( "<form enctype=\"multipart/form-data\""
 		" method=post"
 		" action=\"%s/post_generic_measurement_load?%s+%s+%s+%s+%s\""
@@ -259,14 +262,6 @@ void generic_measurement_load(
 			      (LIST *)0 /* include_attribute_name_list */ ) ) )
 		{
 			char element_name[ 128 ];
-
-			related_folder->
-			folder->
-			primary_attribute_name_list =
-				folder_get_primary_attribute_name_list(
-					related_folder->
-						folder->
-						attribute_list );
 
 			if ( list_length(
 					related_folder->
@@ -428,4 +423,3 @@ void remove_exclude_attribute_list(
 	} while( list_next( attribute_list ) );
 
 } /* remove_exclude_attribute_list() */
-

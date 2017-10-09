@@ -3891,3 +3891,24 @@ LIST *related_folder_fetch_folder_foreign_attribute_name_list(
 
 } /* related_folder_fetch_folder_foreign_attribute_name_list() */
 
+
+void related_folder_mark_ignore_multi_attribute_primary_keys(
+				LIST *mto1_related_folder_list )
+{
+	RELATED_FOLDER *related_folder;
+
+	if ( !list_rewind( mto1_related_folder_list ) ) return;
+
+	do {
+		related_folder = list_get_pointer( mto1_related_folder_list );
+
+		if ( list_length( related_folder->
+					folder->
+					primary_attribute_name_list ) != 1 )
+		{
+			related_folder->ignore_output = 1;
+		}
+	} while( list_next( mto1_related_folder_list ) );
+
+} /* related_folder_mark_ignore_multi_attribute_primary_keys() */
+

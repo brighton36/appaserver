@@ -71,14 +71,7 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	login_name = session_get_login_name(
 					application_name,
@@ -89,6 +82,7 @@ int main( int argc, char **argv )
 
 	document = document_new(process_title_initial_capital,
 				application_name );
+
 	if ( !appaserver_get_frameset_menu_horizontal(
 					application_name,
 					login_name ) )

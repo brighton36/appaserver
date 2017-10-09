@@ -299,6 +299,9 @@ void post_state_one(	char *application_name,
 			(LIST *)0 /* root_primary_attribute_name_list */,
 			0 /* recursive_level */ );
 
+	related_folder_mark_ignore_multi_attribute_primary_keys(
+			mto1_related_folder_list );
+
 	printf( "<form enctype=\"multipart/form-data\""
 		" method=post"
 		" action=\"%s/post_generic_load?%s+%s+%s+%s+two\""

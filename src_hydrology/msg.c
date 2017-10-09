@@ -1,5 +1,5 @@
 {
-char msg[ 1024 ];
+char msg[ 65536 ];
 sprintf( msg, "\n%s/%s()/%d: got where_clause = (%s)\n",
 __FILE__,
 __FUNCTION__,

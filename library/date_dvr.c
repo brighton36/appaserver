@@ -84,8 +84,8 @@ void test_round()
 	{
 		for( minutes = 0; minutes < 60; minutes++ )
 		{
-			date = date_today_new();
-			date_set_time( date, hour, minutes );
+			date = date_today_new( HOURS_WEST_GMT );
+			date_set_time( date, hour, minutes, HOURS_WEST_GMT );
 			date_round2five_minutes( date );
 			printf( "hour = %d minutes = %d round = %s date = %s\n",
 				hour, minutes,
@@ -123,14 +123,14 @@ void test2()
 {
 	DATE *d;
 
-	d = date_yyyy_mm_dd_new( "1999-12-31" );
+	d = date_yyyy_mm_dd_new( "1999-12-31", HOURS_WEST_GMT );
 	printf( "should be 1999-12-31 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
 	date_increment_days( d, 1 );
 	printf( "should be 2000-01-01 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-1-1" );
+	d = date_yyyy_mm_dd_new( "2000-1-1", HOURS_WEST_GMT );
 	printf( "should be 2000-01-01 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
 	date_increment_days( d, 1 );
@@ -141,7 +141,7 @@ void test2()
 
 void test1()
 {
-	DATE *d = date_new( 1997, 1, 4 );
+	DATE *d = date_new( 1997, 1, 4, HOURS_WEST_GMT );
 	int month, day;
 
 	month = get_month( d );
@@ -156,14 +156,14 @@ void test1()
 
 void test_today()
 {
-	DATE *d = date_today_new();
+	DATE *d = date_today_new( HOURS_WEST_GMT );
 	printf( "got today = (%s)\n",
 		date_display_yyyy_mm_dd_colon_hms( d ) );
 }
 
 void test5()
 {
-	DATE *d = date_get_today_new();
+	DATE *d = date_get_today_new( HOURS_WEST_GMT );
 	char buffer[ 128 ];
 
 	date_increment_days( d, -1.0 );
@@ -175,7 +175,7 @@ void test6()
 	char buffer[ 128 ];
 	DATE *d;
 
-	d = date_new( 2020, 1, 1 );
+	d = date_new( 2020, 1, 1, HOURS_WEST_GMT );
 
 	printf( "should be 2020-01-01: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
@@ -183,26 +183,26 @@ void test6()
 	date_free( d );
 
 /*
-	d = date_new( 2130, 1, 1 );
+	d = date_new( 2130, 1, 1, HOURS_WEST_GMT );
 	printf( "should be 2130-01-01: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
 */
 
-	d = date_new( 1969, 12, 31 );
+	d = date_new( 1969, 12, 31, HOURS_WEST_GMT );
 
 	printf( "should be 1969-12-31: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
 
 	date_free( d );
 
-	d = date_new( 1970, 1, 1 );
+	d = date_new( 1970, 1, 1, HOURS_WEST_GMT );
 
 	printf( "should be 1970-01-01: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
 
 	date_free( d );
 
-	d = date_new( 1968, 12, 31 );
+	d = date_new( 1968, 12, 31, HOURS_WEST_GMT );
 
 	printf( "should be 1968-12-31: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
@@ -220,13 +220,13 @@ void test_1am()
 	char buffer[ 128 ];
 	DATE *d;
 
-	d = date_time_new( 2008, 3, 13, 1, 00 );
+	d = date_time_new( 2008, 3, 13, 1, 00, HOURS_WEST_GMT );
 
 	printf( "should be 2008-03-13:0100, is %s:%s\n",
 		date_get_yyyy_mm_dd( buffer, d ),
 		date_display_hhmm( d ) );
 	d->current += 600;
-	date_set_tm_structures( d, d->current );
+	date_set_tm_structures( d, d->current, HOURS_WEST_GMT );
 	printf( "should be 2008-03-13:0110, is %s:%s\n",
 		date_get_yyyy_mm_dd( buffer, d ),
 		date_display_hhmm( d ) );
@@ -238,7 +238,7 @@ void test_11pm()
 	char buffer[ 128 ];
 	DATE *d;
 
-	d = date_time_new( 2008, 3, 21, 23, 00 );
+	d = date_time_new( 2008, 3, 21, 23, 00, HOURS_WEST_GMT );
 
 	printf( "should be 2008-03-21:2300, is %s:%s\n",
 		date_get_yyyy_mm_dd( buffer, d ),
@@ -283,7 +283,7 @@ void test_richie()
 	d = date_new_date();
 	d->current = -893400000;
 
-	date_set_tm_structures( d, d->current );
+	date_set_tm_structures( d, d->current, HOURS_WEST_GMT );
 	printf( "Ritchie's birth time is (%s)\n",
 		date_display_yyyy_mm_dd_hhmm( d ) );
 }
@@ -292,7 +292,7 @@ void test_cross_dst()
 {
 	DATE *d;
 
-	d = date_time_new( 2009, 3, 8, 1, 0 );
+	d = date_time_new( 2009, 3, 8, 1, 0, HOURS_WEST_GMT );
 
 	printf( "should be 2009-03-08:0100 is (%s:%s)\n", 
 		date_display_yyyy_mm_dd( d ),
@@ -329,7 +329,8 @@ void test_minutes_between( void )
 				"1530",
 				"2011-07-20",
 	       			"1535",
-				1 /* add_one */ ) );
+				1 /* add_one */,
+				HOURS_WEST_GMT ) );
 
 }
 
@@ -371,7 +372,8 @@ void test_subtract_second( void )
 
 	transaction_date =
 		date_yyyy_mm_dd_hms_new(
-			"2016-08-31 23:59:59" );
+			"2016-08-31 23:59:59",
+			HOURS_WEST_GMT );
 
 	printf( "got tm_isdst = %d.\n",
 		transaction_date->tm->tm_isdst );
@@ -398,8 +400,8 @@ void test_2015_10_26()
 	DATE *date;
 	char *s;
 
-	date = date_new( 2015, 10, 26 );
-	date = date_new_now();
+	date = date_new( 2015, 10, 26, HOURS_WEST_GMT );
+	date = date_now_new( HOURS_WEST_GMT );
 
 	s = "2015-10-26^null";
 
@@ -408,7 +410,8 @@ void test_2015_10_26()
 			s,
 			0 /* date_piece */,
 			1 /* time_piece */,
-			'^' );
+			'^',
+			HOURS_WEST_GMT );
 
 	printf( "expecting (2015-10-26), got (%s)\n",
 		date_display( date ) );
@@ -422,50 +425,50 @@ void test_week_of_year_1995()
 	system( "ncal -w -3 12 1995" );
 	fflush( stdout );
 
-	d = date_yyyy_mm_dd_new( "1995-01-01" );
+	d = date_yyyy_mm_dd_new( "1995-01-01", HOURS_WEST_GMT );
 	printf( "1995-01-01 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1995-12-26" );
+	d = date_yyyy_mm_dd_new( "1995-12-26", HOURS_WEST_GMT );
 	printf( "1995-12-26 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1995-12-27" );
+	d = date_yyyy_mm_dd_new( "1995-12-27", HOURS_WEST_GMT );
 	printf( "1995-12-27 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1995-12-28" );
+	d = date_yyyy_mm_dd_new( "1995-12-28", HOURS_WEST_GMT );
 	printf( "1995-12-28 should be week 52 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1995-12-29" );
+	d = date_yyyy_mm_dd_new( "1995-12-29", HOURS_WEST_GMT );
 	printf( "1995-12-29 should be week 52 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1995-12-30" );
+	d = date_yyyy_mm_dd_new( "1995-12-30", HOURS_WEST_GMT );
 	printf( "1995-12-30 should be week 52 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1995-12-31" );
+	d = date_yyyy_mm_dd_new( "1995-12-31", HOURS_WEST_GMT );
 	printf( "1995-12-31 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1996-01-01" );
+	d = date_yyyy_mm_dd_new( "1996-01-01", HOURS_WEST_GMT );
 	printf( "1996-01-01 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1996-01-02" );
+	d = date_yyyy_mm_dd_new( "1996-01-02", HOURS_WEST_GMT );
 	printf( "1996-01-02 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1996-01-03" );
+	d = date_yyyy_mm_dd_new( "1996-01-03", HOURS_WEST_GMT );
 	printf( "1996-01-03 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1996-01-07" );
+	d = date_yyyy_mm_dd_new( "1996-01-07", HOURS_WEST_GMT );
 	printf( "1996-01-07 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 
@@ -479,34 +482,34 @@ void test_week_of_year_1998()
 	system( "ncal -w -3 12 1998" );
 	fflush( stdout );
 
-	d = date_yyyy_mm_dd_new( "1998-01-01" );
+	d = date_yyyy_mm_dd_new( "1998-01-01", HOURS_WEST_GMT );
 	printf( "1998-01-01 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1998-12-26" );
+	d = date_yyyy_mm_dd_new( "1998-12-26", HOURS_WEST_GMT );
 	printf( "1998-12-26 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1998-12-27" );
+	d = date_yyyy_mm_dd_new( "1998-12-27", HOURS_WEST_GMT );
 	printf( "1998-12-27 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1998-12-31" );
+	d = date_yyyy_mm_dd_new( "1998-12-31", HOURS_WEST_GMT );
 	printf( "1998-12-31 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1999-01-01" );
+	d = date_yyyy_mm_dd_new( "1999-01-01", HOURS_WEST_GMT );
 	printf( "1999-01-01 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1999-01-02" );
+	d = date_yyyy_mm_dd_new( "1999-01-02", HOURS_WEST_GMT );
 	printf( "1999-01-02 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1999-01-03" );
+	d = date_yyyy_mm_dd_new( "1999-01-03", HOURS_WEST_GMT );
 	printf( "1999-01-03 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 }
@@ -519,43 +522,43 @@ void test_week_of_year_1999()
 	system( "ncal -w -3 12 1999" );
 	fflush( stdout );
 
-	d = date_yyyy_mm_dd_new( "1999-01-01" );
+	d = date_yyyy_mm_dd_new( "1999-01-01", HOURS_WEST_GMT );
 	printf( "1999-01-01 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1999-12-25" );
+	d = date_yyyy_mm_dd_new( "1999-12-25", HOURS_WEST_GMT );
 	printf( "1999-12-25 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1999-12-26" );
+	d = date_yyyy_mm_dd_new( "1999-12-26", HOURS_WEST_GMT );
 	printf( "1999-12-26 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1999-12-27" );
+	d = date_yyyy_mm_dd_new( "1999-12-27", HOURS_WEST_GMT );
 	printf( "1999-12-27 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "1999-12-27" );
+	d = date_yyyy_mm_dd_new( "1999-12-27", HOURS_WEST_GMT );
 	printf( "1999-12-27 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "1999-12-31" );
+	d = date_yyyy_mm_dd_new( "1999-12-31", HOURS_WEST_GMT );
 	printf( "1999-12-31 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-01-01" );
+	d = date_yyyy_mm_dd_new( "2000-01-01", HOURS_WEST_GMT );
 	printf( "2000-01-01 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-01-02" );
+	d = date_yyyy_mm_dd_new( "2000-01-02", HOURS_WEST_GMT );
 	printf( "2000-01-02 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-01-03" );
+	d = date_yyyy_mm_dd_new( "2000-01-03", HOURS_WEST_GMT );
 	printf( "2000-01-03 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 }
@@ -568,67 +571,67 @@ void test_week_of_year_2000()
 	system( "ncal -w -3 12 2000" );
 	fflush( stdout );
 
-	d = date_yyyy_mm_dd_new( "2000-01-01" );
+	d = date_yyyy_mm_dd_new( "2000-01-01", HOURS_WEST_GMT );
 	printf( "2000-01-01 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-12-23" );
+	d = date_yyyy_mm_dd_new( "2000-12-23", HOURS_WEST_GMT );
 	printf( "2000-12-23 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-12-24" );
+	d = date_yyyy_mm_dd_new( "2000-12-24", HOURS_WEST_GMT );
 	printf( "2000-12-24 should be week 53 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-12-25" );
+	d = date_yyyy_mm_dd_new( "2000-12-25", HOURS_WEST_GMT );
 	printf( "2000-12-25 should be week 53 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-12-26" );
+	d = date_yyyy_mm_dd_new( "2000-12-26", HOURS_WEST_GMT );
 	printf( "2000-12-26 should be week 53 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-12-27" );
+	d = date_yyyy_mm_dd_new( "2000-12-27", HOURS_WEST_GMT );
 	printf( "2000-12-27 should be week 53 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-12-28" );
+	d = date_yyyy_mm_dd_new( "2000-12-28", HOURS_WEST_GMT );
 	printf( "2000-12-28 should be week 53 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-12-29" );
+	d = date_yyyy_mm_dd_new( "2000-12-29", HOURS_WEST_GMT );
 	printf( "2000-12-29 should be week 53 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-12-30" );
+	d = date_yyyy_mm_dd_new( "2000-12-30", HOURS_WEST_GMT );
 	printf( "2000-12-30 should be week 53 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2000-12-31" );
+	d = date_yyyy_mm_dd_new( "2000-12-31", HOURS_WEST_GMT );
 	printf( "2000-12-31 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2001-01-01" );
+	d = date_yyyy_mm_dd_new( "2001-01-01", HOURS_WEST_GMT );
 	printf( "2001-01-01 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2001-01-06" );
+	d = date_yyyy_mm_dd_new( "2001-01-06", HOURS_WEST_GMT );
 	printf( "2001-01-06 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2001-01-07" );
+	d = date_yyyy_mm_dd_new( "2001-01-07", HOURS_WEST_GMT );
 	printf( "2001-01-07 should be week 2 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
@@ -642,27 +645,27 @@ void test_week_of_year_2001()
 	system( "ncal -w -3 12 2001" );
 	fflush( stdout );
 
-	d = date_yyyy_mm_dd_new( "2001-01-01" );
+	d = date_yyyy_mm_dd_new( "2001-01-01", HOURS_WEST_GMT );
 	printf( "2001-01-01 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2001-12-31" );
+	d = date_yyyy_mm_dd_new( "2001-12-31", HOURS_WEST_GMT );
 	printf( "2001-12-31 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2002-01-01" );
+	d = date_yyyy_mm_dd_new( "2002-01-01", HOURS_WEST_GMT );
 	printf( "2002-01-02 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2002-01-06" );
+	d = date_yyyy_mm_dd_new( "2002-01-06", HOURS_WEST_GMT );
 	printf( "2002-01-06 should be week 2 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2002-01-07" );
+	d = date_yyyy_mm_dd_new( "2002-01-07", HOURS_WEST_GMT );
 	printf( "2002-01-07 should be week 2 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
@@ -680,72 +683,72 @@ void test_strftime( int year )
 	system( sys_string );
 	fflush( stdout );
 
-	date = date_new( year, 1, 1 );
+	date = date_new( year, 1, 1, HOURS_WEST_GMT );
 	printf( "%s day_of_week = %s\n",
 		date_display( date ),
 		date_get_day_of_week_string( date ) );
 
-	date = date_new( year, 12, 23 );
+	date = date_new( year, 12, 23, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year, 12, 24 );
+	date = date_new( year, 12, 24, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year, 12, 25 );
+	date = date_new( year, 12, 25, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year, 12, 26 );
+	date = date_new( year, 12, 26, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year, 12, 27 );
+	date = date_new( year, 12, 27, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year, 12, 28 );
+	date = date_new( year, 12, 28, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year, 12, 29 );
+	date = date_new( year, 12, 29, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year, 12, 30 );
+	date = date_new( year, 12, 30, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year, 12, 31 );
+	date = date_new( year, 12, 31, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year + 1, 1, 1 );
+	date = date_new( year + 1, 1, 1, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
 		week_of_year_string );
 
-	date = date_new( year + 1, 1, 2 );
+	date = date_new( year + 1, 1, 2, HOURS_WEST_GMT );
 	strftime( week_of_year_string, 16, "%U", date->tm );
 	printf( "%s week_of_year_string = %s\n",
 		date_display( date ),
@@ -760,7 +763,7 @@ void test_week_of_year_2037()
 	system( "ncal -w -3 12 2037" );
 	fflush( stdout );
 
-	d = date_yyyy_mm_dd_new( "2037-01-01" );
+	d = date_yyyy_mm_dd_new( "2037-01-01", HOURS_WEST_GMT );
 
 	printf( "Should be 2037-01-01 is: %s\n",
 		date_display( d ) );
@@ -769,45 +772,45 @@ void test_week_of_year_2037()
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2037-12-26" );
+	d = date_yyyy_mm_dd_new( "2037-12-26", HOURS_WEST_GMT );
 	printf( "2037-12-26 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2037-12-27" );
+	d = date_yyyy_mm_dd_new( "2037-12-27", HOURS_WEST_GMT );
 	printf( "2037-12-27 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2037-12-28" );
+	d = date_yyyy_mm_dd_new( "2037-12-28", HOURS_WEST_GMT );
 	printf( "2037-12-28 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2037-12-29" );
+	d = date_yyyy_mm_dd_new( "2037-12-29", HOURS_WEST_GMT );
 	printf( "2037-12-29 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2037-12-30" );
+	d = date_yyyy_mm_dd_new( "2037-12-30", HOURS_WEST_GMT );
 	printf( "2037-12-30 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2037-12-31" );
+	d = date_yyyy_mm_dd_new( "2037-12-31", HOURS_WEST_GMT );
 	printf( "2037-12-31 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-01-01" );
+	d = date_yyyy_mm_dd_new( "2038-01-01", HOURS_WEST_GMT );
 	printf( "2038-01-01 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-01-02" );
+	d = date_yyyy_mm_dd_new( "2038-01-02", HOURS_WEST_GMT );
 	printf( "2038-01-02 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-01-03" );
+	d = date_yyyy_mm_dd_new( "2038-01-03", HOURS_WEST_GMT );
 	printf( "2038-01-03 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-01-07" );
+	d = date_yyyy_mm_dd_new( "2038-01-07", HOURS_WEST_GMT );
 	printf( "2038-01-07 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 }
@@ -820,7 +823,7 @@ void test_week_of_year_2038()
 	system( "ncal -w -3 12 2038" );
 	fflush( stdout );
 
-	d = date_yyyy_mm_dd_new( "2038-01-01" );
+	d = date_yyyy_mm_dd_new( "2038-01-01", HOURS_WEST_GMT );
 
 	printf( "Should be 2038-01-01 is: %s\n",
 		date_display( d ) );
@@ -829,50 +832,50 @@ void test_week_of_year_2038()
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-12-25" );
+	d = date_yyyy_mm_dd_new( "2038-12-25", HOURS_WEST_GMT );
 	printf( "2038-12-25 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-12-26" );
+	d = date_yyyy_mm_dd_new( "2038-12-26", HOURS_WEST_GMT );
 	printf( "2038-12-26 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-12-27" );
+	d = date_yyyy_mm_dd_new( "2038-12-27", HOURS_WEST_GMT );
 	printf( "2038-12-27 should be week 1 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-12-28" );
+	d = date_yyyy_mm_dd_new( "2038-12-28", HOURS_WEST_GMT );
 	printf( "2038-12-28 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-12-29" );
+	d = date_yyyy_mm_dd_new( "2038-12-29", HOURS_WEST_GMT );
 	printf( "2038-12-29 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-12-30" );
+	d = date_yyyy_mm_dd_new( "2038-12-30", HOURS_WEST_GMT );
 	printf( "2038-12-30 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2038-12-31" );
+	d = date_yyyy_mm_dd_new( "2038-12-31", HOURS_WEST_GMT );
 	printf( "2038-12-31 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2039-01-01" );
+	d = date_yyyy_mm_dd_new( "2039-01-01", HOURS_WEST_GMT );
 	printf( "2039-01-01 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2039-01-02" );
+	d = date_yyyy_mm_dd_new( "2039-01-02", HOURS_WEST_GMT );
 	printf( "2039-01-02 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2039-01-03" );
+	d = date_yyyy_mm_dd_new( "2039-01-03", HOURS_WEST_GMT );
 	printf( "2039-01-03 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2039-01-07" );
+	d = date_yyyy_mm_dd_new( "2039-01-07", HOURS_WEST_GMT );
 	printf( "2039-01-07 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 }
@@ -885,7 +888,7 @@ void test_week_of_year_2045()
 	system( "ncal -w -3 12 2045" );
 	fflush( stdout );
 
-	d = date_yyyy_mm_dd_new( "2045-01-01" );
+	d = date_yyyy_mm_dd_new( "2045-01-01", HOURS_WEST_GMT );
 
 	printf( "Should be 2045-01-01 is: %s\n",
 		date_display( d ) );
@@ -894,45 +897,45 @@ void test_week_of_year_2045()
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2045-12-26" );
+	d = date_yyyy_mm_dd_new( "2045-12-26", HOURS_WEST_GMT );
 	printf( "2045-12-26 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2045-12-27" );
+	d = date_yyyy_mm_dd_new( "2045-12-27", HOURS_WEST_GMT );
 	printf( "2045-12-27 should be week 52 is: %d, Day of week = %s\n",
 		date_get_week_of_year( d ),
 		date_get_day_of_week_string( d ) );
 
-	d = date_yyyy_mm_dd_new( "2045-12-28" );
+	d = date_yyyy_mm_dd_new( "2045-12-28", HOURS_WEST_GMT );
 	printf( "2045-12-28 should be week 52 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2045-12-29" );
+	d = date_yyyy_mm_dd_new( "2045-12-29", HOURS_WEST_GMT );
 	printf( "2045-12-29 should be week 52 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2045-12-30" );
+	d = date_yyyy_mm_dd_new( "2045-12-30", HOURS_WEST_GMT );
 	printf( "2045-12-30 should be week 52 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2045-12-31" );
+	d = date_yyyy_mm_dd_new( "2045-12-31", HOURS_WEST_GMT );
 	printf( "2045-12-31 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2046-01-01" );
+	d = date_yyyy_mm_dd_new( "2046-01-01", HOURS_WEST_GMT );
 	printf( "2046-01-01 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2046-01-02" );
+	d = date_yyyy_mm_dd_new( "2046-01-02", HOURS_WEST_GMT );
 	printf( "2046-01-02 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2046-01-03" );
+	d = date_yyyy_mm_dd_new( "2046-01-03", HOURS_WEST_GMT );
 	printf( "2046-01-03 should be week 1 is: %d\n",
 		date_get_week_of_year( d ) );
 
-	d = date_yyyy_mm_dd_new( "2046-01-07" );
+	d = date_yyyy_mm_dd_new( "2046-01-07", HOURS_WEST_GMT );
 	printf( "2046-01-07 should be week 2 is: %d\n",
 		date_get_week_of_year( d ) );
 

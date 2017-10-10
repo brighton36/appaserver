@@ -350,7 +350,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				date_convert_new_user_format_date_convert(
 				application_name,
 				login_name,
-				date_get_now_yyyy_mm_dd() );
+				date_get_now_yyyy_mm_dd(
+					HOURS_WEST_GMT ) );
 
 			if ( element->element_type == element_current_date )
 			{
@@ -363,10 +364,12 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			{
 				if ( element->text_item->attribute_width == 19 )
 					time_string =
-					    date_get_now_hh_colon_mm_colon_ss();
+					    date_get_now_hh_colon_mm_colon_ss(
+						HOURS_WEST_GMT );
 				else
 					time_string =
-					    date_get_now_hh_colon_mm();
+					    date_get_now_hh_colon_mm(
+						HOURS_WEST_GMT );
 
 				sprintf( data,
 				 	"%s %s",
@@ -416,7 +419,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				date_convert_new_user_format_date_convert(
 				application_name,
 				login_name,
-				date_get_now_yyyy_mm_dd() );
+				date_get_now_yyyy_mm_dd(
+					HOURS_WEST_GMT ) );
 
 			element->text_item->data = date_convert->return_date;
 		}
@@ -474,9 +478,12 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 		{
 			if ( element->text_item->attribute_width >= 7 )
 				element->text_item->data =
-					date_get_now_time_hhmm_colon_ss();
+					date_get_now_time_hhmm_colon_ss(
+						HOURS_WEST_GMT );
 			else
-				element->text_item->data = date_get_now_hhmm();
+				element->text_item->data =
+					date_get_now_hhmm(
+						HOURS_WEST_GMT );
 		}
 
 		element_text_item_output(

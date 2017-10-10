@@ -177,7 +177,7 @@ int main( int argc, char **argv )
 
 		if ( !*value_string ) continue;
 
-		date_set_yyyy_mm_dd( new_date, date_string );
+		date_set_yyyy_mm_dd( new_date, date_string, HOURS_WEST_GMT );
 
 		if ( first_time )
 		{

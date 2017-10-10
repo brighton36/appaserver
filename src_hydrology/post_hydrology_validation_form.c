@@ -149,17 +149,13 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
-	validation_time = date_get_now_time_hhmm_colon_ss();
+	validation_time =
+		date_get_now_time_hhmm_colon_ss(
+			HOURS_WEST_GMT );
 
-	if ( strcmp(	appaserver_parameter_file->database_management_system,
-			"oracle" ) == 0 )
-	{
-		validation_date = date_get_now_date_oracle_format();
-	}
-	else
-	{
-		validation_date = date_get_now_date_yyyy_mm_dd();
-	}
+	validation_date =
+		date_get_now_date_yyyy_mm_dd(
+			HOURS_WEST_GMT );
 
 	measurement_validation_insert_into_manual_validation_event(
 		application_name,

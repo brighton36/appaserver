@@ -96,7 +96,9 @@ int main( int argc, char **argv )
 		catches_output_pipe = popen( sys_string, "w" );
 	}
 
-	now_date_international = date_get_now_date_yyyy_mm_dd();
+	now_date_international =
+		date_get_now_date_yyyy_mm_dd(
+			HOURS_WEST_GMT );
 
 	/* Skip the first line */
 	/* ------------------- */

@@ -1,9 +1,9 @@
-/* ---------------------------------------------------	*/
-/* unvalidate_measurements.c				*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* --------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/unvalidate_measurements.c	*/
+/* --------------------------------------------------------	*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* --------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -107,17 +107,13 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
-	now_validation_time = date_get_now_time_hhmm_colon_ss();
+	now_validation_time =
+		date_get_now_time_hhmm_colon_ss(
+			HOURS_WEST_GMT );
 
-	if ( strcmp(	appaserver_parameter_file->database_management_system,
-			"oracle" ) == 0 )
-	{
-		now_validation_date = date_get_now_date_oracle_format();
-	}
-	else
-	{
-		now_validation_date = date_get_now_date_yyyy_mm_dd();
-	}
+	now_validation_date =
+		date_get_now_date_yyyy_mm_dd(
+			HOURS_WEST_GMT );
 
 	get_validation_information(
 		begin_measurement_date,

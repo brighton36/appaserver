@@ -633,7 +633,8 @@ enum event_parameter_return_value get_measurement_update_event_parameters(
 			{
 				date_set_yyyy_mm_dd(
 						measurement_date,
-						measurement_date_string );
+						measurement_date_string,
+						HOURS_WEST_GMT );
 
 				date_set_time_hhmm(
 						measurement_date,

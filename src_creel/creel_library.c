@@ -2740,8 +2740,8 @@ void creel_library_get_begin_end_dates(
 	DATE *begin_date;
 	DATE *end_date;
 
-	begin_date = date_today_new();
-	end_date = date_today_new();
+	begin_date = date_today_new( HOURS_WEST_GMT );
+	end_date = date_today_new( HOURS_WEST_GMT );
 
 	if ( strcmp( mail_merge_letter, "recently_expired" ) == 0 )
 	{

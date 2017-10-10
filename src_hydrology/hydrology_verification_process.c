@@ -134,14 +134,16 @@ int main( int argc, char **argv )
 
 	if ( strcmp( date_string, "today" ) == 0 )
 	{
-		DATE *date = date_get_today_new();
+		DATE *date = date_get_today_new( HOURS_WEST_GMT );
 		date_string = date_get_yyyy_mm_dd_string( date );
 	}
 	else
 	if ( strcmp( date_string, "yesterday" ) == 0  
 	||   strcmp( date_string, "YESTERDAY" ) == 0 )
 	{
-		date_string = date_get_yesterday_yyyy_mm_dd_string();
+		date_string =
+			date_get_yesterday_yyyy_mm_dd_string(
+				HOURS_WEST_GMT );
 	}
 
 	if ( html_ok )

@@ -1139,7 +1139,11 @@ MONTH_ROW *total_caught_get_month_row(
 	MONTH_ROW *month_row;
 
 	month_row = total_caught_month_row_new( day );
-	month_row->row_date = date_yyyy_mm_dd_new( row_date_string );
+
+	month_row->row_date =
+		date_yyyy_mm_dd_new(
+			row_date_string,
+			HOURS_WEST_GMT );
 
 	/* Get enum performed_census_weekend */
 	/* --------------------------------- */
@@ -1351,7 +1355,7 @@ char *total_caught_get_trailer_count_weekend_string(
 		{
 			DATE *tomorrow;
 
-			tomorrow = date_new( 0, 0, 0 );
+			tomorrow = date_new( 0, 0, 0, HOURS_WEST_GMT );
 			date_copy( tomorrow, row_date );
 			date_increment_days( tomorrow, 1.0 );
 
@@ -1384,7 +1388,7 @@ char *total_caught_get_trailer_count_weekend_string(
 		{
 			DATE *yesterday;
 
-			yesterday = date_new( 0, 0, 0 );
+			yesterday = date_new( 0, 0, 0, HOURS_WEST_GMT );
 			date_copy( yesterday, row_date );
 			date_decrement_days( yesterday, 1.0 );
 
@@ -3860,7 +3864,7 @@ enum performed_census_weekend total_caught_get_performed_census_weekend(
 	/* --------------- */
 	prior_saturday = date_get_prior_saturday( row_date );
 
-	prior_sunday = date_new( 0, 0, 0 );
+	prior_sunday = date_new( 0, 0, 0, HOURS_WEST_GMT );
 	date_copy( prior_sunday, prior_saturday );
 	date_increment_days( prior_sunday, 1.0 );
 
@@ -4136,7 +4140,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 
 		if ( !*interview_date_saturday ) return 0;
 
-		*interview_date_sunday = date_new( 0, 0, 0 );
+		*interview_date_sunday = date_new( 0, 0, 0, HOURS_WEST_GMT );
 		date_copy( *interview_date_sunday, *interview_date_saturday );
 		date_increment_days( *interview_date_sunday, 1.0 );
 	}
@@ -4144,7 +4148,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 	if (	performed_census_weekend ==
 		day_sunday_census_missed_saturday_not_missed )
 	{
-		*interview_date_saturday = date_new( 0, 0, 0 );
+		*interview_date_saturday = date_new( 0, 0, 0, HOURS_WEST_GMT );
 		date_copy( *interview_date_saturday, row_date );
 		date_increment_days( *interview_date_saturday, -1.0 );
 	}
@@ -4159,7 +4163,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 
 		if ( !*interview_date_saturday ) return 0;
 
-		*interview_date_sunday = date_new( 0, 0, 0 );
+		*interview_date_sunday = date_new( 0, 0, 0, HOURS_WEST_GMT );
 
 		if ( !*interview_date_saturday )
 		{
@@ -4206,7 +4210,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 		*interview_date_saturday =
 			date_get_prior_saturday( row_date );
 
-		*interview_date_sunday = date_new( 0, 0, 0 );
+		*interview_date_sunday = date_new( 0, 0, 0, HOURS_WEST_GMT );
 		date_copy( *interview_date_sunday, *interview_date_saturday );
 		date_increment_days( *interview_date_sunday, 1.0 );
 	}
@@ -4222,7 +4226,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 
 		if ( !*interview_date_saturday ) return 0;
 
-		*interview_date_sunday = date_new( 0, 0, 0 );
+		*interview_date_sunday = date_new( 0, 0, 0, HOURS_WEST_GMT );
 		date_copy( *interview_date_sunday, *interview_date_saturday );
 		date_increment_days( *interview_date_sunday, 1.0 );
 	}
@@ -4264,7 +4268,7 @@ DATE *total_caught_get_preceeding_full_census_saturday(
 		{
 			DATE *preceeding_sunday;
 
-			preceeding_sunday = date_new( 0, 0, 0 );
+			preceeding_sunday = date_new( 0, 0, 0, HOURS_WEST_GMT );
 			date_copy( preceeding_sunday, preceeding_saturday );
 			date_increment_days( preceeding_sunday, 1.0 );
 

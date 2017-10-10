@@ -341,7 +341,9 @@ int insert_catch_measurements(	char *application_name,
 
 	}
 
-	now_date_international = date_get_now_date_yyyy_mm_dd();
+	now_date_international =
+		date_get_now_date_yyyy_mm_dd(
+			HOURS_WEST_GMT );
 
 	/* Skip the first line */
 	/* ------------------- */
@@ -627,7 +629,9 @@ void insert_catches(	char *application_name,
 		exit( 1 );
 	}
 
-	now_date_international = date_get_now_date_yyyy_mm_dd();
+	now_date_international =
+		date_get_now_date_yyyy_mm_dd(
+			HOURS_WEST_GMT );
 
 	/* Skip the first line */
 	/* ------------------- */

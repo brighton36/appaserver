@@ -518,7 +518,9 @@ void output_spreadsheet(
 				species_code = catches.species;
 			}
 
-			date = date_yyyy_mm_dd_new( fishing_trips.census_date );
+			date = date_yyyy_mm_dd_new(
+					fishing_trips.census_date,
+					HOURS_WEST_GMT );
 	
 			if ( !*display_data
 			||   strcmp(	display_data,

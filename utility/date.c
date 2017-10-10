@@ -31,7 +31,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		d = date_get_today_new();
+		d = date_get_today_new( HOURS_WEST_GMT );
 
 		if ( days_offset )
 		{

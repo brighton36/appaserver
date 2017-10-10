@@ -141,14 +141,18 @@ char *get_date_string( char *buffer )
 boolean date_days_older_than(	char *date_string,
 				int days_older_than )
 {
-	DATE *now = date_new_now();
+	DATE *now = date_now_new( HOURS_WEST_GMT );
 	DATE *earlier;
 	int difference;
 
-	earlier = date_yyyy_mm_dd_new( date_string );
+	earlier = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+
 	difference = date_subtract_days( now, earlier );
+
 	date_free( now );
 	date_free( earlier );
+
 	return ( difference >= days_older_than );
+
 } /* date_days_older_than() */
 

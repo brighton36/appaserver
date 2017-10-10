@@ -106,11 +106,12 @@ int minutes_between(	boolean *results,
 
 	minutes_between =
 		date_minutes_between(
-				starting_date_string,
-				starting_time_string,
-				ending_date_string,
-	       			ending_time_string,
-				1 /* add one */ );
+			starting_date_string,
+			starting_time_string,
+			ending_date_string,
+	       		ending_time_string,
+			1 /* add one */,
+			HOURS_WEST_GMT );
 
 	*results = 1;
 	return minutes_between;

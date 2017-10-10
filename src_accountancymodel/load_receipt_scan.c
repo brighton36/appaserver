@@ -222,7 +222,7 @@ void insert_receipt_upload(	char *application_name,
 		 RELATIVE_DIRECTORY,
 		 application_name );
 
-	upload_date = date_get_now_yyyy_mm_dd();
+	upload_date = date_get_now_yyyy_mm_dd( HOURS_WEST_GMT );
 	table_name = get_table_name( application_name, "receipt_upload" );
 
 	if ( fund_name

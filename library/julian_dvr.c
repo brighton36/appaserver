@@ -37,7 +37,7 @@ int test_weekly( void )
 	while( get_line( date_string, input_pipe ) )
 	{
 		julian_set_yyyy_mm_dd( julian, date_string );
-		date_set_yyyy_mm_dd( date, date_string );
+		date_set_yyyy_mm_dd( date, date_string, HOURS_WEST_GMT );
 		printf( "For date = %s, julian week = %d, date week = %d\n",
 			date_string,
 			julian_get_week_number( julian->current ),

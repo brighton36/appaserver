@@ -126,7 +126,9 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
-	validation_date = date_get_now_yyyy_mm_dd();
+	validation_date =
+		date_get_now_yyyy_mm_dd(
+			HOURS_WEST_GMT );
 
 	post_sparrow_validation_form(
 				application_name,

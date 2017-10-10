@@ -1731,7 +1731,7 @@ void depreciation_fixed_asset_set_transaction(
 	ENTITY *entity;
 	DATE *transaction_date_time;
 
-	transaction_date_time = date_now_new();
+	transaction_date_time = date_now_new( HOURS_WEST_GMT );
 
 	if ( !list_rewind( entity_list ) ) return;
 

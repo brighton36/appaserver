@@ -162,11 +162,11 @@ void creel_census_report_output_table(
 	char *key;
 	char targeted_species[ 128 ];
 	DATE *census_date;
-/*
-	int trailer_count;
-*/
 
-	census_date = date_yyyy_mm_dd_new( census_date_string );
+	census_date =
+		date_yyyy_mm_dd_new(
+			census_date_string,
+			HOURS_WEST_GMT );
 
 	catches_hash_table =
 		hash_table_new( hash_table_medium );

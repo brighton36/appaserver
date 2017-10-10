@@ -447,36 +447,13 @@ void output_starting_argv_stderr( int argc, char **argv )
 {
 
 	fprintf( stderr, "%s %s: %s",
-		 date_get_now_yyyy_mm_dd(),
-		 date_get_now_hhmm(),
+		 date_get_now_yyyy_mm_dd( HOURS_WEST_GMT ),
+		 date_get_now_hhmm( HOURS_WEST_GMT ),
 		 argv[ 0 ] );
 	while( --argc ) fprintf( stderr, " %s", *++argv );
 	fprintf( stderr, "\n" );
 	fflush( stderr );
 }
-
-/*
-void output_starting_argv_append_file( int argc, char **argv, char *filename )
-{
-	FILE *f = fopen( filename, "a" );
-	if ( !f )
-	{
-		fprintf( stderr, 
-			 "Warning in %s/%s() cannot open %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 filename );
-		return;
-	}
-	fprintf( f, "%s %s: %s",
-		 date_get_now_yyyy_mm_dd(),
-		 date_get_now_hhmm(),
-		 argv[ 0 ] );
-	while( --argc ) fprintf( f, " %s", *++argv );
-	fprintf( f, "\n" );
-	fclose( f );
-}
-*/
 
 char *pipe_multiple_lines2string(	char *sys_string,
 					char delimiter )

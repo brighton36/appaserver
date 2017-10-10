@@ -85,7 +85,9 @@ int main( int argc, char **argv )
 			 FIELD_LIST );
 	}
 
-	now_date_international = date_get_now_date_yyyy_mm_dd();
+	now_date_international =
+		date_get_now_date_yyyy_mm_dd(
+			HOURS_WEST_GMT );
 
 	output_pipe = popen( sys_string, "w" );
 

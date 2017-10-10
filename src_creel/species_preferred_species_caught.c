@@ -537,7 +537,10 @@ void species_preferred_species_caught(
 	{
 		*(fishing_trips.interview_time + 2) = '\0';
 
-		date = date_yyyy_mm_dd_new( fishing_trips.census_date );
+		date =
+			date_yyyy_mm_dd_new(
+				fishing_trips.census_date,
+				HOURS_WEST_GMT );
 
 		species_preferred_code = "";
 

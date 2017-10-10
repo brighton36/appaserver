@@ -40,11 +40,19 @@ MEASUREMENT_UPDATE_PARAMETER *measurement_update_parameter_new(
 	p->measurement_update_method = measurement_update_method;
 	p->login_name = login_name;
 	p->parameter_dictionary = parameter_dictionary;
-	p->now_date = date_get_now_date_yyyy_mm_dd();
-	p->now_time = date_get_now_time_hhmm_colon_ss();
+
+	p->now_date =
+		date_get_now_date_yyyy_mm_dd(
+			HOURS_WEST_GMT );
+
+	p->now_time =
+		date_get_now_time_hhmm_colon_ss(
+			HOURS_WEST_GMT );
+
 	p->notes = notes;
 
 	return p;
+
 } /* measurement_update_parameter_new() */
 
 void measurement_update_parameter_save(	MEASUREMENT_UPDATE_PARAMETER *

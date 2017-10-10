@@ -307,7 +307,8 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 			begin_date_time =
 				date_yyyy_mm_dd_hm_new(
 					employee_work_day->
-						begin_work_date_time );
+						begin_work_date_time,
+					HOURS_WEST_GMT );
 
 			if ( !begin_date_time )
 			{
@@ -326,7 +327,8 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 			end_date_time =
 				date_yyyy_mm_dd_hm_new(
 					employee_work_day->
-						end_work_date_time );
+						end_work_date_time,
+					HOURS_WEST_GMT );
 
 			if ( !end_date_time )
 			{

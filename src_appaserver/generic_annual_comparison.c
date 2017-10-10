@@ -79,13 +79,21 @@ int annual_comparison_get_day_range(
 		"%d-%s",
 		ANNUAL_COMPARISON_DEFAULT_YEAR,
 		begin_month_day );
-	*begin_date = date_yyyy_mm_dd_new( strdup( date_string ) );
+
+	*begin_date =
+		date_yyyy_mm_dd_new(
+			strdup( date_string ),
+			HOURS_WEST_GMT );
 
 	sprintf(date_string,
 		"%d-%s",
 		ANNUAL_COMPARISON_DEFAULT_YEAR,
 		end_month_day );
-	end_date = date_yyyy_mm_dd_new( strdup( date_string ) );
+
+	end_date =
+		date_yyyy_mm_dd_new(
+			strdup( date_string ),
+			HOURS_WEST_GMT );
 
 	day_range = date_subtract_days( end_date, *begin_date ) + 1;
 
@@ -192,7 +200,10 @@ int annual_comparison_get_day_array_offset(
 	DATE *end_date;
 	int array_offset;
 
-	local_date = date_yyyy_mm_dd_new( date_yyyymmdd );
+	local_date =
+		date_yyyy_mm_dd_new(
+			date_yyyymmdd,
+			HOURS_WEST_GMT );
 
 	sprintf( end_month_day,
 		 "%d-%d",
@@ -205,7 +216,11 @@ int annual_comparison_get_day_array_offset(
 		"%d-%s",
 		ANNUAL_COMPARISON_DEFAULT_YEAR,
 		end_month_day );
-	end_date = date_yyyy_mm_dd_new( date_string );
+
+	end_date =
+		date_yyyy_mm_dd_new(
+			date_string,
+			HOURS_WEST_GMT );
 
 	array_offset = date_subtract_days( end_date, begin_date );
 

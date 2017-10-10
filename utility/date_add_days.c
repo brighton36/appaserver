@@ -41,13 +41,18 @@ int main( int argc, char **argv )
 			fprintf( stderr, "%s\n", buffer );
 			continue;
 		}
-		d = date_yyyy_mm_dd_new( date_buffer );
+
+		d = date_yyyy_mm_dd_new( date_buffer, HOURS_WEST_GMT );
+
 		date_increment_days( d, days_offset );
+
 		piece_replace(	buffer,
 				delimiter,
 				date_display_yyyy_mm_dd( d ),
 				destination_date_piece_offset );
+
 		printf( "%s\n", buffer );
+
 		date_free( d );
 	}
 	return 0;

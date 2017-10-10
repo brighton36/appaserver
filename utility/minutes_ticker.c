@@ -45,7 +45,8 @@ void minutes_ticker(	char *argv_0,
 
 	if ( ! ( begin_date_time =
 			date_yyyy_mm_dd_colon_hm_new(
-				begin_date_time_string ) ) )
+				begin_date_time_string,
+				HOURS_WEST_GMT ) ) )
 	{
 		fprintf(	stderr,
 				"Error %s: invalid begin_date_time.\n",
@@ -54,7 +55,8 @@ void minutes_ticker(	char *argv_0,
 
 	if ( ! ( end_date_time = 
 			date_yyyy_mm_dd_colon_hm_new(
-				end_date_time_string ) ) )
+				end_date_time_string,
+				HOURS_WEST_GMT ) ) )
 	{
 		fprintf(	stderr,
 				"Error %s: invalid end_date_time.\n",

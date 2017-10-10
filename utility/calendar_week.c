@@ -30,7 +30,11 @@ char **argv;
 	year = argv[ 1 ];
 	day_to_start = argv[ 2 ];
 
-	date = date_new( atoi( year ), 1, atoi( day_to_start ) );
+	date = date_new(
+		atoi( year ),
+		1,
+		atoi( day_to_start ),
+		HOURS_WEST_GMT );
 
 	for( week_number = 1; week_number <= 52; week_number++ )
 	{

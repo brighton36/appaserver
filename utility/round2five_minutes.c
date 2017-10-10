@@ -51,10 +51,14 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-		date = date_yyyy_mm_dd_new( date_buffer );
+		date = date_yyyy_mm_dd_new( date_buffer, HOURS_WEST_GMT );
+
 		date_set_time_hhmm( date, time_buffer );
+
 		date_round2five_minutes( date );
+
 		date_get_hhmm( time_buffer, date );
+
 		date_get_yyyy_mm_dd( date_buffer, date );
 
 		piece_replace(	input_buffer,
@@ -68,6 +72,7 @@ int main( int argc, char **argv )
 				time_piece_offset );
 
 		printf( "%s\n", input_buffer );
+
 		date_free( date );
 	}
 	return 0;

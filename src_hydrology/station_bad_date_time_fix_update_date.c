@@ -25,7 +25,7 @@ int main( void )
 		piece( date_string, ',', input_buffer, 2 );
 		piece( time, ',', input_buffer, 3 );
 
-		date = date_yyyy_mm_dd_new( date_string );
+		date = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
 		date_increment_days( date, 1 );
 
 		printf( 

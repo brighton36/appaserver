@@ -239,7 +239,7 @@ int main( int argc, char **argv )
 	||   strcmp(	as_of_date,
 			"as_of_date" ) == 0 )
 	{
-		as_of_date = date_get_now_yyyy_mm_dd();
+		as_of_date = date_get_now_yyyy_mm_dd( HOURS_WEST_GMT );
 	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
@@ -1464,7 +1464,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 	char *today_date_string;
 	int days_between;
 
-	today_date_string = date_get_now_yyyy_mm_dd();
+	today_date_string = date_get_now_yyyy_mm_dd( HOURS_WEST_GMT );
 
 	*accumulate_debit =
 		ledger_account_get_accumulate_debit(
@@ -1532,7 +1532,8 @@ void build_PDF_account_row(	LIST *column_data_list,
 	days_between =
 		date_days_between(
 			transaction_date_string,
-			today_date_string );
+			today_date_string,
+			HOURS_WEST_GMT );
 
 	if ( *accumulate_debit )
 		debit_string = timlib_place_commas_in_dollars( *balance );

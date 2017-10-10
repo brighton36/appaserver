@@ -28,16 +28,16 @@ void appaserver_output_error_message(	char *application_name,
 	{
 		fprintf(f,
 			"%s %s %s: %s\n",
-		 	date_get_now_yyyy_mm_dd(),
-		 	date_get_now_hhmm(),
+		 	date_get_now_yyyy_mm_dd( HOURS_WEST_GMT ),
+		 	date_get_now_hhmm( HOURS_WEST_GMT ),
 			login_name, message );
 	 }
 	else
 	{
 		fprintf(f,
 			"%s %s: %s\n",
-		 	date_get_now_yyyy_mm_dd(),
-		 	date_get_now_hhmm(),
+		 	date_get_now_yyyy_mm_dd( HOURS_WEST_GMT ),
+		 	date_get_now_hhmm( HOURS_WEST_GMT ),
 		       	message );
 	}
 
@@ -162,8 +162,8 @@ void appaserver_error_login_name_append_file(
 	f = appaserver_error_open_append_file( application_name );
 
 	fprintf( f, "%s %s %s: %s",
-		 date_get_now_yyyy_mm_dd(),
-		 date_get_now_hhmm(),
+		 date_get_now_yyyy_mm_dd( HOURS_WEST_GMT ),
+		 date_get_now_hhmm( HOURS_WEST_GMT ),
 		 login_name,
 		 argv[ 0 ] );
 
@@ -193,16 +193,16 @@ void appaserver_error_starting_argv_append_file(
 		fprintf(f,
 			"%s %s %s: %s",
 			remote_ip_address,
-		 	date_get_now_yyyy_mm_dd(),
-		 	date_get_now_hhmm(),
+		 	date_get_now_yyyy_mm_dd( HOURS_WEST_GMT ),
+		 	date_get_now_hhmm( HOURS_WEST_GMT ),
 		 	argv[ 0 ] );
 	}
 	else
 	{
 		fprintf(f,
 			"%s %s: %s",
-		 	date_get_now_yyyy_mm_dd(),
-		 	date_get_now_hhmm(),
+		 	date_get_now_yyyy_mm_dd( HOURS_WEST_GMT ),
+		 	date_get_now_hhmm( HOURS_WEST_GMT ),
 		 	argv[ 0 ] );
 	}
 
@@ -279,10 +279,12 @@ void appaserver_error_output_starting_argv_stderr(
 					char **argv )
 {
 	fprintf( stderr, "%s %s: %s",
-		 date_get_now_yyyy_mm_dd(),
-		 date_get_now_hhmm(),
+		 date_get_now_yyyy_mm_dd( HOURS_WEST_GMT ),
+		 date_get_now_hhmm( HOURS_WEST_GMT ),
 		 argv[ 0 ] );
+
 	while( --argc ) fprintf( stderr, " %s", *++argv );
 	fprintf( stderr, "\n" );
 	fflush( stderr );
+
 } /* appaserver_error_output_starting_argv_stderr() */

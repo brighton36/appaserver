@@ -375,7 +375,8 @@ void generate_data_collection_frequency_station_datatype(
 				previous_measurement_time,
 				measurement_date,
 				measurement_time,
-				0 /* don't add_one */ );
+				0 /* don't add_one */,
+				HOURS_WEST_GMT );
 
 		if ( exists_expected_minutes(
 			expected_minutes_between_array,

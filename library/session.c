@@ -611,7 +611,7 @@ void session_update_access_date_time(
 	char sys_string[ 1024 ];
 	char *table_name;
 
-	now = date_new_now();
+	now = date_now_new( HOURS_WEST_GMT );
 	table_name = get_table_name( application_name, "appaserver_sessions" );
 	sprintf( sys_string,
 		 "echo \"update %s					 "

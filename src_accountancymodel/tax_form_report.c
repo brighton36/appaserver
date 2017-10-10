@@ -118,7 +118,7 @@ int main( int argc, char **argv )
 	||   strcmp(	as_of_date,
 			"as_of_date" ) == 0 )
 	{
-		as_of_date = date_get_now_yyyy_mm_dd();
+		as_of_date = date_get_now_yyyy_mm_dd( HOURS_WEST_GMT );
 	}
 
 	document = document_new( title, application_name );

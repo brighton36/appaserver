@@ -1080,7 +1080,9 @@ char *post_change_customer_sale_get_completed_date_time(
 			char buffer[ 32 ];
 
 			strcpy( buffer,
-				date_append_hhmmss( arrived_date ) );
+				date_append_hhmmss(
+					arrived_date,
+					HOURS_WEST_GMT ) );
 
 			*shipped_date_time = strdup( buffer );
 		}

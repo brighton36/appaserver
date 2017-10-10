@@ -131,8 +131,13 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
-	validation_date = date_get_now_yyyy_mm_dd();
-	validation_time = date_get_now_time_hhmm();
+	validation_date =
+		date_get_now_yyyy_mm_dd(
+			HOURS_WEST_GMT );
+
+	validation_time =
+		date_get_now_time_hhmm(
+			HOURS_WEST_GMT );
 
 	post_benthic_validation_form(
 				application_name,

@@ -61,9 +61,11 @@ void increment_week(		DATE *d,
 void date_increment_day(	DATE *d,
 				int hours_west_gmt );
 
-void date_decrement_day( DATE *d );
+void date_decrement_day(	DATE *d,
+				int hours_west_gmt );
 
-void date_increment( DATE *d );
+void date_increment(		DATE *d,
+				int hours_west_gmt );
 
 DATE *date_yyyy_mm_dd_new(	char *date_string,
 				int hours_west_gmt );
@@ -90,7 +92,10 @@ void date_increment_minutes(	DATE *d,
 				int minutes,
 				int hours_west_gmt );
 
-void date_add_minutes( DATE *d, int minutes );
+void date_add_minutes(		DATE *d,
+				int minutes,
+				int hours_west_gmt );
+
 int get_month( DATE *d );
 int get_year( DATE *d );
 
@@ -175,7 +180,8 @@ char *date_get_now_hh_colon_mm(	int hours_west_gmt );
 char *date_get_yyyy_mm_dd_hh_mm_ss(
 				DATE *date_time );
 
-DATE *date_new_yyyy_mm_dd_date( char *date_field );
+DATE *date_new_yyyy_mm_dd_date( char *date_field,
+				int hours_west_gmt );
 
 DATE *date_new_yyyy_mm_dd(	char *date_field );
 
@@ -194,8 +200,12 @@ int date_set_yyyy_mm_dd_hhmm_delimited(
 				char delimiter,
 				int hours_west_gmt );
 
-char *date_this_saturday_yyyy_mm_dd_string( DATE *date );
-char *date_new_get_yyyy_mm_dd( time_t current );
+char *date_this_saturday_yyyy_mm_dd_string(
+				DATE *date,
+				int hours_west_gmt );
+
+char *date_new_get_yyyy_mm_dd(	time_t current,
+				int hours_west_gmt );
 
 int date_get_week_of_year( DATE *date );
 
@@ -226,15 +236,30 @@ int date_get_hour_number( DATE *date );
 double date_yyyy_mm_dd_to_julian( char *yyyy_mm_dd );
 double date_yyyy_mm_dd_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm );
 boolean date_copy( DATE *d1, DATE *d2 );
-void date_increment( DATE *d );
-void date_round2five_minutes( DATE *date );
-void date_decrement_hour( DATE *d );
-void date_increment_hour( DATE *d );
-void date_decrement_minute( DATE *d );
-void date_increment_minute( DATE *d );
-char *date_get_current_yyyy_mm_dd();
-char *date_get_current_hhmm();
-void date_decrement_days( DATE *d, float days );
+
+void date_round2five_minutes(		DATE *date,
+					int hours_west_gmt );
+
+void date_decrement_hour(		DATE *d,
+					int hours_west_gmt );
+
+void date_increment_hour(		DATE *d,
+					int hours_west_gmt );
+
+void date_decrement_minute(		DATE *d,
+					int hours_west_gmt );
+
+void date_increment_minute(		DATE *d,
+					int hours_west_gmt );
+
+char *date_get_current_yyyy_mm_dd(	int hours_west_gmt );
+
+char *date_get_current_hhmm(		int hours_west_gmt );
+
+void date_decrement_days(		DATE *d,
+					double days,
+					int hours_west_gmt );
+
 char *date_hhmm( DATE *d );
 char *date_get_hhmm_string( DATE *d );
 DATE *date_new_date( void );
@@ -268,7 +293,8 @@ char *date_get_yyyy_mm_dd_hhmm(
 				DATE *date );
 
 void date_increment_weekly_ceiling(
-				DATE *date );
+				DATE *date,
+				int hours_west_gmt );
 
 int date_get_day_of_week(	DATE *d );
 
@@ -279,8 +305,11 @@ boolean date_same_day(		DATE *old_date,
 
 boolean date_compare(		DATE *date1,
 				DATE *date2 );
+
 boolean date_tomorrow( 		DATE *old_date, 
-				DATE *new_date );
+				DATE *new_date,
+				int hours_west_gmt );
+
 boolean date_year_in_future(	DATE *date,
 				int year );
 
@@ -335,12 +364,16 @@ int date_days_in_month(		int month,
 
 char *date_prior_day_of_week_yyyy_mm_dd_string(
 				DATE *d,
-				int day_of_week );
+				int day_of_week,
+				int hours_west_gmt );
 
 char *date_static_display_yyyy_mm_dd(
 				DATE *date );
+
 char *date_current_to_static_yyyy_mm_dd_string(
-				time_t current );
+				time_t current,
+				int hours_west_gmt );
+
 char *date_static_display(	DATE *date );
 
 void date_time_parse(		int *hours,
@@ -377,7 +410,8 @@ boolean date_is_father(		DATE *d );
 boolean date_is_day_of_week(	DATE *d,
 				int day_of_week );
 
-DATE *date_back_to_first_month(	DATE *d );
+DATE *date_back_to_first_month(	DATE *d,
+				int hours_west_gmt );
 
 DATE *date_current_new(		time_t current,
 				int hours_west_gmt );
@@ -391,7 +425,8 @@ void date_increment_months(	DATE *d,
 				int hours_west_gmt );
 
 DATE *date_forward_to_first_month(
-				DATE *d );
+				DATE *d,
+				int hours_west_gmt );
 
 char *date_get_colon_now_time(
 				void );
@@ -401,9 +436,11 @@ void date_place_colon_in_time(	char *time_string );
 void date_remove_colon_in_time(	char *time_string );
 
 DATE *date_get_prior_day(	DATE *date,
-				int wday_parameter );
+				int wday_parameter,
+				int hours_west_gmt );
 
-DATE *date_get_prior_saturday(	DATE *date );
+DATE *date_get_prior_saturday(	DATE *date,
+				int hours_west_gmt );
 
 char *date_append_hhmmss(	char *date_string,
 				int hours_west_gmt );

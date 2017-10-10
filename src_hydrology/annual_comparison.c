@@ -248,7 +248,8 @@ void annual_comparison_output(
 			date_get_month_number( begin_date ),
 			date_get_month_day_number( begin_date ) );
 		fflush( stdout );
-		date_increment( begin_date );
+
+		date_increment( begin_date, HOURS_WEST_GMT );
 
 		for( year = 0; year < year_range; year++ )
 		{

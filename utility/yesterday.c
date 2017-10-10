@@ -16,7 +16,7 @@ int main( int argc, char **argv )
 		days_to_minus = atoi( argv[ 1 ] );
 
 	d = date_get_today_new( HOURS_WEST_GMT );
-	date_increment_days( d, days_to_minus );
+	date_increment_days( d, days_to_minus, HOURS_WEST_GMT );
 	printf( "%s\n", date_display_yyyy_mm_dd( d ) );
 	return 0;
 }

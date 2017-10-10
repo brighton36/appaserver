@@ -398,29 +398,33 @@ void date_increment( DATE *d, int hours_west_gmt )
 	date_increment_day( d, hours_west_gmt );
 }
 
-void date_decrement_minute( DATE *d )
+void date_decrement_minute( DATE *d, int hours_west_gmt )
 {
-	date_increment_minutes( d, -1 );
+	date_increment_minutes( d, -1, hours_west_gmt );
 }
 
-void date_decrement_hour( DATE *d )
+void date_decrement_hour(	DATE *d,
+				int hours_west_gmt )
 {
-	date_increment_hours( d, -1.0 );
+	date_increment_hours( d, -1.0, hours_west_gmt );
 }
 
-void date_increment_hour( DATE *d )
+void date_increment_hour(	DATE *d,
+				int hours_west_gmt )
 {
-	date_increment_hours( d, 1.0 );
+	date_increment_hours( d, 1.0, hours_west_gmt );
 }
 
-void date_increment_minute( DATE *d )
+void date_increment_minute(	DATE *d,
+				int hours_west_gmt )
 {
-	date_increment_minutes( d, 1 );
+	date_increment_minutes( d, 1, hours_west_gmt );
 }
 
-void date_decrement_day( DATE *d )
+void date_decrement_day(	DATE *d,
+				int hours_west_gmt )
 {
-	return date_decrement_days( d, 1.0 );
+	return date_decrement_days( d, 1.0, hours_west_gmt );
 }
 
 void date_decrement_days(	DATE *d,
@@ -470,7 +474,8 @@ void date_increment_day(	DATE *d,
 	date_set_tm_structures( d, d->current, hours_west_gmt );
 }
 
-void increment_week( DATE *d )
+void increment_week(		DATE *d,
+				int hours_west_gmt )
 {
 	d->current += SECONDS_IN_WEEK;
 	date_set_tm_structures( d, d->current, hours_west_gmt );
@@ -1425,9 +1430,10 @@ DATE *date_new_yyyy_mm_dd( char *date_string )
 	return date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
 }
 
-DATE *date_new_yyyy_mm_dd_date( char *date_string )
+DATE *date_new_yyyy_mm_dd_date(	char *date_string,
+				int hours_west_gmt )
 {
-	return date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+	return date_yyyy_mm_dd_new( date_string, hours_west_gmt );
 }
 
 boolean date_is_day_of_week(	DATE *d,
@@ -1475,18 +1481,20 @@ boolean date_is_saturday( DATE *d )
 	return date_is_day_of_week( d, WDAY_SATURDAY );
 }
 
-DATE *date_forward_to_first_month( DATE *d )
+DATE *date_forward_to_first_month(	DATE *d,
+					int hours_west_gmt )
 {
 	DATE *return_date;
 
-	return_date = date_back_to_first_month( d );
+	return_date = date_back_to_first_month( d, hours_west_gmt );
 	date_increment_months( return_date, 1, HOURS_WEST_GMT );
 
 	return return_date;
 
 } /* date_forward_to_first_month() */
 
-DATE *date_back_to_first_month( DATE *d )
+DATE *date_back_to_first_month(		DATE *d,
+					int hours_west_gmt )
 {
 	int mday;
 	time_t current;
@@ -1503,7 +1511,8 @@ DATE *date_back_to_first_month( DATE *d )
 
 } /* date_back_to_first_month() */
 
-char *date_this_saturday_yyyy_mm_dd_string( DATE *d )
+char *date_this_saturday_yyyy_mm_dd_string(	DATE *d,
+						int hours_west_gmt )
 {
 	int wday;
 	time_t current;
@@ -1518,12 +1527,13 @@ char *date_this_saturday_yyyy_mm_dd_string( DATE *d )
 		if ( wday == 7 ) wday = 0;
 	}
 
-	return date_new_get_yyyy_mm_dd( current );
+	return date_new_get_yyyy_mm_dd( current, hours_west_gmt );
 
 } /* date_this_saturday_yyyy_mm_dd_string() */
 
 DATE *date_get_prior_day(	DATE *date,
-				int wday_parameter )
+				int wday_parameter,
+				int hours_west_gmt )
 {
 	int wday;
 	time_t current;
@@ -1547,14 +1557,16 @@ DATE *date_get_prior_day(	DATE *date,
 
 } /* date_get_prior_day() */
 
-DATE *date_get_prior_saturday( DATE *date )
+DATE *date_get_prior_saturday(	DATE *date,
+				int hours_west_gmt )
 {
-	return date_get_prior_day( date, WDAY_SATURDAY );
+	return date_get_prior_day( date, WDAY_SATURDAY, hours_west_gmt );
 }
 
-DATE *date_get_prior_sunday( DATE *date )
+DATE *date_get_prior_sunday(	DATE *date,
+				int hours_west_gmt )
 {
-	return date_get_prior_day( date, WDAY_SUNDAY );
+	return date_get_prior_day( date, WDAY_SUNDAY, hours_west_gmt );
 }
 
 DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string )
@@ -1614,9 +1626,11 @@ void date_increment_hours(	DATE *d,
 	date_set_tm_structures( d, d->current, hours_west_gmt );
 }
 
-void date_add_minutes( DATE *d, int minutes )
+void date_add_minutes(	DATE *d,
+			int minutes,
+			int hours_west_gmt )
 {
-	date_increment_minutes( d, minutes );
+	date_increment_minutes( d, minutes, hours_west_gmt );
 }
 
 void date_increment_minutes(	DATE *d,
@@ -1695,7 +1709,8 @@ int date_get_minutes_number( DATE *date )
 	return date->tm->tm_min;
 }
 
-void date_round2five_minutes( DATE *date )
+void date_round2five_minutes(	DATE *date,
+				int hours_west_gmt )
 {
 	int hour;
 	int minutes;
@@ -1725,7 +1740,7 @@ void date_round2five_minutes( DATE *date )
 		}
 	}
 	
-	date_set_time( date, hour, minutes, HOURS_WEST_GMT );
+	date_set_time( date, hour, minutes, hours_west_gmt );
 
 } /* date_round2five_minutes() */
 
@@ -1858,22 +1873,7 @@ int date_days_in_month(	int month,
 			int year )
 {
 	return date_get_last_month_day(	month, year );
-
-/*
-	DATE *begin_date;
-	char date_string[ 16 ];
-	int days_in_month;
-
-	sprintf( date_string, "%d-%.2d-01", year, month );
-	begin_date = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
-	days_in_month = 0;
-	do {
-		days_in_month++;
-		date_increment( begin_date );
-	} while( date_get_month( begin_date ) == month );
-	return days_in_month;
-*/
-} /* date_days_in_month() */
+}
 
 char *date_current_to_static_yyyy_mm_dd_string(
 				time_t current,
@@ -1891,7 +1891,8 @@ char *date_current_to_static_yyyy_mm_dd_string(
 } /* date_current_to_static_yyyy_mm_dd_string() */
 
 char *date_prior_day_of_week_yyyy_mm_dd_string(	DATE *d,
-						int day_of_week )
+						int day_of_week,
+						int hours_west_gmt )
 {
 	int wday;
 	time_t current;
@@ -1906,7 +1907,9 @@ char *date_prior_day_of_week_yyyy_mm_dd_string(	DATE *d,
 		if ( wday == -1 ) wday = 6;
 	}
 
-	return date_current_to_static_yyyy_mm_dd_string( current );
+	return date_current_to_static_yyyy_mm_dd_string(
+			current,
+			hours_west_gmt );
 
 } /* date_prior_day_of_week_yyyy_mm_dd_string() */
 

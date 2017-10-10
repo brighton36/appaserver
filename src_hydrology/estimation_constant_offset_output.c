@@ -205,18 +205,35 @@ int main( int argc, char **argv )
 	if ( chart_yn == 'y' && really_yn != 'y' )
 	{
 		expanded_date =
-			date_new_yyyy_mm_dd_date( from_measurement_date );
+			date_new_yyyy_mm_dd_date(
+				from_measurement_date,
+				HOURS_WEST_GMT );
 
-		date_decrement_days( expanded_date, DATE_EXPAND_PLUS_MINUS );
+		date_decrement_days(
+			expanded_date,
+			DATE_EXPAND_PLUS_MINUS,
+			HOURS_WEST_GMT );
+
 		expanded_from_date_string =
-			date_get_yyyy_mm_dd_string( expanded_date );
+			date_get_yyyy_mm_dd_string(
+				expanded_date );
+
 		date_free( expanded_date );
 
 		expanded_date =
-			date_new_yyyy_mm_dd_date( to_measurement_date );
-		date_increment_days( expanded_date, DATE_EXPAND_PLUS_MINUS );
+			date_new_yyyy_mm_dd_date(
+				to_measurement_date,
+				HOURS_WEST_GMT );
+
+		date_increment_days(
+			expanded_date,
+			DATE_EXPAND_PLUS_MINUS,
+			HOURS_WEST_GMT );
+
 		expanded_to_date_string =
-			date_get_yyyy_mm_dd_string( expanded_date );
+			date_get_yyyy_mm_dd_string(
+				expanded_date );
+
 		date_free( expanded_date );
 	}
 	else

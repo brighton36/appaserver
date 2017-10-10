@@ -41,7 +41,7 @@ char **argv;
 		month = get_month( date );
 		day = get_day( date );
 		printf( "%0.2d %2d %2d\n", month, day, week_number );
-		increment_week( date );
+		increment_week( date, HOURS_WEST_GMT );
 	}
 	return 0;
 

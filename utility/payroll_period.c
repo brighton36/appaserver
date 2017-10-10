@@ -391,7 +391,7 @@ boolean payroll_period_get_weekly_dates(
 			}
 		}
 
-		date_increment_days( d, 1 );
+		date_increment_days( d, 1, HOURS_WEST_GMT );
 
 		week_of_year = date_get_week_of_year( d );
 
@@ -423,7 +423,7 @@ boolean payroll_period_get_weekly_dates(
 		}
 	}
 
-	date_increment_days( d, -1 );
+	date_increment_days( d, -1, HOURS_WEST_GMT );
 
 	strcpy( end_work_date,
 		date_yyyy_mm_dd( d ) );
@@ -773,7 +773,7 @@ void payroll_period_prior( char *period )
 
 	d = date_yyyy_mm_dd_new( begin_date_string, HOURS_WEST_GMT );
 
-	date_increment_days( d, -1 );
+	date_increment_days( d, -1, HOURS_WEST_GMT );
 
 	begin_date_string = date_yyyy_mm_dd( d );
 

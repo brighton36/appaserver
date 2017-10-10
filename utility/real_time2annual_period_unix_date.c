@@ -337,7 +337,9 @@ int get_week_integer( char *week_containing_date_string )
 	DATE *date;
 	int week_integer;
 
-	date = date_new_yyyy_mm_dd_date( week_containing_date_string );
+	date = date_new_yyyy_mm_dd_date(
+		week_containing_date_string,
+		HOURS_WEST_GMT );
 
 	if ( !date ) return -1;
 

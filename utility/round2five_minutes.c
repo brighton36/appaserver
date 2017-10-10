@@ -55,7 +55,7 @@ int main( int argc, char **argv )
 
 		date_set_time_hhmm( date, time_buffer );
 
-		date_round2five_minutes( date );
+		date_round2five_minutes( date, HOURS_WEST_GMT );
 
 		date_get_hhmm( time_buffer, date );
 

@@ -89,19 +89,19 @@ char *date_group_this_saturday( char *date_field )
 {
 	DATE *date;
 
-	date = date_new_yyyy_mm_dd_date( date_field );
+	date = date_new_yyyy_mm_dd_date( date_field, HOURS_WEST_GMT );
 	return date_this_saturday_yyyy_mm_dd_string( date );
 }
 
 char *date_group_end_of_month( char *date_field )
 {
-	date = date_new_yyyy_mm_dd_date( date_field );
+	date = date_new_yyyy_mm_dd_date( date_field, HOURS_WEST_GMT );
 	return date_end_of_month_yyyy_mm_dd_string( date );
 }
 
 char *date_group_end_of_year( char *date_field )
 {
-	date = date_new_yyyy_mm_dd_date( date_field );
+	date = date_new_yyyy_mm_dd_date( date_field, HOURS_WEST_GMT );
 	return date_end_of_month_yyyy_mm_dd_string( date );
 }
 

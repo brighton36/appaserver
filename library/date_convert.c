@@ -123,7 +123,7 @@ DATE_CONVERT *date_convert_new_date_convert(
 	}
 
 	if ( strcasecmp( date_string, "today" ) == 0 )
-		date_string = date_get_today_yyyy_mm_dd();
+		date_string = date_get_today_yyyy_mm_dd( HOURS_WEST_GMT );
 	else
 	if ( strcasecmp( date_string, "yesterday" ) == 0 )
 		date_string =

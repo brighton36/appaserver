@@ -35,7 +35,7 @@ int main( int argc, char **argv )
 
 		if ( days_offset )
 		{
-			date_increment_days( d, days_offset );
+			date_increment_days( d, days_offset, HOURS_WEST_GMT );
 			printf( "%s\n", date_display_yyyy_mm_dd( d ) );
 		}
 		else

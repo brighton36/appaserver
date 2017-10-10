@@ -86,7 +86,7 @@ void test_round()
 		{
 			date = date_today_new( HOURS_WEST_GMT );
 			date_set_time( date, hour, minutes, HOURS_WEST_GMT );
-			date_round2five_minutes( date );
+			date_round2five_minutes( date, HOURS_WEST_GMT );
 			printf( "hour = %d minutes = %d round = %s date = %s\n",
 				hour, minutes,
 				date_get_hhmm( time_buffer, date ),
@@ -110,7 +110,7 @@ void test4()
 	printf( "should be 2320 is (%s)\n", 
 		date_display_hhmm( d ) );
 
-	date_increment_hours( d, 1 );
+	date_increment_hours( d, 1, HOURS_WEST_GMT );
 
 	printf( "should be 2000-01-01 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
@@ -126,14 +126,14 @@ void test2()
 	d = date_yyyy_mm_dd_new( "1999-12-31", HOURS_WEST_GMT );
 	printf( "should be 1999-12-31 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
-	date_increment_days( d, 1 );
+	date_increment_days( d, 1, HOURS_WEST_GMT );
 	printf( "should be 2000-01-01 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
 
 	d = date_yyyy_mm_dd_new( "2000-1-1", HOURS_WEST_GMT );
 	printf( "should be 2000-01-01 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
-	date_increment_days( d, 1 );
+	date_increment_days( d, 1, HOURS_WEST_GMT );
 	printf( "should be 2000-01-02 is (%s)\n", 
 		date_display_yyyy_mm_dd( d ) );
 
@@ -148,7 +148,7 @@ void test1()
 	day = get_day_of_month( d );
 	printf( "before increment week: %2d %2d\n", month, day );
 
-	increment_week( d );
+	increment_week( d, HOURS_WEST_GMT );
 	month = get_month( d );
 	day = get_day_of_month( d );
 	printf( "after increment week: %2d %2d\n", month, day );
@@ -166,7 +166,7 @@ void test5()
 	DATE *d = date_get_today_new( HOURS_WEST_GMT );
 	char buffer[ 128 ];
 
-	date_increment_days( d, -1.0 );
+	date_increment_days( d, -1.0, HOURS_WEST_GMT );
 	printf( "yesterday: %s\n", date_get_yyyy_mm_dd( buffer, d ) );
 }
 
@@ -207,7 +207,7 @@ void test6()
 	printf( "should be 1968-12-31: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
 
-	date_decrement_days( d, 1.0 );
+	date_decrement_days( d, 1.0, HOURS_WEST_GMT );
 
 	printf( "should be 1968-12-30: %s\n",
 		date_get_yyyy_mm_dd( buffer, d ) );
@@ -270,7 +270,7 @@ void test_1969()
 	printf( "should be 1969-12-30:2358 is (%s)\n",
 		date_display_yyyy_mm_dd_hhmm( d ) );
 
-	date_decrement_hour( d );
+	date_decrement_hour( d, HOURS_WEST_GMT );
 
 	printf( "should be 1969-12-30:2258 is (%s)\n",
 		date_display_yyyy_mm_dd_hhmm( d ) );
@@ -298,13 +298,13 @@ void test_cross_dst()
 		date_display_yyyy_mm_dd( d ),
 		date_display_hhmm( d ) );
 
-	date_increment_hours( d, 1 );
+	date_increment_hours( d, 1, HOURS_WEST_GMT );
 
 	printf( "should be 2009-03-08:0200 is (%s:%s)\n", 
 		date_display_yyyy_mm_dd( d ),
 		date_display_hhmm( d ) );
 
-	date_increment_hours( d, 1 );
+	date_increment_hours( d, 1, HOURS_WEST_GMT );
 
 	printf( "should be 2009-03-08:0300 is (%s:%s)\n", 
 		date_display_yyyy_mm_dd( d ),
@@ -386,7 +386,7 @@ void test_subtract_second( void )
 		seconds_offset < 20;
 		seconds_offset++ )
 	{
-		date_increment_seconds( transaction_date, -1 );
+		date_increment_seconds( transaction_date, -1, HOURS_WEST_GMT );
 
 		printf( "%d seconds ago = %s\n",
 			seconds_offset + 1,

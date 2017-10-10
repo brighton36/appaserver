@@ -1746,7 +1746,10 @@ void depreciation_fixed_asset_set_transaction(
 					transaction_date_time ),
 				DEPRECIATION_MEMO );
 
-		date_increment_seconds( transaction_date_time, 1 );
+		date_increment_seconds(
+			transaction_date_time,
+			1,
+			HOURS_WEST_GMT );
 
 	} while( list_next( entity_list ) );
 

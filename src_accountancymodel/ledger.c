@@ -6103,7 +6103,10 @@ char *ledger_beginning_transaction_date(
 
 	if ( prior_closing_transaction_date )
 	{
-		date_increment_days( prior_closing_transaction_date, 1 );
+		date_increment_days(
+			prior_closing_transaction_date,
+			1,
+			HOURS_WEST_GMT );
 
 		return date_get_yyyy_mm_dd_string(
 				prior_closing_transaction_date );
@@ -6756,7 +6759,10 @@ LIST *ledger_get_after_balance_zero_journal_ledger_list(
 
 		/* Need to start with the transaction following zero balance. */
 		/* ---------------------------------------------------------- */
-		date_increment_seconds( transaction_date_time, 1 );
+		date_increment_seconds(
+			transaction_date_time,
+			1,
+			HOURS_WEST_GMT );
 
 		transaction_date_time_string =
 			date_get_yyyy_mm_dd_hh_mm_ss(

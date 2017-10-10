@@ -246,28 +246,34 @@ int main( int argc, char **argv )
 	{
 		if ( ( expanded_date =
 			date_new_yyyy_mm_dd_date(
-				from_measurement_date ) ) )
+				from_measurement_date,
+				HOURS_WEST_GMT ) ) )
 		{
 			date_decrement_days(
 				expanded_date,
-				DATE_EXPAND_PLUS_MINUS );
+				DATE_EXPAND_PLUS_MINUS,
+				HOURS_WEST_GMT );
 
 			expanded_from_date_string =
-				date_get_yyyy_mm_dd_string( expanded_date );
+				date_get_yyyy_mm_dd_string(
+					expanded_date );
 
 			date_free( expanded_date );
 		}
 
 		if ( ( expanded_date =
 			date_new_yyyy_mm_dd_date(
-				to_measurement_date ) ) )
+				to_measurement_date,
+				HOURS_WEST_GMT ) ) )
 		{
 			date_increment_days(
 				expanded_date,
-				DATE_EXPAND_PLUS_MINUS );
+				DATE_EXPAND_PLUS_MINUS,
+				HOURS_WEST_GMT );
 
 			expanded_to_date_string =
-				date_get_yyyy_mm_dd_string( expanded_date );
+				date_get_yyyy_mm_dd_string(
+					expanded_date );
 
 			date_free( expanded_date );
 		}

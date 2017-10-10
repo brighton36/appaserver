@@ -143,8 +143,15 @@ int main( int argc, char **argv )
 					&begin_time_string,
 					&end_time_string );
 
-	begin_date = date_new_yyyy_mm_dd_date( begin_date_string );
-	end_date = date_new_yyyy_mm_dd_date( end_date_string );
+	begin_date =
+		date_new_yyyy_mm_dd_date(
+			begin_date_string,
+			HOURS_WEST_GMT );
+
+	end_date =
+		date_new_yyyy_mm_dd_date(
+			end_date_string,
+			HOURS_WEST_GMT );
 
 	where_clause =
 		get_where_clause(	station,
@@ -330,7 +337,9 @@ int main( int argc, char **argv )
 		if ( measurement_date ) date_free( measurement_date );
 
 		measurement_date =
-			date_new_yyyy_mm_dd_date( measurement_date_string );
+			date_new_yyyy_mm_dd_date(
+				measurement_date_string,
+				HOURS_WEST_GMT );
 
 		if ( !measurement_date )
 		{

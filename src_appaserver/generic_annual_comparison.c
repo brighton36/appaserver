@@ -255,7 +255,7 @@ void annual_comparison_output(
 				fflush( stdout );
 			}
 		}
-		date_increment( begin_date );
+		date_increment( begin_date, HOURS_WEST_GMT );
 	}
 } /* annual_comparison_output() */
 

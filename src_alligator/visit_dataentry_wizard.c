@@ -331,6 +331,6 @@ char *get_current_year( void )
 	char *yyyy_mm_dd;
 	static char current_year[ 16 ];
 
-	yyyy_mm_dd = date_get_current_yyyy_mm_dd();
+	yyyy_mm_dd = date_get_current_yyyy_mm_dd( HOURS_WEST_GMT );
 	return piece( current_year, '-', yyyy_mm_dd, 0 );
 } /* get_current_year() */

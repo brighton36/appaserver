@@ -886,12 +886,12 @@ int hydrology_library_insert_null_measurements(
 				date_yyyy_mm_dd_hhmm_new(
 					date_string,
 					time_string,
-					HOURS_WEST_GMT );
+					date_get_utc_offset() );
 
 			date_increment_minutes(
 				minutes_offset_date,
 				minutes_offset,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 
 
 			date_get_yyyy_mm_dd(

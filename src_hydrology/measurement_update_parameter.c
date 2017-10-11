@@ -43,11 +43,11 @@ MEASUREMENT_UPDATE_PARAMETER *measurement_update_parameter_new(
 
 	p->now_date =
 		date_get_now_date_yyyy_mm_dd(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	p->now_time =
 		date_get_now_time_hhmm_colon_ss(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	p->notes = notes;
 

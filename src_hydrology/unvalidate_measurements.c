@@ -109,11 +109,11 @@ int main( int argc, char **argv )
 
 	now_validation_time =
 		date_get_now_time_hhmm_colon_ss(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	now_validation_date =
 		date_get_now_date_yyyy_mm_dd(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	get_validation_information(
 		begin_measurement_date,

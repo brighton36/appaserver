@@ -497,7 +497,7 @@ void output_spreadsheet(
 		date =
 			date_yyyy_mm_dd_new(
 				fishing_trips.census_date,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 
 		species_code = "";
 

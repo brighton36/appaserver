@@ -230,6 +230,7 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
+	environ_set_utc_offset( application_name );
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();

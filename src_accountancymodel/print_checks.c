@@ -741,7 +741,7 @@ int print_checks_insert_vendor_payment(
 		exit( 1 );
 	}
 
-	transaction_date_time = date_now_new( HOURS_WEST_GMT );
+	transaction_date_time = date_now_new( date_get_utc_offset() );
 
 	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
 		memo = PRINT_CHECKS_MEMO;
@@ -752,7 +752,7 @@ int print_checks_insert_vendor_payment(
 		date_increment_seconds(
 			transaction_date_time,
 			seconds_to_add,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 		transaction_date_time_string =
 			date_display_yyyy_mm_dd_colon_hms(
@@ -1139,7 +1139,7 @@ void print_checks_insert_entity_account_debit_list(
 		exit( 1 );
 	}
 
-	transaction_date_time = date_now_new( HOURS_WEST_GMT );
+	transaction_date_time = date_now_new( date_get_utc_offset() );
 
 	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
 		memo = PRINT_CHECKS_MEMO;
@@ -1147,7 +1147,7 @@ void print_checks_insert_entity_account_debit_list(
 	date_increment_seconds(
 		transaction_date_time,
 		seconds_to_add,
-		HOURS_WEST_GMT );
+		date_get_utc_offset() );
 
 	transaction_date_time_string =
 		date_display_yyyy_mm_dd_colon_hms(

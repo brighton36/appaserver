@@ -351,7 +351,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				application_name,
 				login_name,
 				date_get_now_yyyy_mm_dd(
-					HOURS_WEST_GMT ) );
+					date_get_utc_offset() ) );
 
 			if ( element->element_type == element_current_date )
 			{
@@ -365,11 +365,11 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				if ( element->text_item->attribute_width == 19 )
 					time_string =
 					    date_get_now_hh_colon_mm_colon_ss(
-						HOURS_WEST_GMT );
+						date_get_utc_offset() );
 				else
 					time_string =
 					    date_get_now_hh_colon_mm(
-						HOURS_WEST_GMT );
+						date_get_utc_offset() );
 
 				sprintf( data,
 				 	"%s %s",
@@ -420,7 +420,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				application_name,
 				login_name,
 				date_get_now_yyyy_mm_dd(
-					HOURS_WEST_GMT ) );
+					date_get_utc_offset() ) );
 
 			element->text_item->data = date_convert->return_date;
 		}
@@ -479,11 +479,11 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			if ( element->text_item->attribute_width >= 7 )
 				element->text_item->data =
 					date_get_now_time_hhmm_colon_ss(
-						HOURS_WEST_GMT );
+						date_get_utc_offset() );
 			else
 				element->text_item->data =
 					date_get_now_hhmm(
-						HOURS_WEST_GMT );
+						date_get_utc_offset() );
 		}
 
 		element_text_item_output(

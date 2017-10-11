@@ -1082,7 +1082,7 @@ char *post_change_customer_sale_get_completed_date_time(
 			strcpy( buffer,
 				date_append_hhmmss(
 					arrived_date,
-					HOURS_WEST_GMT ) );
+					date_get_utc_offset() ) );
 
 			*shipped_date_time = strdup( buffer );
 		}

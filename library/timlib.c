@@ -447,8 +447,8 @@ void output_starting_argv_stderr( int argc, char **argv )
 {
 
 	fprintf( stderr, "%s %s: %s",
-		 date_get_now_yyyy_mm_dd( HOURS_WEST_GMT ),
-		 date_get_now_hhmm( HOURS_WEST_GMT ),
+		 date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
+		 date_get_now_hhmm( date_get_utc_offset() ),
 		 argv[ 0 ] );
 	while( --argc ) fprintf( stderr, " %s", *++argv );
 	fprintf( stderr, "\n" );

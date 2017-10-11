@@ -15,8 +15,8 @@ int main( int argc, char **argv )
 	if ( argc == 2 )
 		days_to_minus = atoi( argv[ 1 ] );
 
-	d = date_get_today_new( HOURS_WEST_GMT );
-	date_increment_days( d, days_to_minus, HOURS_WEST_GMT );
+	d = date_get_today_new( date_get_utc_offset() );
+	date_increment_days( d, days_to_minus, date_get_utc_offset() );
 	printf( "%s\n", date_display_yyyy_mm_dd( d ) );
 	return 0;
 }

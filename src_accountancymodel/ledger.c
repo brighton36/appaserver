@@ -4858,15 +4858,15 @@ char *ledger_get_transaction_date_time( char *transaction_date )
 	{
 		sprintf( transaction_date_time,
 			 "%s %s",
-			 date_get_now_yyyy_mm_dd( HOURS_WEST_GMT ),
-			 date_get_now_hh_colon_mm_colon_ss( HOURS_WEST_GMT ) );
+			 date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
+			 date_get_now_hh_colon_mm_colon_ss( date_get_utc_offset() ) );
 	}
 	else
 	{
 		strcpy( transaction_date_time,
 			date_append_hhmmss(
 				transaction_date,
-				HOURS_WEST_GMT ) );
+				date_get_utc_offset() ) );
 	}
 
 	return strdup( transaction_date_time );
@@ -5687,7 +5687,7 @@ char *ledger_get_shipped_date_transaction_date_time(
 		 "%s %s",
 		 shipped_date,
 		 date_get_now_hh_colon_mm_colon_ss(
-			HOURS_WEST_GMT ) );
+			date_get_utc_offset() ) );
 
 	return strdup( transaction_date_time );
 
@@ -6067,7 +6067,7 @@ DATE *ledger_prior_closing_transaction_date(
 		prior_closing_transaction_date =
 			date_yyyy_mm_dd_new(
 				transaction_date_string,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	}
 
 	return prior_closing_transaction_date;
@@ -6106,7 +6106,7 @@ char *ledger_beginning_transaction_date(
 		date_increment_days(
 			prior_closing_transaction_date,
 			1,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 		return date_get_yyyy_mm_dd_string(
 				prior_closing_transaction_date );
@@ -6632,9 +6632,9 @@ double ledger_get_fraction_of_year(
 	prior_date =
 		date_yyyy_mm_dd_new(
 			prior_date_string,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
-	date = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+	date = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
 
 	days_between =
 		date_subtract_days(
@@ -6755,14 +6755,14 @@ LIST *ledger_get_after_balance_zero_journal_ledger_list(
 		transaction_date_time =
 			date_yyyy_mm_dd_hms_new(
 				transaction_date_time_string,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 
 		/* Need to start with the transaction following zero balance. */
 		/* ---------------------------------------------------------- */
 		date_increment_seconds(
 			transaction_date_time,
 			1,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 		transaction_date_time_string =
 			date_get_yyyy_mm_dd_hh_mm_ss(

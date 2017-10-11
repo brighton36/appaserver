@@ -173,7 +173,7 @@ int main( int argc, char **argv )
 
 	if ( !*end_date || strcmp( end_date, "end_date" ) == 0 )
 	{
-		end_date = date_get_now_yyyy_mm_dd( HOURS_WEST_GMT );
+		end_date = date_get_now_yyyy_mm_dd( date_get_utc_offset() );
 	}
 
 	sprintf( title, "%s for %s", process_name, program_name );

@@ -128,7 +128,7 @@ int main( int argc, char **argv )
 
 	validation_date =
 		date_get_now_yyyy_mm_dd(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	post_sparrow_validation_form(
 				application_name,

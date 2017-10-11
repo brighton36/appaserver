@@ -305,9 +305,9 @@ int payroll_period_output_weekly_period( char *date_string )
 	DATE *d;
 	int period_number;
 
-	d = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+	d = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
 
-	period_number = date_get_week_of_year( d, HOURS_WEST_GMT );
+	period_number = date_get_week_of_year( d, date_get_utc_offset() );
 
 	printf( "%s %d\n",
 		PAYROLL_PERIOD_NUMBER_LABEL,
@@ -374,9 +374,9 @@ boolean payroll_period_get_weekly_dates(
 		sprintf( date_string, "%d-01-01", year );
 	}
 
-	d = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+	d = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
 
-	week_of_year = date_get_week_of_year( d, HOURS_WEST_GMT );
+	week_of_year = date_get_week_of_year( d, date_get_utc_offset() );
 
 	while ( !all_done )
 	{
@@ -391,9 +391,9 @@ boolean payroll_period_get_weekly_dates(
 			}
 		}
 
-		date_increment_days( d, 1, HOURS_WEST_GMT );
+		date_increment_days( d, 1, date_get_utc_offset() );
 
-		week_of_year = date_get_week_of_year( d, HOURS_WEST_GMT );
+		week_of_year = date_get_week_of_year( d, date_get_utc_offset() );
 
 		if ( period_number == 1 )
 		{
@@ -423,7 +423,7 @@ boolean payroll_period_get_weekly_dates(
 		}
 	}
 
-	date_increment_days( d, -1, HOURS_WEST_GMT );
+	date_increment_days( d, -1, date_get_utc_offset() );
 
 	strcpy( end_work_date,
 		date_yyyy_mm_dd( d ) );
@@ -438,9 +438,9 @@ int payroll_period_output_biweekly_period( char *date_string )
 	int week_of_year;
 	int period_number;
 
-	d = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+	d = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
 
-	week_of_year = date_get_week_of_year( d, HOURS_WEST_GMT );
+	week_of_year = date_get_week_of_year( d, date_get_utc_offset() );
 
 	period_number =
 		payroll_period_get_biweekly_period(
@@ -530,7 +530,7 @@ int payroll_period_output_semimonthly_period( char *date_string )
 	int day;
 	int period_number;
 
-	d = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+	d = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
 
 	if ( !d ) return 0;
 
@@ -640,7 +640,7 @@ int payroll_period_output_monthly_period(
 	DATE *d;
 	int period_number;
 
-	d = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+	d = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
 
 	if ( !d ) return 0;
 
@@ -727,7 +727,7 @@ void payroll_period_prior( char *period )
 	char *begin_date_string;
 	char sys_string[ 1024 ];
 
-	d = date_now_new( HOURS_WEST_GMT );
+	d = date_now_new( date_get_utc_offset() );
 
 	month = date_get_month( d );
 	day = date_get_day( d );
@@ -735,13 +735,13 @@ void payroll_period_prior( char *period )
 
 	if ( timlib_strcmp( period, "weekly" ) == 0 )
 	{
-		period_number = date_get_week_of_year( d, HOURS_WEST_GMT );
+		period_number = date_get_week_of_year( d, date_get_utc_offset() );
 
 	}
 	else
 	if ( timlib_strcmp( period, "biweekly" ) == 0 )
 	{
-		week_of_year = date_get_week_of_year( d, HOURS_WEST_GMT );
+		week_of_year = date_get_week_of_year( d, date_get_utc_offset() );
 
 		period_number =
 			payroll_period_get_biweekly_period(
@@ -771,9 +771,9 @@ void payroll_period_prior( char *period )
 			year,
 			period_number );
 
-	d = date_yyyy_mm_dd_new( begin_date_string, HOURS_WEST_GMT );
+	d = date_yyyy_mm_dd_new( begin_date_string, date_get_utc_offset() );
 
-	date_increment_days( d, -1, HOURS_WEST_GMT );
+	date_increment_days( d, -1, date_get_utc_offset() );
 
 	begin_date_string = date_yyyy_mm_dd( d );
 

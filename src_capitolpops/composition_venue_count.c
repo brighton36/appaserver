@@ -104,7 +104,7 @@ void composition_venue_summary(	char *composition,
 	sprintf( select,
 "select concert.city,concert.venue,composition,max( concert.date ), count(*) from concert,concert_program where concert.concert_title = concert_program.concert_title and concert.date = concert_program.date and %s and concert.date < '%s' group by concert.city,concert.venue,composition order by composition, concert.city, concert.venue;",
 		 where,
-		 date_get_today_yyyy_mm_dd( HOURS_WEST_GMT ) );
+		 date_get_today_yyyy_mm_dd( date_get_utc_offset() ) );
 
 	sprintf( sys_string,
 		 "echo \"%s\" | sql.e '%c' | %s",
@@ -140,7 +140,7 @@ void composition_summary( void )
 
 	sprintf( select,
 "select composition, max( concert.date ), count(*) from concert,concert_program where concert.concert_title = concert_program.concert_title and concert.date = concert_program.date and concert.date < '%s' group by composition order by count(*) desc;",
-		 date_get_today_yyyy_mm_dd( HOURS_WEST_GMT ) );
+		 date_get_today_yyyy_mm_dd( date_get_utc_offset() ) );
 
 	sprintf( sys_string,
 		 "echo \"%s\" | sql.e '%c'",

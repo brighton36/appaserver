@@ -366,7 +366,7 @@ int insert_measurements(char *application_name,
 
 	now_date_international =
 		date_get_now_date_yyyy_mm_dd(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	while( get_line( input_string, input_file ) )
 	{

@@ -97,6 +97,8 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
+	environ_set_utc_offset( application_name );
+
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,

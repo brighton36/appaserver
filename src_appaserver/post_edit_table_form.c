@@ -194,6 +194,8 @@ int main( int argc, char **argv )
 			application_name );
 	}
 
+	environ_set_utc_offset( application_name );
+
 	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,

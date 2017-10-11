@@ -27,6 +27,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/appaserver.o					\
 		${LIBRARY}/basename.o					\
 		${LIBRARY}/session.o					\
+		${LIBRARY}/environ.o					\
 		${LIBRARY}/prompt_recursive.o				\
 		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/populate_helper_process.o			\
@@ -37,7 +38,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/form.o					\
-		${LIBRARY}/environ.o					\
 		${LIBRARY}/dictionary_appaserver.o			\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/query.o					\
@@ -465,10 +465,12 @@ parse_post.e: parse_post.c
 	ln parse_post.e parse_post
 
 delimiter2padded_columns.e: delimiter2padded_columns.c			\
-		${STANDARD_LIBRARY}
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	$(CC)    ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
 		delimiter2padded_columns.c 				\
 		-o delimiter2padded_columns.e
 
@@ -1626,10 +1628,12 @@ increment.e: increment.c
 		-o increment.e
 
 reverse.e: reverse.c							\
-		${STANDARD_LIBRARY}
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	$(CC)	${CFLAGS} -I${LIBRARY} reverse.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
 		-o reverse.e
 
 gethostbyname: gethostbyname.c

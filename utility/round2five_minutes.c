@@ -51,11 +51,11 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-		date = date_yyyy_mm_dd_new( date_buffer, HOURS_WEST_GMT );
+		date = date_yyyy_mm_dd_new( date_buffer, date_get_utc_offset() );
 
-		date_set_time_hhmm( date, time_buffer, HOURS_WEST_GMT );
+		date_set_time_hhmm( date, time_buffer, date_get_utc_offset() );
 
-		date_round2five_minutes( date, HOURS_WEST_GMT );
+		date_round2five_minutes( date, date_get_utc_offset() );
 
 		date_get_hhmm( time_buffer, date );
 

@@ -35,8 +35,13 @@ void add_appaserver_home_to_environment(void );
 void add_library_to_python_path( 	void );
 void add_appaserver_home_to_python_path(void );
 void add_python_library_path( 		void );
+
 void add_local_bin_to_path( 		void );
+
 void add_relative_source_directory_to_path(
 					char *application_name );
 void environ_prepend_path(		char *path_to_add );
+
+void environ_set_utc_offset(		char *application_name );
+
 #endif

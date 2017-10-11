@@ -2740,15 +2740,15 @@ void creel_library_get_begin_end_dates(
 	DATE *begin_date;
 	DATE *end_date;
 
-	begin_date = date_today_new( HOURS_WEST_GMT );
-	end_date = date_today_new( HOURS_WEST_GMT );
+	begin_date = date_today_new( date_get_utc_offset() );
+	end_date = date_today_new( date_get_utc_offset() );
 
 	if ( strcmp( mail_merge_letter, "recently_expired" ) == 0 )
 	{
 		date_decrement_days(
 				begin_date,
 				atof( days_offset ),
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	}
 	else
 	if ( strcmp( mail_merge_letter, "about_to_expire" ) == 0 )
@@ -2756,7 +2756,7 @@ void creel_library_get_begin_end_dates(
 		date_increment_days(
 				end_date,
 				atof( days_offset ),
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	}
 	else
 	{

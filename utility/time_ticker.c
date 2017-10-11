@@ -121,7 +121,7 @@ int main( int argc, char **argv )
 	if ( strcmp( end_date_string, "end_date" ) == 0 )
 		strcpy( end_date_string,
 			date_get_now_date_yyyy_mm_dd(
-				HOURS_WEST_GMT ) );
+				date_get_utc_offset() ) );
 
 	if ( !*end_time_string )
 		strcpy( end_time_string, "2359" );

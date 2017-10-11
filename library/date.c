@@ -43,13 +43,13 @@ DATE *date_new_date( void )
 } /* date_new_date() */
 
 DATE *date_current_new(	time_t current,
-			int hours_west_gmt )
+			int utc_offset )
 {
 	DATE *date;
 
 	date = date_new_date();
 
-	date_set_tm_structures( date, current, hours_west_gmt );
+	date_set_tm_structures( date, current, utc_offset );
 	date->current = current;
 
 	return date;
@@ -59,7 +59,7 @@ DATE *date_current_new(	time_t current,
 time_t date_yyyy_mm_dd_time_hhmm_to_time_t(
 			char *date_string,
 			char *time_string,
-			int hours_west_gmt )
+			int utc_offset )
 {
 	DATE *date;
 	time_t current;
@@ -67,7 +67,7 @@ time_t date_yyyy_mm_dd_time_hhmm_to_time_t(
 	date = date_yyyy_mm_dd_hhmm_new(
 		date_string,
 		time_string,
-		hours_west_gmt );
+		utc_offset );
 
 	current = date->current;
 	date_free( date );
@@ -80,7 +80,7 @@ DATE *date_time_new(	int year,
 			int day,
 			int hour,
 			int minute,
-			int hours_west_gmt )
+			int utc_offset )
 {
 	return date_new_date_time(
 			year,
@@ -89,7 +89,7 @@ DATE *date_time_new(	int year,
 			hour,
 			minute,
 			0 /* seconds */,
-			hours_west_gmt );
+			utc_offset );
 }
 
 DATE *date_new_date_time(
@@ -99,7 +99,7 @@ DATE *date_new_date_time(
 			int hour,
 			int minutes,
 			int seconds,
-			int hours_west_gmt )
+			int utc_offset )
 {
 	DATE *d;
 
@@ -121,8 +121,8 @@ DATE *date_new_date_time(
 	d->tm->tm_min = minutes;
 	d->tm->tm_sec = seconds;
 
-	d->current = date_tm_to_current( d->tm, hours_west_gmt );
-	date_set_tm_structures( d, d->current, hours_west_gmt );
+	d->current = date_tm_to_current( d->tm, utc_offset );
+	date_set_tm_structures( d, d->current, utc_offset );
 
 	return d;
 
@@ -131,7 +131,7 @@ DATE *date_new_date_time(
 DATE *date_new(	int year,
 		int month,
 		int day,
-		int hours_west_gmt )
+		int utc_offset )
 {
 	return date_new_date_time(
 			year,
@@ -140,24 +140,24 @@ DATE *date_new(	int year,
 			0 /*  hour */,
 			0 /*  minutes */,
 			0 /* seconds */,
-			hours_west_gmt );
+			utc_offset );
 } /* date_new() */
 
 time_t date_tm_to_current(	struct tm *tm,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	if ( tm->tm_year < 70 )
 	{
-		return date_tm_to_current_pre_1970( tm, hours_west_gmt );
+		return date_tm_to_current_pre_1970( tm, utc_offset );
 	}
 	else
 	{
-		return date_mktime( tm, hours_west_gmt );
+		return date_mktime( tm, utc_offset );
 	}
 } /* date_tm_to_current() */
 
 time_t date_tm_to_current_pre_1970(	struct tm *tm,
-					int hours_west_gmt )
+					int utc_offset )
 {
 	struct tm future_tm = {0};
 	time_t future_time_t;
@@ -174,7 +174,7 @@ time_t date_tm_to_current_pre_1970(	struct tm *tm,
 	future_tm.tm_min = 0;
 	future_tm.tm_sec = 0;
 
-	future_time_t = date_mktime( &future_tm, hours_west_gmt );
+	future_time_t = date_mktime( &future_tm, utc_offset );
 
 	current_tm.tm_year = tm->tm_year + 56;
 	current_tm.tm_mon = tm->tm_mon;
@@ -182,7 +182,7 @@ time_t date_tm_to_current_pre_1970(	struct tm *tm,
 	current_tm.tm_hour = tm->tm_hour;
 	current_tm.tm_min = tm->tm_min;
 
-	return date_mktime( &current_tm, hours_west_gmt ) - future_time_t;
+	return date_mktime( &current_tm, utc_offset ) - future_time_t;
 
 } /* date_tm_to_current_pre_1970() */
 
@@ -194,7 +194,7 @@ void date_set_date_time_integers(
 				int hours,
 				int minutes,
 				int seconds,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	date->tm->tm_year = year - 1900;
 	date->tm->tm_mon = month - 1;
@@ -203,8 +203,8 @@ void date_set_date_time_integers(
 	date->tm->tm_min = minutes;
 	date->tm->tm_sec = seconds;
 
-	date->current = date_tm_to_current( date->tm, hours_west_gmt );
-	date_set_tm_structures( date, date->current, hours_west_gmt );
+	date->current = date_tm_to_current( date->tm, utc_offset );
+	date_set_tm_structures( date, date->current, utc_offset );
 
 } /* date_set_date_time_integers() */
 
@@ -212,14 +212,14 @@ void date_set_time_integers(	DATE *date,
 				int hour,
 				int minute,
 				int seconds,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	date->tm->tm_hour = hour;
 	date->tm->tm_min = minute;
 	date->tm->tm_sec = seconds;
 
-	date->current = date_tm_to_current( date->tm, hours_west_gmt );
-	date_set_tm_structures( date, date->current, hours_west_gmt );
+	date->current = date_tm_to_current( date->tm, utc_offset );
+	date_set_tm_structures( date, date->current, utc_offset );
 
 } /* date_set_time_integers() */
 
@@ -227,14 +227,14 @@ void date_set_date_integers(	DATE *date,
 				int year,
 				int month,
 				int day,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	date->tm->tm_year = year - 1900;
 	date->tm->tm_mon = month - 1;
 	date->tm->tm_mday = day;
 
-	date->current = date_tm_to_current( date->tm, hours_west_gmt );
-	date_set_tm_structures( date, date->current, hours_west_gmt );
+	date->current = date_tm_to_current( date->tm, utc_offset );
+	date_set_tm_structures( date, date->current, utc_offset );
 
 } /* date_set_date_integers() */
 
@@ -244,7 +244,7 @@ int date_set_yyyy_mm_dd_hhmm_delimited(
 				int date_piece,
 				int time_piece,
 				char delimiter,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	char yyyy_mm_dd[ 128 ];
 	char hhmm[ 128 ];
@@ -283,21 +283,21 @@ int date_set_yyyy_mm_dd_hhmm_delimited(
 		return date_set_yyyy_mm_dd(
 				date,
 				yyyy_mm_dd,
-				hours_west_gmt );
+				utc_offset );
 	}
 
 	return date_set_yyyy_mm_dd_hhmm(
 		date,
 		yyyy_mm_dd,
 		hhmm,
-		hours_west_gmt );
+		utc_offset );
 
 } /* date_set_yyyy_mm_dd_hhmm_delimited() */
 
 int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 				char *yyyy_mm_dd,
 				char *hhmm,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	char year_string[ 128 ];
 	char month_string[ 128 ];
@@ -337,7 +337,7 @@ int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 				hours,
 				minutes,
 				0 /* seconds */,
-				hours_west_gmt );
+				utc_offset );
 
 	return 1;
 
@@ -345,7 +345,7 @@ int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 
 int date_set_yyyy_mm_dd(	DATE *date,
 				char *yyyy_mm_dd,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	char year_string[ 128 ];
 	char month_string[ 128 ];
@@ -368,13 +368,13 @@ int date_set_yyyy_mm_dd(	DATE *date,
 				atoi( year_string ),
 				atoi( month_string ),
 				atoi( day_string ),
-				hours_west_gmt );
+				utc_offset );
 
 	date_set_time_integers(	date,
 				0 /* hour */,
 				0 /* minute */,
 				0 /* seconds */,
-				hours_west_gmt );
+				utc_offset );
 
 	return 1;
 
@@ -383,14 +383,14 @@ int date_set_yyyy_mm_dd(	DATE *date,
 void date_set_time(	DATE *date,
 			int hour,
 			int minutes,
-			int hours_west_gmt )
+			int utc_offset )
 {
 	date_set_time_integers(
 		date,
 		hour,
 		minutes,
 		0,
-		hours_west_gmt );
+		utc_offset );
 }
 
 void date_free( DATE *d )
@@ -399,51 +399,51 @@ void date_free( DATE *d )
 	free( d );
 }
 
-void date_increment( DATE *d, int hours_west_gmt )
+void date_increment( DATE *d, int utc_offset )
 {
-	date_increment_day( d, hours_west_gmt );
+	date_increment_day( d, utc_offset );
 }
 
-void date_decrement_minute( DATE *d, int hours_west_gmt )
+void date_decrement_minute( DATE *d, int utc_offset )
 {
-	date_increment_minutes( d, -1, hours_west_gmt );
+	date_increment_minutes( d, -1, utc_offset );
 }
 
 void date_decrement_hour(	DATE *d,
-				int hours_west_gmt )
+				int utc_offset )
 {
-	date_increment_hours( d, -1.0, hours_west_gmt );
+	date_increment_hours( d, -1.0, utc_offset );
 }
 
 void date_increment_hour(	DATE *d,
-				int hours_west_gmt )
+				int utc_offset )
 {
-	date_increment_hours( d, 1.0, hours_west_gmt );
+	date_increment_hours( d, 1.0, utc_offset );
 }
 
 void date_increment_minute(	DATE *d,
-				int hours_west_gmt )
+				int utc_offset )
 {
-	date_increment_minutes( d, 1, hours_west_gmt );
+	date_increment_minutes( d, 1, utc_offset );
 }
 
 void date_decrement_day(	DATE *d,
-				int hours_west_gmt )
+				int utc_offset )
 {
-	return date_decrement_days( d, 1.0, hours_west_gmt );
+	return date_decrement_days( d, 1.0, utc_offset );
 }
 
 void date_decrement_days(	DATE *d,
 				double days,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	double minus_days = -days;
-	date_increment_days( d, minus_days, hours_west_gmt );
+	date_increment_days( d, minus_days, utc_offset );
 }
 
 void date_increment_months(	DATE *d,
 				int months,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	int year;
 	int month;
@@ -453,13 +453,13 @@ void date_increment_months(	DATE *d,
 	month = date_get_month( d );
 	day = date_get_day( d );
 	month += months;
-	date_set_date_integers(	d, year, month, day, hours_west_gmt );
+	date_set_date_integers(	d, year, month, day, utc_offset );
 
 } /* date_increment_months() */
 
 void date_decrement_years(	DATE *d,
 				int years,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	int year;
 	int month;
@@ -469,22 +469,22 @@ void date_decrement_years(	DATE *d,
 	month = date_get_month( d );
 	day = date_get_day( d );
 	year -= years;
-	date_set_date_integers(	d, year, month, day, hours_west_gmt );
+	date_set_date_integers(	d, year, month, day, utc_offset );
 
 } /* date_decrement_years() */
 
 void date_increment_day(	DATE *d,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	d->current += SECONDS_IN_DAY;
-	date_set_tm_structures( d, d->current, hours_west_gmt );
+	date_set_tm_structures( d, d->current, utc_offset );
 }
 
 void increment_week(		DATE *d,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	d->current += SECONDS_IN_WEEK;
-	date_set_tm_structures( d, d->current, hours_west_gmt );
+	date_set_tm_structures( d, d->current, utc_offset );
 }
 
 int get_month( DATE *d )
@@ -583,7 +583,7 @@ int date_get_seconds( DATE *d )
 /* ------------------------------------------------------------- */
 int date_days_between(	char *from_date_string,
 			char *to_date_string,
-			int hours_west_gmt )
+			int utc_offset )
 {
 	DATE *from_date;
 	DATE *to_date;
@@ -592,7 +592,7 @@ int date_days_between(	char *from_date_string,
 	if ( ! ( from_date =
 			date_yyyy_mm_dd_new(
 				from_date_string,
-				hours_west_gmt ) ) )
+				utc_offset ) ) )
 	{
 		return 0;
 	}
@@ -600,7 +600,7 @@ int date_days_between(	char *from_date_string,
 	if ( ! ( to_date =
 			date_yyyy_mm_dd_new(
 				to_date_string,
-				hours_west_gmt ) ) )
+				utc_offset ) ) )
 	{
 		return 0;
 	}
@@ -726,7 +726,7 @@ int date_minutes_between(	char *from_date_string,
 				char *to_date_string,
 	       			char *to_time_string,
 				boolean add_one,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	DATE *from_date;
 	DATE *to_date;
@@ -741,16 +741,16 @@ int date_minutes_between(	char *from_date_string,
 	from_date =
 		date_yyyy_mm_dd_new(
 			from_date_string,
-			hours_west_gmt );
+			utc_offset );
 
-	date_set_time_hhmm( from_date, from_time_string, hours_west_gmt );
+	date_set_time_hhmm( from_date, from_time_string, utc_offset );
 
 	to_date =
 		date_yyyy_mm_dd_new(
 			to_date_string,
-			hours_west_gmt );
+			utc_offset );
 
-	date_set_time_hhmm( to_date, to_time_string, hours_west_gmt );
+	date_set_time_hhmm( to_date, to_time_string, utc_offset );
 
 	difference = to_date->current - from_date->current;
 
@@ -806,7 +806,7 @@ void add_slashes_maybe( char *d, char *s )
 } /* add_slashes_maybe() */
 
 DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	char year_string[ 16 ];
 	char month_string[ 16 ];
@@ -845,14 +845,14 @@ DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string,
 			atoi( hour_string ),
 			atoi( minute_string ),
 			atoi( second_string ),
-			hours_west_gmt );
+			utc_offset );
 
 	return date;
 
 } /* date_yyyy_mm_dd_hms_new() */
 
 DATE *date_yyyy_mm_dd_colon_hm_new(	char *date_time_string,
-					int hours_west_gmt )
+					int utc_offset )
 {
 	char year_string[ 16 ];
 	char month_string[ 16 ];
@@ -889,14 +889,14 @@ DATE *date_yyyy_mm_dd_colon_hm_new(	char *date_time_string,
 			atoi( hour_string ),
 			atoi( minute_string ),
 			0 /*seconds */,
-			hours_west_gmt );
+			utc_offset );
 
 	return date;
 
 } /* date_yyyy_mm_dd_colon_hm_new() */
 
 DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	char year_string[ 16 ];
 	char month_string[ 16 ];
@@ -933,14 +933,14 @@ DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string,
 			atoi( hour_string ),
 			atoi( minute_string ),
 			0 /*seconds */,
-			hours_west_gmt );
+			utc_offset );
 
 	return date;
 
 } /* date_yyyy_mm_dd_hm_new() */
 
 DATE *date_yyyy_mm_dd_new(	char *date_string,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	char year_string[ 128 ];
 	char month_string[ 128 ];
@@ -963,17 +963,17 @@ DATE *date_yyyy_mm_dd_new(	char *date_string,
 	date = date_new( 	atoi( year_string ),
 				atoi( month_string ),
 				atoi( day_string ),
-				hours_west_gmt );
+				utc_offset );
 	return date;
 
 } /* date_yyyy_mm_dd_new() */
 
 void date_increment_days(	DATE *d,
 				double days,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	d->current += (long)((double)SECONDS_IN_DAY * days);
-	date_set_tm_structures( d, d->current, hours_west_gmt );
+	date_set_tm_structures( d, d->current, utc_offset );
 }
 
 char *date_yyyy_mm_dd( DATE *date )
@@ -1052,7 +1052,7 @@ char *date_display_yyyy_mm_dd_colon_hm( DATE *date )
 	char buffer[ 128 ];
 	
 	sprintf( buffer,
-		 "%s ",
+		 "%s:",
 		 date_static_display_yyyy_mm_dd( date ) );
 
 	date_get_hhmm(
@@ -1118,13 +1118,13 @@ char *date_get_yyyy_mm_dd_string( DATE *date )
 }
 
 char *date_get_day_of_week_yyyy_mm_dd(	int wday_of_week,
-					int hours_west_gmt )
+					int utc_offset )
 {
 	char *date_string;
-	DATE *date = date_today_new( hours_west_gmt );
+	DATE *date = date_today_new( utc_offset );
 
 	while( date->tm->tm_wday != wday_of_week )
-		date_increment_days( date, -1.0, hours_west_gmt );
+		date_increment_days( date, -1.0, utc_offset );
 
 	date_string = date_get_yyyy_mm_dd_string( date );
 
@@ -1133,28 +1133,28 @@ char *date_get_day_of_week_yyyy_mm_dd(	int wday_of_week,
 	return date_string;
 }
 
-char *date_get_yesterday_yyyy_mm_dd( int hours_west_gmt )
+char *date_get_yesterday_yyyy_mm_dd( int utc_offset )
 {
-	return date_get_yesterday_yyyy_mm_dd_string( hours_west_gmt );
+	return date_get_yesterday_yyyy_mm_dd_string( utc_offset );
 }
 
 char *date_get_yesterday_yyyy_mm_dd_string(
-					int hours_west_gmt )
+					int utc_offset )
 {
 	DATE *date;
 
-	date = date_today_new( hours_west_gmt );
-	date_increment_days( date, -1.0, hours_west_gmt );
+	date = date_today_new( utc_offset );
+	date_increment_days( date, -1.0, utc_offset );
 	return date_get_yyyy_mm_dd_string( date );
 
 } /* date_get_yesterday_yyyy_mm_dd_string() */
 
-DATE *date_now_new( int hours_west_gmt )
+DATE *date_now_new( int utc_offset )
 {
-	return date_today_new( hours_west_gmt );
+	return date_today_new( utc_offset );
 }
 
-DATE *date_today_new( int hours_west_gmt )
+DATE *date_today_new( int utc_offset )
 {
 	time_t now;
 	struct tm *tm;
@@ -1171,91 +1171,73 @@ DATE *date_today_new( int hours_west_gmt )
 			tm->tm_hour,
 			tm->tm_min,
 			tm->tm_sec,
-			hours_west_gmt );
+			utc_offset );
 
 	return return_date;
 
 } /* date_today_new() */
 
-DATE *date_get_today_new( int hours_west_gmt )
+DATE *date_get_today_new( int utc_offset )
 {
-	return date_today_new( hours_west_gmt );
+	return date_today_new( utc_offset );
 }
 
-char *date_get_now_hhmm( int hours_west_gmt )
+char *date_get_now_hhmm( int utc_offset )
 {
-	return date_get_now_date_hhmm( hours_west_gmt );
+	return date_get_now_date_hhmm( utc_offset );
 }
 
-char *date_get_now_yyyy_mm_dd( int hours_west_gmt )
+char *date_get_now_yyyy_mm_dd( int utc_offset )
 {
-	return date_get_now_date_yyyy_mm_dd( hours_west_gmt );
+	return date_get_now_date_yyyy_mm_dd( utc_offset );
 }
 
-char *date_get_today_yyyy_mm_dd( int hours_west_gmt )
+char *date_get_today_yyyy_mm_dd( int utc_offset )
 {
-	return date_get_now_date_yyyy_mm_dd( hours_west_gmt );
+	return date_get_now_date_yyyy_mm_dd( utc_offset );
 }
 
-char *date_get_current_hhmm( int hours_west_gmt )
+char *date_get_current_hhmm( int utc_offset )
 {
-	return date_get_now_date_hhmm( hours_west_gmt );
+	return date_get_now_date_hhmm( utc_offset );
 }
 
-char *date_get_current_yyyy_mm_dd( int hours_west_gmt )
+char *date_get_current_yyyy_mm_dd( int utc_offset )
 {
-	return date_get_now_date_yyyy_mm_dd( hours_west_gmt );
+	return date_get_now_date_yyyy_mm_dd( utc_offset );
 }
 
-char *date_get_now_date_hhmm( int hours_west_gmt )
+char *date_get_now_date_hhmm( int utc_offset )
 {
-	DATE *date = date_today_new( hours_west_gmt );
+	DATE *date = date_today_new( utc_offset );
 	return date_display_hhmm( date );
-/*
-	char *date_time_string;
-	static char hhmm[ 8 ];
-	date_time_string = date_get_unix_now_string();
+}
 
-	if ( !piece( hhmm, ':', date_time_string, 1 ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot get time using (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 date_time_string );
-		exit( 1 );
-	}
-
-	return hhmm;
-*/
-} /* date_get_now_date_hhmm() */
-
-char *date_get_now_date_oracle_format( int hours_west_gmt )
+char *date_get_now_date_oracle_format( int utc_offset )
 {
 	char *oracle_format;
 
 	oracle_format =
 		timlib_yyyymmdd_to_oracle_format(
 			date_get_now_date_yyyy_mm_dd(
-				hours_west_gmt ) );
+				utc_offset ) );
 
 	return oracle_format;
 }
 
-char *date_get_now_date_yyyy_mm_dd( int hours_west_gmt )
+char *date_get_now_date_yyyy_mm_dd( int utc_offset )
 {
-	DATE *date = date_today_new( hours_west_gmt );
+	DATE *date = date_today_new( utc_offset );
 	return date_display_yyyy_mm_dd( date );
 
 } /* date_get_now_date_yyyy_mm_dd() */
 
-char *date_get_now_time_hhmm( int hours_west_gmt )
+char *date_get_now_time_hhmm( int utc_offset )
 {
 	char buffer[ 128 ];
 	DATE *d;
 
-	d = date_today_new( hours_west_gmt );
+	d = date_today_new( utc_offset );
 
 	sprintf( buffer, "%02d%02d", d->tm->tm_hour, d->tm->tm_min );
 
@@ -1263,14 +1245,14 @@ char *date_get_now_time_hhmm( int hours_west_gmt )
 
 } /* date_get_now_time_hhmm() */
 
-char *date_get_now_hhmm_colon_ss( int hours_west_gmt )
+char *date_get_now_hhmm_colon_ss( int utc_offset )
 {
-	return date_get_now_time_hhmm_colon_ss( hours_west_gmt );
+	return date_get_now_time_hhmm_colon_ss( utc_offset );
 }
 
-char *date_get_now_time_second( int hours_west_gmt )
+char *date_get_now_time_second( int utc_offset )
 {
-	return date_get_now_hh_colon_mm_colon_ss( hours_west_gmt );
+	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
 }
 
 char *date_get_yyyy_mm_dd_hh_mm_ss(
@@ -1291,12 +1273,12 @@ char *date_get_yyyy_mm_dd_hh_mm_ss(
 
 } /* date_get_yyyy_mm_dd_hh_mm_ss() */
 
-char *date_get_now_hh_colon_mm( int hours_west_gmt )
+char *date_get_now_hh_colon_mm( int utc_offset )
 {
 	char buffer[ 128 ];
 	DATE *d;
 
-	d = date_today_new( hours_west_gmt );
+	d = date_today_new( utc_offset );
 
 	sprintf(	buffer,
 			"%02d:%02d",
@@ -1307,12 +1289,12 @@ char *date_get_now_hh_colon_mm( int hours_west_gmt )
 
 } /* date_get_now_hh_colon_mm() */
 
-char *date_get_now_hh_colon_mm_colon_ss( int hours_west_gmt )
+char *date_get_now_hh_colon_mm_colon_ss( int utc_offset )
 {
 	char buffer[ 128 ];
 	DATE *d;
 
-	d = date_today_new( hours_west_gmt );
+	d = date_today_new( utc_offset );
 
 	sprintf(	buffer,
 			"%02d:%02d:%02d",
@@ -1324,12 +1306,12 @@ char *date_get_now_hh_colon_mm_colon_ss( int hours_west_gmt )
 
 } /* date_get_now_hh_colon_mm_colon_ss() */
 
-char *date_get_now_time_hhmm_colon_ss( int hours_west_gmt )
+char *date_get_now_time_hhmm_colon_ss( int utc_offset )
 {
 	char buffer[ 128 ];
 	DATE *d;
 
-	d = date_today_new( hours_west_gmt );
+	d = date_today_new( utc_offset );
 
 	sprintf(	buffer,
 			"%02d%02d:%02d",
@@ -1343,14 +1325,14 @@ char *date_get_now_time_hhmm_colon_ss( int hours_west_gmt )
 
 void date_set_tm_structures(	DATE *d,
 				time_t current,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	if ( current < 0 )
 	{
 		date_set_tm_structures_pre_1970(
 				d,
 				current,
-				hours_west_gmt );
+				utc_offset );
 	}
 	else
 	{
@@ -1361,7 +1343,7 @@ void date_set_tm_structures(	DATE *d,
 
 void date_set_tm_structures_pre_1970(	DATE *d,
 					time_t current,
-					int hours_west_gmt )
+					int utc_offset )
 {
 	struct tm future_tm = {0};
 	time_t future_time_t;
@@ -1374,7 +1356,7 @@ void date_set_tm_structures_pre_1970(	DATE *d,
 	future_tm.tm_min = 0;
 	future_tm.tm_sec = 0;
 
-	future_time_t = date_mktime( &future_tm, hours_west_gmt );
+	future_time_t = date_mktime( &future_tm, utc_offset );
 
 	new_current = future_time_t + current;
 
@@ -1384,13 +1366,13 @@ void date_set_tm_structures_pre_1970(	DATE *d,
 } /* date_set_tm_structures_pre_1970() */
 
 time_t date_mktime(	struct tm *tm,
-			int hours_west_gmt )
+			int utc_offset )
 {
 	time_t return_value;
 
 	tm->tm_isdst = 0;
 	return_value = mktime( tm );
-	return_value -= SECONDS_IN_HOUR * hours_west_gmt;
+	return_value += SECONDS_IN_HOUR * utc_offset;
 
 	return return_value;
 
@@ -1415,36 +1397,36 @@ char *date_get_hhmm_string( DATE *d )
 } /* date_get_hhmm_string() */
 
 char *date_new_get_yyyy_mm_dd(	time_t current,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	DATE *d = date_new_date();
 
-	date_set_tm_structures( d, current, hours_west_gmt );
-	d->current = date_tm_to_current( d->tm, hours_west_gmt );
+	date_set_tm_structures( d, current, utc_offset );
+	d->current = date_tm_to_current( d->tm, utc_offset );
 
 	return date_get_yyyy_mm_dd_string( d );
 }
 
 DATE *date_new_yyyy_mm_dd_hhmm(	char *date_string,
 				char *time_string,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	return date_yyyy_mm_dd_hhmm_new(
 		date_string,
 		time_string,
-		hours_west_gmt );
+		utc_offset );
 }
 
 DATE *date_new_yyyy_mm_dd(	char *date_string,
-				int hours_west_gmt )
+				int utc_offset )
 {
-	return date_yyyy_mm_dd_new( date_string, hours_west_gmt );
+	return date_yyyy_mm_dd_new( date_string, utc_offset );
 }
 
 DATE *date_new_yyyy_mm_dd_date(	char *date_string,
-				int hours_west_gmt )
+				int utc_offset )
 {
-	return date_yyyy_mm_dd_new( date_string, hours_west_gmt );
+	return date_yyyy_mm_dd_new( date_string, utc_offset );
 }
 
 boolean date_is_day_of_week(	DATE *d,
@@ -1493,19 +1475,19 @@ boolean date_is_saturday( DATE *d )
 }
 
 DATE *date_forward_to_first_month(	DATE *d,
-					int hours_west_gmt )
+					int utc_offset )
 {
 	DATE *return_date;
 
-	return_date = date_back_to_first_month( d, hours_west_gmt );
-	date_increment_months( return_date, 1, hours_west_gmt );
+	return_date = date_back_to_first_month( d, utc_offset );
+	date_increment_months( return_date, 1, utc_offset );
 
 	return return_date;
 
 } /* date_forward_to_first_month() */
 
 DATE *date_back_to_first_month(		DATE *d,
-					int hours_west_gmt )
+					int utc_offset )
 {
 	int mday;
 	time_t current;
@@ -1518,12 +1500,12 @@ DATE *date_back_to_first_month(		DATE *d,
 		mday--;
 		current -= SECONDS_IN_DAY;
 	}
-	return date_current_new( current, hours_west_gmt );
+	return date_current_new( current, utc_offset );
 
 } /* date_back_to_first_month() */
 
 char *date_this_saturday_yyyy_mm_dd_string(	DATE *d,
-						int hours_west_gmt )
+						int utc_offset )
 {
 	int wday;
 	time_t current;
@@ -1538,13 +1520,13 @@ char *date_this_saturday_yyyy_mm_dd_string(	DATE *d,
 		if ( wday == 7 ) wday = 0;
 	}
 
-	return date_new_get_yyyy_mm_dd( current, hours_west_gmt );
+	return date_new_get_yyyy_mm_dd( current, utc_offset );
 
 } /* date_this_saturday_yyyy_mm_dd_string() */
 
 DATE *date_get_prior_day(	DATE *date,
 				int wday_parameter,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	int wday;
 	time_t current;
@@ -1564,25 +1546,25 @@ DATE *date_get_prior_day(	DATE *date,
 		if ( wday == -1 ) wday = WDAY_SATURDAY;
 	}
 
-	return date_current_new( current, hours_west_gmt );
+	return date_current_new( current, utc_offset );
 
 } /* date_get_prior_day() */
 
 DATE *date_get_prior_saturday(	DATE *date,
-				int hours_west_gmt )
+				int utc_offset )
 {
-	return date_get_prior_day( date, WDAY_SATURDAY, hours_west_gmt );
+	return date_get_prior_day( date, WDAY_SATURDAY, utc_offset );
 }
 
 DATE *date_get_prior_sunday(	DATE *date,
-				int hours_west_gmt )
+				int utc_offset )
 {
-	return date_get_prior_day( date, WDAY_SUNDAY, hours_west_gmt );
+	return date_get_prior_day( date, WDAY_SUNDAY, utc_offset );
 }
 
 DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
 				char *time_string,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	DATE *date;
 	int year, month, day, hour, minutes;
@@ -1603,9 +1585,9 @@ DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
 
 	minutes = atoi( buffer );
 
-	date = date_new( year, month, day, hours_west_gmt );
+	date = date_new( year, month, day, utc_offset );
 
-	date_set_time( date, hour, minutes, hours_west_gmt );
+	date_set_time( date, hour, minutes, utc_offset );
 
 	return date;
 
@@ -1613,7 +1595,7 @@ DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
 
 int date_set_time_hhmm(		DATE *date,
 				char *hhmm,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	int hours, minutes;
 	char buffer[ 3 ];
@@ -1629,7 +1611,7 @@ int date_set_time_hhmm(		DATE *date,
 	*(buffer + 1) = *(hhmm + 3);
 	minutes = atoi( buffer );
 
-	date_set_time( date, hours, minutes, hours_west_gmt );
+	date_set_time( date, hours, minutes, utc_offset );
 
 	return 1;
 
@@ -1637,33 +1619,33 @@ int date_set_time_hhmm(		DATE *date,
 
 void date_increment_hours(	DATE *d,
 				double hours,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	d->current += (long)((float)SECONDS_IN_HOUR * hours);
-	date_set_tm_structures( d, d->current, hours_west_gmt );
+	date_set_tm_structures( d, d->current, utc_offset );
 }
 
 void date_add_minutes(	DATE *d,
 			int minutes,
-			int hours_west_gmt )
+			int utc_offset )
 {
-	date_increment_minutes( d, minutes, hours_west_gmt );
+	date_increment_minutes( d, minutes, utc_offset );
 }
 
 void date_increment_minutes(	DATE *d,
 				int minutes,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	d->current += (long)(SECONDS_IN_MINUTE * minutes);
-	date_set_tm_structures( d, d->current, hours_west_gmt );
+	date_set_tm_structures( d, d->current, utc_offset );
 }
 
 void date_increment_seconds(	DATE *d,
 				int seconds,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	d->current += (long)seconds;
-	date_set_tm_structures( d, d->current, hours_west_gmt );
+	date_set_tm_structures( d, d->current, utc_offset );
 }
 
 int date_subtract_minutes( DATE *later_date, DATE *earlier_date )
@@ -1727,7 +1709,7 @@ int date_get_minutes_number( DATE *date )
 }
 
 void date_round2five_minutes(	DATE *date,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	int hour;
 	int minutes;
@@ -1752,12 +1734,12 @@ void date_round2five_minutes(	DATE *date,
 			if ( hour == 24 )
 			{
 				hour = 0;
-				date_increment_day( date, hours_west_gmt );
+				date_increment_day( date, utc_offset );
 			}
 		}
 	}
 	
-	date_set_time( date, hour, minutes, hours_west_gmt );
+	date_set_time( date, hour, minutes, utc_offset );
 
 } /* date_round2five_minutes() */
 
@@ -1816,10 +1798,10 @@ char *date_display_yyyy_mm_dd_hhmm( DATE *date )
 } /* date_display_yyyy_mm_dd_hhmm() */
 
 void date_increment_weekly_ceiling(	DATE *date,
-					int hours_west_gmt )
+					int utc_offset )
 {
 	while( date_get_day_of_week( date ) != DATE_END_OF_WEEK_INDICATOR )
-		date_increment_day( date, hours_west_gmt );
+		date_increment_day( date, utc_offset );
 
 } /* date_increment_weekly_ceiling() */
 
@@ -1851,7 +1833,7 @@ boolean date_same_day(		DATE *old_date,
 
 boolean date_tomorrow( 		DATE *old_date, 
 				DATE *new_date,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	int return_value;
 	char buffer1[ 128 ];
@@ -1861,7 +1843,7 @@ boolean date_tomorrow( 		DATE *old_date,
 	tomorrow_date = date_new_date();
 	date_copy( tomorrow_date, old_date );
 
-	date_increment_day( tomorrow_date, hours_west_gmt );
+	date_increment_day( tomorrow_date, utc_offset );
 
 	return_value =
 		( strcmp(
@@ -1894,13 +1876,13 @@ int date_days_in_month(	int month,
 
 char *date_current_to_static_yyyy_mm_dd_string(
 				time_t current,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	DATE *d = date_new_date();
 	static char yyyy_mm_dd_string[ 16 ];
 
-	date_set_tm_structures( d, current, hours_west_gmt );
-	d->current = date_tm_to_current( d->tm, hours_west_gmt );
+	date_set_tm_structures( d, current, utc_offset );
+	d->current = date_tm_to_current( d->tm, utc_offset );
 
 	strcpy( yyyy_mm_dd_string, date_static_display_yyyy_mm_dd( d ) );
 	date_free( d );
@@ -1909,7 +1891,7 @@ char *date_current_to_static_yyyy_mm_dd_string(
 
 char *date_prior_day_of_week_yyyy_mm_dd_string(	DATE *d,
 						int day_of_week,
-						int hours_west_gmt )
+						int utc_offset )
 {
 	int wday;
 	time_t current;
@@ -1926,7 +1908,7 @@ char *date_prior_day_of_week_yyyy_mm_dd_string(	DATE *d,
 
 	return date_current_to_static_yyyy_mm_dd_string(
 			current,
-			hours_west_gmt );
+			utc_offset );
 
 } /* date_prior_day_of_week_yyyy_mm_dd_string() */
 
@@ -2039,14 +2021,14 @@ void date_place_colon_in_time( char *time_string )
 } /* date_place_colon_in_time() */
 
 char *date_append_hhmmss(	char *date_string,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	static char date_hhmmss[ 32 ];
 	char *hhmmss;
 
 	if ( !date_string || !*date_string ) return "";
 
-	hhmmss = date_get_now_hh_colon_mm_colon_ss( hours_west_gmt );
+	hhmmss = date_get_now_hh_colon_mm_colon_ss( utc_offset );
 
 	sprintf( date_hhmmss,
 		 "%s %s",
@@ -2094,7 +2076,7 @@ char *date_remove_colon_from_time( char *time_string )
 } /* date_remove_colon_from_time() */
 
 int date_get_week_of_year(	DATE *date,
-				int hours_west_gmt )
+				int utc_offset )
 {
 	char week_of_year_string[ 16 ];
 	int week_of_year;
@@ -2116,7 +2098,7 @@ int date_get_week_of_year(	DATE *date,
 
 	year = date_get_year( date );
 
-	january_1st = date_new( year, 1, 1, hours_west_gmt );
+	january_1st = date_new( year, 1, 1, utc_offset );
 
 	january_1st_sunday =
 		( date_get_day_of_week( january_1st ) == WDAY_SUNDAY );
@@ -2146,7 +2128,7 @@ int date_get_week_of_year(	DATE *date,
 					year,
 					12,
 					23,
-					hours_west_gmt );
+					utc_offset );
 
 			strftime(	week_of_year_string,
 					16,
@@ -2195,3 +2177,51 @@ int date_get_last_month_day(	int month,
 	return 29;
 
 } /* date_get_last_month_day() */
+
+int date_get_utc_offset( void )
+{
+	char *utc_offset;
+
+	utc_offset = date_get_environment( "UTC_OFFSET" );
+
+	if ( utc_offset )
+		return atoi( utc_offset );
+	else
+		return DATE_DEFAULT_UTC_OFFSET;
+
+} /* date_get_utc_offset() */
+
+char *date_get_environment( char *variable_name )
+{
+	static char datum[ 1024 ];
+
+	if ( date_name_to_value( datum, variable_name ) )
+		return datum;
+	else
+		return (char *)0;
+} /* date_get_environment() */
+
+boolean date_name_to_value( char *variable_value, char *variable_name )
+{
+	char *value;
+
+	/* Skip the '$' */
+	/* ------------ */
+	if ( *variable_name == '$' )
+		variable_name++;
+
+ 	value = getenv( variable_name );
+
+	if ( value )
+	{
+		strcpy( variable_value, value );
+		return 1;
+	}
+	else
+	{
+		*variable_value = '\0';
+		return 0;
+	}
+
+} /* date_name_to_value() */
+

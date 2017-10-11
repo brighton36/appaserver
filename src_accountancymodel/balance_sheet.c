@@ -156,7 +156,7 @@ int main( int argc, char **argv )
 	{
 		as_of_date =
 			date_get_now_yyyy_mm_dd(
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	}
 
 	document = document_new( (char *)0 /* title */, application_name );

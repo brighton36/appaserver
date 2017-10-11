@@ -8,13 +8,15 @@
 
 int main( int argc, char **argv )
 {
-	float days_offset;
+	double days_offset;
 	boolean with_seconds = 0;
 	DATE *d;
 
 	if ( argc < 2 )
 	{
-		fprintf( stderr, "%s days_offset [seconds]\n", argv[ 0 ] );
+		fprintf(	stderr,
+				"%s days_offset [withseconds_yn]\n",
+				argv[ 0 ] );
 		exit( 1 );
 	}
 
@@ -22,20 +24,27 @@ int main( int argc, char **argv )
 
 	if ( argc == 3 )
 	{
-		with_seconds = ( strcmp( argv[ 2 ], "seconds" ) == 0 );
+		with_seconds =
+			( strcmp( argv[ 2 ], "y" ) == 0 ||
+			  strcmp( argv[ 2 ], "seconds" ) == 0 );
 	}
 
 	if ( !days_offset && !with_seconds )
 	{
-		printf( "%s\n", date_get_unix_now_string() );
+		d = date_get_today_new( date_get_utc_offset() );
+
+		printf( "%s\n",
+			date_display_yyyy_mm_dd_colon_hm( d ) );
 	}
 	else
 	{
-		d = date_get_today_new( HOURS_WEST_GMT );
+		d = date_get_today_new( date_get_utc_offset() );
 
 		if ( days_offset )
 		{
-			date_increment_days( d, days_offset, HOURS_WEST_GMT );
+			date_increment_days(
+				d, days_offset, date_get_utc_offset() );
+
 			printf( "%s\n", date_display_yyyy_mm_dd( d ) );
 		}
 		else

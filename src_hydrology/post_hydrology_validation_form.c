@@ -151,11 +151,11 @@ int main( int argc, char **argv )
 
 	validation_time =
 		date_get_now_time_hhmm_colon_ss(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	validation_date =
 		date_get_now_date_yyyy_mm_dd(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	measurement_validation_insert_into_manual_validation_event(
 		application_name,

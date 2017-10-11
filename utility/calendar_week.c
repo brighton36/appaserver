@@ -34,14 +34,14 @@ char **argv;
 		atoi( year ),
 		1,
 		atoi( day_to_start ),
-		HOURS_WEST_GMT );
+		date_get_utc_offset() );
 
 	for( week_number = 1; week_number <= 52; week_number++ )
 	{
 		month = get_month( date );
 		day = get_day( date );
 		printf( "%0.2d %2d %2d\n", month, day, week_number );
-		increment_week( date, HOURS_WEST_GMT );
+		increment_week( date, date_get_utc_offset() );
 	}
 	return 0;
 

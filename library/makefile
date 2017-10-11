@@ -32,11 +32,11 @@ APPASERVER_LIBRARY=						\
 		html_table.o					\
 		google_earth.o					\
 		google_chart.o					\
+		environ.o 					\
 		html_invoice.o					\
 		latex.o						\
 		latex_invoice.o					\
 		basename.o					\
-		environ.o					\
 		role.o						\
 		role_folder.o					\
 		make_date_time_between_compatable.o		\
@@ -71,6 +71,7 @@ APPASERVER_LIBRARY=						\
 		process_parameter_list.o			\
 		start_stop_time.o				\
 		appaserver_parameter_file.o			\
+		prompt_recursive.o				\
 		appaserver_link_file.o				\
 		process.o					\
 		queue.o						\
@@ -112,7 +113,6 @@ all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
 		queue_dvr.e						\
 		easycharts.o						\
 		pair_one2m.o						\
-		prompt_recursive.o					\
 		julian_time_double_list.o				\
 		token_dvr.e
 
@@ -147,10 +147,11 @@ covariance_dvr.e: covariance_dvr.c covariance.o
 		covariance.o						\
 	   -o covariance_dvr.e
 
-row_security_dvr.e: row_security_dvr.c prompt_recursive.o
+row_security_dvr.e: row_security_dvr.c					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		row_security_dvr.c					\
-		prompt_recursive.o
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		${STANDARD_LIBRARY}					\
@@ -189,15 +190,13 @@ google_map_dvr.e: google_map_dvr.c google_map.o environ.h application.h	\
 google_earth_dvr.e: google_earth_dvr.c					\
 		google_earth.o 		 				\
 		${STANDARD_LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		prompt_recursive.o
+		${APPASERVER_LIBRARY}
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		google_earth_dvr.c					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		google_earth.o						\
-		prompt_recursive.o					\
 	   -o google_earth_dvr.e
 
 statistics_weighted_dvr.e: statistics_weighted_dvr.c			\
@@ -482,19 +481,13 @@ name_arg.o: name_arg.c name_arg.h
 		${APPASERVER_ERROR_FILE_FLAG}
 
 
-date_dvr.e: date_dvr.c date.o julian.o hashtbl.o
+date_dvr.e: date_dvr.c					\
+		${STANDARD_LIBRARY}			\
+		${APPASERVER_LIBRARY}
 	${CC} ${CFLAGS} date_dvr.c 			\
 			${APPASERVER_ERROR_FILE_FLAG}	\
-			piece.o 			\
-			date.o				\
-			julian.o			\
-			dictionary.o			\
-			hashtbl.o			\
-			list.o				\
-			list_usage.o			\
-			date_convert.o 			\
-			column.o 			\
-			timlib.o 			\
+			${STANDARD_LIBRARY}		\
+			${APPASERVER_LIBRARY}		\
 			-o date_dvr.e
 
 date.o: date.c date.h
@@ -507,14 +500,12 @@ basename.o: basename.c
 
 piece_dvr.e: piece_dvr.c				\
 		piece.o					\
-		list.o					\
-		hashtbl.o				\
-		prompt_recursive.o
+		${STANDARD_LIBRARY}			\
+		${APPASERVER_LIBRARY}
 	${CC} ${CFLAGS} piece_dvr.c			\
 		${APPASERVER_ERROR_FILE_FLAG}		\
 		${STANDARD_LIBRARY}			\
 		${APPASERVER_LIBRARY}			\
-		prompt_recursive.o			\
 	-o piece_dvr.e
 
 piece.o: piece.c piece.h

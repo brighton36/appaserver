@@ -343,7 +343,7 @@ int insert_catch_measurements(	char *application_name,
 
 	now_date_international =
 		date_get_now_date_yyyy_mm_dd(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	/* Skip the first line */
 	/* ------------------- */
@@ -631,7 +631,7 @@ void insert_catches(	char *application_name,
 
 	now_date_international =
 		date_get_now_date_yyyy_mm_dd(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	/* Skip the first line */
 	/* ------------------- */

@@ -79,9 +79,9 @@ void replace_twenty_four_hundred( 	char *source_destination,
 {
 	DATE *date;
 
-	date = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+	date = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
 
-	date_increment_days( date, 1, HOURS_WEST_GMT );
+	date_increment_days( date, 1, date_get_utc_offset() );
 
 	replace_piece(	source_destination,
 			delimiter,

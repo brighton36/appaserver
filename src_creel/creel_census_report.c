@@ -166,7 +166,7 @@ void creel_census_report_output_table(
 	census_date =
 		date_yyyy_mm_dd_new(
 			census_date_string,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	catches_hash_table =
 		hash_table_new( hash_table_medium );

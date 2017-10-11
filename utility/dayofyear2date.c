@@ -85,7 +85,7 @@ int main( int argc, char **argv )
 
 	if ( exclude_future_dates )
 	{
-		today = date_get_today_new( HOURS_WEST_GMT );
+		today = date_get_today_new( date_get_utc_offset() );
 	}
 
         while( get_line( input_buffer, stdin ) )

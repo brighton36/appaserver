@@ -106,7 +106,7 @@ int main( int argc, char **argv )
 
 	now_date_international =
 		date_get_now_date_yyyy_mm_dd(
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	/* Skip the first line */
 	/* ------------------- */

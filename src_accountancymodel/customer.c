@@ -2904,12 +2904,12 @@ double customer_get_work_hours(	char *end_date_time,
 	end_date =
 		date_yyyy_mm_dd_hms_new(
 			end_date_time,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	begin_date =
 		date_yyyy_mm_dd_hms_new(
 			begin_date_time,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	work_hours =
 		(double)date_subtract_minutes(

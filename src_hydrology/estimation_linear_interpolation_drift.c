@@ -197,13 +197,13 @@ int main( int argc, char **argv )
 		date_new_yyyy_mm_dd_hhmm(
 			begin_date_string,
 			begin_time_string,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	end_date =
 		date_new_yyyy_mm_dd_hhmm(
 			end_date_string,
 			end_time_string,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	expanded_where_clause =
 		get_where_clause(	station,
@@ -545,7 +545,7 @@ int interpolation_drift_add(	DICTIONARY *parameter_dictionary,
 			date_new_yyyy_mm_dd_hhmm(
 				measurement_date_string,
 				measurement_time_string,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 
 		if ( !measurement_date )
 		{
@@ -723,7 +723,7 @@ int interpolation_drift_multiply(
 			date_new_yyyy_mm_dd_hhmm(
 				measurement_date_string,
 				measurement_time_string,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 
 		if ( !measurement_date )
 		{

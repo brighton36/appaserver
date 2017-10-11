@@ -120,6 +120,7 @@ int main( int argc, char **argv )
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
+	environ_set_utc_offset( application_name );
 
 	appaserver_error_login_name_append_file(
 				argc,

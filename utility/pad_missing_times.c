@@ -151,7 +151,7 @@ int main( int argc, char **argv )
 				0 /* date_offset */,
 				1 /*time_offset */,
 				'^',
-				HOURS_WEST_GMT ) )
+				date_get_utc_offset() ) )
 		{
 			fprintf( stderr,
 			"Warning in %s/%s()/%d: invalid date_time of (%s)\n",
@@ -176,7 +176,7 @@ int main( int argc, char **argv )
 					0 /* date_piece */,
 					1 /* time_piece */,
 					'^',
-					HOURS_WEST_GMT ) )
+					date_get_utc_offset() ) )
 			{
 				fprintf( stderr,
 			"ERROR in %s/%s()/%d: invalid date_time of (%s)\n",

@@ -10,6 +10,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_parameter_file.h"
+#include "application_constants.h"
 #include "appaserver.h"
 #include "application.h"
 #include "environ.h"
@@ -226,6 +227,29 @@ char *environ_get_http_referer(	void )
 	}
 
 } /* environ_get_http_referer() */
+
+void environ_set_utc_offset( char *application_name )
+{
+	APPLICATION_CONSTANTS *application_constants;
+	char *utc_offset;
+
+	application_constants = application_constants_new();
+
+	application_constants->dictionary =
+		application_constants_get_dictionary(
+			application_name );
+
+	if ( ( utc_offset =
+		application_constants_fetch(
+				application_constants->dictionary,
+				"utc_offset" ) ) )
+	{
+		environ_set_environment(
+			"UTC_OFFSET",
+			utc_offset );
+	}
+
+} /* environ_set_utc_offset() */
 
 char *environ_get_http_referer_filename( void )
 {

@@ -25,8 +25,12 @@ int main( void )
 		piece( date_string, ',', input_buffer, 2 );
 		piece( time, ',', input_buffer, 3 );
 
-		date = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
-		date_increment_days( date, 1, HOURS_WEST_GMT );
+		date =
+			date_yyyy_mm_dd_new(
+				date_string,
+				date_get_utc_offset() );
+
+		date_increment_days( date, 1, date_get_utc_offset() );
 
 		printf( 
 "update measurement set measurement_date = '%s', measurement_time = '0000' where station = '%s' and datatype = '%s' and measurement_date = '%s' and measurement_time = '%s';\n",

@@ -123,54 +123,54 @@ DATE_CONVERT *date_convert_new_date_convert(
 	}
 
 	if ( strcasecmp( date_string, "today" ) == 0 )
-		date_string = date_get_today_yyyy_mm_dd( HOURS_WEST_GMT );
+		date_string = date_get_today_yyyy_mm_dd( date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "yesterday" ) == 0 )
 		date_string =
 			date_get_yesterday_yyyy_mm_dd(
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "monday" ) == 0 )
 		date_string =
 			date_get_day_of_week_yyyy_mm_dd(
 				WDAY_MONDAY,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "tuesday" ) == 0 )
 		date_string =
 			date_get_day_of_week_yyyy_mm_dd(
 				WDAY_TUESDAY,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "wednesday" ) == 0 )
 		date_string =
 			date_get_day_of_week_yyyy_mm_dd(
 				WDAY_WEDNESDAY,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "thursday" ) == 0 )
 		date_string =
 			date_get_day_of_week_yyyy_mm_dd(
 				WDAY_THURSDAY,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "friday" ) == 0 )
 		date_string =
 			date_get_day_of_week_yyyy_mm_dd(
 				WDAY_FRIDAY,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "saturday" ) == 0 )
 		date_string =
 			date_get_day_of_week_yyyy_mm_dd(
 				WDAY_SATURDAY,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "sunday" ) == 0 )
 		date_string =
 			date_get_day_of_week_yyyy_mm_dd(
 				WDAY_SUNDAY,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 
 	d->source_format = date_convert_date_get_format( date_string );
 	d->destination_format = destination_format;

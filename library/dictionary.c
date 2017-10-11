@@ -3581,7 +3581,8 @@ void dictionary_set_indexed_date_time_to_current(
 				sprintf(date_time_string,
 					"%s %s",
 					data,
-					date_get_now_time_second() );
+					date_get_now_time_second(
+						date_get_utc_offset() ) );
 
 				dictionary_set_pointer(
 					dictionary,
@@ -3628,7 +3629,8 @@ void dictionary_set_date_time_to_current(
 			sprintf(date_time_string,
 				"%s %s",
 				data,
-				date_get_now_time_second() );
+				date_get_now_time_second(
+					date_get_utc_offset() ) );
 
 			dictionary_set_pointer(
 				dictionary,
@@ -3650,7 +3652,8 @@ void dictionary_set_date_time_to_current(
 			sprintf(date_time_string,
 				"%s %s",
 				data,
-				date_get_now_time_second() );
+				date_get_now_time_second(
+					date_get_utc_offset() ) );
 
 			dictionary_set_pointer(
 				dictionary,

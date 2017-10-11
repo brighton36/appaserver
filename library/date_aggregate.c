@@ -26,7 +26,7 @@ void date_aggregate_set_yyyy_mm_dd( 	DATE_AGGREGATE *date_aggregate,
 	date_aggregate->new_date = 
 		date_new_yyyy_mm_dd_date(
 			date_yyyy_mm_dd,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	if ( date_aggregate->first_time )
 	{

@@ -236,12 +236,12 @@ int main( int argc, char **argv )
 		if ( ( expanded_date =
 			date_new_yyyy_mm_dd_date(
 				from_measurement_date,
-				HOURS_WEST_GMT ) ) )
+				date_get_utc_offset() ) ) )
 		{
 			date_decrement_days(
 				expanded_date,
 				DATE_EXPAND_PLUS_MINUS,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 
 			expanded_from_date_string =
 				date_get_yyyy_mm_dd_string(
@@ -253,12 +253,12 @@ int main( int argc, char **argv )
 		if ( ( expanded_date =
 			date_new_yyyy_mm_dd_date(
 				to_measurement_date,
-				HOURS_WEST_GMT ) ) )
+				date_get_utc_offset() ) ) )
 		{
 			date_increment_days(
 				expanded_date,
 				DATE_EXPAND_PLUS_MINUS,
-				HOURS_WEST_GMT );
+				date_get_utc_offset() );
 
 			expanded_to_date_string =
 				date_get_yyyy_mm_dd_string(

@@ -83,7 +83,7 @@ int annual_comparison_get_day_range(
 	*begin_date =
 		date_yyyy_mm_dd_new(
 			strdup( date_string ),
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	sprintf(date_string,
 		"%d-%s",
@@ -93,7 +93,7 @@ int annual_comparison_get_day_range(
 	end_date =
 		date_yyyy_mm_dd_new(
 			strdup( date_string ),
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	day_range = date_subtract_days( end_date, *begin_date ) + 1;
 
@@ -203,7 +203,7 @@ int annual_comparison_get_day_array_offset(
 	local_date =
 		date_yyyy_mm_dd_new(
 			date_yyyymmdd,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	sprintf( end_month_day,
 		 "%d-%d",
@@ -220,7 +220,7 @@ int annual_comparison_get_day_array_offset(
 	end_date =
 		date_yyyy_mm_dd_new(
 			date_string,
-			HOURS_WEST_GMT );
+			date_get_utc_offset() );
 
 	array_offset = date_subtract_days( end_date, begin_date );
 
@@ -255,7 +255,7 @@ void annual_comparison_output(
 				fflush( stdout );
 			}
 		}
-		date_increment( begin_date, HOURS_WEST_GMT );
+		date_increment( begin_date, date_get_utc_offset() );
 	}
 } /* annual_comparison_output() */
 

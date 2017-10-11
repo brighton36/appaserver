@@ -80,17 +80,22 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
+	environ_set_utc_offset( application_name );
+
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
+#ifdef NOT_DEFINED
 	/* ----------------------------------------------------- */
 	/* Appaserver runs in Apache's chroot jail.		 */
 	/* Virtual hosts have their own appaserver.config files. */
 	/* Therefore, ./appaserver.config needs to be found	 */
 	/* before /etc/appaserver.config.			 */
 	/* ----------------------------------------------------- */
+Not anymore. 2017-10-11
+#endif
 	environ_prepend_dot_to_path();
 
 	add_utility_to_path();

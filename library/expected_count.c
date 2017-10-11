@@ -154,9 +154,11 @@ EXPECTED_COUNT *expected_count_new_expected_count(
 	expected_count->expected_count_change_time_t =
 		date_yyyy_mm_dd_time_hhmm_to_time_t(
 			begin_measurement_date,
-			begin_measurement_time );
+			begin_measurement_time,
+			HOURS_WEST_GMT );
 
 	return expected_count;
+
 } /* expected_count_new_expected_count() */
 
 LIST *expected_count_get_expected_count_list(	char *application_name,

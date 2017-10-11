@@ -58,15 +58,21 @@ DATE *date_current_new(	time_t current,
 
 time_t date_yyyy_mm_dd_time_hhmm_to_time_t(
 			char *date_string,
-			char *time_string )
+			char *time_string,
+			int hours_west_gmt )
 {
 	DATE *date;
 	time_t current;
 
-	date = date_yyyy_mm_dd_hhmm_new( date_string, time_string );
+	date = date_yyyy_mm_dd_hhmm_new(
+		date_string,
+		time_string,
+		hours_west_gmt );
+
 	current = date->current;
 	date_free( date );
 	return current;
+
 } /* date_yyyy_mm_dd_time_hhmm_to_time_t() */
 
 DATE *date_time_new(	int year,
@@ -737,14 +743,14 @@ int date_minutes_between(	char *from_date_string,
 			from_date_string,
 			hours_west_gmt );
 
-	date_set_time_hhmm( from_date, from_time_string );
+	date_set_time_hhmm( from_date, from_time_string, hours_west_gmt );
 
 	to_date =
 		date_yyyy_mm_dd_new(
 			to_date_string,
 			hours_west_gmt );
 
-	date_set_time_hhmm( to_date, to_time_string );
+	date_set_time_hhmm( to_date, to_time_string, hours_west_gmt );
 
 	difference = to_date->current - from_date->current;
 
@@ -1420,14 +1426,19 @@ char *date_new_get_yyyy_mm_dd(	time_t current,
 }
 
 DATE *date_new_yyyy_mm_dd_hhmm(	char *date_string,
-				char *time_string )
+				char *time_string,
+				int hours_west_gmt )
 {
-	return date_yyyy_mm_dd_hhmm_new( date_string, time_string );
+	return date_yyyy_mm_dd_hhmm_new(
+		date_string,
+		time_string,
+		hours_west_gmt );
 }
 
-DATE *date_new_yyyy_mm_dd( char *date_string )
+DATE *date_new_yyyy_mm_dd(	char *date_string,
+				int hours_west_gmt )
 {
-	return date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
+	return date_yyyy_mm_dd_new( date_string, hours_west_gmt );
 }
 
 DATE *date_new_yyyy_mm_dd_date(	char *date_string,
@@ -1487,7 +1498,7 @@ DATE *date_forward_to_first_month(	DATE *d,
 	DATE *return_date;
 
 	return_date = date_back_to_first_month( d, hours_west_gmt );
-	date_increment_months( return_date, 1, HOURS_WEST_GMT );
+	date_increment_months( return_date, 1, hours_west_gmt );
 
 	return return_date;
 
@@ -1569,7 +1580,9 @@ DATE *date_get_prior_sunday(	DATE *date,
 	return date_get_prior_day( date, WDAY_SUNDAY, hours_west_gmt );
 }
 
-DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string )
+DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
+				char *time_string,
+				int hours_west_gmt )
 {
 	DATE *date;
 	int year, month, day, hour, minutes;
@@ -1590,15 +1603,17 @@ DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string )
 
 	minutes = atoi( buffer );
 
-	date = date_new( year, month, day, HOURS_WEST_GMT );
+	date = date_new( year, month, day, hours_west_gmt );
 
-	date_set_time( date, hour, minutes, HOURS_WEST_GMT );
+	date_set_time( date, hour, minutes, hours_west_gmt );
 
 	return date;
 
 } /* date_yyyy_mm_dd_hhmm_new() */
 
-int date_set_time_hhmm( DATE *date, char *hhmm )
+int date_set_time_hhmm(		DATE *date,
+				char *hhmm,
+				int hours_west_gmt )
 {
 	int hours, minutes;
 	char buffer[ 3 ];
@@ -1614,8 +1629,10 @@ int date_set_time_hhmm( DATE *date, char *hhmm )
 	*(buffer + 1) = *(hhmm + 3);
 	minutes = atoi( buffer );
 
-	date_set_time( date, hours, minutes, HOURS_WEST_GMT );
+	date_set_time( date, hours, minutes, hours_west_gmt );
+
 	return 1;
+
 } /* date_set_time_hhmm() */
 
 void date_increment_hours(	DATE *d,
@@ -2076,7 +2093,8 @@ char *date_remove_colon_from_time( char *time_string )
 
 } /* date_remove_colon_from_time() */
 
-int date_get_week_of_year( DATE *date )
+int date_get_week_of_year(	DATE *date,
+				int hours_west_gmt )
 {
 	char week_of_year_string[ 16 ];
 	int week_of_year;
@@ -2098,7 +2116,7 @@ int date_get_week_of_year( DATE *date )
 
 	year = date_get_year( date );
 
-	january_1st = date_new( year, 1, 1, HOURS_WEST_GMT );
+	january_1st = date_new( year, 1, 1, hours_west_gmt );
 
 	january_1st_sunday =
 		( date_get_day_of_week( january_1st ) == WDAY_SUNDAY );
@@ -2128,7 +2146,7 @@ int date_get_week_of_year( DATE *date )
 					year,
 					12,
 					23,
-					HOURS_WEST_GMT );
+					hours_west_gmt );
 
 			strftime(	week_of_year_string,
 					16,

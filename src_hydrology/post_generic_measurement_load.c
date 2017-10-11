@@ -638,7 +638,8 @@ enum event_parameter_return_value get_measurement_update_event_parameters(
 
 				date_set_time_hhmm(
 						measurement_date,
-						piece_buffer );
+						piece_buffer,
+						HOURS_WEST_GMT );
 
 				if ( begin_measurement_date->current == 0 )
 				{

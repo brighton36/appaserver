@@ -19,7 +19,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	d = date_new_yyyy_mm_dd( argv[ 1 ] );
+	d = date_new_yyyy_mm_dd( argv[ 1 ], HOURS_WEST_GMT );
 
 	date_grandfather_father_son( d );
 

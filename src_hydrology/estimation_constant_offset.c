@@ -144,12 +144,14 @@ int main( int argc, char **argv )
 	begin_date =
 		date_new_yyyy_mm_dd_hhmm(
 			begin_date_string,
-			begin_time_string );
+			begin_time_string,
+			HOURS_WEST_GMT );
 
 	end_date =
 		date_new_yyyy_mm_dd_hhmm(
 			end_date_string,
-			end_time_string );
+			end_time_string,
+			HOURS_WEST_GMT );
 
 	parameter_dictionary = 
 		dictionary_index_string2dictionary(
@@ -229,7 +231,8 @@ int main( int argc, char **argv )
 		measurement_date =
 			date_new_yyyy_mm_dd_hhmm(
 				measurement_date_string,
-				measurement_time_string );
+				measurement_time_string,
+				HOURS_WEST_GMT );
 
 		if ( !measurement_date )
 		{

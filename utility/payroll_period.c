@@ -307,7 +307,7 @@ int payroll_period_output_weekly_period( char *date_string )
 
 	d = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
 
-	period_number = date_get_week_of_year( d );
+	period_number = date_get_week_of_year( d, HOURS_WEST_GMT );
 
 	printf( "%s %d\n",
 		PAYROLL_PERIOD_NUMBER_LABEL,
@@ -376,7 +376,7 @@ boolean payroll_period_get_weekly_dates(
 
 	d = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
 
-	week_of_year = date_get_week_of_year( d );
+	week_of_year = date_get_week_of_year( d, HOURS_WEST_GMT );
 
 	while ( !all_done )
 	{
@@ -393,7 +393,7 @@ boolean payroll_period_get_weekly_dates(
 
 		date_increment_days( d, 1, HOURS_WEST_GMT );
 
-		week_of_year = date_get_week_of_year( d );
+		week_of_year = date_get_week_of_year( d, HOURS_WEST_GMT );
 
 		if ( period_number == 1 )
 		{
@@ -440,7 +440,7 @@ int payroll_period_output_biweekly_period( char *date_string )
 
 	d = date_yyyy_mm_dd_new( date_string, HOURS_WEST_GMT );
 
-	week_of_year = date_get_week_of_year( d );
+	week_of_year = date_get_week_of_year( d, HOURS_WEST_GMT );
 
 	period_number =
 		payroll_period_get_biweekly_period(
@@ -735,13 +735,13 @@ void payroll_period_prior( char *period )
 
 	if ( timlib_strcmp( period, "weekly" ) == 0 )
 	{
-		period_number = date_get_week_of_year( d );
+		period_number = date_get_week_of_year( d, HOURS_WEST_GMT );
 
 	}
 	else
 	if ( timlib_strcmp( period, "biweekly" ) == 0 )
 	{
-		week_of_year = date_get_week_of_year( d );
+		week_of_year = date_get_week_of_year( d, HOURS_WEST_GMT );
 
 		period_number =
 			payroll_period_get_biweekly_period(

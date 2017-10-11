@@ -183,10 +183,12 @@ char *date_get_yyyy_mm_dd_hh_mm_ss(
 DATE *date_new_yyyy_mm_dd_date( char *date_field,
 				int hours_west_gmt );
 
-DATE *date_new_yyyy_mm_dd(	char *date_field );
+DATE *date_new_yyyy_mm_dd(	char *date_field,
+				int hours_west_gmt );
 
 DATE *date_new_yyyy_mm_dd_hhmm(	char *date_string,
-				char *time_string );
+				char *time_string,
+				int hours_west_gmt );
 
 int date_set_yyyy_mm_dd(	DATE *date,
 				char *yyyy_mm_dd,
@@ -207,11 +209,15 @@ char *date_this_saturday_yyyy_mm_dd_string(
 char *date_new_get_yyyy_mm_dd(	time_t current,
 				int hours_west_gmt );
 
-int date_get_week_of_year( DATE *date );
+int date_get_week_of_year(	DATE *date,
+				int hours_west_gmt );
 
 void date_free( DATE *d );
 DATE *new_date( void );
-DATE *date_yyyy_mm_dd_hhmm_new( char *date_string, char *time_string );
+
+DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
+				char *time_string,
+				int hours_west_gmt );
 
 void date_set_time(		DATE *date,
 				int hour,
@@ -230,7 +236,11 @@ int date_get_month_number( DATE *date );
 int date_get_year_number( DATE *date );
 char *date_get_yyyy_mm_dd_string( DATE *date );
 int date_get_day_number( DATE *date );
-int date_set_time_hhmm( DATE *date, char *hhmm );
+
+int date_set_time_hhmm(			DATE *date,
+					char *hhmm,
+					int hours_west_gmt );
+
 int date_get_minutes_number( DATE *date );
 int date_get_hour_number( DATE *date );
 double date_yyyy_mm_dd_to_julian( char *yyyy_mm_dd );
@@ -319,7 +329,8 @@ char *date_get_day_of_week_yyyy_mm_dd(
 
 time_t date_yyyy_mm_dd_time_hhmm_to_time_t(
 				char *date_string,
-				char *time_string );
+				char *time_string,
+				int hours_west_gmt );
 
 void date_set_tm_structures(	DATE *d,
 				time_t current,

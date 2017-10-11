@@ -53,7 +53,7 @@ int main( int argc, char **argv )
 
 		date = date_yyyy_mm_dd_new( date_buffer, HOURS_WEST_GMT );
 
-		date_set_time_hhmm( date, time_buffer );
+		date_set_time_hhmm( date, time_buffer, HOURS_WEST_GMT );
 
 		date_round2five_minutes( date, HOURS_WEST_GMT );
 

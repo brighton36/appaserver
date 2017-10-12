@@ -668,11 +668,11 @@ void row_security_append_join_1tom_related_folder_list(
 		if ( !list_rewind( join_1tom_related_folder_list ) ) return;
 
 		do {
-			related_folder =
+		     related_folder =
 				list_get_pointer(
 					join_1tom_related_folder_list );
 
-			related_folder_populate_one2m_translation_dictionary(
+		     related_folder_populate_one2m_foreign_attribute_dictionary(
 				row_dictionary,
 				list_get_last_pointer(
 					related_folder->
@@ -680,7 +680,7 @@ void row_security_append_join_1tom_related_folder_list(
 						primary_attribute_name_list ),
 				related_folder->related_attribute_name );
 
-			row_security_set_dictionary_related_folder(
+		     row_security_set_dictionary_related_folder(
 				row_dictionary,
 				related_folder,
 				application_name,

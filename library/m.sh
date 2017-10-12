@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	make minutes_ticker.e
+	cd ../src_appaserver
+	make post_edit_table_form
 fi

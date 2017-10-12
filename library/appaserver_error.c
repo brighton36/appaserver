@@ -31,7 +31,7 @@ void appaserver_output_error_message(	char *application_name,
 		 	date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
 		 	date_get_now_hhmm( date_get_utc_offset() ),
 			login_name, message );
-	 }
+	}
 	else
 	{
 		fprintf(f,
@@ -42,6 +42,7 @@ void appaserver_output_error_message(	char *application_name,
 	}
 
 	fclose( f );
+
 } /* appaserver_output_error_message() */
 
 char *appaserver_get_error_filename( char *application_name )

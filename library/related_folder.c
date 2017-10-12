@@ -654,7 +654,7 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 	buf_ptr +=
 		sprintf(
 		buf_ptr,
-"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d, insert_permission = %d, update_permission = %d, lookup_permission = %d",
+"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d, insert_permission = %d, update_permission = %d, lookup_permission = %d, folder_foreign_attribute_name_list = %s",
 			folder->folder_name,
 			(related_folder->related_attribute_name)
 				? related_folder->related_attribute_name
@@ -672,7 +672,12 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 			folder->row_level_non_owner_forbid,
 			folder->insert_permission,
 			folder->update_permission,
-			folder->lookup_permission );
+			folder->lookup_permission,
+			(related_folder->folder_foreign_attribute_name_list)
+				? list_display(
+					related_folder->
+					    folder_foreign_attribute_name_list )
+				: "null" );
 
 	if ( list_length(
 		folder->
@@ -1482,7 +1487,15 @@ LIST *related_folder_get_1tom_related_folder_list(
 			role_name,
 			(LIST *)0 /* mto1_related_folder_list */ );
 
-		if ( !related_folder->one2m_related_folder->attribute_list)
+		related_folder->folder_foreign_attribute_name_list =
+			related_folder_fetch_folder_foreign_attribute_name_list(
+				application_name,
+				related_folder->
+					one2m_related_folder->
+						folder_name,
+				folder_name );
+
+		if ( !related_folder->one2m_related_folder->attribute_list )
 		{
 			related_folder->one2m_related_folder->attribute_list =
 				attribute_get_attribute_list(
@@ -1756,6 +1769,7 @@ LIST *related_folder_get_global_related_folder_list(
 				strdup( related_folder_name ),
 				strdup( related_attribute_name ) );
 
+/* here1 */
 		related_folder->folder_foreign_attribute_name_list =
 			related_folder_fetch_folder_foreign_attribute_name_list(
 				application_name,
@@ -1920,42 +1934,6 @@ LIST *related_folder_get_related_folder_list(
 
 } /* related_folder_get_related_folder_list() */
 
-#ifdef NOT_DEFINED
-boolean related_folder_exists_one2m_related_folder_list(
-					char *related_folder_name,
-					LIST *foreign_attribute_name_list,
-					LIST *existing_related_folder_list )
-{
-	RELATED_FOLDER *related_folder;
-	FOLDER *folder;
-
-	if ( list_rewind( existing_related_folder_list ) )
-	{
-		do {
-			related_folder =
-				list_get_pointer(
-					existing_related_folder_list );
-
-			folder = related_folder->one2m_related_folder;
-
-			if ( strcmp(	folder->folder_name,
-					related_folder_name ) == 0
-			&&   list_string_list_same(
-					related_folder->
-						foreign_attribute_name_list,
-					foreign_attribute_name_list ) )
-			{
-				return 1;
-			}
-
-		} while( list_next( existing_related_folder_list ) );
-	}
-
-	return 0;
-	
-} /* related_folder_exists_one2m_related_folder_list() */
-#endif
-
 boolean related_folder_exists_one2m_related_folder_list(
 					char *related_folder_name,
 					char *related_attribute_name,
@@ -1987,6 +1965,7 @@ boolean related_folder_exists_one2m_related_folder_list(
 	return 0;
 	
 } /* related_folder_exists_one2m_related_folder_list() */
+
 boolean related_folder_exists_related_folder_list(
 					char *related_folder_name,
 					char *related_attribute_name,
@@ -3459,14 +3438,13 @@ void related_folder_one2m_append_unique(
 			LIST *one2m_related_folder_list,
 			RELATED_FOLDER *related_folder )
 {
-/*
-	if ( !related_folder_exists_one2m_related_folder_list(
-			related_folder->
-				one2m_related_folder->
-				folder_name,
-			related_folder->foreign_attribute_name_list,
-			one2m_related_folder_list ) )
-*/
+	if ( list_length( related_folder->folder_foreign_attribute_name_list ) )
+	{
+		list_append_pointer(
+			one2m_related_folder_list,
+			related_folder );
+	}
+	else
 	if ( !related_folder_exists_one2m_related_folder_list(
 			related_folder->
 				one2m_related_folder->
@@ -3591,17 +3569,6 @@ RELATED_FOLDER *related_folder_get_view_only_related_folder(
 
 } /* related_folder_get_view_only_related_folder() */
 
-void related_folder_populate_one2m_translation_dictionary(
-			DICTIONARY *foreign_attribute_dictionary,
-			char *last_primary_attribute_name,
-			char *related_attribute_name )
-{
-	related_folder_populate_one2m_foreign_attribute_dictionary(
-			foreign_attribute_dictionary,
-			last_primary_attribute_name,
-			related_attribute_name );
-}
-
 void related_folder_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			char *last_primary_attribute_name,
@@ -3644,21 +3611,38 @@ void related_folder_populate_one2m_foreign_attribute_dictionary(
 void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			char *last_primary_attribute_name,
-			LIST *related_folder_list )
+			LIST *one2m_recursive_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
 
-	if ( !list_rewind( related_folder_list ) ) return;
+	if ( !list_rewind( one2m_recursive_related_folder_list ) ) return;
 
 	do {
-		related_folder = list_get_pointer( related_folder_list );
+		related_folder =
+			list_get_pointer(
+				one2m_recursive_related_folder_list );
+
+/* here1 */
+		if ( list_length(
+			related_folder->
+				folder_foreign_attribute_name_list ) )
+		{
+			related_populate_folder_foreign_attribute_dictionary(
+				foreign_attribute_dictionary,
+				related_folder->
+					folder_foreign_attribute_name_list,
+				related_folder->
+					one2m_related_folder->
+					primary_attribute_name_list );
+			continue;
+		}
 
 		related_folder_populate_one2m_foreign_attribute_dictionary(
 			foreign_attribute_dictionary,
 			last_primary_attribute_name,
 			related_folder->related_attribute_name );
 
-	} while( list_next( related_folder_list ) );
+	} while( list_next( one2m_recursive_related_folder_list ) );
 
 } /* related_folder_list_populate_one2m_foreign_attribute_dictionary() */
 
@@ -3891,7 +3875,6 @@ LIST *related_folder_fetch_folder_foreign_attribute_name_list(
 
 } /* related_folder_fetch_folder_foreign_attribute_name_list() */
 
-
 void related_folder_mark_ignore_multi_attribute_primary_keys(
 				LIST *mto1_related_folder_list )
 {
@@ -3911,4 +3894,51 @@ void related_folder_mark_ignore_multi_attribute_primary_keys(
 	} while( list_next( mto1_related_folder_list ) );
 
 } /* related_folder_mark_ignore_multi_attribute_primary_keys() */
+
+void related_populate_folder_foreign_attribute_dictionary(
+				DICTIONARY *foreign_attribute_dictionary,
+				LIST *folder_foreign_attribute_name_list,
+				LIST *primary_attribute_name_list )
+{
+	char *foreign_attribute_name;
+	char *primary_attribute_name;
+
+	if ( !list_length( folder_foreign_attribute_name_list ) )
+		return;
+
+	if ( list_length( folder_foreign_attribute_name_list ) !=
+	     list_length( primary_attribute_name_list ) )
+	{
+		fprintf( stderr,
+	    "ERROR in %s/%s()/%d: list lengths are not the same: %d vs %d.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 list_length( folder_foreign_attribute_name_list ),
+	     		 list_length( primary_attribute_name_list ) );
+		exit( 1 );
+	}
+
+	list_rewind( folder_foreign_attribute_name_list );
+	list_rewind( primary_attribute_name_list );
+
+	do {
+		foreign_attribute_name =
+			list_get_pointer( 
+				folder_foreign_attribute_name_list );
+
+		primary_attribute_name =
+			list_get_pointer( 
+				primary_attribute_name_list );
+
+		dictionary_set_pointer(
+			foreign_attribute_dictionary,
+			foreign_attribute_name,
+			primary_attribute_name );
+
+		list_next( primary_attribute_name_list );
+
+	} while( list_next( folder_foreign_attribute_name_list ) );
+
+} /* related_populate_folder_foreign_attribute_dictionary() */
 

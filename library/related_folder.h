@@ -493,15 +493,10 @@ void related_folder_populate_one2m_foreign_attribute_dictionary(
 			char *last_primary_attribute_name,
 			char *related_attribute_name );
 
-void related_folder_populate_one2m_translation_dictionary(
-			DICTIONARY *foreign_attribute_dictionary,
-			char *last_primary_attribute_name,
-			char *related_attribute_name );
-
 void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			char *last_primary_attribute_name,
-			LIST *related_folder_list );
+			LIST *one2m_recursive_related_folder_list );
 
 void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
@@ -527,5 +522,10 @@ LIST *related_folder_fetch_folder_foreign_attribute_record_list(
 
 void related_folder_mark_ignore_multi_attribute_primary_keys(
 			LIST *mto1_related_folder_list );
+
+void related_populate_folder_foreign_attribute_dictionary(
+			DICTIONARY *foreign_attribute_dictionary,
+			LIST *folder_foreign_attribute_name_list,
+			LIST *primary_attribute_name_list );
 
 #endif

@@ -879,18 +879,6 @@ LIST *folder_get_data_list(	char *application_name,
 			common_non_primary_process,
 			escape_delimiter_process );
 
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: sys_string = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-m2( application_name, msg );
-}
-*/
-
 	return pipe2list( sys_string );
 
 } /* folder_get_data_list() */

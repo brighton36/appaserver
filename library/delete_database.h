@@ -1,4 +1,4 @@
-/* library/delete_database.h						*/
+/* $APPASERVER_HOME/library/delete_database.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver delete_database ADT.				*/
 /*									*/

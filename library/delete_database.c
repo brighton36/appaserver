@@ -1,4 +1,4 @@
-/* library/delete_database.c						*/
+/* $APPASERVER_HOME/library/delete_database.c				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver delete_database ADT.				*/
 /*									*/
@@ -134,11 +134,11 @@ LIST *delete_database_get_delete_folder_list(
 			delete_row->primary_attribute_data_list );
 	}
 
-	if ( list_length( folder->one2m_related_folder_list ) )
+	if ( list_length( folder->one2m_recursive_related_folder_list ) )
 	{
 		delete_database_append_one2m_related_folder_list(
 			delete_folder_list,
-			folder->one2m_related_folder_list,
+			folder->one2m_recursive_related_folder_list,
 			application_name,
 			delete_row->primary_attribute_data_list,
 			login_name );
@@ -960,10 +960,6 @@ void delete_database_append_null_1tom_delete_folder_list(
 			one2m_related_post_change_process,
 			one2m_related_primary_attribute_name_list );
 
-/*
-	delete_folder->update_null_attribute_name_list =
-			foreign_attribute_name_list;
-*/
 	delete_folder->update_null_attribute_name_list =
 		delete_database_get_update_null_attribute_name_list(
 			foreign_attribute_name_list,
@@ -1031,7 +1027,6 @@ void delete_database_append_one2m_related_folder_list(
 			LIST *primary_attribute_data_list,
 			char *login_name )
 {
-	char *folder_name;
 	RELATED_FOLDER *related_folder;
 
 	if ( !list_rewind( one2m_related_folder_list ) ) return;
@@ -1039,15 +1034,14 @@ void delete_database_append_one2m_related_folder_list(
 	do {
 		related_folder = list_get( one2m_related_folder_list );
 
-		folder_name = related_folder->
-				one2m_related_folder->
-				folder_name;
-
+/*
 		if ( ! ( related_folder->one2m_related_folder =
 				folder_with_load_new(
 					application_name,
 					BOGUS_SESSION, 
-					folder_name,
+					related_folder->
+						one2m_related_folder->
+						folder_name,
 					(ROLE *)0 ) ) )
 		{
 			fprintf( stderr,
@@ -1058,9 +1052,36 @@ void delete_database_append_one2m_related_folder_list(
 				 folder_name );
 			continue;
 		}
+*/
 
+		/* ------------------------ */
 		/* If null_1tom_upon_delete */
 		/* ------------------------ */
+		if ( !related_folder->is_primary_key_subset
+		&&   list_length(
+			related_folder->
+			folder_foreign_attribute_name_list ) )
+		{
+			delete_database_append_null_1tom_delete_folder_list(
+				delete_folder_list,
+				application_name,
+				related_folder->
+					one2m_related_folder->
+					folder_name,
+				related_folder->
+					one2m_related_folder->
+					post_change_process,
+				related_folder->
+					one2m_related_folder->
+					primary_attribute_name_list,
+				related_folder->
+					folder_foreign_attribute_name_list,
+				primary_attribute_data_list,
+				login_name );
+
+			continue;
+		}
+		else
 		if ( !related_folder->is_primary_key_subset )
 		{
 			delete_database_append_null_1tom_delete_folder_list(

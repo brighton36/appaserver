@@ -3232,3 +3232,38 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 
 } /* appaserver_library_get_update_lookup_attribute_element_list() */
 
+char *appaserver_library_get_folder_foreign_translation(
+			char *attribute_name,
+			LIST *folder_foreign_attribute_name_list,
+			DICTIONARY *foreign_attribute_dictionary )
+{
+	char *folder_foreign_attribute_name;
+	char *check_attribute_name;
+
+	if ( !list_rewind( folder_foreign_attribute_name_list ) )
+		return (char *)0;
+
+	do {
+		folder_foreign_attribute_name =
+			list_get_pointer(
+				folder_foreign_attribute_name_list );
+
+		if ( ! ( check_attribute_name =
+				dictionary_fetch(
+					foreign_attribute_dictionary,
+					folder_foreign_attribute_name ) ) )
+		{
+			continue;
+		}
+
+		if ( strcmp( check_attribute_name, attribute_name ) != 0 )
+			continue;
+
+		return folder_foreign_attribute_name;
+
+	} while( list_next( folder_foreign_attribute_name_list ) );
+
+	return (char *)0;
+
+} /* appaserver_library_get_folder_foreign_translation() */
+

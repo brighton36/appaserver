@@ -116,6 +116,7 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
+	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 
 	appaserver_output_starting_argv_append_file(
@@ -125,7 +126,6 @@ int main( int argc, char **argv )
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
-	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
 	if ( strcmp( state, "insert" ) != 0 )

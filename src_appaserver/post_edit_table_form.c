@@ -194,6 +194,7 @@ int main( int argc, char **argv )
 			application_name );
 	}
 
+	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 
 	appaserver_output_starting_argv_append_file(
@@ -203,7 +204,6 @@ int main( int argc, char **argv )
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
-	add_src_appaserver_to_path();
 	add_local_bin_to_path();
 	add_relative_source_directory_to_path( application_name );
 
@@ -957,16 +957,6 @@ int post_state_update_for_folder(
 			dictionary_appaserver->row_dictionary,
 			file_dictionary );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got foreign_attribute_dictionary = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( update_database->foreign_attribute_dictionary ) );
-m2( application_name, msg );
-}
-
 	update_database->update_row_list =
 		update_database_get_update_row_list(
 			update_database->row_dictionary,
@@ -976,6 +966,7 @@ m2( application_name, msg );
 			update_database->
 				foreign_attribute_dictionary );
 
+/*
 {
 char msg[ 65536 ];
 sprintf( msg, "%s/%s()/%d: got update_row_list = (%s)\n",
@@ -985,6 +976,7 @@ __LINE__,
 update_database_update_row_list_display( update_database->update_row_list ) );
 m2( application_name, msg );
 }
+*/
 
 	columns_updated =
 		update_database_get_columns_updated(

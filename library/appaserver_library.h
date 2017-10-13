@@ -471,4 +471,9 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 					char *on_focus_javascript_function,
 					boolean is_primary_attribute );
 
+char *appaserver_library_get_folder_foreign_translation(
+			char *attribute_name,
+			LIST *folder_foreign_attribute_name_list,
+			DICTIONARY *foreign_attribute_dictionary );
+
 #endif

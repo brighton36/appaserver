@@ -234,7 +234,6 @@ void environ_set_utc_offset( char *application_name )
 	char *utc_offset;
 
 	application_constants = application_constants_new();
-
 	application_constants->dictionary =
 		application_constants_get_dictionary(
 			application_name );
@@ -247,6 +246,14 @@ void environ_set_utc_offset( char *application_name )
 		environ_set_environment(
 			"UTC_OFFSET",
 			utc_offset );
+	}
+	else
+	{
+		fprintf( stderr,
+	"Warning in %s/%s/%d: APPLICATION_CONSTANTS=utc_offset not found.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 	}
 
 } /* environ_set_utc_offset() */

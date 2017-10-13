@@ -1,4 +1,4 @@
-/* library/update_database.c						*/
+/* $APPASERVER_HOME/library/update_database.c				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver update_database ADT.				*/
 /*									*/
@@ -149,6 +149,35 @@ WHERE_ATTRIBUTE *update_database_where_attribute_new(
 	where_attribute->data = data;
 	return where_attribute;
 } /* update_database_where_attribute_new() */
+
+CHANGED_ATTRIBUTE *update_database_get_folder_foreign(
+			char *folder_name,
+			char *attribute_name,
+			char *datatype,
+			char *old_data,
+			char *new_data,
+			LIST *folder_foreign_attribute_name_list,
+			DICTIONARY *foreign_attribute_dictionary )
+{
+	char *folder_foreign_attribute_name;
+
+	if ( ( folder_foreign_attribute_name =
+		appaserver_library_get_folder_foreign_translation(
+			attribute_name,
+			folder_foreign_attribute_name_list,
+			foreign_attribute_dictionary ) ) )
+	{
+		return update_database_changed_attribute_new(
+				folder_name,
+				folder_foreign_attribute_name,
+				datatype,
+				old_data,
+				new_data );
+	}
+
+	return (CHANGED_ATTRIBUTE *)0;
+
+} /* update_database_get_folder_foreign() */
 
 CHANGED_ATTRIBUTE *update_database_changed_attribute_new(
 			char *folder_name,
@@ -378,7 +407,7 @@ UPDATE_ROW *update_database_get_update_row(
 			DICTIONARY *foreign_attribute_dictionary )
 {
 	UPDATE_ROW *update_row;
-	LIST *update_folder_list;
+	UPDATE_FOLDER *update_folder;
 	boolean changed_key = 0;
 	LIST *include_attribute_name_list;
 	LIST *additional_unique_index_attribute_name_list;
@@ -391,8 +420,8 @@ UPDATE_ROW *update_database_get_update_row(
 		attribute_get_attribute_name_list(
 			folder->attribute_list );
 
-	update_folder_list =
-		update_database_get_update_folder_list(
+	update_folder =
+		update_database_get_update_folder(
 			&changed_key,
 			row,
 			row_dictionary,
@@ -402,12 +431,14 @@ UPDATE_ROW *update_database_get_update_row(
 			include_attribute_name_list,
 			exclude_attribute_name_list,
 			foreign_attribute_dictionary,
-			additional_unique_index_attribute_name_list );
+			additional_unique_index_attribute_name_list,
+			(LIST *)0 /* folder_foreign_attribute_name_list */ );
 
-	if ( !list_length( update_folder_list ) ) return (UPDATE_ROW *)0;
+	if ( !update_folder ) return (UPDATE_ROW *)0;
 
 	update_row = update_database_update_row_new( row );
-	update_row->update_folder_list = update_folder_list;
+	update_row->update_folder_list = list_new();
+	list_append_pointer( update_row->update_folder_list, update_folder );
 	update_row->changed_key = changed_key;
 
 	if ( update_row->changed_key
@@ -415,6 +446,7 @@ UPDATE_ROW *update_database_get_update_row(
 	{
 		update_database_set_one2m_related_folder_list(
 			update_row->update_folder_list,
+			&update_row->changed_key,
 			folder->one2m_recursive_related_folder_list,
 			row,
 			row_dictionary,
@@ -427,7 +459,7 @@ UPDATE_ROW *update_database_get_update_row(
 
 } /* update_database_get_update_row() */
 
-LIST *update_database_get_update_folder_list(
+UPDATE_FOLDER *update_database_get_update_folder(
 			boolean *changed_key,
 			int row,
 			DICTIONARY *row_dictionary,
@@ -437,9 +469,9 @@ LIST *update_database_get_update_folder_list(
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
 			DICTIONARY *foreign_attribute_dictionary,
-			LIST *additional_unique_index_attribute_name_list )
+			LIST *additional_unique_index_attribute_name_list,
+			LIST *folder_foreign_attribute_name_list )
 {
-	LIST *update_folder_list;
 	UPDATE_FOLDER *update_folder;
 	LIST *changed_attribute_list;
 	LIST *where_attribute_name_list;
@@ -455,11 +487,10 @@ LIST *update_database_get_update_folder_list(
 			foreign_attribute_dictionary,
 			include_attribute_name_list,
 			exclude_attribute_name_list,
-			additional_unique_index_attribute_name_list );
+			additional_unique_index_attribute_name_list,
+			folder_foreign_attribute_name_list );
 
-	if ( !changed_attribute_list ) return (LIST *)0;
-
-	update_folder_list = list_new();
+	if ( !changed_attribute_list ) return (UPDATE_FOLDER *)0;
 
 	update_folder =
 		update_database_update_folder_new(
@@ -473,27 +504,41 @@ LIST *update_database_get_update_folder_list(
 	update_folder->primary_attribute_name_list =
 		folder->primary_attribute_name_list;
 
-	if ( list_length( foreign_attribute_name_list ) )
-		where_attribute_name_list =
-			foreign_attribute_name_list;
+	if ( *changed_key
+	&&   list_length( folder_foreign_attribute_name_list ) )
+	{
+		update_folder->where_attribute_list =
+			update_database_get_folder_foreign_where_attribute_list(
+				file_dictionary,
+				foreign_attribute_name_list,
+				row,
+				foreign_attribute_dictionary,
+				folder->application_name,
+				folder->folder_name,
+				folder_foreign_attribute_name_list );
+	}
 	else
-		where_attribute_name_list =
-			folder->primary_attribute_name_list;
+	{
+		if ( list_length( foreign_attribute_name_list ) )
+			where_attribute_name_list =
+				foreign_attribute_name_list;
+		else
+			where_attribute_name_list =
+				update_folder->primary_attribute_name_list;
 
-	update_folder->where_attribute_list =
-		update_database_get_where_attribute_list(
-			file_dictionary,
-			where_attribute_name_list,
-			row,
-			foreign_attribute_dictionary,
-			folder->application_name,
-			folder->folder_name );
+		update_folder->where_attribute_list =
+			update_database_get_where_attribute_list(
+				file_dictionary,
+				where_attribute_name_list,
+				row,
+				foreign_attribute_dictionary,
+				folder->application_name,
+				folder->folder_name );
+	}
 
-	list_append_pointer( update_folder_list, update_folder );
+	return update_folder;
 
-	return update_folder_list;
-
-} /* update_database_get_update_folder_list() */
+} /* update_database_get_update_folder() */
 
 LIST *update_database_get_changed_attribute_name_list(
 			LIST *changed_attribute_list )
@@ -516,6 +561,119 @@ LIST *update_database_get_changed_attribute_name_list(
 	return changed_attribute_name_list;
 
 } /* update_database_get_changed_attribute_name_list() */
+
+LIST *update_database_get_folder_foreign_where_attribute_list(
+			DICTIONARY *file_dictionary,
+			LIST *foreign_attribute_name_list,
+			int row,
+			DICTIONARY *foreign_attribute_dictionary,
+			char *application_name,
+			char *folder_name,
+			LIST *folder_foreign_attribute_name_list )
+{
+	char *where_attribute_name;
+	char *file_attribute_name;
+	char *data;
+	LIST *where_attribute_list;
+	WHERE_ATTRIBUTE *where_attribute;
+
+	if ( !file_dictionary )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: no file_dictionary\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( foreign_attribute_name_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: no foreign_attribute_name_list\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	where_attribute_list = list_new_list();
+
+	do {
+		file_attribute_name =
+			list_get_pointer(
+				foreign_attribute_name_list );
+
+		data = (char *)0;
+
+		dictionary_get_index_data(
+			&data,
+			file_dictionary,
+			file_attribute_name,
+			row );
+
+		if ( !data || !*data )
+		{
+			char message[ 1024 ];
+
+			sprintf( message,
+"ERROR in %s/%s()/%d: with folder_name = (%s), cannot find data for file_attribute_name = (%s) in file_dictionary = (%s).",
+				 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+				folder_name,
+				file_attribute_name,
+				dictionary_display(
+				       file_dictionary ) );
+
+			appaserver_output_error_message(
+				application_name,
+				message,
+				(char *)0 /* login_name */ );
+
+			exit( 0 );
+		}
+
+		if ( ! ( where_attribute_name =
+			   appaserver_library_get_folder_foreign_translation(
+				file_attribute_name,
+				folder_foreign_attribute_name_list,
+				foreign_attribute_dictionary ) ) )
+		{
+			char message[ 1024 ];
+
+			sprintf( message,
+"ERROR in %s/%s()/%d: with folder_name = (%s), cannot find where_attribute_name for file_attribute_name = (%s) in foreign_attribute_dictionary = (%s).",
+				 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+				folder_name,
+				file_attribute_name,
+				dictionary_display(
+				       foreign_attribute_dictionary ) );
+
+			appaserver_output_error_message(
+				application_name,
+				message,
+				(char *)0 /* login_name */ );
+
+			exit( 0 );
+		}
+
+		where_attribute =
+			update_database_where_attribute_new(
+				where_attribute_name,
+				data );
+
+		list_append_pointer(
+			where_attribute_list,
+			where_attribute );
+
+	} while( list_next( foreign_attribute_name_list ) );
+
+	return where_attribute_list;
+
+} /* update_database_get_folder_foreign_where_attribute_list() */
 
 LIST *update_database_get_where_attribute_list(
 			DICTIONARY *file_dictionary,
@@ -667,7 +825,8 @@ LIST *update_database_get_changed_attribute_list(
 			DICTIONARY *foreign_attribute_dictionary,
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
-			LIST *additional_unique_index_attribute_name_list )
+			LIST *additional_unique_index_attribute_name_list,
+			LIST *folder_foreign_attribute_name_list )
 {
 	ATTRIBUTE *attribute;
 	LIST *changed_attribute_list = {0};
@@ -715,19 +874,40 @@ LIST *update_database_get_changed_attribute_list(
 			}
 
 			if ( !changed_attribute_list )
+			{
 				changed_attribute_list = list_new_list();
+			}
 
-			changed_attribute =
-				update_database_changed_attribute_new(
+			if ( *changed_key
+			&&   list_length( folder_foreign_attribute_name_list ) )
+			{
+				changed_attribute =
+					update_database_get_folder_foreign(
+					     folder_name,
+					     attribute->attribute_name,
+					     attribute->datatype,
+					     old_data,
+					     new_data,
+					     folder_foreign_attribute_name_list,
+					     foreign_attribute_dictionary );
+			}
+			else
+			{
+				changed_attribute =
+					update_database_changed_attribute_new(
 						folder_name,
 						attribute->attribute_name,
 						attribute->datatype,
 						old_data,
 						new_data );
+			}
 
-			list_append_pointer(
-				changed_attribute_list,
-				changed_attribute );
+			if ( changed_attribute )
+			{
+				list_append_pointer(
+					changed_attribute_list,
+					changed_attribute );
+			}
 
 			if ( attribute->primary_key_index ) *changed_key = 1;
 		}
@@ -1195,6 +1375,7 @@ boolean update_database_get_dictionary_index_data(
 
 void update_database_set_one2m_related_folder_list(
 			LIST *update_folder_list,
+			boolean *changed_key,
 			LIST *one2m_recursive_related_folder_list,
 			int row,
 			DICTIONARY *row_dictionary,
@@ -1204,8 +1385,7 @@ void update_database_set_one2m_related_folder_list(
 {
 	RELATED_FOLDER *related_folder;
 	LIST *include_attribute_name_list;
-	LIST *local_update_folder_list;
-	boolean changed_key = 0;
+	UPDATE_FOLDER *update_folder;
 
 	if ( !list_rewind( one2m_recursive_related_folder_list ) ) return;
 
@@ -1219,9 +1399,9 @@ void update_database_set_one2m_related_folder_list(
 				related_folder->
 					foreign_attribute_name_list );
 
-		local_update_folder_list =
-			update_database_get_update_folder_list(
-				&changed_key,
+		update_folder =
+			update_database_get_update_folder(
+				changed_key,
 				row,
 				row_dictionary,
 				file_dictionary,
@@ -1231,13 +1411,15 @@ void update_database_set_one2m_related_folder_list(
 				exclude_attribute_name_list,
 				foreign_attribute_dictionary,
 				(LIST *)0
-				/* additional_unique_attribute_name_list */ );
+				/* additional_unique_attribute_name_list */,
+				related_folder->
+					folder_foreign_attribute_name_list );
 
-		if ( list_length( local_update_folder_list ) )
+		if ( update_folder )
 		{
-			list_append_list(
+			list_append_pointer(
 				update_folder_list,
-				local_update_folder_list );
+				update_folder );
 		}
 
 	} while( list_next( one2m_recursive_related_folder_list ) );

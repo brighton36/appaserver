@@ -1,4 +1,4 @@
-/* library/update_database.h						*/
+/* $APPASERVER_HOME/library/update_database.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver update_database ADT.				*/
 /*									*/
@@ -79,7 +79,7 @@ UPDATE_DATABASE *update_database_new(
 			DICTIONARY *row_dictionary,
 			DICTIONARY *file_dictionary );
 
-LIST *update_database_get_update_folder_list(
+UPDATE_FOLDER *update_database_get_update_folder(
 			boolean *changed_key,
 			int row,
 			DICTIONARY *row_dictionary,
@@ -89,7 +89,8 @@ LIST *update_database_get_update_folder_list(
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
 			DICTIONARY *foreign_attribute_dictionary,
-			LIST *additional_unique_index_attribute_name_list );
+			LIST *additional_unique_index_attribute_name_list,
+			LIST *folder_foreign_attribute_name_list );
 
 LIST *update_database_get_update_row_list(
 			DICTIONARY *row_dictionary,
@@ -234,7 +235,8 @@ LIST *update_database_get_changed_attribute_list(
 			DICTIONARY *foreign_attribute_dictionary,
 			LIST *include_attribute_name_list,
 			LIST *exclude_attribute_name_list,
-			LIST *additional_unique_index_attribute_name_list );
+			LIST *additional_unique_index_attribute_name_list,
+			LIST *folder_foreign_attribute_name_list );
 
 char *update_database_execute(
 			char *application_name,
@@ -261,6 +263,7 @@ void update_database_set_each_mto1_isa_one2m_related_folder_list(
 
 void update_database_set_one2m_related_folder_list(
 			LIST *update_folder_list,
+			boolean *changed_key,
 			LIST *one2m_related_folder_list,
 			int row,
 			DICTIONARY *row_dictionary,
@@ -304,5 +307,23 @@ LIST *update_database_get_changed_folder_name_list(
 
 LIST *update_database_get_changed_attribute_name_list(
 			LIST *changed_attribute_list );
+
+CHANGED_ATTRIBUTE *update_database_get_folder_foreign(
+			char *folder_name,
+			char *attribute_name,
+			char *datatype,
+			char *old_data,
+			char *new_data,
+			LIST *folder_foreign_attribute_name_list,
+			DICTIONARY *foreign_attribute_dictionary );
+
+LIST *update_database_get_folder_foreign_where_attribute_list(
+			DICTIONARY *file_dictionary,
+			LIST *foreign_attribute_name_list,
+			int row,
+			DICTIONARY *foreign_attribute_dictionary,
+			char *application_name,
+			char *folder_name,
+			LIST *folder_foreign_attribute_name_list );
 
 #endif

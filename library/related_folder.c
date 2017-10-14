@@ -1565,29 +1565,6 @@ LIST *related_folder_get_1tom_related_folder_list(
 						attribute_list );
 		}
 
-/*
-if ( strcmp( related_folder->one2m_related_folder->folder_name, "customer_sale" ) == 0 )
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: for folder = customer_sale: got base_folder_attribute_list = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-attribute_list_display( related_folder->folder->attribute_list ) );
-m2( application_name, msg );
-}
-		if ( related_folder_is_one2one_firewall(
-			related_folder->foreign_attribute_name_list,
-			related_folder->folder->attribute_list ) )
-		{
-			continue;
-		}
-*/
-
-		related_folder->
-			primary_data_list =
-				primary_data_list;
-
 		related_folder->parent_primary_attribute_name_list =
 			parent_primary_attribute_name_list;
 
@@ -1610,6 +1587,17 @@ m2( application_name, msg );
 						related_attribute_name );
 		}
 
+		if ( related_folder_is_one2one_firewall(
+			related_folder->foreign_attribute_name_list,
+			related_folder->one2m_related_folder->attribute_list ) )
+		{
+			continue;
+		}
+
+		related_folder->
+			primary_data_list =
+				primary_data_list;
+
 		if ( list_length(
 			related_folder->folder_foreign_attribute_name_list ) )
 		{
@@ -1617,19 +1605,6 @@ m2( application_name, msg );
 		}
 		else
 		{
-/*
-if ( strcmp( related_folder->one2m_related_folder->folder_name, "customer_sale" ) == 0 )
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: for folder = customer_sale: got foreign_attribute_name_list = (%s), primary_attribute_name_list = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_display( related_folder->foreign_attribute_name_list ),
-list_display( related_folder->one2m_related_folder->primary_attribute_name_list ) );
-m2( application_name, msg );
-}
-*/
 			related_folder->is_primary_key_subset =
 				list_is_subset_of(
 					related_folder->

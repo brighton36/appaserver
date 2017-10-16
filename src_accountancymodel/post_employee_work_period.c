@@ -55,11 +55,11 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	boolean delete;
 	char *begin_work_date = {0};
 	char *end_work_date = {0};
 	int payroll_year = 0;
 	int payroll_period_number = 0;
+	boolean delete;
 	boolean with_html;
 	boolean execute;
 	char title[ 128 ];
@@ -71,7 +71,7 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application process delete_yn payroll_year period_number withhtml_yn execute_yn\n",
+"Usage: %s application process payroll_year period_number delete_yn withhtml_yn execute_yn\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
 "Note: if payroll_year and period_number are missing, then the prior period will be posted.\n" );
@@ -100,9 +100,9 @@ int main( int argc, char **argv )
 				application_name );
 
 	process_name = argv[ 2 ];
-	delete = (*argv[ 3 ] == 'y');
-	payroll_year = atoi( argv[ 4 ] );
-	payroll_period_number = atoi( argv[ 5 ] );
+	payroll_year = atoi( argv[ 3 ] );
+	payroll_period_number = atoi( argv[ 4 ] );
+	delete = (*argv[ 5 ] == 'y');
 	with_html = (*argv[ 6 ] == 'y');
 	execute = (*argv[ 7 ] == 'y');
 

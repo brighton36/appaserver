@@ -84,6 +84,7 @@ typedef struct
 	double state_unemployment_tax_rate;
 	double state_unemployment_threshold_rate;
 	double withholding_allowance_period_value;
+	double state_sales_tax_rate;
 } ENTITY_SELF;
 
 /* Operations */

@@ -1150,10 +1150,6 @@ double customer_sale_get_tax_rate(
 			char *full_name,
 			char *street_address )
 {
-	char sys_string[ 1024 ];
-	char *where;
-	char *select;
-	char *results;
 	ENTITY *entity_customer;
 	ENTITY_SELF *self;
 
@@ -1189,6 +1185,9 @@ double customer_sale_get_tax_rate(
 		return 0.0;
 	}
 
+	return self->state_sales_tax_rate;
+
+/*
 	select = "application_constant_value";
 	where = "application_constant = 'sales_tax_rate'";
 
@@ -1204,6 +1203,7 @@ double customer_sale_get_tax_rate(
 	if ( ! ( results = pipe2string( sys_string ) ) ) return 0.0;
 
 	return atof( results );
+*/
 
 } /* customer_sale_get_tax_rate() */
 

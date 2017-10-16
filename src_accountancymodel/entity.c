@@ -135,7 +135,6 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 				&self->entity->zip_code,
 				&self->entity->phone_number,
 				&self->entity->email_address,
-				&self->entity->sales_tax_exempt,
 				application_name,
 				self->entity->full_name,
 				self->entity->street_address ) )
@@ -196,7 +195,6 @@ boolean entity_load(	char **unit,
 			char **zip_code,
 			char **phone_number,
 			char **email_address,
-			boolean *sales_tax_exempt,
 			char *application_name,
 			char *full_name,
 			char *street_address )
@@ -208,7 +206,7 @@ boolean entity_load(	char **unit,
 	char buffer[ 128 ];
 
 	select =
-"unit,city,state_code,zip_code,phone_number,email_address,sales_tax_exempt_yn";
+"unit,city,state_code,zip_code,phone_number,email_address";
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -246,9 +244,6 @@ boolean entity_load(	char **unit,
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 5 );
 	*email_address = strdup( buffer );
-
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 6 );
-	*sales_tax_exempt = (*buffer == 'y');
 
 	free( results );
 

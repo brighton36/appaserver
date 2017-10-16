@@ -3763,13 +3763,17 @@ boolean related_folder_is_one2one_firewall(
 					attribute_list,
 					attribute_name ) ) )
 		{
+			continue;
+/*
 			fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot seek attribute_name = (%s)\n",
+		"ERROR in %s/%s()/%d: cannot seek attribute_name = (%s) in attribute_list = (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
-				 attribute_name );
+				 attribute_name,
+				 attribute_list_display( attribute_list ) );
 			exit( 1 );
+*/
 		}
 
 		if ( attribute->omit_insert && attribute->omit_update )

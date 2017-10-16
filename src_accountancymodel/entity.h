@@ -51,7 +51,6 @@ typedef struct
 	char *zip_code;
 	char *phone_number;
 	char *email_address;
-	boolean sales_tax_exempt;
 	LIST *depreciable_fixed_asset_purchase_list;
 	double depreciation_amount;
 	TRANSACTION *depreciation_transaction;
@@ -109,7 +108,6 @@ boolean entity_load(			char **unit,
 					char **zip_code,
 					char **phone_number,
 					char **email_address,
-					boolean *sales_tax_exempt,
 					char *application_name,
 					char *full_name,
 					char *street_address );

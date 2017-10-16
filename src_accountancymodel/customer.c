@@ -1163,7 +1163,6 @@ double customer_sale_get_tax_rate(
 				&entity_customer->zip_code,
 				&entity_customer->phone_number,
 				&entity_customer->email_address,
-				&entity_customer->sales_tax_exempt,
 				application_name,
 				entity_customer->full_name,
 				entity_customer->street_address ) )
@@ -1178,7 +1177,10 @@ double customer_sale_get_tax_rate(
 		exit( 1 );
 	}
 
-	if ( entity_customer->sales_tax_exempt
+	if ( customer_fetch_sales_tax_exempt(
+					application_name,
+					entity_customer->full_name,
+					entity_customer->street_address )
 	||   timlib_strcmp(	entity_customer->state_code,
 				self->entity->state_code ) != 0 )
 	{
@@ -1686,6 +1688,50 @@ char *customer_get_completed_sale_date_time(
 
 } /* customer_get_completed_sale_date_time() */
  
+boolean customer_fetch_sales_tax_exempt(
+				char *application_name,
+				char *full_name,
+				char *street_address )
+{
+
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char entity_buffer[ 128 ];
+	char *results;
+
+	sprintf( where,
+		 "full_name = '%s' and street_address = '%s'",
+		 escape_character(	entity_buffer,
+					full_name,
+					'\'' ),
+		 street_address );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=sales_tax_exempt_yn	"
+		 "			folder=customer			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( !results )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot fetch customer = (%s/%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 full_name,
+			 street_address );
+		exit( 1 );
+	}
+
+	return (*results == 'y');
+
+} /* customer_fetch_sales_tax_exempt() */
+
 char *customer_sale_fetch_transaction_date_time(
 				char *application_name,
 				char *full_name,

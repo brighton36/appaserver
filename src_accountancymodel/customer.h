@@ -641,5 +641,10 @@ void customer_propagate_customer_sale_ledger_accounts(
 				char *fund_name,
 				char *customer_sale_transaction_date_time );
 
+boolean customer_fetch_sales_tax_exempt(
+					char *application_name,
+					char *full_name,
+					char *street_address );
+
 #endif
 

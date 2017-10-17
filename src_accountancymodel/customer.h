@@ -646,5 +646,14 @@ boolean customer_fetch_sales_tax_exempt(
 					char *full_name,
 					char *street_address );
 
+LIST *customer_sale_fetch_commission_list(
+				char *application_name,
+				char *begin_work_date,
+				char *end_work_date,
+				char *sales_representative_full_name,
+				char *sales_representative_street_address,
+				char *representative_full_name_attribute,
+				char *representative_street_address_attribute );
+
 #endif
 

@@ -62,6 +62,88 @@ SERVICE_WORK *customer_service_work_new( char *begin_date_time )
 
 } /* customer_service_work_new() */
 
+LIST *customer_sale_fetch_commission_list(
+				char *application_name,
+				char *begin_work_date,
+				char *end_work_date,
+				char *sales_representative_full_name,
+				char *sales_representative_street_address,
+				char *representative_full_name_attribute,
+				char *representative_street_address_attribute )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+	char where[ 512 ];
+	char input_buffer[ 1024 ];
+	char entity_buffer[ 128 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char sale_date_time[ 128 ];
+	FILE *input_pipe;
+	LIST *customer_sale_list;
+	char end_sale_date_time[ 32 ];
+	CUSTOMER_SALE *customer_sale;
+
+	select = "full_name,street_address,sale_date_time";
+
+	folder = "customer_sale";
+
+	sprintf( end_sale_date_time,
+		 "%s 23:59:59",
+		 (end_work_date)
+			? end_work_date
+			: "2999-12-31" );
+
+	sprintf( where,
+		 "%s = '%s' and			"
+		 "%s = '%s' and			"
+		 "sale_date_time >= '%s' and	"
+		 "sale_date_time <= '%s'	", 
+		 representative_full_name_attribute,
+		 escape_character(	entity_buffer,
+					sales_representative_full_name,
+					'\'' ),
+		 representative_street_address_attribute,
+		 sales_representative_street_address,
+		 begin_work_date,
+		 end_sale_date_time );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+	customer_sale_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		piece( sale_date_time, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+
+		customer_sale =
+			customer_sale_new(
+				application_name,
+				strdup( full_name ),
+				strdup( street_address ),
+				strdup( sale_date_time ) );
+
+		list_append_pointer(	customer_sale_list,
+					customer_sale );
+	}
+
+	pclose( input_pipe );
+	return customer_sale_list;
+
+} /* customer_sale_fetch_commission_list() */
+
 CUSTOMER_SALE *customer_sale_new(	char *application_name,
 					char *full_name,
 					char *street_address,

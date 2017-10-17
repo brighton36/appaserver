@@ -15,6 +15,7 @@
 #include "date.h"
 #include "column.h"
 #include "employee.h"
+#include "customer.h"
 
 LIST *employee_fetch_work_period_list(	char *application_name,
 					char *full_name,
@@ -35,7 +36,7 @@ LIST *employee_fetch_work_period_list(	char *application_name,
 	FILE *input_pipe;
 
 	select =
-"payroll_year,payroll_period_number,begin_work_date,end_work_date,employee_work_hours,gross_pay,federal_tax_withholding_amount,state_tax_withholding_amount,social_security_employee_tax_amount,social_security_employer_tax_amount,medicare_employee_tax_amout,medicare_employer_tax_amount,retirement_contribution_plan_employee_amount,retirement_contribution_plan_employer_amount,health_insurance_employee_amount,health_insurance_employer_amount,federal_unemployment_tax_amount,state_unemployment_tax_amount,union_dues_amount,transaction_date_time";
+"payroll_year,payroll_period_number,begin_work_date,end_work_date,employee_work_hours,commission_sum_extension,gross_pay,federal_tax_withholding_amount,state_tax_withholding_amount,social_security_employee_tax_amount,social_security_employer_tax_amount,medicare_employee_tax_amout,medicare_employer_tax_amount,retirement_contribution_plan_employee_amount,retirement_contribution_plan_employer_amount,health_insurance_employee_amount,health_insurance_employer_amount,federal_unemployment_tax_amount,state_unemployment_tax_amount,union_dues_amount,transaction_date_time";
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -106,88 +107,93 @@ LIST *employee_fetch_work_period_list(	char *application_name,
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 		if ( *piece_buffer )
-			employee_work_period->gross_pay =
+			employee_work_period->commission_sum_extension =
 				atof( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+		if ( *piece_buffer )
+			employee_work_period->gross_pay =
+				atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
 		if ( *piece_buffer )
 			employee_work_period->
 				federal_tax_withholding_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
 		if ( *piece_buffer )
 			employee_work_period->
 				state_tax_withholding_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
 		if ( *piece_buffer )
 			employee_work_period->
 				social_security_employee_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
 		if ( *piece_buffer )
 			employee_work_period->
 				social_security_employer_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
 		if ( *piece_buffer )
 			employee_work_period->
 				medicare_employee_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
 		if ( *piece_buffer )
 			employee_work_period->
 				medicare_employer_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
 		if ( *piece_buffer )
 			employee_work_period->
 				retirement_contribution_plan_employee_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
 		if ( *piece_buffer )
 			employee_work_period->
 				retirement_contribution_plan_employer_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
 		if ( *piece_buffer )
 			employee_work_period->
 				health_insurance_employee_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 16 );
 		if ( *piece_buffer )
 			employee_work_period->
 				health_insurance_employer_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 16 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 17 );
 		if ( *piece_buffer )
 			employee_work_period->
 				federal_unemployment_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 17 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 18 );
 		if ( *piece_buffer )
 			employee_work_period->
 				state_unemployment_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 18 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 19 );
 		if ( *piece_buffer )
 			employee_work_period->
 				union_dues_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 19 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 20 );
 		if ( *piece_buffer )
 		{
 			employee_work_period->
@@ -279,20 +285,17 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-
 		employee_work_day =
 			employee_work_day_new(
 				strdup( piece_buffer )
 					/* begin_work_date_time */ );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-
 		if ( *piece_buffer )
 			employee_work_day->end_work_date_time =
 				strdup( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
-
 		if ( *piece_buffer )
 		{
 			employee_work_day->database_employee_work_hours =
@@ -454,6 +457,7 @@ EMPLOYEE *employee_with_load_new(	char *application_name,
 		&e->union_dues_period_amount,
 		&e->employee_work_day_list,
 		&e->employee_work_period_list,
+		&e->customer_sale_list,
 		application_name,
 		full_name,
 		street_address,
@@ -490,6 +494,7 @@ boolean employee_load(
 		int *union_dues_period_amount,
 		LIST **employee_work_day_list,
 		LIST **employee_work_period_list,
+		LIST **customer_sale_list,
 		char *application_name,
 		char *full_name,
 		char *street_address,
@@ -502,6 +507,8 @@ boolean employee_load(
 	char *results;
 	char buffer[ 512 ];
 	char piece_buffer[ 128 ];
+	char *representative_full_name_attribute = "mechanic_full_name";
+	char *representative_street_name_attribute = "mechanic_street_address";
 
 	select =
 "hourly_wage,period_salary,commission_sum_extension_percent,gross_pay_year_to_date,marital_status,withholding_allowances,withholding_additional_period_amount,retirement_contribution_plan_employee_period_amount,retirement_contribution_plan_employer_period_amount,health_insurance_employee_period_amount,health_insurance_employer_period_amount,union_dues_period_amount";
@@ -600,6 +607,17 @@ boolean employee_load(
 			street_address,
 			begin_work_date,
 			end_work_date );
+
+	*customer_sale_list =
+		customer_sale_fetch_commission_list(
+			application_name,
+			begin_work_date,
+			end_work_date,
+			full_name /* sales_representative_full_name */,
+			street_address
+				/* sales_representative_street_address */,
+			representative_full_name_attribute,
+			representative_street_name_attribute );
 
 	return 1;
 
@@ -744,7 +762,7 @@ EMPLOYEE_WORK_DAY *employee_work_day_seek(
 
 } /* employee_work_day_seek() */
 
-LIST *employee_get_list(	char *application_name,
+LIST *employee_fetch_list(	char *application_name,
 				char *begin_work_date,
 				char *end_work_date )
 {
@@ -795,7 +813,7 @@ LIST *employee_get_list(	char *application_name,
 
 	return employee_list;
 
-} /* employee_get_list() */
+} /* employee_fetch_list() */
 
 boolean employee_get_payroll_begin_end_work_dates(
 					char **payroll_begin_work_date,
@@ -956,6 +974,7 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 	payroll_posting->employee_work_period_list =
 		employee_posting_calculate_work_period_list(
 			&payroll_posting->employee_work_hours,
+			&payroll_posting->commission_sum_extension,
 			&payroll_posting->gross_pay,
 			&payroll_posting->federal_tax_withholding_amount,
 			&payroll_posting->state_tax_withholding_amount,
@@ -985,6 +1004,7 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 
 LIST *employee_posting_calculate_work_period_list(
 			double *employee_work_hours,
+			double *commission_sum_extension,
 			double *gross_pay,
 			double *federal_tax_withholding_amount,
 			double *state_tax_withholding_amount,
@@ -1019,23 +1039,8 @@ LIST *employee_posting_calculate_work_period_list(
 
 		employee_work_period =
 			employee_get_work_period(
-			  employee_work_hours,
-			  gross_pay,
-			  federal_tax_withholding_amount,
-			  state_tax_withholding_amount,
-			  social_security_employee_tax_amount,
-			  social_security_employer_tax_amount,
-			  medicare_employee_tax_amount,
-			  medicare_employer_tax_amount,
-			  retirement_contribution_plan_employee_amount,
-			  retirement_contribution_plan_employer_amount,
-			  health_insurance_employee_amount,
-			  health_insurance_employer_amount,
-			  federal_unemployment_tax_amount,
-			  state_unemployment_tax_amount,
-			  union_dues_amount,
-			  &employee->gross_pay_year_to_date,
 			  employee->employee_work_day_list,
+			  employee->customer_sale_list,
 			  employee->hourly_wage,
 			  employee->period_salary,
 			  employee->commission_sum_extension_percent,
@@ -1068,11 +1073,98 @@ LIST *employee_posting_calculate_work_period_list(
 			employee_work_period_list,
 			employee_work_period );
 
+		*employee_work_hours +=
+			employee_work_period->
+				employee_work_hours;
+
+		*commission_sum_extension +=
+			employee_work_period->
+				commission_sum_extension;
+
+		*gross_pay +=
+			employee_work_period->
+				gross_pay;
+
+		*federal_tax_withholding_amount +=
+			employee_work_period->
+				federal_tax_withholding_amount;
+
+		*state_tax_withholding_amount +=
+			employee_work_period->
+				state_tax_withholding_amount;
+
+		*social_security_employee_tax_amount +=
+			employee_work_period->
+				social_security_employee_tax_amount;
+
+		*social_security_employer_tax_amount +=
+			employee_work_period->
+				social_security_employer_tax_amount;
+
+		*medicare_employee_tax_amount +=
+			employee_work_period->
+				medicare_employee_tax_amount;
+
+		*medicare_employer_tax_amount +=
+			employee_work_period->
+				medicare_employer_tax_amount;
+
+		*retirement_contribution_plan_employee_amount +=
+			employee_work_period->
+				retirement_contribution_plan_employee_amount;
+
+		*retirement_contribution_plan_employer_amount +=
+			employee_work_period->
+				retirement_contribution_plan_employer_amount;
+
+		*health_insurance_employee_amount +=
+			employee_work_period->
+				health_insurance_employee_amount;
+
+		*health_insurance_employer_amount +=
+			employee_work_period->
+				health_insurance_employer_amount;
+
+		*federal_unemployment_tax_amount +=
+			employee_work_period->
+				federal_unemployment_tax_amount;
+
+		*state_unemployment_tax_amount +=
+			employee_work_period->
+				state_unemployment_tax_amount;
+
+		*union_dues_amount +=
+			employee_work_period->
+				union_dues_amount;
+
 	} while( list_next( employee_list ) );
 
 	return employee_work_period_list;
 
 } /* employee_posting_calculate_work_period_list() */
+
+double employee_calculate_commission_sum_extension(
+			LIST *customer_sale_list )
+{
+	CUSTOMER_SALE *customer_sale;
+	double commission_sum_extension;
+
+	if ( !list_rewind( customer_sale_list ) ) return 0.0;
+
+	commission_sum_extension = 0.0;
+
+	do {
+		customer_sale = list_get_pointer( customer_sale_list );
+
+		commission_sum_extension +=
+			customer_sale->
+				sum_extension;
+
+	} while( list_next( customer_sale_list ) );
+
+	return commission_sum_extension;
+
+} /* employee_calculate_commission_sum_extension() */
 
 double employee_calculate_employee_work_hours(
 			LIST *employee_work_day_list )
@@ -1096,23 +1188,8 @@ double employee_calculate_employee_work_hours(
 } /* employee_calculate_employee_work_hours() */
 
 EMPLOYEE_WORK_PERIOD *employee_get_work_period(
-		double *employee_work_hours,
-		double *gross_pay,
-		double *federal_tax_withholding_amount,
-		double *state_tax_withholding_amount,
-		double *social_security_employee_tax_amount,
-		double *social_security_employer_tax_amount,
-		double *medicare_employee_tax_amount,
-		double *medicare_employer_tax_amount,
-		int *retirement_contribution_plan_employee_amount,
-		int *retirement_contribution_plan_employer_amount,
-		int *health_insurance_employee_amount,
-		int *health_insurance_employer_amount,
-		double *federal_unemployment_tax_amount,
-		double *state_unemployment_tax_amount,
-		int *union_dues_amount,
-		double *gross_pay_year_to_date,
 		LIST *employee_work_day_list,
+		LIST *customer_sale_list,
 		double hourly_wage,
 		double period_salary,
 		double commission_sum_extension_percent,
@@ -1144,12 +1221,20 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 	employee_work_period->begin_work_date = begin_work_date;
 	employee_work_period->end_work_date = end_work_date;
 
+	/* employee_work_hours */
+	/* ------------------- */
 	employee_work_period->employee_work_hours =
 		employee_calculate_employee_work_hours(
 			employee_work_day_list );
 
-	*employee_work_hours += employee_work_period->employee_work_hours;
+	/* commission_sum_extension */
+	/* ------------------------ */
+	employee_work_period->commission_sum_extension =
+		employee_calculate_commission_sum_extension(
+			customer_sale_list );
 
+	/* gross_pay */
+	/* --------- */
 	if ( hourly_wage )
 	{
 		employee_work_period->gross_pay =
@@ -1161,6 +1246,22 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 	{
 		employee_work_period->gross_pay += period_salary;
 	}
+
+	if ( employee_work_period->commission_sum_extension
+	&&   commission_sum_extension_percent )
+	{
+		double commission_sum_extension_ratio;
+
+		commission_sum_extension_ratio =
+			commission_sum_extension_percent / 100.0;
+
+		employee_work_period->gross_pay +=
+			employee_work_period->commission_sum_extension *
+			commission_sum_extension_ratio;
+	}
+
+	/* federal_tax_withholding_amount */
+	/* ------------------------------ */
 
 	return employee_work_period;
 

@@ -36,6 +36,7 @@ typedef struct
 	char *begin_work_date;
 	char *end_work_date;
 	double employee_work_hours;
+	double commission_sum_extension;
 	double gross_pay;
 	double federal_tax_withholding_amount;
 	double state_tax_withholding_amount;
@@ -61,6 +62,7 @@ typedef struct
 	char *begin_work_date;
 	char *end_work_date;
 	double employee_work_hours;
+	double commission_sum_extension;
 	double gross_pay;
 	double federal_tax_withholding_amount;
 	double state_tax_withholding_amount;
@@ -106,6 +108,7 @@ typedef struct
 	char *terminated_date;
 	LIST *employee_work_day_list;
 	LIST *employee_work_period_list;
+	LIST *customer_sale_list;
 } EMPLOYEE;
 
 /* Operations */
@@ -135,6 +138,7 @@ boolean employee_load(
 		int *union_dues_period_amount,
 		LIST **employee_work_day_list,
 		LIST **employee_work_period_list,
+		LIST **customer_sale_list,
 		char *application_name,
 		char *full_name,
 		char *street_address,
@@ -186,7 +190,7 @@ EMPLOYEE_WORK_DAY *employee_work_day_seek(
 					LIST *employee_work_day_list,
 					char *begin_work_date_time );
 
-LIST *employee_get_list(		char *application_name,
+LIST *employee_fetch_list(		char *application_name,
 					char *begin_work_date,
 					char *end_work_date );
 
@@ -219,6 +223,7 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 
 LIST *employee_posting_calculate_work_period_list(
 			double *employee_work_hours,
+			double *commission_sum_extension,
 			double *gross_pay,
 			double *federal_tax_withholding_amount,
 			double *state_tax_withholding_amount,
@@ -241,23 +246,8 @@ LIST *employee_posting_calculate_work_period_list(
 			ENTITY_SELF *self );
 
 EMPLOYEE_WORK_PERIOD *employee_get_work_period(
-			double *employee_work_hours,
-			double *gross_pay,
-			double *federal_tax_withholding_amount,
-			double *state_tax_withholding_amount,
-			double *social_security_employee_tax_amount,
-			double *social_security_employer_tax_amount,
-			double *medicare_employee_tax_amount,
-			double *medicare_employer_tax_amount,
-			int *retirement_contribution_plan_employee_amount,
-			int *retirement_contribution_plan_employer_amount,
-			int *health_insurance_employee_amount,
-			int *health_insurance_employer_amount,
-			double *federal_unemployment_tax_amount,
-			double *state_unemployment_tax_amount,
-			int *union_dues_amount,
-			double *gross_pay_year_to_date,
 			LIST *employee_work_day_list,
+			LIST *customer_sale_list,
 			double hourly_wage,
 			double period_salary,
 			double commission_sum_extension_percent,
@@ -288,6 +278,9 @@ void employee_update(	char *application_name,
 
 double employee_calculate_employee_work_hours(
 			LIST *employee_work_day_list );
+
+double employee_calculate_commission_sum_extension(
+			LIST *customer_sale_list );
 
 #endif
 

@@ -146,7 +146,7 @@ int main( int argc, char **argv )
 	}
 
 	self->employee_list =
-		employee_get_list(
+		employee_fetch_list(
 			application_name,
 			begin_work_date,
 			end_work_date );
@@ -212,7 +212,7 @@ void post_employee_work_period(
 			char *end_work_date,
 			ENTITY_SELF *self )
 {
-	PAYROLL_POSTING *payroll_posting = {0};
+	PAYROLL_POSTING *payroll_posting;
 
 	payroll_posting =
 		employee_get_payroll_posting(

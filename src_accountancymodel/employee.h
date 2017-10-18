@@ -15,6 +15,10 @@
 
 /* Enumerated types */
 /* ---------------- */
+enum marital_status{		marital_status_single,
+				marital_status_married,
+				marital_status_married_but_single_rate,
+				marital_status_not_set };
 
 /* Constants */
 /* --------- */
@@ -27,6 +31,14 @@
 
 /* Structures */
 /* ---------- */
+typedef struct
+{
+	int income_over;
+	int income_not_over;
+	double tax_fixed_amount;
+	double tax_percentage_amount;
+} EMPLOYEE_INCOME_TAX_WITHHOLDING;
+
 typedef struct
 {
 	char *full_name;
@@ -97,7 +109,7 @@ typedef struct
 	double commission_sum_extension_percent;
 	double gross_pay_year_to_date;
 	double database_gross_pay_year_to_date;
-	char *marital_status;
+	enum marital_status marital_status;
 	int withholding_allowances;
 	int withholding_additional_period_amount;
 	int retirement_contribution_plan_employee_period_amount;
@@ -128,7 +140,7 @@ boolean employee_load(
 		double *commission_sum_extension_percent,
 		double *gross_pay_year_to_date,
 		double *database_gross_pay_year_to_date,
-		char **marital_status,
+		enum marital_status *marital_status,
 		int *withholding_allowances,
 		int *withholding_additional_period_amount,
 		int *retirement_contribution_plan_employee_period_amount,
@@ -251,7 +263,7 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			double hourly_wage,
 			double period_salary,
 			double commission_sum_extension_percent,
-			char *marital_status,
+			enum marital_status,
 			int withholding_allowances,
 			int withholding_additional_period_amount,
 			int retirement_contribution_plan_employee_period_amount,
@@ -270,17 +282,36 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 char *employee_update_get_sys_string(
 				char *application_name );
 
-void employee_update(	char *application_name,
-			char *full_name,
-			char *street_address,
-			double gross_pay_year_to_date,
-			double database_gross_pay_year_to_date );
+void employee_update(		char *application_name,
+				char *full_name,
+				char *street_address,
+				double gross_pay_year_to_date,
+				double database_gross_pay_year_to_date );
 
 double employee_calculate_employee_work_hours(
-			LIST *employee_work_day_list );
+				LIST *employee_work_day_list );
 
 double employee_calculate_commission_sum_extension(
-			LIST *customer_sale_list );
+				LIST *customer_sale_list );
+
+enum marital_status employee_get_marital_status(	
+				char *marital_status_string );
+
+double employee_calculate_amount_subject_to_withholding(
+				double gross_pay,
+				int withholding_allowances,
+				double withholding_allowance_period_value );
+
+LIST *employee_fetch_income_tax_withholding_list(
+				char *application_name,
+				char *status /* single or married */ );
+
+EMPLOYEE_INCOME_TAX_WITHHOLDING *employee_income_tax_withholding_new(
+				int income_over );
+
+double employee_get_federal_tax_withholding_amount(
+				double amount_subject_to_withholding,
+				LIST *tax_withholding_list );
 
 #endif
 

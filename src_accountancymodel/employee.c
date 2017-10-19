@@ -981,6 +981,7 @@ PAYROLL_POSTING *employee_payroll_posting_new(
 
 PAYROLL_POSTING *employee_get_payroll_posting(
 					LIST *employee_list,
+					char *application_name,
 					int payroll_year,
 					int payroll_period_number,
 					char *begin_work_date,
@@ -1017,6 +1018,7 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 			&payroll_posting->state_unemployment_tax_amount,
 			&payroll_posting->union_dues_amount,
 			employee_list,
+			application_name,
 			payroll_year,
 			payroll_period_number,
 			begin_work_date,
@@ -1045,6 +1047,7 @@ LIST *employee_posting_calculate_work_period_list(
 			double *state_unemployment_tax_amount,
 			int *union_dues_amount,
 			LIST *employee_list,
+			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
 			char *begin_work_date,
@@ -1064,6 +1067,7 @@ LIST *employee_posting_calculate_work_period_list(
 
 		employee_work_period =
 			employee_get_work_period(
+			  application_name,
 			  employee->employee_work_day_list,
 			  employee->customer_sale_list,
 			  employee->hourly_wage,
@@ -1212,7 +1216,253 @@ double employee_calculate_employee_work_hours(
 
 } /* employee_calculate_employee_work_hours() */
 
+EMPLOYEE_INCOME_TAX_WITHHOLDING *employee_income_tax_withholding_new(
+					int income_over )
+{
+	EMPLOYEE_INCOME_TAX_WITHHOLDING *e;
+
+	if ( ! ( e = calloc( 1, sizeof( EMPLOYEE_INCOME_TAX_WITHHOLDING ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	e->income_over = income_over;
+	return e;
+
+} /* employee_income_tax_withholding_new() */
+
+LIST *employee_fetch_federal_income_tax_withholding_list(
+				char *application_name,
+				char *status /* single or married */ )
+{
+	char folder_name[ 128 ];
+	char *select;
+	char *order;
+	LIST *tax_withholding_list;
+	char sys_string[ 1024 ];
+	FILE *input_pipe;
+	char input_buffer[ 512 ];
+	char piece_buffer[ 128 ];
+	EMPLOYEE_INCOME_TAX_WITHHOLDING *e;
+
+	select =
+"income_over,income_not_over,tax_fixed_amount,tax_percentage_amount";
+
+	sprintf( folder_name,
+		 "federal_income_tax_withholding_%s",
+		 status );
+
+	order = "income_over";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=%s		"
+		 "			order=%s		",
+		 application_name,
+		 select,
+		 folder_name,
+		 order );
+
+	input_pipe = popen( sys_string, "r" );
+
+	tax_withholding_list = list_new();
+
+	while( timlib_get_line( input_buffer, input_pipe, 512 ) )
+	{
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+
+		e = employee_income_tax_withholding_new( atoi( piece_buffer ) );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		e->income_not_over = atoi( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+		e->tax_fixed_amount = atoi( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+		e->tax_percentage_amount = atoi( piece_buffer );
+
+		list_append_pointer( tax_withholding_list, e );
+	}
+
+	pclose( input_pipe );
+	return tax_withholding_list;
+
+} /* employee_fetch_federal_income_tax_withholding_list() */
+
+double employee_calculate_amount_subject_to_withholding(
+				double gross_pay,
+				int withholding_allowances,
+				double withholding_allowance_period_value )
+{
+	double amount_subject_to_withholding;
+
+	amount_subject_to_withholding =
+		gross_pay -
+		( (double)withholding_allowances *
+		  withholding_allowance_period_value );
+
+	return amount_subject_to_withholding;
+
+} /* employee_calculate_amount_subject_to_withholding() */
+
+double employee_get_federal_tax_withholding_amount(
+				double amount_subject_to_withholding,
+				LIST *tax_withholding_list )
+{
+	EMPLOYEE_INCOME_TAX_WITHHOLDING *e;
+	double excess_over;
+	double withholding_amount = 0.0;
+
+	if ( !list_rewind( tax_withholding_list ) ) return 0.0;
+
+	e = list_get_first_pointer( tax_withholding_list );
+
+	if ( amount_subject_to_withholding <= (double)e->income_over )
+		return 0.0;
+
+	do {
+		e = list_get_pointer( tax_withholding_list );
+
+		if ( !e->income_not_over
+		|| ( ( amount_subject_to_withholding > (double)e->income_over
+		&&     amount_subject_to_withholding <=
+			(double)e->income_not_over ) ) )
+		{
+			excess_over =	amount_subject_to_withholding -
+					(double)e->income_over;
+
+			withholding_amount =
+				e->tax_fixed_amount +
+				( excess_over *
+				( e->tax_percentage_amount / 100.0 ) );
+
+			return withholding_amount;
+		}
+
+	} while( list_next( tax_withholding_list ) );
+
+	return 0.0;
+
+} /* employee_get_federal_tax_withholding_amount() */
+
+double employee_calculate_federal_tax_withholding_amount(
+				char *application_name,
+				enum marital_status marital_status,
+				int withholding_allowances,
+				double withholding_allowance_period_value,
+				double gross_pay )
+{
+	double amount_subject_to_withholding;
+	double federal_tax_withholding_amount;
+	static LIST *single_tax_withholding_list = {0};
+	static LIST *married_tax_withholding_list = {0};
+
+	if ( !single_tax_withholding_list )
+	{
+		single_tax_withholding_list =
+			employee_fetch_federal_income_tax_withholding_list(
+				application_name,
+				"single" );
+
+		married_tax_withholding_list =
+			employee_fetch_federal_income_tax_withholding_list(
+				application_name,
+				"married" );
+
+	}
+
+	amount_subject_to_withholding =
+		employee_calculate_amount_subject_to_withholding(
+			gross_pay,
+			withholding_allowances,
+			withholding_allowance_period_value );
+
+	if ( marital_status == marital_status_single
+	||   marital_status == marital_status_married_but_single_rate
+	||   marital_status == marital_status_not_set )
+	{
+		federal_tax_withholding_amount =
+			employee_get_federal_tax_withholding_amount(
+				amount_subject_to_withholding,
+				single_tax_withholding_list );
+	}
+	else
+	{
+		federal_tax_withholding_amount =
+			employee_get_federal_tax_withholding_amount(
+				amount_subject_to_withholding,
+				married_tax_withholding_list );
+	}
+
+
+	return federal_tax_withholding_amount;
+
+} /* employee_calculate_federal_tax_withholding_amount() */
+
+double employee_calculate_state_tax_withholding_amount(
+				char *application_name,
+				enum marital_status marital_status,
+				int withholding_allowances,
+				double withholding_allowance_period_value,
+				double gross_pay )
+{
+	double state_tax_withholding_amount = 0.0;
+/*
+	double amount_subject_to_withholding;
+	static LIST *single_tax_withholding_list = {0};
+	static LIST *married_tax_withholding_list = {0};
+
+	if ( !single_tax_withholding_list )
+	{
+		single_tax_withholding_list =
+			employee_fetch_state_income_tax_withholding_list(
+				application_name,
+				"single" );
+
+		married_tax_withholding_list =
+			employee_fetch_state_income_tax_withholding_list(
+				application_name,
+				"married" );
+
+	}
+
+	amount_subject_to_withholding =
+		employee_calculate_amount_subject_to_withholding(
+			gross_pay,
+			withholding_allowances,
+			withholding_allowance_period_value );
+
+	if ( marital_status == marital_status_single
+	||   marital_status == marital_status_married_but_single_rate
+	||   marital_status == marital_status_not_set )
+	{
+		state_tax_withholding_amount =
+			employee_get_state_tax_withholding_amount(
+				amount_subject_to_withholding,
+				single_tax_withholding_list );
+	}
+	else
+	{
+		state_tax_withholding_amount =
+			employee_get_state_tax_withholding_amount(
+				amount_subject_to_withholding,
+				married_tax_withholding_list );
+	}
+*/
+
+	return state_tax_withholding_amount;
+
+} /* employee_calculate_state_tax_withholding_amount() */
+
 EMPLOYEE_WORK_PERIOD *employee_get_work_period(
+		char *application_name,
 		LIST *employee_work_day_list,
 		LIST *customer_sale_list,
 		double hourly_wage,
@@ -1287,198 +1537,25 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 
 	/* federal_tax_withholding_amount */
 	/* ------------------------------ */
+	employee_work_period->federal_tax_withholding_amount =
+		employee_calculate_federal_tax_withholding_amount(
+			application_name,
+			marital_status,
+			withholding_allowances,
+			self->withholding_allowance_period_value,
+			employee_work_period->gross_pay );
+
+	/* state_tax_withholding_amount */
+	/* ---------------------------- */
+	employee_work_period->state_tax_withholding_amount =
+		employee_calculate_state_tax_withholding_amount(
+			application_name,
+			marital_status,
+			withholding_allowances,
+			self->withholding_allowance_period_value,
+			employee_work_period->gross_pay );
 
 	return employee_work_period;
 
 } /* employee_get_work_period() */
-
-EMPLOYEE_INCOME_TAX_WITHHOLDING *employee_income_tax_withholding_new(
-					int income_over )
-{
-	EMPLOYEE_INCOME_TAX_WITHHOLDING *e;
-
-	if ( ! ( e = calloc( 1, sizeof( EMPLOYEE_INCOME_TAX_WITHHOLDING ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	e->income_over = income_over;
-	return e;
-
-} /* employee_income_tax_withholding_new() */
-
-LIST *employee_fetch_income_tax_withholding_list(
-				char *application_name,
-				char *status /* single or married */ )
-{
-	char folder_name[ 128 ];
-	char *select;
-	char *order;
-	LIST *tax_withholding_list;
-	char sys_string[ 1024 ];
-	FILE *input_pipe;
-	char input_buffer[ 512 ];
-	char piece_buffer[ 128 ];
-	EMPLOYEE_INCOME_TAX_WITHHOLDING *e;
-
-	select =
-"income_over,income_not_over,tax_fixed_amount,tax_percentage_amount";
-
-	sprintf( folder_name,
-		 "income_tax_withholding_%s",
-		 status );
-
-	order = "income_over";
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=%s		"
-		 "			folder=%s		"
-		 "			order=%s		",
-		 application_name,
-		 select,
-		 folder_name,
-		 order );
-
-	input_pipe = popen( sys_string, "r" );
-
-	tax_withholding_list = list_new();
-
-	while( timlib_get_line( input_buffer, input_pipe, 512 ) )
-	{
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-
-		e = employee_income_tax_withholding_new( atoi( piece_buffer ) );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-		e->income_not_over = atoi( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
-		e->tax_fixed_amount = atoi( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
-		e->tax_percentage_amount = atoi( piece_buffer );
-
-		list_append_pointer( tax_withholding_list, e );
-	}
-
-	pclose( input_pipe );
-	return tax_withholding_list;
-
-} /* employee_fetch_income_tax_withholding_list() */
-
-double employee_calculate_amount_subject_to_withholding(
-				double gross_pay,
-				int withholding_allowances,
-				double withholding_allowance_period_value )
-{
-	double amount_subject_to_withholding;
-
-	amount_subject_to_withholding =
-		gross_pay -
-		( (double)withholding_allowances *
-		  withholding_allowance_period_value );
-
-	return amount_subject_to_withholding;
-
-} /* employee_calculate_amount_subject_to_withholding() */
-
-double employee_get_federal_tax_withholding_amount(
-				double amount_subject_to_withholding,
-				LIST *tax_withholding_list )
-{
-	EMPLOYEE_INCOME_TAX_WITHHOLDING *e;
-	double excess_over;
-	double withholding_amount = 0.0;
-
-	if ( !list_rewind( tax_withholding_list ) ) return 0.0;
-
-	e = list_get_first_pointer( tax_withholding_list );
-
-	if ( amount_subject_to_withholding <= (double)e->income_over )
-		return 0.0;
-
-	do {
-		e = list_get_pointer( tax_withholding_list );
-
-		if ( !e->income_not_over
-		|| ( ( amount_subject_to_withholding > (double)e->income_over
-		&&     amount_subject_to_withholding <=
-			(double)e->income_not_over ) ) )
-		{
-			excess_over =	amount_subject_to_withholding -
-					(double)e->income_over;
-
-			withholding_amount =
-				e->tax_fixed_amount +
-				( excess_over *
-				( e->tax_percentage_amount / 100.0 ) );
-
-			return withholding_amount;
-		}
-
-	} while( list_next( tax_withholding_list ) );
-
-	return 0.0;
-
-} /* employee_get_federal_tax_withholding_amount() */
-
-double employee_calculate_federal_tax_withholding_amount(
-				char *application_name,
-				enum marital_status marital_status,
-				int withholding_allowances,
-				double withholding_allowance_period_value,
-				double gross_pay )
-{
-	double amount_subject_to_withholding;
-	double federal_tax_withholding_amount;
-	static LIST *single_tax_withholding_list = {0};
-	static LIST *married_tax_withholding_list = {0};
-
-	if ( !single_tax_withholding_list )
-	{
-		single_tax_withholding_list =
-			employee_fetch_income_tax_withholding_list(
-				application_name,
-				"single" );
-
-		married_tax_withholding_list =
-			employee_fetch_income_tax_withholding_list(
-				application_name,
-				"married" );
-
-	}
-
-	amount_subject_to_withholding =
-		employee_calculate_amount_subject_to_withholding(
-			gross_pay,
-			withholding_allowances,
-			withholding_allowance_period_value );
-
-	if ( marital_status == marital_status_single
-	||   marital_status == marital_status_married_but_single_rate
-	||   marital_status == marital_status_not_set )
-	{
-		federal_tax_withholding_amount =
-			employee_get_federal_tax_withholding_amount(
-				amount_subject_to_withholding,
-				single_tax_withholding_list );
-	}
-	else
-	{
-		federal_tax_withholding_amount =
-			employee_get_federal_tax_withholding_amount(
-				amount_subject_to_withholding,
-				married_tax_withholding_list );
-	}
-
-
-	return federal_tax_withholding_amount;
-
-} /* employee_calculate_federal_tax_withholding_amount() */
 

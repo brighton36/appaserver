@@ -217,6 +217,7 @@ void post_employee_work_period(
 	payroll_posting =
 		employee_get_payroll_posting(
 			employee_list,
+			application_name,
 			payroll_year,
 			payroll_period_number,
 			begin_work_date,

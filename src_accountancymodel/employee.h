@@ -227,6 +227,7 @@ LIST *employee_fetch_work_period_list(	char *application_name,
 
 PAYROLL_POSTING *employee_get_payroll_posting(
 					LIST *employee_list,
+					char *application_name,
 					int payroll_year,
 					int payroll_period_number,
 					char *begin_work_date,
@@ -251,6 +252,7 @@ LIST *employee_posting_calculate_work_period_list(
 			double *state_unemployment_tax_amount,
 			int *union_dues_amount,
 			LIST *employee_list,
+			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
 			char *begin_work_date,
@@ -258,6 +260,7 @@ LIST *employee_posting_calculate_work_period_list(
 			ENTITY_SELF *self );
 
 EMPLOYEE_WORK_PERIOD *employee_get_work_period(
+			char *application_name,
 			LIST *employee_work_day_list,
 			LIST *customer_sale_list,
 			double hourly_wage,
@@ -302,7 +305,11 @@ double employee_calculate_amount_subject_to_withholding(
 				int withholding_allowances,
 				double withholding_allowance_period_value );
 
-LIST *employee_fetch_income_tax_withholding_list(
+LIST *employee_fetch_federal_income_tax_withholding_list(
+				char *application_name,
+				char *status /* single or married */ );
+
+LIST *employee_fetch_state_income_tax_withholding_list(
 				char *application_name,
 				char *status /* single or married */ );
 
@@ -312,6 +319,13 @@ EMPLOYEE_INCOME_TAX_WITHHOLDING *employee_income_tax_withholding_new(
 double employee_get_federal_tax_withholding_amount(
 				double amount_subject_to_withholding,
 				LIST *tax_withholding_list );
+
+double employee_calculate_federal_tax_withholding_amount(
+				char *application_name,
+				enum marital_status marital_status,
+				int withholding_allowances,
+				double withholding_allowance_period_value,
+				double gross_pay );
 
 #endif
 

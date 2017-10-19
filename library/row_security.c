@@ -899,22 +899,6 @@ LIST *row_security_get_update_element_list(
 			       attribute_name,
 			       (LIST *)0 /* include_attribute_name_list */ ) ) )
 		{
-/*
-			if ( related_folder->
-				folder_foreign_attribute_name_list )
-			{
-				foreign_attribute_name_list =
-					related_folder->
-					    folder_foreign_attribute_name_list;
-			}
-			else
-			{
-				foreign_attribute_name_list =
-					related_folder->
-						foreign_attribute_name_list;
-			}
-*/
-
 			if ( list_exists_string(
 					 non_edit_folder_name_list,
 					 related_folder->

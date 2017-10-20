@@ -15,16 +15,12 @@
 
 /* Enumerated types */
 /* ---------------- */
-enum marital_status{	marital_status_single,
-			marital_status_married,
-			marital_status_married_but_single_rate,
-			marital_status_single_or_married_with_mutliple_incomes,
-			marital_status_married_one_income,
-			marital_status_unmarried_head_of_household,
-			marital_status_not_set };
 
 /* Constants */
 /* --------- */
+#define DEFAULT_FEDERAL_MARITAL_STATUS	"single"
+#define DEFAULT_STATE_MARITAL_STATUS	\
+	"single_or_married_with_multiple_incomes"
 
 /* See also $APPASERVER_HOME/utility/payroll_period.c */
 /* -------------------------------------------------- */
@@ -44,7 +40,7 @@ typedef struct
 
 typedef struct
 {
-	enum marital_status marital_status;
+	char *marital_status;
 	LIST *income_tax_withholding_list;
 } EMPLOYEE_MARITAL_STATUS_WITHHOLDING;
 
@@ -124,12 +120,12 @@ typedef struct
 	double commission_sum_extension_percent;
 	double gross_pay_year_to_date;
 	double database_gross_pay_year_to_date;
-	enum marital_status federal_marital_status;
+	char *federal_marital_status;
 	int federal_withholding_allowances;
 	int federal_withholding_additional_period_amount;
-	enum marital_status state_marital_status;
+	char *state_marital_status;
 	int state_withholding_allowances;
-	int state_withholding_additional_period_amount;
+	int state_deduction_allowances;
 	int retirement_contribution_plan_employee_period_amount;
 	int retirement_contribution_plan_employer_period_amount;
 	int health_insurance_employee_period_amount;
@@ -158,10 +154,10 @@ boolean employee_load(
 		double *commission_sum_extension_percent,
 		double *gross_pay_year_to_date,
 		double *database_gross_pay_year_to_date,
-		enum marital_status *federal_marital_status,
+		char **federal_marital_status,
 		int *federal_withholding_allowances,
 		int *federal_withholding_additional_period_amount,
-		enum marital_status *state_marital_status,
+		char **state_marital_status,
 		int *state_withholding_allowances,
 		int *state_deduction_allowances,
 		int *retirement_contribution_plan_employee_period_amount,
@@ -291,10 +287,10 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			double hourly_wage,
 			double period_salary,
 			double commission_sum_extension_percent,
-			enum marital_status federal_marital_status,
+			char *federal_marital_status,
 			int federal_withholding_allowances,
 			int federal_withholding_additional_period_amount,
-			enum marital_status state_marital_status,
+			char *state_marital_status,
 			int state_withholding_allowances,
 			int state_deduction_allowances,
 			int retirement_contribution_plan_employee_period_amount,
@@ -327,9 +323,6 @@ double employee_calculate_employee_work_hours(
 double employee_calculate_commission_sum_extension(
 				LIST *customer_sale_list );
 
-enum marital_status employee_get_marital_status(	
-				char *marital_status_string );
-
 double employee_calculate_amount_subject_to_withholding(
 				double gross_pay,
 				int withholding_allowances,
@@ -347,7 +340,7 @@ EMPLOYEE_INCOME_TAX_WITHHOLDING *employee_income_tax_withholding_new(
 				int income_over );
 
 EMPLOYEE_MARITAL_STATUS_WITHHOLDING *employee_marital_status_withholding_new(
-				enum marital_status marital_status );
+				char *marital_status );
 
 EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table_new(
 				char *application_name );
@@ -357,15 +350,33 @@ double employee_get_federal_tax_withholding_amount(
 				LIST *tax_withholding_list );
 
 double employee_calculate_federal_tax_withholding_amount(
+			char *federal_marital_status,
+			int federal_withholding_allowances,
+			double federal_withholding_allowance_period_value,
+			double gross_pay,
+			LIST *federal_marital_status_list );
+
+double employee_calculate_state_tax_withholding_amount(
+			char *state_marital_status,
+			int state_withholding_allowances,
+			int state_deduction_allowances,
+			double state_withholding_allowance_period_value,
+			double gross_pay,
+			LIST *state_marital_status_list );
+
+LIST *employee_fetch_marital_status_string_list(
 				char *application_name,
-				enum marital_status federal_marital_status,
-				int federal_withholding_allowances,
-				double withholding_allowance_period_value,
-				double gross_pay );
+				char *federal_or_state );
 
 LIST *employee_fetch_marital_status_list(
 				char *application_name,
+				LIST *marital_status_string_list,
 				char *federal_or_state );
+
+LIST *employee_fetch_income_tax_withholding_list(
+				char *application_name,
+				char *federal_or_state,
+				char *marital_status_string );
 
 #endif
 

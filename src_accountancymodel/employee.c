@@ -487,10 +487,10 @@ boolean employee_load(
 		double *commission_sum_extension_percent,
 		double *gross_pay_year_to_date,
 		double *database_gross_pay_year_to_date,
-		enum marital_status *federal_marital_status,
+		char **federal_marital_status,
 		int *federal_withholding_allowances,
 		int *federal_withholding_additional_period_amount,
-		enum marital_status *state_marital_status,
+		char **state_marital_status,
 		int *state_withholding_allowances,
 		int *state_deduction_allowances,
 		int *retirement_contribution_plan_employee_period_amount,
@@ -560,7 +560,14 @@ boolean employee_load(
 		*database_gross_pay_year_to_date = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 4 );
-	*federal_marital_status = employee_get_marital_status( buffer );
+	if ( !*buffer )
+	{
+		*federal_marital_status = DEFAULT_FEDERAL_MARITAL_STATUS;
+	}
+	else
+	{
+		*federal_marital_status = strdup( buffer );
+	}
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 5 );
 	if ( *piece_buffer )
@@ -571,7 +578,14 @@ boolean employee_load(
 		*federal_withholding_additional_period_amount = atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 7 );
-	*state_marital_status = employee_get_marital_status( buffer );
+	if ( !*buffer )
+	{
+		*state_marital_status = DEFAULT_STATE_MARITAL_STATUS;
+	}
+	else
+	{
+		*state_marital_status = strdup( buffer );
+	}
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 8 );
 	if ( *piece_buffer )
@@ -638,43 +652,6 @@ boolean employee_load(
 	return 1;
 
 } /* employee_load() */
-
-enum marital_status employee_get_marital_status(	
-			char *marital_status_string )
-{
-	if ( !marital_status_string || !*marital_status_string )
-		return marital_status_not_set;
-	else
-	if ( strcmp( marital_status_string, "single" ) == 0 )
-		return marital_status_single;
-	else
-	if ( strcmp( marital_status_string, "married" ) == 0 )
-		return marital_status_married;
-	else
-	if ( strcmp( marital_status_string, "married_but_single_rate" ) == 0 )
-		return marital_status_married_but_single_rate;
-	else
-	if ( strcmp(	marital_status_string,
-			"single_or_married_with_multiple_incomes" ) == 0 )
-		return marital_status_single_or_married_with_multiple_incomes;
-	else
-	if ( strcmp( marital_status_string, "married_one_income" ) == 0 )
-		return marital_status_married_one_income;
-	else
-	if ( strcmp(	marital_status_string,
-			"unmarried_head_of_household" ) == 0 )
-		return marital_status_unmarried_head_of_household;
-
-	fprintf( stderr,
-"Warning in %s/%s()/%d: invalid marital_status_string = (%s)\n",
-		 __FILE__,
-		 __FUNCTION__,
-		 __LINE__,
-		 marital_status_string );
-
-	return marital_status_not_set;
-
-} /* employee_get_marital_status() */
 
 void employee_update(	char *application_name,
 			char *full_name,
@@ -1255,7 +1232,7 @@ double employee_calculate_employee_work_hours(
 } /* employee_calculate_employee_work_hours() */
 
 EMPLOYEE_MARITAL_STATUS_WITHHOLDING *employee_marital_status_withholding_new(
-				enum marital_status marital_status )
+				char *marital_status )
 {
 	EMPLOYEE_MARITAL_STATUS_WITHHOLDING *e;
 
@@ -1282,7 +1259,6 @@ EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table_new(
 	EMPLOYEE_TAX_WITHHOLDING_TABLE *e;
 	LIST *federal_marital_status_string_list;
 	LIST *state_marital_status_string_list;
-	char *marital_status;
 
 	if ( ! ( e = calloc( 1, sizeof( EMPLOYEE_TAX_WITHHOLDING_TABLE ) ) ) )
 	{
@@ -1308,7 +1284,7 @@ EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table_new(
 				"federal" );
 	}
 
-	state_marital_status_list =
+	state_marital_status_string_list =
 		employee_fetch_marital_status_string_list(
 			application_name,
 			"state" );
@@ -1352,8 +1328,6 @@ LIST *employee_fetch_marital_status_string_list(
 {
 	char folder_name[ 128 ];
 	char select[ 128 ];
-	char where[ 128 ];
-	LIST *marital_status_list;
 	char sys_string[ 1024 ];
 
 	sprintf( select,
@@ -1395,8 +1369,7 @@ LIST *employee_fetch_marital_status_list(
 				marital_status_string_list );
 
 		e = employee_marital_status_withholding_new(
-			employee_get_marital_status(
-				marital_status_string ) );
+				marital_status_string );
 
 		e->income_tax_withholding_list =
 			employee_fetch_income_tax_withholding_list(
@@ -1495,11 +1468,11 @@ double employee_calculate_amount_subject_to_withholding(
 
 double employee_calculate_tax_withholding_amount(
 				double amount_subject_to_withholding,
-				enum marital_status,
+				char *marital_status_string,
 				LIST *marital_status_list )
 {
 	EMPLOYEE_MARITAL_STATUS_WITHHOLDING *marital_status_withholding;
-	EMPLOYEE_INCOME_TAX_WITHHOLDING *income_tax_withholding;
+	EMPLOYEE_INCOME_TAX_WITHHOLDING *e;
 	LIST *tax_withholding_list;
 	double excess_over;
 	double withholding_amount = 0.0;
@@ -1511,8 +1484,8 @@ double employee_calculate_tax_withholding_amount(
 			list_get_pointer(
 				marital_status_list );
 
-		if (	marital_status_withholding->marital_status !=
-			marital_status )
+		if ( strcmp(	marital_status_withholding->marital_status,
+				marital_status_string ) != 0 )
 		{
 			continue;
 		}
@@ -1555,8 +1528,7 @@ double employee_calculate_tax_withholding_amount(
 } /* employee_calculate_tax_withholding_amount() */
 
 double employee_calculate_federal_tax_withholding_amount(
-			char *application_name,
-			enum marital_status federal_marital_status,
+			char *federal_marital_status,
 			int federal_withholding_allowances,
 			double federal_withholding_allowance_period_value,
 			double gross_pay,
@@ -1582,11 +1554,12 @@ double employee_calculate_federal_tax_withholding_amount(
 } /* employee_calculate_federal_tax_withholding_amount() */
 
 double employee_calculate_state_tax_withholding_amount(
-				char *application_name,
-				enum marital_status marital_status,
-				int withholding_allowances,
-				double withholding_allowance_period_value,
-				double gross_pay )
+				char *state_marital_status,
+				int state_withholding_allowances,
+				int state_deduction_allowances,
+				double state_withholding_allowance_period_value,
+				double gross_pay,
+				LIST *state_marital_status_list )
 {
 	double state_tax_withholding_amount = 0.0;
 /*
@@ -1643,10 +1616,10 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 		double hourly_wage,
 		double period_salary,
 		double commission_sum_extension_percent,
-		enum marital_status federal_marital_status,
+		char *federal_marital_status,
 		int federal_withholding_allowances,
 		int federal_withholding_additional_period_amount,
-		enum marital_status state_marital_status,
+		char *state_marital_status,
 		int state_withholding_allowances,
 		int state_deduction_allowances,
 		int retirement_contribution_plan_employee_period_amount,
@@ -1719,7 +1692,6 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 	/* ------------------------------ */
 	employee_work_period->federal_tax_withholding_amount =
 		employee_calculate_federal_tax_withholding_amount(
-			application_name,
 			federal_marital_status,
 			federal_withholding_allowances,
 			self->federal_withholding_allowance_period_value,
@@ -1731,11 +1703,13 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 	/* ---------------------------- */
 	employee_work_period->state_tax_withholding_amount =
 		employee_calculate_state_tax_withholding_amount(
-			application_name,
-			marital_status,
-			withholding_allowances,
+			state_marital_status,
+			state_withholding_allowances,
+			state_deduction_allowances,
 			self->state_withholding_allowance_period_value,
-			employee_work_period->gross_pay );
+			employee_work_period->gross_pay,
+			employee_tax_withholding_table->
+				state_marital_status_list );
 
 	return employee_work_period;
 

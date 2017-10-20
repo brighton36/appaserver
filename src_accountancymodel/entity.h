@@ -79,10 +79,12 @@ typedef struct
 	int federal_unemployment_gross_pay_ceiling;
 	double federal_unemployment_tax_minimum_rate;
 	double federal_unemployment_tax_standard_rate;
+	double federal_withholding_allowance_period_value;
 	int state_unemployment_gross_pay_ceiling;
 	double state_unemployment_tax_rate;
 	double state_unemployment_threshold_rate;
-	double withholding_allowance_period_value;
+	double state_withholding_allowance_period_value;
+	double state_exemption_allowance_period_value;
 	double state_sales_tax_rate;
 } ENTITY_SELF;
 

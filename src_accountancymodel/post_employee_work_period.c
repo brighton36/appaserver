@@ -213,6 +213,11 @@ void post_employee_work_period(
 			ENTITY_SELF *self )
 {
 	PAYROLL_POSTING *payroll_posting;
+	EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table;
+
+	employee_tax_withholding_table =
+		employee_tax_withholding_table_new(
+			application_name );
 
 	payroll_posting =
 		employee_get_payroll_posting(
@@ -222,7 +227,8 @@ void post_employee_work_period(
 			payroll_period_number,
 			begin_work_date,
 			end_work_date,
-			self );
+			self,
+			employee_tax_withholding_table );
 
 	if ( with_html )
 	{

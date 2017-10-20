@@ -3914,6 +3914,10 @@ void related_populate_folder_foreign_attribute_dictionary(
 	if ( list_length( folder_foreign_attribute_name_list ) !=
 	     list_length( primary_attribute_name_list ) )
 	{
+		/* Not participating */
+		/* ----------------- */
+		return;
+/*
 		fprintf( stderr,
 	    "ERROR in %s/%s()/%d: list lengths are not the same: %d vs %d.\n",
 			 __FILE__,
@@ -3922,6 +3926,7 @@ void related_populate_folder_foreign_attribute_dictionary(
 			 list_length( folder_foreign_attribute_name_list ),
 	     		 list_length( primary_attribute_name_list ) );
 		exit( 1 );
+*/
 	}
 
 	list_rewind( folder_foreign_attribute_name_list );

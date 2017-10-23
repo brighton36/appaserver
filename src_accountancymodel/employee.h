@@ -46,8 +46,16 @@ typedef struct
 
 typedef struct
 {
+	char *state_marital_status;
+	int state_withholding_allowances;
+	double state_standard_deduction_amount;
+} EMPLOYEE_STATE_STANDARD_DEDUCTION;
+
+typedef struct
+{
 	LIST *federal_marital_status_list;
 	LIST *state_marital_status_list;
+	LIST *state_standard_deduction_list;
 } EMPLOYEE_TAX_WITHHOLDING_TABLE;
 
 typedef struct
@@ -125,7 +133,7 @@ typedef struct
 	int federal_withholding_additional_period_amount;
 	char *state_marital_status;
 	int state_withholding_allowances;
-	int state_deduction_allowances;
+	int state_itemized_deduction_allowances;
 	int retirement_contribution_plan_employee_period_amount;
 	int retirement_contribution_plan_employer_period_amount;
 	int health_insurance_employee_period_amount;
@@ -159,7 +167,7 @@ boolean employee_load(
 		int *federal_withholding_additional_period_amount,
 		char **state_marital_status,
 		int *state_withholding_allowances,
-		int *state_deduction_allowances,
+		int *state_itemized_deduction_allowances,
 		int *retirement_contribution_plan_employee_period_amount,
 		int *retirement_contribution_plan_employer_period_amount,
 		int *health_insurance_employee_period_amount,
@@ -292,7 +300,7 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			int federal_withholding_additional_period_amount,
 			char *state_marital_status,
 			int state_withholding_allowances,
-			int state_deduction_allowances,
+			int state_itemized_deduction_allowances,
 			int retirement_contribution_plan_employee_period_amount,
 			int retirement_contribution_plan_employer_period_amount,
 			int health_insurance_employee_period_amount,
@@ -323,10 +331,15 @@ double employee_calculate_employee_work_hours(
 double employee_calculate_commission_sum_extension(
 				LIST *customer_sale_list );
 
-double employee_calculate_amount_subject_to_withholding(
+double employee_calculate_federal_taxable_income(
 				double gross_pay,
 				int withholding_allowances,
 				double withholding_allowance_period_value );
+
+double employee_calculate_state_taxable_income(
+				double gross_pay,
+				double state_standard_deduction_amount,
+				double state_itemized_deduction_amount );
 
 LIST *employee_fetch_federal_income_tax_withholding_list(
 				char *application_name,
@@ -339,6 +352,11 @@ LIST *employee_fetch_state_income_tax_withholding_list(
 EMPLOYEE_INCOME_TAX_WITHHOLDING *employee_income_tax_withholding_new(
 				int income_over );
 
+EMPLOYEE_STATE_STANDARD_DEDUCTION *employee_state_standard_deduction_new(
+				char *state_marital_status,
+				int state_withholding_allowances,
+				double state_standard_deduction_amount );
+
 EMPLOYEE_MARITAL_STATUS_WITHHOLDING *employee_marital_status_withholding_new(
 				char *marital_status );
 
@@ -348,6 +366,11 @@ EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table_new(
 double employee_get_federal_tax_withholding_amount(
 				double amount_subject_to_withholding,
 				LIST *tax_withholding_list );
+
+double employee_calculate_computed_tax(
+				double taxable_income,
+				char *marital_status_string,
+				LIST *marital_status_list );
 
 double employee_calculate_federal_tax_withholding_amount(
 			char *federal_marital_status,
@@ -359,10 +382,12 @@ double employee_calculate_federal_tax_withholding_amount(
 double employee_calculate_state_tax_withholding_amount(
 			char *state_marital_status,
 			int state_withholding_allowances,
-			int state_deduction_allowances,
+			int state_itemized_deduction_allowances,
 			double state_withholding_allowance_period_value,
+			double state_itemized_allowance_period_value,
 			double gross_pay,
-			LIST *state_marital_status_list );
+			LIST *state_marital_status_list,
+			LIST *state_standard_deduction_list );
 
 LIST *employee_fetch_marital_status_string_list(
 				char *application_name,
@@ -377,6 +402,14 @@ LIST *employee_fetch_income_tax_withholding_list(
 				char *application_name,
 				char *federal_or_state,
 				char *marital_status_string );
+
+LIST *employee_fetch_state_standard_deduction_list(
+				char *application_name );
+
+double employee_get_state_standard_deduction_amount(
+				LIST *state_standard_deduction_list,
+				char *state_marital_status,
+				int state_withholding_allowances );
 
 #endif
 

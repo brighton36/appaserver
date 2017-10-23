@@ -452,7 +452,7 @@ EMPLOYEE *employee_with_load_new(	char *application_name,
 		&e->federal_withholding_additional_period_amount,
 		&e->state_marital_status,
 		&e->state_withholding_allowances,
-		&e->state_deduction_allowances,
+		&e->state_itemized_deduction_allowances,
 		&e->retirement_contribution_plan_employee_period_amount,
 		&e->retirement_contribution_plan_employer_period_amount,
 		&e->health_insurance_employee_period_amount,
@@ -492,7 +492,7 @@ boolean employee_load(
 		int *federal_withholding_additional_period_amount,
 		char **state_marital_status,
 		int *state_withholding_allowances,
-		int *state_deduction_allowances,
+		int *state_itemized_deduction_allowances,
 		int *retirement_contribution_plan_employee_period_amount,
 		int *retirement_contribution_plan_employer_period_amount,
 		int *health_insurance_employee_period_amount,
@@ -517,7 +517,7 @@ boolean employee_load(
 	char *representative_street_name_attribute = "mechanic_street_address";
 
 	select =
-"hourly_wage,period_salary,commission_sum_extension_percent,gross_pay_year_to_date,federal_marital_status,federal_withholding_allowances,federal_withholding_additional_period_amount,state_marital_status,state_withholding_allowances,state_deduction_allowances,retirement_contribution_plan_employee_period_amount,retirement_contribution_plan_employer_period_amount,health_insurance_employee_period_amount,health_insurance_employer_period_amount,union_dues_period_amount";
+"hourly_wage,period_salary,commission_sum_extension_percent,gross_pay_year_to_date,federal_marital_status,federal_withholding_allowances,federal_withholding_additional_period_amount,state_marital_status,state_withholding_allowances,state_itemized_deduction_allowances,retirement_contribution_plan_employee_period_amount,retirement_contribution_plan_employer_period_amount,health_insurance_employee_period_amount,health_insurance_employer_period_amount,union_dues_period_amount";
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -593,7 +593,7 @@ boolean employee_load(
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 9 );
 	if ( *piece_buffer )
-		*state_deduction_allowances = atoi( buffer );
+		*state_itemized_deduction_allowances = atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 10 );
 	if ( *piece_buffer )
@@ -1089,7 +1089,7 @@ LIST *employee_posting_calculate_work_period_list(
 				federal_withholding_additional_period_amount,
 			  employee->state_marital_status,
 			  employee->state_withholding_allowances,
-			  employee->state_deduction_allowances,
+			  employee->state_itemized_deduction_allowances,
 			  employee->
 			    retirement_contribution_plan_employee_period_amount,
 			  employee->
@@ -1231,6 +1231,32 @@ double employee_calculate_employee_work_hours(
 
 } /* employee_calculate_employee_work_hours() */
 
+EMPLOYEE_STATE_STANDARD_DEDUCTION *employee_state_standard_deduction_new(
+				char *state_marital_status,
+				int state_withholding_allowances,
+				double state_standard_deduction_amount )
+{
+	EMPLOYEE_STATE_STANDARD_DEDUCTION *e;
+
+	if ( ! ( e = calloc(	1,
+				sizeof(
+				     EMPLOYEE_STATE_STANDARD_DEDUCTION ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	e->state_marital_status = state_marital_status;
+	e->state_withholding_allowances = state_withholding_allowances;
+	e->state_standard_deduction_amount = state_standard_deduction_amount;
+	return e;
+
+} /* employee_state_standard_deduction_new() */
+
 EMPLOYEE_MARITAL_STATUS_WITHHOLDING *employee_marital_status_withholding_new(
 				char *marital_status )
 {
@@ -1298,6 +1324,10 @@ EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table_new(
 				"state" );
 	}
 
+	e->state_standard_deduction_list =
+		employee_fetch_state_standard_deduction_list(
+			application_name );
+
 	return e;
 
 } /* employee_tax_withholding_table_new() */
@@ -1349,6 +1379,103 @@ LIST *employee_fetch_marital_status_string_list(
 	return pipe2list( sys_string );
 
 } /* employee_fetch_marital_status_string_list() */
+
+LIST *employee_fetch_state_standard_deduction_list(
+				char *application_name )
+{
+	EMPLOYEE_STATE_STANDARD_DEDUCTION *e;
+	char *folder_name;
+	char *select;
+	LIST *state_standard_deduction_list;
+	char sys_string[ 1024 ];
+	FILE *input_pipe;
+	char input_buffer[ 512 ];
+	char state_marital_status[ 128 ];
+	char state_withholding_allowances[ 128 ];
+	char state_standard_deduction_amount[ 128 ];
+
+	select =
+"state_marital_status,state_withholding_allowances,state_standard_deduction_amount";
+
+	folder_name = "state_standard_deduction_table";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=%s		",
+		 application_name,
+		 select,
+		 folder_name );
+
+	input_pipe = popen( sys_string, "r" );
+
+	state_standard_deduction_list = list_new();
+
+	while( timlib_get_line( input_buffer, input_pipe, 512 ) )
+	{
+		piece(	state_marital_status,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	state_withholding_allowances,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		piece(	state_standard_deduction_amount,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		e = employee_state_standard_deduction_new(
+			strdup( state_marital_status ),
+			atoi( state_withholding_allowances ),
+			atof( state_standard_deduction_amount ) );
+
+		list_append_pointer( state_standard_deduction_list, e );
+	}
+
+	pclose( input_pipe );
+	return state_standard_deduction_list;
+
+} /* employee_fetch_state_standard_deduction_list() */
+
+double employee_get_state_standard_deduction_amount(
+				LIST *state_standard_deduction_list,
+				char *state_marital_status,
+				int state_withholding_allowances )
+{
+	EMPLOYEE_STATE_STANDARD_DEDUCTION *e;
+
+	if ( !state_withholding_allowances ) return 0.0;
+
+	if ( !list_rewind( state_standard_deduction_list ) ) return 0.0;
+
+	do {
+		e = list_get_pointer( state_standard_deduction_list );
+
+		if ( strcmp(	state_marital_status,
+				e->state_marital_status ) == 0
+		&&   state_withholding_allowances ==
+		     e->state_withholding_allowances )
+		{
+			return e->state_standard_deduction_amount;
+		}
+
+	} while( list_next( state_standard_deduction_list ) );
+
+	fprintf( stderr,
+"Warning in %s/%s()/%d: cannot find (%s/%d) in state_standard_deduction_list.\n",
+		 __FILE__,
+		 __FUNCTION__,
+		 __LINE__,
+		 state_marital_status,
+		 state_withholding_allowances );
+
+	return 0.0;
+
+} /* employee_get_state_standard_deduction_amount() */
 
 LIST *employee_fetch_marital_status_list(
 				char *application_name,
@@ -1450,24 +1577,40 @@ LIST *employee_fetch_income_tax_withholding_list(
 
 } /* employee_fetch_income_tax_withholding_list() */
 
-double employee_calculate_amount_subject_to_withholding(
+double employee_calculate_state_taxable_income(
+				double gross_pay,
+				double state_standard_deduction_amount,
+				double state_itemized_deduction_amount )
+{
+	double taxable_income;
+
+	taxable_income =
+		gross_pay -
+		( state_standard_deduction_amount +
+		  state_itemized_deduction_amount );
+
+	return taxable_income;
+
+} /* employee_calculate_state_taxable_income() */
+
+double employee_calculate_federal_taxable_income(
 				double gross_pay,
 				int withholding_allowances,
 				double withholding_allowance_period_value )
 {
-	double amount_subject_to_withholding;
+	double taxable_income;
 
-	amount_subject_to_withholding =
+	taxable_income =
 		gross_pay -
 		( (double)withholding_allowances *
 		  withholding_allowance_period_value );
 
-	return amount_subject_to_withholding;
+	return taxable_income;
 
-} /* employee_calculate_amount_subject_to_withholding() */
+} /* employee_calculate_federal_taxable_income() */
 
-double employee_calculate_tax_withholding_amount(
-				double amount_subject_to_withholding,
+double employee_calculate_computed_tax(
+				double taxable_income,
 				char *marital_status_string,
 				LIST *marital_status_list )
 {
@@ -1496,19 +1639,19 @@ double employee_calculate_tax_withholding_amount(
 
 		e = list_get_first_pointer( tax_withholding_list );
 	
-		if ( amount_subject_to_withholding <= (double)e->income_over )
+		if ( taxable_income <= (double)e->income_over )
 			return 0.0;
 	
 		do {
 			e = list_get_pointer( tax_withholding_list );
 	
 			if ( !e->income_not_over
-			|| ( (	amount_subject_to_withholding >
+			|| ( (	taxable_income >
 				(double)e->income_over
-			&&     amount_subject_to_withholding <=
+			&&     taxable_income <=
 				(double)e->income_not_over ) ) )
 			{
-				excess_over =	amount_subject_to_withholding -
+				excess_over =	taxable_income -
 						(double)e->income_over;
 	
 				withholding_amount =
@@ -1525,7 +1668,7 @@ double employee_calculate_tax_withholding_amount(
 
 	return 0.0;
 
-} /* employee_calculate_tax_withholding_amount() */
+} /* employee_calculate_computed_tax() */
 
 double employee_calculate_federal_tax_withholding_amount(
 			char *federal_marital_status,
@@ -1534,18 +1677,18 @@ double employee_calculate_federal_tax_withholding_amount(
 			double gross_pay,
 			LIST *federal_marital_status_list )
 {
-	double amount_subject_to_withholding;
+	double taxable_income;
 	double federal_tax_withholding_amount;
 
-	amount_subject_to_withholding =
-		employee_calculate_amount_subject_to_withholding(
+	taxable_income =
+		employee_calculate_federal_taxable_income(
 			gross_pay,
 			federal_withholding_allowances,
 			federal_withholding_allowance_period_value );
 
 	federal_tax_withholding_amount =
-		employee_calculate_tax_withholding_amount(
-			amount_subject_to_withholding,
+		employee_calculate_computed_tax(
+			taxable_income,
 			federal_marital_status,
 			federal_marital_status_list );
 
@@ -1554,56 +1697,54 @@ double employee_calculate_federal_tax_withholding_amount(
 } /* employee_calculate_federal_tax_withholding_amount() */
 
 double employee_calculate_state_tax_withholding_amount(
-				char *state_marital_status,
-				int state_withholding_allowances,
-				int state_deduction_allowances,
-				double state_withholding_allowance_period_value,
-				double gross_pay,
-				LIST *state_marital_status_list )
+			char *state_marital_status,
+			int state_withholding_allowances,
+			int state_itemized_deduction_allowances,
+			double state_withholding_allowance_period_value,
+			double state_itemized_allowance_period_value,
+			double gross_pay,
+			LIST *state_marital_status_list,
+			LIST *state_standard_deduction_list )
 {
-	double state_tax_withholding_amount = 0.0;
-/*
-	double amount_subject_to_withholding;
-	static LIST *single_tax_withholding_list = {0};
-	static LIST *married_tax_withholding_list = {0};
+	double state_itemized_deduction_amount = 0.0;
+	double state_standard_deduction_amount;
+	double taxable_income;
+	double computed_tax;
+	double state_exemption_withholding_amount;
+	double state_tax_withholding_amount;
 
-	if ( !single_tax_withholding_list )
+	if ( state_itemized_deduction_allowances )
 	{
-		single_tax_withholding_list =
-			employee_fetch_state_income_tax_withholding_list(
-				application_name,
-				"single" );
-
-		married_tax_withholding_list =
-			employee_fetch_state_income_tax_withholding_list(
-				application_name,
-				"married" );
-
+		state_itemized_deduction_amount =
+			(double)state_itemized_deduction_allowances *
+			state_itemized_allowance_period_value;
 	}
 
-	amount_subject_to_withholding =
-		employee_calculate_amount_subject_to_withholding(
-			gross_pay,
-			withholding_allowances,
-			withholding_allowance_period_value );
+	state_standard_deduction_amount =
+		employee_get_state_standard_deduction_amount(
+				state_standard_deduction_list,
+				state_marital_status,
+				state_withholding_allowances );
 
-	if ( marital_status == marital_status_single
-	||   marital_status == marital_status_married_but_single_rate
-	||   marital_status == marital_status_not_set )
-	{
-		state_tax_withholding_amount =
-			employee_get_state_tax_withholding_amount(
-				amount_subject_to_withholding,
-				single_tax_withholding_list );
-	}
-	else
-	{
-		state_tax_withholding_amount =
-			employee_get_state_tax_withholding_amount(
-				amount_subject_to_withholding,
-				married_tax_withholding_list );
-	}
-*/
+	taxable_income =
+		employee_calculate_state_taxable_income(
+				gross_pay,
+				state_standard_deduction_amount,
+				state_itemized_deduction_amount );
+
+	computed_tax =
+		employee_calculate_computed_tax(
+			taxable_income,
+			state_marital_status,
+			state_marital_status_list );
+
+	state_exemption_withholding_amount =
+		(double)state_withholding_allowances *
+		state_withholding_allowance_period_value;
+
+	state_tax_withholding_amount =
+		computed_tax -
+		state_exemption_withholding_amount;
 
 	return state_tax_withholding_amount;
 
@@ -1621,7 +1762,7 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 		int federal_withholding_additional_period_amount,
 		char *state_marital_status,
 		int state_withholding_allowances,
-		int state_deduction_allowances,
+		int state_itemized_deduction_allowances,
 		int retirement_contribution_plan_employee_period_amount,
 		int retirement_contribution_plan_employer_period_amount,
 		int health_insurance_employee_period_amount,
@@ -1705,11 +1846,14 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 		employee_calculate_state_tax_withholding_amount(
 			state_marital_status,
 			state_withholding_allowances,
-			state_deduction_allowances,
+			state_itemized_deduction_allowances,
 			self->state_withholding_allowance_period_value,
+			self->state_itemized_allowance_period_value,
 			employee_work_period->gross_pay,
 			employee_tax_withholding_table->
-				state_marital_status_list );
+				state_marital_status_list,
+			employee_tax_withholding_table->
+				state_standard_deduction_list );
 
 	return employee_work_period;
 

@@ -109,7 +109,7 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 	char *results;
 
 	select =
-"full_name, street_address, inventory_cost_method, payroll_pay_period, social_security_combined_tax_rate, social_security_payroll_ceiling, medicare_combined_tax_rate, federal_unemployment_gross_pay_ceiling, federal_unemployment_tax_minimum_rate, federal_unemployment_tax_standard_rate, federal_withholding_allowance_period_value, state_unemployment_gross_pay_ceiling, state_unemployment_tax_rate, state_unemployment_threshold_rate, state_withholding_allowance_period_value, state_exemption_allowance_period_value, state_sales_tax_rate";
+"full_name, street_address, inventory_cost_method, payroll_pay_period, social_security_combined_tax_rate, social_security_payroll_ceiling, medicare_combined_tax_rate, federal_unemployment_gross_pay_ceiling, federal_unemployment_tax_minimum_rate, federal_unemployment_tax_standard_rate, federal_withholding_allowance_period_value, state_unemployment_gross_pay_ceiling, state_unemployment_tax_rate, state_unemployment_threshold_rate, state_withholding_allowance_period_value, state_itemized_allowance_period_value, state_sales_tax_rate";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -186,7 +186,7 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 	self->state_withholding_allowance_period_value = atof( piece_buffer );
 
 	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 15 );
-	self->state_exemption_allowance_period_value = atof( piece_buffer );
+	self->state_itemized_allowance_period_value = atof( piece_buffer );
 
 	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 14 );
 	self->state_sales_tax_rate = atof( piece_buffer );

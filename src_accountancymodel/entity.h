@@ -76,10 +76,13 @@ typedef struct
 	double social_security_combined_tax_rate;
 	int social_security_payroll_ceiling;
 	double medicare_combined_tax_rate;
+	double medicare_additional_withholding_rate;
+	int medicare_additional_gross_pay_floor;
 	int federal_unemployment_gross_pay_ceiling;
 	double federal_unemployment_tax_minimum_rate;
 	double federal_unemployment_tax_standard_rate;
 	double federal_withholding_allowance_period_value;
+	double federal_nonresident_withholding_income_premium;
 	int state_unemployment_gross_pay_ceiling;
 	double state_unemployment_tax_rate;
 	double state_unemployment_threshold_rate;

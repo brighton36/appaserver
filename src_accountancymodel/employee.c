@@ -986,7 +986,6 @@ PAYROLL_POSTING *employee_payroll_posting_new(
 
 PAYROLL_POSTING *employee_get_payroll_posting(
 				LIST *employee_list,
-				char *application_name,
 				int payroll_year,
 				int payroll_period_number,
 				char *begin_work_date,
@@ -1024,8 +1023,10 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 			&payroll_posting->federal_unemployment_tax_amount,
 			&payroll_posting->state_unemployment_tax_amount,
 			&payroll_posting->union_dues_amount,
+			/* ---------------------------------------- */
+			/* Updates employee->gross_pay_year_to_date */
+			/* ---------------------------------------- */
 			employee_list,
-			application_name,
 			payroll_year,
 			payroll_period_number,
 			begin_work_date,
@@ -1054,8 +1055,10 @@ LIST *employee_posting_calculate_work_period_list(
 			double *federal_unemployment_tax_amount,
 			double *state_unemployment_tax_amount,
 			int *union_dues_amount,
+			/* ---------------------------------------- */
+			/* Updates employee->gross_pay_year_to_date */
+			/* ---------------------------------------- */
 			LIST *employee_list,
-			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
 			char *begin_work_date,
@@ -1077,12 +1080,12 @@ LIST *employee_posting_calculate_work_period_list(
 
 		employee_work_period =
 			employee_get_work_period(
-			  application_name,
 			  employee->employee_work_day_list,
 			  employee->customer_sale_list,
 			  employee->hourly_wage,
 			  employee->period_salary,
 			  employee->commission_sum_extension_percent,
+			  employee->gross_pay_year_to_date,
 			  employee->federal_marital_status,
 			  employee->federal_withholding_allowances,
 			  employee->
@@ -1116,6 +1119,9 @@ LIST *employee_posting_calculate_work_period_list(
 		list_append_pointer(
 			employee_work_period_list,
 			employee_work_period );
+
+		employee->gross_pay_year_to_date +=
+			employee_work_period->gross_pay;
 
 		*employee_work_hours +=
 			employee_work_period->
@@ -1673,6 +1679,7 @@ double employee_calculate_computed_tax(
 double employee_calculate_federal_tax_withholding_amount(
 			char *federal_marital_status,
 			int federal_withholding_allowances,
+			int federal_withholding_additional_period_amount,
 			double federal_withholding_allowance_period_value,
 			double gross_pay,
 			LIST *federal_marital_status_list )
@@ -1691,6 +1698,12 @@ double employee_calculate_federal_tax_withholding_amount(
 			taxable_income,
 			federal_marital_status,
 			federal_marital_status_list );
+
+	if ( federal_withholding_additional_period_amount )
+	{
+		federal_tax_withholding_amount +=
+			(double)federal_withholding_additional_period_amount;
+	}
 
 	return federal_tax_withholding_amount;
 
@@ -1750,13 +1763,96 @@ double employee_calculate_state_tax_withholding_amount(
 
 } /* employee_calculate_state_tax_withholding_amount() */
 
+double employee_calculate_social_security_employee_tax_amount(
+			double gross_pay,
+			double gross_pay_year_to_date,
+			double social_security_combined_tax_rate,
+			int social_security_payroll_ceiling,
+			int payroll_period_number )
+{
+	double social_security_employee_tax_amount = 0.0;
+	double partial_gross_pay;
+
+	if ( payroll_period_number == 1 )
+		gross_pay_year_to_date = 0.0;
+
+	if (	gross_pay_year_to_date >=
+		(double)social_security_payroll_ceiling )
+	{
+		return 0.0;
+	}
+
+	partial_gross_pay =
+		( gross_pay + gross_pay_year_to_date ) -
+		(double)social_security_payroll_ceiling;
+
+	if ( partial_gross_pay >= 0 )
+	{
+		social_security_employee_tax_amount =
+			partial_gross_pay *
+			( social_security_combined_tax_rate / 2.0 );
+	}
+	else
+	{
+		social_security_employee_tax_amount =
+			gross_pay *
+			( social_security_combined_tax_rate / 2.0 );
+	}
+
+	return social_security_employee_tax_amount;
+
+} /* employee_calculate_social_security_employee_tax_amount() */
+
+double employee_calculate_medicare_employee_tax_amount(
+			double gross_pay,
+			double gross_pay_year_to_date,
+			double medicare_combined_tax_rate,
+			double medicare_additional_withholding_rate,
+			int medicare_additional_gross_pay_floor,
+			int payroll_period_number )
+{
+	double medicare_employee_tax_amount = 0.0;
+	double excess_gross_pay = 0.0;
+
+	if ( payroll_period_number == 1 )
+		gross_pay_year_to_date = 0.0;
+
+	medicare_employee_tax_amount =
+			gross_pay *
+			( medicare_combined_tax_rate / 2.0 );
+
+	if (	gross_pay_year_to_date >
+		(double)medicare_additional_gross_pay_floor )
+	{
+		excess_gross_pay = gross_pay;
+	}
+	else
+	if (	gross_pay_year_to_date + gross_pay >
+		(double)medicare_additional_gross_pay_floor )
+	{
+		excess_gross_pay =
+			( gross_pay_year_to_date + gross_pay ) -
+			(double)medicare_additional_gross_pay_floor;
+	}
+
+	if ( excess_gross_pay )
+	{
+		medicare_employee_tax_amount +=
+			( excess_gross_pay *
+			  medicare_additional_withholding_rate );
+	}
+
+	return medicare_employee_tax_amount;
+
+} /* employee_calculate_medicare_employee_tax_amount() */
+
 EMPLOYEE_WORK_PERIOD *employee_get_work_period(
-		char *application_name,
 		LIST *employee_work_day_list,
 		LIST *customer_sale_list,
 		double hourly_wage,
 		double period_salary,
 		double commission_sum_extension_percent,
+		double gross_pay_year_to_date,
 		char *federal_marital_status,
 		int federal_withholding_allowances,
 		int federal_withholding_additional_period_amount,
@@ -1835,6 +1931,7 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 		employee_calculate_federal_tax_withholding_amount(
 			federal_marital_status,
 			federal_withholding_allowances,
+			federal_withholding_additional_period_amount,
 			self->federal_withholding_allowance_period_value,
 			employee_work_period->gross_pay,
 			employee_tax_withholding_table->
@@ -1854,6 +1951,56 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 				state_marital_status_list,
 			employee_tax_withholding_table->
 				state_standard_deduction_list );
+
+	/* --------------------------------------- */
+	/* social_security_employee_tax_amount and */
+	/* social_security_employer_tax_amount     */
+	/* --------------------------------------- */
+	employee_work_period->social_security_employee_tax_amount =
+	employee_work_period->social_security_employer_tax_amount =
+		employee_calculate_social_security_employee_tax_amount(
+			employee_work_period->gross_pay,
+			gross_pay_year_to_date,
+			self->social_security_combined_tax_rate,
+			self->social_security_payroll_ceiling,
+			payroll_period_number );
+
+	/* medicare_employee_tax_amount */
+	/* ---------------------------- */
+	employee_work_period->medicare_employee_tax_amount =
+		employee_calculate_medicare_employee_tax_amount(
+			employee_work_period->gross_pay,
+			gross_pay_year_to_date,
+			self->medicare_combined_tax_rate,
+			self->medicare_additional_withholding_rate,
+			self->medicare_additional_gross_pay_floor,
+			payroll_period_number );
+
+	/* medicare_employer_tax_amount */
+	/* ---------------------------- */
+	employee_work_period->medicare_employee_tax_amount =
+			employee_work_period->gross_pay *
+			( self->medicare_combined_tax_rate / 2.0 );
+
+	/* retirement_contribution_plan_employee_amount */
+	/* -------------------------------------------- */
+	employee_work_period->retirement_contribution_plan_employee_amount =
+		retirement_contribution_plan_employee_period_amount;
+
+	/* retirement_contribution_plan_employer_amount */
+	/* -------------------------------------------- */
+	employee_work_period->retirement_contribution_plan_employer_amount =
+		retirement_contribution_plan_employer_period_amount;
+
+	/* health_insurance_employee_amount */
+	/* -------------------------------- */
+	employee_work_period->health_insurance_employee_amount =
+		health_insurance_employee_period_amount;
+
+	/* health_insurance_employer_amount */
+	/* -------------------------------- */
+	employee_work_period->health_insurance_employer_amount =
+		health_insurance_employer_period_amount;
 
 	return employee_work_period;
 

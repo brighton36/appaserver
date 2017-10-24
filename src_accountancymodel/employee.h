@@ -252,7 +252,6 @@ LIST *employee_fetch_work_period_list(	char *application_name,
 
 PAYROLL_POSTING *employee_get_payroll_posting(
 				LIST *employee_list,
-				char *application_name,
 				int payroll_year,
 				int payroll_period_number,
 				char *begin_work_date,
@@ -278,8 +277,10 @@ LIST *employee_posting_calculate_work_period_list(
 			double *federal_unemployment_tax_amount,
 			double *state_unemployment_tax_amount,
 			int *union_dues_amount,
+			/* ---------------------------------------- */
+			/* Updates employee->gross_pay_year_to_date */
+			/* ---------------------------------------- */
 			LIST *employee_list,
-			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
 			char *begin_work_date,
@@ -289,12 +290,12 @@ LIST *employee_posting_calculate_work_period_list(
 				employee_tax_withholding_table );
 
 EMPLOYEE_WORK_PERIOD *employee_get_work_period(
-			char *application_name,
 			LIST *employee_work_day_list,
 			LIST *customer_sale_list,
 			double hourly_wage,
 			double period_salary,
 			double commission_sum_extension_percent,
+			double gross_pay_year_to_date,
 			char *federal_marital_status,
 			int federal_withholding_allowances,
 			int federal_withholding_additional_period_amount,
@@ -375,6 +376,7 @@ double employee_calculate_computed_tax(
 double employee_calculate_federal_tax_withholding_amount(
 			char *federal_marital_status,
 			int federal_withholding_allowances,
+			int federal_withholding_additional_period_amount,
 			double federal_withholding_allowance_period_value,
 			double gross_pay,
 			LIST *federal_marital_status_list );
@@ -411,5 +413,19 @@ double employee_get_state_standard_deduction_amount(
 				char *state_marital_status,
 				int state_withholding_allowances );
 
+double employee_calculate_social_security_employee_tax_amount(
+				double gross_pay,
+				double gross_pay_year_to_date,
+				double social_security_combined_tax_rate,
+				int social_security_payroll_ceiling,
+				int payroll_period_number );
+
+double employee_calculate_medicare_employee_tax_amount(
+				double gross_pay,
+				double gross_pay_year_to_date,
+				double medicare_combined_tax_rate,
+				double medicare_additional_withholding_rate,
+				int medicare_additional_gross_pay_floor,
+				int payroll_period_number );
 #endif
 

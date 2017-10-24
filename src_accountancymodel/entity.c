@@ -109,7 +109,7 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 	char *results;
 
 	select =
-"full_name, street_address, inventory_cost_method, payroll_pay_period, social_security_combined_tax_rate, social_security_payroll_ceiling, medicare_combined_tax_rate, federal_unemployment_gross_pay_ceiling, federal_unemployment_tax_minimum_rate, federal_unemployment_tax_standard_rate, federal_withholding_allowance_period_value, state_unemployment_gross_pay_ceiling, state_unemployment_tax_rate, state_unemployment_threshold_rate, state_withholding_allowance_period_value, state_itemized_allowance_period_value, state_sales_tax_rate";
+"full_name, street_address, inventory_cost_method, payroll_pay_period, social_security_combined_tax_rate, social_security_payroll_ceiling, medicare_combined_tax_rate, medicare_additional_withholding_rate, medicare_additional_gross_pay_floor, federal_unemployment_gross_pay_ceiling, federal_unemployment_tax_minimum_rate, federal_unemployment_tax_standard_rate, federal_withholding_allowance_period_value, federal_nonresident_withholding_income_premium, state_unemployment_gross_pay_ceiling, state_unemployment_tax_rate, state_unemployment_threshold_rate, state_withholding_allowance_period_value, state_itemized_allowance_period_value, state_sales_tax_rate";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -152,43 +152,53 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 		entity_get_payroll_pay_period(
 			piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 4 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 4 );
 	self->social_security_combined_tax_rate = atof( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 5 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 5 );
 	self->social_security_payroll_ceiling = atoi( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 6 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 6 );
 	self->medicare_combined_tax_rate = atof( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 7 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 7 );
+	self->medicare_additional_withholding_rate = atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 8 );
+	self->medicare_additional_gross_pay_floor = atoi( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 9 );
 	self->federal_unemployment_gross_pay_ceiling = atoi( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 8 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 10 );
 	self->federal_unemployment_tax_minimum_rate = atof( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 9 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 11 );
 	self->federal_unemployment_tax_standard_rate = atof( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 10 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 12 );
 	self->federal_withholding_allowance_period_value = atof( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 11 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 13 );
+	self->federal_nonresident_withholding_income_premium =
+		atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 14 );
 	self->state_unemployment_gross_pay_ceiling = atoi( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 12 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 15 );
 	self->state_unemployment_tax_rate = atof( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 13 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 16 );
 	self->state_unemployment_threshold_rate = atof( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 14 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 17 );
 	self->state_withholding_allowance_period_value = atof( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 15 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 18 );
 	self->state_itemized_allowance_period_value = atof( piece_buffer );
 
-	piece(	piece_buffer, FOLDER_DATA_DELIMITER, results, 14 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 19 );
 	self->state_sales_tax_rate = atof( piece_buffer );
 
 	return self;

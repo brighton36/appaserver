@@ -23,6 +23,9 @@
 
 /* Prototypes */
 /* ---------- */
+int payroll_period_get_days_shift(
+				char *beginday );
+
 char *payroll_period_get_begin_date_string(
 				char *period,
 				int year,
@@ -52,7 +55,8 @@ void payroll_period_output_biweekly_dates(
 				int period_number );
 
 int payroll_period_output_weekly_period(
-				char *date_string );
+				char *date_string,
+				int days_shift );
 
 void payroll_period_output_weekly_dates(
 				int year,
@@ -85,7 +89,8 @@ int payroll_period(		char *argv_0,
 				char *period,
 				char *date_string,
 				int period_number,
-				int year );
+				int year,
+				char *beginday );
 
 void setup_arg(			NAME_ARG *arg,
 				int argc,
@@ -96,6 +101,7 @@ void fetch_parameters(		char **period,
 				char **period_number_string,
 				char **year_string,
 				char **prior_yn,
+				char **beginday,
 				NAME_ARG *arg );
 
 int main( int argc, char **argv )
@@ -103,6 +109,7 @@ int main( int argc, char **argv )
         NAME_ARG *arg;
 	char *period = {0};
 	char *prior_yn = "";
+	char *beginday = "";
 	char *date_string = "";
 	char *period_number_string = "";
 	char *year_string = "";
@@ -117,6 +124,7 @@ int main( int argc, char **argv )
 				&period_number_string,
 				&year_string,
 				&prior_yn,
+				&beginday,
 				arg );
 
 	if ( strcmp( prior_yn, "yes" ) == 0 )
@@ -131,7 +139,8 @@ int main( int argc, char **argv )
 				period,
 				date_string,
 				atoi( period_number_string ),
-				atoi( year_string ) );
+				atoi( year_string ),
+				beginday );
 
 		if ( *date_string && period_number )
 		{
@@ -169,6 +178,16 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
 	add_possible_value( arg, ticket, "no" );
         set_default_value( arg, ticket, "no" );
 
+	ticket = add_valid_option( arg, "beginday" );
+	add_possible_value( arg, ticket, "sunday" );
+	add_possible_value( arg, ticket, "monday" );
+	add_possible_value( arg, ticket, "tuesday" );
+	add_possible_value( arg, ticket, "wednesday" );
+	add_possible_value( arg, ticket, "thursday" );
+	add_possible_value( arg, ticket, "friday" );
+	add_possible_value( arg, ticket, "saturday" );
+	set_default_value( arg, ticket, "sunday" );
+
         ticket = add_valid_option( arg, "date" );
         set_default_value( arg, ticket, "" );
 
@@ -187,6 +206,7 @@ void fetch_parameters(	char **period,
 			char **period_number_string,
 			char **year_string,
 			char **prior_yn,
+			char **beginday,
 			NAME_ARG *arg )
 {
 	*period = fetch_arg( arg, "period" );
@@ -194,16 +214,21 @@ void fetch_parameters(	char **period,
 	*period_number_string = fetch_arg( arg, "number" );
 	*year_string = fetch_arg( arg, "year" );
 	*prior_yn = fetch_arg( arg, "prior" );
+	*beginday = fetch_arg( arg, "beginday" );
 }
 
 int payroll_period(	char *argv_0,
 			char *period,
 			char *date_string,
 			int period_number,
-			int year )
+			int year,
+			char *beginday )
 {
 	boolean output_error = 0;
 	int local_period_number = 0;
+	int days_shift;
+
+	days_shift = payroll_period_get_days_shift( beginday );
 
 	if ( timlib_strcmp( period, "weekly" ) == 0 )
 	{
@@ -211,7 +236,8 @@ int payroll_period(	char *argv_0,
 		{
 			local_period_number =
 				payroll_period_output_weekly_period(
-					date_string );
+					date_string,
+					days_shift );
 		}
 		else
 		if ( period_number )
@@ -300,12 +326,24 @@ int payroll_period(	char *argv_0,
 
 } /* payroll_period() */
 
-int payroll_period_output_weekly_period( char *date_string )
+int payroll_period_output_weekly_period(	char *date_string,
+						int days_shift )
 {
 	DATE *d;
 	int period_number;
 
 	d = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
+
+	if ( days_shift )
+	{
+		days_shift = 0;
+/*
+		date_increment_days(
+			d,
+			(double)days_shift,
+			date_get_utc_offset() );
+*/
+	}
 
 	period_number = date_get_week_of_year( d, date_get_utc_offset() );
 
@@ -391,9 +429,11 @@ boolean payroll_period_get_weekly_dates(
 			}
 		}
 
-		date_increment_days( d, 1, date_get_utc_offset() );
+		date_increment_days( d, 1.0, date_get_utc_offset() );
 
-		week_of_year = date_get_week_of_year( d, date_get_utc_offset() );
+		week_of_year =
+			date_get_week_of_year(
+				d, date_get_utc_offset() );
 
 		if ( period_number == 1 )
 		{
@@ -423,7 +463,7 @@ boolean payroll_period_get_weekly_dates(
 		}
 	}
 
-	date_increment_days( d, -1, date_get_utc_offset() );
+	date_increment_days( d, -1.0, date_get_utc_offset() );
 
 	strcpy( end_work_date,
 		date_yyyy_mm_dd( d ) );
@@ -735,13 +775,17 @@ void payroll_period_prior( char *period )
 
 	if ( timlib_strcmp( period, "weekly" ) == 0 )
 	{
-		period_number = date_get_week_of_year( d, date_get_utc_offset() );
+		period_number =
+			date_get_week_of_year(
+				d, date_get_utc_offset() );
 
 	}
 	else
 	if ( timlib_strcmp( period, "biweekly" ) == 0 )
 	{
-		week_of_year = date_get_week_of_year( d, date_get_utc_offset() );
+		week_of_year =
+			date_get_week_of_year(
+				d, date_get_utc_offset() );
 
 		period_number =
 			payroll_period_get_biweekly_period(
@@ -773,7 +817,7 @@ void payroll_period_prior( char *period )
 
 	d = date_yyyy_mm_dd_new( begin_date_string, date_get_utc_offset() );
 
-	date_increment_days( d, -1, date_get_utc_offset() );
+	date_increment_days( d, -1.0, date_get_utc_offset() );
 
 	begin_date_string = date_yyyy_mm_dd( d );
 
@@ -788,3 +832,29 @@ void payroll_period_prior( char *period )
 
 } /* payroll_period_prior() */
 
+int payroll_period_get_days_shift( char *beginday )
+{
+	if ( strcmp( beginday, "sunday" ) == 0 )
+		return 0;
+	else
+	if ( strcmp( beginday, "monday" ) == 0 )
+		return 1;
+	else
+	if ( strcmp( beginday, "tuesday" ) == 0 )
+		return 2;
+	else
+	if ( strcmp( beginday, "wednesday" ) == 0 )
+		return 3;
+	else
+	if ( strcmp( beginday, "thursday" ) == 0 )
+		return 4;
+	else
+	if ( strcmp( beginday, "friday" ) == 0 )
+		return 5;
+	else
+	if ( strcmp( beginday, "saturday" ) == 0 )
+		return 6;
+	else
+		return 6;
+
+} /* payroll_period_get_days_shift() */

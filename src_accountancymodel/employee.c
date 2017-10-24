@@ -1846,6 +1846,20 @@ double employee_calculate_medicare_employee_tax_amount(
 
 } /* employee_calculate_medicare_employee_tax_amount() */
 
+double employee_calculate_hourly_gross_pay(
+				double employee_work_hours,
+				double hourly_wage )
+{
+	double hourly_gross_pay;
+
+	hourly_gross_pay =
+		employee_work_hours *
+		hourly_wage;
+
+	return hourly_gross_pay;
+
+} /* employee_calculate_hourly_gross_pay() */
+
 EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 		LIST *employee_work_day_list,
 		LIST *customer_sale_list,
@@ -1903,8 +1917,9 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 	if ( hourly_wage )
 	{
 		employee_work_period->gross_pay =
-			employee_work_period->employee_work_hours *
-			hourly_wage;
+			employee_calculate_hourly_gross_pay(
+				employee_work_period->employee_work_hours,
+				hourly_wage );
 	}
 
 	if ( period_salary )
@@ -2001,6 +2016,11 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 	/* -------------------------------- */
 	employee_work_period->health_insurance_employer_amount =
 		health_insurance_employer_period_amount;
+
+	/* union_dues_amount */
+	/* ----------------- */
+	employee_work_period->union_dues_amount =
+		union_dues_period_amount;
 
 	return employee_work_period;
 

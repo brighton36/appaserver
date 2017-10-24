@@ -427,5 +427,10 @@ double employee_calculate_medicare_employee_tax_amount(
 				double medicare_additional_withholding_rate,
 				int medicare_additional_gross_pay_floor,
 				int payroll_period_number );
+
+double employee_calculate_hourly_gross_pay(
+				double employee_work_hours,
+				double hourly_wage );
+
 #endif
 

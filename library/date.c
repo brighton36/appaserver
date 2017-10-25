@@ -16,6 +16,7 @@
 DATE *date_new_date( void )
 {
 	DATE *d = (DATE *)calloc( 1, sizeof( DATE ) );
+
 	if ( !d )
 	{
 		fprintf(stderr,

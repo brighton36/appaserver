@@ -1,3 +1,4 @@
+/* ---------------------------------------------	*/
 /* $APPASERVER_HOME/utility/payroll_period.c		*/
 /* ---------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
@@ -52,15 +53,18 @@ int payroll_period_output_biweekly_period(
 
 void payroll_period_output_biweekly_dates(
 				int year,
-				int period_number );
+				int period_number,
+				int days_shift );
 
 int payroll_period_output_weekly_period(
+				char **year_string,
 				char *date_string,
 				int days_shift );
 
 void payroll_period_output_weekly_dates(
 				int year,
-				int period_number );
+				int period_number,
+				int days_shift );
 
 int payroll_period_get_biweekly_period(
 				int week_of_year );
@@ -69,7 +73,8 @@ boolean payroll_period_get_weekly_dates(
 				char *begin_work_date,
 				char *end_work_date,
 				int year,
-				int period_number );
+				int period_number,
+				int days_shift );
 
 boolean payroll_period_get_semimonthly_dates(
 				char *begin_work_date,
@@ -85,7 +90,8 @@ boolean payroll_period_get_monthly_dates(
 
 /* Returns period_number (maybe) */
 /* ----------------------------- */
-int payroll_period(		char *argv_0,
+int payroll_period(		char **year_string,
+				char *argv_0,
 				char *period,
 				char *date_string,
 				int period_number,
@@ -127,6 +133,16 @@ int main( int argc, char **argv )
 				&beginday,
 				arg );
 
+/*
+fprintf( stderr, "%s/%s()/%d: period_number_string = %s, date_string = %s, year_string = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+period_number_string,
+date_string,
+year_string );
+*/
+
 	if ( strcmp( prior_yn, "yes" ) == 0 )
 	{
 		payroll_period_prior( period );
@@ -135,12 +151,22 @@ int main( int argc, char **argv )
 	{
 		period_number =
 			payroll_period(
+				&year_string,
 				argv[ 0 ],
 				period,
 				date_string,
 				atoi( period_number_string ),
 				atoi( year_string ),
 				beginday );
+
+/*
+fprintf( stderr, "%s/%s()/%d: returned period_number = %d and year_string = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+period_number,
+year_string );
+*/
 
 		if ( *date_string && period_number )
 		{
@@ -150,10 +176,14 @@ int main( int argc, char **argv )
 				"payroll_period.e"
 				" period=%s"
 				" number=%d"
+				" beginday=%s"
 				" year=%d",
 				period,
 				period_number,
-				atoi( date_string ) /* year */ );
+				beginday,
+				(*year_string)
+					? atoi( year_string )
+					: atoi( date_string ) /* year */ );
 
 			system( sys_string );
 		}
@@ -217,7 +247,8 @@ void fetch_parameters(	char **period,
 	*beginday = fetch_arg( arg, "beginday" );
 }
 
-int payroll_period(	char *argv_0,
+int payroll_period(	char **year_string,
+			char *argv_0,
 			char *period,
 			char *date_string,
 			int period_number,
@@ -236,6 +267,7 @@ int payroll_period(	char *argv_0,
 		{
 			local_period_number =
 				payroll_period_output_weekly_period(
+					year_string,
 					date_string,
 					days_shift );
 		}
@@ -244,7 +276,8 @@ int payroll_period(	char *argv_0,
 		{
 			payroll_period_output_weekly_dates(
 				year,
-				period_number );
+				period_number,
+				days_shift );
 		}
 		else
 		{
@@ -265,7 +298,8 @@ int payroll_period(	char *argv_0,
 		{
 			payroll_period_output_biweekly_dates(
 				year,
-				period_number );
+				period_number,
+				days_shift );
 		}
 		else
 		{
@@ -326,7 +360,8 @@ int payroll_period(	char *argv_0,
 
 } /* payroll_period() */
 
-int payroll_period_output_weekly_period(	char *date_string,
+int payroll_period_output_weekly_period(	char **year_string,
+						char *date_string,
 						int days_shift )
 {
 	DATE *d;
@@ -336,13 +371,15 @@ int payroll_period_output_weekly_period(	char *date_string,
 
 	if ( days_shift )
 	{
-		days_shift = 0;
-/*
+		char local_year_string[ 5 ];
+
 		date_increment_days(
 			d,
-			(double)days_shift,
+			-(double)days_shift,
 			date_get_utc_offset() );
-*/
+
+		sprintf( local_year_string, "%d", date_get_year( d ) );
+		*year_string = strdup( local_year_string );
 	}
 
 	period_number = date_get_week_of_year( d, date_get_utc_offset() );
@@ -357,7 +394,8 @@ int payroll_period_output_weekly_period(	char *date_string,
 
 void payroll_period_output_weekly_dates(
 				int year,
-				int period_number )
+				int period_number,
+				int days_shift )
 {
 	char begin_work_date[ 16 ];
 	char end_work_date[ 16 ];
@@ -371,7 +409,8 @@ void payroll_period_output_weekly_dates(
 				begin_work_date,
 				end_work_date,
 				year,
-				period_number ) )
+				period_number,
+				days_shift ) )
 	{
 		printf( "%s %s\n",
 			PAYROLL_BEGIN_DATE_LABEL,
@@ -388,7 +427,8 @@ boolean payroll_period_get_weekly_dates(
 				char *begin_work_date,
 				char *end_work_date,
 				int year,
-				int period_number )
+				int period_number,
+				int days_shift )
 {
 	DATE *d;
 	char date_string[ 16 ];
@@ -422,8 +462,21 @@ boolean payroll_period_get_weekly_dates(
 		{
 			if ( first_time )
 			{
+				DATE *d2;
+
+				d2 = date_new_date();
+				date_copy( d2, d );
+
+				if ( days_shift )
+				{
+					date_increment_days(
+						d2,
+						(double)days_shift,
+						date_get_utc_offset() );
+				}
+
 				strcpy( begin_work_date,
-					date_yyyy_mm_dd( d ) );
+					date_yyyy_mm_dd( d2 ) );
 
 				first_time = 0;
 			}
@@ -463,7 +516,10 @@ boolean payroll_period_get_weekly_dates(
 		}
 	}
 
-	date_increment_days( d, -1.0, date_get_utc_offset() );
+	date_increment_days(
+		d,
+		(double)days_shift - 1.0,
+		date_get_utc_offset() );
 
 	strcpy( end_work_date,
 		date_yyyy_mm_dd( d ) );
@@ -496,7 +552,8 @@ int payroll_period_output_biweekly_period( char *date_string )
 
 void payroll_period_output_biweekly_dates(
 				int year,
-				int period_number )
+				int period_number,
+				int days_shift )
 {
 	char begin_work_date[ 16 ];
 	char ignore_work_date[ 16 ];
@@ -514,7 +571,8 @@ void payroll_period_output_biweekly_dates(
 				begin_work_date,
 				end_work_date,
 				year,
-				53 );
+				53,
+				days_shift );
 	}
 	else
 	{
@@ -527,7 +585,8 @@ void payroll_period_output_biweekly_dates(
 					begin_work_date,
 					ignore_work_date,
 					year,
-					period_number_times_two - 1 ) )
+					period_number_times_two - 1,
+					days_shift ) )
 		{
 			return;
 		}
@@ -536,7 +595,8 @@ void payroll_period_output_biweekly_dates(
 					ignore_work_date,
 					end_work_date,
 					year,
-					period_number_times_two ) )
+					period_number_times_two,
+					days_shift ) )
 		{
 			strcpy( end_work_date, ignore_work_date );
 		}

@@ -1681,7 +1681,8 @@ boolean create_empty_application(
 					role_name,
 					really_yn );
 
-	new_password = timlib_generate_password();
+	/* new_password = timlib_generate_password(); */
+	new_password = "changeit";
 
 	insert_appaserver_user_row(
 					destination_application,

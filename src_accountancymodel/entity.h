@@ -73,6 +73,7 @@ typedef struct
 	LIST *inventory_list;
 	LIST *employee_list;
 	enum payroll_pay_period payroll_pay_period;
+	char *payroll_beginning_day;
 	double social_security_combined_tax_rate;
 	int social_security_payroll_ceiling;
 	double medicare_combined_tax_rate;

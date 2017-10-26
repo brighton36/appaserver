@@ -36,7 +36,7 @@ LIST *employee_fetch_work_period_list(	char *application_name,
 	FILE *input_pipe;
 
 	select =
-"payroll_year,payroll_period_number,begin_work_date,end_work_date,employee_work_hours,commission_sum_extension,gross_pay,federal_tax_withholding_amount,state_tax_withholding_amount,social_security_employee_tax_amount,social_security_employer_tax_amount,medicare_employee_tax_amout,medicare_employer_tax_amount,retirement_contribution_plan_employee_amount,retirement_contribution_plan_employer_amount,health_insurance_employee_amount,health_insurance_employer_amount,federal_unemployment_tax_amount,state_unemployment_tax_amount,union_dues_amount,transaction_date_time";
+"payroll_year,payroll_period_number,begin_work_date,end_work_date,regular_work_hours,overtime_work_hours,commission_sum_extension,gross_pay,federal_tax_withholding_amount,state_tax_withholding_amount,social_security_employee_tax_amount,social_security_employer_tax_amount,medicare_employee_tax_amout,medicare_employer_tax_amount,retirement_contribution_plan_employee_amount,retirement_contribution_plan_employer_amount,health_insurance_employee_amount,health_insurance_employer_amount,federal_unemployment_tax_amount,state_unemployment_tax_amount,union_dues_amount,transaction_date_time";
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -102,98 +102,103 @@ LIST *employee_fetch_work_period_list(	char *application_name,
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
 		if ( *piece_buffer )
-			employee_work_period->employee_work_hours =
+			employee_work_period->regular_work_hours =
 				atof( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 		if ( *piece_buffer )
-			employee_work_period->commission_sum_extension =
+			employee_work_period->overtime_work_hours =
 				atof( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
 		if ( *piece_buffer )
-			employee_work_period->gross_pay =
+			employee_work_period->commission_sum_extension =
 				atof( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+		if ( *piece_buffer )
+			employee_work_period->gross_pay =
+				atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
 		if ( *piece_buffer )
 			employee_work_period->
 				federal_tax_withholding_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
 		if ( *piece_buffer )
 			employee_work_period->
 				state_tax_withholding_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
 		if ( *piece_buffer )
 			employee_work_period->
 				social_security_employee_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
 		if ( *piece_buffer )
 			employee_work_period->
 				social_security_employer_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
 		if ( *piece_buffer )
 			employee_work_period->
 				medicare_employee_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
 		if ( *piece_buffer )
 			employee_work_period->
 				medicare_employer_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
 		if ( *piece_buffer )
 			employee_work_period->
 				retirement_contribution_plan_employee_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
 		if ( *piece_buffer )
 			employee_work_period->
 				retirement_contribution_plan_employer_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 16 );
 		if ( *piece_buffer )
 			employee_work_period->
 				health_insurance_employee_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 16 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 17 );
 		if ( *piece_buffer )
 			employee_work_period->
 				health_insurance_employer_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 17 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 18 );
 		if ( *piece_buffer )
 			employee_work_period->
 				federal_unemployment_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 18 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 19 );
 		if ( *piece_buffer )
 			employee_work_period->
 				state_unemployment_tax_amount =
 					atof( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 19 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 20 );
 		if ( *piece_buffer )
 			employee_work_period->
 				union_dues_amount =
 					atoi( piece_buffer );
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 20 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 21 );
 		if ( *piece_buffer )
 		{
 			employee_work_period->
@@ -254,7 +259,7 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 			: "2999-12-31" );
 
 	select =
-"substr(begin_work_date_time,1,16),substr(end_work_date_time,1,16),employee_work_hours";
+"substr(begin_work_date_time,1,16),substr(end_work_date_time,1,16),employee_work_hours,overtime_work_day_yn";
 
 	sprintf(where,
 	 	"full_name = '%s' and				"
@@ -302,6 +307,9 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 				atof( piece_buffer );
 		}
 
+		/* ---------------------------------------- */
+		/* Need to check if crossed 2:00 AM for DST */
+		/* ---------------------------------------- */
 		if ( employee_work_day->end_work_date_time )
 		{
 			DATE *begin_date_time;
@@ -354,6 +362,13 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 				/ 60.0;
 
 		} /* if ( employee_work_day->end_work_date_time ) */
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+		if ( *piece_buffer )
+		{
+			employee_work_day->overtime_work_day =
+				(*piece_buffer == 'y');
+		}
 
 		list_append_pointer(
 			employee_work_day_list,
@@ -899,7 +914,8 @@ boolean employee_get_prior_period(
 				int *payroll_year,
 				int *payroll_period_number,
 				enum payroll_pay_period
-					payroll_pay_period )
+					payroll_pay_period,
+				char *payroll_beginning_day )
 {
 	char *payroll_pay_period_string;
 	char sys_string[ 1024 ];
@@ -907,16 +923,30 @@ boolean employee_get_prior_period(
 	char input_buffer[ 128 ];
 	char column_buffer[ 128 ];
 	int results = 0;
+	char beginday_option[ 32 ];
 
 	payroll_pay_period_string =
 		entity_get_payroll_pay_period_string(
 			payroll_pay_period );
 
+	if ( !payroll_beginning_day || !*payroll_beginning_day )
+	{
+		*beginday_option = '\0';
+	}
+	else
+	{
+		sprintf( beginday_option,
+			 "beginday=%s",
+			 payroll_beginning_day );
+	}
+
 	sprintf( sys_string,
 		 "payroll_period.e"
 		 " period=%s"
+		 " %s"
 		 " prior=yes",
-		 payroll_pay_period_string );
+		 payroll_pay_period_string,
+		 beginday_option );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -988,8 +1018,8 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 				LIST *employee_list,
 				int payroll_year,
 				int payroll_period_number,
-				char *begin_work_date,
-				char *end_work_date,
+				char *begin_work_date_string,
+				char *end_work_date_string,
 				ENTITY_SELF *self,
 				EMPLOYEE_TAX_WITHHOLDING_TABLE *
 					employee_tax_withholding_table )
@@ -1000,12 +1030,13 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 		employee_payroll_posting_new(
 			payroll_year,
 			payroll_period_number,
-			begin_work_date,
-			end_work_date );
+			begin_work_date_string,
+			end_work_date_string );
 
 	payroll_posting->employee_work_period_list =
 		employee_posting_calculate_work_period_list(
-			&payroll_posting->employee_work_hours,
+			&payroll_posting->regular_work_hours,
+			&payroll_posting->overtime_work_hours,
 			&payroll_posting->commission_sum_extension,
 			&payroll_posting->gross_pay,
 			&payroll_posting->federal_tax_withholding_amount,
@@ -1029,8 +1060,8 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 			employee_list,
 			payroll_year,
 			payroll_period_number,
-			begin_work_date,
-			end_work_date,
+			begin_work_date_string,
+			end_work_date_string,
 			self,
 			employee_tax_withholding_table );
 
@@ -1039,7 +1070,8 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 } /* employee_get_payroll_posting() */
 
 LIST *employee_posting_calculate_work_period_list(
-			double *employee_work_hours,
+			double *regular_work_hours,
+			double *overtime_work_hours,
 			double *commission_sum_extension,
 			double *gross_pay,
 			double *federal_tax_withholding_amount,
@@ -1061,8 +1093,8 @@ LIST *employee_posting_calculate_work_period_list(
 			LIST *employee_list,
 			int payroll_year,
 			int payroll_period_number,
-			char *begin_work_date,
-			char *end_work_date,
+			char *begin_work_date_string,
+			char *end_work_date_string,
 			ENTITY_SELF *self,
 			EMPLOYEE_TAX_WITHHOLDING_TABLE *
 				employee_tax_withholding_table )
@@ -1107,8 +1139,8 @@ LIST *employee_posting_calculate_work_period_list(
 			  employee->street_address,
 			  payroll_year,
 			  payroll_period_number,
-			  begin_work_date,
-			  end_work_date,
+			  begin_work_date_string,
+			  end_work_date_string,
 			  self,
 			  employee_tax_withholding_table );
 
@@ -1123,9 +1155,13 @@ LIST *employee_posting_calculate_work_period_list(
 		employee->gross_pay_year_to_date +=
 			employee_work_period->gross_pay;
 
-		*employee_work_hours +=
+		*regular_work_hours +=
 			employee_work_period->
-				employee_work_hours;
+				regular_work_hours;
+
+		*overtime_work_hours +=
+			employee_work_period->
+				overtime_work_hours;
 
 		*commission_sum_extension +=
 			employee_work_period->
@@ -1216,13 +1252,26 @@ double employee_calculate_commission_sum_extension(
 
 } /* employee_calculate_commission_sum_extension() */
 
-double employee_calculate_employee_work_hours(
-			LIST *employee_work_day_list )
+void employee_calculate_employee_work_hours(
+			double *regular_work_hours,
+			double *overtime_work_hours,
+			LIST *employee_work_day_list,
+			char *begin_work_date_string )
 {
 	EMPLOYEE_WORK_DAY *employee_work_day;
 	double employee_work_hours;
+	DATE *begin_work_date;
+	DATE *work_date;
+	boolean week_one = 1;
 
-	if ( !list_rewind( employee_work_day_list ) ) return 0.0;
+	*regular_work_hours = 0.0;
+	*overtime_work_hours = 0.0;
+
+	if ( !list_rewind( employee_work_day_list ) ) return;
+
+	begin_work_date = date_yyyy_mm_dd_new( begin_work_date_string );
+
+here1
 
 	employee_work_hours = 0.0;
 
@@ -1232,8 +1281,6 @@ double employee_calculate_employee_work_hours(
 		employee_work_hours += employee_work_day->employee_work_hours;
 
 	} while( list_next( employee_work_day_list ) );
-
-	return employee_work_hours;
 
 } /* employee_calculate_employee_work_hours() */
 
@@ -1882,8 +1929,8 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 		char *street_address,
 		int payroll_year,
 		int payroll_period_number,
-		char *begin_work_date,
-		char *end_work_date,
+		char *begin_work_date_string,
+		char *end_work_date_string,
 		ENTITY_SELF *self,
 		EMPLOYEE_TAX_WITHHOLDING_TABLE *
 			employee_tax_withholding_table )
@@ -1897,14 +1944,16 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			payroll_year,
 			payroll_period_number );
 
-	employee_work_period->begin_work_date = begin_work_date;
-	employee_work_period->end_work_date = end_work_date;
+	employee_work_period->begin_work_date = begin_work_date_string;
+	employee_work_period->end_work_date = end_work_date_string;
 
 	/* employee_work_hours */
 	/* ------------------- */
-	employee_work_period->employee_work_hours =
-		employee_calculate_employee_work_hours(
-			employee_work_day_list );
+	employee_calculate_employee_work_hours(
+		&employee_work_period->regular_work_hours,
+		&employee_work_period->overtime_work_hours,
+		employee_work_day_list,
+		begin_work_date_string );
 
 	/* commission_sum_extension */
 	/* ------------------------ */

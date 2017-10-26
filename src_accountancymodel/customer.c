@@ -1235,7 +1235,15 @@ double customer_sale_get_tax_rate(
 	ENTITY *entity_customer;
 	ENTITY_SELF *self;
 
-	self = entity_self_load( application_name );
+	if ( ! ( self = entity_self_load( application_name ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot fetch from SELF.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	entity_customer = entity_new( full_name, street_address );
 

@@ -69,8 +69,15 @@ int main( int argc, char **argv )
 		entity_get_inventory_cost_method(
 			preupdate_inventory_cost_method_string );
 
-
-	self = entity_self_load( application_name );
+	if ( ! ( self = entity_self_load( application_name ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot fetch from SELF.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( ( self->inventory_cost_method != inventory_not_set )
 	&&   (	self->inventory_cost_method !=

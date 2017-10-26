@@ -133,7 +133,15 @@ int main( int argc, char **argv )
 		fflush( stdout );
 	}
 
-	self = entity_self_load( application_name );
+	if ( ! ( self = entity_self_load( application_name ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot fetch from SELF.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( !payroll_year )
 	{
@@ -142,8 +150,16 @@ int main( int argc, char **argv )
 			&end_work_date,
 			&payroll_year,
 			&payroll_period_number,
-			self->payroll_pay_period );
+			self->payroll_pay_period,
+			self->payroll_beginning_day );
 	}
+
+fprintf( stderr, "%s/%s()/%d: got begin_work_date = %s and end_work_date = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+begin_work_date,
+end_work_date );
 
 	self->employee_list =
 		employee_fetch_list(

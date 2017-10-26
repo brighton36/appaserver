@@ -66,7 +66,8 @@ typedef struct
 	int payroll_period_number;
 	char *begin_work_date;
 	char *end_work_date;
-	double employee_work_hours;
+	double regular_work_hours;
+	double overtime_work_hours;
 	double commission_sum_extension;
 	double gross_pay;
 	double federal_tax_withholding_amount;
@@ -117,6 +118,7 @@ typedef struct
 	char *end_work_date_time;
 	double employee_work_hours;
 	double database_employee_work_hours;
+	boolean overtime_work_day;
 } EMPLOYEE_WORK_DAY;
 
 typedef struct
@@ -236,7 +238,8 @@ boolean employee_get_prior_period(
 					char **end_work_date,
 					int *payroll_year,
 					int *period_number,
-					enum payroll_pay_period );
+					enum payroll_pay_period,
+					char *payroll_beginning_day );
 
 boolean employee_get_payroll_begin_end_work_dates(
 					char **payroll_begin_work_date,
@@ -254,14 +257,15 @@ PAYROLL_POSTING *employee_get_payroll_posting(
 				LIST *employee_list,
 				int payroll_year,
 				int payroll_period_number,
-				char *begin_work_date,
-				char *end_work_date,
+				char *begin_work_date_string,
+				char *end_work_date_string,
 				ENTITY_SELF *self,
 				EMPLOYEE_TAX_WITHHOLDING_TABLE *
 					employee_tax_withholding_table );
 
 LIST *employee_posting_calculate_work_period_list(
-			double *employee_work_hours,
+			double *regular_work_hours,
+			double *overtime_work_hours,
 			double *commission_sum_extension,
 			double *gross_pay,
 			double *federal_tax_withholding_amount,
@@ -283,8 +287,8 @@ LIST *employee_posting_calculate_work_period_list(
 			LIST *employee_list,
 			int payroll_year,
 			int payroll_period_number,
-			char *begin_work_date,
-			char *end_work_date,
+			char *begin_work_date_string,
+			char *end_work_date_string,
 			ENTITY_SELF *self,
 			EMPLOYEE_TAX_WITHHOLDING_TABLE *
 				employee_tax_withholding_table );
@@ -311,8 +315,8 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			char *street_address,
 			int payroll_year,
 			int payroll_period_number,
-			char *begin_work_date,
-			char *end_work_date,
+			char *begin_work_date_string,
+			char *end_work_date_string,
 			ENTITY_SELF *self,
 			EMPLOYEE_TAX_WITHHOLDING_TABLE *
 				employee_tax_withholding_table );
@@ -326,8 +330,11 @@ void employee_update(		char *application_name,
 				double gross_pay_year_to_date,
 				double database_gross_pay_year_to_date );
 
-double employee_calculate_employee_work_hours(
-				LIST *employee_work_day_list );
+void employee_calculate_employee_work_hours(
+				double *regular_work_hours,
+				double *overtime_work_hours,
+				LIST *employee_work_day_list,
+				char *begin_work_date_string );
 
 double employee_calculate_commission_sum_extension(
 				LIST *customer_sale_list );

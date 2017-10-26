@@ -342,7 +342,7 @@ void build_latex_invoice(	FILE *output_stream,
 	if ( ! ( self = entity_self_load( application_name ) ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot load from ENTITY_SELF.\n",
+		"ERROR in %s/%s()/%d: cannot load from SELF.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );

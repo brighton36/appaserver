@@ -294,7 +294,7 @@ boolean depreciate_prior_fixed_assets_execute(
 	if ( ! ( entity_self = entity_self_load( application_name ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load entity self.\n",
+			 "ERROR in %s/%s()/%d: cannot load from SELF.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -417,7 +417,7 @@ boolean depreciate_prior_fixed_assets_display(
 	if ( ! ( entity_self = entity_self_load( application_name ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load entity self.\n",
+			 "ERROR in %s/%s()/%d: cannot load from SELF.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );

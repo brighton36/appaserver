@@ -257,8 +257,8 @@ boolean close_nominal_accounts_fund_execute(
 
 	if ( ! ( self = entity_self_load( application_name ) ) )
 	{
-		fprintf( stderr,
-			"ERROR in %s/%s()/%d: cannot fetch from ENTITY_SELF.\n",
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot fetch from SELF.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );

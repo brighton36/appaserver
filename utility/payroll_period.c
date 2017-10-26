@@ -49,7 +49,9 @@ void payroll_period_output_semimonthly_dates(
 				int period_number );
 
 int payroll_period_output_biweekly_period(
-				char *date_string );
+				char **year_string,
+				char *date_string,
+				int days_shift );
 
 void payroll_period_output_biweekly_dates(
 				int year,
@@ -291,7 +293,9 @@ int payroll_period(	char **year_string,
 		{
 			local_period_number =
 				payroll_period_output_biweekly_period(
-					date_string );
+					year_string,
+					date_string,
+					days_shift );
 		}
 		else
 		if ( period_number )
@@ -464,7 +468,7 @@ boolean payroll_period_get_weekly_dates(
 			{
 				DATE *d2;
 
-				d2 = date_new_date();
+				d2 = date_calloc();
 				date_copy( d2, d );
 
 				if ( days_shift )
@@ -528,13 +532,29 @@ boolean payroll_period_get_weekly_dates(
 
 } /* payroll_period_get_weekly_dates() */
 
-int payroll_period_output_biweekly_period( char *date_string )
+int payroll_period_output_biweekly_period(
+				char **year_string,
+				char *date_string,
+				int days_shift )
 {
 	DATE *d;
 	int week_of_year;
 	int period_number;
 
 	d = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
+
+	if ( days_shift )
+	{
+		char local_year_string[ 5 ];
+
+		date_increment_days(
+			d,
+			-(double)days_shift,
+			date_get_utc_offset() );
+
+		sprintf( local_year_string, "%d", date_get_year( d ) );
+		*year_string = strdup( local_year_string );
+	}
 
 	week_of_year = date_get_week_of_year( d, date_get_utc_offset() );
 

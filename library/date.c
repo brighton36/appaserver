@@ -13,7 +13,7 @@
 #include "julian.h"
 #include "date.h"
 
-DATE *date_new_date( void )
+DATE *date_calloc( void )
 {
 	DATE *d = (DATE *)calloc( 1, sizeof( DATE ) );
 
@@ -41,14 +41,19 @@ DATE *date_new_date( void )
 
 	return d;
 
-} /* date_new_date() */
+} /* date_calloc() */
+
+DATE *date_new_date( void )
+{
+	return date_calloc();
+}
 
 DATE *date_current_new(	time_t current,
 			int utc_offset )
 {
 	DATE *date;
 
-	date = date_new_date();
+	date = date_calloc();
 
 	date_set_tm_structures( date, current, utc_offset );
 	date->current = current;
@@ -114,7 +119,7 @@ DATE *date_new_date_time(
 		exit( 1 );
 	}
 
-	d = date_new_date();
+	d = date_calloc();
 	d->tm->tm_year = year - 1900;
 	d->tm->tm_mon = month - 1;
 	d->tm->tm_mday = day;
@@ -1400,7 +1405,7 @@ char *date_get_hhmm_string( DATE *d )
 char *date_new_get_yyyy_mm_dd(	time_t current,
 				int utc_offset )
 {
-	DATE *d = date_new_date();
+	DATE *d = date_calloc();
 
 	date_set_tm_structures( d, current, utc_offset );
 	d->current = date_tm_to_current( d->tm, utc_offset );
@@ -1841,7 +1846,7 @@ boolean date_tomorrow( 		DATE *old_date,
 	char buffer2[ 128 ];
 	DATE *tomorrow_date;
 
-	tomorrow_date = date_new_date();
+	tomorrow_date = date_calloc();
 	date_copy( tomorrow_date, old_date );
 
 	date_increment_day( tomorrow_date, utc_offset );
@@ -1879,7 +1884,7 @@ char *date_current_to_static_yyyy_mm_dd_string(
 				time_t current,
 				int utc_offset )
 {
-	DATE *d = date_new_date();
+	DATE *d = date_calloc();
 	static char yyyy_mm_dd_string[ 16 ];
 
 	date_set_tm_structures( d, current, utc_offset );

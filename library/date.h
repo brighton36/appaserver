@@ -271,7 +271,11 @@ void date_decrement_days(		DATE *d,
 					int utc_offset );
 
 char *date_hhmm( DATE *d );
+
 char *date_get_hhmm_string( DATE *d );
+
+DATE *date_calloc( void );
+
 DATE *date_new_date( void );
 
 DATE *date_new_date_time(

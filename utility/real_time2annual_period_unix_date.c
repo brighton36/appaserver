@@ -130,8 +130,8 @@ int main( int argc, char **argv )
 	aggregate_period = argv[ 5 ];
 	period = argv[ 6 ];
 
-	new_date = date_new_date();
-	old_date = date_new_date();
+	new_date = date_calloc();
+	old_date = date_calloc();
 
 	if ( strcmp( aggregate_period, "weekly" ) == 0 )
 	{

@@ -43,8 +43,8 @@ int main( int argc, char **argv )
 	FILE *ticker_date_time_pipe;
 	char sys_string[ 1024 ];
 	char ticker_date_time_string[ 128 ];
-	DATE *ticker_date = date_new_date();
-	DATE *input_date = date_new_date();
+	DATE *ticker_date = date_calloc();
+	DATE *input_date = date_calloc();
 	char ticker_date_buffer[ 16 ];
 	char ticker_time_buffer[ 16 ];
 	char time_offset_buffer[ 16 ];

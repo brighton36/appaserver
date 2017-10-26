@@ -30,7 +30,7 @@ int test_weekly( void )
 "julian_time_list.e 1999-06-01 1999-06-30 1 | piece.e ':' 0 | piece.e '=' 1" );
 
 	julian = julian_new_julian( 0 );
-	date = date_new_date();
+	date = date_calloc();
 
 	input_pipe = popen( sys_string, "r" );
 

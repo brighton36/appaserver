@@ -283,7 +283,7 @@ void test_richie()
 {
 	DATE *d;
 
-	d = date_new_date();
+	d = date_calloc();
 	d->current = -893400000;
 
 	date_set_tm_structures( d, d->current, date_get_utc_offset() );

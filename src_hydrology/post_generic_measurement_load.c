@@ -503,9 +503,9 @@ enum event_parameter_return_value get_measurement_update_event_parameters(
 		exit( 0 );
 	}
 
-	measurement_date = date_new_date();
-	begin_measurement_date = date_new_date();
-	end_measurement_date = date_new_date();
+	measurement_date = date_calloc();
+	begin_measurement_date = date_calloc();
+	end_measurement_date = date_calloc();
 
 	generic_load_reset_row_count();
 

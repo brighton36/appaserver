@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include "date.h"
 #include "timlib.h"
+#include "column.h"
 
+void test_payroll_period( void );
 void test_strftime( int year );
 void test_subtract_second( void );
 void test_grandfather_father_son();
@@ -36,6 +38,9 @@ void test_2015_10_26( void );
 
 int main()
 {
+	test_payroll_period();
+
+/*
 	test_week_of_year_1995();
 	test_week_of_year_1998();
 	test_week_of_year_1999();
@@ -58,6 +63,7 @@ int main()
 	test_minutes_between();
 	test_years_between();
 	test_grandfather_father_son();
+*/
 
 #ifdef NOT_DEFINED
 	test_round();
@@ -85,7 +91,12 @@ void test_round()
 		for( minutes = 0; minutes < 60; minutes++ )
 		{
 			date = date_today_new( date_get_utc_offset() );
-			date_set_time( date, hour, minutes, date_get_utc_offset() );
+			date_set_time(
+				date,
+				hour,
+				minutes,
+				date_get_utc_offset() );
+
 			date_round2five_minutes( date, date_get_utc_offset() );
 			printf( "hour = %d minutes = %d round = %s date = %s\n",
 				hour, minutes,
@@ -943,4 +954,65 @@ void test_week_of_year_2045()
 		date_get_week_of_year( d, date_get_utc_offset() ) );
 
 }
+
+void test_payroll_period( void )
+{
+	FILE *input_pipe;
+	char input_buffer[ 128 ];
+	int begin_year;
+	int end_year;
+	int year;
+	int period_number;
+	char *beginday;
+	char *period;
+	char sys_string[ 1024 ];
+	int days_between;
+	char begin_date_string[ 16 ];
+	char end_date_string[ 16 ];
+
+	period = "biweekly";
+	begin_year = 1970;
+	end_year = 2030;
+	beginday = "friday";
+
+	for( year = begin_year; year <= end_year; year++ )
+	{
+		for(	period_number = 1; ; period_number++ )
+		{
+			sprintf( sys_string,
+				 "payroll_period.e	"
+				 "period=%s		"
+				 "beginday=%s		"
+				 "year=%d		"
+				 "number=%d		",
+				 period,
+				 beginday,
+				 year,
+				 period_number );
+
+			input_pipe = popen( sys_string, "r" );
+
+			if( !get_line( input_buffer, input_pipe ) )
+			{
+				pclose( input_pipe );
+				break;
+			}
+
+			column( begin_date_string, 1, input_buffer );
+
+			get_line( input_buffer, input_pipe );
+			column( end_date_string, 1, input_buffer );
+			pclose( input_pipe );
+
+			printf( "for %d/%d: days_between = %d\n",
+				year,
+				period_number,
+				date_days_between(
+					begin_date_string,
+					end_date_string,
+					date_get_utc_offset() ) );
+		}
+	}
+
+} /* test_payroll_period() */
 

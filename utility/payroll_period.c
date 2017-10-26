@@ -32,7 +32,8 @@ char *payroll_period_get_begin_date_string(
 				int year,
 				int period_number );
 
-void payroll_period_prior(	char *period );
+void payroll_period_prior(	char *period,
+				char *beginday );
 
 int payroll_period_output_monthly_period(
 				char *date_string );
@@ -135,19 +136,11 @@ int main( int argc, char **argv )
 				&beginday,
 				arg );
 
-/*
-fprintf( stderr, "%s/%s()/%d: period_number_string = %s, date_string = %s, year_string = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-period_number_string,
-date_string,
-year_string );
-*/
-
 	if ( strcmp( prior_yn, "yes" ) == 0 )
 	{
-		payroll_period_prior( period );
+		payroll_period_prior(
+			period,
+			beginday );
 	}
 	else
 	{
@@ -160,15 +153,6 @@ year_string );
 				atoi( period_number_string ),
 				atoi( year_string ),
 				beginday );
-
-/*
-fprintf( stderr, "%s/%s()/%d: returned period_number = %d and year_string = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-period_number,
-year_string );
-*/
 
 		if ( *date_string && period_number )
 		{
@@ -520,6 +504,8 @@ boolean payroll_period_get_weekly_dates(
 		}
 	}
 
+	if ( !*begin_work_date ) return 0;
+
 	date_increment_days(
 		d,
 		(double)days_shift - 1.0,
@@ -587,12 +573,15 @@ void payroll_period_output_biweekly_dates(
 
 	if ( period_number == 27 )
 	{
-		payroll_period_get_weekly_dates(
+		if ( !payroll_period_get_weekly_dates(
 				begin_work_date,
 				end_work_date,
 				year,
 				53,
-				days_shift );
+				days_shift ) )
+		{
+			return;
+		}
 	}
 	else
 	{
@@ -836,7 +825,8 @@ char *payroll_period_get_begin_date_string(
 
 } /* payroll_period_get_begin_date_string() */
 
-void payroll_period_prior( char *period )
+void payroll_period_prior(	char *period,
+				char *beginday )
 {
 	DATE *d;
 	int week_of_year;
@@ -846,8 +836,19 @@ void payroll_period_prior( char *period )
 	int year;
 	char *begin_date_string;
 	char sys_string[ 1024 ];
+	int days_shift;
 
 	d = date_now_new( date_get_utc_offset() );
+
+	days_shift = payroll_period_get_days_shift( beginday );
+
+	if ( days_shift )
+	{
+		date_increment_days(
+			d,
+			-(double)days_shift,
+			date_get_utc_offset() );
+	}
 
 	month = date_get_month( d );
 	day = date_get_day( d );
@@ -904,9 +905,11 @@ void payroll_period_prior( char *period )
 	sprintf(sys_string,
 		"payroll_period.e"
 		" period=%s"
-		" date=%s",
+		" date=%s"
+		" beginday=%s",
 		period,
-		begin_date_string );
+		begin_date_string,
+		beginday );
 
 	system( sys_string );
 

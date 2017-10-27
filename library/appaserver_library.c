@@ -3218,7 +3218,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 		list_append_pointer( return_list, element );
 	}
 	else
-	if ( datatype )
+	if ( datatype && *datatype )
 	{
 		fprintf( stderr,
 "Warning in %s/%s()/%d: could not assign an element to datatype = %s.\n",

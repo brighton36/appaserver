@@ -19,7 +19,6 @@
 #include "application.h"
 #include "ledger.h"
 #include "appaserver_parameter_file.h"
-#include "html_table.h"
 #include "date.h"
 #include "employee.h"
 #include "entity.h"
@@ -49,6 +48,7 @@ void post_employee_work_period_display(
 			int payroll_period_number,
 			char *begin_work_date,
 			char *end_work_date,
+			ENTITY_SELF *self,
 			PAYROLL_POSTING *payroll_posting );
 
 int main( int argc, char **argv )
@@ -170,6 +170,7 @@ int main( int argc, char **argv )
 			payroll_period_number,
 			begin_work_date,
 			end_work_date,
+			self,
 			(PAYROLL_POSTING *)0 );
 	}
 	else
@@ -205,8 +206,92 @@ void post_employee_work_period_display(
 			int payroll_period_number,
 			char *begin_work_date,
 			char *end_work_date,
+			ENTITY_SELF *self,
 			PAYROLL_POSTING *payroll_posting )
 {
+	EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	char *format_string;
+	char *heading_list_string;
+	char *justify_list_string;
+	EMPLOYEE_WORK_PERIOD *e;
+	char sub_title[ 128 ];
+
+	if ( !payroll_posting )
+	{
+		employee_tax_withholding_table =
+			employee_tax_withholding_table_new(
+				application_name );
+
+		if ( ! ( payroll_posting =
+				employee_get_payroll_posting(
+					employee_list,
+					payroll_year,
+					payroll_period_number,
+					begin_work_date,
+					end_work_date,
+					self,
+					employee_tax_withholding_table ) ) )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: cannot get payroll_posting.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+	}
+
+	format_string =
+"%s^%.1lf^%.1lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf\n";
+
+	heading_list_string = "full_name,regular_hours,overtime_hours,gross_pay,federal_withhold,state_withhold,social_employee,social_employer,medicare_employee,medicare_employer,federal_unemployment,state_unemployment";
+
+	justify_list_string = "left,right";
+
+	sprintf(	sub_title,
+			"Year: %d Period: %d",
+			payroll_year,
+			payroll_period_number );
+
+	sprintf( sys_string,
+		 "html_table.e '^%s' '%s' '^' '%s'",
+		 sub_title,
+		 heading_list_string,
+		 justify_list_string );
+
+	output_pipe = popen( sys_string, "w" );
+
+	if ( !list_rewind( payroll_posting->employee_work_period_list ) )
+	{
+		pclose( output_pipe );
+		return;
+	}
+
+	do {
+		e = list_get_pointer(
+			payroll_posting->
+				employee_work_period_list );
+
+		fprintf( output_pipe,
+			 format_string,
+			 e->full_name,
+			 e->regular_work_hours,
+			 e->overtime_work_hours,
+			 e->gross_pay,
+			 e->federal_tax_withholding_amount,
+			 e->state_tax_withholding_amount,
+			 e->social_security_employee_tax_amount,
+			 e->social_security_employer_tax_amount,
+			 e->medicare_employee_tax_amount,
+			 e->medicare_employer_tax_amount,
+			 e->federal_unemployment_tax_amount,
+			 e->state_unemployment_tax_amount );
+
+	} while( list_next( payroll_posting->employee_work_period_list ) );
+
+	pclose( output_pipe );
 
 } /* post_employee_work_period_display() */
 
@@ -248,6 +333,7 @@ void post_employee_work_period(
 			payroll_period_number,
 			begin_work_date,
 			end_work_date,
+			self,
 			payroll_posting );
 	}
 

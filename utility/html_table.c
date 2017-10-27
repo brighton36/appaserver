@@ -1,4 +1,5 @@
-/* html_table.c */
+/* ------------------------------------------------------------ */
+/* $APPASERVER_HOME/utility/html_table.c			*/
 /* ------------------------------------------------------------ */
 /*								*/
 /* This is a utility to wrap an html table around delimited	*/

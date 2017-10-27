@@ -824,7 +824,7 @@ LIST *employee_fetch_list(	char *application_name,
 	employee_list = list_new();
 
 	select = "full_name,street_address";
-	where = "terminated_date is not null";
+	where = "terminated_date is null";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -850,6 +850,18 @@ LIST *employee_fetch_list(	char *application_name,
 				strdup( street_address ),
 				begin_work_date,
 				end_work_date );
+
+		if ( !employee )
+		{
+			fprintf( stderr,
+		"Warning in %s/%s()/%d: cannot load employee = (%s/%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 full_name,
+				 street_address );
+			continue;
+		}
 
 		list_append_pointer( employee_list, employee );
 	}
@@ -1310,7 +1322,7 @@ void employee_calculate_employee_work_hours(
 			if ( week_one_regular_work_hours > 40.0 )
 			{
 				*overtime_work_hours +=
-					( 40.0 - week_one_regular_work_hours );
+					( week_one_regular_work_hours - 40.0 );
 
 				week_one_regular_work_hours = 40.0;
 			}
@@ -1342,7 +1354,7 @@ void employee_calculate_employee_work_hours(
 			if ( week_two_regular_work_hours > 40.0 )
 			{
 				*overtime_work_hours +=
-					( 40.0 - week_two_regular_work_hours );
+					( week_two_regular_work_hours - 40.0 );
 
 				week_two_regular_work_hours = 40.0;
 			}
@@ -1426,14 +1438,21 @@ EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table_new(
 			application_name,
 			"federal" );
 
-	if ( list_length( federal_marital_status_string_list ) )
+	if ( !list_length( federal_marital_status_string_list ) )
 	{
-		e->federal_marital_status_list =
-			employee_fetch_marital_status_list(
-				application_name,
-				federal_marital_status_string_list,
-				"federal" );
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot get federal_marital_status_string_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
+
+	e->federal_marital_status_list =
+		employee_fetch_marital_status_list(
+			application_name,
+			federal_marital_status_string_list,
+			"federal" );
 
 	state_marital_status_string_list =
 		employee_fetch_marital_status_string_list(
@@ -1629,6 +1648,8 @@ LIST *employee_fetch_marital_status_list(
 				federal_or_state,
 				marital_status_string );
 
+		list_append_pointer( marital_status_list, e );
+
 	} while( list_next( marital_status_string_list ) );
 
 	return marital_status_list;
@@ -1745,14 +1766,23 @@ double employee_calculate_computed_tax(
 	double excess_over;
 	double withholding_amount = 0.0;
 
-	if ( !list_rewind( marital_status_list ) ) return 0.0;
+	if ( !list_rewind( marital_status_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty marital_status_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	do {
 		marital_status_withholding =
 			list_get_pointer(
 				marital_status_list );
 
-		if ( strcmp(	marital_status_withholding->marital_status,
+		if ( timlib_strcmp(
+				marital_status_withholding->marital_status,
 				marital_status_string ) != 0 )
 		{
 			continue;
@@ -1762,18 +1792,32 @@ double employee_calculate_computed_tax(
 			marital_status_withholding->
 				income_tax_withholding_list;
 
+		if ( !list_length( tax_withholding_list ) )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty tax_withholding_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
 		e = list_get_first_pointer( tax_withholding_list );
-	
+
 		if ( taxable_income <= (double)e->income_over )
 			return 0.0;
-	
+
+		list_rewind( tax_withholding_list );
+
 		do {
 			e = list_get_pointer( tax_withholding_list );
 	
+			/* If the last one or within the range. */
+			/* ------------------------------------ */
 			if ( !e->income_not_over
 			|| ( (	taxable_income >
 				(double)e->income_over
-			&&     taxable_income <=
+			&&      taxable_income <=
 				(double)e->income_not_over ) ) )
 			{
 				excess_over =	taxable_income -
@@ -1791,7 +1835,14 @@ double employee_calculate_computed_tax(
 
 	} while( list_next( marital_status_list ) );
 
-	return 0.0;
+	fprintf( stderr,
+		 "ERROR in %s/%s()/%d: cannot get computed_tax for %.2lf.\n",
+		 __FILE__,
+		 __FUNCTION__,
+		 __LINE__,
+		 taxable_income );
+
+	exit( 1 );
 
 } /* employee_calculate_computed_tax() */
 
@@ -2123,9 +2174,15 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 
 	/* medicare_employer_tax_amount */
 	/* ---------------------------- */
-	employee_work_period->medicare_employee_tax_amount =
+	employee_work_period->medicare_employer_tax_amount =
 			employee_work_period->gross_pay *
 			( self->medicare_combined_tax_rate / 2.0 );
+
+	/* federal_unemployment_tax_amount */
+	/* ------------------------------- */
+
+	/* state_unemployment_tax_amount */
+	/* ----------------------------- */
 
 	/* retirement_contribution_plan_employee_amount */
 	/* -------------------------------------------- */

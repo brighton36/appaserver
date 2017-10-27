@@ -953,6 +953,16 @@ DATE *date_yyyy_mm_dd_new(	char *date_string,
 	char day_string[ 128 ];
 	DATE *date;
 	char delimiter;
+	char local_date_string[ 32 ];
+
+
+	/* If appended time */
+	/* ---------------- */
+	if ( count_character( ' ', date_string ) == 1 )
+	{
+		column( local_date_string, 0, date_string );
+		date_string = local_date_string;
+	}
 
 	if ( count_character( '-', date_string ) == 2 )
 		delimiter = '-';

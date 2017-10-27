@@ -154,13 +154,6 @@ int main( int argc, char **argv )
 			self->payroll_beginning_day );
 	}
 
-fprintf( stderr, "%s/%s()/%d: got begin_work_date = %s and end_work_date = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-begin_work_date,
-end_work_date );
-
 	self->employee_list =
 		employee_fetch_list(
 			application_name,

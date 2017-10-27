@@ -1259,28 +1259,100 @@ void employee_calculate_employee_work_hours(
 			char *begin_work_date_string )
 {
 	EMPLOYEE_WORK_DAY *employee_work_day;
-	double employee_work_hours;
-	DATE *begin_work_date;
-	DATE *work_date;
-	boolean week_one = 1;
+	int week_number;
+	int days_between;
+	double week_one_regular_work_hours = 0.0;
+	double week_two_regular_work_hours = 0.0;
 
 	*regular_work_hours = 0.0;
 	*overtime_work_hours = 0.0;
 
 	if ( !list_rewind( employee_work_day_list ) ) return;
 
-	begin_work_date = date_yyyy_mm_dd_new( begin_work_date_string );
-
-here1
-
-	employee_work_hours = 0.0;
-
 	do {
 		employee_work_day = list_get_pointer( employee_work_day_list );
 
-		employee_work_hours += employee_work_day->employee_work_hours;
+		days_between = 
+			date_days_between(
+				begin_work_date_string,
+				employee_work_day->
+					begin_work_date_time,
+				date_get_utc_offset() );
+
+		if ( days_between <= 6 )
+			week_number = 1;
+		else
+			week_number = 2;
+
+		if ( week_number == 1 )
+		{
+			if ( employee_work_day->overtime_work_day )
+			{
+				*overtime_work_hours +=
+					employee_work_day->
+						employee_work_hours;
+				continue;
+			}
+
+			if ( timlib_double_virtually_same(
+				week_one_regular_work_hours, 40.0 ) )
+			{
+				*overtime_work_hours +=
+					employee_work_day->
+						employee_work_hours;
+				continue;
+			}
+
+			week_one_regular_work_hours +=
+				employee_work_day->
+					employee_work_hours;
+
+			if ( week_one_regular_work_hours > 40.0 )
+			{
+				*overtime_work_hours +=
+					( 40.0 - week_one_regular_work_hours );
+
+				week_one_regular_work_hours = 40.0;
+			}
+		} /* if week_number == 1 */
+
+		if ( week_number == 2 )
+		{
+			if ( employee_work_day->overtime_work_day )
+			{
+				*overtime_work_hours +=
+					employee_work_day->
+						employee_work_hours;
+				continue;
+			}
+
+			if ( timlib_double_virtually_same(
+				week_two_regular_work_hours, 40.0 ) )
+			{
+				*overtime_work_hours +=
+					employee_work_day->
+						employee_work_hours;
+				continue;
+			}
+
+			week_two_regular_work_hours +=
+				employee_work_day->
+					employee_work_hours;
+
+			if ( week_two_regular_work_hours > 40.0 )
+			{
+				*overtime_work_hours +=
+					( 40.0 - week_two_regular_work_hours );
+
+				week_two_regular_work_hours = 40.0;
+			}
+		} /* if week_number == 2 */
 
 	} while( list_next( employee_work_day_list ) );
+
+	*regular_work_hours =
+		week_one_regular_work_hours +
+		week_two_regular_work_hours;
 
 } /* employee_calculate_employee_work_hours() */
 
@@ -1894,14 +1966,22 @@ double employee_calculate_medicare_employee_tax_amount(
 } /* employee_calculate_medicare_employee_tax_amount() */
 
 double employee_calculate_hourly_gross_pay(
-				double employee_work_hours,
+				double regular_work_hours,
+				double overtime_work_hours,
 				double hourly_wage )
 {
 	double hourly_gross_pay;
 
 	hourly_gross_pay =
-		employee_work_hours *
+		regular_work_hours *
 		hourly_wage;
+
+	if ( overtime_work_hours )
+	{
+		hourly_gross_pay +=
+			overtime_work_hours *
+			( hourly_wage * 1.5 );
+	}
 
 	return hourly_gross_pay;
 
@@ -1967,7 +2047,8 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 	{
 		employee_work_period->gross_pay =
 			employee_calculate_hourly_gross_pay(
-				employee_work_period->employee_work_hours,
+				employee_work_period->regular_work_hours,
+				employee_work_period->overtime_work_hours,
 				hourly_wage );
 	}
 

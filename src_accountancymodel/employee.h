@@ -93,7 +93,8 @@ typedef struct
 	int payroll_period_number;
 	char *begin_work_date;
 	char *end_work_date;
-	double employee_work_hours;
+	double regular_work_hours;
+	double overtime_work_hours;
 	double commission_sum_extension;
 	double gross_pay;
 	double federal_tax_withholding_amount;
@@ -436,7 +437,8 @@ double employee_calculate_medicare_employee_tax_amount(
 				int payroll_period_number );
 
 double employee_calculate_hourly_gross_pay(
-				double employee_work_hours,
+				double regular_work_hours,
+				double overtime_work_hours,
 				double hourly_wage );
 
 #endif

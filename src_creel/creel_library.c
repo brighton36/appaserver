@@ -3989,6 +3989,12 @@ FILE *creel_library_get_fishing_trips_input_pipe(
 			interview_locations_table );
 	}
 
+fprintf( stderr, "%s/%s()/%d: where_clause = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+where_clause );
+
 	if ( family && *family )
 	{
 		where_preferred_caught =

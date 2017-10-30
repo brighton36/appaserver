@@ -38,6 +38,7 @@ enum output_medium { output_medium_stdout, spreadsheet, table };
 #define FILENAME_STEM_SPECIES_DETAIL	"creel_detail_cpue"
 #define FILENAME_STEM_PER_SPECIES	"creel_cpue_per_species"
 #define FILENAME_STEM_SPECIES_PER_AREA	"creel_cpue_per_species_per_area"
+#define FILENAME_STEM_DESTINATION	"creel_cpue_annually"
 
 /* Prototypes */
 /* ---------- */
@@ -53,7 +54,8 @@ char *get_per_species_output_filename(
 					char *application_name,
 					char *begin_date_string,
 					char *end_date_string,
-					pid_t process_id );
+					pid_t process_id,
+					char *filename_stem );
 
 void calculate_species_cpue_group_monthly(
 					char *application_name,
@@ -421,7 +423,8 @@ void calculate_species_cpue_group_annually(
 				application_name,
 				begin_date_string,
 				end_date_string,
-				process_id );
+				process_id,
+				FILENAME_STEM_DESTINATION );
 
 	if ( ! ( output_file =
 			fopen(
@@ -461,7 +464,7 @@ void calculate_species_cpue_group_annually(
 			appaserver_link_file->
 				link_prompt->server_address,
 			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
+			FILENAME_STEM_DESTINATION,
 			appaserver_link_file->begin_date_string,
 			appaserver_link_file->end_date_string,
 			appaserver_link_file->process_id,
@@ -504,7 +507,8 @@ void calculate_species_cpue_group_annually(
 				application_name,
 				begin_date_string,
 				end_date_string,
-				process_id );
+				process_id,
+				FILENAME_STEM_PER_SPECIES );
 
 		sprintf( column_a_datum,
 			 "%d",
@@ -611,7 +615,8 @@ void calculate_species_cpue_group_monthly(
 				application_name,
 				begin_date_string,
 				end_date_string,
-				process_id );
+				process_id,
+				FILENAME_STEM_PER_SPECIES );
 
 	if ( ! ( output_file =
 			fopen(
@@ -704,7 +709,8 @@ void calculate_species_cpue_group_monthly(
 					application_name,
 					begin_date_string,
 					end_date_string,
-					process_id );
+					process_id,
+					FILENAME_STEM_PER_SPECIES );
 
 			sprintf(column_a_datum,
 			 	"%s/%d",
@@ -1756,7 +1762,8 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 			application_name,
 			begin_date_string,
 			end_date_string,
-			process_id );
+			process_id,
+			FILENAME_STEM_PER_SPECIES );
 
 	if ( ! ( output_file =
 			fopen(	spreadsheet_cpue_per_species_output_filename,
@@ -1918,7 +1925,8 @@ char *get_per_species_output_filename(
 			char *application_name,
 			char *begin_date_string,
 			char *end_date_string,
-			pid_t process_id )
+			pid_t process_id,
+			char *filename_stem )
 {
 	char *output_filename;
 	APPASERVER_LINK_FILE *appaserver_link_file;
@@ -1930,7 +1938,7 @@ char *get_per_species_output_filename(
 			( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 			document_root_directory,
-			FILENAME_STEM_PER_SPECIES,
+			filename_stem,
 			application_name,
 			process_id,
 			(char *)0 /* session */,

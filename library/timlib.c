@@ -2028,64 +2028,6 @@ double ceiling( double d )
 		return -floor( -d );
 }
 
-#ifdef NOT_DEFINED
-double timlib_round_money( double d )
-{
-	double hundred_times;
-	double hundred_times_plus;
-	int hundred_times_int;
-	double results;
-
-/*
-fprintf( stderr, "%s/%s()/%d: d = %.6lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-d );
-*/
-	hundred_times = d * 100.0;
-
-/*
-fprintf( stderr, "%s/%s()/%d: hundred_times = %.6lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-hundred_times );
-*/
-
-	hundred_times_plus = hundred_times + 0.5;
-
-/*
-fprintf( stderr, "%s/%s()/%d: hundred_times_plus = %.6lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-hundred_times_plus );
-*/
-
-	hundred_times_int = (int)hundred_times_plus;
-
-/*
-fprintf( stderr, "%s/%s()/%d: hundred_times_int = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-hundred_times_int );
-*/
-
-	results = (double)hundred_times_int / 100.0;
-
-fprintf( stderr, "%s/%s()/%d: returning results = %.6lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-results );
-
-	return results;
-
-} /* timlib_round_money() */
-#endif
-
 double timlib_round_money( double d )
 {
 	char string[ 32 ];

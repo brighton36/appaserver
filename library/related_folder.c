@@ -3763,6 +3763,7 @@ boolean related_folder_is_one2one_firewall(
 					attribute_list,
 					attribute_name ) ) )
 		{
+/* Not participating.
 			fprintf( stderr,
 "Warning in %s/%s()/%d: cannot seek attribute_name = (%s) in attribute_list = (%s)\n",
 				 __FILE__,
@@ -3770,6 +3771,7 @@ boolean related_folder_is_one2one_firewall(
 				 __LINE__,
 				 attribute_name,
 				 attribute_list_display( attribute_list ) );
+*/
 			continue;
 		}
 

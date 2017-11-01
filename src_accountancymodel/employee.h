@@ -70,6 +70,8 @@ typedef struct
 	double overtime_work_hours;
 	double commission_sum_extension;
 	double gross_pay;
+	double net_pay;
+	double payroll_tax_amount;
 	double federal_tax_withholding_amount;
 	double state_tax_withholding_amount;
 	double social_security_employee_tax_amount;
@@ -97,6 +99,8 @@ typedef struct
 	double overtime_work_hours;
 	double commission_sum_extension;
 	double gross_pay;
+	double net_pay;
+	double payroll_tax_amount;
 	double federal_tax_withholding_amount;
 	double state_tax_withholding_amount;
 	double social_security_employee_tax_amount;
@@ -131,6 +135,8 @@ typedef struct
 	double commission_sum_extension_percent;
 	double gross_pay_year_to_date;
 	double database_gross_pay_year_to_date;
+	double net_pay_year_to_date;
+	double database_net_pay_year_to_date;
 	char *federal_marital_status;
 	int federal_withholding_allowances;
 	int federal_withholding_additional_period_amount;
@@ -165,6 +171,8 @@ boolean employee_load(
 		double *commission_sum_extension_percent,
 		double *gross_pay_year_to_date,
 		double *database_gross_pay_year_to_date,
+		double *net_pay_year_to_date,
+		double *database_net_pay_year_to_date,
 		char **federal_marital_status,
 		int *federal_withholding_allowances,
 		int *federal_withholding_additional_period_amount,
@@ -269,6 +277,8 @@ LIST *employee_posting_calculate_work_period_list(
 			double *overtime_work_hours,
 			double *commission_sum_extension,
 			double *gross_pay,
+			double *net_pay,
+			double *payroll_tax_amount,
 			double *federal_tax_withholding_amount,
 			double *state_tax_withholding_amount,
 			double *social_security_employee_tax_amount,
@@ -284,6 +294,7 @@ LIST *employee_posting_calculate_work_period_list(
 			int *union_dues_amount,
 			/* ---------------------------------------- */
 			/* Updates employee->gross_pay_year_to_date */
+			/*     and employee->net_pay_year_to_date   */
 			/* ---------------------------------------- */
 			LIST *employee_list,
 			int payroll_year,
@@ -329,7 +340,9 @@ void employee_update(		char *application_name,
 				char *full_name,
 				char *street_address,
 				double gross_pay_year_to_date,
-				double database_gross_pay_year_to_date );
+				double database_gross_pay_year_to_date,
+				double net_pay_year_to_date,
+				double database_net_pay_year_to_date );
 
 void employee_calculate_employee_work_hours(
 				double *regular_work_hours,

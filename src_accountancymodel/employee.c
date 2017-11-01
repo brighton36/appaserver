@@ -1973,6 +1973,82 @@ double employee_calculate_social_security_employee_tax_amount(
 
 } /* employee_calculate_social_security_employee_tax_amount() */
 
+double employee_calculate_federal_unemployment_tax_amount(
+			double gross_pay,
+			double gross_pay_year_to_date,
+			int federal_unemployment_wage_base,
+			double federal_unemployment_tax_standard_rate,
+			double federal_unemployment_threshold_rate,
+			double federal_unemployment_tax_minimum_rate,
+			double state_unemployment_tax_rate,
+			int payroll_period_number )
+{
+	double federal_unemployment_tax_amount;
+	double federal_unemployment_tax_apply_amount;
+	double new_gross_pay_year_to_date;
+	double federal_unemployment_tax_apply_rate;
+
+	if ( payroll_period_number == 1 )
+		gross_pay_year_to_date = 0.0;
+
+	/* If already over the threshold */
+	/* ----------------------------- */
+	if ( gross_pay_year_to_date >=
+	     (double)federal_unemployment_wage_base )
+	{
+		return 0.0;
+	}
+
+	new_gross_pay_year_to_date = gross_pay + gross_pay_year_to_date;
+
+	if ( new_gross_pay_year_to_date <=
+	     (double)federal_unemployment_wage_base )
+	{
+		/* If the entire pay is under the threshold */
+		/* ---------------------------------------- */
+		federal_unemployment_tax_apply_amount = gross_pay;
+	}
+	else
+	{
+		/* If some of the pay is under the threshold */
+		/* ----------------------------------------- */
+		double over_amount;
+
+		over_amount =
+			new_gross_pay_year_to_date -
+	     		(double)federal_unemployment_wage_base;
+
+		federal_unemployment_tax_apply_amount =
+			gross_pay - over_amount;
+	}
+
+	if (	state_unemployment_tax_rate >=
+		federal_unemployment_threshold_rate )
+	{
+		federal_unemployment_tax_apply_rate =
+			federal_unemployment_tax_minimum_rate;
+	}
+	else
+	if ( state_unemployment_tax_rate == 0.0 )
+	{
+		federal_unemployment_tax_apply_rate =
+			federal_unemployment_tax_standard_rate;
+	}
+	else
+	{
+		federal_unemployment_tax_apply_rate =
+			federal_unemployment_tax_standard_rate -
+			state_unemployment_tax_rate;
+	}
+
+	federal_unemployment_tax_amount =
+		federal_unemployment_tax_apply_amount *
+		federal_unemployment_tax_apply_rate;
+
+	return federal_unemployment_tax_amount;
+
+} /* employee_calculate_federal_unemployment_tax_amount() */
+
 double employee_calculate_medicare_employee_tax_amount(
 			double gross_pay,
 			double gross_pay_year_to_date,
@@ -1981,7 +2057,7 @@ double employee_calculate_medicare_employee_tax_amount(
 			int medicare_additional_gross_pay_floor,
 			int payroll_period_number )
 {
-	double medicare_employee_tax_amount = 0.0;
+	double medicare_employee_tax_amount;
 	double excess_gross_pay = 0.0;
 
 	if ( payroll_period_number == 1 )
@@ -2180,6 +2256,16 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 
 	/* federal_unemployment_tax_amount */
 	/* ------------------------------- */
+	employee_work_period->federal_unemployment_tax_amount =
+		employee_calculate_federal_unemployment_tax_amount(
+			employee_work_period->gross_pay,
+			gross_pay_year_to_date,
+			self->federal_unemployment_wage_base,
+			self->federal_unemployment_tax_standard_rate,
+			self->federal_unemployment_threshold_rate,
+			self->federal_unemployment_tax_minimum_rate,
+			self->state_unemployment_tax_rate,
+			payroll_period_number );
 
 	/* state_unemployment_tax_amount */
 	/* ----------------------------- */

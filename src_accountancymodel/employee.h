@@ -428,6 +428,16 @@ double employee_calculate_social_security_employee_tax_amount(
 				int social_security_payroll_ceiling,
 				int payroll_period_number );
 
+double employee_calculate_federal_unemployment_tax_amount(
+				double gross_pay,
+				double gross_pay_year_to_date,
+				int federal_unemployment_wage_base,
+				double federal_unemployment_tax_standard_rate,
+				double federal_unemployment_threshold_rate,
+				double federal_unemployment_tax_minimum_rate,
+				double state_unemployment_tax_rate,
+				int payroll_period_number );
+
 double employee_calculate_medicare_employee_tax_amount(
 				double gross_pay,
 				double gross_pay_year_to_date,

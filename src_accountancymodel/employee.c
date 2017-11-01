@@ -2049,6 +2049,59 @@ double employee_calculate_federal_unemployment_tax_amount(
 
 } /* employee_calculate_federal_unemployment_tax_amount() */
 
+double employee_calculate_state_unemployment_tax_amount(
+			double gross_pay,
+			double gross_pay_year_to_date,
+			int state_unemployment_wage_base,
+			double state_unemployment_tax_rate,
+			int payroll_period_number )
+{
+	double state_unemployment_tax_amount;
+	double state_unemployment_tax_apply_amount;
+	double new_gross_pay_year_to_date;
+
+	if ( payroll_period_number == 1 )
+		gross_pay_year_to_date = 0.0;
+
+	/* If already over the threshold */
+	/* ----------------------------- */
+	if ( gross_pay_year_to_date >=
+	     (double)state_unemployment_wage_base )
+	{
+		return 0.0;
+	}
+
+	new_gross_pay_year_to_date = gross_pay + gross_pay_year_to_date;
+
+	if ( new_gross_pay_year_to_date <=
+	     (double)state_unemployment_wage_base )
+	{
+		/* If the entire pay is under the threshold */
+		/* ---------------------------------------- */
+		state_unemployment_tax_apply_amount = gross_pay;
+	}
+	else
+	{
+		/* If some of the pay is under the threshold */
+		/* ----------------------------------------- */
+		double over_amount;
+
+		over_amount =
+			new_gross_pay_year_to_date -
+	     		(double)state_unemployment_wage_base;
+
+		state_unemployment_tax_apply_amount =
+			gross_pay - over_amount;
+	}
+
+	state_unemployment_tax_amount =
+		state_unemployment_tax_apply_amount *
+		state_unemployment_tax_rate;
+
+	return state_unemployment_tax_amount;
+
+} /* employee_calculate_state_unemployment_tax_amount() */
+
 double employee_calculate_medicare_employee_tax_amount(
 			double gross_pay,
 			double gross_pay_year_to_date,
@@ -2269,6 +2322,13 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 
 	/* state_unemployment_tax_amount */
 	/* ----------------------------- */
+	employee_work_period->state_unemployment_tax_amount =
+		employee_calculate_state_unemployment_tax_amount(
+			employee_work_period->gross_pay,
+			gross_pay_year_to_date,
+			self->state_unemployment_wage_base,
+			self->state_unemployment_tax_rate,
+			payroll_period_number );
 
 	/* retirement_contribution_plan_employee_amount */
 	/* -------------------------------------------- */

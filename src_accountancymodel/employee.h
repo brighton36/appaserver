@@ -451,5 +451,12 @@ double employee_calculate_hourly_gross_pay(
 				double overtime_work_hours,
 				double hourly_wage );
 
+double employee_calculate_state_unemployment_tax_amount(
+				double gross_pay,
+				double gross_pay_year_to_date,
+				int state_unemployment_wage_base,
+				double state_unemployment_tax_rate,
+				int payroll_period_number );
+
 #endif
 

@@ -255,7 +255,9 @@ boolean employee_get_payroll_begin_end_work_dates(
 					char **payroll_begin_work_date,
 					char **payroll_end_work_date,
 					char *payroll_pay_period_string,
-					char *include_date );
+					int payroll_year,
+					int payroll_period_number,
+					char *payroll_beginning_day );
 
 LIST *employee_fetch_work_period_list(	char *application_name,
 					char *full_name,

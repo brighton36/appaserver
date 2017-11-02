@@ -909,7 +909,9 @@ boolean employee_get_payroll_begin_end_work_dates(
 					char **payroll_begin_work_date,
 					char **payroll_end_work_date,
 					char *payroll_pay_period_string,
-					char *include_date )
+					int payroll_year,
+					int payroll_period_number,
+					char *payroll_beginning_day )
 {
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
@@ -920,9 +922,13 @@ boolean employee_get_payroll_begin_end_work_dates(
 	sprintf( sys_string,
 		 "payroll_period.e"
 		 " period=%s"
-		 " date=%s",
+		 " year=%d"
+		 " number=%d"
+		 " beginday=%s",
 		 payroll_pay_period_string,
-		 include_date );
+		 payroll_year,
+		 payroll_period_number,
+		 payroll_beginning_day );
 
 	input_pipe = popen( sys_string, "r" );
 

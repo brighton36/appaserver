@@ -29,6 +29,29 @@
 
 /* Prototypes */
 /* ---------- */
+void post_employee_work_period_delete(
+			char *application_name,
+			int payroll_year,
+			int payroll_period_number,
+			boolean execute,
+			ENTITY_SELF *self );
+
+void post_employee_work_period_propagate(
+			char *application_name,
+			char *salary_wage_expense_account,
+			char *payroll_expense_account,
+			char *payroll_payable_account,
+			char *federal_withholding_payable_account,
+			char *state_withholding_payable_account,
+			char *social_security_payable_account,
+			char *medicare_payable_account,
+			char *retirement_plan_payable_account,
+			char *health_insurance_payable_account,
+			char *union_dues_payable_account,
+			char *federal_unemployment_tax_payable_account,
+			char *state_unemployment_tax_payable_account,
+			char *propagate_transaction_date_time );
+
 void post_employee_work_period_insert(
 			char *application_name,
 			LIST *employee_work_period_list );
@@ -43,7 +66,6 @@ double calculate_payroll_tax_percent(
 
 void post_employee_work_period(
 			char *application_name,
-			boolean delete,
 			LIST *employee_list,
 			int payroll_year,
 			int payroll_period_number,
@@ -55,7 +77,7 @@ void post_employee_work_period_employee_display(
 			boolean delete,
 			int payroll_year,
 			int payroll_period_number,
-			PAYROLL_POSTING *payroll_posting );
+			LIST *employee_work_period_list );
 
 void post_employee_work_period_display(
 			char *application_name,
@@ -65,8 +87,7 @@ void post_employee_work_period_display(
 			int payroll_period_number,
 			char *begin_work_date,
 			char *end_work_date,
-			ENTITY_SELF *self,
-			PAYROLL_POSTING *payroll_posting );
+			ENTITY_SELF *self );
 
 int main( int argc, char **argv )
 {
@@ -170,6 +191,37 @@ int main( int argc, char **argv )
 			self->payroll_pay_period,
 			self->payroll_beginning_day );
 	}
+	else
+	if ( !employee_get_payroll_begin_end_work_dates(
+			&begin_work_date,
+			&end_work_date,
+			entity_get_payroll_pay_period_string(
+				self->payroll_pay_period ),
+			payroll_year,
+			payroll_period_number,
+			self->payroll_beginning_day ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get begin/end dates.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( delete )
+	{
+		post_employee_work_period_delete(
+			application_name,
+			payroll_year,
+			payroll_period_number,
+			execute,
+			self );
+
+		if ( with_html ) document_close();
+
+		exit( 0 );
+	}
 
 	self->employee_list =
 		employee_fetch_list(
@@ -181,20 +233,18 @@ int main( int argc, char **argv )
 	{
 		post_employee_work_period_display(
 			application_name,
-			delete,
+			0 /* not delete */,
 			self->employee_list,
 			payroll_year,
 			payroll_period_number,
 			begin_work_date,
 			end_work_date,
-			self,
-			(PAYROLL_POSTING *)0 );
+			self );
 	}
 	else
 	{
 		post_employee_work_period(
 			application_name,
-			delete,
 			self->employee_list,
 			payroll_year,
 			payroll_period_number,
@@ -222,41 +272,38 @@ void post_employee_work_period_display(
 			int payroll_period_number,
 			char *begin_work_date,
 			char *end_work_date,
-			ENTITY_SELF *self,
-			PAYROLL_POSTING *payroll_posting )
+			ENTITY_SELF *self )
 {
+	PAYROLL_POSTING *payroll_posting;
 	EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table;
 
-	if ( !payroll_posting )
-	{
-		employee_tax_withholding_table =
-			employee_tax_withholding_table_new(
-				application_name );
+	employee_tax_withholding_table =
+		employee_tax_withholding_table_new(
+			application_name );
 
-		if ( ! ( payroll_posting =
-				employee_get_payroll_posting(
-					employee_list,
-					payroll_year,
-					payroll_period_number,
-					begin_work_date,
-					end_work_date,
-					self,
-					employee_tax_withholding_table ) ) )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: cannot get payroll_posting.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+	if ( ! ( payroll_posting =
+			employee_get_payroll_posting(
+				employee_list,
+				payroll_year,
+				payroll_period_number,
+				begin_work_date,
+				end_work_date,
+				self,
+				employee_tax_withholding_table ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot get payroll_posting.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
 	post_employee_work_period_employee_display(
 		delete,
 		payroll_year,
 		payroll_period_number,
-		payroll_posting );
+		payroll_posting->employee_work_period_list );
 
 	post_employee_work_period_journal_display(
 		application_name,
@@ -268,7 +315,7 @@ void post_employee_work_period_employee_display(
 			boolean delete,
 			int payroll_year,
 			int payroll_period_number,
-			PAYROLL_POSTING *payroll_posting )
+			LIST *employee_work_period_list )
 {
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
@@ -279,16 +326,6 @@ void post_employee_work_period_employee_display(
 	char delete_message[ 16 ];
 	char sub_title[ 128 ];
 	double payroll_tax_percent;
-
-	if ( !payroll_posting )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty payroll_posting.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
 
 	format_string =
 "%s^%.1lf^%.1lf^%.2lf^%.2lf^%.2lf^%.2lf%c^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf\n";
@@ -316,16 +353,14 @@ void post_employee_work_period_employee_display(
 
 	output_pipe = popen( sys_string, "w" );
 
-	if ( !list_rewind( payroll_posting->employee_work_period_list ) )
+	if ( !list_rewind( employee_work_period_list ) )
 	{
 		pclose( output_pipe );
 		return;
 	}
 
 	do {
-		e = list_get_pointer(
-			payroll_posting->
-				employee_work_period_list );
+		e = list_get_pointer( employee_work_period_list );
 
 		if ( !e->gross_pay ) continue;
 
@@ -353,7 +388,7 @@ void post_employee_work_period_employee_display(
 			 e->federal_unemployment_tax_amount,
 			 e->state_unemployment_tax_amount );
 
-	} while( list_next( payroll_posting->employee_work_period_list ) );
+	} while( list_next( employee_work_period_list ) );
 
 	pclose( output_pipe );
 
@@ -361,7 +396,6 @@ void post_employee_work_period_employee_display(
 
 void post_employee_work_period(
 			char *application_name,
-			boolean delete,
 			LIST *employee_list,
 			int payroll_year,
 			int payroll_period_number,
@@ -952,6 +986,40 @@ void post_employee_work_period_insert(
 	pclose( debit_account_pipe );
 	pclose( credit_account_pipe );
 
+	post_employee_work_period_propagate(
+		application_name,
+		salary_wage_expense_account,
+		payroll_expense_account,
+		payroll_payable_account,
+		federal_withholding_payable_account,
+		state_withholding_payable_account,
+		social_security_payable_account,
+		medicare_payable_account,
+		retirement_plan_payable_account,
+		health_insurance_payable_account,
+		union_dues_payable_account,
+		federal_unemployment_tax_payable_account,
+		state_unemployment_tax_payable_account,
+		propagate_transaction_date_time );
+
+} /* post_employee_work_period_insert() */
+
+void post_employee_work_period_propagate(
+			char *application_name,
+			char *salary_wage_expense_account,
+			char *payroll_expense_account,
+			char *payroll_payable_account,
+			char *federal_withholding_payable_account,
+			char *state_withholding_payable_account,
+			char *social_security_payable_account,
+			char *medicare_payable_account,
+			char *retirement_plan_payable_account,
+			char *health_insurance_payable_account,
+			char *union_dues_payable_account,
+			char *federal_unemployment_tax_payable_account,
+			char *state_unemployment_tax_payable_account,
+			char *propagate_transaction_date_time )
+{
 	if ( salary_wage_expense_account )
 	{
 		ledger_propagate(
@@ -1048,5 +1116,14 @@ void post_employee_work_period_insert(
 			state_unemployment_tax_payable_account );
 	}
 
-} /* post_employee_work_period_insert() */
+} /* post_employee_work_period_propagate() */
+
+void post_employee_work_period_delete(
+			char *application_name,
+			int payroll_year,
+			int payroll_period_number,
+			boolean execute,
+			ENTITY_SELF *self )
+{
+} /* post_employee_work_period_delete() */
 

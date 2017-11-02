@@ -30,11 +30,8 @@
 /* Prototypes */
 /* ---------- */
 void post_employee_work_period_insert(
-			/* ------------------------------------------------ */
-			/* Sets employee_work_period->transaction_date_time */
-			/* ------------------------------------------------ */
-			LIST *employee_work_period_list,
-			char *application_name );
+			char *application_name,
+			LIST *employee_work_period_list );
 
 void post_employee_work_period_journal_display(
 			char *application_name,
@@ -47,7 +44,6 @@ double calculate_payroll_tax_percent(
 void post_employee_work_period(
 			char *application_name,
 			boolean delete,
-			boolean with_html,
 			LIST *employee_list,
 			int payroll_year,
 			int payroll_period_number,
@@ -199,7 +195,6 @@ int main( int argc, char **argv )
 		post_employee_work_period(
 			application_name,
 			delete,
-			with_html,
 			self->employee_list,
 			payroll_year,
 			payroll_period_number,
@@ -367,7 +362,6 @@ void post_employee_work_period_employee_display(
 void post_employee_work_period(
 			char *application_name,
 			boolean delete,
-			boolean with_html,
 			LIST *employee_list,
 			int payroll_year,
 			int payroll_period_number,
@@ -392,26 +386,17 @@ void post_employee_work_period(
 			self,
 			employee_tax_withholding_table );
 
-	if ( with_html )
-	{
-		post_employee_work_period_display(
-			application_name,
-			delete,
-			employee_list,
-			payroll_year,
-			payroll_period_number,
-			begin_work_date,
-			end_work_date,
-			self,
-			payroll_posting );
-	}
+	/* -------------------------------------- */
+	/* Sets employee_work_period->transaction */
+	/* -------------------------------------- */
+	employee_work_period_set_transaction(
+		payroll_posting->employee_work_period_list );
 
 	post_employee_work_period_insert(
-		/* ------------------------------------------------ */
-		/* Sets employee_work_period->transaction_date_time */
-		/* ------------------------------------------------ */
-		payroll_posting->employee_work_period_list,
-		application_name );
+		application_name,
+		payroll_posting->employee_work_period_list );
+
+	printf( "<h3>Process complete.</h3>\n" );
 
 } /* post_employee_work_period() */
 
@@ -530,12 +515,25 @@ void post_employee_work_period_journal_display(
 
 		total_credit += e->federal_tax_withholding_amount;
 
-		fprintf(output_pipe,
-		 	"^%s^^%.2lf\n",
-			state_withholding_payable_account,
-		 	e->state_tax_withholding_amount );
+		if ( e->state_tax_withholding_amount )
+		{
+			if ( !state_withholding_payable_account )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: state_withholding_payable_account not set.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
 
-		total_credit += e->state_tax_withholding_amount;
+			fprintf(output_pipe,
+		 		"^%s^^%.2lf\n",
+				state_withholding_payable_account,
+		 		e->state_tax_withholding_amount );
+
+			total_credit += e->state_tax_withholding_amount;
+		}
 
 		fprintf(output_pipe,
 		 	"^%s^^%.2lf\n",
@@ -667,11 +665,8 @@ void post_employee_work_period_journal_display(
 } /* post_employee_work_period_journal_display() */
 
 void post_employee_work_period_insert(
-			/* ------------------------------------------------ */
-			/* Sets employee_work_period->transaction_date_time */
-			/* ------------------------------------------------ */
-			LIST *employee_work_period_list,
-			char *application_name )
+			char *application_name,
+			LIST *employee_work_period_list )
 {
 	FILE *transaction_output_pipe;
 	FILE *debit_account_pipe = {0};
@@ -690,6 +685,7 @@ void post_employee_work_period_insert(
 	char *union_dues_payable_account = {0};
 	char *federal_unemployment_tax_payable_account = {0};
 	char *state_unemployment_tax_payable_account = {0};
+	char *propagate_transaction_date_time = {0};
 
 	if ( !list_rewind( employee_work_period_list ) ) return;
 
@@ -735,19 +731,16 @@ void post_employee_work_period_insert(
 
 		if ( !e->gross_pay ) continue;
 
-/*
-void ledger_transaction_insert_stream(
-				FILE *output_pipe,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double transaction_amount,
-				char *memo,
-				int check_number,
-				boolean lock_transaction );
-*/
+		ledger_transaction_insert_stream(
+			transaction_output_pipe,
+			e->full_name,
+			e->street_address,
+			e->transaction->transaction_date_time,
+			e->net_pay /* transaction_amount */,
+			e->transaction->memo,
+			0 /* check_number */,
+			1 /* lock_transaction */ );
 
-#ifdef NOT_DEFINED
 		/* Debit */
 		/* ----- */
 		salary_wage_expense =
@@ -756,57 +749,85 @@ void ledger_transaction_insert_stream(
 				retirement_contribution_plan_employer_amount +
 			(double)e->health_insurance_employer_amount;
 
-/*
-void ledger_journal_insert_stream(
-				FILE *debit_output_pipe,
-				FILE *credit_output_pipe,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double amount,
-				char *debit_account_name,
-				char *credit_account_name );
-*/
+		ledger_journal_insert_stream(
+			debit_account_pipe,
+			(FILE *)0 /* credit_account_pipe */,
+			e->full_name,
+			e->street_address,
+			e->transaction->transaction_date_time,
+			salary_wage_expense,
+			salary_wage_expense_account /* debit_account_name */,
+			(char *)0 /* credit_account_name */ );
 
-		fprintf(output_pipe,
-		 	"%s^%s^%.2lf^\n",
-			salary_wage_expense_account,
-		 	e->full_name,
-		 	salary_wage_expense );
-
-		fprintf(output_pipe,
-		 	"^%s^%.2lf^\n",
-			payroll_expense_account,
-		 	e->payroll_tax_amount );
+		ledger_journal_insert_stream(
+			debit_account_pipe,
+			(FILE *)0 /* credit_account_pipe */,
+			e->full_name,
+			e->street_address,
+			e->transaction->transaction_date_time,
+			e->payroll_tax_amount,
+			payroll_expense_account /* debit_account_name */,
+			(char *)0 /* credit_account_name */ );
 
 		/* Credit */
 		/* ------ */
-		fprintf(output_pipe,
-			"^%s^^%.2lf\n",
-			payroll_payable_account,
-			e->net_pay );
+		ledger_journal_insert_stream(
+			(FILE *)0 /* debit_account_pipe */,
+			credit_account_pipe,
+			e->full_name,
+			e->street_address,
+			e->transaction->transaction_date_time,
+			e->net_pay,
+			(char *)0 /* debit_account_name */,
+			payroll_payable_account /* credit_account_name */ );
 
-		fprintf(output_pipe,
-		 	"^%s^^%.2lf\n",
-			federal_withholding_payable_account,
-		 	e->federal_tax_withholding_amount );
+		ledger_journal_insert_stream(
+			(FILE *)0 /* debit_account_pipe */,
+			credit_account_pipe,
+			e->full_name,
+			e->street_address,
+			e->transaction->transaction_date_time,
+			e->federal_tax_withholding_amount,
+			(char *)0 /* debit_account_name */,
+			federal_withholding_payable_account
+				/* credit_account_name */ );
 
-		fprintf(output_pipe,
-		 	"^%s^^%.2lf\n",
-			state_withholding_payable_account,
-		 	e->state_tax_withholding_amount );
+		if ( e->state_tax_withholding_amount )
+		{
+			ledger_journal_insert_stream(
+				(FILE *)0 /* debit_account_pipe */,
+				credit_account_pipe,
+				e->full_name,
+				e->street_address,
+				e->transaction->transaction_date_time,
+				e->state_tax_withholding_amount,
+				(char *)0 /* debit_account_name */,
+				state_withholding_payable_account
+					/* credit_account_name */ );
+		}
 
-		fprintf(output_pipe,
-		 	"^%s^^%.2lf\n",
-			social_security_payable_account,
+		ledger_journal_insert_stream(
+			(FILE *)0 /* debit_account_pipe */,
+			credit_account_pipe,
+			e->full_name,
+			e->street_address,
+			e->transaction->transaction_date_time,
 		 	e->social_security_employee_tax_amount +
-		 	e->social_security_employer_tax_amount );
+		 	e->social_security_employer_tax_amount,
+			(char *)0 /* debit_account_name */,
+			social_security_payable_account
+				/* credit_account_name */ );
 
-		fprintf(output_pipe,
-		 	"^%s^^%.2lf\n",
-			medicare_payable_account,
+		ledger_journal_insert_stream(
+			(FILE *)0 /* debit_account_pipe */,
+			credit_account_pipe,
+			e->full_name,
+			e->street_address,
+			e->transaction->transaction_date_time,
 		 	e->medicare_employee_tax_amount +
-		 	e->medicare_employer_tax_amount );
+		 	e->medicare_employer_tax_amount,
+			(char *)0 /* debit_account_name */,
+			medicare_payable_account /* credit_account_name */ );
 
 		if ( e->retirement_contribution_plan_employee_amount
 		||   e->retirement_contribution_plan_employer_amount )
@@ -821,12 +842,17 @@ void ledger_journal_insert_stream(
 				exit( 1 );
 			}
 
-			fprintf(
-			      output_pipe,
-		 	      "^%s^^%d\n",
-			      retirement_plan_payable_account,
+			ledger_journal_insert_stream(
+			      (FILE *)0 /* debit_account_pipe */,
+			      credit_account_pipe,
+			      e->full_name,
+			      e->street_address,
+			      e->transaction->transaction_date_time,
 			      e->retirement_contribution_plan_employee_amount +
-			      e->retirement_contribution_plan_employer_amount );
+			      e->retirement_contribution_plan_employer_amount,
+			      (char *)0 /* debit_account_name */,
+			      retirement_plan_payable_account
+					/* credit_account_name */ );
 		}
 
 		if ( e->health_insurance_employee_amount
@@ -842,12 +868,17 @@ void ledger_journal_insert_stream(
 				exit( 1 );
 			}
 
-			fprintf(
-			      output_pipe,
-		 	      "^%s^^%d\n",
-			      health_insurance_payable_account,
+			ledger_journal_insert_stream(
+			      (FILE *)0 /* debit_account_pipe */,
+			      credit_account_pipe,
+			      e->full_name,
+			      e->street_address,
+			      e->transaction->transaction_date_time,
 			      e->health_insurance_employee_amount +
-			      e->health_insurance_employer_amount );
+			      e->health_insurance_employer_amount,
+			      (char *)0 /* debit_account_name */,
+			      health_insurance_payable_account
+					/* credit_account_name */ );
 		}
 
 		if ( e->union_dues_amount )
@@ -862,16 +893,28 @@ void ledger_journal_insert_stream(
 				exit( 1 );
 			}
 
-			fprintf(output_pipe,
-		 		"^%s^^%d\n",
-				union_dues_payable_account,
-				e->union_dues_amount );
+			ledger_journal_insert_stream(
+				(FILE *)0 /* debit_account_pipe */,
+				credit_account_pipe,
+				e->full_name,
+				e->street_address,
+				e->transaction->transaction_date_time,
+				e->union_dues_amount,
+				(char *)0 /* debit_account_name */,
+				union_dues_payable_account
+					/* credit_account_name */ );
 		}
 
-		fprintf(output_pipe,
-		 	"^%s^^%.2lf\n",
-			federal_unemployment_tax_payable_account,
-		 	e->federal_unemployment_tax_amount );
+		ledger_journal_insert_stream(
+			(FILE *)0 /* debit_account_pipe */,
+			credit_account_pipe,
+			e->full_name,
+			e->street_address,
+			e->transaction->transaction_date_time,
+		 	e->federal_unemployment_tax_amount,
+			(char *)0 /* debit_account_name */,
+			federal_unemployment_tax_payable_account
+				/* credit_account_name */ );
 
 		if ( e->state_unemployment_tax_amount )
 		{
@@ -885,18 +928,125 @@ void ledger_journal_insert_stream(
 				exit( 1 );
 			}
 
-			fprintf(output_pipe,
-		 		"^%s^^%.2lf\n",
-				state_unemployment_tax_payable_account,
-		 		e->state_unemployment_tax_amount );
+			ledger_journal_insert_stream(
+				(FILE *)0 /* debit_account_pipe */,
+				credit_account_pipe,
+				e->full_name,
+				e->street_address,
+				e->transaction->transaction_date_time,
+		 		e->state_unemployment_tax_amount,
+				(char *)0 /* debit_account_name */,
+				state_unemployment_tax_payable_account
+					/* credit_account_name */ );
 		}
-#endif
+
+		if ( !propagate_transaction_date_time )
+		{
+			propagate_transaction_date_time =
+				e->transaction->transaction_date_time;
+		}
 
 	} while( list_next( employee_work_period_list ) );
 
 	pclose( transaction_output_pipe );
 	pclose( debit_account_pipe );
 	pclose( credit_account_pipe );
+
+	if ( salary_wage_expense_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			salary_wage_expense_account );
+	}
+
+	if ( payroll_expense_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			payroll_expense_account );
+	}
+
+	if ( payroll_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			payroll_payable_account );
+	}
+
+	if ( federal_withholding_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			federal_withholding_payable_account );
+	}
+
+	if ( state_withholding_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			state_withholding_payable_account );
+	}
+
+	if ( social_security_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			social_security_payable_account );
+	}
+
+	if ( medicare_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			medicare_payable_account );
+	}
+
+	if ( retirement_plan_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			retirement_plan_payable_account );
+	}
+
+	if ( health_insurance_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			health_insurance_payable_account );
+	}
+
+	if ( union_dues_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			union_dues_payable_account );
+	}
+
+	if ( federal_unemployment_tax_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			federal_unemployment_tax_payable_account );
+	}
+
+	if ( state_unemployment_tax_payable_account )
+	{
+		ledger_propagate(
+			application_name,
+			propagate_transaction_date_time,
+			state_unemployment_tax_payable_account );
+	}
 
 } /* post_employee_work_period_insert() */
 

@@ -2433,3 +2433,33 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 
 } /* employee_get_work_period() */
 
+void employee_work_period_set_transaction(
+				LIST *employee_work_period_list )
+{
+	EMPLOYEE_WORK_PERIOD *e;
+	DATE *transaction_date_time;
+
+	transaction_date_time = date_now_new( date_get_utc_offset() );
+
+	if ( !list_rewind( employee_work_period_list ) ) return;
+
+	do {
+		e = list_get_pointer( employee_work_period_list );
+
+		e->transaction =
+			ledger_transaction_new(
+				e->full_name,
+				e->street_address,
+				date_display_yyyy_mm_dd_colon_hms(
+					transaction_date_time ),
+				PAYROLL_MEMO );
+
+		date_increment_seconds(
+			transaction_date_time,
+			1,
+			date_get_utc_offset() );
+
+	} while( list_next( employee_work_period_list ) );
+
+} /* employee_work_period_set_transaction() */
+

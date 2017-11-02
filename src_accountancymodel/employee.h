@@ -18,6 +18,7 @@
 
 /* Constants */
 /* --------- */
+#define PAYROLL_MEMO			"Payroll"
 #define DEFAULT_FEDERAL_MARITAL_STATUS	"single"
 #define DEFAULT_STATE_MARITAL_STATUS	\
 	"single_or_married_with_multiple_incomes"
@@ -470,6 +471,9 @@ double employee_calculate_state_unemployment_tax_amount(
 				int state_unemployment_wage_base,
 				double state_unemployment_tax_rate,
 				int payroll_period_number );
+
+void employee_work_period_set_transaction(
+				LIST *employee_work_period_list );
 
 #endif
 

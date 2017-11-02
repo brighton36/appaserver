@@ -410,12 +410,6 @@ void ledger_get_customer_sale_account_names(
 				char *application_name,
 				char *fund_name );
 
-/*
-char *ledger_get_supply_expense_key_account(
-				char *application_name,
-				char *fund_name );
-*/
-
 void ledger_insert_purchase_order_journal_ledger(
 					char *application_name,
 					char *full_name,
@@ -893,9 +887,6 @@ void ledger_journal_insert_open_stream(
 				FILE **credit_account_pipe,
 				char *application_name );
 
-void ledger_journal_insert_close_stream(
-				void );
-
 void ledger_journal_insert_stream(
 				FILE *debit_output_pipe,
 				FILE *credit_output_pipe,
@@ -981,6 +972,22 @@ TRANSACTION *ledger_inventory_build_transaction(
 				char *transaction_date_time,
 				char *memo,
 				LIST *inventory_purchase_list,
+				char *fund_name );
+
+void ledger_get_payroll_account_names(
+				char **salary_wage_expense_account,
+				char **payroll_expense_account,
+				char **payroll_payable_account,
+				char **federal_withholding_payable_account,
+				char **state_withholding_payable_account,
+				char **social_security_payable_account,
+				char **medicare_payable_account,
+				char **retirement_plan_payable_account,
+				char **health_insurance_payable_account,
+				char **union_dues_payable_account,
+				char **federal_unemployment_tax_payable_account,
+				char **state_unemployment_tax_payable_account,
+				char *application_name,
 				char *fund_name );
 
 #endif

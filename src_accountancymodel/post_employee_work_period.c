@@ -29,7 +29,15 @@
 
 /* Prototypes */
 /* ---------- */
+void post_employee_work_period_insert(
+			/* ------------------------------------------------ */
+			/* Sets employee_work_period->transaction_date_time */
+			/* ------------------------------------------------ */
+			LIST *employee_work_period_list,
+			char *application_name );
+
 void post_employee_work_period_journal_display(
+			char *application_name,
 			LIST *employee_work_period_list );
 
 double calculate_payroll_tax_percent(
@@ -256,6 +264,7 @@ void post_employee_work_period_display(
 		payroll_posting );
 
 	post_employee_work_period_journal_display(
+		application_name,
 		payroll_posting->employee_work_period_list );
 
 } /* post_employee_work_period_display() */
@@ -397,6 +406,13 @@ void post_employee_work_period(
 			payroll_posting );
 	}
 
+	post_employee_work_period_insert(
+		/* ------------------------------------------------ */
+		/* Sets employee_work_period->transaction_date_time */
+		/* ------------------------------------------------ */
+		payroll_posting->employee_work_period_list,
+		application_name );
+
 } /* post_employee_work_period() */
 
 double calculate_payroll_tax_percent(
@@ -414,6 +430,7 @@ double calculate_payroll_tax_percent(
 } /* calculate_payroll_tax_percent() */
 
 void post_employee_work_period_journal_display(
+			char *application_name,
 			LIST *employee_work_period_list )
 {
 	char *heading;
@@ -424,6 +441,18 @@ void post_employee_work_period_journal_display(
 	EMPLOYEE_WORK_PERIOD *e;
 	double total_debit;
 	double total_credit;
+	char *salary_wage_expense_account = {0};
+	char *payroll_expense_account = {0};
+	char *payroll_payable_account = {0};
+	char *federal_withholding_payable_account = {0};
+	char *state_withholding_payable_account = {0};
+	char *social_security_payable_account = {0};
+	char *medicare_payable_account = {0};
+	char *retirement_plan_payable_account = {0};
+	char *health_insurance_payable_account = {0};
+	char *union_dues_payable_account = {0};
+	char *federal_unemployment_tax_payable_account = {0};
+	char *state_unemployment_tax_payable_account = {0};
 
 	heading = "Employee,Account,Debit,Credit";
 	justify = "left,left,right,right";
@@ -441,6 +470,22 @@ void post_employee_work_period_journal_display(
 		return;
 	}
 
+	ledger_get_payroll_account_names(
+		&salary_wage_expense_account,
+		&payroll_expense_account,
+		&payroll_payable_account,
+		&federal_withholding_payable_account,
+		&state_withholding_payable_account,
+		&social_security_payable_account,
+		&medicare_payable_account,
+		&retirement_plan_payable_account,
+		&health_insurance_payable_account,
+		&union_dues_payable_account,
+		&federal_unemployment_tax_payable_account,
+		&state_unemployment_tax_payable_account,
+		application_name,
+		(char *)0 /* fund_name */ );
+
 	do {
 		e = list_get_pointer( employee_work_period_list );
 
@@ -455,14 +500,16 @@ void post_employee_work_period_journal_display(
 			(double)e->health_insurance_employer_amount;
 
 		fprintf(output_pipe,
-		 	"%s^Salary/Wage Expense^%.2lf^\n",
+		 	"%s^%s^%.2lf^\n",
+			salary_wage_expense_account,
 		 	e->full_name,
 		 	salary_wage_expense );
 
 		total_debit = salary_wage_expense;
 
 		fprintf(output_pipe,
-		 	"^Payroll Expense^%.2lf^\n",
+		 	"^%s^%.2lf^\n",
+			payroll_expense_account,
 		 	e->payroll_tax_amount );
 
 		total_debit += e->payroll_tax_amount;
@@ -470,25 +517,29 @@ void post_employee_work_period_journal_display(
 		/* Credit */
 		/* ------ */
 		fprintf(output_pipe,
-			"^Payroll Payable^^%.2lf\n",
+			"^%s^^%.2lf\n",
+			payroll_payable_account,
 			e->net_pay );
 
 		total_credit = e->net_pay;
 
 		fprintf(output_pipe,
-		 	"^Federal Withholding Payable^^%.2lf\n",
+		 	"^%s^^%.2lf\n",
+			federal_withholding_payable_account,
 		 	e->federal_tax_withholding_amount );
 
 		total_credit += e->federal_tax_withholding_amount;
 
 		fprintf(output_pipe,
-		 	"^State Withholding Payable^^%.2lf\n",
+		 	"^%s^^%.2lf\n",
+			state_withholding_payable_account,
 		 	e->state_tax_withholding_amount );
 
 		total_credit += e->state_tax_withholding_amount;
 
 		fprintf(output_pipe,
-		 	"^Social Security Payable^^%.2lf\n",
+		 	"^%s^^%.2lf\n",
+			social_security_payable_account,
 		 	e->social_security_employee_tax_amount +
 		 	e->social_security_employer_tax_amount );
 
@@ -497,7 +548,8 @@ void post_employee_work_period_journal_display(
 			 e->social_security_employer_tax_amount );
 
 		fprintf(output_pipe,
-		 	"^Medicare Payable^^%.2lf\n",
+		 	"^%s^^%.2lf\n",
+			medicare_payable_account,
 		 	e->medicare_employee_tax_amount +
 		 	e->medicare_employer_tax_amount );
 
@@ -508,9 +560,20 @@ void post_employee_work_period_journal_display(
 		if ( e->retirement_contribution_plan_employee_amount
 		||   e->retirement_contribution_plan_employer_amount )
 		{
+			if ( !retirement_plan_payable_account )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: retirement_plan_payable_account not set.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
 			fprintf(
 			      output_pipe,
-		 	      "^Retirement Plan Payable^^%d\n",
+		 	      "^%s^^%d\n",
+			      retirement_plan_payable_account,
 			      e->retirement_contribution_plan_employee_amount +
 			      e->retirement_contribution_plan_employer_amount );
 
@@ -523,9 +586,20 @@ void post_employee_work_period_journal_display(
 		if ( e->health_insurance_employee_amount
 		||   e->health_insurance_employer_amount )
 		{
+			if ( !health_insurance_payable_account )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: health_insurance_payable_account not set.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
 			fprintf(
 			      output_pipe,
-		 	      "^Health Insurance Payable^^%d\n",
+		 	      "^%s^^%d\n",
+			      health_insurance_payable_account,
 			      e->health_insurance_employee_amount +
 			      e->health_insurance_employer_amount );
 
@@ -536,24 +610,50 @@ void post_employee_work_period_journal_display(
 
 		if ( e->union_dues_amount )
 		{
+			if ( !union_dues_payable_account )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: union_dues_payable_account not set.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
 			fprintf(output_pipe,
-		 		"^Union Dues Payable^^%d\n",
+		 		"^%s^^%d\n",
+				union_dues_payable_account,
 				e->union_dues_amount );
 
 			total_credit += e->union_dues_amount;
 		}
 
 		fprintf(output_pipe,
-		 	"^Federal Unemployment Tax Payable^^%.2lf\n",
+		 	"^%s^^%.2lf\n",
+			federal_unemployment_tax_payable_account,
 		 	e->federal_unemployment_tax_amount );
 
 		total_credit += e->federal_unemployment_tax_amount;
 
-		fprintf(output_pipe,
-		 	"^State Unemployment Tax Payable^^%.2lf\n",
-		 	e->state_unemployment_tax_amount );
+		if ( e->state_unemployment_tax_amount )
+		{
+			if ( !state_unemployment_tax_payable_account )
+			{
+				fprintf( stderr,
+"ERROR in %s/%s()/%d: state_unemployment_tax_payable_account not set.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
 
-		total_credit += e->state_unemployment_tax_amount;
+			fprintf(output_pipe,
+		 		"^%s^^%.2lf\n",
+				state_unemployment_tax_payable_account,
+		 		e->state_unemployment_tax_amount );
+
+			total_credit += e->state_unemployment_tax_amount;
+		}
 
 		fprintf(output_pipe,
 		 	"^Total^%.2lf^%.2lf\n",
@@ -565,4 +665,238 @@ void post_employee_work_period_journal_display(
 	pclose( output_pipe );
 
 } /* post_employee_work_period_journal_display() */
+
+void post_employee_work_period_insert(
+			/* ------------------------------------------------ */
+			/* Sets employee_work_period->transaction_date_time */
+			/* ------------------------------------------------ */
+			LIST *employee_work_period_list,
+			char *application_name )
+{
+	FILE *transaction_output_pipe;
+	FILE *debit_account_pipe = {0};
+	FILE *credit_account_pipe = {0};
+	double salary_wage_expense;
+	EMPLOYEE_WORK_PERIOD *e;
+	char *salary_wage_expense_account = {0};
+	char *payroll_expense_account = {0};
+	char *payroll_payable_account = {0};
+	char *federal_withholding_payable_account = {0};
+	char *state_withholding_payable_account = {0};
+	char *social_security_payable_account = {0};
+	char *medicare_payable_account = {0};
+	char *retirement_plan_payable_account = {0};
+	char *health_insurance_payable_account = {0};
+	char *union_dues_payable_account = {0};
+	char *federal_unemployment_tax_payable_account = {0};
+	char *state_unemployment_tax_payable_account = {0};
+
+	if ( !list_rewind( employee_work_period_list ) ) return;
+
+	transaction_output_pipe =
+		ledger_transaction_insert_open_stream(
+			application_name );
+
+	ledger_journal_insert_open_stream(
+		&debit_account_pipe,
+		&credit_account_pipe,
+		application_name );
+
+	if ( !transaction_output_pipe
+	||   !debit_account_pipe
+	||   !credit_account_pipe )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: did open an output pipe.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	ledger_get_payroll_account_names(
+		&salary_wage_expense_account,
+		&payroll_expense_account,
+		&payroll_payable_account,
+		&federal_withholding_payable_account,
+		&state_withholding_payable_account,
+		&social_security_payable_account,
+		&medicare_payable_account,
+		&retirement_plan_payable_account,
+		&health_insurance_payable_account,
+		&union_dues_payable_account,
+		&federal_unemployment_tax_payable_account,
+		&state_unemployment_tax_payable_account,
+		application_name,
+		(char *)0 /* fund_name */ );
+
+	do {
+		e = list_get_pointer( employee_work_period_list );
+
+		if ( !e->gross_pay ) continue;
+
+/*
+void ledger_transaction_insert_stream(
+				FILE *output_pipe,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction );
+*/
+
+#ifdef NOT_DEFINED
+		/* Debit */
+		/* ----- */
+		salary_wage_expense =
+			e->gross_pay +
+			(double)e->
+				retirement_contribution_plan_employer_amount +
+			(double)e->health_insurance_employer_amount;
+
+/*
+void ledger_journal_insert_stream(
+				FILE *debit_output_pipe,
+				FILE *credit_output_pipe,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double amount,
+				char *debit_account_name,
+				char *credit_account_name );
+*/
+
+		fprintf(output_pipe,
+		 	"%s^%s^%.2lf^\n",
+			salary_wage_expense_account,
+		 	e->full_name,
+		 	salary_wage_expense );
+
+		fprintf(output_pipe,
+		 	"^%s^%.2lf^\n",
+			payroll_expense_account,
+		 	e->payroll_tax_amount );
+
+		/* Credit */
+		/* ------ */
+		fprintf(output_pipe,
+			"^%s^^%.2lf\n",
+			payroll_payable_account,
+			e->net_pay );
+
+		fprintf(output_pipe,
+		 	"^%s^^%.2lf\n",
+			federal_withholding_payable_account,
+		 	e->federal_tax_withholding_amount );
+
+		fprintf(output_pipe,
+		 	"^%s^^%.2lf\n",
+			state_withholding_payable_account,
+		 	e->state_tax_withholding_amount );
+
+		fprintf(output_pipe,
+		 	"^%s^^%.2lf\n",
+			social_security_payable_account,
+		 	e->social_security_employee_tax_amount +
+		 	e->social_security_employer_tax_amount );
+
+		fprintf(output_pipe,
+		 	"^%s^^%.2lf\n",
+			medicare_payable_account,
+		 	e->medicare_employee_tax_amount +
+		 	e->medicare_employer_tax_amount );
+
+		if ( e->retirement_contribution_plan_employee_amount
+		||   e->retirement_contribution_plan_employer_amount )
+		{
+			if ( !retirement_plan_payable_account )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: retirement_plan_payable_account not set.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
+			fprintf(
+			      output_pipe,
+		 	      "^%s^^%d\n",
+			      retirement_plan_payable_account,
+			      e->retirement_contribution_plan_employee_amount +
+			      e->retirement_contribution_plan_employer_amount );
+		}
+
+		if ( e->health_insurance_employee_amount
+		||   e->health_insurance_employer_amount )
+		{
+			if ( !health_insurance_payable_account )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: health_insurance_payable_account not set.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
+			fprintf(
+			      output_pipe,
+		 	      "^%s^^%d\n",
+			      health_insurance_payable_account,
+			      e->health_insurance_employee_amount +
+			      e->health_insurance_employer_amount );
+		}
+
+		if ( e->union_dues_amount )
+		{
+			if ( !union_dues_payable_account )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: union_dues_payable_account not set.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
+			fprintf(output_pipe,
+		 		"^%s^^%d\n",
+				union_dues_payable_account,
+				e->union_dues_amount );
+		}
+
+		fprintf(output_pipe,
+		 	"^%s^^%.2lf\n",
+			federal_unemployment_tax_payable_account,
+		 	e->federal_unemployment_tax_amount );
+
+		if ( e->state_unemployment_tax_amount )
+		{
+			if ( !state_unemployment_tax_payable_account )
+			{
+				fprintf( stderr,
+"ERROR in %s/%s()/%d: state_unemployment_tax_payable_account not set.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
+			fprintf(output_pipe,
+		 		"^%s^^%.2lf\n",
+				state_unemployment_tax_payable_account,
+		 		e->state_unemployment_tax_amount );
+		}
+#endif
+
+	} while( list_next( employee_work_period_list ) );
+
+	pclose( transaction_output_pipe );
+	pclose( debit_account_pipe );
+	pclose( credit_account_pipe );
+
+} /* post_employee_work_period_insert() */
 

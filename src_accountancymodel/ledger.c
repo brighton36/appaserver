@@ -7962,3 +7962,155 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 
 } /* ledger_customer_sale_build_transaction() */
 
+void ledger_get_payroll_account_names(
+				char **salary_wage_expense_account,
+				char **payroll_expense_account,
+				char **payroll_payable_account,
+				char **federal_withholding_payable_account,
+				char **state_withholding_payable_account,
+				char **social_security_payable_account,
+				char **medicare_payable_account,
+				char **retirement_plan_payable_account,
+				char **health_insurance_payable_account,
+				char **union_dues_payable_account,
+				char **federal_unemployment_tax_payable_account,
+				char **state_unemployment_tax_payable_account,
+				char *application_name,
+				char *fund_name )
+{
+	char *key;
+
+	if ( salary_wage_expense_account )
+	{
+		key = "salary_wage_expense_key";
+		*salary_wage_expense_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
+
+	if ( payroll_expense_account )
+	{
+		key = "payroll_expense_key";
+		*payroll_expense_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
+
+	if ( payroll_payable_account )
+	{
+		key = "payroll_payable_key";
+		*payroll_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
+
+	if ( federal_withholding_payable_account )
+	{
+		key = "federal_withholding_payable_key";
+		*federal_withholding_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
+
+	if ( state_withholding_payable_account )
+	{
+		key = "state_withholding_payable_key";
+		*state_withholding_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				1 /* warning_only */ );
+	}
+
+	if ( social_security_payable_account )
+	{
+		key = "social_security_payable_key";
+		*social_security_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
+
+	if ( medicare_payable_account )
+	{
+		key = "medicare_payable_key";
+		*medicare_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
+
+	if ( retirement_plan_payable_account )
+	{
+		key = "retirement_plan_payable_key";
+		*retirement_plan_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				1 /* warning_only */ );
+	}
+
+	if ( health_insurance_payable_account )
+	{
+		key = "health_insurance_payable_key";
+		*health_insurance_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				1 /* warning_only */ );
+	}
+
+	if ( union_dues_payable_account )
+	{
+		key = "union_dues_payable_key";
+		*union_dues_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				1 /* warning_only */ );
+	}
+
+	if ( federal_unemployment_tax_payable_account )
+	{
+		key = "federal_unemployment_tax_payable_key";
+		*federal_unemployment_tax_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
+
+	if ( state_unemployment_tax_payable_account )
+	{
+		key = "state_unemployment_tax_payable_key";
+		*state_unemployment_tax_payable_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				fund_name,
+				key,
+				0 /* not warning_only */ );
+	}
+
+} /* ledger_get_payroll_account_names() */
+

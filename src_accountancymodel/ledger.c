@@ -4411,9 +4411,16 @@ void ledger_journal_delete(		char *application_name,
 	FILE *output_pipe;
 	char *table_name;
 
-	field= "full_name,street_address,transaction_date_time,account";
-
 	table_name = get_table_name( application_name, LEDGER_FOLDER_NAME );
+
+	if ( account_name && *account_name )
+	{
+		field= "full_name,street_address,transaction_date_time,account";
+	}
+	else
+	{
+		field= "full_name,street_address,transaction_date_time";
+	}
 
 	sprintf( sys_string,
 		 "delete_statement table=%s field=%s delimiter='^'	|"
@@ -4423,17 +4430,23 @@ void ledger_journal_delete(		char *application_name,
 
 	output_pipe = popen( sys_string, "w" );
 
-/*
-		 	escape_character(	buffer,
-						full_name,
-						'\'' ),
-*/
-	fprintf(	output_pipe,
-			"%s^%s^%s^%s\n",
-			full_name,
-			street_address,
-			transaction_date_time,
-			account_name );
+	if ( account_name && *account_name )
+	{
+		fprintf(	output_pipe,
+				"%s^%s^%s^%s\n",
+				full_name,
+				street_address,
+				transaction_date_time,
+				account_name );
+	}
+	else
+	{
+		fprintf(	output_pipe,
+				"%s^%s^%s\n",
+				full_name,
+				street_address,
+				transaction_date_time );
+	}
 
 	pclose( output_pipe );
 

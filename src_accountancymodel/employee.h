@@ -186,7 +186,6 @@ boolean employee_load(
 		int *health_insurance_employer_period_amount,
 		int *union_dues_period_amount,
 		LIST **employee_work_day_list,
-		LIST **employee_work_period_list,
 		LIST **customer_sale_list,
 		char *application_name,
 		char *full_name,
@@ -208,11 +207,6 @@ PAYROLL_POSTING *employee_payroll_posting_new(
 					int payroll_period_number,
 					char *begin_work_date,
 					char *end_work_date );
-
-LIST *employee_get_payroll_posting_work_period_list(
-					char *application_name,
-					int payroll_year,
-					int payroll_period_number );
 
 LIST *employee_get_employee_work_period_list(
 					char *application_name,
@@ -260,10 +254,16 @@ boolean employee_get_payroll_begin_end_work_dates(
 					char *payroll_beginning_day );
 
 LIST *employee_fetch_work_period_list(	char *application_name,
+					int payroll_year,
+					int payroll_period_number );
+
+/*
+LIST *employee_fetch_work_period_list(	char *application_name,
 					char *full_name,
 					char *street_address,
 					char *begin_work_date,
 					char *end_work_date );
+*/
 
 PAYROLL_POSTING *employee_get_payroll_posting(
 				LIST *employee_list,

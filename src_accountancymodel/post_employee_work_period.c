@@ -29,12 +29,17 @@
 
 /* Prototypes */
 /* ---------- */
+void post_employee_work_period_delete_execute(
+			char *application_name,
+			int payroll_year,
+			int payroll_period_number,
+			LIST *employee_work_period_list );
+
 void post_employee_work_period_delete(
 			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
-			boolean execute,
-			ENTITY_SELF *self );
+			boolean execute );
 
 void post_employee_work_period_propagate(
 			char *application_name,
@@ -215,8 +220,7 @@ int main( int argc, char **argv )
 			application_name,
 			payroll_year,
 			payroll_period_number,
-			execute,
-			self );
+			execute );
 
 		if ( with_html ) document_close();
 
@@ -1122,8 +1126,107 @@ void post_employee_work_period_delete(
 			char *application_name,
 			int payroll_year,
 			int payroll_period_number,
-			boolean execute,
-			ENTITY_SELF *self )
+			boolean execute )
 {
+	LIST *employee_work_period_list;
+
+	employee_work_period_list =
+		employee_fetch_work_period_list(
+				application_name,
+				payroll_year,
+				payroll_period_number );
+
+	if ( execute )
+	{
+		post_employee_work_period_delete_execute(
+			application_name,
+			payroll_year,
+			payroll_period_number,
+			employee_work_period_list );
+	}
+	else
+	{
+		post_employee_work_period_employee_display(
+			1 /* delete */,
+			payroll_year,
+			payroll_period_number,
+			employee_work_period_list );
+	}
+
 } /* post_employee_work_period_delete() */
 
+void post_employee_work_period_delete_execute(
+			char *application_name,
+			int payroll_year,
+			int payroll_period_number,
+			LIST *employee_work_period_list )
+{
+	EMPLOYEE_WORK_PERIOD *e;
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char *propagate_transaction_date_time = {0};
+	FILE *delete_pipe;
+	char *table_name;
+	char *field;
+
+	sprintf( where,
+		 "payroll_year = %d and	"
+		 "payroll_period_number = %d",
+		 payroll_year,
+		 payroll_period_number );
+
+	/* Delete from PAYROLL_POSTING */
+	/* --------------------------- */
+	sprintf( sys_string,
+		 "echo \"delete from payroll_posting where %s;\" | sql.e",
+		 where );
+
+	system( sys_string );
+
+	/* Delete from EMPLOYEE_WORK_PERIOD */
+	/* -------------------------------- */
+	if ( !list_rewind( employee_work_period_list ) ) return;
+
+	table_name = "employee_work_period";
+	field = "full_name,street_address,payroll_year,payroll_period_number";
+
+	sprintf( sys_string,
+		 "delete_statement.e table=%s field=%s | sql.e",
+		 table_name,
+		 field );
+
+	delete_pipe = popen( sys_string, "w" );
+
+	do {
+		e = list_get_pointer( employee_work_period_list );
+
+		fprintf( delete_pipe,
+			 "%s|%s|%d|%d\n",
+			 e->full_name,
+			 e->street_address,
+			 payroll_year,
+			 payroll_period_number );
+
+		ledger_delete(	application_name,
+				TRANSACTION_FOLDER_NAME,
+				e->full_name,
+				e->street_address,
+				e->transaction_date_time );
+
+		ledger_delete(	application_name,
+				LEDGER_FOLDER_NAME,
+				e->full_name,
+				e->street_address,
+				e->transaction_date_time );
+
+		if ( !propagate_transaction_date_time )
+		{
+			propagate_transaction_date_time =
+				e->transaction_date_time;
+		}
+
+	} while( list_next( employee_work_period_list ) );
+
+	pclose( delete_pipe );
+
+} /* post_employee_work_period_delete_execute() */

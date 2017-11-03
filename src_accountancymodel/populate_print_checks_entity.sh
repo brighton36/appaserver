@@ -70,7 +70,8 @@ function select_taxes ()
 
 function select_not_taxes ()
 {
-	account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks' and account.account <> 'sales_tax_payable'"
+	#account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks' and account.account <> 'sales_tax_payable'"
+	account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks' and account.account not in (select account from liability_account_entity)"
 
 	where="$join_where and $account_where and $fund_where"
 

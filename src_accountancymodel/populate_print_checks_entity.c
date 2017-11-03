@@ -24,8 +24,13 @@
 
 /* Prototypes */
 /* ---------- */
+LIST *populate_print_checks_fetch_liability_account_list(
+				char *application_name );
+
+/*
 double get_sales_tax_payable_amount(
 				char *application_name );
+*/
 
 void populate_print_checks_not_taxes(
 				FILE *output_pipe,
@@ -86,6 +91,81 @@ void populate_print_checks_entity(
 				char *fund_name )
 {
 	FILE *output_pipe;
+	ACCOUNT *account;
+	LIST *liability_account_list;
+
+	liability_account_list =
+		populate_print_checks_fetch_liability_account_list(
+			application_name );
+
+/*
+	ENTITY *entity;
+	char tax_payable_entity[ 512 ];
+	double sales_tax_payable_amount;
+
+	if ( ! ( entity =
+			entity_get_sales_tax_payable_entity(
+				application_name ) ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(tax_payable_entity,
+		"%s^%s",
+		entity->full_name,
+		entity->street_address );
+*/
+
+	output_pipe = popen( "sort", "w" );
+
+	populate_print_checks_not_taxes(
+			output_pipe,
+			application_name,
+			fund_name );
+
+/*
+	sales_tax_payable_amount =
+		get_sales_tax_payable_amount(
+			application_name );
+
+	if ( sales_tax_payable_amount )
+	{
+		fprintf(output_pipe,
+			"%s [%.2lf]\n",
+			tax_payable_entity,
+			sales_tax_payable_amount );
+	}
+*/
+
+	if ( list_rewind( liability_account_list ) )
+	{
+		do {
+			account = list_get_pointer( liability_account_list );
+
+			fprintf( output_pipe,
+				 "%s^%s [%.2lf]\n",
+				 account->latest_ledger->full_name,
+				 account->latest_ledger->street_address,
+				 account->latest_ledger->balance );
+
+		} while( list_next( liability_account_list ) );
+	}
+
+	pclose( output_pipe );
+
+} /* populate_print_checks_entity() */
+
+#ifdef NOT_DEFINED
+void populate_print_checks_entity(
+				char *application_name,
+				char *fund_name )
+{
+	FILE *output_pipe;
 	ENTITY *entity;
 	char tax_payable_entity[ 512 ];
 	double sales_tax_payable_amount;
@@ -129,6 +209,7 @@ void populate_print_checks_entity(
 	pclose( output_pipe );
 
 } /* populate_print_checks_entity() */
+#endif
 
 void populate_print_checks_not_taxes(
 				FILE *output_pipe,
@@ -155,6 +236,7 @@ void populate_print_checks_not_taxes(
 
 } /* populate_print_checks_not_taxes() */
 
+#ifdef NOT_DEFINED
 double get_sales_tax_payable_amount( char *application_name )
 {
 	JOURNAL_LEDGER *latest_journal_ledger;
@@ -171,4 +253,68 @@ double get_sales_tax_payable_amount( char *application_name )
 	return latest_journal_ledger->balance;
 
 } /* get_sales_tax_payable_amount() */
+#endif
+
+LIST *populate_print_checks_fetch_liability_account_list(
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+	FILE *input_pipe;
+	char input_buffer[ 512 ];
+	char account_name[ 128 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char *folder;
+	char *select;
+	JOURNAL_LEDGER *latest_ledger;
+	ACCOUNT *account;
+	LIST *liability_account_list = list_new();
+
+	folder = "liability_account_entity";
+	select = "account,full_name,street_address";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( timlib_get_line( input_buffer, input_pipe, 512 ) )
+	{
+		piece( account_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+
+		if ( ! ( latest_ledger =
+				ledger_get_latest_ledger(
+					application_name,
+					account_name,
+					(char *)0 /* as_of_date */ ) ) )
+		{
+			continue;
+		}
+
+		if ( !latest_ledger->balance ) continue;
+
+		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+
+		latest_ledger->full_name = strdup( full_name );
+
+		latest_ledger->street_address =
+			strdup( street_address );
+
+		account = ledger_account_new( account_name );
+		account->latest_ledger = latest_ledger;
+
+		list_append_pointer( liability_account_list, account );
+	}
+
+	pclose( input_pipe );
+
+	return liability_account_list;
+
+} /* populate_print_checks_fetch_liability_account_list() */
 

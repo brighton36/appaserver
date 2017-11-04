@@ -753,7 +753,6 @@ boolean employee_load(
 	char *select;
 	char *results;
 	char buffer[ 512 ];
-	char piece_buffer[ 128 ];
 	char *representative_full_name_attribute = "mechanic_full_name";
 	char *representative_street_name_attribute = "mechanic_street_address";
 
@@ -779,29 +778,25 @@ boolean employee_load(
 
 	if ( ! ( results = pipe2string( sys_string ) ) ) return 0;
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	if ( *piece_buffer )
-		*hourly_wage = atoi( buffer );
-
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*hourly_wage = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*period_salary = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*commission_sum_extension_percent = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 3 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*gross_pay_year_to_date =
 		*database_gross_pay_year_to_date = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 4 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*net_pay_year_to_date =
 		*database_net_pay_year_to_date = atof( buffer );
 
@@ -816,11 +811,11 @@ boolean employee_load(
 	}
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 6 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*federal_withholding_allowances = atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 7 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*federal_withholding_additional_period_amount = atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 8 );
@@ -834,35 +829,35 @@ boolean employee_load(
 	}
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 9 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*state_withholding_allowances = atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 10 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*state_itemized_deduction_allowances = atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 11 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*retirement_contribution_plan_employee_period_amount =
 			atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 12 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*retirement_contribution_plan_employer_period_amount =
 			atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 13 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*health_insurance_employee_period_amount =
 			atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 14 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*health_insurance_employer_period_amount =
 			atoi( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 15 );
-	if ( *piece_buffer )
+	if ( *buffer )
 		*union_dues_period_amount =
 			atoi( buffer );
 
@@ -875,16 +870,6 @@ boolean employee_load(
 			street_address,
 			begin_work_date,
 			end_work_date );
-
-/*
-	*employee_work_period_list =
-		employee_fetch_work_period_list(
-			application_name,
-			full_name,
-			street_address,
-			begin_work_date,
-			end_work_date );
-*/
 
 	*customer_sale_list =
 		customer_sale_fetch_commission_list(
@@ -901,6 +886,7 @@ boolean employee_load(
 
 } /* employee_load() */
 
+#ifdef NOT_DEFINED
 void employee_update(	char *application_name,
 			char *full_name,
 			char *street_address,
@@ -946,6 +932,7 @@ void employee_update(	char *application_name,
 	if ( output_pipe ) pclose( output_pipe );
 
 } /* employee_update() */
+#endif
 
 void employee_work_day_update(
 			char *application_name,
@@ -982,6 +969,7 @@ void employee_work_day_update(
 
 } /* employee_work_day_update() */
 
+#ifdef NOT_DEFINED
 char *employee_update_get_sys_string(
 				char *application_name )
 {
@@ -1005,6 +993,7 @@ char *employee_update_get_sys_string(
 	return sys_string;
 
 } /* employee_update_get_sys_string() */
+#endif
 
 char *employee_work_day_update_get_sys_string(
 				char *application_name )
@@ -1415,9 +1404,7 @@ LIST *employee_posting_calculate_work_period_list(
 			  self,
 			  employee_tax_withholding_table );
 
-		list_append_pointer(
-			employee->employee_work_period_list,
-			employee_work_period );
+		if ( !employee_work_period->gross_pay ) continue;
 
 		list_append_pointer(
 			employee_work_period_list,

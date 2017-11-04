@@ -37,6 +37,10 @@ void post_employee_payroll_posting_insert(
 			char *application_name,
 			PAYROLL_POSTING *payroll_posting );
 
+void post_employee_update(
+			LIST *employee_work_period_list,
+			int payroll_year );
+
 void post_employee_work_period_delete_execute(
 			char *application_name,
 			int payroll_year,
@@ -233,7 +237,15 @@ int main( int argc, char **argv )
 			payroll_period_number,
 			execute );
 
-		if ( with_html ) document_close();
+		if ( with_html )
+		{
+			if ( execute )
+			{
+				printf( "<h3>Process complete.</h3>\n" );
+			}
+
+			document_close();
+		}
 
 		exit( 0 );
 	}
@@ -442,6 +454,10 @@ void post_employee_work_period(
 		payroll_posting->employee_work_period_list );
 
 	post_insert( application_name, payroll_posting );
+
+	post_employee_update(
+			payroll_posting->employee_work_period_list,
+			payroll_year );
 
 } /* post_employee_work_period() */
 
@@ -1409,4 +1425,51 @@ void post_employee_work_period_delete_execute(
 
 	pclose( delete_pipe );
 
+	post_employee_update(
+		employee_work_period_list,
+		payroll_year );
+
 } /* post_employee_work_period_delete_execute() */
+
+void post_employee_update(
+			LIST *employee_work_period_list,
+			int payroll_year )
+{
+	EMPLOYEE_WORK_PERIOD *e;
+	char sys_string[ 1024 ];
+	char buffer[ 256 ];
+	FILE *update_pipe;
+
+	if ( !list_rewind( employee_work_period_list ) ) return;
+
+	do {
+		e = list_get_pointer( employee_work_period_list );
+
+		if ( !e->gross_pay ) continue;
+
+		sprintf( sys_string,
+"echo \"update employee set gross_pay_year_to_date = ( select sum( gross_pay ) from employee_work_period where employee.full_name = employee_work_period.full_name and employee.street_address = employee_work_period.street_address and payroll_year = %d ) where full_name = '%s' and street_address = '%s';\" | sql.e",
+			 payroll_year,
+		 	 escape_character(
+					buffer,
+					e->full_name,
+					'\'' ),
+			 e->street_address );
+
+		system( sys_string );
+
+		sprintf( sys_string,
+"echo \"update employee set net_pay_year_to_date = ( select sum( net_pay ) from employee_work_period where employee.full_name = employee_work_period.full_name and employee.street_address = employee_work_period.street_address and payroll_year = %d ) where full_name = '%s' and street_address = '%s';\" | sql.e",
+			 payroll_year,
+		 	 escape_character(
+					buffer,
+					e->full_name,
+					'\'' ),
+			 e->street_address );
+
+		system( sys_string );
+
+	} while( list_next( employee_work_period_list ) );
+
+} /* post_employee_update() */
+

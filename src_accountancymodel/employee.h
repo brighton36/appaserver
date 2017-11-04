@@ -151,7 +151,6 @@ typedef struct
 	int union_dues_period_amount;
 	char *terminated_date;
 	LIST *employee_work_day_list;
-	LIST *employee_work_period_list;
 	LIST *customer_sale_list;
 } EMPLOYEE;
 
@@ -336,6 +335,7 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			EMPLOYEE_TAX_WITHHOLDING_TABLE *
 				employee_tax_withholding_table );
 
+/*
 char *employee_update_get_sys_string(
 				char *application_name );
 
@@ -346,6 +346,7 @@ void employee_update(		char *application_name,
 				double database_gross_pay_year_to_date,
 				double net_pay_year_to_date,
 				double database_net_pay_year_to_date );
+*/
 
 void employee_calculate_employee_work_hours(
 				double *regular_work_hours,

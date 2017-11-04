@@ -1,7 +1,7 @@
 #!/bin/bash
-# ----------------------------------------
-# src_accountancymodel/populate_account.sh
-# ----------------------------------------
+# ---------------------------------------------------------
+# $APPASERVER_HOME/src_accountancymodel/populate_account.sh
+# ---------------------------------------------------------
 if [ "$#" -ne 3 ]
 then
 	echo "Usage: $0 application one2m_folder where" 1>&2
@@ -41,6 +41,11 @@ fi
 if [ "$one2m_folder" = "fixed_service" -o "$one2m_folder" = "hourly_service" ]
 then
 	subclassification_where="subclassification = 'revenue'"
+fi
+
+if [ "$one2m_folder" = "liability_account_entity" ]
+then
+	subclassification_where="subclassification = 'current_liability'"
 fi
 
 if [ "${parameter_where}" != "" ]

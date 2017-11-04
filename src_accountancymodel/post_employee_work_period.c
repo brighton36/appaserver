@@ -434,8 +434,6 @@ void post_employee_work_period(
 		application_name,
 		payroll_posting->employee_work_period_list );
 
-	printf( "<h3>Process complete.</h3>\n" );
-
 } /* post_employee_work_period() */
 
 double calculate_payroll_tax_percent(
@@ -464,6 +462,7 @@ void post_employee_work_period_journal_display(
 	EMPLOYEE_WORK_PERIOD *e;
 	double total_debit;
 	double total_credit;
+	char buffer[ 128 ];
 	char *salary_wage_expense_account = {0};
 	char *payroll_expense_account = {0};
 	char *payroll_payable_account = {0};
@@ -524,15 +523,19 @@ void post_employee_work_period_journal_display(
 
 		fprintf(output_pipe,
 		 	"%s^%s^%.2lf^\n",
-			salary_wage_expense_account,
 		 	e->full_name,
+			format_initial_capital(
+				buffer,
+				salary_wage_expense_account ),
 		 	salary_wage_expense );
 
 		total_debit = salary_wage_expense;
 
 		fprintf(output_pipe,
 		 	"^%s^%.2lf^\n",
-			payroll_expense_account,
+			format_initial_capital(
+				buffer,
+				payroll_expense_account ),
 		 	e->payroll_tax_amount );
 
 		total_debit += e->payroll_tax_amount;
@@ -541,14 +544,18 @@ void post_employee_work_period_journal_display(
 		/* ------ */
 		fprintf(output_pipe,
 			"^%s^^%.2lf\n",
-			payroll_payable_account,
+			format_initial_capital(
+				buffer,
+				payroll_payable_account ),
 			e->net_pay );
 
 		total_credit = e->net_pay;
 
 		fprintf(output_pipe,
 		 	"^%s^^%.2lf\n",
-			federal_withholding_payable_account,
+			format_initial_capital(
+				buffer,
+				federal_withholding_payable_account ),
 		 	e->federal_tax_withholding_amount );
 
 		total_credit += e->federal_tax_withholding_amount;
@@ -567,7 +574,9 @@ void post_employee_work_period_journal_display(
 
 			fprintf(output_pipe,
 		 		"^%s^^%.2lf\n",
-				state_withholding_payable_account,
+				format_initial_capital(
+					buffer,
+					state_withholding_payable_account ),
 		 		e->state_tax_withholding_amount );
 
 			total_credit += e->state_tax_withholding_amount;
@@ -575,7 +584,9 @@ void post_employee_work_period_journal_display(
 
 		fprintf(output_pipe,
 		 	"^%s^^%.2lf\n",
-			social_security_payable_account,
+			format_initial_capital(
+				buffer,
+				social_security_payable_account ),
 		 	e->social_security_employee_tax_amount +
 		 	e->social_security_employer_tax_amount );
 
@@ -585,7 +596,9 @@ void post_employee_work_period_journal_display(
 
 		fprintf(output_pipe,
 		 	"^%s^^%.2lf\n",
-			medicare_payable_account,
+			format_initial_capital(
+				buffer,
+				medicare_payable_account ),
 		 	e->medicare_employee_tax_amount +
 		 	e->medicare_employer_tax_amount );
 
@@ -609,7 +622,9 @@ void post_employee_work_period_journal_display(
 			fprintf(
 			      output_pipe,
 		 	      "^%s^^%d\n",
-			      retirement_plan_payable_account,
+			      format_initial_capital(
+					buffer,
+					retirement_plan_payable_account ),
 			      e->retirement_contribution_plan_employee_amount +
 			      e->retirement_contribution_plan_employer_amount );
 
@@ -635,7 +650,9 @@ void post_employee_work_period_journal_display(
 			fprintf(
 			      output_pipe,
 		 	      "^%s^^%d\n",
-			      health_insurance_payable_account,
+			      format_initial_capital(
+					buffer,
+				    	health_insurance_payable_account ),
 			      e->health_insurance_employee_amount +
 			      e->health_insurance_employer_amount );
 
@@ -658,7 +675,9 @@ void post_employee_work_period_journal_display(
 
 			fprintf(output_pipe,
 		 		"^%s^^%d\n",
-				union_dues_payable_account,
+				format_initial_capital(
+					buffer,
+					union_dues_payable_account ),
 				e->union_dues_amount );
 
 			total_credit += e->union_dues_amount;
@@ -666,7 +685,9 @@ void post_employee_work_period_journal_display(
 
 		fprintf(output_pipe,
 		 	"^%s^^%.2lf\n",
-			federal_unemployment_tax_payable_account,
+			format_initial_capital(
+				buffer,
+				federal_unemployment_tax_payable_account ),
 		 	e->federal_unemployment_tax_amount );
 
 		total_credit += e->federal_unemployment_tax_amount;
@@ -685,7 +706,9 @@ void post_employee_work_period_journal_display(
 
 			fprintf(output_pipe,
 		 		"^%s^^%.2lf\n",
-				state_unemployment_tax_payable_account,
+				format_initial_capital(
+					buffer,
+					state_unemployment_tax_payable_account),
 		 		e->state_unemployment_tax_amount );
 
 			total_credit += e->state_unemployment_tax_amount;

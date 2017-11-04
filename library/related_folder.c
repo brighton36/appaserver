@@ -1587,7 +1587,8 @@ LIST *related_folder_get_1tom_related_folder_list(
 						related_attribute_name );
 		}
 
-		if ( related_folder_is_one2one_firewall(
+		if ( related_folder_list_usage != detail
+		&&   related_folder_is_one2one_firewall(
 			related_folder->foreign_attribute_name_list,
 			related_folder->one2m_related_folder->attribute_list ) )
 		{

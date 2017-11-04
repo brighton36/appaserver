@@ -29,6 +29,14 @@
 
 /* Prototypes */
 /* ---------- */
+void post_employee_work_period_transaction_insert(
+			char *application_name,
+			LIST *employee_work_period_list );
+
+void post_employee_payroll_posting_insert(
+			char *application_name,
+			PAYROLL_POSTING *payroll_posting );
+
 void post_employee_work_period_delete_execute(
 			char *application_name,
 			int payroll_year,
@@ -60,6 +68,9 @@ void post_employee_work_period_propagate(
 void post_employee_work_period_insert(
 			char *application_name,
 			LIST *employee_work_period_list );
+
+void post_insert(	char *application_name,
+			PAYROLL_POSTING *payroll_posting );
 
 void post_employee_work_period_journal_display(
 			char *application_name,
@@ -430,9 +441,7 @@ void post_employee_work_period(
 	employee_work_period_set_transaction(
 		payroll_posting->employee_work_period_list );
 
-	post_employee_work_period_insert(
-		application_name,
-		payroll_posting->employee_work_period_list );
+	post_insert( application_name, payroll_posting );
 
 } /* post_employee_work_period() */
 
@@ -725,7 +734,155 @@ void post_employee_work_period_journal_display(
 
 } /* post_employee_work_period_journal_display() */
 
+void post_insert(	char *application_name,
+			PAYROLL_POSTING *payroll_posting )
+{
+	post_employee_payroll_posting_insert(
+			application_name,
+			payroll_posting );
+
+	post_employee_work_period_insert(
+			application_name,
+			payroll_posting->employee_work_period_list );
+
+	post_employee_work_period_transaction_insert(
+			application_name,
+			payroll_posting->employee_work_period_list );
+
+} /* post_employee_work_period_insert() */
+
+void post_employee_payroll_posting_insert(
+			char *application_name,
+			PAYROLL_POSTING *payroll_posting )
+{
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	char *field;
+	char *format;
+	char *table;
+
+	table = get_table_name( application_name, "payroll_posting" );
+
+	field =
+"payroll_year,payroll_period_number,begin_work_date,end_work_date,regular_work_hours,overtime_work_hours,gross_pay,federal_tax_withholding_amount,state_tax_withholding_amount,social_security_employee_tax_amount,social_security_employer_tax_amount,medicare_employee_tax_amount,medicare_employer_tax_amount,retirement_contribution_plan_employee_amount,retirement_contribution_plan_employer_amount,health_insurance_employee_amount,health_insurance_employer_amount,federal_unemployment_tax_amount,state_unemployment_tax_amount,union_dues_amount,commission_sum_extension,net_pay,payroll_tax_amount";
+
+	format =
+"%d^%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%d^%d^%d^%d^%.2lf^%.2lf^%d^%.2lf^%.2lf^%.2lf\n";
+
+	sprintf( sys_string,
+		 "insert_statement.e	table=payroll_posting	 "
+		 "			field=\"%s\"		 "
+		 "			table=%s		 "
+		 "			delimiter='^'		|"
+		 "sql.e						 ",
+		 field,
+		 table );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf( output_pipe,
+		 format,
+		 payroll_posting->payroll_year,
+		 payroll_posting->payroll_period_number,
+		 payroll_posting->begin_work_date,
+		 payroll_posting->end_work_date,
+		 payroll_posting->regular_work_hours,
+		 payroll_posting->overtime_work_hours,
+		 payroll_posting->gross_pay,
+		 payroll_posting->federal_tax_withholding_amount,
+		 payroll_posting->state_tax_withholding_amount,
+		 payroll_posting->social_security_employee_tax_amount,
+		 payroll_posting->social_security_employer_tax_amount,
+		 payroll_posting->medicare_employee_tax_amount,
+		 payroll_posting->medicare_employer_tax_amount,
+		 payroll_posting->retirement_contribution_plan_employee_amount,
+		 payroll_posting->retirement_contribution_plan_employer_amount,
+		 payroll_posting->health_insurance_employee_amount,
+		 payroll_posting->health_insurance_employer_amount,
+		 payroll_posting->federal_unemployment_tax_amount,
+		 payroll_posting->state_unemployment_tax_amount,
+		 payroll_posting->union_dues_amount,
+		 payroll_posting->commission_sum_extension,
+		 payroll_posting->net_pay,
+		 payroll_posting->payroll_tax_amount );
+
+	pclose( output_pipe );
+
+} /* post_employee_payroll_posting_insert() */
+
 void post_employee_work_period_insert(
+			char *application_name,
+			LIST *employee_work_period_list )
+{
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	char *field;
+	char *format;
+	char *table;
+	EMPLOYEE_WORK_PERIOD *e;
+
+	if ( !list_rewind( employee_work_period_list ) ) return;
+
+	table = get_table_name( application_name, "employee_work_period" );
+
+	field =
+"full_name,street_address,payroll_year,payroll_period_number,begin_work_date,end_work_date,regular_work_hours,gross_pay,federal_tax_withholding_amount,state_tax_withholding_amount,social_security_employee_tax_amount,social_security_employer_tax_amount,medicare_employee_tax_amount,medicare_employer_tax_amount,retirement_contribution_plan_employee_amount,retirement_contribution_plan_employer_amount,health_insurance_employee_amount,health_insurance_employer_amount,federal_unemployment_tax_amount,state_unemployment_tax_amount,union_dues_amount,transaction_date_time,commission_sum_extension,overtime_work_hours,net_pay,payroll_tax_amount";
+
+	format =
+"%s^%s^%d^%d^%s^%s^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%.2lf^%d^%d^%d^%d^%.2lf^%.2lf^%d^%s^%.2lf^%.2lf^%.2lf^%.2lf\n";
+
+	sprintf( sys_string,
+		 "insert_statement.e	table=payroll_posting	 "
+		 "			field=\"%s\"		 "
+		 "			table=%s		 "
+		 "			delimiter='^'		|"
+		 "sql.e						 ",
+		 field,
+		 table );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		e = list_get_pointer( employee_work_period_list );
+
+		if ( !e->gross_pay ) continue;
+
+		fprintf(output_pipe,
+		 	format,
+			e->full_name,
+			e->street_address,
+			e->payroll_year,
+			e->payroll_period_number,
+			e->begin_work_date,
+			e->end_work_date,
+			e->regular_work_hours,
+			e->gross_pay,
+			e->federal_tax_withholding_amount,
+			e->state_tax_withholding_amount,
+			e->social_security_employee_tax_amount,
+			e->social_security_employer_tax_amount,
+			e->medicare_employee_tax_amount,
+			e->medicare_employer_tax_amount,
+			e->retirement_contribution_plan_employee_amount,
+			e->retirement_contribution_plan_employer_amount,
+			e->health_insurance_employee_amount,
+			e->health_insurance_employer_amount,
+			e->federal_unemployment_tax_amount,
+			e->state_unemployment_tax_amount,
+			e->union_dues_amount,
+			e->transaction->transaction_date_time,
+			e->commission_sum_extension,
+			e->overtime_work_hours,
+			e->net_pay,
+			e->payroll_tax_amount );
+
+	} while( list_next( employee_work_period_list ) );
+
+	pclose( output_pipe );
+
+} /* post_employee_work_period_insert() */
+
+void post_employee_work_period_transaction_insert(
 			char *application_name,
 			LIST *employee_work_period_list )
 {
@@ -1029,7 +1186,7 @@ void post_employee_work_period_insert(
 		state_unemployment_tax_payable_account,
 		propagate_transaction_date_time );
 
-} /* post_employee_work_period_insert() */
+} /* post_employee_work_period_transaction_insert() */
 
 void post_employee_work_period_propagate(
 			char *application_name,

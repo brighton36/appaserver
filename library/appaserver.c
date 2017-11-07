@@ -80,7 +80,9 @@ char *appaserver_get_delete_display_string(
 					related_folder->
 						one2m_related_folder->
 						attribute_list ),
-				related_folder->related_attribute_name ) ),
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list ) ),
 			list_display(
 				related_folder->
 					primary_data_list ) );
@@ -115,7 +117,9 @@ LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 			foreign_attribute_name_list =
 			    related_folder_get_foreign_attribute_name_list(
 				primary_attribute_name_list,
-			     	related_folder->related_attribute_name );
+			     	related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 
 			if ( list_length( 
 				list_subtract( 
@@ -157,7 +161,9 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 			foreign_attribute_name_list =
 			    related_folder_get_foreign_attribute_name_list(
 				primary_attribute_name_list,
-			     	related_folder->related_attribute_name );
+			     	related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 
 			if ( list_length( 
 				list_subtract( 
@@ -373,7 +379,9 @@ LIST *appaserver_get_mto1_isa_foreign_attribute_name_list(
 		folder_get_primary_attribute_name_list(
 			first_related_folder->
 				folder->attribute_list ),
-			first_related_folder->related_attribute_name );
+			first_related_folder->related_attribute_name,
+			first_related_folder->
+				folder_foreign_attribute_name_list );
 	
 } /* appaserver_get_mto1_isa_foreign_attribute_name_list() */
 

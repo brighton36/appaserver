@@ -1207,7 +1207,8 @@ LIST *get_element_list(
 			   folder_get_primary_attribute_name_list(
 				related_folder->folder->
 					attribute_list ),
-			   related_folder->related_attribute_name );
+			   related_folder->related_attribute_name,
+			   related_folder->folder_foreign_attribute_name_list );
 	
 			if ( list_length(
 				list_subtract_string_list(
@@ -2073,6 +2074,7 @@ void build_related_folder_element_list(
 	boolean output_not_null_option;
 	boolean output_select_option;
 	boolean drop_down_multi_select;
+	DICTIONARY *send_preprompt_dictionary;
 
 	if ( related_folder->ignore_output )
 	{
@@ -2108,14 +2110,6 @@ void build_related_folder_element_list(
 				folder->folder_name,
 			related_folder->
 			related_attribute_name ) ) );
-
-/*
-	foreign_attribute_name_list =
-		related_folder_get_foreign_attribute_name_list(
-   			folder_get_primary_attribute_name_list(
-				related_folder->folder->attribute_list ),
-   			related_folder->related_attribute_name );
-*/
 
 	hint_message =
 		related_folder_get_hint_message(
@@ -2164,6 +2158,11 @@ void build_related_folder_element_list(
 		related_folder->
 			drop_down_multi_select;
 
+	if ( related_folder->folder->lookup_before_drop_down )
+		send_preprompt_dictionary = preprompt_dictionary;
+	else
+		send_preprompt_dictionary = (DICTIONARY *)0;
+
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(
@@ -2179,7 +2178,7 @@ void build_related_folder_element_list(
 			foreign_attribute_name_list,
 			omit_drop_down_new_push_button,
 			0 /* dont omit_ignore_push_buttons */,
-			preprompt_dictionary,
+			send_preprompt_dictionary,
 	  		no_display_push_button_prefix,
 	  		no_display_push_button_heading,
 			(char *)0 /* post_change_java... */,
@@ -2197,7 +2196,7 @@ void build_related_folder_element_list(
 			related_folder->
 				folder->
 				no_initial_capital,
-			state /* was "lookup" */,
+			state,
 			one2m_folder_name_for_processes,
 			0 /* tab_index */,
 			set_first_initial_data,

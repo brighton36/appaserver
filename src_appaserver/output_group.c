@@ -381,7 +381,8 @@ void output_related_folder(
 		   	folder_get_primary_attribute_name_list(
 				related_folder->folder->
 					attribute_list ),
-		   	related_folder->related_attribute_name );
+		   	related_folder->related_attribute_name,
+			related_folder->folder_foreign_attribute_name_list );
 
 	if ( related_folder->related_attribute_name
 	&&   *related_folder->related_attribute_name

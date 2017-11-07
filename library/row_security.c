@@ -714,7 +714,9 @@ void row_security_set_dictionary_related_folder(
 			row_dictionary,
 			related_folder_get_foreign_attribute_name_list( 
 				primary_attribute_name_list,
-				related_folder->related_attribute_name ) );
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list ) );
 
 	if ( strcmp( where_clause, "1 = 1" ) == 0 )
 	{
@@ -1196,11 +1198,10 @@ char *row_security_role_update_list_display(
 			ptr += sprintf( ptr,
 					"\n"
 					"folder = %s;\n"
-					"attribute_not_null_string = %s;\n"
-					"supervisor_role_name = %s\n\n",
+					"attribute_not_null_string = %s.\n",
 					role_update->folder->folder_name,
-					role_update->attribute_not_null_string,
-					role_update->supervisor_role_name );
+					role_update->
+						attribute_not_null_string );
 
 		} while( list_next( role_update_list ) );
 	}

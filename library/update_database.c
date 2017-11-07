@@ -507,6 +507,20 @@ UPDATE_FOLDER *update_database_get_update_folder(
 	if ( *changed_key
 	&&   list_length( folder_foreign_attribute_name_list ) )
 	{
+		if ( !dictionary_length( foreign_attribute_dictionary ) )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: for folder_name = (%s), foreign_attribute_name_list = (%s(), folder_foreign_attribute_name_list = (%s(), got empty foreign_attribute_dictionary.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 folder->folder_name,
+				 list_display( foreign_attribute_name_list ),
+				 list_display(
+					folder_foreign_attribute_name_list ) );
+			exit( 1 );
+		}
+
 		update_folder->where_attribute_list =
 			update_database_get_folder_foreign_where_attribute_list(
 				file_dictionary,

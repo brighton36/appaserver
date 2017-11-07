@@ -852,7 +852,9 @@ omit_insert_flag = 0;
 					related_folder->
 						folder->
 							attribute_list ),
-				   related_folder->related_attribute_name )
+				   related_folder->related_attribute_name,
+				   related_folder->
+					   folder_foreign_attribute_name_list )
 					/* where_clause_attribute_name_list */,
 				primary_data_list
 					/* where_clause_data_list */,
@@ -1001,7 +1003,9 @@ void output_mto1_folder_detail(	int *form_number,
 			      related_folder_get_foreign_attribute_name_list(
 			         folder_get_primary_attribute_name_list(
 			            related_folder->folder->attribute_list ),
-			            related_folder->related_attribute_name ),
+			            related_folder->related_attribute_name,
+				    related_folder->
+					folder_foreign_attribute_name_list ),
 			      0 /* row */ );
 
 			appaserver_library_list_database_convert_dates(

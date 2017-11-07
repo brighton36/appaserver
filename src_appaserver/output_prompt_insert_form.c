@@ -1608,6 +1608,7 @@ void build_related_folder_element_list(
 	ATTRIBUTE *attribute;
 	LIST *common_non_primary_attribute_name_list;
 	boolean set_first_initial_data;
+	DICTIONARY *send_preprompt_dictionary;
 
 	if ( !related_folder )
 	{
@@ -1650,7 +1651,8 @@ void build_related_folder_element_list(
 				related_folder->
 					folder->
 					attribute_list ),
-	   		related_folder->related_attribute_name );
+	   		related_folder->related_attribute_name,
+			related_folder->folder_foreign_attribute_name_list );
 
 	if ( related_folder->copy_common_attributes )
 	{
@@ -1688,6 +1690,11 @@ void build_related_folder_element_list(
 		set_first_initial_data = 0;
 	}
 
+	if ( related_folder->folder->lookup_before_drop_down )
+		send_preprompt_dictionary = preprompt_dictionary;
+	else
+		send_preprompt_dictionary = (DICTIONARY *)0;
+
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(
@@ -1703,7 +1710,7 @@ void build_related_folder_element_list(
 			foreign_attribute_name_list,
 			omit_drop_down_new_push_button,
 			omit_ignore_push_buttons,
-			preprompt_dictionary,
+			send_preprompt_dictionary,
 			ignore_push_button_prefix,
 			ignore_push_button_heading,
 			post_change_javascript,

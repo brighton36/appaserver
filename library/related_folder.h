@@ -87,9 +87,10 @@ RELATED_FOLDER *related_folder_new(
 					char *folder_name,
 					char *related_attribute_name );
 
-LIST *related_folder_get_foreign_attribute_name_list( 
-					LIST *related_attribute_name_list,
-					char *related_attribute_name );
+LIST *related_folder_get_foreign_attribute_name_list(
+				LIST *related_attribute_name_list,
+				char *related_attribute_name,
+				LIST *folder_foreign_attribute_name_list );
 
 LIST *related_folder_get_primary_data_list(
 				char *application_name,

@@ -630,7 +630,9 @@ void output_test_only_report(
 			related_folder_get_foreign_attribute_name_list( 
 				folder->primary_attribute_name_list,
 				related_folder->
-					related_attribute_name );
+					related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 
 		output_test_only_related_folder(
 			application_name,
@@ -845,7 +847,9 @@ void output_update_database(
 			related_folder_get_foreign_attribute_name_list( 
 				folder->primary_attribute_name_list,
 				related_folder->
-					related_attribute_name );
+					related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 
 		update_database_related_folder(
 			application_name,
@@ -894,7 +898,9 @@ void output_delete_database(
 			related_folder_get_foreign_attribute_name_list( 
 				folder->primary_attribute_name_list,
 				related_folder->
-					related_attribute_name );
+					related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 
 		table_name =
 			get_table_name(

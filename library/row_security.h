@@ -24,7 +24,6 @@ typedef struct
 {
 	FOLDER *folder;
 	char *attribute_not_null_string;
-	char *supervisor_role_name;
 } ROW_SECURITY_ROLE_UPDATE;
 
 typedef struct

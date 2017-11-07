@@ -832,7 +832,8 @@ void insert_one2m_pair_sequence(
 		post_prompt_insert_database(
 				&message,
 				&isa_message,
-				dictionary_appaserver->query_dictionary,
+				dictionary_appaserver->query_dictionary
+					/* row_dictionary */,
 				dictionary_appaserver->ignore_dictionary,
 				application_name,
 				session,

@@ -545,15 +545,6 @@ LIST *get_element_list(		char *login_name,
 		{
 			if ( related_folder->ignore_output ) continue;
 
-/*
-			foreign_attribute_name_list =
-				related_folder_get_foreign_attribute_name_list(
-			   	   folder_get_primary_attribute_name_list(
-					related_folder->folder->
-						attribute_list ),
-			   	   related_folder->related_attribute_name );
-*/
-
 			list_append_list(
 				return_list,
 				related_folder_get_update_element_list(

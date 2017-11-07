@@ -154,7 +154,7 @@ LIST *folder_get_primary_data_list(
 				PROCESS *populate_drop_down_process,
 				LIST *attribute_list,
 				LIST *common_non_primary_attribute_name_list,
-				boolean filter_out_login_name,
+				boolean filter_only_login_name,
 				LIST *exclude_attribute_name_list,
 				char *role_name,
 				char *state,

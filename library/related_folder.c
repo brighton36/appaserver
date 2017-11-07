@@ -106,10 +106,14 @@ RELATED_FOLDER *related_folder_calloc( void )
 
 } /* related_folder_calloc() */
 
-LIST *related_folder_get_foreign_attribute_name_list( 
-					LIST *related_attribute_name_list,
-					char *related_attribute_name )
+LIST *related_folder_get_foreign_attribute_name_list(
+				LIST *related_attribute_name_list,
+				char *related_attribute_name,
+				LIST *folder_foreign_attribute_name_list )
 {
+	if ( list_length( folder_foreign_attribute_name_list ) )
+		return folder_foreign_attribute_name_list;
+
 	if ( !related_attribute_name_list
 	&&   !list_length( related_attribute_name_list ) )
 	{
@@ -180,7 +184,9 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 			   	folder_get_primary_attribute_name_list(
 						related_folder->folder->
 							attribute_list ),
-			   	related_folder->related_attribute_name );
+			   	related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 		}
 
 		subtract_list =
@@ -1291,7 +1297,9 @@ LIST *related_folder_get_mto1_related_folder_list(
 				related_folder->
 					folder->
 						primary_attribute_name_list,
-				related_folder->related_attribute_name );
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 
 		if ( isa_flag != related_folder->relation_type_isa )
 		{
@@ -1574,7 +1582,9 @@ LIST *related_folder_get_1tom_related_folder_list(
 				related_folder_get_foreign_attribute_name_list(
 					parent_primary_attribute_name_list,
 					related_folder->
-						related_attribute_name );
+						related_attribute_name,
+					related_folder->
+					  folder_foreign_attribute_name_list );
 		}
 		else
 		{
@@ -1584,7 +1594,9 @@ LIST *related_folder_get_1tom_related_folder_list(
 						folder->
 						primary_attribute_name_list,
 					related_folder->
-						related_attribute_name );
+						related_attribute_name,
+					related_folder->
+					  folder_foreign_attribute_name_list );
 		}
 
 		if ( related_folder_list_usage != detail
@@ -2203,7 +2215,8 @@ boolean related_folder_exists_1tom_relations(
 	original_foreign_attribute_name_list =
 		related_folder_get_foreign_attribute_name_list(
 			original_primary_attribute_name_list,
-			related_attribute_name );
+			related_attribute_name,
+			(LIST *)0 /* folder_foreign_attribute_name_list */ );
 
 	one2m_related_folder_list =
 		related_folder_get_related_folder_list(
@@ -2260,7 +2273,9 @@ boolean related_folder_exists_1tom_relations(
 				related_folder_get_foreign_attribute_name_list(
 					original_primary_attribute_name_list,
 					related_folder->
-						related_attribute_name );
+						related_attribute_name,
+					related_folder->
+					  folder_foreign_attribute_name_list );
 		}
 
 		related_folder->foreign_attribute_name_list =
@@ -2268,7 +2283,9 @@ boolean related_folder_exists_1tom_relations(
 				related_folder->
 					one2m_related_folder->
 					primary_attribute_name_list,
-				related_folder->related_attribute_name );
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 
 		subtracted_attribute_name_list =
 			list_subtract_string_list(
@@ -3098,7 +3115,9 @@ char *related_folder_append_where_clause_related_join(
 		related_folder->foreign_attribute_name_list =
 			related_folder_get_foreign_attribute_name_list(
 				folder->primary_attribute_name_list,
-				related_folder->related_attribute_name );
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 	}
 
 	return query_append_where_clause_related_join(
@@ -3252,7 +3271,9 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 				related_folder->
 					folder->
 					primary_attribute_name_list,
-				related_folder->related_attribute_name );
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
 
 		if ( related_folder_is_one2one_firewall(
 			related_folder->foreign_attribute_name_list,
@@ -3637,8 +3658,7 @@ void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 				related_folder->
 					folder_foreign_attribute_name_list,
 				related_folder->
-					one2m_related_folder->
-					primary_attribute_name_list );
+					foreign_attribute_name_list );
 			continue;
 		}
 
@@ -3917,10 +3937,6 @@ void related_populate_folder_foreign_attribute_dictionary(
 	if ( list_length( folder_foreign_attribute_name_list ) !=
 	     list_length( primary_attribute_name_list ) )
 	{
-		/* Not participating */
-		/* ----------------- */
-		return;
-/*
 		fprintf( stderr,
 	    "ERROR in %s/%s()/%d: list lengths are not the same: %d vs %d.\n",
 			 __FILE__,
@@ -3929,7 +3945,6 @@ void related_populate_folder_foreign_attribute_dictionary(
 			 list_length( folder_foreign_attribute_name_list ),
 	     		 list_length( primary_attribute_name_list ) );
 		exit( 1 );
-*/
 	}
 
 	list_rewind( folder_foreign_attribute_name_list );

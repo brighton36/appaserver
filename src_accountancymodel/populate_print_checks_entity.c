@@ -24,15 +24,10 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *populate_print_checks_fetch_liability_account_list(
+LIST *fetch_liability_account_list(
 				char *application_name );
 
-/*
-double get_sales_tax_payable_amount(
-				char *application_name );
-*/
-
-void populate_print_checks_not_taxes(
+void output_checks_not_taxes(
 				FILE *output_pipe,
 				char *application_name,
 				char *fund_name );
@@ -95,52 +90,15 @@ void populate_print_checks_entity(
 	LIST *liability_account_list;
 
 	liability_account_list =
-		populate_print_checks_fetch_liability_account_list(
+		fetch_liability_account_list(
 			application_name );
-
-/*
-	ENTITY *entity;
-	char tax_payable_entity[ 512 ];
-	double sales_tax_payable_amount;
-
-	if ( ! ( entity =
-			entity_get_sales_tax_payable_entity(
-				application_name ) ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(tax_payable_entity,
-		"%s^%s",
-		entity->full_name,
-		entity->street_address );
-*/
 
 	output_pipe = popen( "sort", "w" );
 
-	populate_print_checks_not_taxes(
+	output_checks_not_taxes(
 			output_pipe,
 			application_name,
 			fund_name );
-
-/*
-	sales_tax_payable_amount =
-		get_sales_tax_payable_amount(
-			application_name );
-
-	if ( sales_tax_payable_amount )
-	{
-		fprintf(output_pipe,
-			"%s [%.2lf]\n",
-			tax_payable_entity,
-			sales_tax_payable_amount );
-	}
-*/
 
 	if ( list_rewind( liability_account_list ) )
 	{
@@ -160,58 +118,7 @@ void populate_print_checks_entity(
 
 } /* populate_print_checks_entity() */
 
-#ifdef NOT_DEFINED
-void populate_print_checks_entity(
-				char *application_name,
-				char *fund_name )
-{
-	FILE *output_pipe;
-	ENTITY *entity;
-	char tax_payable_entity[ 512 ];
-	double sales_tax_payable_amount;
-
-	if ( ! ( entity =
-			entity_get_sales_tax_payable_entity(
-				application_name ) ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(tax_payable_entity,
-		"%s^%s",
-		entity->full_name,
-		entity->street_address );
-
-	output_pipe = popen( "sort", "w" );
-
-	populate_print_checks_not_taxes(
-			output_pipe,
-			application_name,
-			fund_name );
-
-	sales_tax_payable_amount =
-		get_sales_tax_payable_amount(
-			application_name );
-
-	if ( sales_tax_payable_amount )
-	{
-		fprintf(output_pipe,
-			"%s [%.2lf]\n",
-			tax_payable_entity,
-			sales_tax_payable_amount );
-	}
-
-	pclose( output_pipe );
-
-} /* populate_print_checks_entity() */
-#endif
-
-void populate_print_checks_not_taxes(
+void output_checks_not_taxes(
 				FILE *output_pipe,
 				char *application_name,
 				char *fund_name )
@@ -234,28 +141,9 @@ void populate_print_checks_not_taxes(
 
 	pclose( input_pipe );
 
-} /* populate_print_checks_not_taxes() */
+} /* output_checks_not_taxes() */
 
-#ifdef NOT_DEFINED
-double get_sales_tax_payable_amount( char *application_name )
-{
-	JOURNAL_LEDGER *latest_journal_ledger;
-
-	if ( ! ( latest_journal_ledger =
-			ledger_get_latest_ledger(
-				application_name,
-				"sales_tax_payable",
-				(char *)0 /* as_of_date */ ) ) )
-	{
-		return 0.0;
-	}
-
-	return latest_journal_ledger->balance;
-
-} /* get_sales_tax_payable_amount() */
-#endif
-
-LIST *populate_print_checks_fetch_liability_account_list(
+LIST *fetch_liability_account_list(
 				char *application_name )
 {
 	char sys_string[ 1024 ];
@@ -316,5 +204,5 @@ LIST *populate_print_checks_fetch_liability_account_list(
 
 	return liability_account_list;
 
-} /* populate_print_checks_fetch_liability_account_list() */
+} /* fetch_liability_account_list() */
 

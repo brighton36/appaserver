@@ -171,7 +171,8 @@ void latex_invoice_output_invoice_header(
 	char company_street_address[ 128 ];
 	char customer_street_address[ 128 ];
 
-	if ( *latex_invoice_company->suite_number )
+	if ( latex_invoice_company->suite_number
+	&&   *latex_invoice_company->suite_number )
 	{
 		sprintf( company_street_address,
 			 "%s, Suite %s",
@@ -184,7 +185,8 @@ void latex_invoice_output_invoice_header(
 			latex_invoice_company->street_address );
 	}
 
-	if ( *latex_invoice_customer->suite_number )
+	if ( latex_invoice_customer->suite_number
+	&&   *latex_invoice_customer->suite_number )
 	{
 		sprintf( customer_street_address,
 			 "%s, Suite %s",
@@ -440,7 +442,10 @@ void latex_invoice_company_free(		LATEX_INVOICE_COMPANY *
 {
 	free( invoice_company->name );
 	free( invoice_company->street_address );
-	free( invoice_company->suite_number );
+
+	if ( invoice_company->suite_number )
+		free( invoice_company->suite_number );
+
 	free( invoice_company->city );
 	free( invoice_company->state );
 	free( invoice_company->zip_code );
@@ -467,7 +472,10 @@ void latex_invoice_customer_free(	LATEX_INVOICE_CUSTOMER *
 	free( latex_invoice_customer->invoice_key );
 	free( latex_invoice_customer->name );
 	free( latex_invoice_customer->street_address );
-	free( latex_invoice_customer->suite_number );
+
+	if ( latex_invoice_customer->suite_number )
+		free( latex_invoice_customer->suite_number );
+
 	free( latex_invoice_customer->city );
 	free( latex_invoice_customer->state );
 	free( latex_invoice_customer->zip_code );

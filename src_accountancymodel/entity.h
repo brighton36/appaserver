@@ -45,7 +45,6 @@ typedef struct
 {
 	char *full_name;
 	char *street_address;
-	char *unit;
 	char *city;
 	char *state_code;
 	char *zip_code;
@@ -110,8 +109,7 @@ LIST *entity_get_customer_sale_list(
 ENTITY *entity_new(			char *full_name,
 					char *street_address );
 
-boolean entity_load(			char **unit,
-					char **city,
+boolean entity_load(			char **city,
 					char **state_code,
 					char **zip_code,
 					char **phone_number,

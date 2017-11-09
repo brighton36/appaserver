@@ -129,8 +129,7 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 			strdup( full_name ),
 			strdup( street_address ) );
 
-	if ( !entity_load(	&self->entity->unit,
-				&self->entity->city,
+	if ( !entity_load(	&self->entity->city,
 				&self->entity->state_code,
 				&self->entity->zip_code,
 				&self->entity->phone_number,
@@ -208,8 +207,7 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 
 } /* entity_self_load() */
 
-boolean entity_load(	char **unit,
-			char **city,
+boolean entity_load(	char **city,
 			char **state_code,
 			char **zip_code,
 			char **phone_number,
@@ -225,7 +223,7 @@ boolean entity_load(	char **unit,
 	char buffer[ 128 ];
 
 	select =
-"unit,city,state_code,zip_code,phone_number,email_address";
+"city,state_code,zip_code,phone_number,email_address";
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -247,21 +245,18 @@ boolean entity_load(	char **unit,
 	if ( ! ( results = pipe2string( sys_string ) ) ) return 0;
 
 	piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	*unit = strdup( buffer );
-
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
 	*city = strdup( buffer );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
 	*state_code = strdup( buffer );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 3 );
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
 	*zip_code = strdup( buffer );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 4 );
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 3 );
 	*phone_number = strdup( buffer );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 5 );
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 4 );
 	*email_address = strdup( buffer );
 
 	free( results );

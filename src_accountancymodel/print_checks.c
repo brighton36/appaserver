@@ -157,7 +157,6 @@ LIST *print_checks_fetch_current_liability_account_list(
 				&account->account_name,
 				&account->fund_name,
 				&account->subclassification_name,
-				&account->display_order,
 				&account->hard_coded_account_key,
 				input_buffer );
 
@@ -213,7 +212,11 @@ LIST *print_checks_get_entity_check_amount_list(
 
 		if ( !entity_check_amount ) continue;
 
-		entity_check_amount->check_number = starting_check_number++;
+		if ( starting_check_number )
+		{
+			entity_check_amount->check_number =
+				starting_check_number++;
+		}
 
 		list_append_pointer(
 			entity_check_amount_list,
@@ -729,7 +732,7 @@ int print_checks_insert_vendor_payment(
 				double *remaining_check_amount,
 				LIST *purchase_order_list,
 				char *application_name,
-				char *uncleared_checks_account,
+				char *credit_account_name,
 				char *account_payable_account,
 				int seconds_to_add,
 				int check_number,
@@ -809,7 +812,7 @@ int print_checks_insert_vendor_payment(
 			purchase_order->full_name,
 			purchase_order->street_address,
 			transaction->transaction_date_time,
-			uncleared_checks_account,
+			credit_account_name,
 			purchase_order->amount_due,
 			0 /* not is_debit */ );
 
@@ -996,7 +999,8 @@ boolean print_checks_insert_entity_check_amount_list(
 				char *fund_name,
 				LIST *entity_check_amount_list,
 				double dialog_box_check_amount,
-				char *memo )
+				char *memo,
+				int starting_check_number )
 {
 	ENTITY_CHECK_AMOUNT *entity_check_amount;
 	LIST *distinct_account_name_list;
@@ -1004,6 +1008,7 @@ boolean print_checks_insert_entity_check_amount_list(
 	char *checking_account = {0};
 	char *uncleared_checks_account = {0};
 	char *account_payable_account = {0};
+	char *credit_account_name;
 	int seconds_to_add = 0;
 	double check_amount;
 
@@ -1016,9 +1021,14 @@ boolean print_checks_insert_entity_check_amount_list(
 				application_name,
 				fund_name );
 
+	if ( starting_check_number )
+		credit_account_name = uncleared_checks_account;
+	else
+		credit_account_name = checking_account;
+
 	list_append_pointer(
 		distinct_account_name_list,
-		uncleared_checks_account );
+		credit_account_name );
 
 	list_append_pointer(
 		distinct_account_name_list,
@@ -1044,7 +1054,7 @@ boolean print_checks_insert_entity_check_amount_list(
 				application_name,
 				entity_check_amount,
 				check_amount,
-				uncleared_checks_account,
+				credit_account_name,
 				account_payable_account,
 				seconds_to_add,
 				fund_name,
@@ -1072,7 +1082,7 @@ int print_checks_insert_entity_check_amount(
 				char *application_name,
 				ENTITY_CHECK_AMOUNT *entity_check_amount,
 				double check_amount,
-				char *uncleared_checks_account,
+				char *credit_account_name,
 				char *account_payable_account,
 				int seconds_to_add,
 				char *fund_name,
@@ -1087,7 +1097,7 @@ int print_checks_insert_entity_check_amount(
 				entity_check_amount->
 					purchase_order_list,
 				application_name,
-				uncleared_checks_account,
+				credit_account_name,
 				account_payable_account,
 				seconds_to_add,
 				entity_check_amount->check_number,
@@ -1104,7 +1114,7 @@ int print_checks_insert_entity_check_amount(
 			entity_check_amount->
 				entity_account_debit_list,
 			entity_check_amount->check_number,
-			uncleared_checks_account,
+			credit_account_name,
 			seconds_to_add,
 			entity_check_amount->full_name,
 			entity_check_amount->street_address,
@@ -1204,11 +1214,10 @@ void print_checks_insert_entity_account_debit_list(
 			0.0 ) )
 		{
 			fprintf( stderr,
-			"ERROR in %s/%s()/%d: debit_amount shouldn't be 0.0\n",
+		"Warning in %s/%s()/%d: debit_amount shouldn't be 0.0\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__ );
-			exit( 1 );
 		}
 
 		ledger_journal_ledger_insert(

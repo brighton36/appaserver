@@ -445,7 +445,8 @@ void print_checks_post(
 		fund_name,
 		print_checks->entity_check_amount_list,
 		print_checks->dialog_box_check_amount,
-		memo ) )
+		memo,
+		starting_check_number ) )
 	{
 		printf(
 		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );

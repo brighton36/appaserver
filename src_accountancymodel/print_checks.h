@@ -147,7 +147,8 @@ boolean print_checks_insert_entity_check_amount_list(
 				char *fund_name,
 				LIST *entity_check_amount_list,
 				double dialog_box_check_amount,
-				char *memo );
+				char *memo,
+				int starting_check_number );
 
 char *print_checks_entity_check_amount_list_display(
 				LIST *entity_check_amount_list );
@@ -162,7 +163,7 @@ int print_checks_insert_vendor_payment(
 				double *remaining_check_amount,
 				LIST *purchase_order_list,
 				char *application_name,
-				char *uncleared_checks_account,
+				char *credit_account_name,
 				char *account_payable_account,
 				int seconds_to_add,
 				int check_number,
@@ -174,7 +175,7 @@ int print_checks_insert_entity_check_amount(
 				char *application_name,
 				ENTITY_CHECK_AMOUNT *entity_check_amount,
 				double check_amount,
-				char *uncleared_checks_account,
+				char *credit_account_name,
 				char *account_payable_account,
 				int seconds_to_add,
 				char *fund_name,

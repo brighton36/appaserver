@@ -1247,8 +1247,7 @@ double customer_sale_get_tax_rate(
 
 	entity_customer = entity_new( full_name, street_address );
 
-	if ( !entity_load(	&entity_customer->unit,
-				&entity_customer->city,
+	if ( !entity_load(	&entity_customer->city,
 				&entity_customer->state_code,
 				&entity_customer->zip_code,
 				&entity_customer->phone_number,

@@ -160,7 +160,6 @@ ACCOUNT *ledger_account_fetch(	char *application_name,
 
 	ledger_account_load(	&account->fund_name,
 				&account->subclassification_name,
-				&account->display_order,
 				&account->hard_coded_account_key,
 				&account->accumulate_debit,
 				application_name,
@@ -179,12 +178,12 @@ char *ledger_account_get_select( char *application_name )
 			"account" ) )
 	{
 		select =
-"account,fund,subclassification,display_order,hard_coded_account_key";
+"account,fund,subclassification,hard_coded_account_key";
 	}
 	else
 	{
 		select =
-"account,null,subclassification,display_order,hard_coded_account_key";
+"account,null,subclassification,hard_coded_account_key";
 	}
 
 	return select;
@@ -296,7 +295,6 @@ LIST *ledger_get_account_list(	char *application_name,
 				&account->account_name,
 				&account->fund_name,
 				&account->subclassification_name,
-				&account->display_order,
 				&account->hard_coded_account_key,
 				input_buffer );
 
@@ -324,7 +322,6 @@ LIST *ledger_get_account_list(	char *application_name,
 void ledger_account_parse(	char **account_name,
 				char **fund_name,
 				char **subclassification_name,
-				int *display_order,
 				char **hard_coded_account_key,
 				char *input_buffer )
 {
@@ -347,17 +344,12 @@ void ledger_account_parse(	char **account_name,
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 	if ( *buffer )
-		*display_order = atoi( buffer );
-
-	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
-	if ( *buffer )
 		*hard_coded_account_key = strdup( buffer );
 
 } /* ledger_account_parse() */
 
 void ledger_account_load(	char **fund_name,
 				char **subclassification_name,
-				int *display_order,
 				char **hard_coded_account_key,
 				boolean *accumulate_debit,
 				char *application_name,
@@ -400,7 +392,6 @@ void ledger_account_load(	char **fund_name,
 	ledger_account_parse(	(char **)0,
 				fund_name,
 				subclassification_name,
-				display_order,
 				hard_coded_account_key,
 				results );
 
@@ -932,7 +923,6 @@ LIST *ledger_subclassification_quickly_get_account_list(
 				&account->account_name,
 				&account->fund_name,
 				&account->subclassification_name,
-				&account->display_order,
 				&account->hard_coded_account_key,
 				input_buffer );
 
@@ -978,8 +968,7 @@ LIST *ledger_subclassification_get_account_list(
 		 "get_folder_data	application=%s		"
 		 "			select=account		"
 		 "			folder=account		"
-		 "			where=\"%s\"		"
-		 "			order=display_order	",
+		 "			where=\"%s\"		",
 		 application_name,
 		 where );
 
@@ -5928,8 +5917,6 @@ int ledger_balance_match_function(
 	{
 		return 1;
 	}
-
-	if ( account_compare->display_order) return 1;
 
 	/* Sort descending */
 	/* --------------- */

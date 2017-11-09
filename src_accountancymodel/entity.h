@@ -54,6 +54,8 @@ typedef struct
 	LIST *depreciable_fixed_asset_purchase_list;
 	double depreciation_amount;
 	TRANSACTION *depreciation_transaction;
+	LIST *liability_account_list;
+	double sum_credit_amount_check_amount;
 } ENTITY;
 
 typedef struct
@@ -159,5 +161,7 @@ char *entity_get_payroll_pay_period_string(
 enum payroll_pay_period entity_get_payroll_pay_period(
 				char *payroll_pay_period_string );
 
-#endif
+LIST *print_checks_get_current_liability_account_list(
+				char *application_name );
 
+#endif

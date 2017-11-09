@@ -303,19 +303,29 @@ void session_message_ip_address_changed_exit(
 		environ_get_environment(
 			SESSION_REMOTE_IP_ADDRESS_VARIABLE );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document_quick_output_body(
 		application_name,
 		appaserver_parameter_file->
 			appaserver_mount_point );
 
-	sprintf( msg,
+	if ( remote_ip_address && *remote_ip_address )
+	{
+		sprintf( msg,
 "Warning for %s: Your IP address has changed to %s. Please login again.",
-		 login_name,
-		 remote_ip_address );
+		 	login_name,
+		 	remote_ip_address );
+	}
+	else
+	{
+		sprintf( msg,
+			 "Warning for %s: Please login again.",
+		 	login_name );
+	}
 
 	appaserver_output_error_message( application_name, msg, login_name );
+
 	printf( "<h3>%s</h3>\n", msg );
 
 	document_close();
@@ -634,8 +644,6 @@ boolean session_remote_ip_address_changed(
 	char sys_string[ 512 ];
 	char *remote_ip_address;
 	char *old_remote_ip_address;
-
-/* return 0; */
 
 	remote_ip_address =
 		environ_get_environment(

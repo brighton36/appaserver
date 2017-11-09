@@ -4,5 +4,5 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	make output_prompt_insert_form output_prompt_edit_form
+	make drop_column get_folder_data
 fi

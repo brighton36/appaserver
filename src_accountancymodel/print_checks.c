@@ -16,14 +16,7 @@
 #include "date.h"
 #include "print_checks.h"
 
-PRINT_CHECKS *print_checks_new(	char *application_name,
-				char *fund_name,
-				LIST *full_name_list,
-				LIST *street_address_list,
-				int starting_check_number,
-				double dialog_box_check_amount,
-				char *sales_tax_payable_full_name,
-				char *sales_tax_payable_street_address )
+PRINT_CHECKS *print_checks_calloc( void )
 {
 	PRINT_CHECKS *p;
 
@@ -37,10 +30,29 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 		exit( 1 );
 	}
 
+	return p;
+
+} /* print_checks_calloc() */
+
+PRINT_CHECKS *print_checks_new(	char *application_name,
+				char *fund_name,
+				LIST *full_name_list,
+				LIST *street_address_list,
+				int starting_check_number,
+				double dialog_box_check_amount )
+{
+	PRINT_CHECKS *p;
+
+	p = print_checks_calloc();
+
 	p->dialog_box_check_amount = dialog_box_check_amount;
 
 	p->current_liability_account_list =
-		print_checks_get_current_liability_account_list(
+		print_checks_fetch_current_liability_account_list(
+			application_name );
+
+	p->liability_account_entity_list =
+		print_checks_fetch_liability_account_entity_list(
 			application_name );
 
 	p->entity_check_amount_list =
@@ -51,9 +63,8 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 			street_address_list,
 			starting_check_number,
 			p->current_liability_account_list,
-			p->dialog_box_check_amount,
-			sales_tax_payable_full_name,
-			sales_tax_payable_street_address );
+			p->liability_account_entity_list,
+			p->dialog_box_check_amount );
 
 	return p;
 
@@ -107,7 +118,7 @@ ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_new(
 
 } /* print_checks_entity_account_debit_new() */
 
-LIST *print_checks_get_current_liability_account_list(
+LIST *print_checks_fetch_current_liability_account_list(
 				char *application_name )
 {
 	LIST *account_list;
@@ -164,7 +175,7 @@ LIST *print_checks_get_current_liability_account_list(
 	pclose( input_pipe );
 	return account_list;
 
-} /* print_checks_get_current_liability_account_list() */
+} /* print_checks_fetch_current_liability_account_list() */
 
 LIST *print_checks_get_entity_check_amount_list(
 			char *application_name,
@@ -173,9 +184,8 @@ LIST *print_checks_get_entity_check_amount_list(
 			LIST *street_address_list,
 			int starting_check_number,
 			LIST *current_liability_account_list,
-			double dialog_box_check_amount,
-			char *sales_tax_payable_full_name,
-			char *sales_tax_payable_street_address )
+			LIST *liability_account_entity_list,
+			double dialog_box_check_amount )
 {
 	char *full_name;
 	char *street_address;
@@ -198,9 +208,8 @@ LIST *print_checks_get_entity_check_amount_list(
 				full_name,
 				street_address,
 				current_liability_account_list,
-				dialog_box_check_amount,
-				sales_tax_payable_full_name,
-				sales_tax_payable_street_address );
+				liability_account_entity_list,
+				dialog_box_check_amount );
 
 		if ( !entity_check_amount ) continue;
 
@@ -224,9 +233,8 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 					char *full_name,
 					char *street_address,
 					LIST *current_liability_account_list,
-					double dialog_box_check_amount,
-					char *sales_tax_payable_full_name,
-					char *sales_tax_payable_street_address )
+					LIST *liability_account_entity_list,
+					double dialog_box_check_amount )
 {
 	char sys_string[ 128 ];
 	char *entity_record;
@@ -283,57 +291,56 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 			input_street_address_balance,
 			0 );
 
-		if ( strcmp( input_full_name, full_name ) == 0
-		&&   strcmp( input_street_address, street_address ) == 0 )
+		piece(	input_check_amount,
+			'[',
+			input_street_address_balance,
+			1 );
+
+		if ( strcmp( input_full_name, full_name ) != 0
+		||   strcmp( input_street_address, street_address ) != 0 )
 		{
-			piece(	input_check_amount,
-				'[',
-				input_street_address_balance,
-				1 );
+			continue;
+		}
 
-			entity_check_amount =
-				print_checks_entity_check_amount_new(
-					strdup( full_name ),
-					strdup( street_address ) );
+		entity_check_amount =
+			print_checks_entity_check_amount_new(
+				strdup( full_name ),
+				strdup( street_address ) );
 
-			entity_check_amount->sum_credit_amount_check_amount =
-				atof( input_check_amount );
+		entity_check_amount->sum_credit_amount_check_amount =
+			atof( input_check_amount );
 
-			check_amount = (dialog_box_check_amount)
-					? dialog_box_check_amount
-					: entity_check_amount->
-						sum_credit_amount_check_amount;
+		check_amount = (dialog_box_check_amount)
+				? dialog_box_check_amount
+				: entity_check_amount->
+					sum_credit_amount_check_amount;
 
-			if ( timlib_strcmp(
-				full_name,
-				sales_tax_payable_full_name ) == 0
-			&&   timlib_strcmp(
-				street_address,
-				sales_tax_payable_street_address ) == 0 )
-			{
-				print_checks_set_sales_tax_payable(
-					entity_check_amount,
-					application_name,
-					fund_name,
-					check_amount );
+		if ( print_checks_set_liability_account_entity(
+			&entity_check_amount->entity_account_debit_list,
+			&entity_check_amount->loss_amount,
+			entity_check_amount->full_name,
+			entity_check_amount->street_address,
+			entity_check_amount->sum_credit_amount_check_amount,
+			check_amount,
+			liability_account_entity_list ) )
+		{
+			return entity_check_amount;
+		}
 
-				return entity_check_amount;
-			}
+		entity_check_amount->purchase_order_list =
+			print_checks_fetch_purchase_order_list(
+				&check_amount
+					/* remaining_check_amount */,
+				application_name,
+				current_liability_account_list,
+				entity_check_amount->full_name,
+				entity_check_amount->street_address );
 
-			entity_check_amount->purchase_order_list =
-				print_checks_fetch_purchase_order_list(
-					&check_amount
-						/* remaining_check_amount */,
-					application_name,
-					current_liability_account_list,
-					entity_check_amount->full_name,
-					entity_check_amount->street_address );
-
-			if ( !timlib_dollar_virtually_same(
-				check_amount,
-				0.0 ) )
-			{
-				entity_check_amount->
+		if ( !timlib_dollar_virtually_same(
+			check_amount,
+			0.0 ) )
+		{
+			entity_check_amount->
 				entity_account_debit_list =
 				     print_checks_get_entity_account_debit_list(
 						&check_amount
@@ -342,20 +349,19 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 						entity_check_amount->full_name,
 						entity_check_amount->
 							street_address );
-			}
-	
-			/* ----------------------------------------- */
-			/* If dialog_box_check_amount > amount_owed, */
-			/* then still need to print the check, so    */
-			/* record the difference as a loss.          */
-			/* ----------------------------------------- */
-			if ( check_amount >= 0.01 )
-			{
-				entity_check_amount->loss_amount = check_amount;
-			}
-
-			return entity_check_amount;
 		}
+	
+		/* ----------------------------------------- */
+		/* If dialog_box_check_amount > amount_owed, */
+		/* then still need to print the check, so    */
+		/* record the difference as a loss.          */
+		/* ----------------------------------------- */
+		if ( check_amount >= 0.01 )
+		{
+			entity_check_amount->loss_amount = check_amount;
+		}
+
+		return entity_check_amount;
 
 	} while( list_next( entity_record_list ) );
 
@@ -444,6 +450,7 @@ LIST *print_checks_fetch_purchase_order_list(
 
 } /* print_checks_fetch_purchase_order_list() */
 
+#ifdef NOT_DEFINED
 void print_checks_set_sales_tax_payable(
 				ENTITY_CHECK_AMOUNT *entity_check_amount,
 				char *application_name,
@@ -483,6 +490,7 @@ void print_checks_set_sales_tax_payable(
 				entity_account_debit );
 
 } /* print_checks_set_sales_tax_payable() */
+#endif
 
 LIST *print_checks_get_entity_account_debit_list(
 				double *remaining_check_amount,
@@ -701,7 +709,8 @@ ENTITY_ACCOUNT_DEBIT *print_checks_entity_account_debit_seek(
 	do {
 		entity_account_debit = list_get( entity_account_debit_list );
 
-		if ( strcmp(	account_payable_account,
+		if ( timlib_strcmp(
+				account_payable_account,
 				entity_account_debit->account_name ) == 0 )
 		{
 			return entity_account_debit;
@@ -1257,3 +1266,207 @@ void print_checks_insert_entity_account_debit_list(
 
 } /* print_checks_insert_entity_account_debit_list() */
 
+ENTITY *print_checks_get_or_set_liability_account_entity(
+				LIST *liability_account_entity_list,
+				char *full_name,
+				char *street_address )
+{
+	ENTITY *entity;
+
+	if ( !liability_account_entity_list )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: null liability_account_entity_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( liability_account_entity_list ) )
+	{
+		goto set_list;
+	}
+
+	do {
+		entity =
+			list_get_pointer( 
+				liability_account_entity_list );
+
+		if ( timlib_strcmp(
+			entity->full_name,
+			full_name ) == 0
+		&&   timlib_strcmp(
+			entity->street_address,
+			street_address ) == 0 )
+		{
+			return entity;
+		}
+
+	} while( list_next( liability_account_entity_list ) );
+
+set_list:
+
+	entity = entity_new(	strdup( full_name ),
+				strdup( street_address ) );
+
+	entity->liability_account_list = list_new();
+
+	list_append_pointer(	liability_account_entity_list,
+				entity );
+
+	return entity;
+
+} /* print_checks_get_or_set_liability_account_entity() */
+
+LIST *print_checks_fetch_liability_account_entity_list(
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+	FILE *input_pipe;
+	char input_buffer[ 512 ];
+	char account_name[ 128 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char *folder;
+	char *select;
+	ENTITY *entity;
+	JOURNAL_LEDGER *latest_ledger;
+	ACCOUNT *account;
+	LIST *liability_account_entity_list = list_new();
+
+	folder = "liability_account_entity";
+	select = "account,full_name,street_address";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( timlib_get_line( input_buffer, input_pipe, 512 ) )
+	{
+		piece( account_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+
+		if ( ! ( latest_ledger =
+				ledger_get_latest_ledger(
+					application_name,
+					account_name,
+					(char *)0 /* as_of_date */ ) ) )
+		{
+			continue;
+		}
+
+		if ( !latest_ledger->balance ) continue;
+
+		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+
+		entity =
+			print_checks_get_or_set_liability_account_entity(
+				liability_account_entity_list,
+				full_name,
+				street_address );
+
+		entity->sum_credit_amount_check_amount +=
+			latest_ledger->balance;
+
+		account = ledger_account_new( strdup( account_name ) );
+		account->latest_ledger = latest_ledger;
+
+		/* Prior assignment assigns the local memory. */
+		/* ------------------------------------------ */
+		account->latest_ledger->account_name = account->account_name;
+
+		list_append_pointer( entity->liability_account_list, account );
+	}
+
+	pclose( input_pipe );
+
+	return liability_account_entity_list;
+
+} /* print_checks_fetch_liability_account_entity_list() */
+
+boolean print_checks_set_liability_account_entity(
+			LIST **entity_account_debit_list,
+			double *loss_amount,
+			char *full_name,
+			char *street_address,
+			double sum_credit_amount_check_amount,
+			double check_amount,
+			LIST *liability_account_entity_list )
+{
+	ENTITY *entity;
+	ACCOUNT *account;
+	ENTITY_ACCOUNT_DEBIT *entity_account_debit;
+
+	if ( !list_rewind( liability_account_entity_list ) ) return 0;
+
+	do {
+		entity = list_get_pointer( liability_account_entity_list );
+
+		if ( strcmp( entity->full_name, full_name ) != 0
+		||   strcmp( entity->street_address, street_address ) != 0 )
+		{
+			continue;
+		}
+
+		if ( !list_rewind( entity->liability_account_list ) )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty liability_account_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		*loss_amount =
+			check_amount -
+			sum_credit_amount_check_amount;
+
+		*entity_account_debit_list = list_new();
+
+		do {
+			account =
+				list_get_pointer(
+					entity->liability_account_list );
+
+			entity_account_debit =
+				print_checks_entity_account_debit_new(
+					account->account_name );
+
+			if (	account->latest_ledger->balance >
+				check_amount )
+			{
+				entity_account_debit->debit_amount =
+					account->latest_ledger->balance -
+					check_amount;
+			}
+			else
+			{
+				entity_account_debit->debit_amount =
+					account->latest_ledger->balance;
+			}
+
+			check_amount -= account->latest_ledger->balance;
+
+			list_append_pointer(
+				*entity_account_debit_list,
+				entity_account_debit );
+
+			if ( check_amount <= 0 ) break;
+
+		} while( list_next( entity->liability_account_list ) );
+
+		return 1;
+
+	} while( list_next( liability_account_entity_list ) );
+
+	return 0;
+
+} /* print_checks_set_liability_account_entity() */

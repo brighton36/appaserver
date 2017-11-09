@@ -426,19 +426,6 @@ void print_checks_post(
 			char *memo )
 {
 	PRINT_CHECKS *print_checks;
-	ENTITY *sales_tax_entity;
-
-	if ( ! ( sales_tax_entity =
-			entity_get_sales_tax_payable_entity(
-				application_name ) ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot get sales tax payable entity.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
 
 	print_checks =
 		print_checks_new(
@@ -447,9 +434,11 @@ void print_checks_post(
 			full_name_list,
 			street_address_list,
 			starting_check_number,
-			check_amount /* dialog_box_check_amount */,
-			sales_tax_entity->full_name,
-			sales_tax_entity->street_address );
+			check_amount /* dialog_box_check_amount */ );
+
+	print_checks->liability_account_entity_list =
+		print_checks_fetch_liability_account_entity_list(
+			application_name );
 
 	if ( print_checks_insert_entity_check_amount_list(
 		application_name,

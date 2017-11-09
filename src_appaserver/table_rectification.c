@@ -65,6 +65,9 @@ void output_tables_not_used_anymore(	char *application_name,
 */
 
 void output_columns_not_used_anymore(	char *application_name,
+					char *session,
+					char *login_name,
+					char *role_name,
 					LIST *folder_list );
 
 void output_attributes_not_in_tables(	char *application_name,
@@ -82,6 +85,9 @@ char *get_drop_table_control_string(
 					char *table_name );
 
 char *get_drop_column_control_string(	char *application_name,
+					char *session,
+					char *login_name,
+					char *role_name,
 					char *folder_name,
 					char *attribute_name );
 
@@ -103,29 +109,33 @@ LIST *get_folder_list(			char *application_name );
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *session;
+	char *login_name;
+	char *role_name;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	LIST *folder_list;
-/*
-	LIST *table_name_list;
-	table_name_list = get_table_name_list();
-*/
 
 	output_starting_argv_stderr( argc, argv );
 
-	if ( argc < 1 )
+	if ( argc != 5 )
 	{
 		fprintf(stderr,
-			"Usage: %s application\n",
+			"Usage: %s application session login_name role\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	application_name = argv[ 1 ];
+	session = argv[ 2 ];
+	login_name = argv[ 3 ];
+	role_name = argv[ 4 ];
 
 	appaserver_parameter_file = new_appaserver_parameter_file();
 	document = document_new( "", application_name );
+/*
 	document_set_output_content_type( document );
+*/
 
 	document_output_head(
 			document->application_name,
@@ -153,7 +163,12 @@ int main( int argc, char **argv )
 					every_application_folder_list );
 */
 
-	output_columns_not_used_anymore( application_name, folder_list );
+	output_columns_not_used_anymore(
+		application_name,
+		session,
+		login_name,
+		role_name,
+		folder_list );
 
 	printf( "<br>\n" );
 
@@ -303,17 +318,25 @@ LIST *get_table_column_name_list(
 } /* get_table_column_name_list() */
 
 char *get_drop_column_control_string(	char *application_name,
+					char *session,
+					char *login_name,
+					char *role_name,
 					char *folder_name,
 					char *attribute_name )
 {
 	static char control_string[ 1024 ];
 
 	sprintf(control_string,
-		"<a href=\"drop_column?%s+%s+%s+y\" target=_new>Drop</a>\n",
+	"<a href=\"drop_column?%s+%s+%s+%s+%s+%s+y\" target=_new>Drop</a>\n",
 		application_name,
+		session,
+		login_name,
+		role_name,
 		folder_name,
 		attribute_name );
+
 	return control_string;
+
 } /* get_drop_column_control_string() */
 
 #ifdef NOT_DEFINED
@@ -503,6 +526,9 @@ void output_attributes_not_in_tables(	char *application_name,
 } /* output_attributes_not_in_tables() */
 
 void output_columns_not_used_anymore(	char *application_name,
+					char *session,
+					char *login_name,
+					char *role_name,
 					LIST *folder_list )
 {
 	FOLDER *folder;
@@ -572,6 +598,9 @@ void output_columns_not_used_anymore(	char *application_name,
 					html_table->data_list,
 					get_drop_column_control_string(
 						application_name,
+						session,
+						login_name,
+						role_name,
 						folder->folder_name,
 						residual_attribute_name ) );
 
@@ -714,17 +743,31 @@ COLUMN *new_column( char *column_name )
 int attributes_the_same(	ATTRIBUTE *attribute,
 				COLUMN *column )
 {
-	if ( strcmp( attribute->datatype, "date" ) == 0 )
+	if ( timlib_strncmp( column->datatype, "date" ) == 0 )
 	{
-		if ( strncmp( column->datatype, "date", 4 ) == 0 )
+		if ( timlib_strncmp( attribute->datatype, "date" ) == 0
+		||   timlib_strncmp( attribute->datatype, "current" ) == 0 )
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	if ( strcmp( attribute->datatype, "integer" ) == 0 )
+	{
+		if ( timlib_strncmp( column->datatype, "int" ) == 0 )
 			return 1;
 		else
 			return 0;
 	}
 
-	if ( strcmp( attribute->datatype, "integer" ) == 0 )
+	if ( strcmp( column->datatype, "text" ) == 0 )
 	{
-		if ( strncmp( column->datatype, "int", 3 ) == 0 )
+		if ( strcmp( attribute->datatype, "text" ) == 0
+		||   strcmp( attribute->datatype, "notepad" ) == 0 )
 			return 1;
 		else
 			return 0;
@@ -733,7 +776,7 @@ int attributes_the_same(	ATTRIBUTE *attribute,
 	if ( attribute->width != column->width )
 		return 0;
 
-	if ( strncmp( column->datatype, "float", 5 ) == 0 )
+	if ( timlib_strncmp( column->datatype, "float" ) == 0 )
 	{
 		if ( attribute->float_decimal_places ==
 		     column->float_decimal_places ) 
@@ -745,7 +788,9 @@ int attributes_the_same(	ATTRIBUTE *attribute,
 			return 0;
 		}
 	}
+
 	return 1;
+
 } /* attributes_the_same() */
 
 char *get_attribute_datatype_string( ATTRIBUTE *attribute )

@@ -108,7 +108,6 @@ typedef struct
 	char *account_name;
 	char *fund_name;
 	char *subclassification_name;
-	int display_order;
 	char *hard_coded_account_key;
 	JOURNAL_LEDGER *latest_ledger;
 	LIST *journal_ledger_list;
@@ -694,7 +693,6 @@ char *ledger_get_hard_coded_dictionary_key(
 
 void ledger_account_load(	char **fund_name,
 				char **subclassification_name,
-				int *display_order,
 				char **hard_coded_account_key,
 				boolean *accumulate_debit,
 				char *application_name,
@@ -703,7 +701,6 @@ void ledger_account_load(	char **fund_name,
 void ledger_account_parse(	char **account_name,
 				char **fund_name,
 				char **subclassification_name,
-				int *display_order,
 				char **hard_coded_account_key,
 				char *input_buffer );
 

@@ -33,7 +33,6 @@ void fetch_parameters(	char **application_name,
 			char **order_clause,
 			char **group_clause,
 			char **quick_yes_no,
-			char **dbms,
 			char **maxrows,
 			NAME_ARG *arg );
 
@@ -45,7 +44,6 @@ int main( int argc, char **argv )
 	char *order_clause;
 	char *group_clause;
 	char *quick_yes_no;
-	char *dbms;
 	char *maxrows = {0};
 	long maxrows_long = 0L;
 	char *where_clause;
@@ -75,7 +73,6 @@ output_starting_argv_stderr( argc, argv );
 				&order_clause,
 				&group_clause,
 				&quick_yes_no,
-				&dbms,
 				&maxrows,
 				arg );
 
@@ -91,14 +88,14 @@ output_starting_argv_stderr( argc, argv );
 
 	if ( maxrows && *maxrows ) maxrows_long = atol( maxrows );
 
-	if ( !*dbms ) dbms = appaserver_parameter_file_get_dbms();
+	environ_set_environment(
+		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+		application_name );
 
-/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
-*/
 
 	if( strcmp( select, "primary" ) == 0 )
 	{
@@ -223,16 +220,14 @@ output_starting_argv_stderr( argc, argv );
 	if ( strcmp( quick_yes_no, "yes" ) == 0 )
 	{
 		sprintf(	sql_executable,
-				"sql_quick.e '%c' %s",
-				FOLDER_DATA_DELIMITER,
-				dbms );
+				"sql_quick.e '%c'",
+				FOLDER_DATA_DELIMITER );
 	}
 	else
 	{
 		sprintf(	sql_executable,
-				"sql.e '%c' %s",
-				FOLDER_DATA_DELIMITER,
-				dbms );
+				"sql.e '%c'",
+				FOLDER_DATA_DELIMITER );
 	}
 
 	table_name = get_multiple_table_names( application_name, folder_name );
@@ -324,7 +319,6 @@ void fetch_parameters(	char **application_name,
 			char **order_clause,
 			char **group_clause,
 			char **quick_yes_no,
-			char **dbms,
 			char **maxrows,
 			NAME_ARG *arg )
 {
@@ -335,7 +329,6 @@ void fetch_parameters(	char **application_name,
 	*order_clause = fetch_arg( arg, "order_clause" );
 	*group_clause = fetch_arg( arg, "group_clause" );
 	*quick_yes_no = fetch_arg( arg, "quick" );
-	*dbms = fetch_arg( arg, "dbms" );
 	*maxrows = fetch_arg( arg, "maxrows" );
 
 } /* fetch_parameters() */
@@ -372,9 +365,6 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         set_default_value( arg, ticket, "select" );
 
         ticket = add_valid_option( arg, "group_clause" );
-        set_default_value( arg, ticket, "" );
-
-        ticket = add_valid_option( arg, "dbms" );
         set_default_value( arg, ticket, "" );
 
         ticket = add_valid_option( arg, "maxrows" );

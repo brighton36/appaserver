@@ -7,8 +7,13 @@
 if [ "$#" -lt 3 ]
 then
 	echo "Usage: $0 operation domain document_root_leaf [testing]" 1>&2
-	echo "operation = {create,delete}" 1>&2
-	echo "Note: only run this if you're fulling using the Group Centric Paradigm."
+	echo "operation = {create,delete,renew}" 1>&2
+	echo "Note: only run this if you're fully using the Group Centric Paradigm." 1>&2
+	echo "" 1>&2
+	echo "Note: The document_root_leaf is the subdirectory under document_root where the virtual host files are stored." 1>&2
+	echo "" 1>&2
+	echo "Note: to list certificates:" 1>&2
+	echo "$ sudo certbot certificates" 1>&2
 	exit 1
 fi
 
@@ -26,6 +31,10 @@ then
 	testing=yes
 fi
 
+webroot_path="${DOCUMENT_ROOT}/${document_root_leaf}"
+cert_path="/etc/letsencrypt/live/${domain}/cert.pem"
+key_path="/etc/letsencrypt/archive/${domain}"
+
 function certbot_delete ()
 {
 	domain=$1
@@ -36,10 +45,7 @@ function certbot_delete ()
 		staging="--staging"
 	fi
 
-	cert_path="/etc/letsencrypt/live/${domain}/cert.pem"
-
 	sudo certbot revoke --cert-path $cert_path $staging
-
 	sudo certbot delete --cert-name $domain $staging
 }
 
@@ -54,8 +60,6 @@ function certbot_create ()
 		staging="--staging"
 	fi
 
-	webroot_path="${DOCUMENT_ROOT}/${document_root_leaf}"
-
 	sudo certbot	certonly			\
 			--webroot			\
 			--webroot-path			\
@@ -63,10 +67,23 @@ function certbot_create ()
 			-d $domain			\
 			$staging
 
-	keypath="/etc/letsencrypt/archive/${domain}"
-	sudo chmod g+rwxs $keypath
-	sudo chmod o-rx $keypath
-	sudo chmod o-r $keypath/*
+	sudo chmod g+rwxs ${key_path}
+	sudo chmod o-rx ${key_path}
+	sudo chmod o-r ${key_path}/*
+}
+
+function certbot_renew ()
+{
+	domain=$1
+	document_root_leaf=$2
+	testing=$3
+
+	if [ "$testing" = "yes" ]
+	then
+		staging="--staging"
+	fi
+
+	sudo certbot renew --cert-name $domain $staging
 }
 
 if [ "$operation" = "delete" ]
@@ -75,6 +92,9 @@ then
 elif [ "$operation" = "create" ]
 then
 	certbot_create $domain $document_root_leaf $testing
+elif [ "$operation" = "renew" ]
+then
+	certbot_renew $domain $document_root_leaf $testing
 else
 	echo "$0: Invalid operation." 1>&2
 	exit 1

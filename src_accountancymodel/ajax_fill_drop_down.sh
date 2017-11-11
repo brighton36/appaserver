@@ -53,6 +53,7 @@ function choose_window()
 
 HTMLstring = '<HTML>\n';
 HTMLstring += '<HEAD>\n';
+HTMLstring += '<link rel=stylesheet type="text/css" href="/appaserver/$application/style.css">'
 HTMLstring += '<TITLE>${one2m_folder}</TITLE>\n';
 
 HTMLstring += '<script language="javascript" type="text/javascript">\n';

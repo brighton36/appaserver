@@ -26,15 +26,12 @@ one2m_folder=$5
 mto1_folder=$6
 select=$7
 
-function output_header()
+function output_html_header()
 {
 	application=$1
-	login_name=$2
-	role=$3
-	one2m_folder=$4
-	mto1_folder=$5
 
 cat << all_done
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
@@ -43,9 +40,25 @@ cat << all_done
 <head>
 
 <link rel=stylesheet type="text/css" href="/appaserver/$application/style.css">
+
+all_done
+
+}
+# function output_html_header()
+
+function output_script_header()
+{
+	application=$1
+	login_name=$2
+	role=$3
+	one2m_folder=$4
+	mto1_folder=$5
+
+cat << all_done
+
 <script language="javascript" type="text/javascript">
 
-function fork_choose_window()
+function fork_ajax_window( destination_element_id )
 {
 	var my_window;
 	var my_document;
@@ -71,7 +84,10 @@ HTMLstring += '	if ( status != 200 ) return;\n';
 HTMLstring += '	if ( ready != 4 ) return;\n';
 HTMLstring += '	results = http_request.responseText;\n';
 HTMLstring += '	a = results.split( "^" );\n';
-HTMLstring += '	e = window.opener.document.getElementById( "${mto1_folder}" );\n';
+
+HTMLstring += '	e = window.opener.document.getElementById( \"';
+HTMLstring += destination_element_id;
+HTMLstring += '\" );\n';
 
 HTMLstring += '	for ( var i = 0; i < a.length; i++ )\n';
 HTMLstring += '		e.options[ i ] = new Option( a[ i ], a[ i ] );\n';
@@ -108,7 +124,7 @@ HTMLstring += '<select name="${one2m_folder}" id="${one2m_folder}">\n';
 all_done
 
 }
-# end function output_header()
+# end function output_script_header()
 
 function output_one2m_folder()
 {
@@ -129,7 +145,7 @@ echo "HTMLstring += '</select>\n';"
 }
 # end function output_one2m_folder()
 
-function output_footer()
+function output_script_footer()
 {
 	one2m_folder=$1
 	mto1_folder=$2
@@ -151,13 +167,22 @@ HTMLstring += '</HTML>';
 
 </script>
 
+all_done
+
+}
+# function output_script_footer()
+
+function output_body()
+{
+cat << all_done
+
 </head>
 
 <body>
 
 Choose a ${mto1_folder}:
 <select name="${mto1_folder}" id="${mto1_folder}" /> </select>
-<input type=button value="Fill" onClick="fork_choose_window()" />
+<input type=button value="Fill" onClick="fork_ajax_window( '${mto1_folder}' )" />
 
 </body>
 </html>
@@ -165,13 +190,17 @@ Choose a ${mto1_folder}:
 all_done
 
 }
-# end function output_footer()
+# end function output_body()
 
-
-output_header $application "$login_name" "$role" $one2m_folder $mto1_folder
+output_html_header $application
+output_script_header	$application		\
+			"$login_name"		\
+			"$role"			\
+			$one2m_folder		\
+			$mto1_folder
 
 output_one2m_folder $application $one2m_folder "$select"
-
-output_footer $one2m_folder $mto1_folder
+output_script_footer $one2m_folder $mto1_folder
+output_body $one2m_folder $mto1_folder
 
 exit 0

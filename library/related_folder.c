@@ -960,6 +960,9 @@ LIST *related_folder_get_insert_element_list(
 
 		element->push_button->label = "Fill";
 
+		element->push_button->onclick_function =
+			"fork_ajax_window( '$id' )";
+
 		list_append_pointer(
 			element_list, 
 			element );

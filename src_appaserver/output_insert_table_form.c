@@ -856,6 +856,15 @@ else
 			folder->folder_name
 				/* one2m_folder_name_for_processes */ );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got element_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+element_list_display( form->regular_element_list ) );
+m2( application_name, msg );
+}
 	form_output_table_heading(	form->regular_element_list,
 					0 /* form_number */ );
 

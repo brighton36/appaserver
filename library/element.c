@@ -1163,6 +1163,8 @@ void element_push_button_output( 	FILE *output_file,
 					int row,
 					char *onclick_function )
 {
+	char element_id_row[ 128 ];
+
 	fprintf( output_file, "<input type=\"button\"" );
 
 	if ( element_label && *element_label )
@@ -1174,17 +1176,35 @@ void element_push_button_output( 	FILE *output_file,
 
 	if ( element_id && *element_id )
 	{
-		fprintf( output_file,
-" id=\"%s_%d\"",
-	   	element_id,
-	   	row );
+		sprintf( element_id_row,
+			 "%s_%d",
+	   		 element_id,
+	   		 row );
+	}
+	else
+	{
+		*element_id_row = '\0';
+	}
+
+	if ( *element_id_row )
+	{
+		fprintf( output_file, " id=\"%s\"", element_id_row );
 	}
 
 	if ( onclick_function )
 	{
+		if ( timlib_exists_string( onclick_function, "$id" ) )
+		{
+			char buffer[ 128 ];
+
+			strcpy( buffer, onclick_function );
+			search_replace_string( buffer, "$id", element_id_row );
+			onclick_function = strdup( buffer );
+		}
+
 		fprintf( output_file,
-		 	 " onclick=\"%s\"",
-			 onclick_function );
+	 	 	" onclick=\"%s\"",
+		 	onclick_function );
 	}
 
 	fprintf( output_file, ">\n" );
@@ -3515,6 +3535,15 @@ char *element_display( ELEMENT *element )
 				 ", readonly" );
 		}
 	}
+	else
+	if ( element->element_type == push_button )
+	{
+		sprintf(buffer + strlen( buffer ),
+			", id = %s, label = %s, onclick_function = %s",
+			element->push_button->id,
+			element->push_button->label,
+			element->push_button->onclick_function );
+	}
 
 	return buffer;
 
@@ -3740,6 +3769,9 @@ char *element_get_element_type_string( enum element_type element_type )
 	else
 	if ( element_type == element_date )
 		return "date";
+	else
+	if ( element_type == push_button )
+		return "push_button";
 	else
 	{
 		char buffer[ 128 ];

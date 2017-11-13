@@ -1295,11 +1295,11 @@ LIST *attribute_get_attribute_element_list(
 			 attribute_name );
 	
 		element = element_new(
-				push_button,
+				toggle_button,
 				strdup( ignore_element_name ) );
 	
-		element_push_button_set_heading(
-			element->push_button, "no_display" );
+		element_toggle_button_set_heading(
+			element->toggle_button, "no_display" );
 	
 		list_append_pointer(
 				return_list,

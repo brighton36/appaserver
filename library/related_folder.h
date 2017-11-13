@@ -46,7 +46,8 @@ enum related_folder_list_usage {	prompt_screen,
 #define RELATED_FOLDER_DROP_DOWN_MULTI_SELECT_PIECE		9
 #define RELATED_FOLDER_JOIN_1TOM_EACH_ROW_PIECE			10
 #define RELATED_FOLDER_OMIT_LOOKUP_BEFORE_DROP_DOWN_PIECE	11
-#define RELATED_FOLDER_HINT_MESSAGE_PIECE			12
+#define RELATED_FOLDER_AJAX_FILL_DROP_DOWN_PIECE		12
+#define RELATED_FOLDER_HINT_MESSAGE_PIECE			13
 
 #define RELATED_FOLDER_DELIMITER				'^'
 
@@ -69,6 +70,7 @@ typedef struct
 	boolean drop_down_multi_select;
 	boolean join_1tom_each_row;
 	boolean omit_lookup_before_drop_down;
+	boolean ajax_fill_drop_down;
 	LIST *automatic_preselection_dictionary_list;
 	LIST *foreign_attribute_name_list;
 	LIST *folder_foreign_attribute_name_list;
@@ -161,10 +163,13 @@ LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 					LIST *mto1_related_folder_list );
 
 LIST *related_folder_get_insert_element_list(
+				/* --------------------------- */
+				/* sets related_folder->folder */
+				/* --------------------------- */
+				RELATED_FOLDER *related_folder,
 				char *application_name,
 				char *session,
 				char *login_name,
-				RELATED_FOLDER *related_folder,
 				LIST *foreign_attribute_name_list,
 				int row_dictionary_list_length,
 				DICTIONARY *parameter_dictionary,
@@ -528,5 +533,8 @@ void related_populate_folder_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			LIST *folder_foreign_attribute_name_list,
 			LIST *primary_attribute_name_list );
+
+boolean related_folder_exists_ajax_fill_drop_down(
+			LIST *mto1_related_folder_list );
 
 #endif

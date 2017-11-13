@@ -446,7 +446,7 @@ void form_output_trailer_post_change_javascript(
 				(char *)0 /* login_name */ );
 
 		element = element_new(
-				push_button,
+				toggle_button,
 				INSERT_PUSH_BUTTON_NAME );
 
 		element_output(
@@ -553,7 +553,7 @@ void form_output_row( 		int *form_current_reference_number,
 		}
 		else
 		if ( row_level_non_owner_view_only
-		&&   element->element_type != push_button
+		&&   element->element_type != toggle_button
 		&&   element->element_type != hidden
 		&&   dictionary_login_name
 		&&   strcasecmp(	dictionary_login_name,
@@ -564,7 +564,7 @@ void form_output_row( 		int *form_current_reference_number,
 		}
 		else
 		if ( row_level_non_owner_view_only
-		&&   element->element_type == push_button
+		&&   element->element_type == toggle_button
 		&&   element->name
 		&&   strcmp( element->name, "delete" )  == 0
 		&&   dictionary_login_name
@@ -629,8 +629,8 @@ void form_output_sort_buttons(	FILE *output_file,
 				char *form_name )
 {
 	ELEMENT *element;
-	ELEMENT_PUSH_BUTTON *element_push_button;
-	char push_button_name[ 512 ];
+	ELEMENT_TOGGLE_BUTTON *element_toggle_button;
+	char toggle_button_name[ 512 ];
 	LIST *sort_button_type_list = list_new();
 	char *sort_button_type;
 	char sort_button_type_heading[ 16 ];
@@ -652,26 +652,26 @@ void form_output_sort_buttons(	FILE *output_file,
 				if ( element->element_type == hidden )
 					continue;
 	
-				if ( element->element_type == push_button
+				if ( element->element_type == toggle_button
 				||   element->omit_heading_sort_button )
 				{
 					fprintf( output_file, "<td></td>" );
 					continue;
 				}
 	
-				sprintf(	push_button_name,
+				sprintf(	toggle_button_name,
 						"%s%s%s",
 						SORT_BUTTON_PREFIX,
 						sort_button_type,
 						element->name );
 	
 				search_replace_string(
-					push_button_name,
+					toggle_button_name,
 					"/",
 					"," );
 
-				element_push_button =
-					element_push_button_new();
+				element_toggle_button =
+					element_toggle_button_new();
 	
 				/* Trim off the trailing underbar */
 				/* ------------------------------ */
@@ -691,21 +691,22 @@ void form_output_sort_buttons(	FILE *output_file,
 						"reverse" );
 				}
 
-				element_push_button_set_heading(
-						element_push_button,
+				element_toggle_button_set_heading(
+						element_toggle_button,
 						sort_button_type_heading );
 	
-				element_push_button->onchange_submit_yn = 'y';
-				element_push_button->form_name = form_name;
+				element_toggle_button->onchange_submit_yn = 'y';
+				element_toggle_button->form_name = form_name;
 
-				element_push_button_output(
+				element_toggle_button_output(
 					output_file,
-					push_button_name,
-					element_push_button->heading,
-					element_push_button->checked,
+					toggle_button_name,
+					element_toggle_button->heading,
+					element_toggle_button->checked,
 					0 /* row */,
-					element_push_button->onchange_submit_yn,
-					element_push_button->form_name,
+					element_toggle_button->
+						onchange_submit_yn,
+					element_toggle_button->form_name,
 					(char *)0 /* image_source */,
 					(char *)0 /* onclick_keystr...ring */,
 					(char *)0 /* onclick_function */ );
@@ -722,7 +723,7 @@ void form_output_table_heading(	LIST *element_list,
 	ELEMENT *element;
 	char buffer[ 1024 ];
 	char *heading;
-	char *push_button_set_all_control_string;
+	char *toggle_button_set_all_control_string;
 
 	if ( !list_rewind( element_list ) ) return;
 
@@ -733,10 +734,10 @@ void form_output_table_heading(	LIST *element_list,
 		if ( element->element_type == hidden )
 			continue;
 
-		push_button_set_all_control_string = (char *)0;
+		toggle_button_set_all_control_string = (char *)0;
 
 		heading = element_get_heading(
-				&push_button_set_all_control_string,
+				&toggle_button_set_all_control_string,
 				element,
 				form_number );
 
@@ -747,21 +748,22 @@ void form_output_table_heading(	LIST *element_list,
 					buffer, 
 					heading ) );
 
-			if ( push_button_set_all_control_string )
+			if ( toggle_button_set_all_control_string )
 			{
-				char push_button_name[ 256 ];
+				char toggle_button_name[ 256 ];
 
-				sprintf( push_button_name,
+				sprintf( toggle_button_name,
 					 "push_button_set_all_%s",
 					 element->name );
 
 				printf(
 			"<input name=%s type=checkbox onclick=\"%s\">",
-					push_button_name,
-					push_button_set_all_control_string );
+					toggle_button_name,
+					toggle_button_set_all_control_string );
 			}
 			printf( "</th>" );
 		}
+/*
 		else
 		{
 			printf( "<th>%s</th>", 
@@ -769,6 +771,7 @@ void form_output_table_heading(	LIST *element_list,
 					buffer, 
 					element->name ) );
 		}
+*/
 	} while( next_item( element_list ) );
 
 	printf( "\n" );
@@ -1487,11 +1490,11 @@ void form_set_new_button_onclick_keystrokes_save_string(
 	do {
 		element = list_get_pointer( element_list );
 
-		if ( element->element_type == push_button
+		if ( element->element_type == toggle_button
 		&&   timlib_strncmp(element->name,
 				    VERTICAL_NEW_PUSH_BUTTON_PREFIX ) == 0 )
 		{
-			element->push_button->onclick_keystrokes_save_string =
+			element->toggle_button->onclick_keystrokes_save_string =
 				onclick_keystrokes_save_string;
 		}
 	} while( list_next( element_list ) );

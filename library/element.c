@@ -52,6 +52,9 @@ ELEMENT *element_new(	enum element_type element_type,
 	if ( element_type == non_edit_multi_select )
 		i->non_edit_multi_select = element_non_edit_multi_select_new();
 	else
+	if ( element_type == toggle_button )
+		i->toggle_button = element_toggle_button_new();
+	else
 	if ( element_type == push_button )
 		i->push_button = element_push_button_new();
 	else
@@ -263,7 +266,7 @@ void element_output_as_dictionary(
 void element_output( 	DICTIONARY *hidden_name_dictionary,
 			ELEMENT *element, 
 			int row,
-			int with_push_buttons,
+			int with_toggle_buttons,
 			FILE *output_file,
 			char *background_color,
 			char *application_name,
@@ -533,25 +536,35 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 				element->tab_index );
 	}
 	else
-	if ( element->element_type == push_button )
+	if ( element->element_type == toggle_button )
 	{
-		if ( with_push_buttons )
+		if ( with_toggle_buttons )
 		{
-			element_push_button_output(
+			element_toggle_button_output(
 				output_file,
 				element->name,
-				element->push_button->heading,
-				element->push_button->checked,
+				element->toggle_button->heading,
+				element->toggle_button->checked,
 				row,
-				element->push_button->onchange_submit_yn,
-				element->push_button->form_name,
-				element->push_button->image_source,
-				element->push_button->
+				element->toggle_button->onchange_submit_yn,
+				element->toggle_button->form_name,
+				element->toggle_button->image_source,
+				element->toggle_button->
 					onclick_keystrokes_save_string,
-				element->push_button->onclick_function );
+				element->toggle_button->onclick_function );
 		}
 		else
 			element_output_non_element( "", output_file );
+	}
+	else
+	if ( element->element_type == push_button )
+	{
+		element_push_button_output(
+			output_file,
+			element->push_button->label,
+			element->push_button->id,
+			row,
+			element->push_button->onclick_function );
 	}
 	else
 	if ( element->element_type == radio_button )
@@ -818,7 +831,7 @@ int element_get_attribute_width( ELEMENT *e )
 	if ( e->element_type == password )
 		return e->password->attribute_width;
 	else
-	if ( e->element_type == push_button )
+	if ( e->element_type == toggle_button )
 		return 0;
 	else
 	if ( e->element_type == radio_button )
@@ -852,7 +865,7 @@ int element_get_attribute_width( ELEMENT *e )
 } /* element_get_attribute_width() */
 
 char *element_get_heading(
-			char **push_button_set_all_control_string,
+			char **toggle_button_set_all_control_string,
 			ELEMENT *e,
 			int form_number )
 {
@@ -873,11 +886,11 @@ char *element_get_heading(
 						e->password->heading );
 	}
 	else
-	if ( e->element_type == push_button )
+	if ( e->element_type == toggle_button )
 	{
-		if ( push_button_set_all_control_string )
+		if ( toggle_button_set_all_control_string )
 		{
-			static char local_push_button_control_string[ 256 ];
+			static char local_toggle_button_control_string[ 256 ];
 			char delete_warning_javascript[ 128 ];
 
 			if ( timlib_begins_string( e->name, "delete" ) )
@@ -890,18 +903,18 @@ char *element_get_heading(
 				*delete_warning_javascript = '\0';
 			}
 
-			sprintf(local_push_button_control_string,
+			sprintf(local_toggle_button_control_string,
 				"%sform_push_button_set_all('%s',%d);",
 				delete_warning_javascript,
 				e->name,
 				form_number );
 
-			*push_button_set_all_control_string =
-				local_push_button_control_string;
+			*toggle_button_set_all_control_string =
+				local_toggle_button_control_string;
 		}
-		return element_push_button_get_heading(
+		return element_toggle_button_get_heading(
 					e->name,
-					e->push_button->heading );
+					e->toggle_button->heading );
 	}
 	else
 	if ( e->element_type == radio_button )
@@ -948,9 +961,9 @@ char *element_get_heading(
 	if ( e->element_type == linebreak )
 		return "";
 	else
-		return "";
-} /* element_get_heading() */
+		return (char *)0;
 
+} /* element_get_heading() */
 
 /* ELEMENT_NOTEPAD Operations */
 /* -------------------------- */
@@ -1124,21 +1137,89 @@ void element_notepad_set_onchange_null2slash( ELEMENT_NOTEPAD *e )
 
 /* ELEMENT_PUSH_BUTTONS Operations */
 /* ------------------------------- */
-void element_push_button_set_heading(		ELEMENT_PUSH_BUTTON *e,
+ELEMENT_PUSH_BUTTON *element_push_button_new( void )
+{
+	ELEMENT_PUSH_BUTTON *e =
+		(ELEMENT_PUSH_BUTTON *)
+			calloc( 1,
+				sizeof( ELEMENT_PUSH_BUTTON ) );
+
+	if ( !e )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return e;
+}
+
+void element_push_button_output( 	FILE *output_file,
+					char *element_label,
+					char *element_id,
+					int row,
+					char *onclick_function )
+{
+	fprintf( output_file, "<input type=\"button\"" );
+
+	if ( element_label && *element_label )
+	{
+		fprintf( output_file,
+" value=\"%s\"",
+	   	element_label );
+	}
+
+	if ( element_id && *element_id )
+	{
+		fprintf( output_file,
+" id=\"%s_%d\"",
+	   	element_id,
+	   	row );
+	}
+
+	if ( onclick_function )
+	{
+		fprintf( output_file,
+		 	 " onclick=\"%s\"",
+			 onclick_function );
+	}
+
+	fprintf( output_file, ">\n" );
+
+} /* element_push_button_output() */
+
+/* ELEMENT_TOGGLE_BUTTONS Operations */
+/* --------------------------------- */
+void element_toggle_button_set_heading(		ELEMENT_TOGGLE_BUTTON *e,
 						char *heading )
 {
 	e->heading = strdup( heading );
 }
 
-ELEMENT_PUSH_BUTTON *element_push_button_new( void )
+ELEMENT_TOGGLE_BUTTON *element_toggle_button_new( void )
 {
-	ELEMENT_PUSH_BUTTON *e = (ELEMENT_PUSH_BUTTON *)
-					calloc( 1,
-						sizeof( ELEMENT_PUSH_BUTTON ) );
+	ELEMENT_TOGGLE_BUTTON *e =
+		(ELEMENT_TOGGLE_BUTTON *)
+			calloc( 1,
+				sizeof( ELEMENT_TOGGLE_BUTTON ) );
+
+	if ( !e )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	return e;
 }
 
-char *element_push_button_get_heading( char *element_name, char *heading )
+char *element_toggle_button_get_heading( char *element_name, char *heading )
 {
 	if ( !heading )
 		heading = element_name;
@@ -1146,12 +1227,12 @@ char *element_push_button_get_heading( char *element_name, char *heading )
 	return heading;
 }
 
-void element_push_button_set_checked( ELEMENT_PUSH_BUTTON *e )
+void element_toggle_button_set_checked( ELEMENT_TOGGLE_BUTTON *e )
 {
 	e->checked = 1;
 }
 
-void element_push_button_output( 	FILE *output_file,
+void element_toggle_button_output( 	FILE *output_file,
 					char *element_name,
 					char *heading,
 					boolean checked,
@@ -1173,7 +1254,7 @@ void element_push_button_output( 	FILE *output_file,
 		"%s",
 	   	format_initial_capital(
 			buffer, 
-			element_push_button_get_heading(
+			element_toggle_button_get_heading(
 				element_name,
 				heading ) ) );
 
@@ -1232,7 +1313,8 @@ void element_push_button_output( 	FILE *output_file,
 	fprintf( output_file, ">" );
 
 	fprintf( output_file, "</td>\n" );
-} /* element_push_button_output() */
+
+} /* element_toggle_button_output() */
 
 /* ELEMENT_RADIO_BUTTONS Operations */
 /* -------------------------------- */
@@ -3575,8 +3657,8 @@ char *element_get_element_type_string( enum element_type element_type )
 	if ( element_type == drop_down )
 		return "drop_down";
 	else
-	if ( element_type == push_button )
-		return "push_button";
+	if ( element_type == toggle_button )
+		return "toggle_button";
 	else
 	if ( element_type == radio_button )
 		return "radio_button";

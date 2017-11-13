@@ -310,11 +310,11 @@ LIST *related_folder_get_drop_down_element_list(
 			  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
 		element = element_new(
-				push_button, 
+				toggle_button, 
 				strdup( element_name ) );
 
-		element_push_button_set_heading(
-			element->push_button,
+		element_toggle_button_set_heading(
+			element->toggle_button,
 			ignore_or_no_display_push_button_heading );
 
 		list_append_pointer(
@@ -660,7 +660,7 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 	buf_ptr +=
 		sprintf(
 		buf_ptr,
-"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d, insert_permission = %d, update_permission = %d, lookup_permission = %d, folder_foreign_attribute_name_list = %s",
+"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, ajax_fill_drop_down = %d, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d, insert_permission = %d, update_permission = %d, lookup_permission = %d, folder_foreign_attribute_name_list = %s",
 			folder->folder_name,
 			(related_folder->related_attribute_name)
 				? related_folder->related_attribute_name
@@ -672,6 +672,7 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 			folder->lookup_before_drop_down,
 			related_folder->join_1tom_each_row,
 			related_folder->omit_lookup_before_drop_down,
+			related_folder->ajax_fill_drop_down,
 			related_folder->drop_down_multi_select,
 			related_folder->recursive_level,
 			folder->row_level_non_owner_view_only,
@@ -781,10 +782,13 @@ LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 } /* related_folder_remove_duplicate_mto1_related_folder_list() */
 
 LIST *related_folder_get_insert_element_list(
+				/* --------------------------- */
+				/* sets related_folder->folder */
+				/* --------------------------- */
+				RELATED_FOLDER *related_folder,
 				char *application_name,
 				char *session,
 				char *login_name,
-				RELATED_FOLDER *related_folder,
 				LIST *foreign_attribute_name_list,
 				int row_dictionary_list_length,
 				DICTIONARY *parameter_dictionary,
@@ -920,37 +924,77 @@ LIST *related_folder_get_insert_element_list(
 		role_name,
 		(LIST *)0 /* mto1_related_folder_list */ );
 
-	element_drop_down_set_option_data_option_label_list(
-		&element->drop_down->option_data_list,
-		&element->drop_down->option_label_list,
-		folder_get_primary_data_list(
+	related_folder->folder->mto1_related_folder_list =
+		related_folder_get_mto1_related_folder_list(
+			list_new_list(),
 			application_name,
-			session,
+			(char *)0 /* session */,
 			related_folder->folder->folder_name,
-			login_name,
-			parameter_dictionary,
-			where_clause_dictionary,
-			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			related_folder->
-				folder->
-				populate_drop_down_process,
-			related_folder->
-				folder->
-				attribute_list,
-			related_folder->
-				common_non_primary_attribute_name_list,
-			row_level_non_owner_forbid,
-			(LIST *)0
-			/* exclude_attribute_name_list */,
-			role_name,
-			"insert" /* state */,
-			one2m_folder_name_for_processes,
-			(char *)0 /* appaserver_user_foreign_login_name */,
-			1 /* include_root_folder */ ) );
+			(char *)0 /*role_name */,
+			0 /* isa_flag */,
+			related_folder_no_recursive,
+			1 /* override_row_restrictions */,
+			(LIST *)0 /* root_primary_attribute_name_list */,
+			0 /* recursive_level */ );
 
 	list_append_pointer(
 			element_list, 
 			element );
+
+	if ( related_folder_exists_ajax_fill_drop_down(
+		related_folder->folder->mto1_related_folder_list ) )
+	{
+		char element_id[ 128 ];
+
+		/* Create the fill button element */
+		/* ------------------------------ */
+		element = element_new(	push_button, 
+					(char *)0 /* element_name */ );
+
+		sprintf( element_id,
+			 "%s%s",
+			 AJAX_FILL_PUSH_BUTTON_PREFIX,
+			 related_folder->folder->folder_name );
+	
+		element->push_button->id = strdup( element_id );
+
+		element->push_button->label = "Fill";
+
+		list_append_pointer(
+			element_list, 
+			element );
+	}
+	else
+	{
+		element_drop_down_set_option_data_option_label_list(
+			&element->drop_down->option_data_list,
+			&element->drop_down->option_label_list,
+			folder_get_primary_data_list(
+				application_name,
+				session,
+				related_folder->folder->folder_name,
+				login_name,
+				parameter_dictionary,
+				where_clause_dictionary,
+				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+				related_folder->
+					folder->
+					populate_drop_down_process,
+				related_folder->
+					folder->
+					attribute_list,
+				related_folder->
+					common_non_primary_attribute_name_list,
+				row_level_non_owner_forbid,
+				(LIST *)0
+				/* exclude_attribute_name_list */,
+				role_name,
+				"insert" /* state */,
+				one2m_folder_name_for_processes,
+				(char *)0
+				       /* appaserver_user_foreign_login_name */,
+				1 /* include_root_folder */ ) );
+	}
 
 	return element_list;
 
@@ -1863,6 +1907,13 @@ LIST *related_folder_get_global_related_folder_list(
 		piece(	buffer,
 			delimiter,
 			related_record,
+			RELATED_FOLDER_AJAX_FILL_DROP_DOWN_PIECE );
+		related_folder->ajax_fill_drop_down =
+				(*buffer == 'y');
+
+		piece(	buffer,
+			delimiter,
+			related_record,
 			RELATED_FOLDER_HINT_MESSAGE_PIECE );
 		related_folder->hint_message = strdup( buffer );
 
@@ -2462,14 +2513,15 @@ ELEMENT *related_folder_get_new_button_element(
 			 folder_name );
 	
 		element = element_new(
-					push_button, 
+					toggle_button, 
 					strdup( element_name ) );
 	
-		element_push_button_set_heading(
-			element->push_button, "New" );
-	
-		element->push_button->form_name = form_name;
-		element->push_button->onchange_submit_yn = 'y';
+		element_toggle_button_set_heading(
+			element->toggle_button,
+			VERTICAL_NEW_PUSH_BUTTON_LABEL );
+
+		element->toggle_button->form_name = form_name;
+		element->toggle_button->onchange_submit_yn = 'y';
 	
 		return element;
 	}
@@ -3970,3 +4022,20 @@ void related_populate_folder_foreign_attribute_dictionary(
 
 } /* related_populate_folder_foreign_attribute_dictionary() */
 
+boolean related_folder_exists_ajax_fill_drop_down(
+			LIST *mto1_related_folder_list )
+{
+	RELATED_FOLDER *related_folder;
+
+	if ( !list_rewind( mto1_related_folder_list ) ) return 0;
+
+	do {
+		related_folder = list_get_pointer( mto1_related_folder_list );
+
+		if ( related_folder->ajax_fill_drop_down ) return 1;
+
+	} while( list_next( mto1_related_folder_list ) );
+
+	return 0;
+
+} /* related_folder_exists_ajax_fill_drop_down() */

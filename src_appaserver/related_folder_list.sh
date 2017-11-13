@@ -34,6 +34,7 @@ echo "select 		folder,						\
 			drop_down_multi_select_yn,			\
 			join_1tom_each_row_yn,				\
 			omit_lookup_before_drop_down_yn,		\
+			ajax_fill_drop_down_yn,				\
 			hint_message					\
 	      from $relation_table					\
 	      order by $order;"						|

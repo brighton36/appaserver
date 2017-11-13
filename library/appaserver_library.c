@@ -874,10 +874,13 @@ drop-down needing SWEEP.sweep_number in the where clause.
 			list_append_list(
 				return_list,
 				related_folder_get_insert_element_list(
+					 /* --------------------------- */
+					 /* sets related_folder->folder */
+					 /* --------------------------- */
+					 related_folder,
 					 application_name,
 					 session,
 					 login_name,
-					 related_folder,
 					 foreign_attribute_name_list,
 					 row_dictionary_list_length,
 					 parameter_dictionary,
@@ -2587,7 +2590,7 @@ int appaserver_library_add_operations(
 		}
 
 		element = element_new(
-				push_button,
+				toggle_button,
 				operation->
 					process->
 					process_name);
@@ -2611,22 +2614,18 @@ int appaserver_library_add_operations(
 					heading,
 					heading );
 
-				element->push_button->heading =
+				element->toggle_button->heading =
 					strdup( heading );
 			}
 
-/*
-			element->push_button->image_source =
-				"/zimages/trashcan.gif";
-*/
 			sprintf( buffer,
 				 "/%s/trashcan.gif",
 				 IMAGE_RELATIVE_DIRECTORY );
 
-			element->push_button->image_source =
+			element->toggle_button->image_source =
 				strdup( buffer );
 
-			element->push_button->onclick_function =
+			element->toggle_button->onclick_function =
 				"timlib_delete_button_warning()";
 		}
 		else
@@ -2637,12 +2636,8 @@ int appaserver_library_add_operations(
 				 "/%s/magnify_glass.gif",
 				 IMAGE_RELATIVE_DIRECTORY );
 
-			element->push_button->image_source =
+			element->toggle_button->image_source =
 				strdup( buffer );
-/*
-			element->push_button->image_source =
-				"/zimages/magnify_glass.gif";
-*/
 		}
 
 		list_append(	element_list, 

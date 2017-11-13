@@ -915,11 +915,11 @@ LIST *get_element_list(
 				element, 
 				sizeof( ELEMENT ) );
 
-		element = element_new( 	push_button, 
+		element = element_new( 	toggle_button, 
 					LOOKUP_PUSH_BUTTON_NAME );
 
-		element_push_button_set_heading(
-			element->push_button, "lookup" );
+		element_toggle_button_set_heading(
+			element->toggle_button, "lookup" );
 
 		list_append(	return_list, 
 				element, 
@@ -1404,11 +1404,11 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 			 	attribute_name );
 	
 			element = element_new(
-					push_button, 
+					toggle_button, 
 					strdup( ignore_element_name ) );
 	
-			element_push_button_set_heading(
-				element->push_button, "ignore" );
+			element_toggle_button_set_heading(
+				element->toggle_button, "ignore" );
 	
 			list_append_pointer(
 					return_list, 

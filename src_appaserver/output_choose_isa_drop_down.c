@@ -1,4 +1,4 @@
-/* output_choose_isa_drop_down.c					*/
+/* $APPASERVER_HOME/src_appaserver/output_choose_isa_drop_down.c	*/
 /* --------------------------------------------------------------------	*/
 /*									*/
 /* This is the drop down that displays to select a related folder that	*/
@@ -410,11 +410,11 @@ LIST *get_element_list(		char *login_name,
 			element, 
 			sizeof( ELEMENT ) );
 
-	element = element_new( 	push_button, 
+	element = element_new( 	toggle_button, 
 				LOOKUP_PUSH_BUTTON_NAME );
 
-	element_push_button_set_heading(
-		element->push_button, "lookup" );
+	element_toggle_button_set_heading(
+		element->toggle_button, "lookup" );
 
 	list_append(	return_list, 
 			element, 

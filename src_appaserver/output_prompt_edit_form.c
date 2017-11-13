@@ -1,4 +1,4 @@
-/* src_appaserver/output_prompt_edit_form.c				*/
+/* $APPASERVER_HOME/src_appaserver/output_prompt_edit_form.c		*/
 /* --------------------------------------------------------------------	*/
 /*									*/
 /* This is the form that displays the blank cells for data entry forms.	*/
@@ -1316,11 +1316,11 @@ LIST *get_element_list(
 					folder_name );
 
 			element = element_new(
-					push_button, 
+					toggle_button, 
 					strdup( element_name ) );
 
-			element_push_button_set_heading(
-				element->push_button,
+			element_toggle_button_set_heading(
+				element->toggle_button,
 				NO_DISPLAY_PUSH_BUTTON_HEADING );
 
 			list_append_pointer(
@@ -1362,12 +1362,12 @@ LIST *get_radio_button_element_list(
 
 	/* Create the button to set all the no display buttons. */
 	/* ---------------------------------------------------- */
-	element = element_new( push_button, "" );
-	element->push_button->heading = NO_DISPLAY_PUSH_BUTTON_HEADING;
+	element = element_new( toggle_button, "" );
+	element->toggle_button->heading = NO_DISPLAY_PUSH_BUTTON_HEADING;
 	sprintf( onclick_function,
 		 "timlib_set_all_push_buttons( this, '%s' )",
 		 NO_DISPLAY_PUSH_BUTTON_PREFIX );
-	element->push_button->onclick_function = strdup( onclick_function );
+	element->toggle_button->onclick_function = strdup( onclick_function );
 	list_append_pointer(
 			return_list, 
 			element );

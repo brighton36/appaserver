@@ -36,6 +36,7 @@
 #define ELEMENT_NON_EDIT_MULTI_SELECT_ROW_COUNT	3
 
 enum element_type  {	drop_down,
+			toggle_button,
 			push_button,
 			radio_button,
 			notepad,
@@ -132,6 +133,13 @@ typedef struct
 
 typedef struct
 {
+	char *id;
+	char *label;
+	char *onclick_function;
+} ELEMENT_PUSH_BUTTON;
+
+typedef struct
+{
 	char *heading;
 	boolean checked;
 	char onchange_submit_yn;
@@ -139,7 +147,7 @@ typedef struct
 	char *image_source;
 	char *onclick_keystrokes_save_string;
 	char *onclick_function;
-} ELEMENT_PUSH_BUTTON;
+} ELEMENT_TOGGLE_BUTTON;
 
 typedef struct
 {
@@ -210,6 +218,7 @@ typedef struct
 	char *name;
 	boolean omit_heading_sort_button;
 	ELEMENT_DROP_DOWN *drop_down;
+	ELEMENT_TOGGLE_BUTTON *toggle_button;
 	ELEMENT_PUSH_BUTTON *push_button;
 	ELEMENT_RADIO_BUTTON *radio_button;
 	ELEMENT_NOTEPAD *notepad;
@@ -238,7 +247,7 @@ void element_simple_output(		ELEMENT *element,
 void element_output( 		DICTIONARY *hidden_name_dictionary,
 				ELEMENT *e,
 				int row,
-				int with_push_buttons,
+				int with_toggle_buttons,
 				FILE *output_file,
 				char *background_color,
 				char *application_name,
@@ -254,7 +263,7 @@ void element_output_non_element(	char *s,
 void element_set_data( 			ELEMENT *e, char *s );
 
 char *element_get_heading(
-				char **push_button_set_all_control_string,
+				char **toggle_button_set_all_control_string,
 				ELEMENT *e,
 				int form_number );
 
@@ -263,14 +272,19 @@ int element_get_attribute_width( 	ELEMENT *e );
 void element_set_datatype(		ELEMENT *e,
 					char *datatype );
 
-ELEMENT_PUSH_BUTTON *element_push_button_new(	void );
+ELEMENT_PUSH_BUTTON *element_push_button_new(
+					void );
 
-char *element_push_button_get_heading(		char *element_name,
-						char *heading );
-void element_push_button_set_heading(		ELEMENT_PUSH_BUTTON *e,
-						char *heading );
+ELEMENT_TOGGLE_BUTTON *element_toggle_button_new(
+					void );
 
-void element_push_button_output( 	FILE *output_file,
+char *element_toggle_button_get_heading(char *element_name,
+					char *heading );
+
+void element_toggle_button_set_heading(	ELEMENT_TOGGLE_BUTTON *e,
+					char *heading );
+
+void element_toggle_button_output( 	FILE *output_file,
 					char *element_name,
 					char *heading,
 					boolean checked,
@@ -281,7 +295,7 @@ void element_push_button_output( 	FILE *output_file,
 					char *onclick_keystrokes_save_string,
 					char *onclick_function );
 
-void element_push_button_set_checked(		ELEMENT_PUSH_BUTTON *e );
+void element_toggle_button_set_checked(	ELEMENT_TOGGLE_BUTTON *e );
 
 ELEMENT_RADIO_BUTTON *element_radio_button_new(	void );
 
@@ -726,5 +740,11 @@ char *element_get_date_format_string(
 
 void element_list_set_readonly(
 					LIST *element_list );
+
+void element_push_button_output( 	FILE *output_file,
+					char *element_label,
+					char *element_id,
+					int row,
+					char *onclick_function );
 
 #endif

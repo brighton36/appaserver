@@ -74,6 +74,7 @@ EXECUTABLES=								\
 		documentation_list					\
 		delete_folder_row					\
 		post_delete_folder_block				\
+		post_ajax_fill_drop_down				\
 		post_change_sort_order					\
 		statistics_folder					\
 		output_open_html_document				\
@@ -168,6 +169,7 @@ clean:
 	/bin/rm -f ${EXECUTABLES}					\
 	*.[oe]								\
 	${CGI_HOME}/post_delete_folder_block				\
+	${CGI_HOME}/post_ajax_fill_drop_down				\
 	${CGI_HOME}/post_change_sort_order				\
 	${CGI_HOME}/post_login						\
 	${CGI_HOME}/post_login_cloudacus				\
@@ -266,6 +268,21 @@ post_delete_folder_block: post_delete_folder_block.c			\
 	/bin/rm -f ${CGI_HOME}/post_delete_folder_block
 	ln ${APPASERVER_LINK_FLAGS}					\
 	${APPASERVER_HOME}/src_appaserver/post_delete_folder_block 	\
+	${CGI_HOME}
+
+post_ajax_fill_drop_down: post_ajax_fill_drop_down.c			\
+	${EXTERNAL_LIBS}						\
+	${LIB}/query_attribute_statistics_list.o
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${LIB}/query_attribute_statistics_list.o 		\
+		post_ajax_fill_drop_down.c				\
+		-o post_ajax_fill_drop_down
+	touch ${CGI_HOME}/post_ajax_fill_drop_down
+	/bin/rm -f ${CGI_HOME}/post_ajax_fill_drop_down
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_appaserver/post_ajax_fill_drop_down 	\
 	${CGI_HOME}
 
 post_change_sort_order: post_change_sort_order.c			\

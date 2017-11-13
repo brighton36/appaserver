@@ -1,4 +1,4 @@
-/* src_appaserver/post_delete_folder_block.c			*/
+/* $APPASERVER_HOME/src_appaserver/post_delete_folder_block.c	*/
 /* ------------------------------------------------------------	*/
 /* This process is triggered if you select the delete radio	*/
 /* button on some of the lookup forms.				*/
@@ -75,7 +75,6 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *state;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	DICTIONARY *query_dictionary;
 	QUERY *query;
 
 	if ( argc < 7 )
@@ -153,7 +152,6 @@ int main( int argc, char **argv )
 	}
 
 	post_dictionary = dictionary_appaserver->working_post_dictionary;
-	query_dictionary = dictionary_appaserver->query_dictionary;
 
 	role_folder = role_folder_new_role_folder(
 					application_name,
@@ -236,26 +234,6 @@ int main( int argc, char **argv )
 			folder_name,
 			dictionary_appaserver->query_dictionary,
 			role_new( application_name, role_name ) );
-
-#ifdef NOT_DEFINED
-	query =	query_new(	application_name,
-				login_name,
-				folder_name,
-				(LIST *)0 /* attribute_list */,
-				query_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				role_new( application_name, role_name ),
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
 
 	where_clause = query->query_output->where_clause;
 

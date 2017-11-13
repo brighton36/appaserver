@@ -45,7 +45,7 @@ cat << all_done
 <link rel=stylesheet type="text/css" href="/appaserver/$application/style.css">
 <script language="javascript" type="text/javascript">
 
-function choose_window()
+function fork_choose_window()
 {
 	var my_window;
 	var my_document;
@@ -82,8 +82,14 @@ HTMLstring += '}\n';
 
 HTMLstring += 'function send_to_server()\n';
 HTMLstring += '{\n';
+HTMLstring += '	var action;\n';
+HTMLstring += '	var element;\n';
+HTMLstring += '	var value;\n';
+HTMLstring += '	element = document.getElementById( "${one2m_folder}" );\n';
+HTMLstring += '	value = element.value;\n';
+HTMLstring += '	action = "/cgi-bin/post_ajax_fill_drop_down?${application}+${login_name}+${role}+${session}+${mto1_folder}+${one2m_folder}+" + value;\n';
 HTMLstring += '	http_request.onreadystatechange = listen_function;\n';
-HTMLstring += '	http_request.open( "GET", "/cgi-bin/ajax.cgi?${application}+${login_name}+${role}+${session}", true );\n';
+HTMLstring += '	http_request.open( "GET", action, true );\n';
 HTMLstring += '	http_request.send(null);\n';
 HTMLstring += '	return true;\n';
 HTMLstring += '}\n';
@@ -97,7 +103,7 @@ HTMLstring += '<BODY>\n';
 
 HTMLstring += '<form>\n';
 HTMLstring += '${one2m_folder}\n';
-HTMLstring += '<select name="${one2m_folder}">\n';
+HTMLstring += '<select name="${one2m_folder}" id="${one2m_folder}">\n';
 
 all_done
 
@@ -151,7 +157,7 @@ HTMLstring += '</HTML>';
 
 Choose a ${mto1_folder}:
 <select name="${mto1_folder}" id="${mto1_folder}" /> </select>
-<input type=button value="Fill" onClick="choose_window()" />
+<input type=button value="Fill" onClick="fork_choose_window()" />
 
 </body>
 </html>

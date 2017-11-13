@@ -1,11 +1,11 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/extract_measurements.c			*/
-/* ---------------------------------------------------	*/
-/* This process extracts the raw measurement data	*/
-/* quickly and makes them available for download.	*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -----------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/extract_measurements.c	*/
+/* -----------------------------------------------------	*/
+/* This process extracts the raw measurement data		*/
+/* quickly and makes them available for download.		*/
+/* -----------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -558,6 +558,7 @@ void extract_measurements(	char *application_name,
 	char *sys_string;
 	char *table_name;
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	char filename_stem[ 128 ];
 
 	if ( !list_length( station_list )
 	||   list_length( station_list ) != list_length( datatype_list ) )
@@ -573,7 +574,7 @@ void extract_measurements(	char *application_name,
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->
 				document_root,
-			process_name /* filename_stem */,
+			(char *)0 /* filename_stem */,
 			application_name,
 			0 /* process_id */,
 			session,
@@ -659,13 +660,19 @@ void extract_measurements(	char *application_name,
 		appaserver_link_file->begin_date_string = begin_date;
 		appaserver_link_file->end_date_string = end_date;
 
+		sprintf( filename_stem,
+			 "%s_%s_%s",
+			 process_name,
+			 station,
+			 datatype );
+
 		output_filename =
 			appaserver_link_get_output_filename(
 				appaserver_link_file->
 					output_file->
 					document_root_directory,
 				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
+				filename_stem,
 				appaserver_link_file->begin_date_string,
 				appaserver_link_file->end_date_string,
 				appaserver_link_file->process_id,
@@ -683,7 +690,7 @@ void extract_measurements(	char *application_name,
 				appaserver_link_file->
 					link_prompt->server_address,
 				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
+				filename_stem,
 				appaserver_link_file->begin_date_string,
 				appaserver_link_file->end_date_string,
 				appaserver_link_file->process_id,

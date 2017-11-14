@@ -205,6 +205,8 @@ void post_change_customer_payment_insert(
 			customer_payment->transaction_date_time,
 			CUSTOMER_PAYMENT_MEMO );
 	
+	customer_payment->transaction_date_time =
+	customer_payment->transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		customer_payment->transaction->full_name,

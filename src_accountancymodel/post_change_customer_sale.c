@@ -1122,6 +1122,8 @@ void post_change_customer_sale_insert_FOB_destination(
 			customer_sale_get_memo(
 				customer_sale->full_name ) );
 
+	customer_sale->transaction_date_time =
+	customer_sale->transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		customer_sale->transaction->full_name,
@@ -1151,6 +1153,8 @@ void post_change_customer_sale_insert_FOB_shipping(
 			customer_sale_get_memo(
 				customer_sale->full_name ) );
 
+	customer_sale->transaction_date_time =
+	customer_sale->transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		customer_sale->transaction->full_name,
@@ -1180,6 +1184,8 @@ void post_change_customer_sale_insert_title_passage_null(
 			customer_sale_get_memo(
 				customer_sale->full_name ) );
 
+	customer_sale->transaction_date_time =
+	customer_sale->transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		customer_sale->transaction->full_name,

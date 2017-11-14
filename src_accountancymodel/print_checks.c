@@ -770,17 +770,6 @@ int print_checks_insert_vendor_payment(
 			date_display_yyyy_mm_dd_colon_hms(
 				transaction_date_time );
 
-		purchase_vendor_payment_insert(
-			application_name,
-			purchase_order->full_name,
-			purchase_order->street_address,
-			purchase_order->purchase_date_time,
-			transaction_date_time_string
-				/* payment_date_time */,
-			purchase_order->amount_due,
-			check_number,
-			transaction_date_time_string );
-
 		transaction =
 			ledger_transaction_new(
 				purchase_order->full_name,
@@ -788,6 +777,8 @@ int print_checks_insert_vendor_payment(
 				transaction_date_time_string,
 				memo );
 
+		transaction_date_time_string =
+		transaction->transaction_date_time =
 		ledger_transaction_insert(
 			application_name,
 			transaction->full_name,
@@ -815,6 +806,17 @@ int print_checks_insert_vendor_payment(
 			credit_account_name,
 			purchase_order->amount_due,
 			0 /* not is_debit */ );
+
+		purchase_vendor_payment_insert(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->purchase_date_time,
+			transaction_date_time_string
+				/* payment_date_time */,
+			purchase_order->amount_due,
+			check_number,
+			transaction_date_time_string );
 
 		if ( !*propagate_transaction_date_time )
 		{
@@ -1179,6 +1181,8 @@ void print_checks_insert_entity_account_debit_list(
 			transaction_date_time_string,
 			memo );
 
+	transaction_date_time_string =
+	transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		transaction->full_name,

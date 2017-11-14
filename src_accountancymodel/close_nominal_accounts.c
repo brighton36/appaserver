@@ -441,6 +441,7 @@ boolean close_nominal_accounts_fund_execute(
 		transaction_date_time_string,
 		closing_entry_account );
 
+	transaction_date_time_string =
 	ledger_transaction_insert(
 		application_name,
 		transaction->full_name,

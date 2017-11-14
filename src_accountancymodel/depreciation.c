@@ -919,6 +919,8 @@ void depreciation_list_update_and_transaction_propagate(
 					depreciation->transaction_date_time,
 					DEPRECIATION_MEMO );
 	
+			depreciation->transaction_date_time =
+			depreciation->transaction->transaction_date_time =
 			ledger_transaction_insert(
 				application_name,
 				depreciation->transaction->full_name,

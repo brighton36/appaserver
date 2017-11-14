@@ -333,7 +333,9 @@ boolean ledger_transaction_load(	double *transaction_amount,
 					char *street_address,
 					char *transaction_date_time );
 
-void ledger_transaction_insert(		char *application_name,
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *ledger_transaction_insert(	char *application_name,
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time,
@@ -986,5 +988,8 @@ void ledger_get_payroll_account_names(
 				char **state_unemployment_tax_payable_account,
 				char *application_name,
 				char *fund_name );
+
+char *ledger_fetch_max_transaction_date_time(
+				char *application_name );
 
 #endif

@@ -358,6 +358,8 @@ void post_change_purchase_order_FOB_shipping_just_arrived(
 				purchase_order->transaction_date_time,
 				PURCHASE_ORDER_MEMO );
 	
+		purchase_order->transaction_date_time =
+		purchase_order->transaction->transaction_date_time =
 		ledger_transaction_insert(
 			application_name,
 			purchase_order->transaction->full_name,
@@ -386,6 +388,8 @@ void post_change_purchase_order_FOB_shipping_just_shipped(
 			purchase_order->transaction_date_time,
 			PURCHASE_ORDER_MEMO );
 
+	purchase_order->transaction_date_time =
+	purchase_order->transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		purchase_order->transaction->full_name,
@@ -576,6 +580,8 @@ void post_change_purchase_order_insert_FOB_shipping(
 				purchase_order->transaction_date_time,
 				PURCHASE_ORDER_MEMO );
 
+		purchase_order->transaction_date_time =
+		purchase_order->transaction->transaction_date_time =
 		ledger_transaction_insert(
 			application_name,
 			purchase_order->transaction->full_name,
@@ -610,6 +616,8 @@ void post_change_purchase_order_insert_FOB_destination(
 				purchase_order->transaction_date_time,
 				PURCHASE_ORDER_MEMO );
 
+		purchase_order->transaction_date_time =
+		purchase_order->transaction->transaction_date_time =
 		ledger_transaction_insert(
 			application_name,
 			purchase_order->transaction->full_name,
@@ -643,6 +651,8 @@ void post_change_purchase_order_insert_title_passage_null(
 			purchase_order->transaction_date_time,
 			PURCHASE_ORDER_MEMO );
 
+	purchase_order->transaction_date_time =
+	purchase_order->transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		purchase_order->transaction->full_name,

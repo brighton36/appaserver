@@ -699,6 +699,8 @@ void post_change_accrual_insert(
 			accrual->transaction_date_time,
 			ACCRUAL_MEMO );
 	
+	accrual->transaction_date_time =
+	accrual->transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		accrual->transaction->full_name,

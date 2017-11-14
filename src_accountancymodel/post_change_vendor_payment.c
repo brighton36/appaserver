@@ -234,15 +234,6 @@ void post_change_vendor_payment_insert(
 			vendor_payment->payment_date_time;
 	}
 
-	purchase_vendor_payment_update(
-		application_name,
-		full_name,
-		street_address,
-		purchase_date_time,
-		payment_date_time,
-		vendor_payment->transaction_date_time,
-		vendor_payment->database_transaction_date_time );
-
 	/* Insert the TRANSACTION */
 	/* ---------------------- */
 	vendor_payment->transaction =
@@ -252,6 +243,8 @@ void post_change_vendor_payment_insert(
 			vendor_payment->transaction_date_time,
 			PURCHASE_VENDOR_PAYMENT_MEMO );
 	
+	vendor_payment->transaction_date_time =
+	vendor_payment->transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		vendor_payment->transaction->full_name,
@@ -261,6 +254,15 @@ void post_change_vendor_payment_insert(
 		vendor_payment->transaction->memo,
 		vendor_payment->check_number,
 		1 /* lock_transaction */ );
+
+	purchase_vendor_payment_update(
+		application_name,
+		full_name,
+		street_address,
+		purchase_date_time,
+		payment_date_time,
+		vendor_payment->transaction_date_time,
+		vendor_payment->database_transaction_date_time );
 
 	if ( ( propagate_account_list =
 		purchase_vendor_payment_journal_ledger_refresh(

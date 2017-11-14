@@ -3667,7 +3667,9 @@ FILE *ledger_transaction_insert_open_stream( char *application_name )
 
 } /* ledger_transaction_insert_open_stream() */
 
-void ledger_transaction_insert(		char *application_name,
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *ledger_transaction_insert(	char *application_name,
 					char *full_name,
 					char *street_address,
 					char *transaction_date_time,
@@ -3677,6 +3679,32 @@ void ledger_transaction_insert(		char *application_name,
 					boolean lock_transaction )
 {
 	FILE *output_pipe;
+
+	if ( ledger_transaction_exists(
+		application_name,
+		transaction_date_time ) )
+	{
+		char *max_transaction_date_time_string;
+		DATE *max_transaction_date_time;
+
+		max_transaction_date_time_string =
+			ledger_fetch_max_transaction_date_time(
+				application_name );
+
+		max_transaction_date_time =
+			date_yyyy_mm_dd_hms_new(
+				max_transaction_date_time_string,
+				date_get_utc_offset() );
+
+		date_increment_seconds(
+			max_transaction_date_time,
+			1,
+			date_get_utc_offset() );
+
+		transaction_date_time =
+			date_display_yyyy_mm_dd_colon_hms(
+				max_transaction_date_time );
+	}
 
 	output_pipe =
 		ledger_transaction_insert_open_stream(
@@ -3693,6 +3721,8 @@ void ledger_transaction_insert(		char *application_name,
 		lock_transaction );
 
 	pclose( output_pipe );
+
+	return transaction_date_time;
 
 } /* ledger_transaction_insert() */
 
@@ -4746,6 +4776,26 @@ LIST *ledger_get_propagate_journal_ledger_list(
 	return ledger_list;
 
 } /* ledger_get_propagate_journal_ledger_list() */
+
+char *ledger_fetch_max_transaction_date_time(
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+
+	select = "max( transaction_date_time )";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		",
+		 application_name,
+		 select,
+		 TRANSACTION_FOLDER_NAME );
+
+	return pipe2string( sys_string );
+
+} /* ledger_fetch_max_transaction_date_time() */
 
 boolean ledger_transaction_exists(	char *application_name,
 					char *transaction_date_time )
@@ -7247,7 +7297,8 @@ void ledger_transaction_refresh(
 
 	account_name_list = list_new();
 
-	ledger_transaction_insert(
+	transaction_date_time =
+		ledger_transaction_insert(
 			application_name,
 			full_name,
 			street_address,

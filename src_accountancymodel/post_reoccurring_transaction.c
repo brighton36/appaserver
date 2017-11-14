@@ -27,7 +27,7 @@
 
 /* Prototypes */
 /* ---------- */
-void post_reoccurring_transaction(
+char *post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -129,6 +129,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
+		transaction_date_time =
 		post_reoccurring_transaction(
 			application_name,
 			full_name,
@@ -209,7 +210,7 @@ void post_reoccurring_transaction_display(
 
 } /* post_reoccurring_transaction_display() */
 
-void post_reoccurring_transaction(
+char *post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -237,14 +238,6 @@ void post_reoccurring_transaction(
 
 	if ( timlib_strcmp( memo, "memo" ) == 0 ) memo = (char *)0;
 
-	post_reoccurring_transaction_display(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			transaction_amount,
-			memo );
-
 	/* Insert the transaction */
 	/* ---------------------- */
 	transaction =
@@ -254,6 +247,8 @@ void post_reoccurring_transaction(
 			transaction_date_time,
 			memo );
 
+	transaction_date_time =
+	transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		transaction->full_name,
@@ -321,6 +316,16 @@ void post_reoccurring_transaction(
 	ledger_account_list_propagate(
 		propagate_account_list,
 		application_name );
+
+	post_reoccurring_transaction_display(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo );
+
+	return transaction_date_time;
 
 } /* post_reoccurring_transaction() */
 

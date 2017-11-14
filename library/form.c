@@ -763,15 +763,15 @@ void form_output_table_heading(	LIST *element_list,
 			}
 			printf( "</th>" );
 		}
-/*
 		else
+		if ( element->name )
 		{
 			printf( "<th>%s</th>", 
 				 format_initial_capital_not_parens(
 					buffer, 
 					element->name ) );
 		}
-*/
+
 	} while( next_item( element_list ) );
 
 	printf( "\n" );

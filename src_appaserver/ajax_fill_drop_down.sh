@@ -118,7 +118,7 @@ HTMLstring += '</HEAD>\n';
 HTMLstring += '<BODY>\n';
 
 HTMLstring += '<form>\n';
-HTMLstring += '${one2m_folder}\n';
+HTMLstring += '${one2m_folder}<br>\n';
 HTMLstring += '<select name="${one2m_folder}" id="${one2m_folder}">\n';
 
 all_done
@@ -151,13 +151,14 @@ function output_script_footer()
 	mto1_folder=$2
 
 cat << all_done
+HTMLstring += '<br>';
 HTMLstring += '<input type=button value="Submit" onClick="send_to_server()" />\n';
 HTMLstring += '</form>\n';
 
 HTMLstring += '</BODY>\n';
 HTMLstring += '</HTML>';
 
-	my_window = window.open( "", "${one2m_folder}", "width=400,height=300" );
+	my_window = window.open( "", "${one2m_folder}", "width=400,height=500" );
 	my_document = my_window.document;
 	my_document.write( HTMLstring );
 	my_document.close();

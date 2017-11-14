@@ -964,6 +964,109 @@ char *element_get_heading(
 
 } /* element_get_heading() */
 
+#ifdef NOT_DEFINED
+char *element_get_heading(
+			char **toggle_button_set_all_control_string,
+			ELEMENT *e,
+			int form_number )
+{
+	if ( e->element_type == text_item
+	||   e->element_type == element_date
+	||   e->element_type == element_current_date
+	||   e->element_type == element_date_time )
+	{
+		return element_text_item_get_heading(
+						e->name,
+						e->text_item->heading );
+	}
+	else
+	if ( e->element_type == password )
+	{
+		return element_password_get_heading(
+						e->name,
+						e->password->heading );
+	}
+	else
+	if ( e->element_type == toggle_button )
+	{
+		if ( toggle_button_set_all_control_string )
+		{
+			static char local_toggle_button_control_string[ 256 ];
+			char delete_warning_javascript[ 128 ];
+
+			if ( timlib_begins_string( e->name, "delete" ) )
+			{
+				strcpy( delete_warning_javascript,
+					"timlib_delete_button_warning(); " );
+			}
+			else
+			{
+				*delete_warning_javascript = '\0';
+			}
+
+			sprintf(local_toggle_button_control_string,
+				"%sform_push_button_set_all('%s',%d);",
+				delete_warning_javascript,
+				e->name,
+				form_number );
+
+			*toggle_button_set_all_control_string =
+				local_toggle_button_control_string;
+		}
+		return element_toggle_button_get_heading(
+					e->name,
+					e->toggle_button->heading );
+	}
+	else
+	if ( e->element_type == radio_button )
+	{
+		return element_radio_button_get_heading(
+					e->radio_button->heading,
+					e->name );
+	}
+	else
+	if ( e->element_type == notepad )
+		return element_notepad_get_heading( e->notepad );
+	else
+	if ( e->element_type == drop_down )
+		return element_drop_down_get_heading(	e->name,
+							e->drop_down->heading );
+	else
+	if ( e->element_type == non_edit_multi_select )
+		return element_non_edit_multi_select_get_heading(
+					e->name );
+	else
+	if ( e->element_type == prompt_data )
+		return element_prompt_data_get_heading(
+						e->name,
+						e->prompt_data->heading );
+	else
+	if ( e->element_type == reference_number )
+		return
+		element_reference_number_get_heading(
+						e->name,
+						e->reference_number->heading );
+	else
+	if ( e->element_type == hidden )
+		return "";
+	else
+	if ( e->element_type == upload_filename )
+		return "";
+	else
+	if ( e->element_type == javascript_filename )
+		return "";
+	else
+	if ( e->element_type == http_filename )
+		return e->name;
+	else
+	if ( e->element_type == linebreak )
+		return "";
+	else
+		return (char *)0;
+
+} /* element_get_heading() */
+#endif
+
 /* ELEMENT_NOTEPAD Operations */
 /* -------------------------- */
 ELEMENT_NOTEPAD *element_notepad_new( void )

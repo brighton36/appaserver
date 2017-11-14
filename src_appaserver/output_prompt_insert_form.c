@@ -1728,6 +1728,11 @@ void build_related_folder_element_list(
 	else
 		send_preprompt_dictionary = (DICTIONARY *)0;
 
+	if ( ajax_fill_drop_down_related_folder )
+	{
+		*ajax_fill_drop_down_related_folder = (RELATED_FOLDER *)0;
+	}
+
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(
@@ -1771,10 +1776,10 @@ void build_related_folder_element_list(
 			0 /* no output_not_null_option */,
 			1 /* output_select_option */,
 			appaserver_user_foreign_login_name,
-				0 /* not prepend_folder_name */
+			0 /* not prepend_folder_name */
 	 ) );
 	
 	related_folder->ignore_output = 1;
-	
+
 } /* build_related_folder_element_list() */
 

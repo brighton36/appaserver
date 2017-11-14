@@ -562,7 +562,6 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 		element_push_button_output(
 			output_file,
 			element->push_button->label,
-			element->push_button->id,
 			row,
 			element->push_button->onclick_function );
 	}
@@ -1159,12 +1158,9 @@ ELEMENT_PUSH_BUTTON *element_push_button_new( void )
 
 void element_push_button_output( 	FILE *output_file,
 					char *element_label,
-					char *element_id,
 					int row,
 					char *onclick_function )
 {
-	char element_id_row[ 128 ];
-
 	fprintf( output_file, "<input type=\"button\"" );
 
 	if ( element_label && *element_label )
@@ -1174,31 +1170,17 @@ void element_push_button_output( 	FILE *output_file,
 	   	element_label );
 	}
 
-	if ( element_id && *element_id )
-	{
-		sprintf( element_id_row,
-			 "%s_%d",
-	   		 element_id,
-	   		 row );
-	}
-	else
-	{
-		*element_id_row = '\0';
-	}
-
-	if ( *element_id_row )
-	{
-		fprintf( output_file, " id=\"%s\"", element_id_row );
-	}
-
 	if ( onclick_function )
 	{
-		if ( timlib_exists_string( onclick_function, "$id" ) )
+		if ( timlib_exists_string( onclick_function, "$row" ) )
 		{
 			char buffer[ 128 ];
+			char row_string[ 16 ];
 
 			strcpy( buffer, onclick_function );
-			search_replace_string( buffer, "$id", element_id_row );
+			sprintf( row_string, "%d", row );
+			search_replace_string( buffer, "$row", row_string );
+
 			onclick_function = strdup( buffer );
 		}
 
@@ -2403,8 +2385,9 @@ void element_drop_down_output(
 
 	fprintf(	output_file,
 			"<td align=left colspan=%d>\n"
-			"<select name=\"%s\"",
+			"<select name=\"%s\" id=\"%s\"",
 			number_columns,
+			drop_down_element_name,
 			drop_down_element_name );
 
 	fprintf(	output_file,
@@ -3539,8 +3522,7 @@ char *element_display( ELEMENT *element )
 	if ( element->element_type == push_button )
 	{
 		sprintf(buffer + strlen( buffer ),
-			", id = %s, label = %s, onclick_function = %s",
-			element->push_button->id,
+			", label = %s, onclick_function = %s",
 			element->push_button->label,
 			element->push_button->onclick_function );
 	}

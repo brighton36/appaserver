@@ -242,6 +242,7 @@ LIST *appaserver_library_get_folder_name_list(
 				char *attribute_name );
 
 LIST *appaserver_library_get_insert_table_element_list(
+			boolean *exists_ajax_fill_drop_down,
 			char *login_name,
 			char *application_name,
 			char *session,

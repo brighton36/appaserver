@@ -90,6 +90,7 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *primary_data_list_string;
 	PAIR_ONE2M *pair_one2m;
+	boolean exists_ajax_fill_drop_down;
 
 	if ( argc != 9 )
 	{
@@ -805,6 +806,52 @@ else
 			printf( ONE_ROW_INSERTED_MESSAGE );
 	}
 
+	include_attribute_name_list =
+		list_subtract(	folder->attribute_name_list,
+				ignore_attribute_name_list );
+
+	exists_ajax_fill_drop_down = 0;
+
+	form->regular_element_list =
+		appaserver_library_get_insert_table_element_list(
+			&exists_ajax_fill_drop_down,
+			login_name,
+			application_name,
+			session,
+			role_name,
+			folder->attribute_list,
+			include_attribute_name_list,
+			folder->mto1_related_folder_list,
+			dictionary_appaserver->query_dictionary,
+			dictionary_appaserver->preprompt_dictionary,
+			0 /* row_dictionary_list_length */,
+			no_display_pressed_attribute_name_list,
+			posted_attribute_name_list,
+			folder->row_level_non_owner_forbid,
+			role_get_override_row_restrictions(
+				role->override_row_restrictions_yn ),
+			folder->post_change_javascript,
+			INT_MAX /* max_query_rows_for_drop_downs */,
+			folder->folder_name
+				/* one2m_folder_name_for_processes */ );
+
+	if ( exists_ajax_fill_drop_down )
+	{
+		char sys_string[ 1024 ];
+
+		sprintf( sys_string,
+			 "ajax_fill_drop_down.sh %s '%s' '%s' %s %s %s '%s'",
+			 application_name,
+			 login_name,
+			 role_name,
+			 session,
+			 "subclassification" /* one2m_folder */,
+			 "account" /* mto1_folder */,
+			 "subclassification" /* select */ );
+
+		system( sys_string );
+	}
+
 	form_output_heading(
 		form->login_name,
 		form->application_name,
@@ -830,41 +877,6 @@ else
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(LIST *)0 /* form_button_list */ );
 
-	include_attribute_name_list =
-		list_subtract(	folder->attribute_name_list,
-				ignore_attribute_name_list );
-
-	form->regular_element_list =
-		appaserver_library_get_insert_table_element_list(
-			login_name,
-			application_name,
-			session,
-			role_name,
-			folder->attribute_list,
-			include_attribute_name_list,
-			folder->mto1_related_folder_list,
-			dictionary_appaserver->query_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			0 /* row_dictionary_list_length */,
-			no_display_pressed_attribute_name_list,
-			posted_attribute_name_list,
-			folder->row_level_non_owner_forbid,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			folder->post_change_javascript,
-			INT_MAX /* max_query_rows_for_drop_downs */,
-			folder->folder_name
-				/* one2m_folder_name_for_processes */ );
-
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got element_list = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-element_list_display( form->regular_element_list ) );
-m2( application_name, msg );
-}
 	form_output_table_heading(	form->regular_element_list,
 					0 /* form_number */ );
 

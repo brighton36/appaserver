@@ -1,7 +1,7 @@
 #!/bin/bash
-# ------------------------------------------------------------
-# $APPASERVER_HOME/src_accountancymodel/ajax_fill_drop_down.sh
-# ------------------------------------------------------------
+# ------------------------------------------------------
+# $APPASERVER_HOME/src_appaserver/ajax_fill_drop_down.sh
+# ------------------------------------------------------
 
 if [ "$#" -ne 7 ]
 then
@@ -92,7 +92,7 @@ HTMLstring += '\" );\n';
 HTMLstring += '	for ( var i = 0; i < a.length; i++ )\n';
 HTMLstring += '		e.options[ i ] = new Option( a[ i ], a[ i ] );\n';
 
-HTMLstring += 'window.close()\n';
+HTMLstring += '	window.close()\n';
 HTMLstring += '	return true;\n';
 HTMLstring += '}\n';
 
@@ -192,7 +192,7 @@ all_done
 }
 # end function output_body()
 
-output_html_header $application
+#output_html_header $application
 output_script_header	$application		\
 			"$login_name"		\
 			"$role"			\
@@ -201,6 +201,6 @@ output_script_header	$application		\
 
 output_one2m_folder $application $one2m_folder "$select"
 output_script_footer $one2m_folder $mto1_folder
-output_body $one2m_folder $mto1_folder
+#output_body $one2m_folder $mto1_folder
 
 exit 0

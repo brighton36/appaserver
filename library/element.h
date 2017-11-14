@@ -133,7 +133,6 @@ typedef struct
 
 typedef struct
 {
-	char *id;
 	char *label;
 	char *onclick_function;
 } ELEMENT_PUSH_BUTTON;
@@ -743,7 +742,6 @@ void element_list_set_readonly(
 
 void element_push_button_output( 	FILE *output_file,
 					char *element_label,
-					char *element_id,
 					int row,
 					char *onclick_function );
 

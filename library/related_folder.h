@@ -163,6 +163,7 @@ LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 					LIST *mto1_related_folder_list );
 
 LIST *related_folder_get_insert_element_list(
+				boolean *exists_ajax_fill_drop_down,
 				/* --------------------------- */
 				/* sets related_folder->folder */
 				/* --------------------------- */

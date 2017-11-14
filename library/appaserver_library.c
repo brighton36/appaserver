@@ -742,6 +742,7 @@ LIST *appaserver_library_get_folder_name_list(
 } /* appaserver_library_get_folder_name_list() */
 
 LIST *appaserver_library_get_insert_table_element_list(
+			boolean *exists_ajax_fill_drop_down,
 			char *login_name,
 			char *application_name,
 			char *session,
@@ -874,6 +875,7 @@ drop-down needing SWEEP.sweep_number in the where clause.
 			list_append_list(
 				return_list,
 				related_folder_get_insert_element_list(
+					 exists_ajax_fill_drop_down,
 					 /* --------------------------- */
 					 /* sets related_folder->folder */
 					 /* --------------------------- */

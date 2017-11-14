@@ -782,6 +782,7 @@ LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 } /* related_folder_remove_duplicate_mto1_related_folder_list() */
 
 LIST *related_folder_get_insert_element_list(
+				boolean *exists_ajax_fill_drop_down,
 				/* --------------------------- */
 				/* sets related_folder->folder */
 				/* --------------------------- */
@@ -809,6 +810,8 @@ LIST *related_folder_get_insert_element_list(
 	ELEMENT *element;
 	char element_heading[ 128 ];
 	char primary_attribute_asteric[ 2 ] = {0};
+
+	*exists_ajax_fill_drop_down = 0;
 
 	if ( is_primary_attribute )
 		*primary_attribute_asteric = '*';
@@ -944,28 +947,27 @@ LIST *related_folder_get_insert_element_list(
 	if ( related_folder_exists_ajax_fill_drop_down(
 		related_folder->folder->mto1_related_folder_list ) )
 	{
-		char element_id[ 128 ];
+		char onclick_function[ 128 ];
 
 		/* Create the fill button element */
 		/* ------------------------------ */
 		element = element_new(	push_button, 
 					(char *)0 /* element_name */ );
 
-		sprintf( element_id,
-			 "%s%s",
-			 AJAX_FILL_PUSH_BUTTON_PREFIX,
-			 related_folder->folder->folder_name );
-	
-		element->push_button->id = strdup( element_id );
-
 		element->push_button->label = "Fill";
 
+		sprintf( onclick_function,
+			 "fork_ajax_window( '%s_$row' )",
+			 related_folder->folder->folder_name );
+
 		element->push_button->onclick_function =
-			"fork_ajax_window( '$id' )";
+			strdup( onclick_function );
 
 		list_append_pointer(
 			element_list, 
 			element );
+
+		*exists_ajax_fill_drop_down = 1;
 	}
 	else
 	{

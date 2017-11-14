@@ -40,8 +40,12 @@ int main( int argc, char **argv )
 	char *mto1_folder_name;
 	char *one2m_folder_name;
 	char *value;
-	FOLDER *one2m_folder;
+	FOLDER *mto1_folder;
+	RELATED_FOLDER *related_folder;
 	char *database_string = {0};
+	char sys_string[ 1024 ];
+	char *where;
+	char *results;
 
 	if ( argc != 8 )
 	{
@@ -86,7 +90,6 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-
 /*
 	if ( session_remote_ip_address_changed(
 		application_name,
@@ -96,6 +99,7 @@ int main( int argc, char **argv )
 				application_name,
 				login_name );
 	}
+*/
 
 	if ( strcmp(	login_name,
 			session_get_login_name(
@@ -114,46 +118,68 @@ int main( int argc, char **argv )
 		session_access_failed_message_and_exit(
 				application_name, session, login_name );
 	}
+
+	mto1_folder =
+		folder_with_load_new(
+				application_name,
+				session,
+				mto1_folder_name,
+				role_new( application_name, role_name ) );
+
+	form_output_content_type();
+
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: for mto1_folder = %s, got mto1_related_folder_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+mto1_folder->folder_name,
+related_folder_list_display( mto1_folder->mto1_related_folder_list, mto1, '\n' ) );
+m2( application_name, msg );
+}
 */
 
-	one2m_folder =
-		folder_new_folder( 	application_name,
-					session,
-					one2m_folder_name );
+	if ( ! ( related_folder =
+			related_folder_mto1_seek(
+				mto1_folder->mto1_related_folder_list,
+				one2m_folder_name ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot seek one2m_folder_name = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 one2m_folder_name );
+		exit( 1 );
+	}
 
-	folder_load(	&one2m_folder->insert_rows_number,
-			&one2m_folder->lookup_email_output,
-			&one2m_folder->row_level_non_owner_forbid,
-			&one2m_folder->row_level_non_owner_view_only,
-			&one2m_folder->populate_drop_down_process,
-			&one2m_folder->post_change_process,
-			&one2m_folder->folder_form,
-			&one2m_folder->notepad,
-			&one2m_folder->html_help_file_anchor,
-			&one2m_folder->post_change_javascript,
-			&one2m_folder->lookup_before_drop_down,
-			&one2m_folder->data_directory,
-			&one2m_folder->index_directory,
-			&one2m_folder->no_initial_capital,
-			&one2m_folder->subschema_name,
-			application_name,
-			session,
-			one2m_folder->folder_name,
-			1 /* override_row_restrictions */,
-			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
+	where = query_get_simple_where_clause(
+			(FOLDER *)0,
+			related_folder->
+				foreign_attribute_name_list
+				/* where_attribute_name_list */,
+			list_string2list(
+				value,
+				'^' )
+				/* where_attribute_data_list */,
+			(char *)0 /* login_name */ );
 
-	one2m_folder->attribute_list =
-		attribute_get_attribute_list(
-			one2m_folder->application_name,
-			one2m_folder->folder_name,
-			(char *)0 /* attribute_name */,
-			(LIST *)0 /* mto1_isa_related_folder_list */,
-			(char *)0 /* role_name */ );
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	 "
+		 "			select=%s	 "
+		 "			folder=%s	 "
+		 "			where=\"%s\"	 "
+		 "			order=select	|"
+		 "joinlines.e '^'			 ",
+		 application_name,
+		 mto1_folder->folder_name,
+		 list_display( mto1_folder->primary_attribute_name_list ),
+		 where );
 
-	printf( "Content-type: text/html\n\n" );
-
-	printf( "Item 1^Item 2^Item 3\n" );
+	results = pipe2string( sys_string );
+	printf( "%s\n", results );
 
 	return 0;
 

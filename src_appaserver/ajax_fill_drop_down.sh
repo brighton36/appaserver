@@ -120,8 +120,6 @@ function output_one2m_folder()
 	one2m_folder=$2
 	select=$3
 
-	echo "html_string += '<option value=\"select\">Select\n';"
-
 	echo "select $select from ${one2m_folder} order by $select;" | sql.e |
 	while read results
 do

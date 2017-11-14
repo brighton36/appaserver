@@ -464,7 +464,6 @@ LIST *related_folder_get_drop_down_element_list(
 			folder->mto1_related_folder_list ) ) )
 		{
 			char onclick_function[ 128 ];
-			char *display_attribute_name;
 
 			/* Create the fill button element */
 			/* ------------------------------ */
@@ -473,8 +472,7 @@ LIST *related_folder_get_drop_down_element_list(
 
 			element->push_button->label = "Fill";
 
-			/* This needs more work. */
-			/* --------------------- */
+/*
 			if ( timlib_strcmp(
 				related_attribute_name,
 				"null" ) == 0 )
@@ -485,10 +483,11 @@ LIST *related_folder_get_drop_down_element_list(
 			{
 				display_attribute_name = related_attribute_name;
 			}
+*/
 
 			sprintf(onclick_function,
 			 	"fork_ajax_window( '%s_$row' )",
-				display_attribute_name );
+				list_display( foreign_attribute_name_list ) );
 
 			element->push_button->onclick_function =
 				strdup( onclick_function );

@@ -46,6 +46,7 @@ int main( int argc, char **argv )
 	char sys_string[ 1024 ];
 	char *where;
 	char *results;
+	char formatted_results[ 1024 ];
 
 	if ( argc != 8 )
 	{
@@ -179,7 +180,17 @@ m2( application_name, msg );
 		 where );
 
 	results = pipe2string( sys_string );
-	printf( "%s\n", results );
+
+	if ( results && *results )
+	{
+		format_initial_capital( formatted_results, results );
+
+		printf( "%s|%s\n", results, formatted_results );
+	}
+	else
+	{
+		printf( "\n" );
+	}
 
 	return 0;
 

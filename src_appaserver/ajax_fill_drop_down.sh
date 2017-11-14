@@ -3,6 +3,8 @@
 # $APPASERVER_HOME/src_appaserver/ajax_fill_drop_down.sh
 # ------------------------------------------------------
 
+echo "$0 $*" 1>&2
+
 if [ "$#" -ne 7 ]
 then
 	echo "Usage: $0 application login_name role session one2m_folder mto1_folder select" 1>&2
@@ -26,26 +28,6 @@ one2m_folder=$5
 mto1_folder=$6
 select=$7
 
-function output_html_header()
-{
-	application=$1
-
-cat << all_done
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" >
-
-<head>
-
-<link rel=stylesheet type="text/css" href="/appaserver/$application/style.css">
-
-all_done
-
-}
-# function output_html_header()
-
 function output_script_header()
 {
 	application=$1
@@ -53,6 +35,8 @@ function output_script_header()
 	role=$3
 	one2m_folder=$4
 	mto1_folder=$5
+
+	title=`echo $one2m_folder | format_initial_capital.e`
 
 cat << all_done
 
@@ -62,64 +46,68 @@ function fork_ajax_window( destination_element_id )
 {
 	var my_window;
 	var my_document;
-	var HTMLstring;
+	var html_string;
 
-HTMLstring = '<HTML>\n';
-HTMLstring += '<HEAD>\n';
-HTMLstring += '<link rel=stylesheet type="text/css" href="/appaserver/$application/style.css">'
-HTMLstring += '<TITLE>${one2m_folder}</TITLE>\n';
+html_string = '<HTML>\n';
+html_string += '<HEAD>\n';
+html_string += '<link rel=stylesheet type="text/css" href="/appaserver/$application/style.css">'
+html_string += '<TITLE>${title}</TITLE>\n';
 
-HTMLstring += '<script language="javascript" type="text/javascript">\n';
-HTMLstring += 'var http_request = new XMLHttpRequest();\n';
-HTMLstring += 'function listen_function()\n';
-HTMLstring += '{\n';
-HTMLstring += '	var ready;\n';
-HTMLstring += '	var status;\n';
-HTMLstring += '	var results;\n';
-HTMLstring += '	var e;\n';
-HTMLstring += '	var a;\n';
-HTMLstring += '	ready = http_request.readyState;\n';
-HTMLstring += '	status = http_request.status;\n';
-HTMLstring += '	if ( status != 200 ) return;\n';
-HTMLstring += '	if ( ready != 4 ) return;\n';
-HTMLstring += '	results = http_request.responseText;\n';
-HTMLstring += '	a = results.split( "^" );\n';
+html_string += '<script language="javascript" type="text/javascript">\n';
+html_string += 'var http_request = new XMLHttpRequest();\n';
+html_string += 'function listen_function()\n';
+html_string += '{\n';
+html_string += '	var ready;\n';
+html_string += '	var status;\n';
+html_string += '	var results;\n';
+html_string += '	var mnemonic;\n';
+html_string += '	var label;\n';
+html_string += '	var e;\n';
+html_string += '	var a;\n';
+html_string += '	ready = http_request.readyState;\n';
+html_string += '	status = http_request.status;\n';
+html_string += '	if ( status != 200 ) return;\n';
+html_string += '	if ( ready != 4 ) return;\n';
+html_string += '	results = http_request.responseText;\n';
+html_string += '	a = results.split( "|" );\n';
+html_string += '	mnemonic = a[ 0 ].split( "^" );\n';
+html_string += '	label = a[ 1 ].split( "^" );\n';
 
-HTMLstring += '	e = window.opener.document.getElementById( \"';
-HTMLstring += destination_element_id;
-HTMLstring += '\" );\n';
+html_string += '	e = window.opener.document.getElementById( \"';
+html_string += destination_element_id;
+html_string += '\" );\n';
 
-HTMLstring += '	for ( var i = 0; i < a.length; i++ )\n';
-HTMLstring += '		e.options[ i ] = new Option( a[ i ], a[ i ] );\n';
+html_string += '	for ( var i = 0; i < mnemonic.length; i++ )\n';
+html_string += '		e.options[ i ] = new Option( label[ i ], mnemonic[ i ] );\n';
 
-HTMLstring += '	window.close()\n';
-HTMLstring += '	return true;\n';
-HTMLstring += '}\n';
+html_string += '	window.close()\n';
+html_string += '	return true;\n';
+html_string += '}\n';
 
-HTMLstring += 'function send_to_server()\n';
-HTMLstring += '{\n';
-HTMLstring += '	var action;\n';
-HTMLstring += '	var element;\n';
-HTMLstring += '	var value;\n';
-HTMLstring += '	element = document.getElementById( "${one2m_folder}" );\n';
-HTMLstring += '	value = element.value;\n';
-HTMLstring += '	action = "/cgi-bin/post_ajax_fill_drop_down?${application}+${login_name}+${role}+${session}+${mto1_folder}+${one2m_folder}+" + value;\n';
-HTMLstring += '	http_request.onreadystatechange = listen_function;\n';
-HTMLstring += '	http_request.open( "GET", action, true );\n';
-HTMLstring += '	http_request.send(null);\n';
-HTMLstring += '	return true;\n';
-HTMLstring += '}\n';
+html_string += 'function send_to_server()\n';
+html_string += '{\n';
+html_string += '	var action;\n';
+html_string += '	var element;\n';
+html_string += '	var value;\n';
+html_string += '	element = document.getElementById( "${one2m_folder}" );\n';
+html_string += '	value = element.value;\n';
+html_string += '	action = "/cgi-bin/post_ajax_fill_drop_down?${application}+${login_name}+${role}+${session}+${mto1_folder}+${one2m_folder}+" + value;\n';
+html_string += '	http_request.onreadystatechange = listen_function;\n';
+html_string += '	http_request.open( "GET", action, true );\n';
+html_string += '	http_request.send(null);\n';
+html_string += '	return true;\n';
+html_string += '}\n';
 
 // Need to escape the 's' because script is a reserved word.
 // ---------------------------------------------------------
-HTMLstring += '</\script>\n';
+html_string += '</\script>\n';
 
-HTMLstring += '</HEAD>\n';
-HTMLstring += '<BODY>\n';
+html_string += '</HEAD>\n';
+html_string += '<BODY>\n';
 
-HTMLstring += '<form>\n';
-HTMLstring += '${one2m_folder}<br>\n';
-HTMLstring += '<select name="${one2m_folder}" id="${one2m_folder}">\n';
+html_string += '<form>\n';
+html_string += '<h3>${title}</h3><br>\n';
+html_string += '<select name="${one2m_folder}" id="${one2m_folder}">\n';
 
 all_done
 
@@ -132,15 +120,18 @@ function output_one2m_folder()
 	one2m_folder=$2
 	select=$3
 
-echo "HTMLstring += '<option value=\"select\">Select\n';"
+	echo "html_string += '<option value=\"select\">Select\n';"
 
 	echo "select $select from ${one2m_folder} order by $select;" | sql.e |
 	while read results
 do
-echo "HTMLstring += '<option value=\"${results}\">${results}\n';"
+
+	label=`echo $results | format_initial_capital.e`
+	echo "html_string += '<option value=\"${results}\">${label}\n';"
+
 done
 
-echo "HTMLstring += '</select>\n';"
+	echo "html_string += '</select>\n';"
 
 }
 # end function output_one2m_folder()
@@ -151,16 +142,16 @@ function output_script_footer()
 	mto1_folder=$2
 
 cat << all_done
-HTMLstring += '<br>';
-HTMLstring += '<input type=button value="Submit" onClick="send_to_server()" />\n';
-HTMLstring += '</form>\n';
+html_string += '<br>';
+html_string += '<input type=button value="Submit" onClick="send_to_server()" />\n';
+html_string += '</form>\n';
 
-HTMLstring += '</BODY>\n';
-HTMLstring += '</HTML>';
+html_string += '</BODY>\n';
+html_string += '</HTML>';
 
-	my_window = window.open( "", "${one2m_folder}", "width=400,height=500" );
+	my_window = window.open( "", "${one2m_folder}", "width=400,height=600" );
 	my_document = my_window.document;
-	my_document.write( HTMLstring );
+	my_document.write( html_string );
 	my_document.close();
 
 	return true;
@@ -173,27 +164,6 @@ all_done
 }
 # function output_script_footer()
 
-function output_body()
-{
-cat << all_done
-
-</head>
-
-<body>
-
-Choose a ${mto1_folder}:
-<select name="${mto1_folder}" id="${mto1_folder}" /> </select>
-<input type=button value="Fill" onClick="fork_ajax_window( '${mto1_folder}' )" />
-
-</body>
-</html>
-
-all_done
-
-}
-# end function output_body()
-
-#output_html_header $application
 output_script_header	$application		\
 			"$login_name"		\
 			"$role"			\
@@ -202,6 +172,5 @@ output_script_header	$application		\
 
 output_one2m_folder $application $one2m_folder "$select"
 output_script_footer $one2m_folder $mto1_folder
-#output_body $one2m_folder $mto1_folder
 
 exit 0

@@ -1,4 +1,4 @@
-/* src_appaserver/output_insert_table_form.c				*/
+/* $APPASERVER_HOME/src_appaserver/output_insert_table_form.c		*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -49,6 +49,26 @@
 
 /* Prototypes */
 /* ---------- */
+LIST *get_insert_table_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *login_name,
+			char *application_name,
+			char *session,
+			char *role_name,
+			LIST *attribute_list,
+			LIST *include_attribute_name_list,
+			LIST *mto1_related_folder_list,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *preprompt_dictionary,
+			int row_dictionary_list_length,
+			LIST *no_display_pressed_attribute_name_list,
+			LIST *posted_attribute_name_list,
+			boolean row_level_non_owner_forbid,
+			boolean override_row_restrictions,
+			char *folder_post_change_javascript,
+			int max_query_rows_for_drop_downs,
+			char *one2m_folder_name_for_process );
+
 void primary_data_list_string_build_dictionaries(
 			DICTIONARY *non_prefixed_dictionary,
 			DICTIONARY *query_dictionary,
@@ -90,7 +110,7 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *primary_data_list_string;
 	PAIR_ONE2M *pair_one2m;
-	boolean exists_ajax_fill_drop_down;
+	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
 
 	if ( argc != 9 )
 	{
@@ -810,11 +830,11 @@ else
 		list_subtract(	folder->attribute_name_list,
 				ignore_attribute_name_list );
 
-	exists_ajax_fill_drop_down = 0;
+	ajax_fill_drop_down_related_folder = (RELATED_FOLDER *)0;
 
 	form->regular_element_list =
-		appaserver_library_get_insert_table_element_list(
-			&exists_ajax_fill_drop_down,
+		get_insert_table_element_list(
+			&ajax_fill_drop_down_related_folder,
 			login_name,
 			application_name,
 			session,
@@ -835,7 +855,7 @@ else
 			folder->folder_name
 				/* one2m_folder_name_for_processes */ );
 
-	if ( exists_ajax_fill_drop_down )
+	if ( ajax_fill_drop_down_related_folder )
 	{
 		char sys_string[ 1024 ];
 
@@ -845,9 +865,16 @@ else
 			 login_name,
 			 role_name,
 			 session,
-			 "subclassification" /* one2m_folder */,
-			 "account" /* mto1_folder */,
-			 "subclassification" /* select */ );
+			 ajax_fill_drop_down_related_folder->
+				folder->
+				folder_name /* one2m_folder */,
+			 ajax_fill_drop_down_related_folder->
+				one2m_related_folder->
+				folder_name /* mto1_folder */,
+			 list_display(
+				ajax_fill_drop_down_related_folder->
+				folder->
+				primary_attribute_name_list ) /* select */ );
 
 		system( sys_string );
 	}
@@ -995,165 +1022,217 @@ void primary_data_list_string_build_dictionaries(
 
 } /* primary_data_list_string_build_dictionaries() */
 
-#ifdef NOT_DEFINED
-FOLDER *output_insert_table_form_get_pair_one2m_folder(
-			char **all_complete_message	     /* out only */,
-			DICTIONARY *pair_1tom_dictionary     /* in/out */,
-			LIST *ignore_attribute_name_list     /* in/out */,
-			LIST *pair_inserted_folder_name_list /* in/out */,
-			char *application_name	             /* in only */,
-			FOLDER *folder 			     /* in only */,
-			LIST *posted_attribute_name_list     /* in only */,
-			ROLE *role			     /* in only */,
-			char *session			     /* in only */ )
+LIST *get_insert_table_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *login_name,
+			char *application_name,
+			char *session,
+			char *role_name,
+			LIST *attribute_list,
+			LIST *include_attribute_name_list,
+			LIST *mto1_related_folder_list,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *preprompt_dictionary,
+			int row_dictionary_list_length,
+			LIST *no_display_pressed_attribute_name_list,
+			LIST *posted_attribute_name_list,
+			boolean row_level_non_owner_forbid,
+			boolean override_row_restrictions,
+			char *folder_post_change_javascript,
+			int max_query_rows_for_drop_downs,
+			char *one2m_folder_name_for_processes )
 {
-	char *uninserted_pair_1tom_folder_name;
-	char *element_name;
+	LIST *return_list;
+	LIST *element_list;
+	LIST *ignore_attribute_name_list;
+	char *attribute_name;
+	RELATED_FOLDER *related_folder;
+	ELEMENT *element;
+	LIST *foreign_attribute_name_list = {0};
+	int objects_outputted = 0;
+	LIST *primary_attribute_name_list;
+	LIST *isa_folder_list;
+	int max_drop_down_size = INT_MAX;
+	boolean is_primary_attribute;
+	DICTIONARY *parameter_dictionary;
+	DICTIONARY *where_clause_dictionary;
 
-	/* Check if did them all. */
-	/* ---------------------- */
-	if  ( !( uninserted_pair_1tom_folder_name =
-		folder_get_uninserted_pair_1tom_related_folder_name(
-			pair_inserted_folder_name_list,
-			folder->
-				pair_1tom_related_folder_list ) ) )
+	if ( !list_reset( include_attribute_name_list ) )
+		return list_new_list();
+
+/*
+Inspiration: benthic SPECIES_MEASUREMENT has BENTHIC_SPECIES
+drop-down needing SWEEP.sweep_number in the where clause.
+	parameter_dictionary = dictionary_copy( preprompt_dictionary );
+*/
+
+	parameter_dictionary = dictionary_copy( query_dictionary );
+
+	dictionary_append_dictionary(
+		parameter_dictionary,
+		preprompt_dictionary );
+
+	where_clause_dictionary = dictionary_copy( preprompt_dictionary );
+
+	isa_folder_list =
+		appaserver_get_isa_folder_list(
+			application_name );
+
+	primary_attribute_name_list =
+		folder_get_primary_attribute_name_list(
+			attribute_list );
+
+	return_list = list_new_list();
+	ignore_attribute_name_list = list_new();
+
+	if ( row_level_non_owner_forbid )
 	{
-		/* All complete. */
-		/* ------------- */
-		return (FOLDER *)0;
+		list_append_pointer(	ignore_attribute_name_list,
+					"login_name" );
 	}
 
-	/* Check if pressed the <Submit> button or a specialty submit button. */
-	/* ------------------------------------------------------------------ */
-	element_name =
-		appaserver_library_get_pair_one2m_submit_element_name(
-			1 /* with_suffix_zero */ );
+	/* For each attribute */
+	/* ------------------ */
+	do {
+		attribute_name = 
+			list_get_pointer( include_attribute_name_list );
 
-	uninserted_pair_1tom_folder_name = 
-		dictionary_fetch(
-			dictionary_appaserver->
-				pair_1tom_dictionary,
-			element_name );
+		/* If the attribute is accounted for already */
+		/* ----------------------------------------- */
+		if ( list_exists_string( ignore_attribute_name_list,
+					 attribute_name ) )
+		{
+			continue;
+		}
 
-	if ( uninserted_pair_1tom_folder_name
-	&&   *uninserted_pair_1tom_folder_name )
+		is_primary_attribute =
+			list_exists_string(	
+					primary_attribute_name_list,
+					attribute_name );
+
+		if ( ( related_folder =
+		       related_folder_attribute_consumes_related_folder(
+			       &foreign_attribute_name_list,
+			       ignore_attribute_name_list,
+			       (LIST *)0 /* omit_update_attribute_name_list */,
+			       mto1_related_folder_list,
+			       attribute_name,
+			       (LIST *)0 /* include_attribute_name_list */ ) ) )
+		{
+			ATTRIBUTE *attribute;
+
+			attribute = attribute_seek_attribute( 
+						attribute_list,
+						attribute_name );
+
+			if ( !attribute )
+			{
+				char msg[ 1024 ];
+				sprintf(msg,
+		"ERROR in %s/%s(): cannot find attribute = (%s) in list\n",
+					__FILE__,
+					__FUNCTION__,
+					attribute_name );
+				appaserver_output_error_message(
+					application_name,
+					msg,
+					(char *)0 );
+				exit( 1 );
+			}
+
+			if ( related_folder->ignore_output ) continue;
+
+			if ( isa_folder_list
+			&&   list_length( isa_folder_list )
+			&&   appaserver_isa_folder_accounted_for(
+				isa_folder_list,
+				related_folder->folder->folder_name,
+				related_folder->
+					related_attribute_name ) )
+			{
+				continue;
+			}
+
+			list_append_list(
+				return_list,
+				related_folder_get_insert_element_list(
+					 ajax_fill_drop_down_related_folder,
+					 /* --------------------------- */
+					 /* sets related_folder->folder */
+					 /* --------------------------- */
+					 related_folder,
+					 application_name,
+					 session,
+					 login_name,
+					 foreign_attribute_name_list,
+					 row_dictionary_list_length,
+					 parameter_dictionary,
+					 where_clause_dictionary,
+					 0 /* prompt_data_element_only */,
+					 folder_post_change_javascript,
+					 max_drop_down_size,
+					 row_level_non_owner_forbid,
+					 override_row_restrictions,
+					 is_primary_attribute,
+					 role_name,
+					 max_query_rows_for_drop_downs,
+					 0 /* drop_down_multi_select */,
+					 related_folder->
+							folder->
+							no_initial_capital,
+					 one2m_folder_name_for_processes
+					) );
+
+			related_folder->ignore_output = 1;
+
+			objects_outputted++;
+		}
+
+		if ( list_exists_string(	ignore_attribute_name_list,
+						attribute_name ) )
+		{
+			continue;
+		}
+
+		element_list =
+		   	appaserver_library_get_insert_attribute_element_list(
+				&objects_outputted,
+				attribute_list,
+				attribute_name,
+				posted_attribute_name_list,
+				is_primary_attribute,
+				folder_post_change_javascript,
+				application_name );
+
+		if ( element_list )
+		{
+			list_append_list(
+				return_list,
+				element_list );
+
+			list_append_pointer(
+				ignore_attribute_name_list,
+				attribute_name );
+		}
+
+	} while( list_next( include_attribute_name_list ) );
+
+	if ( no_display_pressed_attribute_name_list 
+	&&   list_rewind( no_display_pressed_attribute_name_list ) )
 	{
-		/* If pressed the <Submit> button. */
-		/* ------------------------------- */
-		if ( strcmp(	uninserted_pair_1tom_folder_name,
-				PAIR_1TOM_OMIT ) == 0 )
-		{
-			if (	pair_1tom_duplicate_state ==
-				pair_1tom_duplicate_yes )
-			{
-				printf( DUPLICATE_NON_INSERTED_MESSAGE );
-			}
-			else
-			if (	pair_1tom_duplicate_state ==
-				pair_1tom_duplicate_no )
-			{
-				printf( ONE_ROW_INSERTED_MESSAGE );
-			}
+		do {
+			attribute_name = list_get_string(
+				no_display_pressed_attribute_name_list );
 
-			uninserted_pair_1tom_folder_name = (char *)0;
-		}
-		else
-		{
-			/* Else pressed a specialty button. */
-			/* -------------------------------- */
-			dictionary_delete_key(
-				dictionary_appaserver->
-					pair_1tom_dictionary,
-				element_name );
-		}
+			element = element_new( hidden, attribute_name );
+
+			list_append_pointer(
+					return_list, 
+					element );
+		} while( list_next( no_display_pressed_attribute_name_list ) );
 	}
 
-	folder = folder_new_folder(
-			application_name,
-			session,
-			uninserted_pair_1tom_folder_name );
+	return return_list;
 
-	folder->mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new(),
-			application_name,
-			session,
-			folder->folder_name,
-			role->role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_att..._name_list */,
-			0 /* recursive_level */ );
+} /* get_insert_table_element_list() */
 
-	folder->mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-		application_name,
-		session,
-		folder->folder_name,
-		role->role_name,
-		list_new_list(),
-		1 /* isa_flag */,
-		related_folder_recursive_all,
-		role_get_override_row_restrictions(
-		role->override_row_restrictions_yn ),
-		(LIST *)0 /* root_primary_att..._name_list */,
-		0 /* recursive_level */ );
-	
-	folder->attribute_list =
-		attribute_get_attribute_list(
-			application_name,
-			folder->folder_name,
-			(char *)0 /* attribute_name */,
-			folder->mto1_isa_related_folder_list,
-			role->role_name );
-
-	folder_load(
-		&folder->insert_rows_number,
-		&folder->lookup_email_output,
-		&folder->row_level_non_owner_forbid,
-		&folder->row_level_non_owner_view_only,
-		&folder->populate_drop_down_process,
-		&folder->post_change_process,
-		&folder->folder_form,
-		&folder->notepad,
-		&folder->html_help_file_anchor,
-		&folder->post_change_javascript,
-		&folder->lookup_before_drop_down,
-		&folder->data_directory,
-		&folder->index_directory,
-		&folder->no_initial_capital,
-		&folder->subschema_name,
-		application_name,
-		session,
-		folder->folder_name,
-		role_get_override_row_restrictions(
-			role->
-			override_row_restrictions_yn ),
-		role->role_name,
-		(LIST *)0 /* mto1_related_folder_list */ );
-
-	folder->attribute_name_list =
-		folder_get_attribute_name_list(
-			folder->attribute_list );
-
-	list_append_string_list(
-		ignore_attribute_name_list,
-		posted_attribute_name_list );
-
-	list_append_pointer(
-		pair_inserted_folder_name_list,
-		folder->folder_name );
-
-	dictionary_set_pointer(
-		pair_1tom_dictionary,
-		PAIR_1TOM_FOLDER_LIST,
-		list_display_delimited(
-			pair_inserted_folder_name_list,
-			',' ) );
-
-	return folder;
-
-} /* output_insert_table_form_get_pair_one2m_folder() */
-#endif

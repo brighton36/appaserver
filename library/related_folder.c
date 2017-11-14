@@ -246,40 +246,41 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 } /* related_folder_attribute_consumes_related_folder() */
 
 LIST *related_folder_get_drop_down_element_list(
-				char *application_name,
-				char *session,
-				char *role_name,
-				char *login_name,
-				char *folder_name,
-				PROCESS *populate_drop_down_process,
-				LIST *attribute_list,
-				LIST *foreign_attribute_name_list,
-				boolean omit_drop_down_new_push_button,
-				boolean omit_ignore_push_buttons,
-				DICTIONARY *preprompt_dictionary,
-				char *ignore_or_no_display_push_button_prefix,
-				char *ignore_or_no_display_push_button_heading,
-				char *post_change_javascript,
-				char *hint_message,
-				LIST *role_folder_insert_list,
-				char *form_name,
-				int max_drop_down_size,
-				LIST *common_non_primary_attribute_name_list,
-				boolean is_primary_attribute,
-				boolean row_level_non_owner_view_only,
-				boolean row_level_non_owner_forbid,
-				char *related_attribute_name,
-				boolean drop_down_multi_select,
-				boolean no_initial_capital,
-				char *state,
-				char *one2m_folder_name_for_processes,
-				int tab_index,
-				boolean set_first_initial_data,
-				boolean output_null_option,
-				boolean output_not_null_option,
-				boolean output_select_option,
-				char *appaserver_user_foreign_login_name,
-				boolean prepend_folder_name )
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *application_name,
+			char *session,
+			char *role_name,
+			char *login_name,
+			char *folder_name,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *foreign_attribute_name_list,
+			boolean omit_drop_down_new_push_button,
+			boolean omit_ignore_push_buttons,
+			DICTIONARY *preprompt_dictionary,
+			char *ignore_or_no_display_push_button_prefix,
+			char *ignore_or_no_display_push_button_heading,
+			char *post_change_javascript,
+			char *hint_message,
+			LIST *role_folder_insert_list,
+			char *form_name,
+			int max_drop_down_size,
+			LIST *common_non_primary_attribute_name_list,
+			boolean is_primary_attribute,
+			boolean row_level_non_owner_view_only,
+			boolean row_level_non_owner_forbid,
+			char *related_attribute_name,
+			boolean drop_down_multi_select,
+			boolean no_initial_capital,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			int tab_index,
+			boolean set_first_initial_data,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			char *appaserver_user_foreign_login_name,
+			boolean prepend_folder_name )
 {
 	char buffer[ 256 ];
 	char element_name[ 256 ];
@@ -782,36 +783,39 @@ LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 } /* related_folder_remove_duplicate_mto1_related_folder_list() */
 
 LIST *related_folder_get_insert_element_list(
-				boolean *exists_ajax_fill_drop_down,
-				/* --------------------------- */
-				/* sets related_folder->folder */
-				/* --------------------------- */
-				RELATED_FOLDER *related_folder,
-				char *application_name,
-				char *session,
-				char *login_name,
-				LIST *foreign_attribute_name_list,
-				int row_dictionary_list_length,
-				DICTIONARY *parameter_dictionary,
-				DICTIONARY *where_clause_dictionary,
-				boolean prompt_data_element_only,
-				char *post_change_javascript,
-				int max_drop_down_size,
-				boolean row_level_non_owner_forbid,
-				boolean override_row_restrictions,
-				boolean is_primary_attribute,
-				char *role_name,
-				int max_query_rows_for_drop_downs,
-				boolean drop_down_multi_select,
-				boolean no_initial_capital,
-				char *one2m_folder_name_for_processes )
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			/* --------------------------- */
+			/* sets related_folder->folder */
+			/* --------------------------- */
+			RELATED_FOLDER *related_folder,
+			char *application_name,
+			char *session,
+			char *login_name,
+			LIST *foreign_attribute_name_list,
+			int row_dictionary_list_length,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			boolean prompt_data_element_only,
+			char *post_change_javascript,
+			int max_drop_down_size,
+			boolean row_level_non_owner_forbid,
+			boolean override_row_restrictions,
+			boolean is_primary_attribute,
+			char *role_name,
+			int max_query_rows_for_drop_downs,
+			boolean drop_down_multi_select,
+			boolean no_initial_capital,
+			char *one2m_folder_name_for_processes )
 {
 	LIST *element_list = list_new();
 	ELEMENT *element;
 	char element_heading[ 128 ];
 	char primary_attribute_asteric[ 2 ] = {0};
 
-	*exists_ajax_fill_drop_down = 0;
+	if ( ajax_fill_drop_down_related_folder )
+	{
+		*ajax_fill_drop_down_related_folder = (RELATED_FOLDER *)0;
+	}
 
 	if ( is_primary_attribute )
 		*primary_attribute_asteric = '*';
@@ -944,8 +948,10 @@ LIST *related_folder_get_insert_element_list(
 			element_list, 
 			element );
 
-	if ( related_folder_exists_ajax_fill_drop_down(
-		related_folder->folder->mto1_related_folder_list ) )
+	if ( ajax_fill_drop_down_related_folder
+	&& ( *ajax_fill_drop_down_related_folder =
+		    related_folder_get_ajax_fill_drop_down_related_folder(
+			related_folder->folder->mto1_related_folder_list ) ) )
 	{
 		char onclick_function[ 128 ];
 
@@ -966,8 +972,6 @@ LIST *related_folder_get_insert_element_list(
 		list_append_pointer(
 			element_list, 
 			element );
-
-		*exists_ajax_fill_drop_down = 1;
 	}
 	else
 	{
@@ -4027,7 +4031,7 @@ void related_populate_folder_foreign_attribute_dictionary(
 
 } /* related_populate_folder_foreign_attribute_dictionary() */
 
-boolean related_folder_exists_ajax_fill_drop_down(
+RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 			LIST *mto1_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
@@ -4037,10 +4041,11 @@ boolean related_folder_exists_ajax_fill_drop_down(
 	do {
 		related_folder = list_get_pointer( mto1_related_folder_list );
 
-		if ( related_folder->ajax_fill_drop_down ) return 1;
+		if ( related_folder->ajax_fill_drop_down )
+			return related_folder;
 
 	} while( list_next( mto1_related_folder_list ) );
 
-	return 0;
+	return (RELATED_FOLDER *)0;
 
-} /* related_folder_exists_ajax_fill_drop_down() */
+} /* related_folder_get_ajax_fill_drop_down_related_folder() */

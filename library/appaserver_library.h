@@ -202,18 +202,12 @@ LIST *get_insert_ignore_pressed_attribute_name_list(
 LIST *appaserver_library_get_no_display_pressed_attribute_name_list( 	
 				DICTIONARY *ignore_dictionary,
 				LIST *attribute_name_list );
-/*
-void populate_insert_no_display_attribute(
-				DICTIONARY *post_dictionary,
-				char *attribute_name );
-*/
+
 LIST *remove_related_folders_attribute_name_list(
 				LIST *related_mto1_folder_list,
 				LIST *attribute_name_list );
 void m(				char *message );
-/*
-int is_primary_application( 	char *application_string );
-*/
+
 void populate_ignore_button_for_attributes_not_inserted(
 				DICTIONARY *post_dictionary,
 				char *entity,
@@ -240,26 +234,6 @@ char *get_multi_table_name(	char *application_name,
 LIST *appaserver_library_get_folder_name_list(
 				char *application_name,
 				char *attribute_name );
-
-LIST *appaserver_library_get_insert_table_element_list(
-			boolean *exists_ajax_fill_drop_down,
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *role_name,
-			LIST *attribute_list,
-			LIST *include_attribute_name_list,
-			LIST *mto1_related_folder_list,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *preprompt_dictionary,
-			int row_dictionary_list_length,
-			LIST *no_display_pressed_attribute_name_list,
-			LIST *posted_attribute_name_list,
-			boolean row_level_non_owner_forbid,
-			boolean override_row_restrictions,
-			char *folder_post_change_javascript,
-			int max_query_rows_for_drop_downs,
-			char *one2m_folder_name_for_process );
 
 LIST *appaserver_library_get_insert_attribute_element_list(
 					int *objects_outputted,

@@ -41,33 +41,34 @@
 /* Prototypes */
 /* ---------- */
 void build_related_folder_element_list(
-				LIST *element_list,
-				LIST *attribute_list,
-				char *attribute_name,
-				char *application_name,
-				char *session,
-				char *role_name,
-				char *login_name,
-				RELATED_FOLDER *related_folder,
-				LIST *isa_folder_list,
-				char *folder_name,
-				int tab_index,
-				boolean omit_drop_down_new_push_button,
-				boolean omit_ignore_push_buttons,
-				DICTIONARY *preprompt_dictionary,
-				char *ignore_push_button_prefix,
-				char *ignore_push_button_heading,
-				char *post_change_javascript,
-				LIST *role_folder_insert_list,
-				char *form_name,
-				boolean is_primary_attribute,
-				boolean row_level_non_owner_view_only,
-				boolean row_level_non_owner_forbid,
-				char *state,
-				LOOKUP_BEFORE_DROP_DOWN *
-					lookup_before_drop_down,
-				char *appaserver_user_foreign_login_name,
-				LIST *foreign_attribute_name_list );
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			LIST *element_list,
+			LIST *attribute_list,
+			char *attribute_name,
+			char *application_name,
+			char *session,
+			char *role_name,
+			char *login_name,
+			RELATED_FOLDER *related_folder,
+			LIST *isa_folder_list,
+			char *folder_name,
+			int tab_index,
+			boolean omit_drop_down_new_push_button,
+			boolean omit_ignore_push_buttons,
+			DICTIONARY *preprompt_dictionary,
+			char *ignore_push_button_prefix,
+			char *ignore_push_button_heading,
+			char *post_change_javascript,
+			LIST *role_folder_insert_list,
+			char *form_name,
+			boolean is_primary_attribute,
+			boolean row_level_non_owner_view_only,
+			boolean row_level_non_owner_forbid,
+			char *state,
+			LOOKUP_BEFORE_DROP_DOWN *
+				lookup_before_drop_down,
+			char *appaserver_user_foreign_login_name,
+			LIST *foreign_attribute_name_list );
 
 LIST *get_attribute_element_list(	int *current_reference_number,
 					char *application_name,
@@ -135,6 +136,7 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 
 LIST *get_element_list(	
 			int *current_reference_number,
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *login_name,
 			char *application_name,
 			char *session,
@@ -191,6 +193,7 @@ int main( int argc, char **argv )
 	LIST *isa_folder_list = {0};
 	char *appaserver_user_foreign_login_name;
 	PAIR_ONE2M *pair_one2m;
+	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
 
 	/* Note: optionally there could be a trailing dictionary string */
 	/* ------------------------------------------------------------ */
@@ -550,9 +553,12 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	ajax_fill_drop_down_related_folder = (RELATED_FOLDER *)0;
+
 	form->regular_element_list =
 		get_element_list(
 			&form->current_reference_number,
+			&ajax_fill_drop_down_related_folder,
 			login_name,
 			application_name,
 			session,
@@ -577,6 +583,30 @@ int main( int argc, char **argv )
 			state,
 			lookup_before_drop_down,
 			appaserver_user_foreign_login_name );
+
+	if ( ajax_fill_drop_down_related_folder )
+	{
+		char sys_string[ 1024 ];
+
+		sprintf( sys_string,
+			 "ajax_fill_drop_down.sh %s '%s' '%s' %s %s %s '%s'",
+			 application_name,
+			 login_name,
+			 role_name,
+			 session,
+			 ajax_fill_drop_down_related_folder->
+				folder->
+				folder_name /* one2m_folder */,
+			 ajax_fill_drop_down_related_folder->
+				one2m_related_folder->
+				folder_name /* mto1_folder */,
+			 list_display(
+				ajax_fill_drop_down_related_folder->
+				folder->
+				primary_attribute_name_list ) /* select */ );
+
+		system( sys_string );
+	}
 
 	/* Setup remember button */
 	/* --------------------- */
@@ -701,7 +731,8 @@ int main( int argc, char **argv )
 } /* main() */
 
 LIST *get_element_list(
-			int  *current_reference_number,
+			int *current_reference_number,
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char *login_name,
 			char *application_name,
 			char *session,
@@ -818,6 +849,7 @@ LIST *get_element_list(
 				allowed_attribute_name_list ) ) )
 		{
 			build_related_folder_element_list(
+				ajax_fill_drop_down_related_folder,
 				return_list,
 				attribute_list,
 				attribute_name,
@@ -1576,33 +1608,34 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 } /* get_attribute_element_list() */
 
 void build_related_folder_element_list(
-				LIST *element_list,
-				LIST *attribute_list,
-				char *attribute_name,
-				char *application_name,
-				char *session,
-				char *role_name,
-				char *login_name,
-				RELATED_FOLDER *related_folder,
-				LIST *isa_folder_list,
-				char *folder_name,
-				int tab_index,
-				boolean omit_drop_down_new_push_button,
-				boolean omit_ignore_push_buttons,
-				DICTIONARY *preprompt_dictionary,
-				char *ignore_push_button_prefix,
-				char *ignore_push_button_heading,
-				char *post_change_javascript,
-				LIST *role_folder_insert_list,
-				char *form_name,
-				boolean is_primary_attribute,
-				boolean row_level_non_owner_view_only,
-				boolean row_level_non_owner_forbid,
-				char *state,
-				LOOKUP_BEFORE_DROP_DOWN
-					*lookup_before_drop_down,
-				char *appaserver_user_foreign_login_name,
-				LIST *foreign_attribute_name_list )
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			LIST *element_list,
+			LIST *attribute_list,
+			char *attribute_name,
+			char *application_name,
+			char *session,
+			char *role_name,
+			char *login_name,
+			RELATED_FOLDER *related_folder,
+			LIST *isa_folder_list,
+			char *folder_name,
+			int tab_index,
+			boolean omit_drop_down_new_push_button,
+			boolean omit_ignore_push_buttons,
+			DICTIONARY *preprompt_dictionary,
+			char *ignore_push_button_prefix,
+			char *ignore_push_button_heading,
+			char *post_change_javascript,
+			LIST *role_folder_insert_list,
+			char *form_name,
+			boolean is_primary_attribute,
+			boolean row_level_non_owner_view_only,
+			boolean row_level_non_owner_forbid,
+			char *state,
+			LOOKUP_BEFORE_DROP_DOWN
+				*lookup_before_drop_down,
+			char *appaserver_user_foreign_login_name,
+			LIST *foreign_attribute_name_list )
 {
 	char *hint_message;
 	ATTRIBUTE *attribute;
@@ -1698,6 +1731,7 @@ void build_related_folder_element_list(
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(
+			ajax_fill_drop_down_related_folder,
 			application_name,
 			session,
 			role_name,

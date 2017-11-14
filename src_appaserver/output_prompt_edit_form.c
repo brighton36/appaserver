@@ -1238,6 +1238,7 @@ LIST *get_element_list(
 			list_append_list(
 				return_list,
 				related_folder_get_drop_down_element_list(
+				   (RELATED_FOLDER **)0,
 				   application_name,
 				   session,
 				   role_name,
@@ -1785,6 +1786,7 @@ LIST *get_prompt_mto1_recursive_element_list(
 		list_append_list(
 			recursive_element_list,
 			related_folder_get_drop_down_element_list(
+				(RELATED_FOLDER **)0,
 				application_name,
 				session,
 				role_name,
@@ -1847,6 +1849,7 @@ LIST *get_prompt_mto1_recursive_element_list(
 		list_append_list(
 			recursive_element_list,
 			related_folder_get_drop_down_element_list(
+				(RELATED_FOLDER **)0,
 				application_name,
 				session,
 				role_name,
@@ -2166,6 +2169,7 @@ void build_related_folder_element_list(
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(
+			(RELATED_FOLDER **)0,
 			application_name,
 			session,
 			role_name,

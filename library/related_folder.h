@@ -110,40 +110,41 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 				LIST *include_attribute_name_list );
 
 LIST *related_folder_get_drop_down_element_list(
-				char *application_name,
-				char *session,
-				char *role_name,
-				char *login_name,
-				char *folder_name,
-				PROCESS *populate_drop_down_process,
-				LIST *attribute_list,
-				LIST *foreign_attribute_name_list,
-				boolean omit_drop_down_new_push_button,
-				boolean omit_ignore_push_buttons,
-				DICTIONARY *preprompt_dictionary,
-				char *ignore_or_no_display_push_button_prefix,
-				char *ignore_or_no_display_push_button_heading,
-				char *post_change_javascript,
-				char *hint_message,
-				LIST *role_folder_insert_list,
-				char *form_name,
-				int max_drop_down_size,
-				LIST *common_non_primary_attribute_name_list,
-				boolean is_primary_attribute,
-				boolean row_level_non_owner_view_only,
-				boolean row_level_non_owner_forbid,
-				char *related_attribute_name,
-				boolean drop_down_multi_select,
-				boolean no_initial_capital,
-				char *state,
-				char *one2m_folder_name_for_processes,
-				int tab_index,
-				boolean set_first_initial_data,
-				boolean output_null_option,
-				boolean output_not_null_option,
-				boolean output_select_option,
-				char *appaserver_user_foreign_login_name,
-				boolean prepend_folder_name );
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *application_name,
+			char *session,
+			char *role_name,
+			char *login_name,
+			char *folder_name,
+			PROCESS *populate_drop_down_process,
+			LIST *attribute_list,
+			LIST *foreign_attribute_name_list,
+			boolean omit_drop_down_new_push_button,
+			boolean omit_ignore_push_buttons,
+			DICTIONARY *preprompt_dictionary,
+			char *ignore_or_no_display_push_button_prefix,
+			char *ignore_or_no_display_push_button_heading,
+			char *post_change_javascript,
+			char *hint_message,
+			LIST *role_folder_insert_list,
+			char *form_name,
+			int max_drop_down_size,
+			LIST *common_non_primary_attribute_name_list,
+			boolean is_primary_attribute,
+			boolean row_level_non_owner_view_only,
+			boolean row_level_non_owner_forbid,
+			char *related_attribute_name,
+			boolean drop_down_multi_select,
+			boolean no_initial_capital,
+			char *state,
+			char *one2m_folder_name_for_processes,
+			int tab_index,
+			boolean set_first_initial_data,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			char *appaserver_user_foreign_login_name,
+			boolean prepend_folder_name );
 
 void related_folder_set_ignore_output_for_duplicate(
 					LIST *related_folder_list );
@@ -163,29 +164,29 @@ LIST *related_folder_remove_duplicate_mto1_related_folder_list(
 					LIST *mto1_related_folder_list );
 
 LIST *related_folder_get_insert_element_list(
-				boolean *exists_ajax_fill_drop_down,
-				/* --------------------------- */
-				/* sets related_folder->folder */
-				/* --------------------------- */
-				RELATED_FOLDER *related_folder,
-				char *application_name,
-				char *session,
-				char *login_name,
-				LIST *foreign_attribute_name_list,
-				int row_dictionary_list_length,
-				DICTIONARY *parameter_dictionary,
-				DICTIONARY *where_clause_dictionary,
-				int prompt_data_element_only,
-				char *post_change_javascript,
-				int max_drop_down_size,
-				boolean filter_login_name,
-				boolean override_row_restrictions,
-				boolean is_primary_attribute,
-				char *role_name,
-				int max_query_rows_for_drop_downs,
-				boolean drop_down_multi_select,
-				boolean no_initial_capital,
-				char *one2m_folder_name_for_processes );
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			/* --------------------------- */
+			/* sets related_folder->folder */
+			/* --------------------------- */
+			RELATED_FOLDER *related_folder,
+			char *application_name,
+			char *session,
+			char *login_name,
+			LIST *foreign_attribute_name_list,
+			int row_dictionary_list_length,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			int prompt_data_element_only,
+			char *post_change_javascript,
+			int max_drop_down_size,
+			boolean filter_login_name,
+			boolean override_row_restrictions,
+			boolean is_primary_attribute,
+			char *role_name,
+			int max_query_rows_for_drop_downs,
+			boolean drop_down_multi_select,
+			boolean no_initial_capital,
+			char *one2m_folder_name_for_processes );
 
 LIST *related_folder_get_update_element_list(
 				char *application_name,
@@ -535,7 +536,7 @@ void related_populate_folder_foreign_attribute_dictionary(
 			LIST *folder_foreign_attribute_name_list,
 			LIST *primary_attribute_name_list );
 
-boolean related_folder_exists_ajax_fill_drop_down(
+RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 			LIST *mto1_related_folder_list );
 
 #endif

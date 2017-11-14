@@ -185,7 +185,10 @@ m2( application_name, msg );
 	{
 		format_initial_capital( formatted_results, results );
 
-		printf( "%s|%s\n", results, formatted_results );
+		printf( "%s^%s|Select^%s\n",
+			NULL_OPERATOR,
+			results,
+			formatted_results );
 	}
 	else
 	{

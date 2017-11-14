@@ -289,7 +289,6 @@ LIST *related_folder_get_drop_down_element_list(
 	char relation_operator_equals[ 256 ];
 	boolean set_option_data_option_label_list;
 
-
 	return_list = list_new_list();
 
 	/* Create the line break */
@@ -471,19 +470,6 @@ LIST *related_folder_get_drop_down_element_list(
 						(char *)0 /* element_name */ );
 
 			element->push_button->label = "Fill";
-
-/*
-			if ( timlib_strcmp(
-				related_attribute_name,
-				"null" ) == 0 )
-			{
-				display_attribute_name = folder_name;
-			}
-			else
-			{
-				display_attribute_name = related_attribute_name;
-			}
-*/
 
 			sprintf(onclick_function,
 			 	"fork_ajax_window( '%s_$row' )",
@@ -1069,27 +1055,28 @@ LIST *related_folder_get_insert_element_list(
 } /* related_folder_get_insert_element_list() */
 
 LIST *related_folder_get_update_element_list(
-				char *application_name,
-				char *session,
-				char *login_name,
-				RELATED_FOLDER *related_folder,
-				LIST *foreign_attribute_name_list,
-				char update_yn,
-				int row_dictionary_list_length,
-				DICTIONARY *preprompt_dictionary,
-				DICTIONARY *query_dictionary,
-				char *state,
-				boolean prompt_data_element_only,
-				char *post_change_javascript,
-				int max_drop_down_size,
-				boolean row_level_non_owner_forbid,
-				boolean override_row_restrictions,
-				boolean is_primary_attribute,
-				char *role_name,
-				int max_query_rows_for_drop_downs,
-				boolean drop_down_multi_select,
-				boolean no_initial_capital,
-				char *one2m_folder_name_for_processes )
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			char *application_name,
+			char *session,
+			char *login_name,
+			RELATED_FOLDER *related_folder,
+			LIST *foreign_attribute_name_list,
+			char update_yn,
+			int row_dictionary_list_length,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *query_dictionary,
+			char *state,
+			boolean prompt_data_element_only,
+			char *post_change_javascript,
+			int max_drop_down_size,
+			boolean row_level_non_owner_forbid,
+			boolean override_row_restrictions,
+			boolean is_primary_attribute,
+			char *role_name,
+			int max_query_rows_for_drop_downs,
+			boolean drop_down_multi_select,
+			boolean no_initial_capital,
+			char *one2m_folder_name_for_processes )
 {
 	LIST *element_list = list_new();
 	ELEMENT *element;
@@ -1098,6 +1085,12 @@ LIST *related_folder_get_update_element_list(
 	DICTIONARY *parameter_dictionary;
 	char primary_attribute_asteric[ 2 ] = {0};
 	LIST *primary_attribute_name_list;
+	boolean set_option_data_option_label_list;
+
+	if ( ajax_fill_drop_down_related_folder )
+	{
+		*ajax_fill_drop_down_related_folder = (RELATED_FOLDER *)0;
+	}
 
 	if (  update_yn != 'y' )
 	{
@@ -1250,37 +1243,82 @@ LIST *related_folder_get_update_element_list(
 	dictionary_append_dictionary(	parameter_dictionary,
 					query_dictionary );
 
-	element_drop_down_set_option_data_option_label_list(
-		&element->drop_down->option_data_list,
-		&element->drop_down->option_label_list,
-		folder_get_primary_data_list(
-			application_name,
-			session,
-			related_folder->folder->folder_name,
-			login_name,
-			parameter_dictionary,
-			local_preprompt_dictionary /* where_clause_dictionary*/,
-			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			related_folder->
-				folder->
-				populate_drop_down_process,
-			related_folder->
-				folder->
-				attribute_list,
-			related_folder->
-			common_non_primary_attribute_name_list,
-			row_level_non_owner_forbid,
-			(LIST *)0
-				/* exclude_attribute_name_list */,
-			role_name,
-			state,
-			one2m_folder_name_for_processes,
-			(char *)0 /* appaserver_user_foreign_login_name */,
-			1 /* include_root_folder */ ) );
+	set_option_data_option_label_list = 1;
 
 	list_append_pointer(
 			element_list, 
 			element );
+
+	if ( ajax_fill_drop_down_related_folder )
+	{
+		FOLDER *folder;
+
+		folder = folder_with_load_new(
+				application_name,
+				session,
+				related_folder->folder->folder_name,
+				(ROLE *)0 );
+
+		if ( ( *ajax_fill_drop_down_related_folder =
+		       related_folder_get_ajax_fill_drop_down_related_folder(
+			folder->mto1_related_folder_list ) ) )
+		{
+			char onclick_function[ 128 ];
+
+			/* Create the fill button element */
+			/* ------------------------------ */
+			element = element_new(	push_button, 
+						(char *)0 /* element_name */ );
+
+			element->push_button->label = "Fill";
+
+			sprintf(onclick_function,
+			 	"fork_ajax_window( '%s_$row' )",
+				list_display( foreign_attribute_name_list ) );
+
+			element->push_button->onclick_function =
+				strdup( onclick_function );
+
+			list_append_pointer(
+				element_list, 
+				element );
+
+			set_option_data_option_label_list = 0;
+		}
+	}
+
+	if ( set_option_data_option_label_list )
+	{
+		element_drop_down_set_option_data_option_label_list(
+			&element->drop_down->option_data_list,
+			&element->drop_down->option_label_list,
+			folder_get_primary_data_list(
+				application_name,
+				session,
+				related_folder->folder->folder_name,
+				login_name,
+				parameter_dictionary,
+				local_preprompt_dictionary
+					/* where_clause_dictionary*/,
+				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+				related_folder->
+					folder->
+					populate_drop_down_process,
+				related_folder->
+					folder->
+					attribute_list,
+				related_folder->
+				common_non_primary_attribute_name_list,
+				row_level_non_owner_forbid,
+				(LIST *)0
+					/* exclude_attribute_name_list */,
+				role_name,
+				state,
+				one2m_folder_name_for_processes,
+				(char *)0
+				     /* appaserver_user_foreign_login_name */,
+				1 /* include_root_folder */ ) );
+	}
 
 	return element_list;
 

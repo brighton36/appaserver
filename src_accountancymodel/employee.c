@@ -229,48 +229,123 @@ LIST *employee_fetch_work_period_list(	char *application_name,
 
 } /* employee_fetch_work_period_list() */
 
-#ifdef NOT_DEFINED
-LIST *employee_fetch_work_period_list(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *begin_work_date,
-					char *end_work_date )
+char *employee_get_work_day_select( void )
 {
-	EMPLOYEE_WORK_PERIOD *employee_work_period;
-	LIST *employee_work_period_list;
 	char *select;
-	char sys_string[ 1024 ];
-	char where[ 256 ];
-	char input_buffer[ 512 ];
-	char piece_buffer[ 128 ];
-	int payroll_year;
-	int payroll_period_number;
-	char buffer[ 256 ];
-	FILE *input_pipe;
 
 	select =
-"payroll_year,payroll_period_number,begin_work_date,end_work_date,regular_work_hours,overtime_work_hours,commission_sum_extension,gross_pay,net_pay,payroll_tax_amount,federal_tax_withholding_amount,state_tax_withholding_amount,social_security_employee_tax_amount,social_security_employer_tax_amount,medicare_employee_tax_amount,medicare_employer_tax_amount,retirement_contribution_plan_employee_amount,retirement_contribution_plan_employer_amount,health_insurance_employee_amount,health_insurance_employer_amount,federal_unemployment_tax_amount,state_unemployment_tax_amount,union_dues_amount,transaction_date_time";
+"substr(begin_work_date_time,1,16),substr(end_work_date_time,1,16),employee_work_hours,overtime_work_day_yn";
 
-	sprintf( where,
-		 "full_name = '%s' and			"
-		 "street_address = '%s' and		"
-		 "begin_work_date >= '%s' and		"
-		 "end_work_date <= '%s'			",
-		 escape_character(	buffer,
-					full_name,
-					'\'' ),
-		 street_address,
-		 (begin_work_date)
-			? begin_work_date
-			: "1900-01-01",
-		 (end_work_date)
-			? end_work_date
-			: "2999-12-31" );
+	return select;
+}
+
+EMPLOYEE_WORK_DAY *employee_parse_employee_work_day(
+				char *input_buffer )
+{
+	char piece_buffer[ 128 ];
+	EMPLOYEE_WORK_DAY *employee_work_day;
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+	employee_work_day =
+		employee_work_day_new(
+			strdup( piece_buffer )
+				/* begin_work_date_time */ );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+	if ( *piece_buffer )
+		employee_work_day->end_work_date_time =
+			strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+	if ( *piece_buffer )
+	{
+		employee_work_day->database_employee_work_hours =
+			atof( piece_buffer );
+	}
+
+	/* ----------------------------------------------------- */
+	/* Future work: need to check if crossed 2:00 AM for DST */
+	/* ----------------------------------------------------- */
+	if ( employee_work_day->end_work_date_time )
+	{
+		DATE *begin_date_time;
+		DATE *end_date_time;
+
+		begin_date_time =
+			date_yyyy_mm_dd_hm_new(
+				employee_work_day->
+					begin_work_date_time,
+				date_get_utc_offset() );
+
+		if ( !begin_date_time )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot strip seconds off (%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 employee_work_day->
+				 	begin_work_date_time );
+
+			return (EMPLOYEE_WORK_DAY *)0;
+		}
+
+		end_date_time =
+			date_yyyy_mm_dd_hm_new(
+				employee_work_day->
+					end_work_date_time,
+				date_get_utc_offset() );
+
+		if ( !end_date_time )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot strip seconds off (%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	employee_work_day->
+				 	end_work_date_time );
+
+			return (EMPLOYEE_WORK_DAY *)0;
+		}
+
+		employee_work_day->employee_work_hours =
+			(double)date_subtract_minutes(
+				end_date_time /* later_date */,
+				begin_date_time /* earlier_date */ )
+			/ 60.0;
+
+	} /* if ( employee_work_day->end_work_date_time ) */
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	if ( *piece_buffer )
+	{
+		employee_work_day->overtime_work_day =
+			(*piece_buffer == 'y');
+	}
+
+	return employee_work_day;
+
+} /* employee_parse_employee_work_day() */
+
+LIST *employee_fetch_open_work_day_list(char *application_name )
+{
+	EMPLOYEE_WORK_DAY *employee_work_day;
+	LIST *employee_work_day_list;
+	char *select;
+	char *where;
+	char sys_string[ 1024 ];
+	char input_buffer[ 512 ];
+	FILE *input_pipe;
+
+	select = employee_get_work_day_select();
+
+	where = "end_work_date_time is null";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
-		 "			folder=employee_work_period	"
+		 "			select=\"%s\"			"
+		 "			folder=employee_work_day	"
 		 "			where=\"%s\"			",
 		 application_name,
 		 select,
@@ -278,186 +353,27 @@ LIST *employee_fetch_work_period_list(	char *application_name,
 
 	input_pipe = popen( sys_string, "r" );
 
-	employee_work_period_list = list_new();
+	employee_work_day_list = list_new();
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			0 );
-
-		payroll_year = atoi( piece_buffer );
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
-
-		payroll_period_number = atoi( piece_buffer );
-
-		employee_work_period =
-			employee_work_period_new(
-				full_name,
-				street_address,
-				payroll_year,
-				payroll_period_number );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
-		if ( *piece_buffer )
-			employee_work_period->begin_work_date =
-				strdup( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
-		if ( *piece_buffer )
-			employee_work_period->end_work_date =
-				strdup( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
-		if ( *piece_buffer )
-			employee_work_period->regular_work_hours =
-				atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
-		if ( *piece_buffer )
-			employee_work_period->overtime_work_hours =
-				atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
-		if ( *piece_buffer )
-			employee_work_period->commission_sum_extension =
-				atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
-		if ( *piece_buffer )
-			employee_work_period->gross_pay =
-				atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
-		if ( *piece_buffer )
-			employee_work_period->net_pay =
-				atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
-		if ( *piece_buffer )
-			employee_work_period->payroll_tax_amount =
-				atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
-		if ( *piece_buffer )
-			employee_work_period->
-				federal_tax_withholding_amount =
-					atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
-		if ( *piece_buffer )
-			employee_work_period->
-				state_tax_withholding_amount =
-					atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
-		if ( *piece_buffer )
-			employee_work_period->
-				social_security_employee_tax_amount =
-					atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
-		if ( *piece_buffer )
-			employee_work_period->
-				social_security_employer_tax_amount =
-					atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
-		if ( *piece_buffer )
-			employee_work_period->
-				medicare_employee_tax_amount =
-					atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
-		if ( *piece_buffer )
-			employee_work_period->
-				medicare_employer_tax_amount =
-					atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 16 );
-		if ( *piece_buffer )
-			employee_work_period->
-				retirement_contribution_plan_employee_amount =
-					atoi( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 17 );
-		if ( *piece_buffer )
-			employee_work_period->
-				retirement_contribution_plan_employer_amount =
-					atoi( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 18 );
-		if ( *piece_buffer )
-			employee_work_period->
-				health_insurance_employee_amount =
-					atoi( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 19 );
-		if ( *piece_buffer )
-			employee_work_period->
-				health_insurance_employer_amount =
-					atoi( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 20 );
-		if ( *piece_buffer )
-			employee_work_period->
-				federal_unemployment_tax_amount =
-					atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 21 );
-		if ( *piece_buffer )
-			employee_work_period->
-				state_unemployment_tax_amount =
-					atof( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 22 );
-		if ( *piece_buffer )
-			employee_work_period->
-				union_dues_amount =
-					atoi( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 23 );
-		if ( *piece_buffer )
+		if ( ! ( employee_work_day =
+				employee_parse_employee_work_day(
+					input_buffer ) ) )
 		{
-			employee_work_period->
-				transaction_date_time =
-					strdup( piece_buffer );
-		}
-		else
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty transaction_date_time.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-
 			pclose( input_pipe );
 			exit( 1 );
 		}
 
-		employee_work_period->transaction =
-			ledger_transaction_with_load_new(
-				application_name,
-				full_name,
-				street_address,
-				employee_work_period->
-					transaction_date_time );
-
 		list_append_pointer(
-			employee_work_period_list,
-			employee_work_period );
+			employee_work_day_list,
+			employee_work_day );
 	}
 
 	pclose( input_pipe );
-	return employee_work_period_list;
+	return employee_work_day_list;
 
-} /* employee_fetch_work_period_list() */
-#endif
+} /* employee_fetch_work_day_list() */
 
 LIST *employee_fetch_work_day_list(	char *application_name,
 					char *full_name,
@@ -471,7 +387,6 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 	char sys_string[ 1024 ];
 	char where[ 512 ];
 	char input_buffer[ 512 ];
-	char piece_buffer[ 128 ];
 	char buffer[ 256 ];
 	FILE *input_pipe;
 	char end_work_date_time[ 32 ];
@@ -482,8 +397,7 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 			? end_work_date
 			: "2999-12-31" );
 
-	select =
-"substr(begin_work_date_time,1,16),substr(end_work_date_time,1,16),employee_work_hours,overtime_work_day_yn";
+	select = employee_get_work_day_select();
 
 	sprintf(where,
 	 	"full_name = '%s' and				"
@@ -513,85 +427,12 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-		employee_work_day =
-			employee_work_day_new(
-				strdup( piece_buffer )
-					/* begin_work_date_time */ );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-		if ( *piece_buffer )
-			employee_work_day->end_work_date_time =
-				strdup( piece_buffer );
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
-		if ( *piece_buffer )
+		if ( ! ( employee_work_day =
+				employee_parse_employee_work_day(
+					input_buffer ) ) )
 		{
-			employee_work_day->database_employee_work_hours =
-				atof( piece_buffer );
-		}
-
-		/* ---------------------------------------- */
-		/* Need to check if crossed 2:00 AM for DST */
-		/* ---------------------------------------- */
-		if ( employee_work_day->end_work_date_time )
-		{
-			DATE *begin_date_time;
-			DATE *end_date_time;
-
-			begin_date_time =
-				date_yyyy_mm_dd_hm_new(
-					employee_work_day->
-						begin_work_date_time,
-					date_get_utc_offset() );
-
-			if ( !begin_date_time )
-			{
-				fprintf( stderr,
-			"ERROR in %s/%s()/%d: cannot strip seconds off (%s).\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__,
-					 employee_work_day->
-					 	begin_work_date_time );
-
-				pclose( input_pipe );
-				exit( 1 );
-			}
-
-			end_date_time =
-				date_yyyy_mm_dd_hm_new(
-					employee_work_day->
-						end_work_date_time,
-					date_get_utc_offset() );
-
-			if ( !end_date_time )
-			{
-				fprintf( stderr,
-			"ERROR in %s/%s()/%d: cannot strip seconds off (%s).\n",
-				 	__FILE__,
-				 	__FUNCTION__,
-				 	__LINE__,
-				 	employee_work_day->
-					 	end_work_date_time );
-
-				pclose( input_pipe );
-				exit( 1 );
-			}
-
-			employee_work_day->employee_work_hours =
-				(double)date_subtract_minutes(
-					end_date_time /* later_date */,
-					begin_date_time /* earlier_date */ )
-				/ 60.0;
-
-		} /* if ( employee_work_day->end_work_date_time ) */
-
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
-		if ( *piece_buffer )
-		{
-			employee_work_day->overtime_work_day =
-				(*piece_buffer == 'y');
+			pclose( input_pipe );
+			exit( 1 );
 		}
 
 		list_append_pointer(

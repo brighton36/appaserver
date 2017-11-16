@@ -162,6 +162,8 @@ LIST *employee_fetch_work_day_list(	char *application_name,
 					char *begin_work_date,
 					char *end_work_date );
 
+LIST *employee_fetch_open_work_day_list(char *application_name );
+
 EMPLOYEE *employee_new(			char *full_name,
 					char *street_address );
 
@@ -477,6 +479,12 @@ double employee_calculate_state_unemployment_tax_amount(
 
 void employee_work_period_set_transaction(
 				LIST *employee_work_period_list );
+
+char *employee_get_work_day_select(
+				void );
+
+EMPLOYEE_WORK_DAY *employee_parse_employee_work_day(
+				char *input_buffer );
 
 #endif
 

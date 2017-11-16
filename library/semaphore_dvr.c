@@ -22,7 +22,8 @@
 int main( void )
 {
 	/* key_t key = SEMAPHORE_TEST_KEY1; */
-	key_t key = SEMAPHORE_TEST_KEY65536;
+	/* key_t key = SEMAPHORE_TEST_KEY65536; */
+	key_t key = 54331;
 	int semid, pid = getpid();
 
 	if ( ( semid = semaphore( key ) ) < 0 )
@@ -43,43 +44,3 @@ int main( void )
 	return 0;
 }
 
-#ifdef NOT_DEFINED
-int critical_function( key_t key );
-
-int main( void )
-{
-	key_t key = 1;
-	int semid;
-
-	if ( fork() == 0 )
-		semid = critical_function( key );
-	else
-	if ( fork() == 0 )
-		semid = critical_function( key );
-	else
-	if ( fork() == 0 )
-	{
-		semid = critical_function( key );
-		semctl( semid, 0, IPC_RMID, 1 );
-		printf( "Semaphore %d freed.\n", semid );
-	}
-
-	return 0;
-}
-
-int critical_function( key_t key )
-{
-	int semid, pid = getpid();
-
-	if ( ( semid = semaphore( key ) ) < 0 ) exit( 1 );
-
-	printf( "Process %d before critical section.\n", pid );
-	semaphore_wait( semid );
-	printf( "Process %d inside critical section.\n", pid );
-	sleep( 5 );
-	semaphore_signal( semid );
-	printf( "Process %d outside critical section.\n", pid );
-	return semid;
-
-}
-#endif

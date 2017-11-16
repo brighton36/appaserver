@@ -79,6 +79,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/process_generic_output.o			\
 		${LIBRARY}/name_arg.o					\
 		${LIBRARY}/basename.o					\
+		${LIBRARY}/semaphore.o					\
 		${LIBRARY}/fopen_path.o					\
 		${LIBRARY}/environ.o					\
 		${LIBRARY}/document.o					\

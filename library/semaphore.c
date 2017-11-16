@@ -14,8 +14,13 @@ int semaphore( key_t key )
 {
 	int status = 0;
 	int semid;
+	int perms;
 
-	if ( ( semid = semget( key, 1, SEMPERM|IPC_CREAT|IPC_EXCL ) ) == -1 )
+	/* rw-rw---- */
+	/* --------- */
+	perms = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP;
+
+	if ( ( semid = semget( key, 1, perms|IPC_CREAT|IPC_EXCL ) ) == -1 )
 	{
 		if ( errno == EEXIST )
 		{

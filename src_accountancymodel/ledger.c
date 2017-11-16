@@ -17,6 +17,7 @@
 #include "list.h"
 #include "folder.h"
 #include "column.h"
+#include "semaphore.h"
 #include "date_convert.h"
 #include "document.h"
 #include "application.h"
@@ -3679,6 +3680,16 @@ char *ledger_transaction_insert(	char *application_name,
 					boolean lock_transaction )
 {
 	FILE *output_pipe;
+	key_t key = LEDGER_SEMAPHORE_KEY;
+	int semid;
+
+	if ( ( semid = semaphore( key ) ) < 0 )
+	{
+		fprintf( stderr, "Error: %s failed.\n", __FILE__ );
+		exit( 1 );
+	}
+
+	semaphore_wait( semid );
 
 	if ( ledger_transaction_exists(
 		application_name,
@@ -3704,6 +3715,7 @@ char *ledger_transaction_insert(	char *application_name,
 		transaction_date_time =
 			date_display_yyyy_mm_dd_colon_hms(
 				max_transaction_date_time );
+
 	}
 
 	output_pipe =
@@ -3721,6 +3733,7 @@ char *ledger_transaction_insert(	char *application_name,
 		lock_transaction );
 
 	pclose( output_pipe );
+	semaphore_signal( semid );
 
 	return transaction_date_time;
 

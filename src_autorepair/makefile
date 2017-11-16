@@ -39,6 +39,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/fopen_path.o					\
 		${LIBRARY}/environ.o					\
 		${LIBRARY}/document.o					\
+		${LIBRARY}/semaphore.o					\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/process_parameter_list.o			\

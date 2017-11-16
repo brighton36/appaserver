@@ -234,7 +234,7 @@ char *employee_get_work_day_select( void )
 	char *select;
 
 	select =
-"substr(begin_work_date_time,1,16),substr(end_work_date_time,1,16),employee_work_hours,overtime_work_day_yn";
+"full_name,street_address,substr(begin_work_date_time,1,16),substr(end_work_date_time,1,16),employee_work_hours,overtime_work_day_yn";
 
 	return select;
 }
@@ -245,18 +245,18 @@ EMPLOYEE_WORK_DAY *employee_parse_employee_work_day(
 	char piece_buffer[ 128 ];
 	EMPLOYEE_WORK_DAY *employee_work_day;
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 	employee_work_day =
 		employee_work_day_new(
 			strdup( piece_buffer )
 				/* begin_work_date_time */ );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 	if ( *piece_buffer )
 		employee_work_day->end_work_date_time =
 			strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
 	if ( *piece_buffer )
 	{
 		employee_work_day->database_employee_work_hours =
@@ -268,56 +268,16 @@ EMPLOYEE_WORK_DAY *employee_parse_employee_work_day(
 	/* ----------------------------------------------------- */
 	if ( employee_work_day->end_work_date_time )
 	{
-		DATE *begin_date_time;
-		DATE *end_date_time;
-
-		begin_date_time =
-			date_yyyy_mm_dd_hm_new(
+		employee_work_day->employee_work_hours =
+			employee_calculate_employee_work_hours(
 				employee_work_day->
 					begin_work_date_time,
-				date_get_utc_offset() );
-
-		if ( !begin_date_time )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot strip seconds off (%s).\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 employee_work_day->
-				 	begin_work_date_time );
-
-			return (EMPLOYEE_WORK_DAY *)0;
-		}
-
-		end_date_time =
-			date_yyyy_mm_dd_hm_new(
 				employee_work_day->
-					end_work_date_time,
-				date_get_utc_offset() );
+					end_work_date_time );
 
-		if ( !end_date_time )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot strip seconds off (%s).\n",
-			 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__,
-			 	employee_work_day->
-				 	end_work_date_time );
+	}
 
-			return (EMPLOYEE_WORK_DAY *)0;
-		}
-
-		employee_work_day->employee_work_hours =
-			(double)date_subtract_minutes(
-				end_date_time /* later_date */,
-				begin_date_time /* earlier_date */ )
-			/ 60.0;
-
-	} /* if ( employee_work_day->end_work_date_time ) */
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 	if ( *piece_buffer )
 	{
 		employee_work_day->overtime_work_day =
@@ -727,54 +687,6 @@ boolean employee_load(
 
 } /* employee_load() */
 
-#ifdef NOT_DEFINED
-void employee_update(	char *application_name,
-			char *full_name,
-			char *street_address,
-			double gross_pay_year_to_date,
-			double database_gross_pay_year_to_date,
-			double net_pay_year_to_date,
-			double database_net_pay_year_to_date )
-{
-	char *sys_string;
-	FILE *output_pipe = {0};
-
-	sys_string =
-		employee_update_get_sys_string(
-			application_name );
-
-	if ( !timlib_dollar_virtually_same(
-			gross_pay_year_to_date,
-			database_gross_pay_year_to_date ) )
-	{
-		output_pipe = popen( sys_string, "w" );
-
-		fprintf(output_pipe,
-			"%s^%s^gross_pay_year_to_date^%.2lf\n",
-			full_name,
-			street_address,
-			gross_pay_year_to_date );
-	}
-
-	if ( !timlib_dollar_virtually_same(
-			net_pay_year_to_date,
-			database_net_pay_year_to_date ) )
-	{
-		if ( !output_pipe )
-			output_pipe = popen( sys_string, "w" );
-
-		fprintf(output_pipe,
-			"%s^%s^net_pay_year_to_date^%.2lf\n",
-			full_name,
-			street_address,
-			net_pay_year_to_date );
-	}
-
-	if ( output_pipe ) pclose( output_pipe );
-
-} /* employee_update() */
-#endif
-
 void employee_work_day_update(
 			char *application_name,
 			char *full_name,
@@ -809,32 +721,6 @@ void employee_work_day_update(
 	pclose( output_pipe );
 
 } /* employee_work_day_update() */
-
-#ifdef NOT_DEFINED
-char *employee_update_get_sys_string(
-				char *application_name )
-{
-	static char sys_string[ 256 ];
-	char *table_name;
-	char *key;
-
-	table_name =
-		get_table_name(
-			application_name,
-			"employee" );
-
-	key =
-"full_name,street_address";
-
-	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql.e",
-		 table_name,
-		 key );
-
-	return sys_string;
-
-} /* employee_update_get_sys_string() */
-#endif
 
 char *employee_work_day_update_get_sys_string(
 				char *application_name )
@@ -1364,7 +1250,7 @@ double employee_calculate_commission_sum_extension(
 
 } /* employee_calculate_commission_sum_extension() */
 
-void employee_calculate_employee_work_hours(
+void employee_work_day_list_calculate_employee_work_hours(
 			double *regular_work_hours,
 			double *overtime_work_hours,
 			LIST *employee_work_day_list,
@@ -1466,7 +1352,7 @@ void employee_calculate_employee_work_hours(
 		week_one_regular_work_hours +
 		week_two_regular_work_hours;
 
-} /* employee_calculate_employee_work_hours() */
+} /* employee_work_day_list_calculate_employee_work_hours() */
 
 EMPLOYEE_STATE_STANDARD_DEDUCTION *employee_state_standard_deduction_new(
 				char *state_marital_status,
@@ -2309,7 +2195,7 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 
 	/* employee_work_hours */
 	/* ------------------- */
-	employee_calculate_employee_work_hours(
+	employee_work_day_list_calculate_employee_work_hours(
 		&employee_work_period->regular_work_hours,
 		&employee_work_period->overtime_work_hours,
 		employee_work_day_list,
@@ -2510,4 +2396,164 @@ void employee_work_period_set_transaction(
 	} while( list_next( employee_work_period_list ) );
 
 } /* employee_work_period_set_transaction() */
+
+/* ----------------------------------------------------- */
+/* Future work: need to check if crossed 2:00 AM for DST */
+/* ----------------------------------------------------- */
+double employee_calculate_employee_work_hours(
+				char *begin_work_date_time,
+				char *end_work_date_time )
+{
+	double employee_work_hours;
+	DATE *begin_date_time;
+	DATE *end_date_time;
+
+	begin_date_time =
+		date_yyyy_mm_dd_hm_new(
+			begin_work_date_time,
+			date_get_utc_offset() );
+
+	if ( !begin_date_time )
+	{
+		fprintf( stderr,
+		"Warning in %s/%s()/%d: cannot strip seconds off (%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 begin_work_date_time );
+
+		return 0.0;
+	}
+
+	end_date_time =
+		date_yyyy_mm_dd_hm_new(
+			end_work_date_time,
+			date_get_utc_offset() );
+
+	if ( !end_date_time )
+	{
+		fprintf( stderr,
+		"Warning in %s/%s()/%d: cannot strip seconds off (%s).\n",
+		 	 __FILE__,
+		 	 __FUNCTION__,
+		 	 __LINE__,
+			 end_work_date_time );
+
+		return 0.0;
+	}
+
+	employee_work_hours =
+		(double)date_subtract_minutes(
+			end_date_time /* later_date */,
+			begin_date_time /* earlier_date */ )
+		/ 60.0;
+
+	return employee_work_hours;
+
+} /* employee_calculate_employee_work_hours() */
+
+void employee_close_employee_work_list_set(
+			LIST *open_work_day_list,
+			char *end_work_date )
+{
+	EMPLOYEE_WORK_DAY *employee_work_day;
+	static char end_work_date_time[ 32 ];
+
+	if ( !list_rewind( open_work_day_list ) ) return;
+
+	sprintf( end_work_date_time,
+		 "%s 23:59:59",
+		 end_work_date );
+
+	do {
+		employee_work_day =
+			list_get_pointer(
+				open_work_day_list );
+
+		employee_work_day->end_work_date_time = end_work_date_time;
+
+		employee_work_day->employee_work_hours =
+			employee_calculate_employee_work_hours(
+				employee_work_day->begin_work_date_time,
+				employee_work_day->end_work_date_time );
+
+	} while( list_next( open_work_day_list ) );
+
+} /* employee_close_employee_work_list_set() */
+
+void employee_close_employee_work_list_update(
+			char *application_name,
+			LIST *open_work_day_list )
+{
+	EMPLOYEE_WORK_DAY *employee_work_day;
+
+	if ( !list_rewind( open_work_day_list ) ) return;
+
+	do {
+		employee_work_day =
+			list_get_pointer(
+				open_work_day_list );
+
+		employee_work_day_update(
+			application_name,
+			employee_work_day->full_name,
+			employee_work_day->street_address,
+			employee_work_day->begin_work_date_time,
+			employee_work_day->employee_work_hours,
+			employee_work_day->database_employee_work_hours );
+
+	} while( list_next( open_work_day_list ) );
+
+} /* employee_close_employee_work_list_update() */
+
+void employee_close_employee_work_list_insert(
+			char *application_name,
+			LIST *open_work_day_list,
+			char *end_work_date_string )
+{
+	EMPLOYEE_WORK_DAY *employee_work_day;
+	char sys_string[ 1024 ];
+	char *table;
+	char *field;
+	FILE *insert_pipe;
+	DATE *end_work_date;
+
+	if ( !list_rewind( open_work_day_list ) ) return;
+
+	end_work_date =
+		date_yyyy_mm_dd_new(
+			end_work_date_string,
+			date_get_utc_offset() );
+
+	date_increment_days( end_work_date, 1.0, date_get_utc_offset() );
+
+	table = get_table_name( application_name, "employee_work_day" );
+
+	field =
+	"full_name,street_address,begin_work_date_time,overtime_work_day_yn";
+
+	sprintf( sys_string,
+		 "insert_statement.e table=%s field=%s del='^' | sql.e",
+		 table,
+		 field );
+
+	insert_pipe = popen( sys_string, "w" );
+
+	do {
+		employee_work_day =
+			list_get_pointer(
+				open_work_day_list );
+
+		fprintf( insert_pipe,
+			 "%s^%s^%s 00:00:00^%c\n",
+			 employee_work_day->full_name,
+			 employee_work_day->street_address,
+			 date_yyyy_mm_dd( end_work_date ),
+			 (employee_work_day->overtime_work_day) ? 'y' : 'n' );
+
+	} while( list_next( open_work_day_list ) );
+
+	pclose( insert_pipe );
+
+} /* employee_close_employee_work_list_insert() */
 

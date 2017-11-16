@@ -432,6 +432,27 @@ void post_employee_work_period(
 {
 	PAYROLL_POSTING *payroll_posting;
 	EMPLOYEE_TAX_WITHHOLDING_TABLE *employee_tax_withholding_table;
+	LIST *open_work_day_list;
+
+	open_work_day_list =
+		employee_fetch_open_work_day_list(
+			application_name );
+
+	if ( list_length( open_work_day_list ) )
+	{
+		employee_close_employee_work_list_set(
+			open_work_day_list,
+			end_work_date );
+
+		employee_close_employee_work_list_update(
+			application_name,
+			open_work_day_list );
+
+		employee_close_employee_work_list_insert(
+			application_name,
+			open_work_day_list,
+			end_work_date );
+	}
 
 	employee_tax_withholding_table =
 		employee_tax_withholding_table_new(
@@ -1438,7 +1459,6 @@ void post_employee_update(
 	EMPLOYEE_WORK_PERIOD *e;
 	char sys_string[ 1024 ];
 	char buffer[ 256 ];
-	FILE *update_pipe;
 
 	if ( !list_rewind( employee_work_period_list ) ) return;
 

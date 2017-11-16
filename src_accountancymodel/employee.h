@@ -120,6 +120,8 @@ typedef struct
 
 typedef struct
 {
+	char *full_name;
+	char *street_address;
 	char *begin_work_date_time;
 	char *end_work_date_time;
 	double employee_work_hours;
@@ -337,20 +339,7 @@ EMPLOYEE_WORK_PERIOD *employee_get_work_period(
 			EMPLOYEE_TAX_WITHHOLDING_TABLE *
 				employee_tax_withholding_table );
 
-/*
-char *employee_update_get_sys_string(
-				char *application_name );
-
-void employee_update(		char *application_name,
-				char *full_name,
-				char *street_address,
-				double gross_pay_year_to_date,
-				double database_gross_pay_year_to_date,
-				double net_pay_year_to_date,
-				double database_net_pay_year_to_date );
-*/
-
-void employee_calculate_employee_work_hours(
+void employee_work_day_list_calculate_employee_work_hours(
 				double *regular_work_hours,
 				double *overtime_work_hours,
 				LIST *employee_work_day_list,
@@ -485,6 +474,23 @@ char *employee_get_work_day_select(
 
 EMPLOYEE_WORK_DAY *employee_parse_employee_work_day(
 				char *input_buffer );
+
+double employee_calculate_employee_work_hours(
+				char *begin_work_date_time,
+				char *end_work_date_time );
+
+void employee_close_employee_work_list_set(
+				LIST *open_work_day_list,
+				char *end_work_date );
+
+void employee_close_employee_work_list_update(
+				char *application_name,
+				LIST *open_work_day_list );
+
+void employee_close_employee_work_list_insert(
+				char *application_name,
+				LIST *open_work_day_list,
+				char *end_work_date_string );
 
 #endif
 

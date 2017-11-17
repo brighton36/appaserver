@@ -8030,7 +8030,7 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 
 void ledger_get_payroll_account_names(
 				char **salary_wage_expense_account,
-				char **payroll_expense_account,
+				char **payroll_tax_account,
 				char **payroll_payable_account,
 				char **federal_withholding_payable_account,
 				char **state_withholding_payable_account,
@@ -8057,10 +8057,10 @@ void ledger_get_payroll_account_names(
 				0 /* not warning_only */ );
 	}
 
-	if ( payroll_expense_account )
+	if ( payroll_tax_account )
 	{
-		key = "payroll_expense_key";
-		*payroll_expense_account =
+		key = "payroll_tax_key";
+		*payroll_tax_account =
 			ledger_get_hard_coded_account_name(
 				application_name,
 				fund_name,

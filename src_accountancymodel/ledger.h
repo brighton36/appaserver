@@ -966,7 +966,7 @@ TRANSACTION *ledger_inventory_build_transaction(
 
 void ledger_get_payroll_account_names(
 				char **salary_wage_expense_account,
-				char **payroll_expense_account,
+				char **payroll_tax_account,
 				char **payroll_payable_account,
 				char **federal_withholding_payable_account,
 				char **state_withholding_payable_account,

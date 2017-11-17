@@ -56,7 +56,7 @@ void post_employee_work_period_delete(
 void post_employee_work_period_propagate(
 			char *application_name,
 			char *salary_wage_expense_account,
-			char *payroll_expense_account,
+			char *payroll_tax_account,
 			char *payroll_payable_account,
 			char *federal_withholding_payable_account,
 			char *state_withholding_payable_account,
@@ -510,7 +510,7 @@ void post_employee_work_period_journal_display(
 	double total_credit;
 	char buffer[ 128 ];
 	char *salary_wage_expense_account = {0};
-	char *payroll_expense_account = {0};
+	char *payroll_tax_account = {0};
 	char *payroll_payable_account = {0};
 	char *federal_withholding_payable_account = {0};
 	char *state_withholding_payable_account = {0};
@@ -540,7 +540,7 @@ void post_employee_work_period_journal_display(
 
 	ledger_get_payroll_account_names(
 		&salary_wage_expense_account,
-		&payroll_expense_account,
+		&payroll_tax_account,
 		&payroll_payable_account,
 		&federal_withholding_payable_account,
 		&state_withholding_payable_account,
@@ -581,7 +581,7 @@ void post_employee_work_period_journal_display(
 		 	"^%s^%.2lf^\n",
 			format_initial_capital(
 				buffer,
-				payroll_expense_account ),
+				payroll_tax_account ),
 		 	e->payroll_tax_amount );
 
 		total_debit += e->payroll_tax_amount;
@@ -929,7 +929,7 @@ void post_employee_work_period_transaction_insert(
 	double salary_wage_expense;
 	EMPLOYEE_WORK_PERIOD *e;
 	char *salary_wage_expense_account = {0};
-	char *payroll_expense_account = {0};
+	char *payroll_tax_account = {0};
 	char *payroll_payable_account = {0};
 	char *federal_withholding_payable_account = {0};
 	char *state_withholding_payable_account = {0};
@@ -967,7 +967,7 @@ void post_employee_work_period_transaction_insert(
 
 	ledger_get_payroll_account_names(
 		&salary_wage_expense_account,
-		&payroll_expense_account,
+		&payroll_tax_account,
 		&payroll_payable_account,
 		&federal_withholding_payable_account,
 		&state_withholding_payable_account,
@@ -1021,7 +1021,7 @@ void post_employee_work_period_transaction_insert(
 			e->street_address,
 			e->transaction->transaction_date_time,
 			e->payroll_tax_amount,
-			payroll_expense_account /* debit_account_name */,
+			payroll_tax_account /* debit_account_name */,
 			(char *)0 /* credit_account_name */ );
 
 		/* Credit */
@@ -1210,7 +1210,7 @@ void post_employee_work_period_transaction_insert(
 	post_employee_work_period_propagate(
 		application_name,
 		salary_wage_expense_account,
-		payroll_expense_account,
+		payroll_tax_account,
 		payroll_payable_account,
 		federal_withholding_payable_account,
 		state_withholding_payable_account,
@@ -1228,7 +1228,7 @@ void post_employee_work_period_transaction_insert(
 void post_employee_work_period_propagate(
 			char *application_name,
 			char *salary_wage_expense_account,
-			char *payroll_expense_account,
+			char *payroll_tax_account,
 			char *payroll_payable_account,
 			char *federal_withholding_payable_account,
 			char *state_withholding_payable_account,
@@ -1249,12 +1249,12 @@ void post_employee_work_period_propagate(
 			salary_wage_expense_account );
 	}
 
-	if ( payroll_expense_account )
+	if ( payroll_tax_account )
 	{
 		ledger_propagate(
 			application_name,
 			propagate_transaction_date_time,
-			payroll_expense_account );
+			payroll_tax_account );
 	}
 
 	if ( payroll_payable_account )

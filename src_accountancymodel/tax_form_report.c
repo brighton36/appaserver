@@ -227,9 +227,7 @@ void tax_form_detail_report_html_table(
 		sprintf( sub_title,
 			 "Line: %s, Description: %s, Total: $%s",
 			 tax_form_line->tax_form_line,
-			 format_initial_capital(
-				buffer,
-			 	tax_form_line->tax_form_description ),
+			 tax_form_line->tax_form_description,
 			 timlib_place_commas_in_money(
 			 	tax_form_line->tax_form_line_total ) );
 
@@ -320,7 +318,6 @@ void tax_form_report_html_table(
 	HTML_TABLE *html_table;
 	LIST *heading_list;
 	TAX_FORM_LINE *tax_form_line;
-	char buffer[ 128 ];
 	int count = 0;
 	char caption[ 128 ];
 
@@ -375,13 +372,9 @@ void tax_form_report_html_table(
 			html_table->data_list,
 			strdup( tax_form_line->tax_form_line ) );
 
-		format_initial_capital(
-			buffer,
-			tax_form_line->tax_form_description );
-
 		html_table_set_data(
 			html_table->data_list,
-			strdup( buffer ) );
+			strdup( tax_form_line->tax_form_description ) );
 
 		html_table_set_data(
 			html_table->data_list,
@@ -533,7 +526,6 @@ LIST *build_PDF_row_list( LIST *tax_form_line_list )
 	LATEX_ROW *latex_row;
 	LIST *row_list;
 	TAX_FORM_LINE *tax_form_line;
-	char buffer[ 128 ];
 
 	if ( !list_rewind( tax_form_line_list ) )
 	{
@@ -556,13 +548,9 @@ LIST *build_PDF_row_list( LIST *tax_form_line_list )
 			tax_form_line->tax_form_line,
 			0 /* not large_bold */ );
 
-		format_initial_capital(
-			buffer,
-			tax_form_line->tax_form_description );
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
-			strdup( buffer ),
+			strdup( tax_form_line->tax_form_description ),
 			0 /* not large_bold */ );
 
 		latex_append_column_data_list(
@@ -656,7 +644,6 @@ LIST *tax_form_report_detail_PDF_table_list(
 	TAX_FORM_LINE *tax_form_line;
 	LIST *table_list;
 	char sub_title[ 128 ];
-	char buffer[ 128 ];
 
 	if ( !list_rewind( tax_form_line_list ) ) return (LIST *)0;
 
@@ -673,9 +660,7 @@ LIST *tax_form_report_detail_PDF_table_list(
 		sprintf( sub_title,
 			 "Line: %s, Description: %s, Total: \\$%s",
 			 tax_form_line->tax_form_line,
-			 format_initial_capital(
-				buffer,
-			 	tax_form_line->tax_form_description ),
+			 tax_form_line->tax_form_description,
 			 timlib_place_commas_in_money(
 			 	tax_form_line->tax_form_line_total ) );
 

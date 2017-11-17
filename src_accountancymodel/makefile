@@ -230,11 +230,12 @@ trial_balance: trial_balance.c						\
 		-o trial_balance
 
 tax_form_report: tax_form_report.c					\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		tax_form_report.c					\
+		tax.o							\
 		-o tax_form_report
 
 program_profit: program_profit.c					\
@@ -584,4 +585,8 @@ employee.o: employee.c employee.h
 print_checks.o: print_checks.c print_checks.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c print_checks.c
+
+tax.o: tax.c tax.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c tax.c
 

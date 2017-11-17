@@ -19,9 +19,6 @@
 
 /* Constants */
 /* --------- */
-#define TAX_FORM_CATEGORY_KEY		".tax_form_category "
-#define TAX_FORM_CATEGORY_ACCOUNT_KEY	".account "
-
 #define LEDGER_LOCK_TRANSACTION_ATTRIBUTE		\
 					"lock_transaction_yn"
 
@@ -142,16 +139,6 @@ typedef struct
 	LIST *element_list;
 	LIST *contra_account_list;
 } LEDGER;
-
-typedef struct
-{
-	char *tax_form;
-	char *tax_form_category_name;
-	char *tax_form_line;
-	boolean itemize_accounts;
-	LIST *account_list;
-	double balance_sum;
-} TAX_FORM_CATEGORY;
 
 /* Operations */
 /* ---------- */
@@ -785,6 +772,7 @@ LIST *ledger_get_subclassification_beginning_latex_row_list(
 				LIST *subclassification_list,
 				boolean element_accumulate_debit );
 
+/*
 LIST *ledger_tax_form_fetch_category_list(
 				char *application_name,
 				char *tax_form,
@@ -795,6 +783,7 @@ TAX_FORM_CATEGORY *ledger_tax_form_category_new(
 				char *tax_form_category_name,
 				char *tax_form_line,
 				boolean itemize_accounts );
+*/
 
 /* If debit_amount or credit_amount needs to be changed.*/
 /* ---------------------------------------------------- */

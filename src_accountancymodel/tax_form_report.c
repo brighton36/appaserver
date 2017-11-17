@@ -28,6 +28,7 @@
 #include "date_convert.h"
 #include "boolean.h"
 #include "appaserver_link_file.h"
+#include "tax.h"
 
 /* Constants */
 /* --------- */
@@ -37,22 +38,24 @@
 /* Prototypes */
 /* ---------- */
 LIST *build_detail_PDF_row_list(
-					TAX_FORM_CATEGORY *tax_form_category );
+					TAX_FORM_LINE *tax_form_line );
 
 LIST *tax_form_report_detail_PDF_table_list(
-					LIST *tax_form_category_list );
+					LIST *tax_form_line_list );
 
 LATEX_TABLE *tax_form_report_PDF_table(
 					char *sub_title,
-					LIST *tax_form_category_list );
+					char *tax_form,
+					LIST *tax_form_line_list );
 
 void tax_form_report_html_table(	char *title,
 					char *sub_title,
-					LIST *tax_form_category_list );
+					char *tax_form,
+					LIST *tax_form_line_list );
 
-void tax_form_detail_report_html_table(	LIST *tax_form_category_list );
+void tax_form_detail_report_html_table(	LIST *tax_form_line_list );
 
-LIST *build_PDF_row_list(		LIST *tax_form_category_list );
+LIST *build_PDF_row_list(		LIST *tax_form_line_list );
 
 LIST *build_detail_PDF_heading_list(	void );
 
@@ -63,7 +66,8 @@ void tax_form_report_PDF(		char *application_name,
 					char *sub_title,
 					char *document_root_directory,
 					char *process_name,
-					LIST *tax_form_category_list,
+					char *tax_form,
+					LIST *tax_form_line_list,
 					char *logo_filename );
 
 int main( int argc, char **argv )
@@ -74,11 +78,11 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char title[ 256 ];
 	char sub_title[ 256 ];
-	char *tax_form;
+	char *tax_form_name;
 	char *as_of_date;
 	char *database_string = {0};
 	char *output_medium;
-	LIST *tax_form_category_list;
+	TAX_FORM *tax_form;
 	char *logo_filename;
 
 	if ( argc != 6 )
@@ -105,14 +109,14 @@ int main( int argc, char **argv )
 				application_name );
 
 	process_name = argv[ 2 ];
-	tax_form = argv[ 3 ];
+	tax_form_name = argv[ 3 ];
 	as_of_date = argv[ 4 ];
 	output_medium = argv[ 5 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !*as_of_date
 	||   strcmp(	as_of_date,
@@ -158,10 +162,12 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	tax_form_category_list =
-		ledger_tax_form_fetch_category_list(
+	tax_form = tax_form_new( tax_form_name );
+
+	tax_form->tax_form_line_list =
+		tax_form_fetch_line_list(
 			application_name,
-			tax_form,
+			tax_form->tax_form,
 			as_of_date );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
@@ -169,10 +175,11 @@ int main( int argc, char **argv )
 		tax_form_report_html_table(
 			title,
 			sub_title,
-			tax_form_category_list );
+			tax_form->tax_form,
+			tax_form->tax_form_line_list );
 
 		tax_form_detail_report_html_table(
-			tax_form_category_list );
+			tax_form->tax_form_line_list );
 	}
 	else
 	{
@@ -182,7 +189,8 @@ int main( int argc, char **argv )
 			sub_title,
 			appaserver_parameter_file->document_root,
 			process_name,
-			tax_form_category_list,
+			tax_form->tax_form,
+			tax_form->tax_form_line_list,
 			logo_filename );
 	}
 
@@ -192,11 +200,11 @@ int main( int argc, char **argv )
 } /* main() */
 
 void tax_form_detail_report_html_table(
-			LIST *tax_form_category_list )
+			LIST *tax_form_line_list )
 {
 	HTML_TABLE *html_table;
 	LIST *heading_list;
-	TAX_FORM_CATEGORY *tax_form_category;
+	TAX_FORM_LINE *tax_form_line;
 	char buffer[ 128 ];
 	char sub_title[ 128 ];
 	int count;
@@ -206,24 +214,24 @@ void tax_form_detail_report_html_table(
 	list_append_string( heading_list, "account" );
 	list_append_string( heading_list, "balance" );
 
-	if ( !list_rewind( tax_form_category_list ) ) return;
+	if ( !list_rewind( tax_form_line_list ) ) return;
 
 	do {
-		tax_form_category = list_get( tax_form_category_list );
+		tax_form_line = list_get( tax_form_line_list );
 
-		if ( !tax_form_category->itemize_accounts ) continue;
+		if ( !tax_form_line->itemize_accounts ) continue;
 
-		if ( !list_rewind( tax_form_category->account_list ) )
+		if ( !list_rewind( tax_form_line->account_list ) )
 			continue;
 
 		sprintf( sub_title,
-			 "Line: %s, Category: %s, Sum: $%s",
-			 tax_form_category->tax_form_line,
+			 "Line: %s, Description: %s, Total: $%s",
+			 tax_form_line->tax_form_line,
 			 format_initial_capital(
 				buffer,
-			 	tax_form_category->tax_form_category_name ),
+			 	tax_form_line->tax_form_description ),
 			 timlib_place_commas_in_money(
-			 	tax_form_category->balance_sum ) );
+			 	tax_form_line->tax_form_line_total ) );
 
 		html_table = html_table_new(
 				(char *)0 /* title */,
@@ -247,7 +255,7 @@ void tax_form_detail_report_html_table(
 		count = 0;
 
 		do {
-			account = list_get( tax_form_category->account_list );
+			account = list_get( tax_form_line->account_list );
 
 			if ( !account->latest_ledger ) continue;
 
@@ -295,33 +303,37 @@ void tax_form_detail_report_html_table(
 				list_free( html_table->data_list );
 				html_table->data_list = list_new();
 
-		} while( list_next( tax_form_category->account_list ) );
+		} while( list_next( tax_form_line->account_list ) );
 
 		html_table_close();
 
-	} while( list_next( tax_form_category_list ) );
+	} while( list_next( tax_form_line_list ) );
 
 } /* tax_form_detail_report_html_table() */
 
 void tax_form_report_html_table(
 			char *title,
 			char *sub_title,
-			LIST *tax_form_category_list )
+			char *tax_form,
+			LIST *tax_form_line_list )
 {
 	HTML_TABLE *html_table;
 	LIST *heading_list;
-	TAX_FORM_CATEGORY *tax_form_category;
+	TAX_FORM_LINE *tax_form_line;
 	char buffer[ 128 ];
 	int count = 0;
+	char caption[ 128 ];
+
+	sprintf( caption, "%s %s", sub_title, tax_form );
 
 	heading_list = list_new();
 	list_append_string( heading_list, "tax_form_line" );
-	list_append_string( heading_list, "tax_form_category" );
+	list_append_string( heading_list, "tax_form_description" );
 	list_append_string( heading_list, "balance" );
 
 	html_table = new_html_table(
 			title,
-			sub_title );
+			strdup( caption ) );
 
 	html_table->number_left_justified_columns = 2;
 	html_table->number_right_justified_columns = 1;
@@ -335,17 +347,17 @@ void tax_form_report_html_table(
 		html_table->number_right_justified_columns,
 		html_table->justify_list );
 
-	if ( !list_rewind( tax_form_category_list ) )
+	if ( !list_rewind( tax_form_line_list ) )
 	{
 		printf(
-"<h3>ERROR: there are no tax form categories for this statement.</h3>\n" );
+"<h3>ERROR: there are no tax form lines for this tax form.</h3>\n" );
 		html_table_close();
 		document_close();
 		exit( 1 );
 	}
 
 	do {
-		tax_form_category = list_get( tax_form_category_list );
+		tax_form_line = list_get( tax_form_line_list );
 
 		if ( ++count == ROWS_BETWEEN_HEADING )
 		{
@@ -361,11 +373,11 @@ void tax_form_report_html_table(
 
 		html_table_set_data(
 			html_table->data_list,
-			strdup( tax_form_category->tax_form_line ) );
+			strdup( tax_form_line->tax_form_line ) );
 
 		format_initial_capital(
 			buffer,
-			tax_form_category->tax_form_category_name );
+			tax_form_line->tax_form_description );
 
 		html_table_set_data(
 			html_table->data_list,
@@ -374,8 +386,8 @@ void tax_form_report_html_table(
 		html_table_set_data(
 			html_table->data_list,
 			strdup( timlib_place_commas_in_money(
-					tax_form_category->
-						balance_sum ) ) );
+					tax_form_line->
+						tax_form_line_total ) ) );
 
 		html_table_output_data(
 			html_table->data_list,
@@ -387,7 +399,7 @@ void tax_form_report_html_table(
 			list_free( html_table->data_list );
 			html_table->data_list = list_new();
 
-	} while( list_next( tax_form_category_list ) );
+	} while( list_next( tax_form_line_list ) );
 
 	html_table_close();
 
@@ -399,7 +411,8 @@ void tax_form_report_PDF(
 			char *sub_title,
 			char *document_root_directory,
 			char *process_name,
-			LIST *tax_form_category_list,
+			char *tax_form,
+			LIST *tax_form_line_list,
 			char *logo_filename )
 {
 	LATEX *latex;
@@ -467,12 +480,13 @@ void tax_form_report_PDF(
 		latex->table_list,
 		tax_form_report_PDF_table(
 			sub_title,
-			tax_form_category_list ) );
+			tax_form,
+			tax_form_line_list ) );
 
 	list_append_list(
 		latex->table_list,
 		tax_form_report_detail_PDF_table_list(
-			tax_form_category_list ) );
+			tax_form_line_list ) );
 
 	latex_longtable_output(
 		latex->output_stream,
@@ -514,17 +528,17 @@ void tax_form_report_PDF(
 
 } /* tax_form_report_PDF() */
 
-LIST *build_PDF_row_list( LIST *tax_form_category_list )
+LIST *build_PDF_row_list( LIST *tax_form_line_list )
 {
 	LATEX_ROW *latex_row;
 	LIST *row_list;
-	TAX_FORM_CATEGORY *tax_form_category;
+	TAX_FORM_LINE *tax_form_line;
 	char buffer[ 128 ];
 
-	if ( !list_rewind( tax_form_category_list ) )
+	if ( !list_rewind( tax_form_line_list ) )
 	{
 		printf(
-"<h3>ERROR: there are no tax form categories for this statement.</h3>\n" );
+"<h3>ERROR: there are no tax form lines for this tax form.</h3>\n" );
 		document_close();
 		exit( 1 );
 	}
@@ -532,53 +546,33 @@ LIST *build_PDF_row_list( LIST *tax_form_category_list )
 	row_list = list_new();
 
 	do {
-		tax_form_category = list_get( tax_form_category_list );
+		tax_form_line = list_get( tax_form_line_list );
 
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			tax_form_category->tax_form_line );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
-			tax_form_category->tax_form_line,
+			tax_form_line->tax_form_line,
 			0 /* not large_bold */ );
 
 		format_initial_capital(
 			buffer,
-			tax_form_category->tax_form_category_name );
-
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( buffer ) );
-*/
+			tax_form_line->tax_form_description );
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( buffer ),
 			0 /* not large_bold */ );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( timlib_place_commas_in_money(
-					tax_form_category->
-						balance_sum ) ) );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( timlib_place_commas_in_money(
-					tax_form_category->
-						balance_sum ) ),
+					tax_form_line->
+						tax_form_line_total ) ),
 			0 /* not large_bold */ );
 
-	} while( list_next( tax_form_category_list ) );
+	} while( list_next( tax_form_line_list ) );
 
 	return row_list;
 
@@ -618,7 +612,7 @@ LIST *build_PDF_heading_list( void )
 	list_append_pointer( heading_list, table_heading );
 
 	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "tax_form_category";
+	table_heading->heading = "tax_form_description";
 	table_heading->right_justified_flag = 0;
 	list_append_pointer( heading_list, table_heading );
 
@@ -633,53 +627,57 @@ LIST *build_PDF_heading_list( void )
 
 LATEX_TABLE *tax_form_report_PDF_table(
 			char *sub_title,
-			LIST *tax_form_category_list )
+			char *tax_form,
+			LIST *tax_form_line_list )
 {
 	LATEX_TABLE *latex_table;
+	char caption[ 128 ];
+
+	sprintf( caption, "%s %s", sub_title, tax_form );
 
 	latex_table =
 		latex_new_latex_table(
-			strdup( sub_title ) /* caption */ );
+			strdup( caption ) );
 
 	latex_table->heading_list = build_PDF_heading_list();
 
 	latex_table->row_list =
 		build_PDF_row_list(
-			tax_form_category_list );
+			tax_form_line_list );
 
 	return latex_table;
 
 } /* tax_form_report_PDF_table() */
 
 LIST *tax_form_report_detail_PDF_table_list(
-			LIST *tax_form_category_list )
+			LIST *tax_form_line_list )
 {
 	LATEX_TABLE *latex_table;
-	TAX_FORM_CATEGORY *tax_form_category;
+	TAX_FORM_LINE *tax_form_line;
 	LIST *table_list;
 	char sub_title[ 128 ];
 	char buffer[ 128 ];
 
-	if ( !list_rewind( tax_form_category_list ) ) return (LIST *)0;
+	if ( !list_rewind( tax_form_line_list ) ) return (LIST *)0;
 
 	table_list = list_new();
 
 	do {
-		tax_form_category = list_get( tax_form_category_list );
+		tax_form_line = list_get( tax_form_line_list );
 
-		if ( !tax_form_category->itemize_accounts ) continue;
+		if ( !tax_form_line->itemize_accounts ) continue;
 
-		if ( !list_rewind( tax_form_category->account_list ) )
+		if ( !list_rewind( tax_form_line->account_list ) )
 			continue;
 
 		sprintf( sub_title,
-			 "Line: %s, Category: %s, Sum: \\$%s",
-			 tax_form_category->tax_form_line,
+			 "Line: %s, Description: %s, Total: \\$%s",
+			 tax_form_line->tax_form_line,
 			 format_initial_capital(
 				buffer,
-			 	tax_form_category->tax_form_category_name ),
+			 	tax_form_line->tax_form_description ),
 			 timlib_place_commas_in_money(
-			 	tax_form_category->balance_sum ) );
+			 	tax_form_line->tax_form_line_total ) );
 
 		latex_table =
 			latex_new_latex_table(
@@ -689,30 +687,30 @@ LIST *tax_form_report_detail_PDF_table_list(
 
 		latex_table->row_list =
 			build_detail_PDF_row_list(
-				tax_form_category );
+				tax_form_line );
 
 		list_append_pointer( table_list, latex_table );
 
-	} while( list_next( tax_form_category_list ) );
+	} while( list_next( tax_form_line_list ) );
 
 	return table_list;
 
 } /* tax_form_report_detail_PDF_table_list() */
 
-LIST *build_detail_PDF_row_list( TAX_FORM_CATEGORY *tax_form_category )
+LIST *build_detail_PDF_row_list( TAX_FORM_LINE *tax_form_line )
 {
 	LIST *row_list;
 	ACCOUNT *account;
 	char buffer[ 128 ];
 	LATEX_ROW *latex_row;
 
-	if ( !list_rewind( tax_form_category->account_list ) )
+	if ( !list_rewind( tax_form_line->account_list ) )
 		return (LIST *)0;
 
 	row_list = list_new();
 
 	do {
-		account = list_get( tax_form_category->account_list );
+		account = list_get( tax_form_line->account_list );
 
 		if ( !account->latest_ledger ) continue;
 
@@ -730,25 +728,10 @@ LIST *build_detail_PDF_row_list( TAX_FORM_CATEGORY *tax_form_category )
 			buffer,
 			account->account_name );
 
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( buffer ) );
-*/
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
 			strdup( buffer ),
 			0 /* not large_bold */ );
-
-/*
-		list_append_pointer(
-			latex_row->column_data_list,
-			strdup( timlib_place_commas_in_money(
-					account->
-						latest_ledger->
-						balance ) ) );
-*/
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -758,7 +741,7 @@ LIST *build_detail_PDF_row_list( TAX_FORM_CATEGORY *tax_form_category )
 						balance ) ),
 			0 /* not large_bold */ );
 
-	} while( list_next( tax_form_category->account_list ) );
+	} while( list_next( tax_form_line->account_list ) );
 
 	return row_list;
 

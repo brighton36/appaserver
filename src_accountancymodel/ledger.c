@@ -6336,6 +6336,7 @@ boolean ledger_get_report_title_sub_title(
 
 } /* ledger_get_report_title_sub_title() */
 
+#ifdef NOT_DEFINED
 TAX_FORM_CATEGORY *ledger_tax_form_category_new(
 					char *tax_form,
 					char *tax_form_category_name,
@@ -6505,6 +6506,7 @@ LIST *ledger_tax_form_fetch_category_list(
 	return tax_form_category_list;
 
 } /* ledger_tax_form_fetch_category_list() */
+#endif
 
 /* Reset debit_amount and credit_amount without having to refresh. */
 /* --------------------------------------------------------------- */

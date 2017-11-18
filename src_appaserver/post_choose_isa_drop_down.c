@@ -50,7 +50,6 @@ int main( int argc, char **argv )
 	pid_t dictionary_process_id;
 	ROLE *role;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	int results;
 	LIST *non_primary_attribute_name_list;
 
 	if ( argc < 10 )
@@ -173,6 +172,15 @@ int main( int argc, char **argv )
 	{
 		state = "lookup";
 
+		/* Need to parse the relational operator of equals */
+		/* ----------------------------------------------- */
+		dictionary_parse_multi_attribute_keys(
+			dictionary_appaserver->non_prefixed_dictionary, 
+			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+			(char *)0 /* prefix */,
+			0 /* not dont_include_relational_operators */ );
+
 		sprintf( sys_string,
 	"echo \"%s\" 							  |"
 	"post_prompt_edit_form %s %s %s %s '%s' '%s' %s %s %d null 2>>%s   ",
@@ -193,7 +201,7 @@ int main( int argc, char **argv )
 			appaserver_error_get_filename(
 				application_name ) );
 
-		results = system( sys_string );
+		system( sys_string );
 		exit( 0 );
 	}
 
@@ -330,7 +338,7 @@ int main( int argc, char **argv )
 					"y" /* content_type_yn */,
 					appaserver_error_get_filename(
 						application_name ) );
-				results = system( sys_string );
+				system( sys_string );
 				fflush( stdout );
 			}
 
@@ -347,7 +355,7 @@ int main( int argc, char **argv )
 				message,
 				appaserver_error_get_filename(
 					application_name ) );
-			results = system( sys_string );
+			system( sys_string );
 			exit( 0 );
 		}
 	}
@@ -368,7 +376,7 @@ int main( int argc, char **argv )
 	 	appaserver_error_get_filename(
 			application_name ) );
 
-	results = system( sys_string );
+	system( sys_string );
 
 	exit( 0 );
 

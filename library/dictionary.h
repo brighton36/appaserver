@@ -1,5 +1,9 @@
-/* dictionary.h */
-/* ------------ */
+/* $APPASERVER_HOME/library/dictionary.h		*/
+/* ==================================================== */
+/* This contains the code for the dictionary ADT.	*/
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ==================================================== */
 
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
@@ -78,10 +82,11 @@ boolean dictionary_exists_key_index( 	DICTIONARY *dictionary,
 					int row );
 
 void dictionary_parse_multi_attribute_keys(
-					DICTIONARY *dictionary, 
-					char key_delimiter,
-					char data_delimiter,
-					char *prefix );
+				DICTIONARY *dictionary, 
+				char key_delimiter,
+				char data_delimiter,
+				char *prefix,
+				boolean dont_include_relational_operators );
 
 void dictionary_parse_multi_attribute_relation_operator_keys(
 				DICTIONARY *dictionary, 

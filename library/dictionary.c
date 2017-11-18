@@ -1,4 +1,4 @@
-/* library/dictionary.c					*/
+/* $APPASERVER_HOME/library/dictionary.c		*/
 /* ==================================================== */
 /* This contains the code for the dictionary ADT.	*/
 /*							*/
@@ -21,14 +21,15 @@
 
 /* ------------------------------------------------------------ */
 /* Sample:							*/
-/* From:  "customer^application_1=appahost^appaserver"		*/
-/* To:    "customer_1=appahost and application_1=appaserver"	*/
+/* From:  "station^datatype_1=BA^stage"				*/
+/* To:    "station_1=BA and datatype_1=stage"			*/
 /* ------------------------------------------------------------ */
 void dictionary_parse_multi_attribute_keys(
-					DICTIONARY *dictionary, 
-					char key_delimiter,
-					char data_delimiter,
-					char *prefix )
+				DICTIONARY *dictionary, 
+				char key_delimiter,
+				char data_delimiter,
+				char *prefix,
+				boolean dont_include_relational_operators )
 {
 	LIST *multi_attribute_key_list;
 	LIST *attribute_key_list;
@@ -66,11 +67,10 @@ void dictionary_parse_multi_attribute_keys(
 			continue;
 		}
 
-		/* Don't parse relational operators */
-		/* -------------------------------- */
-		if ( timlib_strncmp(
-			full_key + str_len,
-			QUERY_RELATION_OPERATOR_STARTING_LABEL ) == 0 )
+		if ( dont_include_relational_operators
+		&&   timlib_strncmp(
+				full_key + str_len,
+				QUERY_RELATION_OPERATOR_STARTING_LABEL ) == 0 )
 		{
 			continue;
 		}

@@ -346,6 +346,9 @@ LIST *update_database_get_update_row_list(
 
 	if ( !row_dictionary ) return update_row_list;
 
+	mto1_isa_related_folder_list =
+		folder->mto1_isa_related_folder_list;
+
 	highest_index = dictionary_get_key_highest_index( row_dictionary );
 
 	for( row = 1; row <= highest_index; row++ )
@@ -363,9 +366,6 @@ LIST *update_database_get_update_row_list(
 		{
 			list_append_pointer( update_row_list, update_row );
 		}
-
-		mto1_isa_related_folder_list =
-			folder->mto1_isa_related_folder_list;
 
 		if ( list_rewind( mto1_isa_related_folder_list ) )
 		{

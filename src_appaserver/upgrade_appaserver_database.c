@@ -41,6 +41,7 @@ int main( int argc, char **argv )
 {
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
+/*
 	if ( argc < 2 )
 	{
 		fprintf(stderr,
@@ -48,8 +49,13 @@ int main( int argc, char **argv )
 			argv[ 0 ] );
 		exit ( 1 );
 	}
+*/
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	if ( argc == 1 )
+	{
+	}
 
 	while( --argc ) do_upgrade( *++argv, appaserver_parameter_file );
 

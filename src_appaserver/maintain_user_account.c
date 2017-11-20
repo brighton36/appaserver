@@ -576,7 +576,9 @@ LIST *get_element_list(		char *login_name,
 						folder->
 						no_initial_capital,
 					(char *)0
-					/* one2m_folder_name_for_processes */
+					/* one2m_folder_name_for_processes */,
+					related_folder->
+						omit_lookup_before_drop_down
 				) );
 
 			related_folder->ignore_output = 1;

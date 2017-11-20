@@ -1281,7 +1281,8 @@ LIST *get_element_list(
 				   1 /* output_select_option */,
 				   (char *)0
 				   /* appaserver_user_foreign_login_name */,
-				   0 /* not prepend_folder_name */
+				   0 /* not prepend_folder_name */,
+			           related_folder->omit_lookup_before_drop_down
 				   ) );
 	
 		} while( list_next( mto1_related_folder_list ) );
@@ -1822,7 +1823,8 @@ LIST *get_prompt_mto1_recursive_element_list(
 				1 /* output_select_option */,
 				(char *)0
 				/* appaserver_user_foreign_login_name */,
-				0 /* not prepend_folder_name */
+				0 /* not prepend_folder_name */,
+			        0 /* not omit_lookup_before_drop_down */
 				) );
 	
 		list_append_string_list(
@@ -1901,7 +1903,8 @@ LIST *get_prompt_mto1_recursive_element_list(
 				1 /* output_select_option */,
 				(char *)0
 				/* appaserver_user_foreign_login_name */,
-				0 /* not prepend_folder_name */
+				0 /* not prepend_folder_name */,
+			        0 /* not omit_lookup_before_drop_down */
 				) );
 
 			list_append_string_list(
@@ -2209,7 +2212,8 @@ void build_related_folder_element_list(
 			output_select_option,
 			(char *)0
 			/* appaserver_user_foreign_login_name */,
-			0 /* not prepend_folder_name */
+			0 /* not prepend_folder_name */,
+			related_folder->omit_lookup_before_drop_down
 			) );
 
 	related_folder->ignore_output = 1;

@@ -1776,7 +1776,8 @@ void build_related_folder_element_list(
 			0 /* no output_not_null_option */,
 			1 /* output_select_option */,
 			appaserver_user_foreign_login_name,
-			0 /* not prepend_folder_name */
+			0 /* not prepend_folder_name */,
+			related_folder->omit_lookup_before_drop_down
 	 ) );
 	
 	related_folder->ignore_output = 1;

@@ -144,7 +144,8 @@ LIST *related_folder_get_drop_down_element_list(
 			boolean output_not_null_option,
 			boolean output_select_option,
 			char *appaserver_user_foreign_login_name,
-			boolean prepend_folder_name );
+			boolean prepend_folder_name,
+			boolean omit_lookup_before_drop_down );
 
 void related_folder_set_ignore_output_for_duplicate(
 					LIST *related_folder_list );
@@ -210,7 +211,8 @@ LIST *related_folder_get_update_element_list(
 			int max_query_rows_for_drop_downs,
 			boolean drop_down_multi_select,
 			boolean no_initial_capital,
-			char *one2m_folder_name_for_processes );
+			char *one2m_folder_name_for_processes,
+			boolean omit_lookup_before_drop_down );
 
 LIST *related_folder_get_edit_insert_element_list(
 			int row_dictionary_list_length,

@@ -994,7 +994,9 @@ LIST *row_security_get_update_element_list(
 					related_folder->
 						folder->
 						no_initial_capital,
-					one2m_folder_name_for_processes
+					one2m_folder_name_for_processes,
+					related_folder->
+						omit_lookup_before_drop_down
 				) );
 
 			related_folder->ignore_output = 1;

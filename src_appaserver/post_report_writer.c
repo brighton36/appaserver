@@ -1504,7 +1504,8 @@ LIST *state_three_get_folder_element_list(
 			       1 /* output_select_option */,
 			       (char *)0
 			       /* appaserver_user_foreign_login_name */,
-			       1 /* prepend_folder_name */
+			       1 /* prepend_folder_name */,
+			       related_folder->omit_lookup_before_drop_down
 				) );
 
 		if ( with_append_exclude )

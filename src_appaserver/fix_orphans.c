@@ -325,25 +325,15 @@ void check_row_dictionary_with_related_folder(
 				char *folder_name,
 				char delete_yn )
 {
-	char *search_attribute_name;
-	LIST *search_attribute_name_list;
+	char *foreign_attribute_name;
+	LIST *foreign_attribute_name_list;
 	char foreign_data_key_list_string[ 1024 ];
 	char *foreign_data_key_ptr;
 	char *row_data;
 	static DICTIONARY *guarantee_output_unique_dictionary = {0};
 
-	search_attribute_name_list =
-		related_folder->folder->primary_attribute_name_list;
-
-	if ( !list_rewind( search_attribute_name_list ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s/%d: empty primary_attribute_name_list\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	foreign_attribute_name_list =
+		related_folder->foreign_attribute_name_list;
 
 	if ( !guarantee_output_unique_dictionary )
 	{
@@ -353,31 +343,31 @@ void check_row_dictionary_with_related_folder(
 	foreign_data_key_ptr = foreign_data_key_list_string;
 	*foreign_data_key_ptr = '\0';
 
-	do {
-		search_attribute_name =
-			list_get_pointer(
-				search_attribute_name_list );
+	if ( !list_rewind( foreign_attribute_name_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s/%d: empty foreign_attribute_name_list\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-		if ( !list_at_first( search_attribute_name_list ) )
+	do {
+		foreign_attribute_name =
+			list_get_pointer(
+				foreign_attribute_name_list );
+
+		if ( !list_at_first( foreign_attribute_name_list ) )
 		{
 			foreign_data_key_ptr +=
 				sprintf( foreign_data_key_ptr, "^" );
 		}
 
-		if ( list_at_tail( search_attribute_name_list )
-		&&   related_folder->related_attribute_name
-		&&   *related_folder->related_attribute_name
-		&&   strcmp(	related_folder->related_attribute_name,
-				"null" ) != 0 )
-		{
-			search_attribute_name =
-				related_folder->related_attribute_name;
-		}
-
 		row_data =
 			dictionary_get_data(
 				row_dictionary,
-				search_attribute_name );
+				foreign_attribute_name );
 
 		/* Don't insert nulls */
 		/* ------------------ */
@@ -391,7 +381,7 @@ void check_row_dictionary_with_related_folder(
 					"%s",
 					row_data );
 
-	} while( list_next( search_attribute_name_list ) );
+	} while( list_next( foreign_attribute_name_list ) );
 
 	if ( dictionary_exists_key(	related_folder->
 						folder->

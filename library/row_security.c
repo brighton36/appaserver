@@ -252,12 +252,14 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
-			char update_yn )
+			char update_yn,
+			boolean ajax_fill_drop_down_omit )
 {
 	ROW_SECURITY_ELEMENT_LIST_STRUCTURE *element_list_structure;
 	int row_dictionary_list_length;
 	char query_select_folder_name[ 128 ];
 	boolean prompt_data_separate_folder;
+	RELATED_FOLDER **ajax_fill_drop_down_related_folder = {0};
 
 	if ( ! ( element_list_structure =
 		(ROW_SECURITY_ELEMENT_LIST_STRUCTURE *)
@@ -271,6 +273,17 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
+	}
+
+	/* ------------------------------------------------------ */
+	/* Detailing a transaction doesn't display this correctly */
+	/* for the journal_ledger.				  */
+	/* ------------------------------------------------------ */
+	if ( !ajax_fill_drop_down_omit )
+	{
+		ajax_fill_drop_down_related_folder =
+			&element_list_structure->
+				ajax_fill_drop_down_related_folder;
 	}
 
 	if ( row_security_state == security_supervisor
@@ -325,8 +338,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 
 	element_list_structure->regular_element_list =
 		row_security_get_element_list(
-			&element_list_structure->
-				ajax_fill_drop_down_related_folder,
+			ajax_fill_drop_down_related_folder,
 			application_name,
 			select_folder,
 			select_folder->mto1_append_isa_related_folder_list,

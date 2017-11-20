@@ -187,6 +187,44 @@ void post_change_inventory_sale_insert(
 		exit( 1 );
 	}
 
+	/* Propagate inventory layers */
+	/* -------------------------- */
+	if ( customer_sale->completed_date_time )
+	{
+		INVENTORY_SALE *inventory_sale;
+		char sys_string[ 1024 ];
+
+		if ( ! ( inventory_sale =
+				inventory_sale_list_seek(
+					customer_sale->inventory_sale_list,
+					inventory_name ) ) )
+		{
+			fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek inventory_sale.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__ );
+			exit( 1 );
+		}
+
+		sprintf( sys_string,
+"propagate_inventory_sale_layers %s \"%s\" \"%s\" \"%s\" \"%s\" '' %c",
+			 application_name,
+			 customer_sale->full_name,
+			 customer_sale->street_address,
+			 customer_sale->sale_date_time,
+			 inventory_name,
+			 ( customer_sale_inventory_is_latest(
+				application_name,
+				inventory_name,
+				customer_sale->sale_date_time ) )
+			 		? 'y' : 'n' );
+
+		inventory_sale->cost_of_goods_sold =
+			atof( pipe2string( sys_string ) );
+
+	} /* if completed_date_time */
+
 	customer_sale->invoice_amount =
 		customer_sale_get_invoice_amount(
 			&customer_sale->
@@ -275,44 +313,6 @@ void post_change_inventory_sale_insert(
 		}
 
 	} /* if transaction_date_time */
-
-	/* Propagate inventory layers */
-	/* -------------------------- */
-	if ( customer_sale->completed_date_time )
-	{
-		INVENTORY_SALE *inventory_sale;
-		char sys_string[ 1024 ];
-
-		if ( ! ( inventory_sale =
-				inventory_sale_list_seek(
-					customer_sale->inventory_sale_list,
-					inventory_name ) ) )
-		{
-			fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek inventory_sale.\n",
-			 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__ );
-			exit( 1 );
-		}
-
-		sprintf( sys_string,
-"propagate_inventory_sale_layers %s \"%s\" \"%s\" \"%s\" \"%s\" '' %c",
-			 application_name,
-			 customer_sale->full_name,
-			 customer_sale->street_address,
-			 customer_sale->sale_date_time,
-			 inventory_name,
-			 ( customer_sale_inventory_is_latest(
-				application_name,
-				inventory_name,
-				customer_sale->sale_date_time ) )
-			 		? 'y' : 'n' );
-
-		inventory_sale->cost_of_goods_sold =
-			atof( pipe2string( sys_string ) );
-
-	} /* if completed_date_time */
 
 } /* post_change_inventory_sale_insert() */
 

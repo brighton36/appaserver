@@ -649,7 +649,8 @@ int main( int argc, char **argv )
 			make_primary_keys_non_edit,
 			omit_delete_dont_care,
 			0 /* omit_operation_buttons */,
-			role_folder->update_yn );
+			role_folder->update_yn,
+			0 /* not ajax_fill_drop_down_omit */ );
 
 	form->regular_element_list =
 		row_security->

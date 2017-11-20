@@ -444,7 +444,8 @@ void change_sort_order_state_one(
 			0 /* not make_primary_keys_non_edit */,
 			omit_delete_dont_care,
 			1 /* omit_operation_buttons */,
-			'y' /* update_yn */ );
+			'y' /* update_yn */,
+			0 /* not ajax_fill_drop_down_omit */ );
 
 	form->regular_element_list =
 		row_security->

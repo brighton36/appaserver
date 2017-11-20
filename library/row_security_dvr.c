@@ -94,7 +94,8 @@ void row_security_dvr(
 			0 /* make_primary_keys_non_edit */,
 			omit_delete_dont_care,
 			0 /* omit_operation_buttons */,
-			'y' /* update_yn */ );
+			'y' /* update_yn */,
+			0 /* not ajax_fill_drop_down_omit */ );
 
 	element_list =
 		row_security->

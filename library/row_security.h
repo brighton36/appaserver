@@ -92,7 +92,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *row_security_element_list_structure_new(
 			boolean make_primary_keys_non_edit,
 			enum omit_delete_operation omit_delete_operation,
 			boolean omit_operation_buttons,
-			char update_yn );
+			char update_yn,
+			boolean ajax_fill_drop_down_omit );
 
 LIST *row_security_get_role_update_list(
 			char *application_name );

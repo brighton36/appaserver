@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_appaserver/detail.c						*/
+/* $APPASERVER_HOME/src_appaserver/detail.c				*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -1202,7 +1202,8 @@ DICTIONARY *output_folder_detail(
 			make_primary_keys_non_edit,
 			omit_delete_operation,
 			omit_operation_buttons,
-			update_yn );
+			update_yn,
+			1 /* ajax_fill_drop_down_omit */ );
 
 	fetched_dictionary_list =
 		row_security->
@@ -1282,6 +1283,38 @@ DICTIONARY *output_folder_detail(
 		row_security->
 			row_security_element_list_structure->
 			viewonly_element_list;
+
+#ifdef NOT_DEFINED
+	if ( row_security->row_security_element_list_structure->
+		ajax_fill_drop_down_related_folder )
+	{
+		char sys_string[ 1024 ];
+		RELATED_FOLDER *ajax_fill_drop_down_related_folder;
+
+		ajax_fill_drop_down_related_folder =
+			row_security->row_security_element_list_structure->
+			ajax_fill_drop_down_related_folder;
+
+		sprintf( sys_string,
+			 "ajax_fill_drop_down.sh %s '%s' '%s' %s %s %s '%s'",
+			 application_name,
+			 login_name,
+			 role_name,
+			 session,
+			 ajax_fill_drop_down_related_folder->
+				folder->
+				folder_name /* one2m_folder */,
+			 ajax_fill_drop_down_related_folder->
+				one2m_related_folder->
+				folder_name /* mto1_folder */,
+			 list_display(
+				ajax_fill_drop_down_related_folder->
+				folder->
+				primary_attribute_name_list ) /* select */ );
+
+		system( sys_string );
+	}
+#endif
 
 	if ( attribute_exists_date_attribute(
 		attribute_list ) )

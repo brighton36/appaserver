@@ -323,6 +323,16 @@ void post_change_inventory_purchase_insert_FOB_shipping(
 				purchase_order->inventory_purchase_list,
 				purchase_order->fund_name );
 
+		if ( !purchase_order->transaction )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty transaction.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
 		ledger_transaction_refresh(
 			application_name,
 			purchase_order->full_name,
@@ -429,6 +439,16 @@ void post_change_inventory_purchase_insert_FOB_destination(
 				purchase_order->transaction->memo,
 				purchase_order->inventory_purchase_list,
 				purchase_order->fund_name );
+
+		if ( !purchase_order->transaction )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty transaction.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
 
 		ledger_transaction_refresh(
 			application_name,
@@ -735,6 +755,16 @@ void post_change_inventory_purchase_ordered_quantity_update(
 				purchase_order->inventory_purchase_list,
 				purchase_order->fund_name );
 
+		if ( !purchase_order->transaction )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty transaction.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
 		ledger_transaction_refresh(
 			application_name,
 			purchase_order->full_name,
@@ -818,6 +848,16 @@ void post_change_inventory_purchase_unit_cost_update(
 				purchase_order->transaction->memo,
 				purchase_order->inventory_purchase_list,
 				purchase_order->fund_name );
+
+		if ( !purchase_order->transaction )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty transaction.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
 
 		ledger_transaction_refresh(
 			application_name,
@@ -912,16 +952,21 @@ void post_change_inventory_purchase_delete(
 				purchase_order->inventory_purchase_list,
 				purchase_order->fund_name );
 
-		ledger_transaction_refresh(
-			application_name,
-			purchase_order->full_name,
-			purchase_order->street_address,
-			purchase_order->transaction_date_time,
-			purchase_order->transaction->transaction_amount,
-			purchase_order->transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			purchase_order->transaction->journal_ledger_list );
+		if ( purchase_order->transaction )
+		{
+			ledger_transaction_refresh(
+				application_name,
+				purchase_order->full_name,
+				purchase_order->street_address,
+				purchase_order->transaction_date_time,
+				purchase_order->transaction->transaction_amount,
+				purchase_order->transaction->memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				purchase_order->
+					transaction->
+					journal_ledger_list );
+		}
 	}
 
 	if ( purchase_order->arrived_date_time )
@@ -1018,6 +1063,16 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 				purchase_order->transaction->memo,
 				purchase_order->inventory_purchase_list,
 				purchase_order->fund_name );
+
+		if ( !purchase_order->transaction )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty transaction.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
 
 		ledger_transaction_refresh(
 			application_name,

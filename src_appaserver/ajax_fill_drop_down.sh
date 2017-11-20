@@ -3,7 +3,7 @@
 # $APPASERVER_HOME/src_appaserver/ajax_fill_drop_down.sh
 # ------------------------------------------------------
 
-echo "$0 $*" 1>&2
+# echo "$0 $*" 1>&2
 
 if [ "$#" -ne 7 ]
 then

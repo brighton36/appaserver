@@ -7443,6 +7443,8 @@ TRANSACTION *ledger_inventory_build_transaction(
 			&sum_debit_amount,
 			inventory_purchase_list );
 
+	/* Empty if deleted */
+	/* ---------------- */
 	if ( !list_rewind( transaction->journal_ledger_list ) )
 		return (TRANSACTION *)0;
 

@@ -126,7 +126,7 @@ typedef struct
 	boolean accumulate_debit;
 	LIST *subclassification_list;
 	double element_total;
-} ELEMENT;
+} LEDGER_ELEMENT;
 
 typedef struct
 {
@@ -166,11 +166,12 @@ ACCOUNT *ledger_account_new(		char *account_name );
 SUBCLASSIFICATION *ledger_new_subclassification(
 					char *subclassification_name );
 
-ELEMENT *ledger_new_element(		char *element_name );
+LEDGER_ELEMENT *ledger_new_element(	char *element_name ); 
 
-ELEMENT *ledger_element_new(		char *element_name );
+LEDGER_ELEMENT *ledger_element_new(	char *element_name );
 
-ELEMENT *ledger_account_fetch_element(	char *application_name,
+LEDGER_ELEMENT *ledger_account_fetch_element(
+					char *application_name,
 					char *account_name );
 
 LIST *ledger_subclassification_get_account_list(
@@ -281,10 +282,11 @@ void ledger_output_net_income(		HTML_TABLE *html_table,
 					boolean is_statement_of_activities,
 					double percent_denominator );
 
-ELEMENT *ledger_element_seek(		LIST *element_list,
+LEDGER_ELEMENT *ledger_element_seek(	LIST *element_list,
 					char *element_name );
 
-ELEMENT *ledger_element_list_seek(	LIST *element_list,
+LEDGER_ELEMENT *ledger_element_list_seek(
+					LIST *element_list,
 					char *element_name );
 
 char *ledger_transaction_display(	TRANSACTION *transaction );

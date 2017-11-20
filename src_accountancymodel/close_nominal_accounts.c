@@ -239,7 +239,7 @@ boolean close_nominal_accounts_fund_execute(
 	LIST *element_list;
 	double retained_earnings;
 	char *field_list;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	ENTITY_SELF *self;
 	TRANSACTION *transaction;
 	char *table_name;
@@ -534,7 +534,7 @@ void close_nominal_accounts_fund_display(
 	LIST *element_list;
 	LIST *heading_list;
 	LIST *filter_element_name_list;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	char title[ 128 ];
 	char sub_title[ 128 ];
 	char buffer[ 128 ];

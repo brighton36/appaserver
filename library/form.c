@@ -77,9 +77,14 @@ void form_set_output_pairs( FORM *form )
 	form->output_pairs = 1;
 }
 
+static boolean form_already_outputted_content_type = 0;
+
 void form_output_content_type( void )
 {
+	if ( form_already_outputted_content_type ) return;
+
 	printf( "Content-type: text/html\n\n" );
+	form_already_outputted_content_type = 1;
 }
 
 void form_output_title( char *application_title,

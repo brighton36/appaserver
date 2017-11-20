@@ -11,6 +11,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "date.h"
+#include "form.h"
 #include "dictionary.h"
 #include "appaserver_library.h"
 #include "application_constants.h"
@@ -26,16 +27,16 @@
 #include "inventory.h"
 #include "customer.h"
 
-ELEMENT *ledger_element_new( char *element_name )
+LEDGER_ELEMENT *ledger_element_new( char *element_name )
 {
 	return ledger_new_element( element_name );
 }
 
-ELEMENT *ledger_new_element( char *element_name )
+LEDGER_ELEMENT *ledger_new_element( char *element_name )
 {
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 
-	if ( ! ( element = calloc( 1, sizeof( ELEMENT ) ) ) )
+	if ( ! ( element = calloc( 1, sizeof( LEDGER_ELEMENT ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -50,10 +51,11 @@ ELEMENT *ledger_new_element( char *element_name )
 
 } /* ledger_new_element() */
 
-ELEMENT *ledger_account_fetch_element(	char *application_name,
+LEDGER_ELEMENT *ledger_account_fetch_element(
+					char *application_name,
 					char *account_name )
 {
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	char element_name[ 128 ];
 	char accumulate_debit_yn[ 8 ];
 	char where[ 512 ];
@@ -104,7 +106,7 @@ ELEMENT *ledger_account_fetch_element(	char *application_name,
 
 	results = pipe2string( sys_string );
 
-	if ( !results || !*results ) return (ELEMENT *)0;
+	if ( !results || !*results ) return (LEDGER_ELEMENT *)0;
 
 	piece(	element_name,
 		FOLDER_DATA_DELIMITER,
@@ -1065,19 +1067,20 @@ LIST *ledger_element_get_subclassification_list(
 
 } /* ledger_element_get_subclassification_list() */
 
-ELEMENT *ledger_element_list_seek(
+LEDGER_ELEMENT *ledger_element_list_seek(
 				LIST *element_list,
 				char *element_name )
 {
 	return ledger_element_seek( element_list, element_name );
 }
 
-ELEMENT *ledger_element_seek(	LIST *element_list,
+LEDGER_ELEMENT *ledger_element_seek(
+				LIST *element_list,
 				char *element_name )
 {
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 
-	if ( !list_rewind( element_list ) ) return (ELEMENT *)0;
+	if ( !list_rewind( element_list ) ) return (LEDGER_ELEMENT *)0;
 
 	do {
 		element = list_get_pointer( element_list );
@@ -1089,7 +1092,7 @@ ELEMENT *ledger_element_seek(	LIST *element_list,
 
 	} while( list_next( element_list ) );
 
-	return (ELEMENT *)0;
+	return (LEDGER_ELEMENT *)0;
 
 } /* ledger_element_seek() */
 
@@ -1099,7 +1102,7 @@ LIST *ledger_get_element_list(	char *application_name,
 				char *as_of_date )
 {
 	LIST *element_list;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	char sys_string[ 1024 ];
 	char input_buffer[ 256 ];
 	char element_name[ 128 ];
@@ -3240,16 +3243,6 @@ TRANSACTION *ledger_transaction_with_load_new(
 					transaction->street_address,
 					transaction->transaction_date_time ) )
 	{
-/* Occurs if many folder deleted it first.
-		fprintf( stderr,
-		"Warning in %s/%s()/%d: cannot load transaction = (%s/%s/%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 transaction->full_name,
-			 transaction->street_address,
-			 transaction->transaction_date_time );
-*/
 		return transaction;
 	}
 
@@ -5208,14 +5201,22 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 	else
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: both debit_amount and credit_amount are zero for account = (%s).\n",
+"Warning in %s/%s()/%d: both debit_amount and credit_amount are zero for account = %s and transaction_date_time = %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 account_name );
+			 account_name,
+			 transaction_date_time );
 
-		pclose( update_pipe );
-		exit( 1 );
+		form_output_content_type();
+		printf( 
+"<h3>Warning in %s/%s()/%d: both debit_amount and credit_amount are zero for account = %s and transaction_date_time = %s.</h3>\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 account_name,
+			 transaction_date_time );
+		fflush( stdout );
 	}
 
 	fflush( update_pipe );
@@ -5921,7 +5922,7 @@ boolean ledger_account_get_accumulate_debit(
 					char *account_name )
 {
 	static LEDGER *ledger = {0};
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 
 	if ( !ledger )
 	{
@@ -6000,7 +6001,7 @@ void ledger_propagate_element_list(
 				char *transaction_date_time_string,
 				LIST *element_list )
 {
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
 
@@ -6616,7 +6617,7 @@ ACCOUNT *ledger_element_list_account_seek(
 			LIST *element_list,
 			char *account_name )
 {
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
 

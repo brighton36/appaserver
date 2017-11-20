@@ -344,7 +344,7 @@ void trial_balance_html_table(
 	char *credit_string;
 	double debit_sum = 0.0;
 	double credit_sum = 0.0;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
 	boolean accumulate_debit;
@@ -907,7 +907,7 @@ LIST *build_PDF_row_list(	char *application_name,
 	char *credit_amount;
 	double debit_sum = 0.0;
 	double credit_sum = 0.0;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
 	boolean accumulate_debit;
@@ -1604,7 +1604,7 @@ void trial_balance_stdout(
 	char *credit_string;
 	double debit_sum = 0.0;
 	double credit_sum = 0.0;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
 	boolean accumulate_debit;

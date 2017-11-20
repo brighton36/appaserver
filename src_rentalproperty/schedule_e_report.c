@@ -74,7 +74,7 @@ int main( int argc, char **argv )
 	char buffer[ 128 ];
 	LIST *heading_list;
 	LIST *element_list;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *account;
 	int tax_year;

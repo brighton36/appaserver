@@ -280,7 +280,7 @@ void income_statement_net_income_only(
 			char *as_of_date )
 {
 	LIST *element_list;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	LIST *filter_element_name_list;
 	double total_revenues;
 	double total_expenses;
@@ -400,7 +400,7 @@ void income_statement_consolidate_html_table(
 			boolean is_statement_of_activities )
 {
 	LIST *element_list;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	LIST *filter_element_name_list;
 	HTML_TABLE *html_table;
 	double total_revenues;
@@ -551,7 +551,7 @@ void income_statement_full_html_table(
 			boolean is_statement_of_activities )
 {
 	LIST *element_list;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	LIST *filter_element_name_list;
 	HTML_TABLE *html_table;
 	double total_revenues;
@@ -731,7 +731,7 @@ void income_statement_consolidate_PDF(
 	char *ftp_output_filename;
 	int pid = getpid();
 	APPASERVER_LINK_FILE *appaserver_link_file;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	double revenues_total;
 
 	printf( "<h1>%s</h1>\n", title );
@@ -1036,7 +1036,7 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 					boolean is_statement_of_activities,
 					double revenues_total )
 {
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	double total_revenues = 0.0;
 	double total_expenses = 0.0;
 	double total_gains = 0.0;
@@ -1166,7 +1166,7 @@ LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 LIST *build_full_PDF_row_list(	LIST *element_list,
 				boolean is_statement_of_activities )
 {
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	double total_revenues = 0.0;
 	double total_expenses = 0.0;
 	double total_gains = 0.0;

@@ -576,7 +576,7 @@ void balance_sheet_consolidate_html_table(
 	HTML_TABLE *html_table;
 	LIST *filter_element_name_list;
 	LIST *element_list;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *net_income_account;
 	double total_liabilities;
@@ -735,7 +735,7 @@ void balance_sheet_full_html_table(
 	HTML_TABLE *html_table;
 	LIST *filter_element_name_list;
 	LIST *element_list;
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *net_income_account;
 	double total_liabilities;
@@ -1004,7 +1004,7 @@ LIST *build_aggregate_subclassification_PDF_row_list(
 					char *as_of_date,
 					boolean is_financial_position )
 {
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	double total_assets = 0.0;
 	double total_liabilities = 0.0;
 	double total_equity = 0.0;
@@ -1140,7 +1140,7 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 				char *as_of_date,
 				boolean is_financial_position )
 {
-	ELEMENT *element;
+	LEDGER_ELEMENT *element;
 	double total_assets = 0.0;
 	double total_liabilities = 0.0;
 	double total_equity = 0.0;

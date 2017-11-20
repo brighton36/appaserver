@@ -23,12 +23,18 @@ table="inventory"
 
 select="concat( inventory_name, ' [', retail_price, ',' , quantity_on_hand, ']' )"
 
-if [ "$one2m_folder" = "inventory_sale" -a "$state" = "insert" ]
-then
-	where="quantity_on_hand >= 1"
-else
-	where="1 = 1"
-fi
+# -----------------------------------------------------------------
+# We need to be able to record the sale and then make the purchase.
+# This works as long a completed_date_time > arrived_date_time.
+# -----------------------------------------------------------------
+#if [ "$one2m_folder" = "inventory_sale" -a "$state" = "insert" ]
+#then
+#	where="quantity_on_hand >= 1"
+#else
+#	where="1 = 1"
+#fi
+
+where="1 = 1"
 
 order="inventory_name"
 

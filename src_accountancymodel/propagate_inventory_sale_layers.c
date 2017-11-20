@@ -34,7 +34,8 @@ void propagate_inventory_sale_layers_not_latest(
 double propagate_inventory_sale_layers_latest(
 				INVENTORY_SALE *inventory_sale,
 				INVENTORY *inventory,
-				char *application_name );
+				char *application_name,
+				enum inventory_cost_method );
 
 int main( int argc, char **argv )
 {
@@ -89,6 +90,8 @@ int main( int argc, char **argv )
 	{
 		INVENTORY *inventory;
 
+		entity_self = entity_self_load(	application_name );
+
 		inventory_sale =
 			inventory_sale_fetch(
 				application_name,
@@ -111,7 +114,8 @@ int main( int argc, char **argv )
 			propagate_inventory_sale_layers_latest(
 				inventory_sale,
 				inventory,
-				application_name );
+				application_name,
+				entity_self->inventory_cost_method );
 	}
 	else
 	{
@@ -164,7 +168,9 @@ int main( int argc, char **argv )
 double propagate_inventory_sale_layers_latest(
 				INVENTORY_SALE *inventory_sale,
 				INVENTORY *inventory,
-				char *application_name )
+				char *application_name,
+				enum inventory_cost_method
+					inventory_cost_method )
 {
 	if ( !inventory_sale )
 	{
@@ -184,6 +190,20 @@ double propagate_inventory_sale_layers_latest(
 
 	inventory_sale->
 		cost_of_goods_sold =
+		   inventory_sale_get_cost_of_goods_sold(
+			/* -------------------------------------- */
+			/* Decrements inventory->quantity_on_hand */
+			/* -------------------------------------- */
+			inventory->inventory_purchase_list,
+			&inventory->last_inventory_balance->total_cost_balance,
+			&inventory->last_inventory_balance->quantity_on_hand,
+			inventory->last_inventory_balance->average_unit_cost,
+			inventory_sale->quantity,
+			inventory_cost_method,
+			inventory_sale->completed_date_time );
+/*
+	inventory_sale->
+		cost_of_goods_sold =
 		inventory_sale_get_average_cost_of_goods_sold(
 			&inventory->last_inventory_balance->total_cost_balance,
 			&inventory->last_inventory_balance->quantity_on_hand,
@@ -193,6 +213,7 @@ double propagate_inventory_sale_layers_latest(
 	inventory_purchase_fifo_decrement_quantity_on_hand(
 		inventory->inventory_purchase_list,
 		inventory_sale->quantity );
+*/
 
 	/* Update inventory_purchase->quantity_on_hand */
 	/* ------------------------------------------- */

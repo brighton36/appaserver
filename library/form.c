@@ -639,6 +639,7 @@ void form_output_sort_buttons(	FILE *output_file,
 	list_append_string( sort_button_type_list, FORM_DESCENDING_LABEL );
 
 	list_rewind( sort_button_type_list );
+
 	do {
 		sort_button_type = list_get_pointer( sort_button_type_list );
 
@@ -648,9 +649,12 @@ void form_output_sort_buttons(	FILE *output_file,
 			printf( "<tr>" );
 			do {
 				element = list_get_pointer( element_list );
-	
-				if ( element->element_type == hidden )
+
+				if ( element->element_type == hidden
+				||   element->element_type == push_button )
+				{
 					continue;
+				}
 	
 				if ( element->element_type == toggle_button
 				||   element->omit_heading_sort_button )

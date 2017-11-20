@@ -41,23 +41,49 @@ int main( int argc, char **argv )
 {
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-/*
-	if ( argc < 2 )
-	{
-		fprintf(stderr,
-			"Usage: %s application[:database] [...]\n",
-			argv[ 0 ] );
-		exit ( 1 );
-	}
-*/
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	if ( !appaserver_parameter_file )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot load appaserver_parameter_file.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( argc == 1 )
 	{
-	}
+		LIST *application_name_list;
+		char *application_name;
 
-	while( --argc ) do_upgrade( *++argv, appaserver_parameter_file );
+		application_name_list =
+			appaserver_library_get_application_name_list(
+				appaserver_parameter_file->
+					appaserver_error_directory );
+
+		if ( list_rewind( application_name_list ) )
+		{
+			do {
+				application_name =
+					list_get_pointer(
+						application_name_list );
+
+				do_upgrade(	application_name,
+						appaserver_parameter_file );
+
+			} while( list_next( application_name_list ) );
+		}
+	}
+	else
+	{
+		while( --argc )
+		{
+			do_upgrade(	*++argv,
+					appaserver_parameter_file );
+		}
+	}
 
 	return 0;
 } /* main() */
@@ -78,7 +104,6 @@ void do_upgrade(	char *application_name,
 	char dictionary_key[ 256 ];
 	char *upgrade_scripts_table_name;
 	LIST *version_list;
-	int results;
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -154,7 +179,7 @@ void do_upgrade(	char *application_name,
 				application_name );
 
 			printf( "%s\n", sys_string );
-			results = system( sys_string );
+			system( sys_string );
 
 			fprintf(output_pipe,
 				"%s|%s\n",
@@ -178,7 +203,7 @@ void do_upgrade(	char *application_name,
 		latest_version,
 		application_name );
 
-	results = system( sys_string );
+	system( sys_string );
 
 } /* void do_upgrade() */
 

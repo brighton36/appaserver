@@ -453,4 +453,7 @@ char *appaserver_library_get_folder_foreign_translation(
 			LIST *folder_foreign_attribute_name_list,
 			DICTIONARY *foreign_attribute_dictionary );
 
+LIST *appaserver_library_get_application_name_list(
+			char *appaserver_error_directory );
+
 #endif

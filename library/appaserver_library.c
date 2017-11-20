@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include "timlib.h"
 #include "piece.h"
@@ -3041,3 +3042,29 @@ char *appaserver_library_get_folder_foreign_translation(
 
 } /* appaserver_library_get_folder_foreign_translation() */
 
+LIST *appaserver_library_get_application_name_list(
+				char *appaserver_error_directory )
+{
+	char sys_string[ 1024 ];
+
+	if ( chdir( appaserver_error_directory ) == -1 )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot chdir(%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 appaserver_error_directory );
+
+		exit( 1 );
+	}
+
+	sprintf( sys_string,
+		 "ls -1 appaserver_*.err	|"
+		 "sed 's/^appaserver_//'	|"
+		 "sed 's/\.err$//'		|"
+		 "cat				 " );
+
+	return pipe2list( sys_string );;
+
+} /* appaserver_library_get_application_name_list() */

@@ -83,8 +83,8 @@ LIST *delete_database_get_delete_folder_list(
 			folder->post_change_process,
 			folder->primary_attribute_name_list );
 
-	/* Make sure user didn't altered the web page source. */
-	/* -------------------------------------------------- */
+	/* Make sure user didn't alter the web page source. */
+	/* ------------------------------------------------ */
 	if ( folder->row_level_non_owner_forbid
 	||   folder->row_level_non_owner_view_only )
 	{
@@ -198,7 +198,6 @@ void delete_database_append_one2m_delete_folder_list(
 		related_folder =
 			list_get(
 				one2m_related_folder_list );
-
 
 		related_folder->one2m_related_folder =
 			folder_with_load_new(
@@ -1033,26 +1032,6 @@ void delete_database_append_one2m_related_folder_list(
 
 	do {
 		related_folder = list_get( one2m_related_folder_list );
-
-/*
-		if ( ! ( related_folder->one2m_related_folder =
-				folder_with_load_new(
-					application_name,
-					BOGUS_SESSION, 
-					related_folder->
-						one2m_related_folder->
-						folder_name,
-					(ROLE *)0 ) ) )
-		{
-			fprintf( stderr,
-"Warning in %s/%s()/%d: cannot load folder_name = %s. Need to fix_orphans folder. Skipping.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 folder_name );
-			continue;
-		}
-*/
 
 		/* ------------------------ */
 		/* If null_1tom_upon_delete */

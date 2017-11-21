@@ -216,7 +216,7 @@ int main( int argc, char **argv )
 				street_address,
 				sale_date_time );
 
-	printf( "<p>Payment stored.\n" );
+	printf( "<h3>Payment of $%.2lf stored.</h3>\n", payment_amount );
 
 	document_close();
 

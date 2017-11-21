@@ -3811,6 +3811,7 @@ void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 			list_get_pointer(
 				one2m_recursive_related_folder_list );
 
+/*
 		if ( list_length(
 			related_folder->
 				folder_foreign_attribute_name_list ) )
@@ -3823,6 +3824,7 @@ void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 					foreign_attribute_name_list );
 			continue;
 		}
+*/
 
 		related_folder_populate_one2m_foreign_attribute_dictionary(
 			foreign_attribute_dictionary,

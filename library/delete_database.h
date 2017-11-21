@@ -108,7 +108,7 @@ void delete_database_set_parameter_dictionary(
 			LIST *primary_attribute_name_list,
 			LIST *primary_attribute_data_list );
 
-void delete_database_execute_delete_row(
+void delete_database_execute_delete_row_list(
 			char *application_name,
 			char *folder_name,
 			LIST *delete_row_list,
@@ -116,7 +116,7 @@ void delete_database_execute_delete_row(
 			char *sql_executable,
 			PROCESS *post_change_process );
 
-void delete_database_execute_delete_row_pipe(
+void delete_database_execute_delete_row_list_pipe(
 			FILE *output_pipe,
 			FILE *stderr_pipe,
 			DICTIONARY *parameter_dictionary,

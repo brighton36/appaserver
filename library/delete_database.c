@@ -286,8 +286,6 @@ void delete_database_append_mto1_isa_delete_folder_list(
 					/* where_attribute_data_list */,
 				(char *)0 /* login_name */ );
 
-		list_append_pointer( delete_folder_list, delete_folder );
-
 		if ( list_length(
 			related_folder->
 				folder->
@@ -526,7 +524,7 @@ void delete_database_execute_delete_folder_list(
 		}
 		else
 		{
-			delete_database_execute_delete_row(
+			delete_database_execute_delete_row_list(
 				application_name,
 				delete_folder->folder_name,
 				delete_folder->delete_row_list,
@@ -535,6 +533,7 @@ void delete_database_execute_delete_folder_list(
 				sql_executable,
 				delete_folder->post_change_process );
 		}
+
 	} while( list_previous( delete_folder_list ) );
 
 } /* delete_database_execute_delete_folder_list() */
@@ -573,7 +572,7 @@ void delete_database_set_parameter_dictionary(
 
 } /* delete_database_set_parameter_dictionary() */
 
-void delete_database_execute_delete_row(
+void delete_database_execute_delete_row_list(
 			char *application_name,
 			char *folder_name,
 			LIST *delete_row_list,
@@ -620,7 +619,7 @@ void delete_database_execute_delete_row(
 
 	stderr_pipe = popen( sys_string, "w" );
 
-	delete_database_execute_delete_row_pipe(
+	delete_database_execute_delete_row_list_pipe(
 			output_pipe,
 			stderr_pipe,
 			parameter_dictionary,
@@ -634,9 +633,9 @@ void delete_database_execute_delete_row(
 	pclose( stderr_pipe );
 	dictionary_free( parameter_dictionary );
 
-} /* delete_database_execute_delete_row() */
+} /* delete_database_execute_delete_list_row() */
 
-void delete_database_execute_delete_row_pipe(
+void delete_database_execute_delete_row_list_pipe(
 			FILE *output_pipe,
 			FILE *stderr_pipe,
 			DICTIONARY *parameter_dictionary,
@@ -749,7 +748,7 @@ void delete_database_execute_delete_row_pipe(
 
 	} while( list_next( delete_row_list ) );
 
-} /* delete_database_execute_delete_row_pipe() */
+} /* delete_database_execute_delete_row_list_pipe() */
 
 void delete_database_execute_update_to_null_row(
 			char *application_name,

@@ -1063,6 +1063,8 @@ boolean appaserver_library_validate_begin_end_date(
 	static char new_begin_date[ 16 ];
 	static char new_end_date[ 16 ];
 
+	if ( !begin_date && !end_date ) return 0;
+
 	if ( character_exists( *begin_date, '/' ) ) return 1;
 	if ( character_exists( *end_date, '/' ) ) return 1;
 
@@ -1095,8 +1097,8 @@ boolean appaserver_library_validate_begin_end_date(
 				process_generic_output,
 				post_dictionary );
 
-			if ( !*where_clause ) return 0;
-	
+			if ( !where_clause || !*where_clause ) return 0;
+
 			process_generic_output_get_period_of_record_date(
 					begin_date,
 					application_name,
@@ -1108,8 +1110,9 @@ boolean appaserver_library_validate_begin_end_date(
 						value_folder->
 							date_attribute_name,
 					where_clause );
+
 			if ( !**begin_date ) return 0;
-	
+
 			process_generic_output_get_period_of_record_date(
 					end_date,
 					application_name,
@@ -1120,6 +1123,7 @@ boolean appaserver_library_validate_begin_end_date(
 						value_folder->
 							date_attribute_name,
 					where_clause );
+
 			return 1;
 		}
 	
@@ -1143,8 +1147,10 @@ boolean appaserver_library_validate_begin_end_date(
 						value_folder->
 							date_attribute_name,
 					where_clause );
+
 			if ( !**begin_date ) return 0;
 		}
+
 	} /* if process_generic_output */
 
 	if ( !*begin_date || strcmp( *begin_date, "begin_date" ) == 0 )

@@ -276,6 +276,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	}
 
 	/* ------------------------------------------------------ */
+	/* Future work:						  */
 	/* Detailing a transaction doesn't display this correctly */
 	/* for the journal_ledger.				  */
 	/* ------------------------------------------------------ */

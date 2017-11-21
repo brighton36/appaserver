@@ -1105,8 +1105,15 @@ LIST *related_folder_get_update_element_list(
 	else
 		*primary_attribute_asteric = '\0';
 
-	local_preprompt_dictionary =
-		dictionary_copy_dictionary( preprompt_dictionary );
+	if ( list_length( related_folder->folder_foreign_attribute_name_list ) )
+	{
+		local_preprompt_dictionary = (DICTIONARY *)0;
+	}
+	else
+	{
+		local_preprompt_dictionary =
+			dictionary_copy_dictionary( preprompt_dictionary );
+	}
 
 	if ( related_folder->related_attribute_name
 	&&   *related_folder->related_attribute_name

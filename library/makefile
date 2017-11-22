@@ -115,6 +115,9 @@ all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
 		julian_time_double_list.o				\
 		token_dvr.e
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	rm -f *.[oe]
 

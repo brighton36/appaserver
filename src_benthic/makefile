@@ -86,6 +86,9 @@ EXTERNAL_LIBS=								\
 
 all: 	${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	/bin/rm -f *.o ${EXECUTABLES}
 	/bin/rm -f ${CGI_HOME}/post_benthic_validation_form

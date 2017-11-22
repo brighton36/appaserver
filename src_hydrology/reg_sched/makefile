@@ -6,8 +6,6 @@ CC=gcc
 #CFLAGS=-O3 -s -Wall -W
 CFLAGS=-O3 -s -Wall ${APPASERVER_UNUSED_PARAMETER_FLAG}
 
-SOURCE_EVERGLADES=.
-
 LIBRARY=${APPASERVER_HOME}/library
 
 STANDARD_LIBRARY=							\
@@ -74,6 +72,9 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/session.o
 
 all: 	${EXECUTABLES}
+
+touch:
+	/usr/bin/touch *.c
 
 clean:
 	rm ${EXECUTABLES} *.o

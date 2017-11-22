@@ -492,5 +492,12 @@ void employee_close_employee_work_list_insert(
 				LIST *open_work_day_list,
 				char *end_work_date_string );
 
+void employee_work_day_update_timestamp(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *begin_work_date_time,
+				char *attribute_name );
+
 #endif
 

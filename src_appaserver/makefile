@@ -165,6 +165,9 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 
 all: 	${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	/bin/rm -f ${EXECUTABLES}					\
 	*.[oe]								\

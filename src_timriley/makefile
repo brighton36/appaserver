@@ -71,9 +71,12 @@ EXTERNAL_LIBS=								\
 
 all: 	${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	rm -f *.o ${EXECUTABLES}
-	rm ${CGI_HOME}/post_email_timriley
+#	rm ${CGI_HOME}/post_email_timriley
 
 post_email_timriley: post_email_timriley.c				\
 			${STANDARD_LIBRARY}				\
@@ -84,11 +87,10 @@ post_email_timriley: post_email_timriley.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		post_email_timriley.c					\
 		-o post_email_timriley
-	touch ${CGI_HOME}/post_email_timriley
-	/bin/rm -f ${CGI_HOME}/post_email_timriley
-	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_timriley/post_email_timriley		\
-	${CGI_HOME}
+#	touch ${CGI_HOME}/post_email_timriley
+#	/bin/rm -f ${CGI_HOME}/post_email_timriley
+#	ln ${APPASERVER_LINK_FLAGS}					\
+#	${APPASERVER_HOME}/src_timriley/post_email_timriley ${CGI_HOME}
 
 expected_ethernet_usage_percentage:					\
 		expected_ethernet_usage_percentage.c			\

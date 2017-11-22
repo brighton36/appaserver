@@ -97,6 +97,9 @@ EXTERNAL_LIBS=								\
 
 all: 	${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	/bin/rm -f ${EXECUTABLES} *.o
 

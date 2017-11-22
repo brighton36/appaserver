@@ -83,6 +83,9 @@ all: 	${SOURCE_LIBRARY_OBJECT}					\
 	${EXTENRAL_LIBRARY_OBJECT}					\
 	${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	rm ${EXECUTABLES} *.o
 

@@ -180,6 +180,9 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	time_hhmm2hhcolonmm.e						\
 	subtract_list.e
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	rm -f *.[oe]							\
 	build_date_where						\

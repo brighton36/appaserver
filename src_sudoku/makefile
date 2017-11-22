@@ -72,9 +72,12 @@ SOURCE_LIBRARYS= 							\
 
 all: 	${SOURCE_LIBRARYS} ${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	/bin/rm -f ${SOURCE_LIBRARYS} ${EXECUTABLES}
-	/bin/rm -f ${CGI_HOME}/post_sudoku
+#	/bin/rm -f ${CGI_HOME}/post_sudoku
 
 post_sudoku: post_sudoku.c ${EXTERNAL_LIBRARYS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -82,11 +85,10 @@ post_sudoku: post_sudoku.c ${EXTERNAL_LIBRARYS}
 		${EXTERNAL_LIBRARYS}					\
 		post_sudoku.c						\
 		-o post_sudoku
-	touch ${CGI_HOME}/post_sudoku
-	/bin/rm -f ${CGI_HOME}/post_sudoku
-	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_sudoku/post_sudoku			\
-		${CGI_HOME}
+#	touch ${CGI_HOME}/post_sudoku
+#	/bin/rm -f ${CGI_HOME}/post_sudoku
+#	ln ${APPASERVER_LINK_FLAGS}					\
+#	${APPASERVER_HOME}/src_sudoku/post_sudoku ${CGI_HOME}
 
 sudoku_dvr: sudoku_dvr.c						\
 	${SOURCE_LIBRARYS} ${EXTERNAL_LIBRARYS}

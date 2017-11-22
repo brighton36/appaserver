@@ -41,7 +41,7 @@ CUSTOMER_SALE *customer_sale_calloc( void )
 
 } /* customer_sale_calloc() */
 
-SERVICE_WORK *customer_service_work_new( char *begin_date_time )
+SERVICE_WORK *customer_service_work_new( char *begin_work_date_time )
 {
 	SERVICE_WORK *c =
 		(SERVICE_WORK *)
@@ -57,7 +57,7 @@ SERVICE_WORK *customer_service_work_new( char *begin_date_time )
 		exit(1 );
 	}
 
-	c->begin_date_time = begin_date_time;
+	c->begin_work_date_time = begin_work_date_time;
 	return c;
 
 } /* customer_service_work_new() */
@@ -1929,7 +1929,7 @@ FIXED_SERVICE *customer_fixed_service_sale_seek(
 
 SERVICE_WORK *customer_service_work_seek(
 				LIST *service_work_list,
-				char *begin_date_time )
+				char *begin_work_date_time )
 {
 	SERVICE_WORK *service_work;
 
@@ -1939,8 +1939,8 @@ SERVICE_WORK *customer_service_work_seek(
 	do {
 		service_work = list_get_pointer( service_work_list );
 
-		if ( strcmp(	service_work->begin_date_time,
-				begin_date_time ) == 0 )
+		if ( timlib_strncmp(	service_work->begin_work_date_time,
+					begin_work_date_time ) == 0 )
 		{
 			return service_work;
 		}
@@ -3029,8 +3029,8 @@ void customer_sale_inventory_cost_account_list_set(
 
 } /* customer_sale_inventory_cost_account_list_set() */
 
-double customer_get_work_hours(	char *end_date_time,
-				char *begin_date_time )
+double customer_get_work_hours(	char *end_work_date_time,
+				char *begin_work_date_time )
 {
 	DATE *end_date;
 	DATE *begin_date;
@@ -3038,12 +3038,12 @@ double customer_get_work_hours(	char *end_date_time,
 
 	end_date =
 		date_yyyy_mm_dd_hms_new(
-			end_date_time,
+			end_work_date_time,
 			date_get_utc_offset() );
 
 	begin_date =
 		date_yyyy_mm_dd_hms_new(
-			begin_date_time,
+			begin_work_date_time,
 			date_get_utc_offset() );
 
 	work_hours =
@@ -3075,7 +3075,7 @@ LIST *customer_fixed_service_work_get_list(
 	LIST *service_work_list;
 
 	select =
-	"begin_date_time,end_date_time,work_hours";
+	"begin_work_date_time,end_work_date_time,work_hours";
 
 	ledger_where = ledger_get_transaction_where(
 					full_name,
@@ -3108,18 +3108,19 @@ LIST *customer_fixed_service_work_get_list(
 		service_work =
 			customer_service_work_new(
 				strdup( piece_buffer )
-					/* begin_date_time */ );
+					/* begin_work_date_time */ );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 
 		if ( *piece_buffer )
 		{
-			service_work->end_date_time = strdup( piece_buffer );
+			service_work->end_work_date_time =
+				strdup( piece_buffer );
 
 			service_work->work_hours =
 				customer_get_work_hours(
-					service_work->end_date_time,
-					service_work->begin_date_time );
+					service_work->end_work_date_time,
+					service_work->begin_work_date_time );
 
 			*work_hours += service_work->work_hours;
 		}
@@ -3161,7 +3162,7 @@ LIST *customer_hourly_service_work_get_list(
 	LIST *service_work_list;
 
 	select =
-	"begin_date_time,end_date_time,work_hours";
+	"begin_work_date_time,end_work_date_time,work_hours";
 
 	ledger_where = ledger_get_transaction_where(
 					full_name,
@@ -3195,18 +3196,19 @@ LIST *customer_hourly_service_work_get_list(
 		service_work =
 			customer_service_work_new(
 				strdup( piece_buffer )
-					/* begin_date_time */ );
+					/* begin_work_date_time */ );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 
 		if ( *piece_buffer )
 		{
-			service_work->end_date_time = strdup( piece_buffer );
+			service_work->end_work_date_time =
+				strdup( piece_buffer );
 
 			service_work->work_hours =
 				customer_get_work_hours(
-					service_work->end_date_time,
-					service_work->begin_date_time );
+					service_work->end_work_date_time,
+					service_work->begin_work_date_time );
 
 			*work_hours += service_work->work_hours;
 		}
@@ -3237,7 +3239,7 @@ boolean customer_service_work_open(
 	do {
 		service_work = list_get_pointer( service_work_list );
 
-		if ( !service_work->end_date_time ) return 1;
+		if ( !service_work->end_work_date_time ) return 1;
 
 	} while( list_next( service_work_list ) );
 
@@ -3303,14 +3305,14 @@ double customer_fixed_service_work_list_close(
 	do {
 		service_work = list_get_pointer( service_work_list );
 
-		if ( !service_work->end_date_time )
+		if ( !service_work->end_work_date_time )
 		{
-			service_work->end_date_time = completed_date_time;
+			service_work->end_work_date_time = completed_date_time;
 
 			service_work->work_hours =
 				customer_get_work_hours(
-					service_work->end_date_time,
-					service_work->begin_date_time );
+					service_work->end_work_date_time,
+					service_work->begin_work_date_time );
 		}
 
 		work_hours += service_work->work_hours;
@@ -3355,14 +3357,14 @@ double customer_hourly_service_work_list_close(
 	do {
 		service_work = list_get_pointer( service_work_list );
 
-		if ( !service_work->end_date_time )
+		if ( !service_work->end_work_date_time )
 		{
-			service_work->end_date_time = completed_date_time;
+			service_work->end_work_date_time = completed_date_time;
 
 			service_work->work_hours =
 				customer_get_work_hours(
-					service_work->end_date_time,
-					service_work->begin_date_time );
+					service_work->end_work_date_time,
+					service_work->begin_work_date_time );
 		}
 
 		work_hours += service_work->work_hours;
@@ -3405,8 +3407,8 @@ void customer_fixed_service_work_update(
 				char *street_address,
 				char *sale_date_time,
 				char *service_name,
-				char *begin_date_time,
-				char *end_date_time,
+				char *begin_work_date_time,
+				char *end_work_date_time,
 				double work_hours,
 				double database_work_hours )
 {
@@ -3416,7 +3418,7 @@ void customer_fixed_service_work_update(
 	char sys_string[ 1024 ];
 
 	if ( double_virtually_same( work_hours, database_work_hours )
-	&&   !end_date_time )
+	&&   !end_work_date_time )
 	{
 		return;
 	}
@@ -3427,7 +3429,7 @@ void customer_fixed_service_work_update(
 			"fixed_service_work" );
 
 	key_column_list_string =
-	"full_name,street_address,sale_date_time,service_name,begin_date_time";
+	"full_name,street_address,sale_date_time,service_name,begin_work_date_time";
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y		|"
@@ -3445,20 +3447,20 @@ void customer_fixed_service_work_update(
 	 		street_address,
 	 		sale_date_time,
 	 		service_name,
-			begin_date_time,
+			begin_work_date_time,
 	 		work_hours );
 	}
 
-	if ( end_date_time )
+	if ( end_work_date_time )
 	{
 		fprintf(update_pipe,
-	 		"%s^%s^%s^%s^%s^end_date_time^%s\n",
+	 		"%s^%s^%s^%s^%s^end_work_date_time^%s\n",
 	 		full_name,
 	 		street_address,
 	 		sale_date_time,
 	 		service_name,
-			begin_date_time,
-	 		end_date_time );
+			begin_work_date_time,
+	 		end_work_date_time );
 	}
 
 	pclose( update_pipe );
@@ -3486,8 +3488,8 @@ void customer_fixed_service_work_list_update(
 			street_address,
 			sale_date_time,
 			service_name,
-			service_work->begin_date_time,
-			service_work->end_date_time,
+			service_work->begin_work_date_time,
+			service_work->end_work_date_time,
 			service_work->work_hours,
 			service_work->database_work_hours );
 
@@ -3606,8 +3608,8 @@ void customer_hourly_service_work_update(
 				char *sale_date_time,
 				char *service_name,
 				char *description,
-				char *begin_date_time,
-				char *end_date_time,
+				char *begin_work_date_time,
+				char *end_work_date_time,
 				double work_hours,
 				double database_work_hours )
 {
@@ -3617,7 +3619,7 @@ void customer_hourly_service_work_update(
 	char sys_string[ 1024 ];
 
 	if ( double_virtually_same( work_hours, database_work_hours )
-	&&   !end_date_time )
+	&&   !end_work_date_time )
 	{
 		return;
 	}
@@ -3628,7 +3630,7 @@ void customer_hourly_service_work_update(
 			"hourly_service_work" );
 
 	key_column_list_string =
-"full_name,street_address,sale_date_time,service_name,description,begin_date_time";
+"full_name,street_address,sale_date_time,service_name,description,begin_work_date_time";
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y		|"
@@ -3647,21 +3649,21 @@ void customer_hourly_service_work_update(
 	 		sale_date_time,
 	 		service_name,
 			description,
-			begin_date_time,
+			begin_work_date_time,
 	 		work_hours );
 	}
 
-	if ( end_date_time )
+	if ( end_work_date_time )
 	{
 		fprintf(update_pipe,
-	 		"%s^%s^%s^%s^%s^%s^end_date_time^%s\n",
+	 		"%s^%s^%s^%s^%s^%s^end_work_date_time^%s\n",
 	 		full_name,
 	 		street_address,
 	 		sale_date_time,
 	 		service_name,
 			description,
-			begin_date_time,
-	 		end_date_time );
+			begin_work_date_time,
+	 		end_work_date_time );
 	}
 
 	pclose( update_pipe );
@@ -3691,8 +3693,8 @@ void customer_hourly_service_work_list_update(
 			sale_date_time,
 			service_name,
 			description,
-			service_work->begin_date_time,
-			service_work->end_date_time,
+			service_work->begin_work_date_time,
+			service_work->end_work_date_time,
 			service_work->work_hours,
 			service_work->database_work_hours );
 

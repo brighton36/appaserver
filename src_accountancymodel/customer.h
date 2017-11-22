@@ -41,8 +41,8 @@
 /* ---------- */
 typedef struct
 {
-	char *begin_date_time;
-	char *end_date_time;
+	char *begin_work_date_time;
+	char *end_work_date_time;
 	double work_hours;
 	double database_work_hours;
 } SERVICE_WORK;
@@ -474,8 +474,8 @@ void customer_fixed_service_work_update(
 					char *street_address,
 					char *sale_date_time,
 					char *service_name,
-					char *begin_date_time,
-					char *end_date_time,
+					char *begin_work_date_time,
+					char *end_work_date_time,
 					double work_hours,
 					double database_work_hours );
 
@@ -486,8 +486,8 @@ void customer_hourly_service_work_update(
 					char *sale_date_time,
 					char *service_name,
 					char *description,
-					char *begin_date_time,
-					char *end_date_time,
+					char *begin_work_date_time,
+					char *end_work_date_time,
 					double work_hours,
 					double database_work_hours );
 
@@ -543,11 +543,11 @@ LIST *customer_hourly_service_work_get_list(
 					char *service_name,
 					char *description );
 
-SERVICE_WORK *customer_service_work_new(char *begin_date_time );
+SERVICE_WORK *customer_service_work_new(char *begin_work_date_time );
 
 SERVICE_WORK *customer_service_work_seek(
 					LIST *service_work_list,
-					char *begin_date_time );
+					char *begin_work_date_time );
 
 boolean customer_service_work_open(
 					LIST *service_work_list );
@@ -568,8 +568,8 @@ void customer_fixed_service_sale_list_close(
 					LIST *fixed_service_sale_list,
 					char *completed_date_time );
 
-double customer_get_work_hours(		char *end_date_time,
-					char *begin_date_time );
+double customer_get_work_hours(		char *end_work_date_time,
+					char *begin_work_date_time );
 
 void customer_hourly_service_sale_list_close(
 					LIST *hourly_service_sale_list,
@@ -604,8 +604,8 @@ void customer_hourly_service_work_update(
 					char *sale_date_time,
 					char *service_name,
 					char *description,
-					char *begin_date_time,
-					char *end_date_time,
+					char *begin_work_date_time,
+					char *end_work_date_time,
 					double work_hours,
 					double database_work_hours );
 

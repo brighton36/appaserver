@@ -181,6 +181,9 @@ SOURCE_LIBS= 	${SOURCE_EVERGLADES}/measurement_update_parameter.o	\
 
 all: 	${SOURCE_LIBS} ${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	/bin/rm -f *.o ${EXECUTABLES}					\
 	${CGI_HOME}/post_hydrology_quick_measurement_form		\

@@ -684,8 +684,8 @@ int main( int argc, char **argv )
 			(char *)0 /* appaserver_user_foreign_login_name */ );
 
 	dictionary_appaserver_output_as_hidden(
-					dictionary_appaserver,
-					0 /* not with_prefixed_dictionary */ );
+		dictionary_appaserver,
+		0 /* not with_prefixed_dictionary */ );
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==
@@ -943,25 +943,22 @@ LIST *get_element_list(
 
 	}
 
-	if ( !mto1_isa_related_folder_list )
-	{
-		/* Create the lookup push button */
-		/* ----------------------------- */
-		element = element_new( linebreak, "" );
-		list_append( 	return_list, 
-				element, 
-				sizeof( ELEMENT ) );
+	/* Create the lookup push button */
+	/* ----------------------------- */
+	element = element_new( linebreak, "" );
+	list_append( 	return_list, 
+			element, 
+			sizeof( ELEMENT ) );
 
-		element = element_new( 	toggle_button, 
-					LOOKUP_PUSH_BUTTON_NAME );
+	element = element_new( 	toggle_button, 
+				LOOKUP_PUSH_BUTTON_NAME );
 
-		element_toggle_button_set_heading(
-			element->toggle_button, "lookup" );
+	element_toggle_button_set_heading(
+		element->toggle_button, "lookup" );
 
-		list_append(	return_list, 
-				element, 
-				sizeof( ELEMENT ) );
-	}
+	list_append(	return_list, 
+			element, 
+			sizeof( ELEMENT ) );
 
 	return return_list;
 

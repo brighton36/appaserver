@@ -122,6 +122,9 @@ SOURCE_LIBRARY= 							\
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}			\
 		financial_position					\

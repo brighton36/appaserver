@@ -2557,3 +2557,33 @@ void employee_close_employee_work_list_insert(
 
 } /* employee_close_employee_work_list_insert() */
 
+void employee_work_day_update_timestamp(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *begin_work_date_time,
+				char *attribute_name )
+{
+	char *sys_string;
+	FILE *output_pipe;
+	char *timestamp;
+
+	timestamp = date_get_now19( date_get_utc_offset() );
+
+	sys_string =
+		employee_work_day_update_get_sys_string(
+			application_name );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf(output_pipe,
+		"%s^%s^%s^%s^%s\n",
+		full_name,
+		street_address,
+		begin_work_date_time,
+		attribute_name,
+		timestamp );
+
+	pclose( output_pipe );
+
+} /* employee_work_day_update_timestamp() */

@@ -22,13 +22,19 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_employee_pay_day_update(
+void post_change_employee_work_day_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *begin_work_date_time,
 			char *preupdate_begin_work_date_time,
 			char *preupdate_end_work_date_time );
+
+void post_change_employee_work_day_insert(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *begin_work_date_time );
 
 int main( int argc, char **argv )
 {
@@ -76,9 +82,18 @@ int main( int argc, char **argv )
 	preupdate_begin_work_date_time = argv[ 6 ];
 	preupdate_end_work_date_time = argv[ 7 ];
 
+	if ( strcmp( state, "insert" ) == 0 )
+	{
+		post_change_employee_work_day_insert(
+			application_name,
+			full_name,
+			street_address,
+			begin_work_date_time );
+	}
+	else
 	if ( strcmp( state, "update" ) == 0 )
 	{
-		post_change_employee_pay_day_update(
+		post_change_employee_work_day_update(
 			application_name,
 			full_name,
 			street_address,
@@ -91,7 +106,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void post_change_employee_pay_day_update(
+void post_change_employee_work_day_update(
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -170,8 +185,30 @@ void post_change_employee_pay_day_update(
 				employee_work_day->employee_work_hours,
 				employee_work_day->
 					database_employee_work_hours );
+
+			employee_work_day_update_timestamp(
+				application_name,
+				full_name,
+				street_address,
+				begin_work_date_time,
+				"update_timestamp" );
 		}
 	}
 
-} /* post_change_employee_pay_day_update() */
+} /* post_change_employee_work_day_update() */
+
+void post_change_employee_work_day_insert(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *begin_work_date_time )
+{
+	employee_work_day_update_timestamp(
+		application_name,
+		full_name,
+		street_address,
+		begin_work_date_time,
+		"insert_timestamp" );
+
+} /* post_change_employee_work_day_insert() */
 

@@ -1289,6 +1289,15 @@ char *date_get_yyyy_mm_dd_hh_mm_ss(
 
 } /* date_get_yyyy_mm_dd_hh_mm_ss() */
 
+char *date_get_now19( int utc_offset )
+{
+	char buffer[ 128 ];
+	DATE *d;
+
+	d = date_today_new( utc_offset );
+	return date_get_yyyy_mm_dd_hh_mm_ss( d );
+}
+
 char *date_get_now_hh_colon_mm( int utc_offset )
 {
 	char buffer[ 128 ];

@@ -85,6 +85,9 @@ EXTERNAL_LIBS=								\
 
 all: 	${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	rm -f *.o ${EXECUTABLES}
 	rm -f ${CGI_HOME}/post_alligator_srf_dataentry_wizard

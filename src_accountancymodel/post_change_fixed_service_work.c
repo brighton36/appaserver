@@ -37,7 +37,7 @@ void post_change_fixed_service_work_insert(
 				char *street_address,
 				char *sale_date_time,
 				char *service_name,
-				char *begin_date_time );
+				char *begin_work_date_time );
 
 void post_change_fixed_service_work_update(
 				char *application_name,
@@ -45,8 +45,8 @@ void post_change_fixed_service_work_update(
 				char *street_address,
 				char *sale_date_time,
 				char *service_name,
-				char *begin_date_time,
-				char *preupdate_end_date_time );
+				char *begin_work_date_time,
+				char *preupdate_end_work_date_time );
 
 int main( int argc, char **argv )
 {
@@ -56,9 +56,9 @@ int main( int argc, char **argv )
 	char *street_address;
 	char *sale_date_time;
 	char *service_name;
-	char *begin_date_time;
+	char *begin_work_date_time;
 	char *state;
-	char *preupdate_end_date_time;
+	char *preupdate_end_work_date_time;
 
 	appaserver_error_output_starting_argv_stderr(
 				argc,
@@ -67,7 +67,7 @@ int main( int argc, char **argv )
 	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address sale_date_time service_name begin_date_time state preupdate_end_date_time\n",
+"Usage: %s application full_name street_address sale_date_time service_name begin_work_date_time state preupdate_end_work_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -92,9 +92,9 @@ int main( int argc, char **argv )
 	street_address = argv[ 3 ];
 	sale_date_time = argv[ 4 ];
 	service_name = argv[ 5 ];
-	begin_date_time = argv[ 6 ];
+	begin_work_date_time = argv[ 6 ];
 	state = argv[ 7 ];
-	preupdate_end_date_time = argv[ 8 ];
+	preupdate_end_work_date_time = argv[ 8 ];
 
 	/* If change full_name or street address only. */
 	/* --------------------------------------------- */
@@ -124,7 +124,7 @@ int main( int argc, char **argv )
 			street_address,
 			sale_date_time,
 			service_name,
-			begin_date_time );
+			begin_work_date_time );
 	}
 	else
 	{
@@ -134,8 +134,8 @@ int main( int argc, char **argv )
 			street_address,
 			sale_date_time,
 			service_name,
-			begin_date_time,
-			preupdate_end_date_time );
+			begin_work_date_time,
+			preupdate_end_work_date_time );
 	}
 
 	return 0;
@@ -148,7 +148,7 @@ void post_change_fixed_service_work_insert(
 			char *street_address,
 			char *sale_date_time,
 			char *service_name,
-			char *begin_date_time )
+			char *begin_work_date_time )
 {
 	CUSTOMER_SALE *customer_sale;
 	FIXED_SERVICE *fixed_service;
@@ -186,14 +186,14 @@ void post_change_fixed_service_work_insert(
 	if ( ! ( service_work =
 			customer_service_work_seek(
 				fixed_service->service_work_list,
-				begin_date_time ) ) )
+				begin_work_date_time ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 begin_date_time );
+			 begin_work_date_time );
 		return;
 	}
 
@@ -240,8 +240,8 @@ void post_change_fixed_service_work_insert(
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
 		fixed_service->service_name,
-		service_work->begin_date_time,
-		(char *)0 /* end_date_time */,
+		service_work->begin_work_date_time,
+		(char *)0 /* end_work_date_time */,
 		service_work->work_hours,
 		service_work->database_work_hours );
 
@@ -290,13 +290,13 @@ void post_change_fixed_service_work_update(
 			char *street_address,
 			char *sale_date_time,
 			char *service_name,
-			char *begin_date_time,
-			char *preupdate_end_date_time )
+			char *begin_work_date_time,
+			char *preupdate_end_work_date_time )
 {
 	CUSTOMER_SALE *customer_sale;
 	FIXED_SERVICE *fixed_service;
 	SERVICE_WORK *service_work;
-	enum preupdate_change_state end_date_time_change_state;
+	enum preupdate_change_state end_work_date_time_change_state;
 	char *preupdate_completed_date_time = "";
 	boolean execute_post_change_customer_sale = 0;
 
@@ -332,26 +332,26 @@ void post_change_fixed_service_work_update(
 	if ( ! ( service_work =
 			customer_service_work_seek(
 				fixed_service->service_work_list,
-				begin_date_time ) ) )
+				begin_work_date_time ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot seek (%s).\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 begin_date_time );
+			 begin_work_date_time );
 		return;
 	}
 
-	end_date_time_change_state =
+	end_work_date_time_change_state =
 		appaserver_library_get_preupdate_change_state(
-			preupdate_end_date_time,
-			(service_work->end_date_time)
-				? service_work->end_date_time
+			preupdate_end_work_date_time,
+			(service_work->end_work_date_time)
+				? service_work->end_work_date_time
 				: "",
-			"preupdate_end_date_time" );
+			"preupdate_end_work_date_time" );
 
-	if ( end_date_time_change_state == from_something_to_null
+	if ( end_work_date_time_change_state == from_something_to_null
 	&&   customer_sale->completed_date_time
 	&&   *customer_sale->completed_date_time )
 	{
@@ -406,8 +406,8 @@ void post_change_fixed_service_work_update(
 		customer_sale->street_address,
 		customer_sale->sale_date_time,
 		fixed_service->service_name,
-		service_work->begin_date_time,
-		service_work->end_date_time,
+		service_work->begin_work_date_time,
+		service_work->end_work_date_time,
 		service_work->work_hours,
 		service_work->database_work_hours );
 

@@ -78,6 +78,9 @@ EXECUTABLES=	generate_invoice
 
 all: 	${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	rm ${EXECUTABLES} *.o
 

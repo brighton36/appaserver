@@ -1,4 +1,4 @@
-# src_capitolpops/makefile
+# src_communityband/makefile
 # ---------------------------
 
 CC=gcc
@@ -44,6 +44,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/appaserver_error.o				\
 		${LIBRARY}/process_generic_output.o			\
 		${LIBRARY}/appaserver.o					\
+		${LIBRARY}/semaphore.o					\
 		${LIBRARY}/aggregate_statistic.o			\
 		${LIBRARY}/aggregate_level.o				\
 		${LIBRARY}/folder.o					\
@@ -82,9 +83,12 @@ EXTERNAL_LIBRARY=							\
 
 all: 	${EXECUTABLES}
 
+touch:
+	/usr/bin/touch *.c
+
 clean:
 	rm -f ${EXECUTABLES} *.o
-	rm -f ${CGI_HOME}/post_capitolpops
+#	rm -f ${CGI_HOME}/post_capitolpops
 
 post_capitolpops: post_capitolpops.c					\
 	${EXTERNAL_LIBRARY} musician.o
@@ -94,10 +98,10 @@ post_capitolpops: post_capitolpops.c					\
 		post_capitolpops.c					\
 		musician.o						\
 		-o post_capitolpops
-	touch ${CGI_HOME}/post_capitolpops
-	rm -f ${CGI_HOME}/post_capitolpops
-	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_capitolpops/post_capitolpops ${CGI_HOME}
+#	touch ${CGI_HOME}/post_capitolpops
+#	rm -f ${CGI_HOME}/post_capitolpops
+#	ln ${APPASERVER_LINK_FLAGS}					\
+#	${APPASERVER_HOME}/src_capitolpops/post_capitolpops ${CGI_HOME}
 
 build_capitolpops: build_capitolpops.c					\
 	${EXTERNAL_LIBRARY}

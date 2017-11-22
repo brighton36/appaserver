@@ -38,13 +38,13 @@ fi
 document_root=$(get_document_root.e)
 output_file="$document_root/appaserver/$application/data/${process_name}_$$.csv"
 prompt_file="/appaserver/$application/data/${process_name}_$$.csv"
-heading="Count,Parameter,Begin_Date,End_Date"
-justification="right,left"
+heading="Count,Station,Parameter,Avg.,Begin_Date,End_Date"
+justification="right,left,left,right"
 
 statement="
-select count(*),parameter,min(collection_date),max(collection_date)
+select count(*),station,parameter,avg(concentration),min(collection_date),max(collection_date)
 from results
-group by parameter;"
+group by station,parameter;"
 
 echo "$heading" > $output_file
 

@@ -391,7 +391,16 @@ void latex_tex2pdf(	char *tex_filename,
 {
 	char sys_string[ 1024 ];
 
-	chdir( working_directory );
+	if ( chdir( working_directory ) == -1 )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot chdir(%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			working_directory );
+		exit( 1 );
+	}
 
 	sprintf( sys_string,
 		 "pdflatex %s 1>/dev/null 2>&1",

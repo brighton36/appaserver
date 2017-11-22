@@ -120,6 +120,9 @@ int main( int argc, char **argv )
 				application_name, session, login_name );
 	}
 
+	session_update_access_date_time( application_name, session );
+	appaserver_library_purge_temporary_files( application_name );
+
 	mto1_folder =
 		folder_with_load_new(
 				application_name,

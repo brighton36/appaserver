@@ -109,18 +109,6 @@ int main( int argc, char **argv )
 
 	add_relative_source_directory_to_path( application_name );
 
-	if ( strcmp( application_name, "classgrades" ) == 0 )
-	{
-		char sys_string[ 512 ];
-
-		sprintf(sys_string,
-			"echo \"%s\" | post_login_classgrades classgrades",
-			dictionary_display_delimited(
-				post_dictionary, '&' ) );
-		system( sys_string );
-		exit( 0 );
-	}
-
 	if ( timlib_strncmp( login_name, "public" ) != 0 )
 	{
 		sprintf(sys_string,

@@ -69,13 +69,40 @@ boolean role_fetch( 		char *folder_count_yn,
 	char sys_string[ 1024 ];
 	char piece_string[ 128 ];
 	char *results;
+	char *select;
+	char where[ 128 ];
+	char *folder_name;
 
 	if ( !role_name ) return 0;
 
-	sprintf( sys_string, 
-		 "get_role_record.sh %s %s",
-		 application_name,
+	folder_name = "role";
+
+	if ( attribute_exists(	application_name,
+				folder_name,
+				"grace_no_cycle_colors_yn" ) )
+	{
+		select =
+	"folder_count_yn,override_row_restrictions_yn,grace_no_cycle_colors_yn";
+	}
+	else
+	{
+		select =
+		"folder_count_yn,override_row_restrictions_yn,'n'";
+	}
+
+	sprintf( where,
+		 "role = '%s'",
 		 role_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 folder_name,
+		 where );
 
 	results = pipe2string( sys_string );
 

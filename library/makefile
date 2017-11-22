@@ -104,7 +104,6 @@ all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
 		fork_control_dvr.e					\
 		piece_dvr.e						\
 		queue_dvr.e						\
-		date_dvr.e						\
 		hashdvr.e						\
 		julian_dvr.e						\
 		moving_average_dvr.e					\

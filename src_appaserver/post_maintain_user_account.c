@@ -148,7 +148,10 @@ int main( int argc, char **argv )
 				application_name, session_key, login_name );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	session_update_access_date_time( application_name, session );
+	appaserver_library_purge_temporary_files( application_name );
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	original_post_dictionary =
 		post2dictionary(stdin,

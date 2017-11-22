@@ -3056,7 +3056,7 @@ LIST *appaserver_library_get_application_name_list(
 	if ( chdir( appaserver_error_directory ) == -1 )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot chdir(%s)\n",
+			 "ERROR in %s/%s()/%d: cannot chdir(%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -3068,7 +3068,7 @@ LIST *appaserver_library_get_application_name_list(
 	sprintf( sys_string,
 		 "ls -1 appaserver_*.err	|"
 		 "sed 's/^appaserver_//'	|"
-		 "sed 's/\.err$//'		|"
+		 "sed 's/\\.err$//'		|"
 		 "cat				 " );
 
 	return pipe2list( sys_string );;

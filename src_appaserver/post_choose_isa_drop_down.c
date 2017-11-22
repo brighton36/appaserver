@@ -1,12 +1,12 @@
-/* ---------------------------------------------------	*/
-/* post_choose_isa_drop_down.c				*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* This script is attached to the submit button on 	*/
-/* the choose isa drop down form.			*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -----------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/post_choose_isa_drop_down.c	*/
+/* -----------------------------------------------------------	*/
+/*								*/
+/* This script is attached to the submit button on 		*/
+/* the choose isa drop down form.				*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,6 +77,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
@@ -125,7 +131,7 @@ int main( int argc, char **argv )
 	role = role_new_role(	application_name,
 				role_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	original_post_dictionary =
 		post2dictionary(stdin,

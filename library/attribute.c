@@ -1979,3 +1979,19 @@ int attribute_get_width(	char *application_name,
 
 } /* attribute_get_width() */
 
+boolean attribute_exists(	char *application_name,
+				char *folder_name,
+				char *attribute_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf(sys_string,
+	 	"folder_attribute_exists.sh %s %s %s",
+	 	application_name,
+	 	folder_name,
+		attribute_name );
+
+	return ( system( sys_string ) == 0 );
+
+} /* attribute_exists() */
+

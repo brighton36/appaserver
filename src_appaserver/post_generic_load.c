@@ -137,7 +137,10 @@ int main( int argc, char **argv )
 				application_name, session, login_name );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	session_update_access_date_time( application_name, session );
+	appaserver_library_purge_temporary_files( application_name );
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new(
 				application_get_title_string(

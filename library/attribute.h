@@ -277,4 +277,8 @@ int attribute_get_width(		char *application_name,
 ATTRIBUTE *attribute_seek(		LIST *attribute_list,
 					char *attribute_name );
 
+boolean attribute_exists(		char *application_name,
+					char *folder_name,
+					char *attribute_name );
+
 #endif

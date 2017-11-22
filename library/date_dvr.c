@@ -966,7 +966,6 @@ void test_payroll_period( void )
 	char *beginday;
 	char *period;
 	char sys_string[ 1024 ];
-	int days_between;
 	char begin_date_string[ 16 ];
 	char end_date_string[ 16 ];
 

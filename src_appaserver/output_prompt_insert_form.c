@@ -232,6 +232,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
@@ -380,7 +386,6 @@ int main( int argc, char **argv )
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ) );
 	}
-
 
 	pair_one2m =
 		pair_one2m_new(
@@ -1133,13 +1138,8 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 	APPASERVER *appaserver;
 	LIST *attribute_name_list;
 	LIST *omit_insert_prompt_attribute_name_list;
+	LIST *omit_insert_attribute_name_list;
 	LIST *primary_attribute_name_list;
-
-/*
-	post_dictionary = dictionary_remove_prefix(
-				post_dictionary,
-				APPASERVER_ISA_PROMPT_PREFIX );
-*/
 
 	appaserver = appaserver_new_appaserver(
 					application_name,
@@ -1173,8 +1173,8 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 					attribute_list );
 
 	attribute_name_list =
-			folder_get_attribute_name_list(
-				appaserver->folder->attribute_list );
+		folder_get_attribute_name_list(
+			appaserver->folder->attribute_list );
 
 	omit_insert_prompt_attribute_name_list =
 		appaserver_library_get_omit_insert_prompt_attribute_name_list(
@@ -1185,9 +1185,18 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 			attribute_name_list,
 			omit_insert_prompt_attribute_name_list );
 
+	omit_insert_attribute_name_list =
+		appaserver_library_get_omit_insert_attribute_name_list(
+			appaserver->folder->attribute_list );
+
 	*allowed_attribute_name_list =
 		list_subtract_list(
-			attribute_name_list,
+			*allowed_attribute_name_list,
+			omit_insert_attribute_name_list );
+
+	*allowed_attribute_name_list =
+		list_subtract_list(
+			*allowed_attribute_name_list,
 			primary_attribute_name_list );
 
 	folder_load(	&appaserver->folder->insert_rows_number,
@@ -1213,9 +1222,12 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 			(LIST *)0 /* mto1_related_folder_list */ );
 
 	*attribute_list = appaserver->folder->attribute_list;
+
 	*mto1_related_folder_list =
 		appaserver->folder->mto1_related_folder_list;
+
 	*folder_notepad = appaserver->folder->notepad;
+
 	*html_help_file_anchor = appaserver->folder->html_help_file_anchor;
 
 } /* get_selected_choose_isa_drop_down_with_isa_variables() */
@@ -1237,13 +1249,8 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 	APPASERVER *appaserver;
 	LIST *attribute_name_list;
 	LIST *omit_insert_prompt_attribute_name_list;
+	LIST *omit_insert_attribute_name_list;
 	RELATED_FOLDER *mto1_isa_related_folder;
-
-/*
-	post_dictionary = dictionary_remove_prefix(
-				post_dictionary,
-				APPASERVER_ISA_PROMPT_PREFIX );
-*/
 
 	if ( !list_rewind( mto1_isa_related_folder_list ) )
 	{
@@ -1328,9 +1335,19 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 		appaserver_library_get_omit_insert_prompt_attribute_name_list(
 			appaserver->folder->attribute_list );
 
-	*allowed_attribute_name_list = list_subtract_list(
-				attribute_name_list,
-				omit_insert_prompt_attribute_name_list );
+	*allowed_attribute_name_list =
+		list_subtract_list(
+			attribute_name_list,
+			omit_insert_prompt_attribute_name_list );
+
+	omit_insert_attribute_name_list =
+		appaserver_library_get_omit_insert_attribute_name_list(
+			appaserver->folder->attribute_list );
+
+	*allowed_attribute_name_list =
+		list_subtract_list(
+			*allowed_attribute_name_list,
+			omit_insert_prompt_attribute_name_list );
 
 	folder_load(	&appaserver->folder->insert_rows_number,
 			&appaserver->folder->lookup_email_output,
@@ -1355,9 +1372,12 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 			(LIST *)0 /* mto1_related_folder_list */ );
 
 	*attribute_list = appaserver->folder->attribute_list;
+
 	*mto1_related_folder_list =
 		appaserver->folder->mto1_related_folder_list;
+
 	*folder_notepad = appaserver->folder->notepad;
+
 	*html_help_file_anchor = appaserver->folder->html_help_file_anchor;
 
 	*isa_folder_list =

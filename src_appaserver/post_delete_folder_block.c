@@ -113,7 +113,7 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( argc == 8 )
 	{
@@ -186,6 +186,9 @@ int main( int argc, char **argv )
 		session_access_failed_message_and_exit(
 				application_name, session, login_name );
 	}
+
+	session_update_access_date_time( application_name, session );
+	appaserver_library_purge_temporary_files( application_name );
 
 	folder = folder_new_folder( 	application_name,
 					session,

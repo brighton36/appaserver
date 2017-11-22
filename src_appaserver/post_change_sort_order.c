@@ -188,6 +188,9 @@ int main( int argc, char **argv )
 				application_name, session, login_name );
 	}
 
+	session_update_access_date_time( application_name, session );
+	appaserver_library_purge_temporary_files( application_name );
+
 	role = role_new_role(	application_name,
 				role_name );
 

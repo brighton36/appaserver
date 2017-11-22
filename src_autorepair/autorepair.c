@@ -116,7 +116,7 @@ AUTOREPAIR_CUSTOMER_SALE *autorepair_customer_sale_new(
 	if ( !autorepair_customer_sale_load(
 			&customer_sale->odometer_miles,
 			&customer_sale->symptom,
-			&customer_sale->mechanic_name,
+			&customer_sale->mechanic_full_name,
 			application_name,
 			customer_sale->full_name,
 			customer_sale->street_address,
@@ -137,7 +137,7 @@ AUTOREPAIR_CUSTOMER_SALE *autorepair_customer_sale_new(
 boolean autorepair_customer_sale_load(
 			int *odometer_miles,
 			char **symptom,
-			char **mechanic_name,
+			char **mechanic_full_name,
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -149,7 +149,7 @@ boolean autorepair_customer_sale_load(
 	char *results;
 	char piece_buffer[ 2048 ];
 
-	select = "odometer_miles,symptom,mechanic_name";
+	select = "odometer_miles,symptom,mechanic_full_name";
 
 	where = ledger_get_transaction_where(
 					full_name,
@@ -191,7 +191,7 @@ boolean autorepair_customer_sale_load(
 		FOLDER_DATA_DELIMITER,
 		results,
 		2 );
-	*mechanic_name = strdup( piece_buffer );
+	*mechanic_full_name = strdup( piece_buffer );
 
 	free( results );
 	return 1;

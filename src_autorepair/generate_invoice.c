@@ -382,11 +382,11 @@ void build_latex_invoice(	FILE *output_stream,
 					strdup( extra_label ) );
 	}
 
-	if ( *customer_sale->mechanic_name )
+	if ( *customer_sale->mechanic_full_name )
 	{
 		sprintf( extra_label,
 			 "Mechanic: %s",
-			 customer_sale->mechanic_name );
+			 customer_sale->mechanic_full_name );
 		list_append_pointer(	extra_label_list,
 					strdup( extra_label ) );
 	}

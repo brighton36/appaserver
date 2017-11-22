@@ -32,9 +32,9 @@ fixed_service_sale_select="service_name,'1',retail_price,discount_amount"
 
 hourly_service_work_select="	concat( ${hourly_service_work}.description,   \
 				' from: ',				      \
-				substr( begin_date_time, 1, 16 ),	      \
+				substr( begin_work_date_time, 1, 16 ),	      \
 				' to: ',				      \
-				substr( end_date_time, 1, 16 ) ),	      \
+				substr( end_work_date_time, 1, 16 ) ),	      \
 				${hourly_service_work}.work_hours,	      \
 				hourly_rate,				      \
 				'0'"

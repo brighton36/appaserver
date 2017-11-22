@@ -40,7 +40,7 @@ typedef struct
 	char *vehicle_trim;
 	int vehicle_year;
 	int odometer_miles;
-	char *mechanic_name;
+	char *mechanic_full_name;
 	char *symptom;
 } AUTOREPAIR_CUSTOMER_SALE;
 
@@ -71,7 +71,7 @@ double autorepair_get_sales_tax(
 boolean autorepair_customer_sale_load(
 				int *odometer_miles,
 				char **symptom,
-				char **mechanic_name,
+				char **mechanic_full_name,
 				char *application_name,
 				char *full_name,
 				char *street_address,

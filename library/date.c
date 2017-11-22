@@ -1291,11 +1291,18 @@ char *date_get_yyyy_mm_dd_hh_mm_ss(
 
 char *date_get_now19( int utc_offset )
 {
-	char buffer[ 128 ];
 	DATE *d;
 
 	d = date_today_new( utc_offset );
 	return date_get_yyyy_mm_dd_hh_mm_ss( d );
+}
+
+char *date_get_now16( int utc_offset )
+{
+	DATE *d;
+
+	d = date_today_new( utc_offset );
+	return date_display_yyyy_mm_dd_hh_colon_mm( d );
 }
 
 char *date_get_now_hh_colon_mm( int utc_offset )
@@ -1821,6 +1828,22 @@ char *date_display_yyyy_mm_dd_hhmm( DATE *date )
 	return strdup( buffer );
 
 } /* date_display_yyyy_mm_dd_hhmm() */
+
+char *date_display_yyyy_mm_dd_hh_colon_mm( DATE *date )
+{
+	char buffer[ 32 ];
+
+	sprintf( 	buffer, 
+			"%d-%02d-%02d %02d:%02d",
+			date_get_year( date ),
+			date_get_month( date ),
+			date_get_day_of_month( date ),
+			date_get_hour( date ),
+			date_get_minutes( date ) );
+
+	return strdup( buffer );
+
+} /* date_display_yyyy_mm_dd_hh_colon_mm() */
 
 void date_increment_weekly_ceiling(	DATE *date,
 					int utc_offset )

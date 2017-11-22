@@ -168,6 +168,7 @@ void latex_invoice_output_invoice_header(
 					char *instructions,
 					LIST *extra_label_list )
 {
+	char buffer[ 128 ];
 	char company_street_address[ 128 ];
 	char customer_street_address[ 128 ];
 
@@ -204,7 +205,7 @@ void latex_invoice_output_invoice_header(
 	 	 title );
 
 	fprintf( output_stream,
-"\\begin{center}{\\Large \\bf For %s} \\end{center}\n",
+"\\begin{center}{\\large For %s} \\end{center}\n",
 		 latex_invoice_customer->invoice_key );
 
 	if ( logo_filename && *logo_filename )
@@ -225,7 +226,10 @@ void latex_invoice_output_invoice_header(
 "%s & %s \\\\\n"
 "%s, %s %s & %s \\\\\n"
 "\\end{tabular}\n\n",
-	 	company_street_address,
+	 	escape_character(
+			buffer,
+			company_street_address,
+			'#' ),
 		latex_invoice_company->phone_number,
 	 	latex_invoice_company->city,
 	 	latex_invoice_company->state,
@@ -247,7 +251,10 @@ void latex_invoice_output_invoice_header(
 "& %s, %s %s\n"
 "\\end{tabular}\n\n",
 		 	latex_invoice_customer->name,
-		 	customer_street_address,
+	 		escape_character(
+				buffer,
+				customer_street_address,
+				'#' ),
 		 	latex_invoice_customer->city,
 		 	latex_invoice_customer->state,
 		 	latex_invoice_customer->zip_code );
@@ -378,7 +385,7 @@ void latex_invoice_output_invoice_footer(
 
 	if ( total_payment )
 	{
-		fprintf( output_stream, "Paid &" );
+		fprintf( output_stream, "Paid (Thank you) &" );
 
 		if ( line_item_key_heading )
 			fprintf( output_stream, "&" );

@@ -35,6 +35,7 @@ typedef struct
 	char *full_name;
 	char *street_address;
 	char *sale_date_time;
+	char *completed_date_time;
 	char *vehicle_make;
 	char *vehicle_model;
 	char *vehicle_trim;
@@ -51,6 +52,7 @@ AUTOREPAIR_CUSTOMER_SALE *autorepair_customer_sale_new(
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
+				char *completed_date_time,
 				char *vehicle_make,
 				char *vehicle_model,
 				char *vehicle_trim,

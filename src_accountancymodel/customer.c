@@ -149,8 +149,10 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 					char *street_address,
 					char *sale_date_time )
 {
-	CUSTOMER_SALE *c = customer_sale_calloc();
+	CUSTOMER_SALE *c;
 	LIST *inventory_list;
+
+	c = customer_sale_calloc();
 
 	c->full_name = full_name;
 	c->street_address = street_address;
@@ -229,7 +231,8 @@ CUSTOMER_SALE *customer_sale_new(	char *application_name,
 				application_name,
 				c->full_name,
 				c->street_address,
-				c->sale_date_time );
+				c->sale_date_time,
+				c->completed_date_time );
 	}
 
 	if ( ledger_folder_exists(
@@ -512,7 +515,8 @@ LIST *customer_hourly_service_sale_get_list(
 					char *application_name,
 					char *full_name,
 					char *street_address,
-					char *sale_date_time )
+					char *sale_date_time,
+					char *completed_date_time )
 {
 	char sys_string[ 1024 ];
 	char *transaction_where;
@@ -527,6 +531,7 @@ LIST *customer_hourly_service_sale_get_list(
 	HOURLY_SERVICE *hourly_service;
 	LIST *hourly_service_sale_list;
 	char *folder;
+	double work_hours;
 
 	if ( !ledger_folder_exists(
 		application_name,
@@ -536,7 +541,7 @@ LIST *customer_hourly_service_sale_get_list(
 	}
 
 	select =
-"hourly_service.service_name,description,hourly_service_sale.hourly_rate,discount_amount,extension,work_hours,account";
+"hourly_service.service_name,description,estimated_hours,hourly_service_sale.hourly_rate,extension,work_hours,account";
 
 	folder = "hourly_service_sale,hourly_service";
 
@@ -581,13 +586,13 @@ LIST *customer_hourly_service_sale_get_list(
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 		if ( *piece_buffer )
-			hourly_service->hourly_rate =
+			hourly_service->estimated_hours =
 				 atof( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 		if ( *piece_buffer )
-			hourly_service->discount_amount =
-				atof( piece_buffer );
+			hourly_service->hourly_rate =
+				 atof( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
 		if ( *piece_buffer )
@@ -614,11 +619,15 @@ LIST *customer_hourly_service_sale_get_list(
 				hourly_service->service_name,
 				hourly_service->description );
 
+		if ( completed_date_time && *completed_date_time )
+			work_hours = hourly_service->work_hours;
+		else
+			work_hours = hourly_service->estimated_hours;
+
 		hourly_service->extension =
 			CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(
 				hourly_service->hourly_rate,
-				hourly_service->work_hours,
-				hourly_service->discount_amount );
+				work_hours );
 
 		list_append_pointer( hourly_service_sale_list, hourly_service );
 	}
@@ -1777,12 +1786,59 @@ char *customer_get_completed_sale_date_time(
 
 } /* customer_get_completed_sale_date_time() */
  
+char *customer_sale_fetch_completed_date_time(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char entity_buffer[ 128 ];
+	char *results;
+
+	sprintf( where,
+		 "full_name = '%s' and		"
+		 "street_address = '%s' and	"
+		 "sale_date_time = '%s'",
+		 escape_character(	entity_buffer,
+					full_name,
+					'\'' ),
+		 street_address,
+		 sale_date_time );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=completed_date_time	"
+		 "			folder=customer_sale		"
+		 "			where=\"%s\"			",
+		 application_name,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( !results )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot fetch customer_sale = (%s/%s/%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 full_name,
+			 street_address,
+			 sale_date_time );
+		exit( 1 );
+	}
+
+	return results;
+
+} /* customer_sale_fetch_completed_date_time() */
+
 boolean customer_fetch_sales_tax_exempt(
 				char *application_name,
 				char *full_name,
 				char *street_address )
 {
-
 	char sys_string[ 1024 ];
 	char where[ 256 ];
 	char entity_buffer[ 128 ];
@@ -2151,7 +2207,8 @@ LIST *customer_get_inventory_customer_sale_list(
 				application_name,
 				customer_sale->full_name,
 				customer_sale->street_address,
-				customer_sale->sale_date_time );
+				customer_sale->sale_date_time,
+				customer_sale->completed_date_time );
 
 		customer_sale->sum_hourly_service_extension =
 			customer_sale_get_sum_hourly_service_extension(
@@ -3394,8 +3451,7 @@ void customer_hourly_service_sale_list_close(
 		hourly_service->extension =
 			CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(
 				hourly_service->hourly_rate,
-				hourly_service->work_hours,
-				hourly_service->discount_amount );
+				hourly_service->work_hours );
 
 	} while( list_next( hourly_service_sale_list ) );
 

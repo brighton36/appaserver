@@ -8,9 +8,9 @@
 
 echo "Starting: $0 $*" 1>&2
 
-if [ "$#" -ne 4 ]
+if [ "$#" -ne 5 ]
 then
-	echo "Usage: $0 application full_name street_address sale_date_time" 1>&2
+	echo "Usage: $0 application full_name street_address sale_date_time completed_date_time" 1>&2
 	exit 1
 fi
 
@@ -18,6 +18,7 @@ application=$1
 full_name=$2
 street_address=$3
 sale_date_time=$4
+completed_date_time=$5
 
 export DATABASE=$application
 
@@ -29,6 +30,11 @@ hourly_service_work=`get_table_name $application hourly_service_work`
 inventory_sale_select="inventory_name,quantity,retail_price,discount_amount"
 
 fixed_service_sale_select="service_name,'1',retail_price,discount_amount"
+
+hourly_service_sale_select="	concat( service_name, '--', description ),    \
+				estimated_hours,			      \
+				hourly_rate,				      \
+				'0'"
 
 hourly_service_work_select="	concat( ${hourly_service_work}.description,   \
 				' from: ',				      \
@@ -64,12 +70,22 @@ and street_address = '$street_address'					\
 and sale_date_time = '$sale_date_time';" 				|
 sql.e '^'
 
-echo "select ${hourly_service_work_select}				\
-from ${hourly_service_sale},${hourly_service_work}			\
-where ${hourly_service_work}.full_name = '$full_name'			\
-and ${hourly_service_work}.street_address = '$street_address'		\
-and ${hourly_service_work}.sale_date_time = '$sale_date_time'		\
-and $hourly_service_work_join;"		 				|
-sql.e '^'
+if [ "$completed_date_time" = "" ]
+then
+	echo "select ${hourly_service_sale_select}			\
+	from ${hourly_service_sale}					\
+	where ${hourly_service_sale}.full_name = '$full_name'		\
+	and ${hourly_service_sale}.street_address = '$street_address'	\
+	and ${hourly_service_sale}.sale_date_time = '$sale_date_time';" |
+	sql.e '^'
+else
+	echo "select ${hourly_service_work_select}			\
+	from ${hourly_service_sale},${hourly_service_work}		\
+	where ${hourly_service_work}.full_name = '$full_name'		\
+	and ${hourly_service_work}.street_address = '$street_address'	\
+	and ${hourly_service_work}.sale_date_time = '$sale_date_time'	\
+	and $hourly_service_work_join;"		 			|
+	sql.e '^'
+fi
 
 exit 0

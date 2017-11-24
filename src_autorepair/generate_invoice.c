@@ -49,7 +49,8 @@ double populate_line_item_list(
 				char *application_name,
 				char *full_name,
 				char *street_address,
-				char *sale_date_time );
+				char *sale_date_time,
+				char *completed_date_time );
 
 LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 				char *application_name,
@@ -336,6 +337,7 @@ void build_latex_invoice(	FILE *output_stream,
 	char *todays_date;
 	LIST *extra_label_list = list_new();
 	char extra_label[ 256 ];
+	char *completed_date_time;
 	AUTOREPAIR_CUSTOMER_SALE *customer_sale;
 	char title[ 128 ];
 
@@ -362,12 +364,20 @@ void build_latex_invoice(	FILE *output_stream,
 				self->entity->full_name );
 	}
 
+	completed_date_time =
+		customer_sale_fetch_completed_date_time(
+			application_name,
+			full_name,
+			street_address,
+			sale_date_time );
+
 	customer_sale =
 		autorepair_customer_sale_new(
 				application_name,
 				full_name,
 				street_address,
 				sale_date_time,
+				completed_date_time,
 				vehicle_make,
 				vehicle_model,
 				vehicle_trim,
@@ -430,7 +440,8 @@ void build_latex_invoice(	FILE *output_stream,
 				application_name,
 				full_name,
 				street_address,
-				sale_date_time ) ) )
+				sale_date_time,
+				customer_sale->completed_date_time ) ) )
 	{
 		printf( "<H3>Error: no line items for this invoice.</h3>\n" );
 		document_close();
@@ -560,7 +571,8 @@ double populate_line_item_list(
 			char *application_name,
 			char *full_name,
 			char *street_address,
-			char *sale_date_time )
+			char *sale_date_time,
+			char *completed_date_time )
 {
 	double extension_total = 0.0;
 	char sys_string[ 1024 ];
@@ -572,11 +584,12 @@ double populate_line_item_list(
 	char discount_amount_string[ 128 ];
 
 	sprintf( sys_string,
-		 "select_invoice_lineitems.sh %s '%s' '%s' '%s'",
+		 "select_invoice_lineitems.sh %s '%s' '%s' '%s' '%s'",
 		 application_name,
 		 full_name,
 		 street_address,
-		 sale_date_time );
+		 sale_date_time,
+		 (completed_date_time) ? completed_date_time : "" );
 
 	input_pipe = popen( sys_string, "r" );
 

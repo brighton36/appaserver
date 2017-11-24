@@ -30,9 +30,8 @@
 
 #define CUSTOMER_HOURLY_SERVICE_GET_EXTENSION(				\
 		hourly_rate,						\
-		work_hours,						\
-		discount_amount )					\
-		( ( hourly_rate * work_hours ) - discount_amount )
+		work_hours )						\
+		( hourly_rate * work_hours )
 
 /* Enumerated types */
 /* ---------------- */
@@ -51,8 +50,8 @@ typedef struct
 {
 	char *service_name;
 	char *description;
+	double estimated_hours;
 	double hourly_rate;
-	double discount_amount;
 	double extension;
 	double database_extension;
 	double work_hours;
@@ -524,7 +523,8 @@ LIST *customer_hourly_service_sale_get_list(
 					char *application_name,
 					char *full_name,
 					char *street_address,
-					char *sale_date_time );
+					char *sale_date_time,
+					char *completed_date_time );
 
 LIST *customer_fixed_service_work_get_list(
 					double *work_hours,
@@ -654,6 +654,12 @@ LIST *customer_sale_fetch_commission_list(
 				char *sales_representative_street_address,
 				char *representative_full_name_attribute,
 				char *representative_street_address_attribute );
+
+char *customer_sale_fetch_completed_date_time(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time );
 
 #endif
 

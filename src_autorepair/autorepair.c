@@ -87,6 +87,7 @@ AUTOREPAIR_CUSTOMER_SALE *autorepair_customer_sale_new(
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
+				char *completed_date_time,
 				char *vehicle_make,
 				char *vehicle_model,
 				char *vehicle_trim,
@@ -108,6 +109,7 @@ AUTOREPAIR_CUSTOMER_SALE *autorepair_customer_sale_new(
 	customer_sale->full_name = full_name;
 	customer_sale->street_address = street_address;
 	customer_sale->sale_date_time = sale_date_time;
+	customer_sale->completed_date_time = completed_date_time;
 	customer_sale->vehicle_make = vehicle_make;
 	customer_sale->vehicle_model = vehicle_model;
 	customer_sale->vehicle_trim = vehicle_trim;

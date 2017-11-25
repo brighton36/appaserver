@@ -8,7 +8,10 @@ then
 	exit_usage=1
 fi
 
-if [ "$1" = "hhmmss" ]
+if [ "$1" = "colon" ]
+then
+	date_format="+%Y-%m-%d %H:%M:%S"
+elif [ "$1" = "hhmmss" ]
 then
 	date_format="+%H%M%S"
 elif [ "$1" = "ymdhm" ]
@@ -29,7 +32,7 @@ fi
 
 if [ "$exit_usage" = 1 ]
 then
-	echo "Usage: $0 ymdhm|ymd|hhmmss|pretty|full [days_from_now]" 1>&2
+	echo "Usage: $0 ymdhm|ymd|hhmmss|pretty|full|colon [days_from_now]" 1>&2
 	exit 1
 fi
 

@@ -25,6 +25,9 @@
 
 /* Prototypes */
 /* ---------- */
+void service_work_close_all(	char *application_name,
+				char *login_name );
+
 void service_work_close_fixed(
 				char *application_name,
 				char *full_name,
@@ -146,6 +149,8 @@ int main( int argc, char **argv )
 	if ( strcmp( operation, "open" ) == 0
 	&&   strcmp( hourly_fixed, "hourly" ) == 0 )
 	{
+		service_work_close_all( application_name, login_name );
+
 		service_work_open_hourly(
 			full_name,
 			street_address,
@@ -185,6 +190,8 @@ int main( int argc, char **argv )
 	if ( strcmp( operation, "open" ) == 0
 	&&   strcmp( hourly_fixed, "fixed" ) == 0 )
 	{
+		service_work_close_all( application_name, login_name );
+
 		service_work_open_fixed(
 			full_name,
 			street_address,
@@ -291,7 +298,9 @@ void service_work_open_hourly(
 	now = date_get_now16( date_get_utc_offset() );
 
 	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s del='^' | sql.e",
+		 "insert_statement.e table=%s field=%s del='^'	|"
+		 "sql.e 2>&1					|"
+		 "html_paragraph_wrapper.e			 ",
 		 table,
 		 field );
 
@@ -387,7 +396,9 @@ void service_work_open_fixed(
 	now = date_get_now16( date_get_utc_offset() );
 
 	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s del='^' | sql.e",
+		 "insert_statement.e table=%s field=%s del='^'	|"
+		 "sql.e 2>&1					|"
+		 "html_paragraph_wrapper.e			 ",
 		 table,
 		 field );
 
@@ -457,4 +468,18 @@ void service_work_close_fixed(
 	system( sys_string );
 
 } /* service_work_close_fixed() */
+
+void service_work_close_all(	char *application_name,
+				char *login_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "service_work_close_all.sh %s %s",
+		 application_name,
+		 login_name );
+
+	system( sys_string );
+
+} /* service_work_close_all() */
 

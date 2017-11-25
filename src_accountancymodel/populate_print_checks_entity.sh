@@ -46,7 +46,7 @@ group="full_name, street_address"
 
 having="sum( ifnull( credit_amount, 0 ) ) - sum( ifnull( debit_amount, 0 ) ) > 0"
 
-function select_both ()
+function select_both()
 {
 	account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks'"
 
@@ -57,7 +57,7 @@ function select_both ()
 
 }
 
-function select_taxes ()
+function select_taxes()
 {
 	account_where="account.account = 'sales_tax_payable'"
 
@@ -68,7 +68,7 @@ function select_taxes ()
 
 }
 
-function select_not_taxes ()
+function select_not_taxes()
 {
 	#account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks' and account.account <> 'sales_tax_payable'"
 	account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks' and account.account not in (select account from liability_account_entity)"

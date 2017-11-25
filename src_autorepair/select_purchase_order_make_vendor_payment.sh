@@ -20,12 +20,17 @@ where="ifnull( amount_due, 0 ) > 0"
 
 purchase_order=`get_table_name $application purchase_order`
 
-purchase_order_select="full_name,street_address, concat( purchase_date_time, ' [Due=', amount_due, ']')"
+purchase_order_select="	full_name,
+			street_address,
+			concat(	purchase_date_time,
+				' [Due=',
+				amount_due,
+				']')"
 
-echo "select ${purchase_order_select}					\
-from ${purchase_order}							\
-where $where								\
-order by purchase_date_time desc;"					|
+echo "select ${purchase_order_select}
+from ${purchase_order}
+where $where
+order by purchase_date_time desc;" |
 sql.e '^'
 
 exit 0

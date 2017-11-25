@@ -430,10 +430,10 @@ void latex_invoice_output_footer(
 	if ( with_customer_signature )
 	{
 		fprintf( output_stream,
-"\n\\begin{tabular}{lp{2in}lp{2in}}\n");
+"\n\\begin{tabular}{lp{2.5in}lp{2in}}\n");
 		fprintf( output_stream,
-"\\bf \\Large{Customer Signature}  & \\line(1,0){150} &"
-"\\bf \\Large{Date}  & \\line(1,0){100} \\\\\n" );
+"\\bf \\large{Customer Signature}  & \\line(1,0){175} &"
+"\\bf \\large{Date}  & \\line(1,0){100} \\\\\n" );
 		fprintf( output_stream,
 "\\end{tabular}\n" );
 

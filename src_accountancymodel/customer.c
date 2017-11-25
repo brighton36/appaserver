@@ -3870,16 +3870,17 @@ void customer_hourly_service_sale_list_update(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_inventory_distinct_account_extract(
+					LIST *journal_ledger_list,
 					double *sales_revenue_amount,
 					LIST *inventory_sale_list )
 {
 	INVENTORY_SALE *inventory_sale;
-	LIST *journal_ledger_list;
 	JOURNAL_LEDGER *journal_ledger;
 
 	if ( !list_rewind( inventory_sale_list ) ) return (LIST *)0;
 
-	journal_ledger_list = list_new();
+	if ( !journal_ledger_list )
+		journal_ledger_list = list_new();
 
 	do {
 		inventory_sale =
@@ -3940,16 +3941,17 @@ LIST *customer_sale_inventory_distinct_account_extract(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_fixed_service_distinct_account_extract(
+					LIST *journal_ledger_list,
 					double *service_revenue_amount,
 					LIST *fixed_service_sale_list )
 {
 	FIXED_SERVICE *fixed_service;
-	LIST *journal_ledger_list;
 	JOURNAL_LEDGER *journal_ledger;
 
 	if ( !list_rewind( fixed_service_sale_list ) ) return (LIST *)0;
 
-	journal_ledger_list = list_new();
+	if ( !journal_ledger_list )
+		journal_ledger_list = list_new();
 
 	do {
 		fixed_service =
@@ -3988,16 +3990,17 @@ LIST *customer_sale_fixed_service_distinct_account_extract(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_hourly_service_distinct_account_extract(
+					LIST *journal_ledger_list,
 					double *service_revenue_amount,
 					LIST *hourly_service_sale_list )
 {
 	HOURLY_SERVICE *hourly_service;
-	LIST *journal_ledger_list;
 	JOURNAL_LEDGER *journal_ledger;
 
 	if ( !list_rewind( hourly_service_sale_list ) ) return (LIST *)0;
 
-	journal_ledger_list = list_new();
+	if ( !journal_ledger_list )
+		journal_ledger_list = list_new();
 
 	do {
 		hourly_service =

@@ -624,15 +624,24 @@ void customer_fixed_service_work_list_update(
 					char *sale_date_time,
 					char *service_name );
 
+/* Returns journal_ledger_list */
+/* --------------------------- */
 LIST *customer_sale_inventory_distinct_account_extract(
+					LIST *journal_ledger_list,
 					double *sales_revenue_amount,
 					LIST *inventory_sale_list );
 
+/* Returns journal_ledger_list */
+/* --------------------------- */
 LIST *customer_sale_fixed_service_distinct_account_extract(
+					LIST *journal_ledger_list,
 					double *service_revenue_amount,
 					LIST *fixed_service_sale_list );
 
+/* Returns journal_ledger_list */
+/* --------------------------- */
 LIST *customer_sale_hourly_service_distinct_account_extract(
+					LIST *journal_ledger_list,
 					double *service_revenue_amount,
 					LIST *hourly_service_sale_list );
 

@@ -36,7 +36,20 @@ fi
 
 customer_sale=`get_table_name $application customer_sale`
 
-customer_sale_select="full_name,street_address, concat( sale_date_time, '[', vehicle_make, ',', vehicle_model, ',', vehicle_trim, ',', vehicle_year, ',Due=', ifnull( amount_due, 0 ), ']')"
+customer_sale_select="	full_name,
+			street_address,
+			concat(	sale_date_time,
+				'[',
+				vehicle_make,
+				',',
+				vehicle_model,
+				',',
+				vehicle_trim,
+				',',
+				vehicle_year,
+				',Due=',
+				ifnull( amount_due, 0 ),
+				']')"
 
 echo "select ${customer_sale_select}					\
 from ${customer_sale}							\

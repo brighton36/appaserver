@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_autorepair
-	make generate_invoice
+	cd ../src_appaserver
+	make output_prompt_edit_form
 fi

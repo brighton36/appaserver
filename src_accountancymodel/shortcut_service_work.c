@@ -1,6 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_accountancymodel/update_sale_completed.c				*/
-/* Linked to update_sale_not_completed					*/
+/* $APPASERVER_HOME/src_accountancymodel/shortcut_service_work.c	*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -26,11 +25,30 @@
 
 /* Prototypes */
 /* ---------- */
-void update_sale_completed(	CUSTOMER_SALE *customer_sale,
-				char *application_name );
+void service_work_hourly_open(	CUSTOMER_SALE *customer_sale,
+				char *application_name,
+				char *login_name,
+				char *service_name,
+				char *description );
 
-void update_sale_not_completed(	CUSTOMER_SALE *customer_sale,
-				char *application_name );
+void service_work_hourly_close(	CUSTOMER_SALE *customer_sale,
+				char *application_name,
+				char *login_name,
+				char *service_name,
+				char *description,
+				char *begin_work_date_time );
+
+void service_work_fixed_open(	CUSTOMER_SALE *customer_sale,
+				char *application_name,
+				char *login_name,
+				char *login_name,
+				char *service_name );
+
+void service_work_fixed_close(	CUSTOMER_SALE *customer_sale,
+				char *application_name,
+				char *login_name,
+				char *service_name,
+				char *begin_work_date_time );
 
 void display_customer_sale(	char *application_name,
 				char *full_name,
@@ -40,20 +58,26 @@ void display_customer_sale(	char *application_name,
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *login_name;
 	char *process_name;
 	char *full_name;
 	char *street_address;
 	char *sale_date_time;
+	char *operation;
+	char *hourly_fixed;
+	char *service_name;
+	char *description;
+	char *begin_work_date_time;
 	char *database_string = {0};
 	DOCUMENT *document;
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	CUSTOMER_SALE *customer_sale;
 
-	if ( argc != 6 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process full_name street_address sale_date_time\n",
+"Usage: %s application process login_name full_name street_address sale_date_time operation hourly_fixed service_name description begin_work_date_time\n",
 		argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -69,9 +93,15 @@ int main( int argc, char **argv )
 	}
 
 	process_name = argv[ 2 ];
-	full_name = argv[ 3 ];
-	street_address = argv[ 4 ];
-	sale_date_time = argv[ 5 ];
+	login_name = argv[ 3 ];
+	full_name = argv[ 4 ];
+	street_address = argv[ 5 ];
+	sale_date_time = argv[ 6 ];
+	operation = argv[ 7 ];
+	hourly_fixed = argv[ 8 ];
+	service_name = argv[ 9 ];
+	description = argv[ 10 ];
+	begin_work_date_time = argv[ 11 ];
 
 	appaserver_error_output_starting_argv_stderr(
 				argc,
@@ -116,22 +146,10 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( strcmp( argv[ 0 ], "update_sale_completed" ) == 0 )
-	{
-		update_sale_completed(	customer_sale,
-					application_name );
-	}
-	else
-	if ( strcmp( argv[ 0 ], "update_sale_not_completed" ) == 0 )
-	{
-		update_sale_not_completed(
-					customer_sale,
-					application_name );
-	}
 	else
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: invalid argv[ 0 ].\n",
+			 "ERROR in %s/%s()/%d: invalid combination.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );

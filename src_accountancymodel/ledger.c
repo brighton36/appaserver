@@ -7852,11 +7852,11 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 	/* -------------- */
 	if ( list_length( inventory_sale_list ) )
 	{
-		list_append_list(
-			transaction->journal_ledger_list,
+		transaction->journal_ledger_list =
 			customer_sale_inventory_distinct_account_extract(
+				transaction->journal_ledger_list,
 				&sales_revenue_amount,
-				inventory_sale_list ) );
+				inventory_sale_list );
 	}
 
 	/* SPECIFIC_INVENTORY_SALE */
@@ -7871,36 +7871,53 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 			/* Debit cost_of_goods_sold */
 			/* ------------------------ */
 			journal_ledger =
+				ledger_get_or_set_journal_ledger(
+					transaction->journal_ledger_list,
+					cost_of_goods_sold_account );
+
+/*
+			journal_ledger =
 				journal_ledger_new(
 					transaction->full_name,
 					transaction->street_address,
 					transaction_date_time,
 					cost_of_goods_sold_account );
+*/
 
-			journal_ledger->debit_amount =
+			journal_ledger->debit_amount +=
 				specific_inventory_sale->
 					cost_of_goods_sold;
 
+/*
 			list_append_pointer(
 				transaction->journal_ledger_list,
 				journal_ledger );
+*/
 
 			/* Credit specific_inventory */
 			/* ------------------------- */
+			journal_ledger =
+				ledger_get_or_set_journal_ledger(
+					transaction->journal_ledger_list,
+					specific_inventory_account );
+/*
 			journal_ledger =
 				journal_ledger_new(
 					transaction->full_name,
 					transaction->street_address,
 					transaction_date_time,
 					specific_inventory_account );
+*/
 
-			journal_ledger->credit_amount =
+			journal_ledger->credit_amount +=
 				specific_inventory_sale->
 					cost_of_goods_sold;
 
+/*
 			list_append_pointer(
 				transaction->journal_ledger_list,
 				journal_ledger );
+*/
 
 			sales_revenue_amount +=
 				specific_inventory_sale->
@@ -7913,22 +7930,22 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 	/* ------------------ */
 	if ( list_length( fixed_service_sale_list ) )
 	{
-		list_append_list(
-			transaction->journal_ledger_list,
+		transaction->journal_ledger_list =
 			customer_sale_fixed_service_distinct_account_extract(
+				transaction->journal_ledger_list,
 				&service_revenue_amount,
-				fixed_service_sale_list ) );
+				fixed_service_sale_list );
 	}
 
 	/* HOURLY_SERVICE_SALE */
 	/* ------------------- */
 	if ( list_length( hourly_service_sale_list ) )
 	{
-		list_append_list(
-			transaction->journal_ledger_list,
+		transaction->journal_ledger_list =
 			customer_sale_hourly_service_distinct_account_extract(
+				transaction->journal_ledger_list,
 				&service_revenue_amount,
-				hourly_service_sale_list ) );
+				hourly_service_sale_list );
 	}
 
 	/* shipping_revenue */

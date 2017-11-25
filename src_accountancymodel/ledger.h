@@ -291,6 +291,8 @@ LEDGER_ELEMENT *ledger_element_list_seek(
 
 char *ledger_transaction_display(	TRANSACTION *transaction );
 
+void ledger_list_html_display(		LIST *ledger_list );
+
 char *ledger_list_display(		LIST *ledger_list );
 
 char *ledger_journal_ledger_list_display(

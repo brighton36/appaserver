@@ -240,6 +240,19 @@ void update_sale_completed(	CUSTOMER_SALE *customer_sale,
 				customer_sale->street_address,
 				customer_sale->sale_date_time );
 
+	if ( !customer_sale->transaction )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty transaction.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	ledger_list_html_display(
+		customer_sale->transaction->journal_ledger_list );
+
 	printf( "<p>Marked sale completed.\n" );
 
 	document_close();

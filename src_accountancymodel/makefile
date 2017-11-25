@@ -62,7 +62,8 @@ EXECUTABLES=	trial_balance						\
 		post_change_self					\
 		post_change_employee_work_day				\
 		inventory_cost_method_propagate				\
-		load_receipt_scan
+		load_receipt_scan					\
+		shortcut_service_work
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -159,6 +160,14 @@ post_employee_work_period: post_employee_work_period.c			\
 		${SOURCE_LIBRARY}					\
 		post_employee_work_period.c				\
 		-o post_employee_work_period
+
+shortcut_service_work: shortcut_service_work.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		shortcut_service_work.c					\
+		-o shortcut_service_work
 
 ledger_propagate: ledger_propagate.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

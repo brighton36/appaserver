@@ -25,30 +25,37 @@
 
 /* Prototypes */
 /* ---------- */
-void service_work_hourly_open(	CUSTOMER_SALE *customer_sale,
+void service_work_close_fixed(
 				char *application_name,
-				char *login_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
 				char *service_name,
-				char *description );
+				char *begin_work_date_time );
 
-void service_work_hourly_close(	CUSTOMER_SALE *customer_sale,
+void service_work_open_fixed(
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *service_name,
+				char *login_name );
+
+void service_work_close_hourly(
 				char *application_name,
-				char *login_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
 				char *service_name,
 				char *description,
 				char *begin_work_date_time );
 
-void service_work_fixed_open(	CUSTOMER_SALE *customer_sale,
-				char *application_name,
-				char *login_name,
-				char *login_name,
-				char *service_name );
-
-void service_work_fixed_close(	CUSTOMER_SALE *customer_sale,
-				char *application_name,
-				char *login_name,
+void service_work_open_hourly(
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
 				char *service_name,
-				char *begin_work_date_time );
+				char *description,
+				char *login_name );
 
 void display_customer_sale(	char *application_name,
 				char *full_name,
@@ -72,7 +79,6 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	CUSTOMER_SALE *customer_sale;
 
 	if ( argc != 12 )
 	{
@@ -103,11 +109,9 @@ int main( int argc, char **argv )
 	description = argv[ 10 ];
 	begin_work_date_time = argv[ 11 ];
 
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
+	appaserver_error_output_starting_argv_stderr( argc, argv );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	format_initial_capital( title, process_name );
 	document = document_new( title, application_name );
@@ -131,14 +135,7 @@ int main( int argc, char **argv )
 
 	printf( "<h1>%s</h1>\n", title );
 
-	customer_sale =
-		customer_sale_new(
-			application_name,
-			full_name,
-			street_address,
-			sale_date_time );
-
-	if ( !customer_sale )
+	if ( !*full_name || strcmp( full_name, "full_name" ) == 0 )
 	{
 		printf(
 		"<h3>Error: please select a customer sale.</h3>\n" );
@@ -146,6 +143,81 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	if ( strcmp( operation, "open" ) == 0
+	&&   strcmp( hourly_fixed, "hourly" ) == 0 )
+	{
+		service_work_open_hourly(
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name,
+			description,
+			login_name );
+
+		display_customer_sale(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time );
+
+	}
+	else
+	if ( strcmp( operation, "close" ) == 0
+	&&   strcmp( hourly_fixed, "hourly" ) == 0 )
+	{
+		service_work_close_hourly(
+			application_name,
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name,
+			description,
+			begin_work_date_time );
+
+		display_customer_sale(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time );
+
+	}
+	else
+	if ( strcmp( operation, "open" ) == 0
+	&&   strcmp( hourly_fixed, "fixed" ) == 0 )
+	{
+		service_work_open_fixed(
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name,
+			login_name );
+
+		display_customer_sale(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time );
+
+	}
+	else
+	if ( strcmp( operation, "close" ) == 0
+	&&   strcmp( hourly_fixed, "fixed" ) == 0 )
+	{
+		service_work_close_fixed(
+			application_name,
+			full_name,
+			street_address,
+			sale_date_time,
+			service_name,
+			begin_work_date_time );
+
+		display_customer_sale(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time );
+
+	}
 	else
 	{
 		fprintf( stderr,
@@ -197,141 +269,192 @@ void display_customer_sale(	char *application_name,
 
 } /* display_customer_sale() */
 
-void update_sale_completed(	CUSTOMER_SALE *customer_sale,
-				char *application_name )
-
+void service_work_open_hourly(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			char *description,
+			char *login_name )
 {
 	char sys_string[ 1024 ];
+	char *table;
+	char *field;
+	FILE *output_pipe;
+	char *now;
 
-	if ( customer_sale->completed_date_time )
-	{
-		printf(
-		"<h3>Error: this customer sale is already completed.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
+	table = "hourly_service_work";
 
-	customer_sale->completed_date_time = timlib_get_now_date_time();
+	field =
+"full_name,street_address,sale_date_time,service_name,description,begin_work_date_time,login_name";
 
-	customer_sale_update(
-				customer_sale->sum_extension,
-				customer_sale->database_sum_extension,
-				customer_sale->sales_tax,
-				customer_sale->database_sales_tax,
-				customer_sale->invoice_amount,
-				customer_sale->database_invoice_amount,
-				customer_sale->completed_date_time,
-				customer_sale->database_completed_date_time,
-				customer_sale->shipped_date_time,
-				customer_sale->database_shipped_date_time,
-				customer_sale->arrived_date,
-				customer_sale->database_arrived_date,
-				customer_sale->total_payment,
-				customer_sale->database_total_payment,
-				customer_sale->amount_due,
-				customer_sale->database_amount_due,
-				customer_sale->transaction_date_time,
-				customer_sale->database_transaction_date_time,
-				customer_sale->full_name,
-				customer_sale->street_address,
-				customer_sale->sale_date_time,
-				application_name );
+	now = date_get_now16( date_get_utc_offset() );
 
 	sprintf( sys_string,
-"post_change_customer_sale %s \"%s\" \"%s\" \"%s\" update preupdate_full_name preupdate_street_address preupdate_title_passage_rule '' preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue",
+		 "insert_statement.e table=%s field=%s del='^' | sql.e",
+		 table,
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf( output_pipe,
+		 "%s^%s^%s^%s^%s^%s^%s\n",
+		 full_name,
+		 street_address,
+		 sale_date_time,
+		 service_name,
+		 description,
+		 now,
+		 login_name );
+
+	pclose( output_pipe );
+
+} /* service_work_open_hourly() */
+
+void service_work_close_hourly(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			char *description,
+			char *begin_work_date_time )
+{
+	char sys_string[ 1024 ];
+	char *table;
+	char *key;
+	FILE *output_pipe;
+	char *now;
+
+	table = "hourly_service_work";
+
+	key =
+"full_name,street_address,sale_date_time,service_name,description,begin_work_date_time";
+
+	now = date_get_now16( date_get_utc_offset() );
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 table,
+		 key );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf( output_pipe,
+		 "%s^%s^%s^%s^%s^%s^end_work_date_time^%s\n",
+		 full_name,
+		 street_address,
+		 sale_date_time,
+		 service_name,
+		 description,
+		 begin_work_date_time,
+		 now );
+
+	pclose( output_pipe );
+
+	sprintf( sys_string,
+"post_change_hourly_service_work %s \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" update preupdate_end_work_date_time",
 		 application_name,
-		 customer_sale->full_name,
-		 customer_sale->street_address,
-		 customer_sale->sale_date_time );
+		 full_name,
+		 street_address,
+		 sale_date_time,
+		 service_name,
+		 description,
+		 begin_work_date_time );
 
 	system( sys_string );
 
-	customer_sale =
-		customer_sale_new(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->sale_date_time );
+} /* service_work_close_hourly() */
 
-	display_customer_sale(	application_name,
-				customer_sale->full_name,
-				customer_sale->street_address,
-				customer_sale->sale_date_time );
-
-	printf( "<p>Marked sale completed.\n" );
-
-	document_close();
-
-} /* update_sale_completed() */
-
-void update_sale_not_completed(	CUSTOMER_SALE *customer_sale,
-				char *application_name )
+void service_work_open_fixed(
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			char *login_name )
 {
 	char sys_string[ 1024 ];
-	char *preupdate_completed_date_time;
+	char *table;
+	char *field;
+	FILE *output_pipe;
+	char *now;
 
-	if ( !customer_sale->completed_date_time )
-	{
-		printf(
-	"<h3>Error: this customer sale is currently not completed.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
+	table = "fixed_service_work";
 
-	preupdate_completed_date_time =
-		customer_sale->completed_date_time;
+	field =
+"full_name,street_address,sale_date_time,service_name,begin_work_date_time,login_name";
 
-	customer_sale->completed_date_time = (char *)0;
-
-	customer_sale_update(
-				customer_sale->sum_extension,
-				customer_sale->database_sum_extension,
-				customer_sale->sales_tax,
-				customer_sale->database_sales_tax,
-				customer_sale->invoice_amount,
-				customer_sale->database_invoice_amount,
-				customer_sale->completed_date_time,
-				customer_sale->database_completed_date_time,
-				customer_sale->shipped_date_time,
-				customer_sale->database_shipped_date_time,
-				customer_sale->arrived_date,
-				customer_sale->database_arrived_date,
-				customer_sale->total_payment,
-				customer_sale->database_total_payment,
-				customer_sale->amount_due,
-				customer_sale->database_amount_due,
-				customer_sale->transaction_date_time,
-				customer_sale->database_transaction_date_time,
-				customer_sale->full_name,
-				customer_sale->street_address,
-				customer_sale->sale_date_time,
-				application_name );
+	now = date_get_now16( date_get_utc_offset() );
 
 	sprintf( sys_string,
-"post_change_customer_sale %s \"%s\" \"%s\" \"%s\" update preupdate_full_name preupdate_street_address preupdate_title_passage_rule \"%s\" preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue",
+		 "insert_statement.e table=%s field=%s del='^' | sql.e",
+		 table,
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf( output_pipe,
+		 "%s^%s^%s^%s^%s^%s\n",
+		 full_name,
+		 street_address,
+		 sale_date_time,
+		 service_name,
+		 now,
+		 login_name );
+
+	pclose( output_pipe );
+
+} /* service_work_open_fixed() */
+
+void service_work_close_fixed(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *service_name,
+			char *begin_work_date_time )
+{
+	char sys_string[ 1024 ];
+	char *table;
+	char *key;
+	FILE *output_pipe;
+	char *now;
+
+	table = "fixed_service_work";
+
+	key =
+"full_name,street_address,sale_date_time,service_name,begin_work_date_time";
+
+	now = date_get_now16( date_get_utc_offset() );
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 table,
+		 key );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf( output_pipe,
+		 "%s^%s^%s^%s^%s^end_work_date_time^%s\n",
+		 full_name,
+		 street_address,
+		 sale_date_time,
+		 service_name,
+		 begin_work_date_time,
+		 now );
+
+	pclose( output_pipe );
+
+	sprintf( sys_string,
+"post_change_fixed_service_work %s \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" update preupdate_end_work_date_time",
 		 application_name,
-		 customer_sale->full_name,
-		 customer_sale->street_address,
-		 customer_sale->sale_date_time,
-		 preupdate_completed_date_time );
+		 full_name,
+		 street_address,
+		 sale_date_time,
+		 service_name,
+		 begin_work_date_time );
 
 	system( sys_string );
 
-	customer_sale =
-		customer_sale_new(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_sale->sale_date_time );
-
-	display_customer_sale(	application_name,
-				customer_sale->full_name,
-				customer_sale->street_address,
-				customer_sale->sale_date_time );
-
-	printf( "<p>Marked sale not completed.\n" );
-
-	document_close();
-
-} /* update_sale_not_completed() */
+} /* service_work_close_fixed() */
 

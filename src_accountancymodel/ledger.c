@@ -3137,6 +3137,82 @@ char *ledger_transaction_display( TRANSACTION *transaction )
 
 } /* ledger_transaction_display() */
 
+void ledger_list_html_display( LIST *ledger_list )
+{
+	char *heading;
+	char *justify;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	double total_debit;
+	double total_credit;
+	char buffer[ 128 ];
+	JOURNAL_LEDGER *journal_ledger;
+	int i;
+
+	if ( !list_length( ledger_list ) ) return;
+
+	heading = "Account,Debit,Credit";
+	justify = "left,right,right";
+
+	sprintf(sys_string,
+		"html_table.e '' %s '^' %s",
+		heading,
+		justify );
+
+	output_pipe = popen( sys_string, "w" );
+
+	total_debit = 0.0;
+	total_credit = 0.0;
+
+	for( i = 0; i < 2; i++ )
+	{
+		list_rewind( ledger_list );
+	
+		do {
+			journal_ledger = list_get( ledger_list );
+	
+			if ( i == 0
+			&&   !timlib_dollar_virtually_same(
+				journal_ledger->debit_amount,
+				0.0 ) )
+			{
+				fprintf(output_pipe,
+			 		"%s^%.2lf^\n",
+					format_initial_capital(
+						buffer,
+						journal_ledger->account_name ),
+			 		journal_ledger->debit_amount );
+	
+				total_debit += journal_ledger->debit_amount;
+			}
+			else
+			if ( i == 1
+			&&   !timlib_dollar_virtually_same(
+				journal_ledger->credit_amount,
+				0.0 ) )
+			{
+				fprintf(output_pipe,
+			 		"%s^^%.2lf\n",
+					format_initial_capital(
+						buffer,
+						journal_ledger->account_name ),
+			 		journal_ledger->credit_amount );
+	
+				total_credit += journal_ledger->credit_amount;
+			}
+	
+		} while( list_next( ledger_list ) );
+	}
+
+	fprintf(output_pipe,
+		"Total^%.2lf^%.2lf\n",
+		total_debit,
+		total_credit );
+
+	pclose( output_pipe );
+
+} /* ledger_list_html_display() */
+
 char *ledger_journal_ledger_list_display(
 					LIST *journal_ledger_list )
 {
@@ -7875,24 +7951,9 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 					transaction->journal_ledger_list,
 					cost_of_goods_sold_account );
 
-/*
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction_date_time,
-					cost_of_goods_sold_account );
-*/
-
 			journal_ledger->debit_amount +=
 				specific_inventory_sale->
 					cost_of_goods_sold;
-
-/*
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-*/
 
 			/* Credit specific_inventory */
 			/* ------------------------- */
@@ -7900,24 +7961,10 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 				ledger_get_or_set_journal_ledger(
 					transaction->journal_ledger_list,
 					specific_inventory_account );
-/*
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction_date_time,
-					specific_inventory_account );
-*/
 
 			journal_ledger->credit_amount +=
 				specific_inventory_sale->
 					cost_of_goods_sold;
-
-/*
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-*/
 
 			sales_revenue_amount +=
 				specific_inventory_sale->

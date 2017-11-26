@@ -15,10 +15,7 @@
 #define LATEX_EXTENSION( quantity, retail_price, discount_amount )	\
 				( quantity * retail_price - discount_amount )
 
-/*
-#define LATEX_INVOICE_EXTENSION \
-	( (double)quantity * retail_price - discount_amount )
-*/
+#define LATEX_INVOICE_QUANTITY_DECIMAL_PLACES	4
 
 /* Structures */
 /* ---------- */
@@ -27,7 +24,6 @@ typedef struct
 	char *item_key;
 	char *item;
 	double quantity;
-	int quantity_decimal_places;
 	double retail_price;
 	double discount_amount;
 } LATEX_INVOICE_LINE_ITEM;
@@ -69,6 +65,7 @@ typedef struct
 	LATEX_INVOICE_COMPANY invoice_company;
 	LATEX_INVOICE_CUSTOMER *invoice_customer;
 	boolean omit_money;
+	int quantity_decimal_places;
 	char *instructions;
 	LIST *extra_label_list;
 } LATEX_INVOICE;
@@ -108,7 +105,6 @@ double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					char *item_key,
 					char *item,
 					double quantity,
-					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount );
 
@@ -116,7 +112,6 @@ LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 					char *item_key,
 					char *item,
 					double quantity,
-					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount );
 
@@ -146,7 +141,8 @@ void latex_invoice_output_invoice_line_items(
 					FILE *output_stream,
 					LIST *invoice_line_item_list,
 					boolean exists_discount_amount,
-					boolean omit_money );
+					boolean omit_money,
+					int quantity_decimal_places );
 
 void latex_invoice_output_invoice_footer(
 					FILE *output_stream,
@@ -167,6 +163,9 @@ void latex_invoice_company_free(		LATEX_INVOICE_COMPANY *
 void latex_invoice_free(			LATEX_INVOICE *invoice );
 
 boolean latex_invoice_get_exists_discount_amount(
+					LIST *invoice_line_item_list );
+
+boolean latex_invoice_each_quantity_integer(
 					LIST *invoice_line_item_list );
 
 #endif

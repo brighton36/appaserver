@@ -463,4 +463,7 @@ char *timlib_generate_password(	void );
 
 char *timlib_commas_in_dollars( double d );
 
+boolean timlib_double_is_integer(
+				double d );
+
 #endif

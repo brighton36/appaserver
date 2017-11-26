@@ -471,14 +471,22 @@ void build_latex_invoice(	FILE *output_stream,
 			latex_invoice->instructions,
 			latex_invoice->extra_label_list );
 
+	if ( latex_invoice_each_quantity_integer(
+		latex_invoice->invoice_customer->invoice_line_item_list ) )
+	{
+		latex_invoice->quantity_decimal_places = 0;
+	}
+
 	latex_invoice_output_invoice_line_items(
 		output_stream,
-		latex_invoice->invoice_customer->
+		latex_invoice->
+			invoice_customer->
 			invoice_line_item_list,
-			latex_invoice->
-				invoice_customer->
-				exists_discount_amount,
-			latex_invoice->omit_money );
+		latex_invoice->
+			invoice_customer->
+			exists_discount_amount,
+		latex_invoice->omit_money,
+		latex_invoice->quantity_decimal_places );
 
 	if ( !omit_money )
 	{
@@ -605,7 +613,6 @@ double populate_line_item_list(
 					(char *)0 /* line_item_key */,
 					strdup( inventory_key ),
 					atof( quantity_string ),
-					4 /* quantity_decimal_places */,
 					atof( retail_price_string ),
 					atof( discount_amount_string ) );
 	}

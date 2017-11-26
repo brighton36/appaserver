@@ -3514,3 +3514,12 @@ char *timlib_generate_password( void )
 
 }
 
+boolean timlib_double_is_integer( double d )
+{
+	int i;
+
+	i = (int)d;
+
+	return timlib_double_virtually_same( (double)i, d );
+}
+

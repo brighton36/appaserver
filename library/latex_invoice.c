@@ -41,6 +41,7 @@ LATEX_INVOICE *latex_invoice_new(	char *invoice_date,
 	h->invoice_company.zip_code = company_zip_code;
 	h->invoice_company.phone_number = company_phone_number;
 	h->invoice_company.email_address = company_email_address;
+	h->quantity_decimal_places = LATEX_INVOICE_QUANTITY_DECIMAL_PLACES;
 	return h;
 } /* latex_invoice_new() */
 
@@ -80,7 +81,6 @@ double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					char *item_key,
 					char *item,
 					double quantity,
-					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount )
 {
@@ -90,7 +90,6 @@ double latex_invoice_append_line_item(	LIST *invoice_line_item_list,
 					item_key,
 					item,
 					quantity,
-					quantity_decimal_places,
 					retail_price,
 					discount_amount );
 
@@ -103,7 +102,6 @@ LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 					char *item_key,
 					char *item,
 					double quantity,
-					int quantity_decimal_places,
 					double retail_price,
 					double discount_amount )
 {
@@ -123,7 +121,6 @@ LATEX_INVOICE_LINE_ITEM *latex_invoice_line_item_new(
 	h->item_key = item_key;
 	h->item = item;
 	h->quantity = quantity;
-	h->quantity_decimal_places = quantity_decimal_places;
 	h->retail_price = retail_price;
 	h->discount_amount = discount_amount;
 	return h;
@@ -385,7 +382,7 @@ void latex_invoice_output_invoice_footer(
 
 	if ( total_payment )
 	{
-		fprintf( output_stream, "Paid (Thank you) &" );
+		fprintf( output_stream, "Payment (Thank you) &" );
 
 		if ( line_item_key_heading )
 			fprintf( output_stream, "&" );
@@ -499,7 +496,8 @@ void latex_invoice_output_invoice_line_items(
 					FILE *output_stream,
 					LIST *invoice_line_item_list,
 					boolean exists_discount_amount,
-					boolean omit_money )
+					boolean omit_money,
+					int quantity_decimal_places )
 {
 	LATEX_INVOICE_LINE_ITEM *line_item;
 	char buffer[ 256 ];
@@ -535,7 +533,7 @@ void latex_invoice_output_invoice_line_items(
 "%s & %.*lf & %s%.2lf",
 			 	format_initial_capital(
 					buffer, line_item->item ),
-				line_item->quantity_decimal_places,
+				quantity_decimal_places,
 			 	quantity,
 			 	dollar_string,
 			 	retail_price );
@@ -567,7 +565,7 @@ void latex_invoice_output_invoice_line_items(
 "%s & %.*lf \\\\\n",
 			 	 format_initial_capital(
 					buffer, line_item->item ),
-				 line_item->quantity_decimal_places,
+				 quantity_decimal_places,
 			 	 quantity );
 		}
 
@@ -585,6 +583,28 @@ void latex_invoice_free( LATEX_INVOICE *invoice )
 	free( invoice );
 
 } /* latex_invoice_free() */
+
+boolean latex_invoice_each_quantity_integer(
+					LIST *invoice_line_item_list )
+{
+	LATEX_INVOICE_LINE_ITEM *line_item;
+
+	if ( !list_rewind( invoice_line_item_list ) ) return 0;
+
+	do {
+		line_item = list_get_pointer( invoice_line_item_list );
+
+		if ( !timlib_double_is_integer(
+			line_item->quantity ) )
+		{
+			return 0;
+		}
+
+	} while( list_next( invoice_line_item_list ) );
+
+	return 1;
+
+} /* latex_invoice_each_quantity_integer() */
 
 boolean latex_invoice_get_exists_discount_amount(
 			LIST *invoice_line_item_list )

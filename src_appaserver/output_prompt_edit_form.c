@@ -948,11 +948,9 @@ LIST *get_element_list(
 					session,
 					folder_name );
 
-/*
 	omit_update_attribute_name_list =
 		attribute_get_omit_update_attribute_name_list(
 			attribute_list );
-*/
 
 	folder->one2m_related_folder_list =
 		related_folder_get_1tom_related_folder_list(
@@ -1121,7 +1119,7 @@ LIST *get_element_list(
 		       related_folder_attribute_consumes_related_folder(
 				&foreign_attribute_name_list,
 				exclude_attribute_name_list,
-				(LIST *)0 /* omit_update_attribute_name_list */,
+				omit_update_attribute_name_list,
 				mto1_related_folder_list,
 				attribute->attribute_name,
 			        (LIST *)0 /* include_attribute_name_list */) ) )

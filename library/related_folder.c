@@ -3993,7 +3993,7 @@ LIST *related_folder_fetch_folder_foreign_attribute_record_list(
 	}
 
 	select = "folder,related_folder,foreign_attribute";
-	order = "primary_key_index";
+	order = "foreign_key_index";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"

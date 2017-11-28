@@ -35,7 +35,6 @@ boolean output_html_table(
 				char *application_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
-				char *memo,
 				double check_amount,
 				char *fund_name );
 
@@ -269,7 +268,6 @@ char *print_checks(	char *application_name,
 			application_name,
 			full_name_list,
 			street_address_list,
-			memo,
 			check_amount,
 			fund_name ) )
 		{
@@ -567,7 +565,6 @@ boolean output_html_table(
 			char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
-			char *memo,
 			double check_amount,
 			char *fund_name )
 {
@@ -577,10 +574,8 @@ boolean output_html_table(
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
 
-	if ( !memo || strcmp( memo, "memo" ) == 0 ) memo = "";
-
 	strcpy( sys_string,
-"html_table.e '' 'full_name,street_address,memo,payment' '^' 'left,right'" );
+"html_table.e '' 'full_name,street_address,payment' '^' 'left,left,right'" );
 
 	output_pipe = popen( sys_string, "w" );
 
@@ -605,10 +600,9 @@ boolean output_html_table(
 		}
 
 		fprintf( output_pipe,
-			 "%s^%s^%s^%.2lf\n",
+			 "%s^%s^%.2lf\n",
 			 full_name,
 			 street_address,
-			 (*memo) ? memo : "",
 			 (check_amount) ? check_amount : balance );
 
 		list_next( street_address_list );

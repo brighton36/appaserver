@@ -31,6 +31,14 @@
 
 /* Prototypes */
 /* ---------- */
+boolean output_html_table(
+				char *application_name,
+				LIST *full_name_list,
+				LIST *street_address_list,
+				char *memo,
+				double check_amount,
+				char *fund_name );
+
 double print_checks_get_balance(
 				char *application_name,
 				char *fund_name,
@@ -60,8 +68,8 @@ char *print_checks_create(
 				char with_stub_yn );
 
 char *print_checks(		char *application_name,
-				char *full_name_list_string,
-				char *street_address_list_string,
+				LIST *full_name_list,
+				LIST *street_address_list,
 				int starting_check_number,
 				char *memo,
 				double check_amount,
@@ -89,6 +97,9 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	char title[ 128 ];
 	char *database_string = {0};
+	LIST *full_name_list;
+	LIST *street_address_list;
+
 	char *pdf_filename;
 
 	if ( argc != 12 )
@@ -154,50 +165,6 @@ int main( int argc, char **argv )
 	printf( "<h1>%s</h1>\n", title );
 	fflush( stdout );
 
-	pdf_filename =
-		print_checks(	application_name,
-				full_name_list_string,
-				street_address_list_string,
-				starting_check_number,
-				memo,
-				check_amount,
-				execute,
-				appaserver_parameter_file->
-					document_root,
-				process_name,
-				session,
-				fund_name,
-				with_stub_yn );
-
-	if ( !pdf_filename )
-	{
-		printf(
-		"<h3>Error: these checks have already been posted.</h3>\n" );
-	}
-
-	document_close();
-
-	return 0;
-
-} /* main() */
-
-char *print_checks(	char *application_name,
-			char *full_name_list_string,
-			char *street_address_list_string,
-			int starting_check_number,
-			char *memo,
-			double check_amount,
-			boolean execute,
-			char *document_root_directory,
-			char *process_name,
-			char *session,
-			char *fund_name,
-			char with_stub_yn )
-{
-	LIST *full_name_list;
-	LIST *street_address_list;
-	char *pdf_filename = {0};
-
 	full_name_list =
 		list_string_to_list(
 			full_name_list_string,
@@ -215,7 +182,8 @@ char *print_checks(	char *application_name,
 				"full_name" ) == 0 ) )
 	{
 		printf( "<h3>Please choose an Entity</h3>\n" );
-		return "";
+		document_close();
+		exit( 0 );
 	}
 
 	if ( list_length( full_name_list ) !=
@@ -225,24 +193,93 @@ char *print_checks(	char *application_name,
 "<h3>An internal error occurred. The list lengths don't match: %d vs. %d.</h3>\n",
 		list_length( full_name_list ),
 		list_length( street_address_list ) );
-		return "";
+		document_close();
+		exit( 0 );
 	}
 
 	pdf_filename =
-		print_checks_create(
+		print_checks(	application_name,
+				full_name_list,
+				street_address_list,
+				starting_check_number,
+				memo,
+				check_amount,
+				execute,
+				appaserver_parameter_file->
+					document_root,
+				process_name,
+				session,
+				fund_name,
+				with_stub_yn );
+
+	if ( !pdf_filename )
+	{
+		if ( list_length( full_name_list ) > 1 )
+		{
+			printf(
+"<h3>Error: one or more of these liabilities has already been posted.</h3>\n" );
+		}
+		else
+		{
+			printf(
+		"<h3>Error: liability has already been posted.</h3>\n" );
+		}
+	}
+
+	document_close();
+
+	return 0;
+
+} /* main() */
+
+char *print_checks(	char *application_name,
+			LIST *full_name_list,
+			LIST *street_address_list,
+			int starting_check_number,
+			char *memo,
+			double check_amount,
+			boolean execute,
+			char *document_root_directory,
+			char *process_name,
+			char *session,
+			char *fund_name,
+			char with_stub_yn )
+{
+	char *pdf_filename = {0};
+
+	if ( starting_check_number )
+	{
+		pdf_filename =
+			print_checks_create(
+				application_name,
+				full_name_list,
+				street_address_list,
+				memo,
+				starting_check_number,
+				check_amount,
+				document_root_directory,
+				process_name,
+				session,
+				fund_name,
+				with_stub_yn );
+	}
+	else
+	{
+		if ( !output_html_table(
 			application_name,
 			full_name_list,
 			street_address_list,
 			memo,
-			starting_check_number,
 			check_amount,
-			document_root_directory,
-			process_name,
-			session,
-			fund_name,
-			with_stub_yn );
+			fund_name ) )
+		{
+			return (char *)0;
+		}
 
-	if ( execute )
+		pdf_filename = "";
+	}
+
+	if ( execute && pdf_filename )
 	{
 		print_checks_post(
 			application_name,
@@ -525,4 +562,61 @@ double print_checks_get_balance(
 	return 0.0;
 
 } /* print_checks_get_balance() */
+
+boolean output_html_table(
+			char *application_name,
+			LIST *full_name_list,
+			LIST *street_address_list,
+			char *memo,
+			double check_amount,
+			char *fund_name )
+{
+	char *full_name;
+	char *street_address;
+	double balance;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+
+	if ( !memo || strcmp( memo, "memo" ) == 0 ) memo = "";
+
+	strcpy( sys_string,
+"html_table.e '' 'full_name,street_address,memo,payment' '^' 'left,right'" );
+
+	output_pipe = popen( sys_string, "w" );
+
+	list_rewind( full_name_list );
+	list_rewind( street_address_list );
+
+	do {
+		full_name = list_get_pointer( full_name_list );
+		street_address = list_get_pointer( street_address_list );
+
+		/* If no balance, then user pressed <Submit> twice. */
+		/* ------------------------------------------------ */
+		if ( ! ( balance =
+				print_checks_get_balance(
+					application_name,
+					fund_name,
+					full_name,
+					street_address ) ) )
+		{
+			pclose( output_pipe );
+			return 0;
+		}
+
+		fprintf( output_pipe,
+			 "%s^%s^%s^%.2lf\n",
+			 full_name,
+			 street_address,
+			 (*memo) ? memo : "",
+			 (check_amount) ? check_amount : balance );
+
+		list_next( street_address_list );
+
+	} while( list_next( full_name_list ) );
+
+	pclose( output_pipe );
+	return 1;
+
+} /* output_html_table() */
 

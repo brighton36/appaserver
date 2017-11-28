@@ -91,7 +91,6 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-/*
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )
@@ -100,7 +99,6 @@ int main( int argc, char **argv )
 				application_name,
 				login_name );
 	}
-*/
 
 	if ( strcmp(	login_name,
 			session_get_login_name(
@@ -132,26 +130,13 @@ int main( int argc, char **argv )
 
 	form_output_content_type();
 
-/*
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: for mto1_folder = %s, got mto1_related_folder_list = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-mto1_folder->folder_name,
-related_folder_list_display( mto1_folder->mto1_related_folder_list, mto1, '\n' ) );
-m2( application_name, msg );
-}
-*/
-
 	if ( ! ( related_folder =
 			related_folder_mto1_seek(
 				mto1_folder->mto1_related_folder_list,
 				one2m_folder_name ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot seek one2m_folder_name = %s.\n",
+		"ERROR in %s/%s()/%d: cannot seek one2m_folder_name = %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -178,8 +163,8 @@ m2( application_name, msg );
 		 "			order=select	|"
 		 "joinlines.e '^'			 ",
 		 application_name,
-		 mto1_folder->folder_name,
 		 list_display( mto1_folder->primary_attribute_name_list ),
+		 mto1_folder->folder_name,
 		 where );
 
 	results = pipe2string( sys_string );

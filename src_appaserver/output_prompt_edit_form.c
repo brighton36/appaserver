@@ -45,6 +45,7 @@
 /* Prototypes */
 /* ---------- */
 void build_related_folder_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			LIST *element_list,
 			RELATED_FOLDER *related_folder,
 			LIST *done_folder_name_list,
@@ -134,6 +135,7 @@ void output_prompt_edit_form(
 			char *lookup_insert_folder_name );
 
 LIST *get_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char **post_change_javascript,
 			char *login_name,
 			char *application_name,
@@ -450,6 +452,7 @@ void output_prompt_edit_form(
 	boolean sort_order_button;
 	FORM *form;
 	boolean with_prelookup_skip_button = 0;
+	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
 	form = form_new( INSERT_UPDATE_KEY,
 			 application_get_title_string( application_name ) );
@@ -552,6 +555,7 @@ void output_prompt_edit_form(
 
 	form->regular_element_list =
 		get_element_list(
+			&ajax_fill_drop_down_related_folder,
 			&post_change_javascript,
 			login_name,
 			application_name,
@@ -685,6 +689,30 @@ void output_prompt_edit_form(
 		appaserver->folder->attribute_list ) )
 	{
 		appaserver_library_output_calendar_javascript();
+	}
+
+	if ( ajax_fill_drop_down_related_folder )
+	{
+		char sys_string[ 1024 ];
+
+		sprintf( sys_string,
+			 "ajax_fill_drop_down.sh %s '%s' '%s' %s %s %s '%s'",
+			 application_name,
+			 login_name,
+			 role_name,
+			 session,
+			 ajax_fill_drop_down_related_folder->
+				folder->
+				folder_name /* one2m_folder */,
+			 ajax_fill_drop_down_related_folder->
+				one2m_related_folder->
+				folder_name /* mto1_folder */,
+			 list_display(
+				ajax_fill_drop_down_related_folder->
+				folder->
+				primary_attribute_name_list ) /* select */ );
+
+		system( sys_string );
 	}
 
 	document_output_close_head( stdout );
@@ -900,6 +928,7 @@ void output_prompt_edit_form(
 } /* output_prompt_edit_form() */
 
 LIST *get_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			char **post_change_javascript,
 			char *login_name,
 			char *application_name,
@@ -1125,6 +1154,7 @@ LIST *get_element_list(
 			        (LIST *)0 /* include_attribute_name_list */) ) )
 		{
 			build_related_folder_element_list(
+			   ajax_fill_drop_down_related_folder,
 			   return_list,
 			   related_folder,
 			   done_folder_name_list,
@@ -2052,6 +2082,7 @@ boolean get_omit_delete_button(
 } /* get_omit_delete_button() */
 
 void build_related_folder_element_list(
+			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
 			LIST *element_list,
 			RELATED_FOLDER *related_folder,
 			LIST *done_folder_name_list,
@@ -2172,7 +2203,7 @@ void build_related_folder_element_list(
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(
-			(RELATED_FOLDER **)0,
+			ajax_fill_drop_down_related_folder,
 			application_name,
 			session,
 			role_name,

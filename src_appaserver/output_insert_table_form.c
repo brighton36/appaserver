@@ -1061,7 +1061,7 @@ LIST *get_insert_table_element_list(
 		return list_new_list();
 
 /*
-Inspiration: benthic SPECIES_MEASUREMENT has BENTHIC_SPECIES
+Can't do because: benthic SPECIES_MEASUREMENT has BENTHIC_SPECIES
 drop-down needing SWEEP.sweep_number in the where clause.
 	parameter_dictionary = dictionary_copy( preprompt_dictionary );
 */

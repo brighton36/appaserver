@@ -995,7 +995,8 @@ LIST *related_folder_get_insert_element_list(
 			element_list, 
 			element );
 
-	if ( ajax_fill_drop_down_related_folder
+	if ( !related_folder->omit_lookup_before_drop_down
+	&&   ajax_fill_drop_down_related_folder
 	&& ( *ajax_fill_drop_down_related_folder =
 		    related_folder_get_ajax_fill_drop_down_related_folder(
 			related_folder->folder->mto1_related_folder_list ) ) )
@@ -4152,7 +4153,9 @@ RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 		related_folder = list_get_pointer( mto1_related_folder_list );
 
 		if ( related_folder->ajax_fill_drop_down )
+		{
 			return related_folder;
+		}
 
 	} while( list_next( mto1_related_folder_list ) );
 

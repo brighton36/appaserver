@@ -959,6 +959,8 @@ boolean merged_datasets_output_gracechart(
 				0 /* not datatype_type_xyhilo */,
 				no_cycle_colors_if_multiple_datatypes );
 
+	grace->dataset_no_cycle_color = 1;
+
 	if ( !grace_set_begin_end_date(grace,
 					begin_date_string,
 					end_date_string ) )
@@ -974,6 +976,7 @@ boolean merged_datasets_output_gracechart(
 	list_append_pointer( grace->graph_list, grace_graph );
 
 	if ( !list_rewind( compare_datatype_list ) ) return 0;
+
 	do {
 		datatype = list_get_pointer( compare_datatype_list );
 

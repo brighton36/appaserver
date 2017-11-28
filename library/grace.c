@@ -1237,7 +1237,11 @@ void grace_set_point(		boolean *inside_null,
 		grace_dataset = list_get_last_pointer( dataset_list );
 	}
 
+/*
 	if ( grace_is_null( y_string ) )
+*/
+	if ( !dataset_no_cycle_color
+	&&   grace_is_null( y_string ) )
 	{
 		if ( 	grace_dataset->dataset_number <=
 			GRACE_MAX_BREAKS_NEW_DATASET )

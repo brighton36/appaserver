@@ -928,13 +928,13 @@ generic_daily_moving_average: generic_daily_moving_average.c		\
 
 generic_output_merged_datasets: generic_output_merged_datasets.c	\
 		${EXTERNAL_LIBS}					\
-		${LIB}/easycharts.o					\
+		${LIB}/google_chart.o					\
 		${LIB}/grace.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		generic_output_merged_datasets.c			\
-		${LIB}/easycharts.o					\
+		${LIB}/google_chart.o					\
 		${LIB}/grace.o						\
 		-o generic_output_merged_datasets
 

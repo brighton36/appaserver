@@ -25,7 +25,7 @@
 #include "list_usage.h"
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
-#include "easycharts.h"
+#include "google_chart.h"
 #include "document.h"
 #include "process_generic_output.h"
 #include "application_constants.h"
@@ -36,22 +36,24 @@
 #define KEY_DELIMITER			'/'
 #define ROWS_BETWEEN_HEADING		20
 
-/*
-#define OUTPUT_FILE_SPREADSHEET		"%s/%s/merged_%s_%s_%s_%d.csv"
-#define FTP_FILE_SPREADSHEET		"/%s/merged_%s_%s_%s_%d.csv"
-#define FTP_WITH_HTTP_FILE_SPREADSHEET	"%s://%s/%s/merged_%s_%s_%s_%d.csv"
-
-#define OUTPUT_FILE_TEXT_FILE		"%s/%s/merged_%s_%s_%s_%d.txt"
-#define FTP_FILE_TEXT_FILE		"/%s/merged_%s_%s_%s_%d.txt"
-#define FTP_WITH_HTTP_FILE_TEXT_FILE	"%s://%s/%s/merged_%s_%s_%s_%d.txt"
-*/
-
 /* Structures */
 /* ---------- */
 
 /* Prototypes */
 /* ---------- */
-LIST *merged_datasets_easycharts_get_output_chart_list(
+char *merged_datasets_get_googlechart_output_datatype_name(
+				char *datatype_entity_name,
+				PROCESS_GENERIC_DATATYPE *datatype );
+
+void merged_datasets_googlechart_set_output_chart(
+			/* ---- */
+			/* Sets */
+			/* |||| */
+			/* vvvv */
+			LIST *timeline_list,
+			LIST *datatype_name_list,
+			/* ^^^^ */
+			/* ---- */
 			LIST *compare_datatype_list,
 			PROCESS_GENERIC_DATATYPE_FOLDER *datatype_folder,
 			boolean accumulate );
@@ -75,7 +77,7 @@ boolean merged_datasets_output_gracechart(
 			char *document_root_directory,
 			boolean accumulate );
 
-boolean merged_datasets_output_easychart(
+boolean merged_datasets_output_googlechart(
 			char *application_name,
 			char *begin_date_string,
 			char *end_date_string,
@@ -322,9 +324,10 @@ int main( int argc, char **argv )
 		where_clause = "";
 	}
 
-	if ( strcmp( merged_output, "easychart" ) == 0 )
+	if ( strcmp( merged_output, "googlechart" ) == 0
+	||   strcmp( merged_output, "easychart" ) == 0 )
 	{
-		if ( !merged_datasets_output_easychart(
+		if ( !merged_datasets_output_googlechart(
 			application_name,
 			begin_date_string,
 			end_date_string,
@@ -1469,7 +1472,7 @@ boolean get_has_bar_graph( LIST *compare_datatype_list )
 	return 0;
 } /* get_has_bar_graph() */
 
-boolean merged_datasets_output_easychart(
+boolean merged_datasets_output_googlechart(
 			char *application_name,
 			char *begin_date_string,
 			char *end_date_string,
@@ -1482,26 +1485,20 @@ boolean merged_datasets_output_easychart(
 			char *where_clause,
 			boolean accumulate )
 {
-	EASYCHARTS *easycharts;
-	FILE *chart_file;
+	GOOGLE_OUTPUT_CHART *google_chart;
 	char title[ 512 ];
-	boolean has_bar_graph;
-	char applet_library_archive[ 128 ];
-	int easycharts_width;
-	int easycharts_height;
+	char *output_filename;
+	char *prompt_filename;
+	FILE *output_file;
 
 	if ( !list_rewind( compare_datatype_list ) ) return 0;
 
-	application_constants_get_easycharts_width_height(
-			&easycharts_width,
-			&easycharts_height,
-			application_name );
-
-	easycharts =
-		easycharts_new_timeline_easycharts(
-			easycharts_width, easycharts_height );
-
-	has_bar_graph = get_has_bar_graph( compare_datatype_list );
+	google_chart =
+		google_output_chart_new(
+			GOOGLE_CHART_POSITION_LEFT,
+			GOOGLE_CHART_POSITION_TOP,
+			GOOGLE_CHART_WIDTH,
+			GOOGLE_CHART_HEIGHT );
 
 	sprintf(title, 
 		"%s\\nFrom: %s to %s\n",
@@ -1512,148 +1509,141 @@ boolean merged_datasets_output_easychart(
 		begin_date_string,
 		end_date_string );
 
-	easycharts_get_chart_filename(
-			&easycharts->chart_filename,
-			&easycharts->prompt_filename,
+	appaserver_link_get_pid_filename(
+			&output_filename,
+			&prompt_filename,
 			application_name,
 			document_root_directory,
-			getpid() );
+			getpid(),
+			process_name /* filename_stem */,
+			"html" /* extension */ );
 
-	chart_file = fopen( easycharts->chart_filename, "w" );
+	output_file = fopen( output_filename, "w" );
 
-	if ( !chart_file )
+	if ( !output_file )
 	{
-		printf( "<p>ERROR: cannot open %s for write.\n",
-			easycharts->chart_filename );
-		document_close();
+		fprintf(stderr,
+			"ERROR in %s/%s(): cannot open %s\n",
+			__FILE__,
+			__FUNCTION__,
+			output_filename );
 		exit( 1 );
 	}
 
-	sprintf(applet_library_archive,
-		"/appaserver/%s/%s",
-		application_name,
-		EASYCHARTS_JAR_FILE );
-	easycharts->applet_library_archive = applet_library_archive;
+	document_output_html_stream( output_file );
 
-	easycharts->output_chart_list =
-		merged_datasets_easycharts_get_output_chart_list(
-			compare_datatype_list,
-			datatype_folder,
-			accumulate );
+	fprintf( output_file, "<head>\n" );
 
-	if ( !easycharts->output_chart_list
-	||   !list_length( easycharts->output_chart_list ) )
+	google_chart_output_include( output_file );
+
+	merged_datasets_googlechart_set_output_chart(
+		/* ---- */
+		/* Sets */
+		/* |||| */
+		/* vvvv */
+		google_chart->timeline_list,
+		google_chart->datatype_name_list,
+		/* ^^^^ */
+		/* ---- */
+		compare_datatype_list,
+		datatype_folder,
+		accumulate );
+
+	if ( !list_length( google_chart->timeline_list ) )
 	{
-		printf( "<p>There are no charts to display\n" );
+		printf( "<p>There is no chart to display\n" );
 		document_close();
 		exit( 0 );
 	}
 
-	easycharts->yaxis_decimal_count =
-		easycharts_get_yaxis_decimal_count(
-			easycharts->output_chart_list );
+	google_chart_output_visualization_function(
+				output_file,
+				google_chart->google_chart_type,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
+				google_chart->datatype_name_list,
+				title,
+				(char *)0 /* yaxis_label */,
+				google_chart->width,
+				google_chart->height,
+				google_chart->background_color,
+				google_chart->legend_position_bottom,
+				0 /* not chart_type_bar */,
+				google_chart->google_package_name,
+				0 /* not dont_display_range_selector */,
+				aggregate_level,
+				google_chart->chart_number );
 
-	easycharts->range_step =
-		easycharts_get_range_step(
-			easycharts->output_chart_list );
+	fprintf( output_file, "</head>\n" );
+	fprintf( output_file, "<body>\n" );
 
-	/* easycharts->sample_label_angle = 90; */
-	easycharts->bold_labels = 0;
-	easycharts->bold_legends = 0;
-	easycharts->font_size = 12;
-	easycharts->sample_scroller_on = 1;
-	easycharts->range_scroller_on = 1;
+	google_chart_float_chart(
+				output_file,
+				title,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
 
-	if ( has_bar_graph )
-		easycharts->series_line_off = 1;
+	google_chart_output_chart_instantiation(
+		output_file,
+		google_chart->chart_number );
 
-	easycharts->title = title;
+	fprintf( output_file, "</body>\n" );
+	fprintf( output_file, "</html>\n" );
 
-	easycharts_output_all_charts(
-			chart_file,
-			easycharts->output_chart_list,
-			easycharts->highlight_on,
-			easycharts->highlight_style,
-			easycharts->point_highlight_size,
-			easycharts->series_labels,
-			easycharts->series_line_off,
-			easycharts->applet_library_archive,
-			easycharts->width,
-			easycharts->height,
-			easycharts->title,
-			easycharts->set_y_lower_range,
-			easycharts->legend_on,
-			easycharts->value_labels_on,
-			easycharts->sample_scroller_on,
-			easycharts->range_scroller_on,
-			easycharts->xaxis_decimal_count,
-			easycharts->yaxis_decimal_count,
-			easycharts->range_labels_off,
-			easycharts->value_lines_off,
-			easycharts->range_step,
-			easycharts->sample_label_angle,
-			easycharts->bold_labels,
-			easycharts->bold_legends,
-			easycharts->font_size,
-			easycharts->label_parameter_name,
-			1 /* include_sample_series_output */ );
+	fclose( output_file );
 
-	easycharts_output_html( chart_file );
-
-	fclose( chart_file );
-
-	easycharts_output_graph_window(
-				application_name,
-				(char *)0 /* appaserver_mount_point */,
-				0 /* not with_document_output */,
-				process_name,
-				easycharts->prompt_filename,
-			 	query_get_display_where_clause(
-					where_clause,
-					application_name,
-					value_folder_name,
-					application_get_is_primary_application(
-						application_name ) ) );
+	google_chart_output_prompt(
+		application_name,
+		prompt_filename,
+		process_name,
+		where_clause );
 
 	return 1;
-} /* merged_datasets_output_easychart() */
 
-LIST *merged_datasets_easycharts_get_output_chart_list(
+} /* merged_datasets_output_googlechart() */
+
+char *merged_datasets_get_googlechart_output_datatype_name(
+				char *datatype_entity_name,
+				PROCESS_GENERIC_DATATYPE *datatype )
+{
+	static char output_datatype_name[ 128 ];
+
+	sprintf( output_datatype_name,
+		 "%s/%s",
+		 datatype_entity_name,
+		 process_generic_get_datatype_name(
+		 	datatype->
+			primary_attribute_data_list,
+			' ' /* delimiter */ ) );
+
+	return output_datatype_name;
+
+} /* merged_datasets_get_googlechart_output_datatype_name() */
+
+void merged_datasets_googlechart_set_output_chart(
+			/* ---- */
+			/* Sets */
+			/* |||| */
+			/* vvvv */
+			LIST *timeline_list,
+			LIST *datatype_name_list,
+			/* ^^^^ */
+			/* ---- */
 			LIST *compare_datatype_list,
 			PROCESS_GENERIC_DATATYPE_FOLDER *datatype_folder,
 			boolean accumulate )
 {
 	PROCESS_GENERIC_DATATYPE *datatype;
-	LIST *output_chart_list;
-	char output_datatype_name[ 128 ];
+	char *output_datatype_name;
 	LIST *key_list;
 	PROCESS_GENERIC_VALUE *value;
-	EASYCHARTS_OUTPUT_CHART *output_chart;
-	EASYCHARTS_OUTPUT_DATATYPE *output_datatype;
 	HASH_TABLE *merged_hash_table;
 	char *key;
 	char *datatype_entity_name;
 	double y_value;
 
-	if ( !compare_datatype_list
-	||   !list_length( compare_datatype_list ) )
-	{
-		return (LIST *)0;
-	}
-
-	output_chart_list = list_new_list();
-	output_chart = easycharts_new_output_chart();
-	list_append_pointer( output_chart_list, output_chart );
-
-/*
-	output_chart->bar_chart = input_chart->bar_chart;
-	output_chart->bar_labels_on = input_chart->bar_labels_on;
-	output_chart->x_axis_label = input_chart->x_axis_label;
-	output_chart->y_axis_label = input_chart->y_axis_label;
-
-*/
-	output_chart->applet_library_code =
-			EASYCHARTS_APPLET_LIBRARY_LINE_CHART;
+	if ( !list_length( compare_datatype_list ) ) return;
 
 	merged_hash_table =
 		get_merged_hash_table(
@@ -1663,12 +1653,10 @@ LIST *merged_datasets_easycharts_get_output_chart_list(
 		 hash_table_get_ordered_key_list(
 			merged_hash_table );
 
-	if ( !list_length( key_list ) )
-	{
-		return 0;
-	}
+	if ( !list_length( key_list ) ) return;
 
 	list_rewind( compare_datatype_list );
+
 	do {
 		datatype =
 			list_get_pointer(
@@ -1680,26 +1668,34 @@ LIST *merged_datasets_easycharts_get_output_chart_list(
 				datatype_folder->primary_attribute_name_list,
 				' ' /* delimiter */ );
 
-/*
-			process_generic_get_datatype_entity_name(
-				datatype->foreign_attribute_data_list );
-*/
+		output_datatype_name =
+			merged_datasets_get_googlechart_output_datatype_name(
+				datatype_entity_name,
+				datatype );
 
-		sprintf( output_datatype_name,
-			 "%s/%s",
-			 datatype_entity_name,
-			 process_generic_get_datatype_name(
-			 	datatype->
-				primary_attribute_data_list,
-				' ' /* delimiter */ ) );
+		list_append_pointer(
+			datatype_name_list,
+			strdup( output_datatype_name ) );
 
-		output_datatype =
-			easycharts_new_output_datatype(
-				strdup( output_datatype_name ),
-				datatype->units );
+	} while( list_next( compare_datatype_list ) );
 
-		list_append_pointer(	output_chart->output_datatype_list,
-					output_datatype );
+	list_rewind( compare_datatype_list );
+
+	do {
+		datatype =
+			list_get_pointer(
+				compare_datatype_list );
+
+		datatype_entity_name =
+			process_generic_get_datatype_entity(
+				datatype->foreign_attribute_data_list,
+				datatype_folder->primary_attribute_name_list,
+				' ' /* delimiter */ );
+
+		output_datatype_name =
+			merged_datasets_get_googlechart_output_datatype_name(
+				datatype_entity_name,
+				datatype );
 
 		list_rewind( key_list );
 
@@ -1710,6 +1706,7 @@ LIST *merged_datasets_easycharts_get_output_chart_list(
 					datatype->values_hash_table,
 					key );
 
+#ifdef NOT_DEFINED
 			if ( !value )
 			{
 				if ( !easycharts_set_point(
@@ -1743,8 +1740,31 @@ LIST *merged_datasets_easycharts_get_output_chart_list(
 					return (LIST *)0;
 				}
 			}
+#endif
+
+			if ( value )
+			{
+				if ( accumulate )
+				{
+					y_value = value->accumulate;
+				}
+				else
+				{
+					y_value = value->value;
+				}
+
+				google_timeline_set_point(
+					timeline_list,
+					datatype_name_list,
+					key /* date_string */,
+					(char *)0 /* time_hhmm */,
+					output_datatype_name,
+					y_value );
+			}
+
 		} while( list_next( key_list ) );
+
 	} while( list_next( compare_datatype_list ) );
-	return output_chart_list;
-} /* merged_datasets_easycharts_get_output_chart_list() */
+
+} /* merged_datasets_googlechart_set_output_chart() */
 

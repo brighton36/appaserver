@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_accountancymodel/print_checks_process.c	*/
+/* $APPASERVER_HOME/src_accountancymodel/pay_liabilities.c	*/
 /* ------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org		*/
 /* ------------------------------------------------------------	*/
@@ -66,7 +66,7 @@ char *print_checks_create(
 				char *fund_name,
 				char with_stub_yn );
 
-char *print_checks(		char *application_name,
+char *pay_liabilities(		char *application_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
@@ -197,7 +197,7 @@ int main( int argc, char **argv )
 	}
 
 	pdf_filename =
-		print_checks(	application_name,
+		pay_liabilities(application_name,
 				full_name_list,
 				street_address_list,
 				starting_check_number,
@@ -231,7 +231,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-char *print_checks(	char *application_name,
+char *pay_liabilities(	char *application_name,
 			LIST *full_name_list,
 			LIST *street_address_list,
 			int starting_check_number,
@@ -291,7 +291,7 @@ char *print_checks(	char *application_name,
 
 	return pdf_filename;
 
-} /* print_checks() */
+} /* pay_liabilities() */
 
 char *print_checks_create(
 			char *application_name,

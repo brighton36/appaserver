@@ -129,7 +129,7 @@ populate_print_checks_entity
 inventory_balance_detail
 depreciate_fixed_assets
 depreciate_prior_fixed_assets
-print_checks_process
+pay_liabilities
 post_change_bank_upload
 trial_balance
 tax_form_report

@@ -105,6 +105,11 @@ boolean merged_datasets_output_table(
 					char *application_name,
 					boolean accumulate );
 
+boolean merged_datasets_output_header(
+					FILE *output_pipe,
+					LIST *compare_datatype_list,
+					boolean accumulate );
+
 boolean merged_datasets_output_transmit(
 					FILE *output_pipe,
 					LIST *compare_datatype_list,
@@ -465,19 +470,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-		 	 process_generic_output->
-				value_folder->
-				value_folder_name,
-			 begin_date_string,
-			 end_date_string,
-			 process_id );
-*/
-	
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -496,37 +488,7 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_WITH_HTTP_FILE_SPREADSHEET,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-		 	 	process_generic_output->
-					value_folder->
-					value_folder_name,
-			 	begin_date_string,
-			 	end_date_string,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET,
-			 	application_name,
-		 	 	process_generic_output->
-					value_folder->
-					value_folder_name,
-			 	begin_date_string,
-			 	end_date_string,
-			 	process_id );
-		}
-*/
-	
-		if ( !merged_datasets_output_transmit(
+		if ( !merged_datasets_output_header(
 				output_pipe,
 		  		process_generic_output->
 					value_folder->
@@ -539,6 +501,13 @@ int main( int argc, char **argv )
 			document_close();
 			exit( 0 ); 
 		}
+
+		merged_datasets_output_transmit(
+				output_pipe,
+		  		process_generic_output->
+					value_folder->
+					compare_datatype_list,
+				process_generic_output->accumulate );
 
 		pclose( output_pipe );
 
@@ -627,19 +596,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-		 	 process_generic_output->
-				value_folder->
-				value_folder_name,
-			 begin_date_string,
-			 end_date_string,
-			 process_id );
-*/
-	
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -664,37 +620,7 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_WITH_HTTP_FILE_TEXT_FILE,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-		 	 	process_generic_output->
-					value_folder->
-					value_folder_name,
-			 	begin_date_string,
-			 	end_date_string,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEXT_FILE,
-			 	application_name,
-		 	 	process_generic_output->
-					value_folder->
-					value_folder_name,
-			 	begin_date_string,
-			 	end_date_string,
-			 	process_id );
-		}
-*/
-	
-		if ( !merged_datasets_output_transmit(
+		if ( !merged_datasets_output_header(
 				output_pipe,
 		  		process_generic_output->
 					value_folder->
@@ -707,6 +633,13 @@ int main( int argc, char **argv )
 			document_close();
 			exit( 0 ); 
 		}
+
+		merged_datasets_output_transmit(
+				output_pipe,
+		  		process_generic_output->
+					value_folder->
+					compare_datatype_list,
+				process_generic_output->accumulate );
 
 		pclose( output_pipe );
 
@@ -749,12 +682,20 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
+		merged_datasets_output_header(
+				output_pipe,
+		  		process_generic_output->
+					value_folder->
+					compare_datatype_list,
+				process_generic_output->accumulate );
+
 		merged_datasets_output_transmit(
 				output_pipe,
 		  		process_generic_output->
 					value_folder->
 					compare_datatype_list,
 				process_generic_output->accumulate );
+
 		pclose( output_pipe );
 	}
 	else
@@ -780,18 +721,13 @@ int main( int argc, char **argv )
 	exit( 0 );
 } /* main() */
 
-boolean merged_datasets_output_transmit(
+boolean merged_datasets_output_header(
 					FILE *output_pipe,
 					LIST *compare_datatype_list,
 					boolean accumulate )
 {
-	LIST *key_list;
-	char *key;
 	PROCESS_GENERIC_DATATYPE *datatype;
-	PROCESS_GENERIC_VALUE *value;
-	char buffer[ 512 ];
 	char initial_capital_buffer[ 512 ];
-	HASH_TABLE *merged_hash_table;
 
 	if ( !list_rewind( compare_datatype_list ) ) return 0;
 
@@ -800,6 +736,7 @@ boolean merged_datasets_output_transmit(
 	do {
 		datatype = list_get_pointer( compare_datatype_list );
 
+/*
 		fprintf(
 			output_pipe,
 			"|%s(%s)",
@@ -812,7 +749,18 @@ boolean merged_datasets_output_transmit(
 						'/' ) ),
 				' ', '_' ),
 			datatype->units );
+*/
 
+		fprintf(
+			output_pipe,
+			"|%s(%s)",
+			format_initial_capital(
+				initial_capital_buffer,
+				list_display_delimited(
+					datatype->
+					foreign_attribute_data_list,
+					'/' ) ),
+			datatype->units );
 		if ( accumulate )
 		{
 			fprintf( output_pipe, "|Accumulate" );
@@ -821,6 +769,24 @@ boolean merged_datasets_output_transmit(
 	} while( list_next( compare_datatype_list ) );
 
 	fprintf( output_pipe, "\n" );
+
+	return 1;
+
+} /* merged_datasets_output_header() */
+
+boolean merged_datasets_output_transmit(
+					FILE *output_pipe,
+					LIST *compare_datatype_list,
+					boolean accumulate )
+{
+	LIST *key_list;
+	char *key;
+	PROCESS_GENERIC_DATATYPE *datatype;
+	PROCESS_GENERIC_VALUE *value;
+	char buffer[ 512 ];
+	HASH_TABLE *merged_hash_table;
+
+	if ( !list_rewind( compare_datatype_list ) ) return 0;
 
 	merged_hash_table =
 		get_merged_hash_table(
@@ -888,6 +854,7 @@ boolean merged_datasets_output_transmit(
 
 	list_free_container( key_list );
 	return 1;
+
 } /* merged_datasets_output_transmit() */
 
 boolean merged_datasets_output_gracechart(

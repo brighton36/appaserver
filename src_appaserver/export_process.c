@@ -33,21 +33,34 @@
 
 /* Prototypes */
 /* ---------- */
+LIST *export_process_get_populate_helper_process_list(
+				char *application_name,
+				char *process_name );
+
 char *get_process_group(	char *application_name,
 				char *process_name );
 
+void clone_table_process_for_helper_process(
+				char *export_process_filename,
+				CREATE_CLONE_FILENAME *create_clone_filename,
+				char *application_name,
+				char *process_name,
+				char *session,
+				char *login_name,
+				char *role_name );
+
 void clone_table_process_for_process_parameter_process(
-			char *export_process_filename,
-			CREATE_CLONE_FILENAME *create_clone_filename,
-			char *application_name,
-			char *process_name,
-			char *session,
-			char *login_name,
-			char *role_name );
+				char *export_process_filename,
+				CREATE_CLONE_FILENAME *create_clone_filename,
+				char *application_name,
+				char *process_name,
+				char *session,
+				char *login_name,
+				char *role_name );
 
 LIST *export_process_get_populate_drop_down_process_list(
-			char *application_name,
-			char *process_name );
+				char *application_name,
+				char *process_name );
 
 LIST *get_folder_name_list(
 			boolean exclude_roles );
@@ -258,12 +271,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-/*
-	sprintf( export_process_filename,
-		 EXPORT_SUBSCHEMA_FILENAME_TEMPLATE,
-		 appaserver_parameter_file->appaserver_mount_point,
-		 DICTIONARY2FILE_DIRECTORY );
-*/
 	sprintf( export_process_filename,
 		 EXPORT_SUBSCHEMA_FILENAME_TEMPLATE,
 		 appaserver_parameter_file->appaserver_data_directory,
@@ -276,6 +283,7 @@ int main( int argc, char **argv )
 			process_name_list );
 
 	list_rewind( process_name_list );
+
 	do {
 		process_name = list_get_pointer( process_name_list );
 
@@ -394,6 +402,15 @@ int main( int argc, char **argv )
 					role_name );
 
 		clone_table_process_for_process_parameter_process(
+					export_process_filename,
+					create_clone_filename,
+					application_name,
+					process_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_process_for_helper_process(
 					export_process_filename,
 					create_clone_filename,
 					application_name,
@@ -1064,9 +1081,68 @@ void clone_table_process_for_process_parameter_process(
 					create_clone_filename,
 					"process",
 					application_name );
+
 	} while( list_next( populate_drop_down_process_list ) );
 
 } /* clone_table_process_for_process_parameter_process() */
+
+void clone_table_process_for_helper_process(
+				char *export_process_filename,
+				CREATE_CLONE_FILENAME *create_clone_filename,
+				char *application_name,
+				char *process_name,
+				char *session,
+				char *login_name,
+				char *role_name )
+{
+	char sys_string[ 4096 ];
+	char *where_data;
+	LIST *populate_helper_process_list;
+
+	populate_helper_process_list =
+		export_process_get_populate_helper_process_list(
+			application_name,
+			process_name );
+
+	if ( !populate_helper_process_list
+	||   !list_rewind( populate_helper_process_list ) )
+	{
+		return;
+	}
+
+	do {
+		process_name =
+			list_get_pointer(
+				populate_helper_process_list );
+
+		where_data = process_name;
+	
+		sprintf(sys_string,
+"clone_folder %s n %s %s %s %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+				application_name,
+				session,
+				login_name,
+				role_name,
+				application_name,
+				"process",
+				"process",
+				where_data,
+				where_data,
+				"y" /* delete_yn */,
+				"n" /* really_yn */,
+				"y" /* output2file_yn */ );
+	
+		system( sys_string );
+	
+		output_export_process_shell_script_process(
+					export_process_filename,
+					create_clone_filename,
+					"process",
+					application_name );
+
+	} while( list_next( populate_helper_process_list ) );
+
+} /* clone_table_process_for_helper_process() */
 
 LIST *export_process_get_populate_drop_down_process_list(
 			char *application_name,
@@ -1084,8 +1160,31 @@ LIST *export_process_get_populate_drop_down_process_list(
 	"sql.e							 ",
 		 table_name,
 		 process_name );
+
 	return pipe2list( sys_string );
+
 } /* export_process_get_populate_drop_down_process_list() */
+
+LIST *export_process_get_populate_helper_process_list(
+			char *application_name,
+			char *process_name )
+{
+	char sys_string[ 1024 ];
+	char *table_name;
+
+	table_name = get_table_name( application_name, "process_parameter" );
+
+	sprintf( sys_string,
+	"echo \"select distinct populate_helper_process	 	 "
+	"	from %s						 "
+	"	where process = '%s';\"				|"
+	"sql.e							 ",
+		 table_name,
+		 process_name );
+
+	return pipe2list( sys_string );
+
+} /* export_process_get_populate_helper_process_list() */
 
 LIST *get_folder_name_list( boolean exclude_roles )
 {

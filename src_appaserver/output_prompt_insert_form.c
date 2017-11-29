@@ -150,7 +150,7 @@ LIST *get_element_list(
 			char *folder_notepad,
 			char *isa_multi_attribute_name,
 			char *isa_multi_attribute_data,
-			LIST *mto1_isa_related_folder_list,
+			/* LIST *mto1_isa_related_folder_list, */
 			LIST *isa_folder_list,
 			char *form_name,
 			boolean row_level_non_owner_view_only,
@@ -577,7 +577,7 @@ int main( int argc, char **argv )
 			folder_notepad,
 			isa_multi_attribute_name,
 			isa_multi_attribute_data,
-			mto1_isa_related_folder_list,
+			/* mto1_isa_related_folder_list, */
 			isa_folder_list,
 			form->form_name,
 			folder->row_level_non_owner_view_only,
@@ -751,7 +751,7 @@ LIST *get_element_list(
 			char *folder_notepad,
 			char *isa_multi_attribute_name,
 			char *isa_multi_attribute_data,
-			LIST *mto1_isa_related_folder_list,
+			/* LIST *mto1_isa_related_folder_list, */
 			LIST *isa_folder_list,
 			char *form_name,
 			boolean row_level_non_owner_view_only,
@@ -1344,7 +1344,7 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 	*allowed_attribute_name_list =
 		list_subtract_list(
 			*allowed_attribute_name_list,
-			omit_insert_prompt_attribute_name_list );
+			omit_insert_attribute_name_list );
 
 	folder_load(	&appaserver->folder->insert_rows_number,
 			&appaserver->folder->lookup_email_output,

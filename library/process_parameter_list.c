@@ -485,6 +485,18 @@ LIST *process_parameter_get_folder_element_list(
 				(char *)0 /* role_name */,
 				0 /* not with_check_executable_ok */ );
 
+		if ( !process )
+		{
+			fprintf( stderr,
+		"Warning in %s/%s()/%d: could not find helper PROCESS = %s.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 populate_helper_process_string );
+
+			goto return_element_list;
+		}
+
 		process_convert_parameters(
 				&process->executable,
 			 	application_name,
@@ -535,7 +547,11 @@ LIST *process_parameter_get_folder_element_list(
 					element );
 
 	}
+
+	return_element_list:
+
 	return element_list;
+
 } /* process_parameter_get_folder_element_list() */
 
 /* This is a folder with a prompt added. */

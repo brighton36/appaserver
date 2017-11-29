@@ -105,6 +105,11 @@ boolean merged_datasets_output_table(
 					char *application_name,
 					boolean accumulate );
 
+boolean merged_datasets_output_spreadsheet_header(
+					FILE *output_pipe,
+					LIST *compare_datatype_list,
+					boolean accumulate );
+
 boolean merged_datasets_output_header(
 					FILE *output_pipe,
 					LIST *compare_datatype_list,
@@ -488,7 +493,7 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
-		if ( !merged_datasets_output_header(
+		if ( !merged_datasets_output_spreadsheet_header(
 				output_pipe,
 		  		process_generic_output->
 					value_folder->
@@ -721,6 +726,45 @@ int main( int argc, char **argv )
 	exit( 0 );
 } /* main() */
 
+boolean merged_datasets_output_spreadsheet_header(
+					FILE *output_pipe,
+					LIST *compare_datatype_list,
+					boolean accumulate )
+{
+	PROCESS_GENERIC_DATATYPE *datatype;
+	char initial_capital_buffer[ 512 ];
+
+	if ( !list_rewind( compare_datatype_list ) ) return 0;
+
+	fprintf( output_pipe, "\"Date\"" );
+
+	do {
+		datatype = list_get_pointer( compare_datatype_list );
+
+		fprintf(
+			output_pipe,
+			"|\"%s(%s)\"",
+			format_initial_capital(
+				initial_capital_buffer,
+				list_display_delimited(
+					datatype->
+					foreign_attribute_data_list,
+					'/' ) ),
+			datatype->units );
+
+		if ( accumulate )
+		{
+			fprintf( output_pipe, "|\"Accumulate\"" );
+		}
+
+	} while( list_next( compare_datatype_list ) );
+
+	fprintf( output_pipe, "\n" );
+
+	return 1;
+
+} /* merged_datasets_output_header() */
+
 boolean merged_datasets_output_header(
 					FILE *output_pipe,
 					LIST *compare_datatype_list,
@@ -736,21 +780,6 @@ boolean merged_datasets_output_header(
 	do {
 		datatype = list_get_pointer( compare_datatype_list );
 
-/*
-		fprintf(
-			output_pipe,
-			"|%s(%s)",
-			search_replace_character(
-				format_initial_capital(
-					initial_capital_buffer,
-					list_display_delimited(
-						datatype->
-						foreign_attribute_data_list,
-						'/' ) ),
-				' ', '_' ),
-			datatype->units );
-*/
-
 		fprintf(
 			output_pipe,
 			"|%s(%s)",
@@ -761,6 +790,7 @@ boolean merged_datasets_output_header(
 					foreign_attribute_data_list,
 					'/' ) ),
 			datatype->units );
+
 		if ( accumulate )
 		{
 			fprintf( output_pipe, "|Accumulate" );

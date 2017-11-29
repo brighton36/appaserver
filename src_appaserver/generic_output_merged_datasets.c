@@ -1501,7 +1501,7 @@ boolean merged_datasets_output_googlechart(
 			GOOGLE_CHART_HEIGHT );
 
 	sprintf(title, 
-		"%s\\nFrom: %s to %s\n",
+		"%s\\nFrom: %s to %s",
 		get_title(	"Chart",
 				aggregate_level,
 				value_folder_name,

@@ -449,7 +449,8 @@ LIST *related_folder_get_drop_down_element_list(
 
 	set_option_data_option_label_list = 1;
 
-	if ( !omit_lookup_before_drop_down
+	if ( !drop_down_multi_select
+	&&   !omit_lookup_before_drop_down
 	&&   ajax_fill_drop_down_related_folder )
 	{
 		FOLDER *folder;

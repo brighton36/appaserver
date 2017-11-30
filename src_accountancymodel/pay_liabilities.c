@@ -670,10 +670,6 @@ void print_checks_transaction_display(
 				entity_check_amount,
 				starting_check_number );
 
-		printf( "<h3>Full name: %s; Street Address: %s</h3>\n",
-			entity_check_amount->full_name,
-			entity_check_amount->street_address );
-
 		ledger_list_html_display( journal_ledger_list );
 
 	} while( list_next( print_checks->entity_check_amount_list ) );

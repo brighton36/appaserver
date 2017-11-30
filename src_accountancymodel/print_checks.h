@@ -46,7 +46,7 @@ typedef struct
 	LIST *current_liability_account_list;
 	LIST *entity_check_amount_list;
 	LIST *liability_account_entity_list;
-	double dialog_box_check_amount;
+	double dialog_box_payment_amount;
 } PRINT_CHECKS;
 
 /* Operations */
@@ -59,7 +59,7 @@ PRINT_CHECKS *print_checks_new(	char *application_name,
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
-				double dialog_box_check_amount );
+				double dialog_box_payment_amount );
 
 ENTITY_CHECK_AMOUNT *print_checks_entity_check_amount_new(
 				char *full_name,
@@ -83,7 +83,7 @@ ENTITY_CHECK_AMOUNT *print_checks_get_entity_check_amount(
 				char *street_address,
 				LIST *current_liability_account_list,
 				LIST *liability_account_entity_list,
-				double dialog_box_check_amount );
+				double dialog_box_payment_amount );
 
 ENTITY_ACCOUNT_DEBIT *
 	print_checks_get_or_set_entity_account_debit(
@@ -112,7 +112,7 @@ LIST *print_checks_get_entity_check_amount_list(
 				int starting_check_number,
 				LIST *current_liability_account_list,
 				LIST *liability_account_entity_list,
-				double dialog_box_check_amount );
+				double dialog_box_payment_amount );
 
 LIST *print_checks_fetch_purchase_order_list(
 				double *remaining_check_amount,
@@ -146,7 +146,7 @@ boolean print_checks_insert_entity_check_amount_list(
 				char *application_name,
 				char *fund_name,
 				LIST *entity_check_amount_list,
-				double dialog_box_check_amount,
+				double dialog_box_payment_amount,
 				char *memo,
 				int starting_check_number );
 

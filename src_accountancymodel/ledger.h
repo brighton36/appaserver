@@ -60,6 +60,7 @@
 
 #define LEDGER_GENERAL_FUND		"general_fund"
 #define LEDGER_CASH_KEY			"cash_key"
+#define LEDGER_LOSS_KEY			"loss_key"
 
 #define LEDGER_SEMAPHORE_KEY		18227
 

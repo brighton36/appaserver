@@ -216,4 +216,10 @@ boolean print_checks_set_liability_account_entity(
 				double check_amount,
 				LIST *liability_account_entity_list );
 
+LIST *print_checks_get_journal_ledger_list(
+				char *application_name,
+				char *fund_name,
+				ENTITY_CHECK_AMOUNT *entity_check_amount,
+				int starting_check_number );
+
 #endif

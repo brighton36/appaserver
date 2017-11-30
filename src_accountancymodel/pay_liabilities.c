@@ -311,49 +311,6 @@ char *pay_liabilities(	char *application_name,
 
 } /* pay_liabilities() */
 
-void print_checks_transaction_display(
-			char *application_name,
-			LIST *full_name_list,
-			LIST *street_address_list,
-			int starting_check_number,
-			double payment_amount,
-			char *fund_name )
-{
-	PRINT_CHECKS *print_checks;
-	ENTITY_CHECK_AMOUNT *entity_check_amount;
-	LIST *journal_ledger_list;
-
-	print_checks =
-		print_checks_new(
-			application_name,
-			fund_name,
-			full_name_list,
-			street_address_list,
-			starting_check_number,
-			payment_amount /* dialog_box_payment_amount */ );
-
-	if ( !list_rewind( print_checks->entity_check_amount_list ) )
-		return;
-
-	do {
-		entity_check_amount =
-			list_get_pointer(
-				print_checks->entity_check_amount_list );
-
-		journal_ledger_list =
-			print_checks_get_journal_ledger_list(
-				entity_check_amount,
-				starting_check_number,
-				print_checks->dialog_box_payment_amount );
-
-		printf( "<h3>Full name: %s; Street Address: %s</h3>\n",
-			entity_check_amount->full_name,
-			entity_check_amount->street_address );
-
-		ledger_list_html_display( journal_ledger_list );
-
-} /* print_checks_transaction_display() */
-
 char *print_checks_create(
 			char *application_name,
 			LIST *full_name_list,
@@ -676,4 +633,50 @@ boolean output_html_table(
 	return 1;
 
 } /* output_html_table() */
+
+void print_checks_transaction_display(
+			char *application_name,
+			LIST *full_name_list,
+			LIST *street_address_list,
+			int starting_check_number,
+			double payment_amount,
+			char *fund_name )
+{
+	PRINT_CHECKS *print_checks;
+	ENTITY_CHECK_AMOUNT *entity_check_amount;
+	LIST *journal_ledger_list;
+
+	print_checks =
+		print_checks_new(
+			application_name,
+			fund_name,
+			full_name_list,
+			street_address_list,
+			starting_check_number,
+			payment_amount /* dialog_box_payment_amount */ );
+
+	if ( !list_rewind( print_checks->entity_check_amount_list ) )
+		return;
+
+	do {
+		entity_check_amount =
+			list_get_pointer(
+				print_checks->entity_check_amount_list );
+
+		journal_ledger_list =
+			print_checks_get_journal_ledger_list(
+				application_name,
+				fund_name,
+				entity_check_amount,
+				starting_check_number );
+
+		printf( "<h3>Full name: %s; Street Address: %s</h3>\n",
+			entity_check_amount->full_name,
+			entity_check_amount->street_address );
+
+		ledger_list_html_display( journal_ledger_list );
+
+	} while( list_next( print_checks->entity_check_amount_list ) );
+
+} /* print_checks_transaction_display() */
 

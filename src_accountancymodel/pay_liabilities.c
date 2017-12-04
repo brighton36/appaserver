@@ -168,6 +168,10 @@ PAY_LIABILITIES *pay_liabilities_new(
 
 	/* Process */
 	/* ------- */
+	p.process->current_liability_entity_list =
+		pay_liabilities_get_current_liability_entity_list(
+			p.input->current_liability_account_list );
+
 	p.process->liability_account_entity_list =
 		pay_liabilities_get_liability_account_entity_list(
 			p.input->liability_account_entity_list,
@@ -177,7 +181,7 @@ PAY_LIABILITIES *pay_liabilities_new(
 	p.process->entity_payable_list =
 		pay_liabilities_process_get_entity_payable_list(
 			p.input->entity_payable_list,
-			p.input->current_liability_account_list,
+			p.process->current_liability_entity_list,
 			p.input->purchase_order_list,
 			p.input->dialog_box_payment_amount );
 
@@ -188,13 +192,77 @@ PAY_LIABILITIES *pay_liabilities_new(
 
 } /* pay_liabilities_new() */
 
+LIST *pay_liabilities_get_current_liability_entity_list(
+			LIST *current_liability_account_list )
+{
+	LIST *current_liability_entity_list;
+	ENTITY *entity;
+	ACCOUNT *account;
+	ACCOUNT *new_account;
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+	double balance;
+
+	if ( !list_rewind( current_liability_account_list ) )
+		return (LIST *)0;
+
+	current_liability_entity_list = list_new();
+
+	do {
+		account = list_get_pointer( current_liability_account_list );
+
+		journal_ledger_list = account->journal_ledger_list;
+
+		if ( !list_rewind( journal_ledger_list ) ) continue;
+
+		do {
+			journal_ledger =
+				list_get_pointer(
+					journal_ledger_list );
+
+			entity = entity_get_or_set(
+					current_liability_entity_list,
+					journal_ledger->full_name,
+					journal_ledger->street_address,
+					1 /* not_strdup */ );
+
+			balance =	journal_ledger->credit_amount -
+					journal_ledger->debit_amount;
+
+			if ( !entity->liability_account_list )
+				entity->liability_account_list =
+					list_new();
+
+			new_account =
+				ledger_account_get_or_set(
+					entity->liability_account_list,
+					account );
+
+			entity->sum_balance += balance;
+			new_account->sum_balance += balance;
+
+			if ( !new_account->journal_ledger_list )
+				new_account->journal_ledger_list =
+					list_new();
+
+			list_append_pointer(
+				new_account->journal_ledger_list,
+				journal_ledger );
+
+	} while( list_next( current_liability_account_list ) );
+
+	return current_liability_entity_list;
+
+} /* pay_liabilities_get_current_liability_entity_list() */
+
 LIST *pay_liabilities_process_get_entity_payable_list(
 			LIST *input_entity_payable_list,
-			LIST *current_liability_account_list,
+			LIST *current_liability_entity_list,
 			LIST *purchase_order_list,
 			double dialog_box_payment_amount )
 {
 	LIST *entity_payable_list;
+	ENTITY *entity;
 	ENTITY_PAYABLE *entity_payable;
 	ENTITY_PAYABLE *new_entity_payable;
 
@@ -207,6 +275,22 @@ LIST *pay_liabilities_process_get_entity_payable_list(
 		entity_payable =
 			list_get_pointer(
 				input_entity_payable_list );
+
+		if ( ! ( entity =
+				entity_seek(
+					current_liability_entity_list,
+					entity_payable->full_name,
+					entity_payable->street_address ) ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot find (%s/%s).\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+				entity_payable->full_name,
+				entity_payable->street_address );
+			exit( 1 );
+		}
 
 		new_entity_payable = entity_payable_calloc();
 

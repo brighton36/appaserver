@@ -707,6 +707,10 @@ LIST *ledger_get_account_list(	char *application_name,
 ACCOUNT *ledger_seek_account(	LIST *account_list,
 				char *account_name );
 
+ACCOUNT *ledger_account_get_or_set(
+				LIST *account_list,
+				char *account_name );
+
 ACCOUNT *ledger_account_calloc(	void );
 
 ACCOUNT *ledger_subclassification_fund_seek_account(

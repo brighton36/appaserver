@@ -600,3 +600,67 @@ char *entity_get_payroll_pay_period_string(
 
 } /* entity_get_payroll_pay_period_string() */
 
+ENTITY *entity_seek(		LIST *entity_list,
+				char *full_name,
+				char *street_address )
+{
+	ENTITY *entity;
+
+	if ( !entity_list )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: entity_list is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( entity_list ) ) return (ENTITY *)0;
+
+	do {
+		entity = list_get_pointer( entity_list );
+
+		if ( strcmp( entity->full_name, full_name ) == 0
+		&&   strcmp( entity->street_address, street_address ) == 0 )
+		{
+			return entity;
+		}
+
+	} while( list_next( entity_list ) );
+
+	return (ENTITY *)0;
+
+} /* entity_seek() */
+
+ENTITY *entity_get_or_set(	LIST *entity_list,
+				char *full_name,
+				char *street_address,
+				boolean not_strdup )
+{
+	ENTITY *entity;
+
+	if ( ! ( entity =
+			entity_seek(
+				entity_list,
+				full_name,
+				street_address ) ) )
+	{
+
+		if ( not_strdup )
+		{
+			entity = entity_new( full_name, street_address );
+		}
+		else
+		{
+			entity = entity_new(	strdup( full_name ),
+						strdup( street_address ) );
+		}
+
+		list_append_pointer( entity_list, entity );
+	}
+
+	return entity;
+
+} /* entity_get_or_set() */
+

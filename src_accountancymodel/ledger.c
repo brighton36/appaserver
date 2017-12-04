@@ -247,6 +247,22 @@ ACCOUNT *ledger_seek_hard_coded_account_key_account(
 
 } /* ledger_seek_hard_coded_account_key_account() */
 
+ACCOUNT *ledger_account_get_or_set(
+				LIST *account_list,
+				char *account_name )
+{
+	ACCOUNT *account;
+
+	if ( ! ( account = ledger_seek_account( account_list, account_name ) ) )
+	{
+		account = ledger_account_new( account_name );
+		list_append_pointer( account_list, account );
+	}
+
+	return account;
+
+} /* ledger_account_get_or_set() */
+
 ACCOUNT *ledger_seek_account(	LIST *account_list,
 				char *account_name )
 {

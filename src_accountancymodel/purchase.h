@@ -33,19 +33,6 @@ typedef struct
 {
 	char *full_name;
 	char *street_address;
-	char *payment_date_time;
-	double payment_amount;
-	int check_number;
-	char *transaction_date_time;
-	char *database_transaction_date_time;
-	TRANSACTION *transaction;
-	PURCHASE_ORDER *purchase_order;
-} VENDOR_PAYMENT;
-
-typedef struct
-{
-	char *full_name;
-	char *street_address;
 	char *purchase_date_time;
 	char *asset_name;
 	char *asset_account_name;
@@ -143,6 +130,19 @@ typedef struct
 	TRANSACTION *transaction;
 	LIST *propagate_account_list;
 } PURCHASE_ORDER;
+
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *payment_date_time;
+	double payment_amount;
+	int check_number;
+	char *transaction_date_time;
+	char *database_transaction_date_time;
+	TRANSACTION *transaction;
+	PURCHASE_ORDER *purchase_order;
+} VENDOR_PAYMENT;
 
 /* Operations */
 /* ---------- */

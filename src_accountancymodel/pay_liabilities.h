@@ -44,6 +44,7 @@ typedef struct
 
 typedef struct
 {
+	LIST *current_liability_entity_list;
 	LIST *liability_account_entity_list;
 	LIST *entity_payable_list;
 } PAY_LIABILITIES_PROCESS;
@@ -130,7 +131,7 @@ LIST *pay_liabilities_distribute_liability_account_list(
 
 LIST *pay_liabilities_process_get_entity_payable_list(
 				LIST *input_entity_payable_list,
-				LIST *current_liability_account_list,
+				LIST *current_liability_entity_list,
 				LIST *purchase_order_list,
 				double dialog_box_payment_amount );
 

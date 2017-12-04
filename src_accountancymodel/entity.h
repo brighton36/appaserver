@@ -164,4 +164,13 @@ enum payroll_pay_period entity_get_payroll_pay_period(
 LIST *print_checks_get_current_liability_account_list(
 				char *application_name );
 
+ENTITY *entity_get_or_set(	LIST *entity_list,
+				char *full_name,
+				char *street_address,
+				boolean not_strdup );
+
+ENTITY *entity_seek(		LIST *entity_list,
+				char *full_name,
+				char *street_address );
+
 #endif

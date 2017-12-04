@@ -81,6 +81,8 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 		return (PURCHASE_ORDER *)0;
 	}
 
+	p->liability_payment_amount = p->purchase_amount - p->amount_due;
+
 	p->inventory_purchase_list =
 		inventory_get_inventory_purchase_list(
 				application_name,
@@ -3473,4 +3475,67 @@ LIST *purchase_prepaid_asset_distinct_account_extract(
 	return journal_ledger_list;
 
 } /* purchase_prepaid_asset_distinct_account_extract() */
+
+LIST *purchase_get_amount_due_purchase_order_list(
+			char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *where;
+	char *select;
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+	PURCHASE_ORDER *purchase_order;
+	LIST *purchase_order_list = {0};
+
+	select = purchase_order_get_select( application_name );
+
+	where = "ifnull( amount_due, 0.0 ) > 0.0";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=purchase_order		"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		purchase_order = purchase_order_calloc();
+
+		purchase_order_parse(
+			&purchase_order->full_name,
+			&purchase_order->street_address,
+			&purchase_order->purchase_date_time,
+			&purchase_order->sum_extension,
+			&purchase_order->database_sum_extension,
+			&purchase_order->sales_tax,
+			&purchase_order->freight_in,
+			&purchase_order->purchase_amount,
+			&purchase_order->database_purchase_amount,
+			&purchase_order->amount_due,
+			&purchase_order->database_amount_due,
+			&purchase_order->title_passage_rule,
+			&purchase_order->shipped_date,
+			&purchase_order->database_shipped_date,
+			&purchase_order->arrived_date_time,
+			&purchase_order->database_arrived_date_time,
+			&purchase_order->transaction_date_time,
+			&purchase_order->database_transaction_date_time,
+			&purchase_order->fund_name,
+			input_buffer );
+
+		if ( !purchase_order_list )
+			purchase_order_list = list_new();
+
+		list_append_pointer( purchase_order_list, purchase_order );
+	}
+
+	pclose( input_pipe );
+	return purchase_order_list;
+
+} /* purchase_get_amount_due_purchase_order_list() */
 

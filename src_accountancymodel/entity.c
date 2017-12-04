@@ -56,8 +56,7 @@ enum inventory_cost_method entity_get_inventory_cost_method(
 
 } /* entity_get_inventory_cost_method() */
 
-ENTITY *entity_new(	char *full_name,
-			char *street_address )
+ENTITY *entity_calloc( void )
 {
 	ENTITY *e;
 
@@ -70,6 +69,17 @@ ENTITY *entity_new(	char *full_name,
 			 __LINE__ );
 		exit( 1 );
 	}
+
+	return e;
+
+} /* entity_calloc() */
+
+ENTITY *entity_new(	char *full_name,
+			char *street_address )
+{
+	ENTITY *e;
+
+	e = entity_calloc();
 
 	e->full_name = full_name;
 	e->street_address = street_address;

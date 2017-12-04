@@ -18,7 +18,7 @@
 #include "environ.h"
 #include "entity.h"
 #include "ledger.h"
-#include "print_checks.h"
+#include "pay_liabilities.h"
 
 /* Constants */
 /* --------- */
@@ -85,13 +85,8 @@ void populate_print_checks_entity(
 {
 	FILE *output_pipe;
 	ENTITY *entity;
-	PRINT_CHECKS *print_checks;
-
-	print_checks = print_checks_calloc();
-
-	print_checks->liability_account_entity_list =
-		print_checks_fetch_liability_account_entity_list(
-			application_name );
+	PAY_LIABILITIES *pay_liabilities;
+	LIST *liability_account_entity_list;
 
 	output_pipe = popen( "sort", "w" );
 
@@ -100,26 +95,30 @@ void populate_print_checks_entity(
 			application_name,
 			fund_name );
 
-	if ( list_rewind( print_checks->liability_account_entity_list ) )
+	liability_account_entity_list =
+		pay_liabilities_fetch_liability_account_entity_list(
+			application_name );
+
+	if ( !list_rewind( liability_account_entity_list ) )
 	{
-		do {
-			entity = list_get_pointer(
-					print_checks->
-					     liability_account_entity_list );
-
-			fprintf( output_pipe,
-				 "%s^%s [%.2lf]\n",
-				 entity->full_name,
-				 entity->street_address,
-				 entity->sum_credit_amount_check_amount );
-
-		} while( list_next( print_checks->
-					liability_account_entity_list ) );
+		pclose( output_pipe );
+		return;
 	}
+
+	do {
+		entity = list_get_pointer( liability_account_entity_list );
+
+		fprintf( output_pipe,
+			 "%s^%s [%.2lf]\n",
+			 entity->full_name,
+			 entity->street_address,
+			 entity->sum_credit_amount_check_amount );
+
+	} while( list_next( liability_account_entity_list ) );
 
 	pclose( output_pipe );
 
-} /* populate_print_checks_entity() */
+} /* populate_pay_liabilities_entity() */
 
 void output_checks_not_taxes(
 				FILE *output_pipe,

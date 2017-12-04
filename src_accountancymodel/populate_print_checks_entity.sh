@@ -48,13 +48,17 @@ having="sum( ifnull( credit_amount, 0 ) ) - sum( ifnull( debit_amount, 0 ) ) > 0
 
 function select_both()
 {
-	account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks'"
+	account_where="	account.subclassification = 'current_liability' and
+			journal_ledger.account <> 'uncleared_checks'"
 
 	where="$join_where and $account_where and $fund_where"
 
-	echo "select $select from $from where $where group by $group having $having;" |
+	echo "	select $select
+		from $from
+		where $where
+		group by $group
+		having $having;" |
 	sql.e
-
 }
 
 function select_taxes()
@@ -63,19 +67,28 @@ function select_taxes()
 
 	where="$join_where and $account_where and $fund_where"
 
-	echo "select $select from $from where $where group by $group having $having;" |
+	echo "	select $select
+		from $from
+		where $where
+		group by $group
+		having $having;" |
 	sql.e
-
 }
 
 function select_not_taxes()
 {
-	#account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks' and account.account <> 'sales_tax_payable'"
-	account_where="account.subclassification = 'current_liability' and journal_ledger.account <> 'uncleared_checks' and account.account not in (select account from liability_account_entity)"
+	account_where="	account.subclassification = 'current_liability' and
+			journal_ledger.account <> 'uncleared_checks' and
+			account.account not in
+			(select account from liability_account_entity)"
 
 	where="$join_where and $account_where and $fund_where"
 
-	echo "select $select from $from where $where group by $group having $having;" |
+	echo "	select $select
+		from $from
+		where $where
+		group by $group
+		having $having;" |
 	sql.e
 
 }

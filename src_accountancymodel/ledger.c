@@ -4798,18 +4798,7 @@ LIST *ledger_get_propagate_journal_ledger_list(
 	boolean accumulate_debit;
 	JOURNAL_LEDGER *first_journal_ledger;
 
-	if ( !account_name )
-	{
-/*
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: account_name is null.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-*/
-		return (LIST *)0;
-	}
+	if ( !account_name ) return (LIST *)0;
 
 	accumulate_debit =
 		ledger_account_get_accumulate_debit(

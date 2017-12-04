@@ -31,12 +31,15 @@
 /* ---------- */
 typedef struct
 {
+	char *full_name;
+	char *street_address;
 	char *payment_date_time;
 	double payment_amount;
 	int check_number;
 	char *transaction_date_time;
 	char *database_transaction_date_time;
 	TRANSACTION *transaction;
+	PURCHASE_ORDER *purchase_order;
 } VENDOR_PAYMENT;
 
 typedef struct
@@ -122,6 +125,7 @@ typedef struct
 	double database_purchase_amount;
 	double sum_payment_amount;
 	double amount_due;
+	double liability_payment_amount;
 	double database_amount_due;
 	enum title_passage_rule title_passage_rule;
 	char *shipped_date;
@@ -682,6 +686,9 @@ void purchase_specific_inventory_set_capitalized_extension(
 LIST *purchase_prepaid_asset_distinct_account_extract(
 				double *sum_debit_amount,
 				LIST *prepaid_asset_purchase_list );
+
+LIST *purchase_get_amount_due_purchase_order_list(
+				char *application_name );
 
 #endif
 

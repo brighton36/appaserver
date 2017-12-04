@@ -1013,7 +1013,10 @@ LIST *related_folder_get_insert_element_list(
 
 		sprintf( onclick_function,
 			 "fork_ajax_window( '%s_$row' )",
-			 related_folder->folder->folder_name );
+			 list_display(
+				related_folder->
+					folder->
+					primary_attribute_name_list ) );
 
 		element->push_button->onclick_function =
 			strdup( onclick_function );

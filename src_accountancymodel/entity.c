@@ -636,7 +636,7 @@ ENTITY *entity_seek(		LIST *entity_list,
 ENTITY *entity_get_or_set(	LIST *entity_list,
 				char *full_name,
 				char *street_address,
-				boolean not_strdup )
+				boolean with_strdup )
 {
 	ENTITY *entity;
 
@@ -647,14 +647,14 @@ ENTITY *entity_get_or_set(	LIST *entity_list,
 				street_address ) ) )
 	{
 
-		if ( not_strdup )
-		{
-			entity = entity_new( full_name, street_address );
-		}
-		else
+		if ( with_strdup )
 		{
 			entity = entity_new(	strdup( full_name ),
 						strdup( street_address ) );
+		}
+		else
+		{
+			entity = entity_new( full_name, street_address );
 		}
 
 		list_append_pointer( entity_list, entity );

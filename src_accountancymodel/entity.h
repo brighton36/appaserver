@@ -54,7 +54,7 @@ typedef struct
 	double depreciation_amount;
 	TRANSACTION *depreciation_transaction;
 	LIST *liability_account_list;
-	double sum_credit_balance;
+	double sum_balance;
 } ENTITY;
 
 typedef struct
@@ -167,7 +167,7 @@ LIST *print_checks_get_current_liability_account_list(
 ENTITY *entity_get_or_set(	LIST *entity_list,
 				char *full_name,
 				char *street_address,
-				boolean not_strdup );
+				boolean with_strdup );
 
 ENTITY *entity_seek(		LIST *entity_list,
 				char *full_name,

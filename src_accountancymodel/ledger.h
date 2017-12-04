@@ -112,6 +112,7 @@ typedef struct
 	JOURNAL_LEDGER *latest_ledger;
 	LIST *journal_ledger_list;
 	boolean accumulate_debit;
+	double balance;
 	double payment_amount;
 } ACCOUNT;
 

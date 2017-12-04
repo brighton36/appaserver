@@ -34,7 +34,7 @@ typedef struct
 {
 	char *full_name;
 	char *street_address;
-	double sum_credit_balance;
+	double sum_balance;
 	double payment_amount;
 	double loss_amount;
 	int check_number;
@@ -96,7 +96,7 @@ ENTITY_PAYABLE *pay_liabilities_entity_payable_new(
 LIST *pay_liabilities_fetch_purchase_order_list(
 				char *application_name );
 
-double pay_liabilities_get_balance(
+double pay_liabilities_get_sum_balance(
 				char *application_name,
 				char *fund_name,
 				char *full_name,
@@ -109,30 +109,36 @@ ENTITY_PAYABLE *pay_liabilities_entity_payable_seek(
 
 LIST *pay_liabilities_get_liability_account_entity_list(
 				LIST *input_liability_account_entity_list,
-				LIST *entity_payable_list,
+				LIST *input_entity_payable_list,
 				double dialog_box_payment_amount );
 
 LIST *pay_liabilities_fetch_liability_account_entity_list(
 				char *application_name );
 
+/*
 ENTITY *pay_liabilities_get_or_set_liability_account_entity(
 				LIST *liability_account_entity_list,
 				char *full_name,
 				char *street_address );
+*/
 
 LIST *pay_liabilities_fetch_current_liability_account_list(
 				char *application_name );
 
 LIST *pay_liabilities_distribute_liability_account_list(
-				LIST *input_liability_account_list,
-				double entity_payment_amount,
-				char *full_name,
-				char *street_address );
+				LIST *liability_account_list,
+				double entity_payment_amount );
 
 LIST *pay_liabilities_process_get_entity_payable_list(
 				LIST *input_entity_payable_list,
 				LIST *current_liability_entity_list,
-				LIST *purchase_order_list,
+				LIST *input_purchase_order_list,
 				double dialog_box_payment_amount );
+
+LIST *pay_liabilities_distribute_purchase_order_list(
+				LIST *input_purchase_order_list,
+				double payment_amount,
+				char *full_name,
+				char *street_address );
 
 #endif

@@ -125,10 +125,10 @@ PAY_LIABILITIES *pay_liabilities_new(
 
 	/* Input */
 	/* ===== */
-	p.input->starting_check_number = starting_check_number;
-	p.input->dialog_box_payment_amount = dialog_box_payment_amount;
+	p->input.starting_check_number = starting_check_number;
+	p->input.dialog_box_payment_amount = dialog_box_payment_amount;
 
-	p.input->loss_account_name =
+	p->input.loss_account_name =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
@@ -143,11 +143,11 @@ PAY_LIABILITIES *pay_liabilities_new(
 				fund_name );
 
 	if ( starting_check_number )
-		p.input->credit_account_name = uncleared_checks_account;
+		p->input.credit_account_name = uncleared_checks_account;
 	else
-		p.input->credit_account_name = checking_account;
+		p->input.credit_account_name = checking_account;
 
-	p.input->liability_account_entity_list =
+	p->input.liability_account_entity_list =
 		pay_liabilities_fetch_liability_account_entity_list(
 				application_name );
 
@@ -155,7 +155,7 @@ PAY_LIABILITIES *pay_liabilities_new(
 	/* Get sum_balance for the posted entities */
 	/* from the displayed dialog box.	   */
 	/* --------------------------------------- */
-	p.input->entity_payable_list =
+	p->input.entity_payable_list =
 		pay_liabilities_input_get_entity_payable_list(
 			application_name,
 			fund_name,
@@ -166,11 +166,11 @@ PAY_LIABILITIES *pay_liabilities_new(
 	/* Fetch all the current liability accounts and all the     */
 	/* journal ledger rows following the last zero balance row. */
 	/* -------------------------------------------------------- */
-	p.input->current_liability_account_list =
+	p->input.current_liability_account_list =
 		pay_liabilities_fetch_current_liability_account_list(
 			application_name );
 
-	p.input->purchase_order_list =
+	p->input.purchase_order_list =
 		purchase_get_amount_due_purchase_order_list(
 			application_name );
 
@@ -179,26 +179,26 @@ PAY_LIABILITIES *pay_liabilities_new(
 
 	/* Rearrange the account list into an entity list. */
 	/* ----------------------------------------------- */
-	p.process->current_liability_entity_list =
+	p->process.current_liability_entity_list =
 		pay_liabilities_get_current_liability_entity_list(
-			p.input->current_liability_account_list );
+			p->input.current_liability_account_list );
 
 	/* Process the LIABILITY_ACCOUNT_ENTITY records. */
 	/* --------------------------------------------- */
-	p.process->liability_account_entity_list =
+	p->process.liability_account_entity_list =
 		pay_liabilities_get_liability_account_entity_list(
-			p.input->liability_account_entity_list,
-			p.input->entity_payable_list,
-			p.input->dialog_box_payment_amount );
+			p->input.liability_account_entity_list,
+			p->input.entity_payable_list,
+			p->input.dialog_box_payment_amount );
 
 	/* Process the regular records. */
 	/* ---------------------------- */
-	p.process->entity_payable_list =
+	p->process.entity_payable_list =
 		pay_liabilities_process_get_entity_payable_list(
-			p.input->entity_payable_list,
-			p.process->current_liability_entity_list,
-			p.input->purchase_order_list,
-			p.input->dialog_box_payment_amount );
+			p->input.entity_payable_list,
+			p->process.current_liability_entity_list,
+			p->input.purchase_order_list,
+			p->input.dialog_box_payment_amount );
 
 	/* Output */
 	/* ------ */
@@ -251,7 +251,7 @@ LIST *pay_liabilities_get_current_liability_entity_list(
 			new_account =
 				ledger_account_get_or_set(
 					entity->liability_account_list,
-					account );
+					account->account_name );
 
 			entity->sum_balance += difference;
 			new_account->balance += difference;
@@ -263,6 +263,8 @@ LIST *pay_liabilities_get_current_liability_entity_list(
 			list_append_pointer(
 				new_account->journal_ledger_list,
 				journal_ledger );
+
+		} while( list_next( journal_ledger_list ) );
 
 	} while( list_next( current_liability_account_list ) );
 
@@ -307,7 +309,7 @@ LIST *pay_liabilities_process_get_entity_payable_list(
 			exit( 1 );
 		}
 
-		new_entity_payable = entity_payable_calloc();
+		new_entity_payable = pay_liabilities_entity_payable_calloc();
 
 		memcpy(	new_entity_payable,
 			entity_payable,
@@ -348,9 +350,9 @@ LIST *pay_liabilities_process_get_entity_payable_list(
 				new_entity_payable->full_name,
 				new_entity_payable->street_address );
 
-	} while( list_next( input_liability_account_entity_list ) );
+	} while( list_next( input_entity_payable_list ) );
 
-	return liability_account_entity_list;
+	return entity_payable_list;
 
 } /* pay_liabilities_process_get_entity_payable_list() */
 
@@ -364,16 +366,16 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 	PURCHASE_ORDER *purchase_order;
 	PURCHASE_ORDER *new_purchase_order;
 
-	if ( !list_rewind( input_purchase_order_list ) ) return;
+	if ( !list_rewind( input_purchase_order_list ) ) return (LIST *)0;
 
 	purchase_order_list = list_new();
 
 	do {
 		purchase_order = list_get_pointer( input_purchase_order_list );
 
-		if ( ( strcmp( purchase_order->full_name, full_name ) != 0
+		if ( ( strcmp( purchase_order->full_name, full_name ) != 0 )
 		||   ( strcmp( purchase_order->street_address,
-		       street_address != 0 ) ) )
+		       street_address ) != 0 ) )
 		{
 			continue;
 		}
@@ -383,6 +385,10 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 		memcpy(	new_purchase_order,
 			purchase_order,
 			sizeof( PURCHASE_ORDER ) );
+
+		list_append_pointer(
+			purchase_order_list,
+			new_purchase_order );
 
 		/* If made a partial payment */
 		/* ------------------------- */
@@ -403,13 +409,9 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 			break;
 		}
 
-		list_append_pointer(
-			return_purchase_order_list,
-			new_purchase_order );
-
 	} while( list_next( input_purchase_order_list ) );
 
-	return return_purchase_order_list;
+	return purchase_order_list;
 
 } /* pay_liabilities_distribute_purchase_order_list() */
 
@@ -578,8 +580,7 @@ LIST *pay_liabilities_get_liability_account_entity_list(
 		if ( dialog_box_payment_amount )
 		{
 			new_entity->payment_amount = dialog_box_payment_amount;
-
-			goto distribute:
+			goto distribute;
 		}
 
 		if ( ! ( entity_payable =
@@ -629,7 +630,7 @@ LIST *pay_liabilities_distribute_liability_account_list(
 	ACCOUNT *account;
 	ACCOUNT *new_account;
 
-	if ( !list_rewind( iability_account_list ) ) return;
+	if ( !list_rewind( liability_account_list ) ) return (LIST *)0;
 
 	return_liability_account_list = list_new();
 
@@ -647,7 +648,7 @@ LIST *pay_liabilities_distribute_liability_account_list(
 			exit( 1 );
 		}
 
-		new_account = account_calloc();
+		new_account = ledger_account_calloc();
 
 		memcpy( new_account, account, sizeof( ACCOUNT ) );
 

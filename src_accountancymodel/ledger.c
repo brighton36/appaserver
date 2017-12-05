@@ -253,11 +253,16 @@ ACCOUNT *ledger_account_get_or_set(
 {
 	ACCOUNT *account;
 
-	if ( ! ( account = ledger_seek_account( account_list, account_name ) ) )
+	if ( ( account =
+			ledger_seek_account(
+				account_list,
+				account_name ) ) )
 	{
-		account = ledger_account_new( account_name );
-		list_append_pointer( account_list, account );
+		return account;
 	}
+
+	account = ledger_account_new( account_name );
+	list_append_pointer( account_list, account );
 
 	return account;
 

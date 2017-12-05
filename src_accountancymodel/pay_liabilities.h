@@ -38,7 +38,7 @@ typedef struct
 	double payment_amount;
 	double loss_amount;
 	int check_number;
-	LIST *journal_ledger_list;
+	LIST *current_liability_account_list;
 	LIST *purchase_order_list;
 } ENTITY_PAYABLE;
 
@@ -58,6 +58,7 @@ typedef struct
 	LIST *entity_payable_list;
 	LIST *current_liability_account_list;
 	LIST *purchase_order_list;
+	int starting_check_number;
 } PAY_LIABILITIES_INPUT;
 
 typedef struct
@@ -140,5 +141,8 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 				double payment_amount,
 				char *full_name,
 				char *street_address );
+
+LIST *pay_liabilities_get_current_liability_entity_list(
+				LIST *current_liability_account_list );
 
 #endif

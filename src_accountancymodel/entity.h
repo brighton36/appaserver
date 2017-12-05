@@ -55,6 +55,8 @@ typedef struct
 	TRANSACTION *depreciation_transaction;
 	LIST *liability_account_list;
 	double sum_balance;
+	double payment_amount;
+	double loss_amount;
 } ENTITY;
 
 typedef struct

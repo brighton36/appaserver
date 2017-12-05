@@ -1,8 +1,8 @@
-/* -------------------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
 /* $APPASERVER_HOME/src_accountancymodel/pay_liabilities_process.c	*/
-/* -------------------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -22,7 +22,7 @@
 #include "application_constants.h"
 #include "environ.h"
 #include "latex.h"
-#include "print_checks.h"
+#include "pay_liabilities.h"
 #include "appaserver_link_file.h"
 
 /* Constants */

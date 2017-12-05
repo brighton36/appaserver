@@ -26,7 +26,14 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_purchase_order_changed_sales_tax(
+void post_change_purchase_order_change_sales_tax_inventory(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			LIST *inventory_purchase_list );
+
+void post_change_purchase_order_change_sales_tax_transaction(
 			PURCHASE_ORDER *purchase_order,
 			char *application_name );
 
@@ -91,6 +98,7 @@ void post_change_purchase_order_update(
 			char *preupdate_shipped_date,
 			char *preupdate_arrived_date_time,
 			char *preupdate_sales_tax,
+			char *preupdate_freight_in,
 			char *application_name );
 
 void post_change_purchase_order_insert_FOB_shipping(
@@ -118,6 +126,7 @@ int main( int argc, char **argv )
 	char *preupdate_shipped_date;
 	char *preupdate_arrived_date_time;
 	char *preupdate_sales_tax;
+	char *preupdate_freight_in;
 	char *database_string = {0};
 	PURCHASE_ORDER *purchase_order;
 
@@ -144,10 +153,10 @@ int main( int argc, char **argv )
 				argc,
 				argv );
 
-	if ( argc != 12 )
+	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address purchase_date_time state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax\n",
+"Usage: %s application full_name street_address purchase_date_time state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax preupdate_freight_in\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -162,6 +171,7 @@ int main( int argc, char **argv )
 	preupdate_shipped_date = argv[ 9 ];
 	preupdate_arrived_date_time = argv[ 10 ];
 	preupdate_sales_tax = argv[ 11 ];
+	preupdate_freight_in = argv[ 12 ];
 
 	/* -------------------------------------------- */
 	/* Only execute state=predelete because we have	*/
@@ -219,6 +229,7 @@ int main( int argc, char **argv )
 			preupdate_shipped_date,
 			preupdate_arrived_date_time,
 			preupdate_sales_tax,
+			preupdate_freight_in,
 			application_name );
 	}
 	else
@@ -673,6 +684,7 @@ void post_change_purchase_order_update(
 			char *preupdate_shipped_date,
 			char *preupdate_arrived_date_time,
 			char *preupdate_sales_tax,
+			char *preupdate_freight_in,
 			char *application_name )
 {
 	enum preupdate_change_state full_name_change_state;
@@ -681,6 +693,7 @@ void post_change_purchase_order_update(
 	enum preupdate_change_state title_passage_rule_change_state;
 	enum preupdate_change_state arrived_date_time_change_state;
 	enum preupdate_change_state sales_tax_change_state;
+	enum preupdate_change_state freight_in_change_state;
 
 	full_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -722,6 +735,12 @@ void post_change_purchase_order_update(
 			preupdate_sales_tax,
 			(char *)0 /* postupdate_data */,
 			"preupdate_sales_tax" );
+
+	freight_in_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_freight_in,
+			(char *)0 /* postupdate_data */,
+			"preupdate_freight_in" );
 
 	if ( full_name_change_state == from_something_to_something_else
 	||   street_address_change_state == from_something_to_something_else )
@@ -825,11 +844,22 @@ void post_change_purchase_order_update(
 			application_name );
 	}
 
-	if ( sales_tax_change_state == from_something_to_something_else )
+	if ( sales_tax_change_state == from_something_to_something_else
+	||   freight_in_change_state == from_something_to_something_else )
 	{
-		post_change_purchase_order_changed_sales_tax(
+		post_change_purchase_order_change_sales_tax_transaction(
 			purchase_order,
 			application_name );
+
+		if ( list_length( purchase_order->inventory_purchase_list ) )
+		{
+			post_change_purchase_order_change_sales_tax_inventory(
+				application_name,
+				purchase_order->full_name,
+				purchase_order->street_address,
+				purchase_order->purchase_date_time,
+				purchase_order->inventory_purchase_list );
+		}
 	}
 
 } /* post_change_purchase_order_update() */
@@ -1405,7 +1435,7 @@ void post_change_purchase_order_new_transaction(
 
 } /* post_change_purchase_order_new_transaction() */
 
-void post_change_purchase_order_changed_sales_tax(
+void post_change_purchase_order_change_sales_tax_transaction(
 			PURCHASE_ORDER *purchase_order,
 			char *application_name )
 {
@@ -1469,5 +1499,36 @@ void post_change_purchase_order_changed_sales_tax(
 		1 /* lock_transaction */,
 		purchase_order->transaction->journal_ledger_list );
 
-} /* post_change_purchase_order_changed_sales_tax() */
+} /* post_change_purchase_order_change_sales_tax_transaction() */
+
+void post_change_purchase_order_change_sales_tax_inventory(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			LIST *inventory_purchase_list )
+{
+	char sys_string[ 1024 ];
+	INVENTORY_PURCHASE *inventory_purchase;
+
+	if ( !list_rewind( inventory_purchase_list ) ) return;
+
+	do {
+		inventory_purchase =
+			list_get_pointer(
+				inventory_purchase_list );
+
+		sprintf( sys_string,
+		"propagate_inventory_purchase_layers %s '%s' '%s' '%s' '%s' n",
+			 application_name,
+			 full_name,
+			 street_address,
+			 purchase_date_time,
+			 inventory_purchase->inventory_name );
+
+		system( sys_string );
+
+	} while( list_next( inventory_purchase_list ) );
+
+} /* post_change_purchase_order_change_sales_tax_inventory() */
 

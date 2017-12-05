@@ -45,6 +45,9 @@ int main( int argc, char **argv )
 	char *inventory_name;
 	boolean is_latest;
 	char *database_string = {0};
+	PURCHASE_ORDER *purchase_order;
+	INVENTORY *inventory;
+	INVENTORY_PURCHASE *inventory_purchase;
 
 	appaserver_error_output_starting_argv_stderr( argc, argv );
 
@@ -72,6 +75,7 @@ int main( int argc, char **argv )
 	inventory_name = argv[ 5 ];
 	is_latest = (*argv[ 6 ] == 'y');
 
+#ifdef NOT_DEFINED
 	if ( is_latest )
 	{
 		INVENTORY *inventory;
@@ -95,6 +99,68 @@ int main( int argc, char **argv )
 			application_name );
 	}
 	else
+	{
+		char sys_string[ 1024 ];
+
+		sprintf( sys_string,
+		"propagate_inventory_sale_layers %s '' '' '' \"%s\" '' n",
+			 application_name,
+			 inventory_name );
+
+		system( sys_string );
+	}
+#endif
+
+	if ( ! ( purchase_order =
+			purchase_order_new(
+				application_name,
+				full_name,
+				street_address,
+				purchase_date_time ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot load purchase order for (%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 purchase_date_time );
+		exit( 1 );
+	}
+
+/*
+	inventory_purchase =
+		inventory_purchase_fetch(
+			application_name,
+			full_name,
+			street_address,
+			purchase_date_time,
+			inventory_name );
+*/
+
+	if ( ! ( inventory_purchase =
+			inventory_purchase_list_seek(
+				purchase_order->inventory_purchase_list,
+				inventory_name ) ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot seek inventory purchase for (%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 inventory_name );
+		exit( 1 );
+	}
+
+	inventory = inventory_load_new(
+			application_name,
+			inventory_name );
+
+	propagate_inventory_purchase_layers_latest(
+		inventory_purchase,
+		inventory,
+		application_name );
+
+	if ( !is_latest )
 	{
 		char sys_string[ 1024 ];
 

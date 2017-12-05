@@ -41,9 +41,6 @@ PURCHASE_ORDER *purchase_order_calloc( void )
 
 } /* purchase_order_calloc() */
 
-/* ------------------------------------------------------------------------- */
-/* Need to add integrity checks making sure of mutually exclusive inventory. */
-/* ------------------------------------------------------------------------- */
 PURCHASE_ORDER *purchase_order_new(	char *application_name,
 					char *full_name,
 					char *street_address,

@@ -37,7 +37,8 @@ void print_checks_transaction_display(
 				LIST *street_address_list,
 				int starting_check_number,
 				double dialog_box_payment_amount,
-				char *fund_name );
+				char *fund_name,
+				char *memo );
 
 boolean output_html_table(
 				char *application_name,
@@ -297,13 +298,17 @@ char *pay_liabilities(	char *application_name,
 			memo );
 	}
 
-	print_checks_transaction_display(
-		application_name,
-		full_name_list,
-		street_address_list,
-		starting_check_number,
-		dialog_box_payment_amount,
-		fund_name );
+	if ( !execute )
+	{
+		print_checks_transaction_display(
+			application_name,
+			full_name_list,
+			street_address_list,
+			starting_check_number,
+			dialog_box_payment_amount,
+			fund_name,
+			memo );
+	}
 
 	return pdf_filename;
 
@@ -480,14 +485,37 @@ void print_checks_post(
 {
 	PAY_LIABILITIES *pay_liabilities;
 
-	pay_liabilities =
-		pay_liabilities_new(
+	if ( ! ( pay_liabilities =
+			pay_liabilities_new(
+				application_name,
+				fund_name,
+				full_name_list,
+				street_address_list,
+				starting_check_number,
+				dialog_box_payment_amount,
+				memo ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load pay liabilities.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( pay_liabilities->output.transaction_list ) )
+	{
+		printf( "<h3>Nothing to post.</h3>\n" );
+		return;
+	}
+
+	pay_liabilities->output.transaction_list =
+		ledger_transaction_list_insert(
+			pay_liabilities->output.transaction_list,
 			application_name,
-			fund_name,
-			full_name_list,
-			street_address_list,
-			starting_check_number,
-			dialog_box_payment_amount );
+			0 /* not lock_transaction */ );
+
+	printf( "<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
 
 /*
 	if ( print_checks_insert_entity_check_amount_list(
@@ -638,7 +666,8 @@ void print_checks_transaction_display(
 			LIST *street_address_list,
 			int starting_check_number,
 			double dialog_box_payment_amount,
-			char *fund_name )
+			char *fund_name,
+			char *memo )
 {
 	PAY_LIABILITIES *pay_liabilities;
 	TRANSACTION *transaction;
@@ -650,7 +679,8 @@ void print_checks_transaction_display(
 			full_name_list,
 			street_address_list,
 			starting_check_number,
-			dialog_box_payment_amount );
+			dialog_box_payment_amount,
+			memo );
 
 	if ( !list_rewind( pay_liabilities->output.transaction_list ) )
 		return;

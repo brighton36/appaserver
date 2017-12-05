@@ -42,7 +42,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
-				double dialog_box_payment_amount )
+				double dialog_box_payment_amount,
+				char *memo )
 {
 	PAY_LIABILITIES *p;
 	char *checking_account = {0};
@@ -135,7 +136,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 		pay_liabilities_output_get_liability_account_transaction_list(
 			p->process.liability_account_entity_list,
 			p->input.credit_account_name,
-			p->input.loss_account_name );
+			p->input.loss_account_name,
+			memo );
 
 	list_append_list(
 		p->output.transaction_list,
@@ -143,6 +145,7 @@ PAY_LIABILITIES *pay_liabilities_new(
 			p->process.entity_payable_list,
 			p->input.credit_account_name,
 			p->input.loss_account_name,
+			memo,
 			list_length( p->output.transaction_list )
 				/* seconds_to_add */ ) );
 
@@ -153,7 +156,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 LIST *pay_liabilities_output_get_liability_account_transaction_list(
 				LIST *liability_account_entity_list,
 				char *credit_account_name,
-				char *loss_account_name )
+				char *loss_account_name,
+				char *memo )
 {
 	LIST *transaction_list;
 	TRANSACTION *transaction;
@@ -162,7 +166,6 @@ LIST *pay_liabilities_output_get_liability_account_transaction_list(
 	JOURNAL_LEDGER *journal_ledger;
 	DATE *transaction_date_time;
 	char *transaction_date_time_string;
-	char *memo;
 
 	transaction_list = list_new();
 
@@ -171,11 +174,8 @@ LIST *pay_liabilities_output_get_liability_account_transaction_list(
 
 	transaction_date_time = date_now_new( date_get_utc_offset() );
 
-/*
 	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
 		memo = PAY_LIABILITIES_MEMO;
-*/
-	memo = PAY_LIABILITIES_MEMO;
 
 	do {
 		entity =
@@ -286,6 +286,7 @@ LIST *pay_liabilities_output_get_entity_payable_transaction_list(
 				LIST *entity_payable_list,
 				char *credit_account_name,
 				char *loss_account_name,
+				char *memo,
 				int seconds_to_add )
 {
 	LIST *transaction_list;
@@ -295,7 +296,6 @@ LIST *pay_liabilities_output_get_entity_payable_transaction_list(
 	JOURNAL_LEDGER *journal_ledger;
 	DATE *transaction_date_time;
 	char *transaction_date_time_string;
-	char *memo;
 
 	transaction_list = list_new();
 
@@ -309,11 +309,8 @@ LIST *pay_liabilities_output_get_entity_payable_transaction_list(
 		seconds_to_add,
 		date_get_utc_offset() );
 
-/*
 	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
 		memo = PAY_LIABILITIES_MEMO;
-*/
-	memo = PAY_LIABILITIES_MEMO;
 
 	do {
 		entity_payable =

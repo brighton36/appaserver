@@ -79,7 +79,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 				LIST *full_name_list,
 				LIST *street_address_list,
 				int starting_check_number,
-				double dialog_box_payment_amount );
+				double dialog_box_payment_amount,
+				char *memo );
 
 LIST *pay_liabilities_input_get_entity_payable_list(
 				char *application_name,
@@ -142,12 +143,14 @@ LIST *pay_liabilities_get_current_liability_entity_list(
 LIST *pay_liabilities_output_get_liability_account_transaction_list(
 				LIST *liability_account_entity_list,
 				char *credit_account_name,
-				char *loss_account_name );
+				char *loss_account_name,
+				char *memo );
 
 LIST *pay_liabilities_output_get_entity_payable_transaction_list(
 				LIST *entity_payable_list,
 				char *credit_account_name,
 				char *loss_account_name,
+				char *memo,
 				int seconds_to_add );
 
 #endif

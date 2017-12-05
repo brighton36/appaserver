@@ -330,6 +330,12 @@ boolean ledger_transaction_load(	double *transaction_amount,
 					char *street_address,
 					char *transaction_date_time );
 
+/* Returns transaction_list with transaction_date_time correctly set (maybe) */
+/* ------------------------------------------------------------------------- */
+LIST *ledger_transaction_list_insert(	LIST *transaction_list,
+					char *application_name,
+					boolean lock_transaction );
+
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
 char *ledger_transaction_insert(	char *application_name,
@@ -340,6 +346,14 @@ char *ledger_transaction_insert(	char *application_name,
 					char *memo,
 					int check_number,
 					boolean lock_transaction );
+
+void ledger_journal_ledger_insert(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *account_name,
+					double amount,
+					boolean is_debit );
 
 void ledger_transaction_amount_update(	char *application_name,
 					char *full_name,
@@ -431,14 +445,6 @@ void ledger_insert_customer_sale_journal_ledger(
 					double sum_cost_of_goods_sold,
 					double sales_tax,
 					double invoice_amount );
-
-void ledger_journal_ledger_insert(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time,
-					char *account_name,
-					double amount,
-					boolean is_debit );
 
 char *ledger_get_transaction_where(	char *full_name,
 					char *street_address,
@@ -914,7 +920,9 @@ boolean ledger_title_passage_rule_attribute_exists(
 boolean ledger_folder_exists(	char *application_name,
 				char *folder_name );
 
-void ledger_transaction_refresh(
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
+char *ledger_transaction_refresh(
 				char *application_name,
 				char *full_name,
 				char *street_address,

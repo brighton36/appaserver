@@ -3758,6 +3758,37 @@ FILE *ledger_transaction_insert_open_stream( char *application_name )
 
 } /* ledger_transaction_insert_open_stream() */
 
+/* Returns transaction_list with transaction_date_time correctly set (maybe) */
+/* ------------------------------------------------------------------------- */
+LIST *ledger_transaction_list_insert(	LIST *transaction_list,
+					char *application_name,
+					boolean lock_transaction )
+{
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) ) return transaction_list;
+
+	do {
+		transaction = list_get_pointer( transaction_list );
+
+		transaction->transaction_date_time =
+			ledger_transaction_refresh(
+				application_name,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->transaction_amount,
+				transaction->memo,
+				transaction->check_number,
+				lock_transaction,
+				transaction->journal_ledger_list );
+
+	} while( list_next( transaction_list ) );
+
+	return transaction_list;
+
+} /* ledger_transaction_list_insert() */
+
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
 char *ledger_transaction_insert(	char *application_name,
@@ -3828,6 +3859,65 @@ char *ledger_transaction_insert(	char *application_name,
 	return transaction_date_time;
 
 } /* ledger_transaction_insert() */
+
+void ledger_journal_ledger_insert(	char *application_name,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time,
+					char *account_name,
+					double amount,
+					boolean is_debit )
+{
+	char sys_string[ 1024 ];
+	char *field;
+	FILE *output_pipe;
+	char *table_name;
+
+	if ( !account_name )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty account_name for (%s/%s/%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 full_name,
+			 street_address,
+			 transaction_date_time );
+		exit( 1 );
+	}
+
+	if ( is_debit )
+	{
+		field=
+"full_name,street_address,transaction_date_time,account,debit_amount";
+	}
+	else
+	{
+		field=
+"full_name,street_address,transaction_date_time,account,credit_amount";
+	}
+
+	table_name = get_table_name( application_name, "journal_ledger" );
+
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
+		 "sql.e							      ",
+		 table_name,
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf(	output_pipe,
+			"%s^%s^%s^%s^%.2lf\n",
+			full_name,
+			street_address,
+			transaction_date_time,
+			account_name,
+			amount );
+
+	pclose( output_pipe );
+
+} /* ledger_journal_ledger_insert() */
 
 void ledger_entity_update(		char *application_name,
 					char *full_name,
@@ -4606,65 +4696,6 @@ void ledger_delete(			char *application_name,
 	pclose( output_pipe );
 
 } /* ledger_delete() */
-
-void ledger_journal_ledger_insert(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time,
-					char *account_name,
-					double amount,
-					boolean is_debit )
-{
-	char sys_string[ 1024 ];
-	char *field;
-	FILE *output_pipe;
-	char *table_name;
-
-	if ( !account_name )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty account_name for (%s/%s/%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 full_name,
-			 street_address,
-			 transaction_date_time );
-		exit( 1 );
-	}
-
-	if ( is_debit )
-	{
-		field=
-"full_name,street_address,transaction_date_time,account,debit_amount";
-	}
-	else
-	{
-		field=
-"full_name,street_address,transaction_date_time,account,credit_amount";
-	}
-
-	table_name = get_table_name( application_name, "journal_ledger" );
-
-	sprintf( sys_string,
-		 "insert_statement table=%s field=%s delimiter='^' replace=n |"
-		 "sql.e							      ",
-		 table_name,
-		 field );
-
-	output_pipe = popen( sys_string, "w" );
-
-	fprintf(	output_pipe,
-			"%s^%s^%s^%s^%.2lf\n",
-			full_name,
-			street_address,
-			transaction_date_time,
-			account_name,
-			amount );
-
-	pclose( output_pipe );
-
-} /* ledger_journal_ledger_insert() */
 
 boolean ledger_propagate_journal_ledger_list(
 			char *application_name,
@@ -7345,7 +7376,7 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 
 } /* ledger_sale_hash_table_build_transaction() */
 
-void ledger_transaction_refresh(
+char *ledger_transaction_refresh(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -7384,16 +7415,15 @@ void ledger_transaction_refresh(
 			street_address,
 			transaction_date_time );
 
-	if ( !list_length( journal_ledger_list ) ) return;
+	if ( !list_length( journal_ledger_list ) ) return (char *)0;
 
 	if ( list_length( journal_ledger_list ) == 1 )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: list_length( journal_ledger_list ) = %d.\n",
+	"ERROR in %s/%s()/%d: list_length( journal_ledger_list ) = 1.\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__,
-			 list_length( journal_ledger_list ) );
+			 __LINE__ );
 		exit( 1 );
 	}
 
@@ -7484,6 +7514,8 @@ void ledger_transaction_refresh(
 
 		} while( list_next( account_name_list ) );
 	}
+
+	return transaction_date_time;
 
 } /* ledger_transaction_refresh() */
 

@@ -135,6 +135,7 @@ typedef struct
 {
 	char *full_name;
 	char *street_address;
+	char *purchase_date_time;
 	char *payment_date_time;
 	double payment_amount;
 	int check_number;

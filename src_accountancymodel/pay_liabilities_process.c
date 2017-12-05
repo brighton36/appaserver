@@ -31,6 +31,16 @@
 
 /* Prototypes */
 /* ---------- */
+void print_checks_vendor_payment_insert(
+				char *application_name,
+				LIST *vendor_payment_list );
+
+void print_checks_purchase_order_amount_due_update(
+				char *application_name,
+				LIST *vendor_payment_list );
+
+void output_vendor_payment(	LIST *vendor_payment_list );
+
 void print_checks_transaction_display(
 				char *application_name,
 				LIST *full_name_list,
@@ -515,21 +525,18 @@ void print_checks_post(
 			application_name,
 			0 /* not lock_transaction */ );
 
-	printf( "<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
-
-/*
-	if ( print_checks_insert_entity_check_amount_list(
-		application_name,
-		fund_name,
-		print_checks->entity_check_amount_list,
-		print_checks->dialog_box_payment_amount,
-		memo,
-		starting_check_number ) )
+	if ( list_length( pay_liabilities->output.vendor_payment_list ) )
 	{
-		printf(
-		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
+		print_checks_vendor_payment_insert(
+			application_name,
+			pay_liabilities->output.vendor_payment_list );
+
+		print_checks_purchase_order_amount_due_update(
+			application_name,
+			pay_liabilities->output.vendor_payment_list );
 	}
-*/
+
+	printf( "<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
 
 } /* print_checks_post() */
 
@@ -690,10 +697,15 @@ void print_checks_transaction_display(
 			list_get_pointer(
 				pay_liabilities->output.transaction_list );
 
-		printf( "<h3>Full name: %s; Street Address: %s</h3>\n",
+		printf( "<h3>%s/%s: %s",
 			transaction->full_name,
-			transaction->street_address );
+			transaction->street_address,
+			transaction->transaction_date_time );
 
+		if ( transaction->check_number )
+			printf( " (%d)", transaction->check_number );
+
+		printf( "</h3>\n" );
 		fflush( stdout );
 
 		ledger_list_html_display(
@@ -702,5 +714,53 @@ void print_checks_transaction_display(
 
 	} while( list_next( pay_liabilities->output.transaction_list ) );
 
+	if ( list_length( pay_liabilities->output.vendor_payment_list ) )
+	{
+		output_vendor_payment(
+			pay_liabilities->output.vendor_payment_list );
+	}
+
 } /* print_checks_transaction_display() */
+
+void output_vendor_payment(
+			LIST *vendor_payment_list )
+{
+	VENDOR_PAYMENT *vendor_payment;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+
+	if ( !list_rewind( vendor_payment_list ) ) return;
+
+	strcpy( sys_string,
+"html_table.e '^^Vendor Payment' 'full_name,street_address,purchase_order,payment' '^' 'left,left,left,right'" );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		vendor_payment = list_get_pointer( vendor_payment_list );
+
+		fprintf( output_pipe,
+			 "%s^%s^%s^%.2lf\n",
+			 vendor_payment->full_name,
+			 vendor_payment->street_address,
+			 vendor_payment->purchase_date_time,
+			 vendor_payment->payment_amount );
+
+	} while( list_next( vendor_payment_list ) );
+
+	pclose( output_pipe );
+
+} /* output_vendor_payment() */
+
+void print_checks_vendor_payment_insert(
+			char *application_name,
+			LIST *vendor_payment_list )
+{
+} /* print_checks_vendor_payment_insert() */
+
+void print_checks_purchase_order_amount_due_update(
+			char *application_name,
+			LIST *vendor_payment_list )
+{
+} /* print_checks_purchase_order_amount_due_update() */
 

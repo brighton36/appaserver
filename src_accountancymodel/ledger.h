@@ -305,6 +305,11 @@ char *ledger_journal_ledger_list_display(
 char *ledger_propagate_account_list_display(
 					LIST *propagate_account_list );
 
+TRANSACTION *ledger_transaction_seek(	LIST *transaction_list,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time );
+
 TRANSACTION *ledger_transaction_new(	char *full_name,
 					char *street_address,
 					char *transaction_date_time,
@@ -1002,5 +1007,16 @@ void ledger_get_payroll_account_names(
 
 char *ledger_fetch_max_transaction_date_time(
 				char *application_name );
+
+char *ledger_transaction_journal_ledger_insert(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				LIST *journal_ledger_list );
 
 #endif

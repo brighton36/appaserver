@@ -112,7 +112,8 @@ ENTITY_PAYABLE *pay_liabilities_entity_payable_seek(
 LIST *pay_liabilities_get_liability_account_entity_list(
 				LIST *input_liability_account_entity_list,
 				LIST *input_entity_payable_list,
-				double dialog_box_payment_amount );
+				double dialog_box_payment_amount,
+				int starting_check_number );
 
 LIST *pay_liabilities_fetch_liability_account_entity_list(
 				char *application_name );
@@ -129,7 +130,8 @@ LIST *pay_liabilities_process_get_entity_payable_list(
 				LIST *input_entity_payable_list,
 				LIST *current_liability_entity_list,
 				LIST *input_purchase_order_list,
-				double dialog_box_payment_amount );
+				double dialog_box_payment_amount,
+				int starting_check_number );
 
 LIST *pay_liabilities_distribute_purchase_order_list(
 				LIST *input_purchase_order_list,
@@ -152,5 +154,9 @@ LIST *pay_liabilities_output_get_entity_payable_transaction_list(
 				char *loss_account_name,
 				char *memo,
 				int seconds_to_add );
+
+LIST *pay_liabilities_output_get_vendor_payment_list(
+				LIST *entity_payable_list,
+				LIST *transaction_list );
 
 #endif

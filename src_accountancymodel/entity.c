@@ -621,8 +621,9 @@ ENTITY *entity_seek(		LIST *entity_list,
 	do {
 		entity = list_get_pointer( entity_list );
 
-		if ( strcmp( entity->full_name, full_name ) == 0
-		&&   strcmp( entity->street_address, street_address ) == 0 )
+		if ( timlib_strcmp( entity->full_name, full_name ) == 0
+		&&   timlib_strcmp(	entity->street_address,
+					street_address ) == 0 )
 		{
 			return entity;
 		}

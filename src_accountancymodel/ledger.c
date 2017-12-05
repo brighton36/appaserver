@@ -193,6 +193,44 @@ char *ledger_account_get_select( char *application_name )
 
 } /* ledger_account_get_select() */
 
+TRANSACTION *ledger_transaction_seek(
+					LIST *transaction_list,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time )
+{
+	TRANSACTION *t;
+
+	if ( !list_rewind( transaction_list ) ) return (TRANSACTION *)0;
+
+	do {
+		t = list_get( transaction_list );
+
+		if ( timlib_strcmp(	t->full_name,
+					full_name ) != 0
+		||   timlib_strcmp(	t->street_address,
+					street_address ) != 0 )
+		{
+			continue;
+		}
+
+		if ( transaction_date_time && *transaction_date_time )
+		{
+			if ( timlib_strcmp(	t->transaction_date_time,
+						transaction_date_time ) != 0 )
+			{
+				continue;
+			}
+		}
+
+		return t;
+
+	} while( list_next( transaction_list ) );
+
+	return (TRANSACTION *)0;
+
+} /* ledger_transaction_seek() */
+
 ACCOUNT *ledger_subclassification_fund_seek_account(
 				LIST *account_list,
 				char *subclassification_name,
@@ -3772,7 +3810,7 @@ LIST *ledger_transaction_list_insert(	LIST *transaction_list,
 		transaction = list_get_pointer( transaction_list );
 
 		transaction->transaction_date_time =
-			ledger_transaction_refresh(
+			ledger_transaction_journal_ledger_insert(
 				application_name,
 				transaction->full_name,
 				transaction->street_address,
@@ -7277,7 +7315,6 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 			street_address,
 			transaction_date_time,
 			service_revenue_account );
-#endif
 
 
 	if ( key && ( journal_ledger =
@@ -7289,6 +7326,7 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 			transaction->journal_ledger_list,
 			journal_ledger );
 	}
+#endif
 
 	/* Sales tax payable */
 	/* ----------------- */
@@ -7387,12 +7425,6 @@ char *ledger_transaction_refresh(
 				boolean lock_transaction,
 				LIST *journal_ledger_list )
 {
-	LIST *account_name_list;
-	char *account_name;
-	JOURNAL_LEDGER *journal_ledger;
-	FILE *debit_account_pipe = {0};
-	FILE *credit_account_pipe = {0};
-
 	if ( !full_name )
 	{
 		fprintf( stderr,
@@ -7414,6 +7446,58 @@ char *ledger_transaction_refresh(
 			full_name,
 			street_address,
 			transaction_date_time );
+
+	if ( !list_length( journal_ledger_list ) ) return (char *)0;
+
+	if ( list_length( journal_ledger_list ) == 1 )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: list_length( journal_ledger_list ) = 1.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return ledger_transaction_journal_ledger_insert(
+				application_name,
+				full_name,
+				street_address,
+				transaction_date_time,
+				transaction_amount,
+				memo,
+				check_number,
+				lock_transaction,
+				journal_ledger_list );
+
+} /* ledger_transaction_refresh() */
+
+char *ledger_transaction_journal_ledger_insert(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				LIST *journal_ledger_list )
+{
+	LIST *account_name_list;
+	char *account_name;
+	JOURNAL_LEDGER *journal_ledger;
+	FILE *debit_account_pipe = {0};
+	FILE *credit_account_pipe = {0};
+
+	if ( !full_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty full_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( !list_length( journal_ledger_list ) ) return (char *)0;
 
@@ -7517,7 +7601,7 @@ char *ledger_transaction_refresh(
 
 	return transaction_date_time;
 
-} /* ledger_transaction_refresh() */
+} /* ledger_transaction_journal_ledger_insert() */
 
 TRANSACTION *ledger_inventory_build_transaction(
 				char *application_name,

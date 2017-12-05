@@ -17,78 +17,6 @@
 #include "date.h"
 #include "pay_liabilities.h"
 
-double pay_liabilities_get_sum_balance(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address )
-{
-	char sys_string[ 128 ];
-	char *record;
-	char input_full_name[ 128 ];
-	char input_street_address_balance[ 128 ];
-	char input_street_address[ 128 ];
-	char input_balance[ 16 ];
-	static LIST *entity_record_list = {0};
-
-	if ( !entity_record_list )
-	{
-		sprintf( sys_string,
-		 	"populate_print_checks_entity %s '%s'",
-		 	application_name,
-			fund_name );
-
-		entity_record_list = pipe2list( sys_string );
-	}
-
-	if ( !list_rewind( entity_record_list ) ) return 0.0;
-
-	do {
-		record = list_get_pointer( entity_record_list );
-
-		if ( character_count(
-			FOLDER_DATA_DELIMITER,
-			record ) != 1 )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: not one delimiter in (%s)\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 record );
-
-			return 0.0;
-		}
-
-		piece(	input_full_name,
-			FOLDER_DATA_DELIMITER,
-			record,
-			0 );
-
-		piece(	input_street_address_balance,
-			FOLDER_DATA_DELIMITER,
-			record,
-			1 );
-
-		piece(	input_street_address,
-			'[',
-			input_street_address_balance,
-			0 );
-
-		piece( input_balance, '[', input_street_address_balance, 1 );
-
-		if ( strcmp( input_full_name, full_name ) == 0
-		&&   strcmp( input_street_address, street_address ) == 0 )
-		{
-			return atof( input_balance );
-		}
-
-	} while( list_next( entity_record_list ) );
-
-	return 0.0;
-
-} /* pay_liabilities_get_sum_balance() */
-
 PAY_LIABILITIES *pay_liabilities_calloc( void )
 {
 	PAY_LIABILITIES *p;
@@ -168,7 +96,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 	/* -------------------------------------------------------- */
 	p->input.current_liability_account_list =
 		pay_liabilities_fetch_current_liability_account_list(
-			application_name );
+			application_name,
+			fund_name );
 
 	p->input.purchase_order_list =
 		purchase_get_amount_due_purchase_order_list(
@@ -202,10 +131,301 @@ PAY_LIABILITIES *pay_liabilities_new(
 
 	/* Output */
 	/* ------ */
+	p->output.transaction_list =
+		pay_liabilities_output_get_liability_account_transaction_list(
+			p->process.liability_account_entity_list,
+			p->input.credit_account_name,
+			p->input.loss_account_name );
+
+	list_append_list(
+		p->output.transaction_list,
+		pay_liabilities_output_get_entity_payable_transaction_list(
+			p->process.entity_payable_list,
+			p->input.credit_account_name,
+			p->input.loss_account_name,
+			list_length( p->output.transaction_list )
+				/* seconds_to_add */ ) );
 
 	return p;
 
 } /* pay_liabilities_new() */
+
+LIST *pay_liabilities_output_get_liability_account_transaction_list(
+				LIST *liability_account_entity_list,
+				char *credit_account_name,
+				char *loss_account_name )
+{
+	LIST *transaction_list;
+	TRANSACTION *transaction;
+	ENTITY *entity;
+	ACCOUNT *account;
+	JOURNAL_LEDGER *journal_ledger;
+	DATE *transaction_date_time;
+	char *transaction_date_time_string;
+	char *memo;
+
+	transaction_list = list_new();
+
+	if ( !list_rewind( liability_account_entity_list ) )
+		return transaction_list;
+
+	transaction_date_time = date_now_new( date_get_utc_offset() );
+
+/*
+	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
+		memo = PAY_LIABILITIES_MEMO;
+*/
+	memo = PAY_LIABILITIES_MEMO;
+
+	do {
+		entity =
+			list_get_pointer( 
+				liability_account_entity_list );
+
+
+		if ( !list_rewind( entity->liability_account_list ) )
+		{
+			fprintf( stderr,
+	"Warning in %s/%s()/%d: empty liability_account_list for (%s/%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 entity->full_name,
+				 entity->street_address );
+			continue;
+		}
+
+		transaction_date_time_string =
+			date_display_yyyy_mm_dd_colon_hms(
+				transaction_date_time );
+
+		transaction =
+			ledger_transaction_new(
+				entity->full_name,
+				entity->street_address,
+				transaction_date_time_string,
+				memo );
+
+		transaction->transaction_amount = entity->payment_amount;
+		transaction->check_number = entity->check_number;
+
+		list_append_pointer( transaction_list, transaction );
+
+		if ( !transaction->journal_ledger_list )
+			transaction->journal_ledger_list =
+				list_new();
+
+		/* Debit accounts */
+		/* -------------- */
+		do {
+			account =
+				list_get_pointer( 
+					entity->liability_account_list );
+
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					account->account_name );
+
+			journal_ledger->debit_amount = account->payment_amount;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+		} while( list_next( entity->liability_account_list ) );
+
+		/* Loss account */
+		/* ------------ */
+		if ( !timlib_dollar_virtually_same(
+			entity->loss_amount, 0.0 ) )
+		{
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					loss_account_name );
+	
+			journal_ledger->debit_amount = entity->loss_amount;
+	
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+		}
+
+		/* Credit account */
+		/* -------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				credit_account_name );
+
+		journal_ledger->credit_amount = entity->payment_amount;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		date_increment_seconds(
+			transaction_date_time,
+			1,
+			date_get_utc_offset() );
+
+	} while( list_next( liability_account_entity_list ) );
+
+	return transaction_list;
+
+} /* pay_liabilities_output_get_liability_account_transaction_list() */
+
+LIST *pay_liabilities_output_get_entity_payable_transaction_list(
+				LIST *entity_payable_list,
+				char *credit_account_name,
+				char *loss_account_name,
+				int seconds_to_add )
+{
+	LIST *transaction_list;
+	TRANSACTION *transaction;
+	ENTITY_PAYABLE *entity_payable;
+	ACCOUNT *account;
+	JOURNAL_LEDGER *journal_ledger;
+	DATE *transaction_date_time;
+	char *transaction_date_time_string;
+	char *memo;
+
+	transaction_list = list_new();
+
+	if ( !list_rewind( entity_payable_list ) )
+		return transaction_list;
+
+	transaction_date_time = date_now_new( date_get_utc_offset() );
+
+	date_increment_seconds(
+		transaction_date_time,
+		seconds_to_add,
+		date_get_utc_offset() );
+
+/*
+	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
+		memo = PAY_LIABILITIES_MEMO;
+*/
+	memo = PAY_LIABILITIES_MEMO;
+
+	do {
+		entity_payable =
+			list_get_pointer( 
+				entity_payable_list );
+
+
+		if ( !list_rewind(
+			entity_payable->
+				current_liability_account_list ) )
+		{
+			fprintf( stderr,
+"Warning in %s/%s()/%d: empty current_liability_account_list for (%s/%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 entity_payable->full_name,
+				 entity_payable->street_address );
+			continue;
+		}
+
+		transaction_date_time_string =
+			date_display_yyyy_mm_dd_colon_hms(
+				transaction_date_time );
+
+		transaction =
+			ledger_transaction_new(
+				entity_payable->full_name,
+				entity_payable->street_address,
+				transaction_date_time_string,
+				memo );
+
+		transaction->transaction_amount =
+			entity_payable->payment_amount;
+
+		transaction->check_number = entity_payable->check_number;
+
+		list_append_pointer( transaction_list, transaction );
+
+		if ( !transaction->journal_ledger_list )
+			transaction->journal_ledger_list =
+				list_new();
+
+		/* Debit accounts */
+		/* -------------- */
+		do {
+			account =
+				list_get_pointer( 
+					entity_payable->
+					     current_liability_account_list );
+
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					account->account_name );
+
+			journal_ledger->debit_amount = account->payment_amount;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+		} while( list_next( entity_payable->
+					current_liability_account_list ) );
+
+		/* Loss account */
+		/* ------------ */
+		if ( !timlib_dollar_virtually_same(
+			entity_payable->loss_amount, 0.0 ) )
+		{
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					loss_account_name );
+	
+			journal_ledger->debit_amount =
+				entity_payable->loss_amount;
+	
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+		}
+
+		/* Credit account */
+		/* -------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				credit_account_name );
+
+		journal_ledger->credit_amount = entity_payable->payment_amount;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		date_increment_seconds(
+			transaction_date_time,
+			1,
+			date_get_utc_offset() );
+
+	} while( list_next( entity_payable_list ) );
+
+	return transaction_list;
+
+} /* pay_liabilities_output_get_entity_payable_transaction_list() */
 
 LIST *pay_liabilities_get_current_liability_entity_list(
 			LIST *current_liability_account_list )
@@ -416,12 +636,14 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 } /* pay_liabilities_distribute_purchase_order_list() */
 
 LIST *pay_liabilities_fetch_current_liability_account_list(
-				char *application_name )
+				char *application_name,
+				char *fund_name )
 {
 	LIST *account_list;
 	ACCOUNT *account;
 	char *select;
-	char *where;
+	char fund_where[ 128 ];
+	char where[ 256 ];
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
 	FILE *input_pipe;
@@ -432,8 +654,20 @@ LIST *pay_liabilities_fetch_current_liability_account_list(
 		ledger_account_get_select(
 			application_name );
 
-	where =
-"subclassification = 'current_liability' and account <> 'uncleared_checks'";
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
+	{
+		sprintf( fund_where, "fund = '%s'", fund_name );
+	}
+	else
+	{
+		strcpy( fund_where, "1 = 1" );
+	}
+
+	sprintf( where,
+		 "subclassification = 'current_liability' and	"
+		 "account <> 'uncleared_checks' and		"
+		 "%s						",
+		 fund_where );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -473,6 +707,9 @@ LIST *pay_liabilities_fetch_current_liability_account_list(
 
 } /* pay_liabilities_fetch_current_liability_account_list() */
 
+/* ------------------------------------------ */
+/* Future work: need to optionally join fund. */
+/* ------------------------------------------ */
 LIST *pay_liabilities_fetch_liability_account_entity_list(
 				char *application_name )
 {
@@ -759,7 +996,7 @@ LIST *pay_liabilities_input_get_entity_payable_list(
 				street_address );
 
 		if ( ! ( entity_payable->sum_balance =
-				pay_liabilities_get_sum_balance(
+				pay_liabilities_fetch_sum_balance(
 					application_name,
 					fund_name,
 					full_name,
@@ -816,7 +1053,80 @@ ENTITY_PAYABLE *pay_liabilities_entity_payable_seek(
 
 } /* pay_liabilities_entity_payable_seek() */
 
+double pay_liabilities_fetch_sum_balance(
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address )
+{
+	char sys_string[ 128 ];
+	char *record;
+	char input_full_name[ 128 ];
+	char input_street_address_balance[ 128 ];
+	char input_street_address[ 128 ];
+	char input_balance[ 16 ];
+	static LIST *entity_record_list = {0};
+
+	if ( !entity_record_list )
+	{
+		sprintf( sys_string,
+		 	"populate_print_checks_entity %s '%s'",
+		 	application_name,
+			fund_name );
+
+		entity_record_list = pipe2list( sys_string );
+	}
+
+	if ( !list_rewind( entity_record_list ) ) return 0.0;
+
+	do {
+		record = list_get_pointer( entity_record_list );
+
+		if ( character_count(
+			FOLDER_DATA_DELIMITER,
+			record ) != 1 )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: not one delimiter in (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 record );
+
+			return 0.0;
+		}
+
+		piece(	input_full_name,
+			FOLDER_DATA_DELIMITER,
+			record,
+			0 );
+
+		piece(	input_street_address_balance,
+			FOLDER_DATA_DELIMITER,
+			record,
+			1 );
+
+		piece(	input_street_address,
+			'[',
+			input_street_address_balance,
+			0 );
+
+		piece( input_balance, '[', input_street_address_balance, 1 );
+
+		if ( strcmp( input_full_name, full_name ) == 0
+		&&   strcmp( input_street_address, street_address ) == 0 )
+		{
+			return atof( input_balance );
+		}
+
+	} while( list_next( entity_record_list ) );
+
+	return 0.0;
+
+} /* pay_liabilities_fetch_sum_balance() */
+
 #ifdef NOT_DEFINED
+
 ENTITY_ACCOUNT_DEBIT *
 	pay_liabilities_get_or_set_entity_account_debit(
 				LIST *entity_account_debit_list,

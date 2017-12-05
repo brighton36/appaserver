@@ -20,7 +20,7 @@
 
 /* Constants */
 /* --------- */
-#define PRINT_CHECKS_MEMO	"Automatic Check"
+#define PAY_LIABILITIES_MEMO	"Automatic Payment"
 
 /* Structures */
 /* ---------- */
@@ -97,7 +97,7 @@ ENTITY_PAYABLE *pay_liabilities_entity_payable_new(
 LIST *pay_liabilities_fetch_purchase_order_list(
 				char *application_name );
 
-double pay_liabilities_get_sum_balance(
+double pay_liabilities_fetch_sum_balance(
 				char *application_name,
 				char *fund_name,
 				char *full_name,
@@ -117,7 +117,8 @@ LIST *pay_liabilities_fetch_liability_account_entity_list(
 				char *application_name );
 
 LIST *pay_liabilities_fetch_current_liability_account_list(
-				char *application_name );
+				char *application_name,
+				char *fund_name );
 
 LIST *pay_liabilities_distribute_liability_account_list(
 				LIST *liability_account_list,
@@ -137,5 +138,16 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 
 LIST *pay_liabilities_get_current_liability_entity_list(
 				LIST *current_liability_account_list );
+
+LIST *pay_liabilities_output_get_liability_account_transaction_list(
+				LIST *liability_account_entity_list,
+				char *credit_account_name,
+				char *loss_account_name );
+
+LIST *pay_liabilities_output_get_entity_payable_transaction_list(
+				LIST *entity_payable_list,
+				char *credit_account_name,
+				char *loss_account_name,
+				int seconds_to_add );
 
 #endif

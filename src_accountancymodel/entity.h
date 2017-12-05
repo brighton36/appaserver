@@ -57,6 +57,7 @@ typedef struct
 	double sum_balance;
 	double payment_amount;
 	double loss_amount;
+	int check_number;
 } ENTITY;
 
 typedef struct

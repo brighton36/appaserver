@@ -100,6 +100,7 @@ typedef struct
 	double transaction_amount;
 	double database_transaction_amount;
 	char *memo;
+	int check_number;
 	LIST *journal_ledger_list;
 } TRANSACTION;
 

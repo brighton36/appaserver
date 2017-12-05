@@ -25,6 +25,9 @@
 
 /* Prototypes */
 /* ---------- */
+void output_entity_list(	FILE *output_pipe,
+				LIST *entity_list );
+
 void output_checks_not_taxes(
 				FILE *output_pipe,
 				char *application_name,
@@ -84,12 +87,32 @@ void populate_print_checks_entity(
 				char *fund_name )
 {
 	FILE *output_pipe;
-	ENTITY *entity;
-	PAY_LIABILITIES *pay_liabilities;
-	LIST *liability_account_entity_list;
+	PAY_LIABILITIES *p;
+
+	p = pay_liabilities_calloc();
+
+	p->input.current_liability_account_list =
+		pay_liabilities_fetch_current_liability_account_list(
+			application_name,
+			fund_name );
+
+	p->input.liability_account_entity_list =
+		pay_liabilities_fetch_liability_account_entity_list(
+				application_name );
+
+	p->process.current_liability_entity_list =
+		pay_liabilities_get_current_liability_entity_list(
+			p->input.current_liability_account_list );
 
 	output_pipe = popen( "sort", "w" );
 
+	output_entity_list(	output_pipe,
+				p->input.liability_account_entity_list );
+
+	output_entity_list(	output_pipe,
+				p->process.current_liability_entity_list );
+
+/*
 	output_checks_not_taxes(
 			output_pipe,
 			application_name,
@@ -115,10 +138,31 @@ void populate_print_checks_entity(
 			 entity->sum_balance );
 
 	} while( list_next( liability_account_entity_list ) );
+*/
 
 	pclose( output_pipe );
 
 } /* populate_pay_liabilities_entity() */
+
+void output_entity_list(	FILE *output_pipe,
+				LIST *entity_list )
+{
+	ENTITY *entity;
+
+	if ( !list_rewind( entity_list ) ) return;
+
+	do {
+		entity = list_get_pointer( entity_list );
+
+		fprintf( output_pipe,
+			 "%s^%s [%.2lf]\n",
+			 entity->full_name,
+			 entity->street_address,
+			 entity->sum_balance );
+
+	} while( list_next( entity_list ) );
+
+} /* output_entity_list() */
 
 void output_checks_not_taxes(
 				FILE *output_pipe,

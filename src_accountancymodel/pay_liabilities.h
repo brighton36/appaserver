@@ -116,13 +116,6 @@ LIST *pay_liabilities_get_liability_account_entity_list(
 LIST *pay_liabilities_fetch_liability_account_entity_list(
 				char *application_name );
 
-/*
-ENTITY *pay_liabilities_get_or_set_liability_account_entity(
-				LIST *liability_account_entity_list,
-				char *full_name,
-				char *street_address );
-*/
-
 LIST *pay_liabilities_fetch_current_liability_account_list(
 				char *application_name );
 

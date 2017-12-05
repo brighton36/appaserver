@@ -112,7 +112,7 @@ void populate_print_checks_entity(
 			 "%s^%s [%.2lf]\n",
 			 entity->full_name,
 			 entity->street_address,
-			 entity->sum_credit_amount_check_amount );
+			 entity->sum_balance );
 
 	} while( list_next( liability_account_entity_list ) );
 

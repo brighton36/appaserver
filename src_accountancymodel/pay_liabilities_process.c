@@ -478,10 +478,10 @@ void print_checks_post(
 			char *fund_name,
 			char *memo )
 {
-	PRINT_CHECKS *print_checks;
+	PAY_LIABILITIES *pay_liabilities;
 
-	print_checks =
-		print_checks_new(
+	pay_liabilities =
+		pay_liabilities_new(
 			application_name,
 			fund_name,
 			full_name_list,
@@ -490,11 +490,6 @@ void print_checks_post(
 			dialog_box_payment_amount );
 
 /*
-	print_checks->liability_account_entity_list =
-		print_checks_fetch_liability_account_entity_list(
-			application_name );
-*/
-
 	if ( print_checks_insert_entity_check_amount_list(
 		application_name,
 		fund_name,
@@ -506,6 +501,7 @@ void print_checks_post(
 		printf(
 		"<h3>Execute Posting to Journal Ledger complete.</h3>\n" );
 	}
+*/
 
 } /* print_checks_post() */
 
@@ -644,11 +640,11 @@ void print_checks_transaction_display(
 			double dialog_box_payment_amount,
 			char *fund_name )
 {
-	PRINT_CHECKS *print_checks;
-	ENTITY_CHECK_AMOUNT *entity_check_amount;
+	PAY_LIABILITIES *pay_liabilities;
+	TRANSACTION *transaction;
 
-	print_checks =
-		print_checks_new(
+	pay_liabilities =
+		pay_liabilities_new(
 			application_name,
 			fund_name,
 			full_name_list,
@@ -656,25 +652,25 @@ void print_checks_transaction_display(
 			starting_check_number,
 			dialog_box_payment_amount );
 
-	if ( !list_rewind( print_checks->entity_check_amount_list ) )
+	if ( !list_rewind( pay_liabilities->output.transaction_list ) )
 		return;
 
 	do {
-		entity_check_amount =
+		transaction =
 			list_get_pointer(
-				print_checks->entity_check_amount_list );
+				pay_liabilities->output.transaction_list );
 
 		printf( "<h3>Full name: %s; Street Address: %s</h3>\n",
-			entity_check_amount->full_name,
-			entity_check_amount->street_address );
+			transaction->full_name,
+			transaction->street_address );
 
 		fflush( stdout );
 
 		ledger_list_html_display(
-			entity_check_amount->
+			transaction->
 				journal_ledger_list );
 
-	} while( list_next( print_checks->entity_check_amount_list ) );
+	} while( list_next( pay_liabilities->output.transaction_list ) );
 
 } /* print_checks_transaction_display() */
 

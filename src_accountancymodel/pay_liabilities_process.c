@@ -35,10 +35,6 @@ void print_checks_vendor_payment_insert(
 				char *application_name,
 				LIST *vendor_payment_list );
 
-void print_checks_purchase_order_amount_due_update(
-				char *application_name,
-				LIST *vendor_payment_list );
-
 void output_vendor_payment(	LIST *vendor_payment_list );
 
 void print_checks_transaction_display(
@@ -519,6 +515,10 @@ void print_checks_post(
 		return;
 	}
 
+	/* ---------------------------------------------------- */
+	/* Can't lock the transactions because			*/
+	/* it groups purchase orders with journal entries.	*/
+	/* ---------------------------------------------------- */
 	pay_liabilities->output.transaction_list =
 		ledger_transaction_list_insert(
 			pay_liabilities->output.transaction_list,
@@ -528,10 +528,6 @@ void print_checks_post(
 	if ( list_length( pay_liabilities->output.vendor_payment_list ) )
 	{
 		print_checks_vendor_payment_insert(
-			application_name,
-			pay_liabilities->output.vendor_payment_list );
-
-		print_checks_purchase_order_amount_due_update(
 			application_name,
 			pay_liabilities->output.vendor_payment_list );
 	}
@@ -756,11 +752,69 @@ void print_checks_vendor_payment_insert(
 			char *application_name,
 			LIST *vendor_payment_list )
 {
-} /* print_checks_vendor_payment_insert() */
+	PURCHASE_ORDER *purchase_order;
+	VENDOR_PAYMENT *vendor_payment;
 
-void print_checks_purchase_order_amount_due_update(
-			char *application_name,
-			LIST *vendor_payment_list )
-{
-} /* print_checks_purchase_order_amount_due_update() */
+	if ( !list_rewind( vendor_payment_list ) ) return;
+
+	do {
+		vendor_payment = list_get_pointer( vendor_payment_list );
+
+		if ( !vendor_payment->transaction )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty transaction.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		if ( !vendor_payment->purchase_order )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty purchase_order.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		purchase_vendor_payment_insert(
+				application_name,
+				vendor_payment->full_name,
+				vendor_payment->street_address,
+				vendor_payment->purchase_date_time,
+				vendor_payment->payment_date_time,
+				vendor_payment->payment_amount,
+				vendor_payment->check_number,
+				vendor_payment->
+					transaction->
+					transaction_date_time );
+
+		purchase_order = vendor_payment->purchase_order;
+
+		/* Update amount_due */
+		/* ----------------- */
+		purchase_order_update(
+			application_name,
+			purchase_order->full_name,
+			purchase_order->street_address,
+			purchase_order->purchase_date_time,
+			purchase_order->sum_extension,
+			purchase_order->database_sum_extension,
+			purchase_order->purchase_amount,
+			purchase_order->database_purchase_amount,
+			purchase_order->amount_due,
+			purchase_order->database_amount_due,
+			purchase_order->transaction_date_time,
+			purchase_order->database_transaction_date_time,
+			purchase_order->arrived_date_time,
+			purchase_order->database_arrived_date_time,
+			purchase_order->shipped_date,
+			purchase_order->database_shipped_date );
+
+	} while( list_next( vendor_payment_list ) );
+
+} /* print_checks_vendor_payment_insert() */
 

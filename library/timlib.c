@@ -3523,3 +3523,24 @@ boolean timlib_double_is_integer( double d )
 	return timlib_double_virtually_same( (double)i, d );
 }
 
+void *timlib_memcpy( void *object, int sizeof_object )
+{
+	void *new_object;
+
+	if ( ! ( new_object = calloc( 1, sizeof_object ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	memcpy(	new_object,
+		object,
+		sizeof_object );
+
+	return new_object;
+
+} /* timlib_memcpy() */

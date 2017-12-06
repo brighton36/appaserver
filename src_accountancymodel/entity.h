@@ -58,6 +58,7 @@ typedef struct
 	double payment_amount;
 	double loss_amount;
 	int check_number;
+	LIST *purchase_order_list;
 } ENTITY;
 
 typedef struct

@@ -466,4 +466,7 @@ char *timlib_commas_in_dollars( double d );
 boolean timlib_double_is_integer(
 				double d );
 
+void *timlib_memcpy(		void *object,
+				int sizeof_object );
+
 #endif

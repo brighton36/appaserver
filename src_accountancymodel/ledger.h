@@ -102,6 +102,7 @@ typedef struct
 	char *memo;
 	int check_number;
 	LIST *journal_ledger_list;
+	boolean lock_transaction;
 } TRANSACTION;
 
 typedef struct

@@ -39,6 +39,7 @@ EXECUTABLES=	trial_balance						\
 		propagate_inventory_sale_layers				\
 		depreciate_fixed_assets					\
 		depreciate_prior_fixed_assets				\
+		post_change_supply_purchase				\
 		post_change_inventory_purchase				\
 		post_change_fixed_asset_purchase			\
 		post_change_fixed_asset					\

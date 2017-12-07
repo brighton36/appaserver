@@ -48,6 +48,11 @@ then
 	subclassification_where="subclassification = 'current_liability'"
 fi
 
+if [ "$one2m_folder" = "supply" ]
+then
+	subclassification_where="subclassification = 'supply_expense'"
+fi
+
 if [ "${parameter_where}" != "" ]
 then
 	where="$subclassification_where and $parameter_where"

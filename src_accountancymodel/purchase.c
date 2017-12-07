@@ -47,6 +47,7 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 					char *purchase_date_time )
 {
 	PURCHASE_ORDER *p;
+	double sum_inventory_extension;
 
 	p = purchase_order_calloc();
 	p->full_name = full_name;
@@ -177,15 +178,19 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 			p->purchase_amount,
 			p->sum_payment_amount );
 
+	sum_inventory_extension =
+		p->sum_inventory_extension +
+		p->sum_specific_inventory_extension;
+
 	inventory_purchase_list_set_capitalized_unit_cost(
 		p->inventory_purchase_list,
-		p->sum_inventory_extension,
+		sum_inventory_extension,
 		p->sales_tax,
 		p->freight_in );
 
 	purchase_specific_inventory_set_capitalized_extension(
 		p->specific_inventory_purchase_list,
-		p->sum_specific_inventory_extension,
+		sum_inventory_extension,
 		p->sales_tax,
 		p->freight_in );
 
@@ -539,30 +544,42 @@ LIST *purchase_supply_get_list(
 					char *purchase_date_time )
 {
 	char sys_string[ 1024 ];
-	char *where;
+	char *supply_purchase_where;
+	char *join_where;
+	char where[ 512 ];
 	char *select;
 	char input_buffer[ 1024 ];
 	char piece_buffer[ 256 ];
 	FILE *input_pipe;
 	PURCHASE_SUPPLY *purchase_supply;
 	LIST *supply_purchase_list;
+	char *folder;
 
-	select = "supply_name,quantity,unit_cost,extension";
+	select =
+	"supply_purchase.supply_name,quantity,unit_cost,extension,account";
 
-	where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					(char *)0 /* folder_name */,
-					"purchase_date_time" );
+	supply_purchase_where =
+		ledger_get_transaction_where(
+				full_name,
+				street_address,
+				purchase_date_time,
+				(char *)0 /* folder_name */,
+				"purchase_date_time" );
+
+	join_where = "supply_purchase.supply_name = supply.supply_name";
+
+	sprintf( where, "%s and %s", supply_purchase_where, join_where );
+
+	folder = "supply_purchase,supply";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=%s			"
-		 "			folder=supply_purchase		"
+		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,
 		 select,
+		 folder,
 		 where );
 
 	input_pipe = popen( sys_string, "r" );
@@ -588,6 +605,9 @@ LIST *purchase_supply_get_list(
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 		purchase_supply->database_extension = atof( piece_buffer );
+
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+		purchase_supply->account_name = strdup( piece_buffer );
 
 		list_append_pointer( supply_purchase_list, purchase_supply );
 	}

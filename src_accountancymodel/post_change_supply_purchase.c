@@ -29,8 +29,7 @@ void post_change_supply_purchase_delete(
 			char *application_name,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time,
-			char *supply_name );
+			char *purchase_date_time );
 
 void post_change_supply_purchase_insert(
 			char *application_name,
@@ -98,8 +97,7 @@ int main( int argc, char **argv )
 			application_name,
 			full_name,
 			street_address,
-			purchase_date_time,
-			supply_name );
+			purchase_date_time );
 	}
 	else
 	if ( strcmp( state, "insert" ) == 0 )
@@ -234,7 +232,7 @@ void post_change_supply_purchase_update(
 		if ( ! ( supply_expense_account =
 				ledger_get_supply_expense_account(
 					application_name,
-					preupdate_supply_name ) )
+					preupdate_supply_name ) ) )
 		{
 			fprintf( stderr,
 	"ERROR in %s/%s()/%d: cannot get supply_expense_account for (%s).\n",
@@ -352,8 +350,7 @@ void post_change_supply_purchase_delete(
 			char *application_name,
 			char *full_name,
 			char *street_address,
-			char *purchase_date_time,
-			char *supply_name )
+			char *purchase_date_time )
 {
 	PURCHASE_ORDER *purchase_order;
 
@@ -407,8 +404,6 @@ void post_change_supply_purchase_delete(
 				purchase_order->freight_in,
 				purchase_order->supply_purchase_list,
 				purchase_order->service_purchase_list,
-				purchase_order->
-					specific_inventory_purchase_list,
 				purchase_order->
 					fixed_asset_purchase_list,
 				purchase_order->

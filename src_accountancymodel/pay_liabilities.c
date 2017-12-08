@@ -163,6 +163,10 @@ PAY_LIABILITIES *pay_liabilities_new(
 			p->process.entity_list,
 			p->output.transaction_list );
 
+	pay_liabilities_set_lock_transaction(
+		p->output.transaction_list,
+		p->output.vendor_payment_list );
+
 	return p;
 
 } /* pay_liabilities_new() */
@@ -534,14 +538,6 @@ LIST *pay_liabilities_process_get_entity_list(
 			continue;
 		}
 
-/*
-		new_entity = entity_calloc();
-
-		memcpy(	new_entity,
-			input_entity,
-			sizeof( ENTITY ) );
-*/
-
 		new_entity = timlib_memcpy( input_entity, sizeof( ENTITY ) );
 
 		list_append_pointer( 
@@ -616,13 +612,6 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 			continue;
 		}
 
-/*
-		new_purchase_order = purchase_order_calloc();
-
-		memcpy(	new_purchase_order,
-			purchase_order,
-			sizeof( PURCHASE_ORDER ) );
-*/
 		new_purchase_order =
 			timlib_memcpy(
 				purchase_order,
@@ -636,11 +625,17 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 		/* ------------------------- */
 		if ( payment_amount < purchase_order->amount_due )
 		{
+			new_purchase_order->liability_payment_amount =
+				payment_amount;
+
 			new_purchase_order->amount_due -= payment_amount;
 			payment_amount = 0.0;
 		}
 		else
 		{
+			new_purchase_order->liability_payment_amount =
+				new_purchase_order->amount_due;
+
 			new_purchase_order->amount_due = 0.0;
 			payment_amount -= purchase_order->amount_due;
 		}
@@ -841,11 +836,6 @@ LIST *pay_liabilities_get_liability_account_entity_list(
 			continue;
 		}
 
-/*
-		new_entity = entity_calloc();
-
-		memcpy( new_entity, entity, sizeof( ENTITY ) );
-*/
 		new_entity = timlib_memcpy( input_entity, sizeof( ENTITY ) );
 
 		list_append_pointer( 
@@ -912,11 +902,6 @@ LIST *pay_liabilities_distribute_liability_account_list(
 			exit( 1 );
 		}
 
-/*
-		new_account = ledger_account_calloc();
-
-		memcpy( new_account, account, sizeof( ACCOUNT ) );
-*/
 		new_account = timlib_memcpy( account, sizeof( ACCOUNT ) );
 
 		/* If partial payment. */
@@ -1128,7 +1113,7 @@ LIST *pay_liabilities_output_get_vendor_payment_list(
 				purchase_order->purchase_date_time;
 
 			vendor_payment->payment_amount =
-				entity->payment_amount;
+				purchase_order->liability_payment_amount;
 
 			vendor_payment->check_number =
 				entity->check_number;
@@ -1153,3 +1138,49 @@ LIST *pay_liabilities_output_get_vendor_payment_list(
 
 } /* pay_liabilities_output_get_vendor_payment_list() */
 
+VENDOR_PAYMENT *pay_liabilities_vendor_payment_seek(
+				LIST *vendor_payment_list,
+				char *full_name,
+				char *street_address )
+{
+	VENDOR_PAYMENT *vendor_payment;
+
+	if ( !list_rewind( vendor_payment_list ) ) return (VENDOR_PAYMENT *)0;
+
+	do {
+		vendor_payment = list_get_pointer( vendor_payment_list );
+
+		if ( timlib_strcmp(	vendor_payment->full_name,
+					full_name ) == 0
+		&&   timlib_strcmp(	vendor_payment->street_address,
+					street_address ) == 0 )
+		{
+			return vendor_payment;
+		}
+	} while( list_next( vendor_payment_list ) );
+
+	return (VENDOR_PAYMENT *)0;
+
+} /* pay_liabilities_vendor_payment_seek() */
+
+void pay_liabilities_set_lock_transaction(
+			LIST *transaction_list,
+			LIST *vendor_payment_list )
+{
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) ) return;
+
+	do {
+		transaction = list_get_pointer( transaction_list );
+
+		if ( (boolean)pay_liabilities_vendor_payment_seek(
+				vendor_payment_list,
+				transaction->full_name,
+				transaction->street_address ) )
+		{
+			transaction->lock_transaction = 1;
+		}
+	} while( list_next( transaction_list ) );
+
+} /* pay_liabilities_set_lock_transaction() */

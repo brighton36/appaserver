@@ -127,7 +127,6 @@ void folder_set_list_delimiter(		FOLDER *folder,
 
 LIST *folder_get_process_primary_data_list(
 			char *application_name,
-			char *session,
 			char *folder_name,
 			char *login_name,
 			DICTIONARY *preprompt_dictionary,

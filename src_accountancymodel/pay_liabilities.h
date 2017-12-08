@@ -135,4 +135,13 @@ LIST *pay_liabilities_output_get_vendor_payment_list(
 				LIST *process_entity_list,
 				LIST *transaction_list );
 
+VENDOR_PAYMENT *pay_liabilities_vendor_payment_seek(
+				LIST *vendor_payment_list,
+				char *full_name,
+				char *street_address );
+
+void pay_liabilities_set_lock_transaction(
+				LIST *transaction_list,
+				LIST *vendor_payment_list );
+
 #endif

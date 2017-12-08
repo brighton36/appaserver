@@ -515,15 +515,10 @@ void print_checks_post(
 		return;
 	}
 
-	/* ---------------------------------------------------- */
-	/* Can't lock the transactions because			*/
-	/* it groups purchase orders with journal entries.	*/
-	/* ---------------------------------------------------- */
 	pay_liabilities->output.transaction_list =
 		ledger_transaction_list_insert(
 			pay_liabilities->output.transaction_list,
-			application_name,
-			0 /* not lock_transaction */ );
+			application_name );
 
 	if ( list_length( pay_liabilities->output.vendor_payment_list ) )
 	{

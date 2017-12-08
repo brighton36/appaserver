@@ -3796,11 +3796,10 @@ FILE *ledger_transaction_insert_open_stream( char *application_name )
 
 } /* ledger_transaction_insert_open_stream() */
 
-/* Returns transaction_list with transaction_date_time correctly set (maybe) */
-/* ------------------------------------------------------------------------- */
+/* Returns transaction_list with transaction_date_time correctly set. */
+/* ------------------------------------------------------------------ */
 LIST *ledger_transaction_list_insert(	LIST *transaction_list,
-					char *application_name,
-					boolean lock_transaction )
+					char *application_name )
 {
 	TRANSACTION *transaction;
 
@@ -3818,10 +3817,14 @@ LIST *ledger_transaction_list_insert(	LIST *transaction_list,
 				transaction->transaction_amount,
 				transaction->memo,
 				transaction->check_number,
-				lock_transaction,
-				transaction->journal_ledger_list );
+				transaction->lock_transaction,
+				(LIST *)0 /* journal_ledger_list */ );
 
 	} while( list_next( transaction_list ) );
+
+	ledger_journal_ledger_batch_insert(
+				application_name,
+				transaction_list );
 
 	return transaction_list;
 
@@ -7307,27 +7310,6 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 			journal_ledger );
 	}
 
-#ifdef NOT_DEFINED
-	/* Service revenue */
-	/* --------------- */
-	key = ledger_get_journal_ledger_hash_table_key(
-			full_name,
-			street_address,
-			transaction_date_time,
-			service_revenue_account );
-
-
-	if ( key && ( journal_ledger =
-			hash_table_fetch( 
-				journal_ledger_hash_table,
-				key ) ) )
-	{
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-#endif
-
 	/* Sales tax payable */
 	/* ----------------- */
 	key = ledger_get_journal_ledger_hash_table_key(
@@ -7499,20 +7481,6 @@ char *ledger_transaction_journal_ledger_insert(
 		exit( 1 );
 	}
 
-	if ( !list_length( journal_ledger_list ) ) return (char *)0;
-
-	if ( list_length( journal_ledger_list ) == 1 )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: list_length( journal_ledger_list ) = 1.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	account_name_list = list_new();
-
 	transaction_date_time =
 		ledger_transaction_insert(
 			application_name,
@@ -7523,6 +7491,13 @@ char *ledger_transaction_journal_ledger_insert(
 			memo,
 			check_number,
 			lock_transaction );
+
+	/* If inserting journal ledger list as a batch */
+	/* ------------------------------------------- */
+	if ( !list_length( journal_ledger_list ) )
+		return transaction_date_time;
+
+	account_name_list = list_new();
 
 	ledger_journal_insert_open_stream(
 			&debit_account_pipe,
@@ -7602,6 +7577,121 @@ char *ledger_transaction_journal_ledger_insert(
 	return transaction_date_time;
 
 } /* ledger_transaction_journal_ledger_insert() */
+
+void ledger_journal_ledger_batch_insert(
+				char *application_name,
+				LIST *transaction_list )
+{
+	LIST *account_name_list;
+	char *account_name;
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	FILE *debit_account_pipe = {0};
+	FILE *credit_account_pipe = {0};
+	char *propagate_transaction_date_time = {0};
+
+	if ( !list_rewind( transaction_list ) ) return;
+
+	account_name_list = list_new();
+
+	ledger_journal_insert_open_stream(
+			&debit_account_pipe,
+			&credit_account_pipe,
+			application_name );
+
+	do {
+		transaction = list_get_pointer( transaction_list );
+
+		if ( !list_length( transaction->journal_ledger_list ) )
+		{
+			fprintf( stderr,
+			"Warning in %s/%s()/%d: empty journal_ledger_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			continue;
+		}
+
+		if ( !propagate_transaction_date_time )
+			propagate_transaction_date_time =
+				transaction->transaction_date_time;
+
+		do {
+			journal_ledger =
+				list_get_pointer( 
+					transaction->journal_ledger_list );
+
+			if ( timlib_dollar_virtually_same(
+				journal_ledger->debit_amount,
+				0.0 )
+			&&   timlib_dollar_virtually_same(
+				journal_ledger->credit_amount,
+				0.0 ) )
+			{
+				fprintf( stderr,
+		"Warning in %s/%s()/%d: both debit and credit are zero.\n",
+				 	__FILE__,
+				 	__FUNCTION__,
+				 	__LINE__ );
+				continue;
+			}
+
+			if ( !timlib_dollar_virtually_same(
+				journal_ledger->debit_amount,
+				0.0 ) )
+			{
+				ledger_journal_insert_stream(
+					debit_account_pipe,
+					(FILE *)0 /* credit_account_pipe */,
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					journal_ledger->debit_amount
+						/* amount */,
+					journal_ledger->account_name
+						/* debit_account_name */,
+					(char *)0 /* credit_account_name */ );
+			}
+			else
+			{
+				ledger_journal_insert_stream(
+					(FILE *)0 /* debit_account_pipe */,
+					credit_account_pipe,
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					journal_ledger->credit_amount
+						/* amount */,
+					(char *)0 /* debit_account_name */,
+					journal_ledger->account_name
+						/* credit_account_name */ );
+			}
+
+			list_append_unique_string(
+				account_name_list,
+				journal_ledger->account_name );
+
+		} while( list_next( transaction->journal_ledger_list ) );
+
+	} while( list_next( transaction_list ) );
+
+	pclose( debit_account_pipe );
+	pclose( credit_account_pipe );
+
+	if ( list_rewind( account_name_list ) )
+	{
+		do {
+			account_name = list_get_pointer( account_name_list );
+
+			ledger_propagate(
+				application_name,
+				propagate_transaction_date_time,
+				account_name );
+
+		} while( list_next( account_name_list ) );
+	}
+
+} /* ledger_journal_ledger_batch_insert() */
 
 TRANSACTION *ledger_inventory_build_transaction(
 				char *application_name,

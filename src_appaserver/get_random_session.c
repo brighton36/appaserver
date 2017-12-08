@@ -37,7 +37,7 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	if ( ( application_name = argv[ 1 ] ) ) {};
 	seed = atoi( argv[ 2 ] );
 	seed += time( (time_t *)0 );
 

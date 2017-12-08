@@ -32,6 +32,20 @@
 
 /* Prototypes */
 /* ---------- */
+void output_process_results(
+				char *application_name,
+				char *folder_name,
+				PROCESS *populate_drop_down_process,
+				LIST *attribute_list,
+				char *one2m_folder_name,
+				char *value );
+
+void output_folder_results(
+			char *application_name,
+			LIST *foreign_attribute_name_list,
+			char *value,
+			LIST *primary_attribute_name_list,
+			char *folder_name );
 
 int main( int argc, char **argv )
 {
@@ -43,10 +57,6 @@ int main( int argc, char **argv )
 	FOLDER *mto1_folder;
 	RELATED_FOLDER *related_folder;
 	char *database_string = {0};
-	char sys_string[ 1024 ];
-	char *where;
-	char *results;
-	char formatted_results[ 1024 ];
 
 	if ( argc != 8 )
 	{
@@ -144,10 +154,45 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	if ( mto1_folder->populate_drop_down_process )
+	{
+		output_process_results(
+			application_name,
+		 	mto1_folder->folder_name,
+			mto1_folder->populate_drop_down_process,
+			mto1_folder->attribute_list,
+			one2m_folder_name,
+			value );
+	}
+	else
+	{
+		output_folder_results(
+			application_name,
+			related_folder->foreign_attribute_name_list,
+			value,
+		 	mto1_folder->primary_attribute_name_list,
+		 	mto1_folder->folder_name );
+	}
+
+	return 0;
+
+} /* main() */
+
+void output_folder_results(
+			char *application_name,
+			LIST *foreign_attribute_name_list,
+			char *value,
+			LIST *primary_attribute_name_list,
+			char *folder_name )
+{
+	char *where;
+	char *results;
+	char sys_string[ 1024 ];
+	char formatted_results[ 1024 ];
+
 	where = query_get_simple_where_clause(
 			(FOLDER *)0,
-			related_folder->
-				foreign_attribute_name_list
+			foreign_attribute_name_list
 				/* where_attribute_name_list */,
 			list_string2list(
 				value,
@@ -163,8 +208,8 @@ int main( int argc, char **argv )
 		 "			order=select	|"
 		 "joinlines.e '^'			 ",
 		 application_name,
-		 list_display( mto1_folder->primary_attribute_name_list ),
-		 mto1_folder->folder_name,
+		 list_display( primary_attribute_name_list ),
+		 folder_name,
 		 where );
 
 	results = pipe2string( sys_string );
@@ -183,7 +228,104 @@ int main( int argc, char **argv )
 		printf( "\n" );
 	}
 
-	return 0;
+} /* output_folder_results() */
 
-} /* main() */
+void output_process_results(
+				char *application_name,
+				char *folder_name,
+				PROCESS *populate_drop_down_process,
+				LIST *attribute_list,
+				char *one2m_folder_name,
+				char *value )
+{
+	LIST *results_list;
+	char *results;
+	char formatted_results[ 1024 ];
+	DICTIONARY *parameter_dictionary;
+	char piece_buffer[ 512 ];
 
+	if ( !populate_drop_down_process )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty populate_drop_down_process.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	parameter_dictionary = dictionary_small_new();
+
+	dictionary_set_pointer(
+		parameter_dictionary,
+		one2m_folder_name,
+		value );
+
+	results_list =
+		    folder_get_drop_down_process_list(
+			application_name,
+			BOGUS_SESSION,
+			folder_name,
+			(char *)0 /* login_name */,
+			populate_drop_down_process,
+			(char *)0 /* role_name */,
+			parameter_dictionary,
+			(char *)0 /* state */,
+			(char *)0 /* one2m_folder_name_for_processes */,
+			attribute_list,
+			0 /* piece_multi_attribute_data_label_delimiter */,
+			populate_drop_down_process->process_name,
+			(char *)0 /* prompt */ );
+
+	if ( !list_length( results_list ) )
+	{
+		printf( "\n" );
+		return;
+	}
+
+	list_rewind( results_list );
+
+	printf( "%s", NULL_OPERATOR );
+
+	do {
+		results = list_get_pointer( results_list );
+
+		if ( character_exists( results, '|' ) )
+		{
+			piece( piece_buffer, '|', results, 0 );
+			printf( "^%s", piece_buffer );
+		}
+		else
+		{
+			printf( "^%s", results );
+		}
+
+	} while( list_next( results_list ) );
+
+	printf( "|Select" );
+
+	list_rewind( results_list );
+
+	do {
+		results = list_get_pointer( results_list );
+
+		if ( character_exists( results, '|' ) )
+		{
+			piece( piece_buffer, '|', results, 1 );
+
+			format_initial_capital(
+				formatted_results,
+				piece_buffer );
+		}
+		else
+		{
+			format_initial_capital( formatted_results, results );
+		}
+
+		printf( "^%s", formatted_results );
+
+	} while( list_next( results_list ) );
+
+	printf( "\n" );
+
+} /* output_process_results() */

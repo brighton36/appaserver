@@ -339,8 +339,7 @@ boolean ledger_transaction_load(	double *transaction_amount,
 /* Returns transaction_list with transaction_date_time correctly set (maybe) */
 /* ------------------------------------------------------------------------- */
 LIST *ledger_transaction_list_insert(	LIST *transaction_list,
-					char *application_name,
-					boolean lock_transaction );
+					char *application_name );
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -1019,5 +1018,9 @@ char *ledger_transaction_journal_ledger_insert(
 				int check_number,
 				boolean lock_transaction,
 				LIST *journal_ledger_list );
+
+void ledger_journal_ledger_batch_insert(
+				char *application_name,
+				LIST *transaction_list );
 
 #endif

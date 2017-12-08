@@ -7,34 +7,28 @@
 
 echo $0 $* 1>&2
 
-if [ "$#" -ne 3 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 application one2m_folder state" 1>&2
+	echo "Usage: $0 application inventory_category" 1>&2
 	exit 1
 fi
 
 application=$1
-one2m_folder=$2
-state=$3
+inventory_category=$2
 
 export DATABASE=$application
 
 table="inventory"
 
-select="concat( inventory_name, ' [', retail_price, ',' , quantity_on_hand, ']' )"
+select="concat( inventory_name, '|', inventory_name, ' [', retail_price, ',' , quantity_on_hand, ']' )"
 
-# -----------------------------------------------------------------
-# We need to be able to record the sale and then make the purchase.
-# This works as long a completed_date_time > arrived_date_time.
-# -----------------------------------------------------------------
-#if [ "$one2m_folder" = "inventory_sale" -a "$state" = "insert" ]
-#then
-#	where="quantity_on_hand >= 1"
-#else
-#	where="1 = 1"
-#fi
-
-where="1 = 1"
+if [	"${inventory_category}" = "" -o			\
+	"${inventory_category}" = "inventory_category" ]
+then
+	where="1 = 1"
+else
+	where="inventory_category = '${inventory_category}'"
+fi
 
 order="inventory_name"
 

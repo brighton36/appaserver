@@ -89,7 +89,7 @@ int main( int argc, char **argv )
 
 	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
-	login_name = argv [ 3 ];
+	if ( ( login_name = argv [ 3 ] ) ) {};
 	role_name = argv[ 4 ];
 	folder_name = argv[ 5 ];
 

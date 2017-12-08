@@ -352,7 +352,6 @@ LIST *folder_get_primary_attribute_list( LIST *attribute_list )
 
 LIST *folder_get_process_primary_data_list(
 			char *application_name,
-			char *session,
 			char *folder_name,
 			char *login_name,
 			DICTIONARY *preprompt_dictionary,
@@ -391,7 +390,7 @@ LIST *folder_get_process_primary_data_list(
 		drop_down_process_list =
 		     folder_get_drop_down_process_list(
 			application_name,
-			session,
+			BOGUS_SESSION,
 			folder_name,
 			login_name,
 			populate_drop_down_process,

@@ -58,9 +58,9 @@ int main( int argc, char **argv )
 	}
 
 	application_name = argv[ 1 ];
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
+	if ( ( session = argv[ 2 ] ) ) {};
+	if ( ( login_name = argv[ 3 ] ) ) {};
+	if ( ( role_name = argv[ 4 ] ) ) {};
 	old_folder_name = argv[ 5 ];
 	new_folder_name = argv[ 6 ];
 	really_yn = argv[ 7 ];

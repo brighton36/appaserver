@@ -898,7 +898,6 @@ LIST *process_parameter_get_primary_key_and_data_list(
 
 	return folder_get_process_primary_data_list(
 			application_name,
-			BOGUS_SESSION,
 			folder_name,
 			login_name,
 			parameter_dictionary

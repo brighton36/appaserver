@@ -49,6 +49,7 @@ function create_accountancy_model()
 
 		cat $create_file					|
 		egrep "^echo|^table_name="				|
+		grep -v 'drop table'					|
 		cat >> $output_shell
 	done
 }

@@ -411,7 +411,7 @@ export_process_set: export_process_set.c ${EXTERNAL_LIBS}		\
 		-o export_process_set
 
 clone_folder: clone_folder.c ${EXTERNAL_LIBS}				\
-	create_clone_filename.o
+	create_clone_filename.o ${LIB}/appaserver_library.h
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
@@ -770,7 +770,7 @@ drop_application: drop_application.c					\
 		-o drop_application
 
 create_table: create_table.c						\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${LIB}/appaserver_library.h
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\

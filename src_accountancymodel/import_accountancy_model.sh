@@ -2077,229 +2077,173 @@ all_done
 ) | sql.e 2>&1 | grep -iv duplicate
 
 table_name=`get_table_name $application account`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (account char (60) not null,subclassification char (35),hard_coded_account_key char (40)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (account);" | sql.e '^' mysql
 table_name=`get_table_name $application bank_upload`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),posted_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e '^' mysql
 table_name=`get_table_name $application contra_account`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (account char (60) not null,contra_to_account char (60)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (account);" | sql.e '^' mysql
 table_name=`get_table_name $application customer`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sales_tax_exempt_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application customer_payment`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,payment_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application customer_sale`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,vehicle_make char (20),vehicle_model char (20),vehicle_trim char (20),vehicle_year integer,odometer_miles integer,symptom text,mechanic_full_name char (60),mechanic_street_address char (40),mechanic_notes text,shipping_revenue double (8,2),sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application customer_vehicle`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,vehicle_make char (20) not null,vehicle_model char (20) not null,vehicle_trim char (20) not null,vehicle_year integer not null,vehicle_identification_number char (20)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,vehicle_make,vehicle_model,vehicle_trim,vehicle_year);" | sql.e '^' mysql
 table_name=`get_table_name $application day`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (day char (9) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (day);" | sql.e '^' mysql
 table_name=`get_table_name $application depreciation`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,depreciation_date date not null,purchase_date_time datetime,asset_name char (30),transaction_date_time datetime,serial_number char (10),units_produced integer,depreciation_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,depreciation_date);" | sql.e '^' mysql
 table_name=`get_table_name $application depreciation_method`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (depreciation_method char (25) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (depreciation_method);" | sql.e '^' mysql
 table_name=`get_table_name $application element`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (element char (20) not null,accumulate_debit_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (element);" | sql.e '^' mysql
 table_name=`get_table_name $application employee`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,hourly_wage double (10,2),period_salary double (10,2),commission_sum_extension_percent double (10,2),gross_pay_year_to_date double (10,2),net_pay_year_to_date double (10,2),federal_marital_status char (25),federal_withholding_allowances integer,federal_withholding_additional_period_amount integer,state_marital_status char (40),state_withholding_allowances integer,state_itemized_deduction_allowances integer,retirement_contribution_plan_employer_period_amount integer,retirement_contribution_plan_employee_period_amount integer,health_insurance_employer_period_amount integer,health_insurance_employee_period_amount integer,union_dues_period_amount integer,terminated_date date) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application employee_work_day`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,begin_work_date_time datetime not null,end_work_date_time datetime,employee_work_hours double (6,2),overtime_work_day_yn char (1),insert_timestamp datetime,update_timestamp datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,begin_work_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application employee_work_period`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,payroll_year,payroll_period_number);" | sql.e '^' mysql
 table_name=`get_table_name $application entity`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,login_name char (20),city char (20),state_code char (2),zip_code char (10),phone_number char (15),cell_number char (15),email_address char (50)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 echo "create unique index ${table_name}_additional_unique on $table_name (login_name);" | sql.e '^' mysql
 table_name=`get_table_name $application federal_income_tax_withholding`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (federal_marital_status char (25) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (federal_marital_status,income_over);" | sql.e '^' mysql
 table_name=`get_table_name $application federal_marital_status`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (federal_marital_status char (25) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (federal_marital_status);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_asset`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (asset_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (asset_name);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_asset_purchase`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),accumulated_depreciation double (10,2),disposal_date date) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_service`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (service_name char (30) not null,retail_price double (10,2),service_category char (30),account char (60)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (service_name);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_service_category`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (service_category);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_service_sale`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,retail_price double (10,2),discount_amount double (10,2),work_hours double (10,4),extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,service_name);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_service_work`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,begin_work_date_time datetime not null,end_work_date_time datetime,login_name char (20),work_hours double (10,4)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,service_name,begin_work_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application hourly_service`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (service_name char (30) not null,hourly_rate double (7,2),service_category char (30),account char (60)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (service_name);" | sql.e '^' mysql
 table_name=`get_table_name $application hourly_service_category`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (service_category);" | sql.e '^' mysql
 table_name=`get_table_name $application hourly_service_sale`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,description char (60) not null,estimated_hours double (6,2),hourly_rate double (7,2),work_hours double (10,4),extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,service_name,description);" | sql.e '^' mysql
 table_name=`get_table_name $application hourly_service_work`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,description char (60) not null,begin_work_date_time datetime not null,end_work_date_time datetime,login_name char (20),work_hours double (10,4)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,service_name,description,begin_work_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application inventory`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (inventory_name char (30) not null,inventory_account char (60),cost_of_goods_sold_account char (60),retail_price double (10,2),inventory_category char (30),reorder_quantity integer,quantity_on_hand integer,average_unit_cost double (12,4),total_cost_balance double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (inventory_name);" | sql.e '^' mysql
 table_name=`get_table_name $application inventory_category`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (inventory_category char (30) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (inventory_category);" | sql.e '^' mysql
 table_name=`get_table_name $application inventory_cost_method`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (inventory_cost_method char (15) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (inventory_cost_method);" | sql.e '^' mysql
 table_name=`get_table_name $application inventory_purchase`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,inventory_name char (30) not null,ordered_quantity integer,arrived_quantity integer,missing_quantity integer,quantity_on_hand integer,capitalized_unit_cost double (10,4),unit_cost double (10,2),extension double (10,2),average_unit_cost double (12,4)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,inventory_name);" | sql.e '^' mysql
 table_name=`get_table_name $application inventory_sale`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,inventory_name char (30) not null,quantity integer,retail_price double (10,2),discount_amount double (10,2),extension double (10,2),cost_of_goods_sold double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,inventory_name);" | sql.e '^' mysql
 table_name=`get_table_name $application journal_ledger`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,transaction_date_time datetime not null,account char (60) not null,transaction_count integer,previous_balance double (10,2),debit_amount double (10,2),credit_amount double (10,2),balance double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time,account);" | sql.e '^' mysql
 table_name=`get_table_name $application liability_account_entity`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (account char (60) not null,full_name char (50),street_address char (40)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (account);" | sql.e '^' mysql
 table_name=`get_table_name $application payroll_pay_period`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (payroll_pay_period char (15) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (payroll_pay_period);" | sql.e '^' mysql
 table_name=`get_table_name $application payroll_posting`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (payroll_year,payroll_period_number);" | sql.e '^' mysql
 table_name=`get_table_name $application prior_fixed_asset`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),recorded_date date,estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),disposal_date date,full_name char (50),street_address char (40),transaction_date_time datetime,accumulated_depreciation double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (asset_name,serial_number);" | sql.e '^' mysql
 table_name=`get_table_name $application prior_fixed_asset_depreciation`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,asset_name,serial_number,depreciation_date);" | sql.e '^' mysql
 table_name=`get_table_name $application purchase_order`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,amount_due double (10,2),sum_extension double (10,2),sales_tax double (7,2),freight_in double (6,2),purchase_amount double (10,2),title_passage_rule char (15),shipped_date date,arrived_date_time datetime,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application receipt_upload`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (receipt_upload_filename char (80) not null,upload_date date,posted_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (receipt_upload_filename);" | sql.e '^' mysql
 table_name=`get_table_name $application reoccurring_transaction`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,debit_account char (60),credit_account char (60),transaction_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application self`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,inventory_cost_method char (15),payroll_pay_period char (15),payroll_beginning_day char (9),social_security_combined_tax_rate double (10,4),social_security_payroll_ceiling integer,medicare_combined_tax_rate double (10,4),medicare_additional_withholding_rate double (5,3),medicare_additional_gross_pay_floor integer,federal_withholding_allowance_period_value double (10,2),federal_nonresident_withholding_income_premium double (7,2),state_withholding_allowance_period_value char (7),state_itemized_allowance_period_value double (10,2),federal_unemployment_wage_base integer,federal_unemployment_tax_standard_rate double (10,4),federal_unemployment_threshold_rate double (10,4),federal_unemployment_tax_minimum_rate double (10,4),state_unemployment_wage_base integer,state_unemployment_tax_rate double (10,4),state_sales_tax_rate double (6,4)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application service_purchase`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,account char (60) not null,service_description text,extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,account);" | sql.e '^' mysql
 table_name=`get_table_name $application state_income_tax_withholding`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (state_marital_status char (40) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (state_marital_status,income_over);" | sql.e '^' mysql
 table_name=`get_table_name $application state_marital_status`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (state_marital_status char (40) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (state_marital_status);" | sql.e '^' mysql
 table_name=`get_table_name $application state_standard_deduction_table`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (state_marital_status char (40) not null,state_withholding_allowances integer not null,state_standard_deduction_amount double (8,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (state_marital_status,state_withholding_allowances);" | sql.e '^' mysql
 table_name=`get_table_name $application subclassification`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (subclassification char (35) not null,element char (20),display_order integer) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (subclassification);" | sql.e '^' mysql
 table_name=`get_table_name $application supply`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (supply_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (supply_name);" | sql.e '^' mysql
 table_name=`get_table_name $application supply_purchase`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,supply_name char (30) not null,quantity integer,unit_cost double (10,2),extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,supply_name);" | sql.e '^' mysql
 table_name=`get_table_name $application tax_form`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (tax_form char (20) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (tax_form);" | sql.e '^' mysql
 table_name=`get_table_name $application tax_form_line`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,tax_form_description char (35),itemize_accounts_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (tax_form,tax_form_line);" | sql.e '^' mysql
 table_name=`get_table_name $application tax_form_line_account`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,account char (60) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (tax_form,tax_form_line,account);" | sql.e '^' mysql
 table_name=`get_table_name $application title_passage_rule`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (title_passage_rule char (15) not null,title_passage_date char (15)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (title_passage_rule);" | sql.e '^' mysql
 table_name=`get_table_name $application transaction`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,transaction_date_time datetime not null,memo char (60),transaction_amount double (10,2),check_number integer,lock_transaction_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time);" | sql.e '^' mysql
 echo "create unique index ${table_name}_additional_unique on $table_name (transaction_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application vendor`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application vendor_payment`
-echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,payment_date_time);" | sql.e '^' mysql
 
@@ -2332,18 +2276,17 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('accumulated_depreciation','property_plant_equipment','accumulated_depreciation_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('advertising','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('checking','cash','cash_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('coolant_inventory','inventory',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('cost_of_goods_sold','cost_of_goods_sold','cost_of_goods_sold_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('depreciation_expense','operating_expense','depreciation_expense_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('federal_unemployment_tax_payable','current_liability','federal_unemployment_tax_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('federal_withholding_payable','current_liability','federal_withholding_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('fixed_asset','property_plant_equipment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('freight_in_expense','operating_expense','freight_in_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('Jim George equity','contributed capital',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('equity','contributed capital',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('land','property_plant_equipment','land_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('loss','loss','loss_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('medicare_payable','current_liability','medicare_payable_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('oil_inventory','inventory',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('inventory','inventory',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('payroll_payable','current_liability','payroll_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('payroll_tax','tax_expense','payroll_tax_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('repairs_maintenance_expense','operating_expense',null);
@@ -2372,8 +2315,7 @@ insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Sche
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','023','sales_tax_expense');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','023','taxes_and_licenses');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','026','salary_wage_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','coolant_inventory');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','oil_inventory');
+insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','inventory');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','specific_inventory');
 insert into tax_form_line (tax_form,tax_form_line,tax_form_description,itemize_accounts_yn) values ('Schedule C','001','Gross receipts or sales',null);
 insert into tax_form_line (tax_form,tax_form_line,tax_form_description,itemize_accounts_yn) values ('Schedule C','002','Returns and allowances',null);

@@ -55,15 +55,6 @@ int attributes_the_same(		ATTRIBUTE *attribute,
 
 COLUMN *new_column(			char *column_name );
 
-/*
-void output_tables_not_used_anymore(	char *application_name,
-					char *session,
-					char *login_name,
-					char *role_name,
-					LIST *table_name_list,
-					LIST *folder_list );
-*/
-
 void output_columns_not_used_anymore(	char *application_name,
 					char *session,
 					char *login_name,
@@ -133,7 +124,8 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = new_appaserver_parameter_file();
 	document = document_new( "", application_name );
-/*
+
+/* No longer prompting for Application.
 	document_set_output_content_type( document );
 */
 
@@ -153,15 +145,6 @@ int main( int argc, char **argv )
 			document->onload_control_string );
 
 	folder_list = get_folder_list( application_name );
-
-/*
-	output_tables_not_used_anymore(	application_name,
-					session,
-					login_name,
-					role_name,
-					table_name_list,
-					every_application_folder_list );
-*/
 
 	output_columns_not_used_anymore(
 		application_name,
@@ -338,107 +321,6 @@ char *get_drop_column_control_string(	char *application_name,
 	return control_string;
 
 } /* get_drop_column_control_string() */
-
-#ifdef NOT_DEFINED
-void output_tables_not_used_anymore(	char *application_name,
-					char *session,
-					char *login_name,
-					char *role_name,
-					LIST *table_name_list,
-					LIST *folder_list )
-{
-	FOLDER *folder;
-	HTML_TABLE *html_table;
-	LIST *heading_list;
-	char *table_name;
-	char *compare_table_name;
-	int table_found;
-
-	if ( !list_rewind( table_name_list ) ) return;
-
-	html_table = new_html_table(
-		"Table Rectification -- Tables Not Used Anymore",
-		(char *)0 /* sub_title */ );
-
-	heading_list = new_list();
-	list_append_string( heading_list, "Table" );
-	list_append_string( heading_list, "Test" );
-	list_append_string( heading_list, "Drop" );
-	
-	html_table_set_heading_list( html_table, heading_list );
-	html_table_output_table_heading(
-					html_table->title,
-					html_table->sub_title );
-	html_table_output_data_heading(
-			html_table->heading_list,
-			html_table->number_left_justified_columns,
-			html_table->number_right_justified_columns,
-			html_table->justify_list );
-
-	do {
-		table_name = list_get_pointer( table_name_list );
-
-		if ( !list_rewind( folder_list ) ) return;
-
-		table_found = 0;
-		do {
-			folder = list_get_pointer( folder_list );
-
-			compare_table_name =
-				get_table_name(
-					folder->application_name,
-					folder->folder_name );
-
-			if ( strcmp( compare_table_name, table_name ) == 0 )
-			{
-				table_found = 1;
-				break;
-			}
-		} while( list_next( folder_list ) );
-
-		if ( !table_found )
-		{
-			html_table_set_data(
-				html_table->data_list,
-				table_name );
-
-			html_table_set_data(
-				html_table->data_list,
-					get_test_drop_table_control_string(
-						application_name,
-						session,
-						login_name,
-						role_name,
-						table_name ) );
-
-			html_table_set_data(
-				html_table->data_list,
-					get_drop_table_control_string(
-						application_name,
-						session,
-						login_name,
-						role_name,
-						table_name ) );
-
-			html_table_output_data(
-				html_table->data_list,
-				html_table->
-					number_left_justified_columns,
-				html_table->
-					number_right_justified_columns,
-				html_table->background_shaded,
-				html_table->justify_list );
-
-			html_table->data_list = list_new();
-		}
-
-		/* list_free_string_list( table_column_name_list ); */
-
-	} while( list_next( table_name_list ) );
-
-	html_table_close();
-} /* output_tables_not_used_anymore() */
-#endif
 
 void output_attributes_not_in_tables(	char *application_name,
 					LIST *folder_list )

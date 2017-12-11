@@ -25,26 +25,39 @@ APPASERVER_USER *appaserver_user_new_appaserver_user(
 	char *input_string;
 	APPASERVER_USER *appaserver_user;
 	char *table_name;
-	char *select_string;
+	char select_string[ 128 ];
 	char where_string[ 128 ];
+	char *select_frameset;
+	char *select_person;
 
 	table_name = get_table_name( application_name, "appaserver_user" );
 
-	/* Trying to retire APPASERVER_USER.frameset_menu_horizontal_yn */
-	/* ------------------------------------------------------------ */
+	if ( folder_exists_attribute(	application_name,
+					"appaserver_user",
+					"person_full_name" ) )
+	{
+		select_person = "person_full_name";
+	}
+	else
+	{
+		select_person = "null";
+	}
+
 	if ( folder_exists_attribute(	application_name,
 					"appaserver_user",
 					"frameset_menu_horizontal_yn" ) )
 	{
-		select_string =
-			"person_full_name,password,frameset_menu_horizontal_yn";
+		select_frameset = "frameset_menu_horizontal_yn";
 	}
 	else
 	{
-		select_string =
-			"person_full_name,password,'y'";
+		select_frameset = "null";
 	}
 
+	sprintf( select_string,
+		 "%s,%s,password",
+		 select_person,
+		 select_frameset );
 
 	sprintf( where_string, "login_name = '%s'", login_name );
 
@@ -103,6 +116,7 @@ APPASERVER_USER *appaserver_user_new_appaserver_user(
 	appaserver_user->frameset_menu_horizontal_yn = *piece_buffer;
 
 	return appaserver_user;
+
 } /* appaserver_user_new_appaserver_user() */
 
 LIST *appaserver_user_get_session_list(	char *application_name,

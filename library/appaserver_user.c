@@ -51,11 +51,11 @@ APPASERVER_USER *appaserver_user_new_appaserver_user(
 	}
 	else
 	{
-		select_frameset = "null";
+		select_frameset = "'y'";
 	}
 
 	sprintf( select_string,
-		 "%s,%s,password",
+		 "%s,password,%s",
 		 select_person,
 		 select_frameset );
 

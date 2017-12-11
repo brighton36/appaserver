@@ -25,18 +25,125 @@ appaserver_home=`cat $appaserver_config_file	| \
 		 grep "^${label}"		| \
 		 sed "s/$label//"`
 
-input_file=${appaserver_home}/src_accountancymodel/accountancy_model_folders.dat
+directory=$appaserver_home/src_accountancymodel
+input_file=$directory/accountancy_model_folders.dat
+output_shell=$directory/import_accountancy_model.sh
 
-parameter_list=`
-cat $input_file				|
-count.e 1 				|
-sed 's/ //'				|
-sed 's/)/=/'				|
-sed 's/^0//'				|
-sed 's/^/folder_/'			|
-joinlines.e '&'				|
-cat`
+function create_accountancy_model()
+{
+	application=$1
+	input_file=$2
+	output_shell=$3
 
-export_subschema $application ignored ignored ignored ignored "$parameter_list"
+	command="create_table $application n x x x $application ttable n mysql"
+
+	cat $input_file							|
+	while read table
+	do
+		new_command=`echo $command | sed "s/ttable/$table/"`
+		create_file=`
+		$new_command						|
+		grep Created						|
+		column.e 1						|
+		cat`
+
+		cat $create_file					|
+		egrep "^echo|^table_name="				|
+		cat >> $output_shell
+	done
+}
+# create_accountancy_model()
+
+function export_accountancy_model()
+{
+	application=$1
+	input_file=$2
+	output_shell=$3
+
+	parameter_list=`
+	cat $input_file							|
+	count.e 1 							|
+	sed 's/ //'							|
+	sed 's/)/=/'							|
+	sed 's/^00*//'							|
+	sed 's/^/folder_/'						|
+	joinlines.e '&'							|
+	cat`
+
+	export_file=`
+	export_subschema $application x x x x "${parameter_list}" 2>/dev/null |
+	grep Created							      |
+	column.e 1							      |
+	cat`
+
+	cat $export_file						|
+	sed "s/!= ${application}/= ignored/"				|
+	grep -v '^exit'							|
+	cat >> $output_shell
+}
+# export_accountancy_model()
+
+function extract_chart_of_accounts()
+{
+	application=$1
+	output_shell=$2
+
+	echo "" >> $output_shell
+
+	echo "sql.e << all_done2" >> $output_shell
+
+	folder=element
+	columns=element,accumulate_debit_yn
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e table=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=subclassification
+	columns=subclassification,element,display_order
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=account
+	columns=account,subclassification,hard_coded_account_key
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=tax_form_line_account
+	columns=tax_form,tax_form_line,account
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=tax_form_line
+	columns=tax_form,tax_form_line,tax_form_description,itemize_accounts_yn
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=tax_form
+	columns=tax_form
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	echo "all_done2" >> $output_shell
+
+	echo "" >> $output_shell
+}
+# extract_chart_of_accounts()
+
+rm $output_shell 2>/dev/null
+
+export_accountancy_model $application $input_file $output_shell
+create_accountancy_model $application $input_file $output_shell
+extract_chart_of_accounts $application $output_shell
+
+echo "exit 0" >> $output_shell
+
+chmod +x $output_shell
+
+echo Created $output_shell
 
 exit 0

@@ -113,6 +113,14 @@ int main( int argc, char **argv )
 				argv,
 				current_application );
 
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	/* ------------------------------------------------- */
+	/* See $APPASERVER_HOME/library/appaserver_library.h */
+	/* ------------------------------------------------- */
+
+	if ( DIFFERENT_DESTINATION_APPLICATION_OK ) goto passed_security_check;
+
 	if ( !session_access(	current_application,
 				session,
 				login_name ) )
@@ -127,10 +135,7 @@ int main( int argc, char **argv )
 		exit( 1 ); 
 	}
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	if ( !DIFFERENT_DESTINATION_APPLICATION_OK
-	&&   timlib_strcmp(	current_application,
+	if ( timlib_strcmp(	current_application,
 				TEMPLATE_APPLICATION ) != 0
 	&&   timlib_strcmp(	current_application,
 				destination_application ) != 0 )
@@ -148,6 +153,8 @@ int main( int argc, char **argv )
 		if ( html_ok ) document_close();
 		exit( 1 );
 	}
+
+passed_security_check:
 
 	if ( *really_yn != 'y' )
 	{

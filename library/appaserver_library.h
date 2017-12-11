@@ -31,9 +31,9 @@ enum preupdate_change_state {		from_null_to_something,
 
 /* Constants */
 /* ========= */
+#define DIFFERENT_DESTINATION_APPLICATION_OK	0
 #define TEMPLATE_APPLICATION_DATABASE		"template:template"
 #define TEMPLATE_APPLICATION			"template"
-#define DIFFERENT_DESTINATION_APPLICATION_OK	0
 #define APPASERVER_UMASK			7
 #define HORIZONTAL_MENU_RELATIVE_DIRECTORY	"appaserver/zmenu"
 #define CALENDAR_RELATIVE_DIRECTORY		"appaserver/zscal2"

@@ -29,7 +29,7 @@
 /* --------- */
 #define SHELL_HERE_LABEL	"all_done"
 
-#define EXPORT_SUBSCHEMA_FILENAME_TEMPLATE		 			"%s/export_subschema.sh"
+#define EXPORT_SUBSCHEMA_FILENAME_TEMPLATE	"%s/export_subschema.sh"
 
 /* Prototypes */
 /* ---------- */
@@ -173,7 +173,7 @@ int main( int argc, char **argv )
 	role_name = argv[ 4 ];
 	parameter_dictionary_string = argv[ 6 ];
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	parameter_dictionary = 
 		dictionary_index_string2dictionary(
@@ -194,12 +194,14 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	parameter_dictionary = dictionary_appaserver->
-				working_post_dictionary;
+	parameter_dictionary =
+		dictionary_appaserver->
+			working_post_dictionary;
 
 	folder_name_list = 
-		dictionary_get_index_list( 	parameter_dictionary,
-						"folder" );
+		dictionary_get_index_list(
+			parameter_dictionary,
+			"folder" );
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -853,7 +855,7 @@ void output_shell_script_footer( char *export_subschema_filename )
 	fclose( export_subschema_file );
 
 	sprintf( sys_string,
-		 "chmod +x,g+w %s",
+		 "chmod +x,g+w %s 2>/dev/null",
 		 export_subschema_filename );
 	system( sys_string );
 

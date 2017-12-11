@@ -28,7 +28,6 @@
 
 /* Constants */
 /* --------- */
-#define DIFFERENT_DESTINATION_OK	0
 #define TEMPLATE_APPLICATION		"template"
 #define SESSION_PROCESS_NAME		"clone_folder"
 #define MIN_COUNT_FOR_QUICK		100000
@@ -141,14 +140,13 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	/* ------------------------------------------------- */
+	/* See $APPASERVER_HOME/library/appaserver_library.h */
+	/* ------------------------------------------------- */
+
+	if ( DIFFERENT_DESTINATION_APPLICATION_OK ) goto passed_security_check;
 
 	if ( !session_access(	application_name,
 				session,
@@ -163,8 +161,6 @@ int main( int argc, char **argv )
 			 login_name );
 		exit( 1 ); 
 	}
-
-	if ( DIFFERENT_DESTINATION_OK ) goto passed_security_check;
 
 	if ( timlib_strcmp(	application_name,
 				destination_application ) == 0 )

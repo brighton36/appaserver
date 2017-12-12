@@ -2143,7 +2143,8 @@ table_name=`get_table_name $application vendor_payment`
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,payment_date_time);" | sql.e '^' mysql
 
-sql.e << all_done2
+(
+cat << all_done2
 insert into element (element,accumulate_debit_yn) values ('asset','y');
 insert into element (element,accumulate_debit_yn) values ('equity','n');
 insert into element (element,accumulate_debit_yn) values ('expense','y');
@@ -2615,7 +2616,10 @@ insert into state_standard_deduction_table (state_marital_status,
 insert into state_standard_deduction_table (state_marital_status,
 		 state_withholding_allowances,
 		 state_standard_deduction_amount) values ('unmarried_head_of_household','10','159.00');
+insert into fixed_service_category (service_category) values ('standard');
+insert into hourly_service_category (service_category) values ('standard');
 all_done2
+) | sql.e 2>&1 | grep -vi duplicate
 
 
 (
@@ -3617,6 +3621,34 @@ insert into process_groups (process_group) values ('manipulate');
 insert into process_groups (process_group) values ('output');
 insert into process_groups (process_group) values ('shortcut');
 all_done3
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done4
+insert into self (full_name,
+		street_address,
+		inventory_cost_method,
+		payroll_pay_period,
+		payroll_beginning_day,
+		social_security_combined_tax_rate,
+		social_security_payroll_ceiling,
+		medicare_combined_tax_rate,
+		medicare_additional_withholding_rate,
+		medicare_additional_gross_pay_floor,
+		federal_withholding_allowance_period_value,
+		federal_nonresident_withholding_income_premium,
+		state_withholding_allowance_period_value,
+		state_itemized_allowance_period_value,
+		federal_unemployment_wage_base,
+		federal_unemployment_tax_standard_rate,
+		federal_unemployment_threshold_rate,
+		federal_unemployment_tax_minimum_rate,
+		state_unemployment_wage_base,
+		state_unemployment_tax_rate,
+		state_sales_tax_rate) values ('Acme Services','1234 Main St.','LIFO','weekly','friday','0.1240','127200','0.0290',null,null,'77.90',null,null,'19.50','7000','0.0600','0.0540','0.0060','7000','0.0340','0.0850');
+insert into entity (full_name,street_address) values ('Acme Services','1234 Main St.');
+all_done4
 ) | sql.e 2>&1 | grep -vi duplicate
 
 exit 0

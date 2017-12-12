@@ -328,7 +328,7 @@ function extract_self()
 		state_unemployment_tax_rate,
 		state_sales_tax_rate"
 	get_folder_data a=$application f=$folder s="$select"		|
-	insert_statement.e table=$folder field=$fields del='^'		|
+	insert_statement.e table=$folder field="$fields" del='^'	|
 	cat >> $output_shell
 
 	folder=entity

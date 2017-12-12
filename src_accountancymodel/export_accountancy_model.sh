@@ -151,7 +151,8 @@ function extract_chart_of_accounts()
 	output_shell=$2
 
 	echo "" >> $output_shell
-	echo "sql.e << all_done2" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done2" >> $output_shell
 
 	folder=element
 	columns=element,accumulate_debit_yn
@@ -253,10 +254,94 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field="$columns" del='^'		|
 	cat >> $output_shell
 
+	folder=fixed_service_category
+	columns="service_category"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e t=$folder field="$columns" del='^'		|
+	cat >> $output_shell
+
+	folder=hourly_service_category
+	columns="service_category"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e t=$folder field="$columns" del='^'		|
+	cat >> $output_shell
+
 	echo "all_done2" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
 	echo "" >> $output_shell
 }
 # extract_chart_of_accounts()
+
+function extract_self()
+{
+	application=$1
+	output_shell=$2
+
+	full_name="Acme Services"
+	street_address="1234 Main St."
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done4" >> $output_shell
+
+	folder=self
+	select="'$full_name',
+		'$street_address',
+		inventory_cost_method,
+		payroll_pay_period,
+		payroll_beginning_day,
+		social_security_combined_tax_rate,
+		social_security_payroll_ceiling,
+		medicare_combined_tax_rate,
+		medicare_additional_withholding_rate,
+		medicare_additional_gross_pay_floor,
+		federal_withholding_allowance_period_value,
+		federal_nonresident_withholding_income_premium,
+		state_withholding_allowance_period_value,
+		state_itemized_allowance_period_value,
+		federal_unemployment_wage_base,
+		federal_unemployment_tax_standard_rate,
+		federal_unemployment_threshold_rate,
+		federal_unemployment_tax_minimum_rate,
+		state_unemployment_wage_base,
+		state_unemployment_tax_rate,
+		state_sales_tax_rate"
+	fields="full_name,
+		street_address,
+		inventory_cost_method,
+		payroll_pay_period,
+		payroll_beginning_day,
+		social_security_combined_tax_rate,
+		social_security_payroll_ceiling,
+		medicare_combined_tax_rate,
+		medicare_additional_withholding_rate,
+		medicare_additional_gross_pay_floor,
+		federal_withholding_allowance_period_value,
+		federal_nonresident_withholding_income_premium,
+		state_withholding_allowance_period_value,
+		state_itemized_allowance_period_value,
+		federal_unemployment_wage_base,
+		federal_unemployment_tax_standard_rate,
+		federal_unemployment_threshold_rate,
+		federal_unemployment_tax_minimum_rate,
+		state_unemployment_wage_base,
+		state_unemployment_tax_rate,
+		state_sales_tax_rate"
+	get_folder_data a=$application f=$folder s="$select"		|
+	insert_statement.e table=$folder field=$fields del='^'		|
+	cat >> $output_shell
+
+	folder=entity
+	fields="full_name,street_address"
+	echo "$full_name^$street_address"				|
+	insert_statement.e table=$folder field=$fields del='^'		|
+	cat >> $output_shell
+
+	echo "all_done4" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+}
+# extract_self()
 
 rm $output_shell 2>/dev/null
 
@@ -264,6 +349,7 @@ export_accountancy_model $application $input_file $output_shell
 create_accountancy_model $application $input_file $output_shell
 extract_chart_of_accounts $application $output_shell
 export_processes $application $input_file $output_shell
+extract_self $application $output_shell
 
 echo "exit 0" >> $output_shell
 

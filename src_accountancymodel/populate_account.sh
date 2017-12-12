@@ -4,7 +4,7 @@
 # ---------------------------------------------------------
 if [ "$#" -ne 3 ]
 then
-	echo "Usage: $0 application one2m_folder where" 1>&2
+	echo "Usage: $0 application one2m_folder subclassification" 1>&2
 	exit 1
 fi
 
@@ -21,43 +21,41 @@ else
 fi
 
 one2m_folder=$2
-parameter_where=$3
+subclassification=$3
 
 table=$(get_table_name $application account)
 select="account"
 
-subclassification_where="1 = 1"
+if [ "$subclassification" = "" -o "$subclassification" = "subclassification" ]
+then
+	where="1 = 1"
+else
+	where="subclassification = '$subclassification'"
+fi
 
 if [ "$one2m_folder" = "inventory" ]
 then
-	subclassification_where="subclassification = 'inventory' or subclassification = 'cost_of_goods_sold'"
+	where="subclassification = 'inventory' or subclassification = 'cost_of_goods_sold'"
 fi
 
 if [ "$one2m_folder" = "fixed_asset" ]
 then
-	subclassification_where="subclassification = 'property_plant_equipment'"
+	where="subclassification = 'property_plant_equipment'"
 fi
 
 if [ "$one2m_folder" = "fixed_service" -o "$one2m_folder" = "hourly_service" ]
 then
-	subclassification_where="subclassification = 'revenue'"
+	where="subclassification = 'revenue'"
 fi
 
 if [ "$one2m_folder" = "liability_account_entity" ]
 then
-	subclassification_where="subclassification = 'current_liability'"
+	where="subclassification = 'current_liability'"
 fi
 
 if [ "$one2m_folder" = "supply" ]
 then
-	subclassification_where="subclassification = 'supply_expense'"
-fi
-
-if [ "${parameter_where}" != "" ]
-then
-	where="$subclassification_where and $parameter_where"
-else
-	where="$subclassification_where"
+	where="subclassification = 'supply_expense'"
 fi
 
 echo "select $select from $table where $where order by $select;"	|

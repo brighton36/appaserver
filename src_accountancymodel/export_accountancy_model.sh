@@ -36,61 +36,56 @@ function export_processes()
 	output_shell=$3
 
 	echo "" >> $output_shell
-	echo "sql.e << all_done3" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done3" >> $output_shell
 
-	# populate_drop_down_process
-	# --------------------------
+	# role_operation
+	# --------------
 	cat $input_file							|
 	while read folder
 	do
 		where="folder = '$folder'"
-		select="populate_drop_down_process"
-
-		process=`echo "select $select
-				from folder
-				where $where;"				|
-			sql.e`
-
-		if [ "$process" = "" ]
-		then
-			continue
-		fi
-
-		where="process = '$process'"
-		select="process,command_line"
-		echo "select $select from process where $where;"	|
+		select="folder,role,operation"
+		echo "select $select from role_operation where $where;"	|
 		sql.e							|
-		insert_statement.e t=process f="$select" del='^'	|
+		insert_statement.e t=role_operation f="$select" del='^'	|
 		cat >> $output_shell
 	done
 
-	# post_change_process
-	# -------------------
-	cat $input_file							|
-	while read folder
-	do
-		where="folder = '$folder'"
-		select="post_change_process"
+	# process
+	# -------
+	select="process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn"
+	echo "select "$select" from process;"			|
+	sql.e							|
+	insert_statement.e t=process f="$select" del='^'	|
+	cat >> $output_shell
 
-		process=`echo "select $select
-				from folder
-				where $where;"				|
-			sql.e`
+	# operation
+	# ---------
+	select="operation,output_yn"
+	echo "select $select from operation;"			|
+	sql.e							|
+	insert_statement.e t=operation f="$select" del='^'	|
+	cat >> $output_shell
 
-		if [ "$process" = "" ]
-		then
-			continue
-		fi
-
-		where="process = '$process'"
-		select="process,command_line"
-		echo "select $select from process where $where;"	|
-		sql.e							|
-		insert_statement.e t=process f="$select" del='^'	|
-		cat >> $output_shell
-	done
+	# process_groups
+	# --------------
+	select="process_group"
+	echo "select $select from process_groups;"		|
+	sql.e							|
+	insert_statement.e t=process_groups f="$select" del='^'	|
+	cat >> $output_shell
 
 	echo "all_done3" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
 	echo "" >> $output_shell
 }
 # export_processes()

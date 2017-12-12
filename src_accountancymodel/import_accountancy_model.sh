@@ -120,7 +120,6 @@ delete from $folder where folder = 'customer';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('customer','prompt','5','entity',null,'n',null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'customer';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_vehicle','customer','null',null,null,null,null,null,null,'y',null,null,null,null);
 delete from $attribute where attribute = 'full_name';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
@@ -183,7 +182,6 @@ insert into $role_operation (folder,role,operation) values ('customer_payment','
 delete from $folder where folder = 'customer_sale';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('customer_sale','prompt','1','sale',null,'y',null,null,null,null,null,'post_change_customer_sale',null,null,null,null);
 delete from $relation where folder = 'customer_sale';
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','customer_vehicle','null',null,null,null,null,null,null,'y',null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','transaction','null',null,null,null,'n',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_payment','customer_sale','null',null,null,null,null,null,null,'y',null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service_sale','customer_sale','null','2',null,null,null,null,null,null,null,null,null,null);
@@ -195,14 +193,6 @@ delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sale_date_time';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('sale_date_time','current_date_time','19',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'vehicle_make';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('vehicle_make','text','20',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'vehicle_model';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('vehicle_model','text','20',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'vehicle_trim';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('vehicle_trim','text','20',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'vehicle_year';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('vehicle_year','integer','4',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'odometer_miles';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('odometer_miles','integer','7',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'symptom';
@@ -240,10 +230,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','total_payment',null,'14',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','transaction_date_time',null,'18',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','uncollectible_writeoff_date',null,'17',null,'y',null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','vehicle_make',null,'1',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','vehicle_model',null,'2',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','vehicle_trim',null,'3',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','vehicle_year',null,'4',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('customer_sale','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('customer_sale','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('customer_sale','supervisor','insert');
@@ -2006,7 +1992,6 @@ table_name=`get_table_name $application customer_payment`
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,payment_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application customer_sale`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,vehicle_make char (20),vehicle_model char (20),vehicle_trim char (20),vehicle_year integer,odometer_miles integer,symptom text,shipping_revenue double (8,2),sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application day`
 echo "create table $table_name (day char (9) not null) engine MyISAM;" | sql.e '^' mysql
@@ -2187,18 +2172,17 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('accumulated_depreciation','property_plant_equipment','accumulated_depreciation_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('advertising','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('checking','cash','cash_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('coolant_inventory','inventory',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('cost_of_goods_sold','cost_of_goods_sold','cost_of_goods_sold_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('depreciation_expense','operating_expense','depreciation_expense_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('federal_unemployment_tax_payable','current_liability','federal_unemployment_tax_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('federal_withholding_payable','current_liability','federal_withholding_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('fixed_asset','property_plant_equipment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('freight_in_expense','operating_expense','freight_in_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('Jim George equity','contributed capital',null);
+insert into account (account,subclassification,hard_coded_account_key) values (' equity','contributed capital',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('land','property_plant_equipment','land_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('loss','loss','loss_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('medicare_payable','current_liability','medicare_payable_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('oil_inventory','inventory',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('inventory','inventory',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('payroll_payable','current_liability','payroll_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('payroll_tax','tax_expense','payroll_tax_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('repairs_maintenance_expense','operating_expense',null);
@@ -2227,8 +2211,7 @@ insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Sche
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','023','sales_tax_expense');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','023','taxes_and_licenses');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','026','salary_wage_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','coolant_inventory');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','oil_inventory');
+insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','inventory');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','specific_inventory');
 insert into tax_form_line (tax_form,tax_form_line,tax_form_description,itemize_accounts_yn) values ('Schedule C','001','Gross receipts or sales',null);
 insert into tax_form_line (tax_form,tax_form_line,tax_form_description,itemize_accounts_yn) values ('Schedule C','002','Returns and allowances',null);
@@ -2635,26 +2618,1005 @@ insert into state_standard_deduction_table (state_marital_status,
 all_done2
 
 
-sql.e << all_done3
-insert into process (process,command_line) values ('populate_account','populate_account.sh \$application \$one2m_folder \$where');
-insert into process (process,command_line) values ('populate_inventory','populate_inventory.sh \$application inventory_category');
-insert into process (process,command_line) values ('populate_tax_form_line','populate_tax_form_line.sh \$application \$where');
-insert into process (process,command_line) values ('post_change_bank_upload','post_change_bank_upload \$application \$dictionary');
-insert into process (process,command_line) values ('post_change_customer_payment','post_change_customer_payment \$application full_name street_address sale_date_time payment_date_time \$state preupdate_payment_date_time preupdate_payment_amount');
-insert into process (process,command_line) values ('post_change_customer_sale','post_change_customer_sale \$application full_name street_address sale_date_time \$state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_completed_date_time preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue');
-insert into process (process,command_line) values ('post_change_employee_work_day','post_change_employee_work_day \$application full_name street_address begin_work_date_time \$state preupdate_begin_work_date_time preupdate_end_work_date_time');
-insert into process (process,command_line) values ('post_change_fixed_asset_purchase','post_change_fixed_asset_purchase \$application full_name street_address purchase_date_time asset_name serial_number \$state preupdate_asset_name preupdate_serial_number preupdate_extension preupdate_declining_balance_n preupdate_depreciation_method');
-insert into process (process,command_line) values ('post_change_fixed_service_sale','post_change_fixed_service_sale \$application full_name street_address sale_date_time service_name \$state');
-insert into process (process,command_line) values ('post_change_fixed_service_work','post_change_fixed_service_work \$application full_name street_address sale_date_time service_name begin_work_date_time \$state preupdate_end_work_date_time');
-insert into process (process,command_line) values ('post_change_hourly_service_sale','post_change_hourly_service_sale \$application full_name street_address sale_date_time service_name description \$state');
-insert into process (process,command_line) values ('post_change_hourly_service_work','post_change_hourly_service_work \$application full_name street_address sale_date_time service_name description begin_work_date_time \$state preupdate_end_work_date_time');
-insert into process (process,command_line) values ('post_change_inventory_purchase','post_change_inventory_purchase \$application full_name street_address purchase_date_time inventory_name \$state preupdate_ordered_quantity preupdate_arrived_quantity preupdate_missing_quantity preupdate_unit_cost preupdate_inventory_name');
-insert into process (process,command_line) values ('post_change_inventory_sale','post_change_inventory_sale \$application full_name street_address sale_date_time inventory_name \$state preupdate_quantity preupdate_retail_price preupdate_discount_amount preupdate_inventory_name');
-insert into process (process,command_line) values ('post_change_journal_ledger','post_change_journal_ledger.sh \$application full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account');
-insert into process (process,command_line) values ('post_change_purchase_order','post_change_purchase_order \$application full_name street_address purchase_date_time \$state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax preupdate_freight_in');
-insert into process (process,command_line) values ('post_change_self','post_change_self \$application preupdate_inventory_cost_method');
-insert into process (process,command_line) values ('post_change_supply_purchase','post_change_supply_purchase \$application full_name street_address purchase_date_time supply_name \$state preupdate_supply_name');
-insert into process (process,command_line) values ('post_change_vendor_payment','post_change_vendor_payment \$application full_name street_address purchase_date_time payment_date_time \$state preupdate_full_name preupdate_street_address preupdate_payment_date_time preupdate_payment_amount');
+(
+cat << all_done3
+insert into role_operation (folder,role,operation) values ('account','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('account','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('account','bookkeeper','ledger_propagate');
+insert into role_operation (folder,role,operation) values ('account','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('account','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('account','supervisor','ledger_propagate');
+insert into role_operation (folder,role,operation) values ('bank_upload','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('contra_account','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('contra_account','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('contra_account','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('contra_account','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('customer','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('customer','bookkeeper','delete_isa_only');
+insert into role_operation (folder,role,operation) values ('customer','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('customer','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('customer','supervisor','delete_isa_only');
+insert into role_operation (folder,role,operation) values ('customer','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('customer_payment','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('customer_payment','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('customer_payment','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('customer_payment','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('customer_sale','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('customer_sale','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('customer_sale','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('customer_sale','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('day','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('depreciation','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('depreciation','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('depreciation','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('depreciation_method','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('depreciation_method','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('element','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('element','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('element','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('element','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('employee','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('employee','bookkeeper','delete_isa_only');
+insert into role_operation (folder,role,operation) values ('employee','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('employee','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('employee','supervisor','delete_isa_only');
+insert into role_operation (folder,role,operation) values ('employee','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('employee_work_day','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('employee_work_day','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('employee_work_period','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('employee_work_period','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('employee_work_period','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('employee_work_period','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('entity','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('entity','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('entity','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('entity','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('federal_income_tax_withholding','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('federal_income_tax_withholding','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('federal_marital_status','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('federal_marital_status','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('federal_marital_status','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('fixed_asset','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('fixed_asset','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('fixed_asset','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('fixed_asset','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('fixed_asset_purchase','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('fixed_asset_purchase','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('fixed_asset_purchase','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('fixed_asset_purchase','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service_category','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service_category','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service_category','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service_sale','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service_sale','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service_work','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service_work','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('hourly_service','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('hourly_service','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service_category','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service_category','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('hourly_service_category','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service_sale','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('hourly_service_sale','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service_sale','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('hourly_service_sale','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service_work','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('hourly_service_work','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('inventory','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('inventory','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('inventory','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('inventory','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('inventory_category','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('inventory_category','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('inventory_category','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('inventory_cost_method','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('inventory_cost_method','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('inventory_purchase','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('inventory_purchase','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('inventory_purchase','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('inventory_purchase','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('inventory_sale','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('inventory_sale','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('journal_ledger','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('journal_ledger','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('journal_ledger','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('journal_ledger','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('liability_account_entity','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('liability_account_entity','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('liability_account_entity','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('liability_account_entity','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('payroll_pay_period','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('payroll_posting','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('payroll_posting','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('prior_fixed_asset','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('prior_fixed_asset','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('prior_fixed_asset','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('prior_fixed_asset','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('prior_fixed_asset_depreciation','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('prior_fixed_asset_depreciation','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('purchase_order','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('purchase_order','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('purchase_order','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('purchase_order','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('receipt_upload','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('receipt_upload','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('reoccurring_transaction','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('reoccurring_transaction','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('self','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('self','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('service_purchase','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('service_purchase','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('service_purchase','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('service_purchase','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('state_income_tax_withholding','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('state_income_tax_withholding','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('state_income_tax_withholding','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('state_income_tax_withholding','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('state_marital_status','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('state_marital_status','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('state_marital_status','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('state_marital_status','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('state_standard_deduction_table','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('state_standard_deduction_table','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('state_standard_deduction_table','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('state_standard_deduction_table','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('subclassification','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('subclassification','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('subclassification','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('subclassification','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('supply','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('supply','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('supply','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('supply','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('supply_purchase','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('supply_purchase','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('supply_purchase','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('supply_purchase','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('tax_form','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('tax_form','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('tax_form','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('tax_form','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('tax_form_line','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('tax_form_line','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('tax_form_line','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('tax_form_line','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('tax_form_line_account','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('tax_form_line_account','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('tax_form_line_account','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('tax_form_line_account','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('title_passage_rule','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('transaction','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('transaction','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('transaction','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('transaction','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('vendor','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('vendor','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('vendor','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('vendor','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('vendor_payment','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('vendor_payment','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('vendor_payment','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('vendor_payment','supervisor','detail');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('add_column','add_column \$application \$session \$login_name \$role folder attribute really_yn',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('alter_column_datatype','alter_column_datatype \$application \$session \$login_name \$role folder attribute really_yn',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('appaserver_info','appaserver_info.sh \$application \$login_name',null,null,null,null,'documentation',null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('attribute_list','attribute_list \$application \$dictionary',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('balance_sheet','balance_sheet \$application \$process fund as_of_date aggregate_subclassification_yn output_medium',null,null,null,null,'output',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('change_password','maintain_user_account \$application \$session \$person \$role',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('clone_application','clone_application \$application \$session \$login_name \$role destination_application delete_yn system_folders_yn really_yn output2file_yn database_management_system export_output',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('clone_folder','clone_folder \$application n \$session \$login_name \$role destination_application folder attribute old_data new_data html delete_yn execute_yn database_management_system output2file_yn',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('close_fixed_service_work','shortcut_service_work \$application \$process \$login_name full_name street_address sale_date_time close fixed service_name description begin_work_date_time',null,null,null,null,'shortcut',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('close_hourly_service_work','shortcut_service_work \$application \$process \$login_name full_name street_address sale_date_time close hourly service_name description begin_work_date_time',null,null,null,null,'shortcut',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('close_nominal_accounts','close_nominal_accounts \$application  \$process as_of_date execute_yn',null,null,null,null,'manipulate',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('collect_customer_payment','collect_customer_payment \$application \$process full_name street_address sale_date_time payment_amount check_number paid_amount_due_yn',null,null,null,null,'shortcut',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('create_application','create_application \$application build_shell_script_yn \$login_name \$role destination_application system_folders_yn output2file_yn really_yn database_management_system',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('create_empty_application','create_empty_application \$application \$session \$login_name \$role \$process destination_application new_application_title y delete_application_yn execute_yn','This process creates an empty application. It creates a new database, the Appaserver tables, the data directories, among other application objects. Following this process, you can begin inserting the folder rows.',null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('create_table','create_table \$application n \$session \$login_name \$role destination_application folder really_yn database_management_system',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('delete','delete_folder_row \$application \$session \$person \$folder \$role \$primary_data_list sql.e n',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('delete_isa_only','delete_folder_row \$application \$session \$person \$folder \$role \$primary_data_list sql.e y',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('depreciate_fixed_assets','depreciate_fixed_assets \$application \$process fund undo_yn execute_yn',null,null,null,null,'manipulate',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('depreciate_prior_fixed_assets','depreciate_prior_fixed_assets \$application \$process fund undo_yn execute_yn',null,null,null,null,'manipulate',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('detail','detail \$application \$session \$login_name \$folder \$role \$target_frame \$primary_data_list \$dictionary',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('drop_column','drop_column \$application \$session \$login_name \$role folder attribute really_yn',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('execute_select_statement','execute_select_statement \$application \$process \$login_name \$session \$role output_medium filename select_statement_title login_name',null,null,null,null,'output',null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('export_application','clone_application \$application \$session \$login_name \$role destination_application delete_yn system_folders_yn really_yn output2file_yn database_management_system export_output',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('export_folder','clone_folder \$application \$session \$login_name \$role destination_application folder attribute old_data new_data html n really_yn database_management_system y export_output',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('export_process','export_process \$application \$session \$login_name \$role \$process \$dictionary','For a list of processes, this process exports from the following: process, role_process, process_parameter, javascript_libraries, prompt, drop_down_prompt, and drop_down_prompt_data.',null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('export_process_set','export_process_set \$application \$session \$login_name \$role \$process \$dictionary','For a list of process sets, this process exports from the following: process_set, process_set_parameter, javascript_libraries, role_process_set, prompt, drop_down_prompt, and drop_down_prompt_data.',null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('export_subschema','export_subschema \$application \$session \$login_name \$role destination_application \$dictionary','This process exports for a list of folders from the following: folder, relation, folder_attribute, attribute, folder_operation, role_operation, and role_folder.',null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('fix_orphans','fix_orphans \$application \$process orphans_folder delete_yn really_yn','This process traverses the many-to-one relationships for a folder. It inserts the missing primary keys that contain foreign keys in the selected folder. Warning: this process could take a long time to run.',null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('generate_invoice','generate_invoice \$application \$process full_name street_address sale_date_time',null,null,null,null,'output',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('generate_workorder','generate_workorder \$application \$process full_name street_address sale_date_time',null,null,null,null,'output',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('generic_load','generic_load \$application \$session \$role \$process',null,null,null,null,'load',null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('google_map','google_map_operation \$application \$process \$login_name \$role \$folder latitude longitude utm_easting utm_northing \$process_id \$process_row_count \$session \$dictionary',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('grant_select_to_user','grant_select_to_user \$application \$process login_name connect_from_host revoke_only_yn really_yn',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('income_statement','income_statement \$application \$process fund as_of_date aggregate_subclassification_yn output_medium',null,null,null,null,'output',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('inventory_balance_detail','inventory_balance_detail \$application \$process inventory_name output_medium',null,null,null,null,'output',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('inventory_propagate','post_change_inventory_purchase \$application full_name street_address purchase_date_time inventory_name preupdate_purchase_date_time preupdate_inventory_name preupdate_arrived_quantity \$state',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('ledger_propagate','ledger_propagate \$application transaction_date_time preupdate_transaction_date_time account preupdate_account',null,null,null,null,'manipulate',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('load_bank_spreadsheet','load_bank_spreadsheet \$application \$process fund filename execute_yn',null,null,null,null,'load',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('load_receipt_scan','load_receipt_scan \$application \$process fund filename',null,null,null,null,'load',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('merge_purge','merge_purge \$application \$session \$role \$process',null,null,null,null,'manipulate',null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('null',null,null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('open_fixed_service_work','shortcut_service_work \$application \$process \$login_name full_name street_address sale_date_time open fixed service_name description begin_work_date_time',null,null,null,null,'shortcut',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('open_hourly_service_work','shortcut_service_work \$application \$process \$login_name full_name street_address sale_date_time open hourly service_name description begin_work_date_time',null,null,null,null,'shortcut',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('orphans_process_folder_list','orphans_process_folder_list.sh \$application',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('pay_liabilities','pay_liabilities_process \$application \$process \$session fund full_name street_address starting_check_number memo payment_amount with_stub_yn execute_yn',null,null,'post_change_pay_liabilities( this )',null,'manipulate',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('populate_account','populate_account.sh \$application \$one2m_folder \$where',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('populate_entity_reoccurring_transaction','populate_entity_reoccurring_transaction.sh \$application',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('populate_inventory','populate_inventory.sh \$application inventory_category',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('populate_print_checks_entity','populate_print_checks_entity \$application fund',null,null,null,null,'output',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('populate_tax_form_line','populate_tax_form_line.sh \$application \$where',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_bank_upload','post_change_bank_upload \$application \$dictionary',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_customer_payment','post_change_customer_payment \$application full_name street_address sale_date_time payment_date_time \$state preupdate_payment_date_time preupdate_payment_amount',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_customer_sale','post_change_customer_sale \$application full_name street_address sale_date_time \$state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_completed_date_time preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_employee_work_day','post_change_employee_work_day \$application full_name street_address begin_work_date_time \$state preupdate_begin_work_date_time preupdate_end_work_date_time',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_fixed_asset_purchase','post_change_fixed_asset_purchase \$application full_name street_address purchase_date_time asset_name serial_number \$state preupdate_asset_name preupdate_serial_number preupdate_extension preupdate_declining_balance_n preupdate_depreciation_method',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_fixed_service_sale','post_change_fixed_service_sale \$application full_name street_address sale_date_time service_name \$state',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_fixed_service_work','post_change_fixed_service_work \$application full_name street_address sale_date_time service_name begin_work_date_time \$state preupdate_end_work_date_time',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_hourly_service_sale','post_change_hourly_service_sale \$application full_name street_address sale_date_time service_name description \$state',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_hourly_service_work','post_change_hourly_service_work \$application full_name street_address sale_date_time service_name description begin_work_date_time \$state preupdate_end_work_date_time',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_inventory_purchase','post_change_inventory_purchase \$application full_name street_address purchase_date_time inventory_name \$state preupdate_ordered_quantity preupdate_arrived_quantity preupdate_missing_quantity preupdate_unit_cost preupdate_inventory_name',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_inventory_sale','post_change_inventory_sale \$application full_name street_address sale_date_time inventory_name \$state preupdate_quantity preupdate_retail_price preupdate_discount_amount preupdate_inventory_name',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_journal_ledger','post_change_journal_ledger.sh \$application full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_purchase_order','post_change_purchase_order \$application full_name street_address purchase_date_time \$state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax preupdate_freight_in',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_self','post_change_self \$application preupdate_inventory_cost_method',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_supply_purchase','post_change_supply_purchase \$application full_name street_address purchase_date_time supply_name \$state preupdate_supply_name',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_vendor_payment','post_change_vendor_payment \$application full_name street_address purchase_date_time payment_date_time \$state preupdate_full_name preupdate_street_address preupdate_payment_date_time preupdate_payment_amount',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_payroll','post_employee_work_period \$application \$process payroll_year period_number delete_yn y execute_yn',null,null,null,null,'manipulate',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_reoccurring_transaction','post_reoccurring_transaction \$application \$process full_name street_address transaction_date transaction_amount memo execute_yn',null,null,null,null,'manipulate',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('recalculate_cost','post_change_inventory_sale \$application full_name street_address sale_date_time inventory_name quantity retail_price discount_amount \$state',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('rename_column','rename_column \$application \$process old_attribute folder attribute really_yn',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('rename_table','rename_table \$application \$session \$login_name \$role old_folder new_folder really_yn',null,null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('report_writer','post_report_writer \$application \$session \$login_name \$role \$process folder one',null,null,null,null,'output',null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('select_closed_customer_sale','select_customer_sale.sh \$application \$state closed',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('select_customer_sale_collect_payment','select_customer_sale_collect_customer_payment.sh \$application',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('select_open_customer_sale','select_customer_sale.sh \$application \$state open',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('select_open_fixed_service_sale','select_open_fixed_service_sale.sh \$application',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('select_open_fixed_service_work','select_open_fixed_service_work.sh \$application \$login_name',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('select_open_hourly_service_sale','select_open_hourly_service_sale.sh \$application',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('select_open_hourly_service_work','select_open_hourly_service_work.sh \$application \$login_name',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('table_rectification','table_rectification \$application \$session \$login_name \$role','This process compares the Appaserver attributes with the Mysql table columns. It then gives you the opportunity to drop the residual columns.',null,null,null,null,null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('tax_form_report','tax_form_report \$application \$process tax_form as_of_date output_medium',null,null,null,null,'output',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('trial_balance','trial_balance \$application \$session \$login_name \$role \$process fund as_of_date aggregation output_medium',null,null,null,null,'output',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('update_sale_completed','update_sale_completed \$application \$process full_name street_address sale_date_time',null,null,null,null,'shortcut',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('update_sale_not_completed','update_sale_not_completed \$application \$process full_name street_address sale_date_time',null,null,null,null,'shortcut',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('upload_source_file','upload_source_file \$application \$process filename','This process allows you to upload non-executable source files, like javascript. The destination directory is likely \$APPASERVER_HOME/src_\$application.',null,null,null,'load',null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('view_appaserver_log_file','view_appaserver_error_file.sh \$application /var/log/appaserver line_count','Most error messages are logged to this file. If you get the Server Error screen, then this file is the first place to find a clue. <big> <bold>Warning:</bold></big> this process exposes the session number assigned to each user''s login.',null,null,null,'output',null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('view_documentation','view_diagrams \$application',null,null,null,null,'documentation',null,'y');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('view_source','view_source \$application \$session \$login_name \$role',null,null,null,null,'documentation',null,'y');
+insert into operation (operation,output_yn) values ('delete','n');
+insert into operation (operation,output_yn) values ('delete_isa_only',null);
+insert into operation (operation,output_yn) values ('detail','y');
+insert into operation (operation,output_yn) values ('google_map','y');
+insert into operation (operation,output_yn) values ('ledger_propagate','n');
+insert into operation (operation,output_yn) values ('null','y');
+insert into process_groups (process_group) values ('documentation');
+insert into process_groups (process_group) values ('load');
+insert into process_groups (process_group) values ('manipulate');
+insert into process_groups (process_group) values ('output');
+insert into process_groups (process_group) values ('shortcut');
 all_done3
+) | sql.e 2>&1 | grep -vi duplicate
 
 exit 0

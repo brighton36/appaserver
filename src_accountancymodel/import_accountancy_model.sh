@@ -3226,7 +3226,7 @@ insert into process (process,
 		process_set_display,
 		process_group,
 		preprompt_help_text,
-		appaserver_yn) values ('populate_account','populate_account.sh \$application \$one2m_folder \$where',null,null,null,null,null,null,null);
+		appaserver_yn) values ('populate_account','populate_account.sh \$application \$one2m_folder subclassification',null,null,null,null,null,null,null);
 insert into process (process,
 		command_line,
 		notepad,

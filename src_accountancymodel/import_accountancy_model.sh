@@ -193,10 +193,6 @@ delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sale_date_time';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('sale_date_time','current_date_time','19',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'odometer_miles';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('odometer_miles','integer','7',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'symptom';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('symptom','notepad','1024',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'shipping_revenue';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('shipping_revenue','float','8','2',null,null,null,null,null,null);
 delete from $attribute where attribute = 'sum_extension';
@@ -220,13 +216,11 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','completed_date_time',null,'16',null,'n',null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','full_name','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','invoice_amount',null,'13',null,'y',null,null,'y',null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','odometer_miles',null,'5',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','sales_tax',null,'12',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','sale_date_time','3',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','shipping_revenue',null,'10',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','street_address','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','sum_extension',null,'11',null,'y',null,null,'y',null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','symptom',null,'6',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','total_payment',null,'14',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','transaction_date_time',null,'18',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','uncollectible_writeoff_date',null,'17',null,'y',null,null,null,null,null);
@@ -1992,6 +1986,7 @@ table_name=`get_table_name $application customer_payment`
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,payment_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application customer_sale`
+echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,shipping_revenue double (8,2),sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application day`
 echo "create table $table_name (day char (9) not null) engine MyISAM;" | sql.e '^' mysql
@@ -3609,6 +3604,1340 @@ insert into process (process,
 		process_group,
 		preprompt_help_text,
 		appaserver_yn) values ('view_source','view_source \$application \$session \$login_name \$role',null,null,null,null,'documentation',null,'y');
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('add_column','attribute','null','null','null','1',null,'y',null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('add_column','folder_attribute','null','null','null','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('add_column','null','null','null','execute_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('alter_column_datatype','attribute','null','null','null','1',null,'y',null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('alter_column_datatype','folder_attribute','null','null','null','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('alter_column_datatype','null','null','null','execute_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('balance_sheet','null','null','null','aggregate_subclassification_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('balance_sheet','null','null','null','as_of_date','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('balance_sheet','null','null','finance_output_medium','null','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_application','application','null','null','destination_application','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_application','null','null','null','delete_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_application','null','null','null','execute_yn','5',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_application','null','null','null','system_folders_yn','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_folder','application','null','null','destination_application','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_folder','attribute','null','null','null','1',null,'y',null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_folder','folder_attribute','null','null','null','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_folder','null','null','null','delete_yn','7',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_folder','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_folder','null','null','null','new_data','5',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_folder','null','null','database_management_system','null','8',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_folder','null','null','null','old_data','4',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('clone_folder','null','null','null','output2file_yn','6',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('close_fixed_service_work','fixed_service_work','null','null','null','1',null,null,'select_open_fixed_service_work',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('close_hourly_service_work','hourly_service_work','null','null','null','1',null,null,'select_open_hourly_service_work',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('close_nominal_accounts','null','null','null','execute_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('collect_customer_payment','customer_sale','null','null','null','10',null,null,'select_customer_sale_collect_payment',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('collect_customer_payment','null','null','null','check_number','40',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('collect_customer_payment','null','null','null','paid_amount_due_yn','20',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('collect_customer_payment','null','null','null','payment_amount','30',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_application','application','null','null','destination_application','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_application','null','null','null','build_shell_script_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_application','null','null','null','execute_yn','5',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_application','null','null','null','system_folders_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_empty_application','null','null','null','delete_application_yn','7',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_empty_application','null','null','null','destination_application','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_empty_application','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_empty_application','null','null','null','new_application_title','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_table','folder','null','null','null','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('create_table','null','null','null','execute_yn','4',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('depreciate_fixed_assets','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('depreciate_fixed_assets','null','null','null','undo_yn','5',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('depreciate_prior_fixed_assets','null','null','null','execute_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('depreciate_prior_fixed_assets','null','null','null','undo_yn','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('drop_column','folder','null','null','null','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('drop_column','null','null','null','attribute','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('drop_column','null','null','null','execute_yn','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('execute_select_statement','null','null','null','filename','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('execute_select_statement','null','null','execute_select_statement_output_medium','null','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('execute_select_statement','select_statement','null','null','null','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_application','application','null','null','destination_application','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_application','null','null','export_output','null','4',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_application','null','null','null','system_folders_yn','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_folder','application','null','null','destination_application','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_folder','folder','null','null','null','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_folder','null','null','export_output','null','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_process','null','null','null','exclude_roles_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_process','process','null','null','null','1','y',null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_process_set','null','null','null','exclude_roles_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_process_set','process_set','null','null','null','1','y',null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('export_subschema','folder','null','null','null','2','y',null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('fix_orphans','null','null','null','delete_yn','5',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('fix_orphans','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('fix_orphans','null','null','null','orphans_folder','1',null,null,'orphans_process_folder_list',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('generate_invoice','customer_sale','null','null','null','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('generate_workorder','customer_sale','null','null','null',null,null,null,'select_open_customer_sale',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('grant_select_to_user','appaserver_user','null','null','null','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('grant_select_to_user','null','null','null','connect_from_host','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('grant_select_to_user','null','null','null','execute_yn','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('grant_select_to_user','null','null','null','revoke_only_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('income_statement','null','null','null','aggregate_subclassification_yn','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('income_statement','null','null','null','as_of_date','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('income_statement','null','null','finance_output_medium','null','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('inventory_balance_detail','inventory','null','null','null','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('inventory_balance_detail','null','null','inventory_balance_output_medium','null','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('load_bank_spreadsheet','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('load_bank_spreadsheet','null','null','null','filename','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('load_receipt_scan','null','null','null','filename','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('open_fixed_service_work','fixed_service_sale','null','null','null','1',null,null,'select_open_fixed_service_sale',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('open_hourly_service_work','hourly_service_sale','null','null','null','1',null,null,'select_open_hourly_service_sale',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('pay_liabilities','entity','null','null','null','1','y',null,'populate_print_checks_entity',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('pay_liabilities','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('pay_liabilities','null','null','null','memo','4',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('pay_liabilities','null','null','null','payment_amount','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('pay_liabilities','null','null','null','starting_check_number','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('pay_liabilities','null','null','null','with_stub_yn','5',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('post_payroll','null','null','null','delete_yn','5',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('post_payroll','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('post_payroll','null','null','null','payroll_year','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('post_payroll','null','null','null','period_number','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('post_reoccurring_transaction','entity','null','null','null','1',null,null,'populate_entity_reoccurring_transaction',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('post_reoccurring_transaction','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('post_reoccurring_transaction','null','null','null','memo','5',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('post_reoccurring_transaction','null','null','null','transaction_amount','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('post_reoccurring_transaction','null','null','null','transaction_date','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('rename_column','attribute','null','null','null',null,null,'y',null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('rename_column','folder_attribute','null','null','null','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('rename_column','null','null','null','execute_yn','4',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('rename_column','null','null','null','old_attribute','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('rename_table','folder','null','null','new_folder','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('rename_table','null','null','null','execute_yn','3',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('rename_table','null','null','null','old_folder','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('tax_form_report','null','null','null','as_of_date','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('tax_form_report','null','null','finance_output_medium','null','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('tax_form_report','tax_form','null','null','null','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('trial_balance','null','null','null','as_of_date','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('trial_balance','null','null','finance_output_medium','null','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('update_sale_completed','customer_sale','null','null','null','1',null,null,'select_open_customer_sale',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('update_sale_not_completed','customer_sale','null','null','null','1',null,null,'select_closed_customer_sale',null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('upload_source_file','null','null','null','filename','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('view_appaserver_log_file','null','null','null','line_count',null,null,null,null,null);
+insert into role_process (process,role) values ('appaserver_info','bookkeeper');
+insert into role_process (process,role) values ('balance_sheet','bookkeeper');
+insert into role_process (process,role) values ('change_password','bookkeeper');
+insert into role_process (process,role) values ('close_fixed_service_work','bookkeeper');
+insert into role_process (process,role) values ('close_hourly_service_work','bookkeeper');
+insert into role_process (process,role) values ('close_nominal_accounts','bookkeeper');
+insert into role_process (process,role) values ('collect_customer_payment','bookkeeper');
+insert into role_process (process,role) values ('depreciate_fixed_assets','bookkeeper');
+insert into role_process (process,role) values ('depreciate_prior_fixed_assets','bookkeeper');
+insert into role_process (process,role) values ('execute_select_statement','bookkeeper');
+insert into role_process (process,role) values ('generate_invoice','bookkeeper');
+insert into role_process (process,role) values ('generate_workorder','bookkeeper');
+insert into role_process (process,role) values ('generic_load','bookkeeper');
+insert into role_process (process,role) values ('income_statement','bookkeeper');
+insert into role_process (process,role) values ('inventory_balance_detail','bookkeeper');
+insert into role_process (process,role) values ('ledger_propagate','bookkeeper');
+insert into role_process (process,role) values ('load_bank_spreadsheet','bookkeeper');
+insert into role_process (process,role) values ('load_receipt_scan','bookkeeper');
+insert into role_process (process,role) values ('merge_purge','bookkeeper');
+insert into role_process (process,role) values ('open_fixed_service_work','bookkeeper');
+insert into role_process (process,role) values ('open_hourly_service_work','bookkeeper');
+insert into role_process (process,role) values ('pay_liabilities','bookkeeper');
+insert into role_process (process,role) values ('post_payroll','bookkeeper');
+insert into role_process (process,role) values ('post_reoccurring_transaction','bookkeeper');
+insert into role_process (process,role) values ('tax_form_report','bookkeeper');
+insert into role_process (process,role) values ('trial_balance','bookkeeper');
+insert into role_process (process,role) values ('update_sale_completed','bookkeeper');
+insert into role_process (process,role) values ('update_sale_not_completed','bookkeeper');
+insert into role_process (process,role) values ('view_documentation','bookkeeper');
+insert into role_process (process,role) values ('view_source','bookkeeper');
+insert into role_process (process,role) values ('appaserver_info','supervisor');
+insert into role_process (process,role) values ('balance_sheet','supervisor');
+insert into role_process (process,role) values ('change_password','supervisor');
+insert into role_process (process,role) values ('close_fixed_service_work','supervisor');
+insert into role_process (process,role) values ('close_hourly_service_work','supervisor');
+insert into role_process (process,role) values ('close_nominal_accounts','supervisor');
+insert into role_process (process,role) values ('collect_customer_payment','supervisor');
+insert into role_process (process,role) values ('depreciate_fixed_assets','supervisor');
+insert into role_process (process,role) values ('depreciate_prior_fixed_assets','supervisor');
+insert into role_process (process,role) values ('execute_select_statement','supervisor');
+insert into role_process (process,role) values ('generate_invoice','supervisor');
+insert into role_process (process,role) values ('generate_workorder','supervisor');
+insert into role_process (process,role) values ('generic_load','supervisor');
+insert into role_process (process,role) values ('income_statement','supervisor');
+insert into role_process (process,role) values ('inventory_balance_detail','supervisor');
+insert into role_process (process,role) values ('ledger_propagate','supervisor');
+insert into role_process (process,role) values ('load_bank_spreadsheet','supervisor');
+insert into role_process (process,role) values ('load_receipt_scan','supervisor');
+insert into role_process (process,role) values ('merge_purge','supervisor');
+insert into role_process (process,role) values ('open_fixed_service_work','supervisor');
+insert into role_process (process,role) values ('open_hourly_service_work','supervisor');
+insert into role_process (process,role) values ('pay_liabilities','supervisor');
+insert into role_process (process,role) values ('post_payroll','supervisor');
+insert into role_process (process,role) values ('post_reoccurring_transaction','supervisor');
+insert into role_process (process,role) values ('report_writer','supervisor');
+insert into role_process (process,role) values ('tax_form_report','supervisor');
+insert into role_process (process,role) values ('trial_balance','supervisor');
+insert into role_process (process,role) values ('update_sale_completed','supervisor');
+insert into role_process (process,role) values ('update_sale_not_completed','supervisor');
+insert into role_process (process,role) values ('view_documentation','supervisor');
+insert into role_process (process,role) values ('view_source','supervisor');
+insert into role_process (process,role) values ('add_column','system');
+insert into role_process (process,role) values ('alter_column_datatype','system');
+insert into role_process (process,role) values ('appaserver_info','system');
+insert into role_process (process,role) values ('change_password','system');
+insert into role_process (process,role) values ('clone_application','system');
+insert into role_process (process,role) values ('clone_folder','system');
+insert into role_process (process,role) values ('create_application','system');
+insert into role_process (process,role) values ('create_empty_application','system');
+insert into role_process (process,role) values ('create_table','system');
+insert into role_process (process,role) values ('drop_column','system');
+insert into role_process (process,role) values ('export_application','system');
+insert into role_process (process,role) values ('export_folder','system');
+insert into role_process (process,role) values ('export_process','system');
+insert into role_process (process,role) values ('export_process_set','system');
+insert into role_process (process,role) values ('export_subschema','system');
+insert into role_process (process,role) values ('fix_orphans','system');
+insert into role_process (process,role) values ('generic_load','system');
+insert into role_process (process,role) values ('grant_select_to_user','system');
+insert into role_process (process,role) values ('merge_purge','system');
+insert into role_process (process,role) values ('rename_column','system');
+insert into role_process (process,role) values ('rename_table','system');
+insert into role_process (process,role) values ('report_writer','system');
+insert into role_process (process,role) values ('table_rectification','system');
+insert into role_process (process,role) values ('upload_source_file','system');
+insert into role_process (process,role) values ('view_appaserver_log_file','system');
+insert into role_process (process,role) values ('view_documentation','system');
+insert into role_process (process,role) values ('view_source','system');
+insert into javascript_processes (process,javascript_filename) values ('clone_folder','clone_folder.js');
+insert into javascript_processes (process,javascript_filename) values ('pay_liabilities','post_change_pay_liabilities.js');
+insert into javascript_files (javascript_filename) values ('clone_folder.js');
+insert into javascript_files (javascript_filename) values ('post_change_bank_upload.js');
+insert into javascript_files (javascript_filename) values ('post_change_journal_ledger.js');
+insert into javascript_files (javascript_filename) values ('post_change_pay_liabilities.js');
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('accumulate_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('aggregate_subclassification_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('as_of_date','10',null,null,'y');
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('attribute','50',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('begin_date','10',null,null,'y');
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('begin_discovery_date','10',null,null,'y');
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('begin_time','4','Format HHMM',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('begin_work_date','10',null,null,'y');
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('begin_year','4',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('build_shell_script_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('chart_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('check_number','10',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('compare_station',null,'Used to compare all of the datatypes for a station',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('compare_station|compare_datatype',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('connect_from_host','60',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('containing_date','10','Aggregate the day or week containing this date.',null,'y');
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('create_database_yn','1','Should the application be stored in a new database or the current database?',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('daily_values_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('date_offset_comma_list','100','Dates to load: 1=Jan 1, 365=Dec 31 or',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('date_or_yesterday','10',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('days_to_average','3','Defaults to 30',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('delete_application_yn','1','Delete the existing application?',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('delete_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('destination_application','30',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('destination_datatype','0',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('destination_directory','100',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('destination_station','0',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('destination_station|destination_datatype',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('detail_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('discovery_date|primary_researcher',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('display_count_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('dynamic_ending_date','10',null,null,'y');
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('elevation_offset','5','How many feet above or below the station''s ground surface elevation?',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('email_address','50','Optionally email the results',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('email_address_required','50',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('end_date','10',null,null,'y');
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('end_time','4','Format HHMM',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('end_year','4',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('exceedance_format_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('exclude_folder_comma_list','255',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('exclude_roles_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('execute_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('filename','100',null,'y',null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('first_value','5',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('flow_units_converted',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('gridlines_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('hours_to_bump','5',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('ignore_closing_entry_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('inflow_station|inflow_datatype',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('last_value','5',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('line_count','4','How many lines from the end to include? Defaults to 50.',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('measurements_per_day','3',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('memo','60',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('minimum_spike','10',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('minutes_offset','2','minutes from midnight to start (0-59)',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('multiplier','5',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('multiply_first_then_add_yn','1','Default is to add first, then multiply.',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('negative_station|negative_datatype',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('nest_number',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('new_application_title','30',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('new_attribute','50',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('new_data','50',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('new_folder','50',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('new_station_datatype_group','30','Add these datatypes to a group with this name',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('notes','30',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('null','0',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('offset','5',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('old_attribute','50',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('old_data','50',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('old_folder','50',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('omit_output_if_any_missing_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('optional_folder',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('orphans_folder',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('outflow_station|outflow_datatype',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('output2file_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('output_filename','100','Optional',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('override_destination_validation_requirement_yn',null,'Normally, if any of the destination measurements are validated, then this process will not be performed. Setting this flag to Yes will force the process to be performed even if some destination measurements are validated.',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('override_source_validation_requirement_yn',null,'Normally, if any of the source measurements are not validated, then this process will not be performed. Setting this flag to Yes will force the process to be performed even if some source measurements are not validated.',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('paid_amount_due_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('payment_amount','10',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('payroll_year','4',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('period_number','2',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('plot_for_station_check_yn','1','Create a plot to check station''s performance',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('positive_station|positive_datatype',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('really_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('revoke_only_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('shef_filename','100','For server files, use backslash for directories','y',null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('source_directory','100',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('source_station|source_datatype',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('stage_units_converted',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('starting_check_number','5',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('station|datatype',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('summary_only_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('symbols_yn',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('system_folders_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('transaction_amount','10','Optionally override the default.',null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('transaction_date','10',null,null,'y');
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('transmit_validation_info_yn',null,null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('undo_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('utm_easting','6',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('utm_northing','7',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('where_clause','100',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('with_file_trim_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('with_stub_yn','1',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('x_tick_major','6',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('x_tick_minor','6',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('ymax','6',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('ymin','6',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('y_tick_major','6',null,null,null);
+insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('y_tick_minor','6',null,null,null);
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('aggregation',null,null);
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('database_management_system','Defaults to Mysql',null);
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('execute_select_statement_output_medium',null,'output_medium');
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('export_output',null,null);
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('finance_output_medium',null,'output_medium');
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('group_annually_output_medium',null,'output_medium');
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('inventory_balance_output_medium',null,'output_medium');
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('load_srf_output_medium',null,'output_medium');
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('null','Necessary for outter joins to work',null);
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('output_medium',null,null);
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('aggregation','consolidated','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('aggregation','sequential','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('database_management_system','mysql','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('database_management_system','oracle','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('execute_select_statement_output_medium','spreadsheet','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('execute_select_statement_output_medium','table','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('export_output','gzip_file','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('export_output','shell_script','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('finance_output_medium','PDF','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('finance_output_medium','table','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('group_annually_output_medium','chart','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('group_annually_output_medium','table','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('group_annually_output_medium','text_file','3');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('inventory_balance_output_medium','PDF','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('inventory_balance_output_medium','table','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('load_srf_output_medium','audit_report','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('load_srf_output_medium','database','3');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('load_srf_output_medium','screen','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','table','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','text_file','3');
 insert into operation (operation,output_yn) values ('delete','n');
 insert into operation (operation,output_yn) values ('delete_isa_only',null);
 insert into operation (operation,output_yn) values ('detail','y');

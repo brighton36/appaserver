@@ -94,6 +94,25 @@ int main( int argc, char **argv )
 	inventory_name = argv[ 3 ];
 	output_medium = argv[ 4 ];
 
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	if (	!*inventory_name
+	||	strcmp( inventory_name, "inventory_name" ) == 0 )
+	{
+		char buffer[ 128 ];
+
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->appaserver_mount_point );
+
+		printf( "<h1>%s</h1>\n",
+		 	format_initial_capital(
+				buffer, process_name ) );
+
+		printf( "<h3>Error: please choose and inventory item.</h3>\n" );
+		exit( 0 );
+	}
+
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
 
@@ -101,8 +120,6 @@ int main( int argc, char **argv )
 		entity_self_sale_inventory_load(
 			application_name,
 			inventory_name );
-
-	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{

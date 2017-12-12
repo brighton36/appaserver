@@ -68,6 +68,71 @@ function export_processes()
 	insert_statement.e t=process f="$select" del='^'	|
 	cat >> $output_shell
 
+	# process_parameter
+	# -----------------
+	select="process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process"
+	echo "select "$select" from process_parameter;"			|
+	sql.e								|
+	insert_statement.e t=process_parameter f="$select" del='^'	|
+	cat >> $output_shell
+
+	# role_process
+	# ------------
+	select="process,role"
+	echo "select "$select" from role_process;"			|
+	sql.e								|
+	insert_statement.e t=role_process f="$select" del='^'		|
+	cat >> $output_shell
+
+	# javascript_processes
+	# --------------------
+	select="process,javascript_filename"
+	echo "select "$select" from javascript_processes;"		|
+	sql.e								|
+	insert_statement.e t=javascript_processes f="$select" del='^'	|
+	cat >> $output_shell
+
+	# javascript_files
+	# ----------------
+	select="javascript_filename"
+	echo "select "$select" from javascript_files;"			|
+	sql.e								|
+	insert_statement.e t=javascript_files f="$select" del='^'	|
+	cat >> $output_shell
+
+	# prompt
+	# ------
+	select="prompt,input_width,hint_message,upload_filename_yn,date_yn"
+	echo "select "$select" from prompt;"				|
+	sql.e								|
+	insert_statement.e t=prompt f="$select" del='^'			|
+	cat >> $output_shell
+
+	# drop_down_prompt
+	# ----------------
+	select="drop_down_prompt,hint_message,optional_display"
+	echo "select "$select" from drop_down_prompt;"			|
+	sql.e								|
+	insert_statement.e t=drop_down_prompt f="$select" del='^'	|
+	cat >> $output_shell
+
+	# drop_down_prompt_data
+	# ---------------------
+	select="drop_down_prompt,drop_down_prompt_data,display_order"
+	echo "select "$select" from drop_down_prompt_data;"		|
+	sql.e								|
+	insert_statement.e t=drop_down_prompt_data f="$select" del='^'	|
+	cat >> $output_shell
+
 	# operation
 	# ---------
 	select="operation,output_yn"

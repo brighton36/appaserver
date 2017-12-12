@@ -1171,8 +1171,7 @@ LIST *ledger_get_element_list(	char *application_name,
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			   "
 		 "			select=element,accumulate_debit_yn "
-		 "			folder=element			   "
-		 "			order=display_order		   ",
+		 "			folder=element			   ",
 		 application_name );
 
 	element_list = list_new();

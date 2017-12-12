@@ -56,10 +56,6 @@ insert into $role_folder (folder,role,permission) values ('account','bookkeeper'
 insert into $role_folder (folder,role,permission) values ('account','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('account','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('account','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('account','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('account','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('account','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('account','supervisor','update');
 delete from $javascript_folders where folder = 'account';
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('account','bookkeeper','delete');
@@ -92,8 +88,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload','sequence_number',null,'1',null,'y',null,null,'n',null,null);
 insert into $role_folder (folder,role,permission) values ('bank_upload','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('bank_upload','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('bank_upload','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('bank_upload','supervisor','update');
 delete from $javascript_folders where folder = 'bank_upload';
 insert into $javascript_folders (javascript_filename,folder) values ('post_change_bank_upload.js','bank_upload');
 delete from $javascript_files where javascript_filename = 'post_change_bank_upload.js';
@@ -112,10 +106,6 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $folder_attribute where folder = 'contra_account';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('contra_account','account','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('contra_account','contra_to_account',null,'1',null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('contra_account','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('contra_account','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('contra_account','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('contra_account','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('contra_account','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('contra_account','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('contra_account','supervisor','insert');
@@ -143,12 +133,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer','street_address','2',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('customer','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('customer','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('customer','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('customer','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('customer','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('customer','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('customer','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('customer','mechanic','insert');
 insert into $role_folder (folder,role,permission) values ('customer','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('customer','supervisor','update');
 delete from $javascript_folders where folder = 'customer';
@@ -156,7 +140,6 @@ insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('customer','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('customer','bookkeeper','delete_isa_only');
 insert into $role_operation (folder,role,operation) values ('customer','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('customer','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('customer','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('customer','supervisor','delete_isa_only');
 insert into $role_operation (folder,role,operation) values ('customer','supervisor','detail');
@@ -189,26 +172,18 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_payment','transaction_date_time',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('customer_payment','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('customer_payment','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('customer_payment','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('customer_payment','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('customer_payment','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('customer_payment','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('customer_payment','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('customer_payment','mechanic','insert');
 insert into $role_folder (folder,role,permission) values ('customer_payment','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('customer_payment','supervisor','update');
 delete from $javascript_folders where folder = 'customer_payment';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('customer_payment','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('customer_payment','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('customer_payment','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('customer_payment','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('customer_payment','supervisor','detail');
 delete from $folder where folder = 'customer_sale';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('customer_sale','prompt','1','sale',null,'y',null,null,null,null,null,'post_change_customer_sale',null,null,null,null);
 delete from $relation where folder = 'customer_sale';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','customer_vehicle','null',null,null,null,null,null,null,'y',null,null,null,null);
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','mechanic','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','transaction','null',null,null,null,'n',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_payment','customer_sale','null',null,null,null,null,null,null,'y',null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service_sale','customer_sale','null','2',null,null,null,null,null,null,null,null,null,null);
@@ -232,12 +207,6 @@ delete from $attribute where attribute = 'odometer_miles';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('odometer_miles','integer','7',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'symptom';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('symptom','notepad','1024',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'mechanic_full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('mechanic_full_name','text','60',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'mechanic_street_address';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('mechanic_street_address','text','40',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'mechanic_notes';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('mechanic_notes','notepad','1024',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'shipping_revenue';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('shipping_revenue','float','8','2',null,null,null,null,null,null);
 delete from $attribute where attribute = 'sum_extension';
@@ -261,9 +230,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','completed_date_time',null,'16',null,'n',null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','full_name','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','invoice_amount',null,'13',null,'y',null,null,'y',null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','mechanic_full_name',null,'7',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','mechanic_notes',null,'9',null,'y',null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','mechanic_street_address',null,'8',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','odometer_miles',null,'5',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','sales_tax',null,'12',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','sale_date_time','3',null,null,null,null,null,null,null,null);
@@ -280,22 +246,12 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','vehicle_year',null,'4',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('customer_sale','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('customer_sale','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('customer_sale','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('customer_sale','mechanic','update');
-insert into $role_folder (folder,role,permission) values ('customer_sale','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('customer_sale','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('customer_sale','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('customer_sale','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('customer_sale','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('customer_sale','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('customer_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('customer_sale','supervisor','update');
 delete from $javascript_folders where folder = 'customer_sale';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('customer_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('customer_sale','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('customer_sale','mechanic','delete');
-insert into $role_operation (folder,role,operation) values ('customer_sale','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('customer_sale','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('customer_sale','supervisor','detail');
 delete from $folder where folder = 'day';
@@ -306,8 +262,6 @@ delete from $attribute where attribute = 'day';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('day','text','9',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'day';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('day','day','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('day','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('day','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('day','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('day','supervisor','update');
 delete from $javascript_folders where folder = 'day';
@@ -350,9 +304,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('depreciation','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('depreciation','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('depreciation','supervisor','lookup');
-insert into $role_folder (folder,role,permission) values ('depreciation','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('depreciation','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('depreciation','supervisor','lookup');
 delete from $javascript_folders where folder = 'depreciation';
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('depreciation','bookkeeper','delete');
@@ -367,8 +318,6 @@ delete from $attribute where attribute = 'depreciation_method';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('depreciation_method','text','25',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'depreciation_method';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('depreciation_method','depreciation_method','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('depreciation_method','bookkeeper','lookup');
-insert into $role_folder (folder,role,permission) values ('depreciation_method','supervisor','lookup');
 insert into $role_folder (folder,role,permission) values ('depreciation_method','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('depreciation_method','supervisor','lookup');
 delete from $javascript_folders where folder = 'depreciation_method';
@@ -390,10 +339,6 @@ insert into $role_folder (folder,role,permission) values ('element','bookkeeper'
 insert into $role_folder (folder,role,permission) values ('element','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('element','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('element','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('element','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('element','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('element','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('element','supervisor','update');
 delete from $javascript_folders where folder = 'element';
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('element','bookkeeper','delete');
@@ -408,7 +353,6 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee','state_marital_status','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee_work_day','employee','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee_work_period','employee','null',null,null,null,null,null,null,null,null,null,null,null);
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('mechanic','employee','null',null,null,null,'y',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
@@ -469,12 +413,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('employee','union_dues_period_amount',null,'16',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('employee','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('employee','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('employee','mechanic','lookup');
-insert into $role_folder (folder,role,permission) values ('employee','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('employee','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('employee','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('employee','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('employee','mechanic','lookup');
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','update');
 delete from $javascript_folders where folder = 'employee';
@@ -516,21 +454,12 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('employee_work_day','update_timestamp',null,'6',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('employee_work_day','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('employee_work_day','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('employee_work_day','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('employee_work_day','mechanic','update');
-insert into $role_folder (folder,role,permission) values ('employee_work_day','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('employee_work_day','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('employee_work_day','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('employee_work_day','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('employee_work_day','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('employee_work_day','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('employee_work_day','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('employee_work_day','supervisor','update');
 delete from $javascript_folders where folder = 'employee_work_day';
 insert into $subschemas (subschema) values ('payroll');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('employee_work_day','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','supervisor','detail');
 delete from $folder where folder = 'employee_work_period';
@@ -620,8 +549,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('employee_work_period','union_dues_amount',null,'21',null,'y',null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('employee_work_period','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('employee_work_period','supervisor','lookup');
-insert into $role_folder (folder,role,permission) values ('employee_work_period','bookkeeper','lookup');
-insert into $role_folder (folder,role,permission) values ('employee_work_period','supervisor','lookup');
 delete from $javascript_folders where folder = 'employee_work_period';
 insert into $subschemas (subschema) values ('payroll');
 insert into $role_operation (folder,role,operation) values ('employee_work_period','bookkeeper','delete');
@@ -669,21 +596,12 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('entity','zip_code',null,'4',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('entity','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('entity','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('entity','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('entity','mechanic','update');
-insert into $role_folder (folder,role,permission) values ('entity','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('entity','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('entity','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('entity','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('entity','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('entity','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('entity','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('entity','supervisor','update');
 delete from $javascript_folders where folder = 'entity';
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('entity','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('entity','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('entity','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('entity','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('entity','supervisor','detail');
 delete from $folder where folder = 'federal_income_tax_withholding';
@@ -710,10 +628,6 @@ insert into $role_folder (folder,role,permission) values ('federal_income_tax_wi
 insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','supervisor','update');
 delete from $javascript_folders where folder = 'federal_income_tax_withholding';
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('federal_income_tax_withholding','bookkeeper','delete');
@@ -727,9 +641,6 @@ delete from $attribute where attribute = 'federal_marital_status';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('federal_marital_status','text','25',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'federal_marital_status';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('federal_marital_status','federal_marital_status','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('federal_marital_status','bookkeeper','lookup');
-insert into $role_folder (folder,role,permission) values ('federal_marital_status','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('federal_marital_status','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('federal_marital_status','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('federal_marital_status','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('federal_marital_status','supervisor','update');
@@ -751,10 +662,6 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $folder_attribute where folder = 'fixed_asset';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_asset','account',null,'2',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_asset','asset_name','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('fixed_asset','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_asset','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('fixed_asset','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_asset','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('fixed_asset','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_asset','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('fixed_asset','supervisor','insert');
@@ -816,10 +723,6 @@ insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase'
 insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_asset_purchase';
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('fixed_asset_purchase','bookkeeper','delete');
@@ -849,10 +752,6 @@ insert into $role_folder (folder,role,permission) values ('fixed_service','bookk
 insert into $role_folder (folder,role,permission) values ('fixed_service','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('fixed_service','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_service';
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('fixed_service','bookkeeper','delete');
@@ -867,10 +766,6 @@ delete from $attribute where attribute = 'service_category';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('service_category','text','30',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'fixed_service_category';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_service_category','service_category','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('fixed_service_category','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_category','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service_category','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_category','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('fixed_service_category','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_category','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('fixed_service_category','supervisor','insert');
@@ -913,22 +808,12 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_service_sale','work_hours',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service_sale','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_sale','mechanic','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service_sale','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_sale','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service_sale','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_sale','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service_sale','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_sale','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_service_sale';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('fixed_service_sale','mechanic','delete');
-insert into $role_operation (folder,role,operation) values ('fixed_service_sale','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','supervisor','detail');
 delete from $folder where folder = 'fixed_service_work';
@@ -963,21 +848,12 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_service_work','work_hours',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service_work','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_work','mechanic','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service_work','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_work','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service_work','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_work','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('fixed_service_work','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('fixed_service_work','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_service_work';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('fixed_service_work','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','supervisor','detail');
 delete from $folder where folder = 'hourly_service';
@@ -1001,19 +877,12 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('hourly_service','service_name','1',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('hourly_service','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service','mechanic','lookup');
-insert into $role_folder (folder,role,permission) values ('hourly_service','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service','mechanic','lookup');
 insert into $role_folder (folder,role,permission) values ('hourly_service','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service';
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('hourly_service','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('hourly_service','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('hourly_service','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service','supervisor','detail');
 delete from $folder where folder = 'hourly_service_category';
@@ -1024,10 +893,6 @@ delete from $attribute where attribute = 'service_category';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('service_category','text','30',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'hourly_service_category';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('hourly_service_category','service_category','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('hourly_service_category','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_category','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service_category','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_category','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('hourly_service_category','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_category','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('hourly_service_category','supervisor','insert');
@@ -1073,14 +938,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('hourly_service_sale','work_hours',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service_sale','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_sale','mechanic','lookup');
-insert into $role_folder (folder,role,permission) values ('hourly_service_sale','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_sale','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service_sale','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_sale','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service_sale','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_sale','mechanic','lookup');
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service_sale';
@@ -1124,21 +981,12 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('hourly_service_work','work_hours',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service_work','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_work','mechanic','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service_work','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_work','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service_work','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_work','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('hourly_service_work','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('hourly_service_work','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service_work';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('hourly_service_work','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','supervisor','detail');
 delete from $folder where folder = 'inventory';
@@ -1179,12 +1027,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('inventory','total_cost_balance',null,'8',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('inventory','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('inventory','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('inventory','mechanic','lookup');
-insert into $role_folder (folder,role,permission) values ('inventory','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('inventory','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('inventory','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('inventory','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('inventory','mechanic','lookup');
 insert into $role_folder (folder,role,permission) values ('inventory','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory','supervisor','update');
 delete from $javascript_folders where folder = 'inventory';
@@ -1205,10 +1047,6 @@ insert into $role_folder (folder,role,permission) values ('inventory_category','
 insert into $role_folder (folder,role,permission) values ('inventory_category','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('inventory_category','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_category','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('inventory_category','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('inventory_category','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('inventory_category','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('inventory_category','supervisor','update');
 delete from $javascript_folders where folder = 'inventory_category';
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('inventory_category','bookkeeper','detail');
@@ -1222,8 +1060,6 @@ delete from $attribute where attribute = 'inventory_cost_method';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('inventory_cost_method','text','15',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'inventory_cost_method';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('inventory_cost_method','inventory_cost_method','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('inventory_cost_method','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('inventory_cost_method','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('inventory_cost_method','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_cost_method','bookkeeper','update');
 delete from $javascript_folders where folder = 'inventory_cost_method';
@@ -1276,10 +1112,6 @@ insert into $role_folder (folder,role,permission) values ('inventory_purchase','
 insert into $role_folder (folder,role,permission) values ('inventory_purchase','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('inventory_purchase','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_purchase','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('inventory_purchase','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('inventory_purchase','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('inventory_purchase','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('inventory_purchase','supervisor','update');
 delete from $javascript_folders where folder = 'inventory_purchase';
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('inventory_purchase','bookkeeper','delete');
@@ -1321,22 +1153,12 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('inventory_sale','street_address','2',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('inventory_sale','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_sale','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('inventory_sale','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('inventory_sale','mechanic','update');
-insert into $role_folder (folder,role,permission) values ('inventory_sale','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('inventory_sale','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('inventory_sale','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('inventory_sale','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('inventory_sale','mechanic','insert');
-insert into $role_folder (folder,role,permission) values ('inventory_sale','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('inventory_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_sale','supervisor','update');
 delete from $javascript_folders where folder = 'inventory_sale';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('inventory_sale','mechanic','delete');
-insert into $role_operation (folder,role,operation) values ('inventory_sale','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','supervisor','detail');
 delete from $folder where folder = 'journal_ledger';
@@ -1376,10 +1198,6 @@ insert into $role_folder (folder,role,permission) values ('journal_ledger','book
 insert into $role_folder (folder,role,permission) values ('journal_ledger','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('journal_ledger','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('journal_ledger','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('journal_ledger','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('journal_ledger','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('journal_ledger','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('journal_ledger','supervisor','update');
 delete from $javascript_folders where folder = 'journal_ledger';
 insert into $javascript_folders (javascript_filename,folder) values ('post_change_journal_ledger.js','journal_ledger');
 delete from $javascript_files where javascript_filename = 'post_change_journal_ledger.js';
@@ -1408,10 +1226,6 @@ insert into $role_folder (folder,role,permission) values ('liability_account_ent
 insert into $role_folder (folder,role,permission) values ('liability_account_entity','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('liability_account_entity','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('liability_account_entity','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('liability_account_entity','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('liability_account_entity','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('liability_account_entity','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('liability_account_entity','supervisor','update');
 delete from $javascript_folders where folder = 'liability_account_entity';
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('liability_account_entity','bookkeeper','delete');
@@ -1426,8 +1240,6 @@ delete from $attribute where attribute = 'payroll_pay_period';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('payroll_pay_period','text','15',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'payroll_pay_period';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('payroll_pay_period','payroll_pay_period','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('payroll_pay_period','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('payroll_pay_period','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('payroll_pay_period','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('payroll_pay_period','supervisor','update');
 delete from $javascript_folders where folder = 'payroll_pay_period';
@@ -1509,8 +1321,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('payroll_posting','union_dues_amount',null,'21',null,'y',null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('payroll_posting','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('payroll_posting','supervisor','lookup');
-insert into $role_folder (folder,role,permission) values ('payroll_posting','bookkeeper','lookup');
-insert into $role_folder (folder,role,permission) values ('payroll_posting','supervisor','lookup');
 delete from $javascript_folders where folder = 'payroll_posting';
 insert into $subschemas (subschema) values ('payroll');
 insert into $role_operation (folder,role,operation) values ('payroll_posting','bookkeeper','detail');
@@ -1569,10 +1379,6 @@ insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','b
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','supervisor','update');
 delete from $javascript_folders where folder = 'prior_fixed_asset';
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('prior_fixed_asset','bookkeeper','delete');
@@ -1606,8 +1412,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('prior_fixed_asset_depreciation','serial_number','4',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('prior_fixed_asset_depreciation','street_address','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('prior_fixed_asset_depreciation','transaction_date_time',null,'1',null,'y',null,null,'y',null,null);
-insert into $role_folder (folder,role,permission) values ('prior_fixed_asset_depreciation','bookkeeper','lookup');
-insert into $role_folder (folder,role,permission) values ('prior_fixed_asset_depreciation','supervisor','lookup');
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset_depreciation','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset_depreciation','supervisor','lookup');
 delete from $javascript_folders where folder = 'prior_fixed_asset_depreciation';
@@ -1666,10 +1470,6 @@ insert into $role_folder (folder,role,permission) values ('purchase_order','book
 insert into $role_folder (folder,role,permission) values ('purchase_order','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('purchase_order','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('purchase_order','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('purchase_order','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('purchase_order','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('purchase_order','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('purchase_order','supervisor','update');
 delete from $javascript_folders where folder = 'purchase_order';
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('purchase_order','bookkeeper','delete');
@@ -1689,8 +1489,6 @@ delete from $folder_attribute where folder = 'receipt_upload';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('receipt_upload','posted_yn',null,'2',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('receipt_upload','receipt_upload_filename','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('receipt_upload','upload_date',null,'1',null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('receipt_upload','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('receipt_upload','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('receipt_upload','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('receipt_upload','supervisor','update');
 delete from $javascript_folders where folder = 'receipt_upload';
@@ -1719,8 +1517,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','full_name','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','street_address','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','transaction_amount',null,'3',null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','supervisor','update');
 delete from $javascript_folders where folder = 'reoccurring_transaction';
@@ -1803,10 +1599,6 @@ insert into $role_folder (folder,role,permission) values ('self','bookkeeper','i
 insert into $role_folder (folder,role,permission) values ('self','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('self','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('self','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('self','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('self','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('self','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('self','supervisor','update');
 delete from $javascript_folders where folder = 'self';
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('self','bookkeeper','delete');
@@ -1835,10 +1627,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('service_purchase','purchase_date_time','3',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('service_purchase','service_description',null,'1',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('service_purchase','street_address','2',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('service_purchase','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('service_purchase','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('service_purchase','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('service_purchase','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('service_purchase','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('service_purchase','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('service_purchase','supervisor','insert');
@@ -1873,10 +1661,6 @@ insert into $role_folder (folder,role,permission) values ('state_income_tax_with
 insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','supervisor','update');
 delete from $javascript_folders where folder = 'state_income_tax_withholding';
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('state_income_tax_withholding','bookkeeper','delete');
@@ -1893,10 +1677,6 @@ delete from $attribute where attribute = 'state_marital_status';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('state_marital_status','text','40',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'state_marital_status';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('state_marital_status','state_marital_status','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('state_marital_status','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('state_marital_status','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('state_marital_status','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('state_marital_status','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('state_marital_status','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('state_marital_status','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('state_marital_status','supervisor','insert');
@@ -1921,10 +1701,6 @@ delete from $folder_attribute where folder = 'state_standard_deduction_table';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('state_standard_deduction_table','state_marital_status','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('state_standard_deduction_table','state_standard_deduction_amount',null,'1',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('state_standard_deduction_table','state_withholding_allowances','2',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('state_standard_deduction_table','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('state_standard_deduction_table','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('state_standard_deduction_table','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('state_standard_deduction_table','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('state_standard_deduction_table','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('state_standard_deduction_table','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('state_standard_deduction_table','supervisor','insert');
@@ -1954,10 +1730,6 @@ insert into $role_folder (folder,role,permission) values ('subclassification','b
 insert into $role_folder (folder,role,permission) values ('subclassification','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('subclassification','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('subclassification','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('subclassification','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('subclassification','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('subclassification','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('subclassification','supervisor','update');
 delete from $javascript_folders where folder = 'subclassification';
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('subclassification','bookkeeper','delete');
@@ -1976,10 +1748,6 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $folder_attribute where folder = 'supply';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('supply','account',null,'1',null,null,null,null,null,null,'y');
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('supply','supply_name','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('supply','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('supply','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('supply','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('supply','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('supply','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('supply','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('supply','supervisor','insert');
@@ -2021,10 +1789,6 @@ insert into $role_folder (folder,role,permission) values ('supply_purchase','boo
 insert into $role_folder (folder,role,permission) values ('supply_purchase','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('supply_purchase','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('supply_purchase','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('supply_purchase','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('supply_purchase','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('supply_purchase','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('supply_purchase','supervisor','update');
 delete from $javascript_folders where folder = 'supply_purchase';
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('supply_purchase','bookkeeper','delete');
@@ -2039,10 +1803,6 @@ delete from $attribute where attribute = 'tax_form';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('tax_form','text','20',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'tax_form';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_form','tax_form','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('tax_form','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('tax_form','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('tax_form','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('tax_form','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('tax_form','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('tax_form','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('tax_form','supervisor','insert');
@@ -2075,10 +1835,6 @@ insert into $role_folder (folder,role,permission) values ('tax_form_line','bookk
 insert into $role_folder (folder,role,permission) values ('tax_form_line','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('tax_form_line','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('tax_form_line','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('tax_form_line','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('tax_form_line','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('tax_form_line','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('tax_form_line','supervisor','update');
 delete from $javascript_folders where folder = 'tax_form_line';
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('tax_form_line','bookkeeper','delete');
@@ -2104,10 +1860,6 @@ insert into $role_folder (folder,role,permission) values ('tax_form_line_account
 insert into $role_folder (folder,role,permission) values ('tax_form_line_account','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('tax_form_line_account','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('tax_form_line_account','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('tax_form_line_account','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('tax_form_line_account','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('tax_form_line_account','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('tax_form_line_account','supervisor','update');
 delete from $javascript_folders where folder = 'tax_form_line_account';
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('tax_form_line_account','bookkeeper','delete');
@@ -2125,8 +1877,6 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $folder_attribute where folder = 'title_passage_rule';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('title_passage_rule','title_passage_date',null,'1',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('title_passage_rule','title_passage_rule','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('title_passage_rule','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('title_passage_rule','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('title_passage_rule','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('title_passage_rule','bookkeeper','update');
 delete from $javascript_folders where folder = 'title_passage_rule';
@@ -2171,10 +1921,6 @@ insert into $role_folder (folder,role,permission) values ('transaction','bookkee
 insert into $role_folder (folder,role,permission) values ('transaction','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('transaction','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('transaction','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('transaction','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('transaction','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('transaction','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('transaction','supervisor','update');
 insert into $row_security_role_update (folder,attribute_not_null) values ('transaction','lock_transaction_yn');
 delete from $javascript_folders where folder = 'transaction';
 insert into $subschemas (subschema) values ('ledger');
@@ -2194,10 +1940,6 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $folder_attribute where folder = 'vendor';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('vendor','full_name','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('vendor','street_address','2',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('vendor','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('vendor','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('vendor','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('vendor','supervisor','update');
 insert into $role_folder (folder,role,permission) values ('vendor','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('vendor','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('vendor','supervisor','insert');
@@ -2239,10 +1981,6 @@ insert into $role_folder (folder,role,permission) values ('vendor_payment','book
 insert into $role_folder (folder,role,permission) values ('vendor_payment','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('vendor_payment','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('vendor_payment','supervisor','update');
-insert into $role_folder (folder,role,permission) values ('vendor_payment','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('vendor_payment','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('vendor_payment','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('vendor_payment','supervisor','update');
 delete from $javascript_folders where folder = 'vendor_payment';
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('vendor_payment','bookkeeper','delete');
@@ -2268,7 +2006,7 @@ table_name=`get_table_name $application customer_payment`
 echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,payment_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application customer_sale`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,vehicle_make char (20),vehicle_model char (20),vehicle_trim char (20),vehicle_year integer,odometer_miles integer,symptom text,mechanic_full_name char (60),mechanic_street_address char (40),mechanic_notes text,shipping_revenue double (8,2),sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,vehicle_make char (20),vehicle_model char (20),vehicle_trim char (20),vehicle_year integer,odometer_miles integer,symptom text,shipping_revenue double (8,2),sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application day`
 echo "create table $table_name (day char (9) not null) engine MyISAM;" | sql.e '^' mysql
@@ -2515,6 +2253,385 @@ insert into tax_form_line (tax_form,tax_form_line,tax_form_description,itemize_a
 insert into tax_form_line (tax_form,tax_form_line,tax_form_description,itemize_accounts_yn) values ('Schedule C','027','Other expenses',null);
 insert into tax_form_line (tax_form,tax_form_line,tax_form_description,itemize_accounts_yn) values ('Schedule C','041','Ending inventory',null);
 insert into tax_form (tax_form) values ('Schedule C');
+insert into day (day) values ('friday');
+insert into day (day) values ('monday');
+insert into day (day) values ('saturday');
+insert into day (day) values ('sunday');
+insert into day (day) values ('thursday');
+insert into day (day) values ('tuesday');
+insert into day (day) values ('wednesday');
+insert into payroll_pay_period (payroll_pay_period) values ('biweekly');
+insert into payroll_pay_period (payroll_pay_period) values ('monthly');
+insert into payroll_pay_period (payroll_pay_period) values ('semimonthly');
+insert into payroll_pay_period (payroll_pay_period) values ('weekly');
+insert into inventory_cost_method (inventory_cost_method) values ('average');
+insert into inventory_cost_method (inventory_cost_method) values ('FIFO');
+insert into inventory_cost_method (inventory_cost_method) values ('LIFO');
+insert into federal_marital_status (federal_marital_status) values ('married');
+insert into federal_marital_status (federal_marital_status) values ('married_but_single_rate');
+insert into federal_marital_status (federal_marital_status) values ('single');
+insert into state_marital_status (state_marital_status) values ('married_one_income');
+insert into state_marital_status (state_marital_status) values ('single_or_married_with_multiple_incomes');
+insert into state_marital_status (state_marital_status) values ('unmarried_head_of_household');
+insert into depreciation_method (depreciation_method) values ('double_declining_balance');
+insert into depreciation_method (depreciation_method) values ('n_declining_balance');
+insert into depreciation_method (depreciation_method) values ('straight_line');
+insert into depreciation_method (depreciation_method) values ('sum_of_years_digits');
+insert into depreciation_method (depreciation_method) values ('units_of_production');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married','166','525','0.00','10.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married','525','1626','35.90','15.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married','1626','3111','201.05','25.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married','3111','4654','572.30','28.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married','4654','8180','1004.34','33.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married','8180','9218','2167.92','35.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married','9218','0','2531.22','39.6');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_but_single_rate','44','224','0.00','10.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_but_single_rate','224','774','18.00','15.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_but_single_rate','774','1812','100.50','25.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_but_single_rate','1812','3730','360.00','28.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_but_single_rate','3730','8058','897.04','33.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_but_single_rate','8058','8090','2325.28','35.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_but_single_rate','8090','0','2336.48','39.6');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single','44','224','0.00','10.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single','224','774','18.00','15.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single','774','1812','100.50','25.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single','1812','3730','360.00','28.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single','3730','8058','897.04','33.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single','8058','8090','2325.28','35.0');
+insert into federal_income_tax_withholding (federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single','8090','0','2336.48','39.6');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','0','308','0.00','1.1');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','308','730','3.39','2.2');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','730','1154','12.67','4.4');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','1154','1602','31.33','6.6');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','1602','2024','60.90','8.8');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','2024','10336','98.04','10.2');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','10336','12404','948.69','11.3');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','12404','19231','1182.66','12.4');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','19231','20673','2031.26','13.5');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('married_one_income','20673','0','2226.36','14.6');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','0','154','0.00','1.1');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','154','365','1.69','2.0');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','354','577','6.33','4.4');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','577','801','15.66','6.6');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','801','1012','30.44','8.8');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','1012','5168','49.01','10.2');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','5169','6202','474.17','11.3');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','6202','10337','591.32','12.4');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','10337','19231','1105.30','13.5');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('single_or_married_with_multiple_incomes','19231',null,'2308.66','14.6');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','0','308','0.00','1.1');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','308','731','3.39','2.2');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','731','942','12.70','4.4');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','942','1166','21.98','6.6');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','1166','1377','36.76','8.8');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','1377','7029','55.33','10.2');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','7029','8435','633.53','11.3');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','8435','14058','792.83','12.4');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','14058','19231','1491.77','13.5');
+insert into state_income_tax_withholding (state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount) values ('unmarried_head_of_household','19231','0','2191.68','14.6');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','0','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','1','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','2','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','3','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','4','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','5','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','6','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','7','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','8','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','9','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('married_one_income','10','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','0','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','1','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','2','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','3','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','4','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','5','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','6','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','7','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','8','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','9','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('single_or_married_with_multiple_incomes','10','79.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','0','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','1','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','2','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','3','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','4','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','5','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','6','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','7','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','8','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','9','159.00');
+insert into state_standard_deduction_table (state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount) values ('unmarried_head_of_household','10','159.00');
 all_done2
 
 

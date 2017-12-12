@@ -194,6 +194,70 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
+	folder=day
+	columns=day
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=payroll_pay_period
+	columns=payroll_pay_period
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=inventory_cost_method
+	columns=inventory_cost_method
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=federal_marital_status
+	columns=federal_marital_status
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=state_marital_status
+	columns=state_marital_status
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=depreciation_method
+	columns=depreciation_method
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=federal_income_tax_withholding
+	columns="federal_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e t=$folder field="$columns" del='^'		|
+	cat >> $output_shell
+
+	folder=state_income_tax_withholding
+	columns="state_marital_status,
+		 income_over,
+		 income_not_over,
+		 tax_fixed_amount,
+		 tax_percentage_amount"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e t=$folder field="$columns" del='^'		|
+	cat >> $output_shell
+
+	folder=state_standard_deduction_table
+	columns="state_marital_status,
+		 state_withholding_allowances,
+		 state_standard_deduction_amount"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e t=$folder field="$columns" del='^'		|
+	cat >> $output_shell
+
 	echo "all_done2" >> $output_shell
 	echo "" >> $output_shell
 }

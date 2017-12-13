@@ -28,7 +28,6 @@
 
 /* Constants */
 /* --------- */
-#define LOCATION			"http://cloudacus.com:/index.php"
 #define APPLICATION_NAME		"cloudacus"
 
 /* Prototypes */
@@ -177,7 +176,7 @@ int main( int argc, char **argv )
 		{
 			post_login_redraw_index_screen(
 				APPLICATION_NAME,
-				LOCATION,
+				CLOUDACUS_LOCATION,
 				"invalid_application_key_yn=y" );
 			sleep( 2 );
 			exit( 0 );
@@ -192,7 +191,7 @@ int main( int argc, char **argv )
 
 		post_login_redraw_index_screen(
 				APPLICATION_NAME,
-				LOCATION,
+				CLOUDACUS_LOCATION,
 				"email_password_yn=y" );
 		exit( 0 );
 	}
@@ -241,14 +240,14 @@ int main( int argc, char **argv )
 			{
 				post_login_redraw_index_screen(
 					APPLICATION_NAME,
-					LOCATION,
+					CLOUDACUS_LOCATION,
 					"email_application_succeeded_yn=y" );
 			}
 			else
 			{
 				post_login_redraw_index_screen(
 					APPLICATION_NAME,
-					LOCATION,
+					CLOUDACUS_LOCATION,
 					"password_application_succeeded_yn=y" );
 			}
 		}
@@ -256,7 +255,7 @@ int main( int argc, char **argv )
 		{
 			post_login_redraw_index_screen(
 				APPLICATION_NAME,
-				LOCATION,
+				CLOUDACUS_LOCATION,
 				"password_application_succeeded_yn=n" );
 		}
 
@@ -281,30 +280,11 @@ int main( int argc, char **argv )
 		{
 			post_login_redraw_index_screen(
 				APPLICATION_NAME,
-				LOCATION,
+				CLOUDACUS_LOCATION,
 				"invalid_application_key_yn=y" );
 			sleep( 2 );
 			exit( 0 );
 		}
-
-/*
-		if ( application_exists_virtual_host( application_name ) )
-		{
-			char msg[ 1024 ];
-
-			sprintf(	msg,
-					"virtual_host_exists=%s",	
-					application_name );
-
-			post_login_redraw_index_screen(
-				APPLICATION_NAME,
-				LOCATION,
-				msg );
-
-			sleep( 2 );
-			exit( 0 );
-		}
-*/
 
 		sprintf(sys_string,
 		 	"password4appaserver_user.sh \"%s\" \"%s\" 2>>%s",
@@ -325,10 +305,6 @@ int main( int argc, char **argv )
 		||   password_match_return == public_login
 		||   password_match_return == email_login )
 		{
-/*
-if ( strcmp( application_name, "capitolpops" ) != 0 )
-{
-*/
 			/* Generate a new session */
 			/* ---------------------- */
 			sprintf( sys_string, 
@@ -340,9 +316,6 @@ if ( strcmp( application_name, "capitolpops" ) != 0 )
 					application_name ) );
 	
 			session = get_line_system( sys_string );
-/*
-}
-*/
 
 			post_login_output_frameset(
 					application_name,
@@ -368,7 +341,7 @@ if ( strcmp( application_name, "capitolpops" ) != 0 )
 
 			post_login_redraw_index_screen(
 					APPLICATION_NAME,
-					LOCATION,
+					CLOUDACUS_LOCATION,
 					"invalid_login_yn=y" );
 			sleep( 2 );
 			exit ( 1 );

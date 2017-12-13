@@ -77,6 +77,7 @@ void post_login_redraw_index_screen(	char *application_name,
 	if ( location )
 	{
 		strcpy( local_location, location );
+
 		sprintf( local_location,
 			 "%s?%s",
 			 location,
@@ -186,17 +187,21 @@ void post_login_output_frameset(	char *application_name,
 				application_name ) );
 		system( sys_string );
 	}
-/*
 	else
 	if ( password_match_return == email_login )
 	{
-		char *email_http_filename;
-		char *email_output_filename;
+		char email_http_filename[ 128 ];
+		char email_output_filename[ 128 ];
+		APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+
+		appaserver_parameter_file =
+			appaserver_parameter_file_new();
 
 		sprintf(
 		 email_output_filename,
 		 EMAIL_OUTPUT_FILE_TEMPLATE,
-		 appaserver_parameter_file_get_appaserver_mount_point(),
+		 appaserver_parameter_file->
+			document_root,
 		 application_name,
 		 session );
 
@@ -227,16 +232,17 @@ void post_login_output_frameset(	char *application_name,
 		{
 			post_login_redraw_index_screen(
 				application_name,
+				CLOUDACUS_LOCATION,
 				"emailed_login_yn=y" );
 		}
 		else
 		{
 			post_login_redraw_index_screen(
 				application_name,
+				CLOUDACUS_LOCATION,
 				"invalid_login_yn=y" );
 		}
 	}
-*/
 
 } /* post_login_output_frameset() */
 

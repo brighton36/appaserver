@@ -310,7 +310,9 @@ void session_message_ip_address_changed_exit(
 		appaserver_parameter_file->
 			appaserver_mount_point );
 
-	if ( remote_ip_address && *remote_ip_address )
+	if (	remote_ip_address
+	&&	*remote_ip_address
+	&&	isdigit( *remote_ip_address ) )
 	{
 		sprintf( msg,
 "Warning for %s: Your IP address has changed to %s. Please login again.",

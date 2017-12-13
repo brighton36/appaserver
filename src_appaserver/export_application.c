@@ -117,7 +117,7 @@ int main( int argc, char **argv )
 			database_string );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !session_access(	application_name,
 				session,
@@ -186,6 +186,7 @@ int main( int argc, char **argv )
 	sprintf( sys_string,
 		 "application_folder_list.sh %s %c", 
 		 application_name, system_folders_yn );
+
 	folder_name_list = pipe2list( sys_string );
 
 	/* Subtract those with the exclude flag set. */

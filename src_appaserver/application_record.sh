@@ -19,8 +19,10 @@ fi
 
 table_name=${application}_application
 
+# only_one_primary_yn is retired.
+
 echo "	select 	application_title,		\
-		only_one_primary_yn,		\
+		'y',				\
 		relative_source_directory,	\
 		background_color,		\
 		distill_directory,		\

@@ -625,7 +625,7 @@ void update_application_row(		char *destination_application,
 	}
 
 	sprintf( sys_string,
-"echo \"update %s_application set application_title = '%s', relative_source_directory = 'src_%s' where application = '%s';\" | %s",
+"echo \"update %s_application set application_title = '%s', relative_source_directory = 'src_%s:src_accountancymodel' where application = '%s';\" | %s",
 	 	destination_application,
 		escape_single_quotes( buffer ),
 	 	destination_application,
@@ -645,6 +645,12 @@ void update_application_row(		char *destination_application,
 				really_yn );
 
 
+#ifdef NOT_DEFINED
+
+===============================
+only_one_primary_yn is retired.
+===============================
+
 	set_database_environment(
 				destination_application,
 				really_yn );
@@ -662,6 +668,7 @@ void update_application_row(		char *destination_application,
 	restore_database_environment(
 				database_string,
 				really_yn );
+#endif
 
 } /* update_application_row() */
 
@@ -1103,11 +1110,13 @@ void insert_appaserver_rows(		char *destination_application,
 
 	if ( really_yn == 'y' )
 	{
+/*
 		sprintf( sys_string,
 			 "gunzip < %s/insert_%s_appaserver.sh.gz 	|"
 			 "cat > %s/insert_empty_zzz.sh			;"
 			 "chmod +x %s/insert_empty_zzz.sh		;"
 			 "%s/insert_empty_zzz.sh %s			;"
+			 "rm -f %s/insert_%s_appaserver.sh.gz		;"
 			 "rm -f %s/insert_%s_appaserver.sh.gz		;"
 			 "rm -f %s/insert_empty_zzz.sh			 ",
 			 appaserver_data_directory,
@@ -1117,8 +1126,22 @@ void insert_appaserver_rows(		char *destination_application,
 			 appaserver_data_directory,
 			 destination_application,
 			 appaserver_data_directory,
+			 current_application,
+			 appaserver_data_directory,
 			 destination_application,
 			 appaserver_data_directory );
+*/
+		sprintf( sys_string,
+			 "gunzip < %s/insert_%s_appaserver.sh.gz 	|"
+			 "cat > %s/insert_empty_zzz.sh			;"
+			 "chmod +x %s/insert_empty_zzz.sh		;"
+			 "%s/insert_empty_zzz.sh %s			 ",
+			 appaserver_data_directory,
+			 current_application,
+			 appaserver_data_directory,
+			 appaserver_data_directory,
+			 appaserver_data_directory,
+			 destination_application );
 	}
 	else
 	{

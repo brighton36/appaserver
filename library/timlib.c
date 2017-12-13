@@ -3212,23 +3212,14 @@ void **timlib_allocate_pointer_array(
 
 int timlib_strncmp( char *s1, char *s2 )
 {
-	int str_len1;
 	int str_len2;
-	int use_len;
 
 	if ( !s1 || !s2 ) return -1;
 	if ( !*s1 && !*s2 ) return 0;
 	if ( !*s1 || !*s2 ) return -1;
 
-	str_len1 = strlen( s1 );
 	str_len2 = strlen( s2 );
-
-	if ( str_len1 < str_len2 )
-		use_len = str_len1;
-	else
-		use_len = str_len2;
-
-	return strncasecmp( s1, s2, use_len );
+	return strncasecmp( s1, s2, str_len2 );
 
 } /* timlib_strncmp() */
 

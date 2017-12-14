@@ -4975,8 +4975,8 @@ insert into self (full_name,
 		federal_unemployment_tax_minimum_rate,
 		state_unemployment_wage_base,
 		state_unemployment_tax_rate,
-		state_sales_tax_rate) values ('eves','1234 Main St.','LIFO','weekly','friday','0.1240','127200','0.0290',null,null,'77.90',null,null,'19.50','7000','0.0600','0.0540','0.0060','7000','0.0340','0.0850');
-insert into entity (full_name,street_address) values ('eves','1234 Main St.');
+		state_sales_tax_rate) values ('changeme','1234 Main St.','LIFO','weekly','friday','0.1240','127200','0.0290',null,null,'77.90',null,null,'19.50','7000','0.0600','0.0540','0.0060','7000','0.0340','0.0850');
+insert into entity (full_name,street_address) values ('changeme','1234 Main St.');
 all_done4
 ) | sql.e 2>&1 | grep -vi duplicate
 

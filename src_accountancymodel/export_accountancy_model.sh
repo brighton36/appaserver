@@ -342,7 +342,7 @@ function extract_self()
 	application=$1
 	output_shell=$2
 
-	full_name="$application"
+	full_name="changeme"
 	street_address="1234 Main St."
 
 	echo "" >> $output_shell

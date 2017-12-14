@@ -2163,6 +2163,7 @@ insert into subclassification (subclassification,element,display_order) values (
 insert into subclassification (subclassification,element,display_order) values ('revenue','revenue','8');
 insert into subclassification (subclassification,element,display_order) values ('supply_expense','expense','10');
 insert into subclassification (subclassification,element,display_order) values ('tax_expense','expense','12');
+insert into account (account,subclassification,hard_coded_account_key) values ('accounting','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('account_payable','current_liability','account_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('account_receivable','non-cash current asset','account_receivable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('accumulated_depreciation','property_plant_equipment','accumulated_depreciation_key');
@@ -2200,6 +2201,7 @@ insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Sche
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','004','cost_of_goods_sold');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','008','advertising');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','013','depreciation_expense');
+insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','017','accounting');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','021','repairs_maintenance_expense');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','022','supply_expense');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','022','towels');

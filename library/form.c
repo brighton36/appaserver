@@ -1845,27 +1845,66 @@ void form_output_html_help_file_anchor(
 			char *application_name,
 			char *html_help_file_anchor )
 {
-	if ( html_help_file_anchor
-	&&   *html_help_file_anchor )
+	char full_pathname[ 512 ];
+	char *appaserver_mount_point;
+	char *relative_source_directory;
+	char source_filename[ 256 ];
+	char source_directory[ 128 ];
+	char source_directory_filename[ 512 ];
+	int index;
+
+	if ( !html_help_file_anchor || !*html_help_file_anchor )
+		return;
+
+	appaserver_mount_point =
+		appaserver_parameter_file_get_appaserver_mount_point();
+
+	relative_source_directory =
+		application_get_relative_source_directory(
+			application_name );
+
+	for(	index = 0;
+		piece(	source_directory,
+			PATH_DELIMITER,
+			relative_source_directory,
+			index );
+		index++ )
 	{
-		char full_pathname[ 512 ];
+		sprintf(source_directory_filename, 
+		 	"%s/%s/%s",
+		 	appaserver_mount_point,
+		 	source_directory,
+		 	source_filename );
 
-		if ( *html_help_file_anchor == '/' )
-		{
-			strcpy( full_pathname, html_help_file_anchor );
-		}
-		else
-		{
-			sprintf(	full_pathname,
-					"/appaserver/src_%s/%s",
-					application_name,
-					html_help_file_anchor );
-		}
+		if ( timlib_file_exists( source_directory_filename ) ) break;
+	}
 
-		printf(
+	if ( !*source_directory )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot find help filename = %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 html_help_file_anchor );
+		exit( 1 );
+	}
+
+	if ( *html_help_file_anchor == '/' )
+	{
+		strcpy( full_pathname, html_help_file_anchor );
+	}
+	else
+	{
+		sprintf(	full_pathname,
+				"/appaserver/%s/%s",
+				source_directory,
+				html_help_file_anchor );
+	}
+
+	printf(
 "<input type=button value=Help onclick='window.open(\"%s\",\"help_window\",\"width=600,height=350,resizable=yes,scrollbars=yes\")'>\n",
 			full_pathname );
-	}
 
 } /* form_output_html_help_file_anchor() */
 

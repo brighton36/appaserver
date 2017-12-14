@@ -564,7 +564,8 @@ char appaserver_get_aggregation_sum_yn(
 	sprintf( sys_string,
 		 "%s/%s/get_aggregation_sum_yn '%s' '%s'",
 		 appaserver_mount_point,
-		 application_get_relative_source_directory( application ),
+		 application_get_first_relative_source_directory(
+			application ),
 		 application,
 		 datatype );
 

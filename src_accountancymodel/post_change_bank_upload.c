@@ -40,11 +40,6 @@ void post_change_bank_upload_update_execute(
 				int prior_sequence_number,
 				char *fund_name );
 
-double bank_upload_get_prior_bank_balance(
-				char *application_name,
-				char *fund_name,
-				int prior_sequence_number );
-
 int bank_upload_get_prior_sequence_number(
 				char *application_name,
 				char *fund_name,

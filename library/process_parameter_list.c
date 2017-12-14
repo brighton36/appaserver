@@ -1131,7 +1131,7 @@ LIST *process_parameter_get_prompt_element_list(
 					element_name ) )
 	{
 		element =
-			element_get_yes_no_drop_down(
+			element_get_yes_no_element(
 				strdup( element_name ),
 				(char *)0 /* prepend_folder_name */,
 				post_change_javascript,

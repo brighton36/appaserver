@@ -95,6 +95,7 @@ typedef struct
 	boolean no_initial_capital;
 	boolean readonly;
 	char *state;
+	int attribute_width;
 } ELEMENT_DROP_DOWN;
 
 typedef struct
@@ -499,7 +500,8 @@ void element_drop_down_output(		FILE *output_file,
 					boolean no_initial_capital,
 					boolean readonly,
 					int tab_index,
-					char *state );
+					char *state,
+					int attribute_width );
 
 void element_drop_down_set_output_null_option(
 						ELEMENT_DROP_DOWN *e );
@@ -582,11 +584,11 @@ void element_non_edit_text_output(		FILE *output_file,
 int element_type_count(				LIST *element_list,
 						enum element_type );
 
-ELEMENT *element_get_yes_no_drop_down( 	char *attribute_name,
-					char *prepend_folder_name,
-					char *post_change_javascript,
-					boolean with_is_null,
-					boolean with_not_null );
+ELEMENT *element_get_yes_no_element( 		char *attribute_name,
+						char *prepend_folder_name,
+						char *post_change_javascript,
+						boolean with_is_null,
+						boolean with_not_null );
 
 LIST *element_get_shifted_option_label_list(	char **shifted_initial_label,
 						LIST *option_data_list,

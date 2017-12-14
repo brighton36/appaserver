@@ -934,7 +934,7 @@ LIST *appaserver_library_with_attribute_get_insert_attribute_element_list(
 	if ( process_parameter_list_element_name_boolean( attribute_name ) )
 	{
 		element =
-			element_get_yes_no_drop_down(
+			element_get_yes_no_element(
 				attribute_name,
 				(char *)0 /* prepend_folder_name */,
 				post_change_javascript,
@@ -2798,7 +2798,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	if ( process_parameter_list_element_name_boolean( attribute_name ) )
 	{
 		element =
-			element_get_yes_no_drop_down(
+			element_get_yes_no_element(
 				attribute_name,
 				(char *)0 /* prepend_folder_name */,
 				post_change_javascript,
@@ -2806,6 +2806,7 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 				0 /* not with_not_null */ );
 
 		element->drop_down->state = "update";
+		element->drop_down->attribute_width = 1;
 	}
 	else
 	if ( timlib_strcmp( datatype, "reference_number" ) == 0 )

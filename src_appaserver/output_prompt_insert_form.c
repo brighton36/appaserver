@@ -1527,7 +1527,7 @@ LIST *get_attribute_element_list(	int *current_reference_number,
 						attribute->attribute_name ) )
 	{
 		element =
-			element_get_yes_no_drop_down(
+			element_get_yes_no_element(
 				attribute->attribute_name,
 				(char *)0 /* prepend_folder_name */,
 				attribute->post_change_javascript,

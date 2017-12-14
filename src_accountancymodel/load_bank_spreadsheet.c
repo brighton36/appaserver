@@ -28,7 +28,10 @@
 
 /* Constants */
 /* --------- */
-#define INSERT_BANK_DOWNLOAD	\
+#define INSERT_BANK_DOWNLOAD		\
+	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance"
+
+#define INSERT_BANK_DOWNLOAD_FUND	\
 	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,fund"
 
 /* Prototypes */
@@ -175,6 +178,7 @@ int load_bank_spreadsheet(
 	int sequence_number = 0;
 	boolean found_header = 0;
 	char error_filename[ 128 ] = {0};
+	char *insert_bank_download;
 
 	if ( ! ( sequence_number =
 			get_sequence_number(
@@ -192,6 +196,11 @@ int load_bank_spreadsheet(
 		return 0;
 	}
 
+	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
+		insert_bank_download = INSERT_BANK_DOWNLOAD_FUND;
+	else
+		insert_bank_download = INSERT_BANK_DOWNLOAD;
+
 	if ( execute )
 	{
 		table_name =
@@ -208,7 +217,7 @@ int load_bank_spreadsheet(
 		 "sql.e 2>&1						  |"
 		 "cat > %s						   ",
 		 	table_name,
-		 	INSERT_BANK_DOWNLOAD,
+		 	insert_bank_download,
 		 	FOLDER_DATA_DELIMITER,
 			error_filename );
 

@@ -381,6 +381,13 @@ char *bank_upload_get_fund_name(
 	select = "fund";
 	folder_name = "bank_upload";
 
+	if ( !attribute_exists(		application_name,
+					folder_name,
+					select /* attribute_name */ ) )
+	{
+		return (char *)0;
+	}
+
 	timlib_strcpy( buffer, bank_description, 512 );
 
 	sprintf(	where,

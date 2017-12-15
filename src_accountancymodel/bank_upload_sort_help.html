@@ -8,6 +8,98 @@
 
 <body>
 <h1>Bank Upload Help</h1>
-<p>To be completed.
+<p>Bank reconciliation is achieved by:
+<h3>A) Open two Accountancy Model browsers, one on top of the other.</h3>
+	<ul>
+	<li>In the top browser, log into the Accountancy Model.
+	<li>In the bottom browser, open two tabs. Log into the
+		Accountancy Model in each tab.
+	<li>You should have three Accountancy Model sessions open.
+	<li>In the top browser you will query Bank Upload.
+	<li>In the bottom browser you will:
+		<ul>
+		<li>Tab 1: query Journal Ledger.
+		<li>Tab 2: insert missing transactions.
+		</ul>
+	</ul>
+<h3>B) In the top browser:</h3>
+<ol>
+<li>In the top frame: &lt;Load&gt; &lt;Bank Upload&gt;
+	<ul>
+	<li>Upload the transaction spreadsheet that you previously
+	downloaded from your bank.
+	<li>It's okay to duplicate transactions as they will be ignored.
+	<li>Be careful not to skip any transactions.
+	</ul>
+<li>In the top frame: &lt;Lookup&gt; &lt;Ledger&gt; &lt;Bank Upload&gt;
+	<ul>
+	<li>Press the &lt;Statistics&gt; radio button.
+	<li>Query where Posted yn = No.
+	<li>Press &lt;Submit&gt;
+	<li>Note the minimum sequence number.
+	<li>Press the &lt;Reset&gt; button.
+	<li>Press the &lt;Sort Order&gt; radio button.
+	<li>Query where Sequence Number &ge; a few less than the minimum sequence number.
+	<ul><li>Warning: only query the Sequence Number. Otherwise, the Bank
+		Running Balance will be off.</ul>
+	<li>Press &lt;Submit&gt;
+	</ul>
+<li>The bottom frame will be titled <h2>Sort Bank Upload</h2> 
+	<ul>
+	<li>Note the minimum Bank Date.
+	</ul>
+</ol>
+<h3>C) In the bottom browser's first tab:</h3>
+<ol>
+<li>In the top frame: &lt;Lookup&gt; &lt;Ledger&gt; &lt;Journal Ledger&gt;
+	<ul>
+	<li>&lt;Skip&gt; the Prelookup Transaction screen.
+	<li>Query where Transaction Date Time &ge; a few days before
+		the minimum Bank Date and Account = YourCheckingAccount.
+	<li>Press &lt;No Display&gt; for Street Address (maybe), Account, Transaction Count, and Previous Balance.
+	<li>Press &lt;Submit&gt;
+	</ul>
+<li>The bottom frame will be titled <h2>Update Journal Ledger</h2> 
+	<ul>
+	<li>Press the &lt;Sort&gt; button over the Transaction Date Time column.
+	</ul>
+</ol>
+<h3>D) Process:</h3>
+<ol>
+<li>The bank reconciliation process is to synchronize the Bank Running
+Balance in the top browser with your ledger's Balance in the bottom browser. 
+<li>Your bank transactions will likely be out of order.
+	<ul>
+	<li>In the top browser's bottom frame, press &lt;Move&gt; &lt;Here&gt;
+		to move bank transctions up or down.
+		<ul>
+		<li>Notice the Bank Running Balance recalculates.
+		</ul>
+	</ul>
+<li>Your Journal Ledger will likely be missing transactions.
+	<ul>
+	<li>In the bottom browser's second tab, insert transactions by either:
+		<ul>
+		<li>&lt;Manipulate&gt; &lt;Post Reoccurring Transaction&gt;
+		<li>&lt;Insert&gt; &lt;Ledger&gt; &lt;Transaction&gt;
+		</ul>
+	<li>In the bottom browser's first tab, requery by pressing
+		&lt;Submit&gt;.
+	<li>In the bottom browser's bottom frame,
+		reorder by pressing the &lt;Sort&gt; button over the
+		Transaction Date Time column.
+	</ul>
+<li>Repeat this process until your bank's balance matches
+	YourCheckingAccount balance.
+<li>Finally, in the top browser's top frame:
+	<ul>
+	<li>Press the &lt;Lookup&gt; radio button.
+	<li>Press &lt;Submit&gt;
+	<li>In the top browser's bottom frame:
+		<ul>
+		<li>Set Posted yn = Yes for each row.
+		</ul>
+	</ul>
+</ol>
 </body>
 </HTML>

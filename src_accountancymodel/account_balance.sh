@@ -33,7 +33,7 @@ else
 fi
 
 institution_full_name=$5
-institution_street_address=$6
+street_address=$6
 if [ "$institution_full_name" = "" -o "$institution_full_name" = "full_name" ]
 then
 	institution_where="1 = 1"

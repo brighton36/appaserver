@@ -2156,16 +2156,16 @@ insert into subclassification (subclassification,element,display_order) values (
 insert into subclassification (subclassification,element,display_order) values ('long-term investment','asset','4');
 insert into subclassification (subclassification,element,display_order) values ('long-term liability','liability','7');
 insert into subclassification (subclassification,element,display_order) values ('loss','loss','14');
-insert into subclassification (subclassification,element,display_order) values ('non-cash current asset','asset','3');
 insert into subclassification (subclassification,element,display_order) values ('operating_expense','expense','9');
 insert into subclassification (subclassification,element,display_order) values ('property_plant_equipment','asset','5');
+insert into subclassification (subclassification,element,display_order) values ('receivable','asset','3');
 insert into subclassification (subclassification,element,display_order) values ('retained earnings','equity','16');
 insert into subclassification (subclassification,element,display_order) values ('revenue','revenue','8');
 insert into subclassification (subclassification,element,display_order) values ('supply_expense','expense','10');
 insert into subclassification (subclassification,element,display_order) values ('tax_expense','expense','12');
 insert into account (account,subclassification,hard_coded_account_key) values ('accounting','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('account_payable','current_liability','account_payable_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('account_receivable','non-cash current asset','account_receivable_key');
+insert into account (account,subclassification,hard_coded_account_key) values ('account_receivable','receivable','account_receivable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('accumulated_depreciation','property_plant_equipment','accumulated_depreciation_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('advertising','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('checking','cash','cash_key');

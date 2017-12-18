@@ -268,6 +268,15 @@ QUERY *query_folder_new(	char *application_name,
 	query->dictionary = dictionary;
 	query->max_rows = 0;
 
+	query->prompt_recursive =
+		prompt_recursive_new(
+			application_name,
+			query->folder->folder_name
+				/* query_folder_name */,
+			query->
+				folder->
+				mto1_related_folder_list );
+
 	query->query_output =
 		query_folder_output_new(
 			query,

@@ -1,4 +1,6 @@
 account
+account_balance
+account_duration
 bank_upload
 contra_account
 customer
@@ -14,6 +16,7 @@ employee_work_period
 entity
 federal_income_tax_withholding
 federal_marital_status
+financial_institution
 fixed_asset
 fixed_asset_purchase
 fixed_service
@@ -29,6 +32,9 @@ inventory_category
 inventory_cost_method
 inventory_purchase
 inventory_sale
+investment_account
+investment_classification
+investment_operation
 journal_ledger
 liability_account_entity
 payroll_pay_period

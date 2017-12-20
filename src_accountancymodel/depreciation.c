@@ -427,6 +427,10 @@ double depreciation_get_amount(
 {
 	if ( !depreciation_method || !*depreciation_method )
 	{
+		/* Land is not depreciated. */
+		/* ------------------------ */
+		return 0.0;
+/*
 		return depreciation_straight_line_get_amount(
 			extension,
 			estimated_residual_value,
@@ -434,6 +438,7 @@ double depreciation_get_amount(
 			prior_depreciation_date_string,
 			depreciation_date_string,
 			accumulated_depreciation );
+*/
 	}
 	else
 	if ( strcmp( depreciation_method, "straight_line" ) == 0 )
@@ -879,6 +884,13 @@ double depreciation_list_set(
 				arrived_date_string,
 				depreciation->units_produced );
 
+		if ( timlib_dollar_virtually_same(
+			depreciation->depreciation_amount,
+			0.0 ) )
+		{
+			continue;
+		}
+
 		accumulated_depreciation +=
 			depreciation->depreciation_amount;
 
@@ -905,6 +917,13 @@ void depreciation_list_update_and_transaction_propagate(
 
 	do {
 		depreciation = list_get( depreciation_list );
+
+		if ( timlib_dollar_virtually_same(
+			depreciation->depreciation_amount,
+			0.0 ) )
+		{
+			continue;
+		}
 
 		if ( !depreciation->transaction )
 		{

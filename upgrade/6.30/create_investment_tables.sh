@@ -7,7 +7,7 @@ then
 fi
 application=$1
 
-if [ "$application" != timriley ]
+if [ "$application" != appahost -a "$application" != eves ]
 then
 	exit 0
 fi

@@ -488,10 +488,11 @@ post_change_vendor_payment: post_change_vendor_payment.c		\
 		-o post_change_vendor_payment
 
 post_change_customer_payment: post_change_customer_payment.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} subsidiary_transaction.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
+		subsidiary_transaction.o				\
 		post_change_customer_payment.c				\
 		-o post_change_customer_payment
 
@@ -602,4 +603,9 @@ pay_liabilities.o: pay_liabilities.c pay_liabilities.h
 tax.o: tax.c tax.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c tax.c
+
+subsidiary_transaction.o: subsidiary_transaction.c			\
+		subsidiary_transaction.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c subsidiary_transaction.c
 

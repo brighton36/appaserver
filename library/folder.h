@@ -187,13 +187,14 @@ int folder_get_insert_rows_number(	char *session,
 					char *entity,
 					FOLDER *folder );
 
-LIST *folder_attribute_name_list(
-					FOLDER *folder );
-LIST *folder_get_attribute_list(
-					char *application_name,
+LIST *folder_attribute_name_list(	FOLDER *folder );
+
+LIST *folder_get_attribute_list(	char *application_name,
 					char *folder_name );
+
 LIST *folder_get_non_primary_attribute_name_list(
 					LIST *attribute_list );
+
 LIST *folder_get_drop_down_process_list(
 			char *application_name,
 			char *session,
@@ -255,18 +256,7 @@ LIST *folder_get_non_primary_attribute_list(
 char *folder_get_folder_record(
 					char *application_name,
 					char *folder_name );
-/*
-char *folder_get_select_clause(
-					char *application_name,
-					LIST *attribute_list );
 
-char *folder_get_mto1_related_pair_folder_name(
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *role_name,
-				boolean override_row_restrictions );
-*/
 LIST *folder_get_primary_attribute_list(LIST *attribute_list );
 
 LIST *folder_get_folder_name_list(	char *application_name );

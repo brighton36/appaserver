@@ -393,6 +393,7 @@ CUSTOMER_PAYMENT *customer_payment_seek(
 				LIST *customer_payment_list,
 				char *payment_date_time );
 
+/*
 LIST *customer_payment_journal_ledger_refresh(
 				char *application_name,
 				char *fund_name,
@@ -400,6 +401,7 @@ LIST *customer_payment_journal_ledger_refresh(
 				char *street_address,
 				char *transaction_date_time,
 				double payment_amount );
+*/
 
 void customer_payment_update(
 				char *application_name,

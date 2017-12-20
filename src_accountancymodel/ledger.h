@@ -457,11 +457,13 @@ char *ledger_get_transaction_where(	char *full_name,
 					char *folder_name,
 					char *date_time_column );
 
+/*
 void ledger_get_customer_payment_account_names(
 					char **checking_account,
 					char **account_receivable_account,
 					char *application_name,
 					char *fund_name );
+*/
 
 void ledger_get_vendor_payment_account_names(
 					char **checking_account,

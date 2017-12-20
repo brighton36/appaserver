@@ -18,15 +18,27 @@
 #include "ledger.h"
 #include "customer.h"
 #include "purchase.h"
+#include "subsidiary_transaction.h"
 
 /* Constants */
 /* --------- */
+#define CUSTOMER_PAYMENT_FOLDER_NAME	"customer_payment"
 
 /* Prototypes */
 /* ---------- */
+void post_change_customer_payment_amount_update(
+				char *application_name,
+				CUSTOMER_SALE *customer_sale,
+				CUSTOMER_PAYMENT *customer_payment );
+
+LIST *post_change_customer_payment_get_primary_data_list(
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *payment_date_time );
+
 void post_change_customer_payment_date_time_update(
 				char *application_name,
-				char *fund_name,
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
@@ -158,7 +170,9 @@ void post_change_customer_payment_insert(
 {
 	CUSTOMER_SALE *customer_sale;
 	CUSTOMER_PAYMENT *customer_payment;
-	LIST *propagate_account_list;
+	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
+	LIST *primary_data_list;
+	TRANSACTION *transaction;
 
 	if ( !( customer_sale =
 			customer_sale_new(
@@ -195,43 +209,84 @@ void post_change_customer_payment_insert(
 		exit( 1 );
 	}
 
-	customer_payment->transaction_date_time =
-		customer_payment->payment_date_time;
-	
-	customer_payment->transaction =
-		ledger_transaction_new(
+	primary_data_list =
+		post_change_customer_payment_get_primary_data_list(
 			full_name,
 			street_address,
-			customer_payment->transaction_date_time,
-			CUSTOMER_PAYMENT_MEMO );
-	
-	customer_payment->transaction_date_time =
-	customer_payment->transaction->transaction_date_time =
-	ledger_transaction_insert(
-		application_name,
-		customer_payment->transaction->full_name,
-		customer_payment->transaction->street_address,
-		customer_payment->transaction->transaction_date_time,
-		customer_payment->payment_amount /* transaction_amount */,
-		customer_payment->transaction->memo,
-		customer_payment->check_number,
-		1 /* lock_transaction */ );
+			sale_date_time,
+			payment_date_time );
 
-	if ( ( propagate_account_list =
-		customer_payment_journal_ledger_refresh(
-			application_name,
-			customer_sale->fund_name,
-			customer_payment->transaction->full_name,
-			customer_payment->transaction->street_address,
-			customer_payment->
-				transaction->
-				transaction_date_time,
-			customer_payment->payment_amount ) ) )
+	subsidiary_transaction =
+		subsidiary_new(	application_name,
+				CUSTOMER_PAYMENT_FOLDER_NAME,
+				primary_data_list,
+				full_name,
+				street_address,
+				customer_payment->payment_amount
+					/* transaction_amount */ );
+
+#ifdef NOT_DEFINED
+	subsidiary_transaction =
+		subsidiary_new(	application_name,
+				CUSTOMER_PAYMENT_FOLDER_NAME,
+				primary_data_list,
+				full_name,
+				street_address,
+				0.0 /* transaction_amount */ );
+#endif
+
+	if ( !subsidiary_transaction )
 	{
-		ledger_account_list_propagate(
-			propagate_account_list,
-			application_name );
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot build transaction for (%s/%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 full_name,
+			 street_address );
+		exit( 1 );
 	}
+
+	subsidiary_transaction->output.transaction =
+		subsidiary_get_transaction(
+			subsidiary_transaction->input.full_name,
+			subsidiary_transaction->input.street_address,
+			subsidiary_transaction->process.debit_account_name,
+			subsidiary_transaction->process.credit_account_name,
+			subsidiary_transaction->process.transaction_amount,
+			subsidiary_transaction->process.memo );
+
+	if ( !subsidiary_transaction->output.transaction )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot build transaction for (%s/%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 full_name,
+			 street_address );
+		exit( 1 );
+	}
+
+	transaction = subsidiary_transaction->output.transaction;
+
+	transaction->transaction_date_time =
+		customer_payment->payment_date_time;
+
+	transaction->check_number = customer_payment->check_number,
+
+	transaction->transaction_date_time =
+	customer_payment->transaction_date_time =
+		ledger_transaction_journal_ledger_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			transaction->transaction_amount,
+			transaction->memo,
+			transaction->check_number,
+			transaction->lock_transaction,
+			transaction->journal_ledger_list );
 
 	customer_payment_update(
 		application_name,
@@ -279,7 +334,7 @@ void post_change_customer_payment_delete(
 {
 	CUSTOMER_SALE *customer_sale;
 	CUSTOMER_PAYMENT *customer_payment;
-	LIST *propagate_account_list;
+	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
 
 	customer_sale =
 		customer_sale_new(
@@ -384,26 +439,42 @@ void post_change_customer_payment_delete(
 				transaction->
 				transaction_date_time );
 
-	/* ---------------------------------------------------- */
-	/* customer_payment_journal_ledger_refresh() executes	*/
-	/* ledger_delete(	application_name,		*/
-	/*			LEDGER_FOLDER_NAME,		*/
-	/* ---------------------------------------------------- */
-	if ( ( propagate_account_list =
-		customer_payment_journal_ledger_refresh(
-			application_name,
-			customer_sale->fund_name,
+	ledger_delete(	application_name,
+			LEDGER_FOLDER_NAME,
 			customer_payment->transaction->full_name,
 			customer_payment->transaction->street_address,
 			customer_payment->
 				transaction->
-				transaction_date_time,
-			0.0 /* payment_amount */ ) ) )
+				transaction_date_time );
+
+	subsidiary_transaction = subsidiary_transaction_calloc();
+
+	if ( !subsidiary_transaction_fetch(
+		&subsidiary_transaction->process.attribute_name,
+		&subsidiary_transaction->process.debit_account_name,
+		&subsidiary_transaction->process.credit_account_name,
+		(char **)0 /* debit_account_folder_name */,
+		application_name,
+		CUSTOMER_PAYMENT_FOLDER_NAME ) )
 	{
-		ledger_account_list_propagate(
-			propagate_account_list,
-			application_name );
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot subsidiary_transaction_fetch (%s).\n",
+		 	__FILE__,
+		 	__FUNCTION__,
+		 	__LINE__,
+		 	CUSTOMER_PAYMENT_FOLDER_NAME );
+		exit( 1 );
 	}
+
+	ledger_propagate(
+		application_name,
+		customer_payment->transaction_date_time,
+		subsidiary_transaction->process.debit_account_name );
+
+	ledger_propagate(
+		application_name,
+		customer_payment->transaction_date_time,
+		subsidiary_transaction->process.credit_account_name );
 
 } /* post_change_customer_payment_delete() */
 
@@ -506,7 +577,6 @@ void post_change_customer_payment_update(
 	{
 		post_change_customer_payment_date_time_update(
 			application_name,
-			customer_sale->fund_name,
 			full_name,
 			street_address,
 			sale_date_time,
@@ -517,57 +587,97 @@ void post_change_customer_payment_update(
 	if (	payment_amount_change_state ==
 		from_something_to_something_else )
 	{
-		char *checking_account;
-		char *account_receivable_account;
+		post_change_customer_payment_amount_update(
+			application_name,
+			customer_sale,
+			customer_payment );
+	}
 
-		ledger_transaction_amount_update(
+	if ( customer_payment->check_number
+	!=   customer_payment->transaction->check_number )
+	{
+		char check_number_string[ 16 ];
+
+		sprintf( check_number_string,
+			 "%d",
+			 customer_payment->check_number );
+
+		ledger_transaction_generic_update(
 			application_name,
 			customer_sale->full_name,
 			customer_sale->street_address,
 			customer_payment->transaction_date_time,
-			customer_payment->payment_amount,
-			0.0 /* database_payment_amount */ );
-
-		ledger_get_customer_payment_account_names(
-			&checking_account,
-			&account_receivable_account,
-			application_name,
-			customer_sale->fund_name );
-
-		ledger_debit_credit_update(
-			application_name,
-			customer_sale->full_name,
-			customer_sale->street_address,
-			customer_payment->transaction_date_time,
-			checking_account
-				/* debit_account_name */,
-			account_receivable_account
-				/* credit_account_name */,
-			customer_payment->payment_amount
-				/* transaction_amount  */ );
-
-		ledger_propagate(	application_name,
-					customer_payment->transaction_date_time,
-					checking_account );
-
-		ledger_propagate(	application_name,
-					customer_payment->transaction_date_time,
-					account_receivable_account );
+			"check_number" /* attribute_name */,
+			check_number_string /* data */ );
 	}
 
 } /* post_change_customer_payment_update() */
 
+void post_change_customer_payment_amount_update(
+				char *application_name,
+				CUSTOMER_SALE *customer_sale,
+				CUSTOMER_PAYMENT *customer_payment )
+{
+	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
+
+	subsidiary_transaction = subsidiary_transaction_calloc();
+
+	if ( !subsidiary_transaction_fetch(
+		&subsidiary_transaction->process.attribute_name,
+		&subsidiary_transaction->process.debit_account_name,
+		&subsidiary_transaction->process.credit_account_name,
+		(char **)0 /* debit_account_folder_name */,
+		application_name,
+		CUSTOMER_PAYMENT_FOLDER_NAME ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot subsidiary_transaction_fetch (%s).\n",
+		 	__FILE__,
+		 	__FUNCTION__,
+		 	__LINE__,
+		 	CUSTOMER_PAYMENT_FOLDER_NAME );
+		exit( 1 );
+	}
+
+	ledger_transaction_amount_update(
+		application_name,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_payment->transaction_date_time,
+		customer_payment->payment_amount,
+		0.0 /* database_payment_amount */ );
+
+	ledger_debit_credit_update(
+		application_name,
+		customer_sale->full_name,
+		customer_sale->street_address,
+		customer_payment->transaction_date_time,
+		subsidiary_transaction->process.debit_account_name,
+		subsidiary_transaction->process.credit_account_name,
+		customer_payment->payment_amount
+			/* transaction_amount  */ );
+
+	ledger_propagate(
+		application_name,
+		customer_payment->transaction_date_time,
+		subsidiary_transaction->process.debit_account_name );
+
+	ledger_propagate(
+		application_name,
+		customer_payment->transaction_date_time,
+		subsidiary_transaction->process.credit_account_name );
+
+} /* post_change_customer_payment_amount_update() */
+
 void post_change_customer_payment_date_time_update(
 				char *application_name,
-				char *fund_name,
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
 				char *payment_date_time,
 				char *preupdate_payment_date_time )
 {
-	char *checking_account;
-	char *account_receivable_account;
+	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
 	char *propagate_transaction_date_time;
 
 	ledger_transaction_generic_update(
@@ -598,19 +708,34 @@ void post_change_customer_payment_date_time_update(
 			payment_date_time;
 	}
 
-	ledger_get_customer_payment_account_names(
-		&checking_account,
-		&account_receivable_account,
+	subsidiary_transaction = subsidiary_transaction_calloc();
+
+	if ( !subsidiary_transaction_fetch(
+		&subsidiary_transaction->process.attribute_name,
+		&subsidiary_transaction->process.debit_account_name,
+		&subsidiary_transaction->process.credit_account_name,
+		(char **)0 /* debit_account_folder_name */,
 		application_name,
-		fund_name );
+		CUSTOMER_PAYMENT_FOLDER_NAME ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot subsidiary_transaction_fetch (%s).\n",
+		 	__FILE__,
+		 	__FUNCTION__,
+		 	__LINE__,
+		 	CUSTOMER_PAYMENT_FOLDER_NAME );
+		exit( 1 );
+	}
 
-	ledger_propagate(	application_name,
-				propagate_transaction_date_time,
-				checking_account );
+	ledger_propagate(
+		application_name,
+		propagate_transaction_date_time,
+		subsidiary_transaction->process.debit_account_name );
 
-	ledger_propagate(	application_name,
-				propagate_transaction_date_time,
-				account_receivable_account );
+	ledger_propagate(
+		application_name,
+		propagate_transaction_date_time,
+		subsidiary_transaction->process.credit_account_name );
 
 	customer_payment_update(
 		application_name,
@@ -625,3 +750,18 @@ void post_change_customer_payment_date_time_update(
 
 } /* post_change_customer_payment_date_time_update() */
 
+LIST *post_change_customer_payment_get_primary_data_list(
+				char *full_name,
+				char *street_address,
+				char *sale_date_time,
+				char *payment_date_time )
+{
+	LIST *primary_data_list = list_new();
+	list_append_pointer( primary_data_list, full_name );
+	list_append_pointer( primary_data_list, street_address );
+	list_append_pointer( primary_data_list, sale_date_time );
+	list_append_pointer( primary_data_list, payment_date_time );
+
+	return primary_data_list;
+
+} /* post_change_customer_payment_get_primary_data_list() */

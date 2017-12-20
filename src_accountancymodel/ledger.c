@@ -1167,12 +1167,18 @@ LIST *ledger_get_element_list(	char *application_name,
 	char element_name[ 128 ];
 	char accumulate_debit_yn[ 2 ];
 	FILE *input_pipe;
+	char *order;
+
+	order =
+	"'asset','liability','revenue','expense','gain','loss','equity'";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			   "
 		 "			select=element,accumulate_debit_yn "
-		 "			folder=element			   ",
-		 application_name );
+		 "			folder=element			   "
+		 "			order=\"%s\"			   ",
+		 application_name,
+		 order );
 
 	element_list = list_new();
 	input_pipe = popen( sys_string, "r" );
@@ -4439,6 +4445,7 @@ void ledger_get_depreciation_account_names(
 
 } /* ledger_get_depreciation_account_names() */
 
+#ifdef NOT_DEFINED
 void ledger_get_customer_payment_account_names(
 				char **checking_account,
 				char **account_receivable_account,
@@ -4464,6 +4471,7 @@ void ledger_get_customer_payment_account_names(
 			1 /* warning_only */ );
 
 } /* ledger_get_customer_payment_account_names() */
+#endif
 
 void ledger_get_vendor_payment_account_names(
 				char **checking_account,

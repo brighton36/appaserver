@@ -13,6 +13,11 @@
 #include "query.h"
 #include "subsidiary_transaction.h"
 
+SUBSIDIARY_TRANSACTION *subsidiary_transaction_calloc( void )
+{
+	return subsidiary_calloc();
+}
+
 SUBSIDIARY_TRANSACTION *subsidiary_calloc( void )
 {
 	SUBSIDIARY_TRANSACTION *p;
@@ -36,10 +41,12 @@ SUBSIDIARY_TRANSACTION *subsidiary_new(	char *application_name,
 					char *folder_name,
 					LIST *primary_data_list,
 					char *full_name,
-					char *street_address )
+					char *street_address,
+					double transaction_amount )
 {
 	SUBSIDIARY_TRANSACTION *p;
 	char *debit_account_folder_name = {0};
+	char memo[ 128 ];
 
 	p = subsidiary_calloc();
 
@@ -73,12 +80,12 @@ SUBSIDIARY_TRANSACTION *subsidiary_new(	char *application_name,
 
 	if ( !subsidiary_transaction_fetch(
 		&p->process.attribute_name,
-		&p->process.credit_account_name,
 		&p->process.debit_account_name,
+		&p->process.credit_account_name,
 		&debit_account_folder_name,
 		application_name,
 		p->input.folder_name ) )
-	{	
+	{
 		return ( SUBSIDIARY_TRANSACTION *)0;
 	}
 
@@ -122,15 +129,24 @@ SUBSIDIARY_TRANSACTION *subsidiary_new(	char *application_name,
 
 set_transaction_amount:
 
-	p->process.transaction_amount =
-		subsidiary_fetch_transaction_amount(
-			application_name,
-			p->process.subsidiary_transaction_folder->folder_name,
-			p->process.attribute_name,
-			p->process.subsidiary_transaction_folder->
-				primary_attribute_name_list,
-			p->process.subsidiary_transaction_folder->
-				primary_data_list );
+	if ( !timlib_dollar_virtually_same(
+		transaction_amount, 0.0 ) )
+	{
+		p->process.transaction_amount = transaction_amount;
+	}
+	else
+	{
+		p->process.transaction_amount =
+			subsidiary_fetch_transaction_amount(
+				application_name,
+				p->process.subsidiary_transaction_folder->
+					folder_name,
+				p->process.attribute_name,
+				p->process.subsidiary_transaction_folder->
+					primary_attribute_name_list,
+				p->process.subsidiary_transaction_folder->
+					primary_data_list );
+	}
 
 	if ( timlib_dollar_virtually_same(
 		p->process.transaction_amount, 0.0 ) )
@@ -138,8 +154,8 @@ set_transaction_amount:
 		return (SUBSIDIARY_TRANSACTION *)0;
 	}
 
-	/* Output */
-	/* ------ */
+	format_initial_capital( memo, p->input.folder_name );
+	p->process.memo = strdup( memo );
 
 	return p;
 
@@ -147,8 +163,8 @@ set_transaction_amount:
 
 boolean subsidiary_transaction_fetch(
 				char **attribute_name,
-				char **credit_account_name,
 				char **debit_account_name,
+				char **credit_account_name,
 				char **debit_account_folder_name,
 				char *application_name,
 				char *input_folder_name )
@@ -191,6 +207,16 @@ boolean subsidiary_transaction_fetch(
 	}
 	else
 	{
+		if ( !debit_account_folder_name )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty debit_account_folder_name.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
 
 		if ( !*piece_buffer ) return 0;
@@ -285,3 +311,64 @@ double subsidiary_fetch_transaction_amount(
 
 } /* subsidiary_fetch_transaction_amount() */
 
+TRANSACTION *subsidiary_get_transaction(
+				char *full_name,
+				char *street_address,
+				char *debit_account_name,
+				char *credit_account_name,
+				double transaction_amount,
+				char *memo )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *transaction_date_time_string;
+
+	transaction_date_time_string =
+		date_get_now19(
+			date_get_utc_offset() );
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time_string,
+			memo );
+
+	transaction->transaction_amount = transaction_amount;
+	transaction->lock_transaction = 1;
+
+	transaction->journal_ledger_list = list_new();
+
+	/* Debit account */
+	/* -------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			debit_account_name );
+
+	journal_ledger->debit_amount = transaction->transaction_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	/* Credit account */
+	/* -------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			credit_account_name );
+
+	journal_ledger->credit_amount = transaction->transaction_amount;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	return transaction;
+
+} /* subsidiary_get_transaction() */

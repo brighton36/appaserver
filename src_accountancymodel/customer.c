@@ -2649,6 +2649,7 @@ CUSTOMER_PAYMENT *customer_payment_seek(
 
 } /* customer_payment_seek() */
 
+#ifdef NOT_DEFINED
 /* Returns propagate_account_list */
 /* ------------------------------ */
 LIST *customer_payment_journal_ledger_refresh(
@@ -2733,6 +2734,7 @@ LIST *customer_payment_journal_ledger_refresh(
 	return propagate_account_list;
 
 } /* customer_payment_journal_ledger_refresh() */
+#endif
 
 void customer_payment_update(
 				char *application_name,

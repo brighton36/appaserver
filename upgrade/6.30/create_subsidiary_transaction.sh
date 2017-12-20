@@ -9,7 +9,7 @@ fi
 application=$1
 
 if [ "$application" != timriley -a		\
-     "$applicaiion" != eves -a			\
+     "$application" != eves -a			\
      "$application" != appahost ]
 then
 	exit 0

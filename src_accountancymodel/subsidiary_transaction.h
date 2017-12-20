@@ -32,6 +32,7 @@ typedef struct
 	char *debit_account_name;
 	FOLDER *subsidiary_transaction_folder;
 	FOLDER *debit_account_folder;
+	char *memo;
 } SUBSIDIARY_PROCESS;
 
 typedef struct
@@ -55,15 +56,19 @@ SUBSIDIARY_TRANSACTION *subsidiary_new(	char *application_name,
 					char *folder_name,
 					LIST *primary_data_list,
 					char *full_name,
-					char *street_address );
+					char *street_address,
+					double transaction_amount );
+
+SUBSIDIARY_TRANSACTION *subsidiary_transaction_calloc(
+					void );
 
 SUBSIDIARY_TRANSACTION *subsidiary_calloc(
 					void );
 
 boolean subsidiary_transaction_fetch(
 					char **attribute_name,
-					char **credit_account_name,
 					char **debit_account_name,
+					char **credit_account_name,
 					char **debit_account_folder_name,
 					char *application_name,
 					char *input_folder_name );
@@ -82,5 +87,13 @@ double subsidiary_fetch_transaction_amount(
 				char *subsidiary_transaction_attribute_name,
 				LIST *primary_attribute_name_list,
 				LIST *primary_data_list );
+
+TRANSACTION *subsidiary_get_transaction(
+				char *full_name,
+				char *street_address,
+				char *debit_account_name,
+				char *credit_account_name,
+				double transaction_amount,
+				char *memo );
 
 #endif

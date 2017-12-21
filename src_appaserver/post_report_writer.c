@@ -433,12 +433,11 @@ void post_state_one(	char *application_name,
 	document_output_html_stream( stdout );
 	printf( "<head>\n" );
 
-
 	document_output_each_javascript_source(
 				application_name,
 				document->javascript_module_list,
 				appaserver_mount_point,
-				application_get_first_relative_source_directory(
+				application_get_relative_source_directory(
 					application_name ) );
 
 	printf( "</head>\n<body>\n" );

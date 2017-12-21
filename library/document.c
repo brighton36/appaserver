@@ -245,7 +245,6 @@ void document_output_each_javascript_source(
 
 } /* document_output_each_javascript_source() */
 
-
 void document_output_javascript_source(
 				char *application_name,
 				char *javascript_filename,

@@ -762,7 +762,7 @@ omit_insert_flag = 0;
 				application_name,
 				document->javascript_module_list,
 				appaserver_mount_point,
-				application_get_first_relative_source_directory(
+				application_get_relative_source_directory(
 					application_name ) );
 
 			mto1_isa_related_folder_list =

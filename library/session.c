@@ -407,7 +407,8 @@ void session_access_failed_message_and_exit(	char *application_name,
 	}
 	else
 	{
-		if ( remote_ip_address )
+		if ( remote_ip_address
+		&&   isdigit( *remote_ip_address ) )
 		{
 			sprintf(msg,
 				"Error: Permission problem for %s at %s.",

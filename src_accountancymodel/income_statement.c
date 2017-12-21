@@ -156,7 +156,7 @@ int main( int argc, char **argv )
 		net_income_only = (*argv[ 7 ] == 'y');
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !*as_of_date
 	||   strcmp(	as_of_date,

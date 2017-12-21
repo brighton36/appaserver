@@ -1025,4 +1025,6 @@ void ledger_journal_ledger_batch_insert(
 				char *application_name,
 				LIST *transaction_list );
 
+LIST *ledger_sort_element_list(	LIST *element_list );
+
 #endif

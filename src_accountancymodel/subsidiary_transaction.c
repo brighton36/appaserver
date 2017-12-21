@@ -86,6 +86,12 @@ SUBSIDIARY_TRANSACTION *subsidiary_new(	char *application_name,
 		application_name,
 		p->input.folder_name ) )
 	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot fetch (%s) from SUBSIDIARY_TRANSACTION.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 p->input.folder_name );
 		return ( SUBSIDIARY_TRANSACTION *)0;
 	}
 
@@ -101,6 +107,22 @@ SUBSIDIARY_TRANSACTION *subsidiary_new(	char *application_name,
 
 		return ( SUBSIDIARY_TRANSACTION *)0;
 	}
+
+	p->process.debit_account_folder =
+		folder_new(	application_name,
+				BOGUS_SESSION,
+				debit_account_folder_name );
+
+	p->process.debit_account_folder->attribute_list =
+		folder_get_attribute_list(
+			application_name,
+			p->process.debit_account_folder->folder_name );
+
+	p->process.debit_account_folder->primary_attribute_name_list =
+		folder_get_primary_attribute_name_list(
+			p->process.
+				debit_account_folder->
+				attribute_list );
 
 	p->process.debit_account_name =
 		subsidiary_process_fetch_debit_account_name(
@@ -176,7 +198,7 @@ boolean subsidiary_transaction_fetch(
 	char piece_buffer[ 128 ];
 
 	select =
-	"attribute,credit_account,debit_account,debit_account_folder";
+	"attribute,debit_account,credit_account,debit_account_folder";
 
 	sprintf( where,
 		 "folder = '%s'",
@@ -194,18 +216,24 @@ boolean subsidiary_transaction_fetch(
 	if ( ! ( results = pipe2string( sys_string ) ) ) return 0;
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
+
 	*attribute_name = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 1 );
-	*credit_account_name = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
 
 	if ( *piece_buffer )
 	{
 		*debit_account_name = strdup( piece_buffer );
 	}
-	else
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
+
+	if ( *piece_buffer )
+	{
+		*credit_account_name = strdup( piece_buffer );
+	}
+
+	if ( !*debit_account_name )
 	{
 		if ( !debit_account_folder_name )
 		{
@@ -217,7 +245,7 @@ boolean subsidiary_transaction_fetch(
 			exit( 1 );
 		}
 
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
+		piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 3 );
 
 		if ( !*piece_buffer ) return 0;
 

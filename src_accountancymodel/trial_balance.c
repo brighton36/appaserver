@@ -373,7 +373,6 @@ void trial_balance_html_table(
 		exit( 1 );
 	}
 
-
 	/* Populate the current_element_list */
 	/* --------------------------------- */
 	current_element_list =

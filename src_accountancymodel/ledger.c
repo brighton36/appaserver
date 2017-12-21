@@ -1167,18 +1167,12 @@ LIST *ledger_get_element_list(	char *application_name,
 	char element_name[ 128 ];
 	char accumulate_debit_yn[ 2 ];
 	FILE *input_pipe;
-	char *order;
-
-	order =
-	"'asset','liability','revenue','expense','gain','loss','equity'";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			   "
 		 "			select=element,accumulate_debit_yn "
-		 "			folder=element			   "
-		 "			order=\"%s\"			   ",
-		 application_name,
-		 order );
+		 "			folder=element			   ",
+		 application_name );
 
 	element_list = list_new();
 	input_pipe = popen( sys_string, "r" );
@@ -1220,9 +1214,71 @@ LIST *ledger_get_element_list(	char *application_name,
 
 	pclose( input_pipe );
 
-	return element_list;
+	return ledger_sort_element_list( element_list );
 
 } /* ledger_get_element_list() */
+
+/* So we don't need ELEMENT.sort_order */
+/* ----------------------------------- */
+LIST *ledger_sort_element_list( LIST *element_list )
+{
+	LEDGER_ELEMENT *element;
+	LIST *return_element_list;
+
+	return_element_list = list_new();
+
+	if ( ( element = ledger_element_list_seek(
+				element_list,
+				LEDGER_ASSET_ELEMENT ) ) )
+	{
+		list_append_pointer( return_element_list, element );
+	}
+
+	if ( ( element = ledger_element_list_seek(
+				element_list,
+				LEDGER_LIABILITY_ELEMENT ) ) )
+	{
+		list_append_pointer( return_element_list, element );
+	}
+
+	if ( ( element = ledger_element_list_seek(
+				element_list,
+				LEDGER_REVENUE_ELEMENT ) ) )
+	{
+		list_append_pointer( return_element_list, element );
+	}
+
+	if ( ( element = ledger_element_list_seek(
+				element_list,
+				LEDGER_EXPENSE_ELEMENT ) ) )
+	{
+		list_append_pointer( return_element_list, element );
+	}
+
+	if ( ( element = ledger_element_list_seek(
+				element_list,
+				LEDGER_GAIN_ELEMENT ) ) )
+	{
+		list_append_pointer( return_element_list, element );
+	}
+
+	if ( ( element = ledger_element_list_seek(
+				element_list,
+				LEDGER_LOSS_ELEMENT ) ) )
+	{
+		list_append_pointer( return_element_list, element );
+	}
+
+	if ( ( element = ledger_element_list_seek(
+				element_list,
+				LEDGER_EQUITY_ELEMENT ) ) )
+	{
+		list_append_pointer( return_element_list, element );
+	}
+
+	return return_element_list;
+
+} /* ledger_sort_element_list() */
 
 LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 				double liabilities_plus_equity,

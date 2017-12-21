@@ -122,6 +122,7 @@ kml_extract
 # --------------------
 # src_accountancymodel
 # --------------------
+post_change_prior_fixed_asset
 pay_liabilities_process
 shortcut_service_work
 post_change_employee_work_day

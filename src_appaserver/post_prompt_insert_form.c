@@ -185,7 +185,7 @@ int main( int argc, char **argv )
 			application_name,
 			role->role_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	appaserver = appaserver_new_appaserver(
 					application_name,

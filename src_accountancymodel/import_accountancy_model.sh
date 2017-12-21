@@ -2175,7 +2175,7 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('federal_withholding_payable','current_liability','federal_withholding_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('fixed_asset','property_plant_equipment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('freight_in_expense','operating_expense','freight_in_key');
-insert into account (account,subclassification,hard_coded_account_key) values (' equity','contributed capital',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('equity','contributed capital',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('land','property_plant_equipment','land_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('loss','loss','loss_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('medicare_payable','current_liability','medicare_payable_key');

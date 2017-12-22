@@ -16,8 +16,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "ledger.h"
-#include "entity.h"
-#include "subsidiary_transaction.h"
+#include "investment.h"
 
 /* Constants */
 /* --------- */
@@ -25,6 +24,26 @@
 
 /* Prototypes */
 /* ---------- */
+void post_change_account_balance_insert_time_passage(
+				char *application_name,
+				ACCOUNT_BALANCE *account_balance );
+
+void post_change_account_balance_insert_purchase(
+				char *application_name,
+				ACCOUNT_BALANCE *account_balance );
+
+void post_change_account_balance_insert_sale(
+				char *application_name,
+				ACCOUNT_BALANCE *account_balance );
+
+void post_change_account_balance_insert(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *account_number,
+				char *date );
+
+/*
 void post_change_account_balance_update(
 				char *application_name,
 				char *asset_name,
@@ -54,11 +73,6 @@ LIST *post_change_account_balance_get_primary_data_list(
 				char *asset_name,
 				char *serial_number );
 
-void post_change_account_balance_insert(
-				char *application_name,
-				char *asset_name,
-				char *serial_number );
-
 void account_balance_transaction_date_time_update(
 				char *application_name,
 				char *asset_name,
@@ -66,6 +80,7 @@ void account_balance_transaction_date_time_update(
 				char *transaction_date_time,
 				char *full_name,
 				char *street_address );
+*/
 
 int main( int argc, char **argv )
 {
@@ -81,7 +96,7 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address account_number date state preupdate_balance\n",
+"Usage: %s application full_name street_address account_number date investment_opertion state preupdate_balance\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -117,10 +132,14 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "insert" ) == 0 )
 	{
 		post_change_account_balance_insert(
-				application_name,
-				asset_name,
-				serial_number );
+			application_name,
+			full_name,
+			street_address,
+			account_number,
+			date );
+
 	}
+#ifdef NOT_DEFINED
 	else
 	if ( strcmp( state, "update" ) == 0 )
 	{
@@ -142,119 +161,13 @@ int main( int argc, char **argv )
 				asset_name,
 				serial_number );
 	}
+#endif
 
 	return 0;
 
 } /* main() */
 
-void post_change_account_balance_update(
-				char *application_name,
-				char *asset_name,
-				char *serial_number,
-				char *preupdate_extension )
-{
-	enum preupdate_change_state extension_change_state;
-
-	extension_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_extension,
-			(char *)0 /* postupdate_data */,
-			"preupdate_extension" );
-
-	if (	extension_change_state ==
-		from_something_to_something_else )
-	{
-		post_change_prior_fixed_extension_update(
-			application_name,
-			asset_name,
-			serial_number );
-	}
-
-
-} /* post_change_account_balance_update() */
-
-void post_change_account_balance_insert(
-				char *application_name,
-				char *asset_name,
-				char *serial_number )
-{
-	SUBSIDIARY_TRANSACTION *subsidiary_transaction;
-	LIST *primary_data_list;
-	TRANSACTION *transaction;
-	ENTITY_SELF *entity_self;
-
-	entity_self = entity_self_load(	application_name );
-
-	primary_data_list =
-		post_change_account_balance_get_primary_data_list(
-			asset_name,
-			serial_number );
-
-	subsidiary_transaction =
-		subsidiary_new(	application_name,
-				PRIOR_FIXED_ASSET_FOLDER_NAME,
-				primary_data_list,
-				entity_self->entity->full_name,
-				entity_self->entity->street_address,
-				0.0 /* transaction_amount */ );
-
-	if ( !subsidiary_transaction )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot build transaction for (%s/%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 entity_self->entity->full_name,
-			 entity_self->entity->street_address );
-		exit( 1 );
-	}
-
-	subsidiary_transaction->output.transaction =
-		subsidiary_get_transaction(
-			subsidiary_transaction->input.full_name,
-			subsidiary_transaction->input.street_address,
-			subsidiary_transaction->process.debit_account_name,
-			subsidiary_transaction->process.credit_account_name,
-			subsidiary_transaction->process.transaction_amount,
-			subsidiary_transaction->process.memo );
-
-	if ( !subsidiary_transaction->output.transaction )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot build transaction for (%s/%s).\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 entity_self->entity->full_name,
-			 entity_self->entity->street_address );
-		exit( 1 );
-	}
-
-	transaction = subsidiary_transaction->output.transaction;
-
-	transaction->transaction_date_time =
-		ledger_transaction_journal_ledger_insert(
-			application_name,
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			transaction->transaction_amount,
-			transaction->memo,
-			transaction->check_number,
-			transaction->lock_transaction,
-			transaction->journal_ledger_list );
-
-	account_balance_transaction_date_time_update(
-		application_name,
-		asset_name,
-		serial_number,
-		transaction->transaction_date_time,
-		transaction->full_name,
-		transaction->street_address );
-
-} /* post_change_account_balance_insert() */
-
+#ifdef NOT_DEFINED
 void post_change_account_balance_delete(
 			char *application_name,
 			char *asset_name,
@@ -539,4 +452,174 @@ void post_change_prior_fixed_extension_update(
 		subsidiary_transaction->process.credit_account_name );
 
 } /* post_change_account_balance_amount_update() */
+
+void post_change_account_balance_update(
+				char *application_name,
+				char *asset_name,
+				char *serial_number,
+				char *preupdate_extension )
+{
+	enum preupdate_change_state extension_change_state;
+
+	extension_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_extension,
+			(char *)0 /* postupdate_data */,
+			"preupdate_extension" );
+
+	if (	extension_change_state ==
+		from_something_to_something_else )
+	{
+		post_change_prior_fixed_extension_update(
+			application_name,
+			asset_name,
+			serial_number );
+	}
+
+
+} /* post_change_account_balance_update() */
+
+#endif
+
+void post_change_account_balance_insert(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *account_number,
+				char *date )
+{
+	ACCOUNT_BALANCE *account_balance;
+
+	if ( ! ( account_balance =
+			investment_account_balance_fetch(
+				application_name,
+				full_name,
+				street_address,
+				account_number,
+				date ) ) )
+	{
+		fprintf( stderr,
+			"ERROR in %s/%s()/%d: cannot account_balance_fetch()\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( strcmp( account_balance->investment_operation, "purchase" ) == 0 )
+	{
+		post_change_account_balance_insert_purchase(
+				application_name,
+				account_balance );
+	}
+	else
+	if ( strcmp( account_balance->investment_operation, "sale" ) == 0 )
+	{
+		post_change_account_balance_insert_sale(
+				application_name,
+				account_balance );
+	}
+	else
+	{
+		post_change_account_balance_insert_time_passage(
+				application_name,
+				account_balance );
+	}
+
+} /* post_change_account_balance_insert() */
+
+void post_change_account_balance_insert_time_passage(
+				char *application_name,
+				ACCOUNT_BALANCE *account_balance )
+{
+	char *investment_account;
+	char *realized_gain;
+	char *unrealized_gain;
+	char *realized_loss;
+	char *unrealized_loss;
+	char *checking_account;
+	ACCOUNT_BALANCE *prior_account_balance = {0};
+	char *prior_date;
+
+	ledger_get_investment_account_names(
+		&investment_account,
+		&realized_gain,
+		&unrealized_gain,
+		&realized_loss,
+		&unrealized_loss,
+		&checking_account,
+		application_name,
+		(char *)0 /* fund_name */ );
+
+	if ( ! ( prior_date =
+			investment_account_balance_fetch_prior_date(
+				application_name,
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date ) ) )
+	{
+		return;
+	}
+
+	if ( ! ( prior_account_balance =
+			investment_account_balance_fetch(
+				application_name,
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				prior_date ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot account_balance_fetch()\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	account_balance->balance_change =
+		account_balance->balance -
+		prior_account_balance->balance;
+
+	if ( !timlib_dollar_virtually_same(
+		account_balance->balance_change, 0.0 ) )
+	{
+		account_balance->transaction_date_time =
+			investment_time_passage_transaction_insert(
+				application_name,
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->date,
+				account_balance->balance_change,
+				investment_account,
+				unrealized_gain,
+				unrealized_loss );
+	}
+
+	if ( account_balance->transaction_date_time )
+	{
+		investment_account_balance_update(
+			application_name,
+			account_balance->full_name,
+			account_balance->street_address,
+			account_balance->account_number,
+			account_balance->date,
+			account_balance->balance_change,
+			account_balance->transaction_date_time );
+	}
+
+} /* post_change_account_balance_insert_time_passage() */
+
+void post_change_account_balance_insert_purchase(
+				char *application_name,
+				ACCOUNT_BALANCE *account_balance )
+{
+} /* post_change_account_balance_insert_purchase() */
+
+void post_change_account_balance_insert_sale(
+				char *application_name,
+				ACCOUNT_BALANCE *account_balance )
+{
+} /* post_change_account_balance_insert_sale() */
 

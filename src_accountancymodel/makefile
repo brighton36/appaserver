@@ -508,11 +508,11 @@ post_change_prior_fixed_asset: post_change_prior_fixed_asset.c		\
 		-o post_change_prior_fixed_asset
 
 post_change_account_balance: post_change_account_balance.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} subsidiary_transaction.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} investment.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		subsidiary_transaction.o				\
+		investment.o						\
 		post_change_account_balance.c				\
 		-o post_change_account_balance
 
@@ -628,4 +628,9 @@ subsidiary_transaction.o: subsidiary_transaction.c			\
 		subsidiary_transaction.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c subsidiary_transaction.c
+
+investment.o: investment.c						\
+		investment.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c investment.c
 

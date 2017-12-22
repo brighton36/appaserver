@@ -52,6 +52,7 @@ EXECUTABLES=	trial_balance						\
 		post_change_customer_sale				\
 		post_change_customer_payment				\
 		post_change_prior_fixed_asset				\
+		post_change_account_balance				\
 		post_change_vendor_payment				\
 		post_change_prepaid_asset_purchase			\
 		post_change_prepaid_asset_accrual			\
@@ -505,6 +506,15 @@ post_change_prior_fixed_asset: post_change_prior_fixed_asset.c		\
 		subsidiary_transaction.o				\
 		post_change_prior_fixed_asset.c				\
 		-o post_change_prior_fixed_asset
+
+post_change_account_balance: post_change_account_balance.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} subsidiary_transaction.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		subsidiary_transaction.o				\
+		post_change_account_balance.c				\
+		-o post_change_account_balance
 
 post_change_customer_sale: post_change_customer_sale.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

@@ -1027,4 +1027,14 @@ void ledger_journal_ledger_batch_insert(
 
 LIST *ledger_sort_element_list(	LIST *element_list );
 
+void ledger_get_investment_account_names(
+				char **investment_account,
+				char **realized_gain,
+				char **unrealized_gain,
+				char **realized_loss,
+				char **unrealized_loss,
+				char **checking_account,
+				char *application_name,
+				char *fund_name );
+
 #endif

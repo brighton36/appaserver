@@ -4501,68 +4501,6 @@ void ledger_get_depreciation_account_names(
 
 } /* ledger_get_depreciation_account_names() */
 
-void ledger_get_investment_account_names(
-				char **investment_account,
-				char **realized_gain,
-				char **unrealized_gain,
-				char **realized_loss,
-				char **unrealized_loss,
-				char **checking_account,
-				char *application_name,
-				char *fund_name )
-{
-	char *key;
-
-	key = "investment_key";
-	*investment_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
-
-	key = "realized_gain_key";
-	*realized_gain =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
-
-	key = "unrealized_gain_key";
-	*unrealized_gain =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
-
-	key = "realized_loss_key";
-	*realized_loss =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
-
-	key = "unrealized_loss_key";
-	*unrealized_loss =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
-
-	key = LEDGER_CASH_KEY;
-	*checking_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
-
-} /* ledger_get_investment_account_names() */
-
 void ledger_get_vendor_payment_account_names(
 				char **checking_account,
 				char **uncleared_checks_account,
@@ -8559,4 +8497,66 @@ void ledger_get_payroll_account_names(
 	}
 
 } /* ledger_get_payroll_account_names() */
+
+void ledger_get_investment_account_names(
+				char **investment_account,
+				char **realized_gain,
+				char **unrealized_gain,
+				char **realized_loss,
+				char **unrealized_loss,
+				char **checking_account,
+				char *application_name,
+				char *fund_name )
+{
+	char *key;
+
+	key = "investment_key";
+	*investment_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+	key = "realized_investment_gain_key";
+	*realized_gain =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+	key = "unrealized_investment_gain_key";
+	*unrealized_gain =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+	key = "realized_investment_loss_key";
+	*realized_loss =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+	key = "unrealized_investment_loss_key";
+	*unrealized_loss =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+	key = LEDGER_CASH_KEY;
+	*checking_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+} /* ledger_get_investment_account_names() */
 

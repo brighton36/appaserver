@@ -24,7 +24,7 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_account_balance_insert_time_passage(
+boolean post_change_account_balance_insert_time_passage(
 				char *application_name,
 				ACCOUNT_BALANCE *account_balance );
 
@@ -41,46 +41,7 @@ void post_change_account_balance_insert(
 				char *full_name,
 				char *street_address,
 				char *account_number,
-				char *date );
-
-/*
-void post_change_account_balance_update(
-				char *application_name,
-				char *asset_name,
-				char *serial_number,
-				char *preupdate_extension );
-
-void post_change_prior_fixed_extension_update(
-				char *application_name,
-				char *asset_name,
-				char *serial_number );
-
-void post_change_account_balance_fetch_row(
-				char **full_name,
-				char **street_address,
-				char **transaction_date_time,
-				double *extension,
-				char *application_name,
-				char *asset_name,
-				char *serial_number );
-
-void post_change_account_balance_delete(
-				char *application_name,
-				char *asset_name,
-				char *serial_number );
-
-LIST *post_change_account_balance_get_primary_data_list(
-				char *asset_name,
-				char *serial_number );
-
-void account_balance_transaction_date_time_update(
-				char *application_name,
-				char *asset_name,
-				char *serial_number,
-				char *transaction_date_time,
-				char *full_name,
-				char *street_address );
-*/
+				char *date_time );
 
 int main( int argc, char **argv )
 {
@@ -88,7 +49,7 @@ int main( int argc, char **argv )
 	char *full_name;
 	char *street_address;
 	char *account_number;
-	char *date;
+	char *date_time;
 	char *state;
 	char *preupdate_balance;
 	char *database_string = {0};
@@ -96,7 +57,7 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address account_number date investment_opertion state preupdate_balance\n",
+"Usage: %s application full_name street_address account_number date_time investment_opertion state preupdate_balance\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -105,7 +66,7 @@ int main( int argc, char **argv )
 	full_name = argv[ 2 ];
 	street_address = argv[ 3 ];
 	account_number = argv[ 4 ];
-	date = argv[ 5 ];
+	date_time = argv[ 5 ];
 	state = argv[ 6 ];
 	preupdate_balance = argv[ 7 ];
 
@@ -136,7 +97,7 @@ int main( int argc, char **argv )
 			full_name,
 			street_address,
 			account_number,
-			date );
+			date_time );
 
 	}
 #ifdef NOT_DEFINED
@@ -486,7 +447,7 @@ void post_change_account_balance_insert(
 				char *full_name,
 				char *street_address,
 				char *account_number,
-				char *date )
+				char *date_time )
 {
 	ACCOUNT_BALANCE *account_balance;
 
@@ -496,7 +457,7 @@ void post_change_account_balance_insert(
 				full_name,
 				street_address,
 				account_number,
-				date ) ) )
+				date_time ) ) )
 	{
 		fprintf( stderr,
 			"ERROR in %s/%s()/%d: cannot account_balance_fetch()\n",
@@ -521,14 +482,18 @@ void post_change_account_balance_insert(
 	}
 	else
 	{
-		post_change_account_balance_insert_time_passage(
+		if ( !post_change_account_balance_insert_time_passage(
 				application_name,
-				account_balance );
+				account_balance ) )
+		{
+			printf(
+		"<h3>Error: The series must start with a purchase.</h3>\n" );
+		}
 	}
 
 } /* post_change_account_balance_insert() */
 
-void post_change_account_balance_insert_time_passage(
+boolean post_change_account_balance_insert_time_passage(
 				char *application_name,
 				ACCOUNT_BALANCE *account_balance )
 {
@@ -539,7 +504,7 @@ void post_change_account_balance_insert_time_passage(
 	char *unrealized_loss;
 	char *checking_account;
 	ACCOUNT_BALANCE *prior_account_balance = {0};
-	char *prior_date;
+	char *prior_date_time;
 
 	ledger_get_investment_account_names(
 		&investment_account,
@@ -551,15 +516,15 @@ void post_change_account_balance_insert_time_passage(
 		application_name,
 		(char *)0 /* fund_name */ );
 
-	if ( ! ( prior_date =
-			investment_account_balance_fetch_prior_date(
+	if ( ! ( prior_date_time =
+			investment_account_balance_fetch_prior_date_time(
 				application_name,
 				account_balance->full_name,
 				account_balance->street_address,
 				account_balance->account_number,
-				account_balance->date ) ) )
+				account_balance->date_time ) ) )
 	{
-		return;
+		return 0;
 	}
 
 	if ( ! ( prior_account_balance =
@@ -568,7 +533,7 @@ void post_change_account_balance_insert_time_passage(
 				account_balance->full_name,
 				account_balance->street_address,
 				account_balance->account_number,
-				prior_date ) ) )
+				prior_date_time ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: cannot account_balance_fetch()\n",
@@ -578,13 +543,7 @@ void post_change_account_balance_insert_time_passage(
 		exit( 1 );
 	}
 
-	account_balance->balance_change =
-		account_balance->balance -
-		prior_account_balance->balance;
-
-	if ( !timlib_dollar_virtually_same(
-		account_balance->balance_change, 0.0 ) )
-	{
+/*
 		account_balance->transaction_date_time =
 			investment_time_passage_transaction_insert(
 				application_name,
@@ -595,7 +554,6 @@ void post_change_account_balance_insert_time_passage(
 				investment_account,
 				unrealized_gain,
 				unrealized_loss );
-	}
 
 	if ( account_balance->transaction_date_time )
 	{
@@ -608,6 +566,9 @@ void post_change_account_balance_insert_time_passage(
 			account_balance->balance_change,
 			account_balance->transaction_date_time );
 	}
+*/
+
+	return 1;
 
 } /* post_change_account_balance_insert_time_passage() */
 
@@ -615,6 +576,65 @@ void post_change_account_balance_insert_purchase(
 				char *application_name,
 				ACCOUNT_BALANCE *account_balance )
 {
+	char *investment_account;
+	char *realized_gain;
+	char *unrealized_gain;
+	char *realized_loss;
+	char *unrealized_loss;
+	char *checking_account;
+	ACCOUNT_BALANCE *prior_account_balance = {0};
+	ACCOUNT_BALANCE *new_account_balance;
+	char *prior_date_time;
+
+	ledger_get_investment_account_names(
+		&investment_account,
+		&realized_gain,
+		&unrealized_gain,
+		&realized_loss,
+		&unrealized_loss,
+		&checking_account,
+		application_name,
+		(char *)0 /* fund_name */ );
+
+	if ( ( prior_date_time =
+			investment_account_balance_fetch_prior_date_time(
+				application_name,
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_time ) ) )
+	{
+
+		if ( ! ( prior_account_balance =
+				investment_account_balance_fetch(
+					application_name,
+					account_balance->full_name,
+					account_balance->street_address,
+					account_balance->account_number,
+					prior_date_time ) ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot account_balance_fetch()\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+
+	new_account_balance =
+		investment_account_balance_purchase_calculate(
+			account_balance->full_name,
+			account_balance->street_address,
+			account_balance->account_number,
+			account_balance->date_time,
+			account_balance->share_price,
+			account_balance->share_quantity_change,
+			prior_account_balance->share_quantity_balance,
+			prior_account_balance->book_value_balance,
+			prior_account_balance->total_cost_balance,
+			prior_account_balance->unrealized_gain_balance );
+
 } /* post_change_account_balance_insert_purchase() */
 
 void post_change_account_balance_insert_sale(

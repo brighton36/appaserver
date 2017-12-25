@@ -16,7 +16,7 @@ ACCOUNT_BALANCE *investment_account_balance_new(
 					char *full_name,
 					char *street_address,
 					char *account_number,
-					char *date )
+					char *date_time )
 {
 	ACCOUNT_BALANCE *t;
 
@@ -33,17 +33,36 @@ ACCOUNT_BALANCE *investment_account_balance_new(
 	t->full_name = full_name;
 	t->street_address = street_address;
 	t->account_number = account_number;
-	t->date = date;
+	t->date_time = date_time;
 	return t;
 
 } /* investment_account_balance_new() */
+
+char *investment_account_balance_get_select( void )
+{
+	char *select =
+		"investment_operation,		"
+		"share_price,			"
+		"share_quantity_change,		"
+		"share_quantity_balance,	"
+		"book_value_change,		"
+		"book_value_balance,		"
+		"moving_share_price,		"
+		"total_cost_balance,		"
+		"market_value,			"
+		"unrealized_gain_balance,	"
+		"unrealized_gain_change,	"
+		"transaction_date_time		";
+
+	return select;
+}
 
 ACCOUNT_BALANCE *investment_account_balance_fetch(
 					char *application_name,
 					char *full_name,
 					char *street_address,
 					char *account_number,
-					char *date )
+					char *date_time )
 {
 	char sys_string[ 1024 ];
 	char where[ 256 ];
@@ -51,10 +70,9 @@ ACCOUNT_BALANCE *investment_account_balance_fetch(
 	char *select;
 	char *folder;
 	ACCOUNT_BALANCE *account_balance;
-	char *results;
+	char *input_buffer;
 
-	select =
-	"investment_operation,balance,balance_change,transaction_date_time";
+	select = investment_account_balance_get_select();
 
 	folder = "account_balance";
 
@@ -68,11 +86,11 @@ ACCOUNT_BALANCE *investment_account_balance_fetch(
 					'\'' ),
 		 street_address,
 		 account_number,
-		 date );
+		 date_time );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
-		 "			select=%s	"
+		 "			select=\"%s\"	"
 		 "			folder=%s	"
 		 "			where=\"%s\"	",
 		 application_name,
@@ -80,38 +98,83 @@ ACCOUNT_BALANCE *investment_account_balance_fetch(
 		 folder,
 		 where );
 
-	if ( ! ( results = pipe2string( sys_string ) ) )
+	if ( ! ( input_buffer = pipe2string( sys_string ) ) )
 		return (ACCOUNT_BALANCE *)0;
+
+	account_balance = investment_account_balance_parse(
+				full_name,
+				street_address,
+				account_number,
+				date_time,
+				input_buffer );
+
+	return account_balance;
+
+} /* investment_account_balance_fetch() */
+
+ACCOUNT_BALANCE *investment_account_balance_parse(
+				char *full_name,
+				char *street_address,
+				char *account_number,
+				char *date_time,
+				char *input_buffer )
+{
+	ACCOUNT_BALANCE *account_balance;
+	char buffer[ 128 ];
 
 	account_balance =
 		investment_account_balance_new(
 			full_name,
 			street_address,
 			account_number,
-			date );
+			date_time );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 	account_balance->investment_operation = strdup( buffer );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
-	account_balance->balance = atof( buffer );
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+	account_balance->share_price = atof( buffer );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 2 );
-	account_balance->balance_change = atof( buffer );
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+	account_balance->share_quantity_change = atof( buffer );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, results, 3 );
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	account_balance->share_quantity_balance = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+	account_balance->book_value_change = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+	account_balance->book_value_balance = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+	account_balance->moving_share_price = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+	account_balance->total_cost_balance = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
+	account_balance->market_value = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
+	account_balance->unrealized_gain_balance = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
+	account_balance->unrealized_gain_change = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
 	account_balance->transaction_date_time = strdup( buffer );
 
 	return account_balance;
 
-} /* investment_account_balance_fetch() */
+} /* investment_account_balance_parse() */
 
-char *investment_account_balance_fetch_prior_date(
+char *investment_account_balance_fetch_prior_date_time(
 					char *application_name,
 					char *full_name,
 					char *street_address,
 					char *account_number,
-					char *date )
+					char *date_time )
 {
 	char buffer[ 128 ];
 	char sys_string[ 1024 ];
@@ -119,7 +182,7 @@ char *investment_account_balance_fetch_prior_date(
 	char *select;
 	char *folder;
 
-	select = "max( date )";
+	select = "max( date_time )";
 
 	folder = "account_balance";
 
@@ -127,13 +190,13 @@ char *investment_account_balance_fetch_prior_date(
 		 "full_name = '%s' and			"
 		 "street_address = '%s' and		"
 		 "account_number = '%s' and		"
-		 "date < '%s'				",
+		 "date_time < '%s'			",
 		 escape_character(	buffer,
 					full_name,
 					'\'' ),
 		 street_address,
 		 account_number,
-		 date );
+		 date_time );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
@@ -147,33 +210,56 @@ char *investment_account_balance_fetch_prior_date(
 
 	return pipe2string( sys_string );
 
-} /* investment_account_balance_fetch_prior_date() */
+} /* investment_account_balance_fetch_prior_date_time() */
 
-void investment_account_balance_update(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *account_number,
-					char *date,
-					double balance_change,
-					char *transaction_date_time )
+ACCOUNT_BALANCE *investment_account_balance_purchase_calculate(
+				char *full_name,
+				char *street_address,
+				char *account_number,
+				char *date_time,
+				double share_price,
+				double share_quantity_change,
+				double prior_share_quantity_balance,
+				double prior_book_value_balance,
+				double prior_total_cost_balance,
+				double prior_unrealized_gain_balance )
 {
-} /* investment_account_balance_update() */
+	ACCOUNT_BALANCE *a;
 
-/* Returns transaction_date_time */
-/* ----------------------------- */
-char *investment_time_passage_transaction_insert(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *date,
-					double balance_change,
-					char *investment_account,
-					char *unrealized_gain,
-					char *unrealized_loss )
-{
-	char *transaction_date_time = {0};
+	a = investment_account_balance_new(
+			full_name,
+			street_address,
+			account_number,
+			date_time );
 
-	return transaction_date_time;
+	a->share_price = share_price;
+	a->share_quantity_change = share_quantity_change;
 
-} /* investment_time_passage_transaction_insert() */
+	a->share_quantity_balance =
+		prior_share_quantity_balance +
+		a->share_quantity_change;
+
+	a->book_value_change = a->share_quantity_change * a->share_price;
+
+	a->book_value_balance = prior_book_value_balance + a->book_value_change;
+
+	a->total_cost_balance = prior_total_cost_balance + a->book_value_change;
+
+	if ( a->share_quantity_balance )
+	{
+		a->moving_share_price = a->total_cost_balance /
+					a->share_quantity_balance;
+	}
+
+	a->market_value = a->share_price * a->share_quantity_balance;
+
+	a->unrealized_gain_balance = a->market_value - a->book_value_balance;
+
+	a->unrealized_gain_change =
+		a->unrealized_gain_balance -
+		prior_unrealized_gain_balance;
+
+	return a;
+
+} /* investment_account_balance_purchase_calculate() */
 

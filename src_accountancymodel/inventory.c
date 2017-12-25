@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/inventory.c					*/
+/* $APPASERVER_HOME/src_accountancymodel/inventory.c			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel inventory ADT.				*/
 /*									*/

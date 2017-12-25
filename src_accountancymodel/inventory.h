@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/inventory.h					*/
+/* $APPASERVER_HOME/src_accountancymodel/inventory.h			*/
 /* -------------------------------------------------------------------- */
 /* This is the AccountancyModel inventory ADT.				*/
 /*									*/
@@ -88,9 +88,9 @@ typedef struct
 	int reorder_quantity;
 	LIST *inventory_purchase_list;
 	LIST *inventory_sale_list;
-	INVENTORY_BALANCE *last_inventory_balance;
 	LIST *inventory_balance_list;
 	LIST *inventory_cost_list;
+	INVENTORY_BALANCE *last_inventory_balance;
 } INVENTORY;
 
 /* Operations */

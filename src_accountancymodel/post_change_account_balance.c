@@ -626,77 +626,13 @@ boolean post_change_account_balance_insert_time_passage(
 	if ( !timlib_double_virtually_same(
 		new_account_balance->unrealized_gain_change, 0.0 ) )
 	{
-		if ( new_account_balance->unrealized_gain_change < 0.0 )
-		{
-			/* Debit unrealized investment */
-			/* --------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					unrealized_investment );
-	
-			journal_ledger->debit_amount =
-				0.0 -
-				new_account_balance->unrealized_gain_change;
-
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-
-			/* Credit fair value adjustment */
-			/* ---------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					fair_value_adjustment );
-	
-			journal_ledger->credit_amount =
-				0.0 -
-				new_account_balance->unrealized_gain_change;
-
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-		}
-		else
-		{
-			/* Debit fair value adjustment */
-			/* --------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					fair_value_adjustment );
-	
-			journal_ledger->debit_amount =
-				new_account_balance->unrealized_gain_change;
-
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-
-			/* Credit unrealized investment */
-			/* ---------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					unrealized_investment );
-	
-			journal_ledger->credit_amount =
-				new_account_balance->unrealized_gain_change;
-
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-		}
-	} /* if unrealized gain change */
+		list_append_list(
+			transaction->journal_ledger_list,
+			investment_get_fair_value_adjustment_ledger_list(
+				new_account_balance->unrealized_gain_change,
+				unrealized_investment,
+				fair_value_adjustment ) );
+	}
 
 	new_account_balance->transaction_date_time =
 		ledger_transaction_journal_ledger_insert(
@@ -862,69 +798,13 @@ void post_change_account_balance_insert_purchase(
 	if ( !timlib_double_virtually_same(
 		new_account_balance->unrealized_gain_change, 0.0 ) )
 	{
-		if ( new_account_balance->unrealized_gain_change < 0.0 )
-		{
-			/* Debit unrealized investment */
-			/* --------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					unrealized_investment );
-	
-			journal_ledger->debit_amount =
-				0.0 -
-				new_account_balance->unrealized_gain_change;
-
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-
-			/* Credit fair value adjustment */
-			/* ---------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					fair_value_adjustment );
-	
-			journal_ledger->credit_amount =
-				0.0 -
-				new_account_balance->unrealized_gain_change;
-
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-		}
-		else
-		{
-			/* Debit fair value adjustment */
-			/* --------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					fair_value_adjustment );
-	
-			journal_ledger->debit_amount =
-				new_account_balance->unrealized_gain_change;
-
-			/* Credit unrealized investment */
-			/* ---------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					unrealized_investment );
-	
-			journal_ledger->credit_amount =
-				new_account_balance->unrealized_gain_change;
-		}
-	} /* if unrealized gain change */
+		list_append_list(
+			transaction->journal_ledger_list,
+			investment_get_fair_value_adjustment_ledger_list(
+				new_account_balance->unrealized_gain_change,
+				unrealized_investment,
+				fair_value_adjustment ) );
+	}
 
 	new_account_balance->transaction_date_time =
 		ledger_transaction_journal_ledger_insert(
@@ -1018,6 +898,8 @@ boolean post_change_account_balance_insert_sale(
 			prior_account_balance->
 				unrealized_gain_balance );
 
+	/* The sale needs a negative share quantity change. */
+	/* ------------------------------------------------ */
 	if ( new_account_balance->share_quantity_change >= 0.0 ) return 0;
 
 	transaction =
@@ -1032,8 +914,8 @@ boolean post_change_account_balance_insert_sale(
 
 	transaction->journal_ledger_list = list_new();
 
-	/* Debit accounts */
-	/* -------------- */
+	/* Debit checking for cash in */
+	/* -------------------------- */
 	journal_ledger =
 		journal_ledger_new(
 			transaction->full_name,
@@ -1057,23 +939,6 @@ boolean post_change_account_balance_insert_sale(
 	{
 		if ( new_account_balance->unrealized_gain_change < 0.0 )
 		{
-			/* Debit account = unrealized investment */
-			/* ------------------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					unrealized_investment );
-
-			journal_ledger->debit_amount =
-				0.0 -
-				new_account_balance->unrealized_gain_change;
-
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-
 			/* Credit account = realized gain */
 			/* ------------------------------ */
 			journal_ledger =
@@ -1108,24 +973,20 @@ boolean post_change_account_balance_insert_sale(
 			list_append_pointer(
 				transaction->journal_ledger_list,
 				journal_ledger );
-
-			/* Credit account = unrealized investment */
-			/* -------------------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					unrealized_investment );
-
-			journal_ledger->credit_amount =
-				new_account_balance->unrealized_gain_change;
-
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
 		}
+
 	} /* if sale realized a gain or loss */
+
+	if ( !timlib_double_virtually_same(
+		new_account_balance->unrealized_gain_change, 0.0 ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			investment_get_fair_value_adjustment_ledger_list(
+				new_account_balance->unrealized_gain_change,
+				unrealized_investment,
+				fair_value_adjustment ) );
+	}
 
 	/* Credit investment */
 	/* ----------------- */
@@ -1137,7 +998,7 @@ boolean post_change_account_balance_insert_sale(
 			investment_account );
 
 	journal_ledger->credit_amount =
-		new_account_balance->book_value_change;
+		0.0 - new_account_balance->book_value_change;
 
 	list_append_pointer(
 		transaction->journal_ledger_list,

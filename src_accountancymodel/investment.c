@@ -273,12 +273,23 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 			a->share_quantity_change;
 	}
 
+	a->market_value = a->share_price * a->share_quantity_balance;
+
 	/* If no change in share quantity */
 	/* ------------------------------ */
 	if ( timlib_double_virtually_same( a->share_quantity_change, 0.0 ) )
 	{
 		a->moving_share_price = prior_moving_share_price;
 		a->total_cost_balance = prior_total_cost_balance;
+		a->book_value_balance = prior_book_value_balance;
+
+		a->unrealized_gain_balance =
+			a->market_value -
+			a->book_value_balance;
+
+		a->unrealized_gain_change =
+			a->unrealized_gain_balance -
+			prior_unrealized_gain_balance;
 	}
 	else
 	/* ------- */
@@ -286,17 +297,54 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 	/* ------- */
 	if ( a->share_quantity_change < 0.0 )
 	{
+		double cash_in;
+
 		a->moving_share_price = prior_moving_share_price;
 
 		a->total_cost_balance =
 			a->moving_share_price *
 			a->share_quantity_balance;
+
+		a->book_value_change =
+			a->share_quantity_change *
+			a->moving_share_price;
+
+		a->book_value_balance =
+			prior_book_value_balance +
+			a->book_value_change;
+
+		a->unrealized_gain_balance =
+			a->market_value -
+			a->book_value_balance;
+
+		cash_in = share_price * -share_quantity_change;
+
+		/* ------------------------------------ */
+		/* This amount becomes realized.	*/
+		/* Book value change is negative.	*/
+		/* Realized gain is negative.		*/
+		/* Realized loss is positive.		*/
+		/* ------------------------------------ */
+		a->unrealized_gain_change =
+			0.0 - ( cash_in + a->book_value_change );
 	}
 	else
 	/* ------------------------------------ */
 	/* If purchase or dividend reinvestment */
 	/* ------------------------------------ */
 	{
+		a->book_value_change =
+			a->share_quantity_change *
+			a->share_price;
+
+		a->book_value_balance =
+			prior_book_value_balance +
+			a->book_value_change;
+
+		a->unrealized_gain_balance =
+			a->market_value -
+			a->book_value_balance;
+
 		a->total_cost_balance =
 			prior_total_cost_balance +
 			a->book_value_change;
@@ -308,19 +356,11 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				a->total_cost_balance /
 				a->share_quantity_balance;
 		}
+
+		a->unrealized_gain_change =
+			a->unrealized_gain_balance -
+			prior_unrealized_gain_balance;
 	}
-
-	a->book_value_change = a->share_quantity_change * a->moving_share_price;
-
-	a->book_value_balance = prior_book_value_balance + a->book_value_change;
-
-	a->market_value = a->share_price * a->share_quantity_balance;
-
-	a->unrealized_gain_balance = a->market_value - a->book_value_balance;
-
-	a->unrealized_gain_change =
-		a->unrealized_gain_balance -
-		prior_unrealized_gain_balance;
 
 	return a;
 
@@ -508,3 +548,93 @@ void investment_account_balance_update(	char *application_name,
 
 } /* investment_account_balance_update() */
 
+LIST *investment_get_fair_value_adjustment_ledger_list(
+				double unrealized_gain_change,
+				char *unrealized_investment,
+				char *fair_value_adjustment )
+{
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( timlib_double_virtually_same(
+		unrealized_gain_change, 0.0 ) )
+	{
+		return (LIST *)0;
+	}
+
+	journal_ledger_list = list_new();
+
+	if ( unrealized_gain_change < 0.0 )
+	{
+		/* Debit unrealized investment */
+		/* --------------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				(char *)0 /* transaction_date_time */,
+				unrealized_investment );
+
+		journal_ledger->debit_amount =
+			0.0 -
+			unrealized_gain_change;
+
+		list_append_pointer(
+			journal_ledger_list,
+			journal_ledger );
+
+		/* Credit fair value adjustment */
+		/* ---------------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				(char *)0 /* transaction_date_time */,
+				fair_value_adjustment );
+
+		journal_ledger->credit_amount =
+			0.0 -
+			unrealized_gain_change;
+
+		list_append_pointer(
+			journal_ledger_list,
+			journal_ledger );
+	}
+	else
+	{
+		/* Debit fair value adjustment */
+		/* --------------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				(char *)0 /* transaction_date_time */,
+				fair_value_adjustment );
+
+		journal_ledger->debit_amount =
+			unrealized_gain_change;
+
+		list_append_pointer(
+			journal_ledger_list,
+			journal_ledger );
+
+		/* Credit unrealized investment */
+		/* ---------------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				(char *)0 /* transaction_date_time */,
+				unrealized_investment );
+
+		journal_ledger->credit_amount =
+			unrealized_gain_change;
+
+		list_append_pointer(
+			journal_ledger_list,
+			journal_ledger );
+	}
+
+	return journal_ledger_list;
+
+} /* investment_get_fair_value_adjustment_ledger_list() */

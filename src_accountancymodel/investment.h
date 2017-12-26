@@ -100,4 +100,9 @@ ACCOUNT_BALANCE *investment_account_balance_parse(
 					char *date_time,
 					char *input_buffer );
 
+LIST *investment_get_fair_value_adjustment_ledger_list(
+					double unrealized_gain_change,
+					char *unrealized_investment,
+					char *fair_value_adjustment );
+
 #endif

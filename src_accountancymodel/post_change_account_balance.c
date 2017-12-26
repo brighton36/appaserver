@@ -500,9 +500,8 @@ boolean post_change_account_balance_insert_time_passage(
 	char *investment_account = {0};
 	char *fair_value_adjustment = {0};
 	char *realized_gain = {0};
-	char *unrealized_gain = {0};
+	char *unrealized_investment = {0};
 	char *realized_loss = {0};
-	char *unrealized_loss = {0};
 	char *checking_account = {0};
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
@@ -515,9 +514,8 @@ boolean post_change_account_balance_insert_time_passage(
 		&investment_account,
 		&fair_value_adjustment,
 		&realized_gain,
-		&unrealized_gain,
+		&unrealized_investment,
 		&realized_loss,
-		&unrealized_loss,
 		&checking_account,
 		application_name,
 		(char *)0 /* fund_name */ );
@@ -626,33 +624,67 @@ boolean post_change_account_balance_insert_time_passage(
 	{
 		if ( new_account_balance->unrealized_gain_change < 0.0 )
 		{
+			/* Debit unrealized investment */
+			/* --------------------------- */
 			journal_ledger =
 				journal_ledger_new(
 					transaction->full_name,
 					transaction->street_address,
 					transaction->transaction_date_time,
-					unrealized_loss );
+					unrealized_investment );
 	
 			journal_ledger->debit_amount =
 				0.0 -
 				new_account_balance->unrealized_gain_change;
-		}
-		else
-		{
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+
+			/* Credit fair value adjustment */
+			/* ---------------------------- */
 			journal_ledger =
 				journal_ledger_new(
 					transaction->full_name,
 					transaction->street_address,
 					transaction->transaction_date_time,
-					unrealized_gain );
+					fair_value_adjustment );
+	
+			journal_ledger->credit_amount =
+				0.0 -
+				new_account_balance->unrealized_gain_change;
+
+			list_append_pointer(
+				transaction->journal_ledger_list,
+				journal_ledger );
+		}
+		else
+		{
+			/* Debit fair value adjustment */
+			/* --------------------------- */
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					fair_value_adjustment );
+	
+			journal_ledger->debit_amount =
+				new_account_balance->unrealized_gain_change;
+
+			/* Credit unrealized investment */
+			/* ---------------------------- */
+			journal_ledger =
+				journal_ledger_new(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					unrealized_investment );
 	
 			journal_ledger->credit_amount =
 				new_account_balance->unrealized_gain_change;
 		}
 	
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
 	}
 
 	new_account_balance->transaction_date_time =
@@ -677,9 +709,6 @@ boolean post_change_account_balance_insert_time_passage(
 
 	return 1;
 
-
-	return 1;
-
 } /* post_change_account_balance_insert_time_passage() */
 
 void post_change_account_balance_insert_purchase(
@@ -689,9 +718,8 @@ void post_change_account_balance_insert_purchase(
 	char *investment_account = {0};
 	char *fair_value_adjustment = {0};
 	char *realized_gain = {0};
-	char *unrealized_gain = {0};
+	char *unrealized_investment = {0};
 	char *realized_loss = {0};
-	char *unrealized_loss = {0};
 	char *checking_account = {0};
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
@@ -701,9 +729,8 @@ void post_change_account_balance_insert_purchase(
 		&investment_account,
 		&fair_value_adjustment,
 		&realized_gain,
-		&unrealized_gain,
+		&unrealized_investment,
 		&realized_loss,
-		&unrealized_loss,
 		&checking_account,
 		application_name,
 		(char *)0 /* fund_name */ );
@@ -717,6 +744,15 @@ void post_change_account_balance_insert_purchase(
 				account_balance->date_time ) ) )
 	{
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got prior_date_time = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+prior_date_time );
+m2( application_name, msg );
+}
 		if ( ! ( prior_account_balance =
 				investment_account_balance_fetch(
 					application_name,
@@ -726,7 +762,7 @@ void post_change_account_balance_insert_purchase(
 					prior_date_time ) ) )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot account_balance_fetch()\n",
+"ERROR in %s/%s()/%d: cannot fetch prior investment_account_balance_fetch()\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -809,9 +845,8 @@ boolean post_change_account_balance_insert_sale(
 	char *investment_account = {0};
 	char *fair_value_adjustment = {0};
 	char *realized_gain = {0};
-	char *unrealized_gain = {0};
+	char *unrealized_investment = {0};
 	char *realized_loss = {0};
-	char *unrealized_loss = {0};
 	char *checking_account = {0};
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
@@ -824,9 +859,8 @@ boolean post_change_account_balance_insert_sale(
 		&investment_account,
 		&fair_value_adjustment,
 		&realized_gain,
-		&unrealized_gain,
+		&unrealized_investment,
 		&realized_loss,
-		&unrealized_loss,
 		&checking_account,
 		application_name,
 		(char *)0 /* fund_name */ );
@@ -947,14 +981,14 @@ boolean post_change_account_balance_insert_sale(
 			journal_ledger );
 	}
 
-	/* Credit investment */
-	/* ----------------- */
+	/* Credit fair value adjustment */
+	/* ---------------------------- */
 	journal_ledger =
 		journal_ledger_new(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,
-			investment_account );
+			fair_value_adjustment );
 
 	journal_ledger->credit_amount =
 		new_account_balance->book_value_change;

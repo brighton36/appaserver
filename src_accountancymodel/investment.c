@@ -74,13 +74,13 @@ ACCOUNT_BALANCE *investment_account_balance_fetch(
 
 	select = investment_account_balance_get_select();
 
-	folder = "account_balance";
+	folder = ACCOUNT_BALANCE_FOLDER_NAME;
 
 	sprintf( where,
 		 "full_name = '%s' and			"
 		 "street_address = '%s' and		"
 		 "account_number = '%s' and		"
-		 "date = '%s'				",
+		 "date_time = '%s'			",
 		 escape_character(	buffer,
 					full_name,
 					'\'' ),
@@ -181,10 +181,11 @@ char *investment_account_balance_fetch_prior_date_time(
 	char where[ 256 ];
 	char *select;
 	char *folder;
+	char *results;
 
 	select = "max( date_time )";
 
-	folder = "account_balance";
+	folder = ACCOUNT_BALANCE_FOLDER_NAME;
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -208,7 +209,12 @@ char *investment_account_balance_fetch_prior_date_time(
 		 folder,
 		 where );
 
-	return pipe2string( sys_string );
+	results = pipe2string( sys_string );
+
+	if ( results && !*results )
+		return (char *)0;
+	else
+		return results;
 
 } /* investment_account_balance_fetch_prior_date_time() */
 

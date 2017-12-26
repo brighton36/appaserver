@@ -8582,9 +8582,8 @@ void ledger_get_investment_account_names(
 				char **investment_account,
 				char **fair_value_adjustment,
 				char **realized_gain,
-				char **unrealized_gain,
+				char **unrealized_investment,
 				char **realized_loss,
-				char **unrealized_loss,
 				char **checking_account,
 				char *application_name,
 				char *fund_name )
@@ -8615,8 +8614,8 @@ void ledger_get_investment_account_names(
 			key,
 			0 /* not warning_only */ );
 
-	key = "unrealized_investment_gain_key";
-	*unrealized_gain =
+	key = "unrealized_investment_key";
+	*unrealized_investment =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
@@ -8625,14 +8624,6 @@ void ledger_get_investment_account_names(
 
 	key = "realized_investment_loss_key";
 	*realized_loss =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
-
-	key = "unrealized_investment_loss_key";
-	*unrealized_loss =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,

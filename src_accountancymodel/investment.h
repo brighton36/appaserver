@@ -15,7 +15,7 @@
 
 /* Constants */
 /* --------- */
-#define ACCOUNT_BALANCE_FOLDER_NAME		"account_balance"
+#define ACCOUNT_BALANCE_FOLDER_NAME		"equity_account_balance"
 
 /* Structures */
 /* ---------- */

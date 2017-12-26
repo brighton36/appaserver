@@ -1031,9 +1031,8 @@ void ledger_get_investment_account_names(
 				char **investment_account,
 				char **fair_value_adjustment,
 				char **realized_gain,
-				char **unrealized_gain,
+				char **unrealized_investment,
 				char **realized_loss,
-				char **unrealized_loss,
 				char **checking_account,
 				char *application_name,
 				char *fund_name );

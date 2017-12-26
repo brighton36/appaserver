@@ -368,7 +368,7 @@ TRANSACTION *subsidiary_get_transaction(
 	transaction->journal_ledger_list = list_new();
 
 	/* Debit account */
-	/* -------------- */
+	/* ------------- */
 	journal_ledger =
 		journal_ledger_new(
 			transaction->full_name,

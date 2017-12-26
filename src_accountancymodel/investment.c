@@ -329,6 +329,17 @@ void investment_account_balance_update(	char *application_name,
 	char *table_name;
 	char *key_column_list;
 
+	if ( !new_account_balance
+	||   !account_balance )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: received null input.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	table_name =
 		get_table_name(
 			application_name,

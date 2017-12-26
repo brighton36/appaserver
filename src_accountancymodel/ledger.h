@@ -1029,6 +1029,7 @@ LIST *ledger_sort_element_list(	LIST *element_list );
 
 void ledger_get_investment_account_names(
 				char **investment_account,
+				char **fair_value_adjustment,
 				char **realized_gain,
 				char **unrealized_gain,
 				char **realized_loss,

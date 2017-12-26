@@ -3893,6 +3893,86 @@ LIST *ledger_transaction_list_insert(	LIST *transaction_list,
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
+char *ledger_transaction_binary_insert(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				char *debit_account_name,
+				char *credit_account_name )
+{
+	FILE *debit_account_pipe = {0};
+	FILE *credit_account_pipe = {0};
+
+	if ( !full_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty full_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	transaction_date_time =
+		ledger_transaction_insert(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			check_number,
+			lock_transaction );
+
+	ledger_journal_insert_open_stream(
+			&debit_account_pipe,
+			&credit_account_pipe,
+			application_name );
+
+	ledger_journal_insert_stream(
+		debit_account_pipe,
+		(FILE *)0 /* credit_account_pipe */,
+		full_name,
+		street_address,
+		transaction_date_time,
+		transaction_amount,
+		debit_account_name,
+		(char *)0 /* credit_account_name */ );
+
+	ledger_journal_insert_stream(
+		(FILE *)0 /* debit_account_pipe */,
+		credit_account_pipe,
+		full_name,
+		street_address,
+		transaction_date_time,
+		transaction_amount,
+		(char *)0 /* debit_account_name */,
+		credit_account_name );
+
+	pclose( debit_account_pipe );
+	pclose( credit_account_pipe );
+
+	ledger_propagate(
+		application_name,
+		transaction_date_time,
+		debit_account_name );
+
+	ledger_propagate(
+		application_name,
+		transaction_date_time,
+		credit_account_name );
+
+	return transaction_date_time;
+
+} /* ledger_transaction_binary_insert() */
+
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
 char *ledger_transaction_insert(	char *application_name,
 					char *full_name,
 					char *street_address,
@@ -8500,6 +8580,7 @@ void ledger_get_payroll_account_names(
 
 void ledger_get_investment_account_names(
 				char **investment_account,
+				char **fair_value_adjustment,
 				char **realized_gain,
 				char **unrealized_gain,
 				char **realized_loss,
@@ -8512,6 +8593,14 @@ void ledger_get_investment_account_names(
 
 	key = "investment_key";
 	*investment_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+	key = "fair_value_adjustment_key";
+	*fair_value_adjustment =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
@@ -8559,82 +8648,4 @@ void ledger_get_investment_account_names(
 			0 /* not warning_only */ );
 
 } /* ledger_get_investment_account_names() */
-
-char *ledger_transaction_binary_insert(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double transaction_amount,
-				char *memo,
-				int check_number,
-				boolean lock_transaction,
-				char *debit_account_name,
-				char *credit_account_name )
-{
-	FILE *debit_account_pipe = {0};
-	FILE *credit_account_pipe = {0};
-
-	if ( !full_name )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty full_name.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	transaction_date_time =
-		ledger_transaction_insert(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			transaction_amount,
-			memo,
-			check_number,
-			lock_transaction );
-
-	ledger_journal_insert_open_stream(
-			&debit_account_pipe,
-			&credit_account_pipe,
-			application_name );
-
-	ledger_journal_insert_stream(
-		debit_account_pipe,
-		(FILE *)0 /* credit_account_pipe */,
-		full_name,
-		street_address,
-		transaction_date_time,
-		transaction_amount,
-		debit_account_name,
-		(char *)0 /* credit_account_name */ );
-
-	ledger_journal_insert_stream(
-		(FILE *)0 /* debit_account_pipe */,
-		credit_account_pipe,
-		full_name,
-		street_address,
-		transaction_date_time,
-		transaction_amount,
-		(char *)0 /* debit_account_name */,
-		credit_account_name );
-
-	pclose( debit_account_pipe );
-	pclose( credit_account_pipe );
-
-	ledger_propagate(
-		application_name,
-		transaction_date_time,
-		debit_account_name );
-
-	ledger_propagate(
-		application_name,
-		transaction_date_time,
-		credit_account_name );
-
-	return transaction_date_time;
-
-} /* ledger_transaction_binary_insert() */
 

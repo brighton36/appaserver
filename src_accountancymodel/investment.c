@@ -273,10 +273,6 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 			a->share_quantity_change;
 	}
 
-	a->book_value_change = a->share_quantity_change * a->share_price;
-
-	a->book_value_balance = prior_book_value_balance + a->book_value_change;
-
 	/* If no change in share quantity */
 	/* ------------------------------ */
 	if ( timlib_double_virtually_same( a->share_quantity_change, 0.0 ) )
@@ -313,6 +309,10 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				a->share_quantity_balance;
 		}
 	}
+
+	a->book_value_change = a->share_quantity_change * a->moving_share_price;
+
+	a->book_value_balance = prior_book_value_balance + a->book_value_change;
 
 	a->market_value = a->share_price * a->share_quantity_balance;
 

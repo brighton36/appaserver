@@ -212,16 +212,19 @@ char *investment_account_balance_fetch_prior_date_time(
 
 } /* investment_account_balance_fetch_prior_date_time() */
 
-ACCOUNT_BALANCE *investment_account_balance_purchase_calculate(
+ACCOUNT_BALANCE *investment_account_balance_calculate(
 				char *full_name,
 				char *street_address,
 				char *account_number,
 				char *date_time,
 				double share_price,
 				double share_quantity_change,
+				double share_quantity_balance,
+				double market_value,
 				double prior_share_quantity_balance,
 				double prior_book_value_balance,
 				double prior_total_cost_balance,
+				double prior_moving_share_price,
 				double prior_unrealized_gain_balance )
 {
 	ACCOUNT_BALANCE *a;
@@ -232,23 +235,77 @@ ACCOUNT_BALANCE *investment_account_balance_purchase_calculate(
 			account_number,
 			date_time );
 
-	a->share_price = share_price;
-	a->share_quantity_change = share_quantity_change;
+	if ( !timlib_double_virtually_same( share_price, 0.0 ) )
+	{
+		a->share_price = share_price;
+	}
+	else
+	if ( !timlib_double_virtually_same( share_quantity_balance, 0.0 ) )
+	{
+		a->share_price = market_value / share_quantity_balance;
+	}
 
-	a->share_quantity_balance =
-		prior_share_quantity_balance +
-		a->share_quantity_change;
+	if ( !timlib_double_virtually_same( share_quantity_change, 0.0 ) )
+	{
+		a->share_quantity_change = share_quantity_change;
+	}
+	else
+	{
+		a->share_quantity_change =
+			share_quantity_balance -
+			prior_share_quantity_balance;
+	}
+
+	if ( !timlib_double_virtually_same( share_quantity_balance, 0.0 ) )
+	{
+		a->share_quantity_balance = share_quantity_balance;
+	}
+	else
+	{
+		a->share_quantity_balance =
+			prior_share_quantity_balance +
+			a->share_quantity_change;
+	}
 
 	a->book_value_change = a->share_quantity_change * a->share_price;
 
 	a->book_value_balance = prior_book_value_balance + a->book_value_change;
 
-	a->total_cost_balance = prior_total_cost_balance + a->book_value_change;
-
-	if ( a->share_quantity_balance )
+	/* If no change in share quantity */
+	/* ------------------------------ */
+	if ( timlib_double_virtually_same( a->share_quantity_change, 0.0 ) )
 	{
-		a->moving_share_price = a->total_cost_balance /
-					a->share_quantity_balance;
+		a->moving_share_price = prior_moving_share_price;
+		a->total_cost_balance = prior_total_cost_balance;
+	}
+	else
+	/* ------- */
+	/* If sale */
+	/* ------- */
+	if ( a->share_quantity_change < 0.0 )
+	{
+		a->moving_share_price = prior_moving_share_price;
+
+		a->total_cost_balance =
+			a->moving_share_price *
+			a->share_quantity_balance;
+	}
+	else
+	/* ------------------------------------ */
+	/* If purchase or dividend reinvestment */
+	/* ------------------------------------ */
+	{
+		a->total_cost_balance =
+			prior_total_cost_balance +
+			a->book_value_change;
+
+		if ( !timlib_double_virtually_same(
+			a->share_quantity_balance, 0.0 ) )
+		{
+			a->moving_share_price =
+				a->total_cost_balance /
+				a->share_quantity_balance;
+		}
 	}
 
 	a->market_value = a->share_price * a->share_quantity_balance;
@@ -261,5 +318,176 @@ ACCOUNT_BALANCE *investment_account_balance_purchase_calculate(
 
 	return a;
 
-} /* investment_account_balance_purchase_calculate() */
+} /* investment_account_balance_calculate() */
+
+void investment_account_balance_update(	char *application_name,
+					ACCOUNT_BALANCE *new_account_balance,
+					ACCOUNT_BALANCE *account_balance )
+{
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	char *table_name;
+	char *key_column_list;
+
+	table_name =
+		get_table_name(
+			application_name,
+			ACCOUNT_BALANCE_FOLDER_NAME );
+
+	key_column_list =
+	"full_name,street_address,account_number,date_time";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 table_name,
+		 key_column_list );
+
+	output_pipe = popen( sys_string, "w" );
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->share_price,
+			account_balance->share_price ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^share_price^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->share_price );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->share_quantity_change,
+			account_balance->share_quantity_change ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^share_quantity_change^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->share_quantity_change );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->share_quantity_balance,
+			account_balance->share_quantity_balance ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^share_quantity_balance^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->share_quantity_balance );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->book_value_change,
+			account_balance->book_value_change ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^book_value_change^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->book_value_change );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->book_value_balance,
+			account_balance->book_value_balance ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^book_value_balance^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->book_value_balance );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->moving_share_price,
+			account_balance->moving_share_price ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^moving_share_price^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->moving_share_price );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->total_cost_balance,
+			account_balance->total_cost_balance ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^total_cost_balance^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->total_cost_balance );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->market_value,
+			account_balance->market_value ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^market_value^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->market_value );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->unrealized_gain_balance,
+			account_balance->unrealized_gain_balance ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^unrealized_gain_balance^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->unrealized_gain_balance );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->unrealized_gain_change,
+			account_balance->unrealized_gain_change ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^unrealized_gain_change^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->unrealized_gain_change );
+	}
+
+	if ( timlib_strcmp(
+			new_account_balance->transaction_date_time,
+			account_balance->transaction_date_time ) != 0 )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^transaction_date_time^%s\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->transaction_date_time );
+	}
+
+	pclose( output_pipe );
+
+} /* investment_account_balance_update() */
 

@@ -20,7 +20,6 @@
 
 /* Constants */
 /* --------- */
-#define PRIOR_FIXED_ASSET_FOLDER_NAME	"account_balance"
 
 /* Prototypes */
 /* ---------- */
@@ -51,13 +50,12 @@ int main( int argc, char **argv )
 	char *account_number;
 	char *date_time;
 	char *state;
-	char *preupdate_balance;
 	char *database_string = {0};
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address account_number date_time investment_opertion state preupdate_balance\n",
+"Usage: %s application full_name street_address account_number date_time investment_opertion state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -68,7 +66,6 @@ int main( int argc, char **argv )
 	account_number = argv[ 4 ];
 	date_time = argv[ 5 ];
 	state = argv[ 6 ];
-	preupdate_balance = argv[ 7 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -172,7 +169,7 @@ void post_change_account_balance_delete(
 
 	subsidiary_transaction =
 		subsidiary_new(	application_name,
-				PRIOR_FIXED_ASSET_FOLDER_NAME,
+				ACCOUNT_BALANCE_FOLDER_NAME,
 				primary_data_list,
 				full_name,
 				street_address,
@@ -247,7 +244,7 @@ void account_balance_transaction_date_time_update(
 	table_name =
 		get_table_name(
 			application_name,
-			PRIOR_FIXED_ASSET_FOLDER_NAME );
+			ACCOUNT_BALANCE_FOLDER_NAME );
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s	|"
@@ -305,7 +302,7 @@ void post_change_account_balance_fetch_row(
 		 "			where=\"%s\"	",
 		 application_name,
 		 select,
-		 PRIOR_FIXED_ASSET_FOLDER_NAME,
+		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 where );
 
 	if ( ! ( results = pipe2string( sys_string ) ) ) return;
@@ -367,7 +364,7 @@ void post_change_prior_fixed_extension_update(
 
 	subsidiary_transaction =
 		subsidiary_new(	application_name,
-				PRIOR_FIXED_ASSET_FOLDER_NAME,
+				ACCOUNT_BALANCE_FOLDER_NAME,
 				primary_data_list,
 				full_name,
 				street_address,
@@ -622,18 +619,66 @@ void post_change_account_balance_insert_purchase(
 		}
 	}
 
-	new_account_balance =
-		investment_account_balance_purchase_calculate(
-			account_balance->full_name,
-			account_balance->street_address,
-			account_balance->account_number,
-			account_balance->date_time,
-			account_balance->share_price,
-			account_balance->share_quantity_change,
-			prior_account_balance->share_quantity_balance,
-			prior_account_balance->book_value_balance,
-			prior_account_balance->total_cost_balance,
-			prior_account_balance->unrealized_gain_balance );
+	if ( !prior_account_balance )
+	{
+		new_account_balance =
+			investment_account_balance_calculate(
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_time,
+				account_balance->share_price,
+				account_balance->share_quantity_change,
+				account_balance->share_quantity_balance,
+				account_balance->market_value,
+				0.0 /* prior_share_quantity_balance */,
+				0.0 /* prior_book_value_balance */,
+				0.0 /* prior_total_cost_balance */,
+				0.0 /* prior_moving_share_price */,
+				0.0 /* prior_unrealized_gain_balance */ );
+	}
+	else
+	{
+		new_account_balance =
+			investment_account_balance_calculate(
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_time,
+				account_balance->share_price,
+				account_balance->share_quantity_change,
+				account_balance->share_quantity_balance,
+				account_balance->market_value,
+				prior_account_balance->share_quantity_balance,
+				prior_account_balance->book_value_balance,
+				prior_account_balance->total_cost_balance,
+				prior_account_balance->moving_share_price,
+				prior_account_balance->
+					unrealized_gain_balance );
+	}
+
+	if ( account_balance->share_quantity_change > 0.0 )
+	{
+		char memo[ 128 ];
+
+		new_account_balance->transaction_date_time =
+			ledger_transaction_binary_insert(
+				application_name,
+				new_account_balance->full_name,
+				new_account_balance->street_address,
+				new_account_balance->date_time,
+				new_account_balance->book_value_change
+					/* transaction_amount */,
+				strdup( format_initial_capital(
+						memo,
+						ACCOUNT_BALANCE_FOLDER_NAME ) ),
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				investment_account
+					/* debit_account_name */,
+				checking_account
+					/* credit_account_name */ );
+	}
 
 } /* post_change_account_balance_insert_purchase() */
 
@@ -641,5 +686,114 @@ void post_change_account_balance_insert_sale(
 				char *application_name,
 				ACCOUNT_BALANCE *account_balance )
 {
+	char *investment_account;
+	char *realized_gain;
+	char *unrealized_gain;
+	char *realized_loss;
+	char *unrealized_loss;
+	char *checking_account;
+	ACCOUNT_BALANCE *prior_account_balance = {0};
+	ACCOUNT_BALANCE *new_account_balance;
+	char *prior_date_time;
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+
+	ledger_get_investment_account_names(
+		&investment_account,
+		&realized_gain,
+		&unrealized_gain,
+		&realized_loss,
+		&unrealized_loss,
+		&checking_account,
+		application_name,
+		(char *)0 /* fund_name */ );
+
+	if ( ( prior_date_time =
+			investment_account_balance_fetch_prior_date_time(
+				application_name,
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_time ) ) )
+	{
+
+		if ( ! ( prior_account_balance =
+				investment_account_balance_fetch(
+					application_name,
+					account_balance->full_name,
+					account_balance->street_address,
+					account_balance->account_number,
+					prior_date_time ) ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot account_balance_fetch()\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+
+	if ( !prior_account_balance )
+	{
+		new_account_balance =
+			investment_account_balance_calculate(
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_time,
+				account_balance->share_price,
+				account_balance->share_quantity_change,
+				account_balance->share_quantity_balance,
+				account_balance->market_value,
+				0.0 /* prior_share_quantity_balance */,
+				0.0 /* prior_book_value_balance */,
+				0.0 /* prior_total_cost_balance */,
+				0.0 /* prior_moving_share_price */,
+				0.0 /* prior_unrealized_gain_balance */ );
+	}
+	else
+	{
+		new_account_balance =
+			investment_account_balance_calculate(
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_time,
+				account_balance->share_price,
+				account_balance->share_quantity_change,
+				account_balance->share_quantity_balance,
+				account_balance->market_value,
+				prior_account_balance->share_quantity_balance,
+				prior_account_balance->book_value_balance,
+				prior_account_balance->total_cost_balance,
+				prior_account_balance->moving_share_price,
+				prior_account_balance->
+					unrealized_gain_balance );
+	}
+
+	if ( account_balance->share_quantity_change > 0.0 )
+	{
+		char memo[ 128 ];
+
+		new_account_balance->transaction_date_time =
+			ledger_transaction_binary_insert(
+				application_name,
+				new_account_balance->full_name,
+				new_account_balance->street_address,
+				new_account_balance->date_time,
+				new_account_balance->book_value_change
+					/* transaction_amount */,
+				strdup( format_initial_capital(
+						memo,
+						ACCOUNT_BALANCE_FOLDER_NAME ) ),
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				investment_account
+					/* debit_account_name */,
+				checking_account
+					/* credit_account_name */ );
+	}
+
 } /* post_change_account_balance_insert_sale() */
 

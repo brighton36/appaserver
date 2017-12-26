@@ -1037,4 +1037,16 @@ void ledger_get_investment_account_names(
 				char *application_name,
 				char *fund_name );
 
+char *ledger_transaction_binary_insert(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				int check_number,
+				boolean lock_transaction,
+				char *debit_account_name,
+				char *credit_account_name );
+
 #endif

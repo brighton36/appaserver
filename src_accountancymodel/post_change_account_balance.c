@@ -33,6 +33,8 @@ void post_change_account_balance_POR(
 void post_change_account_balance_delete(
 				char *application_name,
 				char *fund_name,
+				char *full_name,
+				char *street_address,
 				char *transaction_date_time );
 
 boolean post_change_account_balance_insert_time_passage(
@@ -151,6 +153,8 @@ int main( int argc, char **argv )
 		post_change_account_balance_delete(
 			application_name,
 			fund_name,
+			account_balance->full_name,
+			account_balance->street_address,
 			account_balance->transaction_date_time );
 	}
 
@@ -160,6 +164,9 @@ int main( int argc, char **argv )
 
 void post_change_account_balance_delete(
 			char *application_name,
+			char *fund_name,
+			char *full_name,
+			char *street_address,
 			char *transaction_date_time )
 {
 	char *investment_account = {0};
@@ -177,7 +184,7 @@ void post_change_account_balance_delete(
 		&realized_loss,
 		&checking_account,
 		application_name,
-		(char *)0 /* fund_name */ );
+		fund_name );
 
 	ledger_delete(	application_name,
 			TRANSACTION_FOLDER_NAME,
@@ -400,7 +407,6 @@ boolean post_change_account_balance_insert_time_passage(
 				journal_ledger_list );
 
 	investment_account_balance_update(
-		application_name,
 		new_account_balance,
 		account_balance );
 
@@ -497,15 +503,14 @@ void post_change_account_balance_insert_purchase(
 			new_account_balance->
 				transaction->
 				transaction_amount,
-			transaction->memo,
+			new_account_balance->transaction->memo,
 			0 /* check_number */,
 			1 /* lock_transaction */,
 			new_account_balance->
-				new_account_balance->
-				transaction->journal_ledger_list );
+				transaction->
+				journal_ledger_list );
 
 	investment_account_balance_update(
-		application_name,
 		new_account_balance,
 		account_balance );
 
@@ -584,13 +589,14 @@ boolean post_change_account_balance_insert_sale(
 			new_account_balance->
 				transaction->
 				transaction_amount,
-			transaction->memo,
+			new_account_balance->transaction->memo,
 			0 /* check_number */,
 			1 /* lock_transaction */,
-			transaction->journal_ledger_list );
+			new_account_balance->
+				transaction->
+				journal_ledger_list );
 
 	investment_account_balance_update(
-		application_name,
 		new_account_balance,
 		account_balance );
 
@@ -613,7 +619,7 @@ void post_change_account_balance_POR(
 	boolean refresh_transaction;
 
 	account_balance_list =
-		investment_account_balance_fetch_list(
+		investment_fetch_account_balance_list(
 			application_name,
 			full_name,
 			street_address,
@@ -750,12 +756,11 @@ void post_change_account_balance_POR(
 						journal_ledger_list );
 
 			investment_account_balance_update(
-				application_name,
 				new_account_balance,
 				account_balance );
 		}
 
-		prior_account_balance_list = account_balance_list;
+		prior_account_balance = account_balance;
 
 	} while( list_next( account_balance_list ) );
 

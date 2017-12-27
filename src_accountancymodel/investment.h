@@ -99,7 +99,6 @@ ACCOUNT_BALANCE *investment_account_balance_parse(
 					char *full_name,
 					char *street_address,
 					char *account_name,
-					char *date_time,
 					char *input_buffer );
 
 LIST *investment_get_fair_value_adjustment_ledger_list(
@@ -135,5 +134,10 @@ TRANSACTION *investment_build_time_transaction(
 
 char *investment_get_memo(		char *investment_operation );
 
+LIST *investment_fetch_account_balance_list(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *account_number );
 
 #endif

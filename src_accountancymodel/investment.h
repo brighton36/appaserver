@@ -36,6 +36,7 @@ typedef struct
 	double market_value;
 	double unrealized_gain_balance;
 	double unrealized_gain_change;
+	double realized_gain;
 	char *transaction_date_time;
 	TRANSACTION *transaction;
 } ACCOUNT_BALANCE;

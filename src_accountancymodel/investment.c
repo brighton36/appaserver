@@ -52,6 +52,7 @@ char *investment_account_balance_get_select( void )
 		"market_value,			"
 		"unrealized_gain_balance,	"
 		"unrealized_gain_change,	"
+		"realized_gain,			"
 		"transaction_date_time		";
 
 	return select;
@@ -163,6 +164,9 @@ ACCOUNT_BALANCE *investment_account_balance_parse(
 	account_balance->unrealized_gain_change = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
+	account_balance->realized_gain = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
 	account_balance->transaction_date_time = strdup( buffer );
 
 	return account_balance;
@@ -282,14 +286,6 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 		a->moving_share_price = prior_moving_share_price;
 		a->total_cost_balance = prior_total_cost_balance;
 		a->book_value_balance = prior_book_value_balance;
-
-		a->unrealized_gain_balance =
-			a->market_value -
-			a->book_value_balance;
-
-		a->unrealized_gain_change =
-			a->unrealized_gain_balance -
-			prior_unrealized_gain_balance;
 	}
 	else
 	/* ------- */
@@ -313,20 +309,11 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 			prior_book_value_balance +
 			a->book_value_change;
 
-		a->unrealized_gain_balance =
-			a->market_value -
-			a->book_value_balance;
-
 		cash_in = share_price * -share_quantity_change;
 
-		/* ------------------------------------ */
-		/* This amount becomes realized.	*/
-		/* Book value change is negative.	*/
-		/* Realized gain is negative.		*/
-		/* Realized loss is positive.		*/
-		/* ------------------------------------ */
-		a->unrealized_gain_change =
-			0.0 - ( cash_in + a->book_value_change );
+		/* Book value change is negative. */
+		/* ------------------------------ */
+		a->realized_gain = cash_in + a->book_value_change;
 	}
 	else
 	/* ------------------------------------ */
@@ -341,10 +328,6 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 			prior_book_value_balance +
 			a->book_value_change;
 
-		a->unrealized_gain_balance =
-			a->market_value -
-			a->book_value_balance;
-
 		a->total_cost_balance =
 			prior_total_cost_balance +
 			a->book_value_change;
@@ -357,10 +340,15 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				a->share_quantity_balance;
 		}
 
-		a->unrealized_gain_change =
-			a->unrealized_gain_balance -
-			prior_unrealized_gain_balance;
 	}
+
+	a->unrealized_gain_balance =
+		a->market_value -
+		a->book_value_balance;
+
+	a->unrealized_gain_change =
+		a->unrealized_gain_balance -
+		prior_unrealized_gain_balance;
 
 	return a;
 
@@ -529,6 +517,19 @@ void investment_account_balance_update(	char *application_name,
 	 		new_account_balance->account_number,
 	 		new_account_balance->date_time,
 	 		new_account_balance->unrealized_gain_change );
+	}
+
+	if ( !timlib_double_virtually_same(
+			new_account_balance->realized_gain,
+			account_balance->realized_gain ) )
+	{
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^realized_gain^%.4lf\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->realized_gain );
 	}
 
 	if ( timlib_strcmp(

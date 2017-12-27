@@ -518,7 +518,7 @@ boolean post_change_account_balance_insert_time_passage(
 	char *prior_date_time;
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	char memo[ 128 ];
+	char *memo;
 
 	ledger_get_investment_account_names(
 		&investment_account,
@@ -576,20 +576,23 @@ boolean post_change_account_balance_insert_time_passage(
 			prior_account_balance->
 				unrealized_gain_balance );
 
+	memo = "Investment Time Passage";
+
 	transaction =
 		ledger_transaction_new(
 			new_account_balance->full_name,
 			new_account_balance->street_address,
 			new_account_balance->date_time
 				/* transaction_date_time */,
-			strdup( format_initial_capital(
-				   memo,
-				   ACCOUNT_BALANCE_FOLDER_NAME ) ) );
+			memo );
 
 	transaction->journal_ledger_list = list_new();
 
 	if ( new_account_balance->share_quantity_change > 0.0 )
 	{
+		new_account_balance->realized_gain =
+			new_account_balance->book_value_change;
+
 		/* Debit investment */
 		/* ---------------- */
 		journal_ledger =
@@ -600,7 +603,7 @@ boolean post_change_account_balance_insert_time_passage(
 				investment_account );
 
 		journal_ledger->debit_amount =
-			new_account_balance->book_value_change;
+			new_account_balance->realized_gain;
 
 		list_append_pointer(
 			transaction->journal_ledger_list,
@@ -616,7 +619,7 @@ boolean post_change_account_balance_insert_time_passage(
 				realized_gain );
 
 		journal_ledger->credit_amount =
-			new_account_balance->book_value_change;
+			new_account_balance->realized_gain;
 
 		list_append_pointer(
 			transaction->journal_ledger_list,
@@ -642,9 +645,7 @@ boolean post_change_account_balance_insert_time_passage(
 			new_account_balance->date_time,
 			new_account_balance->book_value_change
 				/* transaction_amount */,
-			strdup( format_initial_capital(
-					memo,
-					ACCOUNT_BALANCE_FOLDER_NAME ) ),
+			transaction->memo,
 			0 /* check_number */,
 			1 /* lock_transaction */,
 			transaction->journal_ledger_list );
@@ -671,7 +672,7 @@ void post_change_account_balance_insert_purchase(
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
 	char *prior_date_time;
-	char memo[ 128 ];
+	char *memo;
 	JOURNAL_LEDGER *journal_ledger;
 	TRANSACTION *transaction;
 
@@ -748,15 +749,18 @@ void post_change_account_balance_insert_purchase(
 					unrealized_gain_balance );
 	}
 
+	memo = "Purchase Investment";
+
 	transaction =
 		ledger_transaction_new(
 			new_account_balance->full_name,
 			new_account_balance->street_address,
 			new_account_balance->date_time
 				/* transaction_date_time */,
-			strdup( format_initial_capital(
-				   memo,
-				   ACCOUNT_BALANCE_FOLDER_NAME ) ) );
+			memo );
+
+	transaction->transaction_amount =
+		new_account_balance->book_value_change;
 
 	transaction->journal_ledger_list = list_new();
 
@@ -812,8 +816,7 @@ void post_change_account_balance_insert_purchase(
 			new_account_balance->full_name,
 			new_account_balance->street_address,
 			new_account_balance->date_time,
-			new_account_balance->book_value_change
-				/* transaction_amount */,
+			transaction->transaction_amount,
 			transaction->memo,
 			0 /* check_number */,
 			1 /* lock_transaction */,
@@ -839,7 +842,7 @@ boolean post_change_account_balance_insert_sale(
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
 	char *prior_date_time;
-	char memo[ 128 ];
+	char *memo;
 	JOURNAL_LEDGER *journal_ledger;
 	TRANSACTION *transaction;
 
@@ -902,15 +905,15 @@ boolean post_change_account_balance_insert_sale(
 	/* ------------------------------------------------ */
 	if ( new_account_balance->share_quantity_change >= 0.0 ) return 0;
 
+	memo = "Sell Investment";
+
 	transaction =
 		ledger_transaction_new(
 			new_account_balance->full_name,
 			new_account_balance->street_address,
 			new_account_balance->date_time
 				/* transaction_date_time */,
-			strdup( format_initial_capital(
-				   memo,
-				   ACCOUNT_BALANCE_FOLDER_NAME ) ) );
+			memo );
 
 	transaction->journal_ledger_list = list_new();
 
@@ -932,50 +935,51 @@ boolean post_change_account_balance_insert_sale(
 		transaction->journal_ledger_list,
 		journal_ledger );
 
-	/* If sale realized a gain/loss */
-	/* ---------------------------- */
+	/* If sale realized a gain */
+	/* ------------------------ */
 	if ( !timlib_double_virtually_same(
-			new_account_balance->unrealized_gain_change, 0.0 ) )
+		new_account_balance->realized_gain, 0.0 )
+	&&   new_account_balance->realized_gain > 0.0 )
 	{
-		if ( new_account_balance->unrealized_gain_change < 0.0 )
-		{
-			/* Credit account = realized gain */
-			/* ------------------------------ */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					realized_gain );
+		/* Credit account = realized gain */
+		/* ------------------------------ */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				realized_gain );
 
-			journal_ledger->credit_amount =
-				0.0 -
-				new_account_balance->unrealized_gain_change;
+		journal_ledger->credit_amount =
+			new_account_balance->realized_gain;
 
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-		}
-		else
-		{
-			/* Debit account = realized loss */
-			/* ----------------------------- */
-			journal_ledger =
-				journal_ledger_new(
-					transaction->full_name,
-					transaction->street_address,
-					transaction->transaction_date_time,
-					realized_loss );
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
 
-			journal_ledger->debit_amount =
-				new_account_balance->unrealized_gain_change;
+	/* If sale realized a loss */
+	/* ----------------------- */
+	if ( !timlib_double_virtually_same(
+		new_account_balance->realized_gain, 0.0 )
+	&&   new_account_balance->realized_gain < 0.0 )
+	{
+		/* Debit account = realized loss */
+		/* ----------------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				realized_loss );
 
-			list_append_pointer(
-				transaction->journal_ledger_list,
-				journal_ledger );
-		}
+		journal_ledger->debit_amount =
+			-new_account_balance->realized_gain;
 
-	} /* if sale realized a gain or loss */
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
 
 	if ( !timlib_double_virtually_same(
 		new_account_balance->unrealized_gain_change, 0.0 ) )

@@ -72,7 +72,7 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application fund full_name street_address account_number date_time investment_opertion state\n",
+"Usage: %s application fund full_name street_address account_number date_time state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -108,6 +108,21 @@ int main( int argc, char **argv )
 	/* ACCOUNT_BALANCE.transaction_date_time. 	*/
 	/* -------------------------------------------- */
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
+
+	/* If running a batch. */
+	/* ------------------- */
+	if ( strcmp( state, "update" ) == 0
+	&&   strcmp( date_time, "date_time" ) == 0 )
+	{
+		post_change_account_balance_POR(
+			application_name,
+			fund_name,
+			full_name,
+			street_address,
+			account_number );
+
+		exit( 0 );
+	}
 
 	if ( ! ( account_balance =
 			investment_account_balance_fetch(
@@ -276,24 +291,23 @@ boolean post_change_account_balance_insert_time_passage(
 	ACCOUNT_BALANCE *new_account_balance;
 	char *prior_date_time;
 
-	if ( ! ( prior_date_time =
-			investment_account_balance_fetch_prior_date_time(
-				application_name,
-				account_balance->full_name,
-				account_balance->street_address,
-				account_balance->account_number,
-				account_balance->date_time ) ) )
-	{
-		return 0;
-	}
+	prior_date_time =
+		investment_account_balance_fetch_prior_date_time(
+			application_name,
+			account_balance->full_name,
+			account_balance->street_address,
+			account_balance->account_number,
+			account_balance->date_time );
 
-	if ( ! ( prior_account_balance =
+	if ( prior_date_time
+	&&   *prior_date_time
+	&&   ( ! ( prior_account_balance =
 			investment_account_balance_fetch(
 				application_name,
 				account_balance->full_name,
 				account_balance->street_address,
 				account_balance->account_number,
-				prior_date_time ) ) )
+				prior_date_time ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: cannot account_balance_fetch()\n",
@@ -303,92 +317,51 @@ boolean post_change_account_balance_insert_time_passage(
 		exit( 1 );
 	}
 
-	if ( !prior_account_balance ) return 0;
-
-	new_account_balance =
-		investment_account_balance_calculate(
-			account_balance->full_name,
-			account_balance->street_address,
-			account_balance->account_number,
-			account_balance->date_time,
-			account_balance->share_price,
-			account_balance->share_quantity_change,
-			account_balance->share_quantity_balance,
-			account_balance->market_value,
-			prior_account_balance->share_quantity_balance,
-			prior_account_balance->book_value_balance,
-			prior_account_balance->total_cost_balance,
-			prior_account_balance->moving_share_price,
-			prior_account_balance->
-				unrealized_gain_balance,
-			account_balance->investment_operation );
+	if ( !prior_account_balance )
+	{
+		new_account_balance =
+			investment_account_balance_calculate(
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_time,
+				account_balance->share_price,
+				account_balance->share_quantity_change,
+				account_balance->share_quantity_balance,
+				account_balance->market_value,
+				0.0 /* prior_share_quantity_balance */,
+				0.0 /* prior_book_value_balance */,
+				0.0 /* prior_total_cost_balance */,
+				0.0 /* prior_moving_share_price */,
+				0.0 /* prior_unrealized_gain_balance */,
+				account_balance->investment_operation );
+	}
+	else
+	{
+		new_account_balance =
+			investment_account_balance_calculate(
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_time,
+				account_balance->share_price,
+				account_balance->share_quantity_change,
+				account_balance->share_quantity_balance,
+				account_balance->market_value,
+				prior_account_balance->share_quantity_balance,
+				prior_account_balance->book_value_balance,
+				prior_account_balance->total_cost_balance,
+				prior_account_balance->moving_share_price,
+				prior_account_balance->
+					unrealized_gain_balance,
+				account_balance->investment_operation );
+	}
 
 	new_account_balance->transaction =
 		investment_build_transaction(
 			application_name,
 			fund_name,
 			new_account_balance );
-
-#ifdef NOT_DEFINED
-	transaction =
-		ledger_transaction_new(
-			new_account_balance->full_name,
-			new_account_balance->street_address,
-			new_account_balance->date_time
-				/* transaction_date_time */,
-			investment_get_memo(
-				account_balance->investment_operation ) );
-
-	transaction->journal_ledger_list = list_new();
-
-	/* If reinvested dividends, then realized a gain. */
-	/* ---------------------------------------------- */
-	if ( new_account_balance->share_quantity_change > 0.0 )
-	{
-		/* Debit investment */
-		/* ---------------- */
-		journal_ledger =
-			journal_ledger_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				investment_account );
-
-		journal_ledger->debit_amount =
-			new_account_balance->realized_gain;
-
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-
-		/* Credit realized gain */
-		/* -------------------- */
-		journal_ledger =
-			journal_ledger_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				realized_gain );
-
-		journal_ledger->credit_amount =
-			new_account_balance->realized_gain;
-
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
-
-	if ( !timlib_double_virtually_same(
-		new_account_balance->unrealized_gain_change, 0.0 ) )
-	{
-		list_append_list(
-			transaction->journal_ledger_list,
-			investment_get_fair_value_adjustment_ledger_list(
-				new_account_balance->unrealized_gain_change,
-				unrealized_investment,
-				fair_value_adjustment ) );
-	}
-#endif
 
 	new_account_balance->transaction_date_time =
 		ledger_transaction_journal_ledger_insert(

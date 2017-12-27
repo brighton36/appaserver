@@ -1432,7 +1432,14 @@ LIST *get_radio_button_element_list(
 						"date" ) 
 	||   attribute_list_get_primary_datatype_attribute_string_list(
 						attribute_list,
-						"current_date" ) )
+						"current_date" )
+	||   attribute_list_get_primary_datatype_attribute_string_list(
+						attribute_list,
+						"current_date_time" )
+	||   attribute_list_get_primary_datatype_attribute_string_list(
+						attribute_list,
+						"date_time" )
+		)
 	&&   attribute_list_exists_lookup_time_chart_output( attribute_list ) )
 	{
 		if ( !output_table_row_boolean )

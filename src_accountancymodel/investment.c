@@ -349,6 +349,17 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 
 	a->investment_operation = investment_operation;
 
+	/* If running a batch. */
+	/* ------------------- */
+	if ( market_value
+	&&   !share_price
+	&&   !share_quantity_change
+	&&   !share_quantity_balance )
+	{
+		share_price = 1.0;
+		share_quantity_balance = market_value;
+	}
+
 	if ( !timlib_double_virtually_same( share_price, 0.0 ) )
 	{
 		a->share_price = share_price;
@@ -498,6 +509,20 @@ void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
+	}
+
+	if ( timlib_strcmp(	new_account_balance->investment_operation,
+				account_balance->investment_operation ) != 0 )
+	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
+		fprintf(output_pipe,
+			"%s^%s^%s^%s^investment_operation^%s\n",
+	 		new_account_balance->full_name,
+	 		new_account_balance->street_address,
+	 		new_account_balance->account_number,
+	 		new_account_balance->date_time,
+	 		new_account_balance->investment_operation );
 	}
 
 	if ( !timlib_double_virtually_same(

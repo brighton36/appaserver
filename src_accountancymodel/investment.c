@@ -109,6 +109,11 @@ ACCOUNT_BALANCE *investment_account_balance_fetch(
 				date_time,
 				input_buffer );
 
+	account_balance->is_latest =
+		investment_account_balance_is_latest(
+			application_name,
+			date_time );
+
 	return account_balance;
 
 } /* investment_account_balance_fetch() */
@@ -172,6 +177,38 @@ ACCOUNT_BALANCE *investment_account_balance_parse(
 	return account_balance;
 
 } /* investment_account_balance_parse() */
+
+boolean investment_account_balance_is_latest(
+					char *application_name,
+					char *date_time )
+{
+	char buffer[ 128 ];
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char *select;
+	char *folder;
+	char *results;
+
+	select = "max( date_time )";
+
+	folder = ACCOUNT_BALANCE_FOLDER_NAME;
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=\"%s\"	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder );
+
+	results = pipe2string( sys_string );
+
+	if ( !results || !*results )
+		return 0;
+	else
+		return ( strcmp( results, date_time ) == 0 );
+
+} /* investment_account_balance_is_latest() */
 
 char *investment_account_balance_fetch_prior_date_time(
 					char *application_name,

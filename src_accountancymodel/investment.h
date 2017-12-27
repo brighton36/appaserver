@@ -39,6 +39,7 @@ typedef struct
 	double realized_gain;
 	char *transaction_date_time;
 	TRANSACTION *transaction;
+	boolean is_latest;
 } ACCOUNT_BALANCE;
 
 /* Operations */
@@ -105,5 +106,9 @@ LIST *investment_get_fair_value_adjustment_ledger_list(
 					double unrealized_gain_change,
 					char *unrealized_investment,
 					char *fair_value_adjustment );
+
+boolean investment_account_balance_is_latest(
+					char *application_name,
+					char *date_time );
 
 #endif

@@ -182,9 +182,7 @@ boolean investment_account_balance_is_latest(
 					char *application_name,
 					char *date_time )
 {
-	char buffer[ 128 ];
 	char sys_string[ 1024 ];
-	char where[ 256 ];
 	char *select;
 	char *folder;
 	char *results;
@@ -273,9 +271,7 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				double prior_total_cost_balance,
 				double prior_moving_share_price,
 				double prior_unrealized_gain_balance,
-				char *investment_operation,
-				TRANSACTION *transaction,
-				char *transaction_date_time )
+				char *investment_operation )
 {
 	ACCOUNT_BALANCE *a;
 
@@ -392,14 +388,11 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 		a->unrealized_gain_balance -
 		prior_unrealized_gain_balance;
 
-	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0 )
+	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0
 	&&   a->share_quantity_change > 0.0 )
 	{
 		a->realized_gain = a->book_value_change;
 	}
-
-	a->transaction = transaction;
-	a->transaction_date_time = transaction_date_time;
 
 	return a;
 
@@ -407,22 +400,16 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 
 FILE *investment_open_update_pipe( void )
 {
-	char *table_name;
 	char *key_column_list;
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
-
-	table_name =
-		get_table_name(
-			application_name,
-			ACCOUNT_BALANCE_FOLDER_NAME );
 
 	key_column_list =
 	"full_name,street_address,account_number,date_time";
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y | sql.e",
-		 table_name,
+		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 key_column_list );
 
 	output_pipe = popen( sys_string, "w" );
@@ -431,8 +418,7 @@ FILE *investment_open_update_pipe( void )
 
 } /* investment_open_update_pipe() */
 
-void investment_account_balance_update(	char *application_name,
-					ACCOUNT_BALANCE *new_account_balance,
+void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 					ACCOUNT_BALANCE *account_balance )
 {
 	FILE *output_pipe = {0};
@@ -695,8 +681,7 @@ LIST *investment_get_fair_value_adjustment_ledger_list(
 				(char *)0 /* transaction_date_time */,
 				fair_value_adjustment );
 
-		journal_ledger->debit_amount =
-			unrealized_gain_change;
+		journal_ledger->debit_amount = unrealized_gain_change;
 
 		list_append_pointer(
 			journal_ledger_list,
@@ -711,8 +696,7 @@ LIST *investment_get_fair_value_adjustment_ledger_list(
 				(char *)0 /* transaction_date_time */,
 				unrealized_investment );
 
-		journal_ledger->credit_amount =
-			unrealized_gain_change;
+		journal_ledger->credit_amount = unrealized_gain_change;
 
 		list_append_pointer(
 			journal_ledger_list,
@@ -722,3 +706,373 @@ LIST *investment_get_fair_value_adjustment_ledger_list(
 	return journal_ledger_list;
 
 } /* investment_get_fair_value_adjustment_ledger_list() */
+
+char *investment_get_memo( char *investment_operation )
+{
+	char *memo;
+
+	if ( strcmp( investment_operation, "time_passage" ) == 0 )
+		memo = "Investment Time Passage";
+	else
+	if ( strcmp( investment_operation, "purchase" ) == 0 )
+		memo = "Purchase Investment";
+	else
+	if ( strcmp( investment_operation, "sale" ) == 0 )
+		memo = "Sell Investment";
+	else
+		memo = "";
+
+	return memo;
+
+} /* investment_get_memo() */
+
+TRANSACTION *investment_build_transaction(
+				char *application_name,
+				char *fund_name,
+				ACCOUNT_BALANCE *account_balance )
+{
+	if ( strcmp(	account_balance->investment_operation,
+			"purchase" ) == 0 )
+	{
+		return investment_build_purchase_transaction(
+				application_name,
+				fund_name,
+				account_balance );
+	}
+	else
+	if ( strcmp(	account_balance->investment_operation,
+			"time_passage" ) == 0 )
+	{
+		return investment_build_time_transaction(
+				application_name,
+				fund_name,
+				account_balance );
+	}
+	else
+	if ( strcmp(	account_balance->investment_operation,
+			"sale" ) == 0 )
+	{
+		return investment_build_sale_transaction(
+				application_name,
+				fund_name,
+				account_balance );
+	}
+	else
+	{
+		return (TRANSACTION *)0;
+	}
+
+} /* investment_build_transaction() */
+
+TRANSACTION *investment_build_purchase_transaction(
+				char *application_name,
+				char *fund_name,
+				ACCOUNT_BALANCE *account_balance )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *investment_account = {0};
+	char *fair_value_adjustment = {0};
+	char *realized_gain = {0};
+	char *unrealized_investment = {0};
+	char *realized_loss = {0};
+	char *checking_account = {0};
+
+	ledger_get_investment_account_names(
+		&investment_account,
+		&fair_value_adjustment,
+		&realized_gain,
+		&unrealized_investment,
+		&realized_loss,
+		&checking_account,
+		application_name,
+		fund_name );
+
+	transaction =
+		ledger_transaction_new(
+			account_balance->full_name,
+			account_balance->street_address,
+			account_balance->date_time
+				/* transaction_date_time */,
+			investment_get_memo(
+				account_balance->investment_operation ) );
+
+	transaction->transaction_amount =
+		account_balance->book_value_change;
+
+	transaction->journal_ledger_list = list_new();
+
+	if ( account_balance->share_quantity_change > 0.0 )
+	{
+		/* Debit investment account */
+		/* ------------------------ */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				investment_account );
+	
+		journal_ledger->debit_amount =
+			account_balance->book_value_change;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		/* Credit checking account */
+		/* ----------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				checking_account );
+	
+		journal_ledger->credit_amount =
+			account_balance->book_value_change;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	if ( !timlib_double_virtually_same(
+		account_balance->unrealized_gain_change, 0.0 ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			investment_get_fair_value_adjustment_ledger_list(
+				account_balance->unrealized_gain_change,
+				unrealized_investment,
+				fair_value_adjustment ) );
+	}
+
+	return transaction;
+
+} /* investment_build_purchase_transaction() */
+
+TRANSACTION *investment_build_sale_transaction(
+				char *application_name,
+				char *fund_name,
+				ACCOUNT_BALANCE *account_balance )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *investment_account = {0};
+	char *fair_value_adjustment = {0};
+	char *realized_gain = {0};
+	char *unrealized_investment = {0};
+	char *realized_loss = {0};
+	char *checking_account = {0};
+	double cash_in;
+
+	ledger_get_investment_account_names(
+		&investment_account,
+		&fair_value_adjustment,
+		&realized_gain,
+		&unrealized_investment,
+		&realized_loss,
+		&checking_account,
+		application_name,
+		fund_name );
+
+	transaction =
+		ledger_transaction_new(
+			account_balance->full_name,
+			account_balance->street_address,
+			account_balance->date_time
+				/* transaction_date_time */,
+			investment_get_memo(
+				account_balance->investment_operation ) );
+
+	transaction->journal_ledger_list = list_new();
+
+	cash_in =
+		0.0 -
+		( account_balance->share_price *
+		  account_balance->share_quantity_change );
+
+	transaction->transaction_amount = cash_in;
+
+	/* Debit checking for cash in */
+	/* -------------------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			checking_account );
+
+	journal_ledger->debit_amount = cash_in;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	/* If sale realized a gain */
+	/* ------------------------ */
+	if ( !timlib_double_virtually_same(
+		account_balance->realized_gain, 0.0 )
+	&&   account_balance->realized_gain > 0.0 )
+	{
+		/* Credit account = realized gain */
+		/* ------------------------------ */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				realized_gain );
+
+		journal_ledger->credit_amount =
+			account_balance->realized_gain;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	/* If sale realized a loss */
+	/* ----------------------- */
+	if ( !timlib_double_virtually_same(
+		account_balance->realized_gain, 0.0 )
+	&&   account_balance->realized_gain < 0.0 )
+	{
+		/* Debit account = realized loss */
+		/* ----------------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				realized_loss );
+
+		journal_ledger->debit_amount =
+			-account_balance->realized_gain;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	if ( !timlib_double_virtually_same(
+		account_balance->unrealized_gain_change, 0.0 ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			investment_get_fair_value_adjustment_ledger_list(
+				account_balance->unrealized_gain_change,
+				unrealized_investment,
+				fair_value_adjustment ) );
+	}
+
+	/* Credit investment */
+	/* ----------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			investment_account );
+
+	journal_ledger->credit_amount =
+		0.0 - account_balance->book_value_change;
+
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
+
+	return transaction;
+
+} /* investment_build_sale_transaction() */
+
+TRANSACTION *investment_build_time_transaction(
+				char *application_name,
+				char *fund_name,
+				ACCOUNT_BALANCE *account_balance )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *investment_account = {0};
+	char *fair_value_adjustment = {0};
+	char *realized_gain = {0};
+	char *unrealized_investment = {0};
+	char *realized_loss = {0};
+	char *checking_account = {0};
+
+	ledger_get_investment_account_names(
+		&investment_account,
+		&fair_value_adjustment,
+		&realized_gain,
+		&unrealized_investment,
+		&realized_loss,
+		&checking_account,
+		application_name,
+		fund_name );
+
+	transaction =
+		ledger_transaction_new(
+			account_balance->full_name,
+			account_balance->street_address,
+			account_balance->date_time
+				/* transaction_date_time */,
+			investment_get_memo(
+				account_balance->investment_operation ) );
+
+	transaction->journal_ledger_list = list_new();
+
+	transaction->transaction_amount = account_balance->book_value_change;
+
+	/* If reinvested dividends, then realized a gain. */
+	/* ---------------------------------------------- */
+	if ( account_balance->share_quantity_change > 0.0 )
+	{
+		/* Debit investment */
+		/* ---------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				investment_account );
+
+		journal_ledger->debit_amount =
+			account_balance->realized_gain;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		/* Credit realized gain */
+		/* -------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				realized_gain );
+
+		journal_ledger->credit_amount =
+			account_balance->realized_gain;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+
+	if ( !timlib_double_virtually_same(
+		account_balance->unrealized_gain_change, 0.0 ) )
+	{
+		list_append_list(
+			transaction->journal_ledger_list,
+			investment_get_fair_value_adjustment_ledger_list(
+				account_balance->unrealized_gain_change,
+				unrealized_investment,
+				fair_value_adjustment ) );
+	}
+
+	return transaction;
+
+} /* investment_build_time_transaction() */
+

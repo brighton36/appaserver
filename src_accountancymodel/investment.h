@@ -64,8 +64,7 @@ char *investment_account_balance_fetch_prior_date_time(
 					char *account_number,
 					char *date_time );
 
-void investment_account_balance_update(	char *application_name,
-					ACCOUNT_BALANCE *new_account_balance,
+void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 					ACCOUNT_BALANCE *account_balance );
 
 /* Returns transaction_date_time */
@@ -94,9 +93,7 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 					double prior_total_cost_balance,
 					double prior_moving_share_price,
 					double prior_unrealized_gain_balance,
-					char *investment_operation,
-					TRANSACTION *transaction,
-					char *transaction_date_time );
+					char *investment_operation );
 
 ACCOUNT_BALANCE *investment_account_balance_parse(
 					char *full_name,
@@ -115,5 +112,28 @@ boolean investment_account_balance_is_latest(
 					char *date_time );
 
 FILE *investment_open_update_pipe(	void );
+
+TRANSACTION *investment_build_transaction(
+					char *application_name,
+					char *fund_name,
+					ACCOUNT_BALANCE *account_balance );
+
+TRANSACTION *investment_build_purchase_transaction(
+					char *application_name,
+					char *fund_name,
+					ACCOUNT_BALANCE *account_balance );
+
+TRANSACTION *investment_build_sale_transaction(
+					char *application_name,
+					char *fund_name,
+					ACCOUNT_BALANCE *account_balance );
+
+TRANSACTION *investment_build_time_transaction(
+					char *application_name,
+					char *fund_name,
+					ACCOUNT_BALANCE *account_balance );
+
+char *investment_get_memo(		char *investment_operation );
+
 
 #endif

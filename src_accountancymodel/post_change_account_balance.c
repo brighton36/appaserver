@@ -23,6 +23,8 @@
 
 /* Prototypes */
 /* ---------- */
+char *get_memo(			char *investment_operation );
+
 void post_change_account_balance_POR(
 				char *application_name,
 				char *full_name,
@@ -115,34 +117,22 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( account_balance->is_latest )
+	if ( ( account_balance->is_latest
+	||     strcmp( state, "update" ) == 0 ) )
 	{
 		post_change_account_balance_POR(
 			application_name,
 			full_name,
 			street_address,
 			account_number );
-
-		return 0;
 	}
-
+	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
 		post_change_account_balance_insert(
 			application_name,
 			account_balance );
 	}
-#ifdef NOT_DEFINED
-	else
-	if ( strcmp( state, "update" ) == 0 )
-	{
-		post_change_account_balance_update(
-				application_name,
-				asset_name,
-				serial_number,
-				preupdate_extension );
-	}
-#endif
 	else
 	if ( strcmp( state, "predelete" ) == 0 )
 	/* -------------------------------------------- */
@@ -272,7 +262,6 @@ boolean post_change_account_balance_insert_time_passage(
 	char *prior_date_time;
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	char *memo;
 
 	ledger_get_investment_account_names(
 		&investment_account,
@@ -328,9 +317,10 @@ boolean post_change_account_balance_insert_time_passage(
 			prior_account_balance->total_cost_balance,
 			prior_account_balance->moving_share_price,
 			prior_account_balance->
-				unrealized_gain_balance );
-
-	memo = "Investment Time Passage";
+				unrealized_gain_balance,
+			account_balance->investment_operation,
+			account_balance->transaction,
+			account_balance->transaction_date_time );
 
 	transaction =
 		ledger_transaction_new(
@@ -338,15 +328,14 @@ boolean post_change_account_balance_insert_time_passage(
 			new_account_balance->street_address,
 			new_account_balance->date_time
 				/* transaction_date_time */,
-			memo );
+			get_memo( account_balance->investment_operation ) );
 
 	transaction->journal_ledger_list = list_new();
 
+	/* If reinvested dividends, then realized a gain. */
+	/* ---------------------------------------------- */
 	if ( new_account_balance->share_quantity_change > 0.0 )
 	{
-		new_account_balance->realized_gain =
-			new_account_balance->book_value_change;
-
 		/* Debit investment */
 		/* ---------------- */
 		journal_ledger =
@@ -426,7 +415,6 @@ void post_change_account_balance_insert_purchase(
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
 	char *prior_date_time;
-	char *memo;
 	JOURNAL_LEDGER *journal_ledger;
 	TRANSACTION *transaction;
 
@@ -481,7 +469,10 @@ void post_change_account_balance_insert_purchase(
 				0.0 /* prior_book_value_balance */,
 				0.0 /* prior_total_cost_balance */,
 				0.0 /* prior_moving_share_price */,
-				0.0 /* prior_unrealized_gain_balance */ );
+				0.0 /* prior_unrealized_gain_balance */,
+				account_balance->investment_operation,
+				account_balance->transaction,
+				account_balance->transaction_date_time );
 	}
 	else
 	{
@@ -500,10 +491,11 @@ void post_change_account_balance_insert_purchase(
 				prior_account_balance->total_cost_balance,
 				prior_account_balance->moving_share_price,
 				prior_account_balance->
-					unrealized_gain_balance );
+					unrealized_gain_balance,
+				account_balance->investment_operation,
+				account_balance->transaction,
+				account_balance->transaction_date_time );
 	}
-
-	memo = "Purchase Investment";
 
 	transaction =
 		ledger_transaction_new(
@@ -511,7 +503,7 @@ void post_change_account_balance_insert_purchase(
 			new_account_balance->street_address,
 			new_account_balance->date_time
 				/* transaction_date_time */,
-			memo );
+			get_memo( account_balance->investment_operation ) );
 
 	transaction->transaction_amount =
 		new_account_balance->book_value_change;
@@ -596,7 +588,6 @@ boolean post_change_account_balance_insert_sale(
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
 	char *prior_date_time;
-	char *memo;
 	JOURNAL_LEDGER *journal_ledger;
 	TRANSACTION *transaction;
 
@@ -652,14 +643,14 @@ boolean post_change_account_balance_insert_sale(
 			prior_account_balance->book_value_balance,
 			prior_account_balance->total_cost_balance,
 			prior_account_balance->moving_share_price,
-			prior_account_balance->
-				unrealized_gain_balance );
+			prior_account_balance->unrealized_gain_balance,
+			account_balance->investment_operation,
+			account_balance->transaction,
+			account_balance->transaction_date_time );
 
 	/* The sale needs a negative share quantity change. */
 	/* ------------------------------------------------ */
 	if ( new_account_balance->share_quantity_change >= 0.0 ) return 0;
-
-	memo = "Sell Investment";
 
 	transaction =
 		ledger_transaction_new(
@@ -667,7 +658,7 @@ boolean post_change_account_balance_insert_sale(
 			new_account_balance->street_address,
 			new_account_balance->date_time
 				/* transaction_date_time */,
-			memo );
+			get_memo( account_balance->investment_operation ) );
 
 	transaction->journal_ledger_list = list_new();
 
@@ -849,9 +840,10 @@ void post_change_account_balance_POR(
 				0.0 /* prior_book_value_balance */,
 				0.0 /* prior_total_cost_balance */,
 				0.0 /* prior_moving_share_price */,
-				0.0 /* prior_unrealized_gain_balance */ );
-				0.0 /* prior_moving_share_price */,
-				0.0 /* prior_unrealized_gain_balance */ );
+				0.0 /* prior_unrealized_gain_balance */,
+				account_balance->investment_operation,
+				account_balance->transaction,
+				account_balance->transaction_date_time );
 		}
 		else
 		{
@@ -870,23 +862,35 @@ void post_change_account_balance_POR(
 				prior_account_balance->total_cost_balance,
 				prior_account_balance->moving_share_price,
 				prior_account_balance->
-					unrealized_gain_balance );
+					unrealized_gain_balance,
+				account_balance->investment_operation,
+				account_balance->transaction,
+				account_balance->transaction_date_time );
 		}
 
-	memo = "Purchase Investment";
+		if ( !account_balance->transaction_date_time )
+		{
+			new_account_balance->transaction =
+				investment_build_transaction(
+					account_balance );
 
-	transaction =
-		ledger_transaction_new(
-			new_account_balance->full_name,
-			new_account_balance->street_address,
-			new_account_balance->date_time
-				/* transaction_date_time */,
-			memo );
+#ifdef NOT_DEFINED
+			new_account_balance->transaction =
+				ledger_transaction_new(
+					new_account_balance->full_name,
+					new_account_balance->street_address,
+					new_account_balance->date_time
+						/* transaction_date_time */,
+					get_memo(
+						account_balance->
+						investment_operation ) );
 
-	transaction->transaction_amount =
-		new_account_balance->book_value_change;
+			new_account_balance->transaction->transaction_amount =
+				new_account_balance->book_value_change;
 
-	transaction->journal_ledger_list = list_new();
+			new_account_balance->
+				transaction->
+				journal_ledger_list = list_new();
 
 	if ( new_account_balance->share_quantity_change > 0.0 )
 	{
@@ -933,23 +937,77 @@ void post_change_account_balance_POR(
 				unrealized_investment,
 				fair_value_adjustment ) );
 	}
+#endif
 
-	new_account_balance->transaction_date_time =
-		ledger_transaction_journal_ledger_insert(
-			application_name,
-			new_account_balance->full_name,
-			new_account_balance->street_address,
-			new_account_balance->date_time,
-			transaction->transaction_amount,
-			transaction->memo,
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			transaction->journal_ledger_list );
+		/* If a new transaction */
+		/* -------------------- */
+		if ( !account_balance->transaction_date_time )
+		{
+			new_account_balance->transaction_date_time =
+				ledger_transaction_journal_ledger_insert(
+					application_name,
+					new_account_balance->full_name,
+					new_account_balance->street_address,
+					new_account_balance->date_time,
+					new_account_balance->
+						transaction->
+						transaction_amount,
+					new_account_balance->
+						transaction->memo,
+					0 /* check_number */,
+					1 /* lock_transaction */,
+					new_account_balance->
+						transaction->
+						journal_ledger_list );
+		}
 
-	investment_account_balance_update(
-		application_name,
-		new_account_balance,
-		account_balance );
+		if ( memcmp(	account_balance,
+				new_account_balance,
+				sizeof( ACCOUNT_BALANCE ) != 0 ) )
+		{
+			new_account_balance->transaction_date_time =
+				ledger_transaction_refresh(
+					application_name,
+					new_account_balance->full_name,
+					new_account_balance->street_address,
+					new_account_balance->date_time,
+					new_account_balance->
+						transaction->
+						transaction_amount,
+					get_memo( new_account_balance->
+							investment_operation ),
+					0 /* check_number */,
+					1 /* lock_transaction */,
+					new_account_balance->
+						transaction->
+						journal_ledger_list );
+
+			investment_account_balance_update(
+				application_name,
+				new_account_balance,
+				account_balance );
+		}
+
+		prior_account_balance_list = account_balance_list;
+
+	} while( list_next( account_balance_list ) );
 
 } /* post_change_account_balance_POR() */
 
+char *get_memo( char *investment_operation )
+{
+	char *memo;
+
+	if ( strcmp( investment_operation, "time_passage" ) == 0 )
+		memo = "Investment Time Passage";
+	else
+	if ( strcmp( investment_operation, "purchase" ) == 0 )
+		memo = "Purchase Investment";
+	else
+	if ( strcmp( investment_operation, "sale" ) == 0 )
+		memo = "Sell Investment";
+	else
+		memo = "";
+
+	return memo;
+} /* get_memo() */

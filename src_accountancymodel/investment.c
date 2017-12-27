@@ -272,7 +272,10 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				double prior_book_value_balance,
 				double prior_total_cost_balance,
 				double prior_moving_share_price,
-				double prior_unrealized_gain_balance )
+				double prior_unrealized_gain_balance,
+				char *investment_operation,
+				TRANSACTION *transaction,
+				char *transaction_date_time )
 {
 	ACCOUNT_BALANCE *a;
 
@@ -281,6 +284,8 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 			street_address,
 			account_number,
 			date_time );
+
+	a->investment_operation = investment_operation;
 
 	if ( !timlib_double_virtually_same( share_price, 0.0 ) )
 	{
@@ -387,29 +392,25 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 		a->unrealized_gain_balance -
 		prior_unrealized_gain_balance;
 
+	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0 )
+	&&   a->share_quantity_change > 0.0 )
+	{
+		a->realized_gain = a->book_value_change;
+	}
+
+	a->transaction = transaction;
+	a->transaction_date_time = transaction_date_time;
+
 	return a;
 
 } /* investment_account_balance_calculate() */
 
-void investment_account_balance_update(	char *application_name,
-					ACCOUNT_BALANCE *new_account_balance,
-					ACCOUNT_BALANCE *account_balance )
+FILE *investment_open_update_pipe( void )
 {
-	FILE *output_pipe;
-	char sys_string[ 1024 ];
 	char *table_name;
 	char *key_column_list;
-
-	if ( !new_account_balance
-	||   !account_balance )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: received null input.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
 
 	table_name =
 		get_table_name(
@@ -426,10 +427,33 @@ void investment_account_balance_update(	char *application_name,
 
 	output_pipe = popen( sys_string, "w" );
 
+	return output_pipe;
+
+} /* investment_open_update_pipe() */
+
+void investment_account_balance_update(	char *application_name,
+					ACCOUNT_BALANCE *new_account_balance,
+					ACCOUNT_BALANCE *account_balance )
+{
+	FILE *output_pipe = {0};
+
+	if ( !new_account_balance
+	||   !account_balance )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: received null input.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( !timlib_double_virtually_same(
 			new_account_balance->share_price,
 			account_balance->share_price ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^share_price^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -443,6 +467,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->share_quantity_change,
 			account_balance->share_quantity_change ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^share_quantity_change^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -456,6 +482,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->share_quantity_balance,
 			account_balance->share_quantity_balance ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^share_quantity_balance^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -469,6 +497,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->book_value_change,
 			account_balance->book_value_change ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^book_value_change^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -482,6 +512,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->book_value_balance,
 			account_balance->book_value_balance ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^book_value_balance^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -495,6 +527,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->moving_share_price,
 			account_balance->moving_share_price ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^moving_share_price^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -508,6 +542,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->total_cost_balance,
 			account_balance->total_cost_balance ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^total_cost_balance^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -521,6 +557,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->market_value,
 			account_balance->market_value ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^market_value^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -534,6 +572,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->unrealized_gain_balance,
 			account_balance->unrealized_gain_balance ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^unrealized_gain_balance^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -547,6 +587,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->unrealized_gain_change,
 			account_balance->unrealized_gain_change ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^unrealized_gain_change^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -560,6 +602,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->realized_gain,
 			account_balance->realized_gain ) )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^realized_gain^%.4lf\n",
 	 		new_account_balance->full_name,
@@ -573,6 +617,8 @@ void investment_account_balance_update(	char *application_name,
 			new_account_balance->transaction_date_time,
 			account_balance->transaction_date_time ) != 0 )
 	{
+		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
+
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^transaction_date_time^%s\n",
 	 		new_account_balance->full_name,
@@ -582,7 +628,7 @@ void investment_account_balance_update(	char *application_name,
 	 		new_account_balance->transaction_date_time );
 	}
 
-	pclose( output_pipe );
+	if ( output_pipe ) pclose( output_pipe );
 
 } /* investment_account_balance_update() */
 

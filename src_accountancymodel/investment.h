@@ -93,7 +93,10 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 					double prior_book_value_balance,
 					double prior_total_cost_balance,
 					double prior_moving_share_price,
-					double prior_unrealized_gain_balance );
+					double prior_unrealized_gain_balance,
+					char *investment_operation,
+					TRANSACTION *transaction,
+					char *transaction_date_time );
 
 ACCOUNT_BALANCE *investment_account_balance_parse(
 					char *full_name,
@@ -110,5 +113,7 @@ LIST *investment_get_fair_value_adjustment_ledger_list(
 boolean investment_account_balance_is_latest(
 					char *application_name,
 					char *date_time );
+
+FILE *investment_open_update_pipe(	void );
 
 #endif

@@ -1,5 +1,4 @@
 account
-account_balance
 account_duration
 bank_upload
 contra_account
@@ -9,11 +8,13 @@ customer_sale
 day
 depreciation
 depreciation_method
+duration_term
 element
 employee
 employee_work_day
 employee_work_period
 entity
+equity_account_balance
 federal_income_tax_withholding
 federal_marital_status
 financial_institution

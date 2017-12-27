@@ -10,6 +10,7 @@ application=$1
 
 if [ "$application" != timriley -a		\
      "$application" != eves -a			\
+     "$application" != capitolpops -a		\
      "$application" != appahost ]
 then
 	exit 0

@@ -210,6 +210,39 @@ function export_accountancy_model()
 }
 # export_accountancy_model()
 
+function extract_investment()
+{
+	application=$1
+	output_shell=$2
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done5" >> $output_shell
+
+	folder=investment_classification
+	columns=classification
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e table=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=duration_term
+	columns=duration_term
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=investment_operation
+	columns=investment_operation
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	echo "all_done5" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+}
+# extract_investment()
+
 function extract_chart_of_accounts()
 {
 	application=$1
@@ -413,6 +446,7 @@ rm $output_shell 2>/dev/null
 export_accountancy_model $application $input_file $output_shell
 create_accountancy_model $application $input_file $output_shell
 extract_chart_of_accounts $application $output_shell
+extract_investment $application $output_shell
 export_processes $application $input_file $output_shell
 extract_self $application $output_shell
 

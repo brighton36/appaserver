@@ -3983,43 +3983,11 @@ char *ledger_transaction_insert(	char *application_name,
 					boolean lock_transaction )
 {
 	FILE *output_pipe;
-	key_t key = LEDGER_SEMAPHORE_KEY;
-	int semid;
 
-	if ( ( semid = semaphore( key ) ) < 0 )
-	{
-		fprintf( stderr, "Error: %s failed.\n", __FILE__ );
-		exit( 1 );
-	}
-
-	semaphore_wait( semid );
-
-	if ( ledger_transaction_exists(
-		application_name,
-		transaction_date_time ) )
-	{
-		char *max_transaction_date_time_string;
-		DATE *max_transaction_date_time;
-
-		max_transaction_date_time_string =
-			ledger_fetch_max_transaction_date_time(
-				application_name );
-
-		max_transaction_date_time =
-			date_yyyy_mm_dd_hms_new(
-				max_transaction_date_time_string,
-				date_get_utc_offset() );
-
-		date_increment_seconds(
-			max_transaction_date_time,
-			1,
-			date_get_utc_offset() );
-
-		transaction_date_time =
-			date_display_yyyy_mm_dd_colon_hms(
-				max_transaction_date_time );
-
-	}
+	transaction_date_time =
+		ledger_fetch_unique_transaction_date_time(
+			application_name,
+			transaction_date_time );
 
 	output_pipe =
 		ledger_transaction_insert_open_stream(
@@ -4036,11 +4004,54 @@ char *ledger_transaction_insert(	char *application_name,
 		lock_transaction );
 
 	pclose( output_pipe );
-	semaphore_signal( semid );
 
 	return transaction_date_time;
 
 } /* ledger_transaction_insert() */
+
+char *ledger_fetch_unique_transaction_date_time(
+					char *application_name,
+					char *transaction_date_time )
+{
+	key_t key = LEDGER_SEMAPHORE_KEY;
+	int semid;
+	DATE *next_transaction_date_time = {0};
+
+	if ( ( semid = semaphore( key ) ) < 0 )
+	{
+		fprintf( stderr, "Error: %s failed.\n", __FILE__ );
+		exit( 1 );
+	}
+
+	semaphore_wait( semid );
+
+	while ( ledger_transaction_exists(
+			application_name,
+			transaction_date_time ) )
+	{
+		if ( !next_transaction_date_time )
+		{
+			next_transaction_date_time =
+				date_yyyy_mm_dd_hms_new(
+					transaction_date_time,
+					date_get_utc_offset() );
+		}
+
+		date_increment_seconds(
+			next_transaction_date_time,
+			1,
+			date_get_utc_offset() );
+
+		transaction_date_time =
+			date_display_yyyy_mm_dd_colon_hms(
+				next_transaction_date_time );
+	}
+
+	semaphore_signal( semid );
+
+	return transaction_date_time;
+
+} /* ledger_fetch_unique_transaction_date_time() */
 
 void ledger_journal_ledger_insert(	char *application_name,
 					char *full_name,

@@ -1049,4 +1049,8 @@ char *ledger_transaction_binary_insert(
 				char *debit_account_name,
 				char *credit_account_name );
 
+char *ledger_fetch_unique_transaction_date_time(
+				char *application_name,
+				char *transaction_date_time );
+
 #endif

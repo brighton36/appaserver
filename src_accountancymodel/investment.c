@@ -403,10 +403,7 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 		a->book_value_balance = prior_book_value_balance;
 	}
 	else
-	/* ------- */
-	/* If sale */
-	/* ------- */
-	if ( a->share_quantity_change < 0.0 )
+	if ( timlib_strcmp( investment_operation, "sale" ) == 0 )
 	{
 		double cash_in;
 
@@ -431,9 +428,6 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 		a->realized_gain = cash_in + a->book_value_change;
 	}
 	else
-	/* ------------------------------------ */
-	/* If purchase or dividend reinvestment */
-	/* ------------------------------------ */
 	{
 		a->book_value_change =
 			a->share_quantity_change *
@@ -466,7 +460,8 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 		prior_unrealized_gain_balance;
 
 	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0
-	&&   a->share_quantity_change > 0.0 )
+	&&   !timlib_double_virtually_same(
+		a->share_quantity_change, 0.0 ) )
 	{
 		a->realized_gain = a->book_value_change;
 	}
@@ -830,11 +825,14 @@ TRANSACTION *investment_build_transaction(
 				char *fund_name,
 				ACCOUNT_BALANCE *account_balance )
 {
+	TRANSACTION *transaction;
+
 	if ( timlib_strcmp(
 			account_balance->investment_operation,
 			"purchase" ) == 0 )
 	{
-		return investment_build_purchase_transaction(
+		transaction =
+			investment_build_purchase_transaction(
 				application_name,
 				fund_name,
 				account_balance );
@@ -844,7 +842,8 @@ TRANSACTION *investment_build_transaction(
 			account_balance->investment_operation,
 			"time_passage" ) == 0 )
 	{
-		return investment_build_time_transaction(
+		transaction =
+			investment_build_time_transaction(
 				application_name,
 				fund_name,
 				account_balance );
@@ -854,15 +853,29 @@ TRANSACTION *investment_build_transaction(
 			account_balance->investment_operation,
 			"sale" ) == 0 )
 	{
-		return investment_build_sale_transaction(
+		transaction =
+			investment_build_sale_transaction(
 				application_name,
 				fund_name,
 				account_balance );
 	}
 	else
 	{
-		return (TRANSACTION *)0;
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: unrecognized investment_operation = (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 account_balance->investment_operation );
+		exit( 0 );
 	}
+
+	transaction->transaction_date_time =
+		ledger_fetch_unique_transaction_date_time(
+			application_name,
+			account_balance->date_time );
+
+	return transaction;
 
 } /* investment_build_transaction() */
 

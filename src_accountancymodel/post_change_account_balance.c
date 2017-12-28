@@ -378,7 +378,9 @@ boolean post_change_account_balance_insert_time_passage(
 			application_name,
 			new_account_balance->full_name,
 			new_account_balance->street_address,
-			new_account_balance->date_time,
+			new_account_balance->
+				transaction->
+				transaction_date_time,
 			new_account_balance->
 				transaction->
 				transaction_amount,
@@ -492,7 +494,9 @@ void post_change_account_balance_insert_purchase(
 			application_name,
 			new_account_balance->full_name,
 			new_account_balance->street_address,
-			new_account_balance->date_time,
+			new_account_balance->
+				transaction->
+				transaction_date_time,
 			new_account_balance->
 				transaction->
 				transaction_amount,
@@ -588,7 +592,9 @@ boolean post_change_account_balance_insert_sale(
 			application_name,
 			new_account_balance->full_name,
 			new_account_balance->street_address,
-			new_account_balance->date_time,
+			new_account_balance->
+				transaction->
+				transaction_date_time,
 			new_account_balance->
 				transaction->
 				transaction_amount,
@@ -710,19 +716,43 @@ void post_change_account_balance_POR(
 				 new_account_balance->date_time );
 		}
 
+		/* If now no transaction */
+		/* --------------------- */
+		if ( account_balance->transaction_date_time
+		&&   *account_balance->transaction_date_time
+		&&   !list_length(	new_account_balance->
+						transaction->
+						journal_ledger_list ) )
+		{
+			ledger_delete(	application_name,
+					TRANSACTION_FOLDER_NAME,
+					account_balance->full_name,
+					account_balance->street_address,
+					account_balance->
+						transaction_date_time );
+
+			ledger_delete(	application_name,
+					LEDGER_FOLDER_NAME,
+					account_balance->full_name,
+					account_balance->street_address,
+					account_balance->
+						transaction_date_time );
+		}
+		else
+		/* -------------------- */
 		/* If a new transaction */
 		/* -------------------- */
 		if ( !account_balance->transaction_date_time
-		&&   list_length(	new_account_balance->
-						transaction->
-						journal_ledger_list ) )
+		||   !*account_balance->transaction_date_time )
 		{
 			new_account_balance->transaction_date_time =
 				ledger_transaction_journal_ledger_insert(
 					application_name,
 					new_account_balance->full_name,
 					new_account_balance->street_address,
-					new_account_balance->date_time,
+					new_account_balance->
+						transaction->
+						transaction_date_time,
 					new_account_balance->
 						transaction->
 						transaction_amount,
@@ -735,24 +765,33 @@ void post_change_account_balance_POR(
 						journal_ledger_list );
 		}
 		else
+		/* ------------------------------- */
+		/* Refresh an existing transaction */
+		/* ------------------------------- */
+		if ( account_balance->transaction_date_time
+		&&   *account_balance->transaction_date_time )
 		{
 			new_account_balance->transaction_date_time =
-			   ledger_transaction_refresh(
-				application_name,
-				new_account_balance->full_name,
-				new_account_balance->street_address,
-				new_account_balance->date_time,
-				new_account_balance->
-					transaction->
-					transaction_amount,
-				investment_get_memo(
+				ledger_transaction_refresh(
+					application_name,
+					new_account_balance->full_name,
+					new_account_balance->street_address,
+					/* ------------------------------ */
+					/* Original transaction_date_time */
+					/* ------------------------------ */
+					account_balance->
+						transaction_date_time,
 					new_account_balance->
-						investment_operation ),
-				0 /* check_number */,
-				1 /* lock_transaction */,
-				new_account_balance->
-					transaction->
-					journal_ledger_list );
+						transaction->
+						transaction_amount,
+					investment_get_memo(
+						new_account_balance->
+							investment_operation ),
+					0 /* check_number */,
+					1 /* lock_transaction */,
+					new_account_balance->
+						transaction->
+						journal_ledger_list );
 		}
 
 		investment_account_balance_update(

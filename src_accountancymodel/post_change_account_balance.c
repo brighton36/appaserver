@@ -363,6 +363,16 @@ boolean post_change_account_balance_insert_time_passage(
 			fund_name,
 			new_account_balance );
 
+	if ( !new_account_balance->transaction )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty transaction.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	new_account_balance->transaction_date_time =
 		ledger_transaction_journal_ledger_insert(
 			application_name,
@@ -467,6 +477,16 @@ void post_change_account_balance_insert_purchase(
 			fund_name,
 			new_account_balance );
 
+	if ( !new_account_balance->transaction )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty transaction.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	new_account_balance->transaction_date_time =
 		ledger_transaction_journal_ledger_insert(
 			application_name,
@@ -553,6 +573,16 @@ boolean post_change_account_balance_insert_sale(
 			fund_name,
 			new_account_balance );
 
+	if ( !new_account_balance->transaction )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty transaction.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	new_account_balance->transaction_date_time =
 		ledger_transaction_journal_ledger_insert(
 			application_name,
@@ -587,9 +617,7 @@ void post_change_account_balance_POR(
 	ACCOUNT_BALANCE *account_balance;
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
-	ACCOUNT_BALANCE *next_account_balance;
 	LIST *account_balance_list;
-	boolean refresh_transaction;
 
 	account_balance_list =
 		investment_fetch_account_balance_list(
@@ -601,7 +629,7 @@ void post_change_account_balance_POR(
 	if ( !list_rewind( account_balance_list ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: empty account_balance_list.\n",
+			 "ERROR in %s/%s()/%d: empty account_balance_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -651,20 +679,43 @@ void post_change_account_balance_POR(
 				account_balance->investment_operation );
 		}
 
-		/* If a new transaction */
-		/* -------------------- */
-		if ( !account_balance->transaction_date_time )
+		new_account_balance->transaction =
+			investment_build_transaction(
+				application_name,
+				fund_name,
+				new_account_balance );
+
+		if ( !new_account_balance->transaction )
 		{
-			new_account_balance->transaction =
-				investment_build_transaction(
-					application_name,
-					fund_name,
-					account_balance );
+			fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty transaction.\n",
+		 		 __FILE__,
+				 __FUNCTION__,
+		 		 __LINE__ );
+			exit( 1 );
+		}
+
+		if ( !list_length(	new_account_balance->
+						transaction->
+						journal_ledger_list ) )
+		{
+			fprintf( stderr,
+	"Warning in %s/%s()/%d: empty journal ledger list for (%s/%s/%s/%s).\n",
+		 		 __FILE__,
+				 __FUNCTION__,
+		 		 __LINE__,
+				 new_account_balance->full_name,
+				 new_account_balance->street_address,
+				 new_account_balance->account_number,
+				 new_account_balance->date_time );
 		}
 
 		/* If a new transaction */
 		/* -------------------- */
-		if ( !account_balance->transaction_date_time )
+		if ( !account_balance->transaction_date_time
+		&&   list_length(	new_account_balance->
+						transaction->
+						journal_ledger_list ) )
 		{
 			new_account_balance->transaction_date_time =
 				ledger_transaction_journal_ledger_insert(
@@ -683,57 +734,32 @@ void post_change_account_balance_POR(
 						transaction->
 						journal_ledger_list );
 		}
-
-		refresh_transaction = 0;
-
-		if ( list_at_end( account_balance_list ) )
-		{
-			refresh_transaction = 1;
-		}
 		else
 		{
-			list_next( account_balance_list );
-
-			next_account_balance =
-				list_get_pointer(
-					account_balance_list );
-
-			if ( memcmp(	new_account_balance,
-					next_account_balance,
-					sizeof( ACCOUNT_BALANCE ) != 0 ) )
-			{
-				refresh_transaction = 1;
-			}
-
-			list_previous( account_balance_list );
-		}
-
-		if ( refresh_transaction )
-		{
 			new_account_balance->transaction_date_time =
-				ledger_transaction_refresh(
-					application_name,
-					new_account_balance->full_name,
-					new_account_balance->street_address,
-					new_account_balance->date_time,
+			   ledger_transaction_refresh(
+				application_name,
+				new_account_balance->full_name,
+				new_account_balance->street_address,
+				new_account_balance->date_time,
+				new_account_balance->
+					transaction->
+					transaction_amount,
+				investment_get_memo(
 					new_account_balance->
-						transaction->
-						transaction_amount,
-					investment_get_memo(
-						new_account_balance->
-							investment_operation ),
-					0 /* check_number */,
-					1 /* lock_transaction */,
-					new_account_balance->
-						transaction->
-						journal_ledger_list );
-
-			investment_account_balance_update(
-				new_account_balance,
-				account_balance );
+						investment_operation ),
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				new_account_balance->
+					transaction->
+					journal_ledger_list );
 		}
 
-		prior_account_balance = account_balance;
+		investment_account_balance_update(
+			new_account_balance,
+			account_balance );
+
+		prior_account_balance = new_account_balance;
 
 	} while( list_next( account_balance_list ) );
 

@@ -694,6 +694,12 @@ void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 			new_account_balance->transaction_date_time,
 			account_balance->transaction_date_time ) != 0 )
 	{
+		char *transaction_date_time;
+
+		transaction_date_time =
+	 		new_account_balance->
+				transaction_date_time;
+
 		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
 
 		fprintf(output_pipe,
@@ -702,7 +708,9 @@ void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 	 		new_account_balance->street_address,
 	 		new_account_balance->account_number,
 	 		new_account_balance->date_time,
-	 		new_account_balance->transaction_date_time );
+	 		(transaction_date_time)
+				? transaction_date_time
+				: "" );
 	}
 
 	if ( output_pipe ) pclose( output_pipe );
@@ -822,7 +830,8 @@ TRANSACTION *investment_build_transaction(
 				char *fund_name,
 				ACCOUNT_BALANCE *account_balance )
 {
-	if ( strcmp(	account_balance->investment_operation,
+	if ( timlib_strcmp(
+			account_balance->investment_operation,
 			"purchase" ) == 0 )
 	{
 		return investment_build_purchase_transaction(
@@ -831,7 +840,8 @@ TRANSACTION *investment_build_transaction(
 				account_balance );
 	}
 	else
-	if ( strcmp(	account_balance->investment_operation,
+	if ( timlib_strcmp(
+			account_balance->investment_operation,
 			"time_passage" ) == 0 )
 	{
 		return investment_build_time_transaction(
@@ -840,7 +850,8 @@ TRANSACTION *investment_build_transaction(
 				account_balance );
 	}
 	else
-	if ( strcmp(	account_balance->investment_operation,
+	if ( timlib_strcmp(
+			account_balance->investment_operation,
 			"sale" ) == 0 )
 	{
 		return investment_build_sale_transaction(
@@ -1146,6 +1157,45 @@ TRANSACTION *investment_build_time_transaction(
 
 		journal_ledger->credit_amount =
 			account_balance->realized_gain;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+	}
+	else
+	/* ----------------------------------------------------------- */
+	/* If for some reason the shares go down, then realize a loss. */
+	/* This is probably an unrecorded sale or withdrawal.	       */
+	/* ----------------------------------------------------------- */
+	if ( account_balance->share_quantity_change < 0.0 )
+	{
+		/* Debit realized loss */
+		/* ------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				realized_loss );
+
+		journal_ledger->debit_amount =
+			-account_balance->realized_gain;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		/* Credit investment */
+		/* ----------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				investment_account );
+
+		journal_ledger->credit_amount =
+			-account_balance->realized_gain;
 
 		list_append_pointer(
 			transaction->journal_ledger_list,

@@ -14,6 +14,7 @@ int semaphore( key_t key )
 {
 	int status = 0;
 	int semid;
+#ifdef NOT_DEFINED
 	int perms;
 
 	/* rw-rw---- */
@@ -21,6 +22,8 @@ int semaphore( key_t key )
 	perms = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP;
 
 	if ( ( semid = semget( key, 1, perms|IPC_CREAT|IPC_EXCL ) ) == -1 )
+#endif
+	if ( ( semid = semget( key, 1, 0666|IPC_CREAT|IPC_EXCL ) ) == -1 )
 	{
 		if ( errno == EEXIST )
 		{

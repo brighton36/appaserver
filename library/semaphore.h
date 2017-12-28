@@ -4,6 +4,11 @@
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
 
+/* --------------------------------------------------------------- */
+/* Notes: $ ipcs          <-- lists semaphores.			   */
+/* 	  $ ipcrm -s $key <-- removes semaphore previously listed. */
+/* --------------------------------------------------------------- */
+
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>

@@ -140,7 +140,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( ( account_balance->is_latest
+	if ( ( !account_balance->is_latest
 	||     strcmp( state, "update" ) == 0 ) )
 	{
 		post_change_account_balance_POR(

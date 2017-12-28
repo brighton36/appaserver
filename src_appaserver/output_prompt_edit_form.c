@@ -1425,8 +1425,7 @@ LIST *get_radio_button_element_list(
 
 	output_table_row_boolean = 1;
 
-	/* Create the time chart button (maybe) */
-	/* ------------------------------------ */
+/*
 	if ( ( attribute_list_get_primary_datatype_attribute_string_list(
 						attribute_list,
 						"date" ) 
@@ -1440,7 +1439,10 @@ LIST *get_radio_button_element_list(
 						attribute_list,
 						"date_time" )
 		)
-	&&   attribute_list_exists_lookup_time_chart_output( attribute_list ) )
+*/
+	/* Create the time chart button */
+	/* ---------------------------- */
+	if ( attribute_list_exists_lookup_time_chart_output( attribute_list ) )
 	{
 		if ( !output_table_row_boolean )
 		{

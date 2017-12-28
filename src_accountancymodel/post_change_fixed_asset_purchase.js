@@ -16,37 +16,37 @@ function post_change_fixed_asset_purchase( row )
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = false;
+	element.disabled = false;
 
 	element_name = 'estimated_useful_life_years_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = false;
+	element.disabled = false;
 
 	element_name = 'estimated_useful_life_units_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = false;
+	element.disabled = false;
 
 	element_name = 'estimated_residual_value_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = false;
+	element.disabled = false;
 
 	element_name = 'declining_balance_n_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = false;
+	element.disabled = false;
 
 	element_name = 'depreciation_method_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = false;
+	element.disabled = false;
 
 	// Check Expense Account element
 	// -----------------------------
@@ -80,31 +80,31 @@ function post_change_fixed_asset_purchase_expense( row )
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = true;
+	element.disabled = true;
 
 	element_name = 'estimated_useful_life_units_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = true;
+	element.disabled = true;
 
 	element_name = 'estimated_residual_value_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = true;
+	element.disabled = true;
 
 	element_name = 'declining_balance_n_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = true;
+	element.disabled = true;
 
 	element_name = 'depreciation_method_' + row;
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = true;
+	element.disabled = true;
 
 	return true;
 
@@ -132,7 +132,7 @@ function post_change_fixed_asset_purchase_depreciation( row )
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
-	element.hidden = true;
+	element.disabled = true;
 
 	if ( depreciation_method_element_value == 'straight_line' )
 	{
@@ -140,13 +140,13 @@ function post_change_fixed_asset_purchase_depreciation( row )
 		element =
 			timlib_get_form_element(
 				element_name, 0 );
-		element.hidden = true;
+		element.disabled = true;
 
 		element_name = 'declining_balance_n_' + row;
 		element =
 			timlib_get_form_element(
 				element_name, 0 );
-		element.hidden = true;
+		element.disabled = true;
 	}
 	else
 	if ( depreciation_method_element_value == 'double_declining_balance' )
@@ -155,13 +155,13 @@ function post_change_fixed_asset_purchase_depreciation( row )
 		element =
 			timlib_get_form_element(
 				element_name, 0 );
-		element.hidden = true;
+		element.disabled = true;
 
 		element_name = 'declining_balance_n_' + row;
 		element =
 			timlib_get_form_element(
 				element_name, 0 );
-		element.hidden = true;
+		element.disabled = true;
 	}
 	else
 	if ( depreciation_method_element_value == 'n_declining_balance' )
@@ -170,7 +170,7 @@ function post_change_fixed_asset_purchase_depreciation( row )
 		element =
 			timlib_get_form_element(
 				element_name, 0 );
-		element.hidden = true;
+		element.disabled = true;
 	}
 	else
 	if ( depreciation_method_element_value == 'sum_of_years_digits' )
@@ -179,13 +179,13 @@ function post_change_fixed_asset_purchase_depreciation( row )
 		element =
 			timlib_get_form_element(
 				element_name, 0 );
-		element.hidden = true;
+		element.disabled = true;
 
 		element_name = 'declining_balance_n_' + row;
 		element =
 			timlib_get_form_element(
 				element_name, 0 );
-		element.hidden = true;
+		element.disabled = true;
 	}
 	else
 	if ( depreciation_method_element_value == 'units_of_production' )
@@ -194,13 +194,13 @@ function post_change_fixed_asset_purchase_depreciation( row )
 		element =
 			timlib_get_form_element(
 				element_name, 0 );
-		element.hidden = true;
+		element.disabled = true;
 
 		element_name = 'declining_balance_n_' + row;
 		element =
 			timlib_get_form_element(
 				element_name, 0 );
-		element.hidden = true;
+		element.disabled = true;
 	}
 
 	return true;

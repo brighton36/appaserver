@@ -2500,12 +2500,15 @@ void element_drop_down_output(
 		do {
 			data = list_get_string( option_data_list );
 
+#ifdef NOT_DEFINED
 			/* Ignore trailing optional information. */
 			/* ------------------------------------- */
 			piece(	data_without_appended_information,
 				'[',
 				data,
 				0 );
+#endif
+strcpy( data_without_appended_information, data );
 
 			if ( ( strcmp(	data_without_appended_information,
 					initial_data ) == 0 )
@@ -3884,6 +3887,7 @@ void element_data_list_to_label(	char *label,
 
 		do {
 			option_data = list_get_pointer( option_data_list );
+
 			if ( timlib_delimiter_independent_strcmp(
 					option_data,
 					data ) == 0 )
@@ -3894,7 +3898,9 @@ void element_data_list_to_label(	char *label,
 				strcpy(	label, option_label );
 				return;
 			}
+
 			list_next( option_label_list );
+
 		} while( list_next( option_data_list ) );
 	}
 

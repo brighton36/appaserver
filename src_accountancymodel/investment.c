@@ -349,8 +349,6 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 
 	a->investment_operation = investment_operation;
 
-	/* If running a batch. */
-	/* ------------------- */
 	if ( market_value
 	&&   !share_price
 	&&   !share_quantity_change
@@ -358,6 +356,22 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 	{
 		share_price = 1.0;
 		share_quantity_balance = market_value;
+	}
+
+	if ( share_quantity_balance
+	&&   !share_price
+	&&   !share_quantity_change
+	&&   !market_value )
+	{
+		share_price = 1.0;
+	}
+
+	if ( share_quantity_change
+	&&   !share_price
+	&&   !share_quantity_balance
+	&&   !market_value )
+	{
+		share_price = 1.0;
 	}
 
 	if ( !timlib_double_virtually_same( share_price, 0.0 ) )

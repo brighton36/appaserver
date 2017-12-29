@@ -1,6 +1,6 @@
 #!/bin/bash
 # -----------------------------------------------------------------
-# $APPASERVER_HOME/src_accountancymodel/export_accountancy_model.sh
+# $APPASERVER_HOME/src_predictive/export_predictivebooks.sh
 # -----------------------------------------------------------------
 if [ "$#" -ne 1 ]
 then
@@ -25,9 +25,9 @@ appaserver_home=`cat $appaserver_config_file	| \
 		 grep "^${label}"		| \
 		 sed "s/$label//"`
 
-directory=$appaserver_home/src_accountancymodel
-input_file=$directory/accountancy_model_folders.dat
-output_shell=$directory/import_accountancy_model.sh
+directory=$appaserver_home/src_predictive
+input_file=$directory/predictivebooks_folders.dat
+output_shell=$directory/import_predictivebooks.sh
 
 function export_processes()
 {
@@ -155,7 +155,7 @@ function export_processes()
 }
 # export_processes()
 
-function create_accountancy_model()
+function create_predictivebooks()
 {
 	application=$1
 	input_file=$2
@@ -179,9 +179,9 @@ function create_accountancy_model()
 		cat >> $output_shell
 	done
 }
-# create_accountancy_model()
+# create_predictivebooks()
 
-function export_accountancy_model()
+function export_predictivebooks()
 {
 	application=$1
 	input_file=$2
@@ -208,7 +208,7 @@ function export_accountancy_model()
 	grep -v '^exit'							|
 	cat >> $output_shell
 }
-# export_accountancy_model()
+# export_predictivebooks()
 
 function extract_investment()
 {
@@ -443,8 +443,8 @@ function extract_self()
 
 rm $output_shell 2>/dev/null
 
-export_accountancy_model $application $input_file $output_shell
-create_accountancy_model $application $input_file $output_shell
+export_predictivebooks $application $input_file $output_shell
+create_predictivebooks $application $input_file $output_shell
 extract_chart_of_accounts $application $output_shell
 extract_investment $application $output_shell
 export_processes $application $input_file $output_shell

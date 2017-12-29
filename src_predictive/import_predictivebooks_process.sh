@@ -1,6 +1,6 @@
 :
 # -------------------------------------------------------------------------
-# $APPASERVER_HOME/src_accountancymodel/import_accountancy_model_process.sh
+# $APPASERVER_HOME/src_predictive/import_predictivebooks_process.sh
 # -------------------------------------------------------------------------
 
 # Input
@@ -29,7 +29,7 @@ execute_yn=$3
 
 # Constants
 # ---------
-process="import_accountancy_model.sh"
+process="import_predictivebooks.sh"
 
 # Variables
 # ---------
@@ -46,7 +46,7 @@ results=`echo "show tables;" | sql.e | grep "^transaction$"`
 
 if [ "$results" = "transaction" ]
 then
-	echo "<h3>Warning: Accountancy Model is already loaded.</h3>"
+	echo "<h3>Warning: PredictiveBooks is already loaded.</h3>"
 	echo "<h3>Existing data will likely be deleted.</h3>"
 fi
 
@@ -55,7 +55,7 @@ then
 	$process $application
 
 	echo "	delete from role_process
-		where process = 'import_accountancy_model';" |
+		where process = 'import_predictivebooks';" |
 	sql.e
 
 	echo "<h3>Process complete.</h3"

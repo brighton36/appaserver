@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------- */
-/* src_accountancymodel/rental.c					*/
+/* src_predictive/rental.c						*/
 /* -------------------------------------------------------------------- */
-/* This is the AccountancyModel rental ADT.				*/
+/* This is the PredictiveBooks rental ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */

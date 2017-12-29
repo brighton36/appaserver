@@ -50,7 +50,7 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $attribute where attribute = 'share_quantity_change';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('share_quantity_change','float','12','4',null,null,null,'y','y',null);
 delete from $attribute where attribute = 'share_quantity_balance';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('share_quantity_balance','float','12','4',null,null,null,'y','y',null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('share_quantity_balance','float','13','4',null,null,null,'y','y',null);
 delete from $attribute where attribute = 'book_value_change';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('book_value_change','float','12','4',null,null,null,'y','y',null);
 delete from $attribute where attribute = 'book_value_balance';
@@ -58,7 +58,7 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $attribute where attribute = 'moving_share_price';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('moving_share_price','float','13','5',null,null,null,'y','y',null);
 delete from $attribute where attribute = 'total_cost_balance';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('total_cost_balance','float','13','5',null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('total_cost_balance','float','14','5',null,null,null,null,null,null);
 delete from $attribute where attribute = 'market_value';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('market_value','float','13','4',null,null,null,'y','y',null);
 delete from $attribute where attribute = 'unrealized_gain_balance';

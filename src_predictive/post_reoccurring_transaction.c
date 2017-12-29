@@ -1,9 +1,9 @@
-/* -------------------------------------------------------------------	*/
-/* src_predictive/post_rental_property_reoccurring_transaction.c	*/
-/* -------------------------------------------------------------------	*/
+/* ----------------------------------------------------------------	*/
+/* src_predictive/post_reoccurring_transaction.c			*/
+/* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------	*/
+/* ----------------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -19,24 +19,21 @@
 #include "application.h"
 #include "ledger.h"
 #include "appaserver_parameter_file.h"
-#include "html_table.h"
 #include "date.h"
 #include "boolean.h"
-#include "rental.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
-void post_reoccurring_transaction(
+char *post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo,
-			char *rental_property_street_address );
+			char *memo );
 
 void post_reoccurring_transaction_display(
 			char *application_name,
@@ -44,8 +41,7 @@ void post_reoccurring_transaction_display(
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo,
-			char *rental_property_street_address );
+			char *memo );
 
 int main( int argc, char **argv )
 {
@@ -56,20 +52,17 @@ int main( int argc, char **argv )
 	char *transaction_date;
 	char *transaction_date_time;
 	double transaction_amount;
-	char *rental_property_street_address;
 	char *memo;
 	boolean execute;
 	char title[ 128 ];
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
-	int tax_year;
-	LIST *rental_property_string_list;
 
-	if ( argc != 10 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application process full_name street_address transaction_date transaction_amount memo rental_property_street_address execute_yn\n",
+"Usage: %s application process full_name street_address transaction_date transaction_amount memo execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -95,24 +88,7 @@ int main( int argc, char **argv )
 	transaction_date = argv[ 5 ];
 	transaction_amount = atof( argv[ 6 ] );
 	memo = argv[ 7 ];
-	rental_property_street_address = argv[ 8 ];
-	execute = (*argv[ 9 ] == 'y');
-
-	tax_year = atoi( pipe2string( "now.sh ymd | piece.e '-' 0" ) );
-
-	rental_property_string_list =
-		rental_get_rental_property_string_list(
-			application_name,
-			tax_year );
-
-	if ( ( !rental_property_street_address
-	||     strcmp(	rental_property_street_address,
-			"rental_property_street_address" ) == 0 )
-	&&   ( list_exists_string(	rental_property_string_list,
-					street_address ) ) )
-	{
-		rental_property_street_address = street_address;
-	}
+	execute = (*argv[ 8 ] == 'y');
 
 	appaserver_parameter_file = new_appaserver_parameter_file();
 
@@ -149,19 +125,18 @@ int main( int argc, char **argv )
 			street_address,
 			transaction_date_time,
 			transaction_amount,
-			memo,
-			rental_property_street_address );
+			memo );
 	}
 	else
 	{
+		transaction_date_time =
 		post_reoccurring_transaction(
 			application_name,
 			full_name,
 			street_address,
 			transaction_date_time,
 			transaction_amount,
-			memo,
-			rental_property_street_address );
+			memo );
 
 		printf( "<h3>Process complete.</h3>\n" );
 	}
@@ -178,8 +153,7 @@ void post_reoccurring_transaction_display(
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo,
-			char *rental_property_street_address )
+			char *memo )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 	char *heading;
@@ -217,16 +191,6 @@ void post_reoccurring_transaction_display(
 		 	 memo );
 	}
 
-	if (	rental_property_street_address
-	&&	*rental_property_street_address
-	&&	strcmp(	rental_property_street_address,
-			"rental_property_street_address" ) != 0 )
-	{
-		fprintf( output_pipe,
-		 	 "Property: %s\n",
-		 	 rental_property_street_address );
-	}
-
 	fprintf( output_pipe,
 		 "%s^%s^%.2lf^\n",
 		 transaction_date_time,
@@ -246,14 +210,13 @@ void post_reoccurring_transaction_display(
 
 } /* post_reoccurring_transaction_display() */
 
-void post_reoccurring_transaction(
+char *post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo,
-			char *rental_property_street_address )
+			char *memo )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 	TRANSACTION *transaction;
@@ -275,15 +238,6 @@ void post_reoccurring_transaction(
 
 	if ( timlib_strcmp( memo, "memo" ) == 0 ) memo = (char *)0;
 
-	post_reoccurring_transaction_display(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			transaction_amount,
-			memo,
-			rental_property_street_address );
-
 	/* Insert the transaction */
 	/* ---------------------- */
 	transaction =
@@ -293,6 +247,8 @@ void post_reoccurring_transaction(
 			transaction_date_time,
 			memo );
 
+	transaction_date_time =
+	transaction->transaction_date_time =
 	ledger_transaction_insert(
 		application_name,
 		transaction->full_name,
@@ -302,14 +258,6 @@ void post_reoccurring_transaction(
 		transaction->memo,
 		0 /* check_number */,
 		0 /* not lock_transaction */ );
-
-	ledger_transaction_generic_update(
-		application_name,
-		transaction->full_name,
-		transaction->street_address,
-		transaction->transaction_date_time,
-		"rental_property_street_address",
-		rental_property_street_address );
 
 	/* Insert the debit account */
 	/* ------------------------ */
@@ -366,8 +314,18 @@ void post_reoccurring_transaction(
 	/* Propagate the ledger balances */
 	/* ----------------------------- */
 	ledger_account_list_propagate(
-			propagate_account_list,
-			application_name );
+		propagate_account_list,
+		application_name );
+
+	post_reoccurring_transaction_display(
+			application_name,
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			memo );
+
+	return transaction_date_time;
 
 } /* post_reoccurring_transaction() */
 

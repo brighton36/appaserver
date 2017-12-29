@@ -26,9 +26,9 @@ then
 	exit 1
 fi
 
-if [ -d $APPASERVER_HOME/src_accountancymodel ]
+if [ -d $APPASERVER_HOME/src_predictive ]
 then
-	cd $APPASERVER_HOME/src_accountancymodel 2>/dev/null && pwd && make
+	cd $APPASERVER_HOME/src_predictive 2>/dev/null && pwd && make
 	if [ "$?" -ne 0 ]
 	then
 		echo "$0 exiting early"
@@ -38,7 +38,7 @@ fi
 
 for directory in `ls -1 -d $APPASERVER_HOME/src_*`
 do
-	if [ "$directory" = "src_accountancymodel" ]
+	if [ "$directory" = "src_predictive" ]
 	then
 		continue
 	fi

@@ -14,8 +14,8 @@
 /* Constants */
 /* --------- */
 
-/* See also $APPASERVER_HOME/src_accountancymodel/employee.h */
-/* --------------------------------------------------------- */
+/* See also $APPASERVER_HOME/src_predictive/employee.h 	*/
+/* ---------------------------------------------------- */
 #define PAYROLL_PERIOD_NUMBER_LABEL	".payroll_period_number"
 #define PAYROLL_BEGIN_DATE_LABEL	".payroll_begin_date"
 #define PAYROLL_END_DATE_LABEL		".payroll_end_date"

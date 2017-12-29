@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------	*/
-/* src_accountancymodel/schedule_e_report.c				*/
+/* src_predictive/schedule_e_report.c					*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/

@@ -1315,7 +1315,7 @@ LIST *related_folder_get_update_element_list(
 				login_name,
 				parameter_dictionary,
 				local_preprompt_dictionary
-					/* where_clause_dictionary*/,
+					/* where_clause_dictionary */,
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 				related_folder->
 					folder->

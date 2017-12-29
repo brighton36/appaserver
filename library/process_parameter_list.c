@@ -508,6 +508,7 @@ LIST *process_parameter_get_folder_element_list(
 				(char *)0 /* role_name */,
 				(char *)0 /* target_frame */,
 				(DICTIONARY *)0 /* parameter_dictionary */,
+				(DICTIONARY *)0 /* where_clause_dictionary */,
 				process->attribute_list,
 				(LIST *)0 /* prompt_list */,
 				(LIST *)0 /* primary_attribute_name_list */,
@@ -1806,6 +1807,7 @@ ELEMENT *process_parameter_get_folder_process_element(
 			populate_drop_down_process,
 			role_name,
 			(DICTIONARY *)0 /* parameter_dictionary */,
+			(DICTIONARY *)0 /* where_clause_dictionary */,
 			state,
 			(char *)0
 			/* one2m_folder_name_for_processes */,
@@ -1909,6 +1911,7 @@ LIST *process_parameter_get_prompt_process_list(
 			role_name,
 			(char *)0 /* target_frame */,
 			parameter_dictionary,
+			parameter_dictionary /* where_clause_dictionary */,
 			(LIST *)0 /* attribute_list */,
 			(LIST *)0 /* prompt_list */,
 			(LIST *)0 /* primary_attribute_name_list */,

@@ -383,6 +383,7 @@ int main( int argc, char **argv )
 		role_name,
 		(char *)0 /* target_frame */,
 		parameter_dictionary,
+		parameter_dictionary /* where_clause_dictionary */,
 		process->attribute_list,
 		prompt_list,
 		(LIST *)0 /* primary_attribute_name_list */,

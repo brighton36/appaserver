@@ -682,6 +682,8 @@ void delete_database_execute_delete_row_list_pipe(
 				(char *)0 /* role_name */,
 				(char *)0 /* target_frame */,
 				parameter_dictionary,
+				parameter_dictionary
+					/* where_clause_dictionary */,
 				(LIST *)0 /* attribute_list */,
 				(LIST *)0 /* prompt_list */,
 				primary_attribute_name_list,
@@ -732,6 +734,8 @@ void delete_database_execute_delete_row_list_pipe(
 				(char *)0 /* role_name */,
 				(char *)0 /* target_frame */,
 				parameter_dictionary,
+				parameter_dictionary
+					/* where_clause_dictionary */,
 				(LIST *)0 /* attribute_list */,
 				(LIST *)0 /* prompt_list */,
 				primary_attribute_name_list,

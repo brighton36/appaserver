@@ -66,13 +66,16 @@ int main( int argc, char **argv )
 	char *account_number;
 	char *date_time;
 	char *state;
+	char *preupdate_full_name;
+	char *preupdate_street_address;
+	char *preupdate_account_number;
 	char *database_string = {0};
 	ACCOUNT_BALANCE *account_balance;
 
-	if ( argc != 8 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application fund full_name street_address account_number date_time state\n",
+"Usage: %s application fund full_name street_address account_number date_time state preupdate_full_name preupdate_street_address preupdate_account_number\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -84,6 +87,9 @@ int main( int argc, char **argv )
 	account_number = argv[ 5 ];
 	date_time = argv[ 6 ];
 	state = argv[ 7 ];
+	preupdate_full_name = argv[ 8 ];
+	preupdate_street_address = argv[ 9 ];
+	preupdate_account_number = argv[ 10 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -143,12 +149,73 @@ int main( int argc, char **argv )
 	if ( ( !account_balance->is_latest
 	||     strcmp( state, "update" ) == 0 ) )
 	{
+		enum preupdate_change_state full_name_change_state;
+		enum preupdate_change_state street_address_change_state;
+		enum preupdate_change_state account_number_change_state;
+
+		full_name_change_state =
+			appaserver_library_get_preupdate_change_state(
+				preupdate_full_name,
+				full_name /* postupdate_data */,
+				"preupdate_full_name" );
+
+		if ( full_name_change_state ==
+			from_something_to_something_else )
+		{
+			fprintf( stderr,
+"WARNING in %s/%s()/%d: the financial institution was changed to (%s/%s), but (%s/%s) will not propagate.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 full_name,
+				 street_address,
+				 preupdate_full_name,
+				 preupdate_street_address );
+		}
+
+		street_address_change_state =
+			appaserver_library_get_preupdate_change_state(
+				preupdate_street_address,
+				street_address /* postupdate_data */,
+				"preupdate_street_address" );
+
+		if ( street_address_change_state ==
+			from_something_to_something_else )
+		{
+			fprintf( stderr,
+"WARNING in %s/%s()/%d: the financial institution was changed to (%s/%s), but (%s/%s) will not propagate.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 full_name,
+				 street_address,
+				 preupdate_full_name,
+				 preupdate_street_address );
+		}
+
+		account_number_change_state =
+			appaserver_library_get_preupdate_change_state(
+				preupdate_account_number,
+				account_number /* postupdate_data */,
+				"preupdate_account_number" );
+
 		post_change_account_balance_POR(
 			application_name,
 			fund_name,
 			full_name,
 			street_address,
 			account_number );
+
+		if ( account_number_change_state ==
+			from_something_to_something_else )
+		{
+			post_change_account_balance_POR(
+				application_name,
+				fund_name,
+				full_name,
+				street_address,
+				preupdate_account_number );
+		}
 	}
 	else
 	if ( strcmp( state, "insert" ) == 0 )

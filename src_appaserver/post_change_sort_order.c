@@ -608,6 +608,7 @@ void post_change_sort_order_post_change_process_execute(
 		(char *)0 /* role_name */,
 		(char *)0 /* target_frame */,
 		post_dictionary /* parameter_dictionary */,
+		post_dictionary /* where_clause_dictionary */,
 		(LIST *)0 /* attribute_list */,
 		(LIST *)0 /* prompt_list */,
 		(LIST *)0 /* primary_attribute_name_list */,

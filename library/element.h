@@ -747,4 +747,9 @@ void element_push_button_output( 	FILE *output_file,
 					int row,
 					char *onclick_function );
 
+char *element_seek_initial_data(	char **initial_label,
+					char *initial_data,
+					LIST *option_data_list,
+					LIST *option_label_list );
+
 #endif

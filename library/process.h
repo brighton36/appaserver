@@ -76,6 +76,7 @@ void process_convert_parameters(char **executable,
 				char *role_name,
 				char *target_frame,
 				DICTIONARY *parameter_dictionary,
+				DICTIONARY *where_clause_dictionary,
 				LIST *attribute_list,
 				LIST *prompt_list,
 				LIST *primary_attribute_name_list,
@@ -196,7 +197,7 @@ void process_search_replace_executable_where(
 				char *application_name,
 				char *folder_name,
 				LIST *attribute_list,
-				DICTIONARY *parameter_dictionary );
+				DICTIONARY *where_clause_dictionary );
 
 #endif
 

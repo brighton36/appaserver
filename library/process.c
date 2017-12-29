@@ -159,6 +159,7 @@ void process_convert_parameters(
 			char *role_name,
 			char *target_frame,
 			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
 			LIST *attribute_list,
 			LIST *prompt_list,
 			LIST *primary_attribute_name_list,
@@ -402,7 +403,7 @@ void process_convert_parameters(
 			application_name,
 			folder_name,
 			attribute_list,
-			local_parameter_dictionary );
+			where_clause_dictionary );
 	}
 
 	sprintf(	local_executable + strlen( local_executable ),
@@ -1139,7 +1140,7 @@ void process_search_replace_executable_where(
 			char *application_name,
 			char *folder_name,
 			LIST *attribute_list,
-			DICTIONARY *parameter_dictionary )
+			DICTIONARY *where_clause_dictionary )
 {
 	QUERY *query;
 	char *where_clause;
@@ -1152,7 +1153,7 @@ void process_search_replace_executable_where(
 				application_name,
 				(char *)0 /* login_name */,
 				folder_name,
-				parameter_dictionary,
+				where_clause_dictionary,
 				(ROLE *)0,
 				0 /* max_rows; zero for unlimited */,
 				1 /* include_root_folder */ );
@@ -1177,7 +1178,7 @@ void process_search_replace_executable_where(
 		query = query_process_parameter_new(
 				application_name,
 				attribute_list,
-				parameter_dictionary );
+				where_clause_dictionary );
 
 		where_clause = query->query_output->where_clause;
 

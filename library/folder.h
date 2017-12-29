@@ -204,6 +204,7 @@ LIST *folder_get_drop_down_process_list(
 			PROCESS *populate_drop_down_process,
 			char *role_name,
 			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
 			char *state,
 			char *one2m_folder_name_for_processes,
 			LIST *attribute_list,

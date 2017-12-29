@@ -2223,8 +2223,9 @@ void element_drop_down_output(
 	char drop_down_element_name[ 512 ];
 	char multi_select_drop_down_element_name[ 512 ];
 	char *data;
-	char data_without_appended_information[ 512 ];
 	char *label;
+	char *seeked_initial_data = {0};
+	char *seeked_initial_label;
 
 	if ( !option_data_list )
 	{
@@ -2477,20 +2478,36 @@ void element_drop_down_output(
 
 	if ( !multi_select )
 	{
+		char *local_initial_label;
+
+		if ( ! ( seeked_initial_data =
+				element_seek_initial_data(
+					&seeked_initial_label,
+					initial_data,
+					option_data_list,
+					option_label_list ) ) )
+		{
+			seeked_initial_data = initial_data;
+			seeked_initial_label = initial_label;
+		}
+
+		local_initial_label =
+			element_data2label(
+				buffer,
+			 	element_delimit_drop_down_data(
+					delimited_label_buffer,
+					seeked_initial_label,
+					date_piece_offset ),
+				no_initial_capital );
+
 		/* Set the first option */
 		/* -------------------- */
 		fprintf( output_file, "<option " );
 
 		fprintf( output_file,
 			 "value=\"%s\">%s\n",
-			 initial_data,
-			 element_data2label(
-				buffer,
-			 	element_delimit_drop_down_data(
-					delimited_label_buffer,
-					initial_label,
-					date_piece_offset ),
-				no_initial_capital ) );
+			 seeked_initial_data,
+			 local_initial_label );
 	}
 
 	list_rewind( option_label_list );
@@ -2500,19 +2517,11 @@ void element_drop_down_output(
 		do {
 			data = list_get_string( option_data_list );
 
-#ifdef NOT_DEFINED
-			/* Ignore trailing optional information. */
-			/* ------------------------------------- */
-			piece(	data_without_appended_information,
-				'[',
-				data,
-				0 );
-#endif
-strcpy( data_without_appended_information, data );
-
-			if ( ( strcmp(	data_without_appended_information,
-					initial_data ) == 0 )
-			||   ( timlib_strcmp( data, initial_data ) == 0 ) )
+			/* Skip the preselected item. */
+			/* -------------------------- */
+			if ( timlib_strcmp(
+					data,
+					seeked_initial_data ) == 0 )
 			{
 				list_next( option_label_list );
 				continue;
@@ -2532,13 +2541,13 @@ strcpy( data_without_appended_information, data );
 								element_name ) )
 			{
 				if ( strcmp(
-					data_without_appended_information,
+					data,
 					"y" ) == 0 )
 				{
 					label = "Yes";
 				}
 				if ( strcmp(
-					data_without_appended_information,
+					data,
 					"n" ) == 0 )
 				{
 					label = "No";
@@ -2547,7 +2556,7 @@ strcpy( data_without_appended_information, data );
 
 			fprintf( output_file,
 			"\t<option value=\"%s\">%s\n", 
-				data_without_appended_information,
+				data,
 			 	element_data2label(
 					buffer,
 			 		element_delimit_drop_down_data(
@@ -4002,3 +4011,33 @@ void element_list_set_readonly(
 
 } /* element_list_set_readonly() */
 
+char *element_seek_initial_data(	char **initial_label,
+					char *initial_data,
+					LIST *option_data_list,
+					LIST *option_label_list )
+{
+	char piece_buffer[ 512 ];
+	char *option_data;
+
+	if ( !list_rewind( option_data_list ) ) return (char *)0;
+
+	list_rewind( option_label_list );
+
+	do {
+		option_data = list_get_pointer( option_data_list );
+
+		piece( piece_buffer, '[', option_data, 0 );
+
+		if ( timlib_strcmp( piece_buffer, initial_data ) == 0 )
+		{
+			*initial_label = list_get_pointer( option_label_list );
+			return option_data;
+		}
+
+		list_next( option_label_list );
+
+	} while( list_next( option_data_list ) );
+
+	return (char *)0;
+
+} /* element_seek_initial_data() */

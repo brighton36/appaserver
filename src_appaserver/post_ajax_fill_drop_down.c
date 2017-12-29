@@ -270,6 +270,7 @@ void output_process_results(
 			populate_drop_down_process,
 			(char *)0 /* role_name */,
 			parameter_dictionary,
+			parameter_dictionary /* where_clause_dictionary */,
 			(char *)0 /* state */,
 			(char *)0 /* one2m_folder_name_for_processes */,
 			attribute_list,

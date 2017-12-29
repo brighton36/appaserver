@@ -1181,6 +1181,7 @@ void update_database_execute_for_row(
 				role_name,
 				(char *)0 /* target_frame */,
 				row_dictionary /* parameter_dictionary */,
+				row_dictionary /* where_clause_dictionary */,
 				update_folder->
 					post_change_process->attribute_list,
 				(LIST *)0 /* prompt_list */,

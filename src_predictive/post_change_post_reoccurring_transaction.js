@@ -1,4 +1,4 @@
-// src_accountancymodel/post_change_post_reoccurring_transaction.js
+// src_predictive/post_change_post_reoccurring_transaction.js
 // ----------------------------------------------------------------
 
 function post_change_post_reoccurring_transaction( current_element )

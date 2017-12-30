@@ -96,7 +96,9 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 					double prior_total_cost_balance,
 					double prior_moving_share_price,
 					double prior_unrealized_gain_balance,
-					char *investment_operation );
+					char *investment_operation,
+					char *investment_account,
+					char *fair_value_adjustment_account );
 
 ACCOUNT_BALANCE *investment_account_balance_parse(
 					char *full_name,

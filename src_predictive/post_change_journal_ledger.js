@@ -1,4 +1,4 @@
-// src_accountancymodel/post_change_journal_ledger.js
+// src_predictive/post_change_journal_ledger.js
 // --------------------------------------------------
 
 function post_change_journal_ledger( state )

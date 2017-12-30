@@ -1,4 +1,4 @@
-// src_accountancymodel/post_change_fixed_asset_purchase.js
+// src_predictive/post_change_fixed_asset_purchase.js
 // --------------------------------------------------------
 function post_change_fixed_asset_purchase( row )
 {

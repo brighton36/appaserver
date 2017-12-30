@@ -1,4 +1,4 @@
-// $APPASERVER_HOME/src_accountancymodel/post_change_bank_upload.js
+// $APPASERVER_HOME/src_predictive/post_change_bank_upload.js
 // ----------------------------------------------------------------
 // Freely available software: see Appaserver.org
 // ----------------------------------------------------------------

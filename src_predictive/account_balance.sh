@@ -41,10 +41,10 @@ else
 	institution_where="full_name = '$institution_full_name' and street_address = '$street_address'"
 fi
 
-heading="institution_full_name, account_number, As Of Date, balance, Certificate Maturity, Duration"
+heading="institution_full_name, account_number, As Of Date, Market Value, Certificate Maturity"
 justification="left, left, left, right, left"
 
-account_process='echo "select full_name, street_address, account_number, certificate_maturity_date, duration_term from investment_account where $duration_where and $institution_where order by full_name, street_address, certificate_maturity_date;" | sql "^"'
+account_process='echo "select full_name, street_address, account_number, certificate_maturity_date from investment_account where $duration_where and $institution_where order by full_name, street_address, certificate_maturity_date;" | sql "^"'
 
 (
 eval $account_process						|
@@ -54,12 +54,11 @@ do
 	street_address=`echo $record | piece.e '^' 1`
 	account_number=`echo $record | piece.e '^' 2`
 	certificate_maturity_date=`echo $record | piece.e '^' 3`
-	duration_term=`echo $record | piece.e '^' 4`
 
-	select="full_name, account_number, date, balance, '$certificate_maturity_date', '$duration_term'"
-	from="account_balance"
-	where="full_name = '$institution_full_name' and street_address = '$street_address' and account_number = '$account_number' and date <= '$as_of_date'"
-	order="date desc"
+	select="full_name, account_number, date_time, market_value, '$certificate_maturity_date'"
+	from="equity_account_balance"
+	where="full_name = '$institution_full_name' and street_address = '$street_address' and account_number = '$account_number' and date_time <= '$as_of_date 23:59:59'"
+	order="date_time desc"
 
 	echo "select $select from $from where $where order by $order;"	|
 	sql '^'								|

@@ -399,7 +399,10 @@ boolean post_change_account_balance_insert_time_passage(
 				0.0 /* prior_total_cost_balance */,
 				0.0 /* prior_moving_share_price */,
 				0.0 /* prior_unrealized_gain_balance */,
-				account_balance->investment_operation );
+				account_balance->investment_operation,
+				account_balance->investment_account,
+				account_balance->
+					fair_value_adjustment_account );
 	}
 	else
 	{
@@ -419,7 +422,10 @@ boolean post_change_account_balance_insert_time_passage(
 				prior_account_balance->moving_share_price,
 				prior_account_balance->
 					unrealized_gain_balance,
-				account_balance->investment_operation );
+				account_balance->investment_operation,
+				account_balance->investment_account,
+				account_balance->
+					fair_value_adjustment_account );
 	}
 
 	new_account_balance->transaction =
@@ -515,7 +521,10 @@ void post_change_account_balance_insert_purchase(
 				0.0 /* prior_total_cost_balance */,
 				0.0 /* prior_moving_share_price */,
 				0.0 /* prior_unrealized_gain_balance */,
-				account_balance->investment_operation );
+				account_balance->investment_operation,
+				account_balance->investment_account,
+				account_balance->
+					fair_value_adjustment_account );
 	}
 	else
 	{
@@ -535,7 +544,10 @@ void post_change_account_balance_insert_purchase(
 				prior_account_balance->moving_share_price,
 				prior_account_balance->
 					unrealized_gain_balance,
-				account_balance->investment_operation );
+				account_balance->investment_operation,
+				account_balance->investment_account,
+				account_balance->
+					fair_value_adjustment_account );
 	}
 
 	new_account_balance->transaction =
@@ -630,7 +642,10 @@ boolean post_change_account_balance_insert_sale(
 			prior_account_balance->total_cost_balance,
 			prior_account_balance->moving_share_price,
 			prior_account_balance->unrealized_gain_balance,
-			account_balance->investment_operation );
+			account_balance->investment_operation,
+				account_balance->investment_account,
+				account_balance->
+					fair_value_adjustment_account );
 
 	/* The sale needs a negative share quantity change. */
 	/* ------------------------------------------------ */
@@ -727,7 +742,10 @@ void post_change_account_balance_POR(
 				0.0 /* prior_total_cost_balance */,
 				0.0 /* prior_moving_share_price */,
 				0.0 /* prior_unrealized_gain_balance */,
-				account_balance->investment_operation );
+				account_balance->investment_operation,
+				account_balance->investment_account,
+				account_balance->
+					fair_value_adjustment_account );
 		}
 		else
 		{
@@ -747,7 +765,10 @@ void post_change_account_balance_POR(
 				prior_account_balance->moving_share_price,
 				prior_account_balance->
 					unrealized_gain_balance,
-				account_balance->investment_operation );
+				account_balance->investment_operation,
+				account_balance->investment_account,
+				account_balance->
+					fair_value_adjustment_account );
 		}
 
 		new_account_balance->transaction =

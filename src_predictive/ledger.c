@@ -508,16 +508,6 @@ JOURNAL_LEDGER *journal_ledger_new(	char *full_name,
 {
 	JOURNAL_LEDGER *ledger;
 
-	if ( !account_name || !*account_name )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty account_name.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
 	ledger = ledger_journal_ledger_calloc();
 	ledger->full_name = full_name;
 	ledger->street_address = street_address;

@@ -1,4 +1,4 @@
-// src_accountancymodel/post_change_pay_liabilities.js
+// src_predictive/post_change_pay_liabilities.js
 // ---------------------------------------------------
 
 function post_change_pay_liabilities( current_element )

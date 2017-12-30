@@ -1,4 +1,4 @@
-// src_accountancymodel/post_change_equity_account_balance.js
+// src_predictive/post_change_equity_account_balance.js
 // ----------------------------------------------------------
 
 function parse_classification( value )

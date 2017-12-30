@@ -144,9 +144,9 @@ int main( int argc, char **argv )
 			role_name );
 
 	date_primary_attribute_name_list =
-		attribute_list_get_primary_datatype_attribute_string_list(
-						folder->attribute_list,
-						"date,current_date" );
+	    attribute_list_get_primary_datatype_attribute_string_list(
+		folder->attribute_list,
+		"current_date,current_date_time,date,date_time,current_date" );
 
 	if ( !list_length( date_primary_attribute_name_list ) )
 		return 0;

@@ -88,11 +88,11 @@ LIST *investment_fetch_account_balance_list(
 {
 	LIST *account_balance_list;
 	char sys_string[ 1024 ];
-	char where[ 256 ];
+	char where[ 512 ];
 	char input_buffer[ 512 ];
 	char buffer[ 128 ];
 	char *select;
-	char folder[ 128 ];
+	char folder[ 256 ];
 	ACCOUNT_BALANCE *account_balance;
 	FILE *input_pipe;
 
@@ -104,14 +104,17 @@ LIST *investment_fetch_account_balance_list(
 		 INVESTMENT_ACCOUNT_FOLDER_NAME );
 
 	sprintf( where,
-		 "full_name = '%s' and			"
-		 "street_address = '%s' and		"
-		 "account_number = '%s' and		"
+		 "%s.full_name = '%s' and		"
+		 "%s.street_address = '%s' and		"
+		 "%s.account_number = '%s' and		"
 		 "%s					",
+		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 escape_character(	buffer,
 					full_name,
 					'\'' ),
+		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 street_address,
+		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 account_number,
 		 investment_account_balance_get_join() );
 
@@ -156,28 +159,36 @@ ACCOUNT_BALANCE *investment_account_balance_fetch(
 					char *date_time )
 {
 	char sys_string[ 1024 ];
-	char where[ 256 ];
+	char where[ 512 ];
 	char buffer[ 128 ];
 	char *select;
-	char *folder;
+	char folder[ 256 ];
 	ACCOUNT_BALANCE *account_balance;
 	char *input_buffer;
 
 	select = investment_account_balance_get_select();
 
-	folder = ACCOUNT_BALANCE_FOLDER_NAME;
+	sprintf( folder,
+		 "%s,%s",
+		 ACCOUNT_BALANCE_FOLDER_NAME,
+		 INVESTMENT_ACCOUNT_FOLDER_NAME );
 
 	sprintf( where,
-		 "full_name = '%s' and			"
-		 "street_address = '%s' and		"
-		 "account_number = '%s' and		"
-		 "date_time = '%s'			",
+		 "%s.full_name = '%s' and		"
+		 "%s.street_address = '%s' and		"
+		 "%s.account_number = '%s' and		"
+		 "date_time = '%s' and			"
+		 "%s					",
+		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 escape_character(	buffer,
 					full_name,
 					'\'' ),
+		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 street_address,
+		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 account_number,
-		 date_time );
+		 date_time,
+		 investment_account_balance_get_join() );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
@@ -198,6 +209,20 @@ ACCOUNT_BALANCE *investment_account_balance_fetch(
 			street_address,
 			account_number,
 			input_buffer );
+
+	if ( !*account_balance->investment_account
+	||   !*account_balance->fair_value_adjustment_account )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: empty chart of accounts in INVESTMENT_ACCOUNT (%s/%s/%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 full_name,
+			 street_address,
+			 account_number );
+		exit( 1 );
+	}
 
 	account_balance->is_latest =
 		investment_account_balance_is_latest(
@@ -370,7 +395,9 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				double prior_total_cost_balance,
 				double prior_moving_share_price,
 				double prior_unrealized_gain_balance,
-				char *investment_operation )
+				char *investment_operation,
+				char *investment_account,
+				char *fair_value_adjustment_account )
 {
 	ACCOUNT_BALANCE *a;
 
@@ -381,6 +408,8 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 			date_time );
 
 	a->investment_operation = investment_operation;
+	a->investment_account = investment_account;
+	a->fair_value_adjustment_account = fair_value_adjustment_account;
 
 	if ( market_value
 	&&   !share_price

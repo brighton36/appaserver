@@ -508,6 +508,16 @@ JOURNAL_LEDGER *journal_ledger_new(	char *full_name,
 {
 	JOURNAL_LEDGER *ledger;
 
+	if ( !account_name || !*account_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty account_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	ledger = ledger_journal_ledger_calloc();
 	ledger->full_name = full_name;
 	ledger->street_address = street_address;
@@ -8590,8 +8600,6 @@ void ledger_get_payroll_account_names(
 } /* ledger_get_payroll_account_names() */
 
 void ledger_get_investment_account_names(
-				char **investment_account,
-				char **fair_value_adjustment,
 				char **realized_gain,
 				char **unrealized_investment,
 				char **realized_loss,
@@ -8600,22 +8608,6 @@ void ledger_get_investment_account_names(
 				char *fund_name )
 {
 	char *key;
-
-	key = "investment_key";
-	*investment_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
-
-	key = "fair_value_adjustment_key";
-	*fair_value_adjustment =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
 
 	key = "realized_investment_gain_key";
 	*realized_gain =

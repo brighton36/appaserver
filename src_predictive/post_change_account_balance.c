@@ -259,8 +259,6 @@ void post_change_account_balance_delete(
 	char *checking_account = {0};
 
 	ledger_get_investment_account_names(
-		&investment_account,
-		&fair_value_adjustment,
 		&realized_gain,
 		&unrealized_investment,
 		&realized_loss,

@@ -38,6 +38,25 @@ ACCOUNT_BALANCE *investment_account_balance_new(
 
 } /* investment_account_balance_new() */
 
+char *investment_account_balance_get_join( void )
+{
+	char join[ 1024 ];
+
+	sprintf(join,
+		"%s.full_name = %s.full_name and		"
+		"%s.street_address = %s.street_address and	"
+		"%s.account_number = %s.account_number		",
+		ACCOUNT_BALANCE_FOLDER_NAME,
+		INVESTMENT_ACCOUNT_FOLDER_NAME,
+		ACCOUNT_BALANCE_FOLDER_NAME,
+		INVESTMENT_ACCOUNT_FOLDER_NAME,
+		ACCOUNT_BALANCE_FOLDER_NAME,
+		INVESTMENT_ACCOUNT_FOLDER_NAME );
+
+	return strdup( join );
+
+} /* investment_account_balance_get_join() */
+
 char *investment_account_balance_get_select( void )
 {
 	char *select =
@@ -54,7 +73,9 @@ char *investment_account_balance_get_select( void )
 		"unrealized_gain_balance,	"
 		"unrealized_gain_change,	"
 		"realized_gain,			"
-		"transaction_date_time		";
+		"transaction_date_time,		"
+		"investment_account,		"
+		"fair_value_adjustment_account	";
 
 	return select;
 }
@@ -71,23 +92,28 @@ LIST *investment_fetch_account_balance_list(
 	char input_buffer[ 512 ];
 	char buffer[ 128 ];
 	char *select;
-	char *folder;
+	char folder[ 128 ];
 	ACCOUNT_BALANCE *account_balance;
 	FILE *input_pipe;
 
 	select = investment_account_balance_get_select();
 
-	folder = ACCOUNT_BALANCE_FOLDER_NAME;
+	sprintf( folder,
+		 "%s,%s",
+		 ACCOUNT_BALANCE_FOLDER_NAME,
+		 INVESTMENT_ACCOUNT_FOLDER_NAME );
 
 	sprintf( where,
 		 "full_name = '%s' and			"
 		 "street_address = '%s' and		"
-		 "account_number = '%s'			",
+		 "account_number = '%s' and		"
+		 "%s					",
 		 escape_character(	buffer,
 					full_name,
 					'\'' ),
 		 street_address,
-		 account_number );
+		 account_number,
+		 investment_account_balance_get_join() );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
@@ -166,11 +192,12 @@ ACCOUNT_BALANCE *investment_account_balance_fetch(
 	if ( ! ( input_buffer = pipe2string( sys_string ) ) )
 		return (ACCOUNT_BALANCE *)0;
 
-	account_balance = investment_account_balance_parse(
-				full_name,
-				street_address,
-				account_number,
-				input_buffer );
+	account_balance =
+		investment_account_balance_parse(
+			full_name,
+			street_address,
+			account_number,
+			input_buffer );
 
 	account_balance->is_latest =
 		investment_account_balance_is_latest(
@@ -239,6 +266,12 @@ ACCOUNT_BALANCE *investment_account_balance_parse(
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
 	account_balance->transaction_date_time = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
+	account_balance->investment_account = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
+	account_balance->fair_value_adjustment_account = strdup( buffer );
 
 	return account_balance;
 
@@ -734,6 +767,19 @@ LIST *investment_get_fair_value_adjustment_ledger_list(
 	LIST *journal_ledger_list;
 	JOURNAL_LEDGER *journal_ledger;
 
+	if ( !unrealized_investment
+	||   !*unrealized_investment
+	||   !fair_value_adjustment
+	||   !*fair_value_adjustment )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty account name(s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( timlib_double_virtually_same(
 		unrealized_gain_change, 0.0 ) )
 	{
@@ -900,16 +946,12 @@ TRANSACTION *investment_build_purchase_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	char *investment_account = {0};
-	char *fair_value_adjustment = {0};
 	char *realized_gain = {0};
 	char *unrealized_investment = {0};
 	char *realized_loss = {0};
 	char *checking_account = {0};
 
 	ledger_get_investment_account_names(
-		&investment_account,
-		&fair_value_adjustment,
 		&realized_gain,
 		&unrealized_investment,
 		&realized_loss,
@@ -940,7 +982,7 @@ TRANSACTION *investment_build_purchase_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				investment_account );
+				account_balance->investment_account );
 	
 		journal_ledger->debit_amount =
 			account_balance->book_value_change;
@@ -974,7 +1016,8 @@ TRANSACTION *investment_build_purchase_transaction(
 			investment_get_fair_value_adjustment_ledger_list(
 				account_balance->unrealized_gain_change,
 				unrealized_investment,
-				fair_value_adjustment ) );
+				account_balance->
+					fair_value_adjustment_account ) );
 	}
 
 	return transaction;
@@ -988,8 +1031,6 @@ TRANSACTION *investment_build_sale_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	char *investment_account = {0};
-	char *fair_value_adjustment = {0};
 	char *realized_gain = {0};
 	char *unrealized_investment = {0};
 	char *realized_loss = {0};
@@ -997,8 +1038,6 @@ TRANSACTION *investment_build_sale_transaction(
 	double cash_in;
 
 	ledger_get_investment_account_names(
-		&investment_account,
-		&fair_value_adjustment,
 		&realized_gain,
 		&unrealized_investment,
 		&realized_loss,
@@ -1093,7 +1132,8 @@ TRANSACTION *investment_build_sale_transaction(
 			investment_get_fair_value_adjustment_ledger_list(
 				account_balance->unrealized_gain_change,
 				unrealized_investment,
-				fair_value_adjustment ) );
+				account_balance->
+					fair_value_adjustment_account ) );
 	}
 
 	/* Credit investment */
@@ -1103,7 +1143,7 @@ TRANSACTION *investment_build_sale_transaction(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,
-			investment_account );
+			account_balance->investment_account );
 
 	journal_ledger->credit_amount =
 		0.0 - account_balance->book_value_change;
@@ -1123,16 +1163,12 @@ TRANSACTION *investment_build_time_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	char *investment_account = {0};
-	char *fair_value_adjustment = {0};
 	char *realized_gain = {0};
 	char *unrealized_investment = {0};
 	char *realized_loss = {0};
 	char *checking_account = {0};
 
 	ledger_get_investment_account_names(
-		&investment_account,
-		&fair_value_adjustment,
 		&realized_gain,
 		&unrealized_investment,
 		&realized_loss,
@@ -1164,7 +1200,7 @@ TRANSACTION *investment_build_time_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				investment_account );
+				account_balance->investment_account );
 
 		journal_ledger->debit_amount =
 			account_balance->realized_gain;
@@ -1219,7 +1255,7 @@ TRANSACTION *investment_build_time_transaction(
 				transaction->full_name,
 				transaction->street_address,
 				transaction->transaction_date_time,
-				investment_account );
+				account_balance->investment_account );
 
 		journal_ledger->credit_amount =
 			-account_balance->realized_gain;
@@ -1237,7 +1273,8 @@ TRANSACTION *investment_build_time_transaction(
 			investment_get_fair_value_adjustment_ledger_list(
 				account_balance->unrealized_gain_change,
 				unrealized_investment,
-				fair_value_adjustment ) );
+				account_balance->
+					fair_value_adjustment_account ) );
 	}
 
 	return transaction;

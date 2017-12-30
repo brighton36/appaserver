@@ -16,6 +16,7 @@
 /* Constants */
 /* --------- */
 #define ACCOUNT_BALANCE_FOLDER_NAME		"equity_account_balance"
+#define INVESTMENT_ACCOUNT_FOLDER_NAME		"investment_account"
 
 /* Structures */
 /* ---------- */
@@ -40,6 +41,8 @@ typedef struct
 	char *transaction_date_time;
 	TRANSACTION *transaction;
 	boolean is_latest;
+	char *investment_account;
+	char *fair_value_adjustment_account;
 } ACCOUNT_BALANCE;
 
 /* Operations */
@@ -139,5 +142,11 @@ LIST *investment_fetch_account_balance_list(
 					char *full_name,
 					char *street_address,
 					char *account_number );
+
+char *investment_account_balance_get_join(
+					void );
+
+char *investment_account_balance_get_select(
+					void );
 
 #endif

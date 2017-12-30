@@ -28,7 +28,7 @@ echo "create unique index $table_name on $table_name (full_name,street_address);
 
 table_name=`get_table_name $application investment_account`
 echo "drop table if exists $table_name;" | sql.e '^'
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,classification char (15),duration_term char (15),certificate_maturity_months integer,certificate_maturity_date date,interest_rate double (5,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,classification char (15),investment_account char (60),fair_value_adjustment_account char (60),certificate_maturity_months integer,certificate_maturity_date date,interest_rate double (5,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,account_number);" | sql.e '^' mysql
 
 table_name=`get_table_name $application investment_classification`
@@ -40,10 +40,4 @@ table_name=`get_table_name $application investment_operation`
 echo "drop table if exists $table_name;" | sql.e '^'
 echo "create table $table_name (investment_operation char (15) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (investment_operation);" | sql.e '^' mysql
-
-table_name=`get_table_name $application duration_term`
-echo "drop table if exists $table_name;" | sql.e '^'
-echo "create table $table_name (duration_term char (15) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (duration_term);" | sql.e '^' mysql
-
 

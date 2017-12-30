@@ -38,6 +38,11 @@ then
 	where="subclassification = 'inventory' or subclassification = 'cost_of_goods_sold'"
 fi
 
+if [ "$one2m_folder" = "investment_account" ]
+then
+	where="subclassification like '%investment%'"
+fi
+
 if [ "$one2m_folder" = "fixed_asset" ]
 then
 	where="subclassification = 'property_plant_equipment'"

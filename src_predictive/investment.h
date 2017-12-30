@@ -143,7 +143,8 @@ LIST *investment_fetch_account_balance_list(
 					char *application_name,
 					char *full_name,
 					char *street_address,
-					char *account_number );
+					char *account_number,
+					char *begin_date_time );
 
 char *investment_account_balance_get_join(
 					void );

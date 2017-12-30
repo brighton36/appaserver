@@ -84,10 +84,12 @@ LIST *investment_fetch_account_balance_list(
 					char *application_name,
 					char *full_name,
 					char *street_address,
-					char *account_number )
+					char *account_number,
+					char *begin_date_time )
 {
 	LIST *account_balance_list;
 	char sys_string[ 1024 ];
+	char begin_date_time_where[ 128 ];
 	char where[ 512 ];
 	char input_buffer[ 512 ];
 	char buffer[ 128 ];
@@ -103,10 +105,22 @@ LIST *investment_fetch_account_balance_list(
 		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 INVESTMENT_ACCOUNT_FOLDER_NAME );
 
+	if ( begin_date_time && *begin_date_time )
+	{
+		sprintf( begin_date_time_where,
+			 "date_time >= '%s'",
+			 begin_date_time );
+	}
+	else
+	{
+		strcpy( begin_date_time_where, "1 = 1" );
+	}
+
 	sprintf( where,
 		 "%s.full_name = '%s' and		"
 		 "%s.street_address = '%s' and		"
 		 "%s.account_number = '%s' and		"
+		 "%s and				"
 		 "%s					",
 		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 escape_character(	buffer,
@@ -116,6 +130,7 @@ LIST *investment_fetch_account_balance_list(
 		 street_address,
 		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 account_number,
+		 begin_date_time_where,
 		 investment_account_balance_get_join() );
 
 	sprintf( sys_string,

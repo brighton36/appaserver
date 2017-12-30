@@ -23,12 +23,13 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_account_balance_POR(
+void post_change_account_balance_list(
 				char *application_name,
 				char *fund_name,
 				char *full_name,
 				char *street_address,
-				char *account_number );
+				char *account_number,
+				char *date_time );
 
 void post_change_account_balance_delete(
 				char *application_name,
@@ -120,12 +121,13 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "update" ) == 0
 	&&   strcmp( date_time, "date_time" ) == 0 )
 	{
-		post_change_account_balance_POR(
+		post_change_account_balance_list(
 			application_name,
 			fund_name,
 			full_name,
 			street_address,
-			account_number );
+			account_number,
+			(char *)0 /* date_time */ );
 
 		exit( 0 );
 	}
@@ -199,22 +201,24 @@ int main( int argc, char **argv )
 				account_number /* postupdate_data */,
 				"preupdate_account_number" );
 
-		post_change_account_balance_POR(
+		post_change_account_balance_list(
 			application_name,
 			fund_name,
 			full_name,
 			street_address,
-			account_number );
+			account_number,
+			date_time );
 
 		if ( account_number_change_state ==
 			from_something_to_something_else )
 		{
-			post_change_account_balance_POR(
+			post_change_account_balance_list(
 				application_name,
 				fund_name,
 				full_name,
 				street_address,
-				preupdate_account_number );
+				preupdate_account_number,
+				date_time );
 		}
 	}
 	else
@@ -693,24 +697,38 @@ boolean post_change_account_balance_insert_sale(
 
 } /* post_change_account_balance_insert_sale() */
 
-void post_change_account_balance_POR(
+void post_change_account_balance_list(
 				char *application_name,
 				char *fund_name,
 				char *full_name,
 				char *street_address,
-				char *account_number )
+				char *account_number,
+				char *date_time )
 {
 	ACCOUNT_BALANCE *account_balance;
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
 	LIST *account_balance_list;
+	char *begin_date_time = {0};
+
+	if ( date_time && *date_time )
+	{
+		begin_date_time =
+			investment_account_balance_fetch_prior_date_time(
+				application_name,
+				full_name,
+				street_address,
+				account_number,
+				date_time );
+	}
 
 	account_balance_list =
 		investment_fetch_account_balance_list(
 			application_name,
 			full_name,
 			street_address,
-			account_number );
+			account_number,
+			begin_date_time );
 
 	if ( !list_rewind( account_balance_list ) )
 	{
@@ -888,5 +906,5 @@ void post_change_account_balance_POR(
 
 	} while( list_next( account_balance_list ) );
 
-} /* post_change_account_balance_POR() */
+} /* post_change_account_balance_list() */
 

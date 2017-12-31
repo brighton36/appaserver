@@ -61,20 +61,26 @@ function post_change_equity_account_balance( current_element )
 
 		element = timlib_get_element( "share_price" );
 		element.disabled = true;
-
 	}
 
 	element = timlib_get_element( "share_quantity_change" );
-	if ( element.value )
+	if ( element.value > 0 )
 	{
 		element = timlib_get_element( "share_quantity_balance" );
 		element.disabled = true;
 	}
 
 	element = timlib_get_element( "share_quantity_balance" );
-	if ( element.value )
+	if ( element.value > 0 )
 	{
 		element = timlib_get_element( "share_quantity_change" );
+		element.disabled = true;
+	}
+
+	element = timlib_get_element( "share_price" );
+	if ( element.value > 0 )
+	{
+		element = timlib_get_element( "market_value" );
 		element.disabled = true;
 	}
 

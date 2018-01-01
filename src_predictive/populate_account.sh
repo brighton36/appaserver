@@ -49,8 +49,7 @@ then
 fi
 
 if [	"$one2m_folder" = "fixed_service" -o	\
-	"$one2m_folder" = "hourly_service" -o	\
-	"$one2m_folder" = "service_purchase" ]
+	"$one2m_folder" = "hourly_service" 	]
 then
 	where="subclassification = 'revenue'"
 fi
@@ -63,6 +62,11 @@ fi
 if [ "$one2m_folder" = "supply" ]
 then
 	where="subclassification = 'supply_expense'"
+fi
+
+if [ "$one2m_folder" = "service_purchase" ]
+then
+	where="subclassification = 'service_expense'"
 fi
 
 echo "select $select from $table where $where order by $select;"	|

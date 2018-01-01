@@ -34,4 +34,14 @@ delete from $process_generic_output where process = 'post_change_account_balance
 all_done
 ) | sql.e 2>&1 | grep -iv duplicate
 
+(
+cat << all_done2
+delete from $process where process = 'populate_investment_account';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,process_set_display,appaserver_yn,process_group,preprompt_help_text) values ('populate_investment_account','populate_investment_account.sh \$application \$where',null,null,null,null,null,null,null);
+delete from $process_parameter where process = 'populate_investment_account';
+delete from $javascript_processes where process = 'populate_investment_account';
+delete from $process_generic_output where process = 'populate_investment_account';
+all_done2
+) | sql.e 2>&1 | grep -iv duplicate
+
 exit 0

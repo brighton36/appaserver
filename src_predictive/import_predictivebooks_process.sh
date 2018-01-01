@@ -47,7 +47,7 @@ results=`echo "show tables;" | sql.e | grep "^transaction$"`
 if [ "$results" = "transaction" ]
 then
 	echo "<h3>Warning: PredictiveBooks is already loaded.</h3>"
-	echo "<h3>Existing data will likely be deleted.</h3>"
+	echo "<h3>Existing data will be deleted.</h3>"
 fi
 
 if [ "$execute_yn" = 'y' ]
@@ -55,14 +55,14 @@ then
 	$process $application
 
 	echo "	delete from role_process
-		where process = 'import_predictivebooks';" |
+		where process = '$process';" |
 	sql.e
 
 	echo "<h3>Process complete.</h3"
 	echo "<h3>Press the &lt;Recount&gt; button to refresh the menu counts.</h3>"
 else
 	echo "<h3>Will execute:</h3"
-	echo `which $process` | html_paragraph_wrapper.e
+	cat `which $process` | html_paragraph_wrapper.e
 fi
 
 echo "</body></html>"

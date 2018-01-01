@@ -8,9 +8,9 @@ content_type_cgi.sh
 
 echo "$0 $*" 1>&2
 
-if [ "$#" -ne 6 ]
+if [ "$#" -ne 5 ]
 then
-	echo "Usage: $0 application process_name as_of_date duration_term institution_full_name institution_street_address" 1>&2
+	echo "Usage: $0 application process_name as_of_date institution_full_name institution_street_address" 1>&2
 	exit 1
 fi
 
@@ -24,16 +24,8 @@ then
 	as_of_date=`date.e 0 | piece.e ':' 0`
 fi
 
-duration_term=$4
-if [ "$duration_term" = "" -o "$duration_term" = "duration_term" ]
-then
-	duration_where="1 = 1"
-else
-	duration_where="duration_term = '$duration_term'"
-fi
-
-institution_full_name=$5
-street_address=$6
+institution_full_name=$4
+street_address=$5
 if [ "$institution_full_name" = "" -o "$institution_full_name" = "full_name" ]
 then
 	institution_where="1 = 1"
@@ -44,7 +36,7 @@ fi
 heading="institution_full_name, account_number, As Of Date, Market Value, Certificate Maturity"
 justification="left, left, left, right, left"
 
-account_process='echo "select full_name, street_address, account_number, certificate_maturity_date from investment_account where $duration_where and $institution_where order by full_name, street_address, certificate_maturity_date;" | sql "^"'
+account_process='echo "select full_name, street_address, account_number, certificate_maturity_date from investment_account where $institution_where order by full_name, street_address, certificate_maturity_date;" | sql "^"'
 
 (
 eval $account_process						|

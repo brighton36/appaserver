@@ -1,5 +1,4 @@
 account
-account_duration
 bank_upload
 contra_account
 customer
@@ -8,7 +7,6 @@ customer_sale
 day
 depreciation
 depreciation_method
-duration_term
 element
 employee
 employee_work_day

@@ -31,7 +31,14 @@ enum preupdate_change_state {		from_null_to_something,
 
 /* Constants */
 /* ========= */
+
+/* ---------------------------------------------------- */
+/* After changing this:					*/
+/* $ cd $APPASERVER_HOME/src_appaserver			*/
+/* $ make						*/
+/* ---------------------------------------------------- */
 #define DIFFERENT_DESTINATION_APPLICATION_OK	0
+
 #define TEMPLATE_APPLICATION_DATABASE		"template:template"
 #define TEMPLATE_APPLICATION			"template"
 #define APPASERVER_UMASK			7

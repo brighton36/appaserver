@@ -18,6 +18,12 @@ else
 	export DATABASE=$application
 fi
 
+echo "Remember in $APPASERVER_HOME/library/appaserver_library.h"
+echo "set DIFFERENT_DESTINATION_APPLICATION_OK	1"
+echo "sleeping..."
+sleep 5
+echo "executing..."
+
 appaserver_config_file="/etc/appaserver.config"
 
 label="appaserver_mount_point="
@@ -223,12 +229,6 @@ function extract_investment()
 	columns=classification
 	get_folder_data a=$application f=$folder s=$columns		|
 	insert_statement.e table=$folder field=$columns del='^'		|
-	cat >> $output_shell
-
-	folder=duration_term
-	columns=duration_term
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
 	folder=investment_operation

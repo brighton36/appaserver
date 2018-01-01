@@ -35,11 +35,15 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('hourly_service','account','null',null,null,null,null,null,null,null,'y',null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('inventory','account','cost_of_goods_sold_account',null,null,null,null,null,null,null,'y',null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('inventory','account','inventory_account',null,null,null,null,null,null,null,'y',null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('investment_account','account','fair_value_adjustment_account',null,null,null,null,null,null,null,'y',null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('investment_account','account','investment_account',null,null,null,null,null,null,null,'y',null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('journal_ledger','account','null',null,null,null,null,'y',null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('liability_account_entity','account','null',null,null,null,null,null,null,null,'y',null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('reoccurring_transaction','account','credit_account',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('reoccurring_transaction','account','debit_account',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('service_purchase','account','null',null,null,null,null,null,null,null,'y',null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('subsidiary_transaction','account','credit_account',null,null,null,null,null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('subsidiary_transaction','account','debit_account',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('supply','account','null',null,null,null,null,null,null,null,'y',null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('tax_form_line_account','account','null','1',null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'account';
@@ -120,8 +124,9 @@ delete from $folder where folder = 'customer';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('customer','prompt','5','entity',null,'n',null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'customer';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_vehicle','customer','null',null,null,null,null,null,null,'y',null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sales_tax_exempt_yn';
@@ -132,6 +137,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer','street_address','2',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('customer','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('customer','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('customer','mechanic','insert');
 insert into $role_folder (folder,role,permission) values ('customer','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('customer','supervisor','update');
 delete from $javascript_folders where folder = 'customer';
@@ -139,6 +145,7 @@ insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('customer','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('customer','bookkeeper','delete_isa_only');
 insert into $role_operation (folder,role,operation) values ('customer','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('customer','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('customer','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('customer','supervisor','delete_isa_only');
 insert into $role_operation (folder,role,operation) values ('customer','supervisor','detail');
@@ -148,7 +155,7 @@ delete from $relation where folder = 'customer_payment';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_payment','customer_sale','null',null,null,null,null,null,null,'y',null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_payment','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sale_date_time';
@@ -171,28 +178,50 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_payment','transaction_date_time',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('customer_payment','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('customer_payment','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('customer_payment','mechanic','insert');
 insert into $role_folder (folder,role,permission) values ('customer_payment','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('customer_payment','supervisor','update');
 delete from $javascript_folders where folder = 'customer_payment';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('customer_payment','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('customer_payment','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('customer_payment','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('customer_payment','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('customer_payment','supervisor','detail');
 delete from $folder where folder = 'customer_sale';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('customer_sale','prompt','1','sale',null,'y',null,null,null,null,null,'post_change_customer_sale',null,null,null,null);
 delete from $relation where folder = 'customer_sale';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','customer_vehicle','null',null,null,null,null,null,null,'y',null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','mechanic','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','transaction','null',null,null,null,'n',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_payment','customer_sale','null',null,null,null,null,null,null,'y',null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service_sale','customer_sale','null','2',null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('hourly_service_sale','customer_sale','null','5',null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('inventory_sale','customer_sale','null','1',null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sale_date_time';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('sale_date_time','current_date_time','19',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'vehicle_make';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('vehicle_make','text','20',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'vehicle_model';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('vehicle_model','text','20',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'vehicle_trim';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('vehicle_trim','text','20',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'vehicle_year';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('vehicle_year','integer','4',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'odometer_miles';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('odometer_miles','integer','7',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'symptom';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('symptom','notepad','1024',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'mechanic_full_name';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('mechanic_full_name','text','60',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'mechanic_street_address';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('mechanic_street_address','text','40',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'mechanic_notes';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('mechanic_notes','notepad','1024',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'shipping_revenue';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('shipping_revenue','float','8','2',null,null,null,null,null,null);
 delete from $attribute where attribute = 'sum_extension';
@@ -216,22 +245,35 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','completed_date_time',null,'16',null,'n',null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','full_name','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','invoice_amount',null,'13',null,'y',null,null,'y',null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','mechanic_full_name',null,'7',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','mechanic_notes',null,'9',null,'y',null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','mechanic_street_address',null,'8',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','odometer_miles',null,'5',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','sales_tax',null,'12',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','sale_date_time','3',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','shipping_revenue',null,'10',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','street_address','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','sum_extension',null,'11',null,'y',null,null,'y',null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','symptom',null,'6',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','total_payment',null,'14',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','transaction_date_time',null,'18',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','uncollectible_writeoff_date',null,'17',null,'y',null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','vehicle_make',null,'1',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','vehicle_model',null,'2',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','vehicle_trim',null,'3',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('customer_sale','vehicle_year',null,'4',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('customer_sale','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('customer_sale','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('customer_sale','mechanic','insert');
+insert into $role_folder (folder,role,permission) values ('customer_sale','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('customer_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('customer_sale','supervisor','update');
 delete from $javascript_folders where folder = 'customer_sale';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('customer_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('customer_sale','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('customer_sale','mechanic','delete');
+insert into $role_operation (folder,role,operation) values ('customer_sale','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('customer_sale','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('customer_sale','supervisor','detail');
 delete from $folder where folder = 'day';
@@ -254,7 +296,7 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('depreciation','transaction','null',null,null,null,'n',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('prior_fixed_asset','depreciation','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'depreciation_date';
@@ -333,8 +375,9 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee','state_marital_status','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee_work_day','employee','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee_work_period','employee','null',null,null,null,null,null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('mechanic','employee','null',null,null,null,'y',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'hourly_wage';
@@ -393,6 +436,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('employee','union_dues_period_amount',null,'16',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('employee','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('employee','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('employee','mechanic','lookup');
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','update');
 delete from $javascript_folders where folder = 'employee';
@@ -408,7 +452,7 @@ insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,look
 delete from $relation where folder = 'employee_work_day';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee_work_day','employee','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'begin_work_date_time';
@@ -434,12 +478,15 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('employee_work_day','update_timestamp',null,'6',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('employee_work_day','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('employee_work_day','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('employee_work_day','mechanic','insert');
+insert into $role_folder (folder,role,permission) values ('employee_work_day','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('employee_work_day','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('employee_work_day','supervisor','update');
 delete from $javascript_folders where folder = 'employee_work_day';
 insert into $subschemas (subschema) values ('payroll');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('employee_work_day','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','supervisor','detail');
 delete from $folder where folder = 'employee_work_period';
@@ -449,7 +496,7 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee_work_period','payroll_posting','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee_work_period','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'payroll_year';
@@ -541,13 +588,14 @@ delete from $relation where folder = 'entity';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('entity','appaserver_user','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('financial_institution','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('liability_account_entity','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('reoccurring_transaction','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('self','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('transaction','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('vendor','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'login_name';
@@ -576,14 +624,88 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('entity','zip_code',null,'4',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('entity','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('entity','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('entity','mechanic','insert');
+insert into $role_folder (folder,role,permission) values ('entity','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('entity','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('entity','supervisor','update');
 delete from $javascript_folders where folder = 'entity';
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('entity','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('entity','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('entity','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('entity','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('entity','supervisor','detail');
+delete from $folder where folder = 'equity_account_balance';
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('equity_account_balance','prompt','5','investment',null,null,null,null,null,null,'post_change_equity_account_balance( this )','post_change_account_balance',null,null,null,null);
+delete from $relation where folder = 'equity_account_balance';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('equity_account_balance','investment_account','null',null,null,'y',null,null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('equity_account_balance','investment_operation','null',null,null,null,null,null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('equity_account_balance','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'full_name';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'street_address';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'account_number';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('account_number','text','50',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'date_time';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('date_time','current_date_time','19',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'investment_operation';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('investment_operation','text','15',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'transaction_date_time';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('transaction_date_time','current_date_time','19',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'share_price';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('share_price','float','12','4',null,null,null,'y','y',null);
+delete from $attribute where attribute = 'share_quantity_change';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('share_quantity_change','float','12','4',null,null,null,'y','y',null);
+delete from $attribute where attribute = 'share_quantity_balance';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('share_quantity_balance','float','13','4',null,null,null,'y','y',null);
+delete from $attribute where attribute = 'book_value_change';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('book_value_change','float','12','4',null,null,null,'y','y',null);
+delete from $attribute where attribute = 'book_value_balance';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('book_value_balance','float','13','4',null,null,null,'y','y',null);
+delete from $attribute where attribute = 'moving_share_price';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('moving_share_price','float','13','5',null,null,null,'y','y',null);
+delete from $attribute where attribute = 'total_cost_balance';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('total_cost_balance','float','14','5',null,null,null,null,null,null);
+delete from $attribute where attribute = 'market_value';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('market_value','float','13','4',null,null,null,'y','y',null);
+delete from $attribute where attribute = 'unrealized_gain_balance';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('unrealized_gain_balance','float','12','4',null,null,null,'y','y',null);
+delete from $attribute where attribute = 'unrealized_gain_change';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('unrealized_gain_change','float','12','4',null,null,null,'y','y',null);
+delete from $attribute where attribute = 'realized_gain';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('realized_gain','float','12','4',null,null,null,null,null,null);
+delete from $folder_attribute where folder = 'equity_account_balance';
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','account_number','3',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','book_value_balance',null,'9',null,'y',null,null,'y',null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','book_value_change',null,'8',null,'y',null,null,'y',null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','date_time','4',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','full_name','1',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','investment_operation',null,'1',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','market_value',null,'12',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','moving_share_price',null,'10',null,'y',null,null,'y',null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','realized_gain',null,'15',null,'y',null,null,'y',null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','share_price',null,'5',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','share_quantity_balance',null,'7',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','share_quantity_change',null,'6',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','street_address','2',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','total_cost_balance',null,'11',null,'y',null,null,'y',null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','transaction_date_time',null,'4',null,'y',null,null,'y',null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','unrealized_gain_balance',null,'13',null,'y',null,null,'y',null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('equity_account_balance','unrealized_gain_change',null,'14',null,'y',null,null,'y',null,null);
+insert into $role_folder (folder,role,permission) values ('equity_account_balance','bookkeeper','insert');
+insert into $role_folder (folder,role,permission) values ('equity_account_balance','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('equity_account_balance','supervisor','insert');
+insert into $role_folder (folder,role,permission) values ('equity_account_balance','supervisor','update');
+delete from $javascript_folders where folder = 'equity_account_balance';
+insert into $javascript_folders (javascript_filename,folder) values ('post_change_equity_account_balance.js','equity_account_balance');
+delete from $javascript_files where javascript_filename = 'post_change_equity_account_balance.js';
+insert into $javascript_files (javascript_filename) values ('post_change_equity_account_balance.js');
+insert into $subschemas (subschema) values ('investment');
+insert into $role_operation (folder,role,operation) values ('equity_account_balance','bookkeeper','delete');
+insert into $role_operation (folder,role,operation) values ('equity_account_balance','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('equity_account_balance','supervisor','delete');
+insert into $role_operation (folder,role,operation) values ('equity_account_balance','supervisor','detail');
 delete from $folder where folder = 'federal_income_tax_withholding';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('federal_income_tax_withholding','prompt','10','tax',null,null,null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'federal_income_tax_withholding';
@@ -629,6 +751,30 @@ insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('federal_marital_status','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('federal_marital_status','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('federal_marital_status','supervisor','detail');
+delete from $folder where folder = 'financial_institution';
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('financial_institution','prompt','5','entity',null,null,null,null,null,null,null,null,null,null,null,null);
+delete from $relation where folder = 'financial_institution';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('financial_institution','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('investment_account','financial_institution','null',null,null,null,null,null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'full_name';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'street_address';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
+delete from $folder_attribute where folder = 'financial_institution';
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('financial_institution','full_name','1',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('financial_institution','street_address','2',null,null,null,null,null,null,null,null);
+insert into $role_folder (folder,role,permission) values ('financial_institution','bookkeeper','insert');
+insert into $role_folder (folder,role,permission) values ('financial_institution','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('financial_institution','supervisor','insert');
+insert into $role_folder (folder,role,permission) values ('financial_institution','supervisor','update');
+delete from $javascript_folders where folder = 'financial_institution';
+insert into $subschemas (subschema) values ('entity');
+insert into $role_operation (folder,role,operation) values ('financial_institution','bookkeeper','delete');
+insert into $role_operation (folder,role,operation) values ('financial_institution','bookkeeper','delete_isa_only');
+insert into $role_operation (folder,role,operation) values ('financial_institution','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('financial_institution','supervisor','delete');
+insert into $role_operation (folder,role,operation) values ('financial_institution','supervisor','delete_isa_only');
+insert into $role_operation (folder,role,operation) values ('financial_institution','supervisor','detail');
 delete from $folder where folder = 'fixed_asset';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('fixed_asset','prompt','5','purchase',null,null,null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'fixed_asset';
@@ -660,7 +806,7 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_asset_purchase','purchase_order','null','4',null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('depreciation','fixed_asset_purchase','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'purchase_date_time';
@@ -762,7 +908,7 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service_sale','fixed_service','null',null,null,null,null,null,null,null,null,null,'y',null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service_work','fixed_service_sale','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sale_date_time';
@@ -788,12 +934,16 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_service_sale','work_hours',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('fixed_service_sale','mechanic','insert');
+insert into $role_folder (folder,role,permission) values ('fixed_service_sale','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_service_sale';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('fixed_service_sale','mechanic','delete');
+insert into $role_operation (folder,role,operation) values ('fixed_service_sale','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','supervisor','detail');
 delete from $folder where folder = 'fixed_service_work';
@@ -802,7 +952,7 @@ delete from $relation where folder = 'fixed_service_work';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service_work','appaserver_user','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service_work','fixed_service_sale','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sale_date_time';
@@ -828,12 +978,15 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_service_work','work_hours',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('fixed_service_work','mechanic','insert');
+insert into $role_folder (folder,role,permission) values ('fixed_service_work','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_service_work';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('fixed_service_work','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','supervisor','detail');
 delete from $folder where folder = 'hourly_service';
@@ -857,12 +1010,14 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('hourly_service','service_name','1',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('hourly_service','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('hourly_service','mechanic','lookup');
 insert into $role_folder (folder,role,permission) values ('hourly_service','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service';
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('hourly_service','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('hourly_service','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('hourly_service','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service','supervisor','detail');
 delete from $folder where folder = 'hourly_service_category';
@@ -889,7 +1044,7 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('hourly_service_sale','hourly_service','null',null,null,null,null,null,null,null,null,null,'y',null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('hourly_service_work','hourly_service_sale','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sale_date_time';
@@ -918,6 +1073,8 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('hourly_service_sale','work_hours',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('hourly_service_sale','mechanic','insert');
+insert into $role_folder (folder,role,permission) values ('hourly_service_sale','mechanic','lookup');
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service_sale';
@@ -932,7 +1089,7 @@ delete from $relation where folder = 'hourly_service_work';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('hourly_service_work','appaserver_user','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('hourly_service_work','hourly_service_sale','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sale_date_time';
@@ -961,12 +1118,15 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('hourly_service_work','work_hours',null,'3',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('hourly_service_work','mechanic','insert');
+insert into $role_folder (folder,role,permission) values ('hourly_service_work','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service_work';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('hourly_service_work','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','supervisor','detail');
 delete from $folder where folder = 'inventory';
@@ -994,7 +1154,7 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $attribute where attribute = 'average_unit_cost';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('average_unit_cost','float','12','4',null,null,null,null,null,null);
 delete from $attribute where attribute = 'total_cost_balance';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('total_cost_balance','float','10','2',null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('total_cost_balance','float','14','5',null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'inventory';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('inventory','average_unit_cost',null,'7',null,'y',null,null,'y',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('inventory','cost_of_goods_sold_account',null,'2',null,null,null,null,null,null,null);
@@ -1007,6 +1167,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('inventory','total_cost_balance',null,'8',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('inventory','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('inventory','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('inventory','mechanic','lookup');
 insert into $role_folder (folder,role,permission) values ('inventory','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory','supervisor','update');
 delete from $javascript_folders where folder = 'inventory';
@@ -1052,7 +1213,7 @@ delete from $relation where folder = 'inventory_purchase';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('inventory_purchase','inventory','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('inventory_purchase','purchase_order','null','1',null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'purchase_date_time';
@@ -1104,7 +1265,7 @@ delete from $relation where folder = 'inventory_sale';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('inventory_sale','customer_sale','null','1',null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('inventory_sale','inventory','null',null,null,null,null,null,null,null,null,null,'y',null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'sale_date_time';
@@ -1133,21 +1294,99 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('inventory_sale','street_address','2',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('inventory_sale','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_sale','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('inventory_sale','mechanic','insert');
+insert into $role_folder (folder,role,permission) values ('inventory_sale','mechanic','update');
 insert into $role_folder (folder,role,permission) values ('inventory_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_sale','supervisor','update');
 delete from $javascript_folders where folder = 'inventory_sale';
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('inventory_sale','mechanic','delete');
+insert into $role_operation (folder,role,operation) values ('inventory_sale','mechanic','detail');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','supervisor','detail');
+delete from $folder where folder = 'investment_account';
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('investment_account','prompt','5','investment',null,'y','populate_investment_account',null,null,null,null,null,null,null,null,null);
+delete from $relation where folder = 'investment_account';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('investment_account','account','fair_value_adjustment_account',null,null,null,null,null,null,null,'y',null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('investment_account','account','investment_account',null,null,null,null,null,null,null,'y',null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('investment_account','financial_institution','null',null,null,null,null,null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('investment_account','investment_classification','null',null,null,null,null,null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('equity_account_balance','investment_account','null',null,null,'y',null,null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'full_name';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'street_address';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'account_number';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('account_number','text','50',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'classification';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('classification','text','15',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'investment_account';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('investment_account','text','60',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'fair_value_adjustment_account';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('fair_value_adjustment_account','text','60',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'certificate_maturity_months';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('certificate_maturity_months','integer','4',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'certificate_maturity_date';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('certificate_maturity_date','date','11',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'interest_rate';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('interest_rate','float','5','2','0.0 rate < 10.0',null,null,null,null,null);
+delete from $folder_attribute where folder = 'investment_account';
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_account','account_number','3',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_account','certificate_maturity_date',null,'5',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_account','certificate_maturity_months',null,'4',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_account','classification',null,'1',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_account','fair_value_adjustment_account',null,'3',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_account','full_name','1',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_account','interest_rate',null,'6',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_account','investment_account',null,'2',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_account','street_address','2',null,null,null,null,null,null,null,null);
+insert into $role_folder (folder,role,permission) values ('investment_account','bookkeeper','insert');
+insert into $role_folder (folder,role,permission) values ('investment_account','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('investment_account','supervisor','insert');
+insert into $role_folder (folder,role,permission) values ('investment_account','supervisor','update');
+delete from $javascript_folders where folder = 'investment_account';
+insert into $subschemas (subschema) values ('investment');
+insert into $role_operation (folder,role,operation) values ('investment_account','bookkeeper','delete');
+insert into $role_operation (folder,role,operation) values ('investment_account','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('investment_account','supervisor','delete');
+insert into $role_operation (folder,role,operation) values ('investment_account','supervisor','detail');
+delete from $folder where folder = 'investment_classification';
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('investment_classification','table','5','static',null,null,null,null,null,null,null,null,null,null,null,null);
+delete from $relation where folder = 'investment_classification';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('investment_account','investment_classification','null',null,null,null,null,null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'classification';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('classification','text','15',null,null,null,null,null,null,null);
+delete from $folder_attribute where folder = 'investment_classification';
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_classification','classification','1',null,null,null,null,null,null,null,null);
+insert into $role_folder (folder,role,permission) values ('investment_classification','supervisor','insert');
+insert into $role_folder (folder,role,permission) values ('investment_classification','supervisor','update');
+delete from $javascript_folders where folder = 'investment_classification';
+insert into $subschemas (subschema) values ('static');
+insert into $role_operation (folder,role,operation) values ('investment_classification','supervisor','delete');
+insert into $role_operation (folder,role,operation) values ('investment_classification','supervisor','detail');
+delete from $folder where folder = 'investment_operation';
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('investment_operation','table','5','static',null,null,null,null,null,null,null,null,null,null,null,null);
+delete from $relation where folder = 'investment_operation';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('equity_account_balance','investment_operation','null',null,null,null,null,null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'investment_operation';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('investment_operation','text','15',null,null,null,null,null,null,null);
+delete from $folder_attribute where folder = 'investment_operation';
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('investment_operation','investment_operation','1',null,null,null,null,null,null,null,null);
+insert into $role_folder (folder,role,permission) values ('investment_operation','supervisor','insert');
+insert into $role_folder (folder,role,permission) values ('investment_operation','supervisor','update');
+delete from $javascript_folders where folder = 'investment_operation';
+insert into $subschemas (subschema) values ('static');
+insert into $role_operation (folder,role,operation) values ('investment_operation','supervisor','delete');
+insert into $role_operation (folder,role,operation) values ('investment_operation','supervisor','detail');
 delete from $folder where folder = 'journal_ledger';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('journal_ledger','prompt','10','ledger',null,null,null,null,null,null,'post_change_journal_ledger( ''\$state'' )','post_change_journal_ledger',null,null,null,null);
 delete from $relation where folder = 'journal_ledger';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('journal_ledger','account','null',null,null,null,null,'y',null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('journal_ledger','transaction','null','1',null,null,null,'y',null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'transaction_date_time';
@@ -1195,7 +1434,7 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 delete from $attribute where attribute = 'account';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('account','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'liability_account_entity';
@@ -1306,7 +1545,7 @@ insert into $subschemas (subschema) values ('payroll');
 insert into $role_operation (folder,role,operation) values ('payroll_posting','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('payroll_posting','supervisor','detail');
 delete from $folder where folder = 'prior_fixed_asset';
-insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('prior_fixed_asset','prompt','5','purchase',null,'y',null,null,null,null,null,null,null,null,null,null);
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('prior_fixed_asset','prompt','5','purchase',null,'y',null,null,null,null,null,'post_change_prior_fixed_asset',null,null,null,null);
 delete from $relation where folder = 'prior_fixed_asset';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('prior_fixed_asset','depreciation','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('prior_fixed_asset','depreciation_method','null',null,null,null,null,null,null,null,null,null,null,null);
@@ -1333,7 +1572,7 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $attribute where attribute = 'disposal_date';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('disposal_date','date','10',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'transaction_date_time';
@@ -1371,7 +1610,7 @@ delete from $relation where folder = 'prior_fixed_asset_depreciation';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('prior_fixed_asset_depreciation','self','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('prior_fixed_asset_depreciation','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'asset_name';
@@ -1410,7 +1649,7 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('supply_purchase','purchase_order','null','2',null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('vendor_payment','purchase_order','null','9',null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'purchase_date_time';
@@ -1482,7 +1721,7 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('reoccurring_transaction','account','debit_account',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('reoccurring_transaction','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'debit_account';
@@ -1512,7 +1751,7 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('self','payroll_pay_period','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('prior_fixed_asset_depreciation','self','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'inventory_cost_method';
@@ -1589,7 +1828,7 @@ delete from $relation where folder = 'service_purchase';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('service_purchase','account','null',null,null,null,null,null,null,null,'y',null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('service_purchase','purchase_order','null','3',null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'purchase_date_time';
@@ -1744,7 +1983,7 @@ delete from $relation where folder = 'supply_purchase';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('supply_purchase','purchase_order','null','2',null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('supply_purchase','supply','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'purchase_date_time';
@@ -1870,13 +2109,14 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','transaction','null',null,null,null,'n',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('depreciation','transaction','null',null,null,null,'n',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee_work_period','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('equity_account_balance','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('journal_ledger','transaction','null','1',null,null,null,'y',null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('prior_fixed_asset','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('prior_fixed_asset_depreciation','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('purchase_order','transaction','null',null,null,null,'n',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('vendor_payment','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'transaction_date_time';
@@ -1914,7 +2154,7 @@ delete from $relation where folder = 'vendor';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('vendor','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('purchase_order','vendor','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'vendor';
@@ -1936,7 +2176,7 @@ delete from $relation where folder = 'vendor_payment';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('vendor_payment','purchase_order','null','9',null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('vendor_payment','transaction','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','50',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'purchase_date_time';
@@ -1980,19 +2220,19 @@ table_name=`get_table_name $application contra_account`
 echo "create table $table_name (account char (60) not null,contra_to_account char (60)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (account);" | sql.e '^' mysql
 table_name=`get_table_name $application customer`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sales_tax_exempt_yn char (1)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sales_tax_exempt_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application customer_payment`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,payment_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application customer_sale`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,shipping_revenue double (8,2),sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,vehicle_make char (20),vehicle_model char (20),vehicle_trim char (20),vehicle_year integer,odometer_miles integer,symptom text,mechanic_full_name char (60),mechanic_street_address char (40),mechanic_notes text,shipping_revenue double (8,2),sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application day`
 echo "create table $table_name (day char (9) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (day);" | sql.e '^' mysql
 table_name=`get_table_name $application depreciation`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,depreciation_date date not null,purchase_date_time datetime,asset_name char (30),transaction_date_time datetime,serial_number char (10),units_produced integer,depreciation_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,depreciation_date date not null,purchase_date_time datetime,asset_name char (30),transaction_date_time datetime,serial_number char (10),units_produced integer,depreciation_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,depreciation_date);" | sql.e '^' mysql
 table_name=`get_table_name $application depreciation_method`
 echo "create table $table_name (depreciation_method char (25) not null) engine MyISAM;" | sql.e '^' mysql
@@ -2001,29 +2241,35 @@ table_name=`get_table_name $application element`
 echo "create table $table_name (element char (20) not null,accumulate_debit_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (element);" | sql.e '^' mysql
 table_name=`get_table_name $application employee`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,hourly_wage double (10,2),period_salary double (10,2),commission_sum_extension_percent double (10,2),gross_pay_year_to_date double (10,2),net_pay_year_to_date double (10,2),federal_marital_status char (25),federal_withholding_allowances integer,federal_withholding_additional_period_amount integer,state_marital_status char (40),state_withholding_allowances integer,state_itemized_deduction_allowances integer,retirement_contribution_plan_employer_period_amount integer,retirement_contribution_plan_employee_period_amount integer,health_insurance_employer_period_amount integer,health_insurance_employee_period_amount integer,union_dues_period_amount integer,terminated_date date) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,hourly_wage double (10,2),period_salary double (10,2),commission_sum_extension_percent double (10,2),gross_pay_year_to_date double (10,2),net_pay_year_to_date double (10,2),federal_marital_status char (25),federal_withholding_allowances integer,federal_withholding_additional_period_amount integer,state_marital_status char (40),state_withholding_allowances integer,state_itemized_deduction_allowances integer,retirement_contribution_plan_employer_period_amount integer,retirement_contribution_plan_employee_period_amount integer,health_insurance_employer_period_amount integer,health_insurance_employee_period_amount integer,union_dues_period_amount integer,terminated_date date) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application employee_work_day`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,begin_work_date_time datetime not null,end_work_date_time datetime,employee_work_hours double (6,2),overtime_work_day_yn char (1),insert_timestamp datetime,update_timestamp datetime) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,begin_work_date_time datetime not null,end_work_date_time datetime,employee_work_hours double (6,2),overtime_work_day_yn char (1),insert_timestamp datetime,update_timestamp datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,begin_work_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application employee_work_period`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,payroll_year,payroll_period_number);" | sql.e '^' mysql
 table_name=`get_table_name $application entity`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,login_name char (20),city char (20),state_code char (2),zip_code char (10),phone_number char (15),cell_number char (15),email_address char (50)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,login_name char (20),city char (20),state_code char (2),zip_code char (10),phone_number char (15),cell_number char (15),email_address char (50)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 echo "create unique index ${table_name}_additional_unique on $table_name (login_name);" | sql.e '^' mysql
+table_name=`get_table_name $application equity_account_balance`
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,date_time datetime not null,investment_operation char (15),transaction_date_time datetime,share_price double (12,4),share_quantity_change double (12,4),share_quantity_balance double (13,4),book_value_change double (12,4),book_value_balance double (13,4),moving_share_price double (13,5),total_cost_balance double (14,5),market_value double (13,4),unrealized_gain_balance double (12,4),unrealized_gain_change double (12,4),realized_gain double (12,4)) engine MyISAM;" | sql.e '^' mysql
+echo "create unique index $table_name on $table_name (full_name,street_address,account_number,date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application federal_income_tax_withholding`
 echo "create table $table_name (federal_marital_status char (25) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (federal_marital_status,income_over);" | sql.e '^' mysql
 table_name=`get_table_name $application federal_marital_status`
 echo "create table $table_name (federal_marital_status char (25) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (federal_marital_status);" | sql.e '^' mysql
+table_name=`get_table_name $application financial_institution`
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' mysql
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_asset`
 echo "create table $table_name (asset_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (asset_name);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_asset_purchase`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),accumulated_depreciation double (10,2),disposal_date date) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),accumulated_depreciation double (10,2),disposal_date date) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_service`
 echo "create table $table_name (service_name char (30) not null,retail_price double (10,2),service_category char (30),account char (60)) engine MyISAM;" | sql.e '^' mysql
@@ -2032,10 +2278,10 @@ table_name=`get_table_name $application fixed_service_category`
 echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (service_category);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_service_sale`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,retail_price double (10,2),discount_amount double (10,2),work_hours double (10,4),extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,retail_price double (10,2),discount_amount double (10,2),work_hours double (10,4),extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,service_name);" | sql.e '^' mysql
 table_name=`get_table_name $application fixed_service_work`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,begin_work_date_time datetime not null,end_work_date_time datetime,login_name char (20),work_hours double (10,4)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,begin_work_date_time datetime not null,end_work_date_time datetime,login_name char (20),work_hours double (10,4)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,service_name,begin_work_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application hourly_service`
 echo "create table $table_name (service_name char (30) not null,hourly_rate double (7,2),service_category char (30),account char (60)) engine MyISAM;" | sql.e '^' mysql
@@ -2044,13 +2290,13 @@ table_name=`get_table_name $application hourly_service_category`
 echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (service_category);" | sql.e '^' mysql
 table_name=`get_table_name $application hourly_service_sale`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,description char (60) not null,estimated_hours double (6,2),hourly_rate double (7,2),work_hours double (10,4),extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,description char (60) not null,estimated_hours double (6,2),hourly_rate double (7,2),work_hours double (10,4),extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,service_name,description);" | sql.e '^' mysql
 table_name=`get_table_name $application hourly_service_work`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,description char (60) not null,begin_work_date_time datetime not null,end_work_date_time datetime,login_name char (20),work_hours double (10,4)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,service_name char (30) not null,description char (60) not null,begin_work_date_time datetime not null,end_work_date_time datetime,login_name char (20),work_hours double (10,4)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,service_name,description,begin_work_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application inventory`
-echo "create table $table_name (inventory_name char (30) not null,inventory_account char (60),cost_of_goods_sold_account char (60),retail_price double (10,2),inventory_category char (30),reorder_quantity integer,quantity_on_hand integer,average_unit_cost double (12,4),total_cost_balance double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (inventory_name char (30) not null,inventory_account char (60),cost_of_goods_sold_account char (60),retail_price double (10,2),inventory_category char (30),reorder_quantity integer,quantity_on_hand integer,average_unit_cost double (12,4),total_cost_balance double (14,5)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (inventory_name);" | sql.e '^' mysql
 table_name=`get_table_name $application inventory_category`
 echo "create table $table_name (inventory_category char (30) not null) engine MyISAM;" | sql.e '^' mysql
@@ -2059,16 +2305,25 @@ table_name=`get_table_name $application inventory_cost_method`
 echo "create table $table_name (inventory_cost_method char (15) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (inventory_cost_method);" | sql.e '^' mysql
 table_name=`get_table_name $application inventory_purchase`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,inventory_name char (30) not null,ordered_quantity integer,arrived_quantity integer,missing_quantity integer,quantity_on_hand integer,capitalized_unit_cost double (10,4),unit_cost double (10,2),extension double (10,2),average_unit_cost double (12,4)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,inventory_name char (30) not null,ordered_quantity integer,arrived_quantity integer,missing_quantity integer,quantity_on_hand integer,capitalized_unit_cost double (10,4),unit_cost double (10,2),extension double (10,2),average_unit_cost double (12,4)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,inventory_name);" | sql.e '^' mysql
 table_name=`get_table_name $application inventory_sale`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,sale_date_time datetime not null,inventory_name char (30) not null,quantity integer,retail_price double (10,2),discount_amount double (10,2),extension double (10,2),cost_of_goods_sold double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,inventory_name char (30) not null,quantity integer,retail_price double (10,2),discount_amount double (10,2),extension double (10,2),cost_of_goods_sold double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,inventory_name);" | sql.e '^' mysql
+table_name=`get_table_name $application investment_account`
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,classification char (15),investment_account char (60),fair_value_adjustment_account char (60),certificate_maturity_months integer,certificate_maturity_date date,interest_rate double (5,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create unique index $table_name on $table_name (full_name,street_address,account_number);" | sql.e '^' mysql
+table_name=`get_table_name $application investment_classification`
+echo "create table $table_name (classification char (15) not null) engine MyISAM;" | sql.e '^' mysql
+echo "create unique index $table_name on $table_name (classification);" | sql.e '^' mysql
+table_name=`get_table_name $application investment_operation`
+echo "create table $table_name (investment_operation char (15) not null) engine MyISAM;" | sql.e '^' mysql
+echo "create unique index $table_name on $table_name (investment_operation);" | sql.e '^' mysql
 table_name=`get_table_name $application journal_ledger`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,transaction_date_time datetime not null,account char (60) not null,transaction_count integer,previous_balance double (10,2),debit_amount double (10,2),credit_amount double (10,2),balance double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,account char (60) not null,transaction_count integer,previous_balance double (10,2),debit_amount double (10,2),credit_amount double (10,2),balance double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time,account);" | sql.e '^' mysql
 table_name=`get_table_name $application liability_account_entity`
-echo "create table $table_name (account char (60) not null,full_name char (50),street_address char (40)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (account char (60) not null,full_name char (60),street_address char (40)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (account);" | sql.e '^' mysql
 table_name=`get_table_name $application payroll_pay_period`
 echo "create table $table_name (payroll_pay_period char (15) not null) engine MyISAM;" | sql.e '^' mysql
@@ -2077,25 +2332,25 @@ table_name=`get_table_name $application payroll_posting`
 echo "create table $table_name (payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (payroll_year,payroll_period_number);" | sql.e '^' mysql
 table_name=`get_table_name $application prior_fixed_asset`
-echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),recorded_date date,estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),disposal_date date,full_name char (50),street_address char (40),transaction_date_time datetime,accumulated_depreciation double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),recorded_date date,estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),disposal_date date,full_name char (60),street_address char (40),transaction_date_time datetime,accumulated_depreciation double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (asset_name,serial_number);" | sql.e '^' mysql
 table_name=`get_table_name $application prior_fixed_asset_depreciation`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,asset_name,serial_number,depreciation_date);" | sql.e '^' mysql
 table_name=`get_table_name $application purchase_order`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,amount_due double (10,2),sum_extension double (10,2),sales_tax double (7,2),freight_in double (6,2),purchase_amount double (10,2),title_passage_rule char (15),shipped_date date,arrived_date_time datetime,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,amount_due double (10,2),sum_extension double (10,2),sales_tax double (7,2),freight_in double (6,2),purchase_amount double (10,2),title_passage_rule char (15),shipped_date date,arrived_date_time datetime,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application receipt_upload`
 echo "create table $table_name (receipt_upload_filename char (80) not null,upload_date date,posted_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (receipt_upload_filename);" | sql.e '^' mysql
 table_name=`get_table_name $application reoccurring_transaction`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,debit_account char (60),credit_account char (60),transaction_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,debit_account char (60),credit_account char (60),transaction_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application self`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,inventory_cost_method char (15),payroll_pay_period char (15),payroll_beginning_day char (9),social_security_combined_tax_rate double (10,4),social_security_payroll_ceiling integer,medicare_combined_tax_rate double (10,4),medicare_additional_withholding_rate double (5,3),medicare_additional_gross_pay_floor integer,federal_withholding_allowance_period_value double (10,2),federal_nonresident_withholding_income_premium double (7,2),state_withholding_allowance_period_value char (7),state_itemized_allowance_period_value double (10,2),federal_unemployment_wage_base integer,federal_unemployment_tax_standard_rate double (10,4),federal_unemployment_threshold_rate double (10,4),federal_unemployment_tax_minimum_rate double (10,4),state_unemployment_wage_base integer,state_unemployment_tax_rate double (10,4),state_sales_tax_rate double (6,4)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,inventory_cost_method char (15),payroll_pay_period char (15),payroll_beginning_day char (9),social_security_combined_tax_rate double (10,4),social_security_payroll_ceiling integer,medicare_combined_tax_rate double (10,4),medicare_additional_withholding_rate double (5,3),medicare_additional_gross_pay_floor integer,federal_withholding_allowance_period_value double (10,2),federal_nonresident_withholding_income_premium double (7,2),state_withholding_allowance_period_value char (7),state_itemized_allowance_period_value double (10,2),federal_unemployment_wage_base integer,federal_unemployment_tax_standard_rate double (10,4),federal_unemployment_threshold_rate double (10,4),federal_unemployment_tax_minimum_rate double (10,4),state_unemployment_wage_base integer,state_unemployment_tax_rate double (10,4),state_sales_tax_rate double (6,4)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application service_purchase`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,account char (60) not null,service_description text,extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,account char (60) not null,service_description text,extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,account);" | sql.e '^' mysql
 table_name=`get_table_name $application state_income_tax_withholding`
 echo "create table $table_name (state_marital_status char (40) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' mysql
@@ -2113,7 +2368,7 @@ table_name=`get_table_name $application supply`
 echo "create table $table_name (supply_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (supply_name);" | sql.e '^' mysql
 table_name=`get_table_name $application supply_purchase`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,supply_name char (30) not null,quantity integer,unit_cost double (10,2),extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,supply_name char (30) not null,quantity integer,unit_cost double (10,2),extension double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,supply_name);" | sql.e '^' mysql
 table_name=`get_table_name $application tax_form`
 echo "create table $table_name (tax_form char (20) not null) engine MyISAM;" | sql.e '^' mysql
@@ -2128,14 +2383,14 @@ table_name=`get_table_name $application title_passage_rule`
 echo "create table $table_name (title_passage_rule char (15) not null,title_passage_date char (15)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (title_passage_rule);" | sql.e '^' mysql
 table_name=`get_table_name $application transaction`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,transaction_date_time datetime not null,memo char (60),transaction_amount double (10,2),check_number integer,lock_transaction_yn char (1)) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,memo char (60),transaction_amount double (10,2),check_number integer,lock_transaction_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time);" | sql.e '^' mysql
 echo "create unique index ${table_name}_additional_unique on $table_name (transaction_date_time);" | sql.e '^' mysql
 table_name=`get_table_name $application vendor`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
 table_name=`get_table_name $application vendor_payment`
-echo "create table $table_name (full_name char (50) not null,street_address char (40) not null,purchase_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,payment_date_time);" | sql.e '^' mysql
 
 (
@@ -2148,9 +2403,10 @@ insert into element (element,accumulate_debit_yn) values ('liability','n');
 insert into element (element,accumulate_debit_yn) values ('loss','y');
 insert into element (element,accumulate_debit_yn) values ('revenue','n');
 insert into subclassification (subclassification,element,display_order) values ('cash','asset','1');
-insert into subclassification (subclassification,element,display_order) values ('contributed capital','equity','15');
+insert into subclassification (subclassification,element,display_order) values ('contributed_capital','equity','1');
 insert into subclassification (subclassification,element,display_order) values ('cost_of_goods_sold','expense','11');
 insert into subclassification (subclassification,element,display_order) values ('current_liability','liability','6');
+insert into subclassification (subclassification,element,display_order) values ('equity','equity','3');
 insert into subclassification (subclassification,element,display_order) values ('gain','gain','13');
 insert into subclassification (subclassification,element,display_order) values ('inventory','asset','2');
 insert into subclassification (subclassification,element,display_order) values ('long-term investment','asset','4');
@@ -2159,7 +2415,7 @@ insert into subclassification (subclassification,element,display_order) values (
 insert into subclassification (subclassification,element,display_order) values ('operating_expense','expense','9');
 insert into subclassification (subclassification,element,display_order) values ('property_plant_equipment','asset','5');
 insert into subclassification (subclassification,element,display_order) values ('receivable','asset','3');
-insert into subclassification (subclassification,element,display_order) values ('retained earnings','equity','16');
+insert into subclassification (subclassification,element,display_order) values ('retained_earnings','equity','2');
 insert into subclassification (subclassification,element,display_order) values ('revenue','revenue','8');
 insert into subclassification (subclassification,element,display_order) values ('supply_expense','expense','10');
 insert into subclassification (subclassification,element,display_order) values ('tax_expense','expense','12');
@@ -2169,20 +2425,27 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('accumulated_depreciation','property_plant_equipment','accumulated_depreciation_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('advertising','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('checking','cash','cash_key');
+insert into account (account,subclassification,hard_coded_account_key) values ('coolant_inventory','inventory',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('cost_of_goods_sold','cost_of_goods_sold','cost_of_goods_sold_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('depreciation_expense','operating_expense','depreciation_expense_key');
+insert into account (account,subclassification,hard_coded_account_key) values ('fair_value_adjustment','long-term investment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('federal_unemployment_tax_payable','current_liability','federal_unemployment_tax_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('federal_withholding_payable','current_liability','federal_withholding_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('fixed_asset','property_plant_equipment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('freight_in_expense','operating_expense','freight_in_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('equity','contributed capital',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('investment','long-term investment',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('Jim George equity','contributed_capital',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('land','property_plant_equipment','land_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('loss','loss','loss_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('medicare_payable','current_liability','medicare_payable_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('inventory','inventory',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('oil_inventory','inventory',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('payroll_payable','current_liability','payroll_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('payroll_tax','tax_expense','payroll_tax_key');
+insert into account (account,subclassification,hard_coded_account_key) values ('realized_investment_gain','gain','realized_investment_gain_key');
+insert into account (account,subclassification,hard_coded_account_key) values ('realized_investment_loss','loss','realized_investment_loss_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('repairs_maintenance_expense','operating_expense',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('rounding_gain','gain',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('rounding_loss','loss',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('salary_wage_expense','operating_expense','salary_wage_expense_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('sales_revenue','revenue','sales_revenue_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('sales_tax_expense','tax_expense','sales_tax_key');
@@ -2196,6 +2459,7 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('taxes_and_licenses','tax_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('towels','supply_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('uncleared_checks','current_liability','uncleared_checks_key');
+insert into account (account,subclassification,hard_coded_account_key) values ('unrealized_investment','equity','unrealized_investment_key');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','001','sales_revenue');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','001','service_revenue');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','004','cost_of_goods_sold');
@@ -2209,7 +2473,8 @@ insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Sche
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','023','sales_tax_expense');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','023','taxes_and_licenses');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','026','salary_wage_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','inventory');
+insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','coolant_inventory');
+insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','oil_inventory');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','041','specific_inventory');
 insert into tax_form_line (tax_form,tax_form_line,tax_form_description,itemize_accounts_yn) values ('Schedule C','001','Gross receipts or sales',null);
 insert into tax_form_line (tax_form,tax_form_line,tax_form_description,itemize_accounts_yn) values ('Schedule C','002','Returns and allowances',null);
@@ -2620,6 +2885,22 @@ all_done2
 
 
 (
+cat << all_done5
+insert into investment_classification (classification) values ('certificate');
+insert into investment_classification (classification) values ('checking');
+insert into investment_classification (classification) values ('credit_card');
+insert into investment_classification (classification) values ('money_market');
+insert into investment_classification (classification) values ('mutual_fund');
+insert into investment_classification (classification) values ('savings');
+insert into investment_classification (classification) values ('stock');
+insert into investment_operation (investment_operation) values ('purchase');
+insert into investment_operation (investment_operation) values ('sale');
+insert into investment_operation (investment_operation) values ('time_passage');
+all_done5
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
 cat << all_done3
 insert into role_operation (folder,role,operation) values ('account','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('account','bookkeeper','detail');
@@ -2635,15 +2916,19 @@ insert into role_operation (folder,role,operation) values ('contra_account','sup
 insert into role_operation (folder,role,operation) values ('customer','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('customer','bookkeeper','delete_isa_only');
 insert into role_operation (folder,role,operation) values ('customer','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('customer','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('customer','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('customer','supervisor','delete_isa_only');
 insert into role_operation (folder,role,operation) values ('customer','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('customer_payment','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('customer_payment','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('customer_payment','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('customer_payment','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('customer_payment','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('customer_sale','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('customer_sale','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('customer_sale','mechanic','delete');
+insert into role_operation (folder,role,operation) values ('customer_sale','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('customer_sale','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('customer_sale','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('day','supervisor','delete');
@@ -2664,6 +2949,7 @@ insert into role_operation (folder,role,operation) values ('employee','superviso
 insert into role_operation (folder,role,operation) values ('employee','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('employee_work_day','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('employee_work_day','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('employee_work_day','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('employee_work_period','bookkeeper','delete');
@@ -2672,13 +2958,24 @@ insert into role_operation (folder,role,operation) values ('employee_work_period
 insert into role_operation (folder,role,operation) values ('employee_work_period','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('entity','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('entity','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('entity','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('entity','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('entity','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('equity_account_balance','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('equity_account_balance','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('equity_account_balance','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('equity_account_balance','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('federal_income_tax_withholding','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('federal_income_tax_withholding','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('federal_marital_status','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('federal_marital_status','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('federal_marital_status','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('financial_institution','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('financial_institution','bookkeeper','delete_isa_only');
+insert into role_operation (folder,role,operation) values ('financial_institution','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('financial_institution','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('financial_institution','supervisor','delete_isa_only');
+insert into role_operation (folder,role,operation) values ('financial_institution','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('fixed_asset','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('fixed_asset','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('fixed_asset','supervisor','delete');
@@ -2696,14 +2993,18 @@ insert into role_operation (folder,role,operation) values ('fixed_service_catego
 insert into role_operation (folder,role,operation) values ('fixed_service_category','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service_sale','mechanic','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service_sale','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('fixed_service_sale','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('fixed_service_sale','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service_work','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('fixed_service_work','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('fixed_service_work','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('hourly_service','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('hourly_service','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('hourly_service','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('hourly_service','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('hourly_service_category','bookkeeper','detail');
@@ -2715,6 +3016,7 @@ insert into role_operation (folder,role,operation) values ('hourly_service_sale'
 insert into role_operation (folder,role,operation) values ('hourly_service_sale','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('hourly_service_work','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('hourly_service_work','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('hourly_service_work','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('inventory','bookkeeper','delete');
@@ -2732,8 +3034,18 @@ insert into role_operation (folder,role,operation) values ('inventory_purchase',
 insert into role_operation (folder,role,operation) values ('inventory_purchase','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('inventory_sale','mechanic','delete');
+insert into role_operation (folder,role,operation) values ('inventory_sale','mechanic','detail');
 insert into role_operation (folder,role,operation) values ('inventory_sale','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('inventory_sale','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('investment_account','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('investment_account','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('investment_account','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('investment_account','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('investment_classification','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('investment_classification','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('investment_operation','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('investment_operation','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('journal_ledger','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('journal_ledger','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('journal_ledger','supervisor','delete');
@@ -2814,6 +3126,15 @@ insert into role_operation (folder,role,operation) values ('vendor_payment','boo
 insert into role_operation (folder,role,operation) values ('vendor_payment','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('vendor_payment','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('vendor_payment','supervisor','detail');
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('account_balance','account_balance.sh \$application \$process as_of_date full_name street_address',null,null,null,null,'output',null,null);
 insert into process (process,
 		command_line,
 		notepad,
@@ -3119,6 +3440,15 @@ insert into process (process,
 		process_set_display,
 		process_group,
 		preprompt_help_text,
+		appaserver_yn) values ('import_predictivebooks','import_predictivebooks_process.sh \$application \$process execute_yn','This process imports the Predictive Books application.',null,null,null,'manipulate',null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
 		appaserver_yn) values ('income_statement','income_statement \$application \$process fund as_of_date aggregate_subclassification_yn output_medium',null,null,null,null,'output',null,null);
 insert into process (process,
 		command_line,
@@ -3254,6 +3584,15 @@ insert into process (process,
 		process_set_display,
 		process_group,
 		preprompt_help_text,
+		appaserver_yn) values ('populate_investment_account','populate_investment_account.sh \$application \$where',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
 		appaserver_yn) values ('populate_print_checks_entity','populate_print_checks_entity \$application fund',null,null,null,null,'output',null,null);
 insert into process (process,
 		command_line,
@@ -3264,6 +3603,15 @@ insert into process (process,
 		process_group,
 		preprompt_help_text,
 		appaserver_yn) values ('populate_tax_form_line','populate_tax_form_line.sh \$application \$where',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_account_balance','post_change_account_balance \$application fund full_name street_address account_number date_time \$state preupdate_full_name preupdate_street_address preupdate_account_number',null,null,null,null,null,null,null);
 insert into process (process,
 		command_line,
 		notepad,
@@ -3372,6 +3720,15 @@ insert into process (process,
 		process_group,
 		preprompt_help_text,
 		appaserver_yn) values ('post_change_journal_ledger','post_change_journal_ledger.sh \$application full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_prior_fixed_asset','post_change_prior_fixed_asset \$application asset_name serial_number \$state preupdate_extension',null,null,null,null,null,null,null);
 insert into process (process,
 		command_line,
 		notepad,
@@ -3615,6 +3972,26 @@ insert into process_parameter (process,
 		drop_down_multi_select_yn,
 		preprompt_yn,
 		populate_drop_down_process,
+		populate_helper_process) values ('account_balance','financial_institution','null','null','null','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('account_balance','null','null','null','as_of_date','2',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
 		populate_helper_process) values ('add_column','attribute','null','null','null','1',null,'y',null,null);
 insert into process_parameter (process,
 		folder,
@@ -3796,16 +4173,6 @@ insert into process_parameter (process,
 		preprompt_yn,
 		populate_drop_down_process,
 		populate_helper_process) values ('clone_folder','null','null','null','new_data','5',null,null,null,null);
-insert into process_parameter (process,
-		folder,
-		attribute,
-		drop_down_prompt,
-		prompt,
-		display_order,
-		drop_down_multi_select_yn,
-		preprompt_yn,
-		populate_drop_down_process,
-		populate_helper_process) values ('clone_folder','null','null','database_management_system','null','8',null,null,null,null);
 insert into process_parameter (process,
 		folder,
 		attribute,
@@ -4305,6 +4672,16 @@ insert into process_parameter (process,
 		drop_down_multi_select_yn,
 		preprompt_yn,
 		populate_drop_down_process,
+		populate_helper_process) values ('import_predictivebooks','null','null','null','execute_yn','1',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
 		populate_helper_process) values ('income_statement','null','null','null','aggregate_subclassification_yn','2',null,null,null,null);
 insert into process_parameter (process,
 		folder,
@@ -4706,6 +5083,7 @@ insert into process_parameter (process,
 		preprompt_yn,
 		populate_drop_down_process,
 		populate_helper_process) values ('view_appaserver_log_file','null','null','null','line_count',null,null,null,null,null);
+insert into role_process (process,role) values ('account_balance','bookkeeper');
 insert into role_process (process,role) values ('appaserver_info','bookkeeper');
 insert into role_process (process,role) values ('balance_sheet','bookkeeper');
 insert into role_process (process,role) values ('change_password','bookkeeper');
@@ -4719,6 +5097,7 @@ insert into role_process (process,role) values ('execute_select_statement','book
 insert into role_process (process,role) values ('generate_invoice','bookkeeper');
 insert into role_process (process,role) values ('generate_workorder','bookkeeper');
 insert into role_process (process,role) values ('generic_load','bookkeeper');
+insert into role_process (process,role) values ('import_predictivebooks','bookkeeper');
 insert into role_process (process,role) values ('income_statement','bookkeeper');
 insert into role_process (process,role) values ('inventory_balance_detail','bookkeeper');
 insert into role_process (process,role) values ('ledger_propagate','bookkeeper');
@@ -4736,6 +5115,21 @@ insert into role_process (process,role) values ('update_sale_completed','bookkee
 insert into role_process (process,role) values ('update_sale_not_completed','bookkeeper');
 insert into role_process (process,role) values ('view_documentation','bookkeeper');
 insert into role_process (process,role) values ('view_source','bookkeeper');
+insert into role_process (process,role) values ('appaserver_info','mechanic');
+insert into role_process (process,role) values ('change_password','mechanic');
+insert into role_process (process,role) values ('close_fixed_service_work','mechanic');
+insert into role_process (process,role) values ('close_hourly_service_work','mechanic');
+insert into role_process (process,role) values ('collect_customer_payment','mechanic');
+insert into role_process (process,role) values ('execute_select_statement','mechanic');
+insert into role_process (process,role) values ('generate_invoice','mechanic');
+insert into role_process (process,role) values ('generate_workorder','mechanic');
+insert into role_process (process,role) values ('open_fixed_service_work','mechanic');
+insert into role_process (process,role) values ('open_hourly_service_work','mechanic');
+insert into role_process (process,role) values ('update_sale_completed','mechanic');
+insert into role_process (process,role) values ('update_sale_not_completed','mechanic');
+insert into role_process (process,role) values ('view_documentation','mechanic');
+insert into role_process (process,role) values ('view_source','mechanic');
+insert into role_process (process,role) values ('account_balance','supervisor');
 insert into role_process (process,role) values ('appaserver_info','supervisor');
 insert into role_process (process,role) values ('balance_sheet','supervisor');
 insert into role_process (process,role) values ('change_password','supervisor');
@@ -4749,6 +5143,7 @@ insert into role_process (process,role) values ('execute_select_statement','supe
 insert into role_process (process,role) values ('generate_invoice','supervisor');
 insert into role_process (process,role) values ('generate_workorder','supervisor');
 insert into role_process (process,role) values ('generic_load','supervisor');
+insert into role_process (process,role) values ('import_predictivebooks','supervisor');
 insert into role_process (process,role) values ('income_statement','supervisor');
 insert into role_process (process,role) values ('inventory_balance_detail','supervisor');
 insert into role_process (process,role) values ('ledger_propagate','supervisor');
@@ -4798,6 +5193,7 @@ insert into javascript_processes (process,javascript_filename) values ('clone_fo
 insert into javascript_processes (process,javascript_filename) values ('pay_liabilities','post_change_pay_liabilities.js');
 insert into javascript_files (javascript_filename) values ('clone_folder.js');
 insert into javascript_files (javascript_filename) values ('post_change_bank_upload.js');
+insert into javascript_files (javascript_filename) values ('post_change_equity_account_balance.js');
 insert into javascript_files (javascript_filename) values ('post_change_journal_ledger.js');
 insert into javascript_files (javascript_filename) values ('post_change_pay_liabilities.js');
 insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('accumulate_yn','1',null,null,null);
@@ -4911,19 +5307,15 @@ insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) 
 insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('y_tick_major','6',null,null,null);
 insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('y_tick_minor','6',null,null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('aggregation',null,null);
-insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('database_management_system','Defaults to Mysql',null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('execute_select_statement_output_medium',null,'output_medium');
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('export_output',null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('finance_output_medium',null,'output_medium');
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('group_annually_output_medium',null,'output_medium');
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('inventory_balance_output_medium',null,'output_medium');
-insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('load_srf_output_medium',null,'output_medium');
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('null','Necessary for outter joins to work',null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('output_medium',null,null);
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('aggregation','consolidated','1');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('aggregation','sequential','2');
-insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('database_management_system','mysql','1');
-insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('database_management_system','oracle','2');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('execute_select_statement_output_medium','spreadsheet','2');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('execute_select_statement_output_medium','table','1');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('export_output','gzip_file','2');
@@ -4935,9 +5327,6 @@ insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,displa
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('group_annually_output_medium','text_file','3');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('inventory_balance_output_medium','PDF','2');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('inventory_balance_output_medium','table','1');
-insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('load_srf_output_medium','audit_report','2');
-insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('load_srf_output_medium','database','3');
-insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('load_srf_output_medium','screen','1');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','table','2');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','text_file','3');
 insert into operation (operation,output_yn) values ('delete','n');

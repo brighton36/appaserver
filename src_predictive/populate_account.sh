@@ -50,7 +50,7 @@ fi
 
 if [	"$one2m_folder" = "fixed_service" -o	\
 	"$one2m_folder" = "hourly_service" -o	\
-	"$one2m_folder" = "service" ]
+	"$one2m_folder" = "service_purchase" ]
 then
 	where="subclassification = 'revenue'"
 fi

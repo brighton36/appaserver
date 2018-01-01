@@ -48,7 +48,9 @@ then
 	where="subclassification = 'property_plant_equipment'"
 fi
 
-if [ "$one2m_folder" = "fixed_service" -o "$one2m_folder" = "hourly_service" ]
+if [	"$one2m_folder" = "fixed_service" -o	\
+	"$one2m_folder" = "hourly_service" -o	\
+	"$one2m_folder" = "service" ]
 then
 	where="subclassification = 'revenue'"
 fi

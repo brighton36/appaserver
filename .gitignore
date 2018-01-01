@@ -5,6 +5,7 @@
 # application output
 # ------------------
 *~
+*.swp
 appaserver.err
 trash/
 # -------

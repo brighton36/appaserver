@@ -244,7 +244,7 @@ void make_checks_stdin( boolean with_stub )
 		if ( character_count( '^', input_buffer ) != 3 )
 		{
 			fprintf( stderr,
-"Warning in %s/%s()/%d: ignoring (%s)n",
+				 "Warning in %s/%s()/%d: ignoring (%s)n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,

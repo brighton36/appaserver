@@ -456,4 +456,6 @@ chmod +x $output_shell
 
 echo Created $output_shell
 
+echo "Remember to run clean_mechanic.sh `basename $output_shell`"
+
 exit 0

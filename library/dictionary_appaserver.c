@@ -234,10 +234,6 @@ DICTIONARY *dictionary_appaserver_get_working_post_dictionary(
 		working_post_dictionary,
 		PAIR_ONE2M_PREFIX );
 
-	/* Trim the [common_non_primary_attribute data] */
-	/* -------------------------------------------- */
-	dictionary_trim_double_bracked_data( working_post_dictionary );
-
 	/* Remove the index appended to the multi-select lookup widget. */
 	/* ------------------------------------------------------------ */
 	dictionary_trim_multi_drop_down_index(
@@ -251,6 +247,11 @@ DICTIONARY *dictionary_appaserver_get_working_post_dictionary(
 				application_name,
 				attribute_list );
 	}
+
+	/* Trim the [common_non_primary_attribute data] 		 */
+	/* Note: this must follow dictionary_trim_multi_drop_down_index()*/
+	/* ------------------------------------------------------------- */
+	dictionary_trim_double_bracked_data( working_post_dictionary );
 
 	return working_post_dictionary;
 

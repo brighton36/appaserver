@@ -24,23 +24,35 @@
 
 /* Prototypes */
 /* ---------- */
+int get_text_height(	boolean with_stub );
+
 void make_checks_document_heading(
-			FILE *latex_file );
+			FILE *latex_file,
+			int text_height );
 
 void make_checks_document_footer(
 			FILE *latex_file );
 
 void make_checks_argv(	int argc, char **argv );
 
-void make_checks_stdin(	boolean personal_size );
+void make_checks_stdin(	boolean with_stub );
 
-void make_checks_dollar_text_personal_size(
+void make_checks_dollar_text_with_stub(
 			FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
 			char *dollar_text_string,
 			char *memo,
 			int check_number,
+			char *check_date,
+			boolean with_newpage );
+
+void make_checks_dollar_text(
+			FILE *latex_file,
+			char *payable_to,
+			double dollar_amount,
+			char *dollar_text_string,
+			char *memo,
 			char *check_date,
 			boolean with_newpage );
 
@@ -51,17 +63,17 @@ void make_checks(	FILE *latex_file,
 			int check_number,
 			char *check_date,
 			boolean with_newpage,
-			boolean personal_size );
+			boolean with_stub );
 
 int main( int argc, char **argv )
 {
 	if ( argc == 3 && strcmp( argv[ 1 ], "stdin" ) == 0 )
 	{
-		boolean personal_size;
+		boolean with_stub;
 
-		personal_size = ( *argv[ 2 ] == 'y' );
+		with_stub = ( *argv[ 2 ] == 'y' );
 
-		make_checks_stdin( personal_size );
+		make_checks_stdin( with_stub );
 	}
 	else
 	{
@@ -83,13 +95,14 @@ void make_checks_argv( int argc, char **argv )
 	pid_t process_id = getpid();
 	FILE *latex_file;
 	char *check_date;
-	boolean personal_size;
+	boolean with_stub;
 	int check_number;
+	int text_height;
 
 	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s payable_to|stdin dollar_amount memo check_number personal_size_yn\n",
+"Usage: %s payable_to|stdin dollar_amount memo check_number with_stub_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -98,7 +111,7 @@ void make_checks_argv( int argc, char **argv )
 	dollar_amount = atof( argv[ 2 ] );
 	memo = argv[ 3 ];
 	check_number = atoi( argv[ 4 ] );
-	personal_size = ( *argv[ 5 ] == 'y' );
+	with_stub = ( *argv[ 5 ] == 'y' );
 
 	appaserver_error_stderr( argc, argv );
 
@@ -140,7 +153,9 @@ void make_checks_argv( int argc, char **argv )
 		exit( 1 );
 	}
 
-	make_checks_document_heading( latex_file );
+	text_height = get_text_height( with_stub );
+
+	make_checks_document_heading( latex_file, text_height );
 
 	make_checks(	latex_file,
 			payable_to,
@@ -149,7 +164,7 @@ void make_checks_argv( int argc, char **argv )
 			check_number,
 			check_date,
 			0 /* not with_newpage */,
-			personal_size );
+			with_stub );
 
 	make_checks_document_footer( latex_file );
 
@@ -165,7 +180,7 @@ void make_checks_argv( int argc, char **argv )
 
 } /* make_checks_argv() */
 
-void make_checks_stdin( boolean personal_size )
+void make_checks_stdin( boolean with_stub )
 {
 	char payable_to[ 128 ];
 	char dollar_amount_string[ 128 ];
@@ -180,6 +195,7 @@ void make_checks_stdin( boolean personal_size )
 	FILE *latex_file;
 	boolean first_time = 1;
 	char *check_date;
+	int text_height;
 
 	check_date = pipe2string( "now.sh full" );
 
@@ -219,7 +235,9 @@ void make_checks_stdin( boolean personal_size )
 		exit( 1 );
 	}
 
-	make_checks_document_heading( latex_file );
+	text_height = get_text_height( with_stub );
+
+	make_checks_document_heading( latex_file, text_height );
 
 	while( get_line( input_buffer, stdin ) )
 	{
@@ -251,7 +269,7 @@ void make_checks_stdin( boolean personal_size )
 				atoi( check_number_string ),
 				check_date,
 				1 - first_time /* with_newpage */,
-				personal_size );
+				with_stub );
 
 		first_time = 0;
 
@@ -278,15 +296,15 @@ void make_checks(	FILE *latex_file,
 			int check_number,
 			char *check_date,
 			boolean with_newpage,
-			boolean personal_size )
+			boolean with_stub )
 {
 	char dollar_text_string[ 256 ];
 
 	dollar_text( dollar_text_string, dollar_amount );
 
-	if ( personal_size )
+	if ( with_stub )
 	{
-		make_checks_dollar_text_personal_size(
+		make_checks_dollar_text_with_stub(
 			latex_file,
 			payable_to,
 			dollar_amount,
@@ -298,36 +316,36 @@ void make_checks(	FILE *latex_file,
 	}
 	else
 	{
-/*
-		make_checks_dollar_text_business_size(
+		make_checks_dollar_text(
 			latex_file,
 			payable_to,
 			dollar_amount,
 			dollar_text_string,
 			memo,
-			check_number,
 			check_date,
 			with_newpage );
-*/
 	}
 
 } /* make_checks() */
 
 void make_checks_document_heading(
-			FILE *latex_file )
+			FILE *latex_file,
+			int text_height )
 {
-	fprintf(latex_file,
+	fprintf( latex_file,
 "\\documentclass{report}\n"
 "\\usepackage[	top=0in,\n"
 "		left=0in,\n"
-"		paperheight=2.875in,\n"
-"		paperwidth=8.5in,\n"
-"		textheight=2.875in,\n"
-"		textwidth=8.5in,\n"
+"		paperheight=%din,\n"
+"		paperwidth=3.0in,\n"
+"		textheight=%din,\n"
+"		textwidth=3.0in,\n"
 "		noheadfoot]{geometry}\n"
 "\\usepackage{rotating}\n"
 "\\pagenumbering{gobble}\n"
-"\\begin{document}\n" );
+"\\begin{document}\n",
+		 text_height,
+		 text_height );
 
 } /* make_checks_document_heading() */
 
@@ -339,7 +357,93 @@ void make_checks_document_footer(
 
 } /* make_checks_document_footer() */
 
-void make_checks_dollar_text_personal_size(
+int get_text_height( boolean with_stub )
+{
+	int text_height;
+
+	if ( with_stub )
+		text_height = 12;
+	else
+		text_height = 8;
+
+	return text_height;
+}
+
+void make_checks_dollar_text(
+			FILE *latex_file,
+			char *payable_to,
+			double dollar_amount,
+			char *dollar_text_string,
+			char *memo,
+			char *check_date,
+			boolean with_newpage )
+{
+	char payable_to_escaped[ 128 ];
+
+	latex_escape_data( payable_to_escaped, payable_to, 128 );
+
+	if ( with_newpage )
+	{
+		fprintf( latex_file,
+"\\newpage\n\n" );
+	}
+
+	fprintf( latex_file,
+"\\begin{sideways}\n"
+"\\begin{minipage}{8.0in}\n"
+"\\vspace{0.50in}\n"
+"\\begin{tabular}{p{4.9in}l}\n" );
+
+	fprintf( latex_file,
+"& %s\n",
+		 check_date );
+
+	fprintf( latex_file,
+"\\end{tabular}\n\n"
+"\\vspace{0.25in}\n\n"
+"\\begin{tabular}{p{1.3in}p{4.9in}l}\n" );
+
+/*
+	fprintf( latex_file,
+"& %s & %.2lf\n",
+		 payable_to_escaped,
+		 dollar_amount );
+*/
+
+	fprintf( latex_file,
+"& %s & %s\n",
+		 payable_to_escaped,
+		 place_commas_in_money( dollar_amount ) );
+
+	fprintf( latex_file,
+"\\end{tabular}\n\n"
+"\\vspace{0.20in}\n\n"
+"\\begin{tabular}{p{0.85in}l}\n" );
+
+	fprintf( latex_file,
+"& %s\n",
+		 dollar_text_string );
+
+	fprintf( latex_file,
+"\\end{tabular}\n\n" );
+
+	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
+	{
+		fprintf( latex_file,
+"\\vspace{0.52in}\n\n"
+"\\begin{tabular}{p{0.30in}l}\n"
+"& %s\n"
+"\\end{tabular}\n",
+		 	 memo );
+	}
+
+	fprintf( latex_file,
+"\\end{minipage}\n"
+"\\end{sideways}\n" );
+
+} /* make_checks_dollar_text() */
+
+void make_checks_dollar_text_with_stub(
 			FILE *latex_file,
 			char *payable_to,
 			double dollar_amount,
@@ -359,78 +463,78 @@ void make_checks_dollar_text_personal_size(
 "\\newpage\n\n" );
 	}
 
-/* Move down to first row. */
-/* ----------------------- */
 	fprintf( latex_file,
-"\\begin{tabular}l\n"
-"\\end{tabular}\n\n"
-"\\vspace{0.45in}\n" );
+"\\begin{sideways}\n"
+"\\begin{minipage}{12.0in}\n" );
 
-/* Print date on stub and check */
-/* ---------------------------- */
 	fprintf( latex_file,
-"\\begin{tabular}{p{0.2in}p{6.3in}l}\n"
-"& %s & %s\n"
-"\\end{tabular}\n\n",
-		 check_date,
-		 check_date );
-
-/* Print vendor on stub and (vendor and dollar amount on check) */
-/* ------------------------------------------------------------ */
-	fprintf( latex_file,
-"\\begin{tabular}{p{0.2in}p{2.5in}p{4.1in}l}\n"
-"& %s & %s & %s\n"
-"\\end{tabular}\n\n",
-		 payable_to_escaped,
-		 payable_to_escaped,
-		 place_commas_in_money( dollar_amount ) );
-
-/* Place dollar amount on stub */
-/* --------------------------- */
-	fprintf( latex_file,
-"\\vspace{0.10in}\n\n"
+"\\vspace{0.25in}\n"
 "\\begin{tabular}{p{0.2in}l}\n"
 "& %s\n"
-"\\end{tabular}\n",
+"\\end{tabular}\n\n",
+		 check_date );
+
+	fprintf( latex_file,
+"\\vspace{0.14in}\n"
+"\\begin{tabular}{p{0.2in}p{8.7in}l}\n"
+"& %s & %s\n"
+"\\end{tabular}\n\n",
+		 payable_to_escaped,
+		 check_date );
+
+	fprintf( latex_file,
+"\\vspace{0.16in}\n\n"
+"\\begin{tabular}{p{5.3in}p{4.9in}l}\n"
+"& %s & %s\n"
+"\\end{tabular}\n\n",
+		 payable_to_escaped,
 		 place_commas_in_money( dollar_amount ) );
 
-/* Print dollar text on check */
-/* -------------------------- */
-		fprintf( latex_file,
-"\\vspace{0.10in}\n\n"
-"\\begin{tabular}{p{0.2in}p{2.5in}l}\n"
-"& & %s\n"
-"\\end{tabular}\n\n",
-		 	dollar_text_string );
-
-/* Print memo on stub and check */
-/* ---------------------------- */
 	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
 	{
 		fprintf( latex_file,
 "\\vspace{0.20in}\n\n"
-"\\begin{tabular}{p{0.2in}p{2.5in}l}\n"
+"\\begin{tabular}{p{0.2in}p{4.65in}l}\n"
 "& %s & %s\n"
 "\\end{tabular}\n\n",
 			memo,
-			memo );
+		 	dollar_text_string );
 	}
 	else
 	{
 		fprintf( latex_file,
 "\\vspace{0.20in}\n\n"
-"\\begin{tabular}l\n"
-"\\end{tabular}\n\n" );
+"\\begin{tabular}{p{4.85in}l}\n"
+"& %s\n"
+"\\end{tabular}\n\n",
+		 	dollar_text_string );
 	}
 
-/* Place check number on stub */
-/* -------------------------- */
-	fprintf( latex_file,
-"\\vspace{0.05in}\n\n"
-"\\begin{tabular}{p{0.2in}l}\n"
-"& Check: %d\n"
+	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
+	{
+		fprintf( latex_file,
+"\\vspace{0.52in}\n\n"
+"\\begin{tabular}{p{0.2in}p{2.2in}p{1.6in}l}\n"
+"& Check: %d & %s & %s\n"
 "\\end{tabular}\n",
-		 check_number );
+			 check_number,
+		 	 place_commas_in_money( dollar_amount ),
+			 memo );
+	}
+	else
+	{
+		fprintf( latex_file,
+"\\vspace{0.43in}\n\n"
+"\\begin{tabular}{p{0.2in}p{2.45in}l}\n"
+"& Check: %d & %s\n"
+"\\end{tabular}\n",
+			 check_number,
+		 	 place_commas_in_money( dollar_amount ) );
+	}
 
-} /* make_checks_dollar_text_personal_size() */
+	fprintf( latex_file,
+"\\end{minipage}\n"
+"\\end{sideways}\n" );
+
+} /* make_checks_dollar_text_with_stub() */
 

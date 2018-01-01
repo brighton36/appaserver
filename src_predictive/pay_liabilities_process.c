@@ -79,7 +79,7 @@ char *print_checks_create(
 				char *process_name,
 				char *session,
 				char *fund_name,
-				char with_stub_yn );
+				char personal_size_yn );
 
 char *pay_liabilities(		char *application_name,
 				LIST *full_name_list,
@@ -92,7 +92,7 @@ char *pay_liabilities(		char *application_name,
 				char *process_name,
 				char *session,
 				char *fund_name,
-				char with_stub_yn );
+				char personal_size_yn );
 
 int main( int argc, char **argv )
 {
@@ -105,7 +105,7 @@ int main( int argc, char **argv )
 	int starting_check_number;
 	char *memo;
 	double dialog_box_payment_amount;
-	char with_stub_yn;
+	char personal_size_yn;
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
@@ -113,13 +113,12 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	LIST *full_name_list;
 	LIST *street_address_list;
-
 	char *pdf_filename;
 
 	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s application process session fund full_name[,full_name] street_address[,street_address] starting_check_number memo payment_amount with_stub_yn execute_yn\n",
+"Usage: %s application process session fund full_name[,full_name] street_address[,street_address] starting_check_number memo payment_amount personal_size_yn execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -153,7 +152,7 @@ int main( int argc, char **argv )
 	starting_check_number = atoi( argv[ 7 ] );
 	memo = argv[ 8 ];
 	dialog_box_payment_amount = atof( argv[ 9 ] );
-	with_stub_yn = *argv[ 10 ];
+	personal_size_yn = *argv[ 10 ];
 	execute = ( *argv[ 11 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -224,7 +223,7 @@ int main( int argc, char **argv )
 				process_name,
 				session,
 				fund_name,
-				with_stub_yn );
+				personal_size_yn );
 
 	if ( !pdf_filename )
 	{
@@ -257,7 +256,7 @@ char *pay_liabilities(	char *application_name,
 			char *process_name,
 			char *session,
 			char *fund_name,
-			char with_stub_yn )
+			char personal_size_yn )
 {
 	char *pdf_filename = {0};
 
@@ -275,7 +274,7 @@ char *pay_liabilities(	char *application_name,
 				process_name,
 				session,
 				fund_name,
-				with_stub_yn );
+				personal_size_yn );
 	}
 	else
 	{
@@ -331,7 +330,7 @@ char *print_checks_create(
 			char *process_name,
 			char *session,
 			char *fund_name,
-			char with_stub_yn )
+			char personal_size_yn )
 {
 	char *full_name;
 	char *street_address;
@@ -372,16 +371,17 @@ char *print_checks_create(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-	sprintf( sys_string,
-		 "make_checks.e stdin %c 2>/dev/null > %s",
-		 with_stub_yn,
-		 output_filename );
 /*
 	sprintf( sys_string,
-		 "make_checks.e stdin %c > %s",
-		 with_stub_yn,
+		 "make_checks.e stdin %c 2>/dev/null > %s",
+		 personal_size_yn,
 		 output_filename );
 */
+
+	sprintf( sys_string,
+		 "make_checks.e stdin %c > %s",
+		 personal_size_yn,
+		 output_filename );
 
 	output_pipe = popen( sys_string, "w" );
 

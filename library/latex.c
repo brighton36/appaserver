@@ -403,11 +403,11 @@ void latex_tex2pdf(	char *tex_filename,
 	}
 
 	sprintf( sys_string,
-		 "pdflatex %s 1>&2",
+		 "pdflatex %s 1>/dev/null 2>&1",
 		 tex_filename );
 /*
 	sprintf( sys_string,
-		 "pdflatex %s 1>/dev/null 2>&1",
+		 "pdflatex %s 1>&2",
 		 tex_filename );
 	sprintf( sys_string,
 		 "pdflatex %s 2>/tmp/latex.err 1>&2",

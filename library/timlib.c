@@ -906,28 +906,8 @@ int timlib_get_line(	char *in_line,
 			}
 		}
 
-#ifdef NOT_DEFINED
-		if ( in_char == CR )
-		{
-			/* Clear out an optionally following LF */
-			/* ------------------------------------ */
-			in_char = fgetc(infile);
-			if ( in_char != LF ) ungetc( in_char, infile );
-
-			*in_line = '\0';
-			return 1;
-		}
-#endif
-
 		if ( in_char == LF )
 		{
-#ifdef NOT_DEFINED
-			/* Clear out an optionally following CR */
-			/* ------------------------------------ */
-			in_char = fgetc(infile);
-			if ( in_char != CR ) ungetc( in_char, infile );
-#endif
-
 			*in_line = '\0';
 			return 1;
 		}
@@ -938,32 +918,12 @@ int timlib_get_line(	char *in_line,
 		{
 			in_char = fgetc( infile );
 
-			if ( in_char == CR ) in_char = ' ';
+			if ( in_char == CR ) continue;
 
-			/* If escaping the <CR> */
-			/* -------------------- */
-			if ( in_char == LF)
+			if ( in_char == LF )
 			{
-				if ( buffer_size && ( size++ == buffer_size ) )
-				{
-					fprintf( stderr,
-			"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
-						 __FILE__,
-						 __FUNCTION__,
-						 __LINE__,
-						 buffer_size );
-					*in_line = '\0';
-					return 1;
-				}
-
-				*in_line++ = ' ';
-				continue;
-			}
-			else
-			{
-				ungetc( in_char, infile );
-				in_char = '\\';
-				size--;
+				*in_line = '\0';
+				return 1;
 			}
 		}
 
@@ -984,107 +944,6 @@ int timlib_get_line(	char *in_line,
 	} /* while( 1 ) */
 
 } /* timlib_get_line() */
-
-#ifdef NOT_DEFINED
-int timlib_get_line(	char *in_line,
-			FILE *infile,
-			int buffer_size )
-{
-	int in_char;
-	char *anchor = in_line;
-	int size = 0;
-
-	*in_line = '\0';
-
-	while ( 1 )
-	{
-		in_char = fgetc( infile );
-
-		if ( in_char == EOF )
-		{
-			/* If last line in file doesn't have a CR */
-			/* -------------------------------------- */
-			if ( in_line != anchor )
-			{
-				*in_line = '\0';
-				return 1;
-			}
-			else
-			{
-				return 0;
-			}
-		}
-
-		if ( in_char == CR )
-		{
-			/* Clear out an optionally following LF */
-			/* ------------------------------------ */
-			in_char = fgetc(infile);
-			if ( in_char != LF ) ungetc( in_char, infile );
-
-			*in_line = '\0';
-			return 1;
-		}
-
-		/* If LF without a CR */
-		/* ------------------ */
-		if ( in_char == LF )
-		{
-			*in_line = '\0';
-			return 1;
-		}
-
-		/* If '\' then get the next character */
-		/* ---------------------------------- */
-		if ( in_char == '\\' )
-		{
-			in_char = fgetc( infile );
-
-			if ( in_char == CR ) in_char = ' ';
-
-			/* If escaping the <CR> */
-			/* -------------------- */
-			if ( in_char == LF)
-			{
-				if ( buffer_size && ( size++ == buffer_size ) )
-				{
-					fprintf( stderr,
-			"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
-						 __FILE__,
-						 __FUNCTION__,
-						 __LINE__,
-						 buffer_size );
-					*in_line = '\0';
-					return 1;
-				}
-
-				*in_line++ = ' ';
-				continue;
-			}
-			else
-			{
-				ungetc( in_char, infile );
-				in_char = '\\';
-				size--;
-			}
-		}
-
-		if ( buffer_size && ( size++ == buffer_size ) )
-		{
-			fprintf( stderr,
-		"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 buffer_size );
-			*in_line = '\0';
-			return 1;
-		}
-
-		*in_line++ = in_char;
-	}
-} /* timlib_get_line() */
-#endif
 
 int get_line( char *in_line, FILE *infile )
 {

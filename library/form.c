@@ -1848,7 +1848,6 @@ void form_output_html_help_file_anchor(
 	char full_pathname[ 512 ];
 	char *appaserver_mount_point;
 	char *relative_source_directory;
-	char source_filename[ 256 ];
 	char source_directory[ 128 ];
 	char source_directory_filename[ 512 ];
 	int index;
@@ -1874,7 +1873,7 @@ void form_output_html_help_file_anchor(
 		 	"%s/%s/%s",
 		 	appaserver_mount_point,
 		 	source_directory,
-		 	source_filename );
+		 	html_help_file_anchor );
 
 		if ( timlib_file_exists( source_directory_filename ) ) break;
 	}
@@ -1882,11 +1881,12 @@ void form_output_html_help_file_anchor(
 	if ( !*source_directory )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot find help filename = %s\n",
+"ERROR in %s/%s()/%d: cannot find help filename = (%s) in any of (%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 html_help_file_anchor );
+			 html_help_file_anchor,
+			 relative_source_directory );
 		exit( 1 );
 	}
 

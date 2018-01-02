@@ -4031,6 +4031,17 @@ char *element_seek_initial_data(	char **initial_label,
 		if ( timlib_strcmp( piece_buffer, initial_data ) == 0 )
 		{
 			*initial_label = list_get_pointer( option_label_list );
+
+			if ( strcmp( *initial_label, "y" ) == 0 )
+			{
+				*initial_label = "Yes";
+			}
+			else
+			if ( strcmp( *initial_label, "n" ) == 0 )
+			{
+				*initial_label = "No";
+			}
+
 			return option_data;
 		}
 

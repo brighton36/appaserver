@@ -1758,7 +1758,7 @@ insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('self','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('self','bookkeeper','detail');
 delete from $folder where folder = 'service_purchase';
-insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('service_purchase','prompt','5','purchase',null,null,null,null,null,null,null,null,null,null,null,null);
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('service_purchase','prompt','5','purchase',null,null,null,null,null,null,null,'post_change_service_purchase',null,null,null,null);
 delete from $relation where folder = 'service_purchase';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('service_purchase','account','null',null,null,null,null,null,null,null,'y',null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('service_purchase','purchase_order','null','3',null,null,null,null,null,null,null,null,null,null);
@@ -2352,6 +2352,7 @@ insert into subclassification (subclassification,element,display_order) values (
 insert into subclassification (subclassification,element,display_order) values ('receivable','asset','3');
 insert into subclassification (subclassification,element,display_order) values ('retained_earnings','equity','2');
 insert into subclassification (subclassification,element,display_order) values ('revenue','revenue','8');
+insert into subclassification (subclassification,element,display_order) values ('service_expense','expense','10');
 insert into subclassification (subclassification,element,display_order) values ('supply_expense','expense','10');
 insert into subclassification (subclassification,element,display_order) values ('tax_expense','expense','12');
 insert into account (account,subclassification,hard_coded_account_key) values ('accounting','operating_expense',null);
@@ -2384,6 +2385,7 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('sales_revenue','revenue','sales_revenue_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('sales_tax_expense','tax_expense','sales_tax_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('sales_tax_payable','current_liability','sales_tax_payable_key');
+insert into account (account,subclassification,hard_coded_account_key) values ('service_expense','service_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('service_revenue','revenue',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('social_security_payable','current_liability','social_security_payable_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('specific_inventory','inventory','specific_inventory_key');
@@ -3468,7 +3470,7 @@ insert into process (process,
 		process_set_display,
 		process_group,
 		preprompt_help_text,
-		appaserver_yn) values ('pay_liabilities','pay_liabilities_process \$application \$process \$session fund full_name street_address starting_check_number memo payment_amount with_stub_yn execute_yn',null,null,'post_change_pay_liabilities( this )',null,'manipulate',null,null);
+		appaserver_yn) values ('pay_liabilities','pay_liabilities_process \$application \$process \$session fund full_name street_address starting_check_number memo payment_amount y execute_yn',null,null,'post_change_pay_liabilities( this )',null,'manipulate',null,null);
 insert into process (process,
 		command_line,
 		notepad,
@@ -3667,6 +3669,15 @@ insert into process (process,
 		process_group,
 		preprompt_help_text,
 		appaserver_yn) values ('post_change_self','post_change_self \$application preupdate_inventory_cost_method',null,null,null,null,null,null,null);
+insert into process (process,
+		command_line,
+		notepad,
+		html_help_file_anchor,
+		post_change_javascript,
+		process_set_display,
+		process_group,
+		preprompt_help_text,
+		appaserver_yn) values ('post_change_service_purchase','post_change_service_purchase \$application full_name street_address purchase_date_time account \$state preupdate_account',null,null,null,null,null,null,null);
 insert into process (process,
 		command_line,
 		notepad,
@@ -4743,16 +4754,6 @@ insert into process_parameter (process,
 		preprompt_yn,
 		populate_drop_down_process,
 		populate_helper_process) values ('pay_liabilities','null','null','null','starting_check_number','2',null,null,null,null);
-insert into process_parameter (process,
-		folder,
-		attribute,
-		drop_down_prompt,
-		prompt,
-		display_order,
-		drop_down_multi_select_yn,
-		preprompt_yn,
-		populate_drop_down_process,
-		populate_helper_process) values ('pay_liabilities','null','null','null','with_stub_yn','5',null,null,null,null);
 insert into process_parameter (process,
 		folder,
 		attribute,

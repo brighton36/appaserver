@@ -15,7 +15,9 @@ horse there.
 
 The historical solution was to pass out the root password. However,
 Linux has an elegant solution -- the Group Centric Paradigm.
-See $APPASERVER_HOME/src_template/group_centric.txt . 
+
+See:
+https://github.com/timhriley/appaserver/blob/master/src_template/group_centric.txt
 
 Appaserver's implementation of the Group Centric Paradigm 
 is to create group=appaserver in /etc/group.

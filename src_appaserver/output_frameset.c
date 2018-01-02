@@ -232,7 +232,8 @@ int main( int argc, char **argv )
 			appaserver_link_file->extension );
 
 	strcpy( title, 
-		application_get_application_title( application_name ) );
+		application_get_application_title(
+			application_name ) );
 
 	if ( appaserver_get_frameset_menu_horizontal(
 					application_name,
@@ -288,7 +289,7 @@ void output_vertical_frameset(		char *application_name,
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %s >> %s",
+"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' \"%s\" %s >> %s",
 			timlib_get_parameter_application_name(
 				application_name,
 				database_string ),
@@ -362,7 +363,7 @@ void output_horizontal_frameset(	char *application_name,
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %s >> %s",
+"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' \"%s\" %s >> %s",
 			timlib_get_parameter_application_name(
 				application_name,
 				database_string ),

@@ -168,7 +168,10 @@ int menu_tree_load_recursive( MENU_TREE *m, FILE *infile, NODE *root )
 	char process_string[ MAX_STRING ];
 	char piece_buffer[ MAX_STRING ];
 
-	while( get_line( process_string, infile ) )
+	while( timlib_get_line_escape_CR(
+			process_string,
+			infile,
+			MAX_STRING ) )
 	{
 		trim( process_string );
 
@@ -820,7 +823,6 @@ void save_default_values( LIST *prompt_list, char *save_key )
 
 } /* save_default_values() */
 
-
 void load_default_values( LIST *prompt_list, char *save_key )
 {
 	char *whoami = get_system( "whoami" );
@@ -837,7 +839,7 @@ void load_default_values( LIST *prompt_list, char *save_key )
 	f = fopen( buffer, "r" );
 	if ( !f ) return;
 
-	while( get_line( buffer, f ) )
+	while( timlib_get_line_escape_CR( buffer, f, 256 ) )
 	{
 		piece( variable, '=', buffer, 0 );
 

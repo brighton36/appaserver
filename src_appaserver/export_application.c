@@ -238,8 +238,7 @@ int main( int argc, char **argv )
 
 	} while( list_next( folder_name_list ) );
 
-	if ( export_output
-	&&   strcmp( export_output, "shell_script" ) == 0 )
+	if ( timlib_strcmp( export_output, "shell_script" ) == 0 )
 	{
 		sys_string_ptr =
 		get_clone_application_combine_shell_script_sys_string(
@@ -522,5 +521,6 @@ char *get_clone_application_remove_shell_script_sys_string(
 	} while( list_next( folder_name_list ) );
 
 	return strdup( buffer );
+
 } /* get_clone_application_remove_shell_script_sys_string() */
 

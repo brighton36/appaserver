@@ -3394,3 +3394,84 @@ void *timlib_memcpy( void *object, int sizeof_object )
 	return new_object;
 
 } /* timlib_memcpy() */
+
+int timlib_get_line_escape_CR(	char *in_line,
+				FILE *infile,
+				int buffer_size )
+{
+	int in_char;
+	char *anchor = in_line;
+	int size = 0;
+
+	*in_line = '\0';
+
+	while ( 1 )
+	{
+		in_char = fgetc( infile );
+
+		if ( in_char == CR ) continue;
+
+		if ( in_char == EOF )
+		{
+			/* If last line in file doesn't have a CR */
+			/* -------------------------------------- */
+			if ( in_line != anchor )
+			{
+				*in_line = '\0';
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+		if ( in_char == LF )
+		{
+			*in_line = '\0';
+			return 1;
+		}
+
+		/* If '\' then get the next character */
+		/* ---------------------------------- */
+		if ( in_char == '\\' )
+		{
+			in_char = fgetc( infile );
+
+			/* If escaping the <CR> */
+			/* -------------------- */
+			if ( in_char == LF || in_char == CR )
+			{
+				if ( buffer_size && ( size++ == buffer_size ) )
+				{
+					fprintf( stderr,
+			"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
+						 __FILE__,
+						 __FUNCTION__,
+						 __LINE__,
+						 buffer_size );
+					*in_line = '\0';
+					return 1;
+				}
+
+				*in_line++ = ' ';
+				continue;
+			}
+		}
+
+		if ( buffer_size && ( size++ == buffer_size ) )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 buffer_size );
+			*in_line = '\0';
+			return 1;
+		}
+
+		*in_line++ = in_char;
+	}
+} /* timlib_get_line_escape_CR() */
+

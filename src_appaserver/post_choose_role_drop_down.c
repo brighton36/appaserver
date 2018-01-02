@@ -161,7 +161,7 @@ int main( int argc, char **argv )
 		(role->folder_count_yn == 'y' ) );
 
 	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' '%s' 2>>%s", 
+"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' \"%s\" '%s' 2>>%s", 
 			timlib_get_parameter_application_name(
 			 	application_name,
 				database_string ),

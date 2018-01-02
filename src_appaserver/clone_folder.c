@@ -644,6 +644,7 @@ boolean go_output2shell_script(	CREATE_CLONE_FILENAME *create_clone_filename,
 	system( sys_string );
 
 	return 1;
+
 } /* go_output2shell_script() */
 
 void go_output2shell_script_header(
@@ -710,6 +711,7 @@ void go_output2shell_script_insert_statements(
 
 	sprintf( sys_string,
 		 "zcat %s						|"
+		 "sed 's/\\$/\\\\$/g'					|"
 		 "sed 's/^insert into %s/insert into \\$table_name/'	|"
 		 "sed 's/^delete from %s/delete from \\$table_name/'	|"
 		 "sed 's/^insert into %s_%s/insert into \\$table_name/'	|"
@@ -725,5 +727,6 @@ void go_output2shell_script_insert_statements(
 		 shell_script_filename );
 
 	system( sys_string );
+
 } /* go_output2shell_script_insert_statements() */
 

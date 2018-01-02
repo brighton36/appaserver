@@ -55,7 +55,7 @@ then
 	$process $application
 
 	echo "	delete from role_process
-		where process = '$process';" |
+		where process = '$process_name';" |
 	sql.e
 
 	echo "<h3>Process complete.</h3"

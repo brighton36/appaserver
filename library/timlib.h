@@ -469,4 +469,8 @@ boolean timlib_double_is_integer(
 void *timlib_memcpy(		void *object,
 				int sizeof_object );
 
+int timlib_get_line_escape_CR(	char *in_line,
+				FILE *infile,
+				int buffer_size );
+
 #endif

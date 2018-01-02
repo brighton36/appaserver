@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_predictive
-	make load_bank_spreadsheet
+	cd ../src_appaserver
+	make post_prompt_process_form
 fi

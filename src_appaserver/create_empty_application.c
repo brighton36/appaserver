@@ -26,6 +26,7 @@
 #define MAKE_SOURCE_DIRECTORY		0
 #define SYSTEM_ADMINISTRATION_ROLE	"system"
 #define SUPERVISOR_ROLE			"supervisor"
+#define BOOKKEEPER_ROLE			"bookkeeper"
 #define DATAENTRY_ROLE			"dataentry"
 #define PROFILE_FILENAME		"/etc/profile"
 
@@ -1110,27 +1111,6 @@ void insert_appaserver_rows(		char *destination_application,
 
 	if ( really_yn == 'y' )
 	{
-/*
-		sprintf( sys_string,
-			 "gunzip < %s/insert_%s_appaserver.sh.gz 	|"
-			 "cat > %s/insert_empty_zzz.sh			;"
-			 "chmod +x %s/insert_empty_zzz.sh		;"
-			 "%s/insert_empty_zzz.sh %s			;"
-			 "rm -f %s/insert_%s_appaserver.sh.gz		;"
-			 "rm -f %s/insert_%s_appaserver.sh.gz		;"
-			 "rm -f %s/insert_empty_zzz.sh			 ",
-			 appaserver_data_directory,
-			 current_application,
-			 appaserver_data_directory,
-			 appaserver_data_directory,
-			 appaserver_data_directory,
-			 destination_application,
-			 appaserver_data_directory,
-			 current_application,
-			 appaserver_data_directory,
-			 destination_application,
-			 appaserver_data_directory );
-*/
 		sprintf( sys_string,
 			 "gunzip < %s/insert_%s_appaserver.sh.gz 	|"
 			 "cat > %s/insert_empty_zzz.sh			;"
@@ -1148,7 +1128,7 @@ void insert_appaserver_rows(		char *destination_application,
 		sprintf( sys_string,
 "echo 'Will decompress and execute %s/insert_%s_appaserver.sh.gz %s' | html_paragraph_wrapper.e",
 			 appaserver_data_directory,
-			 destination_application,
+			 current_application,
 			 destination_application );
 	}
 
@@ -1524,9 +1504,9 @@ void insert_appaserver_user_row(
 	system( sys_string );
 	fflush( stdout );
 
-	/* ------------------------ */
-	/* Insert into three roles. */
-	/* ------------------------ */
+	/* ------------------ */
+	/* Insert four roles. */
+	/* ------------------ */
 	application_reset();
 
 	sprintf( sys_string,
@@ -1545,6 +1525,18 @@ void insert_appaserver_user_row(
 "echo \"%s^%s\" | insert_statement.e table=%s field=%s delimiter='^' | %s",
 		 login_name,
 		 SUPERVISOR_ROLE,
+		 "role_appaserver_user",
+		 "login_name,role",
+		 sql_executable );
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	sprintf( sys_string,
+"echo \"%s^%s\" | insert_statement.e table=%s field=%s delimiter='^' | %s",
+		 login_name,
+		 BOOKKEEPER_ROLE,
 		 "role_appaserver_user",
 		 "login_name,role",
 		 sql_executable );
@@ -1835,7 +1827,7 @@ void remove_document_root_directory(
 		fflush( stdout );
 	}
 
-} /*remove_document_root_directory() */
+} /* remove_document_root_directory() */
 
 boolean delete_existing_application(
 				char *destination_application,

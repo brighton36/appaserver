@@ -48,7 +48,7 @@ Access management
 2) Each user may be assigned to more groups in the /etc/group file.
 3) For each collaborating directory, set the group name: chgrp $group .
 4) For each collaborating directory, set the group SUID bit: chmod g+s .
-5) For each collaborating directory, set the write bit: chmod g+w .
+5) For each collaborating directory, set the group write bit: chmod g+w .
 
 The group SUID bit for a directory instructs Linux to change the behavior
 for new files and sub-directories. Instead of setting the group name

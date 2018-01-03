@@ -58,24 +58,23 @@ D) Shell installation steps
 02) $ sudo mkdir appaserver
 03) $ sudo chgrp $appaservergroup appaserver
 04) $ sudo chmod g+ws appaserver
-05) $ git clone git://github.com/timhriley/appaserver.git
-06) less appaserver/src_template/group_centric.txt
-07) $ cd appaserver/src_template
-08) $ sudo cp template_appaserver.config /etc/appaserver.config
-09) $ sudo vi /etc/appaserver.config
-10) vi> set mysql password
-11) vi> set appaserver_mount_point
-12) vi> set appaserver_group=appaserver|www-data|$WhateverApacheGroup
-13) vi> set other configurable variables
-14) $ sudo ./install_appaserver_profile.sh noexecute|execute
-15) $ . /etc/profile
-16) $ sudo ./install_appaserver_filesystem.sh noexecute|execute
-17) $ sudo ./protect_appaserver_filesystem.sh noexecute|execute
-18) $ cd $APPASERVER_HOME
-19) $ make
-20) $ . set_project template
-21) $ install_template_database.sh noexecute|execute
-22) $ upgrade_appaserver_database template
+05) $ git clone https://github.com/timhriley/appaserver.git
+06) $ cd appaserver/src_template
+07) $ sudo cp template_appaserver.config /etc/appaserver.config
+08) $ sudo vi /etc/appaserver.config
+09) vi> set mysql password
+10) vi> set appaserver_mount_point
+11) vi> set appaserver_group=appaserver|www-data|$WhateverApacheGroup
+12) vi> set other configurable variables
+13) $ sudo ./install_appaserver_profile.sh noexecute|execute
+14) $ . /etc/profile
+15) $ sudo ./install_appaserver_filesystem.sh noexecute|execute
+16) $ sudo ./protect_appaserver_filesystem.sh noexecute|execute
+17) $ cd $APPASERVER_HOME
+18) $ make
+19) $ . set_project template
+20) $ install_template_database.sh noexecute|execute
+21) $ upgrade-appaserver-database template
 
 ---------
 E) Log in

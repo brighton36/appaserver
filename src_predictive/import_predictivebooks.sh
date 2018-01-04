@@ -69,7 +69,7 @@ insert into $role_operation (folder,role,operation) values ('account','superviso
 insert into $role_operation (folder,role,operation) values ('account','supervisor','detail');
 insert into $role_operation (folder,role,operation) values ('account','supervisor','ledger_propagate');
 delete from $folder where folder = 'bank_upload';
-insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('bank_upload','prompt','5','ledger',null,null,null,'When changing the &lt;Sort Order&gt;, only query where Sequence Number &ge; TheNumber. Otherwise, the Bank Running Balance will be off.','bank_upload_sort_help.html',null,'post_change_bank_upload( ''\$state'', \$row )','post_change_bank_upload',null,null,null,null);
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('bank_upload','prompt','5','ledger',null,null,null,'When changing the Sort Order, only query where Sequence Number â‰¥ TheNumber. Otherwise, the Bank Running Balance will be off.','bank_upload_sort_help.html',null,'post_change_bank_upload( ''$state'', $row )','post_change_bank_upload',null,null,null,null);
 delete from $relation where folder = 'bank_upload';
 delete from $attribute where attribute = 'bank_date';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('bank_date','date','10',null,null,null,null,null,null,null);
@@ -212,7 +212,7 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $attribute where attribute = 'completed_date_time';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('completed_date_time','date_time','19',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'uncollectible_writeoff_date';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('uncollectible_writeoff_date','date','10',null,'Remember also to insert:<table><th>Account<th>Debit<th>Credit<tr><td>Loss<td>\$amount<tr><td>AR<td><td>\$amount</table>',null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('uncollectible_writeoff_date','date','10',null,'Remember also to insert:<table><th>Account<th>Debit<th>Credit<tr><td>Loss<td>$amount<tr><td>AR<td><td>$amount</table>',null,null,null,null,null);
 delete from $attribute where attribute = 'transaction_date_time';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('transaction_date_time','current_date_time','19',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'customer_sale';
@@ -1316,7 +1316,7 @@ insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('investment_operation','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('investment_operation','supervisor','detail');
 delete from $folder where folder = 'journal_ledger';
-insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('journal_ledger','prompt','10','ledger',null,null,null,null,null,null,'post_change_journal_ledger( ''\$state'' )','post_change_journal_ledger',null,null,null,null);
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('journal_ledger','prompt','10','ledger',null,null,null,null,null,null,'post_change_journal_ledger( ''$state'' )','post_change_journal_ledger',null,null,null,null);
 delete from $relation where folder = 'journal_ledger';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('journal_ledger','account','null',null,null,null,null,'y',null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('journal_ledger','transaction','null','1',null,null,null,'y',null,null,null,null,null,null);
@@ -3362,7 +3362,7 @@ insert into process (process,
 		process_set_display,
 		process_group,
 		preprompt_help_text,
-		appaserver_yn) values ('import_predictivebooks','import_predictivebooks_process.sh \$application \$process execute_yn','This process imports the Predictive Books application.',null,null,null,'manipulate',null,null);
+		appaserver_yn) values ('import_predictivebooks','import_predictivebooks_process.sh \$application \$process execute_yn','This process imports the Predictive Books application.',null,null,null,'manipulate',null,'y');
 insert into process (process,
 		command_line,
 		notepad,

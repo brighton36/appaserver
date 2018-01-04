@@ -18,8 +18,10 @@ else
 	export DATABASE=$application
 fi
 
-echo "Remember in $APPASERVER_HOME/library/appaserver_library.h"
-echo "set DIFFERENT_DESTINATION_APPLICATION_OK	1"
+source_file="$APPASERVER_HOME/library/appaserver_library.h"
+
+echo "Here is $source_file"
+grep DIFFERENT_DESTINATION_APPLICATION_OK $source_file
 echo "sleeping..."
 sleep 5
 echo "executing..."

@@ -8,7 +8,7 @@
 
 <body>
 <h1>Bank Upload Help</h1>
-<p>Bank reconciliation is achieved by:
+<h4>Bank reconciliation is achieved by:</h4>
 <h3>A) Open two PredictiveBooks browsers, one on top of the other.</h3>
 	<ul>
 	<li>In the top browser, log into PredictiveBooks.
@@ -54,12 +54,14 @@
 	<li>Press the &lt;Statistics&gt; radio button.
 	<li>Query where Posted yn = Yes.
 	<li>Press &lt;Submit&gt;
+	</ul>
+<li>The bottom frame will be titled <h2>Bank Upload: posted_yn = 'y'</h2> 
+	<ul>
 	<li>Note the maximum sequence number.
 	</ul>
-<li>In the top frame: &lt;Lookup&gt; &lt;Ledger&gt; &lt;Bank Upload&gt;
+<li>In the top frame:
 	<ul>
 	<li>Press the &lt;Reset&gt; button.
-	<li>Press the &lt;Sort Order&gt; radio button.
 	<li>Query where Sequence Number &ge; the maximum sequence number.
 		<ul>
 		<li>Warning: only query the Sequence Number. Otherwise, the Bank
@@ -67,9 +69,18 @@
 		</ul>
 	<li>Press &lt;Submit&gt;
 	</ul>
+<li>The bottom frame will be titled <h2>Update Bank Upload</h2> 
+	<ul>
+	<li>Press the &lt;Sort&gt; button over the Bank Date column.
+	<li>Note the minimum Bank Date.
+	</ul>
+<li>In the top frame:
+	<ul>
+	<li>Press the &lt;Sort Order&gt; radio button.
+	<li>Press &lt;Submit&gt;
+	</ul>
 <li>The bottom frame will be titled <h2>Sort Bank Upload</h2> 
 	<ul>
-	<li>Note the minimum Bank Date.
 	<li>Note: you no longer need the top window's top frame.
 	You may want to slide the frame size adjuster up to gain
 		real estate in the bottom frame.
@@ -130,6 +141,7 @@ Balance in the top browser with your ledger's Balance in the bottom browser.
 	</ul>
 <li>Repeat this process until every Bank Running Balance matches
 	a corresponding Journal Ledger Balance.
+<li>&lt;Submit&gt; your changes in the Sort Bank Upload screen.
 </ol>
 <h3>G) Finished:</h3>
 <ol>
@@ -137,18 +149,40 @@ Balance in the top browser with your ledger's Balance in the bottom browser.
 	<ul>
 	<li>Go to the top browser's top frame:
 		<ul>
+		<li>Remember to &lt;Submit&gt; your changes in the
+		top browser's bottom frame.
 		<li>Note: you may need to slide the frame size adjuster
 		down to gain real estate in the top frame.
 		<li>Press the &lt;Lookup&gt; radio button.
 		<li>Press &lt;Submit&gt;
 		</ul>
-	<li>Go to the top browser's bottom frame:
+	<li>The top browser's bottom frame will be titled:
+		<h3>Update Bank Upload</h3>
 		<ul>
 		<li>Press the &lt;Sort&gt; button over the
 			Sequence Number column.
 		<li>Set Posted yn = Yes for each row.
 		<li>Press &lt;Submit&gt;
 		</ul>
+	</ul>
+<li>Integrity Checks:
+	<ul>
+	<li>Go to the top brower's top frame.
+		<ol>
+		<li>Press the &lt;Submit&gt; button.
+		<li>Go to the top browser's bottom frame.
+		<li>Press the &lt;Reverse&gt; button over the
+			Sequence Number column.
+		<li>Notice the first row's Bank Running Balance.
+		</ol>
+	<li>Go to the bottom browser's top frame.
+		<ol>
+		<li>&lt;Output&gt; &lt;Trial Balance&gt;
+		<li>Press the &lt;Submit&gt; button.
+		</ol>
+	<li>Make sure YourCheckingAccount's Debit balance equals the first
+		row's Bank Running Balance.
+	<li>Make sure Debits equals Credits.
 	</ul>
 </ol>
 </body>

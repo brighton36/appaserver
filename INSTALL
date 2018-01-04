@@ -86,8 +86,16 @@ http://localhost/appaserver/template/index.php
 Login using:
 login_name=nobody and password=changeit
 
+---------------------
+F) Upgrade Appaserver
+---------------------
+1) $ cd $APPASERVER_HOME
+2) $ git_pull_master.sh
+3) $ make touch && make
+4) $ upgrade-appaserver-database
+
 -----------------------
-F) Uninstall Appaserver
+G) Uninstall Appaserver
 -----------------------
 
 1) $ echo "drop database template;" | sql.e

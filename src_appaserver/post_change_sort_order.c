@@ -72,7 +72,6 @@ int main( int argc, char **argv )
 	FOLDER *folder;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	ROLE *role;
-	ROLE_FOLDER *role_folder;
 	char *role_name;
 	char *database_string = {0};
 	char *state;
@@ -154,12 +153,6 @@ int main( int argc, char **argv )
 
 	post_dictionary = dictionary_appaserver->working_post_dictionary;
 
-	role_folder = role_folder_new_role_folder(
-					application_name,
-					session,
-					role_name,
-					folder_name );
-
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )
@@ -168,6 +161,14 @@ int main( int argc, char **argv )
 				application_name,
 				login_name );
 	}
+
+/*
+	ROLE_FOLDER *role_folder;
+	role_folder = role_folder_new_role_folder(
+					application_name,
+					session,
+					role_name,
+					folder_name );
 
 	if ( role_folder->delete_yn != 'y'
 	||   strcmp(	login_name,
@@ -178,7 +179,16 @@ int main( int argc, char **argv )
 		session_access_failed_message_and_exit(
 			application_name, session, login_name );
 	}
+*/
 
+	if ( strcmp(	login_name,
+			session_get_login_name(
+					application_name,
+					session ) ) != 0 )
+	{
+		session_access_failed_message_and_exit(
+			application_name, session, login_name );
+	}
 	if ( !appaserver_user_exists_role(
 					application_name,
 					login_name,

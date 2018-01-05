@@ -140,7 +140,20 @@ int main( int argc, char **argv )
 						appaserver_mount_point );
 
 		printf(
-	"<p>Please choose a destination station and datatype.\n" );
+	"<h3>Please choose a destination station and datatype.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	if ( timlib_strcmp( destination_station, source_station ) == 0
+	&&   timlib_strcmp( destination_datatype, source_datatype ) == 0 )
+	{
+		document_quick_output_body(	application_name,
+						appaserver_parameter_file->
+						appaserver_mount_point );
+
+		printf(
+	"<h3>Please choose a different station and datatype.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}

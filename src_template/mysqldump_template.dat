@@ -41,7 +41,7 @@ grandfather_keep_days=185
 greatgrandfather_keep_days=1100
 greatgreatgrandfather_keep_days=1830
 
-# If an additional scp $destination takes place.
-# ----------------------------------------------
-offsite_scp_destination=
+# If an additional rsync $destination takes place.
+# ------------------------------------------------
+offsite_rsync_destination=
 

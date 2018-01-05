@@ -157,6 +157,10 @@ int main( int argc, char **argv )
 		dictionary_appaserver->non_prefixed_dictionary,
 		application_name );
 
+	dictionary_appaserver_parse_multi_attribute_keys(
+		dictionary_appaserver->non_prefixed_dictionary,
+		QUERY_RELATION_OPERATOR_STARTING_LABEL );
+
 	process_parameter_list = 
 		process_parameter_list_new(
 			login_name,

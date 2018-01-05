@@ -1,6 +1,6 @@
 :
 # -----------------------------------
-# utility/backup_appaserver_log.sh
+# utility/mysqldump_appaserver_log.sh
 # -----------------------------------
 if [ "$#" -ne 3 ]
 then

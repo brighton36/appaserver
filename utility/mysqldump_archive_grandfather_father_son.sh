@@ -1,7 +1,7 @@
 :
-# ------------------------------------------------
-# utility/backup_archive_grandfather_father_son.sh
-# ------------------------------------------------
+# ---------------------------------------------------
+# utility/mysqldump_archive_grandfather_father_son.sh
+# ---------------------------------------------------
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 parameter_file yyyy_mm_dd" 1>&2

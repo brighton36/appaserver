@@ -38,6 +38,8 @@
 
 /* Prototypes */
 /* ---------- */
+boolean pair_one2m_omit(DICTIONARY *pair_1tom_dictionary );
+
 void set_null_operator_data_to_null(
 			DICTIONARY *query_dictionary,
 			LIST *attribute_name_list );
@@ -436,7 +438,8 @@ int main( int argc, char **argv )
 
 	/* If inserting the one folder in a one2m pair sequence. */
 	/* ----------------------------------------------------- */
-	if ( folder_get_pair_one2m_related_folder_boolean(
+	if ( !pair_one2m_omit( dictionary_appaserver->pair_1tom_dictionary )
+	&&   folder_get_pair_one2m_related_folder_boolean(
 			appaserver->
 				folder->
 				folder_name,

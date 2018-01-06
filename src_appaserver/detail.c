@@ -110,7 +110,6 @@ void output_mto1_folder_detail(	int *form_number,
 				char *database_string );
 
 void output_1tom_folder_detail(	int *form_number,
-				LIST *non_edit_folder_name_list,
 				char *application_name,
 				char *session,
 				char *folder_name,
@@ -420,9 +419,12 @@ int main( int argc, char **argv )
 		database_string,
 		dont_omit_delete,
 		non_edit_folder_name_list,
+		0 /* not make_primary_keys_non_edit */ );
+#ifdef NOT_DEFINED
 		1 /* make_primary_keys_non_edit			*/
 		  /* because changing the primary key prevents	*/
 		  /* the record to reappear.			*/ );
+#endif
 
 	role_folder_insert_list = role_folder_get_insert_list(
 					application_name,
@@ -513,7 +515,6 @@ int main( int argc, char **argv )
 
 	output_1tom_folder_detail(
 			&form_number,
-			non_edit_folder_name_list,
 			application_name,
 			session,
 			folder_name,
@@ -655,7 +656,6 @@ void save_ending_form_number(	char *appaserver_data_directory,
 } /* get_starting_form_number() */
 
 void output_1tom_folder_detail(	int *form_number,
-				LIST *non_edit_folder_name_list,
 				char *application_name,
 				char *session,
 				char *folder_name,
@@ -678,6 +678,7 @@ void output_1tom_folder_detail(	int *form_number,
 	APPASERVER *appaserver;
 	LIST *mto1_isa_related_folder_list = {0};
 	boolean omit_insert_flag = 1;
+	LIST *non_edit_folder_name_list = {0};
 
 #ifdef OUTPUT_INSERT_BUTTON
 omit_insert_flag = 0;
@@ -827,6 +828,8 @@ omit_insert_flag = 0;
 
 			if ( MAKE_LONG_DROP_DOWNS_NON_EDIT )
 			{
+			    non_edit_folder_name_list = list_new();
+
 			    list_append_string_list(
 			       non_edit_folder_name_list,
 			       related_folder_get_mto1_multi_key_name_list(

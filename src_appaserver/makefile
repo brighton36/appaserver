@@ -826,12 +826,14 @@ dot_process2option_value: dot_process2option_value.c			\
 		-o dot_process2option_value
 
 post_prompt_insert_form: post_prompt_insert_form.c 			\
-			${EXTERNAL_LIBS}
+			${EXTERNAL_LIBS}				\
+			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_prompt_insert_form.c				\
-		-o post_prompt_insert_form
+		${LIB}/pair_one2m.o					\
+		-o post_prompt_insert_form			
 	touch ${CGI_HOME}/post_prompt_insert_form
 	/bin/rm -f ${CGI_HOME}/post_prompt_insert_form
 	ln ${APPASERVER_LINK_FLAGS}					\

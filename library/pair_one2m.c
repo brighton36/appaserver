@@ -34,7 +34,8 @@ PAIR_ONE2M *pair_one2m_new(
 	}
 
 	pair_one2m->is_participating =
-		( list_length( pair_one2m_related_folder_list ) > 0 );
+		!pair_one2m_omit( pair_one2m_dictionary )
+		&& ( list_length( pair_one2m_related_folder_list ) > 0 );
 
 	if ( !pair_one2m->is_participating )
 	{
@@ -364,4 +365,16 @@ char *pair_one2m_get_next_folder_name(	LIST *pair_inserted_folder_name_list,
 	return (char *)0;
 
 } /* pair_one2m_get_next_folder_name() */
+
+boolean pair_one2m_omit( DICTIONARY *pair_1tom_dictionary )
+{
+	char *data;
+	char key[ 128 ];
+
+	sprintf( key, "%s_0", PAIR_ONE2M_SUBMIT_FOLDER );
+
+	data = dictionary_fetch( pair_1tom_dictionary, key );
+
+	return ( timlib_strcmp( data, PAIR_ONE2M_OMIT ) == 0 );
+}
 

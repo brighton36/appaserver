@@ -848,6 +848,7 @@ int timlib_get_line(	char *in_line,
 	int in_char;
 	char *anchor = in_line;
 	int size = 0;
+boolean display = 0;
 
 	*in_line = '\0';
 
@@ -891,12 +892,13 @@ int timlib_get_line(	char *in_line,
 
 		if ( in_char == EOF )
 		{
-			timlib_reset_get_line_check_utf_16();
-
-			/* If last line in file doesn't have a CR */
-			/* -------------------------------------- */
+			/* --------------------------------------- */
+			/* If last line in file doesn't have a CR, */
+			/* then call this function one more time.  */
+			/* --------------------------------------- */
 			if ( in_line != anchor )
 			{
+				timlib_reset_get_line_check_utf_16();
 				*in_line = '\0';
 				return 1;
 			}
@@ -920,14 +922,19 @@ int timlib_get_line(	char *in_line,
 
 			if ( in_char == CR ) continue;
 
+			/* Can't escape the LF */
+			/* ------------------- */
 			if ( in_char == LF )
 			{
 				*in_line = '\0';
 				return 1;
 			}
+
+			*in_line++ = '\\';
+			size++;
 		}
 
-		if ( buffer_size && ( size++ == buffer_size ) )
+		if ( buffer_size && ( size++ >= buffer_size ) )
 		{
 			fprintf( stderr,
 		"Error in %s/%s()/%d: exceeded buffer size of %d.\n",

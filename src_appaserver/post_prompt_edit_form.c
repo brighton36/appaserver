@@ -81,6 +81,7 @@ int main( int argc, char **argv )
 	char *escaped_dictionary_string;
 	char *base_folder_name = {0};
 	DICTIONARY_APPASERVER *dictionary_appaserver;
+	char sys_string[ MAX_INPUT_LINE ];
 
 	if ( argc == 2 )
 	{
@@ -389,26 +390,22 @@ int main( int argc, char **argv )
 			dictionary_appaserver,
 			0 /* not with_non_prefixed_dictionary */ );
 
-	{
-		char sys_string[ MAX_INPUT_LINE ];
-
-		sprintf(sys_string,
+	sprintf(sys_string,
 "echo \"%s\"								|"
 "output_edit_table_form '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s'	 	 ",
-			escaped_dictionary_string,
-	 		login_name,
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
-	 		session,
-	 		folder_name,
-			role_name,
-			state,
-			insert_update_key,
-			target_frame );
+		escaped_dictionary_string,
+ 		login_name,
+		timlib_get_parameter_application_name(
+			application_name,
+			database_string ),
+ 		session,
+ 		folder_name,
+		role_name,
+		state,
+		insert_update_key,
+		target_frame );
 
-		system( sys_string );
-	}
+	system( sys_string );
 
 	exit( 0 );
 

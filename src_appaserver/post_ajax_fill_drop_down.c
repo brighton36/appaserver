@@ -29,6 +29,7 @@
 
 /* Constants */
 /* --------- */
+#define CHECK_SESSION		0
 
 /* Prototypes */
 /* ---------- */
@@ -101,7 +102,8 @@ int main( int argc, char **argv )
 	add_utility_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	if ( session_remote_ip_address_changed(
+	if ( CHECK_SESSION
+	&&   session_remote_ip_address_changed(
 		application_name,
 		session ) )
 	{
@@ -110,11 +112,14 @@ int main( int argc, char **argv )
 				login_name );
 	}
 
-	if ( strcmp(	login_name,
+
+	if ( CHECK_SESSION
+	&&   strcmp(	login_name,
 			session_get_login_name(
 					application_name,
 					session ) ) != 0 )
 	{
+
 		session_access_failed_message_and_exit(
 			application_name, session, login_name );
 	}
@@ -218,8 +223,7 @@ void output_folder_results(
 	{
 		format_initial_capital( formatted_results, results );
 
-		printf( "%s^%s|Select^%s\n",
-			NULL_OPERATOR,
+		printf( "select^%s|Select^%s\n",
 			results,
 			formatted_results );
 	}
@@ -286,7 +290,7 @@ void output_process_results(
 
 	list_rewind( results_list );
 
-	printf( "%s", NULL_OPERATOR );
+	printf( "select" );
 
 	do {
 		results = list_get_pointer( results_list );

@@ -266,15 +266,6 @@ int main( int argc, char **argv )
 					(LIST *)0 /* operation_name_list */ );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got query_dictionary = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( dictionary_appaserver->query_dictionary ) );
-m2( application_name, msg );
-}
 	folder->one2m_related_folder_list =
 		related_folder_get_1tom_related_folder_list(
 			application_name,

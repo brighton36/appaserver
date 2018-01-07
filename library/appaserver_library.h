@@ -134,6 +134,7 @@ enum preupdate_change_state {		from_null_to_something,
 #define OR_OPERATOR				"or_,"
 #define NULL_OPERATOR				"is_empty"
 #define NOT_NULL_OPERATOR			"not_empty"
+#define SELECT_OPERATOR				"select"
 
 #ifndef APPASERVER_DATABASE_ERROR_FILE
 #define APPASERVER_DATABASE_ERROR_FILE		"/var/log/appaserver_%s.err"

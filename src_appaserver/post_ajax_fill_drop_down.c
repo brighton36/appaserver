@@ -223,8 +223,9 @@ void output_folder_results(
 	{
 		format_initial_capital( formatted_results, results );
 
-		printf( "select^%s|Select^%s\n",
+		printf( "%s^%s|%s^Select\n",
 			results,
+			SELECT_OPERATOR,
 			formatted_results );
 	}
 	else
@@ -288,9 +289,9 @@ void output_process_results(
 		return;
 	}
 
-	list_rewind( results_list );
+	list_append_pointer( results_list, SELECT_OPERATOR );
 
-	printf( "select" );
+	list_rewind( results_list );
 
 	do {
 		results = list_get_pointer( results_list );
@@ -298,16 +299,14 @@ void output_process_results(
 		if ( character_exists( results, '|' ) )
 		{
 			piece( piece_buffer, '|', results, 0 );
-			printf( "^%s", piece_buffer );
+			printf( "%s^", piece_buffer );
 		}
 		else
 		{
-			printf( "^%s", results );
+			printf( "%s^", results );
 		}
 
 	} while( list_next( results_list ) );
-
-	printf( "|Select" );
 
 	list_rewind( results_list );
 

@@ -299,14 +299,18 @@ void output_process_results(
 		if ( character_exists( results, '|' ) )
 		{
 			piece( piece_buffer, '|', results, 0 );
-			printf( "%s^", piece_buffer );
+			printf( "%s", piece_buffer );
 		}
 		else
 		{
-			printf( "%s^", results );
+			printf( "%s", results );
 		}
 
+		if ( !list_at_tail( results_list ) ) printf( "^" );
+
 	} while( list_next( results_list ) );
+
+	printf( "|" );
 
 	list_rewind( results_list );
 
@@ -326,7 +330,9 @@ void output_process_results(
 			format_initial_capital( formatted_results, results );
 		}
 
-		printf( "^%s", formatted_results );
+		printf( "%s", formatted_results );
+
+		if ( !list_at_tail( results_list ) ) printf( "^" );
 
 	} while( list_next( results_list ) );
 

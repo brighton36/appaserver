@@ -15,6 +15,9 @@ piece.e '^' 0							|
 while read as_of_date
 do
 	input_record=`trial_balance	$application		\
+					session			\
+					login_name		\
+					role			\
 					trial_balance		\
 					"$fund"			\
 					$as_of_date		\

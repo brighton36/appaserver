@@ -168,7 +168,8 @@ int main( int argc, char **argv )
 			application_name,
 			filter_element_name_list,
 			(char *)0 /* fund_name */,
-			as_of_date );
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	heading_list = list_new();
 	list_append_string( heading_list, "Element" );

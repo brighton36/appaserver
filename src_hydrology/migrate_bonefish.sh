@@ -39,11 +39,14 @@ echo "This is the destination directory for nightly backup dumps." > README
 sudo mkdir /dfe
 sudo chown timriley:appaserver /dfe
 chmod g+wxs /dfe
-mkcd /dfe/tmp
+mkdir /dfe/tmp
+cd /dfe/tmp
 echo "This is the migration temporary directory" > README
-mkcd /dfe/son
+mkdir /dfe/son
+cd /dfe/son
 echo "This is the migration database storage directory" > README
-mkcd /dfe/son/hydrology
+mkdir /dfe/son/hydrology
+cd /dfe/son/hydrology
 echo "This is the migration database storage directory" > README
 
 # Old appaserver

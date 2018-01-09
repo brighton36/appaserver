@@ -1,6 +1,6 @@
 :
 
-make post_employee_work_period
+make trial_balance
 
 #if [ "$?" -eq 0 ]
 #then

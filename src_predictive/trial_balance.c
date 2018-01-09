@@ -37,6 +37,45 @@
 
 /* Prototypes */
 /* ---------- */
+
+/* Returns count */
+/* ------------- */
+int trial_balance_html_table_account_list(
+				double *debit_sum,
+				double *credit_sum,
+				HTML_TABLE *html_table,
+				char *application_name,
+				LIST *prior_element_list,
+				char *element_name,
+				LIST *account_list,
+				double element_total,
+				char *beginning_date,
+				char *as_of_date,
+				char *session,
+				char *login_name,
+				char *role_name,
+				int count,
+				boolean omit_subclassification );
+
+/* Returns count */
+/* ------------- */
+int trial_balance_html_table_subclassification_list(
+					double *debit_sum,
+					double *credit_sum,
+					HTML_TABLE *html_table,
+					char *application_name,
+					LIST *prior_element_list,
+					char *element_name,
+					boolean is_period_element,
+					LIST *subclassification_list,
+					char *beginning_date,
+					char *as_of_date,
+					char *session,
+					char *login_name,
+					char *role_name,
+					int count,
+					boolean omit_subclassification );
+
 char *get_action_string(
 					char *application_name,
 					char *session,
@@ -88,12 +127,13 @@ void trial_balance_account_html_table(
 					LIST *prior_element_list,
 					char *element_name,
 					char *subclassification_name,
-					double subclassification_total,
+					double ratio_denominator,
 					char *beginning_date,
 					char *as_of_date,
 					char *session,
 					char *login_name,
-					char *role_name );
+					char *role_name,
+					boolean omit_subclassification );
 
 void trial_balance_account_stdout(
 					double *balance,
@@ -170,13 +210,14 @@ void output_html_table(			LIST *data_list,
 					double debit_amount,
 					double credit_amount,
 					double prior_balance_change,
-					double subclassification_total,
+					double ratio_denominator,
 					char *application_name,
 					char *beginning_date,
 					char *as_of_date,
 					char *session,
 					char *login_name,
-					char *role_name );
+					char *role_name,
+					boolean omit_subclassification );
 
 int main( int argc, char **argv )
 {
@@ -355,19 +396,16 @@ void trial_balance_html_table(
 	double debit_sum = 0.0;
 	double credit_sum = 0.0;
 	LEDGER_ELEMENT *element;
-	SUBCLASSIFICATION *subclassification;
-	ACCOUNT *account;
-	boolean accumulate_debit;
-	double balance;
 	LIST *current_element_list;
 	LIST *prior_element_list;
 	LIST *prior_filter_element_name_list;
 	DATE *prior_closing_transaction_date;
 	char *prior_closing_transaction_date_string = {0};
-	double subclassification_total;
 	int count = 0;
 	char *element_name = {0};
 	char *beginning_date;
+	int number_left_justified_columns = 3;
+	double element_total;
 
 	if ( ! ( beginning_date = 
 			ledger_beginning_transaction_date(
@@ -437,26 +475,49 @@ void trial_balance_html_table(
 	/* Create the table heading */
 	/* ------------------------ */
 	heading_list = list_new();
+
 	list_append_string( heading_list, "Element" );
-	list_append_string( heading_list, "Subclassification" );
+
+	if ( !omit_subclassification )
+	{
+		list_append_string(
+			heading_list,
+			"Subclassification" );
+
+		number_left_justified_columns--;
+	}
+	
 	list_append_string( heading_list, "Account" );
 	list_append_string( heading_list, "Count" );
 	list_append_string( heading_list, "Debit" );
 	list_append_string( heading_list, "Credit" );
-	list_append_string( heading_list, "change_or_percent" );
-	
+
+	if ( !omit_subclassification )
+	{
+		list_append_string(
+			heading_list,
+			"change_or_percent_of_subclassification" );
+	}
+	else
+	{
+		list_append_string(
+			heading_list,
+			"change_or_percent_of_element" );
+	}
+
 	html_table = new_html_table(
 			title,
 			sub_title );
 
-	html_table->number_left_justified_columns = 3;
+	html_table->number_left_justified_columns =
+		number_left_justified_columns;
+
 	html_table->number_right_justified_columns = 4;
 	html_table_set_heading_list( html_table, heading_list );
 
 	html_table_output_table_heading(
-
-					html_table->title,
-					html_table->sub_title );
+		html_table->title,
+		html_table->sub_title );
 
 	html_table_output_data_heading(
 		html_table->heading_list,
@@ -475,98 +536,74 @@ void trial_balance_html_table(
 	do {
 		element = list_get_pointer( current_element_list );
 
-		if ( !list_rewind( element->subclassification_list ) )
-			continue;
-
 		element_name = element->element_name;
 
-		do {
-			subclassification =
-				list_get_pointer(
-					element->
-					   subclassification_list );
-
-			if ( !list_rewind( subclassification->account_list ) )
+		if ( omit_subclassification )
+		{
+			if ( !list_length( element->account_list ) )
 				continue;
 
-			do {
-				account = 
-					list_get_pointer(
-						subclassification->
-							account_list );
-
-				if ( !account->latest_ledger
-				||   !account->latest_ledger->balance )
-					continue;
-
-				if ( ++count == ROWS_BETWEEN_HEADING )
-				{
-					html_table_output_data_heading(
-						html_table->heading_list,
-						html_table->
-						number_left_justified_columns,
-						html_table->
-						number_right_justified_columns,
-						html_table->justify_list );
-					count = 0;
-				}
-
-				if ( ledger_is_period_element(
+			if ( ledger_is_period_element(
 					element->element_name ) )
-				{
-					subclassification_total =
-						subclassification->
-							subclassification_total;
-				}
-				else
-				{
-					subclassification_total = 0.0;
-				}
+			{
+				element_total = element->element_total;
+			}
+			else
+			{
+				element_total = 0.0;
+			}
 
-				trial_balance_account_html_table(
-					&balance,
-					&accumulate_debit,
-					html_table,
-					application_name,
-					account,
-					prior_element_list,
-					element_name,
-					subclassification->
-						subclassification_name,
-					subclassification_total,
-					beginning_date,
-					as_of_date,
-					session,
-					login_name,
-					role_name );
+			count =
+			   trial_balance_html_table_account_list(
+				&debit_sum,
+				&credit_sum,
+				html_table,
+				application_name,
+				prior_element_list,
+				element_name,
+				element->account_list,
+				element_total,
+				beginning_date,
+				as_of_date,
+				session,
+				login_name,
+				role_name,
+				count,
+				omit_subclassification );
+		}
+		else
+		{
+			if ( !list_length( element->subclassification_list ) )
+				continue;
 
-				list_free( html_table->data_list );
-				html_table->data_list = list_new();
-
-				if ( accumulate_debit )
-				{
-					debit_sum += balance;
-				}
-				else
-				{
-					credit_sum += balance;
-				}
-
-				subclassification->
-					subclassification_name =
-						(char *)0;
-
-				element_name = (char *)0;
-
-			} while( list_next( subclassification->account_list ) );
-
-		} while( list_next( element->subclassification_list ) );
+			count =
+			   trial_balance_html_table_subclassification_list(
+				&debit_sum,
+				&credit_sum,
+				html_table,
+				application_name,
+				prior_element_list,
+				element_name,
+				ledger_is_period_element(
+					element_name ),
+				element->subclassification_list,
+				beginning_date,
+				as_of_date,
+				session,
+				login_name,
+				role_name,
+				count,
+				omit_subclassification );
+		}
 
 	} while( list_next( current_element_list ) );
 
 	html_table_set_data( html_table->data_list, "Total" );
 	html_table_set_data( html_table->data_list, "" );
-	html_table_set_data( html_table->data_list, "" );
+
+	if ( !omit_subclassification )
+		html_table_set_data( html_table->data_list, "" );
+
 	html_table_set_data( html_table->data_list, "" );
 
 	debit_string = timlib_place_commas_in_money( debit_sum );
@@ -586,6 +623,200 @@ void trial_balance_html_table(
 
 } /* trial_balance_html_table() */
 
+/* Returns count */
+/* ------------- */
+int trial_balance_html_table_account_list(
+				double *debit_sum,
+				double *credit_sum,
+				HTML_TABLE *html_table,
+				char *application_name,
+				LIST *prior_element_list,
+				char *element_name,
+				LIST *account_list,
+				double element_total,
+				char *beginning_date,
+				char *as_of_date,
+				char *session,
+				char *login_name,
+				char *role_name,
+				int count,
+				boolean omit_subclassification )
+{
+	ACCOUNT *account;
+	double balance;
+	boolean accumulate_debit;
+
+	if ( !list_rewind( account_list ) ) return 0;
+
+	do {
+		account = list_get_pointer( account_list );
+
+		if ( !account->latest_ledger
+		||   !account->latest_ledger->balance )
+			continue;
+
+		if ( ++count == ROWS_BETWEEN_HEADING )
+		{
+			html_table_output_data_heading(
+				html_table->heading_list,
+				html_table->
+				number_left_justified_columns,
+				html_table->
+				number_right_justified_columns,
+				html_table->justify_list );
+			count = 0;
+		}
+
+		trial_balance_account_html_table(
+			&balance,
+			&accumulate_debit,
+			html_table,
+			application_name,
+			account,
+			prior_element_list,
+			element_name,
+			(char *)0 /* subclassification_name */,
+			element_total /* ratio_denominator */,
+			beginning_date,
+			as_of_date,
+			session,
+			login_name,
+			role_name,
+			omit_subclassification );
+
+		list_free( html_table->data_list );
+		html_table->data_list = list_new();
+
+		if ( accumulate_debit )
+		{
+			*debit_sum += balance;
+		}
+		else
+		{
+			*credit_sum += balance;
+		}
+
+		element_name = (char *)0;
+
+	} while( list_next( account_list ) );
+
+	return count;
+
+} /* trial_balance_html_table_account_list() */
+
+/* Returns count */
+/* ------------- */
+int trial_balance_html_table_subclassification_list(
+				double *debit_sum,
+				double *credit_sum,
+				HTML_TABLE *html_table,
+				char *application_name,
+				LIST *prior_element_list,
+				char *element_name,
+				boolean is_period_element,
+				LIST *subclassification_list,
+				char *beginning_date,
+				char *as_of_date,
+				char *session,
+				char *login_name,
+				char *role_name,
+				int count,
+				boolean omit_subclassification )
+{
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+	double balance;
+	boolean accumulate_debit;
+	double subclassification_total;
+
+	if ( !list_rewind( subclassification_list ) ) return 0;
+
+	do {
+		subclassification =
+			list_get_pointer(
+				subclassification_list );
+
+		if ( !list_rewind( subclassification->account_list ) )
+			continue;
+
+		do {
+			account = 
+				list_get_pointer(
+					subclassification->
+						account_list );
+
+			if ( !account->latest_ledger
+			||   !account->latest_ledger->balance )
+				continue;
+
+			if ( ++count == ROWS_BETWEEN_HEADING )
+			{
+				html_table_output_data_heading(
+					html_table->heading_list,
+					html_table->
+					number_left_justified_columns,
+					html_table->
+					number_right_justified_columns,
+					html_table->justify_list );
+				count = 0;
+			}
+
+			if ( is_period_element )
+			{
+				subclassification_total =
+					subclassification->
+						subclassification_total;
+			}
+			else
+			{
+				subclassification_total = 0.0;
+			}
+
+			trial_balance_account_html_table(
+				&balance,
+				&accumulate_debit,
+				html_table,
+				application_name,
+				account,
+				prior_element_list,
+				element_name,
+				subclassification->
+					subclassification_name,
+				subclassification_total
+					/* ratio_denominator */,
+				beginning_date,
+				as_of_date,
+				session,
+				login_name,
+				role_name,
+				omit_subclassification );
+
+			list_free( html_table->data_list );
+			html_table->data_list = list_new();
+
+			if ( accumulate_debit )
+			{
+				*debit_sum += balance;
+			}
+			else
+			{
+				*credit_sum += balance;
+			}
+
+			subclassification->
+				subclassification_name =
+					(char *)0;
+
+			element_name = (char *)0;
+
+		} while( list_next( subclassification->account_list ) );
+
+	} while( list_next( subclassification_list ) );
+
+	return count;
+
+} /* trial_balance_html_table_subclassification_list() */
+
 void trial_balance_account_html_table(
 					double *balance,
 					boolean *accumulate_debit,
@@ -595,12 +826,13 @@ void trial_balance_account_html_table(
 					LIST *prior_element_list,
 					char *element_name,
 					char *subclassification_name,
-					double subclassification_total,
+					double ratio_denominator,
 					char *beginning_date,
 					char *as_of_date,
 					char *session,
 					char *login_name,
-					char *role_name )
+					char *role_name,
+					boolean omit_subclassification )
 {
 	double prior_balance_change;
 
@@ -657,13 +889,14 @@ void trial_balance_account_html_table(
 			latest_ledger->
 			credit_amount,
 		prior_balance_change,
-		subclassification_total,
+		ratio_denominator,
 		application_name,
 		beginning_date,
 		as_of_date,
 		session,
 		login_name,
-		role_name );
+		role_name,
+		omit_subclassification );
 
 } /* trial_balance_account_html_table() */
 
@@ -1163,13 +1396,14 @@ void output_html_table(	LIST *data_list,
 			double debit_amount,
 			double credit_amount,
 			double prior_balance_change,
-			double subclassification_total,
+			double ratio_denominator,
 			char *application_name,
 			char *beginning_date,
 			char *as_of_date,
 			char *session,
 			char *login_name,
-			char *role_name )
+			char *role_name,
+			boolean omit_subclassification )
 {
 	char element_title[ 128 ];
 	char subclassification_title[ 128 ];
@@ -1178,7 +1412,7 @@ void output_html_table(	LIST *data_list,
 	char debit_string[ 4096 ];
 	char credit_string[ 4096 ];
 	char *prior_balance_change_string;
-	char subclassification_total_ratio_string[ 16 ];
+	char account_ratio_string[ 16 ];
 	char transaction_date_string[ 16 ];
 	char *action_string;
 
@@ -1216,7 +1450,12 @@ void output_html_table(	LIST *data_list,
 			strdup( subclassification_title )  );
 	}
 	else
-		html_table_set_data( data_list, strdup( "" ) );
+	{
+		if ( !omit_subclassification )
+		{
+			html_table_set_data( data_list, strdup( "" ) );
+		}
+	}
 
 	account_title =
 		get_html_table_account_title(
@@ -1291,20 +1530,20 @@ void output_html_table(	LIST *data_list,
 			strdup( buffer ) );
 	}
 	else
-	/* Set subclassification_total ratio (maybe) */
+	/* Set account ratio ratio (maybe) */
 	/* ----------------------------------------- */
 	if ( !timlib_dollar_virtually_same(
-			subclassification_total,
+			ratio_denominator,
 			0.0 ) )
 	{
-		sprintf( subclassification_total_ratio_string,
+		sprintf( account_ratio_string,
 			 "%.0lf%c",
-			 (balance / subclassification_total) * 100.0,
+			 (balance / ratio_denominator) * 100.0,
 			 '%' );
 
 		html_table_set_data(
 			data_list,
-			strdup( subclassification_total_ratio_string ) );
+			strdup( account_ratio_string ) );
 	}
 
 	/* Output the row */

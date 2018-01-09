@@ -1009,6 +1009,7 @@ LIST *ledger_subclassification_get_account_list(
 	char where[ 256 ];
 	char account_name[ 128 ];
 	FILE *input_pipe;
+	JOURNAL_LEDGER *latest_ledger;
 
 	if ( fund_name
 	&&   *fund_name
@@ -1039,24 +1040,30 @@ LIST *ledger_subclassification_get_account_list(
 
 	while( get_line( account_name, input_pipe ) )
 	{
+		latest_ledger =
+			ledger_get_latest_ledger(
+				application_name,
+				account_name,
+				as_of_date );
+
+		if ( !latest_ledger
+		||   timlib_double_virtually_same(
+			latest_ledger->balance,
+			0.0 ) )
+		{
+			continue;
+		}
+
 		account =
 			ledger_account_fetch(
 				application_name,
 				strdup( account_name ) );
 
-		account->latest_ledger =
-			ledger_get_latest_ledger(
-				application_name,
-				account->account_name,
-				as_of_date );
+		/* Change account name from stack memory to heap. */
+		/* ---------------------------------------------- */
+		latest_ledger->account_name = account->account_name;
 
-		if ( !account->latest_ledger
-		||   timlib_double_virtually_same(
-			account->latest_ledger->balance,
-			0.0 ) )
-		{
-			continue;
-		}
+		account->latest_ledger = latest_ledger;
 
 		list_add_pointer_in_order(
 			account_list,
@@ -1083,45 +1090,78 @@ LIST *ledger_element_get_account_list(
 	char where[ 256 ];
 	char account_name[ 128 ];
 	FILE *input_pipe;
+	char *folder;
+	LIST *account_list;
+	char *fund_where;
+	JOURNAL_LEDGER *latest_ledger;
+
+	fund_where =
+		ledger_get_fund_where(
+			application_name,
+			"account" /* folder_name */,
+			fund_name );
 
 	*element_total = 0.0;
 
-	sprintf( where, "element = '%s'", element_name );
+	folder = "account,subclassification";
+
+	sprintf(	where,
+			"%s and					"
+			"element = '%s' and			"
+			"account.subclassification =		"
+			"subclassification.subclassification	",
+			fund_where,
+			element_name );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=subclassification	"
-		 "			folder=subclassification	"
-		 "			where=\"%s\"			"
-		 "			order=display_order		",
+		 "			select=account			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
 		 application_name,
+		 folder,
 		 where );
 
-	subclassification_list = list_new();
+	account_list = list_new();
 	input_pipe = popen( sys_string, "r" );
 
-	while( get_line( subclassification_name, input_pipe ) )
+	while( get_line( account_name, input_pipe ) )
 	{
-		subclassification =
-			ledger_new_subclassification(
-				strdup( subclassification_name ) );
-
-		subclassification->account_list =
-			ledger_subclassification_get_account_list(
-				&subclassification->subclassification_total,
+		latest_ledger =
+			ledger_get_latest_ledger(
 				application_name,
-				subclassification->subclassification_name,
-				fund_name,
+				account_name,
 				as_of_date );
 
-		*element_total += subclassification->subclassification_total;
+		if ( !latest_ledger
+		||   timlib_double_virtually_same(
+			latest_ledger->balance,
+			0.0 ) )
+		{
+			continue;
+		}
 
-		list_append_pointer(	subclassification_list,
-					subclassification );
+		account =
+			ledger_account_fetch(
+				application_name,
+				strdup( account_name ) );
+
+		/* Change account name from stack memory to heap. */
+		/* ---------------------------------------------- */
+		latest_ledger->account_name = account->account_name;
+
+		account->latest_ledger = latest_ledger;
+
+		*element_total += account->latest_ledger->balance;
+
+		list_add_pointer_in_order(
+			account_list,
+			account,
+			ledger_balance_match_function );
 	}
 
 	pclose( input_pipe );
-	return subclassification_list;
+	return account_list;
 
 } /* ledger_element_get_account_list() */
 
@@ -6977,6 +7017,13 @@ ACCOUNT *ledger_element_list_account_seek(
 
 	do {
 		element = list_get_pointer( element_list );
+
+		if ( list_length( element->account_list ) )
+		{
+			return ledger_seek_account(
+					element->account_list,
+					account_name );
+		}
 
 		if ( !list_rewind( element->subclassification_list ) )
 			continue;

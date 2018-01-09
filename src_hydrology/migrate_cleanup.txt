@@ -1,0 +1,9 @@
+migrate_cleanup.txt
+-------------------
+
+Bonefish:
+vi /appaserver/cron/mysqldump_hydrology_block.dat
+vi> remove offsite_scp_destination=bonefish:/dfe/son
+
+vi /appaserver/src_sparrow/mysqldump_sparrow.dat
+vi> remove offsite_scp_destination=bonefish:/dfe/son

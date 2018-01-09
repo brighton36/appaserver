@@ -40,8 +40,8 @@ offsite_rsync()
 
 	nohup							\
 	/usr/bin/time						\
-	rsync -aq	${source_directory}/			\
-			${destination_directory} --delete	\
+	rsync -aq --delete	${source_directory}/		\
+				${destination_directory} 	\
 	>> $logfile 2>&1 &
 }
 

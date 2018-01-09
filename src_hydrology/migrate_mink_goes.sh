@@ -3,6 +3,6 @@
 # --------------------
 
 cd /opt/lrgs
-/usr/bin/time rsync -a --progress delete . bonefish:/opt/lrgs
+nohup /usr/bin/time rsync -a --progress --delete . bonefish:/opt/lrgs >/var/tmp/migrate_mink_lrgs.out 2>&1 &
 
 exit 0

@@ -45,13 +45,8 @@ scp ~kotun/cron_kotun.dat bonefish:/dfe/tmp
 # cd /appaserver/src_sparrow
 # nohup /usr/bin/time mysqldump_database.sh hydrology mysqldump_sparrow.dat >/appaserver/cron_log/mysqldump_sparrow.out 2>&1 &
 
-# Old appaserver1
-# ---------------
-cd /appaserver
-/usr/bin/time rsync -a --progress delete . bonefish:/appaserver
-
-# Old appaserver2
-# ---------------
+# Old appaserver
+# --------------
 cd /dfe/appaserver
 /usr/bin/time rsync -a --progress delete . bonefish:/dfe/appaserver
 

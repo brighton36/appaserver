@@ -300,10 +300,11 @@ void income_statement_net_income_only(
 
 	element_list =
 		ledger_get_element_list(
-				application_name,
-				filter_element_name_list,
-				fund_name,
-				as_of_date );
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
@@ -430,10 +431,11 @@ void income_statement_consolidate_html_table(
 
 	element_list =
 		ledger_get_element_list(
-				application_name,
-				filter_element_name_list,
-				fund_name,
-				as_of_date );
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
@@ -581,10 +583,11 @@ void income_statement_full_html_table(
 
 	element_list =
 		ledger_get_element_list(
-				application_name,
-				filter_element_name_list,
-				fund_name,
-				as_of_date );
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	/* Compute total revenues */
 	/* ---------------------- */ 
@@ -806,10 +809,11 @@ void income_statement_consolidate_PDF(
 
 	element_list =
 		ledger_get_element_list(
-				application_name,
-				filter_element_name_list,
-				fund_name,
-				as_of_date );
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	if ( ! ( element =
 			ledger_element_list_seek(
@@ -974,10 +978,11 @@ void income_statement_full_PDF(
 
 	element_list =
 		ledger_get_element_list(
-				application_name,
-				filter_element_name_list,
-				fund_name,
-				as_of_date );
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	latex_table->row_list =
 		build_full_PDF_row_list(

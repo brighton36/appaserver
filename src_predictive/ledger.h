@@ -129,7 +129,17 @@ typedef struct
 {
 	char *element_name;
 	boolean accumulate_debit;
+
+	/* -------------------------- */
+	/* if !omit_subclassification */
+	/* -------------------------- */
 	LIST *subclassification_list;
+
+	/* ------------------------- */
+	/* if omit_subclassification */
+	/* ------------------------- */
+	LIST *account_list;
+
 	double element_total;
 } LEDGER_ELEMENT;
 
@@ -186,6 +196,13 @@ LIST *ledger_subclassification_get_account_list(
 					char *fund_name,
 					char *as_of_date );
 
+LIST *ledger_element_get_account_list(
+					double *element_total,
+					char *application_name,
+					char *element_name,
+					char *fund_name,
+					char *as_of_date );
+
 LIST *ledger_element_get_subclassification_list(
 					double *element_total,
 					char *application_name,
@@ -196,7 +213,8 @@ LIST *ledger_element_get_subclassification_list(
 LIST *ledger_get_element_list(		char *application_name,
 					LIST *filter_element_name_list,
 					char *fund_name,
-					char *as_of_date );
+					char *as_of_date,
+					boolean omit_subclassification );
 
 JOURNAL_LEDGER *ledger_get_prior_ledger(char *application_name,
 					char *transaction_date_time,

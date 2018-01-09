@@ -348,10 +348,11 @@ void balance_sheet_aggregate_subclassification_PDF(
 
 	element_list =
 		ledger_get_element_list(
-				application_name,
-				filter_element_name_list,
-				fund_name,
-				as_of_date );
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	latex_table->row_list =
 		build_aggregate_subclassification_PDF_row_list(
@@ -501,10 +502,11 @@ void balance_sheet_full_PDF(	char *application_name,
 
 	element_list =
 		ledger_get_element_list(
-				application_name,
-				filter_element_name_list,
-				fund_name,
-				as_of_date );
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	latex_table->row_list =
 		build_full_PDF_row_list(
@@ -602,10 +604,11 @@ void balance_sheet_consolidate_html_table(
 
 	element_list =
 		ledger_get_element_list(
-				application_name,
-				filter_element_name_list,
-				fund_name,
-				as_of_date );
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	/* Output total_assets */
 	/* ------------------- */
@@ -762,10 +765,11 @@ void balance_sheet_full_html_table(
 
 	element_list =
 		ledger_get_element_list(
-				application_name,
-				filter_element_name_list,
-				fund_name,
-				as_of_date );
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	/* Output total_assets */
 	/* ------------------- */

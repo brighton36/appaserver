@@ -26,7 +26,7 @@ Set umask
 ---------
 * Set umask to 002 or 0002 in /etc/profile.
 * This instructs Linux to turn on the group write bit for new files
-  and sub-directories.
+  and directories.
 
 File creation without group centric
 -----------------------------------
@@ -51,7 +51,7 @@ Access management
 5) For each collaborating directory, set the group write bit: chmod g+w .
 
 The group SUID bit for a directory instructs Linux to change the behavior
-for new files and sub-directories. Instead of setting the group name
+for new files and directories. Instead of setting the group name
 to the user's group name, it sets the group name to the directory's
 group name.
 
@@ -59,7 +59,7 @@ Each new file will have the group write bit turned on because umask
 is 0002. The new file's group name will be the group name of the directory.
 The world can only read the file.
 
-Likewise, each new sub-directory will have the group write bit turned
-on because umask is 0002.  Moreover, the sub-directory's group SUID bit
-will be turned on.  The sub-directory's group name will be the group
+Likewise, each new directory will have the group write bit turned
+on because umask is 0002.  Moreover, the directory's group SUID bit
+will be turned on.  The directory's group name will be the group
 name of its parent directory.

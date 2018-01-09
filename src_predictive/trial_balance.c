@@ -63,7 +63,8 @@ void output_stdout(			char *element_name,
 void trial_balance_stdout(
 					char *application_name,
 					char *fund_name,
-					char *as_of_date );
+					char *as_of_date,
+					boolean omit_subclassification );
 
 void build_PDF_account_row(		LIST *column_data_list,
 					boolean *accumulate_debit,
@@ -92,8 +93,7 @@ void trial_balance_account_html_table(
 					char *as_of_date,
 					char *session,
 					char *login_name,
-					char *role_name,
-					boolean omit_subclassification );
+					char *role_name );
 
 void trial_balance_account_stdout(
 					double *balance,
@@ -142,14 +142,16 @@ void trial_balance_PDF(			char *application_name,
 					char *document_root_directory,
 					char *process_name,
 					char *aggregation,
-					char *logo_filename );
+					char *logo_filename,
+					boolean omit_subclassification );
 
 void trial_balance_PDF_fund(		
 					LATEX *latex,
 					char *application_name,
 					char *sub_title,
 					char *fund_name,
-					char *as_of_date );
+					char *as_of_date,
+					boolean omit_subclassification );
 
 void output_html_table(			LIST *data_list,
 					char *element_name,
@@ -174,8 +176,7 @@ void output_html_table(			LIST *data_list,
 					char *as_of_date,
 					char *session,
 					char *login_name,
-					char *role_name,
-					boolean omit_subclassification );
+					char *role_name );
 
 int main( int argc, char **argv )
 {
@@ -317,14 +318,16 @@ int main( int argc, char **argv )
 				document_root,
 			process_name,
 			aggregation,
-			logo_filename );
+			logo_filename,
+			omit_subclassification );
 	}
 	else
 	{
 		trial_balance_stdout(
 			application_name,
 			fund_name,
-			as_of_date );
+			as_of_date,
+			omit_subclassification );
 	}
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
@@ -387,7 +390,8 @@ void trial_balance_html_table(
 			application_name,
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
-			as_of_date );
+			as_of_date,
+			omit_subclassification );
 
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
@@ -427,7 +431,8 @@ void trial_balance_html_table(
 			application_name,
 			prior_filter_element_name_list,
 			fund_name,
-			prior_closing_transaction_date_string );
+			prior_closing_transaction_date_string,
+			omit_subclassification );
 
 	/* Create the table heading */
 	/* ------------------------ */
@@ -533,8 +538,7 @@ void trial_balance_html_table(
 					as_of_date,
 					session,
 					login_name,
-					role_name,
-					omit_subclassification );
+					role_name );
 
 				list_free( html_table->data_list );
 				html_table->data_list = list_new();
@@ -596,8 +600,7 @@ void trial_balance_account_html_table(
 					char *as_of_date,
 					char *session,
 					char *login_name,
-					char *role_name,
-					boolean omit_subclassification )
+					char *role_name )
 {
 	double prior_balance_change;
 
@@ -660,8 +663,7 @@ void trial_balance_account_html_table(
 		as_of_date,
 		session,
 		login_name,
-		role_name,
-		omit_subclassification );
+		role_name );
 
 } /* trial_balance_account_html_table() */
 
@@ -672,7 +674,8 @@ void trial_balance_PDF(
 			char *document_root_directory,
 			char *process_name,
 			char *aggregation,
-			char *logo_filename )
+			char *logo_filename,
+			boolean omit_subclassification )
 {
 	LATEX *latex;
 	char *latex_filename;
@@ -769,7 +772,8 @@ void trial_balance_PDF(
 					application_name,
 					sub_title,
 					fund_name,
-					as_of_date );
+					as_of_date,
+					omit_subclassification );
 
 		} while( list_next( fund_name_list ) );
 	}
@@ -782,7 +786,8 @@ void trial_balance_PDF(
 				application_name,
 				sub_title,
 				fund_name,
-				as_of_date );
+				as_of_date,
+				omit_subclassification );
 	}
 
 	latex_longtable_output(
@@ -830,7 +835,8 @@ void trial_balance_PDF_fund(
 			char *application_name,
 			char *sub_title,
 			char *fund_name,
-			char *as_of_date )
+			char *as_of_date,
+			boolean omit_subclassification )
 {
 	LATEX_TABLE *latex_table;
 	LIST *current_element_list;
@@ -856,7 +862,8 @@ void trial_balance_PDF_fund(
 			application_name,
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
-			as_of_date );
+			as_of_date,
+			omit_subclassification );
 
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
@@ -896,7 +903,8 @@ void trial_balance_PDF_fund(
 			application_name,
 			prior_filter_element_name_list,
 			fund_name,
-			prior_closing_transaction_date_string );
+			prior_closing_transaction_date_string,
+			omit_subclassification );
 
 	latex_table->row_list =
 		build_PDF_row_list(
@@ -1161,8 +1169,7 @@ void output_html_table(	LIST *data_list,
 			char *as_of_date,
 			char *session,
 			char *login_name,
-			char *role_name,
-			boolean omit_subclassification )
+			char *role_name )
 {
 	char element_title[ 128 ];
 	char subclassification_title[ 128 ];
@@ -1607,7 +1614,8 @@ void build_PDF_account_row(	LIST *column_data_list,
 void trial_balance_stdout(
 			char *application_name,
 			char *fund_name,
-			char *as_of_date )
+			char *as_of_date,
+			boolean omit_subclassification )
 {
 	LIST *heading_list;
 	char *debit_string;
@@ -1635,7 +1643,8 @@ void trial_balance_stdout(
 			application_name,
 			(LIST *)0 /* filter_element_name_list */,
 			fund_name,
-			as_of_date );
+			as_of_date,
+			omit_subclassification );
 
 	/* Populate the prior_element_list */
 	/* ------------------------------- */
@@ -1675,7 +1684,8 @@ void trial_balance_stdout(
 			application_name,
 			prior_filter_element_name_list,
 			fund_name,
-			prior_closing_transaction_date_string );
+			prior_closing_transaction_date_string,
+			omit_subclassification );
 
 	/* Create the table heading */
 	/* ------------------------ */

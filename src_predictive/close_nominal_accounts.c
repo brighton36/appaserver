@@ -294,7 +294,8 @@ boolean close_nominal_accounts_fund_execute(
 			application_name,
 			filter_element_name_list,
 			fund_name,
-			as_of_date );
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	sprintf( sys_string,
 		 "insert_statement.e table=%s field=%s delimiter='^' 	|"
@@ -578,7 +579,8 @@ void close_nominal_accounts_fund_display(
 			application_name,
 			filter_element_name_list,
 			fund_name,
-			as_of_date );
+			as_of_date,
+			0 /* not omit_subclassification */ );
 
 	/* Output the elements. */
 	/* -------------------- */

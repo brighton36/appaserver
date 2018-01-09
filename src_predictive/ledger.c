@@ -1071,6 +1071,60 @@ LIST *ledger_subclassification_get_account_list(
 
 } /* ledger_subclassification_get_account_list() */
 
+LIST *ledger_element_get_account_list(
+					double *element_total,
+					char *application_name,
+					char *element_name,
+					char *fund_name,
+					char *as_of_date )
+{
+	ACCOUNT *account;
+	char sys_string[ 1024 ];
+	char where[ 256 ];
+	char account_name[ 128 ];
+	FILE *input_pipe;
+
+	*element_total = 0.0;
+
+	sprintf( where, "element = '%s'", element_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=subclassification	"
+		 "			folder=subclassification	"
+		 "			where=\"%s\"			"
+		 "			order=display_order		",
+		 application_name,
+		 where );
+
+	subclassification_list = list_new();
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( subclassification_name, input_pipe ) )
+	{
+		subclassification =
+			ledger_new_subclassification(
+				strdup( subclassification_name ) );
+
+		subclassification->account_list =
+			ledger_subclassification_get_account_list(
+				&subclassification->subclassification_total,
+				application_name,
+				subclassification->subclassification_name,
+				fund_name,
+				as_of_date );
+
+		*element_total += subclassification->subclassification_total;
+
+		list_append_pointer(	subclassification_list,
+					subclassification );
+	}
+
+	pclose( input_pipe );
+	return subclassification_list;
+
+} /* ledger_element_get_account_list() */
+
 LIST *ledger_element_get_subclassification_list(
 					double *element_total,
 					char *application_name,
@@ -1158,7 +1212,8 @@ LEDGER_ELEMENT *ledger_element_seek(
 LIST *ledger_get_element_list(	char *application_name,
 				LIST *filter_element_name_list,
 				char *fund_name,
-				char *as_of_date )
+				char *as_of_date,
+				boolean omit_subclassification )
 {
 	LIST *element_list;
 	LEDGER_ELEMENT *element;
@@ -1200,13 +1255,26 @@ LIST *ledger_get_element_list(	char *application_name,
 
 		element->accumulate_debit = ( *accumulate_debit_yn == 'y' );
 
-		element->subclassification_list =
-			ledger_element_get_subclassification_list(
-				&element->element_total,
-				application_name,
-				element->element_name,
-				fund_name,
-				as_of_date );
+		if ( omit_subclassification )
+		{
+			element->account_list =
+				ledger_element_get_account_list(
+					&element->element_total,
+					application_name,
+					element->element_name,
+					fund_name,
+					as_of_date );
+		}
+		else
+		{
+			element->subclassification_list =
+				ledger_element_get_subclassification_list(
+					&element->element_total,
+					application_name,
+					element->element_name,
+					fund_name,
+					as_of_date );
+		}
 
 		list_append_pointer(	element_list,
 					element );

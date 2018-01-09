@@ -426,6 +426,10 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 	a->investment_account = investment_account;
 	a->fair_value_adjustment_account = fair_value_adjustment_account;
 
+	/* ---------------------------------------------------- */
+	/* If bank account, certificate, or money market,	*/
+	/* then share_price is $1.				*/
+	/* ---------------------------------------------------- */
 	if ( market_value
 	&&   !share_price
 	&&   !share_quantity_change
@@ -550,6 +554,8 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 		a->unrealized_gain_balance -
 		prior_unrealized_gain_balance;
 
+	/* If mutual fund dividend reinvestment */
+	/* ------------------------------------ */
 	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0
 	&&   !timlib_double_virtually_same(
 		a->share_quantity_change, 0.0 ) )

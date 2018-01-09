@@ -14,7 +14,7 @@ Apaches's CGI directory. Yet, no one else should plant a trojan
 horse there.
 
 The historical solution was to pass out the root password. However,
-Linux has an elegant solution -- the Group Centric Paradigm.
+UNIX (Linux) has an elegant solution -- the Group Centric Paradigm.
 
 See:
 https://github.com/timhriley/appaserver/blob/master/src_template/group_centric.txt
@@ -31,6 +31,7 @@ and everyone else doesn't even have read access.
 B) Make sure LAMP is installed
 ------------------------------
 
+Here's a good tutorial:
 https://www.digitalocean.com/community/tutorials/how-to-install-linux-apache-mysql-php-lamp-stack-on-ubuntu-16-04
 
 ----------------------------
@@ -89,10 +90,8 @@ login_name=nobody and password=changeit
 ---------------------
 F) Upgrade Appaserver
 ---------------------
-1) $ cd $APPASERVER_HOME
-2) $ git_pull_master.sh
-3) $ make touch && make
-4) $ upgrade-appaserver-database
+
+See UPGRADE
 
 -----------------------
 G) Uninstall Appaserver

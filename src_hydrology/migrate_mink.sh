@@ -81,6 +81,10 @@ scp /var/tmp/python_mink.dat bonefish:/dfe/tmp
 cd /opt/physical/tmp2
 /usr/bin/time rsync -a --progress delete . bonefish:/opt/physical/tmp2
 
+# Database dumps
+# --------------
+# migrate_mink_dumps.sh
+
 # GOES Satellite files
 # --------------------
 # migrate_mink_goes.sh

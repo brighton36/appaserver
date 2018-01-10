@@ -255,7 +255,6 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-/*
 			income_statement_omit_subclassification_html_table(
 				application_name,
 				title,
@@ -263,7 +262,6 @@ int main( int argc, char **argv )
 				fund_name,
 				as_of_date,
 				is_statement_of_activities );
-*/
 		}
 	}
 	else
@@ -1494,7 +1492,6 @@ LIST *build_consolidate_PDF_heading_list( void )
 
 } /* build_consolidate_PDF_heading_list() */
 
-#ifdef NOT_DEFINED
 void income_statement_omit_subclassification_html_table(
 			char *application_name,
 			char *title,
@@ -1667,5 +1664,4 @@ void income_statement_omit_subclassification_html_table(
 	document_close();
 
 } /* income_statement_omit_subclassification_html_table() */
-#endif
 

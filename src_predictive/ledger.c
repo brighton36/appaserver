@@ -8443,3 +8443,218 @@ double ledger_output_net_assets_html_subclassification_list(
 
 } /* ledger_output_net_assets_html_subclassification_list() */
 
+double ledger_output_html_account_list(
+					HTML_TABLE *html_table,
+					LIST *account_list,
+					char *element_name,
+					boolean element_accumulate_debit,
+					double percent_denominator )
+{
+	double total_element = 0.0;
+	ACCOUNT *account;
+	char buffer[ 128 ];
+	char format_buffer[ 128 ];
+	char element_title[ 128 ];
+	double latest_ledger_balance;
+	boolean first_time = 1;
+	double percent_of_total;
+
+	if ( !list_length( account_list ) ) return 0.0;
+
+	if ( !html_table )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty html_table.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	/* For equity, always display the element title */
+	/* -------------------------------------------- */
+	if ( strcmp(	element_name,
+			LEDGER_EQUITY_ELEMENT ) ==  0 )
+	{
+		sprintf(	element_title,
+				"<h2>%s</h2>",
+				format_initial_capital(
+					format_buffer,
+					element_name ) );
+
+		html_table_set_data(
+				html_table->data_list,
+				element_title );
+
+		html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+		html_table->data_list = list_new();
+
+		/* Maybe financial_position, so display beginning balance. */
+		/* ------------------------------------------------------- */
+/*
+		total_element =
+			ledger_output_net_assets_html_subclassification_list(
+				html_table,
+				subclassification_list,
+				element_accumulate_debit );
+*/
+
+		first_time = 0;
+	}
+
+	list_rewind( account_list );
+	do {
+		account = list_get_pointer( account_list );
+
+		if ( !account->latest_ledger
+		||   !account->latest_ledger->balance )
+			continue;
+
+		if ( first_time )
+		{
+			sprintf(	element_title,
+					"<h2>%s</h2>",
+					format_initial_capital(
+						format_buffer,
+						element_name ) );
+
+			html_table_set_data(
+					html_table->data_list,
+					element_title );
+
+			html_table_output_data(
+					html_table->data_list,
+					html_table->
+						number_left_justified_columns,
+					html_table->
+						number_right_justified_columns,
+					html_table->background_shaded,
+					html_table->justify_list );
+			html_table->data_list = list_new();
+
+			first_time = 0;
+		}
+
+		if (	element_accumulate_debit ==
+			account->accumulate_debit )
+		{
+			latest_ledger_balance =
+				account->latest_ledger->balance;
+		}
+		else
+		{
+			latest_ledger_balance =
+				0.0 - account->latest_ledger->balance;
+		}
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( format_initial_capital(
+				buffer,
+				account->account_name ) ) );
+	
+		html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_money(
+				   latest_ledger_balance ) ) );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( latest_ledger_balance /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( buffer ) );
+		}
+
+		html_table_output_data(
+			html_table->data_list,
+			html_table->
+				number_left_justified_columns,
+			html_table->
+				number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+
+		list_free_string_list( html_table->data_list );
+		html_table->data_list = list_new();
+
+		total_element += latest_ledger_balance;
+
+	} while( list_next( account_list ) );
+
+	if ( !timlib_double_virtually_same( total_element, 0.0 ) )
+	{
+		sprintf(element_title,
+			"<h2>Total %s</h2>",
+			element_name );
+
+		html_table_set_data(	html_table->data_list,
+					element_title );
+	
+		html_table_set_data( html_table->data_list, strdup( "" ) );
+		html_table_set_data( html_table->data_list, strdup( "" ) );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_money(
+				total_element ) ) );
+
+		if ( percent_denominator )
+		{
+			char buffer[ 128 ];
+
+			percent_of_total =
+				( total_element /
+				  percent_denominator ) * 100.0;
+
+			sprintf( buffer,
+				 "%.1lf%c",
+				 percent_of_total,
+				 '%' );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( buffer ) );
+		}
+
+		html_table_output_data(
+			html_table->data_list,
+			html_table->
+				number_left_justified_columns,
+			html_table->
+				number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+
+		html_table->data_list = list_new();
+	}
+
+	return total_element;
+
+} /* ledger_output_html_account_list() */
+

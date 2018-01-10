@@ -1,6 +1,6 @@
 :
-# migrate_hydrology_load.sh
-# -------------------------
+# migrate_bonefish_load.sh
+# ------------------------
 
 # Run this after mysqldump_database.sh finishes.
 # ----------------------------------------------

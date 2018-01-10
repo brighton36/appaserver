@@ -102,7 +102,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *fund_name;
-	boolean aggregate_subclassification;
+	char *subclassification_option;
 	char *as_of_date;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -116,7 +116,7 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund as_of_date aggregate_subclassification_yn output_medium\n",
+"Usage: %s application process fund as_of_date subclassification_option output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -142,7 +142,15 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	fund_name = argv[ 3 ];
 	as_of_date = argv[ 4 ];
-	aggregate_subclassification = ( *argv[ 5 ] == 'y' );
+	subclassification_option = argv[ 5 ];
+
+	if ( strcmp( subclassification_option, "aggregate" ) != 0
+	&&   strcmp( subclassification_option, "display" ) != 0
+	&&   strcmp( subclassification_option, "omit" ) != 0 )
+	{
+		subclassification_option = "display";
+	}
+
 	output_medium = argv[ 6 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
@@ -201,7 +209,7 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
-		if ( aggregate_subclassification )
+		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
 		{
 			balance_sheet_consolidate_html_table(
 				application_name,
@@ -212,6 +220,7 @@ int main( int argc, char **argv )
 				is_financial_position );
 		}
 		else
+		if ( strcmp( subclassification_option, "display" ) == 0 )
 		{
 			balance_sheet_full_html_table(
 				application_name,
@@ -221,10 +230,16 @@ int main( int argc, char **argv )
 				as_of_date,
 				is_financial_position );
 		}
+		else
+		/* ------------ */
+		/* Must be omit */
+		/* ------------ */
+		{
+		}
 	}
 	else
 	{
-		if ( aggregate_subclassification )
+		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
 		{
 			balance_sheet_aggregate_subclassification_PDF(
 				application_name,
@@ -238,6 +253,7 @@ int main( int argc, char **argv )
 				logo_filename );
 		}
 		else
+		if ( strcmp( subclassification_option, "display" ) == 0 )
 		{
 			balance_sheet_full_PDF(
 				application_name,
@@ -249,6 +265,12 @@ int main( int argc, char **argv )
 				process_name,
 				is_financial_position,
 				logo_filename );
+		}
+		else
+		/* ------------ */
+		/* Must be omit */
+		/* ------------ */
+		{
 		}
 	}
 
@@ -625,12 +647,12 @@ void balance_sheet_consolidate_html_table(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
-	ledger_output_subclassification_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_ASSET_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	ledger_output_html_subclassification_list(
+		html_table,
+		element->subclassification_list,
+		LEDGER_ASSET_ELEMENT,
+		element->accumulate_debit,
+		0.0 /* percent_denominator */ );
 
 	/* Calculate total_liabilities */
 	/* --------------------------- */
@@ -647,12 +669,13 @@ void balance_sheet_consolidate_html_table(
 			 LEDGER_LIABILITY_ELEMENT );
 	}
 
-	total_liabilities = ledger_output_subclassification_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_LIABILITY_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	total_liabilities =
+		ledger_output_html_subclassification_list(
+			html_table,
+			element->subclassification_list,
+			LEDGER_LIABILITY_ELEMENT,
+			element->accumulate_debit,
+			0.0 /* percent_denominator */ );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -711,12 +734,13 @@ void balance_sheet_consolidate_html_table(
 	list_append_pointer(	element->subclassification_list,
 				subclassification );
 
-	total_equity = ledger_output_subclassification_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_EQUITY_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	total_equity =
+		ledger_output_html_subclassification_list(
+			html_table,
+			element->subclassification_list,
+			LEDGER_EQUITY_ELEMENT,
+			element->accumulate_debit,
+			0.0 /* percent_denominator */ );
 
 	output_liabilities_plus_equity(
 					html_table,
@@ -786,11 +810,12 @@ void balance_sheet_full_html_table(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
-	ledger_output_html_element(	html_table,
-					element->subclassification_list,
-					LEDGER_ASSET_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	ledger_output_html_subclassification_list(
+		html_table,
+			element->subclassification_list,
+			LEDGER_ASSET_ELEMENT,
+			element->accumulate_debit,
+			0.0 /* percent_denominator */ );
 
 	/* Calculate total_liabilities */
 	/* --------------------------- */
@@ -807,12 +832,13 @@ void balance_sheet_full_html_table(
 			 LEDGER_LIABILITY_ELEMENT );
 	}
 
-	total_liabilities = ledger_output_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_LIABILITY_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	total_liabilities =
+		ledger_output_html_subclassification_list(
+			html_table,
+			element->subclassification_list,
+			LEDGER_LIABILITY_ELEMENT,
+			element->accumulate_debit,
+			0.0 /* percent_denominator */ );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -871,12 +897,13 @@ void balance_sheet_full_html_table(
 	list_append_pointer(	element->subclassification_list,
 				subclassification );
 
-	total_equity = ledger_output_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_EQUITY_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	total_equity =
+		ledger_output_html_subclassification_list(
+			html_table,
+			element->subclassification_list,
+			LEDGER_EQUITY_ELEMENT,
+			element->accumulate_debit,
+			0.0 /* percent_denominator */ );
 
 	output_liabilities_plus_equity(
 				html_table,

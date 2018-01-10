@@ -102,7 +102,7 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *fund_name;
 	char *as_of_date;
-	boolean aggregate_subclassification;
+	char *subclassification_option;
 	boolean net_income_only = 0;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -119,7 +119,7 @@ int main( int argc, char **argv )
 	if ( argc < 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund as_of_date aggregate_subclassification_yn output_medium [net_income_only_yn]\n",
+"Usage: %s application process fund as_of_date subclassification_option output_medium [net_income_only_yn]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -145,7 +145,15 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	fund_name = argv[ 3 ];
 	as_of_date = argv[ 4 ];
-	aggregate_subclassification = ( *argv[ 5 ] == 'y' );
+	subclassification_option = argv[ 5 ];
+
+	if ( strcmp( subclassification_option, "aggregate" ) != 0
+	&&   strcmp( subclassification_option, "display" ) != 0
+	&&   strcmp( subclassification_option, "omit" ) != 0 )
+	{
+		subclassification_option = "display";
+	}
+
 	output_medium = argv[ 6 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
@@ -217,7 +225,7 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
-		if ( aggregate_subclassification )
+		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
 		{
 			income_statement_consolidate_html_table(
 				application_name,
@@ -240,7 +248,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		if ( aggregate_subclassification )
+		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
 		{
 			income_statement_consolidate_PDF(
 				application_name,

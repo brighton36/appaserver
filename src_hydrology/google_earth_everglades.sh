@@ -1,6 +1,6 @@
 :
 
-filename="/appaserver/hydrology/enp_station.kml"
+filename="/hydrology/enp_station.kml"
 
 echo "<html>"
 echo "<head>"

@@ -11,6 +11,7 @@ nohup /usr/bin/time
 		--delete			\
 		--hard-links			\
 		backup_block			\
+		backup_line			\
 		sparrow				\
 		bonefish:/opt/physical/data/dfe
 

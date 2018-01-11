@@ -22,12 +22,21 @@ mkdir /opt/physical/sql
 mkdir /opt/physical/tmp2
 mkdir /opt/physical/data
 mkdir /opt/physical/data/dfe
-mkdir /opt/physical/data/dfe/backup_block
-mkdir /opt/physical/data/dfe/backup_line
-mkdir /opt/physical/data/dfe/sparrow
 
-cd /opt/physical/data
+cd /opt/physical/data/dfe
 echo "This is the destination directory for nightly backup dumps." > README
+
+mkdir /opt/physical/data/dfe/backup_block
+cd /opt/physical/data/dfe/backup_block
+mkdir son father grandfather greatgrandfather greatgreatgrandfather
+
+mkdir /opt/physical/data/dfe/backup_line
+cd /opt/physical/data/dfe/backup_line
+mkdir son father grandfather greatgrandfather greatgreatgrandfather
+
+mkdir /opt/physical/data/dfe/sparrow
+cd /opt/physical/data/dfe/sparrow
+mkdir son father grandfather greatgrandfather greatgreatgrandfather
 
 cd /opt/physical/tmp2
 echo "This directory contains the GOES satellite load bootstrap script." > README
@@ -58,6 +67,8 @@ echo "This is the migration database storage directory." > README
 sudo mkdir /dfe/appaserver
 sudo chown timriley:appaserver /dfe/appaserver
 chmod g+wxs /dfe/appaserver
+mkdir /dfe/appaserver/cron
+mkdir /dfe/appaserver/cron/data/
 mkdir /dfe/appaserver/cron/data/BISC
 
 cd /dfe/appaserver
@@ -160,3 +171,4 @@ echo "This is the GOES satellite directory." > README
 
 # Expect size:
 # /opt/lrgs					  19G
+

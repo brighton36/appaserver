@@ -53,7 +53,7 @@ rm -f sparrow/appaserver/*[1-9][0-9]*
 
 /usr/bin/time rsync	-a				\
 			--progress			\
-			--exclude=cron/data/		\
+			--exclude=cron/data/BISC	\
 			. bonefish:/dfe/appaserver
 
 # User scripts 1

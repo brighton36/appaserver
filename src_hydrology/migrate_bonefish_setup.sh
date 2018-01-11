@@ -58,6 +58,8 @@ echo "This is the migration database storage directory." > README
 sudo mkdir /dfe/appaserver
 sudo chown timriley:appaserver /dfe/appaserver
 chmod g+wxs /dfe/appaserver
+mkdir /dfe/appaserver/cron/data/BISC
+
 cd /dfe/appaserver
 echo "This is old Appaserver directory." > README
 echo "It's needed because scripts have this path hard coded." >> README
@@ -69,7 +71,7 @@ sudo ln -s /dfe/appaserver `pwd`
 
 # Expect size:
 # ------------
-# /dfe/appaserver				  74G
+# /dfe/appaserver/cron/data/BISC		  70G
 
 # GOES Satellite files
 # --------------------

@@ -16,6 +16,7 @@ cd /opt/physical/data/dfe
 
 rsync	-a				\
 	--progress			\
+	--delete			\
 	--hard-links			\
 	backup_line			\
 	backup_block			\

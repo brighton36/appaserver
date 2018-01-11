@@ -8456,7 +8456,6 @@ double ledger_output_html_account_list(
 	char format_buffer[ 128 ];
 	char element_title[ 128 ];
 	double latest_ledger_balance;
-	boolean first_time = 1;
 	double percent_of_total;
 
 	if ( !list_length( account_list ) ) return 0.0;
@@ -8471,43 +8470,36 @@ double ledger_output_html_account_list(
 		exit( 1 );
 	}
 
-	/* For equity, always display the element title */
-	/* -------------------------------------------- */
-	if ( strcmp(	element_name,
-			LEDGER_EQUITY_ELEMENT ) ==  0 )
-	{
-		sprintf(	element_title,
-				"<h2>%s</h2>",
-				format_initial_capital(
-					format_buffer,
-					element_name ) );
+	sprintf(	element_title,
+			"<h2>%s</h2>",
+			format_initial_capital(
+				format_buffer,
+				element_name ) );
 
-		html_table_set_data(
-				html_table->data_list,
-				element_title );
+	html_table_set_data(
+			html_table->data_list,
+			element_title );
 
-		html_table_output_data(
-				html_table->data_list,
-				html_table->
-					number_left_justified_columns,
-				html_table->
-					number_right_justified_columns,
-				html_table->background_shaded,
-				html_table->justify_list );
-		html_table->data_list = list_new();
+	html_table_output_data(
+		html_table->data_list,
+		html_table->
+			number_left_justified_columns,
+		html_table->
+			number_right_justified_columns,
+		html_table->background_shaded,
+		html_table->justify_list );
 
-		/* Maybe financial_position, so display beginning balance. */
-		/* ------------------------------------------------------- */
+	html_table->data_list = list_new();
+
+	/* Maybe financial_position, so display beginning balance. */
+	/* ------------------------------------------------------- */
 /*
-		total_element =
-			ledger_output_net_assets_html_subclassification_list(
-				html_table,
-				subclassification_list,
-				element_accumulate_debit );
+	total_element =
+		ledger_output_net_assets_html_subclassification_list(
+			html_table,
+			subclassification_list,
+			element_accumulate_debit );
 */
-
-		first_time = 0;
-	}
 
 	list_rewind( account_list );
 	do {
@@ -8516,31 +8508,6 @@ double ledger_output_html_account_list(
 		if ( !account->latest_ledger
 		||   !account->latest_ledger->balance )
 			continue;
-
-		if ( first_time )
-		{
-			sprintf(	element_title,
-					"<h2>%s</h2>",
-					format_initial_capital(
-						format_buffer,
-						element_name ) );
-
-			html_table_set_data(
-					html_table->data_list,
-					element_title );
-
-			html_table_output_data(
-					html_table->data_list,
-					html_table->
-						number_left_justified_columns,
-					html_table->
-						number_right_justified_columns,
-					html_table->background_shaded,
-					html_table->justify_list );
-			html_table->data_list = list_new();
-
-			first_time = 0;
-		}
 
 		if (	element_accumulate_debit ==
 			account->accumulate_debit )
@@ -8584,10 +8551,6 @@ double ledger_output_html_account_list(
 
 			html_table_set_data(
 				html_table->data_list,
-				strdup( "" ) );
-
-			html_table_set_data(
-				html_table->data_list,
 				strdup( buffer ) );
 		}
 
@@ -8616,7 +8579,6 @@ double ledger_output_html_account_list(
 		html_table_set_data(	html_table->data_list,
 					element_title );
 	
-		html_table_set_data( html_table->data_list, strdup( "" ) );
 		html_table_set_data( html_table->data_list, strdup( "" ) );
 
 		html_table_set_data(

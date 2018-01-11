@@ -89,10 +89,16 @@ sudo mkdir /opt/dfe
 sudo chown timriley:appaserver /opt/dfe
 chmod g+wxs /opt/dfe
 mkdir /opt/dfe/sql
+
 cd /opt/dfe
 echo "The sql directory contains user scripts." > README
 echo "Other user scripts are in /opt/physical/sql and /usr/local/util." >> README
 echo "Other entries are links to the old appaserver version for legacy processes." >> README
+
+cd /opt/dfe/sql
+echo "This directory contains user scripts." > README
+echo "Other user scripts are in /opt/physical/sql and /usr/local/util." >> README
+
 ln -s /dfe/appaserver/cron `pwd`
 ln -s /dfe/appaserver/src_appaserver `pwd`
 ln -s /dfe/appaserver/utility `pwd`

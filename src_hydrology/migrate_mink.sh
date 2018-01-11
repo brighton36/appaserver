@@ -48,6 +48,9 @@ scp ~kotun/cron_kotun.dat bonefish:/dfe/tmp
 # Old appaserver
 # --------------
 cd /dfe/appaserver
+rm data/*
+rm sparrow/appaserver/*[1-9][0-9]*
+
 /usr/bin/time rsync	-a				\
 			--progress			\
 			--delete			\
@@ -83,7 +86,7 @@ scp /var/tmp/python_mink.dat bonefish:/dfe/tmp
 # GOES executables
 # ----------------
 cd /opt/physical/tmp2
-/usr/bin/time rsync -a --progress delete . bonefish:/opt/physical/tmp2
+/usr/bin/time rsync -a --progress --delete . bonefish:/opt/physical/tmp2
 
 # Database dumps
 # --------------

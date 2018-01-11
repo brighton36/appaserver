@@ -276,25 +276,12 @@ JOURNAL_LEDGER *ledger_get_latest_ledger(
 double ledger_get_element_value(	LIST *subclassification_list,
 					boolean element_accumulate_debit );
 
-double ledger_output_subclassification_html_element(
-					HTML_TABLE *html_table,
-					LIST *subclassification_list,
-					char *element_name,
-					boolean element_accumulate_debit,
-					double percent_denominator );
-
-double ledger_output_html_element(	HTML_TABLE *html_table,
-					LIST *subclassification_list,
-					char *element_name,
-					boolean element_accumulate_debit,
-					double percent_denominator );
-
 double ledger_get_net_income(		double total_revenues,
 					double total_expenses,
 					double total_gains,
 					double total_losses );
 
-void ledger_output_subclassification_net_income(
+void ledger_output_subclassification_aggregate_net_income(
 					HTML_TABLE *html_table,
 					double net_income,
 					boolean is_statement_of_activities,
@@ -795,16 +782,6 @@ boolean ledger_get_report_title_sub_title(
 
 LIST *ledger_get_fund_name_list(char *application_name );
 
-double ledger_output_equity_beginning_balance_html_element(
-				HTML_TABLE *html_table,
-				LIST *subclassification_list,
-				boolean element_accumulate_debit );
-
-double ledger_output_subclassification_beginning_balance_html_element(
-				HTML_TABLE *html_table,
-				LIST *subclassification_list,
-				boolean element_accumulate_debit );
-
 LIST *ledger_get_beginning_balance_latex_row_list(
 				double *total_element,
 				LIST *subclassification_list,
@@ -1068,5 +1045,31 @@ char *ledger_transaction_binary_insert(
 char *ledger_fetch_unique_transaction_date_time(
 				char *application_name,
 				char *transaction_date_time );
+
+double ledger_output_html_account_list(
+				HTML_TABLE *html_table,
+				LIST *account_list,
+				char *element_name,
+				boolean element_accumulate_debit,
+				double percent_denominator );
+
+double ledger_output_html_subclassification_list(
+				HTML_TABLE *html_table,
+				LIST *subclassification_list,
+				char *element_name,
+				boolean element_accumulate_debit,
+				double percent_denominator );
+
+double ledger_output_net_assets_html_subclassification_list(
+				HTML_TABLE *html_table,
+				LIST *subclassification_list,
+				boolean element_accumulate_debit );
+
+double ledger_output_subclassification_aggregate_html_element(
+				HTML_TABLE *html_table,
+				LIST *subclassification_list,
+				char *element_name,
+				boolean element_accumulate_debit,
+				double percent_denominator );
 
 #endif

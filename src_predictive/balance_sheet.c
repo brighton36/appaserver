@@ -72,7 +72,7 @@ void balance_sheet_full_PDF(
 					boolean is_financial_position,
 					char *logo_filename );
 
-void balance_sheet_consolidate_html_table(
+void balance_sheet_subclassification_aggregate_html_table(
 					char *application_name,
 					char *title,
 					char *sub_title,
@@ -80,7 +80,15 @@ void balance_sheet_consolidate_html_table(
 					char *as_of_date,
 					boolean is_financial_position );
 
-void balance_sheet_full_html_table(
+void balance_sheet_subclassification_display_html_table(
+					char *application_name,
+					char *title,
+					char *sub_title,
+					char *fund_name,
+					char *as_of_date,
+					boolean is_financial_position );
+
+void balance_sheet_subclassification_omit_html_table(
 					char *application_name,
 					char *title,
 					char *sub_title,
@@ -102,7 +110,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *fund_name;
-	boolean aggregate_subclassification;
+	char *subclassification_option;
 	char *as_of_date;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -116,7 +124,7 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund as_of_date aggregate_subclassification_yn output_medium\n",
+"Usage: %s application process fund as_of_date subclassification_option output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -142,7 +150,15 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	fund_name = argv[ 3 ];
 	as_of_date = argv[ 4 ];
-	aggregate_subclassification = ( *argv[ 5 ] == 'y' );
+	subclassification_option = argv[ 5 ];
+
+	if ( strcmp( subclassification_option, "aggregate" ) != 0
+	&&   strcmp( subclassification_option, "display" ) != 0
+	&&   strcmp( subclassification_option, "omit" ) != 0 )
+	{
+		subclassification_option = "display";
+	}
+
 	output_medium = argv[ 6 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
@@ -201,9 +217,9 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
-		if ( aggregate_subclassification )
+		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
 		{
-			balance_sheet_consolidate_html_table(
+			balance_sheet_subclassification_aggregate_html_table(
 				application_name,
 				title,
 				sub_title,
@@ -212,8 +228,22 @@ int main( int argc, char **argv )
 				is_financial_position );
 		}
 		else
+		if ( strcmp( subclassification_option, "display" ) == 0 )
 		{
-			balance_sheet_full_html_table(
+			balance_sheet_subclassification_display_html_table(
+				application_name,
+				title,
+				sub_title,
+				fund_name,
+				as_of_date,
+				is_financial_position );
+		}
+		else
+		/* ------------ */
+		/* Must be omit */
+		/* ------------ */
+		{
+			balance_sheet_subclassification_omit_html_table(
 				application_name,
 				title,
 				sub_title,
@@ -224,7 +254,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		if ( aggregate_subclassification )
+		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
 		{
 			balance_sheet_aggregate_subclassification_PDF(
 				application_name,
@@ -238,6 +268,7 @@ int main( int argc, char **argv )
 				logo_filename );
 		}
 		else
+		if ( strcmp( subclassification_option, "display" ) == 0 )
 		{
 			balance_sheet_full_PDF(
 				application_name,
@@ -249,6 +280,12 @@ int main( int argc, char **argv )
 				process_name,
 				is_financial_position,
 				logo_filename );
+		}
+		else
+		/* ------------ */
+		/* Must be omit */
+		/* ------------ */
+		{
 		}
 	}
 
@@ -567,7 +604,7 @@ void balance_sheet_full_PDF(	char *application_name,
 
 } /* balance_sheet_full_PDF() */
 
-void balance_sheet_consolidate_html_table(
+void balance_sheet_subclassification_aggregate_html_table(
 				char *application_name,
 				char *title,
 				char *sub_title,
@@ -625,12 +662,12 @@ void balance_sheet_consolidate_html_table(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
-	ledger_output_subclassification_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_ASSET_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	ledger_output_subclassification_aggregate_html_element(
+		html_table,
+		element->subclassification_list,
+		LEDGER_ASSET_ELEMENT,
+		element->accumulate_debit,
+		0.0 /* percent_denominator */ );
 
 	/* Calculate total_liabilities */
 	/* --------------------------- */
@@ -647,12 +684,13 @@ void balance_sheet_consolidate_html_table(
 			 LEDGER_LIABILITY_ELEMENT );
 	}
 
-	total_liabilities = ledger_output_subclassification_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_LIABILITY_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	total_liabilities =
+		ledger_output_subclassification_aggregate_html_element(
+			html_table,
+			element->subclassification_list,
+			LEDGER_LIABILITY_ELEMENT,
+			element->accumulate_debit,
+			0.0 /* percent_denominator */ );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -711,12 +749,13 @@ void balance_sheet_consolidate_html_table(
 	list_append_pointer(	element->subclassification_list,
 				subclassification );
 
-	total_equity = ledger_output_subclassification_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_EQUITY_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	total_equity =
+		ledger_output_subclassification_aggregate_html_element(
+			html_table,
+			element->subclassification_list,
+			LEDGER_EQUITY_ELEMENT,
+			element->accumulate_debit,
+			0.0 /* percent_denominator */ );
 
 	output_liabilities_plus_equity(
 					html_table,
@@ -725,9 +764,9 @@ void balance_sheet_consolidate_html_table(
 
 	html_table_close();
 
-} /* balance_sheet_consolidate_html_table() */
+} /* balance_sheet_subclassification_aggregate_html_table() */
 
-void balance_sheet_full_html_table(
+void balance_sheet_subclassification_display_html_table(
 				char *application_name,
 				char *title,
 				char *sub_title,
@@ -786,11 +825,12 @@ void balance_sheet_full_html_table(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
-	ledger_output_html_element(	html_table,
-					element->subclassification_list,
-					LEDGER_ASSET_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	ledger_output_html_subclassification_list(
+		html_table,
+		element->subclassification_list,
+		LEDGER_ASSET_ELEMENT,
+		element->accumulate_debit,
+		0.0 /* percent_denominator */ );
 
 	/* Calculate total_liabilities */
 	/* --------------------------- */
@@ -807,12 +847,13 @@ void balance_sheet_full_html_table(
 			 LEDGER_LIABILITY_ELEMENT );
 	}
 
-	total_liabilities = ledger_output_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_LIABILITY_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	total_liabilities =
+		ledger_output_html_subclassification_list(
+			html_table,
+			element->subclassification_list,
+			LEDGER_LIABILITY_ELEMENT,
+			element->accumulate_debit,
+			0.0 /* percent_denominator */ );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -871,12 +912,13 @@ void balance_sheet_full_html_table(
 	list_append_pointer(	element->subclassification_list,
 				subclassification );
 
-	total_equity = ledger_output_html_element(
-					html_table,
-					element->subclassification_list,
-					LEDGER_EQUITY_ELEMENT,
-					element->accumulate_debit,
-					0.0 /* percent_denominator */ );
+	total_equity =
+		ledger_output_html_subclassification_list(
+			html_table,
+			element->subclassification_list,
+			LEDGER_EQUITY_ELEMENT,
+			element->accumulate_debit,
+			0.0 /* percent_denominator */ );
 
 	output_liabilities_plus_equity(
 				html_table,
@@ -885,7 +927,7 @@ void balance_sheet_full_html_table(
 
 	html_table_close();
 
-} /* balance_sheet_full_html_table() */
+} /* balance_sheet_subclassification_display_html_table() */
 
 void output_liabilities_plus_equity(
 			HTML_TABLE *html_table,
@@ -1274,4 +1316,162 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 	return row_list;
 
 } /* build_full_PDF_row_list() */
+
+void balance_sheet_subclassification_omit_html_table(
+				char *application_name,
+				char *title,
+				char *sub_title,
+				char *fund_name,
+				char *as_of_date,
+				boolean is_financial_position )
+{
+	HTML_TABLE *html_table;
+	LIST *filter_element_name_list;
+	LIST *element_list;
+	LEDGER_ELEMENT *element;
+	ACCOUNT *net_income_account;
+	double total_liabilities;
+	double total_equity;
+	double net_income;
+
+	html_table = new_html_table(
+			title,
+			sub_title );
+
+	html_table->number_left_justified_columns = 1;
+	html_table->number_right_justified_columns = 3;
+	html_table_output_table_heading(
+					html_table->title,
+					html_table->sub_title );
+
+	filter_element_name_list = list_new();
+	list_append_pointer(	filter_element_name_list,
+				LEDGER_ASSET_ELEMENT );
+	list_append_pointer(	filter_element_name_list,
+				LEDGER_LIABILITY_ELEMENT );
+	list_append_pointer(	filter_element_name_list,
+				LEDGER_EQUITY_ELEMENT );
+
+	element_list =
+		ledger_get_element_list(
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			1 /* omit_subclassification */ );
+
+	/* Output total_assets */
+	/* ------------------- */
+	if ( ! ( element =
+			ledger_element_list_seek(
+				element_list,
+				LEDGER_ASSET_ELEMENT ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 LEDGER_ASSET_ELEMENT );
+	}
+
+	ledger_output_html_account_list(
+		html_table,
+		element->account_list,
+		LEDGER_ASSET_ELEMENT,
+		element->accumulate_debit,
+		element->element_total
+			/* percent_denominator */ );
+
+	/* Calculate total_liabilities */
+	/* --------------------------- */
+	if ( ! ( element =
+			ledger_element_list_seek(
+				element_list,
+				LEDGER_LIABILITY_ELEMENT ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 LEDGER_LIABILITY_ELEMENT );
+	}
+
+	total_liabilities =
+		ledger_output_html_account_list(
+			html_table,
+			element->account_list,
+			LEDGER_LIABILITY_ELEMENT,
+			element->accumulate_debit,
+			element->element_total
+				/* percent_denominator */ );
+
+	/* Calculate total_equity */
+	/* ----------------------- */
+	if ( ! ( element =
+			ledger_element_list_seek(
+				element_list,
+				LEDGER_EQUITY_ELEMENT ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 LEDGER_EQUITY_ELEMENT );
+	}
+
+	/* Add net income to equity */
+	/* ------------------------- */
+	net_income = get_net_income(	application_name,
+					fund_name,
+					as_of_date );
+
+	if ( is_financial_position )
+	{
+		net_income_account =
+			ledger_account_new(
+				LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS );
+	}
+	else
+	{
+		net_income_account =
+			ledger_account_new(
+				LEDGER_ACCOUNT_NET_INCOME );
+	}
+
+	net_income_account->accumulate_debit = 0;
+
+	net_income_account->latest_ledger =
+			journal_ledger_new(
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				(char *)0 /* transaction_date_time */,
+				net_income_account->account_name );
+
+	element->element_total +=
+	net_income_account->latest_ledger->balance = net_income;
+
+	list_append_pointer(	element->account_list,
+				net_income_account );
+
+	total_equity =
+		ledger_output_html_account_list(
+			html_table,
+			element->account_list,
+			LEDGER_EQUITY_ELEMENT,
+			element->accumulate_debit,
+			element->element_total
+				/* percent_denominator */ );
+
+	output_liabilities_plus_equity(
+				html_table,
+				total_liabilities + total_equity,
+				1 /* aggregate_subclassification	*/
+				  /* This shifts value one column left. */ );
+
+	html_table_close();
+
+} /* balance_sheet_subclassification_omit_html_table() */
 

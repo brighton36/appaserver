@@ -236,12 +236,13 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *output_medium;
 	char *logo_filename;
-	boolean omit_subclassification;
+	char *subclassification_option;
+	boolean omit_subclassification = 0;
 
-	if ( argc < 10 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application session login_name role process fund as_of_date aggregation output_medium [omit_subclassification_yn]\n",
+"Usage: %s application session login_name role process fund as_of_date aggregation output_medium subclassification_option\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -275,7 +276,10 @@ int main( int argc, char **argv )
 	as_of_date = argv[ 7 ];
 	aggregation = argv[ 8 ];
 	output_medium = argv[ 9 ];
-	omit_subclassification = ( *argv[ 10 ] == 'y' );
+	subclassification_option = argv[ 10 ];
+
+	omit_subclassification =
+		( strcmp( subclassification_option, "omit" ) == 0 );
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
@@ -483,7 +487,9 @@ void trial_balance_html_table(
 		list_append_string(
 			heading_list,
 			"Subclassification" );
-
+	}
+	else
+	{
 		number_left_justified_columns--;
 	}
 	

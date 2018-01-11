@@ -48,29 +48,28 @@ scp ~kotun/cron_kotun.dat bonefish:/dfe/tmp
 # Old appaserver
 # --------------
 cd /dfe/appaserver
-rm data/*
-rm sparrow/appaserver/*[1-9][0-9]*
+rm -f data/*
+rm -f sparrow/appaserver/*[1-9][0-9]*
 
 /usr/bin/time rsync	-a				\
 			--progress			\
-			--delete			\
 			--exclude=cron/data/		\
 			. bonefish:/dfe/appaserver
 
 # User scripts 1
 # --------------
 cd /opt/dfe/sql
-/usr/bin/time rsync -a --progress --delete .  bonefish:/opt/dfe/sql
+/usr/bin/time rsync -a --progress . bonefish:/opt/dfe/sql
 
 # User scripts 2
 # --------------
 cd /usr/local/util
-/usr/bin/time rsync -a --progress --delete . bonefish:/usr/local/util
+/usr/bin/time rsync -a --progress . bonefish:/usr/local/util
 
 # User scripts 3
 # --------------
 cd /opt/physical/sql
-/usr/bin/time rsync -a --progress --delete . bonefish:/opt/physical/sql
+/usr/bin/time rsync -a --progress . bonefish:/opt/physical/sql
 
 # Python libraries
 # ----------------
@@ -86,7 +85,7 @@ scp /var/tmp/python_mink.dat bonefish:/dfe/tmp
 # GOES executables
 # ----------------
 cd /opt/physical/tmp2
-/usr/bin/time rsync -a --progress --delete . bonefish:/opt/physical/tmp2
+/usr/bin/time rsync -a --progress . bonefish:/opt/physical/tmp2
 
 # Database dumps
 # --------------

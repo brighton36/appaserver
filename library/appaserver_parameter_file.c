@@ -47,6 +47,11 @@ char *appaserver_parameter_file_get_appaserver_error_directory( void )
 	return global_appaserver_parameter_file->appaserver_error_directory;
 }
 
+char *appaserver_parameter_file_get_data_directory( void )
+{
+	return appaserver_parameter_file_get_appaserver_data_directory();
+}
+
 char *appaserver_parameter_file_get_appaserver_data_directory( void )
 {
 	if ( !global_appaserver_parameter_file )

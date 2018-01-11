@@ -643,7 +643,9 @@ int post_prompt_insert_database(
 			mto1_related_folder_list ),
 		insert_database->attribute_list,
 		attribute_exists_reference_number(
-			insert_database->attribute_list ) );
+			insert_database->attribute_list ),
+		appaserver_parameter_file_get_data_directory()
+			/* tmp_file_directory */ );
 
 	if ( list_rewind( mto1_isa_related_folder_list  ) )
 	{
@@ -720,7 +722,9 @@ int post_prompt_insert_database(
 				(LIST *)0 /* common_non_primary_attri... */,
 				insert_database->attribute_list,
 				attribute_exists_reference_number(
-					insert_database->attribute_list ) );
+					insert_database->attribute_list ),
+				appaserver_parameter_file_get_data_directory()
+					/* tmp_file_directory */ );
 
 		} while( list_next( mto1_isa_related_folder_list ) );
 

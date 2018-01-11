@@ -45,13 +45,13 @@ sudo chown timriley:appaserver /dfe
 chmod g+wxs /dfe
 mkdir /dfe/tmp
 cd /dfe/tmp
-echo "This is the migration temporary directory" > README
+echo "This is the migration temporary directory." > README
 mkdir /dfe/son
 cd /dfe/son
-echo "This is the migration database storage directory" > README
+echo "This is the migration database storage directory." > README
 mkdir /dfe/son/hydrology
 cd /dfe/son/hydrology
-echo "This is the migration database storage directory" > README
+echo "This is the migration database storage directory." > README
 
 # Old appaserver
 # --------------
@@ -60,6 +60,9 @@ sudo chown timriley:appaserver /dfe/appaserver
 chmod g+wxs /dfe/appaserver
 cd /dfe/appaserver
 echo "This is old Appaserver directory." > README
+echo "It's needed because scripts have this path hard coded." >> README
+echo "Also, processes output to here. However, the new Appaserver" >> README
+echo "directory can only contain source code and binaries." >> README
 
 cd /
 sudo ln -s /dfe/appaserver `pwd`
@@ -99,6 +102,7 @@ ln -s /dfe/appaserver/utility `pwd`
 sudo mkdir /usr/local/util
 sudo chown timriley:appaserver /usr/local/util
 chmod g+wxs /usr/local/util
+
 cd /usr/local/util
 echo "This directory contains user scripts." > README
 echo "Other user scripts are in /opt/physical/sql and /opt/dfe/sql." >> README
@@ -112,10 +116,11 @@ sudo ln -s /usr/local/util /usr2/lib
 # --------------
 cd /opt/physical
 echo "The sql directory contains user scripts." > README
-echo "Other user scripts are in /opt/physical/sql and /opt/dfe/sql." >> README
+echo "Other user scripts are in /usr/local/util and /opt/dfe/sql." >> README
+
 cd /opt/physical/sql
 echo "This directory contains user scripts." > README
-echo "Other user scripts are in /opt/physical/sql and /opt/dfe/sql." >> README
+echo "Other user scripts are in /usr/local/util and /opt/dfe/sql." >> README
 
 # CR10 directory
 # --------------

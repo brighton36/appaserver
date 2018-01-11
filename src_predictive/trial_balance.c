@@ -236,7 +236,7 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *output_medium;
 	char *logo_filename;
-	boolean omit_subclassification;
+	boolean omit_subclassification = 0;
 
 	if ( argc < 10 )
 	{
@@ -275,7 +275,11 @@ int main( int argc, char **argv )
 	as_of_date = argv[ 7 ];
 	aggregation = argv[ 8 ];
 	output_medium = argv[ 9 ];
-	omit_subclassification = ( *argv[ 10 ] == 'y' );
+
+	if ( argc == 11 )
+	{
+		omit_subclassification = ( *argv[ 10 ] == 'y' );
+	}
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
@@ -483,7 +487,9 @@ void trial_balance_html_table(
 		list_append_string(
 			heading_list,
 			"Subclassification" );
-
+	}
+	else
+	{
 		number_left_justified_columns--;
 	}
 	

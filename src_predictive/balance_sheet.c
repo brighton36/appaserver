@@ -1453,8 +1453,15 @@ void balance_sheet_subclassification_omit_html_table(
 	element->element_total +=
 	net_income_account->latest_ledger->balance = net_income;
 
+	list_add_pointer_in_order(
+		element->account_list,
+		net_income_account,
+		ledger_balance_match_function );
+
+/*
 	list_append_pointer(	element->account_list,
 				net_income_account );
+*/
 
 	total_equity =
 		ledger_output_html_account_list(

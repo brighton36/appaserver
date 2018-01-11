@@ -72,7 +72,7 @@ void balance_sheet_full_PDF(
 					boolean is_financial_position,
 					char *logo_filename );
 
-void balance_sheet_consolidate_html_table(
+void balance_sheet_subclassification_aggregate_html_table(
 					char *application_name,
 					char *title,
 					char *sub_title,
@@ -211,7 +211,7 @@ int main( int argc, char **argv )
 	{
 		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
 		{
-			balance_sheet_consolidate_html_table(
+			balance_sheet_subclassification_aggregate_html_table(
 				application_name,
 				title,
 				sub_title,
@@ -589,7 +589,7 @@ void balance_sheet_full_PDF(	char *application_name,
 
 } /* balance_sheet_full_PDF() */
 
-void balance_sheet_consolidate_html_table(
+void balance_sheet_subclassification_aggregate_html_table(
 				char *application_name,
 				char *title,
 				char *sub_title,
@@ -647,7 +647,7 @@ void balance_sheet_consolidate_html_table(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
-	ledger_output_html_subclassification_list(
+	ledger_output_subclassification_aggregate_html_element(
 		html_table,
 		element->subclassification_list,
 		LEDGER_ASSET_ELEMENT,
@@ -670,7 +670,7 @@ void balance_sheet_consolidate_html_table(
 	}
 
 	total_liabilities =
-		ledger_output_html_subclassification_list(
+		ledger_output_subclassification_aggregate_html_element(
 			html_table,
 			element->subclassification_list,
 			LEDGER_LIABILITY_ELEMENT,
@@ -735,7 +735,7 @@ void balance_sheet_consolidate_html_table(
 				subclassification );
 
 	total_equity =
-		ledger_output_html_subclassification_list(
+		ledger_output_subclassification_aggregate_html_element(
 			html_table,
 			element->subclassification_list,
 			LEDGER_EQUITY_ELEMENT,
@@ -749,7 +749,7 @@ void balance_sheet_consolidate_html_table(
 
 	html_table_close();
 
-} /* balance_sheet_consolidate_html_table() */
+} /* balance_sheet_subclassification_aggregate_html_table() */
 
 void balance_sheet_full_html_table(
 				char *application_name,

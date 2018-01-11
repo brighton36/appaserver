@@ -25,8 +25,12 @@ mkdir /opt/physical/data/dfe
 mkdir /opt/physical/data/dfe/backup_block
 mkdir /opt/physical/data/dfe/backup_line
 mkdir /opt/physical/data/dfe/sparrow
+
 cd /opt/physical/data
 echo "This is the destination directory for nightly backup dumps." > README
+
+cd /opt/physical/tmp2
+echo "This directory contains the GOES satellite load bootstrap script." > README
 
 # Expect sizes:
 # -------------
@@ -70,7 +74,7 @@ sudo mkdir /opt/lrgs
 sudo chown timriley:appaserver /opt/lrgs
 chmod g+wxs /opt/lrgs
 cd /opt/lrgs
-echo "This is the GOES satellite directory." > README
+echo "This is the GOES satellite raw file directory." > README
 
 # Expect size:
 # ------------
@@ -119,7 +123,7 @@ sudo mkdir /var/export
 sudo chown timriley:appaserver /var/export
 chmod g+wxs /var/export
 cd /var/export
-echo "This directory contains the CR10 files." > README
+echo "This directory contains the CR10 raw files." > README
 
 # Expect size:
 # ------------
@@ -132,11 +136,14 @@ grep -i python						|
 column.e 1						|
 piece.e ':' 0 > /dfe/tmp/python_bonefish.dat
 
-# GOES executables
-# ----------------
-sudo mkdir /opt/physical
-sudo chown timriley:appaserver /opt/physical
+# GOES executables and data
+# -------------------------
+sudo mkdir /opt/lrgs
+sudo chown timriley:appaserver /opt/lrgs
 chmod g+wxs /opt/lrgs
+
 cd /opt/lrgs
 echo "This is the GOES satellite directory." > README
 
+# Expect size:
+# /opt/lrgs					  19G

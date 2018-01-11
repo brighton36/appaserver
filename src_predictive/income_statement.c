@@ -47,7 +47,7 @@ LIST *build_full_PDF_row_list(		LIST *element_list,
 LIST *build_consolidate_PDF_row_list(	LIST *element_list,
 					boolean is_statement_of_activities );
 
-void income_statement_aggregate_subclassification_html_table(
+void income_statement_subclassification_aggregate_html_table(
 					char *application_name,
 					char *title,
 					char *sub_title,
@@ -55,7 +55,7 @@ void income_statement_aggregate_subclassification_html_table(
 					char *as_of_date,
 					boolean is_statement_of_activities );
 
-void income_statement_display_subclassification_html_table(
+void income_statement_subclassification_display_html_table(
 					char *application_name,
 					char *title,
 					char *sub_title,
@@ -63,7 +63,7 @@ void income_statement_display_subclassification_html_table(
 					char *as_of_date,
 					boolean is_statement_of_activities );
 
-void income_statement_omit_subclassification_html_table(
+void income_statement_subclassification_omit_html_table(
 					char *application_name,
 					char *title,
 					char *sub_title,
@@ -234,7 +234,7 @@ int main( int argc, char **argv )
 	{
 		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
 		{
-			income_statement_aggregate_subclassification_html_table(
+			income_statement_subclassification_aggregate_html_table(
 				application_name,
 				title,
 				sub_title,
@@ -245,7 +245,7 @@ int main( int argc, char **argv )
 		else
 		if ( strcmp( subclassification_option, "display" ) == 0 )
 		{
-			income_statement_display_subclassification_html_table(
+			income_statement_subclassification_display_html_table(
 				application_name,
 				title,
 				sub_title,
@@ -255,7 +255,7 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			income_statement_omit_subclassification_html_table(
+			income_statement_subclassification_omit_html_table(
 				application_name,
 				title,
 				sub_title,
@@ -418,7 +418,7 @@ void income_statement_net_income_only(
 
 } /* income_statement_net_income_only() */
 
-void income_statement_aggregate_subclassification_html_table(
+void income_statement_subclassification_aggregate_html_table(
 			char *application_name,
 			char *title,
 			char *sub_title,
@@ -479,7 +479,7 @@ void income_statement_aggregate_subclassification_html_table(
 	}
 
 	total_revenues =
-		ledger_output_html_subclassification_list(
+		ledger_output_subclassification_aggregate_html_element(
 			html_table,
 			element->subclassification_list,
 			LEDGER_REVENUE_ELEMENT,
@@ -503,7 +503,7 @@ void income_statement_aggregate_subclassification_html_table(
 	}
 
 	total_expenses =
-		ledger_output_html_subclassification_list(
+		ledger_output_subclassification_aggregate_html_element(
 			html_table,
 			element->subclassification_list,
 			LEDGER_EXPENSE_ELEMENT,
@@ -526,7 +526,7 @@ void income_statement_aggregate_subclassification_html_table(
 	}
 
 	total_gains =
-		ledger_output_html_subclassification_list(
+		ledger_output_subclassification_aggregate_html_element(
 			html_table,
 			element->subclassification_list,
 			LEDGER_GAIN_ELEMENT,
@@ -549,7 +549,7 @@ void income_statement_aggregate_subclassification_html_table(
 	}
 
 	total_losses =
-		ledger_output_html_subclassification_list(
+		ledger_output_subclassification_aggregate_html_element(
 			html_table,
 			element->subclassification_list,
 			LEDGER_LOSS_ELEMENT,
@@ -563,7 +563,7 @@ void income_statement_aggregate_subclassification_html_table(
 				total_gains,
 				total_losses );
 
-	ledger_output_subclassification_net_income(
+	ledger_output_subclassification_aggregate_net_income(
 		html_table,
 		net_income,
 		is_statement_of_activities,
@@ -572,9 +572,9 @@ void income_statement_aggregate_subclassification_html_table(
 	html_table_close();
 	document_close();
 
-} /* income_statement_aggregate_subclassification_html_table() */
+} /* income_statement_subclassification_aggregate_html_table() */
 
-void income_statement_display_subclassification_html_table(
+void income_statement_subclassification_display_html_table(
 			char *application_name,
 			char *title,
 			char *sub_title,
@@ -745,7 +745,7 @@ void income_statement_display_subclassification_html_table(
 	html_table_close();
 	document_close();
 
-} /* income_statement_display_subclassification_html_table() */
+} /* income_statement_subclassification_display_html_table() */
 
 void income_statement_consolidate_PDF(
 			char *application_name,
@@ -1492,7 +1492,7 @@ LIST *build_consolidate_PDF_heading_list( void )
 
 } /* build_consolidate_PDF_heading_list() */
 
-void income_statement_omit_subclassification_html_table(
+void income_statement_subclassification_omit_html_table(
 			char *application_name,
 			char *title,
 			char *sub_title,
@@ -1663,5 +1663,5 @@ void income_statement_omit_subclassification_html_table(
 	html_table_close();
 	document_close();
 
-} /* income_statement_omit_subclassification_html_table() */
+} /* income_statement_subclassification_omit_html_table() */
 

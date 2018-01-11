@@ -1,6 +1,6 @@
 :
-# migrate_bonefish.sh
-# -------------------
+# migrate_bonefish_setup.sh
+# -------------------------
 
 # Expect size:
 # ------------
@@ -85,10 +85,10 @@ mkdir /opt/dfe/sql
 cd /opt/dfe
 echo "The sql directory contains user scripts." > README
 echo "Other user scripts are in /opt/physical/sql and /usr/local/util." >> README
-echo "Other entries are links to old appaserver versions for legacy processes." >> README
+echo "Other entries are links to the old appaserver version for legacy processes." >> README
 ln -s /dfe/appaserver/cron `pwd`
-ln -s /appaserver/src_appaserver `pwd`
-ln -s /appaserver/utility `pwd`
+ln -s /dfe/appaserver/src_appaserver `pwd`
+ln -s /dfe/appaserver/utility `pwd`
 
 # User scripts 2
 # --------------

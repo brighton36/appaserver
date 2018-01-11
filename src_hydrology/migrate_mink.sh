@@ -48,22 +48,26 @@ scp ~kotun/cron_kotun.dat bonefish:/dfe/tmp
 # Old appaserver
 # --------------
 cd /dfe/appaserver
-/usr/bin/time rsync -a --progress delete . bonefish:/dfe/appaserver
+/usr/bin/time rsync	-a				\
+			--progress			\
+			--delete			\
+			--exclude=cron/data/		\
+			. bonefish:/dfe/appaserver
 
 # User scripts 1
 # --------------
 cd /opt/dfe/sql
-/usr/bin/time rsync -a --progress delete .  bonefish:/opt/dfe/sql
+/usr/bin/time rsync -a --progress --delete .  bonefish:/opt/dfe/sql
 
 # User scripts 2
 # --------------
 cd /usr/local/util
-/usr/bin/time rsync -a --progress delete . bonefish:/usr/local/util
+/usr/bin/time rsync -a --progress --delete . bonefish:/usr/local/util
 
 # User scripts 3
 # --------------
 cd /opt/physical/sql
-/usr/bin/time rsync -a --progress delete . bonefish:/opt/physical/sql
+/usr/bin/time rsync -a --progress --delete . bonefish:/opt/physical/sql
 
 # Python libraries
 # ----------------

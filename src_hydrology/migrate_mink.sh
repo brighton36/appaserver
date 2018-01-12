@@ -29,8 +29,12 @@ scp ~kotun/cron_kotun.dat bonefish:/dfe/tmp
 # 2) bonefish:/dfe/son.
 # 3) /var/tmp/mysqldump.out
 # ------------------------------------------------
-# cd /appaserver/cron
-# nohup /usr/bin/time mysqldump_database.sh hydrology mysqldump_hydrology_block.dat >/var/tmp/mysqldump.out 2>&1 &
+cd /appaserver/cron
+
+nohup /usr/bin/time						\
+	mysqldump_database.sh	hydrology			\
+				mysqldump_hydrology_block.dat	\
+> /var/tmp/mysqldump_hydrology.out 2>&1 &
 
 # Sparrow database
 # ----------------
@@ -42,8 +46,13 @@ scp ~kotun/cron_kotun.dat bonefish:/dfe/tmp
 # 2) bonefish:/dfe/son.
 # 3) /appaserver/cron_log/mysqldump_sparrow.out
 # ---------------------------------------------
-# cd /appaserver/src_sparrow
-# nohup /usr/bin/time mysqldump_database.sh hydrology mysqldump_sparrow.dat >/appaserver/cron_log/mysqldump_sparrow.out 2>&1 &
+
+cd /appaserver/src_sparrow
+
+nohup /usr/bin/time						\
+	mysqldump_database.sh	hydrology			\
+				mysqldump_sparrow.dat		\
+> /var/tmp/mysqldump_sparrow.out 2>&1 &
 
 # Old appaserver
 # --------------
@@ -91,9 +100,10 @@ cd /opt/physical/tmp2
 # --------------
 # migrate_mink_dumps.sh
 
-# GOES Satellite files
+# GOES Satellite files.
+# This excludes data.
 # --------------------
-# migrate_mink_goes.sh
+migrate_mink_goes.sh
 
 # CR10 directory
 # --------------

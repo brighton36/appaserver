@@ -67,6 +67,9 @@ echo "This is the migration database storage directory." > README
 sudo mkdir /dfe/appaserver
 sudo chown timriley:appaserver /dfe/appaserver
 chmod g+wxs /dfe/appaserver
+
+# These directories won't be copied from mink.
+# --------------------------------------------
 mkdir /dfe/appaserver/cron
 mkdir /dfe/appaserver/cron/data/
 mkdir /dfe/appaserver/cron/data/BISC
@@ -165,6 +168,14 @@ piece.e ':' 0 > /dfe/tmp/python_bonefish.dat
 sudo mkdir /opt/lrgs
 sudo chown timriley:appaserver /opt/lrgs
 chmod g+wxs /opt/lrgs
+
+# Make data directories.
+# This won't be copied from mink.
+# -------------------------------
+mkdir /opt/lrgs/data
+mkdir /opt/lrgs/data/goes_archive
+mkdir /opt/lrgs/data/goes_raw_archive
+mkdir /opt/lrgs/data/load_archive
 
 cd /opt/lrgs
 echo "This is the GOES satellite directory." > README

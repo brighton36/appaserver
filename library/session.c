@@ -20,6 +20,8 @@
 #include "application.h"
 #include "date.h"
 
+#define SLEEP_SECONDS	2
+
 static SESSION *global_session = {0};
 
 int session_access_folder(
@@ -331,7 +333,7 @@ void session_message_ip_address_changed_exit(
 	printf( "<h3>%s</h3>\n", msg );
 
 	document_close();
-	sleep( 2 );
+	sleep( SLEEP_SECONDS );
 	exit( 1 );
 
 }  /* session_message_ip_address_changed_exit() */
@@ -427,7 +429,7 @@ void session_access_failed_message_and_exit(	char *application_name,
 	printf( "<h3>%s</h3>\n", msg );
 
 	document_close();
-	sleep( 2 );
+	sleep( SLEEP_SECONDS );
 	exit( 1 );
 
 } /* session_access_failed_message_and_exit() */

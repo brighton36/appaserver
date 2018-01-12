@@ -14,8 +14,7 @@
 #include "process.h"
 #include "related_folder.h"
 
-#define INSERT_DATABASE_DONT_REMOVE_TMP_FILE 0
-/* #define INSERT_DATABASE_DONT_REMOVE_TMP_FILE 1 */
+#define INSERT_DATABASE_DONT_REMOVE_TMP_FILE	0
 
 /* Structures */
 /* ---------- */
@@ -73,10 +72,14 @@ int insert_database_execute(	char **message,
 				LIST *mto1_related_folder_list,
 				LIST *common_non_primary_attribute_name_list,
 				LIST *attribute_list,
-				boolean exists_reference_number );
+				boolean exists_reference_number,
+				char *tmp_file_directory );
+
 FILE *insert_database_open_tmp_file(
 				char **tmp_file_name,
+				char *tmp_file_directory,
 				char *session );
+
 void insert_database_remove_tmp_file(
 				char *tmp_file_name );
 

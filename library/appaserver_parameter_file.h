@@ -67,6 +67,9 @@ char *appaserver_parameter_file_get_appaserver_error_directory(
 char *appaserver_parameter_file_get_appaserver_data_directory(
 						void );
 
+char *appaserver_parameter_file_get_data_directory(
+						void );
+
 char *appaserver_parameter_file_get_database_management_system(
 						void );
 

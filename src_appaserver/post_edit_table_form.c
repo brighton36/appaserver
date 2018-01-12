@@ -607,7 +607,9 @@ void post_state_insert(
 			mto1_related_folder_list ),
 		insert_database->attribute_list,
 		attribute_exists_reference_number(
-			folder->attribute_list ) );
+			folder->attribute_list ),
+		appaserver_parameter_file_get_data_directory()
+			/* tmp_file_directory */ );
 
 	if ( rows_inserted )
 	{
@@ -707,7 +709,9 @@ void post_state_insert(
 				(LIST *)0 /* mto1_related_folder_... */,
 				(LIST *)0 /* common_non_primar_... */,
 				(LIST *)0 /* attribute_list */,
-				0 /* not exists_reference_number */ );
+				0 /* not exists_reference_number */,
+				appaserver_parameter_file_get_data_directory()
+					/* tmp_file_directory */ );
 
 		} while( list_next( isa_related_folder_list ) );
 	}

@@ -326,7 +326,9 @@ int main( int argc, char **argv )
 				(LIST *)0 /* mto1_related_folder_list */,
 				(LIST *)0 /* common_non_primary_attri... */,
 				(LIST *)0 /* attribute_list */,
-				0 /* exists_reference_number */ );
+				0 /* exists_reference_number */,
+				appaserver_parameter_file_get_data_directory()
+					/* tmp_file_directory */ );
 
 			if ( appaserver_get_frameset_menu_horizontal(
 					application_name,

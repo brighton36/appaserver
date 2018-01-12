@@ -94,14 +94,16 @@ int insert_database_execute(	char **message,
 				LIST *mto1_related_folder_list,
 				LIST *common_non_primary_attribute_name_list,
 				LIST *attribute_list,
-				boolean exists_reference_number )
+				boolean exists_reference_number,
+				char *tmp_file_directory )
 {
 	FILE *tmp_file;
 	int rows_inserted;
-	char *tmp_file_name;
+	char *tmp_file_name = {0};
 
 	tmp_file = insert_database_open_tmp_file(
 				&tmp_file_name,
+				tmp_file_directory,
 				session );
 
 	if ( !insert_row_zero_only )
@@ -209,14 +211,25 @@ void insert_database_remove_tmp_file( char *tmp_file_name )
 }
 
 FILE *insert_database_open_tmp_file(	char **tmp_file_name,
+					char *tmp_file_directory,
 					char *session )
 {
 	static char local_tmp_file_name[ 128 ];
 	FILE *tmp_file;
 
-	sprintf( local_tmp_file_name, 
-		 "/tmp/appaserver_insert_%s", 
-		 session );
+	if ( tmp_file_directory && *tmp_file_directory )
+	{
+		sprintf(local_tmp_file_name, 
+		 	"%s/appaserver_insert_%s", 
+			tmp_file_directory,
+		 	session );
+	}
+	else
+	{
+		sprintf( local_tmp_file_name, 
+		 	"/tmp/appaserver_insert_%s", 
+		 	session );
+	}
 
 	tmp_file = fopen( local_tmp_file_name, "w" );
 
@@ -229,8 +242,10 @@ FILE *insert_database_open_tmp_file(	char **tmp_file_name,
 			 local_tmp_file_name );
 		exit( 1 );
 	}
+
 	*tmp_file_name = local_tmp_file_name;
 	return tmp_file;
+
 } /* insert_database_open_tmp_file() */
 
 void build_insert_tmp_file_each_row(

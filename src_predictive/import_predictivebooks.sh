@@ -3104,7 +3104,7 @@ insert into process (process,
 		process_set_display,
 		process_group,
 		preprompt_help_text,
-		appaserver_yn) values ('balance_sheet','balance_sheet \$application \$process fund as_of_date aggregate_subclassification_yn output_medium',null,null,null,null,'output',null,null);
+		appaserver_yn) values ('balance_sheet','balance_sheet \$application \$process fund as_of_date subclassification_option output_medium',null,null,null,null,'output',null,null);
 insert into process (process,
 		command_line,
 		notepad,
@@ -3374,7 +3374,7 @@ insert into process (process,
 		process_set_display,
 		process_group,
 		preprompt_help_text,
-		appaserver_yn) values ('income_statement','income_statement \$application \$process fund as_of_date aggregate_subclassification_yn output_medium',null,null,null,null,'output',null,null);
+		appaserver_yn) values ('income_statement','income_statement \$application \$process fund as_of_date subclassification_option output_medium',null,null,null,null,'output',null,null);
 insert into process (process,
 		command_line,
 		notepad,
@@ -3986,16 +3986,6 @@ insert into process_parameter (process,
 		drop_down_multi_select_yn,
 		preprompt_yn,
 		populate_drop_down_process,
-		populate_helper_process) values ('balance_sheet','null','null','null','aggregate_subclassification_yn','2',null,null,null,null);
-insert into process_parameter (process,
-		folder,
-		attribute,
-		drop_down_prompt,
-		prompt,
-		display_order,
-		drop_down_multi_select_yn,
-		preprompt_yn,
-		populate_drop_down_process,
 		populate_helper_process) values ('balance_sheet','null','null','null','as_of_date','1',null,null,null,null);
 insert into process_parameter (process,
 		folder,
@@ -4007,6 +3997,16 @@ insert into process_parameter (process,
 		preprompt_yn,
 		populate_drop_down_process,
 		populate_helper_process) values ('balance_sheet','null','null','finance_output_medium','null','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('balance_sheet','null','null','subclassification_option','null','5',null,null,null,null);
 insert into process_parameter (process,
 		folder,
 		attribute,
@@ -4626,16 +4626,6 @@ insert into process_parameter (process,
 		drop_down_multi_select_yn,
 		preprompt_yn,
 		populate_drop_down_process,
-		populate_helper_process) values ('income_statement','null','null','null','aggregate_subclassification_yn','2',null,null,null,null);
-insert into process_parameter (process,
-		folder,
-		attribute,
-		drop_down_prompt,
-		prompt,
-		display_order,
-		drop_down_multi_select_yn,
-		preprompt_yn,
-		populate_drop_down_process,
 		populate_helper_process) values ('income_statement','null','null','null','as_of_date','1',null,null,null,null);
 insert into process_parameter (process,
 		folder,
@@ -4647,6 +4637,16 @@ insert into process_parameter (process,
 		preprompt_yn,
 		populate_drop_down_process,
 		populate_helper_process) values ('income_statement','null','null','finance_output_medium','null','9',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
+		populate_helper_process) values ('income_statement','null','null','subclassification_option','null','5',null,null,null,null);
 insert into process_parameter (process,
 		folder,
 		attribute,
@@ -4986,6 +4986,16 @@ insert into process_parameter (process,
 		drop_down_multi_select_yn,
 		preprompt_yn,
 		populate_drop_down_process,
+		populate_helper_process) values ('trial_balance','null','null','subclassification_option','null','5',null,null,null,null);
+insert into process_parameter (process,
+		folder,
+		attribute,
+		drop_down_prompt,
+		prompt,
+		display_order,
+		drop_down_multi_select_yn,
+		preprompt_yn,
+		populate_drop_down_process,
 		populate_helper_process) values ('update_sale_completed','customer_sale','null','null','null','1',null,null,'select_open_customer_sale',null);
 insert into process_parameter (process,
 		folder,
@@ -5117,7 +5127,6 @@ insert into javascript_files (javascript_filename) values ('post_change_equity_a
 insert into javascript_files (javascript_filename) values ('post_change_journal_ledger.js');
 insert into javascript_files (javascript_filename) values ('post_change_pay_liabilities.js');
 insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('accumulate_yn','1',null,null,null);
-insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('aggregate_subclassification_yn','1',null,null,null);
 insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('as_of_date','10',null,null,'y');
 insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('attribute','50',null,null,null);
 insert into prompt (prompt,input_width,hint_message,upload_filename_yn,date_yn) values ('begin_date','10',null,null,'y');
@@ -5234,6 +5243,7 @@ insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) va
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('inventory_balance_output_medium',null,'output_medium');
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('null','Necessary for outter joins to work',null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('output_medium',null,null);
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('subclassification_option',null,null);
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('aggregation','consolidated','1');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('aggregation','sequential','2');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('execute_select_statement_output_medium','spreadsheet','2');
@@ -5249,6 +5259,9 @@ insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,displa
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('inventory_balance_output_medium','table','1');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','table','2');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','text_file','3');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('subclassification_option','aggregate','3');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('subclassification_option','display','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('subclassification_option','omit','1');
 insert into operation (operation,output_yn) values ('delete','n');
 insert into operation (operation,output_yn) values ('delete_isa_only',null);
 insert into operation (operation,output_yn) values ('detail','y');

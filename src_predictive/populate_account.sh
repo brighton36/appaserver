@@ -45,7 +45,8 @@ fi
 
 if [ "$one2m_folder" = "fixed_asset" ]
 then
-	where="subclassification = 'property_plant_equipment'"
+	where="subclassification = 'property_plant_equipment' or	\
+	       subclassification = 'fixed_asset'"
 fi
 
 if [	"$one2m_folder" = "fixed_service" -o	\

@@ -286,8 +286,10 @@ boolean close_nominal_accounts_fund_execute(
 				LEDGER_GAIN_ELEMENT );
 	list_append_pointer(	filter_element_name_list,
 				LEDGER_LOSS_ELEMENT );
+/*
 	list_append_pointer(	filter_element_name_list,
 				LEDGER_EQUITY_ELEMENT );
+*/
 
 	element_list =
 		ledger_get_element_list(
@@ -397,38 +399,28 @@ boolean close_nominal_accounts_fund_execute(
 			self->entity->street_address,
 			transaction_date_time_string );
 
-	/* Equity */
-	/* ------ */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_EQUITY_ELEMENT ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 LEDGER_EQUITY_ELEMENT );
-		exit( 1 );
-	}
-
-	retained_earnings +=
-		insert_journal_ledger(
-			output_pipe,
-			element->subclassification_list,
-			element->accumulate_debit,
-			self->entity->full_name,
-			self->entity->street_address,
-			transaction_date_time_string );
-
 	/* Insert retained_earnings */
 	/* ------------------------ */
-	fprintf( output_pipe,
-		 "%s^%s^%s^%s^^%.2lf\n",
-		 self->entity->full_name,
-		 self->entity->street_address,
-		 transaction_date_time_string,
-		 closing_entry_account,
-		 retained_earnings );
+	if ( retained_earnings > 0.0 )
+	{
+		fprintf( output_pipe,
+		 	"%s^%s^%s^%s^^%.2lf\n",
+		 	self->entity->full_name,
+		 	self->entity->street_address,
+		 	transaction_date_time_string,
+		 	closing_entry_account,
+		 	retained_earnings );
+	}
+	else
+	{
+		fprintf( output_pipe,
+		 	"%s^%s^%s^%s^%.2lf^\n",
+		 	self->entity->full_name,
+		 	self->entity->street_address,
+		 	transaction_date_time_string,
+		 	closing_entry_account,
+		 	-retained_earnings );
+	}
 
 	pclose( output_pipe );
 
@@ -443,15 +435,15 @@ boolean close_nominal_accounts_fund_execute(
 		closing_entry_account );
 
 	transaction_date_time_string =
-	ledger_transaction_insert(
-		application_name,
-		transaction->full_name,
-		transaction->street_address,
-		transaction_date_time_string,
-		retained_earnings /* transaction_amount */,
-		transaction->memo,
-		0 /* check_number */,
-		0 /* not lock_transaction */ );
+		ledger_transaction_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction_date_time_string,
+			retained_earnings /* transaction_amount */,
+			transaction->memo,
+			0 /* check_number */,
+			0 /* not lock_transaction */ );
 
 	return 1;
 
@@ -574,8 +566,10 @@ void close_nominal_accounts_fund_display(
 				LEDGER_GAIN_ELEMENT );
 	list_append_pointer(	filter_element_name_list,
 				LEDGER_LOSS_ELEMENT );
+/*
 	list_append_pointer(	filter_element_name_list,
 				LEDGER_EQUITY_ELEMENT );
+*/
 
 	element_list =
 		ledger_get_element_list(
@@ -713,30 +707,6 @@ void close_nominal_accounts_fund_display(
 
 	retained_earnings -= element_total;
 	credit_sum += element_total;
-
-	/* Equity */
-	/* ------ */
-	if ( ! ( element = ledger_element_seek(	element_list,
-						LEDGER_EQUITY_ELEMENT ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot seek element_name = %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 LEDGER_EQUITY_ELEMENT );
-		exit( 1 );
-	}
-
-	element_total =
-		output_subclassification_list(
-			html_table,
-			element->subclassification_list,
-			element->accumulate_debit );
-
-
-	retained_earnings += element_total;
-	credit_sum += element_total;
 	credit_sum += retained_earnings;
 
 	/* Retained Earnings */
@@ -747,14 +717,28 @@ void close_nominal_accounts_fund_display(
 			buffer,
 			closing_entry_account ) ) );
 
-	html_table_set_data(
-			html_table->data_list,
-			strdup( "" ) );
+	if ( retained_earnings > 0.0  )
+	{
+		html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
 
-	html_table_set_data(
-			html_table->data_list,
-			strdup( place_commas_in_money(
-				retained_earnings ) ) );
+		html_table_set_data(
+				html_table->data_list,
+				strdup( place_commas_in_money(
+					retained_earnings ) ) );
+	}
+	else
+	{
+		html_table_set_data(
+				html_table->data_list,
+				strdup( place_commas_in_money(
+					-retained_earnings ) ) );
+
+		html_table_set_data(
+				html_table->data_list,
+				strdup( "" ) );
+	}
 
 	/* Output retained earnings */
 	/* ------------------------ */

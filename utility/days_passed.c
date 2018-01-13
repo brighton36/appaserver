@@ -1,13 +1,14 @@
-/* /usr2/utility/days_passed.c */
-/* --------------------------- */
-
+/* $APPASERVER_HOME/utility/days_passed.c */
+/* -------------------------------------- */
+/* This program outputs 'yes' if now is   */
+/* has passed YYYYMMDDHHMM + days.	  */
+/* -------------------------------------- */ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #include "timlib.h"
-
-#define SEC_DAY		86400
+#include "date.h"
 
 void output_days_passed( int days, char *date );
 
@@ -49,7 +50,7 @@ void output_days_passed( int days, char *date )
 		exit( 1 );
 	}
 
-	if ( now - ( days * SEC_DAY ) > past )
+	if ( now - ( days * SECONDS_IN_DAY ) > past )
 		printf( "yes\n" );
 	else
 		printf( "no\n" );

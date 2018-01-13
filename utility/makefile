@@ -82,6 +82,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	trim_length.e							\
 	reverse.e							\
 	printer_control.e days_passed.e format_stamp.e			\
+	date_subtract.e							\
 	format_stamp_undo.e menu.e select2delimiter.e			\
 	queue_top_bottom_lines.e					\
 	mysqldump_fork.e						\
@@ -946,6 +947,13 @@ days_passed.e: days_passed.c
 		days_passed.c	 					\
 		${STANDARD_LIBRARY}					\
 		-o days_passed.e
+
+date_subtract.e: date_subtract.c
+	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		date_subtract.c	 					\
+		${STANDARD_LIBRARY}					\
+		-o date_subtract.e
 
 printer_control.e: printer_control.c printer_control.h			\
 	${LIBRARY}/name_arg.o ${APPASERVER_LIBRARY}

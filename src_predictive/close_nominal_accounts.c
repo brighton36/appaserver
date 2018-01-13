@@ -397,8 +397,8 @@ boolean close_nominal_accounts_fund_execute(
 			self->entity->street_address,
 			transaction_date_time_string );
 
-	/* Non-net_asset equity */
-	/* --------------------*/
+	/* Equity */
+	/* ------ */
 	if ( ! ( element = ledger_element_seek(	element_list,
 						LEDGER_EQUITY_ELEMENT ) ) )
 	{
@@ -530,7 +530,6 @@ void close_nominal_accounts_fund_display(
 					char *transaction_date_time,
 					char *as_of_date )
 {
-	double retained_earnings;
 	HTML_TABLE *html_table;
 	LIST *element_list;
 	LIST *heading_list;
@@ -541,6 +540,10 @@ void close_nominal_accounts_fund_display(
 	char buffer[ 128 ];
 	ENTITY_SELF *self;
 	char *closing_entry_account;
+	double retained_earnings;
+	double debit_sum;
+	double credit_sum;
+	double element_total;
 
 	closing_entry_account =
 		ledger_get_hard_coded_account_name(
@@ -633,11 +636,14 @@ void close_nominal_accounts_fund_display(
 		exit( 1 );
 	}
 
-	retained_earnings =
+	element_total =
 		output_subclassification_list(
 			html_table,
 			element->subclassification_list,
 			element->accumulate_debit );
+
+	retained_earnings = element_total;
+	debit_sum = element_total;
 
 	/* Expenses */
 	/* -------- */
@@ -653,11 +659,14 @@ void close_nominal_accounts_fund_display(
 		exit( 1 );
 	}
 
-	retained_earnings -=
+	element_total =
 		output_subclassification_list(
 			html_table,
 			element->subclassification_list,
 			element->accumulate_debit );
+
+	retained_earnings -= element_total;
+	credit_sum = element_total;
 
 	/* Gains */
 	/* ----- */
@@ -673,11 +682,14 @@ void close_nominal_accounts_fund_display(
 		exit( 1 );
 	}
 
-	retained_earnings +=
+	element_total =
 		output_subclassification_list(
 			html_table,
 			element->subclassification_list,
 			element->accumulate_debit );
+
+	retained_earnings += element_total;
+	debit_sum += element_total;
 
 	/* Losses */
 	/* ------ */
@@ -693,14 +705,17 @@ void close_nominal_accounts_fund_display(
 		exit( 1 );
 	}
 
-	retained_earnings -=
+	element_total =
 		output_subclassification_list(
 			html_table,
 			element->subclassification_list,
 			element->accumulate_debit );
 
-	/* Non-net_asset equity */
-	/* --------------------*/
+	retained_earnings -= element_total;
+	credit_sum += element_total;
+
+	/* Equity */
+	/* ------ */
 	if ( ! ( element = ledger_element_seek(	element_list,
 						LEDGER_EQUITY_ELEMENT ) ) )
 	{
@@ -713,12 +728,16 @@ void close_nominal_accounts_fund_display(
 		exit( 1 );
 	}
 
-	retained_earnings +=
+	element_total =
 		output_subclassification_list(
 			html_table,
 			element->subclassification_list,
 			element->accumulate_debit );
 
+
+	retained_earnings += element_total;
+	credit_sum += element_total;
+	credit_sum += retained_earnings;
 
 	/* Retained Earnings */
 	/* ----------------- */
@@ -737,6 +756,8 @@ void close_nominal_accounts_fund_display(
 			strdup( place_commas_in_money(
 				retained_earnings ) ) );
 
+	/* Output retained earnings */
+	/* ------------------------ */
 	html_table_output_data(
 			html_table->data_list,
 			html_table->
@@ -745,7 +766,34 @@ void close_nominal_accounts_fund_display(
 				number_right_justified_columns,
 			html_table->background_shaded,
 			html_table->justify_list );
-	
+
+	html_table->data_list = list_new();
+
+	/* Total */
+	/* ----- */
+	html_table_set_data(
+		html_table->data_list,
+		strdup( "Total" ) );
+
+	html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_money( debit_sum ) ) );
+
+	html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_money( credit_sum ) ) );
+
+	/* Output total */
+	/* ------------ */
+	html_table_output_data(
+			html_table->data_list,
+			html_table->
+				number_left_justified_columns,
+			html_table->
+				number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+
 	html_table_close();
 
 } /* close_nominal_accounts_fund_display() */

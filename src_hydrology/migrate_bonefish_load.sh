@@ -5,7 +5,7 @@
 # Run this after mysqldump_database.sh finishes.
 # ----------------------------------------------
 
-if [ "$1" -ne 1 ]
+if [ "$#" -ne 1 ]
 then
 	echo "Usage: $0 date" 1>&2
 	exit 1

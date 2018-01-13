@@ -22,7 +22,8 @@ do
 					"$fund"			\
 					$as_of_date		\
 					aggregation		\
-					stdout			|
+					stdout			\
+					subclassification_option|
 			tail -1`
 
 	debit=`echo $input_record | piece.e '^' 4`

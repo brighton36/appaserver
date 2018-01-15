@@ -675,11 +675,12 @@ LIST *ledger_get_subclassification_latex_row_list(
 				double *total_element,
 				LIST *subclassification_list,
 				char *element_name,
-				boolean element_accumulate_debit );
+				boolean element_accumulate_debit,
+				double percent_denominator );
 
-LIST *ledger_get_latex_row_list(
+LIST *ledger_get_account_latex_row_list(
 				double *total_element,
-				LIST *subclassification_list,
+				LIST *account_list,
 				char *element_name,
 				boolean element_accumulate_debit,
 				double percent_denominator );

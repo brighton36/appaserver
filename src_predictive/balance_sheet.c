@@ -32,25 +32,33 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *build_aggregate_subclassification_PDF_row_list(
+LIST *build_subclassification_aggregate_PDF_row_list(
 					LIST *element_list,
 					char *application_name,
 					char *fund_name,
 					char *as_of_date,
 					boolean is_financial_position );
 
-LIST *build_full_PDF_row_list(		LIST *element_list,
+LIST *build_subclassification_omit_PDF_row_list(
+					LIST *element_list,
 					char *application_name,
 					char *fund_name,
 					char *as_of_date,
 					boolean is_financial_position );
 
-LIST *build_consolidate_PDF_heading_list(
+LIST *build_subclassification_display_PDF_row_list(
+					LIST *element_list,
+					char *application_name,
+					char *fund_name,
+					char *as_of_date,
+					boolean is_financial_position );
+
+LIST *build_subclassification_aggregate_PDF_heading_list(
 					void );
 
-LIST *build_full_PDF_heading_list(	void );
+LIST *build_subclassification_display_PDF_heading_list(	void );
 
-void balance_sheet_aggregate_subclassification_PDF(
+void balance_sheet_subclassification_aggregate_PDF(
 					char *application_name,
 					char *title,
 					char *sub_title,
@@ -61,7 +69,18 @@ void balance_sheet_aggregate_subclassification_PDF(
 					boolean is_financial_position,
 					char *logo_filename );
 
-void balance_sheet_full_PDF(
+void balance_sheet_subclassification_display_PDF(
+					char *application_name,
+					char *title,
+					char *sub_title,
+					char *fund_name,
+					char *as_of_date,
+					char *document_root_directory,
+					char *process_name,
+					boolean is_financial_position,
+					char *logo_filename );
+
+void balance_sheet_subclassification_omit_PDF(
 					char *application_name,
 					char *title,
 					char *sub_title,
@@ -253,10 +272,13 @@ int main( int argc, char **argv )
 		}
 	}
 	else
+	/* ----------- */
+	/* Must be PDF */
+	/* ----------- */
 	{
 		if ( strcmp( subclassification_option, "aggregate" ) == 0 )
 		{
-			balance_sheet_aggregate_subclassification_PDF(
+			balance_sheet_subclassification_aggregate_PDF(
 				application_name,
 				title,
 				sub_title,
@@ -270,7 +292,7 @@ int main( int argc, char **argv )
 		else
 		if ( strcmp( subclassification_option, "display" ) == 0 )
 		{
-			balance_sheet_full_PDF(
+			balance_sheet_subclassification_display_PDF(
 				application_name,
 				title,
 				sub_title,
@@ -286,6 +308,16 @@ int main( int argc, char **argv )
 		/* Must be omit */
 		/* ------------ */
 		{
+			balance_sheet_subclassification_omit_PDF(
+				application_name,
+				title,
+				sub_title,
+				fund_name,
+				as_of_date,
+				appaserver_parameter_file->document_root,
+				process_name,
+				is_financial_position,
+				logo_filename );
 		}
 	}
 
@@ -295,7 +327,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void balance_sheet_aggregate_subclassification_PDF(
+void balance_sheet_subclassification_aggregate_PDF(
 				char *application_name,
 				char *title,
 				char *sub_title,
@@ -373,7 +405,8 @@ void balance_sheet_aggregate_subclassification_PDF(
 
 	list_append_pointer( latex->table_list, latex_table );
 
-	latex_table->heading_list = build_consolidate_PDF_heading_list();
+	latex_table->heading_list =
+		build_subclassification_aggregate_PDF_heading_list();
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
@@ -392,7 +425,7 @@ void balance_sheet_aggregate_subclassification_PDF(
 			0 /* not omit_subclassification */ );
 
 	latex_table->row_list =
-		build_aggregate_subclassification_PDF_row_list(
+		build_subclassification_aggregate_PDF_row_list(
 			element_list,
 			application_name,
 			fund_name,
@@ -448,9 +481,10 @@ void balance_sheet_aggregate_subclassification_PDF(
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
-} /* balance_sheet_aggregate_subclassification_PDF() */
+} /* balance_sheet_subclassification_aggregate_PDF() */
 
-void balance_sheet_full_PDF(	char *application_name,
+void balance_sheet_subclassification_display_PDF(
+				char *application_name,
 				char *title,
 				char *sub_title,
 				char *fund_name,
@@ -527,7 +561,8 @@ void balance_sheet_full_PDF(	char *application_name,
 
 	list_append_pointer( latex->table_list, latex_table );
 
-	latex_table->heading_list = build_full_PDF_heading_list();
+	latex_table->heading_list =
+		build_subclassification_display_PDF_heading_list();
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
@@ -546,7 +581,7 @@ void balance_sheet_full_PDF(	char *application_name,
 			0 /* not omit_subclassification */ );
 
 	latex_table->row_list =
-		build_full_PDF_row_list(
+		build_subclassification_display_PDF_row_list(
 			element_list,
 			application_name,
 			fund_name,
@@ -602,7 +637,7 @@ void balance_sheet_full_PDF(	char *application_name,
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
-} /* balance_sheet_full_PDF() */
+} /* balance_sheet_subclassification_display_PDF() */
 
 void balance_sheet_subclassification_aggregate_html_table(
 				char *application_name,
@@ -986,7 +1021,7 @@ double get_net_income(	char *application_name,
 
 } /* get_net_income() */
 
-LIST *build_consolidate_PDF_heading_list( void )
+LIST *build_subclassification_aggregate_PDF_heading_list( void )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
@@ -1010,9 +1045,9 @@ LIST *build_consolidate_PDF_heading_list( void )
 
 	return heading_list;
 
-} /* build_consolidate_PDF_heading_list() */
+} /* build_subclassification_aggregate_PDF_heading_list() */
 
-LIST *build_full_PDF_heading_list( void )
+LIST *build_subclassification_display_PDF_heading_list( void )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
@@ -1041,9 +1076,9 @@ LIST *build_full_PDF_heading_list( void )
 
 	return heading_list;
 
-} /* build_full_PDF_heading_list() */
+} /* build_subclassification_display_PDF_heading_list() */
 
-LIST *build_aggregate_subclassification_PDF_row_list(
+LIST *build_subclassification_aggregate_PDF_row_list(
 					LIST *element_list,
 					char *application_name,
 					char *fund_name,
@@ -1081,7 +1116,8 @@ LIST *build_aggregate_subclassification_PDF_row_list(
 					&total_assets,
 					element->subclassification_list,
 					LEDGER_ASSET_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ ) );
 
 	/* Compute total_liabilities */
 	/* ------------------------- */
@@ -1103,7 +1139,8 @@ LIST *build_aggregate_subclassification_PDF_row_list(
 					&total_liabilities,
 					element->subclassification_list,
 					LEDGER_LIABILITY_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ ) );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -1169,7 +1206,8 @@ LIST *build_aggregate_subclassification_PDF_row_list(
 					&total_equity,
 					element->subclassification_list,
 					LEDGER_EQUITY_ELEMENT,
-					element->accumulate_debit ) );
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ ) );
 
 	list_append_pointer(	row_list,
 				ledger_get_latex_liabilities_plus_equity_row(
@@ -1178,9 +1216,10 @@ LIST *build_aggregate_subclassification_PDF_row_list(
 
 	return row_list;
 
-} /* build_aggregate_subclassification_PDF_row_list() */
+} /* build_subclassification_aggregate_PDF_row_list() */
 
-LIST *build_full_PDF_row_list(	LIST *element_list,
+LIST *build_subclassification_display_PDF_row_list(
+				LIST *element_list,
 				char *application_name,
 				char *fund_name,
 				char *as_of_date,
@@ -1213,7 +1252,7 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 	}
 
 	list_append_list(	row_list,
-				ledger_get_latex_row_list(
+				ledger_get_subclassification_latex_row_list(
 					&total_assets,
 					element->subclassification_list,
 					LEDGER_ASSET_ELEMENT,
@@ -1236,7 +1275,7 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 	}
 
 	list_append_list(	row_list,
-				ledger_get_latex_row_list(
+				ledger_get_subclassification_latex_row_list(
 					&total_liabilities,
 					element->subclassification_list,
 					LEDGER_LIABILITY_ELEMENT,
@@ -1300,7 +1339,7 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 				subclassification );
 
 	list_append_list(	row_list,
-				ledger_get_latex_row_list(
+				ledger_get_subclassification_latex_row_list(
 					&total_equity,
 					element->subclassification_list,
 					LEDGER_EQUITY_ELEMENT,
@@ -1315,7 +1354,7 @@ LIST *build_full_PDF_row_list(	LIST *element_list,
 
 	return row_list;
 
-} /* build_full_PDF_row_list() */
+} /* build_subclassification_display_PDF_row_list() */
 
 void balance_sheet_subclassification_omit_html_table(
 				char *application_name,
@@ -1458,11 +1497,6 @@ void balance_sheet_subclassification_omit_html_table(
 		net_income_account,
 		ledger_balance_match_function );
 
-/*
-	list_append_pointer(	element->account_list,
-				net_income_account );
-*/
-
 	total_equity =
 		ledger_output_html_account_list(
 			html_table,
@@ -1481,4 +1515,291 @@ void balance_sheet_subclassification_omit_html_table(
 	html_table_close();
 
 } /* balance_sheet_subclassification_omit_html_table() */
+
+void balance_sheet_subclassification_omit_PDF(
+				char *application_name,
+				char *title,
+				char *sub_title,
+				char *fund_name,
+				char *as_of_date,
+				char *document_root_directory,
+				char *process_name,
+				boolean is_financial_position,
+				char *logo_filename )
+{
+	LATEX *latex;
+	LATEX_TABLE *latex_table;
+	LIST *element_list;
+	LIST *filter_element_name_list;
+	char *latex_filename;
+	char *dvi_filename;
+	char *working_directory;
+	char *ftp_output_filename;
+	int pid = getpid();
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		document_root_directory,
+			process_name /* filename_stem */,
+			application_name,
+			pid /* process_id */,
+			(char *)0 /* session */,
+			(char *)0 /* extension */ );
+
+	appaserver_link_file->extension = "tex";
+
+	latex_filename =
+		strdup( appaserver_link_get_tail_half(
+				(char *)0 /* application_name */,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension ) );
+
+
+	appaserver_link_file->extension = "dvi";
+
+	dvi_filename =
+		strdup( appaserver_link_get_tail_half(
+				(char *)0 /* application_name */,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension ) );
+
+	working_directory =
+		appaserver_link_get_source_directory(
+			document_root_directory,
+			application_name );
+
+	latex = latex_new_latex(
+			latex_filename,
+			dvi_filename,
+			working_directory,
+			0 /* not landscape_flag */,
+			logo_filename );
+
+	latex_table =
+		latex_new_latex_table(
+			sub_title /* caption */ );
+
+	list_append_pointer( latex->table_list, latex_table );
+
+	latex_table->heading_list =
+		build_subclassification_display_PDF_heading_list();
+
+	filter_element_name_list = list_new();
+	list_append_pointer(	filter_element_name_list,
+				LEDGER_ASSET_ELEMENT );
+	list_append_pointer(	filter_element_name_list,
+				LEDGER_LIABILITY_ELEMENT );
+	list_append_pointer(	filter_element_name_list,
+				LEDGER_EQUITY_ELEMENT );
+
+	element_list =
+		ledger_get_element_list(
+			application_name,
+			filter_element_name_list,
+			fund_name,
+			as_of_date,
+			1 /* omit_subclassification */ );
+
+	latex_table->row_list =
+		build_subclassification_omit_PDF_row_list(
+			element_list,
+			application_name,
+			fund_name,
+			as_of_date,
+			is_financial_position );
+
+	printf( "<h1>%s</h1>\n", title );
+	printf( "<h2>%s</h2>\n", sub_title );
+
+	if ( !list_length( latex_table->row_list ) )
+	{
+		printf(
+		"<p>ERROR: there are no elements for this statement.\n" );
+		document_close();
+		exit( 1 );
+	}
+
+	latex_longtable_output(
+		latex->output_stream,
+		latex->landscape_flag,
+		latex->table_list,
+		latex->logo_filename,
+		0 /* not omit_page_numbers */ );
+
+	fclose( latex->output_stream );
+
+	appaserver_link_file->extension = "pdf";
+
+	ftp_output_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	latex_tex2pdf(	latex->tex_filename,
+			latex->working_directory );
+
+	appaserver_library_output_ftp_prompt(
+		ftp_output_filename, 
+		PROMPT,
+		process_name /* target */,
+		(char *)0 /* mime_type */ );
+
+} /* balance_sheet_subclassification_omit_PDF() */
+
+LIST *build_subclassification_omit_PDF_row_list(
+				LIST *element_list,
+				char *application_name,
+				char *fund_name,
+				char *as_of_date,
+				boolean is_financial_position )
+{
+	LEDGER_ELEMENT *element;
+	double total_assets = 0.0;
+	double total_liabilities = 0.0;
+	double total_equity = 0.0;
+	double net_income = 0.0;
+	LIST *row_list;
+	ACCOUNT *net_income_account;
+
+	row_list = list_new();
+
+	/* Compute total_assets */
+	/* -------------------- */
+	if ( ! ( element =
+			ledger_element_list_seek(
+				element_list,
+				LEDGER_ASSET_ELEMENT ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 LEDGER_ASSET_ELEMENT );
+	}
+
+	list_append_list(	row_list,
+				ledger_get_account_latex_row_list(
+					&total_assets,
+					element->account_list,
+					LEDGER_ASSET_ELEMENT,
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ ) );
+
+	/* Compute total_liabilities */
+	/* ------------------------- */
+	if ( ! ( element =
+			ledger_element_list_seek(
+				element_list,
+				LEDGER_LIABILITY_ELEMENT ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 LEDGER_LIABILITY_ELEMENT );
+	}
+
+	list_append_list(	row_list,
+				ledger_get_account_latex_row_list(
+					&total_liabilities,
+					element->account_list,
+					LEDGER_LIABILITY_ELEMENT,
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ ) );
+
+	/* Calculate total_equity */
+	/* ----------------------- */
+	if ( ! ( element =
+			ledger_element_list_seek(
+				element_list,
+				LEDGER_EQUITY_ELEMENT ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot seek element = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 LEDGER_EQUITY_ELEMENT );
+	}
+
+	/* Build net income account. */
+	/* ------------------------- */
+	net_income = get_net_income(	application_name,
+					fund_name,
+					as_of_date );
+
+	if ( is_financial_position )
+	{
+		net_income_account =
+			ledger_account_new(
+				LEDGER_ACCOUNT_CHANGE_IN_NET_ASSETS );
+	}
+	else
+	{
+		net_income_account =
+			ledger_account_new(
+				LEDGER_ACCOUNT_NET_INCOME );
+	}
+
+	net_income_account->accumulate_debit = 0;
+
+	net_income_account->latest_ledger =
+			journal_ledger_new(
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				(char *)0 /* transaction_date_time */,
+				net_income_account->account_name );
+
+	net_income_account->latest_ledger->balance = net_income;
+
+	list_add_pointer_in_order(
+		element->account_list,
+		net_income_account,
+		ledger_balance_match_function );
+
+	list_append_list(	row_list,
+				ledger_get_account_latex_row_list(
+					&total_equity,
+					element->account_list,
+					LEDGER_EQUITY_ELEMENT,
+					element->accumulate_debit,
+					0.0 /* percent_denominator */ ) );
+
+	list_append_pointer(
+			row_list,
+			ledger_get_latex_liabilities_plus_equity_row(
+				total_liabilities + total_equity,
+				0 /* not aggregate_subclassification */ ) );
+
+	return row_list;
+
+} /* build_subclassification_omit_PDF_row_list() */
 

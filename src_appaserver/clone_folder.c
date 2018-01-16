@@ -709,9 +709,11 @@ void go_output2shell_script_insert_statements(
 {
 	char sys_string[ 1024 ];
 
+/*
+		 "sed 's/\\$/\\\\$/g'					|"
+*/
 	sprintf( sys_string,
 		 "zcat %s						|"
-		 "sed 's/\\$/\\\\$/g'					|"
 		 "sed 's/^insert into %s/insert into \\$table_name/'	|"
 		 "sed 's/^delete from %s/delete from \\$table_name/'	|"
 		 "sed 's/^insert into %s_%s/insert into \\$table_name/'	|"
@@ -725,6 +727,10 @@ void go_output2shell_script_insert_statements(
 		 application_name,
 		 folder_name,
 		 shell_script_filename );
+
+/*
+fprintf( stderr, "%s\n", sys_string );
+*/
 
 	system( sys_string );
 

@@ -23,6 +23,7 @@
 
 /* Constants */
 /* --------- */
+#define NEW_PASSWORD			"changeit"
 #define MAKE_SOURCE_DIRECTORY		0
 #define SYSTEM_ADMINISTRATION_ROLE	"system"
 #define SUPERVISOR_ROLE			"supervisor"
@@ -1126,9 +1127,11 @@ void insert_appaserver_rows(		char *destination_application,
 	else
 	{
 		sprintf( sys_string,
-"echo 'Will decompress and execute %s/insert_%s_appaserver.sh.gz %s' | html_paragraph_wrapper.e",
+"echo 'Will gunzip < %s/insert_%s_appaserver.sh.gz > %s/insert_empty_zzz.sh && %s/insert_empty_zzz.sh %s' | html_paragraph_wrapper.e",
 			 appaserver_data_directory,
 			 current_application,
+			 appaserver_data_directory,
+			 appaserver_data_directory,
 			 destination_application );
 	}
 
@@ -1634,6 +1637,10 @@ boolean create_empty_application(
 					appaserver_data_directory,
 					really_yn );
 
+	make_appaserver_error_file(	destination_application,
+					appaserver_error_directory,
+					really_yn );
+
 	insert_application_row(		current_application,
 					destination_application,
 					session,
@@ -1696,18 +1703,13 @@ boolean create_empty_application(
 					role_name,
 					really_yn );
 
-	/* new_password = timlib_generate_password(); */
-	new_password = "changeit";
+	new_password = NEW_PASSWORD;
 
 	insert_appaserver_user_row(
 					destination_application,
 					database_string,
 					login_name,
 					new_password,
-					really_yn );
-
-	make_appaserver_error_file(	destination_application,
-					appaserver_error_directory,
 					really_yn );
 
 	if ( really_yn == 'y'

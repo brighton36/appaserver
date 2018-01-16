@@ -2,9 +2,9 @@
 # -----------------------------------------------------------------
 # $APPASERVER_HOME/src_predictive/export_predictivebooks.sh
 # -----------------------------------------------------------------
-if [ "$#" -ne 1 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 application" 1>&2
+	echo "Usage: $0 application cleanup_script" 1>&2
 	exit 1
 fi
 
@@ -17,6 +17,8 @@ then
 else
 	export DATABASE=$application
 fi
+
+cleanup_script=$2
 
 source_file="$APPASERVER_HOME/library/appaserver_library.h"
 
@@ -454,11 +456,13 @@ extract_self $application $output_shell
 
 echo "exit 0" >> $output_shell
 
+if [ "$cleanup_script" != "" -a "$cleanup_script" != "cleanup_script" ]
+then
+	$cleanup_script $output_shell
+fi
+
 chmod +x $output_shell
 
 echo Created $output_shell
-
-echo "Remember to run:"
-echo "clean_mechanic.sh `basename $output_shell`"
 
 exit 0

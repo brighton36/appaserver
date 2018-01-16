@@ -60,7 +60,10 @@ cd /dfe/son
 echo "This is the migration database storage directory." > README
 mkdir /dfe/son/hydrology
 cd /dfe/son/hydrology
-echo "This is the migration database storage directory." > README
+echo "This is the hydrology migration database storage directory." > README
+mkdir /dfe/son/sparrow
+cd /dfe/son/sparrow
+echo "This is the sparrow migration database storage directory." > README
 
 # Old appaserver
 # --------------

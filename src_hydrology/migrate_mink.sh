@@ -36,6 +36,10 @@ nohup /usr/bin/time						\
 				mysqldump_hydrology_block.dat	\
 > /var/tmp/mysqldump_hydrology.out 2>&1 &
 
+# ^^^^^^^^^^^^^^^^^^^^^^
+# Expect to take 1 hour.
+# ----------------------
+
 # Sparrow database
 # ----------------
 # vi /appaserver/src_sparrow/mysqldump_sparrow.dat
@@ -53,6 +57,10 @@ nohup /usr/bin/time						\
 	mysqldump_database.sh	hydrology			\
 				mysqldump_sparrow.dat		\
 > /var/tmp/mysqldump_sparrow.out 2>&1 &
+
+# ^^^^^^^^^^^^^^^^^^^^^^^^^
+# Expect to take 5 seconds.
+# -------------------------
 
 # Old appaserver
 # --------------

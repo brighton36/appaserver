@@ -14,7 +14,7 @@ fi
 
 cr10file=$1
 
-cr10_directory="/var/export"
+cr10_directory="/var/export/enpdata"
 
 source="$cr10_directory/$cr10file"
 destination="bonefish:/$cr10_directory/$cr10file"

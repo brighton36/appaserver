@@ -8,6 +8,8 @@ fi
 directory=$1
 process=$2
 
+. /etc/profile
+
 inotifywait -m -e close_write $directory 2>/dev/null	|
 column.e 2						|
 while read newfile

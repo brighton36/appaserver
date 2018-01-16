@@ -154,7 +154,7 @@ sudo chown timriley:appaserver /var/export
 chmod g+wxs /var/export
 cd /var/export
 echo "This directory contains the CR10 raw files." > README
-mkdir enpdata_incoming dailyplots archive enpdata_done enpdata_done/archive temp enpdata_archive enpdata2
+mkdir enpdata enpdata_incoming dailyplots archive enpdata_done enpdata_done/archive temp enpdata_archive enpdata2
 
 # Expect size:
 # ------------

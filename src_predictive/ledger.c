@@ -1486,7 +1486,8 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 LATEX_ROW *ledger_get_latex_net_income_row(
 				double net_income,
 				boolean is_statement_of_activities,
-				double percent_denominator )
+				double percent_denominator,
+				boolean omit_subclassification )
 {
 	LATEX_ROW *latex_row;
 
@@ -1507,10 +1508,13 @@ LATEX_ROW *ledger_get_latex_net_income_row(
 			1 /* not large_bold */ );
 	}
 
-	latex_append_column_data_list(
-		latex_row->column_data_list,
-		"",
-		0 /* not large_bold */ );
+	if ( !omit_subclassification )
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
+	}
 
 	latex_append_column_data_list(
 		latex_row->column_data_list,
@@ -8667,6 +8671,7 @@ LIST *ledger_get_account_latex_row_list(
 {
 	LIST *row_list;
 	ACCOUNT *account;
+	char total_element_label[ 128 ];
 	char format_buffer[ 128 ];
 	double latest_ledger_balance;
 	LATEX_ROW *latex_row;
@@ -8692,6 +8697,12 @@ LIST *ledger_get_account_latex_row_list(
 				format_buffer ) ),
 		0 /* not large_bold */ );
 
+	sprintf(format_buffer,
+	 	"\\large \\bf Total %s",
+	 	element_name );
+
+	format_initial_capital( total_element_label, format_buffer );
+
 	do {
 		account =
 			list_get_pointer( account_list ); 
@@ -8699,6 +8710,9 @@ LIST *ledger_get_account_latex_row_list(
 		if ( !account->latest_ledger
 		||   !account->latest_ledger->balance )
 			continue;
+
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
 
 		if (	element_accumulate_debit ==
 				account->accumulate_debit )
@@ -8711,9 +8725,6 @@ LIST *ledger_get_account_latex_row_list(
 			latest_ledger_balance =
 				0.0 - account->latest_ledger->balance;
 		}
-
-		latex_row = latex_new_latex_row();
-		list_append_pointer( row_list, latex_row );
 
 		latex_append_column_data_list(
 			latex_row->column_data_list,
@@ -8729,23 +8740,20 @@ LIST *ledger_get_account_latex_row_list(
 			   	     latest_ledger_balance ) ),
 			0 /* not large_bold */ );
 
+		/* Blank space for the element column. */
+		/* ----------------------------------- */
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( "" ),
+			0 /* not large_bold */ );
+
 		if ( percent_denominator )
 		{
 			char buffer[ 128 ];
 
-			latex_append_column_data_list(
-				latex_row->column_data_list,
-				strdup( "" ),
-				0 /* not large_bold */ );
-
-			latex_append_column_data_list(
-				latex_row->column_data_list,
-				strdup( "" ),
-				0 /* not large_bold */ );
-
 			percent_of_total =
 				( latest_ledger_balance /
-		  		percent_denominator ) * 100.0;
+		  		  percent_denominator ) * 100.0;
 
 			sprintf( buffer,
 		 		"%.1lf%c",
@@ -8767,15 +8775,9 @@ LIST *ledger_get_account_latex_row_list(
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
-		sprintf(format_buffer,
-		 	"\\large \\bf Total %s",
-		 	element_name );
-
-		format_initial_capital( format_buffer, format_buffer );
-
 		latex_append_column_data_list(
 			latex_row->column_data_list,
-			strdup( format_buffer ),
+			strdup( total_element_label ),
 			0 /* not large_bold */ );
 
 		latex_append_column_data_list(

@@ -37,6 +37,22 @@
 
 /* Prototypes */
 /* ---------- */
+LIST *build_account_PDF_row_list(
+				LIST *account_list,
+				double *debit_sum,
+				double *credit_sum,
+				char *application_name,
+				char *element_name,
+				double element_total,
+				LIST *prior_element_list );
+
+LIST *build_subclassification_PDF_row_list(
+				LIST *subclassification_list,
+				double *debit_sum,
+				double *credit_sum,
+				char *application_name,
+				char *element_name,
+				LIST *prior_element_list );
 
 /* Returns count */
 /* ------------- */
@@ -97,7 +113,7 @@ void output_stdout(			char *element_name,
 					double debit_amount,
 					double credit_amount,
 					double prior_balance_change,
-					double subclassification_total );
+					double ratio_denominator );
 
 void trial_balance_stdout(
 					char *application_name,
@@ -111,7 +127,7 @@ void build_PDF_account_row(		LIST *column_data_list,
 					char *application_name,
 					ACCOUNT *account,
 					LIST *prior_element_list,
-					double subclassification_total );
+					double ratio_denominator );
 
 double trial_balance_get_prior_balance_change(
 					LIST *prior_element_list,
@@ -143,7 +159,7 @@ void trial_balance_account_stdout(
 					LIST *prior_element_list,
 					char *element_name,
 					char *subclassification_name,
-					double subclassification_total );
+					double ratio_denominator );
 
 char *get_html_table_account_title(	char *account_name,
 					char *full_name,
@@ -170,11 +186,12 @@ void trial_balance_html_table(
 					char *role_name,
 					boolean omit_subclassification );
 
-LIST *build_PDF_row_list(		char *application_name,
-					LIST *current_element_list,
-					LIST *prior_element_list );
+LIST *build_PDF_row_list(		LIST *current_element_list,
+					char *application_name,
+					LIST *prior_element_list,
+					boolean omit_subclassification );
 
-LIST *build_PDF_heading_list(		void );
+LIST *build_PDF_heading_list(		boolean omit_subclassification );
 
 void trial_balance_PDF(			char *application_name,
 					char *fund_name,
@@ -733,7 +750,7 @@ int trial_balance_html_table_subclassification_list(
 	ACCOUNT *account;
 	double balance;
 	boolean accumulate_debit;
-	double subclassification_total;
+	double ratio_denominator;
 
 	if ( !list_rewind( subclassification_list ) ) return 0;
 
@@ -769,13 +786,13 @@ int trial_balance_html_table_subclassification_list(
 
 			if ( is_period_element )
 			{
-				subclassification_total =
+				ratio_denominator =
 					subclassification->
 						subclassification_total;
 			}
 			else
 			{
-				subclassification_total = 0.0;
+				ratio_denominator = 0.0;
 			}
 
 			trial_balance_account_html_table(
@@ -788,7 +805,7 @@ int trial_balance_html_table_subclassification_list(
 				element_name,
 				subclassification->
 					subclassification_name,
-				subclassification_total
+				ratio_denominator
 					/* ratio_denominator */,
 				beginning_date,
 				as_of_date,
@@ -1092,7 +1109,9 @@ void trial_balance_PDF_fund(
 
 	list_append_pointer( latex->table_list, latex_table );
 
-	latex_table->heading_list = build_PDF_heading_list();
+	latex_table->heading_list =
+		build_PDF_heading_list(
+			omit_subclassification );
 
 	/* Populate the current_element_list */
 	/* --------------------------------- */
@@ -1147,15 +1166,17 @@ void trial_balance_PDF_fund(
 
 	latex_table->row_list =
 		build_PDF_row_list(
-			application_name,
 			current_element_list,
-			prior_element_list );
+			application_name,
+			prior_element_list,
+			omit_subclassification );
 
 } /* trial_balance_PDF_fund() */
 
-LIST *build_PDF_row_list(	char *application_name,
-				LIST *current_element_list,
-				LIST *prior_element_list )
+LIST *build_PDF_row_list(	LIST *current_element_list,
+				char *application_name,
+				LIST *prior_element_list,
+				boolean omit_subclassification )
 {
 	LATEX_ROW *latex_row;
 	LIST *row_list;
@@ -1164,14 +1185,6 @@ LIST *build_PDF_row_list(	char *application_name,
 	double debit_sum = 0.0;
 	double credit_sum = 0.0;
 	LEDGER_ELEMENT *element;
-	SUBCLASSIFICATION *subclassification;
-	ACCOUNT *account;
-	boolean accumulate_debit;
-	char element_title[ 128 ];
-	char subclassification_title[ 128 ];
-	double balance;
-	double subclassification_total;
-	char *element_name;
 
 	if ( !list_rewind( current_element_list ) ) return (LIST *)0;
 
@@ -1180,136 +1193,49 @@ LIST *build_PDF_row_list(	char *application_name,
 	do {
 		element = list_get_pointer( current_element_list );
 
-		if ( !list_rewind( element->subclassification_list ) )
-			continue;
-
-		element_name = element->element_name;
-
-		do {
-			subclassification =
-				list_get_pointer(
-					element->
-					   subclassification_list );
-
-			if ( !list_rewind( subclassification->account_list ) )
-				continue;
-
-			do {
-				account = 
-					list_get_pointer(
-						subclassification->
-							account_list );
-
-				if ( !account->latest_ledger
-				||   !account->latest_ledger->balance )
-					continue;
-
-				if ( ledger_is_period_element(
-					element->element_name ) )
-				{
-					subclassification_total =
-						subclassification->
-							subclassification_total;
-				}
-				else
-				{
-					subclassification_total = 0.0;
-				}
-
-				latex_row = latex_new_latex_row();
-				list_append_pointer( row_list, latex_row );
-
-				if ( element_name )
-				{
-					format_initial_capital(
-						element_title,
-						element_name );
-
-					element_name = (char *)0;
-
-				}
-				else
-				{
-					*element_title = '\0';
-				}
-
-/*
-				list_append_pointer(
-					latex_row->column_data_list,
-					strdup( element_title ) );
-*/
-
-				latex_append_column_data_list(
-					latex_row->column_data_list,
-					strdup( element_title ),
-					0 /* not large_bold */ );
-
-				if ( subclassification->subclassification_name )
-				{
-					format_initial_capital(
-						subclassification_title,
-						subclassification->
-						     subclassification_name );
-				}
-				else
-				{
-					*subclassification_title = '\0';
-				}
-
-/*
-				list_append_pointer(
-					latex_row->column_data_list,
-					strdup( subclassification_title ) );
-*/
-
-				latex_append_column_data_list(
-					latex_row->column_data_list,
-					strdup( subclassification_title ),
-					0 /* not large_bold */ );
-
-				build_PDF_account_row(
-					latex_row->column_data_list,
-					&accumulate_debit,
-					&balance,
+		if ( list_length( element->subclassification_list ) )
+		{
+			list_append_list(
+				row_list,
+				build_subclassification_PDF_row_list(
+					element->subclassification_list,
+					&debit_sum,
+					&credit_sum,
 					application_name,
-					account,
-					prior_element_list,
-					subclassification_total );
-
-				if ( accumulate_debit )
-					debit_sum += balance;
-				else
-					credit_sum += balance;
-
-				subclassification->
-					subclassification_name =
-						(char *)0;
-
-			} while( list_next( subclassification->account_list ) );
-
-		} while( list_next( element->subclassification_list ) );
-
+					element->element_name,
+					prior_element_list ) );
+		}
+		else
+		{
+			list_append_list(
+				row_list,
+				build_account_PDF_row_list(
+					element->account_list,
+					&debit_sum,
+					&credit_sum,
+					application_name,
+					element->element_name,
+					element->element_total,
+					prior_element_list ) );
+		}
+			
 	} while( list_next( current_element_list ) );
 
 	latex_row = latex_new_latex_row();
 	list_append_pointer( row_list, latex_row );
-
-/*
-	list_append_pointer( latex_row->column_data_list, "Total" );
-	list_append_pointer( latex_row->column_data_list, (char *)0 );
-	list_append_pointer( latex_row->column_data_list, (char *)0 );
-	list_append_pointer( latex_row->column_data_list, (char *)0 );
-*/
 
 	latex_append_column_data_list(
 		latex_row->column_data_list,
 		"Total",
 		0 /* not large_bold */ );
 
-	latex_append_column_data_list(
-		latex_row->column_data_list,
-		(char *)0,
-		0 /* not large_bold */ );
+	if ( !omit_subclassification )
+	{
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			(char *)0,
+			0 /* not large_bold */ );
+	}
 
 	latex_append_column_data_list(
 		latex_row->column_data_list,
@@ -1339,7 +1265,213 @@ LIST *build_PDF_row_list(	char *application_name,
 
 } /* build_PDF_row_list() */
 
-LIST *build_PDF_heading_list( void )
+LIST *build_account_PDF_row_list(
+				LIST *account_list,
+				double *debit_sum,
+				double *credit_sum,
+				char *application_name,
+				char *element_name,
+				double element_total,
+				LIST *prior_element_list )
+{
+	ACCOUNT *account;
+	LIST *row_list;
+	LATEX_ROW *latex_row;
+	double ratio_denominator;
+	char element_title[ 128 ];
+	boolean accumulate_debit;
+	double balance;
+
+	if ( ledger_is_period_element( element_name ) )
+	{
+		ratio_denominator = element_total;
+	}
+	else
+	{
+		ratio_denominator = 0.0;
+	}
+
+	if ( !list_rewind( account_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		account =
+			list_get_pointer(
+				account_list );
+
+		if ( !account->latest_ledger
+		||   !account->latest_ledger->balance )
+			continue;
+
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		if ( element_name )
+		{
+			format_initial_capital(
+				element_title,
+				element_name );
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( element_title ),
+				0 /* not large_bold */ );
+
+			element_name = (char *)0;
+		}
+		else
+		{
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( "" ),
+				0 /* not large_bold */ );
+		}
+
+		balance = 0.0;
+		accumulate_debit = 0;
+
+		build_PDF_account_row(
+			latex_row->column_data_list,
+			&accumulate_debit,
+			&balance,
+			application_name,
+			account,
+			prior_element_list,
+			ratio_denominator );
+
+		if ( accumulate_debit )
+			*debit_sum += balance;
+		else
+			*credit_sum += balance;
+
+	} while( list_next( account_list ) );
+
+	return row_list;
+
+} /* build_account_PDF_row_list() */
+
+LIST *build_subclassification_PDF_row_list(
+				LIST *subclassification_list,
+				double *debit_sum,
+				double *credit_sum,
+				char *application_name,
+				char *element_name,
+				LIST *prior_element_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+	LIST *row_list;
+	LATEX_ROW *latex_row;
+	double ratio_denominator;
+	char element_title[ 128 ];
+	char subclassification_title[ 128 ];
+	boolean accumulate_debit;
+	double balance;
+	boolean is_period_element;
+
+	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
+
+	is_period_element = ledger_is_period_element( element_name );
+	row_list = list_new();
+
+	do {
+		subclassification =
+			list_get_pointer(
+				subclassification_list );
+
+		if ( !list_rewind( subclassification->account_list ) )
+			continue;
+
+		do {
+			account = 
+				list_get_pointer(
+					subclassification->
+						account_list );
+
+			if ( !account->latest_ledger
+			||   !account->latest_ledger->balance )
+				continue;
+
+			if ( is_period_element )
+			{
+				ratio_denominator =
+					subclassification->
+						subclassification_total;
+			}
+			else
+			{
+				ratio_denominator = 0.0;
+			}
+
+			latex_row = latex_new_latex_row();
+			list_append_pointer( row_list, latex_row );
+
+			if ( element_name )
+			{
+				format_initial_capital(
+					element_title,
+					element_name );
+
+				element_name = (char *)0;
+			}
+			else
+			{
+				*element_title = '\0';
+			}
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( element_title ),
+				0 /* not large_bold */ );
+
+			if ( subclassification->subclassification_name )
+			{
+				format_initial_capital(
+					subclassification_title,
+					subclassification->
+					     subclassification_name );
+			}
+			else
+			{
+				*subclassification_title = '\0';
+			}
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( subclassification_title ),
+				0 /* not large_bold */ );
+
+			accumulate_debit = 0;
+			balance = 0.0;
+
+			build_PDF_account_row(
+				latex_row->column_data_list,
+				&accumulate_debit,
+				&balance,
+				application_name,
+				account,
+				prior_element_list,
+				ratio_denominator );
+
+			if ( accumulate_debit )
+				*debit_sum += balance;
+			else
+				*credit_sum += balance;
+
+			subclassification->
+				subclassification_name =
+					(char *)0;
+
+		} while( list_next( subclassification->account_list ) );
+
+	} while( list_next( subclassification_list ) );
+
+	return row_list;
+
+} /* build_subclassification_PDF_row_list() */
+
+LIST *build_PDF_heading_list( boolean omit_subclassification )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
@@ -1351,10 +1483,13 @@ LIST *build_PDF_heading_list( void )
 	table_heading->right_justified_flag = 0;
 	list_append_pointer( heading_list, table_heading );
 
-	table_heading = latex_new_latex_table_heading();
-	table_heading->right_justified_flag = 0;
-	table_heading->heading = "Subclassification";
-	list_append_pointer( heading_list, table_heading );
+	if ( !omit_subclassification )
+	{
+		table_heading = latex_new_latex_table_heading();
+		table_heading->right_justified_flag = 0;
+		table_heading->heading = "Subclassification";
+		list_append_pointer( heading_list, table_heading );
+	}
 
 	table_heading = latex_new_latex_table_heading();
 	table_heading->heading = "Account";
@@ -1712,7 +1847,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 				char *application_name,
 				ACCOUNT *account,
 				LIST *prior_element_list,
-				double subclassification_total )
+				double ratio_denominator )
 {
 	char transaction_date_american[ 16 ];
 	char transaction_date_string[ 16 ];
@@ -1722,7 +1857,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 	char *credit_string;
 	char *prior_balance_change_string;
 	double prior_balance_change;
-	char subclassification_total_ratio_string[ 16 ];
+	char ratio_denominator_string[ 16 ];
 	char *today_date_string;
 	int days_between;
 
@@ -1837,20 +1972,20 @@ void build_PDF_account_row(	LIST *column_data_list,
 			0 /* not large_bold */ );
 	}
 
-	/* Set subclassification_total ratio (maybe) */
-	/* ----------------------------------------- */
+	/* Set ratio denominator (maybe) */
+	/* ----------------------------- */
 	if ( !timlib_dollar_virtually_same(
-			subclassification_total,
+			ratio_denominator,
 			0.0 ) )
 	{
-		sprintf( subclassification_total_ratio_string,
+		sprintf( ratio_denominator_string,
 			 "%.0lf%c",
-			 (*balance / subclassification_total) * 100.0,
+			 (*balance / ratio_denominator) * 100.0,
 			 '%' );
 
 		latex_append_column_data_list(
 			column_data_list,
-			strdup( subclassification_total_ratio_string ),
+			strdup( ratio_denominator_string ),
 			0 /* not large_bold */ );
 	}
 
@@ -1877,7 +2012,7 @@ void trial_balance_stdout(
 	LIST *prior_filter_element_name_list;
 	DATE *prior_closing_transaction_date;
 	char *prior_closing_transaction_date_string = {0};
-	double subclassification_total;
+	double ratio_denominator;
 	char *element_name = {0};
 	LIST *data_list = list_new();
 
@@ -1982,13 +2117,13 @@ void trial_balance_stdout(
 				if ( ledger_is_period_element(
 					element->element_name ) )
 				{
-					subclassification_total =
+					ratio_denominator =
 						subclassification->
 							subclassification_total;
 				}
 				else
 				{
-					subclassification_total = 0.0;
+					ratio_denominator = 0.0;
 				}
 
 				trial_balance_account_stdout(
@@ -2000,7 +2135,7 @@ void trial_balance_stdout(
 					element_name,
 					subclassification->
 						subclassification_name,
-					subclassification_total );
+					ratio_denominator );
 
 				if ( accumulate_debit )
 				{
@@ -2046,7 +2181,7 @@ void trial_balance_account_stdout(
 					LIST *prior_element_list,
 					char *element_name,
 					char *subclassification_name,
-					double subclassification_total )
+					double ratio_denominator )
 {
 	double prior_balance_change;
 
@@ -2096,7 +2231,7 @@ void trial_balance_account_stdout(
 			latest_ledger->
 			credit_amount,
 		prior_balance_change,
-		subclassification_total );
+		ratio_denominator );
 
 } /* trial_balance_account_stdout() */
 
@@ -2112,7 +2247,7 @@ void output_stdout(	char *element_name,
 			double debit_amount,
 			double credit_amount,
 			double prior_balance_change,
-			double subclassification_total )
+			double ratio_denominator )
 {
 	char element_title[ 128 ];
 	char subclassification_title[ 128 ];
@@ -2121,7 +2256,7 @@ void output_stdout(	char *element_name,
 	char *debit_string;
 	char *credit_string;
 	char *prior_balance_change_string;
-	char subclassification_total_ratio_string[ 16 ];
+	char ratio_denominator_string[ 16 ];
 	char transaction_date_string[ 16 ];
 	LIST *data_list = list_new();
 
@@ -2214,20 +2349,20 @@ void output_stdout(	char *element_name,
 			strdup( buffer ) );
 	}
 	else
-	/* Set subclassification_total ratio (maybe) */
-	/* ----------------------------------------- */
+	/* Set ratio denominator (maybe) */
+	/* ----------------------------- */
 	if ( !timlib_dollar_virtually_same(
-			subclassification_total,
+			ratio_denominator,
 			0.0 ) )
 	{
-		sprintf( subclassification_total_ratio_string,
+		sprintf( ratio_denominator_string,
 			 "%.0lf%c",
-			 (balance / subclassification_total) * 100.0,
+			 (balance / ratio_denominator) * 100.0,
 			 '%' );
 
 		list_append_pointer(
 			data_list,
-			strdup( subclassification_total_ratio_string ) );
+			strdup( ratio_denominator_string ) );
 	}
 
 	printf( "%s\n", list_display_delimited( data_list, '^' ) );

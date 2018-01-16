@@ -693,7 +693,8 @@ LATEX_ROW *ledger_get_subclassification_latex_net_income_row(
 LATEX_ROW *ledger_get_latex_net_income_row(
 				double net_income,
 				boolean is_statement_of_activities,
-				double percent_denominator );
+				double percent_denominator,
+				boolean omit_subclassification );
 
 LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 				double liabilities_plus_equity,

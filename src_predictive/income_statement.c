@@ -50,6 +50,9 @@ void income_statement_net_income_only(
 LIST *build_subclassification_display_PDF_heading_list(
 					void );
 
+LIST *build_subclassification_omit_PDF_heading_list(
+					void );
+
 LIST *build_subclassification_aggregate_PDF_heading_list(
 					void );
 
@@ -319,6 +322,7 @@ int main( int argc, char **argv )
 				process_name,
 				logo_filename );
 		}
+		else
 		/* ------------ */
 		/* Must be omit */
 		/* ------------ */
@@ -1377,7 +1381,8 @@ LIST *build_subclassification_display_PDF_row_list(
 					net_income,
 					is_statement_of_activities,
 					total_revenues
-						/* percent_denominator */ ) );
+						/* percent_denominator */,
+					0 /* not omit_subclassification */ ) );
 
 	return row_list;
 
@@ -1478,6 +1483,37 @@ double get_shares_outstanding(	char *appaserver_mount_point,
 		return atof( results_string );
 } /* get_shares_outstanding() */
 #endif
+
+LIST *build_subclassification_omit_PDF_heading_list( void )
+{
+	LATEX_TABLE_HEADING *table_heading;
+	LIST *heading_list;
+
+	heading_list = list_new();
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "";
+	table_heading->right_justified_flag = 0;
+	list_append_pointer( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "Account";
+	table_heading->right_justified_flag = 1;
+	list_append_pointer( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "Element";
+	table_heading->right_justified_flag = 1;
+	list_append_pointer( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "Percent";
+	table_heading->right_justified_flag = 1;
+	list_append_pointer( heading_list, table_heading );
+
+	return heading_list;
+
+} /* build_subclassification_omit_PDF_heading_list() */
 
 LIST *build_subclassification_display_PDF_heading_list( void )
 {
@@ -1795,7 +1831,7 @@ void income_statement_subclassification_omit_PDF(
 	list_append_pointer( latex->table_list, latex_table );
 
 	latex_table->heading_list =
-		build_subclassification_display_PDF_heading_list();
+		build_subclassification_omit_PDF_heading_list();
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
@@ -1902,7 +1938,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 				ledger_get_account_latex_row_list(
 					&total_revenues,
 					element->account_list,
-					LEDGER_REVENUE_ELEMENT,
+					element->element_name,
 					element->accumulate_debit,
 					element->element_total
 						/* percent_denominator */ ) );
@@ -1926,7 +1962,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 				ledger_get_account_latex_row_list(
 					&total_expenses,
 					element->account_list,
-					LEDGER_EXPENSE_ELEMENT,
+					element->element_name,
 					element->accumulate_debit,
 					total_revenues
 						/* percent_denominator */ ) );
@@ -1950,7 +1986,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 				ledger_get_account_latex_row_list(
 					&total_gains,
 					element->account_list,
-					LEDGER_GAIN_ELEMENT,
+					element->element_name,
 					element->accumulate_debit,
 					total_revenues
 						/* percent_denominator */ ) );
@@ -1974,7 +2010,7 @@ LIST *build_subclassification_omit_PDF_row_list(
 				ledger_get_account_latex_row_list(
 					&total_losses,
 					element->account_list,
-					LEDGER_LOSS_ELEMENT,
+					element->element_name,
 					element->accumulate_debit,
 					total_revenues
 						/* percent_denominator */ ) );
@@ -2000,7 +2036,8 @@ LIST *build_subclassification_omit_PDF_row_list(
 					net_income,
 					is_statement_of_activities,
 					total_revenues
-						/* percent_denominator */ ) );
+						/* percent_denominator */,
+					1 /* omit_subclassification */ ) );
 
 	return row_list;
 

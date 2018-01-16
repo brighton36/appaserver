@@ -155,6 +155,7 @@ chmod g+wxs /var/export
 cd /var/export
 echo "This directory contains the CR10 raw files." > README
 mkdir enpdata enpdata_incoming dailyplots archive enpdata_done enpdata_done/archive temp enpdata_archive enpdata2
+sudo ln -s /var/export /export
 
 # Expect size:
 # ------------

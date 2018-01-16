@@ -1,6 +1,6 @@
 :
 
-make income_statement
+make balance_sheet income_statement
 
 #if [ "$?" -eq 0 ]
 #then

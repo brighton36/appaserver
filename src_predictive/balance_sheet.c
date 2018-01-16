@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_predictive/balance_sheet.c					*/
+/* $APPASERVER_HOME/src_predictive/balance_sheet.c			*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -657,18 +657,30 @@ void balance_sheet_subclassification_aggregate_html_table(
 	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *net_income_account;
+	double total_assets;
 	double total_liabilities;
 	double total_equity;
 	double net_income;
 
-	html_table = new_html_table( title, sub_title );
+	html_table = html_table_new( title, sub_title, "" );
+
+	html_table_set_heading( html_table, "" );
+	html_table_set_heading( html_table, "Subclassification" );
+	html_table_set_heading( html_table, "Element" );
+	html_table_set_heading( html_table, "Percent" );
 
 	html_table->number_left_justified_columns = 1;
-	html_table->number_right_justified_columns = 2;
+	html_table->number_right_justified_columns = 3;
 
 	html_table_output_table_heading(
-					html_table->title,
-					html_table->sub_title );
+		html_table->title,
+		html_table->sub_title );
+
+	html_table_output_data_heading(
+		html_table->heading_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		(LIST *)0 /* justify_list */ );
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
@@ -701,12 +713,12 @@ void balance_sheet_subclassification_aggregate_html_table(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
-	ledger_output_subclassification_aggregate_html_element(
-		html_table,
-		element->subclassification_list,
-		element->element_name,
-		element->accumulate_debit,
-		0.0 /* percent_denominator */ );
+	total_assets =
+		ledger_output_subclassification_aggregate_html_element(
+			html_table,
+			element->subclassification_list,
+			element->element_name,
+			element->element_total /* percent_denominator */ );
 
 	/* Calculate total_liabilities */
 	/* --------------------------- */
@@ -728,8 +740,7 @@ void balance_sheet_subclassification_aggregate_html_table(
 			html_table,
 			element->subclassification_list,
 			element->element_name,
-			element->accumulate_debit,
-			0.0 /* percent_denominator */ );
+			total_assets /* percent_denominator */ );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -780,10 +791,7 @@ void balance_sheet_subclassification_aggregate_html_table(
 		ledger_new_subclassification(
 			net_income_account->account_name );
 
-	subclassification->account_list = list_new();
-
-	list_append_pointer(	subclassification->account_list,
-				net_income_account );
+	subclassification->subclassification_total = net_income;
 
 	list_append_pointer(	element->subclassification_list,
 				subclassification );
@@ -793,8 +801,7 @@ void balance_sheet_subclassification_aggregate_html_table(
 			html_table,
 			element->subclassification_list,
 			element->element_name,
-			element->accumulate_debit,
-			0.0 /* percent_denominator */ );
+			total_assets /* percent_denominator */ );
 
 	output_liabilities_plus_equity(
 					html_table,
@@ -819,19 +826,31 @@ void balance_sheet_subclassification_display_html_table(
 	LEDGER_ELEMENT *element;
 	SUBCLASSIFICATION *subclassification;
 	ACCOUNT *net_income_account;
+	double total_assets;
 	double total_liabilities;
 	double total_equity;
 	double net_income;
 
-	html_table = new_html_table(
-			title,
-			sub_title );
+	html_table = html_table_new( title, sub_title, "" );
+
+	html_table_set_heading( html_table, "" );
+	html_table_set_heading( html_table, "Account" );
+	html_table_set_heading( html_table, "Subclassification" );
+	html_table_set_heading( html_table, "Element" );
+	html_table_set_heading( html_table, "Percent" );
 
 	html_table->number_left_justified_columns = 1;
-	html_table->number_right_justified_columns = 3;
+	html_table->number_right_justified_columns = 4;
+
 	html_table_output_table_heading(
-					html_table->title,
-					html_table->sub_title );
+		html_table->title,
+		html_table->sub_title );
+
+	html_table_output_data_heading(
+		html_table->heading_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		(LIST *)0 /* justify_list */ );
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
@@ -864,12 +883,14 @@ void balance_sheet_subclassification_display_html_table(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
+	total_assets = element->element_total;
+
 	ledger_output_html_subclassification_list(
 		html_table,
 		element->subclassification_list,
 		element->element_name,
 		element->accumulate_debit,
-		0.0 /* percent_denominator */ );
+		total_assets /* percent_denominator */ );
 
 	/* Calculate total_liabilities */
 	/* --------------------------- */
@@ -892,7 +913,7 @@ void balance_sheet_subclassification_display_html_table(
 			element->subclassification_list,
 			element->element_name,
 			element->accumulate_debit,
-			0.0 /* percent_denominator */ );
+			total_assets /* percent_denominator */ );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -957,7 +978,7 @@ void balance_sheet_subclassification_display_html_table(
 			element->subclassification_list,
 			element->element_name,
 			element->accumulate_debit,
-			0.0 /* percent_denominator */ );
+			total_assets /* percent_denominator */ );
 
 	output_liabilities_plus_equity(
 				html_table,
@@ -1151,14 +1172,13 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
-	list_append_list(	row_list,
-				ledger_get_subclassification_latex_row_list(
-					&total_assets,
-					element->subclassification_list,
-					element->element_name,
-					element->accumulate_debit,
-					element->element_total
-						/* percent_denominator */ ) );
+	list_append_list(
+		row_list,
+		ledger_get_subclassification_aggregate_latex_row_list(
+			&total_assets,
+			element->subclassification_list,
+			element->element_name,
+			element->element_total /* percent_denominator */ ) );
 
 	/* Compute total_liabilities */
 	/* ------------------------- */
@@ -1175,14 +1195,17 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 			 LEDGER_LIABILITY_ELEMENT );
 	}
 
-	list_append_list(	row_list,
-				ledger_get_subclassification_latex_row_list(
-					&total_liabilities,
-					element->subclassification_list,
-					element->element_name,
-					element->accumulate_debit,
-					element->element_total
-						/* percent_denominator */ ) );
+	if ( element->element_total )
+	{
+		list_append_list(
+			row_list,
+			ledger_get_subclassification_aggregate_latex_row_list(
+				&total_liabilities,
+				element->subclassification_list,
+				element->element_name,
+				element->element_total
+					/* percent_denominator */ ) );
+	}
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -1243,19 +1266,19 @@ LIST *build_subclassification_aggregate_PDF_row_list(
 	list_append_pointer(	element->subclassification_list,
 				subclassification );
 
-	list_append_list(	row_list,
-				ledger_get_subclassification_latex_row_list(
-					&total_equity,
-					element->subclassification_list,
-					element->element_name,
-					element->accumulate_debit,
-					element->element_total
-						/* percent_denominator */ ) );
+	list_append_list(
+		row_list,
+		ledger_get_subclassification_aggregate_latex_row_list(
+			&total_equity,
+			element->subclassification_list,
+			element->element_name,
+			element->element_total + net_income
+				/* percent_denominator */ ) );
 
 	list_append_pointer(	row_list,
 				ledger_get_latex_liabilities_plus_equity_row(
 					total_liabilities + total_equity,
-					1 /* aggregate_subclassification */ ) );
+					0 /* skip_columns */ ) );
 
 	return row_list;
 
@@ -1294,14 +1317,14 @@ LIST *build_subclassification_display_PDF_row_list(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
-	list_append_list(	row_list,
-				ledger_get_subclassification_latex_row_list(
-					&total_assets,
-					element->subclassification_list,
-					element->element_name,
-					element->accumulate_debit,
-					element->element_total
-						/* percent_denominator */ ) );
+	list_append_list(
+		row_list,
+		ledger_get_subclassification_display_latex_row_list(
+			&total_assets,
+			element->subclassification_list,
+			element->element_name,
+			element->accumulate_debit,
+			element->element_total /* percent_denominator */ ) );
 
 	/* Compute total_liabilities */
 	/* ------------------------- */
@@ -1318,14 +1341,14 @@ LIST *build_subclassification_display_PDF_row_list(
 			 LEDGER_LIABILITY_ELEMENT );
 	}
 
-	list_append_list(	row_list,
-				ledger_get_subclassification_latex_row_list(
-					&total_liabilities,
-					element->subclassification_list,
-					element->element_name,
-					element->accumulate_debit,
-					element->element_total
-						/* percent_denominator */ ) );
+	list_append_list(
+		row_list,
+		ledger_get_subclassification_display_latex_row_list(
+			&total_liabilities,
+			element->subclassification_list,
+			element->element_name,
+			element->accumulate_debit,
+			total_assets /* percent_denominator */ ) );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -1374,7 +1397,8 @@ LIST *build_subclassification_display_PDF_row_list(
 
 	subclassification =
 		ledger_new_subclassification(
-					net_income_account->account_name );
+			net_income_account->account_name );
+
 	subclassification->account_list = list_new();
 
 	list_append_pointer(	subclassification->account_list,
@@ -1383,20 +1407,20 @@ LIST *build_subclassification_display_PDF_row_list(
 	list_append_pointer(	element->subclassification_list,
 				subclassification );
 
-	list_append_list(	row_list,
-				ledger_get_subclassification_latex_row_list(
-					&total_equity,
-					element->subclassification_list,
-					element->element_name,
-					element->accumulate_debit,
-					element->element_total
-						/* percent_denominator */ ) );
+	list_append_list(
+		row_list,
+		ledger_get_subclassification_display_latex_row_list(
+			&total_equity,
+			element->subclassification_list,
+			element->element_name,
+			element->accumulate_debit,
+			total_assets /* percent_denominator */ ) );
 
 	list_append_pointer(
-			row_list,
-			ledger_get_latex_liabilities_plus_equity_row(
-				total_liabilities + total_equity,
-				0 /* not aggregate_subclassification */ ) );
+		row_list,
+		ledger_get_latex_liabilities_plus_equity_row(
+			total_liabilities + total_equity,
+			2 /* skip_columns */ ) );
 
 	return row_list;
 
@@ -1419,15 +1443,25 @@ void balance_sheet_subclassification_omit_html_table(
 	double total_equity;
 	double net_income;
 
-	html_table = new_html_table(
-			title,
-			sub_title );
+	html_table = html_table_new( title, sub_title, "" );
+
+	html_table_set_heading( html_table, "" );
+	html_table_set_heading( html_table, "Account" );
+	html_table_set_heading( html_table, "Element" );
+	html_table_set_heading( html_table, "Percent" );
 
 	html_table->number_left_justified_columns = 1;
 	html_table->number_right_justified_columns = 3;
+
 	html_table_output_table_heading(
-					html_table->title,
-					html_table->sub_title );
+		html_table->title,
+		html_table->sub_title );
+
+	html_table_output_data_heading(
+		html_table->heading_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		(LIST *)0 /* justify_list */ );
 
 	filter_element_name_list = list_new();
 	list_append_pointer(	filter_element_name_list,
@@ -1750,14 +1784,14 @@ LIST *build_subclassification_omit_PDF_row_list(
 			 LEDGER_ASSET_ELEMENT );
 	}
 
-	list_append_list(	row_list,
-				ledger_get_account_latex_row_list(
-					&total_assets,
-					element->account_list,
-					element->element_name,
-					element->accumulate_debit,
-					element->element_total
-						/* percent_denominator */ ) );
+	list_append_list(
+		row_list,
+		ledger_get_subclassification_omit_latex_row_list(
+			&total_assets,
+			element->account_list,
+			element->element_name,
+			element->accumulate_debit,
+			element->element_total /* percent_denominator */ ) );
 
 	/* Compute total_liabilities */
 	/* ------------------------- */
@@ -1774,14 +1808,14 @@ LIST *build_subclassification_omit_PDF_row_list(
 			 LEDGER_LIABILITY_ELEMENT );
 	}
 
-	list_append_list(	row_list,
-				ledger_get_account_latex_row_list(
-					&total_liabilities,
-					element->account_list,
-					element->element_name,
-					element->accumulate_debit,
-					element->element_total
-						/* percent_denominator */ ) );
+	list_append_list(
+		row_list,
+		ledger_get_subclassification_omit_latex_row_list(
+			&total_liabilities,
+			element->account_list,
+			element->element_name,
+			element->accumulate_debit,
+			element->element_total /* percent_denominator */ ) );
 
 	/* Calculate total_equity */
 	/* ----------------------- */
@@ -1833,22 +1867,21 @@ LIST *build_subclassification_omit_PDF_row_list(
 		net_income_account,
 		ledger_balance_match_function );
 
-	list_append_list(	row_list,
-				ledger_get_account_latex_row_list(
-					&total_equity,
-					element->account_list,
-					element->element_name,
-					element->accumulate_debit,
-					element->element_total +
-					net_income
-						/* percent_denominator */ ) );
+	list_append_list(
+		row_list,
+		ledger_get_subclassification_omit_latex_row_list(
+			&total_equity,
+			element->account_list,
+			element->element_name,
+			element->accumulate_debit,
+			element->element_total +
+			net_income /* percent_denominator */ ) );
 
 	list_append_pointer(
 			row_list,
 			ledger_get_latex_liabilities_plus_equity_row(
 				total_liabilities + total_equity,
-				1 /* not aggregate_subclassification */
-				  /* This shifts one column to the left */ ) );
+				1 /* skip_columns */ ) );
 
 	return row_list;
 

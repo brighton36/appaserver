@@ -290,7 +290,8 @@ void ledger_output_subclassification_aggregate_net_income(
 void ledger_output_net_income(		HTML_TABLE *html_table,
 					double net_income,
 					boolean is_statement_of_activities,
-					double percent_denominator );
+					double percent_denominator,
+					int skip_columns );
 
 LEDGER_ELEMENT *ledger_element_seek(	LIST *element_list,
 					char *element_name );
@@ -671,14 +672,20 @@ CONTRA_ACCOUNT *ledger_seek_contra_account(
 				LIST *contra_account_list,
 				char *account_name );
 
-LIST *ledger_get_subclassification_latex_row_list(
+LIST *ledger_get_subclassification_aggregate_latex_row_list(
+				double *total_element,
+				LIST *subclassification_list,
+				char *element_name,
+				double percent_denominator );
+
+LIST *ledger_get_subclassification_display_latex_row_list(
 				double *total_element,
 				LIST *subclassification_list,
 				char *element_name,
 				boolean element_accumulate_debit,
 				double percent_denominator );
 
-LIST *ledger_get_account_latex_row_list(
+LIST *ledger_get_subclassification_omit_latex_row_list(
 				double *total_element,
 				LIST *account_list,
 				char *element_name,
@@ -698,7 +705,7 @@ LATEX_ROW *ledger_get_latex_net_income_row(
 
 LATEX_ROW *ledger_get_latex_liabilities_plus_equity_row(
 				double liabilities_plus_equity,
-				boolean aggregate_subclassification );
+				int skip_columns );
 
 char *ledger_get_hard_coded_account_name(
 				char *application_name,
@@ -784,28 +791,15 @@ boolean ledger_get_report_title_sub_title(
 
 LIST *ledger_get_fund_name_list(char *application_name );
 
-LIST *ledger_get_beginning_balance_latex_row_list(
+LIST *ledger_get_beginning_latex_row_list(
 				double *total_element,
 				LIST *subclassification_list,
 				boolean element_accumulate_debit );
 
-LIST *ledger_get_subclassification_beginning_latex_row_list(
+LIST *ledger_get_subclassification_aggregate_beginning_row_list(
 				double *total_element,
 				LIST *subclassification_list,
-				boolean element_accumulate_debit );
-
-/*
-LIST *ledger_tax_form_fetch_category_list(
-				char *application_name,
-				char *tax_form,
-				char *as_of_date );
-
-TAX_FORM_CATEGORY *ledger_tax_form_category_new(
-				char *tax_form,
-				char *tax_form_category_name,
-				char *tax_form_line,
-				boolean itemize_accounts );
-*/
+				double percent_denominator );
 
 /* If debit_amount or credit_amount needs to be changed.*/
 /* ---------------------------------------------------- */
@@ -1071,7 +1065,9 @@ double ledger_output_subclassification_aggregate_html_element(
 				HTML_TABLE *html_table,
 				LIST *subclassification_list,
 				char *element_name,
-				boolean element_accumulate_debit,
 				double percent_denominator );
+
+boolean ledger_exists_net_assets_equity_subclassification(
+				LIST *subclassification_list );
 
 #endif

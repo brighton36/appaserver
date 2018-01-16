@@ -47,10 +47,13 @@ void html_table_set_number_left_justified_columns(
 void html_table_set_number_right_justified_columns(
 					HTML_TABLE *d, int i );
 void html_table_reset_data_heading( 	HTML_TABLE *d );
+
 void html_table_set_heading( 		HTML_TABLE *d,
 					char *heading );
+
 void html_table_set_heading_list( 	HTML_TABLE *d,
 					LIST *heading_list );
+
 void html_table_set_background_shaded(	HTML_TABLE *d );
 void html_table_set_background_unshaded(HTML_TABLE *d );
 char *html_table_get_alignment(		int column_number,

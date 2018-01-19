@@ -65,7 +65,7 @@ int main( int argc, char **argv )
 	destination_application = argv[ 6 ];
 	system_folders_yn = *argv[ 7 ];
 	nocontent_type_yn = *argv[ 8 ];
-	really_yn = *argv[ 10 ];
+	really_yn = *argv[ 9 ];
 	database_management_system = argv[ 10 ];
 
 	if ( build_shell_script_yn == 'y' ) really_yn = 'n';

@@ -284,7 +284,7 @@ passed_security_check:
 	{
 		fflush( stdout );
 		system( sys_string );
-		printf( "<p>Process complete\n" );
+		printf( "<h3>Process complete</h3>\n" );
 	}
 		
 

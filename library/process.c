@@ -816,14 +816,23 @@ void process_replace_parameter_variables(
 		search_replace_word(
 			executable,
 			"$person",
-			double_quotes_around(	buffer, 
-						person ) );
+			double_quotes_around(
+				buffer, 
+				person ) );
 
 		search_replace_word(
 			executable,
 			"$login_name",
-			double_quotes_around( 	buffer, 
-						person ) );
+			double_quotes_around(
+				buffer, 
+				person ) );
+
+		search_replace_word(
+			executable,
+			"$login",
+			double_quotes_around(
+				buffer, 
+				person ) );
 	}
 
 	if ( prompt && *prompt )

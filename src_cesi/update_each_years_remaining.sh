@@ -13,9 +13,10 @@ export DATABASE=$application
 
 select="project_title"
 table=project
+where="award_end_date >= '`now.sh ymd -365`'"
 
-echo "select $select from $table;"	|
-sql.e					|
+echo "select $select from $table where $where;"	|
+sql.e						|
 while read project_title
 do
 	post_change_project.sh $application "$project_title"

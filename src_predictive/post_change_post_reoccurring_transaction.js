@@ -8,8 +8,6 @@ function post_change_post_reoccurring_transaction( current_element )
 	var entity_street_address;
 	var options;
 
-	element_name = 'entity_name^street_address';
-
 	element = timlib_get_element( "entity_name^street_address_0" );
 
 	value = timlib_get_drop_down_element_value( element.options );

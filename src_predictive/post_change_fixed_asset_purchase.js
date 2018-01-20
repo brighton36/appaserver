@@ -8,6 +8,7 @@ function post_change_fixed_asset_purchase( row )
 	if ( row == 0 )
 	{
 		post_change_fixed_asset_purchase_each_row();
+		return true;
 	}
 
 	// Turn on each edit.
@@ -16,6 +17,9 @@ function post_change_fixed_asset_purchase( row )
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
+
+	if ( element = "" ) return false;
+
 	element.disabled = false;
 
 	element_name = 'estimated_useful_life_years_' + row;
@@ -67,6 +71,8 @@ function post_change_fixed_asset_purchase( row )
 		return post_change_fixed_asset_purchase_expense( row )
 	}
   
+	return true;
+
 } // post_change_fixed_asset_purchase()
 
 function post_change_fixed_asset_purchase_expense( row )

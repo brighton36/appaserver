@@ -1,5 +1,5 @@
-// src_accountancymodel/post_change_fixed_asset_purchase.js
-// --------------------------------------------------------
+// src_communityband/post_change_fixed_asset_purchase.js
+// -----------------------------------------------------
 function post_change_fixed_asset_purchase( row )
 {
 	var element_name;
@@ -8,6 +8,7 @@ function post_change_fixed_asset_purchase( row )
 	if ( row == 0 )
 	{
 		post_change_fixed_asset_purchase_each_row();
+		return true;
 	}
 
 	// Turn on each edit.
@@ -16,6 +17,9 @@ function post_change_fixed_asset_purchase( row )
 	element =
 		timlib_get_form_element(
 			element_name, 0 );
+
+	if ( element == "" ) return false;
+
 	element.hidden = false;
 
 	element_name = 'estimated_useful_life_years_' + row;

@@ -680,9 +680,7 @@ void output_1tom_folder_detail(	int *form_number,
 	boolean omit_insert_flag = 1;
 	LIST *non_edit_folder_name_list = {0};
 
-#ifdef OUTPUT_INSERT_BUTTON
-omit_insert_flag = 0;
-#endif
+	omit_insert_flag = 1 - OUTPUT_INSERT_BUTTON;
 
 	appaserver =
 		appaserver_new_appaserver(
@@ -1069,7 +1067,6 @@ void output_mto1_folder_detail(	int *form_number,
 				omit_delete,
 				non_edit_folder_name_list,
 				1 /* make_primary_keys_non_edit */ );
-			/* list_free_container( primary_data_list ); */
 		}
 
 	} while( list_next(
@@ -1112,7 +1109,6 @@ DICTIONARY *output_folder_detail(
 	int output_submit_reset_buttons_in_trailer;
 	char action_string[ 512 ];
 	char caption_string[ 512 ];
-	boolean output_insert_button = 0;
 	ROW_SECURITY *row_security;
 	char update_yn;
 	FOLDER *folder;
@@ -1213,7 +1209,14 @@ DICTIONARY *output_folder_detail(
 			row_security_element_list_structure->
 			row_dictionary_list;
 
+/*
 	if ( !list_rewind( fetched_dictionary_list ) && omit_insert_flag )
+	{
+		return (DICTIONARY *)0;
+	}
+*/
+
+	if ( !list_rewind( fetched_dictionary_list ) )
 	{
 		return (DICTIONARY *)0;
 	}
@@ -1286,38 +1289,6 @@ DICTIONARY *output_folder_detail(
 		row_security->
 			row_security_element_list_structure->
 			viewonly_element_list;
-
-#ifdef NOT_DEFINED
-	if ( row_security->row_security_element_list_structure->
-		ajax_fill_drop_down_related_folder )
-	{
-		char sys_string[ 1024 ];
-		RELATED_FOLDER *ajax_fill_drop_down_related_folder;
-
-		ajax_fill_drop_down_related_folder =
-			row_security->row_security_element_list_structure->
-			ajax_fill_drop_down_related_folder;
-
-		sprintf( sys_string,
-			 "ajax_fill_drop_down.sh %s '%s' '%s' %s %s %s '%s'",
-			 application_name,
-			 login_name,
-			 role_name,
-			 session,
-			 ajax_fill_drop_down_related_folder->
-				folder->
-				folder_name /* one2m_folder */,
-			 ajax_fill_drop_down_related_folder->
-				one2m_related_folder->
-				folder_name /* mto1_folder */,
-			 list_display(
-				ajax_fill_drop_down_related_folder->
-				folder->
-				primary_attribute_name_list ) /* select */ );
-
-		system( sys_string );
-	}
-#endif
 
 	if ( attribute_exists_date_attribute(
 		attribute_list ) )
@@ -1397,7 +1368,7 @@ DICTIONARY *output_folder_detail(
 
 	form_output_trailer(
 		output_submit_reset_buttons_in_trailer,
-		output_insert_button,
+		1 - omit_insert_flag /* output_insert_button */,
 		form->submit_control_string,
 		form->html_help_file_anchor,
 		(char *)0 /* remember_keystrokes_onload_control_string */,

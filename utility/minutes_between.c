@@ -3,6 +3,13 @@
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
 
+/* -------------------------------------------------------------------- */
+/* Date/time format: YYYY-MM-DD:hhmmss					*/
+/* -----------------------------------					*/
+/* Usage: minutes_between.e start_date_time end_date_time		*/
+/*    or: echo start_date_time end_date_time | minutes_between.e	*/
+/* -------------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

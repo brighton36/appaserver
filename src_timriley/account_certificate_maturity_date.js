@@ -10,7 +10,7 @@ function account_certificate_maturity_date( row )
 	if ( row == 0 )
 	{
 		account_certificate_maturity_date_each_row();
-		return true;
+		// return true; <-- Need to pass through for insert screen.
 	}
 
 	account_type = 'account_type_' + row;

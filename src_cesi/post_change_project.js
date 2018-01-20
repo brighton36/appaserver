@@ -9,7 +9,7 @@ function post_change_project( row )
 	if ( row == 0 )
 	{
 		post_change_project_each_row();
-		return true;
+		// return true; <-- Need to pass through for insert screen.
 	}
 
 	// Turn off each edit.

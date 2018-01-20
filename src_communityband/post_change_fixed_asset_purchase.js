@@ -8,7 +8,7 @@ function post_change_fixed_asset_purchase( row )
 	if ( row == 0 )
 	{
 		post_change_fixed_asset_purchase_each_row();
-		return true;
+		// return true; <-- Need to pass through for insert screen.
 	}
 
 	// Turn on each edit.

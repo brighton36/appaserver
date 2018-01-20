@@ -64,21 +64,28 @@ html_string += '	var mnemonic;\n';
 html_string += '	var label;\n';
 html_string += '	var e;\n';
 html_string += '	var a;\n';
+html_string += '	var i;\n';
+
 html_string += '	ready = http_request.readyState;\n';
 html_string += '	status = http_request.status;\n';
 html_string += '	if ( status != 200 ) return;\n';
 html_string += '	if ( ready != 4 ) return;\n';
+
 html_string += '	results = http_request.responseText;\n';
-html_string += '	a = results.split( "|" );\n';
-html_string += '	mnemonic = a[ 0 ].split( "^" );\n';
-html_string += '	label = a[ 1 ].split( "^" );\n';
 
 html_string += '	e = window.opener.document.getElementById( \"';
 html_string += destination_element_id;
 html_string += '\" );\n';
 
-html_string += '	for ( var i = 0; i < mnemonic.length; i++ )\n';
+html_string += '	a = results.split( "|" );\n';
+
+html_string += '	mnemonic = a[ 0 ].split( "&" );\n';
+html_string += '	label = a[ 1 ].split( "&" );\n';
+
+html_string += '	for ( i = 0; i < mnemonic.length; i++ )\n';
 html_string += '		e.options[ i ] = new Option( label[ i ], mnemonic[ i ] );\n';
+
+html_string += '	e.options[ i ] = new Option( \"Select\", \"select\" );\n';
 
 html_string += '	window.close()\n';
 html_string += '	return true;\n';

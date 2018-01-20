@@ -34,6 +34,7 @@ enum related_folder_list_usage {	prompt_screen,
 
 /* Constants */
 /* --------- */
+#define RELATED_FOLDER_AJAX_FILL_LABEL				"Fill"
 #define RELATED_FOLDER_FOLDER_PIECE				0
 #define RELATED_FOLDER_RELATED_FOLDER_PIECE			1
 #define RELATED_FOLDER_RELATED_ATTRIBUTE_PIECE			2
@@ -541,5 +542,8 @@ void related_populate_folder_foreign_attribute_dictionary(
 
 RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 			LIST *mto1_related_folder_list );
+
+char *related_folder_get_ajax_onclick_function(
+			LIST *attribute_name_list );
 
 #endif

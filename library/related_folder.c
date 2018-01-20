@@ -465,21 +465,22 @@ LIST *related_folder_get_drop_down_element_list(
 		       related_folder_get_ajax_fill_drop_down_related_folder(
 			folder->mto1_related_folder_list ) ) )
 		{
-			char onclick_function[ 128 ];
+			char *onclick_function;
 
 			/* Create the fill button element */
 			/* ------------------------------ */
 			element = element_new(	push_button, 
 						(char *)0 /* element_name */ );
 
-			element->push_button->label = "Fill";
+			element->push_button->label =
+				RELATED_FOLDER_AJAX_FILL_LABEL;
 
-			sprintf(onclick_function,
-			 	"fork_ajax_window( '%s_$row' )",
-				list_display( foreign_attribute_name_list ) );
+			onclick_function =
+				related_folder_get_ajax_onclick_function(
+					foreign_attribute_name_list );
 
 			element->push_button->onclick_function =
-				strdup( onclick_function );
+				onclick_function;
 
 			list_append_pointer(
 				return_list, 
@@ -1002,24 +1003,24 @@ LIST *related_folder_get_insert_element_list(
 		    related_folder_get_ajax_fill_drop_down_related_folder(
 			related_folder->folder->mto1_related_folder_list ) ) )
 	{
-		char onclick_function[ 128 ];
+		char *onclick_function;
 
 		/* Create the fill button element */
 		/* ------------------------------ */
 		element = element_new(	push_button, 
 					(char *)0 /* element_name */ );
 
-		element->push_button->label = "Fill";
+		element->push_button->label =
+			RELATED_FOLDER_AJAX_FILL_LABEL;
 
-		sprintf( onclick_function,
-			 "fork_ajax_window( '%s_$row' )",
-			 list_display(
+		onclick_function =
+			related_folder_get_ajax_onclick_function(
 				related_folder->
 					folder->
-					primary_attribute_name_list ) );
+					primary_attribute_name_list );
 
 		element->push_button->onclick_function =
-			strdup( onclick_function );
+			onclick_function;
 
 		list_append_pointer(
 			element_list, 
@@ -1279,21 +1280,22 @@ LIST *related_folder_get_update_element_list(
 		       related_folder_get_ajax_fill_drop_down_related_folder(
 			folder->mto1_related_folder_list ) ) )
 		{
-			char onclick_function[ 128 ];
+			char *onclick_function;
 
 			/* Create the fill button element */
 			/* ------------------------------ */
 			element = element_new(	push_button, 
 						(char *)0 /* element_name */ );
 
-			element->push_button->label = "Fill";
+			element->push_button->label =
+				RELATED_FOLDER_AJAX_FILL_LABEL;
 
-			sprintf(onclick_function,
-			 	"fork_ajax_window( '%s_$row' )",
-				list_display( foreign_attribute_name_list ) );
+			onclick_function =
+				related_folder_get_ajax_onclick_function(
+					foreign_attribute_name_list );
 
 			element->push_button->onclick_function =
-				strdup( onclick_function );
+				onclick_function;
 
 			list_append_pointer(
 				element_list, 
@@ -4166,3 +4168,18 @@ RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 	return (RELATED_FOLDER *)0;
 
 } /* related_folder_get_ajax_fill_drop_down_related_folder() */
+
+char *related_folder_get_ajax_onclick_function(
+				LIST *attribute_name_list )
+{
+	char onclick_function[ 512 ];
+
+	sprintf( onclick_function,
+		 "fork_ajax_window( '%s_$row' )",
+		 list_display_delimited(
+			attribute_name_list,
+			'^' ) );
+
+	return strdup( onclick_function );
+
+} /* related_folder_get_ajax_onclick_function() */

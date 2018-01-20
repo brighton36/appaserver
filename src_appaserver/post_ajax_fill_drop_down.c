@@ -29,10 +29,12 @@
 
 /* Constants */
 /* --------- */
-#define CHECK_SESSION		1
+#define CHECK_SESSION		0
 
 /* Prototypes */
 /* ---------- */
+char *format_results(		char *results );
+
 void output_process_results(
 				char *application_name,
 				char *folder_name,
@@ -193,7 +195,7 @@ void output_folder_results(
 	char *where;
 	char *results;
 	char sys_string[ 1024 ];
-	char formatted_results[ 1024 ];
+	char *formatted_results;
 
 	where = query_get_simple_where_clause(
 			(FOLDER *)0,
@@ -211,7 +213,7 @@ void output_folder_results(
 		 "			folder=%s	 "
 		 "			where=\"%s\"	 "
 		 "			order=select	|"
-		 "joinlines.e '^'			 ",
+		 "joinlines.e '&'			 ",
 		 application_name,
 		 list_display( primary_attribute_name_list ),
 		 folder_name,
@@ -221,11 +223,16 @@ void output_folder_results(
 
 	if ( results && *results )
 	{
-		format_initial_capital( formatted_results, results );
+		formatted_results = format_results( results );
 
+/*
 		printf( "%s^%s|%s^Select\n",
 			results,
 			SELECT_OPERATOR,
+			formatted_results );
+*/
+		printf( "%s|%s\n",
+			results,
 			formatted_results );
 	}
 	else
@@ -245,7 +252,8 @@ void output_process_results(
 {
 	LIST *results_list;
 	char *results;
-	char formatted_results[ 1024 ];
+	char *formatted_results;
+
 	DICTIONARY *parameter_dictionary;
 	char piece_buffer[ 512 ];
 
@@ -321,13 +329,11 @@ void output_process_results(
 		{
 			piece( piece_buffer, '|', results, 1 );
 
-			format_initial_capital(
-				formatted_results,
-				piece_buffer );
+			formatted_results = format_results( piece_buffer );
 		}
 		else
 		{
-			format_initial_capital( formatted_results, results );
+			formatted_results = format_results( results );
 		}
 
 		printf( "%s", formatted_results );
@@ -339,3 +345,22 @@ void output_process_results(
 	printf( "\n" );
 
 } /* output_process_results() */
+
+char *format_results( char *results )
+{
+	static char formatted_results[ 1024 ];
+	char search_string[ 2 ];
+
+	*search_string = '^';
+	*(search_string + 1) = '\0';
+
+	format_initial_capital( formatted_results, results );
+
+	search_replace_string(
+		formatted_results,
+		search_string,
+		ELEMENT_MULTI_ATTRIBUTE_DISPLAY_DELIMITER );
+
+	return formatted_results;
+
+} /* format_results() */

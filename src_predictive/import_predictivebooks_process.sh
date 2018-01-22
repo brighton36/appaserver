@@ -8,9 +8,9 @@
 
 echo "$0" "$*" 1>&2
 
-if [ "$#" -ne 3 ]
+if [ "$#" -ne 4 ]
 then
-	echo "Usage: $0 application process_name execute_yn" 1>&2
+	echo "Usage: $0 application process_name module execute_yn" 1>&2
 	exit 1
 fi
 
@@ -25,14 +25,19 @@ else
 fi
 
 process_name=$2
-execute_yn=$3
-
-# Constants
-# ---------
-process="import_predictivebooks.sh"
+module=$3
+execute_yn=$4
 
 # Variables
 # ---------
+if [ "$module" = "professional" ]
+then
+	process="predictivebooks_professsional.sh"
+elif [ "$module" = "personal" ]
+then
+	process="predictivebooks_personal.sh"
+fi
+
 process_title=`echo "$process_name" | format_initial_capital.e`
 
 # Process
@@ -41,6 +46,13 @@ content_type_cgi.sh
 
 echo "<html><head><link rel=stylesheet type=text/css href=/appaserver/$application/style.css></head>"
 echo "<body><h1>$process_title</h1>"
+
+if [ "$process" = "" ]
+then
+	echo "<h3>Error: please choose a module.</h3>"
+	echo "</body></html>"
+	exit 0
+fi
 
 results=`echo "show tables;" | sql.e | grep "^transaction$"`
 

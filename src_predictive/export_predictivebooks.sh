@@ -2,9 +2,9 @@
 # -----------------------------------------------------------------
 # $APPASERVER_HOME/src_predictive/export_predictivebooks.sh
 # -----------------------------------------------------------------
-if [ "$#" -ne 2 ]
+if [ "$#" -ne 3 ]
 then
-	echo "Usage: $0 application cleanup_script" 1>&2
+	echo "Usage: $0 application input_file cleanup_script" 1>&2
 	exit 1
 fi
 
@@ -18,7 +18,11 @@ else
 	export DATABASE=$application
 fi
 
-cleanup_script=$2
+input_file=$2
+cleanup_script=$3
+
+directory=$appaserver_home/src_predictive
+output_shell="`basename.e $input_file y`".sh
 
 source_file="$APPASERVER_HOME/library/appaserver_library.h"
 
@@ -34,10 +38,6 @@ label="appaserver_mount_point="
 appaserver_home=`cat $appaserver_config_file	| \
 		 grep "^${label}"		| \
 		 sed "s/$label//"`
-
-directory=$appaserver_home/src_predictive
-input_file=$directory/predictivebooks_folders.dat
-output_shell=$directory/import_predictivebooks.sh
 
 function export_processes()
 {
@@ -250,7 +250,8 @@ function extract_investment()
 function extract_chart_of_accounts()
 {
 	application=$1
-	output_shell=$2
+	input_file=$2
+	output_shell=$3
 
 	echo "" >> $output_shell
 	echo "(" >> $output_shell
@@ -274,20 +275,8 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
-	folder=tax_form_line_account
-	columns=tax_form,tax_form_line,account
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
-
-	folder=tax_form_line
-	columns=tax_form,tax_form_line,tax_form_description,itemize_accounts_yn
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
-
-	folder=tax_form
-	columns=tax_form
+	folder=depreciation_method
+	columns=depreciation_method
 	get_folder_data a=$application f=$folder s=$columns		|
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
@@ -298,75 +287,96 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
+	folder=tax_form_line_account
+	columns=tax_form,tax_form_line,account
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=tax_form_line
+	columns="	tax_form,
+			tax_form_line,
+			tax_form_description,
+			itemize_accounts_yn"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e t=$folder field="$columns" del='^'		|
+	cat >> $output_shell
+
+	folder=tax_form
+	columns=tax_form
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	# Only professional folders follow:
+	# ---------------------------------
 	folder=payroll_pay_period
-	columns=payroll_pay_period
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
-
-	folder=inventory_cost_method
-	columns=inventory_cost_method
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
-
-	folder=federal_marital_status
-	columns=federal_marital_status
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
-
-	folder=state_marital_status
-	columns=state_marital_status
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
-
-	folder=depreciation_method
-	columns=depreciation_method
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
-
-	folder=federal_income_tax_withholding
-	columns="federal_marital_status,
-		 income_over,
-		 income_not_over,
-		 tax_fixed_amount,
-		 tax_percentage_amount"
-	get_folder_data a=$application f=$folder s="$columns"		|
-	insert_statement.e t=$folder field="$columns" del='^'		|
-	cat >> $output_shell
-
-	folder=state_income_tax_withholding
-	columns="state_marital_status,
-		 income_over,
-		 income_not_over,
-		 tax_fixed_amount,
-		 tax_percentage_amount"
-	get_folder_data a=$application f=$folder s="$columns"		|
-	insert_statement.e t=$folder field="$columns" del='^'		|
-	cat >> $output_shell
-
-	folder=state_standard_deduction_table
-	columns="state_marital_status,
-		 state_withholding_allowances,
-		 state_standard_deduction_amount"
-	get_folder_data a=$application f=$folder s="$columns"		|
-	insert_statement.e t=$folder field="$columns" del='^'		|
-	cat >> $output_shell
-
-	folder=fixed_service_category
-	columns="service_category"
-	get_folder_data a=$application f=$folder s="$columns"		|
-	insert_statement.e t=$folder field="$columns" del='^'		|
-	cat >> $output_shell
-
-	folder=hourly_service_category
-	columns="service_category"
-	get_folder_data a=$application f=$folder s="$columns"		|
-	insert_statement.e t=$folder field="$columns" del='^'		|
-	cat >> $output_shell
+	results=`grep $folder $input_file | wc -l`
+	if [ "$results" -eq 1 ]
+	then
+		columns=payroll_pay_period
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
+	
+		folder=inventory_cost_method
+		columns=inventory_cost_method
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
+	
+		folder=federal_marital_status
+		columns=federal_marital_status
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
+	
+		folder=state_marital_status
+		columns=state_marital_status
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
+	
+		folder=federal_income_tax_withholding
+		columns="federal_marital_status,
+			 income_over,
+			 income_not_over,
+			 tax_fixed_amount,
+			 tax_percentage_amount"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+	
+		folder=state_income_tax_withholding
+		columns="state_marital_status,
+			 income_over,
+			 income_not_over,
+			 tax_fixed_amount,
+			 tax_percentage_amount"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+	
+		folder=state_standard_deduction_table
+		columns="state_marital_status,
+			 state_withholding_allowances,
+			 state_standard_deduction_amount"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+	
+		folder=fixed_service_category
+		columns="service_category"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+	
+		folder=hourly_service_category
+		columns="service_category"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+	fi
 
 	echo "all_done2" >> $output_shell
 	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
@@ -449,7 +459,7 @@ rm $output_shell 2>/dev/null
 
 export_predictivebooks $application $input_file $output_shell
 create_predictivebooks $application $input_file $output_shell
-extract_chart_of_accounts $application $output_shell
+extract_chart_of_accounts $application $input_file $output_shell
 extract_investment $application $output_shell
 export_processes $application $input_file $output_shell
 extract_self $application $output_shell

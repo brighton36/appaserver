@@ -1475,20 +1475,41 @@ char *place_commas_in_number_string( char *s )
  
 	s_ptr = s + strlen( s ) - 1;
 
+	if ( instr( ".", s, 1 ) != -1 )
+	{
+		while( s_ptr >= s )
+		{
+			if ( *s_ptr == '.' )
+			{
+				*r_ptr-- = *s_ptr--;
+				break;
+			}
+			else
+			{
+				*r_ptr-- = *s_ptr--;
+			}
+		}
+	}
+
 	while( s_ptr >= s )
 	{
 		*r_ptr-- = *s_ptr--;
 
 		if ( *s_ptr == '-' )
+		{
 			*r_ptr-- = *s_ptr--;
+			continue;
+		}
 
 		if ( ++c == 3 )
 		{
-			c = 0;
 			if ( s_ptr != s - 1 ) *r_ptr-- = ',';
+			c = 0;
 		}
 	}
+
 	return r_ptr + 1;
+
 } /* place_commas_in_number_string()  */
 
 char *place_commas_in_integer( int n )

@@ -3,7 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	touch insert_statement.c
-	make insert_statement.e
+	cd ../src_appaserver
+	make output_edit_table_form
 fi

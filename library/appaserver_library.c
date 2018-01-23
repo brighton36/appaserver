@@ -2713,7 +2713,8 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 			return (LIST *)0;
 		}
 
-		element = element_new( 
+		element =
+			element_new( 
 				prompt_data_plus_hidden,
 				attribute_name );
 
@@ -2729,13 +2730,9 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 			primary_attribute_name_list,
 			attribute_name ) )
 		{
-			element = element_new(
-				hidden, 
-				attribute_name );
+			element = element_new( hidden, attribute_name );
 
-			list_append_pointer(
-				return_list, 
-				element );
+			list_append_pointer( return_list, element );
 		}
 
 		return return_list;
@@ -2957,8 +2954,43 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 	}
 	else
 	if ( timlib_strcmp( datatype, "text" ) == 0
-	||   timlib_strcmp( datatype, "integer" ) == 0
-	||   timlib_strcmp( datatype, "time" ) == 0
+	||   timlib_strcmp( datatype, "time" ) == 0 )
+	{
+		element = element_new( 	text_item,
+					attribute_name);
+
+		element_text_item_set_attribute_width(
+				element->text_item, 
+				width );
+
+		if ( is_primary_attribute )
+		{
+			char heading[ 128 ];
+			sprintf( heading, "*%s", element->name );
+			element_text_item_set_heading(
+					element->text_item,
+					strdup( heading ) );
+		}
+		else
+		{
+			element_text_item_set_heading(
+					element->text_item,
+					element->name );
+		}
+
+		element_text_item_set_onchange_null2slash(
+				element->text_item );
+
+		element->text_item->post_change_javascript =
+			post_change_javascript;
+
+		element->text_item->on_focus_javascript_function =
+			on_focus_javascript_function;
+
+		element->text_item->state = "update";
+	}
+	else
+	if ( timlib_strcmp( datatype, "integer" ) == 0
 	||   timlib_strcmp( datatype, "float" ) == 0 )
 	{
 		element = element_new( 	text_item,
@@ -2967,6 +2999,8 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 		element_text_item_set_attribute_width(
 				element->text_item, 
 				width );
+
+		element->text_item->is_numeric = 1;
 
 		if ( is_primary_attribute )
 		{

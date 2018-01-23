@@ -3531,6 +3531,8 @@ void dictionary_output_heading_to_file(	FILE *output_file,
 
 } /* dictionary_output_heading_to_file() */
 
+/* Set the current time, if expected but not there. */
+/* ------------------------------------------------ */
 void dictionary_set_indexed_date_time_to_current(
 					DICTIONARY *dictionary,
 					LIST *attribute_list )
@@ -3594,6 +3596,72 @@ void dictionary_set_indexed_date_time_to_current(
 	} /* for( index ) */
 
 } /* dictionary_set_indexed_date_time_to_current() */
+
+void dictionary_remove_symbols_in_numbers(
+				DICTIONARY *dictionary,
+				LIST *attribute_list )
+{
+	ATTRIBUTE *attribute;
+	char key[ 32 ];
+	char *data;
+	int highest_index;
+	int index;
+
+	if ( !list_rewind( attribute_list ) ) return;
+
+	highest_index =
+		dictionary_attribute_name_list_get_highest_index(
+			dictionary,
+			dictionary_get_attribute_name_list(
+				attribute_list ),
+			(char *)0 /* prepend_folder_name */ );
+
+	if ( highest_index < 0 ) return;
+
+	for ( index = 0; index <= highest_index; index++ )
+	{
+		list_rewind( attribute_list );
+
+		do {
+			attribute = list_get( attribute_list );
+
+			if ( timlib_strcmp(	attribute->datatype,
+						"float" ) != 0
+			&&   timlib_strcmp(	attribute->datatype,
+						"integer" ) != 0 )
+			{
+				continue;
+			}
+
+			sprintf(key,
+			 	"%s_%d",
+			 	attribute->attribute_name,
+				index );
+
+			if ( ( data = dictionary_fetch( dictionary, key ) )
+			&&     *data )
+			{
+				if ( character_exists( data, ',' ) )
+				{
+					timlib_remove_character(
+						data,
+						',' );
+				}
+
+				if ( character_exists( data, '$' ) )
+				{
+					timlib_remove_character(
+						data,
+						'$' );
+				}
+
+			}
+
+		} while( list_next( attribute_list ) );
+
+	} /* for( index ) */
+
+} /* dictionary_remove_symbols_in_numbers() */
 
 void dictionary_set_date_time_to_current(
 					DICTIONARY *dictionary,

@@ -407,12 +407,12 @@ char *timlib_escape_character_array(
 char *timlib_sql_injection_escape(
 				char *source );
 
-void remove_end_characters( char *d, char *s, char end_character );
+void remove_end_characters(	char *d, char *s, char end_character );
 
-void timlib_remove_character(	char *source_destination,
+char *timlib_remove_character(	char *source_destination,
 				char character );
 
-void remove_character(		char *source_destination,
+char *remove_character(		char *source_destination,
 				char character );
 
 int timlib_get_line(		char *in_line,

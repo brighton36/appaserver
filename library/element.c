@@ -311,7 +311,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->tab_index,
 			0 /* not without_td_tags */,
 			element->text_item->readonly,
-			element->text_item->state );
+			element->text_item->state,
+			element->text_item->is_numeric );
 	}
 	else
 	if ( element->element_type == element_date )
@@ -503,7 +504,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->tab_index,
 			0 /* not without_td_tags */,
 			element->text_item->readonly,
-			element->text_item->state );
+			element->text_item->state,
+			element->text_item->is_numeric );
 	}
 	else
 	if ( element->element_type == element_time )
@@ -522,7 +524,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->tab_index,
 			0 /* not without_td_tags */,
 			element->text_item->readonly,
-			element->text_item->state );
+			element->text_item->state,
+			element->text_item->is_numeric );
 	}
 	else
 	if ( element->element_type == password )
@@ -1664,7 +1667,8 @@ void element_text_item_output( 	FILE *output_file,
 				int tab_index,
 				boolean without_td_tags,
 				boolean readonly,
-				char *state )
+				char *state,
+				boolean is_numeric )
 {
 	int maxlength, size;
 	char buffer[ 512 ];
@@ -1681,6 +1685,11 @@ void element_text_item_output( 	FILE *output_file,
 		size = attribute_width;
 
 	if ( !data ) data = "";
+
+	if ( is_numeric )
+	{
+		data = place_commas_in_number_string( data );
+	}
 
 	if ( !without_td_tags ) fprintf( output_file, "<td>" );
 
@@ -2281,7 +2290,8 @@ void element_drop_down_output(
 			element->tab_index,
 			0 /* not without_td_tags */,
 			element->text_item->readonly,
-			element->text_item->state );
+			element->text_item->state,
+			element->text_item->is_numeric );
 
 		return;
 
@@ -3005,7 +3015,8 @@ void element_http_filename_output(	FILE *output_file,
 			0 /* tab_index */,
 			1 /* without_td_tags */,
 			element_text_item->readonly,
-			element_text_item->state );
+			element_text_item->state,
+			element_text_item->is_numeric );
 	}
 
 	fprintf(output_file, "</td>\n" );

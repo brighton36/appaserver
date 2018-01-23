@@ -103,8 +103,7 @@ int post_state_update_for_folder(
 				char *folder_name_comma_list_string,
 				char *optional_related_attribute_name );
 
-void post_state_insert(
-				DICTIONARY_APPASERVER *dictionary_appaserver,
+void post_state_insert(		DICTIONARY_APPASERVER *dictionary_appaserver,
 				char *application_name,
 				char *session,
 				FOLDER *folder,
@@ -120,8 +119,7 @@ void post_state_insert(
 				char *vertical_new_button_base_folder_name,
 				char *primary_data_list_string );
 
-void post_state_lookup(
-				DICTIONARY_APPASERVER *dictionary_appaserver,
+void post_state_lookup(		DICTIONARY_APPASERVER *dictionary_appaserver,
 				char *application_name,
 				char *session,
 				char *folder_name,
@@ -338,7 +336,13 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	/* Set the current time, if expected but not there. */
+	/* ------------------------------------------------ */
 	dictionary_set_indexed_date_time_to_current(
+		dictionary_appaserver->row_dictionary,
+		folder->attribute_list );
+
+	dictionary_remove_symbols_in_numbers(
 		dictionary_appaserver->row_dictionary,
 		folder->attribute_list );
 

@@ -194,7 +194,13 @@ void output_insert_statements(	char *table_name,
 			printf( "insert into %s", table_name );
 		}
 
-		if ( *field_names ) printf( " (%s)", field_names );
+		if ( *field_names )
+		{
+			printf( " (%s)",
+				timlib_remove_character(
+					field_names,
+					LF ) );
+		}
 
 		printf( " values (" );
 		output_row( buffer, delimiter, max_piece );

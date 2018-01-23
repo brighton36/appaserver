@@ -121,7 +121,11 @@ function export_processes()
 
 	# prompt
 	# ------
-	select="prompt,input_width,hint_message,upload_filename_yn,date_yn"
+	select="prompt,
+		input_width,
+		hint_message,
+		upload_filename_yn,
+		date_yn"
 	echo "select "$select" from prompt;"				|
 	sql.e								|
 	insert_statement.e t=prompt f="$select" del='^'			|

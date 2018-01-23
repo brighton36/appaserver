@@ -189,6 +189,7 @@ typedef struct
 	char *state;
 	boolean dont_create_current_date;
 	boolean readonly;
+	boolean is_numeric;
 } ELEMENT_TEXT_ITEM;
 
 typedef struct
@@ -383,7 +384,8 @@ void element_text_item_output( 		FILE *output_file,
 					int tab_index,
 					boolean without_td_tags,
 					boolean readonly,
-					char *state );
+					char *state,
+					boolean is_numeric );
 
 void element_text_item_set_onchange_null2slash(
 						ELEMENT_TEXT_ITEM *e );

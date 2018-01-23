@@ -90,6 +90,10 @@ UPDATE_DATABASE *update_database_new(
 			application_name,
 			update_database->folder->attribute_list );
 
+	dictionary_remove_symbols_in_numbers(
+			file_dictionary,
+			update_database->folder->attribute_list );
+
 	if ( list_length( update_database->
 				folder->
 				one2m_recursive_related_folder_list ) )

@@ -1278,24 +1278,30 @@ char *search_replace_once(
 
 } /* search_replace_once() */
 
-void timlib_remove_character( char *source_destination, char character )
+char *timlib_remove_character( char *source_destination, char character )
 {
-	remove_character( source_destination, character );
+	return remove_character( source_destination, character );
 }
-	
-void remove_character( char *source_destination, char character )
+
+char *remove_character( char *source_destination, char character )
 {
+	char *anchor = source_destination;
+
 	if ( source_destination )
 	{
 		while( *source_destination )
 		{
 			if ( *source_destination == character )
-				strcpy(	source_destination,
-					source_destination + 1 );
+				timlib_strcpy(	source_destination,
+						source_destination + 1,
+						0 );
 			else
 				source_destination++;
 		}
 	}
+
+	return anchor;
+
 } /* remove_character() */
 
 char *search_replace( 	char *search_str, 

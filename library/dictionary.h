@@ -367,7 +367,11 @@ DICTIONARY *dictionary_record_to_dictionary(
 					char *record,
 					char delimiter );
 
-void dictionary_trim_double_bracked_data(DICTIONARY *dictionary );
+void dictionary_trim_double_bracked_data(
+					DICTIONARY *dictionary );
+
+char *dictionary_trim_double_bracked_string(
+					char *string );
 
 LIST *dictionary_extract_prefixed_key_list(
 					DICTIONARY *dictionary,
@@ -376,9 +380,6 @@ LIST *dictionary_extract_prefixed_key_list(
 LIST *dictionary_extract_and_remove_prefixed_key_list(
 					DICTIONARY *dictionary,
 					char *starting_prefix );
-
-char *dictionary_trim_double_bracked_string(
-					char *string );
 
 void dictionary_delete_prefixed_keys(
 					DICTIONARY *dictionary,
@@ -454,7 +455,9 @@ void dictionary_trim_multi_drop_down_index(
 
 void dictionary_trim_prefix(		DICTIONARY *dictionary,
 					char *prefix );
+
 void dictionary_escape_single_quotes(	DICTIONARY *dictionary );
+
 boolean dictionary_get_index_list_string(
 					char *destination,
 					DICTIONARY *dictionary,
@@ -511,6 +514,8 @@ void dictionary_row_output_to_file( 	FILE *output_file,
 void dictionary_output_heading_to_file(	FILE *output_file, 
 					LIST *attribute_name_list );
 
+/* Set the current time, if expected but not there. */
+/* ------------------------------------------------ */
 void dictionary_set_indexed_date_time_to_current(
 					DICTIONARY *dictionary,
 					LIST *attribute_list );
@@ -536,5 +541,9 @@ LIST *dictionary_seek_delimited_list(
 
 LIST *dictionary_get_non_indexed_key_list(
 					DICTIONARY *dictionary );
+
+void dictionary_remove_symbols_in_numbers(
+					DICTIONARY *dictionary,
+					LIST *attribute_list );
 
 #endif

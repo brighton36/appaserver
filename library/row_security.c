@@ -868,7 +868,8 @@ LIST *row_security_get_update_element_list(
 			continue;
 		}
 
-		attribute = attribute_seek_attribute( 
+		attribute =
+			attribute_seek_attribute( 
 				append_isa_attribute_list,
 				attribute_name );
 

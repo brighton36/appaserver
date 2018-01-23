@@ -1673,6 +1673,7 @@ void element_text_item_output( 	FILE *output_file,
 	int maxlength, size;
 	char buffer[ 512 ];
 	int did_onchange = 0;
+	char *type = "text";
 
 	if ( lookup_attribute_width )
 		attribute_width = lookup_attribute_width;
@@ -1689,15 +1690,21 @@ void element_text_item_output( 	FILE *output_file,
 	if ( is_numeric )
 	{
 		data = place_commas_in_number_string( data );
+		/* type = "number"; */
 	}
 
 	if ( !without_td_tags ) fprintf( output_file, "<td>" );
 
 	fprintf( output_file,
-	"<input name=\"%s_%d\" type=\"text\" size=\"%d\" value=\"%s\"",
-		element_name, row, size, data );
+	"<input name=\"%s_%d\" type=\"%s\" size=\"%d\" value=\"%s\"",
+		element_name, row, type, size, data );
 
 	fprintf( output_file, " maxlength=\"%d\"", maxlength );
+
+	if ( maxlength > size )
+	{
+		fprintf( output_file, " title=\"%s\"", data );
+	}
 
 	if ( tab_index )
 	{
@@ -2798,12 +2805,20 @@ void element_prompt_data_output(
 	char buffer[ 65536 ];
 	char align_string[ 512 ];
 
-	if ( align )
-		sprintf( align_string, "align=%s", align );
-	else
-		*align_string = '\0';
-
 	if ( !data ) data = "";
+
+	if ( align )
+	{
+		sprintf( align_string, "align=%s", align );
+
+		if ( strcmp( align, "right" ) == 0 )
+
+		data = place_commas_in_number_string( data );
+	}
+	else
+	{
+		*align_string = '\0';
+	}
 
 	if ( format_initial_capital_variable )
 		format_initial_capital( buffer, data );
@@ -2818,7 +2833,9 @@ void element_prompt_data_output(
 				buffer,
 				"%0D%0A",
 				"<br>" ) ) );
+
 	fprintf( output_file, "</td>\n" );
+
 } /* element_prompt_data_output() */
 
 /* ELEMENT_EMPTY_COLUMN Operations */

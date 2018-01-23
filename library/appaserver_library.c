@@ -2722,6 +2722,12 @@ LIST *appaserver_library_get_update_lookup_attribute_element_list(
 				element->prompt_data,
 				element->name );
 
+		if ( timlib_strcmp( datatype, "float" ) == 0
+		||   timlib_strcmp( datatype, "integer" ) == 0 )
+		{
+			element->prompt_data->align = "right";
+		}
+
 		list_append_pointer(
 				return_list, 
 				element );

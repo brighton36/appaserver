@@ -29,6 +29,8 @@ function post_change_project( row )
 			element_name, 0 );
 	element.disabled = true;
 
+	// Check for award_type = 'task'
+	// -----------------------------
 	element_name = 'award_type_' + row;
 
 	element = timlib_get_element( element_name );

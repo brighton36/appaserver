@@ -3602,7 +3602,7 @@ void dictionary_remove_symbols_in_numbers(
 				LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
-	char key[ 32 ];
+	char key[ 128 ];
 	char *data;
 	int highest_index;
 	int index;

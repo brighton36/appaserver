@@ -142,19 +142,25 @@ int main( int argc, char **argv )
 			execute );
 
 	if ( execute )
+	{
+		process_increment_execution_count(
+			application_name,
+			process_name,
+			appaserver_parameter_file_get_dbms() );
+
 		printf( "<p>Process complete with %d transactions.\n",
 			load_count );
+	}
 	else
+	{
 		printf( "<p>Process did not load %d transactions.\n",
 			load_count );
+	}
 
 	document_close();
 
-	process_increment_execution_count(
-				application_name,
-				process_name,
-				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
+
 } /* main() */
 
 int load_bank_spreadsheet(

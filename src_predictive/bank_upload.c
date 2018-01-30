@@ -6,11 +6,14 @@
 /* -------------------------------------------------------------------- */
 
 #include <stdio.h>
+#include <unistd.h>
 #include "timlib.h"
+#include "date_convert.h"
+#include "piece.h"
+#include "appaserver_library.h"
 #include "bank_upload.h"
 
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
-			char *application_name,
 			char *fund_name,
 			char *input_filename )
 {
@@ -30,12 +33,6 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 	p->fund_name = fund_name;
 	p->input_filename = input_filename;
-
-	p->bank_upload_list =
-		bank_upload_fetch_list(
-			application_name,
-			p->fund_name,
-			p->input_filename );
 
 	return p;
 
@@ -61,12 +58,6 @@ BANK_UPLOAD *bank_upload_new(
 
 	p->bank_date = bank_date;
 	p->bank_description = bank_description;
-
-	p->bank_upload_list =
-		bank_upload_fetch_list(
-			application_name,
-			p->fund_name,
-			p->input_filename );
 
 	return p;
 
@@ -94,7 +85,7 @@ REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 	reoccurring_transaction->full_name = full_name;
 	reoccurring_transaction->street_address = street_address;
 
-	if ( !ledger_reoccurring_transaction_load(
+	if ( !bank_upload_reoccurring_transaction_load(
 			&reoccurring_transaction->debit_account,
 			&reoccurring_transaction->credit_account,
 			&transaction_amount,
@@ -167,15 +158,13 @@ boolean bank_upload_reoccurring_transaction_load(
 
 /* Returns table_insert_count */
 /* -------------------------- */
-int bank_upload_table_insert(
-			int *starting_sequence_number,
-			char *application_name,
-			char *fund_name,
-			char *input_filename,
-			boolean execute )
+int bank_upload_table_insert(	FILE *input_file,
+				char *application_name,
+				char *fund_name,
+				boolean execute,
+				int starting_sequence_number )
 {
 	char sys_string[ 1024 ];
-	FILE *input_file;
 	char input_string[ 4096 ];
 	char *table_name;
 	char bank_date[ 128 ];
@@ -186,32 +175,14 @@ int bank_upload_table_insert(
 	FILE *table_output_pipe = {0};
 	FILE *bank_upload_insert_pipe = {0};
 	int table_insert_count = 0;
-	int sequence_number = 0;
 	boolean found_header = 0;
 	char error_filename[ 128 ] = {0};
 	char *insert_bank_download;
-	LIST *bank_upload_list;
-
-	if ( ! ( sequence_number =
-			get_sequence_number(
-				application_name,
-				input_filename ) ) )
-	{
-		printf( "<h2>ERROR: cannot get sequence number</h2>\n" );
-		return 0;
-	}
-
-	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
-	{
-		printf( "<h2>ERROR: cannot open %s for read.</h2>\n",
-			input_filename );
-		return 0;
-	}
 
 	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
-		insert_bank_download = INSERT_BANK_DOWNLOAD_FUND;
+		insert_bank_download = INSERT_BANK_UPLOAD_FUND;
 	else
-		insert_bank_download = INSERT_BANK_DOWNLOAD;
+		insert_bank_download = INSERT_BANK_UPLOAD;
 
 	if ( execute )
 	{
@@ -238,9 +209,9 @@ int bank_upload_table_insert(
 	else
 	{
 		sprintf( sys_string,
-		"queue_top_bottom_lines.e 50				|"
-		"html_table.e '^Insert into Bank Download' %s '%c'	 ",
-			 INSERT_BANK_DOWNLOAD,
+		"queue_top_bottom_lines.e 50		|"
+		"html_table.e '' %s '%c'		 ",
+			 INSERT_BANK_UPLOAD,
 			 FOLDER_DATA_DELIMITER);
 
 		table_output_pipe = popen( sys_string, "w" );
@@ -276,7 +247,9 @@ int bank_upload_table_insert(
 			continue;
 		}
 
-		if ( *fund_name )
+		if (	fund_name
+		&&	*fund_name
+		&&	strcmp( fund_name, "fund" ) != 0 )
 		{
 			if ( timlib_strcmp(
 				bank_description,
@@ -304,15 +277,17 @@ int bank_upload_table_insert(
 		/* ---------------------------- */
 		if ( !atof( bank_amount ) ) continue;
 
+		/* Bank running balance is optional */
+		/* -------------------------------- */
 		if ( !piece_quote_comma(
 				bank_running_balance,
 				input_string,
 				3 ) )
 		{
-			continue;
+			strcpy( bank_running_balance, "null" );
 		}
 
-		if ( !get_bank_date_international(
+		if ( !bank_upload_get_bank_date_international(
 				bank_date_international,
 				bank_date ) )
 		{
@@ -325,7 +300,7 @@ int bank_upload_table_insert(
 			 	"%s^%s^%d^%s^%s^%s\n",
 			 	bank_date_international,
 			 	bank_description,
-				sequence_number++,
+				starting_sequence_number++,
 			 	bank_amount,
 				bank_running_balance,
 				fund_name );
@@ -336,7 +311,7 @@ int bank_upload_table_insert(
 			 	"%s^%s^%d^%s^%s^%s\n",
 			 	bank_date_international,
 			 	bank_description,
-				sequence_number++,
+				starting_sequence_number++,
 			 	bank_amount,
 				bank_running_balance,
 				fund_name );
@@ -344,8 +319,6 @@ int bank_upload_table_insert(
 
 		table_insert_count++;
 	}
-
-	fclose( input_file );
 
 	if ( execute )
 	{
@@ -373,4 +346,84 @@ int bank_upload_table_insert(
 	return table_insert_count;
 
 } /* bank_upload_table_insert() */
+
+int bank_upload_get_starting_sequence_number(
+			char *application_name,
+			char *input_filename )
+{
+	int line_count;
+	char sys_string[ 1024 ];
+
+	line_count =
+		bank_upload_get_line_count(
+			input_filename );
+
+	sprintf( sys_string,
+		 "reference_number.sh %s %d",
+		 application_name,
+		 line_count );
+
+	return atoi( pipe2string( sys_string ) );
+
+} /* bank_upload_get_starting_sequence_number() */
+
+int bank_upload_get_line_count( char *input_filename )
+{
+	char input_string[ 4096 ];
+	char bank_date[ 128 ];
+	FILE *input_file;
+	int line_count = 0;
+	boolean found_header = 0;
+
+	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
+	{
+		printf( "<h2>ERROR: cannot open %s for read</h2>\n",
+			input_filename );
+		document_close();
+		exit( 1 );
+	}
+
+	while( timlib_get_line( input_string, input_file, 4096 ) )
+	{
+		trim( input_string );
+		if ( !*input_string ) continue;
+
+		if ( !piece_quote_comma(
+				bank_date,
+				input_string,
+				0 ) )
+		{
+			continue;
+		}
+
+		if ( !found_header )
+		{
+			if ( strcmp( bank_date, "Date" ) == 0 )
+			{
+				found_header = 1;
+			}
+			continue;
+		}
+
+		line_count++;
+	}
+
+	fclose( input_file );
+	return line_count;
+
+} /* bank_upload_get_line_count() */
+
+boolean bank_upload_get_bank_date_international(
+				char *bank_date_international,
+				char *bank_date )
+{
+	date_convert_source_american(
+		bank_date_international,
+		international,
+		bank_date );
+
+	return date_convert_is_valid_international(
+		bank_date_international );
+
+} /* bank_upload_get_bank_date_international() */
 

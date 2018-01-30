@@ -60,7 +60,6 @@ typedef struct
 /* Operations */
 /* ---------- */
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
-					char *application_name,
 					char *fund_name,
 					char *input_filename );
 
@@ -84,12 +83,21 @@ BANK_UPLOAD *bank_upload_new(
 
 /* Returns table_insert_count */
 /* -------------------------- */
-int bank_upload_table_insert(
-					int *starting_sequence_number,
+int bank_upload_table_insert(		FILE *input_file,
 					char *application_name,
 					char *fund_name,
-					char *input_filename,
-					boolean execute );
+					boolean execute,
+					int starting_sequence_number );
+
+int bank_upload_get_sequence_number(
+					char *application_name,
+					char *input_filename );
+
+int bank_upload_get_line_count(		char *input_filename );
+
+boolean bank_upload_get_bank_date_international(
+					char *bank_date_international,
+					char *bank_date );
 
 #endif
 

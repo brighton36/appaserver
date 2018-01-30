@@ -313,11 +313,13 @@ populate_print_checks_entity: populate_print_checks_entity.c		\
 		-o populate_print_checks_entity
 
 load_bank_spreadsheet: load_bank_spreadsheet.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		bank_upload.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		load_bank_spreadsheet.c					\
+		bank_upload.o						\
 		-o load_bank_spreadsheet
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\

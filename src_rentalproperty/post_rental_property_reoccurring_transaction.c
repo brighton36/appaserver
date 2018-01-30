@@ -22,6 +22,7 @@
 #include "html_table.h"
 #include "date.h"
 #include "boolean.h"
+#include "bank_upload.h"
 #include "rental.h"
 
 /* Constants */
@@ -189,7 +190,7 @@ void post_reoccurring_transaction_display(
 	char buffer[ 128 ];
 
 	if ( ! ( reoccurring_transaction =
-			ledger_reoccurring_transaction_new(
+			bank_upload_reoccurring_transaction_new(
 					application_name,
 					full_name,
 					street_address,
@@ -262,7 +263,7 @@ void post_reoccurring_transaction(
 	LIST *propagate_account_list = list_new();
 
 	if ( ! ( reoccurring_transaction =
-			ledger_reoccurring_transaction_new(
+			bank_upload_reoccurring_transaction_new(
 					application_name,
 					full_name,
 					street_address,

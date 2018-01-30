@@ -194,18 +194,21 @@ int bank_upload_table_insert(	FILE *input_file,
 	int table_insert_count = 0;
 	boolean found_header = 0;
 	char error_filename[ 128 ] = {0};
-	char *insert_bank_download;
+	char *insert_bank_upload;
 	static char local_minimum_bank_date[ 16 ] = {0};
+	boolean exists_fund;
+
+	exists_fund = ledger_fund_attribute_exists( application_name );
 
 	if ( minimum_bank_date )
 	{
 		*minimum_bank_date = local_minimum_bank_date;
 	}
 
-	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
-		insert_bank_download = INSERT_BANK_UPLOAD_FUND;
+	if ( exists_fund )
+		insert_bank_upload = INSERT_BANK_UPLOAD_FUND;
 	else
-		insert_bank_download = INSERT_BANK_UPLOAD;
+		insert_bank_upload = INSERT_BANK_UPLOAD;
 
 	if ( execute )
 	{
@@ -223,7 +226,7 @@ int bank_upload_table_insert(	FILE *input_file,
 		 "sql.e 2>&1						  |"
 		 "cat > %s						   ",
 		 	table_name,
-		 	insert_bank_download,
+		 	insert_bank_upload,
 		 	FOLDER_DATA_DELIMITER,
 			error_filename );
 
@@ -231,11 +234,16 @@ int bank_upload_table_insert(	FILE *input_file,
 	}
 	else
 	{
+		char *justify;
+
+		justify = "left,left,right";
+
 		sprintf( sys_string,
 		"queue_top_bottom_lines.e 50		|"
-		"html_table.e '' %s '%c'		 ",
-			 INSERT_BANK_UPLOAD,
-			 FOLDER_DATA_DELIMITER);
+		"html_table.e '' %s '%c' %s		 ",
+			 insert_bank_upload,
+			 FOLDER_DATA_DELIMITER,
+			 justify );
 
 		table_output_pipe = popen( sys_string, "w" );
 	}
@@ -270,9 +278,7 @@ int bank_upload_table_insert(	FILE *input_file,
 			continue;
 		}
 
-		if (	fund_name
-		&&	*fund_name
-		&&	strcmp( fund_name, "fund" ) != 0 )
+		if ( exists_fund )
 		{
 			if ( timlib_strcmp(
 				bank_description,
@@ -335,25 +341,51 @@ int bank_upload_table_insert(	FILE *input_file,
 
 		if ( table_output_pipe )
 		{
-			fprintf(table_output_pipe,
-			 	"%s^%s^%d^%s^%s^%s\n",
-			 	bank_date_international,
-			 	bank_description,
-				starting_sequence_number++,
-			 	bank_amount,
-				bank_running_balance,
-				fund_name );
+			if ( exists_fund )
+			{
+				fprintf(table_output_pipe,
+			 		"%s^%s^%d^%s^%s^%s\n",
+			 		bank_date_international,
+			 		bank_description,
+					starting_sequence_number++,
+			 		bank_amount,
+					bank_running_balance,
+					fund_name );
+			}
+			else
+			{
+				fprintf(table_output_pipe,
+			 		"%s^%s^%d^%s^%s\n",
+			 		bank_date_international,
+			 		bank_description,
+					starting_sequence_number++,
+			 		bank_amount,
+					bank_running_balance );
+			}
 		}
 		else
 		{
-			fprintf(bank_upload_insert_pipe,
-			 	"%s^%s^%d^%s^%s^%s\n",
-			 	bank_date_international,
-			 	bank_description,
-				starting_sequence_number++,
-			 	bank_amount,
-				bank_running_balance,
-				fund_name );
+			if ( exists_fund )
+			{
+				fprintf(bank_upload_insert_pipe,
+			 		"%s^%s^%d^%s^%s^%s\n",
+			 		bank_date_international,
+			 		bank_description,
+					starting_sequence_number++,
+			 		bank_amount,
+					bank_running_balance,
+					fund_name );
+			}
+			else
+			{
+				fprintf(bank_upload_insert_pipe,
+			 		"%s^%s^%d^%s^%s\n",
+			 		bank_date_international,
+			 		bank_description,
+					starting_sequence_number++,
+			 		bank_amount,
+					bank_running_balance );
+			}
 		}
 
 		table_insert_count++;
@@ -763,7 +795,9 @@ void bank_upload_set_transaction(
 						/* transaction_date */ ),
 				(char *)0 /* memo */ );
 
-		transaction->transaction_amount = bank_upload->bank_amount;
+		transaction->transaction_amount =
+			float_abs( bank_upload->bank_amount );
+
 		bank_upload->transaction = transaction;
 		transaction->journal_ledger_list = list_new();
 
@@ -835,11 +869,14 @@ void bank_upload_insert_transaction(
 
 void bank_upload_html_display( LIST *bank_upload_list )
 {
+	BANK_UPLOAD *bank_upload;
+
+	if ( !list_length( bank_upload_list ) ) return;
+
+#ifdef NOT_DEFINED
+	char buffer[ 128 ];
 	HTML_TABLE *html_table;
 	LIST *heading_list;
-	BANK_UPLOAD *bank_upload;
-	char buffer[ 128 ];
-
 	html_table =
 		html_table_new(
 			(char *)0 /* title */,
@@ -902,6 +939,18 @@ void bank_upload_html_display( LIST *bank_upload_list )
 
 		html_table->data_list = list_new();
 
+	} while( list_next( bank_upload_list ) );
+
+	html_table_close();
+#endif
+
+	/* Display the generated transactions */
+	/* ---------------------------------- */
+	list_rewind( bank_upload_list );
+
+	do {
+		bank_upload = list_get( bank_upload_list );
+
 		if ( bank_upload->transaction )
 		{
 			ledger_list_html_display(
@@ -911,8 +960,6 @@ void bank_upload_html_display( LIST *bank_upload_list )
 		}
 
 	} while( list_next( bank_upload_list ) );
-
-	html_table_close();
 
 } /* bank_upload_html_display() */
 

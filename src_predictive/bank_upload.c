@@ -689,16 +689,146 @@ LIST *bank_upload_fetch_reoccurring_transaction_list(
 
 } /* bank_upload_fetch_reoccurring_transaction_list() */
 
+REOCCURRING_TRANSACTION *bank_upload_seek_bank_upload_search_phrase(
+				LIST *reoccurring_transaction_list,
+				char *bank_description )
+{
+	REOCCURRING_TRANSACTION *reoccurring_transaction;
+
+	if ( !list_rewind( reoccurring_transaction_list ) )
+		return (REOCCURRING_TRANSACTION *)0;
+
+	do {
+		reoccurring_transaction =
+			list_get(
+				reoccurring_transaction_list );
+
+		if ( timlib_exists_string(
+			bank_description /* string */,
+			reoccurring_transaction->
+				bank_upload_search_phrase
+					/* substring */ ) )
+		{
+			return reoccurring_transaction;
+		}
+
+	} while( list_next( reoccurring_transaction_list ) );
+
+	return (REOCCURRING_TRANSACTION *)0;
+
+} /* bank_upload_seek_bank_upload_search_phrase() */
+
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
 				LIST *reoccurring_transaction_list,
 				LIST *existing_cash_journal_ledger_list )
 {
+	BANK_UPLOAD *bank_upload;
+	REOCCURRING_TRANSACTION *reoccurring_transaction;
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( bank_upload_list ) ) return;
+
+	do {
+		bank_upload = list_get( bank_upload_list );
+
+		if ( ! ( reoccurring_transaction =
+				bank_upload_seek_bank_upload_search_phrase(
+					reoccurring_transaction_list,
+					bank_upload->bank_description ) ) )
+		{
+			continue;
+		}
+
+		if ( ledger_exists_journal_ledger(
+				existing_cash_journal_ledger_list,
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				bank_upload->bank_date
+					/* transaction_date */,
+				bank_upload->bank_amount
+					/* transaction_amount */ ) )
+		{
+			continue;
+		}
+
+		transaction =
+			ledger_transaction_new(
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				ledger_get_transaction_date_time(
+					bank_upload->bank_date
+						/* transaction_date */ ),
+				(char *)0 /* memo */ );
+
+		transaction->transaction_amount = bank_upload->bank_amount;
+		bank_upload->transaction = transaction;
+		transaction->journal_ledger_list = list_new();
+
+		/* Set the debit account */
+		/* --------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				reoccurring_transaction->debit_account );
+
+		journal_ledger->debit_amount = transaction->transaction_amount;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+		/* Set the credit account */
+		/* ---------------------- */
+		journal_ledger =
+			journal_ledger_new(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				reoccurring_transaction->credit_account );
+
+		journal_ledger->credit_amount = transaction->transaction_amount;
+
+		list_append_pointer(
+			transaction->journal_ledger_list,
+			journal_ledger );
+
+	} while( list_next( bank_upload_list ) );
+
 } /* bank_upload_set_transaction() */
 
 void bank_upload_insert_transaction(
 					char *application_name,
 					LIST *bank_upload_list )
 {
+	BANK_UPLOAD *bank_upload;
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( bank_upload_list ) ) return;
+
+	do {
+		bank_upload = list_get( bank_upload_list );
+
+		if ( !bank_upload->transaction ) continue;
+
+		transaction = bank_upload->transaction;
+
+		transaction->transaction_date_time =
+			ledger_transaction_journal_ledger_insert(
+				application_name,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->transaction_amount,
+				transaction->memo,
+				transaction->check_number,
+				transaction->lock_transaction,
+				transaction->journal_ledger_list );
+
+	} while( list_next( bank_upload_list ) );
+
 } /* bank_upload_insert_transaction() */
 

@@ -183,8 +183,11 @@ int count_characters( int char_to_count, char *source );
 double time2day_percentage( int hour, int minute );
 void unget_line_queue( char *in_line );
 int get_line_queue( char *in_line, FILE *infile );
+
 double abs_float( double f );
+
 double float_abs( double f );
+
 char *insert_string( char *source_destination, char *substring, int pos );
 double get_percent_of_day( char *time_string );
 void increment_time_one_hour(		char *time_string );
@@ -254,10 +257,14 @@ int instr_exclude_double_quoted(	char *substr,
 					char *string,
 					int occurrence );
 char *rtrim(				char *buffer );
+
 void search_replace_special_characters(
 					char *buffer );
+
 void escape_special_characters(		char *data );
+
 boolean timlib_exists_special_character(char *data );
+
 char *mysql2american_date(		char *date_buffer,
 					char *mysql_date );
 
@@ -327,16 +334,20 @@ double timlib_get_x_increment_days(
 				enum aggregate_level aggregate_level );
 
 char *timlib_yyyy_mm_dd_to_julian(	char *yyyy_mm_dd );
+
 char *timlib_integer2binary(		unsigned integer );
+
 boolean timlib_string_until_character_matches(
 					char *source,
 					char *string_compare,
 					char delimiter );
+
 unsigned int timlib_factoral(		int n );
 
 char timlib_get_delimiter(		char *string );
 
 int timlib_get_index(			char *s );
+
 char *timlib_search_replace_character_limited(
 					char *source_destination,
 					char search_character,

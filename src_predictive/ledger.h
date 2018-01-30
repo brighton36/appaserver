@@ -159,7 +159,7 @@ JOURNAL_LEDGER *ledger_journal_ledger_calloc(
 
 JOURNAL_LEDGER *journal_ledger_new(	char *full_name,
 					char *street_address,
-					char *transaction_date,
+					char *transaction_date_time,
 					char *account_name );
 
 ACCOUNT *ledger_account_fetch(		char *application_name,
@@ -1042,5 +1042,12 @@ double ledger_output_subclassification_aggregate_html_element(
 
 boolean ledger_exists_net_assets_equity_subclassification(
 				LIST *subclassification_list );
+
+boolean ledger_exists_journal_ledger(
+				LIST *journal_ledger_list,
+				char *full_name,
+				char *street_address,
+				char *transaction_date,
+				double transaction_amount );
 
 #endif

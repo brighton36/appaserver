@@ -145,5 +145,9 @@ void bank_upload_reoccurring_transaction_parse(
 					char **bank_upload_search_phrase,
 					char *input_buffer );
 
+REOCCURRING_TRANSACTION *bank_upload_seek_bank_upload_search_phrase(
+					LIST *reoccurring_transaction_list,
+					char *bank_description );
+
 #endif
 

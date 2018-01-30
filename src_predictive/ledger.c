@@ -8895,3 +8895,53 @@ boolean ledger_exists_net_assets_equity_subclassification(
 	return 0;
 
 } /* ledger_exists_net_assets_equity_subclassification() */
+
+boolean ledger_exists_journal_ledger(
+				LIST *journal_ledger_list,
+				char *full_name,
+				char *street_address,
+				char *transaction_date,
+				double transaction_amount )
+{
+	JOURNAL_LEDGER *journal_ledger;
+	double abs_transaction_amount;
+
+	if ( !list_rewind( journal_ledger_list ) ) return 0;
+
+	if ( timlib_dollar_virtually_same( transaction_amount, 0.0 ) )
+		return 0;
+
+	abs_transaction_amount = float_abs( transaction_amount );
+
+	do {
+		journal_ledger = list_get( journal_ledger_list );
+
+		if ( timlib_strcmp(
+			journal_ledger->full_name,
+			full_name ) != 0
+		||   timlib_strcmp(
+			journal_ledger->street_address,
+			street_address ) != 0
+		||   timlib_strncmp(
+			journal_ledger->transaction_date_time,
+			transaction_date ) != 0 )
+		{
+			continue;
+		}
+
+		if ( timlib_dollar_virtually_same(
+			abs_transaction_amount,
+			journal_ledger->debit_amount )
+		||   timlib_dollar_virtually_same(
+			abs_transaction_amount,
+			journal_ledger->credit_amount ) )
+		{
+			return 1;
+		}
+
+	} while( list_next( journal_ledger_list ) );
+
+	return 0;
+
+} /* ledger_exists_journal_ledger() */
+

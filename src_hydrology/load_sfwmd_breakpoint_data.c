@@ -223,6 +223,11 @@ char *to_hhmm( char *d, char *s )
 
 	if ( !column( time_only, 1, s ) ) return (char *)0;
 
+	if ( character_count( ':', time_only ) == 2 )
+	{
+		piece_inverse( time_only, ':', 2 );
+	}
+
 	timlib_delete_character( time_only, ':' );
 
 	sprintf( d, 

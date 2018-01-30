@@ -127,10 +127,11 @@ int main( int argc, char **argv )
 			transaction_date_time,
 			transaction_amount,
 			memo );
+
+		goto all_done;
 	}
-	else
-	{
-		transaction_date_time =
+
+	transaction_date_time =
 		post_reoccurring_transaction(
 			application_name,
 			full_name,
@@ -139,8 +140,17 @@ int main( int argc, char **argv )
 			transaction_amount,
 			memo );
 
+	if ( transaction_date_time )
+	{
 		printf( "<h3>Process complete.</h3>\n" );
 	}
+	else
+	{
+		printf(
+		"<h3>Warning: no reoccurring transaction found.</h3>\n" );
+	}
+
+all_done:
 
 	document_close();
 
@@ -211,6 +221,8 @@ void post_reoccurring_transaction_display(
 
 } /* post_reoccurring_transaction_display() */
 
+/* Returns transaction_date_time */
+/* ----------------------------- */
 char *post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
@@ -232,9 +244,7 @@ char *post_reoccurring_transaction(
 					street_address,
 					transaction_amount ) ) )
 	{
-		printf(
-		"<h3>Warning: no reoccurring transaction found.</h3>\n" );
-		return;
+		return (char *)0;
 	}
 
 	if ( timlib_strcmp( memo, "memo" ) == 0 ) memo = (char *)0;

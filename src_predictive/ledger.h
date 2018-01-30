@@ -879,12 +879,10 @@ void ledger_journal_insert_stream(
 				char *credit_account_name );
 
 char *ledger_get_fund_where(	char *application_name,
-				char *folder_name,
 				char *fund_name );
 
 boolean ledger_fund_attribute_exists(
-				char *application_name,
-				char *folder_name );
+				char *application_name );
 
 boolean ledger_title_passage_rule_attribute_exists(
 				char *application_name,

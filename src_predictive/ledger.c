@@ -177,8 +177,7 @@ char *ledger_account_get_select( char *application_name )
 	char *select;
 
 	if ( ledger_fund_attribute_exists(
-			application_name,
-			"account" ) )
+			application_name ) )
 	{
 		select =
 "account,fund,subclassification,hard_coded_account_key";
@@ -1098,7 +1097,6 @@ LIST *ledger_element_get_account_list(
 	fund_where =
 		ledger_get_fund_where(
 			application_name,
-			"account" /* folder_name */,
 			fund_name );
 
 	*element_total = 0.0;
@@ -3547,8 +3545,7 @@ DICTIONARY *ledger_get_hard_coded_dictionary(
 	if ( return_dictionary ) return return_dictionary;
 
 	if ( ledger_fund_attribute_exists(
-				application_name,
-				"account" ) )
+				application_name ) )
 	{
 		return_dictionary = 
 			ledger_get_fund_hard_coded_dictionary(
@@ -5577,8 +5574,7 @@ LIST *ledger_get_fund_name_list( char *application_name )
 	char sys_string[ 512 ];
 
 	if ( !ledger_fund_attribute_exists(
-				application_name,
-				"account" ) )
+				application_name ) )
 	{
 		return (LIST *)0;
 	}
@@ -6386,23 +6382,19 @@ boolean ledger_title_passage_rule_attribute_exists(
 
 } /* ledger_title_passage_rule_attribute_exists() */
 
-boolean ledger_fund_attribute_exists(
-				char *application_name,
-				char *folder_name )
+boolean ledger_fund_attribute_exists( char *application_name )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-	 	"folder_attribute_exists.sh %s %s fund",
-	 	application_name,
-	 	folder_name );
+	 	"folder_attribute_exists.sh %s account fund",
+	 	application_name );
 
 	return ( system( sys_string ) == 0 );
 
 } /* ledger_fund_attribute_exists() */
 
 char *ledger_get_fund_where(	char *application_name,
-				char *folder_name,
 				char *fund_name )
 {
 	char where[ 128 ];
@@ -6415,8 +6407,7 @@ char *ledger_get_fund_where(	char *application_name,
 	}
 	else
 	if ( ledger_fund_attribute_exists(
-			application_name,
-			folder_name ) )
+			application_name ) )
 	{
 		sprintf(where,
 		 	"fund = '%s'",

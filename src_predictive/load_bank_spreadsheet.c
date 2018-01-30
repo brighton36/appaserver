@@ -189,6 +189,7 @@ int load_bank_spreadsheet(
 	bank_upload_structure->table_insert_count =
 		bank_upload_table_insert(
 			input_file,
+			&bank_upload_structure->minimum_bank_date,
 			application_name,
 			bank_upload_structure->fund_name,
 			execute,
@@ -196,6 +197,35 @@ int load_bank_spreadsheet(
 				starting_sequence_number );
 
 	fclose( input_file );
+
+	if ( !bank_upload_structure->table_insert_count ) return 0;
+
+	bank_upload_structure->bank_upload_list =
+		bank_upload_fetch_list(
+			application_name,
+			bank_upload_structure->
+				starting_sequence_number );
+
+	bank_upload_structure->existing_cash_journal_ledger_list =
+		bank_upload_fetch_existing_cash_journal_ledger_list(
+			application_name,
+			bank_upload_structure->
+				minimum_bank_date,
+			bank_upload_structure->
+				fund_name );
+
+	bank_upload_structure->reoccurring_transaction_list =
+		bank_upload_fetch_reoccurring_transaction_list(
+			application_name );
+
+	bank_upload_set_transaction(
+		bank_upload_structure->bank_upload_list,
+		bank_upload_structure->reoccurring_transaction_list,
+		bank_upload_structure->existing_cash_journal_ledger_list );
+
+	bank_upload_insert_transaction(
+		application_name,
+		bank_upload_structure->bank_upload_list );
 
 	return bank_upload_structure->table_insert_count;
 

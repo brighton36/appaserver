@@ -13,6 +13,26 @@
 #include "appaserver_library.h"
 #include "bank_upload.h"
 
+BANK_UPLOAD *bank_upload_calloc( void )
+{
+	BANK_UPLOAD *p =
+		(BANK_UPLOAD *)
+			calloc( 1, sizeof( BANK_UPLOAD ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	return p;
+
+} /* bank_upload_calloc() */
+
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			char *fund_name,
 			char *input_filename )
@@ -38,23 +58,10 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 } /* bank_upload_structure_new() */
 
-BANK_UPLOAD *bank_upload_new(
-				char *bank_date,
+BANK_UPLOAD *bank_upload_new(	char *bank_date,
 				char *bank_description )
 {
-	BANK_UPLOAD *p =
-		(BANK_UPLOAD *)
-			calloc( 1, sizeof( BANK_UPLOAD ) );
-
-	if ( !p )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit(1 );
-	}
+	BANK_UPLOAD *p = bank_upload_calloc();
 
 	p->bank_date = bank_date;
 	p->bank_description = bank_description;
@@ -62,6 +69,23 @@ BANK_UPLOAD *bank_upload_new(
 	return p;
 
 } /* bank_upload_new() */
+
+REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_calloc( void )
+{
+	REOCCURRING_TRANSACTION *p;
+
+	if ( ! ( p = calloc( 1, sizeof( REOCCURRING_TRANSACTION ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return p;
+}
 
 REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 					char *application_name,
@@ -71,16 +95,7 @@ REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 
-	if ( ! ( reoccurring_transaction =
-			calloc( 1, sizeof( REOCCURRING_TRANSACTION ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	reoccurring_transaction = bank_upload_reoccurring_transaction_calloc();
 
 	reoccurring_transaction->full_name = full_name;
 	reoccurring_transaction->street_address = street_address;
@@ -159,6 +174,7 @@ boolean bank_upload_reoccurring_transaction_load(
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_table_insert(	FILE *input_file,
+				char **minimum_bank_date,
 				char *application_name,
 				char *fund_name,
 				boolean execute,
@@ -178,6 +194,12 @@ int bank_upload_table_insert(	FILE *input_file,
 	boolean found_header = 0;
 	char error_filename[ 128 ] = {0};
 	char *insert_bank_download;
+	static char local_minimum_bank_date[ 16 ] = {0};
+
+	if ( minimum_bank_date )
+	{
+		*minimum_bank_date = local_minimum_bank_date;
+	}
 
 	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
 		insert_bank_download = INSERT_BANK_UPLOAD_FUND;
@@ -294,6 +316,22 @@ int bank_upload_table_insert(	FILE *input_file,
 			continue;
 		}
 
+		if ( !*local_minimum_bank_date )
+		{
+			strcpy(	local_minimum_bank_date,
+				bank_date_international );
+		}
+		else
+		{
+			if ( strcmp( 
+				local_minimum_bank_date,
+				bank_date_international ) < 0 )
+			{
+				strcpy(	local_minimum_bank_date,
+					bank_date_international );
+			}
+		}
+
 		if ( table_output_pipe )
 		{
 			fprintf(table_output_pipe,
@@ -377,9 +415,12 @@ int bank_upload_get_line_count( char *input_filename )
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
-		printf( "<h2>ERROR: cannot open %s for read</h2>\n",
-			input_filename );
-		document_close();
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_filename );
 		exit( 1 );
 	}
 
@@ -426,4 +467,238 @@ boolean bank_upload_get_bank_date_international(
 		bank_date_international );
 
 } /* bank_upload_get_bank_date_international() */
+
+char *bank_upload_get_select( void )
+{
+	char *select;
+
+	select =	"bank_date,		"
+			"bank_description,	"
+			"sequence_number,	"
+			"bank_amount,		"
+			"bank_running_balance	";
+
+	return select;
+}
+
+LIST *bank_upload_fetch_list(		char *application_name,
+					int starting_sequence_number )
+{
+	LIST *bank_upload_list;
+	BANK_UPLOAD *bank_upload;
+	char *select;
+	char where[ 128 ];
+	char sys_string[ 1024 ];
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+
+	bank_upload_list = list_new();
+	select = bank_upload_get_select();
+
+	sprintf( where, "sequence_number >= %d", starting_sequence_number );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=bank_upload	"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		bank_upload = bank_upload_calloc();
+
+		bank_upload_parse(
+				&bank_upload->bank_date,
+				&bank_upload->bank_description,
+				&bank_upload->sequence_number,
+				&bank_upload->bank_amount,
+				&bank_upload->bank_running_balance,
+				input_buffer );
+
+		list_append_pointer( bank_upload_list, bank_upload );
+	}
+
+	pclose( input_pipe );
+
+	return bank_upload_list;
+
+} /* bank_upload_fetch_list() */
+
+void bank_upload_parse(		char **bank_date,
+				char **bank_description,
+				int *sequence_number,
+				double *bank_amount,
+				double *bank_running_balance,
+				char *input_buffer )
+{
+	char buffer[ 128 ];
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+	if ( *buffer )
+		*bank_date = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+	if ( *buffer )
+		*bank_description = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+	if ( *buffer )
+		*sequence_number = atoi( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	if ( *buffer )
+		*bank_amount = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	if ( *buffer )
+		*bank_running_balance = atof( buffer );
+
+} /* bank_upload_parse() */
+
+void bank_upload_reoccurring_transaction_parse(
+					char **full_name,
+					char **street_address,
+					char **debit_account,
+					char **credit_account,
+					double *transaction_amount,
+					char **bank_upload_search_phrase,
+					char *input_buffer )
+{
+	char buffer[ 256 ];
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+	if ( *buffer )
+		*full_name = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+	if ( *buffer )
+		*street_address = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
+	if ( *buffer )
+		*debit_account = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
+	if ( *buffer )
+		*credit_account = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+	if ( *buffer )
+		*transaction_amount = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+	if ( *buffer )
+		*bank_upload_search_phrase = strdup( buffer );
+
+} /* bank_upload_reoccurring_transaction_parse() */
+
+LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
+					char *application_name,
+					char *minimum_bank_date,
+					char *fund_name )
+{
+	LIST *existing_cash_journal_ledger_list = {0};
+	char *cash_account_name;
+
+	cash_account_name =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			LEDGER_CASH_KEY,
+			0 /* not warning_only */ );
+
+	existing_cash_journal_ledger_list =
+		ledger_get_journal_ledger_list(
+				application_name,
+				(char *)0 /* full_name */,
+				(char *)0 /* street_address */,
+				minimum_bank_date
+					/* transaction_date_time */,
+				cash_account_name );
+
+	return existing_cash_journal_ledger_list;
+
+} /* bank_upload_fetch_existing_cash_journal_ledger_list() */
+
+LIST *bank_upload_fetch_reoccurring_transaction_list(
+					char *application_name )
+{
+	LIST *reoccurring_transaction_list;
+	REOCCURRING_TRANSACTION *reoccurring_transaction;
+	char *select;
+	char sys_string[ 1024 ];
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+	char *where;
+
+	reoccurring_transaction_list = list_new();
+
+	select = "full_name,			"
+		 "street_address,		"
+		 "debit_account,		"
+		 "credit_account,		"
+		 "transaction_amount,		"
+		 "bank_upload_search_phrase	";
+
+	where = "bank_upload_search_phrase is not null";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=reoccurring_transaction	"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		reoccurring_transaction =
+			bank_upload_reoccurring_transaction_calloc();
+
+		bank_upload_reoccurring_transaction_parse(
+				&reoccurring_transaction->
+					full_name,
+				&reoccurring_transaction->
+					street_address,
+				&reoccurring_transaction->
+					debit_account,
+				&reoccurring_transaction->
+					credit_account,
+				&reoccurring_transaction->
+					transaction_amount,
+				&reoccurring_transaction->
+					bank_upload_search_phrase,
+				input_buffer );
+
+		list_append_pointer(
+			reoccurring_transaction_list,
+			reoccurring_transaction );
+	}
+
+	pclose( input_pipe );
+
+	return reoccurring_transaction_list;
+
+} /* bank_upload_fetch_reoccurring_transaction_list() */
+
+void bank_upload_set_transaction(
+				LIST *bank_upload_list,
+				LIST *reoccurring_transaction_list,
+				LIST *existing_cash_journal_ledger_list )
+{
+} /* bank_upload_set_transaction() */
+
+void bank_upload_insert_transaction(
+					char *application_name,
+					LIST *bank_upload_list )
+{
+} /* bank_upload_insert_transaction() */
 

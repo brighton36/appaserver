@@ -43,6 +43,7 @@ typedef struct
 	char *debit_account;
 	char *credit_account;
 	double transaction_amount;
+	char *bank_upload_search_phrase;
 } REOCCURRING_TRANSACTION;
 
 typedef struct
@@ -52,6 +53,7 @@ typedef struct
 	int starting_sequence_number;
 	int file_record_count;
 	int table_insert_count;
+	char *minimum_bank_date;
 	LIST *bank_upload_list;
 	LIST *existing_cash_journal_ledger_list;
 	LIST *reoccurring_transaction_list;
@@ -62,6 +64,11 @@ typedef struct
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 					char *fund_name,
 					char *input_filename );
+
+BANK_UPLOAD *bank_upload_calloc(	void );
+
+REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_calloc(
+					void );
 
 REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 					char *application_name,
@@ -84,6 +91,7 @@ BANK_UPLOAD *bank_upload_new(
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_table_insert(		FILE *input_file,
+					char **minimum_bank_date,
 					char *application_name,
 					char *fund_name,
 					boolean execute,
@@ -98,6 +106,44 @@ int bank_upload_get_line_count(		char *input_filename );
 boolean bank_upload_get_bank_date_international(
 					char *bank_date_international,
 					char *bank_date );
+
+LIST *bank_upload_fetch_list(		char *application_name,
+					int starting_sequence_number );
+
+LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
+					char *application_name,
+					char *minimum_bank_date,
+					char *fund_name );
+
+LIST *bank_upload_fetch_reoccurring_transaction_list(
+					char *application_name );
+
+void bank_upload_set_transaction(
+				LIST *bank_upload_list,
+				LIST *reoccurring_transaction_list,
+				LIST *existing_cash_journal_ledger_list );
+
+void bank_upload_insert_transaction(
+					char *application_name,
+					LIST *bank_upload_list );
+
+char *bank_upload_get_select(		void );
+
+void bank_upload_parse(			char **bank_date,
+					char **bank_description,
+					int *sequence_number,
+					double *bank_amount,
+					double *bank_running_balance,
+					char *input_buffer );
+
+void bank_upload_reoccurring_transaction_parse(
+					char **full_name,
+					char **street_address,
+					char **debit_account,
+					char **credit_account,
+					double *transaction_amount,
+					char **bank_upload_search_phrase,
+					char *input_buffer );
 
 #endif
 

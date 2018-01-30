@@ -11,6 +11,7 @@
 #include "date_convert.h"
 #include "piece.h"
 #include "appaserver_library.h"
+#include "html_table.h"
 #include "bank_upload.h"
 
 BANK_UPLOAD *bank_upload_calloc( void )
@@ -831,4 +832,87 @@ void bank_upload_insert_transaction(
 	} while( list_next( bank_upload_list ) );
 
 } /* bank_upload_insert_transaction() */
+
+void bank_upload_html_display( LIST *bank_upload_list )
+{
+	HTML_TABLE *html_table;
+	LIST *heading_list;
+	BANK_UPLOAD *bank_upload;
+	char buffer[ 128 ];
+
+	html_table =
+		html_table_new(
+			(char *)0 /* title */,
+			(char *)0 /* sub_title */,
+			(char *)0 /* sub_sub_title */ );
+
+	heading_list = new_list();
+	list_append_string( heading_list, "Date" );
+	list_append_string( heading_list, "Description" );
+	list_append_string( heading_list, "BankAmount" );
+	list_append_string( heading_list, "RunningBalance" );
+	
+	html_table_set_heading_list( html_table, heading_list );
+	html_table_output_table_heading(
+					html_table->title,
+					html_table->sub_title );
+	html_table_output_data_heading(
+			html_table->heading_list,
+			html_table->number_left_justified_columns,
+			html_table->number_right_justified_columns,
+			html_table->justify_list );
+
+	if ( !list_rewind( bank_upload_list ) )
+	{
+		html_table_close();
+		return;
+	}
+
+	do {
+		bank_upload = list_get( bank_upload_list );
+
+		html_table_set_data(
+			html_table->data_list,
+			bank_upload->bank_date );
+
+		html_table_set_data(
+			html_table->data_list,
+			bank_upload->bank_description );
+
+		sprintf( buffer, "%.2lf", bank_upload->bank_amount );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+
+		sprintf( buffer, "%.2lf", bank_upload->bank_running_balance );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( buffer ) );
+
+		html_table_output_data(
+			html_table->data_list,
+			html_table->
+				number_left_justified_columns,
+			html_table->
+				number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+
+		html_table->data_list = list_new();
+
+		if ( bank_upload->transaction )
+		{
+			ledger_list_html_display(
+				bank_upload->
+					transaction->
+					journal_ledger_list );
+		}
+
+	} while( list_next( bank_upload_list ) );
+
+	html_table_close();
+
+} /* bank_upload_html_display() */
 

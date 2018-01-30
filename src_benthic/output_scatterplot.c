@@ -684,9 +684,8 @@ void output_covariance(	FILE *input_pipe,
 
 	if ( !list_rewind( input_list ) )
 	{
-		printf( "<h2>ERROR: input error for sys_string = (%s)</hh>\n",
+		printf( "<h2>ERROR: input error for sys_string = (%s)</h2>\n",
 			sys_string );
-		html_table_close();
 		return;
 	}
 

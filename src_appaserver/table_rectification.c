@@ -397,6 +397,7 @@ void output_attributes_not_in_tables(	char *application_name,
 					html_table->justify_list );
 
 				html_table->data_list = list_new();
+
 			} while( list_next( residual_attribute_name_list ) );
 		}
 

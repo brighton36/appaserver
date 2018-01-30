@@ -2435,6 +2435,7 @@ void ledger_list_html_display( LIST *ledger_list )
 		heading,
 		justify );
 
+	fflush( stdout );
 	output_pipe = popen( sys_string, "w" );
 
 	total_debit = 0.0;
@@ -2486,6 +2487,7 @@ void ledger_list_html_display( LIST *ledger_list )
 		total_credit );
 
 	pclose( output_pipe );
+	fflush( stdout );
 
 } /* ledger_list_html_display() */
 

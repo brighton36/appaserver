@@ -227,6 +227,9 @@ int load_bank_spreadsheet(
 		application_name,
 		bank_upload_structure->bank_upload_list );
 
+	bank_upload_html_display(
+		bank_upload_structure->bank_upload_list );
+
 	return bank_upload_structure->table_insert_count;
 
 } /* load_bank_spreadsheet() */

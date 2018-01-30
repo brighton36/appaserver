@@ -21,6 +21,7 @@
 #include "appaserver_parameter_file.h"
 #include "date.h"
 #include "boolean.h"
+#include "bank_upload.h"
 
 /* Constants */
 /* --------- */

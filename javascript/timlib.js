@@ -8,18 +8,31 @@
 function timlib_prevent_carrot( theEvent, element )
 {
 	var len;
-	var without_carrot;
+	var without_character;
 	var new_value;
 
+	// Replace ^ with **
+	// -----------------
 	if ( theEvent.shiftKey && theEvent.keyCode == 54 )
 	{
 		len = element.value.length;
-		without_carrot = element.value.substr( 0, len - 1 );
-		new_value = without_carrot.concat( "**" );
+		without_character = element.value.substr( 0, len - 1 );
+		new_value = without_character.concat( "**" );
 		alert( "Sorry. Will replace with '**'" );
 		element.value = new_value;
-		got_shift = false;
 	}
+
+	// Replace & with and
+	// ------------------
+	if ( theEvent.shiftKey && theEvent.keyCode == 55 )
+	{
+		len = element.value.length;
+		without_character = element.value.substr( 0, len - 1 );
+		new_value = without_character.concat( "and" );
+		alert( "Sorry. Will replace with 'and'" );
+		element.value = new_value;
+	}
+
 	return true;
 }
 

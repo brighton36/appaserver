@@ -150,11 +150,13 @@ post_trial_balance: post_trial_balance.c				\
 	${CGI_HOME}
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		bank_upload.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		post_reoccurring_transaction.c				\
+		bank_upload.o						\
 		-o post_reoccurring_transaction
 
 post_employee_work_period: post_employee_work_period.c			\
@@ -634,4 +636,9 @@ investment.o: investment.c						\
 		investment.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c investment.c
+
+bank_upload.o: bank_upload.c						\
+		bank_upload.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c bank_upload.c
 

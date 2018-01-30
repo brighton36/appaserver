@@ -25,14 +25,7 @@
 #include "date_convert.h"
 #include "application.h"
 #include "application_constants.h"
-
-/* Constants */
-/* --------- */
-#define INSERT_BANK_DOWNLOAD		\
-	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance"
-
-#define INSERT_BANK_DOWNLOAD_FUND	\
-	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,fund"
+#include "bank_upload.h"
 
 /* Prototypes */
 /* ---------- */

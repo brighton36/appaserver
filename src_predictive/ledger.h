@@ -45,8 +45,6 @@
 #define ACCOUNT_FOLDER_NAME		"account"
 #define SUBCLASSIFICATION_FOLDER_NAME	"subclassification"
 #define ELEMENT_FOLDER_NAME		"element"
-#define REOCCURRING_TRANSACTION_FOLDER_NAME \
-					"reoccurring_transaction"
 #define LEDGER_ASSET_ELEMENT		"asset"
 #define LEDGER_LIABILITY_ELEMENT	"liability"
 #define LEDGER_EQUITY_ELEMENT		"equity"
@@ -82,15 +80,6 @@ typedef struct
 	double database_balance;
 	char *memo;
 } JOURNAL_LEDGER;
-
-typedef struct
-{
-	char *full_name;
-	char *street_address;
-	char *debit_account;
-	char *credit_account;
-	double transaction_amount;
-} REOCCURRING_TRANSACTION;
 
 typedef struct
 {
@@ -510,20 +499,6 @@ boolean ledger_transaction_exists(	char *application_name,
 					char *transaction_date_time );
 
 LIST *ledger_get_transaction_list(	char *application_name );
-
-REOCCURRING_TRANSACTION *ledger_reoccurring_transaction_new(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					double transaction_amount );
-
-boolean ledger_reoccurring_transaction_load(
-					char **debit_account,
-					char **credit_account,
-					double *transaction_amount,
-					char *application_name,
-					char *full_name,
-					char *street_address );
 
 LIST *ledger_transaction_date_time_account_name_list(
 					char *application_name,

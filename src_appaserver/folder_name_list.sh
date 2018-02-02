@@ -33,7 +33,7 @@ else
 		from $folder_attribute,					\
 		     $folder_table					\
 		where $folder_table.folder = $folder_attribute.folder	\
-		  and appaserver_yn <> 'y';"				|
+		  and ifnull( appaserver_yn, 'n' ) <> 'y';"		|
 	sql.e								|
 	sort -u
 fi

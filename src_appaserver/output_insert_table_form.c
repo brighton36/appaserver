@@ -40,7 +40,6 @@
 
 /* Constants */
 /* --------- */
-#define FIX_BUG		0
 #define ONE_ROW_INSERTED_MESSAGE "<h3>One row inserted.</h3>\n"
 #define DUPLICATE_MULTIPLE_ROWS_MESSAGE "<h3>Warning: A duplication occurred. If you are generating more bottom rows for data entry, then ignore this message.</h3>\n"
 #define DUPLICATE_NON_INSERTED_MESSAGE "<h3>Warning: A duplication occurred.</h3>\n"
@@ -378,8 +377,6 @@ int main( int argc, char **argv )
 				reference_number_attribute_name );
 		}
 
-if ( !FIX_BUG )
-{
 		/* ---------------------------------------------------- */
 		/* The vertical drop-down may have something selected.  */
 		/* So only capture the posted attributes if not		*/
@@ -403,19 +400,6 @@ if ( !FIX_BUG )
 					ignore_dictionary,
 				folder->attribute_name_list,
 				(DICTIONARY *)0 /* query_dictionary */ ) );
-}
-else
-{
-		if ( vertical_new_button_folder_name )
-			posted_attribute_name_list = list_new();
-
-		ignore_attribute_name_list =
-	      	     appaserver_library_get_ignore_pressed_attribute_name_list(
-				dictionary_appaserver->
-					ignore_dictionary,
-				folder->attribute_name_list,
-				dictionary_appaserver->query_dictionary );
-}
 
 	} /* if query_dictionary */
 

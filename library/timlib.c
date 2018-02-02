@@ -744,7 +744,7 @@ char *trim_length(	char *buffer,
 {
 	if ( strlen( buffer ) <= length ) return buffer;
 
-	buffer[ length - 1 ] = '\0';
+	buffer[ length ] = '\0';
 	return buffer;
 
 } /* trim_length() */

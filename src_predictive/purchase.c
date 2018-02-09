@@ -263,8 +263,7 @@ char *purchase_order_get_select( char *application_name )
 	char *title_passage_rule_select;
 
 	if ( ledger_fund_attribute_exists(
-			application_name,
-			"purchase_order" /* folder_name */ ) )
+			application_name ) )
 	{
 		fund_select = "fund";
 	}

@@ -153,7 +153,6 @@ boolean depreciation_date_exists(
 	fund_where =
 		ledger_get_fund_where(
 			application_name,
-			"purchase_order",
 			fund_name );
 
 	sprintf( where,
@@ -219,7 +218,6 @@ char *depreciation_fetch_max_depreciation_date(
 	fund_where =
 		ledger_get_fund_where(
 			application_name,
-			"purchase_order",
 			fund_name );
 
 	sprintf( where,

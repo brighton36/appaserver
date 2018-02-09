@@ -6,9 +6,9 @@ then
 fi
 application=$1
 
-if [ "$application" != appahost -a
-     "$application" != eves -a
-     "$application" != timriley -a
+if [ "$application" != appahost -a		\
+     "$application" != eves -a			\
+     "$application" != timriley -a		\
      "$application" != capitolpops ]
 then
 	exit 0

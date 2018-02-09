@@ -312,6 +312,12 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
+	folder=activity
+	columns=activity
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
 	# Only professional folders follow:
 	# ---------------------------------
 	folder=payroll_pay_period

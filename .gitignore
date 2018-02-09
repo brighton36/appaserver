@@ -123,6 +123,7 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+post_change_activity_work
 post_change_account_balance
 post_change_prior_fixed_asset
 pay_liabilities_process

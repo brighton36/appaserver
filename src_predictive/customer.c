@@ -791,8 +791,7 @@ char *customer_sale_get_select( char *application_name )
 	char *arrived_date_select;
 
 	if ( ledger_fund_attribute_exists(
-			application_name,
-			"customer_sale" /* folder_name */ ) )
+			application_name ) )
 	{
 		fund_select = "fund";
 	}
@@ -1286,24 +1285,6 @@ double customer_sale_get_tax_rate(
 	}
 
 	return self->state_sales_tax_rate;
-
-/*
-	select = "application_constant_value";
-	where = "application_constant = 'sales_tax_rate'";
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=%s			"
-		 "			folder=application_constants	"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 where );
-
-	if ( ! ( results = pipe2string( sys_string ) ) ) return 0.0;
-
-	return atof( results );
-*/
 
 } /* customer_sale_get_tax_rate() */
 
@@ -3095,15 +3076,27 @@ double customer_get_work_hours(	char *end_work_date_time,
 	DATE *begin_date;
 	double work_hours;
 
-	end_date =
-		date_yyyy_mm_dd_hms_new(
-			end_work_date_time,
-			date_get_utc_offset() );
+	if ( !end_work_date_time
+	||   !*end_work_date_time )
+	{
+		return 0.0;
+	}
 
-	begin_date =
-		date_yyyy_mm_dd_hms_new(
-			begin_work_date_time,
-			date_get_utc_offset() );
+	if ( ! ( end_date =
+			date_yyyy_mm_dd_hms_new(
+				end_work_date_time,
+				date_get_utc_offset() ) ) )
+	{
+		return 0.0;
+	}
+
+	if ( ! ( begin_date =
+			date_yyyy_mm_dd_hms_new(
+				begin_work_date_time,
+				date_get_utc_offset() ) ) )
+	{
+		return 0.0;
+	}
 
 	work_hours =
 		(double)date_subtract_minutes(

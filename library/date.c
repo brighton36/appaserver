@@ -830,7 +830,7 @@ DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string,
 	if ( count_character( ' ', date_time_string ) != 1 )
 		return (DATE *)0;
 
-	if ( count_character( ':', date_time_string ) != 2 )
+	if ( count_character( ':', date_time_string ) == 0 )
 		return (DATE *)0;
 
 	column( date_half, 0, date_time_string );
@@ -842,7 +842,11 @@ DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string,
 
 	piece( hour_string, ':', time_half, 0 );
 	piece( minute_string, ':', time_half, 1 );
-	piece( second_string, ':', time_half, 2 );
+
+	if ( !piece( second_string, ':', time_half, 2 ) )
+	{
+		strcpy( second_string, "0" );
+	}
 
 	date = date_new_date_time(
 			atoi( year_string ),

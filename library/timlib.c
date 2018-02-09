@@ -1436,7 +1436,7 @@ int character_count( char char_to_count, char *source )
 
 int number_occurrences_char( int char_to_count, char *source )
 {
-	register int count = 0;
+	int count = 0;
 
 	if ( source )
 	{
@@ -1450,7 +1450,6 @@ int number_occurrences_char( int char_to_count, char *source )
 	return count;
 
 } /* number_occurrences_char() */
-
 
 char *place_commas_in_unsigned_long_long( unsigned long long n )
 {

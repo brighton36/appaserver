@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_predictive
-	make post_change_activity_work
+	cd ../src_appaserver
+	make output_prompt_insert_form
 fi

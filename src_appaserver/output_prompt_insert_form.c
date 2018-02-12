@@ -193,6 +193,9 @@ int main( int argc, char **argv )
 	LIST *isa_folder_list = {0};
 	char *appaserver_user_foreign_login_name;
 	PAIR_ONE2M *pair_one2m;
+
+	/* This needs to be made into a list. */
+	/* ---------------------------------- */
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
 
 	/* Note: optionally there could be a trailing dictionary string */
@@ -802,7 +805,11 @@ LIST *get_element_list(
 	done_attribute_name_list = list_new();
 
 	if ( row_level_non_owner_forbid )
-		list_append_pointer( done_attribute_name_list, "login_name" );
+	{
+		list_append_pointer(
+			done_attribute_name_list,
+			"login_name" );
+	}
 
 	allowed_attribute_name_list =
 	    list_subtract_string_list(
@@ -853,8 +860,22 @@ LIST *get_element_list(
 				attribute_name,
 				allowed_attribute_name_list ) ) )
 		{
+			RELATED_FOLDER **only_one_ajax_fill_drop_down;
+
+			if ( ajax_fill_drop_down_related_folder
+			&&   *ajax_fill_drop_down_related_folder )
+			{
+				only_one_ajax_fill_drop_down =
+					(RELATED_FOLDER **)0;
+			}
+			else
+			{
+				only_one_ajax_fill_drop_down =
+					ajax_fill_drop_down_related_folder;
+			}
+
 			build_related_folder_element_list(
-				ajax_fill_drop_down_related_folder,
+				only_one_ajax_fill_drop_down,
 				return_list,
 				attribute_list,
 				attribute_name,
@@ -1672,6 +1693,15 @@ void build_related_folder_element_list(
 
 	if ( related_folder->ignore_output ) return;
 
+	if ( related_folder->folder->lookup_before_drop_down )
+	{
+		/* ------------------------------------ */
+		/* Have an empty placeholder appear	*/
+		/* instead of the New button.		*/
+		/* ------------------------------------ */
+		role_folder_insert_list = list_new();
+	}
+
 	attribute = attribute_seek_attribute( attribute_list, attribute_name );
 
 	if ( !attribute )
@@ -1796,7 +1826,7 @@ void build_related_folder_element_list(
 			0 /* not prepend_folder_name */,
 			related_folder->omit_lookup_before_drop_down
 	 ) );
-	
+
 	related_folder->ignore_output = 1;
 
 } /* build_related_folder_element_list() */

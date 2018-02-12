@@ -34,9 +34,7 @@
 /* Prototypes */
 /* ---------- */
 
-/* Returns process_name_list */
-/* ------------------------- */
-LIST *clone_table_process(
+void clone_table_process(
 				char *export_subschema_filename,
 				char *application_name,
 				char *appaserver_data_directory,
@@ -49,8 +47,7 @@ LIST *get_process_name_list(	char *application_name,
 				char *folder_name );
 
 LIST *get_role_name_list(	char *application_name,
-				char *folder_name,
-				LIST *process_name_list );
+				char *folder_name );
 
 char *get_subschema(		char *application_name,
 				char *folder_name );
@@ -150,8 +147,7 @@ void clone_table_role(
 			char *folder_name,
 			char *session,
 			char *login_name,
-			char *role_name,
-			LIST *process_name_list );
+			char *role_name );
 
 void clone_table_subschema(
 			char *export_subschema_filename,
@@ -185,7 +181,6 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	LIST *process_name_list;
 
 	output_starting_argv_stderr( argc, argv );
 
@@ -349,8 +344,7 @@ int main( int argc, char **argv )
 					login_name,
 					role_name );
 
-		process_name_list =
-			clone_table_process(
+		clone_table_process(
 					export_subschema_filename,
 					application_name,
 					appaserver_parameter_file->
@@ -367,8 +361,7 @@ int main( int argc, char **argv )
 					folder_name,
 					session,
 					login_name,
-					role_name,
-					process_name_list );
+					role_name );
 
 		clone_table_subschema(	export_subschema_filename,
 					application_name,
@@ -675,8 +668,7 @@ void clone_table_role(
 			char *folder_name,
 			char *session,
 			char *login_name,
-			char *role_name,
-			LIST *process_name_list )
+			char *role_name )
 {
 	char sys_string[ 1024 ];
 	char *where_data;
@@ -685,7 +677,8 @@ void clone_table_role(
 
 	role_name_list = 
 		get_role_name_list(
-			application_name, folder_name, process_name_list );
+			application_name,
+			folder_name );
 
 	if ( !list_rewind( role_name_list ) ) return;
 	
@@ -707,7 +700,7 @@ void clone_table_role(
 				"role" /* attribute_name */,
 				where_data,
 				where_data,
-				"y" /* delete_yn */,
+				"n" /* delete_yn */,
 				"n" /* really_yn */,
 				"y" /* output2file_yn */ );
 
@@ -722,9 +715,7 @@ void clone_table_role(
 
 } /* clone_table_role() */
 
-/* Returns process_name_list */
-/* ------------------------- */
-LIST *clone_table_process(
+void clone_table_process(
 			char *export_subschema_filename,
 			char *application_name,
 			char *appaserver_data_directory,
@@ -742,7 +733,7 @@ LIST *clone_table_process(
 		get_process_name_list(
 			application_name, folder_name );
 
-	if ( !list_rewind( process_name_list ) ) return (LIST *)0;
+	if ( !list_rewind( process_name_list ) ) return;
 	
 	do {
 		process_name =
@@ -774,8 +765,6 @@ LIST *clone_table_process(
 						"process" );
 
 	} while( list_next( process_name_list ) );
-
-	return process_name_list;
 
 } /* clone_table_process() */
 
@@ -1119,56 +1108,29 @@ void output_shell_script_header(	char *export_subschema_filename,
 } /* output_shell_script_header() */
 
 LIST *get_role_name_list(	char *application_name,
-				char *folder_name,
-				LIST *process_name_list )
+				char *folder_name )
 {
 	char sys_string[ 1024 ];
 	char where_clause[ 512 ];
 	char *select;
-	char *results;
-	char process_name[ 128 ];
-	LIST *process_list = {0};
 
-	select = "populate_drop_down_process,post_change_process";
+	select = "role";
 
 	sprintf(where_clause,
 		"folder = '%s'",
 		folder_name );
 
 	sprintf(sys_string,
-		"get_folder_data	application=%s			"
-		"			select=%s			"
-		"			folder=folder			"
-		"			where=\"%s\"			",
+		"get_folder_data	application=%s			 "
+		"			select=%s			 "
+		"			folder=role_folder		 "
+		"			where=\"%s\"			|"
+		"sort -u						 ",
 		application_name,
 		select,
 		where_clause );
 
-	if ( ! ( results = pipe2string( sys_string ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot fetch from folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	piece( process_name, FOLDER_DATA_DELIMITER, results, 0 );
-	if ( *process_name )
-	{
-		process_list = list_new();
-		list_append_pointer( process_list, strdup( process_name ) );
-	}
-
-	piece( process_name, FOLDER_DATA_DELIMITER, results, 1 );
-	if ( *process_name )
-	{
-		if ( !process_list ) process_list = list_new();
-		list_append_pointer( process_list, strdup( process_name ) );
-	}
-
-	return process_list;
+	return pipe2list( sys_string );
 
 } /* get_role_name_list() */
 

@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_appaserver/export_subschema.c		       	*/
+/* $APPASERVER_HOME/src_appaserver/export_subschema.c  	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
@@ -33,6 +33,25 @@
 
 /* Prototypes */
 /* ---------- */
+
+/* Returns process_name_list */
+/* ------------------------- */
+LIST *clone_table_process(
+				char *export_subschema_filename,
+				char *application_name,
+				char *appaserver_data_directory,
+				char *folder_name,
+				char *session,
+				char *login_name,
+				char *role_name );
+
+LIST *get_process_name_list(	char *application_name,
+				char *folder_name );
+
+LIST *get_role_name_list(	char *application_name,
+				char *folder_name,
+				LIST *process_name_list );
+
 char *get_subschema(		char *application_name,
 				char *folder_name );
 
@@ -124,6 +143,16 @@ void clone_table_role_folder(
 			char *login_name,
 			char *role_name );
 
+void clone_table_role(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			LIST *process_name_list );
+
 void clone_table_subschema(
 			char *export_subschema_filename,
 			char *application_name,
@@ -156,6 +185,7 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
+	LIST *process_name_list;
 
 	output_starting_argv_stderr( argc, argv );
 
@@ -237,6 +267,7 @@ int main( int argc, char **argv )
 					folder_name_list );
 
 	list_rewind( folder_name_list );
+
 	do {
 		folder_name = list_get_pointer( folder_name_list );
 
@@ -318,8 +349,28 @@ int main( int argc, char **argv )
 					login_name,
 					role_name );
 
-		clone_table_subschema(
+		process_name_list =
+			clone_table_process(
 					export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name );
+
+		clone_table_role(	export_subschema_filename,
+					application_name,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					folder_name,
+					session,
+					login_name,
+					role_name,
+					process_name_list );
+
+		clone_table_subschema(	export_subschema_filename,
 					application_name,
 					appaserver_parameter_file->
 						appaserver_data_directory,
@@ -370,8 +421,8 @@ void clone_table_folder(char *export_subschema_filename,
 			login_name,
 			role_name,
 			application_name,
-			"folder",
-			"folder",
+			"folder" /* folder_name */,
+			"folder" /* attribute_name */,
 			where_data,
 			where_data,
 			"y" /* delete_yn */,
@@ -408,8 +459,8 @@ void clone_table_relation(
 			login_name,
 			role_name,
 			application_name,
-			"relation",
-			"folder",
+			"relation" /* folder_name */,
+			"folder" /* attribute_name */,
 			where_data,
 			where_data,
 			"y" /* delete_yn */,
@@ -430,8 +481,8 @@ void clone_table_relation(
 			login_name,
 			role_name,
 			application_name,
-			"relation",
-			"related_folder",
+			"relation" /* folder_name */,
+			"related_folder" /* attribute_name */,
 			where_data,
 			where_data,
 			"n" /* delete_yn */,
@@ -485,8 +536,8 @@ void clone_table_attribute(
 				login_name,
 				role_name,
 				application_name,
-				"attribute",
-				"attribute",
+				"attribute" /* folder_name */,
+				"attribute" /* attribute_name */,
 				where_data,
 				where_data,
 				"y" /* delete_yn */,
@@ -524,8 +575,8 @@ void clone_table_folder_attribute(
 			login_name,
 			role_name,
 			application_name,
-			"folder_attribute",
-			"folder",
+			"folder_attribute" /* folder_name */,
+			"folder" /* attribute_name */,
 			where_data,
 			where_data,
 			"y" /* delete_yn */,
@@ -562,8 +613,8 @@ void clone_table_row_security_role_update(
 			login_name,
 			role_name,
 			application_name,
-			"row_security_role_update",
-			"folder",
+			"row_security_role_update" /* folder_name */,
+			"folder" /* attribute_name */,
 			where_data,
 			where_data,
 			"n" /* delete_yn */,
@@ -600,8 +651,8 @@ void clone_table_role_folder(
 			login_name,
 			role_name,
 			application_name,
-			"role_folder",
-			"folder",
+			"role_folder" /* folder_name */,
+			"folder" /* attribute_name */,
 			where_data,
 			where_data,
 			"n" /* delete_yn */,
@@ -616,6 +667,117 @@ void clone_table_role_folder(
 					"role_folder" );
 
 } /* clone_table_role_folder() */
+
+void clone_table_role(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			LIST *process_name_list )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+	char *application_role_name;
+	LIST *role_name_list;
+
+	role_name_list = 
+		get_role_name_list(
+			application_name, folder_name, process_name_list );
+
+	if ( !list_rewind( role_name_list ) ) return;
+	
+	do {
+		application_role_name =
+			list_get_pointer(
+				role_name_list );
+
+		where_data = application_role_name;
+	
+		sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+				application_name,
+				session,
+				login_name,
+				role_name,
+				application_name,
+				"role" /* folder_name */,
+				"role" /* attribute_name */,
+				where_data,
+				where_data,
+				"y" /* delete_yn */,
+				"n" /* really_yn */,
+				"y" /* output2file_yn */ );
+
+		system( sys_string );
+	
+		append_export_subschema_file(	export_subschema_filename,
+						application_name,
+						appaserver_data_directory,
+						"role" );
+
+	} while( list_next( role_name_list ) );
+
+} /* clone_table_role() */
+
+/* Returns process_name_list */
+/* ------------------------- */
+LIST *clone_table_process(
+			char *export_subschema_filename,
+			char *application_name,
+			char *appaserver_data_directory,
+			char *folder_name,
+			char *session,
+			char *login_name,
+			char *role_name )
+{
+	char sys_string[ 1024 ];
+	char *where_data;
+	char *process_name;
+	LIST *process_name_list;
+
+	process_name_list = 
+		get_process_name_list(
+			application_name, folder_name );
+
+	if ( !list_rewind( process_name_list ) ) return (LIST *)0;
+	
+	do {
+		process_name =
+			list_get_pointer(
+				process_name_list );
+
+		where_data = process_name;
+	
+		sprintf(sys_string,
+"clone_folder %s n %s %s \"%s\" %s %s %s \"%s\" \"%s\" nohtml %s %s \"\" %s >/dev/null",
+				application_name,
+				session,
+				login_name,
+				role_name,
+				application_name,
+				"process" /* folder_name */,
+				"process" /* attribute_name */,
+				where_data,
+				where_data,
+				"y" /* delete_yn */,
+				"n" /* really_yn */,
+				"y" /* output2file_yn */ );
+
+		system( sys_string );
+	
+		append_export_subschema_file(	export_subschema_filename,
+						application_name,
+						appaserver_data_directory,
+						"process" );
+
+	} while( list_next( process_name_list ) );
+
+	return process_name_list;
+
+} /* clone_table_process() */
 
 void clone_table_javascript_files(
 			char *export_subschema_filename,
@@ -651,8 +813,8 @@ void clone_table_javascript_files(
 				login_name,
 				role_name,
 				application_name,
-				"javascript_files",
-				"javascript_filename",
+				"javascript_files" /* folder_name */,
+				"javascript_filename" /* attribute_name */,
 				where_data,
 				where_data,
 				"y" /* delete_yn */,
@@ -691,8 +853,8 @@ void clone_table_javascript_folders(
 			login_name,
 			role_name,
 			application_name,
-			"javascript_folders",
-			"folder",
+			"javascript_folders" /* folder_name */,
+			"folder" /* attribute_name */,
 			where_data,
 			where_data,
 			"y" /* delete_yn */,
@@ -735,8 +897,8 @@ void clone_table_subschema(
 			login_name,
 			role_name,
 			application_name,
-			"subschemas",
-			"subschema",
+			"subschemas" /* folder_name */,
+			"subschema" /* attribute_name */,
 			where_data,
 			where_data,
 			"n" /* delete_yn */,
@@ -773,8 +935,8 @@ void clone_table_role_operation(
 			login_name,
 			role_name,
 			application_name,
-			"role_operation",
-			"folder",
+			"role_operation" /* folder_name */,
+			"folder" /* attribute_name */,
 			where_data,
 			where_data,
 			"n" /* delete_yn */,
@@ -943,12 +1105,124 @@ void output_shell_script_header(	char *export_subschema_filename,
 	fprintf( output_file,
 "javascript_files=`get_table_name $application javascript_files`\n" );
 
+	fprintf( output_file,
+"process=`get_table_name $application process`\n" );
+
+	fprintf( output_file,
+"role=`get_table_name $application role`\n" );
+
 	fprintf(output_file,
 		"\n(\ncat << %s\n",
 		SHELL_HERE_LABEL );
 
 	fclose( output_file );
 } /* output_shell_script_header() */
+
+LIST *get_role_name_list(	char *application_name,
+				char *folder_name,
+				LIST *process_name_list )
+{
+	char sys_string[ 1024 ];
+	char where_clause[ 512 ];
+	char *select;
+	char *results;
+	char process_name[ 128 ];
+	LIST *process_list = {0};
+
+	select = "populate_drop_down_process,post_change_process";
+
+	sprintf(where_clause,
+		"folder = '%s'",
+		folder_name );
+
+	sprintf(sys_string,
+		"get_folder_data	application=%s			"
+		"			select=%s			"
+		"			folder=folder			"
+		"			where=\"%s\"			",
+		application_name,
+		select,
+		where_clause );
+
+	if ( ! ( results = pipe2string( sys_string ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot fetch from folder.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	piece( process_name, FOLDER_DATA_DELIMITER, results, 0 );
+	if ( *process_name )
+	{
+		process_list = list_new();
+		list_append_pointer( process_list, strdup( process_name ) );
+	}
+
+	piece( process_name, FOLDER_DATA_DELIMITER, results, 1 );
+	if ( *process_name )
+	{
+		if ( !process_list ) process_list = list_new();
+		list_append_pointer( process_list, strdup( process_name ) );
+	}
+
+	return process_list;
+
+} /* get_role_name_list() */
+
+LIST *get_process_name_list( char *application_name, char *folder_name )
+{
+	char sys_string[ 1024 ];
+	char where_clause[ 512 ];
+	char *select;
+	char *results;
+	char process_name[ 128 ];
+	LIST *process_list = {0};
+
+	select = "populate_drop_down_process,post_change_process";
+
+	sprintf(where_clause,
+		"folder = '%s'",
+		folder_name );
+
+	sprintf(sys_string,
+		"get_folder_data	application=%s			"
+		"			select=%s			"
+		"			folder=folder			"
+		"			where=\"%s\"			",
+		application_name,
+		select,
+		where_clause );
+
+	if ( ! ( results = pipe2string( sys_string ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot fetch from folder.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	piece( process_name, FOLDER_DATA_DELIMITER, results, 0 );
+	if ( *process_name )
+	{
+		process_list = list_new();
+		list_append_pointer( process_list, strdup( process_name ) );
+	}
+
+	piece( process_name, FOLDER_DATA_DELIMITER, results, 1 );
+	if ( *process_name )
+	{
+		if ( !process_list ) process_list = list_new();
+		list_append_pointer( process_list, strdup( process_name ) );
+	}
+
+	return process_list;
+
+} /* get_process_name_list() */
 
 LIST *get_javascript_filename_list( char *application_name, char *folder_name )
 {
@@ -968,6 +1242,7 @@ LIST *get_javascript_filename_list( char *application_name, char *folder_name )
 		where_clause );
 
 	return pipe2list( sys_string );
+
 } /* get_javascript_filename_list() */
 
 char *get_subschema(		char *application_name,

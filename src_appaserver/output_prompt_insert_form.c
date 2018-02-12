@@ -196,7 +196,7 @@ int main( int argc, char **argv )
 
 	/* This needs to be made into a list. */
 	/* ---------------------------------- */
-	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
+	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
 	/* Note: optionally there could be a trailing dictionary string */
 	/* ------------------------------------------------------------ */
@@ -561,8 +561,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	ajax_fill_drop_down_related_folder = (RELATED_FOLDER *)0;
-
 	form->regular_element_list =
 		get_element_list(
 			&form->current_reference_number,
@@ -830,7 +828,6 @@ LIST *get_element_list(
 					ELEMENT_TITLE_NOTEPAD_PADDING_EM ) );
 	}
 
-
 	if ( !list_reset( allowed_attribute_name_list ) )
 		return list_new_list();
 
@@ -860,22 +857,8 @@ LIST *get_element_list(
 				attribute_name,
 				allowed_attribute_name_list ) ) )
 		{
-			RELATED_FOLDER **only_one_ajax_fill_drop_down;
-
-			if ( ajax_fill_drop_down_related_folder
-			&&   *ajax_fill_drop_down_related_folder )
-			{
-				only_one_ajax_fill_drop_down =
-					(RELATED_FOLDER **)0;
-			}
-			else
-			{
-				only_one_ajax_fill_drop_down =
-					ajax_fill_drop_down_related_folder;
-			}
-
 			build_related_folder_element_list(
-				only_one_ajax_fill_drop_down,
+				ajax_fill_drop_down_related_folder,
 				return_list,
 				attribute_list,
 				attribute_name,
@@ -1680,6 +1663,7 @@ void build_related_folder_element_list(
 	LIST *common_non_primary_attribute_name_list;
 	boolean set_first_initial_data;
 	DICTIONARY *send_preprompt_dictionary;
+	RELATED_FOLDER **only_one_ajax_fill_drop_down;
 
 	if ( !related_folder )
 	{
@@ -1775,15 +1759,21 @@ void build_related_folder_element_list(
 	else
 		send_preprompt_dictionary = (DICTIONARY *)0;
 
-	if ( ajax_fill_drop_down_related_folder )
+	if ( ajax_fill_drop_down_related_folder
+	&&   *ajax_fill_drop_down_related_folder )
 	{
-		*ajax_fill_drop_down_related_folder = (RELATED_FOLDER *)0;
+		only_one_ajax_fill_drop_down = (RELATED_FOLDER **)0;
+	}
+	else
+	{
+		only_one_ajax_fill_drop_down =
+			ajax_fill_drop_down_related_folder;
 	}
 
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(
-			ajax_fill_drop_down_related_folder,
+			only_one_ajax_fill_drop_down,
 			application_name,
 			session,
 			role_name,

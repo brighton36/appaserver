@@ -481,5 +481,12 @@ void service_work_close_all(	char *application_name,
 
 	system( sys_string );
 
+	sprintf( sys_string,
+		 "activity_work_close_all.sh %s %s ''",
+		 application_name,
+		 login_name );
+
+	system( sys_string );
+
 } /* service_work_close_all() */
 

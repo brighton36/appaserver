@@ -452,6 +452,9 @@ void output_prompt_edit_form(
 	boolean sort_order_button;
 	FORM *form;
 	boolean with_prelookup_skip_button = 0;
+
+	/* This needs to be made into a list. */
+	/* ---------------------------------- */
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
 	form = form_new( INSERT_UPDATE_KEY,
@@ -2121,6 +2124,7 @@ void build_related_folder_element_list(
 	boolean output_select_option;
 	boolean drop_down_multi_select;
 	DICTIONARY *send_preprompt_dictionary;
+	RELATED_FOLDER **only_one_ajax_fill_drop_down;
 
 	if ( related_folder->ignore_output )
 	{
@@ -2209,10 +2213,21 @@ void build_related_folder_element_list(
 	else
 		send_preprompt_dictionary = (DICTIONARY *)0;
 
+	if ( ajax_fill_drop_down_related_folder
+	&&   *ajax_fill_drop_down_related_folder )
+	{
+		only_one_ajax_fill_drop_down = (RELATED_FOLDER **)0;
+	}
+	else
+	{
+		only_one_ajax_fill_drop_down =
+			ajax_fill_drop_down_related_folder;
+	}
+
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(
-			ajax_fill_drop_down_related_folder,
+			only_one_ajax_fill_drop_down,
 			application_name,
 			session,
 			role_name,

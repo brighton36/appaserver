@@ -823,6 +823,7 @@ LIST *row_security_get_update_element_list(
 	int max_drop_down_size = 0;
 	boolean is_primary_attribute;
 	ATTRIBUTE *attribute;
+	RELATED_FOLDER **only_one_ajax_fill_drop_down;
 
 	if ( !list_reset( include_attribute_name_list ) )
 		return list_new_list();
@@ -982,10 +983,22 @@ LIST *row_security_get_update_element_list(
 				goto skip_checking_drop_down;
 			}
 
+			if ( ajax_fill_drop_down_related_folder
+			&&   *ajax_fill_drop_down_related_folder )
+			{
+				only_one_ajax_fill_drop_down =
+					(RELATED_FOLDER **)0;
+			}
+			else
+			{
+				only_one_ajax_fill_drop_down =
+					ajax_fill_drop_down_related_folder;
+			}
+
 			list_append_list(
 				return_list,
 				related_folder_get_update_element_list(
-					ajax_fill_drop_down_related_folder,
+					only_one_ajax_fill_drop_down,
 					application_name,
 					session,
 					login_name,

@@ -124,7 +124,6 @@ function fixed_service_work_close()
 }
 
 hourly_service_work_close "$application" "$login_name" "$now"
-
 fixed_service_work_close "$application" "$login_name" "$now"
 
 exit 0

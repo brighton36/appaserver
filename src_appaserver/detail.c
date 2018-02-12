@@ -1209,13 +1209,6 @@ DICTIONARY *output_folder_detail(
 			row_security_element_list_structure->
 			row_dictionary_list;
 
-/*
-	if ( !list_rewind( fetched_dictionary_list ) && omit_insert_flag )
-	{
-		return (DICTIONARY *)0;
-	}
-*/
-
 	if ( !list_rewind( fetched_dictionary_list ) )
 	{
 		return (DICTIONARY *)0;

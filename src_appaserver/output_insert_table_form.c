@@ -109,7 +109,10 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *primary_data_list_string;
 	PAIR_ONE2M *pair_one2m;
-	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
+
+	/* This needs to be made into a list. */
+	/* ---------------------------------- */
+	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
 	if ( argc != 9 )
 	{
@@ -814,8 +817,6 @@ int main( int argc, char **argv )
 		list_subtract(	folder->attribute_name_list,
 				ignore_attribute_name_list );
 
-	ajax_fill_drop_down_related_folder = (RELATED_FOLDER *)0;
-
 	form->regular_element_list =
 		get_insert_table_element_list(
 			&ajax_fill_drop_down_related_folder,
@@ -1104,6 +1105,7 @@ drop-down needing SWEEP.sweep_number in the where clause.
 			       (LIST *)0 /* include_attribute_name_list */ ) ) )
 		{
 			ATTRIBUTE *attribute;
+			RELATED_FOLDER **only_one_ajax_fill_drop_down;
 
 			attribute = attribute_seek_attribute( 
 						attribute_list,
@@ -1137,10 +1139,22 @@ drop-down needing SWEEP.sweep_number in the where clause.
 				continue;
 			}
 
+			if ( ajax_fill_drop_down_related_folder
+			&&   *ajax_fill_drop_down_related_folder )
+			{
+				only_one_ajax_fill_drop_down =
+					(RELATED_FOLDER **)0;
+			}
+			else
+			{
+				only_one_ajax_fill_drop_down =
+					ajax_fill_drop_down_related_folder;
+			}
+
 			list_append_list(
 				return_list,
 				related_folder_get_insert_element_list(
-					 ajax_fill_drop_down_related_folder,
+					 only_one_ajax_fill_drop_down,
 					 /* --------------------------- */
 					 /* sets related_folder->folder */
 					 /* --------------------------- */

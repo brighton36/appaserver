@@ -117,4 +117,8 @@ migrate_mink_goes.sh
 # --------------
 # migrate_mink_cr10.sh
 
+# Damon's GOES library
+# --------------------
+scp -r ~rondeau/LrgsClient/* bonefish:~roundeau/LrgsClient
+
 exit 0

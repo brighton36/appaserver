@@ -1,6 +1,8 @@
 :
 # migrate_mink_goes.sh
 # --------------------
+# After this run migrate_bonefish_permissions.sh
+# ----------------------------------------------
 
 cd /opt/lrgs
 

@@ -175,7 +175,7 @@ sudo chown timriley:appaserver /opt/lrgs
 chmod g+wxs /opt/lrgs
 
 # Make data directories.
-# This won't be copied from mink.
+# These won't be copied from mink.
 # -------------------------------
 mkdir /opt/lrgs/data
 mkdir /opt/lrgs/data/goes_archive
@@ -188,3 +188,11 @@ echo "This is the GOES satellite directory." > README
 # Expect size:
 # /opt/lrgs					  19G
 
+# Create user accounts
+# --------------------
+useradd.sh rondeau appaserver
+sudo mkdir ~rondeau/LrgsClient
+sudo chown rondeau:appaserver ~rondeau/LrgsClient
+sudo chmod g+ws ~rondeau/LrgsClient
+
+useradd.sh stabenau appaserver

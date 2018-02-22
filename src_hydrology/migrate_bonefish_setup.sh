@@ -90,13 +90,22 @@ sudo ln -s /dfe/appaserver `pwd`
 # ------------
 # /dfe/appaserver/cron/data/BISC		  70G
 
-# GOES Satellite files
-# --------------------
+# GOES Satellite directory
+# ------------------------
 sudo mkdir /opt/lrgs
 sudo chown timriley:appaserver /opt/lrgs
 chmod g+wxs /opt/lrgs
 cd /opt/lrgs
 echo "This is the GOES satellite raw file directory." > README
+
+# Make GOES data directories.
+# These won't be copied from mink.
+# -------------------------------
+mkdir /opt/lrgs/data
+mkdir /opt/lrgs/data/goes_archive
+mkdir /opt/lrgs/data/goes_raw_archive
+mkdir /opt/lrgs/data/load_archive
+mkdir /opt/lrgs/data/load
 
 # Expect size:
 # ------------
@@ -167,26 +176,6 @@ dpkg -l							|
 grep -i python						|
 column.e 1						|
 piece.e ':' 0 > /dfe/tmp/python_bonefish.dat
-
-# GOES executables and data
-# -------------------------
-sudo mkdir /opt/lrgs
-sudo chown timriley:appaserver /opt/lrgs
-chmod g+wxs /opt/lrgs
-
-# Make data directories.
-# These won't be copied from mink.
-# -------------------------------
-mkdir /opt/lrgs/data
-mkdir /opt/lrgs/data/goes_archive
-mkdir /opt/lrgs/data/goes_raw_archive
-mkdir /opt/lrgs/data/load_archive
-
-cd /opt/lrgs
-echo "This is the GOES satellite directory." > README
-
-# Expect size:
-# /opt/lrgs					  19G
 
 # Create user accounts
 # --------------------

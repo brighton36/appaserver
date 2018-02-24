@@ -17,8 +17,7 @@ date=$1
 # -----------------------
 cd /dfe/son/hydrology
 rm *
-tar xzf ../hydrology_$date.tar.gz
-cat *.sql | time sql hydrology >hydrology.log 2>/dfe/tmp/hydrology_time.out &
+time (tar xzf ../hydrology_$date.tar.gz && cat *.sql | sql hydrology) >hydrology.log 2>/dfe/tmp/hydrology_time.out &
 
 # Expect to take 7 1/2 hours.
 # ---------------------------

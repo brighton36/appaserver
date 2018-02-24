@@ -2,6 +2,10 @@
 # migrate_mink_cr10.sh
 # --------------------
 
+# Not doing
+# ---------
+exit 0
+
 # Expecte to take 2 1/2 hours.
 # ----------------------------
 

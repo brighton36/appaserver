@@ -2,6 +2,10 @@
 # migrate_mink_dumps.sh
 # ---------------------
 
+# Not doing
+# ---------
+exit 0
+
 cd /opt/physical/data/dfe
 
 nohup /usr/bin/time				\

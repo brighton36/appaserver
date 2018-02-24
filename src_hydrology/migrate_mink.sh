@@ -104,8 +104,8 @@ scp /var/tmp/python_mink.dat bonefish:/dfe/tmp
 cd /opt/physical/tmp2
 /usr/bin/time rsync -a --progress . bonefish:/opt/physical/tmp2
 
-# Database dumps
-# --------------
+# Database dumps <-- not doing
+# ----------------------------
 # migrate_mink_dumps.sh
 
 # GOES Satellite files.
@@ -113,8 +113,8 @@ cd /opt/physical/tmp2
 # --------------------
 migrate_mink_goes.sh
 
-# CR10 directory
-# --------------
+# CR10 directory <-- not doing
+# ----------------------------
 # migrate_mink_cr10.sh
 
 # Damon's GOES library

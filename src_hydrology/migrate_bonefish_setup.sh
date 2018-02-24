@@ -13,8 +13,8 @@ chmod g+wxs $DOCUMENT_ROOT
 mkdir $DOCUMENT_ROOT/hydrology
 mkdir $DOCUMENT_ROOT/hydrology/images
 
-# Database dumps
-# --------------
+# Database dump directories
+# -------------------------
 sudo mkdir /opt/physical
 sudo chown timriley:appaserver /opt/physical
 chmod g+wxs /opt/physical

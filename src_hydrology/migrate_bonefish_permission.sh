@@ -2,6 +2,9 @@
 # migrate_bonefish_permission.sh
 # ------------------------------
 
+# Run this after migrate_mink_goes.sh
+# -----------------------------------
+
 cd /opt/lrgs
 
 find . -type d -exec chgrp appaserver {} \;

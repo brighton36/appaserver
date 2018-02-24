@@ -13,12 +13,10 @@ fi
 
 date=$1
 
-cd /dfe/son/hydrology
-rm *
-
 # Expect to take 7 hours.
 # -----------------------
 cd /dfe/son/hydrology
+rm *
 tar xzf ../hydrology_$date.tar.gz
 cat *.sql | time sql hydrology >hydrology.log 2>/dfe/tmp/hydrology_time.out &
 
@@ -32,6 +30,7 @@ zcat measurement_$date.sql.gz | time sql hydrology >/dfe/tmp/measurement.out 2>&
 zcat measurement_backup_$date.sql.gz | time sql hydrology >/dfe/tmp/measurement_backup.out 2>&1 &
 
 cd /dfe/son/sparrow
+rm *
 tar xzf ../sparrow_$date.tar.gz
 cat *.sql | time sql sparrow >sparrow.log 2>/dfe/tmp/sparrow_time.out &
 

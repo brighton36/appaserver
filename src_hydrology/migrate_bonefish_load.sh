@@ -13,6 +13,9 @@ fi
 
 date=$1
 
+cd /dfe/son/hydrology
+rm *
+
 # Expect to take 7 hours.
 # -----------------------
 cd /dfe/son/hydrology

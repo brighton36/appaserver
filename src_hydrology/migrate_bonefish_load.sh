@@ -15,22 +15,26 @@ date=$1
 
 # Expect to take 7 hours.
 # -----------------------
-cd /dfe/son/hydrology
-rm *
-time (tar xzf ../hydrology_$date.tar.gz && cat *.sql | sql hydrology) >hydrology.log 2>/dfe/tmp/hydrology_time.out &
+#nohup time migrate_bonefish_tables.sh $date >/dfe/tmp/hydrology_tables.out 2>&1 &
 
 # Expect to take 7 1/2 hours.
 # ---------------------------
-cd /dfe/son
-zcat measurement_$date.sql.gz | time sql hydrology >/dfe/tmp/measurement.out 2>&1 &
+#nohup time migrate_bonefish_measurement.sh $date >/dfe/tmp/hydrology_measurement.out 2>&1 &
 
 # Expect to take 2 hours.
 # -----------------------
-zcat measurement_backup_$date.sql.gz | time sql hydrology >/dfe/tmp/measurement_backup.out 2>&1 &
+#nohup time migrate_bonefish_measurement_backup.sh $date >/dfe/tmp/hydrology_measurement.out 2>&1 &
 
 cd /dfe/son/sparrow
 rm *
-tar xzf ../sparrow_$date.tar.gz
-cat *.sql | time sql sparrow >sparrow.log 2>/dfe/tmp/sparrow_time.out &
+nohup time
+(
+tar xzf ../sparrow_$date.tar.gz && ls -1 *.sql |
+while read tablefile
+do
+	echo "Loading $tablefile"
+	cat $tablefile | sql.e hydrology
+done
+) >/dfe/tmp/sparrow.out 2>&1 &
 
 exit 0

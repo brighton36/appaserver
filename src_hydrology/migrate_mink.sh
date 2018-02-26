@@ -2,20 +2,6 @@
 # migrate_mink.sh
 # ---------------
 
-set -x
-
-# Document root
-# -------------
-cd $DOCUMENT_ROOT/hydrology
-scp index.* bonefish:/var/www/hydrology
-scp *.css bonefish:/var/www/hydrology
-scp images/* bonefish:/var/www/hydrology/images
-
-# Crontabs
-# --------
-scp ~rondeau/cron_rondeau.dat bonefish:/dfe/tmp
-scp ~kotun/cron_kotun.dat bonefish:/dfe/tmp
-
 # =========
 # Databases
 # =========
@@ -61,6 +47,18 @@ nohup /usr/bin/time						\
 # ^^^^^^^^^^^^^^^^^^^^^^^^^
 # Expect to take 5 seconds.
 # -------------------------
+
+# Document root
+# -------------
+cd $DOCUMENT_ROOT/hydrology
+scp index.* bonefish:/var/www/hydrology
+scp *.css bonefish:/var/www/hydrology
+scp images/* bonefish:/var/www/hydrology/images
+
+# Crontabs
+# --------
+scp ~rondeau/cron_rondeau.dat bonefish:/dfe/tmp
+scp ~kotun/cron_kotun.dat bonefish:/dfe/tmp
 
 # Old appaserver
 # --------------

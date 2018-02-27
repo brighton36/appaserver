@@ -23,7 +23,7 @@ nohup time migrate_bonefish_measurement.sh $date >/dfe/tmp/hydrology_measurement
 
 # Expect to take 2 hours.
 # -----------------------
-nohup time migrate_bonefish_measurement_backup.sh $date >/dfe/tmp/hydrology_measurement.out 2>&1 &
+nohup time migrate_bonefish_measurement_backup.sh $date >/dfe/tmp/hydrology_measurement_backup.out 2>&1 &
 
 nohup time migrate_bonefish_sparrow.sh $date >/dfe/tmp/sparrow.out 2>&1 &
 

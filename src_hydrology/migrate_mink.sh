@@ -40,7 +40,7 @@ nohup /usr/bin/time						\
 cd /appaserver/src_sparrow
 
 nohup /usr/bin/time						\
-	mysqldump_database.sh	hydrology			\
+	mysqldump_database.sh	sparrow				\
 				mysqldump_sparrow.dat		\
 > /var/tmp/mysqldump_sparrow.out 2>&1 &
 

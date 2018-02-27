@@ -249,7 +249,7 @@ LIST *get_process_list(	LIST *process_list,
 
 		if ( each_line_insert )
 		{
-			sprintf( command_line,
+			sprintf(command_line,
 			 	MYSQL_LINE_DUMP_TEMPLATE,
 			 	path_filename_extension,
 			 	path_filename_extension,
@@ -263,7 +263,7 @@ LIST *get_process_list(	LIST *process_list,
 		}
 		else
 		{
-			sprintf( command_line,
+			sprintf(command_line,
 			 	MYSQL_DUMP_TEMPLATE,
 			 	path_filename_extension,
 			 	path_filename_extension,

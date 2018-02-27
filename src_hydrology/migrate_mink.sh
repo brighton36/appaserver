@@ -2,51 +2,18 @@
 # migrate_mink.sh
 # ---------------
 
-# =========
-# Databases
-# =========
-# Hydrology database
-# ------------------
-# vi /appaserver/cron/mysqldump_hydrology_block.dat
-# vi> offsite_scp_destination=bonefish:/dfe/son
+# Damon's scripts
+# ---------------
+scp -r ~rondeau/LrgsClient/* bonefish:~rondeau/LrgsClient
+scp -r ~rondeau/util/* bonefish:~rondeau/util
 
-# Outputs to:
-# 1) /opt/physical/data/dfe/backup_block/son/$date
-# 2) bonefish:/dfe/son.
-# 3) /var/tmp/mysqldump.out
-# ------------------------------------------------
-cd /appaserver/cron
+# Dependent data files
+# --------------------
+scp -r /opt/physical/data/raw_data/* bonefish:/opt/physical/data/raw_data
 
-nohup /usr/bin/time						\
-	mysqldump_database.sh	hydrology			\
-				mysqldump_hydrology_block.dat	\
-> /var/tmp/mysqldump_hydrology.out 2>&1 &
-
-# ^^^^^^^^^^^^^^^^^^^^^^
-# Expect to take 1 hour.
-# ----------------------
-
-# Sparrow database
-# ----------------
-# vi /appaserver/src_sparrow/mysqldump_sparrow.dat
-# vi> offsite_scp_destination=bonefish:/dfe/son
-
-# Outputs to:
-# 1) /opt/physical/data/dfe/sparrow/son/$date
-# 2) bonefish:/dfe/son.
-# 3) /appaserver/cron_log/mysqldump_sparrow.out
-# ---------------------------------------------
-
-cd /appaserver/src_sparrow
-
-nohup /usr/bin/time						\
-	mysqldump_database.sh	sparrow				\
-				mysqldump_sparrow.dat		\
-> /var/tmp/mysqldump_sparrow.out 2>&1 &
-
-# ^^^^^^^^^^^^^^^^^^^^^^^^^
-# Expect to take 5 seconds.
-# -------------------------
+# Database dumps
+# --------------
+migrate_mink_dump.sh
 
 # Document root
 # -------------
@@ -102,29 +69,17 @@ scp /var/tmp/python_mink.dat bonefish:/dfe/tmp
 cd /opt/physical/tmp2
 /usr/bin/time rsync -a --progress . bonefish:/opt/physical/tmp2
 
-# Database dumps <-- not doing
-# ----------------------------
-# migrate_mink_dumps.sh
-
 # GOES Satellite files.
 # This excludes data.
 # --------------------
 migrate_mink_goes.sh
 
+# Database dumps <-- not doing
+# ----------------------------
+# migrate_mink_dumps.sh
+
 # CR10 directory <-- not doing
 # ----------------------------
 # migrate_mink_cr10.sh
-
-# Damon's GOES library
-# --------------------
-scp -r ~rondeau/LrgsClient/* bonefish:~rondeau/LrgsClient
-
-# Damon's other scripts
-# ---------------------
-scp -r ~rondeau/util/* bonefish:~rondeau/util
-
-# Other dependent data files
-# --------------------------
-scp -r /opt/physical/data/raw_data/* bonefish:/opt/physical/data/raw_data
 
 exit 0

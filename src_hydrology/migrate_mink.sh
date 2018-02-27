@@ -119,4 +119,12 @@ migrate_mink_goes.sh
 # --------------------
 scp -r ~rondeau/LrgsClient/* bonefish:~rondeau/LrgsClient
 
+# Damon's other scripts
+# ---------------------
+scp -r ~rondeau/util/* bonefish:~rondeau/util
+
+# Other dependent data files
+# --------------------------
+scp -r /opt/physical/data/raw_data/* bonefish:/opt/physical/data/raw_data
+
 exit 0

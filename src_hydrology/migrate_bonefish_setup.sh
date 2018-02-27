@@ -13,16 +13,19 @@ chmod g+wxs $DOCUMENT_ROOT
 mkdir $DOCUMENT_ROOT/hydrology
 mkdir $DOCUMENT_ROOT/hydrology/images
 
-# Database dump directories
-# -------------------------
+# /opt/physical
+# -------------
 sudo mkdir /opt/physical
 sudo chown timriley:appaserver /opt/physical
 chmod g+wxs /opt/physical
 mkdir /opt/physical/sql
 mkdir /opt/physical/tmp2
 mkdir /opt/physical/data
-mkdir /opt/physical/data/dfe
+mkdir /opt/physical/data/raw_data
 
+# Database dump directories
+# -------------------------
+mkdir /opt/physical/data/dfe
 cd /opt/physical/data/dfe
 echo "This is the destination directory for nightly backup dumps." > README
 
@@ -183,5 +186,8 @@ useradd.sh rondeau appaserver
 sudo mkdir ~rondeau/LrgsClient
 sudo chown rondeau:appaserver ~rondeau/LrgsClient
 sudo chmod g+ws ~rondeau/LrgsClient
+sudo mkdir ~rondeau/util
+sudo chown rondeau:appaserver ~rondeau/util
+sudo chmod g+ws ~rondeau/util
 
 useradd.sh stabenau appaserver

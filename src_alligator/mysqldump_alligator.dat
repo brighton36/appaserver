@@ -1,0 +1,25 @@
+# $APPASERVER_HOME/src_alligator/mysqldump_alligator.dat
+# -------------------------------------------------------------
+# This is the alligator parameter file for mysqldump_database.sh
+# -------------------------------------------------------------
+# son = daily
+# father = Sunday
+# grandfather = monthly
+# greatgrandfather = January 1 and July 1
+# greatgreatgrandfather = January 1
+# =============================================================
+processes_in_parallel=10
+big_table_list=nest,nest_visit
+
+directory_root=/appaserver/backup/alligator
+output_directory=son
+father_directory=father
+grandfather_directory=grandfather
+greatgrandfather_directory=greatgrandfather
+greatgreatgrandfather_directory=greatgreatgrandfather
+
+son_keep_days=14
+father_keep_days=31
+grandfather_keep_days=185
+greatgrandfather_keep_days=1100
+greatgreatgrandfather_keep_days=1830

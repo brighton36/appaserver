@@ -10,6 +10,8 @@ scp -r ~rondeau/util/* bonefish:~rondeau/util
 # Dependent data files
 # --------------------
 scp -r /opt/physical/data/raw_data/* bonefish:/opt/physical/data/raw_data
+scp -r /opt/physical/data/survey_field_sheets/* bonefish:/opt/physical/data/survey_field_sheets
+scp -r /opt/physical/data/requests/* bonefish:/opt/physical/data/requests
 
 # Database dumps
 # --------------

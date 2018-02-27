@@ -22,6 +22,8 @@ mkdir /opt/physical/sql
 mkdir /opt/physical/tmp2
 mkdir /opt/physical/data
 mkdir /opt/physical/data/raw_data
+mkdir /opt/physical/data/survey_field_sheets
+mkdir /opt/physical/data/requests
 
 # Database dump directories
 # -------------------------

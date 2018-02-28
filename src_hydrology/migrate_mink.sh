@@ -13,9 +13,14 @@ scp -r ~stabenau/set* bonefish:/dfe/tmp/stabenau
 
 # Dependent data files
 # --------------------
-scp -r /opt/physical/data/raw_data/* bonefish:/opt/physical/data/raw_data
-scp -r /opt/physical/data/survey_field_sheets/* bonefish:/opt/physical/data/survey_field_sheets
-scp -r /opt/physical/data/requests/* bonefish:/opt/physical/data/requests
+directory="/opt/physical/data/raw_data"
+rsync -az --progress $directory bonefish:$directory
+
+directory="/opt/physical/data/survey_field_sheets"
+rsync -az --progress $directory bonefish:$directory
+
+directory="/opt/physical/data/requests"
+rsync -az --progress $directory bonefish:$directory
 
 # Database dumps
 # --------------

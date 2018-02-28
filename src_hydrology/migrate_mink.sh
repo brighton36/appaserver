@@ -20,7 +20,11 @@ directory="/opt/physical/data/survey_field_sheets"
 rsync -az --progress $directory bonefish:$directory
 
 directory="/opt/physical/data/requests"
-rsync -az --progress $directory bonefish:$directory
+rsync	-az					\
+	--progress				\
+	--exclude=${directory}/audubon/sent	\
+	$directory				\
+	bonefish:$directory
 
 # Database dumps
 # --------------

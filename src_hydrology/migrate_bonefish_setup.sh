@@ -24,6 +24,8 @@ mkdir /opt/physical/data
 mkdir /opt/physical/data/raw_data
 mkdir /opt/physical/data/survey_field_sheets
 mkdir /opt/physical/data/requests
+mkdir /opt/physical/data/requests/audubon
+mkdir /opt/physical/data/requests/audubon/sent
 
 # Database dump directories
 # -------------------------

@@ -69,6 +69,9 @@ echo "This is the hydrology migration database storage directory." > README
 mkdir /dfe/son/sparrow
 cd /dfe/son/sparrow
 echo "This is the sparrow migration database storage directory." > README
+mkdir /dfe/tmp/stabenau
+cd /dfe/tmp/stabenau
+echo "These are Eric's scripts from mink." > README
 
 # Old appaserver
 # --------------
@@ -168,7 +171,13 @@ sudo chown timriley:appaserver /var/export
 chmod g+wxs /var/export
 cd /var/export
 echo "This directory contains the CR10 raw files." > README
-mkdir enpdata enpdata_incoming dailyplots archive enpdata_done enpdata_done/archive temp enpdata_archive enpdata2
+
+# Other subdirectories
+# --------------------
+mkdir enpdata enpdata_incoming archive enpdata_done temp enpdata_archive enpdata2
+mkdir enpdata_done/archive
+mkdir enpdata/dailyplots
+
 sudo ln -s /var/export /export
 
 # Expect size:
@@ -184,7 +193,7 @@ piece.e ':' 0 > /dfe/tmp/python_bonefish.dat
 
 # Create user accounts
 # --------------------
-useradd.sh rondeau appaserver
+# useradd.sh rondeau appaserver
 sudo mkdir ~rondeau/LrgsClient
 sudo chown rondeau:appaserver ~rondeau/LrgsClient
 sudo chmod g+ws ~rondeau/LrgsClient
@@ -192,4 +201,5 @@ sudo mkdir ~rondeau/util
 sudo chown rondeau:appaserver ~rondeau/util
 sudo chmod g+ws ~rondeau/util
 
-useradd.sh stabenau appaserver
+# useradd.sh stabenau appaserver
+

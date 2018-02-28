@@ -7,6 +7,10 @@
 scp -r ~rondeau/LrgsClient/* bonefish:~rondeau/LrgsClient
 scp -r ~rondeau/util/* bonefish:~rondeau/util
 
+# Eric's scripts
+# --------------
+scp -r ~stabenau/set* bonefish:/dfe/tmp/stabenau
+
 # Dependent data files
 # --------------------
 scp -r /opt/physical/data/raw_data/* bonefish:/opt/physical/data/raw_data

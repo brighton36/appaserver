@@ -23,7 +23,10 @@ mkdir /opt/physical/tmp2
 mkdir /opt/physical/data
 mkdir /opt/physical/data/raw_data
 mkdir /opt/physical/data/survey_field_sheets
+
+rm -fr /opt/physical/data/requests 2>/dev/null
 mkdir /opt/physical/data/requests
+mkdir /opt/physical/data/requests/amy
 mkdir /opt/physical/data/requests/audubon
 mkdir /opt/physical/data/requests/audubon/sent
 

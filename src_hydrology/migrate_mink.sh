@@ -4,8 +4,11 @@
 
 # Damon's scripts
 # ---------------
-scp -r ~rondeau/LrgsClient/* bonefish:~rondeau/LrgsClient
-scp -r ~rondeau/util/* bonefish:~rondeau/util
+directory="/home/rondeau/LrgsClient"
+rsync -az --progress $directory bonefish:$directory
+
+directory="/home/rondeau/util"
+rsync -az --progress $directory bonefish:$directory
 
 # Eric's scripts
 # --------------
@@ -22,7 +25,8 @@ rsync -az --progress $directory bonefish:$directory
 directory="/opt/physical/data/requests"
 rsync	-az					\
 	--progress				\
-	--exclude=${directory}/audubon/sent	\
+	--exclude=audubon/sent			\
+	--exclude=amy				\
 	$directory				\
 	bonefish:$directory
 

@@ -201,6 +201,9 @@ sudo chmod g+ws ~rondeau/LrgsClient
 sudo mkdir ~rondeau/util
 sudo chown rondeau:appaserver ~rondeau/util
 sudo chmod g+ws ~rondeau/util
+sudo echo "" | ~rondeau/sent
+sudo chown rondeau:rondeau ~rondeau/sent
+sudo chmod go-rw ~rondeau/sent
 
 # useradd.sh stabenau appaserver
 

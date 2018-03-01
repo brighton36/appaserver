@@ -41,6 +41,9 @@ rsync -az --progress $directory bonefish:$directory
 #	$directory				\
 #	bonefish:$directory
 
+directory="/opt/physical/data/requests/audubon/util"
+rsync -az --progress $directory bonefish:$directory
+
 directory="/var/export/enpdata/dailyplots"
 scp $directory/msg.txt bonefish:$directory
 

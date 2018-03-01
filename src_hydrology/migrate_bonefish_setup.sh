@@ -20,15 +20,11 @@ sudo chown timriley:appaserver /opt/physical
 chmod g+wxs /opt/physical
 mkdir /opt/physical/sql
 mkdir /opt/physical/tmp2
-mkdir /opt/physical/data
-mkdir /opt/physical/data/raw_data
-mkdir /opt/physical/data/survey_field_sheets
 
-rm -fr /opt/physical/data/requests 2>/dev/null
-mkdir /opt/physical/data/requests
-mkdir /opt/physical/data/requests/amy
-mkdir /opt/physical/data/requests/audubon
-mkdir /opt/physical/data/requests/audubon/sent
+mkdir /opt/physical/maps
+mkdir /opt/physical/maps/run_plots
+
+migrate_bonefish_mkdir_data.sh
 
 # Database dump directories
 # -------------------------
@@ -208,3 +204,6 @@ sudo chmod g+ws ~rondeau/util
 
 # useradd.sh stabenau appaserver
 
+# sudo apt-get -y install ghostscript
+# sudo apt-get -y install mutt
+# sudo apt-get -y install grace

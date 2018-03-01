@@ -12,7 +12,7 @@ rsync -az --progress $directory bonefish:$directory
 
 # Eric's scripts
 # --------------
-scp -r ~stabenau/set* bonefish:/dfe/tmp/stabenau
+scp ~stabenau/set* bonefish:/dfe/tmp/stabenau
 
 # Dependent data files
 # --------------------
@@ -22,13 +22,27 @@ rsync -az --progress $directory bonefish:$directory
 directory="/opt/physical/data/survey_field_sheets"
 rsync -az --progress $directory bonefish:$directory
 
-directory="/opt/physical/data/requests"
-rsync	-az					\
-	--progress				\
-	--exclude=audubon/sent			\
-	--exclude=amy				\
-	$directory				\
-	bonefish:$directory
+#directory="/opt/physical/data/requests"
+#rsync	-az					\
+#	--progress				\
+#	--exclude=audubon/sent			\
+#	--exclude=amy				\
+#	--exclude=bisc				\
+#	--exclude=engel				\
+#	--exclude=lter				\
+#	--exclude=eden				\
+#	--exclude=daily_values			\
+#	--exclude=sfwmd				\
+#	--exclude=sfwmd_hourly			\
+#	--exclude=simeon			\
+#	--exclude=kirenbisc			\
+#	--exclude=jemeema			\
+#	--exclude=troxler			\
+#	$directory				\
+#	bonefish:$directory
+
+directory="/var/export/enpdata/dailyplots"
+scp $directory/msg.txt bonefish:$directory
 
 # Database dumps
 # --------------

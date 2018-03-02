@@ -1,6 +1,6 @@
 :
-# migrate_mink_dumps.sh
-# ---------------------
+# migrate_mink_dump_files.sh
+# --------------------------
 
 # Not doing
 # ---------

@@ -1,6 +1,6 @@
 :
-# migrate_mink.sh
-# ---------------
+# migrate_mink_files.sh
+# ---------------------
 
 # Damon's scripts
 # ---------------
@@ -64,10 +64,6 @@ rsync -az --progress $directory bonefish:$directory
 directory="/opt/physical/data/usgs_load/util"
 rsync -az --progress $directory bonefish:$directory
 
-# Database dumps
-# --------------
-migrate_mink_dump.sh
-
 # Document root
 # -------------
 cd $DOCUMENT_ROOT/hydrology
@@ -129,7 +125,7 @@ migrate_mink_goes.sh
 
 # Database dumps <-- not doing
 # ----------------------------
-# migrate_mink_dumps.sh
+# migrate_mink_dump_files.sh
 
 # CR10 directory <-- not doing
 # ----------------------------

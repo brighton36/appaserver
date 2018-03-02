@@ -258,6 +258,7 @@ void grep_this_file( 	char *vi_string,
 			if ( first_time )
 			{
 				printf( "%s\n", this_file );
+
 				if ( execute_vi )
 				{
 					int str_len = strlen( vi_string );

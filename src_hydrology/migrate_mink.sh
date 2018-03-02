@@ -22,6 +22,9 @@ rsync -az --progress $directory bonefish:$directory
 directory="/opt/physical/data/survey_field_sheets"
 rsync -az --progress $directory bonefish:$directory
 
+directory="/var/export/enpdata/dailyplots"
+scp $directory/msg.txt bonefish:$directory
+
 #directory="/opt/physical/data/requests"
 #rsync	-az					\
 #	--progress				\
@@ -41,11 +44,25 @@ rsync -az --progress $directory bonefish:$directory
 #	$directory				\
 #	bonefish:$directory
 
+# Utilities
+# ---------
 directory="/opt/physical/data/requests/audubon/util"
 rsync -az --progress $directory bonefish:$directory
 
-directory="/var/export/enpdata/dailyplots"
-scp $directory/msg.txt bonefish:$directory
+directory="/opt/physical/data/dailyplots/util"
+rsync -az --progress $directory bonefish:$directory
+
+directory="/opt/physical/data/fathom_sal/util"
+rsync -az --progress $directory bonefish:$directory
+
+directory="/opt/physical/data/requests/util"
+rsync -az --progress $directory bonefish:$directory
+
+directory="/opt/physical/data/uvnet/util"
+rsync -az --progress $directory bonefish:$directory
+
+directory="/opt/physical/data/usgs_load/util"
+rsync -az --progress $directory bonefish:$directory
 
 # Database dumps
 # --------------

@@ -15,13 +15,15 @@ find . -type f -exec chmod g+w {} \;
 
 cd ~rondeau/LrgsClient
 
-find . -type d -exec sudo chown rondeau:appaserver {} \;
+find . -exec sudo chown rondeau:appaserver {} \;
+find . -type f -exec sudo chmod g+w {} \;
 find . -type d -exec sudo chmod g+ws {} \;
 
 cd ~rondeau/util
 
-find . -type f -exec sudo chown rondeau:appaserver {} \;
+find . -exec sudo chown rondeau:appaserver {} \;
 find . -type f -exec sudo chmod g+w {} \;
+find . -type d -exec sudo chmod g+ws {} \;
 
 cd /opt/physical/data
 

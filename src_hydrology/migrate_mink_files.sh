@@ -4,10 +4,10 @@
 
 # Damon's scripts
 # ---------------
-directory="/home/rondeau/LrgsClient"
+directory="/home/rondeau/LrgsClient/"
 rsync -az --progress $directory bonefish:$directory
 
-directory="/home/rondeau/util"
+directory="/home/rondeau/util/"
 rsync -az --progress $directory bonefish:$directory
 
 # Eric's scripts
@@ -46,22 +46,22 @@ scp $directory/msg.txt bonefish:$directory
 
 # Utilities
 # ---------
-directory="/opt/physical/data/requests/audubon/util"
+directory="/opt/physical/data/requests/audubon/util/"
 rsync -az --progress $directory bonefish:$directory
 
-directory="/opt/physical/data/dailyplots/util"
+directory="/opt/physical/data/dailyplots/util/"
 rsync -az --progress $directory bonefish:$directory
 
-directory="/opt/physical/data/fathom_sal/util"
+directory="/opt/physical/data/fathom_sal/util/"
 rsync -az --progress $directory bonefish:$directory
 
-directory="/opt/physical/data/requests/util"
+directory="/opt/physical/data/requests/util/"
 rsync -az --progress $directory bonefish:$directory
 
-directory="/opt/physical/data/uvnet/util"
+directory="/opt/physical/data/uvnet/util/"
 rsync -az --progress $directory bonefish:$directory
 
-directory="/opt/physical/data/usgs_load/util"
+directory="/opt/physical/data/usgs_load/util/"
 rsync -az --progress $directory bonefish:$directory
 
 # Document root
@@ -89,18 +89,18 @@ rm -f sparrow/appaserver/*[1-9][0-9]*
 
 # User scripts 1
 # --------------
-cd /opt/dfe/sql
-/usr/bin/time rsync -a --progress . bonefish:/opt/dfe/sql
+directory="/opt/dfe/sql/"
+/usr/bin/time rsync -a --progress $directory bonefish:$directory
 
 # User scripts 2
 # --------------
-cd /usr/local/util
-/usr/bin/time rsync -a --progress . bonefish:/usr/local/util
+directory="/usr/local/util/"
+/usr/bin/time rsync -a --progress $directory bonefish:$directory
 
 # User scripts 3
 # --------------
-cd /opt/physical/sql
-/usr/bin/time rsync -a --progress . bonefish:/opt/physical/sql
+directory="/opt/physical/sql/"
+/usr/bin/time rsync -a --progress $directory bonefish:$directory
 
 # Python libraries
 # ----------------
@@ -115,8 +115,8 @@ scp /var/tmp/python_mink.dat bonefish:/dfe/tmp
 
 # GOES executables
 # ----------------
-cd /opt/physical/tmp2
-/usr/bin/time rsync -a --progress . bonefish:/opt/physical/tmp2
+directory="/opt/physical/tmp2/"
+/usr/bin/time rsync -a --progress $directory bonefish:$directory
 
 # GOES Satellite files.
 # This excludes data.

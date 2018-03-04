@@ -21,4 +21,10 @@ find . -type d -exec sudo chmod g+ws {} \;
 find . -type f -exec sudo chown rondeau:appaserver {} \;
 find . -type f -exec sudo chmod g+w {} \;
 
+cd /opt/physical/data
+
+find . -exec sudo chgrp appaserver {} \;
+find . -type f -exec sudo chmod g+w {} \;
+find . -type d -exec sudo chmod g+ws {} \;
+
 exit 0

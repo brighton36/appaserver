@@ -18,6 +18,8 @@ cd ~rondeau/LrgsClient
 find . -type d -exec sudo chown rondeau:appaserver {} \;
 find . -type d -exec sudo chmod g+ws {} \;
 
+cd ~rondeau/util
+
 find . -type f -exec sudo chown rondeau:appaserver {} \;
 find . -type f -exec sudo chmod g+w {} \;
 

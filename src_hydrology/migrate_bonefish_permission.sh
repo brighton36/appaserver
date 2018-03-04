@@ -7,11 +7,11 @@
 
 cd /opt/lrgs
 
-find . -type d -exec chgrp appaserver {} \;
-find . -type d -exec chmod g+ws {} \;
+find . -type d -exec sudo chgrp appaserver {} \;
+find . -type d -exec sudo chmod g+ws {} \;
 
-find . -type f -exec chgrp appaserver {} \;
-find . -type f -exec chmod g+w {} \;
+find . -type f -exec sudo chgrp appaserver {} \;
+find . -type f -exec sudo chmod g+w {} \;
 
 cd ~rondeau/LrgsClient
 

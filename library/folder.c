@@ -1050,6 +1050,9 @@ void folder_load_row_level_restrictions(
 		do {
 			related_folder = list_get( mto1_related_folder_list );
 
+			if ( !related_folder->is_primary_key_subset )
+				continue;
+
 			if ( related_folder->
 				folder->
 				row_level_non_owner_view_only )

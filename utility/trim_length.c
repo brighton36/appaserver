@@ -13,20 +13,24 @@ int main( int argc, char **argv )
 	int length;
 	char buffer[ 65536 ];
 	char component[ 65536 ];
-	char delimiter;
-	int offset;
+	char delimiter = ':';
+	int offset = 0;
 
-	if ( argc != 4 )
+	if ( argc == 1 )
 	{
 		fprintf(	stderr,
-				"Usage: %s length delimiter offset\n",
+				"Usage: %s length [delimiter offset]\n",
 				argv[ 0 ] );
 		exit( 1 );
 	}
 
 	length = atoi( argv[ 1 ] );
-	delimiter = *argv[ 2 ];
-	offset = atoi( argv[ 3 ] );
+
+	if ( argc == 4 )
+	{
+		delimiter = *argv[ 2 ];
+		offset = atoi( argv[ 3 ] );
+	}
 
 	while( get_line( buffer, stdin ) )
 	{

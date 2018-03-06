@@ -312,18 +312,18 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
-	folder=activity
-	columns=activity
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
-
 	# Only professional folders follow:
 	# ---------------------------------
 	folder=payroll_pay_period
 	results=`grep $folder $input_file | wc -l`
 	if [ "$results" -eq 1 ]
 	then
+		folder=activity
+		columns=activity
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
+
 		columns=payroll_pay_period
 		get_folder_data a=$application f=$folder s=$columns	|
 		insert_statement.e t=$folder field=$columns del='^'	|

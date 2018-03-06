@@ -29,7 +29,8 @@
 
 /* Constants */
 /* --------- */
-#define CHECK_SESSION		1
+#define CHECK_SESSION		0
+#define DATA_DELIMITER		'&'
 
 /* Prototypes */
 /* ---------- */
@@ -89,9 +90,9 @@ int main( int argc, char **argv )
 	environ_set_utc_offset( application_name );
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	login_name = argv[ 2 ];
 	role_name = argv[ 3 ];
@@ -213,11 +214,12 @@ void output_folder_results(
 		 "			folder=%s	 "
 		 "			where=\"%s\"	 "
 		 "			order=select	|"
-		 "joinlines.e '&'			 ",
+		 "joinlines.e '%c'			 ",
 		 application_name,
 		 list_display( primary_attribute_name_list ),
 		 folder_name,
-		 where );
+		 where,
+		 DATA_DELIMITER );
 
 	results = pipe2string( sys_string );
 
@@ -225,12 +227,6 @@ void output_folder_results(
 	{
 		formatted_results = format_results( results );
 
-/*
-		printf( "%s^%s|%s^Select\n",
-			results,
-			SELECT_OPERATOR,
-			formatted_results );
-*/
 		printf( "%s|%s\n",
 			results,
 			formatted_results );
@@ -297,7 +293,9 @@ void output_process_results(
 		return;
 	}
 
+/*
 	list_append_pointer( results_list, SELECT_OPERATOR );
+*/
 
 	list_rewind( results_list );
 
@@ -314,7 +312,8 @@ void output_process_results(
 			printf( "%s", results );
 		}
 
-		if ( !list_at_tail( results_list ) ) printf( "^" );
+		if ( !list_at_tail( results_list ) )
+			printf( "%c", DATA_DELIMITER );
 
 	} while( list_next( results_list ) );
 
@@ -338,7 +337,8 @@ void output_process_results(
 
 		printf( "%s", formatted_results );
 
-		if ( !list_at_tail( results_list ) ) printf( "^" );
+		if ( !list_at_tail( results_list ) )
+			printf( "%c", DATA_DELIMITER );
 
 	} while( list_next( results_list ) );
 

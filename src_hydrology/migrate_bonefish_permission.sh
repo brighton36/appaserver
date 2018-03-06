@@ -7,19 +7,23 @@
 
 cd /opt/lrgs
 
-find . -type d -exec chgrp appaserver {} \;
-find . -type d -exec chmod g+ws {} \;
+find . -type d -exec sudo chgrp appaserver {} \;
+find . -type d -exec sudo chmod g+ws {} \;
 
-find . -type f -exec chgrp appaserver {} \;
-find . -type f -exec chmod g+w {} \;
+find . -type f -exec sudo chgrp appaserver {} \;
+find . -type f -exec sudo chmod g+w {} \;
 
 cd ~rondeau/LrgsClient
 
-find . -type d -exec sudo chown rondeau:appaserver {} \;
+find . -exec sudo chown rondeau:appaserver {} \;
+find . -type f -exec sudo chmod g+w {} \;
 find . -type d -exec sudo chmod g+ws {} \;
 
-find . -type f -exec sudo chown rondeau:appaserver {} \;
+cd ~rondeau/util
+
+find . -exec sudo chown rondeau:appaserver {} \;
 find . -type f -exec sudo chmod g+w {} \;
+find . -type d -exec sudo chmod g+ws {} \;
 
 cd /opt/physical/data
 

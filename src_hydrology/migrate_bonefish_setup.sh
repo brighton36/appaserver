@@ -195,12 +195,15 @@ piece.e ':' 0 > /dfe/tmp/python_bonefish.dat
 # Create user accounts
 # --------------------
 # useradd.sh rondeau appaserver
+
 sudo mkdir ~rondeau/LrgsClient
 sudo chown rondeau:appaserver ~rondeau/LrgsClient
 sudo chmod g+ws ~rondeau/LrgsClient
+
 sudo mkdir ~rondeau/util
 sudo chown rondeau:appaserver ~rondeau/util
 sudo chmod g+ws ~rondeau/util
+
 sudo su - rondeau -c '/bin/echo "" > sent'
 sudo chown rondeau:rondeau ~rondeau/sent
 sudo chmod go-rw ~rondeau/sent

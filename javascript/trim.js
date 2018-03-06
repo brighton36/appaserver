@@ -4,6 +4,31 @@
 // Freely available software. See appaserver.org
 // ---------------------------------------------
 
+function trim_character( source_string, character )
+{
+	var length;
+	var return_string;
+	var ch;
+
+	length = source_string.length;
+
+	if ( !length ) return source_string;
+
+	return_string = "";
+
+	for ( var i = 0; i < length; i++ )
+	{
+		ch = source_string.charAt( i );
+
+		if ( ch == character ) continue;
+
+		return_string = return_string + ch;
+	}
+
+	return return_string;
+
+} // trim_character()
+
 function trim_trailing_piece( source_string, delimiter )
 {
 	var length;
@@ -19,7 +44,9 @@ function trim_trailing_piece( source_string, delimiter )
 			return source_string.substring( 0, i );
 		}
 	}
+
 	return source_string;
+
 } // trim_trailing_piece()
 
 function left_trim( s )
@@ -30,7 +57,9 @@ function left_trim( s )
 	for ( i = 0; i < s.length; i++ )
 		if ( s.charCodeAt( i ) != 32 )
 			return_string += s.charAt( i );
+
 	return return_string;
+
 } // left_trim()
 
 function right_trim( s )

@@ -46,7 +46,9 @@ function post_change_bank_upload_sort_accumulate()
 			bank_running_balance_element_name, 0 );
 
 	bank_running_balance_value =
-		bank_running_balance_element.value - 0.0;
+		trim_character(
+			bank_running_balance_element.value,
+			',' ) - 0.0;
 
 	row = 2;
 
@@ -61,7 +63,10 @@ function post_change_bank_upload_sort_accumulate()
 
 		if ( bank_amount_element == '' ) break;
 
-		bank_amount_value = bank_amount_element.value - 0.0;
+		bank_amount_value =
+			trim_character(
+				bank_amount_element.value,
+				',' ) - 0.0;
 
 		bank_running_balance_element_name =
 			'bank_running_balance_' + row;

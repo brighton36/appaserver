@@ -216,6 +216,7 @@ int main( int argc, char **argv )
 	document->output_content_type = 1;
 
 	document_set_javascript_module( document, "timlib" );
+	document_set_javascript_module( document, "trim" );
 	document_set_javascript_module( document, "sort_order" );
 	document_set_javascript_module( document, "form" );
 

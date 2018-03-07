@@ -2213,6 +2213,11 @@ void build_related_folder_element_list(
 	else
 		send_preprompt_dictionary = (DICTIONARY *)0;
 
+/* ---------------------------------------------------- */
+/* This broke <Insert> <Reoccurring Transaction> 	*/
+/* Test this: <Lookup> <Project Principle Investigator>	*/
+/* ---------------------------------------------------- */
+/*
 	if ( ajax_fill_drop_down_related_folder
 	&&   *ajax_fill_drop_down_related_folder )
 	{
@@ -2223,6 +2228,10 @@ void build_related_folder_element_list(
 		only_one_ajax_fill_drop_down =
 			ajax_fill_drop_down_related_folder;
 	}
+*/
+
+	only_one_ajax_fill_drop_down =
+		ajax_fill_drop_down_related_folder;
 
 	list_append_list(
 		element_list,

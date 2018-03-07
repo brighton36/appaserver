@@ -983,6 +983,11 @@ LIST *row_security_get_update_element_list(
 				goto skip_checking_drop_down;
 			}
 
+/* ---------------------------------------------------- */
+/* This broke <Insert> <Reoccurring Transaction> 	*/
+/* Test this: <Lookup> <Project Principle Investigator>	*/
+/* ---------------------------------------------------- */
+/*
 			if ( ajax_fill_drop_down_related_folder
 			&&   *ajax_fill_drop_down_related_folder )
 			{
@@ -994,6 +999,10 @@ LIST *row_security_get_update_element_list(
 				only_one_ajax_fill_drop_down =
 					ajax_fill_drop_down_related_folder;
 			}
+*/
+
+			only_one_ajax_fill_drop_down =
+				ajax_fill_drop_down_related_folder;
 
 			list_append_list(
 				return_list,

@@ -1139,6 +1139,11 @@ drop-down needing SWEEP.sweep_number in the where clause.
 				continue;
 			}
 
+/* ---------------------------------------------------- */
+/* This broke <Insert> <Reoccurring Transaction> 	*/
+/* Test this: <Lookup> <Project Principle Investigator>	*/
+/* ---------------------------------------------------- */
+/*
 			if ( ajax_fill_drop_down_related_folder
 			&&   *ajax_fill_drop_down_related_folder )
 			{
@@ -1150,6 +1155,10 @@ drop-down needing SWEEP.sweep_number in the where clause.
 				only_one_ajax_fill_drop_down =
 					ajax_fill_drop_down_related_folder;
 			}
+*/
+
+			only_one_ajax_fill_drop_down =
+				ajax_fill_drop_down_related_folder;
 
 			list_append_list(
 				return_list,

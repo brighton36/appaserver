@@ -793,7 +793,7 @@ void output_prompt_edit_form(
 		||   !lookup_before_drop_down->first_prelookup )
 		{
 			sprintf(form_title,
-"%s %s<br><small>Prelookup %s:<br>Fill out 1 or 2 rows of this query form.</small>\n",
+"%s %s<br><small>Prelookup %s</small>\n",
 				initial_capital_state,
 				initial_capital_related_folder,
 				initial_capital_folder );

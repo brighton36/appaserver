@@ -1,6 +1,6 @@
 #!/bin/bash
 # -----------------------------------------------------------------
-# $APPASERVER_HOME/src_accountancymodel/refresh_inventory_layers.sh
+# $APPASERVER_HOME/src_predictive/refresh_inventory_layers.sh
 # -----------------------------------------------------------------
 
 if [ "$#" -eq 0 ]

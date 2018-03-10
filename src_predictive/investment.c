@@ -433,6 +433,19 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 	a->investment_account = investment_account;
 	a->fair_value_adjustment_account = fair_value_adjustment_account;
 
+	/* ============ */
+	/* Set defaults */
+	/* ============ */
+
+	/* If time passage, then share_quantity_balance takes precedence. */
+	/* -------------------------------------------------------------- */
+	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0
+	&&   !timlib_double_virtually_same( share_quantity_balance, 0.0 )
+	&&   !timlib_double_virtually_same( share_quantity_change, 0.0 ) )
+	{
+		share_quantity_change = 0.0;
+	}
+
 	/* ---------------------------------------------------- */
 	/* If bank account, certificate, or money market,	*/
 	/* then share_price is $1.				*/
@@ -445,7 +458,7 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 		share_price = 1.0;
 		share_quantity_balance = market_value;
 	}
-
+	else
 	if ( share_quantity_balance
 	&&   !share_price
 	&&   !share_quantity_change
@@ -453,7 +466,7 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 	{
 		share_price = 1.0;
 	}
-
+	else
 	if ( share_quantity_change
 	&&   !share_price
 	&&   !share_quantity_balance
@@ -461,6 +474,27 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 	{
 		share_price = 1.0;
 	}
+
+	/* ================================== */
+	/* Set default share_quantity_balance */
+	/* ================================== */
+	if ( market_value
+	&&   !share_price
+	&&   !share_quantity_change
+	&&   !share_quantity_balance )
+	{
+		share_quantity_balance = market_value;
+	}
+	else
+	if ( prior_share_quantity_balance
+	&&   !timlib_double_virtually_same( share_quantity_change, 0.0 ) )
+	{
+		share_quantity_balance = 0.0;
+	}
+
+	/* ============== */
+	/* Set new values */
+	/* ============== */
 
 	if ( !timlib_double_virtually_same( share_price, 0.0 ) )
 	{

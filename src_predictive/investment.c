@@ -1355,7 +1355,6 @@ void investment_transaction_date_time_update(
 
 	fprintf( output_pipe,
 	 	"%s^%s^%s^%s^transaction_date_time^%s\n",
-		 full_name,
 		 escape_character(	buffer,
 					full_name,
 					'\'' ),

@@ -12,6 +12,7 @@
 #include "environ.h"
 #include "piece.h"
 #include "list.h"
+#include "document.h"
 #include "inventory.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
@@ -334,6 +335,10 @@ void post_change_account_balance_insert(
 				fund_name,
 				account_balance ) )
 		{
+			document_quick_output_body(
+				application_name,
+				(char *)0 /* appaserver_mount_point */ );
+
 			printf( "<h3>Error: An error occurred.</h3>\n" );
 		}
 	}
@@ -344,6 +349,10 @@ void post_change_account_balance_insert(
 				fund_name,
 				account_balance ) )
 		{
+			document_quick_output_body(
+				application_name,
+				(char *)0 /* appaserver_mount_point */ );
+
 			printf(
 		"<h3>Error: The series must start with a purchase.</h3>\n" );
 		}
@@ -602,6 +611,7 @@ boolean post_change_account_balance_insert_sale(
 	ACCOUNT_BALANCE *prior_account_balance = {0};
 	ACCOUNT_BALANCE *new_account_balance;
 	char *prior_date_time;
+	double share_quantity_change;
 
 	if ( ( prior_date_time =
 			investment_account_balance_fetch_prior_date_time(
@@ -611,7 +621,6 @@ boolean post_change_account_balance_insert_sale(
 				account_balance->account_number,
 				account_balance->date_time ) ) )
 	{
-
 		if ( ! ( prior_account_balance =
 				investment_account_balance_fetch(
 					application_name,
@@ -631,6 +640,13 @@ boolean post_change_account_balance_insert_sale(
 
 	if ( !prior_account_balance ) return 0;
 
+	/* The sale needs a negative share quantity change. */
+	/* ------------------------------------------------ */
+	if ( account_balance->share_quantity_change > 0.0 )
+		share_quantity_change = -account_balance->share_quantity_change;
+	else
+		share_quantity_change = account_balance->share_quantity_change;
+
 	new_account_balance =
 		investment_account_balance_calculate(
 			account_balance->full_name,
@@ -638,7 +654,7 @@ boolean post_change_account_balance_insert_sale(
 			account_balance->account_number,
 			account_balance->date_time,
 			account_balance->share_price,
-			account_balance->share_quantity_change,
+			share_quantity_change,
 			account_balance->share_quantity_balance,
 			account_balance->market_value,
 			prior_account_balance->share_quantity_balance,
@@ -651,9 +667,7 @@ boolean post_change_account_balance_insert_sale(
 				account_balance->
 					fair_value_adjustment_account );
 
-	/* The sale needs a negative share quantity change. */
-	/* ------------------------------------------------ */
-	if ( new_account_balance->share_quantity_change >= 0.0 ) return 0;
+	if ( new_account_balance->share_quantity_change == 0.0 ) return 0;
 
 	new_account_balance->transaction =
 		investment_build_transaction(

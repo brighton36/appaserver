@@ -4502,6 +4502,46 @@ void ledger_debit_credit_update(	char *application_name,
 
 } /* ledger_debit_credit_update() */
 
+void ledger_journal_ledger_transaction_date_time_update(
+			FILE *update_pipe,
+			char *full_name,
+			char *street_address,
+			char *preupdate_transaction_date_time,
+			char *account_name,
+			char *transaction_date_time )
+{
+	char buffer[ 128 ];
+
+	if (	!full_name
+	||	!street_address
+	||	!preupdate_transaction_date_time
+	||	!account_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty primary key.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		pclose( update_pipe );
+		exit( 1 ); 
+	}
+
+	fprintf(update_pipe,
+	 	"%s^%s^%s^%s^transaction_date_time^%s\n",
+		escape_character(	buffer,
+					full_name,
+					'\'' ),
+	 	street_address,
+	 	preupdate_transaction_date_time,
+	 	account_name,
+	 	(transaction_date_time)
+			? transaction_date_time
+			: "" );
+
+	fflush( update_pipe );
+
+} /* ledger_journal_ledger_transaction_date_time_update() */
+
 void ledger_journal_ledger_update(	FILE *update_pipe,
 					char *full_name,
 					char *street_address,
@@ -4510,7 +4550,12 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 					double debit_amount,
 					double credit_amount )
 {
-	if ( !full_name || !street_address || !transaction_date_time )
+	char buffer[ 128 ];
+
+	if (	!full_name
+	||	!street_address
+	||	!transaction_date_time
+	||	!account_name )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: empty primary key.\n",
@@ -4527,7 +4572,9 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 	{
 		fprintf(update_pipe,
 		 	"%s^%s^%s^%s^debit_amount^%.2lf\n",
-		 	full_name,
+			escape_character(	buffer,
+						full_name,
+						'\'' ),
 		 	street_address,
 		 	transaction_date_time,
 		 	account_name,
@@ -4540,7 +4587,9 @@ void ledger_journal_ledger_update(	FILE *update_pipe,
 	{
 		fprintf(update_pipe,
 		 	"%s^%s^%s^%s^credit_amount^%.2lf\n",
-		 	full_name,
+			escape_character(	buffer,
+						full_name,
+						'\'' ),
 		 	street_address,
 		 	transaction_date_time,
 		 	account_name,
@@ -8946,4 +8995,65 @@ boolean ledger_exists_journal_ledger(
 	return 0;
 
 } /* ledger_exists_journal_ledger() */
+
+/* Returns transaction_date_time */
+/* ----------------------------- */
+char *ledger_transaction_date_time_update(
+			/* ------------------------------------------ */
+			/* Sets journal_ledger->transaction_date_time */
+			/* ------------------------------------------ */
+			LIST *journal_ledger_list,
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *preupdate_transaction_date_time )
+{
+	JOURNAL_LEDGER *journal_ledger;
+	FILE *update_pipe;
+
+	transaction_date_time =
+		ledger_fetch_unique_transaction_date_time(
+			application_name,
+			transaction_date_time );
+
+	ledger_transaction_generic_update(
+		application_name,
+		full_name,
+		street_address,
+		preupdate_transaction_date_time,
+		"transaction_date_time" /* attribute */,
+		transaction_date_time /* data */ );
+
+	if ( !list_rewind( journal_ledger_list ) )
+		return transaction_date_time;
+
+	update_pipe = ledger_open_update_pipe( application_name );
+
+	do {
+		journal_ledger = list_get_pointer( journal_ledger_list );
+
+		journal_ledger->transaction_date_time =
+			transaction_date_time;
+
+		ledger_journal_ledger_transaction_date_time_update(
+			update_pipe,
+			full_name,
+			street_address,
+			preupdate_transaction_date_time,
+			journal_ledger->account_name,
+			journal_ledger->transaction_date_time );
+
+	} while( list_next( journal_ledger_list ) );
+
+	pclose( update_pipe );
+
+	ledger_propagate_journal_ledger_list(
+			application_name,
+			transaction_date_time,
+			journal_ledger_list );
+
+	return transaction_date_time;
+
+} /* ledger_transaction_date_time_update() */
 

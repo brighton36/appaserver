@@ -1042,4 +1042,25 @@ boolean ledger_exists_journal_ledger(
 				char *transaction_date,
 				double transaction_amount );
 
+/* Returns transaction_date_time */
+/* ----------------------------- */
+char *ledger_transaction_date_time_update(
+				/* ------------------------------------------ */
+				/* Sets journal_ledger->transaction_date_time */
+				/* ------------------------------------------ */
+				LIST *journal_ledger_list,
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *preupdate_transaction_date_time );
+
+void ledger_journal_ledger_transaction_date_time_update(
+			FILE *update_pipe,
+			char *full_name,
+			char *street_address,
+			char *preupdate_transaction_date_time,
+			char *account_name,
+			char *transaction_date_time );
+
 #endif

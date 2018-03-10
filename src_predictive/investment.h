@@ -152,4 +152,15 @@ char *investment_account_balance_get_join(
 char *investment_account_balance_get_select(
 					void );
 
+char *investment_get_update_sys_string(
+					char *application_name );
+
+void investment_transaction_date_time_update(
+					char *full_name,
+					char *street_address,
+					char *account_number,
+					char *date_time,
+					char *transaction_date_time,
+					char *application_name );
+
 #endif

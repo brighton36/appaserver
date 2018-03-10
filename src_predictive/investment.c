@@ -244,6 +244,13 @@ ACCOUNT_BALANCE *investment_account_balance_fetch(
 			application_name,
 			date_time );
 
+	account_balance->transaction =
+		ledger_transaction_fetch(
+			application_name,
+			full_name,
+			street_address,
+			account_balance->transaction_date_time );
+
 	return account_balance;
 
 } /* investment_account_balance_fetch() */
@@ -1330,4 +1337,59 @@ TRANSACTION *investment_build_time_transaction(
 	return transaction;
 
 } /* investment_build_time_transaction() */
+
+void investment_transaction_date_time_update(
+				char *full_name,
+				char *street_address,
+				char *account_number,
+				char *date_time,
+				char *transaction_date_time,
+				char *application_name )
+{
+	char *sys_string;
+	FILE *output_pipe;
+	char buffer[ 128 ];
+
+	sys_string = investment_get_update_sys_string( application_name );
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf( output_pipe,
+	 	"%s^%s^%s^%s^transaction_date_time^%s\n",
+		 full_name,
+		 escape_character(	buffer,
+					full_name,
+					'\'' ),
+		street_address,
+		account_number,
+		date_time,
+		(transaction_date_time)
+			? transaction_date_time
+			: "" );
+
+	pclose( output_pipe );
+
+} /* investment_transaction_date_time_update() */
+
+char *investment_get_update_sys_string(
+				char *application_name )
+{
+	static char sys_string[ 256 ];
+	char *table_name;
+	char *key;
+
+	table_name =
+		get_table_name(
+			application_name,
+			"equity_account_balance" );
+
+	key = "full_name,street_address,account_number,date_time";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 table_name,
+		 key );
+
+	return sys_string;
+
+} /* investment_get_update_sys_string() */
 

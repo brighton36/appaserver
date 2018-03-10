@@ -71,13 +71,14 @@ int main( int argc, char **argv )
 	char *preupdate_full_name;
 	char *preupdate_street_address;
 	char *preupdate_account_number;
+	char *preupdate_date_time;
 	char *database_string = {0};
 	ACCOUNT_BALANCE *account_balance;
 
-	if ( argc != 11 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s application fund full_name street_address account_number date_time state preupdate_full_name preupdate_street_address preupdate_account_number\n",
+"Usage: %s application fund full_name street_address account_number date_time state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -92,6 +93,7 @@ int main( int argc, char **argv )
 	preupdate_full_name = argv[ 8 ];
 	preupdate_street_address = argv[ 9 ];
 	preupdate_account_number = argv[ 10 ];
+	preupdate_date_time = argv[ 11 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -155,6 +157,7 @@ int main( int argc, char **argv )
 		enum preupdate_change_state full_name_change_state;
 		enum preupdate_change_state street_address_change_state;
 		enum preupdate_change_state account_number_change_state;
+		enum preupdate_change_state date_time_change_state;
 
 		full_name_change_state =
 			appaserver_library_get_preupdate_change_state(
@@ -202,6 +205,12 @@ int main( int argc, char **argv )
 				account_number /* postupdate_data */,
 				"preupdate_account_number" );
 
+		date_time_change_state =
+			appaserver_library_get_preupdate_change_state(
+				preupdate_date_time,
+				date_time /* postupdate_data */,
+				"preupdate_date_time" );
+
 		post_change_account_balance_list(
 			application_name,
 			fund_name,
@@ -220,6 +229,57 @@ int main( int argc, char **argv )
 				street_address,
 				preupdate_account_number,
 				date_time );
+		}
+
+		if ( date_time_change_state ==
+			from_something_to_something_else )
+		{
+			ACCOUNT_BALANCE *account_balance;
+			char *preupdate_transaction_date_time;
+
+			account_balance =
+				investment_account_balance_fetch(
+					application_name,
+					full_name,
+					street_address,
+					account_number,
+					date_time );
+
+			if ( !account_balance )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot fetch account_balance(%s,%s,%s,%s)\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__,
+					full_name,
+					street_address,
+					account_number,
+					date_time );
+				exit( 1 );
+			}
+
+			preupdate_transaction_date_time =
+				account_balance->transaction_date_time,
+
+			account_balance->transaction_date_time =
+				ledger_transaction_date_time_update(
+					account_balance->
+						transaction->
+						journal_ledger_list,
+					application_name,
+					full_name,
+					street_address,
+					date_time /* transaction_date_time */,
+					preupdate_transaction_date_time );
+
+			investment_transaction_date_time_update(
+				full_name,
+				street_address,
+				account_number,
+				date_time,
+				account_balance->transaction_date_time,
+				application_name );
 		}
 	}
 	else

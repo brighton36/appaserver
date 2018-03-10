@@ -1229,6 +1229,7 @@ void purchase_order_arrived_date_time_update(
 {
 	char *sys_string;
 	FILE *output_pipe;
+	char buffer[ 128 ];
 
 	if ( !purchase_order ) return;
 
@@ -1237,7 +1238,9 @@ void purchase_order_arrived_date_time_update(
 
 	fprintf( output_pipe,
 	 	"%s^%s^%s^arrived_date_time^%s\n",
-		purchase_order->full_name,
+		escape_character(	buffer,
+					purchase_order->full_name,
+					'\'' ),
 		purchase_order->street_address,
 		purchase_order->purchase_date_time,
 		(purchase_order->arrived_date_time)
@@ -1397,13 +1400,16 @@ void purchase_order_transaction_date_time_update(
 {
 	char *sys_string;
 	FILE *output_pipe;
+	char buffer[ 128 ];
 
 	sys_string = purchase_order_get_update_sys_string( application_name );
 	output_pipe = popen( sys_string, "w" );
 
 	fprintf( output_pipe,
 	 	"%s^%s^%s^transaction_date_time^%s\n",
-		full_name,
+		escape_character(	buffer,
+					full_name,
+					'\'' ),
 		street_address,
 		purchase_date_time,
 		(transaction_date_time)

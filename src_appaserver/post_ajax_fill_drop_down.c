@@ -29,7 +29,7 @@
 
 /* Constants */
 /* --------- */
-#define CHECK_SESSION		0
+#define CHECK_SESSION		1
 #define DATA_DELIMITER		'&'
 
 /* Prototypes */

@@ -1,12 +1,12 @@
-/* --------------------------------------------------- 	*/
-/* src_appaserver/post_login_cloudacus.c	       	*/
-/* --------------------------------------------------- 	*/
-/* 						       	*/
-/* This program is attached to the submit button on the */
-/* password form from cloudacus.com/index.php.    	*/
-/* 							*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ------------------------------------------------------ 	*/
+/* $APPASERVER_HOME/src_appaserver/post_login_cloudacus.c      	*/
+/* ------------------------------------------------------ 	*/
+/* 							       	*/
+/* This program is attached to the submit button on the 	*/
+/* password form from cloudacus.com/index.php.    		*/
+/* 								*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------ 	*/
 
 #include <stdio.h>
 #include <stdlib.h>

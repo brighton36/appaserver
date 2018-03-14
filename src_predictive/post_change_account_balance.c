@@ -44,7 +44,8 @@ void post_change_account_balance_delete(
 				char *fund_name,
 				char *full_name,
 				char *street_address,
-				char *transaction_date_time );
+				char *transaction_date_time,
+				char *investment_account );
 
 boolean post_change_account_balance_insert_time_passage(
 				char *application_name,
@@ -269,7 +270,8 @@ int main( int argc, char **argv )
 			fund_name,
 			account_balance->full_name,
 			account_balance->street_address,
-			account_balance->transaction_date_time );
+			account_balance->transaction_date_time,
+			account_balance->investment_account );
 	}
 
 	return 0;
@@ -281,9 +283,9 @@ void post_change_account_balance_delete(
 			char *fund_name,
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time )
+			char *transaction_date_time,
+			char *investment_account )
 {
-	char *investment_account = {0};
 	char *fair_value_adjustment = {0};
 	char *realized_gain = {0};
 	char *unrealized_investment = {0};

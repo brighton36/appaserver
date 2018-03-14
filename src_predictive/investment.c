@@ -68,7 +68,7 @@ char *investment_account_balance_get_select( void )
 		"book_value_change,		"
 		"book_value_balance,		"
 		"moving_share_price,		"
-		"total_cost_balance,		"
+		"cash_in,			"
 		"market_value,			"
 		"unrealized_gain_balance,	"
 		"unrealized_gain_change,	"
@@ -297,7 +297,7 @@ ACCOUNT_BALANCE *investment_account_balance_parse(
 	account_balance->moving_share_price = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
-	account_balance->total_cost_balance = atof( buffer );
+	account_balance->cash_in = atof( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 9 );
 	account_balance->market_value = atof( buffer );
@@ -403,23 +403,17 @@ char *investment_account_balance_fetch_prior_date_time(
 
 } /* investment_account_balance_fetch_prior_date_time() */
 
-ACCOUNT_BALANCE *investment_account_balance_calculate(
-				char *full_name,
-				char *street_address,
-				char *account_number,
-				char *date_time,
-				double share_price,
-				double share_quantity_change,
-				double share_quantity_balance,
-				double market_value,
-				double prior_share_quantity_balance,
-				double prior_book_value_balance,
-				double prior_total_cost_balance,
-				double prior_moving_share_price,
-				double prior_unrealized_gain_balance,
-				char *investment_operation,
-				char *investment_account,
-				char *fair_value_adjustment_account )
+ACCOUNT_BALANCE *investment_account_balance_withdrawal(
+					char *full_name,
+					char *street_address,
+					char *account_number,
+					char *date_time,
+					double share_price,
+					double share_quantity_change,
+					double prior_share_quantity_balance,
+					double prior_book_value_balance,
+					double prior_moving_share_price,
+					double prior_unrealized_gain_balance )
 {
 	ACCOUNT_BALANCE *a;
 
@@ -429,162 +423,71 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 			account_number,
 			date_time );
 
-	a->investment_operation = investment_operation;
-	a->investment_account = investment_account;
-	a->fair_value_adjustment_account = fair_value_adjustment_account;
+	a->share_price = share_price;
+	a->share_quantity_change = share_quantity_change;
 
-	/* ============ */
-	/* Set defaults */
-	/* ============ */
+	a->share_quantity_balance =
+		prior_share_quantity_balance +
+		a->share_quantity_change;
 
-	/* If time passage, then share_quantity_balance takes precedence. */
-	/* -------------------------------------------------------------- */
-	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0
-	&&   !timlib_double_virtually_same( share_quantity_balance, 0.0 )
-	&&   !timlib_double_virtually_same( share_quantity_change, 0.0 ) )
-	{
-		share_quantity_change = 0.0;
-	}
+	a->cash_in = a->share_price * ( 0.0 - a->share_quantity_change );
+	a->market_value = a->share_price * a->share_quantity_balance;
+	a->moving_share_price = prior_moving_share_price;
+	a->book_value_change = a->moving_share_price * a->share_quantity_change;
 
-	/* ---------------------------------------------------- */
-	/* If bank account, certificate, or money market,	*/
-	/* then share_price is $1.				*/
-	/* ---------------------------------------------------- */
-	if ( market_value
-	&&   !share_price
-	&&   !share_quantity_change
-	&&   !share_quantity_balance )
-	{
-		share_price = 1.0;
-		share_quantity_balance = market_value;
-	}
-	else
-	if ( share_quantity_balance
-	&&   !share_price
-	&&   !share_quantity_change
-	&&   !market_value )
-	{
-		share_price = 1.0;
-	}
-	else
-	if ( share_quantity_change
-	&&   !share_price
-	&&   !share_quantity_balance
-	&&   !market_value )
-	{
-		share_price = 1.0;
-	}
+	a->book_value_balance =
+		prior_book_value_balance +
+		a->book_value_change;
 
-	/* ================================== */
-	/* Set default share_quantity_balance */
-	/* ================================== */
-	if ( market_value
-	&&   !share_price
-	&&   !share_quantity_change
-	&&   !share_quantity_balance )
-	{
-		share_quantity_balance = market_value;
-	}
-	else
-	if ( prior_share_quantity_balance
-	&&   !timlib_double_virtually_same( share_quantity_change, 0.0 ) )
-	{
-		share_quantity_balance = 0.0;
-	}
+	a->unrealized_gain_balance =
+		a->market_value -
+		a->book_value_balance;
 
-	/* ============== */
-	/* Set new values */
-	/* ============== */
+	a->unrealized_gain_change =
+		a->unrealized_gain_balance -
+		prior_unrealized_gain_balance;
 
-	if ( !timlib_double_virtually_same( share_price, 0.0 ) )
-	{
-		a->share_price = share_price;
-	}
-	else
-	if ( !timlib_double_virtually_same( share_quantity_balance, 0.0 ) )
-	{
-		a->share_price = market_value / share_quantity_balance;
-	}
+	a->realized_gain = a->cash_in + a->book_value_change;
 
-	if ( !timlib_double_virtually_same( share_quantity_change, 0.0 ) )
-	{
-		a->share_quantity_change = share_quantity_change;
-	}
-	else
-	{
-		a->share_quantity_change =
-			share_quantity_balance -
-			prior_share_quantity_balance;
-	}
+	return a;
 
-	if ( !timlib_double_virtually_same( share_quantity_balance, 0.0 ) )
-	{
-		a->share_quantity_balance = share_quantity_balance;
-	}
-	else
-	{
-		a->share_quantity_balance =
-			prior_share_quantity_balance +
-			a->share_quantity_change;
-	}
+} /* investment_account_balance_withdrawal() */
+
+ACCOUNT_BALANCE *investment_account_balance_time_passage(
+					char *full_name,
+					char *street_address,
+					char *account_number,
+					char *date_time,
+					double share_price,
+					double share_quantity_change,
+					double prior_share_quantity_balance,
+					double prior_book_value_balance,
+					double prior_unrealized_gain_balance )
+{
+	ACCOUNT_BALANCE *a;
+
+	a = investment_account_balance_new(
+			full_name,
+			street_address,
+			account_number,
+			date_time );
+
+	a->share_price = share_price;
+	a->share_quantity_change = share_quantity_change;
+
+	a->share_quantity_balance =
+		prior_share_quantity_balance +
+		a->share_quantity_change;
 
 	a->market_value = a->share_price * a->share_quantity_balance;
+	a->book_value_change = a->share_price * a->share_quantity_change;
+	a->book_value_balance = prior_book_value_balance + a->book_value_change;
 
-	/* If no change in share quantity */
-	/* ------------------------------ */
-	if ( timlib_double_virtually_same( a->share_quantity_change, 0.0 ) )
+	if ( a->share_quantity_balance )
 	{
-		a->moving_share_price = prior_moving_share_price;
-		a->total_cost_balance = prior_total_cost_balance;
-		a->book_value_balance = prior_book_value_balance;
-	}
-	else
-	if ( timlib_strcmp( investment_operation, "sale" ) == 0 )
-	{
-		double cash_in;
-
-		a->moving_share_price = prior_moving_share_price;
-
-		a->total_cost_balance =
-			a->moving_share_price *
+		a->moving_share_price =
+			a->book_value_balance /
 			a->share_quantity_balance;
-
-		a->book_value_change =
-			a->share_quantity_change *
-			a->moving_share_price;
-
-		a->book_value_balance =
-			prior_book_value_balance +
-			a->book_value_change;
-
-		cash_in = share_price * -share_quantity_change;
-
-		/* Book value change is negative. */
-		/* ------------------------------ */
-		a->realized_gain = cash_in + a->book_value_change;
-	}
-	else
-	{
-		a->book_value_change =
-			a->share_quantity_change *
-			a->share_price;
-
-		a->book_value_balance =
-			prior_book_value_balance +
-			a->book_value_change;
-
-		a->total_cost_balance =
-			prior_total_cost_balance +
-			a->book_value_change;
-
-		if ( !timlib_double_virtually_same(
-			a->share_quantity_balance, 0.0 ) )
-		{
-			a->moving_share_price =
-				a->total_cost_balance /
-				a->share_quantity_balance;
-		}
-
 	}
 
 	a->unrealized_gain_balance =
@@ -595,13 +498,153 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 		a->unrealized_gain_balance -
 		prior_unrealized_gain_balance;
 
-	/* If mutual fund dividend reinvestment */
-	/* ------------------------------------ */
-	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0
-	&&   !timlib_double_virtually_same(
-		a->share_quantity_change, 0.0 ) )
+	if ( a->share_quantity_change > 0.0 )
 	{
 		a->realized_gain = a->book_value_change;
+	}
+
+	return a;
+
+} /* investment_account_balance_time_passage() */
+
+ACCOUNT_BALANCE *investment_account_balance_deposit(
+					char *full_name,
+					char *street_address,
+					char *account_number,
+					char *date_time,
+					double share_price,
+					double share_quantity_change,
+					double prior_share_quantity_balance,
+					double prior_book_value_balance,
+					double prior_unrealized_gain_balance,
+					boolean first_row )
+{
+	ACCOUNT_BALANCE *a;
+
+	a = investment_account_balance_new(
+			full_name,
+			street_address,
+			account_number,
+			date_time );
+
+	a->share_price = share_price;
+	a->share_quantity_change = share_quantity_change;
+
+	if ( first_row )
+	{
+		a->share_quantity_balance = a->share_quantity_change;
+	}
+	else
+	{
+		a->share_quantity_balance =
+			prior_share_quantity_balance +
+			a->share_quantity_change;
+	}
+
+	a->cash_in = a->share_price * ( 0.0 - a->share_quantity_change );
+	a->market_value = a->share_price * a->share_quantity_balance;
+	a->book_value_change = a->share_price * a->share_quantity_change;
+
+	if ( first_row )
+	{
+		a->book_value_balance = 0.0;
+	}
+	else
+	{
+		a->book_value_balance =
+			prior_book_value_balance +
+			a->book_value_change;
+	}
+
+	if ( a->share_quantity_balance )
+	{
+		a->moving_share_price =
+			a->book_value_balance /
+			a->share_quantity_balance;
+	}
+
+	if ( first_row )
+	{
+		a->unrealized_gain_balance = 0.0;
+	}
+	else
+	{
+		a->unrealized_gain_balance =
+			a->market_value -
+			a->book_value_balance;
+
+		a->unrealized_gain_change =
+			a->unrealized_gain_balance -
+			prior_unrealized_gain_balance;
+	}
+
+	return a;
+
+} /* investment_account_balance_deposit() */
+
+ACCOUNT_BALANCE *investment_account_balance_calculate(
+					char *full_name,
+					char *street_address,
+					char *account_number,
+					char *date_time,
+					double share_price,
+					double share_quantity_change,
+					double prior_share_quantity_balance,
+					double prior_book_value_balance,
+					double prior_moving_share_price,
+					double prior_unrealized_gain_balance,
+					char *investment_operation,
+					boolean first_row )
+{
+	ACCOUNT_BALANCE *a = {0};
+
+	if ( timlib_strcmp( investment_operation, "deposit" ) == 0 )
+	{
+		a = investment_account_balance_deposit(
+				full_name,
+				street_address,
+				account_number,
+				date_time,
+				share_price,
+				share_quantity_change,
+				prior_share_quantity_balance,
+				prior_book_value_balance,
+				prior_unrealized_gain_balance,
+				first_row );
+	}
+	else
+	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0 )
+	{
+		a = investment_account_balance_time_passage(
+				full_name,
+				street_address,
+				account_number,
+				date_time,
+				share_price,
+				share_quantity_change,
+				prior_share_quantity_balance,
+				prior_book_value_balance,
+				prior_unrealized_gain_balance );
+	}
+	else
+	if ( timlib_strcmp( investment_operation, "withdrawal" ) == 0 )
+	{
+		a = investment_account_balance_withdrawal(
+				full_name,
+				street_address,
+				account_number,
+				date_time,
+				share_price,
+				share_quantity_change,
+				prior_share_quantity_balance,
+				prior_book_value_balance,
+				prior_moving_share_price,
+				prior_unrealized_gain_balance );
+	}
+
+	if ( a )
+	{
+		a->investment_operation = investment_operation;
 	}
 
 	return a;
@@ -749,18 +792,18 @@ void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->total_cost_balance,
-			account_balance->total_cost_balance ) )
+			new_account_balance->cash_in,
+			account_balance->cash_in ) )
 	{
 		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
 
 		fprintf(output_pipe,
-			"%s^%s^%s^%s^total_cost_balance^%.4lf\n",
+			"%s^%s^%s^%s^cash_in^%.2lf\n",
 	 		new_account_balance->full_name,
 	 		new_account_balance->street_address,
 	 		new_account_balance->account_number,
 	 		new_account_balance->date_time,
-	 		new_account_balance->total_cost_balance );
+	 		new_account_balance->cash_in );
 	}
 
 	if ( !timlib_double_virtually_same(
@@ -1042,6 +1085,9 @@ TRANSACTION *investment_build_purchase_transaction(
 	char *realized_loss = {0};
 	char *checking_account = {0};
 
+	if ( account_balance->share_quantity_change <= 0.0 )
+		return (TRANSACTION *)0;
+
 	ledger_get_investment_account_names(
 		&realized_gain,
 		&unrealized_investment,
@@ -1064,40 +1110,37 @@ TRANSACTION *investment_build_purchase_transaction(
 
 	transaction->journal_ledger_list = list_new();
 
-	if ( account_balance->share_quantity_change > 0.0 )
-	{
-		/* Debit investment account */
-		/* ------------------------ */
-		journal_ledger =
-			journal_ledger_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				account_balance->investment_account );
+	/* Debit investment account */
+	/* ------------------------ */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			account_balance->investment_account );
 	
-		journal_ledger->debit_amount =
-			account_balance->book_value_change;
+	journal_ledger->debit_amount =
+		account_balance->book_value_change;
 
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
 
-		/* Credit checking account */
-		/* ----------------------- */
-		journal_ledger =
-			journal_ledger_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				checking_account );
+	/* Credit checking account */
+	/* ----------------------- */
+	journal_ledger =
+		journal_ledger_new(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			checking_account );
 	
-		journal_ledger->credit_amount =
-			account_balance->book_value_change;
+	journal_ledger->credit_amount =
+		account_balance->book_value_change;
 
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-	}
+	list_append_pointer(
+		transaction->journal_ledger_list,
+		journal_ledger );
 
 	if ( !timlib_double_virtually_same(
 		account_balance->unrealized_gain_change, 0.0 ) )

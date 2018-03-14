@@ -30,11 +30,11 @@ typedef struct
 	double share_price;
 	double share_quantity_change;
 	double share_quantity_balance;
+	double cash_in;
+	double market_value;
 	double book_value_change;
 	double book_value_balance;
 	double moving_share_price;
-	double total_cost_balance;
-	double market_value;
 	double unrealized_gain_balance;
 	double unrealized_gain_change;
 	double realized_gain;
@@ -70,18 +70,6 @@ char *investment_account_balance_fetch_prior_date_time(
 void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 					ACCOUNT_BALANCE *account_balance );
 
-/* Returns transaction_date_time */
-/* ----------------------------- */
-char *investment_time_passage_transaction_insert(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *date_time,
-					double balance_change,
-					char *investment_account,
-					char *unrealized_gain,
-					char *unrealized_loss );
-
 ACCOUNT_BALANCE *investment_account_balance_calculate(
 					char *full_name,
 					char *street_address,
@@ -89,16 +77,47 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 					char *date_time,
 					double share_price,
 					double share_quantity_change,
-					double share_quantity_balance,
-					double market_value,
 					double prior_share_quantity_balance,
 					double prior_book_value_balance,
-					double prior_total_cost_balance,
 					double prior_moving_share_price,
 					double prior_unrealized_gain_balance,
 					char *investment_operation,
-					char *investment_account,
-					char *fair_value_adjustment_account );
+					boolean first_row );
+
+ACCOUNT_BALANCE *investment_account_balance_deposit(
+					char *full_name,
+					char *street_address,
+					char *account_number,
+					char *date_time,
+					double share_price,
+					double share_quantity_change,
+					double prior_share_quantity_balance,
+					double prior_book_value_balance,
+					double prior_unrealized_gain_balance,
+					boolean first_row );
+
+ACCOUNT_BALANCE *investment_account_balance_time_passage(
+					char *full_name,
+					char *street_address,
+					char *account_number,
+					char *date_time,
+					double share_price,
+					double share_quantity_change,
+					double prior_share_quantity_balance,
+					double prior_moving_share_price,
+					double prior_unrealized_gain_balance );
+
+ACCOUNT_BALANCE *investment_account_balance_withdrawal(
+					char *full_name,
+					char *street_address,
+					char *account_number,
+					char *date_time,
+					double share_price,
+					double share_quantity_change,
+					double prior_share_quantity_balance,
+					double prior_book_value_balance,
+					double prior_moving_share_price,
+					double prior_unrealized_gain_balance );
 
 ACCOUNT_BALANCE *investment_account_balance_parse(
 					char *full_name,

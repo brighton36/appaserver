@@ -3629,7 +3629,7 @@ DICTIONARY *ledger_get_fund_hard_coded_dictionary(
 		 where );
 
 	return_dictionary =
-		pipe2dictionary(
+		ledger_account_pipe2dictionary(
 			sys_string,
 			FOLDER_DATA_DELIMITER );
 
@@ -3651,7 +3651,7 @@ DICTIONARY *ledger_get_fund_hard_coded_dictionary(
 		 where );
 
 	non_fund_dictionary =
-		pipe2dictionary(
+		ledger_account_pipe2dictionary(
 			sys_string,
 			FOLDER_DATA_DELIMITER );
 
@@ -7704,25 +7704,26 @@ void ledger_get_payroll_account_names(
 } /* ledger_get_payroll_account_names() */
 
 void ledger_get_investment_account_names(
-				char **realized_gain,
 				char **unrealized_investment,
+				char **realized_gain,
 				char **realized_loss,
 				char **checking_account,
+				char **contributed_capital_account,
 				char *application_name,
 				char *fund_name )
 {
 	char *key;
 
-	key = "realized_investment_gain_key";
-	*realized_gain =
+	key = "unrealized_investment_key";
+	*unrealized_investment =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
 			key,
 			0 /* not warning_only */ );
 
-	key = "unrealized_investment_key";
-	*unrealized_investment =
+	key = "realized_investment_gain_key";
+	*realized_gain =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
@@ -7739,6 +7740,14 @@ void ledger_get_investment_account_names(
 
 	key = LEDGER_CASH_KEY;
 	*checking_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */ );
+
+	key = "contributed_capital_key";
+	*contributed_capital_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
@@ -9056,4 +9065,90 @@ char *ledger_transaction_date_time_update(
 	return transaction_date_time;
 
 } /* ledger_transaction_date_time_update() */
+
+DICTIONARY *ledger_account_pipe2dictionary( char *sys_string, char delimiter )
+{
+	char buffer[ 65536 ];
+	char data[ 65536 ];
+	char key[ 1024 ];
+	FILE *p = popen( sys_string, "r" );
+	DICTIONARY *d = dictionary_large_new();
+
+	*data = '\0';
+	while( get_line( buffer, p ) )
+	{
+		if ( delimiter )
+		{
+			piece( key, delimiter, buffer, 0 );
+			if ( !piece( data, delimiter, buffer, 1 ) )
+				*buffer = '\0';
+		}
+		else
+		{
+			strcpy( key, buffer );
+		}
+		dictionary_set_pointer( d, strdup( key ), strdup( data ) );
+	}
+	pclose( p );
+	return d;
+} /* ledger_account_pipe2dictionary() */
+
+LIST *ledger_get_binary_ledger_list(
+				double transaction_amount,
+				char *debit_account,
+				char *credit_account )
+{
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !debit_account
+	||   !*debit_account
+	||   !credit_account
+	||   !*credit_account )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty account name(s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( timlib_double_virtually_same(
+		transaction_amount, 0.0 ) )
+	{
+		return (LIST *)0;
+	}
+
+	journal_ledger_list = list_new();
+
+	journal_ledger =
+		journal_ledger_new(
+			(char *)0 /* full_name */,
+			(char *)0 /* street_address */,
+			(char *)0 /* transaction_date_time */,
+			debit_account );
+
+	journal_ledger->debit_amount = transaction_amount;
+
+	list_append_pointer(
+		journal_ledger_list,
+		journal_ledger );
+
+	journal_ledger =
+		journal_ledger_new(
+			(char *)0 /* full_name */,
+			(char *)0 /* street_address */,
+			(char *)0 /* transaction_date_time */,
+			credit_account );
+
+	journal_ledger->credit_amount = transaction_amount;
+
+	list_append_pointer(
+		journal_ledger_list,
+		journal_ledger );
+
+	return journal_ledger_list;
+
+} /* ledger_get_binary_ledger_list() */
 

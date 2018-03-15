@@ -18,6 +18,13 @@
 #define ACCOUNT_BALANCE_FOLDER_NAME		"equity_account_balance"
 #define INVESTMENT_ACCOUNT_FOLDER_NAME		"investment_account"
 
+/* Must match INVESTMENT_OPERATION */
+/* ------------------------------- */
+#define INVESTMENT_OPERATION_PRIOR_PURCHASE	"prior_purchase"
+#define INVESTMENT_OPERATION_PURCHASE		"purchase"
+#define INVESTMENT_OPERATION_TIME_PASSAGE	"time_passage"
+#define INVESTMENT_OPERATION_SALE		"sale"
+
 /* Structures */
 /* ---------- */
 typedef struct
@@ -126,9 +133,9 @@ ACCOUNT_BALANCE *investment_account_balance_parse(
 					char *input_buffer );
 
 LIST *investment_get_fair_value_adjustment_ledger_list(
-					double unrealized_gain_change,
-					char *unrealized_investment,
-					char *fair_value_adjustment );
+					double transaction_amount,
+					char *debit_account,
+					char *credit_account );
 
 boolean investment_account_balance_is_latest(
 					char *application_name,
@@ -137,6 +144,11 @@ boolean investment_account_balance_is_latest(
 FILE *investment_open_update_pipe(	void );
 
 TRANSACTION *investment_build_transaction(
+					char *application_name,
+					char *fund_name,
+					ACCOUNT_BALANCE *account_balance );
+
+TRANSACTION *investment_build_prior_purchase_transaction(
 					char *application_name,
 					char *fund_name,
 					ACCOUNT_BALANCE *account_balance );

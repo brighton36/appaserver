@@ -59,6 +59,7 @@
 #define LEDGER_GENERAL_FUND		"general_fund"
 #define LEDGER_CASH_KEY			"cash_key"
 #define LEDGER_LOSS_KEY			"loss_key"
+#define LEDGER_CLOSING_KEY		"closing_key"
 
 #define LEDGER_SEMAPHORE_KEY		18227
 
@@ -984,10 +985,11 @@ void ledger_journal_ledger_batch_insert(
 LIST *ledger_sort_element_list(	LIST *element_list );
 
 void ledger_get_investment_account_names(
-				char **realized_gain,
 				char **unrealized_investment,
+				char **realized_gain,
 				char **realized_loss,
 				char **checking_account,
+				char **contributed_capital_account,
 				char *application_name,
 				char *fund_name );
 
@@ -1062,5 +1064,14 @@ void ledger_journal_ledger_transaction_date_time_update(
 			char *preupdate_transaction_date_time,
 			char *account_name,
 			char *transaction_date_time );
+
+DICTIONARY *ledger_account_pipe2dictionary(
+				char *sys_string,
+				char delimiter );
+
+LIST *ledger_get_binary_ledger_list(
+				double transaction_amount,
+				char *debit_account,
+				char *credit_account );
 
 #endif

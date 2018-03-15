@@ -163,7 +163,7 @@ TRANSACTION *investment_build_sale_transaction(
 					char *fund_name,
 					ACCOUNT_BALANCE *account_balance );
 
-TRANSACTION *investment_build_time_transaction(
+TRANSACTION *investment_build_time_passage_transaction(
 					char *application_name,
 					char *fund_name,
 					ACCOUNT_BALANCE *account_balance );

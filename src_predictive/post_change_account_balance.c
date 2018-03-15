@@ -45,7 +45,8 @@ void post_change_account_balance_delete(
 				char *full_name,
 				char *street_address,
 				char *transaction_date_time,
-				char *investment_account );
+				char *investment_account,
+				char *fair_value_adjustment_account );
 
 boolean post_change_account_balance_insert_time_passage(
 				char *application_name,
@@ -271,7 +272,8 @@ int main( int argc, char **argv )
 			account_balance->full_name,
 			account_balance->street_address,
 			account_balance->transaction_date_time,
-			account_balance->investment_account );
+			account_balance->investment_account,
+			account_balance->fair_value_adjustment_account );
 	}
 
 	return 0;
@@ -284,19 +286,21 @@ void post_change_account_balance_delete(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			char *investment_account )
+			char *investment_account,
+			char *fair_value_adjustment_account )
 {
-	char *fair_value_adjustment = {0};
 	char *realized_gain = {0};
 	char *unrealized_investment = {0};
 	char *realized_loss = {0};
 	char *checking_account = {0};
+	char *contribution_capital_account = {0};
 
 	ledger_get_investment_account_names(
-		&realized_gain,
 		&unrealized_investment,
+		&realized_gain,
 		&realized_loss,
 		&checking_account,
+		&contribution_capital_account,
 		application_name,
 		fund_name );
 
@@ -315,22 +319,12 @@ void post_change_account_balance_delete(
 	ledger_propagate(
 		application_name,
 		transaction_date_time,
-		investment_account );
-
-	ledger_propagate(
-		application_name,
-		transaction_date_time,
-		fair_value_adjustment );
+		unrealized_investment );
 
 	ledger_propagate(
 		application_name,
 		transaction_date_time,
 		realized_gain );
-
-	ledger_propagate(
-		application_name,
-		transaction_date_time,
-		unrealized_investment );
 
 	ledger_propagate(
 		application_name,
@@ -341,6 +335,21 @@ void post_change_account_balance_delete(
 		application_name,
 		transaction_date_time,
 		checking_account );
+
+	ledger_propagate(
+		application_name,
+		transaction_date_time,
+		contribution_capital_account );
+
+	ledger_propagate(
+		application_name,
+		transaction_date_time,
+		investment_account );
+
+	ledger_propagate(
+		application_name,
+		transaction_date_time,
+		fair_value_adjustment_account );
 
 } /* post_change_account_balance_delete() */
 

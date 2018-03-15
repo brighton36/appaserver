@@ -403,7 +403,7 @@ char *investment_account_balance_fetch_prior_date_time(
 
 } /* investment_account_balance_fetch_prior_date_time() */
 
-ACCOUNT_BALANCE *investment_account_balance_withdrawal(
+ACCOUNT_BALANCE *investment_account_balance_sale(
 					char *full_name,
 					char *street_address,
 					char *account_number,
@@ -451,7 +451,7 @@ ACCOUNT_BALANCE *investment_account_balance_withdrawal(
 
 	return a;
 
-} /* investment_account_balance_withdrawal() */
+} /* investment_account_balance_sale() */
 
 ACCOUNT_BALANCE *investment_account_balance_time_passage(
 					char *full_name,
@@ -507,7 +507,7 @@ ACCOUNT_BALANCE *investment_account_balance_time_passage(
 
 } /* investment_account_balance_time_passage() */
 
-ACCOUNT_BALANCE *investment_account_balance_deposit(
+ACCOUNT_BALANCE *investment_account_balance_purchase(
 					char *full_name,
 					char *street_address,
 					char *account_number,
@@ -547,7 +547,7 @@ ACCOUNT_BALANCE *investment_account_balance_deposit(
 
 	if ( first_row )
 	{
-		a->book_value_balance = 0.0;
+		a->book_value_balance = a->book_value_change;
 	}
 	else
 	{
@@ -580,7 +580,7 @@ ACCOUNT_BALANCE *investment_account_balance_deposit(
 
 	return a;
 
-} /* investment_account_balance_deposit() */
+} /* investment_account_balance_purchase() */
 
 ACCOUNT_BALANCE *investment_account_balance_calculate(
 					char *full_name,
@@ -598,9 +598,29 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 {
 	ACCOUNT_BALANCE *a = {0};
 
-	if ( timlib_strcmp( investment_operation, "deposit" ) == 0 )
+	if ( timlib_strcmp(
+		investment_operation,
+		INVESTMENT_OPERATION_PRIOR_PURCHASE ) == 0 )
 	{
-		a = investment_account_balance_deposit(
+		a = investment_account_balance_purchase(
+				full_name,
+				street_address,
+				account_number,
+				date_time,
+				share_price,
+				share_quantity_change,
+				prior_share_quantity_balance,
+				prior_book_value_balance,
+				prior_unrealized_gain_balance,
+				first_row );
+		a->cash_in = 0.0;
+	}
+	else
+	if ( timlib_strcmp(
+		investment_operation,
+		INVESTMENT_OPERATION_PURCHASE ) == 0 )
+	{
+		a = investment_account_balance_purchase(
 				full_name,
 				street_address,
 				account_number,
@@ -613,7 +633,9 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				first_row );
 	}
 	else
-	if ( timlib_strcmp( investment_operation, "time_passage" ) == 0 )
+	if ( timlib_strcmp(
+		investment_operation,
+		INVESTMENT_OPERATION_TIME_PASSAGE ) == 0 )
 	{
 		a = investment_account_balance_time_passage(
 				full_name,
@@ -627,9 +649,11 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				prior_unrealized_gain_balance );
 	}
 	else
-	if ( timlib_strcmp( investment_operation, "withdrawal" ) == 0 )
+	if ( timlib_strcmp(
+		investment_operation,
+		INVESTMENT_OPERATION_SALE ) == 0 )
 	{
-		a = investment_account_balance_withdrawal(
+		a = investment_account_balance_sale(
 				full_name,
 				street_address,
 				account_number,
@@ -1045,7 +1069,7 @@ TRANSACTION *investment_build_prior_purchase_transaction(
 			investment_get_memo(
 				account_balance->investment_operation ) );
 
-	transaction->transaction_amount = 0.0 - account_balance->cash_in;
+	transaction->transaction_amount = account_balance->book_value_change;
 
 	transaction->journal_ledger_list =
 		ledger_get_binary_ledger_list(

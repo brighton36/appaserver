@@ -66,10 +66,16 @@ char *format_mnemonic( char *mnemonic, char *string );
 
 char *format_first_initial_capital( char *destination, char *string );
 char *pipe2string( char *pipe_string );
-char *pipe_multiple_lines2string( char *pipe_string, char delimiter );
-char *get_line_system( char *sys_string );
-char **pipe_list2list( char *pipe_list, int max_items );
-int exists_character( char *buffer, int c );
+
+char *pipe_multiple_lines2string(
+				char *pipe_string,
+				char delimiter );
+
+char *get_line_system(		char *sys_string );
+
+char **pipe_list2list(		char *pipe_list, int max_items );
+
+int exists_character(		char *buffer, int c );
 
 char *trim_until_character(	char *destination,
 				char c,
@@ -268,8 +274,8 @@ boolean timlib_exists_special_character(char *data );
 char *mysql2american_date(		char *date_buffer,
 					char *mysql_date );
 
-int timlib_character_exists(		char *buffer, int c );
-int character_exists( 			char *buffer, int c );
+boolean timlib_character_exists(	char *buffer, int c );
+boolean character_exists(		char *buffer, int c );
 
 void get_clean_begin_end_date(		char **begin_date,
 					char **end_date );
@@ -294,7 +300,7 @@ char *timlib_oracle_date2mysql_date_string(
 int timlib_ora_month2integer(		char *ora_month );
 int timlib_full_month2integer(		char *full_month );
 char *timlib_integer2full_month(	int month_integer );
-boolean timlib_exists_character( 	char *s,
+int timlib_exists_character( 		char *s,
 					char ch );
 
 boolean timlib_exists_string(	 	char *string,

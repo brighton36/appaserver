@@ -806,6 +806,23 @@ void post_change_account_balance_list(
 				0 /* not first_row */ );
 		}
 
+		if ( !new_account_balance )
+		{
+			fprintf( stderr,
+	"Warning in %s/%s()/%d: cannot calculate investment_operation = (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 account_balance->investment_operation );
+			continue;
+		}
+
+		new_account_balance->investment_account =
+			account_balance->investment_account;
+
+		new_account_balance->fair_value_adjustment_account =
+			account_balance->fair_value_adjustment_account;
+
 		new_account_balance->transaction =
 			investment_build_transaction(
 				application_name,
@@ -835,6 +852,7 @@ void post_change_account_balance_list(
 				 new_account_balance->street_address,
 				 new_account_balance->account_number,
 				 new_account_balance->date_time );
+			continue;
 		}
 
 		/* If now no transaction */
@@ -845,19 +863,15 @@ void post_change_account_balance_list(
 						transaction->
 						journal_ledger_list ) )
 		{
-			ledger_delete(	application_name,
-					TRANSACTION_FOLDER_NAME,
-					account_balance->full_name,
-					account_balance->street_address,
-					account_balance->
-						transaction_date_time );
-
-			ledger_delete(	application_name,
-					LEDGER_FOLDER_NAME,
-					account_balance->full_name,
-					account_balance->street_address,
-					account_balance->
-						transaction_date_time );
+			post_change_account_balance_delete(
+				application_name,
+				fund_name,
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->transaction_date_time,
+				account_balance->investment_account,
+				account_balance->
+					fair_value_adjustment_account );
 		}
 		else
 		/* -------------------- */

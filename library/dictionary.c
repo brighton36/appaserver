@@ -2299,17 +2299,21 @@ DICTIONARY *pipe2dictionary( char *sys_string, char delimiter )
 		if ( delimiter )
 		{
 			piece( key, delimiter, buffer, 0 );
+
 			if ( !piece( data, delimiter, buffer, 1 ) )
-				*buffer = '\0';
+				*data = '\0';
 		}
 		else
 		{
 			strcpy( key, buffer );
 		}
+
 		dictionary_set_pointer( d, strdup( key ), strdup( data ) );
 	}
+
 	pclose( p );
 	return d;
+
 } /* pipe2dictionary() */
 
 DICTIONARY *dictionary_index_data2dictionary(

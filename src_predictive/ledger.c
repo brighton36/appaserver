@@ -3591,7 +3591,7 @@ DICTIONARY *ledger_get_non_fund_hard_coded_dictionary(
 		 where );
 
 	return_dictionary =
-		pipe2dictionary(
+		ledger_account_pipe2dictionary(
 			sys_string,
 			FOLDER_DATA_DELIMITER );
 
@@ -9072,25 +9072,51 @@ DICTIONARY *ledger_account_pipe2dictionary( char *sys_string, char delimiter )
 	char data[ 65536 ];
 	char key[ 1024 ];
 	FILE *p = popen( sys_string, "r" );
-	DICTIONARY *d = dictionary_large_new();
+	DICTIONARY *d = dictionary_small_new();
 
 	*data = '\0';
+
 	while( get_line( buffer, p ) )
 	{
 		if ( delimiter )
 		{
 			piece( key, delimiter, buffer, 0 );
+
 			if ( !piece( data, delimiter, buffer, 1 ) )
-				*buffer = '\0';
+				*data = '\0';
 		}
 		else
 		{
 			strcpy( key, buffer );
 		}
-		dictionary_set_pointer( d, strdup( key ), strdup( data ) );
+
+		if ( !timlib_character_exists( key, ',' ) )
+		{
+			dictionary_set_pointer(
+				d,
+				strdup( key ),
+				strdup( data ) );
+		}
+		else
+		{
+			char key_piece[ 1024 ];
+			int i;
+
+			for(	i = 0;
+				piece( key_piece, ',', key, i ); 
+				i++ )
+			{
+				dictionary_set_pointer(
+					d,
+					strdup( key_piece ),
+					strdup( data ) );
+			}
+		}
 	}
+
 	pclose( p );
 	return d;
+
 } /* ledger_account_pipe2dictionary() */
 
 LIST *ledger_get_binary_ledger_list(

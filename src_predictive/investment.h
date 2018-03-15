@@ -91,7 +91,7 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 					char *investment_operation,
 					boolean first_row );
 
-ACCOUNT_BALANCE *investment_account_balance_deposit(
+ACCOUNT_BALANCE *investment_account_balance_purchase(
 					char *full_name,
 					char *street_address,
 					char *account_number,
@@ -114,7 +114,7 @@ ACCOUNT_BALANCE *investment_account_balance_time_passage(
 					double prior_moving_share_price,
 					double prior_unrealized_gain_balance );
 
-ACCOUNT_BALANCE *investment_account_balance_withdrawal(
+ACCOUNT_BALANCE *investment_account_balance_sale(
 					char *full_name,
 					char *street_address,
 					char *account_number,

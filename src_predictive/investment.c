@@ -923,7 +923,7 @@ char *investment_get_memo( char *investment_operation )
 
 	if ( strcmp(	investment_operation,
 			INVESTMENT_OPERATION_PRIOR_PURCHASE ) == 0 )
-		memo = "Investment Time Passage";
+		memo = "Investment Prior Purchase";
 	else
 	if ( strcmp(	investment_operation,
 			INVESTMENT_OPERATION_TIME_PASSAGE ) == 0 )

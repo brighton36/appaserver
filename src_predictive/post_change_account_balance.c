@@ -358,7 +358,8 @@ void post_change_account_balance_insert(
 				char *fund_name,
 				ACCOUNT_BALANCE *account_balance )
 {
-	if ( strcmp( account_balance->investment_operation, "purchase" ) == 0 )
+	if ( strcmp(	account_balance->investment_operation,
+			INVESTMENT_OPERATION_PURCHASE ) == 0 )
 	{
 		post_change_account_balance_insert_purchase(
 			application_name,
@@ -366,7 +367,8 @@ void post_change_account_balance_insert(
 			account_balance );
 	}
 	else
-	if ( strcmp( account_balance->investment_operation, "sale" ) == 0 )
+	if ( strcmp(	account_balance->investment_operation,
+			INVESTMENT_OPERATION_SALE ) == 0 )
 	{
 		if ( !post_change_account_balance_insert_sale(
 				application_name,

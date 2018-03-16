@@ -1022,6 +1022,10 @@ TRANSACTION *investment_build_transaction(
 				account_balance->date_time );
 	}
 
+	transaction->journal_ledger_list =
+		ledger_consolidate_journal_ledger_list(
+			transaction->journal_ledger_list );
+
 	return transaction;
 
 } /* investment_build_transaction() */

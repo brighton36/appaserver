@@ -1074,4 +1074,10 @@ LIST *ledger_get_binary_ledger_list(
 				char *debit_account,
 				char *credit_account );
 
+LIST *ledger_consolidate_journal_ledger_list(
+			LIST *journal_ledger_list );
+
+LIST *ledger_get_unique_account_name_list(
+			LIST *journal_ledger_list );
+
 #endif

@@ -9178,3 +9178,85 @@ LIST *ledger_get_binary_ledger_list(
 
 } /* ledger_get_binary_ledger_list() */
 
+LIST *ledger_consolidate_journal_ledger_list(
+			LIST *journal_ledger_list )
+{
+	LIST *account_name_list;
+	JOURNAL_LEDGER *journal_ledger;
+	JOURNAL_LEDGER *new_journal_ledger;
+	LIST *new_journal_ledger_list;
+	char *account_name;
+
+	account_name_list =
+		ledger_get_unique_account_name_list(
+			journal_ledger_list );
+
+	if ( list_length( journal_ledger_list ) ==
+	     list_length( account_name_list ) )
+	{
+		return journal_ledger_list;
+	}
+
+	new_journal_ledger_list = list_new();
+
+	list_rewind( account_name_list );
+
+	do {
+		account_name = list_get( account_name_list );
+
+		list_rewind( journal_ledger_list );
+
+		do {
+			journal_ledger = list_get( journal_ledger_list );
+
+			if ( strcmp( journal_ledger->account_name,
+				     account_name ) == 0 )
+			{
+				new_journal_ledger =
+					ledger_get_or_set_journal_ledger(
+						new_journal_ledger_list,
+						account_name );
+
+				if ( journal_ledger->debit_amount )
+				{
+					new_journal_ledger->debit_amount +=
+						journal_ledger->debit_amount;
+				}
+				else
+				{
+					new_journal_ledger->credit_amount +=
+						journal_ledger->credit_amount;
+				}
+			}
+		} while( list_next( journal_ledger_list ) );
+
+	} while( list_next( account_name_list ) );
+
+	return new_journal_ledger_list;
+
+} /* ledger_consolidate_journal_ledger_list() */
+
+LIST *ledger_get_unique_account_name_list(
+			LIST *journal_ledger_list )
+{
+	LIST *account_name_list;
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( journal_ledger_list ) ) return (LIST *)0;
+
+	account_name_list = list_new();
+
+	do {
+		journal_ledger =
+			list_get_pointer( 
+				journal_ledger_list );
+
+		list_append_unique_string(
+			account_name_list,
+			journal_ledger->account_name );
+
+	} while( list_next( journal_ledger_list ) );
+
+	return account_name_list;
+
+} /* ledger_get_unique_account_name_list() */

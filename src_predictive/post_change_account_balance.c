@@ -24,6 +24,13 @@
 
 /* Prototypes */
 /* ---------- */
+void post_change_investment_operation_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *account_number,
+				char *date_time );
+
 void post_change_date_time_update(
 				char *application_name,
 				char *full_name,
@@ -81,13 +88,14 @@ int main( int argc, char **argv )
 	char *preupdate_street_address;
 	char *preupdate_account_number;
 	char *preupdate_date_time;
+	char *preupdate_investment_operation;
 	char *database_string = {0};
 	ACCOUNT_BALANCE *account_balance;
 
-	if ( argc != 12 )
+	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s application fund full_name street_address account_number date_time state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time\n",
+"Usage: %s application fund full_name street_address account_number date_time state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time preupdate_investment_operation\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -103,6 +111,7 @@ int main( int argc, char **argv )
 	preupdate_street_address = argv[ 9 ];
 	preupdate_account_number = argv[ 10 ];
 	preupdate_date_time = argv[ 11 ];
+	preupdate_investment_operation = argv[ 12 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -167,6 +176,7 @@ int main( int argc, char **argv )
 		enum preupdate_change_state street_address_change_state;
 		enum preupdate_change_state account_number_change_state;
 		enum preupdate_change_state date_time_change_state;
+		enum preupdate_change_state investment_operation_change_state;
 
 		full_name_change_state =
 			appaserver_library_get_preupdate_change_state(
@@ -244,6 +254,23 @@ int main( int argc, char **argv )
 			from_something_to_something_else )
 		{
 			post_change_date_time_update(
+				application_name,
+				full_name,
+				street_address,
+				account_number,
+				date_time );
+		}
+
+		investment_operation_change_state =
+			appaserver_library_get_preupdate_change_state(
+				preupdate_investment_operation,
+				(char *)0 /* postupdate_data */,
+				"preupdate_investment_operation" );
+
+		if ( investment_operation_change_state ==
+			from_something_to_something_else )
+		{
+			post_change_investment_operation_update(
 				application_name,
 				full_name,
 				street_address,
@@ -996,3 +1023,55 @@ void post_change_date_time_update(
 		application_name );
 
 } /* post_change_date_time_update() */
+
+void post_change_investment_operation_update(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *account_number,
+				char *date_time )
+{
+	ACCOUNT_BALANCE *account_balance;
+
+	account_balance =
+		investment_account_balance_fetch(
+			application_name,
+			full_name,
+			street_address,
+			account_number,
+			date_time );
+
+	if ( !account_balance )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot fetch account_balance(%s,%s,%s,%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			full_name,
+			street_address,
+			account_number,
+			date_time );
+		exit( 1 );
+	}
+
+	if ( !account_balance->transaction )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot fetch transaction(%s,%s,%s,%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			full_name,
+			street_address,
+			account_number,
+			date_time );
+		exit( 1 );
+	}
+
+	ledger_journal_ledger_list_propagate(
+		account_balance->transaction->journal_ledger_list,
+		application_name );
+
+} /* post_change_investment_operation_update() */
+

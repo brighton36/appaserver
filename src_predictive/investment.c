@@ -498,7 +498,8 @@ ACCOUNT_BALANCE *investment_account_balance_time_passage(
 		a->unrealized_gain_balance -
 		prior_unrealized_gain_balance;
 
-	if ( a->share_quantity_change > 0.0 )
+	if ( !timlib_double_virtually_same(
+		a->share_quantity_change, 0.0 ) )
 	{
 		a->realized_gain = a->book_value_change;
 	}
@@ -600,7 +601,7 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 
 	if ( timlib_strcmp(
 		investment_operation,
-		INVESTMENT_OPERATION_PRIOR_PURCHASE ) == 0 )
+		INVESTMENT_OPERATION_TRANSFER ) == 0 )
 	{
 		a = investment_account_balance_purchase(
 				full_name,
@@ -711,6 +712,7 @@ void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 		exit( 1 );
 	}
 
+/*
 	if ( timlib_strcmp(	new_account_balance->investment_operation,
 				account_balance->investment_operation ) != 0 )
 	{
@@ -724,6 +726,7 @@ void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 	 		new_account_balance->date_time,
 	 		new_account_balance->investment_operation );
 	}
+*/
 
 	if ( !timlib_double_virtually_same(
 			new_account_balance->share_price,
@@ -922,8 +925,8 @@ char *investment_get_memo( char *investment_operation )
 	char *memo;
 
 	if ( strcmp(	investment_operation,
-			INVESTMENT_OPERATION_PRIOR_PURCHASE ) == 0 )
-		memo = "Investment Prior Purchase";
+			INVESTMENT_OPERATION_TRANSFER ) == 0 )
+		memo = "Investment Transfer";
 	else
 	if ( strcmp(	investment_operation,
 			INVESTMENT_OPERATION_TIME_PASSAGE ) == 0 )
@@ -946,7 +949,8 @@ char *investment_get_memo( char *investment_operation )
 TRANSACTION *investment_build_transaction(
 				char *application_name,
 				char *fund_name,
-				ACCOUNT_BALANCE *account_balance )
+				ACCOUNT_BALANCE *account_balance,
+				char *investment_operation )
 {
 	TRANSACTION *transaction;
 
@@ -961,29 +965,47 @@ TRANSACTION *investment_build_transaction(
 	}
 
 	if ( timlib_strcmp(
-			account_balance->investment_operation,
-			INVESTMENT_OPERATION_PRIOR_PURCHASE ) == 0 )
+			investment_operation,
+			INVESTMENT_OPERATION_TRANSFER ) == 0 )
 	{
-		transaction =
-			investment_build_prior_purchase_transaction(
+		char *credit_account;
+
+		credit_account =
+			investment_fetch_purchase_credit_account_name(
 				application_name,
 				fund_name,
-				account_balance );
-	}
-	else
-	if ( timlib_strcmp(
-			account_balance->investment_operation,
-			INVESTMENT_OPERATION_PURCHASE ) == 0 )
-	{
+				INVESTMENT_OPERATION_TRANSFER );
+
 		transaction =
 			investment_build_purchase_transaction(
 				application_name,
 				fund_name,
-				account_balance );
+				account_balance,
+				credit_account );
 	}
 	else
 	if ( timlib_strcmp(
-			account_balance->investment_operation,
+			investment_operation,
+			INVESTMENT_OPERATION_PURCHASE ) == 0 )
+	{
+		char *credit_account;
+
+		credit_account =
+			investment_fetch_purchase_credit_account_name(
+				application_name,
+				fund_name,
+				INVESTMENT_OPERATION_PURCHASE );
+
+		transaction =
+			investment_build_purchase_transaction(
+				application_name,
+				fund_name,
+				account_balance,
+				credit_account );
+	}
+	else
+	if ( timlib_strcmp(
+			investment_operation,
 			INVESTMENT_OPERATION_TIME_PASSAGE ) == 0 )
 	{
 		transaction =
@@ -994,7 +1016,7 @@ TRANSACTION *investment_build_transaction(
 	}
 	else
 	if ( timlib_strcmp(
-			account_balance->investment_operation,
+			investment_operation,
 			INVESTMENT_OPERATION_SALE ) == 0 )
 	{
 		transaction =
@@ -1010,30 +1032,30 @@ TRANSACTION *investment_build_transaction(
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 account_balance->investment_operation );
+			 investment_operation );
 		exit( 1 );
 	}
 
-	if ( transaction )
+	if ( !transaction
+	||   !list_length( transaction->journal_ledger_list ) )
 	{
-		transaction->transaction_date_time =
-			ledger_fetch_unique_transaction_date_time(
-				application_name,
-				account_balance->date_time );
+		return (TRANSACTION *)0;
 	}
 
 	transaction->journal_ledger_list =
 		ledger_consolidate_journal_ledger_list(
+			application_name,
 			transaction->journal_ledger_list );
 
 	return transaction;
 
 } /* investment_build_transaction() */
 
-TRANSACTION *investment_build_prior_purchase_transaction(
+TRANSACTION *investment_build_purchase_transaction(
 				char *application_name,
 				char *fund_name,
-				ACCOUNT_BALANCE *account_balance )
+				ACCOUNT_BALANCE *account_balance,
+				char *credit_account )
 {
 	TRANSACTION *transaction;
 	char *unrealized_investment = {0};
@@ -1080,93 +1102,7 @@ TRANSACTION *investment_build_prior_purchase_transaction(
 			transaction->transaction_amount,
 			account_balance->investment_account
 				/* debit_account */,
-			contributed_capital_account
-				/* credit_account */ );
-
-	if ( account_balance->unrealized_gain_change > 0.0 )
-	{
-		list_append_list(
-			transaction->journal_ledger_list,
-			ledger_get_binary_ledger_list(
-				account_balance->unrealized_gain_change
-					/* transaction_amount */,
-				account_balance->
-					fair_value_adjustment_account
-					/* debit_account */,
-				unrealized_investment
-					/* credit_account */ ) );
-	}
-	else
-	if ( account_balance->unrealized_gain_change < 0.0 )
-	{
-		list_append_list(
-			transaction->journal_ledger_list,
-			ledger_get_binary_ledger_list(
-				0.0 - account_balance->unrealized_gain_change
-					/* transaction_amount */,
-				unrealized_investment
-					/* debit_account */,
-				account_balance->
-					fair_value_adjustment_account
-					/* credit_account */ ) );
-	}
-
-	return transaction;
-
-} /* investment_build_prior_purchase_transaction() */
-
-TRANSACTION *investment_build_purchase_transaction(
-				char *application_name,
-				char *fund_name,
-				ACCOUNT_BALANCE *account_balance )
-{
-	TRANSACTION *transaction;
-	char *unrealized_investment = {0};
-	char *realized_gain = {0};
-	char *realized_loss = {0};
-	char *checking_account = {0};
-	char *contributed_capital_account = {0};
-
-	if ( !account_balance )
-	{
-		fprintf( stderr,
-			 "Warning in %s/%s()/%d: empty account_balance.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		return (TRANSACTION *)0;
-	}
-
-	if ( account_balance->share_quantity_change <= 0.0 )
-		return (TRANSACTION *)0;
-
-	ledger_get_investment_account_names(
-		&unrealized_investment,
-		&realized_gain,
-		&realized_loss,
-		&checking_account,
-		&contributed_capital_account,
-		application_name,
-		fund_name );
-
-	transaction =
-		ledger_transaction_new(
-			account_balance->full_name,
-			account_balance->street_address,
-			account_balance->date_time
-				/* transaction_date_time */,
-			investment_get_memo(
-				account_balance->investment_operation ) );
-
-	transaction->transaction_amount = 0.0 - account_balance->cash_in;
-
-	transaction->journal_ledger_list =
-		ledger_get_binary_ledger_list(
-			transaction->transaction_amount,
-			account_balance->investment_account
-				/* debit_account */,
-			checking_account
-				/* credit_account */ );
+			credit_account );
 
 	if ( account_balance->unrealized_gain_change > 0.0 )
 	{
@@ -1342,9 +1278,9 @@ TRANSACTION *investment_build_time_passage_transaction(
 		return (TRANSACTION *)0;
 	}
 
-	if ( !timlib_double_virtually_same(
+	if ( timlib_double_virtually_same(
 		account_balance->unrealized_gain_change, 0.0 )
-	&&   !timlib_double_virtually_same(
+	&&   timlib_double_virtually_same(
 		account_balance->realized_gain, 0.0 ) )
 	{
 		return (TRANSACTION *)0;
@@ -1401,27 +1337,79 @@ TRANSACTION *investment_build_time_passage_transaction(
 		}
 	}
 
-	if ( account_balance->realized_gain > 0.0 )
+	if ( !timlib_double_virtually_same(
+		account_balance->realized_gain, 0.0 ) )
 	{
 		if ( !transaction->journal_ledger_list )
-			transaction->journal_ledger_list = list_new();
-
-		if ( !transaction->transaction_amount )
 		{
-			transaction->transaction_amount =
-				account_balance->realized_gain;
+			transaction->journal_ledger_list = list_new();
 		}
 	
-		list_append_list(
-			transaction->journal_ledger_list,
-			ledger_get_binary_ledger_list(
-				account_balance->realized_gain,
-				account_balance->
-					investment_account
-					/* debit_account */,
-				realized_gain
-					/* credit_account */ ) );
+		if ( account_balance->realized_gain > 0.0 )
+		{
+			if ( !transaction->transaction_amount )
+			{
+				transaction->transaction_amount =
+					account_balance->realized_gain;
+			}
+		
+			list_append_list(
+				transaction->journal_ledger_list,
+				ledger_get_binary_ledger_list(
+					account_balance->realized_gain,
+					account_balance->
+						investment_account
+						/* debit_account */,
+					realized_gain
+						/* credit_account */ ) );
+		}
+		else
+		{
+			if ( !transaction->transaction_amount )
+			{
+				transaction->transaction_amount =
+					0.0 - account_balance->realized_gain;
+			}
+		
+			list_append_list(
+				transaction->journal_ledger_list,
+				ledger_get_binary_ledger_list(
+					0.0 - account_balance->realized_gain,
+					realized_loss
+						/* debit_account */,
+					account_balance->
+						investment_account
+						/* credit_account */ ) );
+		}
 	}
+
+/*
+if ( !list_length( transaction->journal_ledger_list ) )
+{
+fprintf( stderr, "%s/%s()/%d: for %s/%s/%s/%s: returning length() = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+account_balance->full_name,
+account_balance->street_address,
+account_balance->account_number,
+account_balance->date_time,
+list_length( transaction->journal_ledger_list ) );
+
+fprintf( stderr, "%s/%s()/%d: got unrealized_gain_change = %.4lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+account_balance->unrealized_gain_change );
+
+fprintf( stderr, "%s/%s()/%d: got realized_gain = %.4lf\n\n\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+account_balance->realized_gain );
+
+}
+*/
 
 	return transaction;
 
@@ -1481,3 +1469,46 @@ char *investment_get_update_sys_string(
 
 } /* investment_get_update_sys_string() */
 
+char *investment_fetch_purchase_credit_account_name(
+				char *application_name,
+				char *fund_name,
+				char *investment_operation )
+{
+	char *unrealized_investment = {0};
+	char *realized_gain = {0};
+	char *realized_loss = {0};
+	char *checking_account = {0};
+	char *contributed_capital_account = {0};
+
+	ledger_get_investment_account_names(
+		&unrealized_investment,
+		&realized_gain,
+		&realized_loss,
+		&checking_account,
+		&contributed_capital_account,
+		application_name,
+		fund_name );
+
+	if ( strcmp(	investment_operation, 
+			INVESTMENT_OPERATION_TRANSFER ) == 0 )
+	{
+		return contributed_capital_account;
+	}
+	else
+	if ( strcmp(	investment_operation, 
+			INVESTMENT_OPERATION_PURCHASE ) == 0 )
+	{
+		return checking_account;
+	}
+	else
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: invalid investment_operation = (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 investment_operation );
+		exit( 1 );
+	}
+
+} /* investment_fetch_purchase_credit_account_name() */

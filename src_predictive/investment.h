@@ -20,7 +20,7 @@
 
 /* Must match INVESTMENT_OPERATION */
 /* ------------------------------- */
-#define INVESTMENT_OPERATION_PRIOR_PURCHASE	"prior_purchase"
+#define INVESTMENT_OPERATION_TRANSFER		"transfer"
 #define INVESTMENT_OPERATION_PURCHASE		"purchase"
 #define INVESTMENT_OPERATION_TIME_PASSAGE	"time_passage"
 #define INVESTMENT_OPERATION_SALE		"sale"
@@ -146,17 +146,14 @@ FILE *investment_open_update_pipe(	void );
 TRANSACTION *investment_build_transaction(
 					char *application_name,
 					char *fund_name,
-					ACCOUNT_BALANCE *account_balance );
-
-TRANSACTION *investment_build_prior_purchase_transaction(
-					char *application_name,
-					char *fund_name,
-					ACCOUNT_BALANCE *account_balance );
+					ACCOUNT_BALANCE *account_balance,
+					char *investment_operation );
 
 TRANSACTION *investment_build_purchase_transaction(
 					char *application_name,
 					char *fund_name,
-					ACCOUNT_BALANCE *account_balance );
+					ACCOUNT_BALANCE *account_balance,
+					char *credit_account );
 
 TRANSACTION *investment_build_sale_transaction(
 					char *application_name,
@@ -193,5 +190,10 @@ void investment_transaction_date_time_update(
 					char *date_time,
 					char *transaction_date_time,
 					char *application_name );
+
+char *investment_fetch_purchase_credit_account_name(
+					char *application_name,
+					char *fund_name,
+					char *investment_operation );
 
 #endif

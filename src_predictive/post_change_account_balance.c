@@ -26,10 +26,12 @@
 /* ---------- */
 void post_change_investment_operation_update(
 				char *application_name,
+				char *fund_name,
 				char *full_name,
 				char *street_address,
 				char *account_number,
-				char *date_time );
+				char *date_time,
+				char *preupdate_investment_operation );
 
 void post_change_date_time_update(
 				char *application_name,
@@ -272,10 +274,12 @@ int main( int argc, char **argv )
 		{
 			post_change_investment_operation_update(
 				application_name,
+				fund_name,
 				full_name,
 				street_address,
 				account_number,
-				date_time );
+				date_time,
+				preupdate_investment_operation );
 		}
 	}
 	else
@@ -502,7 +506,8 @@ boolean post_change_account_balance_insert_time_passage(
 		investment_build_transaction(
 			application_name,
 			fund_name,
-			new_account_balance );
+			new_account_balance,
+			new_account_balance->investment_operation );
 
 	if ( !new_account_balance->transaction )
 	{
@@ -614,7 +619,8 @@ void post_change_account_balance_insert_purchase(
 		investment_build_transaction(
 			application_name,
 			fund_name,
-			new_account_balance );
+			new_account_balance,
+			new_account_balance->investment_operation );
 
 	if ( !new_account_balance->transaction )
 	{
@@ -715,7 +721,8 @@ boolean post_change_account_balance_insert_sale(
 		investment_build_transaction(
 			application_name,
 			fund_name,
-			new_account_balance );
+			new_account_balance,
+			new_account_balance->investment_operation );
 
 	if ( !new_account_balance->transaction )
 	{
@@ -786,15 +793,7 @@ void post_change_account_balance_list(
 			account_number,
 			begin_date_time );
 
-	if ( !list_rewind( account_balance_list ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty account_balance_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	if ( !list_rewind( account_balance_list ) ) return;
 
 	do {
 		account_balance = list_get_pointer( account_balance_list );
@@ -856,16 +855,22 @@ void post_change_account_balance_list(
 			investment_build_transaction(
 				application_name,
 				fund_name,
-				new_account_balance );
+				new_account_balance,
+				new_account_balance->investment_operation );
 
 		if ( !new_account_balance->transaction )
 		{
 			fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty transaction.\n",
+	"Warning in %s/%s()/%d: empty transaction for (%s/%s/%s/%s/%s).\n",
 		 		 __FILE__,
 				 __FUNCTION__,
-		 		 __LINE__ );
-			exit( 1 );
+		 		 __LINE__,
+				 new_account_balance->full_name,
+				 new_account_balance->street_address,
+				 new_account_balance->account_number,
+				 new_account_balance->date_time,
+				 new_account_balance->investment_operation );
+			continue;
 		}
 
 		if ( !list_length(	new_account_balance->
@@ -873,15 +878,15 @@ void post_change_account_balance_list(
 						journal_ledger_list ) )
 		{
 			fprintf( stderr,
-	"Warning in %s/%s()/%d: empty journal ledger list for (%s/%s/%s/%s).\n",
+"Warning in %s/%s()/%d: empty journal ledger list for (%s/%s/%s/%s/%s).\n",
 		 		 __FILE__,
 				 __FUNCTION__,
 		 		 __LINE__,
 				 new_account_balance->full_name,
 				 new_account_balance->street_address,
 				 new_account_balance->account_number,
-				 new_account_balance->date_time );
-			continue;
+				 new_account_balance->date_time,
+				 new_account_balance->investment_operation );
 		}
 
 		/* If now no transaction */
@@ -892,6 +897,10 @@ void post_change_account_balance_list(
 						transaction->
 						journal_ledger_list ) )
 		{
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 			post_change_account_balance_delete(
 				application_name,
 				fund_name,
@@ -906,8 +915,11 @@ void post_change_account_balance_list(
 		/* -------------------- */
 		/* If a new transaction */
 		/* -------------------- */
-		if ( !account_balance->transaction_date_time
+		if ( ( !account_balance->transaction_date_time
 		||   !*account_balance->transaction_date_time )
+		&&   list_length(	new_account_balance->
+						transaction->
+						journal_ledger_list ) )
 		{
 			new_account_balance->transaction_date_time =
 				ledger_transaction_journal_ledger_insert(
@@ -933,7 +945,10 @@ void post_change_account_balance_list(
 		/* Refresh an existing transaction */
 		/* ------------------------------- */
 		if ( account_balance->transaction_date_time
-		&&   *account_balance->transaction_date_time )
+		&&   *account_balance->transaction_date_time
+		&&   list_length(	new_account_balance->
+						transaction->
+						journal_ledger_list ) )
 		{
 			new_account_balance->transaction_date_time =
 				ledger_transaction_refresh(
@@ -1026,10 +1041,12 @@ void post_change_date_time_update(
 
 void post_change_investment_operation_update(
 				char *application_name,
+				char *fund_name,
 				char *full_name,
 				char *street_address,
 				char *account_number,
-				char *date_time )
+				char *date_time,
+				char *preupdate_investment_operation )
 {
 	ACCOUNT_BALANCE *account_balance;
 
@@ -1069,9 +1086,32 @@ void post_change_investment_operation_update(
 		exit( 1 );
 	}
 
+/*
 	ledger_journal_ledger_list_propagate(
 		account_balance->transaction->journal_ledger_list,
 		application_name );
+*/
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: propagating transaction_date_time = %s, account = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+account_balance->transaction->transaction_date_time,
+investment_fetch_purchase_credit_account_name(
+		application_name,
+		fund_name,
+		preupdate_investment_operation ) );
+m2( application_name, msg );
+}
+	ledger_propagate(
+		application_name,
+		account_balance->transaction->transaction_date_time,
+		investment_fetch_purchase_credit_account_name(
+			application_name,
+			fund_name,
+			preupdate_investment_operation ) );
 
 } /* post_change_investment_operation_update() */
 

@@ -9179,6 +9179,7 @@ LIST *ledger_get_binary_ledger_list(
 } /* ledger_get_binary_ledger_list() */
 
 LIST *ledger_consolidate_journal_ledger_list(
+			char *application_name,
 			LIST *journal_ledger_list )
 {
 	LIST *account_name_list;
@@ -9186,6 +9187,8 @@ LIST *ledger_consolidate_journal_ledger_list(
 	JOURNAL_LEDGER *new_journal_ledger;
 	LIST *new_journal_ledger_list;
 	char *account_name;
+
+	if ( !list_length( journal_ledger_list ) ) return (LIST *)0;
 
 	account_name_list =
 		ledger_get_unique_account_name_list(
@@ -9210,13 +9213,19 @@ LIST *ledger_consolidate_journal_ledger_list(
 			journal_ledger = list_get( journal_ledger_list );
 
 			if ( strcmp( journal_ledger->account_name,
-				     account_name ) == 0 )
+				     account_name ) != 0 )
 			{
-				new_journal_ledger =
-					ledger_get_or_set_journal_ledger(
-						new_journal_ledger_list,
-						account_name );
+				continue;
+			}
 
+			new_journal_ledger =
+				ledger_get_or_set_journal_ledger(
+					new_journal_ledger_list,
+					account_name );
+
+			if ( ledger_account_get_accumulate_debit(
+				application_name, account_name ) )
+			{
 				if ( journal_ledger->debit_amount )
 				{
 					new_journal_ledger->debit_amount +=
@@ -9224,10 +9233,24 @@ LIST *ledger_consolidate_journal_ledger_list(
 				}
 				else
 				{
-					new_journal_ledger->credit_amount +=
+					new_journal_ledger->debit_amount -=
 						journal_ledger->credit_amount;
 				}
 			}
+			else
+			{
+				if ( journal_ledger->credit_amount )
+				{
+					new_journal_ledger->credit_amount +=
+						journal_ledger->credit_amount;
+				}
+				else
+				{
+					new_journal_ledger->credit_amount -=
+						journal_ledger->debit_amount;
+				}
+			}
+
 		} while( list_next( journal_ledger_list ) );
 
 	} while( list_next( account_name_list ) );

@@ -1383,34 +1383,6 @@ TRANSACTION *investment_build_time_passage_transaction(
 		}
 	}
 
-/*
-if ( !list_length( transaction->journal_ledger_list ) )
-{
-fprintf( stderr, "%s/%s()/%d: for %s/%s/%s/%s: returning length() = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-account_balance->full_name,
-account_balance->street_address,
-account_balance->account_number,
-account_balance->date_time,
-list_length( transaction->journal_ledger_list ) );
-
-fprintf( stderr, "%s/%s()/%d: got unrealized_gain_change = %.4lf\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-account_balance->unrealized_gain_change );
-
-fprintf( stderr, "%s/%s()/%d: got realized_gain = %.4lf\n\n\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-account_balance->realized_gain );
-
-}
-*/
-
 	return transaction;
 
 } /* investment_build_time_passage_transaction() */

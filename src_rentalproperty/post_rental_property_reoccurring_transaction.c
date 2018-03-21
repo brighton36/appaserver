@@ -34,6 +34,7 @@ void post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
+			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
@@ -43,6 +44,7 @@ void post_reoccurring_transaction_display(
 			char *application_name,
 			char *full_name,
 			char *street_address,
+			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
@@ -56,6 +58,7 @@ int main( int argc, char **argv )
 	char *street_address;
 	char *transaction_date;
 	char *transaction_date_time;
+	char *transaction_description;
 	double transaction_amount;
 	char *rental_property_street_address;
 	char *memo;
@@ -67,10 +70,10 @@ int main( int argc, char **argv )
 	int tax_year;
 	LIST *rental_property_string_list;
 
-	if ( argc != 10 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application process full_name street_address transaction_date transaction_amount memo rental_property_street_address execute_yn\n",
+"Usage: %s application process full_name street_address transaction_description transaction_date transaction_amount memo rental_property_street_address execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -93,11 +96,12 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	full_name = argv[ 3 ];
 	street_address = argv[ 4 ];
-	transaction_date = argv[ 5 ];
-	transaction_amount = atof( argv[ 6 ] );
-	memo = argv[ 7 ];
-	rental_property_street_address = argv[ 8 ];
-	execute = (*argv[ 9 ] == 'y');
+	transaction_description = argv[ 5 ];
+	transaction_date = argv[ 6 ];
+	transaction_amount = atof( argv[ 7 ] );
+	memo = argv[ 8 ];
+	rental_property_street_address = argv[ 9 ];
+	execute = (*argv[ 10 ] == 'y');
 
 	tax_year = atoi( pipe2string( "now.sh ymd | piece.e '-' 0" ) );
 
@@ -148,6 +152,7 @@ int main( int argc, char **argv )
 			application_name,
 			full_name,
 			street_address,
+			transaction_description,
 			transaction_date_time,
 			transaction_amount,
 			memo,
@@ -159,6 +164,7 @@ int main( int argc, char **argv )
 			application_name,
 			full_name,
 			street_address,
+			transaction_description,
 			transaction_date_time,
 			transaction_amount,
 			memo,
@@ -177,6 +183,7 @@ void post_reoccurring_transaction_display(
 			char *application_name,
 			char *full_name,
 			char *street_address,
+			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
@@ -194,6 +201,7 @@ void post_reoccurring_transaction_display(
 					application_name,
 					full_name,
 					street_address,
+					transaction_description,
 					transaction_amount ) ) )
 	{
 		printf(
@@ -251,6 +259,7 @@ void post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
+			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
@@ -267,6 +276,7 @@ void post_reoccurring_transaction(
 					application_name,
 					full_name,
 					street_address,
+					transaction_description,
 					transaction_amount ) ) )
 	{
 		printf(
@@ -280,6 +290,7 @@ void post_reoccurring_transaction(
 			application_name,
 			full_name,
 			street_address,
+			transaction_description,
 			transaction_date_time,
 			transaction_amount,
 			memo,

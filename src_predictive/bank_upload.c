@@ -92,6 +92,7 @@ REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 					char *application_name,
 					char *full_name,
 					char *street_address,
+					char *transaction_description,
 					double transaction_amount )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
@@ -101,13 +102,17 @@ REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 	reoccurring_transaction->full_name = full_name;
 	reoccurring_transaction->street_address = street_address;
 
+	reoccurring_transaction->transaction_description =
+		transaction_description;
+
 	if ( !bank_upload_reoccurring_transaction_load(
 			&reoccurring_transaction->debit_account,
 			&reoccurring_transaction->credit_account,
 			&transaction_amount,
 			application_name,
 			reoccurring_transaction->full_name,
-			reoccurring_transaction->street_address ) )
+			reoccurring_transaction->street_address,
+			reoccurring_transaction->transaction_description ) )
 	{
 		return (REOCCURRING_TRANSACTION *)0;
 	}
@@ -124,23 +129,30 @@ boolean bank_upload_reoccurring_transaction_load(
 				double *transaction_amount,
 				char *application_name,
 				char *full_name,
-				char *street_address )
+				char *street_address,
+				char *transaction_description )
 {
 	char sys_string[ 1024 ];
 	char *select;
 	char where[ 256 ];
 	char *results;
 	char entity_buffer[ 128 ];
+	char description_buffer[ 128 ];
 	char piece_buffer[ 256 ];
 
 	select = "debit_account,credit_account,transaction_amount";
 
 	sprintf( where,
-		 "full_name = '%s' and street_address = '%s'",
+		 "full_name = '%s' and			"
+		 "street_address = '%s' and		"
+		 "transaction_description = '%s'	",
 		 escape_character(	entity_buffer,
 					full_name,
 					'\'' ),
-		 street_address );
+		 street_address,
+		 escape_character(	description_buffer,
+					transaction_description,
+					'\'' ) );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"

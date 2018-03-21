@@ -40,6 +40,7 @@ typedef struct
 {
 	char *full_name;
 	char *street_address;
+	char *transaction_description;
 	char *debit_account;
 	char *credit_account;
 	double transaction_amount;
@@ -74,6 +75,7 @@ REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 					char *application_name,
 					char *full_name,
 					char *street_address,
+					char *transaction_description,
 					double transaction_amount );
 
 boolean bank_upload_reoccurring_transaction_load(
@@ -82,7 +84,8 @@ boolean bank_upload_reoccurring_transaction_load(
 					double *transaction_amount,
 					char *application_name,
 					char *full_name,
-					char *street_address );
+					char *street_address,
+					char *transaction_description );
 
 BANK_UPLOAD *bank_upload_new(
 					char *bank_date,

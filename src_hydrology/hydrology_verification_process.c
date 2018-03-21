@@ -300,12 +300,15 @@ void get_statistics_for_station_datatype(
 		 "	 where station = '%s'				"
 		 "	   and datatype = '%s'			        "
 		 "	   and measurement_date = '%s';\"	       |"
-		 "sql '|'						",
+		 "sql.e '|'						",
 		 station,
 		 datatype,
 		 date_string );
+
 	results = pipe2string( sys_string );
-	if ( results ) atof_array( f_array, results );
+
+	if ( results ) timlib_atof_array( f_array, results );
+
 } /* get_statistics_for_station_datatype() */
 
 

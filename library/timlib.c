@@ -1745,7 +1745,7 @@ double *linear_interpolate( 	double *buffer,
 
 } /* linear_interpolate() */
 
-void atof_array( double *f_array, char *pipe_delimited_string )
+void timlib_atof_array( double *f_array, char *pipe_delimited_string )
 {
 	int pipe_count, i;
 	char buffer[ 128 ];
@@ -1755,7 +1755,8 @@ void atof_array( double *f_array, char *pipe_delimited_string )
 	if ( !pipe_count )
 	{
 		fprintf( stderr, 
-			 "Error: atof_array needs a piped delimited string\n" );
+			 "Error: %s() needs a piped delimited string\n",
+			 __FUNCTION__ );
 		exit( 1 );
 	}
 
@@ -1764,8 +1765,7 @@ void atof_array( double *f_array, char *pipe_delimited_string )
 		piece( buffer, '|', pipe_delimited_string, i );
 		f_array[ i ] = atof( buffer );
 	}
-} /* atof_array() */
-
+} /* timlib_atof_array() */
 
 double get_percent_of_day( char *time_string )
 {

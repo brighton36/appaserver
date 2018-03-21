@@ -181,10 +181,14 @@ char *quotes_around( char *destination, char *s, int c );
 char *double_quotes_around( char *destination, char *s );
 char *timlib_pad_spaces_to_justify_left( char *d, char *s, int size );
 char *timlib_pad_spaces_to_justify_right( char *d, char *s, int size );
+
 double *linear_interpolate( 	double *buffer,
 				int from_x,
 				int to_x );
-void atof_array( double *f_array, char *pipe_delimited_string );
+
+void timlib_atof_array(		double *f_array,
+				char *pipe_delimited_string );
+
 int count_characters( int char_to_count, char *source );
 double time2day_percentage( int hour, int minute );
 void unget_line_queue( char *in_line );

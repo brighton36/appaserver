@@ -92,6 +92,7 @@ APPASERVER_LIBRARY=						\
 		report_writer.o					\
 		semaphore.o					\
 		dollar.o					\
+		array.o						\
 		session.o
 
 all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
@@ -271,21 +272,6 @@ sed_dvr.e: sed_dvr.c sed.o
 		julian.o						\
 		sed.o							\
 	   -o sed_dvr.e
-
-atof_array_dvr.e: atof_array_dvr.c timlib.o hashtbl.o
-	${CC} ${CFLAGS} atof_array_dvr.c 				\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		column.o						\
-		date.o							\
-		julian.o						\
-		timlib.o						\
-		piece.o							\
-		dictionary.o						\
-		hashtbl.o						\
-		list_usage.o						\
-		date_convert.o 						\
-		list.o							\
-	   -o atof_array_dvr.e
 
 linear_interpolate_dvr.e: linear_interpolate_dvr.c timlib.o hashtbl.o
 	${CC} ${CFLAGS} linear_interpolate_dvr.c 			\
@@ -1163,4 +1149,10 @@ post_login_library.o: post_login_library.c				\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c post_login_library.c
+
+array.o: array.c							\
+	array.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c array.c
 

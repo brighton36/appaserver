@@ -32,6 +32,7 @@ char *post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
+			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo );
@@ -40,6 +41,7 @@ void post_reoccurring_transaction_display(
 			char *application_name,
 			char *full_name,
 			char *street_address,
+			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo );
@@ -50,20 +52,22 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *full_name;
 	char *street_address;
+	char *transaction_description;
 	char *transaction_date;
 	char *transaction_date_time;
 	double transaction_amount;
 	char *memo;
 	boolean execute;
+	boolean with_output;
 	char title[ 128 ];
-	DOCUMENT *document;
+	DOCUMENT *document = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
 
-	if ( argc != 9 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application process full_name street_address transaction_date transaction_amount memo execute_yn\n",
+"Usage: %s application process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn with_output_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -86,44 +90,51 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	full_name = argv[ 3 ];
 	street_address = argv[ 4 ];
-	transaction_date = argv[ 5 ];
-	transaction_amount = atof( argv[ 6 ] );
-	memo = argv[ 7 ];
-	execute = (*argv[ 8 ] == 'y');
+	transaction_description = argv[ 5 ];
+	transaction_date = argv[ 6 ];
+	transaction_amount = atof( argv[ 7 ] );
+	memo = argv[ 8 ];
+	execute = (*argv[ 9 ] == 'y');
+	with_output = (*argv[ 10 ] == 'y');
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	format_initial_capital( title, process_name );
-	document = document_new( title, application_name );
-	document->output_content_type = 1;
-
-	document_output_heading(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(	document->application_name,
-				document->onload_control_string );
-
-	printf( "<h1>%s</h1>\n", title );
-	fflush( stdout );
+	if ( with_output )
+	{
+		format_initial_capital( title, process_name );
+		document = document_new( title, application_name );
+		document->output_content_type = 1;
+	
+		document_output_heading(
+				document->application_name,
+				document->title,
+				document->output_content_type,
+				appaserver_parameter_file->
+					appaserver_mount_point,
+				document->javascript_module_list,
+				document->stylesheet_filename,
+				application_get_relative_source_directory(
+					application_name ),
+				0 /* not with_dynarch_menu */ );
+	
+		document_output_body(	document->application_name,
+					document->onload_control_string );
+	
+		printf( "<h1>%s</h1>\n", title );
+		fflush( stdout );
+	}
 
 	transaction_date_time =
 		ledger_get_transaction_date_time(
 			transaction_date );
 
-	if ( !execute )
+	if ( !execute && with_output )
 	{
 		post_reoccurring_transaction_display(
 			application_name,
 			full_name,
 			street_address,
+			transaction_description,
 			transaction_date_time,
 			transaction_amount,
 			memo );
@@ -136,23 +147,27 @@ int main( int argc, char **argv )
 			application_name,
 			full_name,
 			street_address,
+			transaction_description,
 			transaction_date_time,
 			transaction_amount,
 			memo );
 
-	if ( transaction_date_time )
+	if ( with_output )
 	{
-		printf( "<h3>Process complete.</h3>\n" );
-	}
-	else
-	{
-		printf(
-		"<h3>Warning: no reoccurring transaction found.</h3>\n" );
+		if ( transaction_date_time )
+		{
+			printf( "<h3>Process complete.</h3>\n" );
+		}
+		else
+		{
+			printf(
+		      "<h3>Warning: no reoccurring transaction found.</h3>\n" );
+		}
 	}
 
 all_done:
 
-	document_close();
+	if ( with_output ) document_close();
 
 	exit( 0 );
 
@@ -162,6 +177,7 @@ void post_reoccurring_transaction_display(
 			char *application_name,
 			char *full_name,
 			char *street_address,
+			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo )
@@ -178,6 +194,7 @@ void post_reoccurring_transaction_display(
 					application_name,
 					full_name,
 					street_address,
+					transaction_description,
 					transaction_amount ) ) )
 	{
 		printf(
@@ -227,6 +244,7 @@ char *post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
+			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo )
@@ -242,6 +260,7 @@ char *post_reoccurring_transaction(
 					application_name,
 					full_name,
 					street_address,
+					transaction_description,
 					transaction_amount ) ) )
 	{
 		return (char *)0;
@@ -332,6 +351,7 @@ char *post_reoccurring_transaction(
 			application_name,
 			full_name,
 			street_address,
+			transaction_description,
 			transaction_date_time,
 			transaction_amount,
 			memo );

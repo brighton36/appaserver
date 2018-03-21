@@ -26,12 +26,6 @@ self=`echo "	select full_name,street_address		\
 
 transaction_date_time=`now.sh 19`
 
-salary_accrued_daily=`echo "	select application_constant_value	\
-				from application_constants		\
-				where application_constant =		\
-					'salary_accrued_daily';"	|
-			sql.e`
-
 days_passed=$(date_subtract.e `now.sh ymd` `now.sh ymd | piece.e '-' 0`-01-01)
 
 salary_receivable_account=`echo "	select account			  \
@@ -45,6 +39,12 @@ then
 	echo "Error: cannot find account with key = salary_receivable_key" 1>&2
 	exit 1
 fi
+
+accrued_daily_amount=`echo "	select accrued_daily_amount		\
+				from account				\
+				where hard_coded_account_key =		\
+					'salary_receivable_key';"	|
+			sql.e`
 
 salary_revenue_account=`echo "	select account			\
 				from account			\
@@ -78,7 +78,7 @@ else
 fi
 
 salary_receivable_balance=`						\
-	echo "$salary_accrued_daily|$days_passed"			|
+	echo "$accrued_daily_amount|$days_passed"			|
 	piece_arithmatic.e 0 1 multiply '|'				|
 	piece.e '|' 2`
 

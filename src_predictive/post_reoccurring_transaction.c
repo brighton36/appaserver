@@ -46,10 +46,8 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			double accrued_daily_amount );
 
 TRANSACTION *post_reoccurring_get_now_transaction(
-			char *application_name,
 			char *full_name,
 			char *street_address,
-			char *transaction_description,
 			char *transaction_date_time,
 			char *debit_account,
 			char *credit_account,
@@ -237,11 +235,8 @@ void post_reoccurring_transaction_display(
 	{
 		transaction =
 			post_reoccurring_get_now_transaction(
-				application_name,
 				reoccurring_transaction->full_name,
 				reoccurring_transaction->street_address,
-				reoccurring_transaction->
-					transaction_description,
 				transaction_date_time,
 				reoccurring_transaction->debit_account,
 				reoccurring_transaction->credit_account,
@@ -349,11 +344,8 @@ char *post_reoccurring_transaction(
 	{
 		transaction =
 			post_reoccurring_get_now_transaction(
-				application_name,
 				reoccurring_transaction->full_name,
 				reoccurring_transaction->street_address,
-				reoccurring_transaction->
-					transaction_description,
 				transaction_date_time,
 				reoccurring_transaction->debit_account,
 				reoccurring_transaction->credit_account,
@@ -394,10 +386,8 @@ char *post_reoccurring_transaction(
 } /* post_reoccurring_transaction() */
 
 TRANSACTION *post_reoccurring_get_now_transaction(
-			char *application_name,
 			char *full_name,
 			char *street_address,
-			char *transaction_description,
 			char *transaction_date_time,
 			char *debit_account,
 			char *credit_account,
@@ -558,7 +548,7 @@ int get_days_between_last_transaction(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			 "
-		 "			select=%s			 "
+		 "			select=\"%s\"			 "
 		 "			folder=%s			 "
 		 "			where=\"%s\"			|"
 		 "column.e 0						 ",
@@ -574,7 +564,7 @@ int get_days_between_last_transaction(
 	if ( !timlib_strlen( max_transaction_date ) )
 	{
 		sprintf( name_buffer,
-			 "%s-01-01",
+			 "%d-01-01",
 			 current_year );
 
 		days_between =

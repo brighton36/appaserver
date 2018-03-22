@@ -136,7 +136,7 @@ boolean bank_upload_reoccurring_transaction_load(
 {
 	char sys_string[ 1024 ];
 	char *select;
-	char where[ 256 ];
+	char where[ 512 ];
 	char *results;
 	char entity_buffer[ 128 ];
 	char description_buffer[ 128 ];
@@ -158,7 +158,7 @@ boolean bank_upload_reoccurring_transaction_load(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=%s		"
 		 "			where=\"%s\"		",
 		 application_name,

@@ -45,6 +45,7 @@ typedef struct
 	char *credit_account;
 	double transaction_amount;
 	char *bank_upload_search_phrase;
+	double accrued_daily_amount;
 } REOCCURRING_TRANSACTION;
 
 typedef struct
@@ -82,6 +83,7 @@ boolean bank_upload_reoccurring_transaction_load(
 					char **debit_account,
 					char **credit_account,
 					double *transaction_amount,
+					double *accrued_daily_amount,
 					char *application_name,
 					char *full_name,
 					char *street_address,
@@ -146,6 +148,7 @@ void bank_upload_reoccurring_transaction_parse(
 					char **credit_account,
 					double *transaction_amount,
 					char **bank_upload_search_phrase,
+					double *accrued_daily_amount,
 					char *input_buffer );
 
 REOCCURRING_TRANSACTION *bank_upload_seek_bank_upload_search_phrase(
@@ -157,6 +160,9 @@ void bank_upload_html_display(		LIST *bank_upload_list );
 int bank_upload_get_starting_sequence_number(
 					char *application_name,
 					char *input_filename );
+
+char *bank_upload_reoccurring_transaction_get_select(
+					void );
 
 #endif
 

@@ -109,6 +109,7 @@ REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 			&reoccurring_transaction->debit_account,
 			&reoccurring_transaction->credit_account,
 			&transaction_amount,
+			&reoccurring_transaction->accrued_daily_amount,
 			application_name,
 			reoccurring_transaction->full_name,
 			reoccurring_transaction->street_address,
@@ -127,6 +128,7 @@ boolean bank_upload_reoccurring_transaction_load(
 				char **debit_account,
 				char **credit_account,
 				double *transaction_amount,
+				double *accrued_daily_amount,
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -138,9 +140,9 @@ boolean bank_upload_reoccurring_transaction_load(
 	char *results;
 	char entity_buffer[ 128 ];
 	char description_buffer[ 128 ];
-	char piece_buffer[ 256 ];
+	REOCCURRING_TRANSACTION *reoccurring_transaction;
 
-	select = "debit_account,credit_account,transaction_amount";
+	select = bank_upload_reoccurring_transaction_get_select();
 
 	sprintf( where,
 		 "full_name = '%s' and			"
@@ -168,17 +170,30 @@ boolean bank_upload_reoccurring_transaction_load(
 
 	if ( !results ) return 0;
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	*debit_account = strdup( piece_buffer );
+	reoccurring_transaction =
+		bank_upload_reoccurring_transaction_calloc();
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 1 );
-	*credit_account = strdup( piece_buffer );
+	bank_upload_reoccurring_transaction_parse(
+			&reoccurring_transaction->
+				full_name,
+			&reoccurring_transaction->
+				street_address,
+			&reoccurring_transaction->
+				debit_account,
+			&reoccurring_transaction->
+				credit_account,
+			&reoccurring_transaction->
+				transaction_amount,
+			&reoccurring_transaction->
+				bank_upload_search_phrase,
+			&reoccurring_transaction->
+				accrued_daily_amount,
+			results );
 
-	if ( !*transaction_amount )
-	{
-		piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
-		*transaction_amount = atof( piece_buffer );
-	}
+	*debit_account = reoccurring_transaction->debit_account;
+	*credit_account = reoccurring_transaction->credit_account;
+	*transaction_amount = reoccurring_transaction->transaction_amount;
+	*accrued_daily_amount = reoccurring_transaction->accrued_daily_amount;
 
 	return 1;
 
@@ -612,6 +627,7 @@ void bank_upload_reoccurring_transaction_parse(
 					char **credit_account,
 					double *transaction_amount,
 					char **bank_upload_search_phrase,
+					double *accrued_daily_amount,
 					char *input_buffer )
 {
 	char buffer[ 256 ];
@@ -639,6 +655,10 @@ void bank_upload_reoccurring_transaction_parse(
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 	if ( *buffer )
 		*bank_upload_search_phrase = strdup( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+	if ( *buffer )
+		*accrued_daily_amount = atof( buffer );
 
 } /* bank_upload_reoccurring_transaction_parse() */
 
@@ -670,6 +690,21 @@ LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 
 } /* bank_upload_fetch_existing_cash_journal_ledger_list() */
 
+char *bank_upload_reoccurring_transaction_get_select( void )
+{
+	char *select;
+
+	select = "full_name,			"
+		 "street_address,		"
+		 "debit_account,		"
+		 "credit_account,		"
+		 "transaction_amount,		"
+		 "bank_upload_search_phrase,	"
+		 "accrued_daily_amount		";
+
+	return select;
+}
+
 LIST *bank_upload_fetch_reoccurring_transaction_list(
 					char *application_name )
 {
@@ -683,12 +718,7 @@ LIST *bank_upload_fetch_reoccurring_transaction_list(
 
 	reoccurring_transaction_list = list_new();
 
-	select = "full_name,			"
-		 "street_address,		"
-		 "debit_account,		"
-		 "credit_account,		"
-		 "transaction_amount,		"
-		 "bank_upload_search_phrase	";
+	select = bank_upload_reoccurring_transaction_get_select();
 
 	where = "bank_upload_search_phrase is not null";
 
@@ -721,6 +751,8 @@ LIST *bank_upload_fetch_reoccurring_transaction_list(
 					transaction_amount,
 				&reoccurring_transaction->
 					bank_upload_search_phrase,
+				&reoccurring_transaction->
+					accrued_daily_amount,
 				input_buffer );
 
 		list_append_pointer(

@@ -44,7 +44,8 @@ void post_reoccurring_transaction_display(
 			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo );
+			char *memo,
+			boolean with_html );
 
 int main( int argc, char **argv )
 {
@@ -58,7 +59,7 @@ int main( int argc, char **argv )
 	double transaction_amount;
 	char *memo;
 	boolean execute;
-	boolean with_output;
+	boolean with_html;
 	char title[ 128 ];
 	DOCUMENT *document = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -67,7 +68,7 @@ int main( int argc, char **argv )
 	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn with_output_yn\n",
+"Usage: %s application process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn with_html_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -95,11 +96,11 @@ int main( int argc, char **argv )
 	transaction_amount = atof( argv[ 7 ] );
 	memo = argv[ 8 ];
 	execute = (*argv[ 9 ] == 'y');
-	with_output = (*argv[ 10 ] == 'y');
+	with_html = (*argv[ 10 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	if ( with_output )
+	if ( with_html )
 	{
 		format_initial_capital( title, process_name );
 		document = document_new( title, application_name );
@@ -128,7 +129,7 @@ int main( int argc, char **argv )
 		ledger_get_transaction_date_time(
 			transaction_date );
 
-	if ( !execute && with_output )
+	if ( !execute )
 	{
 		post_reoccurring_transaction_display(
 			application_name,
@@ -137,7 +138,8 @@ int main( int argc, char **argv )
 			transaction_description,
 			transaction_date_time,
 			transaction_amount,
-			memo );
+			memo,
+			with_html );
 
 		goto all_done;
 	}
@@ -152,7 +154,7 @@ int main( int argc, char **argv )
 			transaction_amount,
 			memo );
 
-	if ( with_output )
+	if ( with_html )
 	{
 		if ( transaction_date_time )
 		{
@@ -167,7 +169,7 @@ int main( int argc, char **argv )
 
 all_done:
 
-	if ( with_output ) document_close();
+	if ( with_html ) document_close();
 
 	exit( 0 );
 
@@ -180,11 +182,12 @@ void post_reoccurring_transaction_display(
 			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo )
+			char *memo,
+			boolean with_html )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
-	char *heading;
-	char *justify;
+	char *heading = {0};
+	char *justify = {0};
 	char sys_string[ 512 ];
 	FILE *output_pipe;
 	char buffer[ 128 ];
@@ -202,13 +205,20 @@ void post_reoccurring_transaction_display(
 		return;
 	}
 
-	heading = "Transaction,Account,Debit,Credit";
-	justify = "left,left,right,right";
+	if ( with_html )
+	{
+		heading = "Transaction,Account,Debit,Credit";
+		justify = "left,left,right,right";
 
-	sprintf( sys_string,
-		"html_table.e '' %s '^' %s",
-		 heading,
-		 justify );
+		sprintf(sys_string,
+			"html_table.e '' %s '^' %s",
+			heading,
+			justify );
+	}
+	else
+	{
+		strcpy( sys_string, "cat" );
+	}
 
 	output_pipe = popen( sys_string, "w" );
 
@@ -354,7 +364,8 @@ char *post_reoccurring_transaction(
 			transaction_description,
 			transaction_date_time,
 			transaction_amount,
-			memo );
+			memo,
+			1 /* with_html */ );
 
 	return transaction_date_time;
 

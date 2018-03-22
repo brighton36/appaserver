@@ -146,20 +146,7 @@ int load_bank_spreadsheet(
 			char *input_filename,
 			boolean execute )
 {
-	char sys_string[ 1024 ];
 	FILE *input_file;
-	char input_string[ 4096 ];
-	char *table_name;
-	char bank_date[ 128 ];
-	char bank_date_international[ 128 ];
-	char bank_description[ 1024 ];
-	char bank_amount[ 128 ];
-	char bank_running_balance[ 128 ];
-	FILE *table_output_pipe = {0};
-	FILE *bank_upload_insert_pipe = {0};
-	boolean found_header = 0;
-	char error_filename[ 128 ] = {0};
-	char *insert_bank_download;
 	BANK_UPLOAD_STRUCTURE *bank_upload_structure;
 
 	bank_upload_structure =

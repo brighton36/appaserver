@@ -154,5 +154,9 @@ REOCCURRING_TRANSACTION *bank_upload_seek_bank_upload_search_phrase(
 
 void bank_upload_html_display(		LIST *bank_upload_list );
 
+int bank_upload_get_starting_sequence_number(
+					char *application_name,
+					char *input_filename );
+
 #endif
 

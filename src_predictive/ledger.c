@@ -2621,6 +2621,8 @@ TRANSACTION *ledger_transaction_new(	char *full_name,
 
 	transaction = ledger_transaction_calloc();
 
+	if ( timlib_strcmp( memo, "memo" ) == 0 ) memo = (char *)0;
+
 	transaction->full_name = full_name;
 	transaction->street_address = street_address;
 	transaction->transaction_date_time = transaction_date_time;

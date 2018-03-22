@@ -28,6 +28,17 @@
 
 /* Prototypes */
 /* ---------- */
+TRANSACTION *post_reoccurring_get_now_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account,
+			double transaction_amount,
+			char *memo );
+
 char *post_reoccurring_transaction(
 			char *application_name,
 			char *full_name,
@@ -154,6 +165,16 @@ int main( int argc, char **argv )
 			transaction_amount,
 			memo );
 
+	post_reoccurring_transaction_display(
+			application_name,
+			full_name,
+			street_address,
+			transaction_description,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			with_html );
+
 	if ( with_html )
 	{
 		if ( transaction_date_time )
@@ -259,11 +280,8 @@ char *post_reoccurring_transaction(
 			double transaction_amount,
 			char *memo )
 {
-	REOCCURRING_TRANSACTION *reoccurring_transaction;
 	TRANSACTION *transaction;
-	JOURNAL_LEDGER *prior_ledger;
-	ACCOUNT *account;
-	LIST *propagate_account_list = list_new();
+	REOCCURRING_TRANSACTION *reoccurring_transaction;
 
 	if ( ! ( reoccurring_transaction =
 			bank_upload_reoccurring_transaction_new(
@@ -276,10 +294,65 @@ char *post_reoccurring_transaction(
 		return (char *)0;
 	}
 
-	if ( timlib_strcmp( memo, "memo" ) == 0 ) memo = (char *)0;
+	if ( !reoccurring_transaction->accrued_daily_amount )
+	{
+		transaction =
+			post_reoccurring_get_now_transaction(
+				application_name,
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				reoccurring_transaction->
+					transaction_description,
+				transaction_date_time,
+				reoccurring_transaction->debit_account,
+				reoccurring_transaction->credit_account,
+				transaction_amount,
+				memo );
+	}
+	else
+	{
+		transaction =
+			post_reoccurring_get_accrued_daily_transaction(
+				application_name,
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				reoccurring_transaction->
+					transaction_description,
+				transaction_date_time,
+				reoccurring_transaction->accrued_daily_amount,
+				memo );
+	}
 
-	/* Insert the transaction */
-	/* ---------------------- */
+	transaction->transaction_date_time =
+		ledger_transaction_journal_ledger_insert(
+			application_name,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			transaction->transaction_amount,
+			transaction->memo,
+			0 /* check_number */,
+			0 /* not lock_transaction */,
+			transaction->journal_ledger_list );
+
+	return transaction->transaction_date_time;
+
+} /* post_reoccurring_transaction() */
+
+TRANSACTION *post_reoccurring_get_now_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account,
+			double transaction_amount,
+			char *memo )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+
 	transaction =
 		ledger_transaction_new(
 			full_name,
@@ -287,87 +360,74 @@ char *post_reoccurring_transaction(
 			transaction_date_time,
 			memo );
 
-	transaction_date_time =
-	transaction->transaction_date_time =
-	ledger_transaction_insert(
-		application_name,
-		transaction->full_name,
-		transaction->street_address,
-		transaction->transaction_date_time,
-		reoccurring_transaction->transaction_amount,
-		transaction->memo,
-		0 /* check_number */,
-		0 /* not lock_transaction */ );
+	transaction->journal_ledger_list = list_new();
 
-	/* Insert the debit account */
-	/* ------------------------ */
-	ledger_journal_ledger_insert(
-			application_name,
-			reoccurring_transaction->full_name,
-			reoccurring_transaction->street_address,
-			transaction->transaction_date_time,
-			reoccurring_transaction->debit_account,
-			reoccurring_transaction->transaction_amount,
-			1 /* is_debit */ );
-
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction->transaction_date_time,
-				reoccurring_transaction->debit_account );
-
-	account = ledger_account_new( reoccurring_transaction->debit_account );
-
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			reoccurring_transaction->debit_account );
-
-	list_append_pointer( propagate_account_list, account );
-
-	/* Insert the credit account */
-	/* ------------------------- */
-	ledger_journal_ledger_insert(
-			application_name,
-			reoccurring_transaction->full_name,
-			reoccurring_transaction->street_address,
-			transaction->transaction_date_time,
-			reoccurring_transaction->credit_account,
-			reoccurring_transaction->transaction_amount,
-			0 /* not is_debit */ );
-
-	prior_ledger = ledger_get_prior_ledger(
-				application_name,
-				transaction->transaction_date_time,
-				reoccurring_transaction->credit_account );
-
-	account = ledger_account_new( reoccurring_transaction->credit_account );
-
-	account->journal_ledger_list =
-		ledger_get_propagate_journal_ledger_list(
-			application_name,
-			prior_ledger,
-			reoccurring_transaction->credit_account );
-
-	list_append_pointer( propagate_account_list, account );
-
-	/* Propagate the ledger balances */
-	/* ----------------------------- */
-	ledger_account_list_propagate(
-		propagate_account_list,
-		application_name );
-
-	post_reoccurring_transaction_display(
-			application_name,
+	journal_ledger =
+		journal_ledger_new(
 			full_name,
 			street_address,
-			transaction_description,
+			transaction->transaction_date_time,
+			debit_account );
+
+	journal_ledger->debit_amount = transaction_amount;
+
+	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction->transaction_date_time,
+			credit_account );
+
+	journal_ledger->credit_amount = transaction_amount;
+
+	return transaction;
+
+} /* post_reoccurring_get_now_transaction() */
+
+TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_date_time,
+			double accrued_daily_amount,
+			char *memo )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
 			transaction_date_time,
-			transaction_amount,
-			memo,
-			1 /* with_html */ );
+			memo );
 
-	return transaction_date_time;
+	transaction->journal_ledger_list = list_new();
 
-} /* post_reoccurring_transaction() */
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction->transaction_date_time,
+			debit_account );
+
+	journal_ledger->debit_amount = transaction_amount;
+
+	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction->transaction_date_time,
+			credit_account );
+
+	journal_ledger->credit_amount = transaction_amount;
+
+	return transaction;
+
+} /* post_reoccurring_get_accrued_daily_transaction() */
 

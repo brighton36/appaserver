@@ -28,6 +28,23 @@
 
 /* Prototypes */
 /* ---------- */
+int get_days_between_last_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *transaction_description );
+
+TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount );
+
 TRANSACTION *post_reoccurring_get_now_transaction(
 			char *application_name,
 			char *full_name,
@@ -136,59 +153,47 @@ int main( int argc, char **argv )
 		fflush( stdout );
 	}
 
+	/* Works even if transaction_date is empty or is "transaction_date" */
+	/* ---------------------------------------------------------------- */
 	transaction_date_time =
 		ledger_get_transaction_date_time(
 			transaction_date );
 
-	if ( !execute )
-	{
-		post_reoccurring_transaction_display(
-			application_name,
-			full_name,
-			street_address,
-			transaction_description,
-			transaction_date_time,
-			transaction_amount,
-			memo,
-			with_html );
-
-		goto all_done;
-	}
-
-	transaction_date_time =
-		post_reoccurring_transaction(
-			application_name,
-			full_name,
-			street_address,
-			transaction_description,
-			transaction_date_time,
-			transaction_amount,
-			memo );
-
 	post_reoccurring_transaction_display(
-			application_name,
-			full_name,
-			street_address,
-			transaction_description,
-			transaction_date_time,
-			transaction_amount,
-			memo,
-			with_html );
+		application_name,
+		full_name,
+		street_address,
+		transaction_description,
+		transaction_date_time,
+		transaction_amount,
+		memo,
+		with_html );
 
-	if ( with_html )
+	if ( execute )
 	{
-		if ( transaction_date_time )
-		{
-			printf( "<h3>Process complete.</h3>\n" );
-		}
-		else
-		{
-			printf(
-		      "<h3>Warning: no reoccurring transaction found.</h3>\n" );
-		}
-	}
+		transaction_date_time =
+			post_reoccurring_transaction(
+				application_name,
+				full_name,
+				street_address,
+				transaction_description,
+				transaction_date_time,
+				transaction_amount,
+				memo );
 
-all_done:
+		if ( with_html )
+		{
+			if ( transaction_date_time )
+			{
+				printf( "<h3>Process complete.</h3>\n" );
+			}
+			else
+			{
+				printf(
+		      "<h3>Warning: no reoccurring transaction found.</h3>\n" );
+			}
+		}
+	} /* if execute */
 
 	if ( with_html ) document_close();
 
@@ -207,6 +212,8 @@ void post_reoccurring_transaction_display(
 			boolean with_html )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
 	char *heading = {0};
 	char *justify = {0};
 	char sys_string[ 512 ];
@@ -225,6 +232,38 @@ void post_reoccurring_transaction_display(
 		"<h3>Warning: no reoccurring transaction found.</h3>\n" );
 		return;
 	}
+
+	if ( !reoccurring_transaction->accrued_daily_amount )
+	{
+		transaction =
+			post_reoccurring_get_now_transaction(
+				application_name,
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				reoccurring_transaction->
+					transaction_description,
+				transaction_date_time,
+				reoccurring_transaction->debit_account,
+				reoccurring_transaction->credit_account,
+				transaction_amount,
+				memo );
+	}
+	else
+	{
+		transaction =
+			post_reoccurring_get_accrued_daily_transaction(
+				application_name,
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				reoccurring_transaction->
+					transaction_description,
+				transaction_date_time,
+				reoccurring_transaction->debit_account,
+				reoccurring_transaction->credit_account,
+				reoccurring_transaction->accrued_daily_amount );
+	}
+
+	if ( !transaction ) return;
 
 	if ( with_html )
 	{
@@ -247,23 +286,35 @@ void post_reoccurring_transaction_display(
 	{
 		fprintf( output_pipe,
 		 	 "Memo: %s\n",
-		 	 memo );
+		 	 transaction->memo );
 	}
+
+	if ( !list_rewind( transaction->journal_ledger_list ) )
+	{
+		fprintf( output_pipe, "Error occurred.\n" );
+		pclose( output_pipe );
+		return;
+	}
+
+	journal_ledger = list_get_pointer( transaction->journal_ledger_list );
 
 	fprintf( output_pipe,
 		 "%s^%s^%.2lf^\n",
-		 transaction_date_time,
+		 transaction->transaction_date_time,
 		 format_initial_capital(
 			buffer,
-			reoccurring_transaction->debit_account ),
-		 reoccurring_transaction->transaction_amount );
+			journal_ledger->account_name ),
+		 journal_ledger->debit_amount );
+
+	list_next( transaction->journal_ledger_list );
+	journal_ledger = list_get_pointer( transaction->journal_ledger_list );
 
 	fprintf( output_pipe,
 		 "^%s^^%.2lf\n",
 		 format_initial_capital(
 			buffer,
-			reoccurring_transaction->credit_account ),
-		 reoccurring_transaction->transaction_amount );
+			journal_ledger->account_name ),
+		 journal_ledger->credit_amount );
 
 	pclose( output_pipe );
 
@@ -319,9 +370,12 @@ char *post_reoccurring_transaction(
 				reoccurring_transaction->
 					transaction_description,
 				transaction_date_time,
-				reoccurring_transaction->accrued_daily_amount,
-				memo );
+				reoccurring_transaction->debit_account,
+				reoccurring_transaction->credit_account,
+				reoccurring_transaction->accrued_daily_amount );
 	}
+
+	if ( !transaction ) return (char *)0;
 
 	transaction->transaction_date_time =
 		ledger_transaction_journal_ledger_insert(
@@ -382,6 +436,8 @@ TRANSACTION *post_reoccurring_get_now_transaction(
 
 	journal_ledger->credit_amount = transaction_amount;
 
+	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+
 	return transaction;
 
 } /* post_reoccurring_get_now_transaction() */
@@ -392,18 +448,44 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			char *street_address,
 			char *transaction_description,
 			char *transaction_date_time,
-			double accrued_daily_amount,
-			char *memo )
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount )
 {
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
+	int days_between;
+	double accrued_amount;
+
+	if ( ! ( days_between =
+			get_days_between_last_transaction(
+				application_name,
+				full_name,
+				street_address,
+				transaction_date_time,
+				transaction_description ) ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	accrued_amount = (double)days_between * accrued_daily_amount;
+
+	if ( timlib_dollar_virtually_same( accrued_amount, 0.0 ) )
+	{
+		return (TRANSACTION *)0;
+	}
 
 	transaction =
 		ledger_transaction_new(
 			full_name,
 			street_address,
 			transaction_date_time,
-			memo );
+			/* ------------------------------ */
+			/* Don't update TRANSACTION.memo! */
+			/* ------------------------------ */
+			transaction_description /* memo */ );
+
+	transaction->transaction_amount = accrued_amount;
 
 	transaction->journal_ledger_list = list_new();
 
@@ -414,7 +496,7 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			transaction->transaction_date_time,
 			debit_account );
 
-	journal_ledger->debit_amount = transaction_amount;
+	journal_ledger->debit_amount = transaction->transaction_amount;
 
 	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
 
@@ -425,9 +507,92 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			transaction->transaction_date_time,
 			credit_account );
 
-	journal_ledger->credit_amount = transaction_amount;
+	journal_ledger->credit_amount = transaction->transaction_amount;
+
+	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
 
 	return transaction;
 
 } /* post_reoccurring_get_accrued_daily_transaction() */
+
+int get_days_between_last_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *transaction_description )
+{
+	char sys_string[ 1024 ];
+	int current_year;
+	char where[ 256 ];
+	char name_buffer[ 256 ];
+	char description_buffer[ 256 ];
+	char *select;
+	char *folder;
+	char *max_transaction_date;
+	char *today;
+	int days_between;
+
+	if ( !transaction_date_time
+	||   ! ( current_year = atoi( transaction_date_time ) ) )
+	{
+		return 0;
+	}
+
+	select = "max( transaction_date_time )";
+	folder = "transaction";
+
+	sprintf( where,
+		 "full_name = '%s' and				"
+		 "street_address = '%s' and			"
+		 "memo = '%s' and				"
+		 "transaction_date_time >= '%d-01-01 00:00:00'	",
+		 escape_character(	name_buffer,
+					full_name,
+					'\'' ),
+		 street_address,
+		 escape_character(	description_buffer,
+					transaction_description,
+					'\'' ),
+		 current_year );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			 "
+		 "			select=%s			 "
+		 "			folder=%s			 "
+		 "			where=\"%s\"			|"
+		 "column.e 0						 ",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	max_transaction_date = pipe2string( sys_string );
+
+	today = pipe2string( "now.sh ymd" );
+
+	if ( !timlib_strlen( max_transaction_date ) )
+	{
+		sprintf( name_buffer,
+			 "%s-01-01",
+			 current_year );
+
+		days_between =
+			date_days_between(
+				name_buffer /* from_date */,
+				today /* to_date */,
+				date_get_utc_offset() ) + 1;
+	}
+	else
+	{
+		days_between =
+			date_days_between(
+				max_transaction_date /* from_date */,
+				today /* to_date */,
+				date_get_utc_offset() ) + 1;
+	}
+
+	return days_between;
+
+} /* get_days_between_last_transaction() */
 

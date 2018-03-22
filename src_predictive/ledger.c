@@ -4360,7 +4360,8 @@ char *ledger_get_transaction_date_time( char *transaction_date )
 		sprintf( transaction_date_time,
 			 "%s %s",
 			 date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
-			 date_get_now_hh_colon_mm_colon_ss( date_get_utc_offset() ) );
+			 date_get_now_hh_colon_mm_colon_ss(
+				date_get_utc_offset() ) );
 	}
 	else
 	{

@@ -91,6 +91,24 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
 
+	if ( argc > 0 )
+	{
+		application_name = argv[ 1 ];
+
+		if ( timlib_parse_database_string(	&database_string,
+							application_name ) )
+		{
+			environ_set_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+				database_string );
+		}
+
+		appaserver_error_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+	}
+
 	if ( argc != 11 )
 	{
 		fprintf( stderr,
@@ -98,21 +116,6 @@ int main( int argc, char **argv )
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	process_name = argv[ 2 ];
 	full_name = argv[ 3 ];

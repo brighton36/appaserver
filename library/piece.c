@@ -746,6 +746,7 @@ char *piece_grep(	char *source,
 		if ( !piece( buffer, delimiter, source, piece_offset ) )
 			return (char *)0;
 
+/*
 		if ( !grep_exclude )
 		{
 			if ( strcmp( grep, buffer ) == 0 ) return source;
@@ -754,9 +755,30 @@ char *piece_grep(	char *source,
 		{
 			if ( strcmp( grep, buffer ) != 0 ) return source;
 		}
+*/
+		if ( !grep_exclude )
+		{
+			if ( timlib_exists_string(
+				buffer /* string */,
+				grep /* substring */ ) )
+			{
+				return source;
+			}
+		}
+		else
+		{
+			if ( !timlib_exists_string(
+				buffer /* string */,
+				grep /* substring */ ) )
+			{
+				return source;
+			}
+		}
 
 	} while( list_next( string_list ) );
+
 	return (char *)0;
+
 } /* piece_grep() */
 
 char *piece_shift_left(	char *source_destination, 

@@ -21,6 +21,8 @@ subschemas=`get_table_name $application subschemas`
 role_operation=`get_table_name $application role_operation`
 javascript_folders=`get_table_name $application javascript_folders`
 javascript_files=`get_table_name $application javascript_files`
+process=`get_table_name $application process`
+role=`get_table_name $application role`
 
 (
 cat << all_done
@@ -61,6 +63,10 @@ insert into $role_folder (folder,role,permission) values ('account','bookkeeper'
 insert into $role_folder (folder,role,permission) values ('account','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('account','supervisor','update');
 delete from $javascript_folders where folder = 'account';
+delete from $process where process = 'populate_account';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('populate_account','populate_account.sh \$application \$one2m_folder subclassification',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('account','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('account','bookkeeper','detail');
@@ -96,6 +102,10 @@ delete from $javascript_folders where folder = 'bank_upload';
 insert into $javascript_folders (javascript_filename,folder) values ('post_change_bank_upload.js','bank_upload');
 delete from $javascript_files where javascript_filename = 'post_change_bank_upload.js';
 insert into $javascript_files (javascript_filename) values ('post_change_bank_upload.js');
+delete from $process where process = 'post_change_bank_upload';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_bank_upload','post_change_bank_upload \$application \$dictionary',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('bank_upload','supervisor','delete');
 delete from $folder where folder = 'contra_account';
@@ -115,6 +125,8 @@ insert into $role_folder (folder,role,permission) values ('contra_account','book
 insert into $role_folder (folder,role,permission) values ('contra_account','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('contra_account','supervisor','update');
 delete from $javascript_folders where folder = 'contra_account';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('contra_account','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('contra_account','bookkeeper','detail');
@@ -139,6 +151,8 @@ insert into $role_folder (folder,role,permission) values ('customer','bookkeeper
 insert into $role_folder (folder,role,permission) values ('customer','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('customer','supervisor','update');
 delete from $javascript_folders where folder = 'customer';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('customer','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('customer','bookkeeper','delete_isa_only');
@@ -178,6 +192,10 @@ insert into $role_folder (folder,role,permission) values ('customer_payment','bo
 insert into $role_folder (folder,role,permission) values ('customer_payment','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('customer_payment','supervisor','update');
 delete from $javascript_folders where folder = 'customer_payment';
+delete from $process where process = 'post_change_customer_payment';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_customer_payment','post_change_customer_payment \$application full_name street_address sale_date_time payment_date_time \$state preupdate_payment_date_time preupdate_payment_amount',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('customer_payment','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('customer_payment','bookkeeper','detail');
@@ -234,6 +252,12 @@ insert into $role_folder (folder,role,permission) values ('customer_sale','bookk
 insert into $role_folder (folder,role,permission) values ('customer_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('customer_sale','supervisor','update');
 delete from $javascript_folders where folder = 'customer_sale';
+delete from $process where process = 'populate_customer_sale';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('populate_customer_sale','populate_customer_sale.sh \$application \$one2m_folder \$where',null,null,null,null,null,null,null);
+delete from $process where process = 'post_change_customer_sale';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_customer_sale','post_change_customer_sale \$application full_name street_address sale_date_time \$state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_completed_date_time preupdate_shipped_date_time preupdate_arrived_date preupdate_shipping_revenue',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('customer_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('customer_sale','bookkeeper','detail');
@@ -250,6 +274,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('day','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('day','supervisor','update');
 delete from $javascript_folders where folder = 'day';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('day','supervisor','delete');
 delete from $folder where folder = 'depreciation';
@@ -290,6 +315,8 @@ insert into $role_folder (folder,role,permission) values ('depreciation','bookke
 insert into $role_folder (folder,role,permission) values ('depreciation','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('depreciation','supervisor','lookup');
 delete from $javascript_folders where folder = 'depreciation';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('depreciation','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('depreciation','bookkeeper','detail');
@@ -306,6 +333,8 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('depreciation_method','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('depreciation_method','supervisor','lookup');
 delete from $javascript_folders where folder = 'depreciation_method';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('depreciation_method','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('depreciation_method','bookkeeper','detail');
@@ -325,6 +354,8 @@ insert into $role_folder (folder,role,permission) values ('element','bookkeeper'
 insert into $role_folder (folder,role,permission) values ('element','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('element','supervisor','update');
 delete from $javascript_folders where folder = 'element';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('element','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('element','bookkeeper','detail');
@@ -401,6 +432,8 @@ insert into $role_folder (folder,role,permission) values ('employee','bookkeeper
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','update');
 delete from $javascript_folders where folder = 'employee';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('employee','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('employee','bookkeeper','delete_isa_only');
@@ -442,6 +475,10 @@ insert into $role_folder (folder,role,permission) values ('employee_work_day','b
 insert into $role_folder (folder,role,permission) values ('employee_work_day','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('employee_work_day','supervisor','update');
 delete from $javascript_folders where folder = 'employee_work_day';
+delete from $process where process = 'post_change_employee_work_day';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_employee_work_day','post_change_employee_work_day \$application full_name street_address begin_work_date_time \$state preupdate_begin_work_date_time preupdate_end_work_date_time',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('payroll');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('employee_work_day','bookkeeper','detail');
@@ -535,6 +572,8 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('employee_work_period','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('employee_work_period','supervisor','lookup');
 delete from $javascript_folders where folder = 'employee_work_period';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('payroll');
 insert into $role_operation (folder,role,operation) values ('employee_work_period','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('employee_work_period','bookkeeper','detail');
@@ -585,6 +624,8 @@ insert into $role_folder (folder,role,permission) values ('entity','bookkeeper',
 insert into $role_folder (folder,role,permission) values ('entity','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('entity','supervisor','update');
 delete from $javascript_folders where folder = 'entity';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('entity','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('entity','bookkeeper','detail');
@@ -656,6 +697,10 @@ delete from $javascript_folders where folder = 'equity_account_balance';
 insert into $javascript_folders (javascript_filename,folder) values ('post_change_equity_account_balance.js','equity_account_balance');
 delete from $javascript_files where javascript_filename = 'post_change_equity_account_balance.js';
 insert into $javascript_files (javascript_filename) values ('post_change_equity_account_balance.js');
+delete from $process where process = 'post_change_account_balance';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_account_balance','post_change_account_balance \$application fund full_name street_address account_number date_time \$state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('investment');
 insert into $role_operation (folder,role,operation) values ('equity_account_balance','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('equity_account_balance','bookkeeper','detail');
@@ -686,6 +731,8 @@ insert into $role_folder (folder,role,permission) values ('federal_income_tax_wi
 insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','supervisor','update');
 delete from $javascript_folders where folder = 'federal_income_tax_withholding';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('federal_income_tax_withholding','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('federal_income_tax_withholding','supervisor','delete');
@@ -702,6 +749,8 @@ insert into $role_folder (folder,role,permission) values ('federal_marital_statu
 insert into $role_folder (folder,role,permission) values ('federal_marital_status','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('federal_marital_status','supervisor','update');
 delete from $javascript_folders where folder = 'federal_marital_status';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('federal_marital_status','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('federal_marital_status','supervisor','delete');
@@ -723,6 +772,8 @@ insert into $role_folder (folder,role,permission) values ('financial_institution
 insert into $role_folder (folder,role,permission) values ('financial_institution','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('financial_institution','supervisor','update');
 delete from $javascript_folders where folder = 'financial_institution';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('financial_institution','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('financial_institution','bookkeeper','delete_isa_only');
@@ -748,6 +799,8 @@ insert into $role_folder (folder,role,permission) values ('fixed_asset','bookkee
 insert into $role_folder (folder,role,permission) values ('fixed_asset','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_asset','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_asset';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('fixed_asset','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_asset','bookkeeper','detail');
@@ -805,6 +858,10 @@ insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase'
 insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_asset_purchase','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_asset_purchase';
+delete from $process where process = 'post_change_fixed_asset_purchase';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_fixed_asset_purchase','post_change_fixed_asset_purchase \$application full_name street_address purchase_date_time asset_name serial_number \$state preupdate_asset_name preupdate_serial_number preupdate_extension preupdate_declining_balance_n preupdate_depreciation_method',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('fixed_asset_purchase','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_asset_purchase','bookkeeper','detail');
@@ -834,6 +891,8 @@ insert into $role_folder (folder,role,permission) values ('fixed_service','bookk
 insert into $role_folder (folder,role,permission) values ('fixed_service','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_service';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('fixed_service','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service','bookkeeper','detail');
@@ -852,6 +911,8 @@ insert into $role_folder (folder,role,permission) values ('fixed_service_categor
 insert into $role_folder (folder,role,permission) values ('fixed_service_category','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_category','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_service_category';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('fixed_service_category','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('fixed_service_category','supervisor','delete');
@@ -892,6 +953,10 @@ insert into $role_folder (folder,role,permission) values ('fixed_service_sale','
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_sale','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_service_sale';
+delete from $process where process = 'post_change_fixed_service_sale';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_fixed_service_sale','post_change_fixed_service_sale \$application full_name street_address sale_date_time service_name \$state',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_sale','bookkeeper','detail');
@@ -932,6 +997,10 @@ insert into $role_folder (folder,role,permission) values ('fixed_service_work','
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('fixed_service_work','supervisor','update');
 delete from $javascript_folders where folder = 'fixed_service_work';
+delete from $process where process = 'post_change_fixed_service_work';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_fixed_service_work','post_change_fixed_service_work \$application full_name street_address sale_date_time service_name begin_work_date_time \$state preupdate_end_work_date_time',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_service_work','bookkeeper','detail');
@@ -961,6 +1030,8 @@ insert into $role_folder (folder,role,permission) values ('hourly_service','book
 insert into $role_folder (folder,role,permission) values ('hourly_service','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('hourly_service','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service','bookkeeper','detail');
@@ -979,6 +1050,8 @@ insert into $role_folder (folder,role,permission) values ('hourly_service_catego
 insert into $role_folder (folder,role,permission) values ('hourly_service_category','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_category','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service_category';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('hourly_service_category','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('hourly_service_category','supervisor','delete');
@@ -1022,6 +1095,10 @@ insert into $role_folder (folder,role,permission) values ('hourly_service_sale',
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_sale','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service_sale';
+delete from $process where process = 'post_change_hourly_service_sale';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_hourly_service_sale','post_change_hourly_service_sale \$application full_name street_address sale_date_time service_name description \$state',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('hourly_service_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service_sale','bookkeeper','detail');
@@ -1065,6 +1142,10 @@ insert into $role_folder (folder,role,permission) values ('hourly_service_work',
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('hourly_service_work','supervisor','update');
 delete from $javascript_folders where folder = 'hourly_service_work';
+delete from $process where process = 'post_change_hourly_service_work';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_hourly_service_work','post_change_hourly_service_work \$application full_name street_address sale_date_time service_name description begin_work_date_time \$state preupdate_end_work_date_time',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('hourly_service_work','bookkeeper','detail');
@@ -1111,6 +1192,10 @@ insert into $role_folder (folder,role,permission) values ('inventory','bookkeepe
 insert into $role_folder (folder,role,permission) values ('inventory','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory','supervisor','update');
 delete from $javascript_folders where folder = 'inventory';
+delete from $process where process = 'populate_inventory';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('populate_inventory','populate_inventory.sh \$application inventory_category',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('inventory','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('inventory','bookkeeper','detail');
@@ -1129,6 +1214,8 @@ insert into $role_folder (folder,role,permission) values ('inventory_category','
 insert into $role_folder (folder,role,permission) values ('inventory_category','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_category','supervisor','update');
 delete from $javascript_folders where folder = 'inventory_category';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('inventory_category','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('inventory_category','supervisor','delete');
@@ -1144,6 +1231,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('inventory_cost_method','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_cost_method','bookkeeper','update');
 delete from $javascript_folders where folder = 'inventory_cost_method';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('inventory_cost_method','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('inventory_cost_method','bookkeeper','detail');
@@ -1194,6 +1282,10 @@ insert into $role_folder (folder,role,permission) values ('inventory_purchase','
 insert into $role_folder (folder,role,permission) values ('inventory_purchase','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_purchase','supervisor','update');
 delete from $javascript_folders where folder = 'inventory_purchase';
+delete from $process where process = 'post_change_inventory_purchase';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_inventory_purchase','post_change_inventory_purchase \$application full_name street_address purchase_date_time inventory_name \$state preupdate_ordered_quantity preupdate_arrived_quantity preupdate_missing_quantity preupdate_unit_cost preupdate_inventory_name',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('inventory_purchase','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('inventory_purchase','bookkeeper','detail');
@@ -1237,6 +1329,10 @@ insert into $role_folder (folder,role,permission) values ('inventory_sale','book
 insert into $role_folder (folder,role,permission) values ('inventory_sale','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('inventory_sale','supervisor','update');
 delete from $javascript_folders where folder = 'inventory_sale';
+delete from $process where process = 'post_change_inventory_sale';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_inventory_sale','post_change_inventory_sale \$application full_name street_address sale_date_time inventory_name \$state preupdate_quantity preupdate_retail_price preupdate_discount_amount preupdate_inventory_name',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('sale');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('inventory_sale','bookkeeper','detail');
@@ -1283,6 +1379,10 @@ insert into $role_folder (folder,role,permission) values ('investment_account','
 insert into $role_folder (folder,role,permission) values ('investment_account','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('investment_account','supervisor','update');
 delete from $javascript_folders where folder = 'investment_account';
+delete from $process where process = 'populate_investment_account';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('populate_investment_account','populate_investment_account.sh \$application \$where',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('investment');
 insert into $role_operation (folder,role,operation) values ('investment_account','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('investment_account','bookkeeper','detail');
@@ -1299,6 +1399,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('investment_classification','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('investment_classification','supervisor','update');
 delete from $javascript_folders where folder = 'investment_classification';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('investment_classification','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('investment_classification','supervisor','detail');
@@ -1313,6 +1414,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('investment_operation','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('investment_operation','supervisor','update');
 delete from $javascript_folders where folder = 'investment_operation';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('investment_operation','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('investment_operation','supervisor','detail');
@@ -1357,6 +1459,10 @@ delete from $javascript_folders where folder = 'journal_ledger';
 insert into $javascript_folders (javascript_filename,folder) values ('post_change_journal_ledger.js','journal_ledger');
 delete from $javascript_files where javascript_filename = 'post_change_journal_ledger.js';
 insert into $javascript_files (javascript_filename) values ('post_change_journal_ledger.js');
+delete from $process where process = 'post_change_journal_ledger';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_journal_ledger','post_change_journal_ledger.sh \$application full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('journal_ledger','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('journal_ledger','bookkeeper','detail');
@@ -1382,6 +1488,8 @@ insert into $role_folder (folder,role,permission) values ('liability_account_ent
 insert into $role_folder (folder,role,permission) values ('liability_account_entity','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('liability_account_entity','supervisor','update');
 delete from $javascript_folders where folder = 'liability_account_entity';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('liability_account_entity','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('liability_account_entity','bookkeeper','detail');
@@ -1398,6 +1506,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('payroll_pay_period','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('payroll_pay_period','supervisor','update');
 delete from $javascript_folders where folder = 'payroll_pay_period';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('payroll_pay_period','supervisor','delete');
 delete from $folder where folder = 'payroll_posting';
@@ -1477,6 +1586,8 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('payroll_posting','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('payroll_posting','supervisor','lookup');
 delete from $javascript_folders where folder = 'payroll_posting';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('payroll');
 insert into $role_operation (folder,role,operation) values ('payroll_posting','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('payroll_posting','supervisor','detail');
@@ -1535,6 +1646,10 @@ insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','b
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','supervisor','update');
 delete from $javascript_folders where folder = 'prior_fixed_asset';
+delete from $process where process = 'post_change_prior_fixed_asset';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_prior_fixed_asset','post_change_prior_fixed_asset \$application asset_name serial_number \$state preupdate_extension',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('prior_fixed_asset','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('prior_fixed_asset','bookkeeper','detail');
@@ -1570,6 +1685,8 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset_depreciation','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset_depreciation','supervisor','lookup');
 delete from $javascript_folders where folder = 'prior_fixed_asset_depreciation';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('prior_fixed_asset_depreciation','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('prior_fixed_asset_depreciation','supervisor','detail');
@@ -1626,6 +1743,10 @@ insert into $role_folder (folder,role,permission) values ('purchase_order','book
 insert into $role_folder (folder,role,permission) values ('purchase_order','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('purchase_order','supervisor','update');
 delete from $javascript_folders where folder = 'purchase_order';
+delete from $process where process = 'post_change_purchase_order';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_purchase_order','post_change_purchase_order \$application full_name street_address purchase_date_time \$state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax preupdate_freight_in',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('purchase_order','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('purchase_order','bookkeeper','detail');
@@ -1647,6 +1768,8 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('receipt_upload','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('receipt_upload','supervisor','update');
 delete from $javascript_folders where folder = 'receipt_upload';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('receipt_upload','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('receipt_upload','supervisor','delete');
@@ -1660,23 +1783,34 @@ delete from $attribute where attribute = 'full_name';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('street_address','text','40',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'transaction_description';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('transaction_description','text','20',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'debit_account';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('debit_account','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'credit_account';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('credit_account','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'transaction_amount';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('transaction_amount','float','10','2',null,null,null,null,null,null);
+delete from $attribute where attribute = 'bank_upload_search_phrase';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('bank_upload_search_phrase','text','50',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'accrued_daily_amount';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('accrued_daily_amount','float','10','2',null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'reoccurring_transaction';
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','accrued_daily_amount',null,'5',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','bank_upload_search_phrase',null,'4',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','credit_account',null,'2',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','debit_account',null,'1',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','full_name','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','street_address','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','transaction_amount',null,'3',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','transaction_description','3',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','supervisor','update');
 delete from $javascript_folders where folder = 'reoccurring_transaction';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('reoccurring_transaction','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('reoccurring_transaction','supervisor','detail');
@@ -1757,6 +1891,10 @@ insert into $role_folder (folder,role,permission) values ('self','bookkeeper','u
 insert into $role_folder (folder,role,permission) values ('self','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('self','supervisor','update');
 delete from $javascript_folders where folder = 'self';
+delete from $process where process = 'post_change_self';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_self','post_change_self \$application preupdate_inventory_cost_method',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('self','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('self','bookkeeper','detail');
@@ -1789,6 +1927,10 @@ insert into $role_folder (folder,role,permission) values ('service_purchase','bo
 insert into $role_folder (folder,role,permission) values ('service_purchase','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('service_purchase','supervisor','update');
 delete from $javascript_folders where folder = 'service_purchase';
+delete from $process where process = 'post_change_service_purchase';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_service_purchase','post_change_service_purchase \$application full_name street_address purchase_date_time account \$state preupdate_account',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('service_purchase','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('service_purchase','bookkeeper','detail');
@@ -1819,6 +1961,8 @@ insert into $role_folder (folder,role,permission) values ('state_income_tax_with
 insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','supervisor','update');
 delete from $javascript_folders where folder = 'state_income_tax_withholding';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('state_income_tax_withholding','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('state_income_tax_withholding','bookkeeper','detail');
@@ -1839,6 +1983,8 @@ insert into $role_folder (folder,role,permission) values ('state_marital_status'
 insert into $role_folder (folder,role,permission) values ('state_marital_status','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('state_marital_status','supervisor','update');
 delete from $javascript_folders where folder = 'state_marital_status';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('state_marital_status','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('state_marital_status','bookkeeper','detail');
@@ -1863,6 +2009,8 @@ insert into $role_folder (folder,role,permission) values ('state_standard_deduct
 insert into $role_folder (folder,role,permission) values ('state_standard_deduction_table','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('state_standard_deduction_table','supervisor','update');
 delete from $javascript_folders where folder = 'state_standard_deduction_table';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('state_standard_deduction_table','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('state_standard_deduction_table','bookkeeper','detail');
@@ -1888,6 +2036,8 @@ insert into $role_folder (folder,role,permission) values ('subclassification','b
 insert into $role_folder (folder,role,permission) values ('subclassification','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('subclassification','supervisor','update');
 delete from $javascript_folders where folder = 'subclassification';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('subclassification','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('subclassification','bookkeeper','detail');
@@ -1910,6 +2060,8 @@ insert into $role_folder (folder,role,permission) values ('supply','bookkeeper',
 insert into $role_folder (folder,role,permission) values ('supply','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('supply','supervisor','update');
 delete from $javascript_folders where folder = 'supply';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('supply','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('supply','bookkeeper','detail');
@@ -1947,6 +2099,10 @@ insert into $role_folder (folder,role,permission) values ('supply_purchase','boo
 insert into $role_folder (folder,role,permission) values ('supply_purchase','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('supply_purchase','supervisor','update');
 delete from $javascript_folders where folder = 'supply_purchase';
+delete from $process where process = 'post_change_supply_purchase';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_supply_purchase','post_change_supply_purchase \$application full_name street_address purchase_date_time supply_name \$state preupdate_supply_name',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('supply_purchase','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('supply_purchase','bookkeeper','detail');
@@ -1965,6 +2121,8 @@ insert into $role_folder (folder,role,permission) values ('tax_form','bookkeeper
 insert into $role_folder (folder,role,permission) values ('tax_form','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('tax_form','supervisor','update');
 delete from $javascript_folders where folder = 'tax_form';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('tax_form','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('tax_form','bookkeeper','detail');
@@ -1993,6 +2151,10 @@ insert into $role_folder (folder,role,permission) values ('tax_form_line','bookk
 insert into $role_folder (folder,role,permission) values ('tax_form_line','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('tax_form_line','supervisor','update');
 delete from $javascript_folders where folder = 'tax_form_line';
+delete from $process where process = 'populate_tax_form_line';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('populate_tax_form_line','populate_tax_form_line.sh \$application \$where',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('tax_form_line','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('tax_form_line','bookkeeper','detail');
@@ -2018,6 +2180,8 @@ insert into $role_folder (folder,role,permission) values ('tax_form_line_account
 insert into $role_folder (folder,role,permission) values ('tax_form_line_account','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('tax_form_line_account','supervisor','update');
 delete from $javascript_folders where folder = 'tax_form_line_account';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('tax');
 insert into $role_operation (folder,role,operation) values ('tax_form_line_account','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('tax_form_line_account','bookkeeper','detail');
@@ -2037,6 +2201,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $role_folder (folder,role,permission) values ('title_passage_rule','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('title_passage_rule','bookkeeper','update');
 delete from $javascript_folders where folder = 'title_passage_rule';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('title_passage_rule','bookkeeper','delete');
 delete from $folder where folder = 'transaction';
@@ -2081,6 +2246,8 @@ insert into $role_folder (folder,role,permission) values ('transaction','supervi
 insert into $role_folder (folder,role,permission) values ('transaction','supervisor','update');
 insert into $row_security_role_update (folder,attribute_not_null) values ('transaction','lock_transaction_yn');
 delete from $javascript_folders where folder = 'transaction';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('transaction','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('transaction','bookkeeper','detail');
@@ -2103,6 +2270,8 @@ insert into $role_folder (folder,role,permission) values ('vendor','bookkeeper',
 insert into $role_folder (folder,role,permission) values ('vendor','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('vendor','supervisor','update');
 delete from $javascript_folders where folder = 'vendor';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('entity');
 insert into $role_operation (folder,role,operation) values ('vendor','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('vendor','bookkeeper','detail');
@@ -2140,6 +2309,10 @@ insert into $role_folder (folder,role,permission) values ('vendor_payment','book
 insert into $role_folder (folder,role,permission) values ('vendor_payment','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('vendor_payment','supervisor','update');
 delete from $javascript_folders where folder = 'vendor_payment';
+delete from $process where process = 'post_change_vendor_payment';
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('post_change_vendor_payment','post_change_vendor_payment \$application full_name street_address purchase_date_time payment_date_time \$state preupdate_full_name preupdate_street_address preupdate_payment_date_time preupdate_payment_amount',null,null,null,null,null,null,null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('purchase');
 insert into $role_operation (folder,role,operation) values ('vendor_payment','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('vendor_payment','bookkeeper','detail');
@@ -2282,8 +2455,8 @@ table_name=`get_table_name $application receipt_upload`
 echo "create table $table_name (receipt_upload_filename char (80) not null,upload_date date,posted_yn char (1)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (receipt_upload_filename);" | sql.e '^' mysql
 table_name=`get_table_name $application reoccurring_transaction`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,debit_account char (60),credit_account char (60),transaction_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_description char (20) not null,debit_account char (60),credit_account char (60),transaction_amount double (10,2),bank_upload_search_phrase char (50),accrued_daily_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
+echo "create unique index $table_name on $table_name (full_name,street_address,transaction_description);" | sql.e '^' mysql
 table_name=`get_table_name $application self`
 echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,inventory_cost_method char (15),payroll_pay_period char (15),payroll_beginning_day char (9),social_security_combined_tax_rate double (10,4),social_security_payroll_ceiling integer,medicare_combined_tax_rate double (10,4),medicare_additional_withholding_rate double (5,3),medicare_additional_gross_pay_floor integer,federal_withholding_allowance_period_value double (10,2),federal_nonresident_withholding_income_premium double (7,2),state_withholding_allowance_period_value char (7),state_itemized_allowance_period_value double (10,2),federal_unemployment_wage_base integer,federal_unemployment_tax_standard_rate double (10,4),federal_unemployment_threshold_rate double (10,4),federal_unemployment_tax_minimum_rate double (10,4),state_unemployment_wage_base integer,state_unemployment_tax_rate double (10,4),state_sales_tax_rate double (6,4)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
@@ -2860,7 +3033,7 @@ insert into process (process,		command_line,		notepad,		html_help_file_anchor,		
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('populate_investment_account','populate_investment_account.sh \$application \$where',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('populate_print_checks_entity','populate_print_checks_entity \$application fund',null,null,null,null,'output',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('populate_tax_form_line','populate_tax_form_line.sh \$application \$where',null,null,null,null,null,null,null);
-insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_account_balance','post_change_account_balance \$application fund full_name street_address account_number date_time \$state preupdate_full_name preupdate_street_address preupdate_account_number',null,null,null,null,null,null,null);
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_account_balance','post_change_account_balance \$application fund full_name street_address account_number date_time \$state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_activity_work','post_change_activity_work \$application \$login_name begin_work_date_time \$state',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_bank_upload','post_change_bank_upload \$application \$dictionary',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_customer_payment','post_change_customer_payment \$application full_name street_address sale_date_time payment_date_time \$state preupdate_payment_date_time preupdate_payment_amount',null,null,null,null,null,null,null);

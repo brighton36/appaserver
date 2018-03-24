@@ -243,7 +243,7 @@ void post_reoccurring_transaction_display(
 				transaction_date_time,
 				reoccurring_transaction->debit_account,
 				reoccurring_transaction->credit_account,
-				transaction_amount,
+				reoccurring_transaction->transaction_amount,
 				memo );
 	}
 	else
@@ -352,7 +352,7 @@ char *post_reoccurring_transaction(
 				transaction_date_time,
 				reoccurring_transaction->debit_account,
 				reoccurring_transaction->credit_account,
-				transaction_amount,
+				reoccurring_transaction->transaction_amount,
 				memo );
 	}
 	else

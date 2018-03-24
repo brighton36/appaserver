@@ -108,7 +108,7 @@ REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 	if ( !bank_upload_reoccurring_transaction_load(
 			&reoccurring_transaction->debit_account,
 			&reoccurring_transaction->credit_account,
-			&transaction_amount,
+			&reoccurring_transaction->transaction_amount,
 			&reoccurring_transaction->accrued_daily_amount,
 			application_name,
 			reoccurring_transaction->full_name,
@@ -118,7 +118,11 @@ REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 		return (REOCCURRING_TRANSACTION *)0;
 	}
 
-	reoccurring_transaction->transaction_amount = transaction_amount;
+	if ( !timlib_dollar_virtually_same( transaction_amount, 0.0 ) )
+	{
+		reoccurring_transaction->transaction_amount =
+			transaction_amount;
+	}
 
 	return reoccurring_transaction;
 
@@ -170,8 +174,7 @@ boolean bank_upload_reoccurring_transaction_load(
 
 	if ( !results ) return 0;
 
-	reoccurring_transaction =
-		bank_upload_reoccurring_transaction_calloc();
+	reoccurring_transaction = bank_upload_reoccurring_transaction_calloc();
 
 	bank_upload_reoccurring_transaction_parse(
 			&reoccurring_transaction->

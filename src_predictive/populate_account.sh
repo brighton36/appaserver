@@ -1,6 +1,6 @@
 #!/bin/bash
 # ---------------------------------------------------------
-# $APPASERVER_HOME/src_accountancymodel/populate_account.sh
+# $APPASERVER_HOME/src_predictive/populate_account.sh
 # ---------------------------------------------------------
 if [ "$#" -ne 3 ]
 then

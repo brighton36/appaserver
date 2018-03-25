@@ -64,6 +64,7 @@ fi
 grep -v "length character with"			|
 grep -v "subscript has"				|
 grep -v "set but not used"			|
+grep -v "cast from pointer to integer"		|
 grep -v "warning: ignoring return value"	|
 grep -v "int format,"
 

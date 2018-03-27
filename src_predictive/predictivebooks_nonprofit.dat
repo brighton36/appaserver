@@ -6,6 +6,7 @@ contra_account
 customer
 customer_payment
 customer_sale
+day
 depreciation
 depreciation_method
 donation
@@ -20,9 +21,9 @@ inventory_cost_method
 inventory_purchase
 inventory_sale
 journal_ledger
-prepaid_asset
-prepaid_asset_accrual
-prepaid_asset_purchase
+payroll_pay_period
+prior_fixed_asset
+prior_fixed_asset_depreciation
 program
 purchase_order
 reoccurring_transaction
@@ -33,7 +34,8 @@ status
 subclassification
 supply
 tax_form
-tax_form_category
+tax_form_line
+tax_form_line_account
 title_passage_rule
 transaction
 vendor

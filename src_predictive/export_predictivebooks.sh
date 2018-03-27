@@ -217,10 +217,17 @@ function export_predictivebooks()
 	column.e 1							      |
 	cat`
 
+	if [ "$export_file" = "" ]
+	then
+		echo "ERROR: export_subschema generated an error." 1>&2
+		exit 1
+	fi
+
 	cat $export_file						|
 	sed "s/!= ${application}/= ignored/"				|
 	grep -v '^exit'							|
 	cat >> $output_shell
+
 }
 # export_predictivebooks()
 
@@ -273,11 +280,34 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
+	# Extract folder=account
+	# ----------------------
+	folder_attribute_exists.sh $application account fund
+	exists_fund=$?
+
 	folder=account
-	columns=account,subclassification,hard_coded_account_key
+
+	if [ "$exists_fund" -eq 0 ]
+	then
+		columns=account,fund,subclassification,hard_coded_account_key
+	else
+		columns=account,subclassification,hard_coded_account_key
+	fi
+
 	get_folder_data a=$application f=$folder s=$columns		|
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
+
+	# Extract folder=fund (maybe)
+	# ---------------------------
+	if [ "$exists_fund" -eq 0 ]
+	then
+		folder=fund
+		columns=fund
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
+	fi
 
 	folder=depreciation_method
 	columns=depreciation_method
@@ -287,6 +317,12 @@ function extract_chart_of_accounts()
 
 	folder=day
 	columns=day
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	folder=payroll_pay_period
+	columns=payroll_pay_period
 	get_folder_data a=$application f=$folder s=$columns		|
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
@@ -314,7 +350,7 @@ function extract_chart_of_accounts()
 
 	# Only professional and non-profit folders follow:
 	# ------------------------------------------------
-	folder=payroll_pay_period
+	folder=inventory_cost_method
 	results=`grep $folder $input_file | wc -l`
 
 	if [ "$results" -eq 1 ]
@@ -325,12 +361,6 @@ function extract_chart_of_accounts()
 		insert_statement.e t=$folder field=$columns del='^'	|
 		cat >> $output_shell
 
-		folder=payroll_pay_period
-		columns=payroll_pay_period
-		get_folder_data a=$application f=$folder s=$columns	|
-		insert_statement.e t=$folder field=$columns del='^'	|
-		cat >> $output_shell
-	
 		folder=inventory_cost_method
 		columns=inventory_cost_method
 		get_folder_data a=$application f=$folder s=$columns	|

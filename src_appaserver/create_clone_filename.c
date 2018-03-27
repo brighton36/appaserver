@@ -32,22 +32,10 @@ char *create_clone_filename_get_directory_name(
 			char *appaserver_data_directory,
 			char *directory_name )
 {
-	/* Clean this up after implementing appaserver_data_directory. */
-	/* ----------------------------------------------------------- */
 	if ( directory_name )
 		return directory_name;
 	else
 		return appaserver_data_directory;
-
-/*
-	char buffer[ 1024 ];
-	sprintf(	buffer,
-			"%s/%s",
-			appaserver_mount_point,
-			DICTIONARY2FILE_DIRECTORY );
-	return strdup( buffer );
-*/
-
 }
 
 char *create_clone_filename_get_clone_application_compressed_filename(
@@ -97,7 +85,7 @@ char *create_clone_filename_get_clone_application_compressed_filename(
 		&&   strcmp( export_output, "shell_script" ) == 0 )
 		{
 			sprintf(	buffer,
-					"%s/insert_%s.sh.gz",
+					"%s/insert_%s_application.sh.gz",
 					*directory_name,
 					application_name );
 		}
@@ -113,7 +101,7 @@ char *create_clone_filename_get_clone_application_compressed_filename(
 		else
 		{
 			sprintf(	buffer,
-					"%s/insert_%s.sql.gz",
+					"%s/insert_%s_application.sql.gz",
 					*directory_name,
 					application_name );
 		}

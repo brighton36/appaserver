@@ -1,4 +1,4 @@
-/* utility/join.c				 */
+/* $APPASERVER_HOME/utility/join.c		 */
 /* --------------------------------------------- */
 /* This is a clone of /usr/bin/join		 */ 
 /* --------------------------------------------- */

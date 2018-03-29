@@ -1469,10 +1469,12 @@ char *place_commas_in_number_string( char *s )
  
 	if ( !timlib_strlen( s ) ) return "";
 
-	r_ptr = &return_string[ 49 ];
+	r_ptr = &return_string[ 63 ];
 	*r_ptr-- = '\0';
  
 	s_ptr = s + strlen( s ) - 1;
+
+	if ( *s_ptr != '.' && !isdigit( *s_ptr ) ) return s;
 
 	if ( instr( ".", s, 1 ) != -1 )
 	{

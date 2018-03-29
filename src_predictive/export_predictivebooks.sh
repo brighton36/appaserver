@@ -355,12 +355,6 @@ function extract_chart_of_accounts()
 
 	if [ "$results" -eq 1 ]
 	then
-		folder=activity
-		columns=activity
-		get_folder_data a=$application f=$folder s=$columns	|
-		insert_statement.e t=$folder field=$columns del='^'	|
-		cat >> $output_shell
-
 		folder=inventory_cost_method
 		columns=inventory_cost_method
 		get_folder_data a=$application f=$folder s=$columns	|

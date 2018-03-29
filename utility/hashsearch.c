@@ -18,7 +18,8 @@
 
 void hashsearch(char *argv_0,
 		char *dictionary_filename,
-		char delimiter );
+		char delimiter,
+		int offset );
 
 DICTIONARY *get_dictionary(
 		char *argv_0,
@@ -67,11 +68,14 @@ DICTIONARY *get_dictionary(	char *argv_0,
 
 void hashsearch(char *argv_0,
 		char *dictionary_filename,
-		char delimiter )
+		char delimiter,
+		int offset )
 {
 	char input_buffer[ 4096 ];
+	char key[ 256 ];
 	DICTIONARY *dictionary;
 	char *data;
+	boolean not_found;
 
 	dictionary =
 		get_dictionary(
@@ -81,33 +85,65 @@ void hashsearch(char *argv_0,
 
 	while( get_line( input_buffer, stdin ) )
 	{
-		if ( ( data =
-			dictionary_get_pointer(
-				dictionary, input_buffer ) ) )
+		not_found = 1;
+
+		if ( offset == -1 )
 		{
-			printf(	"%s\n", data );
+			if ( ( data = dictionary_get_pointer(
+						dictionary,
+						input_buffer ) ) )
+			{
+				printf(	"%s\n", data );
+				not_found = 0;
+			}
 		}
 		else
 		{
-			printf(	"%s not found\n",
-				input_buffer );
+			if ( !piece( key, delimiter, input_buffer, offset ) )
+			{
+				goto skip;
+			}
+
+			if ( ( data = dictionary_get_pointer(
+						dictionary,
+						key ) ) )
+			{
+				printf(	"%s\n",
+					piece_replace(
+						input_buffer
+					     	     /* source_destination */, 
+						delimiter, 
+						data, 
+						offset ) );
+				not_found = 0;
+			}
 		}
 
+skip:
+		if ( not_found )
+		{
+			printf(	"not_found:%s\n",
+				input_buffer );
+		}
 	}
 
 } /* hashsearch() */
 
 int main( int argc, char **argv )
 {
-	if ( argc != 3 )
+	int offset = -1;
+
+	if ( argc < 3 )
 	{
 		fprintf( stderr,
-			 "Usage: %s hashfile delimiter\n",
+			 "Usage: %s hashfile delimiter [offset]\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	hashsearch( argv[ 0 ], argv[ 1 ], *argv[ 2 ] ); 
+	if ( argc == 4 ) offset = atoi( argv[ 3 ] );
+
+	hashsearch( argv[ 0 ], argv[ 1 ], *argv[ 2 ], offset ); 
 	return 0;
 
 } /* main() */

@@ -12,7 +12,14 @@ depreciation_method
 donation
 donation_account
 element
+employee
+employee_work_day
+employee_work_period
 entity
+equity_account_balance
+federal_income_tax_withholding
+federal_marital_status
+financial_institution
 fixed_asset
 fixed_asset_purchase
 fund
@@ -21,7 +28,9 @@ inventory_cost_method
 inventory_purchase
 inventory_sale
 journal_ledger
+liability_account_entity
 payroll_pay_period
+payroll_posting
 prior_fixed_asset
 prior_fixed_asset_depreciation
 program
@@ -30,7 +39,9 @@ reoccurring_transaction
 self
 service
 service_category
-status
+state_income_tax_withholding
+state_marital_status
+state_standard_deduction_table
 subclassification
 supply
 tax_form

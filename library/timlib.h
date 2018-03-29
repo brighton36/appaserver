@@ -88,6 +88,7 @@ char *trim_after_character(	char *destination,
 				int num2trimg );
 
 void trim_character( char *destination, char c, char *source );
+
 char *reformat_double_return_string( double d, char *format_string );
 int character_count( char char_to_count, char *source );
 int timlib_count_delimiters( int char_to_count, char *source );
@@ -284,8 +285,14 @@ boolean character_exists(		char *buffer, int c );
 void get_clean_begin_end_date(		char **begin_date,
 					char **end_date );
 char *up_string_to_delimiter (		char *s, char delimiter );
+
 char *right_trim(			char *buffer );
+
+char *trim_right(			char *buffer,
+					int length );
+
 char *right_trim_session(		char *buffer );
+
 char *trim_quotes(			char *d, char *s );
 
 char *commas_in_double(			char *destination, 

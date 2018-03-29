@@ -726,7 +726,9 @@ char *piece_replace(	char *source_destination,
 			delimiter, 
 			new_data, 
 			piece_offset );
+
 	return source_destination;
+
 } /* piece_replace() */
 
 char *piece_grep(	char *source,

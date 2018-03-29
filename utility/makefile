@@ -81,6 +81,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	trim.e count.e random.e start_time.e stop_time.e		\
 	basename.e							\
 	trim_length.e							\
+	trim_right.e							\
 	reverse.e							\
 	printer_control.e days_passed.e format_stamp.e			\
 	date_subtract.e							\
@@ -1083,6 +1084,12 @@ trim_length.e: trim_length.c ${APPASERVER_LIBRARY}
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o trim_length.e
+
+trim_right.e: trim_right.c ${APPASERVER_LIBRARY}
+	$(CC) 	${CFLAGS} -I${LIBRARY} trim_right.c 			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o trim_right.e
 
 group.e: group.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} group.c 				\

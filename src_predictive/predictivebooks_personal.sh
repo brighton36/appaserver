@@ -566,6 +566,20 @@ insert into $role_operation (folder,role,operation) values ('journal_ledger','bo
 insert into $role_operation (folder,role,operation) values ('journal_ledger','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('journal_ledger','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('journal_ledger','supervisor','detail');
+delete from $folder where folder = 'payroll_pay_period';
+insert into $folder (folder,form,insert_rows_number,populate_drop_down_process,lookup_email_output_yn,notepad,post_change_javascript,html_help_file_anchor,post_change_process,no_initial_capital_yn,exclude_application_export_yn,lookup_before_drop_down_yn,appaserver_yn,data_directory,subschema,index_directory) values ('payroll_pay_period','table','5',null,null,null,null,null,null,null,null,null,null,null,'static',null);
+delete from $relation where folder = 'payroll_pay_period';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('self','payroll_pay_period','null',null,null,null,null,null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'payroll_pay_period';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('payroll_pay_period','text','15',null,null,null,null,null,null,null);
+delete from $folder_attribute where folder = 'payroll_pay_period';
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('payroll_pay_period','payroll_pay_period','1',null,null,null,null,null,null,null,null);
+insert into $role_folder (folder,role,permission) values ('payroll_pay_period','supervisor','insert');
+insert into $role_folder (folder,role,permission) values ('payroll_pay_period','supervisor','update');
+delete from $javascript_folders where folder = 'payroll_pay_period';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
+insert into $subschemas (subschema) values ('static');
+insert into $role_operation (folder,role,operation) values ('payroll_pay_period','supervisor','delete');
 delete from $folder where folder = 'prior_fixed_asset';
 insert into $folder (folder,form,insert_rows_number,populate_drop_down_process,lookup_email_output_yn,notepad,post_change_javascript,html_help_file_anchor,post_change_process,no_initial_capital_yn,exclude_application_export_yn,lookup_before_drop_down_yn,appaserver_yn,data_directory,subschema,index_directory) values ('prior_fixed_asset','prompt','5',null,null,null,null,null,'post_change_prior_fixed_asset',null,null,'y',null,null,'purchase',null);
 delete from $relation where folder = 'prior_fixed_asset';
@@ -1247,6 +1261,9 @@ echo "create unique index $table_name on $table_name (investment_operation);" | 
 table_name=`get_table_name $application journal_ledger`
 echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,account char (60) not null,transaction_count integer,previous_balance double (10,2),debit_amount double (10,2),credit_amount double (10,2),balance double (11,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time,account);" | sql.e '^' mysql
+table_name=`get_table_name $application payroll_pay_period`
+echo "create table $table_name (payroll_pay_period char (15) not null) engine MyISAM;" | sql.e '^' mysql
+echo "create unique index $table_name on $table_name (payroll_pay_period);" | sql.e '^' mysql
 table_name=`get_table_name $application prior_fixed_asset`
 echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),recorded_date date,estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),disposal_date date,full_name char (60),street_address char (40),transaction_date_time datetime,accumulated_depreciation double (10,2)) engine MyISAM;" | sql.e '^' mysql
 echo "create unique index $table_name on $table_name (asset_name,serial_number);" | sql.e '^' mysql
@@ -1393,6 +1410,10 @@ insert into day (day) values ('sunday');
 insert into day (day) values ('thursday');
 insert into day (day) values ('tuesday');
 insert into day (day) values ('wednesday');
+insert into payroll_pay_period (payroll_pay_period) values ('biweekly');
+insert into payroll_pay_period (payroll_pay_period) values ('monthly');
+insert into payroll_pay_period (payroll_pay_period) values ('semimonthly');
+insert into payroll_pay_period (payroll_pay_period) values ('weekly');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','001','salary_revenue');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','001','sales_revenue');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','013','depreciation_expense');
@@ -1487,6 +1508,7 @@ insert into role_operation (folder,role,operation) values ('journal_ledger','boo
 insert into role_operation (folder,role,operation) values ('journal_ledger','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('journal_ledger','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('journal_ledger','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('payroll_pay_period','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('prior_fixed_asset','bookkeeper','delete');
 insert into role_operation (folder,role,operation) values ('prior_fixed_asset','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('prior_fixed_asset','supervisor','delete');

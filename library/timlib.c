@@ -693,6 +693,18 @@ char *reformat_double_return_string( double d, char *format_string )
 
 } /* reformat_float() */
 
+char *trim_right( char *buffer, int length )
+{
+	int str_len;
+
+	str_len = strlen( buffer );
+
+	if ( str_len < length ) return buffer;
+
+	buffer[ str_len - length ] = '\0';
+	return buffer;
+}
+
 char *right_trim( char *buffer )
 {
 	return rtrim( buffer );

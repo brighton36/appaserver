@@ -70,6 +70,8 @@ int main( int argc, char **argv )
 	char *database_datatype;
 	boolean is_system_attribute;
 
+	output_starting_argv_stderr( argc, argv );
+
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( argc != 8 )
@@ -116,12 +118,12 @@ int main( int argc, char **argv )
 			application_name );
 	}
 
+/*
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();

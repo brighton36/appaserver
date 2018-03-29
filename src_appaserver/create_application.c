@@ -85,6 +85,18 @@ int main( int argc, char **argv )
 		destination_application = current_application;
 	}
 
+	if ( !DIFFERENT_DESTINATION_APPLICATION_OK
+	&&   timlib_strcmp(	current_application,
+				TEMPLATE_APPLICATION ) != 0
+	&&   timlib_strcmp(	current_application,
+				destination_application ) != 0 )
+	{
+		printf(
+"<h3>Error: For security, you must run this from the template application.</h3>\n" );
+		document_close();
+		exit( 1 );
+	}
+
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,

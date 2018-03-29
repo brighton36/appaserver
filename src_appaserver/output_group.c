@@ -1,4 +1,4 @@
-/* src_appaserver/output_group.c				*/
+/* $APPASERVER_HOME/src_appaserver/output_group.c		*/
 /* ------------------------------------------------------------	*/
 /* This process is triggered if you select the group radio	*/
 /* button in some of the lookup forms.				*/

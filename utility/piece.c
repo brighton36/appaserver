@@ -15,6 +15,7 @@ int main( int argc, char **argv )
 	char component[ 65536 ];
 	char delimiter;
 	int offset, i;
+	int line_number = 0;
 
 	if ( argc != 3 )
 	{
@@ -28,6 +29,8 @@ int main( int argc, char **argv )
 
 	while( get_line( buffer, stdin ) )
 	{
+		line_number++;
+
 		for(	i = 0;
 			piece( offset_str, ',', argv[ 2 ], i );
 			i++ )
@@ -49,11 +52,13 @@ int main( int argc, char **argv )
 					offset ) )
 			{
 				fprintf( stderr,
-		"Warning %s: There are less than %d delimiters (%c) in: (%s)\n",
+"Warning %s for line=%d: There are less than %d delimiters (%c) in: (%s)\n",
 					argv[ 0 ],
+					line_number,
 				 	offset,
 					delimiter,
 				 	buffer );
+				continue;
 			}
 			else
 			{

@@ -81,6 +81,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	trim.e count.e random.e start_time.e stop_time.e		\
 	basename.e							\
 	trim_length.e							\
+	trim_right.e							\
 	reverse.e							\
 	printer_control.e days_passed.e format_stamp.e			\
 	date_subtract.e							\
@@ -94,8 +95,6 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	statistics_weighted.e						\
 	moving_average.e						\
 	complete_arrangement.e						\
-	matrix2rows.e							\
-	matrix2dictionary.e						\
 	trim_character.e display_character.e piece_ora_date.e		\
 	piece_replace_date.e						\
 	date_convert.e							\
@@ -106,6 +105,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	column2pipe.e get_sequence.e make_key.e 			\
 	joinlines.e 							\
 	join.e	 							\
+	hashsearch.e 							\
 	fiforead.e 							\
 	fifowrite.e 							\
 	remove_cr.e 							\
@@ -818,21 +818,13 @@ complete_arrangement.e: complete_arrangement.c				\
 		${STANDARD_LIBRARY}					\
 		-o complete_arrangement.e
 
-matrix2rows.e: matrix2rows.c						\
+hashsearch.e: hashsearch.c						\
 		${STANDARD_LIBRARY}
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
-		matrix2rows.c						\
+		hashsearch.c						\
 		${STANDARD_LIBRARY}					\
-		-o matrix2rows.e
-
-matrix2dictionary.e: matrix2dictionary.c				\
-		${STANDARD_LIBRARY}
-	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		matrix2dictionary.c					\
-		${STANDARD_LIBRARY}					\
-		-o matrix2dictionary.e
+		-o hashsearch.e
 
 nothing.e: nothing.c
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
@@ -1092,6 +1084,12 @@ trim_length.e: trim_length.c ${APPASERVER_LIBRARY}
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o trim_length.e
+
+trim_right.e: trim_right.c ${APPASERVER_LIBRARY}
+	$(CC) 	${CFLAGS} -I${LIBRARY} trim_right.c 			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o trim_right.e
 
 group.e: group.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} group.c 				\

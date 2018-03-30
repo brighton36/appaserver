@@ -1440,6 +1440,26 @@ LIST *folder_get_insert_folder_name_list(
 
 } /* folder_get_insert_folder_name_list() */
 
+LIST *folder_get_zealot_folder_name_list(
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *table_name;
+
+	table_name = get_table_name( application_name, "folder" );
+
+	sprintf( sys_string,
+		 "echo \"	select folder				 "
+		 "		from %s					 "
+		 "		where ifnull( appaserver_yn, 'n' ) = 'n' "
+		 "		order by folder;\"			|"
+		 "sql.e							 ",
+		 table_name );
+
+	return pipe2list( sys_string );
+
+} /* folder_get_zealot_folder_name_list() */
+
 LIST *folder_get_select_folder_name_list(
 				char *application_name,
 				char *login_name,

@@ -400,19 +400,20 @@ void post_state_one(	char *application_name,
 	char action_string[ 1024 ];
 	LIST *remember_keystrokes_non_multi_element_name_list;
 
-/*
-	char title[ 256 ];
-	sprintf(title,
-	 	"%s %s",
-	 	application_get_title_string( application_name ),
-		process_title_initial_capital );
-*/
-
-	folder_name_list =
-		folder_get_select_folder_name_list(
-				application_name,
-				login_name,
-				role_name );
+	if ( strcmp( role_name, "zealot" ) == 0 )
+	{
+		folder_name_list =
+			folder_get_zealot_folder_name_list(
+				application_name );
+	}
+	else
+	{
+		folder_name_list =
+			folder_get_select_folder_name_list(
+					application_name,
+					login_name,
+					role_name );
+	}
 
 	document = document_new(
 			application_get_title_string(
@@ -427,10 +428,8 @@ void post_state_one(	char *application_name,
 	document_set_javascript_module( document, "form_cookie" );
 	document_set_javascript_module( document, "keystrokes" );
 
-/*
-	printf( "<html>\n<head>\n" );
-*/
 	document_output_html_stream( stdout );
+
 	printf( "<head>\n" );
 
 	document_output_each_javascript_source(

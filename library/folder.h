@@ -277,6 +277,9 @@ LIST *folder_get_insert_folder_name_list(
 				char *login_name,
 				char *role_name );
 
+LIST *folder_get_zealot_folder_name_list(
+				char *application_name );
+
 LIST *folder_get_select_folder_name_list(
 				char *application_name,
 				char *login_name,

@@ -1098,6 +1098,7 @@ boolean process_executable_ok(	char *executable )
 	/* Executable must live in $APPASERVER_HOME/src_* */
 	/* ---------------------------------------------- */
 	sprintf( sys_string, "which %s", command );
+
 	if ( ! ( results_string = pipe2string( sys_string ) ) )
 	{
 		/* If not written yet, then okay. */
@@ -1111,6 +1112,8 @@ boolean process_executable_ok(	char *executable )
 	/* ------------------ */
 	if ( *basename_directory == '.' ) return 1;
 
+	/* Must execute from $APPASERVER_HOME/src_* */
+	/* ---------------------------------------- */
 	appaserver_mount_point =
 		appaserver_parameter_file_get_appaserver_mount_point();
 

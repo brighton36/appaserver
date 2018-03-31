@@ -142,11 +142,12 @@ int get_parameter(	char *destination,
 			char *source, 
 			int parameter_index 	/* zero based */  );
 
-void remove_parans( char *without_parans, char *source );
+void remove_parans(	char *without_parans,
+			char *source );
 
 int number_occurrences_char( int char_to_count, char *source );
 
-char *remove_quotes(		char *d, char *s );
+char *remove_quotes(	char *d, char *s );
 
 char *timlib_place_commas_in_dollars(
 				double d );

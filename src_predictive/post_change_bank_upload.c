@@ -15,22 +15,11 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "dictionary.h"
+#include "bank_upload.h"
 
 /* Constants */
 /* --------- */
 #define SELECT	"bank_date,bank_description,bank_amount,bank_running_balance";
-
-/* Structures */
-/* ---------- */
-typedef struct
-{
-	char *bank_date;
-	char *bank_description;
-	int sequence_number;
-	double bank_amount;
-	double bank_running_balance;
-	char *fund_name;
-} BANK_UPLOAD;
 
 /* Prototypes */
 /* ---------- */
@@ -49,12 +38,11 @@ BANK_UPLOAD *bank_upload_get_starting(
 				char *application_name,
 				DICTIONARY *dictionary );
 
-BANK_UPLOAD *bank_upload_new(
-				char *bank_date,
-				char *bank_description,
-				int sequence_number );
-
 boolean post_change_bank_upload_update(
+				char *application_name,
+				DICTIONARY *dictionary );
+
+boolean post_change_bank_upload_delete(
 				char *application_name,
 				DICTIONARY *dictionary );
 
@@ -80,14 +68,15 @@ int main( int argc, char **argv )
 {
 	char *database_string = {0};
 	char *application_name;
+	char *state;
 	DICTIONARY *dictionary;
 
 	appaserver_error_output_starting_argv_stderr( argc, argv );
 
-	if ( argc != 3 )
+	if ( argc != 4 )
 	{
 		fprintf( stderr,
-		"Usage: %s application dictionary\n",
+			 "Usage: %s application state dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -108,15 +97,30 @@ int main( int argc, char **argv )
 			application_name );
 	}
 
+	state = argv[ 2 ];
+
 	dictionary =
 		dictionary_string2dictionary(
-			argv[ 2 ] );
+			argv[ 3 ] );
 
-	if ( !post_change_bank_upload_update(
-			application_name,
-			dictionary ) )
+	if ( strcmp( state, "predelete" ) == 0 )
 	{
-		fprintf( stderr, "Error occurred.\n" );
+		if ( !post_change_bank_upload_delete(
+				application_name,
+				dictionary ) )
+		{
+			fprintf( stderr, "Error occurred.\n" );
+		}
+	}
+	else
+	if ( strcmp( state, "update" ) == 0 )
+	{
+		if ( !post_change_bank_upload_update(
+				application_name,
+				dictionary ) )
+		{
+			fprintf( stderr, "Error occurred.\n" );
+		}
 	}
 
 	return 0;
@@ -289,30 +293,6 @@ int bank_upload_get_prior_sequence_number(
 
 } /* bank_upload_get_prior_sequence_number() */
 
-BANK_UPLOAD *bank_upload_new(
-				char *bank_date,
-				char *bank_description,
-				int sequence_number )
-{
-	BANK_UPLOAD *b;
-
-	if ( ! ( b = (BANK_UPLOAD *)calloc( 1, sizeof( BANK_UPLOAD ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	b->bank_date = bank_date;
-	b->bank_description = bank_description;
-	b->sequence_number = sequence_number;
-	return b;
-
-} /* bank_upload_new() */
-
 BANK_UPLOAD *bank_upload_get_starting(
 				char *application_name,
 				DICTIONARY *dictionary )
@@ -349,8 +329,9 @@ BANK_UPLOAD *bank_upload_get_starting(
 	bank_upload =
 		bank_upload_new(
 			bank_date,
-			bank_description,
-			atoi( sequence_number_string ) );
+			bank_description );
+
+	bank_upload->sequence_number = atoi( sequence_number_string );
 
 	bank_upload->fund_name =
 		bank_upload_get_fund_name(
@@ -466,3 +447,22 @@ FILE *bank_upload_open_output_pipe( void )
 	return popen( sys_string, "w" );
 
 } /* bank_upload_open_output_pipe() */
+
+boolean post_change_bank_upload_delete(
+			char *application_name,
+			DICTIONARY *dictionary )
+{
+	BANK_UPLOAD *bank_upload;
+
+	bank_upload =
+		bank_upload_dictionary_extract(
+			application_name,
+			dictionary );
+
+	/* --------------------- */
+	/* Needs to be finished. */
+	/* --------------------- */
+	return 1;
+
+} /* post_change_bank_upload_delete() */
+

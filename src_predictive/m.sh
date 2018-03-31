@@ -1,9 +1,9 @@
 :
 
-make balance_sheet income_statement
+cd ../library && make
 
-#if [ "$?" -eq 0 ]
-#then
-	# cd ../src_capitolpops
-	#make print_checks_process
-#fi
+if [ "$?" -eq 0 ]
+then
+	cd ../src_predictive
+	make load_bank_spreadsheet
+fi

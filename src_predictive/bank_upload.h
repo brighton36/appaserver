@@ -33,6 +33,7 @@ typedef struct
 	int sequence_number;
 	double bank_amount;
 	double bank_running_balance;
+	char *fund_name;
 	TRANSACTION *transaction;
 } BANK_UPLOAD;
 
@@ -89,8 +90,7 @@ boolean bank_upload_reoccurring_transaction_load(
 					char *street_address,
 					char *transaction_description );
 
-BANK_UPLOAD *bank_upload_new(
-					char *bank_date,
+BANK_UPLOAD *bank_upload_new(		char *bank_date,
 					char *bank_description );
 
 /* Returns table_insert_count */
@@ -114,6 +114,10 @@ boolean bank_upload_get_bank_date_international(
 
 LIST *bank_upload_fetch_list(		char *application_name,
 					int starting_sequence_number );
+
+BANK_UPLOAD *bank_upload_fetch(		char *application_name,
+					char *bank_date,
+					char *bank_description );
 
 LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 					char *application_name,
@@ -163,6 +167,10 @@ int bank_upload_get_starting_sequence_number(
 
 char *bank_upload_reoccurring_transaction_get_select(
 					void );
+
+BANK_UPLOAD *bank_upload_dictionary_extract(
+					char *application_name,
+					DICTIONARY *dictionary );
 
 #endif
 

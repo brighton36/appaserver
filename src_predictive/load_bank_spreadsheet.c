@@ -15,8 +15,6 @@
 #include "appaserver_parameter_file.h"
 #include "document.h"
 #include "timlib.h"
-#include "piece.h"
-#include "column.h"
 #include "list.h"
 #include "environ.h"
 #include "date.h"

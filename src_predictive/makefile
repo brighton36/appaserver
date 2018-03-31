@@ -332,11 +332,13 @@ post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 		-o post_change_prepaid_asset_accrual
 
 post_change_bank_upload: post_change_bank_upload.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		bank_upload.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		post_change_bank_upload.c				\
+		bank_upload.o						\
 		-o post_change_bank_upload
 
 post_change_inventory_purchase: post_change_inventory_purchase.c	\

@@ -283,6 +283,8 @@ int bank_upload_table_insert(	FILE *input_file,
 		trim( input_string );
 		if ( !*input_string ) continue;
 
+		timlib_remove_character( input_string, '\\' );
+
 		if ( !piece_quote_comma(
 				bank_date,
 				input_string,
@@ -543,6 +545,53 @@ char *bank_upload_get_select( void )
 
 	return select;
 }
+
+BANK_UPLOAD *bank_upload_fetch(		char *application_name,
+					char *bank_date,
+					char *bank_description )
+{
+	BANK_UPLOAD *bank_upload;
+	char *select;
+	char where[ 512 ];
+	char description_buffer[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+
+	select = bank_upload_get_select();
+
+	sprintf( where,
+		 "bank_date = '%s' and			"
+		 "bank_description = '%s'		",
+		 bank_date,
+		 escape_character(	description_buffer,
+					bank_description,
+					'\'' ) );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=bank_upload	"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 where );
+
+	if ( !( results = pipe2string( sys_string ) ) )
+		return (BANK_UPLOAD *)0;
+
+	bank_upload = bank_upload_calloc();
+
+	bank_upload_parse(
+			&bank_upload->bank_date,
+			&bank_upload->bank_description,
+			&bank_upload->sequence_number,
+			&bank_upload->bank_amount,
+			&bank_upload->bank_running_balance,
+			results );
+
+	return bank_upload;
+
+} /* bank_upload_fetch() */
 
 LIST *bank_upload_fetch_list(		char *application_name,
 					int starting_sequence_number )
@@ -1000,6 +1049,11 @@ void bank_upload_html_display( LIST *bank_upload_list )
 
 		if ( bank_upload->transaction )
 		{
+			printf( "<h3>%s/%s</h3>\n",
+				bank_upload->transaction->full_name,
+				bank_upload->transaction->street_address );
+			fflush( stdout );
+
 			ledger_list_html_display(
 				bank_upload->
 					transaction->
@@ -1009,4 +1063,38 @@ void bank_upload_html_display( LIST *bank_upload_list )
 	} while( list_next( bank_upload_list ) );
 
 } /* bank_upload_html_display() */
+
+BANK_UPLOAD *bank_upload_dictionary_extract(
+				char *application_name,
+				DICTIONARY *dictionary )
+{
+	char *key;
+	BANK_UPLOAD *bank_upload;
+	char *bank_date;
+	char *bank_description;
+
+	key = "bank_date";
+
+	if ( ! ( bank_date = dictionary_fetch( dictionary, key ) ) )
+	{
+		return (BANK_UPLOAD *)0;
+	}
+
+	key = "bank_description";
+
+	if ( ! ( bank_description =
+			dictionary_fetch( dictionary, key ) ) )
+	{
+		return (BANK_UPLOAD *)0;
+	}
+
+	bank_upload =
+		bank_upload_fetch(
+			application_name,
+			bank_date,
+			bank_description );
+
+	return bank_upload;
+
+} /* bank_upload_dictionary_extract() */
 

@@ -24,7 +24,6 @@
 /* Constants */
 /* --------- */
 #define NEW_PASSWORD			"changeit"
-#define MAKE_SOURCE_DIRECTORY		0
 #define SYSTEM_ADMINISTRATION_ROLE	"system"
 #define SUPERVISOR_ROLE			"supervisor"
 #define BOOKKEEPER_ROLE			"bookkeeper"
@@ -134,7 +133,7 @@ void make_document_root_directory(	char *destination_application,
 					char *document_root_directory,
 					char really_yn );
 
-void make_appaserver_source_directory(	char *destination_application,
+void link_appaserver_source_directory(	char *destination_application,
 					char *document_root_directory,
 					char *appaserver_home_directory,
 					char really_yn );
@@ -740,13 +739,14 @@ void make_document_root_directory(	char *destination_application,
 
 } /* make_document_root_directory() */
 
-void make_appaserver_source_directory(	char *destination_application,
+void link_appaserver_source_directory(	char *destination_application,
 					char *document_root_directory,
 					char *appaserver_home_directory,
 					char really_yn )
 {
 	char sys_string[ 1024 ];
 
+/*
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
@@ -769,6 +769,7 @@ void make_appaserver_source_directory(	char *destination_application,
 	fflush( stdout );
 	system( sys_string );
 	fflush( stdout );
+*/
 
 	if ( really_yn == 'y' )
 	{
@@ -794,7 +795,7 @@ void make_appaserver_source_directory(	char *destination_application,
 	system( sys_string );
 	fflush( stdout );
 
-} /* make_appaserver_source_directory() */
+} /* link_appaserver_source_directory() */
 
 void populate_document_root_directory(	char *destination_application,
 					char *document_root_directory,
@@ -1659,14 +1660,11 @@ boolean create_empty_application(
 					document_root_directory,
 					really_yn );
 
-	if ( MAKE_SOURCE_DIRECTORY )
-	{
-		make_appaserver_source_directory(
+	link_appaserver_source_directory(
 					destination_application,
 					document_root_directory,
 					appaserver_home_directory,
 					really_yn );
-	}
 
 	populate_document_root_directory(
 					destination_application,
@@ -1805,29 +1803,26 @@ void remove_document_root_directory(
 	system( sys_string );
 	fflush( stdout );
 
-	if ( MAKE_SOURCE_DIRECTORY )
+	if ( really_yn == 'y' )
 	{
-		if ( really_yn == 'y' )
-		{
-			sprintf( sys_string,
-			"rm %s/%s/src_%s 2>&1 | html_paragraph_wrapper",
-		 		document_root_directory,
-				"appaserver",
-		 		destination_application );
-		}
-		else
-		{
-			sprintf( sys_string,
-			"echo \"rm %s/%s/src_%s\" | html_paragraph_wrapper.e",
-		 		document_root_directory,
-				"appaserver",
-		 		destination_application );
-		}
-
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
+		sprintf( sys_string,
+		"rm %s/%s/src_%s 2>&1 | html_paragraph_wrapper",
+	 		document_root_directory,
+			"appaserver",
+	 		destination_application );
 	}
+	else
+	{
+		sprintf( sys_string,
+		"echo \"rm %s/%s/src_%s\" | html_paragraph_wrapper.e",
+	 		document_root_directory,
+			"appaserver",
+	 		destination_application );
+	}
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
 
 } /* remove_document_root_directory() */
 

@@ -278,6 +278,7 @@ char *pay_liabilities(	char *application_name,
 	}
 	else
 	{
+/*
 		if ( !output_html_table(
 			application_name,
 			full_name_list,
@@ -287,6 +288,7 @@ char *pay_liabilities(	char *application_name,
 		{
 			return (char *)0;
 		}
+*/
 
 		pdf_filename = "";
 	}

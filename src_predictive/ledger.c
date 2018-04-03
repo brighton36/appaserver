@@ -2425,6 +2425,7 @@ void ledger_list_html_display(	char *transaction_memo,
 	char buffer[ 128 ];
 	JOURNAL_LEDGER *journal_ledger;
 	int i;
+	boolean displayed_transaction_memo = 0;
 
 	if ( !list_length( ledger_list ) ) return;
 
@@ -2447,14 +2448,11 @@ void ledger_list_html_display(	char *transaction_memo,
 	fflush( stdout );
 	output_pipe = popen( sys_string, "w" );
 
-	if ( transaction_memo && *transaction_memo )
-	{
-		fprintf( output_pipe, "%s^", transaction_memo );
-	}
-
 	total_debit = 0.0;
 	total_credit = 0.0;
 
+	/* First do all debits, then do all credits */
+	/* ---------------------------------------- */
 	for( i = 0; i < 2; i++ )
 	{
 		list_rewind( ledger_list );
@@ -2467,6 +2465,21 @@ void ledger_list_html_display(	char *transaction_memo,
 				journal_ledger->debit_amount,
 				0.0 ) )
 			{
+				if ( transaction_memo && *transaction_memo )
+				{
+					if ( !displayed_transaction_memo )
+					{
+						fprintf( output_pipe,
+						 	"%s^",
+						 	transaction_memo );
+						displayed_transaction_memo = 1;
+					}
+					else
+					{
+						fprintf( output_pipe, "^" );
+					}
+				}
+
 				fprintf(output_pipe,
 			 		"%s^%.2lf^\n",
 					format_initial_capital(
@@ -2482,6 +2495,21 @@ void ledger_list_html_display(	char *transaction_memo,
 				journal_ledger->credit_amount,
 				0.0 ) )
 			{
+				if ( transaction_memo && *transaction_memo )
+				{
+					if ( !displayed_transaction_memo )
+					{
+						fprintf( output_pipe,
+						 	"%s^",
+						 	transaction_memo );
+						displayed_transaction_memo = 1;
+					}
+					else
+					{
+						fprintf( output_pipe, "^" );
+					}
+				}
+
 				fprintf(output_pipe,
 			 		"%s^^%.2lf\n",
 					format_initial_capital(
@@ -2498,7 +2526,7 @@ void ledger_list_html_display(	char *transaction_memo,
 	if ( transaction_memo && *transaction_memo )
 	{
 		fprintf(output_pipe,
-			"Total^^%.2lf^%.2lf\n",
+			"^Total^%.2lf^%.2lf\n",
 			total_debit,
 			total_credit );
 	}

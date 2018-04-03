@@ -6869,7 +6869,7 @@ void ledger_journal_ledger_batch_insert(
 	do {
 		transaction = list_get_pointer( transaction_list );
 
-		if ( !list_length( transaction->journal_ledger_list ) )
+		if ( !list_rewind( transaction->journal_ledger_list ) )
 		{
 			fprintf( stderr,
 			"Warning in %s/%s()/%d: empty journal_ledger_list.\n",

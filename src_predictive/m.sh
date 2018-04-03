@@ -1,9 +1,11 @@
 :
 
-cd ../library && make
+make pay_liabilities_process
 
-if [ "$?" -eq 0 ]
-then
-	cd ../src_predictive
-	make load_bank_spreadsheet
-fi
+#cd ../library && make
+
+#if [ "$?" -eq 0 ]
+#then
+	#cd ../src_predictive
+	#make load_bank_spreadsheet
+#fi

@@ -54,7 +54,6 @@ void output_visit_spreadsheet(
 				char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
-				char *appaserver_mount_point,
 				char *document_root_directory,
 				int process_id,
 				char *process_name );
@@ -126,8 +125,6 @@ int main( int argc, char **argv )
 				discovery_date_list_string,
 				primary_researcher_list_string,
 				appaserver_parameter_file->
-					appaserver_mount_point,
-				appaserver_parameter_file->
 					document_root,
 				getpid(),
 				process_name );
@@ -145,7 +142,6 @@ int main( int argc, char **argv )
 void output_visit_spreadsheet(	char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
-				char *appaserver_mount_point,
 				char *document_root_directory,
 				int process_id,
 				char *process_name )
@@ -251,7 +247,7 @@ void output_visit_spreadsheet(	char *application_name,
 
 	appaserver_link_file->filename_stem = FILENAME_STEM_NO_CODES;
 
-	output_codes_filename =
+	output_no_codes_filename =
 		appaserver_link_get_output_filename(
 			appaserver_link_file->
 				output_file->
@@ -264,7 +260,7 @@ void output_visit_spreadsheet(	char *application_name,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-	ftp_codes_filename =
+	ftp_no_codes_filename =
 		appaserver_link_get_link_prompt(
 			appaserver_link_file->
 				link_prompt->

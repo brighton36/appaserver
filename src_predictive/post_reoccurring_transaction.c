@@ -45,7 +45,7 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			char *credit_account,
 			double accrued_daily_amount );
 
-TRANSACTION *post_reoccurring_get_now_transaction(
+TRANSACTION *post_reoccurring_get_recent_transaction(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -237,7 +237,7 @@ void post_reoccurring_transaction_display(
 	if ( !reoccurring_transaction->accrued_daily_amount )
 	{
 		transaction =
-			post_reoccurring_get_now_transaction(
+			post_reoccurring_get_recent_transaction(
 				reoccurring_transaction->full_name,
 				reoccurring_transaction->street_address,
 				transaction_date_time,
@@ -346,7 +346,7 @@ char *post_reoccurring_transaction(
 	if ( !reoccurring_transaction->accrued_daily_amount )
 	{
 		transaction =
-			post_reoccurring_get_now_transaction(
+			post_reoccurring_get_recent_transaction(
 				reoccurring_transaction->full_name,
 				reoccurring_transaction->street_address,
 				transaction_date_time,
@@ -388,7 +388,7 @@ char *post_reoccurring_transaction(
 
 } /* post_reoccurring_transaction() */
 
-TRANSACTION *post_reoccurring_get_now_transaction(
+TRANSACTION *post_reoccurring_get_recent_transaction(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -407,6 +407,7 @@ TRANSACTION *post_reoccurring_get_now_transaction(
 			transaction_date_time,
 			memo );
 
+	transaction->transaction_amount = transaction_amount;
 	transaction->journal_ledger_list = list_new();
 
 	journal_ledger =
@@ -416,7 +417,7 @@ TRANSACTION *post_reoccurring_get_now_transaction(
 			transaction->transaction_date_time,
 			debit_account );
 
-	journal_ledger->debit_amount = transaction_amount;
+	journal_ledger->debit_amount = transaction->transaction_amount;
 
 	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
 
@@ -427,13 +428,13 @@ TRANSACTION *post_reoccurring_get_now_transaction(
 			transaction->transaction_date_time,
 			credit_account );
 
-	journal_ledger->credit_amount = transaction_amount;
+	journal_ledger->credit_amount = transaction->transaction_amount;
 
 	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
 
 	return transaction;
 
-} /* post_reoccurring_get_now_transaction() */
+} /* post_reoccurring_get_recent_transaction() */
 
 TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			char *application_name,

@@ -689,14 +689,6 @@ void output_text_file(
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_TEMPLATE,
-			 appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
-
 		/* Test the output file. */
 		/* --------------------- */
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
@@ -718,26 +710,6 @@ void output_text_file(
 			 '"',
 			 '"',
 		 	 output_filename );
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_PREPEND_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_NONPREPEND_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
 	}
 	else
 	/* ------------------------------------------------- */

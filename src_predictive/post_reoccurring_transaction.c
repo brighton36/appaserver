@@ -568,14 +568,14 @@ int get_days_between_last_transaction(
 	if ( !timlib_strlen( max_transaction_date ) )
 	{
 		sprintf( name_buffer,
-			 "%d-01-01",
-			 current_year );
+			 "%d-12-31",
+			 current_year - 1 );
 
 		days_between =
 			date_days_between(
 				name_buffer /* from_date */,
 				today /* to_date */,
-				date_get_utc_offset() ) + 1;
+				date_get_utc_offset() );
 	}
 	else
 	{
@@ -583,7 +583,7 @@ int get_days_between_last_transaction(
 			date_days_between(
 				max_transaction_date /* from_date */,
 				today /* to_date */,
-				date_get_utc_offset() ) + 1;
+				date_get_utc_offset() );
 	}
 
 	return days_between;

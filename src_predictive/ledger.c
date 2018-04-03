@@ -2413,7 +2413,8 @@ char *ledger_transaction_display( TRANSACTION *transaction )
 
 } /* ledger_transaction_display() */
 
-void ledger_list_html_display( LIST *ledger_list )
+void ledger_list_html_display(	char *transaction_memo,
+				LIST *ledger_list )
 {
 	char *heading;
 	char *justify;
@@ -2427,8 +2428,16 @@ void ledger_list_html_display( LIST *ledger_list )
 
 	if ( !list_length( ledger_list ) ) return;
 
-	heading = "Account,Debit,Credit";
-	justify = "left,right,right";
+	if ( transaction_memo && *transaction_memo )
+	{
+		heading = "Transaction,Account,Debit,Credit";
+		justify = "left,left,right,right";
+	}
+	else
+	{
+		heading = "Account,Debit,Credit";
+		justify = "left,right,right";
+	}
 
 	sprintf(sys_string,
 		"html_table.e '' %s '^' %s",
@@ -2437,6 +2446,11 @@ void ledger_list_html_display( LIST *ledger_list )
 
 	fflush( stdout );
 	output_pipe = popen( sys_string, "w" );
+
+	if ( transaction_memo && *transaction_memo )
+	{
+		fprintf( output_pipe, "%s^", transaction_memo );
+	}
 
 	total_debit = 0.0;
 	total_credit = 0.0;
@@ -2481,10 +2495,20 @@ void ledger_list_html_display( LIST *ledger_list )
 		} while( list_next( ledger_list ) );
 	}
 
-	fprintf(output_pipe,
-		"Total^%.2lf^%.2lf\n",
-		total_debit,
-		total_credit );
+	if ( transaction_memo && *transaction_memo )
+	{
+		fprintf(output_pipe,
+			"Total^^%.2lf^%.2lf\n",
+			total_debit,
+			total_credit );
+	}
+	else
+	{
+		fprintf(output_pipe,
+			"Total^%.2lf^%.2lf\n",
+			total_debit,
+			total_credit );
+	}
 
 	pclose( output_pipe );
 	fflush( stdout );

@@ -700,6 +700,7 @@ void print_checks_transaction_display(
 		fflush( stdout );
 
 		ledger_list_html_display(
+			(char *)0 /* transaction_memo */,
 			transaction->
 				journal_ledger_list );
 

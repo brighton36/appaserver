@@ -159,7 +159,7 @@ REOCCURRING_TRANSACTION *bank_upload_seek_bank_upload_search_phrase(
 					LIST *reoccurring_transaction_list,
 					char *bank_description );
 
-void bank_upload_html_display(		LIST *bank_upload_list );
+void bank_upload_transaction_display(	LIST *bank_upload_list );
 
 int bank_upload_get_starting_sequence_number(
 					char *application_name,

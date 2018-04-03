@@ -251,6 +251,7 @@ void update_sale_completed(	CUSTOMER_SALE *customer_sale,
 	}
 
 	ledger_list_html_display(
+		(char *)0 /* transaction_memo */,
 		customer_sale->transaction->journal_ledger_list );
 
 	printf( "<p>Marked sale completed.\n" );

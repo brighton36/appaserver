@@ -669,6 +669,7 @@ void print_checks_transaction_display(
 {
 	PAY_LIABILITIES *pay_liabilities;
 	TRANSACTION *transaction;
+	char transaction_memo[ 256 ];
 
 	pay_liabilities =
 		pay_liabilities_new(
@@ -688,21 +689,26 @@ void print_checks_transaction_display(
 			list_get_pointer(
 				pay_liabilities->output.transaction_list );
 
-		printf( "<h3>%s/%s: %s",
+		sprintf(transaction_memo,
+			"%s/%s: %s",
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time );
 
 		if ( transaction->check_number )
-			printf( " (%d)", transaction->check_number );
+		{
+			sprintf( transaction_memo +
+				 strlen( transaction_memo ),
+				 " (%d)", transaction->check_number );
+		}
 
-		printf( "</h3>\n" );
-		fflush( stdout );
+		format_initial_capital(
+			transaction_memo,
+			transaction_memo );
 
 		ledger_list_html_display(
-			(char *)0 /* transaction_memo */,
-			transaction->
-				journal_ledger_list );
+			transaction_memo,
+			transaction->journal_ledger_list );
 
 	} while( list_next( pay_liabilities->output.transaction_list ) );
 

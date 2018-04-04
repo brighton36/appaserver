@@ -21,6 +21,7 @@
 #include "environ.h"
 #include "process.h"
 #include "application.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -31,6 +32,7 @@
 #define SELECT_LIST		"station,datatype,measurement_date,avg( measurement_value )"
 #define GROUP_BY		"station,datatype,measurement_date"
 
+/*
 #define OUTPUT_FILE_SPREADSHEET	"%s/%s/flow_daily_values_%s_%s_%s_%s%s.csv"
 #define FTP_PREPEND_FILE_SPREADSHEET "%s://%s/%s/flow_daily_values_%s_%s_%s_%s%s.csv"
 #define FTP_NONPREPEND_FILE_SPREADSHEET "/%s/flow_daily_values_%s_%s_%s_%s%s.csv"
@@ -38,6 +40,9 @@
 #define OUTPUT_FILE_TEXT_FILE	"%s/%s/flow_daily_values_%s_%s_%s_%s%s.txt"
 #define FTP_PREPEND_FILE_TEXT_FILE "%s://%s/%s/flow_daily_values_%s_%s_%s_%s%s.txt"
 #define FTP_NONPREPEND_FILE_TEXT_FILE "/%s/flow_daily_values_%s_%s_%s_%s%s.txt"
+*/
+
+#define FILENAME_STEM		"flow_daily_values"
 
 /* Prototypes */
 /* ---------- */
@@ -57,7 +62,7 @@ void output_table(
 			char *units_converted_process );
 
 void output_text_file(
-	 		char *appaserver_mount_point,
+	 		char *document_root_directory,
 	 		char *application_name, 
 			char *station,
 			char *datatype,
@@ -303,7 +308,7 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "text_file" ) == 0 )
 	{
 		output_text_file(
-	 		appaserver_parameter_file->appaserver_mount_point,
+	 		appaserver_parameter_file->document_root,
 	 		application_name, 
 			station,
 			datatype,
@@ -321,7 +326,7 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
 		output_spreadsheet(
-	 		appaserver_parameter_file->appaserver_mount_point,
+	 		appaserver_parameter_file->document_root,
 	 		application_name, 
 			station,
 			datatype,
@@ -363,7 +368,7 @@ int main( int argc, char **argv )
 } /* main() */
 
 void output_spreadsheet(
-	 		char *appaserver_mount_point,
+	 		char *document_root_directory,
 	 		char *application_name, 
 			char *station,
 			char *datatype,
@@ -377,18 +382,20 @@ void output_spreadsheet(
 			char *units_converted,
 			char *units_converted_process )
 {
-	char output_filename[ 256 ] = {0};
-	char ftp_filename[ 256 ];
+	char *output_filename;
+	char *ftp_filename;
 	char end_date_suffix[ 128 ];
 	int record_count;
 	char sys_string[ 1024 ];
 	FILE *output_file;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	if ( strcmp( end_date, "end_date" ) != 0 )
 		sprintf( end_date_suffix, "%s_", end_date );
 	else
 		*end_date_suffix = '\0';
 
+/*
 	sprintf(output_filename,
 		OUTPUT_FILE_SPREADSHEET,
 	 	appaserver_mount_point,
@@ -398,6 +405,54 @@ void output_spreadsheet(
 	 	begin_date,
 	 	end_date_suffix,
 	 	session );
+*/
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		document_root_directory,
+			FILENAME_STEM,
+			application_name,
+			0 /* process_id */,
+			session,
+			"csv" );
+
+	appaserver_link_file->begin_date_string = begin_date;
+	appaserver_link_file->end_date_string = end_date_suffix;
+
+	output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
@@ -417,6 +472,7 @@ void output_spreadsheet(
 		station,
 		0 /* not with_zap_file */ );
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 			application_name ) == 'y' )
 	{
@@ -442,6 +498,7 @@ void output_spreadsheet(
 	 		end_date_suffix,
 	 		session );
 	}
+*/
 
 	strcpy( sys_string,
 		get_heading_sys_string(
@@ -483,7 +540,7 @@ void output_spreadsheet(
 } /* output_spreadsheet */
 
 void output_text_file(
-	 		char *appaserver_mount_point,
+	 		char *document_root_directory,
 	 		char *application_name, 
 			char *station,
 			char *datatype,
@@ -497,8 +554,8 @@ void output_text_file(
 			char *units_converted,
 			char *units_converted_process )
 {
-	char output_filename[ 256 ] = {0};
-	char ftp_filename[ 256 ];
+	char *output_filename;
+	char *ftp_filename;
 	char end_date_suffix[ 128 ];
 	int record_count = 0;
 	char sys_string[ 1024 ];
@@ -506,12 +563,14 @@ void output_text_file(
 	FILE *input_pipe;
 	FILE *output_pipe;
 	char *heading;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	if ( strcmp( end_date, "end_date" ) != 0 )
 		sprintf( end_date_suffix, "%s_", end_date );
 	else
 		*end_date_suffix = '\0';
 
+/*
 	sprintf(output_filename,
 		OUTPUT_FILE_TEXT_FILE,
 	 	appaserver_mount_point,
@@ -521,6 +580,54 @@ void output_text_file(
 	 	begin_date,
 	 	end_date_suffix,
 	 	session );
+*/
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		document_root_directory,
+			FILENAME_STEM,
+			application_name,
+			0 /* process_id */,
+			session,
+			"txt" );
+
+	appaserver_link_file->begin_date_string = begin_date;
+	appaserver_link_file->end_date_string = end_date_suffix;
+
+	output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	if ( ! ( output_pipe = fopen( output_filename, "w" ) ) )
 	{
@@ -540,6 +647,7 @@ void output_text_file(
 		station,
 		0 /* not with_zap_file */ );
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 			application_name ) == 'y' )
 	{
@@ -565,6 +673,7 @@ void output_text_file(
 	 		end_date_suffix,
 	 		session );
 	}
+*/
 
 	strcpy( sys_string,
 		get_sys_string(

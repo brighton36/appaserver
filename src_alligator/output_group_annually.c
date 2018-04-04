@@ -27,6 +27,7 @@
 #include "application.h"
 #include "html_table.h"
 #include "grace.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -34,9 +35,13 @@ enum output_medium { output_medium_stdout, text_file, table, chart };
 
 /* Constants */
 /* --------- */
+/*
 #define OUTPUT_FILE		"%s/%s/output_group_annually_%d.csv"
 #define FTP_PREPEND_FILE	"%s://%s/%s/output_group_annually_%d.csv"
 #define FTP_NONPREPEND_FILE	"/%s/output_group_annually_%d.csv"
+*/
+#define FILENAME_STEM		"output_group_annually"
+
 #define ROWS_BETWEEN_HEADING		10
 #define DEFAULT_OUTPUT_MEDIUM		table
 
@@ -68,7 +73,7 @@ void get_title(			char *title,
 void output_group_annually_text_file(
 				char *application_name,
 				enum output_medium output_medium,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				char *basin_list_string,
 				char *process_name );
 
@@ -147,7 +152,7 @@ int main( int argc, char **argv )
 				application_name,
 				output_medium,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				basin_list_string,
 				process_name );
 	}
@@ -182,12 +187,12 @@ int main( int argc, char **argv )
 void output_group_annually_text_file(
 				char *application_name,
 				enum output_medium output_medium,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				char *basin_list_string,
 				char *process_name )
 {
-	char ftp_filename[ 256 ];
-	char output_filename[ 256 ];
+	char *ftp_filename = {0};
+	char *output_filename = {0};
 	FILE *output_file;
 	char title[ 128 ];
 	char sub_title[ 256 ];
@@ -203,6 +208,8 @@ void output_group_annually_text_file(
 
 	if ( output_medium != output_medium_stdout )
 	{
+		APPASERVER_LINK_FILE *appaserver_link_file;
+
 		printf( "<h1>%s</h1>\n", title );
 		printf( "<h2>\n" );
 		fflush( stdout );
@@ -210,11 +217,57 @@ void output_group_annually_text_file(
 		fflush( stdout );
 		printf( "</h2>\n" );
 
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			document_root_directory,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+/*
 		sprintf(output_filename, 
 	 		OUTPUT_FILE,
 	 		appaserver_mount_point,
 	 		application_name,
 	 		process_id );
+*/
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -244,8 +297,10 @@ void output_group_annually_text_file(
 	}
 
 	pclose( input_pipe );
+
 	if ( output_medium != output_medium_stdout ) fclose( output_file );
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 	{
@@ -263,14 +318,18 @@ void output_group_annually_text_file(
 	 		application_name,
 	 		process_id );
 	}
+*/
 
-	appaserver_library_output_ftp_prompt(
-			ftp_filename,
+	if ( output_medium != output_medium_stdout )
+	{
+		appaserver_library_output_ftp_prompt(
+				ftp_filename,
 "Left Click&gt; to view or &lt;Right Click&gt; to save.",
-			(char *)0 /* target */,
-			(char *)0 /* application_type */ );
+				(char *)0 /* target */,
+				(char *)0 /* application_type */ );
 
-	printf( "<br>\n" );
+		printf( "<br>\n" );
+	}
 
 } /* output_group_annually_text_file() */
 

@@ -572,34 +572,6 @@ void output_text_file(		char *application_name,
 			station,
 			0 /* not with_zap_file */ );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-		 		FTP_PREPEND_FILE_TEXT_FILE, 
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-				station,
-				datatype,
-		 		begin_date,
-		 		end_date_suffix,
-		 		session );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-		 		FTP_NONPREPEND_FILE_TEXT_FILE, 
-		 		application_name,
-				station,
-				datatype,
-		 		begin_date,
-		 		end_date_suffix,
-		 		session );
-		}
-*/
-
 		where_clause = get_where_clause(
 				begin_date,
 				end_date,
@@ -781,34 +753,6 @@ void output_spreadsheet(	char *application_name,
 			application_name,
 			station,
 			0 /* not with_zap_file */ );
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-		 		FTP_PREPEND_FILE_SPREADSHEET, 
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-				station,
-				datatype,
-		 		begin_date,
-		 		end_date_suffix,
-		 		session );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-		 		FTP_NONPREPEND_FILE_SPREADSHEET, 
-		 		application_name,
-				station,
-				datatype,
-		 		begin_date,
-		 		end_date_suffix,
-		 		session );
-		}
-*/
 
 		where_clause = get_where_clause(
 				begin_date,

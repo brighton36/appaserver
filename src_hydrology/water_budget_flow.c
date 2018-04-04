@@ -623,16 +623,6 @@ int main( int argc, char **argv )
 		appaserver_link_file->begin_date_string = begin_date;
 		appaserver_link_file->end_date_string = end_date;
 
-/*
-		sprintf( output_pipename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_date,
-			 end_date,
-			 process_id );
-*/
-
 		output_pipename =
 			appaserver_link_get_output_filename(
 				appaserver_link_file->
@@ -708,30 +698,6 @@ int main( int argc, char **argv )
 		 	output_pipename );
 
 		output_pipe = popen( sys_string, "w" );
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_TEXT_FILE,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEXT_FILE,
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-*/
 
 		water_budget_flow_output_transmit(
 					output_pipe,

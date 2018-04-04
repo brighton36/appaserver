@@ -34,18 +34,6 @@
 /* --------- */
 #define FILENAME_STEM_PER_SITE			"checksum_per_site"
 #define FILENAME_STEM_PER_SWEEP			"checksum_per_sweep"
-/*
-#define PER_SITE_OUTPUT_TEMPLATE		"%s/%s/checksum_per_site_%d.csv"
-#define FTP_PER_SITE_PREPEND_TEMPLATE		\
-					"%s://%s/%s/checksum_per_site_%d.csv"
-#define FTP_PER_SITE_NONPREPEND_TEMPLATE	"/%s/checksum_per_site_%d.csv"
-
-#define PER_SWEEP_OUTPUT_TEMPLATE		\
-					"%s/%s/checksum_per_sweep_%d.csv"
-#define FTP_PER_SWEEP_PREPEND_TEMPLATE		\
-					"%s://%s/%s/checksum_per_sweep_%d.csv"
-#define FTP_PER_SWEEP_NONPREPEND_TEMPLATE	"/%s/checksum_per_sweep_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -395,26 +383,6 @@ void output_checksum_text_file(
 	pclose( input_pipe );
 	fclose( output_file );
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PER_SITE_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_PER_SITE_NONPREPEND_TEMPLATE, 
-	 		application_name,
-	 		process_id );
-	}
-*/
-
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,
 "Per site: &lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",
@@ -499,26 +467,6 @@ void output_checksum_text_file(
 
 	pclose( input_pipe );
 	fclose( output_file );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PER_SWEEP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_PER_SWEEP_NONPREPEND_TEMPLATE, 
-	 		application_name,
-	 		process_id );
-	}
-*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

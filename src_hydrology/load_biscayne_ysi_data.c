@@ -51,10 +51,6 @@ typedef struct
 #define DEPTH_HEADING			"Depth"
 #define DEPTH_DATATYPE			"depth"
 #define FEET_PER_METER			3.281
-/*
-#define ERROR_FILE_TEMPLATE		"%s/%s/load_ysi_bad_%d.txt"
-#define ERROR_FTP_TEMPLATE		"%s://%s/%s/load_ysi_bad_%d.txt"
-*/
 #define FILENAME_STEM			"load_ysi_bad"
 #define PROMPT	"&lt;Left Click&gt; to view bad records or &lt;Right Click&gt; to save."
 
@@ -246,21 +242,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-/*
-	sprintf( error_filespecification,
-		 ERROR_FILE_TEMPLATE,
-		 appaserver_parameter_file->
-		 	appaserver_mount_point,
-		 application_name,
-		 process_id );
-	
-	sprintf( error_ftp_filename, 
-		 ERROR_FTP_TEMPLATE, 
-		 application_get_http_prefix( application_name ),
-		 appaserver_library_get_server_address(),
-		 application_name,
-		 process_id );
-*/
 	appaserver_link_file =
 		appaserver_link_file_new(
 			application_get_http_prefix( application_name ),

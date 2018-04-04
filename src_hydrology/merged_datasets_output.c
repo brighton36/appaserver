@@ -699,30 +699,6 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( sys_string, "w" );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_TEXT_FILE,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEXT_FILE,
-			 	application_name,
-			 	begin_date,
-			 	end_date,
-			 	process_id );
-		}
-*/
-	
 		merged_datasets_output_transmit(
 					output_pipe,
 					station_datatype_list,

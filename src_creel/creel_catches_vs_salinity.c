@@ -38,11 +38,6 @@ enum output_medium {	output_medium_stdout,
 /* --------- */
 #define DEFAULT_OUTPUT_MEDIUM		table
 #define REPORT_TITLE			"Catches Vs. Salinity Report"
-/*
-#define OUTPUT_FILE_TEMPLATE	"%s/%s/catches_vs_salinity_%s%s_%d.txt"
-#define HTTP_FTP_FILE_TEMPLATE	"%s://%s/%s/catches_vs_salinity_%s%s_%d.txt"
-#define FTP_FILE_TEMPLATE	"/%s/catches_vs_salinity_%s%s_%d.txt"
-*/
 #define ROWS_BETWEEN_HEADING	20
 
 
@@ -766,42 +761,7 @@ void output_text_file(	char *creel_application_name,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-
-/*
-	sprintf(text_output_filename,
-		OUTPUT_FILE_TEMPLATE,
-		appaserver_mount_point,
-		creel_application_name, 
-		begin_date_string,
-		end_date_suffix,
-		process_id );
-*/
-
 	application_reset();
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				creel_application_name ) == 'y' )
-	{
-		sprintf(text_ftp_filename, 
-			HTTP_FTP_FILE_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			creel_application_name,
-			begin_date_string,
-			end_date_suffix,
-			process_id );
-	}
-	else
-	{
-		sprintf(text_ftp_filename, 
-			FTP_FILE_TEMPLATE, 
-			creel_application_name,
-			begin_date_string,
-			end_date_suffix,
-			process_id );
-	}
-*/
 
 	if ( output_medium == text_file )
 	{

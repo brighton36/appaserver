@@ -31,12 +31,6 @@
 /* --------- */
 #define PROCESS_NAME			"load_cr10_single_file"
 #define FILENAME_STEM			"load_cr10"
-/*
-#define OUTPUT_FILE_TEMPLATE		"load_cr10_%d.DAT"
-#define OUTPUT_DIRECTORY_TEMPLATE	"%s/%s"
-#define HTTP_FTP_FILE_TEMPLATE		"%s://%s/%s/load_cr10_%d.DAT"
-#define FTP_FILE_TEMPLATE		"/%s/load_cr10_%d.DAT"
-*/
 #define PROMPT	"&lt;Left Click&gt; to view bad records or &lt;Right Click&gt; to save."
 
 /* Prototypes */
@@ -169,34 +163,6 @@ void load_cr10_file(
 				document_root_directory,
 				application_name ) );
 
-/*
-		sprintf( process_directory, 
-			 OUTPUT_DIRECTORY_TEMPLATE,
-			 appaserver_mount_point,
-			 application_name );
-	
-		sprintf( process_filename, 
-			 OUTPUT_FILE_TEMPLATE,
-			 process_id );
-	
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
 		ftp_filename =
 			appaserver_link_get_link_prompt(
 				appaserver_link_file->

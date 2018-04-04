@@ -35,24 +35,6 @@
 #define FILENAME_STEM_WITH_CODES		"preferred_caught_with_codes"
 #define FILENAME_STEM_NO_CODES			"preferred_caught_no_codes"
 
-/*
-#define OUTPUT_CODES_WITH_BETWEEN		"%s/%s/preferred_caught_with_codes_%s_%s_%d.csv"
-#define FTP_PREPEND_CODES_WITH_BETWEEN 		"%s://%s/%s/preferred_caught_with_codes_%s_%s_%d.csv"
-#define FTP_NONPREPEND_CODES_WITH_BETWEEN	"/%s/preferred_caught_with_codes_%s_%s_%d.csv"
-
-#define OUTPUT_NO_CODES_WITH_BETWEEN		"%s/%s/preferred_caught_no_codes_%s_%s_%d.csv"
-#define FTP_PREPEND_NO_CODES_WITH_BETWEEN 	"%s://%s/%s/preferred_caught_no_codes_%s_%s_%d.csv"
-#define FTP_NONPREPEND_NO_CODES_WITH_BETWEEN	"/%s/preferred_caught_no_codes_%s_%s_%d.csv"
-
-#define OUTPUT_CODES_NO_BETWEEN			"%s/%s/preferred_caught_with_codes_%s_%d.csv"
-#define FTP_PREPEND_CODES_NO_BETWEEN 		"%s://%s/%s/preferred_caught_with_codes_%s_%d.csv"
-#define FTP_NONPREPEND_CODES_NO_BETWEEN		"/%s/preferred_caught_with_codes_%s_%d.csv"
-
-#define OUTPUT_NO_CODES_NO_BETWEEN		"%s/%s/preferred_caught_no_codes_%s_%d.csv"
-#define FTP_PREPEND_NO_CODES_NO_BETWEEN 	"%s://%s/%s/preferred_caught_no_codes_%s_%d.csv"
-#define FTP_NONPREPEND_NO_CODES_NO_BETWEEN	"/%s/preferred_caught_no_codes_%s_%d.csv"
-*/
-
 /* Prototypes */
 /* ---------- */
 void output_spreadsheet_fishing_trip_horizontally(
@@ -415,85 +397,6 @@ void species_preferred_species_caught(
 		document_close();
 		exit( 1 );
 	}
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		if ( with_between )
-		{
-			sprintf(ftp_codes_filename, 
-		 		FTP_PREPEND_CODES_WITH_BETWEEN, 
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-		 		begin_date_string,
-				end_date_string,
-			process_id );
-
-			sprintf(ftp_no_codes_filename, 
-		 		FTP_PREPEND_NO_CODES_WITH_BETWEEN, 
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-		 		begin_date_string,
-				end_date_string,
-			process_id );
-		}
-		else
-		{
-			sprintf(ftp_codes_filename, 
-		 		FTP_PREPEND_CODES_NO_BETWEEN, 
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-		 		begin_date_string,
-				process_id );
-
-			sprintf(ftp_no_codes_filename, 
-		 		FTP_PREPEND_NO_CODES_NO_BETWEEN, 
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-		 		begin_date_string,
-				process_id );
-		}
-
-	}
-	else
-	{
-		if ( with_between )
-		{
-			sprintf(ftp_codes_filename,
-		 		FTP_NONPREPEND_CODES_WITH_BETWEEN, 
-		 		application_name,
-		 		begin_date_string,
-				end_date_string,
-				process_id );
-
-			sprintf(ftp_no_codes_filename,
-		 		FTP_NONPREPEND_NO_CODES_WITH_BETWEEN, 
-		 		application_name,
-		 		begin_date_string,
-				end_date_string,
-				process_id );
-		}
-		else
-		{
-			sprintf(ftp_codes_filename,
-		 		FTP_NONPREPEND_CODES_NO_BETWEEN, 
-		 		application_name,
-		 		begin_date_string,
-				process_id );
-
-			sprintf(ftp_no_codes_filename,
-		 		FTP_NONPREPEND_NO_CODES_NO_BETWEEN, 
-		 		application_name,
-		 		begin_date_string,
-				process_id );
-		}
-	}
-*/
 
 	if ( !*display_data
 	||   strcmp( display_data, DISPLAY_CATCHES_HORIZONTALLY ) == 0 )

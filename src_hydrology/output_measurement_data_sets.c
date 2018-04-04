@@ -38,12 +38,6 @@
 #define SELECT_LIST			 "measurement_date,measurement_time,measurement_value"
 #define REVERSE_ORDER_CLAUSE	 	"measurement_date desc,measurement_time desc"
 
-/*
-#define OUTPUT_FILE_TEMPLATE		"%s/%s/%s_%d_%s_%d.csv"
-#define HTTP_FTP_FILE_TEMPLATE		"%s://%s/%s/%s_%d_%s_%d.csv"
-#define FTP_FILE_TEMPLATE		"/%s/%s_%d_%s_%d.csv"
-*/
-
 #define PROMPT_REAL_TIME_TEMPLATE		 "For %d measurements per day, &lt;Left Click&gt; to view or &lt;Right Click&gt; save."
 
 #define PROMPT_NON_REAL_TIME_TEMPLATE		 "&lt;Left Click&gt; to view or &lt;Right Click&gt; to save."
@@ -509,41 +503,6 @@ void output_measurement_data_sets_transmit(
 		expected_count =
 			list_get_pointer(
 				expected_count_list );
-
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEMPLATE,
-			 appaserver_mount_point,
-			 application_name, 
-			 station,
-			 expected_count->expected_count,
-			 begin_date,
-			 process_id );
-
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	station,
-			 	expected_count->expected_count,
-			 	begin_date,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEMPLATE, 
-			 	application_name,
-			 	station,
-			 	expected_count->expected_count,
-			 	begin_date,
-			 	process_id );
-		}
-*/
 
 		sprintf( end_date_string,
 			 "%d",

@@ -30,11 +30,6 @@
 /* Constants */
 /* --------- */
 #define TABLE_QUEUE_TOP_BOTTOM	1000
-/*
-#define OUTPUT_FILE_TEMPLATE	"%s/%s/execute_select_statement_%d.csv"
-#define HTTP_FTP_FILE_TEMPLATE	"%s://%s/%s/execute_select_statement_%d.csv"
-#define FTP_FILE_TEMPLATE	"/%s/execute_select_statement_%d.csv"
-*/
 #define SPOOL_STATEMENT_TEMPLATE "%s/%s_execute_select_statement_%s.sql"
 
 /* Prototypes */

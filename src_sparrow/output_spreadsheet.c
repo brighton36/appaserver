@@ -33,11 +33,6 @@
 /* Constants */
 /* --------- */
 #define DELIMITER		','
-/*
-#define OUTPUT_TEMPLATE		"%s/%s/%s_%d.csv"
-#define FTP_PREPEND_TEMPLATE	"%s://%s/%s/%s_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE	"/%s/%s_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -282,28 +277,6 @@ void output_spreadsheet(
 		output_filename,
 		sys_string,
 		parameter_where );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-			process_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_TEMPLATE, 
-	 		application_name,
-			process_name,
-	 		process_id );
-	}
-*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

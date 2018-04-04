@@ -25,11 +25,6 @@
 /* Constants */
 /* --------- */
 #define QUEUE_TOP_BOTTOM_LINES	5000
-/*
-#define OUTPUT_TEMPLATE		"%s/%s/catches_per_species_%d.csv"
-#define FTP_PREPEND_TEMPLATE	"%s://%s/%s/catches_per_species_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE	"/%s/catches_per_species_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -405,26 +400,6 @@ void output_catches_per_species(
 
 		pclose( input_pipe );
 		pclose( output_pipe );
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-		 		FTP_PREPEND_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-		 		process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-		 		FTP_NONPREPEND_TEMPLATE, 
-		 		application_name,
-		 		process_id );
-		}
-*/
 
 		ftp_filename =
 			appaserver_link_get_link_prompt(

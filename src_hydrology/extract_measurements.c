@@ -33,11 +33,6 @@
 /* Constants */
 /* --------- */
 #define SELECT_LIST		"station,datatype,measurement_date,measurement_time,measurement_value"
-/*
-#define OUTPUT_FILE_TEMPLATE	"%s/%s/extract_measurements_%s_%s_%s_%s%s.csv"
-#define FTP_PREPEND_FILE_TEMPLATE "%s://%s/%s/extract_measurements_%s_%s_%s_%s%s.csv"
-#define FTP_NO_PREPEND_FILE_TEMPLATE "/%s/extract_measurements_%s_%s_%s_%s%s.csv"
-*/
 #define ROWS_TO_SKIP		9
 
 /* Prototypes */
@@ -619,44 +614,6 @@ void extract_measurements(	char *application_name,
 		else
 			*end_date_suffix = '\0';
 
-/*
-		sprintf(output_filename,
-	 		OUTPUT_FILE_TEMPLATE,
-	 		appaserver_parameter_file->appaserver_mount_point,
-	 		application_name, 
-			station,
-			datatype,
-	 		begin_date,
-	 		end_date_suffix,
-	 		session );
-
-		if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-		 		FTP_PREPEND_FILE_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-				station,
-				datatype,
-		 		begin_date,
-		 		end_date_suffix,
-		 		session );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-		 		FTP_NO_PREPEND_FILE_TEMPLATE, 
-		 		application_name,
-				station,
-				datatype,
-		 		begin_date,
-		 		end_date_suffix,
-		 		session );
-		}
-*/
-
 		appaserver_link_file->begin_date_string = begin_date;
 		appaserver_link_file->end_date_string = end_date;
 
@@ -826,44 +783,6 @@ void extract_measurements_combined(
 		sprintf( end_date_suffix, "%s_", end_date );
 	else
 		*end_date_suffix = '\0';
-
-#ifdef NOT_DEFINED
-	sprintf(output_filename,
- 		OUTPUT_FILE_TEMPLATE,
- 		appaserver_parameter_file->appaserver_mount_point,
- 		application_name, 
-		"combined" /* station */,
-		"datatypes" /* datatype */,
- 		begin_date,
- 		end_date_suffix,
- 		session );
-	
-	if ( application_get_prepend_http_protocol_yn(
-			application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-	 		FTP_PREPEND_FILE_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-	 		appaserver_library_get_server_address(),
-	 		application_name,
-			"combined" /* station */,
-			"datatypes" /* datatype */,
-	 		begin_date,
-	 		end_date_suffix,
-	 		session );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-	 		FTP_NO_PREPEND_FILE_TEMPLATE, 
-	 		application_name,
-			"combined" /* station */,
-			"datatypes" /* datatype */,
-	 		begin_date,
-	 		end_date_suffix,
-	 		session );
-	}
-#endif
 
 	appaserver_link_file =
 		appaserver_link_file_new(

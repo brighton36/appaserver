@@ -29,11 +29,6 @@
 /* Constants */
 /* --------- */
 #define DELIMITER	'^'
-/*
-#define OUTPUT_TEMPLATE	"%s/%s/bird_observation_%d.csv"
-#define FTP_PREPEND_TEMPLATE "%s://%s/%s/bird_observation_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE "/%s/bird_observation_%d.csv"
-*/
 
 #define HEADING_TEMPLATE \
 "SRF_Date,%s,%s,common_name,L/R,bird_count,bird_estimation,cell_number,hydropattern,basin,transect"
@@ -256,26 +251,6 @@ int main( int argc, char **argv )
 			exit( 0 );
 		}
 	
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_PREPEND_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_NONPREPEND_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
-
 		fprintf( output_file,
 			 "%s\n",
 			 format_initial_capital(

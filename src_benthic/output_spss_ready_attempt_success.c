@@ -34,11 +34,6 @@
 /* Constants */
 /* --------- */
 #define FILENAME_STEM			"spss_ready_attempt"
-/*
-#define OUTPUT_FILE			"%s/%s/spss_ready_attempt_%d.csv"
-#define FTP_PREPEND_FILE		"%s://%s/%s/spss_ready_attempt_%d.csv"
-#define FTP_NONPREPEND_FILE		"/%s/spss_ready_attempt_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -256,25 +251,6 @@ void output_spss_ready_attempt_success(
 	pclose( output_pipe );
 	pclose( input_pipe );
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_FILE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_FILE, 
-	 		application_name,
-	 		process_id );
-	}
-*/
 	ftp_filename =
 		appaserver_link_get_link_prompt(
 			appaserver_link_file->

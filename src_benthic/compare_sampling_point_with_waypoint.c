@@ -33,11 +33,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_FILE			"%s/%s/compare_waypoint_%d.csv"
-#define FTP_PREPEND_FILE		"%s://%s/%s/compare_waypoint_%d.csv"
-#define FTP_NONPREPEND_FILE		"/%s/compare_waypoint_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -249,26 +244,6 @@ void output_compare_waypoint(
 
 	pclose( output_pipe );
 	pclose( input_pipe );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_FILE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_FILE, 
-	 		application_name,
-	 		process_id );
-	}
-*/
 
 	ftp_filename =
 		appaserver_link_get_link_prompt(

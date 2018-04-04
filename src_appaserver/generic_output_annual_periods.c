@@ -41,11 +41,6 @@
 #define GRACE_VALUE_PIECE		3
 #define KEY_DELIMITER			'/'
 #define FILENAME_STEM			"annual_periods"
-/*
-#define OUTPUT_FILE_TEMPLATE		"%s/%s/annual_periods_%d.txt"
-#define FTP_FILE_TEMPLATE		"/%s/annual_periods_%d.txt"
-#define FTP_WITH_HTTP_FILE_TEMPLATE	"%s://%s/%s/annual_periods_%d.txt"
-*/
 
 #define ROWS_BETWEEN_HEADING			20
 #define DATE_PIECE		 		0
@@ -746,26 +741,6 @@ int main( int argc, char **argv )
 				application_get_is_primary_application(
 					application_name ) ) );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename,
-			 	FTP_WITH_HTTP_FILE_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename,
-			 	FTP_FILE_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
-	
 		appaserver_library_output_ftp_prompt(
 				ftp_filename,
 				TRANSMIT_PROMPT,

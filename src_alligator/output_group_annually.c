@@ -35,11 +35,6 @@ enum output_medium { output_medium_stdout, text_file, table, chart };
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_FILE		"%s/%s/output_group_annually_%d.csv"
-#define FTP_PREPEND_FILE	"%s://%s/%s/output_group_annually_%d.csv"
-#define FTP_NONPREPEND_FILE	"/%s/output_group_annually_%d.csv"
-*/
 #define FILENAME_STEM		"output_group_annually"
 
 #define ROWS_BETWEEN_HEADING		10
@@ -299,26 +294,6 @@ void output_group_annually_text_file(
 	pclose( input_pipe );
 
 	if ( output_medium != output_medium_stdout ) fclose( output_file );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_FILE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_FILE, 
-	 		application_name,
-	 		process_id );
-	}
-*/
 
 	if ( output_medium != output_medium_stdout )
 	{

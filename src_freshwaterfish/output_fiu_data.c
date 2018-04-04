@@ -40,32 +40,6 @@
 #define FILENAME_STEM_NONFISH			"TINVandOV_for_FIU"
 #define FILENAME_STEM_WETWEIGHT			"TWetweight_for_FIU"
 
-/*
-#define OUTPUT_FISH_TEMPLATE				"%s/%s/Tfish_for_FIU_%s_%s_%d.csv"
-#define FTP_FISH_PREPEND_TEMPLATE	 		"%s://%s/%s/Tfish_for_FIU_%s_%s_%d.csv"
-#define FTP_FISH_NOPREPEND_TEMPLATE			"/%s/Tfish_for_FIU_%s_%s_%d.csv"
-
-#define OUTPUT_CRAYFISH_TEMPLATE			"%s/%s/TCrayfish_for_FIU_%s_%s_%d.csv"
-#define FTP_CRAYFISH_PREPEND_TEMPLATE	 		"%s://%s/%s/TCrayfish_for_FIU_%s_%s_%d.csv"
-#define FTP_CRAYFISH_NOPREPEND_TEMPLATE			"/%s/TCrayfish_for_FIU_%s_%s_%d.csv"
-
-#define OUTPUT_VEGETATION_TEMPLATE			"%s/%s/TVeg_for_FIU_%s_%s_%d.csv"
-#define FTP_VEGETATION_PREPEND_TEMPLATE	 		"%s://%s/%s/TVeg_for_FIU_%s_%s_%d.csv"
-#define FTP_VEGETATION_NOPREPEND_TEMPLATE		"/%s/TVeg_for_FIU_%s_%s_%d.csv"
-
-#define OUTPUT_PERIPHYTON_TEMPLATE			"%s/%s/TPHYS_for_FIU_%s_%s_%d.csv"
-#define FTP_PERIPHYTON_PREPEND_TEMPLATE	 		"%s://%s/%s/TPHYS_for_FIU_%s_%s_%d.csv"
-#define FTP_PERIPHYTON_NOPREPEND_TEMPLATE		"/%s/TPHYS_for_FIU_%s_%s_%d.csv"
-
-#define OUTPUT_NONFISH_TEMPLATE				"%s/%s/TINVandOV_for_FIU_%s_%s_%d.csv"
-#define FTP_NONFISH_PREPEND_TEMPLATE	 		"%s://%s/%s/TINVandOV_for_FIU_%s_%s_%d.csv"
-#define FTP_NONFISH_NOPREPEND_TEMPLATE			"/%s/TINVandOV_for_FIU_%s_%s_%d.csv"
-
-#define OUTPUT_WETWEIGHT_TEMPLATE			"%s/%s/TWetweight_for_FIU_%s_%s_%d.csv"
-#define FTP_WETWEIGHT_PREPEND_TEMPLATE	 		"%s://%s/%s/TWetweight_for_FIU_%s_%s_%d.csv"
-#define FTP_WETWEIGHT_NOPREPEND_TEMPLATE		"/%s/TWetweight_for_FIU_%s_%s_%d.csv"
-*/
-
 /* Prototypes */
 /* ---------- */
 void output_species_group_weight(
@@ -370,38 +344,6 @@ void output_fish_data(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf(output_filename, 
-	 	OUTPUT_FISH_TEMPLATE,
-	 	appaserver_mount_point,
-	 	application_name, 
-	 	begin_month_string,
-		end_month_string,
-		year );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_FISH_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-			FTP_FISH_NOPREPEND_TEMPLATE, 
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-*/
-
 	sprintf(	begin_date_string,
 			"%d-%d-01",
 			year,
@@ -652,38 +594,6 @@ void output_crayfish_data(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf(output_filename, 
-	 	OUTPUT_CRAYFISH_TEMPLATE,
-	 	appaserver_mount_point,
-	 	application_name, 
-	 	begin_month_string,
-		end_month_string,
-		year );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_CRAYFISH_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-			FTP_CRAYFISH_NOPREPEND_TEMPLATE, 
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-*/
-
 	sprintf(	begin_date_string,
 			"%d-%d-01",
 			year,
@@ -889,38 +799,6 @@ void output_vegetation_data(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	sprintf(output_filename, 
-	 	OUTPUT_VEGETATION_TEMPLATE,
-	 	appaserver_mount_point,
-	 	application_name, 
-	 	begin_month_string,
-		end_month_string,
-		year );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_VEGETATION_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-			FTP_VEGETATION_NOPREPEND_TEMPLATE, 
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-*/
 
 	sprintf(	begin_date_string,
 			"%d-%d-01",
@@ -1192,38 +1070,6 @@ void output_periphyton_data(
 			appaserver_link_file->extension );
 
 
-/*
-	sprintf(output_filename, 
-	 	OUTPUT_PERIPHYTON_TEMPLATE,
-	 	appaserver_mount_point,
-	 	application_name, 
-	 	begin_month_string,
-		end_month_string,
-		year );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PERIPHYTON_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-			FTP_PERIPHYTON_NOPREPEND_TEMPLATE, 
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-*/
-
 	sprintf(	begin_date_string,
 			"%d-%d-01",
 			year,
@@ -1369,39 +1215,6 @@ void output_inverts_verts_data(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-
-/*
-	sprintf(output_filename, 
-	 	OUTPUT_NONFISH_TEMPLATE,
-	 	appaserver_mount_point,
-	 	application_name, 
-	 	begin_month_string,
-		end_month_string,
-		year );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_NONFISH_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-			FTP_NONFISH_NOPREPEND_TEMPLATE, 
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-*/
 
 	sprintf(	begin_date_string,
 			"%d-%d-01",
@@ -1692,38 +1505,6 @@ void output_wet_weights_data(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	sprintf(output_filename, 
-	 	OUTPUT_WETWEIGHT_TEMPLATE,
-	 	appaserver_mount_point,
-	 	application_name, 
-	 	begin_month_string,
-		end_month_string,
-		year );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_WETWEIGHT_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-			FTP_WETWEIGHT_NOPREPEND_TEMPLATE, 
-		 	application_name,
-		 	begin_month_string,
-			end_month_string,
-			year );
-	}
-*/
 
 	sprintf(	begin_date_string,
 			"%d-%d-01",

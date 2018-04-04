@@ -30,11 +30,6 @@
 /* --------- */
 #define PROCESS_NAME		"shef_download"
 #define COLUMN_LIST		 "station,datatype,measurement_date,measurement_time,measurement_value"
-/*
-#define OUTPUT_FILE_TEMPLATE	"%s/%s/shef_download_%d.txt"
-#define FTP_FILE_TEMPLATE	"/%s/shef_download_%d.txt"
-#define HTTP_FTP_FILE_TEMPLATE	"%s://%s/%s/shef_download_%d.txt"
-*/
 #define EMAIL_SUBJECT		"Shef Formatted Output"
 
 /* Prototypes */
@@ -123,32 +118,6 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 0 );
 	}
-
-/*
-	sprintf( output_filename, 
-		 OUTPUT_FILE_TEMPLATE, 
-		 appaserver_parameter_file->appaserver_mount_point,
-		 application_name, 
-		 process_id );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	HTTP_FTP_FILE_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-		 	application_name, 
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_FILE_TEMPLATE, 
-		 	application_name, 
-		 	process_id );
-	}
-*/
 
 	appaserver_link_file =
 		appaserver_link_file_new(

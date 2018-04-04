@@ -472,36 +472,6 @@ void output_visit_spreadsheet(	char *application_name,
 	fclose( output_codes_file );
 	fclose( output_no_codes_file );
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_codes_filename, 
-			FTP_PREPEND_CODES, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-		sprintf(ftp_no_codes_filename, 
-			FTP_PREPEND_NO_CODES,
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_codes_filename,
-	 		FTP_NONPREPEND_CODES, 
-	 		application_name,
-	 		process_id );
-		sprintf(ftp_no_codes_filename,
-	 		FTP_NONPREPEND_NO_CODES, 
-	 		application_name,
-	 		process_id );
-	}
-*/
-
 	appaserver_library_output_ftp_prompt(
 			ftp_codes_filename,
 "With codes: &lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",

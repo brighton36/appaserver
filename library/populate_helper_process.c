@@ -105,41 +105,5 @@ char *populate_helper_process_get_ftp_file_prompt(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-#ifdef NOT_DEFINED
-	static char output_prompt[ 256 ];
-
-prepend_http_protocol = 0;
-
-	if ( prepend_http_protocol )
-	{
-/*
-		sprintf(output_prompt,
-			HELPER_PROCESS_HTTP_FTP_FILE_TEMPLATE,
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			application_name,
-			key,
-			process_id );
-*/
-		sprintf(output_prompt,
-			HELPER_PROCESS_HTTP_FTP_FILE_TEMPLATE,
-			"http",
-			pipe2string( "uname -n" ),
-			application_name,
-			key,
-			process_id );
-	}
-	else
-	{
-		sprintf(output_prompt,
-			HELPER_PROCESS_FTP_FILE_TEMPLATE,
-			application_name,
-			key,
-			process_id );
-	}
-
-	return output_prompt;
-#endif
-
 } /* populate_helper_process_get_ftp_file_prompt() */
 

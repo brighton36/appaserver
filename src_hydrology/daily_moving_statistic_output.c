@@ -46,16 +46,6 @@
 #define PROCESS_NAME		"output_daily_moving_statistic"
 #define KEY_DELIMITER		'/'
 
-/*
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/daily_moving_statistic_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/daily_moving_statistic_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/daily_moving_statistic_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/daily_moving_statistic_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/daily_moving_statistic_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/daily_moving_statistic_%d.csv"
-*/
-
 #define ROWS_BETWEEN_HEADING			20
 #define SELECT_LIST			"measurement_date,measurement_value,station"
 
@@ -509,26 +499,6 @@ int main( int argc, char **argv )
 			fclose( output_file );
 		}
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_TEXT_FILE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEXT_FILE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
-	
 		if ( exceedance_format_yn == 'y' )
 		{
 /*
@@ -678,26 +648,6 @@ int main( int argc, char **argv )
 			fclose( output_file );
 		}
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_SPREADSHEET, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET, 
-			 	application_name,
-			 	process_id );
-		}
-*/
-	
 		if ( exceedance_format_yn == 'y' )
 		{
 			sprintf( output_sys_string,

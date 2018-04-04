@@ -34,11 +34,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_TEMPLATE		"%s/%s/wet_dry_annual_%d.csv"
-#define FTP_PREPEND_TEMPLATE	"%s://%s/%s/wet_dry_annual_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE	"/%s/wet_dry_annual_%d.csv"
-*/
 
 /* Structures */
 /* ---------- */
@@ -588,26 +583,6 @@ void output_wet_dry_annual_spreadsheet(
 	} while( list_next( year_total_list ) );
 
 	fclose( output_file );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_TEMPLATE, 
-	 		application_name,
-	 		process_id );
-	}
-*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

@@ -41,16 +41,6 @@
 #define DEFAULT_OUTPUT_MEDIUM			"summary_table"
 #define FILENAME_STEM				"hydroperiod"
 
-/*
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/hydroperiod_%d_%d_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/hydroperiod_%d_%d_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/hydroperiod_%d_%d_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/hydroperiod_%d_%d_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/hydroperiod_%d_%d_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/hydroperiod_%d_%d_%d.csv"
-*/
-
 #define DATE_PIECE		 		0
 #define TIME_PIECE		 		1
 #define VALUE_PIECE		 		2
@@ -368,30 +358,6 @@ int main( int argc, char **argv )
 		}
 
 /*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_TEXT_FILE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_year,
-			 	end_year,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEXT_FILE, 
-			 	application_name,
-			 	begin_year,
-			 	end_year,
-			 	process_id );
-		}
-*/
-	
-/*
 		sprintf( sys_string,
 			 "delimiter2padded_columns.e '|' 8 > %s",
 			 output_pipename );
@@ -513,30 +479,6 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_SPREADSHEET, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_year,
-			 	end_year,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET,
-			 	application_name,
-			 	begin_year,
-			 	end_year,
-			 	process_id );
-		}
-*/
-	
 		sprintf( sys_string,
 			 "tr '|' ',' > %s",
 			 output_pipename );
@@ -652,15 +594,6 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
-/*
-		sprintf( ftp_filename, 
-			 FTP_FILE_SPREADSHEET,
-			 application_name,
-			 begin_year,
-			 end_year,
-			 process_id );
-*/
-	
 		sprintf( sys_string,
 			 "tr '|' ',' > %s",
 			 output_pipename );
@@ -776,15 +709,6 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
-/*
-		sprintf( ftp_filename, 
-			 FTP_FILE_TEXT_FILE, 
-			 application_name,
-			 begin_year,
-			 end_year,
-			 process_id );
-*/
-	
 /*
 		sprintf( sys_string,
 			 "delimiter2padded_columns.e '|' 8 > %s",

@@ -41,16 +41,6 @@ enum output_medium { output_medium_stdout, text_file, table, chart };
 #define DETAIL_TEMPORARY_TEMPLATE "%s/sport_measurement_detail_temporary_%d.txt"
 #define SUMMARY_TEMPORARY_TEMPLATE "%s/sport_measurement_summary_temporary_%d.txt"
 
-/*
-#define OUTPUT_DETAIL_TEMPLATE	"%s/%s/sport_measurement_%d.csv"
-#define FTP_PREPEND_DETAIL_TEMPLATE "%s://%s/%s/sport_measurement_%d.csv"
-#define FTP_NONPREPEND_DETAIL_TEMPLATE "/%s/sport_measurement_%d.csv"
-
-#define OUTPUT_SUMMARY_TEMPLATE	"%s/%s/sport_measurement_summary_%d.csv"
-#define FTP_PREPEND_SUMMARY_TEMPLATE "%s://%s/%s/sport_measurement_summary_%d.csv"
-#define FTP_NONPREPEND_SUMMARY_TEMPLATE "/%s/sport_measurement_summary_%d.csv"
-*/
-
 /* Prototypes */
 /* ---------- */
 void sport_measurement_report_chart_get_sample_values(
@@ -732,26 +722,7 @@ void sport_measurement_report_output_text_file(
 			sprintf( output_sys_string,
 			 	 "sed 's/|/,/g' > %s",
 			 	 output_filename );
-/*
-			if ( application_get_prepend_http_protocol_yn(
-						application_name ) == 'y' )
-			{
-				sprintf(ftp_detail_filename, 
-				 	FTP_PREPEND_DETAIL_TEMPLATE, 
-					application_get_http_prefix(
-						application_name ),
-				 	appaserver_library_get_server_address(),
-				 	application_name,
-				 	process_id );
-			}
-			else
-			{
-				sprintf(ftp_detail_filename, 
-				 	FTP_NONPREPEND_DETAIL_TEMPLATE, 
-				 	application_name,
-				 	process_id );
-			}
-*/
+
 			ftp_detail_filename =
 				appaserver_link_get_link_prompt(
 					appaserver_link_file->
@@ -863,25 +834,6 @@ void sport_measurement_report_output_text_file(
 		 	 "sed 's/|/,/g' > %s",
 		 	 output_filename );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_summary_filename, 
-			 	FTP_PREPEND_SUMMARY_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_summary_filename, 
-			 	FTP_NONPREPEND_SUMMARY_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
 		ftp_summary_filename =
 			appaserver_link_get_link_prompt(
 				appaserver_link_file->

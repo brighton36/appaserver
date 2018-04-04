@@ -36,14 +36,6 @@ enum output_medium { text_file, table };
 #define DEFAULT_OUTPUT_MEDIUM			table
 #define NEST_FILENAME_STEM			"nest"
 #define OBSERVATION_FILENAME_STEM		"observation"
-/*
-#define NEST_OUTPUT_TEMPLATE			"%s/%s/nest_%d.csv"
-#define NEST_FTP_PREPEND_TEMPLATE		"%s://%s/%s/nest_%d.csv"
-#define NEST_FTP_NONPREPEND_TEMPLATE		"/%s/nest_%d.csv"
-#define OBSERVATION_OUTPUT_TEMPLATE		"%s/%s/observation_%d.csv"
-#define OBSERVATION_FTP_PREPEND_TEMPLATE	"%s://%s/%s/observation_%d.csv"
-#define OBSERVATION_FTP_NONPREPEND_TEMPLATE	"/%s/observation_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -740,36 +732,6 @@ void output_text_file(	char *application_name,
 	{
 		fclose( observation_output_file );
 	}
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(nest_ftp_filename, 
-		 	NEST_FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-		sprintf(observation_ftp_filename, 
-		 	OBSERVATION_FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(nest_ftp_filename, 
-		 	NEST_FTP_NONPREPEND_TEMPLATE, 
-		 	application_name,
-		 	process_id );
-		sprintf(observation_ftp_filename, 
-		 	OBSERVATION_FTP_NONPREPEND_TEMPLATE, 
-		 	application_name,
-		 	process_id );
-	}
-*/
 
 	sprintf( sys_string,
 	 "sed 's/^/%c/' | sed 's/|/\\%c,\\%c/g' | sed 's/$/%c/' > %s",

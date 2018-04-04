@@ -35,16 +35,6 @@
 /* --------- */
 #define DEFAULT_OUTPUT_MEDIUM	"table"
 
-/*
-#define OUTPUT_SPREADSHEET_TEMPLATE "%s/%s/annual_comparison_%s_%s_%s.csv"
-#define HTTP_FTP_SPREADSHEET_TEMPLATE "%s://%s/%s/annual_comparison_%s_%s_%s.csv"
-#define FTP_SPREADSHEET_TEMPLATE "/%s/annual_comparison_%s_%s_%s.csv"
-
-#define OUTPUT_TEXT_TEMPLATE "%s/%s/annual_comparison_%s_%s_%s.txt"
-#define HTTP_FTP_TEXT_TEMPLATE "%s://%s/%s/annual_comparison_%s_%s_%s.txt"
-#define FTP_TEXT_TEMPLATE "/%s/annual_comparison_%s_%s_%s.txt"
-*/
-
 #define ROWS_BETWEEN_HEADING			20
 
 #define GRACE_DATATYPE_ENTITY_PIECE		-1
@@ -353,30 +343,6 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_SPREADSHEET_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_month_day,
-			 	end_month_day,
-			 	session );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_SPREADSHEET_TEMPLATE, 
-			 	application_name,
-			 	begin_month_day,
-			 	end_month_day,
-			 	session );
-		}
-*/
-
 		ftp_filename =
 			appaserver_link_get_link_prompt(
 				appaserver_link_file->
@@ -499,29 +465,6 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_TEXT_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_month_day,
-			 	end_month_day,
-			 	session );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_TEXT_TEMPLATE, 
-			 	application_name,
-			 	begin_month_day,
-			 	end_month_day,
-			 	session );
-		}
-*/
 		ftp_filename =
 			appaserver_link_get_link_prompt(
 				appaserver_link_file->

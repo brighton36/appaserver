@@ -26,11 +26,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_TEMPLATE	"%s/%s/bird_observation_over_time_%d.csv"
-#define FTP_PREPEND_TEMPLATE "%s://%s/%s/bird_observation_over_time_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE "/%s/bird_observation_over_time_%d.csv"
-*/
 
 /* Structures */
 /* ---------- */
@@ -860,26 +855,6 @@ void output_text_file(	char *application_name,
 		fclose( output_file );
 	}
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_NONPREPEND_TEMPLATE, 
-		 	application_name,
-		 	process_id );
-	}
-*/
-
 	sprintf( sys_string,
 		 "cat > %s",
 		 output_filename );
@@ -1026,26 +1001,6 @@ void output_average_text_file(	char *application_name,
 	{
 		fclose( output_file );
 	}
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_NONPREPEND_TEMPLATE, 
-		 	application_name,
-		 	process_id );
-	}
-*/
 
 	sprintf( sys_string,
 		 "cat > %s",

@@ -41,11 +41,6 @@
 #define GRACE_TIME_PIECE		-1
 #define GRACE_VALUE_PIECE		3
 #define KEY_DELIMITER			'/'
-/*
-#define OUTPUT_FILE_TEMPLATE		"%s/%s/daily_moving_average_%d.txt"
-#define FTP_FILE_TEMPLATE		"/%s/daily_moving_average_%d.txt"
-#define FTP_WITH_HTTP_FILE_TEMPLATE	"%s://%s/%s/daily_moving_average_%d.txt"
-*/
 
 #define ROWS_BETWEEN_HEADING			20
 
@@ -592,26 +587,6 @@ int main( int argc, char **argv )
 
 		output_pipe = popen( output_sys_string, "w" );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_WITH_HTTP_FILE_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
-	
 		if ( *exceedance_format_yn == 'y' )
 		{
 			daily_moving_average_output_transmit_exceedance_format(

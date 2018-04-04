@@ -33,16 +33,6 @@
 #define QUEUE_TOP_BOTTOM_LINES			600
 #define DEFAULT_OUTPUT_MEDIUM			"table"
 
-/*
-#define OUTPUT_SPREADSHEET_TEMPLATE		"%s/%s/output_observation_merge_%s.csv"
-#define FTP_SPREADSHEET_PREPEND_TEMPLATE 	"%s://%s/%s/output_observation_merge_%s.csv"
-#define FTP_SPREADSHEET_NOPREPEND_TEMPLATE	"/%s/output_observation_merge_%s.csv"
-
-#define OUTPUT_TEXT_FILE_TEMPLATE		"%s/%s/output_observation_merge_%s.txt"
-#define FTP_TEXT_FILE_PREPEND_TEMPLATE 	"%s://%s/%s/output_observation_merge_%s.txt"
-#define FTP_TEXT_FILE_NOPREPEND_TEMPLATE	"/%s/output_observation_merge_%s.txt"
-*/
-
 /* Prototypes */
 /* ---------- */
 void output_stdout(		char *application_name,
@@ -331,32 +321,6 @@ void output_spreadsheet(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf( output_filename,
-		 OUTPUT_SPREADSHEET_TEMPLATE,
-		 appaserver_mount_point,
-		 application_name,
-		 session );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf( ftp_filename,
-			 FTP_SPREADSHEET_PREPEND_TEMPLATE,
-			 application_get_http_prefix( application_name ),
-			 appaserver_library_get_server_address(),
-		 	 application_name,
-		 	 session );
-	}
-	else
-	{
-		sprintf( ftp_filename,
-			 FTP_SPREADSHEET_NOPREPEND_TEMPLATE,
-		 	 application_name,
-		 	 session );
-	}
-*/
-
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s</h2>\n",
@@ -506,33 +470,6 @@ void output_text_file(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-
-/*
-	sprintf( output_filename,
-		 OUTPUT_TEXT_FILE_TEMPLATE,
-		 appaserver_mount_point,
-		 application_name,
-		 session );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf( ftp_filename,
-			 FTP_TEXT_FILE_PREPEND_TEMPLATE,
-			 application_get_http_prefix( application_name ),
-			 appaserver_library_get_server_address(),
-		 	 application_name,
-		 	 session );
-	}
-	else
-	{
-		sprintf( ftp_filename,
-			 FTP_TEXT_FILE_NOPREPEND_TEMPLATE,
-		 	 application_name,
-		 	 session );
-	}
-*/
 
 /*
 	sprintf( sys_string,

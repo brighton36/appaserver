@@ -37,16 +37,6 @@
 /* --------- */
 #define DEFAULT_COMPARE_OUTPUT	"table"
 
-/*
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/compare_%s%s_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/compare_%s%s_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/compare_%s%s_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/compare_%s%s_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/compare_%s%s_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/compare_%s%s_%d.csv"
-*/
-
 #define PROCESS_NAME		"output_datatype_overlay"
 #define PDF_PROMPT		"Press to view chart."
 
@@ -758,17 +748,6 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					appaserver_mount_point );
 
-/*
-			sprintf(text_output_filename,
-		 		OUTPUT_FILE_TEXT_FILE,
-		 		appaserver_parameter_file->
-					appaserver_mount_point,
-		 		application_name, 
-		 		begin_date,
-		 		end_date_suffix,
-		 		process_id );
-*/
-
 			appaserver_link_file->extension = "txt";
 
 			text_output_filename =
@@ -852,31 +831,6 @@ int main( int argc, char **argv )
 			} while( list_next( compare_station_name_list ) );
 
 /*
-			if ( application_get_prepend_http_protocol_yn(
-						application_name ) == 'y' )
-			{
-				sprintf(text_ftp_filename, 
-					HTTP_FTP_FILE_TEXT_FILE,
-					application_get_http_prefix(
-						application_name ),
-					appaserver_library_get_server_address(),
-					application_name,
-					begin_date,
-					end_date_suffix,
-					process_id );
-			}
-			else
-			{
-				sprintf(text_ftp_filename, 
-					FTP_FILE_TEXT_FILE,
-					application_name,
-					begin_date,
-					end_date_suffix,
-					process_id );
-			}
-*/
-
-/*
 			sprintf(ftp_output_sys_string,
 		"tr ',' '\\t' | delimiter2padded_columns.e tab %d >> %s",
 		 		right_justified_columns_from_right,
@@ -899,22 +853,6 @@ int main( int argc, char **argv )
 				application_name,
 				appaserver_parameter_file->
 					appaserver_mount_point );
-
-/*
-			if ( end_date && *end_date )
-				sprintf( end_date_suffix, "_%s", end_date );
-			else
-				*end_date_suffix = '\0';
-
-			sprintf(text_output_filename,
-		 		OUTPUT_FILE_SPREADSHEET,
-		 		appaserver_parameter_file->
-					appaserver_mount_point,
-		 		application_name, 
-		 		begin_date,
-		 		end_date_suffix,
-		 		process_id );
-*/
 
 			appaserver_link_file->extension = "csv";
 
@@ -997,31 +935,6 @@ int main( int argc, char **argv )
 						station_name );
 
 			} while( list_next( compare_station_name_list ) );
-
-/*
-			if ( application_get_prepend_http_protocol_yn(
-						application_name ) == 'y' )
-			{
-				sprintf(text_ftp_filename,
-					HTTP_FTP_FILE_SPREADSHEET, 
-					application_get_http_prefix(
-						application_name ),
-					appaserver_library_get_server_address(),
-					application_name,
-					begin_date,
-					end_date_suffix,
-					process_id );
-			}
-			else
-			{
-				sprintf(text_ftp_filename, 
-					FTP_FILE_SPREADSHEET,
-					application_name,
-					begin_date,
-					end_date_suffix,
-					process_id );
-			}
-*/
 
 			sprintf(ftp_output_sys_string,
 				"cat >> %s",

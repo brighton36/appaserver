@@ -30,12 +30,6 @@
 #define DEFAULT_OUTPUT_MEDIUM	"table"
 #define FILENAME_STEM		"composition_venue_count"
 
-/*
-#define OUTPUT_SPREADSHEET_TEMPLATE		"%s/%s/composition_venue_count_%s.csv"
-#define FTP_SPREADSHEET_PREPEND_TEMPLATE 	"%s://%s/%s/composition_venue_count_%s.csv"
-#define FTP_SPREADSHEET_NOPREPEND_TEMPLATE	"/%s/composition_venue_count_%s.csv"
-*/
-
 #define VENUE_HEADING "city,venue,composition,latest_date,count"
 #define COMPOSITION_HEADING "composition,latest_date,count"
 #define VENUE_JUSTIFY "left,left,left,left,right"
@@ -389,32 +383,6 @@ void composition_venue_count_output_spreadsheet(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	sprintf( output_filename,
-		 OUTPUT_SPREADSHEET_TEMPLATE,
-		 appaserver_mount_point,
-		 application_name,
-		 session );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf( ftp_filename,
-			 FTP_SPREADSHEET_PREPEND_TEMPLATE,
-			 application_get_http_prefix( application_name ),
-			 appaserver_library_get_server_address(),
-		 	 application_name,
-		 	 session );
-	}
-	else
-	{
-		sprintf( ftp_filename,
-			 FTP_SPREADSHEET_NOPREPEND_TEMPLATE,
-		 	 application_name,
-		 	 session );
-	}
-*/
 
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{

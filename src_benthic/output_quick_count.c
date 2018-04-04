@@ -34,11 +34,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_TEMPLATE		"%s/%s/quick_count_%d.csv"
-#define FTP_PREPEND_TEMPLATE	"%s://%s/%s/quick_count_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE	"/%s/quick_count_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -589,26 +584,6 @@ void output_quick_count_text_file(
 	}
 	pclose( input_pipe );
 	pclose( output_pipe );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_TEMPLATE, 
-	 		application_name,
-	 		process_id );
-	}
-*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

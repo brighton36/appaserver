@@ -33,11 +33,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_TEMPLATE				"%s/%s/spreadsheet_habitat_%s_%s.csv"
-#define FTP_PREPEND_TEMPLATE	 		"%s://%s/%s/spreadsheet_habitat_%s_%s.csv"
-#define FTP_NOPREPEND_TEMPLATE			"/%s/spreadsheet_habitat_%s_%s.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -249,28 +244,6 @@ void output_spreadsheet(
 		document_close();
 		exit( 1 );
 	}
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	begin_date_string,
-			end_date_string );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-			FTP_NOPREPEND_TEMPLATE, 
-		 	application_name,
-		 	begin_date_string,
-			end_date_string );
-	}
-*/
 
 	fprintf( output_file,
 "DATE,YEAR,MONTH,DAY,SITE,PLOT,THROW,LONGGRID,SHORTGRID,TIME,DEPTH,VEGSP,CODE,DENSITY,DENSITYD,DP,PLHT,PEREMERPLCVR,PERTOPL,PERPERICVR,PERIVOL,TEMP,DO,COND\n" );

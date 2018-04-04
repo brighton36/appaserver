@@ -33,12 +33,6 @@
 #define BIRD_COUNT_BUCKET_SIZE	 	25
 #define BIRD_ESTIMATION_BUCKET_SIZE    100
 #define BUCKET_COUNT    		 8
-/*
-#define OUTPUT_TEMPLATE	"%s/%s/cell_hydropattern_bird_count_%d.csv"
-#define FTP_PREPEND_TEMPLATE "%s://%s/%s/cell_hydropattern_bird_count_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE "/%s/cell_hydropattern_bird_count_%d.csv"
-*/
-
 
 /* Prototypes */
 /* ---------- */
@@ -324,26 +318,6 @@ int main( int argc, char **argv )
 			fclose( output_file );
 		}
 	
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	FTP_PREPEND_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_NONPREPEND_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
-
 		sprintf( sys_string,
 			 "cat > %s",
 			 output_filename );

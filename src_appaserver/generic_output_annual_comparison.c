@@ -32,11 +32,6 @@
 /* --------- */
 #define DEFAULT_OUTPUT_MEDIUM	"table"
 #define FILENAME_STEM		"annual_comparison"
-/*
-#define OUTPUT_FILE_TEMPLATE	"%s/%s/annual_comparison_%s.csv"
-#define HTTP_FTP_FILE_TEMPLATE	"%s://%s/%s/annual_comparison_%s.csv"
-#define FTP_FILE_TEMPLATE	"/%s/annual_comparison_%s.csv"
-*/
 
 #define ROWS_BETWEEN_HEADING			20
 
@@ -501,26 +496,6 @@ int main( int argc, char **argv )
 			fclose( output_pipe );
 		}
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	session );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEMPLATE, 
-			 	application_name,
-			 	session );
-		}
-*/
-	
 		sprintf( sys_string,
 			 "cat > %s",
 			 output_pipename );

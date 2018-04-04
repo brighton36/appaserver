@@ -47,20 +47,6 @@ enum output_medium { output_medium_stdout, text_file, table, stacked_chart };
 #define SUMMARY_TEMPORARY_TEMPLATE "%s/creel_catches_summary_temporary_%d.csv"
 #define TOTAL_TEMPORARY_TEMPLATE "%s/creel_catches_total_temporary_%d.csv"
 
-/*
-#define OUTPUT_DETAIL_TEMPLATE	"%s/%s/creel_catches_%d.csv"
-#define FTP_PREPEND_DETAIL_TEMPLATE "%s://%s/%s/creel_catches_%d.csv"
-#define FTP_NONPREPEND_DETAIL_TEMPLATE "/%s/creel_catches_%d.csv"
-
-#define OUTPUT_SUMMARY_TEMPLATE	"%s/%s/creel_catches_summary_%d.csv"
-#define FTP_PREPEND_SUMMARY_TEMPLATE "%s://%s/%s/creel_catches_summary_%d.csv"
-#define FTP_NONPREPEND_SUMMARY_TEMPLATE "/%s/creel_catches_summary_%d.csv"
-
-#define OUTPUT_TOTAL_TEMPLATE	"%s/%s/creel_catches_total_%d.csv"
-#define FTP_PREPEND_TOTAL_TEMPLATE "%s://%s/%s/creel_catches_total_%d.csv"
-#define FTP_NONPREPEND_TOTAL_TEMPLATE "/%s/creel_catches_total_%d.csv"
-*/
-
 /* Prototypes */
 /* ---------- */
 void creel_catches_report_stacked_chart_get_sample_values(
@@ -941,26 +927,6 @@ void creel_catches_report_output_text_file(
 			 "tr '|' ',' > %s",
 			 output_filename );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_detail_filename, 
-			 	FTP_PREPEND_DETAIL_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_detail_filename, 
-			 	FTP_NONPREPEND_DETAIL_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
-
 		ftp_detail_filename =
 			appaserver_link_get_link_prompt(
 				appaserver_link_file->
@@ -1060,25 +1026,6 @@ void creel_catches_report_output_text_file(
 			 "tr '|' ',' > %s",
 			 output_filename );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_summary_filename, 
-			 	FTP_PREPEND_SUMMARY_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_summary_filename, 
-			 	FTP_NONPREPEND_SUMMARY_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
 		ftp_summary_filename =
 			appaserver_link_get_link_prompt(
 				appaserver_link_file->
@@ -1176,27 +1123,6 @@ void creel_catches_report_output_text_file(
 		sprintf( output_sys_string,
 			 "tr '|' ',' > %s",
 			 output_filename );
-
-
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_total_filename, 
-			 	FTP_PREPEND_TOTAL_TEMPLATE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_total_filename, 
-			 	FTP_NONPREPEND_TOTAL_TEMPLATE, 
-			 	application_name,
-			 	process_id );
-		}
-*/
 
 		ftp_total_filename =
 			appaserver_link_get_link_prompt(

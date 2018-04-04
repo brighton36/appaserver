@@ -35,13 +35,6 @@ enum output_medium { output_medium_stdout, text_file, table, labels };
 #define DEFAULT_OUTPUT_MEDIUM			table
 #define DEFAULT_DAYS_OFFSET			"10"
 
-/*
-#define OUTPUT_TEMPLATE		"%s/%s/guide_compliance_%d.txt"
-#define FTP_PREPEND_TEMPLATE	"%s://%s/%s/guide_compliance_%d.txt"
-#define FTP_NONPREPEND_TEMPLATE "/%s/guide_compliance_%d.txt"
-*/
-
-
 /* Prototypes */
 /* ---------- */
 void get_title_and_sub_title(
@@ -427,26 +420,6 @@ void guide_compliance_mail_merge_output_text_file(
 		exit( 1 );
 	}
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_NONPREPEND_TEMPLATE, 
-		 	application_name,
-		 	process_id );
-	}
-*/
-
 	while( creel_library_get_expired_guide_angler(
 				&guide_angler,
 				application_name,
@@ -586,26 +559,6 @@ void guide_compliance_mail_merge_output_labels(
 		 output_filename );
 
 	output_pipe = popen( sys_string, "w" );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	FTP_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_NONPREPEND_TEMPLATE, 
-		 	application_name,
-		 	process_id );
-	}
-*/
 
 	while( creel_library_get_expired_guide_angler(
 				&guide_angler,

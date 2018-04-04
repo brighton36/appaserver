@@ -36,16 +36,6 @@
 #define PDF_PROMPT		"Press to view chart."
 #define HEADING_DELIMITER	'/'
 
-/*
-#define OUTPUT_FILE_SPREADSHEET		"%s/%s/%s_%d_%d.csv"
-#define PREPEND_HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/%s_%d_%d.csv"
-#define FTP_FILE_SPREADSHEET		"/%s/%s_%d_%d.csv"
-
-#define OUTPUT_FILE_TEXT_FILE		"%s/%s/%s_%d_%d.txt"
-#define PREPEND_HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/%s_%d_%d.txt"
-#define FTP_FILE_TEXT_FILE		"/%s/%s_%d_%d.txt"
-*/
-
 /* Prototypes */
 /* ---------- */
 char *get_heading_string(	enum aggregate_level aggregate_level,
@@ -933,44 +923,6 @@ void output_exceedance_spreadsheet(
 			exit( 1 );
 		}
 
-/*
-		sprintf(output_filename,
-		 	OUTPUT_FILE_SPREADSHEET,
-			appaserver_mount_point,
-		 	application_name, 
-		 	process_generic_output->
-				value_folder->
-				value_folder_name,
-			dictionary_index,
-		 	process_id );
-
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	PREPEND_HTTP_FTP_FILE_SPREADSHEET,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_generic_output->
-					value_folder->
-					value_folder_name,
-				dictionary_index,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET,
-			 	application_name,
-			 	process_generic_output->
-					value_folder->
-					value_folder_name,
-				dictionary_index,
-			 	process_id );
-		}
-*/
-
 		sprintf( dictionary_index_string, "%d", dictionary_index );
 		appaserver_link_file->end_date_string = dictionary_index_string;
 
@@ -1211,44 +1163,6 @@ void output_exceedance_text_file(
 				__LINE__ );
 			exit( 1 );
 		}
-
-/*
-		sprintf(output_filename,
-		 	OUTPUT_FILE_TEXT_FILE,
-			appaserver_mount_point,
-		 	application_name, 
-		 	process_generic_output->
-				value_folder->
-				value_folder_name,
-			dictionary_index,
-		 	process_id );
-
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	PREPEND_HTTP_FTP_FILE_TEXT_FILE,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_generic_output->
-					value_folder->
-					value_folder_name,
-				dictionary_index,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEXT_FILE,
-			 	application_name,
-			 	process_generic_output->
-					value_folder->
-					value_folder_name,
-				dictionary_index,
-			 	process_id );
-		}
-*/
 
 		sprintf( dictionary_index_string, "%d", dictionary_index );
 		appaserver_link_file->end_date_string = dictionary_index_string;

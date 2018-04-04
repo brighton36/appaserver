@@ -557,26 +557,6 @@ void output_spreadsheet(FILE *input_pipe,
 
 	fclose( output_file );
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_SPREADSHEET,
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_SPREADSHEET,
-	 		application_name,
-	 		process_id );
-	}
-*/
-
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,
 "&lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",

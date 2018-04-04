@@ -33,15 +33,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_CODES		"%s/%s/srf_spreadsheet_with_codes_%d.csv"
-#define FTP_PREPEND_CODES	"%s://%s/%s/srf_spreadsheet_with_codes_%d.csv"
-#define FTP_NONPREPEND_CODES	"/%s/srf_spreadsheet_with_codes_%d.csv"
-#define OUTPUT_NO_CODES		"%s/%s/srf_spreadsheet_no_codes_%d.csv"
-#define FTP_PREPEND_NO_CODES	"%s://%s/%s/srf_spreadsheet_no_codes_%d.csv"
-#define FTP_NONPREPEND_NO_CODES	"/%s/srf_spreadsheet_no_codes_%d.csv"
-*/
-
 #define FILENAME_STEM_CODES	"srf_spreadsheet_with_codes"
 #define FILENAME_STEM_NO_CODES	"srf_spreadsheet_no_codes"
 
@@ -362,36 +353,6 @@ void output_srf_spreadsheet(	char *application_name,
 
 	fclose( output_no_codes_file );
 	fclose( output_codes_file );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_codes_filename, 
-			FTP_PREPEND_CODES, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-		sprintf(ftp_no_codes_filename, 
-			FTP_PREPEND_NO_CODES,
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_codes_filename,
-	 		FTP_NONPREPEND_CODES, 
-	 		application_name,
-	 		process_id );
-		sprintf(ftp_no_codes_filename,
-	 		FTP_NONPREPEND_NO_CODES, 
-	 		application_name,
-	 		process_id );
-	}
-*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_codes_filename,

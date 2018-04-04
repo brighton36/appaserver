@@ -32,16 +32,6 @@
 #define SELECT_LIST		"station,datatype,measurement_date,avg( measurement_value )"
 #define GROUP_BY		"station,datatype,measurement_date"
 
-/*
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/flow_daily_values_%s_%s_%s_%s%s.csv"
-#define FTP_PREPEND_FILE_SPREADSHEET "%s://%s/%s/flow_daily_values_%s_%s_%s_%s%s.csv"
-#define FTP_NONPREPEND_FILE_SPREADSHEET "/%s/flow_daily_values_%s_%s_%s_%s%s.csv"
-
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/flow_daily_values_%s_%s_%s_%s%s.txt"
-#define FTP_PREPEND_FILE_TEXT_FILE "%s://%s/%s/flow_daily_values_%s_%s_%s_%s%s.txt"
-#define FTP_NONPREPEND_FILE_TEXT_FILE "/%s/flow_daily_values_%s_%s_%s_%s%s.txt"
-*/
-
 #define FILENAME_STEM		"flow_daily_values"
 
 /* Prototypes */
@@ -472,34 +462,6 @@ void output_spreadsheet(
 		station,
 		0 /* not with_zap_file */ );
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-			application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-	 		FTP_PREPEND_FILE_SPREADSHEET, 
-			application_get_http_prefix( application_name ),
-	 		appaserver_library_get_server_address(),
-	 		application_name,
-			station,
-			datatype,
-	 		begin_date,
-	 		end_date_suffix,
-	 		session );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-	 		FTP_NONPREPEND_FILE_SPREADSHEET, 
-	 		application_name,
-			station,
-			datatype,
-	 		begin_date,
-	 		end_date_suffix,
-	 		session );
-	}
-*/
-
 	strcpy( sys_string,
 		get_heading_sys_string(
 			application_name,
@@ -646,34 +608,6 @@ void output_text_file(
 		application_name,
 		station,
 		0 /* not with_zap_file */ );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-			application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-	 		FTP_PREPEND_FILE_TEXT_FILE, 
-			application_get_http_prefix( application_name ),
-	 		appaserver_library_get_server_address(),
-	 		application_name,
-			station,
-			datatype,
-	 		begin_date,
-	 		end_date_suffix,
-	 		session );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-	 		FTP_NONPREPEND_FILE_TEXT_FILE, 
-	 		application_name,
-			station,
-			datatype,
-	 		begin_date,
-	 		end_date_suffix,
-	 		session );
-	}
-*/
 
 	strcpy( sys_string,
 		get_sys_string(

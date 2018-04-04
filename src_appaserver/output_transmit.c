@@ -32,11 +32,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_FILE_TEMPLATE		"%s/%s/%s_%d.csv"
-#define PREPEND_FTP_FILE_TEMPLATE	"%s://%s/%s/%s_%d.csv"
-#define FTP_FILE_TEMPLATE		"/%s/%s_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -260,35 +255,6 @@ int main( int argc, char **argv )
 	attribute_name_list = 
 		list_subtract( 	attribute_name_list, 
 				ignore_attribute_name_list );
-
-/*
-	sprintf( output_filename, 
-		 OUTPUT_FILE_TEMPLATE,
-		 appaserver_parameter_file->appaserver_mount_point,
-		 application_name, 
-		 folder_name,
-		 process_id );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(	ftp_filename,
-				PREPEND_FTP_FILE_TEMPLATE,
-				application_get_http_prefix( application_name ),
-				appaserver_library_get_server_address(),
-				application_name,
-				folder_name,
-				process_id );
-	}
-	else
-	{
-		sprintf(	ftp_filename,
-				FTP_FILE_TEMPLATE,
-				application_name,
-				folder_name,
-				process_id );
-	}
-*/
 
 	appaserver_link_file =
 		appaserver_link_file_new(

@@ -34,11 +34,6 @@ enum output_medium { output_medium_stdout, text_file, table };
 #define DEFAULT_OUTPUT_MEDIUM			table
 
 #define DATA_TEMPLATE		"%s/eggs_report_temporary_%d.csv"
-/*
-#define OUTPUT_TEMPLATE		"%s/%s/eggs_report_%d.csv"
-#define FTP_PREPEND_TEMPLATE	"%s://%s/%s/eggs_report_%d.csv"
-#define FTP_NONPREPEND_TEMPLATE	"/%s/eggs_report_%d.csv"
-*/
 
 #define SELECT_TEMPLATE		"%s.nest_number,transect_number,habitat,basin,materials,observation_date,nest_status,nest_visit_number,%s.total_eggs,%s.banded_eggs,%s.not_banded_eggs,hatched_eggs,flooded_eggs,predated_eggs,crushed_eggs,other_egg_mortality"
 

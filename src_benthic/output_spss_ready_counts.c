@@ -40,16 +40,6 @@
 #define FILENAME_STEM_FISH		"spss_ready_fish_counts"
 #define TEMP_FILE			"%s/spss_ready_temp_file_%d.csv"
 
-/*
-#define OUTPUT_SHRIMP_CRAB		"%s/%s/spss_ready_shrimp_crab_counts_%d.csv"
-#define FTP_PREPEND_SHRIMP_CRAB		"%s://%s/%s/spss_ready_shrimp_crab_counts_%d.csv"
-#define FTP_NONPREPEND_SHRIMP_CRAB	"/%s/spss_ready_shrimp_crab_counts_%d.csv"
-
-#define OUTPUT_FISH			"%s/%s/spss_ready_fish_counts_%d.csv"
-#define FTP_PREPEND_FISH		"%s://%s/%s/spss_ready_fish_counts_%d.csv"
-#define FTP_NONPREPEND_FISH		"/%s/spss_ready_fish_counts_%d.csv"
-*/
-
 /* Prototypes */
 /* ---------- */
 char *create_rows(		char *application_name,
@@ -375,26 +365,6 @@ void output_spss_ready_counts_shrimp_crab(
 
 	fclose( output_file );
 
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_SHRIMP_CRAB, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_SHRIMP_CRAB, 
-	 		application_name,
-	 		process_id );
-	}
-*/
-
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,
 "Shrimp and crab: &lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",
@@ -515,26 +485,6 @@ void output_spss_ready_counts_fish(
 	}
 
 	fclose( output_file );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_FISH, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_FISH, 
-	 		application_name,
-	 		process_id );
-	}
-*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

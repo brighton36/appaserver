@@ -1691,25 +1691,6 @@ void grace_get_filenames(		char **agr_filename,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	if ( prepend_http_protocol )
-	{
-		sprintf(	buffer,
-				GRACE_FTP_AGR_FILE_TEMPLATE,
-				application_get_http_prefix( application_name ),
-				server_address,
-				application_name,
-				graph_identifier );
-	}
-	else
-	{
-		sprintf(	buffer,
-				GRACE_WITHOUT_PREPEND_FTP_AGR_FILE_TEMPLATE,
-				application_name,
-				graph_identifier );
-	}
-*/
-
 	*ftp_agr_filename =
 		appaserver_link_get_link_prompt(
 			appaserver_link_file->
@@ -1775,27 +1756,6 @@ void grace_get_filenames(		char **agr_filename,
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	if ( prepend_http_protocol )
-	{
-		sprintf(	buffer,
-				GRACE_FTP_OUTPUT_FILE_TEMPLATE,
-				application_get_http_prefix( application_name ),
-				server_address,
-				application_name,
-				graph_identifier,
-				extension );
-	}
-	else
-	{
-		sprintf(	buffer,
-				GRACE_WITHOUT_PREPEND_FTP_OUTPUT_FILE_TEMPLATE,
-				application_name,
-				graph_identifier,
-				extension );
-	}
-*/
 
 	*pdf_output_filename =
 		appaserver_link_get_link_prompt(

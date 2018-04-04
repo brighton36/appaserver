@@ -31,11 +31,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define ERROR_FILE_TEMPLATE		"%s/%s/load_sfwmd_bad_%d.txt"
-#define ERROR_FTP_PREPEND_TEMPLATE	"%s://%s/%s/load_sfwmd_bad_%d.txt"
-#define ERROR_FTP_NO_PREPEND_TEMPLATE	"/%s/load_sfwmd_bad_%d.txt"
-*/
 #define PROMPT	"&lt;Left Click&gt; to view bad records or &lt;Right Click&gt; to save."
 
 /* Prototypes */
@@ -180,33 +175,6 @@ int main( int argc, char **argv )
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	sprintf( error_filespecification,
-		 ERROR_FILE_TEMPLATE,
-		 appaserver_parameter_file->
-		 	appaserver_mount_point,
-		 application_name,
-		 process_id );
-	
-	if ( application_get_prepend_http_protocol_yn(
-			application_name ) == 'y' )
-	{
-		sprintf( error_ftp_filename, 
-			 ERROR_FTP_PREPEND_TEMPLATE, 
-			 application_get_http_prefix( application_name ),
-			 appaserver_library_get_server_address(),
-			 application_name,
-			 process_id );
-	}
-	else
-	{
-		sprintf( error_ftp_filename, 
-			 ERROR_FTP_NO_PREPEND_TEMPLATE, 
-			 application_name,
-			 process_id );
-	}
-*/
 
 	process_count = load_sfwmd_filespecification(
 			error_filespecification,

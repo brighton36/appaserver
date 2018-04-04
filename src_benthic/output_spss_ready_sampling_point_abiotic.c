@@ -34,11 +34,6 @@
 /* Constants */
 /* --------- */
 #define FILENAME_STEM			"spss_ready_abiotic"
-/*
-#define OUTPUT_FILE			"%s/%s/spss_ready_abiotic_%d.csv"
-#define FTP_PREPEND_FILE		"%s://%s/%s/spss_ready_abiotic_%d.csv"
-#define FTP_NONPREPEND_FILE		"/%s/spss_ready_abiotic_%d.csv"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -283,26 +278,6 @@ void output_spss_ready_sampling_point_abiotic(
 
 	pclose( output_pipe );
 	pclose( input_pipe );
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-			FTP_PREPEND_FILE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename,
-	 		FTP_NONPREPEND_FILE, 
-	 		application_name,
-	 		process_id );
-	}
-*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

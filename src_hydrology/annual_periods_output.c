@@ -48,15 +48,6 @@
 #define KEY_DELIMITER			'/'
 #define FILENAME_STEM			"annual_periods"
 
-/*
-#define OUTPUT_FILE_SPREADSHEET		"%s/%s/annual_periods_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET	"%s://%s/%s/annual_periods_%d.csv"
-#define FTP_FILE_SPREADSHEET		"/%s/annual_periods_%d.csv"
-#define OUTPUT_FILE_TEXT_FILE		"%s/%s/annual_periods_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/annual_periods_%d.txt"
-#define FTP_FILE_TEXT_FILE		"/%s/annual_periods_%d.txt"
-*/
-
 #define ROWS_BETWEEN_HEADING		20
 #define SELECT_LIST			"measurement_date,measurement_value,station"
 
@@ -1067,25 +1058,6 @@ sys_string );
 
 		output_pipe = popen( output_sys_string, "w" );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename,
-			 	HTTP_FTP_FILE_TEXT_FILE, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEXT_FILE,
-			 	application_name,
-			 	process_id );
-		}
-*/
 		ftp_filename =
 			appaserver_link_get_link_prompt(
 				appaserver_link_file->
@@ -3336,25 +3308,6 @@ void period_wo_date_output_transmit(
 		 	"tr '|' ',' > %s",
 		 	output_filename );
 
-/*
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_SPREADSHEET, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET, 
-			 	application_name,
-			 	process_id );
-		}
-*/
 		ftp_filename =
 			appaserver_link_get_link_prompt(
 				appaserver_link_file->

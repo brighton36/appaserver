@@ -33,10 +33,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define ERROR_FILE_TEMPLATE		"%s/%s/load_sfwmd_breakpoint_bad_%d.txt"
-#define ERROR_FTP_TEMPLATE		"%s://%s/%s/load_sfwmd_breakpoint_bad_%d.txt"
-*/
 #define PROMPT	"&lt;Left Click&gt; to view bad records or &lt;Right Click&gt; to save."
 
 /* Prototypes */
@@ -137,22 +133,6 @@ int main( int argc, char **argv )
 			process_id,
 			(char *)0 /* session */,
 			"txt" );
-
-/*
-	sprintf( error_filespecification,
-		 ERROR_FILE_TEMPLATE,
-		 appaserver_parameter_file->
-		 	appaserver_mount_point,
-		 application_name,
-		 process_id );
-	
-	sprintf( error_ftp_filename, 
-		 ERROR_FTP_TEMPLATE, 
-		 application_get_http_prefix( application_name ),
-		 appaserver_library_get_server_address(),
-		 application_name,
-		 process_id );
-*/
 
 	error_filespecification =
 		appaserver_link_get_output_filename(

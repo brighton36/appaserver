@@ -63,6 +63,8 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *role_name;
 	char *state;
+	char *state_for_heading;
+	char *message;
 	char *insert_update_key;
 	char *target_frame;
 	DOCUMENT *document;
@@ -84,7 +86,6 @@ int main( int argc, char **argv )
 	char action_string[ 512 ];
 	ROLE *role;
 	boolean with_dynarch_menu = 0;
-	char *state_for_heading;
 	LIST *non_edit_folder_name_list = {0};
 	ROW_SECURITY *row_security;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
@@ -103,7 +104,7 @@ int main( int argc, char **argv )
 	if ( argc < 9 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state insert_update_key target_frame [content_type_yn]\n",
+"Usage: %s login_name application session folder role message insert_update_key target_frame [content_type_yn]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -113,20 +114,13 @@ int main( int argc, char **argv )
 	session = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
-	state = argv[ 6 ];
+	message = argv[ 6 ];
 	insert_update_key = argv[ 7 ];
 	target_frame = argv[ 8 ];
 
 	if ( argc == 10 ) content_type_yn = *argv[ 9 ];
 
-	if ( strcmp( state, "insert" ) == 0 )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: should not be state = insert.\n",			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	state = "update";
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )

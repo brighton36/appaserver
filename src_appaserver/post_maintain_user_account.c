@@ -1,12 +1,12 @@
-/* ---------------------------------------------------	*/
-/* post_maintain_user_account.c				*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* This script is attached to the submit button on 	*/
-/* the maintain user account form.			*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/post_maintain_user_account.c	*/
+/* ------------------------------------------------------------	*/
+/*								*/
+/* This script is attached to the submit button on 		*/
+/* the maintain user account form.				*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,9 +46,11 @@ void execute_output_process(	char *application_name,
 				char *login_name,
 				char *role_name,
 				char *session_key,
-				char *database_string );
+				char *database_string,
+				char *message );
 
 boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
+				char **message,
 				char *application_name,
 				char *session,
 				char *folder_name,
@@ -63,6 +65,7 @@ int main( int argc, char **argv )
 {
 	char *login_name, *application_name, *session_key, *folder_name;
 	char *role_name;
+	char *message = {0};
 	char *insert_update_key = INSERT_UPDATE_KEY;
 	DICTIONARY *original_post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -148,7 +151,7 @@ int main( int argc, char **argv )
 				application_name, session_key, login_name );
 	}
 
-	session_update_access_date_time( application_name, session );
+	session_update_access_date_time( application_name, session->session );
 	appaserver_library_purge_temporary_files( application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -175,6 +178,7 @@ int main( int argc, char **argv )
 
 	changed_horizontal_menu_flag =
 		post_state_update(	dictionary_appaserver,
+					&message,
 					application_name,
 					session_key,
 					folder_name,
@@ -204,7 +208,8 @@ int main( int argc, char **argv )
 				login_name,
 				role_name,
 				session_key,
-				database_string );
+				database_string,
+				message );
 
 	}
 	exit( 0 );
@@ -212,6 +217,7 @@ int main( int argc, char **argv )
 } /* main() */
 
 boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
+				char **message,
 				char *application_name,
 				char *session_key,
 				char *folder_name,
@@ -349,6 +355,11 @@ boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
 		document_close();
 		exit( 0 );
 	}
+	else
+	if ( list_length( update_database->update_row_list ) )
+	{
+		*message = "Update complete.";
+	}
 
 	return update_database_changed_attribute(
 			"frameset_menu_horizontal_yn",
@@ -360,7 +371,8 @@ void execute_output_process(	char *application_name,
 				char *login_name,
 				char *role_name,
 				char *session_key,
-				char *database_string )
+				char *database_string,
+				char *message )
 {
 	char sys_string[ 1024 ];
 
@@ -385,13 +397,14 @@ void execute_output_process(	char *application_name,
 	}
 
 	sprintf(sys_string,
-"maintain_user_account %s %s %s %s 2>>%s",
+"maintain_user_account %s %s %s %s \"%s\" 2>>%s",
 		 timlib_get_parameter_application_name(
 		 	application_name,
 			database_string ),
 		 session_key,
 		 login_name,
 		 role_name,
+		 (message) ? message : "",
 		 appaserver_error_get_filename(
 			application_name ) );
 

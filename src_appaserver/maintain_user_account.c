@@ -1,4 +1,4 @@
-/* maintain_user_account.c						*/
+/* $APPASERVER_HOME/src_appaserver/maintain_user_account.c		*/
 /* -----------------------------------------------------------------	*/
 /*									*/
 /* This is the form that allows users to maintain their own account.	*/
@@ -65,6 +65,7 @@ int main( int argc, char **argv )
 {
 	char *login_name, *application_name, *session_key, *folder_name;
 	char *role_name;
+	char *message = {0};
 	char *state = "update";
 	char *insert_update_key = INSERT_UPDATE_KEY;
 	char *target_frame;
@@ -87,10 +88,10 @@ int main( int argc, char **argv )
 	QUERY *query;
 	char *database_string = {0};
 
-	if ( argc != 5 )
+	if ( argc < 5 )
 	{
 		fprintf( stderr,
-		"Usage: %s application session login_name role\n",
+		"Usage: %s application session login_name role [message]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -99,6 +100,8 @@ int main( int argc, char **argv )
 	session_key = argv[ 2 ];
 	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
+
+	if ( argc == 6 ) message = argv[ 5 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -112,13 +115,6 @@ int main( int argc, char **argv )
 				argc,
 				argv,
 				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
 
 	folder_name = FOLDER_NAME;
 	target_frame = TARGET_FRAME;
@@ -153,7 +149,7 @@ int main( int argc, char **argv )
 				application_name, session_key, login_name );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	query_dictionary = dictionary_new_dictionary();
 
@@ -282,6 +278,8 @@ int main( int argc, char **argv )
 				form->target_frame,
 				form->subtitle_string,
 				0 /* not omit_format_initial_capital */ );
+
+	if ( message && *message ) printf( "<h3>%s</h3>\n", message );
 
 	form->table_border = 1;
 	form->insert_update_key = insert_update_key;

@@ -1008,6 +1008,7 @@ m2( application_name, msg );
 		document_quick_output_body(
 			application_name,
 			appaserver_mount_point );
+
 		printf( "<p>Update failed: %s\n", results_string );
 		document_close();
 		exit( 0 );
@@ -1401,7 +1402,7 @@ void execute_output_process(
 
 			sprintf( sys_string, 
 "echo \"%s\" 								|"
-"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%c\" 2>>%s	 ",
+"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" '' \"%s\" \"%s\" \"%c\" 2>>%s	 ",
 			 dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
@@ -1412,7 +1413,6 @@ void execute_output_process(
 		 	 session,
 		 	 folder_name,
 		 	 role_name,
-		 	 "update" /* state */,
 		 	 insert_update_key,
 		 	 target_frame,
 			 content_type_yn,
@@ -1430,7 +1430,7 @@ void execute_output_process(
 			login_name,
 			role_name,
 			rows_inserted,
-			message,
+			(message) ? message : "",
 			(vertical_new_button_base_folder_name)		?
 				vertical_new_button_base_folder_name	:
 				"",
@@ -1448,7 +1448,7 @@ void execute_output_process(
 	{
 		sprintf( sys_string,
 "echo \"%s\" 								|"
-"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
+"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" '' \"%s\" \"%s\" 2>>%s	 ",
 			 dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
@@ -1459,7 +1459,6 @@ void execute_output_process(
 		 	 session,
 		 	 folder_name,
 		 	 role_name,
-		 	 state,
 		 	 insert_update_key,
 		 	 target_frame,
 		 	 appaserver_error_get_filename( application_name ) );

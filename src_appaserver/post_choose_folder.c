@@ -276,13 +276,14 @@ int main( int argc, char **argv )
 		if ( strcmp( form, "table" ) == 0 )
 		{
 			sprintf( sys_string,
-"output_edit_table_form %s %s %s %s %s %s %s %s 2>>%s",
+"output_edit_table_form %s %s %s %s %s '' %s %s 2>>%s",
 			 	 login_name,
 				 timlib_get_parameter_application_name(
 					application_name,
 					database_string ),
 				 session,
-				 folder_name, role_name, state,
+				 folder_name,
+				 role_name,
 				 TABLE_TARGET_FRAME,
 				 TABLE_TARGET_FRAME,
 				 appaserver_error_get_filename(

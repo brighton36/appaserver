@@ -360,7 +360,7 @@ int main( int argc, char **argv )
 				login_name,
 				role_name,
 				rows_inserted,
-				message,
+				(message) ? message : "",
 				appaserver_error_get_filename(
 					application_name ) );
 			system( sys_string );

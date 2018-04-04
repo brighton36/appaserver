@@ -135,6 +135,7 @@ int insert_database_execute(	char **message,
 		if ( rows_inserted && post_change_process )
 		{
 			insert_database_execute_post_change_process_each_row(
+				message,
 				application_name,
 				session,
 				row_dictionary,
@@ -178,6 +179,7 @@ int insert_database_execute(	char **message,
 		if ( rows_inserted && post_change_process )
 		{
 			insert_database_execute_post_change_process_row_zero(
+				message,
 				application_name,
 				session,
 				row_dictionary,
@@ -324,6 +326,7 @@ void build_insert_tmp_file_each_row(
 } /* build_insert_tmp_file_each_row() */
 
 void insert_database_execute_post_change_process_row_zero(
+				char **message,
 				char *application_name,
 				char *session,
 				DICTIONARY *row_dictionary,
@@ -367,12 +370,12 @@ void insert_database_execute_post_change_process_row_zero(
 			(char *)0 /* operation_row_count_string */,
 			(char *)0 /* prompt */ );
 
-		fflush( stdout );
-		system( post_change_process->executable );
+		*message = pipe2string( post_change_process->executable );
 	}
 } /* insert_database_execute_post_change_process_row_zero() */
 
 void insert_database_execute_post_change_process_each_row(
+				char **message,
 				char *application_name,
 				char *session,
 				DICTIONARY *row_dictionary,
@@ -390,6 +393,7 @@ void insert_database_execute_post_change_process_each_row(
 	int row, highest_index;
 	boolean must_populate_at_least_one_non_primary_attribute;
 	LIST *non_primary_attribute_name_list;
+	char *results;
 
 	if ( !post_change_process ) return;
 
@@ -458,8 +462,11 @@ void insert_database_execute_post_change_process_each_row(
 				(char *)0 /* operation_row_count_string */,
 				(char *)0 /* prompt */ );
 
-			fflush( stdout );
-			system( post_change_process->executable );
+			results =
+				pipe2string(
+					post_change_process->executable );
+
+			if ( results && *results ) *message = results;
 		}
 	}
 } /* insert_database_execute_post_change_process_each_row() */
@@ -637,6 +644,7 @@ int insert_database_execute_insert_mysql(
 	sprintf( sys_string, "rm -f %s", message_filename );
 	system( sys_string );
 	return rows_inserted;
+
 } /* insert_database_execute_insert_mysql() */
 
 void build_insert_data_string( 	DICTIONARY *row_dictionary,
@@ -880,63 +888,6 @@ void insert_database_set_login_name( 	INSERT_DATABASE *insert_database,
 {
 	insert_database->login_name = s;
 }
-
-#ifdef NOT_DEFINED
-int insert_database_execute_process(
-				char **message,
-				char *application_name,
-				char *session,
-				char *login_name,
-				char *executable,
-				DICTIONARY *dictionary )
-{
-	char buffer[ 65536 ];
-	char *results_string;
-	int rows_inserted;
-
-	process_replace_parameter_variables(
-			executable,
-			application_name,
-			(char *)0 /* database_string */,
-			session,
-			"insert" /* state */,
-			login_name,
-			(char *)0 /* folder_name */,
-			(char *)0 /* role_name */,
-			(char *)0 /* process_name */,
-			(char *)0 /* process_set_name */,
-			(char *)0 /* operation_row_count_string */,
-			(char *)0 /* one2m_folder_name_for_processes */ );
-
-	if ( dictionary )
-	{
-		dictionary_search_replace_command_arguments(
-						executable,
-						dictionary, 
-						0 /* row */ );
-	}
-
-	search_replace_word( 
-			executable,
-			"$dictionary",
-			double_quotes_around(
-				buffer, 
-				dictionary_display_delimited( 
-					dictionary, '&' ) 
-				) );
-
-	strcpy( buffer, executable );
-	escape_character( executable, buffer, '$' );
-
-	results_string = pipe2string( executable );
-
-	if ( !results_string ) return 0;
-
-	rows_inserted = atoi( results_string );
-	if ( !rows_inserted ) *message = results_string;
-	return rows_inserted;
-} /* insert_database_execute_process() */
-#endif
 
 char *insert_database_get_common_data(
 				DICTIONARY *dictionary,

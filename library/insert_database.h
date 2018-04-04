@@ -186,6 +186,7 @@ int insert_database_execute_data_list(
 				int dont_remove_tmp_file );
 
 void insert_database_execute_post_change_process_row_zero(
+				char **message,
 				char *application_name,
 				char *session,
 				DICTIONARY *row_dictionary,
@@ -198,6 +199,7 @@ void insert_database_execute_post_change_process_row_zero(
 				char *role_name );
 
 void insert_database_execute_post_change_process_each_row(
+				char **message,
 				char *application_name,
 				char *session,
 				DICTIONARY *row_dictionary,

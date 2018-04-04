@@ -296,7 +296,7 @@ int main( int argc, char **argv )
 
 		sprintf( sys_string,
 	"echo \"%s\" 							  |"
-	"output_edit_table_form %s %s %s %s '%s' '%s' '%s' '%s' 2>>%s	   ",
+	"output_edit_table_form %s %s %s %s '%s' '' '%s' '%s' 2>>%s	   ",
 			dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				0 /* not with_non_prefixed_dictionary */ ),
@@ -307,7 +307,6 @@ int main( int argc, char **argv )
 		 	session,
 		 	folder_name,
 			role_name,
-			"update" /* state */,
 			insert_update_key,
 			target_frame,
 			appaserver_error_get_filename(
@@ -547,7 +546,7 @@ int main( int argc, char **argv )
 				login_name,
 				role_name,
 				rows_inserted,
-				message,
+				(message) ? message : "",
 				appaserver_error_get_filename(
 					application_name ) );
 
@@ -872,7 +871,7 @@ void insert_one2m_pair_sequence(
 			session,
 			login_name,
 			role_name,
-			message,
+			(message) ? message : "",
 			appaserver_error_get_filename(
 				application_name ) );
 		system( sys_string );

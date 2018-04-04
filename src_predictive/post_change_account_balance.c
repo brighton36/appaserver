@@ -24,9 +24,6 @@
 
 /* Prototypes */
 /* ---------- */
-void post_change_account_balance_error_exit(
-				char *application_name );
-
 void post_change_investment_operation_update(
 				char *application_name,
 				char *fund_name,
@@ -411,10 +408,6 @@ void post_change_account_balance_insert(
 				fund_name,
 				account_balance ) )
 		{
-			document_quick_output_body(
-				application_name,
-				(char *)0 /* appaserver_mount_point */ );
-
 			printf( "<h3>Error: An error occurred.</h3>\n" );
 		}
 	}
@@ -425,10 +418,6 @@ void post_change_account_balance_insert(
 				fund_name,
 				account_balance ) )
 		{
-			document_quick_output_body(
-				application_name,
-				(char *)0 /* appaserver_mount_point */ );
-
 			printf(
 		"<h3>Error: The series must start with a purchase.</h3>\n" );
 		}
@@ -642,7 +631,8 @@ void post_change_account_balance_insert_purchase(
 			 __FUNCTION__,
 			 __LINE__ );
 
-		post_change_account_balance_error_exit( application_name );
+		printf( "<h3>An error occurred. Check log.</h3>\n" );
+		exit( 1 );
 	}
 
 	new_account_balance->investment_account =
@@ -664,7 +654,8 @@ void post_change_account_balance_insert_purchase(
 			 __FUNCTION__,
 			 __LINE__ );
 
-		post_change_account_balance_error_exit( application_name );
+		printf( "<h3>An error occurred. Check log.</h3>\n" );
+		exit( 1 );
 	}
 
 	new_account_balance->transaction_date_time =
@@ -891,6 +882,8 @@ void post_change_account_balance_list(
 				 __FUNCTION__,
 				 __LINE__,
 				 account_balance->investment_operation );
+
+			printf( "<h3>An error occurred. Check log.</h3>\n" );
 			continue;
 		}
 
@@ -1146,14 +1139,3 @@ void post_change_investment_operation_update(
 
 } /* post_change_investment_operation_update() */
 
-void post_change_account_balance_error_exit( char *application_name )
-{
-	document_quick_output_body(
-		application_name,
-		(char *)0 /* appaserver_mount_point */ );
-
-	printf( "<h3>An error occurred. Check log.</h3>\n" );
-	document_close();
-	exit( 1 );
-
-} /* post_change_account_balance_error_exit() */

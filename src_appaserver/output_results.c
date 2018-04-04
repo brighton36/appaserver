@@ -1,4 +1,4 @@
-/* output_results.c							*/
+/* $APPASERVER_HOME/src_appaserver/output_results.c			*/
 /* --------------------------------------------------------------------	*/
 /*									*/
 /* This is the form that displays the number of rows inserted.		*/

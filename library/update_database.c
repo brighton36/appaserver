@@ -808,29 +808,7 @@ LIST *update_database_get_where_attribute_list(
 					row );
 		}
 
-		if ( !data || !*data )
-		{
-			continue;
-#ifdef NOT_DEFINED
-			char message[ 1024 ];
-
-			sprintf( message,
-"Error in %s/%s()/%d: with folder_name = (%s), cannot find data for where_attribute_name = (%s) in file_dictionary = (%s).",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-			folder_name,
-			where_attribute_name,
-			dictionary_display( file_dictionary ) );
-
-			appaserver_output_error_message(
-				application_name,
-				message,
-				(char *)0 /* login_name */ );
-
-			exit( 0 );
-#endif
-		}
+		if ( !data || !*data ) continue;
 
 		where_attribute =
 			update_database_where_attribute_new(
@@ -1073,6 +1051,7 @@ char *update_database_execute(	char *application_name,
 	static char error_messages[ 4096 ];
 
 	if ( !list_rewind( update_row_list ) ) return "";
+
 	*error_messages = '\0';
 
 	do {
@@ -1092,7 +1071,9 @@ char *update_database_execute(	char *application_name,
 				abort_if_first_update_failed );
 
 	} while( list_next( update_row_list ) );
+
 	return error_messages;
+
 } /* update_database_execute() */
 
 void update_database_execute_for_row(
@@ -1199,11 +1180,19 @@ void update_database_execute_for_row(
 				(char *)0 /* operation_row_count_string */,
 				(char *)0 /* prompt */ );
 
-			fflush( stdout );
-			system( update_folder->
-					post_change_process->
-					executable );
-			fflush( stdout );
+			error_message_string =
+				pipe2string( update_folder->
+						post_change_process->
+						executable );
+
+			if ( error_message_string && *error_message_string )
+			{
+				sprintf(error_messages +
+				 	strlen( error_messages ),
+				 	"%s",
+				 	error_message_string );
+			}
+
 		}
 	} while( list_next( update_folder_list ) );
 

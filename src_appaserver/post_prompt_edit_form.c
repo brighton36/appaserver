@@ -392,7 +392,7 @@ int main( int argc, char **argv )
 
 	sprintf(sys_string,
 "echo \"%s\"								|"
-"output_edit_table_form '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s'	 	 ",
+"output_edit_table_form '%s' '%s' '%s' '%s' '%s' '' '%s' '%s'	 	 ",
 		escaped_dictionary_string,
  		login_name,
 		timlib_get_parameter_application_name(
@@ -401,7 +401,6 @@ int main( int argc, char **argv )
  		session,
  		folder_name,
 		role_name,
-		state,
 		insert_update_key,
 		target_frame );
 

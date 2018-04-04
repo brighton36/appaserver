@@ -1,9 +1,7 @@
-/* ---------- */
-/* distance.c */
-/* ---------- */
-/* ------------------------------------------------------------------
-Tim Riley
--------------------------------------------------------------------- */
+/* $APPASERVER_HOME/library/distance.c			   */
+/* ------------------------------------------------------- */
+/* Freely available software: see Appaserver.org	   */
+/* ------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,13 +18,6 @@ int distance_get_pythagorean_distance_integer(
 
 	x_difference = point_a_x - point_b_x;
 	y_difference = point_a_y - point_b_y;
-
-/*
-fprintf( stderr, "%s(): got x_difference = %d and y_difference = %d\n",
-__FUNCTION__,
-x_difference,
-y_difference );
-*/
 
 	results = (int)sqrt(
 			( x_difference * x_difference ) + 

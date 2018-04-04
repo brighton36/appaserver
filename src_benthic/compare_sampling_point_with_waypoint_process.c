@@ -143,14 +143,6 @@ int main( int argc, char **argv )
 	{
 		printf( "Error: no candidates for this collection.\n" );
 		exit( 0 );
-/*
-		fprintf( stderr,
-			 "ERROR In %s/%s()/%d: cannot get utm_distance_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-*/
 	}
 
 	output_compare_waypoint_process(
@@ -263,19 +255,7 @@ void output_compare_waypoint_process(
 				longitude,
 				delimiter,
 				*distance );
-/*
-fprintf( stderr, "sampling_point_candidate->latitude = %s\n",
-sampling_point_candidate->latitude );
-			printf( "%c%s%c%s%c%d\n",
-				delimiter,
-				sampling_point_candidate->latitude,
-				delimiter,
-				sampling_point_candidate->longitude,
-				delimiter,
-				*distance );
-*/
 		}
-
 
 		list_next( utm_distance_list );
 	}

@@ -11,10 +11,12 @@ fi
 
 application=$1
 
-station=`get_table_name $application station`
+DATABASE=$application
 
-echo "	select $station.station					\
-	from $station						\
-	order by $station.station;"				|
-sql.e								|
+echo "	select station
+	from station
+	order by station;"					|
+sql.e $DATABASE							|
 toupper.e
+
+exit 0

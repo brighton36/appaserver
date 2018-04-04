@@ -33,14 +33,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_CODES		"%s/%s/visit_spreadsheet_with_codes_%d.csv"
-#define FTP_PREPEND_CODES	"%s://%s/%s/visit_spreadsheet_with_codes_%d.csv"
-#define FTP_NONPREPEND_CODES	"/%s/visit_spreadsheet_with_codes_%d.csv"
-#define OUTPUT_NO_CODES		"%s/%s/visit_spreadsheet_no_codes_%d.csv"
-#define FTP_PREPEND_NO_CODES	"%s://%s/%s/visit_spreadsheet_no_codes_%d.csv"
-#define FTP_NONPREPEND_NO_CODES	"/%s/visit_spreadsheet_no_codes_%d.csv"
-*/
 #define FILENAME_STEM_CODES	"visit_spreadsheet_with_codes"
 #define FILENAME_STEM_NO_CODES	"visit_spreadsheet_no_codes"
 

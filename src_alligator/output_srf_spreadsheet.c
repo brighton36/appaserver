@@ -26,18 +26,24 @@
 #include "environ.h"
 #include "application.h"
 #include "alligator.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
 
 /* Constants */
 /* --------- */
+/*
 #define OUTPUT_CODES		"%s/%s/srf_spreadsheet_with_codes_%d.csv"
 #define FTP_PREPEND_CODES	"%s://%s/%s/srf_spreadsheet_with_codes_%d.csv"
 #define FTP_NONPREPEND_CODES	"/%s/srf_spreadsheet_with_codes_%d.csv"
 #define OUTPUT_NO_CODES		"%s/%s/srf_spreadsheet_no_codes_%d.csv"
 #define FTP_PREPEND_NO_CODES	"%s://%s/%s/srf_spreadsheet_no_codes_%d.csv"
 #define FTP_NONPREPEND_NO_CODES	"/%s/srf_spreadsheet_no_codes_%d.csv"
+*/
+
+#define FILENAME_STEM_CODES	"srf_spreadsheet_with_codes"
+#define FILENAME_STEM_NO_CODES	"srf_spreadsheet_no_codes"
 
 /* Prototypes */
 /* ---------- */
@@ -49,7 +55,7 @@ void output_srf_spreadsheet(
 				char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				char *process_name );
 
@@ -120,7 +126,7 @@ int main( int argc, char **argv )
 				discovery_date_list_string,
 				primary_researcher_list_string,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				getpid(),
 				process_name );
 
@@ -137,22 +143,23 @@ int main( int argc, char **argv )
 void output_srf_spreadsheet(	char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				int process_id,
 				char *process_name )
 {
-	char ftp_codes_filename[ 256 ];
-	char output_codes_filename[ 256 ];
+	char *ftp_codes_filename;
+	char *output_codes_filename;
 	FILE *output_codes_file;
 	FILE *output_no_codes_file;
-	char ftp_no_codes_filename[ 256 ];
-	char output_no_codes_filename[ 256 ];
+	char *ftp_no_codes_filename;
+	char *output_no_codes_filename;
 	char title[ 128 ];
 	char sub_title[ 128 ];
 	char *secondary_researcher_1;
 	char *secondary_researcher_2;
 	ALLIGATOR *alligator;
 	NEST *nest;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	get_title_and_sub_title(
 			title,
@@ -191,6 +198,7 @@ void output_srf_spreadsheet(	char *application_name,
 		exit( 0 );
 	}
 
+/*
 	sprintf(output_codes_filename, 
 	 	OUTPUT_CODES,
 	 	appaserver_mount_point,
@@ -202,6 +210,86 @@ void output_srf_spreadsheet(	char *application_name,
 		appaserver_mount_point,
 		application_name, 
 		process_id );
+*/
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		document_root_directory,
+			(char *)0 /* filename_stem */,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			"csv" );
+
+	appaserver_link_file->filename_stem = FILENAME_STEM_CODES;
+
+	output_codes_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_codes_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	appaserver_link_file->filename_stem = FILENAME_STEM_NO_CODES;
+
+	output_no_codes_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_no_codes_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	if ( ! ( output_codes_file = fopen( output_codes_filename, "w" ) ) )
 	{
@@ -275,6 +363,7 @@ void output_srf_spreadsheet(	char *application_name,
 	fclose( output_no_codes_file );
 	fclose( output_codes_file );
 
+/*
 	if ( application_get_prepend_http_protocol_yn(
 				application_name ) == 'y' )
 	{
@@ -302,6 +391,7 @@ void output_srf_spreadsheet(	char *application_name,
 	 		application_name,
 	 		process_id );
 	}
+*/
 
 	appaserver_library_output_ftp_prompt(
 			ftp_codes_filename,

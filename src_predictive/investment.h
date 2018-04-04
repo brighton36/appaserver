@@ -147,18 +147,22 @@ TRANSACTION *investment_build_transaction(
 					char *application_name,
 					char *fund_name,
 					ACCOUNT_BALANCE *account_balance,
-					char *investment_operation );
+					char *investment_operation,
+					char *investment_account );
 
 TRANSACTION *investment_build_purchase_transaction(
 					char *application_name,
 					char *fund_name,
 					ACCOUNT_BALANCE *account_balance,
-					char *credit_account );
+					char *investment_account,
+					char *credit_account,
+					double book_value_change );
 
 TRANSACTION *investment_build_sale_transaction(
 					char *application_name,
 					char *fund_name,
-					ACCOUNT_BALANCE *account_balance );
+					ACCOUNT_BALANCE *account_balance,
+					char *investment_account );
 
 TRANSACTION *investment_build_time_passage_transaction(
 					char *application_name,

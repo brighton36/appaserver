@@ -614,6 +614,12 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				prior_book_value_balance,
 				prior_unrealized_gain_balance,
 				first_row );
+
+		if ( timlib_double_virtually_same( a->book_value_change, 0.0 ) )
+		{
+			return (ACCOUNT_BALANCE *)0;
+		}
+
 		a->cash_in = 0.0;
 	}
 	else
@@ -632,6 +638,11 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				prior_book_value_balance,
 				prior_unrealized_gain_balance,
 				first_row );
+		if ( timlib_double_virtually_same( a->book_value_change, 0.0 ) )
+		{
+			return (ACCOUNT_BALANCE *)0;
+		}
+
 	}
 	else
 	if ( timlib_strcmp(
@@ -950,7 +961,8 @@ TRANSACTION *investment_build_transaction(
 				char *application_name,
 				char *fund_name,
 				ACCOUNT_BALANCE *account_balance,
-				char *investment_operation )
+				char *investment_operation,
+				char *investment_account )
 {
 	TRANSACTION *transaction;
 
@@ -958,6 +970,16 @@ TRANSACTION *investment_build_transaction(
 	{
 		fprintf( stderr,
 			 "Warning in %s/%s()/%d: empty account_balance.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return (TRANSACTION *)0;
+	}
+
+	if ( !investment_account || !*investment_account  )
+	{
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: empty investment_account.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -976,12 +998,25 @@ TRANSACTION *investment_build_transaction(
 				fund_name,
 				INVESTMENT_OPERATION_TRANSFER );
 
+		if ( !credit_account || !*credit_account )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot fetch credit account name for operation = %s.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 INVESTMENT_OPERATION_TRANSFER );
+			exit( 1 );
+		}
+
 		transaction =
 			investment_build_purchase_transaction(
 				application_name,
 				fund_name,
 				account_balance,
-				credit_account );
+				investment_account,
+				credit_account,
+				account_balance->book_value_change );
 	}
 	else
 	if ( timlib_strcmp(
@@ -1001,7 +1036,9 @@ TRANSACTION *investment_build_transaction(
 				application_name,
 				fund_name,
 				account_balance,
-				credit_account );
+				investment_account,
+				credit_account,
+				account_balance->book_value_change );
 	}
 	else
 	if ( timlib_strcmp(
@@ -1023,7 +1060,8 @@ TRANSACTION *investment_build_transaction(
 			investment_build_sale_transaction(
 				application_name,
 				fund_name,
-				account_balance );
+				account_balance,
+				investment_account );
 	}
 	else
 	{
@@ -1055,7 +1093,9 @@ TRANSACTION *investment_build_purchase_transaction(
 				char *application_name,
 				char *fund_name,
 				ACCOUNT_BALANCE *account_balance,
-				char *credit_account )
+				char *investment_account,
+				char *credit_account,
+				double book_value_change )
 {
 	TRANSACTION *transaction;
 	char *unrealized_investment = {0};
@@ -1074,8 +1114,38 @@ TRANSACTION *investment_build_purchase_transaction(
 		return (TRANSACTION *)0;
 	}
 
+	if ( !credit_account || !*credit_account )
+	{
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: empty credit_account.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return (TRANSACTION *)0;
+	}
+
+	if ( !investment_account || !*investment_account )
+	{
+		fprintf( stderr,
+	"Warning in %s/%s()/%d: empty investment_account (debit_account).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return (TRANSACTION *)0;
+	}
+
 	if ( account_balance->share_quantity_change <= 0.0 )
 		return (TRANSACTION *)0;
+
+	if ( timlib_double_virtually_same( book_value_change, 0.0 ) )
+	{
+		fprintf( stderr,
+	"Warning in %s/%s()/%d: empty book_value_change.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return (TRANSACTION *)0;
+	}
 
 	ledger_get_investment_account_names(
 		&unrealized_investment,
@@ -1095,13 +1165,12 @@ TRANSACTION *investment_build_purchase_transaction(
 			investment_get_memo(
 				account_balance->investment_operation ) );
 
-	transaction->transaction_amount = account_balance->book_value_change;
+	transaction->transaction_amount = book_value_change;
 
 	transaction->journal_ledger_list =
 		ledger_get_binary_ledger_list(
 			transaction->transaction_amount,
-			account_balance->investment_account
-				/* debit_account */,
+			investment_account /* debit_account */,
 			credit_account );
 
 	if ( account_balance->unrealized_gain_change > 0.0 )
@@ -1139,7 +1208,8 @@ TRANSACTION *investment_build_purchase_transaction(
 TRANSACTION *investment_build_sale_transaction(
 				char *application_name,
 				char *fund_name,
-				ACCOUNT_BALANCE *account_balance )
+				ACCOUNT_BALANCE *account_balance,
+				char *investment_account )
 {
 	TRANSACTION *transaction;
 	char *unrealized_investment = {0};
@@ -1189,8 +1259,7 @@ TRANSACTION *investment_build_sale_transaction(
 			transaction->transaction_amount,
 			checking_account
 				/* debit_account */,
-			account_balance->investment_account
-				/* credit_account */ );
+			investment_account /* credit_account */ );
 
 	if ( !timlib_double_virtually_same(
 		account_balance->unrealized_gain_change, 0.0 ) )

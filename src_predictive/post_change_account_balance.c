@@ -24,6 +24,9 @@
 
 /* Prototypes */
 /* ---------- */
+void post_change_account_balance_error_exit(
+				char *application_name );
+
 void post_change_investment_operation_update(
 				char *application_name,
 				char *fund_name,
@@ -390,7 +393,9 @@ void post_change_account_balance_insert(
 				ACCOUNT_BALANCE *account_balance )
 {
 	if ( strcmp(	account_balance->investment_operation,
-			INVESTMENT_OPERATION_PURCHASE ) == 0 )
+			INVESTMENT_OPERATION_PURCHASE ) == 0
+	||   strcmp(	account_balance->investment_operation,
+			INVESTMENT_OPERATION_TRANSFER ) == 0 )
 	{
 		post_change_account_balance_insert_purchase(
 			application_name,
@@ -502,12 +507,26 @@ boolean post_change_account_balance_insert_time_passage(
 				0 /* not first_row */ );
 	}
 
+	if ( !new_account_balance )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot calulate new balance.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	new_account_balance->investment_account =
+		account_balance->investment_account;
+
 	new_account_balance->transaction =
 		investment_build_transaction(
 			application_name,
 			fund_name,
 			new_account_balance,
-			new_account_balance->investment_operation );
+			new_account_balance->investment_operation,
+			new_account_balance->investment_account );
 
 	if ( !new_account_balance->transaction )
 	{
@@ -615,12 +634,27 @@ void post_change_account_balance_insert_purchase(
 				0 /* not first_row */ );
 	}
 
+	if ( !new_account_balance )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot calulate new balance.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+
+		post_change_account_balance_error_exit( application_name );
+	}
+
+	new_account_balance->investment_account =
+		account_balance->investment_account;
+ 
 	new_account_balance->transaction =
 		investment_build_transaction(
 			application_name,
 			fund_name,
 			new_account_balance,
-			new_account_balance->investment_operation );
+			new_account_balance->investment_operation,
+			new_account_balance->investment_account );
 
 	if ( !new_account_balance->transaction )
 	{
@@ -629,7 +663,8 @@ void post_change_account_balance_insert_purchase(
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
-		exit( 1 );
+
+		post_change_account_balance_error_exit( application_name );
 	}
 
 	new_account_balance->transaction_date_time =
@@ -715,14 +750,28 @@ boolean post_change_account_balance_insert_sale(
 			account_balance->investment_operation,
 			0 /* not first_row */ );
 
+	if ( !new_account_balance )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot calulate new balance.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( new_account_balance->share_quantity_change == 0.0 ) return 0;
+
+	new_account_balance->investment_account =
+		account_balance->investment_account;
 
 	new_account_balance->transaction =
 		investment_build_transaction(
 			application_name,
 			fund_name,
 			new_account_balance,
-			new_account_balance->investment_operation );
+			new_account_balance->investment_operation,
+			new_account_balance->investment_account );
 
 	if ( !new_account_balance->transaction )
 	{
@@ -856,7 +905,8 @@ void post_change_account_balance_list(
 				application_name,
 				fund_name,
 				new_account_balance,
-				new_account_balance->investment_operation );
+				new_account_balance->investment_operation,
+				new_account_balance->investment_account );
 
 		if ( !new_account_balance->transaction )
 		{
@@ -897,10 +947,6 @@ void post_change_account_balance_list(
 						transaction->
 						journal_ledger_list ) )
 		{
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 			post_change_account_balance_delete(
 				application_name,
 				fund_name,
@@ -1086,25 +1132,10 @@ void post_change_investment_operation_update(
 		exit( 1 );
 	}
 
-/*
 	ledger_journal_ledger_list_propagate(
 		account_balance->transaction->journal_ledger_list,
 		application_name );
-*/
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: propagating transaction_date_time = %s, account = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-account_balance->transaction->transaction_date_time,
-investment_fetch_purchase_credit_account_name(
-		application_name,
-		fund_name,
-		preupdate_investment_operation ) );
-m2( application_name, msg );
-}
 	ledger_propagate(
 		application_name,
 		account_balance->transaction->transaction_date_time,
@@ -1115,3 +1146,14 @@ m2( application_name, msg );
 
 } /* post_change_investment_operation_update() */
 
+void post_change_account_balance_error_exit( char *application_name )
+{
+	document_quick_output_body(
+		application_name,
+		(char *)0 /* appaserver_mount_point */ );
+
+	printf( "<h3>An error occurred. Check log.</h3>\n" );
+	document_close();
+	exit( 1 );
+
+} /* post_change_account_balance_error_exit() */

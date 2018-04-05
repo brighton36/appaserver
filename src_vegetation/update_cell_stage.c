@@ -33,6 +33,7 @@ typedef struct {
 	int utm_x;
 	int utm_y;
 	double measurement_value;
+	double distance;
 } STATION;
 
 /* Prototypes */
@@ -202,6 +203,7 @@ STATION *update_cell_stage_calculate_nearest_station(
 		{
 			nearest_distance = distance;
 			nearest_station = station;
+			nearest_station->distance = distance;
 		}
 	} while( list_next( station_list ) );
 
@@ -267,6 +269,14 @@ void update_statement_cell_stage(
 				 utm_y );
 			continue;
 		}
+
+printf( "cell = %s/%s, station = %s, utm_x = %d, utm_y = %d, distance = %.2lf\n",
+utm_x,
+utm_y,
+station->station,
+station->utm_x,
+station->utm_y,
+station->distance );
 
 		fprintf( output_pipe,
 			 "%s^%s^stage_NAVD88_ft^%.2lf\n",

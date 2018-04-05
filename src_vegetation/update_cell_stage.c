@@ -16,6 +16,7 @@
 #include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
 #include "list.h"
+#include "boolean.h"
 #include "distance.h"
 
 /* Enumerated Types */
@@ -36,6 +37,11 @@ typedef struct {
 
 /* Prototypes */
 /* ---------- */
+void update_statement_cell_stage(
+			char *application_name,
+			LIST *station_list,
+			boolean execute );
+
 STATION *update_cell_stage_calculate_nearest_station(
 			int utm_x,
 			int utm_y,
@@ -52,24 +58,27 @@ STATION *update_cell_stage_station_parse(
 			char *input_buffer );
 
 void update_cell_stage(	char *application_name,
-			char *measurement_date );
+			int days_ago,
+			boolean execute );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *measurement_date;
+	int days_ago;
+	boolean execute;
 	char *database_string = {0};
 
-	if ( argc != 3 )
+	if ( argc != 4 )
 	{
 		fprintf( stderr,
-			 "Usage: %s application measurement_date\n",
+			 "Usage: %s application days_ago execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	measurement_date = argv[ 2 ];
+	days_ago = atoi( argv[ 2 ] );
+	execute = (*argv[ 3 ] == 'y');
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -90,7 +99,7 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	update_cell_stage( application_name, measurement_date );
+	update_cell_stage( application_name, days_ago, execute );
 
 	return 0;
 
@@ -202,7 +211,8 @@ STATION *update_cell_stage_calculate_nearest_station(
 
 void update_statement_cell_stage(
 			char *application_name,
-			LIST *station_list )
+			LIST *station_list,
+			boolean execute )
 {
 	char sys_string[ 1024 ];
 	STATION *station;
@@ -211,9 +221,21 @@ void update_statement_cell_stage(
 	char input_buffer[ 128 ];
 	char utm_x[ 64 ];
 	char utm_y[ 64 ];
+	char *key;
+	char *output_string;
 
-	strcpy( sys_string,
-		"update_statement.e table=cell key=UTMX,UTMY carrot=y" );
+	key = "UTMX,UTMY";
+
+	if ( execute )
+		output_string = "sql.e";
+	else
+		output_string = "cat";
+
+	sprintf( sys_string,
+		 "update_statement.e table=cell key=%s carrot=y |"
+		 "%s						 ",
+		 key,
+		 output_string );
 
 	output_pipe = popen( sys_string, "w" );
 
@@ -247,7 +269,7 @@ void update_statement_cell_stage(
 		}
 
 		fprintf( output_pipe,
-			 "%s^%s^stage_NGVD29_ft^%.2lf\n",
+			 "%s^%s^stage_NAVD88_ft^%.2lf\n",
 			 utm_x,
 			 utm_y,
 			 station->measurement_value );
@@ -259,10 +281,19 @@ void update_statement_cell_stage(
 } /* update_statement_cell_stage() */
 
 void update_cell_stage(	char *application_name,
-			char *measurement_date )
+			int days_ago,
+			boolean execute )
 {
 	LIST *station_list;
+	char *measurement_date;
 	char *appaserver_mount_point;
+	char sys_string[ 128 ];
+
+	sprintf( sys_string,
+		 "now.sh ymd -%d",
+		 days_ago );
+
+	measurement_date = pipe2string( sys_string );
 
 	appaserver_mount_point =
 		appaserver_parameter_file_get_appaserver_mount_point();
@@ -274,7 +305,7 @@ void update_cell_stage(	char *application_name,
 
 	if ( !list_length( station_list ) ) return;
 
-	update_statement_cell_stage( application_name, station_list );
+	update_statement_cell_stage( application_name, station_list, execute );
 
 } /* update_cell_stage() */
 

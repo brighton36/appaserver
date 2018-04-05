@@ -30,10 +30,10 @@
 /* ---------- */
 typedef struct {
 	char *station;
-	int utm_x;
-	int utm_y;
+	unsigned int utm_x;
+	unsigned int utm_y;
 	double measurement_value;
-	double distance;
+	unsigned int distance;
 } STATION;
 
 /* Prototypes */
@@ -44,8 +44,8 @@ void update_statement_cell_stage(
 			boolean execute );
 
 STATION *update_cell_stage_calculate_nearest_station(
-			int utm_x,
-			int utm_y,
+			unsigned int utm_x,
+			unsigned int utm_y,
 			LIST *station_list );
 
 LIST *update_cell_stage_get_station_list(
@@ -127,6 +127,9 @@ STATION *update_cell_stage_station_parse( char *input_buffer )
 	char buffer[ 128 ];
 	STATION *station;
 
+	/* WW^495617.47038^2830002.98326^1.1400 */
+	/* ------------------------------------ */
+
 	station = update_cell_stage_station_calloc();
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
@@ -156,7 +159,8 @@ LIST *update_cell_stage_get_station_list(
 	char input_buffer[ 128 ];
 
 	sprintf( sys_string,
-		 "%s/src_%s/station_utm_stage_list.sh %s %s",
+		 "%s/src_%s/station_utm_stage_list.sh %s %s	|"
+		 "cat						 ",
 		 appaserver_mount_point,
 		 HYDROLOGY_DATABASE,
 		 HYDROLOGY_DATABASE,
@@ -178,12 +182,12 @@ LIST *update_cell_stage_get_station_list(
 } /* update_cell_stage_get_station_list() */
 
 STATION *update_cell_stage_calculate_nearest_station(
-					int utm_x,
-					int utm_y,
+					unsigned int utm_x,
+					unsigned int utm_y,
 					LIST *station_list )
 {
-	double nearest_distance = INT_MAX;
-	double distance;
+	unsigned int nearest_distance = INT_MAX;
+	unsigned int distance;
 	STATION *nearest_station = {0};
 	STATION *station;
 
@@ -270,19 +274,27 @@ void update_statement_cell_stage(
 			continue;
 		}
 
-printf( "cell = %s/%s, station = %s, utm_x = %d, utm_y = %d, distance = %.2lf\n",
+/*
+printf( "cell = %s/%s, station = %s, utm_x = %d, utm_y = %d, distance = %d\n",
 utm_x,
 utm_y,
 station->station,
 station->utm_x,
 station->utm_y,
 station->distance );
+*/
 
 		fprintf( output_pipe,
-			 "%s^%s^stage_NAVD88_ft^%.2lf\n",
+		"%s^%s^stage_NAVD88_ft^%.2lf\n",
 			 utm_x,
 			 utm_y,
 			 station->measurement_value );
+
+		fprintf( output_pipe,
+		"%s^%s^nearest_hydrology_station^%s\n",
+			 utm_x,
+			 utm_y,
+			 station->station );
 	}
 
 	pclose( input_pipe );
@@ -315,7 +327,10 @@ void update_cell_stage(	char *application_name,
 
 	if ( !list_length( station_list ) ) return;
 
-	update_statement_cell_stage( application_name, station_list, execute );
+	update_statement_cell_stage(
+		application_name,
+		station_list,
+		execute );
 
 } /* update_cell_stage() */
 

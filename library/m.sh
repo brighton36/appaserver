@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make post_edit_table_form
+	cd ../src_vegetation
+	make update_cell_stage
 fi

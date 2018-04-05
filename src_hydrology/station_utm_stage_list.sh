@@ -12,38 +12,19 @@ fi
 application=$1
 measurement_date=$2
 
-DATABASE=$application
+station_utm_file="/tmp/station_utm.dat"
+station_stage_file="/tmp/station_stage.dat"
 
-function select_measurement ()
-{
-	station=$1
+`get_appaserver_home.e`/src_$application/station_utm_list.sh	\
+	$application						|
+sort								|
+cat > $station_utm_file
 
-	select="station.station,utm_x,utm_y,measurement_value"
+`get_appaserver_home.e`/src_$application/station_stage_list.sh	\
+	$application $measurement_date				|
+sort								|
+cat > $station_stage_file
 
-	join="station.station = measurement.station"
-	not_null="utm_x is not null and utm_y is not null"
-	measurement_where="measurement_date = '$measurement_date'"
-	datatype_where="datatype = 'stage'"
-	station_where="station.station = '$station'"
-
-	where="	$join and
-		$not_null and
-		$measurement_where and
-		$datatype_where and
-		$station_where"
-
-	echo "	select $select
-		from station,measurement
-		where $where
-		order by measurement_time;"	|
-	sql.e $DATABASE				|
-	tail -1
-}
-
-station_list_all.sh $application		|
-while read station
-do
-	select_measurement "$station"
-done
+join -t'^' $station_utm_file $station_stage_file 2>/dev/null
 
 exit 0

@@ -23,6 +23,7 @@
 #include "session.h"
 #include "boolean.h"
 #include "hydrology_library.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
@@ -31,13 +32,7 @@
 #define MEASUREMENT_DATE_PIECE	2
 #define MEASUREMENT_TIME_PIECE	3
 
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/missing_report_%s_%s_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/missing_report_%s_%s_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/missing_report_%s_%s_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/missing_report_%s_%s_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET	"%s://%s/%s/missing_report_%s_%s_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/missing_report_%s_%s_%d.csv"
+#define FILENAME_STEM		"missing_report"
 
 /* Prototypes */
 /* ---------- */
@@ -52,7 +47,7 @@ void missing_measurement_report_spreadsheet_text_file(
 				char *begin_date,
 				char *end_date,
 				boolean omit_time,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				char *output_medium );
 
 void missing_measurement_report_stdout(
@@ -209,7 +204,7 @@ int main( int argc, char **argv )
 				end_date,
 				omit_time,
 				appaserver_parameter_file->
-					appaserver_mount_point,
+					document_root,
 				output_medium );
 	}
 	else
@@ -393,7 +388,7 @@ void missing_measurement_report_spreadsheet_text_file(
 				char *begin_date,
 				char *end_date,
 				boolean omit_time,
-				char *appaserver_mount_point,
+				char *document_root_directory,
 				char *output_medium )
 {
 	char measurement_date[ 128 ];
@@ -404,31 +399,64 @@ void missing_measurement_report_spreadsheet_text_file(
 	char buffer[ 1024 ];
 	char *heading;
 	char *trim_time_process;
-	char ftp_filename[ 256 ];
-	char output_pipename[ 256 ];
+	char *ftp_filename = {0};
+	char *output_pipename = {0};
 	pid_t process_id = getpid();
 	unsigned int row_count;
+	char *extension;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
-	{
-		sprintf( output_pipename, 
-		 	 OUTPUT_FILE_SPREADSHEET,
-		 	 appaserver_mount_point,
-		 	 application_name, 
-		 	 begin_date,
-		 	 end_date,
-		 	 process_id );
-	}
+		extension = "csv";
 	else
-	{
-		sprintf( output_pipename, 
-		 	 OUTPUT_FILE_TEXT_FILE,
-		 	 appaserver_mount_point,
-		 	 application_name, 
-		 	 begin_date,
-		 	 end_date,
-		 	 process_id );
-	}
+		extension = "txt";
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			FILENAME_STEM,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			extension );
+
+	appaserver_link_file->begin_date_string = begin_date;
+	appaserver_link_file->end_date_string = end_date;
+
+	output_pipename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 	{
@@ -449,6 +477,7 @@ void missing_measurement_report_spreadsheet_text_file(
 				0 /* not with_zap_file */ );
 
 	output_pipe = fopen( output_pipename, "a" );
+
 	hydrology_library_output_data_collection_frequency_text_file(
 				output_pipe,
 				application_name,
@@ -467,54 +496,6 @@ void missing_measurement_report_spreadsheet_text_file(
 		 output_pipename );
 
 	output_pipe = popen( sys_string, "w" );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		if ( strcmp( output_medium, "spreadsheet" ) == 0 )
-		{
-			sprintf(ftp_filename, 
-		 		HTTP_FTP_FILE_SPREADSHEET,
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-		 		begin_date,
-		 		end_date,
-		 		process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-		 		HTTP_FTP_FILE_TEXT_FILE,
-				application_get_http_prefix( application_name ),
-		 		appaserver_library_get_server_address(),
-		 		application_name,
-		 		begin_date,
-		 		end_date,
-		 		process_id );
-		}
-	}
-	else
-	{
-		if ( strcmp( output_medium, "spreadsheet" ) == 0 )
-		{
-			sprintf(ftp_filename, 
-		 		FTP_FILE_SPREADSHEET,
-		 		application_name,
-		 		begin_date,
-		 		end_date,
-		 		process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-		 		FTP_FILE_TEXT_FILE,
-		 		application_name,
-		 		begin_date,
-		 		end_date,
-		 		process_id );
-		}
-	}
 
 	sprintf( sys_string,
 "measurement_data_collection_frequency_list %s %s %s real_time %s %s y |"

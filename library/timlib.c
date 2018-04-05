@@ -2984,7 +2984,7 @@ int timlib_delimiter_independent_strcmp(
 
 char *timlib_with_list_get_in_clause( LIST *data_list )
 {
-	char in_clause[ 65536 ];
+	char in_clause[ 131072 ];
 	char *ptr = in_clause;
 	char *data;
 	boolean first_time = 1;
@@ -3003,8 +3003,11 @@ char *timlib_with_list_get_in_clause( LIST *data_list )
 		}
 
 		ptr += sprintf( ptr, "'%s'", data );
+
 	} while( list_next( data_list ) );
+
 	return strdup( in_clause );
+
 } /* timlib_with_list_get_in_clause() */
 
 char *timlib_get_in_clause( char *data_list_string )
@@ -3014,9 +3017,10 @@ char *timlib_get_in_clause( char *data_list_string )
 
 	data_list = list_string2list( data_list_string, ',' );
 	in_clause = timlib_with_list_get_in_clause( data_list );
-	/* list_free_container( data_list ); */
 	list_free( data_list );
+
 	return in_clause;
+
 } /* timlib_get_in_clause() */
 
 boolean timlib_file_exists( char *filename )

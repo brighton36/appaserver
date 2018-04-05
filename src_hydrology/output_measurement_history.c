@@ -1,4 +1,4 @@
-/* output_measurement_history.c						*/
+/* $APPASERVER_HOME/src_hydrology/output_measurement_history.c		*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -19,16 +19,11 @@
 #include "environ.h"
 #include "hydrology_library.h"
 #include "appaserver.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/measurement_history_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/measurement_history_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/measurement_history_%d.txt"
-
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/measurement_history_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/measurement_history_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/measurement_history_%d.csv"
+#define FILENAME_STEM		"measurement_history"
 
 #define DEFAULT_OUTPUT		"table"
 #define HEADING_LIST "measurement_date,measurement_time,measurement_update_date,measurement_update_time,measurement_update_method,value,change,percent_change"
@@ -55,8 +50,8 @@ int main( int argc, char **argv )
 	FILE *output_pipe;
 	char input_buffer[ 1024 ];
 	char *output_medium;
-	char ftp_filename[ 256 ];
-	char output_filename[ 256 ];
+	char *ftp_filename = {0};
+	char *output_filename = {0};
 
 	if ( argc != 8 )
 	{
@@ -164,31 +159,53 @@ int main( int argc, char **argv )
 	{
 		pid_t process_id = getpid();
 		FILE *output_file;
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_SPREADSHEET,
+		appaserver_link_file =
+			appaserver_link_file_new(
 				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET,
-			 	application_name,
-			 	process_id );
-		}
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+				appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
 
-		sprintf( output_filename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 process_id );
-	
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -217,31 +234,53 @@ int main( int argc, char **argv )
 	{
 		pid_t process_id = getpid();
 		FILE *output_file;
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_TEXT_FILE,
+		appaserver_link_file =
+			appaserver_link_file_new(
 				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_TEXT_FILE,
-			 	application_name,
-			 	process_id );
-		}
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+				appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"txt" );
 
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 process_id );
-	
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",

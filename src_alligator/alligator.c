@@ -577,7 +577,7 @@ LIST *alligator_get_census_list(char *application_name,
 	char discovery_date[ 16 ];
 	char primary_researcher[ 128 ];
 	char pilot[ 128 ];
-	char sys_string[ 65536 ];
+	char sys_string[ 131072 ];
 	LIST *census_list;
 
 	where_clause =
@@ -597,7 +597,6 @@ LIST *alligator_get_census_list(char *application_name,
 		 application_name,
 		 select,
 		 where_clause );
-
 
 	record_list = pipe2list( sys_string );
 
@@ -764,7 +763,9 @@ LIST *alligator_get_secondary_researcher_list(
 			secondary_researcher_list,
 			strdup( secondary_researcher ) );
 	}
+
 	return secondary_researcher_list;
+
 } /* alligator_get_secondary_researcher_list() */
 
 OBSERVATION *alligator_observation_new(
@@ -1410,7 +1411,7 @@ char *alligator_get_discovery_primary_where_clause(
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string )
 {
-	static char where_clause[ 65536 ];
+	char where_clause[ 131072 ];
 	char *where_clause_pointer = where_clause;
 	char *table_name;
 
@@ -1428,7 +1429,9 @@ char *alligator_get_discovery_primary_where_clause(
 			 table_name,
 			 timlib_get_in_clause(
 				 primary_researcher_list_string ) );
-	return where_clause;
+
+	return strdup( where_clause );
+
 } /* alligator_get_discovery_primary_where_clause() */
 
 char *alligator_get_transect_number_string(
@@ -1799,6 +1802,7 @@ LIST *alligator_get_cell_list(	char *application_name )
 				atof( utm_northing ),
 				atof( utm_easting ),
 				strdup( basin ) );
+
 		list_append_pointer( cell_list, cell );
 	}
 

@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* output_hydroperiod.c				      	*/
+/* $APPASERVER_HOME/src_hydrology/output_hydroperiod.c	*/
 /* --------------------------------------------------- 	*/
 /* Freely available software: see Appaserver.org	*/
 /* --------------------------------------------------- 	*/
@@ -28,19 +28,14 @@
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
 #include "hydrology_library.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
 #define REPORT_TITLE				"Hydroperiod"
 #define DEFAULT_OUTPUT_MEDIUM			"chart"
 
-#define OUTPUT_FILE_SPREADSHEET	"%s/%s/hydroperiod_%s_%s_%d.csv"
-#define HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/hydroperiod_%s_%s_%d.csv"
-#define FTP_FILE_SPREADSHEET	"/%s/hydroperiod_%s_%s_%d.csv"
-
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/hydroperiod_%s_%s_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE "%s://%s/%s/hydroperiod_%s_%s_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/hydroperiod_%s_%s_%d.txt"
+#define FILENAME_STEM				"hydroperiod"
 
 #define ROWS_BETWEEN_HEADING			20
 
@@ -255,13 +250,14 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *ftp_filename;
+		char *output_pipename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
 		char sub_title[ 512 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
 		get_report_title(	title,
 					station_name,
@@ -272,6 +268,7 @@ int main( int argc, char **argv )
 					begin_date_string,
 					end_date_string );
 
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_SPREADSHEET,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -279,7 +276,56 @@ int main( int argc, char **argv )
 			 begin_date_string,
 			 end_date_string,
 			 process_id );
-	
+*/
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+				appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		appaserver_link_file->begin_date_string = begin_date_string;
+		appaserver_link_file->end_date_string = end_date_string;
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -298,28 +344,6 @@ int main( int argc, char **argv )
 			station_name,
 			0 /* not with_zap_file */ );
 
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename, 
-			 	HTTP_FTP_FILE_SPREADSHEET, 
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_date_string,
-			 	end_date_string,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename, 
-			 	FTP_FILE_SPREADSHEET, 
-			 	application_name,
-			 	begin_date_string,
-			 	end_date_string,
-			 	process_id );
-		}
-	
 		sprintf( sys_string, "sed 's/\\^/,/g' >> %s",
 			 output_pipename );
 
@@ -359,13 +383,14 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "transmit" ) == 0
 	||   strcmp( output_medium, "text_file" ) == 0 )
 	{
-		char ftp_filename[ 256 ];
-		char output_pipename[ 256 ];
+		char *ftp_filename;
+		char *output_pipename;
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
 		char sub_title[ 512 ];
+		APPASERVER_LINK_FILE *appaserver_link_file;
 
 		get_report_title(	title,
 					station_name,
@@ -376,6 +401,55 @@ int main( int argc, char **argv )
 					begin_date_string,
 					end_date_string );
 
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+				appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"txt" );
+
+		appaserver_link_file->begin_date_string = begin_date_string;
+		appaserver_link_file->end_date_string = end_date_string;
+
+		output_pipename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+/*
 		sprintf( output_pipename, 
 			 OUTPUT_FILE_TEXT_FILE,
 			 appaserver_parameter_file->appaserver_mount_point,
@@ -383,6 +457,7 @@ int main( int argc, char **argv )
 			 begin_date_string,
 			 end_date_string,
 			 process_id );
+*/
 	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
@@ -402,28 +477,6 @@ int main( int argc, char **argv )
 			station_name,
 			0 /* not with_zap_file */ );
 
-		if ( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' )
-		{
-			sprintf(ftp_filename,
-			 	HTTP_FTP_FILE_TEXT_FILE,
-				application_get_http_prefix( application_name ),
-			 	appaserver_library_get_server_address(),
-			 	application_name,
-			 	begin_date_string,
-			 	end_date_string,
-			 	process_id );
-		}
-		else
-		{
-			sprintf(ftp_filename,
-			 	FTP_FILE_TEXT_FILE,
-			 	application_name,
-			 	begin_date_string,
-			 	end_date_string,
-			 	process_id );
-		}
-	
 /*
 		sprintf( sys_string,
 			 "delimiter2padded_columns.e '^' 3 >> %s",

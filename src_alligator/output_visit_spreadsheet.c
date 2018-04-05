@@ -38,10 +38,6 @@
 
 /* Prototypes */
 /* ---------- */
-void get_title_and_sub_title(	char *title,
-				char *sub_title,
-				char *process_name );
-
 void output_visit_spreadsheet(
 				char *application_name,
 				char *discovery_date_list_string,
@@ -145,7 +141,6 @@ void output_visit_spreadsheet(	char *application_name,
 	char *ftp_no_codes_filename;
 	char *output_no_codes_filename;
 	char title[ 128 ];
-	char sub_title[ 128 ];
 	ALLIGATOR *alligator;
 	NEST *nest;
 	OBSERVATION *observation;
@@ -154,12 +149,9 @@ void output_visit_spreadsheet(	char *application_name,
 	char not_banded_eggs_string[ 16 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
-	get_title_and_sub_title(
-			title,
-			sub_title,
-			process_name );
+	format_initial_capital( title, process_name );
 
-	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
+	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>\n" );
 	fflush( stdout );
 	system( "date '+%x %H:%M'" );
@@ -269,20 +261,6 @@ void output_visit_spreadsheet(	char *application_name,
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	sprintf(output_codes_filename, 
-	 	OUTPUT_CODES,
-	 	appaserver_mount_point,
-	 	application_name,
-	 	process_id );
-
-	sprintf(output_no_codes_filename, 
-		OUTPUT_NO_CODES,
-		appaserver_mount_point,
-		application_name, 
-		process_id );
-*/
 
 	if ( ! ( output_codes_file = fopen( output_codes_filename, "w" ) ) )
 	{
@@ -485,14 +463,4 @@ void output_visit_spreadsheet(	char *application_name,
 			(char *)0 /* application_type */ );
 
 } /* output_visit_spreadsheet() */
-
-void get_title_and_sub_title(
-			char *title,
-			char *sub_title,
-			char *process_name )
-{
-	format_initial_capital( title, process_name );
-	*sub_title = '\0';
-
-} /* get_title_and_sub_title() */
 

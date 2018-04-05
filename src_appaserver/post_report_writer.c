@@ -37,6 +37,7 @@
 #include "query.h"
 #include "query_attribute_statistics_list.h"
 #include "report_writer.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
@@ -47,10 +48,6 @@
 #define COOKIE_KEY_PREFIX			"report"
 #define FORM_NAME				"report_writer"
 #define ONE2M_MTO1_FOLDER_LIST_PREFIX		"one2m_mto1_folder_list_"
-
-#define OUTPUT_FILE_SPREADSHEET		"%s/%s/%s_%d.csv"
-#define PREPEND_HTTP_FTP_FILE_SPREADSHEET "%s://%s/%s/%s_%d.csv"
-#define FTP_FILE_SPREADSHEET		"/%s/%s_%d.csv"
 
 /* Structures */
 /* ---------- */
@@ -163,6 +160,7 @@ void post_spreadsheet_state_four(
 				char *role_name,
 				char *folder_name,
 				char *appaserver_mount_point,
+				char *document_root_directory,
 				DICTIONARY *post_dictionary );
 
 void post_statistics_state_four(char *application_name,
@@ -362,6 +360,8 @@ int main( int argc, char **argv )
 					folder_name,
 					appaserver_parameter_file->
 						appaserver_mount_point,
+					appaserver_parameter_file->
+						document_root,
 					post_dictionary );
 		}
 		else
@@ -2072,6 +2072,7 @@ void post_spreadsheet_state_four(
 			char *role_name,
 			char *folder_name,
 			char *appaserver_mount_point,
+			char *document_root_directory,
 			DICTIONARY *post_dictionary )
 {
 	LIST *one2m_mto1_related_folder_name_list;
@@ -2083,11 +2084,12 @@ void post_spreadsheet_state_four(
 	DOCUMENT *document;
 	LIST *row_dictionary_list;
 	ROLE *role;
-	char output_filename[ 256 ];
-	char ftp_filename[ 256 ];
+	char *output_filename;
+	char *ftp_filename;
 	pid_t process_id = getpid();
 	LIST *append_isa_attribute_name_list;
 	RELATED_FOLDER *root_related_folder = {0};
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	document = document_new(
 			application_get_title_string(
@@ -2169,32 +2171,49 @@ void post_spreadsheet_state_four(
 			query->query_output->order_clause,
 			query->max_rows );
 
-	sprintf(output_filename,
-	 	OUTPUT_FILE_SPREADSHEET,
-		appaserver_mount_point,
-	 	application_name, 
-		folder_name,
-		process_id );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	PREPEND_HTTP_FTP_FILE_SPREADSHEET,
+	appaserver_link_file =
+		appaserver_link_file_new(
 			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-			folder_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_FILE_SPREADSHEET,
-		 	application_name,
-			folder_name,
-		 	process_id );
-	}
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			folder_name /* filename_stem */,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			"csv" );
+
+	output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	row_dictionary_list =
 		pipe2dictionary_list(	

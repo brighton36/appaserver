@@ -26,12 +26,12 @@
 #include "date_convert.h"
 #include "application.h"
 #include "process_generic_output.h"
+#include "appaserver_link_file.h" 
 
 /* Constants */
 /* --------- */
-#define OUTPUT_FILE_TEXT_FILE	"%s/%s/results_exception_%s_%s_%d.txt"
-#define HTTP_FTP_FILE_TEXT_FILE	"%s://%s/%s/results_exception_%s_%s_%d.txt"
-#define FTP_FILE_TEXT_FILE	"/%s/results_exception_%s_%s_%d.txt"
+
+#define FILENAME_STEM		"results_exception"
 
 /* Prototypes */
 /* ---------- */
@@ -41,7 +41,7 @@ void output_results_exception(
 		char *end_date_string,
 		PROCESS_GENERIC_OUTPUT *process_generic_output,
 		DICTIONARY *post_dictionary,
-		char *appaserver_mount_point );
+		char *document_root_directory );
 
 int main( int argc, char **argv )
 {
@@ -161,7 +161,7 @@ int main( int argc, char **argv )
 		process_generic_output,
 		post_dictionary,
 		appaserver_parameter_file->
-			appaserver_mount_point );
+			document_root );
 
 	document_close();
 
@@ -179,7 +179,7 @@ void output_results_exception(
 		char *end_date_string,
 		PROCESS_GENERIC_OUTPUT *process_generic_output,
 		DICTIONARY *post_dictionary,
-		char *appaserver_mount_point )
+		char *document_root_directory )
 {
 	char *parameter_where_clause;
 	char join_where_clause[ 1024 ];
@@ -191,10 +191,58 @@ void output_results_exception(
 	char input_buffer[ 1024 ];
 	char heading[ 256 ];
 	boolean first_time = 1;
-	char ftp_filename[ 256 ];
-	char output_pipename[ 256 ];
-	pid_t process_id = getpid();
+	char *ftp_filename;
+	char *output_pipename; pid_t process_id = getpid();
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			FILENAME_STEM,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			"txt" );
+
+	appaserver_link_file->begin_date_string = begin_date_string;
+	appaserver_link_file->end_date_string = end_date_string;
+
+	output_pipename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+/*
 	sprintf( output_pipename, 
 		 OUTPUT_FILE_TEXT_FILE,
 		 appaserver_mount_point,
@@ -202,6 +250,7 @@ void output_results_exception(
 		 begin_date_string,
 		 end_date_string,
 		 process_id );
+*/
 	
 	if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 	{
@@ -307,28 +356,6 @@ void output_results_exception(
 
 	pclose( input_pipe );
 	pclose( output_pipe );
-
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(ftp_filename, 
-		 	HTTP_FTP_FILE_TEXT_FILE,
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	begin_date_string,
-		 	end_date_string,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(ftp_filename, 
-		 	FTP_FILE_TEXT_FILE,
-		 	application_name,
-		 	begin_date_string,
-		 	end_date_string,
-		 	process_id );
-	}
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

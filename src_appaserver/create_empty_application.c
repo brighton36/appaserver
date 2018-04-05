@@ -774,12 +774,11 @@ void link_appaserver_source_directory(	char *destination_application,
 	if ( really_yn == 'y' )
 	{
 		sprintf( sys_string,
-"ln -s %s/src_%s %s/%s/%s",
+"ln -s %s/src_%s %s/%s",
 		 	appaserver_home_directory,
 			destination_application,
 		 	document_root_directory,
-			"appaserver",
-		 	destination_application );
+			"appaserver" );
 	}
 	else
 	{

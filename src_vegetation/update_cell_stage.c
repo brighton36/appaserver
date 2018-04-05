@@ -325,7 +325,15 @@ void update_cell_stage(	char *application_name,
 			measurement_date,
 			appaserver_mount_point );
 
-	if ( !list_length( station_list ) ) return;
+	if ( !list_length( station_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot get station list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return;
+	}
 
 	update_statement_cell_stage(
 		application_name,

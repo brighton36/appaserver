@@ -11,12 +11,9 @@ fi
 
 application=$1
 
-DATABASE=$application
-
 echo "	select station
 	from station
 	order by station;"					|
-sql.e $DATABASE							|
-toupper.e
+`get_appaserver_home.e`/src_appaserver/sql.e $application
 
 exit 0

@@ -24,13 +24,13 @@ where="	long_nad83 is not null and
 order="station"
 
 echo "select station from station where $where order by $order;"	|
-sql.e $application							|
+`get_appaserver_home.e`/src_appaserver/sql.e $application		|
 cat > $station_file
 
 select="long_nad83,lat_nad83"
 
 echo "select $select from station where $where order by $order;"	|
-sql.e $application							|
+`get_appaserver_home.e`/src_appaserver/sql.e $application		|
 cat > $lonlat_file
 
 cat $lonlat_file							|

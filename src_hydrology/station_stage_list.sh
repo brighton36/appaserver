@@ -32,7 +32,7 @@ function select_measurement ()
 		from station,measurement
 		where $where
 		order by measurement_time;"	|
-	sql.e $application			|
+	`get_appaserver_home.e`/src_appaserver/sql.e $application	  |
 	tail -1					|
 	cat
 }

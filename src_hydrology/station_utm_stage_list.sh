@@ -27,4 +27,6 @@ cat > $station_stage_file
 
 join -t'^' $station_utm_file $station_stage_file 2>/dev/null
 
+rm $station_utm_file $station_stage_file
+
 exit 0

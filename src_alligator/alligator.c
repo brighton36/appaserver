@@ -577,7 +577,7 @@ LIST *alligator_get_census_list(char *application_name,
 	char discovery_date[ 16 ];
 	char primary_researcher[ 128 ];
 	char pilot[ 128 ];
-	char sys_string[ 131072 ];
+	char sys_string[ 65536 ];
 	LIST *census_list;
 
 	where_clause =
@@ -1266,7 +1266,7 @@ LIST *alligator_get_observation_record_list(
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string )
 {
-	char sys_string[ 2048 ];
+	char sys_string[ 65536 ];
 	char *nest_observation_table_name;
 	char *nest_table_name;
 	char *where_clause;
@@ -1874,7 +1874,7 @@ LIST *alligator_get_water_depth_record_list(
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string )
 {
-	char sys_string[ 2048 ];
+	char sys_string[ 65536 ];
 	char *water_depth_table_name;
 	char *nest_table_name;
 	char *where_clause;

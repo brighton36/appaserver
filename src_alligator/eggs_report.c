@@ -362,8 +362,8 @@ void output_table(
 	HTML_TABLE *html_table = {0};
 	char title[ 128 ];
 	char sub_title[ 65536 ];
-	char input_buffer[ 128 ];
-	char piece_buffer[ 128 ];
+	char input_buffer[ 1024 ];
+	char piece_buffer[ 512 ];
 	char nest_visit_number_string[ 128 ];
 	int nest_visit_number;
 	FILE *input_file;
@@ -861,12 +861,10 @@ void output_text_file(
 
 	if ( output_medium == text_file )
 	{
-		int results;
-
 		printf( "<h1>%s<br></h1>\n", title );
 		printf( "<h2>\n" );
 		fflush( stdout );
-		results = system( "date '+%x %H:%M'" );
+		system( "date '+%x %H:%M'" );
 		fflush( stdout );
 		printf( "</h2>\n" );
 		
@@ -1030,7 +1028,6 @@ boolean generate_data(
 				char *materials,
 				char *nest_status )
 {
-	int results;
 	char sys_string[ 65536 ];
 	char *nest_table_name;
 	char *nest_observation_table_name;
@@ -1146,7 +1143,7 @@ boolean generate_data(
 		 sort_command,
 		 data_filename );
 
-	results = system( sys_string );
+	system( sys_string );
 	return timlib_file_populated( data_filename );
 
 } /* generate_data() */

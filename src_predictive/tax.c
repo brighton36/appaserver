@@ -12,7 +12,33 @@
 #include "ledger.h"
 #include "tax.h"
 
-TAX_FORM *tax_form_new( char *tax_form )
+TAX *tax_new(			char *application_name,
+				char *begin_date_string,
+				char *end_date_string,
+				char *tax_form )
+{
+	TAX *t;
+
+	if ( ! ( t = calloc( 1, sizeof( TAX ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	t->begin_date_string = begin_date_string;
+	t->end_date_string = end_date_string;
+
+	t.tax_input->tax_form = tax_form_new( application_name, tax_form );
+
+	return t;
+} /* tax_new() */
+
+TAX_FORM *tax_form_new(		char *application_name,
+				char *tax_form )
 {
 	TAX_FORM *t;
 
@@ -27,8 +53,14 @@ TAX_FORM *tax_form_new( char *tax_form )
 	}
 
 	t->tax_form = tax_form;
+
+	t->tax_form_line_list =
+		tax_form_fetch_line_list(
+			application_name,
+			t->tax_form );
 	return t;
-}
+
+} /* tax_form_new() */
 
 TAX_FORM_LINE *tax_form_line_new(	char *tax_form,
 					char *tax_form_line,
@@ -57,8 +89,7 @@ TAX_FORM_LINE *tax_form_line_new(	char *tax_form,
 } /* tax_form_line_new() */
 
 LIST *tax_form_fetch_line_list(		char *application_name,
-					char *tax_form,
-					char *as_of_date )
+					char *tax_form )
 {
 	LIST *account_list;
 	TAX_FORM_LINE *tax_form_line = {0};
@@ -201,3 +232,111 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 	return tax_form_line_list;
 
 } /* tax_form_fetch_line_list() */
+
+LIST *tax_fetch_account_list(		char *application_name,
+					char *tax_form_line )
+{
+	static LIST *local_account_list = {0};
+	LIST *return_account_list;
+	ACCOUNT *account;
+
+	if ( !local_account_list )
+	{
+		local_account_list =
+			tax_fetch_local_account_list(
+				application_name );
+	}
+
+	if ( !list_rewind( local_account_list ) ) return (LIST *)0;
+
+	return_account_list = list_new();
+
+	do {
+		account = list_get( local_account_list );
+
+		if ( timlib_strcmp(
+			account->tax_form_line,
+			tax_form_line ) == 0 )
+		{
+			list_append_pointer( return_account_list, account );
+		}
+
+	} while( list_next( local_account_list ) );
+
+	return return_account_list;
+
+} /* tax_fetch_account_list() */
+
+LIST *tax_fetch_local_account_list(
+				char *application_name )
+{
+	ACCOUNT *account;
+	char *select;
+	char sys_string[ 1024 ];
+	char input_buffer[ 1024 ];
+	LIST *account_list;
+	FILE *input_pipe;
+
+	account_list = list_new();
+	select = tax_account_get_select( application_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=account		",
+		 application_name,
+		 select );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		account = ledger_account_calloc();
+
+		ledger_account_parse(
+				&account->account_name,
+				&account->fund_name,
+				&account->subclassification_name,
+				&account->hard_coded_account_key,
+				input_buffer );
+
+		account->accumulate_debit =
+			ledger_account_get_accumulate_debit(
+				application_name, account->account_name );
+
+		if ( as_of_date )
+		{
+			account->latest_ledger =
+				ledger_get_latest_ledger(
+					application_name,
+					account->account_name,
+					as_of_date );
+		}
+
+		list_append_pointer( account_list, account );
+	}
+
+	pclose( input_pipe );
+	return account_list;
+
+} /* tax_fetch_local_account_list() */
+
+char *tax_account_get_select( char *application_name )
+{
+	char *select;
+
+	if ( ledger_fund_attribute_exists(
+			application_name ) )
+	{
+		select =
+"account.account,fund,subclassification,hard_coded_account_key,tax_form_line";
+	}
+	else
+	{
+		select =
+"account.account,null,subclassification,hard_coded_account_key,tax_form_line";
+	}
+
+	return select;
+
+} /* tax_account_get_select() */

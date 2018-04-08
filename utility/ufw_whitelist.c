@@ -22,9 +22,9 @@ int main( int argc, char **argv )
 	FILE *output_pipe;
 	char *input_filename;
 
-/* stub */
-/* ---- */
-argc = 1;
+	/* stub */
+	/* ---- */
+	argc = 1;
 
 	if ( strcmp( argv[ 0 ], "ufw_blacklist.e" ) == 0 )
 		input_filename = BLACKLIST_FILE;

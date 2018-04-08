@@ -324,8 +324,8 @@ ACCOUNT *ledger_seek_account(	LIST *account_list,
 
 } /* ledger_seek_account() */
 
-LIST *ledger_get_account_list(	char *application_name,
-				char *as_of_date )
+LIST *ledger_fetch_account_list(	char *application_name,
+					char *as_of_date )
 {
 	ACCOUNT *account;
 	char *select;
@@ -378,7 +378,7 @@ LIST *ledger_get_account_list(	char *application_name,
 	pclose( input_pipe );
 	return account_list;
 
-} /* ledger_get_account_list() */
+} /* ledger_fetch_account_list() */
 
 void ledger_account_parse(	char **account_name,
 				char **fund_name,
@@ -450,7 +450,7 @@ void ledger_account_load(	char **fund_name,
 		exit( 1 );
 	}
 
-	ledger_account_parse(	(char **)0,
+	ledger_account_parse(	(char **)0 /* account_name */,
 				fund_name,
 				subclassification_name,
 				hard_coded_account_key,
@@ -5373,19 +5373,7 @@ boolean ledger_account_get_accumulate_debit(
 					char *application_name,
 					char *account_name )
 {
-	static LEDGER *ledger = {0};
 	LEDGER_ELEMENT *element;
-
-	if ( !ledger )
-	{
-		ledger = ledger_new();
-
-/*
-		ledger->contra_account_list =
-			ledger_get_contra_account_list(
-				application_name );
-*/
-	}
 
 	if ( ! ( element =
 			ledger_account_fetch_element(
@@ -5401,19 +5389,6 @@ boolean ledger_account_get_accumulate_debit(
 		return 0;
 	}
 
-/*
-	if ( ( contra_account =
-			ledger_seek_contra_account(
-				ledger->contra_account_list,
-				account_name ) ) )
-	{
-		return 1 - element->accumulate_debit;
-	}
-	else
-	{
-		return element->accumulate_debit;
-	}
-*/
 	return element->accumulate_debit;
 
 } /* ledger_account_get_accumulate_debit() */

@@ -27,15 +27,20 @@
 /* ---------- */
 typedef struct
 {
+	char *account_name;
+	LIST *journal_ledger_list;
+	boolean accumulate_debit;
+} TAX_FORM_LINE_ACCOUNT;
+
+typedef struct
+{
 	char *tax_form;
 	char *tax_form_line;
 	char *tax_form_description;
 	boolean itemize_accounts;
-	/* ------------------- */
-	/* list of (ACCOUNT *) */
-	/* ------------------- */
 	LIST *account_list;
 	double tax_form_line_total;
+	LIST *tax_form_line_account_list;
 } TAX_FORM_LINE;
 
 typedef struct
@@ -44,9 +49,36 @@ typedef struct
 	LIST *tax_form_line_list;
 } TAX_FORM;
 
+typedef struct
+{
+	char *tax_form;
+	LIST *tax_form_line_list;
+} TAX_PROCESS;
+
+typedef struct
+{
+	TAX_FORM *tax_form;
+	LIST *cash_transaction_list;
+} TAX_INPUT;
+
+typedef struct
+{
+	TAX_INPUT tax_input;
+	TAX_PROCESS tax_process;
+	/* TAX_OUTPUT tax_output; */
+	char *begin_date_string;
+	char *end_date_string;
+} TAX;
+
 /* Operations */
 /* ---------- */
-TAX_FORM *tax_form_new(			char *tax_form );
+TAX *tax_new(				char *application_name,
+					char *begin_date_string,
+					char *end_date_string,
+					char *tax_form );
+
+TAX_FORM *tax_form_new(			char *application_name,
+					char *tax_form );
 
 TAX_FORM_LINE *tax_form_line_new(	char *tax_form,
 					char *tax_form_line,
@@ -54,7 +86,9 @@ TAX_FORM_LINE *tax_form_line_new(	char *tax_form,
 					boolean itemize_accounts );
 
 LIST *tax_form_fetch_line_list(		char *application_name,
-					char *tax_form,
-					char *as_of_date );
+					char *tax_form );
+
+LIST *tax_fetch_account_list(		char *application_name,
+					char *tax_form_line );
 
 #endif

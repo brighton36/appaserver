@@ -699,7 +699,7 @@ void ledger_account_parse(	char **account_name,
 				char **hard_coded_account_key,
 				char *input_buffer );
 
-LIST *ledger_get_account_list(	char *application_name,
+LIST *ledger_fetch_account_list(char *application_name,
 				char *as_of_date );
 
 ACCOUNT *ledger_seek_account(	LIST *account_list,

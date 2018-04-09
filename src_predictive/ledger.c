@@ -9146,3 +9146,37 @@ LIST *ledger_get_unique_account_name_list(
 	return account_name_list;
 
 } /* ledger_get_unique_account_name_list() */
+
+double ledger_get_amount(	JOURNAL_LEDGER *ledger,
+				boolean accumulate_debit )
+{
+	double return_amount = 0.0;
+
+	if ( accumulate_debit )
+	{
+		if ( ledger->debit_amount )
+		{
+			return_amount = ledger->debit_amount;
+		}
+		else
+		if ( ledger->credit_amount )
+		{
+			return_amount = 0.0 - ledger->credit_amount;
+		}
+	}
+	else
+	{
+		if ( ledger->credit_amount )
+		{
+			return_amount = ledger->credit_amount;
+		}
+		else
+		if ( ledger->debit_amount )
+		{
+			return_amount = 0.0 - ledger->debit_amount;
+		}
+	}
+
+	return return_amount;
+
+} /* ledger_get_amount() */

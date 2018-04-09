@@ -172,16 +172,14 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
-/*
 		tax_form_report_html_table(
 			title,
 			sub_title,
-			tax_form->tax_form,
-			tax_form->tax_form_line_list );
+			tax->tax_process.tax_form,
+			tax->tax_process.tax_form_line_list );
 
 		tax_form_detail_report_html_table(
-			tax_form->tax_form_line_list );
-*/
+			tax->tax_process.tax_form_line_list );
 	}
 	else
 	{
@@ -203,17 +201,16 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-#ifdef NOT_DEFINED
 void tax_form_detail_report_html_table(
 			LIST *tax_form_line_list )
 {
 	HTML_TABLE *html_table;
 	LIST *heading_list;
 	TAX_FORM_LINE *tax_form_line;
+	TAX_FORM_LINE_ACCOUNT *account;
 	char buffer[ 128 ];
 	char sub_title[ 128 ];
 	int count;
-	ACCOUNT *account;
 
 	heading_list = list_new();
 	list_append_string( heading_list, "account" );
@@ -226,7 +223,7 @@ void tax_form_detail_report_html_table(
 
 		if ( !tax_form_line->itemize_accounts ) continue;
 
-		if ( !list_rewind( tax_form_line->account_list ) )
+		if ( !list_rewind( tax_form_line->tax_form_line_account_list ) )
 			continue;
 
 		sprintf( sub_title,
@@ -258,9 +255,13 @@ void tax_form_detail_report_html_table(
 		count = 0;
 
 		do {
-			account = list_get( tax_form_line->account_list );
+			account =
+				list_get(
+					tax_form_line->
+						tax_form_line_account_list );
 
-			if ( !account->latest_ledger ) continue;
+
+here1
 
 			if ( timlib_double_virtually_same(
 				account->latest_ledger->balance,
@@ -403,6 +404,7 @@ void tax_form_report_html_table(
 
 } /* tax_form_report_html_table() */
 
+#ifdef NOT_DEFINED
 void tax_form_report_PDF(
 			char *application_name,
 			char *title,

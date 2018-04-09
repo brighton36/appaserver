@@ -35,12 +35,45 @@ TAX *tax_new(			char *application_name,
 
 	t->tax_input.tax_form = tax_form_new( application_name, tax_form );
 
+	if ( !t->tax_input.tax_form )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: tax_form_new() returned null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	t->tax_input.cash_transaction_list =
 		tax_fetch_cash_transaction_list(
 			application_name,
 			fund_name,
 			begin_date_string,
 			end_date_string );
+
+	t->tax_process.unaccounted_journal_ledger_list = list_new();
+
+	t->tax_process.tax_form_line_list =
+		tax_process_get_tax_form_line_list(
+			t->tax_process.unaccounted_journal_ledger_list,
+			application_name,
+			fund_name,
+			t->tax_input.tax_form->tax_form_line_list,
+			t->tax_input.cash_transaction_list );
+
+	if ( !t->tax_process.tax_form_line_list )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: tax_process_get_tax_form_line_list() returned null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	tax_process_set_tax_form_line_total(
+		t->tax_process.tax_form_line_list );
 
 	return t;
 
@@ -277,4 +310,167 @@ LIST *tax_fetch_cash_transaction_list(
 			where_clause );
 
 } /* tax_fetch_cash_transaction_list() */
+
+TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
+				LIST *tax_form_line_list,
+				char *account_name )
+{
+	TAX_FORM_LINE *tax_form_line;
+	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
+	LIST *tax_form_line_account_list;
+
+	if ( !list_rewind( tax_form_line_list ) )
+		return (TAX_FORM_LINE_ACCOUNT *)0;
+
+	do {
+		tax_form_line =
+			list_get_pointer(
+				tax_form_line_list );
+
+		tax_form_line_account_list =
+			tax_form_line->
+				tax_form_line_account_list;
+
+		if ( !list_rewind( tax_form_line_account_list ) )
+			continue;
+
+		do {
+			tax_form_line_account =
+				list_get_pointer(
+					tax_form_line_account_list );
+
+			if ( timlib_strcmp( tax_form_line_account->
+						account_name,
+					    account_name ) == 0 )
+			{
+				return tax_form_line_account;
+			}
+		} while( list_next( tax_form_line_account_list ) );
+
+	} while( list_next( tax_form_line_list ) );
+
+	return (TAX_FORM_LINE_ACCOUNT *)0;
+
+} /* tax_form_line_account_seek() */
+
+LIST *tax_process_get_tax_form_line_list(
+				LIST *unaccounted_journal_ledger_list,
+				char *application_name,
+				char *fund_name,
+				LIST *tax_form_line_list,
+				LIST *cash_transaction_list )
+{
+	char *checking_account;
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
+	LIST *return_list = list_new();
+
+	checking_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			LEDGER_CASH_KEY,
+			0 /* not warning_only */ );
+
+	if ( !list_rewind( cash_transaction_list ) ) return (LIST *)0;
+
+	do {
+		transaction = list_get_pointer( cash_transaction_list );
+
+		if ( !list_rewind( transaction->journal_ledger_list ) )
+			continue;
+
+		do {
+			journal_ledger =
+				list_get_pointer(
+					transaction->journal_ledger_list );
+
+			if ( timlib_strcmp(
+				journal_ledger->account_name,
+				checking_account ) == 0 )
+			{
+				continue;
+			}
+
+			tax_form_line_account =
+				tax_form_line_account_seek(
+					tax_form_line_list,
+					journal_ledger->account_name );
+
+			if ( !tax_form_line_account
+			&&   unaccounted_journal_ledger_list )
+			{
+				list_append_pointer(
+					unaccounted_journal_ledger_list,
+					journal_ledger );
+			}
+			else
+			{
+				list_append_pointer(
+					return_list,
+					journal_ledger );
+			}
+
+		} while( list_next( transaction->journal_ledger_list ) );
+
+	} while( list_next( cash_transaction_list ) );
+
+	return return_list;
+
+} /* tax_process_get_tax_form_line_list() */
+
+void tax_process_set_tax_form_line_total(
+			LIST *tax_form_line_list )
+{
+	TAX_FORM_LINE *tax_form_line;
+	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
+	JOURNAL_LEDGER *journal_ledger;
+	LIST *tax_form_line_account_list;
+	LIST *journal_ledger_list;
+	double amount;
+
+	if ( !list_rewind( tax_form_line_list ) ) return;
+
+	do {
+		tax_form_line =
+			list_get_pointer(
+				tax_form_line_list );
+
+		tax_form_line_account_list =
+			tax_form_line->
+				tax_form_line_account_list;
+
+		if ( !list_rewind( tax_form_line_account_list ) ) continue;
+
+		do {
+			tax_form_line_account =
+				list_get_pointer(
+					tax_form_line_account_list );
+
+			journal_ledger_list =
+				tax_form_line_account->
+					journal_ledger_list;
+
+			if ( !list_rewind( journal_ledger_list ) ) continue;
+
+			do {
+				journal_ledger =
+					list_get_pointer(
+						journal_ledger_list );
+
+				amount = ledger_get_amount(
+						journal_ledger,
+						tax_form_line_account->
+							accumulate_debit );
+
+				tax_form_line->tax_form_line_total += amount;
+
+			} while( list_next( journal_ledger_list ) );
+
+		} while( list_next( tax_form_line_account_list ) );
+
+	} while( list_next( tax_form_line_list ) );
+
+} /* tax_process_set_tax_form_line_total() */
 

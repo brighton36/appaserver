@@ -55,6 +55,7 @@ typedef struct
 {
 	char *tax_form;
 	LIST *tax_form_line_list;
+	LIST *unaccounted_journal_ledger_list;
 } TAX_PROCESS;
 
 typedef struct
@@ -102,5 +103,19 @@ LIST *tax_fetch_cash_transaction_list(
 					char *fund_name,
 					char *begin_date_string,
 					char *end_date_string );
+
+LIST *tax_process_get_tax_form_line_list(
+					LIST *unaccounted_journal_ledger_list,
+					char *application_name,
+					char *fund_name,
+					LIST *tax_form_line_list,
+					LIST *cash_transaction_list );
+
+TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
+					LIST *tax_form_line_list,
+					char *account_name );
+
+void tax_process_set_tax_form_line_total(
+					LIST *tax_form_line_list );
 
 #endif

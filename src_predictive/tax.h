@@ -41,7 +41,6 @@ typedef struct
 	char *tax_form_line;
 	char *tax_form_description;
 	boolean itemize_accounts;
-	LIST *account_list;
 	double tax_form_line_total;
 	LIST *tax_form_line_account_list;
 } TAX_FORM_LINE;

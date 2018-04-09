@@ -62,6 +62,8 @@ TAX *tax_new(			char *application_name,
 			t->tax_input.tax_form->tax_form_line_list,
 			t->tax_input.cash_transaction_list );
 
+	t->tax_process.tax_form = t->tax_input.tax_form->tax_form;
+
 	if ( !t->tax_process.tax_form_line_list )
 	{
 		fprintf( stderr,
@@ -242,14 +244,14 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 					application_name,
 					account->account_name );
 
-			if ( !tax_form_line->account_list )
+			if ( !tax_form_line->tax_form_line_account_list )
 			{
-				tax_form_line->account_list =
+				tax_form_line->tax_form_line_account_list =
 					list_new();
 			}
 
 			list_append_pointer(
-				tax_form_line->account_list,
+				tax_form_line->tax_form_line_account_list,
 				account );
 		}
 		else
@@ -291,7 +293,7 @@ LIST *tax_fetch_cash_transaction_list(
 
 	sprintf( where_clause,
 		 "transaction_date_time >= '%s' and			"
-		 "transaction_date_time <= '%s 23:59:58' and		"
+		 "transaction_date_time <= '%s 23:59:59' and		"
 		 "exists (select 1					"
 		 "	  from journal_ledger				"
 		 "	  where transaction.full_name =			"
@@ -364,7 +366,6 @@ LIST *tax_process_get_tax_form_line_list(
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
 	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
-	LIST *return_list = list_new();
 
 	checking_account =
 		ledger_get_hard_coded_account_name(
@@ -407,8 +408,17 @@ LIST *tax_process_get_tax_form_line_list(
 			}
 			else
 			{
+				if ( !tax_form_line_account->
+					journal_ledger_list )
+				{
+					tax_form_line_account->
+						journal_ledger_list =
+							list_new();
+				}
+
 				list_append_pointer(
-					return_list,
+					tax_form_line_account->
+						journal_ledger_list,
 					journal_ledger );
 			}
 
@@ -416,7 +426,7 @@ LIST *tax_process_get_tax_form_line_list(
 
 	} while( list_next( cash_transaction_list ) );
 
-	return return_list;
+	return tax_form_line_list;
 
 } /* tax_process_get_tax_form_line_list() */
 
@@ -461,7 +471,10 @@ void tax_process_set_tax_form_line_total(
 
 				amount = ledger_get_amount(
 						journal_ledger,
-						tax_form_line_account->
+						/* -------------------- */
+						/* Need to effect cash. */
+						/* -------------------- */
+						1 - tax_form_line_account->
 							accumulate_debit );
 
 				tax_form_line->tax_form_line_total += amount;

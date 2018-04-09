@@ -170,6 +170,15 @@ int main( int argc, char **argv )
 				as_of_date /* end_date_string */,
 				tax_form_name );
 
+	if ( !list_length( tax->tax_process.tax_form_line_list ) )
+	{
+		printf(
+"<h3>ERROR: there are no tax form lines for this tax form.</h3>\n" );
+		html_table_close();
+		document_close();
+		exit( 1 );
+	}
+
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
 		tax_form_report_html_table(
@@ -357,6 +366,13 @@ void tax_form_report_html_table(
 	do {
 		tax_form_line = list_get( tax_form_line_list );
 
+		if ( timlib_double_virtually_same(
+			tax_form_line->tax_form_line_total,
+			0.0 ) )
+		{
+			continue;
+		}
+
 		if ( ++count == ROWS_BETWEEN_HEADING )
 		{
 			html_table_output_data_heading(
@@ -541,6 +557,13 @@ LIST *build_PDF_row_list( LIST *tax_form_line_list )
 	do {
 		tax_form_line = list_get( tax_form_line_list );
 
+		if ( timlib_double_virtually_same(
+			tax_form_line->tax_form_line_total,
+			0.0 ) )
+		{
+			continue;
+		}
+
 		latex_row = latex_new_latex_row();
 		list_append_pointer( row_list, latex_row );
 
@@ -724,7 +747,7 @@ LIST *build_detail_PDF_row_list( TAX_FORM_LINE *tax_form_line )
 						tax_form_account_total ) ),
 			0 /* not large_bold */ );
 
-	} while( list_next( tax_form_line->account_list ) );
+	} while( list_next( tax_form_line->tax_form_line_account_list ) );
 
 	return row_list;
 

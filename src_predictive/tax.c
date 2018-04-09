@@ -466,6 +466,10 @@ void tax_process_set_tax_form_line_total(
 
 				tax_form_line->tax_form_line_total += amount;
 
+				tax_form_line_account->
+					tax_form_account_total +=
+						amount;
+
 			} while( list_next( journal_ledger_list ) );
 
 		} while( list_next( tax_form_line_account_list ) );

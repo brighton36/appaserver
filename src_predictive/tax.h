@@ -32,6 +32,7 @@ typedef struct
 	char *tax_form;
 	char *tax_form_line;
 	LIST *journal_ledger_list;
+	double tax_form_account_total;
 } TAX_FORM_LINE_ACCOUNT;
 
 typedef struct

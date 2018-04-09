@@ -183,17 +183,15 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-/*
 		tax_form_report_PDF(
 			application_name,
 			title,
 			sub_title,
 			appaserver_parameter_file->document_root,
 			process_name,
-			tax_form->tax_form,
-			tax_form->tax_form_line_list,
+			tax->tax_process.tax_form,
+			tax->tax_process.tax_form_line_list,
 			logo_filename );
-*/
 	}
 
 	document_close();
@@ -260,11 +258,8 @@ void tax_form_detail_report_html_table(
 					tax_form_line->
 						tax_form_line_account_list );
 
-
-here1
-
 			if ( timlib_double_virtually_same(
-				account->latest_ledger->balance,
+				account->tax_form_account_total,
 				0.0 ) )
 			{
 				continue;
@@ -294,8 +289,7 @@ here1
 				html_table->data_list,
 				strdup( timlib_place_commas_in_money(
 						account->
-							latest_ledger->
-							balance ) ) );
+						tax_form_account_total ) ) );
 
 			html_table_output_data(
 				html_table->data_list,
@@ -307,7 +301,8 @@ here1
 				list_free( html_table->data_list );
 				html_table->data_list = list_new();
 
-		} while( list_next( tax_form_line->account_list ) );
+		} while( list_next( tax_form_line->
+					tax_form_line_account_list ) );
 
 		html_table_close();
 
@@ -404,7 +399,6 @@ void tax_form_report_html_table(
 
 } /* tax_form_report_html_table() */
 
-#ifdef NOT_DEFINED
 void tax_form_report_PDF(
 			char *application_name,
 			char *title,
@@ -661,7 +655,7 @@ LIST *tax_form_report_detail_PDF_table_list(
 
 		if ( !tax_form_line->itemize_accounts ) continue;
 
-		if ( !list_rewind( tax_form_line->account_list ) )
+		if ( !list_rewind( tax_form_line->tax_form_line_account_list ) )
 			continue;
 
 		sprintf( sub_title,
@@ -692,22 +686,20 @@ LIST *tax_form_report_detail_PDF_table_list(
 LIST *build_detail_PDF_row_list( TAX_FORM_LINE *tax_form_line )
 {
 	LIST *row_list;
-	ACCOUNT *account;
+	TAX_FORM_LINE_ACCOUNT *account;
 	char buffer[ 128 ];
 	LATEX_ROW *latex_row;
 
-	if ( !list_rewind( tax_form_line->account_list ) )
+	if ( !list_rewind( tax_form_line->tax_form_line_account_list ) )
 		return (LIST *)0;
 
 	row_list = list_new();
 
 	do {
-		account = list_get( tax_form_line->account_list );
-
-		if ( !account->latest_ledger ) continue;
+		account = list_get( tax_form_line->tax_form_line_account_list );
 
 		if ( timlib_double_virtually_same(
-			account->latest_ledger->balance,
+			account->tax_form_account_total,
 			0.0 ) )
 		{
 			continue;
@@ -729,8 +721,7 @@ LIST *build_detail_PDF_row_list( TAX_FORM_LINE *tax_form_line )
 			latex_row->column_data_list,
 			strdup( timlib_place_commas_in_money(
 					account->
-						latest_ledger->
-						balance ) ),
+						tax_form_account_total ) ),
 			0 /* not large_bold */ );
 
 	} while( list_next( tax_form_line->account_list ) );
@@ -738,4 +729,3 @@ LIST *build_detail_PDF_row_list( TAX_FORM_LINE *tax_form_line )
 	return row_list;
 
 } /* build_detail_PDF_row_list() */
-#endif

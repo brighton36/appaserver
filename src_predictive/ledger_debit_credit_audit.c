@@ -74,7 +74,10 @@ void ledger_debit_credit_audit( char *application_name )
 	double difference;
 	double balance_difference;
 
-	transaction_list = ledger_get_transaction_list( application_name );
+	transaction_list =
+		ledger_fetch_transaction_list(
+			application_name,
+			(char *)0 /* where_clause */ );
 
 	if ( !list_rewind( transaction_list ) ) return;
 

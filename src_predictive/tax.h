@@ -28,8 +28,10 @@
 typedef struct
 {
 	char *account_name;
-	LIST *journal_ledger_list;
 	boolean accumulate_debit;
+	char *tax_form;
+	char *tax_form_line;
+	LIST *journal_ledger_list;
 } TAX_FORM_LINE_ACCOUNT;
 
 typedef struct
@@ -73,6 +75,7 @@ typedef struct
 /* Operations */
 /* ---------- */
 TAX *tax_new(				char *application_name,
+					char *fund_name,
 					char *begin_date_string,
 					char *end_date_string,
 					char *tax_form );
@@ -85,10 +88,19 @@ TAX_FORM_LINE *tax_form_line_new(	char *tax_form,
 					char *tax_form_description,
 					boolean itemize_accounts );
 
+TAX_FORM_LINE_ACCOUNT *tax_form_line_account_new(
+					char *account_name );
+	
 LIST *tax_form_fetch_line_list(		char *application_name,
 					char *tax_form );
 
 LIST *tax_fetch_account_list(		char *application_name,
 					char *tax_form_line );
+
+LIST *tax_fetch_cash_transaction_list(
+					char *application_name,
+					char *fund_name,
+					char *begin_date_string,
+					char *end_date_string );
 
 #endif

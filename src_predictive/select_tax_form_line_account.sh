@@ -1,5 +1,5 @@
 :
-# $APPASERVER_HOME/src_accountancymodel/select_tax_form_line_account.sh
+# $APPASERVER_HOME/src_predictive/select_tax_form_line_account.sh
 # ---------------------------------------------------------------------
 #
 # Freely available software: see Appaserver.org

@@ -221,7 +221,7 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
-	if ( !ledger_get_report_title_sub_title(
+	if ( !(boolean)ledger_get_report_title_sub_title(
 		title,
 		sub_title,
 		process_name,

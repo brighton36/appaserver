@@ -492,7 +492,8 @@ void ledger_propagate_accounts(		LIST *propagate_account_list,
 boolean ledger_transaction_exists(	char *application_name,
 					char *transaction_date_time );
 
-LIST *ledger_get_transaction_list(	char *application_name );
+LIST *ledger_fetch_transaction_list(	char *application_name,
+					char *where_clause );
 
 LIST *ledger_transaction_date_time_account_name_list(
 					char *application_name,
@@ -748,7 +749,9 @@ char *ledger_beginning_transaction_date(
 				char *fund_name,
 				char *ending_transaction_date );
 
-boolean ledger_get_report_title_sub_title(
+/* Returns begin_date_string */
+/* ------------------------- */
+char *ledger_get_report_title_sub_title(
 				char *title,
 				char *sub_title,
 				char *process_name,

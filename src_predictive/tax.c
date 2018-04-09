@@ -13,6 +13,7 @@
 #include "tax.h"
 
 TAX *tax_new(			char *application_name,
+				char *fund_name,
 				char *begin_date_string,
 				char *end_date_string,
 				char *tax_form )
@@ -32,11 +33,40 @@ TAX *tax_new(			char *application_name,
 	t->begin_date_string = begin_date_string;
 	t->end_date_string = end_date_string;
 
-	t.tax_input->tax_form = tax_form_new( application_name, tax_form );
+	t->tax_input.tax_form = tax_form_new( application_name, tax_form );
+
+	t->tax_input.cash_transaction_list =
+		tax_fetch_cash_transaction_list(
+			application_name,
+			fund_name,
+			begin_date_string,
+			end_date_string );
 
 	return t;
+
 } /* tax_new() */
 
+TAX_FORM_LINE_ACCOUNT *tax_form_line_account_new(
+					char *account_name )
+{
+	TAX_FORM_LINE_ACCOUNT *t;
+
+	if ( ! ( t = calloc( 1, sizeof( TAX_FORM_LINE_ACCOUNT ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	t->account_name = account_name;
+
+	return t;
+
+} /* tax_form_line_account_new() */
+	
 TAX_FORM *tax_form_new(		char *application_name,
 				char *tax_form )
 {
@@ -91,7 +121,6 @@ TAX_FORM_LINE *tax_form_line_new(	char *tax_form,
 LIST *tax_form_fetch_line_list(		char *application_name,
 					char *tax_form )
 {
-	LIST *account_list;
 	TAX_FORM_LINE *tax_form_line = {0};
 	LIST *tax_form_line_list;
 	char sys_string[ 1024 ];
@@ -101,16 +130,7 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 	char tax_form_line_name[ 128 ];
 	char tax_form_description[ 128 ];
 	char itemize_accounts_yn[ 8 ];
-	ACCOUNT *account;
-
-	/* Fetches account->latest_ledger */
-	/* ------------------------------ */
-	account_list =
-		ledger_get_account_list(
-			application_name,
-			as_of_date );
-
-	if ( !list_length( account_list ) ) return (LIST *)0;
+	TAX_FORM_LINE_ACCOUNT *account;
 
 	sprintf( sys_string,
 		 "select_tax_form_line.sh %s \"%s\"",
@@ -166,30 +186,10 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 				input_buffer +
 				strlen( TAX_FORM_LINE_ACCOUNT_KEY );
 
-			if ( ! ( account =
-					ledger_account_list_seek(
-						account_list,
-						input_buffer_ptr
-							/* account_name */ ) ) )
-			{
-				fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot seek account = %s\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					input_buffer_ptr );
-
-				pclose( input_pipe );
-				exit( 1 );
-			}
-
-			if ( !account->latest_ledger
-			||   timlib_double_virtually_same(
-				account->latest_ledger->balance,
-				0.0 ) )
-			{
-				continue;
-			}
+			account =
+				tax_form_line_account_new(
+					strdup( input_buffer_ptr
+						/* account_name */ ) );
 
 			if ( !tax_form_line )
 			{
@@ -204,13 +204,20 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 				exit( 1 );
 			}
 
-			tax_form_line->tax_form_line_total +=
-				account->latest_ledger->balance;
+			account->accumulate_debit =
+				ledger_account_get_accumulate_debit(
+					application_name,
+					account->account_name );
 
-			list_add_pointer_in_order(
+			if ( !tax_form_line->account_list )
+			{
+				tax_form_line->account_list =
+					list_new();
+			}
+
+			list_append_pointer(
 				tax_form_line->account_list,
-				account,
-				ledger_balance_match_function );
+				account );
 		}
 		else
 		{
@@ -233,110 +240,41 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 
 } /* tax_form_fetch_line_list() */
 
-LIST *tax_fetch_account_list(		char *application_name,
-					char *tax_form_line )
+LIST *tax_fetch_cash_transaction_list(
+			char *application_name,
+			char *fund_name,
+			char *begin_date_string,
+			char *end_date_string )
 {
-	static LIST *local_account_list = {0};
-	LIST *return_account_list;
-	ACCOUNT *account;
+	char *checking_account;
+	char where_clause[ 1024 ];
 
-	if ( !local_account_list )
-	{
-		local_account_list =
-			tax_fetch_local_account_list(
-				application_name );
-	}
+	checking_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			LEDGER_CASH_KEY,
+			0 /* not warning_only */ );
 
-	if ( !list_rewind( local_account_list ) ) return (LIST *)0;
+	sprintf( where_clause,
+		 "transaction_date_time >= '%s' and			"
+		 "transaction_date_time <= '%s 23:59:58' and		"
+		 "exists (select 1					"
+		 "	  from journal_ledger				"
+		 "	  where transaction.full_name =			"
+		 "		journal_ledger.full_name and		"
+		 "	        transaction.street_address =		"
+		 "		journal_ledger.street_address and	"
+		 "	        transaction.transaction_date_time =	"
+		 "		journal_ledger.transaction_date_time and"
+		 "		journal_ledger.account = '%s')		",
+		 begin_date_string,
+		 end_date_string,
+		 checking_account );
 
-	return_account_list = list_new();
+	return ledger_fetch_transaction_list(
+			application_name,
+			where_clause );
 
-	do {
-		account = list_get( local_account_list );
+} /* tax_fetch_cash_transaction_list() */
 
-		if ( timlib_strcmp(
-			account->tax_form_line,
-			tax_form_line ) == 0 )
-		{
-			list_append_pointer( return_account_list, account );
-		}
-
-	} while( list_next( local_account_list ) );
-
-	return return_account_list;
-
-} /* tax_fetch_account_list() */
-
-LIST *tax_fetch_local_account_list(
-				char *application_name )
-{
-	ACCOUNT *account;
-	char *select;
-	char sys_string[ 1024 ];
-	char input_buffer[ 1024 ];
-	LIST *account_list;
-	FILE *input_pipe;
-
-	account_list = list_new();
-	select = tax_account_get_select( application_name );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=%s		"
-		 "			folder=account		",
-		 application_name,
-		 select );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		account = ledger_account_calloc();
-
-		ledger_account_parse(
-				&account->account_name,
-				&account->fund_name,
-				&account->subclassification_name,
-				&account->hard_coded_account_key,
-				input_buffer );
-
-		account->accumulate_debit =
-			ledger_account_get_accumulate_debit(
-				application_name, account->account_name );
-
-		if ( as_of_date )
-		{
-			account->latest_ledger =
-				ledger_get_latest_ledger(
-					application_name,
-					account->account_name,
-					as_of_date );
-		}
-
-		list_append_pointer( account_list, account );
-	}
-
-	pclose( input_pipe );
-	return account_list;
-
-} /* tax_fetch_local_account_list() */
-
-char *tax_account_get_select( char *application_name )
-{
-	char *select;
-
-	if ( ledger_fund_attribute_exists(
-			application_name ) )
-	{
-		select =
-"account.account,fund,subclassification,hard_coded_account_key,tax_form_line";
-	}
-	else
-	{
-		select =
-"account.account,null,subclassification,hard_coded_account_key,tax_form_line";
-	}
-
-	return select;
-
-} /* tax_account_get_select() */

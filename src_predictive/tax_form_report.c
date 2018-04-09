@@ -82,8 +82,9 @@ int main( int argc, char **argv )
 	char *as_of_date;
 	char *database_string = {0};
 	char *output_medium;
-	TAX_FORM *tax_form;
+	TAX *tax;
 	char *logo_filename;
+	char *begin_date_string;
 
 	if ( argc != 6 )
 	{
@@ -147,31 +148,31 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
-	if ( !ledger_get_report_title_sub_title(
-		title,
-		sub_title,
-		process_name,
-		application_name,
-		(char *)0 /* fund_name */,
-		as_of_date,
-		0 /* length_fund_name_list */,
-		logo_filename ) )
+	if ( ! ( begin_date_string =
+			ledger_get_report_title_sub_title(
+				title,
+				sub_title,
+				process_name,
+				application_name,
+				(char *)0 /* fund_name */,
+				as_of_date,
+				0 /* length_fund_name_list */,
+				logo_filename ) ) )
 	{
 		printf( "<h3>Error. No transactions.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
 
-	tax_form = tax_form_new( tax_form_name );
-
-	tax_form->tax_form_line_list =
-		tax_form_fetch_line_list(
-			application_name,
-			tax_form->tax_form,
-			as_of_date );
+	tax = tax_new(		application_name,
+				(char *)0 /* fund_name */,
+				begin_date_string,
+				as_of_date /* end_date_string */,
+				tax_form_name );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
+/*
 		tax_form_report_html_table(
 			title,
 			sub_title,
@@ -180,9 +181,11 @@ int main( int argc, char **argv )
 
 		tax_form_detail_report_html_table(
 			tax_form->tax_form_line_list );
+*/
 	}
 	else
 	{
+/*
 		tax_form_report_PDF(
 			application_name,
 			title,
@@ -192,6 +195,7 @@ int main( int argc, char **argv )
 			tax_form->tax_form,
 			tax_form->tax_form_line_list,
 			logo_filename );
+*/
 	}
 
 	document_close();
@@ -199,6 +203,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
+#ifdef NOT_DEFINED
 void tax_form_detail_report_html_table(
 			LIST *tax_form_line_list )
 {
@@ -731,4 +736,4 @@ LIST *build_detail_PDF_row_list( TAX_FORM_LINE *tax_form_line )
 	return row_list;
 
 } /* build_detail_PDF_row_list() */
-
+#endif

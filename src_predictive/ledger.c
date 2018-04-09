@@ -4334,7 +4334,8 @@ boolean ledger_transaction_exists(	char *application_name,
 
 } /* ledger_transaction_exists() */
 
-LIST *ledger_get_transaction_list( char *application_name )
+LIST *ledger_fetch_transaction_list(	char *application_name,
+					char *where_clause )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -4353,10 +4354,12 @@ LIST *ledger_get_transaction_list( char *application_name )
 		 "get_folder_data	application=%s			"
 		 "			select=%s			"
 		 "			folder=transaction		"
+		 "			where=\"%s\"			"
 		 "			order=transaction_date_time    |"
 		 "cat							",
 		 application_name,
-		 select );
+		 select,
+		 (where_clause) ? where_clause : "1 = 1" );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -4399,7 +4402,7 @@ LIST *ledger_get_transaction_list( char *application_name )
 	pclose( input_pipe );
 	return transaction_list;
 
-} /* ledger_get_transaction_list() */
+} /* ledger_fetch_transaction_list() */
 
 char *ledger_get_transaction_date_time( char *transaction_date )
 {
@@ -5670,7 +5673,9 @@ LIST *ledger_get_fund_name_list( char *application_name )
 
 } /* ledger_get_fund_name_list() */
 
-boolean ledger_get_report_title_sub_title(
+/* Returns begin_date_string */
+/* ------------------------- */
+char *ledger_get_report_title_sub_title(
 		char *title,
 		char *sub_title,
 		char *process_name,
@@ -5680,18 +5685,18 @@ boolean ledger_get_report_title_sub_title(
 		int fund_list_length,
 		char *logo_filename )
 {
-	char *beginning_date;
-	char beginning_date_american[ 16 ];
-	char ending_date_american[ 16 ];
+	char *begin_date_string;
+	char begin_date_american[ 16 ];
+	char end_date_american[ 16 ];
 
-	*beginning_date_american = '\0';
+	*begin_date_american = '\0';
 
 	sprintf(title,
 		"%s",
 		application_get_application_title(
 			application_name ) );
 
-	if ( ! ( beginning_date = 
+	if ( ! ( begin_date_string = 
 			ledger_beginning_transaction_date(
 				application_name,
 				fund_name,
@@ -5701,12 +5706,12 @@ boolean ledger_get_report_title_sub_title(
 	}
 
 	date_convert_source_international(
-		beginning_date_american,
+		begin_date_american,
 		american,
-		beginning_date );
+		begin_date_string );
 
 	date_convert_source_international(
-		ending_date_american,
+		end_date_american,
 		american,
 		as_of_date );
 
@@ -5718,8 +5723,8 @@ boolean ledger_get_report_title_sub_title(
 	 		"%s, Fund: %s, Beginning: %s, Ending: %s",
 	 		process_name,
 			fund_name,
-			beginning_date_american,
-	 		ending_date_american );
+			begin_date_american,
+	 		end_date_american );
 	}
 	else
 	if ( fund_list_length > 1 )
@@ -5727,25 +5732,25 @@ boolean ledger_get_report_title_sub_title(
 		sprintf(sub_title,
 	 		"%s, Consolidated Funds, Beginning: %s, Ending: %s",
 	 		process_name,
-			beginning_date_american,
-	 		ending_date_american );
+			begin_date_american,
+	 		end_date_american );
 	}
 	else
 	{
-		if ( *beginning_date_american )
+		if ( *begin_date_american )
 		{
 			sprintf(sub_title,
 	 			"%s, Beginning: %s, Ending: %s",
 	 			process_name,
-				beginning_date_american,
-	 			ending_date_american );
+				begin_date_american,
+	 			end_date_american );
 		}
 		else
 		{
 			sprintf(sub_title,
 	 			"%s, as of date: %s",
 	 			process_name,
-	 			ending_date_american );
+	 			end_date_american );
 		}
 	}
 
@@ -5759,7 +5764,7 @@ boolean ledger_get_report_title_sub_title(
 
 	format_initial_capital( sub_title, sub_title );
 
-	return 1;
+	return begin_date_string;
 
 } /* ledger_get_report_title_sub_title() */
 

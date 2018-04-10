@@ -544,8 +544,10 @@ enum event_parameter_return_value get_measurement_update_event_parameters(
 				measurement_generic_load_folder->
 					primary_key_time_offset ) )
 		{
+/*
 			event_parameter_return_value =
 				event_parameter_invalid_date;
+*/
 			continue;
 		}
 

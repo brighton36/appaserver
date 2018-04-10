@@ -436,21 +436,6 @@ boolean generic_load_fix_time(
 
 	if ( replace_back )
 	{
-/*
-		if ( strcmp( delimiter, "spaces" ) == 0 )
-		{
-			column_replace(	input_buffer,
-					time_string,
-					primary_key_time_offset );
-		}
-		else
-		{
-			piece_replace(	input_buffer,
-					*delimiter, 
-					time_string,
-					primary_key_time_offset );
-		}
-*/
 		piece_replace(	input_buffer,
 				delimiter, 
 				time_string,

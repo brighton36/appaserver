@@ -37,12 +37,15 @@
 #define INSERT_RESULTS_EXCEPTION	"station,collection_date,collection_time,parameter,units,exception"
 #define INSERT_STATION 			"station"
 #define INSERT_STATION_PARAMETER	"station,parameter,units"
-#define INSERT_WATER_PROJECT_STATION 	"project_name,station"
 #define INSERT_PARAMETER_UNIT		"parameter,units"
-#define INSERT_PARAMETER		"parameter,lab_test_code,lab_storet_code"
+#define INSERT_WATER_PROJECT_STATION 	"project_name,station"
 
 /* Prototypes */
 /* ---------- */
+LIST *get_parameter_list(	char *application_name );
+
+LIST *get_units_list(		char *application_name );
+
 LIST *get_exception_name_list(
 				char *exception_code_multiple,
 				FILE *error_file,
@@ -63,25 +66,28 @@ boolean units_piece(		char *units,
 				char *input_string,
 				DICTIONARY *heading_piece_dictionary );
 
-DICTIONARY *get_alias_dictionary(
+DICTIONARY *get_parameter_dictionary(
+				char *application_name );
+
+DICTIONARY *get_units_dictionary(
 				char *application_name );
 
 char *get_aliased_parameter(	char *application_name,
 				char *parameter_string );
 
-void close_pipes(
-		FILE *results_insert_pipe,
-		FILE *results_exception_insert_pipe,
-		FILE *station_parameter_insert_pipe,
-		FILE *station_insert_pipe,
-		FILE *water_project_station_insert_pipe,
-		FILE *collection_insert_pipe,
-		FILE *table_output_pipe,
-		int really_yn );
+char *get_aliased_units(	char *application_name,
+				char *units );
 
-void insert_waterquality_parameters(
-				char *application_name,
-				char *input_filename );
+void close_pipes(
+				FILE *results_insert_pipe,
+				FILE *results_exception_insert_pipe,
+				FILE *station_parameter_insert_pipe,
+				FILE *parameter_unit_insert_pipe,
+				FILE *station_insert_pipe,
+				FILE *water_project_station_insert_pipe,
+				FILE *collection_insert_pipe,
+				FILE *table_output_pipe,
+				int really_yn );
 
 void delete_waterquality(
 				char *application_name,
@@ -103,16 +109,6 @@ char *get_up_down_stream(	char *application_name,
 
 char *get_exception(		char *application_name,
 				char *exception_code );
-
-void close_pipes(
-				FILE *results_insert_pipe,
-				FILE *results_exception_insert_pipe,
-				FILE *station_parameter_insert_pipe,
-				FILE *station_insert_pipe,
-				FILE *water_project_station_insert_pipe,
-				FILE *collection_insert_pipe,
-				FILE *table_output_pipe,
-				int really_yn );
 
 void insert_results_exception(
 				 FILE *results_exception_insert_pipe,

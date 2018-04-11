@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_waterquality/load_sfwmd_file.c			*/
+/* $APPASERVER_HOME/src_waterquality/load_sfwmd_file.c	*/
 /* ---------------------------------------------------	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -102,16 +102,9 @@ int main( int argc, char **argv )
 	printf( "</h2>\n" );
 	fflush( stdout );
 
-	if ( really_yn == 'y' )
+	if ( really_yn == 'y' && delete_yn == 'y' )
 	{
-		if ( delete_yn == 'y' )
-		{
-			delete_waterquality(	application_name,
-						input_filename );
-		}
-
-		insert_waterquality_parameters(
-					application_name,
+		delete_waterquality(	application_name,
 					input_filename );
 	}
 
@@ -179,6 +172,7 @@ int load_sfwmd_file(
 	char *missing_heading;
 	char *collection_table_name;
 	char *station_parameter_table_name;
+	char *parameter_unit_table_name;
 	char *station_table_name;
 	char *water_project_station_table_name;
 	char *results_table_name;
@@ -200,6 +194,7 @@ int load_sfwmd_file(
 	char lab_test_code[ 128 ];
 	char parameter_string[ 128 ];
 	char *aliased_parameter;
+	char *aliased_units;
 	char minimum_detection_limit[ 128 ];
 	char concentration[ 128 ];
 	char sample_comments[ 4096 ];
@@ -209,6 +204,7 @@ int load_sfwmd_file(
 	FILE *results_exception_insert_pipe = {0};
 	FILE *collection_insert_pipe = {0};
 	FILE *station_parameter_insert_pipe = {0};
+	FILE *parameter_unit_insert_pipe = {0};
 	FILE *water_project_station_insert_pipe = {0};
 	FILE *station_insert_pipe = {0};
 	int load_count = 0;
@@ -274,6 +270,10 @@ int load_sfwmd_file(
 		get_table_name(	application_name,
 				"station_parameter" );
 
+	parameter_unit_table_name =
+		get_table_name(	application_name,
+				"parameter_unit" );
+
 	station_table_name =
 		get_table_name(	application_name,
 				"station" );
@@ -316,6 +316,17 @@ int load_sfwmd_file(
 		 	INSERT_STATION_PARAMETER );
 
 		station_parameter_insert_pipe = popen( sys_string, "w" );
+
+		sprintf( sys_string,
+			 "sort -u					|"
+			 "insert_statement.e %s %s '|'			|"
+			 "sql.e 2>&1					|"
+			 "grep -vi duplicate				|"
+			 "html_paragraph_wrapper.e			 ",
+		 	parameter_unit_table_name,
+		 	INSERT_PARAMETER_UNIT );
+
+		parameter_unit_insert_pipe = popen( sys_string, "w" );
 
 		sprintf( sys_string,
 			 "sort -u					|"
@@ -614,6 +625,8 @@ int load_sfwmd_file(
 					PARAMETER_HEADING,
 					input_string ) )
 		{
+			/* Ignore NO BOTTLE SAMPLE */
+			/* ----------------------- */
 			continue;
 		}
 
@@ -621,6 +634,15 @@ int load_sfwmd_file(
 			get_aliased_parameter(
 				application_name,
 				parameter_string );
+
+		if ( !aliased_parameter )
+		{
+			fprintf(error_file,
+"Warning in line %d: Need to insert into PARAMETER_ALIAS of (%s) in (%s)\n",
+				line_number,
+				parameter_string,
+				input_string );
+		}
 
 		get_heading_piece_string(
 					sample_comments,
@@ -668,6 +690,20 @@ int load_sfwmd_file(
 			continue;
 		}
 
+		aliased_units =
+			get_aliased_units(
+				application_name,
+				units );
+
+		if ( !aliased_units )
+		{
+			fprintf(error_file,
+"Warning in line %d: Need to insert into UNIT_ALIAS of (%s) in (%s)\n",
+				line_number,
+				units,
+				input_string );
+		}
+
 		if ( really_yn == 'y' )
 		{
 			fprintf( results_insert_pipe,
@@ -676,7 +712,7 @@ int load_sfwmd_file(
 				 collection_date_international,
 				 collection_time_without_colon,
 				 aliased_parameter,
-				 units,
+				 aliased_units,
 				 matrix,
 				 concentration,
 				 minimum_detection_limit );
@@ -691,7 +727,7 @@ int load_sfwmd_file(
 				 	collection_date_international,
 				 	collection_time_without_colon,
 				 	aliased_parameter,
-				 	units,
+				 	aliased_units,
 				 	exception_code_multiple,
 				 	concentration,
 					line_number );
@@ -701,7 +737,12 @@ int load_sfwmd_file(
 				 "%s|%s|%s\n",
 				 station,
 				 aliased_parameter,
-				 units );
+				 aliased_units );
+
+			fprintf( parameter_unit_insert_pipe,
+				 "%s|%s\n",
+				 aliased_parameter,
+				 aliased_units );
 
 			fprintf( station_insert_pipe,
 				 "%s\n",
@@ -733,7 +774,7 @@ int load_sfwmd_file(
 				 collection_date_international,
 				 collection_time_without_colon,
 				 aliased_parameter,
-				 units,
+				 aliased_units,
 				 matrix,
 				 concentration,
 				 minimum_detection_limit );
@@ -750,7 +791,7 @@ int load_sfwmd_file(
 				 	collection_date_international,
 				 	collection_time_without_colon,
 				 	aliased_parameter,
-				 	units,
+				 	aliased_units,
 				 	exception_code_multiple,
 				 	concentration,
 					line_number );
@@ -767,6 +808,7 @@ int load_sfwmd_file(
 		results_insert_pipe,
 		results_exception_insert_pipe,
 		station_parameter_insert_pipe,
+		parameter_unit_insert_pipe,
 		station_insert_pipe,
 		water_project_station_insert_pipe,
 		collection_insert_pipe,
@@ -964,124 +1006,6 @@ void delete_waterquality(	char *application_name,
 
 } /* delete_waterquality() */
 
-void insert_waterquality_parameters(
-				char *application_name,
-				char *input_filename )
-{
-	FILE *input_file;
-	FILE *parameter_unit_insert_pipe;
-	FILE *parameter_insert_pipe;
-	char sys_string[ 1024 ];
-	char input_string[ 4096 ];
-	char *missing_heading;
-	char parameter[ 128 ];
-	char lab_test_code[ 128 ];
-	char units[ 128 ];
-	char lab_storet_code[ 128 ];
-	char *parameter_unit_table_name;
-	char *parameter_table_name;
-	DICTIONARY *heading_piece_dictionary = {0};
-
-	parameter_table_name =
-		get_table_name(
-			application_name, "parameter" );
-
-	parameter_unit_table_name =
-		get_table_name(
-			application_name, "parameter_unit" );
-
-	sprintf( sys_string,
-"sort -u | insert_statement.e %s %s '|' | sql.e 2>&1 | grep -vi duplicate | html_paragraph_wrapper.e",
-	 	parameter_table_name,
-	 	INSERT_PARAMETER );
-
-	parameter_insert_pipe = popen( sys_string, "w" );
-
-	sprintf( sys_string,
-"sort -u | insert_statement.e %s %s '|' | sql.e 2>&1 | grep -vi duplicate | html_paragraph_wrapper.e",
-	 	parameter_unit_table_name,
-	 	INSERT_PARAMETER_UNIT );
-
-	parameter_unit_insert_pipe = popen( sys_string, "w" );
-
-	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
-	{
-		fprintf( stderr, "File open error: %s\n", input_filename );
-		exit( 1 );
-	}
-
-	if ( get_line( input_string, input_file ) )
-	{
-		heading_piece_dictionary =
-			get_heading_piece_dictionary(
-				&missing_heading,
-				input_string );
-	}
-
-	if ( !heading_piece_dictionary )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot get the heading of %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 missing_heading );
-
-		fclose( input_file );
-		return;
-	}
-
-	while( get_line( input_string, input_file ) )
-	{
-		trim( input_string );
-		if ( !*input_string ) continue;
-
-		if ( !get_heading_piece_string(
-					parameter,
-					heading_piece_dictionary,
-					PARAMETER_HEADING,
-					input_string ) )
-		{
-			continue;
-		}
-
-		if ( !units_piece(	units,
-					input_string,
-					heading_piece_dictionary ) )
-		{
-			continue;
-		}
-
-		get_heading_piece_string(
-					lab_test_code,
-					heading_piece_dictionary,
-					LAB_TEST_CODE_HEADING,
-					input_string );
-
-		get_heading_piece_string(
-					lab_storet_code,
-					heading_piece_dictionary,
-					LAB_STORET_CODE_HEADING,
-					input_string );
-
-		fprintf( parameter_unit_insert_pipe,
-			 "%s|%s\n",
-			 parameter,
-			 units );
-
-		fprintf( parameter_insert_pipe,
-			 "%s|%s|%s\n",
-			 parameter,
-			 lab_test_code,
-			 lab_storet_code );
-	}
-
-	fclose( input_file );
-	pclose( parameter_unit_insert_pipe );
-	pclose( parameter_insert_pipe );
-
-} /* insert_waterquality_parameters() */
-
 char *get_matrix(	char *application_name,
 			char *matrix_code )
 {
@@ -1255,6 +1179,7 @@ void close_pipes(
 		FILE *results_insert_pipe,
 		FILE *results_exception_insert_pipe,
 		FILE *station_parameter_insert_pipe,
+		FILE *parameter_unit_insert_pipe,
 		FILE *station_insert_pipe,
 		FILE *water_project_station_insert_pipe,
 		FILE *collection_insert_pipe,
@@ -1266,6 +1191,7 @@ void close_pipes(
 		pclose( results_insert_pipe );
 		pclose( results_exception_insert_pipe );
 		pclose( station_parameter_insert_pipe );
+		pclose( parameter_unit_insert_pipe );
 		pclose( station_insert_pipe );
 		pclose( water_project_station_insert_pipe );
 		pclose( collection_insert_pipe );
@@ -1277,32 +1203,70 @@ void close_pipes(
 
 } /* close_pipes() */
 
+char *get_aliased_units(	char *application_name,
+				char *units )
+{
+	static DICTIONARY *alias_dictionary = {0};
+	static LIST *alias_list = {0};
+	char *alias_units;
+
+	if ( !alias_dictionary )
+	{
+		alias_dictionary = get_units_dictionary( application_name );
+	}
+
+	if ( !alias_list )
+	{
+		alias_list = get_units_list( application_name );
+	}
+
+	if ( list_exists_string( alias_list, units ) ) return units;
+
+	if ( ( alias_units =
+			dictionary_get_pointer(
+				alias_dictionary,
+				units ) ) )
+	{
+		return alias_units;
+	}
+
+	return (char *)0;
+
+} /* get_aliased_units() */
+
 char *get_aliased_parameter(	char *application_name,
 				char *parameter_string )
 {
 	static DICTIONARY *alias_dictionary = {0};
 	char *alias_parameter;
+	static LIST *alias_list = {0};
 
 	if ( !alias_dictionary )
 	{
-		alias_dictionary = get_alias_dictionary( application_name );
+		alias_dictionary = get_parameter_dictionary( application_name );
 	}
 
-	if ( ! ( alias_parameter =
+	if ( !alias_list )
+	{
+		alias_list = get_parameter_list( application_name );
+	}
+
+	if ( list_exists_string( alias_list, parameter_string ) )
+		return parameter_string;
+
+	if ( ( alias_parameter =
 			dictionary_get_pointer(
 				alias_dictionary,
 				parameter_string ) ) )
 	{
-		return parameter_string;
-	}
-	else
-	{
 		return alias_parameter;
 	}
 
+	return (char *)0;
+
 } /* get_aliased_parameter() */
 
-DICTIONARY *get_alias_dictionary( char *application_name )
+DICTIONARY *get_parameter_dictionary( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char *select = "parameter_alias,parameter";
@@ -1316,7 +1280,23 @@ DICTIONARY *get_alias_dictionary( char *application_name )
 
 	return dictionary_pipe2dictionary( sys_string, FOLDER_DATA_DELIMITER );
 
-} /* get_alias_dictionary() */
+} /* get_parameter_dictionary() */
+
+DICTIONARY *get_units_dictionary( char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select = "unit_alias,units";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=unit_alias	",
+		 application_name,
+		 select );
+
+	return dictionary_pipe2dictionary( sys_string, FOLDER_DATA_DELIMITER );
+
+} /* get_units_dictionary() */
 
 boolean units_piece(	char *units,
 			char *input_string,
@@ -1830,4 +1810,36 @@ LIST *get_exception_name_list(
 	return return_list;
 
 } /* get_exception_name_list() */
+
+LIST *get_units_list(		char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select = "units";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=unit		",
+		 application_name,
+		 select );
+
+	return pipe2list( sys_string );
+
+} /* get_units_list() */
+
+LIST *get_parameter_list(	char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select = "parameter";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=parameter	",
+		 application_name,
+		 select );
+
+	return pipe2list( sys_string );
+
+} /* get_parameter_list() */
 

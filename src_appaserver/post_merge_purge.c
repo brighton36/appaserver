@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_appaserver/post_merge_purge.c					*/
+/* $APPASERVER_HOME/src_appaserver/post_merge_purge.c			*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -33,7 +33,7 @@
 
 /* Constants */
 /* --------- */
-/* #define DEBUG_MODE			1 */
+#define DEBUG_MODE			0
 #define TABLE_LINES_TO_QUEUE		50
 #define KEEP_LABEL			"keep"
 #define PURGE_LABEL			"purge"
@@ -114,6 +114,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
@@ -131,40 +137,43 @@ int main( int argc, char **argv )
 				application_name,
 				session );
 
-	if ( session_remote_ip_address_changed(
-		application_name,
-		session ) )
+	if ( !DEBUG_MODE )
 	{
-		session_message_ip_address_changed_exit(
+		if ( session_remote_ip_address_changed(
+			application_name,
+			session ) )
+		{
+			session_message_ip_address_changed_exit(
 				application_name,
 				login_name );
-	}
+		}
 
-	if ( !login_name
-	|| !session_access_folder(
+		if ( !login_name
+		||   !session_access_folder(
 				application_name,
 				session,
 				folder_name,
 				role_name,
 				"insert" )
-	|| !session_access_folder(
+		|| !session_access_folder(
 				application_name,
 				session,
 				folder_name,
 				role_name,
 				"update" ) )
-	{
-		session_access_failed_message_and_exit(
+		{
+			session_access_failed_message_and_exit(
 					application_name, session, login_name );
-	}
+		}
 
-	if ( !appaserver_user_exists_role(
+		if ( !appaserver_user_exists_role(
 					application_name,
 					login_name,
 					role_name ) )
-	{
-		session_access_failed_message_and_exit(
+		{
+			session_access_failed_message_and_exit(
 				application_name, session, login_name );
+		}
 	}
 
 	session_update_access_date_time( application_name, session );
@@ -517,6 +526,7 @@ void post_state_two(	char *application_name,
 	char *keep_data;
 	char *purge_data;
 	FOLDER *folder;
+	char msg[ 1024 ];
 
 	folder = folder_with_load_new( 	application_name,
 					session,
@@ -525,10 +535,28 @@ void post_state_two(	char *application_name,
 						application_name,
 						role_name ) );
 
+	if ( !folder )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: folder_with_load_new() returned NULL.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	post_dictionary =
 		post2dictionary(stdin,
 				appaserver_data_directory,
 				session );
+
+	sprintf(msg,
+		"%s/%s()/%d: Received post_dictionary = (%s)\n",
+		__FILE__,
+		__FUNCTION__,
+		__LINE__,
+		dictionary_display( post_dictionary ) );
+	m2( application_name, msg );
 
 	keep_data =
 		dictionary_get_pointer(
@@ -666,6 +694,7 @@ void update_database_related_folder(
 	char *where;
 	char *set_attribute_name;
 	char *new_data;
+	char *executable;
 
 	if ( !list_length( where_attribute_name_list )
 	||   list_length( where_attribute_name_list ) !=
@@ -687,12 +716,18 @@ void update_database_related_folder(
 			application_name,
 			related_folder->one2m_related_folder->folder_name );
 
+	if ( DEBUG_MODE )
+		executable = "cat";
+	else
+		executable = "sql.e";
+
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s	|"
-		 "sql.e 2>&1				|"
+		 "%s 2>&1				|"
 		 "html_paragraph_wrapper.e		 ",
 		 table_name,
-		 list_display_delimited( primary_attribute_name_list, ',' ) );
+		 list_display_delimited( primary_attribute_name_list, ',' ),
+		 executable );
 
 	output_pipe = popen( sys_string, "w" );
 
@@ -877,6 +912,7 @@ void output_delete_database(
 	RELATED_FOLDER *related_folder;
 	LIST *where_attribute_name_list;
 	char *table_name;
+	char *executable;
 
 	if ( !list_rewind( folder->one2m_recursive_related_folder_list ) )
 	{
@@ -894,6 +930,11 @@ void output_delete_database(
 			folder_get_primary_attribute_name_list(
 				folder->attribute_list );
 	}
+
+	if ( DEBUG_MODE )
+		executable = "html_paragraph_wrapper.e";
+	else
+		executable = "sql.e";
 
 	do {
 		related_folder =
@@ -918,11 +959,12 @@ void output_delete_database(
 		sprintf( sys_string,
 			 "echo \"%s\"					|"
 			 "delete_statement.e table=%s field=%s del='%c'	|"
-			 "sql.e						 ",
+			 "%s						 ",
 			 purge_data,
 			 table_name,
 			 list_display( where_attribute_name_list ),
-			 MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
+			 MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+			 executable );
 
 		system( sys_string );
 
@@ -938,11 +980,12 @@ void output_delete_database(
 	sprintf( sys_string,
 		 "echo \"%s\"					|"
 		 "delete_statement.e table=%s field=%s del='%c'	|"
-		 "sql.e						 ",
+		 "%s						 ",
 		 purge_data,
 		 table_name,
 		 list_display( where_attribute_name_list ),
-		 MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
+		 MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+		 executable );
 
 	system( sys_string );
 

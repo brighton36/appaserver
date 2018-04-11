@@ -72,6 +72,27 @@ grep '^mysql_password=' $appaserver_config	|
 sed 's/mysql_//'				|
 cat >> $mysql_password_file
 
+if [ ! -d $output_directory -a "$directory_root" != "" ]
+then
+	new_directory="${directory_root}"
+	mkdir $new_directory
+
+	new_directory="${directory_root}/son"
+	mkdir $new_directory
+
+	new_directory="${directory_root}/father"
+	mkdir $new_directory
+
+	new_directory="${directory_root}/grandfather"
+	mkdir $new_directory
+
+	new_directory="${directory_root}/greatgrandfather"
+	mkdir $new_directory
+
+	new_directory="${directory_root}/greatgreatgrandfather"
+	mkdir $new_directory
+fi
+
 mysqldump_fork.e	$mysqluser			\
 			$database			\
 			$mysql_password_file		\

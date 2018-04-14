@@ -27,6 +27,9 @@ inventory
 inventory_cost_method
 inventory_purchase
 inventory_sale
+investment_account
+investment_classification
+investment_operation
 journal_ledger
 liability_account_entity
 payroll_pay_period

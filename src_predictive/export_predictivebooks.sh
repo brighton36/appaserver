@@ -348,8 +348,8 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
-	# Only professional and non-profit folders follow:
-	# ------------------------------------------------
+	# Only enterprise and non-profit folders follow:
+	# ----------------------------------------------
 	folder=inventory_cost_method
 	results=`grep $folder $input_file | wc -l`
 

@@ -30,9 +30,9 @@ execute_yn=$4
 
 # Variables
 # ---------
-if [ "$module" = "professional" ]
+if [ "$module" = "enterprise" ]
 then
-	process="predictivebooks_professsional.sh"
+	process="predictivebooks_enterprise.sh"
 elif [ "$module" = "nonprofit" ]
 then
 	process="predictivebooks_nonprofit.sh"

@@ -81,9 +81,9 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application_name );
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	/* ---------------------------------------------------- */
 	/* Check permissions because this is executed from	*/
@@ -109,7 +109,7 @@ int main( int argc, char **argv )
 				application_name, session, login_name );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	table_name = get_table_name( application_name, folder_name );
 

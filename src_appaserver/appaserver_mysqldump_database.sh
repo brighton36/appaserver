@@ -37,7 +37,7 @@ export PATH=$PATH:$APPASERVER_HOME/utility:$APPASERVER_HOME/src_appaserver
 
 # For each database that has mysqldump_{DATABASE}.dat
 # ---------------------------------------------------
-ls $appaserver_error/*				 |
+ls $appaserver_error/appaserver_*.err		 |
 xargs.e "/usr/bin/basename {}			|\
 	 sed 's/appaserver_//'			|\
 	 piece.e '.' 0"				 |

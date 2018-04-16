@@ -1,15 +1,18 @@
 # $APPASERVER_HOME/src_template/mysqldump_template.dat
-# -------------------------------------------------------------
+# ----------------------------------------------------------------
 # This is the template parameter file for mysqldump_database.sh
-# -------------------------------------------------------------
+# ----------------------------------------------------------------
 # Copy this to /var/backups/appaserver/mysqldump_$database.dat
-# -------------------------------------------------------------
+# ----------------------------------------------------------------
+# $APPASERVER_HOME/src_appaserver/appaserver_mysqldump_database.sh
+# automatically picks up this file when executed.
+# ----------------------------------------------------------------
 # son = daily
 # father = Sunday
 # grandfather = first of the month
 # greatgrandfather = January 1 and July 1
 # greatgreatgrandfather = January 1
-# =============================================================
+# ================================================================
 
 processes_in_parallel=10
 

@@ -76,27 +76,27 @@ if [ ! -d $output_directory -a "$directory_root" != "" ]
 then
 	new_directory="${directory_root}"
 	mkdir $new_directory
-	chmod o-r $new_directory
+	chmod o-rwx $new_directory
 
 	new_directory="${directory_root}/son"
 	mkdir $new_directory
-	chmod o-r $new_directory
+	chmod o-rwx $new_directory
 
 	new_directory="${directory_root}/father"
 	mkdir $new_directory
-	chmod o-r $new_directory
+	chmod o-rwx $new_directory
 
 	new_directory="${directory_root}/grandfather"
 	mkdir $new_directory
-	chmod o-r $new_directory
+	chmod o-rwx $new_directory
 
 	new_directory="${directory_root}/greatgrandfather"
 	mkdir $new_directory
-	chmod o-r $new_directory
+	chmod o-rwx $new_directory
 
 	new_directory="${directory_root}/greatgreatgrandfather"
 	mkdir $new_directory
-	chmod o-r $new_directory
+	chmod o-rwx $new_directory
 fi
 
 mysqldump_fork.e	$mysqluser			\

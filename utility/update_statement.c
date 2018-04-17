@@ -266,7 +266,7 @@ void output_original_format(	char *input_buffer,
 		{
 			printf( "%s = '%s'",
 				data_fieldname,
-				new_data );
+				trim( new_data ) );
 		}
 		else
 		{
@@ -281,7 +281,9 @@ void output_original_format(	char *input_buffer,
 	/* primary_key[,primary_key...]|attribute=data	stream */
 	/* --------------------------------------------------- */
 	list_reset( primary_key_comma_list );
+
 	i = 0;
+
 	do {
 		key = list_get_pointer( primary_key_comma_list );
 
@@ -311,8 +313,11 @@ void output_original_format(	char *input_buffer,
 		}
 		i++;
 	} while( list_next( primary_key_comma_list ) );
+
 	printf( ";\n" );
+
 	fflush( stdout );
+
 } /* output_original_format() */
 
 void output_update_single_carrot_delimiters(	char *input_buffer,
@@ -347,7 +352,7 @@ void output_update_single_carrot_delimiters(	char *input_buffer,
 		printf( "update %s set %s = '%s' where ",
 			table_name,
 			data_fieldname,
-			new_data );
+			trim( new_data ) );
 	}
 	else
 	{
@@ -357,7 +362,9 @@ void output_update_single_carrot_delimiters(	char *input_buffer,
 	}
 
 	list_reset( primary_key_comma_list );
+
 	i = 0;
+
 	do {
 		key = list_get_pointer( primary_key_comma_list );
 
@@ -378,10 +385,15 @@ void output_update_single_carrot_delimiters(	char *input_buffer,
 				key,
 				primary_key_data );
 		}
+
 		i++;
+
 	} while( list_next( primary_key_comma_list ) );
+
 	printf( ";\n" );
+
 	fflush( stdout );
+
 } /* output_update_single_carrot_delimiters() */
 
 boolean exists_single_carrot_delimiters( char *input_buffer )

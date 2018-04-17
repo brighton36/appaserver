@@ -39,6 +39,13 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+void output_tables_can_be_dropped(	char *application_name,
+					char *session,
+					char *login_name,
+					char *role_name,
+					LIST *folder_list,
+					LIST *table_name_list );
+
 char *get_test_drop_table_control_string(
 					char *application_name,
 					char *session,
@@ -82,11 +89,6 @@ char *get_drop_column_control_string(	char *application_name,
 					char *folder_name,
 					char *attribute_name );
 
-boolean folder_is_no_longer_used(
-					char *application_name,
-					char *table_name,
-					LIST *folder_list );
-
 LIST *get_table_column_name_list(
 					char *application_name,
 					char *folder_name );
@@ -106,6 +108,7 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	LIST *folder_list;
+	LIST *table_name_list;
 
 	output_starting_argv_stderr( argc, argv );
 
@@ -145,6 +148,7 @@ int main( int argc, char **argv )
 			document->onload_control_string );
 
 	folder_list = get_folder_list( application_name );
+	table_name_list = get_table_name_list();
 
 	output_columns_not_used_anymore(
 		application_name,
@@ -155,21 +159,35 @@ int main( int argc, char **argv )
 
 	printf( "<br>\n" );
 
-	output_attributes_not_in_tables( application_name, folder_list );
+	output_attributes_not_in_tables(
+		application_name,
+		folder_list );
 
 	printf( "<br>\n" );
 
 	output_columns_different_from_attributes(
-				application_name,
-				folder_list );
+		application_name,
+		folder_list );
+
+	printf( "<br>\n" );
+
+	output_tables_can_be_dropped(
+		application_name,
+		session,
+		login_name,
+		role_name,
+		folder_list,
+		table_name_list );
 
 	document_close();
 
 	process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
+		application_name,
+		PROCESS_NAME,
+		appaserver_parameter_file_get_dbms() );
+
 	exit( 0 );
+
 } /* main() */
 
 LIST *get_table_name_list( void )
@@ -322,6 +340,80 @@ char *get_drop_column_control_string(	char *application_name,
 
 } /* get_drop_column_control_string() */
 
+void output_tables_can_be_dropped(	char *application_name,
+					char *session,
+					char *login_name,
+					char *role_name,
+					LIST *folder_list,
+					LIST *table_name_list )
+{
+	char *table_name;
+	HTML_TABLE *html_table;
+	LIST *heading_list;
+
+	if ( !list_length( folder_list ) )
+	{
+		printf( "<p>ERROR: cannot get folder list for application\n" );
+		document_close();
+		exit( 1 );
+	}
+
+	html_table = new_html_table(
+		"Table Rectification -- Table Can Be Dropped",
+		(char *)0 /* sub_title */ );
+
+	heading_list = new_list();
+	list_append_string( heading_list, "Table" );
+
+	html_table_set_heading_list( html_table, heading_list );
+	html_table_output_table_heading(
+					html_table->title,
+					html_table->sub_title );
+	html_table_output_data_heading(
+			html_table->heading_list,
+			html_table->number_left_justified_columns,
+			html_table->number_right_justified_columns,
+			html_table->justify_list );
+
+	list_rewind( table_name_list );
+
+	do {
+		table_name = list_get_pointer( table_name_list );
+
+		if ( timlib_exists_string( table_name, "_application" ) )
+			continue;
+
+		if ( !(boolean)folder_seek_folder(
+				folder_list,
+				table_name /* folder_name */ ) )
+		{
+			html_table_set_data(
+				html_table->data_list,
+				get_drop_table_control_string(
+					application_name,
+					session,
+					login_name,
+					role_name,
+					table_name ) );
+
+			html_table_output_data(
+				html_table->data_list,
+				html_table->
+					number_left_justified_columns,
+				html_table->
+					number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+
+			html_table->data_list = list_new();
+		}
+
+	} while( list_next( table_name_list ) );
+
+	html_table_close();
+
+} /* output_tables_can_be_dropped() */
+
 void output_attributes_not_in_tables(	char *application_name,
 					LIST *folder_list )
 {
@@ -406,6 +498,7 @@ void output_attributes_not_in_tables(	char *application_name,
 	} while( list_next( folder_list ) );
 
 	html_table_close();
+
 } /* output_attributes_not_in_tables() */
 
 void output_columns_not_used_anymore(	char *application_name,
@@ -473,6 +566,7 @@ void output_columns_not_used_anymore(	char *application_name,
 				html_table_set_data(
 					html_table->data_list,
 					folder->folder_name );
+
 				html_table_set_data(
 					html_table->data_list,
 					residual_attribute_name );
@@ -497,6 +591,7 @@ void output_columns_not_used_anymore(	char *application_name,
 					html_table->justify_list );
 
 				html_table->data_list = list_new();
+
 			} while( list_next( residual_attribute_name_list ) );
 		}
 
@@ -715,13 +810,16 @@ char *get_drop_table_control_string(
 	static char control_string[ 1024 ];
 
 	sprintf(control_string,
-	"<a href=\"drop_table?%s+%s+%s+%s+%s+y\" target=_new>Drop</a>\n",
+	"<a href=\"drop_table?%s+%s+%s+%s+%s+y\" target=_new>Drop %s</a>\n",
 		application_name,
 		session,
 		login_name,
 		role_name,
+		table_name,
 		table_name );
+
 	return control_string;
+
 } /* get_drop_table_control_string() */
 
 char *get_test_drop_table_control_string(

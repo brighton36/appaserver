@@ -708,7 +708,8 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 						element->http_filename,
 						row,
 						background_color,
-						element->name );
+						element->name,
+						application_name );
 	}
 	else
 	if ( element->element_type == anchor )
@@ -2996,18 +2997,32 @@ void element_http_filename_output(	FILE *output_file,
 					ELEMENT_HTTP_FILENAME *http_filename,
 					int row,
 					char *background_color,
-					char *element_name )
+					char *element_name,
+					char *application_name )
 {
 	char *filename;
+	char filename_buffer[ 512 ];
+	static int target_offset = 0;
 
 	if ( !http_filename->data ) http_filename->data = "";
 
 	filename = basename_get_filename( http_filename->data );
 
+	if ( *http_filename->data != '/' )
+	{
+		sprintf(	filename_buffer,
+				"/appaserver/%s/%s",
+				application_name,
+				http_filename->data );
+
+		http_filename->data = filename_buffer;
+	}
+
 	fprintf(output_file,
-		"<td><a href=\"%s\" target=%s>%s</a>", 
+		"<td><a href=\"%s\" target=%s_%d>%s</a>", 
 		http_filename->data,
 		element_name,
+		++target_offset,
 		(*filename) ? filename : http_filename->data );
 
 	if ( http_filename->update_text_item )

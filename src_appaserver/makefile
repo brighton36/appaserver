@@ -197,7 +197,9 @@ clean:
 	${CGI_HOME}/post_report_writer					\
 	${CGI_HOME}/post_merge_purge					\
 	${CGI_HOME}/post_maintain_user_account				\
-	${CGI_HOME}/post_prompt_process_form
+	${CGI_HOME}/post_prompt_process_form				\
+	${CGI_HOME/drop_column						\
+	${CGI_HOME/drop_table
 
 get_appaserver_mount_point: get_appaserver_mount_point.c 		\
 	${EXTERNAL_LIBS}
@@ -760,6 +762,11 @@ drop_table: drop_table.c						\
 		${EXTERNAL_LIBS}					\
 		drop_table.c						\
 		-o drop_table
+	touch ${CGI_HOME}/drop_table
+	/bin/rm -f ${CGI_HOME}/drop_table
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_appaserver/drop_table			\
+	${CGI_HOME}
 
 drop_application: drop_application.c					\
 	${EXTERNAL_LIBS}

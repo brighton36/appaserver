@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* drop_table.c					       	*/
+/* $APPASERVER_HOME/src_appaserver/drop_table.c	       	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
@@ -64,22 +64,38 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
-*/
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-/* 
+	/* ---------------------------------------------------- */
+	/* Check permissions because this is executed from	*/
+	/* table_rectification.					*/
+	/* ---------------------------------------------------- */
+	if ( session_remote_ip_address_changed(
+		application_name,
+		session ) )
+	{
+		session_message_ip_address_changed_exit(
+			application_name,
+			login_name );
+	}
+
 	if ( !session_access_process(
 				application_name,
 				session,
@@ -88,9 +104,8 @@ int main( int argc, char **argv )
 				role_name ) )
 	{
 		session_access_failed_message_and_exit(
-				application_name, session, login_name );
+			application_name, session, login_name );
 	}
-*/
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -118,11 +133,11 @@ int main( int argc, char **argv )
 	{
 		fflush( stdout );
 		system( sys_string );
-		printf( "<BR><h2>Process complete.</h2>\n" );
+		printf( "<BR><h3>Process complete.</h3>\n" );
 	}
 	else
 	{
-		printf( "<BR><h2>Only a test.</h2>\n" );
+		printf( "<BR><h3>Only a test.</h3>\n" );
 	}
 
 	document_close();

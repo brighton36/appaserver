@@ -548,7 +548,8 @@ void element_http_filename_output(	FILE *output_file,
 					ELEMENT_HTTP_FILENAME *http_filename,
 					int row,
 					char *background_color,
-					char *element_name );
+					char *element_name,
+					char *application_name );
 
 void element_anchor_output(			FILE *output_file,
 						char *prompt,

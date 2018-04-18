@@ -122,7 +122,8 @@ void hashsearch(char *argv_0,
 skip:
 		if ( not_found )
 		{
-			printf(	"not_found:%s\n",
+			fprintf(stderr,
+				"not_found:%s\n",
 				input_buffer );
 		}
 	}

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ---------------------------------------------------------------------
-# $APPASERVER_HOME/src_accountancymodel/populate_print_checks_entity.sh
+# $APPASERVER_HOME/src_predictive/populate_print_checks_entity.sh
 # ---------------------------------------------------------------------
 #
 # Freely available software: see Appaserver.org

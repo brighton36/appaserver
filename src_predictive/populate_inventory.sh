@@ -1,5 +1,5 @@
 :
-# $APPASERVER_HOME/src_accountancymodel/populate_inventory.sh
+# $APPASERVER_HOME/src_predictive/populate_inventory.sh
 # -----------------------------------------------------------
 #
 # Freely available software: see Appaserver.org

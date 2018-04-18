@@ -1,5 +1,5 @@
 :
-# $APPASERVER_HOME/src_accountancymodel/populate_investment_account.sh
+# $APPASERVER_HOME/src_predictive/populate_investment_account.sh
 # --------------------------------------------------------------------
 #
 # Freely available software: see Appaserver.org

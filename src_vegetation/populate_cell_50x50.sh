@@ -1,6 +1,6 @@
 #!/bin/bash
 # ---------------------------------------------------------------
-# $APPASERVER_HOME/src_predictive/populate_tax_form_line.sh
+# $APPASERVER_HOME/src_vegetation/populate_cell_50x50.sh
 # ---------------------------------------------------------------
 if [ "$#" -eq 0 ]
 then
@@ -27,8 +27,8 @@ else
 	where="1 = 1"
 fi
 
-table=$(get_table_name $application tax_form_line)
-select="tax_form,concat( tax_form_line, ' [', tax_form_description, ']' )"
+table=$(get_table_name $application cell_50x50)
+select="UTMX,concat( UTMY, ' [', cell_id, ']' )"
 
 echo "select $select from $table where $where order by $select;"	|
 sql.e

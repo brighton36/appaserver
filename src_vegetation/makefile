@@ -19,7 +19,8 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hashtbl.o
 
-EXECUTABLES=	update_cell_stage
+EXECUTABLES=	update_cell_stage					\
+		upload_photo
 
 EXTERNAL_LIBS=								\
 		${LIBRARY}/aggregate_level.o 				\
@@ -84,3 +85,13 @@ update_cell_stage: update_cell_stage.c					\
 		${LIBRARY}/distance.o					\
 		update_cell_stage.c					\
 		-o update_cell_stage -lm
+
+upload_photo: upload_photo.c						\
+		${STANDARD_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY} 					\
+		${EXTERNAL_LIBS} 					\
+		upload_photo.c						\
+		-o upload_photo
+

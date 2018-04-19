@@ -3026,24 +3026,9 @@ char *timlib_get_in_clause( char *data_list_string )
 boolean timlib_file_exists( char *filename )
 {
 	struct stat s;
-	boolean results;
 
-        results = ( stat( filename, &s ) != -1 );
-/*
-	FILE *f;
-
-	if ( ! ( f = fopen( filename, "r" ) ) )
-	{
-		results = 0;
-	}
-	else
-	{
-		fclose( f );
-		results = 1;
-	}
-*/
-	return results;
-} /* timlib_file_exists() */
+	return ( stat( filename, &s ) != -1 );
+}
 
 double timlib_latitude_longitude_degrees_minutes_to_decimal(
 					char *latitude_longitude )

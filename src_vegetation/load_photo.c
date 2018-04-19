@@ -25,34 +25,31 @@
 
 /* Constants */
 /* --------- */
-#define DESTINATION_DIRECTORY	"/var/www/appaserver/vegetation/photos"
-#define RELATIVE_DIRECTORY	"/benthic/field_sheet_scans"
-#define ATTRIBUTE_NAME		"field_sheet_scan_filename"
+#define DESTINATION_FILESPEC	"%s/appaserver/%s/photos/%s/%s"
+/*				 ^	       ^         ^  ^		*/
+/*				 |	       |	 |  |		*/
+/*				 |	       |	 | filename	*/
+/*			  document_root   application  directory	*/
+/* -------------------------------------------------------------------- */
+
+#define RELATIVE_FILESPEC	"photos/%s/%s"
+#define ATTRIBUTE_NAME		"filename"
 
 /* Prototypes */
 /* ---------- */
-void update_sampling_point(	char *application_name,
-				char *project,
-				char *collection_name,
-				char *location,
-				int site_number,
-				char *scan_filename );
+void insert_photo(		char *application_name,
+				int cell_id,
+				char *date_string,
+				char *filename );
 
-void load_field_sheet_scan(
-				char *application_name,
-				char *project,
-				char *collection_name,
-				char *location,
-				int site_number,
+void load_photo(		char *application_name,
+				int cell_id,
 				char *source_filename_directory_session );
 
 void get_title_and_sub_title(	char *title,
 				char *sub_title,
 				char *process_name,
-				char *project,
-				char *collection_name,
-				char *location,
-				int site_number );
+				int cell_id );
 
 int main( int argc, char **argv )
 {
@@ -61,31 +58,26 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
-	char *project;
-	char *collection_name;
-	char *location;
-	int site_number;
+	int cell_id;
+	char *date_taken_string;
 	char title[ 128 ];
 	char sub_title[ 128 ];
 	FILE *input_file;
 	char *source_filename_directory_session;
 
-	if ( argc != 9 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application ignored process_name location project site_number collection scan_filename\n",
+"Usage: %s application process_name date_taken cell_id filename\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	/* session = argv[ 2 ]; */
-	process_name = argv[ 3 ];
-	location = argv[ 4 ];
-	project = argv[ 5 ];
-	site_number = atoi( argv[ 6 ] );
-	collection_name = argv[ 7 ];
-	source_filename_directory_session = argv[ 8 ];
+	process_name = argv[ 2 ];
+	date_taken_string = argv[ 3 ];
+	cell_id = atoi( argv[ 4 ] );
+	source_filename_directory_session = argv[ 5 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -94,18 +86,19 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -130,10 +123,7 @@ int main( int argc, char **argv )
 			title,
 			sub_title,
 			process_name,
-			project,
-			collection_name,
-			location,
-			site_number );
+			cell_id );
 
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );

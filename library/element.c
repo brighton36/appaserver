@@ -656,11 +656,11 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 		if ( element->element_type == prompt_data_plus_hidden )
 		{
 			element_hidden_name_dictionary_output(
-						output_file,
-						hidden_name_dictionary,
-						row,
-						element->name,
-						element->prompt_data->data );
+					output_file,
+					hidden_name_dictionary,
+					row,
+					element->name,
+					element->prompt_data->data );
 		}
 	}
 	else
@@ -3001,7 +3001,7 @@ void element_http_filename_output(	FILE *output_file,
 					char *application_name )
 {
 	char *filename;
-	char filename_buffer[ 512 ];
+	char filename_link[ 512 ];
 	static int target_offset = 0;
 
 	if ( !http_filename->data ) http_filename->data = "";
@@ -3010,20 +3010,25 @@ void element_http_filename_output(	FILE *output_file,
 
 	if ( *http_filename->data != '/' )
 	{
-		sprintf(	filename_buffer,
+		sprintf(	filename_link,
 				"/appaserver/%s/%s",
 				application_name,
 				http_filename->data );
-
-		http_filename->data = filename_buffer;
+	}
+	else
+	{
+		strcpy( filename_link, http_filename->data );
 	}
 
 	fprintf(output_file,
 		"<td><a href=\"%s\" target=%s_%d>%s</a>", 
-		http_filename->data,
+		filename_link,
 		element_name,
 		++target_offset,
+		filename );
+/*
 		(*filename) ? filename : http_filename->data );
+*/
 
 	if ( http_filename->update_text_item )
 	{
@@ -3052,6 +3057,16 @@ void element_http_filename_output(	FILE *output_file,
 	}
 
 	fprintf(output_file, "</td>\n" );
+
+	if ( !http_filename->update_text_item )
+	{
+		element_hidden_name_dictionary_output(
+			output_file,
+			(DICTIONARY *)0 /* hidden_name_dictionary */,
+			row,
+			element_name,
+			http_filename->data );
+	}
 
 } /* element_http_filename_output() */
 

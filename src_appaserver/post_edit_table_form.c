@@ -875,8 +875,7 @@ void post_state_update(
 			login_name,
 			folder_name,
 			role_name,
-			folder_get_primary_attribute_name_list(
-				folder->attribute_list ),
+			folder->primary_attribute_name_list,
 			(folder->row_level_non_owner_forbid ||
 			 folder->row_level_non_owner_view_only),
 			target_frame,

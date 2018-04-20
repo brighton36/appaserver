@@ -64,7 +64,6 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *state;
 	char *state_for_heading;
-	char *message;
 	char *insert_update_key;
 	char *target_frame;
 	DOCUMENT *document;
@@ -104,7 +103,7 @@ int main( int argc, char **argv )
 	if ( argc < 9 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role message insert_update_key target_frame [content_type_yn]\n",
+"Usage: %s login_name application session folder role ignored insert_update_key target_frame [content_type_yn]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -114,7 +113,7 @@ int main( int argc, char **argv )
 	session = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
-	message = argv[ 6 ];
+	/* message = argv[ 6 ]; */
 	insert_update_key = argv[ 7 ];
 	target_frame = argv[ 8 ];
 

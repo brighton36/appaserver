@@ -87,14 +87,24 @@ http://localhost/appaserver/template/index.php
 Login using:
 login_name=nobody and password=changeit
 
+---------------------------
+F) Create first application
+---------------------------
+
+Once you log into the template application, execute the <Process>
+called <Change Password>. However, don't create any application
+tables, yet. Instead, execute the <Process> called
+<Create Empty Application>. Then log into your new application
+and build your tables.
+
 ---------------------
-F) Upgrade Appaserver
+G) Upgrade Appaserver
 ---------------------
 
 See UPGRADE
 
 -----------------------
-G) Uninstall Appaserver
+H) Uninstall Appaserver
 -----------------------
 
 1) $ echo "drop database template;" | sql.e

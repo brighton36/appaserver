@@ -522,11 +522,49 @@ char *alligator_get_habitat(
 ALLIGATOR *alligator_new(	char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date,
 				boolean with_secondary_researchers,
 				boolean with_nest_list,
 				boolean with_observation_list )
 {
 	ALLIGATOR *alligator;
+	boolean insufficient_input = 0;
+
+	if ( !begin_discovery_date
+	||   !*begin_discovery_date
+	||   strcmp( begin_discovery_date, "begin_discovery_date" ) == 0 )
+	{
+		insufficient_input = 1;
+	}
+
+	if ( !end_discovery_date
+	||   !*end_discovery_date
+	||   strcmp( end_discovery_date, "end_discovery_date" ) == 0 )
+	{
+		insufficient_input = 1;
+	}
+
+	if ( !insufficient_input )
+	{
+		if ( !discovery_date_list_string
+		||   !*discovery_date_list_string
+		||   strcmp(	discovery_date_list_string,
+				"discovery_date" ) == 0 )
+		{
+			insufficient_input = 1;
+		}
+
+		if ( !primary_researcher_list_string
+		||   !*primary_researcher_list_string
+		||   strcmp(	primary_researcher_list_string,
+				"primary_researcher" ) == 0 )
+		{
+			insufficient_input = 1;
+		}
+	}
+
+	if ( insufficient_input ) return (ALLIGATOR *)0;
 
 	if ( ! ( alligator = (ALLIGATOR *)
 				calloc( 1, sizeof( ALLIGATOR ) ) ) )
@@ -544,6 +582,8 @@ ALLIGATOR *alligator_new(	char *application_name,
 			application_name,
 			discovery_date_list_string,
 			primary_researcher_list_string,
+			begin_discovery_date,
+			end_discovery_date,
 			with_secondary_researchers ) ) )
 	{
 		return (ALLIGATOR *)0;
@@ -567,6 +607,8 @@ ALLIGATOR *alligator_new(	char *application_name,
 LIST *alligator_get_census_list(char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date,
 				boolean with_secondary_researchers )
 {
 	ALLIGATOR_CENSUS *alligator_census;
@@ -585,7 +627,9 @@ LIST *alligator_get_census_list(char *application_name,
 				application_name,
 				"alligator_census",
 				discovery_date_list_string,
-				primary_researcher_list_string );
+				primary_researcher_list_string,
+				begin_discovery_date,
+				end_discovery_date );
 
 	select = "discovery_date,primary_researcher,pilot";
 
@@ -895,7 +939,9 @@ LIST *alligator_get_nest_list(	char *application_name,
 				application_name,
 				"nest",
 				discovery_date_list_string,
-				primary_researcher_list_string );
+				primary_researcher_list_string,
+				begin_discovery_date,
+				end_discovery_date );
 
 	nest_table_name =
 		get_table_name( application_name, "nest" );
@@ -1293,7 +1339,9 @@ LIST *alligator_get_observation_record_list(
 				application_name,
 				"nest",
 				discovery_date_list_string,
-				primary_researcher_list_string );
+				primary_researcher_list_string,
+				begin_discovery_date,
+				end_discovery_date );
 
 	sprintf(sys_string,
 	"echo \"select %s					 "
@@ -1409,7 +1457,9 @@ char *alligator_get_discovery_primary_where_clause(
 				char *application_name,
 				char *folder_name,
 				char *discovery_date_list_string,
-				char *primary_researcher_list_string )
+				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date )
 {
 	char where_clause[ 131072 ];
 	char *where_clause_pointer = where_clause;
@@ -1417,18 +1467,35 @@ char *alligator_get_discovery_primary_where_clause(
 
 	table_name = get_table_name( application_name, folder_name );
 
-	where_clause_pointer +=
-		sprintf( where_clause_pointer,
-			 " and %s.discovery_date in (%s)",
+	if ( begin_discovery_date
+	&&   *begin_discovery_date
+	&&   strcmp( begin_discovery_date, "begin_discovery_date" ) != 0
+	&&   end_discovery_date
+	&&   *end_discovery_date
+	&&   strcmp( end_discovery_date, "end_discovery_date" ) != 0 )
+	{
+		sprintf( where_clause,
+			 "%s.discovery_date between '%s' and '%s'",
 			 table_name,
-			 timlib_get_in_clause( discovery_date_list_string ) );
+			 begin_discovery_date,
+			 end_discovery_date );
+	}
+	else
+	{
+		where_clause_pointer +=
+			sprintf( where_clause_pointer,
+			 	" and %s.discovery_date in (%s)",
+			 	table_name,
+			 	timlib_get_in_clause(
+					discovery_date_list_string ) );
 
-	where_clause_pointer +=
-		sprintf( where_clause_pointer,
-			 " and %s.primary_researcher in (%s)",
-			 table_name,
-			 timlib_get_in_clause(
-				 primary_researcher_list_string ) );
+		where_clause_pointer +=
+			sprintf( where_clause_pointer,
+			 	" and %s.primary_researcher in (%s)",
+			 	table_name,
+			 	timlib_get_in_clause(
+				 	primary_researcher_list_string ) );
+	}
 
 	return strdup( where_clause );
 
@@ -1901,7 +1968,9 @@ LIST *alligator_get_water_depth_record_list(
 				application_name,
 				"nest",
 				discovery_date_list_string,
-				primary_researcher_list_string );
+				primary_researcher_list_string,
+				begin_discovery_date,
+				end_discovery_date );
 
 	sprintf(sys_string,
 	"echo \"select %s					 "

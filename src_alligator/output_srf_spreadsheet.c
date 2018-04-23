@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_alligator/output_srf_spreadsheet.c		*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_alligator/output_srf_spreadsheet.c	*/
+/* -------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -38,14 +38,12 @@
 
 /* Prototypes */
 /* ---------- */
-void get_title_and_sub_title(	char *title,
-				char *sub_title,
-				char *process_name );
-
 void output_srf_spreadsheet(
 				char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date,
 				char *document_root_directory,
 				int process_id,
 				char *process_name );
@@ -59,11 +57,13 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *discovery_date_list_string;
 	char *primary_researcher_list_string;
+	char *begin_discovery_date;
+	char *end_discovery_date;
 
-	if ( argc != 6 )
+	if ( argc != 8 )
 	{
-		fprintf( stderr, 
-"Usage: %s application process_name session discovery_date primary_researcher\n",
+		fprintf( stderr,
+"Usage: %s application process_name ignored discovery_date primary_researcher begin_discovery_date end_discovery_date\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -73,6 +73,8 @@ int main( int argc, char **argv )
 	/* session = argv[ 3 ]; */
 	discovery_date_list_string = argv[ 4 ];
 	primary_researcher_list_string = argv[ 5 ];
+	begin_discovery_date = argv[ 6 ];
+	end_discovery_date = argv[ 7 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -81,18 +83,19 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -116,6 +119,8 @@ int main( int argc, char **argv )
 	output_srf_spreadsheet(	application_name,
 				discovery_date_list_string,
 				primary_researcher_list_string,
+				begin_discovery_date,
+				end_discovery_date,
 				appaserver_parameter_file->
 					document_root,
 				getpid(),
@@ -134,6 +139,8 @@ int main( int argc, char **argv )
 void output_srf_spreadsheet(	char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date,
 				char *document_root_directory,
 				int process_id,
 				char *process_name )
@@ -145,41 +152,38 @@ void output_srf_spreadsheet(	char *application_name,
 	char *ftp_no_codes_filename;
 	char *output_no_codes_filename;
 	char title[ 128 ];
-	char sub_title[ 128 ];
 	char *secondary_researcher_1;
 	char *secondary_researcher_2;
 	ALLIGATOR *alligator;
 	NEST *nest;
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
-	get_title_and_sub_title(
-			title,
-			sub_title,
-			process_name );
+	format_initial_capital( title, process_name );
 
-	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
+	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>\n" );
 	fflush( stdout );
 	system( "date '+%x %H:%M'" );
 	fflush( stdout );
 	printf( "</h2>\n" );
 
-	if ( !* discovery_date_list_string
-	||   strcmp( discovery_date_list_string, "discovery_date" ) == 0 )
+	alligator = alligator_new(
+				application_name,
+				discovery_date_list_string,
+				primary_researcher_list_string,
+				begin_discovery_date,
+				end_discovery_date,
+				1 /*  with_secondary_researchers */,
+				1 /* with_nest_list */,
+				0 /* not with_observation_list */ );
+
+	if ( !alligator )
 	{
 		printf(
 		"<h3>Please select one or more alligator censuses.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
-
-	alligator = alligator_new(
-				application_name,
-				discovery_date_list_string,
-				primary_researcher_list_string,
-				1 /*  with_secondary_researchers */,
-				1 /* with_nest_list */,
-				0 /* not with_observation_list */ );
 
 	if ( !list_rewind( alligator->nest_list ) )
 	{
@@ -369,15 +373,4 @@ void output_srf_spreadsheet(	char *application_name,
 	printf( "<br>\n" );
 
 } /* output_srf_spreadsheet() */
-
-
-void get_title_and_sub_title(
-			char *title,
-			char *sub_title,
-			char *process_name )
-{
-	format_initial_capital( title, process_name );
-	*sub_title = '\0';
-
-} /* get_title_and_sub_title() */
 

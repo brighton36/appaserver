@@ -159,17 +159,23 @@ LIST *alligator_get_secondary_researcher_list(
 LIST *alligator_get_census_list(char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date,
 				boolean with_secondary_researchers );
 
 char *alligator_get_discovery_primary_where_clause(
 				char *application_name,
 				char *folder_name,
 				char *discovery_date_list_string,
-				char *primary_researcher_list_string );
+				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date );
 
 ALLIGATOR *alligator_new(	char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date,
 				boolean with_secondary_researchers,
 				boolean with_nest_list,
 				boolean with_observation_list );

@@ -1603,7 +1603,6 @@ char *center_rpad( char *string, int screen_len )
 
 } /* center_rpad() */
 
-
 char *right( char *string, char *substr, int width )
 {
 	static char line[ 1024 ];
@@ -1621,6 +1620,27 @@ char *right( char *string, char *substr, int width )
 	return line;
 
 } /* right() */
+
+char *timlib_right_string( char *string, int width )
+{
+	static char return_string[ 1024 ];
+	char *return_ptr;
+	char *source_ptr;
+
+	if ( width > timlib_strlen( string ) ) return (char *)0;
+
+	return_ptr = return_string;
+	source_ptr = string + width;
+
+	while( *source_ptr )
+	{
+		*return_ptr++ = *source_ptr++;
+	}
+
+	*return_ptr = '\0';
+	return return_string;
+
+} /* timlib_right_string() */
 
 
 char *get_date( char *d )

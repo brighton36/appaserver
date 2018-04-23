@@ -6,6 +6,9 @@
 
 /* Constants */
 /* --------- */
+#define MATRIX_ANALYTE_FREE_WATER		"analyte_free_water"
+#define EQUIPMENT_BLANKS_CHECK_PIECE		5
+#define EQUIPMENT_BLANKS_CODE			"EB"
 #define STDERR_COUNT				1000
 #define BELOW_DETECTION_LIMIT			"below_detection_limit"
 #define NULL_CONCENTRATION			"null_concentration"
@@ -42,6 +45,9 @@
 
 /* Prototypes */
 /* ---------- */
+char *get_equipment_blank_matrix(
+				char *input_string );
+
 LIST *get_parameter_list(	char *application_name );
 
 LIST *get_units_list(		char *application_name );
@@ -102,7 +108,8 @@ char *get_flow_no_flow(		char *application_name,
 				char *code );
 
 char *get_matrix(		char *application_name,
-				char *matrix_code );
+				char *matrix_code,
+				char *equipment_blank_matrix );
 
 char *get_up_down_stream(	char *application_name,
 				char *code );

@@ -377,6 +377,10 @@ int load_sfwmd_file(
 		trim( input_string );
 		if ( !*input_string ) continue;
 
+		matrix = (char *)0;
+
+		matrix = get_equipment_blank_matrix( input_string );
+
 		if ( !get_heading_piece_string(
 					project_code,
 					heading_piece_dictionary,
@@ -668,7 +672,9 @@ int load_sfwmd_file(
 
 		if ( ! ( matrix = get_matrix(
 					application_name,
-					matrix_code ) ) )
+					matrix_code,
+					matrix 
+					/* equipment_blank_matrix */ ) ) )
 		{
 			fprintf(error_file,
 "Warning in line %d: Cannot get matrix using code (%s). Loading anyway.\n",
@@ -1007,12 +1013,15 @@ void delete_waterquality(	char *application_name,
 } /* delete_waterquality() */
 
 char *get_matrix(	char *application_name,
-			char *matrix_code )
+			char *matrix_code,
+			char *equipment_blank_matrix )
 {
 	static char matrix[ 256 ];
 	static LIST *matrix_list = {0};
 	char *record;
 	int str_len;
+
+	if ( equipment_blank_matrix ) return equipment_blank_matrix;
 
 	if ( !*matrix_code ) return (char *)0;
 
@@ -1842,4 +1851,40 @@ LIST *get_parameter_list(	char *application_name )
 	return pipe2list( sys_string );
 
 } /* get_parameter_list() */
+
+/* ------------------------------------------------------------ */
+/* If column F is FCEB or LCEB, then return equipment blank	*/
+/* matrix of analyte_free_water. Equipment blanks are controls.	*/
+/* FC = Field Cleaned						*/
+/* LC = Lab Cleaned						*/
+/* EB = Equipment Blanks					*/
+/* ------------------------------------------------------------ */
+char *get_equipment_blank_matrix(	char *input_string )
+{
+	char piece_buffer[ 128 ];
+	char *last_two;
+
+	if ( !piece_quoted(	piece_buffer,
+				',',
+				input_string,
+				EQUIPMENT_BLANKS_CHECK_PIECE,
+				'"' ) )
+	{
+		return (char *)0;
+	}
+
+	last_two = timlib_right_string( piece_buffer, 2 );
+
+	if ( timlib_strcmp(
+			last_two,
+			EQUIPMENT_BLANKS_CODE ) == 0 )
+	{
+		return MATRIX_ANALYTE_FREE_WATER;
+	}
+	else
+	{
+		return (char *)0;
+	}
+
+} /* get_equipment_blank_matrix() */
 

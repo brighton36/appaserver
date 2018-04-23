@@ -502,4 +502,7 @@ int timlib_get_line_escape_CR(	char *in_line,
 				FILE *infile,
 				int buffer_size );
 
+char *timlib_right_string(	char *string,
+				int width );
+
 #endif

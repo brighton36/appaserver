@@ -196,6 +196,8 @@ LIST *alligator_get_alligator_census_record_list(
 LIST *alligator_get_nest_list(	char *application_name,
 				char *discovery_date_list_string,
 				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date,
 				boolean with_observation_list,
 				LIST *alligator_census_list );
 
@@ -253,12 +255,16 @@ LIST *alligator_get_observation_list(
 				char *application_name,
 				char *nest_number,
 				char *discovery_date_list_string,
-				char *primary_researcher_list_string );
+				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date );
 
 LIST *alligator_get_observation_record_list(
 				char *application_name,
 				char *discovery_date_list_string,
-				char *primary_researcher_list_string );
+				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date );
 
 char *alligator_get_transect_number_string(
 				char *application_name,
@@ -274,13 +280,17 @@ WATER_DEPTH *alligator_water_depth_new(
 LIST *alligator_get_water_depth_record_list(
 				char *application_name,
 				char *discovery_date_list_string,
-				char *primary_researcher_list_string );
+				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date );
 
 LIST *alligator_get_water_depth_list(
 				char *application_name,
 				char *nest_number,
 				char *observation_date,
 				char *discovery_date_list_string,
-				char *primary_researcher_list_string );
+				char *primary_researcher_list_string,
+				char *begin_discovery_date,
+				char *end_discovery_date );
 
 #endif

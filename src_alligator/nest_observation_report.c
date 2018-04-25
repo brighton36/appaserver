@@ -149,6 +149,8 @@ int main( int argc, char **argv )
 				application_name,
 				discovery_date_list_string,
 				primary_researcher_list_string,
+				(char *)0 /* begin_discovery_date */,
+				(char *)0 /* end_discovery_date */,
 				0 /* not with_secondary_researchers */,
 				1 /* with_nest_list */,
 				1 /* with_observation_list */ );

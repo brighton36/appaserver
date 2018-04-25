@@ -28,7 +28,7 @@ do
 	if [ -r "$parameter_file" ]
 	then
 		echo "mysqldump_database.sh $parameter_file"
-		#mysqldump_database.sh $parameter_file 2>&1
+		mysqldump_database.sh $parameter_file 2>&1
 	fi
 done
 

@@ -1590,10 +1590,6 @@ void populate_point_array_current_sys_string(
 		timlib_with_list_get_in_clause(
 			station_name_list );
 
-/*
-	select_clause =
-		"concat( station, '/', measurement_date, '/', datatype )";
-*/
 	select_clause = "measurement_date,datatype";
 
 	sprintf( where_date_clause,

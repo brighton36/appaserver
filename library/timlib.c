@@ -3009,7 +3009,7 @@ char *timlib_with_list_get_in_clause( LIST *data_list )
 	char *data;
 	boolean first_time = 1;
 
-	if ( !list_rewind( data_list ) ) return (char *)0;
+	if ( !list_rewind( data_list ) ) strdup( "" );
 
 	*in_clause = '\0';
 	do {

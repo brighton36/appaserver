@@ -57,13 +57,13 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *discovery_date_list_string;
 	char *primary_researcher_list_string;
-	char *begin_discovery_date;
-	char *end_discovery_date;
+	char *begin_discovery_date = {0};
+	char *end_discovery_date = {0};
 
-	if ( argc != 8 )
+	if ( argc < 6 )
 	{
 		fprintf( stderr,
-"Usage: %s application process_name ignored discovery_date primary_researcher begin_discovery_date end_discovery_date\n",
+"Usage: %s application process_name ignored discovery_date primary_researcher [begin_discovery_date end_discovery_date]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -73,8 +73,12 @@ int main( int argc, char **argv )
 	/* session = argv[ 3 ]; */
 	discovery_date_list_string = argv[ 4 ];
 	primary_researcher_list_string = argv[ 5 ];
-	begin_discovery_date = argv[ 6 ];
-	end_discovery_date = argv[ 7 ];
+
+	if ( argc == 8 )
+	{
+		begin_discovery_date = argv[ 6 ];
+		end_discovery_date = argv[ 7 ];
+	}
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )

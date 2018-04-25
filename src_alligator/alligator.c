@@ -529,42 +529,27 @@ ALLIGATOR *alligator_new(	char *application_name,
 				boolean with_observation_list )
 {
 	ALLIGATOR *alligator;
-	boolean insufficient_input = 0;
+	boolean sufficient_input = 0;
 
-	if ( !begin_discovery_date
-	||   !*begin_discovery_date
-	||   strcmp( begin_discovery_date, "begin_discovery_date" ) == 0 )
+	if ( begin_discovery_date
+	&&   *begin_discovery_date
+	&&   strcmp( begin_discovery_date, "begin_discovery_date" ) != 0 )
 	{
-		insufficient_input = 1;
+		sufficient_input = 1;
 	}
 
-	if ( !end_discovery_date
-	||   !*end_discovery_date
-	||   strcmp( end_discovery_date, "end_discovery_date" ) == 0 )
+	if ( !sufficient_input )
 	{
-		insufficient_input = 1;
-	}
-
-	if ( !insufficient_input )
-	{
-		if ( !discovery_date_list_string
-		||   !*discovery_date_list_string
-		||   strcmp(	discovery_date_list_string,
-				"discovery_date" ) == 0 )
+		if ( discovery_date_list_string
+		&&   *discovery_date_list_string
+		&&   strcmp(	discovery_date_list_string,
+				"discovery_date" ) != 0 )
 		{
-			insufficient_input = 1;
-		}
-
-		if ( !primary_researcher_list_string
-		||   !*primary_researcher_list_string
-		||   strcmp(	primary_researcher_list_string,
-				"primary_researcher" ) == 0 )
-		{
-			insufficient_input = 1;
+			sufficient_input = 1;
 		}
 	}
 
-	if ( insufficient_input ) return (ALLIGATOR *)0;
+	if ( !sufficient_input ) return (ALLIGATOR *)0;
 
 	if ( ! ( alligator = (ALLIGATOR *)
 				calloc( 1, sizeof( ALLIGATOR ) ) ) )

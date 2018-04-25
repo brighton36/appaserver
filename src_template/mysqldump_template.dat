@@ -14,6 +14,7 @@
 # greatgreatgrandfather = January 1
 # ================================================================
 
+database=template
 processes_in_parallel=10
 
 # These tables will have their own $table_$date.sql.gz files

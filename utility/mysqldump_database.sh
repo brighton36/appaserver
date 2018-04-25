@@ -2,16 +2,13 @@
 # ----------------------------------------------
 # $APPASERVER_HOME/utility/mysqldump_database.sh
 # ----------------------------------------------
-if [ "$#" -ne 2 ]
+if [ "$#" -ne 1 ]
 then
-	echo "Usage: $0 database parameter_file" 1>&2
+	echo "Usage: $0 parameter_file" 1>&2
 	exit 1
 fi
 
-database=$1
-parameter_file=$2
-
-export DATABASE=$database
+parameter_file=$1
 
 date_yyyy_mm_dd=`date.e 0 | piece.e ':' 0`
 appaserver_config=/etc/appaserver.config
@@ -39,6 +36,10 @@ error_exit_if_blank()
 		exit 1
 	fi
 }
+
+parse_parameter_file $parameter_file database
+export DATABASE=$results
+database=$results
 
 parse_parameter_file $parameter_file directory_root
 directory_root=$results

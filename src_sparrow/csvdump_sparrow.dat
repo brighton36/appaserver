@@ -1,0 +1,26 @@
+# $APPASERVER_HOME/src_sparrow/csvdump_sparrow.dat
+# -------------------------------------------------------------
+# This is the template parameter file for csvdump_database.sh
+# -------------------------------------------------------------
+# son = daily
+# father = Sunday
+# grandfather = first of the month
+# greatgrandfather = January 1 and July 1
+# greatgreatgrandfather = January 1
+# =============================================================
+database=sparrow
+processes_in_parallel=10
+big_table_list=
+
+directory_root=/var/www/sparrowbackup
+output_directory=son
+father_directory=father
+grandfather_directory=grandfather
+greatgrandfather_directory=greatgrandfather
+greatgreatgrandfather_directory=greatgreatgrandfather
+
+son_keep_days=14
+father_keep_days=31
+grandfather_keep_days=185
+greatgrandfather_keep_days=1100
+greatgreatgrandfather_keep_days=1830

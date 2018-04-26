@@ -61,7 +61,7 @@ typedef struct
 	boolean lookup_transmit_output;
 	boolean row_level_non_owner_forbid;
 	boolean row_level_non_owner_view_only;
-	long row_count;
+	long int row_count;
 	boolean insert_permission;
 	boolean update_permission;
 	boolean lookup_permission;
@@ -212,18 +212,6 @@ LIST *folder_get_drop_down_process_list(
 			char *process_name,
 			char *prompt );
 
-/*
-LIST *folder_get_from_post_insert_process_list(
-					char *session,
-					char *entity,
-					char *folder_name,
-					char *post_insert_process );
-LIST *folder_get_from_post_update_process_list(
-					char *session,
-					char *entity,
-					char *folder_name,
-					char *post_update_process );
-*/
 char *folder_get_populate_drop_down_process( 
 					FOLDER *folder );
 

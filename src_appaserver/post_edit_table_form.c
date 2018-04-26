@@ -36,6 +36,7 @@
 #include "lookup_before_drop_down.h"
 #include "dictionary_appaserver.h"
 #include "pair_one2m.h"
+#include "folder_menu.h"
 
 /* Constants */
 /* --------- */
@@ -617,6 +618,13 @@ void post_state_insert(
 
 	if ( rows_inserted )
 	{
+		folder_menu_refresh_row_count(
+			application_name,
+			folder->folder_name,
+			session,
+			appaserver_parameter_file_get_data_directory(),
+			role_name );
+
 		sprintf( rows_inserted_string,
 			 "%d",
 			 rows_inserted );

@@ -14,6 +14,153 @@
 #include "folder.h"
 #include "piece.h"
 
+FOLDER_MENU *folder_menu_new(	char *application_name,
+				char *session,
+				char *appaserver_data_directory,
+				char *role_name )
+{
+	FOLDER_MENU *f;
+	ROLE *role;
+
+	role = role_new_role( application_name, role_name );
+
+	if ( role->folder_count_yn != 'y' ) return (FOLDER_MENU *)0;
+
+	if ( !appaserver_data_directory || !*appaserver_data_directory )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty appaserver_data_directory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( f = (FOLDER_MENU *)calloc( 1, sizeof( FOLDER_MENU ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	f->filename =
+		folder_menu_get_filename(
+			application_name,
+			session,
+			appaserver_data_directory,
+			role_name );
+
+	f->folder_list = 
+		folder_menu_get_choose_folder_list(
+			application_name,
+			appaserver_data_directory,
+			session,
+			role_name,
+			1 /* with_count */ );
+
+	return f;
+
+} /* folder_menu_new() */
+
+void folder_menu_refresh_row_count(
+					char *application_name,
+					char *folder_name,
+					char *session,
+					char *appaserver_data_directory,
+					char *role_name )
+{
+	FOLDER_MENU *folder_menu;
+	FOLDER *folder;
+
+	if ( ! ( folder_menu =
+			folder_menu_new(
+				application_name,
+				session,
+				appaserver_data_directory,
+				role_name ) ) )
+	{
+		/* role->folder_count_yn not set to 'y' */
+		/* ------------------------------------ */
+		return;
+	}
+
+	if ( ! ( folder = folder_seek_folder(
+				folder_menu->folder_list,
+				folder_name ) ) )
+	{
+		fprintf( stderr,
+		"Warning in %s/%s()/%d: cannot seek folder_name = %s.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			folder_name );
+		return;
+	}
+
+	folder->row_count =
+		folder_menu_fetch_folder_count(
+			application_name,
+			folder->folder_name );
+
+	if ( !folder_menu_write_folder_count_list(
+					folder_menu->filename,
+					folder_menu->folder_list ) )
+	{
+		fprintf( stderr,
+		"Warning in %s/%s()/%d: cannot write folder_count_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+	}
+
+} /* folder_menu_refresh_row_count() */
+
+long int folder_menu_fetch_folder_count(char *application_name,
+					char *folder_name )
+{
+	char *table_name;
+	char sys_string[ 256 ];
+
+	table_name = get_table_name( application_name, folder_name );
+
+	sprintf( sys_string,
+		 "echo \"select count(*) from %s;\" | sql.e",
+		 table_name );
+
+	return atol( pipe2string( sys_string ) );
+
+} /* folder_menu_fetch_folder_count() */
+
+boolean folder_menu_write_folder_count_list(
+					char *filename,
+					LIST *folder_list )
+{
+	FOLDER *folder;
+	FILE *output_file;
+
+	if ( !list_rewind( folder_list ) ) return 0;
+
+	if ( ! ( output_file = fopen( filename, "w" ) ) ) return 0;
+
+	do {
+		folder = list_get( folder_list );
+
+		fprintf( output_file,
+			 "%s^%ld\n",
+			 folder->folder_name,
+			 folder->row_count );
+
+	} while( list_next( folder_list ) );
+
+	fclose( output_file );
+
+	return 1;
+
+} /* folder_menu_write_folder_count_list() */
+
 void folder_menu_create_spool_file(
 					char *application_name,
 					char *session,
@@ -89,7 +236,8 @@ LIST *folder_menu_get_choose_folder_list(
 	LIST *folder_list;
 	LIST *folder_count_record_list;
 	char *folder_count_record;
-	char folder_name[ 128 ], count_string[ 128 ];
+	char folder_name[ 128 ];
+	char count_string[ 128 ];
 
 	folder_list = list_new();
 
@@ -128,6 +276,8 @@ LIST *folder_menu_get_choose_folder_list(
 						session,
 						strdup( folder_name ) );
 
+			/* Ignore folder_name == "null" */
+			/* ---------------------------- */
 			if ( !folder ) continue;
 
 			if ( with_count )
@@ -164,10 +314,14 @@ LIST *folder_menu_get_choose_folder_list(
 				(LIST *)0 /* mto1_related_folder_list */ );
 
 			list_append_pointer( folder_list, folder );
+
 		} while( list_next( folder_count_record_list ) );
 	}
+
 	list_free_string_list( folder_count_record_list );
+
 	return folder_list;
+
 } /* folder_menu_get_choose_folder_list() */
 
 char *folder_menu_get_input_pipe_sys_string(
@@ -215,25 +369,8 @@ char *folder_menu_get_filename(
 	||   !session )
 	{
 		return (char *)0;
-/*
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: insufficient input.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-*/
 	}
 
-/*
-	sprintf( filename,
-		 "%s/%s/%s_%s_%s.txt",
-		 appaserver_data_directory,
-		 DICTIONARY2FILE_DIRECTORY,
-		 application_name,
-		 role_name,
-		 session );
-*/
 	sprintf( filename,
 		 "%s/%s_%s_%s.txt",
 		 appaserver_data_directory,

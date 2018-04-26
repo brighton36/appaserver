@@ -834,13 +834,15 @@ dot_process2option_value: dot_process2option_value.c			\
 
 post_prompt_insert_form: post_prompt_insert_form.c 			\
 			${EXTERNAL_LIBS}				\
-			${LIB}/pair_one2m.o
+			${LIB}/pair_one2m.o				\
+			${LIB}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_prompt_insert_form.c				\
 		${LIB}/pair_one2m.o					\
-		-o post_prompt_insert_form			
+		${LIB}/folder_menu.o					\
+		-o post_prompt_insert_form
 	touch ${CGI_HOME}/post_prompt_insert_form
 	/bin/rm -f ${CGI_HOME}/post_prompt_insert_form
 	ln ${APPASERVER_LINK_FLAGS}					\
@@ -1122,11 +1124,13 @@ output_close_html_document: output_close_html_document.c		\
 		-o output_close_html_document
 
 post_edit_table_form: post_edit_table_form.c				\
-			${EXTERNAL_LIBS}
+			${EXTERNAL_LIBS}				\
+			${LIB}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_edit_table_form.c					\
+		${LIB}/folder_menu.o					\
 		-o post_edit_table_form
 	touch ${CGI_HOME}/post_edit_table_form
 	/bin/rm -f ${CGI_HOME}/post_edit_table_form

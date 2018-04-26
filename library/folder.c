@@ -69,6 +69,7 @@ FOLDER *folder_new_folder(	char *application_name,
 	f->folder_name = folder_name;
 
 	return f;
+
 } /* folder_new_folder() */
 
 FOLDER *folder_with_load_new(	char *application_name,

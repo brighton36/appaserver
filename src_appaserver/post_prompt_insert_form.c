@@ -32,6 +32,7 @@
 #include "query.h"
 #include "dictionary_appaserver.h"
 #include "pair_one2m.h"
+#include "folder_menu.h"
 
 /* Constants */
 /* --------- */
@@ -535,6 +536,17 @@ int main( int argc, char **argv )
 					mto1_related_folder_list,
 				appaserver->folder->
 					attribute_list );
+
+			if ( rows_inserted )
+			{
+				folder_menu_refresh_row_count(
+					application_name,
+					folder_name,
+					session,
+					appaserver_parameter_file->
+						appaserver_data_directory,
+					role_name );
+			}
 
 			sprintf( sys_string,
 	 		"output_results %s %s %s %s %s %d \"%s\" '' y 2>>%s",

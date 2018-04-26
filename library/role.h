@@ -46,6 +46,7 @@ boolean role_get_override_row_restrictions(
 boolean role_get_exists_folder_count_y(
 					char *application_name,
 					char *login_name );
+
 void role_free(				ROLE *role );
 
 ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(

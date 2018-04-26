@@ -29,3 +29,5 @@ do
 	count=`echo "select count(*) from $table_name;" | sql.e`
 	echo "$folder_name^$count"
 done
+
+exit 0

@@ -131,7 +131,9 @@ int main( int argc, char **argv )
 	audit_database_filename = get_audit_database_filename();
 	audit_datafile_filename = get_audit_datafile_filename();
 
-	output_audit_database_count( audit_database_filename, table_name_list );
+	output_audit_database_count(
+		audit_database_filename,
+		table_name_list );
 
 	fork_control = fork_control_new();
 
@@ -158,9 +160,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-/*
-fork_control_process_list_display( fork_control->process_list );
-*/
+/* fork_control_process_list_display( fork_control->process_list ); */
 
 	fork_control_execute(
 		fork_control->process_list,
@@ -200,6 +200,7 @@ fork_control_process_list_display( fork_control->process_list );
 	remove_file( audit_datafile_filename );
 
 	return 0;
+
 } /* main() */
 
 LIST *get_process_list(	LIST *process_list,
@@ -213,10 +214,10 @@ LIST *get_process_list(	LIST *process_list,
 			boolean each_line_insert )
 {
 	char *table_name;
-	char command_line[ 1024 ];
+	char command_line[ 2048 ];
 	FORK_CONTROL_PROCESS *process;
 	char *filename;
-	char path_filename_extension[ 256 ];
+	char path_filename_extension[ 512 ];
 	char *gzip_process;
 
 	if ( !list_rewind( table_name_list ) ) return (LIST *)0;
@@ -356,7 +357,7 @@ boolean tar_small_files(
 {
 	char sys_string[ 65536 ];
 	char *filename_list_string;
-	char output_file[ 128 ];
+	char output_file[ 256 ];
 	LIST *small_filename_list;
 
 	if ( chdir( output_directory ) != 0 )
@@ -472,11 +473,11 @@ void output_audit_datafile_count(	char *audit_datafile_filename,
 					char *date_stamp )
 {
 	FILE *output_file;
-	char sys_string[ 128 ];
+	char sys_string[ 1024 ];
 	char *table_name;
 	char *filename;
 	char *cat_process;
-	char full_filename[ 128 ];
+	char full_filename[ 256 ];
 
 	if ( !list_rewind( table_name_list ) ) return;
 
@@ -534,7 +535,7 @@ void output_audit_datafile_count(	char *audit_datafile_filename,
 
 void remove_file( char *filename )
 {
-	char sys_string[ 128 ];
+	char sys_string[ 256 ];
 
 	sprintf( sys_string, "rm -f %s", filename );
 	system( sys_string );

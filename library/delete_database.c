@@ -18,6 +18,8 @@
 #include "folder.h"
 #include "appaserver_library.h"
 #include "query.h"
+#include "folder_menu.h"
+#include "appaserver_parameter_file.h"
 #include "delete_database.h"
 
 DELETE_DATABASE *delete_database_new(
@@ -1111,4 +1113,32 @@ void delete_database_append_one2m_related_folder_list(
 	} while( list_next( one2m_related_folder_list ) );
 
 } /* delete_database_append_one2m_related_folder_list() */
+
+void delete_database_refresh_row_count(
+			char *application_name,
+			LIST *delete_folder_list,
+			char *session,
+			char *role_name )
+{
+	DELETE_FOLDER *delete_folder;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+
+	if ( !list_rewind( delete_folder_list ) ) return;
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	do {
+		delete_folder = list_get( delete_folder_list );
+
+		folder_menu_refresh_row_count(
+			application_name,
+			delete_folder->folder_name,
+			session,
+			appaserver_parameter_file->
+				appaserver_data_directory,
+			role_name );
+
+	} while( list_next( delete_folder_list ) );
+
+} /* delete_database_refresh_row_count() */
 

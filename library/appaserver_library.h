@@ -47,7 +47,7 @@ enum preupdate_change_state {		from_null_to_something,
 #define IMAGE_RELATIVE_DIRECTORY		"appaserver/zimages"
 #define PATH_DELIMITER				':'
 #define OUTPUT_TEXT_FILE_DELIMITER		'|'
-#define RECOUNT_BUTTON_LABEL			"Recount"
+/* #define RECOUNT_BUTTON_LABEL			"Recount" */
 #define PREPROMPT_PREFIX			"ppreprompt_"
 #define RESIDUAL_STANDARD_ESTIMATE		"Error StdDev"
 #define COLUMNS_UPDATED_KEY			"ccolumns_updated"

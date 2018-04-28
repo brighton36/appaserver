@@ -177,4 +177,10 @@ LIST *delete_database_get_update_null_attribute_name_list(
 			LIST *foreign_attribute_name_list,
 			LIST *one2m_related_primary_attribute_name_list );
 
+void delete_database_refresh_row_count(
+			char *application_name,
+			LIST *delete_folder_list,
+			char *session,
+			char *role_name );
+
 #endif

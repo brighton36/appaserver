@@ -10,8 +10,6 @@
 #include "column.h"
 #include "timlib.h"
 
-/* appaserver_link_file */
-
 /* Constants */
 /* --------- */
 #define INSUFFICIENT_SPACE_MESSAGE "Insufficient filesystem space."

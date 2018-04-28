@@ -75,4 +75,11 @@ void folder_menu_remove_file(
 					char *appaserver_data_directory,
 					char *role_name );
 
+void folder_menu_refresh_row_count(
+					char *application_name,
+					char *folder_name,
+					char *session,
+					char *appaserver_data_directory,
+					char *role_name );
+
 #endif

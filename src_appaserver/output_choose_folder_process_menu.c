@@ -64,12 +64,14 @@ void output_folder_element(	char *apache_cgi_directory,
 				char folder_count_yn,
 				long count );
 
-void output_refresh_submit_button_form(
+/*
+void output_recount_submit_button_form(
 			char *application_name,
 			char *login_name,
 			char *session,
 			char *database_string,
 			char *role_name );
+*/
 
 void output_vertical_folders(
 			char *login_name,
@@ -309,7 +311,8 @@ int main( int argc, char **argv )
 	return 0;
 } /* main() */
 
-void output_refresh_submit_button_form(	char *application_name,
+#ifdef NOT_DEFINED
+void output_recount_submit_button_form(	char *application_name,
 					char *login_name,
 					char *session,
 					char *database_string,
@@ -404,7 +407,8 @@ void output_refresh_submit_button_form(	char *application_name,
 		0 /* form_number */,
 		(LIST *)0 /* form_button_list */ );
 
-} /* output_refresh_submit_button_form() */
+} /* output_recount_submit_button_form() */
+#endif
 
 void output_vertical_folders(
 			char *login_name,
@@ -494,15 +498,17 @@ void output_vertical_folders(
 		}
 	} while( list_next( folder_list ) );
 
+/* See folder_menu.h
 	if ( folder_count_yn == 'y' )
 	{
-		output_refresh_submit_button_form(
+		output_recount_submit_button_form(
 					application_name,
 					login_name,
 					session,
 					database_string,
 					role_name );
 	}
+*/
 
 	printf( 
 "	</table>\n" );

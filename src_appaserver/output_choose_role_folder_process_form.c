@@ -239,6 +239,7 @@ int main( int argc, char **argv )
 			system( sys_string );
 		}
 
+/* See folder_menu.h
 		if ( role && role->folder_count_yn == 'y' )
 		{
 			char action_string[ 1024 ];
@@ -268,6 +269,7 @@ int main( int argc, char **argv )
 				HORIZONTAL_MENU_CLASS,
 				RECOUNT_BUTTON_LABEL );
 		}
+*/
 
 		if ( timlib_strcmp( role_name, login_name ) != 0 )
 		{

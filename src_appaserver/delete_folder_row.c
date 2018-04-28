@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_appaserver/delete_folder_row.c					*/
+/* $APPASERVER_HOME/src_appaserver/delete_folder_row.c			*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -21,6 +21,7 @@
 void delete_where_data_carrot_list_string(
 				char *application_name,
 				char *login_name,
+				char *session,
 				char *role_name,
 				char *folder_name,
 				char *where_data_carrot_list_string,
@@ -31,6 +32,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *login_name;
+	char *session;
 	char *role_name;
 	char *folder_name;
 	char *primary_attribute_data_list_string;
@@ -42,19 +44,20 @@ int main( int argc, char **argv )
 	if ( argc < 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application ignored login_name folder role_name primary_attribute_data_list sql_executable [dont_delete_mto1_isa_yn]\n",
+"Usage: %s application session login_name folder role_name primary_attribute_data_list sql_executable [dont_delete_mto1_isa_yn]\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	/* session = argv[ 2 ]; */
+	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
 	primary_attribute_data_list_string = argv[ 6 ];
-
  	sql_executable = argv[ 7 ];
+
+/* sql_executable = "html_paragraph_wrapper"; */
 
 	if ( timlib_strncmp( sql_executable, "html_paragraph_wrapper" ) == 0 )
 	{
@@ -69,6 +72,12 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	appaserver_error_starting_argv_append_file(
@@ -85,6 +94,7 @@ int main( int argc, char **argv )
 			delete_where_data_carrot_list_string(
 				application_name,
 				login_name,
+				session,
 				role_name,
 				folder_name,
 				primary_attribute_data_list_string_buffer,
@@ -97,6 +107,7 @@ int main( int argc, char **argv )
 		delete_where_data_carrot_list_string(
 				application_name,
 				login_name,
+				session,
 				role_name,
 				folder_name,
 				primary_attribute_data_list_string,
@@ -111,6 +122,7 @@ int main( int argc, char **argv )
 void delete_where_data_carrot_list_string(
 				char *application_name,
 				char *login_name,
+				char *session,
 				char *role_name,
 				char *folder_name,
 				char *primary_attribute_data_list_string,
@@ -163,7 +175,13 @@ delete_database_display( delete_database ) );
 	delete_database_execute_delete_folder_list(
 		delete_database->application_name,
 		delete_database->delete_folder_list,
-		delete_database->sql_executable );
+		sql_executable );
+
+	delete_database_refresh_row_count(
+		delete_database->application_name,
+		delete_database->delete_folder_list,
+		session,
+		role_name );
 
 } /* delete_where_data_carrot_list_string() */
 

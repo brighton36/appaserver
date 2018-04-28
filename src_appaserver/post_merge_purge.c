@@ -30,6 +30,7 @@
 #include "related_folder.h"
 #include "role.h"
 #include "query.h"
+#include "folder_menu.h"
 
 /* Constants */
 /* --------- */
@@ -45,6 +46,9 @@
 /* ---------- */
 void output_delete_database(
 				char *application_name,
+				char *session,
+				char *role_name,
+				char *appaserver_data_directory,
 				FOLDER *folder,
 				char *purge_data );
 
@@ -616,6 +620,9 @@ void post_state_two(	char *application_name,
 
 		output_delete_database(
 				application_name,
+				session,
+				role_name,
+				appaserver_data_directory,
 				folder,
 				purge_data );
 
@@ -905,6 +912,9 @@ void output_update_database(
 
 void output_delete_database(
 				char *application_name,
+				char *session,
+				char *role_name,
+				char *appaserver_data_directory,
 				FOLDER *folder,
 				char *purge_data )
 {
@@ -968,6 +978,15 @@ void output_delete_database(
 
 		system( sys_string );
 
+		folder_menu_refresh_row_count(
+			application_name,
+				related_folder->
+				one2m_related_folder->
+				folder_name,
+			session,
+			appaserver_data_directory,
+			role_name );
+
 	} while( list_next( folder->one2m_recursive_related_folder_list ) );
 
 	where_attribute_name_list = folder->primary_attribute_name_list;
@@ -988,5 +1007,12 @@ void output_delete_database(
 		 executable );
 
 	system( sys_string );
+
+	folder_menu_refresh_row_count(
+		application_name,
+		folder->folder_name,
+		session,
+		appaserver_data_directory,
+		role_name );
 
 } /* output_delete_database() */

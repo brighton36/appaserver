@@ -240,12 +240,14 @@ stop_start_mysql_daemon: stop_start_mysql_daemon.c 			\
 
 delete_folder_row: delete_folder_row.c					\
 	${EXTERNAL_LIBS}						\
-	${LIB}/delete_database.o
+	${LIB}/delete_database.o					\
+	${LIB}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		delete_folder_row.c					\
 		${LIB}/delete_database.o				\
+		${LIB}/folder_menu.o					\
 		-o delete_folder_row
 
 statistics_folder: statistics_folder.c					\
@@ -1244,12 +1246,12 @@ post_report_writer: post_report_writer.c				\
 
 post_merge_purge: post_merge_purge.c					\
 		${EXTERNAL_LIBS}					\
-		${LIB}/delete_database.o
+		${LIB}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/delete_database.o				\
 		post_merge_purge.c					\
+		${LIB}/folder_menu.o					\
 		-o post_merge_purge
 	touch ${CGI_HOME}/post_merge_purge
 	/bin/rm -f ${CGI_HOME}/post_merge_purge

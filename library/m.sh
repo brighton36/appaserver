@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_waterquality
-	make load_sfwmd_file
+	cd ../src_appaserver
+	make delete_folder_row
 fi

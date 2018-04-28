@@ -37,53 +37,50 @@ int main( int argc, char **argv )
 	char *folder_name;
 	char *primary_attribute_data_list_string;
 	char primary_attribute_data_list_string_buffer[ 1024 ];
-	char *database_string = {0};
 	char *sql_executable;
 	boolean dont_delete_mto1_isa = 0;
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc < 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application session login_name folder role_name primary_attribute_data_list sql_executable [dont_delete_mto1_isa_yn]\n",
+"Usage: %s ignored session login_name folder role_name primary_attribute_data_list ignored [dont_delete_mto1_isa_yn]\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
 	primary_attribute_data_list_string = argv[ 6 ];
- 	sql_executable = argv[ 7 ];
+	/* argv[ 7 ] is ignored */
+	if ( argc == 9 ) dont_delete_mto1_isa = (*argv[ 8 ] == 'y');
 
-/* sql_executable = "html_paragraph_wrapper"; */
+	sql_executable = "sql.e";
+	/* sql_executable = "html_paragraph_wrapper"; */
 
 	if ( timlib_strncmp( sql_executable, "html_paragraph_wrapper" ) == 0 )
 	{
 		document_output_content_type();
 	}
-
-	if ( argc == 9 ) dont_delete_mto1_isa = (*argv[ 8 ] == 'y');
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	if ( strcmp( primary_attribute_data_list_string, "stdin" ) == 0 )
 	{

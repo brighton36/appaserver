@@ -1,16 +1,16 @@
-/* ---------------------------------------------	*/
-/* output_choose_role_folder_process_form.c		*/
-/* ---------------------------------------------	*/
-/* Freely available software: see Appaserver.org 	*/
-/* ---------------------------------------------	*/
+/* ------------------------------------------------------------------------*/
+/* $APPASERVER_HOME/src_appaserver/output_choose_role_folder_process_form.c*/
+/* ------------------------------------------------------------------------*/
+/* Freely available software: see Appaserver.org 			   */
+/* ------------------------------------------------------------------------*/
 
 /* -------------------------------------------------------------------- */
 /* Note: For horizontal menus, the stylesheets must be:			*/
-/*       $DOCUMENT_ROOT/zmenu/src/style-$application.css and		*/
-/*       $DOCUMENT_ROOT/zmenu/src/skin-$application.css			*/
+/*       $DOCUMENT_ROOT/zmenu/src/style-template.css and		*/
+/*       $DOCUMENT_ROOT/zmenu/src/skin-template.css			*/
 /*			AND						*/
-/*       $APPASERVER_HOME/$application/style-$application.css and	*/
-/*       $APPASERVER_HOME/$application/skin-$application.css		*/
+/*       $APPASERVER_HOME/$application/style-template.css and		*/
+/*       $APPASERVER_HOME/$application/skin-template.css		*/
 /* -------------------------------------------------------------------- */
 
 #include <stdio.h>
@@ -31,7 +31,6 @@
 int main( int argc, char **argv )
 {
 	char *application_name, *session, *login_name;
-	char *database_string = {0};
 	char *role_name;
 	char *title;
 	char sys_string[ 1024 ];
@@ -40,15 +39,32 @@ int main( int argc, char **argv )
 	char *content_type_yn;
 	boolean omit_html_head = 0;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment for %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc < 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s application session login_name role title content_type_yn [omit_html_head_yn]\n", 
+"Usage: %s ignored session login_name role title content_type_yn [omit_html_head_yn]\n", 
 		argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
@@ -59,19 +75,6 @@ int main( int argc, char **argv )
 	{
 		omit_html_head = (*argv[ 7 ] == 'y');
 	}
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	if ( !appaserver_get_frameset_menu_horizontal(
 					application_name,
@@ -145,9 +148,7 @@ int main( int argc, char **argv )
 		{
 			sprintf(sys_string,
 		"output_choose_role_drop_down %s %s %s \"%s\" \"%s\" %s 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role_name,
@@ -184,9 +185,7 @@ int main( int argc, char **argv )
 		sprintf(sys_string,
 		"output_choose_folder_process_menu %s %s %s \"%s\" 2>>%s",
 			login_name,
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			role_name,
 			appaserver_error_get_filename(
@@ -212,21 +211,11 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		ROLE *role = {0};
-
-		if ( role_name && *role_name )
-		{
-			role = role_new_role(	application_name,
-						role_name );
-		}
-
 		if ( list_length( role_list ) > 1 )
 		{
 			sprintf(sys_string,
 		"output_choose_role_drop_down %s %s %s \"%s\" \"%s\" %s 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role_name,
@@ -238,38 +227,6 @@ int main( int argc, char **argv )
 			fflush( stdout );
 			system( sys_string );
 		}
-
-/* See folder_menu.h
-		if ( role && role->folder_count_yn == 'y' )
-		{
-			char action_string[ 1024 ];
-
-			sprintf(action_string,
-			"%s/post_choose_role_drop_down",
-			appaserver_library_get_http_prompt(
-				appaserver_parameter_file_get_cgi_directory(),
-				appaserver_library_get_server_address(),
-				application_get_ssl_support_yn(
-					application_name ),
-				application_get_prepend_http_protocol_yn(
-					application_name ) ) );
-
-			printf(
-"		<li>\n"
-"        	<a href=\"%s?%s+%s+%s+%s+%s+%s\">\n"
-"		<span class=%s>%s</span></a>\n",
-				action_string,
-				application_name,
-				(database_string)	? database_string
-							: "database",
-				session,
-				login_name,
-				role_name,
-				title,
-				HORIZONTAL_MENU_CLASS,
-				RECOUNT_BUTTON_LABEL );
-		}
-*/
 
 		if ( timlib_strcmp( role_name, login_name ) != 0 )
 		{

@@ -65,9 +65,7 @@ EXECUTABLES=								\
 		attribute_list						\
 		sql.e							\
 		get_appaserver_mount_point				\
-		stop_start_mysql_daemon					\
 		detail							\
-		s							\
 		view_source						\
 		view_diagrams						\
 		view_csv_backup						\
@@ -229,14 +227,6 @@ get_appaserver_mount_point: get_appaserver_mount_point.c 		\
 	touch get_appaserver_data_directory.e
 	/bin/rm -f get_appaserver_data_directory.e
 	ln get_appaserver_mount_point get_appaserver_data_directory.e
-
-stop_start_mysql_daemon: stop_start_mysql_daemon.c 			\
-	${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		stop_start_mysql_daemon.c				\
-		-o stop_start_mysql_daemon
 
 delete_folder_row: delete_folder_row.c					\
 	${EXTERNAL_LIBS}						\
@@ -1056,15 +1046,6 @@ detail: detail.c ${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o			\
 		detail.c						\
 		-o detail
-
-s: s.c
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		s.c							\
-		-o s
-	touch select.e
-	/bin/rm -f select.e
-	ln s select.e
 
 insert_mysql: insert_mysql.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\

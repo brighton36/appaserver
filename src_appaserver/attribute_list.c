@@ -12,12 +12,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include "appaserver_library.h"
+#include "appaserver_error.h"
 #include "dictionary.h"
 #include "folder.h"
 #include "timlib.h"
 #include "query.h"
 #include "piece.h"
 #include "attribute.h"
+#include "environ.h"
 #include "boolean.h"
 #include "appaserver_parameter_file.h"
 
@@ -32,25 +34,24 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *folder_name = {0};
 	char *sys_string;
-	DICTIONARY *post_dictionary = {0};
 
-	output_starting_argv_stderr( argc, argv );
-
-	if ( argc < 2 )
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
 	{
-		fprintf( stderr,
-		"Usage: %s application [dictionary]\n",
-			 argv[ 0 ] );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
-
-	if ( argc == 3 && strcmp( argv[ 2 ], "$dictionary" ) != 0 )
-	{
-		post_dictionary = 
-			dictionary_string2dictionary( argv[ 2 ] );
-	}
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	sys_string = get_attribute_sys_string(
 					application_name,
@@ -59,6 +60,7 @@ int main( int argc, char **argv )
 	system( sys_string );
 
 	return 0;
+
 } /* main() */
 
 char *get_attribute_sys_string(	char *application_name,

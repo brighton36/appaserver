@@ -17,9 +17,9 @@
 #include "query.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 #include "document.h"
 #include "appaserver_parameter_file.h"
-#include "environ.h"
 #include "process_generic_output.h"
 #include "appaserver.h"
 #include "google_chart.h"
@@ -53,7 +53,6 @@ int main( int argc, char **argv )
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	char *sys_string = {0};
 	char *where_clause = {0};
-	char *database_string = {0};
 	int length_select_list = 0;
 	enum aggregate_level aggregate_level;
 	enum aggregate_statistic aggregate_statistic;
@@ -70,28 +69,28 @@ int main( int argc, char **argv )
 	char accumulate_label[ 32 ];
 	char *prompt_filename;
 
-	if ( argc >= 1 )
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
 	{
-		application_name = argv[ 1 ];
-
-		if ( timlib_parse_database_string(	&database_string,
-							application_name ) )
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				database_string );
-		}
-
-		appaserver_error_starting_argv_append_file(
-			argc,
-			argv,
-			application_name );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
 	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 4 )
 	{
 		fprintf( stderr,
-			 "Usage: %s application process_set dictionary\n",
+			 "Usage: %s ignored process_set dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

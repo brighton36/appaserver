@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* merge_purge.c			      	 	*/
+/* $APPASERVER_HOME/src_appaserver/merge_purge.c 	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
@@ -43,42 +43,38 @@ int main( int argc, char **argv )
 	char title[ 256 ];
 	LIST *folder_name_list;
 	char *folder_name;
-	char *database_string = {0};
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 5 )
 	{
 		fprintf(stderr,
-			"Usage: %s application session role process\n",
+			"Usage: %s ignored session role process\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session = argv[ 2 ];
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	login_name = session_get_login_name(
 					application_name,
@@ -132,9 +128,7 @@ int main( int argc, char **argv )
 			printf(
 "<a href=\"%s/post_merge_purge?%s+%s+%s+%s+%s+one\" target=%s>%s</a></td>\n",
 				appaserver_parameter_file_get_cgi_directory(),
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				role_name,
 				folder_name,

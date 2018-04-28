@@ -54,45 +54,41 @@ int main( int argc, char **argv )
 	char *ftp_filename;
 	LIST *mto1_isa_related_folder_list;
 	ROLE *role;
-	char *database_string = {0};
 	pid_t process_id = getpid();
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc < 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role ignored [dictionary_stdin]\n",
+"Usage: %s login_name ignored session folder role ignored [dictionary_stdin]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
 	session = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
 	/* state = argv[ 6 ]; */
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
 
 	if ( argc == 8 && strcmp( argv[ 7 ], "dictionary_stdin" ) == 0 )
 	{

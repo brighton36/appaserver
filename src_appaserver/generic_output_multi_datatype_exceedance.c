@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 #include "timlib.h"
 #include "query.h"
 #include "application.h"
@@ -21,7 +22,6 @@
 #include "document.h"
 #include "appaserver_parameter_file.h"
 #include "grace.h"
-#include "environ.h"
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
 #include "process.h"
@@ -106,15 +106,32 @@ int main( int argc, char **argv )
 	int highest_index;
 	char *output_medium;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-"Usage: %s application login_name process_name output_medium dictionary\n",
+"Usage: %s ignored login_name process_name output_medium dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	login_name = argv[ 2 ];
 	process_name = argv[ 3 ];
 	output_medium = argv[ 4 ];
@@ -149,19 +166,7 @@ int main( int argc, char **argv )
 						database_string );
 	}
 
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	process_generic_output =
 		process_generic_output_new(

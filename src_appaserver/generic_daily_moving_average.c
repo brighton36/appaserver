@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 #include "hashtbl.h"
 #include "dictionary.h"
 #include "timlib.h"
@@ -21,7 +22,6 @@
 #include "appaserver_parameter_file.h"
 #include "html_table.h"
 #include "application.h"
-#include "environ.h"
 #include "list_usage.h"
 #include "aggregate_statistic.h"
 #include "grace.h"
@@ -147,7 +147,6 @@ int main( int argc, char **argv )
 	enum aggregate_statistic aggregate_statistic;
 	char *units_converted = {0};
 	char *units;
-	char *database_string = {0};
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	char *process_set_name;
 	char *process_name;
@@ -165,37 +164,33 @@ int main( int argc, char **argv )
 	char *begin_date_string_pointer = {0};
 	char begin_date_string[ 16 ];
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s application role process_set dictionary\n",
+	"Usage: %s ignored role process_set dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	role_name = argv[ 2 ];
 	process_set_name = argv[ 3 ];

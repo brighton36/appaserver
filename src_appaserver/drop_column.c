@@ -43,17 +43,33 @@ int main( int argc, char **argv )
 	char *session;
 	char *login_name;
 	char *role_name;
-	char *database_string = {0};
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s application session login_name role folder attribute really_yn\n",
+"Usage: %s ignored session login_name role folder attribute really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
@@ -61,29 +77,14 @@ int main( int argc, char **argv )
 	attribute_name = argv[ 6 ];
 	really_yn = argv[ 7 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
+	/* -------------------------------------------- */
+	/* Set path because this is executed from	*/
+	/* fix_orphans and table_rectification.		*/
+	/* -------------------------------------------- */
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
-
-	appaserver_error_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
 
 	/* ---------------------------------------------------- */
 	/* Check permissions because this is executed from	*/

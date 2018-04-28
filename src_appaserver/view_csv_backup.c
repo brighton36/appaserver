@@ -23,8 +23,6 @@
 #include "document.h"
 #include "environ.h"
 
-/* appaserver_link_file */
-
 /* Constants */
 /* --------- */
 #define SYS_STRING_TEMPLATE	"cd %s/%s && find . -maxdepth 2 -print"
@@ -35,7 +33,6 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *database_string;
 	char *process_name;
 	char *login_name;
 	char *document_root_subdirectory;
@@ -46,34 +43,37 @@ int main( int argc, char **argv )
 	char buffer[ 512 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 				
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s application process login_name document_root_subdirectory\n",
+	"Usage: %s ignored process login_name document_root_subdirectory\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	process_name = argv[ 2 ];
 	login_name = argv[ 3 ];
 	document_root_subdirectory = argv[ 4 ];
 
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	sprintf( sys_string,
 		 SYS_STRING_TEMPLATE,

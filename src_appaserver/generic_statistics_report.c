@@ -60,7 +60,6 @@ int main( int argc, char **argv )
 		*query_attribute_statistics_measurement_value;
 	QUERY_ATTRIBUTE_STATISTICS
 		*query_attribute_statistics_measurement_date;
-	char *database_string = {0};
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	char *sys_string;
 	char *process_set_name;
@@ -71,35 +70,31 @@ int main( int argc, char **argv )
 	int date_piece;
 	int value_piece;
 
-	if ( argc != 4 )
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
 	{
-		fprintf( stderr,
-	"Usage: %s application process_set dictionary\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
 	}
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
+	if ( argc != 4 )
+	{
+		fprintf( stderr,
+	"Usage: %s ignored process_set dictionary\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
 
 	process_set_name = argv[ 2 ];
 
@@ -141,7 +136,7 @@ int main( int argc, char **argv )
 				0 /* accumulate */ );
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	process_generic_output->value_folder->datatype =
 		process_generic_datatype_new(

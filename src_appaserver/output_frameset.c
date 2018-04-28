@@ -61,15 +61,32 @@ int main( int argc, char **argv )
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	boolean content_type = 1;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc < 5 )
 	{
 		fprintf( stderr, 
-"Usage: %s application session login_name role [content_type_yn]\n", 
+"Usage: %s ignored session login_name role [content_type_yn]\n", 
 		argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
@@ -79,21 +96,8 @@ int main( int argc, char **argv )
 		content_type = ( *argv[ 5 ] == 'y' );
 	}
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();

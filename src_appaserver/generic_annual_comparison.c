@@ -9,6 +9,8 @@
 #include "piece.h"
 #include "query.h"
 #include "appaserver_library.h"
+#include "appaserver_error.h"
+#include "environ.h"
 #include "date.h"
 #include "list.h"
 #include "aggregate_level.h"
@@ -302,17 +304,32 @@ int main( int argc, char **argv )
 	char aggregation_process[ 1024 ];
 	char sort_process[ 128 ];
 
-	output_starting_argv_stderr( argc, argv );
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 10 )
 	{
 		fprintf(stderr,
-"Usage: %s application begin_day_month end_day_month begin_year end_year process_name aggregate_level aggregate_statistic post_dictionary\n",
+"Usage: %s ignored begin_day_month end_day_month begin_year end_year process_name aggregate_level aggregate_statistic post_dictionary\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	begin_month_day = argv[ 2 ];
 	end_month_day = argv[ 3 ];
 	begin_year = argv[ 4 ];

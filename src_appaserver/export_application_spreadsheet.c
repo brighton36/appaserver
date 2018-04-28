@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "appaserver_library.h"
+#include "appaserver_error.h"
 #include "timlib.h"
 #include "document.h"
 #include "folder.h"
@@ -55,34 +56,39 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	LIST *folder_name_list;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char *folder_name;
-	pid_t process_id = getpid();
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	char *output_filename;
 	char *link_prompt;
 	char *date_string;
 
-	output_starting_argv_stderr( argc, argv );
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 3 )
 	{
 		fprintf(stderr,
-			"Usage: %s application system_folders_yn\n",
+			"Usage: %s ignored system_folders_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	system_folders_yn = *argv[ 2 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
 
 	date_string = pipe2string( "now.sh ymd" );
 
@@ -324,23 +330,16 @@ char *output_zip_file(	LIST *folder_name_list,
 				document_root_directory,
 			appaserver_link_file->application_name );
 
-/*
-	sprintf(source_directory,
-		"%s/%s",
-		appaserver_mount_point,
-		application_name );
-*/
-
-	chdir( source_directory );
-
-/*
-	sprintf(output_filename, 
-	 	OUTPUT_ZIP_FILE_TEMPLATE,
-	 	appaserver_mount_point,
-	 	application_name, 
-	 	application_name, 
-	 	process_id );
-*/
+	if ( chdir( source_directory ) != 0 )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot chdir(%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 source_directory );
+		exit( 1 );
+	}
 
 	ptr += sprintf(	ptr,
 			"zip -rq %s",

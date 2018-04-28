@@ -20,9 +20,9 @@
 #include "application.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 #include "document.h"
 #include "appaserver_parameter_file.h"
-#include "environ.h"
 #include "appaserver.h"
 #include "column.h"
 
@@ -42,7 +42,6 @@ int main( int argc, char **argv )
 	DICTIONARY *post_dictionary;
 	char *sys_string;
 	char histogram_sys_string[ 1024 ];
-	char *database_string = {0};
 	char *process_set_name;
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	char *where_clause = {0};
@@ -63,40 +62,37 @@ int main( int argc, char **argv )
 	int value_piece = 0;
 	char *heading_string;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 4 )
 	{
 		fprintf(stderr,
-"Usage: %s application process_set parameter_dictionary\n",
+"Usage: %s ignored process_set parameter_dictionary\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	process_set_name = argv[ 2 ];
 	post_dictionary =
 		dictionary_string2dictionary( argv[ 3 ] );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	dictionary_add_elements_by_removing_prefix(
 				    	post_dictionary,

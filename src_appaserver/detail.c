@@ -13,6 +13,7 @@
 #include "list.h"
 #include "list_usage.h"
 #include "appaserver_library.h"
+#include "appaserver_error.h"
 #include "folder.h"
 #include "query.h"
 #include "html_table.h"
@@ -149,7 +150,6 @@ int main( int argc, char **argv )
 	LIST *role_folder_insert_list;
 	LIST *role_folder_update_list;
 	LIST *role_folder_lookup_list;
-	char *database_string = {0};
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char form_title[ 128 ];
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
@@ -158,17 +158,36 @@ int main( int argc, char **argv )
 	int form_number;
 	APPASERVER *appaserver;
 
-	output_starting_argv_stderr( argc, argv );
+	/* Need to retire this: */
+	/* -------------------- */
+	char *database_string = {0};
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application session login_name folder role target_frame primary_data_bar_list dictionary\n",
+"Usage: %s ignored session login_name folder role target_frame primary_data_bar_list dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	base_folder_name = folder_name = argv[ 4 ];
@@ -176,14 +195,6 @@ int main( int argc, char **argv )
 	target_frame = argv[ 6 ];
 	primary_data_list_string = argv[ 7 ];
 	original_post_dictionary = dictionary_string2dictionary( argv[ 8 ] );
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
 
 	role = role_new_role(	application_name,
 				role_name );
@@ -420,11 +431,6 @@ int main( int argc, char **argv )
 		dont_omit_delete,
 		non_edit_folder_name_list,
 		0 /* not make_primary_keys_non_edit */ );
-#ifdef NOT_DEFINED
-		1 /* make_primary_keys_non_edit			*/
-		  /* because changing the primary key prevents	*/
-		  /* the record to reappear.			*/ );
-#endif
 
 	role_folder_insert_list = role_folder_get_insert_list(
 					application_name,

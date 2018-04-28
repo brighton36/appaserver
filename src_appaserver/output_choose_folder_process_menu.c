@@ -64,15 +64,6 @@ void output_folder_element(	char *apache_cgi_directory,
 				char folder_count_yn,
 				long count );
 
-/*
-void output_recount_submit_button_form(
-			char *application_name,
-			char *login_name,
-			char *session,
-			char *database_string,
-			char *role_name );
-*/
-
 void output_vertical_folders(
 			char *login_name,
 			char *application_name,
@@ -134,46 +125,40 @@ int main( int argc, char **argv )
 	boolean with_group_name_trimmed;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 5 )
 	{
 		fprintf( stderr, 
-	"Usage: %s login_name application session role\n", 
+	"Usage: %s login_name ignored session role\n", 
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
 	session = argv[ 3 ];
 	role_name = argv[ 4 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	role = role_new_role( application_name, role_name );
 	
@@ -214,9 +199,7 @@ int main( int argc, char **argv )
 		sprintf( buffer,
 			 "post_choose_process %s %s %s %s %s",
 			 login_name,
-			 timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			 session,
 			 (char *)list_get_first_pointer( process_record_list ),
 			 role_name );
@@ -310,105 +293,6 @@ int main( int argc, char **argv )
 
 	return 0;
 } /* main() */
-
-#ifdef NOT_DEFINED
-void output_recount_submit_button_form(	char *application_name,
-					char *login_name,
-					char *session,
-					char *database_string,
-					char *role_name )
-{
-	char action_string[ 1024 ];
-	DICTIONARY *hidden_dictionary = dictionary_new_dictionary();
-	FORM *form;
-
-	sprintf(	action_string,
-			"%s/post_choose_role_drop_down",
-			appaserver_library_get_http_prompt(
-				appaserver_parameter_file_get_cgi_directory(),
-				appaserver_library_get_server_address(),
-				application_get_ssl_support_yn(
-					application_name ),
-				application_get_prepend_http_protocol_yn(
-					application_name ) ) );
-
-	dictionary_set_string(	hidden_dictionary,
-				"role",
-				role_name );
-
-	dictionary_set_string(	hidden_dictionary,
-				"application",
-				application_name );
-
-	dictionary_set_string(	hidden_dictionary,
-				"session",
-				session );
-
-	dictionary_set_string(	hidden_dictionary,
-				"login_name",
-				login_name );
-
-	if ( database_string && *database_string )
-	{
-		dictionary_set_string(	hidden_dictionary,
-					"database",
-					database_string );
-	}
-
-	form = form_new_form();
-	form->form_name = CHOOSE_ROLE_DROP_DOWN_FORM_NAME;
-
-	printf( "<tr>" );
-
-	form_output_heading(
-		login_name,
-		application_name,
-		database_string,
-		session,
-		form->form_name,
-		(char *)0 /* post_process */,
-		action_string,
-		(char *)0 /* folder_name */,
-		(char *)0 /* role_name */,
-		(char *)0 /* state */,
-		(char *)0 /* insert_update_key */,
-		MENU_FRAME /* target_frame is menu */,
-		0 /* output_submit_reset_buttons */,
-		0 /* not with_prelookup_skip_button */,
-		(char *)0 /* submit_control_string */,
-		0 /* table_border */,
-		(char *)0 /* caption_string */,
-		form->html_help_file_anchor,
-		form->process_id,
-		appaserver_library_get_server_address(),
-			form->optional_related_attribute_name,
-		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */ );
-
-	printf( "<td colspan=3>" );
-	form_output_submit_button(
-			(char *)0 /* submit_control_string */,
-			RECOUNT_BUTTON_LABEL,
-			0 /* form_number */,
-			(LIST *)0 /* pair_one2m_related_folder_name_list */ );
-	printf( "</td>\n" );
-
-	output_dictionary_as_hidden( hidden_dictionary );
-
-	form_output_trailer(
-		0 /* output_submit_reset_buttons */,
-		0 /* output_insert_flag */,
-		(char *)0 /* submit_control_string */,
-		form->html_help_file_anchor,
-		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(char *)0 /* preprompt_button_control_string */,
-		application_name,
-		0 /* not with_back_to_top_button */,
-		0 /* form_number */,
-		(LIST *)0 /* form_button_list */ );
-
-} /* output_recount_submit_button_form() */
-#endif
 
 void output_vertical_folders(
 			char *login_name,

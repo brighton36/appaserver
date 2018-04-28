@@ -91,16 +91,28 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	boolean output2shell_script = 0;
 
-	application_name = argv[ 1 ];
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc < 14 )
 	{
 		fprintf(stderr,
-"Usage: %s application shell_script_dont_output_if_statement_yn session login_name ignored destination_application folder attribute \"old_data\" \"new_data\" html|nohtml delete_yn really_yn destination_database_management_system [output2file_yn] [export_output]\n",
+"Usage: %s ignored shell_script_dont_output_if_statement_yn session login_name ignored destination_application folder attribute \"old_data\" \"new_data\" html|nohtml delete_yn really_yn destination_database_management_system [output2file_yn] [export_output]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}

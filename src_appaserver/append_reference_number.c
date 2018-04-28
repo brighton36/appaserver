@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "appaserver_library.h"
 #include "timlib.h"
 #include "list.h"
 
@@ -28,15 +29,32 @@ int main( int argc, char **argv )
 	int reference_number;
 	char *input_string;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 3 )
 	{
 		fprintf( stderr,
-		"Usage: %s application delimiter\n",
+		"Usage: %s ignored delimiter\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	delimiter = *argv[ 2 ];
 
 	strcpy( buffer, "cat -" );

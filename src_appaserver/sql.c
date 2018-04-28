@@ -73,12 +73,6 @@ int main( int argc, char **argv )
 			override_database = argv[ 1 ];
 	}
 
-
-	environ_prepend_dot_to_path();
-	add_local_bin_to_path();
-	add_dot_to_path();
-	add_etc_to_path();
-
 	base_name = basename_get_base_name( argv[ 0 ], 1 );
 
 	if ( strcmp( base_name, "sql_quick" ) == 0 )

@@ -86,6 +86,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
+
 } /* main() */
 
 void do_upgrade(	char *application_name,

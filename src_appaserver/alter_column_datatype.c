@@ -24,9 +24,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define SESSION_PROCESS_NAME	"alter_column_datatype"
-*/
 
 /* Prototypes */
 /* ---------- */
@@ -62,50 +59,38 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	ATTRIBUTE *attribute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
-/*
-	char *login_name;
-	char *role_name;
-	char *session;
-*/
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s application ignored ignored ignored folder attribute really_yn\n",
+"Usage: %s ignored ignored ignored ignored folder attribute really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	/* session = argv[ 2 ]; */
-	/* login_name = argv[ 3 ]; */
-	/* role_name = argv[ 4 ]; */
 	folder_name = argv[ 5 ];
 	attribute_name = argv[ 6 ];
 	really_yn = argv[ 7 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	table_name = get_table_name( application_name, folder_name );
 

@@ -17,9 +17,9 @@
 #include "query.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 #include "document.h"
 #include "appaserver_parameter_file.h"
-#include "environ.h"
 #include "process_generic_output.h"
 #include "appaserver.h"
 #include "appaserver_link_file.h"
@@ -51,7 +51,6 @@ int main( int argc, char **argv )
 	char *sys_string = {0};
 	char *email_address = {0};
 	char *where_clause = {0};
-	char *database_string = {0};
 	int length_select_list = 0;
 	enum aggregate_level aggregate_level;
 	enum aggregate_statistic aggregate_statistic;
@@ -63,10 +62,28 @@ int main( int argc, char **argv )
 	int time_piece = -1;
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s application process_set output_medium dictionary\n",
+	"Usage: %s ignored process_set output_medium dictionary\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
 	"Note: output_medium = {text_file,stdout,table,spreadsheet}.\n"
@@ -76,7 +93,6 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	process_set_name = argv[ 2 ];
 	output_medium_string = argv[ 3 ];
 
@@ -126,19 +142,6 @@ int main( int argc, char **argv )
 				    	QUERY_STARTING_LABEL );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	accumulate_yn =
 		dictionary_fetch_index_zero(

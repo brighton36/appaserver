@@ -21,7 +21,6 @@
 int main( int argc, char **argv )
 {
 	char *application_name, *folder;
-	char *database_string = {0};
 	char buffer[ 1024 ];
 	char trim_buffer[ 128 ];
 	int inserted;
@@ -34,34 +33,37 @@ int main( int argc, char **argv )
 	char *content_type_yn;
 	char *dictionary_string;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc < 10 )
 	{
 		fprintf( stderr, 
-"Usage: %s application folder session login_name role inserted message vertical_new_button_base_folder_name [dictionary]\n",
+"Usage: %s ignored folder session login_name role inserted message vertical_new_button_base_folder_name [dictionary]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	folder = argv[ 2 ];
 	session = argv[ 3 ];
 	login_name = argv[ 4 ];
 	role_name = argv[ 5 ];
 	inserted = atoi( argv[ 6 ] );
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
 	strcpy( message, argv[ 7 ] );
 	search_replace_string(	message,
 				"\\",
@@ -74,13 +76,6 @@ int main( int argc, char **argv )
 		dictionary_string = argv[ 10 ];
 	else
 		dictionary_string = "";
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
 
 	vertical_new_button_base_folder_name =
 		trim_quotes(	trim_buffer,
@@ -102,9 +97,7 @@ int main( int argc, char **argv )
 "onload=\"window.open('%s/output_prompt_insert_form?%s+%s+%s+%s+%s+insert+n+%s', '%s', 'menubar=yes,resizable=yes,scrollbars=yes,status=yes,toolbar=yes,location=yes', 'false' );\"",
 			appaserver_parameter_file_get_cgi_directory(),
 			login_name,
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			vertical_new_button_base_folder_name,
 			role_name,

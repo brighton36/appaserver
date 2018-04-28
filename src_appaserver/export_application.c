@@ -72,21 +72,35 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	CREATE_CLONE_FILENAME *create_clone_filename = {0};
 	char *database_management_system;
-	char *database_string = {0};
 	char *export_output;
 	char nocontent_type_yn;
 
-	output_starting_argv_stderr( argc, argv );
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 12 )
 	{
 		fprintf(stderr,
-"Usage: %s application session login_name ignored ignored delete_yn system_folders_yn filler no_content_type_yn database_management_system export_output\n",
+"Usage: %s ignored session login_name ignored ignored delete_yn system_folders_yn filler no_content_type_yn database_management_system export_output\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	/* ignored = argv[ 4 ]; */
@@ -109,29 +123,7 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	if ( !session_access(	application_name,
-				session,
-				login_name ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: no session=%s for user=%s found.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 session,
-			 login_name );
-		exit( 1 ); 
-	}
 
 	document = document_new( "", application_name );
 

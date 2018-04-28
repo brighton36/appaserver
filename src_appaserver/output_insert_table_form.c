@@ -80,7 +80,6 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *session;
 	char *parameter_folder_name;
-	char *database_string = {0};
 	char *role_name;
 	char *state;
 	char *insert_update_key;
@@ -114,16 +113,33 @@ int main( int argc, char **argv )
 	/* ---------------------------------- */
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 9 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state insert_update_key target_frame\n",
+"Usage: %s login_name ignored session folder role state insert_update_key target_frame\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
 	session = argv[ 3 ];
 	parameter_folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
@@ -131,21 +147,8 @@ int main( int argc, char **argv )
 	insert_update_key = argv[ 7 ];
 	target_frame = argv[ 8 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
@@ -523,9 +526,7 @@ int main( int argc, char **argv )
 
 		sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' '%s' 2>>%s",
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			login_name,
 			role_name,
@@ -663,9 +664,7 @@ int main( int argc, char **argv )
 		{
 			sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '' n n > %s 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role->role_name,
@@ -757,7 +756,7 @@ int main( int argc, char **argv )
 					state,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					folder->folder_name,
 					role_name );
@@ -780,9 +779,7 @@ int main( int argc, char **argv )
 		"%s/post_edit_table_form?%s+%s+%s+%s+%s+%s+detail!%s+%s+%d+",
 				appaserver_parameter_file_get_cgi_directory(),
 				login_name,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				folder->folder_name,
 				role_name,

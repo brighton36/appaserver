@@ -50,7 +50,6 @@ LIST *get_element_list(
 int main( int argc, char **argv )
 {
 	char *login_name, *application_name, *session, *folder_name;
-	char *database_string = {0};
 	char *role_name, *state;
 	char *target_frame = PROMPT_FRAME;
 	FORM *form;
@@ -67,43 +66,40 @@ int main( int argc, char **argv )
 	char buffer1[ 128 ];
 	char buffer2[ 128 ];
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder related_isa_folder_name role state\n",
+"Usage: %s login_name ignored session folder related_isa_folder_name role state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
 	session = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	isa_related_folder_name = argv[ 5 ];
 	role_name = argv[ 6 ];
 	state = argv[ 7 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	folder = folder_new_folder(	application_name,
 					session,
@@ -154,7 +150,7 @@ int main( int argc, char **argv )
 					state,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					folder_name,
 					role_name );
@@ -217,9 +213,7 @@ int main( int argc, char **argv )
 
 		sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %c %c 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role_name,

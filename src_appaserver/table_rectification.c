@@ -11,6 +11,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "appaserver_library.h"
+#include "appaserver_error.h"
+#include "environ.h"
 #include "timlib.h"
 #include "query.h"
 #include "document.h"
@@ -110,22 +112,37 @@ int main( int argc, char **argv )
 	LIST *folder_list;
 	LIST *table_name_list;
 
-	output_starting_argv_stderr( argc, argv );
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 5 )
 	{
 		fprintf(stderr,
-			"Usage: %s application session login_name role\n",
+			"Usage: %s ignored session login_name role\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 	document = document_new( "", application_name );
 
 /* No longer prompting for Application.

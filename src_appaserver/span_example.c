@@ -1,6 +1,0 @@
-"	    <span style=\"text-align: left\">User:</span>		\n"
-"	    <span style=\"text-align: right\">%s</span>			\n"
-"	    <span style=\"text-align: left\">Entity:</span>		\n"
-"	    <span style=\"text-align: right\">%s</span>			\n"
-"	    <span style=\"text-align: left\">Application:</span>	\n"
-"	    <span style=\"text-align: right\">%s</span>			\n"

@@ -41,7 +41,6 @@ int main( int argc, char **argv )
 			appaserver_parameter_file_get_appaserver_mount_point();
 	}
 
-
 	if ( !output )
 	{
 		fprintf( stderr,

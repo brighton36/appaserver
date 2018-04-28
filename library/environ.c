@@ -110,12 +110,13 @@ int environ_next_delimiter( char *looking_string )
 
 char *environ_get_environment( char *variable_name )
 {
-	static char datum[ 1024 ];
+	char datum[ 1024 ];
 
 	if ( environ_name_to_value( datum, variable_name ) )
-		return datum;
+		return strdup( datum );
 	else
 		return (char *)0;
+
 } /* environ_get_environment() */
 
 boolean environ_name_to_value( char *variable_value, char *variable_name )

@@ -115,7 +115,6 @@ int main( int argc, char **argv )
 				login_name );
 	}
 
-
 	if ( CHECK_SESSION
 	&&   strcmp(	login_name,
 			session_get_login_name(

@@ -14,6 +14,7 @@
 #include <ctype.h>
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 #include "timlib.h"
 #include "piece.h"
 #include "document.h"
@@ -22,7 +23,6 @@
 #include "application.h"
 #include "appaserver_parameter_file.h"
 #include "appaserver.h"
-#include "environ.h"
 
 /* Constants */
 /* --------- */
@@ -57,30 +57,32 @@ int main( int argc, char **argv )
 	ATTRIBUTE *attribute;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s application process old_attribute folder new_attribute really_yn\n",
+"Usage: %s ignored process old_attribute folder new_attribute really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	process_name = argv[ 2 ];
 	old_attribute_name = argv[ 3 ];
@@ -88,7 +90,7 @@ int main( int argc, char **argv )
 	new_attribute_name = argv[ 5 ];
 	really_yn = argv[ 6 ];
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );

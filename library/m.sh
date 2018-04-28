@@ -4,5 +4,5 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	make delete_folder_row
+	make post_prompt_process_form
 fi

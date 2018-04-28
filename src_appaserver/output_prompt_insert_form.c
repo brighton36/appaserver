@@ -164,7 +164,6 @@ LIST *get_element_list(
 int main( int argc, char **argv )
 {
 	char *login_name, *application_name, *session, *folder_name;
-	char *database_string = {0};
 	char *role_name, *state;
 	char *target_frame;
 	FORM *form;
@@ -198,18 +197,35 @@ int main( int argc, char **argv )
 	/* ---------------------------------- */
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	/* Note: optionally there could be a trailing dictionary string */
 	/* ------------------------------------------------------------ */
 	if ( argc < 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state omit_buttons_yn [dictionary]\n",
+"Usage: %s login_name ignored session folder role state omit_buttons_yn [dictionary]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
 	session = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
@@ -227,31 +243,6 @@ int main( int argc, char **argv )
 	}
 
 	omit_push_buttons = ( *argv[ 7 ] == 'y' );
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
-	add_dot_to_path();
-	add_utility_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -433,7 +424,7 @@ int main( int argc, char **argv )
 					state,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					folder_name,
 					role_name );
@@ -479,9 +470,7 @@ int main( int argc, char **argv )
 
 		sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' '%s' 2>>%s",
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			login_name,
 			role_name,
@@ -708,7 +697,7 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
 				login_name,
-				database_string,
+				(char *)0 /* database_string */,
 				session,
 				folder_name,
 				back_to_prelookup_folder_name,

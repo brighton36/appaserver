@@ -57,7 +57,6 @@ int main( int argc, char **argv )
 	char window_name[ 128 ];
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	FILE *output_file;
 	char *parent_process_id_string;
 	char *operation_row_count_string;
@@ -77,17 +76,32 @@ int main( int argc, char **argv )
 	char *balloon_attribute_name_list_string = {0};
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
-	output_starting_argv_stderr( argc, argv );
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc < 14 )
 	{
 		fprintf( stderr,
-"Usage: %s application process login_name role folder latitude longitude utm_easting utm_northing process_id operation_row_count session dictionary [balloon_attribute_list]\n",
+"Usage: %s ignored process login_name role folder latitude longitude utm_easting utm_northing process_id operation_row_count session dictionary [balloon_attribute_list]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
 	if ( ( login_name = argv [ 3 ] ) ) {};
 	role_name = argv[ 4 ];
@@ -113,33 +127,7 @@ int main( int argc, char **argv )
 
 	dictionary = dictionary_string2dictionary( dictionary_string );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-/*
-	if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-*/
 
 	sprintf(	semaphore_filename,
 			SEMAPHORE_TEMPLATE,

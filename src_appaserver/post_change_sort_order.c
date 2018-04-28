@@ -95,6 +95,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
@@ -162,25 +168,6 @@ int main( int argc, char **argv )
 				login_name );
 	}
 
-/*
-	ROLE_FOLDER *role_folder;
-	role_folder = role_folder_new_role_folder(
-					application_name,
-					session,
-					role_name,
-					folder_name );
-
-	if ( role_folder->delete_yn != 'y'
-	||   strcmp(	login_name,
-			session_get_login_name(
-					application_name,
-					session ) ) != 0 )
-	{
-		session_access_failed_message_and_exit(
-			application_name, session, login_name );
-	}
-*/
-
 	if ( strcmp(	login_name,
 			session_get_login_name(
 					application_name,
@@ -189,6 +176,7 @@ int main( int argc, char **argv )
 		session_access_failed_message_and_exit(
 			application_name, session, login_name );
 	}
+
 	if ( !appaserver_user_exists_role(
 					application_name,
 					login_name,
@@ -381,9 +369,7 @@ void change_sort_order_state_one(
 			"%s/post_change_sort_order?%s+%s+%s+%s+%s+two",
 			appaserver_parameter_file_get_cgi_directory(),
 			login_name,
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			folder->folder_name,
 			role->role_name );

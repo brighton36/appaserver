@@ -14,7 +14,7 @@ char *basename_get_directory( char *argv_0 )
 	char local_buffer[ 512 ];
 	char *base_name_ptr;
 
-	strcpy( local_buffer, argv_0 );
+	timlib_strcpy( local_buffer, argv_0, 512 );
 	base_name_ptr = local_buffer + strlen( local_buffer );
 
 	while( base_name_ptr != local_buffer )

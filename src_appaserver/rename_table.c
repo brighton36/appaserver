@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 #include "timlib.h"
 #include "piece.h"
 #include "document.h"
@@ -20,7 +21,6 @@
 #include "attribute.h"
 #include "application.h"
 #include "appaserver_parameter_file.h"
-#include "environ.h"
 
 /* Constants */
 /* --------- */
@@ -44,41 +44,38 @@ int main( int argc, char **argv )
 	char *sys_string;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *session;
-	char *login_name;
-	char *role_name;
-	char *database_string = {0};
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s application session login_name role old_folder new_folder really_yn\n",
+"Usage: %s ignored ignored ignored ignored old_folder new_folder really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	if ( ( session = argv[ 2 ] ) ) {};
-	if ( ( login_name = argv[ 3 ] ) ) {};
-	if ( ( role_name = argv[ 4 ] ) ) {};
 	old_folder_name = argv[ 5 ];
 	new_folder_name = argv[ 6 ];
 	really_yn = argv[ 7 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	piece_last(	parsed_new_folder_name, 
 			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,

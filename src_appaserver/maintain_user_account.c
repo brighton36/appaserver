@@ -25,8 +25,8 @@
 #include "piece.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "appaserver_parameter_file.h"
 #include "environ.h"
+#include "appaserver_parameter_file.h"
 #include "dictionary2file.h"
 #include "attribute.h"
 #include "session.h"
@@ -86,35 +86,38 @@ int main( int argc, char **argv )
 	char key[ 128 ];
 	char action_string[ 512 ];
 	QUERY *query;
-	char *database_string = {0};
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc < 5 )
 	{
 		fprintf( stderr,
-		"Usage: %s application session login_name role [message]\n",
+		"Usage: %s ignored session login_name role [message]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session_key = argv[ 2 ];
 	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
 
 	if ( argc == 6 ) message = argv[ 5 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	folder_name = FOLDER_NAME;
 	target_frame = TARGET_FRAME;
@@ -266,7 +269,7 @@ int main( int argc, char **argv )
 					state,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session_key,
 					folder->folder_name,
 					role_name );
@@ -290,9 +293,7 @@ int main( int argc, char **argv )
 			"post_maintain_user_account?%s+%s+%s+%s+%s+%d",
 			login_name,
 			role_name,
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session_key,
 			target_frame,
 			form->process_id );

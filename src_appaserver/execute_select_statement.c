@@ -89,7 +89,6 @@ int main( int argc, char **argv )
 	char buffer[ 128 ];
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char output_sys_string[ 1024 ];
 	char sys_string[ 4096 ];
 	char asteric_sed[ 1024 ];
@@ -102,15 +101,32 @@ int main( int argc, char **argv )
 	char *table_name;
 	char *first_column;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 10 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process login_name session role output_medium filename select_statement_title select_statement_login_name\n",
+"Usage: %s ignored process login_name session role output_medium filename select_statement_title select_statement_login_name\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
 	login_name = argv[ 3 ];
 	session = argv[ 4 ];
@@ -119,19 +135,6 @@ int main( int argc, char **argv )
 	input_filename = argv[ 7 ];
 	select_statement_title = argv[ 8 ];
 	select_statement_login_name = argv[ 9 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

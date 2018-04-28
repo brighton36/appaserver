@@ -16,6 +16,8 @@
 #include "list.h"
 #include "application.h"
 #include "appaserver_library.h"
+#include "appaserver_error.h"
+#include "environ.h"
 #include "application_constants.h"
 
 boolean remove_logfile(		char *mysql_logfiles_directory,
@@ -38,24 +40,35 @@ int main( int argc, char **argv )
 	char *destination_dbms;
 	LIST *logfile_list;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 3 )
 	{
 		fprintf(stderr,
-"Usage: %s application_name destination_dbms\n",
+"Usage: %s ignored destination_dbms\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	destination_dbms = argv[ 2 ];
 
 	add_standard_unix_to_path();
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
 
 	application_constants = application_constants_new();
 	application_constants->dictionary =
@@ -177,7 +190,17 @@ LIST *get_logfile_list(	char *synchronize_current_logfile_name,
 	char input_buffer[ 128 ];
 
 	add_pwd_to_path();
-	chdir( synchronize_consume_directory );
+	
+	if ( chdir( synchronize_consume_directory ) != 0 )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot chdir(%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 synchronize_consume_directory );
+		exit( 1 );
+	}
 
 	sprintf( sys_string,
 		 "ls -1 %s.[0-9][0-9][0-9]* 2>&1 | grep -v 'No such'",

@@ -17,6 +17,7 @@
 #include "application.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 #include "aggregate_level.h"
 #include "validation_level.h"
 #include "aggregate_statistic.h"
@@ -24,7 +25,6 @@
 #include "document.h"
 #include "easycharts.h"
 #include "appaserver_parameter_file.h"
-#include "environ.h"
 #include "statistics_weighted.h"
 #include "application_constants.h"
 #include "dictionary_appaserver.h"
@@ -63,7 +63,6 @@ int main( int argc, char **argv )
 	char applet_library_archive[ 128 ];
 	char *title;
 	char y_axis_label[ 256 ];
-	char *database_string = {0};
 	EASYCHARTS_INPUT_CHART *input_chart;
 	EASYCHARTS_INPUT_DATATYPE *input_datatype;
 	char *units_label;
@@ -83,15 +82,32 @@ int main( int argc, char **argv )
 	char search_string[ 16 ];
 	char replace_string[ 16 ];
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 4 )
 	{
 		fprintf(stderr,
-"Usage: %s application process_set parameter_dictionary\n",
+"Usage: %s ignored process_set parameter_dictionary\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	process_set_name = argv[ 2 ];
 	original_post_dictionary =
 		dictionary_string2dictionary( argv[ 3 ] );
@@ -111,27 +127,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	accumulate_yn =
 		dictionary_get_index_zero(

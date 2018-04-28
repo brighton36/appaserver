@@ -198,24 +198,42 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *role_name;
 	char *process_name;
-	char *database_string = {0};
 	char buffer[ 128 ];
 	char *appaserver_error_directory = {0};
 	char *document_root_directory = {0};
 	char *appaserver_data_directory = {0};
 	char *appaserver_home_directory = {0};
 
-	output_starting_argv_stderr( argc, argv );
+	/* Need to retire this. */
+	/* -------------------- */
+	char *database_string = {0};
+
+	if ( ! ( current_application =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		current_application );
 
 	if ( argc != 11 )
 	{
 		fprintf(stderr,
-"Usage: %s current_application session login_name role process destination_application new_application_title retired delete_application_yn really_yn\n",
+"Usage: %s ignored session login_name role process destination_application new_application_title retired delete_application_yn really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	current_application = argv[ 1 ];
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
@@ -231,19 +249,6 @@ int main( int argc, char **argv )
 	{
 		new_application_title = "Title Omitted";
 	}
-
-	if ( timlib_parse_database_string(	&database_string,
-						current_application ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				current_application );
 
 	if ( ! ( appaserver_parameter_file =
 			appaserver_parameter_default_file_new() ) )

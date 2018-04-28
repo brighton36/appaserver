@@ -100,6 +100,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_error_login_name_append_file(
 				argc,
@@ -145,7 +151,7 @@ int main( int argc, char **argv )
 
 		post_login_output_frameset(
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					login_name,
 					session,
 					password_match_return );

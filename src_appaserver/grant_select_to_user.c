@@ -59,37 +59,40 @@ int main( int argc, char **argv )
 	char really_yn;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char *sys_string;
 	char *generated_password = {0};
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process login_name connect_from_host revoke_only_yn really_yn\n",
+"Usage: %s ignored process login_name connect_from_host revoke_only_yn really_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
 	login_name = argv[ 3 ];
 	connect_from_host = argv[ 4 ];
 	revoke_only_yn = *argv[ 5 ];
 	really_yn = *argv[ 6 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

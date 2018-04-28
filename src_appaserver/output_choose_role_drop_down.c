@@ -25,7 +25,6 @@
 /* ---------- */
 void output_horizontal_frameset_choose_role_drop_down(
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *login_name,
 			char *role_name,
@@ -35,7 +34,6 @@ void output_horizontal_frameset_choose_role_drop_down(
 
 void output_vertical_frameset_choose_role_drop_down(
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *login_name,
 			char *role_name,
@@ -53,32 +51,18 @@ int main( int argc, char **argv )
 	LIST *role_list;
 	DICTIONARY *hidden_dictionary = dictionary_new();
 	char action_string[ 512 ];
-	char *database_string = {0};
 
-/*
-	output_starting_argv_stderr( argc, argv );
-*/
-
-	if ( argc != 7 )
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
 	{
-		fprintf( stderr,
-"Usage: %s application session login_name role title role_comma_list\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	title = argv[ 5 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment for %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
 	}
 
 	appaserver_output_starting_argv_append_file(
@@ -86,6 +70,18 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
+	if ( argc != 7 )
+	{
+		fprintf( stderr,
+"Usage: %s ignored session login_name role title role_comma_list\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
+
+	session = argv[ 2 ];
+	login_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	title = argv[ 5 ];
 
 	sprintf(	action_string,
 			"%s/post_choose_role_drop_down",
@@ -115,20 +111,12 @@ int main( int argc, char **argv )
 				"title",
 				title );
 
-	if ( database_string && *database_string )
-	{
-		dictionary_set_string(	hidden_dictionary,
-					"database",
-					database_string );
-	}
-
 	if ( appaserver_get_frameset_menu_horizontal(
 					application_name,
 					login_name ) )
 	{
 		output_horizontal_frameset_choose_role_drop_down(
 				application_name,
-				database_string,
 				session,
 				login_name,
 				role_name,
@@ -140,7 +128,6 @@ int main( int argc, char **argv )
 	{
 		output_vertical_frameset_choose_role_drop_down(
 				application_name,
-				database_string,
 				session,
 				login_name,
 				role_name,
@@ -155,7 +142,6 @@ int main( int argc, char **argv )
 
 void output_vertical_frameset_choose_role_drop_down(
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *login_name,
 			char *role_name,
@@ -174,7 +160,7 @@ void output_vertical_frameset_choose_role_drop_down(
 	form_output_heading(
 		login_name,
 		application_name,
-		database_string,
+		(char *)0 /* database_string */,
 		session,
 		form->form_name,
 		(char *)0 /* post_process */,
@@ -264,7 +250,6 @@ void output_vertical_frameset_choose_role_drop_down(
 
 void output_horizontal_frameset_choose_role_drop_down(
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *login_name,
 			char *role_name,
@@ -290,11 +275,6 @@ void output_horizontal_frameset_choose_role_drop_down(
 		return;
 	}
 
-	if ( !database_string || !*database_string )
-	{
-		database_string = "database";
-	}
-
 	printf(
 "	<li>\n"
 "        <a><span class=%s>Role</span></a>\n"
@@ -314,7 +294,7 @@ void output_horizontal_frameset_choose_role_drop_down(
 "		<span class=%s>%s</span></a>\n",
 			action_string,
 			application_name,
-			database_string,
+			"database",
 			session,
 			login_name,
 			new_role_name,

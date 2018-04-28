@@ -175,16 +175,33 @@ int main( int argc, char **argv )
 	boolean omit_delete_button = 0;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc < 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state target_frame [post_dictionary]\n",
+"Usage: %s login_name ignored session folder role state target_frame [post_dictionary]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
 	session = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
@@ -193,21 +210,8 @@ int main( int argc, char **argv )
 
 	if ( !*target_frame ) target_frame = EDIT_FRAME;
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();

@@ -41,35 +41,36 @@ int main( int argc, char **argv )
 	char buffer[ 512 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *login_name;
-	char *database_string = {0};
-				
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 5 )
 	{
 		fprintf( stderr,
-		"Usage: %s application ignored login_name ignored\n",
+		"Usage: %s ignored ignored login_name ignored\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	/* session = argv[ 2 ]; */
 	login_name = argv[ 3 ];
-	/* role_name = argv[ 4 ]; */
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	add_pwd_to_path();
 
@@ -79,7 +80,7 @@ int main( int argc, char **argv )
 		 application_get_first_relative_source_directory(
 			application_name ) );
 
-	if ( chdir( current_directory ) == -1 )
+	if ( chdir( current_directory ) != 0 )
 	{
 		fprintf( stderr, 
 			 "Cannot change directory to %s\n",

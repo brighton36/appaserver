@@ -1071,9 +1071,9 @@ boolean process_executable_ok(	char *executable )
 {
 	char command[ 128 ];
 	char sys_string[ 1024 ];
-	char *results_string;
+	char *which_string;
 	char *appaserver_mount_point;
-	char *basename_directory;
+	char *directory;
 	char check_directory[ 128 ];
 
 	/* Can't redirect anything. */
@@ -1092,25 +1092,46 @@ boolean process_executable_ok(	char *executable )
 
 	column( command, 0, executable );
 
+	/* Forbidden executables in $APPASERVER_HOME/src_appaserver */
+	/* -------------------------------------------------------- */
 	if ( timlib_strncmp( command, "sql" ) == 0 ) return 0;
 	if ( timlib_strncmp( command, "get_folder_data" ) == 0 ) return 0;
+
+	if ( timlib_strncmp( command, "upgrade_appaserver_database" ) == 0 )
+		return 0;
+
+	if ( timlib_strncmp( command, "upgrade-appaserver-database" ) == 0 )
+		return 0;
 
 	/* Executable must live in $APPASERVER_HOME/src_* */
 	/* ---------------------------------------------- */
 	sprintf( sys_string, "which %s", command );
 
-	if ( ! ( results_string = pipe2string( sys_string ) ) )
+	if ( ! ( which_string = pipe2string( sys_string ) ) )
 	{
 		/* If not written yet, then okay. */
 		/* ------------------------------ */
 		return 1;
 	}
 
-	basename_directory = basename_get_directory( results_string );
+	directory = basename_get_directory( which_string );
 
 	/* $CGI_HOME is okay. */
 	/* ------------------ */
-	if ( *basename_directory == '.' ) return 1;
+	if ( *directory == '.' ) return 1;
+
+	/* -------------------------------------------- */
+	/* Can't execute src_appaserver shell scripts.  */
+	/* Well, except appaserver_info.sh and		*/
+	/* view_appaserver_error_file.sh		*/
+	/* -------------------------------------------- */
+	if ( timlib_exists_string( directory, "src_appaserver" )
+	&&   timlib_exists_string( command, ".sh" )
+	&&   strcmp( command, "appaserver_info.sh" ) != 0
+	&&   strcmp( command, "view_appaserver_error_file.sh" ) != 0 )
+	{
+		return 0;
+	}
 
 	/* Must execute from $APPASERVER_HOME/src_* */
 	/* ---------------------------------------- */
@@ -1121,7 +1142,7 @@ boolean process_executable_ok(	char *executable )
 		 "%s/src_",
 		 appaserver_mount_point );
 
-	if ( timlib_strncmp( basename_directory, check_directory ) == 0 )
+	if ( timlib_strncmp( directory, check_directory ) == 0 )
 		return 1;
 	else
 		return 0;

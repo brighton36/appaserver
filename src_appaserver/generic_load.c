@@ -13,13 +13,13 @@
 #include <ctype.h>
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 #include "timlib.h"
 #include "document.h"
 #include "attribute.h"
 #include "application.h"
 #include "appaserver.h"
 #include "appaserver_parameter_file.h"
-#include "environ.h"
 #include "folder.h"
 #include "session.h"
 
@@ -43,33 +43,36 @@ int main( int argc, char **argv )
 	char title[ 256 ];
 	LIST *folder_name_list;
 	char *folder_name;
-	char *database_string = {0};
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 5 )
 	{
 		fprintf(stderr,
-			"Usage: %s application session role process\n",
+			"Usage: %s ignored session role process\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	session = argv[ 2 ];
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -127,9 +130,7 @@ int main( int argc, char **argv )
 			printf(
 "<a href=\"%s/post_generic_load?%s+%s+%s+%s+one\" target=%s>%s</a></td>\n",
 				appaserver_parameter_file_get_cgi_directory(),
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				role_name,
 				folder_name,

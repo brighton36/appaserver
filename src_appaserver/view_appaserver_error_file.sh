@@ -1,14 +1,20 @@
 :
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: APPASERVER_DATABASE is not defined." 1>&2
+	exit 1
+fi
+
 echo "$0 $1 $2 $3" 1>&2
 
 if [ "$#" -ne 3 ]
 then
-	echo "Usage: $0 application directory line_count" 1>&2
+	echo "Usage: $0 ignored directory line_count" 1>&2
 	exit 1
 fi
 
-application=$1
+application=$APPASERVER_DATABASE
 application=`echo $application | sed 's/:.*$//'`
 
 directory=$2
@@ -19,13 +25,12 @@ then
 	line_count=50
 fi
 
-
 filename=$directory/appaserver_${application}.err
 
-#if [ ! -r $filename ]
-#then
-#	filename=$directory/appaserver.err
-#fi
+if [ ! -r $filename ]
+then
+	filename=$directory/appaserver/appaserver_${application}.err
+fi
 
 content_type_cgi.sh
 echo "<html>"

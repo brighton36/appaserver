@@ -22,8 +22,9 @@
 #include "query.h"
 #include "query_attribute_statistics_list.h"
 #include "appaserver_library.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_error.h"
 #include "environ.h"
+#include "appaserver_parameter_file.h"
 #include "decode_html_post.h"
 #include "role.h"
 #include "dictionary_appaserver.h"
@@ -49,35 +50,41 @@ int main( int argc, char **argv )
 	char *where_clause;
 	ROLE *role;
 	char *role_name;
-	char *database_string = {0};
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	QUERY *query;
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 
-	output_starting_argv_stderr( argc, argv );
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role dictionary\n",
+"Usage: %s login_name ignored session folder role dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
 	session = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
 	dictionary_string = argv[ 6 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
 
 	decode_html_post(	decoded_dictionary_string, 
 				dictionary_string );

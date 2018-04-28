@@ -62,24 +62,7 @@ int main( int argc, char **argv )
 	enum password_match_return password_match_return;
 	char *database_string = {0};
 
-	if ( argc == 2 )
-	{
-		application_name = argv[ 1 ];
-
-		if ( timlib_parse_database_string(	&database_string,
-							application_name ) )
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				database_string );
-		}
-		else
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				application_name );
-		}
-	}
+	if ( argc == 2 ) application_name = argv[ 1 ];
 
 	post_dictionary =
 		post2dictionary(
@@ -104,6 +87,20 @@ int main( int argc, char **argv )
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
+	}
+
+	if ( timlib_parse_database_string(	&database_string,
+						application_name ) )
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	appaserver_parameter_file =

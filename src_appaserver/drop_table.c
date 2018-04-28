@@ -40,35 +40,18 @@ int main( int argc, char **argv )
 	char *sys_string;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 
-	if ( argc != 7 )
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
 	{
 		fprintf(stderr,
-	"Usage: %s application session login_name role table really_yn\n",
-			argv[ 0 ] );
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
 		exit( 1 );
-	}
-
-	application_name = argv[ 1 ];
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	table_name = argv[ 5 ];
-	really_yn = argv[ 6 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
 	}
 
 	appaserver_error_starting_argv_append_file(
@@ -76,6 +59,24 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
+	if ( argc != 7 )
+	{
+		fprintf(stderr,
+	"Usage: %s ignored session login_name role table really_yn\n",
+			argv[ 0 ] );
+		exit( 1 );
+	}
+
+	session = argv[ 2 ];
+	login_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	table_name = argv[ 5 ];
+	really_yn = argv[ 6 ];
+
+	/* ---------------------------------------------------- */
+	/* Check path because this is executed from		*/
+	/* table_rectification.					*/
+	/* ---------------------------------------------------- */
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();

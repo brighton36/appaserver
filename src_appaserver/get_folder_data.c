@@ -1,9 +1,9 @@
-/* ---------------------------------------------	*/
-/* get_folder_data.c					*/
-/* ---------------------------------------------	*/
+/* -------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/get_folder_data.c	*/
+/* -------------------------------------------------	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------	*/
+/* -------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,10 +60,6 @@ int main( int argc, char **argv )
 	char input_buffer[ 65536 ];
 	FILE *input_pipe;
 
-/*
-output_starting_argv_stderr( argc, argv );
-*/
-
 	setup_arg( arg, argc, argv );
 
 	fetch_parameters(	&application_name,
@@ -75,6 +71,19 @@ output_starting_argv_stderr( argc, argv );
 				&quick_yes_no,
 				&maxrows,
 				arg );
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
 
 	if ( !folder_name || !*folder_name )
 	{

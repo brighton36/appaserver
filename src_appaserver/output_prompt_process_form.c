@@ -106,7 +106,6 @@ int main( int argc, char **argv )
 	DICTIONARY *post_dictionary = {0};
 	char passed_preprompt_yn;
 	char *destination_multi_select_element_name;
-	char *database_string = {0};
 	boolean exists_date_element = 0;
 	boolean exists_time_element = 0;
 	boolean process_parameter_exists_preprompt = 0;
@@ -116,16 +115,33 @@ int main( int argc, char **argv )
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *preprompt_help_text = "";
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc < 7 )
 	{
 		fprintf( stderr,
-"Usage: %s login_name application session process role passed_preprompt_yn [dictionary]\n",
+"Usage: %s login_name ignored session process role passed_preprompt_yn [dictionary]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
 	session = argv[ 3 ];
 	process_name = argv[ 4 ];
 	role_name = argv[ 5 ];
@@ -171,21 +187,8 @@ int main( int argc, char **argv )
 
 	}
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
@@ -211,7 +214,7 @@ int main( int argc, char **argv )
 					(char *)0 /* state */,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					process_name,
 					role_name );
@@ -238,7 +241,7 @@ int main( int argc, char **argv )
 			session,
 			appaserver_parameter_file->
 				document_root,
-			database_string );
+			(char *)0 /* database_string */ );
  
 	if ( !list_length( form->regular_element_list ))
 	{
@@ -391,9 +394,7 @@ int main( int argc, char **argv )
 
 		sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' '%c' '%c' 2>>%s",
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			login_name,
 			role_name,
@@ -456,9 +457,7 @@ int main( int argc, char **argv )
 				application_get_prepend_http_protocol_yn(
 					application_name ) ),
 			login_name,
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			process_name,
 			role_name,
@@ -513,7 +512,7 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
 				login_name,
-				database_string,
+				(char *)0 /* database_string */,
 				session,
 				process_name,
 				role_name );

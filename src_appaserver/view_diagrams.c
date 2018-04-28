@@ -56,16 +56,32 @@ int main( int argc, char **argv )
 	boolean all_documents = 0;
 	char *relative_directory = {0};
 	char *process_name = {0};
-				
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc < 2 )
 	{
 		fprintf( stderr,
-	"Usage: %s application [all_documents_yn] [login_name] [unused] [relative_directory] [process_name]\n",
+	"Usage: %s ignored [all_documents_yn] [login_name] [unused] [relative_directory] [process_name]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
-
-	application_name = argv[ 1 ];
 
 	if ( argc >= 3 ) all_documents = (*argv[ 2 ] == 'y');
 	if ( argc >= 4 ) login_name = argv[ 3 ];
@@ -73,19 +89,6 @@ int main( int argc, char **argv )
 	if ( argc >= 6 ) relative_directory = argv[ 5 ];
 	if ( argc >= 7 ) process_name = argv[ 6 ];
  
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
 	add_pwd_to_path();
 

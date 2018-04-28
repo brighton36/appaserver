@@ -13,6 +13,9 @@
 #include "session.h"
 #include "timlib.h"
 #include "dictionary.h"
+#include "appaserver_library.h"
+#include "appaserver_error.h"
+#include "environ.h"
 
 /* Constants */
 /* --------- */
@@ -29,22 +32,35 @@ int main( int argc, char **argv )
 	int i, n;
 	int seed;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 3 )
 	{
 		fprintf( stderr,
-			 "Usage: %s application seed\n",
+			 "Usage: %s ignored seed\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	if ( ( application_name = argv[ 1 ] ) ) {};
 	seed = atoi( argv[ 2 ] );
 	seed += time( (time_t *)0 );
 
-/*
-	seed += get_device_seed();
-	srandom( seed );
-*/
 	srand48( seed );
 
 	ptr = session_number;

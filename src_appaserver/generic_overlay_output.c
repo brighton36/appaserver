@@ -116,7 +116,6 @@ int main( int argc, char **argv )
 	char shade_compare_buffer[ 512 ];
 	char *foreign_attribute_data_list_string;
 	int str_len;
-	char *database_string = {0};
 	char buffer[ 4096 ];
 	char *ftp_agr_filename = {0};
 	char *ftp_output_filename = {0};
@@ -135,30 +134,34 @@ int main( int argc, char **argv )
 	char folder_data_delimiter_string[ 2 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
 	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s application role process_set dictionary\n",
+	"Usage: %s ignored role process_set dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	role_name = argv[ 2 ];
 	process_set_name = argv[ 3 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	sprintf( folder_data_delimiter_string, "%c", FOLDER_DATA_DELIMITER );
 

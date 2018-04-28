@@ -19,7 +19,6 @@
 #include "application.h"
 #include "appaserver_parameter_file.h"
 #include "environ.h"
-#include "session.h"
 
 /* Constants */
 /* --------- */
@@ -33,72 +32,40 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *table_name = {0};
-	char *login_name;
-	char *role_name;
-	char *session;
 	char *really_yn;
 	char *sys_string;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
+
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 6 )
 	{
 		fprintf(stderr,
-	"Usage: %s application session login_name role really_yn\n",
+	"Usage: %s ignored ignored ignored ignored really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
 	really_yn = argv[ 5 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
-
-/*
-	if ( session_remote_ip_address_changed(
-		application_name,
-		session ) )
-	{
-		session_message_ip_address_changed_exit(
-				application_name,
-				login_name );
-	}
-
-	if ( !session_access_process(
-				application_name,
-				session,
-				SESSION_PROCESS_NAME,
-				login_name,
-				role_name ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-*/
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );

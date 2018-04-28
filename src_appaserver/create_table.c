@@ -62,17 +62,33 @@ int main( int argc, char **argv )
 	FOLDER *folder;
 	char create_table_filename[ 512 ] = {0};
 	char *destination_database_management_system;
-	char *database_string = {0};
+
+	if ( ! ( current_application =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
+	}
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		current_application );
 
 	if ( argc < 10 )
 	{
 		fprintf(stderr,
-"Usage: %s current_application build_shell_script_yn session login_name role destination_application folder really_yn destination_database_management_system [nohtml]\n",
+"Usage: %s ignored build_shell_script_yn session login_name role destination_application folder really_yn destination_database_management_system [nohtml]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	current_application = argv[ 1 ];
 	build_shell_script_yn = *argv[ 2 ];
 	session = argv[ 3 ];
 	login_name = argv[ 4 ];
@@ -93,25 +109,12 @@ int main( int argc, char **argv )
 		destination_database_management_system = "mysql";
 	}
 
-	if ( timlib_parse_database_string(	&database_string,
-						current_application ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
 	if ( !*destination_application
 	||   strcmp(	destination_application,
 			"destination_application" ) == 0 )
 	{
 		destination_application = current_application;
 	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				current_application );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

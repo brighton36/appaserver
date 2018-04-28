@@ -11,6 +11,7 @@
 #include "timlib.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "environ.h"
 
 /* #define DEBUG_MODE		1 */
 
@@ -26,20 +27,31 @@ int main( int argc, char **argv )
 	char *results;
 	char *sql_executable;
 
-	if ( argc != 5 )
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
 	{
-		fprintf( stderr, 
-"Usage: %s application folder attribute_comma_list carrot_delimited_row_filename\n",
-		argv[ 0 ] );
-		exit ( 1 );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
 	}
-
-	application_name = argv[ 1 ];
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
+
+	if ( argc != 5 )
+	{
+		fprintf( stderr, 
+"Usage: %s ignored folder attribute_comma_list carrot_delimited_row_filename\n",
+		argv[ 0 ] );
+		exit ( 1 );
+	}
 
 	folder = argv[ 2 ];
 	attribute_comma_string = argv[ 3 ];

@@ -6,6 +6,9 @@
 #include <string.h>
 #include "timlib.h"
 #include "piece.h"
+#include "appaserver_library.h"
+#include "appaserver_error.h"
+#include "environ.h"
 
 #define DOT_PROCESS_TAG	".process="
 
@@ -19,15 +22,23 @@ int main( int argc, char **argv )
 	char replace_application[ 128 ];
 	int dot_process_tag_length;
 
-	if ( argc != 2 )
+	if ( ! ( application =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
 	{
 		fprintf(stderr,
-			"Usage: %s application\n",
-			argv[ 0 ] );
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
 		exit( 1 );
 	}
 
-	application = argv[ 1 ];
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application );
 
 	dot_process_tag_length = strlen( DOT_PROCESS_TAG );
 	sprintf( replace_application, " %s", application );

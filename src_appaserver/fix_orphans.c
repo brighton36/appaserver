@@ -75,7 +75,6 @@ int main( int argc, char **argv )
 	char delete_yn;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	FOLDER *folder;
 	char sys_string[ 1024 ];
 	char text_output_filename[ 128 ];
@@ -91,33 +90,31 @@ int main( int argc, char **argv )
 	long count = 0;
 	boolean output_medium_stdout = 0;
 
-	if ( argc < 6 )
+	if ( ! ( application_name =
+			environ_get_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
 	{
 		fprintf(stderr,
-"Usage: %s application process_name folder_name delete_yn really_yn [stdout]\n",
-			argv[ 0 ] );
+			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
+
+	if ( argc < 6 )
+	{
+		fprintf(stderr,
+"Usage: %s ignored process_name folder_name delete_yn really_yn [stdout]\n",
+			argv[ 0 ] );
+		exit( 1 );
+	}
 
 	process_name = argv[ 2 ];
 	folder_name = argv[ 3 ];

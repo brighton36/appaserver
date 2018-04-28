@@ -1409,7 +1409,7 @@ LIST *attribute_get_attribute_element_list(
 
 			element->text_item->lookup_attribute_width =
 					ELEMENT_TEXT_ITEM_LOOKUP_LENGTH;
-		
+
 			list_append_pointer(	return_list,
 						element );
 		}
@@ -1505,7 +1505,7 @@ LIST *attribute_get_attribute_element_list(
 
 			element->text_item->lookup_attribute_width =
 					ELEMENT_TEXT_ITEM_LOOKUP_LENGTH;
-		
+
 			list_append_pointer( 	return_list,
 						element );
 		
@@ -1573,7 +1573,10 @@ LIST *attribute_get_attribute_element_list(
 			}
 		
 			element->text_item->attribute_width = width;
-	
+
+			element->text_item->lookup_attribute_width =
+					ELEMENT_TEXT_ITEM_LOOKUP_LENGTH;
+
 			list_append_pointer( 	return_list,
 						element );
 		}

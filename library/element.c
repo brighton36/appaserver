@@ -1691,7 +1691,6 @@ void element_text_item_output( 	FILE *output_file,
 	if ( is_numeric )
 	{
 		data = place_commas_in_number_string( data );
-		/* type = "number"; */
 	}
 
 	if ( !without_td_tags ) fprintf( output_file, "<td>" );

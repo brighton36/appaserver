@@ -39,18 +39,7 @@ int main( int argc, char **argv )
 	char *content_type_yn;
 	boolean omit_html_head = 0;
 
-	if ( ! ( application_name =
-			environ_get_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot get environment for %s.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
-		exit( 1 );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
 				argc,

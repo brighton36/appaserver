@@ -256,34 +256,20 @@ int main( int argc, char **argv )
 	char *subclassification_option;
 	boolean omit_subclassification = 0;
 
-	if ( argc != 11 )
-	{
-		fprintf( stderr,
-"Usage: %s application session login_name role process fund as_of_date aggregation output_medium subclassification_option\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
+
+	if ( argc != 11 )
+	{
+		fprintf( stderr,
+"Usage: %s ignored session login_name role process fund as_of_date aggregation output_medium subclassification_option\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
 
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];

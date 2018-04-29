@@ -43,39 +43,34 @@ int main( int argc, char **argv )
 	int load_count;
 	char buffer[ 128 ];
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process_name fund filename execute_yn\n",
+"Usage: %s ignored process_name fund filename execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
 	fund_name = argv[ 3 ];
 	input_filename = argv[ 4 ];
 	execute = (*argv[ 5 ] == 'y');
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
+/*
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
+*/
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );

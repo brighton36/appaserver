@@ -61,18 +61,7 @@ int main( int argc, char **argv )
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	boolean content_type = 1;
 
-	if ( ! ( application_name =
-			environ_get_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
-		exit( 1 );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,

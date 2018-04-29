@@ -50,22 +50,19 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	CUSTOMER_SALE *customer_sale;
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process full_name street_address sale_date_time\n",
+"Usage: %s ignored process full_name street_address sale_date_time\n",
 		argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	process_name = argv[ 2 ];
@@ -73,11 +70,7 @@ int main( int argc, char **argv )
 	street_address = argv[ 4 ];
 	sale_date_time = argv[ 5 ];
 
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	format_initial_capital( title, process_name );
 	document = document_new( title, application_name );

@@ -133,30 +133,19 @@ int main( int argc, char **argv )
 	boolean aggregate_account;
 	char *output_medium;
 
-	appaserver_error_stderr( argc, argv );
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application process program begin_date end_date aggregate_account_yn output_medium\n",
+"Usage: %s ignored process program begin_date end_date aggregate_account_yn output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
 	}
 
 	process_name = argv[ 2 ];

@@ -91,28 +91,17 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
 
-	if ( argc > 0 )
-	{
-		application_name = argv[ 1 ];
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-		if ( timlib_parse_database_string(	&database_string,
-							application_name ) )
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				database_string );
-		}
-
-		appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
-	}
 
 	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn with_html_yn\n",
+"Usage: %s ignored process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn with_html_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

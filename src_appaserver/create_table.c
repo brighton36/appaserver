@@ -63,18 +63,7 @@ int main( int argc, char **argv )
 	char create_table_filename[ 512 ] = {0};
 	char *destination_database_management_system;
 
-	if ( ! ( current_application =
-			environ_get_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot get environment of %s.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
-		exit( 1 );
-	}
+	current_application = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,

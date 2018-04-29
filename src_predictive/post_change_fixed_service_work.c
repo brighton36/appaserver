@@ -60,32 +60,19 @@ int main( int argc, char **argv )
 	char *state;
 	char *preupdate_end_work_date_time;
 
-	appaserver_error_output_starting_argv_stderr(
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
 				argc,
-				argv );
+				argv,
+				application_name );
 
 	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address sale_date_time service_name begin_work_date_time state preupdate_end_work_date_time\n",
+"Usage: %s ignored full_name street_address sale_date_time service_name begin_work_date_time state preupdate_end_work_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
 	}
 
 	full_name = argv[ 2 ];

@@ -44,4 +44,6 @@ void environ_prepend_path(		char *path_to_add );
 
 void environ_set_utc_offset(		char *application_name );
 
+char *environ_get_application_name(	char *argv_0 );
+
 #endif

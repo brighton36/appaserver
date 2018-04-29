@@ -67,26 +67,19 @@ int main( int argc, char **argv )
 	char *preupdate_extension;
 	char *preupdate_accrual_period_years;
 
-	appaserver_error_output_starting_argv_stderr(
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
 				argc,
-				argv );
+				argv,
+				application_name );
 
 	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address purchase_date_time asset_name state preupdate_asset_name preupdate_extension preupdate_accrual_period_years\n",
+"Usage: %s ignored full_name street_address purchase_date_time asset_name state preupdate_asset_name preupdate_extension preupdate_accrual_period_years\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	full_name = argv[ 2 ];

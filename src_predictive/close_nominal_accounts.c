@@ -73,28 +73,20 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	boolean execute;
 
-	if ( argc != 5 )
-	{
-		fprintf( stderr,
-		"Usage: %s application process as_of_date execute_yn\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
+
+	if ( argc != 5 )
+	{
+		fprintf( stderr,
+		"Usage: %s ignored process as_of_date execute_yn\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
 
 	process_name = argv[ 2 ];
 	as_of_date = argv[ 3 ];

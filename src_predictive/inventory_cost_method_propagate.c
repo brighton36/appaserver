@@ -39,26 +39,19 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *database_string = {0};
 
-	appaserver_error_output_starting_argv_stderr(
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
 				argc,
-				argv );
+				argv,
+				application_name );
 
 	if ( argc != 2 )
 	{
 		fprintf( stderr,
-			 "Usage: %s application\n",
+			 "Usage: %s ignored\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	inventory_cost_method_propagate( application_name );

@@ -126,36 +126,22 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	ENTITY_SELF *self;
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application process payroll_year period_number delete_yn withhtml_yn execute_yn\n",
+"Usage: %s ignored process payroll_year period_number delete_yn withhtml_yn execute_yn\n",
 			 argv[ 0 ] );
 		fprintf( stderr,
 "Note: if payroll_year and period_number are missing, then the prior period will be posted.\n" );
 		exit ( 1 );
 	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	process_name = argv[ 2 ];
 	payroll_year = atoi( argv[ 3 ] );

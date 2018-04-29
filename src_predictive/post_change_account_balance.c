@@ -94,15 +94,21 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	ACCOUNT_BALANCE *account_balance;
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s application fund full_name street_address account_number date_time state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time preupdate_investment_operation\n",
+"Usage: %s ignored fund full_name street_address account_number date_time state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time preupdate_investment_operation\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	fund_name = argv[ 2 ];
 	full_name = argv[ 3 ];
 	street_address = argv[ 4 ];
@@ -114,24 +120,6 @@ int main( int argc, char **argv )
 	preupdate_account_number = argv[ 10 ];
 	preupdate_date_time = argv[ 11 ];
 	preupdate_investment_operation = argv[ 12 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
 
 	/* -------------------------------------------- */
 	/* Need to execute on predelete to get		*/

@@ -97,28 +97,14 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
 	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name|stdin street_address purchase_date_time asset_name accrual_date state preupdate_full_name preupdate_street_address preupdate_purchase_date_time preupdate_asset_name preupdate_accrual_date\n",
+"Usage: %s ignored full_name|stdin street_address purchase_date_time asset_name accrual_date state preupdate_full_name preupdate_street_address preupdate_purchase_date_time preupdate_asset_name preupdate_accrual_date\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
 	}
 
 	full_name = argv[ 2 ];

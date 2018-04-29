@@ -64,26 +64,19 @@ int main( int argc, char **argv )
 	double total_payment;
 	char sys_string[ 1024 ];
 
-	appaserver_error_output_starting_argv_stderr(
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
 				argc,
-				argv );
+				argv,
+				application_name );
 
 	if ( argc != 9 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process full_name street_address sale_date_time payment_amount check_number paid_amount_due_yn\n",
+"Usage: %s ignored process full_name street_address sale_date_time payment_amount check_number paid_amount_due_yn\n",
 		argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	process_name = argv[ 2 ];

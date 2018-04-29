@@ -130,33 +130,17 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	PURCHASE_ORDER *purchase_order;
 
-	if ( argc > 1 )
-	{
-		application_name = argv[ 1 ];
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-		if ( timlib_parse_database_string(	&database_string,
-							application_name ) )
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				database_string );
-		}
-		else
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				application_name );
-		}
-	}
-
-	appaserver_error_output_starting_argv_stderr(
+	appaserver_output_starting_argv_append_file(
 				argc,
-				argv );
+				argv,
+				application_name );
 
 	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address purchase_date_time state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax preupdate_freight_in\n",
+"Usage: %s ignored full_name street_address purchase_date_time state preupdate_full_name preupdate_street_address preupdate_title_passage_rule preupdate_shipped_date preupdate_arrived_date_time preupdate_sales_tax preupdate_freight_in\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

@@ -86,28 +86,20 @@ int main( int argc, char **argv )
 	char *logo_filename;
 	char *begin_date_string;
 
-	if ( argc != 6 )
-	{
-		fprintf( stderr,
-	"Usage: %s application process tax_form as_of_date output_medium\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
+
+	if ( argc != 6 )
+	{
+		fprintf( stderr,
+	"Usage: %s ignored process tax_form as_of_date output_medium\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
 
 	process_name = argv[ 2 ];
 	tax_form_name = argv[ 3 ];

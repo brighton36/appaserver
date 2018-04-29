@@ -85,21 +85,19 @@ int main( int argc, char **argv )
 	char *preupdate_payment_amount;
 	char *database_string = {0};
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address purchase_date_time payment_date_time state preupdate_full_name preupdate_street_address preupdate_payment_date_time preupdate_payment_amount\n",
+"Usage: %s ignored full_name street_address purchase_date_time payment_date_time state preupdate_full_name preupdate_street_address preupdate_payment_date_time preupdate_payment_amount\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	full_name = argv[ 2 ];
@@ -111,10 +109,6 @@ int main( int argc, char **argv )
 	preupdate_street_address = argv[ 8 ];
 	preupdate_payment_date_time = argv[ 9 ];
 	preupdate_payment_amount = argv[ 10 ];
-
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
 
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );

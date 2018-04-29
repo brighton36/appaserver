@@ -144,31 +144,23 @@ int main( int argc, char **argv )
 	boolean is_financial_position;
 	char *logo_filename;
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund as_of_date subclassification_option output_medium\n",
+"Usage: %s ignored process fund as_of_date subclassification_option output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	is_financial_position =
 		( strcmp( argv[ 0 ], "financial_position" ) == 0 );
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	process_name = argv[ 2 ];
 	fund_name = argv[ 3 ];

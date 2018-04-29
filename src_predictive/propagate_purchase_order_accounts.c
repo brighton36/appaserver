@@ -35,31 +35,17 @@ int main( int argc, char **argv )
 	char *cost_of_goods_sold_account = {0};
 	char *database_string = {0};
 
-	if ( argc > 1 )
-	{
-		application_name = argv[ 1 ];
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-		if ( timlib_parse_database_string(	&database_string,
-							application_name ) )
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				database_string );
-		}
-		else
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
 				application_name );
-		}
-	}
-
-	appaserver_error_output_starting_argv_stderr( argc, argv );
 
 	if ( argc != 4 )
 	{
 		fprintf( stderr, 
-			 "Usage: %s application fund transaction_date_time\n",
+			 "Usage: %s ignored fund transaction_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

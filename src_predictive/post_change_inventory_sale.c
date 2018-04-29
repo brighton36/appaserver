@@ -84,26 +84,19 @@ int main( int argc, char **argv )
 	char *preupdate_discount_amount;
 	char *preupdate_inventory_name;
 
-	appaserver_error_output_starting_argv_stderr(
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
 				argc,
-				argv );
+				argv,
+				application_name );
 
 	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address sale_date_time inventory_name state preupdate_quantity preupdate_retail_price preupdate_discount_amount preupdate_inventory_name\n",
+"Usage: %s ignored full_name street_address sale_date_time inventory_name state preupdate_quantity preupdate_retail_price preupdate_discount_amount preupdate_inventory_name\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	full_name = argv[ 2 ];

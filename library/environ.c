@@ -1,4 +1,4 @@
-/* library/environ.c					   */
+/* $APPASERVER_HOME/library/environ.c			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -429,4 +429,34 @@ void add_relative_source_directory_to_path( char *application_name )
 		set_path( bin_path );
 	}
 } /* add_relative_source_directory_to_path() */
+
+char *environ_get_application_name( char *argv_0 )
+{
+	char *application_name;
+
+	application_name =
+		environ_get_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+
+	if ( !application_name )
+	{
+		application_name =
+			environ_get_environment(
+				"DATABASE" );
+	}
+
+	if ( !application_name )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot get application from (%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 argv_0 );
+		exit( 1 );
+	}
+
+	return application_name;
+
+} /* environ_get_application_name() */
 

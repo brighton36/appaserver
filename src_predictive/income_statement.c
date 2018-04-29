@@ -144,31 +144,23 @@ int main( int argc, char **argv )
 	double shares_outstanding;
 */
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc < 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application process fund as_of_date subclassification_option output_medium [net_income_only_yn]\n",
+"Usage: %s ignored process fund as_of_date subclassification_option output_medium [net_income_only_yn]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	is_statement_of_activities =
 		( strcmp( argv[ 0 ], "statement_of_activities" ) == 0 );
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	process_name = argv[ 2 ];
 	fund_name = argv[ 3 ];

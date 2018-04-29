@@ -49,24 +49,19 @@ int main( int argc, char **argv )
 	INVENTORY *inventory;
 	INVENTORY_PURCHASE *inventory_purchase;
 
-	appaserver_error_output_starting_argv_stderr( argc, argv );
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address purchase_date_time inventory_name is_latest_yn\n",
+"Usage: %s ignored full_name street_address purchase_date_time inventory_name is_latest_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	full_name = argv[ 2 ];
@@ -74,42 +69,6 @@ int main( int argc, char **argv )
 	purchase_date_time = argv[ 4 ];
 	inventory_name = argv[ 5 ];
 	is_latest = (*argv[ 6 ] == 'y');
-
-#ifdef NOT_DEFINED
-	if ( is_latest )
-	{
-		INVENTORY *inventory;
-		INVENTORY_PURCHASE *inventory_purchase;
-
-		inventory_purchase =
-			inventory_purchase_fetch(
-				application_name,
-				full_name,
-				street_address,
-				purchase_date_time,
-				inventory_name );
-
-		inventory = inventory_load_new(
-				application_name,
-				inventory_name );
-
-		propagate_inventory_purchase_layers_latest(
-			inventory_purchase,
-			inventory,
-			application_name );
-	}
-	else
-	{
-		char sys_string[ 1024 ];
-
-		sprintf( sys_string,
-		"propagate_inventory_sale_layers %s '' '' '' \"%s\" '' n",
-			 application_name,
-			 inventory_name );
-
-		system( sys_string );
-	}
-#endif
 
 	if ( ! ( purchase_order =
 			purchase_order_new(

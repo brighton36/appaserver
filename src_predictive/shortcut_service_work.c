@@ -83,22 +83,19 @@ int main( int argc, char **argv )
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 12 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process login_name full_name street_address sale_date_time operation hourly_fixed service_name description begin_work_date_time\n",
+"Usage: %s ignored process login_name full_name street_address sale_date_time operation hourly_fixed service_name description begin_work_date_time\n",
 		argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	process_name = argv[ 2 ];
@@ -111,8 +108,6 @@ int main( int argc, char **argv )
 	service_name = argv[ 9 ];
 	description = argv[ 10 ];
 	begin_work_date_time = argv[ 11 ];
-
-	appaserver_error_output_starting_argv_stderr( argc, argv );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

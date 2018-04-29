@@ -34,15 +34,21 @@ int main( int argc, char **argv )
 	char *account_name = {0};
 	char *database_string = {0};
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc < 4 )
 	{
 		fprintf( stderr, 
-"Usage: %s application transaction_date_time preupdate_transaction_date_time [account ...]\n",
+"Usage: %s ignored transaction_date_time preupdate_transaction_date_time [account ...]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	transaction_date_time = argv[ 2 ];
 	preupdate_transaction_date_time = argv[ 3 ];
 
@@ -69,24 +75,6 @@ int main( int argc, char **argv )
 		propagate_transaction_date_time =
 			transaction_date_time;
 	}
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
 
 	/* ---------------------------------------------------- */
 	/* If TRANSACTION.transaction_date_time was changed.	*/

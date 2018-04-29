@@ -64,34 +64,26 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 6 )
 	{
 		fprintf(stderr,
-	"Usage: %s application process fund undo_yn execute_yn\n",
+	"Usage: %s ignored process fund undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	process_name = argv[ 2 ];
 	fund_name = argv[ 3 ];
 	undo = (*argv[ 4 ]) == 'y';
 	execute = (*argv[ 5 ]) == 'y';
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
 
 	appaserver_error_output_starting_argv_stderr(
 				argc,

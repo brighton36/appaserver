@@ -63,37 +63,25 @@ int main( int argc, char **argv )
 	char *output_medium;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	FILE *output_pipe;
 
-	if ( argc != 4 )
-	{
-		fprintf( stderr, 
-			 "Usage: %s application process_name output_medium\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	output_medium=argv[ 3 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
+	if ( argc != 4 )
+	{
+		fprintf( stderr, 
+			 "Usage: %s ignored process_name output_medium\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
+
+	process_name = argv[ 2 ];
+	output_medium=argv[ 3 ];
 
 #ifndef TEST_COMPUTER
 	add_relative_source_directory_to_path( application_name );

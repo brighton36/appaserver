@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_capitolpops/post_capitolpops.c		       	*/
+/* src_communityband/post_capitolpops.c		       	*/
 /* --------------------------------------------------- 	*/
 /* This gets executed from the Capitolpops website.     */
 /* --------------------------------------------------- 	*/

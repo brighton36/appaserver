@@ -1,4 +1,4 @@
-/* src_capitolpops/composition_venue_summary.c		   */
+/* src_communityband/composition_venue_summary.c	   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */

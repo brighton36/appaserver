@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_capitolpops/dues_payment.c					*/
+/* src_communityband/dues_payment.c					*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver dues_payment ADT.				*/
 /*									*/

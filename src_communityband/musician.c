@@ -1,4 +1,4 @@
-/* src_capitolpops/musician.c						*/
+/* src_communityband/musician.c						*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver musician ADT.					*/
 /*									*/

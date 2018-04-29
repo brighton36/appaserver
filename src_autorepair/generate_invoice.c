@@ -95,7 +95,6 @@ int main( int argc, char **argv )
 	char *output_directory;
 	char *ftp_output_filename;
 	DOCUMENT *document;
-	char *database_string = {0};
 	APPLICATION_CONSTANTS *application_constants;
 	boolean workorder = 0;
 	char sys_string[ 1024 ];
@@ -105,30 +104,22 @@ int main( int argc, char **argv )
 	int vehicle_year = 0;
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-"Usage: %s application process full_name street_address sale_date_time\n",
+"Usage: %s ignored process full_name street_address sale_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	workorder = ( strcmp( argv[ 0 ], "generate_workorder" ) == 0 );
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	process_name = argv[ 2 ];
 	full_name = argv[ 3 ];

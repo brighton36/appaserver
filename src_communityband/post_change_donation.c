@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_capitolpops/post_change_donation.c		*/
+/* $APPASERVER_HOME/src_communityband/post_change_donation.c		*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -67,30 +67,20 @@ int main( int argc, char **argv )
 	char *preupdate_full_name;
 	char *preupdate_street_address;
 	char *preupdate_donation_date;
-	char *database_string = {0};
+
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address donation_date state preupdate_full_name preupdate_street_address preupdate_donation_date\n",
+"Usage: %s ignored full_name street_address donation_date state preupdate_full_name preupdate_street_address preupdate_donation_date\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
 	}
 
 	full_name = argv[ 2 ];
@@ -100,10 +90,6 @@ int main( int argc, char **argv )
 	preupdate_full_name = argv[ 6 ];
 	preupdate_street_address = argv[ 7 ];
 	preupdate_donation_date = argv[ 8 ];
-
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
 
 	/* ------------------------------------ */
 	/* Execute on predelete because there's	*/

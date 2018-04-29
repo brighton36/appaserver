@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_capitolpops/parse_contact_list.c		       	*/
+/* src_communityband/parse_contact_list.c	       	*/
 /* --------------------------------------------------- 	*/
 /* Freely available software: see Appaserver.org	*/
 /* --------------------------------------------------- 	*/

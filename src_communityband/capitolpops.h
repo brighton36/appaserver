@@ -1,4 +1,4 @@
-/* src_capitolpops/capitolpops.h					*/
+/* src_communityband/capitolpops.h					*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */

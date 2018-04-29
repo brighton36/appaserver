@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_capitolpops/post_change_donation_account.c	*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_communityband/post_change_donation_account.c	*/
+/* -----------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* -----------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -73,23 +73,20 @@ int main( int argc, char **argv )
 	char *state;
 	char *preupdate_account_name;
 	char *preupdate_donation_amount;
-	char *database_string = {0};
+
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s application full_name street_address donation_date account_name state preupdate_account_name preupdate_donation_amount\n",
+"Usage: %s ignored full_name street_address donation_date account_name state preupdate_account_name preupdate_donation_amount\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	full_name = argv[ 2 ];
@@ -99,10 +96,6 @@ int main( int argc, char **argv )
 	state = argv[ 6 ];
 	preupdate_account_name = argv[ 7 ];
 	preupdate_donation_amount = argv[ 8 ];
-
-	appaserver_error_output_starting_argv_stderr(
-				argc,
-				argv );
 
 	/* ------------------------------------------------------------ */
 	/* If executed via propagate, then everything is		*/

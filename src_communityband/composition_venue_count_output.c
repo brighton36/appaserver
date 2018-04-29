@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_capitolpops/composition_venue_count_output.c    	*/
+/* src_communityband/composition_venue_count_output.c  	*/
 /* --------------------------------------------------- 	*/
 /* Freely available software: see Appaserver.org	*/
 /* --------------------------------------------------- 	*/
@@ -75,22 +75,19 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application session process_name composition city venue output_medium\n",
+"Usage: %s ignored session process_name composition city venue output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 	}
 
 	session = argv[ 2 ];
@@ -106,17 +103,7 @@ int main( int argc, char **argv )
 	if ( strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = DEFAULT_OUTPUT_MEDIUM;
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	format_initial_capital( title, process_name );
 

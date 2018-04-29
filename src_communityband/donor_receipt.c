@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_capitolpops/donor_receipt.c			*/
+/* $APPASERVER_HOME/src_communityband/donor_receipt.c			*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -77,28 +77,20 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *year_string;
 
-	if ( argc != 4 )
-	{
-		fprintf( stderr,
-"Usage: %s application process year\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
+
+	if ( argc != 4 )
+	{
+		fprintf( stderr,
+"Usage: %s ignored process year\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
 
 	process_name = argv[ 2 ];
 	year_string = argv[ 3 ];

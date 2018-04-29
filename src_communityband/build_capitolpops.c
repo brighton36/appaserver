@@ -1,10 +1,10 @@
-/* ----------------------------------------------------	*/
-/* $APPASERVER_HOME/src_capitolpops/build_capitolpops.c	*/
-/* ----------------------------------------------------	*/
-/* This creates the Capitolpops website. 		*/
-/* ----------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ----------------------------------------------------	*/
+/* ------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_communityband/build_capitolpops.c	*/
+/* ------------------------------------------------------	*/
+/* This creates the Capitolpops website. 			*/
+/* ------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,37 +42,24 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 
-	if ( argc != 3 )
-	{
-		fprintf( stderr,
-			 "Usage: %s application process_name\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	process_name = argv[ 2 ];
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	if ( argc != 3 )
+	{
+		fprintf( stderr,
+			 "Usage: %s ignored process_name\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
+
+	process_name = argv[ 2 ];
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	format_initial_capital( title, process_name );
 

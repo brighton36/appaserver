@@ -649,6 +649,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 	{
 		element_prompt_data_output(
 				output_file,
+				element->name,
 				element->prompt_data->align,
 				element->prompt_data->data,
 				element->prompt_data->format_initial_capital );
@@ -1690,7 +1691,9 @@ void element_text_item_output( 	FILE *output_file,
 
 	if ( is_numeric )
 	{
-		data = element_place_commas_in_number_string( data );
+		data = element_place_commas_in_number_string(
+				element_name,
+				data );
 	}
 
 	if ( !without_td_tags ) fprintf( output_file, "<td>" );
@@ -2798,6 +2801,7 @@ void element_prompt_data_set_data(		ELEMENT_PROMPT_DATA *e,
 
 void element_prompt_data_output(
 				FILE *output_file,
+				char *element_name,
 				char *align,
 				char *data,
 				boolean format_initial_capital_variable )
@@ -2813,7 +2817,9 @@ void element_prompt_data_output(
 
 		if ( strcmp( align, "right" ) == 0 )
 
-		data = element_place_commas_in_number_string( data );
+		data = element_place_commas_in_number_string(
+				element_name,
+				data );
 	}
 	else
 	{
@@ -4110,9 +4116,11 @@ char *element_seek_initial_data(	char **initial_label,
 
 } /* element_seek_initial_data() */
 
-char *element_place_commas_in_number_string( char *data )
+char *element_place_commas_in_number_string(
+				char *element_name,
+				char *data )
 {
-	if ( timlib_exists_string( data, "year" ) )
+	if ( timlib_exists_string( element_name, "year" ) )
 		return data;
 	else
 		return place_commas_in_number_string( data );

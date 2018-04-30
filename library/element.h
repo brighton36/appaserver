@@ -465,6 +465,7 @@ void element_prompt_data_set_heading( 		ELEMENT_PROMPT_DATA *e,
 						char *heading );
 
 void element_prompt_data_output(		FILE *output_file,
+						char *element_name,
 						char *align,
 						char *data,
 						boolean format_initial_capital);
@@ -757,6 +758,7 @@ char *element_seek_initial_data(	char **initial_label,
 					LIST *option_label_list );
 
 char *element_place_commas_in_number_string(
+					char *element_name,
 					char *data );
 
 #endif

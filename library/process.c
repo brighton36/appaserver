@@ -1092,17 +1092,6 @@ boolean process_executable_ok(	char *executable )
 
 	column( command, 0, executable );
 
-	/* Forbidden executables in $APPASERVER_HOME/src_appaserver */
-	/* -------------------------------------------------------- */
-	if ( timlib_strncmp( command, "sql" ) == 0 ) return 0;
-	if ( timlib_strncmp( command, "get_folder_data" ) == 0 ) return 0;
-
-	if ( timlib_strncmp( command, "upgrade_appaserver_database" ) == 0 )
-		return 0;
-
-	if ( timlib_strncmp( command, "upgrade-appaserver-database" ) == 0 )
-		return 0;
-
 	/* Executable must live in $APPASERVER_HOME/src_* */
 	/* ---------------------------------------------- */
 	sprintf( sys_string, "which %s", command );
@@ -1120,12 +1109,6 @@ boolean process_executable_ok(	char *executable )
 	/* ------------------------------ */
 	if ( *directory == '.' ) return 1;
 
-	/* ---------------------------------------------------- */
-	/* This function checks for a dot in the filename,	*/
-	/* so it must follow the CGI_HOME check.		*/
-	/* ---------------------------------------------------- */
-	if ( !process_interpreted_executable_ok( which_string ) ) return 0;
-
 	/* Must execute from $APPASERVER_HOME/src_* */
 	/* ---------------------------------------- */
 	appaserver_mount_point =
@@ -1135,10 +1118,25 @@ boolean process_executable_ok(	char *executable )
 		 "%s/src_",
 		 appaserver_mount_point );
 
-	if ( timlib_strncmp( directory, check_directory ) == 0 )
+	if ( timlib_strncmp( directory, check_directory ) != 0 ) return 0;
+
+	/* Forbidden executables in $APPASERVER_HOME/src_appaserver */
+	/* -------------------------------------------------------- */
+	if ( timlib_strncmp( command, "sql" ) == 0 ) return 0;
+
+	/* ------------------------------------------------------------ */
+	/* It's okay to execute shell scripts containing 'appaserver'	*/
+	/* if they APPASERVER_DATABASE referenced.			*/
+	/* ------------------------------------------------------------ */
+	if ( process_interpreted_executable_ok( which_string ) )
 		return 1;
-	else
+
+	/* Can't execute upgrade_appaserver_database or the like. */
+	/* ------------------------------------------------------ */
+	if ( timlib_exists_string( command, "appaserver" ) )
 		return 0;
+
+	return 1;
 
 } /* process_executable_ok() */
 

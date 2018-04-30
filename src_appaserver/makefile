@@ -786,7 +786,8 @@ create_application: create_application.c				\
 		-o create_application
 
 create_empty_application: create_empty_application.c			\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS}						\
+	${LIB}/appaserver_library.h
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\

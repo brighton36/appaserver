@@ -15,7 +15,6 @@ then
 fi
 
 application=$APPASERVER_DATABASE
-application=`echo $application | sed 's/:.*$//'`
 
 directory=$2
 line_count=$3

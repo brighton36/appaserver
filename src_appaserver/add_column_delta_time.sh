@@ -1,19 +1,20 @@
 :
+
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must .set_project first." 1>&2
+	exit 1
+fi
+
 if [ "$#" -ne 1 ]
 then
-	echo "Usage: $0 application[:database]" 1>&2
+	echo "Usage: $0 ignored" 1>&2
 	exit 1
 fi
 
 application=$1
 
-database=$(echo $application | piece.e ':' 1 2>/dev/null)
-
-if [ "$database" != "" ]
-then
-	export DATABASE=$database
-	application=$(echo $application | piece.e ':' 0)
-fi
+application=$APPASERVER_DATABASE
 
 for folder in `folder_list.sh $application`
 do

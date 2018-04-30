@@ -2,13 +2,19 @@
 # application_record.sh
 # ---------------------
 
-if [ "$#" -lt 1 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application [delimiter]" 1>&2
+	echo "Error in $0: you must .set_project first." 1>&2
 	exit 1
 fi
 
-application=$1
+application=$APPASERVER_DATABASE
+
+if [ "$#" -lt 1 ]
+then
+	echo "Usage: $0 ignored [delimiter]" 1>&2
+	exit 1
+fi
 
 if [ "$#" -eq 2 ]
 then

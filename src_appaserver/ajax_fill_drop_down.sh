@@ -3,22 +3,20 @@
 # $APPASERVER_HOME/src_appaserver/ajax_fill_drop_down.sh
 # ------------------------------------------------------
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must .set_project first." 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 # echo "$0 $*" 1>&2
 
 if [ "$#" -ne 7 ]
 then
-	echo "Usage: $0 application login_name role session one2m_folder mto1_folder select" 1>&2
+	echo "Usage: $0 ignored login_name role session one2m_folder mto1_folder select" 1>&2
 	exit 1
-fi
-
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
-
-if [ "$database" != "" ]
-then
-	export DATABASE=$database
-else
-	export DATABASE=$application
 fi
 
 login_name=$2

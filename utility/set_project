@@ -12,14 +12,9 @@ then
 else
 	database=$1
 
-	search=":/home/.*/cgi-bin:"
-	replace=":/home/${database}/cgi-bin:"
-
-	newpath=`echo "$PATH" | sed "s|${search}|${replace}|"`
-
-	#export PATH=$newpath:${APPASERVER_HOME}/src_$database
-	export PATH=${APPASERVER_HOME}/src_$database:$newpath
+	export PATH=$PATH:${APPASERVER_HOME}/src_$database
 	export DATABASE=$database
+	export APPASERVER_DATABASE=$database
 fi
 
 #exit 0 <-- will exit shell.

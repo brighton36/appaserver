@@ -6,13 +6,19 @@
 # Freely available software: see Appaserver.org
 # -------------------------------------------------------------------
 
-if [ $# -ne 1 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application" 1>&2
+	echo "Error in $0: you must .set_project first." 1>&2
 	exit 1
 fi
 
-application_name=$1
+application=$APPASERVER_DATABASE
+
+if [ $# -ne 1 ]
+then
+	echo "Usage: $0 ignored" 1>&2
+	exit 1
+fi
 
 document_root=`get_document_root.e`
 appaserver_data=`get_appaserver_data_directory.e`

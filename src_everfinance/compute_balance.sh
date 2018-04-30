@@ -1,5 +1,11 @@
 :
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error: APPASERVER_DATABASE not set" 1>&2
+	exit 1
+fi
+
 echo "$0 $1" 1>&2
 
 if [ "$#" -ne 1 ]

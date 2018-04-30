@@ -281,6 +281,7 @@ char *mysql2american_date(		char *date_buffer,
 					char *mysql_date );
 
 boolean timlib_character_exists(	char *buffer, int c );
+
 boolean character_exists(		char *buffer, int c );
 
 void get_clean_begin_end_date(		char **begin_date,

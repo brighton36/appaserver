@@ -1116,22 +1116,15 @@ boolean process_executable_ok(	char *executable )
 
 	directory = basename_get_directory( which_string );
 
-	/* $CGI_HOME is okay. */
-	/* ------------------ */
+	/* Anything in $CGI_HOME is okay. */
+	/* ------------------------------ */
 	if ( *directory == '.' ) return 1;
 
-	/* -------------------------------------------- */
-	/* Can't execute src_appaserver shell scripts.  */
-	/* Well, except appaserver_info.sh and		*/
-	/* view_appaserver_error_file.sh		*/
-	/* -------------------------------------------- */
-	if ( timlib_exists_string( directory, "src_appaserver" )
-	&&   timlib_exists_string( command, ".sh" )
-	&&   strcmp( command, "appaserver_info.sh" ) != 0
-	&&   strcmp( command, "view_appaserver_error_file.sh" ) != 0 )
-	{
-		return 0;
-	}
+	/* ---------------------------------------------------- */
+	/* This function checks for a dot in the filename,	*/
+	/* so it must follow the CGI_HOME check.		*/
+	/* ---------------------------------------------------- */
+	if ( !process_interpreted_executable_ok( which_string ) ) return 0;
 
 	/* Must execute from $APPASERVER_HOME/src_* */
 	/* ---------------------------------------- */
@@ -1227,3 +1220,17 @@ void process_search_replace_executable_where(
 
 } /* process_search_replace_executable_where() */
 
+boolean process_interpreted_executable_ok( char *which_string )
+{
+	char sys_string[ 1024 ];
+
+	if ( !timlib_character_exists( which_string, '.' ) )
+		return 1;
+
+	sprintf( sys_string,
+		 "grep APPASERVER_DATABASE %s | head -1 | wc -l",
+		 which_string );
+
+	return (boolean)atoi( pipe2string( sys_string ) );
+
+} /* process_interpreted_executable_ok() */

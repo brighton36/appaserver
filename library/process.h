@@ -199,5 +199,8 @@ void process_search_replace_executable_where(
 				LIST *attribute_list,
 				DICTIONARY *where_clause_dictionary );
 
+boolean process_interpreted_executable_ok(
+				char *which_string );
+
 #endif
 

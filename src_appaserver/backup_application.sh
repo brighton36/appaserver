@@ -1,11 +1,18 @@
 :
-if [ "$#" -lt 2 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage:$0 application days_to_keep [backup_subdirectory]" 1>&2
+	echo "Error in $0: you must .set_project first." 1>&2
 	exit 1
 fi
 
-application_database=$1
+application_database=$APPASERVER_DATABASE
+
+if [ "$#" -lt 2 ]
+then
+	echo "Usage:$0 ignored days_to_keep [backup_subdirectory]" 1>&2
+	exit 1
+fi
+
 days_to_keep=$2
 
 if [ "$#" -eq 3 ]

@@ -1,11 +1,18 @@
 :
-if [ "$#" -ne 2 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application login_name" 1>&2
+	echo "Error in $0: you must .set_project first." 1>&2
 	exit 1
 fi
 
-application=`echo $1 | piece.e ':' 0`
+application=$APPASERVER_DATABASE
+
+if [ "$#" -ne 2 ]
+then
+	echo "Usage: $0 ignored login_name" 1>&2
+	exit 1
+fi
+
 login_name=$2
 
 horizontal_menu_yn=`horizontal_menu_yn.e $application $login_name`

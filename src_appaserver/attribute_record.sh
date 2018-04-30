@@ -8,14 +8,21 @@
 
 echo "Starting: $0 $*" 1>&2
 
-if [ "$#" -lt 3 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo \
-"Usage: $0 application attribute dbms [delimiter]" 1>&2
+	echo "Error in $0: you must .set_project first." 1>&2
 	exit 1
 fi
 
-application=$1
+application=$APPASERVER_DATABASE
+
+if [ "$#" -lt 3 ]
+then
+	echo \
+"Usage: $0 ignored attribute dbms [delimiter]" 1>&2
+	exit 1
+fi
+
 attribute=$2
 dbms=$3
 

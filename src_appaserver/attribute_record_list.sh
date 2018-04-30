@@ -7,16 +7,23 @@
 # Freely available software: see Appaserver.org
 # -------------------------------------------------
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must .set_project first." 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 # echo "Starting: $0 $*" 1>&2
 
 if [ "$#" -lt 2 ]
 then
 	echo \
-"Usage: $0 application folder [delimiter]" 1>&2
+"Usage: $0 ignored folder [delimiter]" 1>&2
 	exit 1
 fi
 
-application=$1
 folder=$2
 
 if [ "$#" -eq 3 ]

@@ -3,6 +3,14 @@
 # $APPASERVER_HOME/src_appaserver/appaserver_mysqldump_database.sh
 # ----------------------------------------------------------------
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must .set_project first." 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 appaserver_config_file="/etc/appaserver.config"
 backup_directory="/var/backups/appaserver"
 

@@ -75,16 +75,6 @@ int main( int argc, char **argv )
 
 	if ( build_shell_script_yn == 'y' ) really_yn = 'n';
 
-/*
-	if ( timlib_parse_database_string(	&database_string,
-						current_application ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-*/
-
 	if ( !*destination_application
 	||   strcmp(	destination_application,
 			"destination_application" ) == 0 )

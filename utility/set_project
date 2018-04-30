@@ -12,7 +12,7 @@ then
 else
 	database=$1
 
-	export PATH=$PATH:${APPASERVER_HOME}/src_$database
+	export PATH=${APPASERVER_HOME}/src_$database:$PATH
 	export DATABASE=$database
 	export APPASERVER_DATABASE=$database
 fi

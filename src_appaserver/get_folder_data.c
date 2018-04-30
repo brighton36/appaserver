@@ -72,7 +72,9 @@ int main( int argc, char **argv )
 				&maxrows,
 				arg );
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	/* Security check */
+	/* -------------- */
+	(void)environ_get_application_name( argv[ 0 ] );
 
 	if ( !folder_name || !*folder_name )
 	{

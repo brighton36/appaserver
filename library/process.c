@@ -1120,21 +1120,18 @@ boolean process_executable_ok(	char *executable )
 
 	if ( timlib_strncmp( directory, check_directory ) != 0 ) return 0;
 
-	/* Forbidden executables in $APPASERVER_HOME/src_appaserver */
-	/* -------------------------------------------------------- */
-	if ( timlib_strncmp( command, "sql" ) == 0 ) return 0;
-
 	/* ------------------------------------------------------------ */
 	/* It's okay to execute shell scripts containing 'appaserver'	*/
-	/* if they APPASERVER_DATABASE referenced.			*/
+	/* if APPASERVER_DATABASE is referenced.			*/
 	/* ------------------------------------------------------------ */
 	if ( process_interpreted_executable_ok( which_string ) )
 		return 1;
 
-	/* Can't execute upgrade_appaserver_database or the like. */
-	/* ------------------------------------------------------ */
-	if ( timlib_exists_string( command, "appaserver" ) )
-		return 0;
+	/* Forbidden executables */
+	/* --------------------- */
+	if ( timlib_strncmp( command, "get_folder_data" ) == 0 ) return 0;
+	if ( timlib_strncmp( command, "sql" ) == 0 ) return 0;
+	if ( timlib_exists_string( command, "appaserver" ) ) return 0;
 
 	return 1;
 

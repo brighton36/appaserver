@@ -756,4 +756,7 @@ char *element_seek_initial_data(	char **initial_label,
 					LIST *option_data_list,
 					LIST *option_label_list );
 
+char *element_place_commas_in_number_string(
+					char *data );
+
 #endif

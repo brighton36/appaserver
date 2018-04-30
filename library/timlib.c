@@ -858,7 +858,6 @@ int timlib_get_line(	char *in_line,
 			int buffer_size )
 {
 	int in_char;
-	char *anchor = in_line;
 	int size = 0;
 
 	*in_line = '\0';
@@ -904,6 +903,7 @@ int timlib_get_line(	char *in_line,
 		if ( in_char == EOF )
 		{
 #ifdef NOT_DEFINED
+	char *anchor = in_line;
 			/* --------------------------------------- */
 			/* If last line in file doesn't have a CR, */
 			/* then call this function one more time.  */

@@ -1690,7 +1690,7 @@ void element_text_item_output( 	FILE *output_file,
 
 	if ( is_numeric )
 	{
-		data = place_commas_in_number_string( data );
+		data = element_place_commas_in_number_string( data );
 	}
 
 	if ( !without_td_tags ) fprintf( output_file, "<td>" );
@@ -2813,7 +2813,7 @@ void element_prompt_data_output(
 
 		if ( strcmp( align, "right" ) == 0 )
 
-		data = place_commas_in_number_string( data );
+		data = element_place_commas_in_number_string( data );
 	}
 	else
 	{
@@ -4109,3 +4109,12 @@ char *element_seek_initial_data(	char **initial_label,
 	return (char *)0;
 
 } /* element_seek_initial_data() */
+
+char *element_place_commas_in_number_string( char *data )
+{
+	if ( timlib_exists_string( data, "year" ) )
+		return data;
+	else
+		return place_commas_in_number_string( data );
+
+} /* element_place_commas_in_number_string() */

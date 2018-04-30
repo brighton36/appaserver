@@ -2,15 +2,22 @@
 # src_sparrow/update_inside_seven_minute_count.sh
 # -----------------------------------------------
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must first . set_project" 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 echo Starting: $0 $* 1>&2
 
 if [ "$#" -ne 5 ]
 then
-	echo "Usage: $0 application state quad_sheet site_number visit_date" 1>&2
+	echo "Usage: $0 ignored state quad_sheet site_number visit_date" 1>&2
 	exit 1
 fi
 
-application=$1
 state=$2
 quad_sheet=$3
 site_number=$4

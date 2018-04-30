@@ -7,7 +7,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "appaserver_library.h"
+#include "appaserver_error.h"
 #include "timlib.h"
+#include "environ.h"
 #include "piece.h"
 #include "appaserver_parameter_file.h"
 #include "sparrow_library.h"
@@ -37,17 +39,21 @@ int main( int argc, char **argv )
 	char *quad_sheet_where;
 	char *sys_string;
 
-	output_starting_argv_stderr( argc, argv );
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-"Usage: %s application begin_visit_date end_visit_date quad_sheet group_quad_yn \n",
+"Usage: %s ignored begin_visit_date end_visit_date quad_sheet group_quad_yn \n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	begin_visit_date = argv[ 2 ];
 	end_visit_date = argv[ 3 ];
 	quad_sheet = argv[ 4 ];

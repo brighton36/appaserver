@@ -2,13 +2,19 @@
 
 echo Starting: $0 $* 1>&2
 
-if [ "$#" -ne 2 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application where" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$1
+application=$APPASERVER_DATABASE
+
+if [ "$#" -ne 2 ]
+then
+	echo "Usage: $0 ignored where" 1>&2
+	exit 1
+fi
 
 if [ "$2" != "" -a "$2" != "where" -a "$2" != "\$where" ]
 then

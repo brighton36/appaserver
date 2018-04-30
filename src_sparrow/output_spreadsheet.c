@@ -107,39 +107,26 @@ int main( int argc, char **argv )
 	char *parameter_where;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 
-	if ( argc != 4 )
-	{
-		fprintf( stderr, 
-"Usage: %s application process_name where\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	parameter_where = argv[ 3 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+	if ( argc != 4 )
+	{
+		fprintf( stderr, 
+"Usage: %s ignored process_name where\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	process_name = argv[ 2 ];
+	parameter_where = argv[ 3 ];
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );

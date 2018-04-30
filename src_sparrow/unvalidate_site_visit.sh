@@ -6,15 +6,22 @@
 # ---------
 exit 0
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must first . set_project" 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 echo Starting: $0 $* 1>&2
 
 if [ "$#" -ne 5 ]
 then
-	echo "Usage: $0 application quad_sheet site_number visit_date state" 1>&2
+	echo "Usage: $0 ignored quad_sheet site_number visit_date state" 1>&2
 	exit 1
 fi
 
-application=$1
 quad_sheet=$2
 site_number=$3
 visit_date=$4

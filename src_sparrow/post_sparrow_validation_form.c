@@ -27,6 +27,7 @@
 
 /* Constants */
 /* --------- */
+#define PROCESS_NAME		"validate_site_visit"
 #define USER_COLUMN_NAME	"person_validating"
 #define DATE_COLUMN_NAME	"date_validated"
 #define FLAG_COLUMN_NAME	"validated_yn"
@@ -65,12 +66,19 @@ int main( int argc, char **argv )
 	}
 
 	application_name = argv[ 1 ];
+
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
 	{
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	appaserver_error_starting_argv_append_file(
@@ -89,7 +97,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( session_remote_ip_address_changed(
 		application_name,
@@ -103,6 +111,17 @@ int main( int argc, char **argv )
 	if ( !session_access(	application_name,
 				session,
 				login_name ) )
+	{
+		session_access_failed_message_and_exit(
+			application_name, session, login_name );
+	}
+
+	if ( !session_access_process(
+					application_name,
+					session,
+					PROCESS_NAME,
+					login_name,
+					(char *)0 /* role_name */ ) )
 	{
 		session_access_failed_message_and_exit(
 			application_name, session, login_name );

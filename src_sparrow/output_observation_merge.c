@@ -86,30 +86,21 @@ int main( int argc, char **argv )
 	char *output_medium;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
+
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 9 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process_name session begin_visit_date end_visit_date quad_sheet group_quad_yn output_medium\n",
+"Usage: %s ignored process_name session begin_visit_date end_visit_date quad_sheet group_quad_yn output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	process_name = argv[ 2 ];
 	session = argv[ 3 ];

@@ -37,8 +37,7 @@
 /* ---------- */
 void output_table_year_heading( void );
 
-void output_stdout(		char *application_name,
-				char *group_by,
+void output_stdout(		char *group_by,
 				char *quad_sheet,
 				char *sort_by_per_visit_yn );
 
@@ -46,16 +45,13 @@ char *get_heading(		char *group_by,
 				char *quad_sheet );
 
 void output_table_year(
-				char *application_name,
 				char *sort_by_per_visit_yn );
 
 void output_table_year_location(
-				char *application_name,
 				char *quad_sheet,
 				char *sort_by_per_visit_yn );
 
 void output_table_location(
-				char *application_name,
 				char *sort_by_per_visit_yn );
 
 void output_spreadsheet(
@@ -87,30 +83,21 @@ int main( int argc, char **argv )
 	char *output_medium;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
+
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process_name session group_by quad_sheet sort_by_per_visit_yn output_medium\n",
+"Usage: %s ignored process_name session group_by quad_sheet sort_by_per_visit_yn output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	process_name = argv[ 2 ];
 	session = argv[ 3 ];
@@ -185,7 +172,6 @@ int main( int argc, char **argv )
 		&&   strcmp( quad_sheet, "quad_sheet" ) != 0 )
 		{
 			output_table_year_location(
-				application_name,
 				quad_sheet,
 				sort_by_per_visit_yn );
 		}
@@ -193,13 +179,11 @@ int main( int argc, char **argv )
 		if ( strcmp( group_by, "year" ) == 0 )
 		{
 			output_table_year(
-				application_name,
 				sort_by_per_visit_yn );
 		}
 		else
 		{
 			output_table_location(
-				application_name,
 				sort_by_per_visit_yn );
 		}
 	}
@@ -230,8 +214,7 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "stdout" ) == 0 )
 	{
-		output_stdout(	application_name,
-				group_by,
+		output_stdout(	group_by,
 				quad_sheet,
 				sort_by_per_visit_yn );
 	}
@@ -247,7 +230,6 @@ int main( int argc, char **argv )
 } /* main() */
 
 void output_table_year(
-			char *application_name,
 			char *sort_by_per_visit_yn )
 {
 	char sys_string[ 1024 ];
@@ -256,8 +238,7 @@ void output_table_year(
 	int row_count = -1;
 
 	sprintf( sys_string,
-		 "bird_count_group_by %s year '' '%s'",
-		 application_name,
+		 "bird_count_group_by ignored year '' '%s'",
 		 sort_by_per_visit_yn );
 
 	input_pipe = popen( sys_string, "r" );
@@ -327,7 +308,6 @@ void output_table_year_heading( void )
 } /* output_table_year_heading() */
 
 void output_table_year_location(
-			char *application_name,
 			char *quad_sheet,
 			char *sort_by_per_visit_yn )
 {
@@ -338,8 +318,7 @@ void output_table_year_location(
 	char output_buffer[ 1024 ];
 
 	sprintf( sys_string,
-		 "bird_count_group_by %s year '%s' '%s'",
-		 application_name,
+		 "bird_count_group_by ignored year '%s' '%s'",
 		 quad_sheet,
 		 sort_by_per_visit_yn );
 
@@ -363,7 +342,6 @@ void output_table_year_location(
 } /* output_table_year_location() */
 
 void output_table_location(
-			char *application_name,
 			char *sort_by_per_visit_yn )
 {
 	char sys_string[ 1024 ];
@@ -373,8 +351,7 @@ void output_table_location(
 	char output_buffer[ 1024 ];
 
 	sprintf( sys_string,
-		 "bird_count_group_by %s location quad_sheet '%s'",
-		 application_name,
+		 "bird_count_group_by ignored location quad_sheet '%s'",
 		 sort_by_per_visit_yn );
 
 	input_pipe = popen( sys_string, "r" );
@@ -397,7 +374,6 @@ void output_table_location(
 } /* output_table_location() */
 
 void output_stdout(
-			char *application_name,
 			char *group_by,
 			char *quad_sheet,
 			char *sort_by_per_visit_yn )
@@ -410,8 +386,7 @@ void output_stdout(
 	printf( "%s\n", get_heading( group_by, quad_sheet ) );
 
 	sprintf( sys_string,
-		 "bird_count_group_by %s %s '%s' '%s' | tr '^' ','",
-		 application_name,
+		 "bird_count_group_by ignored %s '%s' '%s' | tr '^' ','",
 		 group_by,
 		 quad_sheet,
 		 sort_by_per_visit_yn );
@@ -500,8 +475,7 @@ void output_spreadsheet(
 	fprintf( output_file, "%s\n", get_heading( group_by, quad_sheet ) );
 
 	sprintf( sys_string,
-		 "bird_count_group_by %s %s '%s' '%s' | tr '^' ','",
-		 application_name,
+		 "bird_count_group_by ignored %s '%s' '%s' | tr '^' ','",
 		 group_by,
 		 quad_sheet,
 		 sort_by_per_visit_yn );
@@ -598,8 +572,7 @@ void output_text_file(
 	fprintf( output_pipe, "%s\n", get_heading( group_by, quad_sheet ) );
 
 	sprintf( sys_string,
-		 "bird_count_group_by %s %s '%s' '%s' | tr '^' ','",
-		 application_name,
+		 "bird_count_group_by ignored %s '%s' '%s' | tr '^' ','",
 		 group_by,
 		 quad_sheet,
 		 sort_by_per_visit_yn );

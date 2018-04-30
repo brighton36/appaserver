@@ -4,13 +4,20 @@
 
 echo Starting: $0 $* 1>&2
 
-if [ "$#" -ne 3 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application from_process_yn where" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$1
+application=$APPASERVER_DATABASE
+
+if [ "$#" -ne 3 ]
+then
+	echo "Usage: $0 ignored from_process_yn where" 1>&2
+	exit 1
+fi
+
 from_process_yn=$2
 
 if [ "$3" != "" -a "$3" != "where" -a "$3" != "\$where" ]

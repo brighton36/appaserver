@@ -110,17 +110,21 @@ int main( int argc, char **argv )
 	boolean sort_by_per_visit;
 	char *sys_string;
 
-	output_starting_argv_stderr( argc, argv );
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s application group_by quad_sheet sort_by_per_visit_yn\n",
+	"Usage: %s ignored group_by quad_sheet sort_by_per_visit_yn\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	group_by = argv[ 2 ];
 	quad_sheet = argv[ 3 ];
 	sort_by_per_visit = ( *argv[ 4 ] == 'y' );

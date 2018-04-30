@@ -67,20 +67,23 @@ int main( int argc, char **argv )
 	char *title;
 	char action_string[ 1024 ];
 	DOCUMENT *document;
-	char *database_string = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	output_starting_argv_stderr( argc, argv );
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process session login_name quad_sheet site_number visit_date\n",
+"Usage: %s ignored process session login_name quad_sheet site_number visit_date\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	strcpy( original_application_name, application_name );
 
 	process_name = argv[ 2 ];
@@ -90,15 +93,7 @@ int main( int argc, char **argv )
 	site_number = atoi( argv[ 6 ] );
 	visit_date = argv[ 7 ];
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	sprintf( action_string,
 		"%s/post_sparrow_validation_form?%s+%s+%s+%s+%d+%s",
@@ -110,15 +105,6 @@ int main( int argc, char **argv )
 		 site_number,
 		 visit_date );
 
-{
-char msg[ 1024 ];
-sprintf( msg, "%s/%s()/%d: got action_string = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-action_string );
-m2( "sparrow", msg );
-}
 	site_visit =
 		site_visit_new(
 			quad_sheet,

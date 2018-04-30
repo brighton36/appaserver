@@ -2,28 +2,25 @@
 # -----------------------------------------------------------------
 # $APPASERVER_HOME/src_predictive/export_predictivebooks.sh
 # -----------------------------------------------------------------
-if [ "$#" -ne 3 ]
+
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application input_file cleanup_script" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
+application=$APPASERVER_DATABASE
 
-if [ "$database" != "" ]
+if [ "$#" -ne 3 ]
 then
-	export DATABASE=$database
-else
-	export DATABASE=$application
+	echo "Usage: $0 ignored input_file cleanup_script" 1>&2
+	exit 1
 fi
 
 input_file=$2
 cleanup_script=$3
 
-directory=$appaserver_home/src_predictive
 output_shell="`basename.e $input_file y`".sh
-
 source_file="$APPASERVER_HOME/library/appaserver_library.h"
 
 echo "Here is $source_file"
@@ -33,11 +30,6 @@ sleep 5
 echo "executing..."
 
 appaserver_config_file="/etc/appaserver.config"
-
-label="appaserver_mount_point="
-appaserver_home=`cat $appaserver_config_file	| \
-		 grep "^${label}"		| \
-		 sed "s/$label//"`
 
 function export_processes()
 {

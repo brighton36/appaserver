@@ -4,16 +4,22 @@
 #
 # Freely available software: see Appaserver.org
 # -------------------------------------------------------------
-if [ "$#" -ne 2 ]
+
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application tax_form" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$1
-tax_form=$2
+application=$APPASERVER_DATABASE
 
-export DATABASE=$application
+if [ "$#" -ne 2 ]
+then
+	echo "Usage: $0 ignored tax_form" 1>&2
+	exit 1
+fi
+
+tax_form=$2
 
 key=".tax_form_line "
 

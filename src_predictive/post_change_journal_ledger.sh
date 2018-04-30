@@ -1,13 +1,20 @@
 :
 echo "$0 $*" 1>&2
 
-if [ "$#" -ne 7 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$1
+application=$APPASERVER_DATABASE
+
+if [ "$#" -ne 7 ]
+then
+	echo "Usage: $0 ignored full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account" 1>&2
+	exit 1
+fi
+
 full_name=$2
 street_address=$3
 transaction_date_time=$4
@@ -20,8 +27,6 @@ if [ "$transaction_date_time" = ""				\
 then
 	exit 0
 fi
-
-export DATABASE=$application
 
 if [ "$preupdate_transaction_date_time" != "preupdate_transaction_date_time" ]
 then

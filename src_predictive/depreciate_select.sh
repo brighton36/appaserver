@@ -3,20 +3,18 @@
 # $APPASERVER_HOME/src_accountancymodel/depreciate_select.sh
 # ----------------------------------------------------------
 
-if [ "$#" -ne 2 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application fund" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
+application=$APPASERVER_DATABASE
 
-if [ "$database" != "" ]
+if [ "$#" -ne 2 ]
 then
-	export DATABASE=$database
-else
-	export DATABASE=$application
+	echo "Usage: $0 ignored fund" 1>&2
+	exit 1
 fi
 
 fund=$2

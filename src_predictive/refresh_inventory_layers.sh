@@ -3,20 +3,18 @@
 # $APPASERVER_HOME/src_predictive/refresh_inventory_layers.sh
 # -----------------------------------------------------------------
 
-if [ "$#" -eq 0 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application [inventory]" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
+application=$APPASERVER_DATABASE
 
-if [ "$database" != "" ]
+if [ "$#" -eq 0 ]
 then
-	export DATABASE=$database
-else
-	export DATABASE=$application
+	echo "Usage: $0 ignored [inventory]" 1>&2
+	exit 1
 fi
 
 if [ "$#" -eq 2 ]

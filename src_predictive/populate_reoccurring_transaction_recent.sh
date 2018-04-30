@@ -1,12 +1,17 @@
 :
-if [ "$#" -ne 1 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$1
-export DATABASE=$application
+application=$APPASERVER_DATABASE
+
+if [ "$#" -ne 1 ]
+then
+	echo "Usage: $0 ignored" 1>&2
+	exit 1
+fi
 
 table="reoccurring_transaction"
 

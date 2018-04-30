@@ -3,20 +3,18 @@
 # $APPASERVER_HOME/src_accountancymodel/accumulated_depreciation_reset.sh
 # -----------------------------------------------------------------------
 
-if [ "$#" -ne 1 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
+application=$APPASERVER_DATABASE
 
-if [ "$database" != "" ]
+if [ "$#" -ne 1 ]
 then
-	export DATABASE=$database
-else
-	export DATABASE=$application
+	echo "Usage: $0 ignored" 1>&2
+	exit 1
 fi
 
 echo "	update fixed_asset_purchase				\

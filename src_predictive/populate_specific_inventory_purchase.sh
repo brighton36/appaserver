@@ -1,14 +1,19 @@
 :
-if [ "$#" -ne 2 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application one2m_folder" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$1
-one2m_folder=$2
+application=$APPASERVER_DATABASE
 
-export DATABASE=$application
+if [ "$#" -ne 2 ]
+then
+	echo "Usage: $0 ignored one2m_folder" 1>&2
+	exit 1
+fi
+
+one2m_folder=$2
 
 table="specific_inventory_purchase"
 

@@ -5,24 +5,25 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------------------------
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must first . set_project" 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 echo $0 $* 1>&2
 
 if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 application where" 1>&2
+	echo "Usage: $0 ignored where" 1>&2
 	exit 1
 fi
 
-application=$1
 parameter_where=$2
 
-export DATABASE=$application
-
 table="investment_account"
-
-# Javascript won't receive [$classification] with this select.
-# ------------------------------------------------------------
-#select="full_name, street_address, concat( account_number, '|', full_name, '---', street_address, '---', account_number, ' [', classification, ']' )"
 
 select="concat( full_name, '^', street_address, '^', account_number, ' [', classification, ']' )"
 

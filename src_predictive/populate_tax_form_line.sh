@@ -2,23 +2,22 @@
 # ---------------------------------------------------------------
 # $APPASERVER_HOME/src_predictive/populate_tax_form_line.sh
 # ---------------------------------------------------------------
+
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must first . set_project" 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 if [ "$#" -eq 0 ]
 then
-	echo "Usage: $0 application [where]" 1>&2
+	echo "Usage: $0 ignored [where]" 1>&2
 	exit 1
 fi
 
 echo $0 $* 1>&2
-
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
-
-if [ "$database" != "" ]
-then
-	export DATABASE=$database
-else
-	export DATABASE=$application
-fi
 
 if [ $# -eq 2 -a "$2" != "where" ]
 then

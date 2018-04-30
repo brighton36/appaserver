@@ -1,6 +1,6 @@
 #!/bin/bash
 # ---------------------------------------------------------------
-# $APPASERVER_HOME/src_accountancymodel/program_journal_ledger.sh
+# $APPASERVER_HOME/src_predictive/program_journal_ledger.sh
 # ---------------------------------------------------------------
 #
 # Freely available software: see Appaserver.org

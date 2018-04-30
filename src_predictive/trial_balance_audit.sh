@@ -1,11 +1,18 @@
 :
-if [ "$#" != 4 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application begin_date end_date fund" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$1
+application=$APPASERVER_DATABASE
+
+if [ "$#" != 4 ]
+then
+	echo "Usage: $0 ignored begin_date end_date fund" 1>&2
+	exit 1
+fi
+
 begin_date=$2
 end_date=$3
 fund=$4

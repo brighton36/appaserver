@@ -8,17 +8,15 @@ then
 	exit 1
 fi
 
-echo $0 $* 1>&2
-
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
-
-if [ "$database" != "" ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	export DATABASE=$database
-else
-	export DATABASE=$application
+	echo "Error in $0: you must first . set_project" 1>&2
+	exit 1
 fi
+
+application=$APPASERVER_DATABASE
+
+echo $0 $* 1>&2
 
 one2m_folder=$2
 subclassification=$3

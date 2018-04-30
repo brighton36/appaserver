@@ -5,18 +5,23 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------------------------
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must first . set_project" 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 echo $0 $* 1>&2
 
 if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 application inventory_category" 1>&2
+	echo "Usage: $0 ignored inventory_category" 1>&2
 	exit 1
 fi
 
-application=$1
 inventory_category=$2
-
-export DATABASE=$application
 
 table="inventory"
 

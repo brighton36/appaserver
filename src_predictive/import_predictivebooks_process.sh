@@ -3,6 +3,14 @@
 # $APPASERVER_HOME/src_predictive/import_predictivebooks_process.sh
 # -------------------------------------------------------------------------
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must first . set_project" 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 # Input
 # -----
 
@@ -10,18 +18,8 @@ echo "$0" "$*" 1>&2
 
 if [ "$#" -ne 4 ]
 then
-	echo "Usage: $0 application process_name module execute_yn" 1>&2
+	echo "Usage: $0 ignored process_name module execute_yn" 1>&2
 	exit 1
-fi
-
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
-
-if [ "$database" != "" ]
-then
-	export DATABASE=$database
-else
-	export DATABASE=$application
 fi
 
 process_name=$2

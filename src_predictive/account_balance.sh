@@ -4,17 +4,23 @@
 # Freely available software. See appaserver.org
 # ---------------------------------------------
 
+if [ "$APPASERVER_DATABASE" = "" ]
+then
+	echo "Error in $0: you must first . set_project" 1>&2
+	exit 1
+fi
+
+application=$APPASERVER_DATABASE
+
 content_type_cgi.sh
 
 echo "$0 $*" 1>&2
 
 if [ "$#" -ne 5 ]
 then
-	echo "Usage: $0 application process_name as_of_date institution_full_name institution_street_address" 1>&2
+	echo "Usage: $0 ignored process_name as_of_date institution_full_name institution_street_address" 1>&2
 	exit 1
 fi
-
-application=$(echo $1 | piece.e ':' 0)
 
 process_name=$(echo $2 | format_initial_capital.e)
 

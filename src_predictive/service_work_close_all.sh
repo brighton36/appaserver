@@ -3,20 +3,18 @@
 # $APPASERVER_HOME/src_predictive/service_work_close_all.sh
 # ---------------------------------------------------------
 
-if [ "$#" -ne 2 ]
+if [ "$APPASERVER_DATABASE" = "" ]
 then
-	echo "Usage: $0 application login_name" 1>&2
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
+application=$APPASERVER_DATABASE
 
-if [ "$database" != "" ]
+if [ "$#" -ne 2 ]
 then
-	export DATABASE=$database
-else
-	export DATABASE=$application
+	echo "Usage: $0 ignored login_name" 1>&2
+	exit 1
 fi
 
 login_name=$2

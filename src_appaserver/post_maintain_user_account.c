@@ -46,7 +46,6 @@ void execute_output_process(	char *application_name,
 				char *login_name,
 				char *role_name,
 				char *session_key,
-				char *database_string,
 				char *message );
 
 boolean post_state_update(	DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -214,7 +213,6 @@ int main( int argc, char **argv )
 				login_name,
 				role_name,
 				session_key,
-				database_string,
 				message );
 
 	}
@@ -377,7 +375,6 @@ void execute_output_process(	char *application_name,
 				char *login_name,
 				char *role_name,
 				char *session_key,
-				char *database_string,
 				char *message )
 {
 	char sys_string[ 1024 ];
@@ -388,9 +385,7 @@ void execute_output_process(	char *application_name,
 	{
 		sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %s 2>>%s",
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session_key,
 			login_name,
 			role_name,
@@ -404,9 +399,7 @@ void execute_output_process(	char *application_name,
 
 	sprintf(sys_string,
 "maintain_user_account %s %s %s %s \"%s\" 2>>%s",
-		 timlib_get_parameter_application_name(
-		 	application_name,
-			database_string ),
+		 application_name,
 		 session_key,
 		 login_name,
 		 role_name,

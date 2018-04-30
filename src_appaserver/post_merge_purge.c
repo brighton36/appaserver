@@ -73,7 +73,6 @@ void post_state_one(		char *application_name,
 				char *session,
 				char *role_name,
 				char *folder_name,
-				char *database_string,
 				char *login_name,
 				char *process_name );
 
@@ -221,9 +220,7 @@ int main( int argc, char **argv )
 
 		sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %c %c 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role_name,
@@ -275,7 +272,6 @@ int main( int argc, char **argv )
 				session,
 				role_name,
 				folder_name,
-				database_string,
 				login_name,
 				process_name );
 	}
@@ -298,7 +294,6 @@ void post_state_one(	char *application_name,
 			char *session,
 			char *role_name,
 			char *folder_name,
-			char *database_string,
 			char *login_name,
 			char *process_name )
 {
@@ -322,9 +317,7 @@ void post_state_one(	char *application_name,
 		" action=\"%s/post_merge_purge?%s+%s+%s+%s+%s+two\""
 		" target=%s>\n",
 		appaserver_parameter_file_get_cgi_directory(),
-		timlib_get_parameter_application_name(
-		 	application_name,
-			database_string ),
+		application_name,
 		session,
 		role_name,
 		folder_name,

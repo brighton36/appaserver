@@ -82,7 +82,6 @@ DICTIONARY *output_folder_detail(
 				boolean output_even_if_not_populated,
 				DICTIONARY_APPASERVER *dictionary_appaserver,
 				boolean override_row_restrictions,
-				char *database_string,
 				enum omit_delete_operation,
 				LIST *non_edit_folder_name_list,
 				boolean make_primary_keys_non_edit );
@@ -107,8 +106,7 @@ void output_mto1_folder_detail(	int *form_number,
 				boolean override_row_restrictions,
 				LIST *role_folder_insert_list,
 				LIST *role_folder_update_list,
-				LIST *role_folder_lookup_list,
-				char *database_string );
+				LIST *role_folder_lookup_list );
 
 void output_1tom_folder_detail(	int *form_number,
 				char *application_name,
@@ -126,8 +124,7 @@ void output_1tom_folder_detail(	int *form_number,
 				boolean override_row_restrictions,
 				LIST *role_folder_insert_list,
 				LIST *role_folder_update_list,
-				LIST *role_folder_lookup_list,
-				char *database_string );
+				LIST *role_folder_lookup_list );
 
 int main( int argc, char **argv )
 {
@@ -157,10 +154,6 @@ int main( int argc, char **argv )
 	int parent_pid;
 	int form_number;
 	APPASERVER *appaserver;
-
-	/* Need to retire this: */
-	/* -------------------- */
-	char *database_string = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -416,7 +409,6 @@ int main( int argc, char **argv )
 		dictionary_appaserver,
 		role_get_override_row_restrictions(
 			role->override_row_restrictions_yn ),
-		database_string,
 		dont_omit_delete,
 		non_edit_folder_name_list,
 		0 /* not make_primary_keys_non_edit */ );
@@ -501,7 +493,6 @@ int main( int argc, char **argv )
 			dictionary_appaserver,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
-			database_string,
 			dont_omit_delete,
 			non_edit_folder_name_list,
 			1 /* make_primary_keys_non_edit */ );
@@ -528,8 +519,7 @@ int main( int argc, char **argv )
 				role->override_row_restrictions_yn ),
 			role_folder_insert_list,
 			role_folder_update_list,
-			role_folder_lookup_list,
-			database_string );
+			role_folder_lookup_list );
 
 	output_mto1_folder_detail(
 			&form_number,
@@ -549,8 +539,7 @@ int main( int argc, char **argv )
 				role->override_row_restrictions_yn ),
 			role_folder_insert_list,
 			role_folder_update_list,
-			role_folder_lookup_list,
-			database_string );
+			role_folder_lookup_list );
 
 	save_ending_form_number(
 			appaserver_parameter_file->
@@ -666,8 +655,7 @@ void output_1tom_folder_detail(	int *form_number,
 				boolean override_row_restrictions,
 				LIST *role_folder_insert_list,
 				LIST *role_folder_update_list,
-				LIST *role_folder_lookup_list,
-				char *database_string )
+				LIST *role_folder_lookup_list )
 {
 	RELATED_FOLDER *related_folder;
 	APPASERVER *appaserver;
@@ -864,7 +852,6 @@ void output_1tom_folder_detail(	int *form_number,
 				local_output_even_if_not_populated,
 				dictionary_appaserver,
 				override_row_restrictions,
-				database_string,
 				dont_omit_delete,
 				non_edit_folder_name_list,
 				0 /* not make_primary_keys_non_edit */ );
@@ -918,8 +905,7 @@ void output_mto1_folder_detail(	int *form_number,
 				boolean override_row_restrictions,
 				LIST *role_folder_insert_list,
 				LIST *role_folder_update_list,
-				LIST *role_folder_lookup_list,
-				char *database_string )
+				LIST *role_folder_lookup_list )
 {
 	RELATED_FOLDER *related_folder;
 	APPASERVER *appaserver;
@@ -1058,7 +1044,6 @@ void output_mto1_folder_detail(	int *form_number,
 				0 /* not output_even_if_not_populated */,
 				dictionary_appaserver,
 				override_row_restrictions,
-				database_string,
 				omit_delete,
 				non_edit_folder_name_list,
 				1 /* make_primary_keys_non_edit */ );
@@ -1091,7 +1076,6 @@ DICTIONARY *output_folder_detail(
 				boolean output_even_if_not_populated,
 				DICTIONARY_APPASERVER *dictionary_appaserver,
 				boolean override_row_restrictions,
-				char *database_string,
 				enum omit_delete_operation
 					omit_delete_operation,
 				LIST *non_edit_folder_name_list,
@@ -1229,9 +1213,7 @@ DICTIONARY *output_folder_detail(
 	"%s/post_edit_table_form?%s+%s+%s+%s+%s+%s+detail!%s+%s+%d+%s",
 			appaserver_parameter_file_get_cgi_directory(),
 			login_name, 
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session, 
 			folder_name,
 			role_name,
@@ -1249,7 +1231,7 @@ DICTIONARY *output_folder_detail(
 					"update",
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					folder_name,
 					role_name );

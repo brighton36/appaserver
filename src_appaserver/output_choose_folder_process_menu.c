@@ -44,7 +44,6 @@ LIST *get_process_record_list(
 void output_process_element(	char *apache_cgi_directory,
 				char *server_address,
 				char *application_name,
-				char *database_string,
 				char *login_name,
 				char *session,
 				char *process_name,
@@ -54,7 +53,6 @@ void output_process_element(	char *apache_cgi_directory,
 void output_folder_element(	char *apache_cgi_directory,
 				char *server_address,
 				char *application_name,
-				char *database_string,
 				char *login_name,
 				char *session,
 				char *folder_name,
@@ -67,7 +65,6 @@ void output_folder_element(	char *apache_cgi_directory,
 void output_vertical_folders(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *role_name,
 			char *target_frame,
@@ -79,7 +76,6 @@ void output_vertical_folders(
 void output_vertical_processes(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *role_name,
 			char *target_frame,
@@ -90,7 +86,6 @@ void output_vertical_processes(
 void output_horizontal_folders(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *role_name,
 			char *target_frame,
@@ -104,7 +99,6 @@ void output_horizontal_folders(
 void output_horizontal_processes(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *role_name,
 			char *target_frame,
@@ -116,7 +110,6 @@ void output_horizontal_processes(
 int main( int argc, char **argv )
 {
 	char *login_name, *application_name, *session, *role_name;
-	char *database_string = {0};
 	LIST *process_record_list;
 	LIST *folder_list = {0};
 	char buffer[ 1024 ];
@@ -215,7 +208,6 @@ int main( int argc, char **argv )
 		output_horizontal_folders(
 				login_name,
 				application_name,
-				database_string,
 				session,
 				role_name,
 				PROMPT_FRAME,
@@ -230,7 +222,6 @@ int main( int argc, char **argv )
 		output_horizontal_folders(
 				login_name,
 				application_name,
-				database_string,
 				session,
 				role_name,
 				PROMPT_FRAME,
@@ -245,7 +236,6 @@ int main( int argc, char **argv )
 		output_horizontal_processes(
 				login_name,
 				application_name,
-				database_string,
 				session,
 				role_name,
 				PROMPT_FRAME,
@@ -259,7 +249,6 @@ int main( int argc, char **argv )
 		output_vertical_folders(
 				login_name,
 				application_name,
-				database_string,
 				session,
 				role_name,
 				PROMPT_FRAME,
@@ -271,7 +260,6 @@ int main( int argc, char **argv )
 		output_vertical_processes(
 				login_name,
 				application_name,
-				database_string,
 				session,
 				role_name,
 				PROMPT_FRAME,
@@ -286,7 +274,6 @@ int main( int argc, char **argv )
 void output_vertical_folders(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *role_name,
 			char *target_frame,
@@ -326,9 +313,7 @@ void output_vertical_folders(
 				       application_get_prepend_http_protocol_yn(
 						application_name ) ),
 				 login_name,
-				 timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				 application_name,
 				 session,
 				 folder->folder_name, 
 				 role_name,
@@ -362,9 +347,7 @@ void output_vertical_folders(
 				       application_get_prepend_http_protocol_yn(
 					application_name ) ),
 				 login_name,
-				 timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				 application_name,
 				 session,
 				 folder->folder_name, role_name,
 				 target_frame );
@@ -378,7 +361,6 @@ void output_vertical_folders(
 					application_name,
 					login_name,
 					session,
-					database_string,
 					role_name );
 	}
 */
@@ -391,7 +373,6 @@ void output_vertical_folders(
 void output_vertical_processes(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *role_name,
 			char *target_frame,
@@ -425,9 +406,7 @@ void output_vertical_processes(
 				       application_get_prepend_http_protocol_yn(
 						application_name ) ),
 				 login_name,
-				 timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				 application_name,
 				 session,
 				 process_name, role_name );
 
@@ -446,7 +425,6 @@ void output_vertical_processes(
 void output_horizontal_folders(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *role_name,
 			char *target_frame,
@@ -550,7 +528,6 @@ void output_horizontal_folders(
 					apache_cgi_directory,
 					server_address,
 					application_name,
-					database_string,
 					login_name,
 					session,
 					horizontal_menu_folder->folder_name,
@@ -581,7 +558,6 @@ void output_horizontal_folders(
 					apache_cgi_directory,
 					server_address,
 					application_name,
-					database_string,
 					login_name,
 					session,
 					horizontal_menu_folder->folder_name,
@@ -602,7 +578,6 @@ void output_horizontal_folders(
 void output_horizontal_processes(
 			char *login_name,
 			char *application_name,
-			char *database_string,
 			char *session,
 			char *role_name,
 			char *target_frame,
@@ -651,7 +626,6 @@ void output_horizontal_processes(
 					apache_cgi_directory,
 					server_address,
 					application_name,
-					database_string,
 					login_name,
 					session,
 					process_name,
@@ -683,7 +657,6 @@ void output_horizontal_processes(
 					apache_cgi_directory,
 					server_address,
 					application_name,
-					database_string,
 					login_name,
 					session,
 					process_name,
@@ -701,7 +674,6 @@ void output_horizontal_processes(
 void output_folder_element(	char *apache_cgi_directory,
 				char *server_address,
 				char *application_name,
-				char *database_string,
 				char *login_name,
 				char *session,
 				char *folder_name,
@@ -724,9 +696,7 @@ void output_folder_element(	char *apache_cgi_directory,
 		       application_get_prepend_http_protocol_yn(
 				application_name ) ),
 		login_name,
-		timlib_get_parameter_application_name(
-			application_name,
-			database_string ),
+		application_name,
 		session,
 		folder_name,
 		role_name,
@@ -764,7 +734,6 @@ void output_folder_element(	char *apache_cgi_directory,
 void output_process_element(	char *apache_cgi_directory,
 				char *server_address,
 				char *application_name,
-				char *database_string,
 				char *login_name,
 				char *session,
 				char *process_name,
@@ -784,9 +753,7 @@ void output_process_element(	char *apache_cgi_directory,
 		application_get_prepend_http_protocol_yn(
 			application_name ) ),
 		login_name,
-		timlib_get_parameter_application_name(
-			application_name,
-			database_string ),
+		application_name,
 		session,
 		process_name,
 		role_name );

@@ -119,7 +119,6 @@ void post_state_one(		char *application_name,
 				char *login_name,
 				char *role_name,
 				char *process_name,
-				char *database_string,
 				char *process_title_initial_capital,
 				char *appaserver_mount_point );
 
@@ -130,7 +129,6 @@ void post_state_two(		char *application_name,
 				char *process_name,
 				char *appaserver_data_directory,
 				char *appaserver_mount_point,
-				char *database_string,
 				char *process_title_initial_capital );
 
 void post_state_three(		char *application_name,
@@ -141,14 +139,12 @@ void post_state_three(		char *application_name,
 				char *folder_name,
 				char *appaserver_data_directory,
 				char *appaserver_mount_point,
-				char *database_string,
 				char *process_title_initial_capital );
 
 void post_table_state_four(	char *application_name,
 				char *session,
 				char *login_name,
 				char *role_name,
-				char *database_string,
 				char *folder_name,
 				char *appaserver_mount_point,
 				DICTIONARY *post_dictionary );
@@ -284,7 +280,6 @@ int main( int argc, char **argv )
 				login_name,
 				role_name,
 				process_name,
-				database_string,
 				process_title_initial_capital,
 				appaserver_parameter_file->
 					appaserver_mount_point );
@@ -301,7 +296,6 @@ int main( int argc, char **argv )
 					appaserver_data_directory,
 				appaserver_parameter_file->
 					appaserver_mount_point,
-				database_string,
 				process_title_initial_capital );
 	}
 	else
@@ -317,7 +311,6 @@ int main( int argc, char **argv )
 						appaserver_data_directory,
 					appaserver_parameter_file->
 						appaserver_mount_point,
-					database_string,
 					process_title_initial_capital );
 	}
 	else
@@ -349,7 +342,6 @@ int main( int argc, char **argv )
 					session,
 					login_name,
 					role_name,
-					database_string,
 					folder_name,
 					appaserver_parameter_file->
 						appaserver_mount_point,
@@ -395,7 +387,6 @@ void post_state_one(	char *application_name,
 			char *login_name,
 			char *role_name,
 			char *process_name,
-			char *database_string,
 			char *process_title_initial_capital,
 			char *appaserver_mount_point )
 {
@@ -456,7 +447,7 @@ void post_state_one(	char *application_name,
 					(char *)0 /* state */,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					process_name,
 					role_name );
@@ -468,9 +459,7 @@ void post_state_one(	char *application_name,
 	sprintf(action_string,
 		"%s/post_report_writer?%s+%s+%s+%s+%s+folder+two",
 		appaserver_parameter_file_get_cgi_directory(),
-		timlib_get_parameter_application_name(
-		 	application_name,
-			database_string ),
+		application_name,
 		session,
 		login_name,
 		role_name,
@@ -580,7 +569,6 @@ void post_state_two(	char *application_name,
 			char *process_name,
 			char *appaserver_data_directory,
 			char *appaserver_mount_point,
-			char *database_string,
 			char *process_title_initial_capital )
 {
 	DOCUMENT *document;
@@ -613,19 +601,10 @@ void post_state_two(	char *application_name,
 	||   strcmp( folder_name, "folder_name" ) == 0
 	||   strcmp( folder_name, "select" ) == 0 )
 	{
-/*
-	char buffer[ 256 ];
-	char title[ 256 ];
-		sprintf(title,
-	 		"%s %s",
-	 		application_get_title_string( application_name ),
-			process_title_initial_capital );
-*/
-
 		document =
 			document_output_menu_new(
 				application_name,
-				database_string,
+				(char *)0 /* database_string */,
 				login_name,
 				session,
 				role_name,
@@ -653,7 +632,7 @@ void post_state_two(	char *application_name,
 					(char *)0 /* state */,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					process_name,
 					role_name );
@@ -719,7 +698,7 @@ void post_state_two(	char *application_name,
 	document =
 		document_output_menu_new(
 			application_name,
-			database_string,
+			(char *)0 /* database_string */,
 			login_name,
 			session,
 			role_name,
@@ -727,23 +706,12 @@ void post_state_two(	char *application_name,
 			onload_control_string,
 			0 /* not exists_date_attribute */ );
 
-/*
-	sprintf(title,
-	 	"%s %s %s",
-	 	application_get_title_string( application_name ),
-	 	format_initial_capital( buffer,
-				 	folder_name ),
-		process_title_initial_capital );
-*/
-
 	printf( "<h1>%s</h1>\n", process_title_initial_capital );
 
 	sprintf(action_string,
 		"%s/post_report_writer?%s+%s+%s+%s+%s+%s+three",
 		appaserver_parameter_file_get_cgi_directory(),
-		timlib_get_parameter_application_name(
-		 	application_name,
-			database_string ),
+		application_name,
 		session,
 		login_name,
 		role_name,
@@ -1015,7 +983,6 @@ void post_state_three(	char *application_name,
 			char *folder_name,
 			char *appaserver_data_directory,
 			char *appaserver_mount_point,
-			char *database_string,
 			char *process_title_initial_capital )
 {
 	DOCUMENT *document;
@@ -1064,7 +1031,7 @@ void post_state_three(	char *application_name,
 					(char *)0 /* state */,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					process_name,
 					role_name );
@@ -1105,7 +1072,7 @@ void post_state_three(	char *application_name,
 	document =
 		document_output_menu_new(
 			application_name,
-			database_string,
+			(char *)0 /* database_string */,
 			login_name,
 			session,
 			role_name,
@@ -1131,9 +1098,7 @@ void post_state_three(	char *application_name,
 	sprintf(action_string,
 		"%s/post_report_writer?%s+%s+%s+%s+%s+%s+four",
 		appaserver_parameter_file_get_cgi_directory(),
-		timlib_get_parameter_application_name(
-		 	application_name,
-			database_string ),
+		application_name,
 		session,
 		login_name,
 		role_name,
@@ -1585,7 +1550,6 @@ void post_table_state_four(
 			char *session,
 			char *login_name,
 			char *role_name,
-			char *database_string,
 			char *folder_name,
 			char *appaserver_mount_point,
 			DICTIONARY *post_dictionary )
@@ -1724,7 +1688,7 @@ void post_table_state_four(
 					"view" /* state_for_heading */,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					folder->folder_name,
 					role_name );

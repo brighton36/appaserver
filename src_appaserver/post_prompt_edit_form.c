@@ -39,7 +39,6 @@
 /* ---------- */
 boolean execute_radio_button_process_maybe(
 			char *application_name,
-			char *database_string,
 			char *login_name,
 			char *session,
 			char *folder_name,
@@ -56,7 +55,6 @@ void post_prompt_edit_form_lookup_before_drop_down(
 			char *application_name,
 			char *session,
 			ROLE *role,
-			char *database_string,
 			char *login_name,
 			char *state,
 			char *fulfilled_folder_name );
@@ -252,7 +250,6 @@ int main( int argc, char **argv )
 				application_name,
 				session,
 				role,
-				database_string,
 				login_name,
 				state,
 				folder_name );
@@ -368,7 +365,6 @@ int main( int argc, char **argv )
 
 	if ( !execute_radio_button_process_maybe(
 			application_name,
-			database_string,
 			login_name,
 			session,
 			folder_name,
@@ -401,9 +397,7 @@ int main( int argc, char **argv )
 "output_edit_table_form '%s' '%s' '%s' '%s' '%s' '' '%s' '%s'	 	 ",
 		escaped_dictionary_string,
  		login_name,
-		timlib_get_parameter_application_name(
-			application_name,
-			database_string ),
+		application_name,
  		session,
  		folder_name,
 		role_name,
@@ -463,7 +457,6 @@ void post_prompt_edit_form_lookup_before_drop_down(
 			char *application_name,
 			char *session,
 			ROLE *role,
-			char *database_string,
 			char *login_name,
 			char *state,
 			char *fulfilled_folder_name )
@@ -539,7 +532,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 		/* -------------------------------- */
 		form_execute_output_prompt_edit_form(
 			application_name,
-			database_string,
+			(char *)0 /* database_string */,
 			login_name,
 			session,
 			unfulfilled_folder_name,
@@ -572,7 +565,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 		/* -------------------------------------- */
 		form_execute_output_prompt_edit_form(
 			application_name,
-			database_string,
+			(char *)0 /* database_string */,
 			login_name,
 			session,
 			lookup_before_drop_down->base_folder->folder_name,
@@ -617,7 +610,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 		/* -------------------------------------- */
 		form_execute_output_prompt_insert_form(
 			application_name,
-			database_string,
+			(char *)0 /* database_string */,
 			login_name,
 			session,
 			folder_name,
@@ -640,7 +633,6 @@ void post_prompt_edit_form_lookup_before_drop_down(
 
 boolean execute_radio_button_process_maybe(
 				char *application_name,
-				char *database_string,
 				char *login_name,
 				char *session,
 				char *folder_name,
@@ -672,9 +664,7 @@ boolean execute_radio_button_process_maybe(
 "output_email %s %s %s %s %s %s dictionary_stdin  		 	 ",
 			escaped_dictionary_string,
 		 	login_name,
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 		 	session,
 		 	folder_name,
 			role_name,
@@ -695,9 +685,7 @@ boolean execute_radio_button_process_maybe(
 			sprintf( sys_string,
 			"statistics_folder %s %s %s %s %s \"%s\" 2>>%s",
 		 		login_name,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 		 		session,
 		 		folder_name,
 				role_name,
@@ -717,9 +705,7 @@ boolean execute_radio_button_process_maybe(
 			sprintf( sys_string,
 		"post_delete_folder_block %s %s %s %s %s one \"%s\" 2>>%s",
 		 		login_name,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 		 		session,
 		 		folder_name,
 				role_name,
@@ -739,9 +725,7 @@ boolean execute_radio_button_process_maybe(
 			sprintf( sys_string,
 		"post_change_sort_order %s %s %s %s %s one \"%s\" 2>>%s",
 		 		login_name,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 		 		session,
 		 		folder_name,
 				role_name,
@@ -765,9 +749,7 @@ boolean execute_radio_button_process_maybe(
 "post_prompt_insert_form %s %s %s %s '%s' '%s' '%s' '%s' %d '' 2>>%s   ",
 				escaped_dictionary_string,
 		 		login_name,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 		 		session,
 		 		folder_name,
 				role_name,
@@ -793,9 +775,7 @@ boolean execute_radio_button_process_maybe(
 "output_transmit %s %s %s %s %s %s dictionary_stdin 2>>%s	 	 ",
 				escaped_dictionary_string,
 		 		login_name,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 		 		session,
 		 		folder_name,
 				role_name,
@@ -817,9 +797,7 @@ boolean execute_radio_button_process_maybe(
 "output_grace_chart %s %s %s %s %s %s dictionary_stdin 2>>/%s 	 	 ",
 				escaped_dictionary_string,
 		 		login_name,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 		 		session,
 		 		folder_name,
 				role_name,
@@ -841,9 +819,7 @@ boolean execute_radio_button_process_maybe(
 "output_google_chart %s %s %s %s %s %s dictionary_stdin 2>>/%s 	 	 ",
 				escaped_dictionary_string,
 		 		login_name,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 		 		session,
 		 		folder_name,
 				role_name,
@@ -865,9 +841,7 @@ boolean execute_radio_button_process_maybe(
 "output_histogram %s %s %s %s %s %s dictionary_stdin 2>>%s	 	 ",
 				escaped_dictionary_string,
 		 		login_name,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 		 		session,
 		 		folder_name,
 				role_name,
@@ -887,9 +861,7 @@ boolean execute_radio_button_process_maybe(
 			sprintf(sys_string,
 			"echo \"%s\" | output_group %s %s %s %s 2>>%s",
 				escaped_dictionary_string,
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 		 		folder_name,
 				login_name,
 				role_name,

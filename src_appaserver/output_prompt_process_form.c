@@ -44,7 +44,6 @@ char *get_preprompt_button_control_string(
 				char *cgi_directory,
 				char *server_address,
 				char *login_name,
-				char *database_string,
 				char *session,
 				char *process_name,
 				char *role_name );
@@ -65,7 +64,6 @@ void populate_process_parameter_list_element_list(
 				char *prompt_display_text,
 				boolean prompt_display_bottom,
 				char *document_root_directory,
-				char *database_string,
 				DICTIONARY *non_prefixed_dictionary,
 				DICTIONARY *preprompt_dictionary );
 
@@ -86,8 +84,7 @@ LIST *get_element_list(		char **preprompt_help_text,
 				DICTIONARY *preprompt_dictionary,
 				char passed_preprompt_yn,
 				char *session,
-				char *document_root_directory,
-				char *database_string );
+				char *document_root_directory );
 
 int main( int argc, char **argv )
 {
@@ -229,8 +226,7 @@ int main( int argc, char **argv )
 			passed_preprompt_yn,
 			session,
 			appaserver_parameter_file->
-				document_root,
-			(char *)0 /* database_string */ );
+				document_root );
  
 	if ( !list_length( form->regular_element_list ))
 	{
@@ -501,7 +497,6 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
 				login_name,
-				(char *)0 /* database_string */,
 				session,
 				process_name,
 				role_name );
@@ -543,8 +538,7 @@ LIST *get_element_list(	char **preprompt_help_text,
 			DICTIONARY *preprompt_dictionary,
 			char passed_preprompt_yn,
 			char *session,
-			char *document_root_directory,
-			char *database_string )
+			char *document_root_directory )
 {
 	LIST *element_list;
 	PROCESS_PARAMETER_LIST *process_parameter_list = {0};
@@ -677,7 +671,6 @@ LIST *get_element_list(	char **preprompt_help_text,
 				local_prompt_display_text,
 				local_prompt_display_bottom,
 				document_root_directory,
-				database_string,
 				non_prefixed_dictionary,
 				preprompt_dictionary );
 
@@ -722,7 +715,6 @@ LIST *get_element_list(	char **preprompt_help_text,
 				local_prompt_display_text,
 				local_prompt_display_bottom,
 				document_root_directory,
-				database_string,
 				non_prefixed_dictionary,
 				preprompt_dictionary );
 
@@ -771,7 +763,6 @@ void populate_process_parameter_list_element_list(
 				char *prompt_display_text,
 				boolean prompt_display_bottom,
 				char *document_root_directory,
-				char *database_string,
 				DICTIONARY *non_prefixed_dictionary,
 				DICTIONARY *preprompt_dictionary )
 {
@@ -883,7 +874,7 @@ void populate_process_parameter_list_element_list(
 				document_root_directory,
 				application_name,
 				session,
-				database_string,
+				(char *)0 /* database_string */,
 				login_name );
 
 			list_append_list( 
@@ -1101,7 +1092,6 @@ char *get_preprompt_button_control_string(
 				char *cgi_directory,
 				char *server_address,
 				char *login_name,
-				char *database_string,
 				char *session,
 				char *process_name,
 				char *role_name )
@@ -1118,9 +1108,7 @@ char *get_preprompt_button_control_string(
 		       application_get_prepend_http_protocol_yn(
 				application_name ) ),
 		 login_name,
-		 timlib_get_parameter_application_name(
-			application_name,
-			database_string ),
+		 application_name,
 		 session,
 		 process_name,
 		 role_name );

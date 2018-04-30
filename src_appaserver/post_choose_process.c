@@ -144,9 +144,7 @@ int main( int argc, char **argv )
 		sprintf( sys_string,
 "echo \"\" | post_prompt_process_form %s %s %s '%s' %s %c 2>>%s",
 			 login_name,
-			 timlib_get_parameter_application_name(
-			 	application_name,
-				database_string ),
+			 application_name,
 			 session,
 			 process,
 			 role_name,
@@ -159,9 +157,7 @@ int main( int argc, char **argv )
 		sprintf( sys_string, 
 	"output_prompt_process_form %s %s %s '%s' '%s' n 2>>%s",
 		 	 login_name,
-			 timlib_get_parameter_application_name(
-			 	application_name,
-				database_string ),
+			 application_name,
 			 session,
 			 process,
 			 role_name,

@@ -52,7 +52,6 @@ void change_sort_order_state_one(
 				FOLDER *folder,
 				char *login_name,
 				char *session,
-				char *database_string,
 				ROLE *role,
 				DICTIONARY *query_dictionary,
 				DICTIONARY *ignore_dictionary );
@@ -235,7 +234,6 @@ int main( int argc, char **argv )
 				folder,
 				login_name,
 				session,
-				database_string,
 				role,
 				dictionary_appaserver->
 					query_dictionary,
@@ -272,7 +270,6 @@ void change_sort_order_state_one(
 				FOLDER *folder,
 				char *login_name,
 				char *session,
-				char *database_string,
 				ROLE *role,
 				DICTIONARY *query_dictionary,
 				DICTIONARY *ignore_dictionary )

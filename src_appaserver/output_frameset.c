@@ -20,7 +20,6 @@
 #define LOCAL_CONTENT_TYPE_YN		"n"
 
 void output_vertical_frameset(		char *application_name,
-					char *database_string,
 					char *session,
 					char *login_name,
 					char *role_name,
@@ -34,7 +33,6 @@ void output_vertical_frameset(		char *application_name,
 					boolean content_type );
 
 void output_horizontal_frameset(	char *application_name,
-					char *database_string,
 					char *session,
 					char *login_name,
 					char *role_name,
@@ -48,7 +46,6 @@ void output_horizontal_frameset(	char *application_name,
 int main( int argc, char **argv )
 {
 	char *application_name, *session, *login_name;
-	char *database_string = {0};
 	char *role_name;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char title[ 1024 ];
@@ -234,7 +231,6 @@ int main( int argc, char **argv )
 	{
 		output_horizontal_frameset(
 					application_name,
-					database_string,
 					session,
 					login_name,
 					role_name,
@@ -249,7 +245,6 @@ int main( int argc, char **argv )
 	{
 		output_vertical_frameset(
 					application_name,
-					database_string,
 					session,
 					login_name,
 					role_name,
@@ -266,7 +261,6 @@ int main( int argc, char **argv )
 } /* main() */
 
 void output_vertical_frameset(		char *application_name,
-					char *database_string,
 					char *session,
 					char *login_name,
 					char *role_name,
@@ -283,9 +277,7 @@ void output_vertical_frameset(		char *application_name,
 
 	sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' \"%s\" %s >> %s",
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			login_name,
 			role_name,
@@ -342,7 +334,6 @@ void output_vertical_frameset(		char *application_name,
 } /* output_vertical_frameset() */
 
 void output_horizontal_frameset(	char *application_name,
-					char *database_string,
 					char *session,
 					char *login_name,
 					char *role_name,
@@ -357,9 +348,7 @@ void output_horizontal_frameset(	char *application_name,
 
 	sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' \"%s\" %s >> %s",
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			login_name,
 			role_name,

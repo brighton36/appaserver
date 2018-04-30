@@ -48,7 +48,6 @@ void post_state_one(		char *application_name,
 				char *role_name,
 				char *folder_name,
 				LIST *attribute_list,
-				char *database_string,
 				char *login_name );
 
 void post_state_two(		char *application_name,
@@ -188,9 +187,7 @@ int main( int argc, char **argv )
 
 		sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %c %c 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role_name,
@@ -260,7 +257,6 @@ int main( int argc, char **argv )
 				role_name,
 				folder_name,
 				attribute_list,
-				database_string,
 				login_name );
 	}
 	else
@@ -285,7 +281,6 @@ void post_state_one(	char *application_name,
 			char *role_name,
 			char *folder_name,
 			LIST *attribute_list,
-			char *database_string,
 			char *login_name )
 {
 	LIST *mto1_related_folder_list;
@@ -318,9 +313,7 @@ void post_state_one(	char *application_name,
 		" action=\"%s/post_generic_load?%s+%s+%s+%s+two\""
 		" target=%s>\n",
 		appaserver_parameter_file_get_cgi_directory(),
-		timlib_get_parameter_application_name(
-		 	application_name,
-			database_string ),
+		application_name,
 		session,
 		role_name,
 		folder_name,

@@ -126,7 +126,6 @@ void output_prompt_edit_form(
 			DICTIONARY *preprompt_dictionary,
 			boolean override_row_restrictions,
 			LIST *prompt_recursive_folder_list,
-			char *database_string,
 			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
 			DICTIONARY *lookup_before_drop_down_dictionary,
 			char *target_frame,
@@ -162,7 +161,6 @@ LIST *get_element_list(
 int main( int argc, char **argv )
 {
 	char *login_name, *application_name, *session, *folder_name;
-	char *database_string = {0};
 	char *role_name, *state;
 	ROLE_FOLDER *role_folder;
 	APPASERVER *appaserver;
@@ -393,7 +391,6 @@ int main( int argc, char **argv )
 		appaserver->
 			prompt_recursive->
 			prompt_recursive_folder_list,
-		database_string,
 		lookup_before_drop_down,
 		dictionary_appaserver->
 			lookup_before_drop_down_dictionary,
@@ -421,7 +418,6 @@ void output_prompt_edit_form(
 			DICTIONARY *preprompt_dictionary,
 			boolean override_row_restrictions,
 			LIST *prompt_recursive_folder_list,
-			char *database_string,
 			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
 			DICTIONARY *lookup_before_drop_down_dictionary,
 			char *target_frame,
@@ -457,7 +453,7 @@ void output_prompt_edit_form(
 					state,
 					login_name,
 					application_name,
-					database_string,
+					(char *)0 /* database_string */,
 					session,
 					folder_name,
 					role_name );
@@ -727,9 +723,7 @@ void output_prompt_edit_form(
 
 		sprintf(sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %c %c 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role_name,
@@ -851,7 +845,7 @@ void output_prompt_edit_form(
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
 				login_name,
-				database_string,
+				(char *)0 /* database_string */,
 				session,
 				folder_name,
 				lookup_before_drop_down->

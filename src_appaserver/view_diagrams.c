@@ -52,7 +52,6 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *login_name = "";
-	char *database_string = {0};
 	boolean all_documents = 0;
 	char *relative_directory = {0};
 	char *process_name = {0};

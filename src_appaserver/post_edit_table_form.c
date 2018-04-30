@@ -63,7 +63,6 @@ void execute_output_process(
 				boolean insert_flag,
 				char *vertical_new_button_base_folder_name,
 				char *pair_one2m_folder_name,
-				char *database_string,
 				char *primary_data_list_string,
 				char *folder_form,
 				int columns_updated,
@@ -85,7 +84,6 @@ void post_state_update(
 				boolean insert_flag,
 				pid_t dictionary_process_id,
 				boolean role_override_row_restrictions,
-				char *database_string,
 				char *optional_related_attribute_name,
 				char *primary_data_list_string );
 
@@ -116,7 +114,6 @@ void post_state_insert(		DICTIONARY_APPASERVER *dictionary_appaserver,
 				char *detail_base_folder_name,
 				boolean insert_flag,
 				boolean role_override_row_restrictions,
-				char *database_string,
 				char *vertical_new_button_base_folder_name,
 				char *primary_data_list_string );
 
@@ -132,7 +129,6 @@ void post_state_lookup(		DICTIONARY_APPASERVER *dictionary_appaserver,
 				char *detail_base_folder_name,
 				boolean insert_flag,
 				boolean role_override_row_restrictions,
-				char *database_string,
 				char *primary_data_list_string );
 
 int main( int argc, char **argv )
@@ -408,7 +404,6 @@ int main( int argc, char **argv )
 				insert_flag,
 				role_get_override_row_restrictions(
 					role->override_row_restrictions_yn ),
-				database_string,
 				vertical_new_button_base_folder_name,
 				primary_data_list_string );
 	}
@@ -434,7 +429,6 @@ int main( int argc, char **argv )
 				dictionary_process_id,
 				role_get_override_row_restrictions(
 					role->override_row_restrictions_yn ),
-				database_string,
 				optional_related_attribute_name,
 				primary_data_list_string );
 	}
@@ -454,7 +448,6 @@ int main( int argc, char **argv )
 				insert_flag,
 				role_get_override_row_restrictions(
 					role->override_row_restrictions_yn ),
-				database_string,
 				primary_data_list_string );
 	}
 
@@ -475,7 +468,6 @@ void post_state_insert(
 				char *detail_base_folder_name,
 				int insert_flag,
 				boolean role_override_row_restrictions,
-				char *database_string,
 				char *vertical_new_button_base_folder_name,
 				char *primary_data_list_string )
 {
@@ -748,7 +740,6 @@ void post_state_insert(
 				insert_flag,
 				vertical_new_button_base_folder_name,
 				pair_one2m_folder_name,
-				database_string,
 				primary_data_list_string,
 				folder_form,
 				0 /* columns_updated */,
@@ -773,7 +764,6 @@ void post_state_update(
 				int insert_flag,
 				pid_t dictionary_process_id,
 				boolean role_override_row_restrictions,
-				char *database_string,
 				char *optional_related_attribute_name,
 				char *primary_data_list_string )
 {
@@ -887,7 +877,7 @@ void post_state_update(
 			(folder->row_level_non_owner_forbid ||
 			 folder->row_level_non_owner_view_only),
 			target_frame,
-			database_string,
+			(char *)0 /* database_string */,
 			folder->attribute_name_list );
 
 	if ( operation_list_structure->performed_any_output )
@@ -911,7 +901,6 @@ void post_state_update(
 			insert_flag,
 			(char *)0 /* vertical_new_button_base_folder_name */,
 			(char *)0 /* pair_one2m_folder_name */,
-			database_string,
 			primary_data_list_string,
 			(char *)0 /* folder_form */,
 			columns_updated,
@@ -1044,7 +1033,6 @@ void post_state_lookup(
 				char *detail_base_folder_name,
 				int insert_flag,
 				boolean role_override_row_restrictions,
-				char *database_string,
 				char *primary_data_list_string )
 {
 	OPERATION_LIST_STRUCTURE *operation_list_structure;
@@ -1151,7 +1139,7 @@ void post_state_lookup(
 			(folder->row_level_non_owner_forbid ||
 			 folder->row_level_non_owner_view_only),
 			target_frame,
-			database_string,
+			(char *)0 /* database_string */,
 			folder->attribute_name_list );
 
 	if ( operation_list_structure->performed_any_output ) return;
@@ -1172,7 +1160,6 @@ void post_state_lookup(
 			insert_flag,
 			(char *)0 /* vertical_new_button_base_folder_name */,
 			(char *)0 /* pair_one2m_folder_name */,
-			database_string,
 			primary_data_list_string,
 			(char *)0 /* folder_form */,
 			0 /* columns_updated */,
@@ -1197,7 +1184,6 @@ void execute_output_process(
 				int insert_flag,
 				char *vertical_new_button_base_folder_name,
 				char *pair_one2m_folder_name,
-				char *database_string,
 				char *primary_data_list_string,
 				char *folder_form,
 				int columns_updated,
@@ -1288,9 +1274,7 @@ void execute_output_process(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
 	 	 	login_name,
-		 	timlib_get_parameter_application_name(
-		 		application_name,
-				database_string ),
+		 	application_name,
 		 	session,
 		 	folder_name,
 		 	role_name,
@@ -1311,9 +1295,7 @@ void execute_output_process(
 
 			sprintf(sys_string,
 "output_choose_role_folder_process_form %s %s %s %s '%s' %s 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role_name,
@@ -1333,9 +1315,7 @@ void execute_output_process(
 
 		sprintf(sys_string,
 			"detail %s %s %s %s \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s",
-			timlib_get_parameter_application_name(
-		 		application_name,
-				database_string ),
+		 	application_name,
 		 	session,
 		 	login_name,
 		 	detail_base_folder_name,
@@ -1357,9 +1337,7 @@ void execute_output_process(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
 	 	 	 login_name,
-		 	 timlib_get_parameter_application_name(
-		 		 application_name,
-				 database_string ),
+		 	 application_name,
 		 	 session,
 		 	 pair_one2m_folder_name,
 		 	 role_name,
@@ -1382,9 +1360,7 @@ void execute_output_process(
 
 			sprintf(sys_string,
 "output_choose_role_folder_process_form %s %s %s %s '%s' %s 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role_name,
@@ -1414,9 +1390,7 @@ void execute_output_process(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
 	 	 	 login_name,
-		 	 timlib_get_parameter_application_name(
-		 		 application_name,
-				 database_string ),
+		 	 application_name,
 		 	 session,
 		 	 folder_name,
 		 	 role_name,
@@ -1429,9 +1403,7 @@ void execute_output_process(
 		{
 			sprintf( sys_string,
 	 "output_results %s %s %s %s %s %d \"%s\" \"%s\" %c \"%s\" 2>>%s",
-			timlib_get_parameter_application_name(
-			 	application_name,
-				database_string ),
+			application_name,
 		 	folder_name,
 			session,
 			login_name,
@@ -1460,9 +1432,7 @@ void execute_output_process(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
 	 	 	 login_name,
-		 	 timlib_get_parameter_application_name(
-		 		 application_name,
-				 database_string ),
+		 	 application_name,
 		 	 session,
 		 	 folder_name,
 		 	 role_name,

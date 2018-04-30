@@ -57,7 +57,6 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *process_name;
 	char *login_name;
-	char *database_string = {0};
 	char *sys_string;
 	char *where_clause = {0};
 	int percent_below_piece;
@@ -100,13 +99,6 @@ int main( int argc, char **argv )
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
-	}
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(	"APPASERVER_DATABASE",
-						database_string );
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();

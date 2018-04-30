@@ -48,7 +48,6 @@ void delete_folder_block_state_one(
 				char *database_management_system,
 				char *login_name,
 				char *session,
-				char *database_string,
 				char *role_name );
 
 void delete_folder_block_state_two(
@@ -275,7 +274,6 @@ int main( int argc, char **argv )
 					database_management_system,
 				login_name,
 				session,
-				database_string,
 				role_name );
 	}
 	else
@@ -314,7 +312,6 @@ void delete_folder_block_state_one(
 				char *database_management_system,
 				char *login_name,
 				char *session,
-				char *database_string,
 				char *role_name )
 {
 	QUERY_ATTRIBUTE_STATISTICS_LIST *query_attribute_statistics_list;
@@ -374,9 +371,7 @@ void delete_folder_block_state_one(
 			"%s/post_delete_folder_block?%s+%s+%s+%s+%s+two",
 			appaserver_parameter_file_get_cgi_directory(),
 			login_name,
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			folder->folder_name,
 			role_name );

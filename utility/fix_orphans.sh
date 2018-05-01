@@ -2,25 +2,31 @@
 # utility/fix_orphans.sh
 # ----------------------
 
-if [ "$#" != 3 ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	echo "Usage: $0 application max_record_count delete_really_yn" 1>&2
+	application=$APPASERVER_DATABASE
+fi
+
+if [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
+then
+	echo "Error in $0: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
 	exit 1
 fi
 
-application=$1
+if [ "$#" != 3 ]
+then
+	echo "Usage: $0 ignored max_record_count delete_really_yn" 1>&2
+	exit 1
+fi
+
 max_record_count=$2
 delete_really_yn=$3
-
-database=$(echo $application | piece.e ':' 1 2>/dev/null)
-
-if [ "$database" != "" ]
-then
-	export DATABASE=$database
-	application=$(echo $application | piece.e ':' 0)
-else
-	export DATABASE=$application
-fi
 
 for folder_name in `echo "select folder from folder;" | sql.e`
 do

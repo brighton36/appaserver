@@ -134,21 +134,7 @@ touch:
 clean:
 	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}			\
 		financial_position					\
-		statement_of_activities					\
-		${CGI_HOME}/post_trial_balance
-
-post_trial_balance: post_trial_balance.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_trial_balance.c					\
-		-o post_trial_balance
-	touch ${CGI_HOME}/post_trial_balance
-	/bin/rm -f ${CGI_HOME}/post_trial_balance
-	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_accountancymodel/post_trial_balance	\
-	${CGI_HOME}
+		statement_of_activities
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\

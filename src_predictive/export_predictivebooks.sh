@@ -216,7 +216,7 @@ function export_predictivebooks()
 	fi
 
 	cat $export_file						|
-	sed "s/!= ${application}/= ignored/"				|
+	#sed "s/!= ${application}/= ignored/"				|
 	grep -v '^exit'							|
 	cat >> $output_shell
 

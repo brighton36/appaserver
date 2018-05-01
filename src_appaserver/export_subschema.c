@@ -56,9 +56,7 @@ LIST *get_javascript_filename_list(
 				char *application_name,
 				char *folder_name );
 
-void output_shell_script_header(	char *export_subschema_filename,
-					char *application_name,
-					LIST *folder_name_list );
+void output_shell_script_header(char *export_subschema_filename );
 
 void output_shell_script_footer(
 			char *export_subschema_filename );
@@ -261,9 +259,7 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	output_shell_script_header(	export_subschema_filename,
-					application_name,
-					folder_name_list );
+	output_shell_script_header( export_subschema_filename );
 
 	list_rewind( folder_name_list );
 
@@ -1016,9 +1012,7 @@ void output_shell_script_footer( char *export_subschema_filename )
 
 } /* output_shell_script_footer() */
 
-void output_shell_script_header(	char *export_subschema_filename,
-					char *application_name,
-					LIST *folder_name_list )
+void output_shell_script_header( char *export_subschema_filename )
 {
 	FILE *output_file;
 	char *folder_name;
@@ -1033,6 +1027,9 @@ void output_shell_script_header(	char *export_subschema_filename,
 		exit( 0 );
 	}
 
+	fprintf( output_file,
+	"#!/bin/sh\n" );
+/*
 	fprintf( output_file,
 	"#!/bin/sh\n" );
 	fprintf( output_file,
@@ -1067,6 +1064,20 @@ void output_shell_script_header(	char *export_subschema_filename,
 			break;
 		}
 	} while( list_next( folder_name_list ) );
+*/
+
+	fprintf( output_file,
+"if [ \"$APPASERVER_DATABASE\" != \"\" ]\n"
+"then\n"
+"	application=$APPASERVER_DATABASE\n"
+"fi\n"
+"\n"
+"if [ \"$application\" = \"\" ]\n"
+"then\n"
+"	echo \"Error in $0: you must first:\" 1>&2\n"
+"	echo \"\$ . set_database\" 1>&2\n"
+"	exit 1\n"
+"fi\n" );
 
 	fprintf( output_file,
 	"folder=`get_table_name $application folder`\n" );
@@ -1109,6 +1120,7 @@ void output_shell_script_header(	char *export_subschema_filename,
 		SHELL_HERE_LABEL );
 
 	fclose( output_file );
+
 } /* output_shell_script_header() */
 
 LIST *get_role_name_list(	char *application_name,

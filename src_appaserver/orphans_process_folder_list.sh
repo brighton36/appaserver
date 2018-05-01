@@ -8,22 +8,31 @@
 
 echo "Starting: $0 $*" 1>&2
 
-if [ "$#" -lt 1 ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	echo "Usage: $0 application" 1>&2
+	application=$APPASERVER_DATABASE
+fi
+
+if [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
+then
+	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
 
-application=$1
+if [ "$#" -lt 1 ]
+then
+	echo "Usage: $0 ignored" 1>&2
+	exit 1
+fi
+
 login_name=$2
 
 folder=`get_table_name $application folder`
-
-#echo "	select folder							\
-#	from $folder							\
-#	where fix_orphans_process_yn = 'y';"				|
-#sql.e									|
-#cat
 
 echo "	select folder							\
 	from $folder;"							|

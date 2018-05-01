@@ -3,13 +3,21 @@
 # $APPASERVER_HOME/src_predictive/import_predictivebooks_process.sh
 # -------------------------------------------------------------------------
 
-if [ "$APPASERVER_DATABASE" = "" ]
+if [ "$APPASERVER_DATABASE" != "" ]
+then
+	application=$APPASERVER_DATABASE
+fi
+
+if [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
 then
 	echo "Error in $0: you must first . set_project" 1>&2
 	exit 1
 fi
-
-application=$APPASERVER_DATABASE
 
 # Input
 # -----

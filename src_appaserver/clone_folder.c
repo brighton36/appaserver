@@ -657,6 +657,7 @@ void go_output2shell_script_header(
 	fprintf( output_file,
 	"#!/bin/sh\n" );
 
+#ifdef NOT_DEFINED
 	if ( strcmp( folder_name, "application" ) != 0 )
 	{
 		fprintf( output_file,
@@ -686,6 +687,7 @@ void go_output2shell_script_header(
 		}
 
 	}
+#endif
 
 	if ( strcmp( folder_name, "application" ) == 0 )
 	{
@@ -695,7 +697,7 @@ void go_output2shell_script_header(
 	else
 	{
 		fprintf( output_file,
-		"table_name=`get_table_name $application %s`\n", folder_name );
+		"table_name=%s\n", folder_name );
 	}
 
 	fprintf( output_file, "(\nsql.e << all_done\n" );

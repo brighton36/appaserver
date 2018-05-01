@@ -454,7 +454,7 @@ char *environ_get_application_name( char *argv_0 )
 			 __LINE__,
 			 argv_0 );
 
-		fprintf( stderr, "Try executing .set_project\n" );
+		fprintf( stderr, "Try executing . set_database\n" );
 
 		exit( 1 );
 	}

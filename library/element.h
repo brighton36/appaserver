@@ -28,6 +28,7 @@
 #define ELEMENT_MULTI_SELECT_ADD_LABEL		"Add ->"
 #define ELEMENT_MULTI_SELECT_REMOVE_LABEL	"<- Remove"
 #define ELEMENT_TEXT_ITEM_LOOKUP_LENGTH 	100
+#define ELEMENT_TEXT_ITEM_SMALL_WIDGET_SIZE	10
 #define ELEMENT_MAX_TEXT_WIDTH			30
 #define ELEMENT_NOTEPAD_DEFAULT_NUMBER_ROWS	4
 #define ELEMENT_LARGE_NOTEPAD_THRESHOLD		10000
@@ -181,7 +182,7 @@ typedef struct
 {
 	char *data;
 	int attribute_width;
-	int lookup_attribute_width;
+	int widget_size;
 	char *heading;
 	char onchange_null2slash_yn;
 	char *post_change_javascript;
@@ -379,7 +380,7 @@ void element_text_item_output( 		FILE *output_file,
 					char onchange_null2slash_yn,
 					char *post_change_javascript,
 					char *on_focus_javascript_function,
-					int lookup_attribute_width,
+					int widget_size,
 					char *background_color,
 					int tab_index,
 					boolean without_td_tags,
@@ -706,7 +707,7 @@ void element_date_output( 		FILE *output_file,
 					char onchange_null2slash_yn,
 					char *post_change_javascript,
 					char *on_focus_javascript_function,
-					int lookup_attribute_width,
+					int widget_size,
 					char *background_color,
 					char *application_name,
 					char *login_name,

@@ -5,9 +5,7 @@
 if [ "$APPASERVER_DATABASE" != "" ]
 then
 	application=$APPASERVER_DATABASE
-fi
-
-if [ "$DATABASE" != "" ]
+elif [ "$DATABASE" != "" ]
 then
 	application=$DATABASE
 fi

@@ -306,7 +306,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->text_item->onchange_null2slash_yn,
 			element->text_item->post_change_javascript,
 			element->text_item->on_focus_javascript_function,
-			element->text_item->lookup_attribute_width,
+			element->text_item->widget_size,
 			background_color,
 			element->tab_index,
 			0 /* not without_td_tags */,
@@ -326,7 +326,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->text_item->onchange_null2slash_yn,
 			element->text_item->post_change_javascript,
 			element->text_item->on_focus_javascript_function,
-			element->text_item->lookup_attribute_width,
+			element->text_item->widget_size,
 			background_color,
 			application_name,
 			login_name,
@@ -404,7 +404,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->text_item->onchange_null2slash_yn,
 			element->text_item->post_change_javascript,
 			element->text_item->on_focus_javascript_function,
-			element->text_item->lookup_attribute_width,
+			element->text_item->widget_size,
 			background_color,
 			application_name,
 			login_name,
@@ -438,7 +438,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->text_item->onchange_null2slash_yn,
 			element->text_item->post_change_javascript,
 			element->text_item->on_focus_javascript_function,
-			element->text_item->lookup_attribute_width,
+			element->text_item->widget_size,
 			background_color,
 			application_name,
 			login_name,
@@ -467,7 +467,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->text_item->onchange_null2slash_yn,
 			element->text_item->post_change_javascript,
 			element->text_item->on_focus_javascript_function,
-			element->text_item->lookup_attribute_width,
+			element->text_item->widget_size,
 			background_color,
 			application_name,
 			login_name,
@@ -499,7 +499,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->text_item->onchange_null2slash_yn,
 			element->text_item->post_change_javascript,
 			element->text_item->on_focus_javascript_function,
-			element->text_item->lookup_attribute_width,
+			element->text_item->widget_size,
 			background_color,
 			element->tab_index,
 			0 /* not without_td_tags */,
@@ -519,7 +519,7 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 			element->text_item->onchange_null2slash_yn,
 			element->text_item->post_change_javascript,
 			element->text_item->on_focus_javascript_function,
-			element->text_item->lookup_attribute_width,
+			element->text_item->widget_size,
 			background_color,
 			element->tab_index,
 			0 /* not without_td_tags */,
@@ -1516,7 +1516,7 @@ void element_date_output( 	FILE *output_file,
 				char onchange_null2slash_yn,
 				char *post_change_javascript,
 				char *on_focus_javascript_function,
-				int lookup_attribute_width,
+				int widget_size,
 				char *background_color,
 				char *application_name,
 				char *login_name,
@@ -1524,7 +1524,7 @@ void element_date_output( 	FILE *output_file,
 				boolean readonly,
 				int tab_index )
 {
-	int maxlength, size;
+	int maxlength;
 	char buffer[ 512 ];
 	int did_onchange = 0;
 	enum date_convert_format date_convert_format;
@@ -1536,15 +1536,12 @@ void element_date_output( 	FILE *output_file,
 				application_name,
 				login_name );
 
-	if ( lookup_attribute_width )
-		attribute_width = lookup_attribute_width;
-
 	maxlength = attribute_width;
 
-	if ( attribute_width > ELEMENT_MAX_TEXT_WIDTH )
-		size = ELEMENT_MAX_TEXT_WIDTH;
-	else
-		size = attribute_width;
+	if ( !widget_size ) widget_size = attribute_width;
+
+	if ( widget_size > ELEMENT_MAX_TEXT_WIDTH )
+		widget_size = ELEMENT_MAX_TEXT_WIDTH;
 
 	if ( !data ) data = "";
 
@@ -1552,7 +1549,7 @@ void element_date_output( 	FILE *output_file,
 
 	fprintf( output_file,
 	"<input name=\"%s_%d\" type=\"text\" size=\"%d\" value=\"%s\"",
-		element_name, row, size, data );
+		element_name, row, widget_size, data );
 
 	fprintf( output_file, " maxlength=\"%d\"", maxlength );
 
@@ -1664,7 +1661,7 @@ void element_text_item_output( 	FILE *output_file,
 				char onchange_null2slash_yn,
 				char *post_change_javascript,
 				char *on_focus_javascript_function,
-				int lookup_attribute_width,
+				int widget_size,
 				char *background_color,
 				int tab_index,
 				boolean without_td_tags,
@@ -1672,20 +1669,17 @@ void element_text_item_output( 	FILE *output_file,
 				char *state,
 				boolean is_numeric )
 {
-	int maxlength, size;
+	int maxlength;
 	char buffer[ 512 ];
 	int did_onchange = 0;
 	char *type = "text";
 
-	if ( lookup_attribute_width )
-		attribute_width = lookup_attribute_width;
-
 	maxlength = attribute_width;
 
-	if ( attribute_width > ELEMENT_MAX_TEXT_WIDTH )
-		size = ELEMENT_MAX_TEXT_WIDTH;
-	else
-		size = attribute_width;
+	if ( !widget_size ) widget_size = attribute_width;
+
+	if ( widget_size > ELEMENT_MAX_TEXT_WIDTH )
+		widget_size = ELEMENT_MAX_TEXT_WIDTH;
 
 	if ( !data ) data = "";
 
@@ -1700,11 +1694,11 @@ void element_text_item_output( 	FILE *output_file,
 
 	fprintf( output_file,
 	"<input name=\"%s_%d\" type=\"%s\" size=\"%d\" value=\"%s\"",
-		element_name, row, type, size, data );
+		element_name, row, type, widget_size, data );
 
 	fprintf( output_file, " maxlength=\"%d\"", maxlength );
 
-	if ( maxlength > size )
+	if ( maxlength > widget_size )
 	{
 		fprintf( output_file, " title=\"%s\"", data );
 	}
@@ -2295,7 +2289,7 @@ void element_drop_down_output(
 			element->text_item->onchange_null2slash_yn,
 			element->text_item->post_change_javascript,
 			element->text_item->on_focus_javascript_function,
-			element->text_item->lookup_attribute_width,
+			element->text_item->widget_size,
 			background_color,
 			element->tab_index,
 			0 /* not without_td_tags */,
@@ -3052,7 +3046,7 @@ void element_http_filename_output(	FILE *output_file,
 			element_text_item->onchange_null2slash_yn,
 			element_text_item->post_change_javascript,
 			element_text_item->on_focus_javascript_function,
-			element_text_item->lookup_attribute_width,
+			element_text_item->widget_size,
 			background_color,
 			0 /* tab_index */,
 			1 /* without_td_tags */,

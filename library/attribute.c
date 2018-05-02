@@ -1506,7 +1506,7 @@ LIST *attribute_get_attribute_element_list(
 					ELEMENT_TEXT_ITEM_LOOKUP_LENGTH;
 
 			element->text_item->widget_size =
-					ELEMENT_TEXT_ITEM_LOOKUP_LENGTH;
+					ELEMENT_TEXT_ITEM_LARGE_WIDGET_SIZE;
 
 			list_append_pointer( 	return_list,
 						element );

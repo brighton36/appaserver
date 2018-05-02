@@ -7,13 +7,21 @@
 # Freely available software: see Appaserver.org
 # -------------------------------------------------
 
-if [ "$APPASERVER_DATABASE" = "" ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	echo "Error in $0: you must .set_project first." 1>&2
-	exit 1
+	application=$APPASERVER_DATABASE
 fi
 
-application=$APPASERVER_DATABASE
+if [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
+then
+	echo "Error in $0: you must . set_project first." 1>&2
+	exit 1
+fi
 
 # echo "Starting: $0 $*" 1>&2
 

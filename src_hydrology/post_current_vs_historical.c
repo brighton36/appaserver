@@ -33,6 +33,7 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *database_string = {0};
 	char *login_name;
 	char *session;
 	char *process_name;
@@ -44,15 +45,26 @@ int main( int argc, char **argv )
 	char *station_type = "";
 	char sys_string[ 4096 ];
 
-	if ( argc > 1 )
-	{
-		application_name = argv[ 1 ];
+	application_name = argv[ 1 ];
 
-		appaserver_error_starting_argv_append_file(
+	if ( timlib_parse_database_string(	&database_string,
+						application_name ) )
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
+
+	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
-	}
 
 	if ( argc < 8 )
 	{
@@ -75,10 +87,6 @@ int main( int argc, char **argv )
 	{
 		station_type = argv[ 8 ];
 	}
-
-	environ_set_environment(
-		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-		application_name );
 
 	add_dot_to_path();
 	add_utility_to_path();

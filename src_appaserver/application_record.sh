@@ -2,13 +2,20 @@
 # application_record.sh
 # ---------------------
 
-if [ "$APPASERVER_DATABASE" = "" ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	echo "Error in $0: you must .set_project first." 1>&2
-	exit 1
+	application=$APPASERVER_DATABASE
+elif [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
 fi
 
-application=$APPASERVER_DATABASE
+if [ "$application" = "" ]
+then
+	echo "Error in $0: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
+	exit 1
+fi
 
 if [ "$#" -lt 1 ]
 then

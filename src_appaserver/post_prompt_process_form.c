@@ -78,11 +78,17 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+		environ_set_environment(
+			"DATABASE",
+			database_string );
 	}
 	else
 	{
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+		environ_set_environment(
+			"DATABASE",
 			application_name );
 	}
 

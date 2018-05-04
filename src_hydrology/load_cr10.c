@@ -121,6 +121,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_error_starting_argv_append_file(
 				argc,

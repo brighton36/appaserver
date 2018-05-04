@@ -174,7 +174,6 @@ int main( int argc, char **argv )
 	else
 		optional_related_attribute_name = (char *)0;
 
-
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
 	{

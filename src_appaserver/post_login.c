@@ -151,7 +151,6 @@ int main( int argc, char **argv )
 
 		post_login_output_frameset(
 					application_name,
-					(char *)0 /* database_string */,
 					login_name,
 					session,
 					password_match_return );

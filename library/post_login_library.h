@@ -1,4 +1,4 @@
-/* library/post_login_library.h						*/
+/* $APPASERVER_HOME/library/post_login_library.h			*/
 /* --------------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* --------------------------------------------------------------------	*/
@@ -33,7 +33,6 @@ enum password_match_return post_login_password_match(
 					char *database_password );
 
 void post_login_output_frameset(	char *application_name,
-					char *database_string,
 					char *login_name,
 					char *session,
 					enum password_match_return );

@@ -3223,7 +3223,7 @@ char *timlib_sql_injection_escape( char *source )
 	timlib_escape_character_array(
 		destination,
 		source,
-		"'$;%" );
+		"`'$;%" );
 
 	return strdup( destination );
 

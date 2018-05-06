@@ -235,6 +235,7 @@ void environ_set_utc_offset( char *application_name )
 	char *utc_offset;
 
 	application_constants = application_constants_new();
+
 	application_constants->dictionary =
 		application_constants_get_dictionary(
 			application_name );

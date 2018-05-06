@@ -1,6 +1,6 @@
 #!/bin/sh
-# application_record.sh
-# ---------------------
+# $APPASERVER_HOME/src_appaserver/application_record.sh
+# -----------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then

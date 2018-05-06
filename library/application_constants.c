@@ -43,14 +43,17 @@ DICTIONARY *application_constants_get_dictionary(
 		select );
 
 	input_pipe = popen( sys_string, "r" );
+
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece( key, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 		piece( data, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
 		dictionary_set_pointer(	dictionary,
 					strdup( key ),
 					strdup( data ) );
 	}
+
 	pclose( input_pipe );
 	return dictionary;
 

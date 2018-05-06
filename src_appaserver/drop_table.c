@@ -32,6 +32,7 @@ char *get_sys_string( char *table_name );
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *database_string = {0};
 	char *table_name;
 	char *login_name;
 	char *role_name;
@@ -41,17 +42,20 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	if ( argc > 1 )
+	{
+		application_name = argv[ 1 ];
 
-	appaserver_error_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
+		appaserver_error_starting_argv_append_file(
+			argc,
+			argv,
+			application_name );
+	}
 
 	if ( argc != 7 )
 	{
 		fprintf(stderr,
-	"Usage: %s ignored session login_name role table really_yn\n",
+	"Usage: %s application session login_name role table really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -61,6 +65,24 @@ int main( int argc, char **argv )
 	role_name = argv[ 4 ];
 	table_name = argv[ 5 ];
 	really_yn = argv[ 6 ];
+
+	/* ---------------------------------------------	*/
+	/* Set environment because				*/
+	/* this is executed from table_rectification.		*/
+	/* ---------------------------------------------	*/
+	if ( timlib_parse_database_string(	&database_string,
+						application_name ) )
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	/* ---------------------------------------------------- */
 	/* Check path because this is executed from		*/

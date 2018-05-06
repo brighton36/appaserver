@@ -1,4 +1,4 @@
-/* application.c 							*/
+/* $APPASERVER_HOME/library/application.c				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver APPLICATION ADT.				*/
 /*									*/
@@ -27,6 +27,7 @@ APPLICATION *application_new_application( char *application_string )
 	APPLICATION *application;
 	char *database_string = {0};
 
+/*
 	if ( timlib_parse_database_string(	&database_string,
 						application_string ) )
 	{
@@ -34,6 +35,7 @@ APPLICATION *application_new_application( char *application_string )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+*/
 
 	sprintf(	sys_string, 
 			"%s/src_appaserver/application_record.sh %s '%c'",
@@ -42,6 +44,7 @@ APPLICATION *application_new_application( char *application_string )
 			APPLICATION_RECORD_DELIMITER );
 
 	input_string = pipe2string( sys_string );
+
 	if ( !input_string )
 	{
 		char msg[ 1024 ];

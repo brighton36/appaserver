@@ -1,4 +1,4 @@
-/* library/post_login_library.c						*/
+/* $APPASERVER_HOME/library/post_login_library.c			*/
 /* --------------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* --------------------------------------------------------------------	*/
@@ -165,7 +165,6 @@ enum password_match_return post_login_password_match(
 } /* post_login_password_match() */
 
 void post_login_output_frameset(	char *application_name,
-					char *database_string,
 					char *login_name,
 					char *session,
 					enum password_match_return
@@ -178,9 +177,7 @@ void post_login_output_frameset(	char *application_name,
 	{
 		sprintf(sys_string,
 			"output_frameset %s %s %s \"\" y 2>>%s", 
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			login_name,
 			appaserver_error_get_filename(
@@ -215,9 +212,7 @@ void post_login_output_frameset(	char *application_name,
 
 		sprintf(sys_string,
 			"output_frameset %s %s %s \"\" n >%s 2>>%s", 
-			timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 			session,
 			login_name,
 			email_output_filename,
@@ -283,6 +278,7 @@ char *post_login_get_encoded_password(
 	char *table_name;
 	char sys_string[ 1024 ];
 	char function_name[ 16 ];
+	char *encoded_password;
 
 	if ( old_password )
 		strcpy( function_name, "old_password" );
@@ -300,11 +296,13 @@ char *post_login_get_encoded_password(
 		 "	 where application = '%s';\"		|"
 		 "sql.e						 ",
 		 function_name,
-		 password,
+		 timlib_sql_injection_escape( password ),
 		 table_name,
 		 application_name );
 
-	return pipe2string( sys_string );
+	encoded_password = pipe2string( sys_string );
+
+	return encoded_password;
 
 } /* post_login_get_encoded_password() */
 

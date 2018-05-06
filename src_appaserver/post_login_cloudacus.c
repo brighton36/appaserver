@@ -95,13 +95,21 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+		environ_set_environment(
+			"DATABASE",
+			database_string );
 	}
 	else
 	{
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			application_name );
+		environ_set_environment(
+			"DATABASE",
+			application_name );
 	}
+
+	database_string = application_name;
 
 	appaserver_parameter_file =
 		appaserver_parameter_file_application(
@@ -159,8 +167,6 @@ int main( int argc, char **argv )
 /*
 	if ( *email_password_yn == 'y' )
 	{
-		database_string = application_name;
-
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
@@ -231,6 +237,10 @@ int main( int argc, char **argv )
 
 		results = system( sys_string );
 
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
+
 		if ( results == 0 )
 		{
 			if ( character_exists( login_name, '@' ) )
@@ -262,12 +272,6 @@ int main( int argc, char **argv )
 	if ( *login_yn == 'y' )
 	{
 		char *database_password;
-
-		database_string = application_name;
-
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
 
 		if ( !*application_name 
 		||   !application_exists(
@@ -316,7 +320,6 @@ int main( int argc, char **argv )
 
 			post_login_output_frameset(
 					application_name,
-					database_string,
 					login_name,
 					session,
 					password_match_return );

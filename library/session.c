@@ -123,12 +123,14 @@ int session_get_session_folder_access_ok(
 		role_folder_table,
 		permission,
 		appaserver_sessions_table,
-		session,
+		timlib_sql_injection_escape( session ),
 		role_folder_table,
-		folder_name,
+		timlib_sql_injection_escape( folder_name ),
 		role_folder_table,
-		role_name );
+		timlib_sql_injection_escape( role_name ) );
+
 	results_string = pipe2string( sys_string );
+
 	if ( !results_string )
 	{
 		fprintf( stderr,
@@ -199,11 +201,11 @@ int session_get_session_process_access_ok(
 		role_appaserver_user_table,
 		role_process_table,
 		appaserver_sessions_table,
-		session,
+		timlib_sql_injection_escape( session ),
 		role_process_table,
-		process_name,
+		timlib_sql_injection_escape( process_name ),
 		role_appaserver_user_table,
-		role_name,
+		timlib_sql_injection_escape( role_name ),
 		login_name_and_clause );
 	}
 	else
@@ -225,9 +227,9 @@ int session_get_session_process_access_ok(
 		role_appaserver_user_table,
 		role_process_table,
 		appaserver_sessions_table,
-		session,
+		timlib_sql_injection_escape( session ),
 		role_process_table,
-		process_name,
+		timlib_sql_injection_escape( process_name ),
 		login_name_and_clause );
 	}
 
@@ -270,13 +272,13 @@ int session_get_session_process_access_ok(
 		role_appaserver_user_table,
 		role_process_set_member_table,
 		appaserver_sessions_table,
-		session,
+		timlib_sql_injection_escape( session ),
 		role_appaserver_user_table,
-		role_name,
+		timlib_sql_injection_escape( role_name ),
 		appaserver_sessions_table,
-		login_name,
+		timlib_sql_injection_escape( login_name ),
 		role_process_set_member_table,
-		process_name );
+		timlib_sql_injection_escape( process_name ) );
 
 		results_string = pipe2string( sys_string );
 		if ( !results_string )
@@ -647,14 +649,16 @@ boolean session_remote_ip_address_changed(
 {
 	char where[ 128 ];
 	char sys_string[ 512 ];
-	char *remote_ip_address;
-	char *old_remote_ip_address;
+	char *environ_remote_ip_address;
+	char *database_remote_ip_address;
 
-	remote_ip_address =
+	environ_remote_ip_address =
 		environ_get_environment(
 			SESSION_REMOTE_IP_ADDRESS_VARIABLE );
 
-	sprintf( where, "appaserver_session = '%s'", session );
+	sprintf( where,
+		 "appaserver_session = '%s'",
+		 timlib_sql_injection_escape( session ) );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -664,10 +668,10 @@ boolean session_remote_ip_address_changed(
 		 application_name,
 		 where );
 
-	old_remote_ip_address = pipe2string( sys_string );
+	database_remote_ip_address = pipe2string( sys_string );
 
-	return ( timlib_strcmp(	old_remote_ip_address,
-				remote_ip_address ) != 0 );
+	return ( timlib_strcmp(	database_remote_ip_address,
+				environ_remote_ip_address ) != 0 );
 
 } /* session_ip_address_changed() */
 

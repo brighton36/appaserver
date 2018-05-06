@@ -1,4 +1,4 @@
-/* application.h 							*/
+/* $APPASERVER_HOME/library/application.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver APPLICATION ADT.				*/
 /*									*/

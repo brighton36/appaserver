@@ -33,6 +33,7 @@ char *get_sys_string( char *table_name, char *attribute_name );
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *database_string = {0};
 	char *folder_name;
 	char *attribute_name;
 	char *table_name;
@@ -44,17 +45,24 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	/* ---------------------------------------------	*/
+	/* Get application from command line because		*/
+	/* this is executed from table_rectification.		*/
+	/* ---------------------------------------------	*/
+	if ( argc > 1 )
+	{
+		application_name = argv[ 1 ];
 
-	appaserver_error_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
+		appaserver_error_starting_argv_append_file(
+			argc,
+			argv,
+			application_name );
+	}
 
 	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored session login_name role folder attribute really_yn\n",
+"Usage: %s application session login_name role folder attribute really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -66,9 +74,27 @@ int main( int argc, char **argv )
 	attribute_name = argv[ 6 ];
 	really_yn = argv[ 7 ];
 
+	/* ---------------------------------------------	*/
+	/* Set environment because				*/
+	/* this is executed from table_rectification.		*/
+	/* ---------------------------------------------	*/
+	if ( timlib_parse_database_string(	&database_string,
+						application_name ) )
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
+
 	/* -------------------------------------------- */
 	/* Set path because this is executed from	*/
-	/* fix_orphans and table_rectification.		*/
+	/* table_rectification.				*/
 	/* -------------------------------------------- */
 	add_dot_to_path();
 	add_utility_to_path();
@@ -77,7 +103,7 @@ int main( int argc, char **argv )
 
 	/* ---------------------------------------------------- */
 	/* Check permissions because this is executed from	*/
-	/* fix_orphans and table_rectification.			*/
+	/* table_rectification.					*/
 	/* ---------------------------------------------------- */
 	if ( session_remote_ip_address_changed(
 		application_name,

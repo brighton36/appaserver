@@ -32,6 +32,15 @@
 
 /* Prototypes */
 /* ---------- */
+void create_existing_tar_file_application(
+					char *current_application,
+					char *destination_application,
+					char *database_string,
+					char *existing_tar_file,
+					char really_yn );
+
+char *get_existing_tar_file(		char *appaserver_data_directory );
+
 char *get_error_filename(		char *appaserver_error_directory,
 					char *destination_application );
 
@@ -162,6 +171,10 @@ void update_application_row(		char *destination_application,
 void create_database(			char *destination_application,
 					char really_yn );
 
+void remove_nobody_user(		char *destination_application,
+					char *database_string,
+					char really_yn );
+
 void drop_database(			char *destination_application,
 					char really_yn );
 
@@ -209,6 +222,7 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 
 	current_application = environ_get_application_name( argv[ 0 ] );
+	database_string = current_application;
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -638,32 +652,6 @@ void update_application_row(		char *destination_application,
 	restore_database_environment(
 				database_string,
 				really_yn );
-
-
-#ifdef NOT_DEFINED
-
-===============================
-only_one_primary_yn is retired.
-===============================
-
-	set_database_environment(
-				destination_application,
-				really_yn );
-
-	sprintf(sys_string,
-"echo \"update %s_application set only_one_primary_yn = 'y' where application = '%s';\" | %s",
-		destination_application,
-	 	destination_application,
-		destination_process );
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-
-	restore_database_environment(
-				database_string,
-				really_yn );
-#endif
 
 } /* update_application_row() */
 
@@ -1611,6 +1599,7 @@ boolean create_empty_application(
 				char really_yn )
 {
 	char *new_password;
+	char *existing_tar_file;
 
 	if ( appaserver_library_application_exists(
 					destination_application,
@@ -1630,11 +1619,7 @@ boolean create_empty_application(
 					database_string,
 					appaserver_data_directory,
 					really_yn );
-
-	make_appaserver_error_file(	destination_application,
-					appaserver_error_directory,
-					really_yn );
-
+	
 	insert_application_row(		current_application,
 					destination_application,
 					session,
@@ -1647,6 +1632,60 @@ boolean create_empty_application(
 	update_application_row(		destination_application,
 					database_string,
 					new_application_title,
+					really_yn );
+
+	if ( ( existing_tar_file =
+			get_existing_tar_file(
+				appaserver_data_directory ) ) )
+	{
+		create_existing_tar_file_application(
+					current_application,
+					destination_application,
+					database_string,
+					existing_tar_file,
+					really_yn );
+
+		remove_nobody_user(	destination_application,
+					database_string,
+					really_yn );
+	}
+	else
+	{
+		create_system_tables(		destination_application,
+						current_application,
+						appaserver_data_directory,
+						session,
+						login_name,
+						role_name,
+						database_string,
+						really_yn );
+	
+		insert_appaserver_rows(		destination_application,
+						current_application,
+						appaserver_data_directory,
+						session,
+						login_name,
+						database_string,
+						really_yn );
+	
+		delete_non_appaserver_rows(	destination_application,
+						current_application,
+						database_string,
+						login_name,
+						role_name,
+						really_yn );
+	}
+
+	new_password = NEW_PASSWORD;
+
+	insert_appaserver_user_row(	destination_application,
+					database_string,
+					login_name,
+					new_password,
+					really_yn );
+
+	make_appaserver_error_file(	destination_application,
+					appaserver_error_directory,
 					really_yn );
 
 	make_document_root_directory(	destination_application,
@@ -1668,39 +1707,6 @@ boolean create_empty_application(
 	fix_index_dot_php(		destination_application,
 					document_root_directory,
 					new_application_title,
-					really_yn );
-
-	create_system_tables(		destination_application,
-					current_application,
-					appaserver_data_directory,
-					session,
-					login_name,
-					role_name,
-					database_string,
-					really_yn );
-
-	insert_appaserver_rows(		destination_application,
-					current_application,
-					appaserver_data_directory,
-					session,
-					login_name,
-					database_string,
-					really_yn );
-
-	delete_non_appaserver_rows(	destination_application,
-					current_application,
-					database_string,
-					login_name,
-					role_name,
-					really_yn );
-
-	new_password = NEW_PASSWORD;
-
-	insert_appaserver_user_row(
-					destination_application,
-					database_string,
-					login_name,
-					new_password,
 					really_yn );
 
 	if ( really_yn == 'y'
@@ -1879,4 +1885,112 @@ char *get_error_filename(	char *appaserver_error_directory,
 	return error_filename;
 
 } /* get_error_filename() */
+
+void remove_nobody_user(	char *destination_application,
+				char *database_string,
+				char really_yn )
+{
+	char sys_string[ 1024 ];
+	char *sql_executable;
+	char *login_name;
+
+	login_name = "nobody";
+
+	if ( really_yn == 'y' )
+	{
+		sql_executable = "sql.e";
+	}
+	else
+	{
+		sql_executable = "html_paragraph_wrapper.e";
+	}
+
+	set_database_environment(
+				destination_application,
+				really_yn );
+
+	application_reset();
+
+	sprintf( sys_string,
+"echo \"%s\" | delete_statement.e table=%s field=%s | %s",
+		 login_name,
+		 "appaserver_user",
+		 "login_name",
+		 sql_executable );
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	sprintf( sys_string,
+"echo \"%s\" | delete_statement.e table=%s field=%s | %s",
+		 login_name,
+		 "role_appaserver_user",
+		 "login_name",
+		 sql_executable );
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	restore_database_environment(
+				database_string,
+				really_yn );
+
+} /* remove_nobody_user() */
+
+char *get_existing_tar_file( char *appaserver_data_directory )
+{
+	char existing_tar_file[ 256 ];
+
+	sprintf( existing_tar_file,
+		 "%s/mysqldump_template.sql.gz",
+		 appaserver_data_directory );
+
+	if ( timlib_file_exists( existing_tar_file ) )
+		return strdup( existing_tar_file );
+	else
+		return (char *)0;
+
+} /* get_existing_tar_file() */
+
+void create_existing_tar_file_application(
+					char *current_application,
+					char *destination_application,
+					char *database_string,
+					char *existing_tar_file,
+					char really_yn )
+{
+	char sys_string[ 1024 ];
+	char *sql_executable;
+
+	if ( really_yn == 'y' )
+	{
+		sql_executable = "sql.e";
+	}
+	else
+	{
+		sql_executable = "html_paragraph_wrapper.e";
+	}
+
+	set_database_environment(
+				destination_application,
+				really_yn );
+
+	application_reset();
+
+	sprintf( sys_string,
+		 "zcat %s | %s",
+		 existing_tar_file,
+		 sql_executable );
+
+	fflush( stdout );
+	system( sys_string );
+	fflush( stdout );
+
+	restore_database_environment(
+				database_string,
+				really_yn );
+
+} /* create_existing_tar_file_application() */
 

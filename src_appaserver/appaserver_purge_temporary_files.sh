@@ -6,36 +6,37 @@
 # Freely available software: see Appaserver.org
 # -------------------------------------------------------------------
 
-if [ "$APPASERVER_DATABASE" = "" ]
-then
-	echo "Error in $0: you must .set_project first." 1>&2
-	exit 1
-fi
-
-application=$APPASERVER_DATABASE
-
 if [ $# -ne 1 ]
 then
-	echo "Usage: $0 ignored" 1>&2
+	echo "Usage: `basename.e $0 n` ignored" 1>&2
 	exit 1
 fi
 
-document_root=`get_document_root.e`
-appaserver_data=`get_appaserver_data_directory.e`
-
+# First, purge $document_root/appaserver/*/data/
+# ----------------------------------------------
 delay_minutes=30
-directory=${document_root}/appaserver/${application_name}/data
-#directory=${document_root}/appaserver
+document_root=`get_document_root.e`
+appaserver_directory=${document_root}/appaserver
 
-find	$directory						\
-	-name '*_[1-9][0-9][0-9]*'				\
-	-mmin +$delay_minutes					\
-	-exec rm -f {} \; 2>/dev/null
+cd $appaserver_directory
 
+find . -type d -name data					|
+while read directory
+do
+	find	$directory					\
+		-type f						\
+		-name '*_[1-9][0-9][0-9]*'			\
+		-mmin +$delay_minutes				\
+		-exec rm -f {} \; 2>/dev/null
+done
+
+# Second, purge appaserver data temporary files
+# ---------------------------------------------
+appaserver_data_directory=`get_appaserver_data_directory.e`
 delay_minutes=180
-directory=${appaserver_data}
 
-find	$directory						\
+find	$appaserver_data_directory				\
+	-type f							\
 	-name '*_[1-9][0-9][0-9]*'				\
 	-mmin +$delay_minutes					\
 	-exec rm -f {} \; 2>/dev/null

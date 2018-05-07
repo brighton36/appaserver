@@ -6,9 +6,9 @@
 
 echo "$0" "$*" 1>&2
 
-if [ "$#" -ne 5 ]
+if [ "$#" -ne 6 ]
 then
-	echo "Usage: $0 process begin_date end_date station_list omit_html_yn" 1>&2
+	echo "Usage: $0 process begin_date end_date station_list datatype omit_html_yn" 1>&2
 	exit 1
 fi
 
@@ -16,7 +16,8 @@ process=$1
 begin_date=$2
 end_date=$3
 station_list=$4
-omit_html_yn=$5
+datatype=$5
+omit_html_yn=$6
 
 process_title=`echo $process | format_initial_capital.e`
 
@@ -26,11 +27,6 @@ then
 else
 	tee_process="cat"
 fi
-
-
-#begin_date="2017-06-01"
-#end_date="2017-06-05"
-#station_list="'BK','MK','JK','LR','PK','WB'"
 
 document_root=$(get_document_root.e)
 output_directory="$document_root/appaserver/$DATABASE/data"
@@ -46,7 +42,7 @@ echo "	select $select
 	from station, measurement
 	where station.station = measurement.station
 	  and station.station `in_clause.e $station_list`
-	  and datatype = 'salinity'
+	  and datatype = '$datatype'
 	  and measurement_date between '${begin_date}' and '${end_date}'
 	GROUP BY $group_by;"						|
 $tee_process								|

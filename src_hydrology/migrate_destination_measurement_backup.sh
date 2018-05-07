@@ -1,6 +1,6 @@
 :
-# migrate_bonefish_measurement.sh
-# -------------------------------
+# migrate_destination_measurement_backup.sh
+# --------------------------------------
 
 # Run this after mysqldump_database.sh finishes.
 # ----------------------------------------------
@@ -13,9 +13,9 @@ fi
 
 date=$1
 
-# Expect to take 7 1/2 hours.
-# ---------------------------
+# Expect to take 2 hours.
+# -----------------------
 cd /dfe/son
-zcat measurement_$date.sql.gz | sql.e hydrology
+zcat measurement_backup_$date.sql.gz | sql.e hydrology
 
 exit 0

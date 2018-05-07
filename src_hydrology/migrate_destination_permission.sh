@@ -1,9 +1,9 @@
 :
-# migrate_bonefish_permission.sh
-# ------------------------------
+# migrate_destination_permission.sh
+# ---------------------------------
 
-# Run this after migrate_mink_goes.sh
-# -----------------------------------
+# Run this after migrate_source_goes.sh
+# -------------------------------------
 
 cd /opt/lrgs
 

@@ -1,6 +1,6 @@
 :
-# migrate_mink_dump_files.sh
-# --------------------------
+# migrate_source_dump_files.sh
+# ----------------------------
 
 # Not doing
 # ---------
@@ -17,6 +17,6 @@ nohup /usr/bin/time				\
 		backup_line			\
 		sparrow				\
 		bonefish:/opt/physical/data/dfe	\
-> /var/tmp/migrate_mink_dumps.out 2>&1 &
+> /var/tmp/migrate_source_dumps.out 2>&1 &
 
 exit 0

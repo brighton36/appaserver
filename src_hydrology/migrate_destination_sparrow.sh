@@ -1,6 +1,6 @@
 :
-# migrate_bonefish_tables.sh
-# ------------------------
+# migrate_destination_sparrow.sh
+# ------------------------------
 
 # Run this after mysqldump_database.sh finishes.
 # ----------------------------------------------
@@ -13,15 +13,13 @@ fi
 
 date=$1
 
-# Expect to take 7 hours.
-# -----------------------
-cd /dfe/son/hydrology
+cd /dfe/son/sparrow
 rm *
-tar xzf ../hydrology_$date.tar.gz && ls -1 *.sql |
+tar xzf ../sparrow_$date.tar.gz && ls -1 *.sql |
 while read tablefile
 do
 	echo "Loading $tablefile"
-	cat $tablefile | sql.e hydrology
+	cat $tablefile | sql.e sparrow
 done
 
 exit 0

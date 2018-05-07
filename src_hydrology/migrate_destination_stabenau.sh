@@ -1,9 +1,9 @@
 :
-# migrate_bonefish_stabenau.sh
-# ----------------------------
+# migrate_destination_stabenau.sh
+# -------------------------------
 
-# Run this after migrate_mink_goes.sh
-# -----------------------------------
+# Run this after migrate_source_goes.sh
+# -------------------------------------
 
 cd ~stabenau
 

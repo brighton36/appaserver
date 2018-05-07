@@ -1,5 +1,5 @@
 :
-# migrate_bonefish_mkdir_data.sh
+# migrate_destination_mkdir_data.sh
 # ------------------------------
 
 cd /opt/physical

@@ -1,6 +1,6 @@
 :
-# migrate_mink_files.sh
-# ---------------------
+# migrate_source_files.sh
+# -----------------------
 
 # Damon's scripts
 # ---------------
@@ -107,11 +107,11 @@ directory="/opt/physical/sql/"
 dpkg -l						|
 grep -i python					|
 column.e 1					|
-piece.e ':' 0 > /var/tmp/python_mink.dat
+piece.e ':' 0 > /var/tmp/python_source.dat
 
 # Following this, execute migrate_bonefish_python.sh
 # --------------------------------------------------
-scp /var/tmp/python_mink.dat bonefish:/dfe/tmp
+scp /var/tmp/python_source.dat bonefish:/dfe/tmp
 
 # GOES executables
 # ----------------
@@ -121,14 +121,14 @@ directory="/opt/physical/tmp2/"
 # GOES Satellite files.
 # This excludes data.
 # --------------------
-migrate_mink_goes.sh
+migrate_source_goes.sh
 
 # Database dumps <-- not doing
 # ----------------------------
-# migrate_mink_dump_files.sh
+# migrate_source_dump_files.sh
 
 # CR10 directory <-- not doing
 # ----------------------------
-# migrate_mink_cr10.sh
+# migrate_source_cr10.sh
 
 exit 0

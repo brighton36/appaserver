@@ -1,6 +1,6 @@
 :
-# migrate_mink_cr10.sh
-# --------------------
+# migrate_source_cr10.sh
+# ----------------------
 
 # Not doing
 # ---------
@@ -17,6 +17,6 @@ nohup /usr/bin/time				\
 		--hard-links			\
 		.				\
 		bonefish:/var/export		\
-> /var/tmp/migrate_mink_cr10.out 2>&1 &
+> /var/tmp/migrate_source_cr10.out 2>&1 &
 
 exit 0

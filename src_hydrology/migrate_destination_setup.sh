@@ -1,5 +1,5 @@
 :
-# migrate_bonefish_setup.sh
+# migrate_destination_setup.sh
 # -------------------------
 
 # Expect size:
@@ -24,7 +24,7 @@ mkdir /opt/physical/tmp2
 mkdir /opt/physical/maps
 mkdir /opt/physical/maps/run_plots
 
-migrate_bonefish_mkdir_data.sh
+migrate_destination_mkdir_data.sh
 
 # Database dump directories
 # -------------------------
@@ -190,7 +190,7 @@ sudo ln -s /var/export /export
 dpkg -l							|
 grep -i python						|
 column.e 1						|
-piece.e ':' 0 > /dfe/tmp/python_bonefish.dat
+piece.e ':' 0 > /dfe/tmp/python_destination.dat
 
 # Create user accounts
 # --------------------

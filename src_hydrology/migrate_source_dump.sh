@@ -1,6 +1,6 @@
 :
-# migrate_mink_dump.sh
-# --------------------
+# migrate_source_dump.sh
+# ----------------------
 
 # ==============
 # Database dumps

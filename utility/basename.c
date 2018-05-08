@@ -5,12 +5,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "timlib.h"
 #include "basename.h"
+
+void basename_stdin( void );
 
 int main( int argc, char **argv )
 {
 	char *filename;
 	boolean strip_extension;
+
+	if ( argc == 1 )
+	{
+		basename_stdin();
+		exit( 0 );
+	}
 
 	if ( argc != 3 )
 	{
@@ -32,3 +41,15 @@ int main( int argc, char **argv )
 
 } /* main() */
 
+void basename_stdin( void )
+{
+	char filename[ 1024 ];
+
+	while( get_line( filename, stdin ) )
+	{
+		printf( "%s\n",
+			basename_get_base_name(
+				filename,	
+				0 /* not strip_extension */ ) );
+	}
+}

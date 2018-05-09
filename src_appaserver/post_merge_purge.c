@@ -523,7 +523,6 @@ void post_state_two(	char *application_name,
 	char *keep_data;
 	char *purge_data;
 	FOLDER *folder;
-	char msg[ 1024 ];
 
 	folder = folder_with_load_new( 	application_name,
 					session,
@@ -546,14 +545,6 @@ void post_state_two(	char *application_name,
 		post2dictionary(stdin,
 				appaserver_data_directory,
 				session );
-
-	sprintf(msg,
-		"%s/%s()/%d: Received post_dictionary = (%s)\n",
-		__FILE__,
-		__FUNCTION__,
-		__LINE__,
-		dictionary_display( post_dictionary ) );
-	m2( application_name, msg );
 
 	keep_data =
 		dictionary_get_pointer(

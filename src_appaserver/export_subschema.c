@@ -678,7 +678,12 @@ void clone_table_role(
 	role_name_list = 
 		get_role_name_list(
 			application_name,
+<<<<<<< Updated upstream
 			folder_name );
+=======
+			folder_name,
+			process_name_list );
+>>>>>>> Stashed changes
 
 	if ( !list_rewind( role_name_list ) ) return;
 	

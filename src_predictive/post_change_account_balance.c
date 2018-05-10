@@ -45,11 +45,7 @@ int main( int argc, char **argv )
 	char *account_number;
 	char *date_time;
 	char *state;
-	char *preupdate_full_name;
-	char *preupdate_street_address;
-	char *preupdate_account_number;
 	char *preupdate_date_time;
-	char *preupdate_investment_operation;
 	INVESTMENT_EQUITY *investment_equity;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
@@ -59,10 +55,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 13 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored fund full_name street_address account_number date_time state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time preupdate_investment_operation\n",
+"Usage: %s ignored fund full_name street_address account_number date_time state preupdate_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -73,11 +69,7 @@ int main( int argc, char **argv )
 	account_number = argv[ 5 ];
 	date_time = argv[ 6 ];
 	state = argv[ 7 ];
-	preupdate_full_name = argv[ 8 ];
-	preupdate_street_address = argv[ 9 ];
-	preupdate_account_number = argv[ 10 ];
-	preupdate_date_time = argv[ 11 ];
-	preupdate_investment_operation = argv[ 12 ];
+	preupdate_date_time = argv[ 8 ];
 
 	/* -------------------------------------------- */
 	/* Need to execute on predelete to get		*/
@@ -94,11 +86,7 @@ int main( int argc, char **argv )
 					account_number,
 					date_time,
 					state,
-					preupdate_full_name,
-					preupdate_street_address,
-					preupdate_account_number,
-					preupdate_date_time,
-					preupdate_investment_operation ) ) )
+					preupdate_date_time ) ) )
 	{
 		fprintf( stderr,
 			"ERROR in %s/%s()/%d: cannot investment_equity_new()\n",
@@ -142,7 +130,6 @@ void post_change_account_balance_insert(
 				application_name,
 				t->investment_account.full_name,
 				t->investment_account.street_address,
-				t->investment_account.account_number,
 				t->input.fund_name,
 				t->investment_account.investment_account,
 				t->investment_account.
@@ -180,7 +167,6 @@ void post_change_account_balance_update(
 				application_name,
 				t->investment_account.full_name,
 				t->investment_account.street_address,
-				t->investment_account.account_number,
 				t->input.fund_name,
 				t->investment_account.investment_account,
 				t->investment_account.
@@ -239,7 +225,6 @@ void post_change_account_balance_delete(
 				application_name,
 				t->investment_account.full_name,
 				t->investment_account.street_address,
-				t->investment_account.account_number,
 				t->input.fund_name,
 				t->investment_account.investment_account,
 				t->investment_account.

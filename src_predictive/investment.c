@@ -20,11 +20,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 					char *account_number,
 					char *date_time,
 					char *state,
-					char *preupdate_full_name,
-					char *preupdate_street_address,
-					char *preupdate_account_number,
-					char *preupdate_date_time,
-					char *preupdate_investment_operation )
+					char *preupdate_date_time )
 {
 	INVESTMENT_EQUITY *t;
 	char *begin_date_time = {0};
@@ -47,11 +43,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 	t->input.date_time = date_time;
 	t->input.fund_name = fund_name;
 	t->input.state = state;
-	t->input.preupdate_full_name = preupdate_full_name;
-	t->input.preupdate_street_address = preupdate_street_address;
 	t->input.preupdate_account_number = preupdate_date_time;
-	t->input.preupdate_investment_operation =
-		preupdate_investment_operation;
 
 	if ( !investment_fetch_account(
 		&t->investment_account.investment_account,
@@ -124,11 +116,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 			t->investment_account.street_address,
 			t->investment_account.account_number,
 			t->input.date_time,
-			preupdate_full_name,
-			preupdate_street_address,
-			preupdate_account_number,
-			preupdate_date_time,
-			preupdate_investment_operation );
+			preupdate_date_time );
 
 	return t;
 
@@ -140,11 +128,7 @@ INVESTMENT_PROCESS *investment_process_new(
 				char *street_address,
 				char *account_number,
 				char *date_time,
-				char *preupdate_full_name,
-				char *preupdate_street_address,
-				char *preupdate_account_number,
-				char *preupdate_date_time,
-				char *preupdate_investment_operation )
+				char *preupdate_date_time )
 {
 	INVESTMENT_PROCESS *t;
 
@@ -167,6 +151,7 @@ INVESTMENT_PROCESS *investment_process_new(
 		account_number,
 		date_time ) )
 	{
+/*
 		fprintf( stderr,
 "ERROR in %s/%s()/%d: cannot fetch from %s (%s,%s,%s,%s)\n",
 			 __FILE__,
@@ -178,37 +163,14 @@ INVESTMENT_PROCESS *investment_process_new(
 			 account_number,
 			 date_time );
 		exit( 1 );
+*/
 	}
-
-	t->full_name_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_full_name,
-			full_name /* postupdate_data */,
-			"preupdate_full_name" );
-
-	t->street_address_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_street_address,
-			street_address /* postupdate_data */,
-			"preupdate_street_address" );
-
-	t->account_number_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_account_number,
-			account_number /* postupdate_data */,
-			"preupdate_account_number" );
 
 	t->date_time_change_state =
 		appaserver_library_get_preupdate_change_state(
 			preupdate_date_time,
 			date_time /* postupdate_data */,
 			"preupdate_date_time" );
-
-	t->investment_operation_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_investment_operation,
-			(char *)0 /* postupdate_data */,
-			"preupdate_investment_operation" );
 
 	return t;
 
@@ -754,7 +716,6 @@ LIST *investment_calculate_account_balance_list(
 				char *application_name,
 				char *full_name,
 				char *street_address,
-				char *account_number,
 				char *fund_name,
 				char *investment_account,
 				char *fair_value_adjustment_account,
@@ -794,21 +755,15 @@ LIST *investment_calculate_account_balance_list(
 					0.0 /* prior_unrealized_gain_balance */,
 					account_balance->investment_operation,
 					1 /* table_first_row */ );
-
-				list_append_pointer(
-					output_account_balance_list,
-					new_account_balance );
-
-				prior_account_balance = new_account_balance;
 			}
 			else
 			{
-				prior_account_balance = account_balance;
+				new_account_balance = account_balance;
 			}
-			continue;
 		}
-
-		new_account_balance =
+		else
+		{
+			new_account_balance =
 			   investment_account_balance_calculate(
 				account_balance->date_time,
 				account_balance->share_price,
@@ -820,6 +775,7 @@ LIST *investment_calculate_account_balance_list(
 					unrealized_gain_balance,
 				account_balance->investment_operation,
 				0 /* not table_first_row */ );
+		}
 
 		if ( !new_account_balance )
 		{
@@ -833,6 +789,12 @@ LIST *investment_calculate_account_balance_list(
 			printf( "<h3>An error occurred. Check log.</h3>\n" );
 			continue;
 		}
+
+		list_append_pointer(
+			output_account_balance_list,
+			new_account_balance );
+
+		prior_account_balance = new_account_balance;
 
 		new_account_balance->transaction =
 			investment_build_transaction(
@@ -850,6 +812,7 @@ LIST *investment_calculate_account_balance_list(
 				account_balance->realized_gain,
 				account_balance->cash_in );
 
+/*
 		if ( !new_account_balance->transaction )
 		{
 			fprintf( stderr,
@@ -880,12 +843,7 @@ LIST *investment_calculate_account_balance_list(
 				 new_account_balance->date_time,
 				 new_account_balance->investment_operation );
 		}
-
-		list_append_pointer(
-			output_account_balance_list,
-			new_account_balance );
-
-		prior_account_balance = new_account_balance;
+*/
 
 	} while( list_next( input_account_balance_list ) );
 
@@ -1250,27 +1208,55 @@ void investment_account_balance_update(	FILE *output_pipe,
 	 		output_account_balance->realized_gain );
 	}
 
-	output_account_balance->transaction_date_time =
-		ledger_transaction_refresh(
-			application_name,
-			full_name,
-			street_address,
-			/* ------------------------------ */
-			/* Original transaction_date_time */
-			/* ------------------------------ */
-			account_balance->
-				transaction_date_time,
-			output_account_balance->
-				transaction->
-				transaction_amount,
-			investment_get_memo(
+	if ( !output_account_balance->transaction )
+	{
+		output_account_balance->transaction_date_time = (char *)0;
+
+		if ( account_balance->transaction_date_time )
+		{
+			ledger_delete(	application_name,
+					TRANSACTION_FOLDER_NAME,
+					full_name,
+					street_address,
+					account_balance->
+						transaction_date_time );
+
+			ledger_delete(	application_name,
+					LEDGER_FOLDER_NAME,
+					full_name,
+					street_address,
+					account_balance->
+						transaction_date_time );
+
+			/* ------------------ */
+			/* Need to propagate! */
+			/* ------------------ */
+		}
+	}
+	else
+	{
+		output_account_balance->transaction_date_time =
+			ledger_transaction_refresh(
+				application_name,
+				full_name,
+				street_address,
+				/* ------------------------------ */
+				/* Original transaction_date_time */
+				/* ------------------------------ */
+				account_balance->
+					transaction_date_time,
 				output_account_balance->
-					investment_operation ),
-			0 /* check_number */,
-			1 /* lock_transaction */,
-			output_account_balance->
-				transaction->
-				journal_ledger_list );
+					transaction->
+					transaction_amount,
+				investment_get_memo(
+					output_account_balance->
+						investment_operation ),
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				output_account_balance->
+					transaction->
+					journal_ledger_list );
+	}
 
 	if ( timlib_strcmp(
 			output_account_balance->transaction_date_time,

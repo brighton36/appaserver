@@ -47,6 +47,7 @@ append_etc_profile_display ()
 	echo "export DOCUMENT_ROOT=${document_root}"
 	echo 'export PATH=$PATH:$APPASERVER_HOME/utility:$APPASERVER_HOME/src_appaserver:.'
 	echo "export UTC_OFFSET=-8"
+	echo "export DATABASE=template"
 	echo "# Uncomment if APPASERVER_HOME and CGI_HOME are on different filesystems"
 	echo "#export APPASERVER_LINK_FLAGS=-s"
 }
@@ -68,6 +69,7 @@ append_etc_profile_execute ()
 	echo "export DOCUMENT_ROOT=${document_root}" >> ${profile_file}
 	echo 'export PATH=$PATH:$APPASERVER_HOME/utility:$APPASERVER_HOME/src_appaserver:.' >> ${profile_file}
 	echo 'export UTC_OFFSET=-8' >> ${profile_file}
+	echo 'export DATABASE=template' >> ${profile_file}
 	echo "# Uncomment if APPASERVER_HOME and CGI_HOME are on different filesystems" >> ${profile_file}
 	echo "#export APPASERVER_LINK_FLAGS=-s" >> ${profile_file}
 }

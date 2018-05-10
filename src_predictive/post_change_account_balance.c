@@ -73,9 +73,8 @@ boolean post_change_account_balance_insert_sale(
 				ACCOUNT_BALANCE *account_balance );
 
 void post_change_account_balance_insert(
-				char *application_name,
-				char *fund_name,
-				ACCOUNT_BALANCE *account_balance );
+				INVESTMENT_EQUITY *investment_equity,
+				char *application_name );
 
 int main( int argc, char **argv )
 {

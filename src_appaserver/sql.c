@@ -35,7 +35,7 @@ int main( int argc, char **argv )
 	char *base_name;
 	char *quick_flag;
 	char *override_database = {0};
-	char *database_connection;
+	char *database_connection = {0};
 
 	/* --------------------------------------------	*/
 	/* Usage: sql.e [delimiter] ignored [database]	*/
@@ -123,6 +123,16 @@ int main( int argc, char **argv )
 			database_connection =
 				environ_get_environment( "DATABASE" );
 		}
+	}
+
+	if ( !database_connection )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: no database connection.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
 	if ( h->mysql_password_syntax )

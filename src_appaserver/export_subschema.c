@@ -678,12 +678,7 @@ void clone_table_role(
 	role_name_list = 
 		get_role_name_list(
 			application_name,
-<<<<<<< Updated upstream
 			folder_name );
-=======
-			folder_name,
-			process_name_list );
->>>>>>> Stashed changes
 
 	if ( !list_rewind( role_name_list ) ) return;
 	
@@ -1020,7 +1015,6 @@ void output_shell_script_footer( char *export_subschema_filename )
 void output_shell_script_header( char *export_subschema_filename )
 {
 	FILE *output_file;
-	char *folder_name;
 
 	output_file = fopen( export_subschema_filename, "w" );
 
@@ -1035,6 +1029,7 @@ void output_shell_script_header( char *export_subschema_filename )
 	fprintf( output_file,
 	"#!/bin/sh\n" );
 /*
+	char *folder_name;
 	fprintf( output_file,
 	"#!/bin/sh\n" );
 	fprintf( output_file,
@@ -1069,7 +1064,6 @@ void output_shell_script_header( char *export_subschema_filename )
 			break;
 		}
 	} while( list_next( folder_name_list ) );
-*/
 
 	fprintf( output_file,
 "if [ \"$APPASERVER_DATABASE\" != \"\" ]\n"
@@ -1083,6 +1077,7 @@ void output_shell_script_header( char *export_subschema_filename )
 "	echo \"\$ . set_database\" 1>&2\n"
 "	exit 1\n"
 "fi\n" );
+*/
 
 	fprintf( output_file,
 	"folder=`get_table_name $application folder`\n" );

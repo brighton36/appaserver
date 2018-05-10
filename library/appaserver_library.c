@@ -1063,6 +1063,10 @@ boolean appaserver_library_validate_begin_end_date(
 	static char new_begin_date[ 16 ];
 	static char new_end_date[ 16 ];
 
+/* Stub */
+/* ---- */
+database_management_system = "";
+
 	if ( !begin_date && !end_date ) return 0;
 
 	if ( character_exists( *begin_date, '/' ) ) return 1;
@@ -1175,14 +1179,6 @@ boolean appaserver_library_validate_begin_end_date(
 
 	strcpy( new_begin_date, *begin_date );
 	strcpy( new_end_date, *end_date );
-
-	if ( database_management_system
-	&&   strcmp( database_management_system, "oracle" ) == 0 )
-	{
-		*begin_date = new_begin_date;
-		*end_date = new_end_date;
-		return 1;
-	}
 
 	piece( buffer, '-', new_begin_date, 0 );
 	if ( strlen( buffer ) != 4 ) return 0;
@@ -1622,7 +1618,6 @@ char *appaserver_library_get_vertical_new_button_folder_name(
 
 char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 					LIST *element_list,
-					char *database_management_system,
 					char *source_form )
 {
 	ELEMENT *element;
@@ -1716,7 +1711,6 @@ char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 	if (	strlen( element_name_list_string ) +
 		strlen( element_heading_list_string ) +
 		strlen( element_attribute_width_list_string ) +
-		strlen( database_management_system ) +
 		strlen( source_form ) +
 		40 > FORM_SUBMIT_CONTROL_STRING_SIZE )
 	{
@@ -1732,10 +1726,11 @@ char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 		element_name_list_string,
 		element_heading_list_string,
 		element_attribute_width_list_string,
-		database_management_system,
+		"" /* database_management_system */,
 		source_form );
 
 	return submit_control_string;
+
 } /* appaserver_library_get_verify_attribute_widths_submit_control_string() */
 
 void appaserver_library_dictionary_convert_date(

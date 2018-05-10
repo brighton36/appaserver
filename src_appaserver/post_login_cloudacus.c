@@ -211,10 +211,9 @@ int main( int argc, char **argv )
 			TEMPLATE_APPLICATION );
 
 		sprintf( sys_string, 
-			 "session_new.sh %s %s %s 2>>%s", 
+			 "session_new.sh %s %s 2>>%s", 
 			 TEMPLATE_APPLICATION,
 			 login_name,
-			 appaserver_parameter_file_get_dbms(),
 			 appaserver_error_get_filename(
 				TEMPLATE_APPLICATION ) );
 
@@ -309,10 +308,9 @@ int main( int argc, char **argv )
 			/* Generate a new session */
 			/* ---------------------- */
 			sprintf( sys_string, 
-				 "session_new.sh %s %s %s 2>>%s", 
+				 "session_new.sh %s %s 2>>%s", 
 				 application_name,
 				 login_name,
-				 appaserver_parameter_file_get_dbms(),
 				 appaserver_error_get_filename(
 					application_name ) );
 	

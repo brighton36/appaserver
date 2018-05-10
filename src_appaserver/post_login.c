@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_appaserver/post_login.c			       	*/
+/* $APPASERVER_HOME/src_appaserver/post_login.c	       	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* This program is attached to the submit button on the */
@@ -33,7 +33,7 @@ int main( int argc, char **argv )
 {
 	char *login_name;
 	char sys_string[ 512 ];
-	char *application_name;
+	char *application_name = "";
 	char *database_string = {0};
 	char *password = "";
 	char *database_password = "";
@@ -41,9 +41,6 @@ int main( int argc, char **argv )
 	DICTIONARY *post_dictionary;
 	int login_denied = 0;
 	enum password_match_return password_match_return;
-
-	add_utility_to_path();
-	add_src_appaserver_to_path();
 
 	if ( ! ( post_dictionary =
 			post2dictionary(
@@ -58,23 +55,6 @@ int main( int argc, char **argv )
 			 __LINE__ );
 		exit( 1 );
 	}
-
-	if ( dictionary_get_index_data(
-			&login_name,
-			post_dictionary,
-			"login_name",
-			0 ) == -1 )
-	{
-		login_denied = 1;
-	}
-
-	login_name = timlib_sql_injection_escape( login_name );
-
-	dictionary_get_index_data(
-			&password,
-			post_dictionary,
-			"password",
-			0 );
 
 	if ( argc == 1 )
 	{
@@ -93,11 +73,24 @@ int main( int argc, char **argv )
 		application_name = argv[ 1 ];
 	}
 
+	if ( !*application_name )
+	{
+		fprintf( stderr,
+			"ERROR in %s/%s()/%d: cannot get application_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
 	{
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			database_string );
+		environ_set_environment(
+			"DATABASE",
 			database_string );
 	}
 	else
@@ -105,13 +98,38 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			application_name );
+		environ_set_environment(
+			"DATABASE",
+			application_name );
 	}
+
+	database_string = application_name;
 
 	appaserver_error_login_name_append_file(
 				argc,
 				argv,
 				application_name,
 				login_name );
+
+	add_utility_to_path();
+	add_src_appaserver_to_path();
+
+	if ( dictionary_get_index_data(
+			&login_name,
+			post_dictionary,
+			"login_name",
+			0 ) == -1 )
+	{
+		login_denied = 1;
+	}
+
+	login_name = timlib_sql_injection_escape( login_name );
+
+	dictionary_get_index_data(
+			&password,
+			post_dictionary,
+			"password",
+			0 );
 
 	add_relative_source_directory_to_path( application_name );
 
@@ -140,10 +158,9 @@ int main( int argc, char **argv )
 		/* Generate a new session */
 		/* ---------------------- */
 		sprintf( sys_string, 
-			 "session_new.sh %s %s %s 2>>%s", 
+			 "session_new.sh %s %s 2>>%s", 
 			 application_name,
 			 login_name,
-			 appaserver_parameter_file_get_dbms(),
 			 appaserver_error_get_filename(
 				application_name ) );
 
@@ -199,6 +216,8 @@ int main( int argc, char **argv )
 		sleep( SECONDS_TO_SLEEP );
 		exit ( 1 );
 	}
-	exit( 0 );
+
+	return 0;
+
 } /* main() */
 

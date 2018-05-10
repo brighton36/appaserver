@@ -827,7 +827,6 @@ void output_prompt_edit_form(
 	   form->submit_control_string,
 	   appaserver_library_get_verify_attribute_widths_submit_control_string(
 			form->regular_element_list,
-			appaserver_parameter_file_get_dbms(),
 			"output_prompt_edit_form" ) );
 
 	form->table_border = 1;

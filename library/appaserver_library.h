@@ -326,15 +326,17 @@ LIST *appaserver_library_get_attribute_name_list(
 
 char *appaserver_library_get_verify_attribute_widths_submit_control_string(
 					LIST *element_list,
-					char *database_management_system,
 					char *source_form );
+
 void appaserver_library_post_dictionary_database_convert_dates(
 					DICTIONARY *post_dictionary,
 					char *application_name,
 					LIST *attribute_list );
+
 void appaserver_library_dictionary_database_convert_begin_end_dates(
 					DICTIONARY *dictionary,
 					char *application_name );
+
 void appaserver_library_list_database_convert_dates(
 					LIST *data_list,
 					char *application_name,

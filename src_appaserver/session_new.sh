@@ -8,7 +8,7 @@
 
 echo Starting: $0 $* 1>&2
 
-if [ $# -lt 2 ]
+if [ $# -ne 2 ]
 then
 	echo "Usage: $0 application login_name" 1>&2
 	exit 1

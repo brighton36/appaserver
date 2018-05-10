@@ -117,6 +117,10 @@ INVESTMENT_PROCESS *investment_process_new(
 					char *preupdate_date_time,
 					char *preupdate_investment_operation );
 
+ACCOUNT_BALANCE *investment_account_balance_seek(
+					LIST *account_balance_list,
+					char *date_time );
+
 ACCOUNT_BALANCE *investment_account_balance_new(
 					char *date_time );
 
@@ -151,7 +155,17 @@ char *investment_account_balance_fetch_prior_date_time(
 					char *account_number,
 					char *date_time );
 
-void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
+void investment_account_balance_list_update(
+					LIST *output_account_balance_list,
+					char *application_name,
+					LIST *input_account_balance_list,
+					char *full_name,
+					char *street_address,
+					char *account_number );
+
+void investment_account_balance_update(	FILE *output_pipe,
+					ACCOUNT_BALANCE *output_account_balance,
+					char *application_name,
 					ACCOUNT_BALANCE *account_balance,
 					char *full_name,
 					char *street_address,

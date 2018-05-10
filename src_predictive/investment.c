@@ -1092,16 +1092,21 @@ FILE *investment_open_update_pipe( void )
 
 } /* investment_open_update_pipe() */
 
-void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
-					ACCOUNT_BALANCE *account_balance,
+void investment_account_balance_list_update(
+					LIST *output_account_balance_list,
+					char *application_name,
+					LIST *input_account_balance_list,
 					char *full_name,
 					char *street_address,
 					char *account_number )
 {
-	FILE *output_pipe = {0};
+	FILE *output_pipe;
+	ACCOUNT_BALANCE *account_balance;
+	ACCOUNT_BALANCE *output_account_balance;
 
-	if ( !new_account_balance
-	||   !account_balance )
+	if ( !full_name
+	||   !street_address
+	||   !account_number )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: received null input.\n",
@@ -1111,209 +1116,269 @@ void investment_account_balance_update(	ACCOUNT_BALANCE *new_account_balance,
 		exit( 1 );
 	}
 
-	if ( timlib_strcmp(	new_account_balance->investment_operation,
+	if ( !list_length( input_account_balance_list ) ) return;
+
+	if ( list_length( input_account_balance_list ) !=
+	     list_length( output_account_balance_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: length = %d <> length = %d.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 list_length( input_account_balance_list ),
+	     		 list_length( output_account_balance_list ) );
+		exit( 1 );
+	}
+
+	output_pipe = investment_open_update_pipe();
+
+	list_rewind( input_account_balance_list );
+	list_rewind( output_account_balance_list );
+
+	do {
+		account_balance =
+			list_get_pointer(
+				input_account_balance_list );
+
+		output_account_balance =
+			list_get_pointer(
+				output_account_balance_list );
+
+		investment_account_balance_update(
+			output_pipe,
+			output_account_balance,
+			application_name,
+			account_balance,
+			full_name,
+			street_address,
+			account_number );
+
+		list_next( output_account_balance_list );
+
+	} while( list_next( input_account_balance_list ) );
+
+	pclose( output_pipe );
+
+} /* investment_account_balance_list_update() */
+
+void investment_account_balance_update(	FILE *output_pipe,
+					ACCOUNT_BALANCE *output_account_balance,
+					char *application_name,
+					ACCOUNT_BALANCE *account_balance,
+					char *full_name,
+					char *street_address,
+					char *account_number )
+{
+	char *transaction_date_time;
+
+	if ( !output_account_balance
+	||   !account_balance )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: received null input.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		pclose( output_pipe );
+		exit( 1 );
+	}
+
+	if ( timlib_strcmp(	output_account_balance->investment_operation,
 				account_balance->investment_operation ) != 0 )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^investment_operation^%s\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->investment_operation );
+	 		output_account_balance->date_time,
+	 		output_account_balance->investment_operation );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->share_price,
+			output_account_balance->share_price,
 			account_balance->share_price ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^share_price^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->share_price );
+	 		output_account_balance->date_time,
+	 		output_account_balance->share_price );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->share_quantity_change,
+			output_account_balance->share_quantity_change,
 			account_balance->share_quantity_change ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^share_quantity_change^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->share_quantity_change );
+	 		output_account_balance->date_time,
+	 		output_account_balance->share_quantity_change );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->share_quantity_balance,
+			output_account_balance->share_quantity_balance,
 			account_balance->share_quantity_balance ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^share_quantity_balance^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->share_quantity_balance );
+	 		output_account_balance->date_time,
+	 		output_account_balance->share_quantity_balance );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->book_value_change,
+			output_account_balance->book_value_change,
 			account_balance->book_value_change ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^book_value_change^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->book_value_change );
+	 		output_account_balance->date_time,
+	 		output_account_balance->book_value_change );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->book_value_balance,
+			output_account_balance->book_value_balance,
 			account_balance->book_value_balance ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^book_value_balance^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->book_value_balance );
+	 		output_account_balance->date_time,
+	 		output_account_balance->book_value_balance );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->moving_share_price,
+			output_account_balance->moving_share_price,
 			account_balance->moving_share_price ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^moving_share_price^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->moving_share_price );
+	 		output_account_balance->date_time,
+	 		output_account_balance->moving_share_price );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->cash_in,
+			output_account_balance->cash_in,
 			account_balance->cash_in ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^cash_in^%.2lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->cash_in );
+	 		output_account_balance->date_time,
+	 		output_account_balance->cash_in );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->market_value,
+			output_account_balance->market_value,
 			account_balance->market_value ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^market_value^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->market_value );
+	 		output_account_balance->date_time,
+	 		output_account_balance->market_value );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->unrealized_gain_balance,
+			output_account_balance->unrealized_gain_balance,
 			account_balance->unrealized_gain_balance ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^unrealized_gain_balance^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->unrealized_gain_balance );
+	 		output_account_balance->date_time,
+	 		output_account_balance->unrealized_gain_balance );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->unrealized_gain_change,
+			output_account_balance->unrealized_gain_change,
 			account_balance->unrealized_gain_change ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^unrealized_gain_change^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->unrealized_gain_change );
+	 		output_account_balance->date_time,
+	 		output_account_balance->unrealized_gain_change );
 	}
 
 	if ( !timlib_double_virtually_same(
-			new_account_balance->realized_gain,
+			output_account_balance->realized_gain,
 			account_balance->realized_gain ) )
 	{
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
-
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^realized_gain^%.4lf\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
-	 		new_account_balance->realized_gain );
+	 		output_account_balance->date_time,
+	 		output_account_balance->realized_gain );
 	}
 
+	output_account_balance->transaction_date_time =
+		ledger_transaction_refresh(
+			application_name,
+			full_name,
+			street_address,
+			/* ------------------------------ */
+			/* Original transaction_date_time */
+			/* ------------------------------ */
+			account_balance->
+				transaction_date_time,
+			output_account_balance->
+				transaction->
+				transaction_amount,
+			investment_get_memo(
+				output_account_balance->
+					investment_operation ),
+			0 /* check_number */,
+			1 /* lock_transaction */,
+			output_account_balance->
+				transaction->
+				journal_ledger_list );
+
 	if ( timlib_strcmp(
-			new_account_balance->transaction_date_time,
+			output_account_balance->transaction_date_time,
 			account_balance->transaction_date_time ) != 0 )
 	{
-		char *transaction_date_time;
-
 		transaction_date_time =
-	 		new_account_balance->
+	 		output_account_balance->
 				transaction_date_time;
-
-		if ( !output_pipe ) output_pipe = investment_open_update_pipe();
 
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^transaction_date_time^%s\n",
 	 		full_name,
 	 		street_address,
 	 		account_number,
-	 		new_account_balance->date_time,
+	 		output_account_balance->date_time,
 	 		(transaction_date_time)
 				? transaction_date_time
 				: "" );
 	}
-
-	if ( output_pipe ) pclose( output_pipe );
 
 } /* investment_account_balance_update() */
 
@@ -2005,3 +2070,26 @@ boolean investment_get_account_balance_table_first_row(
 		return 1;
 
 } /* investment_get_account_balance_table_first_row() */
+
+ACCOUNT_BALANCE *investment_account_balance_seek(
+					LIST *account_balance_list,
+					char *date_time )
+{
+	ACCOUNT_BALANCE *account_balance;
+
+	if ( !list_rewind( account_balance_list ) ) return (ACCOUNT_BALANCE *)0;
+
+	do {
+		account_balance =
+			list_get_pointer(
+				account_balance_list );
+
+		if ( strcmp( account_balance->date_time, date_time ) == 0 )
+			return account_balance;
+
+	} while( list_next( account_balance_list ) );
+
+	return (ACCOUNT_BALANCE *)0;
+
+} /* investment_account_balance_seek() */
+

@@ -18,10 +18,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 					char *street_address,
 					char *fund_name,
 					char *account_number,
-					char *investment_operation,
 					char *date_time,
-					double share_price,
-					double share_quantity_change,
 					char *state,
 					char *preupdate_full_name,
 					char *preupdate_street_address,
@@ -47,10 +44,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 	t->investment_account.street_address = street_address;
 	t->investment_account.account_number = account_number;
 
-	t->input.investment_operation = investment_operation;
 	t->input.date_time = date_time;
-	t->input.share_price = share_price;
-	t->input.share_quantity_change = share_quantity_change;
 	t->input.fund_name = fund_name;
 	t->input.state = state;
 	t->input.preupdate_full_name = preupdate_full_name;
@@ -69,10 +63,11 @@ INVESTMENT_EQUITY *investment_equity_new(
 		t->investment_account.account_number ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot fetch from INVESTMENT_ACCOUNT (%s,%s,%s)\n",
+"ERROR in %s/%s()/%d: cannot fetch from %s (%s,%s,%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
+			 INVESTMENT_ACCOUNT_FOLDER_NAME,
 			 t->investment_account.full_name,
 			 t->investment_account.street_address,
 			 t->investment_account.account_number );
@@ -124,6 +119,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 			t->input.date_time );
 
 	t->process = investment_process_new(
+			application_name,
 			t->investment_account.full_name,
 			t->investment_account.street_address,
 			t->investment_account.account_number,
@@ -134,37 +130,12 @@ INVESTMENT_EQUITY *investment_equity_new(
 			preupdate_date_time,
 			preupdate_investment_operation );
 
-/*
-	if ( ! ( t->output_account_balance_list =
-			investment_calculate_account_balance_list(
-				application_name,
-				t->investment_account.full_name,
-				t->investment_account.street_address,
-				t->investment_account.account_number,
-				fund_name,
-				t->investment_account.investment_account,
-				t->investment_account.
-					fair_value_adjustment_account,
-				t->input_account_balance_list ) ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot calculate from account_balance_list (%s,%s,%s,%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 t->investment_account.full_name,
-			 t->investment_account.street_address,
-			 t->investment_account.account_number,
-			 t->input.date_time );
-		exit( 1 );
-	}
-*/
-
 	return t;
 
 } /* investment_equity_new() */
 
 INVESTMENT_PROCESS *investment_process_new(
+				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *account_number,
@@ -184,6 +155,28 @@ INVESTMENT_PROCESS *investment_process_new(
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !investment_fetch_account_balance(
+		&t->share_price,
+		&t->share_quantity_change,
+		application_name,
+		full_name,
+		street_address,
+		account_number,
+		date_time ) )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot fetch from %s (%s,%s,%s,%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+		 	 ACCOUNT_BALANCE_FOLDER_NAME,
+			 full_name,
+			 street_address,
+			 account_number,
+			 date_time );
 		exit( 1 );
 	}
 
@@ -240,25 +233,6 @@ ACCOUNT_BALANCE *investment_account_balance_new(
 	return t;
 
 } /* investment_account_balance_new() */
-
-char *investment_account_balance_get_join( void )
-{
-	char join[ 1024 ];
-
-	sprintf(join,
-		"%s.full_name = %s.full_name and		"
-		"%s.street_address = %s.street_address and	"
-		"%s.account_number = %s.account_number		",
-		ACCOUNT_BALANCE_FOLDER_NAME,
-		INVESTMENT_ACCOUNT_FOLDER_NAME,
-		ACCOUNT_BALANCE_FOLDER_NAME,
-		INVESTMENT_ACCOUNT_FOLDER_NAME,
-		ACCOUNT_BALANCE_FOLDER_NAME,
-		INVESTMENT_ACCOUNT_FOLDER_NAME );
-
-	return strdup( join );
-
-} /* investment_account_balance_get_join() */
 
 char *investment_account_balance_get_select( void )
 {
@@ -353,6 +327,57 @@ LIST *investment_fetch_account_balance_list(
 	return account_balance_list;
 
 } /* investment_fetch_account_balance_list() */
+
+boolean investment_fetch_account_balance(
+					double *share_price,
+					double *share_quantity_change,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *account_number,
+					char *date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 512 ];
+	char buffer[ 128 ];
+	char *select;
+	char *results;
+
+	select = "share_price,share_quantity_change";
+
+	sprintf( where,
+		 "full_name = '%s' and			"
+		 "street_address = '%s' and		"
+		 "account_number = '%s' and 		"
+		 "date_time = '%s'			",
+		 escape_character(	buffer,
+					full_name,
+					'\'' ),
+		 street_address,
+		 account_number,
+		 date_time );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=\"%s\"	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	",
+		 application_name,
+		 select,
+		 ACCOUNT_BALANCE_FOLDER_NAME,
+		 where );
+
+	if ( ! ( results = pipe2string( sys_string ) ) ) return 0;
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 0 );
+	*share_price = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, results, 1 );
+	*share_quantity_change = atof( buffer );
+
+	return 1;
+
+} /* investment_fetch_account_balance() */
 
 boolean investment_fetch_account(	char **investment_account,
 					char **fair_value_adjustment_account,

@@ -39,20 +39,18 @@ typedef struct
 
 typedef struct
 {
+	double share_price;
+	double share_quantity_change;
 	enum preupdate_change_state full_name_change_state;
 	enum preupdate_change_state street_address_change_state;
 	enum preupdate_change_state account_number_change_state;
 	enum preupdate_change_state date_time_change_state;
 	enum preupdate_change_state investment_operation_change_state;
-
 } INVESTMENT_PROCESS;
 
 typedef struct
 {
-	char *investment_operation;
 	char *date_time;
-	double share_price;
-	double share_quantity_change;
 	char *fund_name;
 	char *state;
 	char *preupdate_full_name;
@@ -99,10 +97,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 					char *street_address,
 					char *fund_name,
 					char *account_number,
-					char *investment_operation,
 					char *date_time,
-					double share_price,
-					double share_quantity_change,
 					char *state,
 					char *preupdate_full_name,
 					char *preupdate_street_address,
@@ -111,6 +106,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 					char *preupdate_investment_operation );
 
 INVESTMENT_PROCESS *investment_process_new(
+					char *application_name,
 					char *full_name,
 					char *street_address,
 					char *account_number,
@@ -122,6 +118,15 @@ INVESTMENT_PROCESS *investment_process_new(
 					char *preupdate_investment_operation );
 
 ACCOUNT_BALANCE *investment_account_balance_new(
+					char *date_time );
+
+boolean investment_fetch_account_balance(
+					double *share_price,
+					double *share_quantity_change,
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *account_number,
 					char *date_time );
 
 boolean investment_fetch_account(	char **investment_account,
@@ -261,9 +266,6 @@ LIST *investment_fetch_account_balance_list(
 					char *street_address,
 					char *account_number,
 					char *begin_date_time );
-
-char *investment_account_balance_get_join(
-					void );
 
 char *investment_account_balance_get_select(
 					void );

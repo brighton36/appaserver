@@ -92,7 +92,7 @@ int main( int argc, char **argv )
 	char *preupdate_date_time;
 	char *preupdate_investment_operation;
 	char *database_string = {0};
-	ACCOUNT_BALANCE *account_balance;
+	INVESTMENT_EQUITY *investment_equity;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -127,156 +127,34 @@ int main( int argc, char **argv )
 	/* -------------------------------------------- */
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
-	/* If running a batch. */
-	/* ------------------- */
-	if ( strcmp( state, "update" ) == 0
-	&&   strcmp( date_time, "date_time" ) == 0 )
-	{
-		post_change_account_balance_list(
-			application_name,
-			fund_name,
-			full_name,
-			street_address,
-			account_number,
-			(char *)0 /* date_time */ );
-
-		exit( 0 );
-	}
-
-	if ( ! ( account_balance =
-			investment_account_balance_fetch(
-				application_name,
-				full_name,
-				street_address,
-				account_number,
-				date_time ) ) )
+	if ( ! ( investment_equity =
+			investment_equity_new(
+					application_name,
+					full_name,
+					street_address,
+					fund_name,
+					account_number,
+					date_time,
+					state,
+					preupdate_full_name,
+					preupdate_street_address,
+					preupdate_account_number,
+					preupdate_date_time,
+					preupdate_investment_operation );
 	{
 		fprintf( stderr,
-			"ERROR in %s/%s()/%d: cannot account_balance_fetch()\n",
+			"ERROR in %s/%s()/%d: cannot investment_equity_new()\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	if ( ( !account_balance->is_latest
-	||     strcmp( state, "update" ) == 0 ) )
-	{
-		enum preupdate_change_state full_name_change_state;
-		enum preupdate_change_state street_address_change_state;
-		enum preupdate_change_state account_number_change_state;
-		enum preupdate_change_state date_time_change_state;
-		enum preupdate_change_state investment_operation_change_state;
-
-		full_name_change_state =
-			appaserver_library_get_preupdate_change_state(
-				preupdate_full_name,
-				full_name /* postupdate_data */,
-				"preupdate_full_name" );
-
-		if ( full_name_change_state ==
-			from_something_to_something_else )
-		{
-			fprintf( stderr,
-"WARNING in %s/%s()/%d: the financial institution was changed to (%s/%s), but (%s/%s) will not propagate.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 full_name,
-				 street_address,
-				 preupdate_full_name,
-				 preupdate_street_address );
-		}
-
-		street_address_change_state =
-			appaserver_library_get_preupdate_change_state(
-				preupdate_street_address,
-				street_address /* postupdate_data */,
-				"preupdate_street_address" );
-
-		if ( street_address_change_state ==
-			from_something_to_something_else )
-		{
-			fprintf( stderr,
-"WARNING in %s/%s()/%d: the financial institution was changed to (%s/%s), but (%s/%s) will not propagate.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 full_name,
-				 street_address,
-				 preupdate_full_name,
-				 preupdate_street_address );
-		}
-
-		account_number_change_state =
-			appaserver_library_get_preupdate_change_state(
-				preupdate_account_number,
-				account_number /* postupdate_data */,
-				"preupdate_account_number" );
-
-		post_change_account_balance_list(
-			application_name,
-			fund_name,
-			full_name,
-			street_address,
-			account_number,
-			date_time );
-
-		if ( account_number_change_state ==
-			from_something_to_something_else )
-		{
-			post_change_account_balance_list(
-				application_name,
-				fund_name,
-				full_name,
-				street_address,
-				preupdate_account_number,
-				date_time );
-		}
-
-		date_time_change_state =
-			appaserver_library_get_preupdate_change_state(
-				preupdate_date_time,
-				date_time /* postupdate_data */,
-				"preupdate_date_time" );
-
-		if ( date_time_change_state ==
-			from_something_to_something_else )
-		{
-			post_change_date_time_update(
-				application_name,
-				full_name,
-				street_address,
-				account_number,
-				date_time );
-		}
-
-		investment_operation_change_state =
-			appaserver_library_get_preupdate_change_state(
-				preupdate_investment_operation,
-				(char *)0 /* postupdate_data */,
-				"preupdate_investment_operation" );
-
-		if ( investment_operation_change_state ==
-			from_something_to_something_else )
-		{
-			post_change_investment_operation_update(
-				application_name,
-				fund_name,
-				full_name,
-				street_address,
-				account_number,
-				date_time,
-				preupdate_investment_operation );
-		}
-	}
-	else
 	if ( strcmp( state, "insert" ) == 0 )
 	{
 		post_change_account_balance_insert(
-			application_name,
-			fund_name,
-			account_balance );
+			investment_equity,
+			application_name );
 	}
 	else
 	if ( strcmp( state, "predelete" ) == 0 )
@@ -373,42 +251,31 @@ void post_change_account_balance_delete(
 } /* post_change_account_balance_delete() */
 
 void post_change_account_balance_insert(
-				char *application_name,
-				char *fund_name,
-				ACCOUNT_BALANCE *account_balance )
+				INVESTMENT_EQUITY *t,
+				char *application_name )
 {
-	if ( strcmp(	account_balance->investment_operation,
-			INVESTMENT_OPERATION_PURCHASE ) == 0
-	||   strcmp(	account_balance->investment_operation,
-			INVESTMENT_OPERATION_TRANSFER ) == 0 )
-	{
-		post_change_account_balance_insert_purchase(
-			application_name,
-			fund_name,
-			account_balance );
-	}
-	else
-	if ( strcmp(	account_balance->investment_operation,
-			INVESTMENT_OPERATION_SALE ) == 0 )
-	{
-		if ( !post_change_account_balance_insert_sale(
+	if ( ! ( t->output_account_balance_list =
+			investment_calculate_account_balance_list(
 				application_name,
-				fund_name,
-				account_balance ) )
-		{
-			printf( "<h3>Error: An error occurred.</h3>\n" );
-		}
-	}
-	else
+				t->investment_account.full_name,
+				t->investment_account.street_address,
+				t->investment_account.account_number,
+				t->input.fund_name,
+				t->investment_account.investment_account,
+				t->investment_account.
+					fair_value_adjustment_account,
+				t->input_account_balance_list ) ) )
 	{
-		if ( !post_change_account_balance_insert_time_passage(
-				application_name,
-				fund_name,
-				account_balance ) )
-		{
-			printf(
-		"<h3>Error: The series must start with a purchase.</h3>\n" );
-		}
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot calculate account balance list (%s,%s,%s,%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 t->investment_account.full_name,
+			 t->investment_account.street_address,
+			 t->investment_account.account_number,
+			 t->input.date_time );
+		exit( 1 );
 	}
 
 } /* post_change_account_balance_insert() */

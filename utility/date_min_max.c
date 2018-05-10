@@ -22,20 +22,18 @@ int main( int argc, char **argv )
 	int total_count = 0;
 	int populated_count = 0;
 	int date_count = 0;
-	char *database_management_system;
 	boolean exists_time = 0;
 
 	if ( argc != 4 )
 	{
 		fprintf( stderr, 
-			 "Usage: %s date_piece_offset delimiter dbms\n", 
+			 "Usage: %s date_piece_offset delimiter ignored\n", 
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
 	date_piece_offset = atoi( argv[ 1 ] );
 	delimiter = *argv[ 2 ];
-	database_management_system = argv[ 3 ];
 
 	while( get_line( buffer, stdin ) )
 	{
@@ -58,10 +56,7 @@ int main( int argc, char **argv )
 
 		populated_count++;
 
-		if ( strcmp( database_management_system, "oracle" ) == 0 )
-			input_date = julian_oracle_format_new( date_buffer );
-		else
-			input_date = julian_yyyy_mm_dd_new( date_buffer );
+		input_date = julian_yyyy_mm_dd_new( date_buffer );
 
 		date_count++;
 
@@ -100,48 +95,33 @@ int main( int argc, char **argv )
 		if ( date_count )
 		{
 			printf( "%s:", DATE_MINIMUM );
-			if ( strcmp(	database_management_system,
-					"oracle" ) == 0 )
+
+			printf( "%s",
+				julian_display_yyyy_mm_dd(
+					minimum_date->current ) );
+
+			if ( exists_time )
 			{
-				printf( "%s\n",
-					julian_display_oracle_format(
-						minimum_date->current ) );
-			}
-			else
-			{
-				printf( "%s",
-					julian_display_yyyy_mm_dd(
-						minimum_date->current ) );
-				if ( exists_time )
-				{
-					printf( ":%s",
-						julian_display_hhmm(
-						minimum_date->current ) );
-				}
-				printf( "\n" );
+				printf( ":%s",
+					julian_display_hhmm(
+					minimum_date->current ) );
 			}
 
+			printf( "\n" );
+
 			printf( "%s:", DATE_MAXIMUM );
-			if ( strcmp(	database_management_system,
-					"oracle" ) == 0 )
+
+			printf( "%s",
+				julian_display_yyyy_mm_dd(
+					maximum_date->current ) );
+
+			if ( exists_time )
 			{
-				printf( "%s\n",
-					julian_display_oracle_format(
-						maximum_date->current ) );
+				printf( ":%s",
+					julian_display_hhmm(
+					maximum_date->current ) );
 			}
-			else
-			{
-				printf( "%s",
-					julian_display_yyyy_mm_dd(
-						maximum_date->current ) );
-				if ( exists_time )
-				{
-					printf( ":%s",
-						julian_display_hhmm(
-						maximum_date->current ) );
-				}
-				printf( "\n" );
-			}
+			printf( "\n" );
 
 			printf( "%s:%d\n", DATE_COUNT, populated_count );
 			printf( "%s:%lf\n",

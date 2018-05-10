@@ -165,7 +165,6 @@ void post_statistics_state_four(char *application_name,
 				char *role_name,
 				char *folder_name,
 				char *appaserver_mount_point,
-				char *database_management_system,
 				DICTIONARY *post_dictionary );
 
 int main( int argc, char **argv )
@@ -372,8 +371,6 @@ int main( int argc, char **argv )
 					folder_name,
 					appaserver_parameter_file->
 						appaserver_mount_point,
-					appaserver_parameter_file->
-						database_management_system,
 					post_dictionary );
 		}
 	}
@@ -1778,7 +1775,6 @@ void post_statistics_state_four(
 			char *role_name,
 			char *folder_name,
 			char *appaserver_mount_point,
-			char *database_management_system,
 			DICTIONARY *post_dictionary )
 {
 	LIST *one2m_mto1_related_folder_name_list;
@@ -1889,8 +1885,7 @@ void post_statistics_state_four(
 			query_attribute_statistics_list->application_name,
 			query_attribute_statistics_list->folder_name,
 			query_attribute_statistics_list->list,
-			where_clause,
-			database_management_system );
+			where_clause );
 
 	if ( !sys_string )
 	{

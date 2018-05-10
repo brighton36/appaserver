@@ -123,13 +123,6 @@ int main( int argc, char **argv )
 			database_connection =
 				environ_get_environment( "DATABASE" );
 		}
-
-		if ( !database_connection
-		||   !*database_connection )
-		{
-			database_connection =
-				h->default_database_connection;
-		}
 	}
 
 	if ( h->mysql_password_syntax )

@@ -376,8 +376,7 @@ char *query_attribute_statistics_list_get_build_each_temp_file_sys_string(
 				char *application_name,
 				char *folder_name,
 				LIST *query_attribute_statistics_list,
-				char *where_clause,
-				char *database_management_system )
+				char *where_clause )
 {
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
 	LIST *select_attribute_name_list;
@@ -455,7 +454,7 @@ char *query_attribute_statistics_list_get_build_each_temp_file_sys_string(
 				"	  cat > %s\"		|",
 				query_attribute_statistics->input_piece,
 				QUERY_ATTRIBUTE_STATISTICS_DELIMITER,
-				database_management_system,
+				"" /* database_management_system */,
 				query_attribute_statistics->
 					attribute_statistics_temp_filename );
 		}

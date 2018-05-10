@@ -85,8 +85,7 @@ char *query_attribute_statistics_list_get_build_each_temp_file_sys_string(
 					char *application_name,
 					char *folder_name,
 					LIST *query_attribute_statistics_list,
-					char *where_clause,
-					char *database_management_system );
+					char *where_clause );
 
 LIST *query_attribute_statistics_list_get_select_attribute_name_list(
 					char *application_name,

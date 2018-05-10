@@ -37,9 +37,10 @@
 /* ---------- */
 SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
 				HASH_TABLE *sfwmd_station_datatype_hash_table,
-				char *input_buffer,
-				char *database_management_system );
+				char *input_buffer );
+
 char *to_yyyy_mm_dd( char *d, char *s );
+
 int ora_month2integer( char *mon );
 
 char *month_array[] = { 	"JAN",
@@ -266,10 +267,6 @@ int load_sfwmd_filespecification(
 	int process_count = 0;
 	FILE *insert_pipe = {0};
 	FILE *update_pipe = {0};
-	char *database_management_system;
-
-	database_management_system =
-		appaserver_parameter_file_get_database_management_system();
 
 	sfwmd_station_datatype_hash_table =
 		load_sfwmd_station_datatype_hash_table(
@@ -334,8 +331,7 @@ int load_sfwmd_filespecification(
 		if ( ! ( sfwmd_station_datatype =
 				get_sfwmd_station_datatype(
 					sfwmd_station_datatype_hash_table,
-					input_buffer,
-					database_management_system ) ) )
+					input_buffer ) ) )
 		{
 			fprintf( error_file, "%s\n", input_buffer );
 			continue;
@@ -472,8 +468,7 @@ int load_sfwmd_filespecification(
 
 SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
 				HASH_TABLE *sfwmd_station_datatype_hash_table,
-				char *input_buffer,
-				char *database_management_system )
+				char *input_buffer )
 {
 	char process_buffer[ 1024 ];
 	char piece_buffer[ 1024 ];
@@ -508,20 +503,12 @@ SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
 		return (SFWMD_STATION_DATATYPE *)0;
 	}
 
-	if ( strcmp( database_management_system, "oracle" ) == 0 )
+	if ( ! ( measurement_date_pointer =
+			to_yyyy_mm_dd(
+				measurement_date_string,
+				piece_buffer ) ) )
 	{
-		strcpy( measurement_date_string, piece_buffer );
-		measurement_date_pointer = measurement_date_string;
-	}
-	else
-	{
-		if ( ! ( measurement_date_pointer =
-				to_yyyy_mm_dd(
-					measurement_date_string,
-					piece_buffer ) ) )
-		{
-			return (SFWMD_STATION_DATATYPE *)0;
-		}
+		return (SFWMD_STATION_DATATYPE *)0;
 	}
 
 	strcpy(	sfwmd_station_datatype->measurement_date_string,
@@ -578,13 +565,6 @@ SFWMD_STATION_DATATYPE *get_sfwmd_station_datatype(
 	/* -------------------------- */
 	if ( piece( piece_buffer, ',', process_buffer, 5 ) )
 	{
-		if ( strcmp( database_management_system, "oracle" ) == 0 )
-		{
-			strcpy( last_validation_date_string, piece_buffer );
-			last_validation_date_pointer =
-				last_validation_date_string;
-		}
-		else
 		if ( ! ( last_validation_date_pointer =
 				to_yyyy_mm_dd(
 					last_validation_date_string,

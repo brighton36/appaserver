@@ -20,7 +20,6 @@
 /* ---------------- */
 typedef struct
 {
-	char *default_database_connection;
 	char *user;
 	char *password;
 	char *flags;
@@ -35,8 +34,8 @@ typedef struct
 	char *parameter_file_full_path;
 	boolean mysql_password_syntax;
 
-	/* Trying to retire: */
-	/* ----------------- */
+	/* Not used anymore */
+	/* ---------------- */
 	char *database_management_system;
 
 } APPASERVER_PARAMETER_FILE;
@@ -70,15 +69,6 @@ char *appaserver_parameter_file_get_appaserver_data_directory(
 char *appaserver_parameter_file_get_data_directory(
 						void );
 
-char *appaserver_parameter_file_get_database_management_system(
-						void );
-
-char *appaserver_parameter_file_get_dbms(
-						void );
-
-char *appaserver_parameter_file_get_database(
-						void );
-
 char *appaserver_parameter_file_get_cgi_home(
 						void );
 
@@ -101,5 +91,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_default_file_new(
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 						char *application_name );
+
+char *appaserver_parameter_file_get_dbms(	void );
 
 #endif

@@ -208,9 +208,7 @@ int main( int argc, char **argv )
 			query_attribute_statistics_list->application_name,
 			query_attribute_statistics_list->folder_name,
 			query_attribute_statistics_list->list,
-			where_clause,
-			appaserver_parameter_file->
-				database_management_system );
+			where_clause );
 
 	if ( !sys_string )
 	{

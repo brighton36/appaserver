@@ -364,7 +364,6 @@ int load_ysi_filespecification(
 	int line_number = 0;
 	FILE *insert_pipe = {0};
 	FILE *update_pipe = {0};
-	char *database_management_system;
 	char *insert_field_list_string;
 	char measurement_date_american[ 32 ];
 	char measurement_date_international[ 32 ];
@@ -383,9 +382,6 @@ int load_ysi_filespecification(
 						is_odd_station );
 
 	if ( !list_length( datatype_list ) ) return 0;
-
-	database_management_system =
-		appaserver_parameter_file_get_database_management_system();
 
 	error_file = fopen( error_filespecification, "w" );
 	if ( !error_file )

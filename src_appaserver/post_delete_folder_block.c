@@ -45,7 +45,6 @@ void delete_folder_block_state_one(
 				char *application_name,
 				FOLDER *folder,
 				char *where_clause,
-				char *database_management_system,
 				char *login_name,
 				char *session,
 				char *role_name );
@@ -270,8 +269,6 @@ int main( int argc, char **argv )
 				application_name,
 				folder,
 				where_clause,
-				appaserver_parameter_file->
-					database_management_system,
 				login_name,
 				session,
 				role_name );
@@ -309,7 +306,6 @@ void delete_folder_block_state_one(
 				char *application_name,
 				FOLDER *folder,
 				char *where_clause,
-				char *database_management_system,
 				char *login_name,
 				char *session,
 				char *role_name )
@@ -336,8 +332,7 @@ void delete_folder_block_state_one(
 			query_attribute_statistics_list->application_name,
 			query_attribute_statistics_list->folder_name,
 			query_attribute_statistics_list->list,
-			where_clause,
-			database_management_system );
+			where_clause );
 
 	if ( !sys_string )
 	{

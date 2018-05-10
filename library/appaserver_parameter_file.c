@@ -62,9 +62,10 @@ char *appaserver_parameter_file_get_appaserver_data_directory( void )
 
 char *appaserver_parameter_file_get_dbms( void )
 {
-	return appaserver_parameter_file_get_database_management_system();
+	return (char *)0;
 }
 
+/*
 char *appaserver_parameter_file_get_database_management_system( void )
 {
 	return APPASERVER_PARAMETER_FILE_DBMS;
@@ -77,6 +78,7 @@ char *appaserver_parameter_file_get_database( void )
 			new_appaserver_parameter_file();
 	return global_appaserver_parameter_file->default_database_connection;
 }
+*/
 
 char *appaserver_parameter_file_get_cgi_home( void )
 {
@@ -162,6 +164,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 
 	d = appaserver_parameter_file_load_record_dictionary( f, '=' );
 
+/*
 	a = "default_database";
 	if ( ! ( s->default_database_connection =
 			dictionary_fetch( d, a ) ) )
@@ -175,6 +178,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 		fclose( f );
 		exit( 1 );
 	}
+*/
 
 	a = "mysql_user";
 	if ( ! ( s->user = dictionary_fetch( d, a ) ) )
@@ -255,8 +259,6 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 		fclose( f );
 		exit( 1 );
 	}
-
-	s->database_management_system = APPASERVER_PARAMETER_FILE_DBMS;
 
 	/* cgi home from the file system's perspective. */
 	/* -------------------------------------------- */

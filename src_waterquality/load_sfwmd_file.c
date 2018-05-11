@@ -504,6 +504,7 @@ int load_sfwmd_file(
 					input_string );
 
 		if ( *collection_depth_unit
+		&&   strcasecmp( collection_depth_unit, "cm" ) != 0
 		&&   strcasecmp( collection_depth_unit, "m" ) != 0
 		&&   strcasecmp( collection_depth_unit, "ft" ) != 0 )
 		{
@@ -515,6 +516,13 @@ int load_sfwmd_file(
 			continue;
 		}
 
+		if ( strcasecmp( collection_depth_unit, "cm" ) == 0 )
+		{
+			collection_depth_meters =
+				atof( collection_depth_meters_string ) *
+					0.01;
+		}
+		else
 		if ( strcasecmp( collection_depth_unit, "ft" ) == 0 )
 		{
 			collection_depth_meters =

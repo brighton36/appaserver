@@ -101,34 +101,33 @@ APPASERVER_PARAMETER_FILE *new_appaserver_parameter_file( void )
 	return appaserver_parameter_file_new();
 }
 
-APPASERVER_PARAMETER_FILE *appaserver_parameter_default_file_new( void )
+FILE *appaserver_parameter_file_open(	char *filename,
+					char *application_name )
 {
-	char filename[ 128 ];
-	APPASERVER_PARAMETER_FILE *s;
-	FILE *f;
+	char appaserver_filename[ 128 ];
 
-	sprintf(	filename,
-			"%s/%s",
-			APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
-			APPASERVER_PARAMETER_FILE_NAME );
+	if ( !application_name || !*application_name )
+	{
+		sprintf(	filename,
+				"%s/%s",
+				APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
+				APPASERVER_PARAMETER_FILE_NAME );
+	}
+	else
+	{
+		sprintf(	appaserver_filename,
+				APPASERVER_PARAMETER_APPLICATION_FILE_NAME,
+				application_name );
+	
+		sprintf(	filename,
+				"%s/%s",
+				APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
+				appaserver_filename );
+	}
 
-	f = fopen( filename, "r" );
+	return fopen( filename, "r" );
 
-	if ( !f ) return (APPASERVER_PARAMETER_FILE *)0;
-
-	s = appaserver_parameter_file_fetch( f, strdup( filename ) );
-
-	fclose( f );
-
-	/* ------------------------------------------------------------ */
-	/* umask() is here for convenience. However, need to move it	*/
-	/* to the many places where it's truly needed.			*/
-	/* ------------------------------------------------------------ */
-	umask( APPASERVER_UMASK );
-
-	return s;
-
-} /* appaserver_parameter_default_file_new() */
+} /* appaserver_parameter_file_open() */
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 {
@@ -324,43 +323,37 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 					char *application_name )
 {
-	char filename[ 256 ];
-	char appaserver_filename[ 128 ];
 	APPASERVER_PARAMETER_FILE *s;
-	FILE *f;
-
-	/* If have read permission to /etc/appaserver.config */
-	/* ------------------------------------------------- */
-	if ( ( s = appaserver_parameter_default_file_new() ) )
-		return s;
+	char filename[ 128 ];
+	FILE *f = {0};
 
 	if ( !application_name || !*application_name )
 	{
+		f = appaserver_parameter_file_open(
+			filename,
+			(char *)0 );
+	}
+	else
+	{
+		f = appaserver_parameter_file_open(
+			filename,
+			application_name );
+
+		if ( !f )
+		{
+			f = appaserver_parameter_file_open(
+				filename,
+				(char *)0 );
+		}
+	}
+
+	if ( !f )
+	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty application_name.\n",
+"ERROR in %s/%s()/%d: cannot open appaserver parameter file for read.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(	appaserver_filename,
-			APPASERVER_PARAMETER_APPLICATION_FILE_NAME,
-			application_name );
-	
-	sprintf(	filename,
-			"%s/%s",
-			APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
-			appaserver_filename );
-	
-	if ( !( f = fopen( filename, "r" ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 filename );
 		exit( 1 );
 	}
 
@@ -369,8 +362,9 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 	fclose( f );
 
 	/* ------------------------------------------------------------ */
-	/* umask() is here for convenience. However, need to move it	*/
-	/* to the many places where it's truly needed.			*/
+	/* umask() is here for convenience. However, it should be moved */
+	/* to the many places where it's truly needed. However, it      */
+	/* probably won't be.						*/
 	/* ------------------------------------------------------------ */
 	umask( APPASERVER_UMASK );
 

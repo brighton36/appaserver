@@ -253,16 +253,7 @@ int main( int argc, char **argv )
 		new_application_title = "Title Omitted";
 	}
 
-	if ( ! ( appaserver_parameter_file =
-			appaserver_parameter_default_file_new() ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot appaserver_parameter_default_file_new()\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !session_access(	current_application,
 				session,
@@ -374,9 +365,9 @@ int main( int argc, char **argv )
 	if ( really_yn == 'y' )
 	{
 		process_increment_execution_count(
-					current_application,
-					process_name,
-					appaserver_parameter_file_get_dbms() );
+			current_application,
+			process_name,
+			appaserver_parameter_file_get_dbms() );
 	}
 
 	document_close();
@@ -392,16 +383,9 @@ void get_all_environment_variables(	char **appaserver_error_directory,
 {
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	if ( ! ( appaserver_parameter_file =
-			appaserver_parameter_default_file_new() ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot appaserver_parameter_default_file_new()\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	/* Exits on error. */
+	/* --------------- */
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	*appaserver_error_directory =
 		appaserver_parameter_file->

@@ -81,13 +81,11 @@ int main( int argc, char **argv )
 		quick_flag = "";
 
 	if ( override_database )
-	{
-		h = appaserver_parameter_file_application( override_database );
-	}
-	else
-	{
-		h = appaserver_parameter_file_new();
-	}
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			override_database );
+
+	h = appaserver_parameter_file_new();
 
 	if ( !h )
 	{
@@ -107,25 +105,17 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			"MYSQL_TCP_PORT", h->MYSQL_TCP_PORT );
 	
-	if ( override_database && *override_database )
-	{
-		database_connection = override_database;
-	}
-	else
+	database_connection =
+		environ_get_environment(
+		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+
+	if ( !database_connection || !*database_connection )
 	{
 		database_connection =
-			environ_get_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
-
-		if ( !database_connection
-		||   !*database_connection )
-		{
-			database_connection =
-				environ_get_environment( "DATABASE" );
-		}
+			environ_get_environment( "DATABASE" );
 	}
 
-	if ( !database_connection )
+	if ( !database_connection || !*database_connection )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: no database connection.\n",

@@ -1,15 +1,4 @@
 #!/bin/sh
-if [ "$APPASERVER_DATABASE" != "" ]
-then
-	application=$APPASERVER_DATABASE
-fi
-
-if [ "$application" = "" ]
-then
-	echo "Error in $0: you must first:" 1>&2
-	echo "$ . set_database" 1>&2
-	exit 1
-fi
 folder=`get_table_name $application folder`
 relation=`get_table_name $application relation`
 attribute=`get_table_name $application attribute`

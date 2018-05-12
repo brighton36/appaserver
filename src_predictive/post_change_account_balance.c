@@ -149,10 +149,19 @@ int main( int argc, char **argv )
 						preupdate_account_number,
 						preupdate_date_time );
 
+			if ( !investment_equity )
+			{
+				fprintf( stderr,
+			 "ERROR in %s/%s()/%d: INVESTMENT_EQUITY is null.\n",
+			 		__FILE__,
+			 		__FUNCTION__,
+			 		__LINE__ );
+				exit( 1 );
+			}
+
 			post_change_account_balance_update(
 				investment_equity,
 				application_name );
-
 		}
 	}
 	else
@@ -171,6 +180,16 @@ void post_change_account_balance_insert(
 				INVESTMENT_EQUITY *t,
 				char *application_name )
 {
+	if ( !t )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: INVESTMENT_EQUITY is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( ! ( t->output_account_balance_list =
 			investment_calculate_account_balance_list(
 				application_name,
@@ -208,6 +227,16 @@ void post_change_account_balance_update(
 				INVESTMENT_EQUITY *t,
 				char *application_name )
 {
+	if ( !t )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: INVESTMENT_EQUITY is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	if ( ! ( t->output_account_balance_list =
 			investment_calculate_account_balance_list(
 				application_name,
@@ -246,6 +275,16 @@ void post_change_account_balance_delete(
 				char *application_name )
 {
 	ACCOUNT_BALANCE *account_balance;
+
+	if ( !t )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: INVESTMENT_EQUITY is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( ! ( account_balance =
 			investment_account_balance_seek(

@@ -618,7 +618,7 @@ void update_application_row(		char *destination_application,
 	}
 
 	sprintf( sys_string,
-"echo \"update %s_application set application_title = '%s', relative_source_directory = 'src_%s:src_predictive' where application = '%s';\" | %s",
+"echo \"update %s_application set application_title = '%s', relative_source_directory = 'src_%s:src_template:src_predictive' where application = '%s';\" | %s",
 	 	destination_application,
 		escape_single_quotes( buffer ),
 	 	destination_application,

@@ -951,7 +951,8 @@ FILE *investment_open_update_pipe( void )
 	"full_name,street_address,account_number,date_time";
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 "update_statement.e table=%s key=%s carrot=y	|"
+		 "sql.e						 ",
 		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 key_column_list );
 
@@ -1212,8 +1213,12 @@ void investment_account_balance_update(	FILE *output_pipe,
 	{
 		output_account_balance->transaction_date_time = (char *)0;
 
-		if ( account_balance->transaction_date_time )
+		if ( account_balance->transaction_date_time
+		&&   *account_balance->transaction_date_time )
 		{
+			LIST *account_name_list;
+			char *account_name;
+
 			ledger_delete(	application_name,
 					TRANSACTION_FOLDER_NAME,
 					full_name,
@@ -1228,10 +1233,32 @@ void investment_account_balance_update(	FILE *output_pipe,
 					account_balance->
 						transaction_date_time );
 
-			/* ------------------ */
-			/* Need to propagate! */
-			/* ------------------ */
-		}
+			/* Propagate */
+			/* --------- */
+			account_name_list =
+				ledger_get_unique_account_name_list(
+					account_balance->
+						transaction->
+						journal_ledger_list );
+
+			if ( list_rewind( account_name_list ) )
+			{
+				do {
+					account_name =
+						list_get_pointer(
+							account_name_list );
+
+					ledger_propagate(
+						application_name,
+						account_balance->
+							transaction->
+							transaction_date_time,
+						account_name );
+
+				} while( list_next( account_name_list ) );
+			}
+
+		} /* if transaction_date_time */
 	}
 	else
 	{

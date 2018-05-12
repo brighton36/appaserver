@@ -805,12 +805,6 @@ double ledger_get_fraction_of_year(
 				char *prior_date_string,
 				char *date_string );
 
-void ledger_eppend_propagate_account_list(
-				LIST *propagate_account_list,
-				char *transaction_date_time,
-				char *account_name,
-				char *application_name );
-
 char *ledger_get_latest_zero_balance_transaction_date_time(
 				char *application_name,
 				char *account_name );

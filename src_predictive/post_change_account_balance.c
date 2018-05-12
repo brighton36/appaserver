@@ -118,36 +118,54 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( state, "update" ) == 0 )
 	{
+		boolean do_again = 0;
+
 		post_change_account_balance_update(
 			investment_equity,
 			application_name );
 
-		if ( ( investment_equity->
+		if ( investment_equity->
 				process->
 				full_name_change_state ==
-		       from_something_to_something_else )
-		||   ( investment_equity->
+		     from_something_to_something_else )
+		{
+			full_name = preupdate_full_name;
+			do_again = 1;
+		}
+
+		if ( investment_equity->
 				process->
 				street_address_change_state ==
-		       from_something_to_something_else )
-		||   ( investment_equity->
+		     from_something_to_something_else )
+		{
+			street_address = preupdate_street_address;
+			do_again = 1;
+		}
+
+		if ( investment_equity->
 				process->
 				account_number_change_state ==
-		       from_something_to_something_else ) )
+		     from_something_to_something_else )
+		{
+			account_number = account_number;
+			do_again = 1;
+		}
+
+		if ( do_again )
 		{
 			investment_equity =
 				investment_equity_new(
-						application_name,
-						preupdate_full_name,
-						preupdate_street_address,
-						fund_name,
-						preupdate_account_number,
-						date_time,
-						state,
-						preupdate_full_name,
-						preupdate_street_address,
-						preupdate_account_number,
-						preupdate_date_time );
+					application_name,
+					full_name,
+					street_address,
+					fund_name,
+					account_number,
+					date_time,
+					state,
+					(char *)0 /* preupdate_full_name */,
+					(char *)0 /* preupdate_st..._address */,
+					(char *)0 /* preupdate_acc..._number */,
+					preupdate_date_time );
 
 			if ( !investment_equity )
 			{

@@ -1082,4 +1082,7 @@ LIST *ledger_get_unique_account_name_list(
 double ledger_get_amount(	JOURNAL_LEDGER *ledger,
 				boolean accumulate_debit );
 
+char *ledger_earlier_of_two_date(
+				char *date1,
+				char *date2 );
 #endif

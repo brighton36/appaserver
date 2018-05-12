@@ -39,9 +39,15 @@ typedef struct
 
 typedef struct
 {
+/*
 	double share_price;
 	double share_quantity_change;
+*/
+	enum preupdate_change_state full_name_change_state;
+	enum preupdate_change_state street_address_change_state;
+	enum preupdate_change_state account_number_change_state;
 	enum preupdate_change_state date_time_change_state;
+	char *earlier_date_time;
 } INVESTMENT_PROCESS;
 
 typedef struct
@@ -52,8 +58,7 @@ typedef struct
 	char *preupdate_full_name;
 	char *preupdate_street_address;
 	char *preupdate_account_number;
-	char *preupdtae_date_time;
-	char *preupdate_investment_operation;
+	char *preupdate_date_time;
 } INVESTMENT_INPUT;
 
 typedef struct
@@ -95,6 +100,9 @@ INVESTMENT_EQUITY *investment_equity_new(
 					char *account_number,
 					char *date_time,
 					char *state,
+					char *preupdate_full_name,
+					char *preupdate_street_address,
+					char *preupdate_account_number,
 					char *preupdate_date_time );
 
 INVESTMENT_PROCESS *investment_process_new(
@@ -103,6 +111,9 @@ INVESTMENT_PROCESS *investment_process_new(
 					char *street_address,
 					char *account_number,
 					char *date_time,
+					char *preupdate_full_name,
+					char *preupdate_street_address,
+					char *preupdate_account_number,
 					char *preupdate_date_time );
 
 ACCOUNT_BALANCE *investment_account_balance_seek(

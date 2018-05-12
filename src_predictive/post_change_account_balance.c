@@ -45,6 +45,9 @@ int main( int argc, char **argv )
 	char *account_number;
 	char *date_time;
 	char *state;
+	char *preupdate_full_name;
+	char *preupdate_street_address;
+	char *preupdate_account_number;
 	char *preupdate_date_time;
 	INVESTMENT_EQUITY *investment_equity;
 
@@ -55,10 +58,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 9 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored fund full_name street_address account_number date_time state preupdate_date_time\n",
+"Usage: %s ignored fund full_name street_address account_number date_time state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -69,7 +72,14 @@ int main( int argc, char **argv )
 	account_number = argv[ 5 ];
 	date_time = argv[ 6 ];
 	state = argv[ 7 ];
-	preupdate_date_time = argv[ 8 ];
+	preupdate_full_name = argv[ 8 ];
+	preupdate_street_address = argv[ 9 ];
+	preupdate_account_number = argv[ 10 ];
+	preupdate_date_time = argv[ 11 ];
+
+	/* If Changed the financial institution's name or address */
+	/* ------------------------------------------------------ */
+	if ( strcmp( account_number, "account_number" ) == 0 ) exit( 0 );
 
 	/* -------------------------------------------- */
 	/* Need to execute on predelete to get		*/
@@ -86,6 +96,9 @@ int main( int argc, char **argv )
 					account_number,
 					date_time,
 					state,
+					preupdate_full_name,
+					preupdate_street_address,
+					preupdate_account_number,
 					preupdate_date_time ) ) )
 	{
 		fprintf( stderr,
@@ -108,6 +121,39 @@ int main( int argc, char **argv )
 		post_change_account_balance_update(
 			investment_equity,
 			application_name );
+
+		if ( ( investment_equity->
+				process->
+				full_name_change_state ==
+		       from_something_to_something_else )
+		||   ( investment_equity->
+				process->
+				street_address_change_state ==
+		       from_something_to_something_else )
+		||   ( investment_equity->
+				process->
+				account_number_change_state ==
+		       from_something_to_something_else ) )
+		{
+			investment_equity =
+				investment_equity_new(
+						application_name,
+						preupdate_full_name,
+						preupdate_street_address,
+						fund_name,
+						preupdate_account_number,
+						date_time,
+						state,
+						preupdate_full_name,
+						preupdate_street_address,
+						preupdate_account_number,
+						preupdate_date_time );
+
+			post_change_account_balance_update(
+				investment_equity,
+				application_name );
+
+		}
 	}
 	else
 	if ( strcmp( state, "predelete" ) == 0 )

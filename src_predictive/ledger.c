@@ -9180,3 +9180,16 @@ double ledger_get_amount(	JOURNAL_LEDGER *ledger,
 	return return_amount;
 
 } /* ledger_get_amount() */
+
+char *ledger_earlier_of_two_date( char *date1, char *date2 )
+{
+	char *return_date;
+
+	if ( timlib_strcmp( date1, date2 ) < 0 )
+		return_date = date1;
+	else
+		return_date = date2;
+
+	return return_date;
+
+} /* ledger_earlier_of_two_date() */

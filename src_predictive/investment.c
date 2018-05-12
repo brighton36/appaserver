@@ -20,6 +20,9 @@ INVESTMENT_EQUITY *investment_equity_new(
 					char *account_number,
 					char *date_time,
 					char *state,
+					char *preupdate_full_name,
+					char *preupdate_street_address,
+					char *preupdate_account_number,
 					char *preupdate_date_time )
 {
 	INVESTMENT_EQUITY *t;
@@ -43,7 +46,11 @@ INVESTMENT_EQUITY *investment_equity_new(
 	t->input.date_time = date_time;
 	t->input.fund_name = fund_name;
 	t->input.state = state;
-	t->input.preupdate_account_number = preupdate_date_time;
+
+	t->input.preupdate_full_name = preupdate_full_name;
+	t->input.preupdate_street_address = preupdate_street_address;
+	t->input.preupdate_account_number = preupdate_account_number;
+	t->input.preupdate_date_time = preupdate_date_time;
 
 	if ( !investment_fetch_account(
 		&t->investment_account.investment_account,
@@ -66,7 +73,19 @@ INVESTMENT_EQUITY *investment_equity_new(
 		exit( 1 );
 	}
 
-	if ( date_time && *date_time )
+	t->process = investment_process_new(
+			application_name,
+			t->investment_account.full_name,
+			t->investment_account.street_address,
+			t->investment_account.account_number,
+			t->input.date_time,
+			preupdate_full_name,
+			preupdate_street_address,
+			preupdate_account_number,
+			preupdate_date_time );
+
+	if ( t->process->earlier_date_time
+	&&   *t->process->earlier_date_time )
 	{
 		begin_date_time =
 			investment_account_balance_fetch_prior_date_time(
@@ -74,7 +93,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 				t->investment_account.full_name,
 				t->investment_account.street_address,
 				t->investment_account.account_number,
-				t->input.date_time );
+				t->process->earlier_date_time );
 	}
 
 	if ( ! ( t->input_account_balance_list =
@@ -110,14 +129,6 @@ INVESTMENT_EQUITY *investment_equity_new(
 			t->investment_account.account_number,
 			t->input.date_time );
 
-	t->process = investment_process_new(
-			application_name,
-			t->investment_account.full_name,
-			t->investment_account.street_address,
-			t->investment_account.account_number,
-			t->input.date_time,
-			preupdate_date_time );
-
 	return t;
 
 } /* investment_equity_new() */
@@ -128,11 +139,14 @@ INVESTMENT_PROCESS *investment_process_new(
 				char *street_address,
 				char *account_number,
 				char *date_time,
+				char *preupdate_full_name,
+				char *preupdate_street_address,
+				char *preupdate_account_number,
 				char *preupdate_date_time )
 {
-	INVESTMENT_PROCESS *t;
+	INVESTMENT_PROCESS *p;
 
-	if ( ! ( t = calloc( 1, sizeof( INVESTMENT_PROCESS ) ) ) )
+	if ( ! ( p = calloc( 1, sizeof( INVESTMENT_PROCESS ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -142,37 +156,46 @@ INVESTMENT_PROCESS *investment_process_new(
 		exit( 1 );
 	}
 
-	if ( !investment_fetch_account_balance(
-		&t->share_price,
-		&t->share_quantity_change,
-		application_name,
-		full_name,
-		street_address,
-		account_number,
-		date_time ) )
-	{
-/*
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot fetch from %s (%s,%s,%s,%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-		 	 ACCOUNT_BALANCE_FOLDER_NAME,
-			 full_name,
-			 street_address,
-			 account_number,
-			 date_time );
-		exit( 1 );
-*/
-	}
-
-	t->date_time_change_state =
+	p->date_time_change_state =
 		appaserver_library_get_preupdate_change_state(
 			preupdate_date_time,
 			date_time /* postupdate_data */,
 			"preupdate_date_time" );
 
-	return t;
+	if (	p->date_time_change_state ==
+		from_something_to_something_else )
+	{
+		p->earlier_date_time =
+			ledger_earlier_of_two_date(
+				date_time
+					/* date1 */,
+				preupdate_date_time
+					/* date2 */ );
+	}
+	else
+	{
+		p->earlier_date_time = date_time;
+	}
+
+	p->full_name_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_full_name,
+			full_name /* postupdate_data */,
+			"preupdate_full_name" );
+
+	p->street_address_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_street_address,
+			street_address /* postupdate_data */,
+			"preupdate_street_address" );
+
+	p->account_number_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_account_number,
+			account_number /* postupdate_data */,
+			"preupdate_account_number" );
+
+	return p;
 
 } /* investment_process_new() */
 

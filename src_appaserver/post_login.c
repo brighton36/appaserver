@@ -31,7 +31,7 @@
 
 int main( int argc, char **argv )
 {
-	char *login_name;
+	char *login_name = "";
 	char sys_string[ 512 ];
 	char *application_name = "";
 	char *database_string = {0};

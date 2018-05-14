@@ -66,7 +66,6 @@ FILE *bank_upload_open_output_pipe(
 
 int main( int argc, char **argv )
 {
-	char *database_string = {0};
 	char *application_name;
 	char *state;
 	DICTIONARY *dictionary;
@@ -102,7 +101,8 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	if ( strcmp( state, "update" ) == 0 )
+	if ( strcmp( state, "update" ) == 0
+	||   strcmp( state, "sort" ) == 0 )
 	{
 		if ( !post_change_bank_upload_update(
 				application_name,

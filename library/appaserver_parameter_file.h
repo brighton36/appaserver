@@ -42,12 +42,6 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-/*
-void appaserver_parameter_file_get_dictionary_format(
-						APPASERVER_PARAMETER_FILE *s,
-						FILE *f );
-*/
-
 APPASERVER_PARAMETER_FILE *new_appaserver_parameter_file(
 						void );
 
@@ -86,12 +80,12 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 					FILE *f,
 					char *parameter_file_full_path );
 
-APPASERVER_PARAMETER_FILE *appaserver_parameter_default_file_new(
-						void );
-
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 						char *application_name );
 
 char *appaserver_parameter_file_get_dbms(	void );
+
+FILE *appaserver_parameter_file_open(		char *filename,
+						char *application_name );
 
 #endif

@@ -4,6 +4,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd -
-	make generic_statistics_report
+	make output_prompt_insert_form
 fi
 

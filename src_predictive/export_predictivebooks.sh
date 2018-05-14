@@ -3,13 +3,20 @@
 # $APPASERVER_HOME/src_predictive/export_predictivebooks.sh
 # -----------------------------------------------------------------
 
-if [ "$APPASERVER_DATABASE" = "" ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	echo "Error in $0: you must first . set_project" 1>&2
-	exit 1
+	application=$APPASERVER_DATABASE
+elif [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
 fi
 
-application=$APPASERVER_DATABASE
+if [ "$application" = "" ]
+then
+	echo "Error in `basename.e $0 n`: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
+	exit 1
+fi
 
 if [ "$#" -ne 3 ]
 then

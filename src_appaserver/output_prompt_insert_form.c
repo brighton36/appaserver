@@ -163,7 +163,11 @@ LIST *get_element_list(
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
+	char *login_name;
+	char *application_name = {0};
+	char *database_string = {0};
+	char *session;
+	char *folder_name;
 	char *role_name, *state;
 	char *target_frame;
 	FORM *form;
@@ -197,19 +201,49 @@ int main( int argc, char **argv )
 	/* ---------------------------------- */
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	/* -------------------------------------------- */
+	/* Maybe called from output_results.		*/
+	/* output_results does "onload=window.open()"	*/
+	/* -------------------------------------------- */
+	/* application_name = environ_get_application_name( argv[ 0 ] ); */
 
-	appaserver_error_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
+	if ( argc >= 3 )
+	{
+		application_name = argv[ 2 ];
+
+		if ( timlib_parse_database_string(	&database_string,
+							application_name ) )
+		{
+			environ_set_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+				database_string );
+		}
+		else
+		{
+			environ_set_environment(
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+				application_name );
+		}
+
+		appaserver_error_starting_argv_append_file(
+			argc,
+			argv,
+			application_name );
+	}
+
+	add_src_appaserver_to_path();
+	environ_set_utc_offset( application_name );
+	environ_prepend_dot_to_path();
+	add_utility_to_path();
+	add_local_bin_to_path();
+	add_relative_source_directory_to_path( application_name );
 
 	/* Note: optionally there could be a trailing dictionary string */
 	/* ------------------------------------------------------------ */
 	if ( argc < 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role state omit_buttons_yn [dictionary]\n",
+"Usage: %s login_name application session folder role state omit_buttons_yn [dictionary]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -219,6 +253,40 @@ int main( int argc, char **argv )
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
 	state = argv[ 6 ];
+
+	/* Maybe called from output_results. */
+	/* --------------------------------- */
+	if ( session_remote_ip_address_changed(
+		application_name,
+		session ) )
+	{
+		session_message_ip_address_changed_exit(
+				application_name,
+				login_name );
+	}
+
+	if ( !session_access_folder(
+				application_name,
+				session,
+				folder_name,
+				role_name,
+				state ) )
+	{
+		session_access_failed_message_and_exit(
+				application_name, session, login_name );
+	}
+
+	if ( !appaserver_user_exists_role(
+					application_name,
+					login_name,
+					role_name ) )
+	{
+		session_access_failed_message_and_exit(
+				application_name, session, login_name );
+	}
+
+	session_update_access_date_time( application_name, session );
+	appaserver_library_purge_temporary_files( application_name );
 
 	if ( strcmp( state, "insert" ) != 0 )
 	{

@@ -1,4 +1,4 @@
-/* session.h						*/
+/* $APPASERVER_HOME/library/session.h			*/
 /* ==================================================== */
 /*                                                      */
 /* Freely available software: see Appaserver.org	*/

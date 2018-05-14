@@ -14,6 +14,8 @@ then
 	exit 1
 fi
 
+echo "$0 $*" 1>&2
+
 if [ "$#" -ne 1 ]
 then
 	echo "Usage: $0 ignored" 1>&2
@@ -24,7 +26,7 @@ table="reoccurring_transaction"
 
 select="full_name,street_address,transaction_description"
 
-where="accrued_daily_amount is null"
+where="accrued_daily_amount is null and bank_upload_search_phrase is null"
 
 order="$select"
 

@@ -503,19 +503,6 @@ int load_sfwmd_file(
 					COLLECTION_DEPTH_UNIT_HEADING,
 					input_string );
 
-		if ( *collection_depth_unit
-		&&   strcasecmp( collection_depth_unit, "cm" ) != 0
-		&&   strcasecmp( collection_depth_unit, "m" ) != 0
-		&&   strcasecmp( collection_depth_unit, "ft" ) != 0 )
-		{
-			fprintf(error_file,
-"Warning in line %d: Unrecognized collection depth unit of (%s) in (%s)\n",
-				line_number,
-				collection_depth_unit,
-				input_string );
-			continue;
-		}
-
 		if ( strcasecmp( collection_depth_unit, "cm" ) == 0 )
 		{
 			collection_depth_meters =
@@ -530,9 +517,20 @@ int load_sfwmd_file(
 					0.3048;
 		}
 		else
+		if ( ( strcasecmp( collection_depth_unit, "m" ) == 0 )
+		||   ( !*collection_depth_unit ) )
 		{
 			collection_depth_meters =
 				atof( collection_depth_meters_string );
+		}
+		else
+		{
+			fprintf(error_file,
+"Warning in line %d: Unrecognized collection depth unit of (%s) in (%s)\n",
+				line_number,
+				collection_depth_unit,
+				input_string );
+			continue;
 		}
 
 		get_heading_piece_string(

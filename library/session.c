@@ -1,4 +1,4 @@
-/* session.c						*/
+/* $APPASERVER_HOME/library/session.c			*/
 /* ==================================================== */
 /*                                                      */
 /* Freely available software: see Appaserver.org	*/
@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <unistd.h>
 #include "session.h"
 #include "environ.h"
@@ -647,10 +648,13 @@ boolean session_remote_ip_address_changed(
 				char *application_name,
 				char *session )
 {
+	char local_session[ 128 ];
 	char where[ 128 ];
 	char sys_string[ 512 ];
 	char *environ_remote_ip_address;
 	char *database_remote_ip_address;
+
+	timlib_strcpy( local_session, session, 128 );
 
 	environ_remote_ip_address =
 		environ_get_environment(
@@ -658,7 +662,7 @@ boolean session_remote_ip_address_changed(
 
 	sprintf( where,
 		 "appaserver_session = '%s'",
-		 timlib_sql_injection_escape( session ) );
+		 timlib_sql_injection_escape( local_session ) );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"

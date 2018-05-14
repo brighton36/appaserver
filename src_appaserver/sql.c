@@ -81,9 +81,11 @@ int main( int argc, char **argv )
 		quick_flag = "";
 
 	if ( override_database )
+	{
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			override_database );
+	}
 
 	h = appaserver_parameter_file_new();
 

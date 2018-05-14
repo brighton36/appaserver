@@ -18,12 +18,6 @@ then
 	exit 1
 fi
 
-if [ "$#" -eq 0 ]
-then
-	echo "Usage: $0 ignored" 1>&2
-	exit 1
-fi
-
 select="full_name,street_address,account_number"
 folder="investment_account"
 

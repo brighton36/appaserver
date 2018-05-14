@@ -596,7 +596,7 @@ void post_change_sort_order_post_change_process_execute(
 		application_name,
 		(char *)0 /* database_string */,
 		(char *)0 /* session */,
-		(char *)0 /* state */,
+		"sort" /* state */,
 		(char *)0 /* login_name */,
 		folder_name,
 		(char *)0 /* role_name */,

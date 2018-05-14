@@ -20,10 +20,12 @@ INVESTMENT_EQUITY *investment_equity_new(
 					char *account_number,
 					char *date_time,
 					char *state,
+					char *preupdate_full_name,
+					char *preupdate_street_address,
+					char *preupdate_account_number,
 					char *preupdate_date_time )
 {
 	INVESTMENT_EQUITY *t;
-	char *begin_date_time = {0};
 	ACCOUNT_BALANCE *first_account_balance;
 
 	if ( ! ( t = calloc( 1, sizeof( INVESTMENT_EQUITY ) ) ) )
@@ -43,7 +45,11 @@ INVESTMENT_EQUITY *investment_equity_new(
 	t->input.date_time = date_time;
 	t->input.fund_name = fund_name;
 	t->input.state = state;
-	t->input.preupdate_account_number = preupdate_date_time;
+
+	t->input.preupdate_full_name = preupdate_full_name;
+	t->input.preupdate_street_address = preupdate_street_address;
+	t->input.preupdate_account_number = preupdate_account_number;
+	t->input.preupdate_date_time = preupdate_date_time;
 
 	if ( !investment_fetch_account(
 		&t->investment_account.investment_account,
@@ -66,15 +72,26 @@ INVESTMENT_EQUITY *investment_equity_new(
 		exit( 1 );
 	}
 
-	if ( date_time && *date_time )
+	t->process = investment_process_new(
+			t->investment_account.full_name,
+			t->investment_account.street_address,
+			t->investment_account.account_number,
+			t->input.date_time,
+			preupdate_full_name,
+			preupdate_street_address,
+			preupdate_account_number,
+			preupdate_date_time );
+
+	if ( t->process->earlier_date_time
+	&&   *t->process->earlier_date_time )
 	{
-		begin_date_time =
+		t->process->begin_date_time =
 			investment_account_balance_fetch_prior_date_time(
 				application_name,
 				t->investment_account.full_name,
 				t->investment_account.street_address,
 				t->investment_account.account_number,
-				t->input.date_time );
+				t->process->earlier_date_time );
 	}
 
 	if ( ! ( t->input_account_balance_list =
@@ -83,7 +100,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 				t->investment_account.full_name,
 				t->investment_account.street_address,
 				t->investment_account.account_number,
-				begin_date_time ) )
+				t->process->begin_date_time ) )
 	||   !list_length( t->input_account_balance_list ) )
 	{
 		fprintf( stderr,
@@ -110,29 +127,23 @@ INVESTMENT_EQUITY *investment_equity_new(
 			t->investment_account.account_number,
 			t->input.date_time );
 
-	t->process = investment_process_new(
-			application_name,
-			t->investment_account.full_name,
-			t->investment_account.street_address,
-			t->investment_account.account_number,
-			t->input.date_time,
-			preupdate_date_time );
-
 	return t;
 
 } /* investment_equity_new() */
 
 INVESTMENT_PROCESS *investment_process_new(
-				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *account_number,
 				char *date_time,
+				char *preupdate_full_name,
+				char *preupdate_street_address,
+				char *preupdate_account_number,
 				char *preupdate_date_time )
 {
-	INVESTMENT_PROCESS *t;
+	INVESTMENT_PROCESS *p;
 
-	if ( ! ( t = calloc( 1, sizeof( INVESTMENT_PROCESS ) ) ) )
+	if ( ! ( p = calloc( 1, sizeof( INVESTMENT_PROCESS ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -142,37 +153,46 @@ INVESTMENT_PROCESS *investment_process_new(
 		exit( 1 );
 	}
 
-	if ( !investment_fetch_account_balance(
-		&t->share_price,
-		&t->share_quantity_change,
-		application_name,
-		full_name,
-		street_address,
-		account_number,
-		date_time ) )
-	{
-/*
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot fetch from %s (%s,%s,%s,%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-		 	 ACCOUNT_BALANCE_FOLDER_NAME,
-			 full_name,
-			 street_address,
-			 account_number,
-			 date_time );
-		exit( 1 );
-*/
-	}
-
-	t->date_time_change_state =
+	p->date_time_change_state =
 		appaserver_library_get_preupdate_change_state(
 			preupdate_date_time,
 			date_time /* postupdate_data */,
 			"preupdate_date_time" );
 
-	return t;
+	if (	p->date_time_change_state ==
+		from_something_to_something_else )
+	{
+		p->earlier_date_time =
+			ledger_earlier_of_two_date(
+				date_time
+					/* date1 */,
+				preupdate_date_time
+					/* date2 */ );
+	}
+	else
+	{
+		p->earlier_date_time = date_time;
+	}
+
+	p->full_name_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_full_name,
+			full_name /* postupdate_data */,
+			"preupdate_full_name" );
+
+	p->street_address_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_street_address,
+			street_address /* postupdate_data */,
+			"preupdate_street_address" );
+
+	p->account_number_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_account_number,
+			account_number /* postupdate_data */,
+			"preupdate_account_number" );
+
+	return p;
 
 } /* investment_process_new() */
 
@@ -803,47 +823,14 @@ LIST *investment_calculate_account_balance_list(
 				street_address,
 				account_balance->date_time,
 				fund_name,
-				account_balance->investment_operation,
+				new_account_balance->investment_operation,
 				investment_account,
 				fair_value_adjustment_account,
-				account_balance->share_quantity_change,
-				account_balance->book_value_change,
-				account_balance->unrealized_gain_change,
-				account_balance->realized_gain,
-				account_balance->cash_in );
-
-/*
-		if ( !new_account_balance->transaction )
-		{
-			fprintf( stderr,
-	"Warning in %s/%s()/%d: empty transaction for (%s/%s/%s/%s/%s).\n",
-		 		 __FILE__,
-				 __FUNCTION__,
-		 		 __LINE__,
-				 full_name,
-				 street_address,
-				 account_number,
-				 new_account_balance->date_time,
-				 new_account_balance->investment_operation );
-			continue;
-		}
-
-		if ( !list_length(	new_account_balance->
-						transaction->
-						journal_ledger_list ) )
-		{
-			fprintf( stderr,
-"Warning in %s/%s()/%d: empty journal ledger list for (%s/%s/%s/%s/%s).\n",
-		 		 __FILE__,
-				 __FUNCTION__,
-		 		 __LINE__,
-				 full_name,
-				 street_address,
-				 account_number,
-				 new_account_balance->date_time,
-				 new_account_balance->investment_operation );
-		}
-*/
+				new_account_balance->share_quantity_change,
+				new_account_balance->book_value_change,
+				new_account_balance->unrealized_gain_change,
+				new_account_balance->realized_gain,
+				new_account_balance->cash_in );
 
 	} while( list_next( input_account_balance_list ) );
 
@@ -951,7 +938,8 @@ FILE *investment_open_update_pipe( void )
 	"full_name,street_address,account_number,date_time";
 
 	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 "update_statement.e table=%s key=%s carrot=y	|"
+		 "sql.e						 ",
 		 ACCOUNT_BALANCE_FOLDER_NAME,
 		 key_column_list );
 
@@ -1208,12 +1196,20 @@ void investment_account_balance_update(	FILE *output_pipe,
 	 		output_account_balance->realized_gain );
 	}
 
+	/* If no transaction */
+	/* ----------------- */
 	if ( !output_account_balance->transaction )
 	{
 		output_account_balance->transaction_date_time = (char *)0;
 
-		if ( account_balance->transaction_date_time )
+		/* If was a transaction but no longer one. */
+		/* --------------------------------------- */
+		if ( account_balance->transaction_date_time
+		&&   *account_balance->transaction_date_time )
 		{
+			LIST *account_name_list;
+			char *account_name;
+
 			ledger_delete(	application_name,
 					TRANSACTION_FOLDER_NAME,
 					full_name,
@@ -1228,23 +1224,45 @@ void investment_account_balance_update(	FILE *output_pipe,
 					account_balance->
 						transaction_date_time );
 
-			/* ------------------ */
-			/* Need to propagate! */
-			/* ------------------ */
-		}
+			/* Propagate */
+			/* --------- */
+			account_name_list =
+				ledger_get_unique_account_name_list(
+					account_balance->
+						transaction->
+						journal_ledger_list );
+
+			if ( list_rewind( account_name_list ) )
+			{
+				do {
+					account_name =
+						list_get_pointer(
+							account_name_list );
+
+					ledger_propagate(
+						application_name,
+						account_balance->
+							transaction->
+							transaction_date_time,
+						account_name );
+
+				} while( list_next( account_name_list ) );
+			}
+
+		} /* if transaction_date_time */
 	}
 	else
+	/* If is transaction */
+	/* ----------------- */
 	{
 		output_account_balance->transaction_date_time =
 			ledger_transaction_refresh(
 				application_name,
 				full_name,
 				street_address,
-				/* ------------------------------ */
-				/* Original transaction_date_time */
-				/* ------------------------------ */
-				account_balance->
-					transaction_date_time,
+				output_account_balance->
+					transaction->
+						transaction_date_time,
 				output_account_balance->
 					transaction->
 					transaction_amount,

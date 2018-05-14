@@ -2542,6 +2542,9 @@ enum preupdate_change_state appaserver_library_get_preupdate_change_state(
 				char *postupdate_data,
 				char *preupdate_placeholder_name )
 {
+	if ( !preupdate_data && !postupdate_data )
+		return no_change;
+
 	/* ------------------------------------------ */
 	/* If a numeric attribute is being checked.   */
 	/* Note: can't return from_something_to_null. */

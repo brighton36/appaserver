@@ -26,7 +26,6 @@ INVESTMENT_EQUITY *investment_equity_new(
 					char *preupdate_date_time )
 {
 	INVESTMENT_EQUITY *t;
-	char *begin_date_time = {0};
 	ACCOUNT_BALANCE *first_account_balance;
 
 	if ( ! ( t = calloc( 1, sizeof( INVESTMENT_EQUITY ) ) ) )
@@ -74,7 +73,6 @@ INVESTMENT_EQUITY *investment_equity_new(
 	}
 
 	t->process = investment_process_new(
-			application_name,
 			t->investment_account.full_name,
 			t->investment_account.street_address,
 			t->investment_account.account_number,
@@ -87,7 +85,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 	if ( t->process->earlier_date_time
 	&&   *t->process->earlier_date_time )
 	{
-		begin_date_time =
+		t->process->begin_date_time =
 			investment_account_balance_fetch_prior_date_time(
 				application_name,
 				t->investment_account.full_name,
@@ -102,7 +100,7 @@ INVESTMENT_EQUITY *investment_equity_new(
 				t->investment_account.full_name,
 				t->investment_account.street_address,
 				t->investment_account.account_number,
-				begin_date_time ) )
+				t->process->begin_date_time ) )
 	||   !list_length( t->input_account_balance_list ) )
 	{
 		fprintf( stderr,
@@ -134,7 +132,6 @@ INVESTMENT_EQUITY *investment_equity_new(
 } /* investment_equity_new() */
 
 INVESTMENT_PROCESS *investment_process_new(
-				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *account_number,
@@ -826,47 +823,14 @@ LIST *investment_calculate_account_balance_list(
 				street_address,
 				account_balance->date_time,
 				fund_name,
-				account_balance->investment_operation,
+				new_account_balance->investment_operation,
 				investment_account,
 				fair_value_adjustment_account,
-				account_balance->share_quantity_change,
-				account_balance->book_value_change,
-				account_balance->unrealized_gain_change,
-				account_balance->realized_gain,
-				account_balance->cash_in );
-
-/*
-		if ( !new_account_balance->transaction )
-		{
-			fprintf( stderr,
-	"Warning in %s/%s()/%d: empty transaction for (%s/%s/%s/%s/%s).\n",
-		 		 __FILE__,
-				 __FUNCTION__,
-		 		 __LINE__,
-				 full_name,
-				 street_address,
-				 account_number,
-				 new_account_balance->date_time,
-				 new_account_balance->investment_operation );
-			continue;
-		}
-
-		if ( !list_length(	new_account_balance->
-						transaction->
-						journal_ledger_list ) )
-		{
-			fprintf( stderr,
-"Warning in %s/%s()/%d: empty journal ledger list for (%s/%s/%s/%s/%s).\n",
-		 		 __FILE__,
-				 __FUNCTION__,
-		 		 __LINE__,
-				 full_name,
-				 street_address,
-				 account_number,
-				 new_account_balance->date_time,
-				 new_account_balance->investment_operation );
-		}
-*/
+				new_account_balance->share_quantity_change,
+				new_account_balance->book_value_change,
+				new_account_balance->unrealized_gain_change,
+				new_account_balance->realized_gain,
+				new_account_balance->cash_in );
 
 	} while( list_next( input_account_balance_list ) );
 
@@ -1232,10 +1196,14 @@ void investment_account_balance_update(	FILE *output_pipe,
 	 		output_account_balance->realized_gain );
 	}
 
+	/* If no transaction */
+	/* ----------------- */
 	if ( !output_account_balance->transaction )
 	{
 		output_account_balance->transaction_date_time = (char *)0;
 
+		/* If was a transaction but no longer one. */
+		/* --------------------------------------- */
 		if ( account_balance->transaction_date_time
 		&&   *account_balance->transaction_date_time )
 		{
@@ -1284,17 +1252,17 @@ void investment_account_balance_update(	FILE *output_pipe,
 		} /* if transaction_date_time */
 	}
 	else
+	/* If is transaction */
+	/* ----------------- */
 	{
 		output_account_balance->transaction_date_time =
 			ledger_transaction_refresh(
 				application_name,
 				full_name,
 				street_address,
-				/* ------------------------------ */
-				/* Original transaction_date_time */
-				/* ------------------------------ */
-				account_balance->
-					transaction_date_time,
+				output_account_balance->
+					transaction->
+						transaction_date_time,
 				output_account_balance->
 					transaction->
 					transaction_amount,

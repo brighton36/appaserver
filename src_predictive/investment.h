@@ -48,6 +48,7 @@ typedef struct
 	enum preupdate_change_state account_number_change_state;
 	enum preupdate_change_state date_time_change_state;
 	char *earlier_date_time;
+	char *begin_date_time;
 } INVESTMENT_PROCESS;
 
 typedef struct
@@ -106,7 +107,6 @@ INVESTMENT_EQUITY *investment_equity_new(
 					char *preupdate_date_time );
 
 INVESTMENT_PROCESS *investment_process_new(
-					char *application_name,
 					char *full_name,
 					char *street_address,
 					char *account_number,

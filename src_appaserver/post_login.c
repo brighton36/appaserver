@@ -105,12 +105,6 @@ int main( int argc, char **argv )
 
 	database_string = application_name;
 
-	appaserver_error_login_name_append_file(
-				argc,
-				argv,
-				application_name,
-				login_name );
-
 	add_utility_to_path();
 	add_src_appaserver_to_path();
 
@@ -124,6 +118,12 @@ int main( int argc, char **argv )
 	}
 
 	login_name = timlib_sql_injection_escape( login_name );
+
+	appaserver_error_login_name_append_file(
+				argc,
+				argv,
+				application_name,
+				login_name );
 
 	dictionary_get_index_data(
 			&password,

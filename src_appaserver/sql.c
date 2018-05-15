@@ -4,10 +4,6 @@
 /* To override the database_name found in				*/
 /* /etc/appaserver.config, pass as parameters:				*/
 /* 1) the delimiter							*/
-/* 2) the database_management_system (retired)				*/
-/* 3) the database_name							*/
-/* --OR--								*/
-/* 1) the delimiter							*/
 /* 2) the database_name							*/
 /* --OR--								*/
 /* 1) the database_name							*/
@@ -38,20 +34,11 @@ int main( int argc, char **argv )
 	char *database_connection = {0};
 
 	/* --------------------------------------------	*/
-	/* Usage: sql.e [delimiter] ignored [database]	*/
-	/* --OR--					*/
 	/* Usage: sql.e delimiter [database]		*/
 	/* --OR--					*/
 	/* Usage: sql.e [database]			*/
 	/* -------------------------------------------- */
 
-	if ( argc == 4 )
-	{
-		delimiter = *argv[ 1 ];
-		/* database_management_system = argv[ 2 ]; */
-		override_database = argv[ 3 ];
-	}
-	else
 	if ( argc == 3 )
 	{
 		if ( strlen( argv[ 1 ] ) == 1 )
@@ -80,13 +67,6 @@ int main( int argc, char **argv )
 	else
 		quick_flag = "";
 
-	if ( override_database )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			override_database );
-	}
-
 	h = appaserver_parameter_file_new();
 
 	if ( !h )
@@ -106,7 +86,14 @@ int main( int argc, char **argv )
 	if ( h->MYSQL_TCP_PORT ) 
 		environ_set_environment(
 			"MYSQL_TCP_PORT", h->MYSQL_TCP_PORT );
-	
+
+	if ( override_database && *override_database )
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			override_database );
+	}
+
 	database_connection =
 		environ_get_environment(
 		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );

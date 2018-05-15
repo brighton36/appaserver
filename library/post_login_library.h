@@ -10,8 +10,8 @@
 #define RETURN_ADDRESS			"login@cloudacus.com"
 #define SUBJECT				"Appaserver login"
 
-#define EMAIL_OUTPUT_FILE_TEMPLATE "%s/appaserver/%s/post_login_%s.html"
-#define EMAIL_HTTP_FILE_TEMPLATE   "%s://%s/appaserver/%s/post_login_%s.html"
+#define EMAIL_OUTPUT_FILE_TEMPLATE "%s/appaserver/%s/data/post_login_%s.html"
+#define EMAIL_HTTP_FILE_TEMPLATE   "%s://%s/appaserver/%s/data/post_login_%s.html"
 
 enum password_match_return {	password_match,
 				password_fail,

@@ -89,15 +89,6 @@ int main( int argc, char **argv )
 
 	html_ok = (argc != 11 || strcmp( argv[ 10 ], "nohtml" ) != 0 );
 
-/*
-	if ( !*destination_database_management_system
-	||   strcmp(	destination_database_management_system,
-			"database_management_system" ) == 0 )
-	{
-		destination_database_management_system = "mysql";
-	}
-*/
-
 	if ( !*destination_application
 	||   strcmp(	destination_application,
 			"destination_application" ) == 0 )
@@ -303,35 +294,25 @@ char *get_sys_string(	char *destination_application,
 	||     build_shell_script_yn == 'y' )
 	{
 		buffer_ptr += sprintf( buffer_ptr,
-	"#!/bin/sh\n" );
+		"#!/bin/sh\n" );
 		buffer_ptr += sprintf( buffer_ptr,
-	"#create %s\n\n", folder_name );
-		buffer_ptr += sprintf( buffer_ptr,
-	"if [ \"$#\" -ne 1 ]\n" );
-		buffer_ptr += sprintf( buffer_ptr,
-	"then\n" );
-		buffer_ptr += sprintf( buffer_ptr,
-	"\techo \"Usage: $0 application\" 1>&2\n" );
-		buffer_ptr += sprintf( buffer_ptr,
-	"\texit 1\n" );
-		buffer_ptr += sprintf( buffer_ptr,
-	"fi\n" );
+		"#create %s\n\n", folder_name );
 
 		buffer_ptr += sprintf( buffer_ptr,
-	"application=$1\n\n" );
-
-		if ( !appaserver_library_is_system_folder( folder_name ) )
-		{
-			buffer_ptr += sprintf( buffer_ptr,
-			"if [ \"$application\" != %s ]\n",
-					       destination_application );
-			buffer_ptr += sprintf( buffer_ptr,
-			"then\n" );
-			buffer_ptr += sprintf( buffer_ptr,
-			"\texit 0\n" );
-			buffer_ptr += sprintf( buffer_ptr,
-			"fi\n\n" );
-		}
+		"if [ \"$APPASERVER_DATABASE\" != \"\" ]\n"
+		"then\n"
+		"	application=$APPASERVER_DATABASE\n"
+		"elif [ \"$DATABASE\" != \"\" ]\n"
+		"then\n"
+		"	application=$DATABASE\n"
+		"fi\n"
+		"\n"
+		"if [ \"$application\" = \"\" ]\n"
+		"then\n"
+		"   echo \"Error in `basename.e $0 n`: you must first:\" 1>&2\n"
+		"   echo \"$ . set_database\" 1>&2\n"
+		"   exit 1\n"
+		"fi\n" );
 
 		if ( strcmp( folder_name, "application" ) == 0 )
 		{
@@ -344,7 +325,7 @@ char *get_sys_string(	char *destination_application,
 		{
 			buffer_ptr += sprintf(
 				buffer_ptr,
-				"table_name=`get_table_name $application %s`\n",
+				"table_name=%s\n",
 			 	folder_name );
 		}
 	} /* if ( create_table_filename && *create_table_filename ) */
@@ -526,8 +507,7 @@ char *get_sys_string(	char *destination_application,
 	/* -------------------------------- */
 	list_rewind( attribute_list ); 
 	do {
-		attribute = (ATTRIBUTE *)
-				list_get_pointer( attribute_list );
+		attribute = list_get_pointer( attribute_list );
 
 		if ( attribute->additional_unique_index )
 		{
@@ -558,7 +538,7 @@ char *get_sys_string(	char *destination_application,
 			{
 				buffer_ptr += sprintf(
 		 			buffer_ptr,
-",%s",
+					",%s",
 					attribute->attribute_name );
 			}
 		}
@@ -587,10 +567,6 @@ char *get_sys_string(	char *destination_application,
 
 	buffer_ptr += sprintf( buffer_ptr, "\n" );
 	return strdup( buffer );
-
-/* Stub to prevent compiler warning. */
-/* --------------------------------- */
-/* if ( application_name ){}; */
 
 } /* get_sys_string() */
 

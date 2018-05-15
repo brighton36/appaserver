@@ -333,16 +333,18 @@ char *get_sys_string(	char *destination_application,
 	if ( ( create_table_filename && *create_table_filename )
 	||     build_shell_script_yn == 'y' )
 	{
-		buffer_ptr += sprintf( buffer_ptr,
-"echo \"drop table if exists $table_name;\" | sql.e '^'\n" );
+		buffer_ptr += sprintf(	buffer_ptr,
+"echo \"drop table if exists $table_name;\" | sql.e '^' %s\n",
+					destination_application );
 	}
 	else
 	{
 		buffer_ptr += sprintf(
 	 		buffer_ptr,
 "echo \"drop table if exists %s;\" |"
-" sql.e '^' 2>&1 | html_paragraph_wrapper;", 
-	 		table_name );
+" sql.e '^' %s 2>&1 | html_paragraph_wrapper;", 
+	 		table_name,
+			destination_application );
 	}
 
 	/* Create the create table statement */

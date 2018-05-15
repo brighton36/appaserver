@@ -1,4 +1,18 @@
 #!/bin/sh
+if [ "$APPASERVER_DATABASE" != "" ]
+then
+	application=$APPASERVER_DATABASE
+elif [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
+then
+	echo "Error in `basename.e $0 n`: you must first:" 1>&2
+	echo "$ . set_database" 1>&2
+	exit 1
+fi
 folder=`get_table_name $application folder`
 relation=`get_table_name $application relation`
 attribute=`get_table_name $application attribute`
@@ -1353,6 +1367,7 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('Garbage/Water','Home',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Gift','entertainment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Groceries/Cash withdrawal','operating_expense',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('Haircut','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Healthcare consumption','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Healthcare premium','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Home Insurance','Home',null);

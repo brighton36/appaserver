@@ -1028,56 +1028,22 @@ void output_shell_script_header( char *export_subschema_filename )
 
 	fprintf( output_file,
 	"#!/bin/sh\n" );
-/*
-	char *folder_name;
-	fprintf( output_file,
-	"#!/bin/sh\n" );
-	fprintf( output_file,
-	"if [ \"$#\" -ne 1 ]\n" );
-	fprintf( output_file,
-	"then\n" );
-	fprintf( output_file,
-	"\techo \"Usage: $0 application\" 1>&2\n" );
-	fprintf( output_file,
-	"\texit 1\n" );
-	fprintf( output_file,
-	"fi\n" );
-
-	fprintf( output_file, "application=$1\n\n" );
-
-	if ( !list_rewind( folder_name_list ) ) return;
-
-	do {
-		folder_name = list_get_pointer( folder_name_list );
-
-		if ( !appaserver_library_is_system_folder( folder_name ) )
-		{
-			fprintf( output_file,
-			"if [ \"$application\" != %s ]\n", application_name );
-			fprintf( output_file,
-			"then\n" );
-			fprintf( output_file,
-			"\texit 0\n" );
-			fprintf( output_file,
-			"fi\n\n" );
-
-			break;
-		}
-	} while( list_next( folder_name_list ) );
 
 	fprintf( output_file,
 "if [ \"$APPASERVER_DATABASE\" != \"\" ]\n"
 "then\n"
 "	application=$APPASERVER_DATABASE\n"
+"elif [ \"$DATABASE\" != \"\" ]\n"
+"then\n"
+"	application=$DATABASE\n"
 "fi\n"
 "\n"
 "if [ \"$application\" = \"\" ]\n"
 "then\n"
-"	echo \"Error in $0: you must first:\" 1>&2\n"
-"	echo \"\$ . set_database\" 1>&2\n"
+"	echo \"Error in `basename.e $0 n`: you must first:\" 1>&2\n"
+"	echo \"$ . set_database\" 1>&2\n"
 "	exit 1\n"
 "fi\n" );
-*/
 
 	fprintf( output_file,
 	"folder=`get_table_name $application folder`\n" );

@@ -6,16 +6,15 @@
 if [ "$APPASERVER_DATABASE" != "" ]
 then
 	application=$APPASERVER_DATABASE
-fi
-
-if [ "$DATABASE" != "" ]
+elif [ "$DATABASE" != "" ]
 then
 	application=$DATABASE
 fi
 
 if [ "$application" = "" ]
 then
-	echo "Error in $0: you must first . set_project" 1>&2
+	echo "Error in `basename.e $0 n`: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
 	exit 1
 fi
 
@@ -79,11 +78,9 @@ then
 		where process = '$process_name';" |
 	sql.e
 
-	echo "<h3>Process complete.</h3"
-	echo "<h3>Press the &lt;Recount&gt; button to refresh the menu counts.</h3>"
+	echo "<h3>Process complete.</h3>"
 else
-	echo "<h3>Will execute:</h3"
-	cat `which $process` | html_paragraph_wrapper.e
+	echo "<h3>Will execute: `which $process`</h3>"
 fi
 
 echo "</body></html>"

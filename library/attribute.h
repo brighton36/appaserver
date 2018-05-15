@@ -108,8 +108,10 @@ char *attribute_list_display(		LIST *attribute_list );
 
 char *attribute_display(		ATTRIBUTE *attribute );
 
-char *attribute_get_database_datatype(	ATTRIBUTE *attribute,
-					char *database_management_system );
+char *attribute_get_database_datatype(	char *datatype,
+					int width,
+					int float_decimal_places,
+					int primary_key_index );
 
 char *attribute_get_last_primary_attribute_name(
 					LIST *attribute_list );

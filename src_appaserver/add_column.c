@@ -129,8 +129,10 @@ int main( int argc, char **argv )
 
 	database_datatype =
 		attribute_get_database_datatype(
-			attribute,
-			(char *)0 );
+			attribute->datatype,
+			attribute->width,
+			attribute->float_decimal_places,
+			attribute->primary_key_index );
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );

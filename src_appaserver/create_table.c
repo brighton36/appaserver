@@ -39,7 +39,6 @@ char *get_sys_string(	char *destination_application,
 			char *folder_name,
 			char *table_name,
 			LIST *attribute_list,
-			char *destination_dbms,
 			char *create_table_filename,
 			char build_shell_script_yn,
 			char *data_directory,
@@ -61,7 +60,6 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	FOLDER *folder;
 	char create_table_filename[ 512 ] = {0};
-	char *destination_database_management_system;
 
 	current_application = environ_get_application_name( argv[ 0 ] );
 
@@ -73,7 +71,7 @@ int main( int argc, char **argv )
 	if ( argc < 10 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored build_shell_script_yn session login_name role destination_application folder really_yn destination_database_management_system [nohtml]\n",
+"Usage: %s ignored build_shell_script_yn session login_name role destination_application folder really_yn ignored [nohtml]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -85,18 +83,20 @@ int main( int argc, char **argv )
 	destination_application = argv[ 6 ];
 	folder_name = argv[ 7 ];
 	really_yn = argv[ 8 ];
-	destination_database_management_system = argv[ 9 ];
+	/* destination_database_management_system = argv[ 9 ]; */
 
 	if ( build_shell_script_yn == 'y' ) really_yn = "n";
 
 	html_ok = (argc != 11 || strcmp( argv[ 10 ], "nohtml" ) != 0 );
 
+/*
 	if ( !*destination_database_management_system
 	||   strcmp(	destination_database_management_system,
 			"database_management_system" ) == 0 )
 	{
 		destination_database_management_system = "mysql";
 	}
+*/
 
 	if ( !*destination_application
 	||   strcmp(	destination_application,
@@ -226,7 +226,6 @@ passed_security_check:
 				folder_name,
 				table_name,
 				folder->attribute_list,
-				destination_database_management_system,
 				(char *)0 /* create_table_filename */,
 				build_shell_script_yn,
 				folder->data_directory,
@@ -241,7 +240,6 @@ passed_security_check:
 				folder_name,
 				table_name,
 				folder->attribute_list,
-				destination_database_management_system,
 				create_table_filename,
 				build_shell_script_yn,
 				folder->data_directory,
@@ -288,7 +286,6 @@ char *get_sys_string(	char *destination_application,
 			char *folder_name,
 			char *table_name,
 			LIST *attribute_list,
-			char *destination_dbms,
 			char *create_table_filename,
 			char build_shell_script_yn,
 			char *data_directory,
@@ -406,8 +403,10 @@ char *get_sys_string(	char *destination_application,
 			"%s %s",
 			attribute->attribute_name,
 			attribute_get_database_datatype(
-				attribute,
-				destination_dbms ) );
+				attribute->datatype,
+				attribute->width,
+				attribute->float_decimal_places,
+				attribute->primary_key_index ) );
 
 	} while( list_next( attribute_list ) );
 
@@ -441,14 +440,14 @@ char *get_sys_string(	char *destination_application,
 		buffer_ptr += sprintf(
 		 	buffer_ptr,
 		 	";\" | sql.e '^' %s\n",
-		 	destination_dbms );
+		 	destination_application );
 	}
 	else
 	{
 		buffer_ptr += sprintf(
 		 	buffer_ptr,
 		 	";\" | sql.e '^' %s 2>&1 | html_paragraph_wrapper;",
-		 	destination_dbms );
+		 	destination_application );
 	}
 
 	if ( ( create_table_filename && *create_table_filename )
@@ -479,14 +478,14 @@ char *get_sys_string(	char *destination_application,
 		buffer_ptr += sprintf(
 		 	buffer_ptr,
 ";\" | sql.e '^' %s\n",
-		 	destination_dbms );
+		 	destination_application );
 	}
 	else
 	{
 		buffer_ptr += sprintf(
 		 	buffer_ptr,
 ";\" | sql.e '^' %s 2>&1 | html_paragraph_wrapper",
-		 	destination_dbms );
+		 	destination_application );
 	}
 
 	/* Create additional indexes */
@@ -506,7 +505,7 @@ char *get_sys_string(	char *destination_application,
 "echo \"create index ${table_name}_%s on $table_name (%s);\" | sql.e '^' %s\n",
 					attribute->attribute_name,
 					attribute->attribute_name,
-					destination_dbms);
+					destination_application);
 			}
 			else
 			{
@@ -517,7 +516,7 @@ char *get_sys_string(	char *destination_application,
 					attribute->attribute_name,
 		 			table_name,
 					attribute->attribute_name,
-					destination_dbms);
+					destination_application);
 			}
 		}
 
@@ -575,14 +574,14 @@ char *get_sys_string(	char *destination_application,
 			buffer_ptr += sprintf(
 		 		buffer_ptr,
 ");\" | sql.e '^' %s\n",
-				destination_dbms);
+				destination_application );
 		}
 		else
 		{
 			buffer_ptr += sprintf(
 		 		buffer_ptr,
 ");\" | sql.e '^' %s 2>&1 | html_paragraph_wrapper",
-				destination_dbms);
+				destination_application );
 		}
 	}
 

@@ -121,8 +121,10 @@ int main( int argc, char **argv )
 
 	database_datatype =
 		attribute_get_database_datatype(
-			attribute,
-			(char *)0 );
+			attribute->datatype,
+			attribute->width,
+			attribute->float_decimal_places,
+			attribute->primary_key_index );
 
 	sys_string = get_sys_string(	table_name,
 					old_attribute_name,

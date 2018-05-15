@@ -209,118 +209,104 @@ char *attribute_list_display( LIST *attribute_list )
 	return strdup( buffer );
 } /* attribute_list_display() */
 
-char *attribute_get_database_datatype(	ATTRIBUTE *attribute,
-					char *database_management_system )
+char *attribute_get_database_datatype(	char *datatype,
+					int width,
+					int float_decimal_places,
+					int primary_key_index )
 {
 	char buffer[ 128 ];
 
-	if ( !attribute )
+	if ( !datatype || !*datatype )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s() attribute is null.\n",
-			__FILE__,
-			__FUNCTION__ );
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty datatype.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 		exit( 1 );
 	}
 
-	if ( timlib_strcmp( attribute->datatype, "timestamp" ) == 0 )
+	if ( strcmp( datatype, "timestamp" ) == 0 )
 	{
 			strcpy( buffer, "timestamp" );
 	}
 	else
-	if ( timlib_strcmp( attribute->datatype, "password" ) == 0 )
+	if ( strcmp( datatype, "password" ) == 0 )
 	{
 		sprintf( buffer,
 			 "char (%d)",
-			 attribute->width );
+			 width );
 	}
 	else
-	if ( timlib_strcmp( attribute->datatype, "text" ) == 0
-	||   timlib_strcmp( attribute->datatype, "hidden_text" ) == 0
-	||   timlib_strcmp( attribute->datatype, "notepad" ) == 0
-	||   timlib_strcmp( attribute->datatype, "http_filename" ) == 0 )
+	if ( strcmp( datatype, "text" ) == 0
+	||   strcmp( datatype, "hidden_text" ) == 0
+	||   strcmp( datatype, "notepad" ) == 0
+	||   strcmp( datatype, "http_filename" ) == 0 )
 	{
-		if ( attribute->width < 256)
+		if ( width < 256)
 		{
-			sprintf( buffer,
+			sprintf(buffer,
 			 	"char (%d)",
-			 	attribute->width );
+			 	width );
 		}
 		else
-		if ( attribute->width > 255
-		&&   attribute->width < 65536 )
+		if ( width > 255 && width < 65536 )
 		{
-			sprintf( buffer,
-			 	"text" );
+			strcpy( buffer, "text" );
 		}
 		else
 		{
-			sprintf( buffer,
-			 	"longtext" );
+			strcpy( buffer, "longtext" );
 		}
 	}
 	else
-	if ( timlib_strcmp( attribute->datatype, "integer" ) == 0 )
+	if ( strcmp( datatype, "integer" ) == 0 )
+	{
+		strcpy( buffer, "integer" );
+	}
+	else
+	if ( strcmp( datatype, "date" ) == 0
+	||   strcmp( datatype, "current_date" ) == 0 )
+	{
+		strcpy( buffer, "date" );
+	}
+	else
+	if ( strcmp( datatype, "float" ) == 0 )
 	{
 		sprintf( buffer,
-			 "integer" );
+		 	"double (%d,%d)",
+		 	width,
+		 	float_decimal_places );
 	}
 	else
-	if ( timlib_strcmp( attribute->datatype, "date" ) == 0
-	||   timlib_strcmp( attribute->datatype, "current_date" ) == 0 )
+	if ( strcmp( datatype, "reference_number" ) == 0 )
 	{
-		sprintf( buffer,
-			 "date" );
+		strcpy( buffer, "integer" );
 	}
 	else
-	if ( timlib_strcmp( attribute->datatype, "float" ) == 0 )
-	{
-		if ( database_management_system
-		&&   strcmp( database_management_system, "oracle" ) == 0 )
-		{
-			sprintf( buffer,
-			 	"number (%d,%d)",
-			 	attribute->width,
-			 	attribute->float_decimal_places );
-		}
-		else
-		{
-			sprintf( buffer,
-			 	"double (%d,%d)",
-			 	attribute->width,
-			 	attribute->float_decimal_places );
-		}
-	}
-	else
-	if ( timlib_strcmp( attribute->datatype, "reference_number" ) == 0 )
-	{
-		sprintf( buffer,
-			 "integer" );
-	}
-	else
-	if ( timlib_strcmp( attribute->datatype, "time" ) == 0
-	||   timlib_strcmp( attribute->datatype, "current_time" ) == 0 )
+	if ( strcmp( datatype, "time" ) == 0
+	||   strcmp( datatype, "current_time" ) == 0 )
 	{
 		sprintf( buffer,
 			 "char (%d)",
-			 attribute->width );
+			 width );
 	}
 	else
-	if ( timlib_strcmp( attribute->datatype, "date_time" ) == 0
-	||   timlib_strcmp( attribute->datatype, "current_date_time" ) == 0 )
+	if ( strcmp( datatype, "date_time" ) == 0
+	||   strcmp( datatype, "current_date_time" ) == 0 )
 	{
-		sprintf( buffer,
-			 "datetime" );
+		strcpy( buffer, "datetime" );
 	}
 	else
 	{
-		sprintf( buffer, "char (%d)", attribute->width );
+		sprintf( buffer, "char (%d)", width );
 	}
 
-	if ( attribute->primary_key_index )
+	if ( primary_key_index )
 	{
 		strcat( buffer, " not null" );
 	}
+
 	return strdup( buffer );
 
 } /* attribute_get_database_datatype() */

@@ -30,18 +30,20 @@ function post_change_folder_attribute( row )
 
 	element.disabled = false;
 
-	// Turn off one of them
-	// --------------------
 	element_name = 'primary_key_index_' + row;
 	element = timlib_get_element( element_name );
 
+	if ( element.value == "/" ) return true;
 	primary_key_element_value = Number( element.value );
 
 	element_name = 'display_order_' + row;
 	element = timlib_get_element( element_name );
 
+	if ( element.value == "/" ) return true;
 	display_order_element_value = Number( element.value );
 
+	// Turn off one of them
+	// --------------------
 	if ( primary_key_element_value )
 	{
 		element_name = 'display_order_' + row;

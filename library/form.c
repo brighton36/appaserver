@@ -1312,26 +1312,35 @@ char *form_get_remember_keystrokes_onload_control_string(
 	if ( post_change_javascript
 	&&   *post_change_javascript )
 	{
-		char local_post_change_javascript[ 1024 ];
-
-		strcpy(	local_post_change_javascript,
-			post_change_javascript );
-		
-		/* Row zero means for javascript to loop through each row. */
-		/* ------------------------------------------------------- */
-		search_replace_string(
-				local_post_change_javascript,
-				"$row",
-				"0" );
-
 		sprintf( buffer + strlen( buffer ),
 			 "%s;",
-			 local_post_change_javascript );
+			 form_set_post_change_javascript_row_zero(
+				post_change_javascript ) );
 	}
 
 	return strdup( buffer );
 
 } /* form_get_remember_keystrokes_onload_control_string() */
+
+/* Row zero means for javascript to loop through each row. */
+/* ------------------------------------------------------- */
+char *form_set_post_change_javascript_row_zero(
+					char *post_change_javascript )
+{
+	char post_change_javascript_row_zero[ 256 ];
+
+	if ( !post_change_javascript ) return "";
+
+	strcpy( post_change_javascript_row_zero, post_change_javascript );
+
+	search_replace_string(
+		post_change_javascript_row_zero,
+		"$row",
+		"0" );
+
+	return strdup( post_change_javascript_row_zero );
+
+} /* form_set_post_change_javascript_row_zero() */
 
 /* Appends to form->submit_control_string */
 /* -------------------------------------- */
@@ -1831,19 +1840,9 @@ void form_output_reset_button(	char *post_change_javascript,
 
 	if ( post_change_javascript && *post_change_javascript )
 	{
-		char local_post_change_javascript[ 1024 ];
-
-		strcpy(	local_post_change_javascript,
-			post_change_javascript );
-		
-		/* Row zero means for javascript to loop through each row. */
-		/* ------------------------------------------------------- */
-		search_replace_string(
-				local_post_change_javascript,
-				"$row",
-				"0" );
-
-		printf( ";%s;", local_post_change_javascript );
+		printf( ";%s;",
+			form_set_post_change_javascript_row_zero(
+				post_change_javascript ) );
 	}
 
 	printf( "\">\n" );

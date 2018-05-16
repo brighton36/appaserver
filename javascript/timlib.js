@@ -119,17 +119,24 @@ function timlib_get_element( search_element_name )
 		form_number < document.forms.length;
 		form_number++ )
 	{
-		form = document.forms[ form_number ];
+		element =
+			timlib_get_form_element(
+				search_element_name,
+				form_number );
 
-		for( i = 0; i < form.elements.length; i++ )
-		{
-			element = form.elements[ i ];
+		if ( element != "" ) return element;
 
-			if ( element.name == search_element_name )
-                        {
-				return element;
-			}
-		}
+//		form = document.forms[ form_number ];
+//
+//		for( i = 0; i < form.elements.length; i++ )
+//		{
+//			element = form.elements[ i ];
+//
+//			if ( element.name == search_element_name )
+//                      {
+//				return element;
+//			}
+//		}
 	}
 
 	modified_element_name = 'from_' + search_element_name;
@@ -138,17 +145,24 @@ function timlib_get_element( search_element_name )
 		form_number < document.forms.length;
 		form_number++ )
 	{
-		form = document.forms[ form_number ];
+		element =
+			timlib_get_form_element(
+				modified_element_name,
+				form_number );
 
-		for( i = 0; i < form.elements.length; i++ )
-		{
-			element = form.elements[ i ];
+		if ( element != "" ) return element;
 
-			if ( element.name == modified_element_name )
-                        {
-				return element;
-			}
-		}
+//		form = document.forms[ form_number ];
+//
+//		for( i = 0; i < form.elements.length; i++ )
+//		{
+//			element = form.elements[ i ];
+//
+//			if ( element.name == modified_element_name )
+//                      {
+//				return element;
+//			}
+//		}
 	}
 
 	modified_element_name = 'from_' + search_element_name + '_0';
@@ -157,17 +171,24 @@ function timlib_get_element( search_element_name )
 		form_number < document.forms.length;
 		form_number++ )
 	{
-		form = document.forms[ form_number ];
+		element =
+			timlib_get_form_element(
+				modified_element_name,
+				form_number );
 
-		for( i = 0; i < form.elements.length; i++ )
-		{
-			element = form.elements[ i ];
+		if ( element != "" ) return element;
 
-			if ( element.name == modified_element_name )
-                        {
-				return element;
-			}
-		}
+//		form = document.forms[ form_number ];
+//
+//		for( i = 0; i < form.elements.length; i++ )
+//		{
+//			element = form.elements[ i ];
+//
+//			if ( element.name == modified_element_name )
+//                      {
+//				return element;
+//			}
+//		}
 	}
 
 	modified_element_name = search_element_name + '_0';
@@ -176,17 +197,24 @@ function timlib_get_element( search_element_name )
 		form_number < document.forms.length;
 		form_number++ )
 	{
-		form = document.forms[ form_number ];
+		element =
+			timlib_get_form_element(
+				modified_element_name,
+				form_number );
 
-		for( i = 0; i < form.elements.length; i++ )
-		{
-			element = form.elements[ i ];
+		if ( element != "" ) return element;
 
-			if ( element.name == modified_element_name )
-                        {
-				return element;
-			}
-		}
+//		form = document.forms[ form_number ];
+//
+//		for( i = 0; i < form.elements.length; i++ )
+//		{
+//			element = form.elements[ i ];
+//
+//			if ( element.name == modified_element_name )
+//                      {
+//				return element;
+//			}
+//		}
 	}
 
 	return "";
@@ -204,6 +232,7 @@ function timlib_get_form_element( search_element_name, form_number )
 	for( i = 0; i < form.elements.length; i++ )
 	{
 		element = form.elements[ i ];
+
 		if ( element.name == search_element_name )
 		{
 			return element;

@@ -460,5 +460,8 @@ void form_output_html_help_file_anchor(
 void form_output_generic_button(char *onclick_control_string,
 				char *button_label );
 
+char *form_set_post_change_javascript_row_zero(
+				char *post_change_javascript );
+
 #endif
 

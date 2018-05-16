@@ -391,9 +391,7 @@ char *document_set_onload_control_string(
 
 	/* Row zero means for javascript to loop through each row. */
 	/* ------------------------------------------------------- */
-	timlib_strcpy( buffer, s, 1024 );
-	search_replace_string( buffer, "$row", "0" );
-	s = buffer;
+	s = form_set_post_change_javascript_row_zero( s );
 
 	if ( document_onload_control_string )
 	{

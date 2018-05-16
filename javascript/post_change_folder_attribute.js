@@ -23,8 +23,7 @@ function post_change_folder_attribute( row )
 	element.disabled = false;
 
 	element_name = 'display_order_' + row;
-	element =
-		timlib_get_element( element_name );
+	element = timlib_get_element( element_name );
 
 	if ( element == "" ) return false;
 

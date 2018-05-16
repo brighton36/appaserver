@@ -186,7 +186,6 @@ int main( int argc, char **argv )
 	boolean omit_ignore_push_buttons = 0;
 	FOLDER *folder;
 	ROLE *role;
-	char *remember_keystrokes_onload_control_string = {0};
 	LIST *remember_button_non_multi_element_name_list;
 	LIST *remember_button_multi_element_name_list;
 	char *prelookup_button_control_string = {0};
@@ -595,7 +594,8 @@ int main( int argc, char **argv )
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		folder->post_change_javascript );
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==
@@ -675,7 +675,7 @@ int main( int argc, char **argv )
 			form->form_name,
 			remember_button_non_multi_element_name_list,
 			remember_button_multi_element_name_list,
-			(char *)0 /* post_change_javascript */,
+			folder->post_change_javascript,
 			COOKIE_KEY_PREFIX,
 			folder_name );
 
@@ -688,9 +688,6 @@ int main( int argc, char **argv )
 			remember_button_multi_element_name_list,
 			COOKIE_KEY_PREFIX,
 			folder_name );
-
-	remember_keystrokes_onload_control_string =
-		form->onload_control_string;
 
 	form_set_new_button_onclick_keystrokes_save_string(
 			form->regular_element_list,
@@ -767,12 +764,12 @@ int main( int argc, char **argv )
 		0 /* not output_insert_button */,
 		form->submit_control_string,
 		form->html_help_file_anchor,
-		remember_keystrokes_onload_control_string,
+		form->onload_control_string,
 		prelookup_button_control_string,
 		application_name,
 		with_dynarch_menu /* with_back_to_top_button */,
 		0 /* form_number */,
-		(char *)0 /* post_change_javascript */,
+		folder->post_change_javascript,
 		pair_one2m->pair_one2m_folder_name_list,
 		(LIST *)0 /* form_button_list */ );
 
@@ -798,7 +795,6 @@ LIST *get_element_list(
 			char *folder_notepad,
 			char *isa_multi_attribute_name,
 			char *isa_multi_attribute_data,
-			/* LIST *mto1_isa_related_folder_list, */
 			LIST *isa_folder_list,
 			char *form_name,
 			boolean row_level_non_owner_view_only,

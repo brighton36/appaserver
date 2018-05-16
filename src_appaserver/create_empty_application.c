@@ -1848,8 +1848,7 @@ char *get_post_login_sed_executable(
 	static char sed_executable[ 512 ];
 
 	sprintf( sed_executable,
-	 "sed \"s/post_login?.*\\\"/post_login?%s:%s\\\"/\"",
-		 destination_application,
+	 "sed \"s/post_login?.*\\\"/post_login?%s\\\"/\"",
 		 destination_application );
 
 	return sed_executable;

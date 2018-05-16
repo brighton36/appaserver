@@ -209,7 +209,8 @@ void form_output_heading(
 			char *server_address,
 			char *optional_related_attribute_name,
 			char *remember_keystrokes_onload_control_string,
-			LIST *form_button_list )
+			LIST *form_button_list,
+			char *post_change_javascript )
 {
 	char buffer[ 128 ];
 
@@ -237,7 +238,10 @@ void form_output_heading(
 		}
 
 		if ( !insert_update_key )
-			insert_update_key = FORM_INSERT_UPDATE_KEY_PLACEHOLDER;
+		{
+			insert_update_key =
+				FORM_INSERT_UPDATE_KEY_PLACEHOLDER;
+		}
 
 		if ( !target_frame || !*target_frame )
 			target_frame = EDIT_FRAME;
@@ -287,7 +291,7 @@ void form_output_heading(
 			0 /* not with_back_to_top_button */,
 			with_prelookup_skip_button,
 			0 /* form_number */,
-			(char *)0 /* post_change_javascript */,
+			post_change_javascript,
 			(LIST *)0 /* pair_one2m_related_folder_name_list */,
 			form_button_list );
 	}
@@ -399,7 +403,8 @@ void form_output_trailer(
 			char *application_name,
 			boolean with_back_to_top_button,
 			int form_number,
-			LIST *form_button_list )
+			LIST *form_button_list,
+			char *post_change_javascript )
 {
 	form_output_trailer_post_change_javascript(
 			output_submit_reset_buttons,
@@ -411,7 +416,7 @@ void form_output_trailer(
 			application_name,
 			with_back_to_top_button,
 			form_number,
-			(char *)0 /* post_change_javascript */,
+			post_change_javascript,
 			(LIST *)0 /* pair_one2m_related_folder_name_list */,
 			form_button_list );
 
@@ -1307,12 +1312,23 @@ char *form_get_remember_keystrokes_onload_control_string(
 	if ( post_change_javascript
 	&&   *post_change_javascript )
 	{
+		char local_post_change_javascript[ 1024 ];
+
+		strcpy(	local_post_change_javascript,
+			post_change_javascript );
+		
+		/* Row zero means for javascript to loop through each row. */
+		/* ------------------------------------------------------- */
+		search_replace_string(
+				local_post_change_javascript,
+				"$row",
+				"0" );
+
 		sprintf( buffer + strlen( buffer ),
 			 "%s;",
-			 post_change_javascript );
+			 local_post_change_javascript );
 	}
 
-	/* form->onload_control_string = strdup( buffer ); */
 	return strdup( buffer );
 
 } /* form_get_remember_keystrokes_onload_control_string() */
@@ -1808,21 +1824,26 @@ char **form_get_background_color_array(
 void form_output_reset_button(	char *post_change_javascript,
 				int form_number )
 {
-/*
-	printf(
-"<td valign=bottom><input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[%d], '%c')",
-		form_number,
-		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
-*/
-
 	printf(
 "<input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[%d], '%c')",
 		form_number,
 		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
 
-	if ( post_change_javascript )
+	if ( post_change_javascript && *post_change_javascript )
 	{
-		printf( ";%s;", post_change_javascript );
+		char local_post_change_javascript[ 1024 ];
+
+		strcpy(	local_post_change_javascript,
+			post_change_javascript );
+		
+		/* Row zero means for javascript to loop through each row. */
+		/* ------------------------------------------------------- */
+		search_replace_string(
+				local_post_change_javascript,
+				"$row",
+				"0" );
+
+		printf( ";%s;", local_post_change_javascript );
 	}
 
 	printf( "\">\n" );

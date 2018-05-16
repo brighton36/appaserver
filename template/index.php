@@ -6,12 +6,8 @@
 
 <body bgcolor="FFFFFF" onload="document.login.login_name.focus()">
 
-<!--
-name="login" method=POST action="https://localhost/cgi-bin/post_login?template:template">
--->
-
 <form enctype="multipart/form-data"
-name="login" method=POST action="/cgi-bin/post_login?template:template">
+name="login" method=POST action="/cgi-bin/post_login?template">
 
 <input type="hidden" name="filename" value="index.php">
 
@@ -44,12 +40,12 @@ if ( $invalid_login_yn == 'y' )
 			<font color="blue">
 				Login name</td>
 		<td aligh="left">
-			<input type="text" name="login_name" size=50 value="">
+			<input type="text" name="login_name" size=20 maxlength=50 value="">
 	<tr>	<td align="right">
 			<font color="blue">
 				Password</td>
 		<td aligh="left">
-			<input type="password" name="password" size=50 value="">
+			<input type="password" name="password" size=20 maxlength=50 value="">
 	</td>
 	</table>
 	<tr>	<td align="center">

@@ -996,11 +996,6 @@ boolean folder_load(	int *insert_rows_number,
 	piece( buffer, '^', record, FOLDER_POST_CHANGE_JAVASCRIPT_PIECE );
 	*post_change_javascript = strdup( buffer );
 
-/*
-	piece( buffer, '^', record, FOLDER_ROW_ACCESS_COUNT_PIECE );
-	*row_access_count = atol( buffer );
-*/
-
 	piece( buffer, '^', record, FOLDER_LOOKUP_BEFORE_DROP_DOWN_PIECE );
 	*lookup_before_drop_down = (*buffer == 'y');
 

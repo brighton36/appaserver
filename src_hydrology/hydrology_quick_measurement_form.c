@@ -291,7 +291,8 @@ int main( int argc, char **argv )
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		(char *)0 /* post_change_javascript */ );
 
 	form_output_table_heading(	form->regular_element_list,
 					0 /* form_number */ );
@@ -331,7 +332,8 @@ int main( int argc, char **argv )
 		application_name,
 		0 /* not with_back_to_top_button */,
 		0 /* form_number */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		(char *)0 /* post_change_javascript */ );
 
 	document_close();
 

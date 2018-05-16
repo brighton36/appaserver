@@ -387,6 +387,13 @@ char *document_set_onload_control_string(
 					char *document_onload_control_string,
 					char *s )
 {
+	char buffer[ 1024 ];
+
+	/* Row zero means for javascript to loop through each row. */
+	/* ------------------------------------------------------- */
+	timlib_strcpy( buffer, s, 1024 );
+	search_replace_string( buffer, "$row", "0" );
+	s = buffer;
 
 	if ( document_onload_control_string )
 	{
@@ -396,11 +403,12 @@ char *document_set_onload_control_string(
 			 "%s;%s",
 			 document_onload_control_string,
 			 s );
+
 		 document_onload_control_string = strdup( buffer );
 	}
 	else
 	{
-		document_onload_control_string = s;
+		document_onload_control_string = strdup( s );
 	}
 
 	return document_onload_control_string;

@@ -595,7 +595,10 @@ void output_prompt_edit_form(
 			application_name );
 
 	if ( post_change_javascript )
-		document->onload_control_string = post_change_javascript;
+	{
+		document->onload_control_string =
+			post_change_javascript;
+	}
 
 	document_set_javascript_module( document, "trim" );
 	document_set_javascript_module( document, "timlib" );
@@ -875,7 +878,8 @@ void output_prompt_edit_form(
 				appaserver_library_get_server_address(),
 				form->optional_related_attribute_name,
 				remember_keystrokes_onload_control_string,
-				(LIST *)0 /* form_button_list */ );
+				(LIST *)0 /* form_button_list */,
+				(char *)0 /* post_change_javascript */ );
 
 	form_output_row(&form->current_reference_number,
 			form->hidden_name_dictionary,
@@ -910,7 +914,8 @@ void output_prompt_edit_form(
 		application_name,
 		1 /* with_back_to_top_button, independent upon dynarch */,
 		0 /* form_number */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		(char *)0 /* post_change_javascript */ );
 
 	document_close();
 

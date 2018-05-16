@@ -481,27 +481,34 @@ int main( int argc, char **argv )
 	if ( folder->post_change_javascript
 	&&   *folder->post_change_javascript )
 	{
-		char onload_control_string[ 1024 ];
+#ifdef NOT_DEFINED
+		char post_change_javascript[ 1024 ];
 
-		strcpy(	onload_control_string,
+		strcpy(	post_change_javascript,
 			folder->post_change_javascript );
 		
 		/* Row zero means for javascript to loop through each row. */
 		/* ------------------------------------------------------- */
 		search_replace_string(
-				onload_control_string,
+				post_change_javascript,
 				"$row",
 				"0" );
 
 		search_replace_string(
-				onload_control_string,
+				post_change_javascript,
 				"$state",
 				"update" );
 
+		folder->post_change_javascript =
+			strdup( post_change_javascript );
+#endif
+
+		/* Sets row zero for javascript to loop through each row. */
+		/* ------------------------------------------------------ */
 		document->onload_control_string =
 			document_set_onload_control_string(
 				document->onload_control_string,
-				strdup( onload_control_string ) );
+				folder->post_change_javascript );
 	}
 
 	document_output_body(
@@ -578,7 +585,8 @@ int main( int argc, char **argv )
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		folder->post_change_javascript );
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==
@@ -751,7 +759,11 @@ int main( int argc, char **argv )
 		application_name,
 		with_dynarch_menu /* with_back_to_top_button */,
 		0 /* form_number */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		/* ------------------------------------------------------ */
+		/* Sets row zero for javascript to loop through each row. */
+		/* ------------------------------------------------------ */
+		folder->post_change_javascript );
 
 	document_close();
 

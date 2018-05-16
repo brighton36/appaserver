@@ -487,7 +487,8 @@ void post_state_one(	char *application_name,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		(char *)0 /* post_change_javascript */ );
 
 	if ( !list_length( folder_name_list ) )
 	{
@@ -740,7 +741,8 @@ void post_state_two(	char *application_name,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		(char *)0 /* post_change_javascript */ );
 
 	form_output_body(
 		&form->current_reference_number,
@@ -1127,7 +1129,8 @@ void post_state_three(	char *application_name,
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		(char *)0 /* post_change_javascript */ );
 
 	form_output_body(
 		&form->current_reference_number,
@@ -1727,7 +1730,8 @@ void post_table_state_four(
 		appaserver_library_get_server_address(),
 		form->optional_related_attribute_name,
 		(char *)0 /* remember_keystrokes_onload_control_string */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		(char *)0 /* post_change_javascript */ );
 
 	form_output_table_heading(	form->viewonly_element_list,
 					0 /* form_number */ );
@@ -1762,7 +1766,8 @@ void post_table_state_four(
 		application_name,
 		1 /* with_back_to_top_button */,
 		0 /* form_number */,
-		(LIST *)0 /* form_button_list */ );
+		(LIST *)0 /* form_button_list */,
+		(char *)0 /* post_change_javascript */ );
 
 	document_close();
 

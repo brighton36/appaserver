@@ -162,7 +162,8 @@ void form_output_heading(
 			char *server_address,
 			char *optional_related_attribute_name,
 			char *remember_keystrokes_onload_control_string,
-			LIST *form_button_list );
+			LIST *form_button_list,
+			char *post_change_javascript );
 
 int form_output_body(	int *form_current_reference_number,
 			DICTIONARY *hidden_name_dictionary,
@@ -201,7 +202,8 @@ void form_output_trailer(
 			char *application_name,
 			boolean with_back_to_top_button,
 			int form_number,
-			LIST *form_button_list );
+			LIST *form_button_list,
+			char *post_change_javascript );
 
 void form_output_row(	int *form_current_reference_number,
 			DICTIONARY *hidden_name_dictionary,

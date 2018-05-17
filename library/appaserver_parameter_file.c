@@ -125,7 +125,10 @@ FILE *appaserver_parameter_file_open(	char *filename,
 				appaserver_filename );
 	}
 
-	return fopen( filename, "r" );
+	if ( !timlib_file_exists( filename ) )
+		return (FILE *)0;
+	else
+		return fopen( filename, "r" );
 
 } /* appaserver_parameter_file_open() */
 

@@ -65,7 +65,7 @@ int main( int argc, char **argv )
 	char *shef_bad_file;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
-	char buffer[ 128 ];
+	char buffer[ 1024 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	output_starting_argv_stderr( argc, argv );

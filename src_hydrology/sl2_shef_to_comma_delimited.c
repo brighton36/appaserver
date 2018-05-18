@@ -40,7 +40,7 @@ char *load_shef_comma_piece( char *destination, char *source, int offset );
 
 int main( int argc, char **argv )
 {
-	char input_line[ 1024 ];
+	char input_line[ 4096 ];
 	char shef[ 1024 ];
 	char measurement_date[ 1024 ];
 	char year[ 1024 ];

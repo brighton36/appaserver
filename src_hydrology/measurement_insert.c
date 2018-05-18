@@ -25,7 +25,6 @@ int main( int argc, char **argv )
 	int really_yn;
 	MEASUREMENT *m;
 	int not_loaded_count = 0;
-	char *database_management_system;
 	char *database_string = {0};
 
 	if ( argc != 4 )
@@ -52,9 +51,6 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	database_management_system =
-		appaserver_parameter_file_get_dbms();
-
 	m = measurement_new_measurement( application_name );
 
 	if ( really_yn != 'y' )
@@ -69,8 +65,7 @@ int main( int argc, char **argv )
 		measurement_set_comma_delimited_record(
 			m, 
 			comma_delimited_record,
-			argv[ 0 ],
-			database_management_system );
+			argv[ 0 ] );
 
 		if ( strcmp( load_process, "cr10" ) == 0
 		&&   really_yn != 'y' )

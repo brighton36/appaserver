@@ -245,7 +245,8 @@ SHEF_UPLOAD_DATATYPE *shef_get_upload_datatype(
 LIST *load_upload_datatype_list( char *application_name )
 {
 	char input_line[ 128 ];
-	char station_string[ 128 ], datatype_string[ 128 ];
+	char station_string[ 128 ];
+	char datatype_string[ 128 ];
 	char  shef_upload_code[ 128 ];
 	char sys_string[ 1024 ];
 	SHEF_UPLOAD_DATATYPE *datatype;

@@ -982,38 +982,13 @@ void process_increment_execution_count(
 	char sys_string[ 1024 ];
 	char *table_name;
 
-	if ( !process_name || !*process_name ) return;
-
-	table_name = get_table_name( application_name, "process" );
-
 /* stub */
 /* ---- */
 database_management_system = (char *)0;
 
-/*
-	if ( strcmp( database_management_system, "oracle" ) == 0 )
-	{
-		sprintf(sys_string,
-		"echo \"update %s					 "
-		"	set execution_count =				 "
-		"		nvl(execution_count,0)+1		 "
-		"	where process = '%s';\"				|"
-		"sql.e							 ",
-		table_name,
-		process_name );
-	}
-	else
-	{
-		sprintf(sys_string,
-		"echo \"update %s					 "
-		"	set execution_count =				 "
-		"		if(execution_count,execution_count+1,1)	 "
-		"	where process = '%s';\"				|"
-		"sql.e							 ",
-		table_name,
-		process_name );
-	}
-*/
+	if ( !process_name || !*process_name ) return;
+
+	table_name = get_table_name( application_name, "process" );
 
 	sprintf(sys_string,
 		"echo \"update %s					 "

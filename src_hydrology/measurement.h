@@ -64,8 +64,7 @@ int measurement_exists(			MEASUREMENT *measurement );
 void measurement_set_comma_delimited_record( 
 					MEASUREMENT *m, 
 					char *comma_delimited_record,
-					char *argv_0,
-					char *database_management_system );
+					char *argv_0 );
 
 void measurement_insert( 		MEASUREMENT *m,
 					int really_yn,
@@ -113,8 +112,7 @@ void measurement_set_argv_0(		MEASUREMENT *m,
 					char *argv_0 );
 
 int measurement_fetch(			MEASUREMENT *m,
-					FILE *input_pipe,
-					char *database_management_system );
+					FILE *input_pipe );
 
 FILE *measurement_open_delete_pipe(	char *application_name );
 

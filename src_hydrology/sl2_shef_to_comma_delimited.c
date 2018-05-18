@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "timlib.h"
 #include "shef_datatype_code.h"
 #include "appaserver_library.h"
@@ -40,16 +41,16 @@ char *load_shef_comma_piece( char *destination, char *source, int offset );
 int main( int argc, char **argv )
 {
 	char input_line[ 1024 ];
-	char shef[ 128 ];
-	char measurement_date[ 128 ];
-	char year[ 16 ];
-	char month[ 16 ];
-	char day[ 16 ];
-	char measurement_time[ 16 ];
-	char hour[ 16 ];
-	char minute[ 16 ];
-	char measurement_value_string[ 16 ];
-	char status[ 16 ];
+	char shef[ 1024 ];
+	char measurement_date[ 1024 ];
+	char year[ 1024 ];
+	char month[ 1024 ];
+	char day[ 1024 ];
+	char measurement_time[ 1024 ];
+	char hour[ 1024 ];
+	char minute[ 1024 ];
+	char measurement_value_string[ 1024 ];
+	char status[ 1024 ];
 	SHEF_DATATYPE_CODE *shef_datatype_code;
 	char *datatype_name;
 	char *station_name;

@@ -56,7 +56,6 @@ int main( int argc, char **argv )
 	char shef_code[ 128 ];
 	int expected_count_per_day;
 	char *data_interval_string;
-	char *database_management_system;
 	char *database_string = {0};
 
 	if ( argc != 3 )
@@ -90,9 +89,6 @@ int main( int argc, char **argv )
 	shef_datatype_code = 
 		new_shef_datatype_code( application );
 
-	database_management_system =
-		appaserver_parameter_file_get_dbms();
-
 	while( get_line( buffer, stdin ) )
 	{
 
@@ -101,13 +97,6 @@ int main( int argc, char **argv )
 		piece( measurement_date, '|', buffer, MEASUREMENT_DATE_PIECE );
 		piece( measurement_time, '|', buffer, MEASUREMENT_TIME_PIECE );
 		piece( measurement_value, '|', buffer, MEASUREMENT_VALUE_PIECE);
-
-		if ( strcmp( database_management_system, "oracle" ) == 0 )
-		{
-			strcpy( measurement_date,
-				timlib_oracle_date2mysql_date_string(
-					measurement_date ) );
-		}
 
 		piece( year, '-', measurement_date, 0 );
 		piece( month, '-', measurement_date, 1 );

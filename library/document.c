@@ -387,7 +387,7 @@ char *document_set_onload_control_string(
 					char *document_onload_control_string,
 					char *s )
 {
-	char buffer[ 1024 ];
+	char buffer[ 65536 ];
 
 	/* Row zero means for javascript to loop through each row. */
 	/* ------------------------------------------------------- */

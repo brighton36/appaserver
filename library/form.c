@@ -1327,7 +1327,7 @@ char *form_get_remember_keystrokes_onload_control_string(
 char *form_set_post_change_javascript_row_zero(
 					char *post_change_javascript )
 {
-	char post_change_javascript_row_zero[ 256 ];
+	char post_change_javascript_row_zero[ 65536 ];
 
 	if ( !post_change_javascript ) return "";
 

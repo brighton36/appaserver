@@ -4,5 +4,5 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_appaserver
-	make output_edit_table_form
+	make output_prompt_process_form
 fi

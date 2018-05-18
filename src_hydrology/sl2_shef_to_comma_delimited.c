@@ -83,6 +83,7 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
+
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
@@ -224,7 +225,7 @@ int main( int argc, char **argv )
 						input_line, 
 						STATUS_COMMA_PIECE ) )
 		{
-			if ( toupper( *status ) != 'G' )
+			if ( !*status || toupper( *status ) != 'G' )
 			{
 				fprintf( stderr,
 				 	"Warning, inserting bad: %s\n",

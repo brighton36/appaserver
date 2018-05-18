@@ -257,9 +257,7 @@ int main( int argc, char **argv )
 	}
 
 	while( measurement_fetch(	measurement,
-					measurement->input_pipe,
-					appaserver_parameter_file->
-						database_management_system ) )
+					measurement->input_pipe ) )
 	{
 		counter++;
 

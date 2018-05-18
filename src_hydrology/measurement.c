@@ -59,8 +59,7 @@ void measurement_open_input_process( 	MEASUREMENT *m,
 void measurement_set_comma_delimited_record( 
 					MEASUREMENT *m,
 					char *comma_delimited_record,
-					char *argv_0,
-					char *database_management_system )
+					char *argv_0 )
 {
 	char station[ 128 ];
 	char datatype[ 128 ];
@@ -95,9 +94,6 @@ void measurement_set_comma_delimited_record(
 	piece( station, ',', comma_delimited_record, STATION_PIECE );
 	piece( datatype, ',', comma_delimited_record, DATATYPE_PIECE );
 	piece( date, ',', comma_delimited_record, DATE_PIECE );
-
-	if ( strcmp( database_management_system, "oracle" ) == 0 )
-		strcpy( date, timlib_yyyymmdd_to_ora_date( date ) );
 
 	piece( time, ',', comma_delimited_record, TIME_PIECE );
 
@@ -556,8 +552,7 @@ FILE *measurement_open_input_pipe(	char *application_name,
 } /* measurement_open_input_pipe() */
 
 int measurement_fetch(	MEASUREMENT *measurement,
-			FILE *input_pipe,
-			char *database_management_system )
+			FILE *input_pipe )
 {
 	char buffer[ 1024 ];
 
@@ -566,8 +561,7 @@ int measurement_fetch(	MEASUREMENT *measurement,
 	measurement_set_comma_delimited_record(
 			measurement,
 			buffer,
-			measurement->argv_0,
-			database_management_system );
+			measurement->argv_0 );
 	return 1;
 } /* measurement_fetch() */
 

@@ -389,9 +389,7 @@ char *document_set_onload_control_string(
 {
 	char buffer[ 65536 ];
 
-	/* Row zero means for javascript to loop through each row. */
-	/* ------------------------------------------------------- */
-	s = form_set_post_change_javascript_row_zero( s );
+	if ( !s ) return document_onload_control_string;
 
 	if ( document_onload_control_string )
 	{

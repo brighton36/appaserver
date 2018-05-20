@@ -567,27 +567,21 @@ int main( int argc, char **argv )
 	if ( folder->post_change_javascript
 	&&   *folder->post_change_javascript )
 	{
-		char onload_control_process[ 1024 ];
+		char post_change_javascript[ 1024 ];
 
-		strcpy(	onload_control_process,
+		strcpy(	post_change_javascript,
 			folder->post_change_javascript );
 
-		/* Row zero means for javascript to loop through each row. */
-		/* ------------------------------------------------------- */
 		search_replace_string(
-				onload_control_process,
-				"$row",
-				"0" );
-
-		search_replace_string(
-				onload_control_process,
+				post_change_javascript,
 				"$state",
 				"insert" );
 
 		document->onload_control_string =
 			document_set_onload_control_string(
 				document->onload_control_string,
-				strdup( onload_control_process ) );
+				form_set_post_change_javascript_row_zero(
+					post_change_javascript ) );
 	}
 
 	/* If any new button (along the left column) is pressed. */

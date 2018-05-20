@@ -481,34 +481,21 @@ int main( int argc, char **argv )
 	if ( folder->post_change_javascript
 	&&   *folder->post_change_javascript )
 	{
-#ifdef NOT_DEFINED
 		char post_change_javascript[ 1024 ];
 
 		strcpy(	post_change_javascript,
 			folder->post_change_javascript );
 		
-		/* Row zero means for javascript to loop through each row. */
-		/* ------------------------------------------------------- */
 		search_replace_string(
-				post_change_javascript,
-				"$row",
-				"0" );
+			post_change_javascript,
+			"$state",
+			"update" );
 
-		search_replace_string(
-				post_change_javascript,
-				"$state",
-				"update" );
-
-		folder->post_change_javascript =
-			strdup( post_change_javascript );
-#endif
-
-		/* Sets row zero for javascript to loop through each row. */
-		/* ------------------------------------------------------ */
 		document->onload_control_string =
 			document_set_onload_control_string(
 				document->onload_control_string,
-				folder->post_change_javascript );
+				form_set_post_change_javascript_row_zero(
+					post_change_javascript ) );
 	}
 
 	document_output_body(

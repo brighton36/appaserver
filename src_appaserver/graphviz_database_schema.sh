@@ -25,6 +25,11 @@ fi
 
 appaserver_yn="$1"
 
+if [ "$appaserver_yn" = "" -o "$appaserver_yn" = "appaserver_yn" ]
+then
+	appaserver_yn="n"
+fi
+
 function select_attributes ()
 {
 	folder=$1

@@ -11,10 +11,7 @@ fi
 application=$(echo $1 | piece.e ':' 0)
 datatype=$(echo $1 | piece.e ':' 1 2>/dev/null)
 
-if [ "$database" != "" ]
-then
-	export DATABASE=$database
-fi
+export DATABASE=$application
 
 begin_date=$2
 end_date=$3
@@ -29,17 +26,20 @@ fi
 
 measurement=`get_table_name $application measurement`
 station=`get_table_name $application station`
-output_file="${APPASERVER_HOME}/hydrology/biscayne_data_dump_$$.csv"
-prompt_file="/hydrology/biscayne_data_dump_$$.csv"
+
+document_root=$(get_document_root.e)
+output_directory="$document_root/appaserver/$application/data"
+output_file="$output_directory/biscayne_data_dump_$$.csv"
+prompt_file="/appaserver/$application/data/biscayne_data_dump_$$.csv"
 
 select="$measurement.station,measurement_date,measurement_time,datatype,measurement_value"
 
 where_agency="$station.agency = 'NPS_BISC'"
 station_list=`echo "select station from $station where $where_agency;" | sql | joinlines.e ',' | single_quotes_around.e`
 
-where="station in (${station_list}) and datatype in ('conductivity','salinity','surface_temperature','depth') and measurement_date between '$begin_date' and '$end_date'"
+where="station in (${station_list}) and datatype in ('conductivity','salinity','surface_temperature','bottom_temperature', 'depth') and measurement_date between '$begin_date' and '$end_date'"
 
-datatype_comma_list="conductivity,salinity,surface_temperature,depth"
+datatype_comma_list="conductivity,salinity,surface_temperature,bottom_temperature,depth"
 heading="station,measurement_date,measurement_time,$datatype_comma_list"
 
 (

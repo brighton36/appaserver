@@ -34,9 +34,9 @@ function select_attributes ()
 {
 	folder=$1
 
-	primary_select="concat( '<tr><td align=left>* ', attribute.attribute, '</td><td align=left>', attribute_datatype, ' ', width, ',', ifnull(float_decimal_places,0), '</td></tr>' )"
+	primary_select="concat( '<tr><td>*</td><td align=left>', attribute.attribute, '</td><td align=left>', attribute_datatype, ' ', width, ',', ifnull(float_decimal_places,0), '</td></tr>' )"
 
-	attribute_select="concat( '<tr><td align=left>  ', attribute.attribute, '</td><td align=left>', attribute_datatype, ' ', width, ',', ifnull(float_decimal_places,0), '</td></tr>' )"
+	attribute_select="concat( '<tr><td></td><td align=left>', attribute.attribute, '</td><td align=left>', attribute_datatype, ' ', width, ',', ifnull(float_decimal_places,0), '</td></tr>' )"
 
 	from="folder_attribute,attribute"
 
@@ -67,8 +67,32 @@ function select_attributes ()
 	sed 's/align=left/align="left"/g'		|
 	sed "s/,0//"					|
 	cat
+
+	echo "<hr/>"
 }
 # select_attributes()
+
+function select_folder_count ()
+{
+	application=$1
+	folder=$2
+
+	if [ "$folder" = "application" ]
+	then
+		table="${application}_${folder}"
+	else
+		table="$folder"
+	fi
+
+	from="$table"
+
+	select="count(*)"
+	results=`echo "select $select from $from;" | sql.e`
+
+	/bin/echo -n '<tr><td colspan="3">'
+	echo "Rows: `commas_in_long.e $results`</td></tr>"
+}
+# select_folder_count()
 
 function select_folder_flags ()
 {
@@ -95,35 +119,35 @@ function select_folder_flags ()
 
 	if [ "$lookup_before_drop_down_yn" = "y" ]
 	then
-		echo '<tr><td colspan="2">lookup_before_drop_down</td></tr>'
+		echo '<tr><td colspan="3">lookup_before_drop_down</td></tr>'
 	fi
 
 	if [ "$no_initial_capital_yn" = "y" ]
 	then
-		echo '<tr><td colspan="2">no_initial_capital</td></tr>'
+		echo '<tr><td colspan="3">no_initial_capital</td></tr>'
 	fi
 
 	if [ "$populate_drop_down_process" != "" ]
 	then
-		/bin/echo -n '<tr><td colspan="2">'
+		/bin/echo -n '<tr><td colspan="3">'
 		echo "${populate_drop_down_process}</td></tr>"
 	fi
 
 	if [ "$post_change_process" != "" ]
 	then
-		/bin/echo -n '<tr><td colspan="2">'
+		/bin/echo -n '<tr><td colspan="3">'
 		echo "${post_change_process}</td></tr>"
 	fi
 
 	if [ "$post_change_javascript" != "" ]
 	then
-		/bin/echo -n '<tr><td colspan="2">'
+		/bin/echo -n '<tr><td colspan="3">'
 		echo "${post_change_javascript}</td></tr>"
 	fi
 
 	if [ "$html_help_file_anchor" != "" ]
 	then
-		/bin/echo -n '<tr><td colspan="2">'
+		/bin/echo -n '<tr><td colspan="3">'
 		echo "${html_help_file_anchor}</td></tr>"
 	fi
 
@@ -134,137 +158,162 @@ function select_edges ()
 {
 	subschema="$1"
 
-join="folder.folder = relation.folder"
-subschema_where="folder.subschema = '$subschema'"
-related_folder_select="relation.related_folder"
-from="folder,relation"
-where="$subschema_where and $join"
-
-select="	relation.folder,
-		related_folder,
-		related_attribute,
-		pair_1tom_order,
-		relation_type_isa_yn,
-		prompt_mto1_recursive_yn,
-		copy_common_attributes_yn,
-		automatic_preselection_yn,
-		drop_down_multi_select_yn,
-		join_1tom_each_row_yn"
-
-echo "select $select from $from where $where;"		|
-sql.e							|
-while read record
-do
-	folder=`echo $record | piece.e '^' 0`
-	related_folder=`echo $record | piece.e '^' 1`
-	related_attribute=`echo $record | piece.e '^' 2`
-	pair_1tom_order=`echo $record | piece.e '^' 3`
-	relation_type_isa_yn=`echo $record | piece.e '^' 4`
-	prompt_mto1_recursive_yn=`echo $record | piece.e '^' 5`
-	copy_common_attributes_yn=`echo $record | piece.e '^' 6`
-	automatic_preselection_yn=`echo $record | piece.e '^' 7`
-	drop_down_multi_select_yn=`echo $record | piece.e '^' 8`
-	join_1tom_each_row_yn=`echo $record | piece.e '^' 9`
-
-	/bin/echo -n "$folder -> $related_folder [label="
-	/bin/echo -n '"'
-
-	if [ "$related_attribute" != "null" ]
+	if [ "$subschema" = "null" ]
 	then
-		/bin/echo -n " $related_attribute"
+		subschema_where="folder.subschema is null"
+	else
+		subschema_where="folder.subschema = '$subschema'"
 	fi
 
-	if [ "$pair_1tom_order" != "" -a "$pair_1tom_order" != "0" ]
-	then
-		/bin/echo -n " pair-${pair_1tom_order}"
-	fi
+	join="folder.folder = relation.folder"
+	related_folder_select="relation.related_folder"
+	from="folder,relation"
+	where="$subschema_where and $join"
 
-	if [ "$relation_type_isa_yn" = "y" ]
-	then
-		/bin/echo -n " isa"
-	fi
+	select="	relation.folder,
+			related_folder,
+			related_attribute,
+			pair_1tom_order,
+			relation_type_isa_yn,
+			prompt_mto1_recursive_yn,
+			copy_common_attributes_yn,
+			automatic_preselection_yn,
+			drop_down_multi_select_yn,
+			join_1tom_each_row_yn"
 
-	if [ "$prompt_mto1_recursive_yn" = "y" ]
-	then
-		/bin/echo -n " recursive"
-	fi
-
-	if [ "$copy_common_attributes_yn" = "y" ]
-	then
-		/bin/echo -n " copy"
-	fi
-
-	if [ "$automatic_preselection_yn" = "y" ]
-	then
-		/bin/echo -n " automatic"
-	fi
-
-	if [ "$drop_down_multi_select_yn" = "y" ]
-	then
-		/bin/echo -n " multi"
-	fi
-
-	if [ "$join_1tom_each_row_yn" = "y" ]
-	then
-		/bin/echo -n " join"
-	fi
-
-	/bin/echo '"];'
-done
+	echo "select $select from $from where $where;"			|
+	sql.e								|
+	while read record
+	do
+		folder=`echo $record | piece.e '^' 0`
+		related_folder=`echo $record | piece.e '^' 1`
+		related_attribute=`echo $record | piece.e '^' 2`
+		pair_1tom_order=`echo $record | piece.e '^' 3`
+		relation_type_isa_yn=`echo $record | piece.e '^' 4`
+		prompt_mto1_recursive_yn=`echo $record | piece.e '^' 5`
+		copy_common_attributes_yn=`echo $record | piece.e '^' 6`
+		automatic_preselection_yn=`echo $record | piece.e '^' 7`
+		drop_down_multi_select_yn=`echo $record | piece.e '^' 8`
+		join_1tom_each_row_yn=`echo $record | piece.e '^' 9`
+	
+		/bin/echo -n "$folder -> $related_folder [label="
+		/bin/echo -n '"'
+	
+		if [ "$related_attribute" != "null" ]
+		then
+			/bin/echo -n " $related_attribute"
+		fi
+	
+		if [ "$pair_1tom_order" != "" -a "$pair_1tom_order" != "0" ]
+		then
+			/bin/echo -n " pair-${pair_1tom_order}"
+		fi
+	
+		if [ "$relation_type_isa_yn" = "y" ]
+		then
+			/bin/echo -n " isa"
+		fi
+	
+		if [ "$prompt_mto1_recursive_yn" = "y" ]
+		then
+			/bin/echo -n " recursive"
+		fi
+	
+		if [ "$copy_common_attributes_yn" = "y" ]
+		then
+			/bin/echo -n " copy"
+		fi
+	
+		if [ "$automatic_preselection_yn" = "y" ]
+		then
+			/bin/echo -n " automatic"
+		fi
+	
+		if [ "$drop_down_multi_select_yn" = "y" ]
+		then
+			/bin/echo -n " multi"
+		fi
+	
+		if [ "$join_1tom_each_row_yn" = "y" ]
+		then
+			/bin/echo -n " join"
+		fi
+	
+		/bin/echo '"];'
+	done
 
 }
 # select_edges()
 
 function select_nodes ()
 {
-	subschema=$1
+	application=$1
+	subschema=$2
 
-join="folder.folder = relation.folder"
-subschema_where="folder.subschema = '$subschema'"
-folder_select="folder.folder"
-related_folder_select="relation.related_folder"
-from="folder,relation"
-where="$subschema_where and $join"
+	if [ "$subschema" = "null" ]
+	then
+		subschema_where="folder.subschema is null"
+	else
+		subschema_where="folder.subschema = '$subschema'"
+	fi
 
-(
-echo "select $folder_select from $from where $where;"			|
-sql.e									;
-echo "select $related_folder_select from $from where $where;"		|
-sql.e
-)									|
-sort -u									|
-while read folder
-do
-	echo "$folder [label=<"
-	echo '<table border="0" cellborder="0" cellspacing="0">'
+	join="folder.folder = relation.folder"
+	folder_select="folder.folder"
+	related_folder_select="relation.related_folder"
+	from="folder,relation"
+	where="$subschema_where and $join"
 
-	/bin/echo -n '<tr><td colspan="2"><b>'
-	/bin/echo -n "$folder"
-	/bin/echo "</b></td></tr>"
-
-	select_attributes "$folder"
-	select_folder_flags "$folder"
-
-	echo "</table>>];"
-	echo ""
-done
+	(
+	echo "select $folder_select from $from where $where;"		|
+	sql.e								;
+	echo "select $related_folder_select from $from where $where;"	|
+	sql.e
+	)								|
+	sort -u								|
+	while read folder
+	do
+		echo "$folder [label=<"
+		echo '<table border="0" cellborder="0" cellspacing="0">'
+	
+		/bin/echo -n '<tr><td colspan="3">'
+		/bin/echo -n "$folder"
+		/bin/echo "</td></tr><hr/>"
+	
+		select_attributes "$folder"
+		select_folder_flags "$folder"
+		select_folder_count "$application" "$folder"
+	
+		echo "</table>>];"
+		echo ""
+	done
 
 }
 # select_nodes()
 
 function select_subschema ()
 {
-	subschema=$1
+	application=$1
+	subschema=$2
+
+	formatted_application=`echo $application | format_initial_capital.e`
+
+	if [ "$subschema" = "null" ]
+	then
+		subschema_title="$formatted_application"
+	else
+		formatted_subschema=`echo $subschema | format_initial_capital.e`
+		subschema_title="$formatted_application $formatted_subschema Subschema"
+	fi
 
 echo "digraph $subschema {"
 echo "node [shape=box];"
 echo "rankdir=BT"
 echo 'labelloc="t";'
 /bin/echo -n 'label="'
-/bin/echo -n "$subschema"
+/bin/echo -n "$subschema_title"
 /bin/echo '";'
 
-select_nodes "$subschema"
+select_nodes "$application" "$subschema"
 select_edges "$subschema"
 
 echo "}"
@@ -280,7 +329,9 @@ echo "select subschema from subschemas where $where;"	|
 sql.e							|
 while read subschema
 do
-	select_subschema "$subschema"
+	select_subschema "$application" "$subschema"
 done
+
+select_subschema "$application" "null"
 
 exit 0

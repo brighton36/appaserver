@@ -618,32 +618,23 @@ void output_export_process_shell_script_initialize(
 	}
 
 	fprintf( export_process_file,
-		 "#!/bin/sh\n" );
-	fprintf( export_process_file,
-		 "if [ \"$#\" -ne 1 ]\n" );
-	fprintf( export_process_file,
-		 "then\n" );
-	fprintf( export_process_file,
-		 "\techo \"Usage: $0 application\" 1>&2\n" );
-	fprintf( export_process_file,
-		 "\texit 1\n" );
-	fprintf( export_process_file,
-		 "fi\n" );
+	"#!/bin/sh\n" );
 
-	fprintf( export_process_file, "application=$1\n\n" );
-
-	if ( !process_exists_appaserver_process(	application_name,
-							process_name_list ) )
-	{
-		fprintf( export_process_file,
-			"if [ \"$application\" != %s ]\n", application_name );
-		fprintf( export_process_file,
-			"then\n" );
-		fprintf( export_process_file,
-			"\texit 0\n" );
-		fprintf( export_process_file,
-			"fi\n\n" );
-	}
+	fprintf( export_process_file,
+"if [ \"$APPASERVER_DATABASE\" != \"\" ]\n"
+"then\n"
+"	application=$APPASERVER_DATABASE\n"
+"elif [ \"$DATABASE\" != \"\" ]\n"
+"then\n"
+"	application=$DATABASE\n"
+"fi\n"
+"\n"
+"if [ \"$application\" = \"\" ]\n"
+"then\n"
+"	echo \"Error in `basename.e $0 n`: you must first:\" 1>&2\n"
+"	echo \"$ . set_database\" 1>&2\n"
+"	exit 1\n"
+"fi\n" );
 
 	list_rewind( create_clone_filename->folder_name_list );
 	do {

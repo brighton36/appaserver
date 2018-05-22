@@ -55,6 +55,7 @@ graphviz_prompt_file=${prompt_directory}/${graphviz_file}
 postscript_prompt_file=${prompt_directory}/${postscript_file}
 
 echo "<a href=$postscript_prompt_file>Press to transmit postscript file.</a>"
+echo "<br>"
 echo "<a href=$graphviz_prompt_file>Press to transmit graphviz file.</a>"
 echo "</body></html>"
 

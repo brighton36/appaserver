@@ -164,7 +164,7 @@ do
 	/bin/echo -n "$folder -> $related_folder [label="
 	/bin/echo -n '"'
 
-	if [ "$related_attribute" != "" ]
+	if [ "$related_attribute" != "null" ]
 	then
 		/bin/echo -n " $related_attribute"
 	fi

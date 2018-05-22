@@ -512,10 +512,6 @@ column.o: column.c column.h
 	${CC} ${CFLAGS} -c column.c		\
 		${APPASERVER_ERROR_FILE_FLAG}
 
-jamlib.o: jamlib.c
-	${CC} ${CFLAGS} -c jamlib.c		\
-		${APPASERVER_ERROR_FILE_FLAG}
-
 zip_code_dist_dvr.e: zip_code_dist_dvr.c		\
 	zip_code_distance.o bsrch.o timlib.o rnd_io.o	\
 	piece.o hashtbl.o

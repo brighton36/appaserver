@@ -306,7 +306,9 @@ double ceiling_double(			double d );
 double floor_double(			double d );
 void make_single_quotes_double_single_quotes(
 					char *d );
+
 boolean timlib_file_populated(		char *filename );
+
 char *timlib_ora_date_to_yyyy_mm_dd(	char *s );
 char *timlib_oracle_date2mysql_date_string(
 					char *s );

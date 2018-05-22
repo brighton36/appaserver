@@ -42,13 +42,6 @@ end_date=`echo $begin_colon_end_date | piece.e ':' 1`
 aggregate_statistic=`echo $aggregate_statistic_accumulate_yn | piece.e ':' 0`
 accumulate_yn=`echo $aggregate_statistic_accumulate_yn | piece.e ':' 1`
 
-if [ `database_management_system.e` = "oracle" ]
-then
-	convert_date_process="oracle_date_to_mysql.e $date_piece_offset ^"
-else
-	convert_date_process="cat"
-fi
-
 if [ "$#" -eq 9 -a "$datatype" != "datatype" ]
 then
 	isolate_datatype_process="grep ^${datatype}$"
@@ -159,7 +152,6 @@ do
 		  and $validation_where				\
 		$order_by_clause;"				|
 	sql_quick.e '^'						|
-	$convert_date_process					|
 	$units_converted_process				|
 	$aggregate_process					|
 	$before_accumulate_process				|

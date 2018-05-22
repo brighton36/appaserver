@@ -35,11 +35,7 @@
 #define TDP_FILENAME_STEM		"load_cr10_bad_tdp"
 #define GREP_FILENAME_STEM		"load_cr10_bad_grep"
 #define DATE_FILENAME_STEM		"load_cr10_bad_date"
-/*
-#define TDP_BAD_FILE_TEMPLATE		"/tmp/load_cr10_bad_tdp_%d.dat"
-#define GREP_IGNORE_FILE_TEMPLATE	"/tmp/load_cr10_grep_ignore_%d.dat"
-#define DATE_IGNORE_FILE_TEMPLATE	"/tmp/load_cr10_date_ignore_%d.dat"
-*/
+#define MEASUREMENT_ERROR_STEM		"load_cr10_measurement_error"
 /* --------------------------------------------------- */
 /* Note: TDP ==> Transmission Datatype Position table  */
 /*		 Now known as CR10_PARSE or just PARSE */
@@ -67,10 +63,10 @@ void load_cr10(	LIST *file_list,
 		char *tdp_bad_file,
 		char *grep_ignore_file,
 		char *date_ignore_file,
+		char *measurement_error_file,
 		char *station,
 		char *date_offset_comma_list,
 		int with_file_trim_yn,
-		char *email_address,
 		int really_yn,
 		char *application_name );
 
@@ -80,7 +76,6 @@ int main( int argc, char **argv )
 	char *station;
 	char *source_directory;
 	char *date_offset_comma_list;
-	char *email_address;
 	char *cr10_file_specification;
 	char with_file_trim_yn;
 	char really_yn;
@@ -88,9 +83,9 @@ int main( int argc, char **argv )
 	char *tdp_bad_file;
 	char *grep_ignore_file;
 	char *date_ignore_file;
+	char *measurement_error_file;
 	LIST *file_list;
 	char sys_string[ 4096 ];
-	pid_t pid;
 	char execution_directory[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
@@ -99,7 +94,7 @@ int main( int argc, char **argv )
 	if ( argc != 9 )
 	{
 		fprintf(stderr,
-"Usage: %s application source_directory 'file_specification' station date_offset_comma_list with_file_trim_yn email_address really_yn\n",
+"Usage: %s application source_directory 'file_specification' station date_offset_comma_list with_file_trim_yn ignored really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -110,7 +105,7 @@ int main( int argc, char **argv )
 	station = argv[ 4 ];
 	date_offset_comma_list = argv[ 5 ];
 	with_file_trim_yn = *argv[ 6 ];
-	email_address = argv[ 7 ];
+	/* email_address = argv[ 7 ]; */
 	really_yn = *argv[ 8 ];
 
 	if ( timlib_parse_database_string(	&database_string,
@@ -160,12 +155,6 @@ int main( int argc, char **argv )
 	{
 		source_directory = DEFAULT_SOURCE_DIRECTORY;
 	}
-
-/*
-	sprintf( tdp_bad_file, TDP_BAD_FILE_TEMPLATE, getpid() );
-	sprintf( grep_ignore_file, GREP_IGNORE_FILE_TEMPLATE, getpid() );
-	sprintf( date_ignore_file, DATE_IGNORE_FILE_TEMPLATE, getpid() );
-*/
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -226,6 +215,21 @@ int main( int argc, char **argv )
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
+	appaserver_link_file->filename_stem = MEASUREMENT_ERROR_STEM;
+
+	measurement_error_file =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
 	if ( strcmp( cr10_file_specification, "filename" ) == 0 )
 	{
 		if ( *station && strcmp( station, "station" ) != 0 )
@@ -265,71 +269,29 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
-	if ( *email_address && strcmp( email_address, "email_address" ) != 0 )
-	{
-		/* Send to background */
-		/* ------------------ */
-		if ( !( pid = fork() ) )
-		{
-			load_cr10(
-				file_list,
-				tdp_bad_file,
-				grep_ignore_file,
-				date_ignore_file,
-				station,
-				date_offset_comma_list,
-				with_file_trim_yn,
-				email_address,
-				really_yn,
-				application_name );
-			exit( 0 );
-		}
-	}
-	else
-	{
-		load_cr10(	file_list, 
-				tdp_bad_file,
-				grep_ignore_file,
-				date_ignore_file,
-				station,
-				date_offset_comma_list,
-				with_file_trim_yn,
-				email_address,
-				really_yn,
-				application_name );
-	}
+	load_cr10(	file_list, 
+			tdp_bad_file,
+			grep_ignore_file,
+			date_ignore_file,
+			measurement_error_file,
+			station,
+			date_offset_comma_list,
+			with_file_trim_yn,
+			really_yn,
+			application_name );
 
-	if ( *email_address && strcmp( email_address, "email_address" ) != 0 )
+	if ( really_yn == 'y' )
 	{
-		if ( really_yn == 'y' )
-		{
-			printf( 
-		"<p>In progress. Check email for error messages.\n" );
-			process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
-		}
-		else
-		{
-			printf( 
-		"<p>Process NOT executed. Check email for output.\n" );
-		}
+		printf( "<p>Process complete.\n" );
+
+		process_increment_execution_count(
+			application_name,
+			PROCESS_NAME,
+			(char *)0 /* database_management_system */ );
 	}
 	else
 	{
-		if ( really_yn == 'y' )
-		{
-			printf( "<p>Process complete.\n" );
-			process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
-		}
-		else
-		{
-			printf( "<p>Process NOT executed.\n" );
-		}
+		printf( "<p>Process NOT executed.\n" );
 	}
 
 	document_close();
@@ -340,16 +302,15 @@ void load_cr10(	LIST *file_list,
 		char *tdp_bad_file,
 		char *grep_ignore_file,
 		char *date_ignore_file,
+		char *measurement_error_file,
 		char *station,
 		char *date_offset_comma_list,
 		int with_file_trim_yn,
-		char *email_address,
 		int really_yn,
 		char *application_name )
 {
 	char *filename_to_process;
 	char *station_to_process;
-	char mail_process[ 512 ];
 	char trim_process[ 512 ];
 	char archive_process[ 512 ];
 	char grep_process[ 512 ];
@@ -406,31 +367,7 @@ void load_cr10(	LIST *file_list,
 			station_to_process = strdup( station_from_filename );
 		}
 
-		if ( *email_address
-		&&   strcmp( email_address, "email_address" ) != 0 )
-		{
-			if ( really_yn == 'y' )
-			{
-				sprintf( mail_process, 
-"mailx -s \"%s: CR10 upload errors\" %s",
-		 		basename_get_base_name(
-					filename_to_process, 0 ), 
-				email_address );
-			}
-			else
-			{
-				sprintf( mail_process, 
-"mailx -s \"%s: CR10 upload output\" %s",
-		 		basename_get_base_name(
-					filename_to_process, 0 ), 
-				email_address );
-			}
-		}
-		else
-		{
-			strcpy( mail_process, "html_paragraph_wrapper" );
-			printf( "<p>Processing: %s\n", filename_to_process );
-		}
+		printf( "<p>Processing: %s\n", filename_to_process );
 
 		if ( really_yn == 'y' && with_file_trim_yn == 'y' )
 		{
@@ -488,10 +425,8 @@ void load_cr10(	LIST *file_list,
 	"apply_position_translation_to_record %s %s \',\' 2>>%s	     |"
 	"validate_midnight 2 3 ','				     |"
 	"%s							     |"
-	"%s							     |"
-	"measurement_insert %s cr10 %c 2>&1	      		     |"
+	"measurement_insert %s cr10 %c 2>>%s	      		     ;"
 	"%s 					      		     ;"
-	"%s							     ;"
 	"%s							     ;"
 	"%s							     ;"
 	"%s							      ",
@@ -508,10 +443,9 @@ void load_cr10(	LIST *file_list,
 			 station_to_process,
 			 tdp_bad_file,
 			 replace_cr10_error_with_null_process,
-			 "cat",
 			 application_name,
 			 really_yn,
-			 mail_process,
+			 measurement_error_file,
 			 archive_process,
 			 trim_process,
 			 summary_process,
@@ -523,5 +457,18 @@ void load_cr10(	LIST *file_list,
 		system( sys_string );
 
 	} while( list_next( file_list ) );
+
+	if ( timlib_file_populated( measurement_error_file ) )
+	{
+		char sys_string[ 1024 ];
+
+		sprintf( sys_string,
+			 "cat %s			|"
+			 "queue_top_bottom_lines.e 50	|"
+			 "html_paragraph_wrapper.e	 ",
+			 measurement_error_file );
+		system( sys_string );
+	}
+
 } /* load_cr10() */
 

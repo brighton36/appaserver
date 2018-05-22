@@ -12,6 +12,7 @@
 #include "appaserver_library.h"
 #include "timlib.h"
 #include "environ.h"
+#include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 
 /* Prototypes */
@@ -34,7 +35,14 @@ int main( int argc, char **argv )
 			argv[ 0 ] );
 		exit( 1 );
 	}
+
 	application_name = argv[ 1 ];
+
+	appaserver_error_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	load_process = argv[ 2 ];
 	really_yn = *argv[ 3 ];
 
@@ -72,13 +80,11 @@ int main( int argc, char **argv )
 		{
 			not_loaded_count++;
 		}
-		else
-		{
-			measurement_insert(
-				m,
-				really_yn,
-				m->html_table_pipe );
-		}
+
+		measurement_insert(
+			m,
+			really_yn,
+			m->html_table_pipe );
 	}
 	measurement_close_insert_pipe( m->insert_pipe );
 	measurement_close_html_table_pipe( m->html_table_pipe );

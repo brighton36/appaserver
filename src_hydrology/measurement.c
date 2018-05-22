@@ -408,6 +408,7 @@ FILE *measurement_open_html_table_pipe(	void )
 	justify_string = "left,left,left,left,right";
 
 	sprintf( sys_string,
+		 "queue_top_bottom_lines.e 50 |"
 		 "html_table.e '' '%s' ',' '%s'",
 		 heading_comma_string,
 		 justify_string );

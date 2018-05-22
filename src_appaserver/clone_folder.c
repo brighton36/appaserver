@@ -403,29 +403,10 @@ char *get_sys_string(	char *destination_table_name,
 			attribute_list );
 
 
-	if ( strcmp( destination_database_management_system, "oracle" ) == 0 )
-	{
-		strcpy(	replace_special_characters_process,
-			"html_encode_quote_and_ampersand.e" );
-	}
-	else
-	{
-		strcpy(	replace_special_characters_process,
-			"sed \"s/'/''/g\"" );
-	}
+	strcpy(	replace_special_characters_process,
+		"sed \"s/'/''/g\"" );
 
-	if ( strcmp( destination_database_management_system, "oracle" ) == 0
-	&&   date_attribute_position_list
-	&&   list_length( date_attribute_position_list ) )
-	{
-		sprintf( replace_date_process,
-			 "piece_replace_date.e ^ %s",
-			 list_display( date_attribute_position_list ) );
-	}
-	else
-	{
-		strcpy( replace_date_process, "cat" );
-	}
+	strcpy( replace_date_process, "cat" );
 
 	attribute_name_list =
 		attribute_get_attribute_name_list(

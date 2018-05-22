@@ -122,15 +122,7 @@ boolean output_logfile_list(	LIST *logfile_list,
 	char date_convert_process[ 128 ];
 	char *logfile_name;
 
-	if ( strcmp( destination_dbms, "oracle" ) == 0 )
-	{
-		strcpy(	date_convert_process,
-			"date_convert_anywhere.e mysql oracle y" );
-	}
-	else
-	{
-		strcpy( date_convert_process, "cat" );
-	}
+	strcpy( date_convert_process, "cat" );
 
 	if ( !list_rewind( logfile_list ) ) return 0;
 

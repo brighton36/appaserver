@@ -502,17 +502,7 @@ int fetch_sfwmd_primary_key(
 		return 0;
 	}
 
-	if ( strcmp( database_management_system, "oracle" ) == 0 )
-	{
-		insert_dashes_in_yyyymmdd( buffer, data );
-		*collection_date =
-			strdup( timlib_yyyymmdd_to_ora_date( buffer ) );
-	}
-	else
-	{
-		*collection_date =
-			strdup( insert_dashes_in_yyyymmdd( buffer, data ) );
-	}
+	*collection_date = strdup( insert_dashes_in_yyyymmdd( buffer, data ) );
 
 	if ( ! ( data = dictionary_get_pointer(
 			dictionary, "Time HR:MI" ) ) )

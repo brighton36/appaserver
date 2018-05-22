@@ -229,21 +229,10 @@ int main( int argc, char **argv )
 					aggregate_level_get_string(
 						aggregate_level ) ) );
 
-	if ( strcmp(	appaserver_parameter_file->database_management_system,
-			"oracle" ) == 0 )
-	{
-		strcpy( grace_begin_date_string,
-			timlib_oracle_date2mysql( begin_date_string ) );
-		strcpy( grace_end_date_string,
-			timlib_oracle_date2mysql( end_date_string ) );
-	}
-	else
-	{
-		strcpy( grace_begin_date_string,
-			begin_date_string );
-		strcpy( grace_end_date_string,
-			end_date_string );
-	}
+	strcpy( grace_begin_date_string,
+		begin_date_string );
+	strcpy( grace_end_date_string,
+		end_date_string );
 
 	sprintf( sub_title, "Beginning: %s Ending: %s",
 		 grace_begin_date_string,

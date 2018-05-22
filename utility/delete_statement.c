@@ -26,7 +26,6 @@ void output_delete_stmts( 	char *table_name,
 				char *field_names,
 				char delimiter );
 void fix_any_quotes(		char *d );
-void fix_oracle_ampersands(	char *d );
 
 int main( int argc, char **argv )
 {
@@ -116,8 +115,6 @@ void output_row( char *row, char *field_names, char delimiter )
 		/* ------------------------------- */
 		if ( !piece( column, ',', field_names, p ) ) return;
 
-		/* fix_oracle_ampersands( field ); */
-
 		trim_field = trim( field );
 
 		if ( strcmp( trim_field, "null" ) == 0
@@ -161,28 +158,4 @@ void fix_any_quotes( char *d )
 	*d = '\0';
 
 } /* fix_any_quotes() */
-
-void fix_oracle_ampersands( char *d )
-{
-	char tmp[ MAX_BUFFER + 1 ];
-	char *tmp_ptr = tmp;
-	char *append_str = "'||chr(38)||'";
-
-	strcpy( tmp, d );
-
-	while ( *tmp_ptr )
-	{
-		if ( *tmp_ptr == '&' )
-		{
-			strcpy( d, append_str );
-			d += strlen( append_str );
-			tmp_ptr++;
-		}
-		else
-			*d++ = *tmp_ptr++;
-	}
-
-	*d = '\0';
-
-} /* fix_oracle_ampersands() */
 

@@ -72,8 +72,7 @@ void load_cr10(	LIST *file_list,
 		int with_file_trim_yn,
 		char *email_address,
 		int really_yn,
-		char *application_name,
-		char *database_management_system );
+		char *application_name );
 
 int main( int argc, char **argv )
 {
@@ -282,8 +281,7 @@ int main( int argc, char **argv )
 				with_file_trim_yn,
 				email_address,
 				really_yn,
-				application_name,
-				appaserver_parameter_file_get_dbms() );
+				application_name );
 			exit( 0 );
 		}
 	}
@@ -298,8 +296,7 @@ int main( int argc, char **argv )
 				with_file_trim_yn,
 				email_address,
 				really_yn,
-				application_name,
-				appaserver_parameter_file_get_dbms() );
+				application_name );
 	}
 
 	if ( *email_address && strcmp( email_address, "email_address" ) != 0 )
@@ -348,8 +345,7 @@ void load_cr10(	LIST *file_list,
 		int with_file_trim_yn,
 		char *email_address,
 		int really_yn,
-		char *application_name,
-		char *database_management_system )
+		char *application_name )
 {
 	char *filename_to_process;
 	char *station_to_process;
@@ -358,20 +354,9 @@ void load_cr10(	LIST *file_list,
 	char archive_process[ 512 ];
 	char grep_process[ 512 ];
 	char replace_cr10_error_with_null_process[ 512 ];
-	char *ora_date_conversion_process;
 	char remove_process[ 1024 ];
 	char summary_process[ 1024 ];
 	char sys_string[ 4096 ];
-
-	if ( strcmp( database_management_system, "oracle" ) == 0 )
-	{
-		ora_date_conversion_process =
-			 "mysql_date2ora_date.e 2 ','";
-	}
-	else
-	{
-		ora_date_conversion_process = "cat";
-	}
 
 	sprintf(	replace_cr10_error_with_null_process,
 			"%s",
@@ -523,7 +508,7 @@ void load_cr10(	LIST *file_list,
 			 station_to_process,
 			 tdp_bad_file,
 			 replace_cr10_error_with_null_process,
-			 ora_date_conversion_process,
+			 "cat",
 			 application_name,
 			 really_yn,
 			 mail_process,

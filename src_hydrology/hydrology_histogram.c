@@ -220,21 +220,10 @@ int main( int argc, char **argv )
 				aggregate_statistic );
 	}
 
-	if ( strcmp(	appaserver_parameter_file->database_management_system,
-			"oracle" ) == 0 )
-	{
-		strcpy( grace_begin_date_string,
-			timlib_oracle_date2mysql( begin_date ) );
-		strcpy( grace_end_date_string,
-			timlib_oracle_date2mysql( end_date ) );
-	}
-	else
-	{
-		strcpy( grace_begin_date_string,
-			begin_date );
-		strcpy( grace_end_date_string,
-			end_date );
-	}
+	strcpy( grace_begin_date_string,
+		begin_date );
+	strcpy( grace_end_date_string,
+		end_date );
 
 	if ( aggregate_level == real_time )
 	{

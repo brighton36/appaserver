@@ -4,12 +4,15 @@
 
 if [ "$#" -ne 1 ]
 then
-	echo "Usage: $0 filename_label" 1>&2
+	echo "Usage: $0 graphviz_file" 1>&2
 	exit 1
 fi
 
-filename_label=$1
+graphviz_file=$1
+output_filename=graphviz_render_$$.ps
 
-dot -Tps ${filename_label}.gv -o ${filename_label}.ps
+dot -Tps $graphviz_file -o $output_filename
+
+echo "$output_filename"
 
 exit 0

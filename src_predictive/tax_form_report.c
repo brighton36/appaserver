@@ -166,6 +166,7 @@ int main( int argc, char **argv )
 	{
 		printf(
 "<h3>ERROR: there are no tax form lines for this tax form.</h3>\n" );
+
 		html_table_close();
 		document_close();
 		exit( 1 );

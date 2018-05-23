@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------	*/
-/* src_predictive/schedule_e_report.c					*/
+/* src_rentalproperty/schedule_e_report.c				*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -23,6 +23,7 @@
 #include "date.h"
 #include "boolean.h"
 #include "rental.h"
+#include "tax.h"
 
 /* Constants */
 /* --------- */

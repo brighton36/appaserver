@@ -123,37 +123,44 @@ function select_attribute_flags ()
 
 	if [ "$omit_insert_prompt_yn" = "y" ]
 	then
-		echo '<tr><td colspan="3">$attribute omit_insert_prompt</td></tr>'
+		/bin/echo -n '<tr><td colspan="3">'
+		/bin/echo "$attribute omit_insert_prompt</td></tr>"
 	fi
 
 	if [ "$omit_insert_yn" = "y" ]
 	then
-		echo '<tr><td colspan="3">$attribute omit_insert</td></tr>'
+		/bin/echo -n '<tr><td colspan="3">'
+		/bin/echo "$attribute omit_insert</td></tr>"
 	fi
 
 	if [ "$additional_unique_index_yn" = "y" ]
 	then
-		echo '<tr><td colspan="3">$attribute additional_unique_index</td></tr>'
+		/bin/echo -n '<tr><td colspan="3">'
+		/bin/echo "$attribute additional_unique_index</td></tr>"
 	fi
 
 	if [ "$additional_index_yn" = "y" ]
 	then
-		echo '<tr><td colspan="3">$attribute additional_index</td></tr>'
+		/bin/echo -n '<tr><td colspan="3">'
+		/bin/echo "$attribute additional_index</td></tr>"
 	fi
 
 	if [ "$omit_update_yn" = "y" ]
 	then
-		echo '<tr><td colspan="3">$attribute omit_update</td></tr>'
+		/bin/echo -n '<tr><td colspan="3">'
+		/bin/echo "$attribute omit_update</td></tr>"
 	fi
 
 	if [ "$lookup_required_yn" = "y" ]
 	then
-		echo '<tr><td colspan="3">$attribute lookup_required</td></tr>'
+		/bin/echo -n '<tr><td colspan="3">'
+		/bin/echo "$attribute lookup_required</td></tr>"
 	fi
 
 	if [ "$insert_required_yn" = "y" ]
 	then
-		echo '<tr><td colspan="3">$attribute insert_required</td></tr>'
+		/bin/echo -n '<tr><td colspan="3">'
+		/bin/echo "$attribute insert_required</td></tr>"
 	fi
 
 }

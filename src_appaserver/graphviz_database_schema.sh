@@ -94,6 +94,71 @@ function select_folder_count ()
 }
 # select_folder_count()
 
+function select_attribute_flags ()
+{
+	folder=$1
+
+	from="folder_attribute"
+	where="folder = '$folder'"
+
+	select="	attribute,
+			omit_insert_prompt_yn,
+			omit_insert_yn,
+			additional_unique_index_yn,
+			additional_index_yn,
+			omit_update_yn,
+			lookup_required_yn,
+			insert_required_yn"
+
+	record=`echo "select $select from $from where $where;" | sql.e`
+
+	attribute=`echo $record | piece.e '^' 0`
+	omit_insert_prompt_yn=`echo $record | piece.e '^' 1`
+	omit_insert_yn=`echo $record | piece.e '^' 2`
+	additional_unique_index_yn=`echo $record | piece.e '^' 3`
+	additional_index_yn=`echo $record | piece.e '^' 4`
+	omit_update_yn=`echo $record | piece.e '^' 5`
+	lookup_required_yn=`echo $record | piece.e '^' 6`
+	insert_required_yn=`echo $record | piece.e '^' 7`
+
+	if [ "$omit_insert_prompt_yn" = "y" ]
+	then
+		echo '<tr><td colspan="3">$attribute omit_insert_prompt</td></tr>'
+	fi
+
+	if [ "$omit_insert_yn" = "y" ]
+	then
+		echo '<tr><td colspan="3">$attribute omit_insert</td></tr>'
+	fi
+
+	if [ "$additional_unique_index_yn" = "y" ]
+	then
+		echo '<tr><td colspan="3">$attribute additional_unique_index</td></tr>'
+	fi
+
+	if [ "$additional_index_yn" = "y" ]
+	then
+		echo '<tr><td colspan="3">$attribute additional_index</td></tr>'
+	fi
+
+	if [ "$omit_update_yn" = "y" ]
+	then
+		echo '<tr><td colspan="3">$attribute omit_update</td></tr>'
+	fi
+
+	if [ "$lookup_required_yn" = "y" ]
+	then
+		echo '<tr><td colspan="3">$attribute lookup_required</td></tr>'
+	fi
+
+	if [ "$insert_required_yn" = "y" ]
+	then
+		echo '<tr><td colspan="3">$attribute insert_required</td></tr>'
+	fi
+
+}
+# select_attribute_flags()
+
 function select_folder_flags ()
 {
 	folder=$1
@@ -179,7 +244,8 @@ function select_edges ()
 			copy_common_attributes_yn,
 			automatic_preselection_yn,
 			drop_down_multi_select_yn,
-			join_1tom_each_row_yn"
+			join_1tom_each_row_yn,
+			ajax_fill_drop_down_yn"
 
 	echo "select $select from $from where $where;"			|
 	sql.e								|
@@ -195,6 +261,7 @@ function select_edges ()
 		automatic_preselection_yn=`echo $record | piece.e '^' 7`
 		drop_down_multi_select_yn=`echo $record | piece.e '^' 8`
 		join_1tom_each_row_yn=`echo $record | piece.e '^' 9`
+		ajax_fill_drop_down_yn=`echo $record | piece.e '^' 10`
 	
 		/bin/echo -n "$folder -> $related_folder [label="
 		/bin/echo -n '"'
@@ -239,6 +306,11 @@ function select_edges ()
 			/bin/echo -n "\\njoin"
 		fi
 	
+		if [ "$ajax_fill_drop_down_yn" = "y" ]
+		then
+			/bin/echo -n "\\najax"
+		fi
+	
 		/bin/echo '"];'
 	done
 
@@ -281,6 +353,7 @@ function select_nodes ()
 	
 		select_attributes "$folder"
 		select_folder_flags "$folder"
+		select_attribute_flags "$folder"
 		select_folder_count "$application" "$folder"
 	
 		echo "</table>>];"

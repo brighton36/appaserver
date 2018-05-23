@@ -100,6 +100,17 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	if ( !attribute->datatype || !*attribute->datatype )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: attribute = (%s) has empty attribute_datatype.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 attribute->attribute_name );
+		exit( 1 );
+	}
+
 	database_datatype =
 		attribute_get_database_datatype(
 			attribute->datatype,

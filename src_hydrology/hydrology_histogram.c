@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* hydrology_histogram.c				*/
+/* $APPASERVER_HOME/src_hydrologyhydrology_histogram.c	*/
 /* ---------------------------------------------------	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -340,8 +340,8 @@ int main( int argc, char **argv )
 			legend ) );
 
 	sprintf( grace_histogram_filename,
-		 "%s/%s/grace_histogram_%d.dat",
-		 appaserver_parameter_file->appaserver_mount_point,
+		 "%s/appaserver/%s/data/grace_histogram_%d.dat",
+		 appaserver_parameter_file->document_root,
 		 application_name,
 		 getpid() );
 

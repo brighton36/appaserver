@@ -120,9 +120,8 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 void tax_process_accumulate_tax_form_line_total(
 					LIST *tax_form_line_list );
 
-LIST *tax_fetch_depreciation_transaction_list(
+LIST *tax_get_rental_property_string_list(
 					char *application_name,
-					char *fund_name,
 					char *begin_date_string,
 					char *end_date_string );
 

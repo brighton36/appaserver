@@ -91,29 +91,26 @@ clean:
 
 post_rental_property_reoccurring_transaction:				\
 		post_rental_property_reoccurring_transaction.c		\
-	${EXTERNAL_LIBRARY_OBJECT} ${SOURCE_LIBRARY_OBJECT} rental.o	\
-		${ACCOUNTANCYMODEL_LIBRARY}/bank_upload.o
+		${EXTERNAL_LIBRARY_OBJECT} ${SOURCE_LIBRARY_OBJECT}	\
+		${ACCOUNTANCYMODEL_LIBRARY}/bank_upload.o		\
+		${ACCOUNTANCYMODEL_LIBRARY}/tax.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-I${ACCOUNTANCYMODEL_LIBRARY}				\
 		${EXTERNAL_LIBRARY_OBJECT}				\
 		${SOURCE_LIBRARY_OBJECT}				\
-		rental.o						\
 		post_rental_property_reoccurring_transaction.c		\
 		${ACCOUNTANCYMODEL_LIBRARY}/bank_upload.o		\
+		${ACCOUNTANCYMODEL_LIBRARY}/tax.o			\
 		-o post_rental_property_reoccurring_transaction
 
 schedule_e_report: schedule_e_report.c					\
-	${EXTERNAL_LIBRARY_OBJECT} ${SOURCE_LIBRARY_OBJECT} rental.o
+		${EXTERNAL_LIBRARY_OBJECT} ${SOURCE_LIBRARY_OBJECT}	\
+		${ACCOUNTANCYMODEL_LIBRARY}/tax.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-I${ACCOUNTANCYMODEL_LIBRARY}				\
 		${EXTERNAL_LIBRARY_OBJECT}				\
 		${SOURCE_LIBRARY_OBJECT}				\
-		rental.o						\
+		${ACCOUNTANCYMODEL_LIBRARY}/tax.o			\
 		schedule_e_report.c					\
 		-o schedule_e_report
-
-rental.o: rental.c rental.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-I${ACCOUNTANCYMODEL_LIBRARY}				\
-		-c rental.c
 

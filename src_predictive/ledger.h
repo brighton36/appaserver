@@ -94,6 +94,7 @@ typedef struct
 	int check_number;
 	LIST *journal_ledger_list;
 	boolean lock_transaction;
+	char *rental_property_street_address;
 } TRANSACTION;
 
 typedef struct

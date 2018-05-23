@@ -80,7 +80,6 @@ int main( int argc, char **argv )
 	char sub_title[ 256 ];
 	char *tax_form_name;
 	char *as_of_date;
-	char *database_string = {0};
 	char *output_medium;
 	TAX *tax;
 	char *logo_filename;

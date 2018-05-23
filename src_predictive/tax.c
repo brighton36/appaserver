@@ -513,3 +513,35 @@ void tax_process_accumulate_tax_form_line_total(
 
 } /* tax_process_accumulate_tax_form_line_total() */
 
+LIST *tax_get_rental_property_string_list(	char *application_name,
+						char *begin_date_string,
+						char *end_date_string )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *select;
+
+	select = "rental_property_street_address";
+
+	sprintf( where,
+		 "( property_acquired_date is null		"
+		 "  or property_acquired_date >= '%s' ) and	"
+		 "( property_disposal_date is null		"
+		 "  or property_disposal_date <= '%s' )		",
+		 begin_date_string,
+		 end_date_string );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=rental_property		"
+		 "			where=\"%s\"			"
+		 "			order=property_acquired_date	",
+		 application_name,
+		 select,
+		 where );
+
+	return pipe2list( sys_string );
+
+} /* tax_get_rental_property_string_list() */
+

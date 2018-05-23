@@ -201,42 +201,42 @@ function select_edges ()
 	
 		if [ "$related_attribute" != "null" ]
 		then
-			/bin/echo -n " $related_attribute"
+			/bin/echo -n "$related_attribute"
 		fi
 	
 		if [ "$pair_1tom_order" != "" -a "$pair_1tom_order" != "0" ]
 		then
-			/bin/echo -n " pair-${pair_1tom_order}"
+			/bin/echo -n "\\npair-${pair_1tom_order}"
 		fi
 	
 		if [ "$relation_type_isa_yn" = "y" ]
 		then
-			/bin/echo -n " isa"
+			/bin/echo -n "\\nisa"
 		fi
 	
 		if [ "$prompt_mto1_recursive_yn" = "y" ]
 		then
-			/bin/echo -n " recursive"
+			/bin/echo -n "\\nrecursive"
 		fi
 	
 		if [ "$copy_common_attributes_yn" = "y" ]
 		then
-			/bin/echo -n " copy"
+			/bin/echo -n "\\ncopy"
 		fi
 	
 		if [ "$automatic_preselection_yn" = "y" ]
 		then
-			/bin/echo -n " automatic"
+			/bin/echo -n "\\nautomatic"
 		fi
 	
 		if [ "$drop_down_multi_select_yn" = "y" ]
 		then
-			/bin/echo -n " multi"
+			/bin/echo -n "\\nmulti"
 		fi
 	
 		if [ "$join_1tom_each_row_yn" = "y" ]
 		then
-			/bin/echo -n " join"
+			/bin/echo -n "\\njoin"
 		fi
 	
 		/bin/echo '"];'

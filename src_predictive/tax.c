@@ -440,6 +440,9 @@ LIST *tax_process_set_journal_ledger_list(
 						list_new();
 			}
 
+			journal_ledger->rental_property_street_address =
+				transaction->rental_property_street_address;
+
 			list_append_pointer(
 				tax_form_line_account->
 					journal_ledger_list,
@@ -545,3 +548,10 @@ LIST *tax_get_rental_property_string_list(	char *application_name,
 
 } /* tax_get_rental_property_string_list() */
 
+LIST *tax_get_line_rental_list(
+			LIST *tax_form_line_list,
+			LIST *rental_property_street_address_list )
+{
+	return (LIST *)0;
+
+} /* tax_get_line_rental_list() */

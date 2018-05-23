@@ -57,7 +57,6 @@ int main( int argc, char **argv )
 	double payment_amount;
 	int check_number;
 	boolean paid_amount_due;
-	char *database_string = {0};
 	DOCUMENT *document;
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;

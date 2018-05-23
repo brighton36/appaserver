@@ -56,7 +56,6 @@ boolean depreciate_prior_fixed_assets_display(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *database_string = {0};
 	char *process_name;
 	char *fund_name;
 	boolean execute;

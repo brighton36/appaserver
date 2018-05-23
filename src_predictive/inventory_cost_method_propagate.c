@@ -37,7 +37,6 @@ void inventory_cost_method_propagate_inventory(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *database_string = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 

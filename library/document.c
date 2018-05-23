@@ -752,9 +752,7 @@ DOCUMENT *document_output_menu_new(
 
 		sprintf(	sys_string,
 "output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %c %c 2>>%s",
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 				session,
 				login_name,
 				role_name,

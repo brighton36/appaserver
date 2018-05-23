@@ -44,7 +44,6 @@ int main( int argc, char **argv )
 	char *purchase_date_time;
 	char *inventory_name;
 	boolean is_latest;
-	char *database_string = {0};
 	PURCHASE_ORDER *purchase_order;
 	INVENTORY *inventory;
 	INVENTORY_PURCHASE *inventory_purchase;

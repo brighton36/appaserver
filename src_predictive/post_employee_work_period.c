@@ -123,7 +123,6 @@ int main( int argc, char **argv )
 	char title[ 128 ];
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	ENTITY_SELF *self;
 
 	application_name = environ_get_application_name( argv[ 0 ] );

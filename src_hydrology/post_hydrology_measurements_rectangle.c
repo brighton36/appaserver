@@ -169,9 +169,7 @@ int main( int argc, char **argv )
 "echo \"%s\" | post_prompt_process_form %s %s %s output_measurements %s n",
 		 dictionary_display_delimited( post_dictionary, '&' ),
 		 login_name,
-		 timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+		 application_name,
 		 session,
 		 role_name );
 

@@ -47,7 +47,6 @@ int main( int argc, char **argv )
 	char *process_name;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char *fund_name;
 	char title[ 128 ];
 	FILE *input_file;

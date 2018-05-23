@@ -127,7 +127,6 @@ int main( int argc, char **argv )
 	char *preupdate_arrived_date_time;
 	char *preupdate_sales_tax;
 	char *preupdate_freight_in;
-	char *database_string = {0};
 	PURCHASE_ORDER *purchase_order;
 
 	application_name = environ_get_application_name( argv[ 0 ] );

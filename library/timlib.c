@@ -2809,6 +2809,7 @@ boolean timlib_parse_database_string(	char **database_string,
 	return 0;
 } /* timlib_parse_database_string() */
 
+#ifdef NOT_DEFINED
 char *timlib_get_parameter_application_name(
 					char *application_name,
 					char *database_string )
@@ -2830,6 +2831,7 @@ char *timlib_get_parameter_application_name(
 	}
 
 } /* timlib_get_parameter_application_name() */
+#endif
 
 int timlib_get_x_increment_seconds(
 				int expected_count_per_day,

@@ -39,7 +39,6 @@ void post_change_employee_work_day_insert(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *database_string = {0};
 	char *full_name;
 	char *street_address;
 	char *begin_work_date_time;

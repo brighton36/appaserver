@@ -110,7 +110,6 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 	char title[ 128 ];
-	char *database_string = {0};
 	LIST *full_name_list;
 	LIST *street_address_list;
 	char *pdf_filename;

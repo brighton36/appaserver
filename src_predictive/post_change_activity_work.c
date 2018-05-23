@@ -49,7 +49,6 @@ void post_change_activity_work_update(
 
 int main( int argc, char **argv )
 {
-	char *database_string = {0};
 	char *application_name;
 	char *login_name;
 	char *begin_work_date_time;

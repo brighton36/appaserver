@@ -49,7 +49,6 @@ int main( int argc, char **argv )
 	INVENTORY_SALE *inventory_sale;
 	double cost_of_goods_sold = 0.0;
 	ENTITY_SELF *entity_self;
-	char *database_string = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 

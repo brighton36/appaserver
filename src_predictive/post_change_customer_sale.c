@@ -138,7 +138,6 @@ int main( int argc, char **argv )
 	char *street_address;
 	char *sale_date_time;
 	char *state;
-	char *database_string = {0};
 	CUSTOMER_SALE *customer_sale;
 	char *preupdate_full_name;
 	char *preupdate_street_address;

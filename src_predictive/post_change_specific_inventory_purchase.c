@@ -57,7 +57,6 @@ void post_change_specific_inventory_purchase_update(
 
 int main( int argc, char **argv )
 {
-	char *database_string = {0};
 	char *application_name;
 	char *full_name;
 	char *street_address;

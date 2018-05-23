@@ -129,7 +129,6 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char title[ 256 ];
 	char sub_title[ 256 ];
-	char *database_string = {0};
 	boolean aggregate_account;
 	char *output_medium;
 

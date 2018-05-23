@@ -33,7 +33,6 @@ int main( int argc, char **argv )
 	char *account_payable_account = {0};
 	char *specific_inventory_account = {0};
 	char *cost_of_goods_sold_account = {0};
-	char *database_string = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 

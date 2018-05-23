@@ -32,7 +32,6 @@ int main( int argc, char **argv )
 	char *preupdate_transaction_date_time;
 	char *propagate_transaction_date_time;
 	char *account_name = {0};
-	char *database_string = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 

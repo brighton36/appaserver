@@ -31,7 +31,6 @@ void ledger_unbalance(			char *application_name );
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *database_string = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 

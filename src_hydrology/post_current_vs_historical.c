@@ -138,9 +138,7 @@ int main( int argc, char **argv )
 
 	sprintf( sys_string, 
 "output_current_vs_historical %s %s %s %s %s \"%s\" \"%s\" \"%s\" 2>>%s",
-		 timlib_get_parameter_application_name(
-			application_name,
-			application_name ),
+		 application_name,
 	 	 login_name,
 		 session,
 		 process_name,

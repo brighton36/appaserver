@@ -74,7 +74,6 @@ void post_change_accrual_update(
 
 int main( int argc, char **argv )
 {
-	char *database_string = {0};
 	char *application_name;
 	char *full_name;
 	char *street_address;

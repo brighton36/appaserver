@@ -27,6 +27,17 @@
 /* ---------- */
 typedef struct
 {
+	LIST *tax_form_line_rental_list;
+	double revenue_total;
+	double mortgage_interest_total;
+	double depreciation_total;
+	double expense_total;
+	double positive_net_income;
+	double loss_total;
+} TAX_OUTPUT_RENTAL;
+
+typedef struct
+{
 	char *account_name;
 	char *hard_coded_account_key;
 	char *subclassification;
@@ -70,7 +81,7 @@ typedef struct
 {
 	TAX_INPUT tax_input;
 	TAX_PROCESS tax_process;
-	/* TAX_OUTPUT tax_output; */
+	TAX_OUTPUT_RENTAL tax_output_rental;
 	char *begin_date_string;
 	char *end_date_string;
 } TAX;
@@ -124,5 +135,9 @@ LIST *tax_get_rental_property_string_list(
 					char *application_name,
 					char *begin_date_string,
 					char *end_date_string );
+
+LIST *tax_get_line_rental_list(
+				LIST *tax_form_line_list,
+				LIST *rental_property_street_address_list );
 
 #endif

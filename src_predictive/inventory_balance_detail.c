@@ -58,7 +58,6 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *output_medium;
 	ENTITY_SELF *entity_self;
-	char *database_string = {0};
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 

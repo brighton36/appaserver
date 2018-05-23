@@ -250,7 +250,6 @@ int main( int argc, char **argv )
 	char *fund_name;
 	char *aggregation;
 	char *as_of_date;
-	char *database_string = {0};
 	char *output_medium;
 	char *logo_filename;
 	char *subclassification_option;

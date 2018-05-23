@@ -81,6 +81,7 @@ typedef struct
 	double balance;
 	double database_balance;
 	char *memo;
+	char *rental_property_street_address;
 } JOURNAL_LEDGER;
 
 typedef struct

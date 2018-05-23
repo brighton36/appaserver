@@ -380,9 +380,7 @@ int main( int argc, char **argv )
 	sprintf( sys_string, 
 "hydrology_quick_measurement_form %s %s %s \"%s\" 2>>%s",
 	 	 person,
-		 timlib_get_parameter_application_name(
-			application_name,
-			database_string ),
+		 application_name,
 		 session,
 		 dictionary_display_delimiter( post_dictionary, '&' ),
 		 appaserver_error_get_filename(

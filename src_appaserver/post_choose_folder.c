@@ -235,9 +235,7 @@ int main( int argc, char **argv )
 			sprintf( sys_string, 
 "output_choose_isa_drop_down %s %s %s %s %s %s %s 2>>%s",
 		 	 login_name,
-			 timlib_get_parameter_application_name(
-			 	application_name,
-				database_string ),
+			 application_name,
 			 session,
 			 folder_name,
 			 isa_related_folder->folder->folder_name,
@@ -263,9 +261,7 @@ int main( int argc, char **argv )
 			sprintf( sys_string,
 "output_insert_table_form '%s' '%s' '%s' '%s' '%s' '%s' '%s' '%s'",
 			 	login_name,
-			 	timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				application_name,
 			 	session,
 			 	folder_name,
 			 	role_name,
@@ -284,9 +280,7 @@ int main( int argc, char **argv )
 			sprintf( sys_string,
 "output_edit_table_form %s %s %s %s %s '' %s %s 2>>%s",
 			 	 login_name,
-				 timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+				 application_name,
 				 session,
 				 folder_name,
 				 role_name,
@@ -353,9 +347,7 @@ char *prompt_edit_form_get_sys_string(
 		sprintf( sys_string,
 "output_prompt_edit_form %s %s %s %s %s %s '' 2>>%s",
 	 		 login_name,
-		 	 timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+			 application_name,
 		 	 session,
 		 	 folder_name,
 			 role_name,
@@ -376,9 +368,7 @@ char *prompt_edit_form_get_sys_string(
 		sprintf( sys_string,
 "output_prompt_edit_form %s %s %s %s %s %s '' '%s' 2>>%s",
 	 		login_name,
-	 		timlib_get_parameter_application_name(
-				application_name,
-				database_string ),
+			application_name,
 	 		session,
 	 		unfulfilled_folder_name,
 	 		role_name,
@@ -462,10 +452,8 @@ char *prompt_insert_form_get_sys_string(
 		/* ---------------- */
 		sprintf( sys_string, 
 "output_prompt_insert_form %s %s %s %s %s %s n 2>>%s",
-		 	 login_name,
-		 	 timlib_get_parameter_application_name(
+		 	login_name,
 			application_name,
-			database_string ),
 		 	session,
 		 	folder_name,
 		 	role_name,
@@ -481,9 +469,7 @@ char *prompt_insert_form_get_sys_string(
 	sprintf( sys_string,
 "output_prompt_edit_form %s %s %s %s %s %s '' '%s' 2>>%s",
 	 	login_name,
-	 	timlib_get_parameter_application_name(
-			application_name,
-			database_string ),
+		application_name,
 	 	session,
 	 	unfulfilled_folder_name,
 	 	role_name,

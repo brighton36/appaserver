@@ -78,7 +78,6 @@ int main( int argc, char **argv )
 	char *service_name;
 	char *description;
 	char *begin_work_date_time;
-	char *database_string = {0};
 	DOCUMENT *document;
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;

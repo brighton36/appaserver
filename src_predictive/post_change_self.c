@@ -29,7 +29,6 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *database_string = {0};
 	char *preupdate_inventory_cost_method_string;
 	ENTITY_SELF *self;
 	enum inventory_cost_method preupdate_inventory_cost_method;
@@ -78,9 +77,7 @@ int main( int argc, char **argv )
 	{
 		sprintf( sys_string,
 			 "inventory_cost_method_propagate %s",
-		 	 timlib_get_parameter_application_name(
-		 		application_name,
-				database_string ) );
+		 	 application_name );
 		system( sys_string );
 	}
 

@@ -44,7 +44,6 @@ int main( int argc, char **argv )
 	char *full_name;
 	char *street_address;
 	char *sale_date_time;
-	char *database_string = {0};
 	DOCUMENT *document;
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;

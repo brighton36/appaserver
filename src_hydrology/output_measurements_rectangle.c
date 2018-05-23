@@ -281,9 +281,7 @@ void output_map(		FILE *output_file,
 
 	fprintf( output_file,
 "<form enctype=\"multipart/form-data\" method=post name=\"prompt_process\" action=\"/cgi-bin/post_hydrology_measurements_rectangle?%s+%s+%s+%s\" target=\"%s\">\n",
-		 timlib_get_parameter_application_name(
-					application_name,
-					database_string ),
+		 application_name,
 		 login_name,
 		 session,
 		 role_name,

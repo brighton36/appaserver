@@ -70,7 +70,6 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 	char title[ 128 ];
-	char *database_string = {0};
 	boolean execute;
 
 	application_name = environ_get_application_name( argv[ 0 ] );

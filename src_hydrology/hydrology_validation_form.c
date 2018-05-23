@@ -146,9 +146,7 @@ int main( int argc, char **argv )
 		 "%s/post_hydrology_validation_form?%s+%s+%s+%s+%s+%s+%s+%s",
 		 appaserver_parameter_file->apache_cgi_directory,
 		 person,
-		 timlib_get_parameter_application_name(
-			application_name,
-			database_string ),
+		 application_name,
 		 session,
 		 station,
 		 datatype,

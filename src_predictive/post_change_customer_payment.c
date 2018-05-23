@@ -78,7 +78,6 @@ int main( int argc, char **argv )
 	char *state;
 	char *preupdate_payment_date_time;
 	char *preupdate_payment_amount;
-	char *database_string = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 

@@ -134,7 +134,6 @@ int main( int argc, char **argv )
 	boolean net_income_only = 0;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char *output_medium;
 	char title[ 256 ];
 	char sub_title[ 256 ];

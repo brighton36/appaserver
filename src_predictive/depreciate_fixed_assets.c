@@ -41,7 +41,6 @@ boolean depreciate_fixed_assets_display(char *application_name,
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *database_string = {0};
 	char *process_name;
 	char *fund_name;
 	char *depreciation_date;

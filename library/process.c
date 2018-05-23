@@ -884,9 +884,7 @@ void process_replace_parameter_variables(
 			"$application",
 			double_quotes_around(
 				buffer, 
-				timlib_get_parameter_application_name(
-					application_name,
-					database_string ) ) );
+				application_name ) );
 
 		search_replace_word( 
 			executable,

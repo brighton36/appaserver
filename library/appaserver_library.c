@@ -2132,9 +2132,7 @@ char *appaserver_library_get_prelookup_button_control_string(
 		       application_get_prepend_http_protocol_yn(
 				application_name ) ),
 		 login_name,
-		 timlib_get_parameter_application_name(
-			application_name,
-			database_string ),
+		 application_name,
 		 session,
 		 use_folder_name,
 		 role_name,

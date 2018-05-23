@@ -96,7 +96,6 @@ void post_change_inventory_purchase_delete(
 
 int main( int argc, char **argv )
 {
-	char *database_string = {0};
 	char *application_name;
 	char *full_name;
 	char *street_address;

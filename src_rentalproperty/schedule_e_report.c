@@ -129,6 +129,20 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	tax->tax_output_rental.tax_form_line_rental_list =
+		tax_get_line_rental_list(
+			tax->tax_process.tax_form_line_list,
+			tax->tax_input.rental_property_street_address_list );
+
+	if ( !list_length(
+		tax->tax_output_rental.tax_form_line_rental_list ) )
+	{
+		printf(
+	     "<h3>No rental property transactions during this period.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
 	document_close();
 
 	return 0;

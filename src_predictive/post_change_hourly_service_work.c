@@ -53,7 +53,6 @@ void post_change_hourly_service_work_update(
 
 int main( int argc, char **argv )
 {
-	char *database_string = {0};
 	char *application_name;
 	char *full_name;
 	char *street_address;

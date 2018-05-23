@@ -74,7 +74,6 @@ int main( int argc, char **argv )
 	char *serial_number;
 	char *state;
 	char *preupdate_extension;
-	char *database_string = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 

@@ -210,9 +210,7 @@ void generic_measurement_load(
 		" action=\"%s/post_generic_measurement_load?%s+%s+%s+%s+%s\""
 		" target=%s>\n",
 		appaserver_parameter_file_get_cgi_directory(),
-		timlib_get_parameter_application_name(
-		 	application_name,
-			database_string ),
+		application_name,
 		session,
 		role_name,
 		folder_name,

@@ -139,7 +139,6 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char title[ 256 ];
 	char sub_title[ 256 ];
-	char *database_string = {0};
 	char *output_medium;
 	boolean is_financial_position;
 	char *logo_filename;

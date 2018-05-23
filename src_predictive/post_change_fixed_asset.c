@@ -38,7 +38,6 @@ void post_change_fixed_asset_update(
 
 int main( int argc, char **argv )
 {
-	char *database_string = {0};
 	char *application_name;
 	char *asset_name;
 	char *account_name;

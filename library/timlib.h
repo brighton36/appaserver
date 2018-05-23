@@ -339,9 +339,11 @@ boolean timlib_exists_numeric(		char *s );
 boolean timlib_parse_database_string(	char **database_string,
 					char *application_name );
 
+/*
 char *timlib_get_parameter_application_name(
 					char *application_name,
 					char *database_string );
+*/
 
 double timlib_get_x_increment(	int expected_count_per_day,
 				enum aggregate_level aggregate_level );

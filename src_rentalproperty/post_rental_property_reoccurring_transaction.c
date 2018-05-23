@@ -23,7 +23,7 @@
 #include "date.h"
 #include "boolean.h"
 #include "bank_upload.h"
-#include "rental.h"
+#include "tax.h"
 
 /* Constants */
 /* --------- */
@@ -67,6 +67,8 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	int tax_year;
+	char begin_date_string[ 16 ];
+	char end_date_string[ 16 ];
 	LIST *rental_property_string_list;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
@@ -96,10 +98,14 @@ int main( int argc, char **argv )
 
 	tax_year = atoi( pipe2string( "now.sh ymd | piece.e '-' 0" ) );
 
+	sprintf( begin_date_string, "%d-01-01", tax_year );
+	sprintf( end_date_string, "%d-12-31", tax_year );
+
 	rental_property_string_list =
-		rental_get_rental_property_string_list(
+		tax_get_rental_property_string_list(
 			application_name,
-			tax_year );
+			begin_date_string,
+			end_date_string );
 
 	if ( ( !rental_property_street_address
 	||     strcmp(	rental_property_street_address,
@@ -110,7 +116,7 @@ int main( int argc, char **argv )
 		rental_property_street_address = street_address;
 	}
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	format_initial_capital( title, process_name );
 	document = document_new( title, application_name );

@@ -381,6 +381,17 @@ char *get_sys_string(	char *destination_application,
 		else
 			buffer_ptr += sprintf( buffer_ptr, "," );
 
+		if ( !attribute->datatype || !*attribute->datatype )
+		{
+			fprintf( stderr,
+	"ERROR in %s/%s()/%d: attribute = (%s) has empty attribute_datatype.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 attribute->attribute_name );
+			exit( 1 );
+		}
+
 		buffer_ptr += sprintf(
 			buffer_ptr,
 			"%s %s",

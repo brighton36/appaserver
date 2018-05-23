@@ -19,6 +19,22 @@ TAX *tax_new(			char *application_name,
 				char *tax_form )
 {
 	TAX *t;
+	char *checking_account;
+	char *depreciation_account;
+
+	checking_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			LEDGER_CASH_KEY,
+			0 /* not warning_only */ );
+
+	depreciation_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			LEDGER_ACCUMULATED_KEY,
+			0 /* not warning_only */ );
 
 	if ( ! ( t = calloc( 1, sizeof( TAX ) ) ) )
 	{
@@ -46,21 +62,42 @@ TAX *tax_new(			char *application_name,
 	}
 
 	t->tax_input.cash_transaction_list =
-		tax_fetch_cash_transaction_list(
+		tax_fetch_account_transaction_list(
 			application_name,
-			fund_name,
 			begin_date_string,
-			end_date_string );
+			end_date_string,
+			checking_account );
+
+	t->tax_input.depreciation_transaction_list =
+		tax_fetch_account_transaction_list(
+			application_name,
+			begin_date_string,
+			end_date_string,
+			depreciation_account );
 
 	t->tax_process.unaccounted_journal_ledger_list = list_new();
 
+	/* ------------------------------------------------------------ */
+	/* Receives t->tax_input.tax_form->tax_form_line_list		*/
+	/* with tax_form_line_account_list->journal_ledger_list built.	*/
+	/* ------------------------------------------------------------ */
 	t->tax_process.tax_form_line_list =
-		tax_process_get_tax_form_line_list(
+		tax_process_set_journal_ledger_list(
 			t->tax_process.unaccounted_journal_ledger_list,
-			application_name,
-			fund_name,
 			t->tax_input.tax_form->tax_form_line_list,
-			t->tax_input.cash_transaction_list );
+			t->tax_input.cash_transaction_list,
+			checking_account );
+
+	/* ------------------------------------------------------------ */
+	/* Receives t->tax_input.tax_form->tax_form_line_list		*/
+	/* with tax_form_line_account_list->journal_ledger_list built.	*/
+	/* ------------------------------------------------------------ */
+	t->tax_process.tax_form_line_list =
+		tax_process_set_journal_ledger_list(
+			t->tax_process.unaccounted_journal_ledger_list,
+			t->tax_input.tax_form->tax_form_line_list,
+			t->tax_input.depreciation_transaction_list,
+			depreciation_account );
 
 	t->tax_process.tax_form = t->tax_input.tax_form->tax_form;
 
@@ -74,7 +111,9 @@ TAX *tax_new(			char *application_name,
 		exit( 1 );
 	}
 
-	tax_process_set_tax_form_line_total(
+	/* Also accumulates tax_form_account_total */
+	/* --------------------------------------- */
+	tax_process_accumulate_tax_form_line_total(
 		t->tax_process.tax_form_line_list );
 
 	return t;
@@ -127,8 +166,7 @@ TAX_FORM *tax_form_new(		char *application_name,
 
 } /* tax_form_new() */
 
-TAX_FORM_LINE *tax_form_line_new(	char *tax_form,
-					char *tax_form_line,
+TAX_FORM_LINE *tax_form_line_new(	char *tax_form_line,
 					char *tax_form_description,
 					boolean itemize_accounts )
 {
@@ -144,7 +182,6 @@ TAX_FORM_LINE *tax_form_line_new(	char *tax_form,
 		exit( 1 );
 	}
 
-	t->tax_form = tax_form;
 	t->tax_form_line = tax_form_line;
 	t->tax_form_description = tax_form_description;
 	t->itemize_accounts = itemize_accounts;
@@ -203,7 +240,6 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 	
 			tax_form_line =
 				tax_form_line_new(
-					tax_form,
 					strdup( tax_form_line_name ),
 					strdup( tax_form_description ),
 					(*itemize_accounts_yn == 'y' ) );
@@ -275,21 +311,13 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 
 } /* tax_form_fetch_line_list() */
 
-LIST *tax_fetch_cash_transaction_list(
+LIST *tax_fetch_account_transaction_list(
 			char *application_name,
-			char *fund_name,
 			char *begin_date_string,
-			char *end_date_string )
+			char *end_date_string,
+			char *account_name )
 {
-	char *checking_account;
 	char where_clause[ 1024 ];
-
-	checking_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			LEDGER_CASH_KEY,
-			0 /* not warning_only */ );
 
 	sprintf( where_clause,
 		 "transaction_date_time >= '%s' and			"
@@ -305,13 +333,13 @@ LIST *tax_fetch_cash_transaction_list(
 		 "		journal_ledger.account = '%s')		",
 		 begin_date_string,
 		 end_date_string,
-		 checking_account );
+		 account_name );
 
 	return ledger_fetch_transaction_list(
 			application_name,
 			where_clause );
 
-} /* tax_fetch_cash_transaction_list() */
+} /* tax_fetch_account_transaction_list() */
 
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 				LIST *tax_form_line_list,
@@ -355,29 +383,20 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 
 } /* tax_form_line_account_seek() */
 
-LIST *tax_process_get_tax_form_line_list(
+LIST *tax_process_set_journal_ledger_list(
 				LIST *unaccounted_journal_ledger_list,
-				char *application_name,
-				char *fund_name,
 				LIST *tax_form_line_list,
-				LIST *cash_transaction_list )
+				LIST *transaction_list,
+				char *account_name )
 {
-	char *checking_account;
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
 	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
 
-	checking_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			LEDGER_CASH_KEY,
-			0 /* not warning_only */ );
-
-	if ( !list_rewind( cash_transaction_list ) ) return (LIST *)0;
+	if ( !list_rewind( transaction_list ) ) return (LIST *)0;
 
 	do {
-		transaction = list_get_pointer( cash_transaction_list );
+		transaction = list_get_pointer( transaction_list );
 
 		if ( !list_rewind( transaction->journal_ledger_list ) )
 			continue;
@@ -387,9 +406,14 @@ LIST *tax_process_get_tax_form_line_list(
 				list_get_pointer(
 					transaction->journal_ledger_list );
 
+			/* ------------------------------------ */
+			/* Ignore the cash and accumulated	*/
+			/* depreciation entries. We want the	*/
+			/* other ones.				*/
+			/* ------------------------------------ */
 			if ( timlib_strcmp(
 				journal_ledger->account_name,
-				checking_account ) == 0 )
+				account_name ) == 0 )
 			{
 				continue;
 			}
@@ -405,32 +429,31 @@ LIST *tax_process_get_tax_form_line_list(
 				list_append_pointer(
 					unaccounted_journal_ledger_list,
 					journal_ledger );
+				continue;
 			}
-			else
-			{
-				if ( !tax_form_line_account->
-					journal_ledger_list )
-				{
-					tax_form_line_account->
-						journal_ledger_list =
-							list_new();
-				}
 
-				list_append_pointer(
-					tax_form_line_account->
-						journal_ledger_list,
-					journal_ledger );
+			if ( !tax_form_line_account->
+				journal_ledger_list )
+			{
+				tax_form_line_account->
+					journal_ledger_list =
+						list_new();
 			}
+
+			list_append_pointer(
+				tax_form_line_account->
+					journal_ledger_list,
+				journal_ledger );
 
 		} while( list_next( transaction->journal_ledger_list ) );
 
-	} while( list_next( cash_transaction_list ) );
+	} while( list_next( transaction_list ) );
 
 	return tax_form_line_list;
 
-} /* tax_process_get_tax_form_line_list() */
+} /* tax_process_set_journal_ledger_list() */
 
-void tax_process_set_tax_form_line_total(
+void tax_process_accumulate_tax_form_line_total(
 			LIST *tax_form_line_list )
 {
 	TAX_FORM_LINE *tax_form_line;
@@ -471,13 +494,12 @@ void tax_process_set_tax_form_line_total(
 
 				amount = ledger_get_amount(
 						journal_ledger,
-						/* -------------------- */
-						/* Need to effect cash. */
-						/* -------------------- */
 						1 - tax_form_line_account->
 							accumulate_debit );
 
-				tax_form_line->tax_form_line_total += amount;
+				tax_form_line->
+					tax_form_line_total +=
+						amount;
 
 				tax_form_line_account->
 					tax_form_account_total +=
@@ -489,5 +511,37 @@ void tax_process_set_tax_form_line_total(
 
 	} while( list_next( tax_form_line_list ) );
 
-} /* tax_process_set_tax_form_line_total() */
+} /* tax_process_accumulate_tax_form_line_total() */
+
+LIST *tax_get_rental_property_string_list(	char *application_name,
+						char *begin_date_string,
+						char *end_date_string )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *select;
+
+	select = "rental_property_street_address";
+
+	sprintf( where,
+		 "( property_acquired_date is null		"
+		 "  or property_acquired_date >= '%s' ) and	"
+		 "( property_disposal_date is null		"
+		 "  or property_disposal_date <= '%s' )		",
+		 begin_date_string,
+		 end_date_string );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=rental_property		"
+		 "			where=\"%s\"			"
+		 "			order=property_acquired_date	",
+		 application_name,
+		 select,
+		 where );
+
+	return pipe2list( sys_string );
+
+} /* tax_get_rental_property_string_list() */
 

@@ -59,6 +59,7 @@
 #define LEDGER_GENERAL_FUND		"general_fund"
 #define LEDGER_CASH_KEY			"cash_key"
 #define LEDGER_LOSS_KEY			"loss_key"
+#define LEDGER_ACCUMULATED_KEY		"accumulated_depreciation_key"
 #define LEDGER_CLOSING_KEY		"closing_key"
 
 #define LEDGER_SEMAPHORE_KEY		18227
@@ -93,6 +94,7 @@ typedef struct
 	int check_number;
 	LIST *journal_ledger_list;
 	boolean lock_transaction;
+	char *rental_property_street_address;
 } TRANSACTION;
 
 typedef struct

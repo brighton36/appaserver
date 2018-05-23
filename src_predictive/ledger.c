@@ -14,6 +14,7 @@
 #include "form.h"
 #include "dictionary.h"
 #include "appaserver_library.h"
+#include "attribute.h"
 #include "application_constants.h"
 #include "list.h"
 #include "folder.h"
@@ -4343,12 +4344,30 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char transaction_date_time[ 128 ];
+	char rental_property_street_address[ 128 ];
 	char memo[ 1024 ];
 	LIST *transaction_list = list_new();
 	FILE *input_pipe;
 	TRANSACTION *transaction;
+	boolean rental_property_street_address_exists;
 
-	select = "full_name,street_address,transaction_date_time,memo";
+	rental_property_street_address_exists =
+		attribute_exists(
+			application_name,
+			"transaction"
+				/* folder_name */,
+			"rental_property_street_address"
+				/* attribute_name */ );
+
+	if ( rental_property_street_address_exists )
+	{
+		select =
+"full_name,street_address,transaction_date_time,memo,rental_property_street_address";
+	}
+	else
+	{
+		select = "full_name,street_address,transaction_date_time,memo";
+	}
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -4369,14 +4388,17 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			0 );
+
 		piece(	street_address,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			1 );
+
 		piece(	transaction_date_time,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			2 );
+
 		piece(	memo,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
@@ -4387,6 +4409,17 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 					strdup( street_address ),
 					strdup( transaction_date_time ),
 					strdup( memo ) );
+
+		if ( rental_property_street_address_exists )
+		{
+			piece(	rental_property_street_address,
+				FOLDER_DATA_DELIMITER,
+				input_buffer,
+				4 );
+
+			transaction->rental_property_street_address =
+				strdup( rental_property_street_address );
+		}
 
 		transaction->journal_ledger_list =
 			ledger_get_journal_ledger_list(

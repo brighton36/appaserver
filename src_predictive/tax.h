@@ -28,16 +28,16 @@
 typedef struct
 {
 	char *account_name;
+	char *hard_coded_account_key;
+	char *subclassification;
+	char *element;
 	boolean accumulate_debit;
-	char *tax_form;
-	char *tax_form_line;
 	LIST *journal_ledger_list;
 	double tax_form_account_total;
 } TAX_FORM_LINE_ACCOUNT;
 
 typedef struct
 {
-	char *tax_form;
 	char *tax_form_line;
 	char *tax_form_description;
 	boolean itemize_accounts;
@@ -62,6 +62,8 @@ typedef struct
 {
 	TAX_FORM *tax_form;
 	LIST *cash_transaction_list;
+	LIST *depreciation_transaction_list;
+	LIST *rental_property_street_address_list;
 } TAX_INPUT;
 
 typedef struct
@@ -84,8 +86,7 @@ TAX *tax_new(				char *application_name,
 TAX_FORM *tax_form_new(			char *application_name,
 					char *tax_form );
 
-TAX_FORM_LINE *tax_form_line_new(	char *tax_form,
-					char *tax_form_line,
+TAX_FORM_LINE *tax_form_line_new(	char *tax_form_line,
 					char *tax_form_description,
 					boolean itemize_accounts );
 
@@ -98,24 +99,30 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 LIST *tax_fetch_account_list(		char *application_name,
 					char *tax_form_line );
 
-LIST *tax_fetch_cash_transaction_list(
+LIST *tax_fetch_account_transaction_list(
 					char *application_name,
-					char *fund_name,
 					char *begin_date_string,
-					char *end_date_string );
+					char *end_date_string,
+					char *account_name );
 
-LIST *tax_process_get_tax_form_line_list(
+LIST *tax_process_set_journal_ledger_list(
 					LIST *unaccounted_journal_ledger_list,
-					char *application_name,
-					char *fund_name,
 					LIST *tax_form_line_list,
-					LIST *cash_transaction_list );
+					LIST *transaction_list,
+					char *account_name );
 
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 					LIST *tax_form_line_list,
 					char *account_name );
 
-void tax_process_set_tax_form_line_total(
+/* Also accumulates tax_form_account_total */
+/* --------------------------------------- */
+void tax_process_accumulate_tax_form_line_total(
 					LIST *tax_form_line_list );
+
+LIST *tax_get_rental_property_string_list(
+					char *application_name,
+					char *begin_date_string,
+					char *end_date_string );
 
 #endif

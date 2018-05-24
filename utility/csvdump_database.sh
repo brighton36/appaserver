@@ -65,7 +65,7 @@ then
 	exit 1
 fi
 
-backup_archive_grandfather_father_son.sh $parameter_file $date_yyyy_mm_dd
+mysqldump_archive_grandfather_father_son.sh $parameter_file $date_yyyy_mm_dd
 
 echo "$0 ending at   `date.e 0`"
 

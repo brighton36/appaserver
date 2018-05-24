@@ -22,7 +22,7 @@
 
 /* Prototypes */
 /* ---------- */
-int get_needed_megabytes(		char *output_directory,
+long int get_needed_megabytes(		char *output_directory,
 					char *latest_date );
 
 boolean filesystem_enough_space(	char *output_directory );
@@ -485,11 +485,11 @@ void output_audit_results(	char *audit_database_filename,
 
 } /* output_audit_results() */
 
-int get_needed_megabytes(	char *output_directory,
+long int get_needed_megabytes(	char *output_directory,
 				char *latest_date )
 {
 	char sys_string[ 1024 ];
-	int needed_megabytes = 0;
+	long int needed_megabytes = 0;
 	char input_buffer[ 512 ];
 	char megabytes_string[ 64 ];
 	FILE *input_pipe;
@@ -504,19 +504,18 @@ int get_needed_megabytes(	char *output_directory,
 	while( get_line( input_buffer,input_pipe ) )
 	{
 		column( megabytes_string, 4, input_buffer );
-		needed_megabytes += atoi( megabytes_string );
+		needed_megabytes += strtol( megabytes_string, (char **)0, 10 );
 	}
 
 	pclose( input_pipe );
-
 	return needed_megabytes;
 
 } /* get_needed_megabytes() */
 
 boolean filesystem_enough_space( char *output_directory )
 {
-	int available_megabytes = 0;
-	int needed_megabytes;
+	long int available_megabytes = 0;
+	long int needed_megabytes;
 	char *latest_date;
 
 	timlib_directory_filesystem(

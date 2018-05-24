@@ -598,7 +598,6 @@ long int get_needed_megabytes(	char *output_directory,
 	}
 
 	pclose( input_pipe );
-
 	return needed_megabytes;
 
 } /* get_needed_megabytes() */

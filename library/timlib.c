@@ -2557,10 +2557,12 @@ boolean timlib_file_populated( char *filename )
 		 "stat.e %s | grep '.size' | column.e 1",
 		 filename );
 	return_string = pipe2string( sys_string );
+
 	if ( !return_string || !*return_string )
 		return 0;
 	else
 		return atoi( return_string );
+
 } /* timlib_file_populated() */
 
 char *timlib_mysql_date2ddmmyyyy(	char *destination,
@@ -3384,6 +3386,7 @@ char *timlib_directory_filesystem(	long int *available_megabytes,
 	}
 
 	pclose( input_pipe );
+
 	return filesystem;
 
 } /* timlib_directory_filesystem() */

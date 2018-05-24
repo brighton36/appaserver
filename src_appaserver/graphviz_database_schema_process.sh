@@ -54,9 +54,9 @@ postscript_file=`graphviz_render.sh $graphviz_file`
 graphviz_prompt_file=${prompt_directory}/${graphviz_file}
 postscript_prompt_file=${prompt_directory}/${postscript_file}
 
-echo "<a href=$postscript_prompt_file>Press to transmit postscript file.</a>"
-echo "<br>"
-echo "<a href=$graphviz_prompt_file>Press to transmit graphviz file.</a>"
+echo "<p><a href=$postscript_prompt_file>Press to transmit postscript file.</a>"
+echo "<p>Best when viewed in <a href=https://wiki.gnome.org/Apps/Evince target=_new>Evince</a>"
+echo "<p><a href=$graphviz_prompt_file>Press to transmit graphviz file.</a>"
 echo "</body></html>"
 
 exit 0

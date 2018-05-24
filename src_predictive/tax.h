@@ -23,8 +23,31 @@
 #define TAX_FORM_LINE_KEY		".tax_form_line "
 #define TAX_FORM_LINE_ACCOUNT_KEY	".account "
 
+/* Enumerated types */
+/* ---------------- */
+enum tax_form_line_category {
+	revenue,
+	mortgage_interest_paid,
+	depreciation_expense,
+	operating_expense,
+	loss };
+
 /* Structures */
 /* ---------- */
+typedef struct
+{
+	char *rental_property_street_address;
+	double tax_form_line_total;
+} TAX_OUTPUT_RENTAL_PROPERTY;
+
+typedef struct
+{
+	char *tax_form_line;
+	char *tax_form_description;
+	enum tax_form_line_category tax_form_line_category;
+	LIST *rental_property_list;
+} TAX_FORM_LINE_RENTAL;
+	
 typedef struct
 {
 	LIST *tax_form_line_rental_list;
@@ -136,8 +159,26 @@ LIST *tax_get_rental_property_string_list(
 					char *begin_date_string,
 					char *end_date_string );
 
-LIST *tax_get_line_rental_list(
+LIST *tax_get_tax_form_line_rental_list(
 				LIST *tax_form_line_list,
 				LIST *rental_property_street_address_list );
+
+void tax_form_line_rental_list_set(
+				LIST *tax_form_line_rental_list,
+				TAX_FORM_LINE *tax_form_line,
+				LIST *rental_property_street_address_list );
+
+void tax_form_line_account_rental_property_list_set(
+				LIST *rental_property_list,
+				LIST *journal_ledger_list,
+				boolean accumulate_debit,
+				LIST *rental_property_street_address_list );
+
+TAX_FORM_LINE_RENTAL *tax_form_line_rental_new(
+				char *tax_form_line,
+				char *tax_form_description );
+
+TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
+				char *rental_property_street_address );
 
 #endif

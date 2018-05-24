@@ -548,10 +548,181 @@ LIST *tax_get_rental_property_string_list(	char *application_name,
 
 } /* tax_get_rental_property_string_list() */
 
-LIST *tax_get_line_rental_list(
+TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
+				char *rental_property_street_address )
+{
+	TAX_OUTPUT_RENTAL_PROPERTY *t;
+
+	if ( ! ( t = calloc( 1, sizeof ( TAX_OUTPUT_RENTAL_PROPERTY ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	t->rental_property_street_address = rental_property_street_address;
+
+	return t;
+
+} /* tax_output_rental_property_new() */
+
+TAX_FORM_LINE_RENTAL *tax_form_line_rental_new(
+				char *tax_form_line,
+				char *tax_form_description )
+{
+	TAX_FORM_LINE_RENTAL *t;
+
+	if ( ! ( t = calloc( 1, sizeof ( TAX_FORM_LINE_RENTAL ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	t->tax_form_line = tax_form_line;
+	t->tax_form_description = tax_form_description;
+	t->rental_property_list = list_new();
+
+	return t;
+
+} /* tax_form_line_rental_new() */
+
+void tax_form_line_account_rental_property_list_set(
+			LIST *rental_property_list,
+			LIST *journal_ledger_list,
+			boolean accumulate_debit,
+			LIST *rental_property_street_address_list )
+{
+	TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property;
+	JOURNAL_LEDGER *ledger;
+	char *rental_property_street_address;
+	double denominator;
+
+	if ( !list_rewind( journal_ledger_list ) ) return;
+
+	if ( !list_length( rental_property_street_address_list ) ) return;
+
+	denominator =
+		(double)
+		list_length( 
+			rental_property_street_address_list );
+
+	do {
+		ledger = list_get_pointer( journal_ledger_list );
+
+		list_rewind( rental_property_street_address_list );
+
+		do {
+			rental_property_street_address =
+				list_get_pointer(
+					rental_property_street_address_list );
+
+			tax_output_rental_property =
+				tax_output_rental_property_new(
+					rental_property_street_address );
+
+			if ( ledger->rental_property_street_address
+			&&   *ledger->rental_property_street_address )
+			{
+				if ( strcmp( 
+					ledger->
+						rental_property_street_address,
+					rental_property_street_address ) == 0 )
+				{
+					tax_output_rental_property->
+						tax_form_line_total +=
+							ledger_get_amount(
+						    	     ledger,
+						    	     accumulate_debit );
+					break;
+				}
+			}
+			else
+			{
+				tax_output_rental_property->
+					tax_form_line_total +=
+						( ledger_get_amount(
+					    		ledger,
+					    		accumulate_debit ) /
+						  denominator );
+			}
+
+			list_append_pointer(
+				rental_property_list,
+				tax_output_rental_property );
+
+		} while( list_next( rental_property_street_address_list ) );
+
+	} while( list_next( journal_ledger_list ) );
+
+} /* tax_form_line_account_rental_property_list_set() */
+
+void tax_form_line_rental_property_list_set(
+			LIST *rental_property_list,
+			TAX_FORM_LINE *tax_form_line,
+			LIST *rental_property_street_address_list )
+{
+	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
+	LIST *tax_form_line_account_list;
+
+	tax_form_line_account_list =
+		tax_form_line->
+			tax_form_line_account_list;
+
+	if ( !list_rewind( tax_form_line_account_list ) ) return;
+
+	do {
+		tax_form_line_account =
+			list_get_pointer(
+				tax_form_line_account_list );
+
+		tax_form_line_account_rental_property_list_set(
+			rental_property_list,
+			tax_form_line_account->journal_ledger_list,
+			tax_form_line_account->accumulate_debit,
+			rental_property_street_address_list );
+
+	} while( list_next( tax_form_line_account_list ) );
+
+} /* tax_form_line_rental_property_list_set() */
+
+LIST *tax_get_tax_form_line_rental_list(
 			LIST *tax_form_line_list,
 			LIST *rental_property_street_address_list )
 {
-	return (LIST *)0;
+	TAX_FORM_LINE *tax_form_line;
+	TAX_FORM_LINE_RENTAL *tax_form_line_rental;
+	LIST *tax_form_line_rental_list;
 
-} /* tax_get_line_rental_list() */
+	if ( !list_rewind( tax_form_line_list ) ) return (LIST *)0;
+
+	tax_form_line_rental_list = list_new();
+
+	do {
+		tax_form_line = list_get( tax_form_line_list );
+
+		tax_form_line_rental =
+			tax_form_line_rental_new(
+				tax_form_line->tax_form_line,
+				tax_form_line->tax_form_description );
+
+		list_append_pointer(
+			tax_form_line_rental_list,
+			tax_form_line_rental );
+
+		tax_form_line_rental_property_list_set(
+			tax_form_line_rental->rental_property_list,
+			tax_form_line,
+			rental_property_street_address_list );
+
+	} while( list_next( tax_form_line_list ) );
+
+	return tax_form_line_rental_list;
+
+} /* tax_get_tax_form_line_rental_list() */

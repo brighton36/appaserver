@@ -130,7 +130,7 @@ int main( int argc, char **argv )
 	}
 
 	tax->tax_output_rental.tax_form_line_rental_list =
-		tax_get_line_rental_list(
+		tax_get_tax_form_line_rental_list(
 			tax->tax_process.tax_form_line_list,
 			tax->tax_input.rental_property_street_address_list );
 

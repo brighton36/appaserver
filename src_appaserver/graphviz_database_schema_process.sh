@@ -48,11 +48,12 @@ echo "<body><h1>$process_title</h1>"
 # ------
 cd $output_directory
 graphviz_file="${process_name}_$$.gv"
-graphviz_database_schema.sh "$appaserver_yn" > $graphviz_file
-postscript_file=`graphviz_render.sh $graphviz_file`
-
+postscript_file="${process_name}_$$.ps"
 graphviz_prompt_file=${prompt_directory}/${graphviz_file}
 postscript_prompt_file=${prompt_directory}/${postscript_file}
+
+graphviz_database_schema.sh "$appaserver_yn" > $graphviz_file
+dot -Tps $graphviz_file -o $postscript_file
 
 echo "<p><a href=$postscript_prompt_file>Press to transmit postscript file.</a>"
 echo "<p>Best when viewed in <a href=https://wiki.gnome.org/Apps/Evince target=_new>Evince</a>"

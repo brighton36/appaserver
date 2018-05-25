@@ -460,7 +460,7 @@ void output_spreadsheet(
 		output_filename,
 		application_name,
 		station,
-		0 /* not with_zap_file */ );
+		1 /* with_zap_file */ );
 
 	strcpy( sys_string,
 		get_heading_sys_string(
@@ -607,7 +607,7 @@ void output_text_file(
 		output_filename,
 		application_name,
 		station,
-		0 /* not with_zap_file */ );
+		1 /* with_zap_file */ );
 
 	strcpy( sys_string,
 		get_sys_string(

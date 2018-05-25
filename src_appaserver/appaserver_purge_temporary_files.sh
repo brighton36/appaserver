@@ -6,12 +6,6 @@
 # Freely available software: see Appaserver.org
 # -------------------------------------------------------------------
 
-if [ $# -ne 1 ]
-then
-	echo "Usage: `basename.e $0 n` ignored" 1>&2
-	exit 1
-fi
-
 # First, purge $document_root/appaserver/*/data/
 # ----------------------------------------------
 delay_minutes=30

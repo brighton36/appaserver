@@ -902,7 +902,7 @@ sys_string );
 				output_filename,
 				application_name,
 				station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 /*
 		if ( *exceedance_format_yn == 'y' )
@@ -984,13 +984,6 @@ sys_string );
 		char output_sys_string[ 512 ];
 		APPASERVER_LINK_FILE *appaserver_link_file;
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
 		appaserver_link_file =
 			appaserver_link_file_new(
 				application_get_http_prefix( application_name ),
@@ -1035,7 +1028,7 @@ sys_string );
 				output_filename,
 				application_name,
 				station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 /*
 		if ( *exceedance_format_yn == 'y' )

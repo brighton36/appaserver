@@ -3,7 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	touch csvdump_fork.c
-	make csvdump_fork.e
+	cd ../src_appaserver
+	touch sql.c
+	make sql.e
 fi

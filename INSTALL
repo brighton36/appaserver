@@ -55,7 +55,7 @@ Or add yourself to group=www-data:
 D) Shell installation steps
 ---------------------------
 
-01) $ cd $somewhere
+01) $ cd /foo
 02) $ sudo mkdir appaserver
 03) $ sudo chgrp $appaservergroup appaserver
 04) $ sudo chmod g+ws appaserver
@@ -97,14 +97,28 @@ tables, yet. Instead, execute the <Process> called
 <Create Empty Application>. Then log into your new application
 and build your tables.
 
+--------------
+G) Maintenance
+--------------
+
+Appaserver creates temporary files that need to be purged in:
+1) $DOCUMENT_ROOT/appaserver/$DATABASE/data
+2) /var/appaserver_data
+
+These files are purged automatically as users press the <Submit>
+button. However, an inactive system will leave temporary files
+lingering. Therefore, place this line in your crontab:
+
+0 2 * * * APPASERVER_HOME=/foo/appaserver; PATH=$PATH:$APPASERVER_HOME/src_appaserver:$APPASERVER_HOME/utility; export PATH; appaserver_purge_temporary_files.sh
+
 ---------------------
-G) Upgrade Appaserver
+H) Upgrade Appaserver
 ---------------------
 
 See UPGRADE
 
 -----------------------
-H) Uninstall Appaserver
+I) Uninstall Appaserver
 -----------------------
 
 1) $ echo "drop database template;" | sql.e

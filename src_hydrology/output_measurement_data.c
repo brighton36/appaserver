@@ -436,7 +436,7 @@ int main( int argc, char **argv )
 				output_filename,
 				application_name,
 				station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 		sys_string = get_sys_string(	
 				application_name,
@@ -460,6 +460,7 @@ int main( int argc, char **argv )
 				zulu_time );
 
 		system( sys_string );
+
 		sprintf( sys_string, "cat %s", output_filename );
 		system( sys_string );
 	}
@@ -472,7 +473,7 @@ int main( int argc, char **argv )
 				output_filename,
 				application_name,
 				station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 		sys_string = get_sys_string(	
 				application_name,

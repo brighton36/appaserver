@@ -138,13 +138,24 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 
 	application =
 		environ_get_environment(
-		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
 
-	if ( !application
-	||   !*application )
+	if ( !application || !*application )
 	{
 		application =
-			environ_get_environment( "DATABASE" );
+			environ_get_environment(
+				"DATABASE" );
+	}
+
+	if ( !application || !*application )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: empty environment variables: %s and DATABASE.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		exit( 1 );
 	}
 
 	return appaserver_parameter_file_application( application );

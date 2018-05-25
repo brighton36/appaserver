@@ -222,7 +222,7 @@ int main( int argc, char **argv )
 				output_filename,
 				application_name,
 				station,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 		sprintf( sys_string,
 			 "tr '%c' ',' >> %s",
@@ -297,7 +297,7 @@ int main( int argc, char **argv )
 				output_filename,
 				application_name,
 				station,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 /*
 		sprintf( sys_string,

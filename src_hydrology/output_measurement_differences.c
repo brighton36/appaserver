@@ -563,13 +563,13 @@ int main( int argc, char **argv )
 				output_pipename,
 				application_name,
 				positive_station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 		hydrology_library_output_station_text_filename(
 				output_pipename,
 				application_name,
 				negative_station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 		sprintf( sys_string,
 			 "tr '|' ',' >> %s",
@@ -683,13 +683,13 @@ int main( int argc, char **argv )
 				output_pipename,
 				application_name,
 				positive_station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 		hydrology_library_output_station_text_filename(
 				output_pipename,
 				application_name,
 				negative_station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 		sprintf(sys_string,
 		 	"tr '|' '%c' >> %s",

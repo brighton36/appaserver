@@ -253,7 +253,7 @@ void missing_measurement_report_stdout(
 				"stdout",
 				application_name,
 				station,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 	hydrology_library_output_data_collection_frequency_text_file(
 				stdout,
@@ -474,7 +474,7 @@ void missing_measurement_report_spreadsheet_text_file(
 				output_pipename,
 				application_name,
 				station,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 	output_pipe = fopen( output_pipename, "a" );
 

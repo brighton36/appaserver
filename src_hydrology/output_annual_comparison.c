@@ -365,7 +365,7 @@ int main( int argc, char **argv )
 				output_pipename,
 				application_name,
 				station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 		sprintf( sys_string,
 			 "cat >> %s",
@@ -443,16 +443,6 @@ int main( int argc, char **argv )
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
-/*
-		sprintf( output_pipename,
-			 OUTPUT_TEXT_TEMPLATE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_month_day,
-			 end_month_day,
-			 session );
-*/
-
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -487,7 +477,7 @@ int main( int argc, char **argv )
 				output_pipename,
 				application_name,
 				station_name,
-				0 /* not with_zap_file */ );
+				1 /* with_zap_file */ );
 
 		sprintf( sys_string,
 			 "cat >> %s",

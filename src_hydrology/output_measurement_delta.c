@@ -508,18 +508,6 @@ void output_text_file(		char *application_name,
 			begin_date,
 			end_date_suffix );
 
-/*
-		sprintf(output_filename,
-	 		OUTPUT_FILE_TEXT_FILE,
-	 		appaserver_mount_point,
-	 		application_name, 
-			station,
-			datatype,
-	 		begin_date,
-	 		end_date_suffix,
-	 		session );
-*/
-
 		appaserver_link_file->begin_date_string =
 			date_station_datatype_string;
 
@@ -570,7 +558,7 @@ void output_text_file(		char *application_name,
 			output_filename,
 			application_name,
 			station,
-			0 /* not with_zap_file */ );
+			1 /* with_zap_file */ );
 
 		where_clause = get_where_clause(
 				begin_date,
@@ -691,17 +679,6 @@ void output_spreadsheet(	char *application_name,
 			begin_date,
 			end_date_suffix );
 
-/*
-		sprintf(output_filename,
-	 		OUTPUT_FILE_SPREADSHEET,
-	 		appaserver_mount_point,
-	 		application_name, 
-			station,
-			datatype,
-	 		begin_date,
-	 		end_date_suffix,
-	 		session );
-*/
 		appaserver_link_file->begin_date_string =
 			date_station_datatype_string;
 
@@ -752,7 +729,7 @@ void output_spreadsheet(	char *application_name,
 			output_filename,
 			application_name,
 			station,
-			0 /* not with_zap_file */ );
+			1 /* with_zap_file */ );
 
 		where_clause = get_where_clause(
 				begin_date,

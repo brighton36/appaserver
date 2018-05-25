@@ -36,9 +36,10 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
+	int tax_year;
+	char *output_medium;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	int tax_year;
 	char begin_date_string[ 16 ];
 	char end_date_string[ 16 ];
 	char title[ 128 ];
@@ -53,16 +54,17 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 3 )
+	if ( argc != 4 )
 	{
 		fprintf( stderr,
-			 "Usage: %s process tax_year\n",
+			 "Usage: %s process tax_year output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
 	tax_year = atoi( argv[ 2 ] );
+	output_medium = argv[ 3 ];
 
 	if ( !tax_year )
 	{
@@ -73,6 +75,9 @@ int main( int argc, char **argv )
 	{
 		tax_year += CURRENT_CENTURY;
 	}
+
+	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
+		output_medium = "table";
 
 	sprintf( begin_date_string, "%d-01-01", tax_year );
 	sprintf( end_date_string, "%d-12-31", tax_year );
@@ -143,9 +148,114 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	if ( strcmp( output_medium, "table" ) == 0 )
+	{
+		tax_form_report_html_table(
+			title,
+			sub_title,
+			tax->tax_process.tax_form,
+			tax->tax_process.tax_form_line_list );
+	}
+
 	document_close();
 
 	return 0;
 
 } /* main() */
+
+void tax_form_report_html_table(
+			char *title,
+			char *sub_title,
+			char *tax_form,
+			LIST *tax_form_line_list )
+{
+	HTML_TABLE *html_table;
+	LIST *heading_list;
+	TAX_FORM_LINE *tax_form_line;
+	int count = 0;
+	char caption[ 128 ];
+
+	sprintf( caption, "%s %s", sub_title, tax_form );
+
+	heading_list = list_new();
+	list_append_string( heading_list, "tax_form_line" );
+	list_append_string( heading_list, "tax_form_description" );
+	list_append_string( heading_list, "balance" );
+
+	html_table = new_html_table(
+			title,
+			strdup( caption ) );
+
+	html_table->number_left_justified_columns = 2;
+	html_table->number_right_justified_columns = 1;
+	html_table_set_heading_list( html_table, heading_list );
+	html_table_output_table_heading(
+					html_table->title,
+					html_table->sub_title );
+	html_table_output_data_heading(
+		html_table->heading_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->justify_list );
+
+	if ( !list_rewind( tax_form_line_list ) )
+	{
+		printf(
+"<h3>ERROR: there are no tax form lines for this tax form.</h3>\n" );
+		html_table_close();
+		document_close();
+		exit( 1 );
+	}
+
+	do {
+		tax_form_line = list_get( tax_form_line_list );
+
+		if ( timlib_double_virtually_same(
+			tax_form_line->tax_form_line_total,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		if ( ++count == ROWS_BETWEEN_HEADING )
+		{
+			html_table_output_data_heading(
+				html_table->heading_list,
+				html_table->
+				number_left_justified_columns,
+				html_table->
+				number_right_justified_columns,
+				html_table->justify_list );
+			count = 0;
+		}
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( tax_form_line->tax_form_line ) );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( tax_form_line->tax_form_description ) );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( timlib_place_commas_in_money(
+					tax_form_line->
+						tax_form_line_total ) ) );
+
+		html_table_output_data(
+			html_table->data_list,
+			html_table->number_left_justified_columns,
+			html_table->number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+
+			list_free( html_table->data_list );
+			html_table->data_list = list_new();
+
+	} while( list_next( tax_form_line_list ) );
+
+	html_table_close();
+
+} /* tax_form_report_html_table() */
 

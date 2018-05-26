@@ -252,6 +252,7 @@ function select_edges ()
 			automatic_preselection_yn,
 			drop_down_multi_select_yn,
 			join_1tom_each_row_yn,
+			omit_lookup_before_drop_down_yn,
 			ajax_fill_drop_down_yn"
 
 	echo "select $select from $from where $where;"			|
@@ -268,56 +269,62 @@ function select_edges ()
 		automatic_preselection_yn=`echo $record | piece.e '^' 7`
 		drop_down_multi_select_yn=`echo $record | piece.e '^' 8`
 		join_1tom_each_row_yn=`echo $record | piece.e '^' 9`
-		ajax_fill_drop_down_yn=`echo $record | piece.e '^' 10`
-	
+		omit_lookup_before_drop_down_yn=`echo $record | piece.e '^' 10`
+		ajax_fill_drop_down_yn=`echo $record | piece.e '^' 11`
+
 		/bin/echo -n "$folder -> $related_folder [label="
 		/bin/echo -n '"'
-	
+
 		if [ "$related_attribute" != "null" ]
 		then
 			/bin/echo -n "$related_attribute"
 		fi
-	
+
 		if [ "$pair_1tom_order" != "" -a "$pair_1tom_order" != "0" ]
 		then
 			/bin/echo -n "\\npair-${pair_1tom_order}"
 		fi
-	
+
 		if [ "$relation_type_isa_yn" = "y" ]
 		then
 			/bin/echo -n "\\nisa"
 		fi
-	
+
 		if [ "$prompt_mto1_recursive_yn" = "y" ]
 		then
 			/bin/echo -n "\\nrecursive"
 		fi
-	
+
 		if [ "$copy_common_attributes_yn" = "y" ]
 		then
 			/bin/echo -n "\\ncopy"
 		fi
-	
+
 		if [ "$automatic_preselection_yn" = "y" ]
 		then
 			/bin/echo -n "\\nautomatic"
 		fi
-	
+
 		if [ "$drop_down_multi_select_yn" = "y" ]
 		then
 			/bin/echo -n "\\nmulti"
 		fi
-	
+
 		if [ "$join_1tom_each_row_yn" = "y" ]
 		then
 			/bin/echo -n "\\njoin"
 		fi
-	
+
+		if [ "$omit_lookup_before_drop_down_yn" = "y" ]
+		then
+			/bin/echo -n "\\nomit-lookup"
+		fi
+
 		if [ "$ajax_fill_drop_down_yn" = "y" ]
 		then
 			/bin/echo -n "\\najax"
 		fi
-	
+
 		/bin/echo '"];'
 	done
 

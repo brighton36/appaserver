@@ -28,9 +28,20 @@
 /* --------- */
 #define CURRENT_CENTURY		2000
 #define SCHEDULE_E		"Schedule e"
+#define ROWS_BETWEEN_HEADING	10
 
 /* Prototypes */
 /* ---------- */
+HTML_TABLE *tax_form_report_get_html_table(
+			char *title,
+			char *sub_title,
+			LIST *rental_property_street_address_list );
+
+void tax_form_report_html_table(
+			char *title,
+			char *sub_title,
+			LIST *tax_form_line_rental_list,
+			LIST *rental_property_street_address_list );
 
 int main( int argc, char **argv )
 {
@@ -90,8 +101,9 @@ int main( int argc, char **argv )
 			application_name ) );
 
 	sprintf(sub_title,
-	 	"%s Tax Year: %d",
+	 	"%s %s Tax Year: %d",
 	 	format_initial_capital( buffer, process_name ),
+		SCHEDULE_E,
 	 	tax_year );
 
 	document = document_new( process_name, application_name );
@@ -116,6 +128,14 @@ int main( int argc, char **argv )
 			begin_date_string,
 			end_date_string,
 			SCHEDULE_E );
+
+	if ( !tax || !tax->tax_input.tax_form->tax_form )
+	{
+		printf(
+		"<h3>An internal error occurred. Check log.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
 
 	tax->tax_input.rental_property_street_address_list =
 		tax_get_rental_property_string_list(
@@ -153,8 +173,8 @@ int main( int argc, char **argv )
 		tax_form_report_html_table(
 			title,
 			sub_title,
-			tax->tax_process.tax_form,
-			tax->tax_process.tax_form_line_list );
+			tax->tax_output_rental.tax_form_line_rental_list,
+			tax->tax_input.rental_property_street_address_list );
 	}
 
 	document_close();
@@ -166,39 +186,31 @@ int main( int argc, char **argv )
 void tax_form_report_html_table(
 			char *title,
 			char *sub_title,
-			char *tax_form,
-			LIST *tax_form_line_list )
+			LIST *tax_form_line_rental_list,
+			LIST *rental_property_street_address_list )
 {
-	HTML_TABLE *html_table;
-	LIST *heading_list;
-	TAX_FORM_LINE *tax_form_line;
+	TAX_FORM_LINE_RENTAL *tax_form_line_rental;
+	TAX_OUTPUT_RENTAL_PROPERTY *rental_property;
 	int count = 0;
-	char caption[ 128 ];
+	HTML_TABLE *html_table;
 
-	sprintf( caption, "%s %s", sub_title, tax_form );
-
-	heading_list = list_new();
-	list_append_string( heading_list, "tax_form_line" );
-	list_append_string( heading_list, "tax_form_description" );
-	list_append_string( heading_list, "balance" );
-
-	html_table = new_html_table(
+	html_table =
+		tax_form_report_get_html_table(
 			title,
-			strdup( caption ) );
+			sub_title,
+			rental_property_street_address_list );
 
-	html_table->number_left_justified_columns = 2;
-	html_table->number_right_justified_columns = 1;
-	html_table_set_heading_list( html_table, heading_list );
 	html_table_output_table_heading(
 					html_table->title,
 					html_table->sub_title );
+
 	html_table_output_data_heading(
 		html_table->heading_list,
 		html_table->number_left_justified_columns,
 		html_table->number_right_justified_columns,
 		html_table->justify_list );
 
-	if ( !list_rewind( tax_form_line_list ) )
+	if ( !list_rewind( tax_form_line_rental_list ) )
 	{
 		printf(
 "<h3>ERROR: there are no tax form lines for this tax form.</h3>\n" );
@@ -208,11 +220,11 @@ void tax_form_report_html_table(
 	}
 
 	do {
-		tax_form_line = list_get( tax_form_line_list );
+		tax_form_line_rental = list_get( tax_form_line_rental_list );
 
-		if ( timlib_double_virtually_same(
-			tax_form_line->tax_form_line_total,
-			0.0 ) )
+		if ( !list_length(
+			tax_form_line_rental->
+				rental_property_list ) )
 		{
 			continue;
 		}
@@ -231,17 +243,29 @@ void tax_form_report_html_table(
 
 		html_table_set_data(
 			html_table->data_list,
-			strdup( tax_form_line->tax_form_line ) );
+			strdup( tax_form_line_rental->tax_form_line ) );
 
 		html_table_set_data(
 			html_table->data_list,
-			strdup( tax_form_line->tax_form_description ) );
+			strdup( tax_form_line_rental->tax_form_description ) );
 
-		html_table_set_data(
-			html_table->data_list,
-			strdup( timlib_place_commas_in_money(
-					tax_form_line->
+		list_rewind( tax_form_line_rental->rental_property_list );
+
+		do {
+			rental_property =
+				list_get_pointer(
+					tax_form_line_rental->
+						rental_property_list );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( timlib_place_commas_in_money(
+					     rental_property->
 						tax_form_line_total ) ) );
+
+		} while( list_next(
+				tax_form_line_rental->
+					rental_property_list ) );
 
 		html_table_output_data(
 			html_table->data_list,
@@ -253,9 +277,49 @@ void tax_form_report_html_table(
 			list_free( html_table->data_list );
 			html_table->data_list = list_new();
 
-	} while( list_next( tax_form_line_list ) );
+	} while( list_next( tax_form_line_rental_list ) );
 
 	html_table_close();
 
 } /* tax_form_report_html_table() */
 
+HTML_TABLE *tax_form_report_get_html_table(
+				char *title,
+				char *sub_title,
+				LIST *rental_property_street_address_list )
+{
+	HTML_TABLE *html_table;
+	LIST *heading_list;
+	char *rental_property_street_address;
+
+	html_table = new_html_table(
+			title,
+			strdup( sub_title ) );
+
+	if ( !list_rewind( rental_property_street_address_list ) )
+		return html_table;
+
+	heading_list = list_new();
+	list_append_string( heading_list, "tax_form_line" );
+	list_append_string( heading_list, "tax_form_description" );
+
+	do {
+		rental_property_street_address =
+			list_get_pointer(
+				rental_property_street_address_list );
+
+		list_append_string(
+			heading_list,
+			rental_property_street_address );
+
+	} while( list_next( rental_property_street_address_list ) );
+
+	html_table_set_heading_list( html_table, heading_list );
+	html_table->number_left_justified_columns = 2;
+
+	html_table->number_right_justified_columns =
+		list_length( rental_property_street_address_list );
+
+	return html_table;
+
+} /* tax_form_report_get_html_table() */

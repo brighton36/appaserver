@@ -147,17 +147,6 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 				"DATABASE" );
 	}
 
-	if ( !application || !*application )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: empty environment variables: %s and DATABASE.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
-		exit( 1 );
-	}
-
 	return appaserver_parameter_file_application( application );
 
 } /* appaserver_parameter_file_new() */
@@ -363,11 +352,21 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 
 	if ( !f )
 	{
-		fprintf( stderr,
+		if ( !application_name || !*application_name )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: Set either DATABASE or %s.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		}
+
+		fprintf(stderr,
 "ERROR in %s/%s()/%d: cannot open appaserver parameter file for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		 	__FILE__,
+		 	__FUNCTION__,
+		 	__LINE__ );
 		exit( 1 );
 	}
 

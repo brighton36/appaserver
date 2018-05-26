@@ -27,7 +27,7 @@
 /* Constants */
 /* --------- */
 #define CURRENT_CENTURY		2000
-#define SCHEDULE_E		"Schedule e"
+#define SCHEDULE_E		"Schedule E"
 #define ROWS_BETWEEN_HEADING	10
 
 /* Prototypes */
@@ -129,7 +129,15 @@ int main( int argc, char **argv )
 			end_date_string,
 			SCHEDULE_E );
 
-	if ( !tax || !tax->tax_input.tax_form->tax_form )
+	if ( !tax )
+	{
+		printf(
+		"<h3>No cash transations exist for this year.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	if ( !tax->tax_input.tax_form->tax_form )
 	{
 		printf(
 		"<h3>An internal error occurred. Check log.</h3>\n" );

@@ -61,12 +61,27 @@ TAX *tax_new(			char *application_name,
 		exit( 1 );
 	}
 
+	if ( !list_length( t->tax_input.tax_form->tax_form_line_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty TAX_FORM_LINE_ACCOUNT table.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	t->tax_input.cash_transaction_list =
 		tax_fetch_account_transaction_list(
 			application_name,
 			begin_date_string,
 			end_date_string,
 			checking_account );
+
+	if ( !list_length( t->tax_input.cash_transaction_list ) )
+	{
+		return (TAX *)0;
+	}
 
 	t->tax_input.depreciation_transaction_list =
 		tax_fetch_account_transaction_list(
@@ -88,18 +103,12 @@ TAX *tax_new(			char *application_name,
 			t->tax_input.cash_transaction_list,
 			checking_account );
 
-	/* ------------------------------------------------------------ */
-	/* Receives t->tax_input.tax_form->tax_form_line_list		*/
-	/* with tax_form_line_account_list->journal_ledger_list built.	*/
-	/* ------------------------------------------------------------ */
 	t->tax_process.tax_form_line_list =
 		tax_process_set_journal_ledger_list(
 			t->tax_process.unaccounted_journal_ledger_list,
 			t->tax_input.tax_form->tax_form_line_list,
 			t->tax_input.depreciation_transaction_list,
 			depreciation_account );
-
-	t->tax_process.tax_form = t->tax_input.tax_form->tax_form;
 
 	if ( !t->tax_process.tax_form_line_list )
 	{
@@ -110,6 +119,13 @@ TAX *tax_new(			char *application_name,
 			 __LINE__ );
 		exit( 1 );
 	}
+
+	if ( !list_length( t->tax_process.tax_form_line_list ) )
+	{
+		return (TAX *)0;
+	}
+
+	t->tax_process.tax_form = t->tax_input.tax_form->tax_form;
 
 	/* Also accumulates tax_form_account_total */
 	/* --------------------------------------- */
@@ -385,6 +401,8 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 
 LIST *tax_process_set_journal_ledger_list(
 				LIST *unaccounted_journal_ledger_list,
+				/* Returns this. */
+				/* ------------- */
 				LIST *tax_form_line_list,
 				LIST *transaction_list,
 				char *account_name )
@@ -393,7 +411,8 @@ LIST *tax_process_set_journal_ledger_list(
 	JOURNAL_LEDGER *journal_ledger;
 	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
 
-	if ( !list_rewind( transaction_list ) ) return (LIST *)0;
+	if ( !list_rewind( transaction_list ) )
+		return tax_form_line_list;
 
 	do {
 		transaction = list_get_pointer( transaction_list );

@@ -1082,6 +1082,11 @@ LIST *ledger_consolidate_journal_ledger_list(
 LIST *ledger_get_unique_account_name_list(
 			LIST *journal_ledger_list );
 
+double ledger_debit_credit_get_amount(
+				double debit_amount,
+				double credit_amount,
+				boolean accumulate_debit );
+
 double ledger_get_amount(	JOURNAL_LEDGER *ledger,
 				boolean accumulate_debit );
 

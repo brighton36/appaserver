@@ -101,9 +101,8 @@ int main( int argc, char **argv )
 			application_name ) );
 
 	sprintf(sub_title,
-	 	"%s %s Tax Year: %d",
+	 	"%s Tax Year: %d",
 	 	format_initial_capital( buffer, process_name ),
-		SCHEDULE_E,
 	 	tax_year );
 
 	document = document_new( process_name, application_name );
@@ -175,6 +174,9 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 0 );
 	}
+
+	tax_line_rental_list_accumulate_line_total(
+		tax->tax_output_rental.tax_form_line_rental_list );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{

@@ -45,6 +45,7 @@ typedef struct
 	char *tax_form_line;
 	char *tax_form_description;
 	enum tax_form_line_category tax_form_line_category;
+	LIST *tax_form_line_account_list;
 	LIST *rental_property_list;
 } TAX_FORM_LINE_RENTAL;
 	
@@ -163,9 +164,7 @@ LIST *tax_get_tax_form_line_rental_list(
 				LIST *tax_form_line_list,
 				LIST *rental_property_street_address_list );
 
-void tax_form_line_rental_list_set(
-				LIST *tax_form_line_rental_list,
-				TAX_FORM_LINE *tax_form_line,
+LIST *tax_form_line_rental_get_empty_property_list(
 				LIST *rental_property_street_address_list );
 
 void tax_form_line_account_rental_property_list_set(
@@ -176,9 +175,36 @@ void tax_form_line_account_rental_property_list_set(
 
 TAX_FORM_LINE_RENTAL *tax_form_line_rental_new(
 				char *tax_form_line,
-				char *tax_form_description );
+				char *tax_form_description,
+				LIST *tax_form_line_account_list );
 
 TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
 				char *rental_property_street_address );
+
+void tax_form_line_address_rental_property_list_set(
+				LIST *rental_property_list,
+				double debit_amount,
+				double credit_amount,
+				char *rental_property_street_address,
+				boolean accumulate_debit );
+
+void tax_form_line_distribute_rental_property_list_set(
+				LIST *rental_property_list,
+				double debit_amount,
+				double credit_amount,
+				boolean accumulate_debit,
+				double denominator );
+
+void tax_line_rental_list_accumulate_line_total(
+				LIST *tax_form_line_rental_list );
+
+void tax_rental_property_list_accumulate_line_total(
+				LIST *rental_property_list,
+				LIST *tax_form_line_account_list );
+
+void tax_rental_journal_ledger_list_accumulate_line_total(
+				LIST *rental_property_list,
+				LIST *journal_ledger_list,
+				boolean accumulate_debit );
 
 #endif

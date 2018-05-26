@@ -361,13 +361,16 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 			 	__LINE__,
 				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
 		}
-
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: cannot open appaserver parameter file for read.\n",
-		 	__FILE__,
-		 	__FUNCTION__,
-		 	__LINE__ );
-		exit( 1 );
+		else
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: cannot open appaserver parameter file for read with application = (%s).\n",
+		 		__FILE__,
+		 		__FUNCTION__,
+		 		__LINE__,
+				application_name );
+			exit( 1 );
+		}
 	}
 
 	s = appaserver_parameter_file_fetch( f, strdup( filename ) );

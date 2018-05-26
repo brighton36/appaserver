@@ -23,7 +23,7 @@
 
 /* Constants */
 /* --------- */
-#define MINIMUM_VERSION		"5.1"
+#define MINIMUM_VERSION		"6.30"
 
 /* Prototypes */
 /* ---------- */
@@ -41,17 +41,9 @@ int main( int argc, char **argv )
 {
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
+	/* Exits upon error. */
+	/* ----------------- */
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	if ( !appaserver_parameter_file )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot load appaserver_parameter_file.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
 
 	if ( argc == 1 )
 	{
@@ -74,6 +66,12 @@ int main( int argc, char **argv )
 						appaserver_parameter_file );
 
 			} while( list_next( application_name_list ) );
+		}
+		else
+		{
+			do_upgrade(	environ_get_application_name(
+						argv[ 0 ] ),
+					appaserver_parameter_file );
 		}
 	}
 	else

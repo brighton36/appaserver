@@ -3103,10 +3103,10 @@ LIST *appaserver_library_get_application_name_list(
 	}
 
 	sprintf( sys_string,
-		 "ls -1 appaserver_*.err	|"
-		 "sed 's/^appaserver_//'	|"
-		 "sed 's/\\.err$//'		|"
-		 "cat				 " );
+		 "ls -1 appaserver_*.err 2>/dev/null	|"
+		 "sed 's/^appaserver_//'		|"
+		 "sed 's/\\.err$//'			|"
+		 "cat					 " );
 
 	return pipe2list( sys_string );;
 

@@ -56,8 +56,8 @@ graphviz_database_schema.sh "$appaserver_yn" > $graphviz_file
 dot -Tps $graphviz_file -o $postscript_file
 
 echo "<p><a href=$postscript_prompt_file>Press to transmit postscript file.</a>"
-echo "<p>Best when viewed in <a href=https://wiki.gnome.org/Apps/Evince target=_new>Evince</a>"
 echo "<p><a href=$graphviz_prompt_file>Press to transmit graphviz file.</a>"
+echo "<p>Best when viewed in <a href=https://wiki.gnome.org/Apps/Evince target=_new>Evince</a>"
 echo "</body></html>"
 
 exit 0

@@ -9,29 +9,55 @@
 /* -------- */
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "timlib.h"
 #include "piece.h"
 #include "environ.h"
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "application_constants.h"
 #include "document.h"
 #include "application.h"
 #include "ledger.h"
 #include "appaserver_parameter_file.h"
+#include "appaserver_link_file.h"
 #include "html_table.h"
 #include "date.h"
 #include "boolean.h"
+#include "latex.h"
 #include "tax.h"
 
 /* Constants */
 /* --------- */
+#define PROMPT			"Press here to view statement."
 #define CURRENT_CENTURY		2000
 #define SCHEDULE_E		"Schedule E"
 #define ROWS_BETWEEN_HEADING	10
 
 /* Prototypes */
 /* ---------- */
+LIST *build_PDF_row_list(
+			LIST *tax_form_line_rental_list );
+
+LIST *build_PDF_heading_list(
+			LIST *rental_property_street_address_list );
+
+LATEX_TABLE *tax_form_report_PDF_table(
+			char *sub_title,
+			LIST *tax_form_line_rental_list,
+			LIST *rental_property_street_address_list );
+
+void tax_form_report_PDF(
+			char *application_name,
+			char *title,
+			char *sub_title,
+			char *document_root_directory,
+			char *process_name,
+			LIST *tax_form_line_rental_list,
+			LIST *rental_property_street_address_list,
+			char *logo_filename );
+
 HTML_TABLE *tax_form_report_get_html_table(
 			char *title,
 			char *sub_title,
@@ -131,7 +157,7 @@ int main( int argc, char **argv )
 	if ( !tax )
 	{
 		printf(
-		"<h3>No cash transations exist for this year.</h3>\n" );
+		"<h3>No cash transations exist year %d.</h3>\n", tax_year );
 		document_close();
 		exit( 0 );
 	}
@@ -185,6 +211,21 @@ int main( int argc, char **argv )
 			sub_title,
 			tax->tax_output_rental.tax_form_line_rental_list,
 			tax->tax_input.rental_property_street_address_list );
+	}
+	else
+	{
+		tax_form_report_PDF(
+			application_name,
+			title,
+			sub_title,
+			appaserver_parameter_file->
+				document_root,
+			process_name,
+			tax->tax_output_rental.tax_form_line_rental_list,
+			tax->tax_input.rental_property_street_address_list,
+			application_constants_quick_fetch(
+				application_name,
+				"logo_filename" /* key */ ) );
 	}
 
 	document_close();
@@ -333,3 +374,250 @@ HTML_TABLE *tax_form_report_get_html_table(
 	return html_table;
 
 } /* tax_form_report_get_html_table() */
+
+void tax_form_report_PDF(	char *application_name,
+				char *title,
+				char *sub_title,
+				char *document_root_directory,
+				char *process_name,
+				LIST *tax_form_line_rental_list,
+				LIST *rental_property_street_address_list,
+				char *logo_filename )
+{
+	LATEX *latex;
+	char *latex_filename;
+	char *dvi_filename;
+	char *working_directory;
+	char *ftp_output_filename;
+	int pid = getpid();
+
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_get_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_get_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		document_root_directory,
+			process_name /* filename_stem */,
+			application_name,
+			pid /* process_id */,
+			(char *)0 /* session */,
+			(char *)0 /* extension */ );
+
+	appaserver_link_file->extension = "tex";
+
+	latex_filename =
+		strdup( appaserver_link_get_tail_half(
+				(char *)0 /* application_name */,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension ) );
+
+	appaserver_link_file->extension = "dvi";
+
+	dvi_filename =
+		strdup( appaserver_link_get_tail_half(
+				(char *)0 /* application_name */,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension ) );
+
+	working_directory =
+		appaserver_link_get_source_directory(
+			document_root_directory,
+			application_name );
+
+	printf( "<h1>%s</h1>\n", title );
+	printf( "<h2>%s</h2>\n", sub_title );
+
+	latex = latex_new_latex(
+			latex_filename,
+			dvi_filename,
+			working_directory,
+			0 /* not landscape_flag */,
+			logo_filename );
+
+	list_append_pointer(
+		latex->table_list,
+		tax_form_report_PDF_table(
+			sub_title,
+			tax_form_line_rental_list,
+			rental_property_street_address_list ) );
+
+	latex_longtable_output(
+		latex->output_stream,
+		latex->landscape_flag,
+		latex->table_list,
+		latex->logo_filename,
+		0 /* not omit_page_numbers */ );
+
+	fclose( latex->output_stream );
+
+	appaserver_link_file->extension = "pdf";
+
+	ftp_output_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	latex_tex2pdf(	latex->tex_filename,
+			latex->working_directory );
+
+	appaserver_library_output_ftp_prompt(
+		ftp_output_filename, 
+		PROMPT,
+		process_name /* target */,
+		(char *)0 /* mime_type */ );
+
+} /* tax_form_report_PDF() */
+
+LIST *build_PDF_row_list( LIST *tax_form_line_rental_list )
+{
+	LATEX_ROW *latex_row;
+	LIST *row_list;
+	TAX_FORM_LINE_RENTAL *tax_form_line_rental;
+	TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property;
+
+	if ( !list_rewind( tax_form_line_rental_list ) )
+	{
+		printf(
+"<h3>ERROR: there are no tax form lines for this tax form.</h3>\n" );
+		document_close();
+		exit( 1 );
+	}
+
+	row_list = list_new();
+
+	do {
+		tax_form_line_rental =
+			list_get(
+				tax_form_line_rental_list );
+
+		if ( !list_rewind(
+			tax_form_line_rental->
+				rental_property_list ) )
+		{
+			continue;
+		}
+
+		latex_row = latex_new_latex_row();
+		list_append_pointer( row_list, latex_row );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			tax_form_line_rental->tax_form_line,
+			0 /* not large_bold */ );
+
+		latex_append_column_data_list(
+			latex_row->column_data_list,
+			strdup( tax_form_line_rental->tax_form_description ),
+			0 /* not large_bold */ );
+
+		do {
+			tax_output_rental_property =
+				list_get_pointer(
+					tax_form_line_rental->
+						rental_property_list );
+
+			latex_append_column_data_list(
+				latex_row->column_data_list,
+				strdup( timlib_place_commas_in_money(
+					   tax_output_rental_property->
+						tax_form_line_total ) ),
+				0 /* not large_bold */ );
+
+		} while( list_next(
+				tax_form_line_rental->	
+					rental_property_list ) );
+
+	} while( list_next( tax_form_line_rental_list ) );
+
+	return row_list;
+
+} /* build_PDF_row_list() */
+
+LIST *build_PDF_heading_list( LIST *rental_property_street_address_list )
+{
+	LATEX_TABLE_HEADING *table_heading;
+	LIST *heading_list;
+	char *rental_property_street_address;
+
+	heading_list = list_new();
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "tax_form_line";
+	table_heading->right_justified_flag = 0;
+	list_append_pointer( heading_list, table_heading );
+
+	table_heading = latex_new_latex_table_heading();
+	table_heading->heading = "tax_form_description";
+	table_heading->right_justified_flag = 0;
+	list_append_pointer( heading_list, table_heading );
+
+	if ( !list_rewind( rental_property_street_address_list ) )
+		return heading_list;
+
+	do {
+		rental_property_street_address =
+			list_get_pointer(
+				rental_property_street_address_list );
+
+		table_heading = latex_new_latex_table_heading();
+		table_heading->heading =
+			rental_property_street_address;
+		table_heading->right_justified_flag = 1;
+		list_append_pointer( heading_list, table_heading );
+
+	} while( list_next( rental_property_street_address_list ) );
+
+	return heading_list;
+
+} /* build_PDF_heading_list() */
+
+LATEX_TABLE *tax_form_report_PDF_table(
+			char *sub_title,
+			LIST *tax_form_line_rental_list,
+			LIST *rental_property_street_address_list )
+{
+	LATEX_TABLE *latex_table;
+	char caption[ 128 ];
+
+	strcpy( caption, sub_title );
+
+	latex_table =
+		latex_new_latex_table(
+			strdup( caption ) );
+
+	latex_table->heading_list =
+		build_PDF_heading_list(
+			rental_property_street_address_list );
+
+	latex_table->row_list =
+		build_PDF_row_list(
+			tax_form_line_rental_list );
+
+	return latex_table;
+
+} /* tax_form_report_PDF_table() */
+

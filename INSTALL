@@ -65,7 +65,7 @@ D) Shell installation steps
 08) $ sudo vi /etc/appaserver.config
 09) vi> set mysql password
 10) vi> set appaserver_mount_point
-11) vi> set appaserver_group=appaserver|www-data|$WhateverApacheGroup
+11) vi> set appaserver_group=$appaservergroup <-- see step C)
 12) vi> set other configurable variables
 13) $ sudo ./install_appaserver_profile.sh noexecute|execute
 14) $ . /etc/profile

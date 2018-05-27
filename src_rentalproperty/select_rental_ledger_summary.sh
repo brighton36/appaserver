@@ -1,6 +1,6 @@
 :
-# src_accountancymodel/select_rental_ledger_summary.sh
-# ----------------------------------------------------
+# src_rentalproperty/select_rental_ledger_summary.sh
+# --------------------------------------------------
 
 echo "$0 $*" 1>&2
 

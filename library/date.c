@@ -584,6 +584,24 @@ int date_get_seconds( DATE *d )
 	return d->tm->tm_sec;
 }
 
+int date_months_between(	DATE *from_date,
+				DATE *to_date )
+{
+	int from_year;
+	int to_year;
+	int from_month;
+	int to_month;
+
+	from_year = date_get_year( from_date );
+	to_year = date_get_year( to_date );
+
+	from_month = date_get_month( from_date );
+	to_month = date_get_month( to_date );
+
+	return ( ( to_year - from_year ) * 12 ) + ( to_month - from_month );
+
+} /* date_days_between() */
+
 /* ------------------------------------------------------------- */
 /* Sample input: from_date = "2017-03-01" to_date = "2017-04-16" */
 /* ------------------------------------------------------------- */

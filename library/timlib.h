@@ -510,4 +510,9 @@ int timlib_get_line_escape_CR(	char *in_line,
 char *timlib_right_string(	char *string,
 				int width );
 
+double timlib_monthly_accrue(	char *begin_date_string,
+				double begin_accrue_amount,
+				char *end_date_string,
+				double monthly_accrual );
+
 #endif

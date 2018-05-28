@@ -224,18 +224,26 @@ void date_set_time(		DATE *date,
 				int minutes,
 				int utc_offset );
 
-char *date_display_hhmm( DATE *date );
-char *date_display_hhmmss( DATE *date );
+char *date_display_hhmm(	DATE *date );
 
-int date_subtract_days( DATE *later_date, DATE *earlier_date );
+char *date_display_hhmmss(	DATE *date );
 
-int date_subtract_minutes( DATE *later_date, DATE *earlier_date );
+int date_subtract_days(		DATE *later_date,
+				DATE *earlier_date );
 
-int date_get_week_number( DATE *date );
-int date_get_month_number( DATE *date );
-int date_get_year_number( DATE *date );
-char *date_get_yyyy_mm_dd_string( DATE *date );
-int date_get_day_number( DATE *date );
+int date_subtract_minutes(	DATE *later_date,
+				DATE *earlier_date );
+
+int date_get_week_number(	DATE *date );
+
+int date_get_month_number(	DATE *date );
+
+int date_get_year_number(	DATE *date );
+
+char *date_get_yyyy_mm_dd_string(
+				DATE *date );
+
+int date_get_day_number(	DATE *date );
 
 int date_set_time_hhmm(			DATE *date,
 					char *hhmm,
@@ -502,5 +510,8 @@ char *date_get_now16(		int utc_offset );
 
 char *date_display_yyyy_mm_dd_hh_colon_mm(
 				DATE *date );
+
+int date_months_between(	DATE *from_date,
+				DATE *to_date );
 
 #endif

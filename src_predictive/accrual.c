@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "piece.h"
-#include "column.h"
 #include "date.h"
 #include "appaserver_library.h"
 #include "ledger.h"
@@ -681,22 +680,7 @@ double accrual_monthly_accrue(	char *begin_date_string,
 	DATE *begin_date;
 	DATE *end_date;
 	int months_between;
-	double total_accrual = 0.0;
-
-/*
-	int begin_date_day;
-	int days_in_begin_month;
-	double begin_month_percent;
-	double begin_month_accrual_amount;
-
-	double between_months_accrual_amount;
-
-	int end_date_day;
-	int days_in_end_month;
-	double end_month_percent;
-	double end_month_accrual_amount;
-
-*/
+	double total_accrual;
 
 	if ( ! ( end_date =
 			date_yyyy_mm_dd_new(
@@ -776,65 +760,15 @@ double accrual_monthly_accrue(	char *begin_date_string,
 				end_date,
 				monthly_accrual );
 	}
-
-#ifdef NOT_DEFINED
-	/* Beginning month */
-	/* --------------- */
-	begin_date_day =
-		date_get_day_number(
-			begin_date );
-
-	days_in_begin_month =
-		date_get_last_month_day(
-			date_get_month( begin_date ),
-			date_get_year( begin_date ) );
-
-	begin_month_percent =
-		1.0 - ( (double)begin_date_day /
-			(double)days_in_begin_month );
-
-	begin_month_accrual_amount = monthly_accrual * begin_month_percent;
-
-	/* Months between */
-	/* -------------- */
-	months_between =
-		date_months_between(
-			begin_date,
-			end_date );
-
-	if ( months_between > 1 )
-	{
-		between_months_accrual_amount =
-			monthly_accrual * (double)( months_between - 1 );
-	}
 	else
 	{
-		between_months_accrual_amount = 0.0;
+		total_accrual =
+			accrual_monthly_multi_month_accrue(
+				begin_date,
+				end_date,
+				monthly_accrual,
+				months_between );
 	}
-
-	/* Ending month */
-	/* ------------ */
-	end_date_day =
-		date_get_day_number(
-			end_date );
-
-	days_in_end_month =
-		date_get_last_month_day(
-			date_get_month( end_date ),
-			date_get_year( end_date ) );
-
-	end_month_percent =
-		1.0 - ( (double)1.0 /
-			(double)end_date_day );
-
-	end_month_accrual_amount =
-		monthly_accrual * end_month_percent;
-
-	total_accrual =
-		begin_month_accrual_amount +
-		between_months_accrual_amount +
-		end_month_accrual_amount;
-#endif
 
 	return total_accrual;
 
@@ -978,6 +912,69 @@ double accrual_monthly_next_month_accrue(
 	return first_month_accrual_amount + second_month_accrual_amount;
 
 } /* accrual_monthly_next_month_accrue() */
+
+/* begin_date and end_date are more than one month apart. */
+/* ------------------------------------------------------ */
+double accrual_monthly_multi_month_accrue(
+				DATE *begin_date,
+				DATE *end_date,
+				double monthly_accrual,
+				int months_between )
+{
+	int begin_first_date_day;
+	int end_last_date_day;
+	int days_in_first_month;
+	int days_in_last_month;
+	double first_month_percent;
+	double last_month_percent;
+	double first_month_accrual_amount;
+	double middle_months_accrual_amount;
+	double last_month_accrual_amount;
+
+	begin_first_date_day =
+		date_get_day_number(
+			begin_date );
+
+	end_last_date_day =
+		date_get_day_number(
+			end_date );
+
+	days_in_first_month =
+		date_get_last_month_day(
+			date_get_month( begin_date ),
+			date_get_year( begin_date ) );
+
+	days_in_last_month =
+		date_get_last_month_day(
+			date_get_month( end_date ),
+			date_get_year( end_date ) );
+
+	first_month_percent =
+		accrual_get_month_percent(
+			begin_first_date_day,
+			days_in_first_month,
+			days_in_first_month );
+
+	last_month_percent =
+		accrual_get_month_percent(
+			1,
+			end_last_date_day,
+			days_in_last_month );
+
+	first_month_accrual_amount =
+		monthly_accrual * first_month_percent;
+
+	last_month_accrual_amount =
+		monthly_accrual * last_month_percent;
+
+	middle_months_accrual_amount =
+		(double)(months_between - 1) * monthly_accrual;
+
+	return	first_month_accrual_amount +
+		middle_months_accrual_amount +
+		last_month_accrual_amount;
+
+} /* accrual_monthly_multi_month_accrue() */
 
 double accrual_get_month_percent(
 			int begin_date_day,

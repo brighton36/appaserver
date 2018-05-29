@@ -3541,6 +3541,10 @@ int timlib_get_line_escape_CR(	char *in_line,
 	}
 } /* timlib_get_line_escape_CR() */
 
+/* ------------------------------ */
+/* Null begin_date_string assumes */
+/* first of THIS month!		  */
+/* ------------------------------ */
 double timlib_monthly_accrue(	char *begin_date_string,
 				char *end_date_string,
 				double monthly_accrual )
@@ -3563,21 +3567,6 @@ double timlib_monthly_accrue(	char *begin_date_string,
 
 	double total_accrual;
 
-	if ( ! ( begin_date =
-			date_yyyy_mm_dd_new(
-				begin_date_string,
-				date_get_utc_offset() ) ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: invalid begin_date_string = (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 begin_date_string );
-
-		exit( 1 );
-	}
-
 	if ( ! ( end_date =
 			date_yyyy_mm_dd_new(
 				end_date_string,
@@ -3591,6 +3580,38 @@ double timlib_monthly_accrue(	char *begin_date_string,
 			 end_date_string );
 
 		exit( 1 );
+	}
+
+	if ( !begin_date_string || !*begin_date_string )
+	{
+		char buffer[ 16 ];
+
+		sprintf( buffer,
+			 "%d-%d-01",
+			 date_get_year( end_date ),
+			 date_get_month( end_date ) );
+
+		begin_date = 
+			date_yyyy_mm_dd_new(
+				buffer,
+				date_get_utc_offset() );
+	}
+	else
+	{
+		if ( ! ( begin_date =
+				date_yyyy_mm_dd_new(
+					begin_date_string,
+					date_get_utc_offset() ) ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: invalid begin_date_string = (%s)\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__,
+			 	begin_date_string );
+
+			exit( 1 );
+		}
 	}
 
 	/* Beginning month */

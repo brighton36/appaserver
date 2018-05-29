@@ -47,6 +47,7 @@ typedef struct
 	double transaction_amount;
 	char *bank_upload_search_phrase;
 	double accrued_daily_amount;
+	double accrued_monthly_amount;
 } REOCCURRING_TRANSACTION;
 
 typedef struct

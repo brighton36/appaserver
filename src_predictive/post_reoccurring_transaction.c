@@ -28,12 +28,29 @@
 
 /* Prototypes */
 /* ---------- */
+char *get_last_transaction_date(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *transaction_description );
+
 int get_days_between_last_transaction(
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			char *transaction_description );
+
+TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_monthly_amount );
 
 TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			char *application_name,
@@ -44,6 +61,16 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			char *debit_account,
 			char *credit_account,
 			double accrued_daily_amount );
+
+TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_monthly_amount );
 
 TRANSACTION *post_reoccurring_get_recent_transaction(
 			char *full_name,
@@ -222,19 +249,7 @@ void post_reoccurring_transaction_display(
 		return;
 	}
 
-	if ( !reoccurring_transaction->accrued_daily_amount )
-	{
-		transaction =
-			post_reoccurring_get_recent_transaction(
-				reoccurring_transaction->full_name,
-				reoccurring_transaction->street_address,
-				transaction_date_time,
-				reoccurring_transaction->debit_account,
-				reoccurring_transaction->credit_account,
-				reoccurring_transaction->transaction_amount,
-				memo );
-	}
-	else
+	if ( reoccurring_transaction->accrued_daily_amount )
 	{
 		transaction =
 			post_reoccurring_get_accrued_daily_transaction(
@@ -247,6 +262,34 @@ void post_reoccurring_transaction_display(
 				reoccurring_transaction->debit_account,
 				reoccurring_transaction->credit_account,
 				reoccurring_transaction->accrued_daily_amount );
+	}
+	else
+	if ( reoccurring_transaction->accrued_monthly_amount )
+	{
+		transaction =
+			post_reoccurring_get_accrued_monthly_transaction(
+				application_name,
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				reoccurring_transaction->
+					transaction_description,
+				transaction_date_time,
+				reoccurring_transaction->debit_account,
+				reoccurring_transaction->credit_account,
+				reoccurring_transaction->
+					accrued_monthly_amount );
+	}
+	else
+	{
+		transaction =
+			post_reoccurring_get_recent_transaction(
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				transaction_date_time,
+				reoccurring_transaction->debit_account,
+				reoccurring_transaction->credit_account,
+				reoccurring_transaction->transaction_amount,
+				memo );
 	}
 
 	if ( !transaction ) return;
@@ -331,19 +374,7 @@ char *post_reoccurring_transaction(
 		return (char *)0;
 	}
 
-	if ( !reoccurring_transaction->accrued_daily_amount )
-	{
-		transaction =
-			post_reoccurring_get_recent_transaction(
-				reoccurring_transaction->full_name,
-				reoccurring_transaction->street_address,
-				transaction_date_time,
-				reoccurring_transaction->debit_account,
-				reoccurring_transaction->credit_account,
-				reoccurring_transaction->transaction_amount,
-				memo );
-	}
-	else
+	if ( reoccurring_transaction->accrued_daily_amount )
 	{
 		transaction =
 			post_reoccurring_get_accrued_daily_transaction(
@@ -356,6 +387,34 @@ char *post_reoccurring_transaction(
 				reoccurring_transaction->debit_account,
 				reoccurring_transaction->credit_account,
 				reoccurring_transaction->accrued_daily_amount );
+	}
+	else
+	if ( reoccurring_transaction->accrued_monthly_amount )
+	{
+		transaction =
+			post_reoccurring_get_accrued_monthly_transaction(
+				application_name,
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				reoccurring_transaction->
+					transaction_description,
+				transaction_date_time,
+				reoccurring_transaction->debit_account,
+				reoccurring_transaction->credit_account,
+				reoccurring_transaction->
+					accrued_monthly_amount );
+	}
+	else
+	{
+		transaction =
+			post_reoccurring_get_recent_transaction(
+				reoccurring_transaction->full_name,
+				reoccurring_transaction->street_address,
+				transaction_date_time,
+				reoccurring_transaction->debit_account,
+				reoccurring_transaction->credit_account,
+				reoccurring_transaction->transaction_amount,
+				memo );
 	}
 
 	if ( !transaction ) return (char *)0;
@@ -577,4 +636,149 @@ int get_days_between_last_transaction(
 	return days_between;
 
 } /* get_days_between_last_transaction() */
+
+TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_monthly_amount )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	int days_between;
+	double accrued_amount;
+	char *begin_date_string;
+	char end_date_string[ 16 ];
+
+	begin_date_string =
+			get_last_transaction_date(
+				application_name,
+				full_name,
+				street_address,
+				transaction_date_time,
+				transaction_description );
+
+	column( end_date_string, 0, transaction_date_time );
+
+	accrued_amount =
+		timlib_monthly_accrue(
+			/* ------------------------------ */
+			/* Null begin_date_string assumes */
+			/* first of THIS month!		  */
+			/* ------------------------------ */
+			begin_date_string,
+			end_date_string,
+			accrued_monthly_amount
+				/* monthly_accrual */ );
+
+	if ( timlib_dollar_virtually_same( accrued_amount, 0.0 ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			/* ------------------------------ */
+			/* Don't update TRANSACTION.memo! */
+			/* ------------------------------ */
+			transaction_description /* memo */ );
+
+	transaction->transaction_amount = accrued_amount;
+
+	transaction->journal_ledger_list = list_new();
+
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction->transaction_date_time,
+			debit_account );
+
+	journal_ledger->debit_amount = transaction->transaction_amount;
+
+	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction->transaction_date_time,
+			credit_account );
+
+	journal_ledger->credit_amount = transaction->transaction_amount;
+
+	list_append_pointer( transaction->journal_ledger_list, journal_ledger );
+
+	return transaction;
+
+} /* post_reoccurring_get_accrued_monthly_transaction() */
+
+char *get_last_transaction_date(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *transaction_description )
+{
+	char sys_string[ 1024 ];
+	int current_year;
+	char where[ 256 ];
+	char name_buffer[ 256 ];
+	char description_buffer[ 256 ];
+	char *select;
+	char *folder;
+	char *last_transaction_date_time;
+	char last_transaction_date[ 16 ];
+
+	if ( !transaction_date_time
+	||   ! ( current_year = atoi( transaction_date_time ) ) )
+	{
+		return 0;
+	}
+
+	select = "max( transaction_date_time )";
+	folder = "transaction";
+
+	sprintf( where,
+		 "full_name = '%s' and				"
+		 "street_address = '%s' and			"
+		 "memo = '%s' and				"
+		 "transaction_date_time >= '%d-01-01 00:00:00'	",
+		 escape_character(	name_buffer,
+					full_name,
+					'\'' ),
+		 street_address,
+		 escape_character(	description_buffer,
+					transaction_description,
+					'\'' ),
+		 current_year );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			 "
+		 "			select=\"%s\"			 "
+		 "			folder=%s			 "
+		 "			where=\"%s\"			|"
+		 "column.e 0						 ",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	last_transaction_date_time = pipe2string( sys_string );
+
+	if ( !timlib_strlen( last_transaction_date_time ) )
+		return (char *)0;
+
+	column( last_transaction_date, 0, last_transaction_date_time );
+
+	return strdup( last_transaction_date );
+
+} /* get_last_transaction_date() */
 

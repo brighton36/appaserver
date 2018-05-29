@@ -37,10 +37,10 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('contra_account','account','contra_to_account',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('contra_account','account','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('journal_ledger','account','null',null,null,null,null,null,null,null,null,'y',null,null);
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('reoccurring_transaction','account','credit_account',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('reoccurring_transaction','account','debit_account',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('prepaid_asset','account','asset_account',null,null,null,null,null,'y',null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('prepaid_asset','account','expense_account',null,null,null,null,null,'y',null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('reoccurring_transaction','account','credit_account',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('inventory','account','inventory_account',null,null,null,null,null,'y',null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('inventory','account','cost_of_goods_sold_account',null,null,null,null,null,'y',null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('donation_account','account','null',null,null,null,null,null,'y','y',null,null,null,null);
@@ -728,12 +728,12 @@ delete from $relation where folder = 'entity';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('employee','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('transaction','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('customer','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('reoccurring_transaction','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('self','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('vendor','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('donation','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('customer_sale','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('financial_institution','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('reoccurring_transaction','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('liability_account_entity','entity','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
@@ -1640,8 +1640,11 @@ delete from $attribute where attribute = 'bank_upload_search_phrase';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('bank_upload_search_phrase','text','50',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'accrued_daily_amount';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('accrued_daily_amount','float','10','2',null,null,null,null,null,null);
+delete from $attribute where attribute = 'accrued_monthly_amount';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('accrued_monthly_amount','float','10','2',null,'The contract must begin on the 1st of the month.',null,null,null,null);
 delete from $folder_attribute where folder = 'reoccurring_transaction';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','accrued_daily_amount',null,'5',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','accrued_monthly_amount',null,'6',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','bank_upload_search_phrase',null,'4',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','credit_account',null,'2',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('reoccurring_transaction','debit_account',null,'1',null,null,null,null,null,null,null);
@@ -1689,7 +1692,7 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $attribute where attribute = 'federal_nonresident_withholding_income_premium';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('federal_nonresident_withholding_income_premium','float','7','2',null,null,null,null,null,null);
 delete from $attribute where attribute = 'state_withholding_allowance_period_value';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('state_withholding_allowance_period_value',null,'7','2',null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('state_withholding_allowance_period_value','float','7','2',null,null,null,null,null,null);
 delete from $attribute where attribute = 'state_itemized_allowance_period_value';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('state_itemized_allowance_period_value','float','10','2',null,null,null,null,null,null);
 delete from $attribute where attribute = 'federal_unemployment_wage_base';
@@ -2142,177 +2145,177 @@ insert into $role_operation (folder,role,operation) values ('vendor_payment','su
 all_done
 ) | sql.e 2>&1 | grep -iv duplicate
 
-table_name=`get_table_name $application account`
-echo "create table $table_name (account char (60) not null,subclassification char (35),fund char (20),hard_coded_account_key char (40)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (account);" | sql.e '^' mysql
-echo "create unique index ${table_name}_additional_unique on $table_name (fund,hard_coded_account_key);" | sql.e '^' mysql
-table_name=`get_table_name $application bank_upload`
-echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),fund char (20),posted_yn char (1)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e '^' mysql
-table_name=`get_table_name $application category`
-echo "create table $table_name (category char (20) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (category);" | sql.e '^' mysql
-table_name=`get_table_name $application contact`
-echo "create table $table_name (email_address char (50) not null,date date not null,time char (7) not null,subject char (30),message text) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (email_address,date,time);" | sql.e '^' mysql
-table_name=`get_table_name $application contra_account`
-echo "create table $table_name (contra_to_account char (60) not null,account char (60)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (contra_to_account);" | sql.e '^' mysql
-table_name=`get_table_name $application customer`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
-table_name=`get_table_name $application customer_payment`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,payment_date_time);" | sql.e '^' mysql
-table_name=`get_table_name $application customer_sale`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,fund char (20),title_passage_rule char (15),shipped_date_time datetime,shipping_revenue double (8,2),arrived_date date,sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time);" | sql.e '^' mysql
-table_name=`get_table_name $application day`
-echo "create table $table_name (day char (9) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (day);" | sql.e '^' mysql
-table_name=`get_table_name $application depreciation`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,units_produced integer,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number,depreciation_date);" | sql.e '^' mysql
-table_name=`get_table_name $application depreciation_method`
-echo "create table $table_name (depreciation_method char (25) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (depreciation_method);" | sql.e '^' mysql
-table_name=`get_table_name $application donation`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,donation_date date not null,check_number integer,total_donation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,donation_date);" | sql.e '^' mysql
-table_name=`get_table_name $application donation_account`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,donation_date date not null,account char (60) not null,donation_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,donation_date,account);" | sql.e '^' mysql
-table_name=`get_table_name $application element`
-echo "create table $table_name (element char (20) not null,accumulate_debit_yn char (1),display_order integer) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (element);" | sql.e '^' mysql
-table_name=`get_table_name $application employee`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,hourly_wage double (10,2),period_salary double (10,2),commission_sum_extension_percent double (10,2),gross_pay_year_to_date double (10,2),net_pay_year_to_date double (10,2),federal_marital_status char (25),federal_withholding_allowances integer,federal_withholding_additional_period_amount integer,state_marital_status char (40),state_withholding_allowances integer,state_itemized_deduction_allowances integer,retirement_contribution_plan_employer_period_amount integer,retirement_contribution_plan_employee_period_amount integer,health_insurance_employer_period_amount integer,health_insurance_employee_period_amount integer,union_dues_period_amount integer,terminated_date date) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
-table_name=`get_table_name $application employee_work_day`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,begin_work_date_time datetime not null,end_work_date_time datetime,employee_work_hours double (6,2),overtime_work_day_yn char (1),insert_timestamp datetime,update_timestamp datetime) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,begin_work_date_time);" | sql.e '^' mysql
-table_name=`get_table_name $application employee_work_period`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,payroll_year,payroll_period_number);" | sql.e '^' mysql
-table_name=`get_table_name $application entity`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,city char (20),state_code char (2),zip_code char (5),email_address char (50)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
-table_name=`get_table_name $application equity_account_balance`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,date_time datetime not null,investment_operation char (15),transaction_date_time datetime,share_price double (12,4),share_quantity_change double (12,4),share_quantity_balance double (13,4),book_value_change double (12,4),book_value_balance double (13,4),moving_share_price double (13,5),total_cost_balance double (14,5),market_value double (13,4),unrealized_gain_balance double (12,4),unrealized_gain_change double (12,4),realized_gain double (12,4)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,account_number,date_time);" | sql.e '^' mysql
-table_name=`get_table_name $application federal_income_tax_withholding`
-echo "create table $table_name (federal_marital_status char (25) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (federal_marital_status,income_over);" | sql.e '^' mysql
-table_name=`get_table_name $application federal_marital_status`
-echo "create table $table_name (federal_marital_status char (25) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (federal_marital_status);" | sql.e '^' mysql
-table_name=`get_table_name $application financial_institution`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
-table_name=`get_table_name $application fixed_asset`
-echo "create table $table_name (asset_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (asset_name);" | sql.e '^' mysql
-table_name=`get_table_name $application fixed_asset_purchase`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),depreciation_method char (25),estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,accumulated_depreciation double (10,2),disposal_date date) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number);" | sql.e '^' mysql
-table_name=`get_table_name $application fund`
-echo "create table $table_name (fund char (20) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (fund);" | sql.e '^' mysql
-table_name=`get_table_name $application inventory`
-echo "create table $table_name (inventory_name char (30) not null,inventory_account char (60),cost_of_goods_sold_account char (60),retail_price double (10,2),reorder_quantity integer,quantity_on_hand integer,average_unit_cost double (12,4),total_cost_balance double (14,5)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (inventory_name);" | sql.e '^' mysql
-table_name=`get_table_name $application inventory_cost_method`
-echo "create table $table_name (inventory_cost_method char (15) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (inventory_cost_method);" | sql.e '^' mysql
-table_name=`get_table_name $application inventory_purchase`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,inventory_name char (30) not null,ordered_quantity integer,arrived_quantity integer,missing_quantity integer,quantity_on_hand integer,capitalized_unit_cost double (8,4),unit_cost double (12,4),extension double (10,2),average_unit_cost double (12,4)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,inventory_name);" | sql.e '^' mysql
-table_name=`get_table_name $application inventory_sale`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,inventory_name char (30) not null,quantity integer,retail_price double (10,2),discount_amount double (10,2),extension double (10,2),cost_of_goods_sold double (10,2)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,inventory_name);" | sql.e '^' mysql
-table_name=`get_table_name $application investment_account`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,classification char (15),investment_account char (60),certificate_maturity_months integer,fair_value_adjustment_account char (60),certificate_maturity_date date,interest_rate double (5,2)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,account_number);" | sql.e '^' mysql
-table_name=`get_table_name $application investment_classification`
-echo "create table $table_name (classification char (15) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (classification);" | sql.e '^' mysql
-table_name=`get_table_name $application investment_operation`
-echo "create table $table_name (investment_operation char (15) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (investment_operation);" | sql.e '^' mysql
-table_name=`get_table_name $application journal_ledger`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,account char (60) not null,transaction_count integer,previous_balance double (10,2),debit_amount double (10,2),credit_amount double (10,2),balance double (10,2)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time,account);" | sql.e '^' mysql
-table_name=`get_table_name $application liability_account_entity`
-echo "create table $table_name (account char (60) not null,full_name char (60),street_address char (40)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (account);" | sql.e '^' mysql
-table_name=`get_table_name $application payroll_pay_period`
-echo "create table $table_name (payroll_pay_period char (15) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (payroll_pay_period);" | sql.e '^' mysql
-table_name=`get_table_name $application payroll_posting`
-echo "create table $table_name (payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (payroll_year,payroll_period_number);" | sql.e '^' mysql
-table_name=`get_table_name $application prior_fixed_asset`
-echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),recorded_date date,estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),disposal_date date,full_name char (60),street_address char (40),transaction_date_time datetime,accumulated_depreciation double (10,2)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (asset_name,serial_number);" | sql.e '^' mysql
-table_name=`get_table_name $application prior_fixed_asset_depreciation`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,asset_name,serial_number,depreciation_date);" | sql.e '^' mysql
-table_name=`get_table_name $application program`
-echo "create table $table_name (program char (30) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (program);" | sql.e '^' mysql
-table_name=`get_table_name $application purchase_order`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,fund char (20),amount_due double (10,2),sum_extension double (10,2),sales_tax double (7,2),freight_in double (6,2),purchase_amount double (10,2),title_passage_rule char (15),shipped_date date,arrived_date_time datetime,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time);" | sql.e '^' mysql
-echo "create unique index ${table_name}_additional_unique on $table_name (arrived_date_time);" | sql.e '^' mysql
-table_name=`get_table_name $application reoccurring_transaction`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_description char (20) not null,debit_account char (60),credit_account char (60),transaction_amount double (10,2),bank_upload_search_phrase char (50),accrued_daily_amount double (10,2)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,transaction_description);" | sql.e '^' mysql
-table_name=`get_table_name $application self`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,inventory_cost_method char (15),payroll_pay_period char (15),payroll_beginning_day char (9),social_security_combined_tax_rate double (10,4),social_security_payroll_ceiling integer,medicare_combined_tax_rate double (10,4),medicare_additional_withholding_rate double (5,3),medicare_additional_gross_pay_floor integer,federal_withholding_allowance_period_value double (10,2),federal_nonresident_withholding_income_premium double (7,2),state_withholding_allowance_period_value char (7),state_itemized_allowance_period_value double (10,2),federal_unemployment_wage_base integer,federal_unemployment_tax_standard_rate double (10,4),federal_unemployment_threshold_rate double (10,4),federal_unemployment_tax_minimum_rate double (10,4),state_unemployment_wage_base integer,state_unemployment_tax_rate double (10,4),state_sales_tax_rate double (6,4)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
-table_name=`get_table_name $application service`
-echo "create table $table_name (service_name char (30) not null,retail_price double (10,2)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (service_name);" | sql.e '^' mysql
-table_name=`get_table_name $application service_category`
-echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (service_category);" | sql.e '^' mysql
-table_name=`get_table_name $application state_income_tax_withholding`
-echo "create table $table_name (state_marital_status char (40) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (state_marital_status,income_over);" | sql.e '^' mysql
-table_name=`get_table_name $application state_marital_status`
-echo "create table $table_name (state_marital_status char (40) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (state_marital_status);" | sql.e '^' mysql
-table_name=`get_table_name $application state_standard_deduction_table`
-echo "create table $table_name (state_marital_status char (40) not null,state_withholding_allowances integer not null,state_standard_deduction_amount double (8,2)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (state_marital_status,state_withholding_allowances);" | sql.e '^' mysql
-table_name=`get_table_name $application subclassification`
-echo "create table $table_name (subclassification char (35) not null,element char (20),display_order integer) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (subclassification);" | sql.e '^' mysql
-table_name=`get_table_name $application supply`
-echo "create table $table_name (supply_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (supply_name);" | sql.e '^' mysql
-table_name=`get_table_name $application tax_form`
-echo "create table $table_name (tax_form char (20) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (tax_form);" | sql.e '^' mysql
-table_name=`get_table_name $application tax_form_line`
-echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,tax_form_description char (35),itemize_accounts_yn char (1)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (tax_form,tax_form_line);" | sql.e '^' mysql
-table_name=`get_table_name $application tax_form_line_account`
-echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,account char (60) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (tax_form,tax_form_line,account);" | sql.e '^' mysql
-table_name=`get_table_name $application title_passage_rule`
-echo "create table $table_name (title_passage_rule char (15) not null,title_passage_date char (15)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (title_passage_rule);" | sql.e '^' mysql
-table_name=`get_table_name $application transaction`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,memo char (60),transaction_amount double (10,2),check_number integer,program char (30),lock_transaction_yn char (1)) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time);" | sql.e '^' mysql
-echo "create unique index ${table_name}_additional_unique on $table_name (transaction_date_time);" | sql.e '^' mysql
-table_name=`get_table_name $application vendor`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' mysql
-table_name=`get_table_name $application vendor_payment`
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' mysql
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,payment_date_time);" | sql.e '^' mysql
+table_name=account
+echo "create table $table_name (account char (60) not null,subclassification char (35),fund char (20),hard_coded_account_key char (40)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (account);" | sql.e '^' capitolpops
+echo "create unique index ${table_name}_additional_unique on $table_name (fund,hard_coded_account_key);" | sql.e '^' capitolpops
+table_name=bank_upload
+echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),fund char (20),posted_yn char (1)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e '^' capitolpops
+table_name=category
+echo "create table $table_name (category char (20) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (category);" | sql.e '^' capitolpops
+table_name=contact
+echo "create table $table_name (email_address char (50) not null,date date not null,time char (7) not null,subject char (30),message text) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (email_address,date,time);" | sql.e '^' capitolpops
+table_name=contra_account
+echo "create table $table_name (contra_to_account char (60) not null,account char (60)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (contra_to_account);" | sql.e '^' capitolpops
+table_name=customer
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+table_name=customer_payment
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,payment_date_time);" | sql.e '^' capitolpops
+table_name=customer_sale
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,fund char (20),title_passage_rule char (15),shipped_date_time datetime,shipping_revenue double (8,2),arrived_date date,sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time);" | sql.e '^' capitolpops
+table_name=day
+echo "create table $table_name (day char (9) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (day);" | sql.e '^' capitolpops
+table_name=depreciation
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,units_produced integer,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number,depreciation_date);" | sql.e '^' capitolpops
+table_name=depreciation_method
+echo "create table $table_name (depreciation_method char (25) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (depreciation_method);" | sql.e '^' capitolpops
+table_name=donation
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,donation_date date not null,check_number integer,total_donation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,donation_date);" | sql.e '^' capitolpops
+table_name=donation_account
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,donation_date date not null,account char (60) not null,donation_amount double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,donation_date,account);" | sql.e '^' capitolpops
+table_name=element
+echo "create table $table_name (element char (20) not null,accumulate_debit_yn char (1),display_order integer) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (element);" | sql.e '^' capitolpops
+table_name=employee
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,hourly_wage double (10,2),period_salary double (10,2),commission_sum_extension_percent double (10,2),gross_pay_year_to_date double (10,2),net_pay_year_to_date double (10,2),federal_marital_status char (25),federal_withholding_allowances integer,federal_withholding_additional_period_amount integer,state_marital_status char (40),state_withholding_allowances integer,state_itemized_deduction_allowances integer,retirement_contribution_plan_employer_period_amount integer,retirement_contribution_plan_employee_period_amount integer,health_insurance_employer_period_amount integer,health_insurance_employee_period_amount integer,union_dues_period_amount integer,terminated_date date) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+table_name=employee_work_day
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,begin_work_date_time datetime not null,end_work_date_time datetime,employee_work_hours double (6,2),overtime_work_day_yn char (1),insert_timestamp datetime,update_timestamp datetime) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,begin_work_date_time);" | sql.e '^' capitolpops
+table_name=employee_work_period
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,payroll_year,payroll_period_number);" | sql.e '^' capitolpops
+table_name=entity
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,city char (20),state_code char (2),zip_code char (5),email_address char (50)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+table_name=equity_account_balance
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,date_time datetime not null,investment_operation char (15),transaction_date_time datetime,share_price double (12,4),share_quantity_change double (12,4),share_quantity_balance double (13,4),book_value_change double (12,4),book_value_balance double (13,4),moving_share_price double (13,5),total_cost_balance double (14,5),market_value double (13,4),unrealized_gain_balance double (12,4),unrealized_gain_change double (12,4),realized_gain double (12,4)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,account_number,date_time);" | sql.e '^' capitolpops
+table_name=federal_income_tax_withholding
+echo "create table $table_name (federal_marital_status char (25) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (federal_marital_status,income_over);" | sql.e '^' capitolpops
+table_name=federal_marital_status
+echo "create table $table_name (federal_marital_status char (25) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (federal_marital_status);" | sql.e '^' capitolpops
+table_name=financial_institution
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+table_name=fixed_asset
+echo "create table $table_name (asset_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (asset_name);" | sql.e '^' capitolpops
+table_name=fixed_asset_purchase
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),depreciation_method char (25),estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,accumulated_depreciation double (10,2),disposal_date date) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number);" | sql.e '^' capitolpops
+table_name=fund
+echo "create table $table_name (fund char (20) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (fund);" | sql.e '^' capitolpops
+table_name=inventory
+echo "create table $table_name (inventory_name char (30) not null,inventory_account char (60),cost_of_goods_sold_account char (60),retail_price double (10,2),reorder_quantity integer,quantity_on_hand integer,average_unit_cost double (12,4),total_cost_balance double (14,5)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (inventory_name);" | sql.e '^' capitolpops
+table_name=inventory_cost_method
+echo "create table $table_name (inventory_cost_method char (15) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (inventory_cost_method);" | sql.e '^' capitolpops
+table_name=inventory_purchase
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,inventory_name char (30) not null,ordered_quantity integer,arrived_quantity integer,missing_quantity integer,quantity_on_hand integer,capitalized_unit_cost double (8,4),unit_cost double (12,4),extension double (10,2),average_unit_cost double (12,4)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,inventory_name);" | sql.e '^' capitolpops
+table_name=inventory_sale
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,inventory_name char (30) not null,quantity integer,retail_price double (10,2),discount_amount double (10,2),extension double (10,2),cost_of_goods_sold double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,inventory_name);" | sql.e '^' capitolpops
+table_name=investment_account
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,classification char (15),investment_account char (60),certificate_maturity_months integer,fair_value_adjustment_account char (60),certificate_maturity_date date,interest_rate double (5,2)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,account_number);" | sql.e '^' capitolpops
+table_name=investment_classification
+echo "create table $table_name (classification char (15) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (classification);" | sql.e '^' capitolpops
+table_name=investment_operation
+echo "create table $table_name (investment_operation char (15) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (investment_operation);" | sql.e '^' capitolpops
+table_name=journal_ledger
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,account char (60) not null,transaction_count integer,previous_balance double (10,2),debit_amount double (10,2),credit_amount double (10,2),balance double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time,account);" | sql.e '^' capitolpops
+table_name=liability_account_entity
+echo "create table $table_name (account char (60) not null,full_name char (60),street_address char (40)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (account);" | sql.e '^' capitolpops
+table_name=payroll_pay_period
+echo "create table $table_name (payroll_pay_period char (15) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (payroll_pay_period);" | sql.e '^' capitolpops
+table_name=payroll_posting
+echo "create table $table_name (payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (payroll_year,payroll_period_number);" | sql.e '^' capitolpops
+table_name=prior_fixed_asset
+echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),recorded_date date,estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),disposal_date date,full_name char (60),street_address char (40),transaction_date_time datetime,accumulated_depreciation double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (asset_name,serial_number);" | sql.e '^' capitolpops
+table_name=prior_fixed_asset_depreciation
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,asset_name,serial_number,depreciation_date);" | sql.e '^' capitolpops
+table_name=program
+echo "create table $table_name (program char (30) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (program);" | sql.e '^' capitolpops
+table_name=purchase_order
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,fund char (20),amount_due double (10,2),sum_extension double (10,2),sales_tax double (7,2),freight_in double (6,2),purchase_amount double (10,2),title_passage_rule char (15),shipped_date date,arrived_date_time datetime,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time);" | sql.e '^' capitolpops
+echo "create unique index ${table_name}_additional_unique on $table_name (arrived_date_time);" | sql.e '^' capitolpops
+table_name=reoccurring_transaction
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_description char (20) not null,debit_account char (60),credit_account char (60),transaction_amount double (10,2),bank_upload_search_phrase char (50),accrued_daily_amount double (10,2),accrued_monthly_amount double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,transaction_description);" | sql.e '^' capitolpops
+table_name=self
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,inventory_cost_method char (15),payroll_pay_period char (15),payroll_beginning_day char (9),social_security_combined_tax_rate double (10,4),social_security_payroll_ceiling integer,medicare_combined_tax_rate double (10,4),medicare_additional_withholding_rate double (5,3),medicare_additional_gross_pay_floor integer,federal_withholding_allowance_period_value double (10,2),federal_nonresident_withholding_income_premium double (7,2),state_withholding_allowance_period_value double (7,2),state_itemized_allowance_period_value double (10,2),federal_unemployment_wage_base integer,federal_unemployment_tax_standard_rate double (10,4),federal_unemployment_threshold_rate double (10,4),federal_unemployment_tax_minimum_rate double (10,4),state_unemployment_wage_base integer,state_unemployment_tax_rate double (10,4),state_sales_tax_rate double (6,4)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+table_name=service
+echo "create table $table_name (service_name char (30) not null,retail_price double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (service_name);" | sql.e '^' capitolpops
+table_name=service_category
+echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (service_category);" | sql.e '^' capitolpops
+table_name=state_income_tax_withholding
+echo "create table $table_name (state_marital_status char (40) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (state_marital_status,income_over);" | sql.e '^' capitolpops
+table_name=state_marital_status
+echo "create table $table_name (state_marital_status char (40) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (state_marital_status);" | sql.e '^' capitolpops
+table_name=state_standard_deduction_table
+echo "create table $table_name (state_marital_status char (40) not null,state_withholding_allowances integer not null,state_standard_deduction_amount double (8,2)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (state_marital_status,state_withholding_allowances);" | sql.e '^' capitolpops
+table_name=subclassification
+echo "create table $table_name (subclassification char (35) not null,element char (20),display_order integer) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (subclassification);" | sql.e '^' capitolpops
+table_name=supply
+echo "create table $table_name (supply_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (supply_name);" | sql.e '^' capitolpops
+table_name=tax_form
+echo "create table $table_name (tax_form char (20) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (tax_form);" | sql.e '^' capitolpops
+table_name=tax_form_line
+echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,tax_form_description char (35),itemize_accounts_yn char (1)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (tax_form,tax_form_line);" | sql.e '^' capitolpops
+table_name=tax_form_line_account
+echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,account char (60) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (tax_form,tax_form_line,account);" | sql.e '^' capitolpops
+table_name=title_passage_rule
+echo "create table $table_name (title_passage_rule char (15) not null,title_passage_date char (15)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (title_passage_rule);" | sql.e '^' capitolpops
+table_name=transaction
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,memo char (60),transaction_amount double (10,2),check_number integer,program char (30),lock_transaction_yn char (1)) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time);" | sql.e '^' capitolpops
+echo "create unique index ${table_name}_additional_unique on $table_name (transaction_date_time);" | sql.e '^' capitolpops
+table_name=vendor
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+table_name=vendor_payment
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,payment_date_time);" | sql.e '^' capitolpops
 
 (
 cat << all_done2
@@ -2804,7 +2807,7 @@ insert into process (process,		command_line,		notepad,		html_help_file_anchor,		
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('trial_balance','trial_balance ignored \$session \$login_name \$role \$process fund as_of_date aggregation output_medium subclassification_option',null,null,null,null,'output',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_journal_ledger','post_change_journal_ledger.sh ignored full_name street_address transaction_date_time account preupdate_transaction_date_time preupdate_account',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_dues_payment','post_change_dues_payment ignored full_name street_address payment_date \$state preupdate_full_name preupdate_street_address preupdate_payment_date preupdate_payment_amount',null,null,null,null,null,null,null);
-insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_reoccurring_transaction_recent','post_reoccurring_transaction ignored \$process full_name street_address transaction_date transaction_amount memo execute_yn',null,null,null,null,'manipulate',null,null);
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_reoccurring_transaction_recent','post_reoccurring_transaction \$session \$role \$process full_name street_address transaction_date transaction_amount memo execute_yn',null,null,null,null,'manipulate',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_fixed_asset','post_change_fixed_asset ignored asset_name account \$state preupdate_account',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('populate_reoccurring_transaction_recent','populate_reoccurring_transaction_recent.sh ignored',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('program_profit','program_profit ignored \$process program begin_date end_date aggregate_account_yn output_medium',null,null,null,null,'output',null,null);
@@ -2821,8 +2824,9 @@ insert into process (process,		command_line,		notepad,		html_help_file_anchor,		
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_account_balance','post_change_account_balance ignored fund full_name street_address account_number date_time \$state preupdate_full_name preupdate_street_address preupdate_account_number preupdate_date_time',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('populate_investment_account','populate_investment_account.sh ignored \$where',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_activity_work','post_change_activity_work ignored \$login_name begin_work_date_time \$state',null,null,null,null,null,null,null);
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('graphviz_database_schema','graphviz_database_schema_process.sh \$process appaserver_yn',null,null,null,null,'documentation',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('populate_reoccurring_transaction_accrual','populate_reoccurring_transaction_accrual.sh ignored',null,null,null,null,null,null,null);
-insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_reoccurring_transaction_accrual','post_reoccurring_transaction ignored \$process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn y',null,null,null,null,'manipulate',null,null);
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_reoccurring_transaction_accrual','post_reoccurring_transaction \$session \$role \$process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn y',null,null,null,null,'manipulate',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('populate_tax_form_line','populate_tax_form_line.sh ignored \$where',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_employee_work_day','post_change_employee_work_day ignored full_name street_address begin_work_date_time \$state preupdate_begin_work_date_time preupdate_end_work_date_time',null,null,null,null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('clone_application','null','null','null','system_folders_yn','3',null,null,null,null);
@@ -2843,6 +2847,7 @@ insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,	
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('clone_folder','null','null','null','old_data','4',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('clone_folder','null','null','database_management_system','null','8',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('clone_folder','attribute','null','null','null','1',null,'y',null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('graphviz_database_schema','null','null','null','appaserver_yn','1',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('alter_column_datatype','folder_attribute','null','null','null','1',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('rename_table','null','null','null','old_folder','1',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('export_process','null','null','null','exclude_roles_yn','2',null,null,null,null);
@@ -2987,6 +2992,7 @@ insert into role_process (process,role) values ('execute_select_statement','supe
 insert into role_process (process,role) values ('export_application','supervisor');
 insert into role_process (process,role) values ('financial_position','supervisor');
 insert into role_process (process,role) values ('generic_load','supervisor');
+insert into role_process (process,role) values ('graphviz_database_schema','supervisor');
 insert into role_process (process,role) values ('inventory_balance_detail','supervisor');
 insert into role_process (process,role) values ('ledger_propagate','supervisor');
 insert into role_process (process,role) values ('load_bank_spreadsheet','supervisor');
@@ -3022,6 +3028,7 @@ insert into role_process (process,role) values ('export_subschema','system');
 insert into role_process (process,role) values ('fix_orphans','system');
 insert into role_process (process,role) values ('generic_load','system');
 insert into role_process (process,role) values ('grant_select_to_user','system');
+insert into role_process (process,role) values ('graphviz_database_schema','system');
 insert into role_process (process,role) values ('merge_purge','system');
 insert into role_process (process,role) values ('rename_column','system');
 insert into role_process (process,role) values ('rename_table','system');
@@ -3034,6 +3041,7 @@ insert into javascript_files (javascript_filename) values ('clone_folder.js');
 insert into javascript_files (javascript_filename) values ('post_change.js');
 insert into javascript_files (javascript_filename) values ('post_change_bank_upload.js');
 insert into javascript_files (javascript_filename) values ('post_change_fixed_asset_purchase.js');
+insert into javascript_files (javascript_filename) values ('post_change_folder_attribute.js');
 insert into javascript_files (javascript_filename) values ('post_change_journal_ledger.js');
 insert into javascript_files (javascript_filename) values ('post_change_program.js');
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('ymin','6',null,null,null);
@@ -3142,6 +3150,7 @@ insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		d
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('with_stub_yn','1',null,null,null);
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('undo_yn','1',null,null,null);
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('connect_from_host','60',null,null,null);
+insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('appaserver_yn','1',null,null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('null','Necessary for outter joins to work',null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('output_medium',null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('database_management_system','Defaults to Mysql',null);

@@ -1096,10 +1096,18 @@ LIST *attribute_get_date_attribute_name_list( LIST *attribute_list )
 			attribute = (ATTRIBUTE *)
 				list_get_pointer( attribute_list );
 
-			if ( timlib_strcmp( attribute->datatype, "date" ) == 0
-			||   timlib_strcmp(
-				attribute->datatype,
-				"current_date" ) == 0)
+			if ( ( timlib_strcmp(
+					attribute->datatype,
+					"date" ) == 0 )
+			||   ( timlib_strcmp(
+					attribute->datatype,
+					"current_date" ) == 0 )
+			||   ( timlib_strcmp(
+					attribute->datatype,
+					"date_time" ) == 0 )
+			||   ( timlib_strcmp(
+					attribute->datatype,
+					"current_date_time" ) == 0 ) )
 			{
 				list_append_pointer(
 					attribute_name_list,
@@ -1107,7 +1115,9 @@ LIST *attribute_get_date_attribute_name_list( LIST *attribute_list )
 			}
 		} while( list_next( attribute_list ) );
 	}
+
 	return attribute_name_list;
+
 } /* attribute_get_date_attribute_name_list() */
 
 LIST *attribute_get_primary_attribute_name_list( LIST *attribute_list )

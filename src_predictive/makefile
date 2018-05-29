@@ -138,12 +138,14 @@ clean:
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		bank_upload.o
+		bank_upload.o						\
+		${LIBRARY}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		post_reoccurring_transaction.c				\
 		bank_upload.o						\
+		${LIBRARY}/folder_menu.o				\
 		-o post_reoccurring_transaction
 
 post_employee_work_period: post_employee_work_period.c			\

@@ -159,7 +159,6 @@ void post2dictionary_process_input_buffer(
 	}
 } /* post2dictionary_process_input_buffer() */
 
-
 void convert_folder_data_delimiter(
 				char *data,
 				char *key )

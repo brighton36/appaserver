@@ -110,6 +110,7 @@ REOCCURRING_TRANSACTION *bank_upload_reoccurring_transaction_new(
 			&reoccurring_transaction->credit_account,
 			&reoccurring_transaction->transaction_amount,
 			&reoccurring_transaction->accrued_daily_amount,
+			&reoccurring_transaction->accrued_monthly_amount,
 			application_name,
 			reoccurring_transaction->full_name,
 			reoccurring_transaction->street_address,
@@ -133,6 +134,7 @@ boolean bank_upload_reoccurring_transaction_load(
 				char **credit_account,
 				double *transaction_amount,
 				double *accrued_daily_amount,
+				double *accrued_monthly_amount,
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -191,12 +193,18 @@ boolean bank_upload_reoccurring_transaction_load(
 				bank_upload_search_phrase,
 			&reoccurring_transaction->
 				accrued_daily_amount,
+			&reoccurring_transaction->
+				accrued_monthly_amount,
 			results );
 
 	*debit_account = reoccurring_transaction->debit_account;
 	*credit_account = reoccurring_transaction->credit_account;
 	*transaction_amount = reoccurring_transaction->transaction_amount;
 	*accrued_daily_amount = reoccurring_transaction->accrued_daily_amount;
+
+	*accrued_monthly_amount =
+		reoccurring_transaction->
+			accrued_monthly_amount;
 
 	return 1;
 
@@ -680,6 +688,7 @@ void bank_upload_reoccurring_transaction_parse(
 					double *transaction_amount,
 					char **bank_upload_search_phrase,
 					double *accrued_daily_amount,
+					double *accrued_monthly_amount,
 					char *input_buffer )
 {
 	char buffer[ 256 ];
@@ -711,6 +720,10 @@ void bank_upload_reoccurring_transaction_parse(
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
 	if ( *buffer )
 		*accrued_daily_amount = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+	if ( *buffer )
+		*accrued_monthly_amount = atof( buffer );
 
 } /* bank_upload_reoccurring_transaction_parse() */
 
@@ -752,7 +765,8 @@ char *bank_upload_reoccurring_transaction_get_select( void )
 		 "credit_account,		"
 		 "transaction_amount,		"
 		 "bank_upload_search_phrase,	"
-		 "accrued_daily_amount		";
+		 "accrued_daily_amount,		"
+		 "accrued_monthly_amount		";
 
 	return select;
 }
@@ -805,6 +819,8 @@ LIST *bank_upload_fetch_reoccurring_transaction_list(
 					bank_upload_search_phrase,
 				&reoccurring_transaction->
 					accrued_daily_amount,
+				&reoccurring_transaction->
+					accrued_monthly_amount,
 				input_buffer );
 
 		list_append_pointer(

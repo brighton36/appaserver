@@ -674,3 +674,324 @@ char *accrual_get_prior_accrual_date( LIST *accrual_list )
 
 } /* accrual_get_prior_accrual_date() */
 
+double accrual_monthly_accrue(	char *begin_date_string,
+				char *end_date_string,
+				double monthly_accrual )
+{
+	DATE *begin_date;
+	DATE *end_date;
+	int months_between;
+	double total_accrual = 0.0;
+
+/*
+	int begin_date_day;
+	int days_in_begin_month;
+	double begin_month_percent;
+	double begin_month_accrual_amount;
+
+	double between_months_accrual_amount;
+
+	int end_date_day;
+	int days_in_end_month;
+	double end_month_percent;
+	double end_month_accrual_amount;
+
+*/
+
+	if ( ! ( end_date =
+			date_yyyy_mm_dd_new(
+				end_date_string,
+				date_get_utc_offset() ) ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: invalid end_date_string = (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 end_date_string );
+
+		exit( 1 );
+	}
+
+	if ( !begin_date_string || !*begin_date_string )
+	{
+		begin_date_string =
+			accrual_get_opening_begin_date_string(
+				end_date );
+
+		if ( ! ( begin_date =
+				date_yyyy_mm_dd_new(
+					begin_date_string,
+					date_get_utc_offset() ) ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: invalid begin_date_string = (%s)\n",
+		 		__FILE__,
+		 		__FUNCTION__,
+		 		__LINE__,
+		 		begin_date_string );
+
+			exit( 1 );
+		}
+	}
+	else
+	{
+		if ( ! ( begin_date =
+				date_yyyy_mm_dd_new(
+					begin_date_string,
+					date_get_utc_offset() ) ) )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: invalid begin_date_string = (%s)\n",
+		 		__FILE__,
+		 		__FUNCTION__,
+		 		__LINE__,
+		 		begin_date_string );
+
+			exit( 1 );
+		}
+
+		date_increment_days( begin_date, 1, date_get_utc_offset() );
+	}
+
+	months_between =
+		date_months_between(
+			begin_date,
+			end_date );
+
+	if ( months_between == 0 )
+	{
+		total_accrual =
+			accrual_monthly_within_month_accrue(
+				begin_date,
+				end_date,
+				monthly_accrual );
+	}
+	else
+	if ( months_between == 1 )
+	{
+		total_accrual =
+			accrual_monthly_next_month_accrue(
+				begin_date,
+				end_date,
+				monthly_accrual );
+	}
+
+#ifdef NOT_DEFINED
+	/* Beginning month */
+	/* --------------- */
+	begin_date_day =
+		date_get_day_number(
+			begin_date );
+
+	days_in_begin_month =
+		date_get_last_month_day(
+			date_get_month( begin_date ),
+			date_get_year( begin_date ) );
+
+	begin_month_percent =
+		1.0 - ( (double)begin_date_day /
+			(double)days_in_begin_month );
+
+	begin_month_accrual_amount = monthly_accrual * begin_month_percent;
+
+	/* Months between */
+	/* -------------- */
+	months_between =
+		date_months_between(
+			begin_date,
+			end_date );
+
+	if ( months_between > 1 )
+	{
+		between_months_accrual_amount =
+			monthly_accrual * (double)( months_between - 1 );
+	}
+	else
+	{
+		between_months_accrual_amount = 0.0;
+	}
+
+	/* Ending month */
+	/* ------------ */
+	end_date_day =
+		date_get_day_number(
+			end_date );
+
+	days_in_end_month =
+		date_get_last_month_day(
+			date_get_month( end_date ),
+			date_get_year( end_date ) );
+
+	end_month_percent =
+		1.0 - ( (double)1.0 /
+			(double)end_date_day );
+
+	end_month_accrual_amount =
+		monthly_accrual * end_month_percent;
+
+	total_accrual =
+		begin_month_accrual_amount +
+		between_months_accrual_amount +
+		end_month_accrual_amount;
+#endif
+
+	return total_accrual;
+
+} /* accrual_monthly_accrue() */
+
+char *accrual_get_opening_begin_date_string(
+				DATE *end_date )
+{
+	char begin_date_string[ 16 ];
+	DATE *begin_date;
+
+	if ( !end_date )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty end_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( date_get_day_number( end_date ) > 15 )
+	{
+		sprintf( begin_date_string,
+			 "%d-%d-01",
+			 date_get_year( end_date ),
+			 date_get_month( end_date ) );
+	}
+	else
+	{
+		begin_date = date_calloc();
+
+		date_copy( begin_date, end_date );
+
+		date_increment_months(
+			begin_date,
+			-1 /* months */,
+			date_get_utc_offset() );
+
+		date_set_day( begin_date, 1, date_get_utc_offset() );
+
+		date_get_yyyy_mm_dd(
+			begin_date_string,
+			begin_date );
+	}
+
+	return strdup( begin_date_string );
+
+} /* accrual_get_opening_begin_date_string() */
+
+/* begin_date and end_date are both in the same month. */
+/* --------------------------------------------------- */
+double accrual_monthly_within_month_accrue(
+				DATE *begin_date,
+				DATE *end_date,
+				double monthly_accrual )
+{
+	int begin_date_day;
+	int end_date_day;
+	int days_in_month;
+	double month_percent;
+	double month_accrual_amount;
+
+	begin_date_day =
+		date_get_day_number(
+			begin_date );
+
+	end_date_day =
+		date_get_day_number(
+			end_date );
+
+	days_in_month =
+		date_get_last_month_day(
+			date_get_month( begin_date ),
+			date_get_year( begin_date ) );
+
+	month_percent =
+		accrual_get_month_percent(
+			begin_date_day,
+			end_date_day,
+			days_in_month );
+
+	month_accrual_amount = monthly_accrual * month_percent;
+
+	return month_accrual_amount;
+
+} /* accrual_monthly_within_month_accrue() */
+
+/* begin_date and end_date are one month apart. */
+/* -------------------------------------------- */
+double accrual_monthly_next_month_accrue(
+				DATE *begin_date,
+				DATE *end_date,
+				double monthly_accrual )
+{
+	int begin_first_date_day;
+	int end_second_date_day;
+	int days_in_first_month;
+	int days_in_second_month;
+	double first_month_percent;
+	double second_month_percent;
+	double first_month_accrual_amount;
+	double second_month_accrual_amount;
+
+	begin_first_date_day =
+		date_get_day_number(
+			begin_date );
+
+	end_second_date_day =
+		date_get_day_number(
+			end_date );
+
+	days_in_first_month =
+		date_get_last_month_day(
+			date_get_month( begin_date ),
+			date_get_year( begin_date ) );
+
+	days_in_second_month =
+		date_get_last_month_day(
+			date_get_month( end_date ),
+			date_get_year( end_date ) );
+
+	first_month_percent =
+		accrual_get_month_percent(
+			begin_first_date_day,
+			days_in_first_month,
+			days_in_first_month );
+
+	second_month_percent =
+		accrual_get_month_percent(
+			1,
+			end_second_date_day,
+			days_in_second_month );
+
+	first_month_accrual_amount =
+		monthly_accrual * first_month_percent;
+
+	second_month_accrual_amount =
+		monthly_accrual * second_month_percent;
+
+	return first_month_accrual_amount + second_month_accrual_amount;
+
+} /* accrual_monthly_next_month_accrue() */
+
+double accrual_get_month_percent(
+			int begin_date_day,
+			int end_date_day,
+			int days_in_month )
+{
+	double month_percent;
+
+	if ( !days_in_month ) return 0.0;
+
+	month_percent =
+		(double)( ( end_date_day - begin_date_day ) + 1 ) /
+			  (double)days_in_month;
+
+	return month_percent;
+
+} /* accrual_get_month_percent() */

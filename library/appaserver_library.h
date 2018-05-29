@@ -366,7 +366,6 @@ char *appaserver_library_get_prelookup_button_control_string(
 			char *cgi_directory,
 			char *server_address,
 			char *login_name,
-			char *database_string,
 			char *session,
 			char *folder_name,
 			char *lookup_before_drop_down_base_folder_name,

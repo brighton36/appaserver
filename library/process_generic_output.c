@@ -21,7 +21,6 @@
 #include "aggregate_level.h"
 #include "document.h"
 #include "folder.h"
-#include "date_convert.h"
 #include "list_usage.h"
 #include "appaserver.h"
 
@@ -1753,25 +1752,6 @@ char *process_generic_output_get_row_exceedance_stdout_sys_string(
 				post_dictionary,
 				"aggregate_level" ) );
 
-	/* Temporary assignment until the time attribute is implemented. */
-	/* ------------------------------------------------------------- */
-/*
-	if ( aggregate_level == daily
-	||   aggregate_level == half_hour
-	||   aggregate_level == hourly )
-	{
-		aggregate_level = real_time;
-	}
-*/
-
-/*
-	if ( aggregate_level == aggregate_level_none
-	||   aggregate_level == real_time )
-		date_convert_piece = 1;
-	else
-		date_convert_piece = 2;
-*/
-
 	sprintf(	date_convert_process,
 			"date_convert.e '%c' %d %s",
 			FOLDER_DATA_DELIMITER,
@@ -1912,14 +1892,6 @@ char *process_generic_output_get_row_exceedance_stdout_sys_string(
 		date_convert_process );
 
 	*percent_below_piece = list_length( select_list ) + 1;
-
-/*
-	if ( aggregate_level != aggregate_level_none
-	&&   aggregate_level != real_time )
-	{
-		(*percent_below_piece)++;
-	}
-*/
 
 	return strdup( sys_string );
 

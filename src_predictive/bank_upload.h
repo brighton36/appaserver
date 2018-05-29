@@ -86,6 +86,7 @@ boolean bank_upload_reoccurring_transaction_load(
 					char **credit_account,
 					double *transaction_amount,
 					double *accrued_daily_amount,
+					double *accrued_monthly_amount,
 					char *application_name,
 					char *full_name,
 					char *street_address,
@@ -154,6 +155,7 @@ void bank_upload_reoccurring_transaction_parse(
 					double *transaction_amount,
 					char **bank_upload_search_phrase,
 					double *accrued_daily_amount,
+					double *accrued_monthly_amount,
 					char *input_buffer );
 
 REOCCURRING_TRANSACTION *bank_upload_seek_bank_upload_search_phrase(

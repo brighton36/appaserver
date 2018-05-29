@@ -30,7 +30,6 @@
 #include "session.h"
 #include "role.h"
 #include "date.h"
-#include "date_convert.h"
 #include "generic_load.h"
 
 /* Constants */

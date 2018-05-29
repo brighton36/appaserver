@@ -133,8 +133,6 @@ LIST *pipe2dictionary_list(	 	char *sys_string,
 
 	pclose( p );
 
-	/* if ( date_convert ) date_convert_free( date_convert ); */
-
 	return list;
 
 } /* pipe2dictionary_list() */

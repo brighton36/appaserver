@@ -112,12 +112,15 @@ int date_minutes_between(	char *from_date_string,
 				boolean add_one,
 				int utc_offset );
 
-int age( char *birth_date );
-void add_slashes_maybe( char *d, char *s );
+int age(			char *birth_date );
 
-char *date_yyyy_mm_dd( DATE *date );
+void add_slashes_maybe(		char *d,
+				char *s );
 
-char *date_get_yyyy_mm_dd( char *destination, DATE *date );
+char *date_yyyy_mm_dd(		DATE *date );
+
+char *date_get_yyyy_mm_dd(	char *destination,
+				DATE *date );
 
 char *date_get_hhmm(		char *destination,
 				DATE *date );
@@ -224,6 +227,10 @@ void date_set_time(		DATE *date,
 				int minutes,
 				int utc_offset );
 
+void date_set_day(		DATE *date,
+				int day,
+				int utc_offset );
+
 char *date_display_hhmm(	DATE *date );
 
 char *date_display_hhmmss(	DATE *date );
@@ -245,14 +252,16 @@ char *date_get_yyyy_mm_dd_string(
 
 int date_get_day_number(	DATE *date );
 
-int date_set_time_hhmm(			DATE *date,
-					char *hhmm,
-					int utc_offset );
+int date_set_time_hhmm(		DATE *date,
+				char *hhmm,
+				int utc_offset );
 
 int date_get_minutes_number( DATE *date );
 int date_get_hour_number( DATE *date );
 double date_yyyy_mm_dd_to_julian( char *yyyy_mm_dd );
+
 double date_yyyy_mm_dd_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm );
+
 boolean date_copy( DATE *d1, DATE *d2 );
 
 void date_round2five_minutes(		DATE *date,

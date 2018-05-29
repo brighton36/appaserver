@@ -16,17 +16,11 @@ fi
 
 echo "$0 $*" 1>&2
 
-if [ "$#" -ne 1 ]
-then
-	echo "Usage: $0 ignored" 1>&2
-	exit 1
-fi
-
 table="reoccurring_transaction"
 
 select="full_name,street_address,transaction_description"
 
-where="accrued_daily_amount is not null"
+where="accrued_daily_amount is not null or accrued_monthly_amount is not null"
 
 order="$select"
 

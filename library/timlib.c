@@ -1441,11 +1441,15 @@ int timlib_count_delimiters( int char_to_count, char *source )
 	return number_occurrences_char( char_to_count, source );
 }
 
+int timlib_character_count( char char_to_count, char *source )
+{
+	return number_occurrences_char( char_to_count, source );
+}
+
 int character_count( char char_to_count, char *source )
 {
 	return number_occurrences_char( char_to_count, source );
-
-} /* character_count() */
+}
 
 int number_occurrences_char( int char_to_count, char *source )
 {
@@ -3540,145 +3544,4 @@ int timlib_get_line_escape_CR(	char *in_line,
 		*in_line++ = in_char;
 	}
 } /* timlib_get_line_escape_CR() */
-
-/* ------------------------------ */
-/* Null begin_date_string assumes */
-/* first of THIS month!		  */
-/* ------------------------------ */
-double timlib_monthly_accrue(	char *begin_date_string,
-				char *end_date_string,
-				double monthly_accrual )
-{
-	DATE *begin_date;
-	DATE *end_date;
-
-	int begin_date_day;
-	int days_in_begin_month;
-	double begin_month_percent;
-	double begin_month_accrual_amount;
-
-	int months_between;
-	double between_months_accrual_amount;
-
-	int end_date_day;
-	int days_in_end_month;
-	double end_month_percent;
-	double end_month_accrual_amount;
-
-	double total_accrual;
-
-	if ( ! ( end_date =
-			date_yyyy_mm_dd_new(
-				end_date_string,
-				date_get_utc_offset() ) ) )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: invalid end_date_string = (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 end_date_string );
-
-		exit( 1 );
-	}
-
-	if ( !begin_date_string || !*begin_date_string )
-	{
-		char buffer[ 16 ];
-
-		sprintf( buffer,
-			 "%d-%d-01",
-			 date_get_year( end_date ),
-			 date_get_month( end_date ) );
-
-		begin_date = 
-			date_yyyy_mm_dd_new(
-				buffer,
-				date_get_utc_offset() );
-	}
-	else
-	{
-		if ( ! ( begin_date =
-				date_yyyy_mm_dd_new(
-					begin_date_string,
-					date_get_utc_offset() ) ) )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: invalid begin_date_string = (%s)\n",
-			 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__,
-			 	begin_date_string );
-
-			exit( 1 );
-		}
-	}
-
-	/* Beginning month */
-	/* --------------- */
-	begin_date_day =
-		date_get_day_number(
-			begin_date );
-
-	days_in_begin_month =
-		date_get_last_month_day(
-			date_get_month( begin_date ),
-			date_get_year( begin_date ) );
-
-	begin_month_percent =
-		(double)begin_date_day /
-		(double)days_in_begin_month;
-
-	begin_month_accrual_amount = monthly_accrual * begin_month_percent;
-
-	/* Months between */
-	/* -------------- */
-	months_between =
-		date_months_between(
-			begin_date,
-			end_date );
-
-	if ( months_between > 1 )
-	{
-		between_months_accrual_amount =
-			monthly_accrual * (double)( months_between - 1 );
-	}
-	else
-	{
-		between_months_accrual_amount = 0.0;
-	}
-
-	if ( months_between >= 1 )
-	{
-		/* Ending month */
-		/* ------------ */
-		end_date_day =
-			date_get_day_number(
-				end_date );
-
-		days_in_end_month =
-			date_get_last_month_day(
-				date_get_month( end_date ),
-				date_get_year( end_date ) );
-
-		end_month_percent =
-			(double)end_date_day /
-			(double)days_in_end_month;
-
-		end_month_accrual_amount =
-			monthly_accrual * end_month_percent;
-	}
-	else
-	{
-		end_month_accrual_amount = 0.0;
-	}
-
-	total_accrual =
-		begin_month_accrual_amount +
-		between_months_accrual_amount +
-		end_month_accrual_amount;
-
-	return total_accrual;
-
-} /* timlib_monthly_accrue() */
 

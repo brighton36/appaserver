@@ -11,6 +11,7 @@
 #include <string.h>
 #include "timlib.h"
 #include "piece.h"
+#include "column.h"
 #include "environ.h"
 #include "list.h"
 #include "appaserver_library.h"
@@ -20,6 +21,8 @@
 #include "ledger.h"
 #include "appaserver_parameter_file.h"
 #include "date.h"
+#include "folder_menu.h"
+#include "accrual.h"
 #include "boolean.h"
 #include "bank_upload.h"
 
@@ -103,6 +106,8 @@ void post_reoccurring_transaction_display(
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *session;
+	char *role_name;
 	char *process_name;
 	char *full_name;
 	char *street_address;
@@ -124,23 +129,25 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 11 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn with_html_yn\n",
+"Usage: %s session role process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn with_html_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	full_name = argv[ 3 ];
-	street_address = argv[ 4 ];
-	transaction_description = argv[ 5 ];
-	transaction_date = argv[ 6 ];
-	transaction_amount = atof( argv[ 7 ] );
-	memo = argv[ 8 ];
-	execute = (*argv[ 9 ] == 'y');
-	with_html = (*argv[ 10 ] == 'y');
+	session = argv[ 1 ];
+	role_name = argv[ 2 ];
+	process_name = argv[ 3 ];
+	full_name = argv[ 4 ];
+	street_address = argv[ 5 ];
+	transaction_description = argv[ 6 ];
+	transaction_date = argv[ 7 ];
+	transaction_amount = atof( argv[ 8 ] );
+	memo = argv[ 9 ];
+	execute = (*argv[ 10 ] == 'y');
+	with_html = (*argv[ 11 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -196,6 +203,22 @@ int main( int argc, char **argv )
 				transaction_date_time,
 				transaction_amount,
 				memo );
+
+		folder_menu_refresh_row_count(
+			application_name,
+			TRANSACTION_FOLDER_NAME,
+			session,
+			appaserver_parameter_file->
+				appaserver_data_directory,
+			role_name );
+
+		folder_menu_refresh_row_count(
+			application_name,
+			LEDGER_FOLDER_NAME,
+			session,
+			appaserver_parameter_file->
+				appaserver_data_directory,
+			role_name );
 
 		if ( with_html )
 		{
@@ -649,7 +672,6 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	int days_between;
 	double accrued_amount;
 	char *begin_date_string;
 	char end_date_string[ 16 ];
@@ -665,11 +687,7 @@ TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
 	column( end_date_string, 0, transaction_date_time );
 
 	accrued_amount =
-		timlib_monthly_accrue(
-			/* ------------------------------ */
-			/* Null begin_date_string assumes */
-			/* first of THIS month!		  */
-			/* ------------------------------ */
+		accrual_monthly_accrue(
 			begin_date_string,
 			end_date_string,
 			accrued_monthly_amount

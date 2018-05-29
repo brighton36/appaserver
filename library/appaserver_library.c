@@ -1742,8 +1742,11 @@ void appaserver_library_dictionary_convert_date(
 	DATE_CONVERT *date_convert;
 	char destination[ 1024 ];
 	char date_piece_string[ 64 ];
+	char date_half[ 32 ];
+	char time_half[ 32 ];
 	char *destination_ptr = destination;
 	int i;
+	boolean exists_time;
 
 	if ( !date_string || !*date_string ) return;
 
@@ -1751,10 +1754,27 @@ void appaserver_library_dictionary_convert_date(
 
 	for( i = 0; piece( date_piece_string, ',', date_string, i ); i++ )
 	{
+		if ( timlib_character_count( ' ', date_piece_string ) == 0 )
+		{
+			strcpy( date_half, date_piece_string );
+			exists_time = 0;
+		}
+		else
+		if ( timlib_character_count( ' ', date_piece_string ) == 1 )
+		{
+			column( date_half, 0, date_piece_string );
+			column( time_half, 1, date_piece_string );
+			exists_time = 1;
+		}
+		else
+		{
+			continue;
+		}
+
 		date_convert =
 			date_convert_new_database_format_date_convert(
 				application_name,
-				date_piece_string );
+				date_half );
 
 		if ( !date_convert )
 		{
@@ -1767,11 +1787,24 @@ void appaserver_library_dictionary_convert_date(
 
 		if ( i ) destination_ptr += sprintf( destination_ptr, "," );
 
-		destination_ptr += sprintf(	destination_ptr,
-						"%s",
-						date_convert->return_date );
+		if ( exists_time )
+		{
+			destination_ptr +=
+				sprintf( destination_ptr,
+					 "%s %s",
+					 date_convert->return_date,
+					 time_half );
+		}
+		else
+		{
+			destination_ptr +=
+				sprintf( destination_ptr,
+					 "%s",
+					 date_convert->return_date );
+		}
 
 		date_convert_free( date_convert );
+
 	} /* for each comma delimited date */
 
 	dictionary_set_pointer(
@@ -1880,9 +1913,11 @@ void appaserver_library_post_dictionary_database_convert_dates(
 	for( index = 0; index <= highest_index; index++ )
 	{
 		list_rewind( date_attribute_name_list );
+
 		do {
 			attribute_name =
-				list_get_pointer( date_attribute_name_list );
+				list_get_pointer(
+					date_attribute_name_list );
 
 			if ( index == 0 )
 			{
@@ -1955,7 +1990,9 @@ void appaserver_library_post_dictionary_database_convert_dates(
 				key );
 
 		} while( list_next( date_attribute_name_list ) );
+
 	} /* for each index */
+
 } /* appaserver_library_post_dictionary_database_convert_dates() */
 
 void appaserver_library_dictionary_convert_dates(
@@ -2003,8 +2040,11 @@ void appaserver_library_dictionary_convert_dates(
 					key );
 			}
 		}
+
 	} while( list_next( key_list ) );
+
 	list_free_container( key_list );
+
 } /* appaserver_library_dictionary_convert_dates() */
 
 void appaserver_library_list_database_convert_dates(
@@ -2107,7 +2147,6 @@ char *appaserver_library_get_prelookup_button_control_string(
 				char *cgi_directory,
 				char *server_address,
 				char *login_name,
-				char *database_string,
 				char *session,
 				char *folder_name,
 				char *lookup_before_drop_down_base_folder_name,
@@ -2137,7 +2176,9 @@ char *appaserver_library_get_prelookup_button_control_string(
 		 use_folder_name,
 		 role_name,
 		 state );
+
 	return control_string;
+
 } /* appaserver_library_get_prelookup_button_control_string() */
 
 void appaserver_library_populate_last_foreign_attribute_key(

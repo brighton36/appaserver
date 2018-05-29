@@ -847,7 +847,6 @@ void output_prompt_edit_form(
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
 				login_name,
-				(char *)0 /* database_string */,
 				session,
 				folder_name,
 				lookup_before_drop_down->

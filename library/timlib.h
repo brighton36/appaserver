@@ -91,6 +91,7 @@ void trim_character( char *destination, char c, char *source );
 
 char *reformat_double_return_string( double d, char *format_string );
 int character_count( char char_to_count, char *source );
+int timlib_character_count( char char_to_count, char *source );
 int timlib_count_delimiters( int char_to_count, char *source );
 FILE *open_file( char *s, char *mode );
 char *skip_spaces( char *s );
@@ -509,9 +510,5 @@ int timlib_get_line_escape_CR(	char *in_line,
 
 char *timlib_right_string(	char *string,
 				int width );
-
-double timlib_monthly_accrue(	char *begin_date_string,
-				char *end_date_string,
-				double monthly_accrual );
 
 #endif

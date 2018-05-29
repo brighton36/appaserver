@@ -751,7 +751,6 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_cgi_directory(),
 				appaserver_library_get_server_address(),
 				login_name,
-				(char *)0 /* database_string */,
 				session,
 				folder_name,
 				back_to_prelookup_folder_name,

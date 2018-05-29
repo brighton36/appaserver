@@ -33,7 +33,6 @@
 #include "session.h"
 #include "role.h"
 #include "date.h"
-#include "date_convert.h"
 #include "query.h"
 #include "query_attribute_statistics_list.h"
 #include "report_writer.h"

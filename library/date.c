@@ -214,6 +214,17 @@ void date_set_date_time_integers(
 
 } /* date_set_date_time_integers() */
 
+void date_set_day(		DATE *date,
+				int day,
+				int utc_offset )
+{
+	date->tm->tm_mday = day;
+
+	date->current = date_tm_to_current( date->tm, utc_offset );
+	date_set_tm_structures( date, date->current, utc_offset );
+
+} /* date_set_day() */
+
 void date_set_time_integers(	DATE *date,
 				int hour,
 				int minute,
@@ -2251,13 +2262,18 @@ int date_get_last_month_day(	int month,
 int date_get_utc_offset( void )
 {
 	char *utc_offset;
+	static utc_offset_integer = -99;
+
+	if ( utc_offset_integer != -99 ) return utc_offset_integer;
 
 	utc_offset = date_get_environment( "UTC_OFFSET" );
 
 	if ( utc_offset )
-		return atoi( utc_offset );
+		utc_offset_integer = atoi( utc_offset );
 	else
-		return DATE_DEFAULT_UTC_OFFSET;
+		utc_offset_integer = DATE_DEFAULT_UTC_OFFSET;
+
+	return utc_offset_integer;
 
 } /* date_get_utc_offset() */
 

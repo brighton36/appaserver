@@ -3542,22 +3542,25 @@ int timlib_get_line_escape_CR(	char *in_line,
 } /* timlib_get_line_escape_CR() */
 
 double timlib_monthly_accrue(	char *begin_date_string,
-				double begin_accrue_amount,
 				char *end_date_string,
 				double monthly_accrual )
 {
 	DATE *begin_date;
 	DATE *end_date;
+
 	int begin_date_day;
-	int days_in_first_month;
-	double first_month_percent;
-	double begin_month_accrual_amount = 0.0;
+	int days_in_begin_month;
+	double begin_month_percent;
+	double begin_month_accrual_amount;
+
+	int months_between;
+	double between_months_accrual_amount;
+
 	int end_date_day;
 	int days_in_end_month;
 	double end_month_percent;
-	double end_month_accrual_amount = 0.0;
-	int months_between;
-	double between_months_accrual_amount = 0.0;
+	double end_month_accrual_amount;
+
 	double total_accrual;
 
 	if ( ! ( begin_date =
@@ -3590,25 +3593,63 @@ double timlib_monthly_accrue(	char *begin_date_string,
 		exit( 1 );
 	}
 
+	/* Beginning month */
+	/* --------------- */
 	begin_date_day =
 		date_get_day_number(
 			begin_date );
 
-	days_in_first_month =
+	days_in_begin_month =
 		date_get_last_month_day(
 			date_get_month( begin_date ),
 			date_get_year( begin_date ) );
 
-	first_month_percent =
-		(double)begin_date_day / (double)days_in_first_month;
+	begin_month_percent =
+		(double)begin_date_day /
+		(double)days_in_begin_month;
 
+	begin_month_accrual_amount = monthly_accrual * begin_month_percent;
+
+	/* Months between */
+	/* -------------- */
 	months_between =
 		date_months_between(
 			begin_date,
 			end_date );
 
+	if ( months_between > 1 )
+	{
+		between_months_accrual_amount =
+			monthly_accrual * (double)( months_between - 1 );
+	}
+	else
+	{
+		between_months_accrual_amount = 0.0;
+	}
+
 	if ( months_between >= 1 )
 	{
+		/* Ending month */
+		/* ------------ */
+		end_date_day =
+			date_get_day_number(
+				end_date );
+
+		days_in_end_month =
+			date_get_last_month_day(
+				date_get_month( end_date ),
+				date_get_year( end_date ) );
+
+		end_month_percent =
+			(double)end_date_day /
+			(double)days_in_end_month;
+
+		end_month_accrual_amount =
+			monthly_accrual * end_month_percent;
+	}
+	else
+	{
+		end_month_accrual_amount = 0.0;
 	}
 
 	total_accrual =

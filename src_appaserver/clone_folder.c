@@ -398,10 +398,6 @@ char *get_sys_string(	char *destination_table_name,
 		(LIST *)0 /* mto1_isa_related_folder_list */,
 		(char *)0 /* role_name */ );
 
-	attribute_remove_attribute_list(
-		attribute_list,
-		"grace_no_cycle_colors_yn" );
-
 	date_attribute_position_list =
 		attribute_get_date_attribute_position_list(
 			attribute_list );
@@ -427,6 +423,12 @@ char *get_sys_string(	char *destination_table_name,
 	list_delete_string(
 		attribute_name_list,
 		"password" );
+
+	/* Don't clone grace_no_cycle_colors_yn */
+	/* ------------------------------------ */
+	list_delete_string(
+		attribute_name_list,
+		"grace_no_cycle_colors_yn" );
 
 	if ( strcmp( old_data, "old_data" ) == 0
 	&&   strcmp( new_data, "new_data" ) == 0 )

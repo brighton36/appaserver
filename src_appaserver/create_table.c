@@ -35,8 +35,7 @@
 /* ---------- */
 void make_executable(	char *create_table_filename );
 
-char *get_sys_string(	char *destination_application,
-			char *folder_name,
+char *get_sys_string(	char *folder_name,
 			char *table_name,
 			LIST *attribute_list,
 			char *create_table_filename,
@@ -213,7 +212,6 @@ passed_security_check:
 	/* Display the work */
 	/* ---------------- */
 	sys_string = get_sys_string(
-				destination_application,
 				folder_name,
 				table_name,
 				folder->attribute_list,
@@ -227,7 +225,6 @@ passed_security_check:
 	/* Do the work */
 	/* ----------- */
 	sys_string = get_sys_string(
-				destination_application,
 				folder_name,
 				table_name,
 				folder->attribute_list,
@@ -273,8 +270,7 @@ passed_security_check:
 	exit( 0 );
 } /* main() */
 
-char *get_sys_string(	char *destination_application,
-			char *folder_name,
+char *get_sys_string(	char *folder_name,
 			char *table_name,
 			LIST *attribute_list,
 			char *create_table_filename,
@@ -334,17 +330,15 @@ char *get_sys_string(	char *destination_application,
 	||     build_shell_script_yn == 'y' )
 	{
 		buffer_ptr += sprintf(	buffer_ptr,
-"echo \"drop table if exists $table_name;\" | sql.e '^' %s\n",
-					destination_application );
+"echo \"drop table if exists $table_name;\" | sql.e\n" );
 	}
 	else
 	{
 		buffer_ptr += sprintf(
 	 		buffer_ptr,
 "echo \"drop table if exists %s;\" |"
-" sql.e '^' %s 2>&1 | html_paragraph_wrapper;", 
-	 		table_name,
-			destination_application );
+" sql.e 2>&1 | html_paragraph_wrapper;", 
+	 		table_name );
 	}
 
 	/* Create the create table statement */
@@ -433,15 +427,13 @@ char *get_sys_string(	char *destination_application,
 	{
 		buffer_ptr += sprintf(
 		 	buffer_ptr,
-		 	";\" | sql.e '^' %s\n",
-		 	destination_application );
+		 	";\" | sql.e\n" );
 	}
 	else
 	{
 		buffer_ptr += sprintf(
 		 	buffer_ptr,
-		 	";\" | sql.e '^' %s 2>&1 | html_paragraph_wrapper;",
-		 	destination_application );
+		 	";\" | sql.e 2>&1 | html_paragraph_wrapper;" );
 	}
 
 	if ( ( create_table_filename && *create_table_filename )
@@ -471,15 +463,13 @@ char *get_sys_string(	char *destination_application,
 	{
 		buffer_ptr += sprintf(
 		 	buffer_ptr,
-";\" | sql.e '^' %s\n",
-		 	destination_application );
+";\" | sql.e\n" );
 	}
 	else
 	{
 		buffer_ptr += sprintf(
 		 	buffer_ptr,
-";\" | sql.e '^' %s 2>&1 | html_paragraph_wrapper",
-		 	destination_application );
+";\" | sql.e 2>&1 | html_paragraph_wrapper" );
 	}
 
 	/* Create additional indexes */
@@ -496,21 +486,19 @@ char *get_sys_string(	char *destination_application,
 			{
 				buffer_ptr += sprintf(
 		 			buffer_ptr,
-"echo \"create index ${table_name}_%s on $table_name (%s);\" | sql.e '^' %s\n",
+"echo \"create index ${table_name}_%s on $table_name (%s);\" | sql.e\n",
 					attribute->attribute_name,
-					attribute->attribute_name,
-					destination_application);
+					attribute->attribute_name );
 			}
 			else
 			{
 				buffer_ptr += sprintf(
 		 			buffer_ptr,
-";echo \"create index %s_%s on %s (%s);\" | sql.e '^' %s 2>&1 | html_paragraph_wrapper",
+";echo \"create index %s_%s on %s (%s);\" | sql.e 2>&1 | html_paragraph_wrapper",
 		 			table_name,
 					attribute->attribute_name,
 		 			table_name,
-					attribute->attribute_name,
-					destination_application);
+					attribute->attribute_name );
 			}
 		}
 
@@ -566,15 +554,13 @@ char *get_sys_string(	char *destination_application,
 		{
 			buffer_ptr += sprintf(
 		 		buffer_ptr,
-");\" | sql.e '^' %s\n",
-				destination_application );
+");\" | sql.e\n" );
 		}
 		else
 		{
 			buffer_ptr += sprintf(
 		 		buffer_ptr,
-");\" | sql.e '^' %s 2>&1 | html_paragraph_wrapper",
-				destination_application );
+");\" | sql.e 2>&1 | html_paragraph_wrapper" );
 		}
 	}
 

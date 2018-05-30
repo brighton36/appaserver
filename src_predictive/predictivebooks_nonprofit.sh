@@ -2149,176 +2149,176 @@ all_done
 ) | sql.e 2>&1 | grep -iv duplicate
 
 table_name=account
-echo "create table $table_name (account char (60) not null,subclassification char (35),fund char (20),hard_coded_account_key char (40)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (account);" | sql.e '^' capitolpops
-echo "create unique index ${table_name}_additional_unique on $table_name (fund,hard_coded_account_key);" | sql.e '^' capitolpops
+echo "create table $table_name (account char (60) not null,subclassification char (35),fund char (20),hard_coded_account_key char (40)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (account);" | sql.e
+echo "create unique index ${table_name}_additional_unique on $table_name (fund,hard_coded_account_key);" | sql.e
 table_name=bank_upload
-echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),fund char (20),posted_yn char (1)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e '^' capitolpops
+echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),fund char (20),posted_yn char (1)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e
 table_name=category
-echo "create table $table_name (category char (20) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (category);" | sql.e '^' capitolpops
+echo "create table $table_name (category char (20) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (category);" | sql.e
 table_name=contact
-echo "create table $table_name (email_address char (50) not null,date date not null,time char (7) not null,subject char (30),message text) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (email_address,date,time);" | sql.e '^' capitolpops
+echo "create table $table_name (email_address char (50) not null,date date not null,time char (7) not null,subject char (30),message text) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (email_address,date,time);" | sql.e
 table_name=contra_account
-echo "create table $table_name (contra_to_account char (60) not null,account char (60)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (contra_to_account);" | sql.e '^' capitolpops
+echo "create table $table_name (contra_to_account char (60) not null,account char (60)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (contra_to_account);" | sql.e
 table_name=customer
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e
 table_name=customer_payment
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,payment_date_time);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,payment_date_time);" | sql.e
 table_name=customer_sale
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,fund char (20),title_passage_rule char (15),shipped_date_time datetime,shipping_revenue double (8,2),arrived_date date,sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,fund char (20),title_passage_rule char (15),shipped_date_time datetime,shipping_revenue double (8,2),arrived_date date,sum_extension double (10,2),sales_tax double (7,2),invoice_amount double (10,2),total_payment double (10,2),amount_due double (10,2),completed_date_time datetime,uncollectible_writeoff_date date,transaction_date_time datetime) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time);" | sql.e
 table_name=day
-echo "create table $table_name (day char (9) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (day);" | sql.e '^' capitolpops
+echo "create table $table_name (day char (9) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (day);" | sql.e
 table_name=depreciation
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,units_produced integer,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number,depreciation_date);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,units_produced integer,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number,depreciation_date);" | sql.e
 table_name=depreciation_method
-echo "create table $table_name (depreciation_method char (25) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (depreciation_method);" | sql.e '^' capitolpops
+echo "create table $table_name (depreciation_method char (25) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (depreciation_method);" | sql.e
 table_name=donation
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,donation_date date not null,check_number integer,total_donation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,donation_date);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,donation_date date not null,check_number integer,total_donation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,donation_date);" | sql.e
 table_name=donation_account
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,donation_date date not null,account char (60) not null,donation_amount double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,donation_date,account);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,donation_date date not null,account char (60) not null,donation_amount double (10,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,donation_date,account);" | sql.e
 table_name=element
-echo "create table $table_name (element char (20) not null,accumulate_debit_yn char (1),display_order integer) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (element);" | sql.e '^' capitolpops
+echo "create table $table_name (element char (20) not null,accumulate_debit_yn char (1),display_order integer) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (element);" | sql.e
 table_name=employee
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,hourly_wage double (10,2),period_salary double (10,2),commission_sum_extension_percent double (10,2),gross_pay_year_to_date double (10,2),net_pay_year_to_date double (10,2),federal_marital_status char (25),federal_withholding_allowances integer,federal_withholding_additional_period_amount integer,state_marital_status char (40),state_withholding_allowances integer,state_itemized_deduction_allowances integer,retirement_contribution_plan_employer_period_amount integer,retirement_contribution_plan_employee_period_amount integer,health_insurance_employer_period_amount integer,health_insurance_employee_period_amount integer,union_dues_period_amount integer,terminated_date date) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,hourly_wage double (10,2),period_salary double (10,2),commission_sum_extension_percent double (10,2),gross_pay_year_to_date double (10,2),net_pay_year_to_date double (10,2),federal_marital_status char (25),federal_withholding_allowances integer,federal_withholding_additional_period_amount integer,state_marital_status char (40),state_withholding_allowances integer,state_itemized_deduction_allowances integer,retirement_contribution_plan_employer_period_amount integer,retirement_contribution_plan_employee_period_amount integer,health_insurance_employer_period_amount integer,health_insurance_employee_period_amount integer,union_dues_period_amount integer,terminated_date date) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e
 table_name=employee_work_day
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,begin_work_date_time datetime not null,end_work_date_time datetime,employee_work_hours double (6,2),overtime_work_day_yn char (1),insert_timestamp datetime,update_timestamp datetime) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,begin_work_date_time);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,begin_work_date_time datetime not null,end_work_date_time datetime,employee_work_hours double (6,2),overtime_work_day_yn char (1),insert_timestamp datetime,update_timestamp datetime) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,begin_work_date_time);" | sql.e
 table_name=employee_work_period
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,payroll_year,payroll_period_number);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer,transaction_date_time datetime) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,payroll_year,payroll_period_number);" | sql.e
 table_name=entity
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,city char (20),state_code char (2),zip_code char (5),email_address char (50)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,city char (20),state_code char (2),zip_code char (5),email_address char (50)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e
 table_name=equity_account_balance
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,date_time datetime not null,investment_operation char (15),transaction_date_time datetime,share_price double (12,4),share_quantity_change double (12,4),share_quantity_balance double (13,4),book_value_change double (12,4),book_value_balance double (13,4),moving_share_price double (13,5),total_cost_balance double (14,5),market_value double (13,4),unrealized_gain_balance double (12,4),unrealized_gain_change double (12,4),realized_gain double (12,4)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,account_number,date_time);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,date_time datetime not null,investment_operation char (15),transaction_date_time datetime,share_price double (12,4),share_quantity_change double (12,4),share_quantity_balance double (13,4),book_value_change double (12,4),book_value_balance double (13,4),moving_share_price double (13,5),total_cost_balance double (14,5),market_value double (13,4),unrealized_gain_balance double (12,4),unrealized_gain_change double (12,4),realized_gain double (12,4)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,account_number,date_time);" | sql.e
 table_name=federal_income_tax_withholding
-echo "create table $table_name (federal_marital_status char (25) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (federal_marital_status,income_over);" | sql.e '^' capitolpops
+echo "create table $table_name (federal_marital_status char (25) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (federal_marital_status,income_over);" | sql.e
 table_name=federal_marital_status
-echo "create table $table_name (federal_marital_status char (25) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (federal_marital_status);" | sql.e '^' capitolpops
+echo "create table $table_name (federal_marital_status char (25) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (federal_marital_status);" | sql.e
 table_name=financial_institution
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e
 table_name=fixed_asset
-echo "create table $table_name (asset_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (asset_name);" | sql.e '^' capitolpops
+echo "create table $table_name (asset_name char (30) not null,account char (60)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (asset_name);" | sql.e
 table_name=fixed_asset_purchase
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),depreciation_method char (25),estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,accumulated_depreciation double (10,2),disposal_date date) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),depreciation_method char (25),estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,accumulated_depreciation double (10,2),disposal_date date) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,asset_name,serial_number);" | sql.e
 table_name=fund
-echo "create table $table_name (fund char (20) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (fund);" | sql.e '^' capitolpops
+echo "create table $table_name (fund char (20) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (fund);" | sql.e
 table_name=inventory
-echo "create table $table_name (inventory_name char (30) not null,inventory_account char (60),cost_of_goods_sold_account char (60),retail_price double (10,2),reorder_quantity integer,quantity_on_hand integer,average_unit_cost double (12,4),total_cost_balance double (14,5)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (inventory_name);" | sql.e '^' capitolpops
+echo "create table $table_name (inventory_name char (30) not null,inventory_account char (60),cost_of_goods_sold_account char (60),retail_price double (10,2),reorder_quantity integer,quantity_on_hand integer,average_unit_cost double (12,4),total_cost_balance double (14,5)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (inventory_name);" | sql.e
 table_name=inventory_cost_method
-echo "create table $table_name (inventory_cost_method char (15) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (inventory_cost_method);" | sql.e '^' capitolpops
+echo "create table $table_name (inventory_cost_method char (15) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (inventory_cost_method);" | sql.e
 table_name=inventory_purchase
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,inventory_name char (30) not null,ordered_quantity integer,arrived_quantity integer,missing_quantity integer,quantity_on_hand integer,capitalized_unit_cost double (8,4),unit_cost double (12,4),extension double (10,2),average_unit_cost double (12,4)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,inventory_name);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,inventory_name char (30) not null,ordered_quantity integer,arrived_quantity integer,missing_quantity integer,quantity_on_hand integer,capitalized_unit_cost double (8,4),unit_cost double (12,4),extension double (10,2),average_unit_cost double (12,4)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,inventory_name);" | sql.e
 table_name=inventory_sale
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,inventory_name char (30) not null,quantity integer,retail_price double (10,2),discount_amount double (10,2),extension double (10,2),cost_of_goods_sold double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,inventory_name);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,sale_date_time datetime not null,inventory_name char (30) not null,quantity integer,retail_price double (10,2),discount_amount double (10,2),extension double (10,2),cost_of_goods_sold double (10,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,sale_date_time,inventory_name);" | sql.e
 table_name=investment_account
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,classification char (15),investment_account char (60),certificate_maturity_months integer,fair_value_adjustment_account char (60),certificate_maturity_date date,interest_rate double (5,2)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,account_number);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,classification char (15),investment_account char (60),certificate_maturity_months integer,fair_value_adjustment_account char (60),certificate_maturity_date date,interest_rate double (5,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,account_number);" | sql.e
 table_name=investment_classification
-echo "create table $table_name (classification char (15) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (classification);" | sql.e '^' capitolpops
+echo "create table $table_name (classification char (15) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (classification);" | sql.e
 table_name=investment_operation
-echo "create table $table_name (investment_operation char (15) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (investment_operation);" | sql.e '^' capitolpops
+echo "create table $table_name (investment_operation char (15) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (investment_operation);" | sql.e
 table_name=journal_ledger
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,account char (60) not null,transaction_count integer,previous_balance double (10,2),debit_amount double (10,2),credit_amount double (10,2),balance double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time,account);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,account char (60) not null,transaction_count integer,previous_balance double (10,2),debit_amount double (10,2),credit_amount double (10,2),balance double (10,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time,account);" | sql.e
 table_name=liability_account_entity
-echo "create table $table_name (account char (60) not null,full_name char (60),street_address char (40)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (account);" | sql.e '^' capitolpops
+echo "create table $table_name (account char (60) not null,full_name char (60),street_address char (40)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (account);" | sql.e
 table_name=payroll_pay_period
-echo "create table $table_name (payroll_pay_period char (15) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (payroll_pay_period);" | sql.e '^' capitolpops
+echo "create table $table_name (payroll_pay_period char (15) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (payroll_pay_period);" | sql.e
 table_name=payroll_posting
-echo "create table $table_name (payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (payroll_year,payroll_period_number);" | sql.e '^' capitolpops
+echo "create table $table_name (payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (payroll_year,payroll_period_number);" | sql.e
 table_name=prior_fixed_asset
-echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),recorded_date date,estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),disposal_date date,full_name char (60),street_address char (40),transaction_date_time datetime,accumulated_depreciation double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (asset_name,serial_number);" | sql.e '^' capitolpops
+echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,extension double (10,2),recorded_date date,estimated_useful_life_years integer,estimated_useful_life_units integer,estimated_residual_value double (10,2),declining_balance_n integer,depreciation_method char (25),disposal_date date,full_name char (60),street_address char (40),transaction_date_time datetime,accumulated_depreciation double (10,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (asset_name,serial_number);" | sql.e
 table_name=prior_fixed_asset_depreciation
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,asset_name,serial_number,depreciation_date);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,asset_name char (30) not null,serial_number char (10) not null,depreciation_date date not null,depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,asset_name,serial_number,depreciation_date);" | sql.e
 table_name=program
-echo "create table $table_name (program char (30) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (program);" | sql.e '^' capitolpops
+echo "create table $table_name (program char (30) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (program);" | sql.e
 table_name=purchase_order
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,fund char (20),amount_due double (10,2),sum_extension double (10,2),sales_tax double (7,2),freight_in double (6,2),purchase_amount double (10,2),title_passage_rule char (15),shipped_date date,arrived_date_time datetime,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time);" | sql.e '^' capitolpops
-echo "create unique index ${table_name}_additional_unique on $table_name (arrived_date_time);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,fund char (20),amount_due double (10,2),sum_extension double (10,2),sales_tax double (7,2),freight_in double (6,2),purchase_amount double (10,2),title_passage_rule char (15),shipped_date date,arrived_date_time datetime,transaction_date_time datetime) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time);" | sql.e
+echo "create unique index ${table_name}_additional_unique on $table_name (arrived_date_time);" | sql.e
 table_name=reoccurring_transaction
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_description char (20) not null,debit_account char (60),credit_account char (60),transaction_amount double (10,2),bank_upload_search_phrase char (50),accrued_daily_amount double (10,2),accrued_monthly_amount double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,transaction_description);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_description char (20) not null,debit_account char (60),credit_account char (60),transaction_amount double (10,2),bank_upload_search_phrase char (50),accrued_daily_amount double (10,2),accrued_monthly_amount double (10,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,transaction_description);" | sql.e
 table_name=self
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,inventory_cost_method char (15),payroll_pay_period char (15),payroll_beginning_day char (9),social_security_combined_tax_rate double (10,4),social_security_payroll_ceiling integer,medicare_combined_tax_rate double (10,4),medicare_additional_withholding_rate double (5,3),medicare_additional_gross_pay_floor integer,federal_withholding_allowance_period_value double (10,2),federal_nonresident_withholding_income_premium double (7,2),state_withholding_allowance_period_value double (7,2),state_itemized_allowance_period_value double (10,2),federal_unemployment_wage_base integer,federal_unemployment_tax_standard_rate double (10,4),federal_unemployment_threshold_rate double (10,4),federal_unemployment_tax_minimum_rate double (10,4),state_unemployment_wage_base integer,state_unemployment_tax_rate double (10,4),state_sales_tax_rate double (6,4)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,inventory_cost_method char (15),payroll_pay_period char (15),payroll_beginning_day char (9),social_security_combined_tax_rate double (10,4),social_security_payroll_ceiling integer,medicare_combined_tax_rate double (10,4),medicare_additional_withholding_rate double (5,3),medicare_additional_gross_pay_floor integer,federal_withholding_allowance_period_value double (10,2),federal_nonresident_withholding_income_premium double (7,2),state_withholding_allowance_period_value double (7,2),state_itemized_allowance_period_value double (10,2),federal_unemployment_wage_base integer,federal_unemployment_tax_standard_rate double (10,4),federal_unemployment_threshold_rate double (10,4),federal_unemployment_tax_minimum_rate double (10,4),state_unemployment_wage_base integer,state_unemployment_tax_rate double (10,4),state_sales_tax_rate double (6,4)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e
 table_name=service
-echo "create table $table_name (service_name char (30) not null,retail_price double (10,2)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (service_name);" | sql.e '^' capitolpops
+echo "create table $table_name (service_name char (30) not null,retail_price double (10,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (service_name);" | sql.e
 table_name=service_category
-echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (service_category);" | sql.e '^' capitolpops
+echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (service_category);" | sql.e
 table_name=state_income_tax_withholding
-echo "create table $table_name (state_marital_status char (40) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (state_marital_status,income_over);" | sql.e '^' capitolpops
+echo "create table $table_name (state_marital_status char (40) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (state_marital_status,income_over);" | sql.e
 table_name=state_marital_status
-echo "create table $table_name (state_marital_status char (40) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (state_marital_status);" | sql.e '^' capitolpops
+echo "create table $table_name (state_marital_status char (40) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (state_marital_status);" | sql.e
 table_name=state_standard_deduction_table
-echo "create table $table_name (state_marital_status char (40) not null,state_withholding_allowances integer not null,state_standard_deduction_amount double (8,2)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (state_marital_status,state_withholding_allowances);" | sql.e '^' capitolpops
+echo "create table $table_name (state_marital_status char (40) not null,state_withholding_allowances integer not null,state_standard_deduction_amount double (8,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (state_marital_status,state_withholding_allowances);" | sql.e
 table_name=subclassification
-echo "create table $table_name (subclassification char (35) not null,element char (20),display_order integer) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (subclassification);" | sql.e '^' capitolpops
+echo "create table $table_name (subclassification char (35) not null,element char (20),display_order integer) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (subclassification);" | sql.e
 table_name=supply
-echo "create table $table_name (supply_name char (30) not null,account char (60)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (supply_name);" | sql.e '^' capitolpops
+echo "create table $table_name (supply_name char (30) not null,account char (60)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (supply_name);" | sql.e
 table_name=tax_form
-echo "create table $table_name (tax_form char (20) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (tax_form);" | sql.e '^' capitolpops
+echo "create table $table_name (tax_form char (20) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (tax_form);" | sql.e
 table_name=tax_form_line
-echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,tax_form_description char (35),itemize_accounts_yn char (1)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (tax_form,tax_form_line);" | sql.e '^' capitolpops
+echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,tax_form_description char (35),itemize_accounts_yn char (1)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (tax_form,tax_form_line);" | sql.e
 table_name=tax_form_line_account
-echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,account char (60) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (tax_form,tax_form_line,account);" | sql.e '^' capitolpops
+echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,account char (60) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (tax_form,tax_form_line,account);" | sql.e
 table_name=title_passage_rule
-echo "create table $table_name (title_passage_rule char (15) not null,title_passage_date char (15)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (title_passage_rule);" | sql.e '^' capitolpops
+echo "create table $table_name (title_passage_rule char (15) not null,title_passage_date char (15)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (title_passage_rule);" | sql.e
 table_name=transaction
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,memo char (60),transaction_amount double (10,2),check_number integer,program char (30),lock_transaction_yn char (1)) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time);" | sql.e '^' capitolpops
-echo "create unique index ${table_name}_additional_unique on $table_name (transaction_date_time);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,transaction_date_time datetime not null,memo char (60),transaction_amount double (10,2),check_number integer,program char (30),lock_transaction_yn char (1)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time);" | sql.e
+echo "create unique index ${table_name}_additional_unique on $table_name (transaction_date_time);" | sql.e
 table_name=vendor
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e
 table_name=vendor_payment
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e '^' capitolpops
-echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,payment_date_time);" | sql.e '^' capitolpops
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,payment_date_time);" | sql.e
 
 (
 cat << all_done2

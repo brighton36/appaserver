@@ -1776,7 +1776,7 @@ insert into $subschemas (subschema) values ('ledger');
 insert into $role_operation (folder,role,operation) values ('receipt_upload','bookkeeper','delete');
 insert into $role_operation (folder,role,operation) values ('receipt_upload','supervisor','delete');
 delete from $folder where folder = 'reoccurring_transaction';
-insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('reoccurring_transaction','prompt','5','ledger',null,null,null,null,null,null,null,null,null,null,null,null);
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('reoccurring_transaction','prompt','5','ledger',null,null,null,null,null,null,'post_change_reoccurring_transaction( \$row )',null,null,null,null,null);
 delete from $relation where folder = 'reoccurring_transaction';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('reoccurring_transaction','account','credit_account',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('reoccurring_transaction','account','debit_account',null,null,null,null,null,null,null,null,null,null,null);
@@ -1814,6 +1814,9 @@ insert into $role_folder (folder,role,permission) values ('reoccurring_transacti
 insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('reoccurring_transaction','supervisor','update');
 delete from $javascript_folders where folder = 'reoccurring_transaction';
+insert into $javascript_folders (javascript_filename,folder) values ('post_change_reoccurring_transaction.js','reoccurring_transaction');
+delete from $javascript_files where javascript_filename = 'post_change_reoccurring_transaction.js';
+insert into $javascript_files (javascript_filename) values ('post_change_reoccurring_transaction.js');
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('ledger');
@@ -3276,6 +3279,7 @@ insert into javascript_files (javascript_filename) values ('post_change_equity_a
 insert into javascript_files (javascript_filename) values ('post_change_folder_attribute.js');
 insert into javascript_files (javascript_filename) values ('post_change_journal_ledger.js');
 insert into javascript_files (javascript_filename) values ('post_change_pay_liabilities.js');
+insert into javascript_files (javascript_filename) values ('post_change_reoccurring_transaction.js');
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('accumulate_yn','1',null,null,null);
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('appaserver_yn','1',null,null,null);
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('as_of_date','10',null,null,'y');

@@ -523,4 +523,6 @@ char *date_display_yyyy_mm_dd_hh_colon_mm(
 int date_months_between(	DATE *from_date,
 				DATE *to_date );
 
+int date_get_days_in_year(	int year );
+
 #endif

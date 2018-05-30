@@ -2254,15 +2254,17 @@ int date_get_last_month_day(	int month,
 	{
 		return 28;
 	}
-
-	return 29;
+	else
+	{
+		return 29;
+	}
 
 } /* date_get_last_month_day() */
 
 int date_get_utc_offset( void )
 {
 	char *utc_offset;
-	static utc_offset_integer = -99;
+	static int utc_offset_integer = -99;
 
 	if ( utc_offset_integer != -99 ) return utc_offset_integer;
 
@@ -2311,3 +2313,10 @@ boolean date_name_to_value( char *variable_value, char *variable_name )
 
 } /* date_name_to_value() */
 
+int date_get_days_in_year( int year )
+{
+	if ( year % 4 == 0 )
+		return 366;
+	else
+		return 365;
+}

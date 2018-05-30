@@ -6006,7 +6006,10 @@ double ledger_get_fraction_of_year(
 			date /* later_date */,
 			prior_date /* earlier_date */ );
 
-	return (double)days_between / 365.0;
+	return 	(double)days_between /
+		(double)date_get_days_in_year(
+				date_get_year(
+					prior_date ) );
 
 } /* ledger_get_fraction_of_year() */
 

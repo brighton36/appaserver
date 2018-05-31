@@ -31,6 +31,23 @@
 
 /* Prototypes */
 /* ---------- */
+void post_reoccurring_transaction_batch(
+			char *application_name,
+			char *transaction_date_time,
+			boolean execute,
+			boolean with_html );
+
+void post_reoccurring_transaction_entity(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			boolean execute,
+			boolean with_html );
+
 char *get_last_transaction_date(
 			char *application_name,
 			char *full_name,
@@ -182,28 +199,32 @@ int main( int argc, char **argv )
 		ledger_get_transaction_date_time(
 			transaction_date );
 
-	post_reoccurring_transaction_display(
-		application_name,
-		full_name,
-		street_address,
-		transaction_description,
-		transaction_date_time,
-		transaction_amount,
-		memo,
-		with_html );
-
-	if ( execute )
+	if ( strcmp( full_name, "full_name" ) != 0 )
 	{
-		transaction_date_time =
-			post_reoccurring_transaction(
+		post_reoccurring_transaction_entity(
 				application_name,
 				full_name,
 				street_address,
 				transaction_description,
 				transaction_date_time,
 				transaction_amount,
-				memo );
+				memo,
+				execute,
+				with_html );
+	}
+	else
+	if ( strcmp(	process_name,
+			"post_reoccurring_transaction_accrual" ) == 0 )
+	{
+		post_reoccurring_transaction_batch(
+				application_name,
+				transaction_date_time,
+				execute,
+				with_html );
+	}
 
+	if ( execute )
+	{
 		folder_menu_refresh_row_count(
 			application_name,
 			TRANSACTION_FOLDER_NAME,
@@ -222,23 +243,107 @@ int main( int argc, char **argv )
 
 		if ( with_html )
 		{
-			if ( transaction_date_time )
-			{
-				printf( "<h3>Process complete.</h3>\n" );
-			}
-			else
-			{
-				printf(
-		      "<h3>Warning: no reoccurring transaction found.</h3>\n" );
-			}
+			printf( "<h3>Process complete.</h3>\n" );
 		}
-	} /* if execute */
-
-	if ( with_html ) document_close();
+	}
 
 	exit( 0 );
 
 } /* main() */
+
+void post_reoccurring_transaction_batch(
+				char *application_name,
+				char *transaction_date_time,
+				boolean execute,
+				boolean with_html )
+{
+	FILE *input_pipe;
+	char input_buffer[ 512 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char transaction_description[ 128 ];
+
+	input_pipe =
+		popen( "populate_reoccurring_transaction_accrual.sh", "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		if ( character_count(
+			FOLDER_DATA_DELIMITER,
+			input_buffer ) != 2 )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: not two delimiters in (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
+			pclose( input_pipe );
+			exit( 1 );
+		}
+
+		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
+		piece(	transaction_description,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		post_reoccurring_transaction_entity(
+				application_name,
+				full_name,
+				street_address,
+				transaction_description,
+				transaction_date_time,
+				0.0 /* transaction_amount */,
+				(char *)0 /* memo */,
+				execute,
+				with_html );
+	}
+
+	pclose( input_pipe );
+
+} /* post_reoccurring_transaction_batch() */
+
+void post_reoccurring_transaction_entity(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_description,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *memo,
+				boolean execute,
+				boolean with_html )
+{
+
+	if ( !execute )
+	{
+		post_reoccurring_transaction_display(
+			application_name,
+			full_name,
+			street_address,
+			transaction_description,
+			transaction_date_time,
+			transaction_amount,
+			memo,
+			with_html );
+	}
+	else
+	{
+		transaction_date_time =
+			post_reoccurring_transaction(
+				application_name,
+				full_name,
+				street_address,
+				transaction_description,
+				transaction_date_time,
+				transaction_amount,
+				memo );
+	}
+
+} /* post_reoccurring_transaction_entity() */
 
 void post_reoccurring_transaction_display(
 			char *application_name,
@@ -352,7 +457,7 @@ void post_reoccurring_transaction_display(
 
 	fprintf( output_pipe,
 		 "%s^%s^%.2lf^\n",
-		 transaction->transaction_date_time,
+		 transaction->full_name,
 		 format_initial_capital(
 			buffer,
 			journal_ledger->account_name ),

@@ -32,12 +32,13 @@
 /* Prototypes */
 /* ---------- */
 void post_reoccurring_transaction_batch(
+			FILE *output_pipe,
 			char *application_name,
 			char *transaction_date_time,
-			boolean execute,
-			boolean with_html );
+			boolean execute );
 
 void post_reoccurring_transaction_entity(
+			FILE *output_pipe,
 			char *application_name,
 			char *full_name,
 			char *street_address,
@@ -45,8 +46,7 @@ void post_reoccurring_transaction_entity(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
-			boolean execute,
-			boolean with_html );
+			boolean execute );
 
 char *get_last_transaction_date(
 			char *application_name,
@@ -111,14 +111,14 @@ char *post_reoccurring_transaction(
 			char *memo );
 
 void post_reoccurring_transaction_display(
+			FILE *output_pipe,
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo,
-			boolean with_html );
+			char *memo );
 
 int main( int argc, char **argv )
 {
@@ -138,6 +138,10 @@ int main( int argc, char **argv )
 	char title[ 128 ];
 	DOCUMENT *document = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	char *heading = {0};
+	char *justify = {0};
+	char sys_string[ 512 ];
+	FILE *output_pipe = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -199,9 +203,27 @@ int main( int argc, char **argv )
 		ledger_get_transaction_date_time(
 			transaction_date );
 
+	if ( with_html )
+	{
+		heading = "Transaction,Account,Debit,Credit";
+		justify = "left,left,right,right";
+
+		sprintf(sys_string,
+			"html_table.e '' %s '^' %s",
+			heading,
+			justify );
+	}
+	else
+	{
+		strcpy( sys_string, "cat" );
+	}
+
+	output_pipe = popen( sys_string, "w" );
+
 	if ( strcmp( full_name, "full_name" ) != 0 )
 	{
 		post_reoccurring_transaction_entity(
+				output_pipe,
 				application_name,
 				full_name,
 				street_address,
@@ -209,18 +231,17 @@ int main( int argc, char **argv )
 				transaction_date_time,
 				transaction_amount,
 				memo,
-				execute,
-				with_html );
+				execute );
 	}
 	else
 	if ( strcmp(	process_name,
 			"post_reoccurring_transaction_accrual" ) == 0 )
 	{
 		post_reoccurring_transaction_batch(
+				output_pipe,
 				application_name,
 				transaction_date_time,
-				execute,
-				with_html );
+				execute );
 	}
 
 	if ( execute )
@@ -247,15 +268,17 @@ int main( int argc, char **argv )
 		}
 	}
 
+	if ( output_pipe ) pclose( output_pipe );
+
 	exit( 0 );
 
 } /* main() */
 
 void post_reoccurring_transaction_batch(
+				FILE *output_pipe,
 				char *application_name,
 				char *transaction_date_time,
-				boolean execute,
-				boolean with_html )
+				boolean execute )
 {
 	FILE *input_pipe;
 	char input_buffer[ 512 ];
@@ -291,6 +314,7 @@ void post_reoccurring_transaction_batch(
 			2 );
 
 		post_reoccurring_transaction_entity(
+				output_pipe,
 				application_name,
 				full_name,
 				street_address,
@@ -298,15 +322,13 @@ void post_reoccurring_transaction_batch(
 				transaction_date_time,
 				0.0 /* transaction_amount */,
 				(char *)0 /* memo */,
-				execute,
-				with_html );
+				execute );
 	}
-
-	pclose( input_pipe );
 
 } /* post_reoccurring_transaction_batch() */
 
 void post_reoccurring_transaction_entity(
+				FILE *output_pipe,
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -314,21 +336,19 @@ void post_reoccurring_transaction_entity(
 				char *transaction_date_time,
 				double transaction_amount,
 				char *memo,
-				boolean execute,
-				boolean with_html )
+				boolean execute )
 {
-
 	if ( !execute )
 	{
 		post_reoccurring_transaction_display(
+			output_pipe,
 			application_name,
 			full_name,
 			street_address,
 			transaction_description,
 			transaction_date_time,
 			transaction_amount,
-			memo,
-			with_html );
+			memo );
 	}
 	else
 	{
@@ -346,22 +366,18 @@ void post_reoccurring_transaction_entity(
 } /* post_reoccurring_transaction_entity() */
 
 void post_reoccurring_transaction_display(
+			FILE *output_pipe,
 			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo,
-			boolean with_html )
+			char *memo )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	char *heading = {0};
-	char *justify = {0};
-	char sys_string[ 512 ];
-	FILE *output_pipe;
 	char buffer[ 128 ];
 
 	if ( ! ( reoccurring_transaction =
@@ -422,23 +438,6 @@ void post_reoccurring_transaction_display(
 
 	if ( !transaction ) return;
 
-	if ( with_html )
-	{
-		heading = "Transaction,Account,Debit,Credit";
-		justify = "left,left,right,right";
-
-		sprintf(sys_string,
-			"html_table.e '' %s '^' %s",
-			heading,
-			justify );
-	}
-	else
-	{
-		strcpy( sys_string, "cat" );
-	}
-
-	output_pipe = popen( sys_string, "w" );
-
 	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
 	{
 		fprintf( output_pipe,
@@ -450,7 +449,7 @@ void post_reoccurring_transaction_display(
 	{
 		fprintf( output_pipe, "Error occurred.\n" );
 		pclose( output_pipe );
-		return;
+		exit( 1 );
 	}
 
 	journal_ledger = list_get_pointer( transaction->journal_ledger_list );
@@ -472,8 +471,6 @@ void post_reoccurring_transaction_display(
 			buffer,
 			journal_ledger->account_name ),
 		 journal_ledger->credit_amount );
-
-	pclose( output_pipe );
 
 } /* post_reoccurring_transaction_display() */
 

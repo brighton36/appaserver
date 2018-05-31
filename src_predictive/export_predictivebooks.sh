@@ -210,11 +210,13 @@ function export_predictivebooks()
 	joinlines.e '&'							|
 	cat`
 
+#set -x
 	export_file=`
 	export_subschema $application x x x x "${parameter_list}" 2>/dev/null |
 	grep Created							      |
 	column.e 1							      |
 	cat`
+#set +x
 
 	if [ "$export_file" = "" ]
 	then

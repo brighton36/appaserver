@@ -38,6 +38,9 @@ execute_yn=$4
 if [ "$module" = "enterprise" ]
 then
 	process="predictivebooks_enterprise.sh"
+elif [ "$module" = "rentalproperty" ]
+then
+	process="predictivebooks_rentalproperty.sh"
 elif [ "$module" = "nonprofit" ]
 then
 	process="predictivebooks_nonprofit.sh"

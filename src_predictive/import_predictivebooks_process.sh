@@ -44,9 +44,9 @@ then
 elif [ "$module" = "nonprofit" ]
 then
 	process="predictivebooks_nonprofit.sh"
-elif [ "$module" = "personal" ]
+elif [ "$module" = "home" ]
 then
-	process="predictivebooks_personal.sh"
+	process="predictivebooks_home.sh"
 fi
 
 process_title=`echo "$process_name" | format_initial_capital.e`

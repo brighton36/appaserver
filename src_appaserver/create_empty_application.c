@@ -39,7 +39,7 @@ void create_existing_tar_file_application(
 					char *existing_tar_file,
 					char really_yn );
 
-char *get_existing_tar_file(		char *appaserver_data_directory );
+char *get_existing_tar_file(		char *appaserver_home_directory );
 
 char *get_error_filename(		char *appaserver_error_directory,
 					char *destination_application );
@@ -1620,7 +1620,7 @@ boolean create_empty_application(
 
 	if ( ( existing_tar_file =
 			get_existing_tar_file(
-				appaserver_data_directory ) ) )
+				appaserver_home_directory ) ) )
 	{
 		create_existing_tar_file_application(
 					current_application,
@@ -1922,13 +1922,13 @@ void remove_nobody_user(	char *destination_application,
 
 } /* remove_nobody_user() */
 
-char *get_existing_tar_file( char *appaserver_data_directory )
+char *get_existing_tar_file( char *appaserver_home_directory )
 {
 	char existing_tar_file[ 256 ];
 
 	sprintf( existing_tar_file,
-		 "%s/mysqldump_template.sql.gz",
-		 appaserver_data_directory );
+		 "%s/template/mysqldump_template.sql.gz",
+		 appaserver_home_directory );
 
 	if ( timlib_file_exists( existing_tar_file ) )
 		return strdup( existing_tar_file );

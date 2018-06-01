@@ -20,7 +20,6 @@ TAX *tax_new(			char *application_name,
 {
 	TAX *t;
 	char *checking_account;
-	char *depreciation_account;
 
 	checking_account =
 		ledger_get_hard_coded_account_name(
@@ -29,12 +28,15 @@ TAX *tax_new(			char *application_name,
 			LEDGER_CASH_KEY,
 			0 /* not warning_only */ );
 
+#ifdef NOT_DEFINED
+	char *depreciation_account;
 	depreciation_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
 			LEDGER_ACCUMULATED_KEY,
 			0 /* not warning_only */ );
+#endif
 
 	if ( ! ( t = calloc( 1, sizeof( TAX ) ) ) )
 	{
@@ -83,12 +85,14 @@ TAX *tax_new(			char *application_name,
 		return (TAX *)0;
 	}
 
+/*
 	t->tax_input.depreciation_transaction_list =
 		tax_fetch_account_transaction_list(
 			application_name,
 			begin_date_string,
 			end_date_string,
 			depreciation_account );
+*/
 
 	t->tax_process.unaccounted_journal_ledger_list = list_new();
 
@@ -103,12 +107,14 @@ TAX *tax_new(			char *application_name,
 			t->tax_input.cash_transaction_list,
 			checking_account );
 
+/*
 	t->tax_process.tax_form_line_list =
 		tax_process_set_journal_ledger_list(
 			t->tax_process.unaccounted_journal_ledger_list,
 			t->tax_input.tax_form->tax_form_line_list,
 			t->tax_input.depreciation_transaction_list,
 			depreciation_account );
+*/
 
 	if ( !t->tax_process.tax_form_line_list )
 	{

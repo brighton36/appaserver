@@ -97,7 +97,6 @@ typedef struct
 {
 	TAX_FORM *tax_form;
 	LIST *cash_transaction_list;
-	LIST *depreciation_transaction_list;
 	LIST *rental_property_street_address_list;
 } TAX_INPUT;
 

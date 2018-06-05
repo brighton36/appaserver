@@ -994,19 +994,20 @@ double tax_calculate_real_estate_recovery(
 				percent_per_semi_month;
 		}
 		else
+		/* ------------------ */
+		/* If extra half-year */
+		/* ------------------ */
+		if ( service_month <= 6 )
 		{
-			if ( service_month <= 6 )
-			{
-				applicable_rate =
-				(double)( 12 + ( service_month * 2 ) - 1 ) *
-				percent_per_semi_month;
-			}
-			else
-			{
-				applicable_rate =
-				(double)( ( service_month - 6 ) * 2 - 1 ) *
-				percent_per_semi_month;
-			}
+			applicable_rate =
+			(double)( 12 + ( service_month * 2 ) - 1 ) *
+			percent_per_semi_month;
+		}
+		else
+		{
+			applicable_rate =
+			(double)( ( service_month - 6 ) * 2 - 1 ) *
+			percent_per_semi_month;
 		}
 	}
 

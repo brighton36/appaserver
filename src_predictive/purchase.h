@@ -59,6 +59,10 @@ typedef struct
 	int estimated_residual_value;
 	int declining_balance_n;
 	char *depreciation_method;
+	double tax_cost_basis;
+	char *tax_service_placement_date;
+	char *tax_recovery_period;
+	char *disposal_date;
 	double finance_accumulated_depreciation;
 	double database_finance_accumulated_depreciation;
 	double tax_accumulated_depreciation;

@@ -771,7 +771,7 @@ LIST *purchase_service_get_list(	char *application_name,
 char *purchase_fixed_asset_get_select( void )
 {
 	char *select =
-"full_name,street_address,purchase_date_time,fixed_asset_purchase.asset_name,account,serial_number,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,finance_accumulated_depreciation,tax_accumulated_depreciation";
+"full_name,street_address,purchase_date_time,fixed_asset_purchase.asset_name,account,serial_number,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_service_placement_date,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation";
 	return select;
 }
 
@@ -832,12 +832,32 @@ PURCHASE_FIXED_ASSET *purchase_fixed_asset_parse( char *input_buffer )
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
 	if ( *piece_buffer )
+		purchase_fixed_asset->tax_cost_basis =
+			atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
+	if ( *piece_buffer )
+		purchase_fixed_asset->tax_service_placement_date =
+			strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
+	if ( *piece_buffer )
+		purchase_fixed_asset->tax_recovery_period =
+			strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
+	if ( *piece_buffer )
+		purchase_fixed_asset->disposal_date =
+			strdup( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 16 );
+	if ( *piece_buffer )
 		purchase_fixed_asset->finance_accumulated_depreciation =
 		purchase_fixed_asset->
 			database_finance_accumulated_depreciation =
 				atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 17 );
 	if ( *piece_buffer )
 		purchase_fixed_asset->tax_accumulated_depreciation =
 		purchase_fixed_asset->database_tax_accumulated_depreciation =

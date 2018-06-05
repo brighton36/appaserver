@@ -39,6 +39,8 @@ EXECUTABLES=	trial_balance						\
 		propagate_inventory_sale_layers				\
 		depreciate_fixed_assets					\
 		depreciate_prior_fixed_assets				\
+		tax_recover_fixed_assets				\
+		tax_recover_prior_fixed_assets				\
 		post_change_supply_purchase				\
 		post_change_service_purchase				\
 		post_change_inventory_purchase				\
@@ -237,6 +239,22 @@ depreciate_prior_fixed_assets: depreciate_prior_fixed_assets.c		\
 		${SOURCE_LIBRARY}					\
 		depreciate_prior_fixed_assets.c				\
 		-o depreciate_prior_fixed_assets
+
+tax_recover_fixed_assets: tax_recover_fixed_assets.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		tax_recover_fixed_assets.c				\
+		-o tax_recover_fixed_assets
+
+tax_recover_prior_fixed_assets: tax_recover_prior_fixed_assets.c	\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		tax_recover_prior_fixed_assets.c			\
+		-o tax_recover_prior_fixed_assets
 
 trial_balance: trial_balance.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

@@ -914,178 +914,6 @@ boolean tax_calculate_real_estate_parse(
 
 } /* tax_calculate_real_estate_parse() */
 
-double tax_calculate_real_estate_period_years_integer_recovery(
-				double cost_basis,
-				char *service_placement_date_string,
-				char *sale_date_string,
-				int recovery_period_years,
-				int current_year )
-{
-	double recovery_amount = 0.0;
-	int service_month = 0;
-	int service_year = 0;
-	int sale_month = 0;
-	int sale_year = 0;
-	double recovery_period_months;
-	double recovery_period_semi_months;
-	double percent_per_year;
-	double percent_per_semi_month;
-	unsigned int recovery_months_as_of_december;
-	unsigned int recovery_months_last_full_year;
-	double applicable_rate = 0.0;
-
-	if ( !tax_calculate_real_estate_parse(
-				&service_month,
-				&service_year,
-				&sale_month,
-				&sale_year,
-				service_placement_date_string,
-				sale_date_string ) )
-	{
-		return 0.0;
-	}
-
-	recovery_period_months = recovery_period_years * 12.0;
-	recovery_period_semi_months = recovery_period_months * 2.0;
-	percent_per_year = 1.0 / recovery_period_years;
-	percent_per_semi_month = 1.0 / recovery_period_semi_months;
-
-	recovery_months_as_of_december =
-		( current_year * 12 - service_year * 12 ) +
-		( ( 12 - service_month ) + 1 );
-
-	recovery_months_last_full_year = recovery_period_months - 12;
-
-	if ( sale_year == current_year
-	&&   (double)recovery_months_as_of_december <= recovery_period_months )
-	{
-		applicable_rate =
-			(double)( ( ( sale_month - 1 ) * 2 ) + 1 ) *
-			percent_per_semi_month;
-	}
-	else
-	if ( sale_year )
-	{
-		return 0.0;
-	}
-	else
-	if ( recovery_months_as_of_december <= 12 )
-	{
-		applicable_rate =
-			(double)( ( ( 12 - service_month ) * 2 ) + 1 ) *
-			percent_per_semi_month;
-	}
-	else
-	if ( recovery_months_as_of_december > 12.0
-	&&   recovery_months_as_of_december <=
-	     (double)recovery_months_last_full_year )
-	{
-		applicable_rate = percent_per_year;
-	}
-	else
-	if ( recovery_months_as_of_december >
-	     (double)recovery_months_last_full_year
-	&&   recovery_months_as_of_december <=
-	     (double)recovery_period_months
-	&&   service_month > 7 )
-	{
-		applicable_rate =
-			(double)( ( ( 12 - service_month ) * 2 ) + 1 ) *
-			percent_per_semi_month;
-	}
-
-	recovery_amount = cost_basis * applicable_rate;
-
-	return recovery_amount;
-
-} /* tax_calculate_real_estate_period_years_integer_recovery() */
-
-double tax_calculate_real_estate_period_years_float_recovery(
-				double cost_basis,
-				char *service_placement_date_string,
-				char *sale_date_string,
-				double recovery_period_years,
-				int current_year )
-{
-	double recovery_amount = 0.0;
-	int service_month = 0;
-	int service_year = 0;
-	int sale_month = 0;
-	int sale_year = 0;
-	double recovery_period_months;
-	double recovery_period_semi_months;
-	double percent_per_year;
-	double percent_per_semi_month;
-	unsigned int recovery_months_as_of_december;
-	unsigned int recovery_months_last_full_year;
-	double applicable_rate = 0.0;
-
-	if ( !tax_calculate_real_estate_parse(
-				&service_month,
-				&service_year,
-				&sale_month,
-				&sale_year,
-				service_placement_date_string,
-				sale_date_string ) )
-	{
-		return 0.0;
-	}
-
-	recovery_period_months = recovery_period_years * 12.0;
-	recovery_period_semi_months = recovery_period_months * 2.0;
-	percent_per_year = 1.0 / recovery_period_years;
-	percent_per_semi_month = 1.0 / recovery_period_semi_months;
-
-	recovery_months_as_of_december =
-		( current_year * 12 - service_year * 12 ) +
-		( ( 12 - service_month ) + 1 );
-
-	recovery_months_last_full_year = recovery_period_months - 12;
-
-	if ( sale_year == current_year
-	&&   (double)recovery_months_as_of_december <= recovery_period_months )
-	{
-		applicable_rate =
-			(double)( ( ( sale_month - 1 ) * 2 ) + 1 ) *
-			percent_per_semi_month;
-	}
-	else
-	if ( sale_year )
-	{
-		return 0.0;
-	}
-	else
-	if ( recovery_months_as_of_december <= 12 )
-	{
-		applicable_rate =
-			(double)( ( ( 12 - service_month ) * 2 ) + 1 ) *
-			percent_per_semi_month;
-	}
-	else
-	if ( recovery_months_as_of_december > 12.0
-	&&   recovery_months_as_of_december <=
-	     (double)recovery_months_last_full_year )
-	{
-		applicable_rate = percent_per_year;
-	}
-	else
-	if ( recovery_months_as_of_december >
-	     (double)recovery_months_last_full_year
-	&&   recovery_months_as_of_december <=
-	     (double)recovery_period_months
-	&&   service_month > 7 )
-	{
-		applicable_rate =
-			(double)( ( ( 12 - service_month ) * 2 ) + 1 ) *
-			percent_per_semi_month;
-	}
-
-	recovery_amount = cost_basis * applicable_rate;
-
-	return recovery_amount;
-
-} /* tax_calculate_real_estate_period_years_float_recovery() */
-
 double tax_calculate_real_estate_recovery(
 				double cost_basis,
 				char *service_placement_date_string,
@@ -1093,35 +921,98 @@ double tax_calculate_real_estate_recovery(
 				double recovery_period_years,
 				int current_year )
 {
-	double recovery_amount;
-	boolean is_integer;
+	double recovery_amount = 0.0;
+	int service_month = 0;
+	int service_year = 0;
+	int sale_month = 0;
+	int sale_year = 0;
+	int recovery_period_months;
+	int recovery_period_semi_months;
+	double percent_per_year;
+	double percent_per_semi_month;
+	unsigned int recovery_months_as_of_december;
+	unsigned int recovery_months_extra_year;
+	double applicable_rate = 0.0;
 
-	is_integer =
-		(boolean)
-		( (recovery_period_years - (int)recovery_period_years) == 0.0 );
-
-	if ( is_integer )
-	{
-		recovery_amount =
-			tax_calculate_real_estate_period_years_integer_recovery(
-				cost_basis,
+	if ( !tax_calculate_real_estate_parse(
+				&service_month,
+				&service_year,
+				&sale_month,
+				&sale_year,
 				service_placement_date_string,
-				sale_date_string,
-				(int)recovery_period_years,
-				current_year );
+				sale_date_string ) )
+	{
+		return 0.0;
+	}
+
+	recovery_period_months = (int)(recovery_period_years * 12.0);
+	recovery_period_semi_months = recovery_period_months * 2;
+	percent_per_year = 1.0 / recovery_period_years;
+	percent_per_semi_month = 1.0 / (double)recovery_period_semi_months;
+
+	recovery_months_as_of_december =
+		( current_year * 12 - service_year * 12 ) +
+		( ( 12 - service_month ) + 1 );
+
+	recovery_months_extra_year =
+		recovery_period_months + 12;
+
+	if ( sale_year == current_year
+	&&   recovery_months_as_of_december <= recovery_period_months )
+	{
+		applicable_rate =
+			(double)( ( ( sale_month - 1 ) * 2 ) + 1 ) *
+			percent_per_semi_month;
 	}
 	else
+	if ( sale_year )
 	{
-		recovery_amount =
-			tax_calculate_real_estate_period_years_float_recovery(
-				cost_basis,
-				service_placement_date_string,
-				sale_date_string,
-				recovery_period_years,
-				current_year );
+		return 0.0;
 	}
+	else
+	if ( recovery_months_as_of_december <= 12 )
+	{
+		applicable_rate =
+			(double)( ( ( 12 - service_month ) * 2 ) + 1 ) *
+			percent_per_semi_month;
+	}
+	else
+	if ( recovery_months_as_of_december > 12
+	&&   recovery_months_as_of_december <= recovery_period_months )
+	{
+		applicable_rate = percent_per_year;
+	}
+	else
+	if ( recovery_months_as_of_december > recovery_period_months
+	&&   recovery_months_as_of_december <= recovery_months_extra_year )
+	{
+		if ( timlib_double_is_integer( recovery_period_years ) )
+		{
+			applicable_rate =
+				(double)
+				( ( service_month * 2 ) - 1 ) *
+				percent_per_semi_month;
+		}
+		else
+		{
+			if ( service_month <= 6 )
+			{
+				applicable_rate =
+				(double)( 12 + ( service_month * 2 ) - 1 ) *
+				percent_per_semi_month;
+			}
+			else
+			{
+				applicable_rate =
+				(double)( ( service_month - 6 ) * 2 - 1 ) *
+				percent_per_semi_month;
+			}
+		}
+	}
+
+	recovery_amount = cost_basis * applicable_rate;
 
 	return recovery_amount;
 
-} /* tax_calculate_real_estate_period_years_float_recovery() */
+} /* tax_calculate_real_estate_recovery() */
 

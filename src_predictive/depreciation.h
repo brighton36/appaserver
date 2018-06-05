@@ -54,8 +54,10 @@ typedef struct
 	int estimated_residual_value;
 	int declining_balance_n;
 	char *depreciation_method;
-	double accumulated_depreciation;
-	double database_accumulated_depreciation;
+	double finance_accumulated_depreciation;
+	double database_finance_accumulated_depreciation;
+	double tax_accumulated_depreciation;
+	double database_tax_accumulated_depreciation;
 	double depreciation_amount;
 	double database_depreciation_amount;
 } DEPRECIATE_PRIOR_FIXED_ASSET;
@@ -117,7 +119,7 @@ double depreciation_get_amount(
 			int declining_balance_n,
 			char *prior_depreciation_date_string,
 			char *depreciation_date_string,
-			double accumulated_depreciation,
+			double finance_accumulated_depreciation,
 			char *arrived_date_string,
 			int units_produced );
 
@@ -127,7 +129,7 @@ double depreciation_sum_of_years_digits_get_amount(
 			int estimated_useful_life_years,
 			char *prior_depreciation_date_string,
 			char *depreciation_date_string,
-			double accumulated_depreciation,
+			double finance_accumulated_depreciation,
 			char *arrived_date_string );
 
 double depreciation_straight_line_get_amount(
@@ -136,7 +138,7 @@ double depreciation_straight_line_get_amount(
 			int estimated_useful_life_years,
 			char *prior_depreciation_date_string,
 			char *depreciation_date_string,
-			double accumulated_depreciation );
+			double finance_accumulated_depreciation );
 
 LIST *depreciation_journal_ledger_refresh(
 			char *application_name,
@@ -156,7 +158,7 @@ double depreciation_n_declining_balance_get_amount(
 			int estimated_useful_life_years,
 			char *prior_depreciation_date_string,
 			char *depreciation_date_string,
-			double accumulated_depreciation,
+			double finance_accumulated_depreciation,
 			int n );
 
 LIST *depreciation_fetch_list(
@@ -167,8 +169,8 @@ LIST *depreciation_fetch_list(
 			char *asset_name,
 			char *serial_number );
 
-/* Returns new accumulated_depreciation */
-/* ------------------------------------ */
+/* Returns new finance_accumulated_depreciation */
+/* -------------------------------------------- */
 double depreciation_list_set(
 			LIST *depreciation_list,
 			char *depreciation_method,
@@ -207,7 +209,7 @@ double depreciation_units_of_production_get_amount(
 			int estimated_residual_value,
 			int estimated_useful_life_units,
 			int units_produced,
-			double accumulated_depreciation );
+			double finance_accumulated_depreciation );
 
 char *deprecation_get_prior_depreciation_date(
 			LIST *depreciation_list );

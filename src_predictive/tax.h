@@ -207,6 +207,7 @@ void tax_rental_journal_ledger_list_accumulate_line_total(
 				boolean accumulate_debit );
 
 double tax_calculate_real_estate_recovery(
+				double *recovery_percent,
 				double cost_basis,
 				char *service_placement_date_string,
 				char *sale_date_string,

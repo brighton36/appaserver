@@ -915,6 +915,7 @@ boolean tax_calculate_real_estate_parse(
 } /* tax_calculate_real_estate_parse() */
 
 double tax_calculate_real_estate_recovery(
+				double *recovery_percent,
 				double cost_basis,
 				char *service_placement_date_string,
 				char *sale_date_string,
@@ -1012,6 +1013,11 @@ double tax_calculate_real_estate_recovery(
 	}
 
 	recovery_amount = cost_basis * applicable_rate;
+
+	if ( recovery_percent )
+	{
+		*recovery_percent = applicable_rate * 100.0;
+	}
 
 	return recovery_amount;
 

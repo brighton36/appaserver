@@ -3,22 +3,23 @@
 # $APPASERVER_HOME/src_accountancymodel/accumulated_depreciation_reset.sh
 # -----------------------------------------------------------------------
 
-if [ "$APPASERVER_DATABASE" = "" ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	echo "Error in $0: you must first . set_project" 1>&2
-	exit 1
+	application=$APPASERVER_DATABASE
+elif [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
 fi
 
-application=$APPASERVER_DATABASE
-
-if [ "$#" -ne 1 ]
+if [ "$application" = "" ]
 then
-	echo "Usage: $0 ignored" 1>&2
+	echo "Error in `basename.e $0 n`: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
 	exit 1
 fi
 
 echo "	update fixed_asset_purchase				\
-	set accumulated_depreciation = (			\
+	set finance_accumulated_depreciation = (		\
 		select sum( depreciation_amount )		\
 		from depreciation				\
 		where	depreciation.full_name =		\
@@ -35,7 +36,7 @@ echo "	update fixed_asset_purchase				\
 sql.e
 
 echo "	update prior_fixed_asset					\
-	set accumulated_depreciation = (				\
+	set finance_accumulated_depreciation = (			\
 		select sum( depreciation_amount )			\
 		from prior_fixed_asset_depreciation			\
 		where	prior_fixed_asset_depreciation.asset_name =	\

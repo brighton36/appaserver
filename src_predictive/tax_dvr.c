@@ -82,6 +82,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		1212.12,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-01-01"
 					/* service_placement_date_string */,
@@ -93,6 +94,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		29091.20,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
 					/* service_placement_date_string */,
@@ -103,6 +105,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		29091.20,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
 					/* service_placement_date_string */,
@@ -114,6 +117,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		23031.20,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
 					/* service_placement_date_string */,
@@ -124,6 +128,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		29091.20,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
 					/* service_placement_date_string */,
@@ -135,6 +140,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		23031.04,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
 					/* service_placement_date_string */,
@@ -145,6 +151,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		31746.0,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1000000.0,
 				"1993-03-02"
 					/* service_placement_date_string */,
@@ -155,6 +162,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		1322.8,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1000000.0,
 				"1993-03-02"
 					/* service_placement_date_string */,
@@ -165,6 +173,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		3846.15,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
 					/* service_placement_date_string */,
@@ -175,6 +184,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		30769.0,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
 					/* service_placement_date_string */,
@@ -185,6 +195,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		11538.46,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
 					/* service_placement_date_string */,
@@ -195,6 +206,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		30769.0,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
 					/* service_placement_date_string */,
@@ -205,6 +217,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		30769.0,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
 					/* service_placement_date_string */,
@@ -215,6 +228,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		30769.0,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
 					/* service_placement_date_string */,
@@ -226,6 +240,7 @@ void test_recovery()
 	printf( "should be %.2lf, is %.2lf\n",
 		26923.0,
 		tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
 					/* service_placement_date_string */,
@@ -258,6 +273,7 @@ void test_recovery_loop1()
 	{
 		recovery =
 			 tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				cash_basis,
 				"1993-04-01"
 					/* service_placement_date_string */,
@@ -306,6 +322,7 @@ void test_recovery_loop2()
 
 		recovery =
 			 tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
 					/* service_placement_date_string */,
@@ -354,6 +371,7 @@ void test_recovery_loop3(	double cash_basis,
 
 		recovery =
 			 tax_calculate_real_estate_recovery(
+				(double *)0 /* recovery_percent */,
 				cash_basis,
 				service_placement_date_string,
 				(char *)0 /* sale_date_string */,

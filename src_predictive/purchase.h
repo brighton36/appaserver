@@ -59,8 +59,10 @@ typedef struct
 	int estimated_residual_value;
 	int declining_balance_n;
 	char *depreciation_method;
-	double accumulated_depreciation;
-	double database_accumulated_depreciation;
+	double finance_accumulated_depreciation;
+	double database_finance_accumulated_depreciation;
+	double tax_accumulated_depreciation;
+	double database_tax_accumulated_depreciation;
 	char *prior_depreciation_date;
 	LIST *depreciation_list;
 } PURCHASE_FIXED_ASSET;
@@ -530,20 +532,20 @@ void purchase_fixed_asset_update_stream(
 				char *purchase_date_time,
 				char *asset_name,
 				char *serial_number,
-				double accumulated_depreciation );
+				double finance_accumulated_depreciation );
 
 FILE *purchase_fixed_asset_get_update_pipe(
 				char *application_name );
 
 void purchase_fixed_asset_update(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *purchase_date_time,
-				char *asset_name,
-				char *serial_number,
-				double accumulated_depreciation,
-				double database_accumulated_depreciation );
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *purchase_date_time,
+			char *asset_name,
+			char *serial_number,
+			double finance_accumulated_depreciation,
+			double database_finance_accumulated_depreciation );
 
 void purchase_prepaid_asset_propagate(
 				PURCHASE_PREPAID_ASSET *purchase_prepaid_asset,

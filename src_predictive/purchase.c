@@ -771,7 +771,7 @@ LIST *purchase_service_get_list(	char *application_name,
 char *purchase_fixed_asset_get_select( void )
 {
 	char *select =
-"full_name,street_address,purchase_date_time,fixed_asset_purchase.asset_name,account,serial_number,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,accumulated_depreciation";
+"full_name,street_address,purchase_date_time,fixed_asset_purchase.asset_name,account,serial_number,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,finance_accumulated_depreciation,tax_accumulated_depreciation";
 	return select;
 }
 
@@ -832,8 +832,15 @@ PURCHASE_FIXED_ASSET *purchase_fixed_asset_parse( char *input_buffer )
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
 	if ( *piece_buffer )
-		purchase_fixed_asset->accumulated_depreciation =
-		purchase_fixed_asset->database_accumulated_depreciation =
+		purchase_fixed_asset->finance_accumulated_depreciation =
+		purchase_fixed_asset->
+			database_finance_accumulated_depreciation =
+				atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
+	if ( *piece_buffer )
+		purchase_fixed_asset->tax_accumulated_depreciation =
+		purchase_fixed_asset->database_tax_accumulated_depreciation =
 			atof( piece_buffer );
 
 	return purchase_fixed_asset;
@@ -1300,14 +1307,14 @@ void purchase_fixed_asset_update(
 			char *purchase_date_time,
 			char *asset_name,
 			char *serial_number,
-			double accumulated_depreciation,
-			double database_accumulated_depreciation )
+			double finance_accumulated_depreciation,
+			double database_finance_accumulated_depreciation )
 {
 	FILE *update_pipe;
 
 	if ( double_virtually_same(
-			accumulated_depreciation,
-			database_accumulated_depreciation ) )
+			finance_accumulated_depreciation,
+			database_finance_accumulated_depreciation ) )
 	{
 		return;
 	}
@@ -1323,7 +1330,7 @@ void purchase_fixed_asset_update(
 			purchase_date_time,
 			asset_name,
 			serial_number,
-			accumulated_depreciation );
+			finance_accumulated_depreciation );
 
 	pclose( update_pipe );
 
@@ -1336,16 +1343,16 @@ void purchase_fixed_asset_update_stream(
 			char *purchase_date_time,
 			char *asset_name,
 			char *serial_number,
-			double accumulated_depreciation )
+			double finance_accumulated_depreciation )
 {
 	fprintf(update_pipe,
-		"%s^%s^%s^%s^%s^accumulated_depreciation^%.2lf\n",
+		"%s^%s^%s^%s^%s^finance_accumulated_depreciation^%.2lf\n",
 		full_name,
 		street_address,
 		purchase_date_time,
 		asset_name,
 		serial_number,
-		accumulated_depreciation );
+		finance_accumulated_depreciation );
 
 } /* purchase_fixed_asset_update_stream() */
 
@@ -2596,7 +2603,7 @@ void purchase_fixed_asset_depreciation_delete(
 			purchase_fixed_asset->serial_number,
 			0.0 /* accumulated_depreciation */,
 			purchase_fixed_asset->
-				database_accumulated_depreciation );
+				database_finance_accumulated_depreciation );
 
 } /* purchase_fixed_asset_depreciation_delete() */
 
@@ -2622,7 +2629,7 @@ void purchase_depreciation_update_and_transaction_propagate(
 
 	if ( !list_length( purchase_fixed_asset->depreciation_list ) ) return;
 
-	purchase_fixed_asset->accumulated_depreciation =
+	purchase_fixed_asset->finance_accumulated_depreciation =
 		depreciation_list_set(
 			purchase_fixed_asset->depreciation_list,
 			purchase_fixed_asset->depreciation_method,
@@ -2647,9 +2654,9 @@ void purchase_depreciation_update_and_transaction_propagate(
 			purchase_fixed_asset->purchase_date_time,
 			purchase_fixed_asset->asset_name,
 			purchase_fixed_asset->serial_number,
-			purchase_fixed_asset->accumulated_depreciation,
+			purchase_fixed_asset->finance_accumulated_depreciation,
 			purchase_fixed_asset->
-				database_accumulated_depreciation );
+				database_finance_accumulated_depreciation );
 
 } /* purchase_depreciation_update_and_transaction_propagate() */
 

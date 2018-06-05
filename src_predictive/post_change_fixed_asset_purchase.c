@@ -26,16 +26,6 @@
 
 /* Prototypes */
 /* ---------- */
-/*
-void post_change_fixed_asset_purchase_transaction_update(
-			PURCHASE_ORDER *purchase_order,
-			char *application_name,
-			char *asset_name,
-			char *serial_number,
-			char *preupdate_asset_name,
-			char *preupdate_serial_number );
-*/
-
 void post_change_fixed_asset_purchase_delete(
 			char *application_name,
 			char *full_name,

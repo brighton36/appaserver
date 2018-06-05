@@ -129,6 +129,7 @@ typedef struct
 	LIST *vendor_payment_list;
 	TRANSACTION *transaction;
 	LIST *propagate_account_list;
+	char *rental_property_street_address;
 } PURCHASE_ORDER;
 
 typedef struct
@@ -227,6 +228,7 @@ boolean purchase_order_load(	double *sum_extension,
 				char **transaction_date_time,
 				char **database_transaction_date_time,
 				char **fund_name,
+				char **rental_property_street_address,
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -348,6 +350,7 @@ void purchase_order_parse(	char **full_name,
 				char **transaction_date_time,
 				char **database_transaction_date_time,
 				char **fund_name,
+				char **rental_property_street_address,
 				char *results );
 
 PURCHASE_ORDER *purchase_order_calloc(

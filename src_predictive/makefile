@@ -68,7 +68,8 @@ EXECUTABLES=	trial_balance						\
 		post_change_employee_work_day				\
 		inventory_cost_method_propagate				\
 		load_receipt_scan					\
-		shortcut_service_work
+		shortcut_service_work					\
+		tax_dvr
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -135,6 +136,15 @@ clean:
 	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}			\
 		financial_position					\
 		statement_of_activities
+
+tax_dvr: tax_dvr.c tax.o						\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		tax_dvr.c						\
+		tax.o							\
+		-o tax_dvr
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\

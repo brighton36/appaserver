@@ -35,6 +35,18 @@ typedef struct
 	char *street_address;
 	char *purchase_date_time;
 	char *asset_name;
+	char *serial_number;
+	int recovery_year;
+	double recovery_amount;
+	double recovery_percent;
+} TAX_RECOVERY;
+
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *purchase_date_time;
+	char *asset_name;
 	char *asset_account_name;
 	char *expense_account_name;
 	double extension;
@@ -69,6 +81,7 @@ typedef struct
 	double database_tax_accumulated_depreciation;
 	char *prior_depreciation_date;
 	LIST *depreciation_list;
+	LIST *tax_recovery_list;
 } PURCHASE_FIXED_ASSET;
 
 typedef struct
@@ -699,6 +712,23 @@ LIST *purchase_prepaid_asset_distinct_account_extract(
 
 LIST *purchase_get_amount_due_purchase_order_list(
 				char *application_name );
+
+LIST *purchase_fetch_tax_recovery_list(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time,
+				char *asset_name,
+				char *serial_number );
+
+TAX_RECOVERY *purchase_tax_recovery_parse(
+				char *input_buffer );
+
+char *purchase_tax_recovery_get_select(
+				void );
+
+TAX_RECOVERY *purchase_tax_recovery_new(
+				void );
 
 #endif
 

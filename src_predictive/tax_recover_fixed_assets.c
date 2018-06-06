@@ -25,10 +25,9 @@
 
 /* Prototypes */
 /* ---------- */
-boolean tax_recover_recovery_year_exists(
+char *tax_recover_get_join_where(	char **folder_from,
 					char *application_name,
-					char *fund_name,
-					int recovery_year );
+					char *fund_name );
 
 int tax_recover_fetch_max_recovery_year(
 					int *now_year,
@@ -46,8 +45,7 @@ boolean tax_recover_fixed_assets_execute(
 boolean tax_recover_fixed_assets_display(
 					char *application_name,
 					char *fund_name,
-					int recovery_year,
-					char *process_name );
+					int recovery_year );
 
 int main( int argc, char **argv )
 {
@@ -127,20 +125,17 @@ int main( int argc, char **argv )
 	}
 	else
 	{
+		if ( recovery_year == now_year )
+		{
+			printf(
+			"<h3>Error: tax recovery posted already.\n" );
+			return 0;
+		}
+
 		if ( recovery_year )
 			recovery_year++;
 		else
 			recovery_year = now_year;
-
-		if ( tax_recover_recovery_year_exists(
-			application_name,
-			fund_name,
-			now_year ) )
-		{
-			printf(
-		"<h3>Error: recovery exists for this year.</h3>\n" );
-			return 0;
-		}
 	}
 
 	/* Process */
@@ -191,8 +186,7 @@ int main( int argc, char **argv )
 			if ( !tax_recover_fixed_assets_display(
 					application_name,
 					fund_name,
-					recovery_year,
-					process_name ) )
+					recovery_year ) )
 			{
 				printf(
 		"<h3>Error: no fixed asset purchases to depreciate.</h3>\n" );
@@ -232,6 +226,28 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 
 } /* tax_recover_fixed_assets_undo() */
 
+char *tax_recover_get_join_where(	char **folder_from,
+					char *application_name,
+					char *fund_name )
+{
+	char *fund_where;
+	char join_where[ 512 ];
+
+	*folder_from = "purchase_order,tax_fixed_asset_recovery";
+
+	fund_where =
+		ledger_get_fund_where(
+			application_name,
+			fund_name );
+
+	sprintf( join_where,
+"tax_fixed_asset_recovery.full_name = purchase_order.full_name and tax_fixed_asset_recovery.street_address = purchase_order.street_address and tax_fixed_asset_recovery.purchase_date_time = purchase_order.purchase_date_time and %s",
+		 fund_where );
+
+	return strdup( fund_where );
+
+} /* tax_recover_get_join_where() */
+
 int tax_recover_fetch_max_recovery_year(
 			int *now_year,
 			char *application_name,
@@ -239,43 +255,38 @@ int tax_recover_fetch_max_recovery_year(
 {
 	char sys_string[ 1024 ];
 	char *fund_where;
-	char where[ 512 ];
+	char *join_where;
 	char *select;
-	char *folder;
+	char *folder_from = {0};
 	int max_recovery_year;
 
 	*now_year = atoi( date_get_now_yyyy_mm_dd( date_get_utc_offset() ) );
 
-	select = "max(recovery_year)";
-
-	folder = "purchase_order,tax_fixed_asset_recovery";
-
-	fund_where =
-		ledger_get_fund_where(
+	join_where =
+		tax_recover_get_join_where(
+			&folder_from,
 			application_name,
 			fund_name );
 
-	sprintf( where,
-"tax_fixed_asset_recovery.full_name = purchase_order.full_name and tax_fixed_asset_recovery.street_address = purchase_order.street_address and tax_fixed_asset_recovery.purchase_date_time = purchase_order.purchase_date_time and %s",
-		 fund_where );
+	select = "max(recovery_year)";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=\"%s\"			"
-		 "			folder=%s			",
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
 		 application_name,
 		 select,
-		 folder );
+		 folder_from,
+		 join_where );
 
 	max_recovery_year = atoi( pipe2string( sys_string ) );
 
-	if ( max_recovery_year >= *now_year )
-		return 0;
-	else
-		return max_recovery_year;
+	return max_recovery_year;
 
 } /* tax_recover_fetch_max_recovery_year() */
 
+#ifdef NOT_DEFINED
 boolean tax_recover_recovery_year_exists(
 			char *application_name,
 			char *fund_name,
@@ -287,16 +298,15 @@ boolean tax_recover_recovery_year_exists(
 	char *folder;
 	char *results;
 
-	folder = "purchase_order,tax_fixed_asset_recovery";
-
-	fund_where =
-		ledger_get_fund_where(
+	join_where =
+		tax_recover_get_join_where(
+			&folder_from,
 			application_name,
 			fund_name );
 
 	sprintf( where,
-"tax_fixed_asset_recovery.full_name = purchase_order.full_name and tax_fixed_asset_recovery.street_address = purchase_order.street_address and tax_fixed_asset_recovery.purchase_date_time = purchase_order.purchase_date_time and %s and recovery_year = %d",
-		 fund_where,
+		 "%s and recovery_year = %d",
+		 join_where,
 		 recovery_year );
 
 	sprintf( sys_string,
@@ -316,6 +326,7 @@ boolean tax_recover_recovery_year_exists(
 		return 0;
 
 } /* tax_recover_recovery_year_exists() */
+#endif
 
 boolean tax_recover_fixed_assets_execute(char *application_name,
 					char *fund_name,
@@ -328,9 +339,107 @@ boolean tax_recover_fixed_assets_execute(char *application_name,
 boolean tax_recover_fixed_assets_display(
 					char *application_name,
 					char *fund_name,
-					int recovery_year,
-					char *process_name )
+					int recovery_year )
 {
+	char sys_string[ 1024 ];
+	char *join_where;
+	char where[ 512 ];
+	char input_buffer[ 512 ];
+	char *folder_from = {0};
+	char *select;
+	char *order_by;
+	FILE *input_pipe;
+	char asset_name[ 128 ];
+	char serial_number[ 32 ];
+	char tax_service_placement_date[ 16 ];
+	char tax_cost_basis[ 32 ];
+	char disposal_date[ 16 ];
+	char tax_recovery_period[ 16 ];
+	double tax_recovery_period_years;
+	char minimum_disposal_date[ 16 ];
+	double recovery_amount;
+	double recovery_percent;
+
+	select =
+"asset_name,serial_number,tax_service_placement_date,tax_cost_basis,tax_recovery_period,disposal_date";
+
+	order_by = "asset_name,serial_number";
+
+	join_where =
+		tax_recover_get_join_where(
+			&folder_from,
+			application_name,
+			fund_name );
+
+	sprintf( minimum_disposal_date, "%d-01-01", recovery_year );
+
+	sprintf( where,
+		 "%s and						"
+		 "(disposal_date is null or disposal_date >= %s) and	"
+		 "ifnull(tax_cost_basis,0.0) <> 0.0) and		"
+		 "tax_recovery_period is not null and			"
+		 "tax_accumulated_depreciation < tax_cost_basis		",
+		 join_where,
+		 minimum_disposal_date );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			"
+		 "			order=%s			",
+		 application_name,
+		 select,
+		 folder_from,
+		 join_where,
+		 order_by );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece( asset_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( serial_number, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
+		piece(	tax_service_placement_date,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		piece(	tax_cost_basis,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			3 );
+
+		piece(	tax_recovery_period,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			4 );
+
+		piece(	disposal_date,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			5 );
+
+		tax_recovery_period_years = atof( tax_recovery_period );
+
+		/* Need to write the table lookup function. */
+		/* ---------------------------------------- */
+		if ( tax_recovery_period_years < 27.5 ) continue;
+
+		recovery_amount =
+			tax_calculate_real_estate_recovery(
+				&recovery_percent,
+				atof( tax_cost_basis ),
+				tax_service_placement_date,
+				disposal_date /* sale_date_string */,
+				tax_recovery_period_years,
+				recovery_year /* current_year */ );
+
+	}
+
+	pclose( input_pipe );
+
 	return 1;
 
 } /* tax_recover_fixed_assets_display() */

@@ -240,11 +240,12 @@ depreciate_prior_fixed_assets: depreciate_prior_fixed_assets.c		\
 		-o depreciate_prior_fixed_assets
 
 tax_recover_fixed_assets: tax_recover_fixed_assets.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		tax_recover_fixed_assets.c				\
+		tax.o							\
 		-o tax_recover_fixed_assets
 
 tax_recover_prior_fixed_assets: tax_recover_prior_fixed_assets.c	\

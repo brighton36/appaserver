@@ -1,7 +1,7 @@
 #!/bin/bash
-# -----------------------------------------------------------------------
-# $APPASERVER_HOME/src_accountancymodel/accumulated_depreciation_reset.sh
-# -----------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# $APPASERVER_HOME/src_predictive/finance_accumulated_depreciation_reset.sh
+# -------------------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then

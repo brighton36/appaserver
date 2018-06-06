@@ -360,7 +360,7 @@ void depreciate_fixed_assets_undo(	char *application_name,
 	system( sys_string );
 
 	sprintf( sys_string,
-		 "accumulated_depreciation_reset.sh %s",
+		 "finance_accumulated_depreciation_reset.sh %s",
 		 application_name );
 
 	system( sys_string );

@@ -40,7 +40,6 @@ EXECUTABLES=	trial_balance						\
 		depreciate_fixed_assets					\
 		depreciate_prior_fixed_assets				\
 		tax_recover_fixed_assets				\
-		tax_recover_prior_fixed_assets				\
 		post_change_supply_purchase				\
 		post_change_service_purchase				\
 		post_change_inventory_purchase				\

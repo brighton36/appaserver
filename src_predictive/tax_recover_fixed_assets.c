@@ -36,7 +36,6 @@ int tax_recover_fetch_max_recovery_year(
 					char *fund_name );
 
 void tax_recover_fixed_assets_undo(	char *application_name,
-					char *fund_name,
 					int recovery_year );
 
 boolean tax_recover_fixed_assets_execute(
@@ -104,31 +103,54 @@ int main( int argc, char **argv )
 	document_output_body(	document->application_name,
 				document->onload_control_string );
 
+	printf( "<h1>%s</h1>\n",
+		format_initial_capital(
+			buffer,
+			process_name ) );
+
+	/* Input */
+	/* ----- */
+	recovery_year =
+		tax_recover_fetch_max_recovery_year(
+			&now_year,
+			application_name,
+			fund_name );
+
+	if ( undo )
+	{
+		if ( !recovery_year )
+		{
+			printf(
+			"<h3>Error: no tax recoveries posted.\n" );
+			return 0;
+		}
+	}
+	else
+	{
+		if ( recovery_year )
+			recovery_year++;
+		else
+			recovery_year = now_year;
+
+		if ( tax_recover_recovery_year_exists(
+			application_name,
+			fund_name,
+			now_year ) )
+		{
+			printf(
+		"<h3>Error: recovery exists for this year.</h3>\n" );
+			return 0;
+		}
+	}
+
+	/* Process */
+	/* ------- */
 	if ( execute )
 	{
-		printf( "<h1>%s</h1>\n",
-			format_initial_capital(
-				buffer,
-				process_name ) );
-
 		if ( undo )
 		{
-			recovery_year =
-				fetch_max_recovery_year(
-					&now_year,
-					application_name,
-					fund_name );
-
-			if ( !recovery_year )
-			{
-				printf(
-				"<h3>Error: no depreciated fixed assets.\n" );
-				return;
-			}
-
 			tax_recover_fixed_assets_undo(
 				application_name,
-				fund_name,
 				recovery_year );
 
 			printf(
@@ -137,102 +159,46 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			recovery_year =
-				fetch_max_recovery_year(
-					&now_year,
-					application_name,
-					fund_name );
-
-			if ( recovery_year )
-				recovery_year++;
-			else
-				recovery_year = now_year;
-
-			if ( tax_recover_recovery_year_exists(
+			if ( !tax_recover_fixed_assets_execute(
 				application_name,
 				fund_name,
-				now_year ) )
+				recovery_year ) )
 			{
 				printf(
-		"<h3>Error: recovery exists for this year.</h3>\n" );
+		"<h3>Error: no fixed asset purchases to depreciate.</h3>\n" );
 			}
 			else
 			{
-				if ( !tax_recover_fixed_assets_execute(
-					application_name,
-					fund_name,
-					recovery_year ) )
-				{
-					printf(
-		"<h3>Error: no fixed asset purchases to depreciate.</h3>\n" );
-				}
-				else
-				{
-					printf(
-				"<h3>Depreciation now posted on %s.</h3>\n",
-					depreciation_date );
-				}
+				printf(
+			"<h3>Tax Recovery now posted for %d.</h3>\n",
+					recovery_year );
 			}
 		}
 	}
 	else
+	/* ------- */
+	/* Display */
+	/* ------- */
 	{
 		if ( undo )
 		{
-			depreciation_date =
-				depreciation_fetch_max_depreciation_date(
-					application_name,
-					fund_name );
-
-			printf( "<h1>%s</h1>\n",
-				format_initial_capital(
-					buffer,
-					process_name ) );
-
-			if ( !depreciation_date
-			||   !*depreciation_date )
-			{
-				printf(
-			"<h3>No depreciations are found.</h3>\n" );
-			}
-			else
-			{
-				printf(
-			"<h3>Will undo depreciation posted on %s.</h3>\n",
-					depreciation_date );
-			}
+			printf(
+			"<h3>Will undo tax recovery posted for %d.</h3>\n",
+				recovery_year );
 		}
 		else
 		{
-			depreciation_date = pipe2string( "now.sh ymd" );
-
-			if ( depreciation_date_exists(
-				application_name,
-				fund_name,
-				depreciation_date ) )
-			{
-				printf( "<h1>%s</h1>\n",
-					format_initial_capital(
-						buffer,
-						process_name ) );
-
-				printf(
-		"<h3>Error: depreciation date exists for today.</h3>\n" );
-			}
-			else
-			{
-				if ( !tax_recover_fixed_assets_display(
+			if ( !tax_recover_fixed_assets_display(
 					application_name,
 					fund_name,
 					recovery_year,
 					process_name ) )
-				{
-					printf(
+			{
+				printf(
 		"<h3>Error: no fixed asset purchases to depreciate.</h3>\n" );
-				}
 			}
 		}
-	}
+	} /* if Display */
 
 	document_close();
 
@@ -240,98 +206,26 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-boolean tax_recover_fixed_assets_execute(char *application_name,
-					char *fund_name,
-					int recovery_year )
-{
-	return 1;
-
-} /* tax_recover_fixed_assets_execute() */
-
-boolean tax_recover_fixed_assets_display(
-					char *application_name,
-					char *fund_name,
-					int recovery_year,
-					char *process_name )
-{
-	return 1;
-
-} /* tax_recover_fixed_assets_display() */
-
 void tax_recover_fixed_assets_undo(	char *application_name,
-					char *fund_name,
 					int recovery_year )
 {
 	char sys_string[ 1024 ];
 	char where[ 128 ];
-	FILE *input_pipe;
-	FILE *output_pipe;
+	char *folder_name;
 
-	sprintf(where,
-		"recovery_year = %d",
-		recovery_year );
+	folder_name = "tax_fixed_asset_recovery";
 
-	output_pipe = popen( "sql.e", "w" );
+	sprintf( where, "recovery_year = %d", recovery_year );
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=transaction_date_time	"
-		 "			folder=depreciation		"
-		 "			where=\"%s\"			"
-		 "			order=select			",
-		 application_name,
+		 "echo \"delete from %s where %s;\" | sql.e",
+		 folder_name,
 		 where );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( transaction_date_time, input_pipe ) )
-	{
-		sprintf(where,
-			"transaction_date_time = '%s'",
-			transaction_date_time );
-
-		fprintf( output_pipe,
-		 	 "delete from journal_ledger where %s;\n",
-		 	 where );
-
-		fprintf( output_pipe,
-		 	 "delete from transaction where %s;\n",
-		 	 where );
-
-		if ( !propagate_transaction_date_time )
-		{
-			propagate_transaction_date_time =
-				strdup( transaction_date_time );
-		}
-	}
-
-	pclose( input_pipe );
-
-	fprintf( output_pipe,
-	 	 "delete from depreciation where %s;\n",
-	 	 where );
-
-	pclose( output_pipe );
-
-	/* Error with an exit if failure. */
-	/* ------------------------------ */
-	ledger_get_depreciation_account_names(
-		&depreciation_expense_account,
-		&accumulated_depreciation_account,
-		application_name,
-		fund_name );
-
-	sprintf( sys_string,
-		 "ledger_propagate %s \"%s\" '' \"%s\" \"%s\"",
-		 application_name,
-		 propagate_transaction_date_time,
-		 depreciation_expense_account,
-		 accumulated_depreciation_account );
 
 	system( sys_string );
 
 	sprintf( sys_string,
-		 "accumulated_depreciation_reset.sh %s",
+		 "tax_accumulated_depreciation_reset.sh %s",
 		 application_name );
 
 	system( sys_string );
@@ -350,7 +244,7 @@ int tax_recover_fetch_max_recovery_year(
 	char *folder;
 	int max_recovery_year;
 
-	*now_year = atoi( date_get_now_yyyy_mm_dd( date_get_utc_offset() );
+	*now_year = atoi( date_get_now_yyyy_mm_dd( date_get_utc_offset() ) );
 
 	select = "max(recovery_year)";
 
@@ -380,7 +274,7 @@ int tax_recover_fetch_max_recovery_year(
 	else
 		return max_recovery_year;
 
-} /* tax_recovery_fetch_max_recovery_year() */
+} /* tax_recover_fetch_max_recovery_year() */
 
 boolean tax_recover_recovery_year_exists(
 			char *application_name,
@@ -422,4 +316,22 @@ boolean tax_recover_recovery_year_exists(
 		return 0;
 
 } /* tax_recover_recovery_year_exists() */
+
+boolean tax_recover_fixed_assets_execute(char *application_name,
+					char *fund_name,
+					int recovery_year )
+{
+	return 1;
+
+} /* tax_recover_fixed_assets_execute() */
+
+boolean tax_recover_fixed_assets_display(
+					char *application_name,
+					char *fund_name,
+					int recovery_year,
+					char *process_name )
+{
+	return 1;
+
+} /* tax_recover_fixed_assets_display() */
 

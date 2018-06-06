@@ -386,7 +386,7 @@ boolean tax_recover_prior_fixed_assets_execute(
 	system( sys_string );
 
 	sprintf( sys_string,
-		 "accumulated_depreciation_reset.sh %s",
+		 "tax_accumulated_depreciation_reset.sh %s",
 		 application_name );
 
 	system( sys_string );
@@ -524,7 +524,7 @@ void tax_recover_prior_fixed_assets_undo(char *application_name,
 	system( sys_string );
 
 	sprintf( sys_string,
-		 "accumulated_depreciation_reset.sh %s",
+		 "tax_accumulated_depreciation_reset.sh %s",
 		 application_name );
 
 	system( sys_string );

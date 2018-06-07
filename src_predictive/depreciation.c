@@ -1762,8 +1762,7 @@ void depreciation_fixed_asset_set_transaction(
 
 		date_increment_seconds(
 			transaction_date_time,
-			1,
-			date_get_utc_offset() );
+			1 );
 
 	} while( list_next( entity_list ) );
 

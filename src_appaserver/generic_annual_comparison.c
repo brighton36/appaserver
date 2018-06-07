@@ -257,7 +257,7 @@ void annual_comparison_output(
 				fflush( stdout );
 			}
 		}
-		date_increment( begin_date, date_get_utc_offset() );
+		date_increment( begin_date );
 	}
 } /* annual_comparison_output() */
 

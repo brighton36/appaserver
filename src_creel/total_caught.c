@@ -873,8 +873,7 @@ void total_caught_get_begin_end_date_string(
 
 	date_decrement_days(
 		last_week,
-		WEEKENDS_TO_GO_BACK * 7,
-		date_get_utc_offset() );
+		WEEKENDS_TO_GO_BACK * 7 );
 
 	date_get_yyyy_mm_dd( begin_date_string, last_week );
 
@@ -1374,8 +1373,7 @@ char *total_caught_get_trailer_count_weekend_string(
 
 			date_increment_days(
 				tomorrow,
-				1.0,
-				date_get_utc_offset() );
+				1.0 );
 
 			date_get_yyyy_mm_dd(
 				trailer_count_weekend_string,
@@ -1414,8 +1412,7 @@ char *total_caught_get_trailer_count_weekend_string(
 
 			date_decrement_days(
 				yesterday,
-				1.0,
-				date_get_utc_offset() );
+				1.0 );
 
 			date_get_yyyy_mm_dd(
 				trailer_count_weekend_string,
@@ -3898,7 +3895,7 @@ enum performed_census_weekend total_caught_get_performed_census_weekend(
 
 	prior_sunday = date_new( 0, 0, 0, date_get_utc_offset() );
 	date_copy( prior_sunday, prior_saturday );
-	date_increment_days( prior_sunday, 1.0, date_get_utc_offset() );
+	date_increment_days( prior_sunday, 1.0 );
 
 	exists_saturday =
 		total_caught_exists_census(
@@ -4172,27 +4169,27 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 
 		if ( !*interview_date_saturday ) return 0;
 
-		*interview_date_sunday = date_new( 0, 0, 0, date_get_utc_offset() );
+		*interview_date_sunday =
+			date_new( 0, 0, 0, date_get_utc_offset() );
 
 		date_copy( *interview_date_sunday, *interview_date_saturday );
 
 		date_increment_days(
 			*interview_date_sunday,
-			1.0,
-			date_get_utc_offset() );
+			1.0 );
 	}
 	else
 	if (	performed_census_weekend ==
 		day_sunday_census_missed_saturday_not_missed )
 	{
-		*interview_date_saturday = date_new( 0, 0, 0, date_get_utc_offset() );
+		*interview_date_saturday =
+			date_new( 0, 0, 0, date_get_utc_offset() );
 
 		date_copy( *interview_date_saturday, row_date );
 
 		date_increment_days(
 			*interview_date_saturday,
-			-1.0,
-			date_get_utc_offset() );
+			-1.0 );
 	}
 	else
 	if ( performed_census_weekend == day_sunday_census_weekend_missed )
@@ -4232,8 +4229,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 
 		date_increment_days(
 			*interview_date_sunday,
-			1.0,
-			date_get_utc_offset() );
+			1.0 );
 	}
 	else
 	if ( performed_census_weekend == day_weekday_census_saturday_only )
@@ -4253,8 +4249,7 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 
 		date_increment_days(
 			*interview_date_sunday,
-			1.0,
-			date_get_utc_offset() );
+			1.0 );
 	}
 	else
 	if (	performed_census_weekend ==
@@ -4265,14 +4260,14 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 				row_date,
 				date_get_utc_offset() );
 
-		*interview_date_sunday = date_new( 0, 0, 0, date_get_utc_offset() );
+		*interview_date_sunday =
+			date_new( 0, 0, 0, date_get_utc_offset() );
 
 		date_copy( *interview_date_sunday, *interview_date_saturday );
 
 		date_increment_days(
 			*interview_date_sunday,
-			1.0,
-			date_get_utc_offset() );
+			1.0 );
 	}
 	else
 	if (	performed_census_weekend ==
@@ -4286,14 +4281,14 @@ boolean total_caught_get_saturday_sunday_interview_dates(
 
 		if ( !*interview_date_saturday ) return 0;
 
-		*interview_date_sunday = date_new( 0, 0, 0, date_get_utc_offset() );
+		*interview_date_sunday =
+			date_new( 0, 0, 0, date_get_utc_offset() );
 
 		date_copy( *interview_date_sunday, *interview_date_saturday );
 
 		date_increment_days(
 			*interview_date_sunday,
-			1.0,
-			date_get_utc_offset() );
+			1.0 );
 	}
 	else
 	{
@@ -4336,14 +4331,14 @@ DATE *total_caught_get_preceeding_full_census_saturday(
 		{
 			DATE *preceeding_sunday;
 
-			preceeding_sunday = date_new( 0, 0, 0, date_get_utc_offset() );
+			preceeding_sunday =
+				date_new( 0, 0, 0, date_get_utc_offset() );
 
 			date_copy( preceeding_sunday, preceeding_saturday );
 
 			date_increment_days(
 				preceeding_sunday,
-				1.0,
-				date_get_utc_offset() );
+				1.0 );
 
 			performed_census_weekend =
 			total_caught_get_performed_census_weekend(
@@ -4359,8 +4354,7 @@ DATE *total_caught_get_preceeding_full_census_saturday(
 		}
 		date_decrement_days(
 			preceeding_saturday,
-			7.0,
-			date_get_utc_offset() );
+			7.0 );
 	}
 
 	return (DATE *)0;

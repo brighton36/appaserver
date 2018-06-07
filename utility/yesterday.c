@@ -1,7 +1,7 @@
-/* utility/yesterday.c		       			   */
-/* ------------------------------------------------------- */
-/* Freely available software: see Appaserver.org	   */
-/* ------------------------------------------------------- */
+/* $APPASERVER_HOME/utility/yesterday.c			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +16,7 @@ int main( int argc, char **argv )
 		days_to_minus = atoi( argv[ 1 ] );
 
 	d = date_get_today_new( date_get_utc_offset() );
-	date_increment_days( d, days_to_minus, date_get_utc_offset() );
+	date_increment_days( d, days_to_minus );
 	printf( "%s\n", date_display_yyyy_mm_dd( d ) );
 	return 0;
 }

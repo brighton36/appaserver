@@ -55,17 +55,15 @@ DATE *date_time_new(		int year,
 				int minute,
 				int utc_offset );
 
-void increment_week(		DATE *d,
-				int utc_offset );
+void date_increment_week(	DATE *d );
 
-void date_increment_day(	DATE *d,
-				int utc_offset );
+void increment_week(		DATE *d );
 
-void date_decrement_day(	DATE *d,
-				int utc_offset );
+void date_increment_day(	DATE *d );
 
-void date_increment(		DATE *d,
-				int utc_offset );
+void date_decrement_day(	DATE *d );
+
+void date_increment(		DATE *d );
 
 DATE *date_yyyy_mm_dd_new(	char *date_string,
 				int utc_offset );
@@ -77,24 +75,19 @@ DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string,
 				int utc_offset );
 
 void date_increment_days(	DATE *d,
-				double days,
-				int utc_offset );
+				double days );
 
 void date_increment_hours(	DATE *d,
-				double hours,
-				int utc_offset );
+				double hours );
 
 void date_increment_seconds(	DATE *d,
-				int seconds,
-				int utc_offset );
+				int seconds );
 
 void date_increment_minutes(	DATE *d,
-				int minutes,
-				int utc_offset );
+				int minutes );
 
 void date_add_minutes(		DATE *d,
-				int minutes,
-				int utc_offset );
+				int minutes );
 
 int get_month( DATE *d );
 int get_year( DATE *d );
@@ -267,25 +260,20 @@ boolean date_copy( DATE *d1, DATE *d2 );
 void date_round2five_minutes(		DATE *date,
 					int utc_offset );
 
-void date_decrement_hour(		DATE *d,
-					int utc_offset );
+void date_decrement_hour(		DATE *d );
 
-void date_increment_hour(		DATE *d,
-					int utc_offset );
+void date_increment_hour(		DATE *d );
 
-void date_decrement_minute(		DATE *d,
-					int utc_offset );
+void date_decrement_minute(		DATE *d );
 
-void date_increment_minute(		DATE *d,
-					int utc_offset );
+void date_increment_minute(		DATE *d );
 
 char *date_get_current_yyyy_mm_dd(	int utc_offset );
 
 char *date_get_current_hhmm(		int utc_offset );
 
 void date_decrement_days(		DATE *d,
-					double days,
-					int utc_offset );
+					double days );
 
 char *date_hhmm( DATE *d );
 
@@ -324,8 +312,7 @@ char *date_get_yyyy_mm_dd_hhmm(
 				DATE *date );
 
 void date_increment_weekly_ceiling(
-				DATE *date,
-				int utc_offset );
+				DATE *date );
 
 int date_get_day_of_week(	DATE *d );
 
@@ -338,8 +325,7 @@ boolean date_compare(		DATE *date1,
 				DATE *date2 );
 
 boolean date_tomorrow( 		DATE *old_date, 
-				DATE *new_date,
-				int utc_offset );
+				DATE *new_date );
 
 boolean date_year_in_future(	DATE *date,
 				int year );
@@ -528,5 +514,7 @@ int date_months_between(	DATE *from_date,
 				DATE *to_date );
 
 int date_get_days_in_year(	int year );
+
+void date_set_TZ(		char *TZ );
 
 #endif

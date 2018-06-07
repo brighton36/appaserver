@@ -2390,8 +2390,7 @@ void employee_work_period_set_transaction(
 
 		date_increment_seconds(
 			transaction_date_time,
-			1,
-			date_get_utc_offset() );
+			1 );
 
 	} while( list_next( employee_work_period_list ) );
 
@@ -2525,7 +2524,7 @@ void employee_close_employee_work_list_insert(
 			end_work_date_string,
 			date_get_utc_offset() );
 
-	date_increment_days( end_work_date, 1.0, date_get_utc_offset() );
+	date_increment_days( end_work_date, 1.0 );
 
 	table = get_table_name( application_name, "employee_work_day" );
 

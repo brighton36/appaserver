@@ -3252,8 +3252,7 @@ char *ledger_fetch_unique_transaction_date_time(
 
 		date_increment_seconds(
 			next_transaction_date_time,
-			1,
-			date_get_utc_offset() );
+			1 );
 
 		transaction_date_time =
 			date_display_yyyy_mm_dd_colon_hms(
@@ -5632,8 +5631,7 @@ char *ledger_beginning_transaction_date(
 	{
 		date_increment_days(
 			prior_closing_transaction_date,
-			1,
-			date_get_utc_offset() );
+			1 );
 
 		return date_get_yyyy_mm_dd_string(
 				prior_closing_transaction_date );
@@ -6129,8 +6127,7 @@ LIST *ledger_get_after_balance_zero_journal_ledger_list(
 		/* ---------------------------------------------------------- */
 		date_increment_seconds(
 			transaction_date_time,
-			1,
-			date_get_utc_offset() );
+			1 );
 
 		transaction_date_time_string =
 			date_get_yyyy_mm_dd_hh_mm_ss(

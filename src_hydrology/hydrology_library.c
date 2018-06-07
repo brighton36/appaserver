@@ -890,9 +890,7 @@ int hydrology_library_insert_null_measurements(
 
 			date_increment_minutes(
 				minutes_offset_date,
-				minutes_offset,
-				date_get_utc_offset() );
-
+				minutes_offset );
 
 			date_get_yyyy_mm_dd(
 				date_string,

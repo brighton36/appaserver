@@ -2747,16 +2747,14 @@ void creel_library_get_begin_end_dates(
 	{
 		date_decrement_days(
 				begin_date,
-				atof( days_offset ),
-				date_get_utc_offset() );
+				atof( days_offset ) );
 	}
 	else
 	if ( strcmp( mail_merge_letter, "about_to_expire" ) == 0 )
 	{
 		date_increment_days(
 				end_date,
-				atof( days_offset ),
-				date_get_utc_offset() );
+				atof( days_offset ) );
 	}
 	else
 	{

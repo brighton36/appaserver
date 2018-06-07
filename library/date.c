@@ -9,6 +9,7 @@
 #include <time.h>
 #include "piece.h"
 #include "column.h"
+#include "environ.h"
 #include "timlib.h"
 #include "julian.h"
 #include "date.h"
@@ -416,46 +417,41 @@ void date_free( DATE *d )
 	free( d );
 }
 
-void date_increment( DATE *d, int utc_offset )
+void date_increment( DATE *d )
 {
-	date_increment_day( d, utc_offset );
+	date_increment_day( d );
 }
 
-void date_decrement_minute( DATE *d, int utc_offset )
+void date_decrement_minute( DATE *d )
 {
-	date_increment_minutes( d, -1, utc_offset );
+	date_increment_minutes( d, -1 );
 }
 
-void date_decrement_hour(	DATE *d,
-				int utc_offset )
+void date_decrement_hour( DATE *d )
 {
-	date_increment_hours( d, -1.0, utc_offset );
+	date_increment_hours( d, -1.0 );
 }
 
-void date_increment_hour(	DATE *d,
-				int utc_offset )
+void date_increment_hour( DATE *d )
 {
-	date_increment_hours( d, 1.0, utc_offset );
+	date_increment_hours( d, 1.0 );
 }
 
-void date_increment_minute(	DATE *d,
-				int utc_offset )
+void date_increment_minute( DATE *d )
 {
-	date_increment_minutes( d, 1, utc_offset );
+	date_increment_minutes( d, 1 );
 }
 
-void date_decrement_day(	DATE *d,
-				int utc_offset )
+void date_decrement_day( DATE *d )
 {
-	return date_decrement_days( d, 1.0, utc_offset );
+	return date_decrement_days( d, 1.0 );
 }
 
 void date_decrement_days(	DATE *d,
-				double days,
-				int utc_offset )
+				double days )
 {
 	double minus_days = -days;
-	date_increment_days( d, minus_days, utc_offset );
+	date_increment_days( d, minus_days );
 }
 
 void date_increment_months(	DATE *d,
@@ -478,9 +474,7 @@ void date_increment_years(	DATE *d,
 				int years,
 				int utc_offset )
 {
-	date_decrement_years(	d,
-				-years,
-				utc_offset );
+	date_decrement_years(d, -years, utc_offset );
 }
 
 void date_decrement_years(	DATE *d,
@@ -496,26 +490,25 @@ void date_decrement_years(	DATE *d,
 	day = date_get_day( d );
 	year -= years;
 
-fprintf( stderr, "before: (%ld) %s\n", d->current, date_display( d ) );
-
 	date_set_date_integers(	d, year, month, day, utc_offset );
-
-fprintf( stderr, "after:  (%ld) %s\n", d->current, date_display( d ) );
 
 } /* date_decrement_years() */
 
-void date_increment_day(	DATE *d,
-				int utc_offset )
+void date_increment_day(	DATE *d )
 {
 	d->current += SECONDS_IN_DAY;
-	date_set_tm_structures( d, d->current, utc_offset );
+	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
 }
 
-void increment_week(		DATE *d,
-				int utc_offset )
+void date_increment_week(	DATE *d )
+{
+	increment_week( d );
+}
+
+void increment_week(		DATE *d )
 {
 	d->current += SECONDS_IN_WEEK;
-	date_set_tm_structures( d, d->current, utc_offset );
+	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
 }
 
 int get_month( DATE *d )
@@ -1003,8 +996,8 @@ DATE *date_yyyy_mm_dd_new(	char *date_string,
 	char local_date_string[ 32 ];
 
 
-	/* If appended time */
-	/* ---------------- */
+	/* Ignore the appended time */
+	/* ------------------------ */
 	if ( count_character( ' ', date_string ) == 1 )
 	{
 		column( local_date_string, 0, date_string );
@@ -1032,11 +1025,10 @@ DATE *date_yyyy_mm_dd_new(	char *date_string,
 } /* date_yyyy_mm_dd_new() */
 
 void date_increment_days(	DATE *d,
-				double days,
-				int utc_offset )
+				double days )
 {
 	d->current += (long)((double)SECONDS_IN_DAY * days);
-	date_set_tm_structures( d, d->current, utc_offset );
+	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
 }
 
 char *date_yyyy_mm_dd( DATE *date )
@@ -1187,7 +1179,7 @@ char *date_get_day_of_week_yyyy_mm_dd(	int wday_of_week,
 	DATE *date = date_today_new( utc_offset );
 
 	while( date->tm->tm_wday != wday_of_week )
-		date_increment_days( date, -1.0, utc_offset );
+		date_increment_days( date, -1.0 );
 
 	date_string = date_get_yyyy_mm_dd_string( date );
 
@@ -1207,7 +1199,7 @@ char *date_get_yesterday_yyyy_mm_dd_string(
 	DATE *date;
 
 	date = date_today_new( utc_offset );
-	date_increment_days( date, -1.0, utc_offset );
+	date_increment_days( date, -1.0 );
 	return date_get_yyyy_mm_dd_string( date );
 
 } /* date_get_yesterday_yyyy_mm_dd_string() */
@@ -1224,6 +1216,7 @@ DATE *date_today_new( int utc_offset )
 	DATE *return_date;
 
 	now = time( (time_t *)0 );
+	tzset();
 	tm = localtime( &now );
 
 	return_date =
@@ -1235,6 +1228,10 @@ DATE *date_today_new( int utc_offset )
 			tm->tm_min,
 			tm->tm_sec,
 			utc_offset );
+
+	/* Further arithmetic */
+	/* ------------------ */
+	date_set_TZ( "Etc/GMT" );
 
 	return return_date;
 
@@ -1415,6 +1412,12 @@ void date_set_tm_structures(	DATE *d,
 	}
 	else
 	{
+/*
+		time_t tmp_current;
+
+		tmp_current = current + (SECONDS_IN_HOUR * utc_offset);
+		memcpy( d->tm, gmtime( &tmp_current ), sizeof( struct tm ) );
+*/
 		memcpy( d->tm, gmtime( &current ), sizeof( struct tm ) );
 	}
 
@@ -1449,9 +1452,9 @@ time_t date_mktime(	struct tm *tm,
 {
 	time_t return_value;
 
-	tm->tm_isdst = 0;
+	/* tm->tm_isdst = 0; */
 	return_value = mktime( tm );
-	return_value += SECONDS_IN_HOUR * utc_offset;
+	return_value += (SECONDS_IN_HOUR * utc_offset);
 
 	return return_value;
 
@@ -1697,34 +1700,30 @@ int date_set_time_hhmm(		DATE *date,
 } /* date_set_time_hhmm() */
 
 void date_increment_hours(	DATE *d,
-				double hours,
-				int utc_offset )
+				double hours )
 {
 	d->current += (long)((float)SECONDS_IN_HOUR * hours);
-	date_set_tm_structures( d, d->current, utc_offset );
+	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
 }
 
 void date_add_minutes(	DATE *d,
-			int minutes,
-			int utc_offset )
+			int minutes )
 {
-	date_increment_minutes( d, minutes, utc_offset );
+	date_increment_minutes( d, minutes );
 }
 
 void date_increment_minutes(	DATE *d,
-				int minutes,
-				int utc_offset )
+				int minutes )
 {
 	d->current += (long)(SECONDS_IN_MINUTE * minutes);
-	date_set_tm_structures( d, d->current, utc_offset );
+	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
 }
 
 void date_increment_seconds(	DATE *d,
-				int seconds,
-				int utc_offset )
+				int seconds )
 {
 	d->current += (long)seconds;
-	date_set_tm_structures( d, d->current, utc_offset );
+	date_set_tm_structures( d, d->current, 0 /* utc_offset */ );
 }
 
 int date_subtract_minutes( DATE *later_date, DATE *earlier_date )
@@ -1813,7 +1812,7 @@ void date_round2five_minutes(	DATE *date,
 			if ( hour == 24 )
 			{
 				hour = 0;
-				date_increment_day( date, utc_offset );
+				date_increment_day( date );
 			}
 		}
 	}
@@ -1892,11 +1891,10 @@ char *date_display_yyyy_mm_dd_hh_colon_mm( DATE *date )
 
 } /* date_display_yyyy_mm_dd_hh_colon_mm() */
 
-void date_increment_weekly_ceiling(	DATE *date,
-					int utc_offset )
+void date_increment_weekly_ceiling(	DATE *date )
 {
 	while( date_get_day_of_week( date ) != DATE_END_OF_WEEK_INDICATOR )
-		date_increment_day( date, utc_offset );
+		date_increment_day( date );
 
 } /* date_increment_weekly_ceiling() */
 
@@ -1927,8 +1925,7 @@ boolean date_same_day(		DATE *old_date,
 } /* date_same_day() */
 
 boolean date_tomorrow( 		DATE *old_date, 
-				DATE *new_date,
-				int utc_offset )
+				DATE *new_date )
 {
 	int return_value;
 	char buffer1[ 128 ];
@@ -1938,7 +1935,7 @@ boolean date_tomorrow( 		DATE *old_date,
 	tomorrow_date = date_calloc();
 	date_copy( tomorrow_date, old_date );
 
-	date_increment_day( tomorrow_date, utc_offset );
+	date_increment_day( tomorrow_date );
 
 	return_value =
 		( strcmp(
@@ -2334,3 +2331,13 @@ int date_get_days_in_year( int year )
 	else
 		return 365;
 }
+
+void date_set_TZ( char *TZ )
+{
+	char statement[ 128 ];
+
+	sprintf( statement, "TZ=%s", TZ );
+	putenv( strdup( statement ) );
+
+} /* date_set_TZ() */
+

@@ -44,7 +44,7 @@ int main( int argc, char **argv )
 
 		d = date_yyyy_mm_dd_new( date_buffer, date_get_utc_offset() );
 
-		date_increment_days( d, days_offset, date_get_utc_offset() );
+		date_increment_days( d, days_offset );
 
 		piece_replace(	buffer,
 				delimiter,

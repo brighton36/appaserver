@@ -1,5 +1,7 @@
-/* date.c */
-/* ------ */
+/* $APPASERVER_HOME/utility/date.c			*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,9 +45,19 @@ int main( int argc, char **argv )
 		if ( days_offset )
 		{
 			date_increment_days(
-				d, days_offset, date_get_utc_offset() );
+				d,
+				days_offset );
 
-			printf( "%s\n", date_display_yyyy_mm_dd( d ) );
+			if ( with_seconds )
+			{
+				printf( "%s:%s\n",
+					date_display_yyyy_mm_dd( d ),
+					date_display_hhmmss( d ) );
+			}
+			else
+			{
+				printf( "%s\n", date_display_yyyy_mm_dd( d ) );
+			}
 		}
 		else
 		{

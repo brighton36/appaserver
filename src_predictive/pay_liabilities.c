@@ -291,8 +291,7 @@ LIST *pay_liabilities_output_get_liability_account_transaction_list(
 
 		date_increment_seconds(
 			transaction_date_time,
-			1,
-			date_get_utc_offset() );
+			1 );
 
 	} while( list_next( liability_account_entity_list ) );
 
@@ -324,8 +323,7 @@ LIST *pay_liabilities_output_get_entity_transaction_list(
 
 	date_increment_seconds(
 		transaction_date_time,
-		seconds_to_add,
-		date_get_utc_offset() );
+		seconds_to_add );
 
 	if ( !memo || !*memo || strcmp( memo, "memo" ) == 0 )
 		memo = PAY_LIABILITIES_MEMO;
@@ -431,8 +429,7 @@ LIST *pay_liabilities_output_get_entity_transaction_list(
 
 		date_increment_seconds(
 			transaction_date_time,
-			1,
-			date_get_utc_offset() );
+			1 );
 
 	} while( list_next( process_entity_list ) );
 

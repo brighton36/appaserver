@@ -131,6 +131,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	piece_shift_right.e						\
 	html_paragraph_wrapper.e piece_replace.e			\
 	yesterday.e julian_time_list.e date.e piece_grep.e		\
+	date_ticker.e							\
 	findbig.e padspace.e insert_string.e date_add_days.e		\
 	julian_add_hours.e						\
 	findtoday.e							\
@@ -1438,6 +1439,13 @@ date.e: date.c ${LIBRARY}/date.o
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o date.e
+
+date_ticker.e: date_ticker.c ${LIBRARY}/date.o
+	$(CC) ${CFLAGS}	-I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		date_ticker.c						\
+		-o date_ticker.e
 
 real_time2aggregate_value.e: real_time2aggregate_value.c		\
 		${LIBRARY}/statistics_weighted.o			\

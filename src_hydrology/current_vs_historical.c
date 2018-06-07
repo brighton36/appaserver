@@ -102,7 +102,9 @@ void current_vs_historical_get_dates(
 		-1,
 		date_get_utc_offset() );
 
-	date_decrement_days( por_historical_end_date, 1, date_get_utc_offset() );
+	date_decrement_days(
+		por_historical_end_date,
+		1 );
 
 	current_begin_date = date_today_new( date_get_utc_offset() );
 
@@ -111,7 +113,7 @@ void current_vs_historical_get_dates(
 		1,
 		date_get_utc_offset() );
 
-	date_increment_days( current_begin_date, 1, date_get_utc_offset() );
+	date_increment_days( current_begin_date, 1 );
 
 	por_current_begin_date = date_calloc();
 	date_copy( por_current_begin_date, first_of_month );
@@ -147,7 +149,7 @@ void current_vs_historical_get_dates(
 		-1,
 		date_get_utc_offset() );
 
-	date_decrement_days( por_current_end_date, 1, date_get_utc_offset() );
+	date_decrement_days( por_current_end_date, 1 );
 
 	*por_historical_begin_date_string =
 		date_display_yyyy_mm_dd(

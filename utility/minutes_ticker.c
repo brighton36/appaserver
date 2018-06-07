@@ -83,7 +83,9 @@ void minutes_ticker(	char *argv_0,
 		if ( begin_date_time->current == end_date_time->current )
 			break;
 
-		date_increment_minutes( begin_date_time, 1, date_get_utc_offset() );
+		date_increment_minutes(
+			begin_date_time,
+			1 );
 	}
 
 } /* minutes_ticker() */

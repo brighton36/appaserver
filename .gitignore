@@ -123,6 +123,8 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+tax_recover_fixed_assets
+tax_recover_prior_fixed_assets
 tax_dvr
 post_change_activity_work
 post_change_account_balance

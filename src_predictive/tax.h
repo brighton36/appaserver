@@ -206,20 +206,4 @@ void tax_rental_journal_ledger_list_accumulate_line_total(
 				LIST *journal_ledger_list,
 				boolean accumulate_debit );
 
-double tax_calculate_real_estate_recovery(
-				double *recovery_percent,
-				double cost_basis,
-				char *service_placement_date_string,
-				char *sale_date_string,
-				double recovery_period_years,
-				int current_year );
-
-boolean tax_calculate_real_estate_parse(
-				int *service_month,
-				int *service_year,
-				int *sale_month,
-				int *sale_year,
-				char *service_placement_date_string,
-				char *sale_date_string );
-
 #endif

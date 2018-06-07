@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "date.h"
-#include "tax.h"
+#include "tax_recovery.h"
 
 void test_recovery( void );
 void test_recovery_loop1( void );
@@ -81,7 +81,7 @@ void test_recovery()
 {
 	printf( "should be %.2lf, is %.2lf\n",
 		1212.12,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-01-01"
@@ -93,7 +93,7 @@ void test_recovery()
 #ifdef NOT_DEFINED
 	printf( "should be %.2lf, is %.2lf\n",
 		29091.20,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
@@ -104,7 +104,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		29091.20,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
@@ -116,7 +116,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		23031.20,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
@@ -127,7 +127,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		29091.20,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
@@ -139,7 +139,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		23031.04,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				800000.0,
 				"1993-04-01"
@@ -150,7 +150,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		31746.0,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1000000.0,
 				"1993-03-02"
@@ -161,7 +161,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		1322.8,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1000000.0,
 				"1993-03-02"
@@ -172,7 +172,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		3846.15,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
@@ -183,7 +183,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		30769.0,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
@@ -194,7 +194,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		11538.46,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
@@ -205,7 +205,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		30769.0,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
@@ -216,7 +216,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		30769.0,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
@@ -227,7 +227,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		30769.0,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
@@ -239,7 +239,7 @@ void test_recovery()
 
 	printf( "should be %.2lf, is %.2lf\n",
 		26923.0,
-		tax_calculate_real_estate_recovery(
+		tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
@@ -272,7 +272,7 @@ void test_recovery_loop1()
 	for( y = 0; y < years; y++ )
 	{
 		recovery =
-			 tax_calculate_real_estate_recovery(
+			 tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				cash_basis,
 				"1993-04-01"
@@ -321,7 +321,7 @@ void test_recovery_loop2()
 			date_display( annual ) );
 
 		recovery =
-			 tax_calculate_real_estate_recovery(
+			 tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				1200000.0,
 				"2007-11-19"
@@ -370,7 +370,7 @@ void test_recovery_loop3(	double cash_basis,
 			date_display( annual ) );
 
 		recovery =
-			 tax_calculate_real_estate_recovery(
+			 tax_recovery_calculate_recovery_amount(
 				(double *)0 /* recovery_percent */,
 				cash_basis,
 				service_placement_date_string,

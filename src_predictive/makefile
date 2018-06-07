@@ -138,13 +138,13 @@ clean:
 		financial_position					\
 		statement_of_activities
 
-tax_dvr: tax_dvr.c tax.o						\
+tax_dvr: tax_dvr.c tax_recovery.o					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		tax_dvr.c						\
-		tax.o							\
+		tax_recovery.o						\
 		-o tax_dvr
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
@@ -240,12 +240,12 @@ depreciate_prior_fixed_assets: depreciate_prior_fixed_assets.c		\
 		-o depreciate_prior_fixed_assets
 
 tax_recover_fixed_assets: tax_recover_fixed_assets.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax_recovery.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		tax_recover_fixed_assets.c				\
-		tax.o							\
+		tax_recovery.o						\
 		-o tax_recover_fixed_assets
 
 tax_recover_prior_fixed_assets: tax_recover_prior_fixed_assets.c	\
@@ -671,4 +671,9 @@ bank_upload.o: bank_upload.c						\
 		bank_upload.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c bank_upload.c
+
+tax_recovery.o: tax_recovery.c						\
+		tax_recovery.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c tax_recovery.c
 

@@ -131,6 +131,10 @@ DATE *date_new_date_time(
 	d->current = date_tm_to_current( d->tm, utc_offset );
 	date_set_tm_structures( d, d->current, utc_offset );
 
+	/* Further arithmetic */
+	/* ------------------ */
+	date_set_TZ( "Etc/GMT" );
+
 	return d;
 
 } /* date_new_date_time() */
@@ -1236,10 +1240,6 @@ DATE *date_today_new( int utc_offset )
 			tm->tm_min,
 			tm->tm_sec,
 			utc_offset );
-
-	/* Further arithmetic */
-	/* ------------------ */
-	date_set_TZ( "Etc/GMT" );
 
 	return return_date;
 

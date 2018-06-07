@@ -94,13 +94,11 @@ void current_vs_historical_get_dates(
 
 	date_decrement_years(
 		por_historical_end_date,
-		1,
-		date_get_utc_offset() );
+		1 );
 
 	date_increment_months(
 		por_historical_end_date,
-		-1,
-		date_get_utc_offset() );
+		-1 );
 
 	date_decrement_days(
 		por_historical_end_date,
@@ -110,8 +108,7 @@ void current_vs_historical_get_dates(
 
 	date_decrement_years(
 		current_begin_date,
-		1,
-		date_get_utc_offset() );
+		1 );
 
 	date_increment_days( current_begin_date, 1 );
 
@@ -120,34 +117,29 @@ void current_vs_historical_get_dates(
 
 	date_decrement_years(
 		por_current_begin_date,
-		1,
-		date_get_utc_offset() );
+		1 );
 
 	date_increment_months(
 		por_current_begin_date,
-		-1,
-		date_get_utc_offset() );
+		-1 );
 
 	por_historical_begin_date = date_calloc();
 	date_copy( por_historical_begin_date, first_of_month );
 
 	date_decrement_years(
 		por_historical_begin_date,
-		historical_range_years + 1,
-		date_get_utc_offset() );
+		historical_range_years + 1 );
 
 	date_increment_months(
 		por_historical_begin_date,
-		-1,
-		date_get_utc_offset() );
+		-1 );
 
 	por_current_end_date = date_calloc();
 	date_copy( por_current_end_date, first_of_month );
 
 	date_increment_months(
 		por_current_end_date,
-		-1,
-		date_get_utc_offset() );
+		-1 );
 
 	date_decrement_days( por_current_end_date, 1 );
 

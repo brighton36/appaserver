@@ -44,7 +44,7 @@ int main( int argc, char **argv )
 		month = get_month( date );
 		day = get_day_of_month( date );
 		printf( "%2.2d %2.2d %d\n", month, day, week_number );
-		increment_week( date, date_get_utc_offset() );
+		increment_week( date );
 	}
 	return 0;
 

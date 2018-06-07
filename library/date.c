@@ -455,8 +455,7 @@ void date_decrement_days(	DATE *d,
 }
 
 void date_increment_months(	DATE *d,
-				int months,
-				int utc_offset )
+				int months )
 {
 	int year;
 	int month;
@@ -466,20 +465,24 @@ void date_increment_months(	DATE *d,
 	month = date_get_month( d );
 	day = date_get_day( d );
 	month += months;
-	date_set_date_integers(	d, year, month, day, utc_offset );
+
+	date_set_date_integers(
+		d,
+		year,
+		month,
+		day,
+		0 /* date_get_utc_offset() */ );
 
 } /* date_increment_months() */
 
 void date_increment_years(	DATE *d,
-				int years,
-				int utc_offset )
+				int years )
 {
-	date_decrement_years(d, -years, utc_offset );
+	date_decrement_years(d, -years );
 }
 
 void date_decrement_years(	DATE *d,
-				int years,
-				int utc_offset )
+				int years )
 {
 	int year;
 	int month;
@@ -490,7 +493,12 @@ void date_decrement_years(	DATE *d,
 	day = date_get_day( d );
 	year -= years;
 
-	date_set_date_integers(	d, year, month, day, utc_offset );
+	date_set_date_integers(
+		d,
+		year,
+		month,
+		day,
+		0 /* date_get_utc_offset() */ );
 
 } /* date_decrement_years() */
 
@@ -1562,7 +1570,7 @@ DATE *date_forward_to_first_month(	DATE *d,
 	DATE *return_date;
 
 	return_date = date_back_to_first_month( d, utc_offset );
-	date_increment_months( return_date, 1, utc_offset );
+	date_increment_months( return_date, 1 );
 
 	return return_date;
 

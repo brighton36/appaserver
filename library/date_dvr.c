@@ -1037,6 +1037,6 @@ void test_increment_year( void )
 			y + 1,
 			date_display( annual ) );
 
-		date_increment_years( annual, 1, date_get_utc_offset() );
+		date_increment_years( annual, 1 );
 	}
 }

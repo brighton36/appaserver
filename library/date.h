@@ -435,16 +435,13 @@ DATE *date_current_new(		time_t current,
 				int utc_offset );
 
 void date_decrement_years(	DATE *d,
-				int years,
-				int utc_offset );
+				int years );
 
 void date_increment_months(	DATE *d,
-				int months,
-				int utc_offset );
+				int months );
 
 void date_increment_years(	DATE *d,
-				int years,
-				int utc_offset );
+				int years );
 
 DATE *date_forward_to_first_month(
 				DATE *d,

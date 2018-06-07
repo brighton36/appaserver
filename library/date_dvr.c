@@ -35,12 +35,14 @@ void test_days_in_month();
 void test_minutes_between( void );
 void test_years_between( void );
 void test_2015_10_26( void );
+void test_increment_year( void );
 
 int main()
 {
-	test_payroll_period();
+	test_increment_year();
 
 /*
+	test_payroll_period();
 	test_week_of_year_1995();
 	test_week_of_year_1998();
 	test_week_of_year_1999();
@@ -1015,3 +1017,24 @@ void test_payroll_period( void )
 
 } /* test_payroll_period() */
 
+void test_increment_year( void )
+{
+	DATE *annual;
+	char beginning[ 16 ];
+	int y;
+	int start_year = 2007;
+	int years = 8;
+
+	sprintf( beginning, "%d-12-31", start_year );
+
+	annual = date_yyyy_mm_dd_new( beginning, date_get_utc_offset() );
+
+	for( y = 0; y < years; y++ )
+	{
+		printf( "%.2d: %s\n",
+			y + 1,
+			date_display( annual ) );
+
+		date_increment_years( annual, 1, date_get_utc_offset() );
+	}
+}

@@ -495,7 +495,12 @@ void date_decrement_years(	DATE *d,
 	month = date_get_month( d );
 	day = date_get_day( d );
 	year -= years;
+
+fprintf( stderr, "before: (%ld) %s\n", d->current, date_display( d ) );
+
 	date_set_date_integers(	d, year, month, day, utc_offset );
+
+fprintf( stderr, "after:  (%ld) %s\n", d->current, date_display( d ) );
 
 } /* date_decrement_years() */
 

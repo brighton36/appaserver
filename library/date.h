@@ -490,8 +490,7 @@ int date_get_last_month_day(	int month,
 				int year );
 
 DATE *date_yyyy_mm_dd_colon_hm_new(
-				char *date_time_string,
-				int utc_offset );
+				char *date_time_string );
 
 int date_get_utc_offset(	void );
 

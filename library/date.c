@@ -128,6 +128,10 @@ DATE *date_new_date_time(
 	d->tm->tm_min = minutes;
 	d->tm->tm_sec = seconds;
 
+	/* Reset */
+	/* ----- */
+	date_set_TZ( "" );
+
 	d->current = date_tm_to_current( d->tm, utc_offset );
 	date_set_tm_structures( d, d->current, utc_offset );
 
@@ -909,8 +913,7 @@ DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string,
 
 } /* date_yyyy_mm_dd_hms_new() */
 
-DATE *date_yyyy_mm_dd_colon_hm_new(	char *date_time_string,
-					int utc_offset )
+DATE *date_yyyy_mm_dd_colon_hm_new( char *date_time_string )
 {
 	char year_string[ 16 ];
 	char month_string[ 16 ];
@@ -946,8 +949,8 @@ DATE *date_yyyy_mm_dd_colon_hm_new(	char *date_time_string,
 			atoi( day_string ),
 			atoi( hour_string ),
 			atoi( minute_string ),
-			0 /*seconds */,
-			utc_offset );
+			0 /* seconds */,
+			0 /* utc_offset */ );
 
 	return date;
 

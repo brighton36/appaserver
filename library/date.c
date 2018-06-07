@@ -128,16 +128,8 @@ DATE *date_new_date_time(
 	d->tm->tm_min = minutes;
 	d->tm->tm_sec = seconds;
 
-	/* Reset */
-	/* ----- */
-	date_set_TZ( "" );
-
 	d->current = date_tm_to_current( d->tm, utc_offset );
 	date_set_tm_structures( d, d->current, utc_offset );
-
-	/* Further arithmetic */
-	/* ------------------ */
-	date_set_TZ( "Etc/GMT" );
 
 	return d;
 
@@ -474,12 +466,16 @@ void date_increment_months(	DATE *d,
 	day = date_get_day( d );
 	month += months;
 
+	date_set_TZ( "" );
+
 	date_set_date_integers(
 		d,
 		year,
 		month,
 		day,
 		0 /* date_get_utc_offset() */ );
+
+	date_set_TZ( "Etc/GMT" );
 
 } /* date_increment_months() */
 
@@ -501,12 +497,16 @@ void date_decrement_years(	DATE *d,
 	day = date_get_day( d );
 	year -= years;
 
+	date_set_TZ( "" );
+
 	date_set_date_integers(
 		d,
 		year,
 		month,
 		day,
 		0 /* date_get_utc_offset() */ );
+
+	date_set_TZ( "Etc/GMT" );
 
 } /* date_decrement_years() */
 
@@ -950,7 +950,7 @@ DATE *date_yyyy_mm_dd_colon_hm_new( char *date_time_string )
 			atoi( hour_string ),
 			atoi( minute_string ),
 			0 /* seconds */,
-			0 /* utc_offset */ );
+			date_get_utc_offset() );
 
 	return date;
 
@@ -1224,15 +1224,32 @@ DATE *date_now_new( int utc_offset )
 	return date_today_new( utc_offset );
 }
 
+boolean date_is_daylight_time( void )
+{
+	time_t now;
+	struct tm *tm;
+
+	now = time( (time_t *)0 );
+	tzset();
+	tm = localtime( &now );
+
+	return (boolean)tm->tm_isdst;
+
+} /* date_is_daylight_time() */
+
 DATE *date_today_new( int utc_offset )
 {
 	time_t now;
 	struct tm *tm;
 	DATE *return_date;
+	boolean is_daylight_time;
+
+	is_daylight_time = date_is_daylight_time();
+
+	date_set_TZ( "Etc/GMT" );
 
 	now = time( (time_t *)0 );
-	tzset();
-	tm = localtime( &now );
+	tm = gmtime( &now );
 
 	return_date =
 		date_new_date_time(
@@ -1243,6 +1260,13 @@ DATE *date_today_new( int utc_offset )
 			tm->tm_min,
 			tm->tm_sec,
 			utc_offset );
+
+	return_date->is_daylight_time = is_daylight_time;
+
+	if ( return_date->is_daylight_time )
+	{
+		date_increment_hour( return_date );
+	}
 
 	return return_date;
 

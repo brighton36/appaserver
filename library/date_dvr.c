@@ -40,8 +40,6 @@ void test_increment_year( void );
 int main()
 {
 	test_increment_year();
-
-/*
 	test_payroll_period();
 	test_week_of_year_1995();
 	test_week_of_year_1998();
@@ -65,9 +63,7 @@ int main()
 	test_minutes_between();
 	test_years_between();
 	test_grandfather_father_son();
-*/
 
-#ifdef NOT_DEFINED
 	test_round();
 	test_week_of_year_2037();
 	test_week_of_year_2038();
@@ -76,7 +72,6 @@ int main()
 	test_strftime( 1996 );
 	test_strftime( 2000 );
 	test_strftime( 2001 );
-#endif
 
 	return 0;
 }
@@ -164,7 +159,7 @@ void test1()
 	day = get_day_of_month( d );
 	printf( "before increment week: %2d %2d\n", month, day );
 
-	increment_week( d, date_get_utc_offset() );
+	increment_week( d );
 	month = get_month( d );
 	day = get_day_of_month( d );
 	printf( "after increment week: %2d %2d\n", month, day );

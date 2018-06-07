@@ -39,10 +39,13 @@ typedef struct
 	time_t current;
 	int format_yyyy_mm_dd;
 	struct tm *tm;
+	boolean is_daylight_time;
 } DATE;
 
 /* Prototypes */
 /* ---------- */
+boolean date_is_daylight_time(	void );
+
 DATE *date_new(			int year,
 				int month,
 				int day,

@@ -474,6 +474,15 @@ void date_increment_months(	DATE *d,
 
 } /* date_increment_months() */
 
+void date_increment_years(	DATE *d,
+				int years,
+				int utc_offset )
+{
+	date_decrement_years(	d,
+				-years,
+				utc_offset );
+}
+
 void date_decrement_years(	DATE *d,
 				int years,
 				int utc_offset )

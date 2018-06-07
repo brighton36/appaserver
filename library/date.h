@@ -456,6 +456,10 @@ void date_increment_months(	DATE *d,
 				int months,
 				int utc_offset );
 
+void date_increment_years(	DATE *d,
+				int years,
+				int utc_offset );
+
 DATE *date_forward_to_first_month(
 				DATE *d,
 				int utc_offset );

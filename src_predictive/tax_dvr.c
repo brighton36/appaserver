@@ -5,10 +5,17 @@
 #include "tax_recovery.h"
 
 void test_recovery( void );
+void test_recovery2( void );
 void test_recovery_loop1( void );
 void test_recovery_loop2( void );
 
 void test_recovery_loop3(	double cash_basis,
+				double recovery_period_years,
+				int start_month,
+				int start_year,
+				int years );
+
+void test_recovery_loop4(	double cash_basis,
 				double recovery_period_years,
 				int start_month,
 				int start_year,
@@ -19,6 +26,20 @@ int main( void )
 	/* test_recovery(); */
 	/* test_recovery_loop1(); */
 	/* test_recovery_loop2(); */
+	/* test_recovery2(); */
+
+	test_recovery_loop3(	1200000.0 /* cash_basis */,
+				39.0 /* recovery_period_years */,
+				1 /* start_month */,
+				2007 /* start_year */,
+				41 /*  years */ );
+
+#ifdef NOT_DEFINED
+	test_recovery_loop4(	1200000.0 /* cash_basis */,
+				39.0 /* recovery_period_years */,
+				1 /* start_month */,
+				2007 /* start_year */,
+				41 /*  years */ );
 
 	test_recovery_loop3(	1200000.0 /* cash_basis */,
 				39.0 /* recovery_period_years */,
@@ -73,8 +94,23 @@ int main( void )
 				12 /* start_month */,
 				1993 /* start_year */,
 				29 /*  years */ );
+#endif
 
 	return 0;
+}
+
+void test_recovery2()
+{
+	printf( "should be %.2lf, is %.2lf\n",
+		30769.23,
+		tax_recovery_calculate_recovery_amount(
+				(double *)0 /* recovery_percent */,
+				1200000.0,
+				"2007-01-01"
+					/* service_placement_date_string */,
+				(char *)0 /* sale_date_string */,
+				39.0 /* recovery_period_years */,
+				2045 /* current_year */ ) );
 }
 
 void test_recovery()
@@ -286,7 +322,7 @@ void test_recovery_loop1()
 			date_display( annual ),
 			recovery );
 
-		date_increment_months( annual, 12.0, date_get_utc_offset() );
+		date_increment_months( annual, 12, date_get_utc_offset() );
 		total += recovery;
 	}
 
@@ -332,7 +368,7 @@ void test_recovery_loop2()
 
 		printf( " %.2lf\n", recovery );
 
-		date_increment_months( annual, 12.0, date_get_utc_offset() );
+		date_increment_months( annual, 12, date_get_utc_offset() );
 		total += recovery;
 	}
 
@@ -380,10 +416,63 @@ void test_recovery_loop3(	double cash_basis,
 
 		printf( " %.2lf\n", recovery );
 
-		date_increment_months( annual, 12.0, date_get_utc_offset() );
+		date_increment_months( annual, 12, date_get_utc_offset() );
 		total += recovery;
 	}
 
 	printf( "Cash basis should be %.2lf, is %.2lf\n", cash_basis, total );
+}
+
+void test_recovery_loop4(	double cash_basis,
+				double recovery_period_years,
+				int start_month,
+				int start_year,
+				int years )
+{
+	DATE *annual;
+	char beginning[ 16 ];
+	char service_placement_date_string[ 16 ];
+	int y;
+	double recovery;
+	double total;
+
+	sprintf( beginning, "%d-12-31", start_year );
+
+	sprintf(	service_placement_date_string,
+			"%d-%.2d-01",
+			start_year,
+			start_month );
+
+	annual = date_yyyy_mm_dd_new( beginning, date_get_utc_offset() );
+
+	total = 0.0;
+
+	for( y = 0; y < years; y++ )
+	{
+		if ( y == 38 )
+		{
+			printf( "%.2d: %s:",
+				y + 1,
+				date_display( annual ) );
+
+			recovery =
+			 tax_recovery_calculate_recovery_amount(
+				(double *)0 /* recovery_percent */,
+				cash_basis,
+				service_placement_date_string,
+				(char *)0 /* sale_date_string */,
+				recovery_period_years,
+				date_get_year( annual ) /* current_year */ );
+
+			printf( " %.2lf\n", recovery );
+		}
+
+		date_increment_years( annual, 1, date_get_utc_offset() );
+		total += recovery;
+	}
+
+/*
+	printf( "Cash basis should be %.2lf, is %.2lf\n", cash_basis, total );
+*/
 }
 

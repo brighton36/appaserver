@@ -1914,8 +1914,7 @@ void build_PDF_account_row(	LIST *column_data_list,
 	days_between =
 		date_days_between(
 			transaction_date_string,
-			today_date_string,
-			date_get_utc_offset() );
+			today_date_string );
 
 	if ( *accumulate_debit )
 		debit_string = timlib_place_commas_in_dollars( *balance );

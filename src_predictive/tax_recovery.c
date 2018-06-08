@@ -29,8 +29,7 @@ boolean tax_recovery_parse(
 
 	if ( ! ( service_placement_date =
 			date_yyyy_mm_dd_new(
-				service_placement_date_string,
-				date_get_utc_offset() ) ) )
+				service_placement_date_string ) ) )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: invalid service_placement_date = (%s)\n",
@@ -50,8 +49,7 @@ boolean tax_recovery_parse(
 	{
 		if ( ! ( sale_date =
 				date_yyyy_mm_dd_new(
-					sale_date_string,
-					date_get_utc_offset() ) ) )
+					sale_date_string ) ) )
 		{
 			fprintf( stderr,
 		"ERROR in %s/%s()/%d: invalid sale_date = (%s)\n",

@@ -104,7 +104,7 @@ void date_ticker_second(int how_many,
 	int y;
 
 	if ( start_date )
-		d = date_yyyy_mm_dd_new( start_date, date_get_utc_offset() );
+		d = date_yyyy_mm_dd_new( start_date );
 	else
 		d = date_get_today_new( date_get_utc_offset() );
 
@@ -124,7 +124,7 @@ void date_ticker_minute(int how_many,
 	int y;
 
 	if ( start_date )
-		d = date_yyyy_mm_dd_new( start_date, date_get_utc_offset() );
+		d = date_yyyy_mm_dd_new( start_date );
 	else
 		d = date_get_today_new( date_get_utc_offset() );
 
@@ -144,7 +144,7 @@ void date_ticker_hour(	int how_many,
 	int y;
 
 	if ( start_date )
-		d = date_yyyy_mm_dd_new( start_date, date_get_utc_offset() );
+		d = date_yyyy_mm_dd_new( start_date );
 	else
 		d = date_get_today_new( date_get_utc_offset() );
 
@@ -164,7 +164,7 @@ void date_ticker_day(	int how_many,
 	int y;
 
 	if ( start_date )
-		d = date_yyyy_mm_dd_new( start_date, date_get_utc_offset() );
+		d = date_yyyy_mm_dd_new( start_date );
 	else
 		d = date_get_today_new( date_get_utc_offset() );
 
@@ -184,7 +184,7 @@ void date_ticker_week(	int how_many,
 	int y;
 
 	if ( start_date )
-		d = date_yyyy_mm_dd_new( start_date, date_get_utc_offset() );
+		d = date_yyyy_mm_dd_new( start_date );
 	else
 		d = date_get_today_new( date_get_utc_offset() );
 
@@ -204,7 +204,7 @@ void date_ticker_month(	int how_many,
 	int y;
 
 	if ( start_date )
-		d = date_yyyy_mm_dd_new( start_date, date_get_utc_offset() );
+		d = date_yyyy_mm_dd_new( start_date );
 	else
 		d = date_get_today_new( date_get_utc_offset() );
 
@@ -224,7 +224,7 @@ void date_ticker_year(	int how_many,
 	int y;
 
 	if ( start_date )
-		d = date_yyyy_mm_dd_new( start_date, date_get_utc_offset() );
+		d = date_yyyy_mm_dd_new( start_date );
 	else
 		d = date_get_today_new( date_get_utc_offset() );
 

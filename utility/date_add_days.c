@@ -42,7 +42,7 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-		d = date_yyyy_mm_dd_new( date_buffer, date_get_utc_offset() );
+		d = date_yyyy_mm_dd_new( date_buffer );
 
 		date_increment_days( d, days_offset );
 

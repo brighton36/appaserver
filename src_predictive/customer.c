@@ -3084,16 +3084,14 @@ double customer_get_work_hours(	char *end_work_date_time,
 
 	if ( ! ( end_date =
 			date_yyyy_mm_dd_hms_new(
-				end_work_date_time,
-				date_get_utc_offset() ) ) )
+				end_work_date_time ) ) )
 	{
 		return 0.0;
 	}
 
 	if ( ! ( begin_date =
 			date_yyyy_mm_dd_hms_new(
-				begin_work_date_time,
-				date_get_utc_offset() ) ) )
+				begin_work_date_time ) ) )
 	{
 		return 0.0;
 	}

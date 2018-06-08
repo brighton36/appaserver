@@ -1,9 +1,9 @@
-/* --------------------------------------------------- 	*/
-/* estimation_constant_offset.c			       	*/
-/* --------------------------------------------------- 	*/
-/* 						       	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ----------------------------------------------------------- 	*/
+/* $APPASERVER_HOME/src_hydrology/estimation_constant_offset.c	*/
+/* ----------------------------------------------------------- 	*/
+/* 						       		*/
+/* Freely available software: see Appaserver.org		*/
+/* ----------------------------------------------------------- 	*/
 
 /* Includes */
 /* -------- */
@@ -144,14 +144,12 @@ int main( int argc, char **argv )
 	begin_date =
 		date_new_yyyy_mm_dd_hhmm(
 			begin_date_string,
-			begin_time_string,
-			date_get_utc_offset() );
+			begin_time_string );
 
 	end_date =
 		date_new_yyyy_mm_dd_hhmm(
 			end_date_string,
-			end_time_string,
-			date_get_utc_offset() );
+			end_time_string );
 
 	parameter_dictionary = 
 		dictionary_index_string2dictionary(
@@ -231,8 +229,7 @@ int main( int argc, char **argv )
 		measurement_date =
 			date_new_yyyy_mm_dd_hhmm(
 				measurement_date_string,
-				measurement_time_string,
-				date_get_utc_offset() );
+				measurement_time_string );
 
 		if ( !measurement_date )
 		{

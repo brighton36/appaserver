@@ -375,8 +375,7 @@ void generate_data_collection_frequency_station_datatype(
 				previous_measurement_time,
 				measurement_date,
 				measurement_time,
-				0 /* don't add_one */,
-				date_get_utc_offset() );
+				0 /* don't add_one */ );
 
 		if ( exists_expected_minutes(
 			expected_minutes_between_array,

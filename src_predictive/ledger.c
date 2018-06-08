@@ -3246,8 +3246,7 @@ char *ledger_fetch_unique_transaction_date_time(
 		{
 			next_transaction_date_time =
 				date_yyyy_mm_dd_hms_new(
-					transaction_date_time,
-					date_get_utc_offset() );
+					transaction_date_time );
 		}
 
 		date_increment_seconds(
@@ -4454,8 +4453,7 @@ char *ledger_get_transaction_date_time( char *transaction_date )
 	{
 		strcpy( transaction_date_time,
 			date_append_hhmmss(
-				transaction_date,
-				date_get_utc_offset() ) );
+				transaction_date ) );
 	}
 
 	return strdup( transaction_date_time );
@@ -5592,8 +5590,7 @@ DATE *ledger_prior_closing_transaction_date(
 
 		prior_closing_transaction_date =
 			date_yyyy_mm_dd_new(
-				transaction_date_string,
-				date_get_utc_offset() );
+				transaction_date_string );
 	}
 
 	return prior_closing_transaction_date;
@@ -5994,10 +5991,9 @@ double ledger_get_fraction_of_year(
 
 	prior_date =
 		date_yyyy_mm_dd_new(
-			prior_date_string,
-			date_get_utc_offset() );
+			prior_date_string );
 
-	date = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
+	date = date_yyyy_mm_dd_new( date_string );
 
 	days_between =
 		date_subtract_days(
@@ -6120,8 +6116,7 @@ LIST *ledger_get_after_balance_zero_journal_ledger_list(
 
 		transaction_date_time =
 			date_yyyy_mm_dd_hms_new(
-				transaction_date_time_string,
-				date_get_utc_offset() );
+				transaction_date_time_string );
 
 		/* Need to start with the transaction following zero balance. */
 		/* ---------------------------------------------------------- */

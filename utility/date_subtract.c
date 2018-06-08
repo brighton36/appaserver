@@ -34,8 +34,7 @@ void date_subtract(	char *later_date_string,
 
 	if ( ! ( later_date =
 			date_yyyy_mm_dd_new(
-				later_date_string,
-				date_get_utc_offset() ) ) )
+				later_date_string ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: invalid date format = (%s.\n",
@@ -48,8 +47,7 @@ void date_subtract(	char *later_date_string,
 
 	if ( ! ( earlier_date =
 			date_yyyy_mm_dd_new(
-				earlier_date_string,
-				date_get_utc_offset() ) ) )
+				earlier_date_string ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: invalid date format = (%s.\n",

@@ -27,8 +27,7 @@ int main( void )
 
 		date =
 			date_yyyy_mm_dd_new(
-				date_string,
-				date_get_utc_offset() );
+				date_string );
 
 		date_increment_days( date, 1 );
 

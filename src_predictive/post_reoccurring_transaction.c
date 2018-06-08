@@ -746,16 +746,14 @@ int get_days_between_last_transaction(
 		days_between =
 			date_days_between(
 				name_buffer /* from_date */,
-				today /* to_date */,
-				date_get_utc_offset() );
+				today /* to_date */ );
 	}
 	else
 	{
 		days_between =
 			date_days_between(
 				max_transaction_date /* from_date */,
-				today /* to_date */,
-				date_get_utc_offset() );
+				today /* to_date */ );
 	}
 
 	return days_between;

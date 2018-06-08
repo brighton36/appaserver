@@ -149,14 +149,12 @@ int main( int argc, char **argv )
 	begin_date =
 		date_new_yyyy_mm_dd_hhmm(
 			begin_date_string,
-			begin_time_string,
-			date_get_utc_offset() );
+			begin_time_string );
 
 	end_date =
 		date_new_yyyy_mm_dd_hhmm(
 			end_date_string,
-			end_time_string,
-			date_get_utc_offset() );
+			end_time_string );
 
 	expanded_where_clause =
 		get_where_clause(	station,
@@ -273,8 +271,7 @@ m2( "hydrology", msg );
 		measurement_date =
 			date_new_yyyy_mm_dd_hhmm(
 				measurement_date_string,
-				measurement_time_string,
-				date_get_utc_offset() );
+				measurement_time_string );
 
 		if ( !measurement_date )
 		{

@@ -1,4 +1,4 @@
-/* utility/time_ticker.c				*/
+/* $APPASERVER_HOME/utility/time_ticker.c		*/
 /* ---------------------------------------------------- */
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
@@ -562,12 +562,6 @@ void output_real_time_halfhour_hourly_daily(
 						delimiter,
 						expected_count ) );
 		}
-
-/*
-		expected_count = expected_count_fetch(
-					expected_count_list,
-					current_date->current );
-*/
 
 	} /* while( 1 ) */
 

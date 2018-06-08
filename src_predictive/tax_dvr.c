@@ -303,7 +303,7 @@ void test_recovery_loop1()
 	years = 30;
 	sprintf( beginning, "%d-12-31", year );
 
-	annual = date_yyyy_mm_dd_new( beginning, date_get_utc_offset() );
+	annual = date_yyyy_mm_dd_new( beginning );
 
 	for( y = 0; y < years; y++ )
 	{
@@ -347,7 +347,7 @@ void test_recovery_loop2()
 	years = 40;
 	sprintf( beginning, "%d-12-31", start_year );
 
-	annual = date_yyyy_mm_dd_new( beginning, date_get_utc_offset() );
+	annual = date_yyyy_mm_dd_new( beginning );
 
 	total = 0.0;
 	for( y = 0; y < years; y++ )
@@ -395,7 +395,7 @@ void test_recovery_loop3(	double cash_basis,
 			start_year,
 			start_month );
 
-	annual = date_yyyy_mm_dd_new( beginning, date_get_utc_offset() );
+	annual = date_yyyy_mm_dd_new( beginning );
 
 	total = 0.0;
 
@@ -443,7 +443,7 @@ void test_recovery_loop4(	double cash_basis,
 			start_year,
 			start_month );
 
-	annual = date_yyyy_mm_dd_new( beginning, date_get_utc_offset() );
+	annual = date_yyyy_mm_dd_new( beginning );
 
 	total = 0.0;
 

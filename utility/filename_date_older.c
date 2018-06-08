@@ -145,7 +145,7 @@ boolean date_days_older_than(	char *date_string,
 	DATE *earlier;
 	int difference;
 
-	earlier = date_yyyy_mm_dd_new( date_string, date_get_utc_offset() );
+	earlier = date_yyyy_mm_dd_new( date_string );
 
 	difference = date_subtract_days( now, earlier );
 

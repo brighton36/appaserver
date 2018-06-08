@@ -206,8 +206,7 @@ int main( int argc, char **argv )
 	{
 		expanded_date =
 			date_new_yyyy_mm_dd_date(
-				from_measurement_date,
-				date_get_utc_offset() );
+				from_measurement_date );
 
 		date_decrement_days(
 			expanded_date,
@@ -221,8 +220,7 @@ int main( int argc, char **argv )
 
 		expanded_date =
 			date_new_yyyy_mm_dd_date(
-				to_measurement_date,
-				date_get_utc_offset() );
+				to_measurement_date );
 
 		date_increment_days(
 			expanded_date,

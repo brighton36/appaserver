@@ -442,8 +442,7 @@ void species_preferred_species_caught(
 
 		date =
 			date_yyyy_mm_dd_new(
-				fishing_trips.census_date,
-				date_get_utc_offset() );
+				fishing_trips.census_date );
 
 		species_preferred_code = "";
 

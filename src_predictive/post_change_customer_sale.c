@@ -1071,8 +1071,7 @@ char *post_change_customer_sale_get_completed_date_time(
 
 			strcpy( buffer,
 				date_append_hhmmss(
-					arrived_date,
-					date_get_utc_offset() ) );
+					arrived_date ) );
 
 			*shipped_date_time = strdup( buffer );
 		}

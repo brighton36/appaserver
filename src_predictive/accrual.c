@@ -684,8 +684,7 @@ double accrual_monthly_accrue(	char *begin_date_string,
 
 	if ( ! ( end_date =
 			date_yyyy_mm_dd_new(
-				end_date_string,
-				date_get_utc_offset() ) ) )
+				end_date_string ) ) )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: invalid end_date_string = (%s)\n",
@@ -705,8 +704,7 @@ double accrual_monthly_accrue(	char *begin_date_string,
 
 		if ( ! ( begin_date =
 				date_yyyy_mm_dd_new(
-					begin_date_string,
-					date_get_utc_offset() ) ) )
+					begin_date_string ) ) )
 		{
 			fprintf( stderr,
 		"ERROR in %s/%s()/%d: invalid begin_date_string = (%s)\n",
@@ -722,8 +720,7 @@ double accrual_monthly_accrue(	char *begin_date_string,
 	{
 		if ( ! ( begin_date =
 				date_yyyy_mm_dd_new(
-					begin_date_string,
-					date_get_utc_offset() ) ) )
+					begin_date_string ) ) )
 		{
 			fprintf( stderr,
 		"ERROR in %s/%s()/%d: invalid begin_date_string = (%s)\n",
@@ -807,7 +804,7 @@ char *accrual_get_opening_begin_date_string(
 			begin_date,
 			-1 /* months */ );
 
-		date_set_day( begin_date, 1, date_get_utc_offset() );
+		date_set_day( begin_date, 1 );
 
 		date_get_yyyy_mm_dd(
 			begin_date_string,

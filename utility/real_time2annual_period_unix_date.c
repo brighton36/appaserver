@@ -177,7 +177,7 @@ int main( int argc, char **argv )
 
 		if ( !*value_string ) continue;
 
-		date_set_yyyy_mm_dd( new_date, date_string, date_get_utc_offset() );
+		date_set_yyyy_mm_dd( new_date, date_string );
 
 		if ( first_time )
 		{
@@ -337,9 +337,7 @@ int get_week_integer( char *week_containing_date_string )
 	DATE *date;
 	int week_integer;
 
-	date = date_new_yyyy_mm_dd_date(
-		week_containing_date_string,
-		date_get_utc_offset() );
+	date = date_new_yyyy_mm_dd_date( week_containing_date_string );
 
 	if ( !date ) return -1;
 

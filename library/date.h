@@ -15,6 +15,7 @@
 
 /* Constants */
 /* --------- */
+#define DATE_GMT		"Etc/GMT"
 #define DATE_DEFAULT_UTC_OFFSET	-5
 #define SECONDS_IN_DAY		86400
 #define SECONDS_IN_MINUTE	60
@@ -48,15 +49,13 @@ boolean date_is_daylight_time(	void );
 
 DATE *date_new(			int year,
 				int month,
-				int day,
-				int utc_offset );
+				int day );
 
 DATE *date_time_new(		int year,
 				int month,
 				int day,
 				int hour,
-				int minute,
-				int utc_offset );
+				int minute );
 
 void date_increment_week(	DATE *d );
 
@@ -68,14 +67,11 @@ void date_decrement_day(	DATE *d );
 
 void date_increment(		DATE *d );
 
-DATE *date_yyyy_mm_dd_new(	char *date_string,
-				int utc_offset );
+DATE *date_yyyy_mm_dd_new(	char *date_string );
 
-DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string,
-				int utc_offset );
+DATE *date_yyyy_mm_dd_hms_new(	char *date_time_string );
 
-DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string,
-				int utc_offset );
+DATE *date_yyyy_mm_dd_hm_new(	char *date_time_string );
 
 void date_increment_days(	DATE *d,
 				double days );
@@ -96,8 +92,7 @@ int get_month( DATE *d );
 int get_year( DATE *d );
 
 int date_days_between(		char *from_date,
-				char *to_date,
-				int utc_offset );
+				char *to_date );
 
 int date_years_between(		char *from_date, char *to_date );
 
@@ -105,8 +100,7 @@ int date_minutes_between(	char *from_date_string,
 				char *from_time_string,
 				char *to_date_string,
 	       			char *to_time_string,
-				boolean add_one,
-				int utc_offset );
+				boolean add_one );
 
 int age(			char *birth_date );
 
@@ -130,6 +124,9 @@ char *date_get_hhmmss( 		char *destination,
 char *date_display_yyyy_mm_dd(	DATE *date );
 
 char *date_display_yyyy_mm_dd_colon_hms(
+				DATE *date );
+
+char *date_display_yyyy_mm_dd_hh_mm(
 				DATE *date );
 
 char *date_display_yyyy_mm_dd_colon_hm(
@@ -179,53 +176,37 @@ char *date_get_now_hh_colon_mm(	int utc_offset );
 char *date_get_yyyy_mm_dd_hh_mm_ss(
 				DATE *date_time );
 
-DATE *date_new_yyyy_mm_dd_date( char *date_field,
-				int utc_offset );
+DATE *date_new_yyyy_mm_dd_date( char *date_field );
 
-DATE *date_new_yyyy_mm_dd(	char *date_field,
-				int utc_offset );
+DATE *date_new_yyyy_mm_dd(	char *date_field );
 
 DATE *date_new_yyyy_mm_dd_hhmm(	char *date_string,
-				char *time_string,
-				int utc_offset );
+				char *time_string );
 
 int date_set_yyyy_mm_dd(	DATE *date,
-				char *yyyy_mm_dd,
-				int utc_offset );
+				char *yyyy_mm_dd );
 
 int date_set_yyyy_mm_dd_hhmm_delimited(
 				DATE *date,
 				char *yyyy_mm_dd_hhmm,
 				int date_piece,
 				int time_piece,
-				char delimiter,
-				int utc_offset );
+				char delimiter );
 
-char *date_this_saturday_yyyy_mm_dd_string(
-				DATE *date,
-				int utc_offset );
-
-char *date_new_get_yyyy_mm_dd(	time_t current,
-				int utc_offset );
-
-int date_get_week_of_year(	DATE *date,
-				int utc_offset );
+int date_get_week_of_year(	DATE *date );
 
 void date_free( DATE *d );
 DATE *new_date( void );
 
 DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
-				char *time_string,
-				int utc_offset );
+				char *time_string );
 
 void date_set_time(		DATE *date,
 				int hour,
-				int minutes,
-				int utc_offset );
+				int minutes );
 
 void date_set_day(		DATE *date,
-				int day,
-				int utc_offset );
+				int day );
 
 char *date_display_hhmm(	DATE *date );
 
@@ -249,36 +230,40 @@ char *date_get_yyyy_mm_dd_string(
 int date_get_day_number(	DATE *date );
 
 int date_set_time_hhmm(		DATE *date,
-				char *hhmm,
+				char *hhmm );
+
+int date_get_minutes_number(	DATE *date );
+
+int date_get_hour_number(	DATE *date );
+
+double date_yyyy_mm_dd_to_julian(
+				char *yyyy_mm_dd );
+
+double date_yyyy_mm_dd_hhmm_to_julian(
+				char *yyyy_mm_dd,
+				char *hhmm );
+
+boolean date_copy(		DATE *d1, DATE *d2 );
+
+void date_round2five_minutes(	DATE *date );
+
+void date_decrement_hour(	DATE *d );
+
+void date_increment_hour(	DATE *d );
+
+void date_decrement_minute(	DATE *d );
+
+void date_increment_minute(	DATE *d );
+
+char *date_get_current_yyyy_mm_dd(
 				int utc_offset );
 
-int date_get_minutes_number( DATE *date );
-int date_get_hour_number( DATE *date );
-double date_yyyy_mm_dd_to_julian( char *yyyy_mm_dd );
+char *date_get_current_hhmm(	int utc_offset );
 
-double date_yyyy_mm_dd_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm );
+void date_decrement_days(	DATE *d,
+				double days );
 
-boolean date_copy( DATE *d1, DATE *d2 );
-
-void date_round2five_minutes(		DATE *date,
-					int utc_offset );
-
-void date_decrement_hour(		DATE *d );
-
-void date_increment_hour(		DATE *d );
-
-void date_decrement_minute(		DATE *d );
-
-void date_increment_minute(		DATE *d );
-
-char *date_get_current_yyyy_mm_dd(	int utc_offset );
-
-char *date_get_current_hhmm(		int utc_offset );
-
-void date_decrement_days(		DATE *d,
-					double days );
-
-char *date_hhmm( DATE *d );
+char *date_hhmm(		DATE *d );
 
 char *date_get_hhmm_string( DATE *d );
 
@@ -299,14 +284,12 @@ void date_set_date_integers(
 				DATE *date,
 				int year,
 				int month,
-				int day,
-				int utc_offset );
+				int day );
 
 void date_set_time_integers(	DATE *date,
 				int hour,
 				int minute,
-				int seconds,
-				int utc_offset );
+				int seconds );
 
 char *date_display_yyyy_mm_dd_hhmm( 
 				DATE *date );
@@ -464,8 +447,7 @@ DATE *date_get_prior_day(	DATE *date,
 DATE *date_get_prior_saturday(	DATE *date,
 				int utc_offset );
 
-char *date_append_hhmmss(	char *date_string,
-				int utc_offset );
+char *date_append_hhmmss(	char *date_string );
 
 char *date_get_now_time_second(	int utc_offset );
 
@@ -481,13 +463,11 @@ void date_set_date_time_integers(
 				int day,
 				int hours,
 				int minutes,
-				int seconds,
-				int utc_offset );
+				int seconds );
 
 int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 				char *yyyy_mm_dd,
-				char *hhmm,
-				int utc_offset );
+				char *hhmm );
 
 int date_get_last_month_day(	int month,
 				int year );

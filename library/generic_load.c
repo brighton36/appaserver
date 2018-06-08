@@ -379,13 +379,11 @@ void generic_load_replace_time_2400_with_0000(
 
 	if ( !date )
 	{
-		date = date_yyyy_mm_dd_new(
-				date_string,
-				date_get_utc_offset() );
+		date = date_yyyy_mm_dd_new( date_string );
 	}
 	else
 	{
-		date_set_yyyy_mm_dd( date, date_string, date_get_utc_offset() );
+		date_set_yyyy_mm_dd( date, date_string );
 	}
 
 	date_increment_days( date, 1 );

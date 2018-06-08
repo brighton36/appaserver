@@ -117,8 +117,7 @@ int minutes_between(	boolean *results,
 			starting_time_string,
 			ending_date_string,
 	       		ending_time_string,
-			1 /* add one */,
-			date_get_utc_offset() );
+			1 /* add one */ );
 
 	*results = 1;
 	return minutes_between;

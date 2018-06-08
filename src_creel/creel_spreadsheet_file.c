@@ -366,8 +366,7 @@ void output_spreadsheet(
 
 		date =
 			date_yyyy_mm_dd_new(
-				fishing_trips.census_date,
-				date_get_utc_offset() );
+				fishing_trips.census_date );
 
 		preferred_species_code = "";
 

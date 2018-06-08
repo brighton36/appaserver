@@ -145,13 +145,11 @@ int main( int argc, char **argv )
 
 	begin_date =
 		date_new_yyyy_mm_dd_date(
-			begin_date_string,
-			date_get_utc_offset() );
+			begin_date_string );
 
 	end_date =
 		date_new_yyyy_mm_dd_date(
-			end_date_string,
-			date_get_utc_offset() );
+			end_date_string );
 
 	where_clause =
 		get_where_clause(	station,
@@ -338,8 +336,7 @@ int main( int argc, char **argv )
 
 		measurement_date =
 			date_new_yyyy_mm_dd_date(
-				measurement_date_string,
-				date_get_utc_offset() );
+				measurement_date_string );
 
 		if ( !measurement_date )
 		{

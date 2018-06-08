@@ -150,8 +150,7 @@ int main( int argc, char **argv )
 				input_date_time_string,
 				0 /* date_offset */,
 				1 /*time_offset */,
-				'^',
-				date_get_utc_offset() ) )
+				'^' ) )
 		{
 			fprintf( stderr,
 			"Warning in %s/%s()/%d: invalid date_time of (%s)\n",
@@ -175,8 +174,7 @@ int main( int argc, char **argv )
 					ticker_date_time_string,
 					0 /* date_piece */,
 					1 /* time_piece */,
-					'^',
-					date_get_utc_offset() ) )
+					'^' ) )
 			{
 				fprintf( stderr,
 			"ERROR in %s/%s()/%d: invalid date_time of (%s)\n",

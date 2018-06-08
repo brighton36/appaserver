@@ -33,8 +33,7 @@ char **argv;
 	date = date_new(
 		atoi( year ),
 		1,
-		atoi( day_to_start ),
-		date_get_utc_offset() );
+		atoi( day_to_start ) );
 
 	for( week_number = 1; week_number <= 52; week_number++ )
 	{

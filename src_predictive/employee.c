@@ -1274,8 +1274,7 @@ void employee_work_day_list_calculate_employee_work_hours(
 			date_days_between(
 				begin_work_date_string,
 				employee_work_day->
-					begin_work_date_time,
-				date_get_utc_offset() );
+					begin_work_date_time );
 
 		if ( days_between <= 6 )
 			week_number = 1;
@@ -2409,8 +2408,7 @@ double employee_calculate_employee_work_hours(
 
 	begin_date_time =
 		date_yyyy_mm_dd_hm_new(
-			begin_work_date_time,
-			date_get_utc_offset() );
+			begin_work_date_time );
 
 	if ( !begin_date_time )
 	{
@@ -2426,8 +2424,7 @@ double employee_calculate_employee_work_hours(
 
 	end_date_time =
 		date_yyyy_mm_dd_hm_new(
-			end_work_date_time,
-			date_get_utc_offset() );
+			end_work_date_time );
 
 	if ( !end_date_time )
 	{
@@ -2521,8 +2518,7 @@ void employee_close_employee_work_list_insert(
 
 	end_work_date =
 		date_yyyy_mm_dd_new(
-			end_work_date_string,
-			date_get_utc_offset() );
+			end_work_date_string );
 
 	date_increment_days( end_work_date, 1.0 );
 

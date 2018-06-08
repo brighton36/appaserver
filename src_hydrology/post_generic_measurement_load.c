@@ -641,13 +641,11 @@ enum event_parameter_return_value get_measurement_update_event_parameters(
 			{
 				date_set_yyyy_mm_dd(
 						measurement_date,
-						measurement_date_string,
-						date_get_utc_offset() );
+						measurement_date_string );
 
 				date_set_time_hhmm(
 						measurement_date,
-						piece_buffer,
-						date_get_utc_offset() );
+						piece_buffer );
 
 				if ( begin_measurement_date->current == 0 )
 				{

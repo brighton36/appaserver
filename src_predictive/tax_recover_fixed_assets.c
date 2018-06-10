@@ -221,6 +221,69 @@ boolean tax_recover_fixed_assets_execute(char *application_name,
 					char *fund_name,
 					int recovery_year )
 {
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 512 ];
+	TAX_RECOVERY *tax_recovery;
+	char sys_string[ 1024 ];
+	char *table;
+	char *field;
+
+	field =
+	"full_name,street_address,purchase_date,asset_name,serial_number,recovery_year,recovery_amount";
+
+	table = "tax_fixed_asset_recovery";
+
+	sprintf( sys_string,
+		 "insert_statement.e table=%s field=%s del='^'	|"
+		 "sql.e						 ",
+		 table,
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	input_pipe =
+		tax_recovery_get_input_pipe(
+			application_name,
+			fund_name,
+			recovery_year );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		tax_recovery =
+			tax_recovery_input_buffer_parse(
+				input_buffer );
+
+		/* Need to write the table lookup function. */
+		/* ---------------------------------------- */
+		if ( tax_recovery->tax_recovery_period_years < 27.5 ) continue;
+
+		tax_recovery->recovery_amount =
+			tax_recovery_calculate_recovery_amount(
+				&tax_recovery->recovery_percent,
+				tax_recovery->tax_cost_basis,
+				tax_recovery->tax_service_placement_date,
+				tax_recovery->disposal_date
+					/* sale_date_string */,
+				tax_recovery->tax_recovery_period_years,
+				tax_recovery->recovery_year
+					/* current_year */ );
+
+		fprintf(	output_pipe,
+				"%s^%s^%s^%s^%s^%d^%.2lf^%.3lf\n",
+				tax_recovery->full_name,
+				tax_recovery->street_address,
+				tax_recovery->purchase_date_time,
+				tax_recovery->asset_name,
+				tax_recovery->serial_number,
+				tax_recovery->recovery_year,
+				tax_recovery->recovery_amount,
+				tax_recovery->recovery_percent );
+	}
+
+	pclose( input_pipe );
+	pclose( output_pipe );
+
 	return 1;
 
 } /* tax_recover_fixed_assets_execute() */

@@ -2284,6 +2284,9 @@ boolean date_name_to_value( char *variable_value, char *variable_name )
 
 int date_get_days_in_year( int year )
 {
+	if ( year % 100 == 0 )
+		return 365;
+	else
 	if ( year % 4 == 0 )
 		return 366;
 	else

@@ -23,9 +23,6 @@
 /* ---------- */
 typedef struct
 {
-	char *full_name;
-	char *street_address;
-	char *purchase_date_time;
 	char *asset_name;
 	char *serial_number;
 	int units_produced;
@@ -37,61 +34,22 @@ typedef struct
 	TRANSACTION *transaction;
 } DEPRECIATION;
 
-typedef struct
-{
-	LIST *entity_list;
-
-} DEPRECIATE_FIXED_ASSET;
-
-typedef struct
-{
-	char *asset_name;
-	char *serial_number;
-	char *recorded_date;
-	double extension;
-	int estimated_useful_life_years;
-	int estimated_useful_life_units;
-	int estimated_residual_value;
-	int declining_balance_n;
-	char *depreciation_method;
-	double finance_accumulated_depreciation;
-	double database_finance_accumulated_depreciation;
-	double tax_accumulated_depreciation;
-	double database_tax_accumulated_depreciation;
-	double depreciation_amount;
-	double database_depreciation_amount;
-} DEPRECIATE_PRIOR_FIXED_ASSET;
-
-typedef struct
-{
-	char *self_full_name;
-	char *self_street_address;
-	char *depreciation_date;
-	double depreciation_amount;
-	char *transaction_date_time;
-	char *database_transaction_date_time;
-	TRANSACTION *transaction;
-	LIST *depreciate_prior_fixed_asset_list;
-} DEPRECIATE_PRIOR_FIXED_ASSET_DEPRECIATION;
-
 /* Operations */
 /* ---------- */
 DEPRECIATION *depreciation_calloc( void );
 
+/*
 DEPRECIATION *depreciation_fetch(
 			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
+			char *folder_name,
 			char *asset_name,
 			char *serial_number,
 			char *depreciation_date );
+*/
 
 void depreciation_update(
 			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
+			char *folder_name,
 			char *asset_name,
 			char *serial_number,
 			char *depreciation_date,
@@ -108,7 +66,8 @@ char *depreciation_get_select(
 			void );
 
 char *depreciation_get_update_sys_string(
-			char *application_name );
+			char *application_name,
+			char *folder_name );
 
 double depreciation_get_amount(
 			char *depreciation_method,
@@ -120,7 +79,7 @@ double depreciation_get_amount(
 			char *prior_depreciation_date_string,
 			char *depreciation_date_string,
 			double finance_accumulated_depreciation,
-			char *arrived_date_string,
+			char *service_placement_date,
 			int units_produced );
 
 double depreciation_sum_of_years_digits_get_amount(
@@ -130,7 +89,7 @@ double depreciation_sum_of_years_digits_get_amount(
 			char *prior_depreciation_date_string,
 			char *depreciation_date_string,
 			double finance_accumulated_depreciation,
-			char *arrived_date_string );
+			char *service_placement_date );
 
 double depreciation_straight_line_get_amount(
 			double extension,
@@ -163,9 +122,6 @@ double depreciation_n_declining_balance_get_amount(
 
 LIST *depreciation_fetch_list(
 			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
 			char *asset_name,
 			char *serial_number );
 
@@ -179,23 +135,23 @@ double depreciation_list_set(
 			int estimated_useful_life_years,
 			int estimated_useful_life_units,
 			int declining_balance_n,
-			char *arrived_date_string );
+			char *service_placement_date );
 
 void depreciation_list_update_and_transaction_propagate(
 			LIST *depreciation_list,
 			char *application_name,
+			char *folder_name,
 			char *fund_name );
 
 void depreciation_list_delete(
 			LIST *depreciation_list,
 			char *application_name,
-			char *fund_name );
+			char *fund_name,
+			char *folder_name );
 
 void depreciation_delete(
 			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
+			char *folder_name,
 			char *asset_name,
 			char *serial_number,
 			char *depreciation_date );
@@ -214,16 +170,13 @@ double depreciation_units_of_production_get_amount(
 char *deprecation_get_prior_depreciation_date(
 			LIST *depreciation_list );
 
-DEPRECIATE_FIXED_ASSET *depreciation_fixed_asset_depreciation_new(
+LIST *depreciation_fetch_fixed_asset_list(
 			char *application_name,
 			char *fund_name,
+			char *folder_name,
 			char *depreciation_date );
 
-LIST *depreciation_fixed_asset_get_entity_list(
-			char *application_name,
-			char *fund_name,
-			char *depreciation_date );
-
+/*
 LIST *depreciation_get_depreciable_fixed_purchase_record_list(
 			char *application_name,
 			char *fund_name );
@@ -242,18 +195,10 @@ void depreciation_fetch_purchase_fixed_asset_depreciation_list(
 			LIST *depreciable_fixed_asset_purchase_list,
 			char *application_name );
 
-char *depreciation_fetch_prior_depreciation_date(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *serial_number,
-			char *depreciation_date );
-
 void depreciation_fixed_asset_set_depreciation(
 			LIST *entity_list,
 			char *depreciation_date );
+*/
 
 void depreciation_fixed_asset_entity_set_depreciation(
 			double *entity_depreciation_amount,
@@ -276,13 +221,21 @@ void depreciation_fixed_asset_purchase_list_table_display(
 			char *street_address,
 			double depreciation_amount,
 			LIST *depreciable_fixed_asset_purchase_list );
+*/
+
+char *depreciation_fetch_prior_depreciation_date(
+			char *application_name,
+			char *folder_name,
+			char *asset_name,
+			char *serial_number,
+			char *depreciation_date );
 
 boolean depreciation_date_exists(
 			char *application_name,
-			char *fund_name,
+			char *folder_name,
 			char *depreciation_date );
 
-void depreciation_fixed_asset_execute(
+void depreciation_fixed_asseth_execute(
 			LIST *entity_list,
 			char *application_name,
 			char *fund_name,
@@ -311,7 +264,7 @@ void depreciation_fixed_asset_insert_ledger_entity_list(
 
 char *depreciation_fetch_max_depreciation_date(
 			char *application_name,
-			char *fund_name );
+			char *folder_name );
 
 void depreciation_fixed_asset_set_transaction(
 			LIST *entity_list );
@@ -319,9 +272,6 @@ void depreciation_fixed_asset_set_transaction(
 boolean depreciation_date_prior_exists(
 			char *application_name,
 			char *depreciation_date );
-
-char *depreciation_prior_fetch_max_depreciation_date(
-			char *application_name );
 
 LIST *depreciate_prior_fixed_asset_get_list(
 			char *application_name );

@@ -25,31 +25,35 @@
 
 /* Prototypes */
 /* ---------- */
+void tax_recover_prior_fixed_assets(
+					char *application_name,
+					boolean execute,
+					boolean undo );
+
+void tax_recover_fixed_assets(		char *application_name,
+					boolean execute,
+					boolean undo );
+
 void tax_recover_fixed_assets_undo(	char *application_name,
 					int recovery_year );
 
 boolean tax_recover_fixed_assets_execute(
 					char *application_name,
-					char *fund_name,
 					int recovery_year );
 
 boolean tax_recover_fixed_assets_display(
 					char *application_name,
-					char *fund_name,
 					int recovery_year );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char *fund_name;
-	int recovery_year;
 	boolean execute;
 	char buffer[ 128 ];
 	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
-	int now_year = 0;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -58,19 +62,18 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 6 )
+	if ( argc != 5 )
 	{
 		fprintf(stderr,
-	"Usage: %s ignored process fund undo_yn execute_yn\n",
+	"Usage: %s ignored process undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
 	process_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	undo = (*argv[ 4 ]) == 'y';
-	execute = (*argv[ 5 ]) == 'y';
+	undo = (*argv[ 3 ]) == 'y';
+	execute = (*argv[ 4 ]) == 'y';
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -97,13 +100,39 @@ int main( int argc, char **argv )
 			buffer,
 			process_name ) );
 
+	tax_recover_fixed_assets(
+		application_name,
+		execute,
+		undo );
+
+	tax_recover_prior_fixed_assets(
+		application_name,
+		execute,
+		undo );
+
+	document_close();
+
+	return 0;
+
+} /* main() */
+
+void tax_recover_prior_fixed_assets(
+				char *application_name,
+				boolean execute,
+				boolean undo )
+{
+	int recovery_year;
+	int now_year;
+
 	/* Input */
 	/* ----- */
+	now_year = atoi( date_get_now_yyyy_mm_dd( date_get_utc_offset() ) );
+
 	recovery_year =
 		tax_recovery_fetch_max_recovery_year(
-			&now_year,
 			application_name,
-			fund_name );
+			"tax_prior_fixed_asset_recovery"
+				/* folder_name */ );
 
 	if ( undo )
 	{
@@ -111,7 +140,7 @@ int main( int argc, char **argv )
 		{
 			printf(
 			"<h3>Error: no tax recoveries posted.\n" );
-			return 0;
+			return;
 		}
 	}
 	else
@@ -120,7 +149,104 @@ int main( int argc, char **argv )
 		{
 			printf(
 			"<h3>Error: tax recovery posted already.\n" );
-			return 0;
+			return;
+		}
+
+		if ( recovery_year )
+			recovery_year++;
+		else
+			recovery_year = now_year;
+	}
+
+	/* Process */
+	/* ------- */
+	if ( execute )
+	{
+		if ( undo )
+		{
+			tax_recover_fixed_assets_undo(
+				application_name,
+				recovery_year );
+
+			printf(
+		"<h3>Tax Fixed Asset Recovery for %d is now deleted.</h3>\n",
+				recovery_year );
+		}
+		else
+		{
+			if ( !tax_recover_prior_fixed_assets_execute(
+				application_name,
+				recovery_year ) )
+			{
+				printf(
+		"<h3>Error: no prior fixed assest to depreciate.</h3>\n" );
+			}
+			else
+			{
+				printf(
+			"<h3>Tax Recovery now posted for %d.</h3>\n",
+					recovery_year );
+			}
+		}
+	}
+	else
+	/* ------- */
+	/* Display */
+	/* ------- */
+	{
+		if ( undo )
+		{
+			printf(
+			"<h3>Will undo tax recovery posted for %d.</h3>\n",
+				recovery_year );
+		}
+		else
+		{
+			if ( !tax_recover_fixed_assets_display(
+					application_name,
+					recovery_year ) )
+			{
+				printf(
+		"<h3>Error: no fixed asset purchases to depreciate.</h3>\n" );
+			}
+		}
+	} /* if Display */
+
+} /* tax_recover_prior_fixed_assets() */
+
+void tax_recover_fixed_assets(	char *application_name,
+				boolean execute,
+				boolean undo )
+{
+	int recovery_year;
+	int now_year;
+
+	/* Input */
+	/* ----- */
+	now_year = atoi( date_get_now_yyyy_mm_dd( date_get_utc_offset() ) );
+
+	recovery_year =
+		tax_recovery_fetch_max_recovery_year(
+			application_name,
+			"tax_fixed_asset_recovery"
+				/* folder_name */ );
+
+	if ( undo )
+	{
+		if ( !recovery_year )
+		{
+			printf(
+			"<h3>Error: no tax recoveries posted.\n" );
+			return;
+		}
+	}
+	else
+	{
+		if ( recovery_year == now_year )
+		{
+			printf(
+			"<h3>Error: tax recovery posted already.\n" );
+			return;
 		}
 
 		if ( recovery_year )
@@ -147,7 +273,6 @@ int main( int argc, char **argv )
 		{
 			if ( !tax_recover_fixed_assets_execute(
 				application_name,
-				fund_name,
 				recovery_year ) )
 			{
 				printf(
@@ -176,7 +301,6 @@ int main( int argc, char **argv )
 		{
 			if ( !tax_recover_fixed_assets_display(
 					application_name,
-					fund_name,
 					recovery_year ) )
 			{
 				printf(
@@ -185,11 +309,7 @@ int main( int argc, char **argv )
 		}
 	} /* if Display */
 
-	document_close();
-
-	return 0;
-
-} /* main() */
+} /* tax_recover_fixed_assets() */
 
 void tax_recover_fixed_assets_undo(	char *application_name,
 					int recovery_year )
@@ -218,7 +338,6 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 } /* tax_recover_fixed_assets_undo() */
 
 boolean tax_recover_fixed_assets_execute(char *application_name,
-					char *fund_name,
 					int recovery_year )
 {
 	FILE *input_pipe;
@@ -226,18 +345,15 @@ boolean tax_recover_fixed_assets_execute(char *application_name,
 	char input_buffer[ 512 ];
 	TAX_RECOVERY *tax_recovery;
 	char sys_string[ 1024 ];
-	char *table;
 	char *field;
 
 	field =
 	"full_name,street_address,purchase_date,asset_name,serial_number,recovery_year,recovery_amount";
 
-	table = "tax_fixed_asset_recovery";
-
 	sprintf( sys_string,
 		 "insert_statement.e table=%s field=%s del='^'	|"
 		 "sql.e						 ",
-		 table,
+		 "tax_fixed_asset_recovery",
 		 field );
 
 	output_pipe = popen( sys_string, "w" );
@@ -245,8 +361,8 @@ boolean tax_recover_fixed_assets_execute(char *application_name,
 	input_pipe =
 		tax_recovery_get_input_pipe(
 			application_name,
-			fund_name,
-			recovery_year );
+			recovery_year,
+			"fixed_asset_purchase" );
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
@@ -290,7 +406,6 @@ boolean tax_recover_fixed_assets_execute(char *application_name,
 
 boolean tax_recover_fixed_assets_display(
 					char *application_name,
-					char *fund_name,
 					int recovery_year )
 {
 	FILE *input_pipe;
@@ -314,9 +429,8 @@ boolean tax_recover_fixed_assets_display(
 	output_pipe = popen( sys_string, "w" );
 
 	input_pipe =
-		tax_recovery_get_input_pipe(
+		tax_recovery_get_fixed_asset_input_pipe(
 			application_name,
-			fund_name,
 			recovery_year );
 
 	while( get_line( input_buffer, input_pipe ) )

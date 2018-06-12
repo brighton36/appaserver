@@ -58,13 +58,10 @@ typedef struct
 
 typedef struct
 {
-	char *full_name;
-	char *street_address;
-	char *purchase_date_time;
 	char *asset_name;
 	char *serial_number;
 	char *account_name;
-	char *arrived_date_time;
+	char *service_placement_date;
 	double extension;
 	int estimated_useful_life_years;
 	int estimated_useful_life_units;
@@ -72,7 +69,6 @@ typedef struct
 	int declining_balance_n;
 	char *depreciation_method;
 	double tax_cost_basis;
-	char *tax_service_placement_date;
 	char *tax_recovery_period;
 	char *disposal_date;
 	double finance_accumulated_depreciation;
@@ -82,7 +78,7 @@ typedef struct
 	char *prior_depreciation_date;
 	LIST *depreciation_list;
 	LIST *tax_recovery_list;
-} PURCHASE_FIXED_ASSET;
+} FIXED_ASSET;
 
 typedef struct
 {
@@ -198,16 +194,16 @@ PURCHASE_SERVICE *purchase_service_new(	char *account_name );
 PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_new(
 					void );
 
-PURCHASE_FIXED_ASSET *purchase_fixed_asset_new(
+FIXED_ASSET *purchase_fixed_asset_new(
 					void );
 
-PURCHASE_FIXED_ASSET *purchase_fixed_asset_parse(
+FIXED_ASSET *purchase_fixed_asset_parse(
 					char *input_buffer );
 
 PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_parse(
 					char *input_buffer );
 
-PURCHASE_FIXED_ASSET *purchase_fixed_asset_fetch(
+FIXED_ASSET *purchase_fixed_asset_fetch(
 					char *application_name,
 					char *full_name,
 					char *street_address,
@@ -468,7 +464,7 @@ PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_list_seek(
 				LIST *accrual_asset_purchase_list,
 				char *asset_name );
 
-PURCHASE_FIXED_ASSET *purchase_fixed_asset_list_seek(
+FIXED_ASSET *purchase_fixed_asset_list_seek(
 				LIST *fixed_asset_purchase_list,
 				char *asset_name,
 				char *serial_number );
@@ -571,13 +567,13 @@ void purchase_prepaid_asset_propagate(
 				char *fund_name );
 
 void purchase_depreciation_update_and_transaction_propagate(
-				PURCHASE_FIXED_ASSET *purchase_fixed_asset,
+				FIXED_ASSET *fixed_asset,
 				char *arrived_date_time,
 				char *application_name,
 				char *fund_name );
 
 void purchase_fixed_asset_depreciation_delete(
-				PURCHASE_FIXED_ASSET *purchase_fixed_asset,
+				FIXED_ASSET *fixed_asset,
 				char *application_name,
 				char *fund_name );
 
@@ -647,7 +643,7 @@ char *purchase_prepaid_asset_get_update_sys_string(
 				char *application_name );
 
 void purchase_depreciation_update_and_transaction_propagate(
-				PURCHASE_FIXED_ASSET *purchase_fixed_asset,
+				FIXED_ASSET *fixed_asset,
 				char *arrived_date_time,
 				char *application_name,
 				char *fund_name );

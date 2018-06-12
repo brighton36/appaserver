@@ -194,38 +194,40 @@ char *tax_recovery_get_select( void )
 	return select;
 }
 
-FILE *tax_recovery_get_input_pipe(	char *application_name,
-					char *fund_name,
+char *tax_recovery_get_filter_where( char *minimum_disposal_date )
+{
+	char filter_where[ 512 ];
+
+	sprintf( filter_where,
+		 "(disposal_date is null or disposal_date >= %s) and	"
+		 "ifnull(tax_cost_basis,0.0) <> 0.0) and		"
+		 "tax_recovery_period is not null and			"
+		 "tax_accumulated_depreciation < tax_cost_basis		",
+		 minimum_disposal_date );
+
+	return strdup( filter_where );
+
+} /* tax_recovery_get_filter_where() */
+
+FILE *tax_recovery_get_fixed_asset_input_pipe(
+					char *application_name,
 					int recovery_year )
 {
 	char *select;
 	char *order_by;
-	char *folder_from = {0};
-	char *join_where;
+	char *filter_where;
 	char sys_string[ 1024 ];
-	char where[ 512 ];
 	char minimum_disposal_date[ 16 ];
 
 	select = tax_recovery_get_select();
 
 	order_by = tax_recovery_get_order_by();
 
-	join_where =
-		tax_recovery_get_join_where(
-			&folder_from,
-			application_name,
-			fund_name );
-
 	sprintf( minimum_disposal_date, "%d-01-01", recovery_year );
 
-	sprintf( where,
-		 "%s and						"
-		 "(disposal_date is null or disposal_date >= %s) and	"
-		 "ifnull(tax_cost_basis,0.0) <> 0.0) and		"
-		 "tax_recovery_period is not null and			"
-		 "tax_accumulated_depreciation < tax_cost_basis		",
-		 join_where,
-		 minimum_disposal_date );
+	filter_where =
+		tax_recovery_get_filter_where(
+			minimum_disposal_date );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -235,66 +237,28 @@ FILE *tax_recovery_get_input_pipe(	char *application_name,
 		 "			order=\"%s\"			",
 		 application_name,
 		 select,
-		 folder_from,
-		 join_where,
+		 "fixed_asset_purchase",
+		 filter_where,
 		 order_by );
 
 	return popen( sys_string, "r" );
 
-} /* tax_recovery_get_input_pipe() */
-
-char *tax_recovery_get_join_where(	char **folder_from,
-					char *application_name,
-					char *fund_name )
-{
-	char *fund_where;
-	char join_where[ 512 ];
-
-	*folder_from = "purchase_order,tax_fixed_asset_recovery";
-
-	fund_where =
-		ledger_get_fund_where(
-			application_name,
-			fund_name );
-
-	sprintf( join_where,
-"tax_fixed_asset_recovery.full_name = purchase_order.full_name and tax_fixed_asset_recovery.street_address = purchase_order.street_address and tax_fixed_asset_recovery.purchase_date_time = purchase_order.purchase_date_time and %s",
-		 fund_where );
-
-	return strdup( fund_where );
-
-} /* tax_recovery_get_join_where() */
+} /* tax_recovery_get_fixed_asset_input_pipe() */
 
 int tax_recovery_fetch_max_recovery_year(
-			int *now_year,
 			char *application_name,
-			char *fund_name )
+			char *folder_name )
 {
 	char sys_string[ 1024 ];
-	char *join_where;
-	char *select;
-	char *folder_from = {0};
 	int max_recovery_year;
-
-	*now_year = atoi( date_get_now_yyyy_mm_dd( date_get_utc_offset() ) );
-
-	join_where =
-		tax_recovery_get_join_where(
-			&folder_from,
-			application_name,
-			fund_name );
-
-	select = "max(recovery_year)";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=\"%s\"			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			",
+		 "			folder=%s			",
 		 application_name,
-		 select,
-		 folder_from,
-		 join_where );
+		 "max(recovery_year)",
+		 folder_name );
 
 	max_recovery_year = atoi( pipe2string( sys_string ) );
 

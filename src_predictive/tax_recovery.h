@@ -60,23 +60,20 @@ boolean tax_recovery_parse(
 				char *service_placement_date_string,
 				char *sale_date_string );
 
-char *tax_recovery_get_join_where(
-				char **folder_from,
-				char *application_name,
-				char *fund_name );
-
 int tax_recovery_fetch_max_recovery_year(
-				int *now_year,
 				char *application_name,
-				char *fund_name );
+				char *folder_name );
 
 FILE *tax_recovery_get_input_pipe(
 				char *application_name,
-				char *fund_name,
-				int recovery_year );
+				int recovery_year,
+				char *folder_name );
 
 char *tax_recovery_get_select(	void );
 
 char *tax_recovery_get_order_by(void );
+
+char *tax_recovery_get_filter_where(
+				char *minimum_disposal_date );
 
 #endif

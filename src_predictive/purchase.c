@@ -518,11 +518,11 @@ PURCHASE_SERVICE *purchase_service_new( char *account_name )
 
 } /* purchase_service_new() */
 
-PURCHASE_FIXED_ASSET *purchase_fixed_asset_new( void )
+FIXED_ASSET *purchase_fixed_asset_new( void )
 {
-	PURCHASE_FIXED_ASSET *p =
-		(PURCHASE_FIXED_ASSET *)
-			calloc( 1, sizeof( PURCHASE_FIXED_ASSET ) );
+	FIXED_ASSET *p =
+		(FIXED_ASSET *)
+			calloc( 1, sizeof( FIXED_ASSET ) );
 
 	if ( !p )
 	{
@@ -771,16 +771,16 @@ LIST *purchase_service_get_list(	char *application_name,
 char *purchase_fixed_asset_get_select( void )
 {
 	char *select =
-"full_name,street_address,purchase_date_time,fixed_asset_purchase.asset_name,account,serial_number,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_service_placement_date,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation";
+"asset_name,account,serial_number,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_service_placement_date,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation";
 	return select;
 }
 
-PURCHASE_FIXED_ASSET *purchase_fixed_asset_parse( char *input_buffer )
+FIXED_ASSET *purchase_fixed_asset_parse( char *input_buffer )
 {
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	FIXED_ASSET *fixed_asset;
 	char piece_buffer[ 256 ];
 
-	purchase_fixed_asset = purchase_fixed_asset_new();
+	fixed_asset = purchase_fixed_asset_new();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 	purchase_fixed_asset->full_name = strdup( piece_buffer );

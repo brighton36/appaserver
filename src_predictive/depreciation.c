@@ -42,7 +42,7 @@ DEPRECIATION *depreciation_calloc( void )
 char *depreciation_get_select( void )
 {
 	char *select =
-"full_name,street_address,purchase_date_time,asset_name,serial_number,depreciation_date,units_produced,depreciation_amount,transaction_date_time";
+"asset_name,serial_number,depreciation_date,units_produced,depreciation_amount,transaction_date_time";
 
 	return select;
 }
@@ -56,35 +56,26 @@ DEPRECIATION *depreciation_parse(	char *application_name,
 	depreciation = depreciation_calloc();
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-	depreciation->full_name = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
-	depreciation->street_address = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
-	depreciation->purchase_date_time = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 	depreciation->asset_name = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 1 );
 	depreciation->serial_number = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 	depreciation->depreciation_date = strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 	if ( *piece_buffer )
 		depreciation->units_produced =
 			atoi( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
 	if ( *piece_buffer )
 		depreciation->depreciation_amount =
 		depreciation->database_depreciation_amount =
 			atof( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 	if ( *piece_buffer )
 		depreciation->transaction_date_time =
 		depreciation->database_transaction_date_time =
@@ -104,16 +95,14 @@ DEPRECIATION *depreciation_parse(	char *application_name,
 
 } /* depreciation_parse() */
 
-boolean depreciation_date_prior_exists(
+boolean depreciation_date_exists(
 			char *application_name,
+			char *folder_name,
 			char *depreciation_date )
 {
 	char sys_string[ 1024 ];
-	char where[ 512 ];
-	char *folder;
+	char where[ 32 ];
 	char *results;
-
-	folder = "prior_fixed_asset_depreciation";
 
 	sprintf( where,
 		 "depreciation_date = '%s'",
@@ -125,69 +114,27 @@ boolean depreciation_date_prior_exists(
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,
-		 folder,
+		 folder_name,
 		 where );
 
 	results = pipe2string( sys_string );
 
-	if ( results )
-		return atoi( results );
-	else
-		return 0;
-
-} /* depreciation_date_prior_exists() */
-
-boolean depreciation_date_exists(
-			char *application_name,
-			char *fund_name,
-			char *depreciation_date )
-{
-	char sys_string[ 1024 ];
-	char where[ 512 ];
-	char *fund_where;
-	char *folder;
-	char *results;
-
-	folder = "purchase_order,depreciation";
-
-	fund_where =
-		ledger_get_fund_where(
-			application_name,
-			fund_name );
-
-	sprintf( where,
-"depreciation.full_name = purchase_order.full_name and depreciation.street_address = purchase_order.street_address and depreciation.purchase_date_time = purchase_order.purchase_date_time and %s and depreciation_date = '%s'",
-		 fund_where,
-		 depreciation_date );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=count			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			",
-		 application_name,
-		 folder,
-		 where );
-
-	results = pipe2string( sys_string );
-
-	if ( results )
-		return atoi( results );
+	if ( atoi( results ) )
+		return 1
 	else
 		return 0;
 
 } /* depreciation_date_exists() */
 
-char *depreciation_prior_fetch_max_depreciation_date(
-			char *application_name )
+char *depreciation_fetch_max_depreciation_date(
+			char *application_name,
+			char *folder_name )
 {
 	char sys_string[ 1024 ];
 	char *select;
 	char *folder;
 
 	select = "max(depreciation_date)";
-
-	folder = "prior_fixed_asset_depreciation";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -195,95 +142,13 @@ char *depreciation_prior_fetch_max_depreciation_date(
 		 "			folder=%s			",
 		 application_name,
 		 select,
-		 folder );
-
-	return pipe2string( sys_string );
-
-} /* depreciation_prior_fetch_max_depreciation_date() */
-
-char *depreciation_fetch_max_depreciation_date(
-			char *application_name,
-			char *fund_name )
-{
-	char sys_string[ 1024 ];
-	char *select;
-	char *folder;
-	char *fund_where;
-	char where[ 512 ];
-
-	select = "max(depreciation_date)";
-
-	folder = "purchase_order,depreciation";
-
-	fund_where =
-		ledger_get_fund_where(
-			application_name,
-			fund_name );
-
-	sprintf( where,
-"depreciation.full_name = purchase_order.full_name and depreciation.street_address = purchase_order.street_address and depreciation.purchase_date_time = purchase_order.purchase_date_time and %s",
-		 fund_where );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 folder,
-		 where );
+		 folder_name );
 
 	return pipe2string( sys_string );
 
 } /* depreciation_fetch_max_depreciation_date() */
 
-char *depreciation_fetch_prior_depreciation_date(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *serial_number,
-			char *depreciation_date )
-{
-	char sys_string[ 1024 ];
-	char *ledger_where;
-	char buffer[ 128 ];
-	char where[ 256 ];
-	char *select;
-
-	select = "max(depreciation_date)";
-
-	ledger_where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					(char *)0 /* folder_name */,
-					"purchase_date_time" );
-
-	sprintf( where,
-"%s and asset_name = '%s' and serial_number = '%s' and depreciation_date < '%s'",
-		 ledger_where,
-		 escape_character(	buffer,
-					asset_name,
-					'\'' ),
-		 serial_number,
-		 depreciation_date );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
-		 "			folder=depreciation		"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 where );
-
-	return pipe2string( sys_string );
-
-} /* depreciation_fetch_prior_depreciation_date() */
-
+#ifdef NOT_DEFINED
 DEPRECIATION *depreciation_fetch(
 			char *application_name,
 			char *full_name,
@@ -335,12 +200,11 @@ DEPRECIATION *depreciation_fetch(
 	return depreciation_parse( application_name, results );
 
 } /* depreciation_fetch() */
+#endif
 
 void depreciation_update(
 			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
+			char *folder_name,
 			char *asset_name,
 			char *serial_number,
 			char *depreciation_date,
@@ -360,10 +224,7 @@ void depreciation_update(
 			database_depreciation_amount ) )
 	{
 		fprintf(output_pipe,
-		 	"%s^%s^%s^%s^%s^%s^depreciation_amount^%.2lf\n",
-			full_name,
-			street_address,
-			purchase_date_time,
+		 	"%s^%s^%s^depreciation_amount^%.2lf\n",
 			asset_name,
 			serial_number,
 			depreciation_date,
@@ -374,10 +235,7 @@ void depreciation_update(
 				database_transaction_date_time ) != 0 )
 	{
 		fprintf(output_pipe,
-		 	"%s^%s^%s^%s^%s^%s^transaction_date_time^%s\n",
-			full_name,
-			street_address,
-			purchase_date_time,
+		 	"%s^%s^%s^transaction_date_time^%s\n",
 			asset_name,
 			serial_number,
 			depreciation_date,
@@ -770,6 +628,7 @@ double depreciation_n_declining_balance_get_amount(
 
 } /* depreciation_n_declining_balance_get_amount() */
 
+#ifdef NOT_DEFINED
 LIST *depreciation_fetch_list(
 			char *application_name,
 			char *full_name,
@@ -834,6 +693,7 @@ LIST *depreciation_fetch_list(
 	return depreciation_list;
 
 } /* depreciation_fetch_list() */
+#endif
 
 /* Returns new finance_accumulated_depreciation */
 /* -------------------------------------------- */
@@ -845,7 +705,7 @@ double depreciation_list_set(
 		int estimated_useful_life_years,
 		int estimated_useful_life_units,
 		int declining_balance_n,
-		char *arrived_date_string )
+		char *service_placement_date )
 {
 	double finance_accumulated_depreciation;
 	DEPRECIATION *depreciation;
@@ -870,7 +730,7 @@ double depreciation_list_set(
 				prior_depreciation_date_string,
 				depreciation->depreciation_date,
 				finance_accumulated_depreciation,
-				arrived_date_string,
+				service_placement_date,
 				depreciation->units_produced );
 
 		if ( timlib_dollar_virtually_same(
@@ -895,6 +755,7 @@ double depreciation_list_set(
 void depreciation_list_update_and_transaction_propagate(
 		LIST *depreciation_list,
 		char *application_name,
+		char *folder_name,
 		char *fund_name )
 {
 	DEPRECIATION *depreciation;
@@ -950,9 +811,7 @@ void depreciation_list_update_and_transaction_propagate(
 
 		depreciation_update(
 			application_name,
-			depreciation->full_name,
-			depreciation->street_address,
-			depreciation->purchase_date_time,
+			folder_name,
 			depreciation->asset_name,
 			depreciation->serial_number,
 			depreciation->depreciation_date,

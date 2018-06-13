@@ -28,6 +28,12 @@
 
 /* Prototypes */
 /* ---------- */
+void depreciate_purchased_fixed_assets_display(
+					char *application_name,
+					char *process_name,
+					char *depreciation_date,
+					char *prior_depreciation_date );
+
 void depreciate_purchased_fixed_assets(
 					char *application_name,
 					boolean undo,
@@ -39,11 +45,8 @@ void depreciate_purchased_fixed_assets_undo(
 
 boolean depreciate_purchased_fixed_assets_execute(
 					char *application_name,
-					char *depreciation_date );
-
-boolean depreciate_purchase_fixed_assets_display(
-					char *application_name,
-					char *process_name );
+					char *depreciation_date,
+					char *prior_depreciation_date );
 
 int main( int argc, char **argv )
 {
@@ -120,16 +123,18 @@ void depreciate_purchased_fixed_assets(
 				boolean execute )
 {
 	char *depreciation_date;
+	char *prior_depreciation_date;
+
+	depreciation_date =
+	prior_depreciation_date =
+		depreciation_fetch_max_depreciation_date(
+			application_name,
+			FIXED_ASSET_DEPRECIATION_FOLDER );
 
 	/* Input */
 	/* ----- */
 	if ( undo )
 	{
-		depreciation_date =
-			depreciation_fetch_max_depreciation_date(
-				application_name,
-				FIXED_ASSET_DEPRECIATION_FOLDER );
-
 		if ( !depreciation_date || !*depreciation_date )
 		{
 			printf(
@@ -176,7 +181,8 @@ void depreciate_purchased_fixed_assets(
 		{
 			if ( !depreciate_purchased_fixed_assets_execute(
 				application_name,
-				depreciation_date ) )
+				depreciation_date,	
+				prior_depreciation_date ) )
 			{
 				printf(
 		"<h3>Error: no purchased fixed asset to depreciate.</h3>\n" );
@@ -203,7 +209,9 @@ void depreciate_purchased_fixed_assets(
 		{
 			depreciate_purchased_fixed_assets_display(
 				application_name,
-				process_name );
+				process_name,
+				depreciation_date,
+				prior_depreciation_date );
 		}
 	}
 
@@ -211,22 +219,35 @@ void depreciate_purchased_fixed_assets(
 
 boolean depreciate_purchased_fixed_assets_execute(
 					char *application_name,
-					char *depreciation_date )
+					char *depreciation_date,
+					char *prior_depreciation_date )
 {
-	DEPRECIATE_FIXED_ASSET *fixed_asset_depreciation;
+	ENTITY_SELF *entity_self;
 
-	fixed_asset_depreciation =
-		depreciation_fixed_asset_depreciation_new(
-			application_name,
-			fund_name,
-			depreciation_date );
+	if ( ! ( entity_self =
+			entity_self_load(
+				application_name ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load entity self.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
-	if ( !list_length( fixed_asset_depreciation->entity_list ) )
+	entity_self->fixed_asset_purchased_list =
+		fixed_asset_depreciation_purchase_fetch_list(
+			application_name );
+
+	if ( !list_length( entity_self->fixed_asset_purchased_list )
 		return 0;
 
-	depreciation_fixed_asset_set_depreciation(
-		fixed_asset_depreciation->entity_list,
-		depreciation_date );
+	depreciation_fixed_asset_list_set_depreciation(
+		entity_self->fixed_asset_purchased_list,
+		&entity_self->purchased_fixed_asset_depreciation_amount,
+		depreciation_date,
+		prior_depreciation_date );
 
 	depreciation_fixed_asset_set_transaction(
 		fixed_asset_depreciation->entity_list );
@@ -243,7 +264,9 @@ boolean depreciate_purchased_fixed_assets_execute(
 
 void depreciate_purchased_fixed_assets_display(
 					char *application_name,
-					char *process_name )
+					char *process_name,
+					char *depreciation_date,
+					char *prior_depreciation_date )
 {
 	ENTITY_SELF *entity_self;
 
@@ -266,9 +289,11 @@ void depreciate_purchased_fixed_assets_display(
 	if ( !list_length( entity_self->fixed_asset_purchased_list )
 		return;
 
-	depreciation_fixed_asset_list_depreciation_new(
+	depreciation_fixed_asset_list_set_depreciation(
 		entity_self->fixed_asset_purchased_list,
-		depreciation_date );
+		&entity_self->purchased_fixed_asset_depreciation_amount,
+		depreciation_date,
+		prior_depreciation_date );
 
 	depreciation_fixed_asset_table_display(
 		process_name,

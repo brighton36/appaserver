@@ -39,6 +39,19 @@ DEPRECIATION *depreciation_calloc( void )
 
 } /* depreciation_calloc() */
 
+DEPRECIATION *depreciation_new(
+			char *asset_name,
+			char *serial_number )
+{
+	DEPRECIATION *p = depreciation_calloc();
+
+	p->asset_name = asset_name;
+	p->serial_number = serial_number;
+
+	return p;
+
+} /* depreciation_new() */
+
 char *depreciation_get_select( void )
 {
 	char *select =
@@ -641,41 +654,6 @@ LIST *depreciation_fetch_list(
 } /* depreciation_fetch_list() */
 #endif
 
-void depreciation_fixed_asset_list_depreciation_new(
-				LIST *fixed_asset_list,
-				char *depreciation_date,
-				char *prior_depreciation_date )
-{
-	FIXED_ASSET *fixed_asset;
-	DEPRECIATION *depreciation;
-
-	if ( !list_rewind( fixed_asset_list ) ) return;
-
-	do {
-		fixed_asset = list_get_pointer( fixed_asset_list );
-
-		fixed_asset->depreciation_list = list_new();
-
-		deprecation = deprecation_calloc();
-
-		depreciation->depreciation_amount =
-			depreciation_get_amount(
-				fixed_asset->depreciation_method,
-				fixed_asset->extension,
-				fixed_asset->estimated_residual_value,
-				fixed_asset->estimated_useful_life_years,
-				fixed_asset->estimated_useful_life_units,
-				fixed_asset->declining_balance_n,
-				prior_depreciation_date,
-				depreciation_date,
-				fixed_asset->finance_accumulated_depreciation,
-				fixed_asset->service_placement_date,
-				fixed_asset->depreciation->units_produced );
-
-	} while( list_next( fixed_asset_list ) );
-
-} /* depreciation_fixed_asset_list_depreciation_new() */
-
 /* Returns new finance_accumulated_depreciation */
 /* -------------------------------------------- */
 double depreciation_list_set(
@@ -1182,49 +1160,6 @@ void depreciation_fixed_asset_purchase_list_tree_display(
 	} while( list_next( depreciable_fixed_asset_purchase_list ) );
 
 } /* depreciation_fixed_asset_purchase_list_tree_display() */
-
-void depreciation_fixed_asset_depreciation_table_display(
-				char *process_name,
-				LIST *entity_list )
-{
-	ENTITY *entity;
-	FILE *output_pipe;
-	char sys_string[ 1024 ];
-	char *heading;
-	char *justification;
-	char buffer[ 128 ];
-
-	if ( !list_rewind( entity_list ) ) return;
-
-	heading =
-"Entity,Entity Depreciation,Asset,Extension,Prior Accumulated,Depreciation,Post Accumulated";
-
-	justification = "left,right,left,right";
-
-	sprintf( sys_string,
-		 "group_trim.e '^' 2			|"
-		 "html_table.e '%s' '%s' '^' '%s'	 ",
-		 format_initial_capital( buffer, process_name ),
-		 heading,
-		 justification );
-		 
-	output_pipe = popen( sys_string, "w" );
-
-	do {
-		entity = list_get_pointer( entity_list );
-
-		depreciation_fixed_asset_purchase_list_table_display(
-			output_pipe,
-			entity->full_name,
-			entity->street_address,
-			entity->depreciation_amount,
-			entity->depreciable_fixed_asset_purchase_list );
-
-	} while( list_next( entity_list ) );
-
-	pclose( output_pipe );
-
-} /* depreciation_fixed_asset_depreciation_table_display() */
 
 void depreciation_fixed_asset_depreciation_tree_display(
 				LIST *entity_list )
@@ -2300,4 +2235,116 @@ void depreciation_prior_fixed_asset_insert_depreciation(
 	pclose( output_pipe );
 
 } /* depreciation_prior_fixed_asset_insert_depreciation() */
+
+void depreciation_fixed_asset_list_set_depreciation(
+			LIST *fixed_asset_list,
+			double *purchased_fixed_asset_depreciation_amount,
+			char *depreciation_date,
+			char *prior_depreciation_date )
+{
+	FIXED_ASSET *fixed_asset;
+	DEPRECIATION *depreciation;
+
+	if ( !list_rewind( fixed_asset_list ) ) return;
+
+	do {
+		fixed_asset = list_get_pointer( fixed_asset_list );
+
+		fixed_asset->depreciation_list = list_new();
+
+		depreciation =
+			depreciation_new(
+				fixed_asset->asset_name,
+				fixed_asset->serial_number );
+
+		depreciation->depreciation_amount =
+			depreciation_get_amount(
+				fixed_asset->depreciation_method,
+				fixed_asset->extension,
+				fixed_asset->estimated_residual_value,
+				fixed_asset->estimated_useful_life_years,
+				fixed_asset->estimated_useful_life_units,
+				fixed_asset->declining_balance_n,
+				prior_depreciation_date,
+				depreciation_date,
+				fixed_asset->finance_accumulated_depreciation,
+				fixed_asset->service_placement_date,
+				fixed_asset->depreciation->units_produced );
+
+		fixed_asset->finance_accumulated_depreciation +=
+			depreciation->depreciation_amount;
+
+		*purchased_fixed_asset_depreciation_amount +=
+			depreciation->depreciation_amount;
+
+	} while( list_next( fixed_asset_list ) );
+
+} /* depreciation_fixed_asset_list_set_depreciation() */
+
+void depreciation_fixed_asset_table_display(
+				char *process_name,
+				LIST *fixed_asset_list )
+{
+	FIXED_ASSET *fixed_asset;
+	DEPRECIATION *depreciation;
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	char *heading;
+	char *justification;
+	char buffer[ 128 ];
+
+	if ( !list_rewind( fixed_asset_list ) ) return;
+
+	heading =
+"Asset,Serial,Extension,Prior Accumulated,Depreciation,Post Accumulated";
+
+	justification = "left,left,right";
+
+	sprintf( sys_string,
+		 "html_table.e '%s' '%s' '^' '%s'",
+		 format_initial_capital( buffer, process_name ),
+		 heading,
+		 justification );
+		 
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		fixed_asset = list_get_pointer( fixed_asset_list );
+
+		fprintf(output_pipe,
+			"^s^%s^%.2lf^%.2lf",
+			format_initial_capital(
+				buffer, fixed_asset->asset_name ),
+			fixed_asset->serial_number,
+			fixed_asset->extension,
+			fixed_asset->
+				database_finance_accumulated_depreciation );
+
+		if ( list_length( fixed_asset->
+					depreciation_list ) != 1 )
+		{
+			fprintf( output_pipe, "^Error occurred\n" );
+		}
+		else
+		{
+			depreciation =
+				list_get_first_pointer(
+					fixed_asset->
+						depreciation_list );
+
+			fprintf(output_pipe,
+				"^%.2lf",
+				depreciation->depreciation_amount );
+
+			fprintf(output_pipe,
+				"^%.2lf\n",
+				fixed_asset->
+					finance_accumulated_depreciation );
+		}
+
+	} while( list_next( fixed_asset_list ) );
+
+	pclose( output_pipe );
+
+} /* depreciation_fixed_asset_table_display() */
 

@@ -35,7 +35,6 @@
 void create_existing_tar_file_application(
 					char *current_application,
 					char *destination_application,
-					char *database_string,
 					char *existing_tar_file,
 					char really_yn );
 
@@ -159,12 +158,12 @@ void insert_application_row(		char *current_application,
 					char *session,
 					char *login_name,
 					char *role_name,
-					char *database_string,
 					char *appaserver_data_directory,
 					char really_yn );
 
-void update_application_row(		char *destination_application,
-					char *database_string,
+void update_application_row(		
+					char *current_application,
+					char *destination_application,
 					char *new_application_title,
 					char really_yn );
 
@@ -181,7 +180,7 @@ void drop_database(			char *destination_application,
 void set_database_environment(		char *destination_application,
 					char really_yn );
 
-void restore_database_environment(	char *database_string,
+void restore_database_environment(	char *application_name,
 					char really_yn );
 
 void create_application_table(		char *current_application,
@@ -189,7 +188,6 @@ void create_application_table(		char *current_application,
 					char *session,
 					char *login_name,
 					char *role_name,
-					char *database_string,
 					char *appaserver_data_directory,
 					char really_yn );
 
@@ -405,19 +403,19 @@ void get_all_environment_variables(	char **appaserver_error_directory,
 
 } /* get_all_environment_variables() */
 
-void restore_database_environment(	char *database_string,
+void restore_database_environment(	char *application_name,
 					char really_yn )
 {
-	if ( database_string && *database_string )
+	if ( application_name && *application_name )
 	{
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
+			application_name );
 
 		if ( really_yn != 'y' )
 		{
 			printf( "<p>Restoring environment: %s\n",
-				database_string );
+				application_name );
 		}
 	}
 	else
@@ -480,7 +478,6 @@ void create_application_table(		char *current_application,
 					char *session,
 					char *login_name,
 					char *role_name,
-					char *database_string,
 					char *appaserver_data_directory,
 					char really_yn )
 {
@@ -530,7 +527,7 @@ void create_application_table(		char *current_application,
 	fflush( stdout );
 
 	restore_database_environment(
-				database_string,
+				current_application,
 				really_yn );
 
 } /* create_application_table() */
@@ -540,7 +537,6 @@ void insert_application_row(		char *current_application,
 					char *session,
 					char *login_name,
 					char *role_name,
-					char *database_string,
 					char *appaserver_data_directory,
 					char really_yn )
 {
@@ -592,13 +588,14 @@ void insert_application_row(		char *current_application,
 	fflush( stdout );
 
 	restore_database_environment(
-				database_string,
+				current_application,
 				really_yn );
 
 } /* insert_application_row() */
 
-void update_application_row(		char *destination_application,
-					char *database_string,
+void update_application_row(		
+					char *current_application,
+					char *destination_application,
 					char *new_application_title,
 					char really_yn )
 {
@@ -634,7 +631,7 @@ void update_application_row(		char *destination_application,
 	fflush( stdout );
 
 	restore_database_environment(
-				database_string,
+				current_application,
 				really_yn );
 
 } /* update_application_row() */
@@ -1600,7 +1597,6 @@ boolean create_empty_application(
 					session,
 					login_name,
 					role_name,
-					database_string,
 					appaserver_data_directory,
 					really_yn );
 	
@@ -1609,12 +1605,12 @@ boolean create_empty_application(
 					session,
 					login_name,
 					role_name,
-					database_string,
 					appaserver_data_directory,
 					really_yn );
 
-	update_application_row(		destination_application,
-					database_string,
+	update_application_row(		
+					current_application,
+					destination_application,
 					new_application_title,
 					really_yn );
 
@@ -1625,7 +1621,6 @@ boolean create_empty_application(
 		create_existing_tar_file_application(
 					current_application,
 					destination_application,
-					database_string,
 					existing_tar_file,
 					really_yn );
 
@@ -1940,7 +1935,6 @@ char *get_existing_tar_file( char *appaserver_home_directory )
 void create_existing_tar_file_application(
 					char *current_application,
 					char *destination_application,
-					char *database_string,
 					char *existing_tar_file,
 					char really_yn )
 {
@@ -1972,7 +1966,7 @@ void create_existing_tar_file_application(
 	fflush( stdout );
 
 	restore_database_environment(
-				database_string,
+				current_application,
 				really_yn );
 
 } /* create_existing_tar_file_application() */

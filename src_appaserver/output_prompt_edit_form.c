@@ -748,7 +748,7 @@ void output_prompt_edit_form(
 			document->onload_control_string );
 	}
 
-	form->subtitle_string = FORM_LOOKUP_SUBTITLE_MESSAGE;
+	/* form->subtitle_string = FORM_LOOKUP_SUBTITLE_MESSAGE; */
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==

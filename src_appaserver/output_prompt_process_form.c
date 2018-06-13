@@ -262,10 +262,15 @@ int main( int argc, char **argv )
 		}
 		else
 		{
+/*
 			sprintf(title,
 		"<h2>%s: First, filter a subsequent drop-down.<br>%s</h2>",
 			 	process_name,
 			 	FORM_LOOKUP_SUBTITLE_MESSAGE );
+*/
+			sprintf(title,
+		"<h2>%s: First, filter a subsequent drop-down.</h2>",
+			 	process_name );
 		}
 	}
 	else

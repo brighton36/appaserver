@@ -140,7 +140,6 @@ typedef struct
 	LIST *service_purchase_list;
 	LIST *fixed_asset_purchase_list;
 	LIST *prepaid_asset_purchase_list;
-	LIST *purchase_asset_account_list;
 	LIST *vendor_payment_list;
 	TRANSACTION *transaction;
 	LIST *propagate_account_list;
@@ -175,11 +174,6 @@ LIST *purchase_supply_get_list(
 					char *purchase_date_time );
 
 LIST *purchase_service_get_list(	char *application_name,
-					char *full_name,
-					char *street_address,
-					char *purchase_date_time );
-
-LIST *purchase_fixed_asset_get_list(	char *application_name,
 					char *full_name,
 					char *street_address,
 					char *purchase_date_time );
@@ -306,27 +300,6 @@ char *purchase_order_get_update_sys_string(
 
 char *purchase_get_max_purchase_date_time(
 				char *application_name );
-
-#ifdef NOT_DEFINED
-/* Returns propagate_account_list */
-/* ------------------------------ */
-LIST *purchase_order_journal_ledger_refresh(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double sum_specific_inventory_extension,
-				double sum_supply_extension,
-				double sum_service_extension,
-				double sales_tax,
-				double freight_in,
-				double purchase_amount,
-				LIST *inventory_purchase_list,
-				LIST *supply_purchase_list,
-				LIST *service_purchase_list,
-				LIST *purchase_asset_account_list );
-#endif
 
 char *purchase_get_arrived_purchase_date_time(
 				char *application_name,
@@ -622,13 +595,6 @@ LIST *purchase_prepaid_asset_get_list(
 				char *full_name,
 				char *street_address,
 				char *purchase_date_time );
-
-LIST *purchase_asset_account_journal_ledger_refresh(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				LIST *purchase_asset_account_list );
 
 void purchase_prepaid_asset_update(
 				char *application_name,

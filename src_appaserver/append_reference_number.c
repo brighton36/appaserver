@@ -11,7 +11,9 @@
 #include <string.h>
 #include <unistd.h>
 #include "appaserver_library.h"
+#include "appaserver_error.h"
 #include "timlib.h"
+#include "environ.h"
 #include "list.h"
 
 /* Constants */

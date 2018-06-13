@@ -27,12 +27,12 @@
 /* ---------- */
 void tax_recover_prior_fixed_assets(
 					char *application_name,
-					boolean execute,
-					boolean undo );
+					boolean undo,
+					boolean execute );
 
 void tax_recover_fixed_assets(		char *application_name,
-					boolean execute,
-					boolean undo );
+					boolean undo,
+					boolean execute );
 
 void tax_recover_fixed_assets_undo(	char *application_name,
 					int recovery_year );
@@ -102,13 +102,13 @@ int main( int argc, char **argv )
 
 	tax_recover_fixed_assets(
 		application_name,
-		execute,
-		undo );
+		undo,
+		execute );
 
 	tax_recover_prior_fixed_assets(
 		application_name,
-		execute,
-		undo );
+		undo,
+		execute );
 
 	document_close();
 
@@ -118,8 +118,8 @@ int main( int argc, char **argv )
 
 void tax_recover_prior_fixed_assets(
 				char *application_name,
-				boolean execute,
-				boolean undo )
+				boolean undo,
+				boolean execute )
 {
 	int recovery_year;
 	int now_year;
@@ -215,8 +215,8 @@ void tax_recover_prior_fixed_assets(
 } /* tax_recover_prior_fixed_assets() */
 
 void tax_recover_fixed_assets(	char *application_name,
-				boolean execute,
-				boolean undo )
+				boolean undo,
+				boolean execute )
 {
 	int recovery_year;
 	int now_year;

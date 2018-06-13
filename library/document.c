@@ -387,8 +387,6 @@ char *document_set_onload_control_string(
 					char *document_onload_control_string,
 					char *s )
 {
-	char buffer[ 65536 ];
-
 	if ( !s ) return document_onload_control_string;
 
 	if ( document_onload_control_string )

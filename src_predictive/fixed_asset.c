@@ -26,17 +26,54 @@ FIXED_ASSET *fixed_asset_new( void )
 
 } /* fixed_asset_new() */
 
-char *fixed_asset_get_select( char *folder_name )
+char *fixed_asset_depreciation_purchase_get_select(
+					char **folder_from,
+					char **join_where,
+					char *application_name  )
 {
-	char select[ 512 ];
+	char select[ 1024 ];
+	char *fund_select;
+
+	if ( ledger_fund_attribute_exists(
+			application_name ) )
+	{
+		fund_select = "fund";
+
+		*folder_from = "fixed_asset_purchase,purchase_order";
+
+		*join_where =
+			"fixed_asset_purchase.full_name =		"
+			"purchase_order.full_name and			"
+			"fixed_asset_purchase.street_address =		"
+			"purchase_order.street_address and		"
+			"fixed_asset_purchase.purchase_date_time =	"
+			"purchase_order.purchase_date_time		";
+	}
+	else
+	{
+		fund_select = "''";
+		*folder_from = "fixed_asset_purchase";
+		*join_where = "1 = 1";
+	}
 
 	sprintf( select,
-"%s.asset_name,%s.serial_number,account,service_placement_date,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation",
-		 folder_name,
-		 folder_name );
+"fixed_asset_purchase.asset_name,serial_number,'',service_placement_date,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation,%s",
+		 fund_select );
 
-	return strdup( select) ;
-}
+	return select;
+
+} /* fixed_asset_depreciation_purchase_get_select() */
+
+char *fixed_asset_purchase_get_select( void  )
+{
+	char *select;
+
+	select =
+"fixed_asset_purchase.asset_name,serial_number,account,service_placement_date,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation,''";
+
+	return select;
+
+} /* fixed_asset_purchase_get_select() */
 
 FIXED_ASSET *fixed_asset_parse( char *input_buffer )
 {
@@ -53,11 +90,11 @@ FIXED_ASSET *fixed_asset_parse( char *input_buffer )
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 2 );
 	if ( *piece_buffer )
-		fixed_asset->account_name = strdup( piece_buffer );
+		fixed_asset->debit_account_name = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 3 );
 	if ( *piece_buffer )
-		fixed_asset->tax_service_placement_date =
+		fixed_asset->service_placement_date =
 			strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 4 );
@@ -117,6 +154,11 @@ FIXED_ASSET *fixed_asset_parse( char *input_buffer )
 		fixed_asset->database_tax_accumulated_depreciation =
 			atof( piece_buffer );
 
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 15 );
+	if ( *piece_buffer )
+		fixed_asset->fund_name =
+			strdup( piece_buffer );
+
 	return fixed_asset;
 
 } /* fixed_asset_parse() */
@@ -169,6 +211,7 @@ FIXED_ASSET *fixed_asset_purchase_fetch(
 
 	fixed_asset = fixed_asset_parse( results );
 
+#ifdef NOT_DEFINED
 	fixed_asset->depreciation_list =
 		depreciation_fetch_list(
 			application_name,
@@ -177,15 +220,7 @@ FIXED_ASSET *fixed_asset_purchase_fetch(
 			(char *)0 /* purchase_date_time */,
 			fixed_asset->asset_name,
 			fixed_asset->serial_number );
-
-	purchase_fixed_asset->tax_recovery_list =
-		tax_recovery_fetch_list(
-			application_name,
-			(char *)0 /* full_name */,
-			(char *)0 /* street_address */,
-			(char *)0 /* purchase_date_time */,
-			fixed_asset->asset_name,
-			fixed_asset->serial_number );
+#endif
 
 	return fixed_asset;
 
@@ -207,10 +242,7 @@ LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 	FIXED_ASSET *fixed_asset;
 	LIST *fixed_asset_purchase_list;
 
-	select =
-		fixed_asset_get_select(
-			"fixed_asset_purchase"
-				/* folder_name */ );
+	select = fixed_asset_purchase_get_select();
 
 	folder = "fixed_asset_purchase,fixed_asset";
 
@@ -244,24 +276,6 @@ LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 			fixed_asset_parse(
 				input_buffer );
 
-		fixed_asset->depreciation_list =
-			depreciation_fetch_list(
-				application_name,
-				full_name,
-				street_address,
-				purchase_date_time,
-				fixed_asset->asset_name,
-				fixed_asset->serial_number );
-
-		purchase_fixed_asset->tax_recovery_list =
-			tax_recovery_fetch_list(
-				application_name,
-				(char *)0 /* full_name */,
-				(char *)0 /* street_address */,
-				(char *)0 /* purchase_date_time */,
-				fixed_asset->asset_name,
-				fixed_asset->serial_number );
-
 		list_append_pointer(	fixed_asset_purchase_list,
 					fixed_asset );
 	}
@@ -270,4 +284,64 @@ LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 	return fixed_asset_purchase_list;
 
 } /* fixed_asset_purchase_fetch_list() */
+
+LIST *fixed_asset_depreciation_purchase_fetch_list(
+					char *application_name )
+{
+	char sys_string[ 1024 ];
+	char where[ 512 ];
+	char *join_where = {0};
+	char *select;
+	char *folder_from = {0};
+	char input_buffer[ 2048 ];
+	FILE *input_pipe;
+	FIXED_ASSET *fixed_asset;
+	LIST *fixed_asset_purchased_list;
+
+	select =
+		fixed_asset_depreciation_purchase_get_select(
+			&folder_from,
+			&join_where,
+			application_name );
+
+	sprintf( where,
+		 "depreciation_method is not null and			"
+		 "service_placement_date is not null and		"
+		 "ifnull(extension,0) <> 0 and				"
+		 "ifnull(finance_accumulated_depreciation,0) <		"
+		 "extension and						"
+		 "%s							",
+		 join_where );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=\"%s\"			"
+		 "			where=\"%s\"			"
+		 "			order=select			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	fixed_asset_purchased_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		fixed_asset =
+			fixed_asset_parse(
+				input_buffer );
+
+		list_append_pointer(
+			fixed_asset_purchased_list,
+			fixed_asset );
+	}
+
+	pclose( input_pipe );
+
+	return fixed_asset_purchased_list;
+
+} /* fixed_asset_depreciation_purchase_fetch_list() */
 

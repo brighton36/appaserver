@@ -25,8 +25,8 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_number;
-	int units_produced;
 	char *depreciation_date;
+	int units_produced;
 	double depreciation_amount;
 	double database_depreciation_amount;
 	char *transaction_date_time;
@@ -37,15 +37,6 @@ typedef struct
 /* Operations */
 /* ---------- */
 DEPRECIATION *depreciation_calloc( void );
-
-/*
-DEPRECIATION *depreciation_fetch(
-			char *application_name,
-			char *folder_name,
-			char *asset_name,
-			char *serial_number,
-			char *depreciation_date );
-*/
 
 void depreciation_update(
 			char *application_name,
@@ -198,7 +189,6 @@ void depreciation_fetch_purchase_fixed_asset_depreciation_list(
 void depreciation_fixed_asset_set_depreciation(
 			LIST *entity_list,
 			char *depreciation_date );
-*/
 
 void depreciation_fixed_asset_entity_set_depreciation(
 			double *entity_depreciation_amount,
@@ -307,5 +297,9 @@ void depreciation_prior_fixed_asset_insert_depreciation(
 			LIST *depreciate_prior_fixed_asset_list,
 			char *depreciation_date,
 			char *transaction_date_time );
+
+void depreciation_fixed_asset_list_depreciation_new(
+			LIST *fixed_asset_list,
+			depreciation_date );
 
 #endif

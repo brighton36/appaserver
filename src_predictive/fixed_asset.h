@@ -28,7 +28,8 @@ typedef struct
 {
 	char *asset_name;
 	char *serial_number;
-	char *account_name;
+	char *debit_account_name;
+	char *fund_name;
 	char *service_placement_date;
 	double extension;
 	int estimated_useful_life_years;
@@ -43,7 +44,6 @@ typedef struct
 	double database_finance_accumulated_depreciation;
 	double tax_accumulated_depreciation;
 	double database_tax_accumulated_depreciation;
-	char *prior_depreciation_date;
 	LIST *depreciation_list;
 	LIST *tax_recovery_list;
 } FIXED_ASSET;
@@ -72,6 +72,14 @@ FIXED_ASSET *fixed_asset_list_seek(
 				char *serial_number );
 
 char *fixed_asset_get_select(	char *folder_name );
+
+char *fixed_asset_depreciation_purchase_get_select(
+				char **folder_from,
+				char **join_where,
+				char *application_name  );
+
+char *fixed_asset_purchase_get_select(
+				void );
 
 void fixed_asset_update_stream(
 				FILE *update_pipe,
@@ -136,6 +144,15 @@ void fixed_asset_depreciation_update_and_transaction_propagate(
 char *fixed_asset_get_account_name(
 				char *application_name,
 				char *asset_name );
+
+LIST *fixed_asset_purchase_fetch_list(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time );
+
+LIST *fixed_asset_depreciation_purchase_fetch_list(
+				char *application_name );
 
 #endif
 

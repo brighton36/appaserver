@@ -148,60 +148,6 @@ char *depreciation_fetch_max_depreciation_date(
 
 } /* depreciation_fetch_max_depreciation_date() */
 
-#ifdef NOT_DEFINED
-DEPRECIATION *depreciation_fetch(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *serial_number,
-			char *depreciation_date )
-{
-	char sys_string[ 1024 ];
-	char *ledger_where;
-	char buffer[ 128 ];
-	char where[ 256 ];
-	char *select;
-	char *results;
-
-	select = depreciation_get_select();
-
-	ledger_where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					purchase_date_time,
-					(char *)0 /* folder_name */,
-					"purchase_date_time" );
-
-	sprintf( where,
-"%s and asset_name = '%s' and serial_number = '%s' and depreciation_date = '%s'",
-		 ledger_where,
-		 escape_character(	buffer,
-					asset_name,
-					'\'' ),
-		 serial_number,
-		 depreciation_date );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=%s			"
-		 "			folder=depreciation		"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 where );
-
-	if ( ! ( results = pipe2string( sys_string ) ) )
-	{
-		return (DEPRECIATION *)0;
-	}
-
-	return depreciation_parse( application_name, results );
-
-} /* depreciation_fetch() */
-#endif
-
 void depreciation_update(
 			char *application_name,
 			char *folder_name,
@@ -278,7 +224,7 @@ double depreciation_get_amount(
 			char *prior_depreciation_date_string,
 			char *depreciation_date_string,
 			double finance_accumulated_depreciation,
-			char *arrived_date_string,
+			char *service_placement_date,
 			int units_produced )
 {
 	if ( !depreciation_method || !*depreciation_method )
@@ -342,7 +288,7 @@ double depreciation_get_amount(
 			prior_depreciation_date_string,
 			depreciation_date_string,
 			finance_accumulated_depreciation,
-			arrived_date_string );
+			service_placement_date );
 	}
 	else
 	{
@@ -446,7 +392,7 @@ double depreciation_sum_of_years_digits_get_amount(
 			char *prior_depreciation_date_string,
 			char *depreciation_date_string,
 			double finance_accumulated_depreciation,
-			char *arrived_date_string )
+			char *service_placement_date )
 {
 	double denominator;
 	double depreciation_base;
@@ -469,7 +415,7 @@ double depreciation_sum_of_years_digits_get_amount(
 	current_age_years =
 		date_years_between(
 			depreciation_date_string,
-			arrived_date_string );
+			service_placement_date );
 
 	remaining_life_years = estimated_useful_life_years - current_age_years;
 
@@ -694,6 +640,41 @@ LIST *depreciation_fetch_list(
 
 } /* depreciation_fetch_list() */
 #endif
+
+void depreciation_fixed_asset_list_depreciation_new(
+				LIST *fixed_asset_list,
+				char *depreciation_date,
+				char *prior_depreciation_date )
+{
+	FIXED_ASSET *fixed_asset;
+	DEPRECIATION *depreciation;
+
+	if ( !list_rewind( fixed_asset_list ) ) return;
+
+	do {
+		fixed_asset = list_get_pointer( fixed_asset_list );
+
+		fixed_asset->depreciation_list = list_new();
+
+		deprecation = deprecation_calloc();
+
+		depreciation->depreciation_amount =
+			depreciation_get_amount(
+				fixed_asset->depreciation_method,
+				fixed_asset->extension,
+				fixed_asset->estimated_residual_value,
+				fixed_asset->estimated_useful_life_years,
+				fixed_asset->estimated_useful_life_units,
+				fixed_asset->declining_balance_n,
+				prior_depreciation_date,
+				depreciation_date,
+				fixed_asset->finance_accumulated_depreciation,
+				fixed_asset->service_placement_date,
+				fixed_asset->depreciation->units_produced );
+
+	} while( list_next( fixed_asset_list ) );
+
+} /* depreciation_fixed_asset_list_depreciation_new() */
 
 /* Returns new finance_accumulated_depreciation */
 /* -------------------------------------------- */

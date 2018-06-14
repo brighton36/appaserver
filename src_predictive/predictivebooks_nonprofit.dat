@@ -7,7 +7,6 @@ customer
 customer_payment
 customer_sale
 day
-depreciation
 depreciation_method
 donation
 donation_account
@@ -54,3 +53,9 @@ title_passage_rule
 transaction
 vendor
 vendor_payment
+subsidiary_transaction
+tax_recovery_table
+tax_recovery_period
+tax_fixed_asset_recovery
+fixed_asset_depreciation
+tax_prior_fixed_asset_recovery

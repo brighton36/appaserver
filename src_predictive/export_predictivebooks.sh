@@ -349,6 +349,20 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
+	folder=tax_recovery_table
+	columns="	tax_recovery_period,
+			recovery_year,
+			recovery_percent"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e t=$folder field="$columns" del='^'		|
+	cat >> $output_shell
+
+	folder=tax_recovery_period
+	columns=tax_recovery_period
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
 	# Only enterprise and non-profit folders follow:
 	# ----------------------------------------------
 	folder=inventory_cost_method

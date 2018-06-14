@@ -14,6 +14,7 @@
 #include "inventory.h"
 #include "ledger.h"
 #include "depreciation.h"
+#include "tax_recovery.h"
 
 /* Constants */
 /* --------- */
@@ -66,7 +67,7 @@ FIXED_ASSET *fixed_asset_prior_fetch(
 					char *serial_number );
 
 FIXED_ASSET *fixed_asset_list_seek(
-				LIST *fixed_asset_purchase_list,
+				LIST *fixed_asset_list,
 				char *asset_name,
 				char *serial_number );
 

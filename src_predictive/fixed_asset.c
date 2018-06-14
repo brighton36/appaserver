@@ -340,3 +340,30 @@ LIST *fixed_asset_depreciation_purchase_fetch_list(
 
 } /* fixed_asset_depreciation_purchase_fetch_list() */
 
+FIXED_ASSET *fixed_asset_list_seek(
+				LIST *fixed_asset_list,
+				char *asset_name,
+				char *serial_number )
+{
+	FIXED_ASSET *fixed_asset;
+
+	if ( !list_rewind( fixed_asset_list ) )
+		return (FIXED_ASSET *)0;
+
+	do {
+		fixed_asset = list_get( fixed_asset_list );
+
+		if ( strcmp(	fixed_asset->asset_name,
+				asset_name ) == 0
+		&&   strcmp(	fixed_asset->serial_number,
+				serial_number ) == 0 )
+		{
+			return fixed_asset;
+		}
+
+	} while( list_next( fixed_asset_list ) );
+
+	return (FIXED_ASSET *)0;
+
+} /* fixed_asset_list_seek() */
+

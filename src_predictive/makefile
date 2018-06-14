@@ -38,7 +38,6 @@ EXECUTABLES=	trial_balance						\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
 		depreciate_fixed_assets					\
-		tax_recover_fixed_assets				\
 		post_change_supply_purchase				\
 		post_change_service_purchase				\
 		post_change_inventory_purchase				\
@@ -125,6 +124,7 @@ SOURCE_LIBRARY= 							\
 		depreciation.o						\
 		accrual.o						\
 		employee.o						\
+		fixed_asset.o						\
 		entity.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
@@ -223,12 +223,11 @@ ledger_debit_credit_audit: ledger_debit_credit_audit.c			\
 		-o ledger_debit_credit_audit
 
 depreciate_fixed_assets: depreciate_fixed_assets.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} fixed_asset.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		depreciate_fixed_assets.c				\
-		fixed_asset.o						\
 		-o depreciate_fixed_assets
 
 tax_recover_fixed_assets: tax_recover_fixed_assets.c			\

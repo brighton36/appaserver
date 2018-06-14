@@ -17,6 +17,7 @@
 #include "entity.h"
 #include "purchase.h"
 #include "column.h"
+#include "fixed_asset.h"
 #include "depreciation.h"
 
 DEPRECIATION *depreciation_calloc( void )
@@ -510,8 +511,6 @@ void depreciation_fixed_asset_list_set_depreciation(
 	do {
 		fixed_asset = list_get_pointer( fixed_asset_list );
 
-		fixed_asset->depreciation_list = list_new();
-
 		depreciation =
 			depreciation_new(
 				fixed_asset->asset_name,
@@ -537,16 +536,44 @@ void depreciation_fixed_asset_list_set_depreciation(
 		*purchased_fixed_asset_depreciation_amount +=
 			depreciation->depreciation_amount;
 
+		fixed_asset->depreciation = depreciation;
+
 	} while( list_next( fixed_asset_list ) );
 
 } /* depreciation_fixed_asset_list_set_depreciation() */
+
+void depreciation_depreciation_fund_list_table_display(
+				char *process_name,
+				LIST *depreciation_fund_list )
+{
+	DEPRECIATION_FUND *depreciation_fund;
+
+	if ( !list_rewind( depreciation_fund_list ) ) return;
+
+	do {
+		depreciation_fund =
+			list_get_pointer(
+				depreciation_fund_list );
+
+		depreciation_fixed_asset_table_display(
+			process_name,
+			depreciation_fund->
+				fixed_asset_purchased_list );
+
+		depreciation_fixed_asset_table_display(
+			process_name,
+			depreciation_fund->
+				fixed_asset_prior_list );
+
+	} while( list_next( depreciation_fund_list ) );
+
+} /* depreciation_depreciation_fund_list_table_display() */
 
 void depreciation_fixed_asset_table_display(
 				char *process_name,
 				LIST *fixed_asset_list )
 {
 	FIXED_ASSET *fixed_asset;
-	DEPRECIATION *depreciation;
 	FILE *output_pipe;
 	char sys_string[ 1024 ];
 	char *heading;
@@ -580,27 +607,14 @@ void depreciation_fixed_asset_table_display(
 			fixed_asset->
 				database_finance_accumulated_depreciation );
 
-		if ( list_length( fixed_asset->
-					depreciation_list ) != 1 )
-		{
-			fprintf( output_pipe, "^Error occurred\n" );
-		}
-		else
-		{
-			depreciation =
-				list_get_first_pointer(
-					fixed_asset->
-						depreciation_list );
+		fprintf(output_pipe,
+			"^%.2lf",
+			fixed_asset->depreciation->depreciation_amount );
 
-			fprintf(output_pipe,
-				"^%.2lf",
-				depreciation->depreciation_amount );
-
-			fprintf(output_pipe,
-				"^%.2lf\n",
-				fixed_asset->
-					finance_accumulated_depreciation );
-		}
+		fprintf(output_pipe,
+			"^%.2lf\n",
+			fixed_asset->
+				finance_accumulated_depreciation );
 
 	} while( list_next( fixed_asset_list ) );
 
@@ -737,4 +751,12 @@ DEPRECIATION_FUND *depreciation_fund_new(
 	return d;
 
 } /* depreciation_fund_new() */
+
+boolean depreciation_fixed_assets_execute(
+				char *application_name,
+				LIST *depreciation_fund_list )
+{
+	return 1;
+
+} /* depreciation_fixed_assets_execute() */
 

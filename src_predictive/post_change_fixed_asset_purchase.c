@@ -18,6 +18,7 @@
 #include "inventory.h"
 #include "entity.h"
 #include "ledger.h"
+#include "fixed_asset.h"
 #include "purchase.h"
 #include "customer.h"
 
@@ -326,7 +327,7 @@ void post_change_fixed_asset_purchase_update(
 			char *preupdate_extension )
 {
 	PURCHASE_ORDER *purchase_order;
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	FIXED_ASSET *purchase_fixed_asset;
 	enum preupdate_change_state declining_balance_n_change_state;
 	enum preupdate_change_state depreciation_method_change_state;
 	enum preupdate_change_state asset_name_change_state;
@@ -351,7 +352,7 @@ void post_change_fixed_asset_purchase_update(
 	}
 
 	if ( !( purchase_fixed_asset =
-		purchase_fixed_asset_list_seek(
+		fixed_asset_list_seek(
 			purchase_order->fixed_asset_purchase_list,
 			asset_name,
 			serial_number ) ) )
@@ -424,11 +425,13 @@ void post_change_fixed_asset_purchase_update(
 	if (	declining_balance_n_change_state ==
 		from_something_to_something_else )
 	{
+/*
 		purchase_depreciation_update_and_transaction_propagate(
 			purchase_fixed_asset,
 			purchase_order->arrived_date_time,
 			application_name,
 			purchase_order->fund_name );
+*/
 	}
 
 	if (	depreciation_method_change_state ==
@@ -436,11 +439,13 @@ void post_change_fixed_asset_purchase_update(
 	||  	depreciation_method_change_state ==
 		from_something_to_null )
 	{
+/*
 		purchase_depreciation_update_and_transaction_propagate(
 			purchase_fixed_asset,
 			purchase_order->arrived_date_time,
 			application_name,
 			purchase_order->fund_name );
+*/
 	}
 
 	if ( !purchase_order->transaction ) return;
@@ -453,7 +458,7 @@ void post_change_fixed_asset_purchase_update(
 		ledger_propagate(
 			application_name,
 			purchase_order->transaction_date_time,
-			purchase_fixed_asset->account_name );
+			purchase_fixed_asset->debit_account_name );
 
 		if ( ! ( preupdate_account_name =
 				purchase_fixed_asset_get_account_name(
@@ -470,7 +475,8 @@ void post_change_fixed_asset_purchase_update(
 		}
 
 		if ( strcmp(	preupdate_account_name,
-				purchase_fixed_asset->account_name ) != 0 )
+				purchase_fixed_asset->
+					debit_account_name ) != 0 )
 		{
 			ledger_propagate(
 				application_name,

@@ -35,18 +35,6 @@ typedef struct
 	char *street_address;
 	char *purchase_date_time;
 	char *asset_name;
-	char *serial_number;
-	int recovery_year;
-	double recovery_amount;
-	double recovery_percent;
-} TAX_RECOVERY;
-
-typedef struct
-{
-	char *full_name;
-	char *street_address;
-	char *purchase_date_time;
-	char *asset_name;
 	char *asset_account_name;
 	char *expense_account_name;
 	double extension;
@@ -55,30 +43,6 @@ typedef struct
 	double database_accumulated_accrual;
 	LIST *accrual_list;
 } PURCHASE_PREPAID_ASSET;
-
-typedef struct
-{
-	char *asset_name;
-	char *serial_number;
-	char *account_name;
-	char *service_placement_date;
-	double extension;
-	int estimated_useful_life_years;
-	int estimated_useful_life_units;
-	int estimated_residual_value;
-	int declining_balance_n;
-	char *depreciation_method;
-	double tax_cost_basis;
-	char *tax_recovery_period;
-	char *disposal_date;
-	double finance_accumulated_depreciation;
-	double database_finance_accumulated_depreciation;
-	double tax_accumulated_depreciation;
-	double database_tax_accumulated_depreciation;
-	char *prior_depreciation_date;
-	LIST *depreciation_list;
-	LIST *tax_recovery_list;
-} FIXED_ASSET;
 
 typedef struct
 {
@@ -188,23 +152,8 @@ PURCHASE_SERVICE *purchase_service_new(	char *account_name );
 PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_new(
 					void );
 
-FIXED_ASSET *purchase_fixed_asset_new(
-					void );
-
-FIXED_ASSET *purchase_fixed_asset_parse(
-					char *input_buffer );
-
 PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_parse(
 					char *input_buffer );
-
-FIXED_ASSET *purchase_fixed_asset_fetch(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *purchase_date_time,
-					char *asset_name,
-					char *serial_number,
-					char *arrived_date_time );
 
 double purchase_get_sum_inventory_extension(
 					LIST *inventory_purchase_list );
@@ -437,11 +386,6 @@ PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_list_seek(
 				LIST *accrual_asset_purchase_list,
 				char *asset_name );
 
-FIXED_ASSET *purchase_fixed_asset_list_seek(
-				LIST *fixed_asset_purchase_list,
-				char *asset_name,
-				char *serial_number );
-
 PURCHASE_SERVICE *purchase_service_list_seek(
 				LIST *service_purchase_list,
 				char *service_name );
@@ -539,17 +483,6 @@ void purchase_prepaid_asset_propagate(
 				char *application_name,
 				char *fund_name );
 
-void purchase_depreciation_update_and_transaction_propagate(
-				FIXED_ASSET *fixed_asset,
-				char *arrived_date_time,
-				char *application_name,
-				char *fund_name );
-
-void purchase_fixed_asset_depreciation_delete(
-				FIXED_ASSET *fixed_asset,
-				char *application_name,
-				char *fund_name );
-
 void purchase_prepaid_asset_accrual_delete(
 				PURCHASE_PREPAID_ASSET *purchase_prepaid_asset,
 				char *application_name,
@@ -607,12 +540,6 @@ void purchase_prepaid_asset_update(
 
 char *purchase_prepaid_asset_get_update_sys_string(
 				char *application_name );
-
-void purchase_depreciation_update_and_transaction_propagate(
-				FIXED_ASSET *fixed_asset,
-				char *arrived_date_time,
-				char *application_name,
-				char *fund_name );
 
 void purchase_accrual_update_and_transaction_propagate(
 				PURCHASE_PREPAID_ASSET *purchase_prepaid_asset,
@@ -675,6 +602,7 @@ LIST *purchase_prepaid_asset_distinct_account_extract(
 LIST *purchase_get_amount_due_purchase_order_list(
 				char *application_name );
 
+/*
 LIST *purchase_fetch_tax_recovery_list(
 				char *application_name,
 				char *full_name,
@@ -683,14 +611,12 @@ LIST *purchase_fetch_tax_recovery_list(
 				char *asset_name,
 				char *serial_number );
 
-TAX_RECOVERY *purchase_tax_recovery_parse(
-				char *input_buffer );
-
 char *purchase_tax_recovery_get_select(
 				void );
 
 TAX_RECOVERY *purchase_tax_recovery_new(
 				void );
 
+*/
 #endif
 

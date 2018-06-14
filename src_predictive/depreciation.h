@@ -125,12 +125,6 @@ boolean depreciation_date_exists(
 			char *folder_name,
 			char *depreciation_date );
 
-void depreciation_fixed_asseth_execute(
-			LIST *entity_list,
-			char *application_name,
-			char *fund_name,
-			char *depreciation_date );
-
 char *depreciation_fetch_max_depreciation_date(
 			char *application_name,
 			char *folder_name );
@@ -150,5 +144,17 @@ LIST *depreciation_fetch_fund_list(
 LIST *fixed_asset_depreciation_purchase_fetch_list(
 			char *application_name,
 			char *fund_name );
+
+void depreciation_depreciation_fund_list_table_display(
+			char *process_name,
+			LIST *depreciation_fund_list );
+
+void depreciation_fixed_asset_table_display(
+			char *process_name,
+			LIST *fixed_asset_list );
+
+boolean depreciation_fixed_assets_execute(
+			char *application_name,
+			LIST *depreciation_fund_list );
 
 #endif

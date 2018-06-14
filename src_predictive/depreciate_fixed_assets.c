@@ -28,6 +28,12 @@
 
 /* Prototypes */
 /* ---------- */
+void depreciate_fixed_assets(		char *application_name,
+					char *process_name,
+					boolean undo,
+					boolean execute );
+
+/*
 void depreciate_purchased_fixed_assets_display(
 					char *application_name,
 					char *process_name,
@@ -47,14 +53,13 @@ boolean depreciate_purchased_fixed_assets_execute(
 					char *application_name,
 					char *depreciation_date,
 					char *prior_depreciation_date );
+*/
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char *depreciation_date;
 	boolean execute;
-	char buffer[ 128 ];
 	boolean undo;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
@@ -99,17 +104,11 @@ int main( int argc, char **argv )
 	document_output_body(	document->application_name,
 				document->onload_control_string );
 
-	depreciate_purchased_fixed_assets(
+	depreciate_fixed_assets(
 		application_name,
+		process_name,
 		undo,
 		execute );
-
-/*
-	depreciate_prior_fixed_assets(
-		application_name,
-		undo,
-		execute );
-*/
 
 	document_close();
 
@@ -117,11 +116,12 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void depreciate_purchased_fixed_assets(
-				char *application_name,
+void depreciate_fixed_assets(	char *application_name,
+				char *process_name,
 				boolean undo,
 				boolean execute )
 {
+	char buffer[ 128 ];
 	char *depreciation_date;
 	char *prior_depreciation_date;
 	ENTITY_SELF *entity_self;
@@ -182,6 +182,7 @@ void depreciate_purchased_fixed_assets(
 
 		if ( undo )
 		{
+/*
 			depreciate_purchased_fixed_assets_undo(
 				application_name,
 				depreciation_date );
@@ -189,6 +190,9 @@ void depreciate_purchased_fixed_assets(
 			printf(
 "<h3>Depreciation of purchased fixed assets posted on %s is now deleted.</h3>\n",
 				depreciation_date );
+*/
+			printf(
+"<h3>Undo is not ready yet.</h3>\n" );
 		}
 		else
 		{
@@ -196,15 +200,15 @@ void depreciate_purchased_fixed_assets(
 				depreciation_fetch_fund_list(
 					application_name,
 					depreciation_date,
-					prior_depreciation_date );
+					prior_depreciation_date,
+					1 /* with_load */ );
 
-			if ( !depreciate_purchased_fixed_assets_execute(
+			if ( !depreciation_fixed_assets_execute(
 				application_name,
-				depreciation_date,	
-				prior_depreciation_date ) )
+				entity_self->depreciation_fund_list ) )	
 			{
 				printf(
-		"<h3>Error: no purchased fixed asset to depreciate.</h3>\n" );
+		"<h3>Error: no fixed asset to depreciate.</h3>\n" );
 			}
 			else
 			{
@@ -221,21 +225,20 @@ void depreciate_purchased_fixed_assets(
 		if ( undo )
 		{
 			printf(
-	"<h3>Will delete the purchased depreciation taken place on %s.</h3>\n",
+	"<h3>Will delete the depreciation taken place on %s.</h3>\n",
 				depreciation_date );
 		}
 		else
 		{
-			depreciate_purchased_fixed_assets_display(
-				application_name,
+			depreciation_depreciation_fund_list_table_display(
 				process_name,
-				depreciation_date,
-				prior_depreciation_date );
+				entity_self->depreciation_fund_list );
 		}
 	}
 
-} /* depreciate_purchased_fixed_assets() */
+} /* depreciate_fixed_assets() */
 
+#ifdef NOT_DEFINED
 boolean depreciate_purchased_fixed_assets_execute(
 					char *application_name,
 					char *depreciation_date,
@@ -284,18 +287,6 @@ boolean depreciate_purchased_fixed_assets_execute(
 	return 1;
 
 } /* depreciate_purchased_fixed_assets_execute() */
-
-void depreciate_purchased_fixed_assets_display(
-					char *application_name,
-					char *process_name,
-					char *depreciation_date,
-					char *prior_depreciation_date )
-{
-	depreciation_fixed_asset_table_display(
-		process_name,
-		entity_self->fixed_asset_purchased_list );
-
-} /* depreciate_purchased_fixed_assets_display() */
 
 void depreciate_fixed_assets_undo(	char *application_name,
 					char *depreciation_date )
@@ -379,4 +370,5 @@ void depreciate_fixed_assets_undo(	char *application_name,
 	system( sys_string );
 
 } /* depreciate_fixed_assets_undo() */
+#endif
 

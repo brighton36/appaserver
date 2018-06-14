@@ -468,10 +468,12 @@ void post_change_purchase_order_mistakenly_arrived(
 
 	if ( list_length( purchase_order->fixed_asset_purchase_list ) )
 	{
+/*
 		purchase_fixed_asset_list_depreciation_delete(
 				purchase_order->fixed_asset_purchase_list,
 				application_name,
 				purchase_order->fund_name );
+*/
 	}
 
 } /* post_change_purchase_order_mistakenly_arrived() */
@@ -1342,11 +1344,13 @@ void post_change_purchase_order_fixed_arrived_date_time(
 
 	if ( list_length( purchase_order->fixed_asset_purchase_list ) )
 	{
+/*
 		purchase_fixed_asset_list_depreciation_method_update(
 				purchase_order->fixed_asset_purchase_list,
 				purchase_order->arrived_date_time,
 				application_name,
 				purchase_order->fund_name );
+*/
 	}
 
 } /* post_change_purchase_order_fixed_arrived_date_time() */

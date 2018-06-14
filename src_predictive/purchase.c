@@ -19,6 +19,7 @@
 #include "depreciation.h"
 #include "accrual.h"
 #include "inventory.h"
+#include "fixed_asset.h"
 #include "entity.h"
 
 PURCHASE_ORDER *purchase_order_calloc( void )
@@ -116,7 +117,7 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 				p->purchase_date_time );
 
 	p->fixed_asset_purchase_list =
-		purchase_fixed_asset_get_list(
+		fixed_asset_purchase_fetch_list(
 				application_name,
 				p->full_name,
 				p->street_address,
@@ -812,7 +813,7 @@ double purchase_get_sum_service_extension(
 double purchase_get_sum_fixed_asset_extension(
 			LIST *fixed_asset_purchase_list )
 {
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	FIXED_ASSET *purchase_fixed_asset;
 	double sum_extension;
 
 	if ( !list_rewind( fixed_asset_purchase_list ) ) return 0.0;
@@ -1836,33 +1837,6 @@ PURCHASE_SERVICE *purchase_service_list_seek(
 
 } /* purchase_service_list_seek() */
 
-PURCHASE_FIXED_ASSET *purchase_fixed_asset_list_seek(
-				LIST *fixed_asset_purchase_list,
-				char *asset_name,
-				char *serial_number )
-{
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
-
-	if ( !list_rewind( fixed_asset_purchase_list ) )
-		return (PURCHASE_FIXED_ASSET *)0;
-
-	do {
-		purchase_fixed_asset = list_get( fixed_asset_purchase_list );
-
-		if ( strcmp(	purchase_fixed_asset->asset_name,
-				asset_name ) == 0
-		&&   strcmp(	purchase_fixed_asset->serial_number,
-				serial_number ) == 0 )
-		{
-			return purchase_fixed_asset;
-		}
-
-	} while( list_next( fixed_asset_purchase_list ) );
-
-	return (PURCHASE_FIXED_ASSET *)0;
-
-} /* purchase_fixed_asset_list_seek() */
-
 PURCHASE_PREPAID_ASSET *purchase_prepaid_asset_list_seek(
 				LIST *prepaid_asset_purchase_list,
 				char *asset_name )
@@ -2032,147 +2006,13 @@ double purchase_order_get_total_payment(	char *application_name,
 
 } /* purchase_order_get_total_payment() */
 
-void purchase_fixed_asset_list_depreciation_delete(
-				LIST *purchase_fixed_asset_list,
-				char *application_name,
-				char *fund_name )
-{
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
-
-	if ( !list_rewind( purchase_fixed_asset_list ) ) return;
-
-	do {
-		purchase_fixed_asset = list_get( purchase_fixed_asset_list );
-
-		purchase_fixed_asset_depreciation_delete(
-			purchase_fixed_asset,
-			application_name,
-			fund_name );
-
-	} while( list_next( purchase_fixed_asset_list ) );
-
-} /* purchase_fixed_asset_list_depreciation_delete() */
-
-void purchase_fixed_asset_list_depreciation_method_update(
-			LIST *purchase_fixed_asset_list,
-			char *arrived_date_time,
-			char *application_name,
-			char *fund_name )
-{
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
-
-	if ( !list_rewind( purchase_fixed_asset_list ) ) return;
-
-	do {
-		purchase_fixed_asset = list_get( purchase_fixed_asset_list );
-
-		purchase_depreciation_update_and_transaction_propagate(
-			purchase_fixed_asset,
-			arrived_date_time,
-			application_name,
-			fund_name );
-
-	} while( list_next( purchase_fixed_asset_list ) );
-
-} /* purchase_fixed_asset_list_depreciation_method_update() */
-
-void purchase_fixed_asset_depreciation_delete(
-				PURCHASE_FIXED_ASSET *purchase_fixed_asset,
-				char *application_name,
-				char *fund_name )
-{
-	if ( !purchase_fixed_asset->depreciation_list )
-	{
-		purchase_fixed_asset->depreciation_list =
-			depreciation_fetch_list(
-				application_name,
-				purchase_fixed_asset->full_name,
-				purchase_fixed_asset->street_address,
-				purchase_fixed_asset->purchase_date_time,
-				purchase_fixed_asset->asset_name,
-				purchase_fixed_asset->serial_number );
-	}
-
-	if ( !list_length( purchase_fixed_asset->depreciation_list ) ) return;
-
-	depreciation_list_delete(
-		purchase_fixed_asset->depreciation_list,
-		application_name,
-		fund_name );
-
-	purchase_fixed_asset_update(
-			application_name,
-			purchase_fixed_asset->full_name,
-			purchase_fixed_asset->street_address,
-			purchase_fixed_asset->purchase_date_time,
-			purchase_fixed_asset->asset_name,
-			purchase_fixed_asset->serial_number,
-			0.0 /* accumulated_depreciation */,
-			purchase_fixed_asset->
-				database_finance_accumulated_depreciation );
-
-} /* purchase_fixed_asset_depreciation_delete() */
-
-void purchase_depreciation_update_and_transaction_propagate(
-			PURCHASE_FIXED_ASSET *purchase_fixed_asset,
-			char *arrived_date_time,
-			char *application_name,
-			char *fund_name )
-{
-	char arrived_date[ 16 ];
-
-	if ( !purchase_fixed_asset->depreciation_list )
-	{
-		purchase_fixed_asset->depreciation_list =
-			depreciation_fetch_list(
-				application_name,
-				purchase_fixed_asset->full_name,
-				purchase_fixed_asset->street_address,
-				purchase_fixed_asset->purchase_date_time,
-				purchase_fixed_asset->asset_name,
-				purchase_fixed_asset->serial_number );
-	}
-
-	if ( !list_length( purchase_fixed_asset->depreciation_list ) ) return;
-
-	purchase_fixed_asset->finance_accumulated_depreciation =
-		depreciation_list_set(
-			purchase_fixed_asset->depreciation_list,
-			purchase_fixed_asset->depreciation_method,
-			purchase_fixed_asset->extension,
-			purchase_fixed_asset->estimated_residual_value,
-			purchase_fixed_asset->estimated_useful_life_years,
-			purchase_fixed_asset->estimated_useful_life_units,
-			purchase_fixed_asset->declining_balance_n,
-			column( arrived_date,
-				0, 
-				arrived_date_time ) );
-
-	depreciation_list_update_and_transaction_propagate(
-		purchase_fixed_asset->depreciation_list,
-		application_name,
-		fund_name );
-
-	purchase_fixed_asset_update(
-			application_name,
-			purchase_fixed_asset->full_name,
-			purchase_fixed_asset->street_address,
-			purchase_fixed_asset->purchase_date_time,
-			purchase_fixed_asset->asset_name,
-			purchase_fixed_asset->serial_number,
-			purchase_fixed_asset->finance_accumulated_depreciation,
-			purchase_fixed_asset->
-				database_finance_accumulated_depreciation );
-
-} /* purchase_depreciation_update_and_transaction_propagate() */
-
 double purchase_get_asset_account_debit_amount(
 				LIST *fixed_asset_purchase_list,
 				LIST *prepaid_asset_purchase_list,
 				char *asset_account_name )
 {
 	double debit_amount;
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	FIXED_ASSET *purchase_fixed_asset;
 	PURCHASE_PREPAID_ASSET *purchase_prepaid_asset;
 
 	if ( !list_length( fixed_asset_purchase_list )
@@ -2187,7 +2027,7 @@ double purchase_get_asset_account_debit_amount(
 			purchase_fixed_asset =
 				list_get( fixed_asset_purchase_list );
 	
-			if ( !purchase_fixed_asset->account_name )
+			if ( !purchase_fixed_asset->debit_account_name )
 			{
 				fprintf( stderr,
 		"ERROR in %s/%s()/%d: empty account for fixed_asset = %s.\n",
@@ -2199,7 +2039,7 @@ double purchase_get_asset_account_debit_amount(
 			}
 	
 			if ( timlib_strcmp(	purchase_fixed_asset->
-							account_name,
+							debit_account_name,
 						asset_account_name ) == 0 )
 			{
 				debit_amount +=
@@ -2941,7 +2781,7 @@ LIST *purchase_fixed_asset_distinct_account_extract(
 					double *sum_debit_amount,
 					LIST *fixed_asset_purchase_list )
 {
-	PURCHASE_FIXED_ASSET *purchase_fixed_asset;
+	FIXED_ASSET *purchase_fixed_asset;
 	LIST *journal_ledger_list;
 	JOURNAL_LEDGER *journal_ledger;
 
@@ -2954,7 +2794,7 @@ LIST *purchase_fixed_asset_distinct_account_extract(
 			list_get_pointer(
 				fixed_asset_purchase_list );
 
-		if ( !purchase_fixed_asset->account_name )
+		if ( !purchase_fixed_asset->debit_account_name )
 		{
 			fprintf( stderr,
 			"ERROR in %s/%s()/%d: empty account_name for (%s)\n",
@@ -2968,7 +2808,7 @@ LIST *purchase_fixed_asset_distinct_account_extract(
 		journal_ledger =
 			ledger_get_or_set_journal_ledger(
 				journal_ledger_list,
-				purchase_fixed_asset->account_name );
+				purchase_fixed_asset->debit_account_name );
 
 		journal_ledger->debit_amount +=
 			purchase_fixed_asset->extension;
@@ -3099,6 +2939,7 @@ LIST *purchase_get_amount_due_purchase_order_list(
 
 } /* purchase_get_amount_due_purchase_order_list() */
 
+#ifdef NOT_DEFINED
 LIST *purchase_fetch_tax_recovery_list(
 			char *application_name,
 			char *full_name,
@@ -3228,4 +3069,5 @@ TAX_RECOVERY *purchase_tax_recovery_parse( char *input_buffer )
 	return tax_recovery;
 
 } /* purchase_tax_recovery_parse() */
+#endif
 

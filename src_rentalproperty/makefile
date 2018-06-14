@@ -7,7 +7,7 @@ CC=gcc
 CFLAGS=-O3 -s -Wall ${APPASERVER_UNUSED_PARAMETER_FLAG}
 
 LIBRARY=${APPASERVER_HOME}/library
-ACCOUNTANCYMODEL_LIBRARY=${APPASERVER_HOME}/src_predictive
+PREDICTIVEBOOKS_LIBRARY=${APPASERVER_HOME}/src_predictive
 
 STANDARD_LIBRARY_OBJECT=						\
 		${LIBRARY}/date.o 					\
@@ -71,13 +71,14 @@ EXTERNAL_LIBRARY_OBJECT=						\
 		${LIBRARY}/dictionary2file.o
 
 SOURCE_LIBRARY_OBJECT= 							\
-		${ACCOUNTANCYMODEL_LIBRARY}/ledger.o			\
-		${ACCOUNTANCYMODEL_LIBRARY}/accrual.o			\
-		${ACCOUNTANCYMODEL_LIBRARY}/purchase.o			\
-		${ACCOUNTANCYMODEL_LIBRARY}/customer.o			\
-		${ACCOUNTANCYMODEL_LIBRARY}/inventory.o			\
-		${ACCOUNTANCYMODEL_LIBRARY}/depreciation.o		\
-		${ACCOUNTANCYMODEL_LIBRARY}/entity.o
+		${PREDICTIVEBOOKS_LIBRARY}/ledger.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/accrual.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/purchase.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/customer.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/inventory.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/depreciation.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/fixed_asset.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/entity.o
 
 all: 	${SOURCE_LIBRARY_OBJECT}					\
 	${EXTENRAL_LIBRARY_OBJECT}					\
@@ -92,25 +93,25 @@ clean:
 post_rental_property_reoccurring_transaction:				\
 		post_rental_property_reoccurring_transaction.c		\
 		${EXTERNAL_LIBRARY_OBJECT} ${SOURCE_LIBRARY_OBJECT}	\
-		${ACCOUNTANCYMODEL_LIBRARY}/bank_upload.o		\
-		${ACCOUNTANCYMODEL_LIBRARY}/tax.o
+		${PREDICTIVEBOOKS_LIBRARY}/bank_upload.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/tax.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-I${ACCOUNTANCYMODEL_LIBRARY}				\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
 		${EXTERNAL_LIBRARY_OBJECT}				\
 		${SOURCE_LIBRARY_OBJECT}				\
 		post_rental_property_reoccurring_transaction.c		\
-		${ACCOUNTANCYMODEL_LIBRARY}/bank_upload.o		\
-		${ACCOUNTANCYMODEL_LIBRARY}/tax.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/bank_upload.o		\
+		${PREDICTIVEBOOKS_LIBRARY}/tax.o			\
 		-o post_rental_property_reoccurring_transaction
 
 schedule_e_report: schedule_e_report.c					\
 		${EXTERNAL_LIBRARY_OBJECT} ${SOURCE_LIBRARY_OBJECT}	\
-		${ACCOUNTANCYMODEL_LIBRARY}/tax.o
+		${PREDICTIVEBOOKS_LIBRARY}/tax.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-I${ACCOUNTANCYMODEL_LIBRARY}				\
+		-I${PREDICTIVEBOOKS_LIBRARY}				\
 		${EXTERNAL_LIBRARY_OBJECT}				\
 		${SOURCE_LIBRARY_OBJECT}				\
-		${ACCOUNTANCYMODEL_LIBRARY}/tax.o			\
+		${PREDICTIVEBOOKS_LIBRARY}/tax.o			\
 		schedule_e_report.c					\
 		-o schedule_e_report
 

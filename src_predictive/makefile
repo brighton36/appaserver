@@ -38,7 +38,6 @@ EXECUTABLES=	trial_balance						\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
 		depreciate_fixed_assets					\
-		depreciate_prior_fixed_assets				\
 		tax_recover_fixed_assets				\
 		post_change_supply_purchase				\
 		post_change_service_purchase				\
@@ -224,20 +223,13 @@ ledger_debit_credit_audit: ledger_debit_credit_audit.c			\
 		-o ledger_debit_credit_audit
 
 depreciate_fixed_assets: depreciate_fixed_assets.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} fixed_asset.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		depreciate_fixed_assets.c				\
+		fixed_asset.o						\
 		-o depreciate_fixed_assets
-
-depreciate_prior_fixed_assets: depreciate_prior_fixed_assets.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		depreciate_prior_fixed_assets.c				\
-		-o depreciate_prior_fixed_assets
 
 tax_recover_fixed_assets: tax_recover_fixed_assets.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax_recovery.o
@@ -247,14 +239,6 @@ tax_recover_fixed_assets: tax_recover_fixed_assets.c			\
 		tax_recover_fixed_assets.c				\
 		tax_recovery.o						\
 		-o tax_recover_fixed_assets
-
-tax_recover_prior_fixed_assets: tax_recover_prior_fixed_assets.c	\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		tax_recover_prior_fixed_assets.c			\
-		-o tax_recover_prior_fixed_assets
 
 trial_balance: trial_balance.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -671,6 +655,11 @@ bank_upload.o: bank_upload.c						\
 		bank_upload.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c bank_upload.c
+
+fixed_asset.o: fixed_asset.c						\
+		fixed_asset.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c fixed_asset.c
 
 tax_recovery.o: tax_recovery.c						\
 		tax_recovery.h

@@ -124,12 +124,25 @@ void depreciate_purchased_fixed_assets(
 {
 	char *depreciation_date;
 	char *prior_depreciation_date;
+	ENTITY_SELF *entity_self;
 
 	depreciation_date =
 	prior_depreciation_date =
 		depreciation_fetch_max_depreciation_date(
 			application_name,
 			FIXED_ASSET_DEPRECIATION_FOLDER );
+
+	if ( ! ( entity_self =
+			entity_self_load(
+				application_name ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot load entity self.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	/* Input */
 	/* ----- */
@@ -179,6 +192,12 @@ void depreciate_purchased_fixed_assets(
 		}
 		else
 		{
+			entity_self->depreciation_fund_list =
+				depreciation_fetch_fund_list(
+					application_name,
+					depreciation_date,
+					prior_depreciation_date );
+
 			if ( !depreciate_purchased_fixed_assets_execute(
 				application_name,
 				depreciation_date,	
@@ -236,6 +255,10 @@ boolean depreciate_purchased_fixed_assets_execute(
 		exit( 1 );
 	}
 
+	entity_self->depreciation_fund_list =
+		depreciation_fetch_fund_list(
+			application_name );
+
 	entity_self->fixed_asset_purchased_list =
 		fixed_asset_depreciation_purchase_fetch_list(
 			application_name );
@@ -268,33 +291,6 @@ void depreciate_purchased_fixed_assets_display(
 					char *depreciation_date,
 					char *prior_depreciation_date )
 {
-	ENTITY_SELF *entity_self;
-
-	if ( ! ( entity_self =
-			entity_self_load(
-				application_name ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load entity self.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	entity_self->fixed_asset_purchased_list =
-		fixed_asset_depreciation_purchase_fetch_list(
-			application_name );
-
-	if ( !list_length( entity_self->fixed_asset_purchased_list )
-		return;
-
-	depreciation_fixed_asset_list_set_depreciation(
-		entity_self->fixed_asset_purchased_list,
-		&entity_self->purchased_fixed_asset_depreciation_amount,
-		depreciation_date,
-		prior_depreciation_date );
-
 	depreciation_fixed_asset_table_display(
 		process_name,
 		entity_self->fixed_asset_purchased_list );
@@ -302,7 +298,6 @@ void depreciate_purchased_fixed_assets_display(
 } /* depreciate_purchased_fixed_assets_display() */
 
 void depreciate_fixed_assets_undo(	char *application_name,
-					char *fund_name,
 					char *depreciation_date )
 {
 	char transaction_date_time[ 64 ];

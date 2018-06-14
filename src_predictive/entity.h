@@ -95,12 +95,7 @@ typedef struct
 	double state_withholding_allowance_period_value;
 	double state_itemized_allowance_period_value;
 	double state_sales_tax_rate;
-	double purchased_fixed_asset_depreciation_amount;
-	double prior_fixed_asset_depreciation_amount;
-	TRANSACTION *purchased_fixed_asset_transaction;
-	TRANSACTION *prior_fixed_asset_transaction;
-	LIST *fixed_asset_purchased_list;
-	LIST *fixed_asset_prior_list;
+	LIST *depreciation_fund_list;
 } ENTITY_SELF;
 
 /* Operations */

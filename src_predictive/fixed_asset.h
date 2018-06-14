@@ -29,7 +29,6 @@ typedef struct
 	char *asset_name;
 	char *serial_number;
 	char *debit_account_name;
-	char *fund_name;
 	char *service_placement_date;
 	double extension;
 	int estimated_useful_life_years;
@@ -44,8 +43,8 @@ typedef struct
 	double database_finance_accumulated_depreciation;
 	double tax_accumulated_depreciation;
 	double database_tax_accumulated_depreciation;
-	LIST *depreciation_list;
-	LIST *tax_recovery_list;
+	DEPRECIATION *depreciation;
+	TAX_RECOVERY *tax_recovery;
 } FIXED_ASSET;
 
 /* Operations */
@@ -71,15 +70,8 @@ FIXED_ASSET *fixed_asset_list_seek(
 				char *asset_name,
 				char *serial_number );
 
-char *fixed_asset_get_select(	char *folder_name );
-
-char *fixed_asset_depreciation_purchase_get_select(
-				char **folder_from,
-				char **join_where,
-				char *application_name  );
-
 char *fixed_asset_purchase_get_select(
-				void );
+				boolean with_account );
 
 void fixed_asset_update_stream(
 				FILE *update_pipe,
@@ -152,7 +144,12 @@ LIST *fixed_asset_purchase_fetch_list(
 				char *purchase_date_time );
 
 LIST *fixed_asset_depreciation_purchase_fetch_list(
-				char *application_name );
+				char *application_name,
+				char *fund_name );
+
+char *fixed_asset_purchase_get_fund_where(
+				char **folder_from,
+				char *fund_name );
 
 #endif
 

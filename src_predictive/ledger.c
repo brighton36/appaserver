@@ -5683,6 +5683,11 @@ char *ledger_beginning_transaction_date(
 
 LIST *ledger_get_fund_name_list( char *application_name )
 {
+	return ledger_fetch_fund_name_list( application_name );
+}
+
+LIST *ledger_fetch_fund_name_list( char *application_name )
+{
 	char sys_string[ 512 ];
 
 	if ( !ledger_fund_attribute_exists(
@@ -5699,7 +5704,7 @@ LIST *ledger_get_fund_name_list( char *application_name )
 
 	return pipe2list( sys_string );
 
-} /* ledger_get_fund_name_list() */
+} /* ledger_fetch_fund_name_list() */
 
 /* Returns begin_date_string */
 /* ------------------------- */

@@ -764,7 +764,11 @@ char *ledger_get_report_title_sub_title(
 				int fund_name_list_length,
 				char *logo_filename );
 
-LIST *ledger_get_fund_name_list(char *application_name );
+LIST *ledger_get_fund_name_list(
+				char *application_name );
+
+LIST *ledger_fetch_fund_name_list(
+				char *application_name );
 
 LIST *ledger_get_beginning_latex_row_list(
 				double *total_element,

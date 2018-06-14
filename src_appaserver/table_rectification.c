@@ -784,8 +784,7 @@ char *get_attribute_datatype_string( ATTRIBUTE *attribute )
 	if ( strcmp( attribute->datatype, "float" ) == 0 )
 	{
 		sprintf( datatype_string,
-			 "%s(%d,%d)",
-			 attribute->datatype,
+			 "double(%d,%d)",
 			 attribute->width,
 			 attribute->float_decimal_places );
 	}
@@ -803,7 +802,9 @@ char *get_attribute_datatype_string( ATTRIBUTE *attribute )
 			 attribute->datatype,
 			 attribute->width );
 	}
+
 	return strdup( datatype_string );
+
 } /* get_attribute_datatype_string() */
 
 char *get_drop_table_control_string(

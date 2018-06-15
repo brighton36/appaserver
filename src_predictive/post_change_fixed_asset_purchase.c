@@ -48,8 +48,6 @@ void post_change_fixed_asset_purchase_update(
 			char *serial_number,
 			char *preupdate_asset_name,
 			char *preupdate_serial_number,
-			char *preupdate_declining_balance_n,
-			char *preupdate_depreciation_method,
 			char *preupdate_extension );
 
 int main( int argc, char **argv )
@@ -64,8 +62,6 @@ int main( int argc, char **argv )
 	char *preupdate_asset_name;
 	char *preupdate_serial_number;
 	char *preupdate_extension;
-	char *preupdate_declining_balance_n;
-	char *preupdate_depreciation_method;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -77,7 +73,7 @@ int main( int argc, char **argv )
 	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored full_name street_address purchase_date_time asset_name serial_number state preupdate_asset_name preupdate_serial_number preupdate_extension preupdate_declining_balance_n preupdate_depreciation_method\n",
+"Usage: %s ignored full_name street_address purchase_date_time asset_name serial_number state preupdate_asset_name preupdate_serial_number preupdate_extension ignored ignored\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -91,8 +87,10 @@ int main( int argc, char **argv )
 	preupdate_asset_name = argv[ 8 ];
 	preupdate_serial_number = argv[ 9 ];
 	preupdate_extension = argv[ 10 ];
+/*
 	preupdate_declining_balance_n = argv[ 11 ];
 	preupdate_depreciation_method = argv[ 12 ];
+*/
 
 	if ( strcmp( purchase_date_time, "purchase_date_time" ) == 0 )
 		exit( 0 );
@@ -128,8 +126,6 @@ int main( int argc, char **argv )
 			serial_number,
 			preupdate_asset_name,
 			preupdate_serial_number,
-			preupdate_declining_balance_n,
-			preupdate_depreciation_method,
 			preupdate_extension );
 	}
 
@@ -322,17 +318,17 @@ void post_change_fixed_asset_purchase_update(
 			char *serial_number,
 			char *preupdate_asset_name,
 			char *preupdate_serial_number,
-			char *preupdate_declining_balance_n,
-			char *preupdate_depreciation_method,
 			char *preupdate_extension )
 {
 	PURCHASE_ORDER *purchase_order;
 	FIXED_ASSET *purchase_fixed_asset;
-	enum preupdate_change_state declining_balance_n_change_state;
-	enum preupdate_change_state depreciation_method_change_state;
 	enum preupdate_change_state asset_name_change_state;
 	enum preupdate_change_state serial_number_change_state;
 	enum preupdate_change_state extension_change_state;
+/*
+	enum preupdate_change_state declining_balance_n_change_state;
+	enum preupdate_change_state depreciation_method_change_state;
+*/
 
 	purchase_order =
 		purchase_order_new(
@@ -383,6 +379,13 @@ void post_change_fixed_asset_purchase_update(
 			purchase_order->shipped_date,
 			purchase_order->database_shipped_date );
 
+#ifdef NOT_DEFINED
+	declining_balance_n_change_state =
+		appaserver_library_get_preupdate_change_state(
+			preupdate_declining_balance_n,
+			(char *)0 /* postupdate_data */,
+			"preupdate_declining_balance_n" );
+
 	depreciation_method_change_state =
 		appaserver_library_get_preupdate_change_state(
 			preupdate_depreciation_method,
@@ -391,12 +394,7 @@ void post_change_fixed_asset_purchase_update(
 				: ""
 				/* postupdate_data */,
 			"preupdate_depreciation_method" );
-
-	declining_balance_n_change_state =
-		appaserver_library_get_preupdate_change_state(
-			preupdate_declining_balance_n,
-			(char *)0 /* postupdate_data */,
-			"preupdate_declining_balance_n" );
+#endif
 
 	asset_name_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -421,17 +419,15 @@ void post_change_fixed_asset_purchase_update(
 		/* do nothing */
 	}
 
-
+/*
 	if (	declining_balance_n_change_state ==
 		from_something_to_something_else )
 	{
-/*
 		purchase_depreciation_update_and_transaction_propagate(
 			purchase_fixed_asset,
 			purchase_order->arrived_date_time,
 			application_name,
 			purchase_order->fund_name );
-*/
 	}
 
 	if (	depreciation_method_change_state ==
@@ -439,14 +435,13 @@ void post_change_fixed_asset_purchase_update(
 	||  	depreciation_method_change_state ==
 		from_something_to_null )
 	{
-/*
 		purchase_depreciation_update_and_transaction_propagate(
 			purchase_fixed_asset,
 			purchase_order->arrived_date_time,
 			application_name,
 			purchase_order->fund_name );
-*/
 	}
+*/
 
 	if ( !purchase_order->transaction ) return;
 

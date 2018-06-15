@@ -72,6 +72,7 @@ FIXED_ASSET *fixed_asset_list_seek(
 				char *serial_number );
 
 char *fixed_asset_purchase_get_select(
+				char *folder_name,
 				boolean with_account );
 
 void fixed_asset_update_stream(
@@ -144,6 +145,10 @@ LIST *fixed_asset_purchase_fetch_list(
 				char *street_address,
 				char *purchase_date_time );
 
+LIST *fixed_asset_depreciation_prior_fetch_list(
+				char *application_name,
+				char *fund_name );
+
 LIST *fixed_asset_depreciation_purchase_fetch_list(
 				char *application_name,
 				char *fund_name );
@@ -151,6 +156,8 @@ LIST *fixed_asset_depreciation_purchase_fetch_list(
 char *fixed_asset_purchase_get_fund_where(
 				char **folder_from,
 				char *fund_name );
+
+char *fixed_asset_get_where(	char *fund_where );
 
 #endif
 

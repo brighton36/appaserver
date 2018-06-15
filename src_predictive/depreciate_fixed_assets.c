@@ -132,6 +132,15 @@ void depreciate_fixed_assets(	char *application_name,
 			application_name,
 			FIXED_ASSET_DEPRECIATION_FOLDER );
 
+	if ( !depreciation_date || !*depreciation_date )
+	{
+		depreciation_date =
+		prior_depreciation_date =
+			depreciation_fetch_max_depreciation_date(
+				application_name,
+				PRIOR_FIXED_ASSET_DEPRECIATION_FOLDER );
+	}
+
 	if ( ! ( entity_self =
 			entity_self_load(
 				application_name ) ) )
@@ -151,7 +160,7 @@ void depreciate_fixed_assets(	char *application_name,
 		if ( !depreciation_date || !*depreciation_date )
 		{
 			printf(
-		"<h3>Error: no depreciated purchased fixed assets to undo.\n" );
+		"<h3>Error: no depreciated fixed assets to undo.\n" );
 			return;
 		}
 	}
@@ -165,7 +174,18 @@ void depreciate_fixed_assets(	char *application_name,
 			depreciation_date ) )
 		{
 			printf(
-"<h3>Error: depreciation date for purchased fixed assets exists for today.</h3>\n" );
+"<h3>Error: depreciation date for fixed assets exists for today.</h3>\n" );
+
+			return;
+		}
+
+		if ( depreciation_date_exists(
+			application_name,
+			PRIOR_FIXED_ASSET_DEPRECIATION_FOLDER,
+			depreciation_date ) )
+		{
+			printf(
+"<h3>Error: depreciation date for fixed assets exists for today.</h3>\n" );
 
 			return;
 		}
@@ -203,9 +223,16 @@ void depreciate_fixed_assets(	char *application_name,
 					prior_depreciation_date,
 					1 /* with_load */ );
 
-			if ( !depreciation_fixed_assets_execute(
+			depreciation_fund_list_set_transaction(
+				entity_self->depreciation_fund_list,
+				entity_self->entity->full_name,
+				entity_self->entity->street_address );
+
+			if ( !depreciation_fund_list_execute(
+				entity_self->depreciation_fund_list,
 				application_name,
-				entity_self->depreciation_fund_list ) )	
+				entity_self->entity->full_name,
+				entity_self->entity->street_address ) )	
 			{
 				printf(
 		"<h3>Error: no fixed asset to depreciate.</h3>\n" );
@@ -230,7 +257,7 @@ void depreciate_fixed_assets(	char *application_name,
 		}
 		else
 		{
-			depreciation_depreciation_fund_list_table_display(
+			depreciation_fund_list_table_display(
 				process_name,
 				entity_self->depreciation_fund_list );
 		}
@@ -239,55 +266,6 @@ void depreciate_fixed_assets(	char *application_name,
 } /* depreciate_fixed_assets() */
 
 #ifdef NOT_DEFINED
-boolean depreciate_purchased_fixed_assets_execute(
-					char *application_name,
-					char *depreciation_date,
-					char *prior_depreciation_date )
-{
-	ENTITY_SELF *entity_self;
-
-	if ( ! ( entity_self =
-			entity_self_load(
-				application_name ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load entity self.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	entity_self->depreciation_fund_list =
-		depreciation_fetch_fund_list(
-			application_name );
-
-	entity_self->fixed_asset_purchased_list =
-		fixed_asset_depreciation_purchase_fetch_list(
-			application_name );
-
-	if ( !list_length( entity_self->fixed_asset_purchased_list )
-		return 0;
-
-	depreciation_fixed_asset_list_set_depreciation(
-		entity_self->fixed_asset_purchased_list,
-		&entity_self->purchased_fixed_asset_depreciation_amount,
-		depreciation_date,
-		prior_depreciation_date );
-
-	depreciation_fixed_asset_set_transaction(
-		fixed_asset_depreciation->entity_list );
-
-	depreciation_fixed_asset_execute(
-		fixed_asset_depreciation->entity_list,
-		application_name,
-		fund_name,
-		depreciation_date );
-
-	return 1;
-
-} /* depreciate_purchased_fixed_assets_execute() */
-
 void depreciate_fixed_assets_undo(	char *application_name,
 					char *depreciation_date )
 {

@@ -336,8 +336,8 @@ boolean ledger_transaction_load(	double *transaction_amount,
 					char *street_address,
 					char *transaction_date_time );
 
-/* Returns transaction_list with transaction_date_time correctly set (maybe) */
-/* ------------------------------------------------------------------------- */
+/* Returns transaction_list with transaction_date_time changed if needed. */
+/* ---------------------------------------------------------------------- */
 LIST *ledger_transaction_list_insert(	LIST *transaction_list,
 					char *application_name );
 

@@ -221,7 +221,7 @@ int main( int argc, char **argv )
 
 		sprintf( sys_string,
 "create_empty_application \"%s\" %s \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" %c %c %c 2>>%s 1>/dev/null",
-			 TEMPLATE_APPLICATION_DATABASE,
+			 TEMPLATE_APPLICATION,
 			 session,
 			 login_name,
 			 "" /* role */,

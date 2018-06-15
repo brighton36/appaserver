@@ -3070,8 +3070,8 @@ FILE *ledger_transaction_insert_open_stream( char *application_name )
 
 } /* ledger_transaction_insert_open_stream() */
 
-/* Returns transaction_list with transaction_date_time correctly set. */
-/* ------------------------------------------------------------------ */
+/* Returns transaction_list with transaction_date_time changed if needed. */
+/* ---------------------------------------------------------------------- */
 LIST *ledger_transaction_list_insert(	LIST *transaction_list,
 					char *application_name )
 {

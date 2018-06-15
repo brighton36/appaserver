@@ -363,19 +363,19 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
+	folder=inventory_cost_method
+	columns=inventory_cost_method
+	get_folder_data a=$application f=$folder s=$columns		|
+	insert_statement.e t=$folder field=$columns del='^'		|
+	cat >> $output_shell
+	
 	# Only enterprise and non-profit folders follow:
 	# ----------------------------------------------
-	folder=inventory_cost_method
+	folder=federal_marital_status
 	results=`grep $folder $input_file | wc -l`
 
 	if [ "$results" -eq 1 ]
 	then
-		folder=inventory_cost_method
-		columns=inventory_cost_method
-		get_folder_data a=$application f=$folder s=$columns	|
-		insert_statement.e t=$folder field=$columns del='^'	|
-		cat >> $output_shell
-	
 		folder=federal_marital_status
 		columns=federal_marital_status
 		get_folder_data a=$application f=$folder s=$columns	|

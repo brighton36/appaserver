@@ -1512,6 +1512,7 @@ insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','b
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('prior_fixed_asset','supervisor','update');
+insert into $row_security_role_update (folder,attribute_not_null) values ('prior_fixed_asset','service_placement_date');
 delete from $javascript_folders where folder = 'prior_fixed_asset';
 delete from $process where process = 'post_change_prior_fixed_asset';
 insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,process_set_display,appaserver_yn,process_group,preprompt_help_text) values ('post_change_prior_fixed_asset','post_change_prior_fixed_asset ignored asset_name serial_number \$state preupdate_extension',null,null,null,null,null,null,null);

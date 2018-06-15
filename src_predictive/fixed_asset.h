@@ -159,5 +159,15 @@ char *fixed_asset_purchase_get_fund_where(
 
 char *fixed_asset_get_where(	char *fund_where );
 
+void fixed_asset_depreciation_fund_list_update(
+				LIST *depreciation_fund_list );
+
+void fixed_asset_accumulated_depreciation_update(
+				FILE *output_pipe,
+				LIST *fixed_asset_list );
+
+char *fixed_asset_accumulated_depreciation_get_update_sys_string(
+				char *folder_name );
+
 #endif
 

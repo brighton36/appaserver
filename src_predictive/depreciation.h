@@ -36,8 +36,6 @@ typedef struct
 
 typedef struct
 {
-	char *asset_name;
-	char *serial_number;
 	char *depreciation_date;
 	int units_produced;
 	double depreciation_amount;
@@ -59,8 +57,7 @@ DEPRECIATION_FUND *depreciation_fund_new(
 			boolean with_load );
 
 DEPRECIATION *depreciation_new(
-			char *asset_name,
-			char *serial_number );
+			void );
 
 double depreciation_calculate_amount(
 			char *depreciation_method,
@@ -153,13 +150,13 @@ void depreciation_fixed_asset_list_table_display(
 			char *process_name,
 			LIST *fixed_asset_list );
 
-boolean depreciation_fund_list_execute(
+boolean depreciation_fund_list_insert(
 			LIST *depreciation_fund_list,
 			char *application_name,
 			char *full_name,
 			char *street_address );
 
-boolean depreciation_fixed_asset_list_execute(
+boolean depreciation_fixed_asset_list_insert(
 			LIST *fixed_asset_list,
 			char *folder_name,
 			char *full_name,

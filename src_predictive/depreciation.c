@@ -40,16 +40,11 @@ DEPRECIATION *depreciation_calloc( void )
 
 } /* depreciation_calloc() */
 
-DEPRECIATION *depreciation_new(
-			char *asset_name,
-			char *serial_number )
+DEPRECIATION *depreciation_new( void )
 {
-	DEPRECIATION *p = depreciation_calloc();
+	DEPRECIATION *d = depreciation_calloc();
 
-	p->asset_name = asset_name;
-	p->serial_number = serial_number;
-
-	return p;
+	return d;
 
 } /* depreciation_new() */
 
@@ -539,12 +534,9 @@ void depreciation_fixed_asset_list_set_depreciation(
 	if ( !list_rewind( fixed_asset_list ) ) return;
 
 	do {
-		fixed_asset = list_get_pointer( fixed_asset_list );
+		depreciation = depreciation_new();
 
-		depreciation =
-			depreciation_new(
-				fixed_asset->asset_name,
-				fixed_asset->serial_number );
+		fixed_asset = list_get_pointer( fixed_asset_list );
 
 		depreciation->depreciation_amount =
 			depreciation_calculate_amount(
@@ -812,7 +804,7 @@ void depreciation_fund_list_set_transaction(
 
 } /* depreciation_fund_list_set_transaction() */
 
-boolean depreciation_fund_list_execute(
+boolean depreciation_fund_list_insert(
 				LIST *depreciation_fund_list,
 				char *application_name,
 				char *full_name,
@@ -852,7 +844,7 @@ boolean depreciation_fund_list_execute(
 					purchase_transaction->
 					journal_ledger_list );
 
-		if ( depreciation_fixed_asset_list_execute(
+		if ( depreciation_fixed_asset_list_insert(
 			depreciation_fund->
 				fixed_asset_purchased_list,
 			"fixed_asset_depreciation",
@@ -889,7 +881,7 @@ boolean depreciation_fund_list_execute(
 					prior_transaction->
 					journal_ledger_list );
 
-		if ( depreciation_fixed_asset_list_execute(
+		if ( depreciation_fixed_asset_list_insert(
 			depreciation_fund->
 				fixed_asset_prior_list,
 			"prior_fixed_asset_depreciation",
@@ -906,9 +898,9 @@ boolean depreciation_fund_list_execute(
 
 	return did_any;
 
-} /* depreciation_fund_list_execute() */
+} /* depreciation_fund_list_insert() */
 
-boolean depreciation_fixed_asset_list_execute(
+boolean depreciation_fixed_asset_list_insert(
 				LIST *fixed_asset_list,
 				char *folder_name,
 				char *full_name,
@@ -951,5 +943,5 @@ boolean depreciation_fixed_asset_list_execute(
 
 	return 1;
 
-} /* depreciation_fixed_asset_list_execute() */
+} /* depreciation_fixed_asset_list_insert() */
 

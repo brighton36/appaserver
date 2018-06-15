@@ -1026,7 +1026,7 @@ void purchase_order_arrived_date_time_update(
 	sys_string = purchase_order_get_update_sys_string( application_name );
 	output_pipe = popen( sys_string, "w" );
 
-	fprintf( output_pipe,
+	fprintf(output_pipe,
 	 	"%s^%s^%s^arrived_date_time^%s\n",
 		escape_character(	buffer,
 					purchase_order->full_name,
@@ -1141,7 +1141,7 @@ void purchase_vendor_payment_update(
 
 	output_pipe = popen( sys_string, "w" );
 
-	fprintf( output_pipe,
+	fprintf(output_pipe,
 	 	"%s^%s^%s^%s^transaction_date_time^%s\n",
 		full_name,
 		street_address,

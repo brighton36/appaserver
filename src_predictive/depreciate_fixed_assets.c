@@ -19,6 +19,7 @@
 #include "appaserver_error.h"
 #include "entity.h"
 #include "appaserver_parameter_file.h"
+#include "fixed_asset.h"
 #include "depreciation.h"
 
 /* Constants */
@@ -28,32 +29,14 @@
 
 /* Prototypes */
 /* ---------- */
+void depreciate_fixed_assets_undo(	char *application_name,
+					char *depreciation_date,
+					LIST *depreciation_fund_list );
+
 void depreciate_fixed_assets(		char *application_name,
 					char *process_name,
 					boolean undo,
 					boolean execute );
-
-/*
-void depreciate_purchased_fixed_assets_display(
-					char *application_name,
-					char *process_name,
-					char *depreciation_date,
-					char *prior_depreciation_date );
-
-void depreciate_purchased_fixed_assets(
-					char *application_name,
-					boolean undo,
-					boolean execute );
-
-void depreciate_purchased_fixed_assets_undo(
-					char *application_name,
-					char *depreciation_date );
-
-boolean depreciate_purchased_fixed_assets_execute(
-					char *application_name,
-					char *depreciation_date,
-					char *prior_depreciation_date );
-*/
 
 int main( int argc, char **argv )
 {
@@ -202,17 +185,21 @@ void depreciate_fixed_assets(	char *application_name,
 
 		if ( undo )
 		{
-/*
-			depreciate_purchased_fixed_assets_undo(
+			entity_self->depreciation_fund_list =
+				depreciation_fetch_fund_list(
+					application_name,
+					depreciation_date,
+					prior_depreciation_date,
+					0 /* not with_load */ );
+
+			depreciate_fixed_assets_undo(
 				application_name,
-				depreciation_date );
+				depreciation_date,
+				entity_self->depreciation_fund_list );
 
 			printf(
 "<h3>Depreciation of purchased fixed assets posted on %s is now deleted.</h3>\n",
 				depreciation_date );
-*/
-			printf(
-"<h3>Undo is not ready yet.</h3>\n" );
 		}
 		else
 		{
@@ -228,7 +215,7 @@ void depreciate_fixed_assets(	char *application_name,
 				entity_self->entity->full_name,
 				entity_self->entity->street_address );
 
-			if ( !depreciation_fund_list_execute(
+			if ( !depreciation_fund_list_insert(
 				entity_self->depreciation_fund_list,
 				application_name,
 				entity_self->entity->full_name,
@@ -239,6 +226,9 @@ void depreciate_fixed_assets(	char *application_name,
 			}
 			else
 			{
+				fixed_asset_depreciation_fund_list_update(
+					entity_self->depreciation_fund_list );
+
 				printf(
 				"<h3>Depreciation now posted on %s.</h3>\n",
 				depreciation_date );
@@ -265,32 +255,44 @@ void depreciate_fixed_assets(	char *application_name,
 
 } /* depreciate_fixed_assets() */
 
-#ifdef NOT_DEFINED
 void depreciate_fixed_assets_undo(	char *application_name,
-					char *depreciation_date )
+					char *depreciation_date,
+					LIST *depreciation_fund_list )
 {
 	char transaction_date_time[ 64 ];
 	char sys_string[ 1024 ];
 	char where[ 128 ];
-	char *depreciation_expense_account = {0};
-	char *accumulated_depreciation_account = {0};
+	char *select;
+	char *folder_name;
 	char *propagate_transaction_date_time = {0};
+	DEPRECIATION_FUND *depreciation_fund;
 	FILE *input_pipe;
 	FILE *output_pipe;
+
+	output_pipe = popen( "sql.e", "w" );
+
+	/* ---------------------------------------------------- */
+	/* They should all have the same transaction_date_time,	*/
+	/* but to be sure.					*/
+	/* ---------------------------------------------------- */
+	select = "distinct(transaction_date_time)";
+
+	/* Delete FIXED_ASSET_DEPRECIATION */
+	/* ------------------------------- */
+	folder_name = "fixed_asset_depreciation";
 
 	sprintf(where,
 		"depreciation_date = '%s'",
 		depreciation_date );
 
-	output_pipe = popen( "sql.e", "w" );
-
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=transaction_date_time	"
-		 "			folder=depreciation		"
-		 "			where=\"%s\"			"
-		 "			order=select			",
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
 		 application_name,
+		 select,
+		 folder_name,
 		 where );
 
 	input_pipe = popen( sys_string, "r" );
@@ -319,34 +321,86 @@ void depreciate_fixed_assets_undo(	char *application_name,
 	pclose( input_pipe );
 
 	fprintf( output_pipe,
-	 	 "delete from depreciation where %s;\n",
+	 	 "delete from %s where %s;\n",
+		 folder_name,
+	 	 where );
+
+	/* Delete PRIOR_FIXED_ASSET_DEPRECIATION */
+	/* ------------------------------------- */
+	folder_name = "prior_fixed_asset_depreciation";
+
+	sprintf(where,
+		"depreciation_date = '%s'",
+		depreciation_date );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder_name,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( transaction_date_time, input_pipe ) )
+	{
+		sprintf(where,
+			"transaction_date_time = '%s'",
+			transaction_date_time );
+
+		fprintf( output_pipe,
+		 	 "delete from journal_ledger where %s;\n",
+		 	 where );
+
+		fprintf( output_pipe,
+		 	 "delete from transaction where %s;\n",
+		 	 where );
+
+		if ( !propagate_transaction_date_time )
+		{
+			propagate_transaction_date_time =
+				strdup( transaction_date_time );
+		}
+	}
+
+	pclose( input_pipe );
+
+	fprintf( output_pipe,
+	 	 "delete from %s where %s;\n",
+		 folder_name,
 	 	 where );
 
 	pclose( output_pipe );
 
-	/* Error with an exit if failure. */
-	/* ------------------------------ */
-	ledger_get_depreciation_account_names(
-		&depreciation_expense_account,
-		&accumulated_depreciation_account,
-		application_name,
-		fund_name );
+	if ( list_rewind( depreciation_fund_list ) )
+	{
+		do {
+			depreciation_fund =
+				list_get_pointer(
+					depreciation_fund_list );
 
-	sprintf( sys_string,
-		 "ledger_propagate %s \"%s\" '' \"%s\" \"%s\"",
-		 application_name,
-		 propagate_transaction_date_time,
-		 depreciation_expense_account,
-		 accumulated_depreciation_account );
+			sprintf(sys_string,
+		 		"ledger_propagate %s \"%s\" '' \"%s\" \"%s\"",
+		 		application_name,
+		 		propagate_transaction_date_time,
+		 		depreciation_fund->
+					depreciation_expense_account,
+		 		depreciation_fund->
+					accumulated_depreciation_account );
 
-	system( sys_string );
+			system( sys_string );
 
-	sprintf( sys_string,
-		 "finance_accumulated_depreciation_reset.sh %s",
-		 application_name );
+		} while( list_next( depreciation_fund_list ) );
 
-	system( sys_string );
+		sprintf(sys_string,
+		 	"finance_accumulated_depreciation_reset.sh %s",
+		 	application_name );
+
+		system( sys_string );
+	}
 
 } /* depreciate_fixed_assets_undo() */
-#endif
 

@@ -444,3 +444,97 @@ FIXED_ASSET *fixed_asset_list_seek(
 
 } /* fixed_asset_list_seek() */
 
+char *fixed_asset_accumulated_depreciation_get_update_sys_string(
+				char *folder_name )
+{
+	char sys_string[ 256 ];
+	char *key;
+
+	key = "asset_name,serial_number";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y | sql.e",
+		 folder_name,
+		 key );
+
+	return strdup( sys_string );
+
+} /* fixed_asset_accumulated_depreciation_get_update_sys_string() */
+
+void fixed_asset_accumulated_depreciation_update(
+			FILE *output_pipe,
+			LIST *fixed_asset_list )
+{
+	FIXED_ASSET *fixed_asset;
+
+	if ( !list_rewind( fixed_asset_list ) ) return;
+
+	do {
+		fixed_asset =
+			list_get_pointer(
+				fixed_asset_list );
+
+		fprintf(output_pipe,
+			"%s^%s^finance_accumulated_depreciation^%.2lf\n",
+			fixed_asset->asset_name,
+			fixed_asset->serial_number,
+			fixed_asset->finance_accumulated_depreciation );
+
+	} while( list_next( fixed_asset_list ) );
+
+} /* fixed_asset_accumulated_depreciation_update() */
+
+void fixed_asset_depreciation_fund_list_update(
+			LIST *depreciation_fund_list )
+{
+	char *sys_string;
+	FILE *purchase_output_pipe;
+	FILE *prior_output_pipe;
+	DEPRECIATION_FUND *depreciation_fund;
+
+	if ( !list_rewind( depreciation_fund_list ) ) return;
+
+	sys_string =
+		fixed_asset_accumulated_depreciation_get_update_sys_string(
+			"fixed_asset_purchase" );
+
+	purchase_output_pipe = popen( sys_string, "w" );
+
+	sys_string =
+		fixed_asset_accumulated_depreciation_get_update_sys_string(
+			"prior_fixed_asset" );
+
+	prior_output_pipe = popen( sys_string, "w" );
+
+	do {
+		depreciation_fund =
+			list_get_pointer(
+				depreciation_fund_list );
+
+		if ( list_length(
+			depreciation_fund->
+				fixed_asset_purchased_list ) )
+		{
+			fixed_asset_accumulated_depreciation_update(
+				purchase_output_pipe,
+				depreciation_fund->
+					fixed_asset_purchased_list );
+		}
+
+		if ( list_length(
+			depreciation_fund->
+				fixed_asset_prior_list ) )
+		{
+			fixed_asset_accumulated_depreciation_update(
+				prior_output_pipe,
+				depreciation_fund->
+					fixed_asset_prior_list );
+		}
+
+	} while( list_next( depreciation_fund_list ) );
+
+	pclose( purchase_output_pipe );
+	pclose( prior_output_pipe );
+
+} /* fixed_asset_depreciation_fund_list_update() */
+

@@ -126,7 +126,7 @@ char *depreciation_fetch_max_depreciation_date(
 			char *application_name,
 			char *folder_name );
 
-void depreciation_fixed_asset_list_set_depreciation(
+void depreciation_fixed_asset_list_set(
 			LIST *fixed_asset_list,
 			double *purchased_fixed_asset_depreciation_amount,
 			char *depreciation_date,

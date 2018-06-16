@@ -522,7 +522,7 @@ void depreciation_fund_get_transaction(
 
 } /* depreciation_fund_get_transaction() */
 
-void depreciation_fixed_asset_list_set_depreciation(
+void depreciation_fixed_asset_list_set(
 			LIST *fixed_asset_list,
 			double *purchased_fixed_asset_depreciation_amount,
 			char *depreciation_date,
@@ -562,7 +562,7 @@ void depreciation_fixed_asset_list_set_depreciation(
 
 	} while( list_next( fixed_asset_list ) );
 
-} /* depreciation_fixed_asset_list_set_depreciation() */
+} /* depreciation_fixed_asset_list_set() */
 
 void depreciation_fund_list_table_display(
 				char *process_name,
@@ -748,7 +748,7 @@ DEPRECIATION_FUND *depreciation_fund_new(
 				application_name,
 				fund_name );
 	
-		depreciation_fixed_asset_list_set_depreciation(
+		depreciation_fixed_asset_list_set(
 			d->fixed_asset_purchased_list,
 			&d->purchased_fixed_asset_depreciation_amount,
 			depreciation_date,
@@ -761,7 +761,7 @@ DEPRECIATION_FUND *depreciation_fund_new(
 				application_name,
 				fund_name );
 	
-		depreciation_fixed_asset_list_set_depreciation(
+		depreciation_fixed_asset_list_set(
 			d->fixed_asset_prior_list,
 			&d->prior_fixed_asset_depreciation_amount,
 			depreciation_date,

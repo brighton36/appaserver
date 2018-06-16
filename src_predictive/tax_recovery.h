@@ -39,10 +39,13 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-TAX_RECOVERY *tax_recovery_new(	void );
-
-TAX_RECOVERY *tax_recovery_input_buffer_parse(
-				char *input_buffer );
+TAX_RECOVERY *tax_recovery_new(	char *asset_name,
+				char *serial_number,
+				char *service_placement_date,
+				double tax_cost_basis,
+				char *tax_recovery_period,
+				char *disposal_date,
+				int recovery_year );
 
 double tax_recovery_calculate_recovery_amount(
 				double *recovery_percent,
@@ -55,25 +58,17 @@ double tax_recovery_calculate_recovery_amount(
 boolean tax_recovery_parse(
 				int *service_month,
 				int *service_year,
-				int *sale_month,
-				int *sale_year,
+				int *disposal_month,
+				int *disposal_year,
 				char *service_placement_date_string,
-				char *sale_date_string );
+				char *disposal_date_string );
 
 int tax_recovery_fetch_max_recovery_year(
 				char *application_name,
 				char *folder_name );
 
-FILE *tax_recovery_get_input_pipe(
-				char *application_name,
-				int recovery_year,
-				char *folder_name );
-
-char *tax_recovery_get_select(	void );
-
-char *tax_recovery_get_order_by(void );
-
-char *tax_recovery_get_filter_where(
-				char *minimum_disposal_date );
+void tax_recovery_fixed_asset_list_set(
+				LIST *fixed_asset_list,
+				int recovery_year );
 
 #endif

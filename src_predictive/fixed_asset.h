@@ -9,12 +9,12 @@
 #ifndef FIXED_ASSET_H
 #define FIXED_ASSET_H
 
+#include "tax_recovery.h"
+#include "depreciation.h"
 #include "list.h"
 #include "boolean.h"
 #include "inventory.h"
 #include "ledger.h"
-#include "depreciation.h"
-#include "tax_recovery.h"
 
 /* Constants */
 /* --------- */
@@ -157,7 +157,8 @@ char *fixed_asset_purchase_get_fund_where(
 				char **folder_from,
 				char *fund_name );
 
-char *fixed_asset_get_where(	char *fund_where );
+char *fixed_asset_depreciation_get_where(
+				char *fund_where );
 
 void fixed_asset_depreciation_fund_list_update(
 				LIST *depreciation_fund_list );
@@ -168,6 +169,14 @@ void fixed_asset_accumulated_depreciation_update(
 
 char *fixed_asset_accumulated_depreciation_get_update_sys_string(
 				char *folder_name );
+
+LIST *fixed_asset_fetch_tax_list(
+				char *application_name,
+				int recovery_year,
+				char *folder_name );
+
+char *fixed_asset_tax_get_where(
+				int recovery_year );
 
 #endif
 

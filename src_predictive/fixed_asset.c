@@ -12,7 +12,6 @@
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_library.h"
-#include "tax_recovery.h"
 #include "fixed_asset.h"
 
 FIXED_ASSET *fixed_asset_new( void )
@@ -220,7 +219,27 @@ FIXED_ASSET *fixed_asset_purchase_fetch(
 
 } /* fixed_asset_purchase_fetch() */
 
-char *fixed_asset_get_where( char *fund_where )
+char *fixed_asset_tax_get_where( int recovery_year )
+{
+	char where[ 1024 ];
+	char minimum_disposal_date[ 16 ];
+
+	sprintf( minimum_disposal_date,
+		 "%d-01-01",
+		 recovery_year );
+
+	sprintf( where,
+		 "(disposal_date is null or disposal_date >= %s) and	"
+		 "ifnull(tax_cost_basis,0.0) <> 0.0) and		"
+		 "tax_recovery_period is not null and			"
+		 "tax_accumulated_depreciation < tax_cost_basis		",
+		 minimum_disposal_date );
+
+	return strdup( where );
+
+} /* fixed_asset_tax_get_where() */
+
+char *fixed_asset_depreciation_get_where( char *fund_where )
 {
 	char where[ 1024 ];
 
@@ -235,7 +254,7 @@ char *fixed_asset_get_where( char *fund_where )
 
 	return strdup( where );
 
-} /* fixed_asset_get_where() */
+} /* fixed_asset_depreciation_get_where() */
 
 LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 					char *full_name,
@@ -329,7 +348,7 @@ LIST *fixed_asset_depreciation_prior_fetch_list(
 		strcpy( fund_where, "1 = 1" );
 	}
 
-	where = fixed_asset_get_where( fund_where );
+	where = fixed_asset_depreciation_get_where( fund_where );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -385,7 +404,7 @@ LIST *fixed_asset_depreciation_purchase_fetch_list(
 			&folder_from,
 			fund_name );
 
-	where = fixed_asset_get_where( fund_where );
+	where = fixed_asset_depreciation_get_where( fund_where );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -537,4 +556,54 @@ void fixed_asset_depreciation_fund_list_update(
 	pclose( prior_output_pipe );
 
 } /* fixed_asset_depreciation_fund_list_update() */
+
+LIST *fixed_asset_fetch_tax_list(
+			char *application_name,
+			int recovery_year,
+			char *folder_name )
+{
+	char sys_string[ 1024 ];
+	char *where;
+	char *select;
+	char input_buffer[ 2048 ];
+	FILE *input_pipe;
+	FIXED_ASSET *fixed_asset;
+	LIST *fixed_asset_list;
+
+	select =
+		fixed_asset_get_select(
+			folder_name,
+			0 /* not with_account */ );
+
+	where = fixed_asset_tax_get_where( recovery_year );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=\"%s\"			"
+		 "			where=\"%s\"			"
+		 "			order=select			",
+		 application_name,
+		 select,
+		 folder_name,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	fixed_asset_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		fixed_asset = fixed_asset_parse( input_buffer );
+
+		list_append_pointer(
+			fixed_asset_list,
+			fixed_asset );
+	}
+
+	pclose( input_pipe );
+
+	return fixed_asset_list;
+
+} /* fixed_asset_fetch_tax_list() */
 

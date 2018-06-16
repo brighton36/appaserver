@@ -109,6 +109,8 @@ void depreciate_fixed_assets(	char *application_name,
 	char *prior_depreciation_date;
 	ENTITY_SELF *entity_self;
 
+	/* Input */
+	/* ----- */
 	depreciation_date =
 	prior_depreciation_date =
 		depreciation_fetch_max_depreciation_date(
@@ -136,8 +138,6 @@ void depreciate_fixed_assets(	char *application_name,
 		exit( 1 );
 	}
 
-	/* Input */
-	/* ----- */
 	if ( undo )
 	{
 		if ( !depreciation_date || !*depreciation_date )

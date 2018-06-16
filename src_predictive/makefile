@@ -38,6 +38,7 @@ EXECUTABLES=	trial_balance						\
 		propagate_inventory_purchase_layers			\
 		propagate_inventory_sale_layers				\
 		depreciate_fixed_assets					\
+		tax_recover_fixed_assets				\
 		post_change_supply_purchase				\
 		post_change_service_purchase				\
 		post_change_inventory_purchase				\
@@ -125,6 +126,7 @@ SOURCE_LIBRARY= 							\
 		accrual.o						\
 		employee.o						\
 		fixed_asset.o						\
+		tax_recovery.o						\
 		entity.o
 
 all: 	${SOURCE_LIBRARY} ${EXECUTABLES}
@@ -137,13 +139,12 @@ clean:
 		financial_position					\
 		statement_of_activities
 
-tax_dvr: tax_dvr.c tax_recovery.o					\
+tax_dvr: tax_dvr.c 							\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		tax_dvr.c						\
-		tax_recovery.o						\
 		-o tax_dvr
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
@@ -231,12 +232,11 @@ depreciate_fixed_assets: depreciate_fixed_assets.c			\
 		-o depreciate_fixed_assets
 
 tax_recover_fixed_assets: tax_recover_fixed_assets.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax_recovery.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		tax_recover_fixed_assets.c				\
-		tax_recovery.o						\
 		-o tax_recover_fixed_assets
 
 trial_balance: trial_balance.c						\

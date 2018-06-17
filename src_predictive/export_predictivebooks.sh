@@ -18,14 +18,14 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 3 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 ignored input_file cleanup_script" 1>&2
+	echo "Usage: $0 input_file cleanup_script" 1>&2
 	exit 1
 fi
 
-input_file=$2
-cleanup_script=$3
+input_file=$1
+cleanup_script=$2
 
 output_shell="`basename.e $input_file y`".sh
 source_file="$APPASERVER_HOME/library/appaserver_library.h"
@@ -174,7 +174,9 @@ function create_predictivebooks()
 	input_file=$2
 	output_shell=$3
 
-	command="create_table $application n x x x $application ttable n mysql"
+	# ttable misspelling on purpose
+	# -----------------------------
+	command="create_table x n x x x $application ttable n mysql"
 
 	cat $input_file							|
 	while read table
@@ -210,13 +212,13 @@ function export_predictivebooks()
 	joinlines.e '&'							|
 	cat`
 
-#set -x
 	export_file=`
-	export_subschema $application x x x x "${parameter_list}" 2>/dev/null |
-	grep Created							      |
-	column.e 1							      |
+	export_subschema x x x x x "${parameter_list}" 2>/dev/null	|
+	grep Created							|
+	column.e 1							|
 	cat`
-#set +x
+
+	#export_subschema x x x x x "${parameter_list}"; exit 1
 
 	if [ "$export_file" = "" ]
 	then
@@ -225,7 +227,6 @@ function export_predictivebooks()
 	fi
 
 	cat $export_file						|
-	#sed "s/!= ${application}/= ignored/"				|
 	grep -v '^exit'							|
 	cat >> $output_shell
 
@@ -259,7 +260,7 @@ function extract_investment()
 }
 # extract_investment()
 
-function extract_chart_of_accounts()
+function extract_static_tables()
 {
 	application=$1
 	input_file=$2
@@ -349,19 +350,22 @@ function extract_chart_of_accounts()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
-	folder=tax_recovery_table
-	columns="	tax_recovery_period,
-			recovery_year,
-			recovery_percent"
-	get_folder_data a=$application f=$folder s="$columns"		|
-	insert_statement.e t=$folder field="$columns" del='^'		|
-	cat >> $output_shell
-
-	folder=tax_recovery_period
-	columns=tax_recovery_period
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
+	if [ "$input_file" != "predictivebooks_nonprofit.dat" ]
+	then
+		folder=tax_recovery_table
+		columns="	tax_recovery_period,
+				recovery_year,
+				recovery_percent"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+	
+		folder=tax_recovery_period
+		columns=tax_recovery_period
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
+	fi
 
 	folder=inventory_cost_method
 	columns=inventory_cost_method
@@ -433,7 +437,7 @@ function extract_chart_of_accounts()
 	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
 	echo "" >> $output_shell
 }
-# extract_chart_of_accounts()
+# extract_static_tables()
 
 function extract_self()
 {
@@ -510,7 +514,7 @@ rm $output_shell 2>/dev/null
 
 export_predictivebooks $application $input_file $output_shell
 create_predictivebooks $application $input_file $output_shell
-extract_chart_of_accounts $application $input_file $output_shell
+extract_static_tables $application $input_file $output_shell
 extract_investment $application $output_shell
 export_processes $application $input_file $output_shell
 extract_self $application $output_shell

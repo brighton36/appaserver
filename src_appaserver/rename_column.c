@@ -225,31 +225,22 @@ boolean output_process_script(
 
 	fprintf( output_file,
 "#!/bin/sh\n" );
+
 	fprintf( output_file,
-"if [ \"$#\" -ne 1 ]\n" );
-	fprintf( output_file,
-"then\n" );
-	fprintf( output_file,
-"\techo \"Usage: $0 application\" 1>&2\n" );
-	fprintf( output_file,
-"\texit 1\n" );
-	fprintf( output_file,
+"if [ \"$APPASERVER_DATABASE\" != \"\" ]\n"
+"then\n"
+"	application=$APPASERVER_DATABASE\n"
+"elif [ \"$DATABASE\" != \"\" ]\n"
+"then\n"
+"	application=$DATABASE\n"
+"fi\n"
+"\n"
+"if [ \"$application\" = \"\" ]\n"
+"then\n"
+"	echo \"Error in `basename.e $0 n`: you must first:\" 1>&2\n"
+"	echo \"$ . set_database\" 1>&2\n"
+"	exit 1\n"
 "fi\n" );
-
-	fprintf( output_file,
-"application=$1\n\n" );
-
-	if ( !is_system_attribute )
-	{
-		fprintf(output_file,
-	"if [ \"$application\" != %s ]\n", application_name );
-		fprintf(output_file,
-	"then\n" );
-		fprintf(output_file,
-	"\texit 0\n" );
-		fprintf(output_file,
-	"fi\n\n" );
-	}
 
 	fprintf( output_file,
 "table_name=`get_table_name $application %s`\n",

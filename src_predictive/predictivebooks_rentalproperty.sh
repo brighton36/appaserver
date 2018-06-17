@@ -1137,8 +1137,8 @@ delete from $attribute where attribute = 'asset_name';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('asset_name','text','30',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'serial_number';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('serial_number','text','10',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'recovery_year';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('recovery_year','integer','4',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'tax_year';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('tax_year','integer','4',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'recovery_percent';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('recovery_percent','float','6','3',null,null,null,null,null,null);
 delete from $attribute where attribute = 'recovery_amount';
@@ -1147,8 +1147,8 @@ delete from $folder_attribute where folder = 'tax_fixed_asset_recovery';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_fixed_asset_recovery','asset_name','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_fixed_asset_recovery','recovery_amount',null,'2',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_fixed_asset_recovery','recovery_percent',null,'1',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_fixed_asset_recovery','recovery_year','3',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_fixed_asset_recovery','serial_number','2',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_fixed_asset_recovery','tax_year','3',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('tax_fixed_asset_recovery','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('tax_fixed_asset_recovery','supervisor','lookup');
 delete from $javascript_folders where folder = 'tax_fixed_asset_recovery';
@@ -1244,8 +1244,8 @@ delete from $attribute where attribute = 'asset_name';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('asset_name','text','30',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'serial_number';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('serial_number','text','10',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'recovery_year';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('recovery_year','integer','4',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'tax_year';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('tax_year','integer','4',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'recovery_percent';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('recovery_percent','float','6','3',null,null,null,null,null,null);
 delete from $attribute where attribute = 'recovery_amount';
@@ -1254,8 +1254,8 @@ delete from $folder_attribute where folder = 'tax_prior_fixed_asset_recovery';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_prior_fixed_asset_recovery','asset_name','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_prior_fixed_asset_recovery','recovery_amount',null,'2',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_prior_fixed_asset_recovery','recovery_percent',null,'1',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_prior_fixed_asset_recovery','recovery_year','3',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_prior_fixed_asset_recovery','serial_number','2',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('tax_prior_fixed_asset_recovery','tax_year','3',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('tax_prior_fixed_asset_recovery','bookkeeper','lookup');
 insert into $role_folder (folder,role,permission) values ('tax_prior_fixed_asset_recovery','supervisor','lookup');
 delete from $javascript_folders where folder = 'tax_prior_fixed_asset_recovery';
@@ -1509,8 +1509,8 @@ table_name=supply_purchase
 echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,supply_name char (30) not null,quantity integer,unit_cost double (10,2),extension double (10,2)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,supply_name);" | sql.e
 table_name=tax_fixed_asset_recovery
-echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,recovery_year integer not null,recovery_percent double (6,3),recovery_amount double (6,2)) engine MyISAM;" | sql.e
-echo "create unique index $table_name on $table_name (asset_name,serial_number,recovery_year);" | sql.e
+echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,tax_year integer not null,recovery_percent double (6,3),recovery_amount double (6,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (asset_name,serial_number,tax_year);" | sql.e
 table_name=tax_form
 echo "create table $table_name (tax_form char (20) not null) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (tax_form);" | sql.e
@@ -1521,8 +1521,8 @@ table_name=tax_form_line_account
 echo "create table $table_name (tax_form char (20) not null,tax_form_line char (5) not null,account char (60) not null) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (tax_form,tax_form_line,account);" | sql.e
 table_name=tax_prior_fixed_asset_recovery
-echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,recovery_year integer not null,recovery_percent double (6,3),recovery_amount double (6,2)) engine MyISAM;" | sql.e
-echo "create unique index $table_name on $table_name (asset_name,serial_number,recovery_year);" | sql.e
+echo "create table $table_name (asset_name char (30) not null,serial_number char (10) not null,tax_year integer not null,recovery_percent double (6,3),recovery_amount double (6,2)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (asset_name,serial_number,tax_year);" | sql.e
 table_name=tax_recovery_period
 echo "create table $table_name (tax_recovery_period char (10) not null) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (tax_recovery_period);" | sql.e
@@ -1607,73 +1607,74 @@ insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,		
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule E','10','Legal and other professional fees',null);
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule E','14','Repairs',null);
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule E','15','Supplies',null);
+insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule E','18','Depreciation expense or depletion',null);
 insert into tax_form (tax_form) values ('Schedule E');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('03-year','1','33.330');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('03-year','2','44.450');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('03-year','3','14.810');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('03-year','4','7.410');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('05-year','1','20.000');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('05-year','2','32.000');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('05-year','3','19.200');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('05-year','4','11.520');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('05-year','5','11.520');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('05-year','6','5.760');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('07-year','1','14.290');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('07-year','2','24.490');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('07-year','3','17.490');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('07-year','4','12.490');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('07-year','5','8.930');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('07-year','6','8.920');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('07-year','7','8.930');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('07-year','8','4.460');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','1','10.000');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','2','18.000');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','3','14.400');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','4','11.520');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','5','9.220');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','6','7.370');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','7','6.550');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','8','6.550');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','9','6.560');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','10','6.550');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('10-year','11','3.280');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','1','5.000');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','2','9.500');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','3','8.550');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','4','7.700');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','5','6.930');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','6','6.230');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','7','5.900');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','8','5.900');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','9','5.910');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','10','5.900');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','11','5.910');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','12','5.900');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','13','5.910');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','14','5.900');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','15','5.910');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('15-year','16','2.950');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','1','3.750');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','2','7.219');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','3','6.677');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','4','6.177');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','5','5.713');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','6','5.285');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','7','4.888');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','8','4.522');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','9','4.462');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','10','4.461');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','11','4.462');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','12','4.461');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','13','4.462');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','14','4.461');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','15','4.462');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','16','4.461');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','17','4.462');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','18','4.461');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','19','4.462');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','20','4.461');
-insert into tax_recovery_table (	tax_recovery_period,			recovery_year,			recovery_percent) values ('20-year','21','2.231');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('03-year','1','33.330');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('03-year','2','44.450');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('03-year','3','14.810');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('03-year','4','7.410');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('05-year','1','20.000');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('05-year','2','32.000');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('05-year','3','19.200');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('05-year','4','11.520');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('05-year','5','11.520');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('05-year','6','5.760');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('07-year','1','14.290');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('07-year','2','24.490');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('07-year','3','17.490');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('07-year','4','12.490');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('07-year','5','8.930');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('07-year','6','8.920');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('07-year','7','8.930');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('07-year','8','4.460');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','1','10.000');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','2','18.000');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','3','14.400');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','4','11.520');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','5','9.220');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','6','7.370');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','7','6.550');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','8','6.550');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','9','6.560');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','10','6.550');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('10-year','11','3.280');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','1','5.000');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','2','9.500');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','3','8.550');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','4','7.700');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','5','6.930');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','6','6.230');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','7','5.900');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','8','5.900');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','9','5.910');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','10','5.900');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','11','5.910');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','12','5.900');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','13','5.910');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','14','5.900');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','15','5.910');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('15-year','16','2.950');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','1','3.750');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','2','7.219');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','3','6.677');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','4','6.177');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','5','5.713');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','6','5.285');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','7','4.888');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','8','4.522');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','9','4.462');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','10','4.461');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','11','4.462');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','12','4.461');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','13','4.462');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','14','4.461');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','15','4.462');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','16','4.461');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','17','4.462');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','18','4.461');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','19','4.462');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','20','4.461');
+insert into tax_recovery_table (	tax_recovery_period,				recovery_year,				recovery_percent) values ('20-year','21','2.231');
 insert into tax_recovery_period (tax_recovery_period) values ('03-year');
 insert into tax_recovery_period (tax_recovery_period) values ('05-year');
 insert into tax_recovery_period (tax_recovery_period) values ('07-year');
@@ -1837,7 +1838,7 @@ insert into process (process,		command_line,		notepad,		html_help_file_anchor,		
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('export_process','export_process \$application \$session \$login_name \$role \$process \$dictionary','For a list of processes, this process exports from the following: process, role_process, process_parameter, javascript_libraries, prompt, drop_down_prompt, and drop_down_prompt_data.',null,null,null,null,null,'y');
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('export_subschema','export_subschema \$application \$session \$login_name \$role filller \$dictionary','This process exports for a list of folders from the following: folder, relation, folder_attribute, attribute,  role_operation, and role_folder.',null,null,null,null,null,'y');
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('generic_load','generic_load \$application \$session \$role \$process',null,null,null,null,'load',null,'y');
-insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('fix_orphans','fix_orphans \$application \$process orphans_folder delete_yn really_yn','This process traverses the many-to-one relationships for a folder. It inserts the missing primary keys that contain foreign keys in the selected folder. Warning: this process could take a long time to run.',null,null,null,null,null,'y');
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('fix_orphans','fix_orphans \$process orphans_folder delete_yn really_yn','This process traverses the many-to-one relationships for a folder. It inserts the missing primary keys that contain foreign keys in the selected folder. Warning: this process could take a long time to run.',null,null,null,null,null,'y');
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('export_process_set','export_process_set \$application \$session \$login_name \$role \$process \$dictionary','For a list of process sets, this process exports from the following: process_set, process_set_parameter, javascript_libraries, role_process_set, prompt, drop_down_prompt, and drop_down_prompt_data.',null,null,null,null,null,'y');
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('delete','delete_folder_row \$application \$session \$person \$folder \$role \$primary_data_list sql.e n',null,null,null,null,null,null,'y');
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('delete_isa_only','delete_folder_row \$application \$session \$person \$folder \$role \$primary_data_list sql.e y',null,null,null,null,null,null,'y');
@@ -1922,8 +1923,8 @@ insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,	
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('execute_select_statement','select_statement','null','null','null','2',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('export_folder','null','null','export_output','null','3',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('export_process_set','process_set','null','null','null','1','y',null,null,null);
-insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('fix_orphans','null','null','null','orphans_folder','1',null,null,'orphans_process_folder_list',null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('fix_orphans','null','null','null','delete_yn','5',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('fix_orphans','null','null','null','orphans_folder','1',null,null,'orphans_process_folder_list',null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('add_column','attribute','null','null','null','1',null,'y',null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('alter_column_datatype','attribute','null','null','null','1',null,'y',null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('export_application','null','null','null','system_folders_yn','3',null,null,null,null);

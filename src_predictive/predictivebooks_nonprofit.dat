@@ -48,13 +48,9 @@ state_standard_deduction_table
 subclassification
 subsidiary_transaction
 supply
-tax_fixed_asset_recovery
 tax_form
 tax_form_line
 tax_form_line_account
-tax_prior_fixed_asset_recovery
-tax_recovery_period
-tax_recovery_table
 title_passage_rule
 transaction
 vendor

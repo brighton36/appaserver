@@ -81,7 +81,7 @@ double tax_recovery_calculate_recovery_amount(
 				char *service_placement_date_string,
 				char *disposal_date_string,
 				double recovery_period_years,
-				int current_year )
+				int tax_year )
 {
 	double recovery_amount = 0.0;
 	int service_month = 0;
@@ -113,13 +113,13 @@ double tax_recovery_calculate_recovery_amount(
 	percent_per_semi_month = 1.0 / (double)recovery_period_semi_months;
 
 	recovery_months_as_of_december =
-		( current_year * 12 - service_year * 12 ) +
+		( tax_year * 12 - service_year * 12 ) +
 		( ( 12 - service_month ) + 1 );
 
 	recovery_months_extra_year =
 		recovery_period_months + 12;
 
-	if ( disposal_year == current_year
+	if ( disposal_year == tax_year
 	&&   recovery_months_as_of_december <= recovery_period_months )
 	{
 		applicable_rate =
@@ -184,100 +184,32 @@ double tax_recovery_calculate_recovery_amount(
 
 } /* tax_recovery_calculate_recovery_amount() */
 
-char *tax_recovery_get_order_by( void )
-{
-	return "asset_name,serial_number";
-}
-
-char *tax_recovery_get_select( void )
-{
-	char *select;
-
-	select =
-"asset_name,serial_number,tax_service_placement_date,tax_cost_basis,tax_recovery_period,disposal_date";
-
-	return select;
-}
-
-char *tax_recovery_get_filter_where( char *minimum_disposal_date )
-{
-	char filter_where[ 512 ];
-
-	sprintf( filter_where,
-		 "(disposal_date is null or disposal_date >= %s) and	"
-		 "ifnull(tax_cost_basis,0.0) <> 0.0) and		"
-		 "tax_recovery_period is not null and			"
-		 "tax_accumulated_depreciation < tax_cost_basis		",
-		 minimum_disposal_date );
-
-	return strdup( filter_where );
-
-} /* tax_recovery_get_filter_where() */
-
-FILE *tax_recovery_get_fixed_asset_input_pipe(
-					char *application_name,
-					int recovery_year )
-{
-	char *select;
-	char *order_by;
-	char *filter_where;
-	char sys_string[ 1024 ];
-	char minimum_disposal_date[ 16 ];
-
-	select = tax_recovery_get_select();
-
-	order_by = tax_recovery_get_order_by();
-
-	sprintf( minimum_disposal_date, "%d-01-01", recovery_year );
-
-	filter_where =
-		tax_recovery_get_filter_where(
-			minimum_disposal_date );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			"
-		 "			order=\"%s\"			",
-		 application_name,
-		 select,
-		 "fixed_asset_purchase",
-		 filter_where,
-		 order_by );
-
-	return popen( sys_string, "r" );
-
-} /* tax_recovery_get_fixed_asset_input_pipe() */
-
-int tax_recovery_fetch_max_recovery_year(
+int tax_recovery_fetch_max_tax_year(
 			char *application_name,
 			char *folder_name )
 {
 	char sys_string[ 1024 ];
-	int max_recovery_year;
+	int max_tax_year;
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=\"%s\"			"
 		 "			folder=%s			",
 		 application_name,
-		 "max(recovery_year)",
+		 "max(tax_year)",
 		 folder_name );
 
-	max_recovery_year = atoi( pipe2string( sys_string ) );
+	max_tax_year = atoi( pipe2string( sys_string ) );
 
-	return max_recovery_year;
+	return max_tax_year;
 
-} /* tax_recovery_fetch_max_recovery_year() */
+} /* tax_recovery_fetch_max_tax_year() */
 
-TAX_RECOVERY *tax_recovery_new(	char *asset_name,
-				char *serial_number,
-				char *service_placement_date,
+TAX_RECOVERY *tax_recovery_new(	char *service_placement_date,
 				double tax_cost_basis,
 				char *tax_recovery_period,
 				char *disposal_date,
-				int recovery_year )
+				int tax_year )
 {
 	TAX_RECOVERY *t;
 
@@ -291,13 +223,11 @@ TAX_RECOVERY *tax_recovery_new(	char *asset_name,
 		exit( 1 );
 	}
 
-	t->asset_name = asset_name;
-	t->serial_number = serial_number;
-	t->tax_service_placement_date = service_placement_date;
+	t->service_placement_date = service_placement_date;
 	t->tax_cost_basis = tax_cost_basis;
 	t->tax_recovery_period = tax_recovery_period;
 	t->disposal_date = disposal_date;
-	t->recovery_year = recovery_year;
+	t->tax_year = tax_year;
 
 	if ( t->tax_recovery_period )
 	{
@@ -310,7 +240,7 @@ TAX_RECOVERY *tax_recovery_new(	char *asset_name,
 } /* tax_recovery_new() */
 
 void tax_recovery_fixed_asset_list_set(	LIST *fixed_asset_list,
-					int recovery_year )
+					int tax_year )
 {
 	FIXED_ASSET *fixed_asset;
 
@@ -321,13 +251,11 @@ void tax_recovery_fixed_asset_list_set(	LIST *fixed_asset_list,
 
 		fixed_asset->tax_recovery =
 			tax_recovery_new(
-				fixed_asset->asset_name,
-				fixed_asset->serial_number,
 				fixed_asset->service_placement_date,
 				fixed_asset->tax_cost_basis,
 				fixed_asset->tax_recovery_period,
 				fixed_asset->disposal_date,
-				recovery_year );
+				tax_year );
 
 		/* Need to write the table lookup function. */
 		/* ---------------------------------------- */
@@ -344,7 +272,7 @@ void tax_recovery_fixed_asset_list_set(	LIST *fixed_asset_list,
 				fixed_asset->tax_recovery->tax_cost_basis,
 				fixed_asset->
 					tax_recovery->
-					tax_service_placement_date,
+					service_placement_date,
 				fixed_asset->
 					tax_recovery->
 					disposal_date,
@@ -353,8 +281,7 @@ void tax_recovery_fixed_asset_list_set(	LIST *fixed_asset_list,
 					tax_recovery_period_years,
 				fixed_asset->
 					tax_recovery->
-					recovery_year
-						/* current_year */ );
+					tax_year );
 
 	} while( list_next( fixed_asset_list ) );
 

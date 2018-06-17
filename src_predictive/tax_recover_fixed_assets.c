@@ -33,7 +33,7 @@ void tax_recover_fixed_assets(		char *application_name,
 					boolean execute );
 
 void tax_recover_fixed_assets_undo(	char *application_name,
-					int recovery_year,
+					int tax_year,
 					char *folder_name );
 
 void tax_recover_fixed_assets_insert(	LIST *fixed_asset_purchased_list,
@@ -120,7 +120,7 @@ void tax_recover_fixed_assets(	char *application_name,
 				boolean undo,
 				boolean execute )
 {
-	int recovery_year;
+	int tax_year;
 	int now_year;
 	LIST *fixed_asset_purchased_list = {0};
 	LIST *fixed_asset_prior_list = {0};
@@ -129,16 +129,16 @@ void tax_recover_fixed_assets(	char *application_name,
 	/* ----- */
 	now_year = atoi( date_get_now_yyyy_mm_dd( date_get_utc_offset() ) );
 
-	recovery_year =
-		tax_recovery_fetch_max_recovery_year(
+	tax_year =
+		tax_recovery_fetch_max_tax_year(
 			application_name,
 			"tax_fixed_asset_recovery"
 				/* folder_name */ );
 
-	if ( !recovery_year )
+	if ( !tax_year )
 	{
-		recovery_year =
-			tax_recovery_fetch_max_recovery_year(
+		tax_year =
+			tax_recovery_fetch_max_tax_year(
 				application_name,
 				"tax_prior_fixed_asset_recovery"
 					/* folder_name */ );
@@ -146,7 +146,7 @@ void tax_recover_fixed_assets(	char *application_name,
 
 	if ( undo )
 	{
-		if ( !recovery_year )
+		if ( !tax_year )
 		{
 			printf(
 			"<h3>Error: no tax recoveries posted.\n" );
@@ -155,29 +155,29 @@ void tax_recover_fixed_assets(	char *application_name,
 	}
 	else
 	{
-		if ( recovery_year == now_year )
+		if ( tax_year == now_year )
 		{
 			printf(
 			"<h3>Error: tax recovery posted already.\n" );
 			return;
 		}
 
-		if ( recovery_year )
-			recovery_year++;
+		if ( tax_year )
+			tax_year++;
 		else
-			recovery_year = now_year;
+			tax_year = now_year;
 
 		fixed_asset_purchased_list =
 			fixed_asset_fetch_tax_list(
 				application_name,
-				recovery_year,
+				tax_year,
 				"fixed_asset_purchase"
 					/* folder_name */ );
 
 		fixed_asset_prior_list =
 			fixed_asset_fetch_tax_list(
 				application_name,
-				recovery_year,
+				tax_year,
 				"fixed_asset_purchase"
 					/* folder_name */ );
 
@@ -200,13 +200,13 @@ void tax_recover_fixed_assets(	char *application_name,
 
 			tax_recover_fixed_assets_undo(
 				application_name,
-				recovery_year,
+				tax_year,
 				"tax_fixed_asset_recovery"
 					/* folder_name */ );
 
 			tax_recover_fixed_assets_undo(
 				application_name,
-				recovery_year,
+				tax_year,
 				"tax_prior_fixed_asset_recovery"
 					/* folder_name */ );
 
@@ -218,24 +218,24 @@ void tax_recover_fixed_assets(	char *application_name,
 
 			printf(
 		"<h3>Tax Fixed Asset Recovery for %d is now deleted.</h3>\n",
-				recovery_year );
+				tax_year );
 		}
 		else
 		{
 			tax_recovery_fixed_asset_list_set(
 				fixed_asset_purchased_list,
-				recovery_year );
+				tax_year );
 
 			tax_recovery_fixed_asset_list_set(
 				fixed_asset_prior_list,
-				recovery_year );
+				tax_year );
 
 			tax_recover_fixed_assets_insert(
 				fixed_asset_purchased_list,
 				fixed_asset_prior_list );
 
 			printf( "<h3>Tax Recovery now posted for %d.</h3>\n",
-				recovery_year );
+				tax_year );
 		}
 	}
 	else
@@ -247,17 +247,17 @@ void tax_recover_fixed_assets(	char *application_name,
 		{
 			printf(
 			"<h3>Will undo tax recovery posted for %d.</h3>\n",
-				recovery_year );
+				tax_year );
 		}
 		else
 		{
 			tax_recovery_fixed_asset_list_set(
 				fixed_asset_purchased_list,
-				recovery_year );
+				tax_year );
 
 			tax_recovery_fixed_asset_list_set(
 				fixed_asset_prior_list,
-				recovery_year );
+				tax_year );
 
 			tax_recover_fixed_assets_display(
 				fixed_asset_purchased_list,
@@ -268,13 +268,13 @@ void tax_recover_fixed_assets(	char *application_name,
 } /* tax_recover_fixed_assets() */
 
 void tax_recover_fixed_assets_undo(	char *application_name,
-					int recovery_year,
+					int tax_year,
 					char *folder_name )
 {
 	char sys_string[ 1024 ];
 	char where[ 128 ];
 
-	sprintf( where, "recovery_year = %d", recovery_year );
+	sprintf( where, "tax_year = %d", tax_year );
 
 	sprintf( sys_string,
 		 "echo \"delete from %s where %s;\" | sql.e",
@@ -293,7 +293,7 @@ void tax_recover_fixed_assets_insert(	LIST *fixed_asset_purchase_list,
 	char *field;
 
 	field =
-"asset_name,serial_number,recovery_year,recovery_amount,recovery_percent";
+"asset_name,serial_number,tax_year,recovery_amount,recovery_percent";
 
 	if ( list_length( fixed_asset_purchase_list ) )
 	{
@@ -360,9 +360,9 @@ void tax_recover_fixed_asset_list_insert(
 
 			fprintf(	output_pipe,
 					"%s^%s^%d^%.2lf^%.3lf\n",
-					tax_recovery->asset_name,
-					tax_recovery->serial_number,
-					tax_recovery->recovery_year,
+					fixed_asset->asset_name,
+					fixed_asset->serial_number,
+					tax_recovery->tax_year,
 					tax_recovery->recovery_amount,
 					tax_recovery->recovery_percent );
 
@@ -438,8 +438,8 @@ void tax_recover_fixed_asset_list_display(
 
 			fprintf(	output_pipe,
 					"%s^%s^%.2lf^%.2lf^%.3lf\n",
-					tax_recovery->asset_name,
-					tax_recovery->serial_number,
+					fixed_asset->asset_name,
+					fixed_asset->serial_number,
 					tax_recovery->tax_cost_basis,
 					tax_recovery->recovery_amount,
 					tax_recovery->recovery_percent );

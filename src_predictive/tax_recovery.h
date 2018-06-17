@@ -22,30 +22,23 @@
 /* ---------- */
 typedef struct
 {
-	char *full_name;
-	char *street_address;
-	char *purchase_date_time;
-	char *asset_name;
-	char *serial_number;
-	char *tax_service_placement_date;
+	char *service_placement_date;
 	double tax_cost_basis;
 	char *tax_recovery_period;
 	double tax_recovery_period_years;
 	char *disposal_date;
-	int recovery_year;
+	int tax_year;
 	double recovery_amount;
 	double recovery_percent;
 } TAX_RECOVERY;
 
 /* Operations */
 /* ---------- */
-TAX_RECOVERY *tax_recovery_new(	char *asset_name,
-				char *serial_number,
-				char *service_placement_date,
+TAX_RECOVERY *tax_recovery_new(	char *service_placement_date,
 				double tax_cost_basis,
 				char *tax_recovery_period,
 				char *disposal_date,
-				int recovery_year );
+				int tax_year );
 
 double tax_recovery_calculate_recovery_amount(
 				double *recovery_percent,
@@ -53,7 +46,7 @@ double tax_recovery_calculate_recovery_amount(
 				char *service_placement_date_string,
 				char *sale_date_string,
 				double recovery_period_years,
-				int current_year );
+				int tax_year );
 
 boolean tax_recovery_parse(
 				int *service_month,
@@ -63,12 +56,12 @@ boolean tax_recovery_parse(
 				char *service_placement_date_string,
 				char *disposal_date_string );
 
-int tax_recovery_fetch_max_recovery_year(
+int tax_recovery_fetch_max_tax_year(
 				char *application_name,
 				char *folder_name );
 
 void tax_recovery_fixed_asset_list_set(
 				LIST *fixed_asset_list,
-				int recovery_year );
+				int tax_year );
 
 #endif

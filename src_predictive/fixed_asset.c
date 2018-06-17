@@ -219,14 +219,14 @@ FIXED_ASSET *fixed_asset_purchase_fetch(
 
 } /* fixed_asset_purchase_fetch() */
 
-char *fixed_asset_tax_get_where( int recovery_year )
+char *fixed_asset_tax_get_where( int tax_year )
 {
 	char where[ 1024 ];
 	char minimum_disposal_date[ 16 ];
 
 	sprintf( minimum_disposal_date,
 		 "%d-01-01",
-		 recovery_year );
+		 tax_year );
 
 	sprintf( where,
 		 "(disposal_date is null or disposal_date >= %s) and	"
@@ -559,7 +559,7 @@ void fixed_asset_depreciation_fund_list_update(
 
 LIST *fixed_asset_fetch_tax_list(
 			char *application_name,
-			int recovery_year,
+			int tax_year,
 			char *folder_name )
 {
 	char sys_string[ 1024 ];
@@ -575,7 +575,7 @@ LIST *fixed_asset_fetch_tax_list(
 			folder_name,
 			0 /* not with_account */ );
 
-	where = fixed_asset_tax_get_where( recovery_year );
+	where = fixed_asset_tax_get_where( tax_year );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"

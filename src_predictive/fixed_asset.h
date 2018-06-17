@@ -172,11 +172,11 @@ char *fixed_asset_accumulated_depreciation_get_update_sys_string(
 
 LIST *fixed_asset_fetch_tax_list(
 				char *application_name,
-				int recovery_year,
+				int tax_year,
 				char *folder_name );
 
 char *fixed_asset_tax_get_where(
-				int recovery_year );
+				int tax_year );
 
 #endif
 

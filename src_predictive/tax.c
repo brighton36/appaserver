@@ -15,29 +15,21 @@
 
 TAX *tax_new(			char *application_name,
 				char *fund_name,
-				char *begin_date_string,
-				char *end_date_string,
-				char *tax_form )
+				char *tax_form,
+				int tax_year )
 {
 	TAX *t;
+	char date_buffer[ 16 ];
 	char *checking_account;
 
+	/* TAX_INPUT */
+	/* --------- */
 	checking_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
 			LEDGER_CASH_KEY,
 			0 /* not warning_only */ );
-
-#ifdef NOT_DEFINED
-	char *depreciation_account;
-	depreciation_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			LEDGER_ACCUMULATED_KEY,
-			0 /* not warning_only */ );
-#endif
 
 	if ( ! ( t = calloc( 1, sizeof( TAX ) ) ) )
 	{
@@ -49,10 +41,13 @@ TAX *tax_new(			char *application_name,
 		exit( 1 );
 	}
 
-	t->begin_date_string = begin_date_string;
-	t->end_date_string = end_date_string;
+	t->tax_input.begin_date_string = begin_date_string;
+	t->tax_input.end_date_string = end_date_string;
 
-	t->tax_input.tax_form = tax_form_new( application_name, tax_form );
+	t->tax_input.tax_form =
+		tax_form_new(
+			application_name,
+			tax_form );
 
 	if ( !t->tax_input.tax_form )
 	{
@@ -74,27 +69,25 @@ TAX *tax_new(			char *application_name,
 		exit( 1 );
 	}
 
+	/* TAX_PROCESS */
+	/* ----------- */
+	sprintf( date_buffer, "%d-01-01", tax_year );
+	t->tax_process.begin_date_string = strdup( date_buffer );
+
+	sprintf( end_date_string, "%d-12-31", tax_year );
+	t->tax_process.end_date_string = strdup( date_buffer );
+
+	/* TAX_INPUT */
+	/* --------- */
 	t->tax_input.cash_transaction_list =
 		tax_fetch_account_transaction_list(
 			application_name,
-			begin_date_string,
-			end_date_string,
+			t->tax_procecss.begin_date_string,
+			t->tax_procecss.end_date_string,
 			checking_account );
 
-	if ( !list_length( t->tax_input.cash_transaction_list ) )
-	{
-		return (TAX *)0;
-	}
-
-/*
-	t->tax_input.depreciation_transaction_list =
-		tax_fetch_account_transaction_list(
-			application_name,
-			begin_date_string,
-			end_date_string,
-			depreciation_account );
-*/
-
+	/* TAX_PROCESS */
+	/* ----------- */
 	t->tax_process.unaccounted_journal_ledger_list = list_new();
 
 	/* ------------------------------------------------------------ */
@@ -108,15 +101,6 @@ TAX *tax_new(			char *application_name,
 			t->tax_input.cash_transaction_list,
 			checking_account );
 
-/*
-	t->tax_process.tax_form_line_list =
-		tax_process_set_journal_ledger_list(
-			t->tax_process.unaccounted_journal_ledger_list,
-			t->tax_input.tax_form->tax_form_line_list,
-			t->tax_input.depreciation_transaction_list,
-			depreciation_account );
-*/
-
 	if ( !t->tax_process.tax_form_line_list )
 	{
 		fprintf( stderr,
@@ -125,11 +109,6 @@ TAX *tax_new(			char *application_name,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
-	}
-
-	if ( !list_length( t->tax_process.tax_form_line_list ) )
-	{
-		return (TAX *)0;
 	}
 
 	t->tax_process.tax_form = t->tax_input.tax_form->tax_form;
@@ -545,10 +524,13 @@ void tax_process_accumulate_tax_form_line_total(
 
 } /* tax_process_accumulate_tax_form_line_total() */
 
-LIST *tax_get_rental_property_string_list(	char *application_name,
+LIST *tax_fetch_rental_property_list(		char *application_name,
 						char *begin_date_string,
 						char *end_date_string )
 {
+	TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property;
+	char input_buffer[ 128 ];
+	FILE *input_pipe;
 	char where[ 512 ];
 	char sys_string[ 1024 ];
 	char *select;
@@ -573,9 +555,11 @@ LIST *tax_get_rental_property_string_list(	char *application_name,
 		 select,
 		 where );
 
+	input_pipe = popen( sys_string, "r" );
+
 	return pipe2list( sys_string );
 
-} /* tax_get_rental_property_string_list() */
+} /* tax_fetch_rental_property_list() */
 
 TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
 				char *rental_property_street_address )
@@ -592,7 +576,28 @@ TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
 		exit( 1 );
 	}
 
-	t->rental_property_street_address = rental_property_street_address;
+	t->street_address = rental_property_street_address;
+
+	return t;
+
+} /* tax_output_rental_property_new() */
+
+TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property_new(
+				char *rental_property_street_address )
+{
+	TAX_INPUT_RENTAL_PROPERTY *t;
+
+	if ( ! ( t = calloc( 1, sizeof ( TAX_INPUT_RENTAL_PROPERTY ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	t->street_address = rental_property_street_address;
 
 	return t;
 
@@ -624,39 +629,40 @@ TAX_FORM_LINE_RENTAL *tax_form_line_rental_new(
 } /* tax_form_line_rental_new() */
 
 LIST *tax_form_line_rental_get_empty_property_list(
-			LIST *rental_property_street_address_list )
+			LIST *input_rental_property_list )
 {
+	TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property;
 	TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property;
-	char *rental_property_street_address;
-	LIST *rental_property_list;
+	LIST *empty_rental_property_list;
 
-	if ( !list_rewind( rental_property_street_address_list ) )
+	if ( !list_rewind( input_rental_property_list ) )
 		return (LIST *)0;
 
-	rental_property_list = list_new();
+	empty_rental_property_list = list_new();
 
 	do {
-		rental_property_street_address =
+		tax_input_rental_property =
 			list_get_pointer(
-				rental_property_street_address_list );
+				input_rental_property_list );
 
 		tax_output_rental_property =
 			tax_output_rental_property_new(
-				rental_property_street_address );
+				tax_input_rental_property->
+					street_address );
 
 		list_append_pointer(
-			rental_property_list,
+			empty_rental_property_list,
 			tax_output_rental_property );
 
-	} while( list_next( rental_property_street_address_list ) );
+	} while( list_next( input_rental_property_list ) );
 
-	return rental_property_list;
+	return empty_rental_property_list;
 
 } /* tax_form_line_rental_get_empty_property_list() */
 
 LIST *tax_get_tax_form_line_rental_list(
 			LIST *tax_form_line_list,
-			LIST *rental_property_street_address_list )
+			LIST *rental_property_list )
 {
 	TAX_FORM_LINE *tax_form_line;
 	TAX_FORM_LINE_RENTAL *tax_form_line_rental;
@@ -688,7 +694,7 @@ LIST *tax_get_tax_form_line_rental_list(
 
 		tax_form_line_rental->rental_property_list =
 			tax_form_line_rental_get_empty_property_list(
-				rental_property_street_address_list );
+				rental_property_list );
 
 	} while( list_next( tax_form_line_list ) );
 

@@ -36,7 +36,20 @@ enum tax_form_line_category {
 /* ---------- */
 typedef struct
 {
-	char *rental_property_street_address;
+	char *street_address;
+	double fixed_asset_recovery_amount;
+	double prior_fixed_asset_recovery_amount;
+} TAX_INPUT_RENTAL_PROPERTY;
+
+typedef struct
+{
+	char *street_address;
+	double tax_form_line_total;
+} TAX_OUTPUT_RENTAL_PROPERTY;
+
+typedef struct
+{
+	char *street_address;
 	double tax_form_line_total;
 } TAX_OUTPUT_RENTAL_PROPERTY;
 
@@ -91,13 +104,16 @@ typedef struct
 	char *tax_form;
 	LIST *tax_form_line_list;
 	LIST *unaccounted_journal_ledger_list;
+	char *begin_date_string;
+	char *end_date_string;
 } TAX_PROCESS;
 
 typedef struct
 {
 	TAX_FORM *tax_form;
+	int tax_year;
 	LIST *cash_transaction_list;
-	LIST *rental_property_street_address_list;
+	LIST *rental_property_list;
 } TAX_INPUT;
 
 typedef struct
@@ -105,17 +121,14 @@ typedef struct
 	TAX_INPUT tax_input;
 	TAX_PROCESS tax_process;
 	TAX_OUTPUT_RENTAL tax_output_rental;
-	char *begin_date_string;
-	char *end_date_string;
 } TAX;
 
 /* Operations */
 /* ---------- */
 TAX *tax_new(				char *application_name,
 					char *fund_name,
-					char *begin_date_string,
-					char *end_date_string,
-					char *tax_form );
+					char *tax_form,
+					int tax_year );
 
 TAX_FORM *tax_form_new(			char *application_name,
 					char *tax_form );
@@ -154,28 +167,31 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 void tax_process_accumulate_tax_form_line_total(
 					LIST *tax_form_line_list );
 
-LIST *tax_get_rental_property_string_list(
+LIST *tax_fetch_rental_property_list(
 					char *application_name,
 					char *begin_date_string,
 					char *end_date_string );
 
 LIST *tax_get_tax_form_line_rental_list(
 				LIST *tax_form_line_list,
-				LIST *rental_property_street_address_list );
+				LIST *rental_property_list );
 
 LIST *tax_form_line_rental_get_empty_property_list(
-				LIST *rental_property_street_address_list );
+				LIST *rental_property_list );
 
 void tax_form_line_account_rental_property_list_set(
 				LIST *rental_property_list,
 				LIST *journal_ledger_list,
 				boolean accumulate_debit,
-				LIST *rental_property_street_address_list );
+				LIST *rental_property_list );
 
 TAX_FORM_LINE_RENTAL *tax_form_line_rental_new(
 				char *tax_form_line,
 				char *tax_form_description,
 				LIST *tax_form_line_account_list );
+
+TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property_new(
+				char *rental_property_street_address );
 
 TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
 				char *rental_property_street_address );

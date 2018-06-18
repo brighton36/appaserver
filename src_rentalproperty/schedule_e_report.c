@@ -77,8 +77,6 @@ int main( int argc, char **argv )
 	char *output_medium;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char begin_date_string[ 16 ];
-	char end_date_string[ 16 ];
 	char title[ 128 ];
 	char sub_title[ 128 ];
 	char buffer[ 128 ];
@@ -116,9 +114,6 @@ int main( int argc, char **argv )
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
 
-	sprintf( begin_date_string, "%d-01-01", tax_year );
-	sprintf( end_date_string, "%d-12-31", tax_year );
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	sprintf(title,
@@ -150,9 +145,8 @@ int main( int argc, char **argv )
 
 	tax = tax_new(	application_name,
 			(char *)0 /* fund_name */,
-			begin_date_string,
-			end_date_string,
-			SCHEDULE_E );
+			SCHEDULE_E,
+			tax_year );
 
 	if ( !tax )
 	{
@@ -170,11 +164,10 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	tax->tax_input.rental_property_street_address_list =
-		tax_get_rental_property_string_list(
+	tax->tax_input.rental_property_list =
+		tax_fetch_rental_property_list(
 			application_name,
-			begin_date_string,
-			end_date_string );
+			tax_year );
 
 	if ( !list_length(
 		tax->
@@ -190,7 +183,7 @@ int main( int argc, char **argv )
 	tax->tax_output_rental.tax_form_line_rental_list =
 		tax_get_tax_form_line_rental_list(
 			tax->tax_process.tax_form_line_list,
-			tax->tax_input.rental_property_street_address_list );
+			tax->tax_input.rental_property_list );
 
 	if ( !list_length(
 		tax->tax_output_rental.tax_form_line_rental_list ) )

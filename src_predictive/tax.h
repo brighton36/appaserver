@@ -169,26 +169,26 @@ void tax_process_accumulate_tax_form_line_total(
 
 LIST *tax_fetch_rental_property_list(
 					char *application_name,
-					char *begin_date_string,
-					char *end_date_string );
+					char *end_date_string,
+					int tax_year );
 
 LIST *tax_get_tax_form_line_rental_list(
-				LIST *tax_form_line_list,
-				LIST *rental_property_list );
+					LIST *tax_form_line_list,
+					LIST *rental_property_list );
 
 LIST *tax_form_line_rental_get_empty_property_list(
-				LIST *rental_property_list );
+					LIST *rental_property_list );
 
 void tax_form_line_account_rental_property_list_set(
-				LIST *rental_property_list,
-				LIST *journal_ledger_list,
-				boolean accumulate_debit,
-				LIST *rental_property_list );
+					LIST *rental_property_list,
+					LIST *journal_ledger_list,
+					boolean accumulate_debit,
+					LIST *rental_property_list );
 
 TAX_FORM_LINE_RENTAL *tax_form_line_rental_new(
-				char *tax_form_line,
-				char *tax_form_description,
-				LIST *tax_form_line_account_list );
+					char *tax_form_line,
+					char *tax_form_description,
+					LIST *tax_form_line_account_list );
 
 TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property_new(
 				char *rental_property_street_address );

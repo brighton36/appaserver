@@ -41,8 +41,7 @@ TAX *tax_new(			char *application_name,
 		exit( 1 );
 	}
 
-	t->tax_input.begin_date_string = begin_date_string;
-	t->tax_input.end_date_string = end_date_string;
+	t->tax_input.tax_year = tax_year;
 
 	t->tax_input.tax_form =
 		tax_form_new(
@@ -85,6 +84,12 @@ TAX *tax_new(			char *application_name,
 			t->tax_procecss.begin_date_string,
 			t->tax_procecss.end_date_string,
 			checking_account );
+
+	t->tax_input.rental_property_list =
+		tax_fetch_rental_property_list(
+			application_name,
+			t->tax_procecss.end_date_string,
+			t->tax_input.tax_year );
 
 	/* TAX_PROCESS */
 	/* ----------- */
@@ -524,40 +529,47 @@ void tax_process_accumulate_tax_form_line_total(
 
 } /* tax_process_accumulate_tax_form_line_total() */
 
-LIST *tax_fetch_rental_property_list(		char *application_name,
-						char *begin_date_string,
-						char *end_date_string )
+LIST *tax_fetch_rental_property_list(	char *application_name,
+					char *end_date_string,
+					int tax_year )
 {
 	TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property;
 	char input_buffer[ 128 ];
 	FILE *input_pipe;
-	char where[ 512 ];
+	char join_where[ 512 ];
+	char where[ 1024 ];
 	char sys_string[ 1024 ];
 	char *select;
+	char *folder_from;
 
-	select = "rental_property_street_address";
+	select = "rental_property_street_address,recovery_amount";
+	folder_from = "tax_fixed_asset_recovery,purchase_order";
+
+	sprintf( join_where,
+		 "tax_fixed_asset_recovery.
 
 	sprintf( where,
 		 "( property_acquired_date is null		"
-		 "  or property_acquired_date >= '%s' ) and	"
+		 "  or property_acquired_date <= '%s' ) and	"
 		 "( property_disposal_date is null		"
 		 "  or property_disposal_date <= '%s' )		",
-		 begin_date_string,
+		 end_date_string,
 		 end_date_string );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=%s			"
-		 "			folder=rental_property		"
+		 "			folder=%s			"
 		 "			where=\"%s\"			"
 		 "			order=property_acquired_date	",
 		 application_name,
 		 select,
+		 from_from,
 		 where );
 
 	input_pipe = popen( sys_string, "r" );
 
-	return pipe2list( sys_string );
+	return rental_property_list;
 
 } /* tax_fetch_rental_property_list() */
 

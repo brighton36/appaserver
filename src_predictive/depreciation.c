@@ -20,6 +20,8 @@
 #include "fixed_asset.h"
 #include "depreciation.h"
 
+/* Sets depreciation_date */
+/* ---------------------- */
 DEPRECIATION_STRUCTURE *depreciation_structure_new(
 				char *application_name )
 {
@@ -63,9 +65,9 @@ DEPRECIATION_ASSET_LIST *depreciation_asset_list_new( void )
 
 DEPRECIATION_DATE *depreciation_date_new( char *application_name )
 {
-	DEPRECIATION_DATE *p = calloc( 1, sizeof( DEPRECIATION_DATE ) );
+	DEPRECIATION_DATE *p;
 
-	if ( !p )
+	if ( ! ( p = calloc( 1, sizeof( DEPRECIATION_DATE ) ) ) )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: cannot allocate memory.\n",
@@ -73,6 +75,49 @@ DEPRECIATION_DATE *depreciation_date_new( char *application_name )
 			 __FUNCTION__,
 			 __LINE__ );
 		exit(1 );
+	}
+
+	p->undo_fixed_asset_date =
+	p->prior_fixed_asset_date =
+		depreciation_fetch_max_depreciation_date(
+			application_name,
+			FIXED_ASSET_DEPRECIATION_FOLDER );
+
+	p->max_undo_date = p->undo_fixed_asset_date;
+
+	p->undo_fixed_prior_date =
+	p->prior_fixed_prior =
+		depreciation_fetch_max_depreciation_date(
+			application_name,
+			PRIOR_FIXED_ASSET_DEPRECIATION_FOLDER );
+
+	if ( timlib_strcmp( p->undo_fixed_prior_date, p->max_undo_date ) > 0 )
+	{
+		p->max_undo_date = p->undo_fixed_prior_date;
+	}
+
+	p->undo_property_date =
+	p->prior_property_date =
+		depreciation_fetch_max_depreciation_date(
+			application_name,
+			PROPERTY_DEPRECIATION_FOLDER );
+
+	if ( timlib_strcmp( p->undo_property_date, p->max_undo_date ) > 0 )
+	{
+		p->max_undo_date = p->undo_property_date;
+	}
+
+	p->undo_prior_property_date =
+	p->prior_property_prior_date =
+		depreciation_fetch_max_depreciation_date(
+			application_name,
+			PRIOR_PROPERTY_DEPRECIATION_FOLDER );
+
+	if ( timlib_strcmp(
+		p->undo_prior_property_prior_date,
+		p->max_undo_date ) > 0 )
+	{
+		p->max_undo_date = p->undo_prior_property_date;
 	}
 
 	return p;
@@ -701,6 +746,10 @@ void depreciation_fixed_asset_list_table_display(
 
 } /* depreciation_fixed_asset_list_table_display() */
 
+/* ------------------------------------- */
+/* Sets depreciation_expense_account and */
+/*      accumulated_depreciation_account */
+/* ------------------------------------- */
 LIST *depreciation_fetch_fund_list(
 				char *application_name )
 {
@@ -781,10 +830,6 @@ DEPRECIATION_FUND *depreciation_fund_new(
 		&d->accumulated_depreciation_account,
 		application_name,
 		fund_name );
-
-	d->depreciation_date =
-		depreciation_date_new(
-			application );
 
 	return d;
 
@@ -994,3 +1039,38 @@ boolean depreciation_fixed_asset_list_insert(
 
 } /* depreciation_fixed_asset_list_insert() */
 
+boolean depreciation_date_exists(
+			DEPRECIATION_DATE *depreciation_date,
+			char *depreciation_date_string )
+{
+	if ( !depreciation_date )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty depreciation_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( ( timlib_strcmp(
+		depreciation_date->undo_fixed_asset_date,
+		depreciation_date_string ) == 0 )
+	||   ( timlib_strcmp(
+		depreciation_date->undo_fixed_prior_date,
+		depreciation_date_string ) == 0 )
+	||   ( timlib_strcmp(
+		depreciation_date->undo_property_date,
+		depreciation_date_string ) == 0 )
+	||   ( timlib_strcmp(
+		depreciation_date->undo_property_prior_date,
+		depreciation_date_string ) == 0 ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+
+} /* depreciation_date_exists() */

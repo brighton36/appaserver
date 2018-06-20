@@ -17,6 +17,10 @@
 
 /* Constants */
 /* --------- */
+#define FIXED_ASSET_DEPRECIATION_FOLDER		"fixed_asset_depreciation"
+#define PRIOR_FIXED_ASSET_DEPRECIATION_FOLDER	"prior_fixed_asset_depreciation"
+#define PROPERTY_DEPRECIATION_FOLDER		"property_depreciation"
+#define PRIOR_PROPERTY_DEPRECIATION_FOLDER	"prior_property_depreciation"
 #define DEPRECIATION_MEMO		"Depreciation"
 
 /* Structures */
@@ -31,6 +35,7 @@ typedef struct
 	char *prior_property_date;
 	char *undo_property_prior_date;
 	char *prior_property_prior_date;
+	char *max_undo_date;
 } DEPRECIATION_DATE;
 
 typedef struct
@@ -211,5 +216,9 @@ void depreciation_fund_get_transaction(
 		char *accumulated_depreciation_account,
 		double purchased_fixed_asset_depreciation_amount,
 		double prior_fixed_asset_depreciation_amount );
+
+boolean depreciation_date_exists(
+			DEPRECIATION_DATE *depreciation_date,
+			char *depreciation_date_string );
 
 #endif

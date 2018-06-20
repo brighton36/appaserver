@@ -19,7 +19,9 @@
 #include "entity.h"
 #include "appaserver_parameter_file.h"
 #include "fixed_asset.h"
-#include "depreciation.h"
+
+/* In fixed_asset.h, include depreciation.h */
+/* ---------------------------------------- */
 
 /* Constants */
 /* --------- */
@@ -133,6 +135,14 @@ void depreciate_fixed_assets(	char *application_name,
 		exit( 1 );
 	}
 
+	/* ------------------------------------- */
+	/* Sets depreciation_expense_account and */
+	/*      accumulated_depreciation_account */
+	/* ------------------------------------- */
+	depreciation_structure->depreciation_fund_list =
+		depreciation_fetch_fund_list(
+			application_name );
+
 	if ( ! ( entity_self =
 			entity_self_load(
 				application_name ) ) )
@@ -144,14 +154,6 @@ void depreciate_fixed_assets(	char *application_name,
 			 __LINE__ );
 		exit( 1 );
 	}
-
-	/* ------------------------------------- */
-	/* Sets depreciation_expense_account and */
-	/*      accumulated_depreciation_account */
-	/* ------------------------------------- */
-	depreciation_structure->depreciation_fund_list =
-		depreciation_fetch_fund_list(
-			application_name );
 
 	if ( !undo )
 	{

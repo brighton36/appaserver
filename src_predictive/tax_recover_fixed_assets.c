@@ -19,8 +19,8 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 
-/* Include tax_recovery.h in fixed_asset.h */
-/* --------------------------------------- */
+/* In fixed_asset.h, include tax_recovery.h and depreciation.h */
+/* ----------------------------------------------------------- */
 #include "fixed_asset.h"
 
 /* Constants */
@@ -33,8 +33,8 @@ void tax_recover_fixed_assets(		char *application_name,
 					boolean execute );
 
 void tax_recover_fixed_assets_undo(	char *application_name,
-					int tax_year,
-					char *folder_name );
+					int max_tax_year,
+					LIST *depreciation_fund_list );
 
 void tax_recover_fixed_assets_insert(	LIST *fixed_asset_purchased_list,
 					LIST *fixed_asset_prior_list );
@@ -120,105 +120,95 @@ void tax_recover_fixed_assets(	char *application_name,
 				boolean undo,
 				boolean execute )
 {
-	int tax_year;
+	int max_tax_year;
 	int now_year;
-	LIST *fixed_asset_purchased_list = {0};
-	LIST *fixed_asset_prior_list = {0};
+	int tax_year;
+	DEPRECIATION_STRUCTURE *depreciation_structure;
 
+	/* ----- */
 	/* Input */
 	/* ----- */
+
+	/* Sets depreciation_date */
+	/* ---------------------- */
+	depreciation_structure =
+		depreciation_structure_new(
+			application_name );
+
+	if ( !depreciation_structure->depreciation_date )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty depreciation_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	/* ------------------------------------- */
+	/* Sets depreciation_expense_account and */
+	/*      accumulated_depreciation_account */
+	/* ------------------------------------- */
+	depreciation_structure->depreciation_fund_list =
+		depreciation_fetch_fund_list(
+			application_name );
+
 	now_year = atoi( date_get_now_yyyy_mm_dd( date_get_utc_offset() ) );
 
-	tax_year =
-		tax_recovery_fetch_max_tax_year(
-			application_name,
-			"tax_fixed_asset_recovery"
-				/* folder_name */ );
-
-	if ( !tax_year )
+	if ( depreciation_structure->depreciation_date->max_undo_date )
 	{
-		tax_year =
-			tax_recovery_fetch_max_tax_year(
-				application_name,
-				"tax_prior_fixed_asset_recovery"
-					/* folder_name */ );
+		max_tax_year =
+			atoi( depreciation_structure->
+				depreciation_date->
+				max_undo_date );
+	}
+	else
+	{
+		max_tax_year = 0;
 	}
 
 	if ( undo )
 	{
-		if ( !tax_year )
+		if ( !max_tax_year )
 		{
 			printf(
-			"<h3>Error: no tax recoveries posted.\n" );
+			"<h3>Error: no tax recoveries posted.</h3>\n" );
 			return;
 		}
 	}
 	else
 	{
-		if ( tax_year == now_year )
+		if ( max_tax_year == now_year )
 		{
 			printf(
-			"<h3>Error: tax recovery posted already.\n" );
+			"<h3>Error: tax recovery posted already.</h3>\n" );
 			return;
 		}
 
-		if ( tax_year )
-			tax_year++;
+		if ( max_tax_year )
+			tax_year = max_tax_year + 1;
 		else
 			tax_year = now_year;
-
-		fixed_asset_purchased_list =
-			fixed_asset_fetch_tax_list(
-				application_name,
-				tax_year,
-				"fixed_asset_purchase"
-					/* folder_name */ );
-
-		fixed_asset_prior_list =
-			fixed_asset_fetch_tax_list(
-				application_name,
-				tax_year,
-				"fixed_asset_purchase"
-					/* folder_name */ );
-
-		if ( !list_length( fixed_asset_purchased_list )
-		&&   !list_length( fixed_asset_prior_list ) )
-		{
-			printf(
-			"<h3>Error: no fixed assets to tax recover.\n" );
-			return;
-		}
 	}
 
+	/* ------- */
 	/* Process */
 	/* ------- */
 	if ( execute )
 	{
 		if ( undo )
 		{
-			char sys_string[ 128 ];
-
 			tax_recover_fixed_assets_undo(
 				application_name,
-				tax_year,
-				"tax_fixed_asset_recovery"
-					/* folder_name */ );
-
-			tax_recover_fixed_assets_undo(
-				application_name,
-				tax_year,
-				"tax_prior_fixed_asset_recovery"
-					/* folder_name */ );
-
-			sprintf( sys_string,
-		 		"tax_accumulated_depreciation_reset.sh %s",
-		 		application_name );
-
-			system( sys_string );
+				max_tax_year,
+				depreciation_structure->
+					depreciation_fund_list );
 
 			printf(
 		"<h3>Tax Fixed Asset Recovery for %d is now deleted.</h3>\n",
-				tax_year );
+				max_tax_year );
+
+			return;
 		}
 		else
 		{
@@ -268,8 +258,8 @@ void tax_recover_fixed_assets(	char *application_name,
 } /* tax_recover_fixed_assets() */
 
 void tax_recover_fixed_assets_undo(	char *application_name,
-					int tax_year,
-					char *folder_name )
+					int max_tax_year,
+					LIST *depreciation_fund_list )
 {
 	char sys_string[ 1024 ];
 	char where[ 128 ];
@@ -280,6 +270,12 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 		 "echo \"delete from %s where %s;\" | sql.e",
 		 folder_name,
 		 where );
+
+	system( sys_string );
+
+	sprintf(sys_string,
+		"tax_accumulated_depreciation_reset.sh %s",
+		application_name );
 
 	system( sys_string );
 

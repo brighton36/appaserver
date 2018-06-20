@@ -1,7 +1,6 @@
 /* ---------------------------------------------------------------	*/
 /* $APPASERVER_HOME/src_predictive/depreciate_fixed_assets.c		*/
 /* ---------------------------------------------------------------	*/
-/* 									*/
 /* Freely available software: see Appaserver.org			*/
 /* ---------------------------------------------------------------	*/
 
@@ -29,6 +28,9 @@
 
 /* Prototypes */
 /* ---------- */
+char *depreciate_fixed_assets_fetch_max_depreciation_date(
+					char *application_name );
+
 void depreciate_fixed_assets_undo(	char *application_name,
 					char *depreciation_date,
 					LIST *depreciation_fund_list );
@@ -112,19 +114,8 @@ void depreciate_fixed_assets(	char *application_name,
 	/* Input */
 	/* ----- */
 	depreciation_date =
-	prior_depreciation_date =
-		depreciation_fetch_max_depreciation_date(
-			application_name,
-			FIXED_ASSET_DEPRECIATION_FOLDER );
-
-	if ( !depreciation_date || !*depreciation_date )
-	{
-		depreciation_date =
-		prior_depreciation_date =
-			depreciation_fetch_max_depreciation_date(
-				application_name,
-				PRIOR_FIXED_ASSET_DEPRECIATION_FOLDER );
-	}
+		depreciate_fixed_assets_fetch_max_depreciation_date(
+			application_name );
 
 	if ( ! ( entity_self =
 			entity_self_load(
@@ -404,3 +395,24 @@ void depreciate_fixed_assets_undo(	char *application_name,
 
 } /* depreciate_fixed_assets_undo() */
 
+char *depreciate_fixed_assets_fetch_max_depreciation_date(
+				char *application_name )
+{
+	char *return_date;
+	char *max_depreciation_date;
+
+	return_date =
+		depreciation_fetch_max_depreciation_date(
+			application_name,
+			FIXED_ASSET_DEPRECIATION_FOLDER );
+
+	if ( !depreciation_date || !*depreciation_date )
+	{
+		depreciation_date =
+		prior_depreciation_date =
+			depreciation_fetch_max_depreciation_date(
+				application_name,
+				PRIOR_FIXED_ASSET_DEPRECIATION_FOLDER );
+	}
+
+} /* depreciate_fixed_assets_fetch_max_depreciation_date() */

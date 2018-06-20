@@ -2021,12 +2021,14 @@ LIST *related_folder_get_global_related_folder_list(
 		related_folder->join_1tom_each_row =
 				(*buffer == 'y');
 
+/* Want to retire omit_lookup_before_drop_down.
 		piece(	buffer,
 			delimiter,
 			related_record,
 			RELATED_FOLDER_OMIT_LOOKUP_BEFORE_DROP_DOWN_PIECE );
 		related_folder->omit_lookup_before_drop_down =
 				(*buffer == 'y');
+*/
 
 		piece(	buffer,
 			delimiter,

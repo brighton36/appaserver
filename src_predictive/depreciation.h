@@ -26,12 +26,16 @@ typedef struct
 	char *fund_name;
 	double purchased_fixed_asset_depreciation_amount;
 	double prior_fixed_asset_depreciation_amount;
+	double purchased_property_depreciation_amount;
+	double prior_property_depreciation_amount;
 	TRANSACTION *purchase_transaction;
 	TRANSACTION *prior_transaction;
-	LIST *fixed_asset_purchased_list;
-	LIST *fixed_asset_prior_list;
 	char *depreciation_expense_account;
 	char *accumulated_depreciation_account;
+	LIST *fixed_asset_purchased_list;
+	LIST *fixed_asset_prior_list;
+	LIST *property_purchased_list;
+	LIST *property_prior_list;
 } DEPRECIATION_FUND;
 
 typedef struct

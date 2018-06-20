@@ -38,7 +38,7 @@ void post_reoccurring_transaction(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
-			char *rental_property_street_address );
+			char *property_street_address );
 
 void post_reoccurring_transaction_display(
 			char *application_name,
@@ -48,7 +48,7 @@ void post_reoccurring_transaction_display(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
-			char *rental_property_street_address );
+			char *property_street_address );
 
 int main( int argc, char **argv )
 {
@@ -60,7 +60,7 @@ int main( int argc, char **argv )
 	char *transaction_date_time;
 	char *transaction_description;
 	double transaction_amount;
-	char *rental_property_street_address;
+	char *property_street_address;
 	char *memo;
 	boolean execute;
 	char title[ 128 ];
@@ -69,7 +69,7 @@ int main( int argc, char **argv )
 	int tax_year;
 	char begin_date_string[ 16 ];
 	char end_date_string[ 16 ];
-	LIST *rental_property_string_list;
+	LIST *property_string_list;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -81,7 +81,7 @@ int main( int argc, char **argv )
 	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored process full_name street_address transaction_description transaction_date transaction_amount memo rental_property_street_address execute_yn\n",
+"Usage: %s ignored process full_name street_address transaction_description transaction_date transaction_amount memo property_street_address execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -93,7 +93,7 @@ int main( int argc, char **argv )
 	transaction_date = argv[ 6 ];
 	transaction_amount = atof( argv[ 7 ] );
 	memo = argv[ 8 ];
-	rental_property_street_address = argv[ 9 ];
+	property_street_address = argv[ 9 ];
 	execute = (*argv[ 10 ] == 'y');
 
 	tax_year = atoi( pipe2string( "now.sh ymd | piece.e '-' 0" ) );
@@ -101,15 +101,15 @@ int main( int argc, char **argv )
 	sprintf( begin_date_string, "%d-01-01", tax_year );
 	sprintf( end_date_string, "%d-12-31", tax_year );
 
-	rental_property_string_list =
-		tax_get_rental_property_string_list(
+	property_string_list =
+		tax_get_property_string_list(
 			application_name,
 			begin_date_string,
 			end_date_string );
 
-	if ( ( !rental_property_street_address
-	||     strcmp(	rental_property_street_address,
-			"rental_property_street_address" ) == 0 )
+	if ( ( !property_street_address
+	||     strcmp(	property_street_address,
+			"property_street_address" ) == 0 )
 	&&   ( list_exists_string(	rental_property_string_list,
 					street_address ) ) )
 	{

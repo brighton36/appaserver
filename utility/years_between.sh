@@ -1,6 +1,8 @@
 :
-# utility/years_between.sh
-# ------------------------
+# $APPASERVER_HOME/utility/years_between.sh
+# ---------------------------------------------
+# Freely available software: see Appaserver.org
+# ---------------------------------------------
 
 minutes_per_year=525600
 

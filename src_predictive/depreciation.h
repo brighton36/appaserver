@@ -86,7 +86,8 @@ DEPRECIATION_STRUCTURE *depreciation_structure_new(
 			char *application_name );
 
 DEPRECIATION_ASSET_LIST *depreciation_asset_list_new(
-			void );
+			char *application_name,
+			char *fund_name );
 
 DEPRECIATION_DATE *depreciation_date_new(
 			char *application_name );

@@ -38,18 +38,22 @@ DEPRECIATION_STRUCTURE *depreciation_structure_new(
 		exit(1 );
 	}
 
-	p->depreciation_date = depreciation_date_new( application_name );
+	p->depreciation_date =
+		depreciation_date_new(
+			application_name );
 
 	return p;
 
 } /* depreciation_structure_new() */
 
-DEPRECIATION_ASSET_LIST *depreciation_asset_list_new( void )
+DEPRECIATION_ASSET_LIST *depreciation_asset_list_new(
+					char *application_name,
+					char *fund_name )
 {
-	DEPRECIATION_ASSET_LIST *p =
+	DEPRECIATION_ASSET_LIST *d =
 		calloc( 1, sizeof( DEPRECIATION_ASSET_LIST ) );
 
-	if ( !p )
+	if ( !d )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: cannot allocate memory.\n",
@@ -59,7 +63,43 @@ DEPRECIATION_ASSET_LIST *depreciation_asset_list_new( void )
 		exit(1 );
 	}
 
-	return p;
+	d->fixed_asset_purchase_list =
+		fixed_asset_depreciation_purchase_fetch_list(
+			application_name,
+			fund_name );
+
+/*
+		depreciation_fixed_asset_list_set(
+			d->fixed_asset_purchased_list,
+			&d->purchased_fixed_asset_depreciation_amount,
+			depreciation_date,
+			prior_depreciation_date );
+*/
+
+	d->fixed_asset_prior_list =
+		fixed_asset_depreciation_prior_fetch_list(
+			application_name,
+			fund_name );
+
+/*
+		depreciation_fixed_asset_list_set(
+			d->fixed_asset_prior_list,
+			&d->prior_fixed_asset_depreciation_amount,
+			depreciation_date,
+			prior_depreciation_date );
+*/
+
+	d->property_purchase_list =
+		fixed_property_depreciation_purchase_fetch_list(
+			application_name,
+			fund_name );
+
+	d->property_prior_list =
+		fixed_property_depreciation_prior_fetch_list(
+			application_name,
+			fund_name );
+
+	return d;
 
 } /* depreciation_asset_list_new() */
 
@@ -86,7 +126,7 @@ DEPRECIATION_DATE *depreciation_date_new( char *application_name )
 	p->max_undo_date = p->undo_fixed_asset_date;
 
 	p->undo_fixed_prior_date =
-	p->prior_fixed_prior =
+	p->prior_fixed_asset_date =
 		depreciation_fetch_max_depreciation_date(
 			application_name,
 			PRIOR_FIXED_ASSET_DEPRECIATION_FOLDER );
@@ -107,17 +147,17 @@ DEPRECIATION_DATE *depreciation_date_new( char *application_name )
 		p->max_undo_date = p->undo_property_date;
 	}
 
-	p->undo_prior_property_date =
+	p->undo_property_prior_date =
 	p->prior_property_prior_date =
 		depreciation_fetch_max_depreciation_date(
 			application_name,
 			PRIOR_PROPERTY_DEPRECIATION_FOLDER );
 
 	if ( timlib_strcmp(
-		p->undo_prior_property_prior_date,
+		p->undo_property_prior_date,
 		p->max_undo_date ) > 0 )
 	{
-		p->max_undo_date = p->undo_prior_property_date;
+		p->max_undo_date = p->undo_property_prior_date;
 	}
 
 	return p;
@@ -640,6 +680,7 @@ void depreciation_fund_list_table_display(
 				LIST *depreciation_fund_list )
 {
 	DEPRECIATION_FUND *depreciation_fund;
+	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
 
 	if ( !list_rewind( depreciation_fund_list ) ) return;
 
@@ -648,14 +689,28 @@ void depreciation_fund_list_table_display(
 			list_get_pointer(
 				depreciation_fund_list );
 
-		depreciation_fixed_asset_list_table_display(
-			process_name,
+		depreciation_asset_list =
 			depreciation_fund->
-				fixed_asset_purchased_list );
+				depreciation_asset_list;
+
+		if ( !depreciation_asset_list )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
 
 		depreciation_fixed_asset_list_table_display(
 			process_name,
-			depreciation_fund->
+			depreciation_asset_list->
+				fixed_asset_purchase_list );
+
+		depreciation_fixed_asset_list_table_display(
+			process_name,
+			depreciation_asset_list->
 				fixed_asset_prior_list );
 
 	} while( list_next( depreciation_fund_list ) );
@@ -804,37 +859,29 @@ DEPRECIATION_FUND *depreciation_fund_new(
 
 } /* depreciation_fund_new() */
 
-#ifdef NOT_DEFINED
-	if ( with_load )
-	{
-		/* Purchase order fixed assets */
-		/* --------------------------- */
-		d->fixed_asset_purchased_list =
-			fixed_asset_depreciation_purchase_fetch_list(
-				application_name,
-				fund_name );
-	
-		depreciation_fixed_asset_list_set(
-			d->fixed_asset_purchased_list,
-			&d->purchased_fixed_asset_depreciation_amount,
-			depreciation_date,
-			prior_depreciation_date );
-	
-		/* Prior purchased fixed assets */
-		/* ---------------------------- */
-		d->fixed_asset_prior_list =
-			fixed_asset_depreciation_prior_fetch_list(
-				application_name,
-				fund_name );
-	
-		depreciation_fixed_asset_list_set(
-			d->fixed_asset_prior_list,
-			&d->prior_fixed_asset_depreciation_amount,
-			depreciation_date,
-			prior_depreciation_date );
-	}
-#endif
+void depreciation_fund_list_set_asset_list(
+			LIST *depreciation_fund_list,
+			char *application_name )
+{
+	DEPRECIATION_FUND *depreciation_fund;
 
+	if ( !list_rewind( depreciation_fund_list ) ) return;
+
+	do {
+		depreciation_fund =
+			list_get_pointer(
+				depreciation_fund_list );
+
+		depreciation_fund->depreciation_asset_list =
+			depreciation_asset_list_new(
+				application_name,
+				depreciation_fund->fund_name );
+
+	} while( list_next( depreciation_fund_list ) );
+
+} /* depreciation_fund_list_set_asset_list() */
+
+#ifdef NOT_DEFINED
 void depreciation_fund_list_set_transaction(
 				LIST *depreciation_fund_list,
 				char *full_name,
@@ -1007,4 +1054,5 @@ boolean depreciation_fixed_asset_list_insert(
 	return 1;
 
 } /* depreciation_fixed_asset_list_insert() */
+#endif
 

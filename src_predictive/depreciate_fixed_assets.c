@@ -197,6 +197,8 @@ void depreciate_fixed_assets(	char *application_name,
 			return;
 		}
 
+		/* Insert */
+		/* ------ */
 		depreciation_fund_list_set_asset_list(
 			depreciation_structure->depreciation_fund_list,
 			application_name );

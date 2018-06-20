@@ -95,7 +95,6 @@ typedef struct
 	double state_withholding_allowance_period_value;
 	double state_itemized_allowance_period_value;
 	double state_sales_tax_rate;
-	LIST *depreciation_fund_list;
 } ENTITY_SELF;
 
 /* Operations */

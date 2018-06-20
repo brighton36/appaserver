@@ -23,19 +23,39 @@
 /* ---------- */
 typedef struct
 {
+	char *undo_fixed_asset_date;
+	char *prior_fixed_asset_date;
+	char *undo_fixed_prior_date;
+	char *prior_fixed_prior_date;
+	char *undo_property_date;
+	char *prior_property_date;
+	char *undo_property_prior_date;
+	char *prior_property_prior_date;
+} DEPRECIATION_DATE;
+
+typedef struct
+{
+	LIST *fixed_asset_purchase_list;
+	LIST *fixed_asset_prior_list;
+	LIST *property_purchase_list;
+	LIST *property_prior_list;
+} DEPRECIATION_ASSET_LIST;
+
+typedef struct
+{
 	char *fund_name;
-	double purchased_fixed_asset_depreciation_amount;
+	TRANSACTION *purchase_fixed_asset_transaction;
+	TRANSACTION *prior_fixed_asset_transaction;
+	TRANSACTION *purchase_property_transaction;
+	TRANSACTION *prior_property_transaction;
+	double purchase_fixed_asset_depreciation_amount;
 	double prior_fixed_asset_depreciation_amount;
-	double purchased_property_depreciation_amount;
+	double purchase_property_depreciation_amount;
 	double prior_property_depreciation_amount;
-	TRANSACTION *purchase_transaction;
-	TRANSACTION *prior_transaction;
 	char *depreciation_expense_account;
 	char *accumulated_depreciation_account;
-	LIST *fixed_asset_purchased_list;
-	LIST *fixed_asset_prior_list;
-	LIST *property_purchased_list;
-	LIST *property_prior_list;
+	DEPRECIATION_DATE *depreciation_date;
+	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
 } DEPRECIATION_FUND;
 
 typedef struct
@@ -49,16 +69,29 @@ typedef struct
 	TRANSACTION *transaction;
 } DEPRECIATION;
 
+typedef struct
+{
+	DEPRECIATION_DATE *depreciation_date;
+	LIST *depreciation_fund_list;
+} DEPRECIATION_STRUCTURE;
+
 /* Operations */
 /* ---------- */
-DEPRECIATION *depreciation_calloc( void );
+DEPRECIATION_STRUCTURE *depreciation_structure_new(
+			char *application_name );
+
+DEPRECIATION_ASSET_LIST *depreciation_asset_list_new(
+			void );
+
+DEPRECIATION_DATE *depreciation_date_new(
+			char *application_name );
+
+DEPRECIATION *depreciation_calloc(
+			void );
 
 DEPRECIATION_FUND *depreciation_fund_new(
 			char *application_name,
-			char *fund_name,
-			char *depreciation_date,
-			char *prior_depreciation_date,
-			boolean with_load );
+			char *fund_name );
 
 DEPRECIATION *depreciation_new(
 			void );
@@ -137,10 +170,7 @@ void depreciation_fixed_asset_list_set(
 			char *prior_depreciation_date );
 
 LIST *depreciation_fetch_fund_list(
-			char *application_name,
-			char *depreciation_date,
-			char *prior_depreciation_date,
-			boolean with_load );
+			char *application_name );
 
 LIST *fixed_asset_depreciation_purchase_fetch_list(
 			char *application_name,

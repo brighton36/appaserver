@@ -20,11 +20,68 @@
 #include "fixed_asset.h"
 #include "depreciation.h"
 
+DEPRECIATION_STRUCTURE *depreciation_structure_new(
+				char *application_name )
+{
+	DEPRECIATION_STRUCTURE *p =
+		calloc( 1, sizeof( DEPRECIATION_STRUCTURE ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	p->depreciation_date = depreciation_date_new( application_name );
+
+	return p;
+
+} /* depreciation_structure_new() */
+
+DEPRECIATION_ASSET_LIST *depreciation_asset_list_new( void )
+{
+	DEPRECIATION_ASSET_LIST *p =
+		calloc( 1, sizeof( DEPRECIATION_ASSET_LIST ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	return p;
+
+} /* depreciation_asset_list_new() */
+
+DEPRECIATION_DATE *depreciation_date_new( char *application_name )
+{
+	DEPRECIATION_DATE *p = calloc( 1, sizeof( DEPRECIATION_DATE ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	return p;
+
+} /* depreciation_date_new() */
+
 DEPRECIATION *depreciation_calloc( void )
 {
-	DEPRECIATION *p =
-		(DEPRECIATION *)
-			calloc( 1, sizeof( DEPRECIATION ) );
+	DEPRECIATION *p = calloc( 1, sizeof( DEPRECIATION ) );
 
 	if ( !p )
 	{
@@ -645,10 +702,7 @@ void depreciation_fixed_asset_list_table_display(
 } /* depreciation_fixed_asset_list_table_display() */
 
 LIST *depreciation_fetch_fund_list(
-				char *application_name,
-				char *depreciation_date,
-				char *prior_depreciation_date,
-				boolean with_load )
+				char *application_name )
 {
 	DEPRECIATION_FUND *depreciation_fund;
 	LIST *depreciation_fund_list = list_new();
@@ -678,10 +732,7 @@ LIST *depreciation_fetch_fund_list(
 			depreciation_fund =
 				depreciation_fund_new(
 					application_name,
-					fund_name,
-					depreciation_date,
-					prior_depreciation_date,
-					with_load );
+					fund_name );
 
 			list_append_pointer(
 				depreciation_fund_list,
@@ -694,10 +745,7 @@ LIST *depreciation_fetch_fund_list(
 		depreciation_fund =
 			depreciation_fund_new(
 				application_name,
-				(char *)0 /* fund_name */,
-				depreciation_date,
-				prior_depreciation_date,
-				with_load );
+				(char *)0 /* fund_name */ );
 
 		list_append_pointer(
 			depreciation_fund_list,
@@ -710,14 +758,9 @@ LIST *depreciation_fetch_fund_list(
 
 DEPRECIATION_FUND *depreciation_fund_new(
 					char *application_name,
-					char *fund_name,
-					char *depreciation_date,
-					char *prior_depreciation_date,
-					boolean with_load )
+					char *fund_name )
 {
-	DEPRECIATION_FUND *d =
-		(DEPRECIATION_FUND *)
-			calloc( 1, sizeof( DEPRECIATION_FUND ) );
+	DEPRECIATION_FUND *d = calloc( 1, sizeof( DEPRECIATION_FUND ) );
 
 	if ( !d )
 	{
@@ -739,6 +782,15 @@ DEPRECIATION_FUND *depreciation_fund_new(
 		application_name,
 		fund_name );
 
+	d->depreciation_date =
+		depreciation_date_new(
+			application );
+
+	return d;
+
+} /* depreciation_fund_new() */
+
+#ifdef NOT_DEFINED
 	if ( with_load )
 	{
 		/* Purchase order fixed assets */
@@ -767,10 +819,7 @@ DEPRECIATION_FUND *depreciation_fund_new(
 			depreciation_date,
 			prior_depreciation_date );
 	}
-
-	return d;
-
-} /* depreciation_fund_new() */
+#endif
 
 void depreciation_fund_list_set_transaction(
 				LIST *depreciation_fund_list,

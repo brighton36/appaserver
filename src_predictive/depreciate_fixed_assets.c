@@ -107,16 +107,15 @@ void depreciate_fixed_assets(	char *application_name,
 				boolean execute )
 {
 	char buffer[ 128 ];
-	char *depreciation_date;
-	char *prior_depreciation_date;
+	DEPRECIATION_STRUCTURE *depreciation_structure;
 	ENTITY_SELF *entity_self;
+
+	depreciation_structure =
+		depreciation_structure_new(
+			application_name );
 
 	/* Input */
 	/* ----- */
-	depreciation_date =
-		depreciate_fixed_assets_fetch_max_depreciation_date(
-			application_name );
-
 	if ( ! ( entity_self =
 			entity_self_load(
 				application_name ) ) )
@@ -128,6 +127,10 @@ void depreciate_fixed_assets(	char *application_name,
 			 __LINE__ );
 		exit( 1 );
 	}
+
+	entity_self->depreciation_fund_list =
+			depreciation_fetch_fund_list(
+				application_name );
 
 	if ( undo )
 	{

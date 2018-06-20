@@ -26,11 +26,15 @@
 
 /* Prototypes */
 /* ---------- */
-char *depreciate_fixed_assets_fetch_max_depreciation_date(
-					char *application_name );
+char *depreciate_transaction_journal_ledger_delete(
+					FILE *output_pipe,
+					char *application_name,
+					char *max_undo_date,
+					char *input_folder_name,
+					char *propagate_transaction_date_time );
 
 void depreciate_fixed_assets_undo(	char *application_name,
-					char *depreciation_date,
+					char *max_undo_date,
 					LIST *depreciation_fund_list );
 
 void depreciate_fixed_assets(		char *application_name,
@@ -197,7 +201,6 @@ void depreciate_fixed_assets(	char *application_name,
 			depreciation_structure->depreciation_fund_list,
 			application_name );
 
-
 		depreciation_fund_list_set_transaction(
 			depreciation_structure->depreciation_fund_list,
 			entity_self->entity->full_name,
@@ -245,7 +248,7 @@ void depreciate_fixed_assets(	char *application_name,
 } /* depreciate_fixed_assets() */
 
 void depreciate_fixed_assets_undo(	char *application_name,
-					char *depreciation_date,
+					char *max_undo_date,
 					LIST *depreciation_fund_list )
 {
 	char transaction_date_time[ 64 ];
@@ -260,111 +263,46 @@ void depreciate_fixed_assets_undo(	char *application_name,
 
 	output_pipe = popen( "sql.e", "w" );
 
-	/* ---------------------------------------------------- */
-	/* They should all have the same transaction_date_time,	*/
-	/* but to be sure.					*/
-	/* ---------------------------------------------------- */
-	select = "distinct(transaction_date_time)";
+	propagate_transaction_date_time =
+		depreciate_transaction_journal_ledger_delete(
+			output_pipe,
+			application_name,
+			max_undo_date,
+			"fixed_asset_depreciation"
+				/* input_folder_name */,
+			propagate_transaction_date_time );
 
-	/* Delete FIXED_ASSET_DEPRECIATION */
-	/* ------------------------------- */
-	folder_name = "fixed_asset_depreciation";
+	propagate_transaction_date_time =
+		depreciate_transaction_journal_ledger_delete(
+			output_pipe,
+			application_name,
+			max_undo_date,
+			"property_depreciation"
+				/* input_folder_name */,
+			propagate_transaction_date_time );
 
-	sprintf(where,
-		"depreciation_date = '%s'",
-		depreciation_date );
+	propagate_transaction_date_time =
+		depreciate_transaction_journal_ledger_delete(
+			output_pipe,
+			application_name,
+			max_undo_date,
+			"prior_fixed_asset_depreciation"
+				/* input_folder_name */,
+			propagate_transaction_date_time );
 
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 folder_name,
-		 where );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( transaction_date_time, input_pipe ) )
-	{
-		sprintf(where,
-			"transaction_date_time = '%s'",
-			transaction_date_time );
-
-		fprintf( output_pipe,
-		 	 "delete from journal_ledger where %s;\n",
-		 	 where );
-
-		fprintf( output_pipe,
-		 	 "delete from transaction where %s;\n",
-		 	 where );
-
-		if ( !propagate_transaction_date_time )
-		{
-			propagate_transaction_date_time =
-				strdup( transaction_date_time );
-		}
-	}
-
-	pclose( input_pipe );
-
-	fprintf( output_pipe,
-	 	 "delete from %s where %s;\n",
-		 folder_name,
-	 	 where );
-
-	/* Delete PRIOR_FIXED_ASSET_DEPRECIATION */
-	/* ------------------------------------- */
-	folder_name = "prior_fixed_asset_depreciation";
-
-	sprintf(where,
-		"depreciation_date = '%s'",
-		depreciation_date );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 folder_name,
-		 where );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( transaction_date_time, input_pipe ) )
-	{
-		sprintf(where,
-			"transaction_date_time = '%s'",
-			transaction_date_time );
-
-		fprintf( output_pipe,
-		 	 "delete from journal_ledger where %s;\n",
-		 	 where );
-
-		fprintf( output_pipe,
-		 	 "delete from transaction where %s;\n",
-		 	 where );
-
-		if ( !propagate_transaction_date_time )
-		{
-			propagate_transaction_date_time =
-				strdup( transaction_date_time );
-		}
-	}
-
-	pclose( input_pipe );
-
-	fprintf( output_pipe,
-	 	 "delete from %s where %s;\n",
-		 folder_name,
-	 	 where );
+	propagate_transaction_date_time =
+		depreciate_transaction_journal_ledger_delete(
+			output_pipe,
+			application_name,
+			max_undo_date,
+			"prior_property_depreciation"
+				/* input_folder_name */,
+			propagate_transaction_date_time );
 
 	pclose( output_pipe );
 
-	if ( list_rewind( depreciation_fund_list ) )
+	if ( propagate_transaction_date_time
+	&&   list_rewind( depreciation_fund_list ) )
 	{
 		do {
 			depreciation_fund =
@@ -392,4 +330,84 @@ void depreciate_fixed_assets_undo(	char *application_name,
 	}
 
 } /* depreciate_fixed_assets_undo() */
+
+/* Returns propagate_transaction_date_time */
+/* --------------------------------------- */
+char *depreciate_transaction_journal_ledger_delete(
+					FILE *output_pipe,
+					char *application_name,
+					char *max_undo_date,
+					char *input_folder_name,
+					char *propagate_transaction_date_time )
+{
+	char transaction_date_time[ 64 ];
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+	char *select;
+	FILE *input_pipe;
+
+	/* ---------------------------------------------------- */
+	/* They should all have the same transaction_date_time,	*/
+	/* but to be sure.					*/
+	/* ---------------------------------------------------- */
+	select = "distinct(transaction_date_time)";
+
+	sprintf(where,
+		"depreciation_date = '%s'",
+		max_undo_date );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 input_folder_name,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( transaction_date_time, input_pipe ) )
+	{
+		sprintf(where,
+			"transaction_date_time = '%s'",
+			transaction_date_time );
+
+		fprintf( output_pipe,
+		 	 "delete from journal_ledger where %s;\n",
+		 	 where );
+
+		fprintf( output_pipe,
+		 	 "delete from transaction where %s;\n",
+		 	 where );
+
+		if ( !propagate_transaction_date_time )
+		{
+			propagate_transaction_date_time =
+				strdup( transaction_date_time );
+		}
+		else
+		{
+			if ( transaction_date_time <
+			     propagate_transaction_date_time )
+			{
+				propagate_transaction_date_time =
+					strdup( transaction_date_time );
+			}
+		}
+	}
+
+	pclose( input_pipe );
+
+	sprintf(where,
+		"depreciation_date = '%s'",
+		max_undo_date );
+
+	fprintf( output_pipe,
+	 	 "delete from %s where %s;\n",
+		 input_folder_name,
+	 	 where );
+
+} /* depreciate_transaction_journal_ledger_delete() */
 

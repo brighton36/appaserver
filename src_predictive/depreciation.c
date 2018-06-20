@@ -150,37 +150,6 @@ DEPRECIATION *depreciation_new( void )
 
 } /* depreciation_new() */
 
-boolean depreciation_date_exists(
-			char *application_name,
-			char *folder_name,
-			char *depreciation_date )
-{
-	char sys_string[ 1024 ];
-	char where[ 32 ];
-	char *results;
-
-	sprintf( where,
-		 "depreciation_date = '%s'",
-		 depreciation_date );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=count			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			",
-		 application_name,
-		 folder_name,
-		 where );
-
-	results = pipe2string( sys_string );
-
-	if ( atoi( results ) )
-		return 1;
-	else
-		return 0;
-
-} /* depreciation_date_exists() */
-
 char *depreciation_fetch_max_depreciation_date(
 			char *application_name,
 			char *folder_name )
@@ -1039,38 +1008,3 @@ boolean depreciation_fixed_asset_list_insert(
 
 } /* depreciation_fixed_asset_list_insert() */
 
-boolean depreciation_date_exists(
-			DEPRECIATION_DATE *depreciation_date,
-			char *depreciation_date_string )
-{
-	if ( !depreciation_date )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty depreciation_date.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( ( timlib_strcmp(
-		depreciation_date->undo_fixed_asset_date,
-		depreciation_date_string ) == 0 )
-	||   ( timlib_strcmp(
-		depreciation_date->undo_fixed_prior_date,
-		depreciation_date_string ) == 0 )
-	||   ( timlib_strcmp(
-		depreciation_date->undo_property_date,
-		depreciation_date_string ) == 0 )
-	||   ( timlib_strcmp(
-		depreciation_date->undo_property_prior_date,
-		depreciation_date_string ) == 0 ) )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-
-} /* depreciation_date_exists() */

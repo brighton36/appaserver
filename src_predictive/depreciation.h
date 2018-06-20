@@ -159,11 +159,6 @@ double depreciation_units_of_production_get_amount(
 			int units_produced,
 			double finance_accumulated_depreciation );
 
-boolean depreciation_date_exists(
-			char *application_name,
-			char *folder_name,
-			char *depreciation_date );
-
 char *depreciation_fetch_max_depreciation_date(
 			char *application_name,
 			char *folder_name );

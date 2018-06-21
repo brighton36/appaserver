@@ -174,6 +174,7 @@ char *fixed_asset_depreciation_get_where(
 				char *fund_where,
 				char *cost_attribute_name );
 
+/*
 void fixed_asset_depreciation_fund_list_update(
 				LIST *depreciation_fund_list );
 
@@ -183,6 +184,7 @@ void fixed_asset_accumulated_depreciation_update(
 
 char *fixed_asset_accumulated_depreciation_get_update_sys_string(
 				char *folder_name );
+*/
 
 LIST *fixed_asset_fetch_tax_list(
 				char *application_name,

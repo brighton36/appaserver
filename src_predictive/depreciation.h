@@ -84,6 +84,8 @@ typedef struct
 	double prior_property_depreciation_amount;
 	char *depreciation_expense_account;
 	char *accumulated_depreciation_account;
+	DEPRECIATION_AMOUNT *depreciation_amount;
+	DEPRECIATION_TRANSACTION *depreciation_transaction;
 	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
 } DEPRECIATION_FUND;
 
@@ -225,11 +227,10 @@ void depreciation_fund_transaction_insert(
 
 void depreciation_fund_asset_depreciation_insert(
 			LIST *depreciation_fund_list,
-			char *application_name,
 			char *full_name,
 			char *street_address );
 
-boolean depreciation_asset_list_depreciation_insert(
+void depreciation_asset_list_depreciation_insert(
 			LIST *fixed_asset_list,
 			char *folder_name,
 			char *full_name,

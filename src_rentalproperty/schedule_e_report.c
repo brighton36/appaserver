@@ -41,12 +41,12 @@ LIST *build_PDF_row_list(
 			LIST *tax_form_line_rental_list );
 
 LIST *build_PDF_heading_list(
-			LIST *rental_property_street_address_list );
+			LIST *rental_property_list );
 
 LATEX_TABLE *tax_form_report_PDF_table(
 			char *sub_title,
 			LIST *tax_form_line_rental_list,
-			LIST *rental_property_street_address_list );
+			LIST *rental_property_list );
 
 void tax_form_report_PDF(
 			char *application_name,
@@ -55,19 +55,19 @@ void tax_form_report_PDF(
 			char *document_root_directory,
 			char *process_name,
 			LIST *tax_form_line_rental_list,
-			LIST *rental_property_street_address_list,
+			LIST *rental_property_list,
 			char *logo_filename );
 
 HTML_TABLE *tax_form_report_get_html_table(
 			char *title,
 			char *sub_title,
-			LIST *rental_property_street_address_list );
+			LIST *rental_property_list );
 
 void tax_form_report_html_table(
 			char *title,
 			char *sub_title,
 			LIST *tax_form_line_rental_list,
-			LIST *rental_property_street_address_list );
+			LIST *rental_property_list );
 
 int main( int argc, char **argv )
 {
@@ -80,6 +80,7 @@ int main( int argc, char **argv )
 	char title[ 128 ];
 	char sub_title[ 128 ];
 	char buffer[ 128 ];
+	char end_date_string[ 16 ];
 	TAX *tax;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
@@ -164,15 +165,18 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	sprintf( end_date_string, "%d-12-31", tax_year );
+
 	tax->tax_input.rental_property_list =
 		tax_fetch_rental_property_list(
 			application_name,
+			end_date_string,
 			tax_year );
 
 	if ( !list_length(
 		tax->
 			tax_input.
-			rental_property_street_address_list ) )
+			rental_property_list ) )
 	{
 		printf(
 		"<h3>No rental properties owned during this period.</h3>\n" );
@@ -203,7 +207,7 @@ int main( int argc, char **argv )
 			title,
 			sub_title,
 			tax->tax_output_rental.tax_form_line_rental_list,
-			tax->tax_input.rental_property_street_address_list );
+			tax->tax_input.rental_property_list );
 	}
 	else
 	{
@@ -215,7 +219,7 @@ int main( int argc, char **argv )
 				document_root,
 			process_name,
 			tax->tax_output_rental.tax_form_line_rental_list,
-			tax->tax_input.rental_property_street_address_list,
+			tax->tax_input.rental_property_list,
 			application_constants_quick_fetch(
 				application_name,
 				"logo_filename" /* key */ ) );
@@ -231,7 +235,7 @@ void tax_form_report_html_table(
 			char *title,
 			char *sub_title,
 			LIST *tax_form_line_rental_list,
-			LIST *rental_property_street_address_list )
+			LIST *rental_property_list )
 {
 	TAX_FORM_LINE_RENTAL *tax_form_line_rental;
 	TAX_OUTPUT_RENTAL_PROPERTY *rental_property;
@@ -242,7 +246,7 @@ void tax_form_report_html_table(
 		tax_form_report_get_html_table(
 			title,
 			sub_title,
-			rental_property_street_address_list );
+			rental_property_list );
 
 	html_table_output_table_heading(
 					html_table->title,
@@ -330,17 +334,17 @@ void tax_form_report_html_table(
 HTML_TABLE *tax_form_report_get_html_table(
 				char *title,
 				char *sub_title,
-				LIST *rental_property_street_address_list )
+				LIST *rental_property_list )
 {
 	HTML_TABLE *html_table;
 	LIST *heading_list;
-	char *rental_property_street_address;
+	TAX_INPUT_RENTAL_PROPERTY *rental_property;
 
 	html_table = new_html_table(
 			title,
 			strdup( sub_title ) );
 
-	if ( !list_rewind( rental_property_street_address_list ) )
+	if ( !list_rewind( rental_property_list ) )
 		return html_table;
 
 	heading_list = list_new();
@@ -348,21 +352,21 @@ HTML_TABLE *tax_form_report_get_html_table(
 	list_append_string( heading_list, "tax_form_description" );
 
 	do {
-		rental_property_street_address =
+		rental_property =
 			list_get_pointer(
-				rental_property_street_address_list );
+				rental_property_list );
 
 		list_append_string(
 			heading_list,
-			rental_property_street_address );
+			rental_property->property_street_address );
 
-	} while( list_next( rental_property_street_address_list ) );
+	} while( list_next( rental_property_list ) );
 
 	html_table_set_heading_list( html_table, heading_list );
 	html_table->number_left_justified_columns = 2;
 
 	html_table->number_right_justified_columns =
-		list_length( rental_property_street_address_list );
+		list_length( rental_property_list );
 
 	return html_table;
 
@@ -374,7 +378,7 @@ void tax_form_report_PDF(	char *application_name,
 				char *document_root_directory,
 				char *process_name,
 				LIST *tax_form_line_rental_list,
-				LIST *rental_property_street_address_list,
+				LIST *rental_property_list,
 				char *logo_filename )
 {
 	LATEX *latex;
@@ -443,7 +447,7 @@ void tax_form_report_PDF(	char *application_name,
 		tax_form_report_PDF_table(
 			sub_title,
 			tax_form_line_rental_list,
-			rental_property_street_address_list ) );
+			rental_proprty_list ) );
 
 	latex_longtable_output(
 		latex->output_stream,
@@ -550,11 +554,11 @@ LIST *build_PDF_row_list( LIST *tax_form_line_rental_list )
 
 } /* build_PDF_row_list() */
 
-LIST *build_PDF_heading_list( LIST *rental_property_street_address_list )
+LIST *build_PDF_heading_list( LIST *rental_property_list )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
-	char *rental_property_street_address;
+	TAX_INPUT_RENTAL_PROPERTY *rental_property;
 
 	heading_list = list_new();
 
@@ -568,21 +572,21 @@ LIST *build_PDF_heading_list( LIST *rental_property_street_address_list )
 	table_heading->right_justified_flag = 0;
 	list_append_pointer( heading_list, table_heading );
 
-	if ( !list_rewind( rental_property_street_address_list ) )
+	if ( !list_rewind( rental_property_list ) )
 		return heading_list;
 
 	do {
-		rental_property_street_address =
+		rental_property =
 			list_get_pointer(
-				rental_property_street_address_list );
+				rental_property_list );
 
 		table_heading = latex_new_latex_table_heading();
 		table_heading->heading =
-			rental_property_street_address;
+			rental_property->property_street_address;
 		table_heading->right_justified_flag = 1;
 		list_append_pointer( heading_list, table_heading );
 
-	} while( list_next( rental_property_street_address_list ) );
+	} while( list_next( rental_proprty_list ) );
 
 	return heading_list;
 
@@ -591,7 +595,7 @@ LIST *build_PDF_heading_list( LIST *rental_property_street_address_list )
 LATEX_TABLE *tax_form_report_PDF_table(
 			char *sub_title,
 			LIST *tax_form_line_rental_list,
-			LIST *rental_property_street_address_list )
+			LIST *rental_property_list )
 {
 	LATEX_TABLE *latex_table;
 	char caption[ 128 ];
@@ -604,7 +608,7 @@ LATEX_TABLE *tax_form_report_PDF_table(
 
 	latex_table->heading_list =
 		build_PDF_heading_list(
-			rental_property_street_address_list );
+			rental_property_list );
 
 	latex_table->row_list =
 		build_PDF_row_list(

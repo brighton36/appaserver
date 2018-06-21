@@ -637,6 +637,7 @@ FIXED_ASSET *fixed_asset_list_seek(
 
 } /* fixed_asset_list_seek() */
 
+#ifdef NOT_DEFINED
 char *fixed_asset_accumulated_depreciation_get_update_sys_string(
 				char *folder_name )
 {
@@ -721,22 +722,22 @@ void fixed_asset_depreciation_fund_list_update(
 
 		if ( list_length(
 			depreciation_asset_list->
-				fixed_asset_purchase_list ) )
+				purchase_fixed_asset_list ) )
 		{
 			fixed_asset_accumulated_depreciation_update(
 				purchase_output_pipe,
 				depreciation_asset_list->
-					fixed_asset_purchase_list );
+					purchase_fixed_asset_list );
 		}
 
 		if ( list_length(
 			depreciation_asset_list->
-				fixed_asset_prior_list ) )
+				prior_fixed_asset_list ) )
 		{
 			fixed_asset_accumulated_depreciation_update(
 				prior_output_pipe,
 				depreciation_asset_list->
-					fixed_asset_prior_list );
+					prior_fixed_asset_list );
 		}
 
 	} while( list_next( depreciation_fund_list ) );
@@ -745,6 +746,7 @@ void fixed_asset_depreciation_fund_list_update(
 	pclose( prior_output_pipe );
 
 } /* fixed_asset_depreciation_fund_list_update() */
+#endif
 
 LIST *fixed_asset_fetch_tax_list(
 			char *application_name,

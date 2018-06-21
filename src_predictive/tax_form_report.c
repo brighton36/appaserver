@@ -79,7 +79,8 @@ int main( int argc, char **argv )
 	char title[ 256 ];
 	char sub_title[ 256 ];
 	char *tax_form_name;
-	char *as_of_date;
+	int tax_year;
+	char end_date_string[ 16 ];
 	char *output_medium;
 	TAX *tax;
 	char *logo_filename;
@@ -95,14 +96,14 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-	"Usage: %s ignored process tax_form as_of_date output_medium\n",
+	"Usage: %s ignored process tax_form tax_year output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_name = argv[ 2 ];
 	tax_form_name = argv[ 3 ];
-	as_of_date = argv[ 4 ];
+	tax_year = atoi( argv[ 4 ] );
 	output_medium = argv[ 5 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
@@ -110,12 +111,16 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
+	sprintf( end_date_string, "%d-12-31", tax_year );
+
+/*
 	if ( !*as_of_date
 	||   strcmp(	as_of_date,
 			"as_of_date" ) == 0 )
 	{
 		as_of_date = date_get_now_yyyy_mm_dd( date_get_utc_offset() );
 	}
+*/
 
 	document = document_new( title, application_name );
 	document->output_content_type = 1;
@@ -146,7 +151,7 @@ int main( int argc, char **argv )
 				process_name,
 				application_name,
 				(char *)0 /* fund_name */,
-				as_of_date,
+				end_date_string,
 				0 /* length_fund_name_list */,
 				logo_filename ) ) )
 	{
@@ -157,9 +162,8 @@ int main( int argc, char **argv )
 
 	tax = tax_new(		application_name,
 				(char *)0 /* fund_name */,
-				begin_date_string,
-				as_of_date /* end_date_string */,
-				tax_form_name );
+				tax_form_name,
+				tax_year );
 
 	if ( !list_length( tax->tax_process.tax_form_line_list ) )
 	{

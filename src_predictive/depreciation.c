@@ -1052,7 +1052,7 @@ void depreciation_fund_list_set_transaction(
 			exit( 1 );
 		}
 
-		deprecation_fund->depreciation_transaction =
+		depreciation_fund->depreciation_transaction =
 			depreciation_fund_get_transaction(
 				full_name,
 				street_address,
@@ -1060,13 +1060,13 @@ void depreciation_fund_list_set_transaction(
 					depreciation_expense_account,
 				depreciation_fund->
 					accumulated_depreciation_account,
-				deprecation_amount->
+				depreciation_amount->
 				     purchase_fixed_asset_depreciation_amount,
-				deprecation_amount->
+				depreciation_amount->
 				     prior_fixed_asset_depreciation_amount,
-				deprecation_amount->
+				depreciation_amount->
 				     purchase_property_depreciation_amount,
-				deprecation_amount->
+				depreciation_amount->
 				     prior_property_depreciation_amount );
 
 	} while( list_next( depreciation_fund_list ) );
@@ -1083,7 +1083,7 @@ void depreciation_fund_transaction_insert(
 	DEPRECIATION_TRANSACTION *depreciation_transaction;
 	TRANSACTION *transaction;
 
-	if ( !list_rewind( depreciation_fund_list ) ) return 0;
+	if ( !list_rewind( depreciation_fund_list ) ) return;
 
 	do {
 		depreciation_fund =
@@ -1206,7 +1206,6 @@ void depreciation_fund_transaction_insert(
 
 void depreciation_fund_asset_depreciation_insert(
 				LIST *depreciation_fund_list,
-				char *application_name,
 				char *full_name,
 				char *street_address )
 {
@@ -1216,7 +1215,7 @@ void depreciation_fund_asset_depreciation_insert(
 	TRANSACTION *transaction;
 	LIST *fixed_asset_list;
 
-	if ( !list_rewind( depreciation_fund_list ) ) return 0;
+	if ( !list_rewind( depreciation_fund_list ) ) return;
 
 	do {
 		depreciation_fund =
@@ -1519,7 +1518,7 @@ void depreciation_fund_list_depreciation_set(
 	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
 	LIST *fixed_asset_list;
 
-	if ( !list_rewind( depreciation_fund_list ) ) return 0;
+	if ( !list_rewind( depreciation_fund_list ) ) return;
 
 	do {
 		depreciation_fund =

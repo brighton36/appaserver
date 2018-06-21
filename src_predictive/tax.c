@@ -73,7 +73,7 @@ TAX *tax_new(			char *application_name,
 	sprintf( date_buffer, "%d-01-01", tax_year );
 	t->tax_process.begin_date_string = strdup( date_buffer );
 
-	sprintf( end_date_string, "%d-12-31", tax_year );
+	sprintf( date_buffer, "%d-12-31", tax_year );
 	t->tax_process.end_date_string = strdup( date_buffer );
 
 	/* TAX_INPUT */
@@ -81,14 +81,14 @@ TAX *tax_new(			char *application_name,
 	t->tax_input.cash_transaction_list =
 		tax_fetch_account_transaction_list(
 			application_name,
-			t->tax_procecss.begin_date_string,
-			t->tax_procecss.end_date_string,
+			t->tax_process.begin_date_string,
+			t->tax_process.end_date_string,
 			checking_account );
 
 	t->tax_input.rental_property_list =
 		tax_fetch_rental_property_list(
 			application_name,
-			t->tax_procecss.end_date_string,
+			t->tax_process.end_date_string,
 			t->tax_input.tax_year );
 
 	/* TAX_PROCESS */
@@ -451,8 +451,8 @@ LIST *tax_process_set_journal_ledger_list(
 						list_new();
 			}
 
-			journal_ledger->rental_property_street_address =
-				transaction->rental_property_street_address;
+			journal_ledger->property_street_address =
+				transaction->property_street_address;
 
 			list_append_pointer(
 				tax_form_line_account->
@@ -535,46 +535,134 @@ LIST *tax_fetch_rental_property_list(	char *application_name,
 {
 	TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property;
 	char input_buffer[ 128 ];
-	FILE *input_pipe;
 	char join_where[ 512 ];
 	char where[ 1024 ];
 	char sys_string[ 1024 ];
+	FILE *input_pipe;
 	char *select;
 	char *folder_from;
+	char property_street_address[ 128 ];
+	char recovery_amount[ 32 ];
+	LIST *rental_property_list = list_new();
 
-	select = "rental_property_street_address,recovery_amount";
-	folder_from = "tax_fixed_asset_recovery,purchase_order";
+	/* PROPERTY_PURCHASE */
+	/* ----------------- */
+	select = "property_purchase.property_street_address,recovery_amount";
+	folder_from = "property_purchase,tax_property_recovery";
 
 	sprintf( join_where,
-		 "tax_fixed_asset_recovery.
+		 "property_purchase.property_street_address =	"
+		 "tax_property_recovery.property_street_address " );
 
 	sprintf( where,
-		 "( property_acquired_date is null		"
-		 "  or property_acquired_date <= '%s' ) and	"
-		 "( property_disposal_date is null		"
-		 "  or property_disposal_date <= '%s' )		",
+		 "service_placement_date is not null and	"
+		 "( disposal_date is null			"
+		 "  or disposal_date <= '%s' ) and		"
+		 "tax_year = %d					",
 		 end_date_string,
-		 end_date_string );
+		 tax_year );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
 		 "			select=%s			"
 		 "			folder=%s			"
 		 "			where=\"%s\"			"
-		 "			order=property_acquired_date	",
+		 "			order=service_placement_date	",
 		 application_name,
 		 select,
-		 from_from,
+		 folder_from,
 		 where );
 
 	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece(	property_street_address,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	recovery_amount,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		tax_input_rental_property =
+			tax_input_rental_property_new(
+				strdup( property_street_address ) );
+
+		tax_input_rental_property->recovery_amount =
+			atof( recovery_amount );
+
+		list_append_pointer(
+			rental_property_list,
+			tax_input_rental_property );
+	}
+
+	pclose( input_pipe );
+
+	/* PRIOR_PROPERTY */
+	/* -------------- */
+	select = "property_purchase.property_street_address,recovery_amount";
+	folder_from = "prior_property,tax_prior_property_recovery";
+
+	sprintf( join_where,
+		 "prior_property.property_street_address =	"
+		 "tax_prior_property_recovery.property_street_address " );
+
+	sprintf( where,
+		 "service_placement_date is not null and	"
+		 "( disposal_date is null			"
+		 "  or disposal_date <= '%s' ) and		"
+		 "tax_year = %d					",
+		 end_date_string,
+		 tax_year );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			"
+		 "			order=service_placement_date	",
+		 application_name,
+		 select,
+		 folder_from,
+		 where );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece(	property_street_address,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	recovery_amount,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		tax_input_rental_property =
+			tax_input_rental_property_new(
+				strdup( property_street_address ) );
+
+		tax_input_rental_property->recovery_amount =
+			atof( recovery_amount );
+
+		list_append_pointer(
+			rental_property_list,
+			tax_input_rental_property );
+	}
+
+	pclose( input_pipe );
 
 	return rental_property_list;
 
 } /* tax_fetch_rental_property_list() */
 
 TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
-				char *rental_property_street_address )
+				char *property_street_address )
 {
 	TAX_OUTPUT_RENTAL_PROPERTY *t;
 
@@ -588,14 +676,14 @@ TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
 		exit( 1 );
 	}
 
-	t->street_address = rental_property_street_address;
+	t->property_street_address = property_street_address;
 
 	return t;
 
 } /* tax_output_rental_property_new() */
 
 TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property_new(
-				char *rental_property_street_address )
+				char *property_street_address )
 {
 	TAX_INPUT_RENTAL_PROPERTY *t;
 
@@ -609,7 +697,7 @@ TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property_new(
 		exit( 1 );
 	}
 
-	t->street_address = rental_property_street_address;
+	t->property_street_address = property_street_address;
 
 	return t;
 
@@ -660,7 +748,7 @@ LIST *tax_form_line_rental_get_empty_property_list(
 		tax_output_rental_property =
 			tax_output_rental_property_new(
 				tax_input_rental_property->
-					street_address );
+					property_street_address );
 
 		list_append_pointer(
 			empty_rental_property_list,
@@ -738,7 +826,7 @@ void tax_form_line_address_rental_property_list_set(
 			LIST *rental_property_list,
 			double debit_amount,
 			double credit_amount,
-			char *rental_property_street_address,
+			char *property_street_address,
 			boolean accumulate_debit )
 {
 	TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property;
@@ -751,9 +839,9 @@ void tax_form_line_address_rental_property_list_set(
 				rental_property_list );
 
 		if ( timlib_strcmp( 
-				rental_property_street_address,
+				property_street_address,
 				tax_output_rental_property->
-					rental_property_street_address ) == 0 )
+					property_street_address ) == 0 )
 		{
 			tax_output_rental_property->
 				tax_form_line_total +=
@@ -771,7 +859,7 @@ void tax_form_line_address_rental_property_list_set(
 		 __FILE__,
 		 __FUNCTION__,
 		 __LINE__,
-		 rental_property_street_address );
+		 property_street_address );
 
 	exit( 1 );
 
@@ -825,14 +913,14 @@ void tax_rental_journal_ledger_list_accumulate_line_total(
 	do {
 		ledger = list_get_pointer( journal_ledger_list );
 
-		if ( ledger->rental_property_street_address
-		&&   *ledger->rental_property_street_address )
+		if ( ledger->property_street_address
+		&&   *ledger->property_street_address )
 		{
 			tax_form_line_address_rental_property_list_set(
 				rental_property_list,
 				ledger->debit_amount,
 				ledger->credit_amount,
-				ledger->rental_property_street_address,
+				ledger->property_street_address,
 				accumulate_debit );
 		}
 		else

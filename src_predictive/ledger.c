@@ -4342,25 +4342,25 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char transaction_date_time[ 128 ];
-	char rental_property_street_address[ 128 ];
+	char property_street_address[ 128 ];
 	char memo[ 1024 ];
 	LIST *transaction_list = list_new();
 	FILE *input_pipe;
 	TRANSACTION *transaction;
-	boolean rental_property_street_address_exists;
+	boolean property_street_address_exists;
 
-	rental_property_street_address_exists =
+	property_street_address_exists =
 		attribute_exists(
 			application_name,
 			"transaction"
 				/* folder_name */,
-			"rental_property_street_address"
+			"property_street_address"
 				/* attribute_name */ );
 
-	if ( rental_property_street_address_exists )
+	if ( property_street_address_exists )
 	{
 		select =
-"full_name,street_address,transaction_date_time,memo,rental_property_street_address";
+"full_name,street_address,transaction_date_time,memo,property_street_address";
 	}
 	else
 	{
@@ -4408,15 +4408,15 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 					strdup( transaction_date_time ),
 					strdup( memo ) );
 
-		if ( rental_property_street_address_exists )
+		if ( property_street_address_exists )
 		{
-			piece(	rental_property_street_address,
+			piece(	property_street_address,
 				FOLDER_DATA_DELIMITER,
 				input_buffer,
 				4 );
 
-			transaction->rental_property_street_address =
-				strdup( rental_property_street_address );
+			transaction->property_street_address =
+				strdup( property_street_address );
 		}
 
 		transaction->journal_ledger_list =

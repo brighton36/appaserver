@@ -49,6 +49,14 @@ typedef struct
 
 typedef struct
 {
+	double purchase_fixed_asset_depreciation_amount;
+	double prior_fixed_asset_depreciation_amount;
+	double purchase_property_depreciation_amount;
+	double prior_property_depreciation_amount;
+} DEPRECIATION_AMOUNT;
+
+typedef struct
+{
 	LIST *fixed_asset_purchase_list;
 	LIST *fixed_asset_prior_list;
 	LIST *property_purchase_list;
@@ -91,6 +99,9 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+DEPRECIATION_AMOUNT *depreciation_amount_new(
+			void );
+
 DEPRECIATION_STRUCTURE *depreciation_structure_new(
 			char *application_name );
 
@@ -232,5 +243,14 @@ void depreciation_fund_get_transaction(
 boolean depreciation_date_exists(
 			DEPRECIATION_DATE *depreciation_date,
 			char *depreciation_date_string );
+
+DEPRECIATION_AMOUNT *depreciation_asset_list_set_calculate_amount(
+			LIST *fixed_asset_purchase_list,
+			LIST *fixed_asset_prior_list,
+			LIST *property_purchase_list,
+			LIST *property_prior_list );
+
+double depreciation_asset_list_calculate_amount(
+			LIST *fixed_asset_list );
 
 #endif

@@ -20,6 +20,25 @@
 #include "fixed_asset.h"
 #include "depreciation.h"
 
+DEPRECIATION_AMOUNT *depreciation_amount_new( void )
+{
+	DEPRECIATION_AMOUNT *p =
+		calloc( 1, sizeof( DEPRECIATION_AMOUNT ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	return p;
+
+} /* depreciation_amount_new() */
+
 /* Sets depreciation_date and depreciation_tax_year */
 /* ------------------------------------------------ */
 DEPRECIATION_STRUCTURE *depreciation_structure_new(
@@ -941,7 +960,6 @@ void depreciation_fund_list_set_asset_list(
 
 } /* depreciation_fund_list_set_asset_list() */
 
-#ifdef NOT_DEFINED
 void depreciation_fund_list_set_transaction(
 				LIST *depreciation_fund_list,
 				char *full_name,
@@ -1114,7 +1132,6 @@ boolean depreciation_fixed_asset_list_insert(
 	return 1;
 
 } /* depreciation_fixed_asset_list_insert() */
-#endif
 
 int depreciation_fetch_max_tax_year(
 				char *application_name,
@@ -1142,3 +1159,63 @@ int depreciation_fetch_max_tax_year(
 		return 0;
 
 } /* depreciation_fetch_max_tax_year() */
+
+DEPRECIATION_AMOUNT *depreciation_asset_list_set_calculate_amount(
+				LIST *fixed_asset_purchase_list,
+				LIST *fixed_asset_prior_list,
+				LIST *property_purchase_list,
+				LIST *property_prior_list )
+{
+	DEPRECIATION_AMOUNT *d;
+
+	d = depreciation_amount_new();
+
+	d->purchase_fixed_asset_depreciation_amount =
+		depreciation_asset_list_calculate_amount(
+			fixed_asset_purchase_list );
+
+	d->prior_fixed_asset_depreciation_amount =
+		depreciation_asset_list_calculate_amount(
+			fixed_asset_prior_list );
+
+	d->purchase_property_depreciation_amount =
+		depreciation_asset_list_calculate_amount(
+			property_purchase_list );
+
+	d->prior_property_depreciation_amount =
+		depreciation_asset_list_calculate_amount(
+			property_prior_list );
+
+	return d;
+
+} /* depreciation_asset_list_set_calculate_amount() */
+
+double depreciation_asset_list_calculate_amount(
+				LIST *fixed_asset_list )
+{
+	FIXED_ASSET *fixed_asset;
+	double amount;
+
+	if ( !list_rewind( fixed_asset_list ) ) return 0.0;
+
+	do {
+		fixed_asset = list_get_pointer( fixed_asset_list );
+
+		if ( !fixed_asset->depreciation )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: empty depreciation.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		amount += fixed_asset->depreciation->depreciation_amount;
+
+	} while( list_next( fixed_asset_list ) );
+
+	return amount;
+
+} /* depreciation_asset_list_calculate_amount() */
+

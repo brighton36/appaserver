@@ -205,6 +205,14 @@ void depreciate_fixed_assets(	char *application_name,
 			depreciation_structure->depreciation_fund_list,
 			application_name );
 
+		depreciation_fund_list_depreciation_set(
+			depreciation_structure->depreciation_fund_list,
+			depreciation_date_string,
+			char *prior_fixed_asset_date,
+			char *prior_fixed_prior_date,
+			char *prior_property_date,
+			char *prior_property_prior_date );
+
 		depreciation_fund_list_set_transaction(
 			depreciation_structure->depreciation_fund_list,
 			entity_self->entity->full_name,

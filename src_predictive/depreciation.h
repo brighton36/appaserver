@@ -247,7 +247,7 @@ DEPRECIATION_AMOUNT *depreciation_asset_list_set_calculate_amount(
 			LIST *purchase_property_list,
 			LIST *prior_property_list );
 
-double depreciation_asset_list_calculate_amount(
+double depreciation_asset_list_accumulate_depreciation_amount(
 			LIST *fixed_asset_list );
 
 DEPRECIATION_TRANSACTION *depreciation_fund_get_transaction(
@@ -259,5 +259,18 @@ DEPRECIATION_TRANSACTION *depreciation_fund_get_transaction(
 			double prior_fixed_asset_depreciation_amount,
 			double purchase_property_depreciation_amount,
 			double prior_property_depreciation_amount );
+
+void depreciation_fixed_asset_list_set(
+			LIST *fixed_asset_list,
+			char *depreciation_date,
+			char *prior_depreciation_date );
+
+void depreciation_fund_list_depreciation_set(
+			LIST *depreciation_fund_list,
+			char *depreciation_date,
+			char *prior_fixed_asset_date,
+			char *prior_fixed_prior_date,
+			char *prior_property_date,
+			char *prior_property_prior_date );
 
 #endif

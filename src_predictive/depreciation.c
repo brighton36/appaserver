@@ -1459,26 +1459,26 @@ DEPRECIATION_AMOUNT *depreciation_asset_list_set_calculate_amount(
 	d = depreciation_amount_new();
 
 	d->purchase_fixed_asset_depreciation_amount =
-		depreciation_asset_list_calculate_amount(
+		depreciation_asset_list_accumulate_depreciation_amount(
 			purchase_fixed_asset_list );
 
 	d->prior_fixed_asset_depreciation_amount =
-		depreciation_asset_list_calculate_amount(
+		depreciation_asset_list_accumulate_depreciation_amount(
 			prior_fixed_asset_list );
 
 	d->purchase_property_depreciation_amount =
-		depreciation_asset_list_calculate_amount(
+		depreciation_asset_list_accumulate_depreciation_amount(
 			purchase_property_list );
 
 	d->prior_property_depreciation_amount =
-		depreciation_asset_list_calculate_amount(
+		depreciation_asset_list_accumulate_depreciation_amount(
 			prior_property_list );
 
 	return d;
 
 } /* depreciation_asset_list_set_calculate_amount() */
 
-double depreciation_asset_list_calculate_amount(
+double depreciation_asset_list_accumulate_depreciation_amount(
 				LIST *fixed_asset_list )
 {
 	FIXED_ASSET *fixed_asset;
@@ -1505,5 +1505,128 @@ double depreciation_asset_list_calculate_amount(
 
 	return amount;
 
-} /* depreciation_asset_list_calculate_amount() */
+} /* depreciation_asset_list_accumulate_depreciation_amount() */
+
+void depreciation_fund_list_depreciation_set(
+			LIST *depreciation_fund_list,
+			char *depreciation_date,
+			char *prior_fixed_asset_date,
+			char *prior_fixed_prior_date,
+			char *prior_property_date,
+			char *prior_property_prior_date )
+{
+	DEPRECIATION_FUND *depreciation_fund;
+	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
+	LIST *fixed_asset_list;
+
+	if ( !list_rewind( depreciation_fund_list ) ) return 0;
+
+	do {
+		depreciation_fund =
+			list_get_pointer(
+				depreciation_fund_list );
+
+		depreciation_asset_list =
+			depreciation_fund->
+				depreciation_asset_list;
+
+		if ( !depreciation_asset_list )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		fixed_asset_list =
+			depreciation_asset_list->
+				purchase_fixed_asset_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			depreciation_fixed_asset_list_set(
+				fixed_asset_list,
+				depreciation_date,
+				prior_fixed_asset_date );
+		}
+
+		fixed_asset_list =
+			depreciation_asset_list->
+				prior_fixed_asset_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			depreciation_fixed_asset_list_set(
+				fixed_asset_list,
+				depreciation_date,
+				prior_fixed_prior_date );
+		}
+
+		fixed_asset_list =
+			depreciation_asset_list->
+				purchase_property_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			depreciation_fixed_asset_list_set(
+				fixed_asset_list,
+				depreciation_date,
+				prior_property_date );
+		}
+
+		fixed_asset_list =
+			depreciation_asset_list->
+				prior_property_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			depreciation_fixed_asset_list_set(
+				fixed_asset_list,
+				depreciation_date,
+				prior_property_prior_date );
+		}
+
+	} while( list_next( depreciation_fund_list ) );
+
+} /* depreciation_list_fund_depreciation_set() */
+
+void depreciation_fixed_asset_list_set(
+			LIST *fixed_asset_list,
+			char *depreciation_date,
+			char *prior_depreciation_date )
+{
+	FIXED_ASSET *fixed_asset;
+	DEPRECIATION *depreciation;
+
+	if ( !list_rewind( fixed_asset_list ) ) return;
+
+	do {
+		fixed_asset = list_get_pointer( fixed_asset_list );
+
+		depreciation = depreciation_new();
+
+		depreciation->depreciation_amount =
+			depreciation_fixed_asset_calculate_amount(
+				fixed_asset->depreciation_method,
+				fixed_asset->extension,
+				fixed_asset->estimated_residual_value,
+				fixed_asset->estimated_useful_life_years,
+				fixed_asset->estimated_useful_life_units,
+				fixed_asset->declining_balance_n,
+				prior_depreciation_date,
+				depreciation_date,
+				fixed_asset->finance_accumulated_depreciation,
+				fixed_asset->service_placement_date,
+				0 /* units_produced */ );
+
+		fixed_asset->finance_accumulated_depreciation +=
+			depreciation->depreciation_amount;
+
+		fixed_asset->depreciation = depreciation;
+
+	} while( list_next( fixed_asset_list ) );
+
+} /* depreciation_fixed_asset_list_set() */
 

@@ -33,8 +33,7 @@ void tax_recover_fixed_assets(		char *application_name,
 					boolean execute );
 
 void tax_recover_fixed_assets_undo(	char *application_name,
-					int max_tax_year,
-					LIST *depreciation_fund_list );
+					int max_tax_year );
 
 void tax_recover_fixed_assets_insert(	LIST *fixed_asset_purchased_list,
 					LIST *fixed_asset_prior_list );
@@ -129,16 +128,16 @@ void tax_recover_fixed_assets(	char *application_name,
 	/* Input */
 	/* ----- */
 
-	/* Sets depreciation_date */
-	/* ---------------------- */
+	/* Sets depreciation_date and depreciation_tax_year */
+	/* ------------------------------------------------ */
 	depreciation_structure =
 		depreciation_structure_new(
 			application_name );
 
-	if ( !depreciation_structure->depreciation_date )
+	if ( !depreciation_structure->depreciation_tax_year )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty depreciation_date.\n",
+			 "ERROR in %s/%s()/%d: empty depreciation_tax_year.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -155,12 +154,12 @@ void tax_recover_fixed_assets(	char *application_name,
 
 	now_year = atoi( date_get_now_yyyy_mm_dd( date_get_utc_offset() ) );
 
-	if ( depreciation_structure->depreciation_date->max_undo_date )
+	if ( depreciation_structure->depreciation_tax_year->max_undo_year )
 	{
 		max_tax_year =
-			atoi( depreciation_structure->
-				depreciation_date->
-				max_undo_date );
+			depreciation_structure->
+				depreciation_tax_year->
+				max_undo_year;
 	}
 	else
 	{
@@ -200,9 +199,7 @@ void tax_recover_fixed_assets(	char *application_name,
 		{
 			tax_recover_fixed_assets_undo(
 				application_name,
-				max_tax_year,
-				depreciation_structure->
-					depreciation_fund_list );
+				max_tax_year );
 
 			printf(
 		"<h3>Tax Fixed Asset Recovery for %d is now deleted.</h3>\n",
@@ -258,13 +255,42 @@ void tax_recover_fixed_assets(	char *application_name,
 } /* tax_recover_fixed_assets() */
 
 void tax_recover_fixed_assets_undo(	char *application_name,
-					int max_tax_year,
-					LIST *depreciation_fund_list )
+					int max_tax_year )
 {
 	char sys_string[ 1024 ];
+	char *folder_name;
 	char where[ 128 ];
 
 	sprintf( where, "tax_year = %d", tax_year );
+
+	folder_name = "tax_fixed_asset_recovery";
+
+	sprintf( sys_string,
+		 "echo \"delete from %s where %s;\" | sql.e",
+		 folder_name,
+		 where );
+
+	system( sys_string );
+
+	folder_name = "tax_property_recovery";
+
+	sprintf( sys_string,
+		 "echo \"delete from %s where %s;\" | sql.e",
+		 folder_name,
+		 where );
+
+	system( sys_string );
+
+	folder_name = "tax_prior_fixed_asset_recovery";
+
+	sprintf( sys_string,
+		 "echo \"delete from %s where %s;\" | sql.e",
+		 folder_name,
+		 where );
+
+	system( sys_string );
+
+	folder_name = "tax_prior_property_recovery";
 
 	sprintf( sys_string,
 		 "echo \"delete from %s where %s;\" | sql.e",

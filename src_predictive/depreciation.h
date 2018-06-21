@@ -27,6 +27,15 @@
 /* ---------- */
 typedef struct
 {
+	int undo_fixed_asset_year;
+	int undo_fixed_prior_year;
+	int undo_property_year;
+	int undo_property_prior_year;
+	int max_undo_year;
+} DEPRECIATION_TAX_YEAR;
+
+typedef struct
+{
 	char *undo_fixed_asset_date;
 	char *prior_fixed_asset_date;
 	char *undo_fixed_prior_date;
@@ -59,7 +68,6 @@ typedef struct
 	double prior_property_depreciation_amount;
 	char *depreciation_expense_account;
 	char *accumulated_depreciation_account;
-	DEPRECIATION_DATE *depreciation_date;
 	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
 } DEPRECIATION_FUND;
 
@@ -77,6 +85,7 @@ typedef struct
 typedef struct
 {
 	DEPRECIATION_DATE *depreciation_date;
+	DEPRECIATION_TAX_YEAR *depreciation_tax_year;
 	LIST *depreciation_fund_list;
 } DEPRECIATION_STRUCTURE;
 
@@ -90,6 +99,9 @@ DEPRECIATION_ASSET_LIST *depreciation_asset_list_new(
 			char *fund_name );
 
 DEPRECIATION_DATE *depreciation_date_new(
+			char *application_name );
+
+DEPRECIATION_TAX_YEAR *depreciation_tax_year_new(
 			char *application_name );
 
 DEPRECIATION *depreciation_calloc(
@@ -159,6 +171,10 @@ double depreciation_units_of_production_get_amount(
 			int estimated_useful_life_units,
 			int units_produced,
 			double finance_accumulated_depreciation );
+
+int depreciation_fetch_max_tax_year(
+			char *application_name,
+			char *folder_name );
 
 char *depreciation_fetch_max_depreciation_date(
 			char *application_name,

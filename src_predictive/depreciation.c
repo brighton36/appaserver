@@ -20,8 +20,8 @@
 #include "fixed_asset.h"
 #include "depreciation.h"
 
-/* Sets depreciation_date */
-/* ---------------------- */
+/* Sets depreciation_date and depreciation_tax_year */
+/* ------------------------------------------------ */
 DEPRECIATION_STRUCTURE *depreciation_structure_new(
 				char *application_name )
 {
@@ -40,6 +40,10 @@ DEPRECIATION_STRUCTURE *depreciation_structure_new(
 
 	p->depreciation_date =
 		depreciation_date_new(
+			application_name );
+
+	p->depreciation_tax_year =
+		depreciation_tax_year_new(
 			application_name );
 
 	return p;
@@ -102,6 +106,62 @@ DEPRECIATION_ASSET_LIST *depreciation_asset_list_new(
 	return d;
 
 } /* depreciation_asset_list_new() */
+
+DEPRECIATION_TAX_YEAR *depreciation_tax_year_new(
+				char *application_name )
+{
+	DEPRECIATION_TAX_YEAR *p;
+
+	if ( ! ( p = calloc( 1, sizeof( DEPRECIATION_TAX_YEAR ) ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	p->undo_fixed_asset_year =
+		depreciation_fetch_max_tax_year(
+			application_name,
+			"tax_fixed_asset_recovery" );
+
+	p->max_undo_year = p->undo_fixed_asset_year;
+
+	p->undo_fixed_prior_year =
+		depreciation_fetch_max_tax_year(
+			application_name,
+			"tax_prior_fixed_asset_recovery" );
+
+	if ( p->undo_fixed_prior_year > p->max_undo_year )
+	{
+		p->max_undo_year = p->undo_fixed_prior_year;
+	}
+
+	p->undo_property_year =
+		depreciation_fetch_max_tax_year(
+			application_name,
+			"tax_property_recovery" );
+
+	if ( p->undo_property_year > p->max_undo_year )
+	{
+		p->max_undo_year = p->undo_property_year;
+	}
+
+	p->undo_property_prior_year =
+		depreciation_fetch_max_tax_year(
+			application_name,
+			"tax_prior_property_recovery" );
+
+	if ( p->undo_property_prior_year > p->max_undo_year )
+	{
+		p->max_undo_year = p->undo_property_prior_year;
+	}
+
+	return p;
+
+} /* depreciation_tax_year_new() */
 
 DEPRECIATION_DATE *depreciation_date_new( char *application_name )
 {
@@ -1056,3 +1116,29 @@ boolean depreciation_fixed_asset_list_insert(
 } /* depreciation_fixed_asset_list_insert() */
 #endif
 
+int depreciation_fetch_max_tax_year(
+				char *application_name,
+				char *folder_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *results;
+
+	select = "max(tax_year)";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			",
+		 application_name,
+		 select,
+		 folder_name );
+
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+		return atoi( results );
+	else
+		return 0;
+
+} /* depreciation_fetch_max_tax_year() */

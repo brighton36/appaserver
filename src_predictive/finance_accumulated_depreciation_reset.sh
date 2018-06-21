@@ -21,16 +21,10 @@ fi
 echo "	update fixed_asset_purchase				\
 	set finance_accumulated_depreciation = (		\
 		select sum( depreciation_amount )		\
-		from depreciation				\
-		where	depreciation.full_name =		\
-			fixed_asset_purchase.full_name		\
-		  and	depreciation.street_address =		\
-			fixed_asset_purchase.street_address	\
-		  and	depreciation.purchase_date_time =	\
-			fixed_asset_purchase.purchase_date_time	\
-		  and	depreciation.asset_name =		\
+		from fixed_asset_depreciation			\
+		where	fixed_asset_depreciation.asset_name =	\
 			fixed_asset_purchase.asset_name		\
-		  and	depreciation.serial_number =		\
+		  and	fixed_asset_depreciation.serial_number =\
 			fixed_asset_purchase.serial_number )	\
 		where disposal_date is null;"			|
 sql.e
@@ -44,6 +38,24 @@ echo "	update prior_fixed_asset					\
 		  and	prior_fixed_asset_depreciation.serial_number =	\
 			prior_fixed_asset.serial_number )		\
 		where disposal_date is null;"				|
+sql.e
+
+echo "	update property_purchase					\
+	set finance_accumulated_depreciation = (			\
+		select sum( depreciation_amount )			\
+		from property_depreciation				\
+		where	property_depreciation.property_street_address =	\
+			property_purchase.property_street_address )	\
+		where disposal_date is null;"				|
+sql.e
+
+echo "	update prior_property						     \
+	set finance_accumulated_depreciation = (			     \
+		select sum( depreciation_amount )			     \
+		from prior_property_depreciation			     \
+		where	prior_property_depreciation.property_street_address =\
+			prior_property.property_street_address )	     \
+		where disposal_date is null;"				     |
 sql.e
 
 exit 0

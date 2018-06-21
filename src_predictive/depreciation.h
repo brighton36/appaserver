@@ -49,6 +49,14 @@ typedef struct
 
 typedef struct
 {
+	TRANSACTION *purchase_fixed_asset_transaction;
+	TRANSACTION *prior_fixed_asset_transaction;
+	TRANSACTION *purchase_property_transaction;
+	TRANSACTION *prior_property_transaction;
+} DEPRECIATION_TRANSACTION;
+
+typedef struct
+{
 	double purchase_fixed_asset_depreciation_amount;
 	double prior_fixed_asset_depreciation_amount;
 	double purchase_property_depreciation_amount;
@@ -57,10 +65,10 @@ typedef struct
 
 typedef struct
 {
-	LIST *fixed_asset_purchase_list;
-	LIST *fixed_asset_prior_list;
-	LIST *property_purchase_list;
-	LIST *property_prior_list;
+	LIST *purchase_fixed_asset_list;
+	LIST *prior_fixed_asset_list;
+	LIST *purchase_property_list;
+	LIST *prior_property_list;
 } DEPRECIATION_ASSET_LIST;
 
 typedef struct
@@ -99,6 +107,9 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+DEPRECIATION_TRANSACTION *depreciation_transaction_new(
+			void );
+
 DEPRECIATION_AMOUNT *depreciation_amount_new(
 			void );
 
@@ -125,7 +136,7 @@ DEPRECIATION_FUND *depreciation_fund_new(
 DEPRECIATION *depreciation_new(
 			void );
 
-double depreciation_calculate_amount(
+double depreciation_fixed_asset_calculate_amount(
 			char *depreciation_method,
 			double extension,
 			int estimated_residual_value,
@@ -191,12 +202,6 @@ char *depreciation_fetch_max_depreciation_date(
 			char *application_name,
 			char *folder_name );
 
-void depreciation_fixed_asset_list_set(
-			LIST *fixed_asset_list,
-			double *purchased_fixed_asset_depreciation_amount,
-			char *depreciation_date,
-			char *prior_depreciation_date );
-
 LIST *depreciation_fetch_fund_list(
 			char *application_name );
 
@@ -212,13 +217,19 @@ void depreciation_fixed_asset_list_table_display(
 			char *process_name,
 			LIST *fixed_asset_list );
 
-boolean depreciation_fund_list_insert(
+void depreciation_fund_transaction_insert(
 			LIST *depreciation_fund_list,
 			char *application_name,
 			char *full_name,
 			char *street_address );
 
-boolean depreciation_fixed_asset_list_insert(
+void depreciation_fund_asset_depreciation_insert(
+			LIST *depreciation_fund_list,
+			char *application_name,
+			char *full_name,
+			char *street_address );
+
+boolean depreciation_asset_list_depreciation_insert(
 			LIST *fixed_asset_list,
 			char *folder_name,
 			char *full_name,
@@ -230,27 +241,23 @@ void depreciation_fund_list_set_transaction(
 			char *full_name,
 			char *street_address );
 
-void depreciation_fund_get_transaction(
-		TRANSACTION **purchase_transaction,
-		TRANSACTION **prior_transaction,
-		char *full_name,
-		char *street_address,
-		char *depreciation_expense_account,
-		char *accumulated_depreciation_account,
-		double purchased_fixed_asset_depreciation_amount,
-		double prior_fixed_asset_depreciation_amount );
-
-boolean depreciation_date_exists(
-			DEPRECIATION_DATE *depreciation_date,
-			char *depreciation_date_string );
-
 DEPRECIATION_AMOUNT *depreciation_asset_list_set_calculate_amount(
-			LIST *fixed_asset_purchase_list,
-			LIST *fixed_asset_prior_list,
-			LIST *property_purchase_list,
-			LIST *property_prior_list );
+			LIST *purchase_fixed_asset_list,
+			LIST *prior_fixed_asset_list,
+			LIST *purchase_property_list,
+			LIST *prior_property_list );
 
 double depreciation_asset_list_calculate_amount(
 			LIST *fixed_asset_list );
+
+DEPRECIATION_TRANSACTION *depreciation_fund_get_transaction(
+			char *full_name,
+			char *street_address,
+			char *depreciation_expense_account,
+			char *accumulated_depreciation_account,
+			double purchase_fixed_asset_depreciation_amount,
+			double prior_fixed_asset_depreciation_amount,
+			double purchase_property_depreciation_amount,
+			double prior_property_depreciation_amount );
 
 #endif

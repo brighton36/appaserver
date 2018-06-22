@@ -225,7 +225,7 @@ void depreciation_fund_transaction_insert(
 			char *full_name,
 			char *street_address );
 
-void depreciation_fund_asset_depreciation_insert(
+boolean depreciation_fund_asset_depreciation_insert(
 			LIST *depreciation_fund_list,
 			char *full_name,
 			char *street_address );
@@ -273,5 +273,9 @@ void depreciation_fund_list_depreciation_set(
 			char *prior_fixed_prior_date,
 			char *prior_property_date,
 			char *prior_property_prior_date );
+
+void depreciation_fund_list_set_asset_list(
+			LIST *depreciation_fund_list,
+			char *application_name );
 
 #endif

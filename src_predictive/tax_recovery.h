@@ -64,4 +64,8 @@ void tax_recovery_fixed_asset_list_set(
 				LIST *fixed_asset_list,
 				int tax_year );
 
+void tax_recovery_depreciation_fund_list_set(
+				LIST *depreciation_fund_list,
+				int tax_year );
+
 #endif

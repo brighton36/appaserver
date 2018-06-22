@@ -35,15 +35,13 @@ void tax_recover_fixed_assets(		char *application_name,
 void tax_recover_fixed_assets_undo(	char *application_name,
 					int max_tax_year );
 
-void tax_recover_fixed_assets_insert(	LIST *fixed_asset_purchased_list,
-					LIST *fixed_asset_prior_list );
+void tax_recover_fixed_assets_insert(	LIST *deprecation_fund_list );
 
 void tax_recover_fixed_asset_list_insert(
 					FILE *output_pipe,
 					LIST *fixed_asset_list );
 
-void tax_recover_fixed_assets_display(	LIST *fixed_asset_purchased_list,
-					LIST *fixed_asset_prior_list );
+void tax_recover_fixed_assets_display(	LIST *depreciation_fund_list );
 
 void tax_recover_fixed_asset_list_display(
 					FILE *output_pipe,
@@ -207,23 +205,16 @@ void tax_recover_fixed_assets(	char *application_name,
 
 			return;
 		}
-		else
-		{
-			tax_recovery_fixed_asset_list_set(
-				fixed_asset_purchased_list,
-				tax_year );
 
-			tax_recovery_fixed_asset_list_set(
-				fixed_asset_prior_list,
-				tax_year );
+		/* Insert */
+		/* ------ */
+		tax_recovery_depreciation_fund_list_set(
+			depreciation_structure->
+				depreciation_fund_list,
+			tax_year );
 
-			tax_recover_fixed_assets_insert(
-				fixed_asset_purchased_list,
-				fixed_asset_prior_list );
-
-			printf( "<h3>Tax Recovery now posted for %d.</h3>\n",
-				tax_year );
-		}
+		printf( "<h3>Tax Recovery now posted for %d.</h3>\n",
+			tax_year );
 	}
 	else
 	/* ------- */
@@ -235,21 +226,16 @@ void tax_recover_fixed_assets(	char *application_name,
 			printf(
 			"<h3>Will undo tax recovery posted for %d.</h3>\n",
 				tax_year );
+			return;
 		}
-		else
-		{
-			tax_recovery_fixed_asset_list_set(
-				fixed_asset_purchased_list,
-				tax_year );
+		tax_recovery_depreciation_fund_list_set(
+			depreciation_structure->
+				depreciation_fund_list,
+			tax_year );
 
-			tax_recovery_fixed_asset_list_set(
-				fixed_asset_prior_list,
-				tax_year );
-
-			tax_recover_fixed_assets_display(
-				fixed_asset_purchased_list,
-				fixed_asset_prior_list );
-		}
+		tax_recover_fixed_assets_display(
+			depreciation_structure->
+				depreciation_fund_list );
 	} /* if Display */
 
 } /* tax_recover_fixed_assets() */
@@ -263,6 +249,8 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 
 	sprintf( where, "tax_year = %d", tax_year );
 
+	/* TAX_FIXED_ASSET_RECOVERY */
+	/* ------------------------ */
 	folder_name = "tax_fixed_asset_recovery";
 
 	sprintf( sys_string,
@@ -272,6 +260,8 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 
 	system( sys_string );
 
+	/* TAX_PROPERTY_RECOVERY */
+	/* --------------------- */
 	folder_name = "tax_property_recovery";
 
 	sprintf( sys_string,
@@ -281,6 +271,8 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 
 	system( sys_string );
 
+	/* TAX_PRIOR_FIXED_ASSET_RECOVERY */
+	/* ------------------------------ */
 	folder_name = "tax_prior_fixed_asset_recovery";
 
 	sprintf( sys_string,
@@ -290,6 +282,8 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 
 	system( sys_string );
 
+	/* TAX_PRIOR_PROPERTY_RECOVERY */
+	/* --------------------------- */
 	folder_name = "tax_prior_property_recovery";
 
 	sprintf( sys_string,

@@ -95,10 +95,9 @@ TAX *tax_new(			char *application_name,
 	/* ----------- */
 	t->tax_process.unaccounted_journal_ledger_list = list_new();
 
-	/* ------------------------------------------------------------ */
-	/* Receives t->tax_input.tax_form->tax_form_line_list		*/
-	/* with tax_form_line_account_list->journal_ledger_list built.	*/
-	/* ------------------------------------------------------------ */
+	/* -------------------------------------------------------------- */
+	/* Note: tax_form_line_account_list->journal_ledger_list is built.*/
+	/* -------------------------------------------------------------- */
 	t->tax_process.tax_form_line_list =
 		tax_process_set_journal_ledger_list(
 			t->tax_process.unaccounted_journal_ledger_list,

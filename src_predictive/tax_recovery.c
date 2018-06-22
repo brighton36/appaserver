@@ -239,6 +239,83 @@ TAX_RECOVERY *tax_recovery_new(	char *service_placement_date,
 
 } /* tax_recovery_new() */
 
+void tax_recovery_depreciation_fund_list_set(
+			LIST *depreciation_fund_list,
+			int tax_year )
+{
+	DEPRECIATION_FUND *depreciation_fund;
+	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
+	LIST *fixed_asset_list;
+
+	if ( !list_rewind( depreciation_fund_list ) ) return;
+
+	do {
+		depreciation_fund =
+			list_get_pointer(
+				depreciation_fund_list );
+
+		depreciation_asset_list =
+			depreciation_fund->
+				depreciation_asset_list;
+
+		if ( !depreciation_asset_list )
+		{
+			fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		fixed_asset_list =
+			depreciation_asset_list->
+				purchase_fixed_asset_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_set(
+				fixed_asset_list,
+				tax_year );
+		}
+
+		fixed_asset_list =
+			depreciation_asset_list->
+				prior_fixed_asset_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_set(
+				fixed_asset_list,
+				tax_year );
+		}
+
+		fixed_asset_list =
+			depreciation_asset_list->
+				purchase_property_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_set(
+				fixed_asset_list,
+				tax_year );
+		}
+
+		fixed_asset_list =
+			depreciation_asset_list->
+				prior_property_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_set(
+				fixed_asset_list,
+				tax_year );
+		}
+
+	} while( list_next( depreciation_fund_list ) );
+
+} /* tax_recovery_depreciation_fund_list_set() */
+
 void tax_recovery_fixed_asset_list_set(	LIST *fixed_asset_list,
 					int tax_year )
 {

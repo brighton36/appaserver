@@ -208,19 +208,26 @@ void depreciate_fixed_assets(	char *application_name,
 		depreciation_fund_list_depreciation_set(
 			depreciation_structure->depreciation_fund_list,
 			depreciation_date_string,
-			char *prior_fixed_asset_date,
-			char *prior_fixed_prior_date,
-			char *prior_property_date,
-			char *prior_property_prior_date );
+			depreciation_structure->
+				depreciation_date->
+				prior_fixed_asset_date,
+			depreciation_structure->
+				depreciation_date->
+				prior_fixed_prior_date,
+			depreciation_structure->
+				depreciation_date->
+				prior_property_date,
+			depreciation_structure->
+				depreciation_date->
+				prior_property_prior_date );
 
 		depreciation_fund_list_set_transaction(
 			depreciation_structure->depreciation_fund_list,
 			entity_self->entity->full_name,
 			entity_self->entity->street_address );
 
-		if ( !depreciation_fund_list_insert(
-			entity_self->depreciation_fund_list,
-			application_name,
+		if ( !depreciation_fund_asset_depreciation_insert(
+			depreciation_structure->depreciation_fund_list,
 			entity_self->entity->full_name,
 			entity_self->entity->street_address ) )	
 		{
@@ -229,10 +236,6 @@ void depreciate_fixed_assets(	char *application_name,
 		}
 		else
 		{
-			fixed_asset_depreciation_fund_list_update(
-				depreciation_structure->
-					depreciation_fund_list );
-
 			printf(
 				"<h3>Depreciation now posted on %s.</h3>\n",
 				depreciation_date_string );
@@ -247,13 +250,14 @@ void depreciate_fixed_assets(	char *application_name,
 		{
 			printf(
 	"<h3>Will delete the depreciation taken place on %s.</h3>\n",
-				depreciation_date );
+				depreciation_date_string );
 		}
 		else
 		{
 			depreciation_fund_list_table_display(
 				process_name,
-				entity_self->depreciation_fund_list );
+				depreciation_structure->
+					depreciation_fund_list );
 		}
 	}
 
@@ -263,14 +267,9 @@ void depreciate_fixed_assets_undo(	char *application_name,
 					char *max_undo_date,
 					LIST *depreciation_fund_list )
 {
-	char transaction_date_time[ 64 ];
 	char sys_string[ 1024 ];
-	char where[ 128 ];
-	char *select;
-	char *folder_name;
 	char *propagate_transaction_date_time = {0};
 	DEPRECIATION_FUND *depreciation_fund;
-	FILE *input_pipe;
 	FILE *output_pipe;
 
 	output_pipe = popen( "sql.e", "w" );
@@ -420,6 +419,8 @@ char *depreciate_transaction_journal_ledger_delete(
 	 	 "delete from %s where %s;\n",
 		 input_folder_name,
 	 	 where );
+
+	return propagate_transaction_date_time;
 
 } /* depreciate_transaction_journal_ledger_delete() */
 

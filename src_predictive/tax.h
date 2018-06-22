@@ -97,14 +97,18 @@ typedef struct
 	char *tax_form;
 	LIST *tax_form_line_list;
 	LIST *unaccounted_journal_ledger_list;
-	char *begin_date_string;
-	char *end_date_string;
 } TAX_PROCESS;
 
 typedef struct
 {
 	TAX_FORM *tax_form;
 	int tax_year;
+	char *begin_date_string;
+	char *end_date_string;
+	double fixed_asset_recovery_amount;
+	double prior_fixed_asset_recovery_amount;
+	double property_recovery_amount;
+	double prior_property_recovery_amount;
 	LIST *cash_transaction_list;
 	LIST *rental_property_list;
 } TAX_INPUT;

@@ -1204,7 +1204,7 @@ void depreciation_fund_transaction_insert(
 
 } /* depreciation_fund_transaction_insert() */
 
-void depreciation_fund_asset_depreciation_insert(
+boolean depreciation_fund_asset_depreciation_insert(
 				LIST *depreciation_fund_list,
 				char *full_name,
 				char *street_address )
@@ -1215,7 +1215,7 @@ void depreciation_fund_asset_depreciation_insert(
 	TRANSACTION *transaction;
 	LIST *fixed_asset_list;
 
-	if ( !list_rewind( depreciation_fund_list ) ) return;
+	if ( !list_rewind( depreciation_fund_list ) ) return 0;
 
 	do {
 		depreciation_fund =
@@ -1374,6 +1374,8 @@ void depreciation_fund_asset_depreciation_insert(
 
 
 	} while( list_next( depreciation_fund_list ) );
+
+	return 1;
 
 } /* depreciation_fund_asset_depreciation_insert() */
 

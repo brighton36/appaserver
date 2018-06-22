@@ -363,3 +363,286 @@ void tax_recovery_fixed_asset_list_set(	LIST *fixed_asset_list,
 	} while( list_next( fixed_asset_list ) );
 
 } /* tax_recovery_fixed_asset_list_set() */
+
+void tax_recovery_fixed_assets_insert(	LIST *depreciation_fund_list )
+{
+	DEPRECIATION_FUND *depreciation_fund;
+	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
+	LIST *fixed_asset_list;
+
+	if ( !list_rewind( depreciation_fund_list ) ) return;
+
+	do {
+		depreciation_fund =
+			list_get_pointer(
+				depreciation_fund_list );
+
+		depreciation_asset_list =
+			depreciation_fund->
+				depreciation_asset_list;
+
+		if ( !depreciation_asset_list )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		/* FIXED_ASSET_PURCHASE */
+		/* -------------------- */
+		fixed_asset_list =
+			depreciation_asset_list->
+				purchase_fixed_asset_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_insert(
+				"tax_fixed_asset_recovery",
+				fixed_asset_list );
+
+		}
+
+		/* PROPERTY_PURCHASE */
+		/* ----------------- */
+		fixed_asset_list =
+			depreciation_asset_list->
+				purchase_property_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_insert(
+				"tax_property_recovery",
+				fixed_asset_list );
+
+		}
+
+		/* PRIOR_FIXED_ASSET */
+		/* ----------------- */
+		fixed_asset_list =
+			depreciation_asset_list->
+				prior_fixed_asset_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_insert(
+				"tax_prior_fixed_asset_recovery",
+				fixed_asset_list );
+
+		}
+
+		/* PRIOR_PROPERTY */
+		/* -------------- */
+		fixed_asset_list =
+			depreciation_asset_list->
+				prior_property_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_insert(
+				"tax_prior_property_recovery",
+				fixed_asset_list );
+
+		}
+
+	} while( list_next( depreciation_fund_list ) );
+
+} /* tax_recovery_fixed_assets_insert() */
+
+void tax_recovery_fixed_asset_list_insert(
+					char *folder_name,
+					LIST *fixed_asset_list )
+{
+	FIXED_ASSET *fixed_asset;
+	TAX_RECOVERY *tax_recovery;
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	char *field;
+
+	if ( !list_rewind( fixed_asset_list ) ) return;
+
+	field =
+"asset_name,serial_number,tax_year,recovery_amount,recovery_percent";
+
+	sprintf( sys_string,
+	 	 "insert_statement.e table=%s field=%s del='^'	|"
+		 "sql.e						 ",
+		 folder_name,
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		fixed_asset =
+			list_get_pointer(
+				fixed_asset_list );
+
+		tax_recovery = fixed_asset->tax_recovery;
+
+		if ( !tax_recovery )
+		{
+			fprintf( stderr,
+				"ERROR in %s/%s()/%d: empty tax_recovery.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			pclose( output_pipe );
+			exit( 1 );
+		}
+
+		fprintf(	output_pipe,
+				"%s^%s^%d^%.2lf^%.3lf\n",
+				fixed_asset->asset_name,
+				fixed_asset->serial_number,
+				tax_recovery->tax_year,
+				tax_recovery->recovery_amount,
+				tax_recovery->recovery_percent );
+
+	} while( list_next( fixed_asset_list ) );
+
+	pclose( output_pipe );
+
+} /* tax_recovery_fixed_asset_list_insert() */
+
+void tax_recovery_fixed_assets_display(	LIST *depreciation_fund_list )
+{
+	DEPRECIATION_FUND *depreciation_fund;
+	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	char *heading;
+	char *justify;
+	LIST *fixed_asset_list;
+
+	if ( !list_rewind( depreciation_fund_list ) ) return;
+
+	heading =
+	"asset_name,serial_number,cost_basis,recovery_amount,recovery_percent";
+
+	justify = "left,left,right,right,right";
+
+	sprintf( sys_string,
+		 "html_table.e '' '%s' '^' '%s'",
+		 heading,
+		 justify );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		depreciation_fund =
+			list_get_pointer(
+				depreciation_fund_list );
+
+		depreciation_asset_list =
+			depreciation_fund->
+				depreciation_asset_list;
+
+		if ( !depreciation_asset_list )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		/* FIXED_ASSET_PURCHASE */
+		/* -------------------- */
+		fixed_asset_list =
+			depreciation_asset_list->
+				purchase_fixed_asset_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_display(
+				output_pipe,
+				fixed_asset_list );
+		}
+
+		/* PROPERTY_PURCHASE */
+		/* ----------------- */
+		fixed_asset_list =
+			depreciation_asset_list->
+				purchase_property_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_display(
+				output_pipe,
+				fixed_asset_list );
+		}
+
+		/* PRIOR_FIXED_ASSET */
+		/* ----------------- */
+		fixed_asset_list =
+			depreciation_asset_list->
+				prior_fixed_asset_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_display(
+				output_pipe,
+				fixed_asset_list );
+		}
+
+		/* PRIOR_PROPERTY */
+		/* -------------- */
+		fixed_asset_list =
+			depreciation_asset_list->
+				prior_property_list;
+
+		if ( list_length( fixed_asset_list ) )
+		{
+			tax_recovery_fixed_asset_list_display(
+				output_pipe,
+				fixed_asset_list );
+		}
+
+	} while( list_next( depreciation_fund_list ) );
+
+	pclose( output_pipe );
+
+} /* tax_recovery_fixed_assets_display() */
+
+void tax_recovery_fixed_asset_list_display(
+					FILE *output_pipe,
+					LIST *fixed_asset_list )
+{
+	FIXED_ASSET *fixed_asset;
+	TAX_RECOVERY *tax_recovery;
+
+	if ( !list_rewind( fixed_asset_list ) ) return;
+
+	do {
+		fixed_asset =
+			list_get_pointer(
+				fixed_asset_list );
+
+		tax_recovery = fixed_asset->tax_recovery;
+
+		if ( !tax_recovery )
+		{
+			fprintf( stderr,
+				"ERROR in %s/%s()/%d: empty tax_recovery.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			pclose( output_pipe );
+			exit( 1 );
+		}
+
+		fprintf(	output_pipe,
+				"%s^%s^%.2lf^%.2lf^%.3lf\n",
+				fixed_asset->asset_name,
+				fixed_asset->serial_number,
+				tax_recovery->tax_cost_basis,
+				tax_recovery->recovery_amount,
+				tax_recovery->recovery_percent );
+
+	} while( list_next( fixed_asset_list ) );
+
+} /* tax_recovery_fixed_assets_display() */
+

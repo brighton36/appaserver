@@ -35,18 +35,6 @@ void tax_recover_fixed_assets(		char *application_name,
 void tax_recover_fixed_assets_undo(	char *application_name,
 					int max_tax_year );
 
-void tax_recover_fixed_assets_insert(	LIST *deprecation_fund_list );
-
-void tax_recover_fixed_asset_list_insert(
-					FILE *output_pipe,
-					LIST *fixed_asset_list );
-
-void tax_recover_fixed_assets_display(	LIST *depreciation_fund_list );
-
-void tax_recover_fixed_asset_list_display(
-					FILE *output_pipe,
-					LIST *fixed_asset_list );
-
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -213,6 +201,10 @@ void tax_recover_fixed_assets(	char *application_name,
 				depreciation_fund_list,
 			tax_year );
 
+		tax_recovery_fixed_assets_insert(
+			depreciation_structure->
+				depreciation_fund_list );
+
 		printf( "<h3>Tax Recovery now posted for %d.</h3>\n",
 			tax_year );
 	}
@@ -228,12 +220,13 @@ void tax_recover_fixed_assets(	char *application_name,
 				tax_year );
 			return;
 		}
+
 		tax_recovery_depreciation_fund_list_set(
 			depreciation_structure->
 				depreciation_fund_list,
 			tax_year );
 
-		tax_recover_fixed_assets_display(
+		tax_recovery_fixed_assets_display(
 			depreciation_structure->
 				depreciation_fund_list );
 	} /* if Display */
@@ -300,168 +293,4 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 	system( sys_string );
 
 } /* tax_recover_fixed_assets_undo() */
-
-void tax_recover_fixed_assets_insert(	LIST *fixed_asset_purchase_list,
-					LIST *fixed_asset_prior_list )
-{
-	FILE *output_pipe;
-	char sys_string[ 1024 ];
-	char *field;
-
-	field =
-"asset_name,serial_number,tax_year,recovery_amount,recovery_percent";
-
-	if ( list_length( fixed_asset_purchase_list ) )
-	{
-		sprintf( sys_string,
-		 	"insert_statement.e table=%s field=%s del='^'	|"
-		 	"sql.e						 ",
-		 	"tax_fixed_asset_recovery",
-		 	field );
-
-		output_pipe = popen( sys_string, "w" );
-
-		tax_recover_fixed_asset_list_insert(
-			output_pipe,
-			fixed_asset_purchase_list );
-
-		pclose( output_pipe );
-	}
-
-	if ( list_length( fixed_asset_prior_list ) )
-	{
-		sprintf( sys_string,
-		 	"insert_statement.e table=%s field=%s del='^'	|"
-		 	"sql.e						 ",
-		 	"tax_prior_fixed_asset_recovery",
-		 	field );
-
-		output_pipe = popen( sys_string, "w" );
-
-		tax_recover_fixed_asset_list_insert(
-			output_pipe,
-			fixed_asset_prior_list );
-
-		pclose( output_pipe );
-	}
-
-} /* tax_recover_fixed_assets_insert() */
-
-void tax_recover_fixed_asset_list_insert(
-					FILE *output_pipe,
-					LIST *fixed_asset_list )
-{
-	FIXED_ASSET *fixed_asset;
-	TAX_RECOVERY *tax_recovery;
-
-	if ( list_rewind( fixed_asset_list ) )
-	{
-		do {
-			fixed_asset =
-				list_get_pointer(
-					fixed_asset_list );
-
-			tax_recovery = fixed_asset->tax_recovery;
-
-			if ( !tax_recovery )
-			{
-				fprintf( stderr,
-				"ERROR in %s/%s()/%d: empty tax_recovery.\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__ );
-				pclose( output_pipe );
-				exit( 1 );
-			}
-
-			fprintf(	output_pipe,
-					"%s^%s^%d^%.2lf^%.3lf\n",
-					fixed_asset->asset_name,
-					fixed_asset->serial_number,
-					tax_recovery->tax_year,
-					tax_recovery->recovery_amount,
-					tax_recovery->recovery_percent );
-
-		} while( list_next( fixed_asset_list ) );
-	}
-
-} /* tax_recover_fixed_asset_list_insert() */
-
-void tax_recover_fixed_assets_display(	LIST *fixed_asset_purchased_list,
-					LIST *fixed_asset_prior_list )
-{
-	FILE *output_pipe;
-	char sys_string[ 1024 ];
-	char *heading;
-	char *justify;
-
-	heading =
-	"asset_name,serial_number,cost_basis,recovery_amount,recovery_percent";
-
-	justify = "left,left,right,right,right";
-
-	sprintf( sys_string,
-		 "html_table.e '' '%s' '^' '%s'",
-		 heading,
-		 justify );
-
-	output_pipe = popen( sys_string, "w" );
-
-	if ( list_length( fixed_asset_purchased_list ) )
-	{
-		tax_recover_fixed_asset_list_display(
-			output_pipe,
-			fixed_asset_purchased_list );
-	}
-
-	if ( list_length( fixed_asset_prior_list ) )
-	{
-		tax_recover_fixed_asset_list_display(
-			output_pipe,
-			fixed_asset_prior_list );
-	}
-
-	pclose( output_pipe );
-
-} /* tax_recover_fixed_assets_display() */
-
-void tax_recover_fixed_asset_list_display(
-					FILE *output_pipe,
-					LIST *fixed_asset_list )
-{
-	FIXED_ASSET *fixed_asset;
-	TAX_RECOVERY *tax_recovery;
-
-	if ( list_rewind( fixed_asset_list ) )
-	{
-		do {
-			fixed_asset =
-				list_get_pointer(
-					fixed_asset_list );
-
-			tax_recovery = fixed_asset->tax_recovery;
-
-			if ( !tax_recovery )
-			{
-				fprintf( stderr,
-				"ERROR in %s/%s()/%d: empty tax_recovery.\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__ );
-				pclose( output_pipe );
-				exit( 1 );
-			}
-
-			fprintf(	output_pipe,
-					"%s^%s^%.2lf^%.2lf^%.3lf\n",
-					fixed_asset->asset_name,
-					fixed_asset->serial_number,
-					tax_recovery->tax_cost_basis,
-					tax_recovery->recovery_amount,
-					tax_recovery->recovery_percent );
-
-		} while( list_next( fixed_asset_list ) );
-	}
-
-} /* tax_recover_fixed_assets_display() */
 

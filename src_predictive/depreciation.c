@@ -789,8 +789,26 @@ void depreciation_fund_list_table_display(
 	DEPRECIATION_FUND *depreciation_fund;
 	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
 	LIST *fixed_asset_list;
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	char *heading;
+	char *justification;
+	char buffer[ 128 ];
 
 	if ( !list_rewind( depreciation_fund_list ) ) return;
+
+	heading =
+"Asset,Serial,Extension,Prior Accumulated,Depreciation,Post Accumulated";
+
+	justification = "left,left,right";
+
+	sprintf( sys_string,
+		 "html_table.e '%s' '%s' '^' '%s'",
+		 format_initial_capital( buffer, process_name ),
+		 heading,
+		 justification );
+		 
+	output_pipe = popen( sys_string, "w" );
 
 	do {
 		depreciation_fund =
@@ -818,7 +836,7 @@ void depreciation_fund_list_table_display(
 		if ( list_length( fixed_asset_list ) )
 		{
 			depreciation_fixed_asset_list_table_display(
-				process_name,
+				output_pipe,
 				fixed_asset_list );
 		}
 
@@ -829,7 +847,7 @@ void depreciation_fund_list_table_display(
 		if ( list_length( fixed_asset_list ) )
 		{
 			depreciation_fixed_asset_list_table_display(
-				process_name,
+				output_pipe,
 				fixed_asset_list );
 		}
 
@@ -840,7 +858,7 @@ void depreciation_fund_list_table_display(
 		if ( list_length( fixed_asset_list ) )
 		{
 			depreciation_fixed_asset_list_table_display(
-				process_name,
+				output_pipe,
 				fixed_asset_list );
 		}
 
@@ -851,39 +869,24 @@ void depreciation_fund_list_table_display(
 		if ( list_length( fixed_asset_list ) )
 		{
 			depreciation_fixed_asset_list_table_display(
-				process_name,
+				output_pipe,
 				fixed_asset_list );
 		}
 
 	} while( list_next( depreciation_fund_list ) );
 
+	pclose( output_pipe );
+
 } /* depreciation_fund_list_table_display() */
 
 void depreciation_fixed_asset_list_table_display(
-				char *process_name,
+				FILE *output_pipe,
 				LIST *fixed_asset_list )
 {
 	FIXED_ASSET *fixed_asset;
-	FILE *output_pipe;
-	char sys_string[ 1024 ];
-	char *heading;
-	char *justification;
 	char buffer[ 128 ];
 
 	if ( !list_rewind( fixed_asset_list ) ) return;
-
-	heading =
-"Asset,Serial,Extension,Prior Accumulated,Depreciation,Post Accumulated";
-
-	justification = "left,left,right";
-
-	sprintf( sys_string,
-		 "html_table.e '%s' '%s' '^' '%s'",
-		 format_initial_capital( buffer, process_name ),
-		 heading,
-		 justification );
-		 
-	output_pipe = popen( sys_string, "w" );
 
 	do {
 		fixed_asset = list_get_pointer( fixed_asset_list );
@@ -907,8 +910,6 @@ void depreciation_fixed_asset_list_table_display(
 				finance_accumulated_depreciation );
 
 	} while( list_next( fixed_asset_list ) );
-
-	pclose( output_pipe );
 
 } /* depreciation_fixed_asset_list_table_display() */
 
@@ -1104,6 +1105,8 @@ void depreciation_fund_transaction_insert(
 			exit( 1 );
 		}
 
+		/* FIXED_ASSET_PURCHASE */
+		/* -------------------- */
 		transaction =
 			depreciation_transaction->
 				purchase_fixed_asset_transaction;
@@ -1128,30 +1131,8 @@ void depreciation_fund_transaction_insert(
 					journal_ledger_list );
 		}
 
-		transaction =
-			depreciation_transaction->
-				prior_fixed_asset_transaction;
-
-		if ( transaction )
-		{
-			transaction->
-			transaction_date_time =
-			     ledger_transaction_journal_ledger_insert(
-				application_name,
-				full_name,
-				street_address,
-				transaction->
-					transaction_date_time,
-				transaction->
-					transaction_amount,
-				transaction->
-					memo,
-				0 /* check_number */,
-				1 /* lock_transaction */,
-				transaction->
-					journal_ledger_list );
-		}
-
+		/* PROPERTY_PURCHASE */
+		/* ----------------- */
 		transaction =
 			depreciation_transaction->
 				purchase_property_transaction;
@@ -1176,6 +1157,34 @@ void depreciation_fund_transaction_insert(
 					journal_ledger_list );
 		}
 
+		/* PRIOR_FIXED_ASSET */
+		/* ----------------- */
+		transaction =
+			depreciation_transaction->
+				prior_fixed_asset_transaction;
+
+		if ( transaction )
+		{
+			transaction->
+			transaction_date_time =
+			     ledger_transaction_journal_ledger_insert(
+				application_name,
+				full_name,
+				street_address,
+				transaction->
+					transaction_date_time,
+				transaction->
+					transaction_amount,
+				transaction->
+					memo,
+				0 /* check_number */,
+				1 /* lock_transaction */,
+				transaction->
+					journal_ledger_list );
+		}
+
+		/* PRIOR_PROPERTY */
+		/* -------------- */
 		transaction =
 			depreciation_transaction->
 				prior_property_transaction;
@@ -1250,8 +1259,8 @@ boolean depreciation_fund_asset_depreciation_insert(
 			exit( 1 );
 		}
 
-		/* FIXED_ASSET_DEPRECIATION */
-		/* ------------------------ */
+		/* FIXED_ASSET_PURCHASE */
+		/* -------------------- */
 		transaction =
 			depreciation_transaction->
 				purchase_fixed_asset_transaction;
@@ -1280,8 +1289,38 @@ boolean depreciation_fund_asset_depreciation_insert(
 				transaction->transaction_date_time );
 		}
 
-		/* PRIOR_FIXED_ASSET_DEPRECIATION */
-		/* ------------------------------ */
+		/* PROPERTY_PURCHASE */
+		/* ----------------- */
+		transaction =
+			depreciation_transaction->
+				purchase_property_transaction;
+
+		if ( transaction )
+		{
+			fixed_asset_list =
+				depreciation_asset_list->
+					purchase_property_list;
+
+			if ( !list_length( fixed_asset_list ) )
+			{
+				fprintf( stderr,
+			"ERROR in %s/%s()/%d: empty fixed_asset_list.\n",
+					 __FILE__,
+					 __FUNCTION__,
+					 __LINE__ );
+				exit( 1 );
+			}
+
+			depreciation_asset_list_depreciation_insert(
+				fixed_asset_list,
+				"property_depreciation",
+				full_name,
+				street_address,
+				transaction->transaction_date_time );
+		}
+
+		/* PRIOR_FIXED_ASSET */
+		/* ----------------- */
 		transaction =
 			depreciation_transaction->
 				prior_fixed_asset_transaction;
@@ -1311,39 +1350,8 @@ boolean depreciation_fund_asset_depreciation_insert(
 		}
 
 
-		/* PROPERTY_DEPRECIATION */
-		/* --------------------- */
-		transaction =
-			depreciation_transaction->
-				purchase_property_transaction;
-
-		if ( transaction )
-		{
-			fixed_asset_list =
-				depreciation_asset_list->
-					purchase_property_list;
-
-			if ( !list_length( fixed_asset_list ) )
-			{
-				fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty fixed_asset_list.\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__ );
-				exit( 1 );
-			}
-
-			depreciation_asset_list_depreciation_insert(
-				fixed_asset_list,
-				"property_depreciation",
-				full_name,
-				street_address,
-				transaction->transaction_date_time );
-		}
-
-
-		/* PRIOR_PROPERTY_DEPRECIATION */
-		/* ------------------------------ */
+		/* PRIOR_PROPERTY */
+		/* -------------- */
 		transaction =
 			depreciation_transaction->
 				prior_property_transaction;

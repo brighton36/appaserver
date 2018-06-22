@@ -68,4 +68,18 @@ void tax_recovery_depreciation_fund_list_set(
 				LIST *depreciation_fund_list,
 				int tax_year );
 
+void tax_recovery_fixed_assets_insert(
+				LIST *deprecation_fund_list );
+
+void tax_recovery_fixed_asset_list_insert(
+				char *folder_name,
+				LIST *fixed_asset_list );
+
+void tax_recovery_fixed_assets_display(
+				LIST *depreciation_fund_list );
+
+void tax_recovery_fixed_asset_list_display(
+				FILE *output_pipe,
+				LIST *fixed_asset_list );
+
 #endif

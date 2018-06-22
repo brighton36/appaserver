@@ -216,7 +216,7 @@ void depreciation_fund_list_table_display(
 			LIST *depreciation_fund_list );
 
 void depreciation_fixed_asset_list_table_display(
-			char *process_name,
+			FILE *output_pipe,
 			LIST *fixed_asset_list );
 
 void depreciation_fund_transaction_insert(

@@ -248,4 +248,13 @@ TAX_INPUT_RENTAL_PROPERTY *tax_rental_property_seek(
 				LIST *tax_input_rental_property_list,
 				char *property_street_address );
 
+LIST *tax_fetch_property_street_address_list(
+				char *application_name,
+				char *begin_date_string,
+				char *end_date_string );
+
+void tax_rental_property_list_accumulate_depreciation(
+				LIST *tax_output_rental_property_list,
+				LIST *tax_input_rental_property_list );
+
 #endif

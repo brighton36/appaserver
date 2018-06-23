@@ -69,7 +69,7 @@ int main( int argc, char **argv )
 	int tax_year;
 	char begin_date_string[ 16 ];
 	char end_date_string[ 16 ];
-	LIST *property_string_list;
+	LIST *property_street_address_list;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -78,31 +78,31 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 11 )
+	if ( argc != 10 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored process full_name street_address transaction_description transaction_date transaction_amount memo property_street_address execute_yn\n",
+"Usage: %s process full_name street_address transaction_description transaction_date transaction_amount memo property_street_address execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	full_name = argv[ 3 ];
-	street_address = argv[ 4 ];
-	transaction_description = argv[ 5 ];
-	transaction_date = argv[ 6 ];
-	transaction_amount = atof( argv[ 7 ] );
-	memo = argv[ 8 ];
-	property_street_address = argv[ 9 ];
-	execute = (*argv[ 10 ] == 'y');
+	process_name = argv[ 1 ];
+	full_name = argv[ 2 ];
+	street_address = argv[ 3 ];
+	transaction_description = argv[ 4 ];
+	transaction_date = argv[ 5 ];
+	transaction_amount = atof( argv[ 6 ] );
+	memo = argv[ 7 ];
+	property_street_address = argv[ 8 ];
+	execute = (*argv[ 9 ] == 'y');
 
 	tax_year = atoi( pipe2string( "now.sh ymd | piece.e '-' 0" ) );
 
 	sprintf( begin_date_string, "%d-01-01", tax_year );
 	sprintf( end_date_string, "%d-12-31", tax_year );
 
-	property_string_list =
-		tax_get_property_string_list(
+	property_street_address_list =
+		tax_fetch_property_street_address_list(
 			application_name,
 			begin_date_string,
 			end_date_string );
@@ -110,10 +110,10 @@ int main( int argc, char **argv )
 	if ( ( !property_street_address
 	||     strcmp(	property_street_address,
 			"property_street_address" ) == 0 )
-	&&   ( list_exists_string(	rental_property_string_list,
+	&&   ( list_exists_string(	property_street_address_list,
 					street_address ) ) )
 	{
-		rental_property_street_address = street_address;
+		property_street_address = street_address;
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -153,7 +153,7 @@ int main( int argc, char **argv )
 			transaction_date_time,
 			transaction_amount,
 			memo,
-			rental_property_street_address );
+			property_street_address );
 	}
 	else
 	{
@@ -165,7 +165,7 @@ int main( int argc, char **argv )
 			transaction_date_time,
 			transaction_amount,
 			memo,
-			rental_property_street_address );
+			property_street_address );
 
 		printf( "<h3>Process complete.</h3>\n" );
 	}
@@ -184,7 +184,7 @@ void post_reoccurring_transaction_display(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
-			char *rental_property_street_address )
+			char *property_street_address )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 	char *heading;
@@ -223,14 +223,14 @@ void post_reoccurring_transaction_display(
 		 	 memo );
 	}
 
-	if (	rental_property_street_address
-	&&	*rental_property_street_address
-	&&	strcmp(	rental_property_street_address,
-			"rental_property_street_address" ) != 0 )
+	if (	property_street_address
+	&&	*property_street_address
+	&&	strcmp(	property_street_address,
+			"property_street_address" ) != 0 )
 	{
 		fprintf( output_pipe,
 		 	 "Property: %s\n",
-		 	 rental_property_street_address );
+		 	 property_street_address );
 	}
 
 	fprintf( output_pipe,
@@ -260,7 +260,7 @@ void post_reoccurring_transaction(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
-			char *rental_property_street_address )
+			char *property_street_address )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 	TRANSACTION *transaction;
@@ -291,7 +291,7 @@ void post_reoccurring_transaction(
 			transaction_date_time,
 			transaction_amount,
 			memo,
-			rental_property_street_address );
+			property_street_address );
 
 	/* Insert the transaction */
 	/* ---------------------- */
@@ -317,8 +317,8 @@ void post_reoccurring_transaction(
 		transaction->full_name,
 		transaction->street_address,
 		transaction->transaction_date_time,
-		"rental_property_street_address",
-		rental_property_street_address );
+		"property_street_address",
+		property_street_address );
 
 	/* Insert the debit account */
 	/* ------------------------ */

@@ -619,6 +619,67 @@ void tax_process_accumulate_tax_form_line_total(
 
 } /* tax_process_accumulate_tax_form_line_total() */
 
+LIST *tax_fetch_property_street_address_list(
+					char *application_name,
+					char *begin_date_string,
+					char *end_date_string )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder_from;
+	char where[ 256 ];
+	LIST *street_address_list;
+
+	select = "property_street_address";
+
+	sprintf( where,
+		 "service_placement_date is not null and	"
+		 "service_placement_date >= '%s' and		"
+		 "(disposal_date is null or			"
+		 " disposal_date <= '%s')			",
+		 begin_date_string,
+		 end_date_string );
+
+	/* PROPERTY_PURCHASE */
+	/* ----------------- */
+	folder_from = "property_purchase";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			"
+		 "			order=select			",
+		 application_name,
+		 select,
+		 folder_from,
+		 where );
+
+	street_address_list = pipe2list( sys_string );
+
+	/* PRIOR_PROPERTY */
+	/* -------------- */
+	folder_from = "prior_property";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=%s			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			"
+		 "			order=select			",
+		 application_name,
+		 select,
+		 folder_from,
+		 where );
+
+	list_append_list(
+		street_address_list,
+		pipe2list( sys_string ) );
+
+	return street_address_list;
+
+} /* tax_fetch_property_street_address_list() */
+
 LIST *tax_fetch_rental_property_list(	char *application_name,
 					char *end_date_string,
 					int tax_year )

@@ -60,18 +60,18 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 5 )
+	if ( argc != 4 )
 	{
 		fprintf(stderr,
-	"Usage: %s ignored process undo_yn execute_yn\n",
+	"Usage: %s process undo_yn execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	undo = (*argv[ 3 ]) == 'y';
-	execute = (*argv[ 4 ]) == 'y';
+	process_name = argv[ 1 ];
+	undo = (*argv[ 2 ]) == 'y';
+	execute = (*argv[ 3 ]) == 'y';
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

@@ -240,7 +240,7 @@ void tax_recover_fixed_assets_undo(	char *application_name,
 	char *folder_name;
 	char where[ 128 ];
 
-	sprintf( where, "tax_year = %d", tax_year );
+	sprintf( where, "tax_year = %d", max_tax_year );
 
 	/* TAX_FIXED_ASSET_RECOVERY */
 	/* ------------------------ */

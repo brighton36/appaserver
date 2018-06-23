@@ -20,6 +20,7 @@
 
 /* Constants */
 /* --------- */
+#define TAX_DEPRECIATION_DESCRIPTION	"depreciation"
 #define TAX_FORM_LINE_KEY		".tax_form_line "
 #define TAX_FORM_LINE_ACCOUNT_KEY	".account "
 
@@ -39,6 +40,15 @@ typedef struct
 	char *property_street_address;
 	double recovery_amount;
 } TAX_INPUT_RENTAL_PROPERTY;
+
+typedef struct
+{
+	double fixed_asset_recovery_amount;
+	double prior_fixed_asset_recovery_amount;
+	double property_recovery_amount;
+	double prior_property_recovery_amount;
+	double total_recovery_amount;
+} TAX_INPUT_RECOVERY;
 
 typedef struct
 {
@@ -105,10 +115,7 @@ typedef struct
 	int tax_year;
 	char *begin_date_string;
 	char *end_date_string;
-	double fixed_asset_recovery_amount;
-	double prior_fixed_asset_recovery_amount;
-	double property_recovery_amount;
-	double prior_property_recovery_amount;
+	TAX_INPUT_RECOVERY *tax_input_recovery;
 	LIST *cash_transaction_list;
 	LIST *rental_property_list;
 } TAX_INPUT;
@@ -122,6 +129,10 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+TAX_INPUT_RECOVERY *tax_input_recovery_new(
+					char *application_name,
+					int tax_year );
+
 TAX *tax_new(				char *application_name,
 					char *fund_name,
 					char *tax_form,
@@ -149,6 +160,9 @@ LIST *tax_fetch_account_transaction_list(
 					char *end_date_string,
 					char *account_name );
 
+/* --------------------------- */
+/* Returns tax_form_line_list. */
+/* --------------------------- */
 LIST *tax_process_set_journal_ledger_list(
 					LIST *unaccounted_journal_ledger_list,
 					LIST *tax_form_line_list,
@@ -189,10 +203,10 @@ TAX_FORM_LINE_RENTAL *tax_form_line_rental_new(
 					LIST *tax_form_line_account_list );
 
 TAX_INPUT_RENTAL_PROPERTY *tax_input_rental_property_new(
-				char *property_street_address );
+					char *input_buffer );
 
 TAX_OUTPUT_RENTAL_PROPERTY *tax_output_rental_property_new(
-				char *property_street_address );
+					char *property_street_address );
 
 void tax_form_line_address_rental_property_list_set(
 				LIST *rental_property_list,
@@ -209,7 +223,8 @@ void tax_form_line_distribute_rental_property_list_set(
 				double denominator );
 
 void tax_line_rental_list_accumulate_line_total(
-				LIST *tax_form_line_rental_list );
+				LIST *tax_form_line_rental_list,
+				LIST *tax_input_rental_property_list );
 
 void tax_rental_property_list_accumulate_line_total(
 				LIST *rental_property_list,
@@ -219,5 +234,18 @@ void tax_rental_journal_ledger_list_accumulate_line_total(
 				LIST *rental_property_list,
 				LIST *journal_ledger_list,
 				boolean accumulate_debit );
+
+double tax_fetch_recovery_amount(
+				char *application_name,
+				char *folder_name,
+				int tax_year );
+
+void tax_form_line_set_depreciation(
+				LIST *tax_form_line_list,
+				double total_recovery_amount );
+
+TAX_INPUT_RENTAL_PROPERTY *tax_rental_property_seek(
+				LIST *tax_input_rental_property_list,
+				char *property_street_address );
 
 #endif

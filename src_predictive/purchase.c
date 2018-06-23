@@ -72,7 +72,7 @@ PURCHASE_ORDER *purchase_order_new(	char *application_name,
 				&p->transaction_date_time,
 				&p->database_transaction_date_time,
 				&p->fund_name,
-				&p->rental_property_street_address,
+				&p->property_street_address,
 				application_name,
 				p->full_name,
 				p->street_address,
@@ -262,7 +262,7 @@ char *purchase_order_get_select( char *application_name )
 {
 	char select[ 1024 ];
 	char *fund_select;
-	char *rental_property_select;
+	char *property_select;
 	char *title_passage_rule_select;
 
 	if ( ledger_fund_attribute_exists(
@@ -286,23 +286,21 @@ char *purchase_order_get_select( char *application_name )
 		title_passage_rule_select = "''";
 	}
 
-	if ( attribute_exists(	application_name,
-				"purchase_order" /* folder_name */,
-				"rental_property_street_address"
-					/* attribute_name */ ) )
+	if ( ledger_property_street_address_attribute_exists(
+			application_name ) )
 	{
-		rental_property_select = "rental_property_street_address";
+		property_select = "property_street_address";
 	}
 	else
 	{
-		rental_property_select = "''";
+		property_select = "''";
 	}
 
 	sprintf( select,
 "full_name,street_address,purchase_date_time,sum_extension,sales_tax,freight_in,purchase_amount,amount_due,%s,shipped_date,arrived_date_time,transaction_date_time,%s,%s",
 		 title_passage_rule_select,
 		 fund_select,
-		 rental_property_select );
+		 property_select );
 
 	return strdup( select );
 
@@ -324,7 +322,7 @@ boolean purchase_order_load(	double *sum_extension,
 				char **transaction_date_time,
 				char **database_transaction_date_time,
 				char **fund_name,
-				char **rental_property_street_address,
+				char **property_street_address,
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -377,7 +375,7 @@ boolean purchase_order_load(	double *sum_extension,
 			transaction_date_time,
 			database_transaction_date_time,
 			fund_name,
-			rental_property_street_address,
+			property_street_address,
 			results );
 
 	free( results );
@@ -405,7 +403,7 @@ void purchase_order_parse(	char **full_name,
 				char **transaction_date_time,
 				char **database_transaction_date_time,
 				char **fund_name,
-				char **rental_property_street_address,
+				char **property_street_address,
 				char *results )
 {
 	char piece_buffer[ 1024 ];
@@ -481,7 +479,7 @@ void purchase_order_parse(	char **full_name,
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 13 );
 	if ( *piece_buffer )
-		*rental_property_street_address = strdup( piece_buffer );
+		*property_street_address = strdup( piece_buffer );
 
 } /* purchase_order_parse() */
 
@@ -1532,7 +1530,7 @@ LIST *purchase_get_inventory_purchase_order_list(
 			&purchase_order->transaction_date_time,
 			&purchase_order->database_transaction_date_time,
 			&purchase_order->fund_name,
-			&purchase_order->rental_property_street_address,
+			&purchase_order->property_street_address,
 			input_buffer );
 
 		purchase_order->inventory_purchase_list =
@@ -2191,7 +2189,7 @@ PURCHASE_ORDER *purchase_order_transaction_date_time_fetch(
 			&purchase_order->transaction_date_time,
 			&purchase_order->database_transaction_date_time,
 			&purchase_order->fund_name,
-			&purchase_order->rental_property_street_address,
+			&purchase_order->property_street_address,
 			results );
 
 	free( results );
@@ -2925,7 +2923,7 @@ LIST *purchase_get_amount_due_purchase_order_list(
 			&purchase_order->transaction_date_time,
 			&purchase_order->database_transaction_date_time,
 			&purchase_order->fund_name,
-			&purchase_order->rental_property_street_address,
+			&purchase_order->property_street_address,
 			input_buffer );
 
 		if ( !purchase_order_list )

@@ -1080,11 +1080,11 @@ LIST *ledger_get_binary_ledger_list(
 				char *credit_account );
 
 LIST *ledger_consolidate_journal_ledger_list(
-			char *application_name,
-			LIST *journal_ledger_list );
+				char *application_name,
+				LIST *journal_ledger_list );
 
 LIST *ledger_get_unique_account_name_list(
-			LIST *journal_ledger_list );
+				LIST *journal_ledger_list );
 
 double ledger_debit_credit_get_amount(
 				double debit_amount,
@@ -1097,4 +1097,8 @@ double ledger_get_amount(	JOURNAL_LEDGER *ledger,
 char *ledger_earlier_of_two_date(
 				char *date1,
 				char *date2 );
+
+boolean ledger_property_street_address_attribute_exists(
+				char *application_name );
+
 #endif

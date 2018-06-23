@@ -9240,3 +9240,21 @@ char *ledger_earlier_of_two_date( char *date1, char *date2 )
 	return return_date;
 
 } /* ledger_earlier_of_two_date() */
+
+boolean ledger_property_street_address_attribute_exists(
+				char *application_name )
+{
+	static int results = -1;
+
+	if ( results == -1 )
+	{
+		results = attribute_exists(
+				application_name,
+				"purchase_order",
+				"property_street_address" );
+	}
+
+	return (boolean)results;
+
+} /* ledger_property_street_address_attribute_exists() */
+

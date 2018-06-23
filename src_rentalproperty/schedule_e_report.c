@@ -41,12 +41,12 @@ LIST *build_PDF_row_list(
 			LIST *tax_form_line_rental_list );
 
 LIST *build_PDF_heading_list(
-			LIST *rental_property_list );
+			LIST *input_rental_property_list );
 
 LATEX_TABLE *tax_form_report_PDF_table(
 			char *sub_title,
 			LIST *tax_form_line_rental_list,
-			LIST *rental_property_list );
+			LIST *input_rental_property_list );
 
 void tax_form_report_PDF(
 			char *application_name,
@@ -55,7 +55,7 @@ void tax_form_report_PDF(
 			char *document_root_directory,
 			char *process_name,
 			LIST *tax_form_line_rental_list,
-			LIST *rental_property_list,
+			LIST *input_rental_property_list,
 			char *logo_filename );
 
 HTML_TABLE *tax_form_report_get_html_table(
@@ -80,7 +80,6 @@ int main( int argc, char **argv )
 	char title[ 128 ];
 	char sub_title[ 128 ];
 	char buffer[ 128 ];
-	char end_date_string[ 16 ];
 	TAX *tax;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
@@ -149,14 +148,6 @@ int main( int argc, char **argv )
 			SCHEDULE_E,
 			tax_year );
 
-	if ( !tax )
-	{
-		printf(
-		"<h3>No cash transations exist year %d.</h3>\n", tax_year );
-		document_close();
-		exit( 0 );
-	}
-
 	if ( !tax->tax_input.tax_form->tax_form )
 	{
 		printf(
@@ -165,18 +156,13 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	sprintf( end_date_string, "%d-12-31", tax_year );
-
 	tax->tax_input.rental_property_list =
 		tax_fetch_rental_property_list(
 			application_name,
-			end_date_string,
-			tax_year );
+			tax->tax_input.end_date_string,
+			tax->tax_input.tax_year );
 
-	if ( !list_length(
-		tax->
-			tax_input.
-			rental_property_list ) )
+	if ( !list_length( tax->tax_input.rental_property_list ) )
 	{
 		printf(
 		"<h3>No rental properties owned during this period.</h3>\n" );
@@ -199,7 +185,8 @@ int main( int argc, char **argv )
 	}
 
 	tax_line_rental_list_accumulate_line_total(
-		tax->tax_output_rental.tax_form_line_rental_list );
+		tax->tax_output_rental.tax_form_line_rental_list,
+		tax->tax_input.rental_property_list );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
@@ -378,7 +365,7 @@ void tax_form_report_PDF(	char *application_name,
 				char *document_root_directory,
 				char *process_name,
 				LIST *tax_form_line_rental_list,
-				LIST *rental_property_list,
+				LIST *input_rental_property_list,
 				char *logo_filename )
 {
 	LATEX *latex;
@@ -447,7 +434,7 @@ void tax_form_report_PDF(	char *application_name,
 		tax_form_report_PDF_table(
 			sub_title,
 			tax_form_line_rental_list,
-			rental_proprty_list ) );
+			input_rental_property_list ) );
 
 	latex_longtable_output(
 		latex->output_stream,
@@ -554,7 +541,7 @@ LIST *build_PDF_row_list( LIST *tax_form_line_rental_list )
 
 } /* build_PDF_row_list() */
 
-LIST *build_PDF_heading_list( LIST *rental_property_list )
+LIST *build_PDF_heading_list( LIST *input_rental_property_list )
 {
 	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
@@ -572,13 +559,13 @@ LIST *build_PDF_heading_list( LIST *rental_property_list )
 	table_heading->right_justified_flag = 0;
 	list_append_pointer( heading_list, table_heading );
 
-	if ( !list_rewind( rental_property_list ) )
+	if ( !list_rewind( input_rental_property_list ) )
 		return heading_list;
 
 	do {
 		rental_property =
 			list_get_pointer(
-				rental_property_list );
+				input_rental_property_list );
 
 		table_heading = latex_new_latex_table_heading();
 		table_heading->heading =
@@ -586,7 +573,7 @@ LIST *build_PDF_heading_list( LIST *rental_property_list )
 		table_heading->right_justified_flag = 1;
 		list_append_pointer( heading_list, table_heading );
 
-	} while( list_next( rental_proprty_list ) );
+	} while( list_next( input_rental_property_list ) );
 
 	return heading_list;
 
@@ -595,7 +582,7 @@ LIST *build_PDF_heading_list( LIST *rental_property_list )
 LATEX_TABLE *tax_form_report_PDF_table(
 			char *sub_title,
 			LIST *tax_form_line_rental_list,
-			LIST *rental_property_list )
+			LIST *input_rental_property_list )
 {
 	LATEX_TABLE *latex_table;
 	char caption[ 128 ];
@@ -608,7 +595,7 @@ LATEX_TABLE *tax_form_report_PDF_table(
 
 	latex_table->heading_list =
 		build_PDF_heading_list(
-			rental_property_list );
+			input_rental_property_list );
 
 	latex_table->row_list =
 		build_PDF_row_list(

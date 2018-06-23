@@ -80,7 +80,6 @@ int main( int argc, char **argv )
 	char sub_title[ 256 ];
 	char *tax_form_name;
 	int tax_year;
-	char end_date_string[ 16 ];
 	char *output_medium;
 	TAX *tax;
 	char *logo_filename;
@@ -93,34 +92,23 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 6 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s ignored process tax_form tax_year output_medium\n",
+	"Usage: %s process tax_form tax_year output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	tax_form_name = argv[ 3 ];
-	tax_year = atoi( argv[ 4 ] );
-	output_medium = argv[ 5 ];
+	process_name = argv[ 1 ];
+	tax_form_name = argv[ 2 ];
+	tax_year = atoi( argv[ 3 ] );
+	output_medium = argv[ 4 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	sprintf( end_date_string, "%d-12-31", tax_year );
-
-/*
-	if ( !*as_of_date
-	||   strcmp(	as_of_date,
-			"as_of_date" ) == 0 )
-	{
-		as_of_date = date_get_now_yyyy_mm_dd( date_get_utc_offset() );
-	}
-*/
 
 	document = document_new( title, application_name );
 	document->output_content_type = 1;
@@ -144,6 +132,11 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
+	tax = tax_new(		application_name,
+				(char *)0 /* fund_name */,
+				tax_form_name,
+				tax_year );
+
 	if ( ! ( begin_date_string =
 			ledger_get_report_title_sub_title(
 				title,
@@ -151,7 +144,7 @@ int main( int argc, char **argv )
 				process_name,
 				application_name,
 				(char *)0 /* fund_name */,
-				end_date_string,
+				tax->tax_input.end_date_string,
 				0 /* length_fund_name_list */,
 				logo_filename ) ) )
 	{
@@ -159,11 +152,6 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 0 );
 	}
-
-	tax = tax_new(		application_name,
-				(char *)0 /* fund_name */,
-				tax_form_name,
-				tax_year );
 
 	if ( !list_length( tax->tax_process.tax_form_line_list ) )
 	{

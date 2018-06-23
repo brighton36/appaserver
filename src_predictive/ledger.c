@@ -9258,3 +9258,20 @@ boolean ledger_property_street_address_attribute_exists(
 
 } /* ledger_property_street_address_attribute_exists() */
 
+boolean ledger_tax_recovery_period_attribute_exists(
+				char *application_name )
+{
+	static int results = -1;
+
+	if ( results == -1 )
+	{
+		results = attribute_exists(
+				application_name,
+				"fixed_asset_purchase",
+				"tax_recovery_period" );
+	}
+
+	return (boolean)results;
+
+} /* ledger_property_street_address_attribute_exists() */
+

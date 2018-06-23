@@ -87,7 +87,7 @@ char *fixed_property_get_select(
 		account_select = "''";
 
 	sprintf( select,
-"%s.property_street_address,'',%s,service_placement_date,extension,estimated_useful_life_years,'',estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation",
+"%s.property_street_address,'',%s,service_placement_date,structure_cost,estimated_useful_life_years,'',estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation",
 		 folder_name,
 		 account_select );
 

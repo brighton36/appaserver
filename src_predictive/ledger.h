@@ -1101,4 +1101,7 @@ char *ledger_earlier_of_two_date(
 boolean ledger_property_street_address_attribute_exists(
 				char *application_name );
 
+boolean ledger_tax_recovery_period_attribute_exists(
+				char *application_name );
+
 #endif

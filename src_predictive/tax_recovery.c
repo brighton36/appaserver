@@ -258,15 +258,7 @@ void tax_recovery_depreciation_fund_list_set(
 			depreciation_fund->
 				depreciation_asset_list;
 
-		if ( !depreciation_asset_list )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		if ( !depreciation_asset_list ) continue;
 
 		fixed_asset_list =
 			depreciation_asset_list->
@@ -364,13 +356,15 @@ void tax_recovery_fixed_asset_list_set(	LIST *fixed_asset_list,
 
 } /* tax_recovery_fixed_asset_list_set() */
 
-void tax_recovery_fixed_assets_insert(	LIST *depreciation_fund_list )
+boolean tax_recovery_fixed_assets_insert(
+				LIST *depreciation_fund_list )
 {
 	DEPRECIATION_FUND *depreciation_fund;
 	DEPRECIATION_ASSET_LIST *depreciation_asset_list;
 	LIST *fixed_asset_list;
+	boolean did_any = 0;
 
-	if ( !list_rewind( depreciation_fund_list ) ) return;
+	if ( !list_rewind( depreciation_fund_list ) ) return 0;
 
 	do {
 		depreciation_fund =
@@ -381,15 +375,7 @@ void tax_recovery_fixed_assets_insert(	LIST *depreciation_fund_list )
 			depreciation_fund->
 				depreciation_asset_list;
 
-		if ( !depreciation_asset_list )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		if ( !depreciation_asset_list ) continue;
 
 		/* FIXED_ASSET_PURCHASE */
 		/* -------------------- */
@@ -403,6 +389,7 @@ void tax_recovery_fixed_assets_insert(	LIST *depreciation_fund_list )
 				"tax_fixed_asset_recovery",
 				fixed_asset_list );
 
+			did_any = 1;
 		}
 
 		/* PROPERTY_PURCHASE */
@@ -417,6 +404,7 @@ void tax_recovery_fixed_assets_insert(	LIST *depreciation_fund_list )
 				"tax_property_recovery",
 				fixed_asset_list );
 
+			did_any = 1;
 		}
 
 		/* PRIOR_FIXED_ASSET */
@@ -431,6 +419,7 @@ void tax_recovery_fixed_assets_insert(	LIST *depreciation_fund_list )
 				"tax_prior_fixed_asset_recovery",
 				fixed_asset_list );
 
+			did_any = 1;
 		}
 
 		/* PRIOR_PROPERTY */
@@ -445,9 +434,12 @@ void tax_recovery_fixed_assets_insert(	LIST *depreciation_fund_list )
 				"tax_prior_property_recovery",
 				fixed_asset_list );
 
+			did_any = 1;
 		}
 
 	} while( list_next( depreciation_fund_list ) );
+
+	return did_any;
 
 } /* tax_recovery_fixed_assets_insert() */
 
@@ -528,6 +520,7 @@ void tax_recovery_fixed_assets_display(	LIST *depreciation_fund_list )
 		 heading,
 		 justify );
 
+	fflush( stdout );
 	output_pipe = popen( sys_string, "w" );
 
 	do {
@@ -539,15 +532,7 @@ void tax_recovery_fixed_assets_display(	LIST *depreciation_fund_list )
 			depreciation_fund->
 				depreciation_asset_list;
 
-		if ( !depreciation_asset_list )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		if ( !depreciation_asset_list ) continue;
 
 		/* FIXED_ASSET_PURCHASE */
 		/* -------------------- */

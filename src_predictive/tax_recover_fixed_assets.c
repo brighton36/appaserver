@@ -201,12 +201,18 @@ void tax_recover_fixed_assets(	char *application_name,
 				depreciation_fund_list,
 			tax_year );
 
-		tax_recovery_fixed_assets_insert(
+		if ( tax_recovery_fixed_assets_insert(
 			depreciation_structure->
-				depreciation_fund_list );
-
-		printf( "<h3>Tax Recovery now posted for %d.</h3>\n",
-			tax_year );
+				depreciation_fund_list ) )
+		{
+			printf( "<h3>Tax Recovery now posted for %d.</h3>\n",
+				tax_year );
+		}
+		else
+		{
+			printf(
+			"<h3>Error: No fixed assets to recover.</h3>\n" );
+		}
 	}
 	else
 	/* ------- */

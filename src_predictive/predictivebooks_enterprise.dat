@@ -39,6 +39,11 @@ payroll_pay_period
 payroll_posting
 prior_fixed_asset
 prior_fixed_asset_depreciation
+prior_property
+prior_property_depreciation
+property
+property_depreciation
+property_purchase
 purchase_order
 receipt_upload
 reoccurring_transaction
@@ -56,6 +61,8 @@ tax_form
 tax_form_line
 tax_form_line_account
 tax_prior_fixed_asset_recovery
+tax_prior_property_recovery
+tax_property_recovery
 tax_recovery_period
 tax_recovery_table
 title_passage_rule

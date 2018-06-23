@@ -18,9 +18,13 @@ occupant
 payroll_pay_period
 prior_fixed_asset
 prior_fixed_asset_depreciation
+prior_property
+prior_property_depreciation
+property
+property_depreciation
+property_purchase
 purchase_order
 receipt_upload
-rental_property
 reoccurring_transaction
 self
 service_purchase
@@ -33,6 +37,8 @@ tax_form
 tax_form_line
 tax_form_line_account
 tax_prior_fixed_asset_recovery
+tax_prior_property_recovery
+tax_property_recovery
 tax_recovery_period
 tax_recovery_table
 transaction

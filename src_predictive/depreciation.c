@@ -58,8 +58,8 @@ DEPRECIATION_AMOUNT *depreciation_amount_new( void )
 
 } /* depreciation_amount_new() */
 
-/* Sets depreciation_date and depreciation_tax_year */
-/* ------------------------------------------------ */
+/* Sets depreciation_date and depreciation_tax_year (if not nonprofit) */
+/* ------------------------------------------------------------------- */
 DEPRECIATION_STRUCTURE *depreciation_structure_new(
 				char *application_name )
 {
@@ -80,9 +80,12 @@ DEPRECIATION_STRUCTURE *depreciation_structure_new(
 		depreciation_date_new(
 			application_name );
 
-	p->depreciation_tax_year =
-		depreciation_tax_year_new(
-			application_name );
+	if ( ledger_tax_recovery_period_attribute_exists( application_name ) )
+	{
+		p->depreciation_tax_year =
+			depreciation_tax_year_new(
+				application_name );
+	}
 
 	return p;
 
@@ -807,7 +810,8 @@ void depreciation_fund_list_table_display(
 		 format_initial_capital( buffer, process_name ),
 		 heading,
 		 justification );
-		 
+
+	fflush( stdout );
 	output_pipe = popen( sys_string, "w" );
 
 	do {
@@ -819,15 +823,7 @@ void depreciation_fund_list_table_display(
 			depreciation_fund->
 				depreciation_asset_list;
 
-		if ( !depreciation_asset_list )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		if ( !depreciation_asset_list ) continue;
 
 		fixed_asset_list =
 			depreciation_asset_list->
@@ -1043,15 +1039,7 @@ void depreciation_fund_list_set_transaction(
 			depreciation_fund->
 				depreciation_amount;
 
-		if ( !depreciation_amount )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: empty depreciation_amount.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		if ( !depreciation_amount ) continue;
 
 		depreciation_fund->depreciation_transaction =
 			depreciation_fund_get_transaction(
@@ -1095,15 +1083,7 @@ void depreciation_fund_transaction_insert(
 			depreciation_fund->
 				depreciation_transaction;
 
-		if ( !depreciation_transaction )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty depreciation_transaction.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		if ( !depreciation_transaction ) continue;
 
 		/* FIXED_ASSET_PURCHASE */
 		/* -------------------- */
@@ -1223,6 +1203,7 @@ boolean depreciation_fund_asset_depreciation_insert(
 	DEPRECIATION_TRANSACTION *depreciation_transaction;
 	TRANSACTION *transaction;
 	LIST *fixed_asset_list;
+	boolean did_any = 0;
 
 	if ( !list_rewind( depreciation_fund_list ) ) return 0;
 
@@ -1235,29 +1216,13 @@ boolean depreciation_fund_asset_depreciation_insert(
 			depreciation_fund->
 				depreciation_transaction;
 
-		if ( !depreciation_transaction )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty depreciation_transaction.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		if ( !depreciation_transaction ) continue;
 
 		depreciation_asset_list =
 			depreciation_fund->
 				depreciation_asset_list;
 
-		if ( !depreciation_asset_list )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty depreciation_asset_list.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		if ( !depreciation_asset_list ) continue;
 
 		/* FIXED_ASSET_PURCHASE */
 		/* -------------------- */
@@ -1287,6 +1252,8 @@ boolean depreciation_fund_asset_depreciation_insert(
 				full_name,
 				street_address,
 				transaction->transaction_date_time );
+
+			did_any = 1;
 		}
 
 		/* PROPERTY_PURCHASE */
@@ -1317,6 +1284,8 @@ boolean depreciation_fund_asset_depreciation_insert(
 				full_name,
 				street_address,
 				transaction->transaction_date_time );
+
+			did_any = 1;
 		}
 
 		/* PRIOR_FIXED_ASSET */
@@ -1347,6 +1316,8 @@ boolean depreciation_fund_asset_depreciation_insert(
 				full_name,
 				street_address,
 				transaction->transaction_date_time );
+
+			did_any = 1;
 		}
 
 
@@ -1378,12 +1349,13 @@ boolean depreciation_fund_asset_depreciation_insert(
 				full_name,
 				street_address,
 				transaction->transaction_date_time );
-		}
 
+			did_any = 1;
+		}
 
 	} while( list_next( depreciation_fund_list ) );
 
-	return 1;
+	return did_any;
 
 } /* depreciation_fund_asset_depreciation_insert() */
 

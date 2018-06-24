@@ -226,7 +226,6 @@ int bank_upload_table_insert(	FILE *input_file,
 	char bank_date_international[ 128 ];
 	char bank_description[ 1024 ];
 	char bank_amount[ 128 ];
-	char bank_running_balance[ 128 ];
 	FILE *table_output_pipe = {0};
 	FILE *bank_upload_insert_pipe = {0};
 	int table_insert_count = 0;
@@ -303,7 +302,7 @@ int bank_upload_table_insert(	FILE *input_file,
 
 		if ( !found_header )
 		{
-			if ( strcmp( bank_date, "Date" ) == 0 )
+			if ( timlib_exists_string( bank_date, "date" ) )
 			{
 				found_header = 1;
 			}
@@ -342,19 +341,7 @@ int bank_upload_table_insert(	FILE *input_file,
 			continue;
 		}
 
-		/* Skip beginning balance rows. */
-		/* ---------------------------- */
 		if ( !atof( bank_amount ) ) continue;
-
-		/* Bank running balance is optional */
-		/* -------------------------------- */
-		if ( !piece_quote_comma(
-				bank_running_balance,
-				input_string,
-				3 ) )
-		{
-			strcpy( bank_running_balance, "null" );
-		}
 
 		if ( !bank_upload_get_bank_date_international(
 				bank_date_international,
@@ -384,23 +371,21 @@ int bank_upload_table_insert(	FILE *input_file,
 			if ( exists_fund )
 			{
 				fprintf(table_output_pipe,
-			 		"%s^%s^%d^%s^%s^%s\n",
-			 		bank_date_international,
-			 		bank_description,
-					starting_sequence_number++,
-			 		bank_amount,
-					bank_running_balance,
-					fund_name );
-			}
-			else
-			{
-				fprintf(table_output_pipe,
 			 		"%s^%s^%d^%s^%s\n",
 			 		bank_date_international,
 			 		bank_description,
 					starting_sequence_number++,
 			 		bank_amount,
-					bank_running_balance );
+					fund_name );
+			}
+			else
+			{
+				fprintf(table_output_pipe,
+			 		"%s^%s^%d^%s\n",
+			 		bank_date_international,
+			 		bank_description,
+					starting_sequence_number++,
+			 		bank_amount );
 			}
 		}
 		else
@@ -408,23 +393,21 @@ int bank_upload_table_insert(	FILE *input_file,
 			if ( exists_fund )
 			{
 				fprintf(bank_upload_insert_pipe,
-			 		"%s^%s^%d^%s^%s^%s\n",
-			 		bank_date_international,
-			 		bank_description,
-					starting_sequence_number++,
-			 		bank_amount,
-					bank_running_balance,
-					fund_name );
-			}
-			else
-			{
-				fprintf(bank_upload_insert_pipe,
 			 		"%s^%s^%d^%s^%s\n",
 			 		bank_date_international,
 			 		bank_description,
 					starting_sequence_number++,
 			 		bank_amount,
-					bank_running_balance );
+					fund_name );
+			}
+			else
+			{
+				fprintf(bank_upload_insert_pipe,
+			 		"%s^%s^%d^%s\n",
+			 		bank_date_international,
+			 		bank_description,
+					starting_sequence_number++,
+			 		bank_amount );
 			}
 		}
 
@@ -442,6 +425,18 @@ int bank_upload_table_insert(	FILE *input_file,
 
 		error_file_lines = atoi( pipe2string( sys_string ) );
 		table_insert_count -= error_file_lines;
+
+		if ( error_file_lines )
+		{
+			printf( "<h3>Error records.</h3>\n" );
+			fflush( stdout );
+
+			sprintf( sys_string,
+				 "cat %s | html_paragraph_wrapper.e",
+				 error_filename );
+
+			system( sys_string );
+		}
 
 		sprintf( sys_string,
 			 "rm -f %s",

@@ -177,4 +177,6 @@ ENTITY *entity_seek(		LIST *entity_list,
 				char *full_name,
 				char *street_address );
 
+char *entity_self_get_select(	char *appliction_name );
+
 #endif

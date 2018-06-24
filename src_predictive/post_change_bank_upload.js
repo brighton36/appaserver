@@ -3,7 +3,7 @@
 // Freely available software: see Appaserver.org
 // ----------------------------------------------------------------
 
-function post_change_bank_upload_sort_zero()
+function post_change_bank_upload_sort_one()
 {
 	var row;
 	var bank_running_balance_element;
@@ -27,7 +27,7 @@ function post_change_bank_upload_sort_zero()
 		row++;
 	}
 
-} // function post_change_bank_upload_sort_zero()
+} // function post_change_bank_upload_sort_one()
 
 function post_change_bank_upload_sort_accumulate()
 {
@@ -91,9 +91,15 @@ function post_change_bank_upload( state, row )
 
 	if ( state != 'sort' ) return true;
 
+	if ( row == 0 )
+	{
+		post_change_bank_upload_sort_accumulate()
+		return true;
+	}
+
 	if ( row == 1 )
 	{
-		post_change_bank_upload_sort_zero();
+		post_change_bank_upload_sort_one();
 		return true;
 	}
 
@@ -103,7 +109,7 @@ function post_change_bank_upload( state, row )
 
 	if ( radio_one_selected == "move_1" )
 	{
-		post_change_bank_upload_sort_zero();
+		post_change_bank_upload_sort_one();
 		return true;
 	}
 

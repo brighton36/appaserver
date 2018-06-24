@@ -16,10 +16,10 @@
 /* Constants */
 /* --------- */
 #define INSERT_BANK_UPLOAD		\
-	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance"
+	"bank_date,bank_description,sequence_number,bank_amount"
 
 #define INSERT_BANK_UPLOAD_FUND		\
-	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,fund"
+	"bank_date,bank_description,sequence_number,bank_amount,fund"
 
 #define REOCCURRING_TRANSACTION_FOLDER_NAME \
 					"reoccurring_transaction"

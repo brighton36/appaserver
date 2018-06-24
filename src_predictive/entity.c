@@ -108,6 +108,34 @@ ENTITY_SELF *entity_self_new(	char *full_name,
 
 } /* entity_self_new() */
 
+char *entity_self_get_select( char *application_name )
+{
+	char *select;
+	boolean inventory_cost_method_exists;
+
+	inventory_cost_method_exists =
+		attribute_exists(
+			application_name,
+			"self"
+				/* folder_name */,
+			"inventory_cost_method"
+				/* attribute_name */ );
+
+	if ( inventory_cost_method_exists )
+	{
+		select =
+"full_name, street_address, inventory_cost_method, payroll_pay_period, payroll_beginning_day, social_security_combined_tax_rate, social_security_payroll_ceiling, medicare_combined_tax_rate, medicare_additional_withholding_rate, medicare_additional_gross_pay_floor, federal_unemployment_wage_base, federal_unemployment_tax_minimum_rate, federal_unemployment_tax_standard_rate, federal_withholding_allowance_period_value, federal_nonresident_withholding_income_premium, state_unemployment_wage_base, state_unemployment_tax_rate, federal_unemployment_threshold_rate, state_withholding_allowance_period_value, state_itemized_allowance_period_value, state_sales_tax_rate";
+	}
+	else
+	{
+		select =
+"full_name, street_address, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''";
+	}
+
+	return select;
+
+} /* entity_self_get_select() */
+
 ENTITY_SELF *entity_self_load(	char *application_name )
 {
 	ENTITY_SELF *self;
@@ -118,8 +146,7 @@ ENTITY_SELF *entity_self_load(	char *application_name )
 	char *select;
 	char *results;
 
-	select =
-"full_name, street_address, inventory_cost_method, payroll_pay_period, payroll_beginning_day, social_security_combined_tax_rate, social_security_payroll_ceiling, medicare_combined_tax_rate, medicare_additional_withholding_rate, medicare_additional_gross_pay_floor, federal_unemployment_wage_base, federal_unemployment_tax_minimum_rate, federal_unemployment_tax_standard_rate, federal_withholding_allowance_period_value, federal_nonresident_withholding_income_premium, state_unemployment_wage_base, state_unemployment_tax_rate, federal_unemployment_threshold_rate, state_withholding_allowance_period_value, state_itemized_allowance_period_value, state_sales_tax_rate";
+	select = entity_self_get_select( application_name );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"

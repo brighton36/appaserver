@@ -31,15 +31,9 @@ subclassification
 subsidiary_transaction
 supply
 supply_purchase
-tax_fixed_asset_recovery
 tax_form
 tax_form_line
 tax_form_line_account
-tax_prior_fixed_asset_recovery
-tax_prior_property_recovery
-tax_property_recovery
-tax_recovery_period
-tax_recovery_table
 transaction
 vendor
 vendor_payment

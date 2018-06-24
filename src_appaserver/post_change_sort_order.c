@@ -223,6 +223,26 @@ int main( int argc, char **argv )
 				application_name ),
 			0 /* not with_dynarch_menu */ );
 
+	if ( folder->post_change_javascript
+	&&   *folder->post_change_javascript )
+	{
+		char post_change_javascript[ 1024 ];
+
+		strcpy(	post_change_javascript,
+			folder->post_change_javascript );
+		
+		search_replace_string(
+			post_change_javascript,
+			"$state",
+			"sort" );
+
+		document->onload_control_string =
+			document_set_onload_control_string(
+				document->onload_control_string,
+				form_set_post_change_javascript_row_zero(
+					post_change_javascript ) );
+	}
+
 	document_output_body(
 			document->application_name,
 			document->onload_control_string );

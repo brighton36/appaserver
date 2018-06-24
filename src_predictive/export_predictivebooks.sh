@@ -350,7 +350,8 @@ function extract_static_tables()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
-	if [ "$input_file" != "predictivebooks_nonprofit.dat" ]
+	if [ "$input_file" != "predictivebooks_nonprofit.dat" -a	\
+	     "$input_file" != "predictivebooks_home.dat" ]
 	then
 		folder=tax_recovery_table
 		columns="	tax_recovery_period,
@@ -367,14 +368,17 @@ function extract_static_tables()
 		cat >> $output_shell
 	fi
 
-	folder=inventory_cost_method
-	columns=inventory_cost_method
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
+	if [ "$input_file" != "predictivebooks_home.dat" ]
+	then
+		folder=inventory_cost_method
+		columns=inventory_cost_method
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
+	fi
 	
-	# Only enterprise and non-profit folders follow:
-	# ----------------------------------------------
+	# Only enterprise and non-profit follow:
+	# --------------------------------------
 	folder=federal_marital_status
 	results=`grep $folder $input_file | wc -l`
 
@@ -442,6 +446,7 @@ function extract_static_tables()
 function extract_self()
 {
 	application=$1
+	input_file=$2
 	output_shell=$2
 
 	full_name="changeme"
@@ -452,48 +457,60 @@ function extract_self()
 	echo "cat << all_done4" >> $output_shell
 
 	folder=self
-	select="'$full_name',
-		'$street_address',
-		inventory_cost_method,
-		payroll_pay_period,
-		payroll_beginning_day,
-		social_security_combined_tax_rate,
-		social_security_payroll_ceiling,
-		medicare_combined_tax_rate,
-		medicare_additional_withholding_rate,
-		medicare_additional_gross_pay_floor,
-		federal_withholding_allowance_period_value,
-		federal_nonresident_withholding_income_premium,
-		state_withholding_allowance_period_value,
-		state_itemized_allowance_period_value,
-		federal_unemployment_wage_base,
-		federal_unemployment_tax_standard_rate,
-		federal_unemployment_threshold_rate,
-		federal_unemployment_tax_minimum_rate,
-		state_unemployment_wage_base,
-		state_unemployment_tax_rate,
-		state_sales_tax_rate"
-	fields="full_name,
-		street_address,
-		inventory_cost_method,
-		payroll_pay_period,
-		payroll_beginning_day,
-		social_security_combined_tax_rate,
-		social_security_payroll_ceiling,
-		medicare_combined_tax_rate,
-		medicare_additional_withholding_rate,
-		medicare_additional_gross_pay_floor,
-		federal_withholding_allowance_period_value,
-		federal_nonresident_withholding_income_premium,
-		state_withholding_allowance_period_value,
-		state_itemized_allowance_period_value,
-		federal_unemployment_wage_base,
-		federal_unemployment_tax_standard_rate,
-		federal_unemployment_threshold_rate,
-		federal_unemployment_tax_minimum_rate,
-		state_unemployment_wage_base,
-		state_unemployment_tax_rate,
-		state_sales_tax_rate"
+
+	if [ "$input_file = "predictivebooks_home.dat" ]
+	then
+		select="'$full_name',
+			'$street_address'"
+	
+		fields="full_name,
+			street_address"
+	else
+		select="'$full_name',
+			'$street_address',
+			inventory_cost_method,
+			payroll_pay_period,
+			payroll_beginning_day,
+			social_security_combined_tax_rate,
+			social_security_payroll_ceiling,
+			medicare_combined_tax_rate,
+			medicare_additional_withholding_rate,
+			medicare_additional_gross_pay_floor,
+			federal_withholding_allowance_period_value,
+			federal_nonresident_withholding_income_premium,
+			state_withholding_allowance_period_value,
+			state_itemized_allowance_period_value,
+			federal_unemployment_wage_base,
+			federal_unemployment_tax_standard_rate,
+			federal_unemployment_threshold_rate,
+			federal_unemployment_tax_minimum_rate,
+			state_unemployment_wage_base,
+			state_unemployment_tax_rate,
+			state_sales_tax_rate"
+	
+		fields="full_name,
+			street_address,
+			inventory_cost_method,
+			payroll_pay_period,
+			payroll_beginning_day,
+			social_security_combined_tax_rate,
+			social_security_payroll_ceiling,
+			medicare_combined_tax_rate,
+			medicare_additional_withholding_rate,
+			medicare_additional_gross_pay_floor,
+			federal_withholding_allowance_period_value,
+			federal_nonresident_withholding_income_premium,
+			state_withholding_allowance_period_value,
+			state_itemized_allowance_period_value,
+			federal_unemployment_wage_base,
+			federal_unemployment_tax_standard_rate,
+			federal_unemployment_threshold_rate,
+			federal_unemployment_tax_minimum_rate,
+			state_unemployment_wage_base,
+			state_unemployment_tax_rate,
+			state_sales_tax_rate"
+	fi
+
 	get_folder_data a=$application f=$folder s="$select"		|
 	insert_statement.e table=$folder field="$fields" del='^'	|
 	cat >> $output_shell
@@ -517,7 +534,7 @@ create_predictivebooks $application $input_file $output_shell
 extract_static_tables $application $input_file $output_shell
 extract_investment $application $output_shell
 export_processes $application $input_file $output_shell
-extract_self $application $output_shell
+extract_self $application $input_file $output_shell
 
 echo "exit 0" >> $output_shell
 

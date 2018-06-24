@@ -428,12 +428,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
 
 	if ( !attribute_not_null_string || !*attribute_not_null_string )
 	{
-		fprintf( stderr,
-		"Error in %s/%s()/%d: attribute_not_null_string is null.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
+		return (ROW_SECURITY_ROLE_UPDATE *)0;
 	}
 
 	if ( ! ( row_security_role_update =
@@ -498,8 +493,12 @@ LIST *row_security_get_role_update_list(
 				strdup( folder_name ),
 				strdup( attribute_name ) );
 
-		list_append_pointer(	role_update_list,
-					row_security_role_update );
+		if ( row_security_role_update )
+		{
+			list_append_pointer(
+				role_update_list,
+				row_security_role_update );
+		}
 	}
 
 	pclose( input_pipe );

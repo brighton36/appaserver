@@ -62,13 +62,6 @@ int main( int argc, char **argv )
 	input_filename = argv[ 4 ];
 	execute = (*argv[ 5 ] == 'y');
 
-/*
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-*/
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );

@@ -91,7 +91,7 @@ typedef struct
 
 typedef struct
 {
-	char *depreciation_date;
+	char *depreciation_date_string;
 	int units_produced;
 	double depreciation_amount;
 	double database_depreciation_amount;
@@ -136,7 +136,7 @@ DEPRECIATION_FUND *depreciation_fund_new(
 			char *fund_name );
 
 DEPRECIATION *depreciation_new(
-			void );
+			char *depreciation_date_string );
 
 double depreciation_fixed_asset_calculate_amount(
 			char *depreciation_method,
@@ -219,11 +219,11 @@ void depreciation_fixed_asset_list_table_display(
 			FILE *output_pipe,
 			LIST *fixed_asset_list );
 
+/* Sets the true depreciation_transaction->transaction_date_time */
+/* ------------------------------------------------------------- */
 void depreciation_fund_transaction_insert(
 			LIST *depreciation_fund_list,
-			char *application_name,
-			char *full_name,
-			char *street_address );
+			char *application_name );
 
 boolean depreciation_fund_asset_depreciation_insert(
 			LIST *depreciation_fund_list,
@@ -237,12 +237,12 @@ void depreciation_asset_list_depreciation_insert(
 			char *street_address,
 			char *transaction_date_time );
 
-void depreciation_fund_list_set_transaction(
+boolean depreciation_fund_list_transaction_set(
 			LIST *depreciation_fund_list,
 			char *full_name,
 			char *street_address );
 
-DEPRECIATION_AMOUNT *depreciation_asset_list_set_calculate_amount(
+DEPRECIATION_AMOUNT *depreciation_asset_list_depreciation_amount_set(
 			LIST *purchase_fixed_asset_list,
 			LIST *prior_fixed_asset_list,
 			LIST *purchase_property_list,
@@ -263,19 +263,22 @@ DEPRECIATION_TRANSACTION *depreciation_fund_get_transaction(
 
 void depreciation_fixed_asset_list_set(
 			LIST *fixed_asset_list,
-			char *depreciation_date,
+			char *depreciation_date_string,
 			char *prior_depreciation_date );
 
-void depreciation_fund_list_depreciation_set(
+void depreciation_fund_list_asset_list_set(
 			LIST *depreciation_fund_list,
-			char *depreciation_date,
+			char *depreciation_date_string,
 			char *prior_fixed_asset_date,
 			char *prior_fixed_prior_date,
 			char *prior_property_date,
 			char *prior_property_prior_date );
 
-void depreciation_fund_list_set_asset_list(
+void depreciation_fund_list_asset_list_build(
 			LIST *depreciation_fund_list,
 			char *application_name );
+
+void depreciation_fund_list_depreciation_amount_set(
+			LIST *depreciation_fund_list );
 
 #endif

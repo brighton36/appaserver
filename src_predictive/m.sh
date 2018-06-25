@@ -1,6 +1,6 @@
 :
 
-make post_reoccurring_transaction
+make depreciate_fixed_assets
 
 #if [ "$?" -eq 0 ]
 #then

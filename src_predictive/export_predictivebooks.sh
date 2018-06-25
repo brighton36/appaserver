@@ -27,6 +27,9 @@ fi
 input_file=$1
 cleanup_script=$2
 
+SELF_FULL_NAME="changeme"
+SELF_STREET_ADDRESS="1234 Main St."
+
 output_shell="`basename.e $input_file y`".sh
 source_file="$APPASERVER_HOME/library/appaserver_library.h"
 
@@ -447,10 +450,10 @@ function extract_self()
 {
 	application=$1
 	input_file=$2
-	output_shell=$2
+	output_shell=$3
 
-	full_name="changeme"
-	street_address="1234 Main St."
+	full_name="$SELF_FULL_NAME"
+	street_address="$SELF_STREET_ADDRESS"
 
 	echo "" >> $output_shell
 	echo "(" >> $output_shell
@@ -458,7 +461,7 @@ function extract_self()
 
 	folder=self
 
-	if [ "$input_file = "predictivebooks_home.dat" ]
+	if [ "$input_file" = "predictivebooks_home.dat" ]
 	then
 		select="'$full_name',
 			'$street_address'"

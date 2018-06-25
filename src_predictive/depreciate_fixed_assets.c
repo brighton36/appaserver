@@ -113,7 +113,7 @@ void depreciate_fixed_assets(	char *application_name,
 	char buffer[ 128 ];
 	DEPRECIATION_STRUCTURE *depreciation_structure;
 	ENTITY_SELF *entity_self;
-	char *depreciation_date_string;
+	char *depreciation_date_string = {0};
 
 	/* ----- */
 	/* Input */
@@ -199,13 +199,11 @@ void depreciate_fixed_assets(	char *application_name,
 			return;
 		}
 
-		/* Insert */
-		/* ------ */
-		depreciation_fund_list_set_asset_list(
+		depreciation_fund_list_asset_list_build(
 			depreciation_structure->depreciation_fund_list,
 			application_name );
 
-		depreciation_fund_list_depreciation_set(
+		depreciation_fund_list_asset_list_set(
 			depreciation_structure->depreciation_fund_list,
 			depreciation_date_string,
 			depreciation_structure->
@@ -221,18 +219,32 @@ void depreciate_fixed_assets(	char *application_name,
 				depreciation_date->
 				prior_property_prior_date );
 
-		depreciation_fund_list_set_transaction(
+		depreciation_fund_list_depreciation_amount_set(
+			depreciation_structure->depreciation_fund_list );
+
+		if ( !depreciation_fund_list_transaction_set(
 			depreciation_structure->depreciation_fund_list,
 			entity_self->entity->full_name,
-			entity_self->entity->street_address );
+			entity_self->entity->street_address ) )
+		{
+			printf(
+			"<h3>Warning: no fixed assets to depreciate.</h3>\n" );
+			return;
+		}
+
+		/* Sets the true transaction_date_time */
+		/* ----------------------------------- */
+		depreciation_fund_transaction_insert(
+				depreciation_structure->
+					depreciation_fund_list,
+				application_name );
 
 		if ( !depreciation_fund_asset_depreciation_insert(
 			depreciation_structure->depreciation_fund_list,
 			entity_self->entity->full_name,
 			entity_self->entity->street_address ) )	
 		{
-			printf(
-		"<h3>Error: no fixed asset to depreciate.</h3>\n" );
+			printf( "<h3>Error: check log.</h3>\n" );
 		}
 		else
 		{
@@ -250,15 +262,36 @@ void depreciate_fixed_assets(	char *application_name,
 		{
 			printf(
 	"<h3>Will delete the depreciation taken place on %s.</h3>\n",
-				depreciation_date_string );
-		}
-		else
-		{
-			depreciation_fund_list_table_display(
-				process_name,
 				depreciation_structure->
-					depreciation_fund_list );
+					depreciation_date->
+					max_undo_date );
+			return;
 		}
+
+		depreciation_fund_list_asset_list_build(
+			depreciation_structure->depreciation_fund_list,
+			application_name );
+
+		depreciation_fund_list_asset_list_set(
+			depreciation_structure->depreciation_fund_list,
+			depreciation_date_string,
+			depreciation_structure->
+				depreciation_date->
+				prior_fixed_asset_date,
+			depreciation_structure->
+				depreciation_date->
+				prior_fixed_prior_date,
+			depreciation_structure->
+				depreciation_date->
+				prior_property_date,
+			depreciation_structure->
+				depreciation_date->
+				prior_property_prior_date );
+
+		depreciation_fund_list_table_display(
+			process_name,
+			depreciation_structure->
+				depreciation_fund_list );
 	}
 
 } /* depreciate_fixed_assets() */
@@ -271,6 +304,16 @@ void depreciate_fixed_assets_undo(	char *application_name,
 	char *propagate_transaction_date_time = {0};
 	DEPRECIATION_FUND *depreciation_fund;
 	FILE *output_pipe;
+
+	if ( !max_undo_date || !*max_undo_date )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty max_undo_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	output_pipe = popen( "sql.e", "w" );
 
@@ -357,21 +400,28 @@ char *depreciate_transaction_journal_ledger_delete(
 	char *select;
 	FILE *input_pipe;
 
-	/* ---------------------------------------------------- */
-	/* They should all have the same transaction_date_time,	*/
-	/* but to be sure.					*/
-	/* ---------------------------------------------------- */
-	select = "distinct(transaction_date_time)";
+	if ( !max_undo_date || !*max_undo_date )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty max_undo_date.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	select = "transaction_date_time";
 
 	sprintf(where,
 		"depreciation_date = '%s'",
 		max_undo_date );
 
 	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=\"%s\"			"
-		 "			folder=%s			"
-		 "			where=\"%s\"			",
+		 "get_folder_data	application=%s			 "
+		 "			select=\"%s\"			 "
+		 "			folder=%s			 "
+		 "			where=\"%s\"			|"
+		 "sort -u						 ",
 		 application_name,
 		 select,
 		 input_folder_name,

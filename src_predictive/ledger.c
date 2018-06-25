@@ -5994,6 +5994,21 @@ double ledger_get_fraction_of_year(
 	DATE *prior_date;
 	DATE *date;
 
+	if ( !prior_date_string
+	||   !*prior_date_string
+	||   !date_string
+	||   !*date_string )
+	{
+		fprintf( stderr,
+	"Warning in %s/%s()/%d: empty date = [prior=%s or date=%s]\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 prior_date_string,
+			 date_string );
+		return 0.0;
+	}
+
 	prior_date =
 		date_yyyy_mm_dd_new(
 			prior_date_string );

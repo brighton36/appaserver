@@ -1873,17 +1873,6 @@ insert into depreciation_method (depreciation_method) values ('n_declining_balan
 insert into depreciation_method (depreciation_method) values ('straight_line');
 insert into depreciation_method (depreciation_method) values ('sum_of_years_digits');
 insert into depreciation_method (depreciation_method) values ('units_of_production');
-insert into day (day) values ('friday');
-insert into day (day) values ('monday');
-insert into day (day) values ('saturday');
-insert into day (day) values ('sunday');
-insert into day (day) values ('thursday');
-insert into day (day) values ('tuesday');
-insert into day (day) values ('wednesday');
-insert into payroll_pay_period (payroll_pay_period) values ('biweekly');
-insert into payroll_pay_period (payroll_pay_period) values ('monthly');
-insert into payroll_pay_period (payroll_pay_period) values ('semimonthly');
-insert into payroll_pay_period (payroll_pay_period) values ('weekly');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','03','rent_receivable');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','07','cleaning_and_maintenance');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','10','legal/professional');
@@ -1970,9 +1959,6 @@ insert into tax_recovery_period (tax_recovery_period) values ('20-year');
 insert into tax_recovery_period (tax_recovery_period) values ('27.5-year');
 insert into tax_recovery_period (tax_recovery_period) values ('31.5-year');
 insert into tax_recovery_period (tax_recovery_period) values ('39-year');
-insert into inventory_cost_method (inventory_cost_method) values ('average');
-insert into inventory_cost_method (inventory_cost_method) values ('FIFO');
-insert into inventory_cost_method (inventory_cost_method) values ('LIFO');
 all_done2
 ) | sql.e 2>&1 | grep -vi duplicate
 

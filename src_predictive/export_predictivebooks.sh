@@ -320,17 +320,21 @@ function extract_static_tables()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
-	folder=day
-	columns=day
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
+	if [ "$input_file" != "predictivebooks_rentalproperty.dat" -a	\
+	     "$input_file" != "predictivebooks_home.dat" ]
+	then
+		folder=day
+		columns=day
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
 
-	folder=payroll_pay_period
-	columns=payroll_pay_period
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
+		folder=payroll_pay_period
+		columns=payroll_pay_period
+		get_folder_data a=$application f=$folder s=$columns	|
+		insert_statement.e t=$folder field=$columns del='^'	|
+		cat >> $output_shell
+	fi
 
 	folder=tax_form_line_account
 	columns=tax_form,tax_form_line,account
@@ -371,7 +375,8 @@ function extract_static_tables()
 		cat >> $output_shell
 	fi
 
-	if [ "$input_file" != "predictivebooks_home.dat" ]
+	if [ "$input_file" != "predictivebooks_rentalproperty.dat" -a	\
+	     "$input_file" != "predictivebooks_home.dat" ]
 	then
 		folder=inventory_cost_method
 		columns=inventory_cost_method
@@ -380,12 +385,8 @@ function extract_static_tables()
 		cat >> $output_shell
 	fi
 	
-	# Only enterprise and non-profit follow:
-	# --------------------------------------
-	folder=federal_marital_status
-	results=`grep $folder $input_file | wc -l`
-
-	if [ "$results" -eq 1 ]
+	if [ "$input_file" != "predictivebooks_rentalproperty.dat" -a	\
+	     "$input_file" != "predictivebooks_home.dat" ]
 	then
 		folder=federal_marital_status
 		columns=federal_marital_status

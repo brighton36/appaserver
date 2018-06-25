@@ -94,15 +94,12 @@ delete from $attribute where attribute = 'bank_running_balance';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('bank_running_balance','float','12','2',null,null,null,null,null,'n');
 delete from $attribute where attribute = 'fund';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('fund','text','20',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'posted_yn';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('posted_yn','text','1',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'bank_upload';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload','bank_amount',null,'2',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload','bank_date','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload','bank_description','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload','bank_running_balance',null,'3',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload','fund',null,'4',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload','posted_yn',null,'5',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload','sequence_number',null,'1','y',null,null,null,'n',null,null);
 insert into $role_folder (folder,role,permission) values ('bank_upload','accountant','update');
 insert into $role_folder (folder,role,permission) values ('bank_upload','supervisor','update');
@@ -702,7 +699,7 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $attribute where attribute = 'state_code';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('state_code','text','2',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'zip_code';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('zip_code','text','6',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('zip_code','text','10',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'email_address';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('email_address','text','50',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'entity';
@@ -806,10 +803,16 @@ delete from $attribute where attribute = 'income_over';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('income_over','integer','6',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'income_not_over';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('income_not_over','integer','6',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'tax_fixed_amount';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('tax_fixed_amount','float','10','2',null,null,null,null,null,null);
+delete from $attribute where attribute = 'tax_percentage_amount';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('tax_percentage_amount','float','5','1',null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'federal_income_tax_withholding';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('federal_income_tax_withholding','federal_marital_status','1',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('federal_income_tax_withholding','income_not_over',null,'1',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('federal_income_tax_withholding','income_over','2',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('federal_income_tax_withholding','tax_fixed_amount',null,'2',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('federal_income_tax_withholding','tax_percentage_amount',null,'3',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('federal_income_tax_withholding','supervisor','insert');
@@ -1668,7 +1671,7 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $attribute where attribute = 'state_code';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('state_code','text','2',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'zip_code';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('zip_code','text','6',null,null,null,null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('zip_code','text','10',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'account';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('account','text','60',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'property';
@@ -2028,10 +2031,16 @@ delete from $attribute where attribute = 'income_over';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('income_over','integer','6',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'income_not_over';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('income_not_over','integer','6',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'tax_fixed_amount';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('tax_fixed_amount','float','10','2',null,null,null,null,null,null);
+delete from $attribute where attribute = 'tax_percentage_amount';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('tax_percentage_amount','float','5','1',null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'state_income_tax_withholding';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('state_income_tax_withholding','income_not_over',null,'1',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('state_income_tax_withholding','income_over','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('state_income_tax_withholding','state_marital_status','1',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('state_income_tax_withholding','tax_fixed_amount',null,'2',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('state_income_tax_withholding','tax_percentage_amount',null,'3',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('state_income_tax_withholding','supervisor','insert');
@@ -2408,7 +2417,7 @@ echo "create table $table_name (account char (60) not null,subclassification cha
 echo "create unique index $table_name on $table_name (account);" | sql.e
 echo "create unique index ${table_name}_additional_unique on $table_name (fund,hard_coded_account_key);" | sql.e
 table_name=bank_upload
-echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),fund char (20),posted_yn char (1)) engine MyISAM;" | sql.e
+echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),fund char (20)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e
 table_name=category
 echo "create table $table_name (category char (20) not null) engine MyISAM;" | sql.e
@@ -2453,13 +2462,13 @@ table_name=employee_work_period
 echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,payroll_year integer not null,payroll_period_number integer not null,begin_work_date date,end_work_date date,regular_work_hours double (6,2),overtime_work_hours double (6,2),gross_pay double (10,2),net_pay double (10,2),payroll_tax_amount double (10,2),commission_sum_extension double (10,2),federal_tax_withholding_amount double (10,2),state_tax_withholding_amount double (10,2),social_security_employee_tax_amount double (10,2),social_security_employer_tax_amount double (10,2),medicare_employee_tax_amount double (10,2),medicare_employer_tax_amount double (10,2),retirement_contribution_plan_employee_amount integer,retirement_contribution_plan_employer_amount integer,health_insurance_employee_amount integer,health_insurance_employer_amount integer,federal_unemployment_tax_amount double (10,2),state_unemployment_tax_amount double (10,2),union_dues_amount integer,transaction_date_time datetime) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (full_name,street_address,payroll_year,payroll_period_number);" | sql.e
 table_name=entity
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,city char (20),state_code char (2),zip_code char (6),email_address char (50)) engine MyISAM;" | sql.e
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,city char (20),state_code char (2),zip_code char (10),email_address char (50)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (full_name,street_address);" | sql.e
 table_name=equity_account_balance
 echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,account_number char (50) not null,date_time datetime not null,investment_operation char (15),transaction_date_time datetime,share_price double (12,4),share_quantity_change double (12,4),share_quantity_balance double (13,4),book_value_change double (12,4),book_value_balance double (13,4),moving_share_price double (13,5),total_cost_balance double (14,5),market_value double (13,4),unrealized_gain_balance double (12,4),unrealized_gain_change double (12,4),realized_gain double (12,4)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (full_name,street_address,account_number,date_time);" | sql.e
 table_name=federal_income_tax_withholding
-echo "create table $table_name (federal_marital_status char (25) not null,income_over integer not null,income_not_over integer) engine MyISAM;" | sql.e
+echo "create table $table_name (federal_marital_status char (25) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (federal_marital_status,income_over);" | sql.e
 table_name=federal_marital_status
 echo "create table $table_name (federal_marital_status char (25) not null) engine MyISAM;" | sql.e
@@ -2531,7 +2540,7 @@ table_name=program
 echo "create table $table_name (program char (30) not null) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (program);" | sql.e
 table_name=property
-echo "create table $table_name (property_street_address char (40) not null,city char (20),state_code char (2),zip_code char (6),account char (60)) engine MyISAM;" | sql.e
+echo "create table $table_name (property_street_address char (40) not null,city char (20),state_code char (2),zip_code char (10),account char (60)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (property_street_address);" | sql.e
 table_name=property_depreciation
 echo "create table $table_name (property_street_address char (40) not null,depreciation_date date not null,full_name char (60),street_address char (40),depreciation_amount double (10,2),transaction_date_time datetime) engine MyISAM;" | sql.e
@@ -2559,7 +2568,7 @@ table_name=service_category
 echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (service_category);" | sql.e
 table_name=state_income_tax_withholding
-echo "create table $table_name (state_marital_status char (40) not null,income_over integer not null,income_not_over integer) engine MyISAM;" | sql.e
+echo "create table $table_name (state_marital_status char (40) not null,income_over integer not null,income_not_over integer,tax_fixed_amount double (10,2),tax_percentage_amount double (5,1)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (state_marital_status,income_over);" | sql.e
 table_name=state_marital_status
 echo "create table $table_name (state_marital_status char (40) not null) engine MyISAM;" | sql.e

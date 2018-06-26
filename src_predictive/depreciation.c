@@ -15,6 +15,7 @@
 #include "appaserver_library.h"
 #include "ledger.h"
 #include "entity.h"
+#include "folder.h"
 #include "purchase.h"
 #include "column.h"
 #include "fixed_asset.h"
@@ -80,7 +81,8 @@ DEPRECIATION_STRUCTURE *depreciation_structure_new(
 		depreciation_date_new(
 			application_name );
 
-	if ( ledger_tax_recovery_period_attribute_exists( application_name ) )
+	if ( ledger_tax_recovery_period_attribute_exists(
+		application_name ) )
 	{
 		p->depreciation_tax_year =
 			depreciation_tax_year_new(
@@ -108,25 +110,45 @@ DEPRECIATION_ASSET_LIST *depreciation_asset_list_new(
 		exit(1 );
 	}
 
-	d->purchase_fixed_asset_list =
-		fixed_asset_depreciation_purchase_fetch_list(
-			application_name,
-			fund_name );
+	if ( folder_exists_folder(
+		application_name,
+		"fixed_asset_purchase" ) )
+	{
+		d->purchase_fixed_asset_list =
+			fixed_asset_depreciation_purchase_fetch_list(
+				application_name,
+				fund_name );
+	}
 
-	d->prior_fixed_asset_list =
-		fixed_asset_depreciation_prior_fetch_list(
-			application_name,
-			fund_name );
+	if ( folder_exists_folder(
+		application_name,
+		"prior_fixed_asset" ) )
+	{
+		d->prior_fixed_asset_list =
+			fixed_asset_depreciation_prior_fetch_list(
+				application_name,
+				fund_name );
+	}
 
-	d->purchase_property_list =
-		fixed_property_depreciation_purchase_fetch_list(
-			application_name,
-			fund_name );
+	if ( folder_exists_folder(
+		application_name,
+		"property_purchase" ) )
+	{
+		d->purchase_property_list =
+			fixed_property_depreciation_purchase_fetch_list(
+				application_name,
+				fund_name );
+	}
 
-	d->prior_property_list =
-		fixed_property_depreciation_prior_fetch_list(
-			application_name,
-			fund_name );
+	if ( folder_exists_folder(
+		application_name,
+		"prior_property" ) )
+	{
+		d->prior_property_list =
+			fixed_property_depreciation_prior_fetch_list(
+				application_name,
+				fund_name );
+	}
 
 	return d;
 
@@ -147,41 +169,72 @@ DEPRECIATION_TAX_YEAR *depreciation_tax_year_new(
 		exit(1 );
 	}
 
-	p->undo_fixed_asset_year =
-		depreciation_fetch_max_tax_year(
-			application_name,
-			"tax_fixed_asset_recovery" );
-
-	p->max_undo_year = p->undo_fixed_asset_year;
-
-	p->undo_fixed_prior_year =
-		depreciation_fetch_max_tax_year(
-			application_name,
-			"tax_prior_fixed_asset_recovery" );
-
-	if ( p->undo_fixed_prior_year > p->max_undo_year )
+	/* FIXED_ASSET_PURCHASE */
+	/* -------------------- */
+	if ( folder_exists_folder(
+		application_name,
+		"tax_fixed_asset_recovery" ) )
 	{
-		p->max_undo_year = p->undo_fixed_prior_year;
+		p->undo_fixed_asset_year =
+			depreciation_fetch_max_tax_year(
+				application_name,
+				"tax_fixed_asset_recovery" );
+
+		p->max_undo_year = p->undo_fixed_asset_year;
 	}
 
-	p->undo_property_year =
-		depreciation_fetch_max_tax_year(
-			application_name,
-			"tax_property_recovery" );
-
-	if ( p->undo_property_year > p->max_undo_year )
+	/* PRIOR_FIXED_ASSET */
+	/* ------------------ */
+	if ( folder_exists_folder(
+		application_name,
+		"tax_prior_fixed_asset_recovery" ) )
 	{
-		p->max_undo_year = p->undo_property_year;
+		p->undo_fixed_prior_year =
+			depreciation_fetch_max_tax_year(
+				application_name,
+				"tax_prior_fixed_asset_recovery" );
+
+		if ( !p->max_undo_year
+		||   p->undo_fixed_prior_year > p->max_undo_year )
+		{
+			p->max_undo_year = p->undo_fixed_prior_year;
+		}
 	}
 
-	p->undo_property_prior_year =
-		depreciation_fetch_max_tax_year(
-			application_name,
-			"tax_prior_property_recovery" );
-
-	if ( p->undo_property_prior_year > p->max_undo_year )
+	/* PROPERTY_PURCHASE */
+	/* ------------------ */
+	if ( folder_exists_folder(
+		application_name,
+		"tax_property_recovery" ) )
 	{
-		p->max_undo_year = p->undo_property_prior_year;
+		p->undo_property_year =
+			depreciation_fetch_max_tax_year(
+				application_name,
+				"tax_property_recovery" );
+
+		if ( !p->max_undo_year
+		||   p->undo_property_year > p->max_undo_year )
+		{
+			p->max_undo_year = p->undo_property_year;
+		}
+	}
+
+	/* PRIOR_PROPERTY */
+	/* -------------- */
+	if ( folder_exists_folder(
+		application_name,
+		"tax_prior_property_recovery" ) )
+	{
+		p->undo_property_prior_year =
+			depreciation_fetch_max_tax_year(
+				application_name,
+				"tax_prior_property_recovery" );
+
+		if ( !p->max_undo_year
+		||   p->undo_property_prior_year > p->max_undo_year )
+		{
+			p->max_undo_year = p->undo_property_prior_year;
+		}
 	}
 
 	return p;
@@ -202,47 +255,82 @@ DEPRECIATION_DATE *depreciation_date_new( char *application_name )
 		exit(1 );
 	}
 
-	p->undo_fixed_asset_date =
-	p->prior_fixed_asset_date =
-		depreciation_fetch_max_depreciation_date(
-			application_name,
-			FIXED_ASSET_DEPRECIATION_FOLDER );
-
-	p->max_undo_date = p->undo_fixed_asset_date;
-
-	p->undo_fixed_prior_date =
-	p->prior_fixed_prior_date =
-		depreciation_fetch_max_depreciation_date(
-			application_name,
-			PRIOR_FIXED_ASSET_DEPRECIATION_FOLDER );
-
-	if ( timlib_strcmp( p->undo_fixed_prior_date, p->max_undo_date ) > 0 )
+	/* FIXED_ASSET_PURCHASE */
+	/* -------------------- */
+	if ( folder_exists_folder(
+		application_name,
+		"fixed_asset_purchase" ) )
 	{
-		p->max_undo_date = p->undo_fixed_prior_date;
+		p->undo_fixed_asset_date =
+		p->prior_fixed_asset_date =
+			depreciation_fetch_max_depreciation_date(
+				application_name,
+				FIXED_ASSET_DEPRECIATION_FOLDER );
+
+		p->max_undo_date = p->undo_fixed_asset_date;
 	}
 
-	p->undo_property_date =
-	p->prior_property_date =
-		depreciation_fetch_max_depreciation_date(
-			application_name,
-			PROPERTY_DEPRECIATION_FOLDER );
-
-	if ( timlib_strcmp( p->undo_property_date, p->max_undo_date ) > 0 )
+	/* PRIOR_FIXED_ASSET */
+	/* ------------------ */
+	if ( folder_exists_folder(
+		application_name,
+		"prior_fixed_asset" ) )
 	{
-		p->max_undo_date = p->undo_property_date;
+		p->undo_fixed_prior_date =
+		p->prior_fixed_prior_date =
+			depreciation_fetch_max_depreciation_date(
+				application_name,
+				PRIOR_FIXED_ASSET_DEPRECIATION_FOLDER );
+
+		if ( !p->max_undo_date
+		||   timlib_strcmp(
+			p->undo_fixed_prior_date,
+			p->max_undo_date ) > 0 )
+		{
+			p->max_undo_date = p->undo_fixed_prior_date;
+		}
 	}
 
-	p->undo_property_prior_date =
-	p->prior_property_prior_date =
-		depreciation_fetch_max_depreciation_date(
-			application_name,
-			PRIOR_PROPERTY_DEPRECIATION_FOLDER );
-
-	if ( timlib_strcmp(
-		p->undo_property_prior_date,
-		p->max_undo_date ) > 0 )
+	/* PROPERTY_PURCHASE */
+	/* ------------------ */
+	if ( folder_exists_folder(
+		application_name,
+		"property_purchase" ) )
 	{
-		p->max_undo_date = p->undo_property_prior_date;
+		p->undo_property_date =
+		p->prior_property_date =
+			depreciation_fetch_max_depreciation_date(
+				application_name,
+				PROPERTY_DEPRECIATION_FOLDER );
+
+		if ( !p->max_undo_date
+		||   timlib_strcmp(
+			p->undo_property_date,
+			p->max_undo_date ) > 0 )
+		{
+			p->max_undo_date = p->undo_property_date;
+		}
+	}
+
+	/* PRIOR_PROPERTY */
+	/* -------------- */
+	if ( folder_exists_folder(
+		application_name,
+		"prior_property" ) )
+	{
+		p->undo_property_prior_date =
+		p->prior_property_prior_date =
+			depreciation_fetch_max_depreciation_date(
+				application_name,
+				PRIOR_PROPERTY_DEPRECIATION_FOLDER );
+
+		if ( !p->max_undo_date
+		||   timlib_strcmp(
+			p->undo_property_prior_date,
+			p->max_undo_date ) > 0 )
+		{
+			p->max_undo_date = p->undo_property_prior_date;
+		}
 	}
 
 	return p;

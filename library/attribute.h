@@ -153,10 +153,6 @@ void attribute_append_attribute_list(	LIST *attribute_list,
 					char *attribute_name,
 					char *role_name );
 
-/*
-boolean attribute_exists_omit_insert(	LIST *attribute_list );
-*/
-
 boolean attribute_exists_omit_insert_login_name(
 					LIST *attribute_list );
 

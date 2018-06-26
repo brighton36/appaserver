@@ -317,41 +317,69 @@ void depreciate_fixed_assets_undo(	char *application_name,
 
 	output_pipe = popen( "sql.e", "w" );
 
-	propagate_transaction_date_time =
-		depreciate_transaction_journal_ledger_delete(
-			output_pipe,
-			application_name,
-			max_undo_date,
-			"fixed_asset_depreciation"
-				/* input_folder_name */,
-			propagate_transaction_date_time );
+	/* FIXED_ASSET_PURCHASE */
+	/* -------------------- */
+	if ( folder_exists_folder(
+		application_name,
+		"fixed_asset_depreciation" ) )
+	{
+		propagate_transaction_date_time =
+			depreciate_transaction_journal_ledger_delete(
+				output_pipe,
+				application_name,
+				max_undo_date,
+				"fixed_asset_depreciation"
+					/* input_folder_name */,
+				propagate_transaction_date_time );
+	}
 
-	propagate_transaction_date_time =
-		depreciate_transaction_journal_ledger_delete(
-			output_pipe,
-			application_name,
-			max_undo_date,
-			"property_depreciation"
-				/* input_folder_name */,
-			propagate_transaction_date_time );
+	/* PROPERTY_PURCHASE */
+	/* ------------------ */
+	if ( folder_exists_folder(
+		application_name,
+		"property_depreciation" ) )
+	{
+		propagate_transaction_date_time =
+			depreciate_transaction_journal_ledger_delete(
+				output_pipe,
+				application_name,
+				max_undo_date,
+				"property_depreciation"
+					/* input_folder_name */,
+				propagate_transaction_date_time );
+	}
 
-	propagate_transaction_date_time =
-		depreciate_transaction_journal_ledger_delete(
-			output_pipe,
-			application_name,
-			max_undo_date,
-			"prior_fixed_asset_depreciation"
-				/* input_folder_name */,
-			propagate_transaction_date_time );
+	/* PRIOR_FIXED_ASSET */
+	/* ------------------ */
+	if ( folder_exists_folder(
+		application_name,
+		"prior_fixed_asset_depreciation" ) )
+	{
+		propagate_transaction_date_time =
+			depreciate_transaction_journal_ledger_delete(
+				output_pipe,
+				application_name,
+				max_undo_date,
+				"prior_fixed_asset_depreciation"
+					/* input_folder_name */,
+				propagate_transaction_date_time );
+	}
 
-	propagate_transaction_date_time =
-		depreciate_transaction_journal_ledger_delete(
-			output_pipe,
-			application_name,
-			max_undo_date,
-			"prior_property_depreciation"
-				/* input_folder_name */,
-			propagate_transaction_date_time );
+	/* PRIOR_PROPERTY */
+	/* -------------- */
+	if ( folder_exists_folder(
+		application_name,
+		"prior_property_depreciation" ) )
+	{
+		propagate_transaction_date_time =
+			depreciate_transaction_journal_ledger_delete(
+				output_pipe,
+				application_name,
+				max_undo_date,
+				"prior_property_depreciation"
+					/* input_folder_name */,
+				propagate_transaction_date_time );
+	}
 
 	pclose( output_pipe );
 

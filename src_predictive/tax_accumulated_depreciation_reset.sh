@@ -27,7 +27,7 @@ echo "	update fixed_asset_purchase					\
 		  and	tax_fixed_asset_recovery.serial_number =	\
 			fixed_asset_purchase.serial_number )		\
 		where disposal_date is null;"				|
-sql.e
+sql.e 2>&1 | grep -v "doesn't exist"
 
 echo "	update prior_fixed_asset					\
 	set tax_accumulated_depreciation = (				\
@@ -38,7 +38,7 @@ echo "	update prior_fixed_asset					\
 		  and	tax_prior_fixed_asset_recovery.serial_number =	\
 			prior_fixed_asset.serial_number )		\
 		where disposal_date is null;"				|
-sql.e
+sql.e 2>&1 | grep -v "doesn't exist"
 
 echo "	update property_purchase					\
 	set tax_accumulated_depreciation = (				\
@@ -47,7 +47,7 @@ echo "	update property_purchase					\
 		where	tax_property_recovery.property_street_address =	\
 			property_purchase.property_street_address )	\
 		where disposal_date is null;"				|
-sql.e
+sql.e 2>&1 | grep -v "doesn't exist"
 
 echo "	update prior_property						\
 	set tax_accumulated_depreciation = (				\
@@ -57,6 +57,6 @@ echo "	update prior_property						\
 		  tax_prior_property_recovery.property_street_address =	\
 			prior_property.property_street_address )	\
 		where disposal_date is null;"				|
-sql.e
+sql.e 2>&1 | grep -v "doesn't exist"
 
 exit 0

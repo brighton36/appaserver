@@ -9,6 +9,7 @@
 #include "timlib.h"
 #include "appaserver_library.h"
 #include "piece.h"
+#include "folder.h"
 #include "ledger.h"
 #include "date.h"
 #include "tax.h"
@@ -143,35 +144,55 @@ TAX_INPUT_RECOVERY *tax_input_recovery_new(
 
 	/* FIXED_ASSET_PURCHASE */
 	/* -------------------- */
-	t->fixed_asset_recovery_amount =
-		tax_fetch_recovery_amount(
-			application_name,
-			"tax_fixed_asset_recovery",
-			tax_year );
+	if ( folder_exists_folder(
+		application_name,
+		"tax_fixed_asset_recovery" ) )
+	{
+		t->fixed_asset_recovery_amount =
+			tax_fetch_recovery_amount(
+				application_name,
+				"tax_fixed_asset_recovery",
+				tax_year );
+	}
 
 	/* PROPERTY_PURCHASE */
 	/* ----------------- */
-	t->property_recovery_amount =
-		tax_fetch_recovery_amount(
-			application_name,
-			"tax_property_recovery",
-			tax_year );
+	if ( folder_exists_folder(
+		application_name,
+		"tax_property_recovery" ) )
+	{
+		t->property_recovery_amount =
+			tax_fetch_recovery_amount(
+				application_name,
+				"tax_property_recovery",
+				tax_year );
+	}
 
 	/* PRIOR_FIXED_ASSET */
 	/* ----------------- */
-	t->prior_fixed_asset_recovery_amount =
-		tax_fetch_recovery_amount(
-			application_name,
-			"tax_prior_fixed_asset_recovery",
-			tax_year );
+	if ( folder_exists_folder(
+		application_name,
+		"tax_prior_fixed_asset_recovery" ) )
+	{
+		t->prior_fixed_asset_recovery_amount =
+			tax_fetch_recovery_amount(
+				application_name,
+				"tax_prior_fixed_asset_recovery",
+				tax_year );
+	}
 
 	/* PRIOR_PROPERTY */
 	/* -------------- */
-	t->prior_property_recovery_amount =
-		tax_fetch_recovery_amount(
-			application_name,
-			"tax_prior_property_recovery",
-			tax_year );
+	if ( folder_exists_folder(
+		application_name,
+		"tax_prior_property_recovery" ) )
+	{
+		t->prior_property_recovery_amount =
+			tax_fetch_recovery_amount(
+				application_name,
+				"tax_prior_property_recovery",
+				tax_year );
+	}
 
 	t->total_recovery_amount =
 		t->fixed_asset_recovery_amount +

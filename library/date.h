@@ -89,6 +89,7 @@ void date_add_minutes(		DATE *d,
 				int minutes );
 
 int get_month( DATE *d );
+
 int get_year( DATE *d );
 
 int date_days_between(		char *from_date,

@@ -14,6 +14,7 @@
 #include "piece.h"
 #include "column.h"
 #include "environ.h"
+#include "date.h"
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
@@ -24,7 +25,6 @@
 #include "appaserver_parameter_file.h"
 #include "html_table.h"
 #include "latex.h"
-#include "date.h"
 #include "date_convert.h"
 #include "boolean.h"
 #include "appaserver_link_file.h"
@@ -102,7 +102,14 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	tax_form_name = argv[ 2 ];
-	tax_year = atoi( argv[ 3 ] );
+
+	if ( ! ( tax_year = atoi( argv[ 3 ] ) ) )
+	{
+		tax_year =
+			atoi( date_get_current_yyyy_mm_dd(
+				date_get_utc_offset() ) );
+	}
+
 	output_medium = argv[ 4 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )

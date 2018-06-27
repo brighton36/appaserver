@@ -60,12 +60,7 @@ TAX *tax_new(			char *application_name,
 
 	if ( !list_length( t->tax_input.tax_form->tax_form_line_list ) )
 	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty TAX_FORM_LINE_ACCOUNT table.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
+		return (TAX *)0;
 	}
 
 	sprintf( date_buffer, "%d-01-01", tax_year );

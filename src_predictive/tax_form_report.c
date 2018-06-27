@@ -132,10 +132,15 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
-	tax = tax_new(		application_name,
-				(char *)0 /* fund_name */,
-				tax_form_name,
-				tax_year );
+	if ( ! ( tax = tax_new(		application_name,
+					(char *)0 /* fund_name */,
+					tax_form_name,
+					tax_year ) ) )
+	{
+		printf( "<h3>Error. No transactions.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
 
 	if ( ! ( begin_date_string =
 			ledger_get_report_title_sub_title(

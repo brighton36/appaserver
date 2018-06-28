@@ -75,41 +75,69 @@ char *fixed_asset_purchase_get_fund_where(
 } /* fixed_asset_purchase_get_fund_where() */
 
 char *fixed_property_get_select(
+				char *application_name,
 				char *folder_name,
 				boolean with_account )
 {
 	char select[ 1024 ];
 	char *account_select;
+	char *tax_select;
 
 	if ( with_account )
 		account_select = "account";
 	else
 		account_select = "''";
 
+	if ( ledger_tax_recovery_period_attribute_exists(
+				application_name ) )
+	{
+		tax_select =
+	"tax_cost_basis,tax_recovery_period,tax_accumulated_depreciation";
+	}
+	else
+	{
+		tax_select = "'','',''";
+	}
+
 	sprintf( select,
-"%s.property_street_address,'',%s,service_placement_date,structure_cost,estimated_useful_life_years,'',estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation",
+"%s.property_street_address,'',%s,service_placement_date,structure_cost,estimated_useful_life_years,'',estimated_residual_value,declining_balance_n,depreciation_method,%s,disposal_date,finance_accumulated_depreciation",
 		 folder_name,
-		 account_select );
+		 account_select,
+		 tax_select );
 
 	return strdup( select) ;
 
 } /* fixed_property_get_select() */
 
-char *fixed_asset_get_select(	char *folder_name,
+char *fixed_asset_get_select(	char *application_name,
+				char *folder_name,
 				boolean with_account )
 {
 	char select[ 1024 ];
 	char *account_select;
+	char *tax_select;
 
 	if ( with_account )
 		account_select = "account";
 	else
 		account_select = "''";
 
+	if ( ledger_tax_recovery_period_attribute_exists(
+				application_name ) )
+	{
+		tax_select =
+	"tax_cost_basis,tax_recovery_period,tax_accumulated_depreciation";
+	}
+	else
+	{
+		tax_select = "'','',''";
+	}
+
 	sprintf( select,
-"%s.asset_name,serial_number,%s,service_placement_date,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,tax_cost_basis,tax_recovery_period,disposal_date,finance_accumulated_depreciation,tax_accumulated_depreciation",
+"%s.asset_name,serial_number,%s,service_placement_date,extension,estimated_useful_life_years,estimated_useful_life_units,estimated_residual_value,declining_balance_n,depreciation_method,%s,disposal_date,finance_accumulated_depreciation",
 		 folder_name,
-		 account_select );
+		 account_select,
+		 tax_select );
 
 	return strdup( select) ;
 
@@ -178,21 +206,21 @@ FIXED_ASSET *fixed_asset_parse( char *input_buffer )
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 12 );
 	if ( *piece_buffer )
+		fixed_asset->tax_accumulated_depreciation =
+		fixed_asset->database_tax_accumulated_depreciation =
+			atof( piece_buffer );
+
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
+	if ( *piece_buffer )
 		fixed_asset->disposal_date =
 			strdup( piece_buffer );
 
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 13 );
+	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
 	if ( *piece_buffer )
 		fixed_asset->finance_accumulated_depreciation =
 		fixed_asset->
 			database_finance_accumulated_depreciation =
 				atof( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 14 );
-	if ( *piece_buffer )
-		fixed_asset->tax_accumulated_depreciation =
-		fixed_asset->database_tax_accumulated_depreciation =
-			atof( piece_buffer );
 
 	return fixed_asset;
 
@@ -214,6 +242,7 @@ FIXED_ASSET *fixed_asset_purchase_fetch(
 
 	select =
 		fixed_asset_get_select(
+			application_name,
 			"fixed_asset_purchase",
 			1 /* with_account */ );
 
@@ -308,6 +337,7 @@ LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 
 	select =
 		fixed_asset_get_select(
+			application_name,
 			"fixed_asset_purchase",
 			1 /* with_account */ );
 
@@ -366,6 +396,7 @@ LIST *fixed_asset_depreciation_prior_fetch_list(
 
 	select =
 		fixed_asset_get_select(
+			application_name,
 			"prior_fixed_asset",
 			0 /* not with_account */ );
 
@@ -434,6 +465,7 @@ LIST *fixed_asset_depreciation_purchase_fetch_list(
 
 	select =
 		fixed_asset_get_select(
+			application_name,
 			"fixed_asset_purchase",
 			0 /* not with_account */ );
 
@@ -496,6 +528,7 @@ LIST *fixed_property_depreciation_prior_fetch_list(
 
 	select =
 		fixed_property_get_select(
+			application_name,
 			"prior_property",
 			0 /* not with_account */ );
 
@@ -564,6 +597,7 @@ LIST *fixed_property_depreciation_purchase_fetch_list(
 
 	select =
 		fixed_property_get_select(
+			application_name,
 			"property_purchase",
 			0 /* not with_account */ );
 
@@ -763,6 +797,7 @@ LIST *fixed_asset_fetch_tax_list(
 
 	select =
 		fixed_asset_get_select(
+			application_name,
 			folder_name,
 			0 /* not with_account */ );
 

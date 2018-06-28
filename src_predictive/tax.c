@@ -70,32 +70,41 @@ TAX *tax_new(			char *application_name,
 	sprintf( date_buffer, "%d-12-31", tax_year );
 	t->tax_input.end_date_string = strdup( date_buffer );
 
-	t->tax_input.tax_input_recovery =
-		tax_input_recovery_new(
-			application_name,
-			tax_year );
-
-	t->tax_input.cash_transaction_list =
+	/* Tax Form Operation */
+	/* ================== */
+	t->tax_input.tax_form->cash_transaction_list =
 		tax_fetch_account_transaction_list(
 			application_name,
 			t->tax_input.begin_date_string,
 			t->tax_input.end_date_string,
 			checking_account );
 
+	/* Tax Recovery Operation */
+	/* ====================== */
+	t->tax_input.tax_input_recovery =
+		tax_input_recovery_new(
+			application_name,
+			tax_year );
+
 	/* TAX_PROCESS */
 	/* ----------- */
 	t->tax_process.unaccounted_journal_ledger_list = list_new();
 
+	/* Tax Form Operation */
+	/* ================== */
 	/* --------------------------------------------------------------- */
 	/* Note: tax_form_line_account_list->journal_ledger_list is built. */
+	/* But: tax_form_line_total is not accumulated.			   */
 	/* --------------------------------------------------------------- */
 	t->tax_process.tax_form_line_list =
 		tax_process_set_journal_ledger_list(
 			t->tax_process.unaccounted_journal_ledger_list,
 			t->tax_input.tax_form->tax_form_line_list,
-			t->tax_input.cash_transaction_list,
+			t->tax_input.tax_form->cash_transaction_list,
 			checking_account );
 
+	/* Tax Recovery Operation */
+	/* ====================== */
 	if ( t->tax_input.tax_input_recovery->total_recovery_amount )
 	{
 		tax_form_line_set_depreciation(
@@ -117,6 +126,8 @@ TAX *tax_new(			char *application_name,
 
 	t->tax_process.tax_form = t->tax_input.tax_form->tax_form;
 
+	/* Tax Form Operation */
+	/* ================== */
 	/* Also accumulates tax_form_account_total */
 	/* --------------------------------------- */
 	tax_process_accumulate_tax_form_line_total(
@@ -549,8 +560,7 @@ LIST *tax_process_set_journal_ledger_list(
 				continue;
 			}
 
-			if ( !tax_form_line_account->
-				journal_ledger_list )
+			if ( !tax_form_line_account->journal_ledger_list )
 			{
 				tax_form_line_account->
 					journal_ledger_list =
@@ -616,8 +626,21 @@ void tax_process_accumulate_tax_form_line_total(
 					ledger_debit_credit_get_amount(
 						ledger->debit_amount,
 						ledger->credit_amount,
-						1 - tax_form_line_account->
+						tax_form_line_account->
 							accumulate_debit );
+
+				/* ---------------------------------------- */
+				/* Paper 2018-06-28			    */
+				/* ---------------------------------------- */
+				/* For Check transactions:		    */
+				/* 1) subclassification = current_liability */
+				/* 2) accumulates to the credit		    */
+				/* 3) cash account is also credited	    */
+				/* ---------------------------------------- */
+				if ( !tax_form_line_account->accumulate_debit )
+				{
+					amount = -amount;
+				}
 
 				tax_form_line->
 					tax_form_line_total +=

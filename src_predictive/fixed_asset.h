@@ -72,10 +72,12 @@ FIXED_ASSET *fixed_asset_list_seek(
 				char *serial_number );
 
 char *fixed_property_get_select(
+				char *application_name,
 				char *folder_name,
 				boolean with_account );
 
 char *fixed_asset_get_select(
+				char *application_name,
 				char *folder_name,
 				boolean with_account );
 

@@ -100,6 +100,7 @@ typedef struct
 {
 	char *tax_form;
 	LIST *tax_form_line_list;
+	LIST *cash_transaction_list;
 } TAX_FORM;
 
 typedef struct
@@ -116,7 +117,6 @@ typedef struct
 	char *begin_date_string;
 	char *end_date_string;
 	TAX_INPUT_RECOVERY *tax_input_recovery;
-	LIST *cash_transaction_list;
 	LIST *rental_property_list;
 } TAX_INPUT;
 

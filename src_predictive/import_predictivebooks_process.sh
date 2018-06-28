@@ -25,10 +25,11 @@ echo "$0" "$*" 1>&2
 
 if [ "$#" -ne 4 ]
 then
-	echo "Usage: $0 ignored process_name module execute_yn" 1>&2
+	echo "Usage: $0 login_name process_name module execute_yn" 1>&2
 	exit 1
 fi
 
+login_name=$1
 process_name=$2
 module=$3
 execute_yn=$4
@@ -38,6 +39,9 @@ execute_yn=$4
 if [ "$module" = "enterprise" ]
 then
 	process="predictivebooks_enterprise.sh"
+elif [ "$module" = "autorepair" ]
+then
+	process="predictivebooks_autorepair.sh"
 elif [ "$module" = "rentalproperty" ]
 then
 	process="predictivebooks_rentalproperty.sh"
@@ -75,7 +79,9 @@ fi
 
 if [ "$execute_yn" = 'y' ]
 then
-	$process $application
+	export login_name=$login_name
+
+	$process
 
 	echo "	delete from role_process
 		where process = '$process_name';" |

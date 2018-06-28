@@ -320,6 +320,8 @@ function extract_static_tables()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
+	# Payroll
+	# -------
 	if [ "$input_file" != "predictivebooks_rentalproperty.dat" -a	\
 	     "$input_file" != "predictivebooks_home.dat" ]
 	then
@@ -357,6 +359,8 @@ function extract_static_tables()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
+	# Tax recovery
+	# ------------
 	if [ "$input_file" != "predictivebooks_nonprofit.dat" -a	\
 	     "$input_file" != "predictivebooks_home.dat" ]
 	then
@@ -375,6 +379,8 @@ function extract_static_tables()
 		cat >> $output_shell
 	fi
 
+	# Inventory
+	# ---------
 	if [ "$input_file" != "predictivebooks_rentalproperty.dat" -a	\
 	     "$input_file" != "predictivebooks_home.dat" ]
 	then
@@ -384,7 +390,9 @@ function extract_static_tables()
 		insert_statement.e t=$folder field=$columns del='^'	|
 		cat >> $output_shell
 	fi
-	
+
+	# Payroll
+	# -------
 	if [ "$input_file" != "predictivebooks_rentalproperty.dat" -a	\
 	     "$input_file" != "predictivebooks_home.dat" ]
 	then
@@ -524,6 +532,12 @@ function extract_self()
 	echo "$full_name^$street_address"				|
 	insert_statement.e table=$folder field=$fields del='^'		|
 	cat >> $output_shell
+
+	if [ "$input_file" = "predictivebooks_autorepair.dat" ]
+	then
+		echo "insert into role_appaserver_user (login_name,role) values ( '\$login_name','mechanic');"					|
+		cat >> $output_shell
+	fi
 
 	echo "all_done4" >> $output_shell
 	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell

@@ -13,6 +13,15 @@ then
 	echo "$ . set_database" 1>&2
 	exit 1
 fi
+
+if [ "$#" -ne 1 ]
+then
+	echo "Usage: $0 login_name" 1>&2
+	exit 1
+fi
+
+login_name=$1
+
 folder=`get_table_name $application folder`
 relation=`get_table_name $application relation`
 attribute=`get_table_name $application attribute`

@@ -1,5 +1,8 @@
-/* date_convert.c */
-/* -------------- */
+/* --------------------------------------------------- 	*/
+/* $APPASERVER_HOME/utility/date_convert.c	       	*/
+/* --------------------------------------------------- 	*/
+/* Freely available software: see Appaserver.org	*/
+/* --------------------------------------------------- 	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +10,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "list.h"
+#include "appaserver_error.h"
 #include "date_convert.h"
 
 LIST *get_position_integer_list( char *position_comma_list_string );
@@ -32,6 +36,10 @@ int main( int argc, char **argv )
 	delimiter = *argv[ 1 ];
 	position_integer_list = get_position_integer_list( argv[ 2 ] );
 	date_convert_format = date_convert_get_date_convert_format( argv[ 3 ] );
+
+	fprintf( stderr, "%s", *argv );
+	while( --argc ) fprintf( stderr, " %s", *++argv );
+	fprintf( stderr, "\n" );
 
 	while( get_line( input_buffer, stdin ) )
 	{
@@ -74,6 +82,7 @@ int main( int argc, char **argv )
 					*position );
 
 		} while( list_next( position_integer_list ) );
+
 		printf( "%s\n", input_buffer );
 	}
 

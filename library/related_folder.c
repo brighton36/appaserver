@@ -509,7 +509,8 @@ LIST *related_folder_get_drop_down_element_list(
 				attribute_list,
 				common_non_primary_attribute_name_list,
 				( row_level_non_owner_view_only ||
-				  row_level_non_owner_forbid ),
+				  row_level_non_owner_forbid )
+					/* filter_only_login_name */,
 				(LIST *)0 /* exclude_attribute_name_list */,
 				role_name,
 				state,
@@ -1047,7 +1048,8 @@ LIST *related_folder_get_insert_element_list(
 					attribute_list,
 				related_folder->
 					common_non_primary_attribute_name_list,
-				row_level_non_owner_forbid,
+				row_level_non_owner_forbid
+					/* filter_only_login_name */,
 				(LIST *)0
 				/* exclude_attribute_name_list */,
 				role_name,
@@ -1327,7 +1329,8 @@ LIST *related_folder_get_update_element_list(
 					attribute_list,
 				related_folder->
 				common_non_primary_attribute_name_list,
-				row_level_non_owner_forbid,
+				row_level_non_owner_forbid
+					/* filter_only_login_name */,
 				(LIST *)0
 					/* exclude_attribute_name_list */,
 				role_name,

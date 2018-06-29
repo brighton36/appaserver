@@ -817,6 +817,7 @@ LIST *folder_get_data_list(	char *application_name,
 	char date_convert_process[ 512 ];
 	char escape_delimiter_process[ 512 ];
 	char first_folder_name[ 128 ];
+	LIST *results_list;
 
 	sprintf( escape_delimiter_process,
 		 "sed 's/%c/\\\\%c/g'",
@@ -883,7 +884,30 @@ LIST *folder_get_data_list(	char *application_name,
 			common_non_primary_process,
 			escape_delimiter_process );
 
-	return pipe2list( sys_string );
+	results_list = pipe2list( sys_string );
+
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: with sys_string = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+m2( application_name, msg );
+}
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got results_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_display_delimited( results_list, '|' ) );
+m2( application_name, msg );
+}
+*/
+
+	return results_list;
 
 } /* folder_get_data_list() */
 

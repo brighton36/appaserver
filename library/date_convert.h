@@ -121,4 +121,6 @@ boolean date_convert_is_valid_integers(
 				int month_integer,
 				int day_integer );
 
+char *date_convert_display(	enum date_convert_format );
+
 #endif

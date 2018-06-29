@@ -1,5 +1,5 @@
-/* library/date_convert.c */
-/* ---------------------- */
+/* $APPASERVER_HOME/library/date_convert.c */
+/* --------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -261,7 +261,7 @@ enum date_convert_format date_convert_date_get_format( char *date_string )
 	if ( !timlib_exists_numeric( date_string ) )
 		return date_convert_unknown;
 
-	if ( strlen( date_string ) >= 19 )
+	if ( strlen( date_string ) > 19 )
 		return date_convert_unknown;
 
 	if ( timlib_exists_alpha( date_string ) )
@@ -577,7 +577,11 @@ char *date_convert_get_date_format_string(
 	if ( date_convert_format == military )
 		return "military";
 	else
-		return "unknown";
+	if ( date_convert_format == date_convert_unknown )
+		return "date_convert_unknown";
+	else
+		return "";
+
 } /* date_convert_get_date_format_string() */
 
 char date_convert_get_delimiter( char *date_string )
@@ -774,4 +778,9 @@ char *date_convert_american_sans_slashes(
 	return return_date;
 
 } /* date_convert_american_sans_slashes() */
+
+char *date_convert_display( enum date_convert_format date_convert_format )
+{
+	return date_convert_get_date_format_string( date_convert_format );
+}
 

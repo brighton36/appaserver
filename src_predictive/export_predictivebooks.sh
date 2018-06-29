@@ -273,6 +273,9 @@ function extract_static_tables()
 	echo "(" >> $output_shell
 	echo "cat << all_done2" >> $output_shell
 
+	# --------------
+	# General ledger
+	# --------------
 	folder=element
 	columns=element,accumulate_debit_yn
 	get_folder_data a=$application f=$folder s=$columns		|
@@ -362,6 +365,7 @@ function extract_static_tables()
 	# Tax recovery
 	# ------------
 	if [ "$input_file" != "predictivebooks_nonprofit.dat" -a	\
+	     "$input_file" != "predictivebooks_communityband.dat" -a	\
 	     "$input_file" != "predictivebooks_home.dat" ]
 	then
 		folder=tax_recovery_table
@@ -447,6 +451,28 @@ function extract_static_tables()
 		get_folder_data a=$application f=$folder s="$columns"	|
 		insert_statement.e t=$folder field="$columns" del='^'	|
 		cat >> $output_shell
+	fi
+
+	if [ "$input_file" != "predictivebooks_communityband.dat" ]
+	then
+		folder=composition_location
+		columns="composition_location"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+
+		folder=status
+		columns="status,sort_order"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+
+		folder=position
+		columns="position"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+
 	fi
 
 	echo "all_done2" >> $output_shell
@@ -536,6 +562,12 @@ function extract_self()
 	if [ "$input_file" = "predictivebooks_autorepair.dat" ]
 	then
 		echo "insert into role_appaserver_user (login_name,role) values ( '\$login_name','mechanic');"					|
+		cat >> $output_shell
+	fi
+
+	if [ "$input_file" = "predictivebooks_communityband.dat" ]
+	then
+		echo "insert into role_appaserver_user (login_name,role) values ( '\$login_name','librarian');"					|
 		cat >> $output_shell
 	fi
 

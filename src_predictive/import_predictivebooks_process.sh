@@ -39,6 +39,9 @@ execute_yn=$4
 if [ "$module" = "enterprise" ]
 then
 	process="predictivebooks_enterprise.sh"
+elif [ "$module" = "community_band" ]
+then
+	process="predictivebooks_communityband.sh"
 elif [ "$module" = "autorepair" ]
 then
 	process="predictivebooks_autorepair.sh"

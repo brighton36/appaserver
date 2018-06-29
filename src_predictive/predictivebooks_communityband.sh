@@ -159,8 +159,8 @@ insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,o
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('concert_program','composition','null',null,null,null,null,null,null,null,null,'n',null,null);
 delete from $attribute where attribute = 'composition';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('composition','text','50',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'location';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('location','text','25',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'composition_location';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('composition_location','text','25',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'composer';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('composer','text','50',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'arranger';
@@ -181,8 +181,8 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition','borrowed_from',null,'4',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition','composer',null,'2',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition','composition','1',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition','composition_location',null,'1',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition','disposal_date',null,'7',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition','location',null,'1',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition','purchase_amount',null,'6',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition','purchase_date',null,'5',null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('composition','librarian','insert');
@@ -203,10 +203,10 @@ delete from $folder where folder = 'composition_location';
 insert into $folder (folder,form,insert_rows_number,subschema,populate_drop_down_process,notepad,lookup_before_drop_down_yn,no_initial_capital_yn,post_change_javascript,post_change_process,html_help_file_anchor,exclude_application_export_yn,lookup_email_output_yn,appaserver_yn,data_directory,index_directory) values ('composition_location','table','5','static',null,null,null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'composition_location';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('composition','composition_location','null',null,null,null,null,null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'location';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('location','text','25',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'composition_location';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('composition_location','text','25',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'composition_location';
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition_location','location','1',null,null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('composition_location','composition_location','1',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('composition_location','supervisor','insert');
 delete from $javascript_folders where folder = 'composition_location';
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
@@ -2823,7 +2823,7 @@ insert into $role_operation (folder,role,operation) values ('supply','accountant
 insert into $role_operation (folder,role,operation) values ('supply','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('supply','supervisor','detail');
 delete from $folder where folder = 'tax_form';
-insert into $folder (folder,form,insert_rows_number,subschema,populate_drop_down_process,notepad,lookup_before_drop_down_yn,no_initial_capital_yn,post_change_javascript,post_change_process,html_help_file_anchor,exclude_application_export_yn,lookup_email_output_yn,appaserver_yn,data_directory,index_directory) values ('tax_form','prompt','5','tax',null,null,null,null,null,null,null,null,null,null,null,null);
+insert into $folder (folder,form,insert_rows_number,subschema,populate_drop_down_process,notepad,lookup_before_drop_down_yn,no_initial_capital_yn,post_change_javascript,post_change_process,html_help_file_anchor,exclude_application_export_yn,lookup_email_output_yn,appaserver_yn,data_directory,index_directory) values ('tax_form','table','5','tax',null,null,null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'tax_form';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('tax_form_line','tax_form','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'tax_form';
@@ -3059,12 +3059,9 @@ delete from $attribute where attribute = 'city';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('city','text','20',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'location_map_html';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('location_map_html','text','255',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'promoter';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('promoter','text','50',null,null,null,null,null,null,null);
 delete from $folder_attribute where folder = 'venue';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('venue','city','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('venue','location_map_html',null,'1',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('venue','promoter',null,'2',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('venue','venue','1',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('venue','librarian','lookup');
 insert into $role_folder (folder,role,permission) values ('venue','supervisor','insert');
@@ -3115,11 +3112,11 @@ table_name=bank_upload
 echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),fund char (20)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e
 table_name=composition
-echo "create table $table_name (composition char (50) not null,location char (25),composer char (50),arranger char (50),borrowed_from char (25),borrowed_date date,purchase_date date,purchase_amount double (10,2),disposal_date date) engine MyISAM;" | sql.e
+echo "create table $table_name (composition char (50) not null,composition_location char (25),composer char (50),arranger char (50),borrowed_from char (25),borrowed_date date,purchase_date date,purchase_amount double (10,2),disposal_date date) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (composition);" | sql.e
 table_name=composition_location
-echo "create table $table_name (location char (25) not null) engine MyISAM;" | sql.e
-echo "create unique index $table_name on $table_name (location);" | sql.e
+echo "create table $table_name (composition_location char (25) not null) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (composition_location);" | sql.e
 table_name=concert
 echo "create table $table_name (concert_title char (30) not null,date date not null,time char (7),venue char (40),city char (20),tickets_required_yn char (1),private_yn char (1),website_information text,calendar_image_filename char (128),calendar_flyer_filename char (128)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (concert_title,date);" | sql.e
@@ -3367,7 +3364,7 @@ table_name=vendor_payment
 echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,payment_date_time datetime not null,payment_amount double (10,2),check_number integer,transaction_date_time datetime) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time,payment_date_time);" | sql.e
 table_name=venue
-echo "create table $table_name (venue char (40) not null,city char (20) not null,location_map_html char (255),promoter char (50)) engine MyISAM;" | sql.e
+echo "create table $table_name (venue char (40) not null,city char (20) not null,location_map_html char (255)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (venue,city);" | sql.e
 table_name=website_sidebar
 echo "create table $table_name (sidebar_heading char (30) not null,sort_order integer,sidebar_image_source char (80),sidebar_text text,omit_website_yn char (1)) engine MyISAM;" | sql.e
@@ -3634,6 +3631,57 @@ insert into state_standard_deduction_table (state_marital_status,			 state_withh
 insert into state_standard_deduction_table (state_marital_status,			 state_withholding_allowances,			 state_standard_deduction_amount) values ('unmarried_head_of_household','8','159.00');
 insert into state_standard_deduction_table (state_marital_status,			 state_withholding_allowances,			 state_standard_deduction_amount) values ('unmarried_head_of_household','9','159.00');
 insert into state_standard_deduction_table (state_marital_status,			 state_withholding_allowances,			 state_standard_deduction_amount) values ('unmarried_head_of_household','10','159.00');
+insert into composition_location (composition_location) values ('christmas_folder');
+insert into composition_location (composition_location) values ('disposed');
+insert into composition_location (composition_location) values ('library');
+insert into composition_location (composition_location) values ('main_folder');
+insert into composition_location (composition_location) values ('marked_for_removal');
+insert into status (status,sort_order) values ('Active','2');
+insert into status (status,sort_order) values ('Not Paid','1');
+insert into status (status,sort_order) values ('Student','3');
+insert into position (position) values ('Arranger');
+insert into position (position) values ('Assistant Director');
+insert into position (position) values ('Band Council');
+insert into position (position) values ('Band Manager');
+insert into position (position) values ('Bookkeeper');
+insert into position (position) values ('Co-section leader');
+insert into position (position) values ('Composer');
+insert into position (position) values ('Correspondence');
+insert into position (position) values ('Council Chair');
+insert into position (position) values ('Council Liason');
+insert into position (position) values ('Council Vice Chair');
+insert into position (position) values ('Director Emeritus');
+insert into position (position) values ('Founder');
+insert into position (position) values ('Librarian');
+insert into position (position) values ('Public Relations');
+insert into position (position) values ('Quartermaster');
+insert into position (position) values ('Secretary');
+insert into position (position) values ('Section Leader Emeritus');
+insert into position (position) values ('Social Chair');
+insert into position (position) values ('Stage Crew');
+insert into position (position) values ('Stage Crew Director');
+insert into position (position) values ('Student');
+insert into position (position) values ('Treasurer');
+insert into position (position) values ('Venue Chair');
+insert into position (position) values ('Vocalist');
+insert into position (position) values ('Website');
+insert into section (section) values ('Alto Clarinet');
+insert into section (section) values ('Bassoon');
+insert into section (section) values ('Clarinet');
+insert into section (section) values ('Director');
+insert into section (section) values ('Euphonium');
+insert into section (section) values ('Flute');
+insert into section (section) values ('French Horn');
+insert into section (section) values ('Harp');
+insert into section (section) values ('Oboe');
+insert into section (section) values ('Percussion');
+insert into section (section) values ('Saxophone');
+insert into section (section) values ('Staff');
+insert into section (section) values ('String Bass');
+insert into section (section) values ('Trombone');
+insert into section (section) values ('Trumpet');
+insert into section (section) values ('Tuba');
+insert into section (section) values ('Vocal');
 all_done2
 ) | sql.e 2>&1 | grep -vi duplicate
 
@@ -4447,4 +4495,8 @@ insert into role_appaserver_user (login_name,role) values ( '$login_name','libra
 all_done4
 ) | sql.e 2>&1 | grep -vi duplicate
 
+table=`get_table_name ignored application`
+results=`echo "select relative_source_directory from $table;" | sql.e`
+relative_source_directory=${results}:src_communityband
+echo "update $table set relative_source_directory = '$relative_source_directory';" | tee /tmp/tim.tee | sql.e
 exit 0

@@ -453,7 +453,7 @@ function extract_static_tables()
 		cat >> $output_shell
 	fi
 
-	if [ "$input_file" != "predictivebooks_communityband.dat" ]
+	if [ "$input_file" = "predictivebooks_communityband.dat" ]
 	then
 		folder=composition_location
 		columns="composition_location"
@@ -469,6 +469,12 @@ function extract_static_tables()
 
 		folder=position
 		columns="position"
+		get_folder_data a=$application f=$folder s="$columns"	|
+		insert_statement.e t=$folder field="$columns" del='^'	|
+		cat >> $output_shell
+
+		folder=section
+		columns="section"
 		get_folder_data a=$application f=$folder s="$columns"	|
 		insert_statement.e t=$folder field="$columns" del='^'	|
 		cat >> $output_shell
@@ -577,6 +583,17 @@ function extract_self()
 }
 # extract_self()
 
+function append_src_communityband()
+{
+	output_shell=$1
+
+	echo "table=\`get_table_name ignored application\`" >> $output_shell
+	echo "results=\`echo \"select relative_source_directory from \$table;\" | sql.e\`" >> $output_shell
+	echo "relative_source_directory=\${results}:src_communityband" >> $output_shell
+	echo "echo \"update \$table set relative_source_directory = '\$relative_source_directory';\" | sql.e" >> $output_shell
+}
+# append_src_communityband()
+
 rm $output_shell 2>/dev/null
 
 export_predictivebooks $application $input_file $output_shell
@@ -585,6 +602,11 @@ extract_static_tables $application $input_file $output_shell
 extract_investment $application $output_shell
 export_processes $application $input_file $output_shell
 extract_self $application $input_file $output_shell
+
+if [ "$input_file" = "predictivebooks_communityband.dat" ]
+then
+	append_src_communityband $output_shell
+fi
 
 echo "exit 0" >> $output_shell
 

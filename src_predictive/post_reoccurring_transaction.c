@@ -82,16 +82,6 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 			char *credit_account,
 			double accrued_daily_amount );
 
-TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *transaction_description,
-			char *transaction_date_time,
-			char *debit_account,
-			char *credit_account,
-			double accrued_monthly_amount );
-
 TRANSACTION *post_reoccurring_get_recent_transaction(
 			char *full_name,
 			char *street_address,
@@ -197,8 +187,14 @@ int main( int argc, char **argv )
 		fflush( stdout );
 	}
 
-	/* Works even if transaction_date is empty or is "transaction_date" */
-	/* ---------------------------------------------------------------- */
+	if ( !*transaction_date
+	||   strcmp( transaction_date, "transction_date" ) == 0 )
+	{
+		transaction_date =
+			date_get_now_yyyy_mm_dd(
+				date_get_utc_offset() );
+	}
+
 	transaction_date_time =
 		ledger_get_transaction_date_time(
 			transaction_date );
@@ -220,6 +216,8 @@ int main( int argc, char **argv )
 
 	output_pipe = popen( sys_string, "w" );
 
+	/* If doing for a single entity */
+	/* ---------------------------- */
 	if ( strcmp( full_name, "full_name" ) != 0 )
 	{
 		post_reoccurring_transaction_entity(
@@ -234,6 +232,9 @@ int main( int argc, char **argv )
 				execute );
 	}
 	else
+	/* --------------------- */
+	/* If doing for in batch */
+	/* --------------------- */
 	if ( strcmp(	process_name,
 			"post_reoccurring_transaction_accrual" ) == 0 )
 	{
@@ -243,6 +244,8 @@ int main( int argc, char **argv )
 				transaction_date_time,
 				execute );
 	}
+
+	if ( output_pipe ) pclose( output_pipe );
 
 	if ( execute )
 	{
@@ -267,8 +270,6 @@ int main( int argc, char **argv )
 			printf( "<h3>Process complete.</h3>\n" );
 		}
 	}
-
-	if ( output_pipe ) pclose( output_pipe );
 
 	exit( 0 );
 
@@ -681,6 +682,8 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 
 } /* post_reoccurring_get_accrued_daily_transaction() */
 
+/* get_last_transaction_date */
+
 int get_days_between_last_transaction(
 			char *application_name,
 			char *full_name,
@@ -696,7 +699,7 @@ int get_days_between_last_transaction(
 	char *select;
 	char *folder;
 	char *max_transaction_date;
-	char *today;
+	char end_date_string[ 16 ];
 	int days_between;
 
 	if ( !transaction_date_time
@@ -704,6 +707,8 @@ int get_days_between_last_transaction(
 	{
 		return 0;
 	}
+
+	column( end_date_string, 0, transaction_date_time );
 
 	select = "max( transaction_date_time )";
 	folder = "transaction";
@@ -735,8 +740,6 @@ int get_days_between_last_transaction(
 
 	max_transaction_date = pipe2string( sys_string );
 
-	today = pipe2string( "now.sh ymd" );
-
 	if ( !timlib_strlen( max_transaction_date ) )
 	{
 		sprintf( name_buffer,
@@ -746,14 +749,14 @@ int get_days_between_last_transaction(
 		days_between =
 			date_days_between(
 				name_buffer /* from_date */,
-				today /* to_date */ );
+				end_date_string /* to_date */ );
 	}
 	else
 	{
 		days_between =
 			date_days_between(
 				max_transaction_date /* from_date */,
-				today /* to_date */ );
+				end_date_string /* to_date */ );
 	}
 
 	return days_between;

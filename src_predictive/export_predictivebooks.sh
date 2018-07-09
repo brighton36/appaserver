@@ -583,6 +583,108 @@ function extract_self()
 }
 # extract_self()
 
+function extract_inventory()
+{
+	application=$1
+	output_shell=$2
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done8" >> $output_shell
+
+	folder=inventory_category
+	columns="inventory_category"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	folder=inventory
+	columns="inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	echo "all_done8" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+}
+# extract_inventory()
+
+function extract_fixed_asset()
+{
+	application=$1
+	output_shell=$2
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done9" >> $output_shell
+
+	folder=fixed_asset
+	columns="asset_name,account"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	folder=prior_fixed_asset
+	columns="asset_name,serial_number,service_placement_date,extension,estimated_useful_life_years,estimated_residual_value,depreciation_method,tax_cost_basis,tax_recovery_period"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	echo "all_done9" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+}
+# extract_fixed_asset()
+
+function extract_vehicle()
+{
+	application=$1
+	output_shell=$2
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done7" >> $output_shell
+
+	folder=vehicle_maker
+	columns="vehicle_make"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	folder=vehicle
+	columns="vehicle_make,vehicle_model,vehicle_trim,vehicle_year,assessment"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	echo "all_done7" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+}
+# extract_vehicle()
+
+function extract_foreign_attribute()
+{
+	application=$1
+	output_shell=$2
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done6" >> $output_shell
+
+	folder=foreign_attribute
+	columns="folder,related_folder,related_attribute,foreign_attribute,foreign_key_index"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field=$columns del='^'		|
+	cat >> $output_shell
+
+	echo "all_done6" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+}
+# extract_foreign_attribute()
+
 function append_src_communityband()
 {
 	output_shell=$1
@@ -606,6 +708,24 @@ extract_self $application $input_file $output_shell
 if [ "$input_file" = "predictivebooks_communityband.dat" ]
 then
 	append_src_communityband $output_shell
+fi
+
+if [ "$input_file" = "predictivebooks_autorepair.dat" ]
+then
+	# See CUSTOMER_SALE->MECHANIC relation.
+	# -------------------------------------
+	extract_foreign_attribute $application $output_shell
+
+	extract_vehicle $application $output_shell
+
+	extract_inventory $application $output_shell
+fi
+
+if [	"$input_file" = "predictivebooks_autorepair.dat" -o \
+	"$input_file" = "predictivebooks_enterprise.dat" 	]
+then
+	extract_inventory $application $output_shell
+	extract_fixed_asset $application $output_shell
 fi
 
 echo "exit 0" >> $output_shell

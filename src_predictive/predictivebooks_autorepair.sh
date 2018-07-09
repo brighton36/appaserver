@@ -4386,4 +4386,55 @@ insert into role_appaserver_user (login_name,role) values ( '$login_name','mecha
 all_done4
 ) | sql.e 2>&1 | grep -vi duplicate
 
+
+(
+cat << all_done6
+insert into foreign_attribute (folder,related_folder,related_attribute,foreign_attribute,foreign_key_index) values ('customer_sale','mechanic','null','mechanic_full_name','1');
+insert into foreign_attribute (folder,related_folder,related_attribute,foreign_attribute,foreign_key_index) values ('customer_sale','mechanic','null','mechanic_street_address','2');
+all_done6
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done7
+insert into vehicle_maker (vehicle_make) values ('Ford');
+insert into vehicle_maker (vehicle_make) values ('Honda');
+insert into vehicle (vehicle_make,vehicle_model,vehicle_trim,vehicle_year,assessment) values ('Ford','Mustang','convertible','1966','V-8; three-speed;electric top. Great car.');
+all_done7
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done8
+insert into inventory_category (inventory_category) values ('standard');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('Mobil1 Oil Filter','oil_inventory','cost_of_goods_sold','standard','16.99','20','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('Plain oil','oil_inventory','cost_of_goods_sold','standard','10.00','50','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('PZL Platium SAE 5W20','oil_inventory','cost_of_goods_sold','standard','10.00','100','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('PZL Platium SAE 5W30','oil_inventory','cost_of_goods_sold','standard','10.00','100','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('Radiator Cap','coolant_inventory','cost_of_goods_sold','standard','12.99','20','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('Trinity Multi Vehicle Coolant','coolant_inventory','cost_of_goods_sold','standard','3.00','20','0','0.0000','0.00000');
+all_done8
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done8
+insert into inventory_category (inventory_category) values ('standard');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('Mobil1 Oil Filter','oil_inventory','cost_of_goods_sold','standard','16.99','20','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('Plain oil','oil_inventory','cost_of_goods_sold','standard','10.00','50','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('PZL Platium SAE 5W20','oil_inventory','cost_of_goods_sold','standard','10.00','100','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('PZL Platium SAE 5W30','oil_inventory','cost_of_goods_sold','standard','10.00','100','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('Radiator Cap','coolant_inventory','cost_of_goods_sold','standard','12.99','20','0','0.0000','0.00000');
+insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance) values ('Trinity Multi Vehicle Coolant','coolant_inventory','cost_of_goods_sold','standard','3.00','20','0','0.0000','0.00000');
+all_done8
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done9
+insert into fixed_asset (asset_name,account) values ('air_compressor','fixed_asset');
+insert into prior_fixed_asset (asset_name,serial_number,service_placement_date,extension,estimated_useful_life_years,estimated_residual_value,depreciation_method,tax_cost_basis,tax_recovery_period) values ('air_compressor','12345',null,'5000.00','10','0.00','straight_line',null,null);
+all_done9
+) | sql.e 2>&1 | grep -vi duplicate
+
 exit 0

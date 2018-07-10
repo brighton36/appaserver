@@ -637,6 +637,33 @@ function extract_fixed_asset()
 }
 # extract_fixed_asset()
 
+function extract_customer_sale()
+{
+	application=$1
+	output_shell=$2
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done10" >> $output_shell
+
+	folder=hourly_service
+	columns="service_name,service_category,hourly_rate"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	folder=fixed_service
+	columns="service_name,service_category,retail_price"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	echo "all_done10" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+}
+# extract_customer_sale()
+
 function extract_vehicle()
 {
 	application=$1
@@ -685,6 +712,17 @@ function extract_foreign_attribute()
 }
 # extract_foreign_attribute()
 
+function append_src_autorepair()
+{
+	output_shell=$1
+
+	echo "table=\`get_table_name ignored application\`" >> $output_shell
+	echo "results=\`echo \"select relative_source_directory from \$table;\" | sql.e\`" >> $output_shell
+	echo "relative_source_directory=\${results}:src_autorepair" >> $output_shell
+	echo "echo \"update \$table set relative_source_directory = '\$relative_source_directory';\" | sql.e" >> $output_shell
+}
+# append_src_autorepair()
+
 function append_src_communityband()
 {
 	output_shell=$1
@@ -719,6 +757,8 @@ then
 	extract_vehicle $application $output_shell
 
 	extract_inventory $application $output_shell
+
+	append_src_autorepair $output_shell
 fi
 
 if [	"$input_file" = "predictivebooks_autorepair.dat" -o \
@@ -726,6 +766,7 @@ if [	"$input_file" = "predictivebooks_autorepair.dat" -o \
 then
 	extract_inventory $application $output_shell
 	extract_fixed_asset $application $output_shell
+	extract_customer_sale $application $output_shell
 fi
 
 echo "exit 0" >> $output_shell

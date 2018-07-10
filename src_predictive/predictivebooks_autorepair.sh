@@ -473,7 +473,7 @@ insert into $role_operation (folder,role,operation) values ('element','bookkeepe
 insert into $role_operation (folder,role,operation) values ('element','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('element','supervisor','detail');
 delete from $folder where folder = 'employee';
-insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('employee','prompt','5','entity',null,'n',null,null,null,null,null,null,null,null,null,null);
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('employee','prompt','5','entity',null,'n',null,null,null,null,'post_change_employee( \$row )',null,null,null,null,null);
 delete from $relation where folder = 'employee';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee','federal_marital_status','null',null,null,null,null,null,null,null,null,null,null,null);
@@ -545,6 +545,9 @@ insert into $role_folder (folder,role,permission) values ('employee','mechanic',
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','update');
 delete from $javascript_folders where folder = 'employee';
+insert into $javascript_folders (javascript_filename,folder) values ('post_change_employee.js','employee');
+delete from $javascript_files where javascript_filename = 'post_change_employee.js';
+insert into $javascript_files (javascript_filename) values ('post_change_employee.js');
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('mechanic','n',null);
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
@@ -1697,7 +1700,7 @@ insert into $role_operation (folder,role,operation) values ('liability_account_e
 insert into $role_operation (folder,role,operation) values ('liability_account_entity','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('liability_account_entity','supervisor','detail');
 delete from $folder where folder = 'mechanic';
-insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('mechanic','prompt','5','entity',null,null,null,null,null,null,null,null,null,null,null,null);
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('mechanic','prompt','5','entity',null,null,null,null,null,null,'post_change_employee( \$row )',null,null,null,null,null);
 delete from $relation where folder = 'mechanic';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('mechanic','employee','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','mechanic','null',null,null,null,null,null,null,null,null,null,null,null);
@@ -1713,6 +1716,9 @@ insert into $role_folder (folder,role,permission) values ('mechanic','bookkeeper
 insert into $role_folder (folder,role,permission) values ('mechanic','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('mechanic','supervisor','update');
 delete from $javascript_folders where folder = 'mechanic';
+insert into $javascript_folders (javascript_filename,folder) values ('post_change_employee.js','mechanic');
+delete from $javascript_files where javascript_filename = 'post_change_employee.js';
+insert into $javascript_files (javascript_filename) values ('post_change_employee.js');
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('entity');
@@ -4218,6 +4224,7 @@ insert into javascript_processes (process,javascript_filename) values ('clone_fo
 insert into javascript_processes (process,javascript_filename) values ('pay_liabilities','post_change_pay_liabilities.js');
 insert into javascript_files (javascript_filename) values ('clone_folder.js');
 insert into javascript_files (javascript_filename) values ('post_change_bank_upload.js');
+insert into javascript_files (javascript_filename) values ('post_change_employee.js');
 insert into javascript_files (javascript_filename) values ('post_change_equity_account_balance.js');
 insert into javascript_files (javascript_filename) values ('post_change_folder_attribute.js');
 insert into javascript_files (javascript_filename) values ('post_change_journal_ledger.js');
@@ -4399,7 +4406,7 @@ all_done6
 cat << all_done7
 insert into vehicle_maker (vehicle_make) values ('Ford');
 insert into vehicle_maker (vehicle_make) values ('Honda');
-insert into vehicle (vehicle_make,vehicle_model,vehicle_trim,vehicle_year,assessment) values ('Ford','Mustang','convertible','1966','V-8; three-speed;electric top. Great car.');
+insert into vehicle (vehicle_make,vehicle_model,vehicle_trim,vehicle_year,assessment) values ('Ford','Mustang','convertible','1966','V-8; stick shift;electric top. Great car.');
 all_done7
 ) | sql.e 2>&1 | grep -vi duplicate
 
@@ -4416,6 +4423,10 @@ insert into inventory (inventory_name,inventory_account,cost_of_goods_sold_accou
 all_done8
 ) | sql.e 2>&1 | grep -vi duplicate
 
+table=`get_table_name ignored application`
+results=`echo "select relative_source_directory from $table;" | sql.e`
+relative_source_directory=${results}:src_autorepair
+echo "update $table set relative_source_directory = '$relative_source_directory';" | sql.e
 
 (
 cat << all_done8
@@ -4435,6 +4446,15 @@ cat << all_done9
 insert into fixed_asset (asset_name,account) values ('air_compressor','fixed_asset');
 insert into prior_fixed_asset (asset_name,serial_number,service_placement_date,extension,estimated_useful_life_years,estimated_residual_value,depreciation_method,tax_cost_basis,tax_recovery_period) values ('air_compressor','12345',null,'5000.00','10','0.00','straight_line',null,null);
 all_done9
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done10
+insert into hourly_service (service_name,service_category,hourly_rate) values ('engine_work','standard','60.00');
+insert into fixed_service (service_name,service_category,retail_price) values ('Oil change labor','standard','36.99');
+insert into fixed_service (service_name,service_category,retail_price) values ('Radiator coolant labor','standard','124.00');
+all_done10
 ) | sql.e 2>&1 | grep -vi duplicate
 
 exit 0

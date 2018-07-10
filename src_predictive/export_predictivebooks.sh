@@ -637,6 +637,27 @@ function extract_fixed_asset()
 }
 # extract_fixed_asset()
 
+function extract_subsidiary_transaction()
+{
+	application=$1
+	output_shell=$2
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done11" >> $output_shell
+
+	folder=subsidiary_transaction
+	columns="folder,attribute,debit_account,debit_account_folder,credit_account"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	echo "all_done11" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+}
+# extract_subsidiary_transaction()
+
 function extract_customer_sale()
 {
 	application=$1
@@ -647,13 +668,13 @@ function extract_customer_sale()
 	echo "cat << all_done10" >> $output_shell
 
 	folder=hourly_service
-	columns="service_name,service_category,hourly_rate"
+	columns="service_name,service_category,hourly_rate,account"
 	get_folder_data a=$application f=$folder s="$columns"		|
 	insert_statement.e table=$folder field="$columns" del='^'	|
 	cat >> $output_shell
 
 	folder=fixed_service
-	columns="service_name,service_category,retail_price"
+	columns="service_name,service_category,retail_price,account"
 	get_folder_data a=$application f=$folder s="$columns"		|
 	insert_statement.e table=$folder field="$columns" del='^'	|
 	cat >> $output_shell
@@ -768,6 +789,8 @@ then
 	extract_fixed_asset $application $output_shell
 	extract_customer_sale $application $output_shell
 fi
+
+extract_subsidiary_transaction $application $output_shell
 
 echo "exit 0" >> $output_shell
 

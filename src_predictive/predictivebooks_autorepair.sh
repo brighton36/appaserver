@@ -3990,7 +3990,7 @@ insert into process (process,		command_line,		notepad,		html_help_file_anchor,		
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('table_rectification','table_rectification ignored \$session \$login_name \$role','This process compares the Appaserver attributes with the Mysql table columns. It then gives you the opportunity to drop the residual columns.',null,null,null,null,null,'y');
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('tax_form_report','tax_form_report ignored \$process tax_form as_of_date output_medium',null,null,null,null,'output',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('tax_recover_fixed_assets','tax_recover_fixed_assets \$process fund undo_yn execute_yn',null,null,null,null,'manipulate',null,null);
-insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('trial_balance','trial_balance ignored \$session \$login_name \$role \$process fund as_of_date aggregation output_medium',null,null,null,null,'output',null,null);
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('trial_balance','trial_balance ignored \$session \$login_name \$role \$process fund as_of_date aggregation output_medium subclassification_option',null,null,null,null,'output',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('update_sale_completed','update_sale_completed ignored \$process full_name street_address sale_date_time',null,null,null,null,'shortcut',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('update_sale_not_completed','update_sale_not_completed ignored \$process full_name street_address sale_date_time',null,null,null,null,'shortcut',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('upload_source_file','upload_source_file ignored \$process filename','This process allows you to upload non-executable source files, like javascript. The destination directory is likely \$APPASERVER_HOME/src_\$application.',null,null,null,'load',null,'y');
@@ -4451,10 +4451,18 @@ all_done9
 
 (
 cat << all_done10
-insert into hourly_service (service_name,service_category,hourly_rate) values ('engine_work','standard','60.00');
-insert into fixed_service (service_name,service_category,retail_price) values ('Oil change labor','standard','36.99');
-insert into fixed_service (service_name,service_category,retail_price) values ('Radiator coolant labor','standard','124.00');
+insert into hourly_service (service_name,service_category,hourly_rate,account) values ('engine_work','standard','60.00','service_revenue');
+insert into fixed_service (service_name,service_category,retail_price,account) values ('Oil change labor','standard','36.99','service_revenue');
+insert into fixed_service (service_name,service_category,retail_price,account) values ('Radiator coolant labor','standard','124.00','service_revenue');
 all_done10
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done11
+insert into subsidiary_transaction (folder,attribute,debit_account,debit_account_folder,credit_account) values ('customer_payment','payment_amount','checking',null,'account_receivable');
+insert into subsidiary_transaction (folder,attribute,debit_account,debit_account_folder,credit_account) values ('prior_fixed_asset','extension',null,'fixed_asset','equity');
+all_done11
 ) | sql.e 2>&1 | grep -vi duplicate
 
 exit 0

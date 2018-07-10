@@ -174,8 +174,6 @@ int main( int argc, char **argv )
 	preupdate_arrived_date = argv[ 11 ];
 	preupdate_shipping_revenue = argv[ 12 ];
 
-	appaserver_error_output_starting_argv_stderr( argc, argv );
-
 	if ( strcmp( sale_date_time, "sale_date_time" ) == 0 ) exit( 0 );
 
 	/* Execute the predelete because CUSTOMER_SALE.transaction_date_time */

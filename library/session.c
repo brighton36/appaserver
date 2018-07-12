@@ -315,21 +315,21 @@ void session_message_ip_address_changed_exit(
 		appaserver_parameter_file->
 			appaserver_mount_point );
 
+	sprintf(msg,
+		"Warning for %s",
+		login_name );
+
 	if (	remote_ip_address
 	&&	*remote_ip_address
 	&&	isdigit( *remote_ip_address ) )
 	{
-		sprintf( msg,
-"Warning for %s: Your IP address has changed to %s. Please login again.",
-		 	login_name,
+		sprintf( msg + strlen( msg ),
+			 "@%s",
 		 	remote_ip_address );
 	}
-	else
-	{
-		sprintf( msg,
-			 "Warning for %s: Please login again.",
-		 	login_name );
-	}
+
+	sprintf( msg + strlen( msg ),
+		 ": A security trigger occurred. Please login again." );
 
 	appaserver_output_error_message( application_name, msg, login_name );
 

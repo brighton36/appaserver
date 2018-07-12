@@ -1,6 +1,6 @@
 :
 
-make tax_form_report
+make post_change_inventory_sale propagate_inventory_sale_layers
 
 #if [ "$?" -eq 0 ]
 #then

@@ -320,7 +320,7 @@ insert into $role_operation (folder,role,operation) values ('element','bookkeepe
 insert into $role_operation (folder,role,operation) values ('element','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('element','supervisor','detail');
 delete from $folder where folder = 'employee';
-insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('employee','prompt','5','entity',null,'n',null,null,null,null,null,null,null,null,null,null);
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('employee','prompt','5','entity',null,'n',null,null,null,null,'post_change_employee( \$row )',null,null,null,null,null);
 delete from $relation where folder = 'employee';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('employee','federal_marital_status','null',null,null,null,null,null,null,null,null,null,null,null);
@@ -390,6 +390,9 @@ insert into $role_folder (folder,role,permission) values ('employee','bookkeeper
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('employee','supervisor','update');
 delete from $javascript_folders where folder = 'employee';
+insert into $javascript_folders (javascript_filename,folder) values ('post_change_employee.js','employee');
+delete from $javascript_files where javascript_filename = 'post_change_employee.js';
+insert into $javascript_files (javascript_filename) values ('post_change_employee.js');
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('entity');
@@ -1929,7 +1932,6 @@ delete from $folder where folder = 'purchase_order';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('purchase_order','prompt','1','purchase',null,'y',null,'Restriction warning: Inventory purchase orders should not be comingled with other purchase orders. Sales tax and freight need to be capitalized into inventory, not expensed.',null,null,null,'post_change_purchase_order',null,null,null,null);
 delete from $relation where folder = 'purchase_order';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('purchase_order','property','null',null,null,null,null,null,null,null,null,null,null,null);
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('purchase_order','title_passage_rule','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('purchase_order','transaction','null',null,null,null,'n',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('purchase_order','vendor','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_asset_purchase','purchase_order','null','4',null,null,null,null,null,null,null,null,null,null);
@@ -1954,8 +1956,6 @@ delete from $attribute where attribute = 'freight_in';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('freight_in','float','6','2',null,null,null,null,null,null);
 delete from $attribute where attribute = 'purchase_amount';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('purchase_amount','float','10','2',null,null,null,null,null,null);
-delete from $attribute where attribute = 'title_passage_rule';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('title_passage_rule','text','15',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'shipped_date';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('shipped_date','date','10',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'arrived_date_time';
@@ -1973,7 +1973,6 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('purchase_order','shipped_date',null,'60',null,'y',null,null,'n',null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('purchase_order','street_address','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('purchase_order','sum_extension',null,'10',null,'y',null,null,'y',null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('purchase_order','title_passage_rule',null,'50',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('purchase_order','transaction_date_time',null,'80',null,'y',null,null,'y',null,null);
 insert into $role_folder (folder,role,permission) values ('purchase_order','bookkeeper','insert');
 insert into $role_folder (folder,role,permission) values ('purchase_order','bookkeeper','update');
@@ -2611,7 +2610,6 @@ insert into $role_operation (folder,role,operation) values ('tax_recovery_table'
 delete from $folder where folder = 'title_passage_rule';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('title_passage_rule','table','3','static',null,null,null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'title_passage_rule';
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('purchase_order','title_passage_rule','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'title_passage_rule';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('title_passage_rule','text','15',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'title_passage_date';
@@ -2619,10 +2617,7 @@ insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,
 delete from $folder_attribute where folder = 'title_passage_rule';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('title_passage_rule','title_passage_date',null,'1',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('title_passage_rule','title_passage_rule','1',null,null,null,null,null,null,null,null);
-insert into $role_folder (folder,role,permission) values ('title_passage_rule','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('title_passage_rule','bookkeeper','update');
 delete from $javascript_folders where folder = 'title_passage_rule';
-insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
 insert into $subschemas (subschema) values ('static');
 insert into $role_operation (folder,role,operation) values ('title_passage_rule','bookkeeper','delete');
 delete from $folder where folder = 'transaction';
@@ -2892,7 +2887,7 @@ echo "create index ${table_name}_full_name on $table_name (full_name);" | sql.e
 echo "create index ${table_name}_street_address on $table_name (street_address);" | sql.e
 echo "create index ${table_name}_purchase_date_time on $table_name (purchase_date_time);" | sql.e
 table_name=purchase_order
-echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,amount_due double (10,2),sum_extension double (10,2),sales_tax double (7,2),freight_in double (6,2),purchase_amount double (10,2),title_passage_rule char (15),shipped_date date,arrived_date_time datetime,transaction_date_time datetime) engine MyISAM;" | sql.e
+echo "create table $table_name (full_name char (60) not null,street_address char (40) not null,purchase_date_time datetime not null,amount_due double (10,2),sum_extension double (10,2),sales_tax double (7,2),freight_in double (6,2),purchase_amount double (10,2),shipped_date date,arrived_date_time datetime,transaction_date_time datetime) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (full_name,street_address,purchase_date_time);" | sql.e
 table_name=receipt_upload
 echo "create table $table_name (receipt_upload_filename char (80) not null,upload_date date,posted_yn char (1)) engine MyISAM;" | sql.e
@@ -3608,7 +3603,7 @@ insert into process (process,		command_line,		notepad,		html_help_file_anchor,		
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('table_rectification','table_rectification ignored \$session \$login_name \$role','This process compares the Appaserver attributes with the Mysql table columns. It then gives you the opportunity to drop the residual columns.',null,null,null,null,null,'y');
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('tax_form_report','tax_form_report ignored \$process tax_form as_of_date output_medium',null,null,null,null,'output',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('tax_recover_fixed_assets','tax_recover_fixed_assets \$process fund undo_yn execute_yn',null,null,null,null,'manipulate',null,null);
-insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('trial_balance','trial_balance ignored \$session \$login_name \$role \$process fund as_of_date aggregation output_medium',null,null,null,null,'output',null,null);
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('trial_balance','trial_balance ignored \$session \$login_name \$role \$process fund as_of_date aggregation output_medium subclassification_option',null,null,null,null,'output',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('update_sale_completed','update_sale_completed ignored \$process full_name street_address sale_date_time',null,null,null,null,'shortcut',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('update_sale_not_completed','update_sale_not_completed ignored \$process full_name street_address sale_date_time',null,null,null,null,'shortcut',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('upload_source_file','upload_source_file ignored \$process filename','This process allows you to upload non-executable source files, like javascript. The destination directory is likely \$APPASERVER_HOME/src_\$application.',null,null,null,'load',null,'y');
@@ -3828,6 +3823,7 @@ insert into javascript_processes (process,javascript_filename) values ('clone_fo
 insert into javascript_processes (process,javascript_filename) values ('pay_liabilities','post_change_pay_liabilities.js');
 insert into javascript_files (javascript_filename) values ('clone_folder.js');
 insert into javascript_files (javascript_filename) values ('post_change_bank_upload.js');
+insert into javascript_files (javascript_filename) values ('post_change_employee.js');
 insert into javascript_files (javascript_filename) values ('post_change_equity_account_balance.js');
 insert into javascript_files (javascript_filename) values ('post_change_folder_attribute.js');
 insert into javascript_files (javascript_filename) values ('post_change_journal_ledger.js');
@@ -4012,6 +4008,23 @@ cat << all_done9
 insert into fixed_asset (asset_name,account) values ('air_compressor','fixed_asset');
 insert into prior_fixed_asset (asset_name,serial_number,service_placement_date,extension,estimated_useful_life_years,estimated_residual_value,depreciation_method,tax_cost_basis,tax_recovery_period) values ('air_compressor','12345',null,'5000.00','10','0.00','straight_line',null,null);
 all_done9
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done10
+insert into hourly_service (service_name,service_category,hourly_rate,account) values ('engine_work','standard','60.00','service_revenue');
+insert into fixed_service (service_name,service_category,retail_price,account) values ('Oil change labor','standard','36.99','service_revenue');
+insert into fixed_service (service_name,service_category,retail_price,account) values ('Radiator coolant labor','standard','124.00','service_revenue');
+all_done10
+) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done11
+insert into subsidiary_transaction (folder,attribute,debit_account,debit_account_folder,credit_account) values ('customer_payment','payment_amount','checking',null,'account_receivable');
+insert into subsidiary_transaction (folder,attribute,debit_account,debit_account_folder,credit_account) values ('prior_fixed_asset','extension',null,'fixed_asset','equity');
+all_done11
 ) | sql.e 2>&1 | grep -vi duplicate
 
 exit 0

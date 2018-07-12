@@ -4122,3 +4122,95 @@ void customer_propagate_customer_sale_ledger_accounts(
 
 } /* customer_propagate_customer_sale_ledger_accounts() */
 
+char *customer_sale_inventory_list_display(
+					LIST *inventory_sale_list )
+{
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+	INVENTORY_SALE *inventory_sale;
+
+	*ptr = '\0';
+
+	if ( !list_rewind( inventory_sale_list ) )
+		return strdup( "" );
+
+	ptr += sprintf( ptr, "inventory_sale_list = (" );
+
+	do {
+		inventory_sale = list_get_pointer( inventory_sale_list );
+
+		ptr += sprintf( ptr,
+				"inventory_name = %s;"
+				"quantity = %d;"
+				"retail_price = %.2lf;"
+				"extension = %.2lf;"
+				"cost_of_goods_sold = %.2lf;"
+				"completed_date_time = %s\n",
+				inventory_sale->inventory_name,
+				inventory_sale->quantity,
+				inventory_sale->retail_price,
+				inventory_sale->extension,
+				inventory_sale->cost_of_goods_sold,
+				inventory_sale->completed_date_time );
+
+	} while( list_next(  inventory_sale_list ) );
+
+	ptr += sprintf( ptr, ")" );
+
+	*ptr = '\0';
+
+	return strdup( buffer );
+
+} /* customer_sale_inventory_list_display() */
+
+char *customer_sale_display( CUSTOMER_SALE *c )
+{
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+
+	if ( !c )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty customer_sale.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	*ptr = '\0';
+
+	ptr += sprintf( ptr,
+			"full_name = %s;"
+			"street_address = %s;"
+			"sale_date_time = %s;"
+			"completed_date_time = %s;"
+			"transaction_date_time = %s;"
+			"sum_inventory_extension = %.2lf;"
+			"invoice_amount = %.2lf;",
+			c->full_name,
+			c->street_address,
+			c->sale_date_time,
+			c->completed_date_time,
+			c->transaction_date_time,
+			c->sum_inventory_extension,
+			c->invoice_amount );
+
+	if ( list_length( c->inventory_sale_list ) )
+	{
+		ptr += sprintf(	ptr,
+				"%s\n",
+				customer_sale_inventory_list_display(
+					c->inventory_sale_list ) );
+	}
+	else
+	{
+		ptr += sprintf( ptr, "\n" );
+	}
+
+	*ptr = '\0';
+
+	return strdup( buffer );
+
+} /* customer_sale_display() */
+

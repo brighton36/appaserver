@@ -672,5 +672,10 @@ char *customer_sale_fetch_completed_date_time(
 				char *street_address,
 				char *sale_date_time );
 
+char *customer_sale_inventory_list_display(
+				LIST *inventory_sale_list );
+
+char *customer_sale_display(	CUSTOMER_SALE *customer_sale );
+
 #endif
 

@@ -3,6 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	touch date_convert.c && make date_convert.e
+	cd ../src_appaserver
+	touch output_edit_table_form.c
+	make output_edit_table_form
 fi

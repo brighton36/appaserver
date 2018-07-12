@@ -1267,7 +1267,7 @@ LIST *related_folder_get_update_element_list(
 			element_list, 
 			element );
 
-	if ( !omit_lookup_before_drop_down
+	if ( omit_lookup_before_drop_down
 	&&   ajax_fill_drop_down_related_folder )
 	{
 		FOLDER *folder;

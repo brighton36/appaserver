@@ -259,7 +259,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	int row_dictionary_list_length;
 	char query_select_folder_name[ 128 ];
 	boolean prompt_data_separate_folder;
-	RELATED_FOLDER **ajax_fill_drop_down_related_folder = {0};
 
 	if ( ! ( element_list_structure =
 		(ROW_SECURITY_ELEMENT_LIST_STRUCTURE *)
@@ -273,18 +272,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
-	}
-
-	/* ------------------------------------------------------ */
-	/* Future work:						  */
-	/* Detailing a transaction doesn't display this correctly */
-	/* for the journal_ledger.				  */
-	/* ------------------------------------------------------ */
-	if ( !ajax_fill_drop_down_omit )
-	{
-		ajax_fill_drop_down_related_folder =
-			&element_list_structure->
-				ajax_fill_drop_down_related_folder;
 	}
 
 	if ( row_security_state == security_supervisor
@@ -339,7 +326,8 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 
 	element_list_structure->regular_element_list =
 		row_security_get_element_list(
-			ajax_fill_drop_down_related_folder,
+			&element_list_structure->
+				ajax_fill_drop_down_related_folder,
 			application_name,
 			select_folder,
 			select_folder->mto1_append_isa_related_folder_list,
@@ -357,6 +345,13 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			select_folder->join_1tom_related_folder_list,
 			make_primary_keys_non_edit,
 			prompt_data_separate_folder );
+
+	if ( ajax_fill_drop_down_omit )
+	{
+		element_list_structure->
+			ajax_fill_drop_down_related_folder =
+				(RELATED_FOLDER *)0;
+	}
 
 	if ( row_security_state == security_user && update_yn == 'y' )
 	{
@@ -822,7 +817,6 @@ LIST *row_security_get_update_element_list(
 	int max_drop_down_size = 0;
 	boolean is_primary_attribute;
 	ATTRIBUTE *attribute;
-	RELATED_FOLDER **only_one_ajax_fill_drop_down;
 
 	if ( !list_reset( include_attribute_name_list ) )
 		return list_new_list();
@@ -982,31 +976,10 @@ LIST *row_security_get_update_element_list(
 				goto skip_checking_drop_down;
 			}
 
-/* ---------------------------------------------------- */
-/* This broke <Insert> <Reoccurring Transaction> 	*/
-/* Test this: <Lookup> <Project Principle Investigator>	*/
-/* ---------------------------------------------------- */
-/*
-			if ( ajax_fill_drop_down_related_folder
-			&&   *ajax_fill_drop_down_related_folder )
-			{
-				only_one_ajax_fill_drop_down =
-					(RELATED_FOLDER **)0;
-			}
-			else
-			{
-				only_one_ajax_fill_drop_down =
-					ajax_fill_drop_down_related_folder;
-			}
-*/
-
-			only_one_ajax_fill_drop_down =
-				ajax_fill_drop_down_related_folder;
-
 			list_append_list(
 				return_list,
 				related_folder_get_update_element_list(
-					only_one_ajax_fill_drop_down,
+					ajax_fill_drop_down_related_folder,
 					application_name,
 					session,
 					login_name,

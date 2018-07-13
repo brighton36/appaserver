@@ -136,13 +136,19 @@ boolean post_change_bank_upload_update(
 		return 0;
 	}
 
+	post_change_bank_upload_update_sequence_number(
+		application_name,
+		posted_first_bank_upload->sequence_number,
+		prior_sequence_number,
+		posted_first_bank_upload->fund_name );
+
 	prior_sequence_number =
 		bank_upload_get_prior_sequence_number(
 			application_name,
 			posted_first_bank_upload->fund_name,
 			posted_first_bank_upload->sequence_number );
 
-	post_change_bank_upload_update_execute(
+	post_change_bank_upload_update_running_balance(
 		application_name,
 		posted_first_bank_upload->sequence_number,
 		prior_sequence_number,
@@ -320,7 +326,8 @@ BANK_UPLOAD *bank_upload_get_starting(
 			bank_date,
 			bank_description );
 
-	bank_upload->sequence_number = atoi( sequence_number_string );
+	bank_upload->sequence_number =
+		timlib_atoi( sequence_number_string );
 
 	bank_upload->fund_name =
 		bank_upload_get_fund_name(

@@ -511,4 +511,6 @@ int timlib_get_line_escape_CR(	char *in_line,
 char *timlib_right_string(	char *string,
 				int width );
 
+int timlib_atoi(		char *string );
+
 #endif

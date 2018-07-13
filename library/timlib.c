@@ -3545,3 +3545,13 @@ int timlib_get_line_escape_CR(	char *in_line,
 	}
 } /* timlib_get_line_escape_CR() */
 
+int timlib_atoi( char *s )
+{
+	char buffer[ 32 ];
+
+	trim_character( buffer, ',', s );
+
+	return atoi( buffer );
+
+} /* timlib_atoi() */
+

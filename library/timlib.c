@@ -574,8 +574,10 @@ char *trim_until_character(	char *destination,
 	return anchor;
 } /* trim_until_character() */
 
-void trim_character( char *destination, char c, char *source )
+char *trim_character( char *destination, char c, char *source )
 {
+	char *anchor = destination;
+
 	while ( *source )
 	{
 		if ( *source != c )
@@ -585,8 +587,10 @@ void trim_character( char *destination, char c, char *source )
 		}
 		source++;
 	}
+
 	*destination = '\0';
-	return;
+	return anchor;
+
 } /* trim_character() */
 
 int timlib_character_exists( char *buffer, int c )

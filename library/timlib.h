@@ -87,7 +87,7 @@ char *trim_after_character(	char *destination,
 				char *source,
 				int num2trimg );
 
-void trim_character( char *destination, char c, char *source );
+char *trim_character( char *destination, char c, char *source );
 
 char *reformat_double_return_string( double d, char *format_string );
 int character_count( char char_to_count, char *source );

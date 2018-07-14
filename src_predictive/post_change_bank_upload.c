@@ -120,6 +120,7 @@ boolean post_change_bank_upload_update(
 			char *application_name,
 			DICTIONARY *dictionary )
 {
+	BANK_UPLOAD_STRUCTURE *bank_upload_structure;
 	BANK_UPLOAD *posted_first_bank_upload;
 	int prior_sequence_number;
 
@@ -135,6 +136,12 @@ boolean post_change_bank_upload_update(
 			 __LINE__ );
 		return 0;
 	}
+
+	bank_upload_structure = bank_upload_structure_calloc();
+
+	bank_upload_structure->sort_bank_upload_list =
+		bank_upload_get_sort_bank_upload_list(
+			dictionary );
 
 	post_change_bank_upload_update_sequence_number(
 		application_name,
@@ -338,6 +345,76 @@ BANK_UPLOAD *bank_upload_get_starting(
 	return bank_upload;
 
 } /* bank_upload_get_starting() */
+
+LIST *bank_upload_get_sort_bank_upload_list(
+				DICTIONARY *dictionary )
+{
+	char key[ 128 ];
+	LIST *sort_bank_upload_list;
+	BANK_UPLOAD *bank_upload;
+	char *sequence_number_string;
+	char *bank_date;
+	char *bank_description;
+	int i;
+
+	sort_bank_upload_list = list_new();
+
+	for( i = 1 ;; i++ )
+	{
+		sprintf( key, "%s_%d", "sequence_number", i );
+
+		if ( ! ( sequence_number_string =
+				dictionary_fetch( dictionary, key ) ) )
+		{
+			return sort_bank_upload_list;
+		}
+
+		sprintf( key, "%s_%d", "bank_date", i );
+
+		if ( ! ( bank_date = dictionary_fetch( dictionary, key ) ) )
+		{
+			fprintf( stderr,
+				 "ERROR in %s/%s()/%d: cannot get bank_date.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		sprintf( key, "%s_1", "bank_description" );
+
+		if ( ! ( bank_description =
+				dictionary_fetch( dictionary, key ) ) )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: cannot get bank_description.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		bank_upload =
+			bank_upload_new(
+				bank_date,
+				bank_description );
+
+		bank_upload->sequence_number =
+			timlib_atoi( sequence_number_string );
+
+		bank_upload->post_row_number = i;
+
+		list_append_list(
+			sort_bank_upload_list,
+			bank_upload );
+
+	} /* for() */
+
+	/* Exits in middle */
+	/* --------------- */
+	return (LIST *)0;
+
+} /* bank_upload_get_sort_bank_upload_list() */
 
 char *bank_upload_get_fund_name(
 			char *application_name,

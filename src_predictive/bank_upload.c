@@ -34,15 +34,12 @@ BANK_UPLOAD *bank_upload_calloc( void )
 
 } /* bank_upload_calloc() */
 
-BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
-			char *fund_name,
-			char *input_filename )
+BANK_UPLOAD_STRUCTURE *bank_upload_structure_calloc(
+					void )
 {
-	BANK_UPLOAD_STRUCTURE *p =
-		(BANK_UPLOAD_STRUCTURE *)
-			calloc( 1, sizeof( BANK_UPLOAD_STRUCTURE ) );
+	BANK_UPLOAD_STRUCTURE *p;
 
-	if ( !p )
+	if ( ! ( p = calloc( 1, sizeof( BANK_UPLOAD_STRUCTURE ) ) ) )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: cannot allocate memory.\n",
@@ -51,6 +48,17 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			 __LINE__ );
 		exit(1 );
 	}
+
+	return p;
+}
+
+BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
+			char *fund_name,
+			char *input_filename )
+{
+	BANK_UPLOAD_STRUCTURE *p;
+
+	p = bank_upload_structure_calloc();
 
 	p->fund_name = fund_name;
 	p->input_filename = input_filename;
@@ -596,7 +604,7 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 
 } /* bank_upload_fetch() */
 
-LIST *bank_upload_fetch_list(		char *application_name,
+LIST *bank_upload_fetch_sort_list(	char *application_name,
 					int starting_sequence_number )
 {
 	LIST *bank_upload_list;
@@ -642,7 +650,7 @@ LIST *bank_upload_fetch_list(		char *application_name,
 
 	return bank_upload_list;
 
-} /* bank_upload_fetch_list() */
+} /* bank_upload_fetch_sort_list() */
 
 void bank_upload_parse(		char **bank_date,
 				char **bank_description,

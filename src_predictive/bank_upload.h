@@ -35,6 +35,11 @@ typedef struct
 	double bank_running_balance;
 	char *fund_name;
 	TRANSACTION *transaction;
+	/* -------------------------------- */
+	/* For <Submit> on Sort Bank Upload */
+	/* -------------------------------- */
+	int pre_row_number;
+	int post_row_number;
 } BANK_UPLOAD;
 
 typedef struct
@@ -58,13 +63,17 @@ typedef struct
 	int file_record_count;
 	int table_insert_count;
 	char *minimum_bank_date;
-	LIST *bank_upload_list;
+	LIST *load_bank_upload_list;
+	LIST *sort_bank_upload_list;
 	LIST *existing_cash_journal_ledger_list;
 	LIST *reoccurring_transaction_list;
 } BANK_UPLOAD_STRUCTURE;
 
 /* Operations */
 /* ---------- */
+BANK_UPLOAD_STRUCTURE *bank_upload_structure_calloc(
+					void );
+
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 					char *fund_name,
 					char *input_filename );
@@ -114,7 +123,7 @@ boolean bank_upload_get_bank_date_international(
 					char *bank_date_international,
 					char *bank_date );
 
-LIST *bank_upload_fetch_list(		char *application_name,
+LIST *bank_upload_fetch_sort_list(	char *application_name,
 					int starting_sequence_number );
 
 BANK_UPLOAD *bank_upload_fetch(		char *application_name,

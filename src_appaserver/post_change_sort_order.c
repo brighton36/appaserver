@@ -267,6 +267,7 @@ int main( int argc, char **argv )
 				application_name,
 				folder,
 				post_dictionary );
+
 		printf( "<h3>Update Complete</h3\n" );
 	}
 	else
@@ -564,6 +565,7 @@ void change_sort_order_state_two(
 
 	sprintf( sys_string,
 		 "update_statement.e table=%s key=%s carrot=y	|"
+"tee -a /var/log/appaserver/appaserver_timriley.err |"
 		 "sql.e						 ",
 		 table_name,
 		 list_display( folder->primary_attribute_name_list ) );
@@ -572,6 +574,15 @@ void change_sort_order_state_two(
 
 	for( row = 1;; row++ )
 	{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: row = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+row );
+m2( application_name, msg );
+}
 		primary_data_list =
 			dictionary_get_data_list(
 					folder->primary_attribute_name_list,
@@ -580,6 +591,15 @@ void change_sort_order_state_two(
 
 		if ( !list_length( primary_data_list ) ) break;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got primary_data_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_display( primary_data_list ) );
+m2( application_name, msg );
+}
 		sprintf( key, "%s_%d", sort_attribute_name, row );
 
 		if ( ! ( new_sort = dictionary_fetch( post_dictionary, key ) ) )

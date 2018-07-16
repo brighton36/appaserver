@@ -1,12 +1,12 @@
-/* ---------------------------------------------------	*/
-/* post_alligator_srf_dataentry_wizard.c		*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* This script is attached to the submit button on 	*/
-/* the hydrology quick measurement form.		*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_alligtor/post_alligator_srf_dataentry_wizard.c	*/
+/* -------------------------------------------------------------------	*/
+/*									*/
+/* This script is attached to the submit button on 			*/
+/* the hydrology quick measurement form.				*/
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,6 +65,12 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	appaserver_error_starting_argv_append_file(

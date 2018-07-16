@@ -11,7 +11,7 @@ Freely available software. See appaserver.org
 .title
 </title>
 <link rel="stylesheet" type="text/css"
-href="/rollbar/skin-winxp.css" media="all">
+href="/appaserver/rollbar/skin-winxp.css" media="all">
 
 <style type="text/css">
 div.dynarch-rollbar table.dynarch-inner-table td.dynarch-inner-td
@@ -19,21 +19,21 @@ div.dynarch-rollbar table.dynarch-inner-table td.dynarch-inner-td
 div.dynarch-roll-tabs table { margin-left: 0; }
 </style>
 
-<script type="text/javascript" src="/rollbar/rollbar.js"></script>
+<script type="text/javascript" src="/appaserver/rollbar/rollbar.js"></script>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
-<link rel=stylesheet type="text/css" href=/alligator/style_dataentry.css>
+<link rel=stylesheet type="text/css" href=/appaserver/alligator/style_dataentry.css>
 <TITLE>DataForEver Alligator</TITLE>
 
-<SCRIPT language="JavaScript1.2" src="/javascript/trim.js"></SCRIPT>
-<SCRIPT language="JavaScript1.2" src="/javascript/timlib.js"></SCRIPT>
-<SCRIPT language="JavaScript1.2" src="/javascript/cookie.js"></SCRIPT>
-<SCRIPT language="JavaScript1.2" src="/javascript/form.js"></SCRIPT>
-<SCRIPT language="JavaScript1.2" src="/javascript/form_cookie.js"></SCRIPT>
-<SCRIPT language="JavaScript1.2" src="/javascript/keystrokes.js"></SCRIPT>
-<SCRIPT language="JavaScript1.2" src="/javascript/trim.js"></SCRIPT>
-<SCRIPT language="JavaScript1.2" src="/javascript/timlib.js"></SCRIPT>
-<SCRIPT language="JavaScript1.2" src="/javascript/push_button_submit.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/appaserver/javascript/trim.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/appaserver/javascript/timlib.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/appaserver/javascript/cookie.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/appaserver/javascript/form.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/appaserver/javascript/form_cookie.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/appaserver/javascript/keystrokes.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/appaserver/javascript/trim.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/appaserver/javascript/timlib.js"></SCRIPT>
+<SCRIPT language="JavaScript1.2" src="/appaserver/javascript/push_button_submit.js"></SCRIPT>
 
 </head>
 
@@ -67,21 +67,6 @@ target="edit_frame">
 >
 <td colspan=1>Year, dash, then a unique number within the year.</td>
 
-<!--
-onBlur="nest_number_on_blur( this );"
--->
-
-</td>
-
-<!--
-<tr>
-<td align=left>Transect</td>
-<td align=left colspan=1>
-<select name="transect_number_0" size="1"><option value="select">Select
-.process=transect_wizard_list.sh application
-</select></td>
--->
-
 <tr>
 <td align=left>Utm Easting</td>
 <td><input name="utm_easting_0" type="text" size="8" value="" maxlength="6"></td>
@@ -90,39 +75,12 @@ onBlur="nest_number_on_blur( this );"
 <td align=left>Utm Northing</td>
 <td><input name="utm_northing_0" type="text" size="8" value="" maxlength="7"></td>
 
-<!--
-<tr>
-<td align=left>In Transect Boundry yn</td>
-<td align=left colspan=1>
-<select name="in_transect_boundary_yn_0" size="1"><option value="select">Select
-<option value="y">Yes
-<option value="n">No
-</select></td>
-
-<tr>
-<td align=left>Basin</td>
-<td align=left colspan=1>
-<select name="basin_0" size="1"><option value="select">Select
-.process=basin_wizard_list.sh application
-</select></td>
--->
-
 <tr>
 <td align=left>Habitat</td>
 <td align=left colspan=1>
 <select name="habitat_0" size="1"><option value="select">Select
 .process=habitat_wizard_list.sh application
 </select></td>
-
-<!--
-<tr>
-<td align=left>Near Pond yn</td>
-<td align=left colspan=1>
-<select name="near_pond_yn_0" size="1"><option value="select">Select
-<option value="y">Yes
-<option value="n">No
-</select></td>
--->
 
 <tr>
 <td align=left>Monitor Nest yn</td>
@@ -143,7 +101,13 @@ onBlur="nest_number_on_blur( this );"
 <td><textarea name="nest_notepad_0" cols=30 rows=4 onblur="timlib_check_notepad_size(this, 255);" wrap=physical></textarea>
 </td>
 </table>
+<!--
+--------------------
+Close name=nest_form
+--------------------
+-->
 </form>
+
 <tr><td>
 <table>
 <td><input type="button" value="Reset" onClick="form_reset(document.forms[1]);">
@@ -279,10 +243,6 @@ var habitat_array = [];
 var SRF_yn_array = [];
 var monitor_nest_yn_array = [];
 var nest_notepad_array = [];
-// var near_pond_yn_array = [];
-// var transect_number_array = [];
-// var in_transect_boundary_yn_array = [];
-// var basin_array = [];
 
 var nest_record_number = 0;
 
@@ -319,31 +279,6 @@ function store_nest_to_associative_array(
 			element.value;
 	}
 
-//	element = timlib_get_form_element( "transect_number_0", form_number );
-//	drop_down_value = timlib_get_drop_down_element_value( element.options );
-//	if ( drop_down_value != 'select' )
-//	{
-//		transect_number_array[ nest_record_number ] =
-//			drop_down_value;
-//	}
-//
-//	element = timlib_get_form_element(	"in_transect_boundary_yn_0",
-//						form_number );
-//	drop_down_value = timlib_get_drop_down_element_value( element.options );
-//	if ( drop_down_value != 'select' )
-//	{
-//		in_transect_boundary_yn_array[ nest_record_number ] =
-//			drop_down_value;
-//	}
-//
-//	element = timlib_get_form_element( "basin_0", form_number );
-//	drop_down_value = timlib_get_drop_down_element_value( element.options );
-//	if ( drop_down_value != 'select' )
-//	{
-//		basin_array[ nest_record_number ] =
-//			drop_down_value;
-//	}
-
 	element = timlib_get_form_element( "habitat_0", form_number );
 	drop_down_value = timlib_get_drop_down_element_value( element.options );
 	if ( drop_down_value != 'select' )
@@ -351,14 +286,6 @@ function store_nest_to_associative_array(
 		habitat_array[ nest_record_number ] =
 			drop_down_value;
 	}
-
-//	element = timlib_get_form_element( "near_pond_yn_0", form_number );
-//	drop_down_value = timlib_get_drop_down_element_value( element.options );
-//	if ( drop_down_value != 'select' )
-//	{
-//		near_pond_yn_array[ nest_record_number ] =
-//			drop_down_value;
-//	}
 
 	element = timlib_get_form_element( "SRF_yn_0", form_number );
 	drop_down_value = timlib_get_drop_down_element_value( element.options );
@@ -467,36 +394,6 @@ function store_nest_to_post_dictionary( form_number )
 				utm_northing_array[
 					nest_record_number ] );
 
-//		variable_name =
-//			'transect_number_' +
-//			(nest_record_number + 1).toString();
-//		dictionary_string =
-//			append_dictionary_variable(
-//				dictionary_string,
-//				variable_name,
-//				transect_number_array[
-//					nest_record_number ] );
-//
-//		variable_name =
-//			'in_transect_boundary_yn_' +
-//			(nest_record_number + 1).toString();
-//		dictionary_string =
-//			append_dictionary_variable(
-//				dictionary_string,
-//				variable_name,
-//				in_transect_boundary_yn_array[
-//					nest_record_number ] );
-//
-//		variable_name =
-//			'basin_' +
-//			(nest_record_number + 1).toString();
-//		dictionary_string =
-//			append_dictionary_variable(
-//				dictionary_string,
-//				variable_name,
-//				basin_array[
-//					nest_record_number ] );
-
 		variable_name =
 			'habitat_' +
 			(nest_record_number + 1).toString();
@@ -506,16 +403,6 @@ function store_nest_to_post_dictionary( form_number )
 				variable_name,
 				habitat_array[
 					nest_record_number ] );
-
-//		variable_name =
-//			'near_pond_yn_' +
-//			(nest_record_number + 1).toString();
-//		dictionary_string =
-//			append_dictionary_variable(
-//				dictionary_string,
-//				variable_name,
-//				near_pond_yn_array[
-//					nest_record_number ] );
 
 		variable_name =
 			'SRF_yn_' +

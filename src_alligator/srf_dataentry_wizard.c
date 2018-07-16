@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* srf_dataentry_wizard.c				*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -----------------------------------------------------	*/
+/* $APPASERVER_HOME/src_alligator/srf_dataentry_wizard.c	*/
+/* -----------------------------------------------------	*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -24,11 +24,6 @@
 
 /* Constants */
 /* --------- */
-/*
-#define OUTPUT_TEMPLATE			"%s/%s/srf_dataentry_wizard_%d.html"
-#define DISPLAY_PREPEND_TEMPLATE	"%s://%s/%s/srf_dataentry_wizard_%d.html"
-#define DISPLAY_NONPREPEND_TEMPLATE	"/%s/srf_dataentry_wizard_%d.html"
-*/
 #define TARGET_WINDOW			"dataentry_window"
 
 /* Prototypes */
@@ -47,7 +42,7 @@ int main( int argc, char **argv )
 	FILE *output_file;
 	char *output_filename;
 	char *display_filename;
-	char sys_string[ 1024 ];
+	char sys_string[ 2048 ];
 	pid_t process_id;
 	char *login_name;
 	char *session;
@@ -141,7 +136,7 @@ int main( int argc, char **argv )
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
-	
+
 	document_output_head(
 				document->application_name,
 				document->title,
@@ -163,14 +158,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-/*
-	sprintf( output_filename, 
-		 OUTPUT_TEMPLATE,
-		 appaserver_parameter_file->appaserver_mount_point,
-		 application_name, 
-		 process_id );
-*/
-
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -182,26 +169,6 @@ int main( int argc, char **argv )
 	{
 		fclose( output_file );
 	}
-
-/*
-	if ( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' )
-	{
-		sprintf(display_filename, 
-		 	DISPLAY_PREPEND_TEMPLATE, 
-			application_get_http_prefix( application_name ),
-		 	appaserver_library_get_server_address(),
-		 	application_name,
-		 	process_id );
-	}
-	else
-	{
-		sprintf(display_filename, 
-		 	DISPLAY_NONPREPEND_TEMPLATE, 
-		 	application_name,
-		 	process_id );
-	}
-*/
 
 	sprintf( title, "%s %s", discovery_date_string, primary_researcher );
 
@@ -252,6 +219,8 @@ fprintf( stderr, "%s\n", sys_string );
 				application_name,
 				process_name,
 				appaserver_parameter_file_get_dbms() );
+
 	return 0;
+
 } /* main() */
 

@@ -17,6 +17,8 @@ mysql_password_file=/tmp/mysql_password_file_$$.dat
 
 echo "$0 starting at `date.e 0`"
 
+# Returns $results
+# ----------------
 parse_parameter_file()
 {
 	file=$1
@@ -73,6 +75,8 @@ grep '^mysql_password=' $appaserver_config	|
 sed 's/mysql_//'				|
 cat >> $mysql_password_file
 
+# Make the directories, if first time for this parameter file.
+# ------------------------------------------------------------
 if [ ! -d $output_directory -a "$directory_root" != "" ]
 then
 	new_directory="${directory_root}"

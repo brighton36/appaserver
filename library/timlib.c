@@ -3559,3 +3559,30 @@ int timlib_atoi( char *s )
 
 } /* timlib_atoi() */
 
+void timlib_cp(		char *destination_filename,
+			char *source_filename )
+{
+	char sys_string[ 256 ];
+
+	if ( !source_filename
+	||   !timlib_file_exists( source_filename ) )
+	{
+		fprintf( stderr,
+"Warning in %s/%s()/%d: empty or non-readable source_filename = (%s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 (source_filename)
+				? source_filename
+				: "" );
+		return;
+	}
+
+	sprintf( sys_string,
+		 "cp %s %s",
+		 source_filename,
+		 destination_filename );
+
+	system( sys_string );
+
+} /* timlib_cp() */

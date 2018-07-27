@@ -12,10 +12,18 @@
 
 /* Constants */
 /* --------- */
+/* -------------------------------------------------------------------- */
+/* Synchronize with:							*/
+/* $APPASERVER_HOME/src_appaserver/appaserver_mysqldump_database.sh	*/
+/* -------------------------------------------------------------------- */
+#define MYSQLDUMP_FORK_BACKUP_DIRECTORY   "/var/backups/appaserver"
+
 #define INSUFFICIENT_SPACE_MESSAGE "Insufficient filesystem space."
 #define AUDIT_DELIMITER ','
 #define DIFF_WARNING_MESSAGE \
 	"Warning: backup count differs from database count!"
+#define COUNT_DROP_WARNING_MESSAGE \
+	"Warning: backup count dropped from last run"
 
 #define MYSQL_DUMP_TEMPLATE "rm %s 2>/dev/null; touch %s; chmod o-r %s 2>/dev/null; nice -9 mysqldump --defaults-extra-file=%s -u%s --extended-insert=TRUE --force --quick --add-drop-table %s %s | %s >> %s"
 
@@ -29,7 +37,8 @@ long int get_needed_megabytes(		char *output_directory,
 boolean filesystem_enough_space(	char *output_directory );
 
 void output_audit_results(		char *audit_database_filename,
-					char *audit_datafile_filename );
+					char *audit_datafile_filename,
+					char *prior_audit_database_filename );
 
 void remove_file(			char *filename );
 
@@ -42,9 +51,11 @@ void output_audit_datafile_count(	char *audit_datafile_filename,
 void output_audit_database_count(	char *audit_database_filename,
 					LIST *table_name_list );
 
-char *get_audit_database_filename(	void );
+char *get_audit_database_filename(	char *database );
 
 char *get_audit_datafile_filename(	void );
+
+char *get_prior_audit_database_filename(void );
 
 char *get_filename(			char *table_name,
 					char *date_stamp );
@@ -89,6 +100,7 @@ int main( int argc, char **argv )
 	char *date_stamp;
 	char *audit_database_filename;
 	char *audit_datafile_filename;
+	char *prior_audit_database_filename;
 
 	if ( argc < 7 )
 	{
@@ -126,7 +138,10 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	audit_database_filename = get_audit_database_filename();
+	audit_database_filename =
+		get_audit_database_filename(
+			database );
+
 	audit_datafile_filename = get_audit_datafile_filename();
 
 	output_audit_database_count(
@@ -187,14 +202,23 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	prior_audit_database_filename =
+		get_prior_audit_database_filename();
+
+	timlib_cp(	prior_audit_database_filename
+				/* destination_filename */,
+			audit_database_filename
+				/* source_filename */ );
+
 	if ( each_line_insert )
 	{
 		output_audit_results(
 				audit_database_filename,
-				audit_datafile_filename );
+				audit_datafile_filename,
+				prior_audit_database_filename );
 	}
 
-	remove_file( audit_database_filename );
+	/* remove_file( prior_audit_database_filename ); */
 	remove_file( audit_datafile_filename );
 
 	return 0;
@@ -401,24 +425,37 @@ boolean tar_small_files(
 
 } /* tar_small_files() */
 
-char *get_audit_database_filename( void )
+char *get_audit_database_filename( char *database )
 {
 	static char audit_database_filename[ 128 ];
 
 	sprintf( audit_database_filename,
-		 "/tmp/mysqldump_fork_audit_database_%d",
-		 getpid() );
+		 "%s/mysqldump_count_%s.dat",
+		 MYSQLDUMP_FORK_BACKUP_DIRECTORY,
+		 database );
 
 	return audit_database_filename;
 
 } /* get_audit_database_filename() */
+
+char *get_prior_audit_database_filename( void )
+{
+	static char prior_audit_database_filename[ 128 ];
+
+	sprintf( prior_audit_database_filename,
+		 "/tmp/mysqldump_fork_audit_database_%d.dat",
+		 getpid() );
+
+	return prior_audit_database_filename;
+
+} /* get_prior_audit_database_filename() */
 
 char *get_audit_datafile_filename( void )
 {
 	static char audit_datafile_filename[ 128 ];
 
 	sprintf( audit_datafile_filename,
-		 "/tmp/mysqldump_fork_audit_datafile_%d",
+		 "/tmp/mysqldump_fork_audit_datafile_%d.dat",
 		 getpid() );
 
 	return audit_datafile_filename;
@@ -431,6 +468,7 @@ void output_audit_database_count(	char *audit_database_filename,
 	FILE *output_file;
 	char sys_string[ 128 ];
 	char *table_name;
+	char *results;
 
 	if ( !list_rewind( table_name_list ) ) return;
 
@@ -452,11 +490,13 @@ void output_audit_database_count(	char *audit_database_filename,
 			 "echo \"select count(*) from %s;\" | sql.e",
 			 table_name );
 
+		results = pipe2string( sys_string );
+
 		fprintf(	output_file,
 				"%s%c%s\n",
 				table_name,
 				AUDIT_DELIMITER,
-				pipe2string( sys_string ) );
+				results );
 		
 	} while( list_next( table_name_list ) );
 
@@ -535,17 +575,24 @@ void remove_file( char *filename )
 {
 	char sys_string[ 256 ];
 
-	sprintf( sys_string, "rm -f %s", filename );
-	system( sys_string );
+	if ( filename && *filename )
+	{
+		sprintf( sys_string, "rm -f %s", filename );
+		system( sys_string );
+	}
 
 } /* remove_file() */
 
 void output_audit_results(	char *audit_database_filename,
-				char *audit_datafile_filename )
+				char *audit_datafile_filename,
+				char *prior_audit_database_filename )
 {
 	char sys_string[ 1024 ];
-	char *diff_results;
+	char *diff_results = {0};
+	char *drop_results = {0};
 
+	/* Output the warnings messages at the top. */
+	/* ---------------------------------------- */
 	sprintf(	sys_string,
 			"diff %s %s",
 			audit_database_filename,
@@ -554,6 +601,23 @@ void output_audit_results(	char *audit_database_filename,
 	if ( ( diff_results = pipe2string( sys_string ) ) )
 		printf( "%s\n", DIFF_WARNING_MESSAGE );
 
+	if ( prior_audit_database_filename && *prior_audit_database_filename )
+	{
+		sprintf(	sys_string,
+				"mysqldump_fork_count_drop.e %s %s",
+				audit_database_filename,
+				prior_audit_database_filename );
+
+		if ( ( drop_results = pipe2string( sys_string ) ) )
+		{
+			printf( "%s: %s\n",
+				COUNT_DROP_WARNING_MESSAGE,
+				drop_results );
+		}
+	}
+
+	/* Output the table of counts. */
+	/* --------------------------  */
 	sprintf(	sys_string,
 			"join -t'%c' %s %s			|"
 			"sort -t'%c' -r -n -k2			 ",
@@ -570,8 +634,15 @@ void output_audit_results(	char *audit_database_filename,
 	system( sys_string );
 	fflush( stdout );
 
+	/* Output the warnings messages at the bottom. */
+	/* ------------------------------------------- */
 	if ( diff_results )
 		printf( "%s\n", DIFF_WARNING_MESSAGE );
+
+	if ( drop_results )
+		printf( "%s: %s\n",
+			COUNT_DROP_WARNING_MESSAGE,
+			drop_results );
 
 } /* output_audit_results() */
 

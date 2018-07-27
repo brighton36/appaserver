@@ -513,4 +513,7 @@ char *timlib_right_string(	char *string,
 
 int timlib_atoi(		char *string );
 
+void timlib_cp(			char *destination_filename,
+				char *source_filename );
+
 #endif

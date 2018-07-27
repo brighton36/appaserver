@@ -4,6 +4,9 @@
 # ----------------------------------------------------------------
 
 appaserver_config_file="/etc/appaserver.config"
+
+# Synchronize with MYSQLDUMP_FORK_BACKUP_DIRECTORY
+# ------------------------------------------------
 backup_directory="/var/backups/appaserver"
 
 # Get appaserver_home
@@ -22,7 +25,7 @@ fi
 export APPASERVER_HOME=$appaserver_home
 export PATH=$PATH:$APPASERVER_HOME/utility:$APPASERVER_HOME/src_appaserver
 
-ls -1 $backup_directory/mysqldump_*.dat	|
+ls -1 $backup_directory/mysqldump_*.config	|
 while read parameter_file
 do
 	if [ -r "$parameter_file" ]

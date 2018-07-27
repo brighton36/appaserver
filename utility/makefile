@@ -88,6 +88,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	format_stamp_undo.e menu.e select2delimiter.e			\
 	queue_top_bottom_lines.e					\
 	mysqldump_fork.e						\
+	mysqldump_fork_count_drop.e					\
 	csvdump_fork.e							\
 	join_multi_line_delimited.e					\
 	pad_leading_numbers.e queue_file.e				\
@@ -865,6 +866,13 @@ mysqldump_fork.e: mysqldump_fork.c ${LIBRARY}/fork_control.o
 		${STANDARD_LIBRARY}					\
 		${LIBRARY}/fork_control.o				\
 		-o mysqldump_fork.e
+
+mysqldump_fork_count_drop.e: mysqldump_fork_count_drop.c
+	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		mysqldump_fork_count_drop.c 				\
+		${STANDARD_LIBRARY}					\
+		-o mysqldump_fork_count_drop.e
 
 csvdump_fork.e: csvdump_fork.c ${LIBRARY}/fork_control.o
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\

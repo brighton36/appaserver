@@ -7,6 +7,7 @@
 # Use new delimiter of "~" and hope it's not used.
 # ------------------------------------------------
 
+crontab -l					|
 grep -v '^#'					|
 grep -v '^$'					|
 column2pipe.e 2 '~'				|

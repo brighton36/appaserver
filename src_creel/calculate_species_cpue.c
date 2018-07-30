@@ -1410,9 +1410,9 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 	CATCH_PER_UNIT_EFFORT *catch_per_unit_effort;
 	CATCH_PER_UNIT_EFFORT_SPECIES *species;
 	char *output_filename = {0};
-	char *spreadsheet_cpue_per_species_output_filename = {0};
 	char *ftp_detail_filename = {0};
-	char *ftp_summary_filename = {0};
+	char *ftp_per_species_per_area_filename = {0};
+	char *ftp_per_species_filename = {0};
 	pid_t process_id = getpid();
 	char output_sys_string[ 1024 ];
 	FILE *output_file;
@@ -1631,7 +1631,7 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 		 "tr '|' ',' > %s",
 		 output_filename );
 
-	ftp_summary_filename =
+	ftp_per_species_per_area_filename =
 		appaserver_link_get_link_prompt(
 			appaserver_link_file->
 				link_prompt->
@@ -1739,7 +1739,7 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 		if ( timlib_strcmp( catch_harvest, "cpue" ) == 0 )
 		{
 			appaserver_library_output_ftp_prompt(
-				ftp_summary_filename,
+				ftp_per_species_per_area_filename,
 "Species CPUE Per Species Per Area: &lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",
 				(char *)0 /* target */,
 				(char *)0 /* application_type */ );
@@ -1747,7 +1747,7 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 		else
 		{
 			appaserver_library_output_ftp_prompt(
-				ftp_summary_filename,
+				ftp_per_species_per_area_filename,
 "Species HPUE Per Species Per Area: &lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",
 				(char *)0 /* target */,
 				(char *)0 /* application_type */ );
@@ -1756,21 +1756,24 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 
 	/* Output CPUE Per Species */
 	/* ----------------------- */
-	spreadsheet_cpue_per_species_output_filename =
+	appaserver_link_file->filename_stem =
+		FILENAME_STEM_PER_SPECIES;
+
+	output_filename =
 		get_per_species_output_filename(
 			document_root_directory,
 			application_name,
 			begin_date_string,
 			end_date_string,
 			process_id,
-			FILENAME_STEM_PER_SPECIES );
+			appaserver_link_file->filename_stem );
 
 	if ( ! ( output_file =
-			fopen(	spreadsheet_cpue_per_species_output_filename,
+			fopen(	output_filename,
 				"w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s\n",
-			spreadsheet_cpue_per_species_output_filename );
+			output_filename );
 		document_close();
 		exit( 1 );
 	}
@@ -1779,9 +1782,27 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 		fclose( output_file );
 	}
 
+	ftp_per_species_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
 	sprintf( output_sys_string,
 		 "tr '|' ',' > %s",
-		 spreadsheet_cpue_per_species_output_filename );
+		 output_filename );
 
 	output_pipe = popen( output_sys_string, "w" );
 
@@ -1807,7 +1828,6 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 			catch_harvest,
 			exclude_zero_catches_label ) );
 
-	if ( timlib_strcmp( catch_harvest, "cpue" ) == 0 )
 	if ( list_rewind(
 		catch_per_unit_effort->
 		results_per_species_list ) )
@@ -1865,7 +1885,7 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 		if ( timlib_strcmp( catch_harvest, "cpue" ) == 0 )
 		{
 			appaserver_library_output_ftp_prompt(
-				ftp_summary_filename,
+				ftp_per_species_filename,
 "Species CPUE Per Species: &lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",
 				(char *)0 /* target */,
 				(char *)0 /* application_type */ );
@@ -1873,7 +1893,7 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 		else
 		{
 			appaserver_library_output_ftp_prompt(
-				ftp_summary_filename,
+				ftp_per_species_filename,
 "Species HPUE Per Species: &lt;Left Click&gt; to view or &lt;Right Click&gt; to save.",
 				(char *)0 /* target */,
 				(char *)0 /* application_type */ );

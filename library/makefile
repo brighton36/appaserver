@@ -93,7 +93,8 @@ APPASERVER_LIBRARY=						\
 		semaphore.o					\
 		dollar.o					\
 		array.o						\
-		session.o
+		session.o					\
+		mysqldump.o
 
 all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
 		distance.o						\
@@ -1151,4 +1152,10 @@ array.o: array.c							\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c array.c
+
+mysqldump.o: mysqldump.c						\
+	mysqldump.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c mysqldump.c
 

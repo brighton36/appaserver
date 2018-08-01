@@ -24,8 +24,12 @@ typedef struct
 	LIST *prior_mysqldump_folder_list;
 } MYSQLDUMP;
 
-MYSQLDUMP *mysqldump_new(		void );
+MYSQLDUMP *mysqldump_new(		char *audit_database_filename,
+					char *prior_audit_database_filename );
 
 MYSQLDUMP_FOLDER *mysqldump_folder_new(	void );
+
+LIST *mysqldump_fetch_folder_list(
+					char *database_filename );
 
 #endif

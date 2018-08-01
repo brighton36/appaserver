@@ -7,13 +7,16 @@
 #include "list.h"
 #include "boolean.h"
 #include "column.h"
-#include "timlib.h"
+#include "mysqldump.h"
 
 /* Constants */
 /* --------- */
 
 /* Prototypes */
 /* ---------- */
+void mysqldump_fork_count_drop(
+				char *audit_database_filename,
+				char *prior_audit_database_filename );
 
 int main( int argc, char **argv )
 {
@@ -31,7 +34,24 @@ int main( int argc, char **argv )
 	audit_database_filename = argv[ 1 ];
 	prior_audit_database_filename = argv[ 2 ];
 
+	mysqldump_fork_count_drop(
+		audit_database_filename,
+		prior_audit_database_filename );
+
 	return 0;
 
 } /* main() */
+
+void mysqldump_fork_count_drop(
+				char *audit_database_filename,
+				char *prior_audit_database_filename )
+{
+	MYSQLDUMP *mysqldump;
+
+	mysqldump =
+		mysqldump_new(
+			audit_database_filename,
+			prior_audit_database_filename );
+
+} /* mysqldump_fork_count_drop() */
 

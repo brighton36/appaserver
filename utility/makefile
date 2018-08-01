@@ -867,11 +867,13 @@ mysqldump_fork.e: mysqldump_fork.c ${LIBRARY}/fork_control.o
 		${LIBRARY}/fork_control.o				\
 		-o mysqldump_fork.e
 
-mysqldump_fork_count_drop.e: mysqldump_fork_count_drop.c
+mysqldump_fork_count_drop.e: mysqldump_fork_count_drop.c		\
+		${LIBRARY}/mysqldump.o
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		mysqldump_fork_count_drop.c 				\
 		${STANDARD_LIBRARY}					\
+		${LIBRARY}/mysqldump.o					\
 		-o mysqldump_fork_count_drop.e
 
 csvdump_fork.e: csvdump_fork.c ${LIBRARY}/fork_control.o

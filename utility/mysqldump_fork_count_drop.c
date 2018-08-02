@@ -11,6 +11,7 @@
 
 /* Constants */
 /* --------- */
+#define PERCENTAGE_DROP_THRESHOLD	0.20
 
 /* Prototypes */
 /* ---------- */
@@ -52,6 +53,24 @@ void mysqldump_fork_count_drop(
 		mysqldump_new(
 			audit_database_filename,
 			prior_audit_database_filename );
+
+	mysqldump_set_percentage_drop(
+		mysqldump->audit_mysqldump_folder_list,
+		mysqldump->prior_mysqldump_folder_list );
+
+	mysqldump->reached_percentage_drop_name_list =
+		mysqldump_get_reached_percentage_drop_name_list(
+			mysqldump->audit_mysqldump_folder_list,
+			PERCENTAGE_DROP_THRESHOLD );
+
+	if ( list_length( mysqldump->reached_percentage_drop_name_list ) )
+	{
+		printf( "DROP %.2lf percent: %s\n",
+			PERCENTAGE_DROP_THRESHOLD,
+			list_display(
+				mysqldump->
+					reached_percentage_drop_name_list ) );
+	}
 
 } /* mysqldump_fork_count_drop() */
 

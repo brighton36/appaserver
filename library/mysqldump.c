@@ -18,6 +18,7 @@ MYSQLDUMP *mysqldump_new(	char *audit_database_filename,
 
 {
 	MYSQLDUMP *a;
+MYSQLDUMP_FOLDER *mysqldump_folder;
 
 	if ( ! ( a = calloc( 1, sizeof( MYSQLDUMP ) ) ) )
 	{
@@ -39,6 +40,10 @@ MYSQLDUMP *mysqldump_new(	char *audit_database_filename,
 	a->prior_mysqldump_folder_list =
 		mysqldump_fetch_folder_list(
 			prior_audit_database_filename );
+
+mysqldump_folder = mysqldump_folder_new();
+mysqldump_folder->folder_name = "die_soon";
+list_append_pointer( a->prior_mysqldump_folder_list, mysqldump_folder );
 
 	return a;
 
@@ -90,6 +95,8 @@ void mysqldump_set_percentage_drop(
 	do {
 		audit_folder = list_get( audit_mysqldump_folder_list );
 
+/* Doesn't work. */
+/* ------------- */
 		if ( ! ( prior_folder =
 				mysqldump_seek_folder(
 					prior_mysqldump_folder_list,
@@ -223,4 +230,34 @@ LIST *mysqldump_get_reached_percentage_drop_name_list(
 	return reached_name_list;
 
 } /* mysqldump_get_reached_percentage_drop_name_list() */
+
+LIST *mysqldump_get_folder_name_list( LIST *folder_list )
+{
+	MYSQLDUMP_FOLDER *mysqldump_folder;
+	LIST *folder_name_list;
+
+	if ( !list_rewind( folder_list ) )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty folder_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	folder_name_list = list_new();
+
+	do {
+		mysqldump_folder = list_get( folder_list );
+
+		list_append_pointer(
+			folder_name_list,
+			mysqldump_folder->folder_name );
+
+	} while( list_next( folder_list ) );
+
+	return folder_name_list;
+
+} /* mysqldump_get_folder_name_list() */
 

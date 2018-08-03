@@ -41,6 +41,7 @@ error_exit_if_blank()
 
 parse_parameter_file $parameter_file database
 export DATABASE=$results
+export APPASERVER_DATABASE=$results
 database=$results
 
 parse_parameter_file $parameter_file directory_root

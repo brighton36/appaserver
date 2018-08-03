@@ -45,4 +45,6 @@ LIST *mysqldump_get_reached_percentage_drop_name_list(
 					LIST *audit_mysqldump_folder_list,
 					double percentage_drop_threshold );
 
+LIST *mysqldump_get_folder_name_list(	LIST *folder_list );
+
 #endif

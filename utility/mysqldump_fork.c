@@ -142,7 +142,17 @@ int main( int argc, char **argv )
 		get_audit_database_filename(
 			database );
 
+	prior_audit_database_filename =
+		get_prior_audit_database_filename();
+
 	audit_datafile_filename = get_audit_datafile_filename();
+
+	/* Archive the audit file because it gets smashed. */
+	/* ----------------------------------------------- */
+	timlib_cp(	prior_audit_database_filename
+				/* destination_filename */,
+			audit_database_filename
+				/* source_filename */ );
 
 	output_audit_database_count(
 		audit_database_filename,
@@ -201,14 +211,6 @@ int main( int argc, char **argv )
 			 argv[ 0 ] );
 		exit( 1 );
 	}
-
-	prior_audit_database_filename =
-		get_prior_audit_database_filename();
-
-	timlib_cp(	prior_audit_database_filename
-				/* destination_filename */,
-			audit_database_filename
-				/* source_filename */ );
 
 	if ( each_line_insert )
 	{

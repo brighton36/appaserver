@@ -18,7 +18,6 @@ MYSQLDUMP *mysqldump_new(	char *audit_database_filename,
 
 {
 	MYSQLDUMP *a;
-MYSQLDUMP_FOLDER *mysqldump_folder;
 
 	if ( ! ( a = calloc( 1, sizeof( MYSQLDUMP ) ) ) )
 	{
@@ -145,7 +144,7 @@ LIST *mysqldump_fetch_folder_list(
 	if ( ! ( input_file = fopen( database_filename, "r" ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,

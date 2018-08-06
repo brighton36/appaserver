@@ -3586,3 +3586,18 @@ void timlib_cp(		char *destination_filename,
 	system( sys_string );
 
 } /* timlib_cp() */
+
+void timlib_error_stderr(	int argc,
+				char **argv )
+{
+	fprintf( stderr, "%s %s: %s",
+		 date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
+		 date_get_now_hhmm( date_get_utc_offset() ),
+		 *argv );
+
+	while( --argc ) fprintf( stderr, " %s", *++argv );
+	fprintf( stderr, "\n" );
+	fflush( stderr );
+
+} /* timlib_error_stderr() */
+

@@ -516,4 +516,7 @@ int timlib_atoi(		char *string );
 void timlib_cp(			char *destination_filename,
 				char *source_filename );
 
+void timlib_error_stderr(	int argc,
+				char **argv );
+
 #endif

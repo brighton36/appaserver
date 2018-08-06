@@ -7,6 +7,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "column.h"
+#include "timlib.h"
 #include "mysqldump.h"
 
 /* Constants */
@@ -31,6 +32,8 @@ int main( int argc, char **argv )
 			 argv[ 0 ] );
 		exit( 1 );
 	}
+
+	timlib_error_stderr( argc, argv );
 
 	audit_database_filename = argv[ 1 ];
 	prior_audit_database_filename = argv[ 2 ];

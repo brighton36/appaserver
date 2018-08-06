@@ -8,12 +8,14 @@
 #define MYSQLDUMP_H
 
 #include "list.h"
+#include "boolean.h"
 
 typedef struct
 {
 	char *folder_name;
 	int row_count;
 	double percentage_drop;
+	boolean table_exists;
 } MYSQLDUMP_FOLDER;
 
 typedef struct
@@ -44,6 +46,9 @@ MYSQLDUMP_FOLDER *mysqldump_seek_folder(
 LIST *mysqldump_get_reached_percentage_drop_name_list(
 					LIST *audit_mysqldump_folder_list,
 					double percentage_drop_threshold );
+
+LIST *mysqldump_get_table_not_exists_drop_name_list(
+					LIST *prior_mysqldump_folder_list );
 
 LIST *mysqldump_get_folder_name_list(	LIST *folder_list );
 

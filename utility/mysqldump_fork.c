@@ -21,9 +21,9 @@
 #define INSUFFICIENT_SPACE_MESSAGE "Insufficient filesystem space."
 #define AUDIT_DELIMITER ','
 #define DIFF_WARNING_MESSAGE \
-	"Warning: backup count differs from database count!"
+	"Warning: backup count differs from database count."
 #define COUNT_DROP_WARNING_MESSAGE \
-	"Warning: backup count dropped from last run"
+	"Warning: backup count dropped significantly from last run"
 
 #define MYSQL_DUMP_TEMPLATE "rm %s 2>/dev/null; touch %s; chmod o-r %s 2>/dev/null; nice -9 mysqldump --defaults-extra-file=%s -u%s --extended-insert=TRUE --force --quick --add-drop-table %s %s | %s >> %s"
 

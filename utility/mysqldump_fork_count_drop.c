@@ -63,10 +63,14 @@ void mysqldump_fork_count_drop(
 			mysqldump->audit_mysqldump_folder_list,
 			PERCENTAGE_DROP_THRESHOLD );
 
+	list_append_list(
+		mysqldump->reached_percentage_drop_name_list,
+		mysqldump_get_table_not_exists_drop_name_list(
+			mysqldump->prior_mysqldump_folder_list ) );
+
 	if ( list_length( mysqldump->reached_percentage_drop_name_list ) )
 	{
-		printf( "DROP %.2lf percent: %s\n",
-			PERCENTAGE_DROP_THRESHOLD,
+		printf( "%s\n",
 			list_display(
 				mysqldump->
 					reached_percentage_drop_name_list ) );

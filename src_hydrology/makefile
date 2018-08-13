@@ -38,13 +38,15 @@ EXECUTABLES=	hydrology_verification_process				\
 		estimation_linear_interpolation_spike			\
 		estimation_linear_interpolation_spike_output		\
 		estimation_constant_offset				\
+		estimation_constant_offset_output			\
+		sensor_exposed_null					\
+		sensor_exposed_null_output				\
 		data_collection_frequency_list				\
 		measurement_data_collection_frequency_list		\
 		missing_measurement_report				\
 		exceedance_curve					\
 		calculate_evaporation					\
 		exceedance_curve_output					\
-		estimation_constant_offset_output			\
 		estimation_linear_interpolation_drift			\
 		estimation_linear_interpolation_drift_output		\
 		estimation_linear_interpolation_malfunction		\
@@ -845,6 +847,17 @@ estimation_constant_offset: 						\
 		estimation_constant_offset.c				\
 		-o estimation_constant_offset
 
+sensor_exposed_null:		 					\
+		sensor_exposed_null.c					\
+		${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		sensor_exposed_null.c					\
+		-o sensor_exposed_null
+
 exceedance_curve:  exceedance_curve.c					\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -931,6 +944,19 @@ estimation_constant_offset_output: 					\
 		estimation_constant_offset_output.c			\
 		${LIBRARY}/grace.o					\
 		-o estimation_constant_offset_output
+
+sensor_exposed_null_output: 						\
+		sensor_exposed_null_output.c				\
+		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
+		${LIBRARY}/grace.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		sensor_exposed_null_output.c				\
+		${LIBRARY}/grace.o					\
+		-o sensor_exposed_null_output
 
 estimation_linear_interpolation_drift_output: 				\
 		estimation_linear_interpolation_drift_output.c		\

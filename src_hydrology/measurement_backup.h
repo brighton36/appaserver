@@ -19,7 +19,7 @@ typedef struct
 	char *login_name;
 	char *original_value_string;
 	FILE *insert_pipe;
-	int really_yn;
+	char really_yn;
 } MEASUREMENT_BACKUP;
 
 /* Constants */
@@ -58,7 +58,8 @@ void measurement_backup_insert(		FILE *insert_pipe,
 					char *measurement_update_method,
 					char *login_name,
 					char *comma_delimited_record,
-					boolean really_yn,
+					char really_yn,
 					char delimiter );
+
 void measurement_backup_close(		FILE *insert_pipe );
 #endif

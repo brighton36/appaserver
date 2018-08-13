@@ -69,7 +69,7 @@ void measurement_backup_insert(	FILE *insert_pipe,
 				char *measurement_update_method,
 				char *login_name,
 				char *comma_delimited_record,
-				boolean really_yn,
+				char really_yn,
 				char delimiter )
 {
 	char station[ 128 ];

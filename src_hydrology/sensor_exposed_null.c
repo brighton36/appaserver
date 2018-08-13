@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------- 	*/
-/* $APPASERVER_HOME/src_hydrology/estimation_constant_offset.c	*/
+/* $APPASERVER_HOME/src_hydrology/sensor_exposed_null.c	*/
 /* ----------------------------------------------------------- 	*/
 /* 						       		*/
 /* Freely available software: see Appaserver.org		*/
@@ -20,13 +20,13 @@
 #include "query.h"
 #include "appaserver_parameter_file.h"
 #include "environ.h"
+#include "boolean.h"
 #include "date.h"
 
 /* Constants */
 /* --------- */
-#define PROCESS_NAME			"estimation_constant_offset"
-#define MEASUREMENT_UPDATE_METHOD	"constant_offset"
-#define MEASUREMENT_SELECT_LIST		 "station,datatype,measurement_date,measurement_time,measurement_value"
+#define MEASUREMENT_UPDATE_METHOD	"sensor_exposed_null"
+#define MEASUREMENT_SELECT_LIST		"station,datatype,measurement_date,measurement_time,measurement_value"
 
 #define MEASUREMENT_KEY_LIST		 "station,datatype,measurement_date,measurement_time"
 
@@ -40,7 +40,8 @@ void backup_and_update(		FILE *update_pipe,
 				char *results_string,
 				char *buffer,
 				MEASUREMENT_BACKUP *measurement_backup,
-				int really_yn );
+				boolean execute );
+
 void output_buffer(		char *buffer,
 				char *results_string );
 
@@ -48,6 +49,7 @@ int main( int argc, char **argv )
 {
 	int counter = 0;
 	char *application_name;
+	char *process_name;
 	char *station;
 	char *datatype;
 	char *where_clause;
@@ -59,10 +61,10 @@ int main( int argc, char **argv )
 	FILE *input_pipe;
 	FILE *update_pipe;
 	char results_string[ 128 ];
-	double offset_double;
-	double multiplier_double;
-	char multiply_first_then_add_yn;
-	char really_yn;
+	double threshold_value;
+	char *above_below;
+	boolean null_above;
+	boolean execute;
 	DICTIONARY *parameter_dictionary;
 	char *parameter_dictionary_string;
 	MEASUREMENT_UPDATE_PARAMETER *measurement_update_parameter;
@@ -75,39 +77,31 @@ int main( int argc, char **argv )
 	DATE *begin_date, *end_date;
 	DATE *measurement_date = {0};
 	char *notes;
-	char *database_string = {0};
 
-	if ( argc != 16 )
+	if ( argc != 15 )
 	{
 		fprintf(stderr,
-"Usage: %s login_name application station datatype offset multiplier multiply_first_then_add_yn begin_date begin_time end_date end_time parameter_dictionary \"where_clause\" notes execute_yn\n",
+"Usage: %s login_name process station datatype threshold_value above_below begin_date begin_time end_date end_time parameter_dictionary \"where_clause\" notes execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
+	process_name = argv[ 2 ];
 	station = argv[ 3 ];
 	datatype = argv[ 4 ];
-	offset_double = atof( argv[ 5 ] );
-	multiplier_double = atof( argv[ 6 ] );
-	multiply_first_then_add_yn = *argv[ 7 ];
-	begin_date_string = argv[ 8 ];
-	begin_time_string = argv[ 9 ];
-	end_date_string = argv[ 10 ];
-	end_time_string = argv[ 11 ];
-	parameter_dictionary_string = argv[ 12 ];
-	where_clause = argv[ 13 ];
-	notes = argv[ 14 ];
-	really_yn = *argv[ 15 ];
+	threshold_value = atof( argv[ 5 ] );
+	above_below = argv[ 6 ];
+	begin_date_string = argv[ 7 ];
+	begin_time_string = argv[ 8 ];
+	end_date_string = argv[ 9 ];
+	end_time_string = argv[ 10 ];
+	parameter_dictionary_string = argv[ 11 ];
+	where_clause = argv[ 12 ];
+	notes = argv[ 13 ];
+	execute = ( *argv[ 14 ] == 'y' );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
+	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 				argc,
@@ -119,9 +113,23 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	if ( !multiplier_double ) multiplier_double = 1.0;
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	if ( !*above_below
+	||   strcmp( above_below, "above_below" ) == 0
+	||   strcmp( above_below, "select" ) == 0 )
+	{
+		document_quick_output_body(	application_name,
+						appaserver_parameter_file->
+						appaserver_mount_point );
+
+		printf(
+		"<h3>ERROR: Please choose above or below.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	null_above = ( strcmp( above_below, "above" ) == 0 );
 
 	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date_string,
@@ -136,7 +144,8 @@ int main( int argc, char **argv )
 						appaserver_parameter_file->
 						appaserver_mount_point );
 
-		printf( "<p>ERROR: no data available for these dates.\n" );
+		printf(
+		"<h3>ERROR: no data available for these dates.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
@@ -166,7 +175,8 @@ int main( int argc, char **argv )
 	parameter_dictionary = dictionary_remove_index(
 						parameter_dictionary );
 
-	measurement_update_parameter = measurement_update_parameter_new(
+	measurement_update_parameter =
+		measurement_update_parameter_new(
 					application_name,
 					station,
 					datatype,
@@ -258,34 +268,11 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			if ( *value_half )
-			{
-				counter++;
-	
-				if ( multiply_first_then_add_yn == 'y' )
-				{
-					sprintf(
-					 results_string, 
-					 "%lf",
-					 (atof( value_half ) *
-					  multiplier_double ) + offset_double
-					 );
-				}
-				else
-				{
-					sprintf(
-					 results_string, 
-					 "%lf",
-					 (atof( value_half ) + offset_double) *
-					  multiplier_double );
-				}
-			}
-			else
-			{
-				*results_string = '\0';
-			}
-	
-			if ( really_yn == 'y' )
+			/* Stub */
+			/* ---- */
+			*results_string = '\0';
+
+			if ( execute )
 			{
 				if ( *results_string )
 				{
@@ -295,7 +282,7 @@ int main( int argc, char **argv )
 						results_string,
 						buffer,
 						measurement_backup,
-						really_yn );
+						execute );
 
 				}
 			}
@@ -310,7 +297,7 @@ int main( int argc, char **argv )
 	pclose( update_pipe );
 	measurement_backup_close( measurement_backup->insert_pipe );
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
 		char counter_string[ 128 ];
 
@@ -324,7 +311,7 @@ int main( int argc, char **argv )
 
 		process_increment_execution_count(
 				application_name,
-				PROCESS_NAME,
+				process_name,
 				appaserver_parameter_file_get_dbms() );
 	}
 	printf( "%d\n", counter );
@@ -343,7 +330,7 @@ void backup_and_update(		FILE *update_pipe,
 				char *results_string,
 				char *buffer,
 				MEASUREMENT_BACKUP *measurement_backup,
-				int really_yn )
+				boolean execute )
 {
 	char comma_delimited_record[ 256 ];
 
@@ -369,7 +356,8 @@ void backup_and_update(		FILE *update_pipe,
 		measurement_backup->measurement_update_method,
 		measurement_backup->login_name,
 		comma_delimited_record,
-		really_yn,
+		(execute) ? 'y' : 'n',
 		',' );
+
 } /* backup_and_update() */
 

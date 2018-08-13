@@ -22,6 +22,8 @@ backup/
 # -------------
 # src_hydrology
 # -------------
+sensor_exposed_null
+sensor_exposed_null_output
 output_measurement_sets_googlechart
 output_measurement_googlecharts
 hydrology_verification_process

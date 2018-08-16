@@ -31,7 +31,6 @@
 /* Constants */
 /* --------- */
 #define DATE_EXPAND_PLUS_MINUS	2
-#define ESTIMATION_METHOD	"constant_offset"
 #define INFRASTRUCTURE_PROCESS	"%s/%s/estimation_datatype_unit_record_list.sh %s %s %s"
 #define DATATYPE_ENTITY_PIECE	 0
 #define DATATYPE_PIECE		 1
@@ -54,6 +53,7 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *station;
 	char *datatype;
+	char *process_name;
 	char *from_measurement_date, *to_measurement_date;
 	char *from_measurement_time, *to_measurement_time;
 	char input_buffer[ 4096 ];
@@ -66,8 +66,8 @@ int main( int argc, char **argv )
 	char *login_name;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	FILE *input_pipe;
-	double offset_double;
-	double multiplier_double;
+	double threshold_value;
+	char *above_below;
 	HTML_TABLE *html_table = {0};
 	char measurement_date[ 128 ];
 	char measurement_time[ 128 ];
@@ -95,18 +95,17 @@ int main( int argc, char **argv )
 	int number_measurements_validated;
 	char *override_destination_validation_requirement_yn;
 	boolean override_destination_validation_requirement;
-	char *multiply_first_then_add_yn;
 
 	if ( argc != 17 )
 	{
 		fprintf(stderr,
-"Usage: %s login_name ignored ignored role station datatype from_date to_date from_time to_time offset multiplier chart_yn parameter_dictionary notes really_yn\n",
+"Usage: %s login_name process ignored role station datatype from_date to_date from_time to_time threshold_value above_below chart_yn parameter_dictionary notes really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	/* session = argv[ 2 ]; */
+	process_name = argv[ 2 ];
 	/* application_name = argv[ 3 ]; */
 	role_name = argv[ 4 ];
 	station = argv[ 5 ];
@@ -115,8 +114,8 @@ int main( int argc, char **argv )
 	to_measurement_date = argv[ 8 ];
 	from_measurement_time = argv[ 9 ];
 	to_measurement_time = argv[ 10 ];
-	offset_double = atof( argv[ 11 ] );
-	multiplier_double = atof( argv[ 12 ] );
+	threshold_value = atof( argv[ 11 ] );
+	above_below = argv[ 12 ];
 	chart_yn = *argv[ 13 ];
 	parameter_dictionary_string = argv[ 14 ];
 	notes = argv[ 15 ];
@@ -162,15 +161,7 @@ int main( int argc, char **argv )
 						&to_measurement_time,
 						from_measurement_date );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
-
-	if ( ! ( multiply_first_then_add_yn =
-		dictionary_get_pointer(
-			parameter_dictionary,
-			"multiply_first_then_add_yn" ) ) )
-	{
-		multiply_first_then_add_yn = "n";
-	}
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	override_destination_validation_requirement_yn =
 		dictionary_get_pointer(
@@ -201,8 +192,6 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 0 );
 	}
-
-	if ( !multiplier_double ) multiplier_double = 1.0;
 
 	if ( chart_yn == 'y' && really_yn != 'y' )
 	{
@@ -251,16 +240,15 @@ int main( int argc, char **argv )
 	search_replace_string( notes, "\"", "'" );
 
 	sprintf(buffer,
-"%s/%s/estimation_constant_offset %s %s \"%s\" %s %lf %lf %s %s %s %s %s \"%s\" \"%s\" \"%s\" %c 2>>%s",
+"%s/%s/sensor_exposed_null %s %s \"%s\" %s %lf %s %s %s %s %s \"%s\" \"%s\" \"%s\" %c 2>>%s",
 		appaserver_parameter_file->appaserver_mount_point,
 		application_get_relative_source_directory( application_name ),
 		login_name,
 		application_name,
 		station,
 		datatype,
-		offset_double,
-		multiplier_double,
-		multiply_first_then_add_yn,
+		threshold_value,
+		above_below,
 		from_measurement_date,
 		from_measurement_time,
 		to_measurement_date,
@@ -285,7 +273,7 @@ int main( int argc, char **argv )
 			station,
 			datatype );
 
-		strcpy( title, "Estimation Constant Offset" );
+		format_initial_capital( title, process_name );
 
 		sprintf(sub_title,
 			"%s/%s from %s:%s to %s:%s",
@@ -398,7 +386,7 @@ int main( int argc, char **argv )
 				html_table->justify_list );
 	}
 
-	/* Sample input: "BD,bottom_temperature,1999-01-01,1000,4.00|5.00" */
+	/* Sample input: "BD,bottom_temperature,1999-01-01,1000,4.00|null" */
 	/* --------------------------------------------------------------- */
 	while( get_line( input_buffer, input_pipe ) )
 	{

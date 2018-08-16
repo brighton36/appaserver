@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------- 	*/
-/* $APPASERVER_HOME/src_hydrology/sensor_exposed_null.c	*/
+/* $APPASERVER_HOME/src_hydrology/sensor_exposed_null.c		*/
 /* ----------------------------------------------------------- 	*/
 /* 						       		*/
 /* Freely available software: see Appaserver.org		*/
@@ -35,47 +35,53 @@
 
 /* Prototypes */
 /* ---------- */
+char *sensor_exposed_null_results_string(
+				double threshold_value,
+				boolean null_above,
+				char *value_half );
+
+void sensor_exposed_null(	char *application_name,
+				char *login_name,
+				char *process_name,
+				char *station,
+				char *datatype,
+				double threshold_value,
+				boolean null_above,
+				DATE *begin_date,
+				DATE *end_date,
+				DICTIONARY *parameter_dictionary,
+				char *where_clause,
+				char *notes,
+				boolean execute );
+
 void backup_and_update(		FILE *update_pipe,
 				char *primary_key_half,
 				char *results_string,
-				char *buffer,
+				char *input_buffer,
 				MEASUREMENT_BACKUP *measurement_backup,
 				boolean execute );
 
-void output_buffer(		char *buffer,
+void output_results(		char *input_buffer,
 				char *results_string );
 
 int main( int argc, char **argv )
 {
-	int counter = 0;
 	char *application_name;
 	char *process_name;
 	char *station;
 	char *datatype;
 	char *where_clause;
-	char buffer[ 4096 ];
-	char primary_key_half[ 4096 ];
-	char value_half[ 4096 ];
-	MEASUREMENT_BACKUP *measurement_backup;
-	char *table_name;
-	FILE *input_pipe;
-	FILE *update_pipe;
-	char results_string[ 128 ];
 	double threshold_value;
 	char *above_below;
 	boolean null_above;
 	boolean execute;
 	DICTIONARY *parameter_dictionary;
 	char *parameter_dictionary_string;
-	MEASUREMENT_UPDATE_PARAMETER *measurement_update_parameter;
 	char *login_name;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *begin_date_string, *end_date_string;
 	char *begin_time_string, *end_time_string;
-	char measurement_date_string[ 128 ];
-	char measurement_time_string[ 128 ];
 	DATE *begin_date, *end_date;
-	DATE *measurement_date = {0};
 	char *notes;
 
 	if ( argc != 15 )
@@ -104,14 +110,9 @@ int main( int argc, char **argv )
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+		argc,
+		argv,
+		application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -175,6 +176,95 @@ int main( int argc, char **argv )
 	parameter_dictionary = dictionary_remove_index(
 						parameter_dictionary );
 
+	sensor_exposed_null(	application_name,
+				login_name,
+				process_name,
+				station,
+				datatype,
+				threshold_value,
+				null_above,
+				begin_date,
+				end_date,
+				parameter_dictionary,
+				where_clause,
+				notes,
+				execute );
+
+	return 0;
+
+} /* main() */
+
+void output_results(		char *input_buffer,
+				char *results_string )
+{
+	printf( "%s,%s\n", input_buffer, results_string );
+}
+
+void backup_and_update(		FILE *update_pipe,
+				char *primary_key_half,
+				char *results_string,
+				char *input_buffer,
+				MEASUREMENT_BACKUP *measurement_backup,
+				boolean execute )
+{
+	char comma_delimited_record[ 256 ];
+
+	fprintf(update_pipe, 
+		"%s|measurement_value=%s\n",
+		primary_key_half,
+		results_string );
+	
+	fprintf(update_pipe, 
+		"%s|measurement_update_method=%s\n",
+		primary_key_half,
+		MEASUREMENT_UPDATE_METHOD );
+
+	strcpy( comma_delimited_record, input_buffer );
+	search_replace_string(	comma_delimited_record,
+				"|",
+				"," );
+
+	measurement_backup_insert(
+		measurement_backup->insert_pipe,
+		measurement_backup->measurement_update_date,
+		measurement_backup->measurement_update_time,
+		measurement_backup->measurement_update_method,
+		measurement_backup->login_name,
+		comma_delimited_record,
+		(execute) ? 'y' : 'n',
+		',' );
+
+} /* backup_and_update() */
+
+void sensor_exposed_null(	char *application_name,
+				char *login_name,
+				char *process_name,
+				char *station,
+				char *datatype,
+				double threshold_value,
+				boolean null_above,
+				DATE *begin_date,
+				DATE *end_date,
+				DICTIONARY *parameter_dictionary,
+				char *where_clause,
+				char *notes,
+				boolean execute )
+{
+	int counter = 0;
+	char measurement_date_string[ 128 ];
+	char measurement_time_string[ 128 ];
+	DATE *measurement_date = {0};
+	char input_buffer[ 1024 ];
+	char sys_string[ 1024 ];
+	char primary_key_half[ 1024 ];
+	char value_half[ 32 ];
+	MEASUREMENT_BACKUP *measurement_backup;
+	char *table_name;
+	FILE *input_pipe;
+	FILE *update_pipe;
+	char *results_string;
+	MEASUREMENT_UPDATE_PARAMETER *measurement_update_parameter;
+
 	measurement_update_parameter =
 		measurement_update_parameter_new(
 					application_name,
@@ -199,7 +289,7 @@ int main( int argc, char **argv )
 
 	table_name = get_table_name( application_name, "measurement" );
 
-	sprintf(buffer,
+	sprintf(sys_string,
 		"get_folder_data	application=%s			  "
 		"			folder=measurement		  "
 		"			select='%s'			  "
@@ -211,27 +301,27 @@ int main( int argc, char **argv )
 		where_clause,
 		FOLDER_DATA_DELIMITER );
 
-	input_pipe = popen( buffer, "r" );
+	input_pipe = popen( sys_string, "r" );
 
-	sprintf(buffer,
+	sprintf(sys_string,
 		"update_statement.e %s %s | sql.e",
 		table_name,
 		MEASUREMENT_KEY_LIST );
 
-	update_pipe = popen( buffer, "w" );
+	update_pipe = popen( sys_string, "w" );
 
 	/* Sample input: "BD,bottom_temperature,1999-01-01,1000|5.00" */
 	/* ---------------------------------------------------------- */
-	while( get_line( buffer, input_pipe ) )
+	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece(	measurement_date_string,
 			',',
-			buffer,
+			input_buffer,
 			MEASUREMENT_DATE_PIECE );
 
 		piece(	measurement_time_string,
 			',',
-			buffer,
+			input_buffer,
 			MEASUREMENT_TIME_PIECE );
 
 		if ( measurement_date ) date_free( measurement_date );
@@ -250,9 +340,9 @@ int main( int argc, char **argv )
 			exit( 1 );
 		}
 
-		piece( primary_key_half, '|', buffer, 0 );
+		piece( primary_key_half, '|', input_buffer, 0 );
 
-		if ( !piece( value_half, '|', buffer, 1 ) )
+		if ( !piece( value_half, '|', input_buffer, 1 ) )
 		{
 			fprintf( stderr, 
 		"ERROR in %s/%s(): the sed didn't work\n",
@@ -264,31 +354,34 @@ int main( int argc, char **argv )
 		if ( measurement_date->current < begin_date->current
 		||   measurement_date->current > end_date->current )
 		{
-			output_buffer( buffer, value_half );
+			output_results( input_buffer, value_half );
 		}
 		else
 		{
-			/* Stub */
-			/* ---- */
-			*results_string = '\0';
+			results_string =
+				sensor_exposed_null_results_string(
+					threshold_value,
+					null_above,
+					value_half );
 
 			if ( execute )
 			{
-				if ( *results_string )
+				if ( timlib_strcmp(
+					results_string,
+					"null" ) == 0 )
 				{
 					backup_and_update(
 						update_pipe,
 						primary_key_half,
 						results_string,
-						buffer,
+						input_buffer,
 						measurement_backup,
 						execute );
-
 				}
 			}
 			else
 			{
-				output_buffer( buffer, results_string );
+				output_results( input_buffer, results_string );
 			}
 		}
 	}
@@ -314,50 +407,39 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	}
+
 	printf( "%d\n", counter );
 
-	exit( 0 );
-} /* main() */
+} /* sensor_exposed_null() */
 
-void output_buffer(		char *buffer,
-				char *results_string )
+char *sensor_exposed_null_results_string(
+					double threshold_value,
+					boolean null_above,
+					char *value_half )
 {
-	printf( "%s,%s\n", buffer, results_string );
-}
+	static char results_string[ 16 ];
+	double measurement_value;
 
-void backup_and_update(		FILE *update_pipe,
-				char *primary_key_half,
-				char *results_string,
-				char *buffer,
-				MEASUREMENT_BACKUP *measurement_backup,
-				boolean execute )
-{
-	char comma_delimited_record[ 256 ];
+	if ( !value_half || !*value_half ) return value_half;
 
-	fprintf(update_pipe, 
-		"%s|measurement_value=%s\n",
-		primary_key_half,
-		results_string );
-	
-	fprintf(update_pipe, 
-		"%s|measurement_update_method=%s\n",
-		primary_key_half,
-		MEASUREMENT_UPDATE_METHOD );
+	measurement_value = atof( value_half );
 
-	strcpy( comma_delimited_record, buffer );
-	search_replace_string(	comma_delimited_record,
-				"|",
-				"," );
+	strcpy( results_string, value_half );
 
-	measurement_backup_insert(
-		measurement_backup->insert_pipe,
-		measurement_backup->measurement_update_date,
-		measurement_backup->measurement_update_time,
-		measurement_backup->measurement_update_method,
-		measurement_backup->login_name,
-		comma_delimited_record,
-		(execute) ? 'y' : 'n',
-		',' );
+	if ( null_above )
+	{
+		if ( measurement_value > threshold_value )
+			strcpy( results_string, "null" );
+	}
+	else
+	/* Must be null_below */
+	/* ------------------ */
+	{
+		if ( measurement_value < threshold_value )
+			strcpy( results_string, "null" );
+	}
 
-} /* backup_and_update() */
+	return results_string;
+
+} /* sensor_exposed_null_results_string() */
 

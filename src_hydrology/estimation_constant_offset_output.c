@@ -31,7 +31,6 @@
 /* Constants */
 /* --------- */
 #define DATE_EXPAND_PLUS_MINUS	2
-#define ESTIMATION_METHOD	"constant_offset"
 #define INFRASTRUCTURE_PROCESS	"%s/%s/estimation_datatype_unit_record_list.sh %s %s %s"
 #define DATATYPE_ENTITY_PIECE	 0
 #define DATATYPE_PIECE		 1

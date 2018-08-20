@@ -416,7 +416,9 @@ void sensor_exposed_null_output(	char *application_name,
 			document->onload_control_string );
 
 	 	html_table = new_html_table(
-				"Estimation Constant Offset",
+				format_initial_capital(
+					buffer,
+					process_name ),
 				(char *)0 /* sub_title */ );
 	
 		heading_list = new_list();

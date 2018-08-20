@@ -29,7 +29,11 @@ got_station=0
 if [ "$4" != "station" ]
 then
 	station_and_clause="and ($station_datatype.station in (`single_quotes_around.e $4`)"
-	got_station=1
+
+	if "$process_name" != "station_datatype_list" ]
+	then
+		got_station=1
+	fi
 else
 	station_and_clause="and (1 = 1"
 fi

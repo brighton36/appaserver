@@ -304,7 +304,8 @@ void sensor_exposed_null(	char *application_name,
 	input_pipe = popen( sys_string, "r" );
 
 	sprintf(sys_string,
-		"update_statement.e %s %s | sql.e",
+		"update_statement.e %s %s	|"
+		"sql.e				 ",
 		table_name,
 		MEASUREMENT_KEY_LIST );
 
@@ -364,6 +365,9 @@ void sensor_exposed_null(	char *application_name,
 					null_above,
 					value_half );
 
+			if ( timlib_strcmp( results_string, "null" ) == 0 )
+				counter++;
+
 			if ( execute )
 			{
 				if ( timlib_strcmp(
@@ -373,7 +377,7 @@ void sensor_exposed_null(	char *application_name,
 					backup_and_update(
 						update_pipe,
 						primary_key_half,
-						results_string,
+						"" /* results_string */,
 						input_buffer,
 						measurement_backup,
 						execute );

@@ -22,8 +22,10 @@
 #include "appaserver_parameter_file.h"
 #include "html_table.h"
 #include "grace.h"
+#include "boolean.h"
 #include "environ.h"
 #include "date.h"
+#include "boolean.h"
 #include "make_date_time_between_compatable.h"
 #include "hydrology_library.h"
 #include "measurement_validation.h"
@@ -40,6 +42,27 @@
 
 /* Prototypes */
 /* ---------- */
+void sensor_exposed_null_output(
+			char *application_name,
+			char *argv_0,
+			char *login_name,
+			char *process_name,
+			char *appaserver_mount_point,
+			char *role_name,
+			char *station,
+			char *datatype,
+			char *from_measurement_date,
+			char *from_measurement_time,
+			char *to_measurement_date,
+			char *to_measurement_time,
+			double threshold_value,
+			char *above_below,
+			char chart_yn,
+			char *notes,
+			char *parameter_dictionary_string,
+			char *document_root_directory,
+			boolean execute );
+
 char *get_where_clause(	char *station,
 			char *datatype,
 			char *expanded_from_date_string,
@@ -50,76 +73,48 @@ char *get_where_clause(	char *station,
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *login_name;
 	char *role_name;
 	char *station;
 	char *datatype;
 	char *process_name;
 	char *from_measurement_date, *to_measurement_date;
 	char *from_measurement_time, *to_measurement_time;
-	char input_buffer[ 4096 ];
-	char buffer[ 4096 ];
-	DOCUMENT *document;
-	int chart_yn;
-	int really_yn;
-	char *parameter_dictionary_string;
-	DICTIONARY *parameter_dictionary;
-	char *login_name;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	FILE *input_pipe;
+	char chart_yn;
+	boolean execute;
+	char *notes;
 	double threshold_value;
 	char *above_below;
-	HTML_TABLE *html_table = {0};
-	char measurement_date[ 128 ];
-	char measurement_time[ 128 ];
-	char old_value[ 128 ];
-	char new_value[ 128 ];
-	LIST *heading_list;
-	char infrastructure_process[ 1024 ];
-	char *ftp_output_filename;
-	char *output_filename;
-	char *ftp_agr_filename;
-	char *agr_filename;
-	char *postscript_filename;
-	char title[ 256 ];
-	char sub_title[ 256 ] = {0};
-	GRACE *grace = {0};
-	char *expanded_from_date_string, *expanded_to_date_string;
-	DATE *expanded_date;
-	char graph_identifier[ 128 ];
-	char *where_clause;
-	char *notes;
-	int page_width_pixels;
-	int page_length_pixels;
-	char *distill_landscape_flag;
-	char *database_string = {0};
-	int number_measurements_validated;
+	char *parameter_dictionary_string;
+	DICTIONARY *parameter_dictionary;
 	char *override_destination_validation_requirement_yn;
 	boolean override_destination_validation_requirement;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	int number_measurements_validated;
 
-	if ( argc != 17 )
+	if ( argc != 16 )
 	{
 		fprintf(stderr,
-"Usage: %s login_name process ignored role station datatype from_date to_date from_time to_time threshold_value above_below chart_yn parameter_dictionary notes really_yn\n",
+"Usage: %s login_name process role station datatype from_date to_date from_time to_time threshold_value above_below chart_yn parameter_dictionary notes execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
 	process_name = argv[ 2 ];
-	/* application_name = argv[ 3 ]; */
-	role_name = argv[ 4 ];
-	station = argv[ 5 ];
-	datatype = argv[ 6 ];
-	from_measurement_date = argv[ 7 ];
-	to_measurement_date = argv[ 8 ];
-	from_measurement_time = argv[ 9 ];
-	to_measurement_time = argv[ 10 ];
-	threshold_value = atof( argv[ 11 ] );
-	above_below = argv[ 12 ];
-	chart_yn = *argv[ 13 ];
-	parameter_dictionary_string = argv[ 14 ];
-	notes = argv[ 15 ];
-	really_yn = *argv[ 16 ];
+	role_name = argv[ 3 ];
+	station = argv[ 4 ];
+	datatype = argv[ 5 ];
+	from_measurement_date = argv[ 6 ];
+	to_measurement_date = argv[ 7 ];
+	from_measurement_time = argv[ 8 ];
+	to_measurement_time = argv[ 9 ];
+	threshold_value = atof( argv[ 10 ] );
+	above_below = argv[ 11 ];
+	chart_yn = *argv[ 12 ];
+	parameter_dictionary_string = argv[ 13 ];
+	notes = argv[ 14 ];
+	execute = (*argv[ 15 ] == 'y');
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -138,23 +133,10 @@ int main( int argc, char **argv )
 	parameter_dictionary = dictionary_remove_index(
 						parameter_dictionary );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
 
 	make_date_time_between_compatable(	&to_measurement_date,
 						&from_measurement_time,
@@ -193,7 +175,83 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( chart_yn == 'y' && really_yn != 'y' )
+	sensor_exposed_null_output(
+		application_name,
+		argv[ 0 ],
+		login_name,
+		process_name,
+		appaserver_parameter_file->
+			appaserver_mount_point,
+		role_name,
+		station,
+		datatype,
+		from_measurement_date,
+		from_measurement_time,
+		to_measurement_date,
+		to_measurement_time,
+		threshold_value,
+		above_below,
+		chart_yn,
+		notes,
+		parameter_dictionary_string,
+		appaserver_parameter_file->
+			document_root,
+		execute );
+
+	document_close();
+
+	return 0;
+
+} /* main() */
+
+void sensor_exposed_null_output(	char *application_name,
+					char *argv_0,
+					char *login_name,
+					char *process_name,
+					char *appaserver_mount_point,
+					char *role_name,
+					char *station,
+					char *datatype,
+					char *from_measurement_date,
+					char *from_measurement_time,
+					char *to_measurement_date,
+					char *to_measurement_time,
+					double threshold_value,
+					char *above_below,
+					char chart_yn,
+					char *notes,
+					char *parameter_dictionary_string,
+					char *document_root_directory,
+					boolean execute )
+{
+	char input_buffer[ 4096 ];
+	char buffer[ 4096 ];
+	DOCUMENT *document;
+	FILE *input_pipe;
+	HTML_TABLE *html_table = {0};
+	char measurement_date[ 128 ];
+	char measurement_time[ 128 ];
+	char old_value[ 128 ];
+	char new_value[ 128 ];
+	LIST *heading_list;
+	char infrastructure_process[ 1024 ];
+	char *ftp_output_filename;
+	char *output_filename;
+	char *ftp_agr_filename;
+	char *agr_filename;
+	char *postscript_filename;
+	char title[ 256 ];
+	char sub_title[ 256 ] = {0};
+	GRACE *grace = {0};
+	char *expanded_from_date_string, *expanded_to_date_string;
+	DATE *expanded_date;
+	char graph_identifier[ 128 ];
+	char *where_clause;
+	int page_width_pixels;
+	int page_length_pixels;
+	char *distill_landscape_flag;
+
+	if ( chart_yn == 'y' && !execute )
 	{
 		expanded_date =
 			date_new_yyyy_mm_dd_date(
@@ -241,7 +299,7 @@ int main( int argc, char **argv )
 
 	sprintf(buffer,
 "%s/%s/sensor_exposed_null %s %s \"%s\" %s %lf %s %s %s %s %s \"%s\" \"%s\" \"%s\" %c 2>>%s",
-		appaserver_parameter_file->appaserver_mount_point,
+		appaserver_mount_point,
 		application_get_relative_source_directory( application_name ),
 		login_name,
 		application_name,
@@ -256,17 +314,17 @@ int main( int argc, char **argv )
 		parameter_dictionary_string,
 		where_clause,
 		notes,
-		really_yn,
+		(execute) ? 'y' : 'n',
 		appaserver_error_get_filename(
 			application_name ) );
 
 	input_pipe = popen( buffer, "r" );
 
-	if ( chart_yn == 'y' && really_yn != 'y' )
+	if ( chart_yn == 'y' && !execute )
 	{
 		sprintf(infrastructure_process,
 			INFRASTRUCTURE_PROCESS,
-			appaserver_parameter_file->appaserver_mount_point,
+			appaserver_mount_point,
 			application_get_relative_source_directory(
 				application_name ),
 			application_name,
@@ -289,7 +347,7 @@ int main( int argc, char **argv )
 				role_name,
 				infrastructure_process,
 				(char *)0 /* data_process */,
-				argv[ 0 ],
+				argv_0,
 				DATATYPE_ENTITY_PIECE,
 				DATATYPE_PIECE,
 				DATE_PIECE,
@@ -305,9 +363,8 @@ int main( int argc, char **argv )
 						expanded_to_date_string ) )
 		{
 			document_quick_output_body(
-						application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point );
+					application_name,
+					appaserver_mount_point );
 
 			printf(
 			"<h2>ERROR: Invalid date format format.</h2>" );
@@ -331,15 +388,14 @@ int main( int argc, char **argv )
 			&output_filename,
 			&ftp_output_filename,
 			application_name,
-			appaserver_parameter_file->
-				document_root,
+			document_root_directory,
 			graph_identifier,
 			grace->grace_output );
 	}
 	else
-	/* ----------------------------------------------- */
-	/* Must not be chart_yn == 'y' or really_yn == 'y' */
-	/* ----------------------------------------------- */
+	/* ------------------------------------------------ */
+	/* Must not be chart_yn == 'y' or execute_yn == 'y' */
+	/* ------------------------------------------------ */
 	{
 		document = document_new( "", application_name );
 		document_set_output_content_type( document );
@@ -348,7 +404,7 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->title,
 			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
+			appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
 			application_get_relative_source_directory(
@@ -399,7 +455,7 @@ int main( int argc, char **argv )
 			break;
 		}
 
-		if ( chart_yn == 'y' && really_yn != 'y' )
+		if ( chart_yn == 'y' && !execute )
 		{
 			search_replace_string( input_buffer, ",", "|" );
 
@@ -435,7 +491,7 @@ int main( int argc, char **argv )
 				(char *)0 /* optional_label */ );
 		}
 		else
-		if ( really_yn != 'y' )
+		if ( !execute )
 		{
 			piece(	measurement_time,
 				',',
@@ -476,7 +532,7 @@ int main( int argc, char **argv )
 
 	pclose( input_pipe );
 
-	if ( chart_yn == 'y' && really_yn != 'y' )
+	if ( chart_yn == 'y' && !execute )
 	{
 		GRACE_GRAPH *grace_graph;
 
@@ -503,8 +559,7 @@ int main( int argc, char **argv )
 				document->application_name,
 				document->title,
 				document->output_content_type,
-				appaserver_parameter_file->
-					appaserver_mount_point,
+				appaserver_mount_point,
 				document->javascript_module_list,
 				document->stylesheet_filename,
 				application_get_relative_source_directory(
@@ -560,9 +615,8 @@ int main( int argc, char **argv )
 				grace->anchor_graph_list ) )
 		{
 			document_quick_output_body(
-						application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point );
+				application_name,
+				appaserver_mount_point );
 
 			printf( "<h2>No data for selected parameters.</h2>\n" );
 			document_close();
@@ -574,20 +628,19 @@ int main( int argc, char **argv )
 				application_name,
 				ftp_output_filename,
 				ftp_agr_filename,
-				appaserver_parameter_file->
-					appaserver_mount_point,
+				appaserver_mount_point,
 				1 /* with_document_output */,
 				(char *)0 /* where_clause */ );
 		}
 	}
 	else
-	/* ------------------------------------------ */
-	/* if ( chart_yn != 'y' || really_yn == 'y' ) */
-	/* ------------------------------------------ */
+	/* ------------------------------------------- */
+	/* if ( chart_yn != 'y' || execute_yn == 'y' ) */
+	/* ------------------------------------------- */
 	{
 		/* Output the count */
 		/* ---------------- */
-		if ( really_yn != 'y' )
+		if ( !execute )
 			sprintf( buffer, "Did not process %s", input_buffer );
 		else
 			sprintf( buffer, "Processed %s", input_buffer );
@@ -604,7 +657,7 @@ int main( int argc, char **argv )
 		html_table_close();
 	}
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
 		measurement_validation_update_measurement(
 					application_name,
@@ -616,10 +669,7 @@ int main( int argc, char **argv )
 					to_measurement_date );
 	}
 
-	document_close();
-
-	exit( 0 );
-} /* main() */
+} /* sensor_exposed_null_output() */
 
 char *get_where_clause(	char *station,
 			char *datatype,

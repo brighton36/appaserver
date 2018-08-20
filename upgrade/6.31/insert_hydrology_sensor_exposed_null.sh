@@ -33,6 +33,7 @@ drop_down_prompt_data=`get_table_name $application drop_down_prompt_data`
 role_process=`get_table_name $application role_process`
 role_process_set_member=`get_table_name $application role_process_set_member`
 role_operation=`get_table_name $application role_operation`
+
 (
 cat << all_done
 delete from $process where process = 'sensor_exposed_null';
@@ -68,6 +69,13 @@ insert into $drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,displ
 delete from $process where process = '';
 delete from $process where process = '';
 all_done
+) | sql.e 2>&1 | grep -iv duplicate
+
+(
+cat << all_done2
+insert into measurement_update_method (measurement_update_method) values ( 'sensor_exposed_null' );
+
+all_done2
 ) | sql.e 2>&1 | grep -iv duplicate
 
 exit 0

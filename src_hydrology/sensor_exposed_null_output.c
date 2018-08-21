@@ -209,6 +209,36 @@ int main( int argc, char **argv )
 
 	threshold_value = atof( threshold_value_string );
 
+	if ( !*datatype
+	||   strcmp( datatype, "datatype" ) == 0 )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
+		printf(
+		"<h3>ERROR: please choose a station/datatype.</h3>\n" );
+
+		document_close();
+		exit( 0 );
+	}
+
+	if ( !*from_measurement_date
+	||   strcmp( from_measurement_date, "from_measurement_date" ) == 0 )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
+		printf(
+		"<h3>ERROR: please isolate a date range.</h3>\n" );
+
+		document_close();
+		exit( 0 );
+	}
+
 	if ( !appaserver_library_validate_begin_end_date(
 					&from_measurement_date,
 					&to_measurement_date,

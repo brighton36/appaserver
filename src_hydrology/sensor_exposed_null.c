@@ -13,7 +13,6 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "measurement_update_parameter.h"
-#include "document.h"
 #include "timlib.h"
 #include "piece.h"
 #include "measurement_backup.h"
@@ -120,14 +119,12 @@ int main( int argc, char **argv )
 	||   strcmp( above_below, "above_below" ) == 0
 	||   strcmp( above_below, "select" ) == 0 )
 	{
-		document_quick_output_body(	application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point );
-
-		printf(
-		"<h3>ERROR: Please choose above or below.</h3>\n" );
-		document_close();
-		exit( 0 );
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: above_below not set.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
 	null_above = ( strcmp( above_below, "above" ) == 0 );
@@ -141,14 +138,12 @@ int main( int argc, char **argv )
 					(PROCESS_GENERIC_OUTPUT *)0,
 					(DICTIONARY *)0 /* post_dictionary */) )
 	{
-		document_quick_output_body(	application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point );
-
-		printf(
-		"<h3>ERROR: no data available for these dates.</h3>\n" );
-		document_close();
-		exit( 0 );
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: invalid date(s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
 	begin_date =

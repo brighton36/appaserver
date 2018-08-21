@@ -83,6 +83,7 @@ int main( int argc, char **argv )
 	char chart_yn;
 	boolean execute;
 	char *notes;
+	char *threshold_value_string;
 	double threshold_value;
 	char *above_below;
 	char *parameter_dictionary_string;
@@ -109,7 +110,7 @@ int main( int argc, char **argv )
 	to_measurement_date = argv[ 7 ];
 	from_measurement_time = argv[ 8 ];
 	to_measurement_time = argv[ 9 ];
-	threshold_value = atof( argv[ 10 ] );
+	threshold_value_string = argv[ 10 ];
 	above_below = argv[ 11 ];
 	chart_yn = *argv[ 12 ];
 	parameter_dictionary_string = argv[ 13 ];
@@ -164,13 +165,66 @@ int main( int argc, char **argv )
 					from_measurement_date,
 					to_measurement_date ) ) )
 	{
-		document_quick_output_body(	application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point );
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
 
 		printf(
-	"<p>ERROR: %d of the destination measurements are validated.\n",
+	"<h3>ERROR: %d of the destination measurements are validated.</h3>\n",
 			number_measurements_validated );
+		document_close();
+		exit( 0 );
+	}
+
+	if ( !*above_below
+	||   strcmp( above_below, "above_below" ) == 0
+	||   strcmp( above_below, "select" ) == 0 )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
+		printf( "<h3>ERROR: above or below is not selected.</h3>\n" );
+
+		document_close();
+		exit( 0 );
+	}
+
+	if ( !*threshold_value_string
+	||   strcmp( threshold_value_string, "threshold_value" ) == 0 )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
+		printf(
+		"<h3>ERROR: please enter in a threshold value.</h3>\n" );
+
+		document_close();
+		exit( 0 );
+	}
+
+	threshold_value = atof( threshold_value_string );
+
+	if ( !appaserver_library_validate_begin_end_date(
+					&from_measurement_date,
+					&to_measurement_date,
+					application_name,
+					appaserver_parameter_file->
+						database_management_system,
+					(PROCESS_GENERIC_OUTPUT *)0,
+					(DICTIONARY *)0 /* post_dictionary */) )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
+		printf( "<h3>ERROR: invalid date(s).</h3>\n" );
+
 		document_close();
 		exit( 0 );
 	}

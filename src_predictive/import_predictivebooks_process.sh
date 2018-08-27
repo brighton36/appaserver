@@ -53,7 +53,7 @@ then
 	process="predictivebooks_nonprofit.sh"
 elif [ "$module" = "home" ]
 then
-	process="predictivebooks_home.sh"
+	process="predictivebooks_home.sh $login_name"
 fi
 
 process_title=`echo "$process_name" | format_initial_capital.e`

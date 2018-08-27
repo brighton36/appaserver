@@ -28,6 +28,11 @@
 int load_bank_spreadsheet(	char *application_name,
 				char *fund_name,
 				char *input_filename,
+				int date_piece_offset,
+				int description_piece_offset,
+				int debit_piece_offset,
+				int credit_piece_offset,
+				int balance_piece_offset,
 				boolean execute );
 
 int main( int argc, char **argv )
@@ -36,6 +41,16 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *fund_name;
 	char *input_filename;
+	char *date_column_string;
+	char *description_column_string;
+	char *debit_column_string;
+	char *credit_column_string;
+	char *balance_column_string;
+	int date_piece_offset;
+	int description_piece_offset;
+	int debit_piece_offset;
+	int credit_piece_offset;
+	int balance_piece_offset;
 	boolean execute;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -49,18 +64,82 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 6 )
+	if ( argc != 10 )
 	{
-		fprintf( stderr, 
-"Usage: %s ignored process_name fund filename execute_yn\n",
+		fprintf( stderr,
+"Usage: %s process_name fund filename date_column description_column debit_column credit_column balance_column execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	input_filename = argv[ 4 ];
-	execute = (*argv[ 5 ] == 'y');
+	process_name = argv[ 1 ];
+	fund_name = argv[ 2 ];
+	input_filename = argv[ 3 ];
+
+	date_column_string = argv[ 4 ];
+
+	if ( *date_column_string
+	&&   strcmp( date_column_string, "date_column" ) != 0 )
+	{
+		date_piece_offset = atoi( date_column_string ) - 1;
+	}
+	else
+	{
+		date_piece_offset = 0;
+	}
+
+	description_column_string = argv[ 5 ];
+
+	if ( *description_column_string
+	&&   strcmp( description_column_string, "description_column" ) != 0 )
+	{
+		description_piece_offset =
+			atoi( description_column_string ) - 1;
+	}
+	else
+	{
+		description_piece_offset = 1;
+	}
+
+	debit_column_string = argv[ 5 ];
+
+	if ( *debit_column_string
+	&&   strcmp( debit_column_string, "debit_column" ) != 0 )
+	{
+		debit_piece_offset = atoi( debit_column_string ) - 1;
+	}
+	else
+	{
+		debit_piece_offset = 2;
+	}
+
+	credit_column_string = argv[ 7 ];
+
+	if ( *credit_column_string
+	&&   strcmp( credit_column_string, "credit_column" ) != 0 )
+	{
+		credit_piece_offset = atoi( credit_column_string ) - 1;
+	}
+	else
+	{
+		/* The same as debit_piece_offset */
+		/* ------------------------------ */
+		credit_piece_offset = 2;
+	}
+
+	balance_column_string = argv[ 8 ];
+
+	if ( *balance_column_string
+	&&   strcmp( balance_column_string, "balance_column" ) != 0 )
+	{
+		balance_piece_offset = atoi( balance_column_string ) - 1;
+	}
+	else
+	{
+		balance_piece_offset = 3;
+	}
+
+	execute = (*argv[ 9 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -101,6 +180,11 @@ int main( int argc, char **argv )
 			application_name,
 			fund_name,
 			input_filename,
+			date_piece_offset,
+			description_piece_offset,
+			debit_piece_offset,
+			credit_piece_offset,
+			balance_piece_offset,
 			execute );
 
 	if ( execute )
@@ -129,6 +213,11 @@ int load_bank_spreadsheet(
 			char *application_name,
 			char *fund_name,
 			char *input_filename,
+			int date_piece_offset,
+			int description_piece_offset,
+			int debit_piece_offset,
+			int credit_piece_offset,
+			int balance_piece_offset,
 			boolean execute )
 {
 	FILE *input_file;
@@ -142,7 +231,8 @@ int load_bank_spreadsheet(
 	if ( ! ( bank_upload_structure->starting_sequence_number =
 			bank_upload_get_starting_sequence_number(
 				application_name,
-				input_filename ) ) )
+				input_filename,
+				date_piece_offset ) ) )
 	{
 		printf( "<h2>ERROR: cannot get sequence number</h2>\n" );
 		return 0;
@@ -164,6 +254,11 @@ int load_bank_spreadsheet(
 			&bank_upload_structure->minimum_bank_date,
 			application_name,
 			bank_upload_structure->fund_name,
+			date_piece_offset,
+			description_piece_offset,
+			debit_piece_offset,
+			credit_piece_offset,
+			balance_piece_offset,
 			execute,
 			bank_upload_structure->
 				starting_sequence_number );

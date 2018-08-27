@@ -101,6 +101,11 @@ int bank_upload_table_insert(		FILE *input_file,
 					char **minimum_bank_date,
 					char *application_name,
 					char *fund_name,
+					int date_piece_offset,
+					int description_piece_offset,
+					int debit_piece_offset,
+					int credit_piece_offset,
+					int balance_piece_offset,
 					boolean execute,
 					int starting_sequence_number );
 
@@ -108,7 +113,8 @@ int bank_upload_get_sequence_number(
 					char *application_name,
 					char *input_filename );
 
-int bank_upload_get_line_count(		char *input_filename );
+int bank_upload_get_line_count(		char *input_filename,
+					int date_piece_offset );
 
 boolean bank_upload_get_bank_date_international(
 					char *bank_date_international,
@@ -166,7 +172,8 @@ void bank_upload_transaction_display(	LIST *bank_upload_list );
 
 int bank_upload_get_starting_sequence_number(
 					char *application_name,
-					char *input_filename );
+					char *input_filename,
+					int date_piece_offset );
 
 char *bank_upload_reoccurring_transaction_get_select(
 					void );

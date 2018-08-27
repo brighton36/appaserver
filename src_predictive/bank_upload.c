@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* src_predictive/bank_upload.c						*/
+/* $APPASERVER_HOME/src_predictive/bank_upload.c			*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -216,6 +216,11 @@ int bank_upload_table_insert(	FILE *input_file,
 				char **minimum_bank_date,
 				char *application_name,
 				char *fund_name,
+				int date_piece_offset,
+				int description_piece_offset,
+				int debit_piece_offset,
+				int credit_piece_offset,
+				int balance_piece_offset,
 				boolean execute,
 				int starting_sequence_number )
 {
@@ -295,7 +300,7 @@ int bank_upload_table_insert(	FILE *input_file,
 		if ( !piece_quote_comma(
 				bank_date,
 				input_string,
-				0 ) )
+				date_piece_offset ) )
 		{
 			continue;
 		}
@@ -312,7 +317,7 @@ int bank_upload_table_insert(	FILE *input_file,
 		if ( !piece_quote_comma(
 				bank_description,
 				input_string,
-				1 ) )
+				description_piece_offset ) )
 		{
 			continue;
 		}
@@ -333,12 +338,32 @@ int bank_upload_table_insert(	FILE *input_file,
 			}
 		}
 
+		/* The bank_amount is either a single column or two columns. */
+		/* --------------------------------------------------------- */
 		if ( !piece_quote_comma(
 				bank_amount,
 				input_string,
-				2 ) )
+				debit_piece_offset ) )
 		{
 			continue;
+		}
+
+		if ( !atof( bank_amount ) )
+		{
+			/* See if there's a second column. */
+			/* ------------------------------- */
+			if ( credit_piece_offset < 0 )
+			{
+				continue;
+			}
+
+			if ( !piece_quote_comma(
+					bank_amount,
+					input_string,
+					credit_piece_offset ) )
+			{
+				continue;
+			}
 		}
 
 		if ( !atof( bank_amount ) ) continue;
@@ -455,14 +480,16 @@ int bank_upload_table_insert(	FILE *input_file,
 
 int bank_upload_get_starting_sequence_number(
 			char *application_name,
-			char *input_filename )
+			char *input_filename,
+			int date_piece_offset )
 {
 	int line_count;
 	char sys_string[ 1024 ];
 
 	line_count =
 		bank_upload_get_line_count(
-			input_filename );
+			input_filename,
+			date_piece_offset );
 
 	sprintf( sys_string,
 		 "reference_number.sh %s %d",
@@ -473,7 +500,8 @@ int bank_upload_get_starting_sequence_number(
 
 } /* bank_upload_get_starting_sequence_number() */
 
-int bank_upload_get_line_count( char *input_filename )
+int bank_upload_get_line_count(	char *input_filename,
+				int date_piece_offset )
 {
 	char input_string[ 4096 ];
 	char bank_date[ 128 ];
@@ -500,7 +528,7 @@ int bank_upload_get_line_count( char *input_filename )
 		if ( !piece_quote_comma(
 				bank_date,
 				input_string,
-				0 ) )
+				date_piece_offset ) )
 		{
 			continue;
 		}

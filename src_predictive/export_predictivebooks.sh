@@ -637,6 +637,27 @@ function extract_fixed_asset()
 }
 # extract_fixed_asset()
 
+function extract_activity()
+{
+	application=$1
+	output_shell=$2
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done12" >> $output_shell
+
+	folder=activity
+	columns="activity"
+	get_folder_data a=$application f=$folder s="$columns"		|
+	insert_statement.e table=$folder field="$columns" del='^'	|
+	cat >> $output_shell
+
+	echo "all_done12" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+}
+# extract_activity()
+
 function extract_subsidiary_transaction()
 {
 	application=$1
@@ -763,6 +784,8 @@ extract_static_tables $application $input_file $output_shell
 extract_investment $application $output_shell
 export_processes $application $input_file $output_shell
 extract_self $application $input_file $output_shell
+extract_subsidiary_transaction $application $output_shell
+extract_activity $application $output_shell
 
 if [ "$input_file" = "predictivebooks_communityband.dat" ]
 then
@@ -789,8 +812,6 @@ then
 	extract_fixed_asset $application $output_shell
 	extract_customer_sale $application $output_shell
 fi
-
-extract_subsidiary_transaction $application $output_shell
 
 echo "exit 0" >> $output_shell
 

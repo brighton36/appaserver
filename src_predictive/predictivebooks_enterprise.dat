@@ -1,5 +1,10 @@
 account
+activity
+activity_work
 bank_upload
+bank_upload_activity_work
+bank_upload_archive
+bank_upload_event
 contra_account
 customer
 customer_payment
@@ -47,6 +52,7 @@ property_purchase
 purchase_order
 receipt_upload
 reoccurring_transaction
+role_activity
 self
 service_purchase
 state_income_tax_withholding

@@ -1,5 +1,9 @@
 account
+activity
 bank_upload
+bank_upload_activity_work
+bank_upload_archive
+bank_upload_event
 contra_account
 customer
 customer_payment
@@ -42,6 +46,7 @@ property_depreciation
 property_purchase
 purchase_order
 reoccurring_transaction
+role_activity
 self
 service
 service_category

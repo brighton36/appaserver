@@ -1,6 +1,10 @@
 account
+activity
 band_member
 bank_upload
+bank_upload_activity_work
+bank_upload_archive
+bank_upload_event
 composition
 composition_location
 concert
@@ -62,6 +66,7 @@ property_purchase
 purchase_order
 rehearsal_lineup
 reoccurring_transaction
+role_activity
 secondary_instrument
 section
 self

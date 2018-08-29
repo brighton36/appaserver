@@ -16,7 +16,9 @@ then
    exit 1
 fi
 
-folder_attribute_exists.sh $application bank_uploads bank_date
+# Returns 0 if BANK_UPLOAD.bank_date exists
+# -----------------------------------------
+folder_attribute_exists.sh $application bank_upload bank_date
 
 if [ $? -ne 0 ]
 then
@@ -44,12 +46,10 @@ echo "drop table if exists $table_name;" | sql.e
 echo "create table $table_name (login_name char (50) not null,begin_work_date_time datetime not null,end_work_date_time datetime,bank_upload_date_time datetime,role char (25),activity char (30),work_hours double (6,2)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (login_name,begin_work_date_time);" | sql.e
 
-
 table_name=bank_upload_archive
 echo "drop table if exists $table_name;" | sql.e
 echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),bank_upload_date_time datetime) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e
-
 
 table_name=bank_upload_event
 echo "drop table if exists $table_name;" | sql.e

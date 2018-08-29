@@ -326,11 +326,6 @@ int bank_upload_table_insert(	FILE *input_file,
 
 		timlib_remove_character( input_string, '\\' );
 
-fprintf( stderr, "%s/%s()/%d: input_string = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-input_string );
 		/* Get bank_date */
 		/* ------------- */
 		if ( !piece_quote_comma(
@@ -410,19 +405,8 @@ input_string );
 				input_string,
 				debit_piece_offset ) )
 		{
-fprintf( stderr, "%s/%s()/%d: can't get bank_amount.\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 			continue;
 		}
-
-fprintf( stderr, "%s/%s()/%d: with debit_piece_offset = %d, bank_amount = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-debit_piece_offset,
-bank_amount );
 
 		if ( !atof( bank_amount ) )
 		{
@@ -440,13 +424,6 @@ bank_amount );
 			{
 				continue;
 			}
-fprintf( stderr, "%s/%s()/%d: with credit_piece_offset = %d, bank_amount = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-credit_piece_offset,
-bank_amount );
-
 		}
 
 		if ( !atof( bank_amount ) ) continue;

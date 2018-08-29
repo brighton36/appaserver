@@ -21,6 +21,12 @@
 #define INSERT_BANK_UPLOAD_FUND		\
 	"bank_date,bank_description,sequence_number,bank_amount,fund"
 
+#define INSERT_BANK_UPLOAD_ARCHIVE	\
+	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance"
+
+#define INSERT_BANK_UPLOAD_ARCHIVE_FUND	\
+	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,fund"
+
 #define REOCCURRING_TRANSACTION_FOLDER_NAME \
 					"reoccurring_transaction"
 

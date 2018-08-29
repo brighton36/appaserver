@@ -231,12 +231,15 @@ int bank_upload_table_insert(	FILE *input_file,
 	char bank_date_international[ 128 ];
 	char bank_description[ 1024 ];
 	char bank_amount[ 128 ];
+	char bank_balance[ 128 ];
 	FILE *table_output_pipe = {0};
 	FILE *bank_upload_insert_pipe = {0};
+	FILE *bank_upload_archive_insert_pipe = {0};
 	int table_insert_count = 0;
 	boolean found_header = 0;
 	char error_filename[ 128 ] = {0};
 	char *insert_bank_upload;
+	char *insert_bank_upload_archive;
 	static char local_minimum_bank_date[ 16 ] = {0};
 	boolean exists_fund;
 
@@ -248,12 +251,20 @@ int bank_upload_table_insert(	FILE *input_file,
 	}
 
 	if ( exists_fund )
+	{
 		insert_bank_upload = INSERT_BANK_UPLOAD_FUND;
+		insert_bank_upload_archive = INSERT_BANK_UPLOAD_ARCHIVE_FUND;
+	}
 	else
+	{
 		insert_bank_upload = INSERT_BANK_UPLOAD;
+		insert_bank_upload_archive = INSERT_BANK_UPLOAD_ARCHIVE;
+	}
 
 	if ( execute )
 	{
+		/* Open bank_upload_insert_pipe */
+		/* ---------------------------- */
 		table_name =
 			get_table_name(	application_name,
 					"bank_upload" );
@@ -273,6 +284,22 @@ int bank_upload_table_insert(	FILE *input_file,
 			error_filename );
 
 		bank_upload_insert_pipe = popen( sys_string, "w" );
+
+		/* Open bank_upload_archive_insert_pipe */
+		/* ------------------------------------ */
+		table_name =
+			get_table_name(	application_name,
+					"bank_upload_archive" );
+
+		sprintf( sys_string,
+		 "insert_statement table=%s field=%s del='%c' 		  |"
+		 "sql.e							  |"
+		 "cat							   ",
+		 	table_name,
+		 	insert_bank_upload_archive,
+		 	FOLDER_DATA_DELIMITER );
+
+		bank_upload_archive_insert_pipe = popen( sys_string, "w" );
 	}
 	else
 	{
@@ -290,6 +317,8 @@ int bank_upload_table_insert(	FILE *input_file,
 		table_output_pipe = popen( sys_string, "w" );
 	}
 
+	strcpy( bank_balance, "0.0" );
+
 	while( timlib_get_line( input_string, input_file, 4096 ) )
 	{
 		trim( input_string );
@@ -297,6 +326,13 @@ int bank_upload_table_insert(	FILE *input_file,
 
 		timlib_remove_character( input_string, '\\' );
 
+fprintf( stderr, "%s/%s()/%d: input_string = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+input_string );
+		/* Get bank_date */
+		/* ------------- */
 		if ( !piece_quote_comma(
 				bank_date,
 				input_string,
@@ -313,60 +349,6 @@ int bank_upload_table_insert(	FILE *input_file,
 			}
 			continue;
 		}
-
-		if ( !piece_quote_comma(
-				bank_description,
-				input_string,
-				description_piece_offset ) )
-		{
-			continue;
-		}
-
-		if ( exists_fund )
-		{
-			if ( timlib_strcmp(
-				bank_description,
-				"interest earned" ) == 0
-			||   timlib_strcmp(
-				bank_description,
-				"deposit" ) == 0 )
-			{
-				sprintf(
-				bank_description + strlen( bank_description ),
-			 	" %s",
-			 	fund_name );
-			}
-		}
-
-		/* The bank_amount is either a single column or two columns. */
-		/* --------------------------------------------------------- */
-		if ( !piece_quote_comma(
-				bank_amount,
-				input_string,
-				debit_piece_offset ) )
-		{
-			continue;
-		}
-
-		if ( !atof( bank_amount ) )
-		{
-			/* See if there's a second column. */
-			/* ------------------------------- */
-			if ( credit_piece_offset < 0 )
-			{
-				continue;
-			}
-
-			if ( !piece_quote_comma(
-					bank_amount,
-					input_string,
-					credit_piece_offset ) )
-			{
-				continue;
-			}
-		}
-
-		if ( !atof( bank_amount ) ) continue;
 
 		if ( !bank_upload_get_bank_date_international(
 				bank_date_international,
@@ -391,6 +373,96 @@ int bank_upload_table_insert(	FILE *input_file,
 			}
 		}
 
+		/* Get bank_description */
+		/* -------------------- */
+		if ( !piece_quote_comma(
+				bank_description,
+				input_string,
+				description_piece_offset ) )
+		{
+			continue;
+		}
+
+		if ( exists_fund )
+		{
+			if ( timlib_strcmp(
+				bank_description,
+				"interest earned" ) == 0
+			||   timlib_strcmp(
+				bank_description,
+				"deposit" ) == 0 )
+			{
+				sprintf(
+				bank_description + strlen( bank_description ),
+			 	" %s",
+			 	fund_name );
+			}
+		}
+
+		/* =============== */
+		/* Get bank_amount */
+		/* =============== */
+
+		/* The bank_amount is either a single column or two columns. */
+		/* --------------------------------------------------------- */
+		if ( !piece_quote_comma(
+				bank_amount,
+				input_string,
+				debit_piece_offset ) )
+		{
+fprintf( stderr, "%s/%s()/%d: can't get bank_amount.\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+			continue;
+		}
+
+fprintf( stderr, "%s/%s()/%d: with debit_piece_offset = %d, bank_amount = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+debit_piece_offset,
+bank_amount );
+
+		if ( !atof( bank_amount ) )
+		{
+			/* See if there's a second column. */
+			/* ------------------------------- */
+			if ( credit_piece_offset < 0 )
+			{
+				continue;
+			}
+
+			if ( !piece_quote_comma(
+					bank_amount,
+					input_string,
+					credit_piece_offset ) )
+			{
+				continue;
+			}
+fprintf( stderr, "%s/%s()/%d: with credit_piece_offset = %d, bank_amount = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+credit_piece_offset,
+bank_amount );
+
+		}
+
+		if ( !atof( bank_amount ) ) continue;
+
+		/* Get bank_balance */
+		/* ---------------- */
+		if ( balance_piece_offset >= 0 )
+		{
+			piece_quote_comma(
+				bank_balance,
+				input_string,
+				balance_piece_offset );
+		}
+
+		/* Output table */
+		/* ------------ */
 		if ( table_output_pipe )
 		{
 			if ( exists_fund )
@@ -399,7 +471,7 @@ int bank_upload_table_insert(	FILE *input_file,
 			 		"%s^%s^%d^%s^%s\n",
 			 		bank_date_international,
 			 		bank_description,
-					starting_sequence_number++,
+					starting_sequence_number,
 			 		bank_amount,
 					fund_name );
 			}
@@ -409,19 +481,21 @@ int bank_upload_table_insert(	FILE *input_file,
 			 		"%s^%s^%d^%s\n",
 			 		bank_date_international,
 			 		bank_description,
-					starting_sequence_number++,
+					starting_sequence_number,
 			 		bank_amount );
 			}
 		}
 		else
 		{
+			/* Output insert into BANK_UPLOAD */
+			/* ------------------------------ */
 			if ( exists_fund )
 			{
 				fprintf(bank_upload_insert_pipe,
 			 		"%s^%s^%d^%s^%s\n",
 			 		bank_date_international,
 			 		bank_description,
-					starting_sequence_number++,
+					starting_sequence_number,
 			 		bank_amount,
 					fund_name );
 			}
@@ -431,17 +505,50 @@ int bank_upload_table_insert(	FILE *input_file,
 			 		"%s^%s^%d^%s\n",
 			 		bank_date_international,
 			 		bank_description,
-					starting_sequence_number++,
+					starting_sequence_number,
 			 		bank_amount );
+			}
+
+			/* Output insert into BANK_UPLOAD_ARCHIVE */
+			/* -------------------------------------- */
+			if ( exists_fund )
+			{
+				fprintf(bank_upload_archive_insert_pipe,
+			 		"%s^%s^%d^%s^%s^%s\n",
+			 		bank_date_international,
+			 		bank_description,
+					starting_sequence_number,
+			 		bank_amount,
+			 		bank_balance,
+					fund_name );
+			}
+			else
+			{
+				fprintf(bank_upload_archive_insert_pipe,
+			 		"%s^%s^%d^%s^%s\n",
+			 		bank_date_international,
+			 		bank_description,
+					starting_sequence_number,
+			 		bank_amount,
+					bank_balance );
 			}
 		}
 
 		table_insert_count++;
+		starting_sequence_number++;
 	}
+
+	if ( bank_upload_insert_pipe )
+		pclose( bank_upload_insert_pipe );
+
+	if ( bank_upload_archive_insert_pipe )
+		pclose( bank_upload_archive_insert_pipe );
+
+	if ( table_output_pipe )
+		pclose( table_output_pipe );
 
 	if ( execute )
 	{
-		pclose( bank_upload_insert_pipe );
 		int error_file_lines;
 
 		sprintf( sys_string,
@@ -468,10 +575,6 @@ int bank_upload_table_insert(	FILE *input_file,
 			 error_filename );
 
 		system( sys_string );
-	}
-	else
-	{
-		pclose( table_output_pipe );
 	}
 
 	return table_insert_count;
@@ -789,7 +892,7 @@ char *bank_upload_reoccurring_transaction_get_select( void )
 		 "transaction_amount,		"
 		 "bank_upload_search_phrase,	"
 		 "accrued_daily_amount,		"
-		 "accrued_monthly_amount		";
+		 "accrued_monthly_amount	";
 
 	return select;
 }

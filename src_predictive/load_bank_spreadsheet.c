@@ -101,7 +101,7 @@ int main( int argc, char **argv )
 		description_piece_offset = 1;
 	}
 
-	debit_column_string = argv[ 5 ];
+	debit_column_string = argv[ 6 ];
 
 	if ( *debit_column_string
 	&&   strcmp( debit_column_string, "debit_column" ) != 0 )

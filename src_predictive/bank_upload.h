@@ -117,6 +117,12 @@ int bank_upload_table_insert(		FILE *input_file,
 					int starting_sequence_number );
 #endif
 
+/* Returns table_insert_count */
+/* -------------------------- */
+int bank_upload_insert(			char *application_name,
+					LIST *bank_upload_list,
+					char *fund_name );
+
 int bank_upload_get_sequence_number(
 					char *application_name,
 					char *input_filename );

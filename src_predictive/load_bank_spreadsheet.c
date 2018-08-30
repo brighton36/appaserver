@@ -35,6 +35,14 @@ int load_bank_spreadsheet(	char *application_name,
 				int balance_piece_offset,
 				boolean execute );
 
+/* Returns table_insert_count */
+/* -------------------------- */
+int load_bank_spreadsheet_execute(
+				char *application_name,
+				LIST *bank_upload_list,
+				char *fund_name,
+				int starting_sequence_number );
+
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -242,35 +250,6 @@ int load_bank_spreadsheet(
 		return 0;
 	}
 
-/*
-	if ( ! ( input_file =
-			fopen(	bank_upload_structure->
-					input_filename,
-				"r" ) ) )
-	{
-		printf( "<h2>ERROR: cannot open %s for read.</h2>\n",
-			input_filename );
-		return 0;
-	}
-
-	bank_upload_structure->table_insert_count =
-		bank_upload_table_insert(
-			input_file,
-			&bank_upload_structure->minimum_bank_date,
-			application_name,
-			bank_upload_structure->fund_name,
-			date_piece_offset,
-			description_piece_offset,
-			debit_piece_offset,
-			credit_piece_offset,
-			balance_piece_offset,
-			execute,
-			bank_upload_structure->
-				starting_sequence_number );
-
-	fclose( input_file );
-*/
-
 	bank_upload_structure->bank_upload_list =
 		bank_upload_spreadsheet_get_list(
 			bank_upload_structure->input_filename,
@@ -285,8 +264,21 @@ int load_bank_spreadsheet(
 				starting_sequence_number,
 			fund_name );
 
-	if ( !bank_upload_structure->table_insert_count ) return 0;
+	if ( execute )
+	{
+		bank_upload_structure->table_insert_count =
+			load_bank_spreadsheet_execute(
+				application_name,
+				bank_upload_structure->
+					bank_upload_list,
+				fund_name,
+				bank_upload_structure->
+					starting_sequence_number );
 
+		if ( !bank_upload_structure->table_insert_count ) return 0;
+	}
+
+#ifdef NOT_DEFINED
 	bank_upload_structure->bank_upload_list =
 		bank_upload_fetch_list(
 			application_name,
@@ -316,8 +308,58 @@ int load_bank_spreadsheet(
 
 	bank_upload_transaction_display(
 		bank_upload_structure->bank_upload_list );
+#endif
 
 	return bank_upload_structure->table_insert_count;
 
 } /* load_bank_spreadsheet() */
+
+/* Returns table_insert_count */
+/* -------------------------- */
+int load_bank_spreadsheet_execute(
+			char *application_name,
+			LIST *bank_upload_list,
+			char *fund_name,
+			int starting_sequence_number )
+{
+	int table_insert_count;
+
+	table_insert_count =
+		bank_upload_insert(
+			application_name,
+			bank_upload_list,
+			fund_name );
+
+	bank_upload_list =
+		bank_upload_fetch_list(
+			application_name,
+			starting_sequence_number );
+
+	bank_upload_structure->existing_cash_journal_ledger_list =
+		bank_upload_fetch_existing_cash_journal_ledger_list(
+			application_name,
+			bank_upload_structure->
+				minimum_bank_date,
+			bank_upload_structure->
+				fund_name );
+
+	bank_upload_structure->reoccurring_transaction_list =
+		bank_upload_fetch_reoccurring_transaction_list(
+			application_name );
+
+	bank_upload_set_transaction(
+		bank_upload_structure->bank_upload_list,
+		bank_upload_structure->reoccurring_transaction_list,
+		bank_upload_structure->existing_cash_journal_ledger_list );
+
+	bank_upload_insert_transaction(
+		application_name,
+		bank_upload_structure->bank_upload_list );
+
+	bank_upload_transaction_display(
+		bank_upload_structure->bank_upload_list );
+
+	return bank_upload_structure->table_insert_count;
+
+} /* load_bank_spreadsheet_execute() */
 

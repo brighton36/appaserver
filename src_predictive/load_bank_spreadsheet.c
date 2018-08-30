@@ -69,6 +69,10 @@ int main( int argc, char **argv )
 		fprintf( stderr,
 "Usage: %s process_name fund filename date_column description_column debit_column credit_column balance_column execute_yn\n",
 			 argv[ 0 ] );
+
+		fprintf( stderr,
+"Note: column numbers are one based. Delimiters are either comma only, or quote-comma.\n" );
+
 		exit ( 1 );
 	}
 

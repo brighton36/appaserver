@@ -242,6 +242,7 @@ int load_bank_spreadsheet(
 		return 0;
 	}
 
+/*
 	if ( ! ( input_file =
 			fopen(	bank_upload_structure->
 					input_filename,
@@ -268,6 +269,21 @@ int load_bank_spreadsheet(
 				starting_sequence_number );
 
 	fclose( input_file );
+*/
+
+	bank_upload_structure->bank_upload_list =
+		bank_upload_spreadsheet_get_list(
+			bank_upload_structure->input_filename,
+			&bank_upload_structure->minimum_bank_date,
+			application_name,
+			date_piece_offset,
+			description_piece_offset,
+			debit_piece_offset,
+			credit_piece_offset,
+			balance_piece_offset,
+			bank_upload_structure->
+				starting_sequence_number,
+			fund_name );
 
 	if ( !bank_upload_structure->table_insert_count ) return 0;
 

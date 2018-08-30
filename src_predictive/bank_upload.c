@@ -210,6 +210,188 @@ boolean bank_upload_reoccurring_transaction_load(
 
 } /* bank_upload_reoccurring_transaction_load() */
 
+LIST *bank_upload_spreadsheet_get_list(
+				char *input_filename,
+				char **minimum_bank_date,
+				char *application_name,
+				int date_piece_offset,
+				int description_piece_offset,
+				int debit_piece_offset,
+				int credit_piece_offset,
+				int balance_piece_offset,
+				int starting_sequence_number,
+				char *fund_name )
+{
+	char input_string[ 4096 ];
+	char bank_date[ 128 ];
+	char bank_date_international[ 128 ];
+	char bank_description[ 1024 ];
+	char bank_amount[ 128 ];
+	char bank_balance[ 128 ];
+	boolean found_header = 0;
+	static char local_minimum_bank_date[ 16 ] = {0};
+	FILE *input_file;
+	BANK_UPLOAD *bank_upload;
+	LIST *bank_upload_list;
+	boolean exists_fund;
+
+	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			input_filename );
+		exit( 1 );
+	}
+
+	exists_fund = ledger_fund_attribute_exists( application_name );
+
+	if ( minimum_bank_date )
+	{
+		*minimum_bank_date = local_minimum_bank_date;
+	}
+
+	bank_upload_list = list_new();
+
+	while( timlib_get_line( input_string, input_file, 4096 ) )
+	{
+		trim( input_string );
+		if ( !*input_string ) continue;
+
+		timlib_remove_character( input_string, '\\' );
+
+		/* Get bank_date */
+		/* ------------- */
+		if ( !piece_quote_comma(
+				bank_date,
+				input_string,
+				date_piece_offset ) )
+		{
+			continue;
+		}
+
+		if ( !found_header )
+		{
+			if ( timlib_exists_string( bank_date, "date" ) )
+			{
+				found_header = 1;
+			}
+			continue;
+		}
+
+		if ( !bank_upload_get_bank_date_international(
+				bank_date_international,
+				bank_date ) )
+		{
+			continue;
+		}
+
+		if ( !*local_minimum_bank_date )
+		{
+			strcpy(	local_minimum_bank_date,
+				bank_date_international );
+		}
+		else
+		{
+			if ( strcmp( 
+				local_minimum_bank_date,
+				bank_date_international ) < 0 )
+			{
+				strcpy(	local_minimum_bank_date,
+					bank_date_international );
+			}
+		}
+
+		/* Get bank_description */
+		/* -------------------- */
+		if ( !piece_quote_comma(
+				bank_description,
+				input_string,
+				description_piece_offset ) )
+		{
+			continue;
+		}
+
+		if ( exists_fund )
+		{
+			if ( timlib_strcmp(
+				bank_description,
+				"interest earned" ) == 0
+			||   timlib_strcmp(
+				bank_description,
+				"deposit" ) == 0 )
+			{
+				sprintf(
+				bank_description + strlen( bank_description ),
+			 	" %s",
+			 	fund_name );
+			}
+		}
+
+		/* =============== */
+		/* Get bank_amount */
+		/* =============== */
+
+		/* The bank_amount is either a single column or two columns. */
+		/* --------------------------------------------------------- */
+		if ( !piece_quote_comma(
+				bank_amount,
+				input_string,
+				debit_piece_offset ) )
+		{
+			continue;
+		}
+
+		if ( !atof( bank_amount ) )
+		{
+			/* See if there's a second column. */
+			/* ------------------------------- */
+			if ( credit_piece_offset < 0 )
+			{
+				continue;
+			}
+
+			if ( !piece_quote_comma(
+					bank_amount,
+					input_string,
+					credit_piece_offset ) )
+			{
+				continue;
+			}
+		}
+
+		if ( !atof( bank_amount ) ) continue;
+
+		/* Get bank_balance */
+		/* ---------------- */
+		if ( balance_piece_offset >= 0 )
+		{
+			piece_quote_comma(
+				bank_balance,
+				input_string,
+				balance_piece_offset );
+		}
+
+		bank_upload = bank_upload_calloc();
+
+		bank_upload->bank_date = strdup( bank_date_international );
+		bank_upload->bank_description = strdup( bank_description );
+		bank_upload->sequence_number = starting_sequence_number;
+		bank_upload->bank_amount = atof( bank_amount );;
+		bank_upload->bank_running_balance = atof( bank_balance );;
+
+		list_append_pointer( bank_upload_list, bank_upload );
+		starting_sequence_number++;
+	}
+
+	fclose( input_file );
+	return bank_upload_list;
+
+} /* bank_upload_spreadsheet_get_list() */
+
+#ifdef NOT_DEFINED
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_table_insert(	FILE *input_file,
@@ -557,6 +739,7 @@ int bank_upload_table_insert(	FILE *input_file,
 	return table_insert_count;
 
 } /* bank_upload_table_insert() */
+#endif
 
 int bank_upload_get_starting_sequence_number(
 			char *application_name,
@@ -692,7 +875,7 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 
 	bank_upload = bank_upload_calloc();
 
-	bank_upload_parse(
+	bank_upload_fetch_parse(
 			&bank_upload->bank_date,
 			&bank_upload->bank_description,
 			&bank_upload->sequence_number,
@@ -735,7 +918,7 @@ LIST *bank_upload_fetch_list(		char *application_name,
 	{
 		bank_upload = bank_upload_calloc();
 
-		bank_upload_parse(
+		bank_upload_fetch_parse(
 				&bank_upload->bank_date,
 				&bank_upload->bank_description,
 				&bank_upload->sequence_number,
@@ -752,7 +935,7 @@ LIST *bank_upload_fetch_list(		char *application_name,
 
 } /* bank_upload_fetch_list() */
 
-void bank_upload_parse(		char **bank_date,
+void bank_upload_fetch_parse(	char **bank_date,
 				char **bank_description,
 				int *sequence_number,
 				double *bank_amount,
@@ -781,7 +964,7 @@ void bank_upload_parse(		char **bank_date,
 	if ( *buffer )
 		*bank_running_balance = atof( buffer );
 
-} /* bank_upload_parse() */
+} /* bank_upload_fetch_parse() */
 
 void bank_upload_reoccurring_transaction_parse(
 					char **full_name,

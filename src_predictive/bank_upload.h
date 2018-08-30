@@ -101,6 +101,7 @@ boolean bank_upload_reoccurring_transaction_load(
 BANK_UPLOAD *bank_upload_new(		char *bank_date,
 					char *bank_description );
 
+#ifdef NOT_DEFINED
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_table_insert(		FILE *input_file,
@@ -114,6 +115,7 @@ int bank_upload_table_insert(		FILE *input_file,
 					int balance_piece_offset,
 					boolean execute,
 					int starting_sequence_number );
+#endif
 
 int bank_upload_get_sequence_number(
 					char *application_name,
@@ -152,7 +154,7 @@ void bank_upload_insert_transaction(
 
 char *bank_upload_get_select(		void );
 
-void bank_upload_parse(			char **bank_date,
+void bank_upload_fetch_parse(		char **bank_date,
 					char **bank_description,
 					int *sequence_number,
 					double *bank_amount,
@@ -188,5 +190,16 @@ BANK_UPLOAD *bank_upload_dictionary_extract(
 					char *application_name,
 					DICTIONARY *dictionary );
 
+LIST *bank_upload_spreadsheet_get_list(
+					char *input_filename,
+					char **minimum_bank_date,
+					char *application_name,
+					int date_piece_offset,
+					int description_piece_offset,
+					int debit_piece_offset,
+					int credit_piece_offset,
+					int balance_piece_offset,
+					int starting_sequence_number,
+					char *fund_name );
 #endif
 

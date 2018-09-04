@@ -150,12 +150,14 @@ tax_dvr: tax_dvr.c 							\
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
 		bank_upload.o						\
+		reoccurring.o						\
 		${LIBRARY}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		post_reoccurring_transaction.c				\
 		bank_upload.o						\
+		reoccurring.o						\
 		${LIBRARY}/folder_menu.o				\
 		-o post_reoccurring_transaction
 
@@ -314,12 +316,14 @@ populate_print_checks_entity: populate_print_checks_entity.c		\
 
 load_bank_spreadsheet: load_bank_spreadsheet.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		reoccurring.o						\
 		bank_upload.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		load_bank_spreadsheet.c					\
 		bank_upload.o						\
+		reoccurring.o						\
 		-o load_bank_spreadsheet
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
@@ -332,11 +336,13 @@ post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 
 post_change_bank_upload: post_change_bank_upload.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		reoccurring.o						\
 		bank_upload.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		post_change_bank_upload.c				\
+		reoccurring.o						\
 		bank_upload.o						\
 		-o post_change_bank_upload
 
@@ -654,6 +660,11 @@ bank_upload.o: bank_upload.c						\
 		bank_upload.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c bank_upload.c
+
+reoccurring.o: reoccurring.c						\
+		reoccurring.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c reoccurring.c
 
 fixed_asset.o: fixed_asset.c						\
 		fixed_asset.h

@@ -14,6 +14,8 @@ fi
 application=$1
 how_many=$2
 
+export DATABASE=$application
+
 if [ $# -eq 3 -a "$3" = "noupdate" ]
 then
 	noupdate=yes

@@ -394,7 +394,7 @@ void ledger_transaction_memo_update(	char *application_name,
 LIST *ledger_get_journal_ledger_list(	char *application_name,
 					char *full_name,
 					char *street_address,
-					char *transaction_date_time,
+					char *minimum_transaction_date_time,
 					char *account_name );
 
 double ledger_inventory_purchase_get_sum_extension(

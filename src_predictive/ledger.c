@@ -2658,7 +2658,8 @@ TRANSACTION *ledger_transaction_with_load_new(
 			application_name,
 			transaction->full_name,
 			transaction->street_address,
-			transaction->transaction_date_time,
+			transaction->transaction_date_time
+				/* minimum_transaction_date_time */,
 			(char *)0 /* account_name */ );
 
 	return transaction;
@@ -2689,7 +2690,7 @@ LIST *ledger_get_journal_ledger_list(
 				char *application_name,
 				char *full_name,
 				char *street_address,
-				char *transaction_date_time,
+				char *minimum_transaction_date_time,
 				char *account_name )
 {
 	char sys_string[ 1024 ];
@@ -2714,7 +2715,7 @@ LIST *ledger_get_journal_ledger_list(
 
 	if ( !full_name
 	&&   !street_address
-	&&   !transaction_date_time
+	&&   !minimum_transaction_date_time
 	&&   account_name )
 	{
 		sprintf(where,
@@ -2725,12 +2726,12 @@ LIST *ledger_get_journal_ledger_list(
 	else
 	if ( !full_name
 	&&   !street_address
-	&&   transaction_date_time
+	&&   minimum_transaction_date_time
 	&&   account_name )
 	{
 		sprintf(where,
 		 	"transaction_date_time >= '%s' and account = '%s'",
-		 	transaction_date_time,
+		 	minimum_transaction_date_time,
 		 	timlib_escape_single_quotes(
 				buffer,
 				account_name ) );
@@ -2738,14 +2739,15 @@ LIST *ledger_get_journal_ledger_list(
 	else
 	if ( full_name
 	&&   street_address
-	&&   transaction_date_time
+	&&   minimum_transaction_date_time
 	&&   !account_name )
 	{
 		strcpy(	where,
 			ledger_get_transaction_where(
 				full_name,
 				street_address,
-				transaction_date_time,
+				minimum_transaction_date_time
+					/* transaction_date_time */,
 				(char *)0 /* folder_name */,
 				"transaction_date_time" ) );
 	}
@@ -2798,7 +2800,7 @@ LIST *ledger_get_journal_ledger_list(
 
 		if ( !full_name
 		&&   !street_address
-		&&   !transaction_date_time
+		&&   !minimum_transaction_date_time
 		&&   account_name )
 		{
 			ledger = journal_ledger_new(
@@ -2810,7 +2812,7 @@ LIST *ledger_get_journal_ledger_list(
 		else
 		if ( !full_name
 		&&   !street_address
-		&&   transaction_date_time
+		&&   minimum_transaction_date_time
 		&&   account_name )
 		{
 			ledger = journal_ledger_new(
@@ -2824,7 +2826,7 @@ LIST *ledger_get_journal_ledger_list(
 			ledger = journal_ledger_new(
 					full_name,
 					street_address,
-					transaction_date_time,
+					minimum_transaction_date_time,
 					strdup( local_account_name ) );
 		}
 
@@ -4240,7 +4242,8 @@ LIST *ledger_get_propagate_journal_ledger_list(
 				application_name,
 				(char *)0 /* full_name */,
 				(char *)0 /* street_address */,
-				prior_ledger->transaction_date_time,
+				prior_ledger->transaction_date_time
+					/* minimum_transaction_date_time */,
 				account_name );
 	}
 	else
@@ -4253,7 +4256,7 @@ LIST *ledger_get_propagate_journal_ledger_list(
 				application_name,
 				(char *)0 /* full_name */,
 				(char *)0 /* street_address */,
-				(char *)0 /* transaction_date_time */,
+				(char *)0 /* minimum_transaction_date_time */,
 				account_name );
 
 		if ( !list_length( ledger_list ) ) return (LIST *)0;
@@ -4424,7 +4427,8 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 				application_name,
 				transaction->full_name,
 				transaction->street_address,
-				transaction->transaction_date_time,
+				transaction->transaction_date_time
+					/* minimum_transaction_date_time */,
 				(char *)0 /* account_name */ );
 
 		list_append_pointer( transaction_list, transaction );
@@ -6153,7 +6157,8 @@ LIST *ledger_get_after_balance_zero_journal_ledger_list(
 				application_name,
 				(char *)0 /* full_name */,
 				(char *)0 /* street_address */,
-				transaction_date_time_string,
+				transaction_date_time_string
+					/* minimum_transaction_date_time */,
 				account_name );
 
 } /* ledger_get_after_balance_zero_journal_ledger_list() */

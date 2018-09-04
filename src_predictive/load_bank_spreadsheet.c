@@ -35,14 +35,6 @@ int load_bank_spreadsheet(	char *application_name,
 				int balance_piece_offset,
 				boolean execute );
 
-/* Returns table_insert_count */
-/* -------------------------- */
-int load_bank_spreadsheet_execute(
-				char *application_name,
-				LIST *bank_upload_list,
-				char *fund_name,
-				int starting_sequence_number );
-
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -235,47 +227,99 @@ int load_bank_spreadsheet(
 	FILE *input_file;
 	BANK_UPLOAD_STRUCTURE *bank_upload_structure;
 
+	/* Input */
+	/* ----- */
 	bank_upload_structure =
 		bank_upload_structure_new(
 			fund_name,
-			input_filename );
+			input_filename,
+			date_piece_offset,
+			description_piece_offset,
+			debit_piece_offset,
+			credit_piece_offset,
+			balance_piece_offset );
 
-	if ( ! ( bank_upload_structure->starting_sequence_number =
+	if ( ! ( bank_upload_structure->input.starting_sequence_number =
 			bank_upload_get_starting_sequence_number(
 				application_name,
-				input_filename,
-				date_piece_offset ) ) )
+				bank_upload->input.input_filename,
+				bank_upload->input.date_piece_offset ) ) )
 	{
 		printf( "<h2>ERROR: cannot get sequence number</h2>\n" );
 		return 0;
 	}
 
-	bank_upload_structure->bank_upload_list =
+	bank_upload_structure->input.bank_upload_spreadsheet_list =
 		bank_upload_spreadsheet_get_list(
 			bank_upload_structure->input_filename,
-			&bank_upload_structure->minimum_bank_date,
+			&bank_upload_structure->process.minimum_bank_date,
 			application_name,
-			date_piece_offset,
-			description_piece_offset,
-			debit_piece_offset,
-			credit_piece_offset,
-			balance_piece_offset,
+			bank_upload_structure->input.date_piece_offset,
+			bank_upload_structure->input.description_piece_offset,
+			bank_upload_structure->input.debit_piece_offset,
+			bank_upload_structure->input.credit_piece_offset,
+			bank_upload_structure->input.balance_piece_offset,
 			bank_upload_structure->
-				starting_sequence_number,
-			fund_name );
+				process.starting_sequence_number,
+			bank_upload->input.fund_name );
 
+	bank_upload_structure->input.existing_cash_journal_ledger_list =
+		bank_upload_fetch_existing_cash_journal_ledger_list(
+			application_name,
+			bank_upload_structure->
+				process.
+				minimum_bank_date,
+			bank_upload_structure->
+				input.
+				fund_name );
+
+		bank_upload->input.reoccurring_structure =
+			reoccurring_structure_new();
+
+		bank_upload->
+			input.reoccurring_structure->
+			reoccurring_transaction_list =
+				bank_upload_fetch_reoccurring_transaction_list(
+					application_name );
+
+	/* Process */
+	/* ------- */
 	if ( execute )
 	{
-		bank_upload_structure->table_insert_count =
-			load_bank_spreadsheet_execute(
+		bank_upload->process.table_insert_count =
+			bank_upload_insert(
 				application_name,
-				bank_upload_structure->
-					bank_upload_list,
-				fund_name,
-				bank_upload_structure->
+				bank_upload->
+					input.
+					bank_upload_spreadsheet_list
+						/* bank_upload_list */,
+				bank_upload->input.fund_name );
+
+		bank_upload->process.bank_upload_table_list =
+			bank_upload_fetch_list(
+				application_name,
+				bank_upload->
+					process.
 					starting_sequence_number );
 
-		if ( !bank_upload_structure->table_insert_count ) return 0;
+	bank_upload_set_transaction(
+		bank_upload_structure->bank_upload_list,
+		bank_upload_structure->reoccurring_transaction_list,
+		bank_upload_structure->existing_cash_journal_ledger_list );
+
+	bank_upload_insert_transaction(
+		application_name,
+		bank_upload_structure->bank_upload_list );
+
+	bank_upload_transaction_display(
+		bank_upload_structure->bank_upload_list );
+
+	return bank_upload_structure->table_insert_count;
+
+		if ( !bank_upload_structure->process->table_insert_count )
+		{
+			return 0;
+		}
 	}
 
 #ifdef NOT_DEFINED
@@ -313,53 +357,4 @@ int load_bank_spreadsheet(
 	return bank_upload_structure->table_insert_count;
 
 } /* load_bank_spreadsheet() */
-
-/* Returns table_insert_count */
-/* -------------------------- */
-int load_bank_spreadsheet_execute(
-			char *application_name,
-			LIST *bank_upload_list,
-			char *fund_name,
-			int starting_sequence_number )
-{
-	int table_insert_count;
-
-	table_insert_count =
-		bank_upload_insert(
-			application_name,
-			bank_upload_list,
-			fund_name );
-
-	bank_upload_list =
-		bank_upload_fetch_list(
-			application_name,
-			starting_sequence_number );
-
-	bank_upload_structure->existing_cash_journal_ledger_list =
-		bank_upload_fetch_existing_cash_journal_ledger_list(
-			application_name,
-			bank_upload_structure->
-				minimum_bank_date,
-			bank_upload_structure->
-				fund_name );
-
-	bank_upload_structure->reoccurring_transaction_list =
-		bank_upload_fetch_reoccurring_transaction_list(
-			application_name );
-
-	bank_upload_set_transaction(
-		bank_upload_structure->bank_upload_list,
-		bank_upload_structure->reoccurring_transaction_list,
-		bank_upload_structure->existing_cash_journal_ledger_list );
-
-	bank_upload_insert_transaction(
-		application_name,
-		bank_upload_structure->bank_upload_list );
-
-	bank_upload_transaction_display(
-		bank_upload_structure->bank_upload_list );
-
-	return bank_upload_structure->table_insert_count;
-
-} /* load_bank_spreadsheet_execute() */
 

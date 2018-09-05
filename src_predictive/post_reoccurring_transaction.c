@@ -25,6 +25,7 @@
 #include "accrual.h"
 #include "boolean.h"
 #include "bank_upload.h"
+#include "reoccurring.h"
 
 /* Constants */
 /* --------- */
@@ -382,7 +383,7 @@ void post_reoccurring_transaction_display(
 	char buffer[ 128 ];
 
 	if ( ! ( reoccurring_transaction =
-			bank_upload_reoccurring_transaction_new(
+			reoccurring_transaction_new(
 					application_name,
 					full_name,
 					street_address,
@@ -490,7 +491,7 @@ char *post_reoccurring_transaction(
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 
 	if ( ! ( reoccurring_transaction =
-			bank_upload_reoccurring_transaction_new(
+			reoccurring_transaction_new(
 					application_name,
 					full_name,
 					street_address,

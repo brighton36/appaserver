@@ -224,7 +224,6 @@ int load_bank_spreadsheet(
 			int balance_piece_offset,
 			boolean execute )
 {
-	FILE *input_file;
 	BANK_UPLOAD_STRUCTURE *bank_upload_structure;
 
 	bank_upload_structure =

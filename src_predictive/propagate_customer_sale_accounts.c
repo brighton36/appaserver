@@ -15,6 +15,7 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "ledger.h"
+#include "customer.h"
 
 /* Constants */
 /* --------- */
@@ -27,12 +28,6 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *fund_name;
 	char *transaction_date_time;
-	char *sales_revenue_account = {0};
-	char *service_revenue_account = {0};
-	char *sales_tax_payable_account = {0};
-	char *shipping_revenue_account = {0};
-	char *cost_of_goods_sold_account = {0};
-	char *receivable_account;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 

@@ -37,6 +37,7 @@ typedef struct
 	int sequence_number;
 	double bank_amount;
 	double bank_running_balance;
+	char *fund_name;
 	TRANSACTION *transaction;
 } BANK_UPLOAD;
 

@@ -36,6 +36,7 @@ BANK_UPLOAD *bank_upload_calloc( void )
 } /* bank_upload_calloc() */
 
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
+				char *application_name,
 				char *fund_name,
 				char *input_filename,
 				int date_piece_offset,
@@ -58,13 +59,80 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		exit(1 );
 	}
 
-	p->input.fund_name = fund_name;
-	p->input.input_filename = input_filename;
-	p->input.date_piece_offset = date_piece_offset;
-	p->input.description_piece_offset = description_piece_offset;
-	p->input.debit_piece_offset = debit_piece_offset;
-	p->input.credit_piece_offset = credit_piece_offset;
-	p->input.balance_piece_offset = balance_piece_offset;
+	p->fund_name = fund_name;
+
+	p->file.input_filename = input_filename;
+	p->file.date_piece_offset = date_piece_offset;
+	p->file.description_piece_offset = description_piece_offset;
+	p->file.debit_piece_offset = debit_piece_offset;
+	p->file.credit_piece_offset = credit_piece_offset;
+	p->file.balance_piece_offset = balance_piece_offset;
+
+	if ( ! ( p->starting_sequence_number =
+			bank_upload_get_starting_sequence_number(
+				application_name,
+				p->file.input_filename,
+				p->file.date_piece_offset ) ) )
+	{
+		char *msg;
+
+		msg = "<h2>ERROR: cannot get sequence number</h2>";
+
+		fprintf( stderr,
+			 "%s/%s()/%d: %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 msg );
+
+		printf( "%s\n", msg );
+
+		return (BANK_UPLOAD_STRUCTURE *)0;
+	}
+
+	p->file.bank_upload_file_list =
+		bank_upload_fetch_file_list(
+			&p->file.minimum_bank_date,
+			application_name,
+			p->file.input_filename,
+			p->file.date_piece_offset,
+			p->file.description_piece_offset,
+			p->file.debit_piece_offset,
+			p->file.credit_piece_offset,
+			p->file.balance_piece_offset,
+			p->starting_sequence_number,
+			p->fund_name );
+
+	if ( !list_length( p->file.bank_upload_file_list ) )
+	{
+		char *msg;
+
+		msg = "<h2>ERROR: empty transaction rows.</h2>";
+
+		fprintf( stderr,
+			 "%s/%s()/%d: %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 msg );
+
+		printf( "%s\n", msg );
+
+		return (BANK_UPLOAD_STRUCTURE *)0;
+	}
+
+	p->existing_cash_journal_ledger_list =
+		bank_upload_fetch_existing_cash_journal_ledger_list(
+			application_name,
+			p->file.minimum_bank_date,
+			p->fund_name );
+
+	p->reoccurring_structure = reoccurring_structure_new();
+
+	p->reoccurring_structure->
+		reoccurring_transaction_list =
+			reoccurring_fetch_reoccurring_transaction_list(
+				application_name );
 
 	return p;
 
@@ -82,10 +150,10 @@ BANK_UPLOAD *bank_upload_new(	char *bank_date,
 
 } /* bank_upload_new() */
 
-LIST *bank_upload_spreadsheet_get_list(
-				char *input_filename,
+LIST *bank_upload_fetch_file_list(
 				char **minimum_bank_date,
 				char *application_name,
+				char *input_filename,
 				int date_piece_offset,
 				int description_piece_offset,
 				int debit_piece_offset,
@@ -261,7 +329,7 @@ LIST *bank_upload_spreadsheet_get_list(
 	fclose( input_file );
 	return bank_upload_list;
 
-} /* bank_upload_spreadsheet_get_list() */
+} /* bank_upload_fetch_file_list() */
 
 /* Returns table_insert_count */
 /* -------------------------- */

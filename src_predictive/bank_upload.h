@@ -37,46 +37,46 @@ typedef struct
 	int sequence_number;
 	double bank_amount;
 	double bank_running_balance;
-	char *fund_name;
 	TRANSACTION *transaction;
 } BANK_UPLOAD;
 
 typedef struct
 {
-} BANK_UPLOAD_OUTPUT;
+	/* Gets populated from input_filename */
+	/* ---------------------------------- */
+	LIST *bank_upload_file_list;
+	char *input_filename;
+	char *minimum_bank_date;
+	int file_row_count;
+	int table_insert_count;
+	int date_piece_offset;
+	int description_piece_offset;
+	int debit_piece_offset;
+	int credit_piece_offset;
+	int balance_piece_offset;
+} BANK_UPLOAD_FILE;
 
 typedef struct
 {
 	/* Gets populated from BANK_UPLOAD */
 	/* ------------------------------- */
 	LIST *bank_upload_table_list;
-	int starting_sequence_number;
-	int file_record_count;
-	int table_insert_count;
-	char *minimum_bank_date;
-} BANK_UPLOAD_PROCESS;
+} BANK_UPLOAD_TABLE;
 
 typedef struct
 {
-	/* Gets populated from input_filename */
-	/* ---------------------------------- */
-	LIST *bank_upload_spreadsheet_list;
-	char *fund_name;
-	char *input_filename;
+	BANK_UPLOAD_FILE file;
+	BANK_UPLOAD_TABLE table;
 	LIST *existing_cash_journal_ledger_list;
 	REOCCURRING_STRUCTURE *reoccurring_structure;
-} BANK_UPLOAD_INPUT;
-
-typedef struct
-{
-	BANK_UPLOAD_INPUT input;
-	BANK_UPLOAD_PROCESS process;
-	BANK_UPLOAD_OUPUT *output;
+	int starting_sequence_number;
+	char *fund_name;
 } BANK_UPLOAD_STRUCTURE;
 
 /* Operations */
 /* ---------- */
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
+					char *application_name,
 					char *fund_name,
 					char *input_filename,
 					int date_piece_offset,
@@ -164,10 +164,10 @@ BANK_UPLOAD *bank_upload_dictionary_extract(
 					char *application_name,
 					DICTIONARY *dictionary );
 
-LIST *bank_upload_spreadsheet_get_list(
-					char *input_filename,
+LIST *bank_upload_fetch_file_list(
 					char **minimum_bank_date,
 					char *application_name,
+					char *input_filename,
 					int date_piece_offset,
 					int description_piece_offset,
 					int debit_piece_offset,

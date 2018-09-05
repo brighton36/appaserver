@@ -656,7 +656,7 @@ investment.o: investment.c						\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c investment.c
 
-bank_upload.o: bank_upload.c						\
+bank_upload.o: bank_upload.c reoccurring.h				\
 		bank_upload.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c bank_upload.c

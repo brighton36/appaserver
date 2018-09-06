@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "timlib.h"
+#include "date.h"
 #include "date_convert.h"
 #include "piece.h"
 #include "appaserver_library.h"
@@ -103,7 +104,9 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			p->starting_sequence_number,
 			p->fund_name );
 
-	if ( !list_length( p->file.bank_upload_file_list ) )
+	p->file.file_row_count = list_length( p->file.bank_upload_file_list );
+
+	if ( !p->file.file_row_count )
 	{
 		char *msg;
 
@@ -133,6 +136,10 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		reoccurring_transaction_list =
 			reoccurring_fetch_reoccurring_transaction_list(
 				application_name );
+
+	p->bank_upload_date_time =
+		date_get_now19(
+			date_get_utc_offset() );
 
 	return p;
 
@@ -331,38 +338,97 @@ LIST *bank_upload_fetch_file_list(
 
 } /* bank_upload_fetch_file_list() */
 
+void bank_upload_event_insert(		char *application_name,
+					char *bank_upload_date_time,
+					char *login_name,
+					char *bank_upload_filename,
+					char *fund_name )
+{
+	char sys_string[ 1024 ];
+	FILE *insert_pipe;
+	char *insert_upload_event;
+	boolean exists_fund;
+	char *table_name;
+
+	exists_fund = ledger_fund_attribute_exists( application_name );
+
+/*
+#define INSERT_BANK_UPLOAD_EVENT		\
+	"bank_upload_date_time,login_name,bank_upload_filename"
+
+#define INSERT_BANK_UPLOAD_EVENT_FUND		\
+	"bank_upload_date_time,login_name,bank_upload_filename,fund"
+*/
+
+	if ( exists_fund )
+	{
+		insert_upload_event = INSERT_BANK_UPLOAD_EVENT_FUND;
+	}
+	else
+	{
+		insert_upload_event = INSERT_BANK_UPLOAD_EVENT;
+	}
+
+	table_name =
+		get_table_name(	application_name,
+				"bank_upload_event" );
+
+	sprintf( sys_string,
+	 	 "insert_statement table=%s field=%s del='%c' 		  |"
+	 	 "sql.e 2>&1						  |"
+	 	 "html_paragraph_wrapper.e				   ",
+	 	 table_name,
+	 	 insert_upload_event,
+	 	 FOLDER_DATA_DELIMITER );
+
+	insert_pipe = popen( sys_string, "w" );
+
+	if ( exists_fund )
+	{
+		fprintf(insert_pipe,
+	 		"%s^%s^%s^%s\n",
+	 		bank_upload_date_time,
+	 		login_name,
+			bank_upload_filename,
+			fund_name );
+	}
+	else
+	{
+		fprintf(insert_pipe,
+	 		"%s^%s^%s\n",
+	 		bank_upload_date_time,
+	 		login_name,
+			bank_upload_filename );
+	}
+
+	pclose( insert_pipe );
+
+} /* bank_upload_event_insert() */
+
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_insert(			char *application_name,
 					LIST *bank_upload_list,
-					char *fund_name )
+					char *bank_upload_date_time )
 {
 	char sys_string[ 1024 ];
 	FILE *bank_upload_insert_pipe = {0};
 	FILE *bank_upload_archive_insert_pipe = {0};
 	int table_insert_count = 0;
 	char error_filename[ 128 ] = {0};
-	char *insert_bank_upload;
-	char *insert_bank_upload_archive;
 	BANK_UPLOAD *bank_upload;
 	int error_file_lines;
-	boolean exists_fund;
 	char *table_name;
 
 	if ( !list_rewind( bank_upload_list ) ) return 0;
 
-	exists_fund = ledger_fund_attribute_exists( application_name );
+/*
+#define INSERT_BANK_UPLOAD		\
+	"bank_date,bank_description,sequence_number,bank_amount,bank_upload_date_time"
 
-	if ( exists_fund )
-	{
-		insert_bank_upload = INSERT_BANK_UPLOAD_FUND;
-		insert_bank_upload_archive = INSERT_BANK_UPLOAD_ARCHIVE_FUND;
-	}
-	else
-	{
-		insert_bank_upload = INSERT_BANK_UPLOAD;
-		insert_bank_upload_archive = INSERT_BANK_UPLOAD_ARCHIVE;
-	}
+#define INSERT_BANK_UPLOAD_ARCHIVE	\
+	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,bank_upload_date_time"
+*/
 
 	/* Open bank_upload_insert_pipe */
 	/* ---------------------------- */
@@ -380,7 +446,7 @@ int bank_upload_insert(			char *application_name,
 	 	 "sql.e 2>&1						  |"
 	 	 "cat > %s						   ",
 	 	table_name,
-	 	insert_bank_upload,
+	 	INSERT_BANK_UPLOAD,
 	 	FOLDER_DATA_DELIMITER,
 		error_filename );
 
@@ -397,7 +463,7 @@ int bank_upload_insert(			char *application_name,
 		 "sql.e							  |"
 		 "cat							   ",
 		 	table_name,
-		 	insert_bank_upload_archive,
+		 	INSERT_BANK_UPLOAD_ARCHIVE,
 		 	FOLDER_DATA_DELIMITER );
 
 	bank_upload_archive_insert_pipe = popen( sys_string, "w" );
@@ -407,49 +473,24 @@ int bank_upload_insert(			char *application_name,
 
 		/* Output insert into BANK_UPLOAD */
 		/* ------------------------------ */
-		if ( exists_fund )
-		{
-			fprintf(bank_upload_insert_pipe,
-		 		"%s^%s^%d^%.2lf^%s\n",
-		 		bank_upload->bank_date,
-		 		bank_upload->bank_description,
-				bank_upload->sequence_number,
-		 		bank_upload->bank_amount,
-				fund_name );
-		}
-		else
-		{
-			fprintf(bank_upload_insert_pipe,
-		 		"%s^%s^%d^%.2lf\n",
-		 		bank_upload->bank_date,
-		 		bank_upload->bank_description,
-				bank_upload->sequence_number,
-		 		bank_upload->bank_amount );
-		}
+		fprintf(bank_upload_insert_pipe,
+			"%s^%s^%d^%.2lf^%s\n",
+		 	bank_upload->bank_date,
+		 	bank_upload->bank_description,
+			bank_upload->sequence_number,
+		 	bank_upload->bank_amount,
+			bank_upload_date_time );
 
 		/* Output insert into BANK_UPLOAD_ARCHIVE */
 		/* -------------------------------------- */
-		if ( exists_fund )
-		{
-			fprintf(bank_upload_archive_insert_pipe,
-		 		"%s^%s^%d^%.2lf^%.2lf^%s\n",
-		 		bank_upload->bank_date,
-		 		bank_upload->bank_description,
-				bank_upload->sequence_number,
-		 		bank_upload->bank_amount,
-		 		bank_upload->bank_running_balance,
-				fund_name );
-		}
-		else
-		{
-			fprintf(bank_upload_archive_insert_pipe,
-		 		"%s^%s^%d^%.2lf^%.2lf\n",
-		 		bank_upload->bank_date,
-		 		bank_upload->bank_description,
-				bank_upload->sequence_number,
-		 		bank_upload->bank_amount,
-				bank_upload->bank_running_balance );
-		}
+		fprintf(bank_upload_archive_insert_pipe,
+			"%s^%s^%d^%.2lf^%.2lf^%s\n",
+		 	bank_upload->bank_date,
+		 	bank_upload->bank_description,
+			bank_upload->sequence_number,
+		 	bank_upload->bank_amount,
+			bank_upload->bank_running_balance,
+			bank_upload_date_time );
 
 		table_insert_count++;
 
@@ -856,10 +897,43 @@ void bank_upload_insert_transaction(
 
 } /* bank_upload_insert_transaction() */
 
+void bank_upload_table_display(
+				LIST *bank_upload_list )
+{
+	BANK_UPLOAD *bank_upload;
+	FILE *output_pipe;
+	char sys_string[ 1024 ];
+	char *heading;
+
+	if ( !list_rewind( bank_upload_list ) ) return;
+
+	heading = "bank_date,description,amount";
+
+	sprintf( sys_string,
+		 "html_table.e '' %s '^' left,left,right",
+		 heading );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		bank_upload = list_get( bank_upload_list );
+
+		fprintf( output_pipe,
+			 "%s^%s^%.2lf\n",
+			 bank_upload->bank_date,
+			 bank_upload->bank_description,
+			 bank_upload->bank_amount );
+
+	} while( list_next( bank_upload_list ) );
+
+	pclose( output_pipe );
+
+} /* bank_upload_table_display() */
+
 void bank_upload_transaction_display( LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
-	char transaction_memo[ 256 ];
+	char *transaction_memo;
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
@@ -868,14 +942,17 @@ void bank_upload_transaction_display( LIST *bank_upload_list )
 
 		if ( bank_upload->transaction )
 		{
-			sprintf(transaction_memo,
-				"%s/%s",
-				bank_upload->transaction->full_name,
-				bank_upload->transaction->street_address );
-
-			format_initial_capital(
-				transaction_memo,
-				transaction_memo );
+			transaction_memo =
+				bank_upload_get_transaction_memo(
+					bank_upload->
+						transaction->
+						full_name,
+					bank_upload->
+						transaction->
+						street_address,
+					bank_upload->
+						transaction->
+						transaction_date_time );
 
 			ledger_list_html_display(
 				transaction_memo,
@@ -921,4 +998,39 @@ BANK_UPLOAD *bank_upload_dictionary_extract(
 	return bank_upload;
 
 } /* bank_upload_dictionary_extract() */
+
+char *bank_upload_get_transaction_memo(
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time )
+{
+	static char transaction_memo[ 256 ];
+	char street_address_display[ 128 ];
+
+	if ( street_address
+	&&   *street_address
+	&&   strcmp( street_address, "null" ) != 0 )
+	{
+		sprintf( street_address_display,
+			 "/%s",
+			 street_address );
+	}
+	else
+	{
+		*street_address_display = '\0';
+	}
+
+	sprintf(transaction_memo,
+		"%s%s/%s",
+		full_name,
+		street_address_display,
+		transaction_date_time );
+
+	format_initial_capital(
+		transaction_memo,
+		transaction_memo );
+
+	return transaction_memo;
+
+} /* bank_upload_get_transaction_memo() */
 

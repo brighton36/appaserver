@@ -17,16 +17,16 @@
 /* Constants */
 /* --------- */
 #define INSERT_BANK_UPLOAD		\
-	"bank_date,bank_description,sequence_number,bank_amount"
+	"bank_date,bank_description,sequence_number,bank_amount,bank_upload_date_time"
 
-#define INSERT_BANK_UPLOAD_FUND		\
-	"bank_date,bank_description,sequence_number,bank_amount,fund"
+#define INSERT_BANK_UPLOAD_EVENT		\
+	"bank_upload_date_time,login_name,bank_upload_filename"
+
+#define INSERT_BANK_UPLOAD_EVENT_FUND		\
+	"bank_upload_date_time,login_name,bank_upload_filename,fund"
 
 #define INSERT_BANK_UPLOAD_ARCHIVE	\
-	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance"
-
-#define INSERT_BANK_UPLOAD_ARCHIVE_FUND	\
-	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,fund"
+	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,bank_upload_date_time"
 
 /* Structures */
 /* ---------- */
@@ -72,6 +72,7 @@ typedef struct
 	REOCCURRING_STRUCTURE *reoccurring_structure;
 	int starting_sequence_number;
 	char *fund_name;
+	char *bank_upload_date_time;
 } BANK_UPLOAD_STRUCTURE;
 
 /* Operations */
@@ -111,7 +112,7 @@ int bank_upload_table_insert(		FILE *input_file,
 /* -------------------------- */
 int bank_upload_insert(			char *application_name,
 					LIST *bank_upload_list,
-					char *fund_name );
+					char *bank_upload_date_time );
 
 int bank_upload_get_sequence_number(
 					char *application_name,
@@ -156,6 +157,8 @@ void bank_upload_fetch_parse(		char **bank_date,
 
 void bank_upload_transaction_display(	LIST *bank_upload_list );
 
+void bank_upload_table_display(		LIST *bank_upload_list );
+
 int bank_upload_get_starting_sequence_number(
 					char *application_name,
 					char *input_filename,
@@ -176,5 +179,17 @@ LIST *bank_upload_fetch_file_list(
 					int balance_piece_offset,
 					int starting_sequence_number,
 					char *fund_name );
+
+char *bank_upload_get_transaction_memo(
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time );
+
+void bank_upload_event_insert(		char *application_name,
+					char *bank_upload_date_time,
+					char *login_name,
+					char *bank_upload_filename,
+					char *fund_name );
+
 #endif
 

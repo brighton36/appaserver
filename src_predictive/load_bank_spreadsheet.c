@@ -198,12 +198,12 @@ int main( int argc, char **argv )
 			process_name,
 			appaserver_parameter_file_get_dbms() );
 
-		printf( "<p>Process complete with %d transactions.\n",
+		printf( "<p>Process complete with %d rows.\n",
 			load_count );
 	}
 	else
 	{
-		printf( "<p>Process did not load %d transactions.\n",
+		printf( "<p>Process did not load %d rows.\n",
 			load_count );
 	}
 
@@ -237,6 +237,8 @@ int load_bank_spreadsheet(
 			credit_piece_offset,
 			balance_piece_offset );
 
+	if ( !bank_upload_structure ) return 0;
+
 	if ( !execute )
 	{
 		/* If display */
@@ -249,8 +251,15 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				existing_cash_journal_ledger_list );
 
+		bank_upload_table_display(
+			bank_upload_structure->
+				file.
+				bank_upload_file_list );
+
 		bank_upload_transaction_display(
-			bank_upload_structure->file.bank_upload_file_list );
+			bank_upload_structure->
+				file.
+				bank_upload_file_list );
 
 		return bank_upload_structure->file.file_row_count;
 	}

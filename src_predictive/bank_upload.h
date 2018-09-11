@@ -187,5 +187,9 @@ boolean bank_upload_sha256sum_exists(
 					char *application_name,
 					char *file_sha256sum );
 
+void bank_upload_archive_insert(	char *application_name,
+					LIST *bank_upload_list,
+					char *bank_upload_date_time );
+
 #endif
 

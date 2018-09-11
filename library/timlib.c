@@ -3609,7 +3609,7 @@ char *timlib_get_sha256sum( char *input_filename )
 		return (char *)0;
 
 	sprintf( sys_string,
-		 "cat %s			|"
+		 "cat \"%s\"			|"
 		 "sha256sum			|"
 		 "column.e 0			 ",
 		 input_filename );

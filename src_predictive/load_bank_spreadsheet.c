@@ -23,6 +23,10 @@
 #include "application_constants.h"
 #include "bank_upload.h"
 
+/* Constants */
+/* --------- */
+/* #define ARCHIVE_ONLY		1 */
+
 /* Prototypes */
 /* ---------- */
 int load_bank_spreadsheet(	char *application_name,
@@ -79,7 +83,7 @@ int main( int argc, char **argv )
 			 argv[ 0 ] );
 
 		fprintf( stderr,
-"Note: column numbers are one based. Delimiters are either comma only, or quote-comma.\n" );
+"\nNotes: Column numbers are one based. Delimiters are either comma only, or quote-comma.\n" );
 
 		exit ( 1 );
 	}
@@ -270,6 +274,15 @@ int load_bank_spreadsheet(
 	}
 	else
 	{
+#ifdef ARCHIVE_ONLY
+		bank_upload_archive_insert(
+			application_name,
+			bank_upload_structure->
+				file.
+				bank_upload_file_list
+					/* bank_upload_list */,
+			"" /* bank_upload_date_time */ );
+#else
 		/* If execute */
 		/* ---------- */
 		if ( ! ( bank_upload_structure->file.table_insert_count =
@@ -326,6 +339,10 @@ int load_bank_spreadsheet(
 
 		bank_upload_transaction_display(
 			bank_upload_structure->table.bank_upload_table_list );
+
+/* If not defined ARCHIVE_ONLY */
+/* --------------------------- */
+#endif
 
 		return bank_upload_structure->file.table_insert_count;
 	}

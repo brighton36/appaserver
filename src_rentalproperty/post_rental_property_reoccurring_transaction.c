@@ -50,6 +50,10 @@ void post_reoccurring_transaction_display(
 			char *memo,
 			char *property_street_address );
 
+/* Global variables */
+/* ---------------- */
+enum bank_upload_exception bank_upload_exception = {0};
+
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -194,7 +198,7 @@ void post_reoccurring_transaction_display(
 	char buffer[ 128 ];
 
 	if ( ! ( reoccurring_transaction =
-			bank_upload_reoccurring_transaction_new(
+			reoccurring_transaction_new(
 					application_name,
 					full_name,
 					street_address,
@@ -269,7 +273,7 @@ void post_reoccurring_transaction(
 	LIST *propagate_account_list = list_new();
 
 	if ( ! ( reoccurring_transaction =
-			bank_upload_reoccurring_transaction_new(
+			reoccurring_transaction_new(
 					application_name,
 					full_name,
 					street_address,

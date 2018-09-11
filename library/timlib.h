@@ -519,4 +519,6 @@ void timlib_cp(			char *destination_filename,
 void timlib_error_stderr(	int argc,
 				char **argv );
 
+char *timlib_get_sha256sum(	char *input_filename );
+
 #endif

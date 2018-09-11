@@ -64,6 +64,10 @@ FILE *bank_upload_open_input_pipe(
 FILE *bank_upload_open_output_pipe(
 				void );
 
+/* Global variables */
+/* ---------------- */
+enum bank_upload_exception bank_upload_exception = {0};
+
 int main( int argc, char **argv )
 {
 	char *application_name;

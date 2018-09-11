@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_appaserver/add_column.c		      	 	*/
+/* $APPASERVER_HOME/src_appaserver/add_column.c	 	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
@@ -42,13 +42,21 @@ boolean output_process_script(
 				char *attribute_datatype,
 				int width,
 				int float_decimal_places,
+				char *hint_message,
+				char *post_change_javascript,
+				char *on_focus_javascript_function,
+				char lookup_histogram_output_yn,
+				char lookup_time_chart_output_yn,
+				boolean is_system_attribute,
 				int primary_key_index,
 				int display_order,
 				char omit_insert_yn,
 				char omit_insert_prompt_yn,
 				char omit_update_yn,
-				char *hint_message,
-				boolean is_system_attribute );
+				char additional_unique_index_yn,
+				char additional_index_yn,
+				char insert_required_yn,
+				char lookup_required_yn );
 
 char *get_sys_string(		char *table_name,
 				char *attribute_name,
@@ -69,6 +77,8 @@ int main( int argc, char **argv )
 	char *database_datatype;
 	boolean is_system_attribute;
 
+	/* Exits if fails. */
+	/* --------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
@@ -185,10 +195,9 @@ int main( int argc, char **argv )
 		char sys_string[ 1024 ];
 
 		sprintf( process_filename,
-			 "%s/%s_add_column_%s.sh",
+			 "%s/add_column_%s.sh",
 			 appaserver_parameter_file->
 				appaserver_data_directory,
-			 application_name,
 			 attribute_name );
 
 		is_system_attribute = attribute->appaserver;
@@ -202,13 +211,24 @@ int main( int argc, char **argv )
 				attribute->datatype,
 				attribute->width,
 				attribute->float_decimal_places,
+				attribute->hint_message,
+				attribute->post_change_javascript,
+				attribute->on_focus_javascript_function,
+				(attribute->lookup_histogram_output)
+					? 'y' : 'n',
+				(attribute->lookup_time_chart_output)
+					? 'y' : 'n',
+				is_system_attribute,
 				attribute->primary_key_index,
 				attribute->display_order,
 				(attribute->omit_insert) ? 'y' : 'n',
 				(attribute->omit_insert_prompt) ? 'y' : 'n',
 				(attribute->omit_update) ? 'y' : 'n',
-				attribute->hint_message,
-				is_system_attribute ) )
+				(attribute->additional_unique_index)
+					? 'y' : 'n',
+				(attribute->additional_index) ? 'y' : 'n',
+				(attribute->insert_required) ? 'y' : 'n',
+				(attribute->lookup_required) ? 'y' : 'n' ) )
 		{
 			printf( "<BR><h2>ERROR: Cannot create %s</h2>\n",
 				process_filename );
@@ -252,13 +272,21 @@ boolean output_process_script(
 				char *attribute_datatype,
 				int width,
 				int float_decimal_places,
+				char *hint_message,
+				char *post_change_javascript,
+				char *on_focus_javascript_function,
+				char lookup_histogram_output_yn,
+				char lookup_time_chart_output_yn,
+				boolean is_system_attribute,
 				int primary_key_index,
 				int display_order,
 				char omit_insert_yn,
 				char omit_insert_prompt_yn,
 				char omit_update_yn,
-				char *hint_message,
-				boolean is_system_attribute )
+				char additional_unique_index_yn,
+				char additional_index_yn,
+				char insert_required_yn,
+				char lookup_required_yn )
 {
 	FILE *output_file;
 	char buffer[ 2048 ];
@@ -266,21 +294,7 @@ boolean output_process_script(
 	if ( ! ( output_file = fopen( process_filename, "w" ) ) )
 		return 0;
 
-	fprintf( output_file,
-"#!/bin/sh\n" );
-	fprintf( output_file,
-"if [ \"$#\" -ne 1 ]\n" );
-	fprintf( output_file,
-"then\n" );
-	fprintf( output_file,
-"\techo \"Usage: $0 application\" 1>&2\n" );
-	fprintf( output_file,
-"\texit 1\n" );
-	fprintf( output_file,
-"fi\n" );
-
-	fprintf( output_file,
-"application=$1\n\n" );
+	environ_output_application_shell( output_file );
 
 	if ( !is_system_attribute )
 	{
@@ -310,9 +324,13 @@ boolean output_process_script(
 	fprintf( output_file,
 "echo \"insert into $folder_attribute_table				\\\n"
 "	(folder,attribute,primary_key_index,display_order,		\\\n"
-"	 omit_insert_yn,omit_insert_prompt_yn,omit_update_yn)		\\\n"
+"	 omit_insert_yn,omit_insert_prompt_yn,omit_update_yn,		\\\n"
+"	 additional_unique_index_yn,					\\\n"
+"	 additional_index_yn,						\\\n"
+"	 insert_required_yn,						\\\n"
+"	 lookup_required_yn )						\\\n"
 "	values								\\\n"
-"	('%s','%s',%d,%d,'%c','%c','%c');\" 				 |\n"
+"	('%s','%s',%d,%d,'%c','%c','%c','%c','%c','%c','%c');\" 	 |\n"
 "sql.e\n",
 		 folder_name,
 		 attribute_name,
@@ -320,7 +338,11 @@ boolean output_process_script(
 		 display_order,
 		 omit_insert_yn,
 		 omit_insert_prompt_yn,
-		 omit_update_yn );
+		 omit_update_yn,
+		 additional_unique_index_yn,
+		 additional_index_yn,
+		 insert_required_yn,
+		 lookup_required_yn );
 
 	fprintf( output_file,
 "attribute_table=`get_table_name $application attribute`\n" );
@@ -330,16 +352,24 @@ boolean output_process_script(
 	fprintf( output_file,
 "echo \"insert into $attribute_table					\\\n"
 "	(attribute,attribute_datatype,width,float_decimal_places,	\\\n"
-"	 hint_message,appaserver_yn)					\\\n"
+"	 hint_message,appaserver_yn,					\\\n"
+"	 post_change_javascript,					\\\n"
+"	 on_focus_javascript_function,					\\\n"
+"	 lookup_histogram_output_yn,					\\\n"
+"	 lookup_time_chart_output_yn )					\\\n"
 "	values								\\\n"
-"	('%s','%s',%d,%d,'%s','%c');\"					 |\n"
+"	('%s','%s',%d,%d,'%s','%c','%s','%s','%c','%c');\"		 |\n"
 "sql.e\n",
 		 attribute_name,
 		 attribute_datatype,
 		 width,
 		 float_decimal_places,
 		 escape_single_quotes( buffer ),
-		 (is_system_attribute) ? 'y' : 'n' );
+		 (is_system_attribute) ? 'y' : 'n',
+		 post_change_javascript,
+		 on_focus_javascript_function,
+		 lookup_histogram_output_yn,
+		 lookup_time_chart_output_yn );
 
 	output_relation(	output_file,
 				application_name,

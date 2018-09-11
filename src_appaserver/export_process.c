@@ -617,6 +617,9 @@ void output_export_process_shell_script_initialize(
 		exit( 0 );
 	}
 
+	environ_output_application_shell( export_process_file );
+
+/*
 	fprintf( export_process_file,
 	"#!/bin/sh\n" );
 
@@ -635,6 +638,7 @@ void output_export_process_shell_script_initialize(
 "	echo \"$ . set_database\" 1>&2\n"
 "	exit 1\n"
 "fi\n" );
+*/
 
 	list_rewind( create_clone_filename->folder_name_list );
 	do {

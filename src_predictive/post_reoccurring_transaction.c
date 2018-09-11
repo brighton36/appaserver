@@ -111,6 +111,10 @@ void post_reoccurring_transaction_display(
 			double transaction_amount,
 			char *memo );
 
+/* Global variables */
+/* ---------------- */
+enum bank_upload_exception bank_upload_exception = {0};
+
 int main( int argc, char **argv )
 {
 	char *application_name;

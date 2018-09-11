@@ -3601,3 +3601,19 @@ void timlib_error_stderr(	int argc,
 
 } /* timlib_error_stderr() */
 
+char *timlib_get_sha256sum( char *input_filename )
+{
+	char sys_string[ 1024 ];
+
+	if ( !timlib_file_exists( input_filename ) )
+		return (char *)0;
+
+	sprintf( sys_string,
+		 "cat %s			|"
+		 "sha256sum			|"
+		 "column.e 0			 ",
+		 input_filename );
+
+	return pipe2string( sys_string );
+
+} /* timlib_get_sha256sum() */

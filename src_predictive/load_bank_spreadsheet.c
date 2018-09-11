@@ -35,6 +35,10 @@ int load_bank_spreadsheet(	char *application_name,
 				int balance_piece_offset,
 				boolean execute );
 
+/* Global variables */
+/* ---------------- */
+enum bank_upload_exception bank_upload_exception = {0};
+
 int main( int argc, char **argv )
 {
 	char *application_name;

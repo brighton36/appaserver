@@ -13,6 +13,11 @@
 
 /* Enumerated types */
 /* ---------------- */
+enum bank_upload_exception {	bank_upload_exception_none,
+				duplicated_spreadsheet_file,
+				empty_transaction_rows,
+				sequence_number_not_generated,
+				internal_read_permission };
 
 /* Constants */
 /* --------- */
@@ -20,10 +25,10 @@
 	"bank_date,bank_description,sequence_number,bank_amount,bank_upload_date_time"
 
 #define INSERT_BANK_UPLOAD_EVENT		\
-	"bank_upload_date_time,login_name,bank_upload_filename"
+	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum"
 
 #define INSERT_BANK_UPLOAD_EVENT_FUND		\
-	"bank_upload_date_time,login_name,bank_upload_filename,fund"
+	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum,fund"
 
 #define INSERT_BANK_UPLOAD_ARCHIVE	\
 	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,bank_upload_date_time"
@@ -47,6 +52,7 @@ typedef struct
 	/* ---------------------------------- */
 	LIST *bank_upload_file_list;
 	char *input_filename;
+	char *file_sha256sum;
 	char *minimum_bank_date;
 	int file_row_count;
 	int table_insert_count;
@@ -91,22 +97,6 @@ BANK_UPLOAD *bank_upload_calloc(	void );
 
 BANK_UPLOAD *bank_upload_new(		char *bank_date,
 					char *bank_description );
-
-#ifdef NOT_DEFINED
-/* Returns table_insert_count */
-/* -------------------------- */
-int bank_upload_table_insert(		FILE *input_file,
-					char **minimum_bank_date,
-					char *application_name,
-					char *fund_name,
-					int date_piece_offset,
-					int description_piece_offset,
-					int debit_piece_offset,
-					int credit_piece_offset,
-					int balance_piece_offset,
-					boolean execute,
-					int starting_sequence_number );
-#endif
 
 /* Returns table_insert_count */
 /* -------------------------- */
@@ -169,6 +159,7 @@ BANK_UPLOAD *bank_upload_dictionary_extract(
 					DICTIONARY *dictionary );
 
 LIST *bank_upload_fetch_file_list(
+					char **file_sha256sum,
 					char **minimum_bank_date,
 					char *application_name,
 					char *input_filename,
@@ -189,7 +180,12 @@ void bank_upload_event_insert(		char *application_name,
 					char *bank_upload_date_time,
 					char *login_name,
 					char *bank_upload_filename,
+					char *file_sha256sum,
 					char *fund_name );
+
+boolean bank_upload_sha256sum_exists(
+					char *application_name,
+					char *file_sha256sum );
 
 #endif
 

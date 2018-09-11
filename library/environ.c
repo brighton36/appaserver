@@ -464,3 +464,26 @@ char *environ_get_application_name( char *argv_0 )
 
 } /* environ_get_application_name() */
 
+void environ_output_application_shell( FILE *output_file )
+{
+	fprintf( output_file,
+	"#!/bin/sh\n" );
+
+	fprintf( output_file,
+"if [ \"$APPASERVER_DATABASE\" != \"\" ]\n"
+"then\n"
+"	application=$APPASERVER_DATABASE\n"
+"elif [ \"$DATABASE\" != \"\" ]\n"
+"then\n"
+"	application=$DATABASE\n"
+"fi\n"
+"\n"
+"if [ \"$application\" = \"\" ]\n"
+"then\n"
+"	echo \"Error in `basename.e $0 n`: you must first:\" 1>&2\n"
+"	echo \"$ . set_database\" 1>&2\n"
+"	exit 1\n"
+"fi\n" );
+
+} /* environ_output_application_shell() */
+

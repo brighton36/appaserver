@@ -660,10 +660,8 @@ void attribute_append_attribute_list(	LIST *attribute_list,
 				(*omit_insert_prompt_yn == 'y'),
 				(*omit_update_yn == 'y'),
 				strdup( hint_message ),
-				strdup(
-				post_change_javascript ),
-				strdup(
-				on_focus_javascript_function ),
+				strdup( post_change_javascript ),
+				strdup( on_focus_javascript_function ),
 				(*additional_unique_index_yn == 'y'),
 				(*additional_index_yn == 'y'),
 				(*lookup_histogram_output_yn == 'y'),

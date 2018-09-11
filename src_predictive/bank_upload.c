@@ -46,6 +46,8 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 				int credit_piece_offset,
 				int balance_piece_offset )
 {
+	extern enum bank_upload_exception bank_upload_exception;
+
 	BANK_UPLOAD_STRUCTURE *p =
 		(BANK_UPLOAD_STRUCTURE *)
 			calloc( 1, sizeof( BANK_UPLOAD_STRUCTURE ) );
@@ -88,11 +90,14 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 		printf( "%s\n", msg );
 
+		bank_upload_exception = sequence_number_not_generated;
+
 		return (BANK_UPLOAD_STRUCTURE *)0;
 	}
 
 	p->file.bank_upload_file_list =
 		bank_upload_fetch_file_list(
+			&p->file.file_sha256sum,
 			&p->file.minimum_bank_date,
 			application_name,
 			p->file.input_filename,
@@ -103,6 +108,26 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			p->file.balance_piece_offset,
 			p->starting_sequence_number,
 			p->fund_name );
+
+	if ( !p->file.file_sha256sum )
+	{
+		char *msg;
+
+		msg = "<h2>ERROR: cannot read file.</h2>";
+
+		fprintf( stderr,
+			 "%s/%s()/%d: %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 msg );
+
+		printf( "%s\n", msg );
+
+		bank_upload_exception = internal_read_permission;
+
+		return (BANK_UPLOAD_STRUCTURE *)0;
+	}
 
 	p->file.file_row_count = list_length( p->file.bank_upload_file_list );
 
@@ -120,6 +145,30 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			 msg );
 
 		printf( "%s\n", msg );
+
+		bank_upload_exception = empty_transaction_rows;
+
+		return (BANK_UPLOAD_STRUCTURE *)0;
+	}
+
+	if ( bank_upload_sha256sum_exists(
+			application_name,
+			p->file.file_sha256sum ) )
+	{
+		char *msg;
+
+		msg = "<h2>ERROR: duplicated file.</h2>";
+
+		fprintf( stderr,
+			 "%s/%s()/%d: %s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 msg );
+
+		printf( "%s\n", msg );
+
+		bank_upload_exception = duplicated_spreadsheet_file;
 
 		return (BANK_UPLOAD_STRUCTURE *)0;
 	}
@@ -158,6 +207,7 @@ BANK_UPLOAD *bank_upload_new(	char *bank_date,
 } /* bank_upload_new() */
 
 LIST *bank_upload_fetch_file_list(
+				char **file_sha256sum,
 				char **minimum_bank_date,
 				char *application_name,
 				char *input_filename,
@@ -181,6 +231,11 @@ LIST *bank_upload_fetch_file_list(
 	BANK_UPLOAD *bank_upload;
 	LIST *bank_upload_list;
 	boolean exists_fund;
+
+	if ( file_sha256sum )
+	{
+		*file_sha256sum = timlib_get_sha256sum( input_filename );
+	}
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
@@ -342,6 +397,7 @@ void bank_upload_event_insert(		char *application_name,
 					char *bank_upload_date_time,
 					char *login_name,
 					char *bank_upload_filename,
+					char *file_sha256sum,
 					char *fund_name )
 {
 	char sys_string[ 1024 ];
@@ -354,10 +410,10 @@ void bank_upload_event_insert(		char *application_name,
 
 /*
 #define INSERT_BANK_UPLOAD_EVENT		\
-	"bank_upload_date_time,login_name,bank_upload_filename"
+	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum"
 
 #define INSERT_BANK_UPLOAD_EVENT_FUND		\
-	"bank_upload_date_time,login_name,bank_upload_filename,fund"
+	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum,fund"
 */
 
 	if ( exists_fund )
@@ -386,19 +442,21 @@ void bank_upload_event_insert(		char *application_name,
 	if ( exists_fund )
 	{
 		fprintf(insert_pipe,
-	 		"%s^%s^%s^%s\n",
+	 		"%s^%s^%s^%s^%s\n",
 	 		bank_upload_date_time,
 	 		login_name,
 			bank_upload_filename,
+			file_sha256sum,
 			fund_name );
 	}
 	else
 	{
 		fprintf(insert_pipe,
-	 		"%s^%s^%s\n",
+	 		"%s^%s^%s^%s\n",
 	 		bank_upload_date_time,
 	 		login_name,
-			bank_upload_filename );
+			bank_upload_filename,
+			file_sha256sum );
 	}
 
 	pclose( insert_pipe );
@@ -1033,4 +1091,27 @@ char *bank_upload_get_transaction_memo(
 	return transaction_memo;
 
 } /* bank_upload_get_transaction_memo() */
+
+boolean bank_upload_sha256sum_exists(
+			char *application_name,
+			char *file_sha256sum )
+{
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+
+	sprintf( where,
+		 "file_sha256sum = '%s'",
+		 file_sha256sum );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=count			"
+		 "			folder=bank_upload_event	"
+		 "			where=\"%s\"			",
+		 application_name,
+		 where );
+
+	return (boolean)atoi( pipe2string( sys_string ) );
+
+} /* bank_upload_sha256sum_exists() */
 

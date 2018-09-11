@@ -463,6 +463,54 @@ void bank_upload_event_insert(		char *application_name,
 
 } /* bank_upload_event_insert() */
 
+void bank_upload_archive_insert(	char *application_name,
+					LIST *bank_upload_list,
+					char *bank_upload_date_time )
+{
+	char sys_string[ 1024 ];
+	FILE *bank_upload_archive_insert_pipe = {0};
+	BANK_UPLOAD *bank_upload;
+	char *table_name;
+
+	if ( !list_rewind( bank_upload_list ) );
+
+/*
+#define INSERT_BANK_UPLOAD_ARCHIVE	\
+	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,bank_upload_date_time"
+*/
+
+	table_name =
+		get_table_name(	application_name,
+				"bank_upload_archive" );
+
+	sprintf( sys_string,
+		 "insert_statement table=%s field=%s del='%c' 		  |"
+		 "sql.e							  |"
+		 "cat							   ",
+		 	table_name,
+		 	INSERT_BANK_UPLOAD_ARCHIVE,
+		 	FOLDER_DATA_DELIMITER );
+
+	bank_upload_archive_insert_pipe = popen( sys_string, "w" );
+
+	do {
+		bank_upload = list_get_pointer( bank_upload_list );
+
+		fprintf(bank_upload_archive_insert_pipe,
+			"%s^%s^%d^%.2lf^%.2lf^%s\n",
+		 	bank_upload->bank_date,
+		 	bank_upload->bank_description,
+			bank_upload->sequence_number,
+		 	bank_upload->bank_amount,
+			bank_upload->bank_running_balance,
+			bank_upload_date_time );
+
+	} while( list_next( bank_upload_list ) );
+
+	pclose( bank_upload_archive_insert_pipe );
+
+} /* bank_upload_archive_insert() */
+
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_insert(			char *application_name,
@@ -471,7 +519,6 @@ int bank_upload_insert(			char *application_name,
 {
 	char sys_string[ 1024 ];
 	FILE *bank_upload_insert_pipe = {0};
-	FILE *bank_upload_archive_insert_pipe = {0};
 	int table_insert_count = 0;
 	char error_filename[ 128 ] = {0};
 	BANK_UPLOAD *bank_upload;
@@ -483,13 +530,8 @@ int bank_upload_insert(			char *application_name,
 /*
 #define INSERT_BANK_UPLOAD		\
 	"bank_date,bank_description,sequence_number,bank_amount,bank_upload_date_time"
-
-#define INSERT_BANK_UPLOAD_ARCHIVE	\
-	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,bank_upload_date_time"
 */
 
-	/* Open bank_upload_insert_pipe */
-	/* ---------------------------- */
 	table_name =
 		get_table_name(	application_name,
 				"bank_upload" );
@@ -510,22 +552,6 @@ int bank_upload_insert(			char *application_name,
 
 	bank_upload_insert_pipe = popen( sys_string, "w" );
 
-	/* Open bank_upload_archive_insert_pipe */
-	/* ------------------------------------ */
-	table_name =
-		get_table_name(	application_name,
-				"bank_upload_archive" );
-
-	sprintf( sys_string,
-		 "insert_statement table=%s field=%s del='%c' 		  |"
-		 "sql.e							  |"
-		 "cat							   ",
-		 	table_name,
-		 	INSERT_BANK_UPLOAD_ARCHIVE,
-		 	FOLDER_DATA_DELIMITER );
-
-	bank_upload_archive_insert_pipe = popen( sys_string, "w" );
-
 	do {
 		bank_upload = list_get_pointer( bank_upload_list );
 
@@ -539,23 +565,11 @@ int bank_upload_insert(			char *application_name,
 		 	bank_upload->bank_amount,
 			bank_upload_date_time );
 
-		/* Output insert into BANK_UPLOAD_ARCHIVE */
-		/* -------------------------------------- */
-		fprintf(bank_upload_archive_insert_pipe,
-			"%s^%s^%d^%.2lf^%.2lf^%s\n",
-		 	bank_upload->bank_date,
-		 	bank_upload->bank_description,
-			bank_upload->sequence_number,
-		 	bank_upload->bank_amount,
-			bank_upload->bank_running_balance,
-			bank_upload_date_time );
-
 		table_insert_count++;
 
 	} while( list_next( bank_upload_list ) );
 
 	pclose( bank_upload_insert_pipe );
-	pclose( bank_upload_archive_insert_pipe );
 
 	sprintf( sys_string,
 		 "wc -l %s",

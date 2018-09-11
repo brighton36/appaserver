@@ -26,6 +26,7 @@
 /* Prototypes */
 /* ---------- */
 int load_bank_spreadsheet(	char *application_name,
+				char *login_name,
 				char *fund_name,
 				char *input_filename,
 				int date_piece_offset,
@@ -43,6 +44,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
+	char *login_name;
 	char *fund_name;
 	char *input_filename;
 	char *date_column_string;
@@ -61,6 +63,8 @@ int main( int argc, char **argv )
 	int load_count;
 	char buffer[ 128 ];
 
+	/* Exits if not found. */
+	/* ------------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
@@ -68,10 +72,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 10 )
+	if ( argc != 11 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name fund filename date_column description_column debit_column credit_column balance_column execute_yn\n",
+"Usage: %s process_name login_name fund filename date_column description_column debit_column credit_column balance_column execute_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -81,10 +85,15 @@ int main( int argc, char **argv )
 	}
 
 	process_name = argv[ 1 ];
-	fund_name = argv[ 2 ];
-	input_filename = argv[ 3 ];
-
-	date_column_string = argv[ 4 ];
+	login_name = argv[ 2 ];
+	fund_name = argv[ 3 ];
+	input_filename = argv[ 4 ];
+	date_column_string = argv[ 5 ];
+	description_column_string = argv[ 6 ];
+	debit_column_string = argv[ 7 ];
+	credit_column_string = argv[ 8 ];
+	balance_column_string = argv[ 9 ];
+	execute = (*argv[ 10 ] == 'y');
 
 	if ( *date_column_string
 	&&   strcmp( date_column_string, "date_column" ) != 0 )
@@ -95,8 +104,6 @@ int main( int argc, char **argv )
 	{
 		date_piece_offset = 0;
 	}
-
-	description_column_string = argv[ 5 ];
 
 	if ( *description_column_string
 	&&   strcmp( description_column_string, "description_column" ) != 0 )
@@ -109,8 +116,6 @@ int main( int argc, char **argv )
 		description_piece_offset = 1;
 	}
 
-	debit_column_string = argv[ 6 ];
-
 	if ( *debit_column_string
 	&&   strcmp( debit_column_string, "debit_column" ) != 0 )
 	{
@@ -120,8 +125,6 @@ int main( int argc, char **argv )
 	{
 		debit_piece_offset = 2;
 	}
-
-	credit_column_string = argv[ 7 ];
 
 	if ( *credit_column_string
 	&&   strcmp( credit_column_string, "credit_column" ) != 0 )
@@ -135,8 +138,6 @@ int main( int argc, char **argv )
 		credit_piece_offset = 2;
 	}
 
-	balance_column_string = argv[ 8 ];
-
 	if ( *balance_column_string
 	&&   strcmp( balance_column_string, "balance_column" ) != 0 )
 	{
@@ -146,8 +147,6 @@ int main( int argc, char **argv )
 	{
 		balance_piece_offset = 3;
 	}
-
-	execute = (*argv[ 9 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -186,6 +185,7 @@ int main( int argc, char **argv )
 	load_count =
 		load_bank_spreadsheet(
 			application_name,
+			login_name,
 			fund_name,
 			input_filename,
 			date_piece_offset,
@@ -219,6 +219,7 @@ int main( int argc, char **argv )
 
 int load_bank_spreadsheet(
 			char *application_name,
+			char *login_name,
 			char *fund_name,
 			char *input_filename,
 			int date_piece_offset,
@@ -271,14 +272,39 @@ int load_bank_spreadsheet(
 	{
 		/* If execute */
 		/* ---------- */
-		bank_upload_structure->file.table_insert_count =
-			bank_upload_insert(
-				application_name,
-				bank_upload_structure->
-					file.
-					bank_upload_file_list
-						/* bank_upload_list */,
-				bank_upload_structure->fund_name );
+		if ( ! ( bank_upload_structure->file.table_insert_count =
+				bank_upload_insert(
+					application_name,
+					bank_upload_structure->
+						file.
+						bank_upload_file_list
+						   /* bank_upload_list */,
+					bank_upload_structure->
+						bank_upload_date_time ) ) )
+		{
+			return 0;
+		}
+
+		bank_upload_event_insert(
+			application_name,
+			bank_upload_structure->bank_upload_date_time,
+			login_name,
+			bank_upload_structure->
+				file.
+				input_filename,
+			bank_upload_structure->
+				file.
+				file_sha256sum,
+			bank_upload_structure->fund_name );
+
+		bank_upload_archive_insert(
+			application_name,
+			bank_upload_structure->
+				file.
+				bank_upload_file_list
+					/* bank_upload_list */,
+			bank_upload_structure->
+				bank_upload_date_time );
 
 		bank_upload_structure->table.bank_upload_table_list =
 			bank_upload_fetch_list(

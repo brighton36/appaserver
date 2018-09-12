@@ -235,7 +235,8 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			printf( "<h3>Error: invalid select statement.</h3>\n" );
+			printf(
+			"<h3>Error: cannot decern the column names.</h3>\n" );
 		}
 		fclose( input_file );
 		document_close();

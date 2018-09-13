@@ -864,6 +864,7 @@ int timlib_get_line(	char *in_line,
 {
 	int in_char;
 	int size = 0;
+	char *anchor = in_line;
 
 	*in_line = '\0';
 
@@ -907,11 +908,13 @@ int timlib_get_line(	char *in_line,
 
 		if ( in_char == EOF )
 		{
-#ifdef NOT_DEFINED
-	char *anchor = in_line;
 			/* --------------------------------------- */
 			/* If last line in file doesn't have a CR, */
 			/* then call this function one more time.  */
+			/* --------------------------------------- */
+			/* If you need to tweek this, then test    */
+			/* process=execute_select_statement on a   */
+			/* file without a trailing CR.		   */
 			/* --------------------------------------- */
 			if ( in_line != anchor )
 			{
@@ -923,10 +926,6 @@ int timlib_get_line(	char *in_line,
 				timlib_reset_get_line_check_utf_16();
 				return 0;
 			}
-#endif
-			*in_line = '\0';
-			timlib_reset_get_line_check_utf_16();
-			return 0;
 		}
 
 		if ( in_char == LF )

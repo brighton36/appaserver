@@ -221,7 +221,7 @@ function export_predictivebooks()
 	column.e 1							|
 	cat`
 
-	#export_subschema x x x x x "${parameter_list}"; exit 1
+#	export_subschema x x x x x "${parameter_list}"; exit 1
 
 	if [ "$export_file" = "" ]
 	then

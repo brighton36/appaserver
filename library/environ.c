@@ -467,9 +467,21 @@ char *environ_get_application_name( char *argv_0 )
 void environ_output_application_shell( FILE *output_file )
 {
 	fprintf( output_file,
-	"#!/bin/sh\n" );
+		 "%s",
+		 environ_get_shell_snippet() );
 
-	fprintf( output_file,
+} /* environ_output_application_shell() */
+
+char *environ_get_shell_snippet( void )
+{
+	char buffer[ 1024 ];
+	char *buffer_ptr = buffer;
+
+
+	buffer_ptr += sprintf( buffer_ptr,
+	"#!/bin/bash\n" );
+
+	buffer_ptr += sprintf( buffer_ptr,
 "if [ \"$APPASERVER_DATABASE\" != \"\" ]\n"
 "then\n"
 "	application=$APPASERVER_DATABASE\n"
@@ -485,5 +497,7 @@ void environ_output_application_shell( FILE *output_file )
 "	exit 1\n"
 "fi\n" );
 
-} /* environ_output_application_shell() */
+	return strdup( buffer );
+
+} /* environ_get_shell_snippet() */
 

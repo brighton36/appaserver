@@ -19,18 +19,24 @@
 #include "document.h"
 #include "folder.h"
 #include "attribute.h"
+#include "boolean.h"
 #include "application.h"
 #include "appaserver_parameter_file.h"
 
 /* Constants */
 /* --------- */
-/*
-#define SESSION_PROCESS_NAME	"rename_table"
-*/
+#define RENAME_TABLE_FILENAME_TEMPLATE		 "%s/rename_table.sh"
 
 /* Prototypes */
 /* ---------- */
-char *get_sys_string( char *old_table_name, char *new_table_name );
+void make_executable(		char *rename_table_filename );
+
+char *create_shell_script(	char *sys_string,
+				char *appaserver_data_directory );
+
+char *get_sys_string(		char *old_table_name,
+				char *new_table_name,
+				boolean execute );
 
 int main( int argc, char **argv )
 {
@@ -40,11 +46,14 @@ int main( int argc, char **argv )
 	char parsed_new_folder_name[ 128 ];
 	char old_table_name[ 128 ];
 	char new_table_name[ 128 ];
-	char *really_yn;
 	char *sys_string;
+	boolean execute;
+	char *output_filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
+	/* exit( 1 ) upon failure */
+	/* ---------------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
@@ -55,14 +64,14 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored ignored ignored ignored old_folder new_folder really_yn\n",
+"Usage: %s ignored ignored ignored ignored old_folder new_folder execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	old_folder_name = argv[ 5 ];
 	new_folder_name = argv[ 6 ];
-	really_yn = argv[ 7 ];
+	execute = ( *argv[ 7 ] == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -94,31 +103,106 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->onload_control_string );
 
-	sys_string = get_sys_string( old_table_name, new_table_name );
+	sys_string = get_sys_string( old_table_name, new_table_name, execute );
 
 	printf( "<BR><p>%s\n", sys_string );
 
-	if ( toupper( *really_yn ) == 'Y' )
+	if ( execute )
 	{
 		fflush( stdout );
 		system( sys_string );
 		printf( "<BR><h3>Process complete</h3>\n" );
 	}
-		
+	else
+	{
+		output_filename =
+			create_shell_script(
+				sys_string,
+				appaserver_parameter_file->
+					appaserver_data_directory );
+
+		printf( "<BR><p>Created: %s\n", output_filename );
+	}
+
 	document_close();
-	exit( 0 );
+
+	return 0;
+
 } /* main() */
 
 
-char *get_sys_string( char *old_table_name, char *new_table_name )
+char *get_sys_string(	char *old_table_name,
+			char *new_table_name,
+			boolean execute )
 {
 	char buffer[ 1024 ];
 
 	sprintf( buffer,
-"echo \"alter table %s rename as %s;\" | sql.e 2>&1 | html_paragraph_wrapper",
+		 "echo \"alter table %s rename as %s;\" | sql.e",
 		 old_table_name,
 		 new_table_name );
 
+	if ( execute )
+	{
+		sprintf( buffer + strlen( buffer ),
+			 " 2>&1 | html_paragraph_wrapper" );
+	}
+
 	return strdup( buffer );
+
 } /* get_sys_string() */
+
+char *create_shell_script(	char *sys_string,
+				char *appaserver_data_directory )
+{
+	char *shell_snippet;
+	char rename_table_filename[ 128 ];
+	FILE *output_file;
+
+	shell_snippet = environ_get_shell_snippet();
+
+	sprintf(rename_table_filename,
+	 	RENAME_TABLE_FILENAME_TEMPLATE,
+	 	appaserver_data_directory );
+
+	if ( ! ( output_file = fopen( rename_table_filename, "w" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for write.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 rename_table_filename );
+
+		exit( 1 );
+	}
+
+	fprintf( output_file,
+		 "%s\n",
+		 shell_snippet );
+
+	fprintf( output_file,
+		 "%s\n",
+		 sys_string );
+
+	fprintf( output_file, "\nexit 0\n" );
+
+	fclose( output_file );
+
+	make_executable( rename_table_filename );
+
+	return strdup( rename_table_filename );
+
+} /* create_shell_script() */
+
+void make_executable( char *rename_table_filename )
+{
+	char sys_string[ 512 ];
+
+	sprintf(sys_string,
+		"chmod -x,ug+x %s 2>/dev/null",
+		rename_table_filename );
+
+	system( sys_string );
+}
 

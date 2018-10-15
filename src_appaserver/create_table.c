@@ -28,7 +28,6 @@
 
 /* Constants */
 /* --------- */
-#define SESSION_PROCESS_NAME			"create_table"
 #define CREATE_TABLE_FILENAME_TEMPLATE		 "%s/create_table.sh"
 
 /* Prototypes */
@@ -574,7 +573,7 @@ void make_executable( char *create_table_filename )
 	char sys_string[ 512 ];
 
 	sprintf(sys_string,
-		"chmod +x,g+w %s 2>/dev/null",
+		"chmod -x,ug+x %s 2>/dev/null",
 		create_table_filename );
 	system( sys_string );
 }

@@ -3616,3 +3616,4 @@ char *timlib_get_sha256sum( char *input_filename )
 	return pipe2string( sys_string );
 
 } /* timlib_get_sha256sum() */
+

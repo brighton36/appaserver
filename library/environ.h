@@ -48,4 +48,6 @@ char *environ_get_application_name(	char *argv_0 );
 
 void environ_output_application_shell(	FILE *output_file );
 
+char *environ_get_shell_snippet(	void );
+
 #endif

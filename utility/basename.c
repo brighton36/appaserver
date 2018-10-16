@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "basename.h"
+#include "boolean.h"
 
 void basename_stdin( void );
 
@@ -14,6 +15,7 @@ int main( int argc, char **argv )
 {
 	char *filename;
 	boolean strip_extension;
+	boolean directory = 0;
 
 	if ( argc == 1 )
 	{
@@ -21,10 +23,10 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( argc != 3 )
+	if ( argc < 3 )
 	{
 		fprintf( stderr,
-			 "Usage: %s filename strip_extension_yn\n",
+		"Usage: %s filename strip_extension_yn [directory_yn]\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
@@ -32,10 +34,22 @@ int main( int argc, char **argv )
 	filename = argv[ 1 ];
 	strip_extension = ( *argv[ 2 ] == 'y' );
 
-	printf( "%s\n",
-		basename_get_base_name(
-			filename,	
-			strip_extension ) );
+	if ( argc == 4 )
+		directory = ( *argv[ 3 ] == 'y' );
+
+	if ( directory )
+	{
+		printf( "%s\n",
+			basename_get_directory(
+				filename ) );
+	}
+	else
+	{
+		printf( "%s\n",
+			basename_get_base_name(
+				filename,	
+				strip_extension ) );
+	}
 
 	return 0;
 

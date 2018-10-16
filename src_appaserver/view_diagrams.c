@@ -29,6 +29,7 @@
 /* Constants */
 /* --------- */
 #define PROCESS_NAME		"view_diagrams"
+#define DEFAULT_HEADING		"View Diagrams"
 #define SYS_STRING		\
 "ls -1 *.xls *.jpg *.doc *.pdf *.png *.txt *.ppt *.xml 2>/dev/null | sort"
 
@@ -108,7 +109,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		printf( "<h1>Documentation List</h1>\n" );
+		printf( "<h1>%s</h1>\n", DEFAULT_HEADING );
 	}
 
 	if ( argc == 2 )

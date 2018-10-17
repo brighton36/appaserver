@@ -2,6 +2,10 @@
 # migrate_source_files.sh
 # -----------------------
 
+# ----------------------------------------------
+# Note for next time: include /var/documentation
+# ----------------------------------------------
+
 # Damon's scripts
 # ---------------
 directory="/home/rondeau/LrgsClient/"

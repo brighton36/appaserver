@@ -195,9 +195,6 @@ int main( int argc, char **argv )
 	LIST *isa_folder_list = {0};
 	char *appaserver_user_foreign_login_name;
 	PAIR_ONE2M *pair_one2m;
-
-	/* This needs to be made into a list. */
-	/* ---------------------------------- */
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
 	/* -------------------------------------------- */
@@ -1704,7 +1701,6 @@ void build_related_folder_element_list(
 	LIST *common_non_primary_attribute_name_list;
 	boolean set_first_initial_data;
 	DICTIONARY *send_preprompt_dictionary;
-	RELATED_FOLDER **only_one_ajax_fill_drop_down;
 
 	if ( !related_folder )
 	{
@@ -1805,6 +1801,7 @@ void build_related_folder_element_list(
 /* Test this: <Lookup> <Project Principle Investigator>	*/
 /* ---------------------------------------------------- */
 /*
+	RELATED_FOLDER **only_one_ajax_fill_drop_down;
 	if ( ajax_fill_drop_down_related_folder
 	&&   *ajax_fill_drop_down_related_folder )
 	{
@@ -1815,14 +1812,14 @@ void build_related_folder_element_list(
 		only_one_ajax_fill_drop_down =
 			ajax_fill_drop_down_related_folder;
 	}
-*/
 	only_one_ajax_fill_drop_down =
 		ajax_fill_drop_down_related_folder;
+*/
 
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(
-			only_one_ajax_fill_drop_down,
+			ajax_fill_drop_down_related_folder,
 			application_name,
 			session,
 			role_name,

@@ -111,7 +111,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 	/* ----------------------------------------------- */
 	p->process.current_liability_entity_list =
 		pay_liabilities_get_current_liability_entity_list(
-			p->input.current_liability_account_list );
+			p->input.current_liability_account_list,
+			(LIST *)0 /* exclude_entity_list */ );
 
 	/* Process the LIABILITY_ACCOUNT_ENTITY records. */
 	/* --------------------------------------------- */
@@ -438,7 +439,8 @@ LIST *pay_liabilities_output_get_entity_transaction_list(
 } /* pay_liabilities_output_get_entity_transaction_list() */
 
 LIST *pay_liabilities_get_current_liability_entity_list(
-			LIST *current_liability_account_list )
+			LIST *current_liability_account_list,
+			LIST *exclude_entity_list )
 {
 	LIST *current_liability_entity_list;
 	ENTITY *entity;
@@ -464,6 +466,15 @@ LIST *pay_liabilities_get_current_liability_entity_list(
 			journal_ledger =
 				list_get_pointer(
 					journal_ledger_list );
+
+			if ( list_length( exclude_entity_list )
+			&&   entity_list_exists(
+				exclude_entity_list,
+				journal_ledger->full_name,
+				journal_ledger->street_address ) )
+			{
+				continue;
+			}
 
 			entity = entity_get_or_set(
 					current_liability_entity_list,

@@ -692,3 +692,42 @@ ENTITY *entity_get_or_set(	LIST *entity_list,
 
 } /* entity_get_or_set() */
 
+char *entity_list_display( LIST *entity_list )
+{
+	ENTITY *entity;
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+
+	*ptr = '\0';
+
+	if ( list_rewind( entity_list ) )
+	{
+		do {
+			entity = list_get_pointer( entity_list );
+
+			ptr += sprintf(	ptr,
+					"Entity: %s/%s\n",
+					entity->full_name,
+					entity->street_address );
+
+		} while( list_next( entity_list ) );
+	}
+
+	return strdup( buffer );
+
+} /* entity_list_display() */
+
+boolean entity_list_exists(	LIST *entity_list,
+				char *full_name,
+				char *street_address )
+{
+	if ( !entity_list )
+		return 0;
+	else
+		return (boolean)entity_seek(
+					entity_list,
+					full_name,
+					street_address );
+
+} /* entity_list_exists() */
+

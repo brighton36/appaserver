@@ -87,7 +87,9 @@ void populate_print_checks_entity(
 
 	p->process.current_liability_entity_list =
 		pay_liabilities_get_current_liability_entity_list(
-			p->input.current_liability_account_list );
+			p->input.current_liability_account_list,
+			p->input.liability_account_entity_list
+				/* exclude_entity_list */ );
 
 	output_pipe = popen( "sort", "w" );
 
@@ -96,34 +98,6 @@ void populate_print_checks_entity(
 
 	output_entity_list(	output_pipe,
 				p->process.current_liability_entity_list );
-
-/*
-	output_checks_not_taxes(
-			output_pipe,
-			application_name,
-			fund_name );
-
-	liability_account_entity_list =
-		pay_liabilities_fetch_liability_account_entity_list(
-			application_name );
-
-	if ( !list_rewind( liability_account_entity_list ) )
-	{
-		pclose( output_pipe );
-		return;
-	}
-
-	do {
-		entity = list_get_pointer( liability_account_entity_list );
-
-		fprintf( output_pipe,
-			 "%s^%s [%.2lf]\n",
-			 entity->full_name,
-			 entity->street_address,
-			 entity->sum_balance );
-
-	} while( list_next( liability_account_entity_list ) );
-*/
 
 	pclose( output_pipe );
 

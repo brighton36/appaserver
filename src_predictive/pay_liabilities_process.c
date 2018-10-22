@@ -263,18 +263,6 @@ char *pay_liabilities(	char *application_name,
 	}
 	else
 	{
-/*
-		if ( !output_html_table(
-			application_name,
-			full_name_list,
-			street_address_list,
-			dialog_box_payment_amount,
-			fund_name ) )
-		{
-			return (char *)0;
-		}
-*/
-
 		pdf_filename = "";
 	}
 
@@ -358,6 +346,11 @@ char *print_checks_create(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
+	sprintf( sys_string,
+		 "make_checks.e stdin %c > %s",
+		 personal_size_yn,
+		 output_filename );
+
 /*
 	sprintf( sys_string,
 		 "make_checks.e stdin %c 2>/dev/null > %s",
@@ -365,14 +358,18 @@ char *print_checks_create(
 		 output_filename );
 */
 
-	sprintf( sys_string,
-		 "make_checks.e stdin %c > %s",
-		 personal_size_yn,
-		 output_filename );
-
 	output_pipe = popen( sys_string, "w" );
 
-	list_rewind( full_name_list );
+	if ( !list_rewind( full_name_list ) )
+	{
+		fprintf(stderr,
+			"Error in %s/%s()/%d: empty full_name_list.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	list_rewind( street_address_list );
 
 	do {

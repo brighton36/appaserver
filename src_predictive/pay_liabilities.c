@@ -112,7 +112,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 	p->process.current_liability_entity_list =
 		pay_liabilities_get_current_liability_entity_list(
 			p->input.current_liability_account_list,
-			(LIST *)0 /* exclude_entity_list */ );
+			p->input.liability_account_entity_list
+				/* exclude_entity_list */ );
 
 	/* Process the LIABILITY_ACCOUNT_ENTITY records. */
 	/* --------------------------------------------- */

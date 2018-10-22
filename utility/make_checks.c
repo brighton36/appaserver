@@ -59,6 +59,8 @@ int main( int argc, char **argv )
 	{
 		boolean personal_size;
 
+		appaserver_error_stderr( argc, argv );
+
 		personal_size = ( *argv[ 2 ] == 'y' );
 
 		make_checks_stdin( personal_size );

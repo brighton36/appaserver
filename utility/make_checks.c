@@ -104,7 +104,7 @@ void make_checks_argv( int argc, char **argv )
 
 	appaserver_error_stderr( argc, argv );
 
-	check_date = pipe2string( "now.sh full" );
+	check_date = pipe2string( "now.sh pretty | column.e 0" );
 
 	appaserver_data_directory =
 		pipe2string(

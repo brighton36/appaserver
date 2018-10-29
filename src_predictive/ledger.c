@@ -9295,3 +9295,28 @@ boolean ledger_tax_recovery_period_attribute_exists(
 
 } /* ledger_property_street_address_attribute_exists() */
 
+void ledger_transaction_delete_propagate(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				LIST *journal_ledger_list )
+{
+	ledger_delete(	application_name,
+			TRANSACTION_FOLDER_NAME,
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	ledger_delete(	application_name,
+			LEDGER_FOLDER_NAME,
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	ledger_journal_ledger_list_propagate(
+			journal_ledger_list,
+			application_name );
+
+} /* ledger_transaction_delete_propagate() */
+

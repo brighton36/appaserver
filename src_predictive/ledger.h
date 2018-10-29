@@ -1104,4 +1104,11 @@ boolean ledger_property_street_address_attribute_exists(
 boolean ledger_tax_recovery_period_attribute_exists(
 				char *application_name );
 
+void ledger_transaction_delete_propagate(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				LIST *journal_ledger_list );
+
 #endif

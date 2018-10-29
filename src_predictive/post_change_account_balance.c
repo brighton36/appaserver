@@ -81,10 +81,10 @@ int main( int argc, char **argv )
 	/* ------------------------------------------------------ */
 	if ( strcmp( account_number, "account_number" ) == 0 ) exit( 0 );
 
-	/* -------------------------------------------- */
-	/* Need to execute on predelete to get		*/
-	/* ACCOUNT_BALANCE.transaction_date_time. 	*/
-	/* -------------------------------------------- */
+	/* ---------------------------------------------------- */
+	/* Need to execute on predelete to get			*/
+	/* EQUITY_ACCOUNT_BALANCE.transaction_date_time. 	*/
+	/* ---------------------------------------------------- */
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
 	if ( ! ( investment_equity =
@@ -353,6 +353,30 @@ void post_change_account_balance_delete(
 		t->investment_account.full_name,
 		t->investment_account.street_address,
 		t->investment_account.account_number );
+
+	if ( !account_balance->transaction )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty transaction.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+	}
+
+	ledger_transaction_delete_propagate(
+				application_name,
+				account_balance->
+					transaction->
+					full_name,
+				account_balance->
+					transaction->
+					street_address,
+				account_balance->
+					transaction->
+					transaction_date_time,
+				account_balance->
+					transaction->
+					journal_ledger_list );
 
 } /* post_change_account_balance_delete() */
 

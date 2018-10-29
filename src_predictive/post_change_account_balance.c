@@ -335,7 +335,7 @@ void post_change_account_balance_delete(
 				t->input_account_balance_list ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot calculate account balance list (%s,%s,%s,%s)\n",
+"Warning in %s/%s()/%d: investment_calculate_account_balance_list (%s,%s,%s,%s) returned NULL. TRANSACTION will still be deleted.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -343,16 +343,24 @@ void post_change_account_balance_delete(
 			 t->investment_account.street_address,
 			 t->investment_account.account_number,
 			 t->input.date_time );
-		exit( 1 );
+	}
+	else
+	{
+		investment_account_balance_list_update(
+			t->output_account_balance_list,
+			application_name,
+			t->input_account_balance_list,
+			t->investment_account.full_name,
+			t->investment_account.street_address,
+			t->investment_account.account_number );
 	}
 
-	investment_account_balance_list_update(
-		t->output_account_balance_list,
-		application_name,
-		t->input_account_balance_list,
-		t->investment_account.full_name,
-		t->investment_account.street_address,
-		t->investment_account.account_number );
+	account_balance->transaction =
+		ledger_transaction_fetch(
+			application_name,
+			t->investment_account.full_name,
+			t->investment_account.street_address,
+			account_balance->transaction_date_time );
 
 	if ( !account_balance->transaction )
 	{
@@ -361,6 +369,7 @@ void post_change_account_balance_delete(
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
+		exit( 1 );
 	}
 
 	ledger_transaction_delete_propagate(

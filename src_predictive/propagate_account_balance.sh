@@ -55,8 +55,7 @@ function post_change_account_balance_execute()
 					preupdate_full_name		\
 					preupdate_street_address	\
 					preupdate_account_number	\
-					preupdate_date_time		\
-					preupdate_investment_operation
+					preupdate_date_time
 }
 
 function post_change_each_account_balance()

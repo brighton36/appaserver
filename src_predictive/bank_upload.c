@@ -1129,3 +1129,23 @@ boolean bank_upload_sha256sum_exists(
 
 } /* bank_upload_sha256sum_exists() */
 
+int bank_upload_transaction_count(
+			LIST *bank_upload_list )
+{
+	BANK_UPLOAD *b;
+	int count = 0;
+
+	if ( list_rewind( bank_upload_list ) )
+	{
+		do {
+			b = list_get_pointer( bank_upload_list );
+
+			if ( b->transaction ) count++;
+
+		} while( list_next( bank_upload_list ) );
+	}
+
+	return count;
+
+} /* bank_upload_transaction_count() */
+

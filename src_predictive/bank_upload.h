@@ -191,5 +191,8 @@ void bank_upload_archive_insert(	char *application_name,
 					LIST *bank_upload_list,
 					char *bank_upload_date_time );
 
+int bank_upload_transaction_count(
+					LIST *bank_upload_list );
+
 #endif
 

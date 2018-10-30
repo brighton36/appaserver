@@ -29,7 +29,8 @@
 
 /* Prototypes */
 /* ---------- */
-int load_bank_spreadsheet(	char *application_name,
+int load_bank_spreadsheet(	int *transaction_count,
+				char *application_name,
 				char *login_name,
 				char *fund_name,
 				char *input_filename,
@@ -65,6 +66,7 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	int load_count;
+	int transaction_count = 0;
 	char buffer[ 128 ];
 
 	/* Exits if not found. */
@@ -188,6 +190,7 @@ int main( int argc, char **argv )
 
 	load_count =
 		load_bank_spreadsheet(
+			&transaction_count,
 			application_name,
 			login_name,
 			fund_name,
@@ -206,13 +209,17 @@ int main( int argc, char **argv )
 			process_name,
 			appaserver_parameter_file_get_dbms() );
 
-		printf( "<p>Process complete with %d rows.\n",
-			load_count );
+		printf(
+		"<p>Process complete with %d rows and %d transactions.\n",
+			load_count,
+			transaction_count );
 	}
 	else
 	{
-		printf( "<p>Process did not load %d rows.\n",
-			load_count );
+		printf(
+		"<p>Process did not load %d rows nor %d transactions.\n",
+			load_count,
+			transaction_count );
 	}
 
 	document_close();
@@ -222,6 +229,7 @@ int main( int argc, char **argv )
 } /* main() */
 
 int load_bank_spreadsheet(
+			int *transaction_count,
 			char *application_name,
 			char *login_name,
 			char *fund_name,
@@ -234,6 +242,8 @@ int load_bank_spreadsheet(
 			boolean execute )
 {
 	BANK_UPLOAD_STRUCTURE *bank_upload_structure;
+
+	*transaction_count = 0;
 
 	bank_upload_structure =
 		bank_upload_structure_new(
@@ -250,6 +260,7 @@ int load_bank_spreadsheet(
 
 	if ( !execute )
 	{
+		/* ---------- */
 		/* If display */
 		/* ---------- */
 		bank_upload_set_transaction(
@@ -270,10 +281,19 @@ int load_bank_spreadsheet(
 				file.
 				bank_upload_file_list );
 
+		*transaction_count =
+			bank_upload_transaction_count(
+				bank_upload_structure->
+				file.
+				bank_upload_file_list );
+
 		return bank_upload_structure->file.file_row_count;
 	}
 	else
 	{
+		/* ------------ */
+		/* Else execute */
+		/* ------------ */
 #ifdef ARCHIVE_ONLY
 		bank_upload_archive_insert(
 			application_name,
@@ -343,6 +363,12 @@ int load_bank_spreadsheet(
 /* If not defined ARCHIVE_ONLY */
 /* --------------------------- */
 #endif
+
+		*transaction_count =
+			bank_upload_transaction_count(
+				bank_upload_structure->
+				table.
+				bank_upload_table_list );
 
 		return bank_upload_structure->file.table_insert_count;
 	}

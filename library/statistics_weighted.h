@@ -86,7 +86,7 @@ void statistics_weighted_accumulate(
 				NUMBER_ARRAY *number_array,
 				long *weighted_input_count,
 				boolean *exceeded_max_numbers,
-				long *count,
+				unsigned long *count,
 				long *count_non_zero,
 				long *weighted_count,
 				double *sum,

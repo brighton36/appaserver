@@ -203,15 +203,6 @@ google_earth_dvr.e: google_earth_dvr.c					\
 		google_earth.o						\
 	   -o google_earth_dvr.e
 
-statistics_weighted_dvr.e: statistics_weighted_dvr.c			\
-		${STANDARD_LIBRARY}					\
-		statistics_weighted.o
-	${CC} ${CFLAGS} -I${LIBRARY} statistics_weighted_dvr.c		\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${STANDARD_LIBRARY}					\
-		statistics_weighted.o 					\
-	   -o statistics_weighted_dvr.e -lm
-
 histogram_dvr.e: histogram_dvr.c histogram.o
 	${CC} ${CFLAGS} -I${LIBRARY} histogram_dvr.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\

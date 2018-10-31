@@ -1,8 +1,8 @@
-/* --------------------------------------------------- 	*/
-/* src_hydrology/annual_periods_output.c	      	*/
-/* --------------------------------------------------- 	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ------------------------------------------------------ 	*/
+/* $APPASERVER_HOME/src_hydrology/annual_periods_output.c      	*/
+/* ------------------------------------------------------ 	*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------ 	*/
 
 /* Includes */
 /* -------- */
@@ -36,6 +36,7 @@
 
 /* Constants */
 /* --------- */
+#define AGGREGATE_PERIOD_DEFAULT	"annually"
 #define EXCEEDANCE_DELIMITER		'|'
 #define DEFAULT_OUTPUT_MEDIUM		"table"
 #define GRACE_DATATYPE_ENTITY_PIECE	0
@@ -328,6 +329,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	appaserver_error_starting_argv_append_file(
 				argc,
@@ -339,7 +346,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	parameter_dictionary = 
 		dictionary_index_string2dictionary(
@@ -403,16 +410,6 @@ int main( int argc, char **argv )
 					"aggregate_statistic",
 					0 );
 
-/*
-	if (	!aggregate_statistic_string
-	|| 	!*aggregate_statistic_string
-	||	timlib_strcmp(	aggregate_statistic_string,
-				"aggregate_statistic" ) == 0 )
-	{
-		aggregate_statistic_string = "average";
-	}
-*/
-
 	dictionary_get_index_data(	&aggregate_period_string,
 					parameter_dictionary,
 					"aggregate_period",
@@ -423,7 +420,7 @@ int main( int argc, char **argv )
 	||	timlib_strcmp(	aggregate_period_string,
 				"aggregate_period" ) == 0 )
 	{
-		aggregate_period_string = "annually";
+		aggregate_period_string = AGGREGATE_PERIOD_DEFAULT;
 	}
 
 	dictionary_get_index_data( 	&month_string,

@@ -1,4 +1,4 @@
-/* real_time2annual_period.c				*/
+/* $APPASERVER_HOME/utility/real_time2annual_period.c	*/
 /* ---------------------------------------------------- */
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
@@ -14,11 +14,13 @@
 
 /* Constants */
 /* --------- */
+/* #define DEBUG_MODE	1 */
 #define LEAP_YEAR	"2000"
 
 /* Enumerated types */
 /* ---------------- */
-enum season_year_relationship {	season_crosses_year,
+enum season_year_relationship {	season_year_unknown,
+				season_crosses_year,
 				season_within_year,
 				season_entire_year };
 
@@ -34,6 +36,9 @@ enum within_range_results {	was_outside_range_now_within,
 
 /* Prototypes */
 /* ---------- */
+char *get_season_year_relationship_string(
+				enum season_year_relationship );
+
 enum season_year_relationship get_season_year_relationship(
 				char *begin_season_month_day_string,
 				char *end_season_month_day_string );
@@ -249,9 +254,9 @@ int main( int argc, char **argv )
 	while( get_line( input_buffer, stdin ) )
 	{
 
-/*
+#ifdef DEBUG_MODE
 fprintf( stderr, "input_buffer = %s\n", input_buffer );
-*/
+#endif
 
 		if ( !piece(	date_string, 
 				delimiter, 
@@ -288,9 +293,9 @@ fprintf( stderr, "input_buffer = %s\n", input_buffer );
 
 		julian_set_yyyy_mm_dd( new_date, date_string );
 
-/*
+#ifdef DEBUG_MODE
 fprintf( stderr, "got new_date = %s\n", julian_display( new_date->current ) );
-*/
+#endif
 
 		if ( first_time )
 		{
@@ -298,9 +303,9 @@ fprintf( stderr, "got new_date = %s\n", julian_display( new_date->current ) );
 			first_time = 0;
 		}
 
-/*
+#ifdef DEBUG_MODE
 fprintf( stderr, "got old_date = %s\n", julian_display( old_date->current ) );
-*/
+#endif
 
 		if ( strcmp( aggregate_period, "annually" ) == 0 )
 		{
@@ -824,7 +829,7 @@ int real_time2annual_daily_period(
 
 	statistics_weighted->buffer = value_string;
 
-/*
+#ifdef DEBUG_MODE
 fprintf( stderr, "%s/%s()/%d: accumulating year = %d, month = %d, day = %d\n",
 __FILE__,
 __FUNCTION__,
@@ -832,7 +837,7 @@ __LINE__,
 new_year,
 new_month,
 new_day );
-*/
+#endif
 
 	statistics_weighted_accumulate(
 		&statistics_weighted->number_array,
@@ -1109,7 +1114,8 @@ int real_time2annual_seasonally_period(
 	enum season_match_results season_match_results;
 	static char begin_season_month_day_string[ 16 ] = {0};
 	static char end_season_month_day_string[ 16 ] = {0};
-	static enum season_year_relationship season_year_relationship;
+	static enum season_year_relationship season_year_relationship =
+			season_year_unknown;
 
 	if ( !*begin_season_month_day_string )
 	{
@@ -1148,6 +1154,12 @@ int real_time2annual_seasonally_period(
 		return 1;
 	}
 
+#ifdef DEBUG_MODE
+fprintf( stderr,
+	 "got season_year_relationship = %s\n",
+	 get_season_year_relationship_string( season_year_relationship ) );
+#endif
+
 	season_match_results =
 		get_season_match_results(
 			old_date,
@@ -1157,10 +1169,11 @@ int real_time2annual_seasonally_period(
 			end_season_month_day_string,
 			season_year_relationship );
 
-/*
-fprintf( stderr, "got season_match_results = %s\n",
-get_season_match_results_string( season_match_results ) );
-*/
+#ifdef DEBUG_MODE
+fprintf( stderr,
+	 "got season_match_results = %s\n",
+	 get_season_match_results_string( season_match_results ) );
+#endif
 
 	if ( season_match_results == different_season )
 	{
@@ -1510,6 +1523,23 @@ exit( 0 );
 	return 1;
 } /* real_time2annual_dynamic_period() */
 
+char *get_season_year_relationship_string(
+			enum season_year_relationship
+				season_year_relationship )
+{
+	if ( season_year_relationship == season_crosses_year )
+		return "season_crosses_year";
+	else
+	if ( season_year_relationship == season_within_year )
+		return "season_within_year";
+	else
+	if ( season_year_relationship == season_entire_year )
+		return "season_entire_year";
+	else
+		return "season_year_unknown";
+
+} /* get_season_year_relationship_string() */
+
 char *get_season_match_results_string(
 			enum season_match_results season_match_results )
 {
@@ -1544,19 +1574,54 @@ enum season_match_results get_season_match_results(
 
 	if ( season_year_relationship == season_entire_year )
 	{
+		static int prior_year = -1;
+
+		if ( prior_year == -1 ) prior_year = first_year;
+
+#ifdef DEBUG_MODE
+fprintf( stderr,
+	 "%s/%s()/%d: got trimmed_date_string = (%s), begin_season_month_day_string = (%s), new_year = %d, prior_year = %d\n",
+	 __FILE__,
+	 __FUNCTION__,
+	 __LINE__,
+	 trimmed_date_string,
+	 begin_season_month_day_string,
+	 new_year,
+	 prior_year );
+#endif
+
 		if ( old_date->current == new_date->current )
 		{
+#ifdef DEBUG_MODE
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+#endif
 			return same_season_same_year;
 		}
 		else
-		if ( new_year != first_year
+		if ( new_year != prior_year
 		&&   strcmp(	trimmed_date_string,
-				begin_season_month_day_string ) == 0 )
+				begin_season_month_day_string ) >= 0 )
 		{
+#ifdef DEBUG_MODE
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+#endif
+			prior_year = new_year;
 			return same_season_different_year;
 		}
 		else
 		{
+#ifdef DEBUG_MODE
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+#endif
 			return same_season_same_year;
 		}
 	}

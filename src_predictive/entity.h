@@ -179,4 +179,10 @@ ENTITY *entity_seek(		LIST *entity_list,
 
 char *entity_self_get_select(	char *appliction_name );
 
+char *entity_list_display(	LIST *entity_list );
+
+boolean entity_list_exists(	LIST *entity_list,
+				char *full_name,
+				char *street_address );
+
 #endif

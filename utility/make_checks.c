@@ -59,6 +59,8 @@ int main( int argc, char **argv )
 	{
 		boolean personal_size;
 
+		appaserver_error_stderr( argc, argv );
+
 		personal_size = ( *argv[ 2 ] == 'y' );
 
 		make_checks_stdin( personal_size );
@@ -102,7 +104,7 @@ void make_checks_argv( int argc, char **argv )
 
 	appaserver_error_stderr( argc, argv );
 
-	check_date = pipe2string( "now.sh full" );
+	check_date = pipe2string( "now.sh pretty | column.e 0" );
 
 	appaserver_data_directory =
 		pipe2string(

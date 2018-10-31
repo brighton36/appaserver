@@ -81,10 +81,10 @@ int main( int argc, char **argv )
 	/* ------------------------------------------------------ */
 	if ( strcmp( account_number, "account_number" ) == 0 ) exit( 0 );
 
-	/* -------------------------------------------- */
-	/* Need to execute on predelete to get		*/
-	/* ACCOUNT_BALANCE.transaction_date_time. 	*/
-	/* -------------------------------------------- */
+	/* ---------------------------------------------------- */
+	/* Need to execute on predelete to get			*/
+	/* EQUITY_ACCOUNT_BALANCE.transaction_date_time. 	*/
+	/* ---------------------------------------------------- */
 	if ( strcmp( state, "delete" ) == 0 ) exit( 0 );
 
 	if ( ! ( investment_equity =
@@ -335,7 +335,7 @@ void post_change_account_balance_delete(
 				t->input_account_balance_list ) ) )
 	{
 		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot calculate account balance list (%s,%s,%s,%s)\n",
+"Warning in %s/%s()/%d: investment_calculate_account_balance_list (%s,%s,%s,%s) returned NULL. TRANSACTION will still be deleted.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -343,16 +343,49 @@ void post_change_account_balance_delete(
 			 t->investment_account.street_address,
 			 t->investment_account.account_number,
 			 t->input.date_time );
+	}
+	else
+	{
+		investment_account_balance_list_update(
+			t->output_account_balance_list,
+			application_name,
+			t->input_account_balance_list,
+			t->investment_account.full_name,
+			t->investment_account.street_address,
+			t->investment_account.account_number );
+	}
+
+	account_balance->transaction =
+		ledger_transaction_fetch(
+			application_name,
+			t->investment_account.full_name,
+			t->investment_account.street_address,
+			account_balance->transaction_date_time );
+
+	if ( !account_balance->transaction )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty transaction.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 		exit( 1 );
 	}
 
-	investment_account_balance_list_update(
-		t->output_account_balance_list,
-		application_name,
-		t->input_account_balance_list,
-		t->investment_account.full_name,
-		t->investment_account.street_address,
-		t->investment_account.account_number );
+	ledger_transaction_delete_propagate(
+				application_name,
+				account_balance->
+					transaction->
+					full_name,
+				account_balance->
+					transaction->
+					street_address,
+				account_balance->
+					transaction->
+					transaction_date_time,
+				account_balance->
+					transaction->
+					journal_ledger_list );
 
 } /* post_change_account_balance_delete() */
 

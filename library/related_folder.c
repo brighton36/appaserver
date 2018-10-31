@@ -451,7 +451,10 @@ LIST *related_folder_get_drop_down_element_list(
 
 	if ( !drop_down_multi_select
 	&&   !omit_lookup_before_drop_down
-	&&   ajax_fill_drop_down_related_folder )
+	&&   ajax_fill_drop_down_related_folder
+	&&   !*ajax_fill_drop_down_related_folder
+			/* Can only execute this once.		     */
+			/* Therefore, only one ajaxed mto1 relation. */ )
 	{
 		FOLDER *folder;
 

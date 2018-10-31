@@ -39,7 +39,7 @@ else
 	institution_where="full_name = '$institution_full_name' and street_address = '$street_address'"
 fi
 
-heading="institution_full_name, account_number, As Of Date, Market Value, Certificate Maturity"
+heading="institution_full_name, account_number, As Of Date, Book Value, Certificate Maturity"
 justification="left, left, left, right, left"
 
 account_process='echo "select full_name, street_address, account_number, certificate_maturity_date from investment_account where $institution_where order by full_name, street_address, certificate_maturity_date;" | sql "^"'
@@ -53,7 +53,7 @@ do
 	account_number=`echo $record | piece.e '^' 2`
 	certificate_maturity_date=`echo $record | piece.e '^' 3`
 
-	select="full_name, account_number, date_time, market_value, '$certificate_maturity_date'"
+	select="full_name, account_number, date_time, book_value_balance, '$certificate_maturity_date'"
 	from="equity_account_balance"
 	where="full_name = '$institution_full_name' and street_address = '$street_address' and account_number = '$account_number' and date_time <= '$as_of_date 23:59:59'"
 	order="date_time desc"

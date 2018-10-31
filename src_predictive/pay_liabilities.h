@@ -116,7 +116,8 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 				char *street_address );
 
 LIST *pay_liabilities_get_current_liability_entity_list(
-				LIST *current_liability_account_list );
+				LIST *current_liability_account_list,
+				LIST *exclude_entity_list );
 
 LIST *pay_liabilities_output_get_liability_account_transaction_list(
 				LIST *liability_account_entity_list,

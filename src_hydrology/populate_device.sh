@@ -42,7 +42,6 @@ fi
 where="$parameter_where and $one2m_where"
 
 echo "select $select from device where $where order by $select;"	|
-tee /dev/tty |
 sql.e
 
 exit 0

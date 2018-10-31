@@ -36,6 +36,7 @@
 
 /* Constants */
 /* --------- */
+/* #define DEBUG_MODE			1 */
 #define AGGREGATE_PERIOD_DEFAULT	"annually"
 #define EXCEEDANCE_DELIMITER		'|'
 #define DEFAULT_OUTPUT_MEDIUM		"table"
@@ -707,13 +708,13 @@ int main( int argc, char **argv )
 				exceedance_format_yn,
 				units_converted_string );
 
-/*
+#ifdef DEBUG_MODE
 fprintf( stderr, "%s/%s()/%d: got sys_string = (%s)\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 sys_string );
-*/
+#endif
 
 	if ( strcmp( output_medium, "stdout" ) != 0
 	&&   strcmp( output_medium, "chart" ) != 0 )

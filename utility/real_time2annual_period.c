@@ -1590,10 +1590,25 @@ fprintf( stderr,
 	 prior_year );
 #endif
 
+		/* If first time and begin date is earlier than first season. */
+		/* ---------------------------------------------------------- */
+		if ( new_year == prior_year
+		&&   strcmp(	trimmed_date_string,
+				begin_season_month_day_string ) < 0 )
+		{
+#ifdef DEBUG_MODE
+fprintf( stderr, "%s/%s()/%d: returning different_season.\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+#endif
+			return different_season;
+		}
+
 		if ( old_date->current == new_date->current )
 		{
 #ifdef DEBUG_MODE
-fprintf( stderr, "%s/%s()/%d\n",
+fprintf( stderr, "%s/%s()/%d: returning same_season_same_year.\n",
 __FILE__,
 __FUNCTION__,
 __LINE__ );
@@ -1606,7 +1621,7 @@ __LINE__ );
 				begin_season_month_day_string ) >= 0 )
 		{
 #ifdef DEBUG_MODE
-fprintf( stderr, "%s/%s()/%d\n",
+fprintf( stderr, "%s/%s()/%d: returning same_season_different_year.\n",
 __FILE__,
 __FUNCTION__,
 __LINE__ );
@@ -1617,7 +1632,7 @@ __LINE__ );
 		else
 		{
 #ifdef DEBUG_MODE
-fprintf( stderr, "%s/%s()/%d\n",
+fprintf( stderr, "%s/%s()/%d: returning same_season_same_year.\n",
 __FILE__,
 __FUNCTION__,
 __LINE__ );

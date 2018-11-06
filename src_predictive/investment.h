@@ -165,7 +165,7 @@ void investment_account_balance_list_update(
 void investment_account_balance_update(	FILE *output_pipe,
 					ACCOUNT_BALANCE *output_account_balance,
 					char *application_name,
-					ACCOUNT_BALANCE *account_balance,
+					ACCOUNT_BALANCE *input_account_balance,
 					char *full_name,
 					char *street_address,
 					char *account_number );

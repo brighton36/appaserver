@@ -832,6 +832,11 @@ LIST *investment_calculate_account_balance_list(
 				new_account_balance->realized_gain,
 				new_account_balance->cash_in );
 
+		/* ----------------------------------------------------- */
+		/* Note: new_account_balance->transaction_date_time gets */
+		/*       set from ledger_transaction_refresh()		 */
+		/* ----------------------------------------------------- */
+
 	} while( list_next( input_account_balance_list ) );
 
 	return output_account_balance_list;
@@ -1006,7 +1011,8 @@ void investment_account_balance_list_update(
 			output_pipe,
 			output_account_balance,
 			application_name,
-			account_balance,
+			account_balance
+				/* input_account_balance */,
 			full_name,
 			street_address,
 			account_number );
@@ -1022,7 +1028,7 @@ void investment_account_balance_list_update(
 void investment_account_balance_update(	FILE *output_pipe,
 					ACCOUNT_BALANCE *output_account_balance,
 					char *application_name,
-					ACCOUNT_BALANCE *account_balance,
+					ACCOUNT_BALANCE *input_account_balance,
 					char *full_name,
 					char *street_address,
 					char *account_number )
@@ -1030,7 +1036,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 	char *transaction_date_time;
 
 	if ( !output_account_balance
-	||   !account_balance )
+	||   !input_account_balance )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: received null input.\n",
@@ -1041,8 +1047,9 @@ void investment_account_balance_update(	FILE *output_pipe,
 		exit( 1 );
 	}
 
-	if ( timlib_strcmp(	output_account_balance->investment_operation,
-				account_balance->investment_operation ) != 0 )
+	if ( timlib_strcmp(
+		output_account_balance->investment_operation,
+		input_account_balance->investment_operation ) != 0 )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^investment_operation^%s\n",
@@ -1055,7 +1062,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->share_price,
-			account_balance->share_price ) )
+			input_account_balance->share_price ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^share_price^%.4lf\n",
@@ -1068,7 +1075,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->share_quantity_change,
-			account_balance->share_quantity_change ) )
+			input_account_balance->share_quantity_change ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^share_quantity_change^%.4lf\n",
@@ -1081,7 +1088,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->share_quantity_balance,
-			account_balance->share_quantity_balance ) )
+			input_account_balance->share_quantity_balance ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^share_quantity_balance^%.4lf\n",
@@ -1094,7 +1101,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->book_value_change,
-			account_balance->book_value_change ) )
+			input_account_balance->book_value_change ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^book_value_change^%.4lf\n",
@@ -1107,7 +1114,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->book_value_balance,
-			account_balance->book_value_balance ) )
+			input_account_balance->book_value_balance ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^book_value_balance^%.4lf\n",
@@ -1120,7 +1127,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->moving_share_price,
-			account_balance->moving_share_price ) )
+			input_account_balance->moving_share_price ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^moving_share_price^%.4lf\n",
@@ -1133,7 +1140,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->cash_in,
-			account_balance->cash_in ) )
+			input_account_balance->cash_in ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^cash_in^%.2lf\n",
@@ -1146,7 +1153,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->market_value,
-			account_balance->market_value ) )
+			input_account_balance->market_value ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^market_value^%.4lf\n",
@@ -1159,7 +1166,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->unrealized_gain_balance,
-			account_balance->unrealized_gain_balance ) )
+			input_account_balance->unrealized_gain_balance ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^unrealized_gain_balance^%.4lf\n",
@@ -1172,7 +1179,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->unrealized_gain_change,
-			account_balance->unrealized_gain_change ) )
+			input_account_balance->unrealized_gain_change ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^unrealized_gain_change^%.4lf\n",
@@ -1185,7 +1192,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( !timlib_double_virtually_same(
 			output_account_balance->realized_gain,
-			account_balance->realized_gain ) )
+			input_account_balance->realized_gain ) )
 	{
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^realized_gain^%.4lf\n",
@@ -1204,8 +1211,8 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 		/* If was a transaction but no longer one. */
 		/* --------------------------------------- */
-		if ( account_balance->transaction_date_time
-		&&   *account_balance->transaction_date_time )
+		if ( input_account_balance->transaction_date_time
+		&&   *input_account_balance->transaction_date_time )
 		{
 			LIST *account_name_list;
 			char *account_name;
@@ -1214,21 +1221,21 @@ void investment_account_balance_update(	FILE *output_pipe,
 					TRANSACTION_FOLDER_NAME,
 					full_name,
 					street_address,
-					account_balance->
+					input_account_balance->
 						transaction_date_time );
 
 			ledger_delete(	application_name,
 					LEDGER_FOLDER_NAME,
 					full_name,
 					street_address,
-					account_balance->
+					input_account_balance->
 						transaction_date_time );
 
 			/* Propagate */
 			/* --------- */
 			account_name_list =
 				ledger_get_unique_account_name_list(
-					account_balance->
+					input_account_balance->
 						transaction->
 						journal_ledger_list );
 
@@ -1241,7 +1248,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 					ledger_propagate(
 						application_name,
-						account_balance->
+						input_account_balance->
 							transaction->
 							transaction_date_time,
 						account_name );
@@ -1252,8 +1259,9 @@ void investment_account_balance_update(	FILE *output_pipe,
 		} /* if transaction_date_time */
 	}
 	else
-	/* If is transaction */
-	/* ----------------- */
+	/* -------------------- */
+	/* Else has transaction */
+	/* -------------------- */
 	{
 		output_account_balance->transaction_date_time =
 			ledger_transaction_refresh(
@@ -1278,7 +1286,7 @@ void investment_account_balance_update(	FILE *output_pipe,
 
 	if ( timlib_strcmp(
 			output_account_balance->transaction_date_time,
-			account_balance->transaction_date_time ) != 0 )
+			input_account_balance->transaction_date_time ) != 0 )
 	{
 		transaction_date_time =
 	 		output_account_balance->
@@ -1530,7 +1538,17 @@ TRANSACTION *investment_build_purchase_transaction(
 		return (TRANSACTION *)0;
 	}
 
-	if ( share_quantity_change <= 0.0 ) return (TRANSACTION *)0;
+	/* if ( share_quantity_change <= 0.0 ) return (TRANSACTION *)0; */
+
+	if ( timlib_double_virtually_same( share_quantity_change, 0.0 ) )
+	{
+		fprintf( stderr,
+"Warning in %s/%s()/%d: empty share_quantity_change.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return (TRANSACTION *)0;
+	}
 
 	if ( timlib_double_virtually_same( book_value_change, 0.0 ) )
 	{

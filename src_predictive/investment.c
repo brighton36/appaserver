@@ -829,8 +829,7 @@ LIST *investment_calculate_account_balance_list(
 				new_account_balance->share_quantity_change,
 				new_account_balance->book_value_change,
 				new_account_balance->unrealized_gain_change,
-				new_account_balance->realized_gain,
-				new_account_balance->cash_in );
+				new_account_balance->realized_gain );
 
 		/* ----------------------------------------------------- */
 		/* Note: new_account_balance->transaction_date_time gets */
@@ -858,9 +857,12 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 
 	if ( timlib_strcmp(
 		investment_operation,
-		INVESTMENT_OPERATION_TRANSFER ) == 0 )
+		INVESTMENT_OPERATION_TRANSFER ) == 0
+	&&   !timlib_double_virtually_same( share_quantity_change, 0.0 ) )
 	{
-		a = investment_account_balance_purchase(
+		if ( share_quantity_change > 0.0 )
+		{
+			a = investment_account_balance_purchase(
 				date_time,
 				share_price,
 				share_quantity_change,
@@ -868,6 +870,18 @@ ACCOUNT_BALANCE *investment_account_balance_calculate(
 				prior_book_value_balance,
 				prior_unrealized_gain_balance,
 				table_first_row );
+		}
+		else
+		{
+			a = investment_account_balance_sale(
+				date_time,
+				share_price,
+				share_quantity_change,
+				prior_share_quantity_balance,
+				prior_book_value_balance,
+				prior_moving_share_price,
+				prior_unrealized_gain_balance );
+		}
 
 		if ( timlib_double_virtually_same( a->book_value_change, 0.0 ) )
 		{
@@ -1343,8 +1357,7 @@ TRANSACTION *investment_build_transaction(
 				double share_quantity_change,
 				double book_value_change,
 				double unrealized_gain_change,
-				double realized_gain,
-				double cash_in )
+				double realized_gain )
 {
 	TRANSACTION *transaction;
 
@@ -1358,19 +1371,20 @@ TRANSACTION *investment_build_transaction(
 		return (TRANSACTION *)0;
 	}
 
+
 	if ( timlib_strcmp(
 			investment_operation,
 			INVESTMENT_OPERATION_TRANSFER ) == 0 )
 	{
-		char *credit_account;
+		char *cash_equity_account;
 
-		credit_account =
-			investment_fetch_purchase_credit_account_name(
+		cash_equity_account =
+			investment_fetch_cash_or_equity_account_name(
 				application_name,
 				fund_name,
 				INVESTMENT_OPERATION_TRANSFER );
 
-		if ( !credit_account || !*credit_account )
+		if ( !cash_equity_account || !*cash_equity_account )
 		{
 			fprintf( stderr,
 "ERROR in %s/%s()/%d: cannot fetch credit account name for operation = %s.\n",
@@ -1381,20 +1395,40 @@ TRANSACTION *investment_build_transaction(
 			exit( 1 );
 		}
 
-		transaction =
-			investment_build_purchase_transaction(
-				application_name,
-				full_name,
-				street_address,
-				date_time,
-				fund_name,
-				investment_operation,
-				investment_account,
-				fair_value_adjustment_account,
-				credit_account,
-				share_quantity_change,
-				book_value_change,
-				unrealized_gain_change );
+		if ( share_quantity_change > 0.0 )
+		{
+			transaction =
+				investment_build_purchase_transaction(
+					application_name,
+					full_name,
+					street_address,
+					date_time,
+					fund_name,
+					investment_operation,
+					investment_account,
+					fair_value_adjustment_account,
+					cash_equity_account,
+					share_quantity_change,
+					book_value_change,
+					unrealized_gain_change );
+		}
+		else
+		{
+			transaction =
+				investment_build_sale_transaction(
+					application_name,
+					full_name,
+					street_address,
+					date_time,
+					fund_name,
+					investment_operation,
+					investment_account,
+					cash_equity_account
+					   /* fair_value_adjustment_account */,
+					unrealized_gain_change,
+					realized_gain,
+					book_value_change );
+		}
 	}
 	else
 	if ( timlib_strcmp(
@@ -1404,7 +1438,7 @@ TRANSACTION *investment_build_transaction(
 		char *credit_account;
 
 		credit_account =
-			investment_fetch_purchase_credit_account_name(
+			investment_fetch_cash_or_equity_account_name(
 				application_name,
 				fund_name,
 				INVESTMENT_OPERATION_PURCHASE );
@@ -1459,7 +1493,7 @@ TRANSACTION *investment_build_transaction(
 				fair_value_adjustment_account,
 				unrealized_gain_change,
 				realized_gain,
-				cash_in );
+				book_value_change );
 	}
 	else
 	{
@@ -1625,7 +1659,7 @@ TRANSACTION *investment_build_sale_transaction(
 				char *fair_value_adjustment_account,
 				double unrealized_gain_change,
 				double realized_gain,
-				double cash_in )
+				double book_value_change )
 {
 	TRANSACTION *transaction;
 	char *unrealized_investment = {0};
@@ -1654,10 +1688,13 @@ TRANSACTION *investment_build_sale_transaction(
 		return (TRANSACTION *)0;
 	}
 
+/* Now could be a transfer to or from an equity account
+   ----------------------------------------------------
 	if ( timlib_double_virtually_same( cash_in, 0.0 ) )
 	{
 		return (TRANSACTION *)0;
 	}
+*/
 
 	ledger_get_investment_account_names(
 		&unrealized_investment,
@@ -1675,7 +1712,7 @@ TRANSACTION *investment_build_sale_transaction(
 			date_time /* transaction_date_time */,
 			investment_get_memo( investment_operation ) );
 
-	transaction->transaction_amount = cash_in;
+	transaction->transaction_amount = float_abs( book_value_change );
 	
 	transaction->journal_ledger_list =
 		ledger_get_binary_ledger_list(
@@ -1683,6 +1720,12 @@ TRANSACTION *investment_build_sale_transaction(
 			checking_account
 				/* debit_account */,
 			investment_account /* credit_account */ );
+
+fprintf( stderr, "%s/%s()/%d: got length = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_length( transaction->journal_ledger_list ) );
 
 	if ( !timlib_double_virtually_same(
 		unrealized_gain_change, 0.0 ) )
@@ -1936,7 +1979,7 @@ char *investment_get_update_sys_string(
 
 } /* investment_get_update_sys_string() */
 
-char *investment_fetch_purchase_credit_account_name(
+char *investment_fetch_cash_or_equity_account_name(
 				char *application_name,
 				char *fund_name,
 				char *investment_operation )
@@ -1978,7 +2021,7 @@ char *investment_fetch_purchase_credit_account_name(
 		exit( 1 );
 	}
 
-} /* investment_fetch_purchase_credit_account_name() */
+} /* investment_fetch_cash_or_equity_account_name() */
 
 boolean investment_get_account_balance_table_first_row(
 				char *application_name,

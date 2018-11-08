@@ -229,8 +229,7 @@ TRANSACTION *investment_build_transaction(
 					double share_quantity_change,
 					double book_value_change,
 					double unrealized_gain_change,
-					double realized_gain,
-					double cash_in );
+					double realized_gain );
 
 TRANSACTION *investment_build_purchase_transaction(
 					char *application_name,
@@ -257,7 +256,7 @@ TRANSACTION *investment_build_sale_transaction(
 					char *fair_value_adjustment_account,
 					double unrealized_gain_change,
 					double realized_gain,
-					double cash_in );
+					double book_value_change );
 
 TRANSACTION *investment_build_time_passage_transaction(
 					char *application_name,
@@ -294,7 +293,7 @@ void investment_transaction_date_time_update(
 					char *transaction_date_time,
 					char *application_name );
 
-char *investment_fetch_purchase_credit_account_name(
+char *investment_fetch_cash_or_equity_account_name(
 					char *application_name,
 					char *fund_name,
 					char *investment_operation );

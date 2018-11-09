@@ -19,6 +19,7 @@
 
 /* Constants */
 /* --------- */
+#define CHECK_DATE_COMMAND	"now.sh pretty | column.e 0"
 #define LATEX_FILENAME_TEMPLATE	"%s/make_checks_%d.tex"
 #define PDF_FILENAME_TEMPLATE	"%s/make_checks_%d.pdf"
 
@@ -104,7 +105,7 @@ void make_checks_argv( int argc, char **argv )
 
 	appaserver_error_stderr( argc, argv );
 
-	check_date = pipe2string( "now.sh pretty | column.e 0" );
+	check_date = pipe2string( CHECK_DATE_COMMAND );
 
 	appaserver_data_directory =
 		pipe2string(
@@ -183,7 +184,7 @@ void make_checks_stdin( boolean personal_size )
 	boolean first_time = 1;
 	char *check_date;
 
-	check_date = pipe2string( "now.sh full" );
+	check_date = pipe2string( CHECK_DATE_COMMAND );
 
 	appaserver_data_directory =
 		pipe2string(
@@ -371,7 +372,7 @@ void make_checks_dollar_text_personal_size(
 /* Print date on stub and check */
 /* ---------------------------- */
 	fprintf( latex_file,
-"\\begin{tabular}{p{0.2in}p{6.3in}l}\n"
+"\\begin{tabular}{p{0.2in}p{6.4in}l}\n"
 "& %s & %s\n"
 "\\end{tabular}\n\n",
 		 check_date,
@@ -381,7 +382,7 @@ void make_checks_dollar_text_personal_size(
 /* ------------------------------------------------------------ */
 	fprintf( latex_file,
 "\\begin{tabular}{p{0.2in}p{2.5in}p{4.1in}l}\n"
-"& %s & %s & %s\n"
+"& %.26s & %s & %s\n"
 "\\end{tabular}\n\n",
 		 payable_to_escaped,
 		 payable_to_escaped,

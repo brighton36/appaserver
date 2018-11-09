@@ -1729,8 +1729,10 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('accumulated_depreciation','fixed_asset','accumulated_depreciation_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('Alarm','Home',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('alarm_permit','Home',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('band_dues','donation',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('checking','cash','cash_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('Bike','transportation',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('campaign_contribution','donation',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Car fuel','transportation',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Car Insurance','transportation',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Car maintenance','transportation',null);
@@ -1749,6 +1751,7 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('Garbage/Water','Home',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Gift','entertainment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Groceries/Cash withdrawal','operating_expense',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('gutter_cleaning','Home',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Haircut','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Healthcare consumption','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Healthcare premium','operating_expense',null);
@@ -1769,6 +1772,7 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('Phone/Internet/TV','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('plumbing_services','Home',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('property_tax','Home',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('property_tax_payable','current_liability',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('realized_investment_gain','gain','realized_investment_gain_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('realized_investment_loss','loss','realized_investment_loss_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('repairs_maintenance_expense','operating_expense',null);
@@ -1788,6 +1792,7 @@ insert into depreciation_method (depreciation_method) values ('n_declining_balan
 insert into depreciation_method (depreciation_method) values ('straight_line');
 insert into depreciation_method (depreciation_method) values ('sum_of_years_digits');
 insert into depreciation_method (depreciation_method) values ('units_of_production');
+insert into tax_form_line_account (tax_form,tax_form_line,account) values ('1040','16','band_dues');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('1040','16','donation_cash');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('1040','16','donation_payable');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','001','salary_revenue');

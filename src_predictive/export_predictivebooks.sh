@@ -41,6 +41,43 @@ echo "executing..."
 
 appaserver_config_file="/etc/appaserver.config"
 
+function export_predictivebooks()
+{
+	application=$1
+	input_file=$2
+	output_shell=$3
+
+	parameter_list=`
+	cat $input_file							|
+	count.e 1 							|
+	sed 's/ //'							|
+	sed 's/)/=/'							|
+	sed 's/^00*//'							|
+	sed 's/^/folder_/'						|
+	joinlines.e '&'							|
+	cat`
+
+	export_file=`
+	export_subschema x x x x x "${parameter_list}" 2>/dev/null	|
+	grep Created							|
+	column.e 1							|
+	cat`
+
+#	export_subschema x x x x x "${parameter_list}"; exit 1
+
+	if [ "$export_file" = "" ]
+	then
+		echo "ERROR: export_subschema generated an error." 1>&2
+		exit 1
+	fi
+
+	cat $export_file						|
+	grep -v '^exit'							|
+	cat >> $output_shell
+
+}
+# export_predictivebooks()
+
 function export_processes()
 {
 	application=$1
@@ -198,43 +235,6 @@ function create_predictivebooks()
 	done
 }
 # create_predictivebooks()
-
-function export_predictivebooks()
-{
-	application=$1
-	input_file=$2
-	output_shell=$3
-
-	parameter_list=`
-	cat $input_file							|
-	count.e 1 							|
-	sed 's/ //'							|
-	sed 's/)/=/'							|
-	sed 's/^00*//'							|
-	sed 's/^/folder_/'						|
-	joinlines.e '&'							|
-	cat`
-
-	export_file=`
-	export_subschema x x x x x "${parameter_list}" 2>/dev/null	|
-	grep Created							|
-	column.e 1							|
-	cat`
-
-#	export_subschema x x x x x "${parameter_list}"; exit 1
-
-	if [ "$export_file" = "" ]
-	then
-		echo "ERROR: export_subschema generated an error." 1>&2
-		exit 1
-	fi
-
-	cat $export_file						|
-	grep -v '^exit'							|
-	cat >> $output_shell
-
-}
-# export_predictivebooks()
 
 function extract_investment()
 {

@@ -1503,8 +1503,7 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 			char *fishing_purpose )
 {
 	char *fishing_trips_table_name;
-	QUERY_OR_SEQUENCE *query_or_sequence = {0};
-	char *query_or_sequence_where_clause;
+	char *fishing_area_where;
 	char fishing_purpose_where[ 128 ];
 	char *hours_fishing_where;
 
@@ -1528,6 +1527,11 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 		strcpy( fishing_purpose_where, "1 = 1" );
 	}
 
+	fishing_area_where =
+		creel_library_get_fishing_area_where(
+			fishing_area_list_string );
+
+#ifdef NOT_DEFINED
 	if (	fishing_area_list_string
 	&&	*fishing_area_list_string
 	&&	strcmp( fishing_area_list_string, "fishing_area" ) != 0 )
@@ -1543,7 +1547,7 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 			query_or_sequence->data_list_list,
 			fishing_area_list_string );
 
-		query_or_sequence_where_clause =
+		fishing_area_where =
 			query_or_sequence_get_where_clause(
 				query_or_sequence->attribute_name_list,
 				query_or_sequence->data_list_list,
@@ -1551,8 +1555,9 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 	}
 	else
 	{
-		query_or_sequence_where_clause = "1 = 1";
+		fishing_area_where = "1 = 1";
 	}
+#endif
 
 	fishing_trips_table_name =
 		get_table_name(	application_name,
@@ -1566,7 +1571,7 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 			fishing_trips_table_name,
 	 	begin_date_string,
 	 	end_date_string,
-		query_or_sequence_where_clause,
+		fishing_area_where,
 		fishing_purpose_where,
 		hours_fishing_where );
 
@@ -4201,4 +4206,58 @@ char *creel_library_get_species_where(
 	return strdup( where_clause );
 
 } /* creel_library_get_species_where() */
+
+char *creel_library_get_fishing_area_where(
+				char *fishing_area_list_string )
+{
+	char *fishing_area_where = "1 = 1";
+
+	if (	fishing_area_list_string
+	&&	*fishing_area_list_string
+	&&	strcmp( fishing_area_list_string, "fishing_area" ) != 0 )
+	{
+		LIST *column_name_list;
+		QUERY_OR_SEQUENCE *query_or_sequence;
+
+		column_name_list = list_new();
+		list_append_pointer( column_name_list, "fishing_area" );
+
+		query_or_sequence = query_or_sequence_new( column_name_list );
+
+		query_or_sequence_set_data_list_string(
+			query_or_sequence->data_list_list,
+			fishing_area_list_string );
+
+		fishing_area_where =
+			query_or_sequence_get_where_clause(
+				query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list,
+				0 /* not with_and_prefix */ );
+	}
+
+	return fishing_area_where;
+
+} /* creel_library_get_fishing_area_where() */
+
+char *creel_library_get_interview_location_where(
+				char *interview_location )
+{
+	char *interview_location_where = "1 = 1";
+
+	if (	interview_location
+	&&	*interview_location
+	&&	strcmp( interview_location, "interview_location" ) != 0 )
+	{
+		char buffer[ 128 ];
+
+		sprintf(	buffer,
+				"interview_location = '%s'",
+				interview_location );
+
+		interview_location_where = strdup( buffer );
+	}
+
+	return interview_location_where;
+
+} /* creel_library_get_interview_location_where() */
 

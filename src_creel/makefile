@@ -302,12 +302,13 @@ creel_catches_vs_salinity: creel_catches_vs_salinity.c			\
 		-o creel_catches_vs_salinity
 
 catches_per_species: catches_per_species.c				\
-		${EXTERNAL_LIBS}
+		${EXTERNAL_LIBS} creel_library.o
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
 		catches_per_species.c					\
+		creel_library.o						\
 		-o catches_per_species
 
 insert_sport_creel_census:						\

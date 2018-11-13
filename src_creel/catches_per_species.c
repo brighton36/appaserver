@@ -42,7 +42,9 @@ void output_catches_per_species(
 				pid_t process_id,
 				char *title,
 				char *sub_title,
-				char *process_name );
+				char *process_name,
+				char *fishing_area_list_string,
+				char *interview_location );
 
 FILE *get_input_pipe(		char **heading,
 				int *fishing_purpose_piece,
@@ -63,7 +65,9 @@ FILE *get_input_pipe(		char **heading,
 				char *aggregate_level,
 				char *family,
 				char *genus,
-				char *species );
+				char *species,
+				char *fishing_area_list_string,
+				char *interview_location );
 
 void parse_input_buffer(	char **year,
 				char **month,
@@ -134,11 +138,13 @@ int main( int argc, char **argv )
 	char title[ 512 ];
 	char sub_title[ 512 ];
 	DOCUMENT *document;
+	char *fishing_area_list_string;
+	char *interview_location;
 
-	if ( argc != 11 )
+	if ( argc != 13 )
 	{
 		fprintf(stderr,
-"Usage: %s application process begin_date end_date family genus species fishing_purpose aggregate_level output_medium\n",
+"Usage: %s application process begin_date end_date family genus species fishing_purpose aggregate_level output_medium fishing_area interview_location\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -153,6 +159,8 @@ int main( int argc, char **argv )
 	fishing_purpose = argv[ 8 ];
 	aggregate_level = argv[ 9 ];
 	output_medium = argv[ 10 ];
+	fishing_area_list_string = argv[ 11 ];
+	interview_location = argv[ 12 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -160,6 +168,12 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	appaserver_error_starting_argv_append_file(
@@ -173,19 +187,6 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-/*
-	if ( !*begin_date || strcmp( begin_date, "begin_date" ) == 0 )
-	{
-		begin_date = "1901-01-01";
-		end_date = "2099-12-31";
-	}
-
-	if ( !*end_date || strcmp( end_date, "end_date" ) == 0 )
-	{
-		end_date = begin_date;
-	}
-*/
 
 	if (	!*output_medium
 	||	strcmp( output_medium, "output_medium" ) == 0 )
@@ -260,7 +261,9 @@ int main( int argc, char **argv )
 			getpid(),
 			title,
 			sub_title,
-			process_name );
+			process_name,
+			fishing_area_list_string,
+			interview_location );
 
 	document_close();
 	exit( 0 );
@@ -281,7 +284,9 @@ void output_catches_per_species(
 			pid_t process_id,
 			char *title,
 			char *sub_title,
-			char *process_name )
+			char *process_name,
+			char *fishing_area_list_string,
+			char *interview_location )
 {
 	FILE *input_pipe;
 	FILE *output_pipe = {0};
@@ -323,7 +328,9 @@ void output_catches_per_species(
 			aggregate_level,
 			family,
 			genus,
-			species );
+			species,
+			fishing_area_list_string,
+			interview_location );
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -855,14 +862,16 @@ FILE *get_input_pipe(	char **heading,
 			char *aggregate_level,
 			char *family,
 			char *genus,
-			char *species )
+			char *species,
+			char *fishing_area_list_string,
+			char *interview_location )
 {
 	char sys_string[ 1024 ];
 	char select[ 1024 ];
 	char join_where[ 1024 ];
 	char species_where[ 512 ];
 	char fishing_purpose_where[ 256 ];
-	char where[ 1024 ];
+	char where[ 65536 ];
 	char *catches_table_name;
 	char *species_table_name;
 	char *from;
@@ -1014,13 +1023,17 @@ FILE *get_input_pipe(	char **heading,
 			 fishing_purpose );
 	}
 
-	sprintf( where,
-		 "census_date between '%s' and '%s' and %s and %s and %s",
+	sprintf(where,
+	"census_date between '%s' and '%s' and %s and %s and %s and %s and %s",
 		 begin_date,
 		 end_date,
 		 join_where,
 		 fishing_purpose_where,
-		 species_where );
+		 species_where,
+		 creel_library_get_fishing_area_where(
+			fishing_area_list_string ),
+		 creel_library_get_interview_location_where(
+			interview_location ) );
 
 	from = "catches,species";
 

@@ -187,22 +187,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
-
-/*
-	if ( !*fishing_area_list_string
-	||   strcmp( fishing_area_list_string, "select" ) == 0
-	||   strcmp( fishing_area_list_string, "fishing_area" ) == 0 )
-	{
-		document_quick_output_body(
-				application_name,
-				appaserver_parameter_file->
-					appaserver_mount_point );
-		printf( "<h3>Please select a location area/zone.</h3>\n" );
-		document_close();
-		exit( 0 );
-	}
-*/
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	output_medium = get_output_medium( output_medium_string );
 
@@ -339,26 +324,6 @@ int main( int argc, char **argv )
 			output_medium,
 			process_name,
 			fishing_purpose );
-
-/*
-		if ( *family_list_string
-		&&   strcmp( family_list_string, "family" ) != 0 )
-		{
-			creel_catches_report_catch_per_unit_effort_text_file(
-					application_name,
-					begin_date_string,
-					end_date_string,
-					fishing_area_list_string,
-					family_list_string,
-					genus_list_string,
-					species_list_string,
-					appaserver_parameter_file->
-						appaserver_mount_point,
-					summary_only,
-					order_by_caught,
-					fishing_purpose );
-		}
-*/
 
 		document_close();
 	}

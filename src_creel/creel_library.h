@@ -620,4 +620,10 @@ char *creel_library_get_species_where(
 				char *species_attribute_name,
 				char *catches_table_name );
 
+char *creel_library_get_fishing_area_where(
+				char *fishing_area_list_string );
+
+char *creel_library_get_interview_location_where(
+				char *interview_location );
+
 #endif

@@ -626,4 +626,7 @@ char *creel_library_get_fishing_area_where(
 char *creel_library_get_interview_location_where(
 				char *interview_location );
 
+char *creel_library_get_fishing_trips_join_where(
+				char *related_folder );
+
 #endif

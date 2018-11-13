@@ -21,6 +21,7 @@
 #include "environ.h"
 #include "hydrology_library.h"
 #include "appaserver_link_file.h"
+#include "creel_library.h"
 
 /* Constants */
 /* --------- */
@@ -93,7 +94,9 @@ void parse_input_buffer(	char **year,
 				int kept_piece,
 				char *aggregate_level );
 
-void perform_output(		FILE *output_pipe,
+/* Returns row_count */
+/* ----------------- */
+int perform_output(		FILE *output_pipe,
 				FILE *input_pipe,
 				int fishing_purpose_piece,
 				int interview_number_piece,
@@ -307,6 +310,7 @@ void output_catches_per_species(
 	boolean omit_output_day_sum = 0;
 	boolean omit_output_month_sum = 0;
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	int row_count;
 
 	input_pipe = get_input_pipe(
 			&heading,
@@ -347,14 +351,6 @@ void output_catches_per_species(
 
 	if ( strcmp( output_medium, "text_file" ) == 0 )
 	{
-/*
-		sprintf(output_filename, 
-		 	OUTPUT_TEMPLATE,
-		 	appaserver_mount_point,
-		 	application_name, 
-		 	process_id );
-*/
-
 		output_filename =
 			appaserver_link_get_output_filename(
 				appaserver_link_file->
@@ -389,7 +385,8 @@ void output_catches_per_species(
 	 	 	output_filename );
 		output_pipe = popen( sys_string, "w" );
 
-		perform_output(
+		row_count =
+		    perform_output(
 			output_pipe,
 			input_pipe,
 			fishing_purpose_piece,
@@ -426,6 +423,8 @@ void output_catches_per_species(
 				appaserver_link_file->session,
 				appaserver_link_file->extension );
 
+		printf( "<p>Generated %d rows.<br>\n", row_count );
+
 		appaserver_library_output_ftp_prompt(
 			ftp_filename,
 			TRANSMIT_PROMPT,
@@ -442,7 +441,8 @@ void output_catches_per_species(
 
 		output_pipe = popen( sys_string, "w" );
 
-		perform_output(
+		row_count =
+		    perform_output(
 			output_pipe,
 			input_pipe,
 			fishing_purpose_piece,
@@ -539,7 +539,9 @@ void get_title_and_sub_title(
 
 } /* get_title_and_sub_title() */
 
-void perform_output(	FILE *output_pipe,
+/* Returns row_count */
+/* ----------------- */
+int perform_output(	FILE *output_pipe,
 			FILE *input_pipe,
 			int fishing_purpose_piece,
 			int interview_number_piece,
@@ -581,13 +583,13 @@ void perform_output(	FILE *output_pipe,
 	boolean new_year;
 	boolean new_month;
 	boolean new_day;
-	boolean did_any = 0;
+	int row_count = 0;
 
 	*old_year = '\0';
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		did_any = 1;
+		row_count++;
 
 		parse_input_buffer(
 				&year,
@@ -814,7 +816,7 @@ void perform_output(	FILE *output_pipe,
 		}
 	}
 
-	if ( did_any )
+	if ( row_count )
 	{
 		if ( !omit_output_day_sum )
 		{
@@ -841,7 +843,11 @@ void perform_output(	FILE *output_pipe,
 			 year_kept + year_released );
 	}
 
+	return row_count;
+
 } /* perform_output() */
+
+static char *catches_table_name = "catches";
 
 FILE *get_input_pipe(	char **heading,
 			int *fishing_purpose_piece,
@@ -868,27 +874,28 @@ FILE *get_input_pipe(	char **heading,
 {
 	char sys_string[ 1024 ];
 	char select[ 1024 ];
-	char join_where[ 1024 ];
+	char catches_join_where[ 1024 ];
 	char species_where[ 512 ];
 	char fishing_purpose_where[ 256 ];
 	char where[ 65536 ];
-	char *catches_table_name;
 	char *species_table_name;
 	char *from;
 	char *group = {0};
 	char *order = {0};
 
-	catches_table_name = get_table_name( application_name, "catches" );
 	species_table_name = get_table_name( application_name, "species" );
 
 	if (	!*aggregate_level ||
 		strcmp( aggregate_level, "aggregate_level" ) == 0 )
 	{
 		*heading =
-"Census Date,Fishing Purpose,Interview Number,Florida State Code,Family,Genus,Species,Common Name,Kept,Released,Caught,Day Kept,Day Released,Day Caught,Month Kept,Month Released,Month Caught,Year Kept,Year Released,Year Caught";
+"Census Date,Fishing Purpose,Fishing Area,Interview Number,Florida State Code,Family,Genus,Species,Common Name,Kept,Released,Caught,Day Kept,Day Released,Day Caught,Month Kept,Month Released,Month Caught,Year Kept,Year Released,Year Caught";
 
 		sprintf(select,
-"census_date,fishing_purpose,interview_number,%s.florida_state_code,%s.family,%s.genus,%s.species,%s.common_name,kept_count,released_count",
+"%s.census_date,%s.fishing_purpose,fishing_area,%s.interview_number,%s.florida_state_code,%s.family,%s.genus,%s.species,%s.common_name,kept_count,released_count",
+		 	catches_table_name,
+		 	catches_table_name,
+		 	catches_table_name,
 		 	species_table_name,
 		 	catches_table_name,
 		 	catches_table_name,
@@ -914,9 +921,9 @@ FILE *get_input_pipe(	char **heading,
 "Census Date,Kept,Released,Caught,Month Kept,Month Released,Month Caught,Year Kept,Year Released,Year Caught";
 
 		strcpy(select,
-"census_date,sum(kept_count),sum(released_count)" );
+"catches.census_date,sum(kept_count),sum(released_count)" );
 
-		group = "census_date";
+		group = "catches.census_date";
 
 		*fishing_purpose_piece = -1;
 		*interview_number_piece = -1;
@@ -935,9 +942,9 @@ FILE *get_input_pipe(	char **heading,
 "Census Month,Month Kept,Month Released,Month Caught,Year Kept,Year Released,Year Caught";
 
 		strcpy(select,
-"substr(census_date,1,7),sum(kept_count),sum(released_count)" );
+"substr(catches.census_date,1,7),sum(kept_count),sum(released_count)" );
 
-		group = "substr(census_date,1,7)";
+		group = "substr(catches.census_date,1,7)";
 
 		*fishing_purpose_piece = -1;
 		*interview_number_piece = -1;
@@ -957,9 +964,9 @@ FILE *get_input_pipe(	char **heading,
 "Census Year,Year Kept,Year Released,Year Caught";
 
 		strcpy(select,
-"substr(census_date,1,4),sum(kept_count),sum(released_count)" );
+"substr(catches.census_date,1,4),sum(kept_count),sum(released_count)" );
 
-		group = "substr(census_date,1,4)";
+		group = "substr(catches.census_date,1,4)";
 
 		*fishing_purpose_piece = -1;
 		*interview_number_piece = -1;
@@ -1000,7 +1007,7 @@ FILE *get_input_pipe(	char **heading,
 			species );
 	}
 
-	sprintf( join_where,
+	sprintf( catches_join_where,
 		 "%s.family = %s.family and		"
 		 "%s.genus = %s.genus and		"
 		 "%s.species = %s.species 		",
@@ -1019,23 +1026,28 @@ FILE *get_input_pipe(	char **heading,
 	else
 	{
 		sprintf( fishing_purpose_where,
-			 "fishing_purpose = '%s'",
+			 "catches.fishing_purpose = '%s'",
 			 fishing_purpose );
 	}
 
 	sprintf(where,
-	"census_date between '%s' and '%s' and %s and %s and %s and %s and %s",
+"catches.census_date between '%s' and '%s' and %s and %s and %s and %s %s and %s",
 		 begin_date,
 		 end_date,
-		 join_where,
+		 catches_join_where,
+		 creel_library_get_fishing_trips_join_where(
+			"catches" /* related_folder */ ),
 		 fishing_purpose_where,
 		 species_where,
+		 /* ------------------------ */
+		 /* Returns preceeding "and" */
+		 /* ------------------------ */
 		 creel_library_get_fishing_area_where(
 			fishing_area_list_string ),
 		 creel_library_get_interview_location_where(
 			interview_location ) );
 
-	from = "catches,species";
+	from = "catches,species,fishing_trips";
 
 	if ( group )
 	{
@@ -1075,6 +1087,15 @@ FILE *get_input_pipe(	char **heading,
 			 __LINE__ );
 		exit( 1 );
 	}
+
+
+/*
+fprintf( stderr, "%s/%s()/%d: %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+*/
 
 	return popen( sys_string, "r" );
 

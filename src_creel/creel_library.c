@@ -4253,7 +4253,7 @@ char *creel_library_get_interview_location_where(
 		char buffer[ 128 ];
 
 		sprintf(	buffer,
-				"interview_location = '%s'",
+				"fishing_trips.interview_location = '%s'",
 				interview_location );
 
 		interview_location_where = strdup( buffer );

@@ -889,10 +889,10 @@ FILE *get_input_pipe(	char **heading,
 		strcmp( aggregate_level, "aggregate_level" ) == 0 )
 	{
 		*heading =
-"Census Date,Fishing Purpose,Fishing Area,Interview Number,Florida State Code,Family,Genus,Species,Common Name,Kept,Released,Caught,Day Kept,Day Released,Day Caught,Month Kept,Month Released,Month Caught,Year Kept,Year Released,Year Caught";
+"Census Date,Fishing Purpose,Fishing Area,Interview Location,Interview Number,Florida State Code,Family,Genus,Species,Common Name,Kept,Released,Caught,Day Kept,Day Released,Day Caught,Month Kept,Month Released,Month Caught,Year Kept,Year Released,Year Caught";
 
 		sprintf(select,
-"%s.census_date,%s.fishing_purpose,fishing_area,%s.interview_number,%s.florida_state_code,%s.family,%s.genus,%s.species,%s.common_name,kept_count,released_count",
+"%s.census_date,%s.fishing_purpose,fishing_area,fishing_trips.interview_location,%s.interview_number,%s.florida_state_code,%s.family,%s.genus,%s.species,%s.common_name,kept_count,released_count",
 		 	catches_table_name,
 		 	catches_table_name,
 		 	catches_table_name,
@@ -1088,7 +1088,6 @@ FILE *get_input_pipe(	char **heading,
 		exit( 1 );
 	}
 
-
 /*
 fprintf( stderr, "%s/%s()/%d: %s\n",
 __FILE__,
@@ -1096,7 +1095,6 @@ __FUNCTION__,
 __LINE__,
 sys_string );
 */
-
 	return popen( sys_string, "r" );
 
 } /* get_input_pipe() */

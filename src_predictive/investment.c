@@ -1721,12 +1721,6 @@ TRANSACTION *investment_build_sale_transaction(
 				/* debit_account */,
 			investment_account /* credit_account */ );
 
-fprintf( stderr, "%s/%s()/%d: got length = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_length( transaction->journal_ledger_list ) );
-
 	if ( !timlib_double_virtually_same(
 		unrealized_gain_change, 0.0 ) )
 	{

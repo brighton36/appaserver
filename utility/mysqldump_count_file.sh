@@ -64,8 +64,6 @@ fi
 mysqldump_count_file=/var/backups/appaserver/mysqldump_count_${database}.dat
 destination_file=${output_directory}/mysqldump_count_${database}_${date_no_dashes}.dat
 
-set -x
 cp $mysqldump_count_file $destination_file
-set +x
 
 exit 0

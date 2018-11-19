@@ -44,6 +44,14 @@ do
 	tail -20 $last_file
 	sleep $delay_seconds
 
+	# System processes
+	# ----------------
+	clear
+	echo "System processes"
+
+	ps -ef | tail
+	sleep $delay_seconds
+
 	# Filesystem
 	# ----------
 	clear

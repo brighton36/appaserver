@@ -25,7 +25,8 @@ fi
 export APPASERVER_HOME=$appaserver_home
 export PATH=$PATH:$APPASERVER_HOME/utility:$APPASERVER_HOME/src_appaserver
 
-ls -1 $backup_directory/mysqldump_*.config	|
+(
+ls -1 $backup_directory/mysqldump_*.config			|
 while read parameter_file
 do
 	if [ -r "$parameter_file" ]
@@ -34,5 +35,6 @@ do
 		mysqldump_database.sh $parameter_file 2>&1
 	fi
 done
+) | mysqldump_database_summarize.sh
 
 exit 0

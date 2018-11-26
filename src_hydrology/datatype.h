@@ -92,6 +92,11 @@ boolean datatype_get_bypass_data_collection_frequency(
 				char *station,
 				char *datatype );
 
+boolean datatype_bypass_data_collection_frequency(
+				char *application_name,
+				char *station,
+				char *datatype );
+
 DATATYPE *datatype_list_ysi_load_heading_seek(
 			LIST *datatype_list,
 			char *two_line_datatype_heading );

@@ -14,6 +14,7 @@
 #include "environ.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
+#include "datatype.h"
 
 /* Prototypes */
 /* ---------- */
@@ -27,6 +28,11 @@ int main( int argc, char **argv )
 	MEASUREMENT *m;
 	int not_loaded_count = 0;
 	char *database_string = {0};
+	MEASUREMENT_FREQUENCY *measurement_frequency;
+	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
+		measurement_frequency_station_datatype;
+	char *begin_measurement_date = {0};
+	char *end_measurement_date;
 
 	if ( argc != 4 )
 	{
@@ -53,6 +59,12 @@ int main( int argc, char **argv )
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
 	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
+	}
 
 	add_dot_to_path();
 	add_utility_to_path();
@@ -60,6 +72,8 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application_name );
 
 	m = measurement_new_measurement( application_name );
+	measurement_frequency = measurement_frequency_new();
+	end_measurement_date = pipe2string( "now.sh ymd" );
 
 	if ( really_yn != 'y' )
 	{
@@ -74,6 +88,40 @@ int main( int argc, char **argv )
 			m, 
 			comma_delimited_record,
 			argv[ 0 ] );
+
+		if ( !begin_measurement_date )
+		{
+			begin_measurement_date =
+				strdup(
+					m->
+					measurement_record->
+					measurement_date );
+		}
+
+		measurement_frequency_station_datatype =
+			measurement_frequency_get_or_set_station_datatype(
+					measurement_frequency->
+						frequency_station_datatype_list,
+					application_name,
+					m->measurement_record->station,
+					m->measurement_record->datatype,
+					begin_measurement_date,
+					end_measurement_date );
+
+		if ( dictionary_length(
+				measurement_frequency_station_datatype->
+					date_time_frequency_dictionary )
+		&&   !measurement_date_time_frequency_exists(
+				measurement_frequency_station_datatype->
+					date_time_frequency_dictionary,
+				m->measurement_record->measurement_date,
+				m->measurement_record->measurement_time ) )
+		{
+			fprintf( stderr,
+				 "INVALID_FREQUENCY: %s\n",
+				 comma_delimited_record );
+			continue;
+		}
 
 		if ( strcmp( load_process, "cr10" ) == 0
 		&&   really_yn != 'y' )

@@ -33,10 +33,6 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char sys_string[ 1024 ];
 
-/*
-	output_starting_argv_stderr( argc, argv );
-*/
-
 	if ( argc != 7 )
 	{
 		fprintf(stderr,
@@ -68,7 +64,7 @@ int main( int argc, char **argv )
 	if ( strcmp( aggregate_string, "real_time" ) == 0 )
 	{
 		sprintf(sys_string,
-			"time_ticker.e '^' %s %s %s '%s'		|"
+			"time_ticker.e '^' '%s' '%s' '%s' '%s'		|"
 			"cat						 ",
 			aggregate_string,
 			begin_measurement_date_string,
@@ -79,13 +75,16 @@ int main( int argc, char **argv )
 	else
 	{
 		sprintf(sys_string,
-			"time_ticker.e '^' %s %s %s ''			|"
+			"time_ticker.e '^' '%s' '%s' '%s' ''		|"
 			"cat						 ",
 			aggregate_string,
 			begin_measurement_date_string,
 			end_measurement_date_string );
 	}
+
 	system( sys_string );
+
 	exit( 0 );
+
 } /* main() */
 

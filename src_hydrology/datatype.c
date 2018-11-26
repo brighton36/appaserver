@@ -475,6 +475,17 @@ LIST *datatype_list_get( char *application_name )
 
 } /* datatype_list_get() */
 
+boolean datatype_bypass_data_collection_frequency(
+				char *application_name,
+				char *station,
+				char *datatype )
+{
+	return datatype_get_bypass_data_collection_frequency(
+				application_name,
+				station,
+				datatype );
+}
+
 boolean datatype_get_bypass_data_collection_frequency(
 				char *application_name,
 				char *station,

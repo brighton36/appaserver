@@ -98,6 +98,7 @@ int main( int argc, char **argv )
 	output_pipe = popen( "sort", "w" );
 	measurement_dictionary = dictionary_large_dictionary_new();
 	input_pipe = popen( sys_string, "r" );
+
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		dictionary_set_pointer(
@@ -105,6 +106,7 @@ int main( int argc, char **argv )
 				strdup( input_buffer ),
 				"" );
 	}
+
 	pclose( input_pipe );
 
 	if ( !dictionary_length( measurement_dictionary ) ) exit( 0 );

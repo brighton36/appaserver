@@ -1,11 +1,12 @@
-/* measurement.h */
-/* ------------- */
+/* $APPASERVER_HOME/src_hydrology/measurement.h */
+/* -------------------------------------------- */
 
 #ifndef MEASUREMENT_H
 #define MEASUREMENT_H
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "dictionary.h"
 
 #define MEASUREMENT_SELECT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
 
@@ -34,6 +35,19 @@ typedef struct
 	char *argv_0;
 } MEASUREMENT;
 
+typedef struct
+{
+	char *station;
+	char *datatype;
+	DICTIONARY *date_time_frequency_dictionary;
+} MEASUREMENT_FREQUENCY_STATION_DATATYPE;
+
+typedef struct
+{
+	LIST *frequency_station_datatype_list;
+
+} MEASUREMENT_FREQUENCY;
+
 /* Constants */
 /* --------- */
 #define STATION_PIECE		0
@@ -44,6 +58,17 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+MEASUREMENT_FREQUENCY *measurement_frequency_new(
+					void );
+
+MEASUREMENT_FREQUENCY_STATION_DATATYPE *
+				measurement_frequency_station_datatype_new(
+					char *application_name,
+					char *station,
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date );
+
 MEASUREMENT *measurement_new_measurement(
 					char *application_name );
 
@@ -52,14 +77,13 @@ FILE *measurement_open_input_pipe(	char *application_name,
 					char delimiter );
 
 void measurement_record_free(		MEASUREMENT_RECORD *m );
+
 MEASUREMENT_RECORD *measurement_record_new(
 					char *station,
 					char *datatype,
 					char *date,
 					char *time,
 					char *value_string );
-
-int measurement_exists(			MEASUREMENT *measurement );
 
 void measurement_set_comma_delimited_record( 
 					MEASUREMENT *m, 
@@ -70,12 +94,14 @@ void measurement_insert( 		MEASUREMENT *m,
 					int really_yn,
 					FILE *html_table_pipe );
 
+/*
 void measurement_update_mysql(		char *application_name,
 					char *station,
 					char *datatype,
 					char *date,
 					char *time,
 					double value );
+*/
 
 double measurement_get_value_from_db(	int *record_exists,
 					int *db_null_value,
@@ -126,5 +152,26 @@ void measurement_open_input_process( 	MEASUREMENT *m,
 					int really_yn );
 
 void measurement_close_html_table_pipe( FILE *html_table_pipe );
+
+DICTIONARY *measurement_get_date_time_frequency_dictionary(
+					char *application_name,
+					char *station,
+					char *datatype,
+					char *begin_measurement_date_string,
+					char *end_measurement_date_string );
+
+boolean measurement_date_time_frequency_exists(
+				DICTIONARY *date_time_frequency_dictionary,
+				char *measurement_date_string,
+				char *measurement_time_string );
+
+MEASUREMENT_FREQUENCY_STATION_DATATYPE *
+		measurement_frequency_get_or_set_station_datatype(
+					LIST *frequency_station_datatype_list,
+					char *application_name,
+					char *station,
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date );
 
 #endif

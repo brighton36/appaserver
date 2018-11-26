@@ -12,7 +12,6 @@
 #include "hydrology_library.h"
 #include "measurement.h"
 
-
 MEASUREMENT *measurement_new_measurement( 
 			char *application_name )
 {
@@ -34,6 +33,7 @@ MEASUREMENT *measurement_new_measurement(
 	m->argv_0 = "";
 
 	return m;
+
 } /* measurement_new_measurement() */
 
 
@@ -83,9 +83,11 @@ void measurement_set_comma_delimited_record(
 		else
 		{
 			fprintf( stderr,
-			 "WARNING in %s/%s(): not enough fields in (%s)\n",
-			 	argv_0,
+		"WARNING in %s.%s/%s()/%d: not enough comma fields in (%s)\n",
+				argv_0,
+			 	__FILE__,
 			 	__FUNCTION__,
+				__LINE__,
 			 	comma_delimited_record );
 		}
 		return;
@@ -223,38 +225,7 @@ void measurement_insert(	MEASUREMENT *measurement,
 		return;
 	}
 
-	/* If shef or cr10 */
-	/* --------------- */
-	if ( strcmp( measurement->measurement_record->measurement_time,
-		     "null" ) != 0 )
-	{
-		if ( strcmp( measurement->load_process, "cr10" ) != 0
-		&&   measurement_exists( measurement ) )
-		{
-			if ( measurement->measurement_record->db_null_value )
-			{
-				measurement_update_mysql(
-					measurement->application_name,
-					measurement->
-						measurement_record->
-						station,
-					measurement->
-						measurement_record->
-						datatype,
-					measurement->
-						measurement_record->
-						measurement_date,
-					measurement->
-						measurement_record->
-						measurement_time,
-					measurement->
-						measurement_record->
-						measurement_value );
-			}
-		}
-		else
-		{
-			measurement_output_insert_pipe(
+	measurement_output_insert_pipe(
 				measurement->insert_pipe,
 				measurement->measurement_record->station,
 				measurement->measurement_record->datatype,
@@ -268,94 +239,8 @@ void measurement_insert(	MEASUREMENT *measurement,
 					measurement_record->
 					measurement_value,
 				measurement->measurement_record->null_value );
-		}
-	}
-	/* ------------- */
-	/* Else realdata */
-	/* ------------- */
-	else
-	{
-		if ( !measurement_exists( measurement ) )
-		{
-			measurement_output_insert_pipe(
-				measurement->insert_pipe,
-				measurement->measurement_record->station,
-				measurement->measurement_record->datatype,
-				measurement->
-					measurement_record->
-					measurement_date,
-				measurement->
-					measurement_record->
-					measurement_time,
-				measurement->
-					measurement_record->
-					measurement_value,
-				measurement->measurement_record->null_value );
-		}
-	}
 
 } /* measurement_insert() */
-
-#ifdef NOT_DEFINED
-double measurement_get_value_from_db(	
-				int *record_exists,
-				int *db_null_value,
-				char *application_name,
-				char *station,
-				char *datatype,
-				char *date,
-				char *time )
-{
-	char where_clause[ 512 ];
-	char sys_string[ 512 ];
-	char *value_string;
-	double value = 0.0;
-
-	sprintf( where_clause,
-		 "station = '%s' and					"
-		 "datatype = '%s' and					"
-		 "measurement_date = '%s' and				"
-		 "measurement_time = '%s' 				",
-		 station,
-		 datatype,
-		 date,
-		 time );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			folder=measurement		"
-		 "			select=measurement_value	"
-		 "			where=\"%s\" 2>/dev/null	",
-		 application_name,
-		 where_clause );
-
-	value_string = pipe2string( sys_string );
-
-	if ( value_string )
-	{
-		*record_exists = 1;
-		if ( *value_string )
-		{
-			*db_null_value = 0;
-			value = atof( value_string );
-			free( value_string );
-
-		}
-		else
-		{
-			*db_null_value = 1;
-			free( value_string );
-		}
-	}
-	else
-	{
-		*record_exists = 0;
-		*db_null_value = 0;
-	}
-	return value;
-
-} /* measurement_get_value_from_db() */
-#endif
 
 void measurement_output_insert_pipe(	FILE *insert_pipe,
 					char *station,
@@ -457,7 +342,6 @@ FILE *measurement_open_insert_pipe(	char *application_name,
 
 } /* measurement_open_insert_pipe() */
 
-
 void measurement_update_mysql(	char *application_name,
 				char *station,
 				char *datatype,
@@ -466,7 +350,6 @@ void measurement_update_mysql(	char *application_name,
 				double value )
 {
 	char sys_string[ 4096 ];
-	int results;
 	char *table_name;
 
 	table_name = get_table_name( application_name, "measurement" );
@@ -487,33 +370,9 @@ void measurement_update_mysql(	char *application_name,
 		date,
 		time );
 
-	results = system( sys_string );
+	system( sys_string );
 
 } /* measurement_update_mysql() */
-
-int measurement_exists(	MEASUREMENT *measurement )
-{
-
-	return 0;
-
-/*
-	double value;
-	value = measurement_get_value_from_db(
-			&measurement->record_exists,
-			&measurement->measurement_record->db_null_value,
-			measurement->application_name,
-			measurement->measurement_record->station,
-			measurement->measurement_record->datatype,
-			measurement->measurement_record->measurement_date,
-			measurement->measurement_record->measurement_time );
-
-	if ( measurement->record_exists
-	&&   !measurement->measurement_record->db_null_value )
-		measurement->measurement_record->measurement_value = value;
-
-	return measurement->record_exists;
-*/
-} /* measurement_exists() */
 
 double measurement_get_value(	int *null_value,
 				char *value_string )
@@ -621,3 +480,185 @@ void measurement_delete( FILE *delete_pipe, MEASUREMENT_RECORD *m )
 		 m->measurement_time );
 
 } /* measurement_delete() */
+
+DICTIONARY *measurement_get_date_time_frequency_dictionary(
+				char *application_name,
+				char *station,
+				char *datatype,
+				char *begin_measurement_date_string,
+				char *end_measurement_date_string )
+{
+	DICTIONARY *date_time_frequency_dictionary;
+	char sys_string[ 1024 ];
+	char input_buffer[ 128 ];
+	FILE *input_pipe;
+
+	sprintf(sys_string,
+		"data_collection_frequency_list %s %s %s %s '%s' '%s'",
+		application_name,
+		station,
+		datatype,
+		"real_time",
+		begin_measurement_date_string,
+		end_measurement_date_string );
+
+	date_time_frequency_dictionary = dictionary_medium_new();
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		dictionary_set_pointer(
+				date_time_frequency_dictionary,
+				strdup( input_buffer ),
+				"" );
+	}
+
+	pclose( input_pipe );
+
+	return date_time_frequency_dictionary;
+
+} /* measurement_get_date_time_frequency_dictionary() */
+
+boolean measurement_date_time_frequency_exists(
+				DICTIONARY *date_time_frequency_dictionary,
+				char *measurement_date_string,
+				char *measurement_time_string )
+{
+	char key[ 128 ];
+
+	sprintf(key,
+		"%s^%s",
+		measurement_date_string,
+		measurement_time_string );
+
+	return dictionary_exists_key( date_time_frequency_dictionary, key );
+
+} /* measurement_date_time_frequency_exists() */
+
+MEASUREMENT_FREQUENCY_STATION_DATATYPE *
+		measurement_frequency_station_datatype_new(
+					char *application_name,
+					char *station,
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date )
+{
+	MEASUREMENT_FREQUENCY_STATION_DATATYPE *m;
+
+	m = (MEASUREMENT_FREQUENCY_STATION_DATATYPE *)
+		calloc( 1,
+			sizeof( MEASUREMENT_FREQUENCY_STATION_DATATYPE ) );
+
+	if ( !m )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	m->station = station;
+	m->datatype = datatype;
+
+	if ( !datatype_bypass_data_collection_frequency(
+				application_name,
+				station,
+				datatype ) )
+	{
+		m->date_time_frequency_dictionary =
+			measurement_get_date_time_frequency_dictionary(
+				application_name,
+				station,
+				datatype,
+				begin_measurement_date,
+				end_measurement_date );
+	}
+
+	return m;
+
+} /* measurement_frequency_station_datatype_new() */
+
+MEASUREMENT_FREQUENCY_STATION_DATATYPE *
+		measurement_frequency_get_or_set_station_datatype(
+					LIST *frequency_station_datatype_list,
+					char *application_name,
+					char *station,
+					char *datatype,
+					char *begin_measurement_date,
+					char *end_measurement_date )
+{
+	MEASUREMENT_FREQUENCY_STATION_DATATYPE *m;
+
+	if ( !frequency_station_datatype_list )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( frequency_station_datatype_list ) )
+	{
+		m = measurement_frequency_station_datatype_new(
+					application_name,
+					station,
+					datatype,
+					begin_measurement_date,
+					end_measurement_date );
+
+		list_append_pointer( frequency_station_datatype_list, m );
+		return m;
+	}
+
+	do {
+		m = list_get_pointer( frequency_station_datatype_list );
+
+		if ( strcmp( m->station, station ) == 0
+		&&   strcmp( m->datatype, datatype ) == 0 )
+		{
+			return m;
+		}
+
+	} while( list_next( frequency_station_datatype_list ) );
+
+	m = measurement_frequency_station_datatype_new(
+				application_name,
+				station,
+				datatype,
+				begin_measurement_date,
+				end_measurement_date );
+
+	list_append_pointer( frequency_station_datatype_list, m );
+
+	return m;
+
+} /* measurement_frequency_get_or_set_station_datatype() */
+
+MEASUREMENT_FREQUENCY *measurement_frequency_new( void )
+{
+	MEASUREMENT_FREQUENCY *m;
+
+	m = (MEASUREMENT_FREQUENCY *)
+		calloc( 1,
+			sizeof( MEASUREMENT_FREQUENCY ) );
+
+	if ( !m )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	m->frequency_station_datatype_list = list_new();
+
+	return m;
+
+} /* measurement_frequency_new() */
+

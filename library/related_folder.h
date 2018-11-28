@@ -12,6 +12,7 @@
 #include "list.h"
 #include "folder.h"
 #include "boolean.h"
+#include "appaserver_library.h"
 #include "process.h"
 #include "element.h"
 
@@ -34,7 +35,6 @@ enum related_folder_list_usage {	prompt_screen,
 
 /* Constants */
 /* --------- */
-#define RELATED_FOLDER_AJAX_FILL_LABEL				"Fill"
 #define RELATED_FOLDER_FOLDER_PIECE				0
 #define RELATED_FOLDER_RELATED_FOLDER_PIECE			1
 #define RELATED_FOLDER_RELATED_ATTRIBUTE_PIECE			2
@@ -71,7 +71,7 @@ typedef struct
 	boolean drop_down_multi_select;
 	boolean join_1tom_each_row;
 	boolean omit_lookup_before_drop_down;
-	boolean ajax_fill_drop_down;
+	char ajax_fill_drop_down_yn;
 	LIST *automatic_preselection_dictionary_list;
 	LIST *foreign_attribute_name_list;
 	LIST *folder_foreign_attribute_name_list;
@@ -111,7 +111,7 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 				LIST *include_attribute_name_list );
 
 LIST *related_folder_get_drop_down_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			AJAX_RELATED_FOLDER **ajax_related_folder,
 			char *application_name,
 			char *session,
 			char *role_name,

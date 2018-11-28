@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "related_folder.h"
 #include "folder.h"
@@ -450,11 +449,7 @@ LIST *related_folder_get_drop_down_element_list(
 	set_option_data_option_label_list = 1;
 
 	if ( !drop_down_multi_select
-	&&   !omit_lookup_before_drop_down
-	&&   ajax_fill_drop_down_related_folder
-	&&   !*ajax_fill_drop_down_related_folder
-			/* Can only execute this once.		     */
-			/* Therefore, only one ajaxed mto1 relation. */ )
+	&&   ajax_related_folder )
 	{
 		FOLDER *folder;
 
@@ -463,6 +458,9 @@ LIST *related_folder_get_drop_down_element_list(
 				session,
 				folder_name,
 				(ROLE *)0 );
+
+		*ajax_related_folder =
+			ajax_
 
 		if ( ( *ajax_fill_drop_down_related_folder =
 		       related_folder_get_ajax_fill_drop_down_related_folder(
@@ -475,8 +473,13 @@ LIST *related_folder_get_drop_down_element_list(
 			element = element_new(	push_button, 
 						(char *)0 /* element_name */ );
 
+
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 			element->push_button->label =
-				RELATED_FOLDER_AJAX_FILL_LABEL;
+				AJAX_FILL_PUSH_BUTTON_LABEL;
 
 			onclick_function =
 				related_folder_get_ajax_onclick_function(
@@ -714,7 +717,7 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 	buf_ptr +=
 		sprintf(
 		buf_ptr,
-"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, ajax_fill_drop_down = %d, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d, insert_permission = %d, update_permission = %d, lookup_permission = %d, folder_foreign_attribute_name_list = %s",
+"\n%s (%s): isa = %d, ignore = %d, pair_1tom_order = %d, recursive = %d, lookup_before_drop_down = %d, join_1tom_each_row = %d, omit_lookup_before_drop_down = %d, ajax_fill_drop_down_yn = %c, drop_down_multi_select = %d, recursive_level = %d, row_level_non_owner_view_only = %d, row_level_non_owner_forbid = %d, insert_permission = %d, update_permission = %d, lookup_permission = %d, folder_foreign_attribute_name_list = %s",
 			folder->folder_name,
 			(related_folder->related_attribute_name)
 				? related_folder->related_attribute_name
@@ -726,7 +729,7 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 			folder->lookup_before_drop_down,
 			related_folder->join_1tom_each_row,
 			related_folder->omit_lookup_before_drop_down,
-			related_folder->ajax_fill_drop_down,
+			related_folder->ajax_fill_drop_down_yn,
 			related_folder->drop_down_multi_select,
 			related_folder->recursive_level,
 			folder->row_level_non_owner_view_only,
@@ -1014,8 +1017,13 @@ LIST *related_folder_get_insert_element_list(
 		element = element_new(	push_button, 
 					(char *)0 /* element_name */ );
 
+
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 		element->push_button->label =
-			RELATED_FOLDER_AJAX_FILL_LABEL;
+			AJAX_FILL_PUSH_BUTTON_LABEL;
 
 		onclick_function =
 			related_folder_get_ajax_onclick_function(
@@ -1068,7 +1076,7 @@ LIST *related_folder_get_insert_element_list(
 } /* related_folder_get_insert_element_list() */
 
 LIST *related_folder_get_update_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			AJAX_RELATED_FOLDER **ajax_related_folder,
 			char *application_name,
 			char *session,
 			char *login_name,
@@ -1292,8 +1300,13 @@ LIST *related_folder_get_update_element_list(
 			element = element_new(	push_button, 
 						(char *)0 /* element_name */ );
 
+
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 			element->push_button->label =
-				RELATED_FOLDER_AJAX_FILL_LABEL;
+				AJAX_FILL_PUSH_BUTTON_LABEL;
 
 			onclick_function =
 				related_folder_get_ajax_onclick_function(
@@ -2040,8 +2053,7 @@ LIST *related_folder_get_global_related_folder_list(
 			delimiter,
 			related_record,
 			RELATED_FOLDER_AJAX_FILL_DROP_DOWN_PIECE );
-		related_folder->ajax_fill_drop_down =
-				(*buffer == 'y');
+		related_folder->ajax_fill_drop_down_yn = *buffer;
 
 		piece(	buffer,
 			delimiter,
@@ -4166,7 +4178,7 @@ RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 	do {
 		related_folder = list_get_pointer( mto1_related_folder_list );
 
-		if ( related_folder->ajax_fill_drop_down )
+		if ( related_folder->ajax_fill_drop_down_yn == 'y' )
 		{
 			return related_folder;
 		}

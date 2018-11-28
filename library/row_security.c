@@ -327,7 +327,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	element_list_structure->regular_element_list =
 		row_security_get_element_list(
 			&element_list_structure->
-				ajax_fill_drop_down_related_folder,
+				ajax_related_folder,
 			application_name,
 			select_folder,
 			select_folder->mto1_append_isa_related_folder_list,
@@ -357,7 +357,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 	{
 		element_list_structure->viewonly_element_list =
 			row_security_get_element_list(
-				(RELATED_FOLDER **)0
+				(AJAX_RELATED_FOLDER **)0
 				     /* ajax_fill_drop_down_related_folder */,
 				application_name,
 				select_folder,
@@ -503,7 +503,7 @@ LIST *row_security_get_role_update_list(
 } /* row_security_get_role_update_list() */
 
 LIST *row_security_get_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			AJAX_RELATED_FOLDER **ajax_related_folder,
 			char *application_name,
 			FOLDER *select_folder,
 			LIST *mto1_append_isa_related_folder_list,
@@ -561,7 +561,7 @@ LIST *row_security_get_element_list(
 
 	element_list =
 		row_security_get_update_element_list(
-			ajax_fill_drop_down_related_folder,
+			ajax_related_folder,
 			login_name,
 			application_name,
 			BOGUS_SESSION,
@@ -776,7 +776,7 @@ void row_security_set_dictionary_related_folder(
 } /* row_security_set_dictionary_related_folder() */
 
 LIST *row_security_get_update_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			AJAX_RELATED_FOLDER **ajax_related_folder,
 			char *login_name,
 			char *application_name,
 			char *session,

@@ -57,15 +57,16 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *mto1_folder_name;
 	char *one2m_folder_name;
+	char *related_attribute_name;
 	char *value;
 	FOLDER *mto1_folder;
 	RELATED_FOLDER *related_folder;
 	char *database_string = {0};
 
-	if ( argc != 8 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr, 
-"Usage: %s application login_name role session mto1_folder one2m_folder value\n",
+"Usage: %s application login_name role session mto1_folder one2m_folder related_attribute value\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -99,7 +100,8 @@ int main( int argc, char **argv )
 	session = argv[ 4 ];
 	mto1_folder_name = argv[ 5 ];
 	one2m_folder_name = argv[ 6 ];
-	value = argv[ 7 ];
+	related_attribute_name = argv[ 7 ];
+	value = argv[ 8 ];
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();

@@ -13,6 +13,7 @@
 #include "related_folder.h"
 #include "role.h"
 #include "operation_list.h"
+#include "ajax.h"
 #include "lookup_before_drop_down.h"
 
 enum row_security_state {	security_supervisor,
@@ -35,7 +36,7 @@ typedef struct
 	char *isa_where_join;
 	boolean add_attribute_not_null_to_list;
 	LIST *row_dictionary_list;
-	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
+	AJAX_RELATED_FOLDER *ajax_related_folder;
 } ROW_SECURITY_ELEMENT_LIST_STRUCTURE;
 
 typedef struct
@@ -99,7 +100,7 @@ LIST *row_security_get_role_update_list(
 			char *application_name );
 
 LIST *row_security_get_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			AJAX_RELATED_FOLDER **ajax_related_folder,
 			char *application_name,
 			FOLDER *select_folder,
 			LIST *mto1_append_isa_related_folder_list,
@@ -156,7 +157,7 @@ void row_security_set_dictionary_related_folder(
 			LIST *primary_attribute_name_list );
 
 LIST *row_security_get_update_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
+			AJAX_RELATED_FOLDER **ajax_related_folder,
 			char *login_name,
 			char *application_name,
 			char *session,

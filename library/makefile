@@ -94,6 +94,7 @@ APPASERVER_LIBRARY=						\
 		dollar.o					\
 		array.o						\
 		session.o					\
+		ajax.o						\
 		mysqldump.o
 
 all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
@@ -1143,6 +1144,12 @@ array.o: array.c							\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c array.c
+
+ajax.o: ajax.c								\
+	ajax.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c ajax.c
 
 mysqldump.o: mysqldump.c						\
 	mysqldump.h

@@ -581,6 +581,15 @@ void output_prompt_edit_form(
 		exit( 1 );
 	}
 
+
+/*
+fprintf( stderr, "%s/%s()/%d: got regular_element_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+element_list_display( form->regular_element_list ) );
+*/
+
 	/* Set other attributes */
 	/* -------------------- */
 	form_set_post_process( form, "post_prompt_edit_form" );

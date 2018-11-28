@@ -372,7 +372,7 @@ void make_checks_dollar_text_personal_size(
 /* Print date on stub and check */
 /* ---------------------------- */
 	fprintf( latex_file,
-"\\begin{tabular}{p{0.2in}p{6.4in}l}\n"
+"\\begin{tabular}{p{0.2in}p{6.6in}l}\n"
 "& %s & %s\n"
 "\\end{tabular}\n\n",
 		 check_date,

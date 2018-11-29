@@ -865,6 +865,7 @@ int timlib_get_line(	char *in_line,
 	int in_char;
 	int size = 0;
 	char *anchor = in_line;
+	boolean got_LF = 0;
 
 	*in_line = '\0';
 
@@ -874,6 +875,9 @@ int timlib_get_line(	char *in_line,
 	{
 		in_char = fgetc( infile );
 
+		/* ------------------ */
+		/* BEGIN Check UTF 16 */
+		/* ------------------ */
 		if ( get_line_check_utf_16 )
 		{
 			get_line_check_utf_16 = 0;
@@ -904,7 +908,29 @@ int timlib_get_line(	char *in_line,
 		/* -------------------- */
 		if ( !in_char ) continue;
 
-		if ( in_char == CR ) continue;
+		/* ---------------- */
+		/* END Check UTF 16 */
+		/* ---------------- */
+
+		if ( in_char == LF )
+		{
+			got_LF = 1;
+		}
+
+		/* ---------------------------------------------------- */
+		/* I would expect the line delimiter to be either	*/
+		/* 10 then 13 (DOS) or 10 alone (UNIX). This file has	*/
+		/* 13 alone.						*/
+		/* ---------------------------------------------------- */
+
+		/* If line delimiter is 13 alone. */
+		/* ------------------------------ */
+		if ( in_char == CR )
+		{
+			if ( got_LF ) continue;
+
+			in_char = LF;
+		}
 
 		if ( in_char == EOF )
 		{
@@ -3475,6 +3501,7 @@ int timlib_get_line_escape_CR(	char *in_line,
 	int in_char;
 	char *anchor = in_line;
 	int size = 0;
+	boolean got_LF = 0;
 
 	*in_line = '\0';
 
@@ -3482,7 +3509,25 @@ int timlib_get_line_escape_CR(	char *in_line,
 	{
 		in_char = fgetc( infile );
 
-		if ( in_char == CR ) continue;
+		if ( in_char == LF )
+		{
+			got_LF = 1;
+		}
+
+		/* ---------------------------------------------------- */
+		/* I would expect the line delimiter to be either	*/
+		/* 10 then 13 (DOS) or 10 alone (UNIX). This file has	*/
+		/* 13 alone.						*/
+		/* ---------------------------------------------------- */
+
+		/* If line delimiter is 13 alone. */
+		/* ------------------------------ */
+		if ( in_char == CR )
+		{
+			if ( got_LF ) continue;
+
+			in_char = LF;
+		}
 
 		if ( in_char == EOF )
 		{

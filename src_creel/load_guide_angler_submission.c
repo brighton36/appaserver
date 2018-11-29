@@ -144,6 +144,7 @@ int main( int argc, char **argv )
 		delete_fishing_trips( application_name, input_filename );
 	}
 
+
 	insert_fishing_trips(	application_name,
 				login_name,
 				input_filename,

@@ -312,6 +312,15 @@ void make_checks(	FILE *latex_file,
 			check_date,
 			with_newpage );
 */
+		make_checks_dollar_text_personal_size(
+			latex_file,
+			payable_to,
+			dollar_amount,
+			dollar_text_string,
+			memo,
+			check_number,
+			check_date,
+			with_newpage );
 	}
 
 } /* make_checks() */

@@ -858,6 +858,11 @@ void timlib_reset_get_line_check_utf_16( void )
 	utf_16_toggle = 1;
 }
 
+/* ---------------------------------------------------- */
+/* This doesn't work. It was the attempted fix to	*/
+/* a CSV file that won't load.				*/
+/* ---------------------------------------------------- */
+#ifdef NOT_DEFINED
 int timlib_get_line(	char *in_line,
 			FILE *infile,
 			int buffer_size )
@@ -997,6 +1002,124 @@ int timlib_get_line(	char *in_line,
 	} /* while( 1 ) */
 
 } /* timlib_get_line() */
+#endif
+
+/* This works, but there's a CSV file that won't load. */
+/* --------------------------------------------------- */
+int timlib_get_line(	char *in_line,
+			FILE *infile,
+			int buffer_size )
+{
+	int in_char;
+	int size = 0;
+	char *anchor = in_line;
+
+	*in_line = '\0';
+
+	/* Exit in middle. */
+	/* --------------- */
+	while ( 1 )
+	{
+		in_char = fgetc( infile );
+
+		if ( get_line_check_utf_16 )
+		{
+			get_line_check_utf_16 = 0;
+
+			if ( in_char == 255 )
+			{
+				in_char = fgetc( infile );
+
+				if ( in_char == 254 )
+				{
+					is_utf_16 = 1;
+					continue;
+				}
+			}
+		}
+
+		if ( is_utf_16 )
+		{
+			utf_16_toggle = 1 - utf_16_toggle;
+
+			if ( utf_16_toggle )
+			{
+				continue;
+			}
+		}
+
+		/* Why are there zeros? */
+		/* -------------------- */
+		if ( !in_char ) continue;
+
+		if ( in_char == CR ) continue;
+
+		if ( in_char == EOF )
+		{
+			/* --------------------------------------- */
+			/* If last line in file doesn't have a CR, */
+			/* then call this function one more time.  */
+			/* --------------------------------------- */
+			/* If you need to tweek this, then test    */
+			/* process=execute_select_statement on a   */
+			/* file without a trailing CR.		   */
+			/* --------------------------------------- */
+			if ( in_line != anchor )
+			{
+				*in_line = '\0';
+				return 1;
+			}
+			else
+			{
+				timlib_reset_get_line_check_utf_16();
+				return 0;
+			}
+		}
+
+		if ( in_char == LF )
+		{
+			*in_line = '\0';
+			return 1;
+		}
+
+		/* If '\' then get the next character */
+		/* ---------------------------------- */
+		if ( in_char == '\\' )
+		{
+			in_char = fgetc( infile );
+
+			if ( in_char == CR ) continue;
+
+			/* Can't escape the LF */
+			/* ------------------- */
+			if ( in_char == LF )
+			{
+				*in_line = '\0';
+				return 1;
+			}
+
+			*in_line++ = '\\';
+			size++;
+		}
+
+		if ( buffer_size && ( size++ >= buffer_size ) )
+		{
+			fprintf( stderr,
+		"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 buffer_size );
+			*in_line = '\0';
+			return 1;
+		}
+
+		*in_line++ = in_char;
+
+	} /* while( 1 ) */
+
+} /* timlib_get_line() */
+
 
 int get_line( char *in_line, FILE *infile )
 {

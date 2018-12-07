@@ -345,14 +345,14 @@ int insert_catch_measurements(	char *application_name,
 		date_get_now_date_yyyy_mm_dd(
 			date_get_utc_offset() );
 
-	/* Skip the first line */
-	/* ------------------- */
-	get_line( input_string, input_file );
-	line_number++;
-
 	while( get_line( input_string, input_file ) )
 	{
 		line_number++;
+
+		/* Skip the first line */
+		/* ------------------- */
+		if ( line_number == 1 ) continue;
+
 		trim_character( input_string, '"', input_string );
 		trim_character( input_string, '\'', input_string );
 

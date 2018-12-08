@@ -40,7 +40,8 @@ void load_cr10_file(
 			char *station,
 			char *input_filename,
 			char really_yn,
-			char *document_root_directory );
+			char *document_root_directory,
+			char *with_shift_left_yn );
 
 int main( int argc, char **argv )
 {
@@ -48,27 +49,27 @@ int main( int argc, char **argv )
 	char really_yn;
 	char *input_filename;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *session;
-	char *login_name;
-	char *role_name;
 	char *station;
 	char *database_string = {0};
+	char *with_shift_left_yn = "";
 
-	if ( argc != 8 )
+	if ( argc < 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s application session login_name role filename station really_yn\n",
+"Usage: %s application ignored ignored ignored filename station really_yn [with_shift_left]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
+	/* session = argv[ 2 ]; */
+	/* login_name = argv[ 3 ]; */
+	/* role_name = argv[ 4 ]; */
 	input_filename = argv[ 5 ];
 	station = argv[ 6 ];
 	really_yn = *argv[ 7 ];
+
+	if ( argc == 9 ) with_shift_left_yn = argv[ 8 ];
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -76,6 +77,12 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	appaserver_error_starting_argv_append_file(
@@ -96,7 +103,8 @@ int main( int argc, char **argv )
 			input_filename,
 			really_yn,
 			appaserver_parameter_file->
-				document_root );
+				document_root,
+			with_shift_left_yn );
 
 	process_increment_execution_count(
 				application_name,
@@ -110,7 +118,8 @@ void load_cr10_file(
 			char *station,
 			char *input_filename,
 			char really_yn,
-			char *document_root_directory )
+			char *document_root_directory,
+			char *with_shift_left_yn )
 {
 	char *original_directory;
 	char sys_string[ 1024 ];
@@ -197,12 +206,13 @@ void load_cr10_file(
 	}
 
 	sprintf(sys_string,
-"load_cr10 %s %s %s %s date_offset_comma_list y email_address %c",
+"load_cr10 %s %s %s %s date_offset_comma_list y email_address %c '%s'",
 		application_name,
 		process_directory,
 		process_filename,
 		station,
-		really_yn );
+		really_yn,
+		with_shift_left_yn );
 
 	system( sys_string );
 

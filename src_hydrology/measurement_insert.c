@@ -33,6 +33,7 @@ int main( int argc, char **argv )
 		measurement_frequency_station_datatype;
 	char *begin_measurement_date = {0};
 	char *end_measurement_date;
+	FILE *input_pipe;
 
 	if ( argc != 4 )
 	{
@@ -82,7 +83,9 @@ int main( int argc, char **argv )
 
 	measurement_open_input_process( m, load_process, really_yn );
 
-	while( get_line( comma_delimited_record, stdin ) )
+	input_pipe = popen( "sort", "r" );
+
+	while( get_line( comma_delimited_record, input_pipe ) )
 	{
 		measurement_set_comma_delimited_record(
 			m, 
@@ -134,8 +137,10 @@ int main( int argc, char **argv )
 			really_yn,
 			m->html_table_pipe );
 	}
+
 	measurement_close_insert_pipe( m->insert_pipe );
 	measurement_close_html_table_pipe( m->html_table_pipe );
+	pclose( input_pipe );
 
 	if ( not_loaded_count )
 		printf( "<p>Not loaded count = %d\n", not_loaded_count );

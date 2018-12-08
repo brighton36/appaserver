@@ -33,6 +33,11 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char sys_string[ 1024 ];
 
+	/* -------------------------------------------- */
+	/* stderr gets rerouted to a log file.		*/
+	/* appaserver_error_stderr( argc, argv );	*/
+	/* -------------------------------------------- */
+
 	if ( argc != 7 )
 	{
 		fprintf(stderr,

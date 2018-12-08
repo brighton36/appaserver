@@ -78,7 +78,10 @@ int main( int argc, char **argv )
 	char end_time_string[ 16 ] = {0};
 	char *expected_count_list_string;
 
-	output_starting_argv_stderr( argc, argv );
+	/* -------------------------------------------- */
+	/* stderr gets rerouted to a log file		*/
+	/* output_starting_argv_stderr( argc, argv );	*/
+	/* -------------------------------------------- */
 
 	if ( argc != 6 )
 	{
@@ -89,8 +92,7 @@ int main( int argc, char **argv )
 	}
 
 	delimiter = *argv[ 1 ];
-	aggregate_level =
-		aggregate_level_get_aggregate_level( argv[ 2 ] );
+	aggregate_level = aggregate_level_get_aggregate_level( argv[ 2 ] );
 
 	if ( character_exists( argv[ 3 ], ':' ) )
 	{

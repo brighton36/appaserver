@@ -68,7 +68,8 @@ void load_cr10(	LIST *file_list,
 		char *date_offset_comma_list,
 		int with_file_trim_yn,
 		int really_yn,
-		char *application_name );
+		char *application_name,
+		boolean with_shift_left );
 
 int main( int argc, char **argv )
 {
@@ -90,11 +91,12 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	boolean with_shift_left = 0;
 
-	if ( argc != 9 )
+	if ( argc < 9 )
 	{
 		fprintf(stderr,
-"Usage: %s application source_directory 'file_specification' station date_offset_comma_list with_file_trim_yn ignored really_yn\n",
+"Usage: %s application source_directory 'file_specification' station date_offset_comma_list with_file_trim_yn ignored really_yn [with_shift_left_yn]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -107,6 +109,8 @@ int main( int argc, char **argv )
 	with_file_trim_yn = *argv[ 6 ];
 	/* email_address = argv[ 7 ]; */
 	really_yn = *argv[ 8 ];
+
+	if ( argc == 10 ) with_shift_left = ( *argv[ 9 ] == 'y' );
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -278,7 +282,8 @@ int main( int argc, char **argv )
 			date_offset_comma_list,
 			with_file_trim_yn,
 			really_yn,
-			application_name );
+			application_name,
+			with_shift_left );
 
 	if ( really_yn == 'y' )
 	{
@@ -307,13 +312,15 @@ void load_cr10(	LIST *file_list,
 		char *date_offset_comma_list,
 		int with_file_trim_yn,
 		int really_yn,
-		char *application_name )
+		char *application_name,
+		boolean with_shift_left )
 {
 	char *filename_to_process;
 	char *station_to_process;
 	char trim_process[ 512 ];
 	char archive_process[ 512 ];
 	char grep_process[ 512 ];
+	char shift_process[ 512 ];
 	char replace_cr10_error_with_null_process[ 512 ];
 	char remove_process[ 1024 ];
 	char summary_process[ 1024 ];
@@ -340,6 +347,15 @@ void load_cr10(	LIST *file_list,
 	{
 		printf( "<p>ERROR: file not found\n" );
 		return;
+	}
+
+	if ( with_shift_left )
+	{
+		strcpy( shift_process, "piece_shift_left.e ','" );
+	}
+	else
+	{
+		strcpy( shift_process, "cat -" );
 	}
 
 	do {
@@ -419,6 +435,7 @@ void load_cr10(	LIST *file_list,
 	"cat %s						      	     |"
 	"grep -v '^$'						     |"
 	"%s							     |"
+	"%s							     |"
 	"dayofyear2date.e ',' %d %d y 2>%s		  	     |"
 	"piece_inverse.e 1 ','					     |"
 	"prepend_zeros_to_piece.e ',' %d 4			     |"
@@ -435,6 +452,7 @@ void load_cr10(	LIST *file_list,
 			 date_ignore_file,
 			 filename_to_process,
 			 grep_process,
+			 shift_process,
 			 YEAR_PIECE,
 			 DAYOFYEAR_PIECE,
 			 date_ignore_file,
@@ -453,7 +471,9 @@ void load_cr10(	LIST *file_list,
 
 		fflush( stdout );
 		fflush( stderr );
+
 /* fprintf( stderr, "%s\n", sys_string ); */
+
 		system( sys_string );
 
 	} while( list_next( file_list ) );

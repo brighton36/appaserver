@@ -558,7 +558,7 @@ LIST *water_fetch_load_column_list(
 {
 	LIST *load_column_list;
 	FILE *input_file;
-	char heading_string[ 1024 ];
+	char heading_string[ 65536 ];
 	char piece_buffer[ 128 ];
 	int column_piece;
 	PARAMETER_UNIT *parameter_unit;
@@ -717,6 +717,7 @@ LIST *water_fetch_load_column_list(
 					 piece_buffer );
 			}
 		} /* if unrecognized item */
+
 	} /* for each piece() */
 
 	return load_column_list;
@@ -875,6 +876,7 @@ void water_seek_application_constants_dictionary(
 		exit( 1 );
 	}
 
+/*
 	if ( ! ( *collection_depth_meters_heading_list =
 			dictionary_seek_delimited_list(
 				application_constants_dictionary,
@@ -888,7 +890,14 @@ void water_seek_application_constants_dictionary(
 			COLLECTION_DEPTH_METERS_HEADING_KEY );
 		exit( 1 );
 	}
+*/
 
+	*collection_depth_meters_heading_list =
+			dictionary_seek_delimited_list(
+				application_constants_dictionary,
+				COLLECTION_DEPTH_METERS_HEADING_KEY );
+
+/*
 	if ( ! ( *station_heading_list =
 			dictionary_seek_delimited_list(
 				application_constants_dictionary,
@@ -902,7 +911,14 @@ void water_seek_application_constants_dictionary(
 			STATION_HEADING_KEY );
 		exit( 1 );
 	}
+*/
 
+	*station_heading_list =
+			dictionary_seek_delimited_list(
+				application_constants_dictionary,
+				STATION_HEADING_KEY );
+
+/*
 	if ( ! ( *station_latitude_heading_list =
 			dictionary_seek_delimited_list(
 				application_constants_dictionary,
@@ -916,7 +932,13 @@ void water_seek_application_constants_dictionary(
 			STATION_LATITUDE_HEADING_KEY );
 		exit( 1 );
 	}
+*/
+	*station_latitude_heading_list =
+			dictionary_seek_delimited_list(
+				application_constants_dictionary,
+				STATION_LATITUDE_HEADING_KEY );
 
+/*
 	if ( ! ( *station_longitude_heading_list =
 			dictionary_seek_delimited_list(
 				application_constants_dictionary,
@@ -930,6 +952,12 @@ void water_seek_application_constants_dictionary(
 			STATION_LONGITUDE_HEADING_KEY );
 		exit( 1 );
 	}
+*/
+
+	*station_longitude_heading_list =
+			dictionary_seek_delimited_list(
+				application_constants_dictionary,
+				STATION_LONGITUDE_HEADING_KEY );
 
 } /* water_seek_application_constants_dictionary() */
 

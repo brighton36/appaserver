@@ -1,8 +1,8 @@
-/* src_waterquality/load_concentration_file.h */
-/* ------------------------------------------ */
+/* src_waterquality/load_fiu_file.h */
+/* -------------------------------- */
 
-#ifndef LOAD_CONCENTRATION_FILE_H
-#define LOAD_CONCENTRATION_FILE_H
+#ifndef LOAD_FIU_FILE_H
+#define LOAD_FIU_FILE_H
 
 /* Includes */
 /* -------- */

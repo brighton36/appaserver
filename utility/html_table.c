@@ -18,7 +18,7 @@
 
 int main( int argc, char **argv )
 {
-	char buffer[ 8192 ];
+	char buffer[ 65536 ];
 	char *title = {0};
 	char *sub_title = {0};
 	char *sub_sub_title = {0};

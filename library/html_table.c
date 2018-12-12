@@ -67,7 +67,7 @@ void html_table_output_data_heading( 	LIST *heading_list,
 					LIST *justify_list )
 {
 	int column_number = 0;
-	char buffer[ 128 ];
+	char buffer[ 1024 ];
 	char *heading;
 
 	if ( justify_list ) list_rewind( justify_list );
@@ -170,7 +170,7 @@ void html_table_set_record_data(	HTML_TABLE *d,
 					char *record_data,
 					char delimiter )
 {
-	char data[ 2048 ];
+	char data[ 65536 ];
 	int i;
 
 	if ( !delimiter )

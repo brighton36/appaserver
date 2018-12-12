@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_waterquality/load_concentration_file.c		*/
+/* src_waterquality/load_fiu_file.c			*/
 /* ---------------------------------------------------	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -26,7 +26,7 @@
 #include "application.h"
 #include "basename.h"
 #include "application_constants.h"
-#include "load_concentration_file.h"
+#include "load_fiu_file.h"
 #include "water_quality.h"
 
 int main( int argc, char **argv )
@@ -43,7 +43,7 @@ int main( int argc, char **argv )
 	int load_count = 0;
 	char buffer[ 128 ];
 	WATER_QUALITY *water_quality;
-	char heading_error_message[ 1024 ];
+	char heading_error_message[ 65536 ];
 	APPLICATION_CONSTANTS *application_constants;
 
 	if ( argc != 7 )

@@ -23,7 +23,8 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/hashtbl.o
 
 EXECUTABLES=	load_sfwmd_file						\
-		load_concentration_file					\
+		load_fiu_file						\
+		load_turkey_point_file					\
 		output_results_exception				\
 		google_map_station_operation				\
 		google_map_project_process
@@ -95,9 +96,9 @@ load_sfwmd_file: load_sfwmd_file.c load_sfwmd_file.h			\
 		water_quality.o						\
 		-o load_sfwmd_file
 
-load_concentration_file:						\
-		load_concentration_file.c				\
-		load_concentration_file.h				\
+load_fiu_file:								\
+		load_fiu_file.c						\
+		load_fiu_file.h						\
 		${STANDARD_LIBRARY}					\
 		water_quality.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -106,9 +107,24 @@ load_concentration_file:						\
 		${EXTERNAL_LIBS}					\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
-		load_concentration_file.c				\
+		load_fiu_file.c						\
 		water_quality.o						\
-		-o load_concentration_file
+		-o load_fiu_file
+
+load_turkey_point_file:							\
+		load_turkey_point_file.c				\
+		load_turkey_point_file.h				\
+		${STANDARD_LIBRARY}					\
+		water_quality.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-I${SOURCE_EVERGLADES}					\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		load_turkey_point_file.c				\
+		water_quality.o						\
+		-o load_turkey_point_file
 
 merge_purge_parameter: merge_purge_parameter.c				\
 		${STANDARD_LIBRARY}

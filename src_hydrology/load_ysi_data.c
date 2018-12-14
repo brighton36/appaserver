@@ -59,6 +59,14 @@ SPECIAL_CODE_STRUCTURE *special_code_structure_new(
 char *station_fetch(			char *application_name,
 					char *input_filespecification );
 
+char *station_label_fetch(		char *application_name,
+					char *input_filespecification );
+
+/* Check column piece=3 */
+/* -------------------- */
+char *station_column_fetch(		char *application_name,
+					char *input_filespecification );
+
 boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 					JULIAN **file_end_date,
 					char *input_filespecification );
@@ -149,6 +157,12 @@ int main( int argc, char **argv )
 		environ_set_environment(
 			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
 			database_string );
+	}
+	else
+	{
+		environ_set_environment(
+			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+			application_name );
 	}
 
 	appaserver_error_starting_argv_append_file(
@@ -1077,8 +1091,96 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 
 } /* get_file_begin_end_dates() */
 
-char *station_fetch(	char *application_name,
-			char *input_filespecification )
+char *station_fetch(		char *application_name,
+				char *input_filespecification )
+{
+	char *station;
+
+	if ( ( station =
+		station_label_fetch(
+			application_name,
+			input_filespecification ) ) )
+	{
+		return station;
+	}
+	else
+	{
+		/* Check column piece=3 */
+		/* -------------------- */
+		return station_column_fetch(
+			application_name,
+			input_filespecification );
+	}
+
+} /* station_fetch() */
+
+/* Check column piece=3 */
+/* -------------------- */
+char *station_column_fetch(	char *application_name,
+				char *input_filespecification )
+{
+	char station[ 128 ];
+	FILE *input_file;
+	char input_buffer[ 1024 ];
+	boolean found_header = 0;
+
+	if ( ! ( input_file = fopen( input_filespecification, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_filespecification );
+		return 0;
+	}
+
+	timlib_reset_get_line_check_utf_16();
+
+	while( timlib_get_line( input_buffer, input_file, 1024 ) )
+	{
+		if ( !piece( station, ',', input_buffer, 3 ) )
+		{
+			continue;
+		}
+
+		if ( found_header )
+		{
+			fclose( input_file );
+			timlib_reset_get_line_check_utf_16();
+
+			if ( !station_exists(
+				application_name,
+				station ) )
+			{
+				printf(
+		"<h3>Error: station = (%s) doesn't exist in STATION.</h3>\n",
+					station );
+
+				return (char *)0;
+			}
+			else
+			{
+				return strdup( station );
+			}
+		}
+
+		if ( timlib_strncmp( station, STATION_LABEL ) == 0 )
+		{
+			found_header = 1;
+			continue;
+		}
+	}
+
+	fclose( input_file );
+	timlib_reset_get_line_check_utf_16();
+
+	return (char *)0;
+
+} /* station_column_fetch() */
+
+char *station_label_fetch(	char *application_name,
+				char *input_filespecification )
 {
 	char station[ 128 ];
 	FILE *input_file;
@@ -1127,6 +1229,10 @@ char *station_fetch(	char *application_name,
 			printf(
 		"<h3>Error: station = (%s) doesn't exist in STATION.</h3>\n",
 				station );
+
+			fclose( input_file );
+			timlib_reset_get_line_check_utf_16();
+
 			return (char *)0;
 		}
 
@@ -1139,7 +1245,7 @@ char *station_fetch(	char *application_name,
 
 	return (char *)0;
 
-} /* station_fetch() */
+} /* station_label_fetch() */
 
 void search_replace_special_codes( char *two_line_datatype_heading )
 {

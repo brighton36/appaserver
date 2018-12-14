@@ -154,9 +154,28 @@ WATER_QUALITY *water_quality_new(	char *application_name,
 		exit( 1 );
 	}
 
+	w->parameter_name_list =
+		water_fetch_parameter_name_list(
+			application_name );
+
+	w->unit_name_list =
+		water_fetch_unit_name_list(
+			application_name );
+
 	w->parameter_alias_list =
 		water_fetch_parameter_alias_list(
 			application_name );
+
+	w->unit_alias_list =
+		water_fetch_unit_alias_list(
+			application_name );
+
+	w->parameter_unit_alias_list =
+		water_get_parameter_unit_alias_list(
+			w->parameter_name_list,
+			w->unit_name_list,
+			w->parameter_alias_list,
+			w->unit_alias_list );
 
 	w->water_project =
 		water_project_new(	application_name,
@@ -208,6 +227,49 @@ STATION_PARAMETER *water_new_station_parameter( void )
 	}
 	return w;
 } /* water_new_station_parameter() */
+
+UNIT_ALIAS *water_unit_alias_new( void )
+{
+	UNIT_ALIAS *w;
+
+	if ( ! ( w = calloc( 1, sizeof( UNIT_ALIAS ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return w;
+
+} /* water_unit_alias_new() */
+
+PARAMETER_UNIT_ALIAS *water_parameter_unit_alias_new(
+				char *parameter_unit_alias,
+				char *parameter_name,
+				char *units )
+{
+	PARAMETER_UNIT_ALIAS *w;
+
+	if ( ! ( w = calloc( 1, sizeof( PARAMETER_UNIT_ALIAS ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	w->parameter_unit_alias = parameter_unit_alias;
+	w->parameter_name = parameter_name;
+	w->units = units;
+
+	return w;
+
+} /* water_parameter_unit_alias_new() */
 
 PARAMETER_ALIAS *water_new_parameter_alias( void )
 {
@@ -427,6 +489,48 @@ LIST *water_fetch_station_parameter_list(
 
 } /* water_fetch_station_parameter_list() */
 
+LIST *water_fetch_parameter_name_list(	char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+
+	select = "parameter";
+	folder = "parameter";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder );
+
+	return pipe2list( sys_string );
+
+} /* water_fetch_parameter_name_list() */
+
+LIST *water_fetch_unit_name_list(	char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+
+	select = "units";
+	folder = "unit";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder );
+
+	return pipe2list( sys_string );
+
+} /* water_fetch_unit_name_list() */
+
 LIST *water_fetch_parameter_unit_list(	char *application_name,
 					char *project_name )
 {
@@ -483,6 +587,55 @@ LIST *water_fetch_parameter_unit_list(	char *application_name,
 	return parameter_unit_list;
 
 } /* water_fetch_parameter_unit_list() */
+
+LIST *water_fetch_unit_alias_list(	char *application_name )
+{
+	char sys_string[ 1024 ];
+	char input_buffer[ 1024 ];
+	char piece_buffer[ 128 ];
+	FILE *input_pipe;
+	char *select;
+	char *folder;
+	UNIT_ALIAS *unit_alias;
+	LIST *unit_alias_list;
+
+	select = "unit_alias,units";
+	folder = "unit_alias";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder );
+
+	input_pipe = popen( sys_string, "r" );
+	unit_alias_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		unit_alias = water_unit_alias_new();
+
+		piece(	piece_buffer,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+		unit_alias->unit_alias = strdup( piece_buffer );
+
+		piece(	piece_buffer,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+		unit_alias->units = strdup( piece_buffer );
+
+		list_append_pointer( unit_alias_list, unit_alias );
+	}
+
+	pclose( input_pipe );
+	return unit_alias_list;
+
+} /* water_fetch_unit_alias_list() */
 
 LIST *water_fetch_parameter_alias_list(	char *application_name )
 {
@@ -960,4 +1113,20 @@ void water_seek_application_constants_dictionary(
 				STATION_LONGITUDE_HEADING_KEY );
 
 } /* water_seek_application_constants_dictionary() */
+
+LIST *water_get_parameter_unit_alias_list(
+			LIST *parameter_name_list,
+			LIST *unit_name_list,
+			LIST *parameter_alias_list,
+			LIST *unit_alias_list )
+{
+	PARAMETER_ALIAS *parameter_alias;
+	UNIT_ALIAS *unit_alias;
+	LIST *parameter_unit_alias_list;
+
+	if ( !list_rewind( parameter_alias_list )
+	||   !list_rewind( unit_alias_list ) )
+	return parameter_unit_alias_list;
+
+} /* water_get_parameter_unit_alias_list() */
 

@@ -65,6 +65,18 @@ typedef struct
 
 typedef struct
 {
+	char *parameter_unit_alias;
+	PARAMETER_UNIT *parameter_unit;
+} PARAMETER_UNIT_ALIAS;
+
+typedef struct
+{
+	char *unit_alias;
+	char *units;
+} UNIT_ALIAS;
+
+typedef struct
+{
 	char *parameter_alias;
 	char *parameter_name;
 } PARAMETER_ALIAS;
@@ -80,12 +92,30 @@ typedef struct
 {
 	WATER_PROJECT *water_project;
 	LIST *parameter_alias_list;
+	LIST *unit_alias_list;
+	LIST *parameter_name_list;
+	LIST *unit_name_list;
+} WATER_QUALITY_INPUT;
+
+typedef struct
+{
+	WATER_QUALITY_INPUT water_quality_input;
+	LIST *parameter_unit_alias_list;
 	LIST *load_column_list;
 } WATER_QUALITY;
 
 /* Prototypes */
 /* ---------- */
+LIST *water_fetch_parameter_name_list(
+				char *application_name );
+
+LIST *water_fetch_unit_name_list(
+				char *application_name );
+
 LIST *water_fetch_parameter_alias_list(
+				char *application_name );
+
+LIST *water_fetch_unit_alias_list(
 				char *application_name );
 
 char *water_quality_get_project_name(
@@ -96,6 +126,14 @@ char *water_quality_get_parameter_name(
 				char **matrix,
 				char *application_name,
 				char *parameter_code );
+
+PARAMETER_UNIT_ALIAS *water_parameter_unit_alias_new(
+				char *parameter_unit_alias,
+				char *parameter_name,
+				char *units );
+
+UNIT_ALIAS *water_unit_alias_new(
+				void );
 
 WATER_QUALITY *water_quality_new(
 				char *application_name,
@@ -173,5 +211,11 @@ void water_seek_application_constants_dictionary(
 				LIST **station_latitude_heading_list,
 				LIST **station_longitude_heading_list,
 				DICTIONARY *application_constants_dictionary );
+
+LIST *water_get_parameter_unit_alias_list(
+				LIST *parameter_name_list,
+				LIST *unit_name_list,
+				LIST *parameter_alias_list,
+				LIST *unit_alias_list );
 
 #endif

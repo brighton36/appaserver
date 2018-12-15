@@ -154,32 +154,33 @@ WATER_QUALITY *water_quality_new(	char *application_name,
 		exit( 1 );
 	}
 
-	w->parameter_name_list =
+	w->input.parameter_name_list =
 		water_fetch_parameter_name_list(
 			application_name );
 
-	w->unit_name_list =
+	w->input.unit_name_list =
 		water_fetch_unit_name_list(
 			application_name );
 
-	w->parameter_alias_list =
+	w->input.parameter_alias_list =
 		water_fetch_parameter_alias_list(
 			application_name );
 
-	w->unit_alias_list =
+	w->input.unit_alias_list =
 		water_fetch_unit_alias_list(
 			application_name );
 
 	w->parameter_unit_alias_list =
 		water_get_parameter_unit_alias_list(
-			w->parameter_name_list,
-			w->unit_name_list,
-			w->parameter_alias_list,
-			w->unit_alias_list );
+			w->input.parameter_name_list,
+			w->input.unit_name_list,
+			w->input.parameter_alias_list,
+			w->input.unit_alias_list );
 
-	w->water_project =
+	w->input.water_project =
 		water_project_new(	application_name,
 					project_name );
+
 	return w;
 
 } /* water_quality_new() */
@@ -247,7 +248,7 @@ UNIT_ALIAS *water_unit_alias_new( void )
 } /* water_unit_alias_new() */
 
 PARAMETER_UNIT_ALIAS *water_parameter_unit_alias_new(
-				char *parameter_unit_alias,
+				char *parameter_unit_alias_string,
 				char *parameter_name,
 				char *units )
 {
@@ -263,9 +264,12 @@ PARAMETER_UNIT_ALIAS *water_parameter_unit_alias_new(
 		exit( 1 );
 	}
 
-	w->parameter_unit_alias = parameter_unit_alias;
-	w->parameter_name = parameter_name;
-	w->units = units;
+	w->parameter_unit_alias = parameter_unit_alias_string;
+
+	w->parameter_unit =
+		water_parameter_unit_new(
+			parameter_name,
+			units );
 
 	return w;
 
@@ -334,6 +338,12 @@ RESULTS *water_results_new( void )
 	}
 	return w;
 } /* water_results_new() */
+
+PARAMETER_UNIT *water_parameter_unit_new(	char *parameter_name,
+						char *units )
+{
+	return water_new_parameter_unit( parameter_name, units );
+}
 
 PARAMETER_UNIT *water_new_parameter_unit(	char *parameter_name,
 						char *units )
@@ -950,6 +960,7 @@ PARAMETER_UNIT *water_seek_filename_parameter_unit(
 	}
 
 	return parameter_unit;
+
 } /* water_seek_filename_parameter_unit() */
 
 int water_get_station_collection_attribute_piece(
@@ -1123,10 +1134,154 @@ LIST *water_get_parameter_unit_alias_list(
 	PARAMETER_ALIAS *parameter_alias;
 	UNIT_ALIAS *unit_alias;
 	LIST *parameter_unit_alias_list;
+	PARAMETER_UNIT_ALIAS *parameter_unit_alias;
+	char *parameter_unit_alias_string;
+	char *parameter_name;
+	char *unit_name;
 
-	if ( !list_rewind( parameter_alias_list )
-	||   !list_rewind( unit_alias_list ) )
+	if ( !list_length( parameter_alias_list )
+	||   !list_length( unit_alias_list )
+	||   !list_length( parameter_name_list )
+	||   !list_length( unit_name_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	parameter_unit_alias_list = list_new();
+
+	/* PARAMETER and UNIT */
+	/* ------------------ */
+	list_rewind( parameter_name_list );
+	list_rewind( unit_name_list );
+
+	do {
+		parameter_name = list_get_pointer( parameter_name_list );
+
+		list_rewind( unit_name_list );
+
+		unit_name = list_get_pointer( unit_name_list );
+
+		parameter_unit_alias_string =
+			water_get_parameter_alias_string(
+				parameter_name,
+				unit_name );
+
+		parameter_unit_alias =
+			water_parameter_unit_alias_new(
+				parameter_unit_alias_string,
+				parameter_name,
+				unit_name );
+
+		list_append_pointer(
+			parameter_unit_alias_list,
+			parameter_unit_alias );
+
+	} while( list_next( parameter_name_list ) );
+
+	/* PARAMETER_ALIAS and UNIT */
+	/* ------------------------ */
+	list_rewind( parameter_alias_list );
+	list_rewind( unit_name_list );
+
+	do {
+		parameter_alias = list_get_pointer( parameter_alias_list );
+
+		list_rewind( unit_name_list );
+
+		unit_name = list_get_pointer( unit_name_list );
+
+		parameter_unit_alias_string =
+			water_get_parameter_alias_string(
+				parameter_alias->parameter_alias,
+				unit_name );
+
+		parameter_unit_alias =
+			water_parameter_unit_alias_new(
+				parameter_unit_alias_string,
+				parameter_alias->parameter_alias,
+				unit_name );
+
+		list_append_pointer(
+			parameter_unit_alias_list,
+			parameter_unit_alias );
+
+	} while( list_next( parameter_alias_list ) );
+
+	/* PARAMETER and UNIT_ALIAS */
+	/* ------------------------ */
+	list_rewind( parameter_name_list );
+	list_rewind( unit_alias_list );
+
+	do {
+		parameter_name = list_get_pointer( parameter_name_list );
+
+		list_rewind( unit_alias_list );
+
+		unit_alias = list_get_pointer( unit_alias_list );
+
+		parameter_unit_alias_string =
+			water_get_parameter_alias_string(
+				parameter_name,
+				unit_alias->unit_alias );
+
+		parameter_unit_alias =
+			water_parameter_unit_alias_new(
+				parameter_unit_alias_string,
+				parameter_name,
+				unit_alias->unit_alias );
+
+		list_append_pointer(
+			parameter_unit_alias_list,
+			parameter_unit_alias );
+
+	} while( list_next( parameter_alias_list ) );
+
+	/* PARAMETER_ALIAS and UNIT_ALIAS */
+	/* ------------------------------ */
+	list_rewind( parameter_alias_list );
+	list_rewind( unit_alias_list );
+
+	do {
+		parameter_alias = list_get_pointer( parameter_alias_list );
+
+		list_rewind( unit_alias_list );
+
+		unit_alias = list_get_pointer( unit_alias_list );
+
+		parameter_unit_alias_string =
+			water_get_parameter_alias_string(
+				parameter_alias->parameter_alias,
+				unit_alias->unit_alias );
+
+		parameter_unit_alias =
+			water_parameter_unit_alias_new(
+				parameter_unit_alias_string,
+				parameter_name,
+				unit_alias->unit_alias );
+
+		list_append_pointer(
+			parameter_unit_alias_list,
+			parameter_unit_alias );
+
+	} while( list_next( parameter_alias_list ) );
+
+
 	return parameter_unit_alias_list;
 
 } /* water_get_parameter_unit_alias_list() */
+
+char *water_get_parameter_alias_string(
+				char *parameter_name,
+				char *unit_name )
+{
+	char parameter_unit_alias_string[ 256 ];
+
+	sprintf( parameter_unit_alias_string,
+		 "%s (%s)",
+		 parameter_name,
+		 unit_name );
+
+	return strdup( parameter_unit_alias_string );
+
+} /* water_get_parameter_alias_string() */
 

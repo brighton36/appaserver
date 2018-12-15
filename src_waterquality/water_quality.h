@@ -32,6 +32,12 @@ typedef struct
 
 typedef struct
 {
+	char *parameter_unit_alias;
+	PARAMETER_UNIT *parameter_unit;
+} PARAMETER_UNIT_ALIAS;
+
+typedef struct
+{
 	PARAMETER_UNIT *parameter_unit;
 	char *concentration;
 } RESULTS;
@@ -65,12 +71,6 @@ typedef struct
 
 typedef struct
 {
-	char *parameter_unit_alias;
-	PARAMETER_UNIT *parameter_unit;
-} PARAMETER_UNIT_ALIAS;
-
-typedef struct
-{
 	char *unit_alias;
 	char *units;
 } UNIT_ALIAS;
@@ -99,7 +99,7 @@ typedef struct
 
 typedef struct
 {
-	WATER_QUALITY_INPUT water_quality_input;
+	WATER_QUALITY_INPUT input;
 	LIST *parameter_unit_alias_list;
 	LIST *load_column_list;
 } WATER_QUALITY;
@@ -217,5 +217,13 @@ LIST *water_get_parameter_unit_alias_list(
 				LIST *unit_name_list,
 				LIST *parameter_alias_list,
 				LIST *unit_alias_list );
+
+PARAMETER_UNIT *water_parameter_unit_new(
+				char *parameter_name,
+				char *units );
+
+char *water_get_parameter_alias_string(
+				char *parameter_name,
+				char *unit_name );
 
 #endif

@@ -327,4 +327,7 @@ LIST *list_tail_list(		LIST *list,
 LIST *list_copy_count(		LIST *list,
 				int count );
 
+LIST *list_delimited_string_to_list(
+				char *delimited_string );
+
 #endif

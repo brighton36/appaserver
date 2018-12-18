@@ -112,11 +112,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	water_quality =
-		water_quality_new(
-			application_name,
-			project_name );
-
 	*heading_error_message = '\0';
 
 	application_constants = application_constants_new();
@@ -124,14 +119,23 @@ int main( int argc, char **argv )
 		application_constants_get_dictionary(
 			application_name );
 
+	water_quality =
+		water_quality_new(
+			application_name,
+			project_name );
+
+	water_quality->parameter_unit_alias_list =
+		water_get_parameter_unit_alias_list(
+			water_quality->input.parameter_name_list,
+			water_quality->input.unit_name_list,
+			water_quality->input.parameter_alias_list,
+			water_quality->input.unit_alias_list );
+
 	water_quality->load_column_list =
-		water_fetch_load_column_list(
+		water_fetch_turkey_point_column_list(
 				heading_error_message,
 				input_filename,
-				water_quality->
-					water_project->
-					parameter_unit_list,
-				water_quality->parameter_alias_list,
+				water_quality->parameter_unit_alias_list,
 				application_constants->dictionary );
 
 	if ( execute )

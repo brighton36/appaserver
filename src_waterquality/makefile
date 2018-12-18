@@ -23,6 +23,8 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/hashtbl.o
 
 EXECUTABLES=	load_sfwmd_file						\
+		load_fiu_file						\
+		load_turkey_point_file					\
 		output_results_exception				\
 		google_map_station_operation				\
 		google_map_project_process

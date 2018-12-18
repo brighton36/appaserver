@@ -14,6 +14,12 @@
 
 /* Constants */
 /* --------- */
+#define WATER_QUALITY_STATION_LABEL		"station"
+#define WATER_QUALITY_COLLECTION_DATE_LABEL	"collection_date"
+#define WATER_QUALITY_COLLECTION_TIME_LABEL	"collection_time"
+#define WATER_QUALITY_DEPTH_LABEL		"collection_depth_meters";
+#define WATER_QUALITY_LONGITUDE_LABEL		"longitude";
+#define WATER_QUALITY_LATITUDE_LABEL		"latitude";
 #define COLLECTION_DATE_HEADING_KEY		"collection_date_heading"
 #define COLLECTION_TIME_HEADING_KEY		"collection_time_heading"
 #define COLLECTION_DEPTH_METERS_HEADING_KEY	\
@@ -176,7 +182,13 @@ LIST *water_fetch_station_parameter_list(
 LIST *water_fetch_station_list(	char *application_name,
 				char *project_name );
 
-LIST *water_fetch_load_column_list(
+LIST *water_fetch_turkey_point_column_list(
+				char *error_message,
+				char *load_table_filename,
+				LIST *parameter_unit_alias_list,
+				DICTIONARY *application_constants_dictionary );
+
+LIST *water_fetch_fiu_column_list(
 				char *error_message,
 				char *load_table_filename,
 				LIST *parameter_unit_list,
@@ -184,14 +196,14 @@ LIST *water_fetch_load_column_list(
 				DICTIONARY *application_constants_dictionary );
 
 PARAMETER_ALIAS *water_seek_parameter_alias(
-				char *parameter_alias_string,
+				char *column_heading_string,
 				LIST *parameter_alias_list );
 
 PARAMETER_UNIT *water_seek_parameter_unit(
 				char *parameter_name,
 				LIST *parameter_unit_list );
 
-PARAMETER_UNIT *water_seek_filename_parameter_unit(
+PARAMETER_UNIT *water_seek_alias_parameter_unit(
 				char *parameter_alias_string,
 				LIST *parameter_unit_list,
 				LIST *parameter_alias_list );
@@ -222,8 +234,12 @@ PARAMETER_UNIT *water_parameter_unit_new(
 				char *parameter_name,
 				char *units );
 
-char *water_get_parameter_alias_string(
+char *water_get_column_heading_string(
 				char *parameter_name,
 				char *unit_name );
+
+PARAMETER_UNIT *water_parameter_unit_alias_seek_parameter_unit(
+				char *column_heading_string,
+				LIST *parameter_unit_alias_list );
 
 #endif

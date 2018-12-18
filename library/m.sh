@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_creel
-	make load_guide_angler_submission
+	cd ../src_waterquality
+	make load_turkey_point_file
 fi

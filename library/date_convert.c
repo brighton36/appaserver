@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 #include "piece.h"
+#include "column.h"
 #include "timlib.h"
 #include "julian.h"
 #include "folder.h"
@@ -330,6 +331,16 @@ boolean date_convert_source_unknown(
 		char *date_string )
 {
 	enum date_convert_format source_format;
+
+	/* If date-space-time */
+	/* ------------------ */
+	if ( character_exists( date_string, ' ' ) )
+	{
+		char buffer[ 128 ];
+
+		column( buffer, 0, date_string );
+		date_string = strdup( buffer );
+	}
 
 	source_format = date_convert_date_get_format( date_string );
 

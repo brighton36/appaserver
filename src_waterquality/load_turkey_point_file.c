@@ -34,7 +34,6 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *project_name;
-	char *station;
 	boolean execute;
 	char *input_filename;
 	DOCUMENT *document;
@@ -46,10 +45,10 @@ int main( int argc, char **argv )
 	char heading_error_message[ 65536 ];
 	APPLICATION_CONSTANTS *application_constants;
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process_name project_name filename station execute_yn\n",
+"Usage: %s application process_name project_name filename execute_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -58,8 +57,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	project_name = argv[ 3 ];
 	input_filename = argv[ 4 ];
-	if ( ( station = argv[ 5 ] ) );
-	execute = (*argv[ 6 ] == 'y');
+	execute = (*argv[ 5 ] == 'y');
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )
@@ -130,6 +128,13 @@ int main( int argc, char **argv )
 			water_quality->input.unit_name_list,
 			water_quality->input.parameter_alias_list,
 			water_quality->input.unit_alias_list );
+
+/*
+fprintf( stderr,
+	 "%s\n",
+	 water_parameter_unit_alias_list_display(
+		water_quality->parameter_unit_alias_list ) );
+*/
 
 	water_quality->load_column_list =
 		water_fetch_turkey_point_column_list(
@@ -626,6 +631,8 @@ RESULTS *extract_results(
 				return (RESULTS *)0;
 			}
 
+			if ( !*concentration ) return (RESULTS *)0;
+
 			if ( results.concentration )
 				free( results.concentration );
 
@@ -638,6 +645,7 @@ RESULTS *extract_results(
 	} while( list_next( load_column_list ) );
 
 	return (RESULTS *)0;
+
 } /* extract_results() */
 
 boolean extract_station_collection_attributes(
@@ -722,7 +730,7 @@ boolean extract_station_collection_attributes(
 	/* ------------------- */
 	column_piece =
 		water_get_station_collection_attribute_piece(
-			"collection_date",
+			WATER_QUALITY_COLLECTION_DATE_LABEL,
 			load_column_list );
 
 	if ( column_piece == -1 )
@@ -753,8 +761,15 @@ boolean extract_station_collection_attributes(
 			collection_date ) )
 	{
 		if ( error_message )
-			*error_message =
-				"cannot identify collection date";
+		{
+			char buffer[ 256 ];
+
+			sprintf( buffer,
+				 "cannot translate %s to international",
+				 collection_date );
+
+			*error_message = strdup( buffer );
+		}
 		return 0;
 	}
 
@@ -762,12 +777,13 @@ boolean extract_station_collection_attributes(
 	/* ------------------- */
 	column_piece =
 		water_get_station_collection_attribute_piece(
-			"collection_time",
+			WATER_QUALITY_COLLECTION_TIME_LABEL,
 			load_column_list );
 
 	if ( column_piece == -1 )
 	{
-		strcpy( collection_time, "null" );
+		strcpy( collection_time_without_colon, "null" );
+		/* strcpy( collection_time, "null" ); */
 	}
 	else
 	if ( ! piece_quote_comma(
@@ -776,14 +792,17 @@ boolean extract_station_collection_attributes(
 		column_piece )
 	||   !*collection_time )
 	{
-		strcpy( collection_time, "null" );
+		/* strcpy( collection_time, "null" ); */
+		strcpy( collection_time_without_colon, "null" );
 	}
-
-	timlib_strcpy(
-		collection_time_without_colon,
-		date_remove_colon_from_time(
-			collection_time ),
-		sizeof( collection_time_without_colon ) );
+	else
+	{
+		timlib_strcpy(
+			collection_time_without_colon,
+			date_remove_colon_from_time(
+				collection_time ),
+			sizeof( collection_time_without_colon ) );
+	}
 
 	if ( !*collection_time_without_colon )
 	{
@@ -797,7 +816,7 @@ boolean extract_station_collection_attributes(
 	/* ---------------- */
 	column_piece =
 		water_get_station_collection_attribute_piece(
-			"collection_depth_meters",
+			WATER_QUALITY_DEPTH_LABEL,
 			load_column_list );
 
 	if ( column_piece == -1 )
@@ -816,7 +835,7 @@ boolean extract_station_collection_attributes(
 	/* ------------- */
 	column_piece =
 		water_get_station_collection_attribute_piece(
-			"longitude",
+			WATER_QUALITY_LONGITUDE_LABEL,
 			load_column_list );
 
 	if ( column_piece == -1 )
@@ -835,7 +854,7 @@ boolean extract_station_collection_attributes(
 	/* ------------ */
 	column_piece =
 		water_get_station_collection_attribute_piece(
-			"latitude",
+			WATER_QUALITY_LATITUDE_LABEL,
 			load_column_list );
 
 	if ( column_piece == -1 )

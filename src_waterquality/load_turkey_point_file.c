@@ -145,6 +145,13 @@ fprintf( stderr,
 				water_quality->parameter_unit_alias_list,
 				application_constants->dictionary );
 
+/*
+fprintf( stderr,
+	 "Load column_list:\n%s\n",
+	 water_load_column_list_display(
+		water_quality->load_column_list ) );
+*/
+
 	if ( execute )
 	{
 		delete_waterquality(	application_name,
@@ -191,6 +198,7 @@ int load_concentration_file(
 	char input_string[ 4096 ];
 	char *collection_table_name;
 	char *results_table_name;
+	char *results_exception_table_name;
 	char *station_parameter_table_name;
 	char *station_table_name;
 	char *water_project_station_table_name;
@@ -203,6 +211,7 @@ int load_concentration_file(
 	char error_filename[ 128 ];
 	FILE *table_output_pipe = {0};
 	FILE *results_insert_pipe = {0};
+	FILE *results_exception_insert_pipe = {0};
 	FILE *collection_insert_pipe = {0};
 	FILE *station_parameter_insert_pipe = {0};
 	FILE *station_insert_pipe = {0};
@@ -212,6 +221,7 @@ int load_concentration_file(
 	RESULTS *results;
 	char *error_message;
 	char basename_filename[ 128 ];
+	EXCEPTION *exception;
 
 	if ( !list_length( water_quality->load_column_list ) ) return 0;
 
@@ -245,6 +255,10 @@ int load_concentration_file(
 		get_table_name(	application_name,
 				"results" );
 
+	results_exception_table_name =
+		get_table_name(	application_name,
+				"results_exception" );
+
 	collection_table_name =
 		get_table_name(	application_name,
 				"collection" );
@@ -267,7 +281,7 @@ int load_concentration_file(
 		 sys_string,
 		 "count.e %d 'WQ Load count'				  |"
 		 "insert_statement table=%s field=%s del='|' compress=y   |"
-		 "#sql.e 2>&1						  |"
+		 "sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e				   ",
 		 STDERR_COUNT,
@@ -278,9 +292,20 @@ int load_concentration_file(
 
 		sprintf(
 		 sys_string,
+		 "insert_statement table=%s field=%s del='|' compress=y   |"
+		 "sql.e 2>&1						  |"
+		 "grep -vi duplicate					  |"
+		 "html_paragraph_wrapper.e				   ",
+		 results_exception_table_name,
+		 INSERT_RESULTS_EXCEPTION );
+
+		results_exception_insert_pipe = popen( sys_string, "w" );
+
+		sprintf(
+		 sys_string,
 		 "sort -u						  |"
 		 "insert_statement table=%s field=%s del='|' compress=y   |"
-		 "#sql.e 2>&1						  |"
+		 "sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e			 	   ",
 		 collection_table_name,
@@ -291,7 +316,7 @@ int load_concentration_file(
 		sprintf( sys_string,
 			 "sort -u					|"
 			 "insert_statement %s %s '|'			|"
-			 "#sql.e 2>&1					|"
+			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "html_paragraph_wrapper.e			 ",
 		 	station_parameter_table_name,
@@ -302,7 +327,7 @@ int load_concentration_file(
 		sprintf( sys_string,
 			 "sort -u					|"
 			 "insert_statement %s %s '|'			|"
-			 "#sql.e 2>&1					|"
+			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "html_paragraph_wrapper.e			 ",
 		 	station_table_name,
@@ -313,7 +338,7 @@ int load_concentration_file(
 		sprintf( sys_string,
 			 "sort -u					|"
 			 "insert_statement %s %s '|'			|"
-			 "#sql.e 2>&1					|"
+			 "sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "html_paragraph_wrapper.e			 ",
 		 	water_project_station_table_name,
@@ -337,6 +362,7 @@ int load_concentration_file(
 	{
 		close_pipes(
 			results_insert_pipe,
+			results_exception_insert_pipe,
 			station_parameter_insert_pipe,
 			station_insert_pipe,
 			water_project_station_insert_pipe,
@@ -383,22 +409,35 @@ int load_concentration_file(
 			continue;
 		}
 
-		list_rewind( water_quality->load_column_list );
+		if ( !list_rewind( water_quality->load_column_list ) )
+		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: emtpy load_column_list.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
 
-		while( ( results = extract_results(
+		do {
+
+			if ( ! ( results = extract_results(
 					input_string,
 					water_quality->load_column_list,
 					water_quality->
 						input.
 						exception_list ) ) )
-		{
+			{
+				continue;
+			}
+
 			if ( !results->parameter_unit )
 			{
 				fprintf( stderr,
 				"ERROR in %s/%s()/%d: empty parameter_unit.\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__ );
+				 	__FILE__,
+				 	__FUNCTION__,
+				 	__LINE__ );
 				exit( 1 );
 			}
 
@@ -412,7 +451,8 @@ int load_concentration_file(
 
 			if ( table_output_pipe )
 			{
-				fprintf(table_output_pipe,
+				fprintf(
+					table_output_pipe,
 				 	"%s|%s|%s|%s|%s|%s|%s\n",
 				 	station,
 				 	collection_date_international,
@@ -422,48 +462,79 @@ int load_concentration_file(
 				 	results->concentration,
 					water_exception_display(
 						results->exception_list ) );
-				continue;
-			}
+			} /* if table */
+			else
+			{
+				/* if execute */
+				/* ---------- */
+				fprintf(
+					results_insert_pipe,
+				 	"%s|%s|%s|%s|%s|%s\n",
+				 	station,
+				 	collection_date_international,
+				 	collection_time_without_colon,
+				 	results->parameter_unit->parameter_name,
+				 	results->parameter_unit->units,
+				 	results->concentration );
 
-			fprintf( results_insert_pipe,
-				 "%s|%s|%s|%s|%s|%s\n",
-				 station,
-				 collection_date_international,
-				 collection_time_without_colon,
-				 results->parameter_unit->parameter_name,
-				 results->parameter_unit->units,
-				 results->concentration );
+				fprintf(
+					station_parameter_insert_pipe,
+				 	"%s|%s|%s\n",
+				 	station,
+				 	results->parameter_unit->parameter_name,
+				 	results->parameter_unit->units );
 
-			fprintf( station_parameter_insert_pipe,
-				 "%s|%s|%s\n",
-				 station,
-				 results->parameter_unit->parameter_name,
-				 results->parameter_unit->units );
+				fprintf(
+					station_insert_pipe,
+				 	"%s\n",
+				 	station );
 
-			fprintf( station_insert_pipe,
-				 "%s\n",
-				 station );
+				fprintf(
+					water_project_station_insert_pipe,
+				 	"%s|%s\n",
+				 	project_name,
+				 	station );
 
-			fprintf( water_project_station_insert_pipe,
-				 "%s|%s\n",
-				 project_name,
-				 station );
+				fprintf(
+					collection_insert_pipe,
+				 	"%s|%s|%s|%s|%s\n",
+				 	station,
+				 	collection_date_international,
+				 	collection_time_without_colon,
+				 	depth_meters,
+				 	basename_filename );
 
-			fprintf( collection_insert_pipe,
-				 "%s|%s|%s|%s|%s\n",
-				 station,
-				 collection_date_international,
-				 collection_time_without_colon,
-				 depth_meters,
-				 basename_filename );
-		}
-	}
+				if ( list_rewind( results->exception_list ) )
+				do {
+				     exception =
+					list_get_pointer(
+						results->
+							exception_list );
+
+				     fprintf(
+					results_exception_insert_pipe,
+				 	"%s|%s|%s|%s|%s|%s\n",
+				 	station,
+				 	collection_date_international,
+				 	collection_time_without_colon,
+				 	results->parameter_unit->parameter_name,
+				 	results->parameter_unit->units,
+				 	exception->exception );
+
+				} while( list_next( results->exception_list ) );
+
+			} /* if execute */
+
+		} while ( list_next( water_quality->load_column_list ) );
+
+	} /* for each line */
 
 	fclose( input_file );
 	fclose( error_file );
 
 	close_pipes(
 		results_insert_pipe,
+		results_exception_insert_pipe,
 		station_parameter_insert_pipe,
 		station_insert_pipe,
 		water_project_station_insert_pipe,
@@ -513,7 +584,8 @@ void delete_waterquality(	char *application_name,
 	sprintf( sys_string,
 		 "sort -u						|"
 		 "delete_statement.e t=%s f=%s d='|'			|"
-		 "#sql.e 2>&1						 ",
+		 "sql.e 2>&1						|"
+		 "html_paragraph_wrapper.e				 ",
 		 table_name,
 		 DELETE_FIELD_LIST );
 
@@ -529,7 +601,8 @@ void delete_waterquality(	char *application_name,
 		 "sort -u						|"
 		 "delete_statement.e t=%s f=%s d='|'			|"
 		 "count.e %d 'WQ delete collection count'		|"
-		 "#sql.e 2>&1						 ",
+		 "sql.e 2>&1						|"
+		 "html_paragraph_wrapper.e				 ",
 		 table_name,
 		 DELETE_FIELD_LIST,
 		 STDERR_COUNT );
@@ -594,6 +667,7 @@ void delete_waterquality(	char *application_name,
 
 void close_pipes(
 		FILE *results_insert_pipe,
+		FILE *results_exception_insert_pipe,
 		FILE *station_parameter_insert_pipe,
 		FILE *station_insert_pipe,
 		FILE *water_project_station_insert_pipe,
@@ -607,6 +681,7 @@ void close_pipes(
 	else
 	{
 		pclose( results_insert_pipe );
+		pclose( results_exception_insert_pipe );
 		pclose( station_parameter_insert_pipe );
 		pclose( station_insert_pipe );
 		pclose( water_project_station_insert_pipe );
@@ -623,59 +698,53 @@ RESULTS *extract_results(
 	char concentration[ 128 ];
 	char exception_string[ 128 ];
 	LOAD_COLUMN *load_column;
-	static RESULTS results = {0};
+	static RESULTS results;
 
 	if ( list_past_end( load_column_list ) ) return (RESULTS *)0;
 
-	do {
-		load_column = list_get( load_column_list );
+	if ( results.concentration ) free( results.concentration );
 
-		if ( load_column->parameter_unit )
+	memset( &results, 0, sizeof ( RESULTS ) );
+
+	load_column = list_get( load_column_list );
+
+	if ( load_column->parameter_unit )
+	{
+		/* Get the concentration */
+		/* --------------------- */
+		if ( !piece_quote_comma(
+			concentration,
+			input_string,
+			load_column->column_piece ) )
 		{
-			/* Get the concentration */
-			/* --------------------- */
-			if ( !piece_quote_comma(
-				concentration,
-				input_string,
-				load_column->column_piece ) )
-			{
-				return (RESULTS *)0;
-			}
-
-			if ( !*concentration ) return (RESULTS *)0;
-
-			if ( results.concentration )
-				free( results.concentration );
-
-			results.parameter_unit = load_column->parameter_unit;
-			results.concentration = strdup( concentration );
-
-			/* Get the exceptions */
-			/* ------------------ */
-			if ( !piece_quote_comma(
-				exception_string,
-				input_string,
-				load_column->column_piece + 1 ) )
-			{
-				return (RESULTS *)0;
-			}
-
-			if ( *exception_string )
-			{
-				results.exception_list =
-					water_get_results_exception_list(
-						exception_string,
-						exception_list );
-			}
-
-			/* Ready for next call to this function */
-			/* ------------------------------------ */
-			list_next( load_column_list );
-
-			return &results;
+			return (RESULTS *)0;
 		}
 
-	} while( list_next( load_column_list ) );
+		if ( !*concentration ) return (RESULTS *)0;
+
+		results.parameter_unit = load_column->parameter_unit;
+		results.concentration = strdup( concentration );
+
+		/* Get the exceptions */
+		/* ------------------ */
+		if ( !piece_quote_comma(
+			exception_string,
+			input_string,
+			load_column->column_piece + 1 ) )
+		{
+			return (RESULTS *)0;
+		}
+
+		if ( *exception_string )
+		{
+			results.exception_list =
+				water_get_results_exception_list(
+					exception_string,
+					exception_list );
+		}
+
+		return &results;
+	}
 
 	return (RESULTS *)0;
 

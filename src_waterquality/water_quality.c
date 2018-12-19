@@ -509,22 +509,6 @@ COLLECTION *water_collection_new( void )
 	return w;
 } /* water_collection_new() */
 
-RESULTS *water_results_new( void )
-{
-	RESULTS *w;
-
-	if ( ! ( w = calloc( 1, sizeof( RESULTS ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-	return w;
-} /* water_results_new() */
-
 PARAMETER_UNIT *water_parameter_unit_new(	char *parameter_name,
 						char *units )
 {
@@ -706,9 +690,11 @@ LIST *water_fetch_exception_list( char *application_name )
 			input_buffer,
 			1 );
 
+#ifdef NOT_DEFINED
 		/* Only use first character to map to exception_string */
 		/* --------------------------------------------------- */
 		*(exception_code + 1) = '\0';
+#endif
 
 		exception =
 			water_exception_new(
@@ -1348,24 +1334,10 @@ PARAMETER_UNIT *water_parameter_unit_alias_seek_parameter_unit(
 			list_get_pointer(
 				parameter_unit_alias_list );
 
-if ( timlib_strncmp( parameter_unit_alias->column_heading_string, "dissolved" ) == 0 )
-fprintf( stderr, "%s/%s()/%d\n: got parameter_unit_alias = (%s)",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-parameter_unit_alias->column_heading_string );
-
 		if ( timlib_strcmp(
 			column_heading_string,
 			parameter_unit_alias->column_heading_string ) == 0 )
 		{
-fprintf( stderr, "%s/%s()/%d: matched = (%s/%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-parameter_unit_alias->parameter_unit->parameter_name,
-parameter_unit_alias->parameter_unit->units );
-
 			return parameter_unit_alias->parameter_unit;
 		}
 	} while( list_next( parameter_unit_alias_list ) );
@@ -1620,4 +1592,39 @@ char *water_exception_display( LIST *exception_list )
 	return strdup( buffer );
 
 } /* water_exception_display() */
+
+char *water_load_column_list_display( LIST *load_column_list )
+{
+	char buffer[ 1024 ];
+	char *ptr = buffer;
+	LOAD_COLUMN *load_column;
+
+	if ( !list_rewind( load_column_list ) ) return "";
+
+	do {
+		load_column = list_get_pointer( load_column_list );
+
+		if ( load_column->station_collection_attribute )
+		{
+			ptr += sprintf(
+				ptr,
+				"attribute=%s,piece=%d\n",
+				load_column->station_collection_attribute,
+				load_column->column_piece );
+		}
+		else
+		{
+			ptr += sprintf(
+				ptr,
+				"parameter=%s^%s,piece=%d\n",
+				load_column->parameter_unit->parameter_name,
+				load_column->parameter_unit->units,
+				load_column->column_piece );
+		}
+
+	} while( list_next( load_column_list ) );
+
+	return strdup( buffer );
+
+} /* water_load_column_list_display() */
 

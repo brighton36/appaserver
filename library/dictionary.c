@@ -269,7 +269,7 @@ boolean dictionary_populated_key_exists_index_one(
 	char *data;
 	char dictionary_key[ 1024 ];
 
-	sprintf( dictionary_key,
+	sprintf(dictionary_key,
 	 	"%s_1",
 	 	key );
 	data = dictionary_get_pointer( dictionary, dictionary_key );
@@ -288,7 +288,7 @@ boolean dictionary_populated_key_exists_index_zero(
 	char *data;
 	char dictionary_key[ 1024 ];
 
-	sprintf( dictionary_key,
+	sprintf(dictionary_key,
 	 	"%s_0",
 	 	key );
 	data = dictionary_get_pointer( dictionary, dictionary_key );
@@ -307,7 +307,7 @@ boolean dictionary_non_populated_key_exists_index_zero(
 	char *data;
 	char dictionary_key[ 1024 ];
 
-	sprintf( dictionary_key,
+	sprintf(dictionary_key,
 	 	"%s_0",
 	 	key );
 
@@ -327,20 +327,23 @@ boolean dictionary_exists_key_index( 	DICTIONARY *dictionary,
 	char *data;
 	char dictionary_key[ 1024 ];
 
-	sprintf( dictionary_key, 
+	sprintf(dictionary_key, 
 	 	"%s_%d",
 	 	search_key, row );
 	data = dictionary_get( dictionary, dictionary_key );
 
 	if ( !data && row == 0 )
 	{
-		sprintf( dictionary_key, 
+		sprintf(dictionary_key, 
 		 	"%s",
 		 	search_key );
 		data = dictionary_get( dictionary, dictionary_key );
 	}
 
-	return (boolean)data;
+	if ( data )
+		return 1;
+	else
+		return 0;
 
 } /* dictionary_exists_key_index() */
 
@@ -1513,14 +1516,27 @@ DICTIONARY *dictionary_extract_prepended_key(
 	return destination;
 } /* dictionary_extract_prepended_key() */
 
-int dictionary_key_exists_index_zero(	DICTIONARY *indexed_dictionary,
+boolean dictionary_key_exists_index_zero(
+					DICTIONARY *indexed_dictionary,
 					char *key )
 {
 	return 
 	dictionary_exists_key_index( indexed_dictionary, key, 0 );
 }
 
-int dictionary_data_exists_index_zero(	DICTIONARY *indexed_dictionary,
+boolean dictionary_key_exists_index_zero_or_one(
+					DICTIONARY *indexed_dictionary,
+					char *key )
+{
+	if ( dictionary_exists_key_index( indexed_dictionary, key, 0 ) )
+		return 1;
+	else
+	return dictionary_exists_key_index( indexed_dictionary, key, 1 );
+
+}
+
+boolean dictionary_data_exists_index_zero(
+					DICTIONARY *indexed_dictionary,
 					char *key )
 {
 	char *data;

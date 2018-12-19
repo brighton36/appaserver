@@ -581,6 +581,18 @@ void output_prompt_edit_form(
 		exit( 1 );
 	}
 
+
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got regular_element_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+element_list_display( form->regular_element_list ) );
+m2( application_name, msg );
+}
+*/
 	/* Set other attributes */
 	/* -------------------- */
 	form_set_post_process( form, "post_prompt_edit_form" );
@@ -1133,7 +1145,7 @@ LIST *get_element_list(
 		}
 
 		attribute_exists_in_preprompt_dictionary =
-			dictionary_key_exists_index_zero(
+			dictionary_key_exists_index_zero_or_one(
 					preprompt_dictionary,
 					attribute->attribute_name );
 
@@ -2198,10 +2210,20 @@ void build_related_folder_element_list(
 		related_folder->
 			drop_down_multi_select;
 
+/* -------------------------------------------- */
+/* This broke:					*/
+/*	waterquality				*/
+/*	<Lookup><Results>			*/
+/*	First prelookup=STATION_PARAMETER	*/
+/*	Second prelookup=COLLECTION		*/
+/* -------------------------------------------- */
+/*
 	if ( related_folder->folder->lookup_before_drop_down )
 		send_preprompt_dictionary = preprompt_dictionary;
 	else
 		send_preprompt_dictionary = (DICTIONARY *)0;
+*/
+	send_preprompt_dictionary = preprompt_dictionary;
 
 /* ---------------------------------------------------- */
 /* This broke <Insert> <Reoccurring Transaction> 	*/
@@ -2223,6 +2245,15 @@ void build_related_folder_element_list(
 	only_one_ajax_fill_drop_down =
 		ajax_fill_drop_down_related_folder;
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got send_preprompt_dictionary = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display( send_preprompt_dictionary ) );
+m2( application_name, msg );
+}
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(

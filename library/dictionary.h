@@ -135,7 +135,12 @@ boolean dictionary_non_populated_key_exists_index_zero(
 					DICTIONARY *indexed_dictionary,
 					char *key );
 
-int dictionary_key_exists_index_zero(	DICTIONARY *indexed_dictionary,
+boolean dictionary_key_exists_index_zero(
+					DICTIONARY *indexed_dictionary,
+					char *key );
+
+boolean dictionary_key_exists_index_zero_or_one(
+					DICTIONARY *indexed_dictionary,
 					char *key );
 
 char *dictionary_display_delimited(	DICTIONARY *d, char delimiter );
@@ -248,7 +253,7 @@ boolean dictionary_exists_key( 		DICTIONARY *dictionary,
 int dictionary_key_exists( 		DICTIONARY *dictionary,
 					char *search_key );
 
-int dictionary_exists_index_key( 	DICTIONARY *d, 
+boolean dictionary_exists_index_key( 	DICTIONARY *d, 
 					char *key_with_unknown_index );
 
 LIST *dictionary_get_index_list(	DICTIONARY *d,
@@ -281,7 +286,9 @@ DICTIONARY *dictionary_merge_lists2dictionary(
 void dictionary_add_constant(		DICTIONARY *dictionary,
 					LIST *data_list,
 					char *constant );
-int dictionary_data_exists_index_zero(	DICTIONARY *indexed_dictionary,
+
+boolean dictionary_data_exists_index_zero(
+					DICTIONARY *indexed_dictionary,
 					char *key );
 
 int dictionary_attribute_name_list_get_highest_index(

@@ -22,6 +22,8 @@
 
 #define INSERT_RESULTS 			"station,collection_date,collection_time,parameter,units,concentration"
 
+#define INSERT_RESULTS_EXCEPTION	"station,collection_date,collection_time,parameter,units,exception"
+
 #define DISPLAY_RESULTS 			"station,collection_date,collection_time,parameter,units,concentration,exception"
 #define INSERT_COLLECTION		"station,collection_date,collection_time,collection_depth_meters,meta_data_file"
 #define INSERT_STATION 			"station"
@@ -44,6 +46,7 @@ boolean extract_station_collection_attributes(
 
 void close_pipes(
 		FILE *results_insert_pipe,
+		FILE *results_exception_insert_pipe,
 		FILE *station_parameter_insert_pipe,
 		FILE *station_insert_pipe,
 		FILE *water_project_station_insert_pipe,

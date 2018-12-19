@@ -176,9 +176,6 @@ STATION *water_new_station(
 COLLECTION *water_collection_new(
 				void );
 
-RESULTS *water_results_new(
-				void );
-
 PARAMETER_UNIT *water_new_parameter_unit(
 				char *parameter_name,
 				char *units );
@@ -280,5 +277,8 @@ LIST *water_get_results_exception_list(	char *exception_string,
 					LIST *exception_list );
 
 char *water_exception_display(	LIST *exception_list );
+
+char *water_load_column_list_display(
+				LIST *load_column_list );
 
 #endif

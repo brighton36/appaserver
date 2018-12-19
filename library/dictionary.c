@@ -3871,7 +3871,6 @@ LIST *dictionary_seek_delimited_list(
 				char *key )
 {
 	char *delimited_data;
-	char delimiter;
 
 	if ( ! ( delimited_data = dictionary_seek( dictionary, key ) ) )
 		return (LIST *)0;
@@ -3879,17 +3878,6 @@ LIST *dictionary_seek_delimited_list(
 	if ( !*delimited_data ) return (LIST *)0;
 
 	return list_delimited_string_to_list( delimited_data );
-
-#ifdef NOT_DEFINED
-	if ( ! ( delimiter = timlib_get_delimiter( delimited_data ) ) )
-	{
-		/* Could be anything. */
-		/* ------------------ */
-		delimiter = ';';
-	}
-
-	return list_delimiter_string_to_list( delimited_data, delimiter );
-#endif
 
 } /* dictionary_seek_delimited_list() */
 

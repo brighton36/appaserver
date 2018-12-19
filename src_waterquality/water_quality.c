@@ -12,11 +12,177 @@
 #include <unistd.h>
 #include "timlib.h"
 #include "piece.h"
+#include "column.h"
 #include "list.h"
 #include "dictionary.h"
 #include "hashtbl.h"
 #include "appaserver_library.h"
 #include "water_quality.h"
+
+PARAMETER_UNIT *water_new_parameter_unit(	char *parameter_name,
+						char *units )
+{
+	PARAMETER_UNIT *w;
+
+	if ( ! ( w = calloc( 1, sizeof( PARAMETER_UNIT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	w->parameter_name = parameter_name;
+	w->units = units;
+	return w;
+
+} /* water_new_parameter_unit() */
+
+LIST *water_get_parameter_unit_alias_list(
+			LIST *parameter_name_list,
+			LIST *unit_name_list,
+			LIST *parameter_alias_list,
+			LIST *unit_alias_list )
+{
+	PARAMETER_ALIAS *parameter_alias;
+	UNIT_ALIAS *unit_alias;
+	LIST *parameter_unit_alias_list;
+	PARAMETER_UNIT_ALIAS *parameter_unit_alias;
+	char *column_heading_string;
+	char *parameter_name = {0};
+	char *unit_name;
+
+	parameter_unit_alias_list = list_new();
+
+	/* PARAMETER and UNIT */
+	/* ------------------ */
+	if ( list_rewind( parameter_name_list )
+	&&   list_length( unit_name_list ) )
+	do {
+		parameter_name = list_get_pointer( parameter_name_list );
+
+		list_rewind( unit_name_list );
+
+		do {
+			unit_name = list_get_pointer( unit_name_list );
+
+			column_heading_string =
+				water_get_column_heading_string(
+					parameter_name,
+					unit_name );
+
+			parameter_unit_alias =
+				water_parameter_unit_alias_new(
+					column_heading_string,
+					parameter_name,
+					unit_name );
+
+			list_append_pointer(
+				parameter_unit_alias_list,
+				parameter_unit_alias );
+
+		} while( list_next( unit_name_list ) );
+
+	} while( list_next( parameter_name_list ) );
+
+	/* PARAMETER_ALIAS and UNIT */
+	/* ------------------------ */
+	if ( list_rewind( parameter_alias_list )
+	&&   list_length( unit_name_list ) )
+	do {
+		parameter_alias = list_get_pointer( parameter_alias_list );
+
+		list_rewind( unit_name_list );
+
+		do {
+			unit_name = list_get_pointer( unit_name_list );
+
+			column_heading_string =
+				water_get_column_heading_string(
+					parameter_alias->parameter_alias,
+					unit_name );
+
+			parameter_unit_alias =
+				water_parameter_unit_alias_new(
+					column_heading_string,
+					parameter_alias->parameter_alias,
+					unit_name );
+
+			list_append_pointer(
+				parameter_unit_alias_list,
+				parameter_unit_alias );
+
+		} while( list_next( unit_name_list ) );
+
+	} while( list_next( parameter_alias_list ) );
+
+	/* PARAMETER and UNIT_ALIAS */
+	/* ------------------------ */
+	if ( list_rewind( parameter_name_list )
+	&&   list_length( unit_alias_list ) )
+	do {
+		parameter_name = list_get_pointer( parameter_name_list );
+
+		list_rewind( unit_alias_list );
+
+		do {
+			unit_alias = list_get_pointer( unit_alias_list );
+
+			column_heading_string =
+				water_get_column_heading_string(
+					parameter_name,
+					unit_alias->unit_alias );
+
+			parameter_unit_alias =
+				water_parameter_unit_alias_new(
+					column_heading_string,
+					parameter_name,
+					unit_alias->units );
+
+			list_append_pointer(
+				parameter_unit_alias_list,
+				parameter_unit_alias );
+
+		} while( list_next( unit_alias_list ) );
+
+	} while( list_next( parameter_name_list ) );
+
+	/* PARAMETER_ALIAS and UNIT_ALIAS */
+	/* ------------------------------ */
+	if ( list_rewind( parameter_alias_list )
+	&&   list_length( unit_alias_list ) )
+	do {
+		parameter_alias = list_get_pointer( parameter_alias_list );
+
+		list_rewind( unit_alias_list );
+
+		do {
+			unit_alias = list_get_pointer( unit_alias_list );
+
+			column_heading_string =
+				water_get_column_heading_string(
+					parameter_alias->parameter_alias,
+					unit_alias->unit_alias );
+
+			parameter_unit_alias =
+				water_parameter_unit_alias_new(
+					column_heading_string,
+					parameter_name,
+					unit_alias->units );
+
+			list_append_pointer(
+				parameter_unit_alias_list,
+				parameter_unit_alias );
+
+		} while( list_next( unit_alias_list ) );
+
+	} while( list_next( parameter_alias_list ) );
+
+	return parameter_unit_alias_list;
+
+} /* water_get_parameter_unit_alias_list() */
 
 char *water_quality_get_project_name(
 				char *application_name,
@@ -139,6 +305,29 @@ char *water_quality_get_parameter_name(
 
 } /* water_quality_get_parameter_name() */
 
+EXCEPTION *water_exception_new(
+				char *exception_string,
+				char *exception_code )
+{
+	EXCEPTION *w;
+
+	if ( ! ( w = calloc( 1, sizeof( EXCEPTION ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	w->exception = exception_string;
+	w->exception_code = exception_code;
+
+	return w;
+
+} /* water_exception_new() */
+
 WATER_QUALITY *water_quality_new(	char *application_name,
 					char *project_name )
 {
@@ -168,6 +357,10 @@ WATER_QUALITY *water_quality_new(	char *application_name,
 
 	w->input.unit_alias_list =
 		water_fetch_unit_alias_list(
+			application_name );
+
+	w->input.exception_list =
+		water_fetch_exception_list(
 			application_name );
 
 	w->input.water_project =
@@ -338,27 +531,6 @@ PARAMETER_UNIT *water_parameter_unit_new(	char *parameter_name,
 	return water_new_parameter_unit( parameter_name, units );
 }
 
-PARAMETER_UNIT *water_new_parameter_unit(	char *parameter_name,
-						char *units )
-{
-	PARAMETER_UNIT *w;
-
-	if ( ! ( w = calloc( 1, sizeof( PARAMETER_UNIT ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	w->parameter_name = parameter_name;
-	w->units = units;
-	return w;
-
-} /* water_new_parameter_unit() */
-
 LIST *water_fetch_station_list(		char *application_name,
 					char *project_name )
 {
@@ -491,6 +663,59 @@ LIST *water_fetch_station_parameter_list(
 	return station_parameter_list;
 
 } /* water_fetch_station_parameter_list() */
+
+LIST *water_fetch_exception_list( char *application_name )
+{
+	char sys_string[ 1024 ];
+	char input_buffer[ 1024 ];
+	char *select;
+	char *folder;
+	char exception_string[ 128 ];
+	char exception_code[ 128 ];
+	FILE *input_pipe;
+	EXCEPTION *exception;
+	LIST *exception_list;
+
+	select = "exception,exception_code";
+	folder = "exception";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder );
+
+	input_pipe = popen( sys_string, "r" );
+	exception_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece(	exception_string,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	exception_code,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		exception =
+			water_exception_new(
+				strdup( exception_string ),
+				strdup( exception_code ) );
+
+		list_append_pointer(
+			exception_list,
+			exception );
+	}
+
+	pclose( input_pipe );
+	return exception_list;
+
+} /* water_fetch_exception_list() */
 
 LIST *water_fetch_parameter_name_list(	char *application_name )
 {
@@ -827,9 +1052,16 @@ LIST *water_fetch_turkey_point_heading_column_list(
 			load_column = water_new_load_column();
 			load_column->parameter_unit = parameter_unit;
 			load_column->column_piece = column_piece;
+
 			list_append_pointer(
 				load_column_list,
 				load_column );
+
+			/* ---------------------------- */
+			/* Each data column is followed */
+			/* by the exception column.     */
+			/* ---------------------------- */
+			column_piece++;
 		}
 		else
 		{
@@ -1249,150 +1481,6 @@ void water_seek_application_constants_dictionary(
 
 } /* water_seek_application_constants_dictionary() */
 
-LIST *water_get_parameter_unit_alias_list(
-			LIST *parameter_name_list,
-			LIST *unit_name_list,
-			LIST *parameter_alias_list,
-			LIST *unit_alias_list )
-{
-	PARAMETER_ALIAS *parameter_alias;
-	UNIT_ALIAS *unit_alias;
-	LIST *parameter_unit_alias_list;
-	PARAMETER_UNIT_ALIAS *parameter_unit_alias;
-	char *column_heading_string;
-	char *parameter_name;
-	char *unit_name;
-
-	parameter_unit_alias_list = list_new();
-
-	/* PARAMETER and UNIT */
-	/* ------------------ */
-	if ( list_rewind( parameter_name_list )
-	&&   list_length( unit_name_list ) )
-	do {
-		parameter_name = list_get_pointer( parameter_name_list );
-
-		list_rewind( unit_name_list );
-
-		do {
-			unit_name = list_get_pointer( unit_name_list );
-
-			column_heading_string =
-				water_get_column_heading_string(
-					parameter_name,
-					unit_name );
-
-			parameter_unit_alias =
-				water_parameter_unit_alias_new(
-					column_heading_string,
-					parameter_name,
-					unit_name );
-
-			list_append_pointer(
-				parameter_unit_alias_list,
-				parameter_unit_alias );
-
-		} while( list_next( unit_name_list ) );
-
-	} while( list_next( parameter_name_list ) );
-
-	/* PARAMETER_ALIAS and UNIT */
-	/* ------------------------ */
-	if ( list_rewind( parameter_alias_list )
-	&&   list_length( unit_name_list ) )
-	do {
-		parameter_alias = list_get_pointer( parameter_alias_list );
-
-		list_rewind( unit_name_list );
-
-		do {
-			unit_name = list_get_pointer( unit_name_list );
-
-			column_heading_string =
-				water_get_column_heading_string(
-					parameter_alias->parameter_alias,
-					unit_name );
-
-			parameter_unit_alias =
-				water_parameter_unit_alias_new(
-					column_heading_string,
-					parameter_alias->parameter_alias,
-					unit_name );
-
-			list_append_pointer(
-				parameter_unit_alias_list,
-				parameter_unit_alias );
-
-		} while( list_next( unit_name_list ) );
-
-	} while( list_next( parameter_alias_list ) );
-
-	/* PARAMETER and UNIT_ALIAS */
-	/* ------------------------ */
-	if ( list_rewind( parameter_name_list )
-	&&   list_length( unit_alias_list ) )
-	do {
-		parameter_name = list_get_pointer( parameter_name_list );
-
-		list_rewind( unit_alias_list );
-
-		do {
-			unit_alias = list_get_pointer( unit_alias_list );
-
-			column_heading_string =
-				water_get_column_heading_string(
-					parameter_name,
-					unit_alias->unit_alias );
-
-			parameter_unit_alias =
-				water_parameter_unit_alias_new(
-					column_heading_string,
-					parameter_name,
-					unit_alias->units );
-
-			list_append_pointer(
-				parameter_unit_alias_list,
-				parameter_unit_alias );
-
-		} while( list_next( unit_alias_list ) );
-
-	} while( list_next( parameter_name_list ) );
-
-	/* PARAMETER_ALIAS and UNIT_ALIAS */
-	/* ------------------------------ */
-	if ( list_rewind( parameter_alias_list )
-	&&   list_length( unit_alias_list ) )
-	do {
-		parameter_alias = list_get_pointer( parameter_alias_list );
-
-		list_rewind( unit_alias_list );
-
-		do {
-			unit_alias = list_get_pointer( unit_alias_list );
-
-			column_heading_string =
-				water_get_column_heading_string(
-					parameter_alias->parameter_alias,
-					unit_alias->unit_alias );
-
-			parameter_unit_alias =
-				water_parameter_unit_alias_new(
-					column_heading_string,
-					parameter_name,
-					unit_alias->units );
-
-			list_append_pointer(
-				parameter_unit_alias_list,
-				parameter_unit_alias );
-
-		} while( list_next( unit_alias_list ) );
-
-	} while( list_next( parameter_alias_list ) );
-
-	return parameter_unit_alias_list;
-
-} /* water_get_parameter_unit_alias_list() */
-
 char *water_get_column_heading_string(
 				char *parameter_name,
 				char *unit_name )
@@ -1451,3 +1539,63 @@ char *water_parameter_unit_alias_list_display(
 	return strdup( buffer );
 
 } /* water_parameter_unit_alias_list_display() */
+
+LIST *water_get_results_exception_list(	char *exception_string,
+					LIST *exception_list )
+{
+	char exception_column[ 128 ];
+	LIST *return_exception_list;
+	EXCEPTION *exception;
+	int c;
+
+	if ( !exception_string || !*exception_string ) return (LIST *)0;
+
+	if ( !list_length( exception_list ) ) return (LIST *)0;
+
+	return_exception_list = list_new();
+
+	for(	c = 0;
+		column( exception_column, c, exception_string );
+		c++ )
+	{
+		list_rewind( exception_list );
+
+		do {
+			exception = list_get_pointer( exception_list );
+
+			if ( strcmp(
+				exception->exception_code,
+				exception_column ) == 0 )
+			{
+				list_append_pointer(
+					return_exception_list,
+					exception );
+			}
+		} while( list_next( exception_list ) );
+	}
+
+	return return_exception_list;
+
+} /* water_get_results_exception_list() */
+
+char *water_exception_display( LIST *exception_list )
+{
+	char buffer[ 1024 ];
+	char *ptr = buffer;
+	EXCEPTION *exception;
+
+	if ( !list_rewind( exception_list ) ) return "";
+
+	do {
+		exception = list_get_pointer( exception_list );
+
+		if ( ptr != buffer ) ptr += sprintf( ptr, "," );
+
+		ptr += sprintf( ptr, "%s", exception->exception );
+
+	} while( list_next( exception_list ) );
+
+	return strdup( buffer );
+
+} /* water_exception_display() */
+

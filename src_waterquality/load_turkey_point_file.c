@@ -136,6 +136,8 @@ fprintf( stderr,
 		water_quality->parameter_unit_alias_list ) );
 */
 
+	/* Doesn't set RESULTS */
+	/* ------------------- */
 	water_quality->load_column_list =
 		water_fetch_turkey_point_column_list(
 				heading_error_message,
@@ -324,7 +326,7 @@ int load_concentration_file(
 		sprintf( sys_string,
 		"queue_top_bottom_lines.e 50				|"
 		"html_table.e 'Insert into Water Quality Results' %s '|' ",
-			 INSERT_RESULTS );
+			 DISPLAY_RESULTS );
 
 		table_output_pipe = popen( sys_string, "w" );
 	}
@@ -385,7 +387,10 @@ int load_concentration_file(
 
 		while( ( results = extract_results(
 					input_string,
-					water_quality->load_column_list ) ) )
+					water_quality->load_column_list,
+					water_quality->
+						input.
+						exception_list ) ) )
 		{
 			if ( !results->parameter_unit )
 			{
@@ -408,13 +413,15 @@ int load_concentration_file(
 			if ( table_output_pipe )
 			{
 				fprintf(table_output_pipe,
-				 	"%s|%s|%s|%s|%s|%s\n",
+				 	"%s|%s|%s|%s|%s|%s|%s\n",
 				 	station,
 				 	collection_date_international,
 				 	collection_time_without_colon,
 				 	results->parameter_unit->parameter_name,
 				 	results->parameter_unit->units,
-				 	results->concentration );
+				 	results->concentration,
+					water_exception_display(
+						results->exception_list ) );
 				continue;
 			}
 
@@ -610,9 +617,11 @@ void close_pipes(
 
 RESULTS *extract_results(
 			char *input_string,
-			LIST *load_column_list )
+			LIST *load_column_list,
+			LIST *exception_list )
 {
 	char concentration[ 128 ];
+	char exception_string[ 128 ];
 	LOAD_COLUMN *load_column;
 	static RESULTS results = {0};
 
@@ -623,7 +632,9 @@ RESULTS *extract_results(
 
 		if ( load_column->parameter_unit )
 		{
-			if ( ! piece_quote_comma(
+			/* Get the concentration */
+			/* --------------------- */
+			if ( !piece_quote_comma(
 				concentration,
 				input_string,
 				load_column->column_piece ) )
@@ -638,7 +649,29 @@ RESULTS *extract_results(
 
 			results.parameter_unit = load_column->parameter_unit;
 			results.concentration = strdup( concentration );
+
+			/* Get the exceptions */
+			/* ------------------ */
+			if ( !piece_quote_comma(
+				exception_string,
+				input_string,
+				load_column->column_piece + 1 ) )
+			{
+				return (RESULTS *)0;
+			}
+
+			if ( *exception_string )
+			{
+				results.exception_list =
+					water_get_results_exception_list(
+						exception_string,
+						exception_list );
+			}
+
+			/* Ready for next call to this function */
+			/* ------------------------------------ */
 			list_next( load_column_list );
+
 			return &results;
 		}
 

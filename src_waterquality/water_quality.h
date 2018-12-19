@@ -32,6 +32,12 @@
 /* ---------- */
 typedef struct
 {
+	char *exception;
+	char *exception_code;
+} EXCEPTION;
+
+typedef struct
+{
 	char *parameter_name;
 	char *units;
 } PARAMETER_UNIT;
@@ -44,8 +50,9 @@ typedef struct
 
 typedef struct
 {
-	PARAMETER_UNIT *parameter_unit;
 	char *concentration;
+	PARAMETER_UNIT *parameter_unit;
+	LIST *exception_list;
 } RESULTS;
 
 typedef struct
@@ -101,6 +108,7 @@ typedef struct
 	LIST *unit_alias_list;
 	LIST *parameter_name_list;
 	LIST *unit_name_list;
+	LIST *exception_list;
 } WATER_QUALITY_INPUT;
 
 typedef struct
@@ -140,6 +148,10 @@ PARAMETER_UNIT_ALIAS *water_parameter_unit_alias_new(
 
 UNIT_ALIAS *water_unit_alias_new(
 				void );
+
+EXCEPTION *water_exception_new(
+				char *exception_string,
+				char *exception_code );
 
 WATER_QUALITY *water_quality_new(
 				char *application_name,
@@ -260,5 +272,13 @@ LIST *water_fetch_turkey_point_heading_column_list(
 
 char *water_parameter_unit_alias_list_display(
 				LIST *parameter_unit_alias_list );
+
+LIST *water_fetch_exception_list(
+				char *application_name );
+
+LIST *water_get_results_exception_list(	char *exception_string,
+					LIST *exception_list );
+
+char *water_exception_display(	LIST *exception_list );
 
 #endif

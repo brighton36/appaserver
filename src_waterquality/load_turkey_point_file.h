@@ -21,6 +21,8 @@
 #define STATION_LONGITUDE_HEADING		"LONDEC"
 
 #define INSERT_RESULTS 			"station,collection_date,collection_time,parameter,units,concentration"
+
+#define DISPLAY_RESULTS 			"station,collection_date,collection_time,parameter,units,concentration,exception"
 #define INSERT_COLLECTION		"station,collection_date,collection_time,collection_depth_meters,meta_data_file"
 #define INSERT_STATION 			"station"
 #define INSERT_STATION_PARAMETER	"station,parameter,units"
@@ -68,6 +70,7 @@ char *subtract_colon_from_hrmi(	 char *hrmi );
 
 RESULTS *extract_results(
 				char *input_string,
-				LIST *load_column_list );
+				LIST *load_column_list,
+				LIST *exception_list );
 
 #endif

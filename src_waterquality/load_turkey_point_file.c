@@ -267,7 +267,7 @@ int load_concentration_file(
 		 sys_string,
 		 "count.e %d 'WQ Load count'				  |"
 		 "insert_statement table=%s field=%s del='|' compress=y   |"
-		 "sql.e 2>&1						  |"
+		 "#sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e				   ",
 		 STDERR_COUNT,
@@ -280,7 +280,7 @@ int load_concentration_file(
 		 sys_string,
 		 "sort -u						  |"
 		 "insert_statement table=%s field=%s del='|' compress=y   |"
-		 "sql.e 2>&1						  |"
+		 "#sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e			 	   ",
 		 collection_table_name,
@@ -291,7 +291,7 @@ int load_concentration_file(
 		sprintf( sys_string,
 			 "sort -u					|"
 			 "insert_statement %s %s '|'			|"
-			 "sql.e 2>&1					|"
+			 "#sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "html_paragraph_wrapper.e			 ",
 		 	station_parameter_table_name,
@@ -302,7 +302,7 @@ int load_concentration_file(
 		sprintf( sys_string,
 			 "sort -u					|"
 			 "insert_statement %s %s '|'			|"
-			 "sql.e 2>&1					|"
+			 "#sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "html_paragraph_wrapper.e			 ",
 		 	station_table_name,
@@ -313,7 +313,7 @@ int load_concentration_file(
 		sprintf( sys_string,
 			 "sort -u					|"
 			 "insert_statement %s %s '|'			|"
-			 "sql.e 2>&1					|"
+			 "#sql.e 2>&1					|"
 			 "grep -vi duplicate				|"
 			 "html_paragraph_wrapper.e			 ",
 		 	water_project_station_table_name,
@@ -513,7 +513,7 @@ void delete_waterquality(	char *application_name,
 	sprintf( sys_string,
 		 "sort -u						|"
 		 "delete_statement.e t=%s f=%s d='|'			|"
-		 "sql.e 2>&1						 ",
+		 "#sql.e 2>&1						 ",
 		 table_name,
 		 DELETE_FIELD_LIST );
 
@@ -529,7 +529,7 @@ void delete_waterquality(	char *application_name,
 		 "sort -u						|"
 		 "delete_statement.e t=%s f=%s d='|'			|"
 		 "count.e %d 'WQ delete collection count'		|"
-		 "sql.e 2>&1						 ",
+		 "#sql.e 2>&1						 ",
 		 table_name,
 		 DELETE_FIELD_LIST,
 		 STDERR_COUNT );

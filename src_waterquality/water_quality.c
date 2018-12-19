@@ -674,18 +674,22 @@ LIST *water_fetch_exception_list( char *application_name )
 	char exception_code[ 128 ];
 	FILE *input_pipe;
 	EXCEPTION *exception;
+	char *where;
 	LIST *exception_list;
 
 	select = "exception,exception_code";
 	folder = "exception";
+	where = "exception_code is not null";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s	"
-		 "			select=%s	"
-		 "			folder=%s	",
+		 "			select=\"%s\"	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	",
 		 application_name,
 		 select,
-		 folder );
+		 folder,
+		 where );
 
 	input_pipe = popen( sys_string, "r" );
 	exception_list = list_new();
@@ -701,6 +705,10 @@ LIST *water_fetch_exception_list( char *application_name )
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			1 );
+
+		/* Only use first character to map to exception_string */
+		/* --------------------------------------------------- */
+		*(exception_code + 1) = '\0';
 
 		exception =
 			water_exception_new(
@@ -1340,10 +1348,24 @@ PARAMETER_UNIT *water_parameter_unit_alias_seek_parameter_unit(
 			list_get_pointer(
 				parameter_unit_alias_list );
 
+if ( timlib_strncmp( parameter_unit_alias->column_heading_string, "dissolved" ) == 0 )
+fprintf( stderr, "%s/%s()/%d\n: got parameter_unit_alias = (%s)",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+parameter_unit_alias->column_heading_string );
+
 		if ( timlib_strcmp(
 			column_heading_string,
 			parameter_unit_alias->column_heading_string ) == 0 )
 		{
+fprintf( stderr, "%s/%s()/%d: matched = (%s/%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+parameter_unit_alias->parameter_unit->parameter_name,
+parameter_unit_alias->parameter_unit->units );
+
 			return parameter_unit_alias->parameter_unit;
 		}
 	} while( list_next( parameter_unit_alias_list ) );

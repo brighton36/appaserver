@@ -526,8 +526,6 @@ boolean measurement_date_time_frequency_exists(
 {
 	char key[ 128 ];
 
-return 1;
-
 	sprintf(key,
 		"%s^%s",
 		measurement_date_string,
@@ -564,6 +562,7 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 	m->station = station;
 	m->datatype = datatype;
 
+/*
 	if ( !datatype_bypass_data_collection_frequency(
 				application_name,
 				station,
@@ -577,6 +576,7 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 				begin_measurement_date,
 				end_measurement_date );
 	}
+*/
 
 	return m;
 

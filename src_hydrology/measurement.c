@@ -526,6 +526,8 @@ boolean measurement_date_time_frequency_exists(
 {
 	char key[ 128 ];
 
+return 1;
+
 	sprintf(key,
 		"%s^%s",
 		measurement_date_string,

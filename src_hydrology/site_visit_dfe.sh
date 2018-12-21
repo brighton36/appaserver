@@ -37,7 +37,7 @@ echo "select station, datatype, 		\
 sql							|
 sed 's/temperature/temp/g'				|
 sed 's/rain_cumulative/rain_c/g'				|
-awk 'BEGIN {FS = "^"} {printf("%-10s%-15s%-10s:%4s\t%8.2f%8.2f%8.2f%8s%8s\n", $1,$2,$3,$4,$5,$6,$7,$8,$9)}' 
+awk 'BEGIN {FS = "^"} {printf("%-10s%-15s%-10s:%4s\t%8.3f%8.3f%8.3f%8s%8s\n", $1,$2,$3,$4,$5,$6,$7,$8,$9)}' 
 
 echo "Notes"
 

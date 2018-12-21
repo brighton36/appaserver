@@ -2245,15 +2245,6 @@ void build_related_folder_element_list(
 	only_one_ajax_fill_drop_down =
 		ajax_fill_drop_down_related_folder;
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: got send_preprompt_dictionary = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( send_preprompt_dictionary ) );
-m2( application_name, msg );
-}
 	list_append_list(
 		element_list,
 		related_folder_get_drop_down_element_list(

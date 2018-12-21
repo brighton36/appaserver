@@ -1443,8 +1443,7 @@ void post_change_customer_sale_transaction_date_time_update(
 	system( sys_string );
 
 	sprintf(sys_string,
- 		"propagate_purchase_order_accounts %s \"%s\"",
- 		application_name,
+ 		"propagate_purchase_order_accounts ignored fund \"%s\"",
  		(propagate_transaction_date_time)
 			? propagate_transaction_date_time
 			: "" );

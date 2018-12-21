@@ -618,9 +618,8 @@ void post_change_inventory_purchase_inventory_name_update(
 
 	if ( purchase_order->transaction )
 	{
-		sprintf(sys_string,
-			"propagate_purchase_order_accounts %s ''",
-			application_name );
+		strcpy(sys_string,
+"propagate_purchase_order_accounts ignored fund transaction_date_time" );
 
 		system( sys_string );
 	}
@@ -633,6 +632,22 @@ void post_change_inventory_purchase_missing_quantity_update(
 			char *application_name )
 {
 	char sys_string[ 1024 ];
+	INVENTORY_PURCHASE *inventory_purchase;
+
+	inventory_purchase =
+		inventory_purchase_list_seek(
+			purchase_order->inventory_purchase_list,
+			inventory_name );
+
+	inventory_purchase->quantity_on_hand =
+		inventory_get_quantity_on_hand(
+			inventory_purchase->arrived_quantity,
+			inventory_purchase->missing_quantity );
+
+	inventory_purchase_list_update(
+		application_name,
+		purchase_order->
+			inventory_purchase_list );
 
 	sprintf( sys_string,
 "propagate_inventory_sale_layers %s \"\" \"\" \"\" \"%s\" \"%s\" n",
@@ -644,9 +659,8 @@ void post_change_inventory_purchase_missing_quantity_update(
 
 	system( sys_string );
 
-	sprintf(sys_string,
-		"propagate_purchase_order_accounts %s ''",
-		application_name );
+	strcpy(sys_string,
+"propagate_purchase_order_accounts ignored fund transaction_date_time" );
 
 	system( sys_string );
 
@@ -698,6 +712,16 @@ void post_change_inventory_purchase_ordered_quantity_update(
 		inventory_purchase_get_extension(
 			inventory_purchase->ordered_quantity,
 			inventory_purchase->unit_cost );
+
+	inventory_purchase->quantity_on_hand =
+		inventory_get_quantity_on_hand(
+			inventory_purchase->arrived_quantity,
+			inventory_purchase->missing_quantity );
+
+	inventory_purchase_list_update(
+		application_name,
+		purchase_order->
+			inventory_purchase_list );
 
 	purchase_order->purchase_amount =
 		purchase_order_get_purchase_amount(

@@ -2560,6 +2560,13 @@ void appaserver_library_automatically_set_login_name(
 
 } /* appaserver_library_automatically_set_login_name() */
 
+char *appaserver_library_change_state_display(
+			enum preupdate_change_state preupdate_change_state )
+{
+	return appaserver_library_preupdate_change_state_display(
+			preupdate_change_state );
+}
+
 char *appaserver_library_preupdate_change_state_display(
 			enum preupdate_change_state preupdate_change_state )
 {

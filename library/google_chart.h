@@ -19,7 +19,8 @@
 #define GOOGLE_CHART_BACKGROUND_COLOR		"#effdff"
 #define GOOGLE_CHART_CONVERT_MONTH_EXPRESSION	atoi( month ) - 1
 #define GOOGLE_ANNOTATED_TIMELINE		"annotatedtimeline"
-#define GOOGLE_CORECHART			"corechart"
+/* #define GOOGLE_CORECHART			"corechart" */
+#define GOOGLE_CORECHART			"BarChart"
 
 /* Enumerations */
 /* ------------ */

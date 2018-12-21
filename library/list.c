@@ -1982,3 +1982,18 @@ LIST *list_copy_count(		LIST *list,
 
 } /* list_copy_count() */
 
+LIST *list_delimited_string_to_list(
+				char *delimited_string )
+{
+	char delimiter;
+
+	if ( ! ( delimiter = timlib_get_delimiter( delimited_string ) ) )
+	{
+		/* Could be anything. */
+		/* ------------------ */
+		delimiter = ';';
+	}
+
+	return list_delimiter_string_to_list( delimited_string, delimiter );
+
+} /* list_delimited_string_to_list() */

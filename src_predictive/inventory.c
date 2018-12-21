@@ -490,7 +490,7 @@ void inventory_purchase_pipe_update(
 		else
 		{
 			fprintf(update_pipe,
-	 			"%s^%s^%s^%s^arrived_quantity^null\n",
+	 			"%s^%s^%s^%s^arrived_quantity^0\n",
 	 			full_name,
 	 			street_address,
 	 			purchase_date_time,
@@ -1184,6 +1184,14 @@ void inventory_reset_quantity_on_hand(
 			inventory_get_quantity_on_hand(
 				inventory_purchase->arrived_quantity,
 				inventory_purchase->missing_quantity );
+
+fprintf( stderr, "%s/%s()/%d: with q (%d) = a (%d) - m (%d)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+inventory_purchase->quantity_on_hand,
+inventory_purchase->arrived_quantity,
+inventory_purchase->missing_quantity );
 
 	} while( list_next( inventory_purchase_list ) );
 
@@ -3264,8 +3272,17 @@ void inventory_purchase_arrived_quantity_update_with_propagate(
 {
 	INVENTORY_PURCHASE *inventory_purchase;
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+
 	if ( !list_rewind( inventory_purchase_list ) ) return;
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 	do {
 		inventory_purchase = list_get( inventory_purchase_list );
 

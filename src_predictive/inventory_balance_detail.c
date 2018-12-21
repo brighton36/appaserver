@@ -224,6 +224,7 @@ void inventory_balance_detail_table(	char *application_name,
 
 	output_pipe = popen( output_process, "w" );
 
+/* here1 */
 	inventory->inventory_balance_list =
 		inventory_get_average_cost_inventory_balance_list(
 			inventory->inventory_purchase_list,

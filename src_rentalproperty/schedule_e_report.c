@@ -175,6 +175,10 @@ int main( int argc, char **argv )
 			tax->tax_process.tax_form_line_list,
 			tax->tax_input.rental_property_list );
 
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 	if ( !list_length(
 		tax->tax_output_rental.tax_form_line_rental_list ) )
 	{

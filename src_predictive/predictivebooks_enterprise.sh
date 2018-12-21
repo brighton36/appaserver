@@ -307,7 +307,9 @@ insert into $role_operation (folder,role,operation) values ('contra_account','su
 delete from $folder where folder = 'customer';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('customer','prompt','5','entity',null,'n',null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'customer';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer','customer_sale','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer','entity','null',null,null,null,'y',null,null,null,null,null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','customer','null',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
@@ -376,8 +378,10 @@ insert into $role_operation (folder,role,operation) values ('customer_payment','
 delete from $folder where folder = 'customer_sale';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('customer_sale','prompt','1','sale',null,'y','populate_customer_sale',null,null,null,null,'post_change_customer_sale',null,null,null,null);
 delete from $relation where folder = 'customer_sale';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','customer','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_sale','transaction','null',null,null,null,'n',null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('activity_work','customer_sale','null',null,null,null,null,null,null,null,'y',null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer','customer_sale','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('customer_payment','customer_sale','null',null,null,null,null,null,null,'y',null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service_sale','customer_sale','null','2',null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('hourly_service_sale','customer_sale','null','5',null,null,null,null,null,null,null,null,null,null);
@@ -1053,6 +1057,37 @@ insert into $role_operation (folder,role,operation) values ('fixed_asset_purchas
 insert into $role_operation (folder,role,operation) values ('fixed_asset_purchase','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('fixed_asset_purchase','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('fixed_asset_purchase','supervisor','detail');
+delete from $folder where folder = 'fixed_service';
+insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('fixed_service','prompt','5','static',null,null,null,null,null,null,null,null,null,null,null,null);
+delete from $relation where folder = 'fixed_service';
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service','account','null',null,null,null,null,null,null,null,'y',null,null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service','fixed_service_category','null',null,null,null,null,null,null,null,null,'y',null,null);
+insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,drop_down_multi_select_yn,automatic_preselection_yn,join_1tom_each_row_yn,omit_lookup_before_drop_down_yn,ajax_fill_drop_down_yn,copy_common_attributes_yn,hint_message) values ('fixed_service_sale','fixed_service','null',null,null,null,null,null,null,null,null,null,'y',null);
+delete from $attribute where attribute = 'service_name';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('service_name','text','30',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'retail_price';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('retail_price','float','10','2',null,null,null,null,null,null);
+delete from $attribute where attribute = 'service_category';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('service_category','text','30',null,null,null,null,null,null,null);
+delete from $attribute where attribute = 'account';
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,hint_message,post_change_javascript,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('account','text','60',null,null,null,null,null,null,null);
+delete from $folder_attribute where folder = 'fixed_service';
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_service','account',null,'2',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_service','retail_price',null,'1',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_service','service_category',null,'1',null,null,null,null,null,null,'y');
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_prompt_yn,omit_insert_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('fixed_service','service_name','1',null,null,null,null,null,null,null,null);
+insert into $role_folder (folder,role,permission) values ('fixed_service','bookkeeper','insert');
+insert into $role_folder (folder,role,permission) values ('fixed_service','bookkeeper','update');
+insert into $role_folder (folder,role,permission) values ('fixed_service','supervisor','insert');
+insert into $role_folder (folder,role,permission) values ('fixed_service','supervisor','update');
+delete from $javascript_folders where folder = 'fixed_service';
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
+insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
+insert into $subschemas (subschema) values ('static');
+insert into $role_operation (folder,role,operation) values ('fixed_service','bookkeeper','delete');
+insert into $role_operation (folder,role,operation) values ('fixed_service','bookkeeper','detail');
+insert into $role_operation (folder,role,operation) values ('fixed_service','supervisor','delete');
+insert into $role_operation (folder,role,operation) values ('fixed_service','supervisor','detail');
 delete from $folder where folder = 'fixed_service_category';
 insert into $folder (folder,form,insert_rows_number,subschema,appaserver_yn,lookup_before_drop_down_yn,populate_drop_down_process,notepad,html_help_file_anchor,no_initial_capital_yn,post_change_javascript,post_change_process,exclude_application_export_yn,lookup_email_output_yn,data_directory,index_directory) values ('fixed_service_category','table','5','static',null,null,null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'fixed_service_category';
@@ -3013,6 +3048,9 @@ echo "create unique index $table_name on $table_name (asset_name,serial_number);
 echo "create index ${table_name}_full_name on $table_name (full_name);" | sql.e
 echo "create index ${table_name}_street_address on $table_name (street_address);" | sql.e
 echo "create index ${table_name}_purchase_date_time on $table_name (purchase_date_time);" | sql.e
+table_name=fixed_service
+echo "create table $table_name (service_name char (30) not null,retail_price double (10,2),service_category char (30),account char (60)) engine MyISAM;" | sql.e
+echo "create unique index $table_name on $table_name (service_name);" | sql.e
 table_name=fixed_service_category
 echo "create table $table_name (service_category char (30) not null) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (service_category);" | sql.e
@@ -3582,6 +3620,10 @@ insert into role_operation (folder,role,operation) values ('fixed_asset_purchase
 insert into role_operation (folder,role,operation) values ('fixed_asset_purchase','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('fixed_asset_purchase','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('fixed_asset_purchase','supervisor','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service','bookkeeper','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service','bookkeeper','detail');
+insert into role_operation (folder,role,operation) values ('fixed_service','supervisor','delete');
+insert into role_operation (folder,role,operation) values ('fixed_service','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('fixed_service_category','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('fixed_service_category','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('fixed_service_category','supervisor','detail');

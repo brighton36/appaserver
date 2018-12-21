@@ -232,7 +232,7 @@ double tax_fetch_recovery_amount(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=%s		"
 		 "			where=\"%s\"		",
 		 application_name,
@@ -778,7 +778,7 @@ LIST *tax_fetch_rental_property_list(	char *application_name,
 
 	/* PRIOR_PROPERTY */
 	/* -------------- */
-	select = "property_purchase.property_street_address,recovery_amount";
+	select = "prior_property.property_street_address,recovery_amount";
 	folder_from = "prior_property,tax_prior_property_recovery";
 
 	sprintf( join_where,

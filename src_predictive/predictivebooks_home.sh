@@ -1719,7 +1719,6 @@ insert into subclassification (subclassification,element,display_order) values (
 insert into subclassification (subclassification,element,display_order) values ('operating_expense','expense','12');
 insert into subclassification (subclassification,element,display_order) values ('receivable','asset','3');
 insert into subclassification (subclassification,element,display_order) values ('revenue','revenue','14');
-insert into subclassification (subclassification,element,display_order) values ('short-term investment','asset','2');
 insert into subclassification (subclassification,element,display_order) values ('tax_expense','expense','13');
 insert into subclassification (subclassification,element,display_order) values ('transportation','expense','9');
 insert into account (account,subclassification,hard_coded_account_key) values ('AC filter','Home',null);
@@ -1737,6 +1736,7 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('Car Insurance','transportation',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Car maintenance','transportation',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('car_registration','transportation',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('clothing','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('depreciation_expense','operating_expense','depreciation_expense_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('donation_cash','donation',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('donation_payable','current_liability',null);
@@ -1751,7 +1751,6 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('Garbage/Water','Home',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Gift','entertainment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Groceries/Cash withdrawal','operating_expense',null);
-insert into account (account,subclassification,hard_coded_account_key) values ('gutter_cleaning','Home',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Haircut','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Healthcare consumption','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Healthcare premium','operating_expense',null);
@@ -1769,6 +1768,8 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('Natural gas','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('net_assets','net_assets','closing_key,contributed_capital_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('net_salary_receivable','receivable','salary_receivable_key');
+insert into account (account,subclassification,hard_coded_account_key) values ('outside_maintenance','Home',null);
+insert into account (account,subclassification,hard_coded_account_key) values ('pet','entertainment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Phone/Internet/TV','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('plumbing_services','Home',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('property_tax','Home',null);

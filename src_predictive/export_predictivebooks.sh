@@ -323,17 +323,17 @@ function extract_static_tables()
 	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
+	folder=day
+	columns=day
+	get_folder_data a=$application f=$folder s=$columns	|
+	insert_statement.e t=$folder field=$columns del='^'	|
+	cat >> $output_shell
+
 	# Payroll
 	# -------
 	if [ "$input_file" != "predictivebooks_rentalproperty.dat" -a	\
 	     "$input_file" != "predictivebooks_home.dat" ]
 	then
-		folder=day
-		columns=day
-		get_folder_data a=$application f=$folder s=$columns	|
-		insert_statement.e t=$folder field=$columns del='^'	|
-		cat >> $output_shell
-
 		folder=payroll_pay_period
 		columns=payroll_pay_period
 		get_folder_data a=$application f=$folder s=$columns	|
@@ -754,6 +754,17 @@ function extract_foreign_attribute()
 }
 # extract_foreign_attribute()
 
+function append_src_rentalproperty()
+{
+	output_shell=$1
+
+	echo "table=\`get_table_name ignored application\`" >> $output_shell
+	echo "results=\`echo \"select relative_source_directory from \$table;\" | sql.e\`" >> $output_shell
+	echo "relative_source_directory=\${results}:src_rentalproperty" >> $output_shell
+	echo "echo \"update \$table set relative_source_directory = '\$relative_source_directory';\" | sql.e" >> $output_shell
+}
+# append_src_rentalproperty()
+
 function append_src_autorepair()
 {
 	output_shell=$1
@@ -811,6 +822,11 @@ then
 	extract_inventory $application $output_shell
 	extract_fixed_asset $application $output_shell
 	extract_customer_sale $application $output_shell
+fi
+
+if [	"$input_file" = "predictivebooks_rentalproperty.dat" ]
+then
+	append_src_rentalproperty $output_shell
 fi
 
 echo "exit 0" >> $output_shell

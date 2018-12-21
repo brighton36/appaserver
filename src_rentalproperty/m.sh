@@ -1,6 +1,6 @@
 :
 
-cd ../src_rentalproperty
+cd ../src_predictive
 make
 
 if [ "$?" -eq 0 ]

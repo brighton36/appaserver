@@ -2027,6 +2027,13 @@ insert into depreciation_method (depreciation_method) values ('n_declining_balan
 insert into depreciation_method (depreciation_method) values ('straight_line');
 insert into depreciation_method (depreciation_method) values ('sum_of_years_digits');
 insert into depreciation_method (depreciation_method) values ('units_of_production');
+insert into day (day) values ('friday');
+insert into day (day) values ('monday');
+insert into day (day) values ('saturday');
+insert into day (day) values ('sunday');
+insert into day (day) values ('thursday');
+insert into day (day) values ('tuesday');
+insert into day (day) values ('wednesday');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','03','rent_receivable');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','07','cleaning_and_maintenance');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','10','legal/professional');
@@ -2688,4 +2695,8 @@ insert into activity (activity) values ('reconciling');
 all_done12
 ) | sql.e 2>&1 | grep -vi duplicate
 
+table=`get_table_name ignored application`
+results=`echo "select relative_source_directory from $table;" | sql.e`
+relative_source_directory=${results}:src_rentalproperty
+echo "update $table set relative_source_directory = '$relative_source_directory';" | sql.e
 exit 0

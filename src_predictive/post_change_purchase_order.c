@@ -528,8 +528,7 @@ void post_change_purchase_order_FOB_shipping_fixed_shipped_date(
 	}
 
 	sprintf( sys_string,
-		 "propagate_purchase_order_accounts %s \"%s\" \"%s\"",
-		 application_name,
+		 "propagate_purchase_order_accounts ignored \"%s\" \"%s\"",
 		 (purchase_order->fund_name)
 			? purchase_order->fund_name
 			: "fund",
@@ -631,10 +630,10 @@ void post_change_purchase_order_insert_title_passage_null(
 			PURCHASE_ORDER *purchase_order,
 			char *application_name )
 {
-	if ( !purchase_order->arrived_date_time )
+	if ( !purchase_order->arrived_date_time
+	||   !*purchase_order->arrived_date_time )
 	{
-		purchase_order->arrived_date_time =
-			purchase_order->purchase_date_time;
+		return;
 	}
 
 	purchase_order->transaction_date_time =
@@ -714,6 +713,13 @@ void post_change_purchase_order_update(
 				? purchase_order->arrived_date_time
 				: "",
 			"preupdate_arrived_date_time" );
+
+fprintf( stderr, "%s/%s()/%d: got arrived_date_time_change_state = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+appaserver_library_change_state_display(
+	arrived_date_time_change_state) );
 
 	sales_tax_change_state =
 		appaserver_library_get_preupdate_change_state(
@@ -1103,8 +1109,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 		}
 
 		sprintf(sys_string,
-		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
-		 	application_name,
+		 "propagate_purchase_order_accounts ignored \"%s\" \"%s\"",
 			(purchase_order->fund_name)
 				? purchase_order->fund_name
 				: "fund",
@@ -1253,8 +1258,7 @@ void post_change_purchase_order_FOB_shipping_new_title_passage_rule(
 		}
 
 		sprintf(sys_string,
-		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
-		 	application_name,
+		 "propagate_purchase_order_accounts ignored \"%s\" \"%s\"",
 			(purchase_order->fund_name)
 				? purchase_order->fund_name
 				: "fund",
@@ -1328,8 +1332,7 @@ void post_change_purchase_order_fixed_arrived_date_time(
 		}
 
 		sprintf(sys_string,
-		 	"propagate_purchase_order_accounts %s \"%s\" \"%s\"",
-		 	application_name,
+		 "propagate_purchase_order_accounts ignored \"%s\" \"%s\"",
 			(purchase_order->fund_name)
 				? purchase_order->fund_name
 				: "fund",

@@ -754,38 +754,46 @@ function extract_foreign_attribute()
 }
 # extract_foreign_attribute()
 
-function append_src_rentalproperty()
+function append_customer_sale_relation()
+{
+	output_shell=$1
+
+	echo "table=\`get_table_name ignored relation\`" >> $output_shell
+	echo "echo \"insert into \$table (folder,related_folder,related_attribute) values ('customer_sale','customer','null');\" | sql.e" >> $output_shell
+}
+
+function prepend_src_rentalproperty()
 {
 	output_shell=$1
 
 	echo "table=\`get_table_name ignored application\`" >> $output_shell
 	echo "results=\`echo \"select relative_source_directory from \$table;\" | sql.e\`" >> $output_shell
-	echo "relative_source_directory=\${results}:src_rentalproperty" >> $output_shell
+	echo "relative_source_directory=src_rentalproperty:\${results}" >> $output_shell
 	echo "echo \"update \$table set relative_source_directory = '\$relative_source_directory';\" | sql.e" >> $output_shell
 }
-# append_src_rentalproperty()
+# prepend_src_rentalproperty()
 
-function append_src_autorepair()
+function prepend_src_autorepair()
 {
 	output_shell=$1
 
 	echo "table=\`get_table_name ignored application\`" >> $output_shell
 	echo "results=\`echo \"select relative_source_directory from \$table;\" | sql.e\`" >> $output_shell
-	echo "relative_source_directory=\${results}:src_autorepair" >> $output_shell
+	echo "relative_source_directory=src_autorepair:\${results}" >> $output_shell
 	echo "echo \"update \$table set relative_source_directory = '\$relative_source_directory';\" | sql.e" >> $output_shell
 }
-# append_src_autorepair()
+# prepend_src_autorepair()
 
-function append_src_communityband()
+function prepend_src_communityband()
 {
 	output_shell=$1
 
 	echo "table=\`get_table_name ignored application\`" >> $output_shell
 	echo "results=\`echo \"select relative_source_directory from \$table;\" | sql.e\`" >> $output_shell
-	echo "relative_source_directory=\${results}:src_communityband" >> $output_shell
+	echo "relative_source_directory=src_communityband:\${results}" >> $output_shell
 	echo "echo \"update \$table set relative_source_directory = '\$relative_source_directory';\" | sql.e" >> $output_shell
 }
-# append_src_communityband()
+# prepend_src_communityband()
 
 rm $output_shell 2>/dev/null
 
@@ -800,7 +808,7 @@ extract_activity $application $output_shell
 
 if [ "$input_file" = "predictivebooks_communityband.dat" ]
 then
-	append_src_communityband $output_shell
+	prepend_src_communityband $output_shell
 fi
 
 if [ "$input_file" = "predictivebooks_autorepair.dat" ]
@@ -813,20 +821,27 @@ then
 
 	extract_inventory $application $output_shell
 
-	append_src_autorepair $output_shell
+	prepend_src_autorepair $output_shell
 fi
 
-if [	"$input_file" = "predictivebooks_autorepair.dat" -o \
-	"$input_file" = "predictivebooks_enterprise.dat" 	]
+if [	"$input_file" = "predictivebooks_autorepair.dat" ]
 then
 	extract_inventory $application $output_shell
 	extract_fixed_asset $application $output_shell
 	extract_customer_sale $application $output_shell
 fi
 
+if [	"$input_file" = "predictivebooks_enterprise.dat" ]
+then
+	extract_inventory $application $output_shell
+	extract_fixed_asset $application $output_shell
+	extract_customer_sale $application $output_shell
+	append_customer_sale_relation $output_shell
+fi
+
 if [	"$input_file" = "predictivebooks_rentalproperty.dat" ]
 then
-	append_src_rentalproperty $output_shell
+	prepend_src_rentalproperty $output_shell
 fi
 
 echo "exit 0" >> $output_shell

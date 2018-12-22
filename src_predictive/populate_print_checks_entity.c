@@ -79,17 +79,44 @@ void populate_print_checks_entity(
 	p->input.current_liability_account_list =
 		pay_liabilities_fetch_current_liability_account_list(
 			application_name,
-			fund_name );
+			fund_name,
+			pay_liabilities_fetch_liability_account_list(
+				application_name )
+				/* exclude_account_name_list */ );
+
+/*
+fprintf( stderr, "%s/%s()/%d: got input current_liability_account_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+ledger_account_list_display( p->input.current_liability_account_list ) );
+*/
 
 	p->input.liability_account_entity_list =
 		pay_liabilities_fetch_liability_account_entity_list(
 				application_name );
+
+/*
+fprintf( stderr, "%s/%s()/%d: got input liability_account_entity_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+entity_list_display( p->input.liability_account_entity_list ) );
+*/
 
 	p->process.current_liability_entity_list =
 		pay_liabilities_get_current_liability_entity_list(
 			p->input.current_liability_account_list,
 			p->input.liability_account_entity_list
 				/* exclude_entity_list */ );
+
+/*
+fprintf( stderr, "%s/%s()/%d: got process current_liability_entity_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+entity_list_display( p->process.current_liability_entity_list ) );
+*/
 
 	output_pipe = popen( "sort", "w" );
 

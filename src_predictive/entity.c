@@ -706,9 +706,10 @@ char *entity_list_display( LIST *entity_list )
 			entity = list_get_pointer( entity_list );
 
 			ptr += sprintf(	ptr,
-					"Entity: %s/%s\n",
+					"Entity: %s/%s, sum_balance = %.2lf\n",
 					entity->full_name,
-					entity->street_address );
+					entity->street_address,
+					entity->sum_balance );
 
 		} while( list_next( entity_list ) );
 	}

@@ -96,7 +96,8 @@ LIST *pay_liabilities_fetch_liability_account_entity_list(
 
 LIST *pay_liabilities_fetch_current_liability_account_list(
 				char *application_name,
-				char *fund_name );
+				char *fund_name,
+				LIST *exclude_account_name_list );
 
 LIST *pay_liabilities_distribute_liability_account_list(
 				LIST *liability_account_list,
@@ -144,5 +145,8 @@ VENDOR_PAYMENT *pay_liabilities_vendor_payment_seek(
 void pay_liabilities_set_lock_transaction(
 				LIST *transaction_list,
 				LIST *vendor_payment_list );
+
+LIST *pay_liabilities_fetch_liability_account_list(
+				char *application_name );
 
 #endif

@@ -98,7 +98,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 	p->input.current_liability_account_list =
 		pay_liabilities_fetch_current_liability_account_list(
 			application_name,
-			fund_name );
+			fund_name,
+			(LIST *)0 /* exclude_account_name_list */ );
 
 	p->input.purchase_order_list =
 		purchase_get_amount_due_purchase_order_list(
@@ -663,7 +664,8 @@ LIST *pay_liabilities_distribute_purchase_order_list(
 
 LIST *pay_liabilities_fetch_current_liability_account_list(
 				char *application_name,
-				char *fund_name )
+				char *fund_name,
+				LIST *exclude_account_name_list )
 {
 	LIST *account_list;
 	ACCOUNT *account;
@@ -673,6 +675,23 @@ LIST *pay_liabilities_fetch_current_liability_account_list(
 	char sys_string[ 1024 ];
 	char input_buffer[ 1024 ];
 	FILE *input_pipe;
+	char in_clause_where[ 1024 ];
+	char *in_clause;
+
+	if ( list_length( exclude_account_name_list ) )
+	{
+		in_clause =
+			timlib_with_list_get_in_clause(
+				exclude_account_name_list );
+
+		sprintf( in_clause_where,
+			 "account not in (%s)",
+			 in_clause );
+	}
+	else
+	{
+		strcpy( in_clause_where, "1 = 1" );
+	}
 
 	account_list = list_new();
 
@@ -692,8 +711,10 @@ LIST *pay_liabilities_fetch_current_liability_account_list(
 	sprintf( where,
 		 "subclassification = 'current_liability' and	"
 		 "account <> 'uncleared_checks' and		"
+		 "%s and					"
 		 "%s						",
-		 fund_where );
+		 fund_where,
+		 in_clause_where );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -1193,3 +1214,18 @@ void pay_liabilities_set_lock_transaction(
 	} while( list_next( transaction_list ) );
 
 } /* pay_liabilities_set_lock_transaction() */
+
+LIST *pay_liabilities_fetch_liability_account_list(
+				char *application_name )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=account			"
+		 "			folder=liability_account_entity	",
+		 application_name );
+
+	return pipe2list( sys_string );
+
+} /* pay_liabilities_fetch_liability_account_list() */

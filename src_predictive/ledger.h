@@ -303,8 +303,8 @@ char *ledger_list_display(		LIST *ledger_list );
 char *ledger_journal_ledger_list_display(
 					LIST *journal_ledger_list );
 
-char *ledger_propagate_account_list_display(
-					LIST *propagate_account_list );
+char *ledger_account_list_display(
+					LIST *account_list );
 
 TRANSACTION *ledger_transaction_seek(	LIST *transaction_list,
 					char *full_name,

@@ -2363,17 +2363,16 @@ double ledger_get_net_income(	double total_revenues,
 
 } /* ledger_get_net_income() */
 
-char *ledger_propagate_account_list_display(
-					LIST *propagate_account_list )
+char *ledger_account_list_display( LIST *account_list )
 {
 	char buffer[ 65536 ];
 	char *buf_ptr = buffer;
 	ACCOUNT *account;
 
-	if ( !list_rewind( propagate_account_list ) ) return strdup( "" );
+	if ( !list_rewind( account_list ) ) return strdup( "" );
 
 	do {
-		account = list_get( propagate_account_list );
+		account = list_get( account_list );
 
 		buf_ptr += sprintf( buf_ptr,
 				    "account = %s:\n",
@@ -2386,11 +2385,11 @@ char *ledger_propagate_account_list_display(
 				ledger_list_display(
 					account->journal_ledger_list ) );
 
-	} while( list_next( propagate_account_list ) );
+	} while( list_next( account_list ) );
 
 	return strdup( buffer );
 
-} /* ledger_propagate_account_list_display() */
+} /* ledger_account_list_display() */
 
 char *ledger_transaction_display( TRANSACTION *transaction )
 {

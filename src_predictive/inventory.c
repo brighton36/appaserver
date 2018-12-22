@@ -1185,14 +1185,6 @@ void inventory_reset_quantity_on_hand(
 				inventory_purchase->arrived_quantity,
 				inventory_purchase->missing_quantity );
 
-fprintf( stderr, "%s/%s()/%d: with q (%d) = a (%d) - m (%d)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-inventory_purchase->quantity_on_hand,
-inventory_purchase->arrived_quantity,
-inventory_purchase->missing_quantity );
-
 	} while( list_next( inventory_purchase_list ) );
 
 } /* inventory_reset_quantity_on_hand() */
@@ -3272,17 +3264,8 @@ void inventory_purchase_arrived_quantity_update_with_propagate(
 {
 	INVENTORY_PURCHASE *inventory_purchase;
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-
 	if ( !list_rewind( inventory_purchase_list ) ) return;
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 	do {
 		inventory_purchase = list_get( inventory_purchase_list );
 

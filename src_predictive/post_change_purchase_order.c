@@ -714,13 +714,6 @@ void post_change_purchase_order_update(
 				: "",
 			"preupdate_arrived_date_time" );
 
-fprintf( stderr, "%s/%s()/%d: got arrived_date_time_change_state = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-appaserver_library_change_state_display(
-	arrived_date_time_change_state) );
-
 	sales_tax_change_state =
 		appaserver_library_get_preupdate_change_state(
 			preupdate_sales_tax,
@@ -835,8 +828,12 @@ appaserver_library_change_state_display(
 			application_name );
 	}
 
+	/* Note: numbers can't know if from_something_to_null */
+	/* -------------------------------------------------- */
 	if ( sales_tax_change_state == from_something_to_something_else
-	||   freight_in_change_state == from_something_to_something_else )
+	||   sales_tax_change_state == from_null_to_something
+	||   freight_in_change_state == from_something_to_something_else
+	||   freight_in_change_state == from_null_to_something )
 	{
 		post_change_purchase_order_change_sales_tax_transaction(
 			purchase_order,

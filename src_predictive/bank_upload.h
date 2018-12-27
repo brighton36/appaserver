@@ -61,6 +61,7 @@ typedef struct
 	int debit_piece_offset;
 	int credit_piece_offset;
 	int balance_piece_offset;
+	LIST *error_line_list;
 } BANK_UPLOAD_FILE;
 
 typedef struct
@@ -159,6 +160,7 @@ BANK_UPLOAD *bank_upload_dictionary_extract(
 					DICTIONARY *dictionary );
 
 LIST *bank_upload_fetch_file_list(
+					LIST *error_line_list,
 					char **file_sha256sum,
 					char **minimum_bank_date,
 					char *application_name,

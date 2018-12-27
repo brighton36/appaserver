@@ -315,6 +315,15 @@ void list_delete_from_list( LIST *set, LIST *delete_list )
 		} while ( next_item( delete_list ) );
 } /* list_delete_from_list() */
 
+void list_display_lines( LIST *list )
+{
+	if ( !list_rewind( list ) ) return;
+
+	do {
+		printf( "%s\n", (char *)list_get_pointer( list ) );
+	} while( list_next( list ) );
+
+} /* list_display_lines() */
 
 char *list_display( LIST *list )
 {

@@ -131,8 +131,13 @@ char *list_display_quoted_delimiter( 	char *destination,
 char *list_display_quoted_delimited( 	char *destination, 
 					LIST *list,
 					char delimiter );
-char *list_display( LIST *list );
+
+char *list_display(			LIST *list );
+
+void list_display_lines(		LIST *list );
+
 char *list_display_delimited( LIST *list, char delimiter );
+
 char *list_display_delimited_plus_space( LIST *list, char delimiter );
 boolean is_subset_of( LIST *subset, LIST *set );
 boolean list_is_subset_of( LIST *subset, LIST *set );

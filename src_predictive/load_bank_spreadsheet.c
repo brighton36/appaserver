@@ -29,6 +29,9 @@
 
 /* Prototypes */
 /* ---------- */
+
+/* Returns either file_row_count or table_insert_count */
+/* --------------------------------------------------- */
 int load_bank_spreadsheet(	int *transaction_count,
 				char *application_name,
 				char *login_name,
@@ -228,6 +231,8 @@ int main( int argc, char **argv )
 
 } /* main() */
 
+/* Returns either file_row_count or table_insert_count */
+/* --------------------------------------------------- */
 int load_bank_spreadsheet(
 			int *transaction_count,
 			char *application_name,
@@ -287,7 +292,6 @@ int load_bank_spreadsheet(
 				file.
 				bank_upload_file_list );
 
-		return bank_upload_structure->file.file_row_count;
 	}
 	else
 	{
@@ -370,8 +374,22 @@ int load_bank_spreadsheet(
 				table.
 				bank_upload_table_list );
 
-		return bank_upload_structure->file.table_insert_count;
 	}
+
+	if ( list_length( bank_upload_structure->file.error_line_list ) )
+	{
+		printf( "<h3>Errors:</h3>\n" );
+
+		list_display_lines(
+			bank_upload_structure->file.error_line_list );
+
+		printf( "\n" );
+	}
+
+	if ( !execute )
+		return bank_upload_structure->file.file_row_count;
+	else
+		return bank_upload_structure->file.table_insert_count;
 
 } /* load_bank_spreadsheet() */
 

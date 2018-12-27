@@ -95,8 +95,11 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		return (BANK_UPLOAD_STRUCTURE *)0;
 	}
 
+	p->file.error_line_list = list_new();
+
 	p->file.bank_upload_file_list =
 		bank_upload_fetch_file_list(
+			p->file.error_line_list,
 			&p->file.file_sha256sum,
 			&p->file.minimum_bank_date,
 			application_name,
@@ -207,6 +210,7 @@ BANK_UPLOAD *bank_upload_new(	char *bank_date,
 } /* bank_upload_new() */
 
 LIST *bank_upload_fetch_file_list(
+				LIST *error_line_list,
 				char **file_sha256sum,
 				char **minimum_bank_date,
 				char *application_name,
@@ -231,6 +235,7 @@ LIST *bank_upload_fetch_file_list(
 	BANK_UPLOAD *bank_upload;
 	LIST *bank_upload_list;
 	boolean exists_fund;
+	int line_number = 0;
 
 	if ( file_sha256sum )
 	{
@@ -259,6 +264,8 @@ LIST *bank_upload_fetch_file_list(
 
 	while( timlib_get_line( input_string, input_file, 4096 ) )
 	{
+		line_number++;
+
 		trim( input_string );
 		if ( !*input_string ) continue;
 
@@ -287,6 +294,15 @@ LIST *bank_upload_fetch_file_list(
 				bank_date_international,
 				bank_date ) )
 		{
+			char msg[ 128 ];
+
+			sprintf( msg,
+				 "<p>Error in line %d: Bad date = (%s)",
+				 line_number,
+				 bank_date );
+
+			list_append_pointer( error_line_list, strdup( msg ) );
+
 			continue;
 		}
 
@@ -313,6 +329,15 @@ LIST *bank_upload_fetch_file_list(
 				input_string,
 				description_piece_offset ) )
 		{
+			char msg[ 128 ];
+
+			sprintf( msg,
+		"<p>Error in line %d: Cannot parse description using piece=%d",
+				 line_number,
+				 description_piece_offset );
+
+			list_append_pointer( error_line_list, strdup( msg ) );
+
 			continue;
 		}
 
@@ -343,6 +368,15 @@ LIST *bank_upload_fetch_file_list(
 				input_string,
 				debit_piece_offset ) )
 		{
+			char msg[ 128 ];
+
+			sprintf( msg,
+		"<p>Error in line %d: Cannot parse bank amount using piece=%d",
+				 line_number,
+				 debit_piece_offset );
+
+			list_append_pointer( error_line_list, strdup( msg ) );
+
 			continue;
 		}
 
@@ -352,7 +386,18 @@ LIST *bank_upload_fetch_file_list(
 			/* ------------------------------- */
 			if ( credit_piece_offset < 0 )
 			{
-				continue;
+				char msg[ 128 ];
+
+				sprintf( msg,
+		"<p>Error in line %d: Cannot parse bank amount using piece=%d",
+				 	line_number,
+				 	credit_piece_offset );
+
+				list_append_pointer(
+					error_line_list,
+					strdup( msg ) );
+
+					continue;
 			}
 
 			if ( !piece_quote_comma(
@@ -360,11 +405,34 @@ LIST *bank_upload_fetch_file_list(
 					input_string,
 					credit_piece_offset ) )
 			{
+				char msg[ 128 ];
+
+				sprintf( msg,
+		"<p>Error in line %d: Cannot parse bank amount using piece=%d",
+				 	line_number,
+				 	credit_piece_offset );
+
+				list_append_pointer(
+					error_line_list,
+					strdup( msg ) );
+
 				continue;
 			}
 		}
 
-		if ( !atof( bank_amount ) ) continue;
+		if ( !atof( bank_amount ) )
+		{
+			char msg[ 128 ];
+
+			sprintf( msg,
+		"<p>Error in line %d: Cannot parse bank amount using piece=%d",
+			 	line_number,
+			 	credit_piece_offset );
+
+			list_append_pointer( error_line_list, strdup( msg ) );
+
+			continue;
+		}
 
 		/* Get bank_balance */
 		/* ---------------- */

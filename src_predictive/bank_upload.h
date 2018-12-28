@@ -25,10 +25,10 @@ enum bank_upload_exception {	bank_upload_exception_none,
 	"bank_date,bank_description,sequence_number,bank_amount,bank_upload_date_time"
 
 #define INSERT_BANK_UPLOAD_EVENT		\
-	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum"
+	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum,feeder_account"
 
 #define INSERT_BANK_UPLOAD_EVENT_FUND		\
-	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum,fund"
+	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum,feeder_account,fund"
 
 #define INSERT_BANK_UPLOAD_ARCHIVE	\
 	"bank_date,bank_description,sequence_number,bank_amount,bank_running_balance,bank_upload_date_time"
@@ -79,6 +79,7 @@ typedef struct
 	REOCCURRING_STRUCTURE *reoccurring_structure;
 	int starting_sequence_number;
 	char *fund_name;
+	char *feeder_account;
 	char *bank_upload_date_time;
 } BANK_UPLOAD_STRUCTURE;
 
@@ -87,6 +88,7 @@ typedef struct
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 					char *application_name,
 					char *fund_name,
+					char *feeder_account,
 					char *input_filename,
 					int date_piece_offset,
 					int description_piece_offset,
@@ -183,7 +185,8 @@ void bank_upload_event_insert(		char *application_name,
 					char *login_name,
 					char *bank_upload_filename,
 					char *file_sha256sum,
-					char *fund_name );
+					char *fund_name,
+					char *feeder_account );
 
 boolean bank_upload_sha256sum_exists(
 					char *application_name,

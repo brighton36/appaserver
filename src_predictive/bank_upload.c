@@ -39,6 +39,7 @@ BANK_UPLOAD *bank_upload_calloc( void )
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 				char *application_name,
 				char *fund_name,
+				char *feeder_account,
 				char *input_filename,
 				int date_piece_offset,
 				int description_piece_offset,
@@ -63,6 +64,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 	}
 
 	p->fund_name = fund_name;
+	p->feeder_account = feeder_account;
 
 	p->file.input_filename = input_filename;
 	p->file.date_piece_offset = date_piece_offset;
@@ -466,7 +468,8 @@ void bank_upload_event_insert(		char *application_name,
 					char *login_name,
 					char *bank_upload_filename,
 					char *file_sha256sum,
-					char *fund_name )
+					char *fund_name,
+					char *feeder_account )
 {
 	char sys_string[ 1024 ];
 	FILE *insert_pipe;
@@ -478,10 +481,10 @@ void bank_upload_event_insert(		char *application_name,
 
 /*
 #define INSERT_BANK_UPLOAD_EVENT		\
-	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum"
+	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum,feeder_account"
 
 #define INSERT_BANK_UPLOAD_EVENT_FUND		\
-	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum,fund"
+	"bank_upload_date_time,login_name,bank_upload_filename,file_sha256sum,feeder_account,fund"
 */
 
 	if ( exists_fund )
@@ -510,21 +513,23 @@ void bank_upload_event_insert(		char *application_name,
 	if ( exists_fund )
 	{
 		fprintf(insert_pipe,
-	 		"%s^%s^%s^%s^%s\n",
+	 		"%s^%s^%s^%s^%s^%s\n",
 	 		bank_upload_date_time,
 	 		login_name,
 			bank_upload_filename,
 			file_sha256sum,
+			feeder_account,
 			fund_name );
 	}
 	else
 	{
 		fprintf(insert_pipe,
-	 		"%s^%s^%s^%s\n",
+	 		"%s^%s^%s^%s^%s\n",
 	 		bank_upload_date_time,
 	 		login_name,
 			bank_upload_filename,
-			file_sha256sum );
+			file_sha256sum,
+			feeder_account );
 	}
 
 	pclose( insert_pipe );
@@ -937,7 +942,7 @@ void bank_upload_set_transaction(
 		bank_upload = list_get( bank_upload_list );
 
 		if ( ! ( reoccurring_transaction =
-				reoccurring_seek_bank_upload_search_phrase(
+				reoccurring_seek_bank_upload_feeder_phrase(
 					reoccurring_transaction_list,
 					bank_upload->bank_description ) ) )
 		{

@@ -26,7 +26,7 @@ typedef struct
 	char *debit_account;
 	char *credit_account;
 	double transaction_amount;
-	char *bank_upload_search_phrase;
+	char *bank_upload_feeder_phrase;
 	double accrued_daily_amount;
 	double accrued_monthly_amount;
 	char *rental_property_street_address;
@@ -80,12 +80,12 @@ void reoccurring_transaction_parse(
 					char **debit_account,
 					char **credit_account,
 					double *transaction_amount,
-					char **bank_upload_search_phrase,
+					char **bank_upload_feeder_phrase,
 					double *accrued_daily_amount,
 					double *accrued_monthly_amount,
 					char *input_buffer );
 
-REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_search_phrase(
+REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_feeder_phrase(
 					LIST *reoccurring_transaction_list,
 					char *bank_description );
 

@@ -173,7 +173,7 @@ boolean reoccurring_transaction_load(
 			&reoccurring_transaction->
 				transaction_amount,
 			&reoccurring_transaction->
-				bank_upload_search_phrase,
+				bank_upload_feeder_phrase,
 			&reoccurring_transaction->
 				accrued_daily_amount,
 			&reoccurring_transaction->
@@ -199,7 +199,7 @@ void reoccurring_transaction_parse(
 					char **debit_account,
 					char **credit_account,
 					double *transaction_amount,
-					char **bank_upload_search_phrase,
+					char **bank_upload_feeder_phrase,
 					double *accrued_daily_amount,
 					double *accrued_monthly_amount,
 					char *input_buffer )
@@ -228,7 +228,7 @@ void reoccurring_transaction_parse(
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 	if ( *buffer )
-		*bank_upload_search_phrase = strdup( buffer );
+		*bank_upload_feeder_phrase = strdup( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
 	if ( *buffer )
@@ -249,7 +249,7 @@ char *reoccurring_transaction_get_select( void )
 		 "debit_account,		"
 		 "credit_account,		"
 		 "transaction_amount,		"
-		 "bank_upload_search_phrase,	"
+		 "bank_upload_feeder_phrase,	"
 		 "accrued_daily_amount,		"
 		 "accrued_monthly_amount	";
 
@@ -271,7 +271,7 @@ LIST *reoccurring_fetch_reoccurring_transaction_list(
 
 	select = reoccurring_transaction_get_select();
 
-	where = "bank_upload_search_phrase is not null";
+	where = "bank_upload_feeder_phrase is not null";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
@@ -301,7 +301,7 @@ LIST *reoccurring_fetch_reoccurring_transaction_list(
 				&reoccurring_transaction->
 					transaction_amount,
 				&reoccurring_transaction->
-					bank_upload_search_phrase,
+					bank_upload_feeder_phrase,
 				&reoccurring_transaction->
 					accrued_daily_amount,
 				&reoccurring_transaction->
@@ -319,7 +319,7 @@ LIST *reoccurring_fetch_reoccurring_transaction_list(
 
 } /* reoccurring_fetch_reoccurring_transaction_list() */
 
-REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_search_phrase(
+REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_feeder_phrase(
 				LIST *reoccurring_transaction_list,
 				char *bank_description )
 {
@@ -336,7 +336,7 @@ REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_search_phrase(
 		if ( timlib_exists_string(
 			bank_description /* string */,
 			reoccurring_transaction->
-				bank_upload_search_phrase
+				bank_upload_feeder_phrase
 					/* substring */ ) )
 		{
 			return reoccurring_transaction;
@@ -346,5 +346,5 @@ REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_search_phrase(
 
 	return (REOCCURRING_TRANSACTION *)0;
 
-} /* reoccurring_seek_bank_upload_search_phrase() */
+} /* reoccurring_seek_bank_upload_feeder_phrase() */
 

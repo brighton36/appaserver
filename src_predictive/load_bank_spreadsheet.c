@@ -36,6 +36,7 @@ int load_bank_spreadsheet(	int *transaction_count,
 				char *application_name,
 				char *login_name,
 				char *fund_name,
+				char *feeder_account,
 				char *input_filename,
 				int date_piece_offset,
 				int description_piece_offset,
@@ -54,6 +55,7 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *login_name;
 	char *fund_name;
+	char *feeder_account;
 	char *input_filename;
 	char *date_column_string;
 	char *description_column_string;
@@ -81,10 +83,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 11 )
+	if ( argc != 12 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name fund filename date_column description_column debit_column credit_column balance_column execute_yn\n",
+"Usage: %s process_name login_name fund feeder_account filename date_column description_column debit_column credit_column balance_column execute_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -96,13 +98,14 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
 	fund_name = argv[ 3 ];
-	input_filename = argv[ 4 ];
-	date_column_string = argv[ 5 ];
-	description_column_string = argv[ 6 ];
-	debit_column_string = argv[ 7 ];
-	credit_column_string = argv[ 8 ];
-	balance_column_string = argv[ 9 ];
-	execute = (*argv[ 10 ] == 'y');
+	feeder_account = argv[ 4 ];
+	input_filename = argv[ 5 ];
+	date_column_string = argv[ 6 ];
+	description_column_string = argv[ 7 ];
+	debit_column_string = argv[ 8 ];
+	credit_column_string = argv[ 9 ];
+	balance_column_string = argv[ 10 ];
+	execute = (*argv[ 11 ] == 'y');
 
 	if ( *date_column_string
 	&&   strcmp( date_column_string, "date_column" ) != 0 )
@@ -191,12 +194,21 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	if ( !*feeder_account
+	||   strcmp( feeder_account, "feeder_account" ) == 0 )
+	{
+		printf( "<h3>Please choose a feeder account.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
 	load_count =
 		load_bank_spreadsheet(
 			&transaction_count,
 			application_name,
 			login_name,
 			fund_name,
+			feeder_account,
 			input_filename,
 			date_piece_offset,
 			description_piece_offset,
@@ -238,6 +250,7 @@ int load_bank_spreadsheet(
 			char *application_name,
 			char *login_name,
 			char *fund_name,
+			char *feeder_account,
 			char *input_filename,
 			int date_piece_offset,
 			int description_piece_offset,
@@ -254,6 +267,7 @@ int load_bank_spreadsheet(
 		bank_upload_structure_new(
 			application_name,
 			fund_name,
+			feeder_account,
 			input_filename,
 			date_piece_offset,
 			description_piece_offset,
@@ -332,7 +346,8 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				file.
 				file_sha256sum,
-			bank_upload_structure->fund_name );
+			bank_upload_structure->fund_name,
+			bank_upload_structure->feeder_account );
 
 		bank_upload_archive_insert(
 			application_name,

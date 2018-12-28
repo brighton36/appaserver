@@ -25,6 +25,8 @@ then
 	exit 1
 fi
 
+set -x
+
 table_name=bank_upload_event
 echo "drop table if exists $table_name;" | sql.e
 echo "create table $table_name (bank_upload_date_time datetime not null,login_name char (50),completed_date_time datetime,bank_upload_filename char (80),file_sha256sum char (64)) engine MyISAM;" | sql.e

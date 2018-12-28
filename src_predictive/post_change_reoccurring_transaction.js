@@ -5,11 +5,11 @@ function post_change_reoccurring_transaction( row )
 	var element_name;
 	var element;
 	var disable_transaction_amount = true;
-	var disable_bank_upload_search_phrase = true;
+	var disable_bank_upload_feeder_phrase = true;
 	var disable_accrued_daily_amount = true;
 	var disable_accrued_monthly_amount = true;
 	var transaction_amount_is_slash = false;
-	var bank_upload_search_phrase_is_slash = false;
+	var bank_upload_feeder_phrase_is_slash = false;
 	var accrued_daily_amount_is_slash = false;
 	var accrued_monthly_amount_is_slash = false;
 	var nothing_is_populated = true;
@@ -29,7 +29,7 @@ function post_change_reoccurring_transaction( row )
 
 	element.disabled = false;
 
-	element_name = 'bank_upload_search_phrase_' + row;
+	element_name = 'bank_upload_feeder_phrase_' + row;
 	element = timlib_get_element( element_name );
 	element.disabled = false;
 
@@ -57,19 +57,19 @@ function post_change_reoccurring_transaction( row )
 		nothing_is_populated = false;
 	}
 
-	// Check bank_upload_search_phrase
+	// Check bank_upload_feeder_phrase
 	// -------------------------------
-	element_name = 'bank_upload_search_phrase_' + row;
+	element_name = 'bank_upload_feeder_phrase_' + row;
 	element = timlib_get_element( element_name );
 
 	if ( element.value == "/" )
 	{
-		bank_upload_search_phrase_is_slash = true;
+		bank_upload_feeder_phrase_is_slash = true;
 	}
 	else
 	if ( element.value != "" )
 	{
-		disable_bank_upload_search_phrase = false;
+		disable_bank_upload_feeder_phrase = false;
 		nothing_is_populated = false;
 	}
 
@@ -116,11 +116,11 @@ function post_change_reoccurring_transaction( row )
 		element.disabled = true;
 	}
 
-	if ( disable_bank_upload_search_phrase
-	&&   !bank_upload_search_phrase_is_slash
+	if ( disable_bank_upload_feeder_phrase
+	&&   !bank_upload_feeder_phrase_is_slash
 	&&   !nothing_is_populated )
 	{
-		element_name = 'bank_upload_search_phrase_' + row;
+		element_name = 'bank_upload_feeder_phrase_' + row;
 		element = timlib_get_element( element_name );
 		element.disabled = true;
 	}

@@ -2697,6 +2697,6 @@ all_done12
 
 table=`get_table_name ignored application`
 results=`echo "select relative_source_directory from $table;" | sql.e`
-relative_source_directory=${results}:src_rentalproperty
+relative_source_directory=src_rentalproperty:${results}
 echo "update $table set relative_source_directory = '$relative_source_directory';" | sql.e
 exit 0

@@ -29,13 +29,16 @@ do
 	street_address=`echo $record | piece.e '^' 1`
 	account_number=`echo $record | piece.e '^' 2`
 
-	post_change_account_balance	ignored			\
-					fund			\
-					"$full_name"		\
-					"$street_address"	\
-					"$account_number"	\
-					""			\
-					update			\
+	post_change_account_balance	ignored				\
+					fund				\
+					"$full_name"			\
+					"$street_address"		\
+					"$account_number"		\
+					""				\
+					update				\
+					preupdate_full_name		\
+					preupdate_street_address	\
+					preupdate_account_number	\
 					preupdate_date_time
 done
 

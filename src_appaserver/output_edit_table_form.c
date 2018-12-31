@@ -633,6 +633,17 @@ int main( int argc, char **argv )
 			row_security_element_list_structure->
 			regular_element_list;
 
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got regular_element_list = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+element_list_display( form->regular_element_list ) );
+m2( application_name, msg );
+}
+*/
 	form->viewonly_element_list =
 		row_security->
 			row_security_element_list_structure->

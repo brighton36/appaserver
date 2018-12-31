@@ -674,11 +674,12 @@ void row_security_append_join_1tom_related_folder_list(
 	RELATED_FOLDER *related_folder;
 
 	if ( !list_rewind( row_dictionary_list ) ) return;
+	if ( !list_length( join_1tom_related_folder_list ) ) return;
 
 	do {
 		row_dictionary = list_get_pointer( row_dictionary_list );
 
-		if ( !list_rewind( join_1tom_related_folder_list ) ) return;
+		list_rewind( join_1tom_related_folder_list );
 
 		do {
 		     related_folder =

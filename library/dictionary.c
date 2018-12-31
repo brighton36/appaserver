@@ -3383,7 +3383,7 @@ char *dictionary_get_attribute_where_clause(
 
 			if ( translated_data ) data = translated_data;
 
-			if ( date_convert_source_unknown(
+			if ( date_convert_date_time_source_unknown(
 				return_date,
 				international,
 				data ) )

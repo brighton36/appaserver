@@ -51,12 +51,17 @@ boolean date_convert_source_american(
 				enum date_convert_format destination_format,
 				char *date_string );
 
+boolean date_convert_date_time_source_unknown(
+				char *return_date_time,
+				enum date_convert_format destination_format,
+				char *date_time_string );
+
 boolean date_convert_source_unknown(
 				char *return_date,
 				enum date_convert_format destination_format,
 				char *date_string );
 
-void date_convert_source_military(
+boolean date_convert_source_military(
 				char *return_date,
 				enum date_convert_format destination_format,
 				char *date_string );
@@ -122,5 +127,10 @@ boolean date_convert_is_valid_integers(
 				int day_integer );
 
 char *date_convert_display(	enum date_convert_format );
+
+boolean date_convert_date_time_source_unknown(
+			char *return_date_time,
+			enum date_convert_format destination_format,
+			char *date_time_string );
 
 #endif

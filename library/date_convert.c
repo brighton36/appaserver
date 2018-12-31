@@ -325,6 +325,93 @@ void date_convert_free(	DATE_CONVERT *date_convert )
 	free( date_convert );
 }
 
+boolean date_convert_date_time_source_unknown(
+		char *return_date_time,
+		enum date_convert_format destination_format,
+		char *date_time_string )
+{
+	enum date_convert_format source_format;
+	char date_string[ 128 ];
+	char time_string[ 128 ];
+	char *return_date;
+	char buffer[ 128 ];
+
+	if ( !return_date_time )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: null return_date_time\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	*return_date_time = '\0';
+	*buffer = '\0';
+
+	if ( !character_exists( date_string, ' ' ) ) return 0;
+
+	column( date_string, 0, date_time_string );
+	column( time_string, 1, date_time_string );
+
+	source_format = date_convert_date_get_format( date_string );
+
+	if ( source_format == american )
+	{
+		if ( !date_convert_source_american(
+					buffer,
+					destination_format,
+					date_string ) )
+		{
+			return 0;
+		}
+
+		sprintf( return_date_time,
+			 "%s %s",
+			 buffer,
+			 time_string );
+	}
+	else
+	if ( source_format == international )
+	{
+		if ( !date_convert_source_international(
+					buffer,
+					destination_format,
+					date_string ) )
+		{
+			return 0;
+		}
+
+		sprintf( return_date_time,
+			 "%s %s",
+			 buffer,
+			 time_string );
+	}
+	else
+	if ( source_format == military )
+	{
+		if ( !date_convert_source_military(
+					buffer,
+					destination_format,
+					date_string ) )
+		{
+			return 0;	
+		}
+
+		sprintf( return_date_time,
+			 "%s %s",
+			 buffer,
+			 time_string );
+	}
+	else
+	{
+		return 0;
+	}
+
+	return 1;
+
+} /* date_convert_date_time_source_unknown() */
+
 boolean date_convert_source_unknown(
 		char *return_date,
 		enum date_convert_format destination_format,
@@ -386,6 +473,7 @@ boolean date_convert_source_american(
 				char *date_string )
 {
 	if ( !date_string ) return 0;
+	if ( !return_date ) return 0;
 
 	if ( destination_format == military )
 	{
@@ -432,12 +520,12 @@ boolean date_convert_source_american(
 
 } /* date_convert_source_american() */
 
-void date_convert_source_military(
+boolean date_convert_source_military(
 			char *return_date,
 			enum date_convert_format destination_format,
 			char *date_string )
 {
-	if ( !date_string ) return;
+	if ( !date_string ) return 0;
 
 	if ( destination_format == american )
 	{
@@ -461,6 +549,8 @@ void date_convert_source_military(
 	{
 		strcpy( return_date, date_string );
 	}
+
+	return 1;
 
 } /* date_convert_source_military() */
 

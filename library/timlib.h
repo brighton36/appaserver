@@ -17,6 +17,8 @@
 
 /* Constants */
 /* --------- */
+/* #define NUMBER_BINARY_DIGITS	16 */
+#define NUMBER_BINARY_DIGITS	32
 #define NULL_STRING		"null"
 #define DATABASE_NULL		"is_null"
 #define DATE_MINIMUM		"Date Minimum"

@@ -3,6 +3,9 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make output_edit_table_form
+	cd ../utility
+	touch binary_count.c
+	make binary_count.e
+	touch keys_match_sum.c
+	make keys_match_sum.e
 fi

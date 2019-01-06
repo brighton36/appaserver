@@ -1,5 +1,5 @@
-/* utility/accumulate.c	*/
-/* -------------------- */
+/* $APPASERVER_HOME/utility/accumulate.c	*/
+/* ------------------------------------- 	*/
 
 #include <stdio.h>
 #include <stdlib.h>

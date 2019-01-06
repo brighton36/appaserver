@@ -3068,7 +3068,6 @@ unsigned getbits( unsigned integer, unsigned position, unsigned n )
 
 char *timlib_integer2binary( unsigned integer )
 {
-#define NUMBER_BINARY_DIGITS	16
 	static char binary[ NUMBER_BINARY_DIGITS + 1 ] = {0};
 	char *pointer;
 	int i;
@@ -3086,6 +3085,7 @@ char *timlib_integer2binary( unsigned integer )
 	}
 
 	return binary;
+
 } /* timlib_integer2binary() */
 
 boolean timlib_string_until_character_matches(

@@ -169,6 +169,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	increment.e							\
 	sum.e								\
 	accumulate.e							\
+	keys_match_sum.e						\
 	pad_missing_times.e						\
 	time_ticker.e							\
 	random_stream.e							\
@@ -1165,6 +1166,12 @@ accumulate.e: accumulate.c
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		-o accumulate.e
+
+keys_match_sum.e: keys_match_sum.c
+	$(CC) 	${CFLAGS} -I${LIBRARY} keys_match_sum.c			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o keys_match_sum.e
 
 nl.e: nl.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} nl.c 				\

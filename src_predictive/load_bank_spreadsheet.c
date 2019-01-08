@@ -243,8 +243,10 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-/* Returns either file_row_count or table_insert_count */
-/* --------------------------------------------------- */
+/* ---------------------------------------------------- */
+/* If display then it returns file_row_count.		*/
+/* If execute then it returns table_insert_count.	*/
+/* ---------------------------------------------------- */
 int load_bank_spreadsheet(
 			int *transaction_count,
 			char *application_name,
@@ -313,13 +315,28 @@ int load_bank_spreadsheet(
 		/* Else execute */
 		/* ------------ */
 #ifdef ARCHIVE_ONLY
+		bank_upload_event_insert(
+			application_name,
+			bank_upload_structure->bank_upload_date_time,
+			login_name,
+			bank_upload_structure->
+				file.
+				input_filename
+				/* bank_upload_filename */,
+			bank_upload_structure->
+				file.
+				file_sha256sum,
+			bank_upload_structure->fund_name,
+			bank_upload_structure->feeder_account );
+
 		bank_upload_archive_insert(
 			application_name,
 			bank_upload_structure->
 				file.
 				bank_upload_file_list
 					/* bank_upload_list */,
-			"" /* bank_upload_date_time */ );
+			bank_upload_structure->
+				bank_upload_date_time );
 #else
 		/* If execute */
 		/* ---------- */
@@ -342,7 +359,8 @@ int load_bank_spreadsheet(
 			login_name,
 			bank_upload_structure->
 				file.
-				input_filename,
+				input_filename
+				/* bank_upload_filename */,
 			bank_upload_structure->
 				file.
 				file_sha256sum,

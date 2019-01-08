@@ -502,6 +502,43 @@ char *list_display_delimited_plus_space(LIST *list,
 	return strdup( buffer );
 } /* list_display_delimited_plus_space() */
 
+char *list_double_display(	LIST *double_list, 
+				char delimiter )
+{
+	char buffer[ 65536 ];
+	char *buf_ptr = buffer;
+	double *ptr;
+	boolean first_time = 1;
+
+	if ( !list_rewind( double_list ) ) return "";
+
+	*buf_ptr = '\0';
+
+	do {
+		ptr = (double *)retrieve_item_ptr( double_list );
+
+		if ( first_time )
+		{
+			first_time = 0;
+		}
+		else
+		{
+			buf_ptr += sprintf( buf_ptr, 
+					    "%c", 
+					    delimiter );
+		}
+
+		buf_ptr += sprintf(
+				buf_ptr, 
+				"%.2lf", 
+				*ptr );
+
+	} while( list_next( double_list ) );
+
+	return strdup( buffer );
+
+} /* list_double_display() */
+
 char *list_display_delimited_prefixed(	LIST *list, 
 					char delimiter, 
 					char *prefix )
@@ -509,7 +546,7 @@ char *list_display_delimited_prefixed(	LIST *list,
 	char buffer[ 65536 ];
 	char *buf_ptr = buffer;
 	char *ptr;
-	register boolean first_time = 1;
+	boolean first_time = 1;
 
 	if ( !list_rewind( list ) ) return "";
 
@@ -574,6 +611,8 @@ LIST *list_subtract( LIST *big_list, LIST *subtract_this )
 	return return_list;
 } /* list_subtract() */
 
+/* offset is zero based. */
+/* --------------------- */
 char *list_get_offset( LIST *list, int offset )
 {
 	if ( list_go_offset( list, offset ) )
@@ -582,9 +621,11 @@ char *list_get_offset( LIST *list, int offset )
 		return (char *)0;
 }
 
+/* offset is zero based. */
+/* --------------------- */
 boolean list_go_offset( LIST *list, int offset )
 {
-	register int i = 0;
+	int i = 0;
 
 	if ( go_head( list ) )
 		do {
@@ -1416,7 +1457,7 @@ LIST *list_delimiter_string_to_integer_list(
 
 	if ( list_string )
 	{
-		for ( i = 0; piece( buffer, delimiter, list_string, i); i++ )
+		for ( i = 0; piece( buffer, delimiter, list_string, i ); i++ )
 		{
 			if ( ! ( integer_ptr = (int *)
 					calloc( 1, sizeof( int ) ) ) )
@@ -2006,3 +2047,101 @@ LIST *list_delimited_string_to_list(
 	return list_delimiter_string_to_list( delimited_string, delimiter );
 
 } /* list_delimited_string_to_list() */
+
+LIST *list_delimiter_list_piece_list(
+				LIST *list,
+				char delimiter,
+				int piece_offset )
+{
+	LIST *return_list;
+	char piece_buffer[ 8192 ];
+	char *item;
+
+	if ( !list_rewind( list ) ) return (LIST *)0;
+
+	return_list = list_new();
+
+	do {
+		item = list_get_pointer( list );
+
+		if ( piece( piece_buffer, delimiter, item, piece_offset ) )
+		{
+			list_append_pointer(
+				return_list,
+				strdup( piece_buffer ) );
+		}
+		else
+		{
+			list_append_pointer(
+				return_list,
+				strdup( "" ) );
+		}
+	} while( list_next( list ) );
+
+	return return_list;
+
+} /* list_delimiter_list_piece_list() */
+
+char *list_double_list_display(	char *destination,
+				LIST *double_list )
+{
+	char *anchor = destination;
+	double *d_ptr;
+
+	if ( !list_rewind( double_list ) ) return "";
+
+	do {
+		d_ptr = (double *)list_get_pointer( double_list );
+
+		if ( anchor != destination )
+		{
+			destination +=
+				sprintf( destination,
+					 ", " );
+		}
+
+		destination +=
+			sprintf( destination,
+				 "%.2lf",
+				 *d_ptr );
+
+	} while( list_next( double_list ) );
+
+	return anchor;
+
+} /* list_double_list_display() */
+
+LIST *list_string_to_double_list(
+				LIST *string_list )
+{
+	LIST *double_list;
+	double *d_ptr;
+	char *item;
+
+	if ( !list_rewind( string_list ) ) return (LIST *)0;
+
+	double_list = list_new();
+
+	do {
+		item = list_get_pointer( string_list );
+
+		if ( ! ( d_ptr = (double *)
+				calloc( 1, sizeof( double ) ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: cannot allocate double memory.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		*d_ptr = atof( item );
+		list_append_pointer( double_list, d_ptr );
+
+	} while( list_next( string_list ) );
+
+	return double_list;
+
+} /* list_string_to_double_list() */
+

@@ -110,8 +110,6 @@ LIST *sys_string2list( char *sys_string );
 LIST *pipe2list( char *sys_string );
 LIST *string2list( char *list_string, char delimiter );
 LIST *list_delimiter_string_to_list( char *list_string, char delimiter );
-LIST *list_delimiter_string_to_integer_list(
-		char *list_string, char delimiter );
 char *list_get_offset( LIST *list, int offset );
 LIST *list_subtract( LIST *big_list, LIST *subtract_this );
 LIST *subtract_list( LIST *big_list, LIST *subtract_this );
@@ -334,5 +332,20 @@ LIST *list_copy_count(		LIST *list,
 
 LIST *list_delimited_string_to_list(
 				char *delimited_string );
+
+LIST *list_delimiter_list_piece_list(
+				LIST *list,
+				char delimiter,
+				int piece_offset );
+
+LIST *list_string_to_double_list(
+				LIST *string_list );
+
+char *list_double_list_display(	char *destination,
+				LIST *double_list );
+
+char *list_double_display(	LIST *double_list, 
+				char delimiter );
+
 
 #endif

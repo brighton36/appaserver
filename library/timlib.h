@@ -523,4 +523,7 @@ void timlib_error_stderr(	int argc,
 
 char *timlib_get_sha256sum(	char *input_filename );
 
+char *timlib_reverse_string(	char *destination,
+				char *string );
+
 #endif

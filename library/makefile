@@ -114,6 +114,7 @@ all: ${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}				\
 		queue_dvr.e						\
 		easycharts.o						\
 		pair_one2m.o						\
+		keys_match_sum.o					\
 		julian_time_double_list.o				\
 		token_dvr.e
 
@@ -1149,4 +1150,10 @@ mysqldump.o: mysqldump.c						\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c mysqldump.c
+
+keys_match_sum.o: keys_match_sum.c keys_match_sum.h			\
+	mysqldump.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c keys_match_sum.c
 

@@ -7,6 +7,7 @@
 #include "timlib.h"
 #include "piece.h"
 #include "list.h"
+#include "keys_match_sum.h"
 
 /* Constants */
 /* --------- */
@@ -16,6 +17,7 @@
 /* ---------- */
 void keys_match_sum(	double match_sum,
 			int key_piece_offset,
+			int value_piece_offset,
 			char delimiter,
 			LIST *input_list );
 
@@ -23,22 +25,22 @@ int main( int argc, char **argv )
 {
 	char delimiter = DEFAULT_DELIMITER;
 	int key_piece_offset = 0;
+	int value_piece_offset = 1;
 	double match_sum;
 	LIST *input_list;
 
 	if ( argc < 2 )
 	{
 		fprintf(stderr,
-			"Usage: %s match_sum [key_piece_offset] [delimiter]\n",
+"Usage: %s match_sum [key_piece_offset] [value_piece_offset] [delimiter]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	match_sum = atof( argv[ 1 ] );
-
 	if ( argc >= 3 ) key_piece_offset = atoi( argv[ 2 ] );
-
-	if ( argc >= 4 ) delimiter = *argv[ 3 ];
+	if ( argc >= 4 ) value_piece_offset = atoi( argv[ 3 ] );
+	if ( argc >= 5 ) delimiter = *argv[ 4 ];
 
 	input_list = pipe2list( "cat" );
 
@@ -47,6 +49,7 @@ int main( int argc, char **argv )
 		keys_match_sum(
 			match_sum,
 			key_piece_offset,
+			value_piece_offset,
 			delimiter,
 			input_list );
 	}
@@ -57,9 +60,70 @@ int main( int argc, char **argv )
 
 void keys_match_sum(	double match_sum,
 			int key_piece_offset,
+			int value_piece_offset,
 			char delimiter,
 			LIST *input_list )
 {
-	printf( "%s\n", list_display( input_list ) );
+	LIST *key_list;
+	LIST *value_string_list;
+	LIST *value_double_list;
+	LIST *match_sum_key_list;
+
+	if ( !list_length( input_list ) ) return;
+
+	key_list =
+		list_delimiter_list_piece_list(
+			input_list,
+			delimiter,
+			key_piece_offset );
+
+	if ( !list_length( key_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty key_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	value_string_list =
+		list_delimiter_list_piece_list(
+			input_list,
+			delimiter,
+			value_piece_offset );
+
+	if ( !list_length( value_string_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty value_string_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	value_double_list =
+		list_string_to_double_list(
+			value_string_list );
+
+	if ( !list_length( value_double_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty value_double_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	match_sum_key_list =
+		keys_match_sum_get_match_sum_key_list(
+			key_list,
+			value_double_list,
+			match_sum );
+
+	printf( "Got match_sum_key_list = (%s)\n",
+		list_display( match_sum_key_list ) );
 
 } /* keys_match_sum() */

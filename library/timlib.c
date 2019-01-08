@@ -17,6 +17,7 @@
 #include "column.h"
 #include "piece.h"
 #include "date.h"
+#include "array.h"
 
 int timlib_strlen( char *s )
 {
@@ -3784,4 +3785,32 @@ char *timlib_get_sha256sum( char *input_filename )
 	return pipe2string( sys_string );
 
 } /* timlib_get_sha256sum() */
+
+char *timlib_reverse_string(	char *destination,
+				char *string )
+{
+	int length;
+	char *ptr;
+	char *anchor;
+
+	*destination = '\0';
+
+	if ( ! ( length = strlen( string ) ) )
+	{
+		return destination;
+	}
+
+	anchor = destination;
+
+	ptr = string + (length - 1);
+
+	while( ptr >= string )
+	{
+		*destination++ = *ptr--;
+	}
+
+	*destination = '\0';
+	return anchor;
+
+} /* timlib_reverse_string() */
 

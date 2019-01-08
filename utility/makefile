@@ -1167,11 +1167,15 @@ accumulate.e: accumulate.c
 		${STANDARD_LIBRARY}					\
 		-o accumulate.e
 
-keys_match_sum.e: keys_match_sum.c
+keys_match_sum.e: keys_match_sum.c ${APPASERVER_LIBRARY}		\
+		${LIBRARY}/array.o					\
+		${LIBRARY}/keys_match_sum.o
 	$(CC) 	${CFLAGS} -I${LIBRARY} keys_match_sum.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
-		-o keys_match_sum.e
+		${LIBRARY}/array.o					\
+		${LIBRARY}/keys_match_sum.o				\
+		-o keys_match_sum.e -lm
 
 nl.e: nl.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} nl.c 				\

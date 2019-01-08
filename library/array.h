@@ -8,6 +8,8 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+#include "list.h"
+
 typedef struct
 {
 	void **base;
@@ -31,5 +33,9 @@ int array_sort_string(	void **base,
 int array_string_compare(
 			const void *s1,
 			const void *s2 );
+
+double *array_list_to_double_array(
+			int *length,
+			LIST *double_list );
 
 #endif

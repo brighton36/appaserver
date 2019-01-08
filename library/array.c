@@ -77,3 +77,41 @@ fprintf( stderr,
 
 } /* array_string_compare() */
 
+double *array_list_to_double_array(
+			int *length,
+			LIST *double_list )
+{
+	double *d_ptr;
+	double *double_array;
+	int index;
+
+	*length = list_length( double_list );
+
+	if ( !*length ) return (double *)0;
+
+	if ( ! ( double_array =
+			(double *)calloc(
+				*length,
+				sizeof( double ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	list_rewind( double_list );
+	index = 0;
+
+	do {
+		d_ptr = (double *)list_get_pointer( double_list );
+		double_array[ index++ ] = *d_ptr;
+
+	} while( list_next( double_list ) );
+
+	return double_array;
+
+} /* array_list_to_double_array() */
+

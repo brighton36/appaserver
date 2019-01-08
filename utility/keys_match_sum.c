@@ -11,7 +11,7 @@
 
 /* Constants */
 /* --------- */
-#define DEFAULT_DELIMITER	'^'
+#define DEFAULT_DELIMITER	'|'
 
 /* Prototypes */
 /* ---------- */
@@ -123,7 +123,12 @@ void keys_match_sum(	double match_sum,
 			value_double_list,
 			match_sum );
 
-	printf( "Got match_sum_key_list = (%s)\n",
-		list_display( match_sum_key_list ) );
+	if ( list_length( match_sum_key_list ) )
+	{
+		printf( "%s\n",
+			list_display_delimited(
+				match_sum_key_list,
+				delimiter ) );
+	}
 
 } /* keys_match_sum() */

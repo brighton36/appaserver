@@ -26,11 +26,40 @@ LIST *keys_match_sum_get_match_sum_key_list(
 {
 	double *double_array;
 	int length = 0;
-	char sys_string[ 1024 ];
-	LIST *binary_count_list;
+	static LIST *binary_count_list = {0};
 	char *binary_count_string;
 	LIST *match_sum_key_list;
 	double p;
+	int offset;
+
+	/* Check if single match. */
+	/* ---------------------- */
+	offset = list_double_list_match( value_double_list, match_sum );
+
+	if ( offset != -1 )
+	{
+		char *return_key;
+
+		if ( ! ( return_key =
+				list_get_offset(
+					key_list,
+					offset ) ) )
+		{
+			fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot get offset=%d from list of length=%d.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 offset,
+				 list_length( key_list ) );
+			exit( 1 );
+		}
+
+		match_sum_key_list = list_new();
+		list_append_pointer( match_sum_key_list, return_key );
+		return match_sum_key_list;
+
+	} /* if single match. */
 
 	double_array = 
 		array_list_to_double_array(
@@ -41,11 +70,16 @@ LIST *keys_match_sum_get_match_sum_key_list(
 
 	p = pow( 2.0, (double)length );
 
-	sprintf( sys_string,
-		 "binary_count.e %.0lf",
-		 p );
+	if ( !binary_count_list )
+	{
+		char sys_string[ 1024 ];
 
-	binary_count_list = pipe2list( sys_string );
+		sprintf( sys_string,
+		 	"binary_count.e %.0lf",
+		 	p );
+
+		binary_count_list = pipe2list( sys_string );
+	}
 
 	if ( !list_rewind( binary_count_list ) )
 	{

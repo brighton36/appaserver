@@ -348,4 +348,11 @@ char *list_double_display(	LIST *double_list,
 				char delimiter );
 
 
+/* -------------------------------------------- */
+/* Returns zero-based index of matching double. */
+/* Returns -1 if no match.			*/
+/* -------------------------------------------- */
+int list_double_list_match(	LIST *double_list,
+				double match );
+
 #endif

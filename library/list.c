@@ -2145,3 +2145,31 @@ LIST *list_string_to_double_list(
 
 } /* list_string_to_double_list() */
 
+/* -------------------------------------------- */
+/* Returns zero-based index of matching double. */
+/* Returns -1 if no match.			*/
+/* -------------------------------------------- */
+int list_double_list_match(	LIST *double_list,
+				double match )
+{
+	double *d_ptr;
+	int index = 0;
+
+	if ( !list_rewind( double_list ) ) return -1;
+
+	do {
+		d_ptr = (double *)list_get_pointer( double_list );
+
+		if ( timlib_double_virtually_same( *d_ptr, match ) )
+		{
+			return index;
+		}
+
+		index++;
+
+	} while( list_next( double_list ) );
+
+	return -1;
+
+} /* list_double_list_match() */
+

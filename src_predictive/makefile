@@ -26,6 +26,7 @@ EXECUTABLES=	trial_balance						\
 		balance_sheet						\
 		program_profit						\
 		ledger_propagate					\
+		insert_bank_upload_transaction				\
 		ledger_unbalance					\
 		propagate_purchase_order_accounts			\
 		propagate_customer_sale_accounts			\
@@ -176,6 +177,14 @@ shortcut_service_work: shortcut_service_work.c				\
 		${SOURCE_LIBRARY}					\
 		shortcut_service_work.c					\
 		-o shortcut_service_work
+
+insert_bank_upload_transaction: insert_bank_upload_transaction.c	\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		insert_bank_upload_transaction.c			\
+		-o insert_bank_upload_transaction
 
 ledger_propagate: ledger_propagate.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

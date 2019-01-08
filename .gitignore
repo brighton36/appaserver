@@ -125,6 +125,7 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+insert_bank_upload_transaction
 tax_recover_fixed_assets
 tax_recover_prior_fixed_assets
 tax_dvr

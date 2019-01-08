@@ -515,21 +515,21 @@ void bank_upload_event_insert(		char *application_name,
 		fprintf(insert_pipe,
 	 		"%s^%s^%s^%s^%s^%s\n",
 	 		bank_upload_date_time,
-	 		login_name,
-			bank_upload_filename,
-			file_sha256sum,
-			feeder_account,
-			fund_name );
+	 		(login_name) ? login_name : "",
+			(bank_upload_filename) ? bank_upload_filename : "",
+			(file_sha256sum) ? file_sha256sum : "",
+			(feeder_account) ? feeder_account : "",
+			(fund_name) ? fund_name : "" );
 	}
 	else
 	{
 		fprintf(insert_pipe,
 	 		"%s^%s^%s^%s^%s\n",
 	 		bank_upload_date_time,
-	 		login_name,
-			bank_upload_filename,
-			file_sha256sum,
-			feeder_account );
+	 		(login_name) ? login_name : "",
+			(bank_upload_filename) ? bank_upload_filename : "",
+			(file_sha256sum) ? file_sha256sum : "",
+			(feeder_account) ? feeder_account : "" );
 	}
 
 	pclose( insert_pipe );

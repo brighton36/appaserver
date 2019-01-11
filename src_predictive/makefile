@@ -1,5 +1,5 @@
-# src_accountancymodel/makefile
-# -----------------------------
+# src_predictive/makefile
+# -----------------------
 
 CC=gcc
 #CFLAGS=-g
@@ -63,6 +63,7 @@ EXECUTABLES=	trial_balance						\
 		post_change_bank_upload					\
 		update_sale_completed					\
 		post_reoccurring_transaction				\
+		post_cash_expense_transaction				\
 		post_employee_work_period				\
 		collect_customer_payment				\
 		make_vendor_payment					\
@@ -162,6 +163,20 @@ post_reoccurring_transaction: post_reoccurring_transaction.c		\
 		reoccurring.o						\
 		${LIBRARY}/folder_menu.o				\
 		-o post_reoccurring_transaction
+
+post_cash_expense_transaction: post_cash_expense_transaction.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		bank_upload.o						\
+		cash_expense.o						\
+		${LIBRARY}/folder_menu.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_cash_expense_transaction.c				\
+		bank_upload.o						\
+		cash_expense.o						\
+		${LIBRARY}/folder_menu.o				\
+		-o post_cash_expense_transaction
 
 post_employee_work_period: post_employee_work_period.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

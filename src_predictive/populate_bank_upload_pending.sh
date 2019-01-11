@@ -1,7 +1,7 @@
 #!/bin/bash
-# ------------------------------------------------------
-# $APPASERVER_HOME/src_predictive/bank_upload_pending.sh
-# ------------------------------------------------------
+# ---------------------------------------------------------------
+# $APPASERVER_HOME/src_predictive/populate_bank_upload_pending.sh
+# ---------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
@@ -18,10 +18,10 @@ then
 	exit 1
 fi
 
-select="bank_date,bank_description,bank_amount"
+select="concat( bank_date, '^',bank_description, ' [', bank_amount, ']' )"
 order="bank_date,bank_description"
 table=bank_upload
-where="not exists (
+where="bank_amount < 0 and not exists (
 		select 1						\
 		from bank_upload_transaction				\
 		where bank_upload.bank_date =				\

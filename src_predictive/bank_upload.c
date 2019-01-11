@@ -36,19 +36,8 @@ BANK_UPLOAD *bank_upload_calloc( void )
 
 } /* bank_upload_calloc() */
 
-BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
-				char *application_name,
-				char *fund_name,
-				char *feeder_account,
-				char *input_filename,
-				int date_piece_offset,
-				int description_piece_offset,
-				int debit_piece_offset,
-				int credit_piece_offset,
-				int balance_piece_offset )
+BANK_UPLOAD_STRUCTURE *bank_upload_structure_calloc( void )
 {
-	extern enum bank_upload_exception bank_upload_exception;
-
 	BANK_UPLOAD_STRUCTURE *p =
 		(BANK_UPLOAD_STRUCTURE *)
 			calloc( 1, sizeof( BANK_UPLOAD_STRUCTURE ) );
@@ -62,6 +51,26 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 			 __LINE__ );
 		exit(1 );
 	}
+
+	return p;
+
+} /* bank_upload_structure_calloc() */
+
+BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
+				char *application_name,
+				char *fund_name,
+				char *feeder_account,
+				char *input_filename,
+				int date_piece_offset,
+				int description_piece_offset,
+				int debit_piece_offset,
+				int credit_piece_offset,
+				int balance_piece_offset )
+{
+	extern enum bank_upload_exception bank_upload_exception;
+	BANK_UPLOAD_STRUCTURE *p;
+
+	p = bank_upload_structure_calloc();
 
 	p->fund_name = fund_name;
 	p->feeder_account = feeder_account;
@@ -819,8 +828,10 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 
 } /* bank_upload_fetch() */
 
-LIST *bank_upload_fetch_list(		char *application_name,
-					int starting_sequence_number )
+LIST *bank_upload_fetch_bank_upload_table_list(
+					char *application_name,
+					int starting_sequence_number,
+					char *begin_date )
 {
 	LIST *bank_upload_list;
 	BANK_UPLOAD *bank_upload;
@@ -833,7 +844,28 @@ LIST *bank_upload_fetch_list(		char *application_name,
 	bank_upload_list = list_new();
 	select = bank_upload_get_select();
 
-	sprintf( where, "sequence_number >= %d", starting_sequence_number );
+	if ( starting_sequence_number )
+	{
+		sprintf(	where,
+				"sequence_number >= %d",
+				starting_sequence_number );
+	}
+	else
+	if ( begin_date )
+	{
+		sprintf(	where,
+				"bank_date >= '%s'",
+				begin_date );
+	}
+	else
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot generate where.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -865,7 +897,7 @@ LIST *bank_upload_fetch_list(		char *application_name,
 
 	return bank_upload_list;
 
-} /* bank_upload_fetch_list() */
+} /* bank_upload_fetch_bank_upload_table_list() */
 
 void bank_upload_fetch_parse(	char **bank_date,
 				char **bank_description,
@@ -1075,7 +1107,42 @@ void bank_upload_table_display(
 
 } /* bank_upload_table_display() */
 
-void bank_upload_transaction_display( LIST *bank_upload_list )
+void bank_upload_transaction_text_display( LIST *bank_upload_list )
+{
+	BANK_UPLOAD *bank_upload;
+	char *transaction_memo;
+
+	if ( !list_rewind( bank_upload_list ) ) return;
+
+	do {
+		bank_upload = list_get( bank_upload_list );
+
+		if ( bank_upload->transaction )
+		{
+			transaction_memo =
+				bank_upload_get_transaction_memo(
+					bank_upload->
+						transaction->
+						full_name,
+					bank_upload->
+						transaction->
+						street_address,
+					bank_upload->
+						transaction->
+						transaction_date_time );
+
+			ledger_list_text_display(
+				transaction_memo,
+				bank_upload->
+					transaction->
+					journal_ledger_list );
+		}
+
+	} while( list_next( bank_upload_list ) );
+
+} /* bank_upload_transaction_text_display() */
+
+void bank_upload_transaction_table_display( LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
 	char *transaction_memo;
@@ -1108,7 +1175,7 @@ void bank_upload_transaction_display( LIST *bank_upload_list )
 
 	} while( list_next( bank_upload_list ) );
 
-} /* bank_upload_transaction_display() */
+} /* bank_upload_transaction_table_display() */
 
 BANK_UPLOAD *bank_upload_dictionary_extract(
 				char *application_name,

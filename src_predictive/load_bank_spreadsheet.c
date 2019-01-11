@@ -297,7 +297,7 @@ int load_bank_spreadsheet(
 				file.
 				bank_upload_file_list );
 
-		bank_upload_transaction_display(
+		bank_upload_transaction_table_display(
 			bank_upload_structure->
 				file.
 				bank_upload_file_list );
@@ -377,10 +377,11 @@ int load_bank_spreadsheet(
 				bank_upload_date_time );
 
 		bank_upload_structure->table.bank_upload_table_list =
-			bank_upload_fetch_list(
+			bank_upload_fetch_bank_upload_table_list(
 				application_name,
 				bank_upload_structure->
-					starting_sequence_number );
+					starting_sequence_number,
+				(char *)0 /* begin_date */ );
 
 		bank_upload_set_transaction(
 			bank_upload_structure->table.bank_upload_table_list,
@@ -394,7 +395,7 @@ int load_bank_spreadsheet(
 			application_name,
 			bank_upload_structure->table.bank_upload_table_list );
 
-		bank_upload_transaction_display(
+		bank_upload_transaction_table_display(
 			bank_upload_structure->table.bank_upload_table_list );
 
 /* If not defined ARCHIVE_ONLY */

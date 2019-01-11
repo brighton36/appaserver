@@ -27,6 +27,7 @@ EXECUTABLES=	trial_balance						\
 		program_profit						\
 		ledger_propagate					\
 		insert_bank_upload_transaction				\
+		insert_bank_upload_journal_ledger			\
 		ledger_unbalance					\
 		propagate_purchase_order_accounts			\
 		propagate_customer_sale_accounts			\
@@ -185,6 +186,18 @@ insert_bank_upload_transaction: insert_bank_upload_transaction.c	\
 		${SOURCE_LIBRARY}					\
 		insert_bank_upload_transaction.c			\
 		-o insert_bank_upload_transaction
+
+insert_bank_upload_journal_ledger: insert_bank_upload_journal_ledger.c	\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		bank_upload.o						\
+		reoccurring.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		insert_bank_upload_journal_ledger.c			\
+		bank_upload.o						\
+		reoccurring.o						\
+		-o insert_bank_upload_journal_ledger
 
 ledger_propagate: ledger_propagate.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

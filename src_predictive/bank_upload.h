@@ -66,8 +66,6 @@ typedef struct
 
 typedef struct
 {
-	/* Gets populated from BANK_UPLOAD */
-	/* ------------------------------- */
 	LIST *bank_upload_table_list;
 } BANK_UPLOAD_TABLE;
 
@@ -85,6 +83,9 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+BANK_UPLOAD_STRUCTURE *bank_upload_structure_calloc(
+					void );
+
 BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 					char *application_name,
 					char *fund_name,
@@ -118,8 +119,10 @@ boolean bank_upload_get_bank_date_international(
 					char *bank_date_international,
 					char *bank_date );
 
-LIST *bank_upload_fetch_list(		char *application_name,
-					int starting_sequence_number );
+LIST *bank_upload_fetch_bank_upload_table_list(	
+					char *application_name,
+					int starting_sequence_number,
+					char *begin_date );
 
 BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 					char *bank_date,
@@ -148,7 +151,11 @@ void bank_upload_fetch_parse(		char **bank_date,
 					double *bank_running_balance,
 					char *input_buffer );
 
-void bank_upload_transaction_display(	LIST *bank_upload_list );
+void bank_upload_transaction_table_display(
+					LIST *bank_upload_list );
+
+void bank_upload_transaction_text_display(
+					LIST *bank_upload_list );
 
 void bank_upload_table_display(		LIST *bank_upload_list );
 

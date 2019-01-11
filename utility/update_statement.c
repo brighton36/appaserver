@@ -148,7 +148,7 @@ void output_update_statements(	char *table_name,
 {
 	char input_buffer[ BIG_BUFFER ];
 
-	while( get_line( input_buffer, stdin ) )
+	while( timlib_get_line( input_buffer, stdin, BIG_BUFFER ) )
 	{
 		if ( !*input_buffer ) continue;
 		if ( *input_buffer == '#' ) continue;
@@ -229,7 +229,7 @@ void output_original_format(	char *input_buffer,
 	char data_buffer[ BIG_BUFFER ];
 	char new_data[ BIG_BUFFER ];
 	char primary_key_data[ SMALL_BUFFER ];
-	char data_fieldname[ 512 ];
+	char data_fieldname[ SMALL_BUFFER ];
 	int i;
 	int p;
 	char *key;
@@ -408,7 +408,7 @@ boolean exists_single_carrot_delimiters( char *input_buffer )
 
 char *get_carrot_data_fieldname( char *input_buffer )
 {
-	static char data_fieldname[ 512 ] = {0};
+	static char data_fieldname[ SMALL_BUFFER ] = {0};
 	char *end_pointer = input_buffer + strlen( input_buffer );
 	int first_time = 1;
 
@@ -436,7 +436,7 @@ char *get_carrot_data_fieldname( char *input_buffer )
 
 char *get_carrot_new_data( char *input_buffer )
 {
-	static char new_data[ 1024 ] = {0};
+	static char new_data[ SMALL_BUFFER ] = {0};
 	char *end_pointer = input_buffer + strlen( input_buffer );
 
 	while( end_pointer > input_buffer )

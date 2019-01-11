@@ -977,6 +977,7 @@ LIST *related_folder_get_insert_element_list(
 		&related_folder->folder->index_directory,
 		&related_folder->folder->no_initial_capital,
 		&related_folder->folder->subschema_name,
+		&related_folder->folder->create_view_statement,
 		related_folder->folder->application_name,
 		related_folder->folder->session,
 		related_folder->folder->folder_name,
@@ -1252,6 +1253,7 @@ LIST *related_folder_get_update_element_list(
 		&related_folder->folder->index_directory,
 		&related_folder->folder->no_initial_capital,
 		&related_folder->folder->subschema_name,
+		&related_folder->folder->create_view_statement,
 		related_folder->folder->application_name,
 		related_folder->folder->session,
 		related_folder->folder->folder_name,
@@ -1459,6 +1461,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 			&related_folder->folder->index_directory,
 			&related_folder->folder->no_initial_capital,
 			&related_folder->folder->subschema_name,
+			&related_folder->folder->create_view_statement,
 			application_name,
 			session,
 			related_folder->folder->folder_name,
@@ -1651,6 +1654,9 @@ LIST *related_folder_get_1tom_related_folder_list(
 			&related_folder->
 				one2m_related_folder->
 				subschema_name,
+			&related_folder->
+				one2m_related_folder->
+				create_view_statement,
 			application_name,
 			BOGUS_SESSION,
 			related_folder->
@@ -2826,6 +2832,7 @@ LIST *related_folder_get_preselection_dictionary_list(
 			&related_folder->index_directory,
 			&related_folder->no_initial_capital,
 			&related_folder->subschema_name,
+			&related_folder->create_view_statement,
 			related_folder->application_name,
 			related_folder->session,
 			related_folder->folder_name,
@@ -3397,6 +3404,7 @@ LIST *related_folder_get_lookup_before_drop_down_related_folder_list(
 			&related_folder->folder->index_directory,
 			&related_folder->folder->no_initial_capital,
 			&related_folder->folder->subschema_name,
+			&related_folder->folder->create_view_statement,
 			application_name,
 			BOGUS_SESSION,
 			related_folder->folder->folder_name,

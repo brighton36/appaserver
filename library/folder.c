@@ -140,6 +140,7 @@ FOLDER *folder_with_load_new(	char *application_name,
 			&folder->index_directory,
 			&folder->no_initial_capital,
 			&folder->subschema_name,
+			&folder->create_view_statement,
 			folder->application_name,
 			folder->session,
 			folder->folder_name,
@@ -926,6 +927,7 @@ boolean folder_load(	int *insert_rows_number,
 			char **index_directory,
 			boolean *no_initial_capital,
 			char **subschema_name,
+			char **create_view_statement,
 			char *application_name,
 			char *session,
 			char *folder_name,
@@ -957,7 +959,7 @@ boolean folder_load(	int *insert_rows_number,
 
 	if ( !record
 	||   count_character( '^', record ) !=
-			FOLDER_INDEX_DIRECTORY_PIECE )
+			FOLDER_CREATE_VIEW_PIECE )
 	{
 		char msg[ 1024 ];
 		sprintf(msg,
@@ -1033,6 +1035,9 @@ boolean folder_load(	int *insert_rows_number,
 
 	piece( buffer, '^', record, FOLDER_SUBSCHEMA_PIECE );
 	*subschema_name = strdup( buffer );
+
+	piece( buffer, '^', record, FOLDER_CREATE_VIEW_PIECE );
+	*create_view_statement = strdup( buffer );
 
 	folder_load_row_level_restrictions(
 			row_level_non_owner_forbid,
@@ -1319,6 +1324,7 @@ LIST *folder_get_folder_list(
 				&folder->index_directory,
 				&folder->no_initial_capital,
 				&folder->subschema_name,
+				&folder->create_view_statement,
 				application_name,
 				BOGUS_SESSION,
 				folder->folder_name,

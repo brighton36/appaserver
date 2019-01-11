@@ -40,7 +40,8 @@ char *get_sys_string(	char *folder_name,
 			char *create_table_filename,
 			char build_shell_script_yn,
 			char *data_directory,
-			char *index_directory );
+			char *index_directory,
+			char *create_view_statement );
 
 int main( int argc, char **argv )
 {
@@ -169,6 +170,7 @@ passed_security_check:
 			&folder->index_directory,
 			&folder->no_initial_capital,
 			&folder->subschema_name,
+			&folder->create_view_statement,
 			folder->application_name,
 			BOGUS_SESSION,
 			folder->folder_name,
@@ -217,7 +219,8 @@ passed_security_check:
 				(char *)0 /* create_table_filename */,
 				build_shell_script_yn,
 				folder->data_directory,
-				folder->index_directory );
+				folder->index_directory,
+				folder->create_view_statement );
 
 	printf( "<p>%s\n", sys_string );
 
@@ -230,7 +233,8 @@ passed_security_check:
 				create_table_filename,
 				build_shell_script_yn,
 				folder->data_directory,
-				folder->index_directory );
+				folder->index_directory,
+				folder->create_view_statement );
 
 	if ( *create_table_filename )
 	{
@@ -275,7 +279,8 @@ char *get_sys_string(	char *folder_name,
 			char *create_table_filename,
 			char build_shell_script_yn,
 			char *data_directory,
-			char *index_directory )
+			char *index_directory,
+			char *create_view_statement )
 {
 	char buffer[ 65536 ];
 	char *buffer_ptr;
@@ -324,6 +329,18 @@ char *get_sys_string(	char *folder_name,
 			 	folder_name );
 		}
 	} /* if ( create_table_filename && *create_table_filename ) */
+
+	/* If creating a view */
+	/* ------------------ */
+	if ( create_view_statement && *create_view_statement )
+	{
+		buffer_ptr += sprintf( buffer_ptr,
+"echo \"%s\" | sql.e\n",
+				create_view_statement );
+
+		buffer_ptr += sprintf( buffer_ptr, "\n" );
+		return strdup( buffer );
+	}
 
 	if ( ( create_table_filename && *create_table_filename )
 	||     build_shell_script_yn == 'y' )

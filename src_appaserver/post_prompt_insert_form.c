@@ -333,6 +333,7 @@ int main( int argc, char **argv )
 			&appaserver->folder->index_directory,
 			&appaserver->folder->no_initial_capital,
 			&appaserver->folder->subschema_name,
+			&appaserver->folder->create_view_statement,
 			application_name,
 			session,
 			appaserver->folder->folder_name,

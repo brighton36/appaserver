@@ -39,6 +39,7 @@
 #define FOLDER_SUBSCHEMA_PIECE				12
 #define FOLDER_DATA_DIRECTORY_PIECE			13
 #define FOLDER_INDEX_DIRECTORY_PIECE			14
+#define FOLDER_CREATE_VIEW_PIECE			15
 
 #define FOLDER_MIN_ROWS_SORT_BUTTONS			2
 
@@ -86,6 +87,7 @@ typedef struct
 	char *index_directory;
 	LIST *attribute_name_list;
 	LIST *join_1tom_related_folder_list;
+	char *create_view_statement;
 } FOLDER;
 
 /* Operations */
@@ -177,6 +179,7 @@ boolean folder_load(	int *insert_rows_number,
 			char **index_directory,
 			boolean *no_initial_capital,
 			char **subschema_name,
+			char **create_view_statement,
 			char *application_name,
 			char *session,
 			char *folder_name,

@@ -189,6 +189,7 @@ PAIR_ONE2M *pair_one2m_new(
 		&pair_one2m->pair_insert_folder->index_directory,
 		&pair_one2m->pair_insert_folder->no_initial_capital,
 		&pair_one2m->pair_insert_folder->subschema_name,
+		&pair_one2m->pair_insert_folder->create_view_statement,
 		application_name,
 		session,
 		pair_one2m->pair_insert_folder->folder_name,

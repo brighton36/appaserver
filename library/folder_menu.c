@@ -306,6 +306,7 @@ LIST *folder_menu_get_choose_folder_list(
 				&folder->index_directory,
 				&folder->no_initial_capital,
 				&folder->subschema_name,
+				&folder->create_view_statement,
 				folder->application_name,
 				folder->session,
 				folder->folder_name,

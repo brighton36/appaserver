@@ -1,8 +1,6 @@
 #!/bin/sh
 # ---------------------------------------------
 # src_appaserver/folder_load.sh
-# and
-# library/folder_load.sh
 # ---------------------------------------------
 #
 # Freely available software: see Appaserver.org
@@ -37,7 +35,8 @@ echo "select 		$table_folder.folder,				\
 			no_initial_capital_yn,				\
 			subschema,					\
 			data_directory,					\
-			index_directory					\
+			index_directory,				\
+			create_view_statement				\
       		from	$table_folder;"					|
 sql.e
 

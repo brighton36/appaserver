@@ -121,6 +121,7 @@ int main( int argc, char **argv )
 			&folder->index_directory,
 			&folder->no_initial_capital,
 			&folder->subschema_name,
+			&folder->create_view_statement,
 			application_name,
 			session,
 			folder->folder_name,

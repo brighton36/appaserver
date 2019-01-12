@@ -593,6 +593,46 @@ void bank_upload_archive_insert(	char *application_name,
 
 } /* bank_upload_archive_insert() */
 
+void bank_upload_transaction_insert(	char *application_name,
+					char *bank_date,
+					char *bank_description,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char *table_name;
+	FILE *insert_pipe;
+	char *field;
+
+	field =
+"bank_date,bank_description,full_name,street_address,transaction_date_time";
+
+	table_name =
+		get_table_name(	application_name,
+				"bank_upload_transaction" );
+
+	sprintf( sys_string,
+	 	 "insert_statement table=%s field=%s del='%c' 		  |"
+	 	 "sql.e 2>&1						   ",
+	 	 table_name,
+	 	 field,
+	 	 FOLDER_DATA_DELIMITER );
+
+	insert_pipe = popen( sys_string, "w" );
+
+	fprintf(insert_pipe,
+		"%s^%s^%s^%s^%s\n",
+		bank_date,
+		bank_description,
+		full_name,
+		street_address,
+		transaction_date_time );
+
+	pclose( insert_pipe );
+
+} /* bank_upload_transaction_insert() */
+
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_insert(			char *application_name,
@@ -1054,8 +1094,7 @@ void bank_upload_set_transaction(
 
 } /* bank_upload_set_transaction() */
 
-void bank_upload_insert_transaction(
-					char *application_name,
+void bank_upload_insert_transaction(	char *application_name,
 					LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;

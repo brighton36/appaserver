@@ -6691,6 +6691,8 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 
 } /* ledger_sale_hash_table_build_transaction() */
 
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
 char *ledger_transaction_refresh(
 				char *application_name,
 				char *full_name,
@@ -6749,6 +6751,8 @@ char *ledger_transaction_refresh(
 
 } /* ledger_transaction_refresh() */
 
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
 char *ledger_transaction_journal_ledger_insert(
 				char *application_name,
 				char *full_name,

@@ -18,11 +18,22 @@ then
 	exit 1
 fi
 
+if [ "$#" -ne 1 ]
+then
+	echo "Usage: $0 bank_date" 1>&2
+	exit 1
+fi
+
+bank_date=$1
+
 select="min(sequence_number)"
 table=bank_upload
 
+#where="bank_date < '$bank_date'"
+where="1 = 1"
+
 in_balance_sequence_number=`
-echo "select $select from $table"				|
+echo "select $select from $table where $where"			|
 sql.e								|
 cat`
 

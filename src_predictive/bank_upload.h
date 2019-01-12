@@ -102,6 +102,13 @@ BANK_UPLOAD *bank_upload_calloc(	void );
 BANK_UPLOAD *bank_upload_new(		char *bank_date,
 					char *bank_description );
 
+void bank_upload_transaction_insert(	char *application_name,
+					char *bank_date,
+					char *bank_description,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time );
+
 /* Returns table_insert_count */
 /* -------------------------- */
 int bank_upload_insert(			char *application_name,
@@ -219,6 +226,13 @@ double bank_upload_fetch_bank_amount(
 					char *application_name,
 					char *bank_date,
 					char *bank_description );
+
+void bank_upload_transaction_insert(	char *application_name,
+					char *bank_date,
+					char *bank_description,
+					char *full_name,
+					char *street_address,
+					char *transaction_date_time );
 
 #endif
 

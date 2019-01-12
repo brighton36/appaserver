@@ -263,17 +263,17 @@ void post_change_customer_payment_insert(
 	transaction->check_number = customer_payment->check_number,
 
 	transaction->transaction_date_time =
-	customer_payment->transaction_date_time =
-		ledger_transaction_journal_ledger_insert(
-			application_name,
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			transaction->transaction_amount,
-			transaction->memo,
-			transaction->check_number,
-			transaction->lock_transaction,
-			transaction->journal_ledger_list );
+		customer_payment->transaction_date_time =
+			ledger_transaction_journal_ledger_insert(
+				application_name,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->transaction_amount,
+				transaction->memo,
+				transaction->check_number,
+				transaction->lock_transaction,
+				transaction->journal_ledger_list );
 
 	customer_payment_update(
 		application_name,

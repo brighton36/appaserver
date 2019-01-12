@@ -34,6 +34,9 @@
 
 /* Prototypes */
 /* ---------- */
+void post_cash_expense_transaction_balance_propagate(
+				char *bank_date );
+
 TRANSACTION *post_cash_expense_transaction(
 				FILE *output_pipe,
 				char *application_name,
@@ -174,9 +177,27 @@ int main( int argc, char **argv )
 
 	if ( transaction && execute )
 	{
-		ledger_transaction_insert(
+		transaction->transaction_date_time =
+			ledger_transaction_journal_ledger_insert(
+				application_name,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->transaction_amount,
+				transaction->memo,
+				transaction->check_number,
+				transaction->lock_transaction,
+				transaction->journal_ledger_list );
 
 		bank_upload_transaction_insert(
+			application_name,
+			bank_date,
+			bank_description,
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time );
+
+		post_cash_expense_transaction_balance_propagate( bank_date );
 
 		folder_menu_refresh_row_count(
 			application_name,
@@ -282,3 +303,47 @@ TRANSACTION *post_cash_expense_transaction(
 	return transaction;
 
 } /* post_cash_expense_transaction() */
+
+void post_cash_expense_transaction_balance_propagate( char *bank_date )
+{
+	char sys_string [ 1024 ];
+
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+	fflush( stdout );
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+
+	sprintf( sys_string,
+		 "bank_upload_sequence_propagate.sh %s		|"
+		 "sql.e 2>&1					|"
+		 "html_paragraph_wrapper.e			 ",
+		 bank_date );
+
+fprintf( stderr, "%s/%s()/%d: sys_string = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+	fflush( stdout );
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+
+	system( sys_string );
+
+	sprintf( sys_string,
+		 "bank_upload_balance_propagate.sh %s		|"
+		 "sql.e 2>&1					|"
+		 "html_paragraph_wrapper.e			 ",
+		 bank_date );
+
+	system( sys_string );
+
+} /* post_cash_expense_transaction_balance_propagate() */
+

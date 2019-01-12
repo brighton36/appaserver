@@ -975,6 +975,8 @@ void ledger_get_payroll_account_names(
 char *ledger_fetch_max_transaction_date_time(
 				char *application_name );
 
+/* Returns inserted transaction_date_time */
+/* -------------------------------------- */
 char *ledger_transaction_journal_ledger_insert(
 				char *application_name,
 				char *full_name,

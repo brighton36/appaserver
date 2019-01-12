@@ -18,12 +18,24 @@ then
 	exit 1
 fi
 
+if [ "$#" -ne 1 ]
+then
+	echo "Usage: $0 bank_date" 1>&2
+	exit 1
+fi
+
+bank_date=$1
+
 select=sequence_number,transaction_date_time
-table=bank_upload_transaction_sequence
+table=bank_upload_transaction_balance
+
+#where="bank_date < '$bank_date'"
+where="1 = 1"
+
 order=transaction_date_time
 
 out_of_sequence_row_number=`
-echo "select $select from $table order by $order;"		|
+echo "select $select from $table where $where order by $order;"	|
 sql.e								|
 sort -n -c 2>&1							|
 piece.e ':' 2`

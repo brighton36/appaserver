@@ -308,16 +308,6 @@ void post_cash_expense_transaction_balance_propagate( char *bank_date )
 {
 	char sys_string [ 1024 ];
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-	fflush( stdout );
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-
 	sprintf( sys_string,
 		 "bank_upload_sequence_propagate.sh %s		|"
 		 "sql.e 2>&1					|"
@@ -329,13 +319,11 @@ __FILE__,
 __FUNCTION__,
 __LINE__,
 sys_string );
-	fflush( stdout );
+	system( sys_string );
 fprintf( stderr, "%s/%s()/%d\n",
 __FILE__,
 __FUNCTION__,
 __LINE__ );
-
-	system( sys_string );
 
 	sprintf( sys_string,
 		 "bank_upload_balance_propagate.sh %s		|"

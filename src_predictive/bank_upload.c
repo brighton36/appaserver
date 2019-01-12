@@ -781,18 +781,11 @@ char *bank_upload_get_select( void )
 	return select;
 }
 
-BANK_UPLOAD *bank_upload_fetch(		char *application_name,
-					char *bank_date,
-					char *bank_description )
+char *bank_upload_get_where(	char *where,
+				char *bank_date,
+				char *bank_description )
 {
-	BANK_UPLOAD *bank_upload;
-	char *select;
-	char where[ 512 ];
 	char description_buffer[ 512 ];
-	char sys_string[ 1024 ];
-	char *results;
-
-	select = bank_upload_get_select();
 
 	sprintf( where,
 		 "bank_date = '%s' and			"
@@ -802,6 +795,22 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 					bank_description,
 					'\'' ) );
 
+	return where;
+
+} /* bank_upload_get_where() */
+
+BANK_UPLOAD *bank_upload_fetch(		char *application_name,
+					char *bank_date,
+					char *bank_description )
+{
+	BANK_UPLOAD *bank_upload;
+	char *select;
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+
+	select = bank_upload_get_select();
+
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
 		 "			select=\"%s\"		"
@@ -809,7 +818,10 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 		 "			where=\"%s\"		",
 		 application_name,
 		 select,
-		 where );
+		 bank_upload_get_where(
+			where,
+			bank_date,
+			bank_description ) );
 
 	if ( !( results = pipe2string( sys_string ) ) )
 		return (BANK_UPLOAD *)0;
@@ -1288,4 +1300,54 @@ int bank_upload_transaction_count(
 	return count;
 
 } /* bank_upload_transaction_count() */
+
+boolean bank_upload_transaction_exists(
+				char *application_name,
+				char *bank_date,
+				char *bank_description )
+{
+	char *select;
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"count(1)\"		"
+		 "			folder=bank_upload_transaction	"
+		 "			where=\"%s\"			",
+		 application_name,
+		 bank_upload_get_where(
+			where,
+			bank_date,
+			bank_description ) );
+
+	results = pipe2string( sys_string );
+
+	if ( !results || *results == '0' )
+		return 0;
+	else
+		return 1;
+
+} /* bank_upload_transaction_exists() */
+
+double bank_upload_fetch_bank_amount(
+				char *application_name,
+				char *bank_date,
+				char *bank_description )
+{
+	BANK_UPLOAD *b;
+
+	if ( ! ( b = bank_upload_fetch(	application_name,
+					bank_date,
+					bank_description ) ) )
+	{
+		return 0.0;
+	}
+	else
+	{
+		return b->bank_amount;
+	}
+
+} /* bank_upload_fetch_bank_amount() */
 

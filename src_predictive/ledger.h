@@ -1114,4 +1114,29 @@ void ledger_transaction_delete_propagate(
 				char *transaction_date_time,
 				LIST *journal_ledger_list );
 
+LIST *ledger_build_binary_ledger_list(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *debit_account,
+				char *credit_account );
+
+TRANSACTION *ledger_build_binary_transaction(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *debit_account,
+				char *credit_account,
+				double transaction_amount,
+				char *memo );
+
+void ledger_transaction_output_pipe_display(
+				FILE *output_pipe,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *journal_ledger_list );
+
 #endif

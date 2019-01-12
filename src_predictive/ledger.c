@@ -9174,6 +9174,64 @@ DICTIONARY *ledger_account_pipe2dictionary( char *sys_string, char delimiter )
 
 } /* ledger_account_pipe2dictionary() */
 
+LIST *ledger_build_binary_ledger_list(
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				double transaction_amount,
+				char *debit_account,
+				char *credit_account )
+{
+	LIST *journal_ledger_list;
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !debit_account
+	||   !*debit_account
+	||   !credit_account
+	||   !*credit_account )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty account name(s).\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( timlib_double_virtually_same(
+		transaction_amount, 0.0 ) )
+	{
+		return (LIST *)0;
+	}
+
+	journal_ledger_list = list_new();
+
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			debit_account );
+
+	journal_ledger->debit_amount = transaction_amount;
+
+	list_append_pointer( journal_ledger_list, journal_ledger );
+
+	journal_ledger =
+		journal_ledger_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			credit_account );
+
+	journal_ledger->credit_amount = transaction_amount;
+
+	list_append_pointer( journal_ledger_list, journal_ledger );
+
+	return journal_ledger_list;
+
+} /* ledger_build_binary_ledger_list() */
+
 LIST *ledger_get_binary_ledger_list(
 				double transaction_amount,
 				char *debit_account,
@@ -9458,4 +9516,99 @@ void ledger_transaction_delete_propagate(
 			application_name );
 
 } /* ledger_transaction_delete_propagate() */
+
+TRANSACTION *ledger_build_binary_transaction(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account,
+			double transaction_amount,
+			char *memo )
+{
+	TRANSACTION *transaction;
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time,
+			memo );
+
+	transaction->transaction_amount = transaction_amount;
+
+	transaction->journal_ledger_list =
+		ledger_build_binary_ledger_list(
+				full_name,
+				street_address,
+				transaction_date_time,
+				transaction->transaction_amount,
+				debit_account,
+				credit_account );
+
+	return transaction;
+
+} /* ledger_build_binary_transaction() */
+
+void ledger_transaction_output_pipe_display(
+				FILE *output_pipe,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *memo,
+				LIST *journal_ledger_list )
+{
+	JOURNAL_LEDGER *journal_ledger;
+	char buffer[ 256 ];
+	char full_name_buffer[ 256 ];
+
+	if ( list_length( journal_ledger_list ) != 2 )
+	{
+		fprintf( output_pipe,
+			 "Expecting a debit and credit journal entry.\n" );
+	}
+
+	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
+	{
+		fprintf( output_pipe,
+		 	 "Memo: %s\n",
+		 	 memo );
+	}
+
+	list_rewind( journal_ledger_list );
+
+	journal_ledger = list_get_pointer( journal_ledger_list );
+
+	if ( strcmp( street_address, "null" ) != 0 )
+	{
+		sprintf( full_name_buffer,
+			 "%s/%s",
+			 full_name,
+			 street_address );
+	}
+	else
+	{
+		strcpy( full_name_buffer, full_name );
+	}
+
+	fprintf( output_pipe,
+		 "%s^%s^%.2lf^\n",
+		 full_name_buffer,
+		 format_initial_capital(
+			buffer,
+			journal_ledger->account_name ),
+		 journal_ledger->debit_amount );
+
+	list_next( journal_ledger_list );
+	journal_ledger = list_get_pointer( journal_ledger_list );
+
+	fprintf( output_pipe,
+		 "%s^%s^^%.2lf\n",
+		 transaction_date_time,
+		 format_initial_capital(
+			buffer,
+			journal_ledger->account_name ),
+		 journal_ledger->credit_amount );
+
+} /* ledger_transaction_output_pipe_display() */
 

@@ -206,5 +206,19 @@ void bank_upload_archive_insert(	char *application_name,
 int bank_upload_transaction_count(
 					LIST *bank_upload_list );
 
+boolean bank_upload_transaction_exists(
+					char *application_name,
+					char *bank_date,
+					char *bank_description );
+
+char *bank_upload_get_where(		char *where,
+					char *bank_date,
+					char *bank_description );
+
+double bank_upload_fetch_bank_amount(
+					char *application_name,
+					char *bank_date,
+					char *bank_description );
+
 #endif
 

@@ -167,14 +167,14 @@ post_reoccurring_transaction: post_reoccurring_transaction.c		\
 post_cash_expense_transaction: post_cash_expense_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
 		bank_upload.o						\
-		cash_expense.o						\
+		reoccurring.o						\
 		${LIBRARY}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		post_cash_expense_transaction.c				\
 		bank_upload.o						\
-		cash_expense.o						\
+		reoccurring.o						\
 		${LIBRARY}/folder_menu.o				\
 		-o post_cash_expense_transaction
 

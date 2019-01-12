@@ -383,8 +383,6 @@ void post_reoccurring_transaction_display(
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
 	TRANSACTION *transaction;
-	JOURNAL_LEDGER *journal_ledger;
-	char buffer[ 128 ];
 
 	if ( ! ( reoccurring_transaction =
 			reoccurring_transaction_new(
@@ -444,39 +442,13 @@ void post_reoccurring_transaction_display(
 
 	if ( !transaction ) return;
 
-	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
-	{
-		fprintf( output_pipe,
-		 	 "Memo: %s\n",
-		 	 transaction->memo );
-	}
-
-	if ( !list_rewind( transaction->journal_ledger_list ) )
-	{
-		fprintf( output_pipe, "Error occurred.\n" );
-		pclose( output_pipe );
-		exit( 1 );
-	}
-
-	journal_ledger = list_get_pointer( transaction->journal_ledger_list );
-
-	fprintf( output_pipe,
-		 "%s^%s^%.2lf^\n",
-		 transaction->full_name,
-		 format_initial_capital(
-			buffer,
-			journal_ledger->account_name ),
-		 journal_ledger->debit_amount );
-
-	list_next( transaction->journal_ledger_list );
-	journal_ledger = list_get_pointer( transaction->journal_ledger_list );
-
-	fprintf( output_pipe,
-		 "^%s^^%.2lf\n",
-		 format_initial_capital(
-			buffer,
-			journal_ledger->account_name ),
-		 journal_ledger->credit_amount );
+	ledger_transaction_output_pipe_display(
+		output_pipe,
+		transaction->full_name,
+		transaction->street_address,
+		transaction->transaction_date_time,
+		(memo && *memo) ? memo : transaction->memo,
+		transaction->journal_ledger_list );
 
 } /* post_reoccurring_transaction_display() */
 

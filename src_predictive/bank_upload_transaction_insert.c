@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/insert_bank_upload_transaction.c	*/
+/* $APPASERVER_HOME/src_predictive/bank_upload_transaction_insert.c	*/
 /* ----------------------------------------------------------------	*/
 /* Input: BANK_UPLOAD and JOURNAL_LEDGER where account is cash.		*/
 /* Output: Insert into BANK_UPLOAD_TRANSACTION statements.		*/
@@ -30,38 +30,57 @@ char *bank_upload_bank_date_todo_subquery( void );
 
 char *bank_upload_full_name_todo_subquery( void );
 
-void insert_bank_upload_transaction_debit(
+void bank_upload_transaction_insert_debit(
 			char *application_name,
 			char *key,
 			char *value,
 			char *date );
 
-void insert_bank_upload_transaction_credit(
+void bank_upload_transaction_insert_credit(
 			char *application_name,
 			char *key,
 			char *value,
 			char *date );
 
-void insert_bank_upload_transaction_input_buffer(
+void bank_upload_transaction_insert_input_buffer(
 			char *key,
 			char *input_buffer );
 
-void insert_bank_upload_transaction_deposit(
+void bank_upload_transaction_insert_deposit(
 			char *application_name );
 
-void insert_bank_upload_transaction_withdrawal(
+void bank_upload_transaction_insert_withdrawal(
 			char *application_name );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *operation;
 
-	if ( argc ){};
+	if ( argc != 2 )
+	{
+		fprintf( stderr,
+			 "Usage: %s deposit|withdrawal|both\n",
+			 argv[ 0 ] );
+
+		exit ( 1 );
+	}
+
+	operation = argv[ 1 ];
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
-	insert_bank_upload_transaction_deposit( application_name );
-	insert_bank_upload_transaction_withdrawal( application_name );
+	if ( strcmp( operation, "deposit" ) == 0
+	||   strcmp( operation, "both" ) == 0 )
+	{
+		bank_upload_transaction_insert_deposit( application_name );
+	}
+
+	if ( strcmp( operation, "withdrawal" ) == 0
+	||   strcmp( operation, "both" ) == 0 )
+	{
+		bank_upload_transaction_insert_withdrawal( application_name );
+	}
 
 	return 0;
 
@@ -102,7 +121,7 @@ char *bank_upload_full_name_todo_subquery( void )
 
 } /* bank_upload_full_name_todo_subquery() */
 
-void insert_bank_upload_transaction_withdrawal( char *application_name )
+void bank_upload_transaction_insert_withdrawal( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -147,7 +166,7 @@ void insert_bank_upload_transaction_withdrawal( char *application_name )
 		piece( value, '|', input_buffer, 1 );
 		piece( date, '^', key, 0 );
 
-		insert_bank_upload_transaction_credit(
+		bank_upload_transaction_insert_credit(
 			application_name,
 			key,
 			value,
@@ -156,9 +175,9 @@ void insert_bank_upload_transaction_withdrawal( char *application_name )
 
 	pclose( input_pipe );
 
-} /* insert_bank_upload_transaction_withdrawal() */
+} /* bank_upload_transaction_insert_withdrawal() */
 
-void insert_bank_upload_transaction_deposit( char *application_name )
+void bank_upload_transaction_insert_deposit( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -204,7 +223,7 @@ void insert_bank_upload_transaction_deposit( char *application_name )
 		piece( value, '|', input_buffer, 1 );
 		piece( date, '^', key, 0 );
 
-		insert_bank_upload_transaction_debit(
+		bank_upload_transaction_insert_debit(
 			application_name,
 			key,
 			value,
@@ -213,9 +232,9 @@ void insert_bank_upload_transaction_deposit( char *application_name )
 
 	pclose( input_pipe );
 
-} /* insert_bank_upload_transaction_deposit() */
+} /* bank_upload_transaction_insert_deposit() */
 
-void insert_bank_upload_transaction_credit(
+void bank_upload_transaction_insert_credit(
 			char *application_name,
 			char *key,
 			char *value,
@@ -270,15 +289,15 @@ void insert_bank_upload_transaction_credit(
 
 	if ( get_line( input_buffer, input_pipe ) )
 	{
-		insert_bank_upload_transaction_input_buffer(
+		bank_upload_transaction_insert_input_buffer(
 			key, input_buffer );
 	}
 
 	pclose( input_pipe );
 
-} /* insert_bank_upload_transaction_credit() */
+} /* bank_upload_transaction_insert_credit() */
 
-void insert_bank_upload_transaction_debit(
+void bank_upload_transaction_insert_debit(
 			char *application_name,
 			char *key,
 			char *value,
@@ -333,15 +352,15 @@ void insert_bank_upload_transaction_debit(
 
 	if ( get_line( input_buffer, input_pipe ) )
 	{
-		insert_bank_upload_transaction_input_buffer(
+		bank_upload_transaction_insert_input_buffer(
 			key, input_buffer );
 	}
 
 	pclose( input_pipe );
 
-} /* insert_bank_upload_transaction_debit() */
+} /* bank_upload_transaction_insert_debit() */
 
-void insert_bank_upload_transaction_input_buffer(
+void bank_upload_transaction_insert_input_buffer(
 			char *key,
 			char *input_buffer )
 {
@@ -380,6 +399,6 @@ void insert_bank_upload_transaction_input_buffer(
 
 	pclose( output_pipe );
 
-} /* insert_bank_upload_transaction_input_buffer() */
+} /* bank_upload_transaction_insert_input_buffer() */
 
 

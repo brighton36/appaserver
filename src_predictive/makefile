@@ -26,8 +26,8 @@ EXECUTABLES=	trial_balance						\
 		balance_sheet						\
 		program_profit						\
 		ledger_propagate					\
-		insert_bank_upload_transaction				\
-		insert_bank_upload_journal_ledger			\
+		bank_upload_transaction_insert				\
+		bank_upload_journal_ledger_insert			\
 		ledger_unbalance					\
 		propagate_purchase_order_accounts			\
 		propagate_customer_sale_accounts			\
@@ -194,25 +194,25 @@ shortcut_service_work: shortcut_service_work.c				\
 		shortcut_service_work.c					\
 		-o shortcut_service_work
 
-insert_bank_upload_transaction: insert_bank_upload_transaction.c	\
+bank_upload_transaction_insert: bank_upload_transaction_insert.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		insert_bank_upload_transaction.c			\
-		-o insert_bank_upload_transaction
+		bank_upload_transaction_insert.c			\
+		-o bank_upload_transaction_insert
 
-insert_bank_upload_journal_ledger: insert_bank_upload_journal_ledger.c	\
+bank_upload_journal_ledger_insert: bank_upload_journal_ledger_insert.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
 		bank_upload.o						\
 		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		insert_bank_upload_journal_ledger.c			\
+		bank_upload_journal_ledger_insert.c			\
 		bank_upload.o						\
 		reoccurring.o						\
-		-o insert_bank_upload_journal_ledger
+		-o bank_upload_journal_ledger_insert
 
 ledger_propagate: ledger_propagate.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

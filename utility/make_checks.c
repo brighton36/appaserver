@@ -371,6 +371,14 @@ void make_checks_dollar_text_personal_size(
 "\\newpage\n\n" );
 	}
 
+#ifdef MAKE_SIDEWAYS
+	fprintf( latex_file,
+"\\begin{sideways}\n"
+"\\begin{minipage}{8.0in}\n"
+"\\vspace{0.50in}\n"
+"\\begin{tabular}{p{4.9in}l}\n" );
+#endif
+
 /* Move down to first row. */
 /* ----------------------- */
 	fprintf( latex_file,

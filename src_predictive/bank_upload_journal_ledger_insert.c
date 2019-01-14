@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/insert_bank_upload_journal_ledger.c	*/
+/* $APPASERVER_HOME/src_predictive/bank_upload_journal_ledger_insert.c	*/
 /* -------------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -28,7 +28,7 @@
 
 /* Prototypes */
 /* ---------- */
-void insert_bank_upload_journal_ledger(
+void bank_upload_journal_ledger_insert(
 			char *application_name,
 			char *begin_date,
 			char *fund_name,
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
 	/* ------------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
-	if ( argc != 4)
+	if ( argc != 4 )
 	{
 		fprintf( stderr,
 			 "Usage: %s begin_date fund execute_yn\n",
@@ -63,7 +63,7 @@ int main( int argc, char **argv )
 	fund_name = argv[ 2 ];
 	execute = (*argv[ 3 ] == 'y');
 
-	insert_bank_upload_journal_ledger(
+	bank_upload_journal_ledger_insert(
 			application_name,
 			begin_date,
 			fund_name,
@@ -73,7 +73,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void insert_bank_upload_journal_ledger(
+void bank_upload_journal_ledger_insert(
 			char *application_name,
 			char *begin_date,
 			char *fund_name,
@@ -119,5 +119,5 @@ void insert_bank_upload_journal_ledger(
 			p->table.bank_upload_table_list );
 	}
 
-} /* insert_bank_upload_journal_ledger() */
+} /* bank_upload_journal_ledger_insert() */
 

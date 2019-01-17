@@ -384,9 +384,10 @@ LIST *bank_upload_fetch_file_list(
 			char msg[ 128 ];
 
 			sprintf( msg,
-		"<p>Error in line %d: Cannot parse bank amount using piece=%d",
+"<p>Error in line %d: Cannot parse bank amount using piece=%d in input = (%s)",
 				 line_number,
-				 debit_piece_offset );
+				 debit_piece_offset,
+				 input_string );
 
 			list_append_pointer( error_line_list, strdup( msg ) );
 
@@ -397,21 +398,7 @@ LIST *bank_upload_fetch_file_list(
 		{
 			/* See if there's a second column. */
 			/* ------------------------------- */
-			if ( credit_piece_offset < 0 )
-			{
-				char msg[ 128 ];
-
-				sprintf( msg,
-		"<p>Error in line %d: Cannot parse bank amount using piece=%d",
-				 	line_number,
-				 	credit_piece_offset );
-
-				list_append_pointer(
-					error_line_list,
-					strdup( msg ) );
-
-					continue;
-			}
+			if ( credit_piece_offset < 0 ) continue;
 
 			if ( !piece_quote_comma(
 					bank_amount,

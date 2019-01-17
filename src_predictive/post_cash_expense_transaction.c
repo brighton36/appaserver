@@ -197,7 +197,9 @@ int main( int argc, char **argv )
 			transaction->street_address,
 			transaction->transaction_date_time );
 
+/*
 		post_cash_expense_transaction_balance_propagate( bank_date );
+*/
 
 		folder_menu_refresh_row_count(
 			application_name,

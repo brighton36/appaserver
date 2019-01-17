@@ -43,9 +43,13 @@ then
 fi
 
 select=bank_date,bank_description,bank_amount,bank_running_balance
+
 table=bank_upload
-where="sequence_number >= $in_balance_sequence_number and exists ( select 1 from bank_upload_transaction where bank_upload.bank_date = bank_upload_transaction.bank_date and bank_upload.bank_description = bank_upload_transaction.bank_description )"
+
+where="sequence_number = 1 or sequence_number >= $in_balance_sequence_number and exists ( select 1 from bank_upload_transaction where bank_upload.bank_date = bank_upload_transaction.bank_date and bank_upload.bank_description = bank_upload_transaction.bank_description )"
+
 order=sequence_number
+
 key=bank_date,bank_description
 
 first_time=1
@@ -58,6 +62,12 @@ do
 	if [ $first_time -eq 1 ]
 	then
 		bank_running_balance=`echo $record | piece.e '^' 3`
+
+		if [ "$bank_running_balance" = "" ]
+		then
+			echo "Error $0: cannot get bank_running_balance" 1>&2
+			exit 1
+		fi
 		first_time=0
 		continue
 	fi

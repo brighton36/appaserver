@@ -13,6 +13,7 @@
 
 /* Constants */
 /* --------- */
+#define FEEDER_PHRASE_DELIMITER		'|'
 #define REOCCURRING_TRANSACTION_FOLDER_NAME \
 					"reoccurring_transaction"
 

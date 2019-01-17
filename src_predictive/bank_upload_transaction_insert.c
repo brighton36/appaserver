@@ -15,6 +15,7 @@
 #include "list.h"
 #include "date.h"
 #include "environ.h"
+#include "ledger.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
@@ -30,17 +31,19 @@ char *bank_upload_bank_date_todo_subquery( void );
 
 char *bank_upload_full_name_todo_subquery( void );
 
-void bank_upload_transaction_insert_debit(
+boolean bank_upload_transaction_insert_debit(
 			char *application_name,
 			char *key,
 			char *value,
-			char *date );
+			char *date,
+			double exact_value );
 
-void bank_upload_transaction_insert_credit(
+boolean bank_upload_transaction_insert_credit(
 			char *application_name,
 			char *key,
 			char *value,
-			char *date );
+			char *date,
+			double exact_value );
 
 void bank_upload_transaction_insert_input_buffer(
 			char *key,
@@ -52,6 +55,16 @@ void bank_upload_transaction_insert_deposit(
 void bank_upload_transaction_insert_withdrawal(
 			char *application_name );
 
+void bank_upload_transaction_insert_bank_upload_withdrawal(
+			char *application_name,
+			char *bank_date,
+			char *bank_description );
+
+void bank_upload_transaction_insert_bank_upload_deposit(
+			char *application_name,
+			char *bank_date,
+			char *bank_description );
+
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -60,7 +73,7 @@ int main( int argc, char **argv )
 	if ( argc != 2 )
 	{
 		fprintf( stderr,
-			 "Usage: %s deposit|withdrawal|both\n",
+	"Usage: %s deposit|withdrawal|both|bank_date^bank_description\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
@@ -80,6 +93,25 @@ int main( int argc, char **argv )
 	||   strcmp( operation, "both" ) == 0 )
 	{
 		bank_upload_transaction_insert_withdrawal( application_name );
+	}
+
+	if ( character_exists( operation, '^' ) )
+	{
+		char bank_date[ 128 ];
+		char bank_description[ 1024 ];
+
+		piece( bank_date, '^', operation, 0 );
+		piece( bank_description, '^', operation, 1 );
+
+		bank_upload_transaction_insert_bank_upload_withdrawal(
+			application_name,
+			bank_date,
+			bank_description );
+
+		bank_upload_transaction_insert_bank_upload_deposit(
+			application_name,
+			bank_date,
+			bank_description );
 	}
 
 	return 0;
@@ -121,6 +153,158 @@ char *bank_upload_full_name_todo_subquery( void )
 
 } /* bank_upload_full_name_todo_subquery() */
 
+void bank_upload_transaction_insert_bank_upload_deposit(
+				char *application_name,
+				char *bank_date,
+				char *bank_description )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+	char where[ 512 ];
+	char buffer[ 256 ];
+	char *order;
+	FILE *input_pipe;
+	char input_buffer[ 1024 ];
+	char key[ 256 ];
+	char date[ 128 ];
+	char value[ 32 ];
+
+	select = "bank_date, bank_description, bank_amount";
+	folder = "bank_upload";
+	order = "sequence_number,bank_date";
+
+	sprintf( where,
+		 "bank_date = '%s' and bank_description = '%s' and %s",
+		 bank_date,
+		 escape_character(	buffer,
+					bank_description,
+					'\'' ),
+		 bank_upload_bank_date_todo_subquery() );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		 "
+		 "			select=\"%s\"		 "
+		 "			folder=%s		 "
+		 "			where=\"%s\"		 "
+		 "			order=%s		|"
+		 "tr '%c' '|'					|"
+		 "sed 's/|/^/1'					|"
+		 "cat						 ",
+		 application_name,
+		 select,
+		 folder,
+		 where,
+		 order,
+		 FOLDER_DATA_DELIMITER );
+
+	input_pipe = popen( sys_string, "r" );
+
+	/* Just do one */
+	/* ----------- */
+	if( get_line( input_buffer, input_pipe ) )
+	{
+		piece( key, '|', input_buffer, 0 );
+		piece( value, '|', input_buffer, 1 );
+		piece( date, '^', key, 0 );
+
+		if ( !bank_upload_transaction_insert_debit(
+			application_name,
+			key,
+			value,
+			date,
+			atof( value ) /* exact_value */ ) )
+		{
+			bank_upload_transaction_insert_debit(
+				application_name,
+				key,
+				value,
+				date,
+				0.0 /* exact_value */ );
+		}
+
+	}
+
+	pclose( input_pipe );
+
+} /* bank_upload_transaction_insert_bank_upload_deposit() */
+
+void bank_upload_transaction_insert_bank_upload_withdrawal(
+				char *application_name,
+				char *bank_date,
+				char *bank_description )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder;
+	char where[ 512 ];
+	char buffer[ 256 ];
+	char *order;
+	FILE *input_pipe;
+	char input_buffer[ 1024 ];
+	char key[ 256 ];
+	char date[ 128 ];
+	char value[ 32 ];
+
+	select = "bank_date, bank_description, 0 - bank_amount";
+	folder = "bank_upload";
+	order = "sequence_number,bank_date";
+
+	sprintf( where,
+		 "bank_date = '%s' and bank_description = '%s' and %s",
+		 bank_date,
+		 escape_character(	buffer,
+					bank_description,
+					'\'' ),
+		 bank_upload_bank_date_todo_subquery() );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		 "
+		 "			select=\"%s\"		 "
+		 "			folder=%s		 "
+		 "			where=\"%s\"		 "
+		 "			order=%s		|"
+		 "tr '%c' '|'					|"
+		 "sed 's/|/^/1'					|"
+		 "cat						 ",
+		 application_name,
+		 select,
+		 folder,
+		 where,
+		 order,
+		 FOLDER_DATA_DELIMITER );
+
+	input_pipe = popen( sys_string, "r" );
+
+	/* Just do one */
+	/* ----------- */
+	if( get_line( input_buffer, input_pipe ) )
+	{
+		piece( key, '|', input_buffer, 0 );
+		piece( value, '|', input_buffer, 1 );
+		piece( date, '^', key, 0 );
+
+		if ( !bank_upload_transaction_insert_credit(
+			application_name,
+			key,
+			value,
+			date,
+			atof( value ) /* exact_value */ ) )
+		{
+			bank_upload_transaction_insert_credit(
+				application_name,
+				key,
+				value,
+				date,
+				0.0 /* exact_value */ );
+		}
+
+	}
+
+	pclose( input_pipe );
+
+} /* bank_upload_transaction_insert_bank_upload_withdrawal() */
+
 void bank_upload_transaction_insert_withdrawal( char *application_name )
 {
 	char sys_string[ 1024 ];
@@ -160,17 +344,29 @@ void bank_upload_transaction_insert_withdrawal( char *application_name )
 
 	input_pipe = popen( sys_string, "r" );
 
-	while( get_line( input_buffer, input_pipe ) )
+	/* Just do one */
+	/* ----------- */
+	if( get_line( input_buffer, input_pipe ) )
 	{
 		piece( key, '|', input_buffer, 0 );
 		piece( value, '|', input_buffer, 1 );
 		piece( date, '^', key, 0 );
 
-		bank_upload_transaction_insert_credit(
+		if ( !bank_upload_transaction_insert_credit(
 			application_name,
 			key,
 			value,
-			date );
+			date,
+			atof( value ) /* exact_value */ ) )
+		{
+			bank_upload_transaction_insert_credit(
+				application_name,
+				key,
+				value,
+				date,
+				0.0 /* exact_value */ );
+		}
+
 	}
 
 	pclose( input_pipe );
@@ -217,28 +413,40 @@ void bank_upload_transaction_insert_deposit( char *application_name )
 
 	input_pipe = popen( sys_string, "r" );
 
-	while( get_line( input_buffer, input_pipe ) )
+	/* Just do one */
+	/* ----------- */
+	if( get_line( input_buffer, input_pipe ) )
 	{
 		piece( key, '|', input_buffer, 0 );
 		piece( value, '|', input_buffer, 1 );
 		piece( date, '^', key, 0 );
 
-		bank_upload_transaction_insert_debit(
+		if ( !bank_upload_transaction_insert_debit(
 			application_name,
 			key,
 			value,
-			date );
+			date,
+			atof( value ) /* exact_value */ ) )
+		{
+			bank_upload_transaction_insert_debit(
+				application_name,
+				key,
+				value,
+				date,
+				0.0 /* exact_value */ );
+		}
 	}
 
 	pclose( input_pipe );
 
 } /* bank_upload_transaction_insert_deposit() */
 
-void bank_upload_transaction_insert_credit(
+boolean bank_upload_transaction_insert_credit(
 			char *application_name,
 			char *key,
 			char *value,
-			char *date )
+			char *date,
+			double exact_value )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -248,6 +456,27 @@ void bank_upload_transaction_insert_credit(
 	FILE *input_pipe;
 	char input_buffer[ 1024 ];
 	DATE *d;
+	char *cash_account;
+	char exact_where[ 128 ];
+	boolean return_value = 0;
+
+	cash_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			(char *)0 /* fund_name */,
+			LEDGER_CASH_KEY,
+			0 /* not warning_only */ );
+
+	if ( exact_value )
+	{
+		sprintf( exact_where,
+			 "ifnull( credit_amount, 0 ) = %.2lf",
+			 exact_value );
+	}
+	else
+	{
+		strcpy( exact_where, "1 = 1" );
+	}
 
 	d = date_yyyy_mm_dd_new( date );
 	date_increment_days( d, CASH_LEDGER_DAYS_AGO );
@@ -258,9 +487,11 @@ void bank_upload_transaction_insert_credit(
 	folder = "journal_ledger";
 
 	sprintf( where,
-"account = 'bank_of_america_checking' and ifnull( credit_amount, 0 ) <> 0 and transaction_date_time >= '%s' and %s",
+"account = '%s' and ifnull( credit_amount, 0 ) <> 0 and transaction_date_time >= '%s' and %s and %s",
+		 cash_account,
 		 date_display( d ),
-		 bank_upload_full_name_todo_subquery() );
+		 bank_upload_full_name_todo_subquery(),
+		 exact_where );
 
 	order = "transaction_date_time";
 
@@ -291,17 +522,22 @@ void bank_upload_transaction_insert_credit(
 	{
 		bank_upload_transaction_insert_input_buffer(
 			key, input_buffer );
+
+		return_value = 1;
 	}
 
 	pclose( input_pipe );
 
+	return return_value;
+
 } /* bank_upload_transaction_insert_credit() */
 
-void bank_upload_transaction_insert_debit(
+boolean bank_upload_transaction_insert_debit(
 			char *application_name,
 			char *key,
 			char *value,
-			char *date )
+			char *date,
+			double exact_value )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -311,6 +547,28 @@ void bank_upload_transaction_insert_debit(
 	FILE *input_pipe;
 	char input_buffer[ 1024 ];
 	DATE *d;
+	char *cash_account;
+	char exact_where[ 128 ];
+	boolean return_value = 0;
+
+	cash_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			(char *)0 /* fund_name */,
+			LEDGER_CASH_KEY,
+			0 /* not warning_only */ );
+
+	if ( exact_value )
+	{
+		sprintf( exact_where,
+			 "ifnull( credit_amount, 0 ) = %.2lf",
+			 exact_value );
+	}
+	else
+	{
+		strcpy( exact_where, "1 = 1" );
+	}
+
 
 	d = date_yyyy_mm_dd_new( date );
 	date_increment_days( d, CASH_LEDGER_DAYS_AGO );
@@ -321,9 +579,11 @@ void bank_upload_transaction_insert_debit(
 	folder = "journal_ledger";
 
 	sprintf( where,
-"account = 'bank_of_america_checking' and ifnull( debit_amount, 0 ) <> 0 and transaction_date_time >= '%s' and %s",
+"account = '%s' and ifnull( debit_amount, 0 ) <> 0 and transaction_date_time >= '%s' and %s and %s",
+		 cash_account,
 		 date_display( d ),
-		 bank_upload_full_name_todo_subquery() );
+		 bank_upload_full_name_todo_subquery(),
+		 exact_where );
 
 	order = "transaction_date_time";
 
@@ -354,9 +614,13 @@ void bank_upload_transaction_insert_debit(
 	{
 		bank_upload_transaction_insert_input_buffer(
 			key, input_buffer );
+
+		return_value = 1;
 	}
 
 	pclose( input_pipe );
+
+	return return_value;
 
 } /* bank_upload_transaction_insert_debit() */
 

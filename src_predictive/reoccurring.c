@@ -324,6 +324,8 @@ REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_feeder_phrase(
 				char *bank_description )
 {
 	REOCCURRING_TRANSACTION *reoccurring_transaction;
+	char feeder_phrase_piece[ 1024 ];
+	int p;
 
 	if ( !list_rewind( reoccurring_transaction_list ) )
 		return (REOCCURRING_TRANSACTION *)0;
@@ -333,13 +335,20 @@ REOCCURRING_TRANSACTION *reoccurring_seek_bank_upload_feeder_phrase(
 			list_get(
 				reoccurring_transaction_list );
 
-		if ( timlib_exists_string(
-			bank_description /* string */,
-			reoccurring_transaction->
-				bank_upload_feeder_phrase
-					/* substring */ ) )
+		for(	p = 0;
+			piece(	feeder_phrase_piece,
+				FEEDER_PHRASE_DELIMITER,
+				reoccurring_transaction->
+					bank_upload_feeder_phrase,
+				p );
+			p++ )
 		{
-			return reoccurring_transaction;
+			if ( timlib_exists_string(
+				bank_description /* string */,
+				feeder_phrase_piece /* substring */ ) )
+			{
+				return reoccurring_transaction;
+			}
 		}
 
 	} while( list_next( reoccurring_transaction_list ) );

@@ -165,6 +165,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		return (BANK_UPLOAD_STRUCTURE *)0;
 	}
 
+/*
 	if ( bank_upload_sha256sum_exists(
 			application_name,
 			p->file.file_sha256sum ) )
@@ -186,6 +187,7 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 
 		return (BANK_UPLOAD_STRUCTURE *)0;
 	}
+*/
 
 	p->existing_cash_journal_ledger_list =
 		bank_upload_fetch_existing_cash_journal_ledger_list(
@@ -325,8 +327,8 @@ LIST *bank_upload_fetch_file_list(
 		else
 		{
 			if ( strcmp( 
-				local_minimum_bank_date,
-				bank_date_international ) < 0 )
+				bank_date_international,
+				local_minimum_bank_date ) < 0 )
 			{
 				strcpy(	local_minimum_bank_date,
 					bank_date_international );
@@ -1345,7 +1347,6 @@ boolean bank_upload_transaction_exists(
 				char *bank_date,
 				char *bank_description )
 {
-	char *select;
 	char where[ 512 ];
 	char sys_string[ 1024 ];
 	char *results;

@@ -21,7 +21,7 @@ fi
 select="concat( bank_date, '^',bank_description, ' [', bank_amount, ']' )"
 order="bank_date,bank_description"
 table=bank_upload
-where="bank_amount < 0 and not exists (
+where="not exists (
 		select 1						\
 		from bank_upload_transaction				\
 		where bank_upload.bank_date =				\

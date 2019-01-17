@@ -19,11 +19,10 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
+#include "bank_upload.h"
 
 /* Constants */
 /* --------- */
-#define CASH_LEDGER_DAYS_AGO		-40.0
-#define TRANSACTIONS_CHECK_COUNT	20
 
 /* Prototypes */
 /* ---------- */

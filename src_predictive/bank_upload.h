@@ -21,6 +21,15 @@ enum bank_upload_exception {	bank_upload_exception_none,
 
 /* Constants */
 /* --------- */
+
+/* Need to run bank_upload_transaction_insert within a month. */
+/* ---------------------------------------------------------- */
+#define CASH_LEDGER_DAYS_AGO		-28.0
+
+/* Look ahead count for keys_match_sum.e */
+/* ------------------------------------- */
+#define TRANSACTIONS_CHECK_COUNT	20
+
 #define INSERT_BANK_UPLOAD		\
 	"bank_date,bank_description,sequence_number,bank_amount,bank_upload_date_time"
 

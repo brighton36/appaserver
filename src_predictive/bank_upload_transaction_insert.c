@@ -275,8 +275,6 @@ void bank_upload_transaction_insert_bank_upload_withdrawal(
 
 	input_pipe = popen( sys_string, "r" );
 
-	/* Just do one */
-	/* ----------- */
 	if( get_line( input_buffer, input_pipe ) )
 	{
 		piece( key, '|', input_buffer, 0 );
@@ -297,7 +295,6 @@ void bank_upload_transaction_insert_bank_upload_withdrawal(
 				date,
 				0.0 /* exact_value */ );
 		}
-
 	}
 
 	pclose( input_pipe );
@@ -343,29 +340,35 @@ void bank_upload_transaction_insert_withdrawal( char *application_name )
 
 	input_pipe = popen( sys_string, "r" );
 
-	/* Just do one */
-	/* ----------- */
-	if( get_line( input_buffer, input_pipe ) )
+	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece( key, '|', input_buffer, 0 );
 		piece( value, '|', input_buffer, 1 );
 		piece( date, '^', key, 0 );
 
-		if ( !bank_upload_transaction_insert_credit(
+		if ( bank_upload_transaction_insert_credit(
 			application_name,
 			key,
 			value,
 			date,
 			atof( value ) /* exact_value */ ) )
 		{
-			bank_upload_transaction_insert_credit(
-				application_name,
-				key,
-				value,
-				date,
-				0.0 /* exact_value */ );
+			/* Just do one */
+			/* ----------- */
+			break;
 		}
 
+		if ( bank_upload_transaction_insert_credit(
+			application_name,
+			key,
+			value,
+			date,
+			0.0 /* exact_value */ ) )
+		{
+			/* Just do one */
+			/* ----------- */
+			break;
+		}
 	}
 
 	pclose( input_pipe );
@@ -412,27 +415,34 @@ void bank_upload_transaction_insert_deposit( char *application_name )
 
 	input_pipe = popen( sys_string, "r" );
 
-	/* Just do one */
-	/* ----------- */
-	if( get_line( input_buffer, input_pipe ) )
+	while ( get_line( input_buffer, input_pipe ) )
 	{
 		piece( key, '|', input_buffer, 0 );
 		piece( value, '|', input_buffer, 1 );
 		piece( date, '^', key, 0 );
 
-		if ( !bank_upload_transaction_insert_debit(
+		if ( bank_upload_transaction_insert_debit(
 			application_name,
 			key,
 			value,
 			date,
 			atof( value ) /* exact_value */ ) )
 		{
-			bank_upload_transaction_insert_debit(
-				application_name,
-				key,
-				value,
-				date,
-				0.0 /* exact_value */ );
+			/* Just do one */
+			/* ----------- */
+			break;
+		}
+
+		if ( bank_upload_transaction_insert_debit(
+			application_name,
+			key,
+			value,
+			date,
+			0.0 /* exact_value */ ) )
+		{
+			/* Just do one */
+			/* ----------- */
+			break;
 		}
 	}
 

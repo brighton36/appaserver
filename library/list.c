@@ -644,12 +644,30 @@ void list_add_string( LIST *list, char *string )
 	append( list, string, strlen( string ) + 1 );
 }
 
-void list_append_list( 	LIST *destination_list, 
+LIST *list_append_current_list(	LIST *destination_list,
+				LIST *source_list )
+{
+	void *a;
+
+	if ( !destination_list ) return destination_list;
+
+	if ( list_past_end( source_list ) ) return destination_list;
+
+	do {
+		a = list_get_pointer( source_list );
+		list_append_pointer( destination_list, a );
+	} while( list_next( source_list ) );
+
+	return destination_list;
+
+} /* list_append_current_list() */
+
+LIST *list_append_list(	LIST *destination_list,
 			LIST *source_list )
 {
 	void *a;
 
-	if ( !destination_list ) return;
+	if ( !destination_list ) return destination_list;
 
 	if ( list_reset( source_list ) )
 	{
@@ -658,6 +676,9 @@ void list_append_list( 	LIST *destination_list,
 			list_append_pointer( destination_list, a );
 		} while( list_next( source_list ) );
 	}
+
+	return destination_list;
+
 } /* list_append_list() */
 
 void list_append( LIST *list, void *this_item, int num_bytes )

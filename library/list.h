@@ -157,8 +157,10 @@ LIST *list_duplicate_string_list( LIST *list );
 LIST *list_duplicate( LIST *list );
 void list_replace_last_string( 	LIST *list, char *string );
 void list_replace_string( 	LIST *list, char *old, char *new );
-void list_append_list( 	LIST *destination_list, 
-			LIST *source_list );
+
+LIST *list_append_list( 	LIST *destination_list, 
+				LIST *source_list );
+
 void *list_get_first_item(	LIST *list );
 
 int list_get_max_string_width( LIST *list );
@@ -354,5 +356,8 @@ char *list_double_display(	LIST *double_list,
 /* -------------------------------------------- */
 int list_double_list_match(	LIST *double_list,
 				double match );
+
+LIST *list_append_current_list(	LIST *destination_list,
+				LIST *source_list );
 
 #endif

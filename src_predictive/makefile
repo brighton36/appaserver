@@ -22,6 +22,7 @@ STANDARD_LIBRARY=							\
 
 EXECUTABLES=	trial_balance						\
 		tax_form_report						\
+		transaction_balance_report				\
 		income_statement					\
 		balance_sheet						\
 		program_profit						\
@@ -294,6 +295,15 @@ tax_form_report: tax_form_report.c					\
 		tax_form_report.c					\
 		tax.o							\
 		-o tax_form_report
+
+transaction_balance_report: transaction_balance_report.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} transaction_balance.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		transaction_balance_report.c				\
+		transaction_balance.o					\
+		-o transaction_balance_report
 
 program_profit: program_profit.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -712,4 +722,9 @@ tax_recovery.o: tax_recovery.c						\
 		tax_recovery.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c tax_recovery.c
+
+transaction_balance.o: transaction_balance.c				\
+		transaction_balance.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c transaction_balance.c
 

@@ -19,7 +19,9 @@ then
 fi
 
 select="transaction_date_time,full_name,street_address,debit_amount,credit_amount"
+
 order="transaction_date_time"
+
 table="journal_ledger,account"
 
 journal_ledger_where="	journal_ledger.account = account.account and	\
@@ -35,7 +37,9 @@ subquery_where="not exists (
 		      journal_ledger.transaction_date_time =		\
 			bank_upload_transaction.transaction_date_time )"
 
-where="$journal_ledger_where and $subquery_where"
+development_where="transaction_date_time >= '2018-01-01'"
+
+where="$journal_ledger_where and $subquery_where and $development_where"
 
 echo "select $select from $table where $where order by $order;"		|
 sql.e									|

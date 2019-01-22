@@ -73,6 +73,14 @@ TRANSACTION_BALANCE *transaction_balance_new(
 					char *begin_date,
 					double cash_ending_balance );
 
+TRANSACTION_BALANCE_ROW *transaction_balance_prior_fetch(
+					char *application_name,
+					char *transaction_date_time );
+
+TRANSACTION_BALANCE_ROW *transaction_balance_transaction_date_time_fetch(
+					char *application_name,
+					char *transaction_date_time );
+
 LIST *transaction_balance_fetch_row_list(
 					char *application_name,
 					char *begin_date );
@@ -90,5 +98,8 @@ LIST *transaction_balance_get_merged_block_list(
 					LIST *inbalance_block_list,
 					LIST *outbalance_block_list );
 
+double transaction_balance_calculate_anomaly_balance_difference(
+					double balance,
+					double bank_running_balance );
 #endif
 

@@ -24,10 +24,9 @@
 #include "application_constants.h"
 #include "appaserver_parameter_file.h"
 #include "html_table.h"
-#include "latex.h"
 #include "date_convert.h"
 #include "boolean.h"
-#include "appaserver_link_file.h"
+#include "bank_upload.h"
 #include "transaction_balance.h"
 
 /* Constants */
@@ -37,12 +36,33 @@
 
 /* Prototypes */
 /* ---------- */
+void transaction_balance_report_anomaly(
+			char *application_name,
+			TRANSACTION_BALANCE_BLOCK *last_outbalance_block );
+
+char *transaction_balance_report_get_duplicated_transaction_message(
+					double transaction_amount,
+					double bank_amount,
+					double balance,
+					double bank_running_balance );
+
+double transaction_balance_report_get_duplicated_transaction_amount(
+					char *message,
+					char **duplicated_full_name,
+					char **duplicated_transaction_date_time,
+					double balance,
+					double bank_running_balance );
+
 TRANSACTION_BALANCE *transaction_balance_report_html_table(
 					char *application_name,
 					char *title,
 					char *sub_title,
 					char *begin_date_string,
 					double cash_ending_balance );
+
+/* Global variables */
+/* ---------------- */
+enum bank_upload_exception bank_upload_exception = {0};
 
 int main( int argc, char **argv )
 {
@@ -55,6 +75,7 @@ int main( int argc, char **argv )
 	char *output_medium;
 	char *begin_date_string;
 	double cash_ending_balance;
+	TRANSACTION_BALANCE *transaction_balance;
 
 	/* Exits if fails */
 	/* -------------- */
@@ -106,39 +127,36 @@ int main( int argc, char **argv )
 	document_output_body(	document->application_name,
 				document->onload_control_string );
 
-#ifdef NOT_DEFINED
-	char *logo_filename;
-	logo_filename =
-		application_constants_quick_fetch(
-			application_name,
-			"logo_filename" /* key */ );
-#endif
-
 	format_initial_capital( title, process_name );
 	sprintf( sub_title, "Starting %s", begin_date_string );
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
-		transaction_balance_report_html_table(
-			application_name,
-			title,
-			sub_title,
-			begin_date_string,
-			cash_ending_balance );
+		transaction_balance =
+			transaction_balance_report_html_table(
+				application_name,
+				title,
+				sub_title,
+				begin_date_string,
+				cash_ending_balance );
+
+		if ( list_length( transaction_balance->outbalance_block_list ) )
+		{
+			TRANSACTION_BALANCE_BLOCK *last_outbalance_block;
+
+			last_outbalance_block =
+				list_get_last_pointer( 
+					transaction_balance->
+						outbalance_block_list );
+
+			transaction_balance_report_anomaly(
+				application_name,
+				last_outbalance_block );
+		}
 	}
 	else
 	{
-/*
-		transaction_balance_report_PDF(
-			application_name,
-			title,
-			sub_title,
-			appaserver_parameter_file->document_root,
-			process_name,
-			begin_date_string,
-			cash_ending_balance,
-			logo_filename );
-*/
+		printf( "<h3>Error: invalid output_medium.</h3>\n" );
 	}
 
 	document_close();
@@ -325,343 +343,152 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 
 } /* transaction_balance_report_html_table() */
 
-#ifdef NOT_DEFINED
-void transaction_balance_report_PDF(
+void transaction_balance_report_anomaly(
 			char *application_name,
-			char *title,
-			char *sub_title,
-			char *document_root_directory,
-			char *process_name,
-			char *tax_form,
-			LIST *tax_form_line_list,
-			char *logo_filename )
+			TRANSACTION_BALANCE_BLOCK *last_outbalance_block )
 {
-	LATEX *latex;
-	char *latex_filename;
-	char *dvi_filename;
-	char *working_directory;
-	char *ftp_output_filename;
-	int pid = getpid();
+	char *anomaly_transaction_date_time;
+	TRANSACTION_BALANCE_ROW *row;
+	char *duplicated_transaction_message;
 
-	APPASERVER_LINK_FILE *appaserver_link_file;
-
-	appaserver_link_file =
-		appaserver_link_file_new(
-			application_get_http_prefix( application_name ),
-			appaserver_library_get_server_address(),
-			( application_get_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-	 		document_root_directory,
-			process_name /* filename_stem */,
-			application_name,
-			pid /* process_id */,
-			(char *)0 /* session */,
-			(char *)0 /* extension */ );
-
-	appaserver_link_file->extension = "tex";
-
-	latex_filename =
-		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
-
-	appaserver_link_file->extension = "dvi";
-
-	dvi_filename =
-		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
-
-	working_directory =
-		appaserver_link_get_source_directory(
-			document_root_directory,
-			application_name );
-
-	printf( "<h1>%s</h1>\n", title );
-	printf( "<h2>%s</h2>\n", sub_title );
-
-	latex = latex_new_latex(
-			latex_filename,
-			dvi_filename,
-			working_directory,
-			0 /* not landscape_flag */,
-			logo_filename );
-
-	list_append_pointer(
-		latex->table_list,
-		transaction_balance_report_PDF_table(
-			sub_title,
-			tax_form,
-			tax_form_line_list ) );
-
-	list_append_list(
-		latex->table_list,
-		transaction_balance_report_detail_PDF_table_list(
-			tax_form_line_list ) );
-
-	latex_longtable_output(
-		latex->output_stream,
-		latex->landscape_flag,
-		latex->table_list,
-		latex->logo_filename,
-		0 /* not omit_page_numbers */ );
-
-	fclose( latex->output_stream );
-
-	appaserver_link_file->extension = "pdf";
-
-	ftp_output_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	latex_tex2pdf(	latex->tex_filename,
-			latex->working_directory );
-
-	appaserver_library_output_ftp_prompt(
-		ftp_output_filename, 
-		PROMPT,
-		process_name /* target */,
-		(char *)0 /* mime_type */ );
-
-} /* transaction_balance_report_PDF() */
-
-LIST *build_PDF_row_list( LIST *tax_form_line_list )
-{
-	LATEX_ROW *latex_row;
-	LIST *row_list;
-	TAX_FORM_LINE *tax_form_line;
-
-	if ( !list_rewind( tax_form_line_list ) )
+	if ( !last_outbalance_block )
 	{
-		printf(
-"<h3>ERROR: there are no tax form lines for this tax form.</h3>\n" );
-		document_close();
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty last_outbalance_block.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 		exit( 1 );
 	}
 
-	row_list = list_new();
+	anomaly_transaction_date_time =
+		last_outbalance_block->
+			begin_transaction_balance->
+				transaction_date_time;
 
-	do {
-		tax_form_line = list_get( tax_form_line_list );
+	row = transaction_balance_transaction_date_time_fetch(
+			application_name,
+			anomaly_transaction_date_time );
 
-		if ( timlib_double_virtually_same(
-			tax_form_line->tax_form_line_total,
-			0.0 ) )
-		{
-			continue;
-		}
+	if ( !row )
+	{
+		fprintf( stderr,
+"ERROR in %s/%s()/%d: cannot fetch anomaly_transaction_date_time = (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			anomaly_transaction_date_time );
+		exit( 1 );
+	}
 
-		latex_row = latex_new_latex_row();
-		list_append_pointer( row_list, latex_row );
+	duplicated_transaction_message =
+		transaction_balance_report_get_duplicated_transaction_message(
+			row->transaction_amount,
+			row->bank_amount,
+			row->balance,
+			row->bank_running_balance );
 
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			tax_form_line->tax_form_line,
-			0 /* not large_bold */ );
+	if ( duplicated_transaction_message
+	&&   *duplicated_transaction_message )
+	{
+		printf( "<h3>%s</h3>\n",
+			duplicated_transaction_message );
+	}
 
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			strdup( tax_form_line->tax_form_description ),
-			0 /* not large_bold */ );
+} /* transaction_balance_report_anomaly() */
 
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			strdup( timlib_place_commas_in_money(
-					tax_form_line->
-						tax_form_line_total ) ),
-			0 /* not large_bold */ );
-
-	} while( list_next( tax_form_line_list ) );
-
-	return row_list;
-
-} /* build_PDF_row_list() */
-
-LIST *build_detail_PDF_heading_list( void )
+char *transaction_balance_report_get_duplicated_transaction_message(
+			double transaction_amount,
+			double bank_amount,
+			double balance,
+			double bank_running_balance )
 {
-	LATEX_TABLE_HEADING *table_heading;
-	LIST *heading_list;
+	double duplicated_transaction_amount;
+	char *duplicated_full_name = {0};
+	char *duplicated_transaction_date_time = {0};
+	char message[ 1024 ];
 
-	heading_list = list_new();
+	/* ------------------------------------------------------------- */
+	/* BANK_UPLOAD_TRANSACTION_BALANCE.transaction_amount must equal */
+	/* 0.0 - BANK_UPLOAD_TRANSACTION_BALANCE.bank_amount.		 */
+	/* ------------------------------------------------------------- */
+	if ( !timlib_dollar_virtually_same(
+		transaction_amount,
+		0.0 - bank_amount ) )
+	{
+		return (char *)0;
+	}
 
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "account";
-	table_heading->right_justified_flag = 0;
-	list_append_pointer( heading_list, table_heading );
+	*message = '\0';
 
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "balance";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
+	duplicated_transaction_amount =
+		transaction_balance_report_get_duplicated_transaction_amount(
+			message,
+			&duplicated_full_name,
+			&duplicated_transaction_date_time,
+			balance,
+			bank_running_balance );
 
-	return heading_list;
+	if ( *message ) return strdup( message );
 
-} /* build_detail_PDF_heading_list() */
+	if ( timlib_dollar_virtually_same(
+		duplicated_transaction_amount,
+		0.0 ) )
+	{
+		return (char *)0;
+	}
 
-LIST *build_PDF_heading_list( void )
+	sprintf( message,
+"Duplicated transaction: (%s/%s) amount = %.2lf.",
+		duplicated_full_name,
+		duplicated_transaction_date_time,
+		duplicated_transaction_amount );
+
+	return strdup( message );
+
+} /* transaction_balance_report_get_duplicated_transaction_message() */
+
+double transaction_balance_report_get_duplicated_transaction_amount(
+			char *message,
+			char **duplicated_full_name,
+			char **duplicated_transaction_date_time,
+			double balance,
+			double bank_running_balance )
 {
-	LATEX_TABLE_HEADING *table_heading;
-	LIST *heading_list;
+	double anomaly_balance_difference;
+	double duplicated_transaction_amount;
 
-	heading_list = list_new();
+	*duplicated_full_name = (char *)0;
+	*duplicated_transaction_date_time = (char *)0;
 
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "tax_form_line";
-	table_heading->right_justified_flag = 0;
-	list_append_pointer( heading_list, table_heading );
+	anomaly_balance_difference =
+		transaction_balance_calculate_anomaly_balance_difference(
+			balance,
+			bank_running_balance );
 
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "tax_form_description";
-	table_heading->right_justified_flag = 0;
-	list_append_pointer( heading_list, table_heading );
+	if ( timlib_dollar_virtually_same(
+		anomaly_balance_difference,
+		0.0 ) )
+	{
+		return 0.0;
+	}
 
-	table_heading = latex_new_latex_table_heading();
-	table_heading->heading = "balance";
-	table_heading->right_justified_flag = 1;
-	list_append_pointer( heading_list, table_heading );
+	duplicated_transaction_amount = 0.0 - anomaly_balance_difference;
 
-	return heading_list;
+	*duplicated_transaction_date_time =
+		bank_upload_pending_amount_transaction(
+			message,
+			duplicated_full_name,
+			duplicated_transaction_amount
+				/* amount */ );
 
-} /* build_PDF_heading_list() */
+	/* It returned a warning message. */
+	/* ------------------------------ */
+	if ( *message ) return 0.0;
 
-LATEX_TABLE *transaction_balance_report_PDF_table(
-			char *sub_title,
-			char *tax_form,
-			LIST *tax_form_line_list )
-{
-	LATEX_TABLE *latex_table;
-	char caption[ 128 ];
+	/* It found a duplicated transaction to delete. */
+	/* -------------------------------------------- */
+	return duplicated_transaction_amount;
 
-	sprintf( caption, "%s %s", sub_title, tax_form );
+} /* transaction_balance_report_get_duplicated_transaction_amount() */
 
-	latex_table =
-		latex_new_latex_table(
-			strdup( caption ) );
-
-	latex_table->heading_list = build_PDF_heading_list();
-
-	latex_table->row_list =
-		build_PDF_row_list(
-			tax_form_line_list );
-
-	return latex_table;
-
-} /* transaction_balance_report_PDF_table() */
-
-LIST *transaction_balance_report_detail_PDF_table_list(
-			LIST *tax_form_line_list )
-{
-	LATEX_TABLE *latex_table;
-	TAX_FORM_LINE *tax_form_line;
-	LIST *table_list;
-	char sub_title[ 128 ];
-
-	if ( !list_rewind( tax_form_line_list ) ) return (LIST *)0;
-
-	table_list = list_new();
-
-	do {
-		tax_form_line = list_get( tax_form_line_list );
-
-		if ( !tax_form_line->itemize_accounts ) continue;
-
-		if ( !list_rewind( tax_form_line->tax_form_line_account_list ) )
-			continue;
-
-		sprintf( sub_title,
-			 "Line: %s, Description: %s, Total: \\$%s",
-			 tax_form_line->tax_form_line,
-			 tax_form_line->tax_form_description,
-			 timlib_place_commas_in_money(
-			 	tax_form_line->tax_form_line_total ) );
-
-		latex_table =
-			latex_new_latex_table(
-				strdup( sub_title ) /* caption */ );
-
-		latex_table->heading_list = build_detail_PDF_heading_list();
-
-		latex_table->row_list =
-			build_detail_PDF_row_list(
-				tax_form_line );
-
-		list_append_pointer( table_list, latex_table );
-
-	} while( list_next( tax_form_line_list ) );
-
-	return table_list;
-
-} /* transaction_balance_report_detail_PDF_table_list() */
-
-LIST *build_detail_PDF_row_list( TAX_FORM_LINE *tax_form_line )
-{
-	LIST *row_list;
-	TAX_FORM_LINE_ACCOUNT *account;
-	char buffer[ 128 ];
-	LATEX_ROW *latex_row;
-
-	if ( !list_rewind( tax_form_line->tax_form_line_account_list ) )
-		return (LIST *)0;
-
-	row_list = list_new();
-
-	do {
-		account = list_get( tax_form_line->tax_form_line_account_list );
-
-		if ( timlib_double_virtually_same(
-			account->tax_form_account_total,
-			0.0 ) )
-		{
-			continue;
-		}
-
-		latex_row = latex_new_latex_row();
-		list_append_pointer( row_list, latex_row );
-
-		format_initial_capital(
-			buffer,
-			account->account_name );
-
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			strdup( buffer ),
-			0 /* not large_bold */ );
-
-		latex_append_column_data_list(
-			latex_row->column_data_list,
-			strdup( timlib_place_commas_in_money(
-					account->
-						tax_form_account_total ) ),
-			0 /* not large_bold */ );
-
-	} while( list_next( tax_form_line->tax_form_line_account_list ) );
-
-	return row_list;
-
-} /* build_detail_PDF_row_list() */
-
-#endif

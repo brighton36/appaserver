@@ -297,12 +297,17 @@ tax_form_report: tax_form_report.c					\
 		-o tax_form_report
 
 transaction_balance_report: transaction_balance_report.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} transaction_balance.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		transaction_balance.o					\
+		bank_upload.o						\
+		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		transaction_balance_report.c				\
 		transaction_balance.o					\
+		bank_upload.o						\
+		reoccurring.o						\
 		-o transaction_balance_report
 
 program_profit: program_profit.c					\

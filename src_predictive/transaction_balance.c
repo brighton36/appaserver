@@ -93,6 +93,89 @@ TRANSACTION_BALANCE *transaction_balance_new(
 
 } /* transaction_balance_new() */
 
+TRANSACTION_BALANCE_ROW *transaction_balance_prior_fetch(
+					char *application_name,
+					char *transaction_date_time )
+{
+	char *prior_transaction_date_time;
+	char *select;
+	char *folder;
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+
+	select = "max( transaction_date_time )";
+	folder = "bank_upload_transaction_balance";
+
+	sprintf( where,
+		 "transaction_date_time < '%s'",
+		 transaction_date_time );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	prior_transaction_date_time = pipe2string( sys_string );
+
+	if ( !prior_transaction_date_time || !*prior_transaction_date_time )
+	{
+		return (TRANSACTION_BALANCE_ROW *)0;
+	}
+	else
+	{
+		return transaction_balance_transaction_date_time_fetch(
+				application_name,
+				prior_transaction_date_time );
+	}
+
+
+} /* transaction_balance_prior_fetch() */
+
+TRANSACTION_BALANCE_ROW *transaction_balance_transaction_date_time_fetch(
+					char *application_name,
+					char *transaction_date_time )
+{
+	char *select;
+	char *folder;
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *input_row;
+
+	select = TRANSACTION_BALANCE_SELECT;
+	folder = "bank_upload_transaction_balance";
+
+	sprintf( where,
+		 "transaction_date_time = '%s'",
+		 transaction_date_time );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	input_row = pipe2string( sys_string );
+
+	if ( !input_row || !*input_row )
+	{
+		return (TRANSACTION_BALANCE_ROW *)0;
+	}
+	else
+	{
+		return transaction_balance_parse_row( input_row );
+	}
+
+} /* transaction_balance_transaction_date_time_fetch() */
+
 LIST *transaction_balance_fetch_row_list(
 					char *application_name,
 					char *begin_date )
@@ -378,4 +461,12 @@ LIST *transaction_balance_get_merged_block_list(
 	return return_list;
 
 } /* transaction_balance_get_merged_block_list() */
+
+double transaction_balance_calculate_anomaly_balance_difference(
+			double balance,
+			double bank_running_balance )
+{
+	return balance - bank_running_balance;
+
+}
 

@@ -243,5 +243,13 @@ void bank_upload_transaction_insert(	char *application_name,
 					char *street_address,
 					char *transaction_date_time );
 
+/* ----------------------------- */
+/* Returns transaction_date_time */
+/* ----------------------------- */
+char *bank_upload_pending_amount_transaction(
+					char *message,
+					char **full_name,
+					double amount );
+
 #endif
 

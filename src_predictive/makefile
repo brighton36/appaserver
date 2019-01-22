@@ -23,6 +23,7 @@ STANDARD_LIBRARY=							\
 EXECUTABLES=	trial_balance						\
 		tax_form_report						\
 		transaction_balance_report				\
+		transaction_date_time					\
 		income_statement					\
 		balance_sheet						\
 		program_profit						\
@@ -309,6 +310,16 @@ transaction_balance_report: transaction_balance_report.c		\
 		bank_upload.o						\
 		reoccurring.o						\
 		-o transaction_balance_report
+
+transaction_date_time: transaction_date_time.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		transaction_balance.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		transaction_date_time.c					\
+		transaction_balance.o					\
+		-o transaction_date_time
 
 program_profit: program_profit.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

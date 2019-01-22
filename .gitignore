@@ -125,6 +125,7 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+transaction_date_time
 transaction_balance_report
 bank_upload_transaction_insert
 bank_upload_journal_ledger_insert

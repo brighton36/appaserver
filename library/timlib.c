@@ -1243,6 +1243,17 @@ void free_array_string_with_count( 	char **block,
 	while( block_count-- ) free( *block++ );
 }
 
+char *left_string(		char *destination,
+				char *source,
+				int how_many )
+{
+	return midstr(	destination,
+			source,
+			0 /* start */,
+			how_many );
+
+} /* left_string() */
+
 char *midstr( char *d, char *s, int start, int how_many )
 {
 	strncpy( d, s + start, how_many );

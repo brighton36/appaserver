@@ -251,5 +251,15 @@ char *bank_upload_pending_amount_transaction(
 					char **full_name,
 					double amount );
 
+BANK_UPLOAD *bank_upload_parse_row(	char *input_row );
+
+BANK_UPLOAD *bank_upload_sequence_number_fetch(
+					char *application_name,
+					int sequence_number );
+
+BANK_UPLOAD *bank_upload_prior_fetch(
+					char *application_name,
+					int sequence_number );
+
 #endif
 

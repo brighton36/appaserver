@@ -282,7 +282,8 @@ LIST *transaction_balance_get_inbalance_block_list(
 					LIST *transaction_balance_row_list )
 {
 	LIST *block_list;
-	TRANSACTION_BALANCE_ROW *row;
+	TRANSACTION_BALANCE_ROW *current_row;
+	TRANSACTION_BALANCE_ROW *prior_row = {0};
 	TRANSACTION_BALANCE_BLOCK *block;
 
 	if ( !list_rewind( transaction_balance_row_list ) )
@@ -293,45 +294,71 @@ LIST *transaction_balance_get_inbalance_block_list(
 	block = (TRANSACTION_BALANCE_BLOCK *)0;
 
 	do {
-		row = list_get( transaction_balance_row_list );
+		current_row = list_get( transaction_balance_row_list );
 
+		/* If not inside a block */
+		/* --------------------- */
 		if ( !block )
 		{
 			if ( !timlib_dollar_virtually_same(
-				row->balance,
-				row->bank_running_balance ) )
+				current_row->balance,
+				current_row->bank_running_balance ) )
 			{
+				prior_row = current_row;
 				continue;
 			}
 
+			/* Now inside a block */
+			/* ------------------ */
 			block = transaction_balance_block_new();
-			block->begin_transaction_balance = row;
+			block->begin_transaction_balance = current_row;
 			block->block_count = 1;
 			block->is_inbalance = 1;
+			prior_row = current_row;
 			continue;
 		}
 		else
+		/* ------------------- */
+		/* Else inside a block */
+		/* ------------------- */
 		{
 			if ( timlib_dollar_virtually_same(
-				row->balance,
-				row->bank_running_balance ) )
+				current_row->balance,
+				current_row->bank_running_balance ) )
 			{
+				/* Still inside a block */
+				/* -------------------- */
 				block->block_count++;
+				prior_row = current_row;
 				continue;
 			}
 
-			block->end_transaction_balance = row;
+			/* -------------------------------------------- */
+			/* The current row will be the first row in the */
+			/* next block.					*/
+			/* -------------------------------------------- */
+			if ( prior_row )
+				block->end_transaction_balance = prior_row;
+			else
+				block->end_transaction_balance = current_row;
+
 			list_append_pointer( block_list, block );
+
+			prior_row = current_row;
+
+			/* No longer inside a block */
+			/* ------------------------ */
 			block = (TRANSACTION_BALANCE_BLOCK *)0;
 		}
 
 	} while( list_next( transaction_balance_row_list ) );
 
 	if ( block && timlib_dollar_virtually_same(
-			row->balance,
-			row->bank_running_balance ) )
+			current_row->balance,
+			current_row->bank_running_balance ) )
 	{
-		block->end_transaction_balance = row;
+		block->end_transaction_balance = current_row;
+		block->block_count++;
 		list_append_pointer( block_list, block );
 	}
 
@@ -343,7 +370,7 @@ LIST *transaction_balance_get_outbalance_block_list(
 					LIST *transaction_balance_row_list )
 {
 	LIST *block_list;
-	TRANSACTION_BALANCE_ROW *row;
+	TRANSACTION_BALANCE_ROW *current_row;
 	TRANSACTION_BALANCE_BLOCK *block;
 
 	if ( !list_rewind( transaction_balance_row_list ) )
@@ -354,44 +381,58 @@ LIST *transaction_balance_get_outbalance_block_list(
 	block = (TRANSACTION_BALANCE_BLOCK *)0;
 
 	do {
-		row = list_get( transaction_balance_row_list );
+		current_row = list_get( transaction_balance_row_list );
 
+		/* If not inside a block */
+		/* --------------------- */
 		if ( !block )
 		{
 			if ( timlib_dollar_virtually_same(
-				row->balance,
-				row->bank_running_balance ) )
+				current_row->balance,
+				current_row->bank_running_balance ) )
 			{
 				continue;
 			}
 
+			/* Now inside a block */
+			/* ------------------ */
 			block = transaction_balance_block_new();
-			block->begin_transaction_balance = row;
+			block->begin_transaction_balance = current_row;
 			block->block_count = 1;
 			continue;
 		}
 		else
+		/* ------------------- */
+		/* Else inside a block */
+		/* ------------------- */
 		{
 			if ( !timlib_dollar_virtually_same(
-				row->balance,
-				row->bank_running_balance ) )
+				current_row->balance,
+				current_row->bank_running_balance ) )
 			{
+				/* Still inside a block */
+				/* -------------------- */
 				block->block_count++;
 				continue;
 			}
 
-			block->end_transaction_balance = row;
+			block->end_transaction_balance = current_row;
+			block->block_count++;
 			list_append_pointer( block_list, block );
+
+			/* No longer inside a block */
+			/* ------------------------ */
 			block = (TRANSACTION_BALANCE_BLOCK *)0;
 		}
 
 	} while( list_next( transaction_balance_row_list ) );
 
 	if ( block && !timlib_dollar_virtually_same(
-			row->balance,
-			row->bank_running_balance ) )
+			current_row->balance,
+			current_row->bank_running_balance ) )
 	{
-		block->end_transaction_balance = row;
+		block->end_transaction_balance = current_row;
+		block->block_count++;
 		list_append_pointer( block_list, block );
 	}
 
@@ -469,4 +510,27 @@ double transaction_balance_calculate_anomaly_balance_difference(
 	return balance - bank_running_balance;
 
 }
+
+void transaction_balance_row_stdout(
+			TRANSACTION_BALANCE_ROW *row )
+{
+	char destination[ 1024 ];
+
+	printf( "Transaction date time: %s\n", row->transaction_date_time );
+	printf( "Bank date: %s\n", row->bank_date );
+
+	printf( "Bank description: %s\n",
+		left_string(	destination,
+				row->bank_description /* source */,
+				60 /* how_many */ ) );
+
+	printf( "Full name: %s\n", row->full_name );
+	printf( "Cash transaction amount: %.2lf\n", row->transaction_amount );
+	printf( "Bank load amount: %.2lf\n", row->bank_amount );
+	printf( "Cash running balance: %.2lf\n", row->balance );
+	printf( "Bank running balance: %.2lf\n", row->bank_running_balance );
+	printf( "Sequence number: %d\n", row->sequence_number );
+	printf( "\n" );
+
+} /* transaction_balance_row_stdout() */
 

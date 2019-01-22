@@ -66,8 +66,11 @@ char *format_initial_capital_delimiter(
 
 char *format_mnemonic( char *mnemonic, char *string );
 
-char *format_first_initial_capital( char *destination, char *string );
-char *pipe2string( char *pipe_string );
+char *format_first_initial_capital(
+				char *destination,
+				char *string );
+
+char *pipe2string(		char *pipe_string );
 
 char *pipe_multiple_lines2string(
 				char *pipe_string,
@@ -98,7 +101,16 @@ int timlib_count_delimiters( int char_to_count, char *source );
 FILE *open_file( char *s, char *mode );
 char *skip_spaces( char *s );
 char *get_system( char *sys_str );
-char *midstr( char *d, char *s, int start, int how_many );
+
+char *midstr(			char *destination,
+				char *source,
+				int start,
+				int how_many );
+
+char *left_string(		char *destination,
+				char *source,
+				int how_many );
+
 char *center( char *string, int screen_len );
 char *center_rpad( char *string, int screen_len );
 char *trim( char * );
@@ -107,7 +119,9 @@ char *low_string( char * );
 int get_line( char *destination, FILE *infile );
 boolean timlib_get_line( char *destination, FILE *infile, int buffer_size );
 void skip_line( FILE *infile );
+
 int instr( char *substr, char *string, int occurrence );
+
 int instr_character( char delimiter, char *string );
 char *delete_str( char *string, int start, int num_chars );
 char *insert_str( char *sub, char *string, int pos );
@@ -204,6 +218,7 @@ double abs_float( double f );
 double float_abs( double f );
 
 char *insert_string( char *source_destination, char *substring, int pos );
+
 double get_percent_of_day( char *time_string );
 void increment_time_one_hour(		char *time_string );
 int zap_file(				char *filename );
@@ -268,9 +283,11 @@ char *escape_dollar_signs(		char *data );
 char *escape_single_quotes(		char *data );
 char *escape_single_quote(		char *data );
 char *timlib_escape_single_quotes(	char *destination, char *source );
+
 int instr_exclude_double_quoted(	char *substr,
 					char *string,
 					int occurrence );
+
 char *rtrim(				char *buffer );
 
 void search_replace_special_characters(

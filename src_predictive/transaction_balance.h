@@ -101,5 +101,9 @@ LIST *transaction_balance_get_merged_block_list(
 double transaction_balance_calculate_anomaly_balance_difference(
 					double balance,
 					double bank_running_balance );
+
+void transaction_balance_row_stdout(
+					TRANSACTION_BALANCE_ROW *row );
+
 #endif
 

@@ -1433,3 +1433,103 @@ select="transaction_date_time,full_name,street_address,debit_amount,credit_amoun
 
 } /* bank_upload_pending_amount_transaction() */
 
+BANK_UPLOAD *bank_upload_prior_fetch(
+					char *application_name,
+					int sequence_number )
+{
+	int prior_sequence_number;
+	char *select;
+	char *folder;
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+
+	select = "max( sequence_number )";
+	folder = "bank_upload";
+
+	sprintf( where,
+		 "sequence_number < %d",
+		 sequence_number );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( !results || !*results )
+	{
+		return (BANK_UPLOAD *)0;
+	}
+	else
+	{
+		return bank_upload_sequence_number_fetch(
+				application_name,
+				prior_sequence_number );
+	}
+
+
+} /* bank_upload_prior_fetch() */
+
+BANK_UPLOAD *bank_upload_sequence_number_fetch(
+					char *application_name,
+					int sequence_number )
+{
+	char *select;
+	char *folder;
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *input_row;
+
+	select = bank_upload_get_select();
+	folder = "bank_upload";
+
+	sprintf( where,
+		 "sequence_number = %d",
+		 sequence_number );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s			"
+		 "			select=\"%s\"			"
+		 "			folder=%s			"
+		 "			where=\"%s\"			",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	input_row = pipe2string( sys_string );
+
+	if ( !input_row || !*input_row )
+	{
+		return (BANK_UPLOAD *)0;
+	}
+	else
+	{
+		return bank_upload_parse_row( input_row );
+	}
+
+} /* bank_upload_sequence_number_fetch() */
+
+BANK_UPLOAD *bank_upload_parse_row( char *input_row )
+{
+	BANK_UPLOAD *bank_upload = bank_upload_calloc();
+
+	bank_upload_fetch_parse(
+			&bank_upload->bank_date,
+			&bank_upload->bank_description,
+			&bank_upload->sequence_number,
+			&bank_upload->bank_amount,
+			&bank_upload->bank_running_balance,
+			input_row );
+
+	return bank_upload;
+
+} /* bank_upload_parse_row() */
+

@@ -243,10 +243,20 @@ void bank_upload_transaction_insert(	char *application_name,
 					char *street_address,
 					char *transaction_date_time );
 
-/* ----------------------------- */
-/* Returns transaction_date_time */
-/* ----------------------------- */
-char *bank_upload_pending_amount_transaction(
+/* --------------------------------------------------- */
+/* Returns transaction_date_time or null if not found. */
+/* Message will help to explain not found.	       */
+/* --------------------------------------------------- */
+char *bank_upload_pending_amount_withdrawal(
+					char *message,
+					char **full_name,
+					double amount );
+
+/* --------------------------------------------------- */
+/* Returns transaction_date_time or null if not found. */
+/* Message will help to explain not found.	       */
+/* --------------------------------------------------- */
+char *bank_upload_pending_amount_deposit(
 					char *message,
 					char **full_name,
 					double amount );

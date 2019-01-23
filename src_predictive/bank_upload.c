@@ -1378,10 +1378,11 @@ double bank_upload_fetch_bank_amount(
 
 } /* bank_upload_fetch_bank_amount() */
 
-/* ----------------------------- */
-/* Returns transaction_date_time */
-/* ----------------------------- */
-char *bank_upload_pending_amount_transaction(
+/* --------------------------------------------------- */
+/* Returns transaction_date_time or null if not found. */
+/* Message will help to explain not found.	       */
+/* --------------------------------------------------- */
+char *bank_upload_pending_amount_deposit(
 				char *message,
 				char **full_name,
 				double amount )
@@ -1394,6 +1395,7 @@ char *bank_upload_pending_amount_transaction(
 	char transaction_date_time[ 32 ];
 
 	*message = '\0';
+	*full_name = "";
 /*
 select="transaction_date_time,full_name,street_address,debit_amount,credit_amount"
 */
@@ -1401,12 +1403,19 @@ select="transaction_date_time,full_name,street_address,debit_amount,credit_amoun
 	/* Check if more than 1 transaction for this amount. */
 	/* ------------------------------------------------- */
 	sprintf( main_expression,
-		 "bank_upload_ledger_pending.sh | grep '\\^%.2lf$'",
+		 "bank_upload_ledger_pending.sh | grep '\\^%.2lf\\^$'",
 		 amount );
 
 	sprintf( sys_string, "%s | wc -l", main_expression );
 
 	results = pipe2string( sys_string );
+
+fprintf( stderr, "%s/%s()/%d: sys_string = (%s), results = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string,
+results );
 
 	transaction_count = atoi( results );
 
@@ -1431,7 +1440,71 @@ select="transaction_date_time,full_name,street_address,debit_amount,credit_amoun
 
 	return strdup( transaction_date_time );
 
-} /* bank_upload_pending_amount_transaction() */
+} /* bank_upload_pending_amount_deposit() */
+
+/* --------------------------------------------------- */
+/* Returns transaction_date_time or null if not found. */
+/* Message will help to explain not found.	       */
+/* --------------------------------------------------- */
+char *bank_upload_pending_amount_withdrawal(
+				char *message,
+				char **full_name,
+				double amount )
+{
+	char main_expression[ 128 ];
+	char sys_string[ 128 ];
+	char *results;
+	int transaction_count;
+	char full_name_buffer[ 128 ];
+	char transaction_date_time[ 32 ];
+
+	*message = '\0';
+	*full_name = "";
+/*
+select="transaction_date_time,full_name,street_address,debit_amount,credit_amount"
+*/
+
+	/* Check if more than 1 transaction for this amount. */
+	/* ------------------------------------------------- */
+	sprintf( main_expression,
+		 "bank_upload_ledger_pending.sh | grep '\\^%.2lf$'",
+		 amount );
+
+	sprintf( sys_string, "%s | wc -l", main_expression );
+
+	results = pipe2string( sys_string );
+
+fprintf( stderr, "%s/%s()/%d: sys_string = (%s), results = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string,
+results );
+
+	transaction_count = atoi( results );
+
+	if ( transaction_count == 0 ) return (char *)0;
+
+	if ( transaction_count > 1 )
+	{
+		sprintf( message,
+			 "Warning: %d pending transactions for amount = %.2lf",
+			 transaction_count,
+			 amount );
+
+		return (char *)0;
+	}
+
+	results = pipe2string( main_expression );
+
+	piece( transaction_date_time, '^', results, 0 );
+	piece( full_name_buffer, '^', results, 1 );
+
+	*full_name = strdup( full_name_buffer );
+
+	return strdup( transaction_date_time );
+
+} /* bank_upload_pending_amount_withdrawal() */
 
 BANK_UPLOAD *bank_upload_prior_fetch(
 					char *application_name,

@@ -40,13 +40,26 @@ void transaction_balance_report_anomaly(
 			char *application_name,
 			TRANSACTION_BALANCE_BLOCK *last_outbalance_block );
 
-char *transaction_balance_report_get_duplicated_transaction_message(
+char *transaction_balance_report_get_duplicated_withdrawal_message(
 					double transaction_amount,
 					double bank_amount,
 					double balance,
 					double bank_running_balance );
 
-double transaction_balance_report_get_duplicated_transaction_amount(
+double transaction_balance_report_get_duplicated_withdrawal_amount(
+					char *message,
+					char **duplicated_full_name,
+					char **duplicated_transaction_date_time,
+					double balance,
+					double bank_running_balance );
+
+char *transaction_balance_report_get_duplicated_deposit_message(
+					double transaction_amount,
+					double bank_amount,
+					double balance,
+					double bank_running_balance );
+
+double transaction_balance_report_get_duplicated_deposit_amount(
 					char *message,
 					char **duplicated_full_name,
 					char **duplicated_transaction_date_time,
@@ -388,7 +401,22 @@ void transaction_balance_report_anomaly(
 	}
 
 	duplicated_transaction_message =
-		transaction_balance_report_get_duplicated_transaction_message(
+		transaction_balance_report_get_duplicated_withdrawal_message(
+			row->transaction_amount,
+			row->bank_amount,
+			row->balance,
+			row->bank_running_balance );
+
+	if ( duplicated_transaction_message
+	&&   *duplicated_transaction_message )
+	{
+		printf( "<h3>%s</h3>\n",
+			duplicated_transaction_message );
+		return;
+	}
+
+	duplicated_transaction_message =
+		transaction_balance_report_get_duplicated_deposit_message(
 			row->transaction_amount,
 			row->bank_amount,
 			row->balance,
@@ -403,7 +431,7 @@ void transaction_balance_report_anomaly(
 
 } /* transaction_balance_report_anomaly() */
 
-char *transaction_balance_report_get_duplicated_transaction_message(
+char *transaction_balance_report_get_duplicated_deposit_message(
 			double transaction_amount,
 			double bank_amount,
 			double balance,
@@ -428,7 +456,7 @@ char *transaction_balance_report_get_duplicated_transaction_message(
 	*message = '\0';
 
 	duplicated_transaction_amount =
-		transaction_balance_report_get_duplicated_transaction_amount(
+		transaction_balance_report_get_duplicated_deposit_amount(
 			message,
 			&duplicated_full_name,
 			&duplicated_transaction_date_time,
@@ -445,16 +473,122 @@ char *transaction_balance_report_get_duplicated_transaction_message(
 	}
 
 	sprintf( message,
-"Duplicated transaction: (%s/%s) amount = %.2lf.",
+"Duplicated deposit: (%s/%s) amount = %.2lf.",
 		duplicated_full_name,
 		duplicated_transaction_date_time,
 		duplicated_transaction_amount );
 
 	return strdup( message );
 
-} /* transaction_balance_report_get_duplicated_transaction_message() */
+} /* transaction_balance_report_get_duplicated_deposit_message() */
 
-double transaction_balance_report_get_duplicated_transaction_amount(
+double transaction_balance_report_get_duplicated_deposit_amount(
+			char *message,
+			char **duplicated_full_name,
+			char **duplicated_transaction_date_time,
+			double balance,
+			double bank_running_balance )
+{
+	double anomaly_balance_difference;
+	double duplicated_transaction_amount;
+
+	*duplicated_full_name = (char *)0;
+	*duplicated_transaction_date_time = (char *)0;
+
+	anomaly_balance_difference =
+		transaction_balance_calculate_anomaly_balance_difference(
+			balance,
+			bank_running_balance );
+
+	if ( timlib_dollar_virtually_same(
+		anomaly_balance_difference,
+		0.0 ) )
+	{
+		return 0.0;
+	}
+
+	duplicated_transaction_amount = anomaly_balance_difference;
+
+	/* --------------------------------------------------- */
+	/* Returns transaction_date_time or null if not found. */
+	/* Message will help to explain not found.	       */
+	/* --------------------------------------------------- */
+	*duplicated_transaction_date_time =
+		bank_upload_pending_amount_deposit(
+			message,
+			duplicated_full_name,
+			duplicated_transaction_amount
+				/* amount */ );
+
+	/* It returned a warning message. */
+	/* ------------------------------ */
+	if ( *message ) return 0.0;
+
+	if ( !*duplicated_transaction_date_time )
+	{
+		return 0.0;
+	}
+	else
+	{
+		/* It found a duplicated transaction to delete. */
+		/* -------------------------------------------- */
+		return duplicated_transaction_amount;
+	}
+
+} /* transaction_balance_report_get_duplicated_deposit_amount() */
+
+char *transaction_balance_report_get_duplicated_withdrawal_message(
+			double transaction_amount,
+			double bank_amount,
+			double balance,
+			double bank_running_balance )
+{
+	double duplicated_transaction_amount;
+	char *duplicated_full_name = {0};
+	char *duplicated_transaction_date_time = {0};
+	char message[ 1024 ];
+
+	/* ------------------------------------------------------------- */
+	/* BANK_UPLOAD_TRANSACTION_BALANCE.transaction_amount must equal */
+	/* 0.0 - BANK_UPLOAD_TRANSACTION_BALANCE.bank_amount.		 */
+	/* ------------------------------------------------------------- */
+	if ( !timlib_dollar_virtually_same(
+		transaction_amount,
+		0.0 - bank_amount ) )
+	{
+		return (char *)0;
+	}
+
+	*message = '\0';
+
+	duplicated_transaction_amount =
+		transaction_balance_report_get_duplicated_withdrawal_amount(
+			message,
+			&duplicated_full_name,
+			&duplicated_transaction_date_time,
+			balance,
+			bank_running_balance );
+
+	if ( *message ) return strdup( message );
+
+	if ( timlib_dollar_virtually_same(
+		duplicated_transaction_amount,
+		0.0 ) )
+	{
+		return (char *)0;
+	}
+
+	sprintf( message,
+"Duplicated withdrawal: (%s/%s) amount = %.2lf.",
+		duplicated_full_name,
+		duplicated_transaction_date_time,
+		duplicated_transaction_amount );
+
+	return strdup( message );
+
+} /* transaction_balance_report_get_duplicated_withdrawal_message() */
+
+double transaction_balance_report_get_duplicated_withdrawal_amount(
 			char *message,
 			char **duplicated_full_name,
 			char **duplicated_transaction_date_time,
@@ -481,8 +615,12 @@ double transaction_balance_report_get_duplicated_transaction_amount(
 
 	duplicated_transaction_amount = 0.0 - anomaly_balance_difference;
 
+	/* --------------------------------------------------- */
+	/* Returns transaction_date_time or null if not found. */
+	/* Message will help to explain not found.	       */
+	/* --------------------------------------------------- */
 	*duplicated_transaction_date_time =
-		bank_upload_pending_amount_transaction(
+		bank_upload_pending_amount_withdrawal(
 			message,
 			duplicated_full_name,
 			duplicated_transaction_amount
@@ -492,9 +630,16 @@ double transaction_balance_report_get_duplicated_transaction_amount(
 	/* ------------------------------ */
 	if ( *message ) return 0.0;
 
-	/* It found a duplicated transaction to delete. */
-	/* -------------------------------------------- */
-	return duplicated_transaction_amount;
+	if ( !*duplicated_transaction_date_time )
+	{
+		return 0.0;
+	}
+	else
+	{
+		/* It found a duplicated transaction to delete. */
+		/* -------------------------------------------- */
+		return duplicated_transaction_amount;
+	}
 
-} /* transaction_balance_report_get_duplicated_transaction_amount() */
+} /* transaction_balance_report_get_duplicated_withdrawal_amount() */
 

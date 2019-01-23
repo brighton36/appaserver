@@ -22,7 +22,7 @@ select="full_name,street_address,transaction_description"
 
 where="	accrued_daily_amount is null and
 	accrued_monthly_amount is null and
-	bank_upload_search_phrase is null"
+	bank_upload_feeder_phrase is null"
 
 order="$select"
 

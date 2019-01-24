@@ -26,6 +26,14 @@
 
 /* Prototypes */
 /* ---------- */
+void bank_upload_transaction_direct_insert(
+				char *application_name,
+				char *bank_date,
+				char *bank_description,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time );
+
 char *bank_upload_bank_date_todo_subquery( void );
 
 char *bank_upload_full_name_todo_subquery( void );
@@ -45,8 +53,15 @@ boolean bank_upload_transaction_insert_credit(
 			double exact_value );
 
 void bank_upload_transaction_insert_input_buffer(
-			char *key,
-			char *input_buffer );
+	/* --------------------------------- */
+	/* key is bank_date^bank_description */
+	/* --------------------------------- */
+	char *key,
+	/* -------------------------------------------------------------- */
+	/* input_buffer is full_name^street_address^transaction_date_time */
+	/* input_buffer optionally appends '[|another]'			  */
+	/* -------------------------------------------------------------- */
+	char *input_buffer );
 
 void bank_upload_transaction_insert_deposit(
 			char *application_name );
@@ -68,11 +83,17 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *operation;
+	char bank_date[ 128 ];
+	char bank_description[ 1024 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char transaction_date_time[ 64 ];
+	int delimiter_count;
 
 	if ( argc != 2 )
 	{
 		fprintf( stderr,
-	"Usage: %s deposit|withdrawal|both|bank_date^bank_description\n",
+"Usage: %s deposit|withdrawal|both|bank_date^bank_description|bank_date^bank_description^full_name^street_address^transaction_date_time\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
@@ -93,24 +114,44 @@ int main( int argc, char **argv )
 	{
 		bank_upload_transaction_insert_withdrawal( application_name );
 	}
-
-	if ( character_exists( operation, '^' ) )
+	else
 	{
-		char bank_date[ 128 ];
-		char bank_description[ 1024 ];
+		delimiter_count =
+			timlib_count_delimiters(
+				'^', operation );
 
-		piece( bank_date, '^', operation, 0 );
-		piece( bank_description, '^', operation, 1 );
+		if ( delimiter_count == 1 )
+		{
+			piece( bank_date, '^', operation, 0 );
+			piece( bank_description, '^', operation, 1 );
 
-		bank_upload_transaction_insert_bank_upload_withdrawal(
-			application_name,
-			bank_date,
-			bank_description );
+			bank_upload_transaction_insert_bank_upload_withdrawal(
+				application_name,
+				bank_date,
+				bank_description );
 
-		bank_upload_transaction_insert_bank_upload_deposit(
-			application_name,
-			bank_date,
-			bank_description );
+			bank_upload_transaction_insert_bank_upload_deposit(
+				application_name,
+				bank_date,
+				bank_description );
+		}
+		else
+		if ( delimiter_count == 4 )
+		{
+			piece( bank_date, '^', operation, 0 );
+			piece( bank_description, '^', operation, 1 );
+			piece( full_name, '^', operation, 2 );
+			piece( street_address, '^', operation, 3 );
+			piece( transaction_date_time, '^', operation, 4 );
+
+			bank_upload_transaction_direct_insert(
+				application_name,
+				bank_date,
+				bank_description,
+				full_name,
+				street_address,
+				transaction_date_time );
+		}
 	}
 
 	return 0;
@@ -634,8 +675,15 @@ boolean bank_upload_transaction_insert_debit(
 } /* bank_upload_transaction_insert_debit() */
 
 void bank_upload_transaction_insert_input_buffer(
-			char *key,
-			char *input_buffer )
+	/* --------------------------------- */
+	/* key is bank_date^bank_description */
+	/* --------------------------------- */
+	char *key,
+	/* -------------------------------------------------------------- */
+	/* input_buffer is full_name^street_address^transaction_date_time */
+	/* input_buffer optionally appends '[|another]'			  */
+	/* -------------------------------------------------------------- */
+	char *input_buffer )
 {
 	char sys_string[ 1024 ];
 	char piece_buffer[ 256 ];
@@ -656,10 +704,6 @@ void bank_upload_transaction_insert_input_buffer(
 
 	output_pipe = popen( sys_string, "w" );
 
-	/* --------------------------------------------------	*/
-	/* Sample input_buffer =				*/
-	/* bank_of_america^null^2017-12-29 14:09:22[|another]	*/
-	/* --------------------------------------------------	*/
 	for (	p = 0;
 		piece( piece_buffer, '|', input_buffer, p );
 		p++ )
@@ -674,4 +718,26 @@ void bank_upload_transaction_insert_input_buffer(
 
 } /* bank_upload_transaction_insert_input_buffer() */
 
+void bank_upload_transaction_direct_insert(
+				char *application_name,
+				char *bank_date,
+				char *bank_description,
+				char *full_name,
+				char *street_address,
+				char *transaction_date_time )
+{
+	char key[ 1024 ];
+	char input_buffer[ 1024 ];
+
+	sprintf( key, "%s^%s", bank_date, bank_description );
+
+	sprintf(	input_buffer,
+			"%s^%s^%s",
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	bank_upload_transaction_insert_input_buffer( key, input_buffer );
+
+} /* bank_upload_transaction_direct_insert() */
 

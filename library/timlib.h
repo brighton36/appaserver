@@ -95,12 +95,22 @@ char *trim_after_character(	char *destination,
 char *trim_character( char *destination, char c, char *source );
 
 char *reformat_double_return_string( double d, char *format_string );
-int character_count( char char_to_count, char *source );
-int timlib_character_count( char char_to_count, char *source );
-int timlib_count_delimiters( int char_to_count, char *source );
-FILE *open_file( char *s, char *mode );
-char *skip_spaces( char *s );
-char *get_system( char *sys_str );
+
+int character_count(		char char_to_count,
+				char *source );
+
+int timlib_character_count(	char char_to_count,
+				char *source );
+
+int timlib_count_delimiters(	char delimiter,
+				char *source );
+
+FILE *open_file(		char *s,
+				char *mode );
+
+char *skip_spaces(		char *s );
+
+char *get_system(		char *sys_str );
 
 char *midstr(			char *destination,
 				char *source,

@@ -4,11 +4,15 @@ bank_upload
 bank_upload_activity_work
 bank_upload_archive
 bank_upload_event
+bank_upload_transaction_balance
+bank_upload_feeder_archive
+bank_upload_transaction
 day
 depreciation_method
 element
 entity
 equity_account_balance
+feeder_account
 financial_institution
 fixed_asset
 fixed_asset_depreciation

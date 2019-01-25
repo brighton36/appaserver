@@ -5,6 +5,9 @@ bank_upload
 bank_upload_activity_work
 bank_upload_archive
 bank_upload_event
+bank_upload_transaction_balance
+bank_upload_feeder_archive
+bank_upload_transaction
 contra_account
 customer
 customer_payment
@@ -20,6 +23,7 @@ entity
 equity_account_balance
 federal_income_tax_withholding
 federal_marital_status
+feeder_account
 financial_institution
 fixed_asset
 fixed_asset_depreciation

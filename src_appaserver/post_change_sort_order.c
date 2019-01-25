@@ -442,6 +442,20 @@ void change_sort_order_state_one(
 			ignore_attribute_name_list
 				/* no_display_pressed_attribute_name_list */ );
 
+	if ( !row_security->select_folder )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty select_folder.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	/* Turn off join_1tom_each_row_yn */
+	/* ------------------------------ */
+	row_security->select_folder->join_1tom_related_folder_list = (LIST *)0;
+
 	row_security->row_security_element_list_structure =
 		row_security_element_list_structure_new(
 			application_name,

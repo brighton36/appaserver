@@ -580,13 +580,13 @@ void bank_upload_propagate( char *minimum_bank_date )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "bank_upload_sequence_propagate.sh %s",
+		 "bank_upload_sequence_propagate.sh %s | sql.e",
 		 minimum_bank_date );
 
 	system( sys_string );
 
 	sprintf( sys_string,
-		 "bank_upload_balance_propagate.sh %s",
+		 "bank_upload_balance_propagate.sh %s | sql.e",
 		 minimum_bank_date );
 
 	system( sys_string );
@@ -606,13 +606,14 @@ void bank_upload_spreadsheet_transaction_insert(
 
 		if ( !bank_upload->transaction ) continue;
 
-		sprintf( sys_string,
-			 "bank_upload_transaction_insert \"%s^%s^%s^%s^%s\"",
-			 bank_upload->bank_date,
-			 bank_upload->bank_description,
-			 bank_upload->transaction->full_name,
-			 bank_upload->transaction->street_address,
-			 bank_upload->transaction->transaction_date_time );
+		sprintf(
+		sys_string,
+		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
+		bank_upload->bank_date,
+		bank_upload->bank_description,
+		bank_upload->transaction->full_name,
+		bank_upload->transaction->street_address,
+		bank_upload->transaction->transaction_date_time );
 
 		system( sys_string );
 

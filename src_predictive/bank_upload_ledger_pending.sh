@@ -37,9 +37,7 @@ subquery_where="not exists (
 		      journal_ledger.transaction_date_time =		\
 			bank_upload_transaction.transaction_date_time )"
 
-development_where="transaction_date_time >= '2018-01-01'"
-
-where="$journal_ledger_where and $subquery_where and $development_where"
+where="	$journal_ledger_where and $subquery_where"
 
 echo "select $select from $table where $where order by $order;"		|
 sql.e									|

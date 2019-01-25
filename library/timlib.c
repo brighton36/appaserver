@@ -1304,13 +1304,17 @@ int instr( char *substr, char *string, int occurrence )
 	if ( !substr || !*substr ) return -1;
 	if ( !string || !*string ) return -1;
 
-        str_len_str = strlen(string);
-        str_len_sub = strlen(substr);
+        str_len_str = strlen( string );
+        str_len_sub = strlen( substr );
 
-        for(x = 0,found = 0;x < str_len_str;x++)
-                if (strncasecmp(&string[x],substr,str_len_sub) == 0)
-                        if (++found == occurrence)
+        for(	x = 0,found = 0;
+		x < str_len_str;
+		x++ )
+	{
+                if ( strncasecmp( &string[x], substr, str_len_sub ) == 0 )
+                        if ( ++found == occurrence )
                                 return x;
+	}
         return -1;
 
 } /* instr() */
@@ -1600,9 +1604,9 @@ int count_characters( int char_to_count, char *source )
 	return number_occurrences_char( char_to_count, source );
 }
 
-int timlib_count_delimiters( int char_to_count, char *source )
+int timlib_count_delimiters( char delimiter, char *source )
 {
-	return number_occurrences_char( char_to_count, source );
+	return number_occurrences_char( delimiter, source );
 }
 
 int timlib_character_count( char char_to_count, char *source )

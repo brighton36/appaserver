@@ -28,6 +28,10 @@
 
 /* Prototypes */
 /* ---------- */
+void bank_upload_spreadsheet_transaction_insert(
+				LIST *bank_upload_table_list );
+
+void bank_upload_propagate(	char *minimum_bank_date );
 
 /* Returns either file_row_count or table_insert_count */
 /* --------------------------------------------------- */
@@ -408,7 +412,8 @@ int load_bank_spreadsheet(
 				application_name,
 				bank_upload_structure->
 					starting_sequence_number,
-				(char *)0 /* begin_date */ );
+				(char *)0 /* begin_date		 */
+					  /* use sequence number */ );
 
 		bank_upload_set_transaction(
 			bank_upload_structure->table.bank_upload_table_list,
@@ -428,8 +433,18 @@ int load_bank_spreadsheet(
 		*transaction_count =
 			bank_upload_transaction_count(
 				bank_upload_structure->
+					table.
+					bank_upload_table_list );
+
+		bank_upload_spreadsheet_transaction_insert(
+			bank_upload_structure->
 				table.
 				bank_upload_table_list );
+
+		bank_upload_propagate(
+			bank_upload_structure->
+				file.
+				minimum_bank_date );
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -512,8 +527,9 @@ void load_bank_spreadsheet_transactions_only(
 		bank_upload_structure->table.bank_upload_table_list =
 			bank_upload_fetch_bank_upload_table_list(
 				application_name,
-				1 /* starting_sequence_number */,
-				(char *)0 /* begin_date */ );
+				1 /* starting_sequence_number    */,
+				(char *)0 /* begin_date		 */
+					  /* use sequence number */ );
 
 		bank_upload_set_transaction(
 			bank_upload_structure->table.bank_upload_table_list,
@@ -535,6 +551,16 @@ void load_bank_spreadsheet_transactions_only(
 				bank_upload_structure->
 				table.
 				bank_upload_table_list );
+
+		bank_upload_spreadsheet_transaction_insert(
+			bank_upload_structure->
+				table.
+				bank_upload_table_list );
+
+		bank_upload_propagate(
+			bank_upload_structure->
+				file.
+				minimum_bank_date );
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -548,4 +574,50 @@ void load_bank_spreadsheet_transactions_only(
 	}
 
 } /* load_bank_spreadsheet_transactions_only() */
+
+void bank_upload_propagate( char *minimum_bank_date )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "bank_upload_sequence_propagate.sh %s | sql.e",
+		 minimum_bank_date );
+
+	system( sys_string );
+
+	sprintf( sys_string,
+		 "bank_upload_balance_propagate.sh %s | sql.e",
+		 minimum_bank_date );
+
+	system( sys_string );
+
+} /* bank_upload_propagate() */
+
+void bank_upload_spreadsheet_transaction_insert(
+				LIST *bank_upload_table_list )
+{
+	char sys_string[ 1024 ];
+	BANK_UPLOAD *bank_upload;
+
+	if ( !list_rewind( bank_upload_table_list ) ) return;
+
+	do {
+		bank_upload = list_get( bank_upload_table_list );
+
+		if ( !bank_upload->transaction ) continue;
+
+		sprintf(
+		sys_string,
+		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
+		bank_upload->bank_date,
+		bank_upload->bank_description,
+		bank_upload->transaction->full_name,
+		bank_upload->transaction->street_address,
+		bank_upload->transaction->transaction_date_time );
+
+		system( sys_string );
+
+	} while( list_next( bank_upload_table_list ) );
+
+} /* bank_upload_spreadsheet_transaction_insert() */
 

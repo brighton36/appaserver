@@ -16,7 +16,7 @@
 /* Constants */
 /* --------- */
 #define TRANSACTION_BALANCE_SELECT		\
-	"transaction_date_time,bank_date,bank_description,full_name,street_address,transaction_amount,bank_amount,balance,bank_running_balance,sequence_number"
+	"transaction_date_time,bank_date,bank_description,full_name,street_address,transaction_amount,bank_amount,cash_running_balance,bank_running_balance,sequence_number"
 
 /* Structures */
 /* ---------- */
@@ -29,7 +29,7 @@ typedef struct
 	char *street_address;
 	double transaction_amount;
 	double bank_amount;
-	double balance;
+	double cash_running_balance;
 	double bank_running_balance;
 	int sequence_number;
 } TRANSACTION_BALANCE_ROW;
@@ -99,7 +99,7 @@ LIST *transaction_balance_get_merged_block_list(
 					LIST *outbalance_block_list );
 
 double transaction_balance_calculate_anomaly_balance_difference(
-					double balance,
+					double cash_running_balance,
 					double bank_running_balance );
 
 void transaction_balance_row_stdout(

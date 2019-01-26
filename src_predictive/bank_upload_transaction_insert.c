@@ -27,7 +27,6 @@
 /* Prototypes */
 /* ---------- */
 void bank_upload_transaction_direct_insert(
-				char *application_name,
 				char *bank_date,
 				char *bank_description,
 				char *full_name,
@@ -145,7 +144,6 @@ int main( int argc, char **argv )
 			piece( transaction_date_time, '^', operation, 4 );
 
 			bank_upload_transaction_direct_insert(
-				application_name,
 				bank_date,
 				bank_description,
 				full_name,
@@ -719,7 +717,6 @@ void bank_upload_transaction_insert_input_buffer(
 } /* bank_upload_transaction_insert_input_buffer() */
 
 void bank_upload_transaction_direct_insert(
-				char *application_name,
 				char *bank_date,
 				char *bank_description,
 				char *full_name,

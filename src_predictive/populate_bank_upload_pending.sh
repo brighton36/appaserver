@@ -20,7 +20,7 @@ fi
 
 select="concat( bank_date, '^',bank_description, ' [', bank_amount, ']' )"
 
-order="bank_date,bank_description"
+order="sequence_number"
 
 table=bank_upload
 

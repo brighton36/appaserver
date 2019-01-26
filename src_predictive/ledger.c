@@ -5751,7 +5751,7 @@ char *ledger_beginning_transaction_date(
 	char folder[ 128 ];
 	char *results;
 	char transaction_date_string[ 16 ];
-	DATE *prior_closing_transaction_date;
+	DATE *prior_closing_transaction_date = {0};
 
 	if ( fund_name && !*fund_name )
 		fund_name = (char *)0;
@@ -5761,20 +5761,23 @@ char *ledger_beginning_transaction_date(
 
 	/* Get the prior closing entry then return its tomorrow. */
 	/* ----------------------------------------------------- */
-	prior_closing_transaction_date =
-		ledger_prior_closing_transaction_date(
-			application_name,
-			fund_name,
-			ending_transaction_date );
-
-	if ( prior_closing_transaction_date )
+	if ( ending_transaction_date )
 	{
-		date_increment_days(
-			prior_closing_transaction_date,
-			1 );
-
-		return date_get_yyyy_mm_dd_string(
-				prior_closing_transaction_date );
+		prior_closing_transaction_date =
+			ledger_prior_closing_transaction_date(
+				application_name,
+				fund_name,
+				ending_transaction_date );
+	
+		if ( prior_closing_transaction_date )
+		{
+			date_increment_days(
+				prior_closing_transaction_date,
+				1 );
+	
+			return date_get_yyyy_mm_dd_string(
+					prior_closing_transaction_date );
+		}
 	}
 
 	/* No closing entries */
@@ -9615,4 +9618,14 @@ void ledger_transaction_output_pipe_display(
 		 journal_ledger->credit_amount );
 
 } /* ledger_transaction_output_pipe_display() */
+
+char *ledger_get_minimum_transaction_date(
+					char *application_name )
+{
+	return ledger_beginning_transaction_date(
+				application_name,
+				(char *)0 /* fund_name */,
+				(char *)0 /* ending_transaction_date */ );
+
+}
 

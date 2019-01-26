@@ -935,7 +935,7 @@ boolean folder_load(	int *insert_rows_number,
 			char *role_name,
 			LIST *mto1_related_folder_list )
 {
-	char buffer[ 1024 ];
+	char buffer[ 65536 ];
 	char *record;
 
 	if ( !folder_name || !*folder_name )

@@ -70,8 +70,7 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 					char *application_name,
 					char *title,
 					char *sub_title,
-					char *begin_date_string,
-					double cash_ending_balance );
+					char *begin_date_string );
 
 /* Global variables */
 /* ---------------- */
@@ -87,7 +86,6 @@ int main( int argc, char **argv )
 	char sub_title[ 256 ];
 	char *output_medium;
 	char *begin_date_string;
-	double cash_ending_balance;
 	TRANSACTION_BALANCE *transaction_balance;
 
 	/* Exits if fails */
@@ -99,23 +97,25 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 5 )
+	if ( argc != 4 )
 	{
 		fprintf( stderr,
-	"Usage: %s process begin_date cash_ending_balance output_medium\n",
+			 "Usage: %s process begin_date output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	process_name = argv[ 1 ];
 	begin_date_string = argv[ 2 ];
-	cash_ending_balance = atof( argv[ 3 ] );
-	output_medium = argv[ 4 ];
+	output_medium = argv[ 3 ];
 
 	if ( !*begin_date_string
 	||   strcmp( begin_date_string, "begin_date" ) == 0 )
 	{
-		begin_date_string = "2000-01-01";
+		begin_date_string =
+			ledger_get_minimum_transaction_date(
+				application_name );
+
 	}
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
@@ -150,8 +150,7 @@ int main( int argc, char **argv )
 				application_name,
 				title,
 				sub_title,
-				begin_date_string,
-				cash_ending_balance );
+				begin_date_string );
 
 		if ( list_length( transaction_balance->outbalance_block_list ) )
 		{
@@ -181,8 +180,7 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 			char *application_name,
 			char *title,
 			char *sub_title,
-			char *begin_date_string,
-			double cash_ending_balance )
+			char *begin_date_string )
 {
 	TRANSACTION_BALANCE *transaction_balance;
 	TRANSACTION_BALANCE_BLOCK *block;
@@ -196,7 +194,7 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 			transaction_balance_new(
 				application_name,
 				begin_date_string,
-				cash_ending_balance ) ) )
+				0.0 /* cash_ending_balance */ ) ) )
 	{
 		printf( "<h3>Error occurred. Check log.</h3>\n" );
 		document_close();
@@ -404,7 +402,7 @@ void transaction_balance_report_anomaly(
 		transaction_balance_report_get_duplicated_withdrawal_message(
 			row->transaction_amount,
 			row->bank_amount,
-			row->balance,
+			row->cash_running_balance,
 			row->bank_running_balance );
 
 	if ( duplicated_transaction_message
@@ -419,7 +417,7 @@ void transaction_balance_report_anomaly(
 		transaction_balance_report_get_duplicated_deposit_message(
 			row->transaction_amount,
 			row->bank_amount,
-			row->balance,
+			row->cash_running_balance,
 			row->bank_running_balance );
 
 	if ( duplicated_transaction_message

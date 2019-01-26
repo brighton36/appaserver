@@ -266,7 +266,7 @@ TRANSACTION_BALANCE_ROW *transaction_balance_parse_row(
 	r->bank_amount = atof( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 7 );
-	r->balance = atof( piece_buffer );
+	r->cash_running_balance = atof( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 8 );
 	r->bank_running_balance = atof( piece_buffer );
@@ -301,7 +301,7 @@ LIST *transaction_balance_get_inbalance_block_list(
 		if ( !block )
 		{
 			if ( !timlib_dollar_virtually_same(
-				current_row->balance,
+				current_row->cash_running_balance,
 				current_row->bank_running_balance ) )
 			{
 				prior_row = current_row;
@@ -323,7 +323,7 @@ LIST *transaction_balance_get_inbalance_block_list(
 		/* ------------------- */
 		{
 			if ( timlib_dollar_virtually_same(
-				current_row->balance,
+				current_row->cash_running_balance,
 				current_row->bank_running_balance ) )
 			{
 				/* Still inside a block */
@@ -354,7 +354,7 @@ LIST *transaction_balance_get_inbalance_block_list(
 	} while( list_next( transaction_balance_row_list ) );
 
 	if ( block && timlib_dollar_virtually_same(
-			current_row->balance,
+			current_row->cash_running_balance,
 			current_row->bank_running_balance ) )
 	{
 		block->end_transaction_balance = current_row;
@@ -388,7 +388,7 @@ LIST *transaction_balance_get_outbalance_block_list(
 		if ( !block )
 		{
 			if ( timlib_dollar_virtually_same(
-				current_row->balance,
+				current_row->cash_running_balance,
 				current_row->bank_running_balance ) )
 			{
 				continue;
@@ -407,7 +407,7 @@ LIST *transaction_balance_get_outbalance_block_list(
 		/* ------------------- */
 		{
 			if ( !timlib_dollar_virtually_same(
-				current_row->balance,
+				current_row->cash_running_balance,
 				current_row->bank_running_balance ) )
 			{
 				/* Still inside a block */
@@ -428,7 +428,7 @@ LIST *transaction_balance_get_outbalance_block_list(
 	} while( list_next( transaction_balance_row_list ) );
 
 	if ( block && !timlib_dollar_virtually_same(
-			current_row->balance,
+			current_row->cash_running_balance,
 			current_row->bank_running_balance ) )
 	{
 		block->end_transaction_balance = current_row;
@@ -504,10 +504,10 @@ LIST *transaction_balance_get_merged_block_list(
 } /* transaction_balance_get_merged_block_list() */
 
 double transaction_balance_calculate_anomaly_balance_difference(
-			double balance,
+			double cash_running_balance,
 			double bank_running_balance )
 {
-	return balance - bank_running_balance;
+	return cash_running_balance - bank_running_balance;
 
 }
 
@@ -527,7 +527,7 @@ void transaction_balance_row_stdout(
 	printf( "Full name: %s\n", row->full_name );
 	printf( "Cash transaction amount: %.2lf\n", row->transaction_amount );
 	printf( "Bank load amount: %.2lf\n", row->bank_amount );
-	printf( "Cash running balance: %.2lf\n", row->balance );
+	printf( "Cash running balance: %.2lf\n", row->cash_running_balance );
 	printf( "Bank running balance: %.2lf\n", row->bank_running_balance );
 	printf( "Sequence number: %d\n", row->sequence_number );
 	printf( "\n" );

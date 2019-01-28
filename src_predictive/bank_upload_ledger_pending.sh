@@ -18,6 +18,15 @@ then
 	exit 1
 fi
 
+echo "$0 $*" 1>&2
+
+if [ "$application" = "timriley" ]
+then
+	development_where="transaction_date_time >= '2018-01-01'"
+else
+	development_where="1 = 1"
+fi
+
 select="transaction_date_time,full_name,street_address,debit_amount,credit_amount"
 
 order="transaction_date_time"
@@ -37,7 +46,7 @@ subquery_where="not exists (
 		      journal_ledger.transaction_date_time =		\
 			bank_upload_transaction.transaction_date_time )"
 
-where="	$journal_ledger_where and $subquery_where"
+where="	$journal_ledger_where and $subquery_where and $development_where"
 
 echo "select $select from $table where $where order by $order;"		|
 sql.e									|

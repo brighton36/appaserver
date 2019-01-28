@@ -36,8 +36,16 @@
 
 /* Prototypes */
 /* ---------- */
-void transaction_balance_report_anomaly(
+char *transaction_balance_report_get_finished_message(
+					char *application_name,
+					double cash_running_balance,
+					double bank_running_balance );
+
+void transaction_balance_report_summary_inbalance(
 			char *application_name,
+			TRANSACTION_BALANCE_BLOCK *last_inbalance_block );
+
+void transaction_balance_report_summary_outbalance(
 			TRANSACTION_BALANCE_BLOCK *last_outbalance_block );
 
 char *transaction_balance_report_get_duplicated_withdrawal_message(
@@ -53,7 +61,7 @@ double transaction_balance_report_get_duplicated_withdrawal_amount(
 					double balance,
 					double bank_running_balance );
 
-char *transaction_balance_report_get_duplicated_deposit_message(
+char *transaction_balance_report_get_deposit_message(
 					double transaction_amount,
 					double bank_amount,
 					double balance,
@@ -152,18 +160,29 @@ int main( int argc, char **argv )
 				sub_title,
 				begin_date_string );
 
-		if ( list_length( transaction_balance->outbalance_block_list ) )
+		transaction_balance->last_block_inbalance =
+			transaction_balance_get_last_block_inbalance(
+				transaction_balance->inbalance_block_list,
+				transaction_balance->merged_block_list );
+
+		if ( list_length( transaction_balance->inbalance_block_list )
+		&&   list_length( transaction_balance->outbalance_block_list ) )
 		{
-			TRANSACTION_BALANCE_BLOCK *last_outbalance_block;
-
-			last_outbalance_block =
-				list_get_last_pointer( 
-					transaction_balance->
-						outbalance_block_list );
-
-			transaction_balance_report_anomaly(
-				application_name,
-				last_outbalance_block );
+			if ( transaction_balance->last_block_inbalance )
+			{
+				transaction_balance_report_summary_inbalance(
+					application_name,
+					list_get_last_pointer( 
+						transaction_balance->
+						     inbalance_block_list ) );
+			}
+			else
+			{
+				transaction_balance_report_summary_outbalance(
+					list_get_last_pointer( 
+						transaction_balance->
+						     outbalance_block_list ) );
+			}
 		}
 	}
 	else
@@ -360,43 +379,41 @@ TRANSACTION_BALANCE *transaction_balance_report_html_table(
 
 } /* transaction_balance_report_html_table() */
 
-void transaction_balance_report_anomaly(
+void transaction_balance_report_summary_inbalance(
 			char *application_name,
+			TRANSACTION_BALANCE_BLOCK *last_inbalance_block )
+{
+	TRANSACTION_BALANCE_ROW *row;
+	char *finished_message;
+
+	if ( !last_inbalance_block ) return;
+
+	row = last_inbalance_block->end_transaction_balance;
+
+	finished_message =
+		transaction_balance_report_get_finished_message(
+			application_name,
+			row->cash_running_balance,
+			row->bank_running_balance );
+
+	if ( finished_message && *finished_message )
+	{
+		printf( "<h3>%s</h3>\n", finished_message );
+		return;
+	}
+
+} /* transaction_balance_report_summary_inbalance() */
+
+void transaction_balance_report_summary_outbalance(
 			TRANSACTION_BALANCE_BLOCK *last_outbalance_block )
 {
-	char *anomaly_transaction_date_time;
 	TRANSACTION_BALANCE_ROW *row;
 	char *duplicated_transaction_message;
+	char *deposit_message;
 
-	if ( !last_outbalance_block )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty last_outbalance_block.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	if ( !last_outbalance_block ) return;
 
-	anomaly_transaction_date_time =
-		last_outbalance_block->
-			begin_transaction_balance->
-				transaction_date_time;
-
-	row = transaction_balance_transaction_date_time_fetch(
-			application_name,
-			anomaly_transaction_date_time );
-
-	if ( !row )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot fetch anomaly_transaction_date_time = (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			anomaly_transaction_date_time );
-		exit( 1 );
-	}
+	row = last_outbalance_block->end_transaction_balance;
 
 	duplicated_transaction_message =
 		transaction_balance_report_get_duplicated_withdrawal_message(
@@ -405,31 +422,31 @@ void transaction_balance_report_anomaly(
 			row->cash_running_balance,
 			row->bank_running_balance );
 
-	if ( duplicated_transaction_message
-	&&   *duplicated_transaction_message )
+	if ( duplicated_transaction_message && *duplicated_transaction_message )
 	{
 		printf( "<h3>%s</h3>\n",
 			duplicated_transaction_message );
 		return;
 	}
 
-	duplicated_transaction_message =
-		transaction_balance_report_get_duplicated_deposit_message(
+	deposit_message =
+		transaction_balance_report_get_deposit_message(
 			row->transaction_amount,
 			row->bank_amount,
 			row->cash_running_balance,
 			row->bank_running_balance );
 
-	if ( duplicated_transaction_message
-	&&   *duplicated_transaction_message )
+	if ( deposit_message && *deposit_message )
 	{
-		printf( "<h3>%s</h3>\n",
-			duplicated_transaction_message );
+		printf( "<h3>%s</h3>\n", deposit_message );
+		return;
 	}
 
-} /* transaction_balance_report_anomaly() */
+} /* transaction_balance_report_summary_outbalance() */
 
-char *transaction_balance_report_get_duplicated_deposit_message(
+/* If anomaly_balance_difference > 0 */
+/* --------------------------------- */
+char *transaction_balance_report_get_deposit_message(
 			double transaction_amount,
 			double bank_amount,
 			double balance,
@@ -448,6 +465,8 @@ char *transaction_balance_report_get_duplicated_deposit_message(
 		transaction_amount,
 		0.0 - bank_amount ) )
 	{
+		/* Okay so far. */
+		/* ------------ */
 		return (char *)0;
 	}
 
@@ -467,18 +486,20 @@ char *transaction_balance_report_get_duplicated_deposit_message(
 		duplicated_transaction_amount,
 		0.0 ) )
 	{
+		/* Okay so far. */
+		/* ------------ */
 		return (char *)0;
 	}
 
 	sprintf( message,
-"Duplicated deposit: (%s/%s) amount = %.2lf.",
+"Warning: Unreconciled deposit transaction to %s/%s with amount of %.2lf.",
 		duplicated_full_name,
 		duplicated_transaction_date_time,
 		duplicated_transaction_amount );
 
 	return strdup( message );
 
-} /* transaction_balance_report_get_duplicated_deposit_message() */
+} /* transaction_balance_report_get_deposit_message() */
 
 double transaction_balance_report_get_duplicated_deposit_amount(
 			char *message,
@@ -505,12 +526,14 @@ double transaction_balance_report_get_duplicated_deposit_amount(
 		return 0.0;
 	}
 
+	/* We have a difference. Is it a duplicated deposit? */
+	/* ------------------------------------------------- */
 	duplicated_transaction_amount = anomaly_balance_difference;
 
-	/* --------------------------------------------------- */
-	/* Returns transaction_date_time or null if not found. */
-	/* Message will help to explain not found.	       */
-	/* --------------------------------------------------- */
+	/* -------------------------------------------------------- */
+	/* If found, returns transaction_date_time.		    */
+	/* If not found, returns null and message may be populated. */
+	/* -------------------------------------------------------- */
 	*duplicated_transaction_date_time =
 		bank_upload_pending_amount_deposit(
 			message,
@@ -522,16 +545,11 @@ double transaction_balance_report_get_duplicated_deposit_amount(
 	/* ------------------------------ */
 	if ( *message ) return 0.0;
 
-	if ( !*duplicated_transaction_date_time )
-	{
-		return 0.0;
-	}
-	else
-	{
-		/* It found a duplicated transaction to delete. */
-		/* -------------------------------------------- */
-		return duplicated_transaction_amount;
-	}
+	if ( !*duplicated_transaction_date_time ) return 0.0;
+
+	/* It found a duplicated transaction to delete. */
+	/* -------------------------------------------- */
+	return duplicated_transaction_amount;
 
 } /* transaction_balance_report_get_duplicated_deposit_amount() */
 
@@ -641,3 +659,123 @@ double transaction_balance_report_get_duplicated_withdrawal_amount(
 
 } /* transaction_balance_report_get_duplicated_withdrawal_amount() */
 
+char *transaction_balance_report_get_finished_message(
+			char *application_name,
+			double cash_running_balance,
+			double bank_running_balance )
+{
+	char message[ 1024 ];
+	double bank_upload_balance;
+	char *ptr = message;
+
+	*message = '\0';
+
+	if ( ! ( bank_upload_balance =
+			bank_upload_archive_fetch_latest_running_balance(
+				application_name ) ) )
+	{
+		sprintf( message,
+			 "<h3>Warning: empty bank upload balance.</h3>\n" );
+
+		return strdup( message );
+	}
+
+	if ( !timlib_dollar_virtually_same(
+		cash_running_balance,
+		bank_running_balance ) )
+	{
+		ptr += sprintf(	ptr,
+				"<h3>Not finished:</h3>\n" );
+
+		ptr += sprintf( ptr,
+				"<table>\n" );
+
+		ptr += sprintf( ptr,
+				"<tr><td>Cash running balance<td>%.2lf\n",
+				cash_running_balance );
+
+		ptr += sprintf( ptr,
+				"<tr><td>Bank running balance<td>%.2lf\n",
+				bank_running_balance );
+
+		ptr += sprintf( ptr,
+				"<tr><td>Difference<td>%.2lf\n",
+			 	cash_running_balance - bank_running_balance );
+
+		ptr += sprintf( ptr,
+				"</table>\n" );
+
+		return strdup( message );
+	}
+
+	if ( timlib_dollar_virtually_same(
+		cash_running_balance,
+		bank_upload_balance ) )
+	{
+		/* Finished! */
+		/* --------- */
+		ptr += sprintf(	ptr,
+				"<h3>Finished:</h3>\n" );
+
+		ptr += sprintf( ptr,
+				"<table>\n" );
+
+		ptr += sprintf( ptr,
+				"<tr><td>Cash running balance<td>%.2lf\n",
+				cash_running_balance );
+
+		ptr += sprintf( ptr,
+				"<tr><td>Bank running balance<td>%.2lf\n",
+				bank_running_balance );
+
+		ptr += sprintf( ptr,
+				"<tr><td>Bank upload balance<td>%.2lf\n",
+				bank_upload_balance );
+
+		ptr += sprintf( ptr,
+				"</table>\n" );
+
+		return strdup( message );
+	}
+
+	ptr += sprintf(	ptr,
+			"<h3>Not finished:</h3>\n" );
+
+	ptr += sprintf( ptr,
+			"<h3>Cash running balance: %.2lf</h3>\n",
+			cash_running_balance );
+
+	ptr += sprintf( ptr,
+			"<h3>Bank running balance: %.2lf</h3>\n",
+			bank_running_balance );
+
+	ptr += sprintf( ptr,
+			"<h3>Bank upload balance:  %.2lf</h3>\n",
+			bank_upload_balance );
+
+	return strdup( message );
+
+} /* transaction_balance_report_get_finished_message() */
+
+boolean transaction_balance_get_last_block_inbalance(
+				LIST *inbalance_block_list,
+				LIST *merged_block_list )
+{
+	TRANSACTION_BALANCE_BLOCK *inbalance_block;
+	TRANSACTION_BALANCE_BLOCK *merged_block;
+
+	if ( ! list_rewind( inbalance_block_list )
+	||   ! list_rewind( merged_block_list ) )
+	{
+		return 0;
+	}
+
+	inbalance_block = list_get_last_pointer( inbalance_block_list );
+	merged_block = list_get_last_pointer( merged_block_list );
+
+	if ( inbalance_block == merged_block )
+		return 1;
+	else
+		return 0;
+
+} /* transaction_balance_get_last_block_inbalance() */

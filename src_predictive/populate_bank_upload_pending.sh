@@ -18,6 +18,8 @@ then
 	exit 1
 fi
 
+echo "$0 $*" 1>&2
+
 select="concat( bank_date, '^',bank_description, ' [', bank_amount, ']' )"
 
 order="sequence_number"

@@ -452,7 +452,9 @@ LIST *transaction_balance_get_merged_block_list(
 	||   !list_rewind( outbalance_block_list ) )
 	{
 		if ( list_length( inbalance_block_list ) )
+		{
 			return inbalance_block_list;
+		}
 
 		if ( list_length( outbalance_block_list ) )
 			return outbalance_block_list;
@@ -462,8 +464,8 @@ LIST *transaction_balance_get_merged_block_list(
 
 	return_list = list_new();
 
-	while ( 1 ) {
-
+	while ( 1 )
+	{
 		inblock = list_get( inbalance_block_list );
 		outblock = list_get( outbalance_block_list );
 
@@ -481,6 +483,7 @@ LIST *transaction_balance_get_merged_block_list(
 				list_append_current_list(
 					return_list,
 					outbalance_block_list );
+
 				break;
 			}
 		}

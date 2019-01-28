@@ -55,6 +55,7 @@ typedef struct
 	LIST *inbalance_block_list;
 	LIST *outbalance_block_list;
 	LIST *merged_block_list;
+	boolean last_block_inbalance;
 } TRANSACTION_BALANCE;
 
 /* Operations */
@@ -104,6 +105,10 @@ double transaction_balance_calculate_anomaly_balance_difference(
 
 void transaction_balance_row_stdout(
 					TRANSACTION_BALANCE_ROW *row );
+
+boolean transaction_balance_get_last_block_inbalance(
+					LIST *inbalance_block_list,
+					LIST *merged_block_list );
 
 #endif
 

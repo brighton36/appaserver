@@ -271,5 +271,8 @@ BANK_UPLOAD *bank_upload_prior_fetch(
 					char *application_name,
 					int sequence_number );
 
+double bank_upload_archive_fetch_latest_running_balance(
+					char *application_name );
+
 #endif
 

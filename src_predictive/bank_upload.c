@@ -852,7 +852,7 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 			bank_date,
 			bank_description ) );
 
-	if ( !( results = pipe2string( sys_string ) ) )
+	if ( ! ( results = pipe2string( sys_string ) ) )
 		return (BANK_UPLOAD *)0;
 
 	bank_upload = bank_upload_calloc();
@@ -1378,10 +1378,10 @@ double bank_upload_fetch_bank_amount(
 
 } /* bank_upload_fetch_bank_amount() */
 
-/* --------------------------------------------------- */
-/* Returns transaction_date_time or null if not found. */
-/* Message will help to explain not found.	       */
-/* --------------------------------------------------- */
+/* -------------------------------------------------------- */
+/* If found, returns transaction_date_time.		    */
+/* If not found, returns null and message may be populated. */
+/* -------------------------------------------------------- */
 char *bank_upload_pending_amount_deposit(
 				char *message,
 				char **full_name,
@@ -1410,13 +1410,6 @@ select="transaction_date_time,full_name,street_address,debit_amount,credit_amoun
 
 	results = pipe2string( sys_string );
 
-fprintf( stderr, "%s/%s()/%d: sys_string = (%s), results = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string,
-results );
-
 	transaction_count = atoi( results );
 
 	if ( transaction_count == 0 ) return (char *)0;
@@ -1424,7 +1417,7 @@ results );
 	if ( transaction_count > 1 )
 	{
 		sprintf( message,
-			 "Warning: %d pending transactions for amount = %.2lf",
+"Warning: %d pending deposits for amount = %.2lf. Is this amount duplicated?",
 			 transaction_count,
 			 amount );
 
@@ -1474,13 +1467,6 @@ select="transaction_date_time,full_name,street_address,debit_amount,credit_amoun
 
 	results = pipe2string( sys_string );
 
-fprintf( stderr, "%s/%s()/%d: sys_string = (%s), results = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string,
-results );
-
 	transaction_count = atoi( results );
 
 	if ( transaction_count == 0 ) return (char *)0;
@@ -1488,7 +1474,7 @@ results );
 	if ( transaction_count > 1 )
 	{
 		sprintf( message,
-			 "Warning: %d pending transactions for amount = %.2lf",
+"Warning: %d pending withdrawals for amount = %.2lf. Is this amount duplicated?",
 			 transaction_count,
 			 amount );
 
@@ -1605,4 +1591,53 @@ BANK_UPLOAD *bank_upload_parse_row( char *input_row )
 	return bank_upload;
 
 } /* bank_upload_parse_row() */
+
+double bank_upload_archive_fetch_latest_running_balance(
+					char *application_name )
+{
+	char *select;
+	char *folder;
+	char where[ 512 ];
+	char sys_string[ 1024 ];
+	char *results;
+	int max_sequence_number;
+
+	/* Get the maximum sequence number */
+	/* ------------------------------- */
+	select = "max( sequence_number )";
+	folder = "bank_upload_archive";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		",
+		 application_name,
+		 select,
+		 folder );
+
+	if ( ! ( results = pipe2string( sys_string ) ) ) return 0.0;
+
+	max_sequence_number = atoi( results );
+
+	/* Get the latest running balance */
+	/* ------------------------------ */
+	select = "bank_running_balance";
+
+	sprintf( where,
+		 "sequence_number = %d",
+		 max_sequence_number );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=\"%s\"		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	return atof( pipe2string( sys_string ) );
+
+} /* bank_upload_archive_fetch_latest_running_balance() */
 

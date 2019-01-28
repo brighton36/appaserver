@@ -358,7 +358,7 @@ LIST *transaction_balance_get_inbalance_block_list(
 			current_row->bank_running_balance ) )
 	{
 		block->end_transaction_balance = current_row;
-		block->block_count++;
+		/* block->block_count++; */
 		list_append_pointer( block_list, block );
 	}
 

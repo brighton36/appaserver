@@ -238,27 +238,34 @@ void bank_upload_transaction_insert_bank_upload_deposit(
 
 	input_pipe = popen( sys_string, "r" );
 
-	/* Just do one */
-	/* ----------- */
-	if( get_line( input_buffer, input_pipe ) )
+	while ( get_line( input_buffer, input_pipe ) )
 	{
 		piece( key, '|', input_buffer, 0 );
 		piece( value, '|', input_buffer, 1 );
 		piece( date, '^', key, 0 );
 
-		if ( !bank_upload_transaction_insert_debit(
+		if ( bank_upload_transaction_insert_debit(
 			application_name,
 			key,
 			value,
 			date,
 			atof( value ) /* exact_value */ ) )
 		{
-			bank_upload_transaction_insert_debit(
+			/* Just do one */
+			/* ----------- */
+			break;
+		}
+
+		if ( bank_upload_transaction_insert_debit(
 				application_name,
 				key,
 				value,
 				date,
-				0.0 /* exact_value */ );
+				0.0 /* exact_value */ ) )
+		{
+			/* Just do one */
+			/* ----------- */
+			break;
 		}
 
 	}
@@ -314,25 +321,34 @@ void bank_upload_transaction_insert_bank_upload_withdrawal(
 
 	input_pipe = popen( sys_string, "r" );
 
-	if( get_line( input_buffer, input_pipe ) )
+	while ( get_line( input_buffer, input_pipe ) )
 	{
 		piece( key, '|', input_buffer, 0 );
 		piece( value, '|', input_buffer, 1 );
 		piece( date, '^', key, 0 );
 
-		if ( !bank_upload_transaction_insert_credit(
+		if ( bank_upload_transaction_insert_credit(
 			application_name,
 			key,
 			value,
 			date,
 			atof( value ) /* exact_value */ ) )
 		{
-			bank_upload_transaction_insert_credit(
+			/* Just do one */
+			/* ----------- */
+			break;
+		}
+
+		if ( bank_upload_transaction_insert_credit(
 				application_name,
 				key,
 				value,
 				date,
-				0.0 /* exact_value */ );
+				0.0 /* exact_value */ ) )
+		{
+			/* Just do one */
+			/* ----------- */
+			break;
 		}
 	}
 
@@ -381,6 +397,12 @@ void bank_upload_transaction_insert_withdrawal( char *application_name )
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
+fprintf( stderr, "%s/%s()/%d: input_buffer = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+input_buffer );
+
 		piece( key, '|', input_buffer, 0 );
 		piece( value, '|', input_buffer, 1 );
 		piece( date, '^', key, 0 );

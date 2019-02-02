@@ -107,8 +107,23 @@ void transaction_balance_row_stdout(
 					TRANSACTION_BALANCE_ROW *row );
 
 boolean transaction_balance_get_last_block_inbalance(
-					LIST *inbalance_block_list,
 					LIST *merged_block_list );
+
+boolean transaction_balance_get_cash_running_balance_wrong(
+			char *first_outbalance_transaction_date_time,
+			LIST *transaction_balance_row_list,
+			double bank_amount );
+
+boolean transaction_balance_get_bank_running_balance_wrong(
+			char *first_outbalance_transaction_date_time,
+			LIST *transaction_balance_row_list,
+			double bank_amount );
+
+char *transaction_balance_row_display(
+				TRANSACTION_BALANCE_ROW *row,
+				LIST *transaction_balance_row_list,
+				double bank_amount );
+
 
 #endif
 

@@ -34,6 +34,8 @@ int main( int argc, char **argv )
 	enum inventory_cost_method preupdate_inventory_cost_method;
 	char sys_string[ 128 ];
 
+	/* Exits if failed */
+	/* --------------- */
 	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(

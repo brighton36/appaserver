@@ -57,7 +57,7 @@ do
 
 done
 
-bank_upload_balance_propagate.sh begin_date | sql.e
-bank_upload_sequence_propagate.sh begin_date | sql.e
+bank_upload_balance_propagate.sh bank_date bank_description | sql.e
+bank_upload_sequence_propagate.sh bank_date bank_description | sql.e
 
 exit 0

@@ -537,3 +537,177 @@ void transaction_balance_row_stdout(
 
 } /* transaction_balance_row_stdout() */
 
+boolean transaction_balance_get_last_block_inbalance(
+				LIST *merged_block_list )
+{
+	TRANSACTION_BALANCE_BLOCK *last_block;
+
+	if ( ! list_length( merged_block_list ) ) return 0;
+
+	last_block = list_get_last_pointer( merged_block_list );
+
+	return last_block->is_inbalance;
+
+} /* transaction_balance_get_last_block_inbalance() */
+
+TRANSACTION_BALANCE_ROW *transaction_balance_seek_row(
+			char *transaction_date_time,
+			LIST *transaction_balance_row_list )
+{
+	TRANSACTION_BALANCE_ROW *row;
+
+	if ( !list_rewind( transaction_balance_row_list ) )
+		return (TRANSACTION_BALANCE_ROW *)0;
+
+	do {
+		row = list_get_pointer( transaction_balance_row_list );
+
+		if ( strcmp(	row->transaction_date_time,
+				transaction_date_time ) == 0 )
+		{
+			return row;
+		}
+
+	} while( list_next( transaction_balance_row_list ) );
+
+	return (TRANSACTION_BALANCE_ROW *)0;
+
+} /* transaction_balance_seek_row() */
+
+boolean transaction_balance_get_cash_running_balance_wrong(
+			char *first_outbalance_transaction_date_time,
+			LIST *transaction_balance_row_list,
+			double bank_amount )
+{
+	TRANSACTION_BALANCE_ROW *row;
+	TRANSACTION_BALANCE_ROW *prior_row;
+	double sum;
+
+	row = transaction_balance_seek_row(
+		first_outbalance_transaction_date_time,
+		transaction_balance_row_list );
+
+	if ( !row )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot seek transaction_date_time = (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 first_outbalance_transaction_date_time );
+		exit( 1 );
+	}
+
+	if ( list_at_head( transaction_balance_row_list ) ) return 0;
+
+	list_previous( transaction_balance_row_list );
+
+	prior_row = list_get_pointer( transaction_balance_row_list );
+
+	sum = prior_row->cash_running_balance + bank_amount;
+
+	if ( !timlib_dollar_virtually_same(
+		sum,
+		row->cash_running_balance ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+
+} /* transaction_balance_get_cash_running_balance_wrong() */
+
+boolean transaction_balance_get_bank_running_balance_wrong(
+			char *first_outbalance_transaction_date_time,
+			LIST *transaction_balance_row_list,
+			double bank_amount )
+{
+	TRANSACTION_BALANCE_ROW *row;
+	TRANSACTION_BALANCE_ROW *prior_row;
+	double sum;
+
+	row = transaction_balance_seek_row(
+		first_outbalance_transaction_date_time,
+		transaction_balance_row_list );
+
+	if ( !row )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: cannot seek transaction_date_time = (%s)\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 first_outbalance_transaction_date_time );
+		exit( 1 );
+	}
+
+	if ( list_at_head( transaction_balance_row_list ) ) return 0;
+
+	list_previous( transaction_balance_row_list );
+
+	prior_row = list_get_pointer( transaction_balance_row_list );
+
+	sum = prior_row->bank_running_balance + bank_amount;
+
+	if ( !timlib_dollar_virtually_same(
+		sum,
+		row->bank_running_balance ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+
+} /* transaction_balance_get_bank_running_balance_wrong() */
+
+char *transaction_balance_row_display(
+				TRANSACTION_BALANCE_ROW *row,
+				LIST *transaction_balance_row_list,
+				double bank_amount )
+{
+	char buffer[ 1024 ];
+
+	if ( !row ) return "Error: empty row.";
+
+	sprintf( buffer,
+"transaction_date_time = %s\n"
+"bank_date = %s\n"
+"bank_description = %s\n"
+"full_name = %s\n"
+"transaction_amount = %.2lf\n"
+"bank_amount = %.2lf\n"
+"cash_running_balance = %.2lf\n"
+"bank_running_balance = %.2lf\n"
+"anomaly = %.2lf\n"
+"cash_running_balance wrong = %d\n"
+"bank_running_balance wrong = %d\n"
+"sequence_number = %d\n",
+		 row->transaction_date_time,
+		 row->bank_date,
+		 row->bank_description,
+		 row->full_name,
+		 row->transaction_amount,
+		 row->bank_amount,
+		 row->cash_running_balance,
+		 row->bank_running_balance,
+		 row->cash_running_balance - row->bank_running_balance,
+		 transaction_balance_get_cash_running_balance_wrong(
+			row->transaction_date_time
+				/* first_outbalance_transaction_date_time */,
+			transaction_balance_row_list,
+			bank_amount ),
+		 transaction_balance_get_bank_running_balance_wrong(
+			row->transaction_date_time
+				/* first_outbalance_transaction_date_time */,
+			transaction_balance_row_list,
+			bank_amount ),
+		 row->sequence_number );
+
+	return strdup( buffer );
+
+} /* transaction_balance_row_display() */
+

@@ -14,7 +14,6 @@
 #include "appaserver_library.h"
 #include "html_table.h"
 #include "bank_upload.h"
-#include "reoccurring.h"
 
 BANK_UPLOAD *bank_upload_calloc( void )
 {
@@ -582,7 +581,8 @@ void bank_upload_archive_insert(	char *application_name,
 
 } /* bank_upload_archive_insert() */
 
-void bank_upload_transaction_insert(	char *application_name,
+void bank_upload_transaction_direct_insert(
+					char *application_name,
 					char *bank_date,
 					char *bank_description,
 					char *full_name,
@@ -620,7 +620,7 @@ void bank_upload_transaction_insert(	char *application_name,
 
 	pclose( insert_pipe );
 
-} /* bank_upload_transaction_insert() */
+} /* bank_upload_transaction_direct_insert() */
 
 /* Returns table_insert_count */
 /* -------------------------- */
@@ -1640,4 +1640,539 @@ double bank_upload_archive_fetch_latest_running_balance(
 	return atof( pipe2string( sys_string ) );
 
 } /* bank_upload_archive_fetch_latest_running_balance() */
+
+void bank_upload_transaction_insert(	char *bank_date,
+					char *bank_description,
+					LIST *transaction_list )
+{
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	char *table;
+	char *field;
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty transaction_list.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	table = "bank_upload_transaction";
+
+	field =
+"bank_date,bank_description,full_name,street_address,transaction_date_time";
+
+	sprintf( sys_string,
+		 "insert_statement.e table=%s field=%s del='^'",
+		 table,
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		transaction = list_get( transaction_list );
+
+		fprintf( output_pipe,
+			 "%s^%s^%s^%s^%s\n",
+			 bank_date,
+			 bank_description,
+			 transaction->full_name,
+			 transaction->street_address,
+			 transaction->transaction_date_time );
+
+	} while( list_next( transaction_list ) );
+
+	pclose( output_pipe );
+
+} /* bank_upload_transaction_insert() */
+
+LIST *bank_upload_get_general_transaction_list(
+				char *application_name,
+				char *bank_date,
+				double abs_bank_amount,
+				double exact_value,
+				boolean select_debit )
+{
+	char sys_string[ 2048 ];
+	char select[ 512 ];
+	char *folder;
+	char where[ 1024 ];
+	char *order;
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 1024 ];
+	DATE *d;
+	char *cash_account;
+	char exact_where[ 128 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char transaction_date_time[ 128 ];
+	char transaction_amount[ 128 ];
+	char temp_output_file[ 128 ];
+	LIST *transaction_list;
+	char *amount_column;
+	char *pipe_delimited_transaction_list_string;
+
+	cash_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			(char *)0 /* fund_name */,
+			LEDGER_CASH_KEY,
+			0 /* not warning_only */ );
+
+	if ( select_debit )
+		amount_column = "debit_amount";
+	else
+		amount_column = "credit_amount";
+
+	if ( exact_value )
+	{
+		sprintf(exact_where,
+		 	"ifnull( %s, 0 ) = %.2lf",
+			amount_column,
+		 	exact_value );
+	}
+	else
+	{
+		strcpy( exact_where, "1 = 1" );
+	}
+
+	d = date_yyyy_mm_dd_new( bank_date );
+	date_increment_days( d, CASH_LEDGER_DAYS_AGO );
+
+	sprintf( select,
+"journal_ledger.full_name, journal_ledger.street_address, transaction_date_time, %s",
+		 amount_column );
+
+	folder = "journal_ledger";
+
+	sprintf( where,
+"account = '%s' and ifnull( %s, 0 ) <> 0 and transaction_date_time >= '%s' and %s and %s",
+		 cash_account,
+		 amount_column,
+		 date_display( d ),
+		 bank_upload_full_name_todo_subquery(),
+		 exact_where );
+
+	order = "transaction_date_time";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		 "
+		 "			select=\"%s\"		 "
+		 "			folder=%s		 "
+		 "			where=\"%s\"		 "
+		 "			order=%s		|"
+		 "head -%d					 ",
+		 application_name,
+		 select,
+		 folder,
+		 where,
+		 order,
+		 TRANSACTIONS_CHECK_COUNT );
+
+	input_pipe = popen( sys_string, "r" );
+
+	sprintf( temp_output_file,
+		 "/tmp/bank_upload_transaction_insert_%d",
+		 getpid() );
+
+	sprintf( sys_string,
+		 "keys_match_sum.e %.2lf > %s",
+		 abs_bank_amount,
+		 temp_output_file );
+
+	output_pipe = popen( sys_string, "w" );
+
+	while ( get_line( input_buffer, input_pipe ) )
+	{
+		if ( character_count(
+			FOLDER_DATA_DELIMITER,
+			input_buffer ) != 3 )
+		{
+			fprintf( stderr,
+			"Error in %s/%s()/%d: not 3 delimiters in (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
+
+			pclose( input_pipe );
+			pclose( output_pipe );
+
+			exit( 1 );
+		}	
+
+		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
+		piece(	transaction_date_time,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		piece(	transaction_amount,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			3 );
+
+		fprintf( output_pipe,
+			 "%s^%s^%s|%s\n",
+			 full_name,
+			 street_address,
+			 transaction_date_time,
+			 transaction_amount );
+		
+	} /* while( get_line() ) */
+
+	pclose( input_pipe );
+	pclose( output_pipe );
+
+	if ( !timlib_file_populated( temp_output_file ) )
+	{
+		return (LIST *)0;
+	}
+
+	sprintf( sys_string,
+		 "cat %s",
+		 temp_output_file );
+
+	pipe_delimited_transaction_list_string = pipe2string( sys_string );
+
+	sprintf( sys_string, "rm %s", temp_output_file );
+	system( sys_string );
+
+	transaction_list =
+		bank_upload_transaction_list_string_parse(
+			pipe_delimited_transaction_list_string,
+			'|' );
+
+	return transaction_list;
+
+} /* bank_upload_get_general_transaction_list() */
+
+LIST *bank_upload_get_feeder_transaction_list(
+				char *application_name,
+				char *bank_date,
+				char *bank_description,
+				double abs_bank_amount,
+				double exact_value,
+				boolean select_debit )
+{
+	char sys_string[ 2048 ];
+	char select[ 512 ];
+	char *folder;
+	char join_where[ 512 ];
+	char where[ 1024 ];
+	char *order;
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 1024 ];
+	DATE *d;
+	char *cash_account;
+	char exact_where[ 128 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char transaction_date_time[ 128 ];
+	char transaction_amount[ 128 ];
+	char bank_upload_feeder_phrase[ 128 ];
+	char temp_output_file[ 128 ];
+	LIST *transaction_list;
+	char *amount_column;
+	char *pipe_delimited_transaction_list_string;
+
+	cash_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			(char *)0 /* fund_name */,
+			LEDGER_CASH_KEY,
+			0 /* not warning_only */ );
+
+	if ( select_debit )
+		amount_column = "debit_amount";
+	else
+		amount_column = "credit_amount";
+
+	if ( exact_value )
+	{
+		sprintf(exact_where,
+		 	"ifnull( %s, 0 ) = %.2lf",
+			amount_column,
+		 	exact_value );
+	}
+	else
+	{
+		strcpy( exact_where, "1 = 1" );
+	}
+
+	d = date_yyyy_mm_dd_new( bank_date );
+	date_increment_days( d, CASH_LEDGER_DAYS_AGO );
+
+	sprintf( select,
+"journal_ledger.full_name, journal_ledger.street_address, transaction_date_time, %s, bank_upload_feeder_phrase",
+		 amount_column );
+
+	folder = "journal_ledger,reoccurring_transaction";
+
+	sprintf(
+join_where,
+"reoccurring_transaction.full_name = journal_ledger.full_name and	"
+"reoccurring_transaction.street_address = journal_ledger.street_address	" );
+
+	sprintf( where,
+"account = '%s' and ifnull( %s, 0 ) <> 0 and transaction_date_time >= '%s' and %s and %s and %s",
+		 cash_account,
+		 amount_column,
+		 date_display( d ),
+		 bank_upload_full_name_todo_subquery(),
+		 exact_where,
+		 join_where );
+
+	order = "transaction_date_time";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		 "
+		 "			select=\"%s\"		 "
+		 "			folder=%s		 "
+		 "			where=\"%s\"		 "
+		 "			order=%s		|"
+		 "head -%d					 ",
+		 application_name,
+		 select,
+		 folder,
+		 where,
+		 order,
+		 TRANSACTIONS_CHECK_COUNT );
+
+	input_pipe = popen( sys_string, "r" );
+
+	sprintf( temp_output_file,
+		 "/tmp/bank_upload_transaction_insert_%d",
+		 getpid() );
+
+	sprintf( sys_string,
+		 "keys_match_sum.e %.2lf > %s",
+		 abs_bank_amount,
+		 temp_output_file );
+
+	output_pipe = popen( sys_string, "w" );
+
+	while ( get_line( input_buffer, input_pipe ) )
+	{
+		if ( character_count(
+			FOLDER_DATA_DELIMITER,
+			input_buffer ) != 4 )
+		{
+			fprintf( stderr,
+			"Error in %s/%s()/%d: not 4 delimiters in (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
+
+			pclose( input_pipe );
+			pclose( output_pipe );
+
+			exit( 1 );
+		}	
+
+		piece( full_name, FOLDER_DATA_DELIMITER, input_buffer, 0 );
+		piece( street_address, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+
+		piece(	transaction_date_time,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		piece(	transaction_amount,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			3 );
+
+		piece(	bank_upload_feeder_phrase,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			4 );
+
+		if ( !timlib_string_exists(
+			bank_description /* string */,
+			bank_upload_feeder_phrase /* substring */ ) )
+		{
+			continue;
+		}
+
+		fprintf( output_pipe,
+			 "%s^%s^%s|%s\n",
+			 full_name,
+			 street_address,
+			 transaction_date_time,
+			 transaction_amount );
+		
+	} /* while( get_line() ) */
+
+	pclose( input_pipe );
+	pclose( output_pipe );
+
+	if ( !timlib_file_populated( temp_output_file ) )
+	{
+		return (LIST *)0;
+	}
+
+	sprintf( sys_string,
+		 "cat %s",
+		 temp_output_file );
+
+	pipe_delimited_transaction_list_string = pipe2string( sys_string );
+
+	sprintf( sys_string, "rm %s", temp_output_file );
+	system( sys_string );
+
+	transaction_list =
+		bank_upload_transaction_list_string_parse(
+			pipe_delimited_transaction_list_string,
+			'|' );
+
+	return transaction_list;
+
+} /* bank_upload_get_feeder_transaction_list() */
+
+LIST *bank_upload_transaction_list_string_parse(
+			char *transaction_list_string,
+			char delimiter )
+{
+	TRANSACTION *transaction;
+	LIST *transaction_list;
+	char piece_buffer[ 1024 ];
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char transaction_date_time [ 32 ];
+	int p;
+
+	transaction_list = list_new();
+
+	for(	p = 0;
+		piece( piece_buffer, delimiter, transaction_list_string, p );
+		p++ )
+	{
+		/* Assume carrot delimited string */
+		/* ------------------------------ */
+		if ( timlib_count_delimiters( '^', piece_buffer ) != 2 )
+		{
+			return (LIST *)0;
+		}
+
+		piece( full_name, '^', piece_buffer, 0 );
+		piece( street_address, '^', piece_buffer, 1 );
+		piece( transaction_date_time, '^', piece_buffer, 2 );
+
+		transaction =
+			ledger_transaction_new(
+				strdup( full_name ),
+				strdup( street_address ),
+				strdup( transaction_date_time ),
+				(char *)0 /* memo */ );
+
+		list_append_pointer( transaction_list, transaction );
+	}
+
+	return transaction_list;
+
+} /* bank_upload_transaction_list_string_parse() */
+
+LIST *bank_upload_get_reconciled_transaction_list(
+					char *application_name,
+					char *bank_date,
+					char *bank_description,
+					double bank_amount )
+{
+	boolean select_debit;
+	LIST *transaction_list;
+	double abs_bank_amount;
+
+	select_debit = (bank_amount > 0.0);
+	abs_bank_amount = timlib_abs_double( bank_amount );
+
+	transaction_list =
+		bank_upload_get_feeder_transaction_list(
+				application_name,
+				bank_date,
+				bank_description,
+				abs_bank_amount,
+				abs_bank_amount
+					/* exact_value */,
+				select_debit );
+
+	if ( list_length( transaction_list ) )
+	{
+		return transaction_list;
+	}
+
+	transaction_list =
+		bank_upload_get_general_transaction_list(
+				application_name,
+				bank_date,
+				abs_bank_amount,
+				abs_bank_amount
+					/* exact_value */,
+				select_debit );
+
+	if ( list_length( transaction_list ) )
+	{
+		return transaction_list;
+	}
+
+	transaction_list =
+		bank_upload_get_general_transaction_list(
+				application_name,
+				bank_date,
+				abs_bank_amount,
+				0.0 /* exact_value */,
+				select_debit );
+
+	if ( list_length( transaction_list ) )
+	{
+		return transaction_list;
+	}
+
+	return (LIST *)0;
+
+} /* bank_upload_get_reconciled_transaction_list() */
+
+char *bank_upload_bank_date_todo_subquery( void )
+{
+	char *subquery;
+
+	subquery =
+		"not exists						"
+		"(select 1 from bank_upload_transaction			"
+		"	where bank_upload_transaction.bank_date =	"
+		"	      bank_upload.bank_date and			"
+		"	      bank_upload_transaction.bank_description ="
+		"	      bank_upload.bank_description )		";
+
+	return subquery;
+
+} /* bank_upload_bank_date_todo_subquery() */
+
+char *bank_upload_full_name_todo_subquery( void )
+{
+	char *subquery;
+
+	subquery =
+		"not exists						"
+		"(select 1 from bank_upload_transaction			"
+		"	where bank_upload_transaction.full_name =	"
+		"	      journal_ledger.full_name and		"
+		"	      bank_upload_transaction.street_address =	"
+		"	      journal_ledger.street_address and		"
+		"	      bank_upload_transaction.			"
+		"		transaction_date_time =			"
+		" 	      journal_ledger.transaction_date_time )	";
+
+	return subquery;
+
+} /* bank_upload_full_name_todo_subquery() */
 

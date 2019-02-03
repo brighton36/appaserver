@@ -223,7 +223,9 @@ double time2day_percentage( int hour, int minute );
 void unget_line_queue( char *in_line );
 int get_line_queue( char *in_line, FILE *infile );
 
-double abs_float( double f );
+double abs_float(		double f );
+
+double timlib_abs_double(	double f );
 
 double float_abs( double f );
 

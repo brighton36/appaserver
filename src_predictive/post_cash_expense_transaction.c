@@ -189,7 +189,7 @@ int main( int argc, char **argv )
 				transaction->lock_transaction,
 				transaction->journal_ledger_list );
 
-		bank_upload_transaction_insert(
+		bank_upload_transaction_direct_insert(
 			application_name,
 			bank_date,
 			bank_description,

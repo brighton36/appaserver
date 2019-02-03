@@ -53,6 +53,7 @@ typedef struct
 	double bank_running_balance;
 	char *fund_name;
 	TRANSACTION *transaction;
+	LIST *reconciled_transaction_list;
 } BANK_UPLOAD;
 
 typedef struct
@@ -111,7 +112,8 @@ BANK_UPLOAD *bank_upload_calloc(	void );
 BANK_UPLOAD *bank_upload_new(		char *bank_date,
 					char *bank_description );
 
-void bank_upload_transaction_insert(	char *application_name,
+void bank_upload_transaction_direct_insert(
+					char *application_name,
 					char *bank_date,
 					char *bank_description,
 					char *full_name,
@@ -236,13 +238,6 @@ double bank_upload_fetch_bank_amount(
 					char *bank_date,
 					char *bank_description );
 
-void bank_upload_transaction_insert(	char *application_name,
-					char *bank_date,
-					char *bank_description,
-					char *full_name,
-					char *street_address,
-					char *transaction_date_time );
-
 /* --------------------------------------------------- */
 /* Returns transaction_date_time or null if not found. */
 /* Message will help to explain not found.	       */
@@ -273,6 +268,39 @@ BANK_UPLOAD *bank_upload_prior_fetch(
 
 double bank_upload_archive_fetch_latest_running_balance(
 					char *application_name );
+
+LIST *bank_upload_get_reconciled_transaction_list(
+					char *application_name,
+					char *bank_date,
+					char *bank_description,
+					double bank_amount );
+
+void bank_upload_transaction_insert(	char *bank_date,
+					char *bank_description,
+					LIST *transaction_list );
+
+LIST *bank_upload_get_feeder_transaction_list(
+					char *application_name,
+					char *bank_date,
+					char *bank_description,
+					double abs_bank_amount,
+					double exact_value,
+					boolean select_debit );
+
+LIST *bank_upload_get_general_transaction_list(
+					char *application_name,
+					char *bank_date,
+					double abs_bank_amount,
+					double exact_value,
+					boolean select_debit );
+
+char *bank_upload_bank_date_todo_subquery( void );
+
+char *bank_upload_full_name_todo_subquery( void );
+
+LIST *bank_upload_transaction_list_string_parse(
+					char *transaction_list_string,
+					char delimiter );
 
 #endif
 

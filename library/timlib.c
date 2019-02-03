@@ -2016,6 +2016,11 @@ double time2day_percentage( int hour, int minute )
 	return hour_percentage + minute_percentage;
 } /* time2day_percentage() */
 
+double timlib_abs_double ( double f )
+{
+	return abs_float( f );
+}
+
 double float_abs( double f )
 {
 	return abs_float( f );

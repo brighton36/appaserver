@@ -40,17 +40,6 @@ boolean bank_upload_transaction_seek_withdrawal(
 
 void seek_withdrawal(		char *application_name );
 
-void bank_upload_transaction_direct_insert(
-				char *bank_date,
-				char *bank_description,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time );
-
-char *bank_upload_bank_date_todo_subquery( void );
-
-char *bank_upload_full_name_todo_subquery( void );
-
 boolean bank_upload_transaction_insert_debit(
 			char *application_name,
 			char *key,
@@ -195,6 +184,7 @@ int main( int argc, char **argv )
 			piece( transaction_date_time, '^', operation, 4 );
 
 			bank_upload_transaction_direct_insert(
+				application_name,
 				bank_date,
 				bank_description,
 				full_name,
@@ -206,41 +196,6 @@ int main( int argc, char **argv )
 	return 0;
 
 } /* main() */
-
-char *bank_upload_bank_date_todo_subquery( void )
-{
-	char *subquery;
-
-	subquery =
-		"not exists						"
-		"(select 1 from bank_upload_transaction			"
-		"	where bank_upload_transaction.bank_date =	"
-		"	      bank_upload.bank_date and			"
-		"	      bank_upload_transaction.bank_description ="
-		"	      bank_upload.bank_description )		";
-
-	return subquery;
-
-} /* bank_upload_bank_date_todo_subquery() */
-
-char *bank_upload_full_name_todo_subquery( void )
-{
-	char *subquery;
-
-	subquery =
-		"not exists						"
-		"(select 1 from bank_upload_transaction			"
-		"	where bank_upload_transaction.full_name =	"
-		"	      journal_ledger.full_name and		"
-		"	      bank_upload_transaction.street_address =	"
-		"	      journal_ledger.street_address and		"
-		"	      bank_upload_transaction.			"
-		"		transaction_date_time =			"
-		" 	      journal_ledger.transaction_date_time )	";
-
-	return subquery;
-
-} /* bank_upload_full_name_todo_subquery() */
 
 void bank_upload_transaction_insert_bank_upload_deposit(
 				char *application_name,
@@ -668,28 +623,6 @@ void bank_upload_transaction_insert_input_buffer(
 
 } /* bank_upload_transaction_insert_input_buffer() */
 
-void bank_upload_transaction_direct_insert(
-				char *bank_date,
-				char *bank_description,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time )
-{
-	char key[ 1024 ];
-	char input_buffer[ 1024 ];
-
-	sprintf( key, "%s^%s", bank_date, bank_description );
-
-	sprintf(	input_buffer,
-			"%s^%s^%s",
-			full_name,
-			street_address,
-			transaction_date_time );
-
-	bank_upload_transaction_insert_input_buffer( key, input_buffer );
-
-} /* bank_upload_transaction_direct_insert() */
-
 void seek_withdrawal( char *application_name )
 {
 	char sys_string[ 1024 ];
@@ -701,9 +634,10 @@ void seek_withdrawal( char *application_name )
 	char input_buffer[ 1024 ];
 	char bank_date[ 128 ];
 	char bank_description[ 256 ];
-	char abs_bank_amount[ 32 ];
+	char bank_amount[ 32 ];
+	BANK_UPLOAD *bank_upload;
 
-	select = "bank_date, bank_description, 0 - bank_amount";
+	select = "bank_date, bank_description, bank_amount";
 	folder = "bank_upload";
 	order = "sequence_number,bank_date";
 
@@ -734,31 +668,32 @@ void seek_withdrawal( char *application_name )
 			input_buffer,
 			1 );
 
-		piece(	abs_bank_amount,
+		bank_upload =
+			bank_upload_new(
+				strdup( bank_date ),
+				strdup( bank_description ) );
+
+		piece(	bank_amount,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			2 );
 
-		if ( bank_upload_transaction_seek_withdrawal(
-			application_name,
-			bank_date,
-			bank_description,
-			atof( abs_bank_amount ),
-			atof( abs_bank_amount )
-				/* exact_value */ ) )
-		{
-			/* Just do one */
-			/* ----------- */
-			break;
-		}
+		bank_upload->bank_amount = atof( bank_amount );
 
-		if ( bank_upload_transaction_seek_withdrawal(
-			application_name,
-			bank_date,
-			bank_description,
-			atof( abs_bank_amount ),
-			0.0 /* exact_value */ ) )
+		bank_upload->reconciled_transaction_list =
+			bank_upload_get_reconciled_transaction_list(
+				application_name,
+				bank_upload->bank_date,
+				bank_upload->bank_description,
+				bank_upload->bank_amount );
+
+		if ( list_length( bank_upload->reconciled_transaction_list ) )
 		{
+			bank_upload_transaction_insert(
+				bank_upload->bank_date,
+				bank_upload->bank_description,
+				bank_upload->reconciled_transaction_list );
+
 			/* Just do one */
 			/* ----------- */
 			break;

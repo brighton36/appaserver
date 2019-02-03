@@ -197,11 +197,15 @@ shortcut_service_work: shortcut_service_work.c				\
 		-o shortcut_service_work
 
 bank_upload_transaction_insert: bank_upload_transaction_insert.c	\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		bank_upload.o						\
+		reoccurring.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		bank_upload_transaction_insert.c			\
+		bank_upload.o						\
+		reoccurring.o						\
 		-o bank_upload_transaction_insert
 
 bank_upload_journal_ledger_insert: bank_upload_journal_ledger_insert.c	\

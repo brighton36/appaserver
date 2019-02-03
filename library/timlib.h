@@ -553,4 +553,7 @@ char *timlib_get_sha256sum(	char *input_filename );
 char *timlib_reverse_string(	char *destination,
 				char *string );
 
+boolean timlib_string_exists(	char *string,
+				char *substring );
+
 #endif

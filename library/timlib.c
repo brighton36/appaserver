@@ -624,6 +624,12 @@ boolean timlib_exists_numeric( char *s )
 
 } /* timlib_exists_numeric() */
 
+boolean timlib_string_exists(	 	char *string,
+					char *substring )
+{
+	return timlib_exists_string( string, substring );
+}
+
 boolean timlib_exists_string(	 	char *string,
 					char *substring )
 {

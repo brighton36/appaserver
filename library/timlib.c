@@ -2728,6 +2728,7 @@ boolean timlib_file_populated( char *filename )
 	sprintf( sys_string,
 		 "stat.e %s | grep '.size' | column.e 1",
 		 filename );
+
 	return_string = pipe2string( sys_string );
 
 	if ( !return_string || !*return_string )

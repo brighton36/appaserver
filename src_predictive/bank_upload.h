@@ -302,5 +302,9 @@ LIST *bank_upload_transaction_list_string_parse(
 					char *transaction_list_string,
 					char delimiter );
 
+void bank_upload_transaction_balance_propagate(
+					char *bank_date,
+					char *bank_description );
+
 #endif
 

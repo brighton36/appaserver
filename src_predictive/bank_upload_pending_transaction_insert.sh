@@ -32,8 +32,13 @@ fi
 
 if [ "$usage_message" -eq 1 ]
 then
-	echo "Usage: $0 [all|one]" 1>&2
+	echo "Usage: $0 all|one [process]" 1>&2
 	exit 1
+fi
+
+if [ "$#" -eq 2 ]
+then
+	echo "<h1>`echo $2 | format_initial_capital.e`</h1>"
 fi
 
 populate_bank_upload_pending.sh 			|

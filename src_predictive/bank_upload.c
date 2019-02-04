@@ -947,7 +947,7 @@ void bank_upload_fetch_parse(	char **bank_date,
 				double *bank_running_balance,
 				char *input_buffer )
 {
-	char buffer[ 128 ];
+	char buffer[ 1024 ];
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input_buffer, 0 );
 	if ( *buffer )
@@ -2175,4 +2175,30 @@ char *bank_upload_full_name_todo_subquery( void )
 	return subquery;
 
 } /* bank_upload_full_name_todo_subquery() */
+
+void bank_upload_transaction_balance_propagate(
+			char *bank_date,
+			char *bank_description )
+{
+	char sys_string [ 1024 ];
+
+	sprintf( sys_string,
+		 "bank_upload_sequence_propagate.sh \"%s\" \"%s\"	|"
+		 "sql.e 2>&1						|"
+		 "html_paragraph_wrapper.e			 	 ",
+		 bank_date,
+		 bank_description );
+
+	system( sys_string );
+
+	sprintf( sys_string,
+		 "bank_upload_balance_propagate.sh \"%s\" \"%s\"	|"
+		 "sql.e 2>&1						|"
+		 "html_paragraph_wrapper.e			 	 ",
+		 bank_date,
+		 bank_description );
+
+	system( sys_string );
+
+} /* bank_upload_transaction_balance_propagate() */
 

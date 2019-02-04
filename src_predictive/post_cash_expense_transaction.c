@@ -34,9 +34,6 @@
 
 /* Prototypes */
 /* ---------- */
-void post_cash_expense_transaction_balance_propagate(
-				char *bank_date );
-
 TRANSACTION *post_cash_expense_transaction(
 				FILE *output_pipe,
 				char *application_name,
@@ -197,9 +194,9 @@ int main( int argc, char **argv )
 			transaction->street_address,
 			transaction->transaction_date_time );
 
-/*
-		post_cash_expense_transaction_balance_propagate( bank_date );
-*/
+		bank_upload_transaction_balance_propagate(
+			bank_date,
+			bank_description );
 
 		folder_menu_refresh_row_count(
 			application_name,
@@ -305,35 +302,4 @@ TRANSACTION *post_cash_expense_transaction(
 	return transaction;
 
 } /* post_cash_expense_transaction() */
-
-void post_cash_expense_transaction_balance_propagate( char *bank_date )
-{
-	char sys_string [ 1024 ];
-
-	sprintf( sys_string,
-		 "bank_upload_sequence_propagate.sh %s		|"
-		 "sql.e 2>&1					|"
-		 "html_paragraph_wrapper.e			 ",
-		 bank_date );
-
-fprintf( stderr, "%s/%s()/%d: sys_string = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-	system( sys_string );
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-
-	sprintf( sys_string,
-		 "bank_upload_balance_propagate.sh %s		|"
-		 "sql.e 2>&1					|"
-		 "html_paragraph_wrapper.e			 ",
-		 bank_date );
-
-	system( sys_string );
-
-} /* post_cash_expense_transaction_balance_propagate() */
 

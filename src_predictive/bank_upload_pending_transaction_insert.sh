@@ -38,6 +38,8 @@ fi
 
 if [ "$#" -eq 2 ]
 then
+	echo "<html>"
+	echo "<body>"
 	echo "<h1>`echo $2 | format_initial_capital.e`</h1>"
 fi
 
@@ -64,5 +66,8 @@ done
 
 bank_upload_balance_propagate.sh bank_date bank_description | sql.e
 bank_upload_sequence_propagate.sh bank_date bank_description | sql.e
+
+echo "</body>"
+echo "</html>"
 
 exit 0

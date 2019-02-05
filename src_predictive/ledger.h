@@ -1148,4 +1148,8 @@ void ledger_transaction_output_pipe_display(
 char *ledger_get_minimum_transaction_date(
 				char *application_name );
 
+char *ledger_get_existing_closing_transaction_date_time(
+				char *application_name,
+				char *as_of_date );
+
 #endif

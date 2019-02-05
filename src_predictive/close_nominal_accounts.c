@@ -157,21 +157,27 @@ boolean close_nominal_accounts_execute(
 	LIST *fund_name_list;
 	char sys_string[ 1024 ];
 
-	if ( ! ( transaction_date_time =
-			ledger_get_closing_transaction_date_time(
+	if ( ( transaction_date_time =
+			ledger_get_existing_closing_transaction_date_time(
 				application_name,
 				as_of_date ) ) )
 	{
 		char msg[ 1024 ];
 
 		sprintf( msg,
-			 "Error in %s/%s()/%d: accounts seem closed.\n",
+			 "Error in %s/%s()/%d: accounts were closed on %s.\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__ );
+			 __LINE__,
+			 transaction_date_time );
 		m2( application_name, msg );
 		return 0;
 	}
+
+	transaction_date_time =
+		ledger_get_closing_transaction_date_time(
+			application_name,
+			as_of_date );
 
 	sprintf( sys_string,
 		 "folder_attribute_exists.sh %s account fund",
@@ -462,11 +468,19 @@ void close_nominal_accounts_display(
 				application_name,
 				as_of_date );
 
-		close_nominal_accounts_fund_display(
-			application_name,
-			(char *)0 /* fund_name */,
-			transaction_date_time,
-			as_of_date );
+		if ( transaction_date_time )
+		{
+			close_nominal_accounts_fund_display(
+				application_name,
+				(char *)0 /* fund_name */,
+				transaction_date_time,
+				as_of_date );
+		}
+		else
+		{
+			printf(
+	"<h3>Warning: accounts were closed already on this date.</h3>\n" );
+		}
 
 		return;
 	}

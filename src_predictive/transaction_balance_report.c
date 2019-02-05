@@ -172,8 +172,7 @@ int main( int argc, char **argv )
 			transaction_balance_get_last_block_inbalance(
 				transaction_balance->merged_block_list );
 
-		if ( list_length( transaction_balance->inbalance_block_list )
-		&&   list_length( transaction_balance->outbalance_block_list ) )
+		if ( list_length( transaction_balance->inbalance_block_list ) )
 		{
 			if ( transaction_balance->last_block_inbalance )
 			{
@@ -184,6 +183,9 @@ int main( int argc, char **argv )
 						     inbalance_block_list ) );
 			}
 			else
+			if ( list_length(
+					transaction_balance->
+						outbalance_block_list ) )
 			{
 				transaction_balance_report_summary_outbalance(
 					list_get_last_pointer( 

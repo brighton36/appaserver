@@ -670,22 +670,26 @@ char *transaction_balance_row_display(
 				double bank_amount )
 {
 	char buffer[ 1024 ];
+	char *ptr = buffer;
 
 	if ( !row ) return "Error: empty row.";
 
-	sprintf( buffer,
-"transaction_date_time = %s\n"
-"bank_date = %s\n"
-"bank_description = %s\n"
-"full_name = %s\n"
-"transaction_amount = %.2lf\n"
-"bank_amount = %.2lf\n"
-"cash_running_balance = %.2lf\n"
-"bank_running_balance = %.2lf\n"
-"anomaly = %.2lf\n"
-"cash_running_balance wrong = %d\n"
-"bank_running_balance wrong = %d\n"
-"sequence_number = %d\n",
+	ptr += sprintf( ptr,
+"<table>" );
+
+	ptr += sprintf( ptr,
+"<tr><td>transaction_date_time<td>%s\n"
+"<tr><td>bank_date<td>%s\n"
+"<tr><td>bank_description<td>%s\n"
+"<tr><td>full_name<td>%s\n"
+"<tr><td>transaction_amount<td>%.2lf\n"
+"<tr><td>bank_amount<td>%.2lf\n"
+"<tr><td>cash_running_balance<td>%.2lf\n"
+"<tr><td>bank_running_balance<td>%.2lf\n"
+"<tr><td>anomaly<td>%.2lf\n"
+"<tr><td>cash_running_balance wrong<td>%d\n"
+"<tr><td>bank_running_balance wrong<td>%d\n"
+"<tr><td>sequence_number<td>%d\n",
 		 row->transaction_date_time,
 		 row->bank_date,
 		 row->bank_description,
@@ -706,6 +710,9 @@ char *transaction_balance_row_display(
 			transaction_balance_row_list,
 			bank_amount ),
 		 row->sequence_number );
+
+	ptr += sprintf( ptr,
+"</table>" );
 
 	return strdup( buffer );
 

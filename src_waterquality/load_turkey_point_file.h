@@ -12,14 +12,6 @@
 /* --------- */
 #define STDERR_COUNT				1000
 
-#define STATION1_HEADING			"SITENAME"
-#define STATION2_HEADING			"SITE"
-#define COLLECTION_DATE_HEADING			"DATE"
-#define COLLECTION_TIME_HEADING			"TIME"
-#define COLLECTION_DEPTH_METERS_HEADING		"DEPTH"
-#define STATION_LATITUDE_HEADING		"LATDEC"
-#define STATION_LONGITUDE_HEADING		"LONDEC"
-
 #define INSERT_RESULTS 			"station,collection_date,collection_time,parameter,units,concentration"
 
 #define INSERT_RESULTS_EXCEPTION	"station,collection_date,collection_time,parameter,units,exception"

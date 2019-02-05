@@ -55,6 +55,7 @@
 #define LEDGER_RETAINED_EARNINGS	"retained_earnings"
 
 #define LEDGER_CLOSING_TRANSACTION_TIME	"23:59:59"
+#define LEDGER_PRIOR_TRANSACTION_TIME	"23:59:58"
 
 #define LEDGER_GENERAL_FUND		"general_fund"
 #define LEDGER_CASH_KEY			"cash_key"
@@ -1146,5 +1147,9 @@ void ledger_transaction_output_pipe_display(
 
 char *ledger_get_minimum_transaction_date(
 				char *application_name );
+
+char *ledger_get_existing_closing_transaction_date_time(
+				char *application_name,
+				char *as_of_date );
 
 #endif

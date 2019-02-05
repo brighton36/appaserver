@@ -612,6 +612,8 @@ TRANSACTION *post_reoccurring_get_accrued_daily_transaction(
 		return (TRANSACTION *)0;
 	}
 
+	if ( days_between < 0.0 ) return (TRANSACTION *)0;
+
 	accrued_amount = (double)days_between * accrued_daily_amount;
 
 	if ( timlib_dollar_virtually_same( accrued_amount, 0.0 ) )

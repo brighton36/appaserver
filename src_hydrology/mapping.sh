@@ -32,9 +32,9 @@ document_root=$(get_document_root.e)
 output_directory="$document_root/appaserver/$DATABASE/data"
 output_file="$output_directory/mapping_${begin_date}_${end_date}"
 
-select="station.station,datatype,lat_nad83,long_nad83,avg(measurement_value)"
+select="station.station,datatype,min(measurement_date),lat_nad83,long_nad83,avg(measurement_value)"
 group_by="station.station,datatype,lat_nad83,long_nad83"
-heading="Station,Datatype,Latitude,Longitude,Value"
+heading="Station,Datatype,Date,Latitude,Longitude,Value"
 
 (
 echo "$heading"

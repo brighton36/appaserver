@@ -172,8 +172,7 @@ int main( int argc, char **argv )
 			transaction_balance_get_last_block_inbalance(
 				transaction_balance->merged_block_list );
 
-		if ( list_length( transaction_balance->inbalance_block_list )
-		&&   list_length( transaction_balance->outbalance_block_list ) )
+		if ( list_length( transaction_balance->inbalance_block_list ) )
 		{
 			if ( transaction_balance->last_block_inbalance )
 			{
@@ -184,6 +183,9 @@ int main( int argc, char **argv )
 						     inbalance_block_list ) );
 			}
 			else
+			if ( list_length(
+					transaction_balance->
+						outbalance_block_list ) )
 			{
 				transaction_balance_report_summary_outbalance(
 					list_get_last_pointer( 
@@ -435,7 +437,6 @@ void transaction_balance_report_summary_outbalance(
 			transaction_balance_row_list,
 			first_outbalance_row->bank_amount ) );
 
-#ifdef NOT_DEFINED
 	if ( transaction_balance_get_cash_running_balance_wrong(
 			first_outbalance_row->transaction_date_time
 				/* first_outbalance_transaction_date_time */,
@@ -449,7 +450,6 @@ void transaction_balance_report_summary_outbalance(
 			first_outbalance_row->cash_running_balance,
 			first_outbalance_row->bank_running_balance );
 	}
-#endif
 
 	if ( duplicated_transaction_message && *duplicated_transaction_message )
 	{

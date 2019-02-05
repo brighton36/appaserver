@@ -343,6 +343,33 @@ int main( int argc, char **argv )
 
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
+		char *closing_transaction_date_time;
+		char prior_transaction_date_time[ 32 ];
+
+		closing_transaction_date_time =
+			ledger_get_closing_transaction_date_time(
+				application_name,
+				as_of_date );
+
+		if ( closing_transaction_date_time )
+		{
+			sprintf( prior_transaction_date_time,
+				 "%s %s",
+				 as_of_date,
+				LEDGER_PRIOR_TRANSACTION_TIME );
+
+			trial_balance_html_table(
+				application_name,
+				title,
+				sub_title,
+				fund_name,
+				prior_transaction_date_time,
+				session,
+				login_name,
+				role_name,
+				omit_subclassification );
+		}
+
 		trial_balance_html_table(
 			application_name,
 			title,

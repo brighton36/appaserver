@@ -435,7 +435,6 @@ void transaction_balance_report_summary_outbalance(
 			transaction_balance_row_list,
 			first_outbalance_row->bank_amount ) );
 
-#ifdef NOT_DEFINED
 	if ( transaction_balance_get_cash_running_balance_wrong(
 			first_outbalance_row->transaction_date_time
 				/* first_outbalance_transaction_date_time */,
@@ -449,7 +448,6 @@ void transaction_balance_report_summary_outbalance(
 			first_outbalance_row->cash_running_balance,
 			first_outbalance_row->bank_running_balance );
 	}
-#endif
 
 	if ( duplicated_transaction_message && *duplicated_transaction_message )
 	{

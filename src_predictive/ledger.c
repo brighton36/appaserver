@@ -5675,7 +5675,7 @@ char *ledger_get_closing_transaction_date_time(
 
 	results = pipe2string( sys_string );
 
-	if ( results && atoi( results ) )
+	if ( results && ( atoi( results ) == 0 ) )
 		return (char *)0;
 	else
 		return strdup( transaction_date_time );

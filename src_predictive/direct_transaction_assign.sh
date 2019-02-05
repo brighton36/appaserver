@@ -1,7 +1,7 @@
 #!/bin/bash
-# -----------------------------------------------------------------
-# $APPASERVER_HOME/src_predictive/bank_upload_transaction_assign.sh
-# -----------------------------------------------------------------
+# ------------------------------------------------------------
+# $APPASERVER_HOME/src_predictive/direct_transaction_assign.sh
+# ------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then

@@ -55,6 +55,7 @@
 #define LEDGER_RETAINED_EARNINGS	"retained_earnings"
 
 #define LEDGER_CLOSING_TRANSACTION_TIME	"23:59:59"
+#define LEDGER_PRIOR_TRANSACTION_TIME	"23:59:58"
 
 #define LEDGER_GENERAL_FUND		"general_fund"
 #define LEDGER_CASH_KEY			"cash_key"

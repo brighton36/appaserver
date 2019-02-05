@@ -107,7 +107,7 @@ LIST *water_get_parameter_unit_alias_list(
 			parameter_unit_alias =
 				water_parameter_unit_alias_new(
 					column_heading_string,
-					parameter_alias->parameter_alias,
+					parameter_alias->parameter_name,
 					unit_name );
 
 			list_append_pointer(
@@ -1595,7 +1595,7 @@ char *water_exception_display( LIST *exception_list )
 
 char *water_load_column_list_display( LIST *load_column_list )
 {
-	char buffer[ 1024 ];
+	char buffer[ 65536 ];
 	char *ptr = buffer;
 	LOAD_COLUMN *load_column;
 

@@ -130,6 +130,7 @@ int main( int argc, char **argv )
 			water_quality->input.unit_alias_list );
 
 /*
+Buffer overflow core dump.
 fprintf( stderr,
 	 "%s\n",
 	 water_parameter_unit_alias_list_display(

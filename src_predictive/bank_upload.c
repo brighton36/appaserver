@@ -164,30 +164,6 @@ BANK_UPLOAD_STRUCTURE *bank_upload_structure_new(
 		return (BANK_UPLOAD_STRUCTURE *)0;
 	}
 
-/*
-	if ( bank_upload_sha256sum_exists(
-			application_name,
-			p->file.file_sha256sum ) )
-	{
-		char *msg;
-
-		msg = "<h2>ERROR: duplicated file.</h2>";
-
-		fprintf( stderr,
-			 "%s/%s()/%d: %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 msg );
-
-		printf( "%s\n", msg );
-
-		bank_upload_exception = duplicated_spreadsheet_file;
-
-		return (BANK_UPLOAD_STRUCTURE *)0;
-	}
-*/
-
 	p->existing_cash_journal_ledger_list =
 		bank_upload_fetch_existing_cash_journal_ledger_list(
 			application_name,

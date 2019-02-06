@@ -28,7 +28,7 @@
 
 /* Prototypes */
 /* ---------- */
-void bank_upload_spreadsheet_transaction_insert(
+void bank_upload_reconciliation_transaction_insert(
 				LIST *bank_upload_table_list );
 
 void bank_upload_propagate(	char *minimum_bank_date );
@@ -323,13 +323,6 @@ int load_bank_spreadsheet(
 
 		msg = "<h3>ERROR: duplicated file.</h3>";
 
-		fprintf( stderr,
-			 "%s/%s()/%d: %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 msg );
-
 		printf( "%s\n", msg );
 
 		bank_upload_exception = duplicated_spreadsheet_file;
@@ -436,15 +429,19 @@ int load_bank_spreadsheet(
 					table.
 					bank_upload_table_list );
 
-		bank_upload_spreadsheet_transaction_insert(
+		/* Also does the two propagates. */
+		/* ----------------------------- */
+		bank_upload_reconciliation_transaction_insert(
 			bank_upload_structure->
 				table.
 				bank_upload_table_list );
 
+/*
 		bank_upload_propagate(
 			bank_upload_structure->
 				file.
 				minimum_bank_date );
+*/
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -524,12 +521,22 @@ void load_bank_spreadsheet_transactions_only(
 		/* ------------ */
 		/* Else execute */
 		/* ------------ */
+#ifdef NOT_DEFINED
 		bank_upload_structure->table.bank_upload_table_list =
 			bank_upload_fetch_bank_upload_table_list(
 				application_name,
 				1 /* starting_sequence_number    */,
 				(char *)0 /* begin_date		 */
 					  /* use sequence number */ );
+#endif
+
+		bank_upload_structure->table.bank_upload_table_list =
+			bank_upload_fetch_bank_upload_table_list(
+				application_name,
+				0 /* starting_sequence_number    */,
+				bank_upload_structure->
+					file.
+					minimum_bank_date );
 
 		bank_upload_set_transaction(
 			bank_upload_structure->table.bank_upload_table_list,
@@ -552,15 +559,19 @@ void load_bank_spreadsheet_transactions_only(
 				table.
 				bank_upload_table_list );
 
-		bank_upload_spreadsheet_transaction_insert(
+		/* Also does the two propagates. */
+		/* ----------------------------- */
+		bank_upload_reconciliation_transaction_insert(
 			bank_upload_structure->
 				table.
 				bank_upload_table_list );
 
+/*
 		bank_upload_propagate(
 			bank_upload_structure->
 				file.
 				minimum_bank_date );
+*/
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -580,20 +591,20 @@ void bank_upload_propagate( char *minimum_bank_date )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		 "bank_upload_sequence_propagate.sh %s | sql.e",
+		"bank_upload_sequence_propagate.sh %s bank_description | sql.e",
 		 minimum_bank_date );
 
 	system( sys_string );
 
 	sprintf( sys_string,
-		 "bank_upload_balance_propagate.sh %s | sql.e",
+		 "bank_upload_balance_propagate.sh %s bank_description | sql.e",
 		 minimum_bank_date );
 
 	system( sys_string );
 
 } /* bank_upload_propagate() */
 
-void bank_upload_spreadsheet_transaction_insert(
+void bank_upload_reconciliation_transaction_insert(
 				LIST *bank_upload_table_list )
 {
 	char sys_string[ 1024 ];
@@ -606,6 +617,8 @@ void bank_upload_spreadsheet_transaction_insert(
 
 		if ( !bank_upload->transaction ) continue;
 
+		/* Also does the two propagates. */
+		/* ----------------------------- */
 		sprintf(
 		sys_string,
 		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
@@ -619,5 +632,5 @@ void bank_upload_spreadsheet_transaction_insert(
 
 	} while( list_next( bank_upload_table_list ) );
 
-} /* bank_upload_spreadsheet_transaction_insert() */
+} /* bank_upload_reconciliation_transaction_insert() */
 

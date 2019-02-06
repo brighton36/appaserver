@@ -5711,9 +5711,9 @@ char *ledger_get_closing_transaction_date_time(
 	results = pipe2string( sys_string );
 
 	if ( results && ( atoi( results ) == 1 ) )
-		return (char *)0;
+		return strdup( transaction_date_time ) ;
 	else
-		return strdup( transaction_date_time );
+		return (char *)0;
 
 } /* ledger_get_closing_transaction_date_time() */
 

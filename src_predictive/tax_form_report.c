@@ -79,6 +79,7 @@ int main( int argc, char **argv )
 	char title[ 256 ];
 	char sub_title[ 256 ];
 	char *tax_form_name;
+	char *fund_name;
 	int tax_year;
 	char *output_medium;
 	TAX *tax;
@@ -92,10 +93,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr,
-	"Usage: %s process tax_form tax_year output_medium\n",
+	"Usage: %s process tax_form tax_year fund output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -110,7 +111,9 @@ int main( int argc, char **argv )
 				date_get_utc_offset() ) );
 	}
 
-	output_medium = argv[ 4 ];
+	fund_name = argv[ 4 ];
+
+	output_medium = argv[ 5 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
@@ -140,7 +143,7 @@ int main( int argc, char **argv )
 			"logo_filename" /* key */ );
 
 	if ( ! ( tax = tax_new(		application_name,
-					(char *)0 /* fund_name */,
+					fund_name,
 					tax_form_name,
 					tax_year ) ) )
 	{

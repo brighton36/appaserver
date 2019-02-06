@@ -324,7 +324,7 @@ int main( int argc, char **argv )
 			application_name,
 			"logo_filename" /* key */ );
 
-	if ( !(boolean)ledger_get_report_title_sub_title(
+	if ( !ledger_get_report_title_sub_title(
 		title,
 		sub_title,
 		process_name,
@@ -356,7 +356,7 @@ int main( int argc, char **argv )
 			sprintf( prior_transaction_date_time,
 				 "%s %s",
 				 as_of_date,
-				LEDGER_PRIOR_TRANSACTION_TIME );
+				 LEDGER_PRIOR_TRANSACTION_TIME );
 
 			trial_balance_html_table(
 				application_name,
@@ -439,6 +439,18 @@ void trial_balance_html_table(
 	char *beginning_date;
 	int number_left_justified_columns = 3;
 	double element_total;
+
+	if ( timlib_strlen( as_of_date ) == 10 )
+	{
+		char buffer[ 32 ];
+
+		sprintf( buffer,
+			 "%s %s",
+			 as_of_date,
+			 LEDGER_CLOSING_TRANSACTION_TIME );
+
+		as_of_date = strdup( buffer );
+	}
 
 	if ( ! ( beginning_date = 
 			ledger_beginning_transaction_date(
@@ -2392,7 +2404,7 @@ char *get_action_string(
 	char action_string[ 4096 ];
 
 	sprintf( action_string,
-"/cgi-bin/post_prompt_edit_form?%s^%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s 23:59:59",
+"/cgi-bin/post_prompt_edit_form?%s^%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s",
 		 login_name,
 		 application_name,
 		 session,

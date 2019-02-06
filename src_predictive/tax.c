@@ -333,6 +333,12 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 		 application_name,
 		 tax_form );
 
+fprintf( stderr, "%s/%s()/%d: sys_string = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+
 	input_pipe = popen( sys_string, "r" );
 
 	tax_form_line_list = list_new();

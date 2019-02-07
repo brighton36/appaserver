@@ -5,9 +5,11 @@ bank_upload
 bank_upload_activity_work
 bank_upload_archive
 bank_upload_event
+transaction
+journal_ledger
+bank_upload_transaction
 bank_upload_transaction_balance
 bank_upload_feeder_archive
-bank_upload_transaction
 composition
 composition_location
 concert
@@ -46,7 +48,6 @@ inventory_sale
 investment_account
 investment_classification
 investment_operation
-journal_ledger
 liability_account_entity
 member_position
 music_folder
@@ -88,7 +89,6 @@ tax_form
 tax_form_line
 tax_form_line_account
 title_passage_rule
-transaction
 vendor
 vendor_payment
 venue

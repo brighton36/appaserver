@@ -5,9 +5,11 @@ bank_upload
 bank_upload_activity_work
 bank_upload_archive
 bank_upload_event
+transaction
+journal_ledger
+bank_upload_transaction
 bank_upload_transaction_balance
 bank_upload_feeder_archive
-bank_upload_transaction
 contra_account
 customer
 customer_payment
@@ -43,10 +45,12 @@ inventory_sale
 investment_account
 investment_classification
 investment_operation
-journal_ledger
 liability_account_entity
 payroll_pay_period
 payroll_posting
+prepaid_asset
+prepaid_asset_accrual
+prepaid_asset_purchase
 prior_fixed_asset
 prior_fixed_asset_depreciation
 prior_property
@@ -77,6 +81,5 @@ tax_property_recovery
 tax_recovery_period
 tax_recovery_table
 title_passage_rule
-transaction
 vendor
 vendor_payment

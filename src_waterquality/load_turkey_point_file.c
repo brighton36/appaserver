@@ -129,10 +129,6 @@ int main( int argc, char **argv )
 			water_quality->input.parameter_alias_list,
 			water_quality->input.unit_alias_list );
 
-fprintf( stderr,
-	 "length parameter_unit_alias_list = %d\n",
-	 list_length( water_quality->parameter_unit_alias_list ) );
-
 	/* Doesn't set RESULTS */
 	/* ------------------- */
 	water_quality->load_column_list =
@@ -289,7 +285,7 @@ int load_concentration_file(
 
 		sprintf(
 		 sys_string,
-		 "insert_statement table=%s field=%s del='|' compress=y   |"
+		 "insert_statement table=%s field=%s del='|' compress=n   |"
 		 "sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e				   ",
@@ -301,7 +297,7 @@ int load_concentration_file(
 		sprintf(
 		 sys_string,
 		 "sort -u						  |"
-		 "insert_statement table=%s field=%s del='|' compress=y   |"
+		 "insert_statement table=%s field=%s del='|' compress=n   |"
 		 "sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e			 	   ",
@@ -459,68 +455,67 @@ int load_concentration_file(
 				 	results->concentration,
 					water_exception_display(
 						results->exception_list ) );
+				continue;
+
 			} /* if table */
-			else
-			{
-				/* if execute */
-				/* ---------- */
-				fprintf(
-					results_insert_pipe,
-				 	"%s|%s|%s|%s|%s|%s\n",
-				 	station,
-				 	collection_date_international,
-				 	collection_time_without_colon,
-				 	results->parameter_unit->parameter_name,
-				 	results->parameter_unit->units,
-				 	results->concentration );
 
-				fprintf(
-					station_parameter_insert_pipe,
-				 	"%s|%s|%s\n",
-				 	station,
-				 	results->parameter_unit->parameter_name,
-				 	results->parameter_unit->units );
+			/* if execute */
+			/* ---------- */
+			fprintf(
+				results_insert_pipe,
+			 	"%s|%s|%s|%s|%s|%s\n",
+			 	station,
+			 	collection_date_international,
+			 	collection_time_without_colon,
+			 	results->parameter_unit->parameter_name,
+			 	results->parameter_unit->units,
+			 	results->concentration );
 
-				fprintf(
-					station_insert_pipe,
-				 	"%s\n",
-				 	station );
+			fprintf(
+				station_parameter_insert_pipe,
+			 	"%s|%s|%s\n",
+			 	station,
+			 	results->parameter_unit->parameter_name,
+			 	results->parameter_unit->units );
 
-				fprintf(
-					water_project_station_insert_pipe,
-				 	"%s|%s\n",
-				 	project_name,
-				 	station );
+			fprintf(
+				station_insert_pipe,
+			 	"%s\n",
+			 	station );
 
-				fprintf(
-					collection_insert_pipe,
-				 	"%s|%s|%s|%s|%s\n",
-				 	station,
-				 	collection_date_international,
-				 	collection_time_without_colon,
-				 	depth_meters,
-				 	basename_filename );
+			fprintf(
+				water_project_station_insert_pipe,
+			 	"%s|%s\n",
+			 	project_name,
+			 	station );
 
-				if ( list_rewind( results->exception_list ) )
-				do {
-				     exception =
-					list_get_pointer(
-						results->
-							exception_list );
+			fprintf(
+				collection_insert_pipe,
+			 	"%s|%s|%s|%s|%s\n",
+			 	station,
+			 	collection_date_international,
+			 	collection_time_without_colon,
+			 	depth_meters,
+			 	basename_filename );
 
-				     fprintf(
-					results_exception_insert_pipe,
-				 	"%s|%s|%s|%s|%s|%s\n",
-				 	station,
-				 	collection_date_international,
-				 	collection_time_without_colon,
-				 	results->parameter_unit->parameter_name,
-				 	results->parameter_unit->units,
-				 	exception->exception );
+			if ( list_rewind( results->exception_list ) )
+			do {
+			     exception =
+				list_get_pointer(
+					results->
+						exception_list );
 
-				} while( list_next( results->exception_list ) );
+			     fprintf(
+				results_exception_insert_pipe,
+			 	"%s|%s|%s|%s|%s|%s\n",
+			 	station,
+			 	collection_date_international,
+			 	collection_time_without_colon,
+			 	results->parameter_unit->parameter_name,
+			 	results->parameter_unit->units,
+			 	exception->exception );
 
-			} /* if execute */
+			} while( list_next( results->exception_list ) );
 
 		} while ( list_next( water_quality->load_column_list ) );
 

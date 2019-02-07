@@ -129,13 +129,9 @@ int main( int argc, char **argv )
 			water_quality->input.parameter_alias_list,
 			water_quality->input.unit_alias_list );
 
-/*
-Buffer overflow core dump.
 fprintf( stderr,
-	 "%s\n",
-	 water_parameter_unit_alias_list_display(
-		water_quality->parameter_unit_alias_list ) );
-*/
+	 "length parameter_unit_alias_list = %d\n",
+	 list_length( water_quality->parameter_unit_alias_list ) );
 
 	/* Doesn't set RESULTS */
 	/* ------------------- */

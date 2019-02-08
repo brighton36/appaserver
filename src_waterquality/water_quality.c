@@ -169,7 +169,7 @@ LIST *water_get_parameter_unit_alias_list(
 			parameter_unit_alias =
 				water_parameter_unit_alias_new(
 					column_heading_string,
-					parameter_name,
+					parameter_alias->parameter_name,
 					unit_alias->units );
 
 			list_append_pointer(

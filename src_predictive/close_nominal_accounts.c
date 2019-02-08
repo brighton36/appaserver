@@ -176,7 +176,6 @@ boolean close_nominal_accounts_execute(
 
 	transaction_date_time =
 		ledger_get_closing_transaction_date_time(
-			application_name,
 			as_of_date );
 
 	sprintf( sys_string,
@@ -465,21 +464,22 @@ void close_nominal_accounts_display(
 	{
 		transaction_date_time =
 			ledger_get_closing_transaction_date_time(
-				application_name,
 				as_of_date );
 
-		if ( transaction_date_time )
+		if ( ledger_transaction_date_time_exists(
+				application_name,
+				transaction_date_time ) )
+		{
+			printf(
+	"<h3>Warning: accounts were closed already on this date.</h3>\n" );
+		}
+		else
 		{
 			close_nominal_accounts_fund_display(
 				application_name,
 				(char *)0 /* fund_name */,
 				transaction_date_time,
 				as_of_date );
-		}
-		else
-		{
-			printf(
-	"<h3>Warning: accounts were closed already on this date.</h3>\n" );
 		}
 
 		return;
@@ -508,7 +508,6 @@ void close_nominal_accounts_display(
 
 		transaction_date_time =
 			ledger_get_closing_transaction_date_time(
-				application_name,
 				as_of_date );
 
 		close_nominal_accounts_fund_display(

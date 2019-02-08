@@ -746,7 +746,6 @@ DICTIONARY *ledger_get_non_fund_hard_coded_dictionary(
 				char *application_name );
 
 char *ledger_get_closing_transaction_date_time(
-				char *application_name,
 				char *as_of_date );
 
 void ledger_propagate_element_list(
@@ -1151,5 +1150,9 @@ char *ledger_get_minimum_transaction_date(
 char *ledger_get_existing_closing_transaction_date_time(
 				char *application_name,
 				char *as_of_date );
+
+boolean ledger_transaction_date_time_exists(
+				char *application_name,
+				char *transaction_date_time );
 
 #endif

@@ -5647,6 +5647,35 @@ void ledger_propagate_element_list(
 
 } /* ledger_propagate_element_list() */
 
+boolean ledger_transaction_date_time_exists(
+				char *application_name,
+				char *transaction_date_time )
+{
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+	char *results;
+
+	sprintf( where,
+		 "transaction_date_time = '%s'",
+		 transaction_date_time );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=count		"
+		 "			folder=transaction	"
+		 "			where=\"%s\"		",
+		 application_name,
+		 where );
+
+	results = pipe2string( sys_string );
+
+	if ( results && ( atoi( results ) == 1 ) )
+		return 1;
+	else
+		return 0;
+
+} /* ledger_transaction_date_time_exists() */
+
 char *ledger_get_existing_closing_transaction_date_time(
 				char *application_name,
 				char *as_of_date )
@@ -5683,19 +5712,19 @@ char *ledger_get_existing_closing_transaction_date_time(
 } /* ledger_get_existing_closing_transaction_date_time() */
 
 char *ledger_get_closing_transaction_date_time(
-				char *application_name,
 				char *as_of_date )
 {
 	char transaction_date_time[ 32 ];
-	char sys_string[ 1024 ];
-	char where[ 128 ];
-	char *results;
 
 	sprintf(	transaction_date_time,
 			"%s %s",
 			as_of_date,
 			LEDGER_CLOSING_TRANSACTION_TIME );
 
+#ifdef NOT_DEFINED
+	char sys_string[ 1024 ];
+	char where[ 128 ];
+	char *results;
 	sprintf( where,
 		 "transaction_date_time = '%s'",
 		 transaction_date_time );
@@ -5714,6 +5743,9 @@ char *ledger_get_closing_transaction_date_time(
 		return strdup( transaction_date_time ) ;
 	else
 		return (char *)0;
+#endif
+
+	return strdup( transaction_date_time );
 
 } /* ledger_get_closing_transaction_date_time() */
 

@@ -348,10 +348,11 @@ int main( int argc, char **argv )
 
 		closing_transaction_date_time =
 			ledger_get_closing_transaction_date_time(
-				application_name,
 				as_of_date );
 
-		if ( closing_transaction_date_time )
+		if ( ledger_transaction_date_time_exists(
+				application_name,
+				closing_transaction_date_time ) )
 		{
 			sprintf( prior_transaction_date_time,
 				 "%s %s",

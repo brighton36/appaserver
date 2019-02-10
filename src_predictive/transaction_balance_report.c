@@ -854,17 +854,25 @@ char *transaction_balance_report_get_finished_message(
 	ptr += sprintf(	ptr,
 			"<h3>Not finished:</h3>\n" );
 
+	ptr += sprintf( ptr, "<table>\n" );
+
 	ptr += sprintf( ptr,
-			"<h3>Cash running balance: %.2lf</h3>\n",
+			"<tr><td>Cash running balance:<td align=right>%.2lf\n",
 			cash_running_balance );
 
 	ptr += sprintf( ptr,
-			"<h3>Bank running balance: %.2lf</h3>\n",
+			"<tr><td>Bank running balance:<td align=right>%.2lf\n",
 			bank_running_balance );
 
 	ptr += sprintf( ptr,
-			"<h3>Bank upload balance:  %.2lf</h3>\n",
+			"<tr><td>Bank upload balance:<td align=right>%.2lf\n",
 			bank_upload_balance );
+
+	ptr += sprintf( ptr,
+			"<tr><td>Difference:<td align=right>%.2lf\n",
+			bank_running_balance - bank_upload_balance );
+
+	ptr += sprintf( ptr, "</table>\n" );
 
 	return strdup( message );
 

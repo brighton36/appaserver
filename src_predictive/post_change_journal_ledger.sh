@@ -40,9 +40,26 @@ then
 	exit 0
 fi
 
+sys_string="echo \"select hard_coded_account_key			\
+		   from account						\
+		   where account = '$account';\"			|
+	    sql.e"
+
+hard_coded_account_key=`$sys_string`
+
+if [ "$hard_coded_account_key" = "cash_key" ]
+then
+	bank_upload_sequence_propagate.sh "$transaction_date_time"
+	bank_upload_balance_propagate.sh "$transaction_date_time"
+fi
+
 if [ "$preupdate_transaction_date_time" != "preupdate_transaction_date_time" ]
 then
-	sys_string="echo \"select account from journal_ledger where transaction_date_time = '$transaction_date_time';\" | sql.e"
+	sys_string="echo \"select account				\
+			   from journal_ledger				\
+			   where transaction_date_time =		\
+				'$transaction_date_time';\"		|
+		    sql.e"
 
 	eval $sys_string						|
 	while read local_account

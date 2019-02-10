@@ -20,14 +20,22 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 2 ]
+if [ "$#" -eq 0 ]
 then
-	echo "Usage: $0 bank_date bank_description" 1>&2
+	echo "Usage: $0 bank_date [bank_description]" 1>&2
 	exit 1
 fi
 
-bank_date=$1
-bank_description=$2
+# May have time appended
+# ----------------------
+bank_date=`echo $1 | column.e 0`
+
+if [ "$#" -eq 1 ]
+then
+	bank_description=$2
+else
+	bank_description=""
+fi
 
 select="min(sequence_number)"
 table=bank_upload

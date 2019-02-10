@@ -4,7 +4,6 @@ function post_change_reoccurring_transaction( row )
 {
 	var element_name;
 	var element;
-	var disable_transaction_amount = true;
 	var disable_bank_upload_feeder_phrase = true;
 	var disable_accrued_daily_amount = true;
 	var disable_accrued_monthly_amount = true;
@@ -13,6 +12,7 @@ function post_change_reoccurring_transaction( row )
 	var accrued_daily_amount_is_slash = false;
 	var accrued_monthly_amount_is_slash = false;
 	var nothing_is_populated = true;
+	// var disable_transaction_amount = true;
 
 	if ( row == 0 )
 	{
@@ -22,12 +22,12 @@ function post_change_reoccurring_transaction( row )
 
 	// Turn on edits
 	// -------------
-	element_name = 'transaction_amount_' + row;
-	element = timlib_get_element( element_name );
+//	element_name = 'transaction_amount_' + row;
+//	element = timlib_get_element( element_name );
 
-	if ( element == "" ) return false;
+//	if ( element == "" ) return false;
 
-	element.disabled = false;
+//	element.disabled = false;
 
 	element_name = 'bank_upload_feeder_phrase_' + row;
 	element = timlib_get_element( element_name );
@@ -43,19 +43,19 @@ function post_change_reoccurring_transaction( row )
 
 	// Check transaction_amount
 	// ------------------------
-	element_name = 'transaction_amount_' + row;
-	element = timlib_get_element( element_name );
+//	element_name = 'transaction_amount_' + row;
+//	element = timlib_get_element( element_name );
 
-	if ( element.value == "/" )
-	{
-		transaction_amount_is_slash = true;
-	}
-	else
-	if ( element.value != "" )
-	{
-		disable_transaction_amount = false;
-		nothing_is_populated = false;
-	}
+//	if ( element.value == "/" )
+//	{
+//		transaction_amount_is_slash = true;
+//	}
+//	else
+//	if ( element.value != "" )
+//	{
+//		disable_transaction_amount = false;
+//		nothing_is_populated = false;
+//	}
 
 	// Check bank_upload_feeder_phrase
 	// -------------------------------

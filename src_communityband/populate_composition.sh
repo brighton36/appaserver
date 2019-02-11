@@ -1,18 +1,26 @@
 #!/bin/bash
-if [ "$#" -ne 3 ]
-then
-	echo "Usage: $0 application one2m_folder state" 1>&2
-	exit 1
-fi
 
 echo $0 $* 1>&2
 
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
-
-if [ "$database" != "" ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	export DATABASE=$database
+	application=$APPASERVER_DATABASE
+elif [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
+then
+	echo "Error in `basename.e $0 n`: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
+	exit 1
+fi
+
+if [ "$#" -ne 3 ]
+then
+	echo "Usage: $0 ignored one2m_folder state" 1>&2
+	exit 1
 fi
 
 one2m_folder=$2

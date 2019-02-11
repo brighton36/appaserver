@@ -1,5 +1,5 @@
 :
-# src_capitolpops/send_patron_mail.sh
+# src_communityband/send_patron_mail.sh
 # --------------------------------------
 
 # Input
@@ -9,18 +9,25 @@ from_address=capitolpops@cloudacus.com
 
 echo "$0" "$*" 1>&2
 
-if [ "$#" -lt 4 ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	echo "Usage: $0 application email_address date time [email_send]" 1>&2
+	application=$APPASERVER_DATABASE
+elif [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
+then
+	echo "Error in `basename.e $0 n`: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
 	exit 1
 fi
 
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
-
-if [ "$database" != "" ]
+if [ "$#" -lt 4 ]
 then
-	export DATABASE=$database
+	echo "Usage: $0 ignored email_address date time [email_send]" 1>&2
+	exit 1
 fi
 
 email_address=$2

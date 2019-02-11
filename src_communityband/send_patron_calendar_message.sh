@@ -1,13 +1,26 @@
 :
-# src_capitolpops/send_patron_calendar_message.sh
-# -----------------------------------------------
+# src_communityband/send_patron_calendar_message.sh
+# -------------------------------------------------
 
 # Input
 # -----
 
-application=capitolpops
-
 echo "$0" "$*" 1>&2
+
+if [ "$APPASERVER_DATABASE" != "" ]
+then
+	application=$APPASERVER_DATABASE
+elif [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
+then
+	echo "Error in `basename.e $0 n`: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
+	exit 1
+fi
 
 if [ "$#" -ne 4 ]
 then

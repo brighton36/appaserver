@@ -7,18 +7,25 @@
 
 echo "$0" "$*" 1>&2
 
-if [ "$#" -ne 3 ]
+if [ "$APPASERVER_DATABASE" != "" ]
 then
-	echo "Usage: $0 application process_name output_medium" 1>&2
+	application=$APPASERVER_DATABASE
+elif [ "$DATABASE" != "" ]
+then
+	application=$DATABASE
+fi
+
+if [ "$application" = "" ]
+then
+	echo "Error in `basename.e $0 n`: you must first:" 1>&2
+	echo "\$ . set_database" 1>&2
 	exit 1
 fi
 
-application=$(echo $1 | piece.e ':' 0)
-database=$(echo $1 | piece.e ':' 1 2>/dev/null)
-
-if [ "$database" != "" ]
+if [ "$#" -ne 3 ]
 then
-	export DATABASE=$database
+	echo "Usage: $0 ignored process_name output_medium" 1>&2
+	exit 1
 fi
 
 process_name=$2

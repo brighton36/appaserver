@@ -852,7 +852,7 @@ char *transaction_balance_report_get_finished_message(
 	}
 
 	ptr += sprintf(	ptr,
-			"<h3>Not finished:</h3>\n" );
+			"<h3>Almost finished:</h3>\n" );
 
 	ptr += sprintf( ptr, "<table>\n" );
 

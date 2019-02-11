@@ -1,6 +1,6 @@
 :
-# src_capitolpops/send_member_list.sh
-# -----------------------------------
+# src_communityband/send_member_list.sh
+# -------------------------------------
 
 # Input
 # -----

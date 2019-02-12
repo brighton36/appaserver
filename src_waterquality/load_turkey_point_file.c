@@ -757,6 +757,7 @@ boolean extract_station_collection_attributes(
 	char collection_date[ 128 ];
 	char collection_time[ 128 ];
 	int column_piece;
+	int collection_time_piece;
 	static int station_attribute_width = 0;
 
 	if ( !station_attribute_width )
@@ -820,6 +821,38 @@ boolean extract_station_collection_attributes(
 		return 0;
 	}
 
+	/* ------------------------------------------------------------	*/
+	/* Get collection_time_without_colon.				*/
+	/* Note: execute this before getting the collection date	*/
+	/* because the collection date may have the time appended.	*/
+	/* ------------------------------------------------------------	*/
+	collection_time_piece =
+		water_get_station_collection_attribute_piece(
+			WATER_QUALITY_COLLECTION_TIME_LABEL,
+			load_column_list );
+
+	if ( collection_time_piece == -1 )
+	{
+		strcpy( collection_time_without_colon, "null" );
+	}
+	else
+	if ( !piece_quote_comma(
+		collection_time,
+		input_string,
+		column_piece )
+	||   !*collection_time )
+	{
+		strcpy( collection_time_without_colon, "null" );
+	}
+	else
+	{
+		timlib_strcpy(
+			collection_time_without_colon,
+			date_remove_colon_from_time(
+				collection_time ),
+			0 /* buffer_size */ );
+	}
+
 	/* Get collection_date */
 	/* ------------------- */
 	column_piece =
@@ -847,6 +880,20 @@ boolean extract_station_collection_attributes(
 		return 0;
 	}
 
+	/* The collection date may have the time appended. */
+	/* ----------------------------------------------- */
+	if ( collection_time_piece == -1
+	&&   timlib_character_exists( collection_date, ' ' ) )
+	{
+		column( collection_time, 1, collection_date );
+
+		timlib_strcpy(
+			collection_time_without_colon,
+			date_remove_colon_from_time(
+				collection_time ),
+			0 /* buffer_size */ );
+	}
+
 	*collection_date_international = '\0';
 
 	if ( !date_convert_source_unknown(
@@ -865,37 +912,6 @@ boolean extract_station_collection_attributes(
 			*error_message = strdup( buffer );
 		}
 		return 0;
-	}
-
-	/* Get collection_time */
-	/* ------------------- */
-	column_piece =
-		water_get_station_collection_attribute_piece(
-			WATER_QUALITY_COLLECTION_TIME_LABEL,
-			load_column_list );
-
-	if ( column_piece == -1 )
-	{
-		strcpy( collection_time_without_colon, "null" );
-		/* strcpy( collection_time, "null" ); */
-	}
-	else
-	if ( ! piece_quote_comma(
-		collection_time,
-		input_string,
-		column_piece )
-	||   !*collection_time )
-	{
-		/* strcpy( collection_time, "null" ); */
-		strcpy( collection_time_without_colon, "null" );
-	}
-	else
-	{
-		timlib_strcpy(
-			collection_time_without_colon,
-			date_remove_colon_from_time(
-				collection_time ),
-			sizeof( collection_time_without_colon ) );
 	}
 
 	if ( !*collection_time_without_colon )

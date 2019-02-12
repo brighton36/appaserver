@@ -558,4 +558,7 @@ char *timlib_reverse_string(	char *destination,
 boolean timlib_string_exists(	char *string,
 				char *substring );
 
+char *timlib_pad_zero(		int number,
+				int length );
+
 #endif

@@ -2095,14 +2095,15 @@ char *date_append_hhmmss( char *date_string )
 char *date_remove_colon_from_time( char *time_string )
 {
 	static char buffer[ 128 ];
-
-	int str_len = strlen( time_string );
+	int str_len;
 
 	*buffer = '\0';
 
 	if ( timlib_strcmp( time_string, "null" ) == 0 ) return time_string;
 
 	if ( !character_exists( time_string, ':' ) ) return time_string;
+
+	str_len = strlen( time_string );
 
 	if ( str_len == 4 )
 	{

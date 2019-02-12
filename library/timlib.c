@@ -3841,3 +3841,21 @@ char *timlib_reverse_string(	char *destination,
 
 } /* timlib_reverse_string() */
 
+char *timlib_pad_zero(		int number,
+				int length )
+{
+        static char return_string[ 32 ];
+        char *ptr = return_string;
+
+	/* Pads with spaces. */
+	/* ----------------- */
+        sprintf( return_string, "%*d", length, number );
+
+	/* Convert to zeros */
+	/* ---------------- */
+        while ( *ptr && isspace( *ptr ) ) *ptr++ = '0';
+
+        return return_string;
+
+}  /* timlib_pad_zero() */
+

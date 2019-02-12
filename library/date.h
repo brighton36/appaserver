@@ -323,8 +323,7 @@ char *date_get_day_of_week_yyyy_mm_dd(
 
 time_t date_yyyy_mm_dd_time_hhmm_to_time_t(
 				char *date_string,
-				char *time_string,
-				int utc_offset );
+				char *time_string );
 
 void date_set_tm_structures(	DATE *d,
 				time_t current,

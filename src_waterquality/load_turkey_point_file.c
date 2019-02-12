@@ -887,11 +887,16 @@ boolean extract_station_collection_attributes(
 	{
 		column( collection_time, 1, collection_date );
 
-		timlib_strcpy(
-			collection_time_without_colon,
-			date_remove_colon_from_time(
-				collection_time ),
-			0 /* buffer_size */ );
+		/* Assume midnight means unknown time. */
+		/* ----------------------------------- */
+		if ( strcmp( collection_time, "00:00" ) != 0 )
+		{
+			timlib_strcpy(
+				collection_time_without_colon,
+				date_remove_colon_from_time(
+					collection_time ),
+				0 /* buffer_size */ );
+		}
 	}
 
 	*collection_date_international = '\0';

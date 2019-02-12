@@ -68,8 +68,7 @@ DATE *date_current_new(	time_t current,
 
 time_t date_yyyy_mm_dd_time_hhmm_to_time_t(
 			char *date_string,
-			char *time_string,
-			int utc_offset )
+			char *time_string )
 {
 	DATE *date;
 	time_t current;

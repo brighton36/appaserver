@@ -154,8 +154,7 @@ EXPECTED_COUNT *expected_count_new_expected_count(
 	expected_count->expected_count_change_time_t =
 		date_yyyy_mm_dd_time_hhmm_to_time_t(
 			begin_measurement_date,
-			begin_measurement_time,
-			date_get_utc_offset() );
+			begin_measurement_time );
 
 	return expected_count;
 

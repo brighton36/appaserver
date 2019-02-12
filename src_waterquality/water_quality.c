@@ -690,12 +690,6 @@ LIST *water_fetch_exception_list( char *application_name )
 			input_buffer,
 			1 );
 
-#ifdef NOT_DEFINED
-		/* Only use first character to map to exception_string */
-		/* --------------------------------------------------- */
-		*(exception_code + 1) = '\0';
-#endif
-
 		exception =
 			water_exception_new(
 				strdup( exception_string ),

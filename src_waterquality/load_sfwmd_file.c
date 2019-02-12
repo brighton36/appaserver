@@ -1369,22 +1369,6 @@ void insert_results_exception_code_multiple(
 				 aliased_parameter,
 				 units,
 				 BELOW_DETECTION_LIMIT );
-/*
-		*exception_code = BELOW_DETECTION_LIMIT_CODE;
-		*(exception_code + 1) = '\0';
-
-		insert_results_exception_code(
-				 results_exception_insert_pipe,
-				 error_file,
-				 application_name,
-				 station,
-				 collection_date_international,
-				 collection_time_without_colon,
-				 aliased_parameter,
-				 units,
-				 exception_code,
-				 line_number );
-*/
 	}
 
 	exception_name_list =
@@ -1735,7 +1719,7 @@ LIST *get_exception_name_list(
 	LIST *return_list = {0};
 	static LIST *exception_record_list = {0};
 	char *exception_record;
-	char exception_code[ 16 ];
+	char exception_code[ 32 ];
 	char exception_name[ 64 ];
 	int position;
 	int all_done = 0;

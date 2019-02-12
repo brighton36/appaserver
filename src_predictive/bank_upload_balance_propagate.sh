@@ -22,7 +22,7 @@ fi
 
 if [ "$#" -eq 0 ]
 then
-	echo "Usage: $0 bank_date [bank_description]" 1>&2
+	echo "Usage: $0 bank_date" 1>&2
 	exit 1
 fi
 
@@ -30,34 +30,21 @@ fi
 # ----------------------
 bank_date=`echo $1 | column.e 0`
 
-if [ "$#" -eq 1 ]
+if [ "$bank_date" = "" -o "$bank_date" = "bank_date" ]
 then
-	bank_description=$2
+	prior_sequence_number=1
 else
-	bank_description=""
+	prior_sequence_number=`	bank_upload_prior_sequence_number.sh
+				"$bank_date"`
 fi
 
-select="min(sequence_number)"
-table=bank_upload
+in_balance_sequence_number=$prior_sequence_number
 
-#where="bank_date < '$bank_date'"
-where="1 = 1"
-
-in_balance_sequence_number=`
-echo "select $select from $table where $where"			|
-sql.e								|
-cat`
-
-if [ "$in_balance_sequence_number" = "" ]
-then
-	exit 0
-fi
-
-select=bank_date,bank_description,bank_amount,bank_running_balance
+select="bank_date,concat(bank_description,'^bank_running_balance'),bank_amount,bank_running_balance"
 
 table=bank_upload
 
-where="sequence_number = 1 or sequence_number >= $in_balance_sequence_number and exists ( select 1 from bank_upload_transaction where bank_upload.bank_date = bank_upload_transaction.bank_date and bank_upload.bank_description = bank_upload_transaction.bank_description )"
+where="sequence_number >= $in_balance_sequence_number and exists ( select 1 from bank_upload_transaction where bank_upload.bank_date = bank_upload_transaction.bank_date and bank_upload.bank_description = bank_upload_transaction.bank_description )"
 
 order=sequence_number
 
@@ -65,35 +52,13 @@ key=bank_date,bank_description
 
 first_time=1
 
-(
 echo "select $select from $table where $where order by $order;"	|
 sql.e								|
-while read record
-do
-	if [ $first_time -eq 1 ]
-	then
-		bank_running_balance=`echo $record | piece.e '^' 3`
-
-		if [ "$bank_running_balance" = "" ]
-		then
-			echo "Error $0: cannot get bank_running_balance" 1>&2
-			exit 1
-		fi
-		first_time=0
-		continue
-	fi
-
-	bank_date=`echo "$record" | piece.e '^' 0`
-	bank_description=`echo "$record" | piece.e '^' 1`
-	bank_amount=`echo "$record" | piece.e '^' 2`
-
-	temp=$bank_running_balance
-	bank_running_balance=$(echo "scale=2; $temp + $bank_amount" | bc)
-
-	echo "${bank_date}^${bank_description}^bank_running_balance^$bank_running_balance"
-
-done
-)								|
+accumulate.e 3 '^' running					|
+# --------------------
+#piece out bank_amount
+# --------------------
+piece_inverse.e '^' 3						|
 update_statement.e table=bank_upload key=$key carrot=y		|
 cat
 

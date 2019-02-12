@@ -22,7 +22,7 @@ echo "$0 $*" 1>&2
 
 if [ "$#" -eq 0 ]
 then
-	echo "Usage: $0 bank_date [bank_description]" 1>&2
+	echo "Usage: $0 bank_date" 1>&2
 	exit 1
 fi
 
@@ -30,18 +30,20 @@ fi
 # ----------------------
 bank_date=`echo $1 | column.e 0`
 
-if [ "$#" -eq 1 ]
+if [ "$bank_date" = "" -o "$bank_date" = "bank_date" ]
 then
-	bank_description=$2
+	prior_sequence_number=1
 else
-	bank_description=""
+	prior_sequence_number=`	bank_upload_prior_sequence_number.sh
+				"$bank_date"`
 fi
+
 
 select=sequence_number,transaction_date_time
 table=bank_upload_transaction_balance
 
 #where="bank_date < '$bank_date'"
-where="1 = 1"
+where="sequence_number >= $prior_sequence_number"
 
 order=transaction_date_time
 

@@ -50,8 +50,16 @@ do
 
 	sub_record=`echo $record | piece.e '[' 0`
 	bank_date=`echo $sub_record | piece.e '^' 0`
+
+	if [ "$first_bank_date" = "" ]
+	then
+		first_bank_date=$bank_date
+	fi
+
 	bank_description=`echo $sub_record | piece.e '^' 1`
 
+	# Doesn't do the propagate.
+	# -------------------------
 	bank_upload_transaction_insert "${bank_date}^${bank_description}" |
 	tee_process.e sql.e						  |
 	html_paragraph_wrapper.e					  |
@@ -64,8 +72,11 @@ do
 
 done
 
-bank_upload_balance_propagate.sh bank_date bank_description | sql.e
-bank_upload_sequence_propagate.sh bank_date bank_description | sql.e
+if [ "$first_bank_date" != "" ]
+then
+	bank_upload_balance_propagate.sh "$first_bank_date" | sql.e
+	bank_upload_sequence_propagate.sh "$first_bank_date" | sql.e
+fi
 
 echo "</body>"
 echo "</html>"

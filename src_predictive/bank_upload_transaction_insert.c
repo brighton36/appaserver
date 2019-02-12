@@ -76,6 +76,8 @@ int main( int argc, char **argv )
 			timlib_count_delimiters(
 				'^', operation );
 
+		/* Doesn't do the propagate */
+		/* ------------------------ */
 		if ( delimiter_count == 1 )
 		{
 			double bank_amount;
@@ -112,10 +114,12 @@ int main( int argc, char **argv )
 					bank_upload->bank_description,
 					bank_upload->
 						reconciled_transaction_list );
-
 			}
 		}
 		else
+		/* ------------------ */
+		/* Does the propagate */
+		/* ------------------ */
 		if ( delimiter_count == 4 )
 		{
 			piece( bank_date, '^', operation, 0 );
@@ -133,8 +137,7 @@ int main( int argc, char **argv )
 				transaction_date_time );
 
 			bank_upload_transaction_balance_propagate(
-					bank_date,
-					bank_description );
+					bank_date );
 		}
 	}
 

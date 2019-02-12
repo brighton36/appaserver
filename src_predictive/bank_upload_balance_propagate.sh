@@ -38,19 +38,19 @@ else
 				"$bank_date"`
 fi
 
-in_balance_sequence_number=$prior_sequence_number
-
 select="bank_date,concat(bank_description,'^bank_running_balance'),bank_amount,bank_running_balance"
 
 table=bank_upload
 
-where="sequence_number >= $in_balance_sequence_number and exists ( select 1 from bank_upload_transaction where bank_upload.bank_date = bank_upload_transaction.bank_date and bank_upload.bank_description = bank_upload_transaction.bank_description )"
+where="sequence_number >= $prior_sequence_number and exists ( select 1 from bank_upload_transaction where bank_upload.bank_date = bank_upload_transaction.bank_date and bank_upload.bank_description = bank_upload_transaction.bank_description )"
 
 order=sequence_number
 
 key=bank_date,bank_description
 
-first_time=1
+# ----------------------------------------------------------------------
+# Example: 2018-01-02^SAVE MART#622S^bank_running_balance^-38.67^3455.85
+# ----------------------------------------------------------------------
 
 echo "select $select from $table where $where order by $order;"	|
 sql.e								|
@@ -58,7 +58,7 @@ accumulate.e 3 '^' running					|
 # --------------------
 #piece out bank_amount
 # --------------------
-piece_inverse.e '^' 3						|
+piece_inverse.e 3 '^' 						|
 update_statement.e table=bank_upload key=$key carrot=y		|
 cat
 

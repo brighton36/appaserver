@@ -38,53 +38,31 @@ else
 				"$bank_date"`
 fi
 
+select="bank_upload.bank_date,bank_upload.bank_description"
 
-select=sequence_number,transaction_date_time
-table=bank_upload_transaction_balance
+table="bank_upload,bank_upload_transaction"
 
-#where="bank_date < '$bank_date'"
-where="sequence_number >= $prior_sequence_number"
+join_where="bank_upload.bank_date = bank_upload_transaction.bank_date and bank_upload.bank_description = bank_upload_transaction.bank_description"
+
+where="sequence_number >= $prior_sequence_number and $join_where"
 
 order=transaction_date_time
 
-out_of_sequence_row_number=`
-echo "select $select from $table where $where order by $order;"	|
-sql.e								|
-sort -n -c 2>&1							|
-piece.e ':' 2`
+# ----------------------------------------------------------------------
+# Note: when doing the period of record, the opening row in BANK_UPLOAD
+# isn't joined to BANK_UPLOAD_TRANSACTION. Usually, it's sequence_number
+# is 1. So, start setting the new sequence numbers to at least 2.
+# ----------------------------------------------------------------------
 
-if [ "$out_of_sequence_row_number" = "" ]
-then
-	exit 0
-fi
-
-let "in_sequence_row_number=$out_of_sequence_row_number - 1"
-
-in_sequence_transaction_date_time=`
-echo "select $select from $table order by $order;"		|
-sql.e								|
-head -$in_sequence_row_number					|
-tail -1								|
-piece.e '^' 1`
-
-good_sequence_number=`
-echo "select $select from $table order by $order;"		|
-sql.e								|
-head -$in_sequence_row_number					|
-tail -1								|
-piece.e '^' 0`
-
-select=bank_date,bank_description
-where="transaction_date_time >= '$in_sequence_transaction_date_time'"
-order=transaction_date_time
+let "new_sequence_number = $prior_sequence_number + 1"
 
 (
 echo "select $select from $table where $where order by $order;"	|
 sql.e								|
 while read record
 do
-	echo "${record}^sequence_number^$good_sequence_number"
-	let good_sequence_number++
+	echo "${record}^sequence_number^$new_sequence_number"
+	let new_sequence_number++
 done
 )								|
 update_statement.e table=bank_upload key=$select carrot=y

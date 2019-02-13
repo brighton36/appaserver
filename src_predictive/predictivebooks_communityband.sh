@@ -3781,6 +3781,7 @@ insert into payroll_pay_period (payroll_pay_period) values ('biweekly');
 insert into payroll_pay_period (payroll_pay_period) values ('monthly');
 insert into payroll_pay_period (payroll_pay_period) values ('semimonthly');
 insert into payroll_pay_period (payroll_pay_period) values ('weekly');
+insert into tax_form_line_account (tax_form,tax_form_line,account) values ('1099','7','Director''s pay');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','amazon_smile');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','band_boosters_collection');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','big_day_of_giving');
@@ -3874,6 +3875,7 @@ insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','26B','Director''s payable');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','26B','Rent payable');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','26B','uncleared_checks');
+insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('1099','7','Nonemployee Compensation','n');
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('IRS_990ez','01','contributions_gifts',null);
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('IRS_990ez','02','program_service_revenue',null);
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('IRS_990ez','03','membership_dues',null);
@@ -3893,6 +3895,7 @@ insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,		
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('IRS_990ez','22B','cash_savings_investments',null);
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('IRS_990ez','24B','other_assets','y');
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('IRS_990ez','26B','liability','y');
+insert into tax_form (tax_form) values ('1099');
 insert into tax_form (tax_form) values ('IRS_990ez');
 insert into inventory_cost_method (inventory_cost_method) values ('average');
 insert into inventory_cost_method (inventory_cost_method) values ('FIFO');

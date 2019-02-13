@@ -34,7 +34,7 @@ if [ "$bank_date" = "" -o "$bank_date" = "bank_date" ]
 then
 	prior_sequence_number=1
 else
-	prior_sequence_number=`	bank_upload_prior_sequence_number.sh
+	prior_sequence_number=`bank_upload_prior_sequence_number.sh \
 				"$bank_date"`
 fi
 

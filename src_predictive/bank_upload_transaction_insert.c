@@ -117,9 +117,9 @@ int main( int argc, char **argv )
 			}
 		}
 		else
-		/* ------------------ */
-		/* Does the propagate */
-		/* ------------------ */
+		/* ------------------------ */
+		/* Doesn't do the propagate */
+		/* ------------------------ */
 		if ( delimiter_count == 4 )
 		{
 			piece( bank_date, '^', operation, 0 );
@@ -136,8 +136,10 @@ int main( int argc, char **argv )
 				street_address,
 				transaction_date_time );
 
+/*
 			bank_upload_transaction_balance_propagate(
 					bank_date );
+*/
 		}
 	}
 

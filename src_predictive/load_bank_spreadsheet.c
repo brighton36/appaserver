@@ -29,7 +29,8 @@
 /* Prototypes */
 /* ---------- */
 void bank_upload_reconciliation_transaction_insert(
-				LIST *bank_upload_table_list );
+				LIST *bank_upload_table_list,
+				char *minimum_bank_date );
 
 void bank_upload_propagate(	char *minimum_bank_date );
 
@@ -403,10 +404,10 @@ int load_bank_spreadsheet(
 		bank_upload_structure->table.bank_upload_table_list =
 			bank_upload_fetch_bank_upload_table_list(
 				application_name,
+				0 /* starting_sequence_number */,
 				bank_upload_structure->
-					starting_sequence_number,
-				(char *)0 /* begin_date		 */
-					  /* use sequence number */ );
+					file.
+					minimum_bank_date );
 
 		bank_upload_set_transaction(
 			bank_upload_structure->table.bank_upload_table_list,
@@ -434,14 +435,10 @@ int load_bank_spreadsheet(
 		bank_upload_reconciliation_transaction_insert(
 			bank_upload_structure->
 				table.
-				bank_upload_table_list );
-
-/*
-		bank_upload_propagate(
+				bank_upload_table_list,
 			bank_upload_structure->
 				file.
 				minimum_bank_date );
-*/
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -564,7 +561,10 @@ void load_bank_spreadsheet_transactions_only(
 		bank_upload_reconciliation_transaction_insert(
 			bank_upload_structure->
 				table.
-				bank_upload_table_list );
+				bank_upload_table_list,
+			bank_upload_structure->
+				file.
+				minimum_bank_date );
 
 /*
 		bank_upload_propagate(
@@ -605,7 +605,8 @@ void bank_upload_propagate( char *minimum_bank_date )
 } /* bank_upload_propagate() */
 
 void bank_upload_reconciliation_transaction_insert(
-				LIST *bank_upload_table_list )
+				LIST *bank_upload_table_list,
+				char *minimum_bank_date )
 {
 	char sys_string[ 1024 ];
 	BANK_UPLOAD *bank_upload;
@@ -617,8 +618,8 @@ void bank_upload_reconciliation_transaction_insert(
 
 		if ( !bank_upload->transaction ) continue;
 
-		/* Also does the two propagates. */
-		/* ----------------------------- */
+		/* No longer does the two propagates. */
+		/* ---------------------------------- */
 		sprintf(
 		sys_string,
 		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
@@ -631,6 +632,8 @@ void bank_upload_reconciliation_transaction_insert(
 		system( sys_string );
 
 	} while( list_next( bank_upload_table_list ) );
+
+	bank_upload_transaction_balance_propagate( minimum_bank_date );
 
 } /* bank_upload_reconciliation_transaction_insert() */
 

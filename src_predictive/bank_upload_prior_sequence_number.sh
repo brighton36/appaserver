@@ -30,10 +30,36 @@ fi
 # ----------------------
 bank_date=`echo $1 | column.e 0`
 
-select="max(sequence_number)"
-table=bank_upload
-where="bank_date < '$bank_date'"
+# All selecting from bank_upload_transaction_balance
+# --------------------------------------------------
+from=bank_upload_transaction_balance
 
-echo "select $select from $table where $where;" | sql.e
+# Get the minimum transaction_date for this bank_date
+# ---------------------------------------------------
+select="min( transaction_date_time )"
+
+where="bank_date = '$bank_date'"
+
+min_transaction_date_time=`echo "select $select from $from where $where;" | sql.e`
+
+# Get the maximum sequence number before the minimum transaction_date_time.
+# -------------------------------------------------------------------------
+select="max( sequence_number )"
+where="transaction_date_time < '$min_transaction_date_time'"
+
+max_sequence_number=`echo "select $select from $from where $where;" | sql.e`
+
+# ------------------------------------------------------------------------
+# Get the transaction_date_time for this sequence_number.
+# Note: *this* script is supposed to prevent duplicated sequence_numbers.
+# Nonetheless, get the minimum.
+# ------------------------------------------------------------------------
+
+select="min( transaction_date_time )"
+where="sequence_number = $max_sequence_number"
+
+transaction_date_time=`echo "select $select from $from where $where;" | sql.e`
+
+echo "$max_sequence_number^$transaction_date_time"
 
 exit 0

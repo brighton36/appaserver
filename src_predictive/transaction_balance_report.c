@@ -431,7 +431,7 @@ void transaction_balance_report_summary_outbalance(
 		last_outbalance_block->
 			begin_transaction_balance;
 
-	printf( "<h3>First outblance row: %s</h3>\n",
+	printf( "<h3>First outbalance row: %s</h3>\n",
 		transaction_balance_row_display(
 			first_outbalance_row,
 			transaction_balance_row_list,

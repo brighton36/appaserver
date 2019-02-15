@@ -353,7 +353,10 @@ int main( int argc, char **argv )
 			application_name,
 			process_generic_output,
 			post_dictionary,
-			1 /* with_set_dates */ );
+			1 /* with_set_dates */,
+			process_generic_output->
+				value_folder->
+				value_folder_name );
 
 	build_sys_string(
 				sys_string,

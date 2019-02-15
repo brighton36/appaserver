@@ -262,7 +262,8 @@ char *process_generic_output_get_dictionary_where_clause(
 			char *application_name,
 			PROCESS_GENERIC_OUTPUT *process_generic_output,
 			DICTIONARY *dictionary,
-			boolean with_set_dates );
+			boolean with_set_dates,
+			char *value_folder_name );
 
 LIST *process_generic_get_compare_datatype_list(
 			char **first_where_clause,
@@ -410,7 +411,7 @@ boolean process_generic_output_validate_begin_end_date(
 
 char *process_generic_output_get_drop_down_where_clause(
 			char *application_name,
-			PROCESS_GENERIC_OUTPUT *process_generic_output,
+			char *value_folder_name,
 			DICTIONARY *dictionary );
 
 #endif

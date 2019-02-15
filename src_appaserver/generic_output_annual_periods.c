@@ -379,7 +379,10 @@ int main( int argc, char **argv )
 			application_name,
 			process_generic_output,
 			parameter_dictionary,
-			1 /* with_set_dates */ );
+			1 /* with_set_dates */,
+			process_generic_output->
+				value_folder->
+				value_folder_name );
 
 	aggregate_statistic =
 		aggregate_statistic_get_aggregate_statistic(

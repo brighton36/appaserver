@@ -221,7 +221,8 @@ QUERY *query_process_drop_down_new(
 	query->query_output =
 		query_process_drop_down_output_new(
 			query,
-			query->folder );
+			query->folder,
+			query->folder->folder_name );
 
 	return query;
 
@@ -547,7 +548,8 @@ m2( folder->application_name, msg );
 			query_output->query_drop_down_list,
 			query_output->query_attribute_list,
 			folder->application_name,
-			folder->folder_name );
+			folder->folder_name,
+			0 /* not combine_date_time */ );
 
 	if ( !query_output->where_clause
 	||   !*query_output->where_clause )
@@ -656,7 +658,8 @@ QUERY_OUTPUT *query_primary_data_output_new(
 			query_output->query_drop_down_list,
 			query_output->query_attribute_list,
 			folder->application_name,
-			folder->folder_name );
+			folder->folder_name,
+			0 /* not combine_date_time */ );
 
 	if ( folder->row_level_non_owner_forbid
 	&&   list_length( folder->mto1_isa_related_folder_list ) )
@@ -727,7 +730,8 @@ QUERY_OUTPUT *query_process_parameter_output_new(
 			query_output->query_drop_down_list,
 			query_output->query_attribute_list,
 			application_name,
-			(char *)0 /* folder_name */ );
+			(char *)0 /* folder_name */,
+			1 /* combine_date_time */ );
 
 	return query_output;
 
@@ -735,7 +739,8 @@ QUERY_OUTPUT *query_process_parameter_output_new(
 
 QUERY_OUTPUT *query_process_drop_down_output_new(
 				QUERY *query,
-				FOLDER *folder )
+				FOLDER *folder,
+				char *folder_name )
 {
 	QUERY_OUTPUT *query_output;
 
@@ -778,7 +783,8 @@ m2( folder->application_name, msg );
 			query_output->query_drop_down_list,
 			query_output->query_attribute_list,
 			folder->application_name,
-			(char *)0 /* folder_name */ );
+			folder_name,
+			1 /* combine_date_time */ );
 
 	return query_output;
 
@@ -899,7 +905,8 @@ m2( folder->application_name, msg );
 			query_output->query_drop_down_list,
 			query_output->query_attribute_list,
 			folder->application_name,
-			folder->folder_name );
+			folder->folder_name,
+			0 /* not combine_date_time */ );
 	}
 
 	if ( !query_output->where_clause
@@ -3575,11 +3582,6 @@ char *query_get_process_where_clause(
 			LIST *query_drop_down_list,
 			LIST *query_attribute_list,
 			char *application_name,
-			/* -------------------------------------- */
-			/* Processes don't send the folder_name.  */
-			/* Therefore, combine date and time in    */
-			/* where clause.			  */
-			/* -------------------------------------- */
 			char *folder_name )
 {
 	if ( !list_length( query_drop_down_list )
@@ -3593,32 +3595,47 @@ char *query_get_process_where_clause(
 	{
 		*drop_down_where_clause =
 			query_get_process_drop_down_where_clause(
-				query_drop_down_list );
+				query_drop_down_list,
+				folder_name );
+
 		return *drop_down_where_clause;
 	}
 	if ( !list_length( query_drop_down_list )
 	&&   list_length( query_attribute_list ) )
 	{
+		boolean combine_date_time = 0;
+
+		/* Fix this! */
+		/* --------- */
+		if ( !folder_name ) combine_date_time = 1;
+
 		*attribute_where_clause =
 			query_get_attribute_where_clause(
 				query_attribute_list,
 				application_name,
-				folder_name );
+				combine_date_time );
+
 		return *attribute_where_clause;
 	}
 	else
 	{
 		char where_clause[ 65536 ];
+		boolean combine_date_time = 0;
+
+		/* Fix this! */
+		/* --------- */
+		if ( !folder_name ) combine_date_time = 1;
 
 		*drop_down_where_clause =
 			query_get_process_drop_down_where_clause(
-				query_drop_down_list );
+				query_drop_down_list,
+				folder_name );
 
 		*attribute_where_clause =
 			query_get_attribute_where_clause(
 				query_attribute_list,
 				application_name,
-				folder_name );
+				combine_date_time );
 
 		sprintf( where_clause,
 			 "%s and %s",
@@ -3636,12 +3653,8 @@ char *query_get_where_clause(
 			LIST *query_drop_down_list,
 			LIST *query_attribute_list,
 			char *application_name,
-			/* -------------------------------------- */
-			/* Processes don't send the folder_name.  */
-			/* Therefore, combine date and time in    */
-			/* where clause.			  */
-			/* -------------------------------------- */
-			char *folder_name )
+			char *folder_name,
+			boolean combine_date_time )
 {
 	if ( !list_length( query_drop_down_list )
 	&&   !list_length( query_attribute_list ) )
@@ -3655,7 +3668,9 @@ char *query_get_where_clause(
 		*drop_down_where_clause =
 			query_get_drop_down_where_clause(
 				query_drop_down_list,
-				application_name );
+				application_name,
+				folder_name );
+
 		return *drop_down_where_clause;
 	}
 
@@ -3666,7 +3681,8 @@ char *query_get_where_clause(
 			query_get_attribute_where_clause(
 				query_attribute_list,
 				application_name,
-				folder_name );
+				combine_date_time );
+
 		return *attribute_where_clause;
 	}
 	else
@@ -3676,13 +3692,14 @@ char *query_get_where_clause(
 		*drop_down_where_clause =
 			query_get_drop_down_where_clause(
 				query_drop_down_list,
-				application_name );
+				application_name,
+				folder_name );
 
 		*attribute_where_clause =
 			query_get_attribute_where_clause(
 				query_attribute_list,
 				application_name,
-				folder_name );
+				combine_date_time );
 
 		sprintf( where_clause,
 			 "%s and %s",
@@ -3698,12 +3715,7 @@ boolean query_get_date_time_between_attributes(
 			QUERY_ATTRIBUTE **date_between_attribute,
 			QUERY_ATTRIBUTE **time_between_attribute,
 			LIST *query_attribute_list,
-			/* -------------------------------------- */
-			/* Processes don't send the folder_name.  */
-			/* Therefore, combine date and time in    */
-			/* where clause.			  */
-			/* -------------------------------------- */
-			char *folder_name )
+			boolean combine_date_time )
 {
 	QUERY_ATTRIBUTE *query_attribute;
 
@@ -3713,7 +3725,7 @@ boolean query_get_date_time_between_attributes(
 		query_attribute = list_get( query_attribute_list );
 
 		if ( ( query_attribute->primary_key_index
-		||     !folder_name )
+		||     combine_date_time )
 		&&   query_attribute->relational_operator == between
 		&&  (timlib_strcmp( query_attribute->datatype, "time" ) == 0
 		||   timlib_strcmp( query_attribute->
@@ -3724,7 +3736,7 @@ boolean query_get_date_time_between_attributes(
 		}
 
 		if ( ( query_attribute->primary_key_index
-		||     !folder_name )
+		||     combine_date_time )
 		&&   query_attribute->relational_operator == between
 		&&  (timlib_strcmp( query_attribute->datatype, "date" ) == 0
 		||   timlib_strcmp( query_attribute->
@@ -3743,12 +3755,7 @@ boolean query_get_date_time_between_attributes(
 char *query_get_attribute_where_clause(
 				LIST *query_attribute_list,
 				char *application_name,
-				/* -------------------------------------- */
-				/* Processes don't send the folder_name.  */
-				/* Therefore, combine date and time in    */
-				/* where clause.			  */
-				/* -------------------------------------- */
-				char *folder_name )
+				boolean combine_date_time )
 {
 	char where_clause[ 65536 ];
 	char *ptr = where_clause;
@@ -3777,7 +3784,7 @@ char *query_get_attribute_where_clause(
 			&date_between_attribute,
 			&time_between_attribute,
 			query_attribute_list,
-			folder_name ) )
+			combine_date_time ) )
 	{
 		ptr += sprintf( ptr,
 				"%s",
@@ -4116,7 +4123,8 @@ char *query_get_attribute_where_clause(
 } /* query_get_attribute_where_clause() */
 
 char *query_get_process_drop_down_where_clause(
-					LIST *query_drop_down_list )
+					LIST *query_drop_down_list,
+					char *folder_name )
 {
 	QUERY_DROP_DOWN *query_drop_down;
 	QUERY_DROP_DOWN_ROW *query_drop_down_row;
@@ -4189,7 +4197,19 @@ char *query_get_process_drop_down_where_clause(
 					query_drop_down_row->
 						attribute_name_list );
 
-			ptr += sprintf( ptr, " %s in (", attribute_name );
+			if ( folder_name )
+			{
+				ptr += sprintf( ptr,
+						" %s.%s in (",
+						folder_name,
+						attribute_name );
+			}
+			else
+			{
+				ptr += sprintf( ptr,
+						" %s in (",
+						attribute_name );
+			}
 
 			inner_inner_first_time = 1;
 
@@ -4239,7 +4259,8 @@ char *query_get_process_drop_down_where_clause(
 } /* query_get_process_drop_down_where_clause() */
 
 char *query_get_drop_down_where_clause(	LIST *query_drop_down_list,
-					char *application_name )
+					char *application_name,
+					char *folder_name )
 {
 	QUERY_DROP_DOWN *query_drop_down;
 	QUERY_DROP_DOWN_ROW *query_drop_down_row;
@@ -4248,7 +4269,6 @@ char *query_get_drop_down_where_clause(	LIST *query_drop_down_list,
 	char *ptr = where_clause;
 	char *attribute_name;
 	char *data;
-	char *folder_name;
 	boolean outter_first_time;
 	boolean inner_first_time;
 	boolean inner_inner_first_time;
@@ -4351,9 +4371,11 @@ char *query_get_drop_down_where_clause(	LIST *query_drop_down_list,
 					ptr += sprintf( ptr, " and" );
 				}
 
+/*
 				folder_name =
 					query_drop_down->
 						folder_name;
+*/
 
 				ptr += sprintf(
 					ptr,
@@ -4425,11 +4447,21 @@ char *query_get_subquery_where_clause(	char *application_name,
 					query_get_drop_down_where_clause(
 						query_subquery->
 							query_drop_down_list,
-						application_name ) );
+						application_name,
+						(char *)0 /* folder_name */ ) );
 		}
 
 		if ( list_length( query_subquery->query_attribute_list ) )
 		{
+			boolean combine_date_time = 0;
+
+			/* Fix this! */
+			/* --------- */
+			if ( !query_subquery->folder_name )
+			{
+				combine_date_time = 1;
+			}
+
 			where_ptr += sprintf(
 					where_ptr,
 					" and %s", 
@@ -4437,7 +4469,7 @@ char *query_get_subquery_where_clause(	char *application_name,
 						query_subquery->
 							query_attribute_list,
 						application_name,
-						query_subquery->folder_name ) );
+						combine_date_time ) );
 		}
 
 		where_ptr += sprintf( where_ptr, " )" );
@@ -4497,7 +4529,7 @@ char *query_get_drop_down_data_where(	char *application_name,
 		else
 		{
 			sprintf(where,
-					" %s = '%s'",
+				" %s = '%s'",
 			 	get_full_attribute_name(
 			 		application_name,
 			 		folder_name,
@@ -4527,11 +4559,12 @@ char *query_get_drop_down_data_where(	char *application_name,
 		else
 		{
 			sprintf(where,
-			 	" %s = '%s'",
+					" %s = '%s'",
 			 	attribute_name,
 			 	data );
 		}
-	}
+	} /* if !folder_name */
+
 	return where;
 
 } /* query_get_drop_down_data_where() */
@@ -5669,7 +5702,8 @@ m2( folder->application_name, msg );
 			query_output->query_drop_down_list,
 			query_output->query_attribute_list,
 			folder->application_name,
-			folder->folder_name );
+			folder->folder_name,
+			0 /* not combine_date_time */ );
 	}
 
 	if ( !query_output->where_clause

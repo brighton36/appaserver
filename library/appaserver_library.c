@@ -1098,7 +1098,9 @@ database_management_system = "";
 			where_clause =
 			process_generic_output_get_drop_down_where_clause(
 				application_name,
-				process_generic_output,
+				process_generic_output->
+					value_folder->
+					value_folder_name,
 				post_dictionary );
 
 			if ( !where_clause || !*where_clause ) return 0;
@@ -1138,7 +1140,9 @@ database_management_system = "";
 			where_clause =
 			process_generic_output_get_drop_down_where_clause(
 				application_name,
-				process_generic_output,
+				process_generic_output->
+					value_folder->
+					value_folder_name,
 				post_dictionary );
 
 			process_generic_output_get_period_of_record_date(

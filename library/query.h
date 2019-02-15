@@ -338,26 +338,18 @@ char *query_get_where_clause(	char **drop_down_where_clause,
 				LIST *query_drop_down_list,
 				LIST *query_attribute_list,
 				char *application_name,
-				/* -------------------------------------- */
-				/* Processes don't send the folder_name.  */
-				/* Therefore, combine date and time in    */
-				/* where clause.			  */
-				/* -------------------------------------- */
-				char *folder_name );
+				char *folder_name,
+				boolean combine_date_time );
 
 char *query_get_drop_down_where_clause(
 				LIST *query_drop_down_list,
-				char *application_name );
+				char *application_name,
+				char *folder_name );
 
 char *query_get_attribute_where_clause(
 				LIST *query_attribute_list,
 				char *application_name,
-				/* -------------------------------------- */
-				/* Processes don't send the folder_name.  */
-				/* Therefore, combine date and time in    */
-				/* where clause.			  */
-				/* -------------------------------------- */
-				char *folder_name );
+				boolean combine_date_time );
 
 char *query_get_simple_where_clause(
 				FOLDER *folder,
@@ -421,12 +413,7 @@ boolean query_get_date_time_between_attributes(
 				QUERY_ATTRIBUTE **date_between_attribute,
 				QUERY_ATTRIBUTE **time_between_attribute,
 				LIST *query_attribute_list,
-				/* -------------------------------------- */
-				/* Processes don't send the folder_name.  */
-				/* Therefore, combine date and time in    */
-				/* where clause.			  */
-				/* -------------------------------------- */
-				char *folder_name );
+				boolean combine_date_time );
 
 boolean query_data_list_accounted_for(
 				LIST *query_drop_down_row_list,
@@ -545,7 +532,8 @@ char *query_drop_down_list_in_clause_display(
 				LIST *data_list );
 
 char *query_get_process_drop_down_where_clause(
-				LIST *query_drop_down_list );
+				LIST *query_drop_down_list,
+				char *folder_name );
 
 char *query_get_dictionary_where_clause(
 				DICTIONARY *dictionary,
@@ -591,7 +579,8 @@ QUERY *query_process_drop_down_new(
 
 QUERY_OUTPUT *query_process_drop_down_output_new(
 				QUERY *query,
-				FOLDER *folder );
+				FOLDER *folder,
+				char *folder_name );
 
 LIST *query_process_drop_down_get_drop_down_list(
 				LIST *mto1_related_folder_list,

@@ -1886,13 +1886,6 @@ QUERY_DROP_DOWN *query_get_subquery_drop_down(
 	int highest_index;
 	int index;
 
-
-fprintf( stderr, "%s/%s()/%d: got dictionary = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( dictionary ) );
-
 	highest_index =
 		dictionary_attribute_name_list_get_highest_index(
 			dictionary,
@@ -3214,7 +3207,15 @@ char *query_append_where_clause_related_join(
 
 	piece_last( last_folder_name, ',', folder_name );
 
-	where_ptr += sprintf( where_ptr, "%s", source_where_clause );
+	if ( source_where_clause )
+	{
+		where_ptr += sprintf( where_ptr, "%s", source_where_clause );
+	}
+	else
+	{
+		*where_ptr = '\0';
+		/* where_ptr += sprintf( where_ptr, "1 = 1" ); */
+	}
 
 	if ( !list_rewind( primary_attribute_name_list ) )
 		return strdup( where_clause );
@@ -3224,7 +3225,11 @@ char *query_append_where_clause_related_join(
 		return strdup( where_clause );
 	}
 
-	if ( *source_where_clause ) prepend_and_clause = 1;
+	if ( source_where_clause
+	&&   *source_where_clause )
+	{
+		prepend_and_clause = 1;
+	}
 
 	do {
 		primary_attribute_name =

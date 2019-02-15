@@ -263,9 +263,13 @@ char *list_buffered_display(	char *destination,
 LIST *list_merge_string_list(	LIST *list1,
 				LIST *list2,
 				char delimiter );
+
+/* This will generate an in clause */
+/* ------------------------------- */
 char *list_display_quote_comma_delimited(
 				char *destination, 
 				LIST *list );
+
 char *list_display_double_quote_comma_delimited(
 				char *destination, 
 				LIST *list );

@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../utility
-	make keys_match_sum.e
+	cd ../src_appaserver
+	make delete_folder_row
 fi

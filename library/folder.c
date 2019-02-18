@@ -51,12 +51,16 @@ FOLDER *folder_new_folder(	char *application_name,
 
 	if ( folder_name && strcmp( folder_name, "null" ) == 0 )
 	{
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: empty folder_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 		return (FOLDER *)0;
 	}
 
 
-	f = (FOLDER *)calloc( 1, sizeof( FOLDER ) );
-	if ( !f )
+	if ( ! ( f = (FOLDER *)calloc( 1, sizeof( FOLDER ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR: cannot allocate a new folder.\n" );
@@ -149,6 +153,13 @@ FOLDER *folder_with_load_new(	char *application_name,
 			role_name,
 			folder->mto1_related_folder_list ) )
 	{
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: cannot load folder=%s\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 folder->folder_name );
+
 		return (FOLDER *)0;
 	}
 
@@ -1946,8 +1957,8 @@ boolean folder_exists_folder(		char *application_name,
 				0 /* don't override_row_restrictions */,
 				(char *)0 /* role_name */ );
 
-	return (boolean)folder_seek_folder(	folder_list,
-						folder_name );
+	return (boolean)( folder_seek_folder(	folder_list,
+						folder_name ) != (void *)0 );
 
 } /* folder_exists_folder() */
 
@@ -1962,9 +1973,9 @@ boolean folder_exists_attribute(	char *application_name,
 			application_name,
 			folder_name );
 
-	return (boolean)attribute_seek_attribute(
+	return (boolean) ( attribute_seek_attribute(
 				attribute_list,
-				attribute_name );
+				attribute_name ) != (void *)0 );
 
 } /* folder_exists_folder() */
 

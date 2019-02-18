@@ -69,7 +69,13 @@ DELETE_DATABASE *delete_database_new(
 
 LIST *delete_database_get_delete_folder_list(
 				char *application_name,
-				FOLDER *folder,
+				char *folder_name,
+				PROCESS *post_change_process,
+				LIST *primary_attribute_name_list,
+				boolean row_level_non_owner_forbid,
+				boolean row_level_non_owner_view_only,
+				LIST *mto1_isa_related_folder_list,
+				LIST *one2m_recursive_related_folder_list,
 				boolean dont_delete_mto1_isa,
 				LIST *primary_attribute_data_list,
 				char *login_name )
@@ -80,27 +86,33 @@ LIST *delete_database_get_delete_folder_list(
 
 	delete_folder =
 		delete_database_delete_folder_new(
-			folder->folder_name,
+			folder_name,
 			0 /* not null_1tom_upon_delete */,
-			folder->post_change_process,
-			folder->primary_attribute_name_list );
+			post_change_process,
+			primary_attribute_name_list );
 
 	/* Make sure user didn't alter the web page source. */
 	/* ------------------------------------------------ */
-	if ( folder->row_level_non_owner_forbid
-	||   folder->row_level_non_owner_view_only )
+	if ( row_level_non_owner_forbid
+	||   row_level_non_owner_view_only )
 	{
 		LIST *delete_row_list;
+
+
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 
 		delete_row_list =
 			delete_database_get_delete_row_list(
 				application_name,
-				folder->folder_name,
-				folder->row_level_non_owner_forbid,
-				folder->row_level_non_owner_view_only,
-				folder->primary_attribute_name_list
+				folder_name,
+				row_level_non_owner_forbid,
+				row_level_non_owner_view_only,
+				primary_attribute_name_list
 					/* select_attribute_name_list */,
-				folder->primary_attribute_name_list
+				primary_attribute_name_list
 					/* where_attribute_name_list */,
 				primary_attribute_data_list
 					/* where_attribute_data_list */,
@@ -127,20 +139,20 @@ LIST *delete_database_get_delete_folder_list(
 	list_append_pointer( delete_folder_list, delete_folder );
 
 	if ( !dont_delete_mto1_isa
-	&&   list_length( folder->mto1_isa_related_folder_list ) )
+	&&   list_length( mto1_isa_related_folder_list ) )
 	{
 		delete_database_append_mto1_isa_delete_folder_list(
 			delete_folder_list,
 			application_name,
-			folder->mto1_isa_related_folder_list,
+			mto1_isa_related_folder_list,
 			delete_row->primary_attribute_data_list );
 	}
 
-	if ( list_length( folder->one2m_recursive_related_folder_list ) )
+	if ( list_length( one2m_recursive_related_folder_list ) )
 	{
 		delete_database_append_one2m_related_folder_list(
 			delete_folder_list,
-			folder->one2m_recursive_related_folder_list,
+			one2m_recursive_related_folder_list,
 			application_name,
 			delete_row->primary_attribute_data_list,
 			login_name );
@@ -165,6 +177,11 @@ void delete_database_append_one2m_delete_folder_list(
 	DELETE_ROW *delete_row;
 	DELETE_FOLDER *delete_folder;
 	RELATED_FOLDER *related_folder;
+
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 
 	delete_row_list =
 		delete_database_get_delete_row_list(
@@ -265,6 +282,11 @@ void delete_database_append_mto1_isa_delete_folder_list(
 				related_folder->
 					folder->
 					primary_attribute_name_list );
+
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 
 		delete_folder->delete_row_list =
 			delete_database_get_delete_row_list(
@@ -434,10 +456,12 @@ LIST *delete_database_get_delete_row_list(
 	||   !list_length( where_attribute_name_list ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty list.\n",
+"ERROR in %s/%s()/%d: length select_attribute_name_list = %d; length where_attribute_name_list = %d.\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__ );
+			 __LINE__,
+			 list_length( select_attribute_name_list ),
+			 list_length( where_attribute_name_list ) );
 		exit( 1 );
 	}
 
@@ -968,6 +992,15 @@ void delete_database_append_null_1tom_delete_folder_list(
 		delete_database_get_update_null_attribute_name_list(
 			foreign_attribute_name_list,
 			one2m_related_primary_attribute_name_list );
+
+/*
+fprintf( stderr, "%s/%s()/%d: for folder_name = (%s), got one2m_related_primary_attribute_name = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+one2m_related_folder_name,
+list_display( one2m_related_primary_attribute_name_list ) );
+*/
 
 	delete_folder->delete_row_list =
 		delete_database_get_delete_row_list(

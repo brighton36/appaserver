@@ -57,7 +57,13 @@ DELETE_DATABASE *delete_database_new(
 
 LIST *delete_database_get_delete_folder_list(
 			char *application_name,
-			FOLDER *folder,
+			char *folder_name,
+			PROCESS *post_change_process,
+			LIST *primary_attribute_name_list,
+			boolean row_level_non_owner_forbid,
+			boolean row_level_non_owner_view_only,
+			LIST *mto1_isa_related_folder_list,
+			LIST *one2m_recursive_related_folder_list,
 			boolean dont_delete_mto1_isa,
 			LIST *primary_attribute_data_list,
 			char *login_name );

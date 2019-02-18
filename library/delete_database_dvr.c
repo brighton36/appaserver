@@ -92,6 +92,14 @@ void test_benthic_appaserver_user( void )
 		delete_database_get_delete_folder_list(
 			delete_database->delete_folder_list,
 			application_name,
+			delete_database->folder->folder_name,
+			delete_database->folder->post_change_process,
+			delete_database->folder->primary_attribute_name_list,
+			delete_database->folder->row_level_non_owner_forbid,
+			delete_database->folder->row_level_non_owner_view_only,
+			delete_database->folder->mto1_isa_related_folder_list,
+			delete_database->folder->
+				one2m_recursive_related_folder_list,
 			delete_database->dont_delete_mto1_isa,
 			delete_database->root_folder_name,
 			delete_database->root_primary_attribute_data_list ) ) )

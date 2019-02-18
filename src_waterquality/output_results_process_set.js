@@ -18,11 +18,24 @@ function post_change_output_results( current_element )
 			"aggregate_statistic_0" );
 	element.disabled = 0;
 
-	process_element = timlib_get_element( "output_results_0" );
+	process_element =
+		timlib_get_element(
+			"output_results_per_station_0" );
+
+	if ( !process_element )
+	{
+		process_element =
+			timlib_get_element(
+				"output_results_per_project_0" );
+
+		if ( !process_element ) return true;
+	}
 
 	process_value =
 		timlib_get_drop_down_element_value(
 			process_element.options );
+
+	if ( !process_value ) return true;
 
 	if ( process_value == 'output_results_high_average_low' )
 	{
@@ -56,7 +69,8 @@ function post_change_output_results( current_element )
 		element.disabled = 1;
 	}
 	else
-	if ( process_value == 'output_results_exception' )
+	if ( ( process_value == 'output_results_exception' )
+	||   ( process_value == 'output_results_exception_free' ) )
 	{
 		element =
 			timlib_get_element(

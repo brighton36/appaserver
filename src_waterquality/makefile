@@ -26,6 +26,7 @@ EXECUTABLES=	load_sfwmd_file						\
 		load_fiu_file						\
 		load_turkey_point_file					\
 		output_results_exception				\
+		output_results_exception_free				\
 		google_map_station_operation				\
 		google_map_project_process
 
@@ -147,6 +148,17 @@ output_results_exception: output_results_exception.c			\
 		${STANDARD_LIBRARY} 					\
 		output_results_exception.c				\
 		-o output_results_exception
+
+output_results_exception_free: output_results_exception_free.c		\
+		${STANDARD_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-I${SOURCE_EVERGLADES}					\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		output_results_exception_free.c				\
+		-o output_results_exception_free
 
 google_map_station_operation: google_map_station_operation.c		\
 		${STANDARD_LIBRARY}					\

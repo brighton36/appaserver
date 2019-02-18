@@ -342,6 +342,8 @@ char *list_display_quoted( char *destination, LIST *list )
 						',' );
 } /* list_display_quoted() */
 
+/* This will generate an in clause */
+/* ------------------------------- */
 char *list_display_quote_comma_delimited(
 					char *destination, 
 					LIST *list )
@@ -1530,6 +1532,8 @@ LIST *list_quote_comma_string2list( char *list_string )
 	return list;
 } /* list_quote_comma_string2list() */
 
+/* Free all memory with list_free_string_list() */
+/* -------------------------------------------- */
 LIST *string2list( char *list_string, char delimiter )
 {
 	LIST *list = list_new();

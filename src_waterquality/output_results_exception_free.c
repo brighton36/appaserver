@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_waterquality/output_results_exception.c		*/
+/* src_waterquality/output_results_exception_free.c	*/
 /* ---------------------------------------------------	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
@@ -30,18 +30,41 @@
 
 /* Constants */
 /* --------- */
+#define QUEUE_TOP_BOTTOM_LINES	500
 
-#define FILENAME_STEM		"results_exception"
+#define FILENAME_STEM		"results_exception_free"
 
 /* Prototypes */
 /* ---------- */
+void output_results_exception_table(
+				char *select,
+				char *from_clause,
+				char *parameter_where_clause,
+				char *subquery_where );
+
+char *exception_free_subquery_where(
+				char *application_name,
+				char *value_folder_name );
+
+/* Returns count. */
+/* -------------- */
+int output_results_exception_spreadsheet(
+				char *application_name,
+				char *select,
+				char *from_clause,
+				char *parameter_where_clause,
+				char *subquery_where,
+				char *document_root_directory,
+				char *begin_date_string,
+				char *end_date_string );
+
 void output_results_exception(
-		char *application_name,
-		char *begin_date_string,
-		char *end_date_string,
-		PROCESS_GENERIC_OUTPUT *process_generic_output,
-		DICTIONARY *post_dictionary,
-		char *document_root_directory );
+				char *application_name,
+				char *begin_date_string,
+				char *end_date_string,
+				PROCESS_GENERIC_OUTPUT *process_generic_output,
+				DICTIONARY *post_dictionary,
+				char *document_root_directory );
 
 int main( int argc, char **argv )
 {
@@ -52,20 +75,25 @@ int main( int argc, char **argv )
 	char *end_date_string;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char buffer[ 256 ];
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
 	DICTIONARY *post_dictionary;
 
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process_set process_name begin_date end_date post_dictionary\n",
+"Usage: %s ignored process_set process_name begin_date end_date post_dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	process_set_name = argv[ 2 ];
 	process_name = argv[ 3 ];
 	begin_date_string = argv[ 4 ];
@@ -81,19 +109,6 @@ int main( int argc, char **argv )
 	dictionary_add_elements_by_removing_prefix(
 				    	post_dictionary,
 				    	QUERY_STARTING_LABEL );
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
 
 	add_dot_to_path();
 	add_utility_to_path();
@@ -182,18 +197,75 @@ void output_results_exception(
 		char *document_root_directory )
 {
 	char *parameter_where_clause;
-	char join_where_clause[ 1024 ];
-	char from_clause[ 1024 ];
-	char sys_string[ 3072 ];
+	char *subquery_where;
+	char *from_clause;
 	char *select;
+	int count;
+
+	select =
+"station,collection_date,collection_time,parameter,units,concentration";
+
+	from_clause = "results";
+
+	parameter_where_clause =
+		process_generic_output_get_dictionary_where_clause(
+			&begin_date_string,
+			&end_date_string,
+			application_name,
+			process_generic_output,
+			post_dictionary,
+			0 /* not with_set_dates */,
+			process_generic_output->
+				value_folder->
+				value_folder_name );
+
+	subquery_where =
+		exception_free_subquery_where(
+			application_name,
+			process_generic_output->
+				value_folder->
+				value_folder_name );
+
+	count = output_results_exception_spreadsheet(
+			application_name,
+			select,
+			from_clause,
+			parameter_where_clause,
+			subquery_where,
+			document_root_directory,
+			begin_date_string,
+			end_date_string );
+
+	output_results_exception_table(
+		select,
+		from_clause,
+		parameter_where_clause,
+		subquery_where );
+
+	printf( "<br><br>Selected %d rows.\n", count );
+
+} /* output_results_exception() */
+
+int output_results_exception_spreadsheet(
+					char *application_name,
+					char *select,
+					char *from_clause,
+					char *parameter_where_clause,
+					char *subquery_where,
+					char *document_root_directory,
+					char *begin_date_string,
+					char *end_date_string )
+{
+	char sys_string[ 3072 ];
 	FILE *input_pipe;
 	FILE *output_pipe;
 	char input_buffer[ 1024 ];
-	char heading[ 256 ];
-	boolean first_time = 1;
+	char quote_buffer[ 1024 ];
 	char *ftp_filename;
 	char *output_pipename; pid_t process_id = getpid();
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	LIST *list;
+	int count = 0;
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -206,7 +278,7 @@ void output_results_exception(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
-			"txt" );
+			"csv" );
 
 	appaserver_link_file->begin_date_string = begin_date_string;
 	appaserver_link_file->end_date_string = end_date_string;
@@ -242,16 +314,6 @@ void output_results_exception(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf( output_pipename, 
-		 OUTPUT_FILE_TEXT_FILE,
-		 appaserver_mount_point,
-		 application_name, 
-		 begin_date_string,
-		 end_date_string,
-		 process_id );
-*/
-	
 	if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -264,97 +326,40 @@ void output_results_exception(
 		fclose( output_pipe );
 	}
 
-	select =
-"results.station,results.collection_date,results.collection_time,results.parameter,results.units,results.concentration,results_exception.exception";
-
-	strcpy( heading, select );
-	search_replace_string( heading, "results.", "" );
-	search_replace_string( heading, "results_exception.", "" );
-	search_replace_character( heading, ',', '^' );
-
-/*
-	sprintf( sys_string,
-		 "delimiter2padded_columns.e '^' > %s",
-		 output_pipename );
-*/
-		sprintf(sys_string,
-		 	"tr '^' '%c' > %s",
-			OUTPUT_TEXT_FILE_DELIMITER,
-		 	output_pipename );
-
+	sprintf(sys_string,
+	 	"cat > %s",
+	 	output_pipename );
 
 	output_pipe = popen( sys_string, "w" );
 
-	fprintf( output_pipe, "#%s\n", heading );
-
-	parameter_where_clause =
-		process_generic_output_get_dictionary_where_clause(
-			&begin_date_string,
-			&end_date_string,
-			application_name,
-			process_generic_output,
-			post_dictionary,
-			0 /* not with_set_dates */,
-			process_generic_output->
-				value_folder->
-				value_folder_name );
-
-	sprintf( join_where_clause,
-	"results.station = results_exception.station and		 "
-	"results.collection_date = results_exception.collection_date and "
-	"results.collection_time = results_exception.collection_time and "
-	"results.parameter = results_exception.parameter and		 "
-	"results.units = results_exception.units			 " );
-
-	sprintf(	from_clause,
-			"results left join results_exception on %s",
-			join_where_clause );
+	fprintf( output_pipe, "%s\n", select );
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\"	|"
-		 "sql.e '%c'						|"
-		 "separate_children_from_parents.e '%c' 5		 ",
+	"echo \"select %s from %s where %s and %s order by %s;\"	|"
+		 "sql.e '%c'						 ",
 		 select,
 		 from_clause,
 		 parameter_where_clause,
+		 subquery_where,
 		 select,
-		 FOLDER_DATA_DELIMITER,
 		 FOLDER_DATA_DELIMITER );
 
 	input_pipe = popen( sys_string, "r" );
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		if ( strcmp( input_buffer, ".end" ) == 0 )
-		{
-			fprintf( output_pipe, "\n" );
-			first_time = 1;
-		}
-		else
-		if ( timlib_strncmp( input_buffer, ".parent " ) == 0 )
-		{
-			search_replace_string(	input_buffer,
-						".parent ",
-						"" );
-			fprintf( output_pipe, "%s", input_buffer );
-		}
-		else
-		if ( timlib_strncmp( input_buffer, ".child " ) == 0 )
-		{
-			search_replace_string(	input_buffer,
-						".child ",
-						"" );
+		if ( !*input_buffer ) continue;
 
-			if ( first_time )
-			{
-				fprintf( output_pipe, "^%s", input_buffer );
-				first_time = 0;
-			}
-			else
-			{
-				fprintf( output_pipe, ",%s", input_buffer );
-			}
-		}
+		list = list_string2list( input_buffer, FOLDER_DATA_DELIMITER );
+
+		fprintf(output_pipe,
+			"%s\n",
+			list_display_double_quote_comma_delimited(
+				quote_buffer,
+				list ) );
+
+		list_free_string_list( list );
+		count++;
 	}
 
 	pclose( input_pipe );
@@ -366,5 +371,88 @@ void output_results_exception(
 			(char *)0 /* target */,
 			(char *)0 /* application_type */ );
 
-} /* output_results_exception() */
+	printf( "<br>\n" );
+	printf( "<br>\n" );
+	fflush( stdout );
+
+	return count;
+
+} /* output_results_exception_spreadsheet() */
+
+void output_results_exception_table(	char *select,
+					char *from_clause,
+					char *parameter_where_clause,
+					char *subquery_where )
+{
+	char sys_string[ 3072 ];
+	FILE *input_pipe;
+	FILE *output_pipe;
+	char input_buffer[ 1024 ];
+
+	sprintf(sys_string,
+		"queue_top_bottom_lines.e %d	|"
+	 	"html_table.e '' '%s' '%c'	 ",
+		QUEUE_TOP_BOTTOM_LINES,
+	 	select,
+		FOLDER_DATA_DELIMITER );
+
+	output_pipe = popen( sys_string, "w" );
+
+	sprintf( sys_string,
+	"echo \"select %s from %s where %s and %s order by %s;\"	|"
+		 "sql.e '%c'						 ",
+		 select,
+		 from_clause,
+		 parameter_where_clause,
+		 subquery_where,
+		 select,
+		 FOLDER_DATA_DELIMITER );
+
+	input_pipe = popen( sys_string, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		if ( !*input_buffer ) continue;
+
+		fprintf(output_pipe,
+			"%s\n",
+			input_buffer );
+	}
+
+	pclose( input_pipe );
+	pclose( output_pipe );
+
+} /* output_results_exception_table() */
+
+char *exception_free_subquery_where(
+				char *application_name,
+				char *value_folder_name )
+{
+	char subquery_where[ 2048 ];
+	LIST *primary_attribute_name_list;
+	LIST *foreign_attribute_name_list;
+
+	primary_attribute_name_list =
+		folder_get_primary_attribute_name_list(
+			folder_get_attribute_list(
+				application_name,
+				value_folder_name ) );
+
+	foreign_attribute_name_list = list_copy( primary_attribute_name_list );
+
+	sprintf(subquery_where,
+		"not exists ( select 1 from %s where %s)",
+			"results_exception",
+			query_append_where_clause_related_join(
+				application_name,
+				(char *)0 /* source_where_clause */,
+				primary_attribute_name_list,
+				foreign_attribute_name_list,
+				value_folder_name,
+				"results_exception"
+					/* related_folder_name */ ) );
+
+	return strdup( subquery_where );
+
+} /* exception_free_subquery_where() */
 

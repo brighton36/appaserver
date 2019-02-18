@@ -296,7 +296,8 @@ char *get_species_where_clause(
 
 	return query_get_drop_down_where_clause(
 			query_drop_down_list,
-			application_name );
+			application_name,
+			(char *)0 /* folder_name */ );
 
 } /* get_species_where_clause() */
 

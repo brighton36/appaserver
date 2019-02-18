@@ -309,10 +309,10 @@ LIST *folder_get_primary_attribute_name_list(
 				LIST *attribute_list )
 {
 	ATTRIBUTE *attribute;
-	LIST *primary_attribute_name_list = {0};
+	LIST *primary_attribute_name_list;
 
 	if ( !attribute_list || !list_rewind( attribute_list ) )
-		return primary_attribute_name_list;
+		return (LIST *)0;
 
 	primary_attribute_name_list = list_new_list();
 

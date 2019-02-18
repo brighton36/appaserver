@@ -383,6 +383,7 @@ expected_ethernet_usage_percentage
 # ----------------
 # src_waterquality
 # ----------------
+output_results_exception_free
 load_sfwmd_file
 load_fiu_file
 load_turkey_point_file

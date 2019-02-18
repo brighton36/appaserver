@@ -204,8 +204,14 @@ void process_generic_value_folder_load(	char **value_folder_name,
 		 where_clause,
 		 FOLDER_DATA_DELIMITER );
 
-	results = pipe2string( sys_string );
-	if ( !results )
+
+fprintf( stderr, "%s/%s()/%d: sys_string = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sys_string );
+
+	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: ",
@@ -1215,7 +1221,10 @@ char *process_generic_output_get_text_file_sys_string(
 			application_name,
 			process_generic_output,
 			post_dictionary,
-			1 /* with_set_dates */ ) );
+			1 /* with_set_dates */,
+			process_generic_output->
+				value_folder->
+				value_folder_name ) );
 
 
 	select_list = process_generic_output_get_select_list(
@@ -1987,7 +1996,10 @@ char *process_generic_output_get_exceedance_stdout_sys_string(
 			application_name,
 			process_generic_output,
 			post_dictionary,
-			1 /* with_set_dates */ );
+			1 /* with_set_dates */,
+			process_generic_output->
+				value_folder->
+				value_folder_name );
 
 	/* Build order_clause */
 	/* ------------------ */
@@ -2411,16 +2423,14 @@ char *process_generic_output_get_row_dictionary_where_clause(
 
 char *process_generic_output_get_drop_down_where_clause(
 			char *application_name,
-			PROCESS_GENERIC_OUTPUT *process_generic_output,
+			char *value_folder_name,
 			DICTIONARY *dictionary )
 {
 	QUERY *query;
 
 	query = query_process_drop_down_new(
 			application_name,
-			process_generic_output->
-				value_folder->
-				value_folder_name,
+			value_folder_name,
 			dictionary /* query_dictionary */ );
 
 	if ( !query->query_output )
@@ -2436,7 +2446,8 @@ char *process_generic_output_get_dictionary_where_clause(
 			char *application_name,
 			PROCESS_GENERIC_OUTPUT *process_generic_output,
 			DICTIONARY *dictionary,
-			boolean with_set_dates )
+			boolean with_set_dates,
+			char *value_folder_name )
 {
 	static char where_clause[ 4096 ];
 	char *drop_down_where_clause;
@@ -2444,7 +2455,7 @@ char *process_generic_output_get_dictionary_where_clause(
 	drop_down_where_clause =
 		process_generic_output_get_drop_down_where_clause(
 			application_name,
-			process_generic_output,
+			value_folder_name,
 			dictionary );
 
 	if ( drop_down_where_clause && *drop_down_where_clause )
@@ -2460,8 +2471,7 @@ char *process_generic_output_get_dictionary_where_clause(
 				end_date,
 				dictionary,
 				application_name,
-				process_generic_output->
-					value_folder->value_folder_name,
+				value_folder_name,
 				process_generic_output->
 					value_folder->date_attribute_name,
 				where_clause,
@@ -2949,7 +2959,9 @@ boolean process_generic_output_validate_begin_end_date(
 		where_clause =
 		process_generic_output_get_drop_down_where_clause(
 				application_name,
-				process_generic_output,
+				process_generic_output->
+					value_folder->
+					value_folder_name,
 				post_dictionary );
 
 		if ( !*where_clause ) return 0;
@@ -2987,7 +2999,9 @@ boolean process_generic_output_validate_begin_end_date(
 		where_clause =
 		process_generic_output_get_drop_down_where_clause(
 				application_name,
-				process_generic_output,
+				process_generic_output->
+					value_folder->
+					value_folder_name,
 				post_dictionary );
 
 		process_generic_output_get_period_of_record_date(

@@ -127,6 +127,8 @@ char *date_display_yyyy_mm_dd(	DATE *date );
 char *date_display_yyyy_mm_dd_colon_hms(
 				DATE *date );
 
+char *date_get_hms(		DATE *date );
+
 char *date_display_yyyy_mm_dd_hh_mm(
 				DATE *date );
 
@@ -495,5 +497,7 @@ int date_months_between(	DATE *from_date,
 int date_get_days_in_year(	int year );
 
 void date_set_TZ(		char *TZ );
+
+char *date_get_hms(		DATE *date );
 
 #endif

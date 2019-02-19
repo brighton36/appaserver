@@ -1103,6 +1103,15 @@ char *date_display_yyyy_mm_dd_colon_hm( DATE *date )
 
 } /* date_display_yyyy_mm_dd_colon_hm() */
 
+char *date_get_hms( DATE *date )
+{
+	char buffer[ 128 ];
+	
+	date_get_colon_hhmmss( buffer, date );
+	return strdup( buffer );
+
+} /* date_get_hms() */
+
 char *date_display_yyyy_mm_dd_colon_hms( DATE *date )
 {
 	char buffer[ 128 ];

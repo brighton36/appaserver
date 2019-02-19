@@ -178,11 +178,6 @@ void delete_database_append_one2m_delete_folder_list(
 	DELETE_FOLDER *delete_folder;
 	RELATED_FOLDER *related_folder;
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-
 	delete_row_list =
 		delete_database_get_delete_row_list(
 			application_name,

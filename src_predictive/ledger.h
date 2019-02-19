@@ -1155,4 +1155,8 @@ boolean ledger_transaction_date_time_exists(
 				char *application_name,
 				char *transaction_date_time );
 
+char *ledger_get_non_cash_account_name(
+				char *application_name,
+				TRANSACTION *transaction );
+
 #endif

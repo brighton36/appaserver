@@ -975,6 +975,8 @@ LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 
 } /* bank_upload_fetch_existing_cash_journal_ledger_list() */
 
+/* Sets bank_upload->transaction and bank_upload->bank_upload_status */
+/* ----------------------------------------------------------------- */
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
 				LIST *reoccurring_transaction_list,
@@ -998,6 +1000,8 @@ void bank_upload_set_transaction(
 			continue;
 		}
 
+		bank_upload->bank_upload_status = feeder_phrase_match;
+
 		if ( ledger_exists_journal_ledger(
 				existing_cash_journal_ledger_list,
 				reoccurring_transaction->full_name,
@@ -1007,6 +1011,7 @@ void bank_upload_set_transaction(
 				bank_upload->bank_amount
 					/* transaction_amount */ ) )
 		{
+			bank_upload->bank_upload_status = existing_transaction;
 			continue;
 		}
 
@@ -1091,6 +1096,7 @@ void bank_upload_insert_transaction(	char *application_name,
 } /* bank_upload_insert_transaction() */
 
 void bank_upload_table_display(
+				char *application_name,
 				LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
@@ -1100,10 +1106,10 @@ void bank_upload_table_display(
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
-	heading = "bank_date,description,amount";
+	heading = "bank_date,account,description,amount";
 
 	sprintf( sys_string,
-		 "html_table.e '' %s '^' left,left,right",
+		 "html_table.e '' %s '^' left,left,left,right",
 		 heading );
 
 	output_pipe = popen( sys_string, "w" );
@@ -1112,8 +1118,12 @@ void bank_upload_table_display(
 		bank_upload = list_get( bank_upload_list );
 
 		fprintf( output_pipe,
-			 "%s^%s^%.2lf\n",
+			 "%s^%s^%s^%.2lf\n",
 			 bank_upload->bank_date,
+			 bank_upload_get_status_string(
+				application_name,
+				bank_upload->bank_upload_status,
+				bank_upload->transaction ),
 			 bank_upload->bank_description,
 			 bank_upload->bank_amount );
 
@@ -2174,4 +2184,37 @@ void bank_upload_transaction_balance_propagate(
 	system( sys_string );
 
 } /* bank_upload_transaction_balance_propagate() */
+
+char *bank_upload_get_status_string(
+				char *application_name,
+				enum bank_upload_status bank_upload_status,
+				TRANSACTION *transaction )
+{
+	if ( bank_upload_status == existing_transaction )
+	{
+		return "Existing transaction";
+	}
+	else
+	if ( bank_upload_status == feeder_phrase_match )
+	{
+		if ( !transaction )
+		{
+			fprintf( stderr,
+	"Error in %s/%s()/%d: got feeder_phrase_match but no transaction.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		return ledger_get_non_cash_account_name(
+				application_name,
+				transaction );
+	}
+	else
+	{
+		return "<p style=\"color:red\">No</p> transaction";
+	}
+
+} /* bank_upload_get_status_string() */
 

@@ -333,14 +333,10 @@ int load_bank_spreadsheet(
 
 	if ( !execute )
 	{
-		/* ---------- */
-		/* If display */
-		/* ---------- */
-		bank_upload_table_display(
-			bank_upload_structure->
-				file.
-				bank_upload_file_list );
-
+		/* ------------------------------------ */
+		/* Sets bank_upload->transaction	*/
+		/* and  bank_upload->bank_upload_status */
+		/* ------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
 			bank_upload_structure->
@@ -348,6 +344,12 @@ int load_bank_spreadsheet(
 				reoccurring_transaction_list,
 			bank_upload_structure->
 				existing_cash_journal_ledger_list );
+
+		bank_upload_table_display(
+			application_name,
+			bank_upload_structure->
+				file.
+				bank_upload_file_list );
 
 		bank_upload_transaction_table_display(
 			bank_upload_structure->
@@ -409,6 +411,10 @@ int load_bank_spreadsheet(
 					file.
 					minimum_bank_date );
 
+		/* ------------------------------------ */
+		/* Sets bank_upload->transaction	*/
+		/* and  bank_upload->bank_upload_status */
+		/* ------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->table.bank_upload_table_list,
 			bank_upload_structure->
@@ -491,9 +497,10 @@ void load_bank_spreadsheet_transactions_only(
 
 	if ( !execute )
 	{
-		/* ---------- */
-		/* If display */
-		/* ---------- */
+		/* ------------------------------------ */
+		/* Sets bank_upload->transaction	*/
+		/* and  bank_upload->bank_upload_status */
+		/* ------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
 			bank_upload_structure->
@@ -518,15 +525,6 @@ void load_bank_spreadsheet_transactions_only(
 		/* ------------ */
 		/* Else execute */
 		/* ------------ */
-#ifdef NOT_DEFINED
-		bank_upload_structure->table.bank_upload_table_list =
-			bank_upload_fetch_bank_upload_table_list(
-				application_name,
-				1 /* starting_sequence_number    */,
-				(char *)0 /* begin_date		 */
-					  /* use sequence number */ );
-#endif
-
 		bank_upload_structure->table.bank_upload_table_list =
 			bank_upload_fetch_bank_upload_table_list(
 				application_name,
@@ -535,6 +533,10 @@ void load_bank_spreadsheet_transactions_only(
 					file.
 					minimum_bank_date );
 
+		/* ------------------------------------ */
+		/* Sets bank_upload->transaction	*/
+		/* and  bank_upload->bank_upload_status */
+		/* ------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->table.bank_upload_table_list,
 			bank_upload_structure->

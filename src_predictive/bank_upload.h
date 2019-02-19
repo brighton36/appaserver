@@ -13,6 +13,10 @@
 
 /* Enumerated types */
 /* ---------------- */
+enum bank_upload_status{	bank_upload_status_unknown,
+				existing_transaction,
+				feeder_phrase_match };
+
 enum bank_upload_exception {	bank_upload_exception_none,
 				duplicated_spreadsheet_file,
 				empty_transaction_rows,
@@ -54,6 +58,7 @@ typedef struct
 	char *fund_name;
 	TRANSACTION *transaction;
 	LIST *reconciled_transaction_list;
+	enum bank_upload_status bank_upload_status;
 } BANK_UPLOAD;
 
 typedef struct
@@ -151,6 +156,8 @@ LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 					char *minimum_bank_date,
 					char *fund_name );
 
+/* Sets bank_upload->transaction and bank_upload->bank_upload_status */
+/* ----------------------------------------------------------------- */
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
 				LIST *reoccurring_transaction_list,
@@ -175,7 +182,8 @@ void bank_upload_transaction_table_display(
 void bank_upload_transaction_text_display(
 					LIST *bank_upload_list );
 
-void bank_upload_table_display(		LIST *bank_upload_list );
+void bank_upload_table_display(		char *application_name,
+					LIST *bank_upload_list );
 
 int bank_upload_get_starting_sequence_number(
 					char *application_name,
@@ -305,5 +313,8 @@ LIST *bank_upload_transaction_list_string_parse(
 void bank_upload_transaction_balance_propagate(
 					char *bank_date );
 
+char *bank_upload_get_status_string(	char *application_name,
+					enum bank_upload_status,
+					TRANSACTION *transaction );
 #endif
 

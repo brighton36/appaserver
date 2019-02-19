@@ -9725,3 +9725,41 @@ char *ledger_get_minimum_transaction_date(
 
 }
 
+char *ledger_get_non_cash_account_name(
+				char *application_name,
+				TRANSACTION *transaction )
+{
+	static char *checking_account = {0};
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !transaction ) return "";
+
+	if ( !checking_account )
+	{
+		checking_account =
+			ledger_get_hard_coded_account_name(
+				application_name,
+				(char *)0 /* fund_name */,
+				LEDGER_CASH_KEY,
+				0 /* not warning_only */ );
+	}
+
+	if ( !list_rewind( transaction->journal_ledger_list ) )
+		return "";
+
+	do {
+		journal_ledger =
+			list_get_pointer(
+				transaction->journal_ledger_list );
+
+		if ( timlib_strcmp(	journal_ledger->account_name,
+					checking_account ) != 0 )
+		{
+			return journal_ledger->account_name;
+		}
+	} while( list_next( transaction->journal_ledger_list ) );
+
+	return "";
+
+} /* ledger_get_non_cash_account_name() */
+

@@ -29,10 +29,11 @@ from="tax_form_line"
 
 where="tax_form = '$tax_form'"
 
-order="tax_form_line"
+#order="tax_form_line"
 
-echo "select $select from $from where $where order by $order;"	|
+echo "select $select from $from where $where;"			|
 sql.e 								|
+sort -n -k2							|
 while read record
 do
 	echo $record

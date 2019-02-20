@@ -643,14 +643,16 @@ void tax_process_accumulate_tax_form_line_total(
 				/* 2) accumulates to the credit		    */
 				/* 3) cash account is also credited	    */
 				/* ---------------------------------------- */
-				if ( !tax_form_line_account->accumulate_debit )
+/*
+				if ( tax_form_line_account->accumulate_debit )
 				{
 					amount = -amount;
 				}
+*/
 
 				tax_form_line->
 					tax_form_line_total +=
-						amount;
+						float_abs( amount );
 
 				tax_form_line_account->
 					tax_form_account_total +=

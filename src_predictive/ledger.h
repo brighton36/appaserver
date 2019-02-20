@@ -19,6 +19,8 @@
 
 /* Constants */
 /* --------- */
+#define LEDGER_NOT_SET_ACCOUNT		"not_set"
+
 #define LEDGER_LOCK_TRANSACTION_ATTRIBUTE		\
 					"lock_transaction_yn"
 
@@ -1158,5 +1160,7 @@ boolean ledger_transaction_date_time_exists(
 char *ledger_get_non_cash_account_name(
 				char *application_name,
 				TRANSACTION *transaction );
+
+char *ledger_get_account_name(	char *account_name );
 
 #endif

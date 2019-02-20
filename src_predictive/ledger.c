@@ -2528,23 +2528,6 @@ void ledger_list_text_display(	char *transaction_memo,
 		} while( list_next( ledger_list ) );
 	}
 
-/*
-	if ( *transaction_memo_buffer )
-	{
-		fprintf(output_pipe,
-			"^Total^%.2lf^%.2lf\n",
-			total_debit,
-			total_credit );
-	}
-	else
-	{
-		fprintf(output_pipe,
-			"Total^%.2lf^%.2lf\n",
-			total_debit,
-			total_credit );
-	}
-*/
-
 	fprintf( output_pipe, "\n" );
 	pclose( output_pipe );
 	fflush( stdout );
@@ -2622,7 +2605,9 @@ void ledger_list_html_display(	char *transaction_memo,
 			 		"%s^%.2lf^\n",
 					format_initial_capital(
 						buffer,
-						journal_ledger->account_name ),
+						ledger_get_account_name(
+							journal_ledger->
+								account_name) ),
 			 		journal_ledger->debit_amount );
 	
 				total_debit += journal_ledger->debit_amount;
@@ -2652,7 +2637,9 @@ void ledger_list_html_display(	char *transaction_memo,
 			 		"%s^^%.2lf\n",
 					format_initial_capital(
 						buffer,
-						journal_ledger->account_name ),
+						ledger_get_account_name(
+							journal_ledger->
+								account_name) ),
 			 		journal_ledger->credit_amount );
 	
 				total_credit += journal_ledger->credit_amount;
@@ -4617,15 +4604,16 @@ char *ledger_get_transaction_date_time( char *transaction_date )
 		date = date_yyyy_mm_dd_hms_new(	transaction_date_time );
 		date_increment_seconds( date, 1 );
 		transaction_time = date_get_hms( date );
-		date_free( date );
 
 		sprintf( transaction_date_time,
 			 "%s %s",
 			 transaction_date,
-			 prior_transaction_time );
+			 transaction_time );
 
 		strcpy( prior_transaction_time,
 			transaction_time );
+
+		date_free( date );
 	}
 
 	return strdup( transaction_date_time );
@@ -9745,7 +9733,7 @@ char *ledger_get_non_cash_account_name(
 	}
 
 	if ( !list_rewind( transaction->journal_ledger_list ) )
-		return "";
+		return LEDGER_NOT_SET_ACCOUNT;
 
 	do {
 		journal_ledger =
@@ -9755,11 +9743,21 @@ char *ledger_get_non_cash_account_name(
 		if ( timlib_strcmp(	journal_ledger->account_name,
 					checking_account ) != 0 )
 		{
-			return journal_ledger->account_name;
+			return ledger_get_account_name(
+					journal_ledger->account_name );
 		}
 	} while( list_next( transaction->journal_ledger_list ) );
 
-	return "";
+	return LEDGER_NOT_SET_ACCOUNT;
 
 } /* ledger_get_non_cash_account_name() */
+
+char *ledger_get_account_name( char *account_name )
+{
+	if ( !account_name )
+		return LEDGER_NOT_SET_ACCOUNT;
+	else
+		return account_name;
+
+} /* ledger_get_account_name() */
 

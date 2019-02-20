@@ -181,7 +181,7 @@ void latex_output_longtable_heading(	FILE *output_stream,
 {
 	LATEX_TABLE_HEADING *latex_table_heading;
 	int first_time;
-	char buffer[ 128 ];
+	char buffer[ 256 ];
 
 	if ( !WITH_CAPTION )
 	{
@@ -189,7 +189,10 @@ void latex_output_longtable_heading(	FILE *output_stream,
 		{
 			fprintf(output_stream,
 				"\\begin{center} { \\bf %s} \\end{center}\n",
-				caption );
+				escape_character(
+					buffer,
+					caption,
+					'_' /* character_to_escape */ ) );
 		}
 	}
 
@@ -221,9 +224,12 @@ void latex_output_longtable_heading(	FILE *output_stream,
 	{
 		if ( caption && *caption )
 		{
-			fprintf(	output_stream,
-					"\\caption {%s} \\\\ \\hline\n",
-					caption );
+			fprintf(output_stream,
+				"\\caption {%s} \\\\ \\hline\n",
+				escape_character(
+					buffer,
+					caption,
+					'_' /* character_to_escape */ ) );
 		}
 	}
 
@@ -705,6 +711,11 @@ char *latex_escape_data(	char *destination,
 		destination,
 		"%",
 		"\\%" );
+
+	search_replace_string(
+		destination,
+		"_",
+		"\\_" );
 
 	return destination;
 

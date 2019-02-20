@@ -306,8 +306,8 @@ void tax_form_detail_report_html_table(
 				html_table->background_shaded,
 				html_table->justify_list );
 
-				list_free( html_table->data_list );
-				html_table->data_list = list_new();
+			list_free( html_table->data_list );
+			html_table->data_list = list_new();
 
 		} while( list_next( tax_form_line->
 					tax_form_line_account_list ) );
@@ -328,7 +328,7 @@ void tax_form_report_html_table(
 	LIST *heading_list;
 	TAX_FORM_LINE *tax_form_line;
 	int count = 0;
-	char caption[ 128 ];
+	char caption[ 256 ];
 
 	sprintf( caption, "%s %s", sub_title, tax_form );
 
@@ -642,7 +642,7 @@ LATEX_TABLE *tax_form_report_PDF_table(
 			LIST *tax_form_line_list )
 {
 	LATEX_TABLE *latex_table;
-	char caption[ 128 ];
+	char caption[ 256 ];
 
 	sprintf( caption, "%s %s", sub_title, tax_form );
 

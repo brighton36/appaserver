@@ -333,12 +333,6 @@ LIST *tax_form_fetch_line_list(		char *application_name,
 		 application_name,
 		 tax_form );
 
-fprintf( stderr, "%s/%s()/%d: sys_string = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-
 	input_pipe = popen( sys_string, "r" );
 
 	tax_form_line_list = list_new();
@@ -656,7 +650,7 @@ void tax_process_accumulate_tax_form_line_total(
 
 				tax_form_line_account->
 					tax_form_account_total +=
-						amount;
+						float_abs( amount );
 
 			} while( list_next( journal_ledger_list ) );
 

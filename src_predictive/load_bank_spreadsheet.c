@@ -593,13 +593,13 @@ void bank_upload_propagate( char *minimum_bank_date )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
-		"bank_upload_sequence_propagate.sh %s bank_description | sql.e",
+		"bank_upload_sequence_propagate.sh \"%s\" | sql.e",
 		 minimum_bank_date );
 
 	system( sys_string );
 
 	sprintf( sys_string,
-		 "bank_upload_balance_propagate.sh %s bank_description | sql.e",
+		 "bank_upload_balance_propagate.sh \"%s\" | sql.e",
 		 minimum_bank_date );
 
 	system( sys_string );

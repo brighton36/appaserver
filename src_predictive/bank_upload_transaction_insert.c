@@ -84,7 +84,9 @@ int main( int argc, char **argv )
 			BANK_UPLOAD *bank_upload;
 
 			piece( bank_date, '^', operation, 0 );
+
 			piece( bank_description, '^', operation, 1 );
+			bank_upload_description_crop( bank_description );
 
 			bank_amount =
 				bank_upload_fetch_bank_amount(
@@ -123,7 +125,10 @@ int main( int argc, char **argv )
 		if ( delimiter_count == 4 )
 		{
 			piece( bank_date, '^', operation, 0 );
+
 			piece( bank_description, '^', operation, 1 );
+			bank_upload_description_crop( bank_description );
+
 			piece( full_name, '^', operation, 2 );
 			piece( street_address, '^', operation, 3 );
 			piece( transaction_date_time, '^', operation, 4 );

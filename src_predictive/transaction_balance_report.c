@@ -788,7 +788,7 @@ char *transaction_balance_report_get_finished_message(
 				application_name ) ) )
 	{
 		sprintf( message,
-			 "<h3>Warning: empty bank upload balance.</h3>\n" );
+		"<h3>Warning: empty bank upload archive balance.</h3>\n" );
 
 		return strdup( message );
 	}

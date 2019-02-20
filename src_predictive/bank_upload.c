@@ -1623,7 +1623,12 @@ double bank_upload_archive_fetch_latest_running_balance(
 		 folder,
 		 where );
 
-	return atof( pipe2string( sys_string ) );
+	results = pipe2string( sys_string );
+
+	if ( results && *results )
+		return atof( results );
+	else
+		return 0.0;
 
 } /* bank_upload_archive_fetch_latest_running_balance() */
 
@@ -1665,7 +1670,7 @@ void bank_upload_transaction_insert(	char *bank_date,
 		fprintf( output_pipe,
 			 "%s^%s^%s^%s^%s\n",
 			 bank_date,
-			 bank_description,
+			 bank_upload_description_crop( bank_description ),
 			 transaction->full_name,
 			 transaction->street_address,
 			 transaction->transaction_date_time );
@@ -2217,4 +2222,16 @@ char *bank_upload_get_status_string(
 	}
 
 } /* bank_upload_get_status_string() */
+
+char *bank_upload_description_crop( char *bank_description )
+{
+	if ( strlen( bank_description ) >  BANK_UPLOAD_DESCRIPTION_SIZE )
+	{
+		*( bank_description + BANK_UPLOAD_DESCRIPTION_SIZE ) = '\0';
+	}
+
+	return bank_description;
+
+} /* bank_upload_description_crop() */
+
 

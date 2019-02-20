@@ -49,6 +49,11 @@ where="transaction_date_time < '$min_transaction_date_time'"
 
 max_sequence_number=`echo "select $select from $from where $where;" | sql.e`
 
+if [ "$max_sequence_number" = "" ]
+then
+	max_sequence_number=1
+fi
+
 # ------------------------------------------------------------------------
 # Get the transaction_date_time for this sequence_number.
 # Note: *this* script is supposed to prevent duplicated sequence_numbers.

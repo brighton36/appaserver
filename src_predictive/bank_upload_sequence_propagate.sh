@@ -32,7 +32,7 @@ bank_date=`echo $1 | column.e 0`
 
 if [ "$bank_date" = "" -o "$bank_date" = "bank_date" ]
 then
-	prior_sequence_number=1
+	prior_sequence_number=2
 else
 	# Returns prior_sequence_number^transaction_date_time
 	# ---------------------------------------------------
@@ -45,19 +45,13 @@ select="bank_date,bank_description"
 
 table="bank_upload_transaction_balance"
 
-# Start with the next transaction_date_time
-# -----------------------------------------
-where="transaction_date_time > '$prior_transaction_date_time'"
+# Start with this transaction_date_time
+# -------------------------------------
+where="transaction_date_time >= '$prior_transaction_date_time'"
 
 order=transaction_date_time
 
-# ----------------------------------------------------------------------
-# Note: when doing the period of record, the opening row in BANK_UPLOAD
-# isn't joined to BANK_UPLOAD_TRANSACTION. Usually, it's sequence_number
-# is 1. So, start setting the new sequence numbers to at least 2.
-# ----------------------------------------------------------------------
-
-let "new_sequence_number = $prior_sequence_number + 1"
+let "new_sequence_number = $prior_sequence_number"
 
 (
 echo "select $select from $table where $where order by $order;"	|

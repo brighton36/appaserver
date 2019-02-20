@@ -25,6 +25,7 @@ enum bank_upload_exception {	bank_upload_exception_none,
 
 /* Constants */
 /* --------- */
+#define BANK_UPLOAD_DESCRIPTION_SIZE	140
 
 /* Need to run bank_upload_transaction_insert within a month. */
 /* ---------------------------------------------------------- */
@@ -316,5 +317,8 @@ void bank_upload_transaction_balance_propagate(
 char *bank_upload_get_status_string(	char *application_name,
 					enum bank_upload_status,
 					TRANSACTION *transaction );
+
+char *bank_upload_description_crop(	char *bank_description );
+
 #endif
 

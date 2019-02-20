@@ -95,7 +95,10 @@ int main( int argc, char **argv )
 	add_dot_to_path();
 	add_utility_to_path();
 	add_src_appaserver_to_path();
+
+/* 2019-02-19: This forks application_record.sh.
 	add_relative_source_directory_to_path( application_name );
+*/
 
 	if( strcmp( select, "primary" ) == 0 )
 	{

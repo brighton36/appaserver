@@ -320,5 +320,11 @@ char *bank_upload_get_status_string(	char *application_name,
 
 char *bank_upload_description_crop(	char *bank_description );
 
+char *bank_upload_unique_bank_description(
+					boolean exists_fund,
+					char *fund_name,
+					char *input_bank_description,
+					char *bank_amount );
+
 #endif
 

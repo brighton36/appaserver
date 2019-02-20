@@ -94,7 +94,10 @@ int main( int argc, char **argv )
 	full_name = argv[ 4 ];
 	street_address = argv[ 5 ];
 	bank_date = argv[ 6 ];
+
 	bank_description = argv[ 7 ];
+	bank_upload_description_crop( bank_description );
+
 	debit_account = argv[ 8 ];
 	memo = argv[ 9 ];
 	output_medium = argv[ 10 ];

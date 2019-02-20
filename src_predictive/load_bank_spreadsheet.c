@@ -280,190 +280,6 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-/* ---------------------------------------------------- */
-/* If display then it returns file_row_count.		*/
-/* If execute then it returns table_insert_count.	*/
-/* ---------------------------------------------------- */
-int load_bank_spreadsheet(
-			int *transaction_count,
-			char *application_name,
-			char *login_name,
-			char *fund_name,
-			char *feeder_account,
-			char *input_filename,
-			int date_piece_offset,
-			int description_piece_offset,
-			int debit_piece_offset,
-			int credit_piece_offset,
-			int balance_piece_offset,
-			boolean execute )
-{
-	BANK_UPLOAD_STRUCTURE *bank_upload_structure;
-
-	*transaction_count = 0;
-
-	bank_upload_structure =
-		bank_upload_structure_new(
-			application_name,
-			fund_name,
-			feeder_account,
-			input_filename,
-			date_piece_offset,
-			description_piece_offset,
-			debit_piece_offset,
-			credit_piece_offset,
-			balance_piece_offset );
-
-	if ( !bank_upload_structure ) return 0;
-
-	if ( bank_upload_sha256sum_exists(
-			application_name,
-			bank_upload_structure->file.file_sha256sum ) )
-	{
-		char *msg;
-
-		msg = "<h3>ERROR: duplicated file.</h3>";
-
-		printf( "%s\n", msg );
-
-		bank_upload_exception = duplicated_spreadsheet_file;
-
-		return 0;
-	}
-
-	if ( !execute )
-	{
-		/* ------------------------------------ */
-		/* Sets bank_upload->transaction	*/
-		/* and  bank_upload->bank_upload_status */
-		/* ------------------------------------ */
-		bank_upload_set_transaction(
-			bank_upload_structure->file.bank_upload_file_list,
-			bank_upload_structure->
-				reoccurring_structure->
-				reoccurring_transaction_list,
-			bank_upload_structure->
-				existing_cash_journal_ledger_list );
-
-		bank_upload_table_display(
-			application_name,
-			bank_upload_structure->
-				file.
-				bank_upload_file_list );
-
-		bank_upload_transaction_table_display(
-			bank_upload_structure->
-				file.
-				bank_upload_file_list );
-
-		*transaction_count =
-			bank_upload_transaction_count(
-				bank_upload_structure->
-				file.
-				bank_upload_file_list );
-	}
-	else
-	{
-		/* ------------ */
-		/* Else execute */
-		/* ------------ */
-		if ( ! ( bank_upload_structure->file.table_insert_count =
-				bank_upload_insert(
-					application_name,
-					bank_upload_structure->
-						file.
-						bank_upload_file_list
-						   /* bank_upload_list */,
-					bank_upload_structure->
-						bank_upload_date_time ) ) )
-		{
-			return 0;
-		}
-
-		bank_upload_event_insert(
-			application_name,
-			bank_upload_structure->bank_upload_date_time,
-			login_name,
-			bank_upload_structure->
-				file.
-				input_filename
-				/* bank_upload_filename */,
-			bank_upload_structure->
-				file.
-				file_sha256sum,
-			bank_upload_structure->fund_name,
-			bank_upload_structure->feeder_account );
-
-		bank_upload_archive_insert(
-			application_name,
-			bank_upload_structure->
-				file.
-				bank_upload_file_list
-					/* bank_upload_list */,
-			bank_upload_structure->
-				bank_upload_date_time );
-
-		bank_upload_structure->table.bank_upload_table_list =
-			bank_upload_fetch_bank_upload_table_list(
-				application_name,
-				0 /* starting_sequence_number */,
-				bank_upload_structure->
-					file.
-					minimum_bank_date );
-
-		/* ------------------------------------ */
-		/* Sets bank_upload->transaction	*/
-		/* and  bank_upload->bank_upload_status */
-		/* ------------------------------------ */
-		bank_upload_set_transaction(
-			bank_upload_structure->table.bank_upload_table_list,
-			bank_upload_structure->
-				reoccurring_structure->
-				reoccurring_transaction_list,
-			bank_upload_structure->
-				existing_cash_journal_ledger_list );
-
-		bank_upload_insert_transaction(
-			application_name,
-			bank_upload_structure->table.bank_upload_table_list );
-
-		bank_upload_transaction_table_display(
-			bank_upload_structure->table.bank_upload_table_list );
-
-		*transaction_count =
-			bank_upload_transaction_count(
-				bank_upload_structure->
-					table.
-					bank_upload_table_list );
-
-		/* Also does the two propagates. */
-		/* ----------------------------- */
-		bank_upload_reconciliation_transaction_insert(
-			bank_upload_structure->
-				table.
-				bank_upload_table_list,
-			bank_upload_structure->
-				file.
-				minimum_bank_date );
-	}
-
-	if ( list_length( bank_upload_structure->file.error_line_list ) )
-	{
-		printf( "<h3>Errors:</h3>\n" );
-
-		list_display_lines(
-			bank_upload_structure->file.error_line_list );
-
-		printf( "\n" );
-	}
-
-	if ( !execute )
-		return bank_upload_structure->file.file_row_count;
-	else
-		return bank_upload_structure->file.table_insert_count;
-
-} /* load_bank_spreadsheet() */
-
 void load_bank_spreadsheet_transactions_only(
 			int *transaction_count,
 			char *application_name,
@@ -567,13 +383,6 @@ void load_bank_spreadsheet_transactions_only(
 			bank_upload_structure->
 				file.
 				minimum_bank_date );
-
-/*
-		bank_upload_propagate(
-			bank_upload_structure->
-				file.
-				minimum_bank_date );
-*/
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -620,6 +429,8 @@ void bank_upload_reconciliation_transaction_insert(
 
 		if ( !bank_upload->transaction ) continue;
 
+		bank_upload_description_crop( bank_upload->bank_description );
+
 		/* No longer does the two propagates. */
 		/* ---------------------------------- */
 		sprintf(
@@ -638,4 +449,188 @@ void bank_upload_reconciliation_transaction_insert(
 	bank_upload_transaction_balance_propagate( minimum_bank_date );
 
 } /* bank_upload_reconciliation_transaction_insert() */
+
+/* ---------------------------------------------------- */
+/* If display then it returns file_row_count.		*/
+/* If execute then it returns table_insert_count.	*/
+/* ---------------------------------------------------- */
+int load_bank_spreadsheet(
+			int *transaction_count,
+			char *application_name,
+			char *login_name,
+			char *fund_name,
+			char *feeder_account,
+			char *input_filename,
+			int date_piece_offset,
+			int description_piece_offset,
+			int debit_piece_offset,
+			int credit_piece_offset,
+			int balance_piece_offset,
+			boolean execute )
+{
+	BANK_UPLOAD_STRUCTURE *bank_upload_structure;
+
+	*transaction_count = 0;
+
+	bank_upload_structure =
+		bank_upload_structure_new(
+			application_name,
+			fund_name,
+			feeder_account,
+			input_filename,
+			date_piece_offset,
+			description_piece_offset,
+			debit_piece_offset,
+			credit_piece_offset,
+			balance_piece_offset );
+
+	if ( !bank_upload_structure ) return 0;
+
+	if ( bank_upload_sha256sum_exists(
+			application_name,
+			bank_upload_structure->file.file_sha256sum ) )
+	{
+		char *msg;
+
+		msg = "<h3>ERROR: duplicated file.</h3>";
+
+		printf( "%s\n", msg );
+
+		bank_upload_exception = duplicated_spreadsheet_file;
+
+		return 0;
+	}
+
+	if ( !execute )
+	{
+		/* ------------------------------------ */
+		/* Sets bank_upload->transaction	*/
+		/* and  bank_upload->bank_upload_status */
+		/* ------------------------------------ */
+		bank_upload_set_transaction(
+			bank_upload_structure->file.bank_upload_file_list,
+			bank_upload_structure->
+				reoccurring_structure->
+				reoccurring_transaction_list,
+			bank_upload_structure->
+				existing_cash_journal_ledger_list );
+
+		bank_upload_table_display(
+			application_name,
+			bank_upload_structure->
+				file.
+				bank_upload_file_list );
+
+		bank_upload_transaction_table_display(
+			bank_upload_structure->
+				file.
+				bank_upload_file_list );
+
+		*transaction_count =
+			bank_upload_transaction_count(
+				bank_upload_structure->
+				file.
+				bank_upload_file_list );
+	}
+	else
+	/* ------------ */
+	/* Else execute */
+	/* ------------ */
+	{
+		if ( ! ( bank_upload_structure->file.table_insert_count =
+				bank_upload_insert(
+					application_name,
+					bank_upload_structure->
+						file.
+						bank_upload_file_list
+						   /* bank_upload_list */,
+					bank_upload_structure->
+						bank_upload_date_time ) ) )
+		{
+			return 0;
+		}
+
+		bank_upload_event_insert(
+			application_name,
+			bank_upload_structure->bank_upload_date_time,
+			login_name,
+			bank_upload_structure->
+				file.
+				input_filename
+				/* bank_upload_filename */,
+			bank_upload_structure->
+				file.
+				file_sha256sum,
+			bank_upload_structure->fund_name,
+			bank_upload_structure->feeder_account );
+
+		bank_upload_archive_insert(
+			application_name,
+			bank_upload_structure->
+				file.
+				bank_upload_file_list
+					/* bank_upload_list */,
+			bank_upload_structure->
+				bank_upload_date_time );
+
+		bank_upload_structure->table.bank_upload_table_list =
+			bank_upload_fetch_bank_upload_table_list(
+				application_name,
+				0 /* starting_sequence_number */,
+				bank_upload_structure->
+					file.
+					minimum_bank_date );
+
+		/* ------------------------------------ */
+		/* Sets bank_upload->transaction	*/
+		/* and  bank_upload->bank_upload_status */
+		/* ------------------------------------ */
+		bank_upload_set_transaction(
+			bank_upload_structure->table.bank_upload_table_list,
+			bank_upload_structure->
+				reoccurring_structure->
+				reoccurring_transaction_list,
+			bank_upload_structure->
+				existing_cash_journal_ledger_list );
+
+		bank_upload_insert_transaction(
+			application_name,
+			bank_upload_structure->table.bank_upload_table_list );
+
+		bank_upload_transaction_table_display(
+			bank_upload_structure->table.bank_upload_table_list );
+
+		*transaction_count =
+			bank_upload_transaction_count(
+				bank_upload_structure->
+					table.
+					bank_upload_table_list );
+
+		/* Also does the two propagates. */
+		/* ----------------------------- */
+		bank_upload_reconciliation_transaction_insert(
+			bank_upload_structure->
+				table.
+				bank_upload_table_list,
+			bank_upload_structure->
+				file.
+				minimum_bank_date );
+	}
+
+	if ( list_length( bank_upload_structure->file.error_line_list ) )
+	{
+		printf( "<h3>Errors:</h3>\n" );
+
+		list_display_lines(
+			bank_upload_structure->file.error_line_list );
+
+		printf( "\n" );
+	}
+
+	if ( !execute )
+		return bank_upload_structure->file.file_row_count;
+	else
+		return bank_upload_structure->file.table_insert_count;
+
+} /* load_bank_spreadsheet() */
 

@@ -25,17 +25,6 @@ APPLICATION *application_new_application( char *application_string )
 	char piece_buffer[ 1024 ];
 	char *input_string;
 	APPLICATION *application;
-	char *database_string = {0};
-
-/*
-	if ( timlib_parse_database_string(	&database_string,
-						application_string ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-*/
 
 	sprintf(	sys_string, 
 			"%s/src_appaserver/application_record.sh %s '%c'",
@@ -50,7 +39,7 @@ APPLICATION *application_new_application( char *application_string )
 		char msg[ 1024 ];
 
 		sprintf( msg,
-"warning in %s/%s()/%d: cannot get application record from application_record.sh for application = (%s)\n",
+"Error in %s/%s()/%d: cannot get application record from application_record.sh for application = (%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -61,19 +50,8 @@ APPLICATION *application_new_application( char *application_string )
 			msg,
 			(char *)0 /* login_name */ );
 
-		sprintf( msg,
-"Message in %s/%s()/%d: database string = (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			database_string );
-
-		appaserver_output_error_message(
-			application_string,
-			msg,
-			(char *)0 /* login_name */ );
-
-		return (APPLICATION *)0;
+		exit( 1 );
+		/* return (APPLICATION *)0; */
 	}
 
 	if ( character_count(	APPLICATION_RECORD_DELIMITER,
@@ -145,6 +123,7 @@ APPLICATION *application_new_application( char *application_string )
 	application->appaserver_version = strdup( piece_buffer );
 
 	return application;
+
 } /* application_new_application() */
 
 char *application_get_application_title( char *application_string )
@@ -263,6 +242,8 @@ boolean application_is_primary_application( char *application_name )
 
 boolean application_get_is_primary_application( char *application_name )
 {
+/* Stub */
+/* ---- */
 application_name = "";
 	return 1;
 

@@ -310,41 +310,6 @@ LIST *bank_upload_fetch_file_list(
 			}
 		}
 
-		/* Get bank_description */
-		/* -------------------- */
-		if ( !piece_quote_comma(
-				bank_description,
-				input_string,
-				description_piece_offset ) )
-		{
-			char msg[ 128 ];
-
-			sprintf( msg,
-		"<p>Error in line %d: Cannot parse description using piece=%d",
-				 line_number,
-				 description_piece_offset );
-
-			list_append_pointer( error_line_list, strdup( msg ) );
-
-			continue;
-		}
-
-		if ( exists_fund )
-		{
-			if ( timlib_strcmp(
-				bank_description,
-				"interest earned" ) == 0
-			||   timlib_strcmp(
-				bank_description,
-				"deposit" ) == 0 )
-			{
-				sprintf(
-				bank_description + strlen( bank_description ),
-			 	" %s",
-			 	fund_name );
-			}
-		}
-
 		/* =============== */
 		/* Get bank_amount */
 		/* =============== */
@@ -408,6 +373,37 @@ LIST *bank_upload_fetch_file_list(
 
 			continue;
 		}
+
+		/* Get bank_description */
+		/* -------------------- */
+		if ( !piece_quote_comma(
+				bank_description,
+				input_string,
+				description_piece_offset ) )
+		{
+			char msg[ 128 ];
+
+			sprintf( msg,
+		"<p>Error in line %d: Cannot parse description using piece=%d",
+				 line_number,
+				 description_piece_offset );
+
+			list_append_pointer( error_line_list, strdup( msg ) );
+
+			continue;
+		}
+
+		/* Note: returns static memory. */
+		/* ---------------------------- */
+		strcpy( bank_description,
+			bank_upload_unique_bank_description(
+				exists_fund,
+				fund_name,
+				bank_description
+					/* input_bank_description */,
+				bank_amount ) );
+
+		bank_upload_description_crop( bank_description );
 
 		/* Get bank_balance */
 		/* ---------------- */
@@ -545,7 +541,8 @@ void bank_upload_archive_insert(	char *application_name,
 		fprintf(bank_upload_archive_insert_pipe,
 			"%s^%s^%d^%.2lf^%.2lf^%s\n",
 		 	bank_upload->bank_date,
-		 	bank_upload->bank_description,
+			bank_upload_description_crop(
+				bank_upload->bank_description ),
 			bank_upload->sequence_number,
 		 	bank_upload->bank_amount,
 			bank_upload->bank_running_balance,
@@ -589,7 +586,8 @@ void bank_upload_transaction_direct_insert(
 	fprintf(insert_pipe,
 		"%s^%s^%s^%s^%s\n",
 		bank_date,
-		bank_description,
+		bank_upload_description_crop(
+			bank_description ),
 		full_name,
 		street_address,
 		transaction_date_time );
@@ -647,7 +645,8 @@ int bank_upload_insert(			char *application_name,
 		fprintf(bank_upload_insert_pipe,
 			"%s^%s^%d^%.2lf^%s\n",
 		 	bank_upload->bank_date,
-		 	bank_upload->bank_description,
+			bank_upload_description_crop(
+				bank_upload->bank_description ),
 			bank_upload->sequence_number,
 		 	bank_upload->bank_amount,
 			bank_upload_date_time );
@@ -1079,6 +1078,8 @@ void bank_upload_insert_transaction(	char *application_name,
 
 		transaction = bank_upload->transaction;
 
+		/* Here is the bottleneck. */
+		/* ----------------------- */
 		transaction->transaction_date_time =
 			ledger_transaction_journal_ledger_insert(
 				application_name,
@@ -2234,4 +2235,37 @@ char *bank_upload_description_crop( char *bank_description )
 
 } /* bank_upload_description_crop() */
 
+char *bank_upload_unique_bank_description(
+				boolean exists_fund,
+				char *fund_name,
+				char *input_bank_description,
+				char *bank_amount )
+{
+	static char bank_description[ 1024 ];
+
+	if ( exists_fund
+	&& ( timlib_strcmp(
+			input_bank_description,
+			"interest earned" ) == 0
+	||   timlib_strcmp(
+			input_bank_description,
+			"deposit" ) == 0 ) )
+	{
+		sprintf( bank_description,
+			 "%s %s %s",
+			 input_bank_description,
+		 	 fund_name,
+			 bank_amount );
+	}
+	else
+	{
+		sprintf( bank_description,
+			 "%s %s",
+			 input_bank_description,
+			 bank_amount );
+	}
+
+	return bank_description;
+
+} /* bank_upload_unique_bank_description() */
 

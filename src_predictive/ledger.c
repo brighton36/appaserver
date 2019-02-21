@@ -6071,8 +6071,8 @@ char *ledger_get_report_title_sub_title(
 		char *logo_filename )
 {
 	char *begin_date_string;
-	char begin_date_american[ 16 ];
-	char end_date_american[ 16 ];
+	char begin_date_american[ 32 ];
+	char end_date_american[ 32 ];
 
 	*begin_date_american = '\0';
 

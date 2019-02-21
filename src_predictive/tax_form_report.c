@@ -183,6 +183,8 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	tax->tax_process.tax_form = tax->tax_input.tax_form->tax_form;
+
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
 		tax_form_report_html_table(

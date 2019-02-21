@@ -165,7 +165,8 @@ LIST *tax_fetch_account_transaction_list(
 /* tax_form_account_total is set.	*/
 /* tax_form_line_total is set.		*/
 /* ------------------------------------ */
-LIST *tax_process_set_totals(		LIST *input_tax_form_line_list );
+LIST *tax_process_set_totals(		LIST *input_tax_form_line_list,
+					int tax_year );
 
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 					LIST *tax_form_line_list,
@@ -252,8 +253,10 @@ void tax_rental_property_list_accumulate_depreciation(
 
 double tax_form_line_account_get_total(
 				LIST *journal_ledger_list,
-				boolean accumulate_debit );
+				boolean accumulate_debit,
+				int tax_year );
 
-double tax_form_line_get_total(	LIST *tax_form_line_account_list );
+double tax_form_line_get_total(	LIST *tax_form_line_account_list,
+				int tax_year );
 
 #endif

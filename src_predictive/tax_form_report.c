@@ -173,7 +173,8 @@ int main( int argc, char **argv )
 	/* ------------------------------------ */
 	tax->tax_process.tax_form_line_list =
 		tax_process_set_totals(
-			tax->tax_input.tax_form->tax_form_line_list );
+			tax->tax_input.tax_form->tax_form_line_list,
+			tax->tax_input.tax_year );
 
 	if ( !list_length( tax->tax_process.tax_form_line_list ) )
 	{

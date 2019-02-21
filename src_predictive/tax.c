@@ -494,7 +494,8 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 /* tax_form_account_total is set.	*/
 /* tax_form_line_total is set.		*/
 /* ------------------------------------ */
-LIST *tax_process_set_totals( LIST *input_tax_form_line_list )
+LIST *tax_process_set_totals(	LIST *input_tax_form_line_list,
+				int tax_year )
 {
 	TAX_FORM_LINE *tax_form_line;
 	LIST *process_tax_form_line_list;
@@ -513,7 +514,8 @@ LIST *tax_process_set_totals( LIST *input_tax_form_line_list )
 				/* Sets tax_form_account_total */
 				/* --------------------------- */
 				tax_form_line->
-					tax_form_line_account_list );
+					tax_form_line_account_list,
+				tax_year );
 
 		list_append_pointer(
 			process_tax_form_line_list,
@@ -1191,7 +1193,8 @@ void tax_rental_property_list_accumulate_depreciation(
 /* --------------------------- */
 /* Sets tax_form_account_total */
 /* --------------------------- */
-double tax_form_line_get_total(	LIST *tax_form_line_account_list )
+double tax_form_line_get_total(	LIST *tax_form_line_account_list,
+				int tax_year )
 {
 	TAX_FORM_LINE_ACCOUNT *a;
 	double total;
@@ -1208,7 +1211,8 @@ double tax_form_line_get_total(	LIST *tax_form_line_account_list )
 			a->tax_form_account_total =
 				tax_form_line_account_get_total(
 					a->journal_ledger_list,
-					a->accumulate_debit );
+					a->accumulate_debit,
+					tax_year );
 
 			total += a->tax_form_account_total;
 		}
@@ -1220,26 +1224,44 @@ double tax_form_line_get_total(	LIST *tax_form_line_account_list )
 } /* tax_form_line_get_total() */
 
 double tax_form_line_account_get_total(	LIST *journal_ledger_list,
-					boolean accumulate_debit )
+					boolean accumulate_debit,
+					int tax_year )
 {
 	JOURNAL_LEDGER *journal_ledger;
+	double total;
 	double amount;
+	char closing_transaction_date[ 16 ];
+	char *closing_transaction_date_time;
+
+	sprintf( closing_transaction_date, "%d-12-31", tax_year );
+
+	closing_transaction_date_time =
+		ledger_get_closing_transaction_date_time(
+				closing_transaction_date );
 
 	if ( !list_rewind( journal_ledger_list ) ) return 0.0;
 
-	amount = 0.0;
+	total = 0.0;
 
 	do {
 		journal_ledger = list_get( journal_ledger_list );
 
-		amount += ledger_debit_credit_get_amount(
+		if ( strcmp(	journal_ledger->transaction_date_time,
+				closing_transaction_date_time ) == 0 )
+		{
+			continue;
+		}
+
+		amount = ledger_debit_credit_get_amount(
 				journal_ledger->debit_amount,
 				journal_ledger->credit_amount,
 				accumulate_debit );
 
+		total += amount;
+
 	} while( list_next( journal_ledger_list ) );
 
-	return amount;
+	return total;
 
 } /* tax_form_line_account_get_total() */
 

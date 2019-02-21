@@ -79,7 +79,6 @@ int main( int argc, char **argv )
 	char title[ 256 ];
 	char sub_title[ 256 ];
 	char *tax_form_name;
-	char *fund_name;
 	int tax_year;
 	char *output_medium;
 	TAX *tax;
@@ -111,7 +110,7 @@ int main( int argc, char **argv )
 				date_get_utc_offset() ) );
 	}
 
-	fund_name = argv[ 4 ];
+	/* fund_name = argv[ 4 ]; */
 
 	output_medium = argv[ 5 ];
 
@@ -143,11 +142,10 @@ int main( int argc, char **argv )
 			"logo_filename" /* key */ );
 
 	if ( ! ( tax = tax_new(		application_name,
-					fund_name,
 					tax_form_name,
 					tax_year ) ) )
 	{
-		printf( "<h3>Error. No transactions.</h3>\n" );
+		printf( "<h3>Error. No lines for this tax form.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
@@ -163,19 +161,26 @@ int main( int argc, char **argv )
 				0 /* length_fund_name_list */,
 				logo_filename ) ) )
 	{
-		printf( "<h3>Error. No transactions.</h3>\n" );
+		printf( "<h3>Internal error occurred. See log.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
 
+	/* ------------------------------------ */
+	/* Returns process.tax_form_line_list. 	*/
+	/* tax_form_account_total is set.	*/
+	/* tax_form_line_total is set.		*/
+	/* ------------------------------------ */
+	tax->tax_process.tax_form_line_list =
+		tax_process_set_totals(
+			tax->tax_input.tax_form->tax_form_line_list );
+
 	if ( !list_length( tax->tax_process.tax_form_line_list ) )
 	{
 		printf(
-"<h3>ERROR: there are no tax form lines for this tax form.</h3>\n" );
-
-		html_table_close();
+		"<h3>Error. No transactions for this tax form.</h3>\n" );
 		document_close();
-		exit( 1 );
+		exit( 0 );
 	}
 
 	if ( strcmp( output_medium, "table" ) == 0 )

@@ -2829,7 +2829,6 @@ LIST *ledger_get_journal_ledger_list(
 	char local_street_address[ 128 ];
 	char local_transaction_date_time[ 128 ];
 	char local_account_name[ 128 ];
-	char piece_buffer[ 128 ];
 	char buffer[ 128 ];
 	JOURNAL_LEDGER *ledger;
 
@@ -2956,41 +2955,16 @@ LIST *ledger_get_journal_ledger_list(
 					strdup( local_account_name ) );
 		}
 
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			4 );
-		ledger->transaction_count =
-		ledger->database_transaction_count = atoi( piece_buffer );
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			5 );
-
-		ledger->previous_balance =
-		ledger->database_previous_balance =
-			atof( piece_buffer );
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			6 );
-		ledger->debit_amount = atof( piece_buffer );
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			7 );
-		ledger->credit_amount = atof( piece_buffer );
-
-		piece(	piece_buffer,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			8 );
-		ledger->balance =
-		ledger->database_balance =
-			atof( piece_buffer );
+		ledger_journal_ledger_partial_parse(
+			&ledger->transaction_count,
+			&ledger->database_transaction_count,
+			&ledger->previous_balance,
+			&ledger->database_previous_balance,
+			&ledger->debit_amount,
+			&ledger->credit_amount,
+			&ledger->balance,
+			&ledger->database_balance,
+			input_buffer );
 
 		list_append_pointer( journal_ledger_list, ledger );
 	}
@@ -3000,6 +2974,154 @@ LIST *ledger_get_journal_ledger_list(
 	return journal_ledger_list;
 
 } /* ledger_get_journal_ledger_list() */
+
+void ledger_journal_ledger_partial_parse(
+			int *transaction_count,
+			int *database_transaction_count,
+			double *previous_balance,
+			double *database_previous_balance,
+			double *debit_amount,
+			double *credit_amount,
+			double *balance,
+			double *database_balance,
+			char *input_buffer )
+{
+	char piece_buffer[ 128 ];
+
+	piece(	piece_buffer,
+		FOLDER_DATA_DELIMITER,
+		input_buffer,
+		4 );
+	*transaction_count =
+	*database_transaction_count = atoi( piece_buffer );
+
+	piece(	piece_buffer,
+		FOLDER_DATA_DELIMITER,
+		input_buffer,
+		5 );
+
+	*previous_balance =
+	*database_previous_balance =
+			atof( piece_buffer );
+
+	piece(	piece_buffer,
+		FOLDER_DATA_DELIMITER,
+		input_buffer,
+		6 );
+	*debit_amount = atof( piece_buffer );
+
+	piece(	piece_buffer,
+		FOLDER_DATA_DELIMITER,
+		input_buffer,
+		7 );
+	*credit_amount = atof( piece_buffer );
+
+	piece(	piece_buffer,
+		FOLDER_DATA_DELIMITER,
+		input_buffer,
+		8 );
+	*balance =
+	*database_balance =
+			atof( piece_buffer );
+
+} /* ledger_journal_ledger_partial_parse() */
+
+
+LIST *ledger_get_year_journal_ledger_list(
+				char *application_name,
+				int year,
+				char *account_name )
+{
+	char sys_string[ 1024 ];
+	LIST *journal_ledger_list;
+	char where[ 512 ];
+	char *select;
+	FILE *input_pipe;
+	char input_buffer[ 1024 ];
+	char local_full_name[ 128 ];
+	char local_street_address[ 128 ];
+	char local_transaction_date_time[ 128 ];
+	char local_account_name[ 128 ];
+	char buffer[ 128 ];
+	JOURNAL_LEDGER *ledger;
+
+	select = ledger_journal_ledger_get_select();
+
+/*
+"full_name,street_address,transaction_date_time,account,transaction_count,previous_balance,debit_amount,credit_amount,balance";
+*/
+
+	sprintf(where,
+		"account = '%s' and		 "
+		"transaction_date_time like '%d-%c'",
+		timlib_escape_single_quotes(
+			buffer, account_name ),
+		year,
+		'%' );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=%s		"
+		 "			where=\"%s\"		"
+		 "			order=\"%s\"		",
+		 application_name,
+		 select,
+		 LEDGER_FOLDER_NAME,
+		 where,
+		 "transaction_date_time" );
+
+	input_pipe = popen( sys_string, "r" );
+
+	journal_ledger_list = list_new();
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece(	local_full_name,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			0 );
+
+		piece(	local_street_address,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			1 );
+
+		piece(	local_transaction_date_time,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			2 );
+
+		piece(	local_account_name,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			3 );
+
+		ledger = journal_ledger_new(
+				strdup( local_full_name ),
+				strdup( local_street_address ),
+				strdup( local_transaction_date_time ),
+				account_name );
+
+		ledger_journal_ledger_partial_parse(
+			&ledger->transaction_count,
+			&ledger->database_transaction_count,
+			&ledger->previous_balance,
+			&ledger->database_previous_balance,
+			&ledger->debit_amount,
+			&ledger->credit_amount,
+			&ledger->balance,
+			&ledger->database_balance,
+			input_buffer );
+
+		list_append_pointer( journal_ledger_list, ledger );
+	}
+
+	pclose( input_pipe );
+
+	return journal_ledger_list;
+
+} /* ledger_get_year_journal_ledger_list() */
 
 boolean ledger_transaction_load(	double *transaction_amount,
 					double *database_transaction_amount,

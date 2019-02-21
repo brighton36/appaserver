@@ -100,7 +100,6 @@ typedef struct
 {
 	char *tax_form;
 	LIST *tax_form_line_list;
-	LIST *cash_transaction_list;
 } TAX_FORM;
 
 typedef struct
@@ -134,12 +133,12 @@ TAX_INPUT_RECOVERY *tax_input_recovery_new(
 					int tax_year );
 
 TAX *tax_new(				char *application_name,
-					char *fund_name,
 					char *tax_form,
 					int tax_year );
 
 TAX_FORM *tax_form_new(			char *application_name,
-					char *tax_form );
+					char *tax_form,
+					int tax_year );
 
 TAX_FORM_LINE *tax_form_line_new(	char *tax_form_line,
 					char *tax_form_description,
@@ -149,7 +148,8 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_new(
 					char *account_name );
 	
 LIST *tax_form_fetch_line_list(		char *application_name,
-					char *tax_form );
+					char *tax_form,
+					int tax_year );
 
 LIST *tax_fetch_account_list(		char *application_name,
 					char *tax_form_line );
@@ -160,23 +160,16 @@ LIST *tax_fetch_account_transaction_list(
 					char *end_date_string,
 					char *account_name );
 
-/* --------------------------- */
-/* Returns tax_form_line_list. */
-/* --------------------------- */
-LIST *tax_process_set_journal_ledger_list(
-					LIST *unaccounted_journal_ledger_list,
-					LIST *tax_form_line_list,
-					LIST *transaction_list,
-					char *account_name );
+/* ------------------------------------ */
+/* Returns process.tax_form_line_list. 	*/
+/* tax_form_account_total is set.	*/
+/* tax_form_line_total is set.		*/
+/* ------------------------------------ */
+LIST *tax_process_set_totals(		LIST *input_tax_form_line_list );
 
 TAX_FORM_LINE_ACCOUNT *tax_form_line_account_seek(
 					LIST *tax_form_line_list,
 					char *account_name );
-
-/* Also accumulates tax_form_account_total */
-/* --------------------------------------- */
-void tax_process_accumulate_tax_form_line_total(
-					LIST *tax_form_line_list );
 
 LIST *tax_fetch_rental_property_list(	char *application_name,
 					char *end_date_string,
@@ -256,5 +249,11 @@ LIST *tax_fetch_property_street_address_list(
 void tax_rental_property_list_accumulate_depreciation(
 				LIST *tax_output_rental_property_list,
 				LIST *tax_input_rental_property_list );
+
+double tax_form_line_account_get_total(
+				LIST *journal_ledger_list,
+				boolean accumulate_debit );
+
+double tax_form_line_get_total(	LIST *tax_form_line_account_list );
 
 #endif

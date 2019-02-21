@@ -397,6 +397,22 @@ void ledger_journal_generic_update(	char *application_name,
 void ledger_transaction_memo_update(	char *application_name,
 					TRANSACTION *transction );
 
+void ledger_journal_ledger_partial_parse(
+					int *transaction_count,
+					int *database_transaction_count,
+					double *previous_balance,
+					double *database_previous_balance,
+					double *debit_amount,
+					double *credit_amount,
+					double *balance,
+					double *database_balance,
+					char *input_buffer );
+
+LIST *ledger_get_year_journal_ledger_list(
+					char *application_name,
+					int year,
+					char *account_name );
+
 LIST *ledger_get_journal_ledger_list(	char *application_name,
 					char *full_name,
 					char *street_address,

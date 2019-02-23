@@ -1,5 +1,5 @@
-/* station_alias_to_station.c */
-/* -------------------------- */
+/* $APPASERVER_HOME/src_hydrology/station_alias_to_station.c */
+/* --------------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +7,6 @@
 #include "timlib.h"
 #include "station_alias.h"
 #include "piece.h"
-
 
 int main( int argc, char **argv )
 {

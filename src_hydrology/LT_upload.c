@@ -1,9 +1,9 @@
-/* ----------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_waterquality/load_turkey_point_file.c	*/
-/* ----------------------------------------------------------	*/
-/*								*/
-/* Freely available software: see Appaserver.org		*/
-/* ----------------------------------------------------------	*/
+/* ------------------------------------------		*/
+/* $APPASERVER_HOME/src_hydrology/LT_upload.c		*/
+/* ------------------------------------------		*/
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -26,56 +26,43 @@
 #include "application.h"
 #include "basename.h"
 #include "application_constants.h"
-#include "load_turkey_point_file.h"
-#include "water_quality.h"
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char *project_name;
+	char *station;
 	boolean execute;
 	char *input_filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	int load_count = 0;
 	char buffer[ 128 ];
 	WATER_QUALITY *water_quality;
 	char heading_error_message[ 65536 ];
 	APPLICATION_CONSTANTS *application_constants;
 
-	if ( argc != 6 )
-	{
-		fprintf( stderr, 
-"Usage: %s application process_name project_name filename execute_yn\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	project_name = argv[ 3 ];
-	input_filename = argv[ 4 ];
-	execute = (*argv[ 5 ] == 'y');
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+	if ( argc != 5 )
+	{
+		fprintf( stderr, 
+"Usage: %s process_name station filename execute_yn\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
+
+	process_name = argv[ 1 ];
+	station = argv[ 2 ];
+	input_filename = argv[ 3 ];
+	execute = (*argv[ 4 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -147,7 +134,7 @@ fprintf( stderr,
 
 	if ( execute )
 	{
-		delete_waterquality(	application_name,
+		delete_hydrology(	application_name,
 					input_filename,
 					water_quality );
 	}
@@ -550,7 +537,7 @@ int load_concentration_file(
 
 #define DELETE_FIELD_LIST	"station,collection_date,collection_time"
 
-void delete_waterquality(	char *application_name,
+void delete_hydrology(	char *application_name,
 				char *input_filename,
 				WATER_QUALITY *water_quality )
 {
@@ -655,7 +642,7 @@ void delete_waterquality(	char *application_name,
 	pclose( collection_delete_pipe );
 	pclose( results_delete_pipe );
 
-} /* delete_waterquality() */
+} /* delete_hydrology() */
 
 void close_pipes(
 		FILE *results_insert_pipe,

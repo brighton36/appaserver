@@ -1,5 +1,5 @@
-/* src_everglades/station_alias.h */
-/* ------------------------------ */
+/* src_hydrology/station_alias.h */
+/* ----------------------------- */
 
 #ifndef STATION_ALIAS_H
 #define STATION_ALIAS_H

@@ -1,6 +1,6 @@
 :
 # ----------------------------------------------------------------
-# $APPASERVER_HOME/src_appaserver/appaserver_mysqldump_database.sh
+# $APPASERVER_HOME/src_appaserver/appaserver_fix_orphans.sh
 # ----------------------------------------------------------------
 
 appaserver_config_file="/etc/appaserver.config"
@@ -39,8 +39,8 @@ while read error_file
 do
 	database=`basename.e $error_file y | piece.e '_' 1`
 	export DATABASE=$database
-	echo "fix_orphans.sh $database 0 n"
-	fix_orphans.sh ignored 0 n 2>&1
+	echo "fix_orphans.sh 0 n"
+	fix_orphans.sh 0 n 2>&1
 done
 
 exit 0

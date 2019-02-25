@@ -518,8 +518,7 @@ void create_application_table(		char *current_application,
 	else
 	{
 		sprintf( sys_string,
-"echo \"Will execute %s/create_table.sh %s\" | html_paragraph_wrapper.e",
-		 	appaserver_data_directory,
+"echo \"Will execute $APPASERVER_HOME/create_table.sh %s\" | html_paragraph_wrapper.e",
 			destination_application );
 	}
 	fflush( stdout );

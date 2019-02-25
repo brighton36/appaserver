@@ -17,14 +17,14 @@ then
 	exit 1
 fi
 
-if [ "$#" != 3 ]
+if [ "$#" != 2 ]
 then
-	echo "Usage: $0 ignored max_record_count delete_really_yn" 1>&2
+	echo "Usage: $0 max_record_count delete_really_yn" 1>&2
 	exit 1
 fi
 
-max_record_count=$2
-delete_really_yn=$3
+max_record_count=$1
+delete_really_yn=$2
 
 for folder_name in `echo "select folder from folder;" | sql.e`
 do

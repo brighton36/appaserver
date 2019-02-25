@@ -5832,7 +5832,7 @@ char *ledger_get_existing_closing_transaction_date_time(
 	sprintf( where,
 		 "transaction_date_time = '%s' and memo = '%s'",
 		 transaction_date_time,
-		 LEDGER_ENTRY_MEMO );
+		 CLOSING_ENTRY_MEMO );
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"

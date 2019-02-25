@@ -3731,7 +3731,7 @@ insert into account (account,fund,subclassification,hard_coded_account_key) valu
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('race_for_the_arts_receivable','general_fund','account_receivable',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('raffle_tickets','general_fund','discretionary',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('raffle_ticket_sale','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('refund_in_error','general_fund',null,null);
+insert into account (account,fund,subclassification,hard_coded_account_key) values ('refund_in_error','general_fund','gain',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('rehearsal_snacks','general_fund','discretionary',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('Rent','general_fund','discretionary',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('Rent payable','general_fund','current_liability',null);

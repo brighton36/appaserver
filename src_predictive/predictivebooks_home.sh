@@ -1926,6 +1926,7 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('Natural gas','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('net_assets','net_assets','closing_key,contributed_capital_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('net_salary_receivable','receivable','salary_receivable_key');
+insert into account (account,subclassification,hard_coded_account_key) values ('net_salary_revenue','revenue','salary_revenue_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('outside_maintenance','Home',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('pet','entertainment',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Phone/Internet/TV','operating_expense',null);
@@ -1936,7 +1937,6 @@ insert into account (account,subclassification,hard_coded_account_key) values ('
 insert into account (account,subclassification,hard_coded_account_key) values ('realized_investment_loss','loss','realized_investment_loss_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('repairs_maintenance_expense','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Restaurant','entertainment',null);
-insert into account (account,subclassification,hard_coded_account_key) values ('salary_revenue','revenue','salary_revenue_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('sales_tax_expense','tax_expense','sales_tax_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('san_francisco_transportation','operating_expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('Sears','operating_expense',null);
@@ -1964,40 +1964,11 @@ insert into day (day) values ('tuesday');
 insert into day (day) values ('wednesday');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('1040','16','band_dues');
 insert into tax_form_line_account (tax_form,tax_form_line,account) values ('1040','16','donation_cash');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('1040','16','donation_payable');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','001','salary_revenue');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','001','sales_revenue');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','013','depreciation_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','017','tax_preparation');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','021','repairs_maintenance_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','022','supply_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','023','payroll_tax');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','023','sales_tax_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule C','023','taxes_and_licenses');
+insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule A','6','property_tax');
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('1040','16','Gifts by cash or check','y');
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','001','Gross receipts or sales',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','002','Returns and allowances',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','004','Cost of goods sold',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','009','Car and truck expenses',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','013','Depreciation',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','015','Insurance',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','016a','Mortgage interest',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','016b','Other interest',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','017','Legal and professional services',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','018','Office expense',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','020a','Vehicle, machinery, equipment rent',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','020b','Property rent',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','021','Repairs and maintenance',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','022','Supplies',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','023','Taxes and licenses',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','024a','Travel expenses',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','024b','Meals and entertainment',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','025','Utilities',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','026','Wages',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','027','Other expenses',null);
-insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule C','041','Ending inventory',null);
+insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule A','6','Real estate taxes',null);
 insert into tax_form (tax_form) values ('1040');
-insert into tax_form (tax_form) values ('Schedule C');
+insert into tax_form (tax_form) values ('Schedule A');
 all_done2
 ) | sql.e 2>&1 | grep -vi duplicate
 
@@ -2219,7 +2190,7 @@ insert into process (process,		command_line,		notepad,		html_help_file_anchor,		
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_supply_purchase','post_change_supply_purchase ignored full_name street_address purchase_date_time supply_name \$state preupdate_supply_name',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_vendor_payment','post_change_vendor_payment ignored full_name street_address purchase_date_time payment_date_time \$state preupdate_full_name preupdate_street_address preupdate_payment_date_time preupdate_payment_amount',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_reoccurring_transaction_recent','post_reoccurring_transaction \$session \$role \$process full_name street_address transaction_description transaction_date transaction_amount memo execute_yn y',null,null,null,null,'manipulate',null,null);
-insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('tax_form_report','tax_form_report \$process tax_form tax_year output_medium',null,null,null,null,'output',null,null);
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('tax_form_report','tax_form_report \$process tax_form tax_year fund output_medium',null,null,null,null,'output',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('trial_balance','trial_balance ignored \$session \$login_name \$role \$process fund as_of_date aggregation output_medium subclassification_option',null,null,null,null,'output',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('view_appaserver_log_file','view_appaserver_error_file.sh ignored /var/log/appaserver line_count','Most error messages are logged to this file. If you get the Server Error screen, then this file is the first place to find a clue. <big> <bold>Warning:</bold></big> this process exposes the session number assigned to each user''s login.',null,null,null,'output',null,'y');
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_prior_fixed_asset','post_change_prior_fixed_asset ignored asset_name serial_number \$state preupdate_extension',null,null,null,null,null,null,null);

@@ -975,3 +975,23 @@ boolean extract_station_collection_attributes(
 
 } /* extract_station_collection_attributes() */
 
+	appaserver_link_file->filename_stem = SHEF_FILENAME_STEM;
+
+	shef_bad_file =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+

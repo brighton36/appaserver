@@ -1,5 +1,9 @@
-/* ---------------------------------------------------	*/
-/* measurement2shef.c					*/
+/* -------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/measurement2shef.c	*/
+/* -------------------------------------------------	*/
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ----------------------------------------------------	*/
 /* ---------------------------------------------------	*/
 /* Input from stdin: piped delimited measurement rows	*/
 /*			1) station			*/

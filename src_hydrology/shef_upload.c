@@ -84,17 +84,24 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
-	output_starting_argv_stderr( argc, argv );
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 10 )
 	{
 		fprintf(stderr,
-"Usage: %s application session login_name role 'shef_file_specification' with_file_trim_yn email_address starting_filename really_yn\n",
+"Usage: %s ignored session login_name role 'shef_file_specification' with_file_trim_yn email_address starting_filename really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	session = argv[ 2 ];
 	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
@@ -103,19 +110,6 @@ int main( int argc, char **argv )
 	email_address = argv[ 7 ];
 	starting_filename = argv[ 8 ];
 	really_yn = *argv[ 9 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -345,9 +339,6 @@ void shef_upload(	LIST *file_list,
 
 		system( sys_string );
 
-		/* Try to slow down Solaris' pipelining */
-		/* ------------------------------------ */
-		sleep( 1 );
-
 	} while( list_next( file_list ) );
+
 } /* shef_upload() */

@@ -115,6 +115,7 @@ void shef_upload_datatype_convert_stdin(
 	char input_buffer[ 256 ];
 	char station[ 128 ];
 	char shef_upload_code[ 128 ];
+	char *datatype;
 
 	if ( ! ( c = shef_datatype_code_new( application_name ) ) )
 	{
@@ -133,7 +134,6 @@ void shef_upload_datatype_convert_stdin(
 				input_buffer,
 				station_piece ) )
 		{
-			fprintf( stderr, "Ignoring: %s\n", input_buffer );
 			continue;
 		}
 
@@ -142,19 +142,24 @@ void shef_upload_datatype_convert_stdin(
 				input_buffer,
 				shef_code_piece ) )
 		{
-			fprintf( stderr, "Ignoring: %s\n", input_buffer );
 			continue;
 		}
 
-		printf( "%s%c%s\n",
-			input_buffer,
-			delimiter,
+		datatype =
 			shef_get_upload_default_datatype(
 					station,
 					shef_upload_code,
 					c->shef_upload_datatype_list,
 					c->station_datatype_list->
-						station_datatype_list ) );
+						station_datatype_list );
+
+		if ( datatype && *datatype )
+		{
+			printf( "%s%c%s\n",
+				input_buffer,
+				delimiter,
+				datatype );
+		}
 	}
 
 } /* shef_upload_datatype_convert_stdin() */

@@ -82,6 +82,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		delete_measurements_day					\
 		measurement_insert					\
 		prepend_century_maybe					\
+		LT_upload						\
 		load_cr10						\
 		load_cr10_single					\
 		load_sfwmd_single_file					\
@@ -302,6 +303,15 @@ get_aggregation_sum_yn: get_aggregation_sum_yn.c			\
 		${STANDARD_LIBRARY} 					\
 		get_aggregation_sum_yn.c				\
 		-o get_aggregation_sum_yn
+
+LT_upload: LT_upload.c							\
+	${EXTERNAL_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		LT_upload.c						\
+		-o LT_upload
 
 load_cr10: load_cr10.c							\
 	${EXTERNAL_LIBS}

@@ -29,12 +29,11 @@
 
 /* Constants */
 /* --------- */
-#define STATION_OUTPUT_PIECE		0
-#define MEASUREMENT_DATE_OUTPUT_PIECE	1
-#define MEASUREMENT_TIME_OUTPUT_PIECE	2
-#define MEASUREMENT_VALUE_OUTPUT_PIECE	3
-#define SHEF_OUTPUT_PIECE		4
-#define DATATYPE_OUTPUT_PIECE		5
+#define SHEF_CONVERT_STATION_PIECE	0
+#define SHEF_CONVERT_CODE_PIECE		4
+#define SHEF_CONVERT_DELIMITER		'^'
+
+#define STDERR_COUNT			300
 
 #define INSERT_MEASUREMENT		\
 	"station,measurement_date,measurement_time,measurement_value,datatype"
@@ -169,19 +168,21 @@ int load_measurement(	char *application_name,
 	char sys_string[ 1024 ];
 	FILE *input_file;
 	FILE *error_file;
-	char input_string[ 4096 ];
-	char header_string[ 4096 ];
+	char input_buffer[ 4096 ];
+	char header_buffer[ 4096 ];
+	LIST *header_string_list;
+	char *shef_code;
+	char measurement_value[ 128 ];
+	int value_piece;
 	char *measurement_table_name;
 	char measurement_date[ 128 ];
 	char measurement_time[ 128 ];
 	char error_filename[ 128 ];
-	FILE *output_pipe = {0};
-	FILE *error_pipe = {0};
+	FILE *output_pipe;
 	int load_count = 0;
 	int line_number = 0;
 	char *error_message;
 	char basename_filename[ 128 ];
-	LIST *shef_load_column_list;
 
 	sprintf(error_filename,
 		"/tmp/lt_load_%d.txt", getpid() );
@@ -212,14 +213,22 @@ int load_measurement(	char *application_name,
 	{
 		sprintf(
 		 sys_string,
+		 "shef_upload_datatype_convert %d %d '%c'		  |"
 		 "count.e %d 'LT Load count'				  |"
-		 "insert_statement table=%s field=%s del='|' compress=y   |"
+		 "piece_inverse.e %d '%c'				  |"
+		 "insert_statement table=%s field=%s del='%c' compress=n  |"
 		 "sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e				   ",
+		 SHEF_CONVERT_STATION_PIECE,
+		 SHEF_CONVERT_CODE_PIECE,
+		 SHEF_CONVERT_DELIMITER,
 		 STDERR_COUNT,
+		 SHEF_CONVERT_CODE_PIECE,
+		 SHEF_CONVERT_DELIMITER,
 		 measurement_table_name,
-		 INSERT_MEASUREMENT );
+		 INSERT_MEASUREMENT,
+		 SHEF_CONVERT_DELIMITER );
 
 		output_pipe = popen( sys_string, "w" );
 
@@ -228,15 +237,16 @@ int load_measurement(	char *application_name,
 	{
 		sprintf( sys_string,
 		"queue_top_bottom_lines.e 50				|"
-		"html_table.e 'Insert into MEASUREMENT' %s '|' 		 ",
-			 INSERT_MEASUREMENT );
+		"html_table.e 'Insert into MEASUREMENT' %s '%c'		 ",
+			 INSERT_MEASUREMENT,
+			 SHEF_CONVERT_DELIMITER );
 
 		output_pipe = popen( sys_string, "w" );
 	}
 
 	/* Get the header */
 	/* --------------- */
-	if ( !timlib_get_line( header_string, input_file, 4096 ) )
+	if ( !timlib_get_line( header_buffer, input_file, 4096 ) )
 	{
 		printf( "<h3>Error: cannot get the header.</h3>\n" );
 		pclose( output_pipe );
@@ -244,37 +254,35 @@ int load_measurement(	char *application_name,
 		return 0;
 	}
 
-	if ( ! ( shef_load_column_list =
-			shef_get_load_column_list(
-				application_name,
-				header_string ) ) )
+	line_number++;
+	header_string_list = list_string_to_list( header_buffer, ',' );
+
+	if ( !list_length( header_string_list ) )
 	{
-		printf( "<h3>Error: cannot parse the header.</h3>\n" );
+		printf( "<h3>Error: empty header.</h3>\n" );
 		pclose( output_pipe );
 		fclose( input_file );
 		return 0;
 	}
 
-	line_number++;
-
-	while( timlib_get_line( input_string, input_file, 4096 ) )
+	while( timlib_get_line( input_buffer, input_file, 4096 ) )
 	{
 		line_number++;
-		trim( input_string );
-		if ( !*input_string ) continue;
+		trim( input_buffer );
+		if ( !*input_buffer ) continue;
 
 		if ( !extract_static_attributes(
 			&error_message,
 			measurement_date,
 			measurement_time,
-			input_string ) )
+			input_buffer ) )
 		{
 			if ( *error_message )
 			{
 				fprintf(error_file,
 			"Warning in line %d: ignored = (%s) because %s.\n",
 					line_number,
-					input_string,
+					input_buffer,
 					error_message );
 			}
 			else
@@ -282,127 +290,48 @@ int load_measurement(	char *application_name,
 				fprintf(error_file,
 			"Warning in line %d: ignored = (%s)\n",
 					line_number,
-					input_string );
+					input_buffer );
 			}
 			continue;
 		}
 
-		if ( !list_rewind( water_quality->load_column_list ) )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: emtpy load_column_list.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		list_rewind( header_string_list );
 
 		do {
 
-			if ( ! ( results = extract_results(
-					input_string,
-					water_quality->load_column_list,
-					water_quality->
-						input.
-						exception_list ) ) )
+			for(	value_piece = 0;
+				piece(	measurement_value,
+					',',
+					input_buffer,
+					value_piece );
+				value_piece++ )
 			{
-				continue;
-			}
+				/* ------------------- */
+				/* Skip the date_time  */
+				/* or any empty cells. */
+				/* ------------------- */
+				if ( value_piece == 0
+				||   !*measurement_value )
+				{
+					list_next( header_string_list );
+					continue;
+				}
 
-			if ( !results->parameter_unit )
-			{
-				fprintf( stderr,
-				"ERROR in %s/%s()/%d: empty parameter_unit.\n",
-				 	__FILE__,
-				 	__FUNCTION__,
-				 	__LINE__ );
-				exit( 1 );
-			}
+				shef_code = list_get( header_string_list );
 
-			if ( timlib_strncmp(	results->concentration,
-						"-9999" ) == 0 )
-			{
-				continue;
-			}
+				fprintf( output_pipe,
+					 "%s^%s^%s^%s^%s\n",
+					 station,
+					 measurement_date,
+					 measurement_time,
+					 measurement_value,
+					 shef_code );
+					 
+				load_count++;
 
-			load_count++;
+			} /* for each cell in row */
 
-			if ( table_output_pipe )
-			{
-				fprintf(
-					table_output_pipe,
-				 	"%s|%s|%s|%s|%s|%s|%s\n",
-				 	station,
-				 	collection_date_international,
-				 	collection_time_without_colon,
-				 	results->parameter_unit->parameter_name,
-				 	results->parameter_unit->units,
-				 	results->concentration,
-					water_exception_display(
-						results->exception_list ) );
-				continue;
-
-			} /* if table */
-
-			/* if execute */
-			/* ---------- */
-			fprintf(
-				results_insert_pipe,
-			 	"%s|%s|%s|%s|%s|%s\n",
-			 	station,
-			 	collection_date_international,
-			 	collection_time_without_colon,
-			 	results->parameter_unit->parameter_name,
-			 	results->parameter_unit->units,
-			 	results->concentration );
-
-			fprintf(
-				station_parameter_insert_pipe,
-			 	"%s|%s|%s\n",
-			 	station,
-			 	results->parameter_unit->parameter_name,
-			 	results->parameter_unit->units );
-
-			fprintf(
-				station_insert_pipe,
-			 	"%s\n",
-			 	station );
-
-			fprintf(
-				water_project_station_insert_pipe,
-			 	"%s|%s\n",
-			 	project_name,
-			 	station );
-
-			fprintf(
-				collection_insert_pipe,
-			 	"%s|%s|%s|%s|%s\n",
-			 	station,
-			 	collection_date_international,
-			 	collection_time_without_colon,
-			 	depth_meters,
-			 	basename_filename );
-
-			if ( list_rewind( results->exception_list ) )
-			do {
-			     exception =
-				list_get_pointer(
-					results->
-						exception_list );
-
-			     fprintf(
-				results_exception_insert_pipe,
-			 	"%s|%s|%s|%s|%s|%s\n",
-			 	station,
-			 	collection_date_international,
-			 	collection_time_without_colon,
-			 	results->parameter_unit->parameter_name,
-			 	results->parameter_unit->units,
-			 	exception->exception );
-
-			} while( list_next( results->exception_list ) );
-
-		} while ( list_next( water_quality->load_column_list ) );
+		} while ( list_next( header_string_list ) );
 
 	} /* for each line */
 
@@ -412,8 +341,9 @@ int load_measurement(	char *application_name,
 	if ( timlib_file_populated( error_filename ) )
 	{
 		sprintf( sys_string,
-"cat %s | queue_top_bottom_lines.e 300 | html_table.e 'Errors' '' '|'",
-			 error_filename );
+"cat %s | queue_top_bottom_lines.e %d | html_table.e 'Errors' '' '|'",
+			 error_filename,
+			 STDERR_COUNT );
 		system( sys_string );
 	}
 
@@ -426,8 +356,11 @@ int load_measurement(	char *application_name,
 	"station,datatype,measurement_date,measurement_time"
 
 void delete_measurement(	char *application_name,
-				char *input_filename )
+				char *input_filename,
+				char *station )
 {
+#ifdef NOT_DEFINED
+
 	FILE *input_file;
 	FILE *collection_delete_pipe;
 	FILE *results_delete_pipe;
@@ -529,67 +462,9 @@ void delete_measurement(	char *application_name,
 	pclose( collection_delete_pipe );
 	pclose( results_delete_pipe );
 
+#endif
+
 } /* delete_measurement() */
-
-RESULTS *extract_results(
-			char *input_string,
-			LIST *load_column_list,
-			LIST *exception_list )
-{
-	char concentration[ 128 ];
-	char exception_string[ 128 ];
-	LOAD_COLUMN *load_column;
-	static RESULTS results;
-
-	if ( list_past_end( load_column_list ) ) return (RESULTS *)0;
-
-	if ( results.concentration ) free( results.concentration );
-
-	memset( &results, 0, sizeof ( RESULTS ) );
-
-	load_column = list_get( load_column_list );
-
-	if ( load_column->parameter_unit )
-	{
-		/* Get the concentration */
-		/* --------------------- */
-		if ( !piece_quote_comma(
-			concentration,
-			input_string,
-			load_column->column_piece ) )
-		{
-			return (RESULTS *)0;
-		}
-
-		if ( !*concentration ) return (RESULTS *)0;
-
-		results.parameter_unit = load_column->parameter_unit;
-		results.concentration = strdup( concentration );
-
-		/* Get the exceptions */
-		/* ------------------ */
-		if ( !piece_quote_comma(
-			exception_string,
-			input_string,
-			load_column->column_piece + 1 ) )
-		{
-			return (RESULTS *)0;
-		}
-
-		if ( *exception_string )
-		{
-			results.exception_list =
-				water_get_results_exception_list(
-					exception_string,
-					exception_list );
-		}
-
-		return &results;
-	}
-
-	return (RESULTS *)0;
-
-} /* extract_results() */
 
 boolean extract_static_attributes(
 			char **error_message,
@@ -625,9 +500,9 @@ boolean extract_static_attributes(
 	/* Looks like: 2018-08-31T14:30:22Z */
 	/* -------------------------------- */
 
-	piece( date_buffer, date_time_buffer, 'T', 0 );
+	piece( date_buffer, 'T', date_time_buffer, 0 );
 
-	if ( !piece( time_buffer, date_time_buffer, 'T', 1 ) )
+	if ( !piece( time_buffer, 'T', date_time_buffer, 1 ) )
 	{
 		timlib_strcpy( measurement_date, date_buffer, 0 );
 		timlib_strcpy( measurement_time, "null", 0 );
@@ -654,9 +529,9 @@ boolean extract_static_attributes(
 		return 0;
 	}
 
-	piece( hour_buffer, time_buffer, ':', 0 );
+	piece( hour_buffer, ':', time_buffer, 0 );
 
-	if ( !piece( minute_buffer, time_buffer, ':', 1 ) )
+	if ( !piece( minute_buffer, ':', time_buffer, 1 ) )
 	{
 		if ( error_message )
 			*error_message =
@@ -690,11 +565,8 @@ boolean extract_static_attributes(
 	/* ----------------- */
 	date_increment_hours( date, date_get_utc_offset() );
 
-	timlib_strcpy(	measurement_date,
-			date_get_yyyy_mm_dd( date ) );
-
-	timlib_strcpy(	measurement_time,
-			date_get_hhmm( date ) );
+	date_get_yyyy_mm_dd( measurement_date, date );
+	date_get_hhmm( measurement_time, date );
 
 	return 1;
 

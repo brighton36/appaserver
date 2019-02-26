@@ -75,6 +75,28 @@ SHEF_DATATYPE_CODE *shef_datatype_code_new( char *application_name )
 
 } /* shef_datatype_code_new() */
 
+LIST *shef_get_load_column_list(	char *application_name,
+					char *header_line )
+{
+} /* shef_get_load_column_list() */
+
+SHEF_LOAD_COLUMN *shef_load_column_new( void )
+{
+	SHEF_LOAD_COLUMN *s;
+
+	if ( ! ( s = calloc( 1, sizeof( SHEF_LOAD_COLUMN ) ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return s;
+
+} /* shef_load_column_new() */
 
 char *shef_datatype_code_get_shef_download_code(
 			char *station, 

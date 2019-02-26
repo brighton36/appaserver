@@ -251,7 +251,7 @@ void date_set_date_integers(	DATE *date,
 
 } /* date_set_date_integers() */
 
-int date_set_yyyy_mm_dd_hhmm_delimited(
+boolean date_set_yyyy_mm_dd_hhmm_delimited(
 				DATE *date,
 				char *yyyy_mm_dd_hhmm,
 				int date_piece,
@@ -304,9 +304,9 @@ int date_set_yyyy_mm_dd_hhmm_delimited(
 
 } /* date_set_yyyy_mm_dd_hhmm_delimited() */
 
-int date_set_yyyy_mm_dd_hhmm(	DATE *date,
-				char *yyyy_mm_dd,
-				char *hhmm )
+boolean date_set_yyyy_mm_dd_hhmm(	DATE *date,
+					char *yyyy_mm_dd,
+					char *hhmm )
 {
 	char year_string[ 128 ];
 	char month_string[ 128 ];
@@ -351,7 +351,7 @@ int date_set_yyyy_mm_dd_hhmm(	DATE *date,
 
 } /* date_set_yyyy_mm_dd_hhmm() */
 
-int date_set_yyyy_mm_dd(	DATE *date,
+boolean date_set_yyyy_mm_dd(	DATE *date,
 				char *yyyy_mm_dd )
 {
 	char year_string[ 128 ];

@@ -22,6 +22,12 @@ typedef struct
 
 typedef struct
 {
+	char *shef_code;
+	int column_piece;
+} SHEF_LOAD_COLUMN;
+
+typedef struct
+{
 	char *station;
 	char *datatype;
 	char *shef_upload_code;
@@ -43,6 +49,11 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+SHEF_LOAD_COLUMN *shef_load_column_new(	void );
+
+LIST *shef_get_load_column_list(	char *application_name,
+					char *header_line );
+
 SHEF_UPLOAD_AGGREGATE_MEASUREMENT *
 			shef_upload_aggregate_measurement_new(
 				char *station,
@@ -55,9 +66,9 @@ SHEF_DATATYPE_CODE *shef_datatype_code_new(
 				char *application_name );
 
 char *shef_datatype_code_get_shef_download_code(
-			char *station, 
-			char *datatype, 
-			LIST *shef_download_datatype_list );
+				char *station, 
+				char *datatype, 
+				LIST *shef_download_datatype_list );
 
 char *shef_datatype_code_get_upload_datatype(
 				SHEF_UPLOAD_AGGREGATE_MEASUREMENT **

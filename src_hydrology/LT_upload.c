@@ -27,6 +27,37 @@
 #include "basename.h"
 #include "application_constants.h"
 
+/* Constants */
+/* --------- */
+#define STATION_OUTPUT_PIECE		0
+#define MEASUREMENT_DATE_OUTPUT_PIECE	1
+#define MEASUREMENT_TIME_OUTPUT_PIECE	2
+#define MEASUREMENT_VALUE_OUTPUT_PIECE	3
+#define SHEF_OUTPUT_PIECE		4
+#define DATATYPE_OUTPUT_PIECE		5
+
+#define INSERT_MEASUREMENT		\
+	"station,measurement_date,measurement_time,measurement_value,datatype"
+
+/* Prototypes */
+/* ---------- */
+void delete_measurement(	char *application_name,
+				char *input_filename,
+				char *station );
+
+boolean extract_static_attributes(
+				char **error_message,
+				char *measurement_date,
+				char *measurement_time,
+				char *input_string );
+
+void remove_error_file(		char *error_filename );
+
+int load_measurement(		char *application_name,
+				char *input_filename,
+				char *station,
+				boolean execute );
+
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -38,9 +69,6 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	int load_count = 0;
 	char buffer[ 128 ];
-	WATER_QUALITY *water_quality;
-	char heading_error_message[ 65536 ];
-	APPLICATION_CONSTANTS *application_constants;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -97,116 +125,66 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	*heading_error_message = '\0';
-
-	application_constants = application_constants_new();
-	application_constants->dictionary =
-		application_constants_get_dictionary(
-			application_name );
-
-	water_quality =
-		water_quality_new(
-			application_name,
-			project_name );
-
-	water_quality->parameter_unit_alias_list =
-		water_get_parameter_unit_alias_list(
-			water_quality->input.parameter_name_list,
-			water_quality->input.unit_name_list,
-			water_quality->input.parameter_alias_list,
-			water_quality->input.unit_alias_list );
-
-	/* Doesn't set RESULTS */
-	/* ------------------- */
-	water_quality->load_column_list =
-		water_fetch_turkey_point_column_list(
-				heading_error_message,
-				input_filename,
-				water_quality->parameter_unit_alias_list,
-				application_constants->dictionary );
-
-/*
-fprintf( stderr,
-	 "Load column_list:\n%s\n",
-	 water_load_column_list_display(
-		water_quality->load_column_list ) );
-*/
-
 	if ( execute )
 	{
-		delete_hydrology(	application_name,
+		delete_measurement(	application_name,
 					input_filename,
-					water_quality );
+					station );
 	}
 
 	load_count =
-		load_concentration_file(
+		load_measurement(
 			application_name,
 			input_filename,
-			water_quality,
-			execute,
-			project_name,
-			heading_error_message );
+			station,
+			execute );
 
 	if ( execute )
-		printf( "<p>Process complete with %d concentrations.\n",
-			load_count );
-	else
-		printf( "<p>Process did not load %d concentrations.\n",
+	{
+		printf( "<p>Process complete with %d measurements.\n",
 			load_count );
 
-	document_close();
-
-	process_increment_execution_count(
+		process_increment_execution_count(
 				application_name,
 				process_name,
 				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
+	}
+	else
+	{
+		printf( "<p>Process did not load %d measurements.\n",
+			load_count );
+	}
+
+	document_close();
+
+	return 0;
+
 } /* main() */
 
-int load_concentration_file(
-			char *application_name,
+int load_measurement(	char *application_name,
 			char *input_filename,
-			WATER_QUALITY *water_quality,
-			boolean execute,
-			char *project_name,
-			char *heading_error_message )
+			char *station,
+			boolean execute )
 {
 	char sys_string[ 1024 ];
 	FILE *input_file;
 	FILE *error_file;
 	char input_string[ 4096 ];
-	char *collection_table_name;
-	char *results_table_name;
-	char *results_exception_table_name;
-	char *station_parameter_table_name;
-	char *station_table_name;
-	char *water_project_station_table_name;
-	char station[ 128 ];
-	char collection_date_international[ 128 ];
-	char depth_meters[ 128 ];
-	char longitude[ 128 ];
-	char latitude[ 128 ];
-	char collection_time_without_colon[ 128 ];
+	char header_string[ 4096 ];
+	char *measurement_table_name;
+	char measurement_date[ 128 ];
+	char measurement_time[ 128 ];
 	char error_filename[ 128 ];
-	FILE *table_output_pipe = {0};
-	FILE *results_insert_pipe = {0};
-	FILE *results_exception_insert_pipe = {0};
-	FILE *collection_insert_pipe = {0};
-	FILE *station_parameter_insert_pipe = {0};
-	FILE *station_insert_pipe = {0};
-	FILE *water_project_station_insert_pipe = {0};
+	FILE *output_pipe = {0};
+	FILE *error_pipe = {0};
 	int load_count = 0;
 	int line_number = 0;
-	RESULTS *results;
 	char *error_message;
 	char basename_filename[ 128 ];
-	EXCEPTION *exception;
-
-	if ( !list_length( water_quality->load_column_list ) ) return 0;
+	LIST *shef_load_column_list;
 
 	sprintf(error_filename,
-		"/tmp/load_concentration_file_error_%d.txt", getpid() );
+		"/tmp/lt_load_%d.txt", getpid() );
 
 	if ( ! ( error_file = fopen( error_filename, "w" ) ) )
 	{
@@ -214,140 +192,66 @@ int load_concentration_file(
 		return 0;
 	}
 
-	if ( heading_error_message && *heading_error_message )
-	{
-		fprintf( error_file,
-			 "Unrecognized heading: %s\n",
-			 heading_error_message );
-	}
-
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
 		printf( "<h2>ERROR: cannot open %s for read</h2>\n",
 			input_filename );
+
+		fclose( error_file );
 		return 0;
 	}
 
 	trim_index(	basename_filename,
 			basename_get_filename( input_filename ) );
 
-	results_table_name =
+	measurement_table_name =
 		get_table_name(	application_name,
-				"results" );
-
-	results_exception_table_name =
-		get_table_name(	application_name,
-				"results_exception" );
-
-	collection_table_name =
-		get_table_name(	application_name,
-				"collection" );
-
-	station_parameter_table_name =
-		get_table_name(	application_name,
-				"station_parameter" );
-
-	station_table_name =
-		get_table_name(	application_name,
-				"station" );
-
-	water_project_station_table_name =
-		get_table_name(	application_name,
-				"water_project_station" );
+				"measurement" );
 
 	if ( execute )
 	{
 		sprintf(
 		 sys_string,
-		 "count.e %d 'WQ Load count'				  |"
+		 "count.e %d 'LT Load count'				  |"
 		 "insert_statement table=%s field=%s del='|' compress=y   |"
 		 "sql.e 2>&1						  |"
 		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e				   ",
 		 STDERR_COUNT,
-		 results_table_name,
-		 INSERT_RESULTS );
+		 measurement_table_name,
+		 INSERT_MEASUREMENT );
 
-		results_insert_pipe = popen( sys_string, "w" );
+		output_pipe = popen( sys_string, "w" );
 
-		sprintf(
-		 sys_string,
-		 "insert_statement table=%s field=%s del='|' compress=n   |"
-		 "sql.e 2>&1						  |"
-		 "grep -vi duplicate					  |"
-		 "html_paragraph_wrapper.e				   ",
-		 results_exception_table_name,
-		 INSERT_RESULTS_EXCEPTION );
-
-		results_exception_insert_pipe = popen( sys_string, "w" );
-
-		sprintf(
-		 sys_string,
-		 "sort -u						  |"
-		 "insert_statement table=%s field=%s del='|' compress=n   |"
-		 "sql.e 2>&1						  |"
-		 "grep -vi duplicate					  |"
-		 "html_paragraph_wrapper.e			 	   ",
-		 collection_table_name,
-		 INSERT_COLLECTION );
-
-		collection_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
-		 	station_parameter_table_name,
-		 	INSERT_STATION_PARAMETER );
-
-		station_parameter_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
-		 	station_table_name,
-		 	INSERT_STATION );
-
-		station_insert_pipe = popen( sys_string, "w" );
-
-		sprintf( sys_string,
-			 "sort -u					|"
-			 "insert_statement %s %s '|'			|"
-			 "sql.e 2>&1					|"
-			 "grep -vi duplicate				|"
-			 "html_paragraph_wrapper.e			 ",
-		 	water_project_station_table_name,
-		 	INSERT_WATER_PROJECT_STATION );
-
-		water_project_station_insert_pipe = popen( sys_string, "w" );
 	}
 	else
 	{
 		sprintf( sys_string,
 		"queue_top_bottom_lines.e 50				|"
-		"html_table.e 'Insert into Water Quality Results' %s '|' ",
-			 DISPLAY_RESULTS );
+		"html_table.e 'Insert into MEASUREMENT' %s '|' 		 ",
+			 INSERT_MEASUREMENT );
 
-		table_output_pipe = popen( sys_string, "w" );
+		output_pipe = popen( sys_string, "w" );
 	}
 
-	/* Skip the header */
+	/* Get the header */
 	/* --------------- */
-	if ( !get_line( input_string, input_file ) )
+	if ( !timlib_get_line( header_string, input_file, 4096 ) )
 	{
-		close_pipes(
-			results_insert_pipe,
-			results_exception_insert_pipe,
-			station_parameter_insert_pipe,
-			station_insert_pipe,
-			water_project_station_insert_pipe,
-			collection_insert_pipe,
-			table_output_pipe );
+		printf( "<h3>Error: cannot get the header.</h3>\n" );
+		pclose( output_pipe );
+		fclose( input_file );
+		return 0;
+	}
+
+	if ( ! ( shef_load_column_list =
+			shef_get_load_column_list(
+				application_name,
+				header_string ) ) )
+	{
+		printf( "<h3>Error: cannot parse the header.</h3>\n" );
+		pclose( output_pipe );
+		fclose( input_file );
 		return 0;
 	}
 
@@ -359,17 +263,11 @@ int load_concentration_file(
 		trim( input_string );
 		if ( !*input_string ) continue;
 
-		if ( !extract_station_collection_attributes(
+		if ( !extract_static_attributes(
 			&error_message,
-			station,
-			collection_date_international,
-			collection_time_without_colon,
-			depth_meters,
-			longitude,
-			latitude,
-			input_string,
-			water_quality->load_column_list,
-			application_name ) )
+			measurement_date,
+			measurement_time,
+			input_string ) )
 		{
 			if ( *error_message )
 			{
@@ -511,35 +409,24 @@ int load_concentration_file(
 	fclose( input_file );
 	fclose( error_file );
 
-	close_pipes(
-		results_insert_pipe,
-		results_exception_insert_pipe,
-		station_parameter_insert_pipe,
-		station_insert_pipe,
-		water_project_station_insert_pipe,
-		collection_insert_pipe,
-		table_output_pipe );
-
 	if ( timlib_file_populated( error_filename ) )
 	{
 		sprintf( sys_string,
-"cat %s | queue_top_bottom_lines.e 300 | html_table.e 'Water Quality Errors' '' '|'",
+"cat %s | queue_top_bottom_lines.e 300 | html_table.e 'Errors' '' '|'",
 			 error_filename );
 		system( sys_string );
 	}
 
-	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
-
+	remove_error_file( error_filename );
 	return load_count;
 
-} /* load_concentration_file() */
+} /* load_measurement() */
 
-#define DELETE_FIELD_LIST	"station,collection_date,collection_time"
+#define DELETE_FIELD_LIST	\
+	"station,datatype,measurement_date,measurement_time"
 
-void delete_hydrology(	char *application_name,
-				char *input_filename,
-				WATER_QUALITY *water_quality )
+void delete_measurement(	char *application_name,
+				char *input_filename )
 {
 	FILE *input_file;
 	FILE *collection_delete_pipe;
@@ -642,32 +529,7 @@ void delete_hydrology(	char *application_name,
 	pclose( collection_delete_pipe );
 	pclose( results_delete_pipe );
 
-} /* delete_hydrology() */
-
-void close_pipes(
-		FILE *results_insert_pipe,
-		FILE *results_exception_insert_pipe,
-		FILE *station_parameter_insert_pipe,
-		FILE *station_insert_pipe,
-		FILE *water_project_station_insert_pipe,
-		FILE *collection_insert_pipe,
-		FILE *table_output_pipe )
-{
-	if ( table_output_pipe )
-	{
-		pclose( table_output_pipe );
-	}
-	else
-	{
-		pclose( results_insert_pipe );
-		pclose( results_exception_insert_pipe );
-		pclose( station_parameter_insert_pipe );
-		pclose( station_insert_pipe );
-		pclose( water_project_station_insert_pipe );
-		pclose( collection_insert_pipe );
-	}
-
-} /* close_pipes() */
+} /* delete_measurement() */
 
 RESULTS *extract_results(
 			char *input_string,
@@ -729,269 +591,120 @@ RESULTS *extract_results(
 
 } /* extract_results() */
 
-boolean extract_station_collection_attributes(
+boolean extract_static_attributes(
 			char **error_message,
-			char *station,
-			char *collection_date_international,
-			char *collection_time_without_colon,
-			char *depth_meters,
-			char *longitude,
-			char *latitude,
-			char *input_string,
-			LIST *load_column_list,
-			char *application_name )
+			char *measurement_date,
+			char *measurement_time,
+			char *input_string )
 {
-	char collection_date[ 128 ];
-	char collection_time[ 128 ];
-	int column_piece;
-	int collection_time_piece;
-	static int station_attribute_width = 0;
+	char date_time_buffer[ 128 ];
+	char date_buffer[ 64 ];
+	char time_buffer[ 64 ];
+	char hour_buffer[ 32 ];
+	char minute_buffer[ 32 ];
+	static DATE *date = {0};
 
-	if ( !station_attribute_width )
+	if ( !date )
 	{
-		if ( ! ( station_attribute_width =
-				attribute_get_width(
-					application_name,
-					"station" /* attribute_name */ ) ) )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: cannot get station_attribute_width.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
+		date = date_calloc();
 	}
 
-	if ( error_message ) *error_message = "";
-
-	/* Get station */
-	/* ----------- */
-	column_piece =
-		water_get_station_collection_attribute_piece(
-			"station",
-			load_column_list );
-
-	if ( column_piece == -1 )
-	{
-		if ( error_message )
-			*error_message =
-				"cannot identify station";
-		return 0;
-	}
-
-	if ( ! piece_quote_comma(
-		station,
-		input_string,
-		column_piece )
-	||   !*station )
-	{
-		if ( error_message )
-			*error_message =
-				"cannot identify station";
-		return 0;
-	}
-
-	if ( strlen( station ) > station_attribute_width )
-	{
-		if ( error_message )
-		{
-			static char buffer[ 256 ];
-
-			sprintf( buffer,
-		"station name is too long. Width is %d, max size is %d",
-				 (int)strlen( station ),
-			 	 station_attribute_width );
-
-			*error_message = buffer;
-		}
-		return 0;
-	}
-
-	/* ------------------------------------------------------------	*/
-	/* Get collection_time_without_colon.				*/
-	/* Note: execute this before getting the collection date	*/
-	/* because the collection date may have the time appended.	*/
-	/* ------------------------------------------------------------	*/
-	collection_time_piece =
-		water_get_station_collection_attribute_piece(
-			WATER_QUALITY_COLLECTION_TIME_LABEL,
-			load_column_list );
-
-	if ( collection_time_piece == -1 )
-	{
-		strcpy( collection_time_without_colon, "null" );
-	}
-	else
 	if ( !piece_quote_comma(
-		collection_time,
+		date_time_buffer,
 		input_string,
-		column_piece )
-	||   !*collection_time )
-	{
-		strcpy( collection_time_without_colon, "null" );
-	}
-	else
-	{
-		timlib_strcpy(
-			collection_time_without_colon,
-			date_remove_colon_from_time(
-				collection_time ),
-			0 /* buffer_size */ );
-	}
-
-	/* Get collection_date */
-	/* ------------------- */
-	column_piece =
-		water_get_station_collection_attribute_piece(
-			WATER_QUALITY_COLLECTION_DATE_LABEL,
-			load_column_list );
-
-	if ( column_piece == -1 )
+		0 )
+	||   !*date_time_buffer )
 	{
 		if ( error_message )
 			*error_message =
-				"cannot identify collection date";
+			 	"Cannnot identify DateTime";
 		return 0;
 	}
 
-	if ( ! piece_quote_comma(
-		collection_date,
-		input_string,
-		column_piece )
-	||   !*collection_date )
+	/* -------------------------------- */
+	/* Looks like: 2018-08-31T14:30:22Z */
+	/* -------------------------------- */
+
+	piece( date_buffer, date_time_buffer, 'T', 0 );
+
+	if ( !piece( time_buffer, date_time_buffer, 'T', 1 ) )
+	{
+		timlib_strcpy( measurement_date, date_buffer, 0 );
+		timlib_strcpy( measurement_time, "null", 0 );
+		return 1;
+	}
+
+	if ( strlen( time_buffer ) != 9 )
 	{
 		if ( error_message )
 			*error_message =
-				"cannot identify collection date";
+			 	"Cannot get Zulo time";
 		return 0;
 	}
 
-	/* The collection date may have the time appended. */
-	/* ----------------------------------------------- */
-	if ( collection_time_piece == -1
-	&&   timlib_character_exists( collection_date, ' ' ) )
-	{
-		column( collection_time, 1, collection_date );
+	/* --------------------- */
+	/* Looks like: 14:30:22Z */
+	/* --------------------- */
 
-		/* Assume midnight means unknown time. */
-		/* ----------------------------------- */
-		if ( strcmp( collection_time, "00:00" ) != 0 )
-		{
-			timlib_strcpy(
-				collection_time_without_colon,
-				date_remove_colon_from_time(
-					collection_time ),
-				0 /* buffer_size */ );
-		}
-	}
-
-	*collection_date_international = '\0';
-
-	if ( !date_convert_source_unknown(
-			collection_date_international,
-			international,
-			collection_date ) )
-	{
-		if ( error_message )
-		{
-			char buffer[ 256 ];
-
-			sprintf( buffer,
-				 "cannot translate %s to international",
-				 collection_date );
-
-			*error_message = strdup( buffer );
-		}
-		return 0;
-	}
-
-	if ( !*collection_time_without_colon )
+	if ( *(time_buffer + 8 ) != 'Z' )
 	{
 		if ( error_message )
 			*error_message =
-				"cannot identify collection time";
+			 	"Expecting a 'Z' in the time";
 		return 0;
 	}
 
-	/* Get depth_meters */
-	/* ---------------- */
-	column_piece =
-		water_get_station_collection_attribute_piece(
-			WATER_QUALITY_DEPTH_LABEL,
-			load_column_list );
+	piece( hour_buffer, time_buffer, ':', 0 );
 
-	if ( column_piece == -1 )
+	if ( !piece( minute_buffer, time_buffer, ':', 1 ) )
 	{
-		*depth_meters = '\0';
-	}
-	else
-	{
-		piece_quote_comma(
-			depth_meters,
-			input_string,
-			column_piece );
+		if ( error_message )
+			*error_message =
+			 	"Expecting a ':' in the time";
+		return 0;
 	}
 
-	/* Get longitude */
-	/* ------------- */
-	column_piece =
-		water_get_station_collection_attribute_piece(
-			WATER_QUALITY_LONGITUDE_LABEL,
-			load_column_list );
-
-	if ( column_piece == -1 )
+	if ( !date_set_yyyy_mm_dd(
+			date,
+			date_buffer ) )
 	{
-		*longitude = '\0';
-	}
-	else
-	{
-		piece_quote_comma(
-			longitude,
-			input_string,
-			column_piece );
+		if ( error_message )
+			*error_message =
+			 	"Invalid date";
+		return 0;
 	}
 
-	/* Get latitude */
-	/* ------------ */
-	column_piece =
-		water_get_station_collection_attribute_piece(
-			WATER_QUALITY_LATITUDE_LABEL,
-			load_column_list );
+	sprintf( time_buffer, "%s%s", hour_buffer, minute_buffer );
 
-	if ( column_piece == -1 )
+	if ( !date_set_time_hhmm(
+			date,
+			time_buffer /* hhmm */ ) )
 	{
-		*latitude = '\0';
+		if ( error_message )
+			*error_message =
+			 	"Invalid time";
+		return 0;
 	}
-	else
-	{
-		piece_quote_comma(
-			latitude,
-			input_string,
-			column_piece );
-	}
+
+	/* Convert from zulu */
+	/* ----------------- */
+	date_increment_hours( date, date_get_utc_offset() );
+
+	timlib_strcpy(	measurement_date,
+			date_get_yyyy_mm_dd( date ) );
+
+	timlib_strcpy(	measurement_time,
+			date_get_hhmm( date ) );
 
 	return 1;
 
-} /* extract_station_collection_attributes() */
+} /* extract_static_attributes() */
 
-	appaserver_link_file->filename_stem = SHEF_FILENAME_STEM;
+void remove_error_file( char *error_filename )
+{
+	char sys_string[ 1024 ];
 
-	shef_bad_file =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	sprintf( sys_string, "rm %s", error_filename );
+	system( sys_string );
+}
 

@@ -24,7 +24,7 @@
 
 /* Prototypes */
 /* ---------- */
-boolean extract_station_collection_attributes(
+boolean extract_static_attributes(
 				char **error_message,
 				char *station,
 				char *collection_date,

@@ -22,6 +22,8 @@ backup/
 # -------------
 # src_hydrology
 # -------------
+shef_upload_datatype_convert
+LT_upload
 sensor_exposed_null
 sensor_exposed_null_output
 output_measurement_sets_googlechart

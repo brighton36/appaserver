@@ -99,7 +99,7 @@ typedef struct
 	char *station_collection_attribute;
 	PARAMETER_UNIT *parameter_unit;
 	int column_piece;
-} LOAD_COLUMN;
+} WATER_LOAD_COLUMN;
 
 typedef struct
 {
@@ -164,7 +164,7 @@ WATER_PROJECT *water_project_new(
 STATION_PARAMETER *water_new_station_parameter(
 				void );
 
-LOAD_COLUMN *water_new_load_column(
+WATER_LOAD_COLUMN *water_new_load_column(
 				void );
 
 PARAMETER_ALIAS *water_new_parameter_alias(
@@ -227,7 +227,7 @@ int water_get_station_collection_attribute_piece(
 				char *station_collection_attribute,
 				LIST *load_column_list );
 
-LOAD_COLUMN *water_get_next_load_column_parameter_unit(
+WATER_LOAD_COLUMN *water_get_next_load_column_parameter_unit(
 				LIST *load_column_list );
 
 void water_seek_application_constants_dictionary(

@@ -902,11 +902,11 @@ LIST *water_fetch_parameter_alias_list(	char *application_name )
 
 } /* water_fetch_parameter_alias_list() */
 
-LOAD_COLUMN *water_new_load_column( void )
+WATER_LOAD_COLUMN *water_new_load_column( void )
 {
-	LOAD_COLUMN *w;
+	WATER_LOAD_COLUMN *w;
 
-	if ( ! ( w = calloc( 1, sizeof( LOAD_COLUMN ) ) ) )
+	if ( ! ( w = calloc( 1, sizeof( WATER_LOAD_COLUMN ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
@@ -995,7 +995,7 @@ LIST *water_fetch_turkey_point_heading_column_list(
 	char piece_buffer[ 128 ];
 	int column_piece;
 	PARAMETER_UNIT *parameter_unit;
-	LOAD_COLUMN *load_column;
+	WATER_LOAD_COLUMN *load_column;
 	char *message_pointer;
 
 	if ( !heading_string || !*heading_string ) return (LIST *)0;
@@ -1101,7 +1101,7 @@ LIST *water_fetch_fiu_column_list(
 	char piece_buffer[ 128 ];
 	int column_piece;
 	PARAMETER_UNIT *parameter_unit;
-	LOAD_COLUMN *load_column;
+	WATER_LOAD_COLUMN *load_column;
 	char *message_pointer;
 	LIST *collection_date_heading_list = {0};
 	LIST *collection_time_heading_list = {0};
@@ -1374,7 +1374,7 @@ int water_get_station_collection_attribute_piece(
 				char *station_collection_attribute,
 				LIST *load_column_list )
 {
-	LOAD_COLUMN *load_column;
+	WATER_LOAD_COLUMN *load_column;
 
 	if ( !list_rewind( load_column_list ) ) return -1;
 
@@ -1393,12 +1393,12 @@ int water_get_station_collection_attribute_piece(
 	return -1;
 } /* water_get_station_collection_attribute_piece() */
 
-LOAD_COLUMN *water_get_next_load_column_parameter_unit(
+WATER_LOAD_COLUMN *water_get_next_load_column_parameter_unit(
 				LIST *load_column_list )
 {
-	LOAD_COLUMN *load_column;
+	WATER_LOAD_COLUMN *load_column;
 
-	if ( list_past_end( load_column_list ) ) return (LOAD_COLUMN *)0;
+	if ( list_past_end( load_column_list ) ) return (WATER_LOAD_COLUMN *)0;
 
 	do {
 		load_column = list_get( load_column_list );
@@ -1407,7 +1407,7 @@ LOAD_COLUMN *water_get_next_load_column_parameter_unit(
 
 	} while( list_next( load_column_list ) );
 
-	return (LOAD_COLUMN *)0;
+	return (WATER_LOAD_COLUMN *)0;
 } /* water_get_next_load_column_parameter_unit() */
 
 void water_seek_application_constants_dictionary(
@@ -1591,7 +1591,7 @@ char *water_load_column_list_display( LIST *load_column_list )
 {
 	char buffer[ 65536 ];
 	char *ptr = buffer;
-	LOAD_COLUMN *load_column;
+	WATER_LOAD_COLUMN *load_column;
 
 	if ( !list_rewind( load_column_list ) ) return "";
 

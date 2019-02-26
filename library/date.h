@@ -186,10 +186,10 @@ DATE *date_new_yyyy_mm_dd(	char *date_field );
 DATE *date_new_yyyy_mm_dd_hhmm(	char *date_string,
 				char *time_string );
 
-int date_set_yyyy_mm_dd(	DATE *date,
+boolean date_set_yyyy_mm_dd(	DATE *date,
 				char *yyyy_mm_dd );
 
-int date_set_yyyy_mm_dd_hhmm_delimited(
+boolean date_set_yyyy_mm_dd_hhmm_delimited(
 				DATE *date,
 				char *yyyy_mm_dd_hhmm,
 				int date_piece,
@@ -467,7 +467,8 @@ void date_set_date_time_integers(
 				int minutes,
 				int seconds );
 
-int date_set_yyyy_mm_dd_hhmm(	DATE *date,
+boolean date_set_yyyy_mm_dd_hhmm(
+				DATE *date,
 				char *yyyy_mm_dd,
 				char *hhmm );
 

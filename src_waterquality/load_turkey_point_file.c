@@ -29,6 +29,8 @@
 #include "load_turkey_point_file.h"
 #include "water_quality.h"
 
+void remove_error_file(		char *error_filename );
+
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -38,44 +40,34 @@ int main( int argc, char **argv )
 	char *input_filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	int load_count = 0;
 	char buffer[ 128 ];
 	WATER_QUALITY *water_quality;
 	char heading_error_message[ 65536 ];
 	APPLICATION_CONSTANTS *application_constants;
 
-	if ( argc != 6 )
-	{
-		fprintf( stderr, 
-"Usage: %s application process_name project_name filename execute_yn\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	project_name = argv[ 3 ];
-	input_filename = argv[ 4 ];
-	execute = (*argv[ 5 ] == 'y');
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+	if ( argc != 6 )
+	{
+		fprintf( stderr, 
+"Usage: %s ignored process_name project_name filename execute_yn\n",
+			 argv[ 0 ] );
+		exit ( 1 );
+	}
+
+	/* application_name = argv[ 1 ]; */
+	process_name = argv[ 2 ];
+	project_name = argv[ 3 ];
+	input_filename = argv[ 4 ];
+	execute = (*argv[ 5 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -162,19 +154,25 @@ fprintf( stderr,
 			heading_error_message );
 
 	if ( execute )
+	{
 		printf( "<p>Process complete with %d concentrations.\n",
 			load_count );
-	else
-		printf( "<p>Process did not load %d concentrations.\n",
-			load_count );
 
-	document_close();
-
-	process_increment_execution_count(
+		process_increment_execution_count(
 				application_name,
 				process_name,
 				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
+	}
+	else
+	{
+		printf( "<p>Process did not load %d concentrations.\n",
+			load_count );
+	}
+
+	document_close();
+
+	return 0;
+
 } /* main() */
 
 int load_concentration_file(
@@ -238,6 +236,9 @@ int load_concentration_file(
 	{
 		printf( "<h2>ERROR: cannot open %s for read</h2>\n",
 			input_filename );
+
+		fclose( error_file );
+		remove_error_file( error_filename );
 		return 0;
 	}
 
@@ -541,12 +542,18 @@ int load_concentration_file(
 		system( sys_string );
 	}
 
-	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
-
+	remove_error_file( error_filename );
 	return load_count;
 
 } /* load_concentration_file() */
+
+void remove_error_file( char *error_filename )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string, "rm %s", error_filename );
+	system( sys_string );
+}
 
 #define DELETE_FIELD_LIST	"station,collection_date,collection_time"
 
@@ -623,7 +630,7 @@ void delete_waterquality(	char *application_name,
 		trim( input_string );
 		if ( !*input_string ) continue;
 
-		if ( !extract_station_collection_attributes(
+		if ( !extract_static_attributes(
 			(char **)0,
 			station,
 			collection_date_international,
@@ -742,7 +749,7 @@ RESULTS *extract_results(
 
 } /* extract_results() */
 
-boolean extract_station_collection_attributes(
+boolean extract_static_attributes(
 			char **error_message,
 			char *station,
 			char *collection_date_international,
@@ -986,5 +993,5 @@ boolean extract_station_collection_attributes(
 
 	return 1;
 
-} /* extract_station_collection_attributes() */
+} /* extract_static_attributes() */
 

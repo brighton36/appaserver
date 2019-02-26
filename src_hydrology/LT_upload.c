@@ -138,6 +138,8 @@ int main( int argc, char **argv )
 			station,
 			execute );
 
+	fflush( stdout );
+
 	if ( execute )
 	{
 		printf( "<p>Process complete with %d measurements.\n",
@@ -218,7 +220,6 @@ int load_measurement(	char *application_name,
 		 "piece_inverse.e %d '%c'				  |"
 		 "insert_statement table=%s field=%s del='%c' compress=n  |"
 		 "sql.e 2>&1						  |"
-		 "grep -vi duplicate					  |"
 		 "html_paragraph_wrapper.e				   ",
 		 SHEF_CONVERT_STATION_PIECE,
 		 SHEF_CONVERT_CODE_PIECE,
@@ -236,8 +237,15 @@ int load_measurement(	char *application_name,
 	else
 	{
 		sprintf( sys_string,
+		"shef_upload_datatype_convert %d %d '%c'		|"
+		"piece_inverse.e %d '%c'				|"
 		"queue_top_bottom_lines.e 50				|"
 		"html_table.e 'Insert into MEASUREMENT' %s '%c'		 ",
+		 	 SHEF_CONVERT_STATION_PIECE,
+		 	 SHEF_CONVERT_CODE_PIECE,
+		 	 SHEF_CONVERT_DELIMITER,
+		 	 SHEF_CONVERT_CODE_PIECE,
+		 	 SHEF_CONVERT_DELIMITER,
 			 INSERT_MEASUREMENT,
 			 SHEF_CONVERT_DELIMITER );
 
@@ -307,10 +315,10 @@ int load_measurement(	char *application_name,
 				value_piece++ )
 			{
 				/* ------------------- */
-				/* Skip the date_time  */
+				/* Skip date_time, SN  */
 				/* or any empty cells. */
 				/* ------------------- */
-				if ( value_piece == 0
+				if ( value_piece <= 1
 				||   !*measurement_value )
 				{
 					list_next( header_string_list );
@@ -328,6 +336,7 @@ int load_measurement(	char *application_name,
 					 shef_code );
 					 
 				load_count++;
+				list_next( header_string_list );
 
 			} /* for each cell in row */
 
@@ -337,6 +346,7 @@ int load_measurement(	char *application_name,
 
 	fclose( input_file );
 	fclose( error_file );
+	pclose( output_pipe );
 
 	if ( timlib_file_populated( error_filename ) )
 	{

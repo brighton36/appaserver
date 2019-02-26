@@ -61,6 +61,7 @@ int main( int argc, char **argv )
 	int expected_count_per_day;
 	char *data_interval_string;
 	char *database_string = {0};
+	char *shef_download_code;
 
 	if ( argc != 3 )
 	{
@@ -91,7 +92,7 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application );
 
 	shef_datatype_code = 
-		new_shef_datatype_code( application );
+		shef_datatype_code_new( application );
 
 	while( get_line( buffer, stdin ) )
 	{
@@ -120,12 +121,21 @@ int main( int argc, char **argv )
 			*day = '0';
 		}
 
-		strcpy( shef_code,
+		shef_download_code =
 			shef_datatype_code_get_shef_download_code(
 			 station,
 			 datatype,
-			 shef_datatype_code->shef_download_datatype_list ) );
+			 shef_datatype_code->shef_download_datatype_list );
 
+		if ( shef_download_code )
+		{
+			strcpy( shef_code, shef_download_code );
+		}
+		else
+		{
+			strcpy( shef_code, datatype );
+		}
+	
 		up_string( shef_code );
 
 		data_interval_string = 

@@ -74,6 +74,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		station_alias_to_station				\
 		station_datatype_list					\
 		shef_datatype_code_dvr					\
+		shef_upload_datatype_convert				\
 		conductivity2salinity					\
 		hydrology_statistics_report				\
 		hydrology_histogram					\
@@ -1113,6 +1114,17 @@ shef_datatype_code_dvr: shef_datatype_code_dvr.c			\
 		${STANDARD_LIBRARY} 					\
 		shef_datatype_code_dvr.c				\
 		-o shef_datatype_code_dvr
+
+shef_upload_datatype_convert: shef_upload_datatype_convert.c		\
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-I${SOURCE_EVERGLADES}					\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		shef_upload_datatype_convert.c				\
+		-o shef_upload_datatype_convert
 
 measurement2shef: measurement2shef.c					\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}

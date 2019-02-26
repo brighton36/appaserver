@@ -43,31 +43,37 @@ SHEF_UPLOAD_AGGREGATE_MEASUREMENT *
 
 } /* shef_upload_aggregate_measurement_new() */
 
-SHEF_DATATYPE_CODE *new_shef_datatype_code( char *application_name )
+SHEF_DATATYPE_CODE *shef_datatype_code_new( char *application_name )
 {
 	SHEF_DATATYPE_CODE *s;
 
 	s = (SHEF_DATATYPE_CODE *)calloc( 1, sizeof( SHEF_DATATYPE_CODE ) );
 
 	s->shef_upload_datatype_list = 
-		load_upload_datatype_list( application_name );
+		shef_fetch_upload_datatype_list(
+			application_name );
 
 	if ( !list_length( s->shef_upload_datatype_list ) )
 	{
-		fprintf( stderr, 
-"ERROR in new_shef_datatype_code(): cannot load upload shef codes\n" );
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: cannot fetch from SHEF_UPLOAD_DATATYPE\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 		exit( 1 );
 	}
 
 	s->shef_download_datatype_list =
-		load_download_datatype_list( application_name );
+		shef_datatype_fetch_download_datatype_list(
+			application_name );
 
 	s->station_datatype_list =
 		station_datatype_list_new(
 			application_name );
 
 	return s;
-} /* new_shef_datatype_code() */
+
+} /* shef_datatype_code_new() */
 
 
 char *shef_datatype_code_get_shef_download_code(
@@ -84,18 +90,24 @@ char *shef_datatype_code_get_shef_download_code(
 	if ( list_rewind( shef_download_datatype_list ) )
 	{
 		do {
-			datatype = (SHEF_DOWNLOAD_DATATYPE *)
-					list_get( shef_download_datatype_list );
-			if ( strcmp(	datatype_string_upper_case, 
-					datatype->datatype ) == 0 
-			&&   strcmp(	station,
-					datatype->station ) == 0 )
+			datatype =
+				list_get_pointer(
+					shef_download_datatype_list );
+
+			if ( timlib_strcmp(
+				datatype_string_upper_case, 
+				datatype->datatype ) == 0 
+			&&   timlib_strcmp(
+				station,
+				datatype->station ) == 0 )
 			{
 				return datatype->shef_download_code;
 			}
 		} while( list_next( shef_download_datatype_list ) );
 	}
-	return datatype_string;
+
+	return (char *)0;
+
 } /* shef_datatype_code_get_shef_download_code() */
 
 
@@ -218,31 +230,33 @@ boolean shef_is_min_max(	int *str_len,
 
 SHEF_UPLOAD_DATATYPE *shef_get_upload_datatype(
 				char *station,
-				char *shef_code_upper_case,
+				char *shef_code,
 				LIST *shef_upload_datatype_list )
 {
 	SHEF_UPLOAD_DATATYPE *datatype;
 
-	if ( list_rewind( shef_upload_datatype_list ) )
-	{
-		do {
-			datatype = list_get( shef_upload_datatype_list );
+	if ( !list_rewind( shef_upload_datatype_list ) )
+		return (SHEF_UPLOAD_DATATYPE *)0;
 
-			if ( strcmp(	shef_code_upper_case,
-					datatype->shef_upload_code ) == 0
-			&&   strcmp(	station,
-					datatype->station ) == 0 )
-			{
-				return datatype;
-			}
-		} while( list_next( shef_upload_datatype_list ) );
-	}
+	do {
+		datatype = list_get( shef_upload_datatype_list );
+
+		if ( timlib_strcmp(
+				shef_code,
+				datatype->shef_upload_code ) == 0
+		&&   timlib_strcmp(
+				station,
+				datatype->station ) == 0 )
+		{
+			return datatype;
+		}
+	} while( list_next( shef_upload_datatype_list ) );
 
 	return (SHEF_UPLOAD_DATATYPE *)0;
 
 } /* shef_get_upload_datatype() */
 
-LIST *load_upload_datatype_list( char *application_name )
+LIST *shef_fetch_upload_datatype_list( char *application_name )
 {
 	char input_line[ 128 ];
 	char station_string[ 128 ];
@@ -256,7 +270,8 @@ LIST *load_upload_datatype_list( char *application_name )
 	datatype_list = list_new();
 
 	sprintf( sys_string,
-		 "shef_upload_list.sh %s", application_name );
+		 "shef_upload_list.sh %s",
+		 application_name );
 
 	p = popen( sys_string, "r" );
 	while( get_line( input_line, p ) )
@@ -276,9 +291,10 @@ LIST *load_upload_datatype_list( char *application_name )
 	}
 	pclose( p );
 	return datatype_list;
-} /* load_upload_datatype_list() */
+} /* shef_fetch_upload_datatype_list() */
 
-LIST *load_download_datatype_list( char *application_name )
+LIST *shef_datatype_fetch_download_datatype_list(
+				char *application_name )
 {
 	char input_line[ 128 ];
 	char station[ 128 ], datatype_string[ 128 ], shef_download_code[ 128 ];
@@ -308,8 +324,10 @@ LIST *load_download_datatype_list( char *application_name )
 		list_append_pointer( datatype_list, datatype );
 	}
 	pclose( p );
+
 	return datatype_list;
-} /* load_download_datatype_list() */
+
+} /* shef_datatype_fetch_download_datatype_list() */
 
 char *shef_datatype_code_get_upload_min_max_datatype(
 				SHEF_UPLOAD_AGGREGATE_MEASUREMENT **
@@ -388,4 +406,43 @@ char *shef_datatype_code_get_upload_min_max_datatype(
 	return SHEF_AGGREGATE_STUB;
 
 } /* shef_datatype_code_get_upload_min_max_datatype() */
+
+char *shef_get_upload_default_datatype(
+				char *station,
+				char *shef_code,
+				LIST *shef_upload_datatype_list,
+				LIST *station_datatype_list )
+{
+	SHEF_UPLOAD_DATATYPE *datatype;
+	STATION_DATATYPE *station_datatype;
+
+	if ( ( datatype = shef_get_upload_datatype(
+				station,
+				shef_code,
+				shef_upload_datatype_list ) ) )
+	{
+		return datatype->datatype;
+	}
+	else
+	if ( ( datatype = shef_get_upload_datatype(
+				SHEF_DEFAULT_UPLOAD_STATION,
+				shef_code,
+				shef_upload_datatype_list ) ) )
+	{
+		return datatype->datatype;
+	}
+	else
+	if ( ( station_datatype = station_datatype_list_fetch(
+			station_datatype_list,
+			station,
+			shef_code ) ) )
+	{
+		return station_datatype->datatype;
+	}
+	else
+	{
+		return "";
+	}
+
+} /* shef_get_upload_default_datatype() */
 

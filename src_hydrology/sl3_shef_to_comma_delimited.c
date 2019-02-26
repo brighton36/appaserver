@@ -99,7 +99,7 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application_name );
 
 	shef_datatype_code = 
-		new_shef_datatype_code( application_name );
+		shef_datatype_code_new( application_name );
 
 	while( get_line( input_line, stdin ) )
 	{

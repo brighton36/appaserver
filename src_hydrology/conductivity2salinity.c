@@ -100,9 +100,6 @@ int main( int argc, char **argv )
 	LIST *dictionary_conductivity_datatype_list = {0};
 	LIST *salinity_datatype_list = {0};
 	int count;
-/*
-	MEASUREMENT_UPDATE_PARAMETER *measurement_update_parameter;
-*/
 
 	if ( argc < 7 )
 	{

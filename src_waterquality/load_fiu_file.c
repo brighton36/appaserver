@@ -607,7 +607,7 @@ RESULTS *extract_results(
 			LIST *load_column_list )
 {
 	char concentration[ 128 ];
-	LOAD_COLUMN *load_column;
+	WATER_LOAD_COLUMN *load_column;
 	static RESULTS results = {0};
 
 	if ( list_past_end( load_column_list ) ) return (RESULTS *)0;

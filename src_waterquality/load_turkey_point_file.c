@@ -373,7 +373,7 @@ int load_concentration_file(
 		trim( input_string );
 		if ( !*input_string ) continue;
 
-		if ( !extract_station_collection_attributes(
+		if ( !extract_static_attributes(
 			&error_message,
 			station,
 			collection_date_international,
@@ -696,7 +696,7 @@ RESULTS *extract_results(
 {
 	char concentration[ 128 ];
 	char exception_string[ 128 ];
-	LOAD_COLUMN *load_column;
+	WATER_LOAD_COLUMN *load_column;
 	static RESULTS results;
 
 	if ( list_past_end( load_column_list ) ) return (RESULTS *)0;

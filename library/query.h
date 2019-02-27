@@ -570,7 +570,9 @@ QUERY *query_folder_new(	char *application_name,
 				char *login_name,
 				char *folder_name,
 				DICTIONARY *dictionary,
-				ROLE *role );
+				ROLE *role,
+				LIST *where_attribute_name_list,
+				LIST *where_attribute_data_list );
 
 QUERY *query_process_drop_down_new(
 				char *application_name,
@@ -598,7 +600,9 @@ char *query_where_clause(	LIST *primary_key_list,
 QUERY_OUTPUT *query_folder_output_new(
 				QUERY *query,
 				FOLDER *folder,
-				PROMPT_RECURSIVE *prompt_recursive );
+				PROMPT_RECURSIVE *prompt_recursive,
+				LIST *where_attribute_name_list,
+				LIST *where_attribute_data_list );
 
 void query_output_set_row_level_non_owner_forbid_join(
 				QUERY_OUTPUT *query_output,
@@ -607,5 +611,19 @@ void query_output_set_row_level_non_owner_forbid_join(
 void query_set_row_level_non_owner_forbid_dictionary(
 				QUERY *query,
 				FOLDER *folder );
+
+char *query_folder_get_where_clause(
+				char **drop_down_where_clause,
+				char **attribute_where_clause,
+				LIST *query_drop_down_list,
+				LIST *query_attribute_list,
+				char *application_name,
+				char *folder_name,
+				boolean combine_date_time );
+
+char *query_get_folder_drop_down_where_clause(
+				LIST *query_drop_down_list,
+				char *application_name,
+				char *folder_name );
 
 #endif

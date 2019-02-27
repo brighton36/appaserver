@@ -194,7 +194,9 @@ int main( int argc, char **argv )
 			login_name,
 			folder_name,
 			query_dictionary,
-			(ROLE *)0 );
+			(ROLE *)0,
+			(LIST *)0,
+			(LIST *)0 );
 
 	query->query_output->where_clause =
 		get_where_clause(	query->dictionary,

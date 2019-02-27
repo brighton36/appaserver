@@ -2879,7 +2879,9 @@ LIST *related_folder_get_preselection_dictionary_list(
 				login_name,
 				related_folder->folder_name,
 				query_dictionary,
-				(ROLE *)0 );
+				(ROLE *)0,
+				(LIST *)0,
+				(LIST *)0 );
 
 #ifdef NOT_DEFINED
 		query = query_new(

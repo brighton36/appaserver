@@ -231,7 +231,9 @@ int main( int argc, char **argv )
 			login_name,
 			appaserver->folder->folder_name,
 			dictionary_appaserver->query_dictionary,
-			role_new( application_name, role_name ) );
+			role_new( application_name, role_name ),
+			(LIST *)0,
+			(LIST *)0 );
 
 #ifdef NOT_DEFINED
 	query =	query_new(	application_name,

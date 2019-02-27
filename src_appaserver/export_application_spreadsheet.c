@@ -454,7 +454,9 @@ void export_output_spreadsheet_folder(	char *output_filename,
 			(char *)0 /* login_name */,
 			folder->folder_name,
 			(DICTIONARY *)0 /* query_dictionary */,
-			(ROLE *)0 );
+			(ROLE *)0,
+			(LIST *)0,
+			(LIST *)0 );
 
 	row_dictionary_list =
 		query_get_row_dictionary_list(

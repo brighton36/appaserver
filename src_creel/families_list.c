@@ -239,7 +239,9 @@ char *get_families_sys_string(		char *application_name,
 				login_name,
 				folder->folder_name,
 				post_dictionary /* query_dictionary */,
-				(ROLE *)0 );
+				(ROLE *)0,
+				(LIST *)0,
+				(LIST *)0 );
 
 #ifdef NOT_DEFINED
 		query =	query_new(

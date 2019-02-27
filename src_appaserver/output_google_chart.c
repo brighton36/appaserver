@@ -269,7 +269,9 @@ void output_chart(	char *application_name,
 			login_name,
 			folder_name,
 			query_dictionary,
-			role_new( application_name, role_name ) );
+			role_new( application_name, role_name ),
+			(LIST *)0,
+			(LIST *)0 );
 
 	query_record_list =
 		query_get_record_list(

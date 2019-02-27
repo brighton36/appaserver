@@ -173,9 +173,18 @@ int main( int argc, char **argv )
 			login_name,
 			folder_name,
 			dictionary_appaserver->query_dictionary,
-			role_new( application_name, role_name ) );
+			role_new( application_name, role_name ),
+			(LIST *)0,
+			(LIST *)0 );
 
 	where_clause = query->query_output->where_clause;
+
+
+fprintf( stderr, "%s/%s()/%d: where_clause = %s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+where_clause );
 
 	document = document_new( "", application_name );
 	document->output_content_type = 1;

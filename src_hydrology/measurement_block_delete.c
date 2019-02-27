@@ -446,7 +446,9 @@ char *get_where_clause_string( 	char *application_name,
 			(char *)0 /* login_name */,
 			"measurement" /* folder_name */,
 			query_dictionary,
-			(ROLE *)0 );
+			(ROLE *)0,
+			(LIST *)0,
+			(LIST *)0 );
 
 	/* If executed from the user interface. */
 	/* ------------------------------------ */

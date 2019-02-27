@@ -621,6 +621,7 @@ LIST *row_security_get_row_dictionary_list(
 		exit( 1 );
 	}
 
+#ifdef NOT_DEFINED
 	query = query_new(	application_name,
 				login_name,
 				select_folder_name,
@@ -638,6 +639,27 @@ LIST *row_security_get_row_dictionary_list(
 					/* mto1_join_folder_name_list */,
 				(RELATED_FOLDER *)0
 					/* root_related_folder */ );
+#endif
+
+	query = query_folder_new(
+			application_name,
+			login_name,
+			select_folder_name,
+			query_dictionary,
+			login_role,
+			where_clause_attribute_name_list,
+			where_clause_data_list );
+
+	query->sort_dictionary = sort_dictionary;
+
+	if ( dictionary_length( query->sort_dictionary ) )
+	{
+		query->query_output->order_clause =
+			query_get_order_clause(
+				query->sort_dictionary,
+				select_folder_name,
+				attribute_list );
+	}
 
 	row_dictionary_list =
 		query_get_row_dictionary_list(

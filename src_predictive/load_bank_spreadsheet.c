@@ -337,24 +337,16 @@ void load_bank_spreadsheet_transactions_only(
 				bank_upload_file_list );
 	}
 	else
+	/* ------------ */
+	/* Else execute */
+	/* ------------ */
 	{
-		/* ------------ */
-		/* Else execute */
-		/* ------------ */
-		bank_upload_structure->table.bank_upload_table_list =
-			bank_upload_fetch_bank_upload_table_list(
-				application_name,
-				0 /* starting_sequence_number    */,
-				bank_upload_structure->
-					file.
-					minimum_bank_date );
-
 		/* ------------------------------------ */
 		/* Sets bank_upload->transaction	*/
 		/* and  bank_upload->bank_upload_status */
 		/* ------------------------------------ */
 		bank_upload_set_transaction(
-			bank_upload_structure->table.bank_upload_table_list,
+			bank_upload_structure->file.bank_upload_file_list,
 			bank_upload_structure->
 				reoccurring_structure->
 				reoccurring_transaction_list,
@@ -363,23 +355,23 @@ void load_bank_spreadsheet_transactions_only(
 
 		bank_upload_insert_transaction(
 			application_name,
-			bank_upload_structure->table.bank_upload_table_list );
+			bank_upload_structure->file.bank_upload_file_list );
 
 		bank_upload_transaction_table_display(
-			bank_upload_structure->table.bank_upload_table_list );
+			bank_upload_structure->file.bank_upload_file_list );
 
 		*transaction_count =
 			bank_upload_transaction_count(
 				bank_upload_structure->
-				table.
-				bank_upload_table_list );
+				file.
+				bank_upload_file_list );
 
 		/* Also does the two propagates. */
 		/* ----------------------------- */
 		bank_upload_reconciliation_transaction_insert(
 			bank_upload_structure->
-				table.
-				bank_upload_table_list,
+				file.
+				bank_upload_file_list,
 			bank_upload_structure->
 				file.
 				minimum_bank_date );

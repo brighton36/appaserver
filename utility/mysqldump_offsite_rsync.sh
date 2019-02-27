@@ -1,7 +1,7 @@
 :
-# ----------------------------------
-# utility/mysqldump_offsite_rsync.sh
-# ----------------------------------
+# ---------------------------------------------------
+# $APPASERVER_HOME/utility/mysqldump_offsite_rsync.sh
+# ---------------------------------------------------
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 database parameter_file" 1>&2

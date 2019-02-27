@@ -51,6 +51,9 @@ bank_upload_transaction_insert "${bank_date}^${bank_description}^${full_name}^${
 html_paragraph_wrapper.e					  |
 cat
 
+bank_upload_sequence_propagate.sh ${bank_date} | sql.e
+bank_upload_balance_propagate.sh ${bank_date} | sql.e
+
 echo "<h3>Process complete</h3>"
 echo "</body>"
 echo "</html>"

@@ -49,7 +49,7 @@ int load_bank_spreadsheet(	int *transaction_count,
 				int balance_piece_offset,
 				boolean execute );
 
-void load_bank_spreadsheet_transactions_only(
+int load_bank_spreadsheet_transactions_only(
 				int *transaction_count,
 				char *application_name,
 				char *fund_name,
@@ -223,18 +223,19 @@ int main( int argc, char **argv )
 
 	if ( transactions_only )
 	{
-		load_bank_spreadsheet_transactions_only(
-			&transaction_count,
-			application_name,
-			fund_name,
-			feeder_account,
-			input_filename,
-			date_piece_offset,
-			description_piece_offset,
-			debit_piece_offset,
-			credit_piece_offset,
-			balance_piece_offset,
-			execute );
+		load_count =
+			load_bank_spreadsheet_transactions_only(
+				&transaction_count,
+				application_name,
+				fund_name,
+				feeder_account,
+				input_filename,
+				date_piece_offset,
+				description_piece_offset,
+				debit_piece_offset,
+				credit_piece_offset,
+				balance_piece_offset,
+				execute );
 	}
 	else
 	{
@@ -280,7 +281,7 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void load_bank_spreadsheet_transactions_only(
+int load_bank_spreadsheet_transactions_only(
 			int *transaction_count,
 			char *application_name,
 			char *fund_name,
@@ -309,7 +310,7 @@ void load_bank_spreadsheet_transactions_only(
 			credit_piece_offset,
 			balance_piece_offset );
 
-	if ( !bank_upload_structure ) return;
+	if ( !bank_upload_structure ) return 0;
 
 	if ( !execute )
 	{
@@ -366,6 +367,7 @@ void load_bank_spreadsheet_transactions_only(
 				file.
 				bank_upload_file_list );
 
+#ifdef NOT_DEFINED
 		/* Also does the two propagates. */
 		/* ----------------------------- */
 		bank_upload_reconciliation_transaction_insert(
@@ -375,6 +377,7 @@ void load_bank_spreadsheet_transactions_only(
 			bank_upload_structure->
 				file.
 				minimum_bank_date );
+#endif
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -386,6 +389,8 @@ void load_bank_spreadsheet_transactions_only(
 
 		printf( "\n" );
 	}
+
+	return 0;
 
 } /* load_bank_spreadsheet_transactions_only() */
 
@@ -423,8 +428,6 @@ void bank_upload_reconciliation_transaction_insert(
 
 		bank_upload_description_crop( bank_upload->bank_description );
 
-		/* No longer does the two propagates. */
-		/* ---------------------------------- */
 		sprintf(
 		sys_string,
 		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",

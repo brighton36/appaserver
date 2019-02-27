@@ -865,7 +865,7 @@ char *transaction_balance_report_get_finished_message(
 			bank_running_balance );
 
 	ptr += sprintf( ptr,
-			"<tr><td>Bank upload balance:<td align=right>%.2lf\n",
+		"<tr><td>Bank upload archive balance:<td align=right>%.2lf\n",
 			bank_upload_balance );
 
 	ptr += sprintf( ptr,

@@ -3,6 +3,7 @@
 /* ----------------------------------------------------------------	*/
 /* Input: BANK_UPLOAD and JOURNAL_LEDGER where account is cash.		*/
 /* Output: Insert into BANK_UPLOAD_TRANSACTION statements.		*/
+/* Optionally, if all four pieces: insert into BANK_UPLOAD.		*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
@@ -56,13 +57,6 @@ int main( int argc, char **argv )
 	operation = argv[ 1 ];
 
 	application_name = environ_get_application_name( argv[ 0 ] );
-
-/*
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-*/
 
 	if ( strcmp( operation, "deposit" ) == 0
 	||   strcmp( operation, "both" ) == 0 )
@@ -147,11 +141,6 @@ int main( int argc, char **argv )
 				full_name,
 				street_address,
 				transaction_date_time );
-
-/*
-			bank_upload_transaction_balance_propagate(
-					bank_date );
-*/
 		}
 	}
 

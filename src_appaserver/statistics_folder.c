@@ -179,13 +179,6 @@ int main( int argc, char **argv )
 
 	where_clause = query->query_output->where_clause;
 
-
-fprintf( stderr, "%s/%s()/%d: where_clause = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-where_clause );
-
 	document = document_new( "", application_name );
 	document->output_content_type = 1;
 

@@ -11,6 +11,8 @@
 #include "timlib.h"
 #include "piece.h"
 #include "list.h"
+#include "environ.h"
+#include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "sparrow_library.h"
 
@@ -117,17 +119,17 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 5 )
+	if ( argc != 4 )
 	{
 		fprintf( stderr,
-	"Usage: %s ignored group_by quad_sheet sort_by_per_visit_yn\n",
+	"Usage: %s group_by quad_sheet sort_by_per_visit_yn\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	group_by = argv[ 2 ];
-	quad_sheet = argv[ 3 ];
-	sort_by_per_visit = ( *argv[ 4 ] == 'y' );
+	group_by = argv[ 1 ];
+	quad_sheet = argv[ 2 ];
+	sort_by_per_visit = ( *argv[ 3 ] == 'y' );
 
 	if ( *quad_sheet && strcmp( quad_sheet, "quad_sheet" ) != 0 )
 	{

@@ -18,6 +18,12 @@ double autorepair_get_total_payment(
 				char *street_address,
 				char *sale_date_time )
 {
+	return ledger_get_total_payment(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time );
+#ifdef NOT_DEFINED
 	char *table_name;
 	char sys_string[ 1024 ];
 	char *where;
@@ -47,6 +53,7 @@ double autorepair_get_total_payment(
 	else
 		return atof( results_string );
 
+#endif
 } /* autorepair_get_total_payment() */
 
 double autorepair_get_sales_tax(
@@ -55,6 +62,12 @@ double autorepair_get_sales_tax(
 				char *street_address,
 				char *sale_date_time )
 {
+	return autorepair_get_sales_tax(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time );
+#ifdef NOT_DEFINED
 	char sys_string[ 1024 ];
 	char *where;
 	char *results;
@@ -79,6 +92,7 @@ double autorepair_get_sales_tax(
 	if ( ! ( results = pipe2string( sys_string ) ) ) return 0.0;
 
 	return atof( results );
+#endif
 
 } /* autorepair_get_sales_tax() */
 

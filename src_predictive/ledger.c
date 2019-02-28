@@ -9884,3 +9884,73 @@ char *ledger_get_account_name( char *account_name )
 
 } /* ledger_get_account_name() */
 
+double ledger_get_sales_tax(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time )
+{
+	char sys_string[ 1024 ];
+	char *where;
+	char *results;
+	char *select = "sales_tax";
+
+	where = ledger_get_transaction_where(
+					full_name,
+					street_address,
+					sale_date_time,
+					(char *)0 /* folder_name */,
+					"sale_date_time" );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s		"
+		 "			select=%s		"
+		 "			folder=customer_sale	"
+		 "			where=\"%s\"		",
+		 application_name,
+		 select,
+		 where );
+
+	if ( ! ( results = pipe2string( sys_string ) ) ) return 0.0;
+
+	return atof( results );
+
+} /* ledger_get_sales_tax() */
+
+double ledger_get_total_payment(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time )
+{
+	char *table_name;
+	char sys_string[ 1024 ];
+	char *where;
+	char *results_string;
+
+	table_name = get_table_name( application_name, "customer_payment" );
+
+	where = ledger_get_transaction_where(
+					full_name,
+					street_address,
+					sale_date_time,
+					(char *)0 /* folder_name */,
+					"sale_date_time" );
+
+	sprintf( sys_string,
+		 "echo \"	select sum( payment_amount )	 "
+		 "		from %s				 "
+		 "		where %s;\"			|"
+		 "sql.e						 ",
+		 table_name,
+		 where );
+
+	results_string = pipe2string( sys_string );
+
+	if ( !results_string )
+		return 0.0;
+	else
+		return atof( results_string );
+
+} /* ledger_get_total_payment() */
+

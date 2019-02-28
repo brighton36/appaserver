@@ -1179,4 +1179,16 @@ char *ledger_get_non_cash_account_name(
 
 char *ledger_get_account_name(	char *account_name );
 
+double ledger_get_sales_tax(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time );
+
+double ledger_get_total_payment(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *sale_date_time );
+
 #endif

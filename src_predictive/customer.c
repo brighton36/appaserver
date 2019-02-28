@@ -1776,7 +1776,6 @@ char *customer_sale_fetch_completed_date_time(
 	char sys_string[ 1024 ];
 	char where[ 256 ];
 	char entity_buffer[ 128 ];
-	char *results;
 
 	sprintf( where,
 		 "full_name = '%s' and		"
@@ -1796,22 +1795,7 @@ char *customer_sale_fetch_completed_date_time(
 		 application_name,
 		 where );
 
-	results = pipe2string( sys_string );
-
-	if ( !results )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: cannot fetch customer_sale = (%s/%s/%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 full_name,
-			 street_address,
-			 sale_date_time );
-		exit( 1 );
-	}
-
-	return results;
+	return pipe2string( sys_string );
 
 } /* customer_sale_fetch_completed_date_time() */
 

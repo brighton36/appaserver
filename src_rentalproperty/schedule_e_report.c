@@ -144,7 +144,6 @@ int main( int argc, char **argv )
 				document->onload_control_string );
 
 	tax = tax_new(	application_name,
-			(char *)0 /* fund_name */,
 			SCHEDULE_E,
 			tax_year );
 

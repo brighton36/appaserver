@@ -83,7 +83,7 @@ touch:
 	/usr/bin/touch *.c
 
 clean:
-	rm ${EXECUTABLES} *.o
+	rm ${EXECUTABLES} *.o generate_workorder
 
 generate_invoice: generate_invoice.c					\
 	${EXTERNAL_LIBRARY} autorepair.o				\

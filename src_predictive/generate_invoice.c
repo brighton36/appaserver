@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/src_autorepair/generate_invoice.c			*/
+/* $APPASERVER_HOME/src_predictive/generate_invoice.c			*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
@@ -23,7 +23,6 @@
 #include "latex_invoice.h"
 #include "application_constants.h"
 #include "date_convert.h"
-#include "autorepair.h"
 #include "ledger.h"
 #include "entity.h"
 #include "customer.h"
@@ -31,19 +30,10 @@
 
 /* Constants */
 /* --------- */
+#define LOGO_FILENAME_KEY		"logo_filename"
 
 /* Prototypes */
 /* ---------- */
-boolean get_vehicle_information(
-				char **vehicle_make,
-				char **vehicle_model,
-				char **vehicle_trim,
-				int *vehicle_year,
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time );
-
 double populate_line_item_list(
 				LIST *invoice_line_item_list,
 				char *application_name,
@@ -56,21 +46,13 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 				char *application_name,
 				char *full_name,
 				char *street_address,
-				char *sale_date_time,
-				char *vehicle_make,
-				char *vehicle_model,
-				char *vehicle_trim,
-				int vehicle_year );
+				char *sale_date_time );
 
 boolean build_latex_invoice(	FILE *output_stream,
 				char *application_name,
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
-				char *vehicle_make,
-				char *vehicle_model,
-				char *vehicle_trim,
-				int vehicle_year,
 				DICTIONARY *application_constants_dictionary,
 				boolean omit_money,
 				boolean workorder );
@@ -98,10 +80,6 @@ int main( int argc, char **argv )
 	APPLICATION_CONSTANTS *application_constants;
 	boolean workorder = 0;
 	char sys_string[ 1024 ];
-	char *vehicle_make = {0};
-	char *vehicle_model = {0};
-	char *vehicle_trim = {0};
-	int vehicle_year = 0;
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
@@ -114,7 +92,7 @@ int main( int argc, char **argv )
 	if ( argc != 5 )
 	{
 		fprintf( stderr,
-"Usage: %s process full_name street_address sale_date_time\n",
+		"Usage: %s process full_name street_address sale_date_time\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -192,46 +170,22 @@ int main( int argc, char **argv )
 	document_output_body(	document->application_name,
 				document->onload_control_string );
 
-	if ( !get_vehicle_information(
-				&vehicle_make,
-				&vehicle_model,
-				&vehicle_trim,
-				&vehicle_year,
-				application_name,
-				full_name,
-				street_address,
-				sale_date_time ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot get vehicle information for %s/%s/%s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 full_name,
-			 street_address,
-			 sale_date_time );
-		exit( 1 );
-	}
-
 	if ( !build_latex_invoice(
-		output_stream,
-		application_name,
-		full_name,
-		street_address,
-		sale_date_time,
-		vehicle_make,
-		vehicle_model,
-		vehicle_trim,
-		vehicle_year,
-		application_constants->dictionary,
-		0 /* not omit_money */,
-		workorder ) )
+			output_stream,
+			application_name,
+			full_name,
+			street_address,
+			sale_date_time,
+			application_constants->dictionary,
+			0 /* not omit_money */,
+			workorder ) )
 	{
 		printf( "<h3>Please choose a customer sale.</h3>\n" );
 		fclose( output_stream );
 		document_close();
 		exit( 0 );
 	}
+
 
 	fclose( output_stream );
 
@@ -322,10 +276,6 @@ boolean build_latex_invoice(	FILE *output_stream,
 				char *full_name,
 				char *street_address,
 				char *sale_date_time,
-				char *vehicle_make,
-				char *vehicle_model,
-				char *vehicle_trim,
-				int vehicle_year,
 				DICTIONARY *application_constants_dictionary,
 				boolean omit_money,
 				boolean workorder )
@@ -334,9 +284,8 @@ boolean build_latex_invoice(	FILE *output_stream,
 	ENTITY_SELF *self;
 	char *todays_date;
 	LIST *extra_label_list = list_new();
-	char extra_label[ 256 ];
 	char *completed_date_time;
-	AUTOREPAIR_CUSTOMER_SALE *customer_sale;
+	CUSTOMER_SALE *customer_sale;
 	char title[ 128 ];
 
 	if ( ! ( self = entity_self_load( application_name ) ) )
@@ -372,34 +321,13 @@ boolean build_latex_invoice(	FILE *output_stream,
 	if ( !completed_date_time ) return 0;
 
 	customer_sale =
-		autorepair_customer_sale_new(
+		customer_sale_new(
 				application_name,
 				full_name,
 				street_address,
-				sale_date_time,
-				completed_date_time,
-				vehicle_make,
-				vehicle_model,
-				vehicle_trim,
-				vehicle_year );
+				sale_date_time );
 
-	if ( customer_sale->odometer_miles )
-	{
-		sprintf( extra_label,
-			 "Odometer miles: %d",
-			 customer_sale->odometer_miles );
-		list_append_pointer(	extra_label_list,
-					strdup( extra_label ) );
-	}
-
-	if ( *customer_sale->mechanic_full_name )
-	{
-		sprintf( extra_label,
-			 "Mechanic: %s",
-			 customer_sale->mechanic_full_name );
-		list_append_pointer(	extra_label_list,
-					strdup( extra_label ) );
-	}
+	customer_sale->completed_date_time = completed_date_time;
 
 	todays_date = pipe2string( "now.sh full 0" );
 
@@ -414,7 +342,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 				self->entity->phone_number,
 				self->entity->email_address,
 				strdup( "" ) /* line_item_key_heading */,
-				customer_sale->symptom /* instructions */,
+				(char *)0 /* instructions */,
 				extra_label_list );
 
 	latex_invoice->omit_money = omit_money;
@@ -426,11 +354,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 			application_name,
 			full_name,
 			street_address,
-			sale_date_time,
-			vehicle_make,
-			vehicle_model,
-			vehicle_trim,
-			vehicle_year );
+			sale_date_time );
 
 	if ( ! ( latex_invoice->invoice_customer->extension_total =
 			populate_line_item_list(
@@ -521,15 +445,10 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 				char *application_name,
 				char *full_name,
 				char *street_address,
-				char *sale_date_time,
-				char *vehicle_make,
-				char *vehicle_model,
-				char *vehicle_trim,
-				int vehicle_year )
+				char *sale_date_time )
 {
 	LATEX_INVOICE_CUSTOMER *invoice_customer;
 	char invoice_key[ 128 ];
-	char customer_service_key[ 128 ];
 	double sales_tax;
 	double total_payment;
 
@@ -539,21 +458,14 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 		street_address,
 		sale_date_time );
 
-	sprintf( customer_service_key,
-		 "%s %s %s %d",
-		 vehicle_make,
-		 vehicle_model,
-		 vehicle_trim,
-		 vehicle_year );
-
-	sales_tax = autorepair_get_sales_tax(
+	sales_tax = ledger_get_sales_tax(
 			application_name,
 			full_name,
 			street_address,
 			sale_date_time );
 
 	total_payment =
-		autorepair_get_total_payment(
+		ledger_get_total_payment(
 			application_name,
 			full_name,
 			street_address,
@@ -563,11 +475,15 @@ LATEX_INVOICE_CUSTOMER *get_invoice_customer(
 					strdup( invoice_key ),
 					strdup( full_name ),
 					strdup( street_address ),
-					strdup( "" ),
-					strdup( "" ),
-					strdup( "" ),
-					strdup( "" ),
-					strdup( customer_service_key ),
+					strdup( "" )
+						/* suite_number */,
+					strdup( "" )
+						/* city */,
+					strdup( "" )
+						/* state */,
+					strdup( "" )
+						/* zip_code */,
+					(char *)0 /* customer_service_key */,
 					sales_tax,
 					0.0 /* shipping_charge */,
 					total_payment );
@@ -642,60 +558,4 @@ char *get_order_date_international( char *order_date )
 
 } /* get_order_date_international() */
 #endif
-
-boolean get_vehicle_information(
-				char **vehicle_make,
-				char **vehicle_model,
-				char **vehicle_trim,
-				int *vehicle_year,
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time )
-{
-	char sys_string[ 1024 ];
-	char *results;
-	char piece_buffer[ 128 ];
-	char *select;
-	char *folder_name;
-	char *where;
-
-	select = "vehicle_make,vehicle_model,vehicle_trim,vehicle_year";
-
-	folder_name = "customer_sale";
-
-	where = ledger_get_transaction_where(
-					full_name,
-					street_address,
-					sale_date_time,
-					(char *)0 /* folder_name */,
-					"sale_date_time" );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=%s		"
-		 "			folder=%s		"
-		 "			where=\"%s\"		",
-		 application_name,
-		 select,
-		 folder_name,
-		 where );
-
-	if ( ! ( results = pipe2string( sys_string ) ) ) return 0;
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	*vehicle_make = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 1 );
-	*vehicle_model = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 2 );
-	*vehicle_trim = strdup( piece_buffer );
-
-	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 3 );
-	*vehicle_year = atoi( piece_buffer );
-
-	return 1;
-
-} /* get_vehicle_information() */
 

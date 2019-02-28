@@ -74,7 +74,8 @@ EXECUTABLES=	trial_balance						\
 		inventory_cost_method_propagate				\
 		load_receipt_scan					\
 		shortcut_service_work					\
-		tax_dvr
+		tax_dvr							\
+		generate_invoice
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -142,7 +143,8 @@ touch:
 clean:
 	/bin/rm -f ${SOURCE_LIBRARY} ${EXECUTABLES}			\
 		financial_position					\
-		statement_of_activities
+		statement_of_activities					\
+		generate_workorder
 
 tax_dvr: tax_dvr.c 							\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -672,6 +674,19 @@ inventory_cost_method_propagate: inventory_cost_method_propagate.c	\
 		${SOURCE_LIBRARY}					\
 		inventory_cost_method_propagate.c			\
 		-o inventory_cost_method_propagate
+
+generate_invoice: generate_invoice.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
+		${LIBRARY}/latex_invoice.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		generate_invoice.c					\
+		${LIBRARY}/latex_invoice.o				\
+		-o generate_invoice
+	touch generate_workorder
+	rm generate_workorder
+	ln generate_invoice generate_workorder
 
 ledger.o: ledger.c ledger.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

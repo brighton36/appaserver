@@ -62,7 +62,7 @@ offsite_rsync_destination=$results
 
 if [ "$offsite_rsync_destination" != "" ]
 then
-	offsite_rsync $output_directory $offsite_rsync_destination
+	offsite_rsync $output_directory $offsite_rsync_destination &
 fi
 
 exit 0

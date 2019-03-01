@@ -118,12 +118,7 @@ int main( int argc, char **argv )
 		output_medium = DEFAULT_OUTPUT_MEDIUM;
 	}
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
@@ -229,8 +224,7 @@ int main( int argc, char **argv )
 	return 0;
 } /* main() */
 
-void output_table_year(
-			char *sort_by_per_visit_yn )
+void output_table_year( char *sort_by_per_visit_yn )
 {
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
@@ -238,7 +232,7 @@ void output_table_year(
 	int row_count = -1;
 
 	sprintf( sys_string,
-		 "bird_count_group_by ignored year '' '%s'",
+		 "bird_count_group_by year '' '%s'",
 		 sort_by_per_visit_yn );
 
 	input_pipe = popen( sys_string, "r" );
@@ -318,7 +312,7 @@ void output_table_year_location(
 	char output_buffer[ 1024 ];
 
 	sprintf( sys_string,
-		 "bird_count_group_by ignored year '%s' '%s'",
+		 "bird_count_group_by year '%s' '%s'",
 		 quad_sheet,
 		 sort_by_per_visit_yn );
 
@@ -351,7 +345,7 @@ void output_table_location(
 	char output_buffer[ 1024 ];
 
 	sprintf( sys_string,
-		 "bird_count_group_by ignored location quad_sheet '%s'",
+		 "bird_count_group_by location quad_sheet '%s'",
 		 sort_by_per_visit_yn );
 
 	input_pipe = popen( sys_string, "r" );
@@ -386,7 +380,7 @@ void output_stdout(
 	printf( "%s\n", get_heading( group_by, quad_sheet ) );
 
 	sprintf( sys_string,
-		 "bird_count_group_by ignored %s '%s' '%s' | tr '^' ','",
+		 "bird_count_group_by %s '%s' '%s' | tr '^' ','",
 		 group_by,
 		 quad_sheet,
 		 sort_by_per_visit_yn );
@@ -475,7 +469,7 @@ void output_spreadsheet(
 	fprintf( output_file, "%s\n", get_heading( group_by, quad_sheet ) );
 
 	sprintf( sys_string,
-		 "bird_count_group_by ignored %s '%s' '%s' | tr '^' ','",
+		 "bird_count_group_by %s '%s' '%s' | tr '^' ','",
 		 group_by,
 		 quad_sheet,
 		 sort_by_per_visit_yn );
@@ -572,7 +566,7 @@ void output_text_file(
 	fprintf( output_pipe, "%s\n", get_heading( group_by, quad_sheet ) );
 
 	sprintf( sys_string,
-		 "bird_count_group_by ignored %s '%s' '%s' | tr '^' ','",
+		 "bird_count_group_by %s '%s' '%s' | tr '^' ','",
 		 group_by,
 		 quad_sheet,
 		 sort_by_per_visit_yn );

@@ -946,6 +946,47 @@ void bank_upload_fetch_parse(	char **bank_date,
 
 } /* bank_upload_fetch_parse() */
 
+LIST *bank_upload_fetch_uncleared_checks_transaction_list(
+					char *application_name,
+					char *minimum_bank_date,
+					char *fund_name )
+{
+	char *uncleared_checks_account;
+	LIST *uncleared_checks_transaction_date_time_list;
+	char where_clause[ 65536 ];
+	char *in_clause;
+
+	uncleared_checks_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			LEDGER_UNCLEARED_CHECKS_KEY,
+			0 /* not warning_only */ );
+
+	uncleared_checks_transaction_date_time_list =
+		bank_upload_fetch_uncleared_checks_list(
+			application_name,
+			minimum_bank_date,
+			uncleared_checks_account );
+
+	if ( !list_length( uncleared_checks_transaction_date_time_list ) )
+		return (LIST *)0;
+
+	in_clause =
+		timlib_with_list_get_in_clause( 
+			uncleared_checks_transaction_date_time_list );
+
+	sprintf(	where_clause,
+			"transaction_date_time in (%s)",
+			in_clause );
+
+	return ledger_fetch_transaction_list(
+			application_name,
+			where_clause );
+
+} /* bank_upload_fetch_uncleared_checks_transaction_list() */
+
+
 LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 					char *application_name,
 					char *minimum_bank_date,
@@ -2268,4 +2309,15 @@ char *bank_upload_unique_bank_description(
 	return bank_description;
 
 } /* bank_upload_unique_bank_description() */
+
+/* Returns transaction_date_time_list */
+/* ---------------------------------- */
+LIST *bank_upload_fetch_uncleared_checks_list(
+			char *application_name,
+			char *minimum_bank_date,
+			char *uncleared_checks_account )
+{
+	return (LIST *)0;
+
+} /* bank_upload_fetch_uncleared_checks_list() */
 

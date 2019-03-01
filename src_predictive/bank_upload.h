@@ -90,6 +90,7 @@ typedef struct
 	BANK_UPLOAD_FILE file;
 	BANK_UPLOAD_TABLE table;
 	LIST *existing_cash_journal_ledger_list;
+	LIST *uncleared_checks_transaction_list;
 	REOCCURRING_STRUCTURE *reoccurring_structure;
 	int starting_sequence_number;
 	char *fund_name;
@@ -153,6 +154,11 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 					char *bank_description );
 
 LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
+					char *application_name,
+					char *minimum_bank_date,
+					char *fund_name );
+
+LIST *bank_upload_fetch_uncleared_check_transaction_list(
 					char *application_name,
 					char *minimum_bank_date,
 					char *fund_name );
@@ -325,6 +331,16 @@ char *bank_upload_unique_bank_description(
 					char *fund_name,
 					char *input_bank_description,
 					char *bank_amount );
+
+LIST *bank_upload_fetch_uncleared_checks_transaction_list(
+					char *application_name,
+					char *minimum_bank_date,
+					char *fund_name );
+
+LIST *bank_upload_fetch_uncleared_checks_list(
+					char *application_name,
+					char *minimum_bank_date,
+					char *uncleared_checks_account );
 
 #endif
 

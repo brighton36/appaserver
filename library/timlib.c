@@ -3196,6 +3196,7 @@ char *timlib_with_list_get_in_clause( LIST *data_list )
 	char in_clause[ 131072 ];
 	char *ptr = in_clause;
 	char *data;
+	char *escaped_data;
 	boolean first_time = 1;
 
 	if ( !list_rewind( data_list ) ) strdup( "" );
@@ -3211,7 +3212,9 @@ char *timlib_with_list_get_in_clause( LIST *data_list )
 			ptr += sprintf( ptr, "," );
 		}
 
-		ptr += sprintf( ptr, "'%s'", data );
+		escaped_data = timlib_sql_injection_escape( data );
+		ptr += sprintf( ptr, "'%s'", escaped_data );
+		free( escaped_data );
 
 	} while( list_next( data_list ) );
 

@@ -320,11 +320,14 @@ int load_bank_spreadsheet_transactions_only(
 		/* ------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
+			fund_name,
 			bank_upload_structure->
 				reoccurring_structure->
 				reoccurring_transaction_list,
 			bank_upload_structure->
-				existing_cash_journal_ledger_list );
+				existing_cash_journal_ledger_list,
+			bank_upload_structure->
+				uncleared_checks_transaction_list );
 
 		bank_upload_transaction_table_display(
 			bank_upload_structure->
@@ -348,11 +351,14 @@ int load_bank_spreadsheet_transactions_only(
 		/* ------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
+			fund_name,
 			bank_upload_structure->
 				reoccurring_structure->
 				reoccurring_transaction_list,
 			bank_upload_structure->
-				existing_cash_journal_ledger_list );
+				existing_cash_journal_ledger_list,
+			bank_upload_structure->
+				uncleared_checks_transaction_list );
 
 		bank_upload_insert_transaction(
 			application_name,
@@ -504,6 +510,7 @@ int load_bank_spreadsheet(
 		/* ------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
+			fund_name,
 			bank_upload_structure->
 				reoccurring_structure->
 				reoccurring_transaction_list,
@@ -582,6 +589,7 @@ int load_bank_spreadsheet(
 		/* ------------------------------------ */
 		bank_upload_set_transaction(
 			bank_upload_structure->table.bank_upload_table_list,
+			fund_name,
 			bank_upload_structure->
 				reoccurring_structure->
 				reoccurring_transaction_list,

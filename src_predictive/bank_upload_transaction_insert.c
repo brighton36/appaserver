@@ -210,7 +210,8 @@ void seek_withdrawal( char *application_name )
 				application_name,
 				bank_upload->bank_date,
 				bank_upload->bank_description,
-				bank_upload->bank_amount );
+				bank_upload->bank_amount,
+				bank_upload->);
 
 		if ( list_length( bank_upload->reconciled_transaction_list ) )
 		{

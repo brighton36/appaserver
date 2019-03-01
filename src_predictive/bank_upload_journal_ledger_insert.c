@@ -105,7 +105,8 @@ void bank_upload_journal_ledger_insert(
 	bank_upload_set_transaction(
 		p->table.bank_upload_table_list,
 		p->reoccurring_structure->reoccurring_transaction_list,
-		p->existing_cash_journal_ledger_list );
+		p->existing_cash_journal_ledger_list,
+		p->uncleared_checks_transaction_list );
 
 	if ( execute )
 	{

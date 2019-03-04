@@ -104,10 +104,12 @@ int main( int argc, char **argv )
 
 			bank_upload->reconciled_transaction_list =
 				bank_upload_get_reconciled_transaction_list(
-					application_name,
-					bank_upload->bank_date,
-					bank_upload->bank_description,
-					bank_upload->bank_amount );
+				   application_name,
+				   bank_upload->bank_date,
+				   bank_upload->bank_description,
+				   bank_upload->bank_amount,
+				   (LIST *)0
+				       /* uncleared_check_transaction_list */ );
 
 			if ( list_length( bank_upload->
 						reconciled_transaction_list ) )
@@ -210,7 +212,9 @@ void seek_withdrawal( char *application_name )
 				application_name,
 				bank_upload->bank_date,
 				bank_upload->bank_description,
-				bank_upload->bank_amount );
+				bank_upload->bank_amount,
+				( LIST *)0
+				       /* uncleared_check_transaction_list */ );
 
 		if ( list_length( bank_upload->reconciled_transaction_list ) )
 		{

@@ -4071,7 +4071,7 @@ void ledger_get_vendor_payment_account_names(
 
 	*uncleared_checks_account = '\0';
 
-	key = "uncleared_checks_key";
+	key = LEDGER_UNCLEARED_CHECKS_KEY;
 	*uncleared_checks_account =
 		ledger_get_hard_coded_account_name(
 			application_name,

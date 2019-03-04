@@ -64,6 +64,7 @@
 #define LEDGER_LOSS_KEY			"loss_key"
 #define LEDGER_ACCUMULATED_KEY		"accumulated_depreciation_key"
 #define LEDGER_CLOSING_KEY		"closing_key"
+#define LEDGER_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
 
 #define LEDGER_SEMAPHORE_KEY		18227
 

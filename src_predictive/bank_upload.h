@@ -90,6 +90,7 @@ typedef struct
 	BANK_UPLOAD_FILE file;
 	BANK_UPLOAD_TABLE table;
 	LIST *existing_cash_journal_ledger_list;
+	LIST *uncleared_checks_transaction_list;
 	REOCCURRING_STRUCTURE *reoccurring_structure;
 	int starting_sequence_number;
 	char *fund_name;
@@ -154,15 +155,23 @@ BANK_UPLOAD *bank_upload_fetch(		char *application_name,
 
 LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 					char *application_name,
-					char *minimum_bank_date,
+					char *minimum_transaction_date,
+					char *fund_name );
+
+LIST *bank_upload_fetch_uncleared_checks_transaction_list(
+					char *application_name,
+					char *minimum_transaction_date,
 					char *fund_name );
 
 /* Sets bank_upload->transaction and bank_upload->bank_upload_status */
 /* ----------------------------------------------------------------- */
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
+				char *application_name,
+				char *fund_name,
 				LIST *reoccurring_transaction_list,
-				LIST *existing_cash_journal_ledger_list );
+				LIST *existing_cash_journal_ledger_list,
+				LIST *uncleared_checks_transaction_list );
 
 void bank_upload_insert_transaction(
 					char *application_name,
@@ -279,10 +288,11 @@ double bank_upload_archive_fetch_latest_running_balance(
 					char *application_name );
 
 LIST *bank_upload_get_reconciled_transaction_list(
-					char *application_name,
-					char *bank_date,
-					char *bank_description,
-					double bank_amount );
+				char *application_name,
+				char *bank_date,
+				char *bank_description,
+				double bank_amount,
+				LIST *uncleared_check_transaction_list );
 
 void bank_upload_transaction_insert(	char *bank_date,
 					char *bank_description,
@@ -325,6 +335,27 @@ char *bank_upload_unique_bank_description(
 					char *fund_name,
 					char *input_bank_description,
 					char *bank_amount );
+
+LIST *bank_upload_fetch_uncleared_checks_list(
+					char *application_name,
+					char *minimum_transaction_date,
+					char *uncleared_checks_account );
+
+void bank_upload_set_check_transaction(
+				LIST *bank_upload_list,
+				char *application_name,
+				char *fund_name,
+				LIST *uncleared_checks_transaction_list );
+
+void bank_upload_set_reoccurring_transaction(
+				LIST *bank_upload_list,
+				LIST *reoccurring_transaction_list,
+				LIST *existing_cash_journal_ledger_list );
+
+LIST *bank_upload_get_uncleared_checks_transaction_list(
+				char *application_name,
+				char *bank_description,
+				LIST *uncleared_checks_transaction_list );
 
 #endif
 

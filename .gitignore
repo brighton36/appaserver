@@ -22,6 +22,7 @@ backup/
 # -------------
 # src_hydrology
 # -------------
+load_turkey_point
 shef_upload_datatype_convert
 LT_upload
 sensor_exposed_null

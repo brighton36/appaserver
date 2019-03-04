@@ -53,6 +53,8 @@ void tax_form_report_html_table(	char *title,
 					char *tax_form,
 					LIST *tax_form_line_list );
 
+void tax_form_report_audit_detail(	LIST *tax_form_line_list );
+
 void tax_form_detail_report_html_table(	LIST *tax_form_line_list );
 
 LIST *build_PDF_row_list(		LIST *tax_form_line_list );
@@ -186,6 +188,21 @@ int main( int argc, char **argv )
 
 	tax->tax_process.tax_form = tax->tax_input.tax_form->tax_form;
 
+	if ( strcmp( output_medium, "detail" ) == 0 )
+	{
+		tax_form_report_html_table(
+			title,
+			sub_title,
+			tax->tax_process.tax_form,
+			tax->tax_process.tax_form_line_list );
+
+		tax_form_detail_report_html_table(
+			tax->tax_process.tax_form_line_list );
+
+		tax_form_report_audit_detail(
+			tax->tax_process.tax_form_line_list );
+	}
+	else
 	if ( strcmp( output_medium, "table" ) == 0 )
 	{
 		tax_form_report_html_table(
@@ -325,6 +342,106 @@ void tax_form_detail_report_html_table(
 	} while( list_next( tax_form_line_list ) );
 
 } /* tax_form_detail_report_html_table() */
+
+void tax_form_report_audit_detail( LIST *tax_form_line_list )
+{
+	HTML_TABLE *html_table;
+	LIST *heading_list;
+	TAX_FORM_LINE *tax_form_line;
+	TAX_FORM_LINE_ACCOUNT *account;
+	char tax_form_line_buffer[ 128 ];
+	int count = 0;
+
+	heading_list = list_new();
+	list_append_string( heading_list, "tax_form_line" );
+	list_append_string( heading_list, "account" );
+	list_append_string( heading_list, "account_total" );
+
+	html_table = new_html_table(
+			"Audit Detail" /* title */,
+			(char *)0 /* caption */ );
+
+	html_table->number_left_justified_columns = 2;
+	html_table->number_right_justified_columns = 1;
+	html_table_set_heading_list( html_table, heading_list );
+	html_table_output_table_heading(
+					html_table->title,
+					html_table->sub_title );
+	html_table_output_data_heading(
+		html_table->heading_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->justify_list );
+
+	if ( !list_rewind( tax_form_line_list ) ) return;
+
+	do {
+		tax_form_line = list_get( tax_form_line_list );
+
+		if ( timlib_double_virtually_same(
+			tax_form_line->tax_form_line_total,
+			0.0 ) )
+		{
+			continue;
+		}
+
+		if ( !list_rewind( tax_form_line->tax_form_line_account_list ) )
+			continue;
+
+		do {
+			account =
+				list_get(
+				   tax_form_line->tax_form_line_account_list );
+
+			if ( ++count == ROWS_BETWEEN_HEADING )
+			{
+				html_table_output_data_heading(
+					html_table->heading_list,
+					html_table->
+					number_left_justified_columns,
+					html_table->
+					number_right_justified_columns,
+					html_table->justify_list );
+				count = 0;
+			}
+
+			sprintf( tax_form_line_buffer,
+				 "%s %s",
+				 tax_form_line->tax_form_line,
+				 tax_form_line->tax_form_description );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( tax_form_line_buffer ) );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( account->account_name ) );
+
+			html_table_set_data(
+				html_table->data_list,
+				strdup( timlib_place_commas_in_money(
+					account->
+						tax_form_account_total ) ) );
+
+			html_table_output_data(
+				html_table->data_list,
+				html_table->number_left_justified_columns,
+				html_table->number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+
+			list_free( html_table->data_list );
+			html_table->data_list = list_new();
+
+		} while( list_next( tax_form_line->
+					tax_form_line_account_list ) );
+
+	} while( list_next( tax_form_line_list ) );
+
+	html_table_close();
+
+} /* tax_form_report_audit_detail() */
 
 void tax_form_report_html_table(
 			char *title,

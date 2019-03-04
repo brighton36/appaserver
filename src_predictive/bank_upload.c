@@ -1026,6 +1026,7 @@ LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 /* ----------------------------------------------------------------- */
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
+				char *application_name,
 				char *fund_name,
 				LIST *reoccurring_transaction_list,
 				LIST *existing_cash_journal_ledger_list,
@@ -1038,6 +1039,7 @@ void bank_upload_set_transaction(
 
 	bank_upload_set_check_transaction(
 		bank_upload_list,
+		application_name,
 		fund_name,
 		uncleared_checks_transaction_list );
 
@@ -1047,9 +1049,11 @@ void bank_upload_set_transaction(
 /* ----------------------------------------------------------------- */
 void bank_upload_set_check_transaction(
 				LIST *bank_upload_list,
+				char *application_name,
 				char *fund_name,
 				LIST *uncleared_checks_transaction_list )
 {
+#ifdef NOT_DEFINED
 	BANK_UPLOAD *bank_upload;
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
@@ -1137,6 +1141,7 @@ void bank_upload_set_check_transaction(
 			journal_ledger );
 
 	} while( list_next( bank_upload_list ) );
+#endif
 
 } /* bank_upload_set_check_transaction() */
 
@@ -2296,6 +2301,7 @@ LIST *bank_upload_get_reconciled_transaction_list(
 		return transaction_list;
 	}
 
+/*
 	transaction_list =
 		bank_upload_get_uncleared_checks_list_transaction_list(
 				application_name,
@@ -2306,6 +2312,7 @@ LIST *bank_upload_get_reconciled_transaction_list(
 	{
 		return transaction_list;
 	}
+*/
 
 	return (LIST *)0;
 
@@ -2488,5 +2495,7 @@ LIST *bank_upload_get_uncleared_checks_transaction_list(
 				char *bank_description,
 				LIST *uncleared_checks_transaction_list )
 {
+
+	return (LIST *)0;
 
 } /* bank_upload_get_uncleared_checks_transaction_list() */

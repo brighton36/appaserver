@@ -167,6 +167,7 @@ LIST *bank_upload_fetch_uncleared_checks_transaction_list(
 /* ----------------------------------------------------------------- */
 void bank_upload_set_transaction(
 				LIST *bank_upload_list,
+				char *application_name,
 				char *fund_name,
 				LIST *reoccurring_transaction_list,
 				LIST *existing_cash_journal_ledger_list,
@@ -287,10 +288,11 @@ double bank_upload_archive_fetch_latest_running_balance(
 					char *application_name );
 
 LIST *bank_upload_get_reconciled_transaction_list(
-					char *application_name,
-					char *bank_date,
-					char *bank_description,
-					double bank_amount );
+				char *application_name,
+				char *bank_date,
+				char *bank_description,
+				double bank_amount,
+				LIST *uncleared_check_transaction_list );
 
 void bank_upload_transaction_insert(	char *bank_date,
 					char *bank_description,
@@ -341,6 +343,8 @@ LIST *bank_upload_fetch_uncleared_checks_list(
 
 void bank_upload_set_check_transaction(
 				LIST *bank_upload_list,
+				char *application_name,
+				char *fund_name,
 				LIST *uncleared_checks_transaction_list );
 
 void bank_upload_set_reoccurring_transaction(

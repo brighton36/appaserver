@@ -1053,12 +1053,12 @@ void bank_upload_set_check_transaction(
 				char *fund_name,
 				LIST *uncleared_checks_transaction_list )
 {
-#ifdef NOT_DEFINED
 	BANK_UPLOAD *bank_upload;
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
 	char *cash_account;
 	char *uncleared_checks_account;
+	int check_number;
 
 	if ( !list_rewind( bank_upload_list ) ) return;
 
@@ -1079,21 +1079,22 @@ void bank_upload_set_check_transaction(
 	do {
 		bank_upload = list_get( bank_upload_list );
 
-		if ( timlib_string_exists( 
-		bank_upload->bank_upload_status = feeder_phrase_match;
-
-		if ( ledger_exists_journal_ledger(
-				existing_cash_journal_ledger_list,
-				reoccurring_transaction->full_name,
-				reoccurring_transaction->street_address,
-				bank_upload->bank_date
-					/* transaction_date */,
-				bank_upload->bank_amount
-					/* transaction_amount */ ) )
+		if ( !timlib_string_exists(	bank_upload->bank_description
+							/* string */,
+						"check" /* substring */ ) )
 		{
-			bank_upload->bank_upload_status = existing_transaction;
 			continue;
 		}
+
+		if ( ! ( check_number =
+				bank_upload_parse_check_number(
+					bank_upload->bank_description ) ) )
+		{
+			continue;
+		}
+
+#ifdef NOT_DEFINED
+		bank_upload->bank_upload_status = feeder_phrase_match;
 
 		transaction =
 			ledger_transaction_new(
@@ -1139,9 +1140,9 @@ void bank_upload_set_check_transaction(
 		list_append_pointer(
 			transaction->journal_ledger_list,
 			journal_ledger );
+#endif
 
 	} while( list_next( bank_upload_list ) );
-#endif
 
 } /* bank_upload_set_check_transaction() */
 
@@ -1234,6 +1235,10 @@ void bank_upload_set_reoccurring_transaction(
 
 } /* bank_upload_set_reoccurring_transaction() */
 
+/* Insert into TRANSACTION and JOURNAL_LEDGER */
+/* ------------------------------------------ */
+/* Note: this is the bottleneck.	      */
+/* ------------------------------------------ */
 void bank_upload_transaction_insert(	char *application_name,
 					LIST *bank_upload_list )
 {
@@ -1804,7 +1809,10 @@ double bank_upload_archive_fetch_latest_running_balance(
 
 } /* bank_upload_archive_fetch_latest_running_balance() */
 
-void bank_upload_transaction_insert(	char *bank_date,
+/* Insert into BANK_UPLOAD_TRANSACTION */
+/* ----------------------------------- */
+void bank_upload_reconciliation_transaction_insert(
+					char *bank_date,
 					char *bank_description,
 					LIST *transaction_list )
 {
@@ -1851,7 +1859,7 @@ void bank_upload_transaction_insert(	char *bank_date,
 
 	pclose( output_pipe );
 
-} /* bank_upload_transaction_insert() */
+} /* bank_upload_reconciliation_transaction_insert() */
 
 LIST *bank_upload_get_general_transaction_list(
 				char *application_name,
@@ -2490,12 +2498,9 @@ LIST *bank_upload_fetch_uncleared_checks_list(
 
 } /* bank_upload_fetch_uncleared_checks_list() */
 
-LIST *bank_upload_get_uncleared_checks_transaction_list(
-				char *application_name,
-				char *bank_description,
-				LIST *uncleared_checks_transaction_list )
+int bank_upload_parse_check_number( char *bank_description )
 {
+	return 0;
 
-	return (LIST *)0;
+} /* bank_upload_parse_check_number() */
 
-} /* bank_upload_get_uncleared_checks_transaction_list() */

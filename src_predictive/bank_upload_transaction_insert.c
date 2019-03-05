@@ -113,7 +113,9 @@ int main( int argc, char **argv )
 			if ( list_length( bank_upload->
 						reconciled_transaction_list ) )
 			{
-				bank_upload_transaction_insert(
+				/* Insert into BANK_UPLOAD_TRANSACTION */
+				/* ----------------------------------- */
+				bank_upload_reconciliation_transaction_insert(
 					bank_upload->bank_date,
 					bank_upload->bank_description,
 					bank_upload->
@@ -121,9 +123,10 @@ int main( int argc, char **argv )
 			}
 		}
 		else
-		/* ------------------------ */
-		/* Doesn't do the propagate */
-		/* ------------------------ */
+		/* ---------------------------------------------------- */
+		/* This is called from					*/
+		/* bank_upload_reconciliation_transaction_insert()	*/
+		/* ---------------------------------------------------- */
 		if ( delimiter_count == 4 )
 		{
 			piece( bank_date, '^', operation, 0 );
@@ -217,7 +220,9 @@ void seek_withdrawal( char *application_name )
 
 		if ( list_length( bank_upload->reconciled_transaction_list ) )
 		{
-			bank_upload_transaction_insert(
+			/* Insert into BANK_UPLOAD_TRANSACTION */
+			/* ----------------------------------- */
+			bank_upload_reconciliation_transaction_insert(
 				bank_upload->bank_date,
 				bank_upload->bank_description,
 				bank_upload->reconciled_transaction_list );

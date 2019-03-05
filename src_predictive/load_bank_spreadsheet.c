@@ -28,7 +28,7 @@
 
 /* Prototypes */
 /* ---------- */
-void bank_upload_reconciliation_transaction_insert(
+void load_bank_spreadsheet_reconciliation_transaction_insert(
 				LIST *bank_upload_table_list,
 				char *minimum_bank_date );
 
@@ -362,6 +362,11 @@ int load_bank_spreadsheet_transactions_only(
 			bank_upload_structure->
 				uncleared_checks_transaction_list );
 
+		/* ------------------------------------------ */
+		/* Insert into TRANSACTION and JOURNAL_LEDGER */
+		/* ------------------------------------------ */
+		/* Note: this is the bottleneck.	      */
+		/* ------------------------------------------ */
 		bank_upload_transaction_insert(
 			application_name,
 			bank_upload_structure->file.bank_upload_file_list );
@@ -407,39 +412,6 @@ void bank_upload_propagate( char *minimum_bank_date )
 	system( sys_string );
 
 } /* bank_upload_propagate() */
-
-void bank_upload_reconciliation_transaction_insert(
-				LIST *bank_upload_table_list,
-				char *minimum_bank_date )
-{
-	char sys_string[ 1024 ];
-	BANK_UPLOAD *bank_upload;
-
-	if ( !list_rewind( bank_upload_table_list ) ) return;
-
-	do {
-		bank_upload = list_get( bank_upload_table_list );
-
-		if ( !bank_upload->transaction ) continue;
-
-		bank_upload_description_crop( bank_upload->bank_description );
-
-		sprintf(
-		sys_string,
-		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
-		bank_upload->bank_date,
-		bank_upload->bank_description,
-		bank_upload->transaction->full_name,
-		bank_upload->transaction->street_address,
-		bank_upload->transaction->transaction_date_time );
-
-		system( sys_string );
-
-	} while( list_next( bank_upload_table_list ) );
-
-	bank_upload_transaction_balance_propagate( minimum_bank_date );
-
-} /* bank_upload_reconciliation_transaction_insert() */
 
 /* ---------------------------------------------------- */
 /* If display then it returns file_row_count.		*/
@@ -592,6 +564,11 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				uncleared_checks_transaction_list );
 
+		/* ------------------------------------------ */
+		/* Insert into TRANSACTION and JOURNAL_LEDGER */
+		/* ------------------------------------------ */
+		/* Note: this is the bottleneck.	      */
+		/* ------------------------------------------ */
 		bank_upload_transaction_insert(
 			application_name,
 			bank_upload_structure->table.bank_upload_table_list );
@@ -605,9 +582,9 @@ int load_bank_spreadsheet(
 					table.
 					bank_upload_table_list );
 
-		/* Also does the two propagates. */
-		/* ----------------------------- */
-		bank_upload_reconciliation_transaction_insert(
+		/* Insert into BANK_UPLOAD_TRANSACTION */
+		/* ----------------------------------- */
+		load_bank_spreadsheet_reconciliation_transaction_insert(
 			bank_upload_structure->
 				table.
 				bank_upload_table_list,
@@ -632,4 +609,39 @@ int load_bank_spreadsheet(
 		return bank_upload_structure->file.table_insert_count;
 
 } /* load_bank_spreadsheet() */
+
+/* Inserts into BANK_UPLOAD_TRANSACTION */
+/* ------------------------------------ */
+void load_bank_spreadsheet_reconciliation_transaction_insert(
+				LIST *bank_upload_table_list,
+				char *minimum_bank_date )
+{
+	char sys_string[ 1024 ];
+	BANK_UPLOAD *bank_upload;
+
+	if ( !list_rewind( bank_upload_table_list ) ) return;
+
+	do {
+		bank_upload = list_get( bank_upload_table_list );
+
+		if ( !bank_upload->transaction ) continue;
+
+		bank_upload_description_crop( bank_upload->bank_description );
+
+		sprintf(
+		sys_string,
+		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
+		bank_upload->bank_date,
+		bank_upload->bank_description,
+		bank_upload->transaction->full_name,
+		bank_upload->transaction->street_address,
+		bank_upload->transaction->transaction_date_time );
+
+		system( sys_string );
+
+	} while( list_next( bank_upload_table_list ) );
+
+	bank_upload_transaction_balance_propagate( minimum_bank_date );
+
+} /* load_bank_spreadsheet_reconciliation_transaction_insert() */
 

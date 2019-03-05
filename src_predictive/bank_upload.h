@@ -173,6 +173,10 @@ void bank_upload_set_transaction(
 				LIST *existing_cash_journal_ledger_list,
 				LIST *uncleared_checks_transaction_list );
 
+/* Insert into TRANSACTION and JOURNAL_LEDGER */
+/* ------------------------------------------ */
+/* Note: this is the bottleneck.	      */
+/* ------------------------------------------ */
 void bank_upload_transaction_insert(
 					char *application_name,
 					LIST *bank_upload_list );
@@ -294,7 +298,10 @@ LIST *bank_upload_get_reconciled_transaction_list(
 				double bank_amount,
 				LIST *uncleared_check_transaction_list );
 
-void bank_upload_transaction_insert(	char *bank_date,
+/* Insert into BANK_UPLOAD_TRANSACTION */
+/* ----------------------------------- */
+void bank_upload_reconciliation_transaction_insert(
+					char *bank_date,
 					char *bank_description,
 					LIST *transaction_list );
 
@@ -352,10 +359,8 @@ void bank_upload_set_reoccurring_transaction(
 				LIST *reoccurring_transaction_list,
 				LIST *existing_cash_journal_ledger_list );
 
-LIST *bank_upload_get_uncleared_checks_transaction_list(
-				char *application_name,
-				char *bank_description,
-				LIST *uncleared_checks_transaction_list );
+int bank_upload_parse_check_number(
+				char *bank_description );
 
 #endif
 

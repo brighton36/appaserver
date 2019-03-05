@@ -89,6 +89,12 @@ void bank_upload_journal_ledger_insert(
 			begin_date /* minimum_bank_date */,
 			fund_name );
 
+	p->uncleared_checks_transaction_list =
+		bank_upload_fetch_uncleared_checks_transaction_list(
+			application_name,
+			begin_date /* minimum_bank_date */,
+			fund_name );
+
 	p->reoccurring_structure = reoccurring_structure_new();
 
 	p->reoccurring_structure->

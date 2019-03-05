@@ -1234,7 +1234,7 @@ void bank_upload_set_reoccurring_transaction(
 
 } /* bank_upload_set_reoccurring_transaction() */
 
-void bank_upload_insert_transaction(	char *application_name,
+void bank_upload_transaction_insert(	char *application_name,
 					LIST *bank_upload_list )
 {
 	BANK_UPLOAD *bank_upload;
@@ -1265,7 +1265,7 @@ void bank_upload_insert_transaction(	char *application_name,
 
 	} while( list_next( bank_upload_list ) );
 
-} /* bank_upload_insert_transaction() */
+} /* bank_upload_transaction_insert() */
 
 void bank_upload_table_display(
 				char *application_name,

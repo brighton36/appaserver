@@ -1,9 +1,9 @@
-/* --------------------------------------------------- 	*/
-/* measurement_convert_units.c			       	*/
-/* --------------------------------------------------- 	*/
-/* 						       	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/measurement_convert_units.c		*/
+/* ----------------------------------------------------------------	*/
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* ----------------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "appaserver_library.h"
 #include "timlib.h"
+#include "environ.h"
 #include "piece.h"
 
 /* Constants */
@@ -60,17 +61,21 @@ int main( int argc, char **argv )
 	boolean is_temperature_boolean;
 	boolean is_navd88_boolean;
 
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
 	output_starting_argv_stderr( argc, argv );
 
 	if ( argc < 6 )
 	{
 		fprintf(stderr,
-"Usage: %s application units units_converted value_piece delimiter [station_piece]\n",
+"Usage: %s ignored units units_converted value_piece delimiter [station_piece]\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	units = argv[ 2 ];
 	units_converted = argv[ 3 ];
 	value_piece = atoi( argv[ 4 ] );
@@ -87,17 +92,17 @@ int main( int argc, char **argv )
 
 	delimiter = *delimiter_string;
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-
 	units = get_constant_units_spelling( units );
 	units_converted = get_constant_units_spelling( units_converted );
 
 	is_temperature_boolean = is_temperature( units );
 	is_navd88_boolean = is_navd88( units_converted );
 
-	if ( !is_temperature_boolean )
+	if ( is_temperature_boolean )
+	{
+		multiply_by = DEFAULT_MULTIPLY_BY;
+	}
+	else
 	{
 		multiply_by =
 			get_multiply_by(

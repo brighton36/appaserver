@@ -173,7 +173,7 @@ void bank_upload_set_transaction(
 				LIST *existing_cash_journal_ledger_list,
 				LIST *uncleared_checks_transaction_list );
 
-void bank_upload_insert_transaction(
+void bank_upload_transaction_insert(
 					char *application_name,
 					LIST *bank_upload_list );
 

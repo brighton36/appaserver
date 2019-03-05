@@ -3,7 +3,6 @@
 /* ----------------------------------------------------------------	*/
 /* Input: BANK_UPLOAD and JOURNAL_LEDGER where account is cash.		*/
 /* Output: Insert into BANK_UPLOAD_TRANSACTION statements.		*/
-/* Optionally, if all four pieces: insert into BANK_UPLOAD.		*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/

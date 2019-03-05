@@ -112,7 +112,7 @@ void bank_upload_journal_ledger_insert(
 
 	if ( execute )
 	{
-		bank_upload_insert_transaction(
+		bank_upload_transaction_insert(
 			application_name,
 			p->table.bank_upload_table_list );
 	}

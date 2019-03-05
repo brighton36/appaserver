@@ -362,7 +362,7 @@ int load_bank_spreadsheet_transactions_only(
 			bank_upload_structure->
 				uncleared_checks_transaction_list );
 
-		bank_upload_insert_transaction(
+		bank_upload_transaction_insert(
 			application_name,
 			bank_upload_structure->file.bank_upload_file_list );
 
@@ -374,18 +374,6 @@ int load_bank_spreadsheet_transactions_only(
 				bank_upload_structure->
 				file.
 				bank_upload_file_list );
-
-#ifdef NOT_DEFINED
-		/* Also does the two propagates. */
-		/* ----------------------------- */
-		bank_upload_reconciliation_transaction_insert(
-			bank_upload_structure->
-				file.
-				bank_upload_file_list,
-			bank_upload_structure->
-				file.
-				minimum_bank_date );
-#endif
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -604,7 +592,7 @@ int load_bank_spreadsheet(
 			bank_upload_structure->
 				uncleared_checks_transaction_list );
 
-		bank_upload_insert_transaction(
+		bank_upload_transaction_insert(
 			application_name,
 			bank_upload_structure->table.bank_upload_table_list );
 

@@ -1192,4 +1192,12 @@ double ledger_get_total_payment(
 				char *street_address,
 				char *sale_date_time );
 
+TRANSACTION *ledger_check_number_seek_transaction(
+				LIST *transaction_list,
+				int check_number );
+
+JOURNAL_LEDGER *ledger_account_seek_journal_ledger(
+				LIST *journal_ledger_list,
+				char *account_name );
+
 #endif

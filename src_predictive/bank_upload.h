@@ -15,7 +15,8 @@
 /* ---------------- */
 enum bank_upload_status{	bank_upload_status_unknown,
 				existing_transaction,
-				feeder_phrase_match };
+				feeder_phrase_match,
+				cleared_check };
 
 enum bank_upload_exception {	bank_upload_exception_none,
 				duplicated_spreadsheet_file,
@@ -59,6 +60,7 @@ typedef struct
 	char *fund_name;
 	TRANSACTION *transaction;
 	LIST *reconciled_transaction_list;
+	JOURNAL_LEDGER *cleared_journal_ledger;
 	enum bank_upload_status bank_upload_status;
 } BANK_UPLOAD;
 
@@ -331,9 +333,11 @@ LIST *bank_upload_transaction_list_string_parse(
 void bank_upload_transaction_balance_propagate(
 					char *bank_date );
 
-char *bank_upload_get_status_string(	char *application_name,
-					enum bank_upload_status,
-					TRANSACTION *transaction );
+char *bank_upload_get_status_string(
+				char *application_name,
+				enum bank_upload_status,
+				TRANSACTION *transaction,
+				JOURNAL_LEDGER *cleared_journal_ledger );
 
 char *bank_upload_description_crop(	char *bank_description );
 

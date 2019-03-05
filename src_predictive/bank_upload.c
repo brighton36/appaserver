@@ -1045,8 +1045,9 @@ void bank_upload_set_transaction(
 
 } /* bank_upload_set_transaction() */
 
-/* Sets bank_upload->transaction and bank_upload->bank_upload_status */
-/* ----------------------------------------------------------------- */
+/* Sets bank_upload->cleared_journal_ledger	*/
+/* and  bank_upload->bank_upload_status		*/
+/* -------------------------------------------- */
 void bank_upload_set_check_transaction(
 				LIST *bank_upload_list,
 				char *application_name,
@@ -1093,54 +1094,25 @@ void bank_upload_set_check_transaction(
 			continue;
 		}
 
-#ifdef NOT_DEFINED
-		bank_upload->bank_upload_status = feeder_phrase_match;
+		if ( ! ( transaction =
+				ledger_check_number_seek_transaction(
+					uncleared_checks_transaction_list,
+					check_number ) ) )
+		{
+			continue;
+		}
 
-		transaction =
-			ledger_transaction_new(
-				reoccurring_transaction->full_name,
-				reoccurring_transaction->street_address,
-				ledger_get_transaction_date_time(
-					bank_upload->bank_date
-						/* transaction_date */ ),
-				(char *)0 /* memo */ );
+		if ( ! ( journal_ledger =
+				ledger_account_seek_journal_ledger(
+					transaction->journal_ledger_list,
+					uncleared_checks_account ) ) )
+		{
+			continue;
+		}
 
-		transaction->transaction_amount =
-			float_abs( bank_upload->bank_amount );
-
-		bank_upload->transaction = transaction;
-		transaction->journal_ledger_list = list_new();
-
-		/* Set the debit account */
-		/* --------------------- */
-		journal_ledger =
-			journal_ledger_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				reoccurring_transaction->debit_account );
-
-		journal_ledger->debit_amount = transaction->transaction_amount;
-
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-
-		/* Set the credit account */
-		/* ---------------------- */
-		journal_ledger =
-			journal_ledger_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				reoccurring_transaction->credit_account );
-
-		journal_ledger->credit_amount = transaction->transaction_amount;
-
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
-#endif
+		journal_ledger->account_name = cash_account;
+		bank_upload->bank_upload_status = cleared_check;
+		bank_upload->cleared_journal_ledger = journal_ledger;
 
 	} while( list_next( bank_upload_list ) );
 
@@ -1300,7 +1272,8 @@ void bank_upload_table_display(
 			 bank_upload_get_status_string(
 				application_name,
 				bank_upload->bank_upload_status,
-				bank_upload->transaction ),
+				bank_upload->transaction,
+				bank_upload->cleared_journal_ledger ),
 			 bank_upload->bank_description,
 			 bank_upload->bank_amount );
 
@@ -2387,7 +2360,8 @@ void bank_upload_transaction_balance_propagate(
 char *bank_upload_get_status_string(
 				char *application_name,
 				enum bank_upload_status bank_upload_status,
-				TRANSACTION *transaction )
+				TRANSACTION *transaction,
+				JOURNAL_LEDGER *cleared_journal_ledger )
 {
 	if ( bank_upload_status == existing_transaction )
 	{
@@ -2409,6 +2383,21 @@ char *bank_upload_get_status_string(
 		return ledger_get_non_cash_account_name(
 				application_name,
 				transaction );
+	}
+	else
+	if ( bank_upload_status == cleared_check )
+	{
+		if ( !cleared_journal_ledger )
+		{
+			fprintf( stderr,
+	"Error in %s/%s()/%d: got cleared_check but no journal ledger.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__ );
+			exit( 1 );
+		}
+
+		return journal_ledger->full_name;
 	}
 	else
 	{
@@ -2500,7 +2489,14 @@ LIST *bank_upload_fetch_uncleared_checks_list(
 
 int bank_upload_parse_check_number( char *bank_description )
 {
-	return 0;
+	char buffer[ 512 ];
+
+	timlib_strcpy( buffer, bank_description, 512 );
+
+	search_replace_string( buffer, "check", "" );
+	search_replace_string( buffer, "#", "" );
+
+	return atof( buffer );
 
 } /* bank_upload_parse_check_number() */
 

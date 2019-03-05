@@ -9954,3 +9954,45 @@ double ledger_get_total_payment(
 
 } /* ledger_get_total_payment() */
 
+TRANSACTION *ledger_check_number_seek_transaction(
+				LIST *transaction_list,
+				int check_number )
+{
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) ) return (TRANSACTION *)0;
+
+	do {
+		transaction = list_get( transaction_list );
+
+		if ( transaction->check_number == check_number )
+			return transaction;
+
+	} while ( list_next( transaction_list ) );
+
+	return (TRANSACTION *)0;
+
+} /* ledger_check_number_seek() */
+
+JOURNAL_LEDGER *ledger_account_seek_journal_ledger(
+					LIST *journal_ledger_list,
+					char *account_name )
+{
+	JOURNAL_LEDGER *journal_ledger;
+
+	if ( !list_rewind( journal_ledger_list ) ) return (JOURNAL_LEDGER *)0;
+
+	do {
+		journal_ledger = list_get( journal_ledger_list );
+
+		if ( strcmp(	journal_ledger->account_name,
+				account_name ) == 0  )
+		{
+			return journal_ledger;
+		}
+
+	} while ( list_next( journal_ledger_list ) );
+
+	return (JOURNAL_LEDGER *)0;
+
+} /* ledger_account_seek_journal_ledger() */

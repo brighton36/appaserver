@@ -165,6 +165,14 @@ char *shef_datatype_code_get_upload_datatype(
 				shef_code_upper_case,
 				shef_upload_datatype_list ) ) )
 	{
+		if ( !station_datatype_list_fetch(
+				station_datatype_list,
+				station,
+				datatype->datatype ) )
+		{
+			return (char *)0;
+		}
+
 		strcpy( datatype_lower_case, datatype->datatype );
 		low_string( datatype_lower_case );
 	}

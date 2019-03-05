@@ -221,7 +221,9 @@ STATION_DATATYPE *station_datatype_list_fetch(
 			return station_datatype;
 		}
 	} while( list_next( station_datatype_list ) );
+
 	return (STATION_DATATYPE *)0;
+
 } /* station_datatype_list_fetch() */
 
 STATION_DATATYPE *station_datatype_new( void )

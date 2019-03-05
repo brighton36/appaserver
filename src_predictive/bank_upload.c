@@ -2397,7 +2397,7 @@ char *bank_upload_get_status_string(
 			exit( 1 );
 		}
 
-		return journal_ledger->full_name;
+		return cleared_journal_ledger->full_name;
 	}
 	else
 	{

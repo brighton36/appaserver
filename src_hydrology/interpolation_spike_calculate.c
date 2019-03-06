@@ -1,4 +1,4 @@
-/* src_hydrology/interpolate_spike_calculate.c			*/
+/* src_hydrology/interpolation_spike_calculate.c		*/
 /* ------------------------------------------------------------ */
 /*								*/
 /* Freely available software: see Appaserver.org		*/
@@ -32,7 +32,6 @@ LIST *begin_list_buffer( char *old_buffer, char *input_buffer );
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *login_name;
 	char *station;
 	char *datatype;
 	char *begin_date;
@@ -54,14 +53,17 @@ int main( int argc, char **argv )
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
+
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
 	output_starting_argv_stderr( argc, argv );
 
 	name_arg = setup_named_command_line_arguments( argc, argv );
 
-	application_name = fetch_arg( name_arg, "application" );
-	login_name = fetch_arg( name_arg, "login_name" );
+	/* application_name = fetch_arg( name_arg, "application" ); */
+	/* login_name = fetch_arg( name_arg, "login_name" ); */
 	begin_date = fetch_arg( name_arg, "begin_date" );
 	end_date = fetch_arg( name_arg, "end_date" );
 	station = fetch_arg( name_arg, "station" );
@@ -72,20 +74,7 @@ int main( int argc, char **argv )
 	maximum_out_of_range = 
 		atoi( fetch_arg( name_arg, "maximum_out_of_range" ) );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date,
@@ -149,11 +138,15 @@ int main( int argc, char **argv )
 			if ( results <= minimum_spike )
 			{
 				list_append_string( list, input_buffer );
+
 				list_interpolate_string_record(	
 							list,
 							VALUE_DELIMITER );
+
 				output_spike_records( list );
+
 				printf( "%s\n", input_buffer );
+
 				inside_of_spike = 0;
 				old_value = value;
 			}
@@ -210,8 +203,11 @@ int main( int argc, char **argv )
 				printf( "%s\n", input_buffer );
 			}
 		} /* if not inside spike */
+
 	} /* while( get_line() ) */
-	exit( 0 );
+
+	return 0;
+
 } /* main() */
 
 LIST *begin_list_buffer( char *old_buffer, char *buffer )
@@ -242,7 +238,11 @@ NAME_ARG *setup_named_command_line_arguments( int argc, char **argv )
         NAME_ARG *arg = init_arg( argv[ 0 ] );
 
         ticket = add_valid_option( arg, "application" );
+        set_default_value( arg, ticket,"");
+
         ticket = add_valid_option( arg, "login_name" );
+        set_default_value( arg, ticket,"");
+
         ticket = add_valid_option( arg, "maximum_out_of_range" );
         ticket = add_valid_option( arg, "minimum_spike" );
         ticket = add_valid_option( arg, "begin_date" );

@@ -23,7 +23,7 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/hashtbl.o
 
 EXECUTABLES=	hydrology_verification_process				\
-		interpolate_spike_calculate				\
+		interpolation_spike_calculate				\
 		measurement_null_value_insert				\
 		remove_chlorophyll_light_contamination			\
 		measurement_block_delete				\
@@ -390,15 +390,15 @@ hydrology_verification_process: hydrology_verification_process.c	\
 		hydrology_verification_process.c			\
 		-o hydrology_verification_process
 
-interpolate_spike_calculate: interpolate_spike_calculate.c		\
+interpolation_spike_calculate: interpolation_spike_calculate.c		\
 	${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
-		interpolate_spike_calculate.c				\
-		-o interpolate_spike_calculate
+		interpolation_spike_calculate.c				\
+		-o interpolation_spike_calculate
 
 measurement_null_value_insert: measurement_null_value_insert.c		\
 	${EXTERNAL_LIBS} ${SOURCE_LIBS}					\

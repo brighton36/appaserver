@@ -86,17 +86,26 @@ int main( int argc, char **argv )
 	char *override_destination_validation_requirement_yn;
 	boolean override_destination_validation_requirement;
 
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 14 )
 	{
 		fprintf(stderr,
-"Usage: %s person ignored application role station datatype minimum_spike parameter_dictionary begin_date end_date chart_yn notes really_yn\n",
+"Usage: %s person ignored ignored role station datatype minimum_spike parameter_dictionary begin_date end_date chart_yn notes really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
 	/* session = argv[ 2 ]; */
-	application_name = argv[ 3 ];
+	/* application_name = argv[ 3 ]; */
 	role_name = argv[ 4 ];
 	station = argv[ 5 ];
 	datatype = argv[ 6 ];
@@ -108,25 +117,7 @@ int main( int argc, char **argv )
 	notes = argv[ 12 ];
 	really_yn = *argv[ 13 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	grace_output = application_get_grace_output( application_name );
 

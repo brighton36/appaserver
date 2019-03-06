@@ -1,9 +1,9 @@
-/* --------------------------------------------------- 		*/
-/* src_hydrology/estimation_linear_interpolate_spike.c	       	*/
-/* --------------------------------------------------- 		*/
+/* ----------------------------------------------------- 	*/
+/* src_hydrology/estimation_linear_interpolation_spike.c	*/
+/* ----------------------------------------------------- 	*/
 /* 						       		*/
 /* Freely available software: see Appaserver.org		*/
-/* ---------------------------------------------------	 	*/
+/* -----------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -56,18 +56,25 @@ int main( int argc, char **argv )
 	char *notes;
 	char *database_string = {0};
 
-	output_starting_argv_stderr( argc, argv );
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 11 )
 	{
 		fprintf(stderr,
-"Usage: %s login_name application station datatype begin_date end_date minimum_spike parameter_dictionary notes really_yn\n",
+"Usage: %s login_name ignored station datatype begin_date end_date minimum_spike parameter_dictionary notes really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
+	/* application_name = argv[ 2 ]; */
 	station = argv[ 3 ];
 	datatype = argv[ 4 ];
 	begin_date = argv[ 5 ];
@@ -77,20 +84,7 @@ int main( int argc, char **argv )
 	notes = argv[ 9 ];
 	really_yn = *argv[ 10 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( !appaserver_library_validate_begin_end_date(
 					&begin_date,
@@ -120,7 +114,7 @@ int main( int argc, char **argv )
 	update_pipe = popen( sys_string, "w" );
 
 	sprintf( sys_string, 
-		 "interpolate_spike_calculate			"
+		 "interpolation_spike_calculate			"
 		 "	login_name=%s				"
 		 "	application=%s				"
 		 "	station=%s				"

@@ -1313,6 +1313,12 @@ void bank_upload_transaction_text_display( LIST *bank_upload_list )
 					transaction->
 					journal_ledger_list );
 		}
+		else
+		if ( bank_upload->cleared_journal_ledger )
+		{
+			bank_upload_journal_ledger_text_display(
+				bank_upload->cleared_journal_ledger );
+		}
 
 	} while( list_next( bank_upload_list ) );
 
@@ -2230,8 +2236,7 @@ LIST *bank_upload_get_reconciled_transaction_list(
 					char *application_name,
 					char *bank_date,
 					char *bank_description,
-					double bank_amount,
-					LIST *uncleared_check_transaction_list )
+					double bank_amount )
 {
 	boolean select_debit;
 	LIST *transaction_list;
@@ -2281,19 +2286,6 @@ LIST *bank_upload_get_reconciled_transaction_list(
 	{
 		return transaction_list;
 	}
-
-/*
-	transaction_list =
-		bank_upload_get_uncleared_checks_list_transaction_list(
-				application_name,
-				bank_description,
-				uncleared_checks_transaction_list );
-
-	if ( list_length( transaction_list ) )
-	{
-		return transaction_list;
-	}
-*/
 
 	return (LIST *)0;
 
@@ -2500,3 +2492,104 @@ int bank_upload_parse_check_number( char *bank_description )
 
 } /* bank_upload_parse_check_number() */
 
+void bank_upload_cleared_checks_update(
+				char *application_name,
+				char *fund_name,
+				LIST *bank_upload_table_list )
+{
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	BANK_UPLOAD *bank_upload;
+	JOURNAL_LEDGER *a;
+	char *key;
+	char *cash_account;
+	char *uncleared_checks_account;
+	char *first_transaction_date_time = {0};
+
+	if ( !list_rewind( bank_upload_table_list ) ) return;
+
+	cash_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			LEDGER_CASH_KEY,
+			0 /* not warning_only */ );
+
+	uncleared_checks_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			LEDGER_UNCLEARED_CHECKS_KEY,
+			0 /* not warning_only */ );
+
+	key = "full_name,street_address,transaction_date_time,account";
+
+	sprintf( sys_string,
+		 "update_statement.e table=%s key=%s carrot=y		|"
+		 "sql.e 2>&1						|"
+		 "html_paragraph_wrapper.e				|"
+		 "cat							 ",
+		 LEDGER_FOLDER_NAME,
+		 key );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		bank_upload = list_get( bank_upload_table_list );
+
+		if ( bank_upload->cleared_journal_ledger )
+		{
+			a = bank_upload->cleared_journal_ledger;
+
+			fprintf( output_pipe,
+				 "%s^%s^%s^%s^account^%s\n",
+				 a->full_name,
+				 a->street_address,
+				 a->transaction_date_time,
+				 uncleared_checks_account,
+				 a->account_name );
+
+			if ( !first_transaction_date_time )
+				first_transaction_date_time =
+					a->transaction_date_time;
+		}
+
+	} while( list_next( bank_upload_table_list ) );
+
+	pclose( output_pipe );
+
+	if ( first_transaction_date_time )
+	{
+		ledger_propagate(
+			application_name,
+			first_transaction_date_time,
+			cash_account );
+
+		ledger_propagate(
+			application_name,
+			first_transaction_date_time,
+			uncleared_checks_account );
+	} 
+
+} /* bank_upload_cleared_checks_update() */
+
+void bank_upload_journal_ledger_text_display(
+				JOURNAL_LEDGER *journal_ledger )
+{
+	if ( !journal_ledger )
+	{
+		fprintf( stderr,
+"Error in %s/%s()/%d: empty cleared_journal_ledger.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	printf( "%s/%s/%s: account_name = %s\n",
+		 journal_ledger->full_name,
+		 journal_ledger->street_address,
+		 journal_ledger->transaction_date_time,
+		 journal_ledger->account_name );
+
+} /* bank_upload_journal_ledger_text_display() */

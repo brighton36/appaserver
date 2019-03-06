@@ -4969,8 +4969,11 @@ char *query_parse_multi_attribute_get_order_clause(
 	char *ptr = order_clause;
 	char sort_attribute[ 128 ];
 	char *descending_label;
+	char first_folder_name[ 128 ];
 	int i = 0;
 
+	piece( first_folder_name, ',', folder_name, 0 );
+	folder_name = first_folder_name;
 
 	if ( descending )
 		descending_label = " desc";

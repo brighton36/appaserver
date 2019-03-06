@@ -28,9 +28,8 @@
 
 /* Prototypes */
 /* ---------- */
-void load_bank_spreadsheet_reconciliation_transaction_insert(
-				LIST *bank_upload_table_list,
-				char *minimum_bank_date );
+void load_bank_spreadsheet_transaction_insert(
+				LIST *bank_upload_table_list );
 
 void bank_upload_propagate(	char *minimum_bank_date );
 
@@ -584,13 +583,25 @@ int load_bank_spreadsheet(
 
 		/* Insert into BANK_UPLOAD_TRANSACTION */
 		/* ----------------------------------- */
-		load_bank_spreadsheet_reconciliation_transaction_insert(
+		load_bank_spreadsheet_transaction_insert(
 			bank_upload_structure->
 				table.
-				bank_upload_table_list,
+				bank_upload_table_list );
+
+		/* Update JOURNAL_LEDGER */
+		/* --------------------- */
+		bank_upload_cleared_checks_update(
+			application_name,
+			fund_name,
+			bank_upload_structure->
+				table.
+				bank_upload_table_list );
+
+		bank_upload_transaction_balance_propagate(
 			bank_upload_structure->
 				file.
 				minimum_bank_date );
+
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -612,9 +623,8 @@ int load_bank_spreadsheet(
 
 /* Inserts into BANK_UPLOAD_TRANSACTION */
 /* ------------------------------------ */
-void load_bank_spreadsheet_reconciliation_transaction_insert(
-				LIST *bank_upload_table_list,
-				char *minimum_bank_date )
+void load_bank_spreadsheet_transaction_insert(
+				LIST *bank_upload_table_list )
 {
 	char sys_string[ 1024 ];
 	BANK_UPLOAD *bank_upload;
@@ -624,24 +634,43 @@ void load_bank_spreadsheet_reconciliation_transaction_insert(
 	do {
 		bank_upload = list_get( bank_upload_table_list );
 
-		if ( !bank_upload->transaction ) continue;
+		if ( bank_upload->transaction )
+		{
+			bank_upload_description_crop(
+				bank_upload->bank_description );
 
-		bank_upload_description_crop( bank_upload->bank_description );
-
-		sprintf(
-		sys_string,
+			sprintf(
+			sys_string,
 		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
-		bank_upload->bank_date,
-		bank_upload->bank_description,
-		bank_upload->transaction->full_name,
-		bank_upload->transaction->street_address,
-		bank_upload->transaction->transaction_date_time );
+			bank_upload->bank_date,
+			bank_upload->bank_description,
+			bank_upload->transaction->full_name,
+			bank_upload->transaction->street_address,
+			bank_upload->transaction->transaction_date_time );
 
-		system( sys_string );
+			system( sys_string );
+		}
+		else
+		if ( bank_upload->cleared_journal_ledger )
+		{
+			bank_upload_description_crop(
+				bank_upload->bank_description );
+
+			sprintf(
+			sys_string,
+		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
+			bank_upload->bank_date,
+			bank_upload->bank_description,
+			bank_upload->cleared_journal_ledger->full_name,
+			bank_upload->cleared_journal_ledger->street_address,
+			bank_upload->
+				cleared_journal_ledger->
+				transaction_date_time );
+
+			system( sys_string );
+		}
 
 	} while( list_next( bank_upload_table_list ) );
 
-	bank_upload_transaction_balance_propagate( minimum_bank_date );
-
-} /* load_bank_spreadsheet_reconciliation_transaction_insert() */
+} /* load_bank_spreadsheet_transaction_insert() */
 

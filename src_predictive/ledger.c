@@ -4593,6 +4593,7 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char transaction_date_time[ 128 ];
+	char check_number[ 128 ];
 	char property_street_address[ 128 ];
 	char memo[ 1024 ];
 	LIST *transaction_list = list_new();
@@ -4611,11 +4612,11 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 	if ( property_street_address_exists )
 	{
 		select =
-"full_name,street_address,transaction_date_time,memo,property_street_address";
+"full_name,street_address,transaction_date_time,memo,check_number,property_street_address";
 	}
 	else
 	{
-		select = "full_name,street_address,transaction_date_time,memo";
+		select = "full_name,street_address,transaction_date_time,memo,check_number";
 	}
 
 	sprintf( sys_string,
@@ -4659,12 +4660,19 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 					strdup( transaction_date_time ),
 					strdup( memo ) );
 
+		piece(	check_number,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			4 );
+
+		transaction->check_number = atoi( check_number );
+
 		if ( property_street_address_exists )
 		{
 			piece(	property_street_address,
 				FOLDER_DATA_DELIMITER,
 				input_buffer,
-				4 );
+				5 );
 
 			transaction->property_street_address =
 				strdup( property_street_address );

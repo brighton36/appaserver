@@ -121,6 +121,11 @@ void bank_upload_journal_ledger_insert(
 		bank_upload_transaction_insert(
 			application_name,
 			p->table.bank_upload_table_list );
+
+		bank_upload_cleared_checks_update(
+			application_name,
+			fund_name,
+			p->table.bank_upload_table_list );
 	}
 	else
 	{

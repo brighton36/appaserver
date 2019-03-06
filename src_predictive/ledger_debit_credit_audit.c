@@ -40,14 +40,6 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 2 )
-	{
-		fprintf( stderr, 
-			 "Usage: %s ignored\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
-
 	ledger_debit_credit_audit( application_name );
 
 	return 0;

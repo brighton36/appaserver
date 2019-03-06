@@ -587,6 +587,7 @@ int main( int argc, char **argv )
 				folder->mto1_related_folder_list );
 	}
 
+
 	row_security =
 		row_security_new(
 			application_name,

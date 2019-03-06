@@ -198,6 +198,9 @@ void bank_upload_transaction_table_display(
 void bank_upload_transaction_text_display(
 					LIST *bank_upload_list );
 
+void bank_upload_journal_ledger_text_display(
+					JOURNAL_LEDGER *journal_ledger );
+
 void bank_upload_table_display(		char *application_name,
 					LIST *bank_upload_list );
 
@@ -297,8 +300,7 @@ LIST *bank_upload_get_reconciled_transaction_list(
 				char *application_name,
 				char *bank_date,
 				char *bank_description,
-				double bank_amount,
-				LIST *uncleared_check_transaction_list );
+				double bank_amount );
 
 /* Insert into BANK_UPLOAD_TRANSACTION */
 /* ----------------------------------- */
@@ -365,6 +367,14 @@ void bank_upload_set_reoccurring_transaction(
 
 int bank_upload_parse_check_number(
 				char *bank_description );
+
+void bank_upload_cleared_checks_update(
+				char *application_name,
+				char *fund_name,
+				LIST *bank_upload_table_list );
+
+void bank_upload_cleared_journal_text_display(
+				JOURNAL_LEDGER *cleared_journal_ledger );
 
 #endif
 

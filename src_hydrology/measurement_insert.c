@@ -25,7 +25,7 @@ int main( int argc, char **argv )
 	char *load_process;
 	char comma_delimited_record[ 1024 ];
 	int really_yn;
-	MEASUREMENT *m;
+	MEASUREMENT_STRUCTURE *m;
 	int not_loaded_count = 0;
 	char *database_string = {0};
 	MEASUREMENT_FREQUENCY *measurement_frequency;
@@ -72,7 +72,7 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
-	m = measurement_new_measurement( application_name );
+	m = measurement_structure_new( application_name );
 	measurement_frequency = measurement_frequency_new();
 	end_measurement_date = pipe2string( "now.sh ymd" );
 
@@ -97,7 +97,7 @@ int main( int argc, char **argv )
 			begin_measurement_date =
 				strdup(
 					m->
-					measurement_record->
+					measurement->
 					measurement_date );
 		}
 
@@ -105,11 +105,8 @@ int main( int argc, char **argv )
 			measurement_frequency_get_or_set_station_datatype(
 					measurement_frequency->
 						frequency_station_datatype_list,
-					application_name,
-					m->measurement_record->station,
-					m->measurement_record->datatype,
-					begin_measurement_date,
-					end_measurement_date );
+					m->measurement->station,
+					m->measurement->datatype );
 
 		if ( dictionary_length(
 				measurement_frequency_station_datatype->
@@ -117,8 +114,8 @@ int main( int argc, char **argv )
 		&&   !measurement_date_time_frequency_exists(
 				measurement_frequency_station_datatype->
 					date_time_frequency_dictionary,
-				m->measurement_record->measurement_date,
-				m->measurement_record->measurement_time ) )
+				m->measurement->measurement_date,
+				m->measurement->measurement_time ) )
 		{
 			fprintf( stderr,
 				 "INVALID_FREQUENCY: %s\n",

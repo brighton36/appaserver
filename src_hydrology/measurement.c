@@ -12,12 +12,13 @@
 #include "hydrology_library.h"
 #include "measurement.h"
 
-MEASUREMENT *measurement_new_measurement( 
+MEASUREMENT_STRUCTURE *measurement_structure_new( 
 			char *application_name )
 {
-	MEASUREMENT *m;
+	MEASUREMENT_STRUCTURE *m;
 
-	m = (MEASUREMENT *)calloc( 1, sizeof( MEASUREMENT ) );
+	m = (MEASUREMENT_STRUCTURE *)
+		calloc( 1, sizeof( MEASUREMENT_STRUCTURE ) );
 
 	if ( !m )
 	{
@@ -34,10 +35,10 @@ MEASUREMENT *measurement_new_measurement(
 
 	return m;
 
-} /* measurement_new_measurement() */
+} /* measurement_structure_new() */
 
 
-void measurement_open_input_process( 	MEASUREMENT *m,
+void measurement_open_input_process( 	MEASUREMENT_STRUCTURE *m,
 					char *load_process,
 					int really_yn )
 {
@@ -57,7 +58,7 @@ void measurement_open_input_process( 	MEASUREMENT *m,
 } /* measurement_open_input_process() */
 
 void measurement_set_comma_delimited_record( 
-					MEASUREMENT *m,
+					MEASUREMENT_STRUCTURE *m,
 					char *comma_delimited_record,
 					char *argv_0 )
 {
@@ -72,8 +73,8 @@ void measurement_set_comma_delimited_record(
 	{
 		if ( timlib_strncmp( comma_delimited_record, "skipped" ) == 0 )
 		{
-			m->measurement_record =
-				measurement_record_new(
+			m->measurement =
+				measurement_new(
 					comma_delimited_record,
 					"" /* datatype */,
 					"" /* date */,
@@ -114,13 +115,13 @@ void measurement_set_comma_delimited_record(
 
 	piece( value_string, ',', comma_delimited_record, VALUE_PIECE );
 
-	if ( m->measurement_record ) 
+	if ( m->measurement ) 
 	{
-		measurement_record_free( m->measurement_record );
+		measurement_free( m->measurement );
 	}
 
-	m->measurement_record =
-			measurement_record_new(	station,
+	m->measurement =
+			measurement_new(	station,
 						datatype,
 						date,
 						time,
@@ -128,15 +129,15 @@ void measurement_set_comma_delimited_record(
 
 } /* measurement_set_comma_delimited_record() */
 
-MEASUREMENT_RECORD *measurement_record_new(	char *station,
-						char *datatype,
-						char *date,
-						char *time,
-						char *value_string )
+MEASUREMENT *measurement_new(		char *station,
+					char *datatype,
+					char *date,
+					char *time,
+					char *value_string )
 {
-	MEASUREMENT_RECORD *m;
+	MEASUREMENT *m;
 
-	m = (MEASUREMENT_RECORD *)calloc( 1, sizeof( MEASUREMENT_RECORD ) );
+	m = (MEASUREMENT *)calloc( 1, sizeof( MEASUREMENT ) );
 
 	if ( !m )
 	{
@@ -156,25 +157,28 @@ MEASUREMENT_RECORD *measurement_record_new(	char *station,
 	m->measurement_value = 
 		measurement_get_value( &m->null_value, value_string );
 	return m;
-} /* measurement_record_new() */
+} /* measurement_new() */
 
-void measurement_record_free( MEASUREMENT_RECORD *measurement_record )
+void measurement_free( MEASUREMENT *m )
 {
-	free( measurement_record->station );
-	free( measurement_record->datatype );
-	free( measurement_record->measurement_date );
-	free( measurement_record->measurement_time );
-	free( measurement_record );
+	free( m->station );
+	free( m->datatype );
+	free( m->measurement_date );
+	free( m->measurement_time );
+	free( m );
 }
 
-void measurement_insert(	MEASUREMENT *measurement,
+void measurement_insert(	MEASUREMENT_STRUCTURE *m,
 				int really_yn,
 				FILE *html_table_pipe )
 {
-	if ( !measurement->measurement_record )
+	if ( !m->measurement )
 	{
 		fprintf( stderr,
-			 "ERROR in measurment_insert(): no record set.\n" );
+			 "ERROR in %s/%s()/%d: no record set.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
 		exit( 1 );
 	}
 
@@ -182,63 +186,57 @@ void measurement_insert(	MEASUREMENT *measurement,
 	{
 		if ( html_table_pipe )
 		{
-			if ( !measurement->measurement_record->null_value )
+			if ( !m->measurement->null_value )
 			{
 				fprintf(html_table_pipe,
 					"%s,%s,%s,%s,%lf\n",
-			measurement->measurement_record->station,
-			measurement->measurement_record->datatype,
-			measurement->measurement_record->measurement_date,
-			measurement->measurement_record->measurement_time,
-			measurement->measurement_record->measurement_value );
+					m->measurement->station,
+					m->measurement->datatype,
+					m->measurement->measurement_date,
+					m->measurement->measurement_time,
+					m->measurement->measurement_value );
 			}
 			else
 			{
 				fprintf(html_table_pipe,
 					"%s,%s,%s,%s,null\n",
-			measurement->measurement_record->station,
-			measurement->measurement_record->datatype,
-			measurement->measurement_record->measurement_date,
-			measurement->measurement_record->measurement_time );
+					m->measurement->station,
+					m->measurement->datatype,
+					m->measurement->measurement_date,
+					m->measurement->measurement_time );
 			}
 		}
 		else
 		{
-			if ( !measurement->measurement_record->null_value )
+			if ( !m->measurement->null_value )
 			{
 				printf( "Not inserting: %s,%s,%s,%s,%lf\n",
-			measurement->measurement_record->station,
-			measurement->measurement_record->datatype,
-			measurement->measurement_record->measurement_date,
-			measurement->measurement_record->measurement_time,
-			measurement->measurement_record->measurement_value );
+					m->measurement->station,
+					m->measurement->datatype,
+					m->measurement->measurement_date,
+					m->measurement->measurement_time,
+					m->measurement->measurement_value );
 			}
 			else
 			{
 				printf( "Not inserting: %s,%s,%s,%s,null\n",
-			measurement->measurement_record->station,
-			measurement->measurement_record->datatype,
-			measurement->measurement_record->measurement_date,
-			measurement->measurement_record->measurement_time );
+					m->measurement->station,
+					m->measurement->datatype,
+					m->measurement->measurement_date,
+					m->measurement->measurement_time );
 			}
 		}
 		return;
 	}
 
 	measurement_output_insert_pipe(
-				measurement->insert_pipe,
-				measurement->measurement_record->station,
-				measurement->measurement_record->datatype,
-				measurement->
-					measurement_record->
-					measurement_date,
-				measurement->
-					measurement_record->
-					measurement_time,
-				measurement->
-					measurement_record->
-					measurement_value,
-				measurement->measurement_record->null_value );
+				m->insert_pipe,
+				m->measurement->station,
+				m->measurement->datatype,
+				m->measurement->measurement_date,
+				m->measurement->measurement_time,
+				m->measurement->measurement_value,
+				m->measurement->null_value );
 
 } /* measurement_insert() */
 
@@ -342,7 +340,7 @@ FILE *measurement_open_insert_pipe(	char *application_name,
 
 } /* measurement_open_insert_pipe() */
 
-void measurement_update_mysql(	char *application_name,
+void measurement_update(	char *application_name,
 				char *station,
 				char *datatype,
 				char *date,
@@ -372,7 +370,7 @@ void measurement_update_mysql(	char *application_name,
 
 	system( sys_string );
 
-} /* measurement_update_mysql() */
+} /* measurement_update() */
 
 double measurement_get_value(	int *null_value,
 				char *value_string )
@@ -411,7 +409,7 @@ FILE *measurement_open_input_pipe(	char *application_name,
 	return popen( sys_string, "r" );
 } /* measurement_open_input_pipe() */
 
-int measurement_fetch(	MEASUREMENT *measurement,
+int measurement_fetch(	MEASUREMENT_STRUCTURE *m,
 			FILE *input_pipe )
 {
 	char buffer[ 1024 ];
@@ -419,13 +417,13 @@ int measurement_fetch(	MEASUREMENT *measurement,
 	if ( !get_line( buffer, input_pipe ) ) return 0;
 
 	measurement_set_comma_delimited_record(
-			measurement,
+			m,
 			buffer,
-			measurement->argv_0 );
+			m->argv_0 );
 	return 1;
 } /* measurement_fetch() */
 
-void measurement_set_argv_0( MEASUREMENT *m, char *argv_0 )
+void measurement_set_argv_0( MEASUREMENT_STRUCTURE *m, char *argv_0 )
 {
 	m->argv_0 = argv_0;
 }
@@ -443,7 +441,7 @@ FILE *measurement_open_delete_pipe( char *application_name )
 	return popen( sys_string, "w" );
 } /* measurement_open_delete_pipe() */
 
-char *measurement_display( MEASUREMENT_RECORD *m )
+char *measurement_display( MEASUREMENT *m )
 {
 	static char buffer[ 1024 ];
 
@@ -470,7 +468,7 @@ char *measurement_display( MEASUREMENT_RECORD *m )
 	return buffer;
 } /* measurement_display() */
 
-void measurement_delete( FILE *delete_pipe, MEASUREMENT_RECORD *m )
+void measurement_delete( FILE *delete_pipe, MEASUREMENT *m )
 {
 	fprintf( delete_pipe,
 		 "%s|%s|%s|%s\n",
@@ -537,11 +535,8 @@ boolean measurement_date_time_frequency_exists(
 
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_station_datatype_new(
-					char *application_name,
 					char *station,
-					char *datatype,
-					char *begin_measurement_date,
-					char *end_measurement_date )
+					char *datatype )
 {
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *m;
 
@@ -562,22 +557,6 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 	m->station = station;
 	m->datatype = datatype;
 
-/*
-	if ( !datatype_bypass_data_collection_frequency(
-				application_name,
-				station,
-				datatype ) )
-	{
-		m->date_time_frequency_dictionary =
-			measurement_get_date_time_frequency_dictionary(
-				application_name,
-				station,
-				datatype,
-				begin_measurement_date,
-				end_measurement_date );
-	}
-*/
-
 	return m;
 
 } /* measurement_frequency_station_datatype_new() */
@@ -585,11 +564,8 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_get_or_set_station_datatype(
 					LIST *frequency_station_datatype_list,
-					char *application_name,
 					char *station,
-					char *datatype,
-					char *begin_measurement_date,
-					char *end_measurement_date )
+					char *datatype )
 {
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *m;
 
@@ -606,11 +582,8 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 	if ( !list_rewind( frequency_station_datatype_list ) )
 	{
 		m = measurement_frequency_station_datatype_new(
-					application_name,
 					station,
-					datatype,
-					begin_measurement_date,
-					end_measurement_date );
+					datatype );
 
 		list_append_pointer( frequency_station_datatype_list, m );
 		return m;
@@ -628,11 +601,8 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 	} while( list_next( frequency_station_datatype_list ) );
 
 	m = measurement_frequency_station_datatype_new(
-				application_name,
 				station,
-				datatype,
-				begin_measurement_date,
-				end_measurement_date );
+				datatype );
 
 	list_append_pointer( frequency_station_datatype_list, m );
 

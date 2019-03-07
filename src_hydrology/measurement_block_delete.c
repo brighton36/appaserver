@@ -56,7 +56,7 @@ int main( int argc, char **argv )
 	char *where_clause;
 	int really_yn;
 	MEASUREMENT_UPDATE_PARAMETER *measurement_update_parameter;
-	MEASUREMENT*measurement;
+	MEASUREMENT_STRUCTURE *measurement_structure;
 	DICTIONARY *parameter_dictionary;
 	char *parameter_dictionary_string;
 	DOCUMENT *document = {0};
@@ -161,24 +161,27 @@ int main( int argc, char **argv )
 				end_time,
 				parameter_dictionary );
 
-	measurement = measurement_new_measurement( application_name );
+	measurement_structure =
+		measurement_structure_new(
+			application_name );
 
-	measurement_set_argv_0( measurement, argv[ 0 ] );
+	measurement_set_argv_0( measurement_structure, argv[ 0 ] );
 
-	measurement->input_pipe =
+	measurement_structure->input_pipe =
 		measurement_open_input_pipe(
 					application_name,
 					where_clause,
 					BACKUP_RECORD_DELIMITER );
 		
-	measurement_update_parameter = measurement_update_parameter_new(
-					application_name,
-					station,
-					datatype,
-					DELETE_MEASUREMENT_UPDATE_METHOD,
-					login_name,
-					parameter_dictionary,
-					notes );
+	measurement_update_parameter =
+		measurement_update_parameter_new(
+			application_name,
+			station,
+			datatype,
+			DELETE_MEASUREMENT_UPDATE_METHOD,
+			login_name,
+			parameter_dictionary,
+			notes );
 
 	if ( html_document_ok )
 	{
@@ -215,7 +218,7 @@ int main( int argc, char **argv )
 							html_table->title,
 							html_table->sub_title );
 
-		measurement->delete_pipe =
+		measurement_structure->delete_pipe =
 			measurement_open_delete_pipe(
 						application_name );
 
@@ -256,8 +259,8 @@ int main( int argc, char **argv )
 		}
 	}
 
-	while( measurement_fetch(	measurement,
-					measurement->input_pipe ) )
+	while( measurement_fetch(	measurement_structure,
+					measurement_structure->input_pipe ) )
 	{
 		counter++;
 
@@ -273,14 +276,14 @@ int main( int argc, char **argv )
 						measurement_update_method,
 					measurement_backup->login_name,
 					measurement_display(
-					      measurement->
-					      	measurement_record ),
+					      measurement_structure->
+					      	measurement ),
 					really_yn,
 					BACKUP_RECORD_DELIMITER );
 
 			measurement_delete(
-					measurement->delete_pipe,
-					measurement->measurement_record );
+					measurement_structure->delete_pipe,
+					measurement_structure->measurement );
 		}
 		else
 		if ( html_document_ok )
@@ -291,32 +294,32 @@ int main( int argc, char **argv )
 			{
 				html_table_set_data(
 					html_table->data_list,
-					measurement->
-						measurement_record->
+					measurement_structure->
+						measurement->
 						station );
 
 				html_table_set_data(
 					html_table->data_list,
-					measurement->
-						measurement_record->
+					measurement_structure->
+						measurement->
 						datatype );
 
 				html_table_set_data(
 					html_table->data_list,
-					measurement->
-						measurement_record->
+					measurement_structure->
+						measurement->
 						measurement_date );
 
 				html_table_set_data(
 					html_table->data_list,
-					measurement->
-						measurement_record->
+					measurement_structure->
+						measurement->
 						measurement_time );
 
 				sprintf( buffer,
 					 "%lf",
-					 measurement->
-						measurement_record->
+					 measurement_structure->
+						measurement->
 						measurement_value );
 
 				html_table_set_data(
@@ -388,12 +391,13 @@ int main( int argc, char **argv )
 
 	if ( html_document_ok ) document_close();
 
-	pclose( measurement->input_pipe );
+	pclose( measurement_structure->input_pipe );
 
 	if ( really_yn == 'y' )
 	{
-		pclose( measurement->delete_pipe );
+		pclose( measurement_structure->delete_pipe );
 		pclose( measurement_backup->insert_pipe );
+
 		process_increment_execution_count(
 				application_name,
 				PROCESS_NAME,

@@ -1,4 +1,4 @@
-/* station.h						   */
+/* $APPASERVER_HOME/src_hydrology/station.h		   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -8,6 +8,7 @@
 
 #include "list.h"
 #include "dictionary.h"
+#include "measurement.h"
 
 /* Constants */
 /* --------- */
@@ -29,6 +30,7 @@ typedef struct
 	double ngvd29_navd88_conversion;
 	char *station_type;
 	char *comments;
+	LIST *measurement_list;
 } STATION;
 
 /* Operations */

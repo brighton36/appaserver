@@ -20,20 +20,20 @@ typedef struct
 	double measurement_value;
 	int null_value;
 	int db_null_value;
-} MEASUREMENT_RECORD;
+} MEASUREMENT;
 
 typedef struct
 {
 	char *application_name;
 	char *load_process;
-	MEASUREMENT_RECORD *measurement_record;
+	MEASUREMENT *measurement;
 	int record_exists;
 	FILE *insert_pipe;
 	FILE *input_pipe;
 	FILE *delete_pipe;
 	FILE *html_table_pipe;
 	char *argv_0;
-} MEASUREMENT;
+} MEASUREMENT_STRUCTURE;
 
 typedef struct
 {
@@ -63,45 +63,33 @@ MEASUREMENT_FREQUENCY *measurement_frequency_new(
 
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 				measurement_frequency_station_datatype_new(
-					char *application_name,
 					char *station,
-					char *datatype,
-					char *begin_measurement_date,
-					char *end_measurement_date );
+					char *datatype );
 
-MEASUREMENT *measurement_new_measurement(
+MEASUREMENT_STRUCTURE *measurement_structure_new(
 					char *application_name );
 
 FILE *measurement_open_input_pipe(	char *application_name,
 					char *where_clause,
 					char delimiter );
 
-void measurement_record_free(		MEASUREMENT_RECORD *m );
+void measurement_free(			MEASUREMENT *m );
 
-MEASUREMENT_RECORD *measurement_record_new(
+MEASUREMENT *measurement_new(
 					char *station,
 					char *datatype,
 					char *date,
 					char *time,
 					char *value_string );
 
-void measurement_set_comma_delimited_record( 
-					MEASUREMENT *m, 
+void measurement_set_comma_delimited_record(
+					MEASUREMENT_STRUCTURE *m, 
 					char *comma_delimited_record,
 					char *argv_0 );
 
-void measurement_insert( 		MEASUREMENT *m,
+void measurement_insert( 		MEASUREMENT_STRUCTURE *m,
 					int really_yn,
 					FILE *html_table_pipe );
-
-/*
-void measurement_update_mysql(		char *application_name,
-					char *station,
-					char *datatype,
-					char *date,
-					char *time,
-					double value );
-*/
 
 double measurement_get_value_from_db(	int *record_exists,
 					int *db_null_value,
@@ -134,20 +122,20 @@ void measurement_set_load_process( 	MEASUREMENT *m,
 					char *load_process,
 					int really_yn );
 
-void measurement_set_argv_0(		MEASUREMENT *m,
+void measurement_set_argv_0(		MEASUREMENT_STRUCTURE *m,
 					char *argv_0 );
 
-int measurement_fetch(			MEASUREMENT *m,
+int measurement_fetch(			MEASUREMENT_STRUCTURE *m,
 					FILE *input_pipe );
 
 FILE *measurement_open_delete_pipe(	char *application_name );
 
-char *measurement_display(		MEASUREMENT_RECORD *m );
+char *measurement_display(		MEASUREMENT *m );
 
 void measurement_delete(		FILE *delete_pipe,
-					MEASUREMENT_RECORD *m );
+					MEASUREMENT *m );
 
-void measurement_open_input_process( 	MEASUREMENT *m,
+void measurement_open_input_process( 	MEASUREMENT_STRUCTURE *m,
 					char *load_process,
 					int really_yn );
 
@@ -168,10 +156,14 @@ boolean measurement_date_time_frequency_exists(
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_get_or_set_station_datatype(
 					LIST *frequency_station_datatype_list,
-					char *application_name,
+					char *station,
+					char *datatype );
+
+void measurement_update(		char *application_name,
 					char *station,
 					char *datatype,
-					char *begin_measurement_date,
-					char *end_measurement_date );
+					char *date,
+					char *time,
+					double value );
 
 #endif

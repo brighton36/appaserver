@@ -48,7 +48,7 @@ typedef struct
 {
 	char *date_colon_time;
 	double measurement_value;
-} MEASUREMENT;
+} OUTPUT_MEASUREMENT;
 
 typedef struct
 {
@@ -147,7 +147,8 @@ EXPECTED_COUNT *get_or_set_expected_count(
 				char *end_date,
 				enum aggregate_level aggregate_level );
 
-MEASUREMENT *measurement_new(	char *date_colon_time,
+OUTPUT_MEASUREMENT *output_measurement_new(
+				char *date_colon_time,
 				double measurement_value );
 
 TRANSMIT_MEASUREMENT_SETS *transmit_measurement_sets_new(
@@ -910,7 +911,7 @@ void datatype_set_measurement_record(
 	char date_colon_time[ 32 ];
 	double measurement_value;
 	HASH_TABLE *measurement_hash_table;
-	MEASUREMENT *measurement;
+	OUTPUT_MEASUREMENT *measurement;
 	static JULIAN *measurement_julian = {0};
 
 	piece( 	measurement_string, 
@@ -986,7 +987,7 @@ void output_measurement_data_sets_to_file(
 	FILE *f;
 	DATATYPE *datatype;
 	char *date_colon_time_slot;
-	MEASUREMENT *measurement;
+	OUTPUT_MEASUREMENT *measurement;
 	double time_percent_of_day;
 	char date_colon_time_slot_display[ 128 ];
 	char time_string[ 128 ];
@@ -1125,7 +1126,9 @@ LIST *get_date_colon_time_slot_list(
 		 begin_date,
 		 end_date,
 		 measurements_per_day );
+
 	return pipe2list( sys_string );
+
 } /* get_date_colon_time_slot_list() */
 
 TRANSMIT_MEASUREMENT_SETS *transmit_measurement_sets_new( void )
@@ -1139,12 +1142,23 @@ TRANSMIT_MEASUREMENT_SETS *transmit_measurement_sets_new( void )
 	return transmit_measurement_sets;
 }
 
-MEASUREMENT *measurement_new(	char *date_colon_time,
+OUTPUT_MEASUREMENT *output_measurement_new(
+				char *date_colon_time,
 				double measurement_value )
 {
-	MEASUREMENT *measurement;
+	OUTPUT_MEASUREMENT *measurement;
 
-	measurement = calloc( 1, sizeof( MEASUREMENT ) );
+	measurement = calloc( 1, sizeof( OUTPUT_MEASUREMENT ) );
+
+	if ( !measurement )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	measurement->date_colon_time = date_colon_time;
 	measurement->measurement_value = measurement_value;

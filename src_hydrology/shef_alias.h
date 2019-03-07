@@ -1,5 +1,5 @@
-/* src_everglades/shef_alias.h */
-/* --------------------------- */
+/* src_hydrology/shef_alias.h */
+/* -------------------------- */
 
 #ifndef SHEF_ALIAS_H
 #define SHEF_ALIAS_H

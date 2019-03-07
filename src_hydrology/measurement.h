@@ -7,19 +7,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "dictionary.h"
+#include "boolean.h"
 
 #define MEASUREMENT_SELECT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
 
 typedef struct
 {
-	char *station;
+	char *station_name;
 	char *datatype;
 	char *measurement_date;
 	char *measurement_time;
 	char *value_string;
 	double measurement_value;
-	int null_value;
-	int db_null_value;
+	boolean null_value;
+	double delta_value;
 } MEASUREMENT;
 
 typedef struct
@@ -37,7 +38,7 @@ typedef struct
 
 typedef struct
 {
-	char *station;
+	char *station_name;
 	char *datatype;
 	DICTIONARY *date_time_frequency_dictionary;
 } MEASUREMENT_FREQUENCY_STATION_DATATYPE;
@@ -63,7 +64,7 @@ MEASUREMENT_FREQUENCY *measurement_frequency_new(
 
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 				measurement_frequency_station_datatype_new(
-					char *station,
+					char *station_name,
 					char *datatype );
 
 MEASUREMENT_STRUCTURE *measurement_structure_new(
@@ -75,8 +76,10 @@ FILE *measurement_open_input_pipe(	char *application_name,
 
 void measurement_free(			MEASUREMENT *m );
 
+/* This function does strdup() for the memory. */
+/* ------------------------------------------- */
 MEASUREMENT *measurement_new(
-					char *station,
+					char *station_name,
 					char *datatype,
 					char *date,
 					char *time,
@@ -91,21 +94,23 @@ void measurement_insert( 		MEASUREMENT_STRUCTURE *m,
 					int really_yn,
 					FILE *html_table_pipe );
 
+/*
 double measurement_get_value_from_db(	int *record_exists,
 					int *db_null_value,
 					char *application_name,
-					char *station,
+					char *station_name,
 					char *datatype,
 					char *date,
 					char *time );
+*/
 
 void measurement_output_insert_pipe(	FILE *insert_pipe,
-					char *station,
+					char *station_name,
 					char *datatype,
 					char *date,
 					char *time,
 					double value,
-					int null_value );
+					boolean null_value );
 
 FILE *measurement_open_insert_pipe(	char *application_name,
 					int delete_measurements_day,
@@ -115,7 +120,7 @@ FILE *measurement_open_html_table_pipe(	void );
 
 void measurement_close_insert_pipe( 	FILE *insert_pipe );
 
-double measurement_get_value(		int *null_value,
+double measurement_get_value(		boolean *null_value,
 					char *value_string );
 
 void measurement_set_load_process( 	MEASUREMENT *m,
@@ -143,7 +148,7 @@ void measurement_close_html_table_pipe( FILE *html_table_pipe );
 
 DICTIONARY *measurement_get_date_time_frequency_dictionary(
 					char *application_name,
-					char *station,
+					char *station_name,
 					char *datatype,
 					char *begin_measurement_date_string,
 					char *end_measurement_date_string );
@@ -156,11 +161,11 @@ boolean measurement_date_time_frequency_exists(
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_get_or_set_station_datatype(
 					LIST *frequency_station_datatype_list,
-					char *station,
+					char *station_name,
 					char *datatype );
 
 void measurement_update(		char *application_name,
-					char *station,
+					char *station_name,
 					char *datatype,
 					char *date,
 					char *time,

@@ -1,7 +1,7 @@
-/* measurement.c					*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/measurement.c  */
+/* --------------------------------------------- */
+/* Freely available software: see Appaserver.org */
+/* --------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,6 +73,8 @@ void measurement_set_comma_delimited_record(
 	{
 		if ( timlib_strncmp( comma_delimited_record, "skipped" ) == 0 )
 		{
+			/* This function does strdup() for the memory. */
+			/* ------------------------------------------- */
 			m->measurement =
 				measurement_new(
 					comma_delimited_record,
@@ -120,16 +122,21 @@ void measurement_set_comma_delimited_record(
 		measurement_free( m->measurement );
 	}
 
+	/* This function does strdup() for the memory. */
+	/* ------------------------------------------- */
 	m->measurement =
-			measurement_new(	station,
-						datatype,
-						date,
-						time,
-						value_string );
+		measurement_new(
+			station,
+			datatype,
+			date,
+			time,
+			value_string );
 
 } /* measurement_set_comma_delimited_record() */
 
-MEASUREMENT *measurement_new(		char *station,
+/* This function does strdup() for the memory. */
+/* ------------------------------------------- */
+MEASUREMENT *measurement_new(		char *station_name,
 					char *datatype,
 					char *date,
 					char *time,
@@ -149,19 +156,21 @@ MEASUREMENT *measurement_new(		char *station,
 		exit( 1 );
 	}
 
-	m->station = strdup( station );
+	m->station_name = strdup( station_name );
 	m->datatype = strdup( datatype );
 	m->measurement_date = strdup( date );	
 	m->measurement_time = strdup( time );
 	m->value_string = strdup( value_string );
+
 	m->measurement_value = 
-		measurement_get_value( &m->null_value, value_string );
+		measurement_get_value(
+			&m->null_value, value_string );
 	return m;
 } /* measurement_new() */
 
 void measurement_free( MEASUREMENT *m )
 {
-	free( m->station );
+	free( m->station_name );
 	free( m->datatype );
 	free( m->measurement_date );
 	free( m->measurement_time );
@@ -190,7 +199,7 @@ void measurement_insert(	MEASUREMENT_STRUCTURE *m,
 			{
 				fprintf(html_table_pipe,
 					"%s,%s,%s,%s,%lf\n",
-					m->measurement->station,
+					m->measurement->station_name,
 					m->measurement->datatype,
 					m->measurement->measurement_date,
 					m->measurement->measurement_time,
@@ -200,7 +209,7 @@ void measurement_insert(	MEASUREMENT_STRUCTURE *m,
 			{
 				fprintf(html_table_pipe,
 					"%s,%s,%s,%s,null\n",
-					m->measurement->station,
+					m->measurement->station_name,
 					m->measurement->datatype,
 					m->measurement->measurement_date,
 					m->measurement->measurement_time );
@@ -211,7 +220,7 @@ void measurement_insert(	MEASUREMENT_STRUCTURE *m,
 			if ( !m->measurement->null_value )
 			{
 				printf( "Not inserting: %s,%s,%s,%s,%lf\n",
-					m->measurement->station,
+					m->measurement->station_name,
 					m->measurement->datatype,
 					m->measurement->measurement_date,
 					m->measurement->measurement_time,
@@ -220,7 +229,7 @@ void measurement_insert(	MEASUREMENT_STRUCTURE *m,
 			else
 			{
 				printf( "Not inserting: %s,%s,%s,%s,null\n",
-					m->measurement->station,
+					m->measurement->station_name,
 					m->measurement->datatype,
 					m->measurement->measurement_date,
 					m->measurement->measurement_time );
@@ -231,7 +240,7 @@ void measurement_insert(	MEASUREMENT_STRUCTURE *m,
 
 	measurement_output_insert_pipe(
 				m->insert_pipe,
-				m->measurement->station,
+				m->measurement->station_name,
 				m->measurement->datatype,
 				m->measurement->measurement_date,
 				m->measurement->measurement_time,
@@ -246,7 +255,7 @@ void measurement_output_insert_pipe(	FILE *insert_pipe,
 					char *date,
 					char *time,
 					double value,
-					int null_value )
+					boolean null_value )
 {
 	if ( !null_value )
 	{
@@ -372,7 +381,7 @@ void measurement_update(	char *application_name,
 
 } /* measurement_update() */
 
-double measurement_get_value(	int *null_value,
+double measurement_get_value(	boolean *null_value,
 				char *value_string )
 {
 	if ( !*value_string
@@ -449,7 +458,7 @@ char *measurement_display( MEASUREMENT *m )
 	{
 		sprintf( buffer,
 		 	"%s,%s,%s,%s,%lf\n",
-		 	m->station,
+		 	m->station_name,
 		 	m->datatype,
 		 	m->measurement_date,
 		 	m->measurement_time,
@@ -459,7 +468,7 @@ char *measurement_display( MEASUREMENT *m )
 	{
 		sprintf( buffer,
 		 	"%s,%s,%s,%s,\n",
-		 	m->station,
+		 	m->station_name,
 		 	m->datatype,
 		 	m->measurement_date,
 		 	m->measurement_time );
@@ -472,7 +481,7 @@ void measurement_delete( FILE *delete_pipe, MEASUREMENT *m )
 {
 	fprintf( delete_pipe,
 		 "%s|%s|%s|%s\n",
-		 m->station,
+		 m->station_name,
 		 m->datatype,
 		 m->measurement_date,
 		 m->measurement_time );
@@ -535,7 +544,7 @@ boolean measurement_date_time_frequency_exists(
 
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_station_datatype_new(
-					char *station,
+					char *station_name,
 					char *datatype )
 {
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *m;
@@ -554,7 +563,7 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		exit( 1 );
 	}
 
-	m->station = station;
+	m->station_name = station_name;
 	m->datatype = datatype;
 
 	return m;
@@ -564,7 +573,7 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_get_or_set_station_datatype(
 					LIST *frequency_station_datatype_list,
-					char *station,
+					char *station_name,
 					char *datatype )
 {
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *m;
@@ -582,7 +591,7 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 	if ( !list_rewind( frequency_station_datatype_list ) )
 	{
 		m = measurement_frequency_station_datatype_new(
-					station,
+					station_name,
 					datatype );
 
 		list_append_pointer( frequency_station_datatype_list, m );
@@ -592,7 +601,7 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 	do {
 		m = list_get_pointer( frequency_station_datatype_list );
 
-		if ( strcmp( m->station, station ) == 0
+		if ( strcmp( m->station_name, station_name ) == 0
 		&&   strcmp( m->datatype, datatype ) == 0 )
 		{
 			return m;
@@ -601,7 +610,7 @@ MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 	} while( list_next( frequency_station_datatype_list ) );
 
 	m = measurement_frequency_station_datatype_new(
-				station,
+				station_name,
 				datatype );
 
 	list_append_pointer( frequency_station_datatype_list, m );

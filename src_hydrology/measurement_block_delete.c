@@ -296,7 +296,7 @@ int main( int argc, char **argv )
 					html_table->data_list,
 					measurement_structure->
 						measurement->
-						station );
+						station_name );
 
 				html_table_set_data(
 					html_table->data_list,

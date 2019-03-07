@@ -105,7 +105,7 @@ int main( int argc, char **argv )
 			measurement_frequency_get_or_set_station_datatype(
 					measurement_frequency->
 						frequency_station_datatype_list,
-					m->measurement->station,
+					m->measurement->station_name,
 					m->measurement->datatype );
 
 		if ( dictionary_length(

@@ -1,6 +1,6 @@
 :
 # --------------------------------------
-# $APPASERVER_HOME/utility/code_count.sh
+# $APPASERVER_HOME/code_count.sh
 # --------------------------------------
 # This file represents 15 lines of code.
 # --------------------------------------

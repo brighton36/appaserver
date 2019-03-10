@@ -599,7 +599,7 @@ function extract_inventory()
 	cat >> $output_shell
 
 	folder=inventory
-	columns="inventory_name,inventory_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance"
+	columns="inventory_name,credit_account,cost_of_goods_sold_account,inventory_category,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance"
 	get_folder_data a=$application f=$folder s="$columns"		|
 	insert_statement.e table=$folder field="$columns" del='^'	|
 	cat >> $output_shell
@@ -689,13 +689,13 @@ function extract_customer_sale()
 	echo "cat << all_done10" >> $output_shell
 
 	folder=hourly_service
-	columns="service_name,service_category,hourly_rate,account"
+	columns="service_name,service_category,hourly_rate,credit_account"
 	get_folder_data a=$application f=$folder s="$columns"		|
 	insert_statement.e table=$folder field="$columns" del='^'	|
 	cat >> $output_shell
 
 	folder=fixed_service
-	columns="service_name,service_category,retail_price,account"
+	columns="service_name,service_category,retail_price,credit_account"
 	get_folder_data a=$application f=$folder s="$columns"		|
 	insert_statement.e table=$folder field="$columns" del='^'	|
 	cat >> $output_shell

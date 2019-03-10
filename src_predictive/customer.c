@@ -416,7 +416,7 @@ LIST *customer_fixed_service_sale_get_list(
 	}
 
 	select =
-"fixed_service.service_name,fixed_service_sale.retail_price,discount_amount,extension,work_hours,account";
+"fixed_service.service_name,fixed_service_sale.retail_price,discount_amount,extension,work_hours,credit_account";
 
 	folder = "fixed_service_sale,fixed_service";
 
@@ -491,7 +491,7 @@ LIST *customer_fixed_service_sale_get_list(
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 5 );
 		if ( *piece_buffer )
-			fixed_service->account_name =
+			fixed_service->credit_account_name =
 				strdup( piece_buffer );
 
 		fixed_service->service_work_list =
@@ -541,7 +541,7 @@ LIST *customer_hourly_service_sale_get_list(
 	}
 
 	select =
-"hourly_service.service_name,description,estimated_hours,hourly_service_sale.hourly_rate,extension,work_hours,account";
+"hourly_service.service_name,description,estimated_hours,hourly_service_sale.hourly_rate,extension,work_hours,credit_account";
 
 	folder = "hourly_service_sale,hourly_service";
 
@@ -606,7 +606,7 @@ LIST *customer_hourly_service_sale_get_list(
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 6 );
 		if ( *piece_buffer )
-			hourly_service->account_name =
+			hourly_service->credit_account_name =
 				strdup( piece_buffer );
 
 		hourly_service->service_work_list =
@@ -1482,247 +1482,6 @@ LIST *customer_sale_ledger_cost_of_goods_sold_insert(
 
 } /* customer_sale_ledger_cost_of_goods_sold_insert() */
 
-#ifdef NOT_DEFINED
-LIST *customer_sale_ledger_refresh(
-				char *application_name,
-				char *fund_name,
-				char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				double sum_inventory_extension,
-				double sum_fixed_service_extension,
-				double sum_hourly_service_extension,
-				double sales_tax,
-				double shipping_revenue,
-				double invoice_amount )
-{
-	char *sales_revenue_account = {0};
-	char *sales_tax_payable_account = {0};
-	char *shipping_revenue_account = {0};
-	char *receivable_account = {0};
-	LIST *propagate_account_list = {0};
-	ACCOUNT *account;
-	JOURNAL_LEDGER *prior_ledger;
-
-	ledger_delete(			application_name,
-					LEDGER_FOLDER_NAME,
-					full_name,
-					street_address,
-					transaction_date_time );
-
-	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
-		&sales_tax_payable_account,
-		&shipping_revenue_account,
-		&receivable_account,
-		application_name,
-		fund_name );
-
-	if ( invoice_amount )
-	{
-		if ( !receivable_account )
-		{
-			fprintf( stderr,
-			 "Error in %s/%s()/%d: empty receivable_account.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-			exit(1 );
-		}
-
-		ledger_journal_ledger_insert(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			receivable_account,
-			invoice_amount,
-			1 /* is_debit */ );
-
-		propagate_account_list = list_new();
-
-		account = ledger_account_new( receivable_account );
-
-		prior_ledger = ledger_get_prior_ledger(
-					application_name,
-					transaction_date_time,
-					receivable_account );
-
-		account->journal_ledger_list =
-			ledger_get_propagate_journal_ledger_list(
-				application_name,
-				prior_ledger,
-				receivable_account );
-
-		list_append_pointer( propagate_account_list, account );
-	}
-
-	if ( sales_tax )
-	{
-		if ( !sales_tax_payable_account )
-		{
-			fprintf( stderr,
-		"Error in %s/%s()/%d: empty sales_tax_payable_account.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-			exit(1 );
-		}
-
-		ledger_journal_ledger_insert(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			sales_tax_payable_account,
-			sales_tax,
-			0 /* not is_debit */ );
-
-		if ( !propagate_account_list )
-			propagate_account_list = list_new();
-
-		account = ledger_account_new( sales_tax_payable_account );
-
-		prior_ledger = ledger_get_prior_ledger(
-					application_name,
-					transaction_date_time,
-					sales_tax_payable_account );
-
-		account->journal_ledger_list =
-			ledger_get_propagate_journal_ledger_list(
-				application_name,
-				prior_ledger,
-				sales_tax_payable_account );
-
-		list_append_pointer( propagate_account_list, account );
-	}
-
-	if ( shipping_revenue )
-	{
-		if ( !shipping_revenue_account )
-		{
-			fprintf( stderr,
-		"Error in %s/%s()/%d: empty shipping_revenue_account.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-			exit(1 );
-		}
-
-		ledger_journal_ledger_insert(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			shipping_revenue_account,
-			shipping_revenue,
-			0 /* not is_debit */ );
-
-		if ( !propagate_account_list )
-			propagate_account_list = list_new();
-
-		account = ledger_account_new( shipping_revenue_account );
-
-		prior_ledger = ledger_get_prior_ledger(
-					application_name,
-					transaction_date_time,
-					shipping_revenue_account );
-
-		account->journal_ledger_list =
-			ledger_get_propagate_journal_ledger_list(
-				application_name,
-				prior_ledger,
-				shipping_revenue_account );
-
-		list_append_pointer( propagate_account_list, account );
-	}
-
-	if ( sum_inventory_extension )
-	{
-		if ( !sales_revenue_account )
-		{
-			fprintf( stderr,
-		"Error in %s/%s()/%d: empty sales_revenue_account.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-			exit(1 );
-		}
-
-		ledger_journal_ledger_insert(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			sales_revenue_account,
-			sum_inventory_extension,
-			0 /* not is_debit */ );
-
-		if ( !propagate_account_list )
-			propagate_account_list = list_new();
-
-		account = ledger_account_new( sales_revenue_account );
-
-		prior_ledger = ledger_get_prior_ledger(
-					application_name,
-					transaction_date_time,
-					sales_revenue_account );
-
-		account->journal_ledger_list =
-			ledger_get_propagate_journal_ledger_list(
-				application_name,
-				prior_ledger,
-				sales_revenue_account );
-
-		list_append_pointer( propagate_account_list, account );
-	}
-
-	if ( sum_fixed_service_extension + sum_hourly_service_extension )
-	{
-		if ( !service_revenue_account )
-		{
-			fprintf( stderr,
-		"Error in %s/%s()/%d: empty service_revenue_account.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-			exit(1 );
-		}
-
-		ledger_journal_ledger_insert(
-			application_name,
-			full_name,
-			street_address,
-			transaction_date_time,
-			service_revenue_account,
-			sum_fixed_service_extension +
-			sum_hourly_service_extension,
-			0 /* not is_debit */ );
-
-		if ( !propagate_account_list )
-			propagate_account_list = list_new();
-
-		account = ledger_account_new( service_revenue_account );
-
-		prior_ledger = ledger_get_prior_ledger(
-					application_name,
-					transaction_date_time,
-					service_revenue_account );
-
-		account->journal_ledger_list =
-			ledger_get_propagate_journal_ledger_list(
-				application_name,
-				prior_ledger,
-				service_revenue_account );
-
-		list_append_pointer( propagate_account_list, account );
-	}
-
-	return propagate_account_list;
-
-} /* customer_sale_ledger_refresh() */
-#endif
-
 char *customer_get_max_completed_date_time( char *application_name )
 {
 	char sys_string[ 1024 ];
@@ -2240,6 +1999,10 @@ void customer_sale_transaction_delete_with_propagate(
 				char *sales_tax_payable_street_address,
 				char *transaction_date_time )
 {
+	LIST *credit_journal_ledger_list;
+
+credit_journal_ledger_list = (LIST *)0;
+
 	ledger_delete(	application_name,
 			TRANSACTION_FOLDER_NAME,
 			full_name,
@@ -2270,7 +2033,8 @@ void customer_sale_transaction_delete_with_propagate(
 	customer_propagate_customer_sale_ledger_accounts(
 		application_name,
 		fund_name,
-		transaction_date_time );
+		transaction_date_time,
+		credit_journal_ledger_list );
 
 } /* customer_sale_transaction_delete_with_propagate() */
 
@@ -3847,8 +3611,8 @@ void customer_hourly_service_sale_list_update(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_inventory_distinct_account_extract(
-					LIST *journal_ledger_list,
 					double *sales_revenue_amount,
+					LIST *journal_ledger_list,
 					LIST *inventory_sale_list )
 {
 	INVENTORY_SALE *inventory_sale;
@@ -3856,8 +3620,7 @@ LIST *customer_sale_inventory_distinct_account_extract(
 
 	if ( !list_rewind( inventory_sale_list ) ) return (LIST *)0;
 
-	if ( !journal_ledger_list )
-		journal_ledger_list = list_new();
+	if ( !journal_ledger_list ) journal_ledger_list = list_new();
 
 	do {
 		inventory_sale =
@@ -3891,7 +3654,7 @@ LIST *customer_sale_inventory_distinct_account_extract(
 		if ( !inventory_sale->inventory_account_name )
 		{
 			fprintf( stderr,
-	"ERROR in %s/%s()/%d: empty inventory_account_name for (%s)\n",
+	"ERROR in %s/%s()/%d: empty credit_account_name for (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -3918,8 +3681,8 @@ LIST *customer_sale_inventory_distinct_account_extract(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_fixed_service_distinct_account_extract(
-					LIST *journal_ledger_list,
 					double *service_revenue_amount,
+					LIST *journal_ledger_list,
 					LIST *fixed_service_sale_list )
 {
 	FIXED_SERVICE *fixed_service;
@@ -3927,18 +3690,17 @@ LIST *customer_sale_fixed_service_distinct_account_extract(
 
 	if ( !list_rewind( fixed_service_sale_list ) ) return (LIST *)0;
 
-	if ( !journal_ledger_list )
-		journal_ledger_list = list_new();
+	if ( !journal_ledger_list ) journal_ledger_list = list_new();
 
 	do {
 		fixed_service =
 			list_get_pointer(
 				fixed_service_sale_list );
 
-		if ( !fixed_service->account_name )
+		if ( !fixed_service->credit_account_name )
 		{
 			fprintf( stderr,
-	"ERROR in %s/%s()/%d: empty account_name for (%s)\n",
+	"ERROR in %s/%s()/%d: empty credit_account_name for (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -3950,7 +3712,7 @@ LIST *customer_sale_fixed_service_distinct_account_extract(
 			ledger_get_or_set_journal_ledger(
 				journal_ledger_list,
 				fixed_service->
-					account_name );
+					credit_account_name );
 
 		journal_ledger->credit_amount +=
 			fixed_service->extension;
@@ -3967,8 +3729,8 @@ LIST *customer_sale_fixed_service_distinct_account_extract(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_hourly_service_distinct_account_extract(
-					LIST *journal_ledger_list,
 					double *service_revenue_amount,
+					LIST *journal_ledger_list,
 					LIST *hourly_service_sale_list )
 {
 	HOURLY_SERVICE *hourly_service;
@@ -3976,18 +3738,17 @@ LIST *customer_sale_hourly_service_distinct_account_extract(
 
 	if ( !list_rewind( hourly_service_sale_list ) ) return (LIST *)0;
 
-	if ( !journal_ledger_list )
-		journal_ledger_list = list_new();
+	if ( !journal_ledger_list ) journal_ledger_list = list_new();
 
 	do {
 		hourly_service =
 			list_get_pointer(
 				hourly_service_sale_list );
 
-		if ( !hourly_service->account_name )
+		if ( !hourly_service->credit_account_name )
 		{
 			fprintf( stderr,
-	"ERROR in %s/%s()/%d: empty account_name for (%s)\n",
+	"ERROR in %s/%s()/%d: empty credit_account_name for (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -3999,7 +3760,7 @@ LIST *customer_sale_hourly_service_distinct_account_extract(
 			ledger_get_or_set_journal_ledger(
 				journal_ledger_list,
 				hourly_service->
-					account_name );
+					credit_account_name );
 
 		journal_ledger->credit_amount +=
 			hourly_service->extension;
@@ -4016,18 +3777,17 @@ LIST *customer_sale_hourly_service_distinct_account_extract(
 void customer_propagate_customer_sale_ledger_accounts(
 				char *application_name,
 				char *fund_name,
-				char *customer_sale_transaction_date_time )
+				char *customer_sale_transaction_date_time,
+				LIST *credit_journal_ledger_list )
 {
-	char *sales_revenue_account = {0};
 	char *sales_tax_payable_account = {0};
 	char *shipping_revenue_account = {0};
 	char *receivable_account = {0};
 	char *specific_inventory_account = {0};
 	char *cost_of_goods_sold_account = {0};
-	LIST *account_name_list;
+	JOURNAL_LEDGER *journal_ledger;
 
 	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
 		&receivable_account,
@@ -4035,14 +3795,6 @@ void customer_propagate_customer_sale_ledger_accounts(
 		&cost_of_goods_sold_account,
 		application_name,
 		fund_name );
-
-	if ( sales_revenue_account )
-	{
-		ledger_propagate(
-			application_name,
-			customer_sale_transaction_date_time,
-			sales_revenue_account );
-	}
 
 	if ( sales_tax_payable_account )
 	{
@@ -4076,32 +3828,19 @@ void customer_propagate_customer_sale_ledger_accounts(
 			specific_inventory_account );
 	}
 
-	/* Propagate INVENTORY accounts */
-	/* ---------------------------- */
-	account_name_list =
-		ledger_get_inventory_account_name_list(
-			application_name );
-
-	if ( list_length( account_name_list ) )
+	if ( list_rewind( credit_journal_ledger_list ) )
 	{
-		ledger_propagate_account_name_list(
-			application_name,
-			customer_sale_transaction_date_time,
-			account_name_list );
-	}
+		do {
+			journal_ledger =
+				list_get(
+					credit_journal_ledger_list );
 
-	/* Propagate HOURLY_SERVICE and FIXED_SERVICE accounts */
-	/* --------------------------------------------------- */
-	account_name_list =
-		ledger_get_service_account_name_list(
-			application_name );
+			ledger_propagate(
+				application_name,
+				customer_sale_transaction_date_time,
+				journal_ledger->account_name );
 
-	if ( list_length( account_name_list ) )
-	{
-		ledger_propagate_account_name_list(
-			application_name,
-			customer_sale_transaction_date_time,
-			account_name_list );
+		} while( list_next( credit_journal_ledger_list ) );
 	}
 
 } /* customer_propagate_customer_sale_ledger_accounts() */

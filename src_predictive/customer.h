@@ -56,7 +56,7 @@ typedef struct
 	double database_extension;
 	double work_hours;
 	double database_work_hours;
-	char *account_name;
+	char *credit_account_name;
 	LIST *service_work_list;
 } HOURLY_SERVICE;
 
@@ -69,7 +69,7 @@ typedef struct
 	double database_extension;
 	double work_hours;
 	double database_work_hours;
-	char *account_name;
+	char *credit_account_name;
 	LIST *service_work_list;
 } FIXED_SERVICE;
 
@@ -82,6 +82,8 @@ typedef struct
 	double extension;
 	double database_extension;
 	double cost_of_goods_sold;
+	char *inventory_account_name;
+	char *cost_of_goods_sold_account_name;
 } SPECIFIC_INVENTORY_SALE;
 
 typedef struct
@@ -629,28 +631,29 @@ void customer_fixed_service_work_list_update(
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_inventory_distinct_account_extract(
-					LIST *journal_ledger_list,
 					double *sales_revenue_amount,
+					LIST *journal_ledger_list,
 					LIST *inventory_sale_list );
 
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_fixed_service_distinct_account_extract(
-					LIST *journal_ledger_list,
 					double *service_revenue_amount,
+					LIST *journal_ledger_list,
 					LIST *fixed_service_sale_list );
 
 /* Returns journal_ledger_list */
 /* --------------------------- */
 LIST *customer_sale_hourly_service_distinct_account_extract(
-					LIST *journal_ledger_list,
 					double *service_revenue_amount,
+					LIST *journal_ledger_list,
 					LIST *hourly_service_sale_list );
 
 void customer_propagate_customer_sale_ledger_accounts(
 				char *application_name,
 				char *fund_name,
-				char *customer_sale_transaction_date_time );
+				char *customer_sale_transaction_date_time,
+				LIST *credit_journal_ledger_list );
 
 boolean customer_fetch_sales_tax_exempt(
 					char *application_name,

@@ -444,7 +444,6 @@ void ledger_get_account_payable_account_name(
 				char *fund_name );
 
 void ledger_get_customer_sale_account_names(
-				char **sales_revenue_account,
 				char **sales_tax_payable_account,
 				char **shipping_revenue_account,
 				char **account_receivable_account,
@@ -465,17 +464,6 @@ void ledger_insert_purchase_order_journal_ledger(
 					double sales_tax,
 					double freight_in,
 					double purchase_amount );
-
-void ledger_insert_customer_sale_journal_ledger(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *completed_date_time,
-					double sum_inventory_extension,
-					double sum_service_extension,
-					double sum_cost_of_goods_sold,
-					double sales_tax,
-					double invoice_amount );
 
 char *ledger_get_transaction_where(	char *full_name,
 					char *street_address,
@@ -1199,5 +1187,13 @@ TRANSACTION *ledger_check_number_seek_transaction(
 JOURNAL_LEDGER *ledger_account_seek_journal_ledger(
 				LIST *journal_ledger_list,
 				char *account_name );
+
+LIST *ledger_get_credit_journal_ledger_list(
+				double *sales_revenue_amount,
+				double *service_revenue_amount,
+				LIST *inventory_sale_list,
+				LIST *specific_inventory_sale_list,
+				LIST *fixed_service_sale_list,
+				LIST *hourly_service_sale_list );
 
 #endif

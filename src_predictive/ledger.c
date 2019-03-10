@@ -4090,7 +4090,6 @@ void ledger_get_vendor_payment_account_names(
 } /* ledger_get_vendor_payment_account_names() */
 
 void ledger_get_customer_sale_account_names(
-				char **sales_revenue_account,
 				char **sales_tax_payable_account,
 				char **shipping_revenue_account,
 				char **account_receivable_account,
@@ -4100,14 +4099,6 @@ void ledger_get_customer_sale_account_names(
 				char *fund_name )
 {
 	char *key;
-
-	key = "sales_revenue_key";
-	*sales_revenue_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			0 /* not warning_only */ );
 
 	key = "sales_tax_payable_key";
 	*sales_tax_payable_account =
@@ -6756,7 +6747,6 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 				HASH_TABLE *journal_ledger_hash_table )
 {
 	static LIST *inventory_account_name_list = {0};
-	static char *sales_revenue_account = {0};
 	static char *sales_tax_payable_account = {0};
 	static char *shipping_revenue_account = {0};
 	static char *receivable_account = {0};
@@ -6787,7 +6777,6 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 				application_name );
 
 		ledger_get_customer_sale_account_names(
-			&sales_revenue_account,
 			&sales_tax_payable_account,
 			&shipping_revenue_account,
 			&receivable_account,
@@ -6797,7 +6786,7 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 			fund_name );
 	}
 
-	if ( !sales_revenue_account ) return (TRANSACTION *)0;
+	if ( !sales_tax_payable_account ) return (TRANSACTION *)0;
 
 	/* ========================= */
 	/* Build journal_ledger_list */
@@ -6810,7 +6799,7 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 			full_name,
 			street_address,
 			transaction_date_time,
-			sales_revenue_account );
+			"sales_revenue_account" );
 
 
 	if ( key && ( journal_ledger =
@@ -7616,8 +7605,6 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 {
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
-	SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
-	char *sales_revenue_account = {0};
 	char *sales_tax_payable_account = {0};
 	char *shipping_revenue_account = {0};
 	char *receivable_account = {0};
@@ -7636,10 +7623,7 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 		exit( 1 );
 	}
 
-	/* Exits if sales_revenue_account is not found. */
-	/* -------------------------------------------- */
 	ledger_get_customer_sale_account_names(
-		&sales_revenue_account,
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
 		&receivable_account,
@@ -7655,78 +7639,14 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 			transaction_date_time,
 			memo );
 
-	transaction->journal_ledger_list = list_new();
-
-	/* INVENTORY_SALE */
-	/* -------------- */
-	if ( list_length( inventory_sale_list ) )
-	{
-		transaction->journal_ledger_list =
-			customer_sale_inventory_distinct_account_extract(
-				transaction->journal_ledger_list,
-				&sales_revenue_amount,
-				inventory_sale_list );
-	}
-
-	/* SPECIFIC_INVENTORY_SALE */
-	/* ----------------------- */
-	if ( list_rewind( specific_inventory_sale_list ) )
-	{
-		do {
-			specific_inventory_sale =
-				list_get_pointer(
-					specific_inventory_sale_list );
-
-			/* Debit cost_of_goods_sold */
-			/* ------------------------ */
-			journal_ledger =
-				ledger_get_or_set_journal_ledger(
-					transaction->journal_ledger_list,
-					cost_of_goods_sold_account );
-
-			journal_ledger->debit_amount +=
-				specific_inventory_sale->
-					cost_of_goods_sold;
-
-			/* Credit specific_inventory */
-			/* ------------------------- */
-			journal_ledger =
-				ledger_get_or_set_journal_ledger(
-					transaction->journal_ledger_list,
-					specific_inventory_account );
-
-			journal_ledger->credit_amount +=
-				specific_inventory_sale->
-					cost_of_goods_sold;
-
-			sales_revenue_amount +=
-				specific_inventory_sale->
-					extension;
-
-		} while( list_next( specific_inventory_sale_list ) );
-	}
-
-	/* FIXED_SERVICE_SALE */
-	/* ------------------ */
-	if ( list_length( fixed_service_sale_list ) )
-	{
-		transaction->journal_ledger_list =
-			customer_sale_fixed_service_distinct_account_extract(
-				transaction->journal_ledger_list,
-				&service_revenue_amount,
-				fixed_service_sale_list );
-	}
-
-	/* HOURLY_SERVICE_SALE */
-	/* ------------------- */
-	if ( list_length( hourly_service_sale_list ) )
-	{
-		transaction->journal_ledger_list =
-			customer_sale_hourly_service_distinct_account_extract(
-				transaction->journal_ledger_list,
-				&service_revenue_amount,
-				hourly_service_sale_list );
-	}
+	transaction->journal_ledger_list =
+		ledger_get_credit_journal_ledger_list(
+			&sales_revenue_amount,
+			&service_revenue_amount,
+			inventory_sale_list,
+			specific_inventory_sale_list,
+			fixed_service_sale_list,
+			hourly_service_sale_list );
 
 	/* shipping_revenue */
 	/* ---------------- */
@@ -7756,24 +7676,6 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 			journal_ledger );
 
 		sales_revenue_amount += shipping_revenue;
-	}
-
-	/* sales_revenue */
-	/* ------------- */
-	if ( sales_revenue_amount )
-	{
-		journal_ledger =
-			journal_ledger_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction_date_time,
-				sales_revenue_account );
-
-		journal_ledger->credit_amount = sales_revenue_amount;
-
-		list_append_pointer(
-			transaction->journal_ledger_list,
-			journal_ledger );
 	}
 
 	/* sales_tax */
@@ -7827,6 +7729,107 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 	return transaction;
 
 } /* ledger_customer_sale_build_transaction() */
+
+LIST *ledger_get_credit_journal_ledger_list(
+				double *sales_revenue_amount,
+				double *service_revenue_amount,
+				LIST *inventory_sale_list,
+				LIST *specific_inventory_sale_list,
+				LIST *fixed_service_sale_list,
+				LIST *hourly_service_sale_list )
+{
+	LIST *journal_ledger_list;
+
+	journal_ledger_list = list_new();
+
+	/* INVENTORY_SALE */
+	/* -------------- */
+	if ( list_length( inventory_sale_list ) )
+	{
+		journal_ledger_list =
+			customer_sale_inventory_distinct_account_extract(
+				sales_revenue_amount,
+				/* --------------------------- */
+				/* Returns journal_ledger_list */
+				/* --------------------------- */
+				journal_ledger_list,
+				inventory_sale_list );
+	}
+
+	/* SPECIFIC_INVENTORY_SALE */
+	/* ----------------------- */
+	if ( list_rewind( specific_inventory_sale_list ) )
+	{
+		SPECIFIC_INVENTORY_SALE *specific_inventory_sale;
+		JOURNAL_LEDGER *journal_ledger;
+
+		do {
+			specific_inventory_sale =
+				list_get_pointer(
+					specific_inventory_sale_list );
+
+			/* Debit cost_of_goods_sold */
+			/* ------------------------ */
+			journal_ledger =
+				ledger_get_or_set_journal_ledger(
+					journal_ledger_list,
+					specific_inventory_sale->
+					     cost_of_goods_sold_account_name );
+
+			journal_ledger->debit_amount +=
+				specific_inventory_sale->
+					cost_of_goods_sold;
+
+			/* Credit specific_inventory */
+			/* ------------------------- */
+			journal_ledger =
+				ledger_get_or_set_journal_ledger(
+					journal_ledger_list,
+					specific_inventory_sale->
+						inventory_account_name );
+
+			journal_ledger->credit_amount +=
+				specific_inventory_sale->
+					cost_of_goods_sold;
+
+			*sales_revenue_amount +=
+				specific_inventory_sale->
+					extension;
+
+		} while( list_next( specific_inventory_sale_list ) );
+	}
+
+	/* FIXED_SERVICE_SALE */
+	/* ------------------ */
+	if ( list_length( fixed_service_sale_list ) )
+	{
+		journal_ledger_list =
+			customer_sale_fixed_service_distinct_account_extract(
+				service_revenue_amount,
+				/* --------------------------- */
+				/* Returns journal_ledger_list */
+				/* --------------------------- */
+				journal_ledger_list,
+				fixed_service_sale_list );
+	}
+
+	/* HOURLY_SERVICE_SALE */
+	/* ------------------- */
+	if ( list_length( hourly_service_sale_list ) )
+	{
+		journal_ledger_list =
+			customer_sale_hourly_service_distinct_account_extract(
+				service_revenue_amount,
+				/* --------------------------- */
+				/* Returns journal_ledger_list */
+				/* --------------------------- */
+				journal_ledger_list,
+				hourly_service_sale_list );
+	}
+
+	return journal_ledger_list;
+
+} /* ledger_get_credit_journal_ledger_list() */
 
 void ledger_get_payroll_account_names(
 				char **salary_wage_expense_account,

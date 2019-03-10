@@ -50,7 +50,8 @@ int main( int argc, char **argv )
 	customer_propagate_customer_sale_ledger_accounts(
 				application_name,
 				fund_name,
-				transaction_date_time );
+				transaction_date_time,
+				(LIST *)0 /* credit_journal_ledger_list */ );
 
 	return 0;
 

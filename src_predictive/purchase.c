@@ -2683,10 +2683,10 @@ LIST *purchase_inventory_distinct_account_extract(
 			list_get_pointer(
 				inventory_purchase_list );
 
-		if ( !inventory_purchase->inventory_account_name )
+		if ( !inventory_purchase->credit_account_name )
 		{
 			fprintf( stderr,
-	"ERROR in %s/%s()/%d: empty inventory_account_name for (%s)\n",
+	"ERROR in %s/%s()/%d: empty credit_account_name for (%s)\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -2697,7 +2697,7 @@ LIST *purchase_inventory_distinct_account_extract(
 		journal_ledger =
 			ledger_get_or_set_journal_ledger(
 				journal_ledger_list,
-				inventory_purchase->inventory_account_name );
+				inventory_purchase->credit_account_name );
 
 		extension_capitalized_addition =
 			( inventory_purchase->capitalized_unit_cost -

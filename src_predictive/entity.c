@@ -321,8 +321,6 @@ void entity_propagate_purchase_order_ledger_accounts(
 		&sales_tax_expense_account,
 		&freight_in_expense_account,
 		&account_payable_account,
-		&specific_inventory_account,
-		&cost_of_goods_sold_account,
 		application_name,
 		fund_name );
 
@@ -492,7 +490,7 @@ LIST *entity_get_inventory_list(
 	FILE *input_pipe;
 
 	select =
-"inventory_name,inventory_account,cost_of_goods_sold_account";
+"inventory_name,credit_account,cost_of_goods_sold_account";
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
@@ -524,7 +522,7 @@ LIST *entity_get_inventory_list(
 		if ( !*piece_buffer )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: empty inventory_account_name for inventory = (%s).\n",
+"ERROR in %s/%s()/%d: empty credit_account_name for inventory = (%s).\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -533,7 +531,7 @@ LIST *entity_get_inventory_list(
 			exit( 1 );
 		}
 
-		inventory->inventory_account_name = strdup( piece_buffer );
+		inventory->credit_account_name = strdup( piece_buffer );
 
 		piece(	piece_buffer,
 			FOLDER_DATA_DELIMITER,

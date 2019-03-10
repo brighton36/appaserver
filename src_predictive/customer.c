@@ -2759,10 +2759,10 @@ void customer_sale_inventory_cost_account_list_set(
 			exit(1 );
 		}
 
-		if ( !inventory->inventory_account_name )
+		if ( !inventory->credit_account_name )
 		{
 			fprintf( stderr,
-"Error in %s/%s()/%d: empty inventory account name for inventory_name = (%s).\n",
+"Error in %s/%s()/%d: empty credit account name for inventory_name = (%s).\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__,
@@ -2784,7 +2784,7 @@ void customer_sale_inventory_cost_account_list_set(
 		inventory_cost_account =
 			inventory_get_or_set_cost_account(
 				inventory_account_list,
-				inventory->inventory_account_name );
+				inventory->credit_account_name );
 
 		if ( is_database )
 		{
@@ -3651,7 +3651,7 @@ LIST *customer_sale_inventory_distinct_account_extract(
 
 		/* Credit inventory */
 		/* ---------------- */
-		if ( !inventory_sale->inventory_account_name )
+		if ( !inventory_sale->credit_account_name )
 		{
 			fprintf( stderr,
 	"ERROR in %s/%s()/%d: empty credit_account_name for (%s)\n",
@@ -3665,7 +3665,7 @@ LIST *customer_sale_inventory_distinct_account_extract(
 		journal_ledger =
 			ledger_get_or_set_journal_ledger(
 				journal_ledger_list,
-				inventory_sale->inventory_account_name );
+				inventory_sale->credit_account_name );
 
 		journal_ledger->credit_amount +=
 			inventory_sale->cost_of_goods_sold;
@@ -3783,16 +3783,12 @@ void customer_propagate_customer_sale_ledger_accounts(
 	char *sales_tax_payable_account = {0};
 	char *shipping_revenue_account = {0};
 	char *receivable_account = {0};
-	char *specific_inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
 	JOURNAL_LEDGER *journal_ledger;
 
 	ledger_get_customer_sale_account_names(
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
 		&receivable_account,
-		&specific_inventory_account,
-		&cost_of_goods_sold_account,
 		application_name,
 		fund_name );
 
@@ -3818,14 +3814,6 @@ void customer_propagate_customer_sale_ledger_accounts(
 			application_name,
 			customer_sale_transaction_date_time,
 			receivable_account );
-	}
-
-	if ( specific_inventory_account )
-	{
-		ledger_propagate(
-			application_name,
-			customer_sale_transaction_date_time,
-			specific_inventory_account );
 	}
 
 	if ( list_rewind( credit_journal_ledger_list ) )

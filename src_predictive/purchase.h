@@ -67,6 +67,7 @@ typedef struct
 	double extension;
 	double capitalized_extension;
 	double database_capitalized_extension;
+	char *credit_account_name;
 } PURCHASE_SPECIFIC_INVENTORY;
 
 typedef struct

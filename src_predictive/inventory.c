@@ -74,7 +74,7 @@ INVENTORY_PURCHASE *inventory_purchase_new( void )
 	return h;
 } /* inventory_purchase_new() */
 
-void inventory_load(			char **inventory_account_name,
+void inventory_load(			char **credit_account_name,
 					char **cost_of_goods_sold_account_name,
 					double *retail_price,
 					int *reorder_quantity,
@@ -92,7 +92,7 @@ void inventory_load(			char **inventory_account_name,
 	char piece_buffer[ 128 ];
 
 	select =
-"inventory_account,cost_of_goods_sold_account,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance";
+"credit_account,cost_of_goods_sold_account,retail_price,reorder_quantity,quantity_on_hand,average_unit_cost,total_cost_balance";
 
 	sprintf(	where,
 			"inventory_name = '%s'",
@@ -125,7 +125,7 @@ void inventory_load(			char **inventory_account_name,
 	}
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 0 );
-	*inventory_account_name = strdup( piece_buffer );
+	*credit_account_name = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, results, 1 );
 	*cost_of_goods_sold_account_name = strdup( piece_buffer );
@@ -959,7 +959,7 @@ LIST *inventory_sale_get_list(
 			&inventory_sale->cost_of_goods_sold,
 			&inventory_sale->database_cost_of_goods_sold,
 			&inventory_sale->completed_date_time,
-			&inventory_sale->inventory_account_name,
+			&inventory_sale->credit_account_name,
 			&inventory_sale->cost_of_goods_sold_account_name,
 			input_buffer );
 
@@ -1952,7 +1952,7 @@ INVENTORY *inventory_load_new(	char *application_name,
 
 	inventory = inventory_new( inventory_name );
 
-	inventory_load(	&inventory->inventory_account_name,
+	inventory_load(	&inventory->credit_account_name,
 			&inventory->cost_of_goods_sold_account_name,
 			&inventory->retail_price,
 			&inventory->reorder_quantity,
@@ -2457,7 +2457,7 @@ void inventory_list_delete(	LIST *inventory_list,
 char *inventory_sale_get_select( void )
 {
 	char *select =
-"inventory_sale.full_name,inventory_sale.street_address,inventory_sale.sale_date_time,inventory_sale.inventory_name,quantity,inventory_sale.retail_price,discount_amount,extension,cost_of_goods_sold,customer_sale.completed_date_time,inventory.inventory_account,inventory.cost_of_goods_sold_account";
+"inventory_sale.full_name,inventory_sale.street_address,inventory_sale.sale_date_time,inventory_sale.inventory_name,quantity,inventory_sale.retail_price,discount_amount,extension,cost_of_goods_sold,customer_sale.completed_date_time,inventory.credit_account,inventory.cost_of_goods_sold_account";
 
 	return select;
 
@@ -2504,7 +2504,7 @@ void inventory_sale_parse(
 				double *cost_of_goods_sold,
 				double *database_cost_of_goods_sold,
 				char **completed_date_time,
-				char **inventory_account_name,
+				char **credit_account_name,
 				char **cost_of_goods_sold_account_name,
 				char *input_buffer )
 {
@@ -2554,7 +2554,7 @@ void inventory_sale_parse(
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 10 );
 	if ( *piece_buffer )
-		*inventory_account_name = strdup( piece_buffer );
+		*credit_account_name = strdup( piece_buffer );
 
 	piece( piece_buffer, FOLDER_DATA_DELIMITER, input_buffer, 11 );
 	if ( *piece_buffer )
@@ -2625,7 +2625,7 @@ LIST *inventory_get_inventory_sale_list(
 			&inventory_sale->cost_of_goods_sold,
 			&inventory_sale->database_cost_of_goods_sold,
 			&inventory_sale->completed_date_time,
-			&inventory_sale->inventory_account_name,
+			&inventory_sale->credit_account_name,
 			&inventory_sale->cost_of_goods_sold_account_name,
 			input_buffer );
 
@@ -2711,8 +2711,8 @@ LIST *inventory_get_inventory_purchase_list(
 				&inventory_purchase->arrived_date_time,
 				input_buffer );
 
-		inventory_purchase->inventory_account_name =
-			inventory_get_inventory_account_name(
+		inventory_purchase->credit_account_name =
+			inventory_get_credit_account_name(
 				application_name,
 				inventory_purchase->inventory_name );
 
@@ -3078,7 +3078,7 @@ HASH_TABLE *inventory_get_completed_inventory_sale_hash_table(
 			&inventory_sale->cost_of_goods_sold,
 			&inventory_sale->database_cost_of_goods_sold,
 			&inventory_sale->completed_date_time,
-			&inventory_sale->inventory_account_name,
+			&inventory_sale->credit_account_name,
 			&inventory_sale->cost_of_goods_sold_account_name,
 			input_buffer );
 
@@ -3704,7 +3704,7 @@ INVENTORY_COST_ACCOUNT *inventory_get_or_set_cost_account(
 
 } /* inventory_get_or_set_cost_account() */
 
-char *inventory_get_inventory_account_name(
+char *inventory_get_credit_account_name(
 				char *application_name,
 				char *inventory_name )
 {
@@ -3721,7 +3721,7 @@ char *inventory_get_inventory_account_name(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=inventory_account	"
+		 "			select=credit_account		"
 		 "			folder=inventory		"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -3729,7 +3729,7 @@ char *inventory_get_inventory_account_name(
 
 	return pipe2string( sys_string );
 
-} /* inventory_get_inventory_account_name() */
+} /* inventory_get_credit_account_name() */
 
 void inventory_balance_list_table_display(
 				FILE *output_pipe,

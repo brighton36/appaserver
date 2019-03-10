@@ -82,7 +82,7 @@ typedef struct
 	double extension;
 	double database_extension;
 	double cost_of_goods_sold;
-	char *inventory_account_name;
+	char *credit_account_name;
 	char *cost_of_goods_sold_account_name;
 } SPECIFIC_INVENTORY_SALE;
 

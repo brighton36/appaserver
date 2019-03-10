@@ -42,7 +42,7 @@ typedef struct
 	double database_extension;
 	double cost_of_goods_sold;
 	double database_cost_of_goods_sold;
-	char *inventory_account_name;
+	char *credit_account_name;
 	char *cost_of_goods_sold_account_name;
 } INVENTORY_SALE;
 
@@ -66,7 +66,7 @@ typedef struct
 	int database_quantity_on_hand;
 	double average_unit_cost;
 	double database_average_unit_cost;
-	char *inventory_account_name;
+	char *credit_account_name;
 } INVENTORY_PURCHASE;
 
 typedef struct
@@ -82,7 +82,7 @@ typedef struct
 typedef struct
 {
 	char *inventory_name;
-	char *inventory_account_name;
+	char *credit_account_name;
 	char *cost_of_goods_sold_account_name;
 	double retail_price;
 	int reorder_quantity;
@@ -115,7 +115,7 @@ INVENTORY_PURCHASE *inventory_purchase_new(
 INVENTORY *inventory_load_new(		char *application_name,
 					char *inventory_name );
 
-void inventory_load(			char **inventory_account_name,
+void inventory_load(			char **credit_account_name,
 					char **cost_of_goods_sold_account_name,
 					double *retail_price,
 					int *reorder_quantity,
@@ -541,7 +541,7 @@ void inventory_sale_parse(
 				double *cost_of_goods_sold,
 				double *database_cost_of_goods_sold,
 				char **completed_date_time,
-				char **inventory_account_name,
+				char **credit_account_name,
 				char **cost_of_goods_sold_account_name,
 				char *input_buffer );
 
@@ -665,7 +665,7 @@ INVENTORY_COST_ACCOUNT *inventory_get_or_set_cost_account(
 				LIST *inventory_cost_account_list,
 				char *account_name );
 
-char *inventory_get_inventory_account_name(
+char *inventory_get_credit_account_name(
 				char *application_name,
 				char *inventory_name );
 

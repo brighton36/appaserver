@@ -4093,8 +4093,6 @@ void ledger_get_customer_sale_account_names(
 				char **sales_tax_payable_account,
 				char **shipping_revenue_account,
 				char **account_receivable_account,
-				char **specific_inventory_account,
-				char **cost_of_goods_sold_account,
 				char *application_name,
 				char *fund_name )
 {
@@ -4118,22 +4116,6 @@ void ledger_get_customer_sale_account_names(
 
 	key = "account_receivable_key";
 	*account_receivable_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			1 /* warning_only */ );
-
-	key = "specific_inventory_key";
-	*specific_inventory_account =
-		ledger_get_hard_coded_account_name(
-			application_name,
-			fund_name,
-			key,
-			1 /* warning_only */ );
-
-	key = "cost_of_goods_sold_key";
-	*cost_of_goods_sold_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
@@ -4166,8 +4148,6 @@ void ledger_get_purchase_order_account_names(
 				char **sales_tax_expense_account,
 				char **freight_in_expense_account,
 				char **account_payable_account,
-				char **specific_inventory_account,
-				char **cost_of_goods_sold_account,
 				char *application_name,
 				char *fund_name )
 {
@@ -4204,28 +4184,6 @@ void ledger_get_purchase_order_account_names(
 				fund_name,
 				key,
 				0 /* not warning_only */ );
-	}
-
-	if ( specific_inventory_account )
-	{
-		key = "specific_inventory_key";
-		*specific_inventory_account =
-			ledger_get_hard_coded_account_name(
-				application_name,
-				fund_name,
-				key,
-				1 /* warning_only */ );
-	}
-
-	if ( cost_of_goods_sold_account )
-	{
-		key = "cost_of_goods_sold_key";
-		*cost_of_goods_sold_account =
-			ledger_get_hard_coded_account_name(
-				application_name,
-				fund_name,
-				key,
-				1 /* warning_only */ );
 	}
 
 } /* ledger_get_purchase_order_account_names() */
@@ -6750,8 +6708,6 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 	static char *sales_tax_payable_account = {0};
 	static char *shipping_revenue_account = {0};
 	static char *receivable_account = {0};
-	static char *specific_inventory_account = {0};
-	static char *cost_of_goods_sold_account = {0};
 	char *inventory_account_name;
 	TRANSACTION *transaction;
 	JOURNAL_LEDGER *journal_ledger;
@@ -6780,8 +6736,6 @@ TRANSACTION *ledger_sale_hash_table_build_transaction(
 			&sales_tax_payable_account,
 			&shipping_revenue_account,
 			&receivable_account,
-			&specific_inventory_account,
-			&cost_of_goods_sold_account,
 			application_name,
 			fund_name );
 	}
@@ -7283,8 +7237,6 @@ TRANSACTION *ledger_specific_inventory_build_transaction(
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
-	char *specific_inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
 	double sum_debit_amount = 0.0;
 
 	if ( !full_name )
@@ -7303,32 +7255,8 @@ TRANSACTION *ledger_specific_inventory_build_transaction(
 				&sales_tax_expense_account,
 				&freight_in_expense_account,
 				&account_payable_account,
-				&specific_inventory_account,
-				&cost_of_goods_sold_account,
 				application_name,
 				fund_name );
-
-	if ( list_length( specific_inventory_purchase_list )
-	&&   !specific_inventory_account )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: specific inventory exists without inventory account.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( list_length( specific_inventory_purchase_list )
-	&&   !cost_of_goods_sold_account )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: specific inventory exists without CGS account.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
 
 	transaction =
 		ledger_transaction_new(
@@ -7353,7 +7281,8 @@ TRANSACTION *ledger_specific_inventory_build_transaction(
 					transaction->full_name,
 					transaction->street_address,
 					transaction_date_time,
-					specific_inventory_account );
+					purchase_specific_inventory->
+						credit_account_name );
 
 			journal_ledger->debit_amount =
 				purchase_specific_inventory->
@@ -7411,8 +7340,6 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 	char *sales_tax_expense_account = {0};
 	char *freight_in_expense_account = {0};
 	char *account_payable_account = {0};
-	char *specific_inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
 	double sum_debit_amount = 0.0;
 
 	if ( !full_name )
@@ -7431,8 +7358,6 @@ TRANSACTION *ledger_purchase_order_build_transaction(
 				&sales_tax_expense_account,
 				&freight_in_expense_account,
 				&account_payable_account,
-				&specific_inventory_account,
-				&cost_of_goods_sold_account,
 				application_name,
 				fund_name );
 
@@ -7608,8 +7533,6 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 	char *sales_tax_payable_account = {0};
 	char *shipping_revenue_account = {0};
 	char *receivable_account = {0};
-	char *specific_inventory_account = {0};
-	char *cost_of_goods_sold_account = {0};
 	double sales_revenue_amount = {0};
 	double service_revenue_amount = {0};
 
@@ -7627,8 +7550,6 @@ TRANSACTION *ledger_customer_sale_build_transaction(
 		&sales_tax_payable_account,
 		&shipping_revenue_account,
 		&receivable_account,
-		&specific_inventory_account,
-		&cost_of_goods_sold_account,
 		application_name,
 		fund_name );
 
@@ -7786,7 +7707,7 @@ LIST *ledger_get_credit_journal_ledger_list(
 				ledger_get_or_set_journal_ledger(
 					journal_ledger_list,
 					specific_inventory_sale->
-						inventory_account_name );
+						credit_account_name );
 
 			journal_ledger->credit_amount +=
 				specific_inventory_sale->

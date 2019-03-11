@@ -180,6 +180,7 @@ SOURCE_LIBS= 	${SOURCE_EVERGLADES}/measurement_update_parameter.o	\
 		${SOURCE_EVERGLADES}/hydrology_library.o		\
 		${SOURCE_EVERGLADES}/measurement_validation.o		\
 		${SOURCE_EVERGLADES}/station_datatype.o			\
+		${SOURCE_EVERGLADES}/units.o				\
 		${SOURCE_EVERGLADES}/measurement.o			\
 		${SOURCE_EVERGLADES}/measurement_backup.o		\
 		${SOURCE_EVERGLADES}/station_alias.o
@@ -199,46 +200,48 @@ clean:
 	sl3_upload
 
 kml_extract: kml_extract.c						\
-		${EXTERNAL_LIBS}					\
+		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
 		${LIBRARY}/google_earth.o				\
 		${LIBRARY}/google_map.o					\
-		station.o						\
 		google_earth_station.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		${LIBRARY}/google_earth.o				\
 		${LIBRARY}/google_map.o					\
-		station.o						\
 		google_earth_station.o					\
 		kml_extract.c						\
 		-o kml_extract
 
 delete_measurements_day: delete_measurements_day.c			\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		delete_measurements_day.c				\
 		-o delete_measurements_day
 
 prepend_century_maybe: prepend_century_maybe.c				\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		prepend_century_maybe.c					\
 		-o prepend_century_maybe
 
 load_realdata: load_realdata.c						\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		load_realdata.c						\
 		-o load_realdata
 
@@ -259,22 +262,22 @@ view_maps_figs: view_maps_figs.c
 		-o view_maps_figs
 
 restore_measurement_backup: restore_measurement_backup.c		\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		restore_measurement_backup.c				\
 		-o restore_measurement_backup
 
 unvalidate_measurements: unvalidate_measurements.c			\
-	${EXTERNAL_LIBS}						\
-	measurement_validation.o
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
-		measurement_validation.o				\
+		${SOURCE_LIBS}	 					\
 		unvalidate_measurements.c				\
 		-o unvalidate_measurements
 
@@ -306,57 +309,63 @@ get_aggregation_sum_yn: get_aggregation_sum_yn.c			\
 		-o get_aggregation_sum_yn
 
 load_turkey_point: load_turkey_point.c					\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		load_turkey_point.c					\
 		-o load_turkey_point
 
 LT_upload: LT_upload.c							\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		LT_upload.c						\
 		-o LT_upload
 
 load_cr10: load_cr10.c							\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		load_cr10.c						\
 		-o load_cr10
 
 load_cr10_single: load_cr10_single.c					\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		load_cr10_single.c					\
 		-o load_cr10_single
 
 load_sfwmd_single_file: load_sfwmd_single_file.c			\
-	${EXTERNAL_LIBS} sfwmd_station_datatype.o
+	${EXTERNAL_LIBS} ${SOURCE_LIBS} sfwmd_station_datatype.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		load_sfwmd_single_file.c				\
 		sfwmd_station_datatype.o				\
 		-o load_sfwmd_single_file
 
 load_sfwmd_breakpoint_data: load_sfwmd_breakpoint_data.c		\
-	${EXTERNAL_LIBS} sfwmd_station_datatype.o
+	${EXTERNAL_LIBS} ${SOURCE_LIBS} sfwmd_station_datatype.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		load_sfwmd_breakpoint_data.c				\
 		sfwmd_station_datatype.o				\
 		-o load_sfwmd_breakpoint_data
@@ -382,10 +391,11 @@ load_biscayne_ysi_data: load_biscayne_ysi_data.c			\
 		-o load_biscayne_ysi_data
 
 hydrology_verification_process: hydrology_verification_process.c	\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
 		${STANDARD_LIBRARY} 					\
 		hydrology_verification_process.c			\
 		-o hydrology_verification_process
@@ -1043,11 +1053,12 @@ hydrology_validation_form:						\
 
 exclude_conductivity_if_salinity:					\
 		exclude_conductivity_if_salinity.c			\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		exclude_conductivity_if_salinity.c			\
 		-o exclude_conductivity_if_salinity
 
@@ -1493,6 +1504,11 @@ station_datatype.o: station_datatype.c station_datatype.h
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c station_datatype.c
 
+units.o: units.c units.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c units.c
+
 datatype.o: datatype.c datatype.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
@@ -1526,11 +1542,12 @@ merged_datasets_remove_all_but_first_heading.e:				\
 
 generate_data_collection_frequency:					\
 	generate_data_collection_frequency.c ${STANDARD_LIBRARY}	\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS}
 	$(CC)    ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}	 					\
 		generate_data_collection_frequency.c			\
 		-o generate_data_collection_frequency
 

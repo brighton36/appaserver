@@ -127,8 +127,7 @@ int main( int argc, char **argv )
 				shef,
 				shef_datatype_code->shef_upload_datatype_list,
 				shef_datatype_code->
-					station_datatype_list->
-						station_datatype_list,
+					station_datatype_list,
 				(char *)0 /* measurement_date */,
 				(char *)0 /* measurement_time */,
 				0.0 /* measurement_value */ );

@@ -1,5 +1,5 @@
-/* station_datatype.c */
-/* ------------------ */
+/* $APPASERVER_HOME/src_hydrology/station_datatype.c */
+/* ------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +8,25 @@
 #include "timlib.h"
 #include "piece.h"
 #include "appaserver_library.h"
+
+DATATYPE_ALIAS *station_datatype_alias_new(
+				void )
+{
+	DATATYPE_ALIAS *d;
+
+	if ( ! ( d = calloc( 1, sizeof( DATATYPE_ALIAS ) ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return d;
+
+} /* station_datatype_alias_new() */
 
 LIST *station_datatype_get_station_datatype_list(
 				char *application_name,
@@ -186,23 +205,15 @@ LIST *station_datatype_list_get_station_datatype_list(
 
 } /* station_datatype_list_get_station_datatype_list() */
 
-STATION_DATATYPE_LIST *station_datatype_list_new(
+LIST *station_datatype_fetch_list(
 				char *application_name )
 {
-	STATION_DATATYPE_LIST *station_datatype_list;
-
-	station_datatype_list =
-		(STATION_DATATYPE_LIST *)
-			calloc( 1, sizeof( STATION_DATATYPE_LIST ) );
-
-	station_datatype_list->station_datatype_list =
-		station_datatype_list_get_station_datatype_list(
+	return station_datatype_list_get_station_datatype_list(
 			application_name );
 
-	return station_datatype_list;
-} /* station_datatype_list_new() */
+} /* station_datatype_fetch_list() */
 
-STATION_DATATYPE *station_datatype_list_fetch(
+STATION_DATATYPE *station_datatype_list_seek(
 				LIST *station_datatype_list,
 				char *station,
 				char *datatype )
@@ -224,7 +235,7 @@ STATION_DATATYPE *station_datatype_list_fetch(
 
 	return (STATION_DATATYPE *)0;
 
-} /* station_datatype_list_fetch() */
+} /* station_datatype_list_seek() */
 
 STATION_DATATYPE *station_datatype_new( void )
 {

@@ -100,8 +100,7 @@ void shef_upload_datatype_convert_one_time(
 				station,
 				shef_upload_code,
 				c->shef_upload_datatype_list,
-				c->station_datatype_list->
-					station_datatype_list ) );
+				c->station_datatype_list ) );
 
 } /* shef_upload_datatype_convert_one_time() */
 
@@ -150,8 +149,7 @@ void shef_upload_datatype_convert_stdin(
 					station,
 					shef_upload_code,
 					c->shef_upload_datatype_list,
-					c->station_datatype_list->
-						station_datatype_list );
+					c->station_datatype_list );
 
 		if ( datatype && *datatype )
 		{

@@ -58,36 +58,24 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	SHEF_UPLOAD_AGGREGATE_MEASUREMENT *shef_upload_aggregate_measurement;
 
-	if ( argc != 3 )
-	{
-		fprintf( stderr, 
-			 "Usage: %s application station\n",
-			 argv[ 0 ] );
-		exit( 1 );
-	}
-
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	station_name = argv[ 2 ];
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
+	if ( argc != 3 )
+	{
+		fprintf( stderr, 
+			 "Usage: %s ignored station\n",
+			 argv[ 0 ] );
+		exit( 1 );
+	}
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+	station_name = argv[ 2 ];
 
 	shef_datatype_code = 
 		shef_datatype_code_new( application_name );
@@ -185,8 +173,7 @@ int main( int argc, char **argv )
 				shef,
 				shef_datatype_code->shef_upload_datatype_list,
 				shef_datatype_code->
-					station_datatype_list->
-						station_datatype_list,
+					station_datatype_list,
 				measurement_date,
 				measurement_time,
 				atof( measurement_value_string ) );

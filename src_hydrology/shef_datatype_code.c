@@ -68,7 +68,7 @@ SHEF_DATATYPE_CODE *shef_datatype_code_new( char *application_name )
 			application_name );
 
 	s->station_datatype_list =
-		station_datatype_list_new(
+		station_datatype_fetch_list(
 			application_name );
 
 	return s;
@@ -165,7 +165,7 @@ char *shef_datatype_code_get_upload_datatype(
 				shef_code_upper_case,
 				shef_upload_datatype_list ) ) )
 	{
-		if ( !station_datatype_list_fetch(
+		if ( !station_datatype_list_seek(
 				station_datatype_list,
 				station,
 				datatype->datatype ) )
@@ -177,7 +177,7 @@ char *shef_datatype_code_get_upload_datatype(
 		low_string( datatype_lower_case );
 	}
 	else
-	if ( ( station_datatype = station_datatype_list_fetch(
+	if ( ( station_datatype = station_datatype_list_seek(
 			station_datatype_list,
 			station,
 			shef_code ) ) )
@@ -439,7 +439,7 @@ char *shef_get_upload_default_datatype(
 		return datatype->datatype;
 	}
 	else
-	if ( ( station_datatype = station_datatype_list_fetch(
+	if ( ( station_datatype = station_datatype_list_seek(
 			station_datatype_list,
 			station,
 			shef_code ) ) )

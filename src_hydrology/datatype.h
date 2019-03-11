@@ -14,13 +14,14 @@
 #include "list.h"
 #include "timlib.h"
 #include "piece.h"
+#include "units.h"
 
 /* Structures */
 /* ---------- */
 typedef struct
 {
 	char *datatype_name;
-	char *units;
+	UNITS *units;
 	boolean bar_chart;
 	boolean scale_graph_to_zero;
 	boolean aggregation_sum;
@@ -34,8 +35,9 @@ typedef struct
 /* Prototypes */
 /* ---------- */
 DATATYPE *datatype_new_datatype(
+			char *application_name,
 			char *datatype_name,
-			char *units );
+			char *units_name );
 
 LIST *datatype_get_datatype_list(
 			char *application_name,

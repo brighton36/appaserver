@@ -23,8 +23,7 @@ int main( void )
 					"NE1",
 					"HH",
 					c->shef_upload_datatype_list,
-					c->station_datatype_list->
-						station_datatype_list,
+					c->station_datatype_list,
 					(char *)0 /* measurement_date */,
 					(char *)0 /* measurement_time */,
 					0.0 /* measurement_value */ ) );
@@ -34,8 +33,7 @@ int main( void )
 				"NE1",
 				"HH",
 				c->shef_upload_datatype_list,
-				c->station_datatype_list->
-					station_datatype_list ) );
+				c->station_datatype_list ) );
 
 	return 0;
 }

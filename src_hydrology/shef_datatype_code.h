@@ -38,7 +38,7 @@ typedef struct
 {
 	LIST *shef_upload_datatype_list;
 	LIST *shef_download_datatype_list;
-	STATION_DATATYPE_LIST *station_datatype_list;
+	LIST *station_datatype_list;
 } SHEF_DATATYPE_CODE;
 
 /* Prototypes */

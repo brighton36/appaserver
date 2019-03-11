@@ -208,8 +208,7 @@ int main( int argc, char **argv )
 				shef,
 				shef_datatype_code->shef_upload_datatype_list,
 				shef_datatype_code->
-					station_datatype_list->
-						station_datatype_list,
+					station_datatype_list,
 				measurement_date,
 				measurement_time,
 				atof( measurement_value_string ) );

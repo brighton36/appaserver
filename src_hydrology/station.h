@@ -31,6 +31,7 @@ typedef struct
 	char *station_type;
 	char *comments;
 	LIST *measurement_list;
+	LIST *datatype_name_list;
 } STATION;
 
 /* Operations */

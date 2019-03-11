@@ -7,8 +7,9 @@
 #include "datatype.h"
 
 DATATYPE *datatype_new_datatype(
+			char *application_name,
 			char *datatype_name,
-			char *units )
+			char *units_name )
 {
 	DATATYPE *datatype;
 
@@ -23,7 +24,17 @@ DATATYPE *datatype_new_datatype(
 	}
 
 	datatype->datatype_name = datatype_name;
-	datatype->units = units;
+
+	datatype->units = units_new( units_name );
+
+	if ( application_name )
+	{
+		datatype->units->units_alias_list =
+			units_get_units_alias_list(
+				application_name,
+				datatype->units->units_name );
+	}
+
 	return datatype;
 
 } /* datatype_new_datatype() */
@@ -61,6 +72,7 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 
 	datatype =
 		datatype_new_datatype(
+			(char *)0 /* application_name */,
 			strdup( datatype_name ),
 			strdup( units ) );
 
@@ -156,10 +168,15 @@ LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
 					buffer ) )
 			{
 				datatype = datatype_new_datatype(
+						(char *)0
+							/* application_name */,
 						strdup( buffer ),
-						(char *)0 /* units */ );
+						(char *)0
+							/* units */ );
+
 				piece( buffer, '^', input_buffer, 1 );
 				datatype->bar_chart = ( *buffer == 'y' );
+
 				list_append_pointer( datatype_list, datatype );
 			}
 		}
@@ -417,6 +434,7 @@ DATATYPE *datatype_record2datatype( char *record )
 
 	datatype =
 		datatype_new_datatype(
+			(char *)0 /* application_name */,
 			strdup( datatype_name ),
 			(char *)0 /* units */ );
 
@@ -580,11 +598,13 @@ LIST *datatype_list_get_unique_unit_list(
 	do {
 		datatype = list_get_pointer( datatype_list );
 
-		if ( !list_exists_string( unit_list, datatype->units ) )
+		if ( !list_exists_string(
+			unit_list,
+			datatype->units->units_name ) )
 		{
 			list_append_pointer(
 				unit_list,
-				datatype->units );
+				datatype->units->units_name );
 		}
 
 	} while( list_next( datatype_list ) );
@@ -595,7 +615,7 @@ LIST *datatype_list_get_unique_unit_list(
 
 LIST *datatype_get_datatypes_for_unit(
 			LIST *datatype_list,
-			char *unit )
+			char *units_name )
 {
 	DATATYPE *datatype;
 	LIST *return_list;
@@ -608,8 +628,8 @@ LIST *datatype_get_datatypes_for_unit(
 		datatype = list_get_pointer( datatype_list );
 
 		if ( strcasecmp(
-			unit,
-			datatype->units ) == 0 )
+			units_name,
+			datatype->units->units_name ) == 0 )
 		{
 			list_append_pointer( return_list, datatype );
 		}

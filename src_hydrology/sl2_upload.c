@@ -68,18 +68,25 @@ int main( int argc, char **argv )
 	char buffer[ 1024 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
-	output_starting_argv_stderr( argc, argv );
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s application process station filename execute_yn\n",
+"Usage: %s ignored process station filename execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	argv_0 = argv[ 0 ];
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	process_name = argv[ 2 ];
 	station_name = argv[ 3 ];
 	full_filename = argv[ 4 ];

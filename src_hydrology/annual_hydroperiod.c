@@ -842,9 +842,6 @@ boolean annual_hydroperiod_output_chart_discontinuous(
 	char end_date_string[ 16 ];
 	char point_list_string[ 1024 ];
 	char sub_title[ 128 ];
-/*
-	STATION_DATATYPE *station_datatype;
-*/
 
 	annual_hydroperiod_get_report_title(
 				title,

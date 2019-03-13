@@ -23,8 +23,8 @@ typedef struct
 typedef struct
 {
 	char *station;
-	char *datatype;
 	char *shef_upload_code;
+	char *datatype;
 } SHEF_UPLOAD_DATATYPE;
 
 typedef struct
@@ -104,5 +104,13 @@ char *shef_get_upload_default_datatype(
 				char *shef_code,
 				LIST *shef_upload_datatype_list,
 				LIST *station_datatype_list );
+
+LIST *shef_upload_datatype_fetch_list(
+				char *application_name );
+
+SHEF_UPLOAD_DATATYPE *shef_upload_datatype_seek(
+				LIST *shef_upload_datatype_list,
+				char *station_name,
+				char *shef_upload_code );
 
 #endif

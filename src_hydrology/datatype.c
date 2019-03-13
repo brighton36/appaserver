@@ -42,44 +42,48 @@ DATATYPE *datatype_calloc( void )
 
 } /* datatype_calloc() */
 
-DATATYPE *datatype_new_datatype(
+DATATYPE *datatype_fetch_new(
 			char *application_name,
 			char *datatype_name,
 			char *units_name )
 {
 	DATATYPE *datatype = datatype_calloc();
+	static LIST *datatype_alias_list = {0};
+	DATATYPE_ALIAS *a;
 
-	if ( application_name )
+	if ( !datatype_alias_list )
 	{
-		static LIST *datatype_alias_list = {0};
-		DATATYPE_ALIAS *a;
-
-		if ( !datatype_alias_list )
-		{
-			datatype_alias_list =
-				datatype_fetch_datatype_alias_list(
-					application_name );
-		}
-
-		if ( ( a = datatype_alias_seek(
-				datatype_alias_list,
-				datatype_name
-					/* datatype_alias_name */ ) ) )
-		{
-			datatype->datatype_name = a->datatype_name;
-		}
-
-		datatype->units =
-			units_seek_alias_new(
-				application_name,
-				units_name );
+		datatype_alias_list =
+			datatype_fetch_datatype_alias_list(
+				application_name );
 	}
-	else
+
+	if ( ( a = datatype_alias_seek(
+			datatype_alias_list,
+			datatype_name
+				/* datatype_alias_name */ ) ) )
 	{
-		datatype->datatype_name = datatype_name;
-		datatype->units = units_new();
-		datatype->units->units_name = units_name;
+		datatype->datatype_name = a->datatype_name;
 	}
+
+	datatype->units =
+		units_seek_alias_new(
+			application_name,
+			units_name );
+
+	return datatype;
+
+} /* datatype_fetch_new() */
+
+DATATYPE *datatype_new_datatype(
+			char *datatype_name,
+			char *units_name )
+{
+	DATATYPE *datatype = datatype_calloc();
+
+	datatype->datatype_name = datatype_name;
+	datatype->units = units_new();
+	datatype->units->units_name = units_name;
 
 	return datatype;
 
@@ -118,10 +122,6 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 
 	datatype =
 		datatype_new_datatype(
-			/* ---------------------- */
-			/* Don't seek UNITS_ALIAS */
-			/* ---------------------- */
-			(char *)0 /* application_name */,
 			strdup( datatype_name ),
 			strdup( units ) );
 
@@ -216,15 +216,10 @@ LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
 					datatype_list,
 					buffer ) )
 			{
-				datatype = datatype_new_datatype(
-						/* ---------------------- */
-						/* Don't seek UNITS_ALIAS */
-						/* ---------------------- */
-						(char *)0
-							/* application_name */,
+				datatype =
+					datatype_new_datatype(
 						strdup( buffer ),
-						(char *)0
-							/* units */ );
+						(char *)0 /* units */ );
 
 				piece( buffer, '^', input_buffer, 1 );
 				datatype->bar_chart = ( *buffer == 'y' );
@@ -486,10 +481,6 @@ DATATYPE *datatype_record2datatype( char *record )
 
 	datatype =
 		datatype_new_datatype(
-			/* ---------------------- */
-			/* Don't seek UNITS_ALIAS */
-			/* ---------------------- */
-			(char *)0 /* application_name */,
 			strdup( datatype_name ),
 			(char *)0 /* units */ );
 

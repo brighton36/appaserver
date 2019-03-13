@@ -41,7 +41,6 @@ typedef struct
 /* Prototypes */
 /* ---------- */
 DATATYPE *datatype_new_datatype(
-			char *application_name,
 			char *datatype_name,
 			char *units_name );
 
@@ -131,5 +130,10 @@ DATATYPE_ALIAS *datatype_alias_new(
 DATATYPE_ALIAS *datatype_alias_seek(
 				LIST *datatype_alias_list,
 				char *datatype_alias_name );
+
+DATATYPE *datatype_fetch_new(
+				char *application_name,
+				char *datatype_name,
+				char *units_name );
 
 #endif

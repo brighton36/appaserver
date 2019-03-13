@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "datatype.h"
+#include "units.h"
+#include "shef_datatype_code.h"
 #include "station_datatype.h"
 #include "timlib.h"
 #include "piece.h"
@@ -218,12 +221,57 @@ STATION_DATATYPE *station_datatype_list_seek(
 
 } /* station_datatype_list_seek() */
 
+STATION_DATATYPE *station_datatype_fetch_new(	char *application_name,
+						char *station_name,
+						char *datatype_name,
+						char *units_name )
+{
+	STATION_DATATYPE *station_datatype;
+	static LIST *shef_upload_datatype_list = {0};
+	SHEF_UPLOAD_DATATYPE *a;
+
+	station_datatype = station_datatype_new();
+	station_datatype->station= station_name;
+
+	if ( !shef_upload_datatype_list )
+	{
+		shef_upload_datatype_list =
+			shef_upload_datatype_fetch_list(
+				application_name );
+	}
+
+	if ( ( a = shef_upload_datatype_seek(
+			shef_upload_datatype_list,
+			station_name,
+			datatype_name
+				/* shef_upload_code */ ) ) )
+	{
+		station_datatype->datatype =
+			datatype_fetch_new(
+				application_name,
+				a->datatype,
+				units_name );
+	}
+	else
+	{
+		station_datatype->datatype =
+			datatype_fetch_new(
+				application_name,
+				datatype_name,
+				units_name );
+	}
+
+	return station_datatype;
+
+} /* station_datatype_fetch_new() */
+
 STATION_DATATYPE *station_datatype_new( void )
 {
 	STATION_DATATYPE *station_datatype;
 
-	if ( ! ( station_datatype = (STATION_DATATYPE *)
-		calloc( 1, sizeof( STATION_DATATYPE ) ) ) )
+	if ( ! ( station_datatype =
+			(STATION_DATATYPE *)
+				calloc( 1, sizeof( STATION_DATATYPE ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s/%d: cannot allocate memory.\n",
@@ -232,6 +280,7 @@ STATION_DATATYPE *station_datatype_new( void )
 			__LINE__ );
 		exit( 1 );
 	}
+
 	return station_datatype;
 
 } /* station_datatype_new() */

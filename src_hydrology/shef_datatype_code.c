@@ -453,3 +453,20 @@ char *shef_get_upload_default_datatype(
 
 } /* shef_get_upload_default_datatype() */
 
+LIST *shef_upload_datatype_fetch_list(
+				char *application_name )
+{
+	return (LIST *)0;
+
+} /* shef_upload_datatype_fetch_list() */
+
+SHEF_UPLOAD_DATATYPE *shef_upload_datatype_seek(
+				LIST *shef_upload_datatype_list,
+				char *station_name,
+				char *shef_upload_code )
+{
+	return (SHEF_UPLOAD_DATATYPE *)0;
+
+} /* shef_upload_datatype_seek() */
+
+

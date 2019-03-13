@@ -6,10 +6,25 @@
 #include <stdlib.h>
 #include "datatype.h"
 
-DATATYPE *datatype_new_datatype(
-			char *application_name,
-			char *datatype_name,
-			char *units_name )
+DATATYPE_ALIAS *datatype_alias_new( void )
+{
+	DATATYPE_ALIAS *d;
+
+	if ( ! ( d = (DATATYPE_ALIAS *)calloc( 1, sizeof( DATATYPE_ALIAS ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return d;
+
+} /* datatype_alias_new() */
+
+DATATYPE *datatype_calloc( void )
 {
 	DATATYPE *datatype;
 
@@ -23,16 +38,47 @@ DATATYPE *datatype_new_datatype(
 		exit( 1 );
 	}
 
-	datatype->datatype_name = datatype_name;
+	return datatype;
 
-	datatype->units = units_new( units_name );
+} /* datatype_calloc() */
+
+DATATYPE *datatype_new_datatype(
+			char *application_name,
+			char *datatype_name,
+			char *units_name )
+{
+	DATATYPE *datatype = datatype_calloc();
 
 	if ( application_name )
 	{
-		datatype->units->units_alias_list =
-			units_get_units_alias_list(
+		static LIST *datatype_alias_list = {0};
+		DATATYPE_ALIAS *a;
+
+		if ( !datatype_alias_list )
+		{
+			datatype_alias_list =
+				datatype_fetch_datatype_alias_list(
+					application_name );
+		}
+
+		if ( ( a = datatype_alias_seek(
+				datatype_alias_list,
+				datatype_name
+					/* datatype_alias_name */ ) ) )
+		{
+			datatype->datatype_name = a->datatype_name;
+		}
+
+		datatype->units =
+			units_seek_alias_new(
 				application_name,
-				datatype->units->units_name );
+				units_name );
+	}
+	else
+	{
+		datatype->datatype_name = datatype_name;
+		datatype->units = units_new();
+		datatype->units->units_name = units_name;
 	}
 
 	return datatype;
@@ -72,6 +118,9 @@ DATATYPE *datatype_unit_record2datatype( char *record )
 
 	datatype =
 		datatype_new_datatype(
+			/* ---------------------- */
+			/* Don't seek UNITS_ALIAS */
+			/* ---------------------- */
 			(char *)0 /* application_name */,
 			strdup( datatype_name ),
 			strdup( units ) );
@@ -168,6 +217,9 @@ LIST *datatype_with_station_name_list_get_datatype_bar_graph_list(
 					buffer ) )
 			{
 				datatype = datatype_new_datatype(
+						/* ---------------------- */
+						/* Don't seek UNITS_ALIAS */
+						/* ---------------------- */
 						(char *)0
 							/* application_name */,
 						strdup( buffer ),
@@ -434,6 +486,9 @@ DATATYPE *datatype_record2datatype( char *record )
 
 	datatype =
 		datatype_new_datatype(
+			/* ---------------------- */
+			/* Don't seek UNITS_ALIAS */
+			/* ---------------------- */
 			(char *)0 /* application_name */,
 			strdup( datatype_name ),
 			(char *)0 /* units */ );
@@ -639,4 +694,82 @@ LIST *datatype_get_datatypes_for_unit(
 	return return_list;
 
 } /* datatype_get_datatypes_for_unit() */
+
+LIST *datatype_fetch_datatype_alias_list(
+					char *application_name )
+{
+	char sys_string[ 1024 ];
+	char *folder_name;
+	char *select;
+	LIST *record_list;
+	char *record;
+	char piece_buffer[ 128 ];
+	DATATYPE_ALIAS *datatype_alias;
+	LIST *datatype_alias_list;
+
+	select = "datatype_alias,datatype";
+	folder_name = "datatype_alias";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder_name );
+
+	record_list = pipe2list( sys_string );
+
+	if ( !list_rewind( record_list ) ) return (LIST *)0;
+
+	datatype_alias_list = list_new();
+
+	do {
+		record = list_get( record_list );
+
+		datatype_alias = datatype_alias_new();
+
+		datatype_alias->datatype_alias =
+			strdup( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					record,
+					0 ) );
+
+		datatype_alias->datatype_name =
+			strdup( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					record,
+					1 ) );
+
+		list_append_pointer( datatype_alias_list, datatype_alias );
+
+	} while ( list_next( record_list ) );
+
+	return datatype_alias_list;
+
+} /* datatype_fetch_datatype_alias_list() */
+
+DATATYPE_ALIAS *datatype_alias_seek(
+				LIST *datatype_alias_list,
+				char *datatype_alias_name )
+{
+	DATATYPE_ALIAS *a;
+
+	if ( !list_rewind( datatype_alias_list ) )
+		return (DATATYPE_ALIAS *)0;
+
+	do {
+		a = list_get( datatype_alias_list );
+
+		if ( timlib_strcmp(	a->datatype_alias,
+					datatype_alias_name ) == 0 ) 
+		{
+			return a;
+		}
+
+	} while( list_next( datatype_alias_list ) );
+
+	return (DATATYPE_ALIAS *)0;
+
+} /* datatype_alias_seek() */
 

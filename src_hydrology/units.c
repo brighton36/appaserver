@@ -28,8 +28,30 @@ UNITS_CONVERTED *units_converted_new(
 
 } /* units_converted_new() */
 
-UNITS_ALIAS *units_alias_new(
-				void )
+UNITS_ALIAS *units_alias_seek(	LIST *units_alias_list,
+				char *units_alias_name )
+{
+	UNITS_ALIAS *a;
+
+	if ( !list_rewind( units_alias_list ) )
+		return (UNITS_ALIAS *)0;
+
+	do {
+		a = list_get( units_alias_list );
+
+		if ( timlib_strcmp(	a->units_alias_name,
+					units_alias_name ) == 0 ) 
+		{
+			return a;
+		}
+
+	} while( list_next( units_alias_list ) );
+
+	return (UNITS_ALIAS *)0;
+
+} /* units_alias_seek() */
+
+UNITS_ALIAS *units_alias_new( void )
 {
 	UNITS_ALIAS *d;
 
@@ -47,7 +69,7 @@ UNITS_ALIAS *units_alias_new(
 
 } /* units_alias_new() */
 
-UNITS *units_new( char *units_name )
+UNITS *units_new( void )
 {
 	UNITS *d;
 
@@ -61,14 +83,44 @@ UNITS *units_new( char *units_name )
 		exit( 1 );
 	}
 
-	d->units_name = units_name;
-
 	return d;
 
 } /* units_new() */
 
-LIST *units_get_units_alias_list(char *application_name,
+UNITS *units_seek_alias_new(	char *application_name,
 				char *units_name )
+{
+	UNITS *u;
+	static LIST *local_units_alias_list = {0};
+	UNITS_ALIAS *a;
+
+	if ( !local_units_alias_list )
+	{
+		local_units_alias_list =
+			units_fetch_units_alias_list(
+				application_name );
+	}
+
+	u = units_new();
+
+	if ( ( a = units_alias_seek(
+			local_units_alias_list,
+			units_name /* units_alias_name */ ) ) )
+	{
+		u->units_name = a->units_name;
+	}
+
+	u->units_alias_list =
+		units_get_units_alias_list(
+			application_name,
+			u->units_name );
+
+	return u;
+
+} /* units_seek_alias_new() */
+
+LIST *units_get_units_alias_list(char *application_name,
+				 char *units_name )
 {
 	static LIST *local_units_alias_list = {0};
 	LIST *units_alias_list;
@@ -134,7 +186,7 @@ LIST *units_fetch_units_alias_list( char *application_name )
 		units_alias = units_alias_new();
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, record, 0 );
-		units_alias->units_alias = strdup( piece_buffer );
+		units_alias->units_alias_name = strdup( piece_buffer );
 
 		piece( piece_buffer, FOLDER_DATA_DELIMITER, record, 1 );
 		units_alias->units_name = strdup( piece_buffer );
@@ -177,7 +229,8 @@ LIST *units_fetch_units_list( char *application_name )
 	do {
 		units_name = list_get_pointer( units_name_list );
 
-		units = units_new( units_name );
+		units = units_new();
+		units->units_name = units_name;
 
 		units->units_alias_list =
 			units_get_units_alias_list(

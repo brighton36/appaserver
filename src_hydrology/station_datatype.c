@@ -9,25 +9,6 @@
 #include "piece.h"
 #include "appaserver_library.h"
 
-DATATYPE_ALIAS *station_datatype_alias_new(
-				void )
-{
-	DATATYPE_ALIAS *d;
-
-	if ( ! ( d = calloc( 1, sizeof( DATATYPE_ALIAS ) ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return d;
-
-} /* station_datatype_alias_new() */
-
 LIST *station_datatype_get_station_datatype_list(
 				char *application_name,
 				LIST *station_list,

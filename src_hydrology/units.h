@@ -14,7 +14,7 @@ typedef struct
 
 typedef struct
 {
-	char *units_alias;
+	char *units_alias_name;
 	char *units_name;
 } UNITS_ALIAS;
 
@@ -33,7 +33,7 @@ UNITS_CONVERTED *units_converted_new(
 UNITS_ALIAS *units_alias_new(
 				void );
 
-UNITS *units_new(		char *units_name );
+UNITS *units_new(		void );
 
 LIST *units_get_units_alias_list(
 				char *application_name,
@@ -44,5 +44,11 @@ LIST *units_fetch_units_alias_list(
 
 LIST *units_fetch_units_list(
 				char *application_name );
+
+UNITS *units_seek_alias_new(	char *application_name,
+				char *units_name );
+
+UNITS_ALIAS *units_alias_seek(	LIST *units_alias_list,
+				char *units_alias_name );
 
 #endif

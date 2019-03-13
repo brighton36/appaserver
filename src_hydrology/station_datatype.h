@@ -8,38 +8,6 @@
 
 typedef struct
 {
-	char *datatype_alias;
-	char *datatype_name;
-} DATATYPE_ALIAS;
-
-typedef struct
-{
-	char *units_converted;
-	double multiply_by;
-} UNITS_CONVERTED;
-
-typedef struct
-{
-	char *units_alias;
-	char *units;
-} UNITS_ALIAS;
-
-typedef struct
-{
-	char *units;
-	LIST *units_alias_list;
-	LIST *units_converted_list;
-} UNITS;
-
-typedef struct
-{
-	char *datatype_name;
-	UNITS *units;
-	LIST *datatype_alias_list;
-} DATATYPE;
-
-typedef struct
-{
 	char *station;
 	char *datatype;
 	char *manipulate_agency;
@@ -51,18 +19,6 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-DATATYPE_ALIAS *station_datatype_alias_new(
-				void );
-
-UNITS_CONVERTED *station_datatype_units_converted_new(
-				void );
-
-UNITS_ALIAS *station_datatype_units_alias_new(
-				void );
-
-UNITS *station_datatype_units_new(
-				void );
-
 LIST *station_datatype_fetch_list(
 				char *application_name );
 

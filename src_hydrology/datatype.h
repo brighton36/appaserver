@@ -20,6 +20,12 @@
 /* ---------- */
 typedef struct
 {
+	char *datatype_alias;
+	char *datatype_name;
+} DATATYPE_ALIAS;
+
+typedef struct
+{
 	char *datatype_name;
 	UNITS *units;
 	boolean bar_chart;
@@ -100,18 +106,30 @@ boolean datatype_bypass_data_collection_frequency(
 				char *datatype );
 
 DATATYPE *datatype_list_ysi_load_heading_seek(
-			LIST *datatype_list,
-			char *two_line_datatype_heading );
+				LIST *datatype_list,
+				char *two_line_datatype_heading );
 
 DATATYPE *datatype_list_exo_load_heading_seek(
-			LIST *datatype_list,
-			char *two_line_datatype_heading );
+				LIST *datatype_list,
+				char *two_line_datatype_heading );
 
 LIST *datatype_list_get_unique_unit_list(
-			LIST *datatype_list );
+				LIST *datatype_list );
 
 LIST *datatype_get_datatypes_for_unit(
-			LIST *datatype_list,
-			char *unit );
+				LIST *datatype_list,
+				char *unit );
+
+DATATYPE *datatype_calloc(	void );
+
+LIST *datatype_fetch_datatype_alias_list(
+				char *application_name );
+
+DATATYPE_ALIAS *datatype_alias_new(
+				void );
+
+DATATYPE_ALIAS *datatype_alias_seek(
+				LIST *datatype_alias_list,
+				char *datatype_alias_name );
 
 #endif

@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "julian.h"
-#include "shef_datatype_code.h"
+/* #include "shef_datatype_code.h" */
+#include "station_datatype.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
@@ -30,7 +31,7 @@
 #  |      |    |   | day
 #  |      |    |   month
 #  |      |    year
-#  |      datatype code
+#  |      shef code
 #  station
 --------------------------------------------------------------------------------
 */
@@ -62,42 +63,36 @@ int main( int argc, char **argv )
 	int minutes_increment;
 	char measurement[ 128 ];
 	int i;
-	SHEF_DATATYPE_CODE *shef_datatype_code;
-	char *datatype;
+	/* SHEF_DATATYPE_CODE *shef_datatype_code; */
+	STATION_DATATYPE *station_datatype;
+	char *datatype_name;
 	double julian_date;
 	char *application_name;
-	char *database_string = {0};
 
-	if ( argc != 2 )
-	{
-		fprintf( stderr, 
-			 "Usage: %s application\n",
-			 argv[ 0 ] );
-		exit( 1 );
-	}
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+	if ( argc != 2 )
+	{
+		fprintf( stderr, 
+			 "Usage: %s ignored\n",
+			 argv[ 0 ] );
+		exit( 1 );
+	}
 
+	/* application_name = argv[ 1 ]; */
+
+/*
 	shef_datatype_code = 
-		shef_datatype_code_new( application_name );
+		shef_datatype_code_new(
+			application_name );
+*/
 
 	while( get_line( input_line, stdin ) )
 	{
@@ -121,18 +116,40 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-		datatype = shef_datatype_code_get_upload_datatype(
-				(SHEF_UPLOAD_AGGREGATE_MEASUREMENT **)0,
+		station_datatype =
+			station_datatype_fetch_new(
+				application_name,
 				station,
-				shef,
-				shef_datatype_code->shef_upload_datatype_list,
-				shef_datatype_code->
-					station_datatype_list,
-				(char *)0 /* measurement_date */,
-				(char *)0 /* measurement_time */,
-				0.0 /* measurement_value */ );
+				shef /* datatype_name */,
+				(char *)0 /* units_name */ );
 
-		if ( !datatype )
+		if ( !station_datatype )
+		{
+			fprintf( stderr,
+"Warning in %s/%s()/%d: station_datatype_fetch_new(%s/%s) returned null.\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 station,
+				 shef );
+			continue;
+		}
+
+		if ( !station_datatype->datatype )
+		{
+			fprintf( stderr,
+			"Warning in %s/%s()/%d: empty datatype for (%s/%s).\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 station,
+				 shef );
+			continue;
+		}
+
+		datatype_name = station_datatype->datatype->datatype_name;
+
+		if ( !datatype_name )
 		{
 			fprintf( stderr, "%s\n", input_line );
 			continue;
@@ -197,7 +214,7 @@ int main( int argc, char **argv )
 	
 				printf( "%s,%s,%s-%s-%s,%s,%s\n",
 				 	station,
-				 	datatype,
+				 	datatype_name,
 				 	year,
 				 	month,
 				 	day,
@@ -206,13 +223,15 @@ int main( int argc, char **argv )
 			}
 
 			julian_date = 
-				julian_increment_minutes( julian_date,
-							  minutes_increment );
+				julian_increment_minutes(
+					julian_date,
+					minutes_increment );
 
 			strcpy( full_date, julian_to_yyyymmdd( julian_date ) );
 			strcpy( time, julian_to_hhmm( julian_date ) );
-
 		}
+
+		station_datatype_free( station_datatype );
 	}
 	return 0;
 } /* main() */

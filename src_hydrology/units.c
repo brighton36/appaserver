@@ -94,6 +94,8 @@ UNITS *units_seek_alias_new(	char *application_name,
 	static LIST *local_units_alias_list = {0};
 	UNITS_ALIAS *a;
 
+	if ( !units_name ) return (UNITS *)0;
+
 	if ( !local_units_alias_list )
 	{
 		local_units_alias_list =
@@ -125,6 +127,8 @@ LIST *units_get_units_alias_list(char *application_name,
 	static LIST *local_units_alias_list = {0};
 	LIST *units_alias_list;
 	UNITS_ALIAS *units_alias;
+
+	if ( !units_name ) return (LIST *)0;
 
 	if ( !local_units_alias_list )
 	{
@@ -244,4 +248,22 @@ LIST *units_fetch_units_list( char *application_name )
 	return units_list;
 
 } /* units_fetch_units_list() */
+
+void units_free( UNITS *units )
+{
+	if ( !units ) return;
+
+	if ( units->units_alias_list )
+	{
+		list_free_container( units->units_alias_list );
+	}
+
+	if ( units->units_converted_list )
+	{
+		list_free_container( units->units_converted_list );
+	}
+
+	free( units );
+
+} /* units_free() */
 

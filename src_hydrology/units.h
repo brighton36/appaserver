@@ -51,4 +51,6 @@ UNITS *units_seek_alias_new(	char *application_name,
 UNITS_ALIAS *units_alias_seek(	LIST *units_alias_list,
 				char *units_alias_name );
 
+void units_free(		UNITS *units );
+
 #endif

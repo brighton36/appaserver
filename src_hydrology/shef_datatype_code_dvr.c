@@ -20,10 +20,9 @@ int main( void )
 	printf( "upload shef NE1/HH should be stage is (%s)\n",
 		shef_datatype_code_get_upload_datatype( 
 					(SHEF_UPLOAD_AGGREGATE_MEASUREMENT **)0,
+					"hydrology",
 					"NE1",
 					"HH",
-					c->shef_upload_datatype_list,
-					c->station_datatype_list,
 					(char *)0 /* measurement_date */,
 					(char *)0 /* measurement_time */,
 					0.0 /* measurement_value */ ) );

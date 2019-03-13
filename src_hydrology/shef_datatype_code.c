@@ -43,6 +43,25 @@ SHEF_UPLOAD_AGGREGATE_MEASUREMENT *
 
 } /* shef_upload_aggregate_measurement_new() */
 
+SHEF_UPLOAD_DATATYPE *shef_upload_datatype_new( void )
+{
+	SHEF_UPLOAD_DATATYPE *s;
+
+	if ( ! ( s = (SHEF_UPLOAD_DATATYPE *)
+			calloc( 1, sizeof( SHEF_UPLOAD_DATATYPE ) ) ) )
+	{
+		fprintf( stderr, 
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return s;
+
+} /* shef_upload_datatype_new() */
+
 SHEF_DATATYPE_CODE *shef_datatype_code_new( char *application_name )
 {
 	SHEF_DATATYPE_CODE *s;
@@ -110,22 +129,24 @@ char *shef_datatype_code_get_shef_download_code(
 } /* shef_datatype_code_get_shef_download_code() */
 
 
+/* -------------------------------------------- */
+/* If aggregate measurement, then this returns	*/
+/* SHEF_AGGREGATE_STUB.				*/
+/* -------------------------------------------- */
 char *shef_datatype_code_get_upload_datatype(
 				SHEF_UPLOAD_AGGREGATE_MEASUREMENT **
 					shef_upload_aggregate_measurement,
+				char *application_name,
 				char *station,
 				char *shef_code,
-				LIST *shef_upload_datatype_list,
-				LIST *station_datatype_list,
 				char *measurement_date,
 				char *measurement_time,
 				double measurement_value )
 {
-	SHEF_UPLOAD_DATATYPE *datatype;
 	STATION_DATATYPE *station_datatype;
-	char shef_code_upper_case[ 128 ];
-	static char datatype_lower_case[ 128 ];
-	boolean is_min_max = 0;
+	static char datatype_name[ 128 ];
+	char local_shef_code[ 128 ];
+	boolean is_aggregate_measurement = 0;
 	int str_len;
 	static HASH_TABLE *shef_upload_hash_table = {0};
 
@@ -134,14 +155,84 @@ char *shef_datatype_code_get_upload_datatype(
 		shef_upload_hash_table = hash_table_new( HASH_TABLE_MEDIUM );
 	}
 
-	*datatype_lower_case = '\0';
+	*datatype_name = '\0';
+	strcpy( local_shef_code, shef_code );
+
+	if ( measurement_date )
+	{
+		if ( ( is_aggregate_measurement =
+				shef_is_min_max(
+					&str_len,
+					local_shef_code ) ) )
+		{
+			/* Trim off the MM */
+			/* --------------- */
+			*( local_shef_code + str_len - 2 ) = '\0';
+		}
+	}
+
+	station_datatype =
+		station_datatype_fetch_new(
+			application_name,
+			station,
+			local_shef_code /* datatype_name */,
+			(char *)0  /* units_name */ );
+
+	if ( !station_datatype )
+	{
+		fprintf( stderr,
+"Warning in %s/%s()/%d: station_datatype_fetch_new(%s/%s) returned null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 station,
+			 local_shef_code );
+
+		return (char *)0;
+	}
+
+	if ( !station_datatype->datatype )
+	{
+		fprintf( stderr,
+"Warning in %s/%s()/%d: station_datatype_fetch_new(%s/%s) returned null datatype.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 station,
+			 local_shef_code );
+
+		return (char *)0;
+	}
+
+	strcpy(	datatype_name,
+		station_datatype->datatype->datatype_name );
+
+	station_datatype_free( station_datatype );
+
+	if ( is_aggregate_measurement )
+	{
+		return shef_datatype_code_get_upload_min_max_datatype(
+				shef_upload_aggregate_measurement,
+				shef_upload_hash_table,
+				station,
+				datatype_name,
+				measurement_date,
+				measurement_time,
+				measurement_value );
+	}
+
+	return datatype_name;
+
+#ifdef NOT_DEFINED
+	char shef_code_upper_case[ 128 ];
+	SHEF_UPLOAD_DATATYPE *datatype;
 
 	strcpy( shef_code_upper_case, shef_code );
 	up_string( shef_code_upper_case );
 
 	if ( measurement_date )
 	{
-		if ( ( is_min_max = shef_is_min_max(
+		if ( ( is_aggregate_measurement = shef_is_min_max(
 					&str_len,
 					shef_code_upper_case ) ) )
 		{
@@ -156,7 +247,7 @@ char *shef_datatype_code_get_upload_datatype(
 				shef_code_upper_case,
 				shef_upload_datatype_list ) ) )
 	{
-		strcpy( datatype_lower_case, datatype->datatype );
+		strcpy( datatype_lower_case, datatype->datatype_name );
 		low_string( datatype_lower_case );
 	}
 	else
@@ -168,12 +259,12 @@ char *shef_datatype_code_get_upload_datatype(
 		if ( !station_datatype_list_seek(
 				station_datatype_list,
 				station,
-				datatype->datatype ) )
+				datatype->datatype_name ) )
 		{
 			return (char *)0;
 		}
 
-		strcpy( datatype_lower_case, datatype->datatype );
+		strcpy( datatype_lower_case, datatype->datatype_name );
 		low_string( datatype_lower_case );
 	}
 	else
@@ -184,25 +275,7 @@ char *shef_datatype_code_get_upload_datatype(
 	{
 		return station_datatype->datatype;
 	}
-
-	if ( *datatype_lower_case )
-	{
-		if ( is_min_max )
-		{
-			return shef_datatype_code_get_upload_min_max_datatype(
-					shef_upload_aggregate_measurement,
-					shef_upload_hash_table,
-					station,
-					datatype_lower_case,
-					measurement_date,
-					measurement_time,
-					measurement_value );
-		}
-
-		return datatype_lower_case;
-	}
-
-	return (char *)0;
+#endif
 
 } /* shef_datatype_code_get_upload_datatype() */
 
@@ -219,16 +292,20 @@ char *shef_upload_datatype_get_key(	char *datatype_name,
 			"%s^%s^%s",
 			datatype_name,
 			measurement_date,
-			strdup( hour ) );
+			hour );
 
 	return key;
 
 } /* shef_upload_datatype_get_key() */
 
+/* Are the last two characters in the shef code MM? */
+/* ------------------------------------------------ */
 boolean shef_is_min_max(	int *str_len,
 				char *shef_code_upper_case )
 {
 	*str_len = strlen( shef_code_upper_case );
+
+	if ( *str_len <= 2 ) return 0;
 
 	return ( *( shef_code_upper_case + *str_len - 2 ) == 'M'
 		&&   *( shef_code_upper_case + *str_len - 1 ) == 'M' );
@@ -253,7 +330,7 @@ SHEF_UPLOAD_DATATYPE *shef_get_upload_datatype(
 				datatype->shef_upload_code ) == 0
 		&&   timlib_strcmp(
 				station,
-				datatype->station ) == 0 )
+				datatype->station_name ) == 0 )
 		{
 			return datatype;
 		}
@@ -290,8 +367,8 @@ LIST *shef_fetch_upload_datatype_list( char *application_name )
 		datatype = (SHEF_UPLOAD_DATATYPE *)
 				calloc( 1, sizeof( SHEF_UPLOAD_DATATYPE ) );
 
-		datatype->station = strdup( station_string );
-		datatype->datatype = strdup( datatype_string );
+		datatype->station_name = strdup( station_string );
+		datatype->datatype_name = strdup( datatype_string );
 		datatype->shef_upload_code = strdup( shef_upload_code );
 
 		list_append_pointer( datatype_list, datatype );
@@ -341,7 +418,7 @@ char *shef_datatype_code_get_upload_min_max_datatype(
 					shef_upload_aggregate_measurement,
 				HASH_TABLE *shef_upload_hash_table,
 				char *station,
-				char *datatype_lower_case,
+				char *datatype_name,
 				char *measurement_date,
 				char *measurement_time,
 				double measurement_value )
@@ -349,11 +426,15 @@ char *shef_datatype_code_get_upload_min_max_datatype(
 	char *key;
 	char other_datatype[ 128 ];
 	static char return_datatype[ 128 ];
+	char datatype_lower_case[ 128 ];
 	SHEF_UPLOAD_AGGREGATE_MEASUREMENT *
 			local_shef_upload_aggregate_measurement;
 
 	*shef_upload_aggregate_measurement =
 		(SHEF_UPLOAD_AGGREGATE_MEASUREMENT *)0;
+
+	timlib_strcpy( datatype_lower_case, datatype_name, 128 );
+	low_string( datatype_lower_case );
 
 	key = shef_upload_datatype_get_key(
 					datatype_lower_case,
@@ -428,7 +509,7 @@ char *shef_get_upload_default_datatype(
 				shef_code,
 				shef_upload_datatype_list ) ) )
 	{
-		return datatype->datatype;
+		return datatype->datatype_name;
 	}
 	else
 	if ( ( datatype = shef_get_upload_datatype(
@@ -436,7 +517,7 @@ char *shef_get_upload_default_datatype(
 				shef_code,
 				shef_upload_datatype_list ) ) )
 	{
-		return datatype->datatype;
+		return datatype->datatype_name;
 	}
 	else
 	if ( ( station_datatype = station_datatype_list_seek(
@@ -456,7 +537,60 @@ char *shef_get_upload_default_datatype(
 LIST *shef_upload_datatype_fetch_list(
 				char *application_name )
 {
-	return (LIST *)0;
+	char sys_string[ 1024 ];
+	char *folder_name;
+	char *select;
+	LIST *record_list;
+	char *record;
+	char piece_buffer[ 128 ];
+	SHEF_UPLOAD_DATATYPE *a;
+	LIST *return_list;
+
+	select = "station,shef_upload_code,datatype";
+	folder_name = "shef_upload_datatype";
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	",
+		 application_name,
+		 select,
+		 folder_name );
+
+	record_list = pipe2list( sys_string );
+
+	if ( !list_rewind( record_list ) ) return (LIST *)0;
+
+	return_list = list_new();
+
+	do {
+		record = list_get( record_list );
+
+		a = shef_upload_datatype_new();
+
+		a->station_name =
+			strdup( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					record,
+					0 ) );
+
+		a->shef_upload_code =
+			strdup( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					record,
+					1 ) );
+
+		a->datatype_name =
+			strdup( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					record,
+					2 ) );
+
+		list_append_pointer( return_list, a );
+
+	} while ( list_next( record_list ) );
+
+	return return_list;
 
 } /* shef_upload_datatype_fetch_list() */
 
@@ -465,6 +599,24 @@ SHEF_UPLOAD_DATATYPE *shef_upload_datatype_seek(
 				char *station_name,
 				char *shef_upload_code )
 {
+	SHEF_UPLOAD_DATATYPE *a;
+
+	if ( !list_rewind( shef_upload_datatype_list ) )
+		return (SHEF_UPLOAD_DATATYPE *)0;
+
+	do {
+		a = list_get( shef_upload_datatype_list );
+
+		if ( timlib_strcmp(	a->station_name,
+					station_name ) == 0
+		&&   timlib_strcmp(	a->shef_upload_code,
+					shef_upload_code ) == 0 )
+		{
+			return a;
+		}
+
+	} while( list_next( shef_upload_datatype_list ) );
+
 	return (SHEF_UPLOAD_DATATYPE *)0;
 
 } /* shef_upload_datatype_seek() */

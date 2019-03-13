@@ -221,6 +221,19 @@ STATION_DATATYPE *station_datatype_list_seek(
 
 } /* station_datatype_list_seek() */
 
+void station_datatype_free( STATION_DATATYPE *station_datatype )
+{
+	if ( !station_datatype ) return;
+
+	if ( station_datatype->datatype )
+	{
+		datatype_free( station_datatype->datatype );
+	}
+
+	free( station_datatype );
+
+} /* station_datatype_free() */
+
 STATION_DATATYPE *station_datatype_fetch_new(	char *application_name,
 						char *station_name,
 						char *datatype_name,
@@ -249,7 +262,7 @@ STATION_DATATYPE *station_datatype_fetch_new(	char *application_name,
 		station_datatype->datatype =
 			datatype_fetch_new(
 				application_name,
-				a->datatype,
+				a->datatype_name,
 				units_name );
 	}
 	else

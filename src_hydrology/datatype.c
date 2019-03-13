@@ -42,6 +42,19 @@ DATATYPE *datatype_calloc( void )
 
 } /* datatype_calloc() */
 
+void datatype_free( DATATYPE *datatype )
+{
+	if ( !datatype ) return;
+
+	if ( datatype->units )
+	{
+		units_free( datatype->units );
+	}
+
+	free( datatype );
+
+} /* datatype_free() */
+
 DATATYPE *datatype_fetch_new(
 			char *application_name,
 			char *datatype_name,
@@ -66,10 +79,13 @@ DATATYPE *datatype_fetch_new(
 		datatype->datatype_name = a->datatype_name;
 	}
 
-	datatype->units =
-		units_seek_alias_new(
-			application_name,
-			units_name );
+	if ( units_name )
+	{
+		datatype->units =
+			units_seek_alias_new(
+				application_name,
+				units_name );
+	}
 
 	return datatype;
 
@@ -594,7 +610,7 @@ DATATYPE *datatype_list_ysi_load_heading_seek(
 	do {
 		datatype = list_get_pointer( datatype_list );
 
-		if ( strcasecmp(
+		if ( timlib_strcmp(
 			two_line_datatype_heading,
 			datatype->ysi_load_heading ) == 0 )
 		{
@@ -618,7 +634,7 @@ DATATYPE *datatype_list_exo_load_heading_seek(
 	do {
 		datatype = list_get_pointer( datatype_list );
 
-		if ( strcasecmp(
+		if ( timlib_strcmp(
 			two_line_datatype_heading,
 			datatype->exo_load_heading ) == 0 )
 		{
@@ -643,6 +659,8 @@ LIST *datatype_list_get_unique_unit_list(
 
 	do {
 		datatype = list_get_pointer( datatype_list );
+
+		if ( !datatype->units ) continue;
 
 		if ( !list_exists_string(
 			unit_list,
@@ -673,7 +691,7 @@ LIST *datatype_get_datatypes_for_unit(
 	do {
 		datatype = list_get_pointer( datatype_list );
 
-		if ( strcasecmp(
+		if ( timlib_strcmp(
 			units_name,
 			datatype->units->units_name ) == 0 )
 		{

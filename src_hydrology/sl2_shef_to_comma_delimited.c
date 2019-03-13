@@ -55,7 +55,6 @@ int main( int argc, char **argv )
 	char *datatype_name;
 	char *station_name;
 	char *application_name;
-	char *database_string = {0};
 	SHEF_UPLOAD_AGGREGATE_MEASUREMENT *shef_upload_aggregate_measurement;
 
 	/* Exits if failure. */
@@ -166,14 +165,16 @@ int main( int argc, char **argv )
 		shef_upload_aggregate_measurement =
 			(SHEF_UPLOAD_AGGREGATE_MEASUREMENT *)0;
 
+		/* -------------------------------------------- */
+		/* If aggregate measurement, then this returns	*/
+		/* SHEF_AGGREGATE_STUB.				*/
+		/* -------------------------------------------- */
 		datatype_name =
 			shef_datatype_code_get_upload_datatype(
 				&shef_upload_aggregate_measurement,
+				application_name,
 				station_name,
 				shef,
-				shef_datatype_code->shef_upload_datatype_list,
-				shef_datatype_code->
-					station_datatype_list,
 				measurement_date,
 				measurement_time,
 				atof( measurement_value_string ) );
@@ -193,11 +194,12 @@ int main( int argc, char **argv )
 		 		measurement_time,
 		 		measurement_value_string );
 		}
-
+		else
 		if ( shef_upload_aggregate_measurement )
 		{
 			printf( "%s,%s,%s,%s,%.3lf\n",
-				station_name,
+		 		shef_upload_aggregate_measurement->
+					station,
 		 		shef_upload_aggregate_measurement->
 					datatype,
 		 		shef_upload_aggregate_measurement->

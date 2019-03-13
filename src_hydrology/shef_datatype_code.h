@@ -22,9 +22,9 @@ typedef struct
 
 typedef struct
 {
-	char *station;
+	char *station_name;
 	char *shef_upload_code;
-	char *datatype;
+	char *datatype_name;
 } SHEF_UPLOAD_DATATYPE;
 
 typedef struct
@@ -51,6 +51,9 @@ SHEF_UPLOAD_AGGREGATE_MEASUREMENT *
 				char *measurement_time,
 				double measurement_value );
 
+SHEF_UPLOAD_DATATYPE *shef_upload_datatype_new(
+				void );
+
 SHEF_DATATYPE_CODE *shef_datatype_code_new(
 				char *application_name );
 
@@ -62,10 +65,9 @@ char *shef_datatype_code_get_shef_download_code(
 char *shef_datatype_code_get_upload_datatype(
 				SHEF_UPLOAD_AGGREGATE_MEASUREMENT **
 					shef_upload_aggregate_measurement,
+				char *application_name,
 				char *station,
 				char *shef_code,
-				LIST *shef_upload_datatype_list,
-				LIST *station_datatype_list,
 				char *measurement_date,
 				char *measurement_time,
 				double measurement_value );
@@ -77,7 +79,7 @@ LIST *shef_datatype_fetch_download_datatype_list(
 				char *application_name );
 
 SHEF_UPLOAD_DATATYPE *shef_get_upload_datatype(
-				char *station,
+				char *station_name,
 				char *shef_code,
 				LIST *shef_upload_datatype_list );
 
@@ -89,7 +91,7 @@ char *shef_datatype_code_get_upload_min_max_datatype(
 					shef_upload_aggregate_measurement,
 				HASH_TABLE *shef_upload_hash_table,
 				char *station,
-				char *datatype_lower_case,
+				char *datatype_name,
 				char *measurement_date,
 				char *measurement_time,
 				double measurement_value );
@@ -100,7 +102,7 @@ char *shef_upload_datatype_get_key(
 				char *measurement_time );
 
 char *shef_get_upload_default_datatype(
-				char *station,
+				char *station_name,
 				char *shef_code,
 				LIST *shef_upload_datatype_list,
 				LIST *station_datatype_list );

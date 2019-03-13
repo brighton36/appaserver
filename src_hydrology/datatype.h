@@ -136,4 +136,6 @@ DATATYPE *datatype_fetch_new(
 				char *datatype_name,
 				char *units_name );
 
+void datatype_free(		DATATYPE *datatype );
+
 #endif

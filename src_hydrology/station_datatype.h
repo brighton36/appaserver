@@ -1,15 +1,16 @@
-/* station_datatype.h */
-/* ------------------ */
+/* $APPASERVER_HOME/src_hydrology/station_datatype.h */
+/* ------------------------------------------------- */
 
 #ifndef STATION_DATATYPE_H
 #define STATION_DATATYPE_H
 
 #include "list.h"
+#include "datatype.h"
 
 typedef struct
 {
 	char *station;
-	char *datatype;
+	DATATYPE *datatype;
 	char *manipulate_agency;
 	char *units;
 	char aggregation_sum_yn;
@@ -21,6 +22,12 @@ typedef struct
 /* ---------- */
 LIST *station_datatype_fetch_list(
 				char *application_name );
+
+STATION_DATATYPE *station_datatype_fetch_new(
+				char *application_name,
+				char *station_name,
+				char *datatype_name,
+				char *units_name );
 
 STATION_DATATYPE *station_datatype_list_seek(
 				LIST *station_datatype_list,
@@ -44,5 +51,8 @@ char *station_datatype_get_manipulate_agency(
 				char *application_name,
 				char *station,
 				char *datatype );
+
+void station_datatype_free(
+				STATION_DATATYPE *station_datatype );
 
 #endif

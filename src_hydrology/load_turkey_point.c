@@ -959,9 +959,11 @@ int load_turkey_point_file(	char *application_name,
 	/* ----------------------- */
 	hydrology->header_column_datatype_list =
 		hydrology_get_header_column_datatype_list(
+				application_name,
 				input_filename,
-				hydrology.input->datatype_list,
-				TURKEY_POINT_FIRST_COLUMN_PIECE );
+				TURKEY_POINT_FIRST_COLUMN_PIECE,
+				hydrology->input.datatype_list,
+				hydrology->input.units_list );
 
 fprintf( stderr,
 	 "Header header column datatype list:\n%s\n",

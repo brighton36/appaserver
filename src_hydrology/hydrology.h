@@ -38,8 +38,9 @@ void hydrology_datatype_list_display(
 
 LIST *hydrology_get_header_column_datatype_list(
 				char *application_name,
-				LIST *input_datatype_list,
 				char *input_filename,
-				int first_column_piece );
+				int first_column_piece,
+				LIST *input_datatype_list,
+				LIST *input_units_list );
 
 #endif

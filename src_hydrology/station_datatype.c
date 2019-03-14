@@ -141,17 +141,25 @@ STATION_DATATYPE *station_datatype_get_station_datatype(
 LIST *station_datatype_list_get_station_datatype_list(
 				char *application_name )
 {
+	return station_datatype_fetch_list( application_name );
+}
+
+LIST *station_datatype_fetch_list(
+				char *application_name )
+{
 	char sys_string[ 1024 ];
 	char buffer[ 256 ];
 	char *station_datatype_table;
 	STATION_DATATYPE *station_datatype;
 	FILE *input_pipe;
 	char station[ 128 ];
-	char datatype[ 128 ];
+	char datatype_name[ 128 ];
 	LIST *station_datatype_list = list_new();
 
 	station_datatype_table =
-		get_table_name( application_name, "station_datatype" );
+		get_table_name(
+			application_name,
+			"station_datatype" );
 
 	sprintf( sys_string,
 	"echo \"select station,datatype					   "
@@ -173,12 +181,12 @@ LIST *station_datatype_list_get_station_datatype_list(
 
 		station_datatype->station = strdup( station );
 
-		piece(	datatype,
+		piece(	datatype_name,
 			FOLDER_DATA_DELIMITER,
 			buffer,
 			1 );
 
-		station_datatype->datatype = strdup( datatype );
+		station_datatype->datatype = datatype_new( datatype );
 
 		list_append_pointer(
 			station_datatype_list,
@@ -187,13 +195,6 @@ LIST *station_datatype_list_get_station_datatype_list(
 	pclose( input_pipe );
 	return station_datatype_list;
 
-} /* station_datatype_list_get_station_datatype_list() */
-
-LIST *station_datatype_fetch_list(
-				char *application_name )
-{
-	return station_datatype_list_get_station_datatype_list(
-			application_name );
 
 } /* station_datatype_fetch_list() */
 

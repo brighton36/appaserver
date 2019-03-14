@@ -960,6 +960,7 @@ int load_turkey_point_file(	char *application_name,
 	hydrology->header_column_datatype_list =
 		hydrology_get_header_column_datatype_list(
 				application_name,
+				station,
 				input_filename,
 				TURKEY_POINT_FIRST_COLUMN_PIECE,
 				hydrology->input.datatype_list,
@@ -987,6 +988,8 @@ fprintf( stderr,
 			project_name,
 			heading_error_message );
 */
+
+	return load_count;
 
 } /* load_turkey_point_file() */
 

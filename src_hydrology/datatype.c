@@ -487,6 +487,11 @@ DATATYPE *datatype_record2datatype( char *record )
 
 } /* datatype_record2datatype() */
 
+LIST *datatype_fetch_list( char *application_name )
+{
+	return datatype_list_get( application_name );
+}
+
 LIST *datatype_get_list( char *application_name )
 {
 	return datatype_list_get( application_name );
@@ -748,6 +753,7 @@ DATATYPE_ALIAS *datatype_alias_seek(
 
 DATATYPE *datatype_parse_new(
 				char *application_name,
+				char *station,
 				char *column_heading,
 				LIST *input_datatype_list,
 				LIST *input_units_list )
@@ -756,19 +762,20 @@ DATATYPE *datatype_parse_new(
 
 DATATYPE *datatype_fetch_new(
 			char *application_name,
+			char *station,
 			char *datatype_name,
 			char *units_name,
 			LIST *input_datatype_list,
 			LIST *input_units_list )
 {
 	DATATYPE *datatype = {0};
-	static LIST *datatype_alias_list = {0};
+	static LIST *entire_datatype_alias_list = {0};
 	char *datatype_name = {0};
 	DATATYPE_ALIAS *a;
 
-	if ( !datatype_alias_list )
+	if ( !entire_datatype_alias_list )
 	{
-		datatype_alias_list =
+		entire_datatype_alias_list =
 			datatype_fetch_datatype_alias_list(
 				application_name );
 	}
@@ -776,7 +783,7 @@ DATATYPE *datatype_fetch_new(
 	if ( ! ( datatype = datatype_list_seek( input_datatype_list ) ) )
 	{
 		if ( ( a = datatype_alias_seek(
-				datatype_alias_list,
+				entire_datatype_alias_list,
 				datatype_name
 					/* datatype_alias_name */ ) ) )
 		{

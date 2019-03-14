@@ -29,7 +29,7 @@ HYDROLOGY *hydrology_new( char *application_name )
 	}
 
 	h->input.datatype_list =
-		datatype_get_list(
+		datatype_fetch_list(
 			application_name );
 
 	h->input.units_list =
@@ -47,6 +47,7 @@ void hydrology_datatype_list_display(
 
 LIST *hydrology_get_header_column_datatype_list(
 				char *application_name,
+				char *station,
 				char *input_filename,
 				int first_column_piece,
 				LIST *input_datatype_list,
@@ -76,8 +77,10 @@ LIST *hydrology_get_header_column_datatype_list(
 		if ( ( datatype = 
 			datatype_parse_new(
 				application_name,
+				station,
+				column_heading,
 				input_datatype_list,
-				column_heading ) )
+				input_units_list ) )
 		{
 			datatype->column_piece = column_piece;
 

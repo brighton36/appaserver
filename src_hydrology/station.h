@@ -121,4 +121,8 @@ DICTIONARY *station_load_dictionary(
 boolean station_exists(	char *application_name,
 			char *station_name );
 
+STATION *station_fetch_new(
+			char *application_name,
+			char *station_name );
+
 #endif

@@ -265,6 +265,7 @@ LIST *station_get_global_station_list(
 
 	list_free_string_list( record_list );
 	return station_list;
+
 } /* station_get_global_station_list() */
 
 STATION *station_seek(		char *station_name,
@@ -720,3 +721,20 @@ boolean station_exists(	char *application_name,
 	return (boolean) atoi( return_value );
 
 } /* station_exists() */
+
+STATION *station_fetch_new(	char *application_name,
+				char *station_name )
+{
+	STATION *station;
+
+	station = station_new( station );
+
+	station->station_datatype_list =
+		station_fetch_datatype_list(
+			application_name,
+			station_name );
+
+	return station;
+
+} /* station_fetch_new() */
+

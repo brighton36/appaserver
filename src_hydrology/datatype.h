@@ -53,6 +53,9 @@ LIST *datatype_get_datatype_list(
 LIST *datatype_list_get(
 			char *application_name );
 
+LIST *datatype_fetch_list(
+			char *application_name );
+
 LIST *datatype_get_list(
 			char *application_name );
 
@@ -133,11 +136,14 @@ DATATYPE_ALIAS *datatype_alias_seek(
 
 DATATYPE *datatype_parse_new(
 				char *application_name,
+				char *station,
+				char *column_heading,
 				LIST *input_datatype_list,
-				char *column_heading );
+				LIST *input_units_list );
 
 DATATYPE *datatype_fetch_new(
 				char *application_name,
+				char *station,
 				char *datatype_name,
 				char *units_name,
 				LIST *input_datatype_list );

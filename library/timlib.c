@@ -3862,3 +3862,40 @@ char *timlib_pad_zero(		int number,
 
 }  /* timlib_pad_zero() */
 
+char *timlib_get_first_line(	char *destination,
+				char *input_filename )
+{
+	FILE *input_file;
+
+	*destination = '\0';
+
+	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: cannot open for read: %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			input_filename );
+
+		return (char *)0;
+	}
+
+	if ( !get_line( destination, input_file ) )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: empty file: %s.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			input_filename );
+
+		fclose( input_file );
+		return (char *)0;
+	}
+
+	fclose( input_file );
+	return destination;
+
+} /* timlib_get_first_line() */
+

@@ -1,5 +1,5 @@
 /* -----------------------------------------------------	*/
-/* $APPASERVER_HOME/src_waterquality/load_turkey_point.c	*/
+/* $APPASERVER_HOME/src_hydrology/load_turkey_point.c		*/
 /* -----------------------------------------------------	*/
 /*								*/
 /* Freely available software: see Appaserver.org		*/
@@ -25,10 +25,7 @@
 #include "date_convert.h"
 #include "application.h"
 #include "basename.h"
-#include "application_constants.h"
 #include "load_turkey_point.h"
-
-void remove_error_file(		char *error_filename );
 
 int main( int argc, char **argv )
 {
@@ -39,10 +36,7 @@ int main( int argc, char **argv )
 	char *input_filename;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	int load_count = 0;
-	char buffer[ 128 ];
-	char heading_error_message[ 65536 ];
-	APPLICATION_CONSTANTS *application_constants;
+	int load_count;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -99,61 +93,15 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	*heading_error_message = '\0';
-
-	application_constants = application_constants_new();
-	application_constants->dictionary =
-		application_constants_get_dictionary(
-			application_name );
-
-#ifdef NOT_DEFINED
-	water_quality =
-		water_quality_new(
-			application_name,
-			project_name );
-
-	water_quality->parameter_unit_alias_list =
-		water_get_parameter_unit_alias_list(
-			water_quality->input.parameter_name_list,
-			water_quality->input.unit_name_list,
-			water_quality->input.parameter_alias_list,
-			water_quality->input.unit_alias_list );
-
-	/* Doesn't set RESULTS */
-	/* ------------------- */
-	water_quality->load_column_list =
-		water_fetch_turkey_point_column_list(
-				heading_error_message,
-				input_filename,
-				water_quality->parameter_unit_alias_list,
-				application_constants->dictionary );
-
-/*
-fprintf( stderr,
-	 "Load column_list:\n%s\n",
-	 water_load_column_list_display(
-		water_quality->load_column_list ) );
-*/
-
-	if ( execute )
-	{
-		delete_waterquality(	application_name,
-					input_filename,
-					water_quality );
-	}
-
 	load_count =
-		load_concentration_file(
-			application_name,
+		load_turkey_point_file(	application_name,
+			station,
 			input_filename,
-			water_quality,
-			execute,
-			project_name,
-			heading_error_message );
+			execute );
 
 	if ( execute )
 	{
-		printf( "<p>Process complete with %d concentrations.\n",
+		printf( "<p>Process complete with %d measurements.\n",
 			load_count );
 
 		process_increment_execution_count(
@@ -163,13 +111,11 @@ fprintf( stderr,
 	}
 	else
 	{
-		printf( "<p>Process did not load %d concentrations.\n",
+		printf( "<p>Process did not load %d measurements.\n",
 			load_count );
 	}
 
 	document_close();
-
-#endif
 
 	return 0;
 
@@ -997,3 +943,48 @@ boolean extract_static_attributes(
 } /* extract_static_attributes() */
 
 #endif
+
+int load_turkey_point_file(	char *application_name,
+				char *station,
+				char *input_filename,
+				boolean execute )
+{
+	int load_count = 0;
+	char buffer[ 128 ];
+	HYDROLOGY *hydrology;
+
+	hydrology = hydrology_new( application_name );
+
+	/* Doesn't set MEASUREMENT */
+	/* ----------------------- */
+	hydrology->header_column_datatype_list =
+		hydrology_get_header_column_datatype_list(
+				input_filename,
+				hydrology.input->datatype_list,
+				TURKEY_POINT_FIRST_COLUMN_PIECE );
+
+fprintf( stderr,
+	 "Header header column datatype list:\n%s\n",
+	 hydrology_datatype_list_display(
+		hydrology->header_column_datatype_list ) );
+
+/*
+	if ( execute )
+	{
+		delete_waterquality(	application_name,
+					input_filename,
+					water_quality );
+	}
+
+	load_count =
+		load_concentration_file(
+			application_name,
+			input_filename,
+			water_quality,
+			execute,
+			project_name,
+			heading_error_message );
+*/
+
+} /* load_turkey_point_file() */
+

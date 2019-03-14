@@ -35,7 +35,7 @@ typedef struct
 	boolean calibrated;
 	char *ysi_load_heading;
 	char *exo_load_heading;
-	int piece_number;
+	int column_piece;
 } DATATYPE;
 
 /* Prototypes */
@@ -131,10 +131,16 @@ DATATYPE_ALIAS *datatype_alias_seek(
 				LIST *datatype_alias_list,
 				char *datatype_alias_name );
 
+DATATYPE *datatype_parse_new(
+				char *application_name,
+				LIST *input_datatype_list,
+				char *column_heading );
+
 DATATYPE *datatype_fetch_new(
 				char *application_name,
 				char *datatype_name,
-				char *units_name );
+				char *units_name,
+				LIST *input_datatype_list );
 
 void datatype_free(		DATATYPE *datatype );
 

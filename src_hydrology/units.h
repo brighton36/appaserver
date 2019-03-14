@@ -1,11 +1,21 @@
-/* $APPASERVER_HOME/src_hydrology/units.h */
-/* -------------------------------------- */
+/* ---------------------------------------------------- */
+/* $APPASERVER_HOME/src_hydrology/units.h		*/
+/* ---------------------------------------------------- */
+/* Freely available software: see Appaserver.org	*/
+/* ----------------------------------------------------	*/
 
 #ifndef UNITS_H
 #define UNITS_H
 
+/* Includes */
+/* -------- */
 #include "list.h"
 
+/* Constants */
+/* --------- */
+
+/* Structures */
+/* ---------- */
 typedef struct
 {
 	char *units_converted;

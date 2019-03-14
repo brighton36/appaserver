@@ -181,6 +181,7 @@ SOURCE_LIBS= 	${SOURCE_EVERGLADES}/measurement_update_parameter.o	\
 		${SOURCE_EVERGLADES}/measurement_validation.o		\
 		${SOURCE_EVERGLADES}/station_datatype.o			\
 		${SOURCE_EVERGLADES}/units.o				\
+		${SOURCE_EVERGLADES}/hydrology.o			\
 		${SOURCE_EVERGLADES}/measurement.o			\
 		${SOURCE_EVERGLADES}/measurement_backup.o		\
 		${SOURCE_EVERGLADES}/station_alias.o
@@ -1508,6 +1509,11 @@ units.o: units.c units.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c units.c
+
+hydrology.o: hydrology.c hydrology.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c hydrology.c
 
 datatype.o: datatype.c datatype.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

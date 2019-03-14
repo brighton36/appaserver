@@ -55,42 +55,6 @@ void datatype_free( DATATYPE *datatype )
 
 } /* datatype_free() */
 
-DATATYPE *datatype_fetch_new(
-			char *application_name,
-			char *datatype_name,
-			char *units_name )
-{
-	DATATYPE *datatype = datatype_calloc();
-	static LIST *datatype_alias_list = {0};
-	DATATYPE_ALIAS *a;
-
-	if ( !datatype_alias_list )
-	{
-		datatype_alias_list =
-			datatype_fetch_datatype_alias_list(
-				application_name );
-	}
-
-	if ( ( a = datatype_alias_seek(
-			datatype_alias_list,
-			datatype_name
-				/* datatype_alias_name */ ) ) )
-	{
-		datatype->datatype_name = a->datatype_name;
-	}
-
-	if ( units_name )
-	{
-		datatype->units =
-			units_seek_alias_new(
-				application_name,
-				units_name );
-	}
-
-	return datatype;
-
-} /* datatype_fetch_new() */
-
 DATATYPE *datatype_new_datatype(
 			char *datatype_name,
 			char *units_name )
@@ -781,4 +745,55 @@ DATATYPE_ALIAS *datatype_alias_seek(
 	return (DATATYPE_ALIAS *)0;
 
 } /* datatype_alias_seek() */
+
+DATATYPE *datatype_parse_new(
+				char *application_name,
+				char *column_heading,
+				LIST *input_datatype_list,
+				LIST *input_units_list )
+{
+} /* datatype_parse_new() */
+
+DATATYPE *datatype_fetch_new(
+			char *application_name,
+			char *datatype_name,
+			char *units_name,
+			LIST *input_datatype_list,
+			LIST *input_units_list )
+{
+	DATATYPE *datatype = {0};
+	static LIST *datatype_alias_list = {0};
+	char *datatype_name = {0};
+	DATATYPE_ALIAS *a;
+
+	if ( !datatype_alias_list )
+	{
+		datatype_alias_list =
+			datatype_fetch_datatype_alias_list(
+				application_name );
+	}
+
+	if ( ! ( datatype = datatype_list_seek( input_datatype_list ) ) )
+	{
+		if ( ( a = datatype_alias_seek(
+				datatype_alias_list,
+				datatype_name
+					/* datatype_alias_name */ ) ) )
+		{
+			datatype = datatype_calloc();
+			datatype->datatype_name = a->datatype_name;
+		}
+	}
+
+	if ( datatype && units_name )
+	{
+		datatype->units =
+			units_seek_alias_new(
+				application_name,
+				units_name );
+	}
+
+	return datatype;
+
+} /* datatype_fetch_new() */
 

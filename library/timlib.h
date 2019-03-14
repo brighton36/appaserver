@@ -561,4 +561,7 @@ boolean timlib_string_exists(	char *string,
 char *timlib_pad_zero(		int number,
 				int length );
 
+char *timlib_get_first_line(	char *destination,
+				char *input_filename );
+
 #endif

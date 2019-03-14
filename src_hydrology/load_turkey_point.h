@@ -1,9 +1,8 @@
 /* -----------------------------------------------------	*/
-/* $APPASERVER_HOME/src_waterquality/load_turkey_point.h	*/
+/* $APPASERVER_HOME/src_hydrology/load_turkey_point.h		*/
 /* -----------------------------------------------------	*/
-/*								*/
 /* Freely available software: see Appaserver.org		*/
-/* ---------------------------------------------		*/
+/* -----------------------------------------------------	*/
 
 #ifndef LOAD_TURKEY_POINT_H
 #define LOAD_TURKEY_POINT_H
@@ -15,62 +14,32 @@
 /* --------- */
 #define STDERR_COUNT				1000
 
-#define INSERT_RESULTS 			"station,collection_date,collection_time,parameter,units,concentration"
-
-#define INSERT_RESULTS_EXCEPTION	"station,collection_date,collection_time,parameter,units,exception"
-
-#define DISPLAY_RESULTS 			"station,collection_date,collection_time,parameter,units,concentration,exception"
-#define INSERT_COLLECTION		"station,collection_date,collection_time,collection_depth_meters,meta_data_file"
-#define INSERT_STATION 			"station"
-#define INSERT_STATION_PARAMETER	"station,parameter,units"
-#define INSERT_WATER_PROJECT_STATION 	"project_name,station"
+#define INSERT_MEASUREMENT 			"station,datatype,measurement_date,measurement_time,measurement_value"
 
 /* Prototypes */
 /* ---------- */
-/*
+int load_turkey_point_file(	char *application_name,
+				char *station,
+				char *input_filename,
+				boolean execute );
+
+void remove_error_file(		char *error_filename );
+
 boolean extract_static_attributes(
 				char **error_message,
-				char *station,
-				char *collection_date,
-				char *collection_time,
-				char *depth_meters,
-				char *longitude,
-				char *latitude,
+				char *measurement_date,
+				char *measurement_time,
+				application_name,
 				char *input_string,
-				LIST *load_column_list,
-				char *application_name );
+				LIST *header_column_datatype_list );
 
-void close_pipes(
-		FILE *results_insert_pipe,
-		FILE *results_exception_insert_pipe,
-		FILE *station_parameter_insert_pipe,
-		FILE *station_insert_pipe,
-		FILE *water_project_station_insert_pipe,
-		FILE *collection_insert_pipe,
-		FILE *table_output_pipe );
-
-void insert_waterquality_parameters(
-				char *application_name,
-				char *input_filename );
-
-void delete_waterquality(
+void delete_measurement(
 				char *application_name,
 				char *input_filename,
-				WATER_QUALITY *water_quality );
+				LIST *header_column_datatype_list );
 
-int load_concentration_file(	char *application_name,
-				char *input_filename,
-				WATER_QUALITY *water_quality,
-				boolean execute,
-				char *project_name,
-				char *heading_error_message );
-
-char *subtract_colon_from_hrmi(	 char *hrmi );
-
-RESULTS *extract_results(
+MEASUREMENT *extract_measurement(
 				char *input_string,
-				LIST *load_column_list,
-				LIST *exception_list );
-*/
+				LIST *header_column_datatype_list );
 
 #endif

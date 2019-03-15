@@ -50,13 +50,15 @@ LIST *station_datatype_get_station_datatype_list(
 
 		list_next( datatype_list );
 	} while( list_next( station_list ) );
+
 	return station_datatype_list;
+
 } /* station_datatype_get_station_datatype_list() */
 
 STATION_DATATYPE *station_datatype_get_station_datatype(
 				char *application_name,
-				char *station,
-				char *datatype )
+				char *station_name,
+				char *datatype_name )
 {
 	char *station_datatype_string;
 	char sys_string[ 1024 ];
@@ -69,7 +71,7 @@ STATION_DATATYPE *station_datatype_get_station_datatype(
 
 	datatype_table = get_table_name( application_name, "datatype" );
 
-	if ( station && *station )
+	if ( station_name && *station_name )
 	{
 		sprintf( sys_string,
 	"echo \"select 							   "
@@ -81,8 +83,8 @@ STATION_DATATYPE *station_datatype_get_station_datatype(
 	"sql.e '%c'							   ",
 		datatype_table, station_datatype_table,
 		datatype_table, station_datatype_table,
-		datatype_table, datatype,
-		station_datatype_table, station,
+		datatype_table, datatype_name,
+		station_datatype_table, station_name,
 		FOLDER_DATA_DELIMITER );
 	}
 	else
@@ -94,7 +96,7 @@ STATION_DATATYPE *station_datatype_get_station_datatype(
 	"	where datatype = '%s';\"				  |"
 	"sql.e '%c'							   ",
 		datatype_table,
-		datatype,
+		datatype_name,
 		FOLDER_DATA_DELIMITER );
 	}
 
@@ -131,8 +133,9 @@ STATION_DATATYPE *station_datatype_get_station_datatype(
 		3 );
 	station_datatype->scale_graph_zero_yn = *buffer;
 
-	if ( station ) station_datatype->station = strdup( station );
-	station_datatype->datatype = strdup( datatype );
+	station_datatype->station_name = station_name;
+
+	station_datatype->datatype = datatype_new( datatype_name );
 
 	return station_datatype;
 
@@ -152,7 +155,7 @@ LIST *station_datatype_fetch_list(
 	char *station_datatype_table;
 	STATION_DATATYPE *station_datatype;
 	FILE *input_pipe;
-	char station[ 128 ];
+	char station_name[ 128 ];
 	char datatype_name[ 128 ];
 	LIST *station_datatype_list = list_new();
 
@@ -174,19 +177,19 @@ LIST *station_datatype_fetch_list(
 	{
 		station_datatype = station_datatype_new();
 
-		piece(	station,
+		piece(	station_name,
 			FOLDER_DATA_DELIMITER,
 			buffer,
 			0 );
 
-		station_datatype->station = strdup( station );
+		station_datatype->station_name = strdup( station_name );
 
 		piece(	datatype_name,
 			FOLDER_DATA_DELIMITER,
 			buffer,
 			1 );
 
-		station_datatype->datatype = datatype_new( datatype );
+		station_datatype->datatype = datatype_new( datatype_name );
 
 		list_append_pointer(
 			station_datatype_list,
@@ -195,13 +198,12 @@ LIST *station_datatype_fetch_list(
 	pclose( input_pipe );
 	return station_datatype_list;
 
-
 } /* station_datatype_fetch_list() */
 
 STATION_DATATYPE *station_datatype_list_seek(
 				LIST *station_datatype_list,
-				char *station,
-				char *datatype )
+				char *station_name,
+				char *datatype_name )
 {
 	STATION_DATATYPE *station_datatype;
 
@@ -211,8 +213,14 @@ STATION_DATATYPE *station_datatype_list_seek(
 	do {
 		station_datatype = list_get_pointer( station_datatype_list );
 
-		if ( strcasecmp( station_datatype->station, station ) == 0
-		&&   strcasecmp( station_datatype->datatype, datatype ) == 0 )
+		if ( timlib_strcmp(	station_datatype->
+						station_name,
+					station_name ) == 0
+		&&   station_datatype->datatype
+		&&   timlib_strcmp(	station_datatype->
+						datatype->
+						datatype_name,
+					datatype_name ) == 0 )
 		{
 			return station_datatype;
 		}
@@ -237,43 +245,27 @@ void station_datatype_free( STATION_DATATYPE *station_datatype )
 
 STATION_DATATYPE *station_datatype_fetch_new(	char *application_name,
 						char *station_name,
-						char *datatype_name,
-						char *units_name )
+						char *datatype_name )
 {
 	STATION_DATATYPE *station_datatype;
-	static LIST *shef_upload_datatype_list = {0};
-	SHEF_UPLOAD_DATATYPE *a;
+	DATATYPE *datatype;
+	static LIST *datatype_list = {0};
+
+	if ( !datatype_list )
+	{
+		datatype_list =
+			datatype_with_station_name_get_datatype_list(
+				application_name,
+				station_name );
+	}
 
 	station_datatype = station_datatype_new();
-	station_datatype->station= station_name;
+	station_datatype->station_name = station_name;
 
-	if ( !shef_upload_datatype_list )
-	{
-		shef_upload_datatype_list =
-			shef_upload_datatype_fetch_list(
-				application_name );
-	}
-
-	if ( ( a = shef_upload_datatype_seek(
-			shef_upload_datatype_list,
-			station_name,
-			datatype_name
-				/* shef_upload_code */ ) ) )
-	{
-		station_datatype->datatype =
-			datatype_fetch_new(
-				application_name,
-				a->datatype_name,
-				units_name );
-	}
-	else
-	{
-		station_datatype->datatype =
-			datatype_fetch_new(
-				application_name,
-				datatype_name,
-				units_name );
-	}
+	station_datatype->datatype =
+		datatype_list_seek(
+			datatype_list,
+			datatype_name );
 
 	return station_datatype;
 

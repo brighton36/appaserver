@@ -125,6 +125,8 @@ void station_datatype_list(	char *application_name,
 		 validation_required_yn,
 		 (filter_calibrated) ? 'y' : 'n' );
 
+fprintf( stderr, "sys_string: %s\n", sys_string );
+
 	input_pipe = popen( sys_string, "r" );
 
 	while( get_line( input_buffer, input_pipe ) )

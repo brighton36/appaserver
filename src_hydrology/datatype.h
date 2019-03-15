@@ -40,6 +40,8 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+DATATYPE *datatype_new( char *datatype_name );
+
 DATATYPE *datatype_new_datatype(
 			char *datatype_name,
 			char *units_name );
@@ -138,15 +140,7 @@ DATATYPE *datatype_parse_new(
 				char *application_name,
 				char *station,
 				char *column_heading,
-				LIST *input_datatype_list,
-				LIST *input_units_list );
-
-DATATYPE *datatype_fetch_new(
-				char *application_name,
-				char *station,
-				char *datatype_name,
-				char *units_name,
-				LIST *input_datatype_list );
+				LIST *input_station_datatype_list );
 
 void datatype_free(		DATATYPE *datatype );
 

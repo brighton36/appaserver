@@ -55,6 +55,15 @@ void datatype_free( DATATYPE *datatype )
 
 } /* datatype_free() */
 
+DATATYPE *datatype_new( char *datatype_name )
+{
+	DATATYPE *datatype = datatype_calloc();
+
+	datatype->datatype_name = datatype_name;
+	return datatype;
+
+} /* datatype_new() */
+
 DATATYPE *datatype_new_datatype(
 			char *datatype_name,
 			char *units_name )
@@ -64,7 +73,6 @@ DATATYPE *datatype_new_datatype(
 	datatype->datatype_name = datatype_name;
 	datatype->units = units_new();
 	datatype->units->units_name = units_name;
-
 	return datatype;
 
 } /* datatype_new_datatype() */
@@ -760,47 +768,4 @@ DATATYPE *datatype_parse_new(
 {
 } /* datatype_parse_new() */
 
-DATATYPE *datatype_fetch_new(
-			char *application_name,
-			char *station,
-			char *datatype_name,
-			char *units_name,
-			LIST *input_datatype_list,
-			LIST *input_units_list )
-{
-	DATATYPE *datatype = {0};
-	static LIST *entire_datatype_alias_list = {0};
-	char *datatype_name = {0};
-	DATATYPE_ALIAS *a;
-
-	if ( !entire_datatype_alias_list )
-	{
-		entire_datatype_alias_list =
-			datatype_fetch_datatype_alias_list(
-				application_name );
-	}
-
-	if ( ! ( datatype = datatype_list_seek( input_datatype_list ) ) )
-	{
-		if ( ( a = datatype_alias_seek(
-				entire_datatype_alias_list,
-				datatype_name
-					/* datatype_alias_name */ ) ) )
-		{
-			datatype = datatype_calloc();
-			datatype->datatype_name = a->datatype_name;
-		}
-	}
-
-	if ( datatype && units_name )
-	{
-		datatype->units =
-			units_seek_alias_new(
-				application_name,
-				units_name );
-	}
-
-	return datatype;
-
-} /* datatype_fetch_new() */
 

@@ -14,7 +14,8 @@
 #include "piece.h"
 #include "appaserver_library.h"
 
-HYDROLOGY *hydrology_new( char *application_name )
+HYDROLOGY *hydrology_new(	char *application_name,
+				char *station_name )
 {
 	HYDROLOGY *h;
 
@@ -28,13 +29,10 @@ HYDROLOGY *hydrology_new( char *application_name )
 		exit( 1 );
 	}
 
-	h->input.datatype_list =
-		datatype_fetch_list(
-			application_name );
-
-	h->input.units_list =
-		units_fetch_units_list(
-			application_name );
+	h->input.station =
+		station_fetch_new(
+			application_name,
+			station_name );
 
 	return h;
 
@@ -80,7 +78,7 @@ LIST *hydrology_get_header_column_datatype_list(
 				station,
 				column_heading,
 				input_datatype_list,
-				input_units_list ) )
+				input_units_list ) ) )
 		{
 			datatype->column_piece = column_piece;
 
@@ -93,4 +91,10 @@ LIST *hydrology_get_header_column_datatype_list(
 	return header_column_datatype_list;
 
 } /* hydrology_get_header_column_datatype_list() */
+
+char *hydrology_translate_datatype_name(
+				LIST *station_datatype_list,
+				char *datatype_name )
+{
+} /* hydrology_translate_datatype_name() */
 

@@ -727,14 +727,71 @@ STATION *station_fetch_new(	char *application_name,
 {
 	STATION *station;
 
-	station = station_new( station );
+	station = station_new( station_name );
 
 	station->station_datatype_list =
-		station_fetch_datatype_list(
+		station_fetch_station_datatype_list(
 			application_name,
 			station_name );
 
 	return station;
 
 } /* station_fetch_new() */
+
+LIST *station_fetch_station_datatype_list(
+				char *application_name,
+				char *station_name )
+{
+	char sys_string[ 1024 ];
+	char *select;
+	char *folder_name;
+	char where[ 128 ];
+	STATION_DATATYPE *station_datatype;
+	LIST *record_list;
+	char *record;
+	LIST *return_list;
+
+	select = "datatype"
+	folder = "station_datatype"
+
+	sprintf( where, "station = '%s'", station_name );
+
+	sprintf( sys_string,
+		 "get_folder_data	application=%s	"
+		 "			select=%s	"
+		 "			folder=%s	"
+		 "			where=\"%s\"	",
+		 application_name,
+		 select,
+		 folder,
+		 where );
+
+	record_list = pipe2list( sys_string );
+
+	if ( !list_rewind( record_list ) ) return (LIST *)0;
+
+	return_list = list_new();
+
+	do {
+		record = list_get( record_list );
+
+		station_datatype =
+			station_datatype_fetch_new(
+				application_name,
+				station_name,
+				record /* datatype_name */ );
+
+		station_datatype->shef_upload_datatype_list =
+			shef_datatype_code_fetch_upload_datatype_list(
+				application_name,
+				station_name,
+				record /* datatype_name */ );
+
+		list_append_pointer( return_list, station_datatype );
+
+	} while ( list_next( record_list ) );
+
+	return return_list;
+
+} /* station_fetch_station_datatype_list() */
 

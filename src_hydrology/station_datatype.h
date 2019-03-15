@@ -9,7 +9,7 @@
 
 typedef struct
 {
-	char *station;
+	char *station_name;
 	DATATYPE *datatype;
 	char *manipulate_agency;
 	char *units;
@@ -26,8 +26,7 @@ LIST *station_datatype_fetch_list(
 STATION_DATATYPE *station_datatype_fetch_new(
 				char *application_name,
 				char *station_name,
-				char *datatype_name,
-				char *units_name );
+				char *datatype_name );
 
 STATION_DATATYPE *station_datatype_list_seek(
 				LIST *station_datatype_list,
@@ -41,8 +40,8 @@ LIST *station_datatype_get_station_datatype_list(
 
 STATION_DATATYPE *station_datatype_get_station_datatype(
 				char *application_name,
-				char *station,
-				char *datatype );
+				char *station_name,
+				char *datatype_name );
 
 STATION_DATATYPE *station_datatype_new(
 				void );

@@ -32,6 +32,7 @@ typedef struct
 	char *comments;
 	LIST *measurement_list;
 	LIST *datatype_name_list;
+	LIST *station_datatype_list;
 } STATION;
 
 /* Operations */
@@ -122,6 +123,10 @@ boolean station_exists(	char *application_name,
 			char *station_name );
 
 STATION *station_fetch_new(
+			char *application_name,
+			char *station_name );
+
+LIST *station_fetch_station_datatype_list(
 			char *application_name,
 			char *station_name );
 

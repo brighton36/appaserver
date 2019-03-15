@@ -144,10 +144,11 @@ char *shef_datatype_code_get_upload_datatype(
 				double measurement_value )
 {
 	STATION_DATATYPE *station_datatype;
-	static char datatype_name[ 128 ];
+	char *datatype_name;
 	char local_shef_code[ 128 ];
 	boolean is_aggregate_measurement = 0;
 	int str_len;
+	HYDROLOGY *hydrology;
 	static HASH_TABLE *shef_upload_hash_table = {0};
 
 	if ( !shef_upload_hash_table )
@@ -171,43 +172,12 @@ char *shef_datatype_code_get_upload_datatype(
 		}
 	}
 
-	station_datatype =
-		station_datatype_fetch_new(
-			application_name,
-			station,
-			local_shef_code /* datatype_name */,
-			(char *)0  /* units_name */ );
+	hydrology = hydrology_new( application_name, station_name );
 
-	if ( !station_datatype )
-	{
-		fprintf( stderr,
-"Warning in %s/%s()/%d: station_datatype_fetch_new(%s/%s) returned null.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 station,
-			 local_shef_code );
-
-		return (char *)0;
-	}
-
-	if ( !station_datatype->datatype )
-	{
-		fprintf( stderr,
-"Warning in %s/%s()/%d: station_datatype_fetch_new(%s/%s) returned null datatype.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 station,
-			 local_shef_code );
-
-		return (char *)0;
-	}
-
-	strcpy(	datatype_name,
-		station_datatype->datatype->datatype_name );
-
-	station_datatype_free( station_datatype );
+	datatype_name =
+		hydrology_translate_datatype_name(
+			hydrology.input->station->station_datatype_list,
+			local_shef_code /* datatype_name */ );
 
 	if ( is_aggregate_measurement )
 	{

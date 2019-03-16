@@ -25,7 +25,7 @@ typedef struct
 {
 	char *value;
 	int validated;
-} DATATYPE;
+} VALIDATION_DATATYPE;
 
 typedef struct
 {
@@ -70,7 +70,10 @@ void validation_form_set_primary_data_hash_table(
 					HASH_TABLE *primary_data_hash_table,
 					LIST *primary_column_name_list,
 					char *primary_data_comma_list );
-DATATYPE *datatype_new( 		char *value, int validated );
+
+VALIDATION_DATATYPE *validation_datatype_new(
+					char *value, int validated );
+
 LIST *validation_form_get_row_list(	LIST *primary_column_name_list,
 					char *select_sys_string );
 int row_compare( 			ROW *row1, ROW *row2 );

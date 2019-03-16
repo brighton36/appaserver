@@ -1,4 +1,4 @@
-/* station.c						   */
+/* $APPASERVER_HOME/src_hydrology/station.c		   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include "appaserver_library.h"
 #include "station.h"
+#include "station_datatype.h"
+#include "shef_datatype_code.h"
 #include "timlib.h"
 #include "piece.h"
 
@@ -729,18 +731,31 @@ STATION *station_fetch_new(	char *application_name,
 
 	station = station_new( station_name );
 
+	/* -------------------------------------------- */
+	/* Only shef_upload_datatpe_list for a station. */
+	/* -------------------------------------------- */
+	station->shef_upload_datatype_list =
+		shef_station_fetch_upload_datatype_list(
+			application_name,
+			station_name );
+
 	station->station_datatype_list =
 		station_fetch_station_datatype_list(
 			application_name,
-			station_name );
+			station_name,
+			station->shef_upload_datatype_list );
 
 	return station;
 
 } /* station_fetch_new() */
 
 LIST *station_fetch_station_datatype_list(
-				char *application_name,
-				char *station_name )
+			char *application_name,
+			char *station_name,
+			/* -------------------------------------------- */
+			/* Only shef_upload_datatpe_list for a station. */
+			/* -------------------------------------------- */
+			LIST *shef_upload_datatype_list )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -748,11 +763,11 @@ LIST *station_fetch_station_datatype_list(
 	char where[ 128 ];
 	STATION_DATATYPE *station_datatype;
 	LIST *record_list;
-	char *record;
+	char *datatype_name;
 	LIST *return_list;
 
-	select = "datatype"
-	folder = "station_datatype"
+	select = "datatype";
+	folder_name = "station_datatype";
 
 	sprintf( where, "station = '%s'", station_name );
 
@@ -763,7 +778,7 @@ LIST *station_fetch_station_datatype_list(
 		 "			where=\"%s\"	",
 		 application_name,
 		 select,
-		 folder,
+		 folder_name,
 		 where );
 
 	record_list = pipe2list( sys_string );
@@ -773,19 +788,21 @@ LIST *station_fetch_station_datatype_list(
 	return_list = list_new();
 
 	do {
-		record = list_get( record_list );
+		datatype_name = list_get( record_list );
 
 		station_datatype =
 			station_datatype_fetch_new(
 				application_name,
 				station_name,
-				record /* datatype_name */ );
+				datatype_name );
 
-		station_datatype->shef_upload_datatype_list =
-			shef_datatype_code_fetch_upload_datatype_list(
-				application_name,
-				station_name,
-				record /* datatype_name */ );
+		station_datatype->shef_upload_code =
+			shef_datatype_code_seek_upload_code(
+			   /* -------------------------------------------- */
+			   /* Only shef_upload_datatpe_list for a station. */
+			   /* -------------------------------------------- */
+			   shef_upload_datatype_list,
+			   datatype_name );
 
 		list_append_pointer( return_list, station_datatype );
 

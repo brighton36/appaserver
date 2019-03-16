@@ -181,7 +181,7 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 	ELEMENT *element;
 	int row_int;
 	char *data;
-	DATATYPE *datatype;
+	VALIDATION_DATATYPE *datatype;
 	ROW *row;
 	char *primary_column_name;
 	char *datatype_name;
@@ -332,15 +332,15 @@ void validation_form_set_primary_data_hash_table(
 	}
 } /* validation_form_set_primary_data_hash_table() */
 
-DATATYPE *datatype_new( char *value, int validated )
+VALIDATION_DATATYPE *validation_datatype_new( char *value, int validated )
 {
-	DATATYPE *d;
+	VALIDATION_DATATYPE *d;
 
-	d = (DATATYPE *)calloc( 1, sizeof( DATATYPE ) );
+	d = (VALIDATION_DATATYPE *)calloc( 1, sizeof( VALIDATION_DATATYPE ) );
 	d->value = value;
 	d->validated = validated;
 	return d;
-} /* datatype_new() */
+} /* validation_datatype_new() */
 
 
 int row_compare( ROW *row1, ROW *row2 )
@@ -386,7 +386,9 @@ LIST *validation_form_get_row_list(	LIST *primary_column_name_list,
 
 		hash_table_set(	row->datatype_data_hash_table,
 				strdup( datatype_name ),
-				datatype_new( strdup( value ), validated ) );
+				validation_datatype_new(
+					strdup( value ),
+					validated ) );
 	} /* while( get_line() ) */
 	pclose( p );
 	return row_list;

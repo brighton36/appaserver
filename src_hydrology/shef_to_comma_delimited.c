@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "julian.h"
-/* #include "shef_datatype_code.h" */
+#include "hydrology.h"
 #include "station_datatype.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
@@ -52,7 +52,7 @@ char *load_shef_slash_piece( char *destination, char *source, int offset );
 int main( int argc, char **argv )
 {
 	char input_line[ 1024 ];
-	char station[ 128 ];
+	char station_name[ 128 ];
 	char shef[ 128 ];
 	char full_date[ 128 ];
 	char year[ 128 ] = {0};
@@ -68,6 +68,8 @@ int main( int argc, char **argv )
 	char *datatype_name;
 	double julian_date;
 	char *application_name;
+	HYDROLOGY *hydrology;
+	STATION *station;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -88,11 +90,7 @@ int main( int argc, char **argv )
 
 	/* application_name = argv[ 1 ]; */
 
-/*
-	shef_datatype_code = 
-		shef_datatype_code_new(
-			application_name );
-*/
+	hydrology = hydrology_new();
 
 	while( get_line( input_line, stdin ) )
 	{
@@ -101,14 +99,14 @@ int main( int argc, char **argv )
 			fprintf( stderr, "%s\n", input_line );
 			continue;
 		}
-		if ( !load_shef_slash_piece(	shef, 
+		if ( !load_shef_slash_piece(	shef,
 						input_line, 
 						SHEF_SLASH_PIECE ) )
 		{
 			fprintf( stderr, "%s\n", input_line );
 			continue;
 		}
-		if ( !load_shef_slash_piece(	station, 
+		if ( !load_shef_slash_piece(	station_name,
 						input_line, 
 						STATION_SLASH_PIECE ) )
 		{
@@ -116,10 +114,11 @@ int main( int argc, char **argv )
 			continue;
 		}
 
+#ifdef NOT_DEFINED
 		station_datatype =
 			station_datatype_fetch_new(
 				application_name,
-				station,
+				station_name,
 				shef /* datatype_name */,
 				(char *)0 /* units_name */ );
 
@@ -134,6 +133,7 @@ int main( int argc, char **argv )
 				 shef );
 			continue;
 		}
+#endif
 
 		if ( !station_datatype->datatype )
 		{

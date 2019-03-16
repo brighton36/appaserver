@@ -9,6 +9,7 @@
 
 /* Includes */
 /* -------- */
+#include "station_datatype.h"
 #include "datatype.h"
 #include "station.h"
 
@@ -21,7 +22,7 @@
 /* ---------- */
 typedef struct
 {
-	STATION *station;
+	LIST *station_list;
 } HYDROLOGY_INPUT;
 
 typedef struct
@@ -37,22 +38,29 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-HYDROLOGY *hydrology_new(	char *application_name,
-				char *station_name );
+HYDROLOGY *hydrology_new(	void );
 
-void hydrology_datatype_list_display(
-				LIST *header_column_datatype_list );
+HYDROLOGY *hydrology_fetch_new(	char *application_name,
+				char *station_name );
 
 LIST *hydrology_get_header_column_datatype_list(
 				char *application_name,
 				char *station,
 				char *input_filename,
-				int first_column_piece,
-				LIST *input_datatype_list,
-				LIST *input_units_list );
+				int first_column_piece );
 
 char *hydrology_translate_datatype_name(
 				LIST *station_datatype_list,
 				char *datatype_name );
+
+DATATYPE *hydrology_datatype_seek_phrase(
+				LIST *station_datatype_list,
+				char *station_name,
+				char *datatype_seek_phrase );
+
+STATION *hydrology_get_or_set_station(
+				LIST *input_station_list,
+				char *application_name,
+				char *station_name );
 
 #endif

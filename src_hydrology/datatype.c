@@ -142,8 +142,11 @@ DATATYPE *datatype_list_seek(	LIST *datatype_list,
 	do {
 		datatype = list_get_pointer( datatype_list );
 
-		if ( strcmp( datatype_name, datatype->datatype_name ) == 0 )
+		if ( timlib_strcmp(	datatype_name,
+					datatype->datatype_name ) == 0 )
+		{
 			return datatype;
+		}
 
 	} while( list_next( datatype_list ) );
 
@@ -154,19 +157,10 @@ DATATYPE *datatype_list_seek(	LIST *datatype_list,
 boolean datatype_list_exists(	LIST *datatype_list,
 				char *datatype_name )
 {
-	DATATYPE *datatype;
-
-	if ( !list_rewind( datatype_list ) ) return 0;
-
-	do {
-		datatype = list_get_pointer( datatype_list );
-
-		if ( strcmp( datatype_name, datatype->datatype_name ) == 0 )
-			return 1;
-
-	} while( list_next( datatype_list ) );
-
-	return 0;
+	if ( datatype_list_seek( datatype_list, datatype_name ) )
+		return 1;
+	else
+		return 0;
 
 } /* datatype_list_exists() */
 
@@ -759,13 +753,37 @@ DATATYPE_ALIAS *datatype_alias_seek(
 
 } /* datatype_alias_seek() */
 
-DATATYPE *datatype_parse_new(
+LIST *datatype_fetch_alias_list(
 				char *application_name,
-				char *station,
-				char *column_heading,
-				LIST *input_datatype_list,
-				LIST *input_units_list )
+				char *datatype_name )
 {
-} /* datatype_parse_new() */
+	LIST *return_list;
+	DATATYPE_ALIAS *datatype_alias;
+	static LIST *datatype_alias_list = {0};
 
+	if ( !datatype_alias_list )
+	{
+		datatype_alias_list =
+			datatype_fetch_datatype_alias_list(
+				application_name );
+	}
+
+	if ( !list_rewind( datatype_alias_list ) ) return (LIST *)0;
+
+	return_list = list_new();
+
+	do {
+		datatype_alias = list_get( datatype_alias_list );
+
+		if ( timlib_strcmp(	datatype_alias->datatype_name,
+					datatype_name ) == 0 )
+		{
+			list_append_pointer( return_list, datatype_alias );
+		}
+
+	} while ( list_next( datatype_alias_list ) );
+
+	return return_list;
+
+} /* datatype_fetch_alias_list() */
 

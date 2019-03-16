@@ -38,7 +38,6 @@ typedef struct
 {
 	LIST *shef_upload_datatype_list;
 	LIST *shef_download_datatype_list;
-	LIST *station_datatype_list;
 } SHEF_DATATYPE_CODE;
 
 /* Prototypes */
@@ -66,7 +65,7 @@ char *shef_datatype_code_get_upload_datatype(
 				SHEF_UPLOAD_AGGREGATE_MEASUREMENT **
 					shef_upload_aggregate_measurement,
 				char *application_name,
-				char *station,
+				char *station_name,
 				char *shef_code,
 				char *measurement_date,
 				char *measurement_time,
@@ -101,12 +100,6 @@ char *shef_upload_datatype_get_key(
 				char *measurement_date,
 				char *measurement_time );
 
-char *shef_get_upload_default_datatype(
-				char *station_name,
-				char *shef_code,
-				LIST *shef_upload_datatype_list,
-				LIST *station_datatype_list );
-
 LIST *shef_upload_datatype_fetch_list(
 				char *application_name );
 
@@ -114,5 +107,30 @@ SHEF_UPLOAD_DATATYPE *shef_upload_datatype_seek(
 				LIST *shef_upload_datatype_list,
 				char *station_name,
 				char *shef_upload_code );
+
+LIST *shef_datatype_code_fetch_upload_datatype_list(
+				char *application_name,
+				char *station_name,
+				char *datatype_name );
+
+LIST *shef_datatype_code_station_get_upload_datatype_list(
+				LIST *shef_upload_datatype_list,
+				char *station_name,
+				char *datatype_name );
+
+SHEF_UPLOAD_DATATYPE *shef_datatype_code_seek_upload_datatype(
+				LIST *shef_upload_datatype_list,
+				char *shef_upload_code );
+
+LIST *shef_station_fetch_upload_datatype_list(
+				char *application_name,
+				char *station_name );
+
+char *shef_datatype_code_seek_upload_code(
+			/* -------------------------------------------- */
+			/* Only shef_upload_datatpe_list for a station. */
+			/* -------------------------------------------- */
+			LIST *shef_upload_datatype_list,
+			char *datatype_name );
 
 #endif

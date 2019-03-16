@@ -36,6 +36,7 @@ typedef struct
 	char *ysi_load_heading;
 	char *exo_load_heading;
 	int column_piece;
+	LIST *datatype_alias_list;
 } DATATYPE;
 
 /* Prototypes */
@@ -136,12 +137,10 @@ DATATYPE_ALIAS *datatype_alias_seek(
 				LIST *datatype_alias_list,
 				char *datatype_alias_name );
 
-DATATYPE *datatype_parse_new(
-				char *application_name,
-				char *station,
-				char *column_heading,
-				LIST *input_station_datatype_list );
-
 void datatype_free(		DATATYPE *datatype );
+
+LIST *datatype_fetch_alias_list(
+				char *application_name,
+				char *datatype_name );
 
 #endif

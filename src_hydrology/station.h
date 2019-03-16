@@ -33,6 +33,7 @@ typedef struct
 	LIST *measurement_list;
 	LIST *datatype_name_list;
 	LIST *station_datatype_list;
+	LIST *shef_upload_datatype_list;
 } STATION;
 
 /* Operations */
@@ -128,6 +129,10 @@ STATION *station_fetch_new(
 
 LIST *station_fetch_station_datatype_list(
 			char *application_name,
-			char *station_name );
+			char *station_name,
+			/* -------------------------------------------- */
+			/* Only shef_upload_datatpe_list for a station. */
+			/* -------------------------------------------- */
+			LIST *shef_upload_datatype_list );
 
 #endif

@@ -11,6 +11,7 @@ typedef struct
 {
 	char *station_name;
 	DATATYPE *datatype;
+	char *shef_upload_code;
 	char *manipulate_agency;
 	char *units;
 	char aggregation_sum_yn;
@@ -53,5 +54,10 @@ char *station_datatype_get_manipulate_agency(
 
 void station_datatype_free(
 				STATION_DATATYPE *station_datatype );
+
+char *station_datatype_translate_datatype_name(
+				DATATYPE *datatype,
+				char *shef_upload_code,
+				char *datatype_seek_phrase );
 
 #endif

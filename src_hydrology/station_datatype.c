@@ -213,17 +213,35 @@ STATION_DATATYPE *station_datatype_list_seek(
 	do {
 		station_datatype = list_get_pointer( station_datatype_list );
 
-		if ( timlib_strcmp(	station_datatype->
-						station_name,
-					station_name ) == 0
-		&&   station_datatype->datatype
-		&&   timlib_strcmp(	station_datatype->
-						datatype->
-						datatype_name,
-					datatype_name ) == 0 )
+		if ( station_name )
 		{
-			return station_datatype;
+			if ( timlib_strcmp(	station_datatype->
+							station_name,
+						station_name ) == 0
+			&&   station_datatype->datatype
+			&&   timlib_strcmp(	station_datatype->
+							datatype->
+							datatype_name,
+						datatype_name ) == 0 )
+			{
+				return station_datatype;
+			}
 		}
+		else
+		/* --------------- */
+		/* No station_name */
+		/* --------------- */
+		{
+			if ( station_datatype->datatype
+			&&   timlib_strcmp(	station_datatype->
+							datatype->
+							datatype_name,
+						datatype_name ) == 0 )
+			{
+				return station_datatype;
+			}
+		}
+
 	} while( list_next( station_datatype_list ) );
 
 	return (STATION_DATATYPE *)0;
@@ -248,7 +266,6 @@ STATION_DATATYPE *station_datatype_fetch_new(	char *application_name,
 						char *datatype_name )
 {
 	STATION_DATATYPE *station_datatype;
-	DATATYPE *datatype;
 	static LIST *datatype_list = {0};
 
 	if ( !datatype_list )
@@ -265,6 +282,11 @@ STATION_DATATYPE *station_datatype_fetch_new(	char *application_name,
 	station_datatype->datatype =
 		datatype_list_seek(
 			datatype_list,
+			datatype_name );
+
+	station_datatype->datatype->datatype_alias_list =
+		datatype_fetch_alias_list(
+			application_name,
 			datatype_name );
 
 	return station_datatype;
@@ -315,4 +337,40 @@ char *station_datatype_get_manipulate_agency(
 	return pipe2string( sys_string );
 
 } /* station_datatype_get_manipulate_agency() */
+
+char *station_datatype_translate_datatype_name(
+				DATATYPE *datatype,
+				char *shef_upload_code,
+				char *datatype_seek_phrase )
+{
+	DATATYPE_ALIAS *datatype_alias;
+
+	if ( !datatype ) return (char *)0;
+
+	if ( timlib_strcmp(	datatype->datatype_name,
+				datatype_seek_phrase ) == 0 )
+	{
+		return datatype->datatype_name;
+	}
+
+	/* Shef takes precedence over alias. */
+	/* --------------------------------- */
+	if ( timlib_strcmp(	shef_upload_code,
+				datatype_seek_phrase ) == 0 )
+	{
+		return datatype->datatype_name;
+	}
+
+	if ( ( datatype_alias =
+			datatype_alias_seek(
+				datatype->datatype_alias_list,
+				datatype_seek_phrase
+					/* datatype_alias_name */ ) ) )
+	{
+		return datatype_alias->datatype_name;
+	}
+
+	return (char *)0;
+
+} /* station_datatype_translate_datatype_name() */
 

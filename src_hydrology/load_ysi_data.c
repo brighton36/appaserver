@@ -31,6 +31,7 @@
 #include "hydrology_library.h"
 #include "station.h"
 #include "datatype.h"
+#include "hydrology.h"
 #include "appaserver_link_file.h"
 
 /* Structures */
@@ -604,7 +605,7 @@ int load_ysi_filespecification(
 			if ( !piece(	measurement_value_string,
 					',',
 					input_buffer,
-					datatype->piece_number ) )
+					datatype->column_piece ) )
 			{
 				fprintf( error_file,
 				 "Cannot extract datatype %s in line %d: %s\n",
@@ -757,7 +758,7 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 	char datatype_heading_first_line[ 128 ];
 	char datatype_heading_second_line[ 128 ];
 	char two_line_datatype_heading[ 256 ];
-	int piece_number;
+	int column_piece;
 
 	return_datatype_list = list_new();
 
@@ -768,13 +769,13 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 
 	*datatype_heading_second_line = '\0';
 
-	for(	piece_number = 0;
+	for(	column_piece = 0;
 		piece_quoted(	datatype_heading_first_line,
 				',',
 				first_line,
-				piece_number,
+				column_piece,
 				'"' );
-		piece_number++ )
+		column_piece++ )
 	{
 		if ( !*datatype_heading_first_line ) continue;
 
@@ -793,7 +794,7 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 			piece_quoted(	datatype_heading_second_line,
 					',',
 					second_line,
-					piece_number,
+					column_piece,
 					'"' );
 		}
 
@@ -819,7 +820,7 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 				datatype_list,
 				two_line_datatype_heading ) ) )
 		{
-			datatype->piece_number = piece_number;
+			datatype->column_piece = column_piece;
 			list_append_pointer( return_datatype_list, datatype );
 			continue;
 		}
@@ -829,7 +830,7 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 				datatype_list,
 				two_line_datatype_heading ) ) )
 		{
-			datatype->piece_number = piece_number;
+			datatype->column_piece = column_piece;
 			list_append_pointer( return_datatype_list, datatype );
 			continue;
 		}

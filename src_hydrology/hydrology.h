@@ -44,8 +44,8 @@ HYDROLOGY *hydrology_fetch_new(	char *application_name,
 				char *station_name );
 
 LIST *hydrology_get_header_column_datatype_list(
-				char *application_name,
-				char *station,
+				LIST *station_datatype_list,
+				char *station_name,
 				char *input_filename,
 				int first_column_piece );
 
@@ -53,10 +53,10 @@ char *hydrology_translate_datatype_name(
 				LIST *station_datatype_list,
 				char *datatype_name );
 
-DATATYPE *hydrology_datatype_seek_phrase(
-				LIST *station_datatype_list,
-				char *station_name,
-				char *datatype_seek_phrase );
+STATION *hydrology_set_or_get_station(
+				LIST *input_station_list,
+				char *application_name,
+				char *station_name );
 
 STATION *hydrology_get_or_set_station(
 				LIST *input_station_list,
@@ -67,8 +67,45 @@ char *hydrology_translate_units_name(
 				LIST *station_datatype_list,
 				char *units_phrase );
 
-UNITS *hydrology_units_seek_phrase(
+LIST *hydrology_get_header_column_datatype_list(
 				LIST *station_datatype_list,
-				char *units_seek_phrase );
+				char *station_name,
+				char *input_filename,
+				int first_column_piece );
+
+void hydrology_parse_datatype_units_phrase(
+				char *datatype_phrase	/* in/out */,
+				char *units_phrase	/* in/out */,
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/*	    Salinity		*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase );
+
+char *hydrology_datatype_name_seek_phrase(
+				LIST *station_datatype_list,
+				char *station_name,
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/*	    Salinity		*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase );
+
+char *hydrology_units_name_seek_phrase(
+				LIST *station_datatype_list,
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/*	    Salinity		*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase );
+
+DATATYPE *hydrology_datatype_seek_phrase(
+				LIST *station_datatype_list,
+				char *station_name,
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/*	    Salinity		*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase );
 
 #endif

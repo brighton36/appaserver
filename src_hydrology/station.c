@@ -47,7 +47,19 @@ double station_get_ground_surface_elevation_ft(
 				application_name );
 	}
 
-	station = station_seek( station_name, global_station_list );
+	if ( ! ( station =
+			station_seek(
+				station_name,
+				global_station_list ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: station_seek(%s) failed.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 station_name );
+		exit( 1 );
+	}
 
 	if ( station->ground_surface_elevation_null )
 		*station_elevation_null = station->station_name;
@@ -279,7 +291,9 @@ STATION *station_seek(		char *station_name,
 	{
 		do {
 			station = list_get_pointer( station_list );
-			if ( strcmp(	station_name,
+
+			if ( timlib_strcmp(
+					station_name,
 					station->station_name ) == 0 )
 			{
 				return station;
@@ -287,13 +301,8 @@ STATION *station_seek(		char *station_name,
 		} while( list_next( station_list ) );
 	}
 
-	fprintf(stderr,
-		"ERROR in %s/%s()/%d: cannot find station = (%s).\n",
-		__FILE__,
-		__FUNCTION__,
-		__LINE__,
-		station_name );
-	exit( 1 );
+	return (STATION *)0;
+
 } /* station_seek() */
 
 DICTIONARY *station_load_dictionary(

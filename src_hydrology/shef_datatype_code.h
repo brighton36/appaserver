@@ -133,4 +133,10 @@ char *shef_datatype_code_seek_upload_code(
 			LIST *shef_upload_datatype_list,
 			char *datatype_name );
 
+char *shef_get_upload_default_datatype_name(
+				char *station,
+				char *shef_code,
+				LIST *shef_upload_datatype_list,
+				LIST *station_datatype_list );
+
 #endif

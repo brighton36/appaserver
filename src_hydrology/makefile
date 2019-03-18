@@ -251,6 +251,7 @@ view_help: view_help.c
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		view_help.c						\
 		-o view_help
 
@@ -259,6 +260,7 @@ view_maps_figs: view_maps_figs.c
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
+		${SOURCE_LIBS}	 					\
 		view_maps_figs.c					\
 		-o view_maps_figs
 

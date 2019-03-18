@@ -1369,10 +1369,21 @@ GRACE_DATATYPE_OVERLAY_INPUT_GROUP *get_grace_datatype_overlay_input_group(
 		station_datatype = (STATION_DATATYPE *)
 			list_get_pointer( station_datatype_list );
 
+		if ( !station_datatype->datatype )
+		{
+			fprintf( stderr,
+		"Warning in %s/%s()/%d: empty datatype for station = %s\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 station_datatype->station_name );
+			continue;
+		}
+
 		grace_set_compare_datatype_overlay_input(
 			g->compare_datatype_overlay_input_list,
-			station_datatype->station,
-			station_datatype->datatype,
+			station_datatype->station_name,
+			station_datatype->datatype->datatype_name,
 			station_datatype->units,
 			(station_datatype->bar_graph_yn == 'y'),
 			(station_datatype->scale_graph_zero_yn == 'y') );

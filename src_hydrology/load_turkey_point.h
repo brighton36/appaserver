@@ -9,6 +9,7 @@
 
 /* Includes */
 /* -------- */
+#include "measurement.h"
 
 /* Constants */
 /* --------- */
@@ -29,7 +30,7 @@ boolean extract_static_attributes(
 				char **error_message,
 				char *measurement_date,
 				char *measurement_time,
-				application_name,
+				char *application_name,
 				char *input_string,
 				LIST *header_column_datatype_list );
 

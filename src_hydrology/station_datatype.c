@@ -10,6 +10,7 @@
 #include "station_datatype.h"
 #include "timlib.h"
 #include "piece.h"
+#include "hydrology.h"
 #include "appaserver_library.h"
 
 LIST *station_datatype_get_station_datatype_list(
@@ -341,14 +342,28 @@ char *station_datatype_get_manipulate_agency(
 char *station_datatype_translate_datatype_name(
 				DATATYPE *datatype,
 				char *shef_upload_code,
-				char *datatype_seek_phrase )
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/*	    Salinity		*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase )
 {
 	DATATYPE_ALIAS *datatype_alias;
+	char datatype_phrase[ 128 ];
+	char units_phrase[ 128 ];
 
 	if ( !datatype ) return (char *)0;
 
+	*datatype_phrase = '\0';
+	*units_phrase = '\0';
+
+	hydrology_parse_datatype_units_phrase(
+		datatype_phrase /* in/out */,
+		units_phrase	/* in/out */,
+		datatype_units_seek_phrase );
+
 	if ( timlib_strcmp(	datatype->datatype_name,
-				datatype_seek_phrase ) == 0 )
+				datatype_phrase ) == 0 )
 	{
 		return datatype->datatype_name;
 	}
@@ -356,7 +371,7 @@ char *station_datatype_translate_datatype_name(
 	/* Shef takes precedence over alias. */
 	/* --------------------------------- */
 	if ( timlib_strcmp(	shef_upload_code,
-				datatype_seek_phrase ) == 0 )
+				datatype_phrase ) == 0 )
 	{
 		return datatype->datatype_name;
 	}
@@ -364,7 +379,7 @@ char *station_datatype_translate_datatype_name(
 	if ( ( datatype_alias =
 			datatype_alias_seek(
 				datatype->datatype_alias_list,
-				datatype_seek_phrase
+				datatype_phrase
 					/* datatype_alias_name */ ) ) )
 	{
 		return datatype_alias->datatype_name;
@@ -376,11 +391,30 @@ char *station_datatype_translate_datatype_name(
 
 UNITS *station_datatype_list_seek_units(
 				LIST *station_datatype_list,
-				char *units_seek_phrase )
+				/* -----------------------	*/
+				/* Samples: Salinity (PSU)	*/
+				/* ----------------------- 	*/
+				char *datatype_units_seek_phrase )
 {
 	STATION_DATATYPE *station_datatype;
 	DATATYPE *datatype;
-	char *units_name;
+	char datatype_phrase[ 128 ];
+	char units_phrase[ 128 ];
+
+	*datatype_phrase = '\0';
+	*units_phrase = '\0';
+
+	hydrology_parse_datatype_units_phrase(
+		datatype_phrase /* in/out */,
+		units_phrase	/* in/out */,
+		datatype_units_seek_phrase );
+
+	/* If not $DATATYPE ($UNIT) */
+	/* ------------------------ */
+	if ( !*units_phrase )
+	{
+		strcpy( units_phrase, datatype_units_seek_phrase );
+	}
 
 	if ( !list_rewind( station_datatype_list ) )
 		return (UNITS *)0;
@@ -413,11 +447,10 @@ UNITS *station_datatype_list_seek_units(
 			continue;
 		}
 
-		if ( ( units_name =
-				units_translate_units_name(
-					datatype->units->units_alias_list,
-					datatype->units->units_name,
-					units_seek_phrase ) ) )
+		if ( units_translate_units_name(
+			datatype->units->units_alias_list,
+			datatype->units->units_name,
+			units_phrase ) )
 		{
 			return datatype->units;
 		}

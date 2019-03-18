@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "piece.h"
+#include "hydrology.h"
 #include "environ.h"
 #include "appaserver_error.h"
 #include "shef_datatype_code.h"
@@ -20,7 +21,7 @@ void shef_upload_datatype_convert_stdin(
 
 void shef_upload_datatype_convert_one_time(
 				char *application_name,
-				char *station,
+				char *station_name,
 				char *shef_upload_code );
 
 int main( int argc, char **argv )
@@ -38,15 +39,15 @@ int main( int argc, char **argv )
 
 	if ( argc == 3 )
 	{
-		char *station;
+		char *station_name;
 		char *shef_upload_code;
 
-		station = argv[ 1 ];
+		station_name = argv[ 1 ];
 		shef_upload_code = argv[ 2 ];
 
 		shef_upload_datatype_convert_one_time(
 			application_name,
-			station,
+			station_name,
 			shef_upload_code );
 	}
 	else
@@ -80,10 +81,12 @@ int main( int argc, char **argv )
 
 void shef_upload_datatype_convert_one_time(
 				char *application_name,
-				char *station,
+				char *station_name,
 				char *shef_upload_code )
 {
 	SHEF_DATATYPE_CODE *c;
+	HYDROLOGY *hydrology;
+	STATION *station;
 
 	if ( ! ( c = shef_datatype_code_new( application_name ) ) )
 	{
@@ -95,12 +98,30 @@ void shef_upload_datatype_convert_one_time(
 		exit( 1 );
 	}
 
+	hydrology = hydrology_new();
+
+	station =
+		hydrology_get_or_set_station(
+			hydrology->input.station_list,
+			application_name,
+			station_name );
+
+	if ( !station )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot load station.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
 	printf( "%s\n",
-		shef_get_upload_default_datatype(
-				station,
+		shef_get_upload_default_datatype_name(
+				station->station_name,
 				shef_upload_code,
 				c->shef_upload_datatype_list,
-				c->station_datatype_list ) );
+				station->station_datatype_list ) );
 
 } /* shef_upload_datatype_convert_one_time() */
 
@@ -112,9 +133,11 @@ void shef_upload_datatype_convert_stdin(
 {
 	SHEF_DATATYPE_CODE *c;
 	char input_buffer[ 256 ];
-	char station[ 128 ];
+	char station_name[ 128 ];
 	char shef_upload_code[ 128 ];
-	char *datatype;
+	char *datatype_name;
+	HYDROLOGY *hydrology;
+	STATION *station;
 
 	if ( ! ( c = shef_datatype_code_new( application_name ) ) )
 	{
@@ -126,9 +149,11 @@ void shef_upload_datatype_convert_stdin(
 		exit( 1 );
 	}
 
+	hydrology = hydrology_new();
+
 	while ( get_line( input_buffer, stdin ) )
 	{
-		if ( !piece(	station,
+		if ( !piece(	station_name,
 				delimiter,
 				input_buffer,
 				station_piece ) )
@@ -144,19 +169,35 @@ void shef_upload_datatype_convert_stdin(
 			continue;
 		}
 
-		datatype =
-			shef_get_upload_default_datatype(
+		station =
+			hydrology_get_or_set_station(
+				hydrology->input.station_list,
+				application_name,
+				station_name );
+
+		if ( !station )
+		{
+			fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot load station.\n",
+			 	__FILE__,
+			 	__FUNCTION__,
+			 	__LINE__ );
+			exit( 1 );
+		}
+
+		datatype_name =
+			shef_get_upload_default_datatype_name(
 					station,
 					shef_upload_code,
 					c->shef_upload_datatype_list,
-					c->station_datatype_list );
+					station->station_datatype_list );
 
-		if ( datatype && *datatype )
+		if ( datatype_name && *datatype_name )
 		{
 			printf( "%s%c%s\n",
 				input_buffer,
 				delimiter,
-				datatype );
+				datatype_name );
 		}
 	}
 

@@ -311,8 +311,8 @@ char *units_translate_units_name(
 
 	if ( strcmp( units_name, units_seek_phrase ) == 0 )
 	{
-		/* Could also return units_seek_phrase */
-		/* ----------------------------------- */
+		/* Could have also returned units_seek_phrase */
+		/* ------------------------------------------ */
 		return units_name;
 	}
 
@@ -320,8 +320,8 @@ char *units_translate_units_name(
 				units_alias_list,
 				units_seek_phrase ) ) )
 	{
-		/* Could also return units_seek_phrase */
-		/* ----------------------------------- */
+		/* Could have also returned units_seek_phrase */
+		/* ------------------------------------------ */
 		return units->units_name;
 	}
 

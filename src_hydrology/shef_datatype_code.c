@@ -641,3 +641,45 @@ LIST *shef_datatype_code_fetch_upload_datatype_list(
 
 } /* shef_datatype_code_fetch_upload_datatype_list() */
 
+char *shef_get_upload_default_datatype_name(
+				char *station,
+				char *shef_code,
+				LIST *shef_upload_datatype_list,
+				LIST *station_datatype_list )
+{
+	SHEF_UPLOAD_DATATYPE *datatype;
+	STATION_DATATYPE *station_datatype;
+
+	if ( ( datatype =
+			shef_get_upload_datatype(
+				station,
+				shef_code,
+				shef_upload_datatype_list ) ) )
+	{
+		return datatype->datatype_name;
+	}
+	else
+	if ( ( datatype =
+			shef_get_upload_datatype(
+				SHEF_DEFAULT_UPLOAD_STATION,
+				shef_code,
+				shef_upload_datatype_list ) ) )
+	{
+		return datatype->datatype_name;
+	}
+	else
+	if ( ( station_datatype =
+			station_datatype_list_seek(
+				station_datatype_list,
+				station,
+				shef_code ) ) )
+	{
+		return station_datatype->datatype->datatype_name;
+	}
+	else
+	{
+		return "";
+	}
+
+} /* shef_get_upload_default_datatype_name() */
+

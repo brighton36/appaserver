@@ -99,7 +99,7 @@ UNITS *units_seek_alias_new(	char *application_name,
 	if ( !local_units_alias_list )
 	{
 		local_units_alias_list =
-			units_fetch_units_alias_list(
+			units_fetch_local_units_alias_list(
 				application_name );
 	}
 
@@ -113,7 +113,7 @@ UNITS *units_seek_alias_new(	char *application_name,
 	}
 
 	u->units_alias_list =
-		units_get_units_alias_list(
+		units_fetch_units_alias_list(
 			application_name,
 			u->units_name );
 
@@ -121,7 +121,7 @@ UNITS *units_seek_alias_new(	char *application_name,
 
 } /* units_seek_alias_new() */
 
-LIST *units_get_units_alias_list(char *application_name,
+LIST *units_fetch_units_alias_list(char *application_name,
 				 char *units_name )
 {
 	static LIST *local_units_alias_list = {0};
@@ -133,7 +133,7 @@ LIST *units_get_units_alias_list(char *application_name,
 	if ( !local_units_alias_list )
 	{
 		local_units_alias_list =
-			units_fetch_units_alias_list(
+			units_fetch_local_units_alias_list(
 				application_name );
 	}
 
@@ -154,9 +154,9 @@ LIST *units_get_units_alias_list(char *application_name,
 
 	return units_alias_list;
 
-} /* units_get_units_alias_list() */
+} /* units_fetch_units_alias_list() */
 
-LIST *units_fetch_units_alias_list( char *application_name )
+LIST *units_fetch_local_units_alias_list( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char *folder;
@@ -201,7 +201,40 @@ LIST *units_fetch_units_alias_list( char *application_name )
 
 	return units_alias_list;
 
-} /* units_fetch_units_alias_list() */
+} /* units_fetch_local_units_alias_list() */
+
+UNITS *units_fetch(		char *application_name,
+				char *units_name )
+{
+	static LIST *units_list = {0};
+
+	if ( !units_list )
+	{
+		units_list = units_fetch_units_list( application_name );
+	}
+
+	return units_seek( units_list, units_name );
+
+} /* units_fetch() */
+
+UNITS *units_seek(	LIST *units_list,
+			char *units_name )
+{
+	UNITS *units;
+
+	if ( !list_rewind( units_list ) ) return (UNITS *)0;
+
+	do {
+		units = list_get( units_list );
+
+		if ( timlib_strcmp( units->units_name, units_name ) == 0 )
+			return units;
+
+	} while ( list_next( units_list ) );
+
+	return (UNITS *)0;
+
+} /* units_seek() */
 
 LIST *units_fetch_units_list( char *application_name )
 {
@@ -237,7 +270,7 @@ LIST *units_fetch_units_list( char *application_name )
 		units->units_name = units_name;
 
 		units->units_alias_list =
-			units_get_units_alias_list(
+			units_fetch_units_alias_list(
 				application_name,
 				units_name );
 
@@ -266,4 +299,33 @@ void units_free( UNITS *units )
 	free( units );
 
 } /* units_free() */
+
+char *units_translate_units_name(
+				LIST *units_alias_list,
+				char *units_name,
+				char *units_seek_phrase )
+{
+	UNITS *units;
+
+	if ( !units_name || !units_seek_phrase ) return (char *)0;
+
+	if ( strcmp( units_name, units_seek_phrase ) == 0 )
+	{
+		/* Could also return units_seek_phrase */
+		/* ----------------------------------- */
+		return units_name;
+	}
+
+	if ( ( units = units_seek(
+				units_alias_list,
+				units_seek_phrase ) ) )
+	{
+		/* Could also return units_seek_phrase */
+		/* ----------------------------------- */
+		return units->units_name;
+	}
+
+	return (char *)0;
+
+} /* units_translate_units_name() */
 

@@ -63,4 +63,12 @@ STATION *hydrology_get_or_set_station(
 				char *application_name,
 				char *station_name );
 
+char *hydrology_translate_units_name(
+				LIST *station_datatype_list,
+				char *units_phrase );
+
+UNITS *hydrology_units_seek_phrase(
+				LIST *station_datatype_list,
+				char *units_seek_phrase );
+
 #endif

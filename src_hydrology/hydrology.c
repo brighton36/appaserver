@@ -109,6 +109,15 @@ LIST *hydrology_get_header_column_datatype_list(
 
 } /* hydrology_get_header_column_datatype_list() */
 
+UNITS *hydrology_units_seek_phrase(
+				LIST *station_datatype_list,
+				char *units_seek_phrase )
+{
+	return station_datatype_list_seek_units(
+				station_datatype_list,
+				units_seek_phrase );
+}
+
 DATATYPE *hydrology_datatype_seek_phrase(
 				LIST *station_datatype_list,
 				char *station_name,

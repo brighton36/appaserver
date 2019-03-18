@@ -374,3 +374,57 @@ char *station_datatype_translate_datatype_name(
 
 } /* station_datatype_translate_datatype_name() */
 
+UNITS *station_datatype_list_seek_units(
+				LIST *station_datatype_list,
+				char *units_seek_phrase )
+{
+	STATION_DATATYPE *station_datatype;
+	DATATYPE *datatype;
+	char *units_name;
+
+	if ( !list_rewind( station_datatype_list ) )
+		return (UNITS *)0;
+
+	do {
+		station_datatype = list_get_pointer( station_datatype_list );
+
+		if ( !station_datatype->datatype )
+		{
+			fprintf( stderr,
+			"Warning in %s/%s()/%d: empty datatype for %s\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 station_datatype->station_name );
+			continue;
+		}
+
+		datatype = station_datatype->datatype;
+
+		if ( !datatype->units )
+		{
+			fprintf( stderr,
+			"Warning in %s/%s()/%d: empty units for %s/%s\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 station_datatype->station_name,
+				 datatype->datatype_name );
+			continue;
+		}
+
+		if ( ( units_name =
+				units_translate_units_name(
+					datatype->units->units_alias_list,
+					datatype->units->units_name,
+					units_seek_phrase ) ) )
+		{
+			return datatype->units;
+		}
+
+	} while( list_next( station_datatype_list ) );
+
+	return (UNITS *)0;
+
+} /* station_datatype_list_seek_units() */
+

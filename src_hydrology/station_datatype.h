@@ -6,6 +6,7 @@
 
 #include "list.h"
 #include "datatype.h"
+#include "units.h"
 
 typedef struct
 {
@@ -59,5 +60,9 @@ char *station_datatype_translate_datatype_name(
 				DATATYPE *datatype,
 				char *shef_upload_code,
 				char *datatype_seek_phrase );
+
+UNITS *station_datatype_list_seek_units(
+				LIST *station_datatype_list,
+				char *units_name );
 
 #endif

@@ -45,11 +45,11 @@ UNITS_ALIAS *units_alias_new(
 
 UNITS *units_new(		void );
 
-LIST *units_get_units_alias_list(
+LIST *units_fetch_units_alias_list(
 				char *application_name,
 				char *units_name );
 
-LIST *units_fetch_units_alias_list(
+LIST *units_fetch_local_units_alias_list(
 				char *application_name );
 
 LIST *units_fetch_units_list(
@@ -62,5 +62,16 @@ UNITS_ALIAS *units_alias_seek(	LIST *units_alias_list,
 				char *units_alias_name );
 
 void units_free(		UNITS *units );
+
+UNITS *units_seek(		LIST *units_list,
+				char *units_name );
+
+UNITS *units_fetch(		char *application_name,
+				char *units_name );
+
+char *units_translate_units_name(
+				LIST *units_alias_list,
+				char *units_name,
+				char *units_seek_phrase );
 
 #endif

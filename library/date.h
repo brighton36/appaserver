@@ -501,4 +501,10 @@ void date_set_TZ(		char *TZ );
 
 char *date_get_hms(		DATE *date );
 
+boolean date_parse_american_date_time(
+				char *date_international,
+				char *time_hhmm,
+				char **error_message,
+				char *american_date_time );
+
 #endif

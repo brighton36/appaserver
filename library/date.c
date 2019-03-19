@@ -12,6 +12,7 @@
 #include "environ.h"
 #include "timlib.h"
 #include "julian.h"
+#include "date_convert.h"
 #include "date.h"
 
 DATE *date_calloc( void )
@@ -2311,3 +2312,54 @@ void date_set_TZ( char *TZ )
 
 } /* date_set_TZ() */
 
+boolean date_parse_american_date_time(
+			char *date_international,
+			char *time_hhmm,
+			char **error_message,
+			char *american_date_time )
+{
+	char date_american[ 16 ];
+	char time_colon_second[ 16 ];
+
+	if ( !timlib_character_exists( american_date_time, ' ' ) ) return 0;
+
+	column( date_american, 0, american_date_time );
+	column( time_colon_second, 1, american_date_time );
+
+	if ( strcmp( time_colon_second, "nu:ll:00" ) != 0 )
+	{
+		timlib_strcpy(
+			time_hhmm,
+			date_remove_colon_from_time(
+				time_colon_second ),
+			16 /* buffer_size */ );
+	}
+
+	*date_international = '\0';
+
+	if ( !date_convert_source_unknown(
+			date_international,
+			international,
+			date_american ) )
+	{
+		if ( error_message )
+		{
+			char buffer[ 256 ];
+
+			sprintf( buffer,
+				 "cannot translate %s to international",
+				 date_american );
+
+			*error_message = strdup( buffer );
+		}
+		return 0;
+	}
+
+	if ( !*time_hhmm )
+	{
+		strcpy( time_hhmm, "null" );
+	}
+
+	return 1;
+
+} /* date_parse_american_date_time() */

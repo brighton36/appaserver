@@ -12,6 +12,7 @@
 #include "hydrology.h"
 #include "timlib.h"
 #include "piece.h"
+#include "date.h"
 #include "appaserver_library.h"
 
 HYDROLOGY *hydrology_new( void )
@@ -315,7 +316,7 @@ MEASUREMENT *hydrology_extract_measurement(
 				STATION_DATATYPE *station_datatype )
 {
 	MEASUREMENT *measurement;
-	char measurement_value[ 64 ];
+	char measurement_value[ 32 ];
 
 	if ( !station_datatype )
 	{
@@ -354,13 +355,17 @@ MEASUREMENT *hydrology_extract_measurement(
 
 void hydrology_set_measurement(
 			LIST *station_datatype_list,
-			char *input_filename )
+			char *input_filename,
+			int date_time_piece )
 {
 	FILE *input_file;
 	char input_string[ 4096 ];
 	int line_number = 0;
 	STATION_DATATYPE *station_datatype;
 	MEASUREMENT *measurement;
+	char american_date_time[ 128 ];
+	char measurement_date[ 32 ];
+	char measurement_time[ 32 ];
 
 	if ( !list_length( station_datatype_list ) ) return;
 
@@ -381,32 +386,22 @@ void hydrology_set_measurement(
 		trim( input_string );
 		if ( !*input_string ) continue;
 
-/*
-	char *error_message;
-		if ( !extract_static_attributes(
-			&error_message,
-			measurement_date,
-			measurement_time,
-			input_string );
+		if ( !piece_quote_comma(
+			american_date_time,
+			input_string,
+			date_time_piece ) )
 		{
-			if ( *error_message )
-			{
-				fprintf(error_file,
-			"Warning in line %d: ignored = (%s) because %s.\n",
-					line_number,
-					input_string,
-					error_message );
-			}
-			else
-			{
-				fprintf(error_file,
-			"Warning in line %d: ignored = (%s)\n",
-					line_number,
-					input_string );
-			}
 			continue;
 		}
-*/
+
+		if ( !date_parse_american_date_time(
+				measurement_date /* date_international */,
+				measurement_time /* time_hhmm */,
+				(char **)0 /* error_message */,
+				american_date_time ) )
+		{
+			continue;
+		}
 
 		list_rewind( station_datatype_list );
 
@@ -421,6 +416,12 @@ void hydrology_set_measurement(
 				continue;
 			}
 
+			measurement->measurement_date =
+				strdup( measurement_date );
+
+			measurement->measurement_time =
+				strdup( measurement_time );
+
 			if ( !station_datatype->measurement_list )
 			{
 				station_datatype->measurement_list = list_new();
@@ -431,10 +432,117 @@ void hydrology_set_measurement(
 				measurement );
 
 		} while ( list_next( station_datatype_list ) );
-
 	}
 
 	fclose( input_file );
 
 } /* hydrology_set_measurement() */
+
+void hydrology_summary_table_display(
+				char *station_name,
+				LIST *station_datatype_list )
+{
+	STATION_DATATYPE *station_datatype;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	char *heading_string;
+	char *justify_string;
+	LIST *measurement_list;
+
+	if ( !list_rewind( station_datatype_list ) ) return;
+
+	heading_string = "datatype,units,column,measurement_count";
+
+	justify_string = "left,left,right";
+
+	sprintf( sys_string,
+		 "html_table.e 'Summary for station %s' '%s' '^' '%s'	 ",
+		 station_name,
+		 heading_string,
+		 justify_string );
+
+	output_pipe = popen( sys_string, "w" );
+
+	do {
+		station_datatype = list_get( station_datatype_list );
+
+		if ( !station_datatype->datatype ) continue;
+
+		measurement_list = station_datatype->measurement_list;
+
+		fprintf( output_pipe,
+			 "%s^%s^%d^%d\n",
+			 station_datatype->datatype->datatype_name,
+			 (station_datatype->datatype->units)
+			 	? station_datatype->datatype->units->units_name
+				: "unknown",
+			 station_datatype->datatype->column_piece + 1,
+			 list_length( measurement_list ) );
+
+	} while ( list_next( station_datatype_list ) );
+
+	pclose( output_pipe );
+
+} /* hydrology_summary_table_display() */
+
+int hydrology_measurement_table_display(
+				char *station_name,
+				LIST *station_datatype_list )
+{
+	STATION_DATATYPE *station_datatype;
+	MEASUREMENT *measurement;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+	char *heading_string;
+	char *justify_string;
+	LIST *measurement_list;
+	int load_count;
+
+	if ( !list_rewind( station_datatype_list ) ) return 0;
+
+	heading_string =
+"datatype,measurement_date,measurement_time,measurement_value";
+
+	justify_string = "left,left,left,right";
+
+	sprintf( sys_string,
+	"queue_top_bottom_lines.e 500					|"
+	"html_table.e 'Measurements for station %s' '%s' '^' '%s'	 ",
+		 station_name,
+		 heading_string,
+		 justify_string );
+
+	output_pipe = popen( sys_string, "w" );
+
+	load_count = 0;
+
+	do {
+		station_datatype = list_get( station_datatype_list );
+
+		if ( !station_datatype->datatype ) continue;
+
+		measurement_list = station_datatype->measurement_list;
+
+		if ( !list_rewind( measurement_list ) ) continue;
+
+		do {
+			measurement = list_get( measurement_list );
+
+			fprintf( output_pipe,
+				 "%s^%s^%s^%.3lf\n",
+				 station_datatype->datatype->datatype_name,
+				 measurement->measurement_date,
+				 measurement->measurement_time,
+				 measurement->measurement_value );
+
+			load_count++;
+
+		} while ( list_next( measurement_list ) );
+
+	} while ( list_next( station_datatype_list ) );
+
+	pclose( output_pipe );
+	return load_count;
+
+} /* hydrology_measurement_table_display() */
 

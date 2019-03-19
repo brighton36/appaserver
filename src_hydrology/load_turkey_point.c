@@ -158,7 +158,8 @@ int load_turkey_point_file(	char *application_name,
 
 	hydrology_set_measurement(
 		station->station_datatype_list,
-		input_filename );
+		input_filename,
+		TURKEY_POINT_DATE_TIME_PIECE );
 
 	if ( execute )
 	{
@@ -167,6 +168,17 @@ int load_turkey_point_file(	char *application_name,
 					input_filename,
 					water_quality );
 */
+	}
+	else
+	{
+		hydrology_summary_table_display(
+				station->station_name,
+				station->station_datatype_list );
+
+		load_count =
+			hydrology_measurement_table_display(
+				station->station_name,
+				station->station_datatype_list );
 	}
 
 	return load_count;

@@ -112,4 +112,17 @@ MEASUREMENT *hydrology_extract_measurement(
 				char *input_string,
 				STATION_DATATYPE *station_datatype );
 
+void hydrology_set_measurement(
+				LIST *station_datatype_list,
+				char *input_filename,
+				int date_time_piece );
+
+int hydrology_measurement_table_display(
+				char *station_name,
+				LIST *station_datatype_list );
+
+void hydrology_summary_table_display(
+				char *station_name,
+				LIST *station_datatype_list );
+
 #endif

@@ -121,8 +121,8 @@ UNITS *units_seek_alias_new(	char *application_name,
 
 } /* units_seek_alias_new() */
 
-LIST *units_fetch_units_alias_list(char *application_name,
-				 char *units_name )
+LIST *units_fetch_units_alias_list(	char *application_name,
+				 	char *units_name )
 {
 	static LIST *local_units_alias_list = {0};
 	LIST *units_alias_list;
@@ -309,10 +309,8 @@ char *units_translate_units_name(
 
 	if ( !units_name || !units_seek_phrase ) return (char *)0;
 
-	if ( strcmp( units_name, units_seek_phrase ) == 0 )
+	if ( timlib_strcmp( units_name, units_seek_phrase ) == 0 )
 	{
-		/* Could have also returned units_seek_phrase */
-		/* ------------------------------------------ */
 		return units_name;
 	}
 
@@ -320,8 +318,6 @@ char *units_translate_units_name(
 				units_alias_list,
 				units_seek_phrase ) ) )
 	{
-		/* Could have also returned units_seek_phrase */
-		/* ------------------------------------------ */
 		return units->units_name;
 	}
 

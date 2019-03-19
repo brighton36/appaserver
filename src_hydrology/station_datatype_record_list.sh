@@ -27,6 +27,7 @@ join_where="${station_datatype}.datatype = ${datatype}.datatype"
 where="${join_where} and ${station_datatype}.station = '$station'"
 
 echo "select 	$datatype.datatype,					\
+		$datatype.units,					\
 		$datatype.bar_graph_yn,					\
 		$datatype.scale_graph_to_zero_yn,			\
 		$datatype.aggregation_sum_yn,				\

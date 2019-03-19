@@ -22,6 +22,7 @@ application=$1
 datatype=`get_table_name $application datatype`
 
 echo "select 	$datatype.datatype,					\
+		$datatype.units,					\
 		$datatype.bar_graph_yn,					\
 		$datatype.scale_graph_to_zero_yn,			\
 		$datatype.aggregation_sum_yn,				\

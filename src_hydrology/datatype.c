@@ -71,8 +71,13 @@ DATATYPE *datatype_new_datatype(
 	DATATYPE *datatype = datatype_calloc();
 
 	datatype->datatype_name = datatype_name;
-	datatype->units = units_new();
-	datatype->units->units_name = units_name;
+
+	if ( units_name )
+	{
+		datatype->units = units_new();
+		datatype->units->units_name = units_name;
+	}
+
 	return datatype;
 
 } /* datatype_new_datatype() */
@@ -238,7 +243,9 @@ LIST *datatype_with_station_name_get_datatype_list(
 
 	while( timlib_get_line( buffer, input_pipe, 1024 ) )
 	{
-		datatype = datatype_record2datatype( buffer );
+		datatype = datatype_record2datatype(
+				application_name,
+				buffer );
 		list_append_pointer( datatype_list, datatype );
 	}
 
@@ -429,10 +436,12 @@ boolean datatype_bar_chart(
 
 } /* datatype_bar_chart() */
 
-DATATYPE *datatype_record2datatype( char *record )
+DATATYPE *datatype_record2datatype(	char *application_name,
+					char *record )
 {
 	DATATYPE *datatype;
 	char datatype_name[ 128 ];
+	char units[ 64 ];
 	char bar_graph_yn[ 16 ];
 	char scale_graph_to_zero_yn[ 16 ];
 	char aggregation_sum_yn[ 16 ];
@@ -441,10 +450,10 @@ DATATYPE *datatype_record2datatype( char *record )
 	char set_negative_values_to_zero_yn[ 16 ];
 	char calibrated_yn[ 16 ];
 
-	if ( character_count( '|', record ) != 7 )
+	if ( character_count( '|', record ) != 8 )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: not 7 delimiters in (%s)\n",
+			 "ERROR in %s/%s()/%d: not 8 delimiters in (%s)\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -453,18 +462,19 @@ DATATYPE *datatype_record2datatype( char *record )
 	}
 
 	piece( datatype_name, '|', record, 0 );
-	piece( bar_graph_yn, '|', record, 1 );
-	piece( scale_graph_to_zero_yn, '|', record, 2 );
-	piece( aggregation_sum_yn, '|', record, 3 );
-	piece( ysi_load_heading, '|', record, 4 );
-	piece( exo_load_heading, '|', record, 5 );
-	piece( set_negative_values_to_zero_yn, '|', record, 6 );
-	piece( calibrated_yn, '|', record, 7 );
+	piece( units, '|', record, 1 );
+	piece( bar_graph_yn, '|', record, 2 );
+	piece( scale_graph_to_zero_yn, '|', record, 3 );
+	piece( aggregation_sum_yn, '|', record, 4 );
+	piece( ysi_load_heading, '|', record, 5 );
+	piece( exo_load_heading, '|', record, 6 );
+	piece( set_negative_values_to_zero_yn, '|', record, 7 );
+	piece( calibrated_yn, '|', record, 8 );
 
 	datatype =
 		datatype_new_datatype(
 			strdup( datatype_name ),
-			(char *)0 /* units */ );
+			strdup( units ) );
 
 	datatype->bar_chart =
 		( tolower( *bar_graph_yn ) == 'y' );
@@ -516,7 +526,7 @@ LIST *datatype_list_get( char *application_name )
 
 	while( get_line( buffer, input_pipe ) )
 	{
-		datatype = datatype_record2datatype( buffer );
+		datatype = datatype_record2datatype( application_name, buffer );
 		list_append_pointer( datatype_list, datatype );
 	}
 

@@ -75,6 +75,12 @@ char *hydrology_units_name_seek_phrase(
 {
 	UNITS *units;
 
+fprintf( stderr, "%s/%s()/%d: got datatype_units_seek_phrase = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+datatype_units_seek_phrase );
+
 	if ( ! ( units =
 			station_datatype_list_seek_units(
 				station_datatype_list,
@@ -288,10 +294,16 @@ void hydrology_parse_datatype_units_phrase(
 	}
 
 	piece( datatype_phrase, '(', datatype_seek_phrase, 0 );
+
 	str_len = strlen( datatype_phrase );
+
 	right_trim( datatype_phrase );
 
-	piece( units_phrase, ')', datatype_seek_phrase + str_len, 0 );
+	piece( units_phrase, ')', datatype_seek_phrase + str_len + 2, 0 );
+								/* ^ */
+								/* | */
+					/* Plus the space plus the paren. */
+					/* ------------------------------ */
 
 } /* hydrology_parse_datatype_units_phrase() */
 

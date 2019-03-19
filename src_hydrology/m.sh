@@ -1,7 +1,6 @@
 :
 
-touch measurement_insert.c
-make measurement_insert
+make shef_datatype_code_dvr
 
 #if [ "$?" -eq 0 ]
 #then

@@ -447,10 +447,22 @@ UNITS *station_datatype_list_seek_units(
 			continue;
 		}
 
+		if ( !datatype->units->units_name )
+		{
+			fprintf( stderr,
+			"Warning in %s/%s()/%d: empty units_name for %s/%s\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 station_datatype->station_name,
+				 datatype->datatype_name );
+			continue;
+		}
+
 		if ( units_translate_units_name(
-			datatype->units->units_alias_list,
-			datatype->units->units_name,
-			units_phrase ) )
+					datatype->units->units_alias_list,
+					datatype->units->units_name,
+					units_phrase ) )
 		{
 			return datatype->units;
 		}

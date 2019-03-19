@@ -71,6 +71,7 @@ DATATYPE *datatype_unit_record2datatype(
 			char *record );
 
 DATATYPE *datatype_record2datatype(
+			char *application_name,
 			char *record );
 
 boolean datatype_list_exists(

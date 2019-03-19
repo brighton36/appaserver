@@ -10,11 +10,15 @@
 
 int main( void )
 {
-	SHEF_DATATYPE_CODE *c;
 	HYDROLOGY *hydrology;
 	STATION *station;
+	DATATYPE *datatype;
 	char *datatype_units_seek_phrase;
 
+	hydrology = hydrology_new();
+
+#ifdef NOT_DEFINED
+	SHEF_DATATYPE_CODE *c;
 	c = shef_datatype_code_new( APPLICATION_NAME );
 
 	printf( "download datatype for BA/stage should be STG is (%s)\n",
@@ -32,8 +36,6 @@ int main( void )
 					(char *)0 /* measurement_date */,
 					(char *)0 /* measurement_time */,
 					0.0 /* measurement_value */ ) );
-
-	hydrology = hydrology_new();
 
 	station =
 		hydrology_get_or_set_station(
@@ -57,6 +59,7 @@ int main( void )
 				"HH",
 				c->shef_upload_datatype_list,
 				station->station_datatype_list ) );
+#endif
 
 	station =
 		hydrology_get_or_set_station(
@@ -77,6 +80,7 @@ int main( void )
 	datatype_units_seek_phrase = "Salinity (PSU)";
 
 	printf( "Datatype='%s' should be salinity/ppt is (%s/%s)\n",
+		datatype_units_seek_phrase,
 		hydrology_datatype_name_seek_phrase(
 				station->station_datatype_list,
 				station->station_name,
@@ -84,6 +88,27 @@ int main( void )
 		hydrology_units_name_seek_phrase(
 				station->station_datatype_list,
 				datatype_units_seek_phrase ) );
+
+/*
+	datatype =
+		hydrology_datatype_seek_phrase(
+				station->station_datatype_list,
+				station->station_name,
+				datatype_units_seek_phrase );
+
+	if ( !datatype->units )
+	{
+		printf( "Datatype='%s' returned NULL units.\n",
+			datatype_units_seek_phrase );
+	}
+	else
+	{
+		printf( "Datatype='%s' should be salinity/ppt is (%s/%s)\n",
+			datatype_units_seek_phrase,
+			datatype->datatype_name,
+			datatype->units->units_name );
+	}
+*/
 
 	return 0;
 }

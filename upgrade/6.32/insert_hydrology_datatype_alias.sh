@@ -26,7 +26,6 @@ sql.e << all_done
 insert into $table_name (datatype_alias,datatype) values ('Specific Conductance','sp_conductance');
 insert into $table_name (datatype_alias,datatype) values ('Temperature','temperature_water');
 insert into $table_name (datatype_alias,datatype) values ('Water Level','stage');
-insert into $table_name (datatype_alias,datatype) values ('shef_upload_code','datatype');
 insert into $table_name (datatype_alias,datatype) values ('TA','air_temperature');
 insert into $table_name (datatype_alias,datatype) values ('BSdT','Bottom_SondeTemp');
 insert into $table_name (datatype_alias,datatype) values ('TW','bottom_temperature');

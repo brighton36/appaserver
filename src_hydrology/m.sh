@@ -1,5 +1,8 @@
 :
 
+cd ../library
+make
+cd -
 make load_turkey_point
 
 #if [ "$?" -eq 0 ]

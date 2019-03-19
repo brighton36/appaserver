@@ -84,19 +84,9 @@ void shef_upload_datatype_convert_one_time(
 				char *station_name,
 				char *shef_upload_code )
 {
-	SHEF_DATATYPE_CODE *c;
 	HYDROLOGY *hydrology;
 	STATION *station;
-
-	if ( ! ( c = shef_datatype_code_new( application_name ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot load shef information.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	char *datatype_name;
 
 	hydrology = hydrology_new();
 
@@ -116,12 +106,17 @@ void shef_upload_datatype_convert_one_time(
 		exit( 1 );
 	}
 
-	printf( "%s\n",
-		shef_get_upload_default_datatype_name(
-				station->station_name,
-				shef_upload_code,
-				c->shef_upload_datatype_list,
-				station->station_datatype_list ) );
+	datatype_name =
+		hydrology_datatype_name_seek_phrase(
+			station->station_datatype_list,
+			station->station_name,
+			shef_upload_code
+				/* datatype_units_seek_phrase */ );
+
+	if ( datatype_name && *datatype_name )
+	{
+		printf( "%s\n", datatype_name );
+	}
 
 } /* shef_upload_datatype_convert_one_time() */
 
@@ -131,23 +126,12 @@ void shef_upload_datatype_convert_stdin(
 				int shef_code_piece,
 				char delimiter )
 {
-	SHEF_DATATYPE_CODE *c;
 	char input_buffer[ 256 ];
 	char station_name[ 128 ];
 	char shef_upload_code[ 128 ];
 	char *datatype_name;
 	HYDROLOGY *hydrology;
 	STATION *station;
-
-	if ( ! ( c = shef_datatype_code_new( application_name ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot load shef information.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
 
 	hydrology = hydrology_new();
 
@@ -186,11 +170,11 @@ void shef_upload_datatype_convert_stdin(
 		}
 
 		datatype_name =
-			shef_get_upload_default_datatype_name(
-					station,
-					shef_upload_code,
-					c->shef_upload_datatype_list,
-					station->station_datatype_list );
+			hydrology_datatype_name_seek_phrase(
+				station->station_datatype_list,
+				station->station_name,
+				shef_upload_code
+					/* datatype_units_seek_phrase */ );
 
 		if ( datatype_name && *datatype_name )
 		{

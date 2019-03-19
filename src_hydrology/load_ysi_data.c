@@ -72,12 +72,14 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 					JULIAN **file_end_date,
 					char *input_filespecification );
 
+/*
 void delete_existing_measurements(
 					char *application_name,
 					char *station,
 					JULIAN *input_begin_date,
 					JULIAN *input_end_date,
 					LIST *datatype_list );
+*/
 
 LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *station_name,
@@ -106,7 +108,6 @@ int main( int argc, char **argv )
 	char *application_name;
 	char is_exo_yn;
 	char really_yn;
-	char change_existing_data_yn;
 	char *input_filespecification;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -135,7 +136,7 @@ int main( int argc, char **argv )
 	if ( argc != 12 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process filename station begin_date begin_time end_date end_time change_existing_data_yn is_exo_yn really_yn\n",
+"Usage: %s application process filename station begin_date begin_time end_date end_time ignored is_exo_yn really_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -148,7 +149,7 @@ int main( int argc, char **argv )
 	begin_time_string = argv[ 6 ];
 	end_date_string = argv[ 7 ];
 	end_time_string = argv[ 8 ];
-	change_existing_data_yn = *argv[ 9 ];
+	/* change_existing_data_yn = *argv[ 9 ]; */
 	is_exo_yn = *argv[ 10 ];
 	really_yn = *argv[ 11 ];
 
@@ -336,6 +337,8 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+/*
+	char change_existing_data_yn;
 	if ( really_yn == 'y'
 	&&   change_existing_data_yn == 'y' )
 	{
@@ -346,6 +349,7 @@ int main( int argc, char **argv )
 				input_end_date,
 				datatype_list );
 	}
+*/
 
 	line_count = load_ysi_filespecification(
 			&measurement_count,
@@ -444,7 +448,7 @@ int load_ysi_filespecification(
 				"measurement" );
 
 		sprintf(sys_string,
-		 	"insert_statement.e %s %s '^'		|"
+		 	"insert_statement.e %s %s '^' replace=y	|"
 		 	"sql.e 2>&1				|"
 		 	"cat >> %s			 	 ",
 		 	table_name,
@@ -840,6 +844,7 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 
 } /* input_buffer_get_datatype_list() */
 
+#ifdef NOT_DEFINED
 void delete_existing_measurements(
 				char *application_name,
 				char *station,
@@ -911,6 +916,7 @@ void delete_existing_measurements(
 	} while( list_next( datatype_list ) );
 
 } /* delete_existing_measurements() */
+#endif
 
 boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 					JULIAN **file_end_date,

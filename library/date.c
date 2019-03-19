@@ -2105,15 +2105,25 @@ char *date_remove_colon_from_time( char *time_string )
 {
 	static char buffer[ 128 ];
 	int str_len;
+	char count;
 
 	*buffer = '\0';
 
 	if ( timlib_strcmp( time_string, "null" ) == 0 ) return time_string;
 
-	if ( !character_exists( time_string, ':' ) ) return time_string;
+	count = character_count( ':', time_string );
+
+	if ( count == 0 || count > 2 ) return time_string;
+
+	if ( count == 2 )
+	{
+		piece_inverse( time_string, ':', 2 );
+	}
 
 	str_len = strlen( time_string );
 
+	/* Example: 1:15 */
+	/* ------------- */
 	if ( str_len == 4 )
 	{
 		*buffer = '0';
@@ -2123,6 +2133,9 @@ char *date_remove_colon_from_time( char *time_string )
 		return buffer;
 	}
 	else
+	/* -------------- */
+	/* Example: 01:15 */
+	/* -------------- */
 	if ( str_len == 5 )
 	{
 		strncpy( buffer, time_string, 2 );
@@ -2326,7 +2339,8 @@ boolean date_parse_american_date_time(
 	column( date_american, 0, american_date_time );
 	column( time_colon_second, 1, american_date_time );
 
-	if ( strcmp( time_colon_second, "nu:ll:00" ) != 0 )
+	if ( strcmp( time_colon_second, "nu:ll" ) != 0
+	&&   strcmp( time_colon_second, "nu:ll:00" ) != 0 )
 	{
 		timlib_strcpy(
 			time_hhmm,

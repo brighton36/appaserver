@@ -68,9 +68,9 @@ DATATYPE *datatype_new_datatype(
 			char *datatype_name,
 			char *units_name )
 {
-	DATATYPE *datatype = datatype_calloc();
+	DATATYPE *datatype;
 
-	datatype->datatype_name = datatype_name;
+	datatype = datatype_new( datatype_name );
 
 	if ( units_name )
 	{

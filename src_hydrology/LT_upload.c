@@ -40,9 +40,11 @@
 
 /* Prototypes */
 /* ---------- */
+/*
 void delete_measurement(	char *application_name,
 				char *input_filename,
 				char *station );
+*/
 
 boolean extract_static_attributes(
 				char **error_message,
@@ -124,12 +126,14 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+/*
 	if ( execute )
 	{
 		delete_measurement(	application_name,
 					input_filename,
 					station );
 	}
+*/
 
 	load_count =
 		load_measurement(
@@ -218,7 +222,7 @@ int load_measurement(	char *application_name,
 		 "shef_upload_datatype_convert %d %d '%c'		  |"
 		 "count.e %d 'LT Load count'				  |"
 		 "piece_inverse.e %d '%c'				  |"
-		 "insert_statement table=%s field=%s del='%c' compress=n  |"
+		 "insert_statement table=%s field=%s del='%c' replace=y   |"
 		 "sql.e 2>&1						  |"
 		 "html_paragraph_wrapper.e				   ",
 		 SHEF_CONVERT_STATION_PIECE,
@@ -365,11 +369,11 @@ int load_measurement(	char *application_name,
 #define DELETE_FIELD_LIST	\
 	"station,datatype,measurement_date,measurement_time"
 
+#ifdef NOT_DEFINED
 void delete_measurement(	char *application_name,
 				char *input_filename,
 				char *station )
 {
-#ifdef NOT_DEFINED
 
 	FILE *input_file;
 	FILE *collection_delete_pipe;
@@ -472,9 +476,9 @@ void delete_measurement(	char *application_name,
 	pclose( collection_delete_pipe );
 	pclose( results_delete_pipe );
 
-#endif
 
 } /* delete_measurement() */
+#endif
 
 boolean extract_static_attributes(
 			char **error_message,

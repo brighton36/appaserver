@@ -147,8 +147,6 @@ int load_turkey_point_file(	char *application_name,
 			application_name,
 			station_name );
 
-	/* Doesn't set MEASUREMENT */
-	/* ----------------------- */
 	hydrology->output.header_column_datatype_list =
 		hydrology_get_header_column_datatype_list(
 				station->station_datatype_list,
@@ -163,11 +161,10 @@ int load_turkey_point_file(	char *application_name,
 
 	if ( execute )
 	{
-/*
-		delete_turkey_point(	application_name,
-					input_filename,
-					water_quality );
-*/
+		load_count =
+			hydrology_measurement_insert(
+				station->station_name,
+				station->station_datatype_list );
 	}
 	else
 	{

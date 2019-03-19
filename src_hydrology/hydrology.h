@@ -110,7 +110,7 @@ DATATYPE *hydrology_datatype_seek_phrase(
 
 MEASUREMENT *hydrology_extract_measurement(
 				char *input_string,
-				STATION_DATATYPE *station_datatype );
+				int column_piece );
 
 void hydrology_set_measurement(
 				LIST *station_datatype_list,
@@ -122,6 +122,10 @@ int hydrology_measurement_table_display(
 				LIST *station_datatype_list );
 
 void hydrology_summary_table_display(
+				char *station_name,
+				LIST *station_datatype_list );
+
+int hydrology_measurement_insert(
 				char *station_name,
 				LIST *station_datatype_list );
 

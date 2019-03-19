@@ -108,4 +108,8 @@ DATATYPE *hydrology_datatype_seek_phrase(
 				/* ----------------------- 	*/
 				char *datatype_units_seek_phrase );
 
+MEASUREMENT *hydrology_extract_measurement(
+				char *input_string,
+				STATION_DATATYPE *station_datatype );
+
 #endif

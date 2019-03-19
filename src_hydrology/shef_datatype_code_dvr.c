@@ -89,7 +89,6 @@ int main( void )
 				station->station_datatype_list,
 				datatype_units_seek_phrase ) );
 
-/*
 	datatype =
 		hydrology_datatype_seek_phrase(
 				station->station_datatype_list,
@@ -108,7 +107,6 @@ int main( void )
 			datatype->datatype_name,
 			datatype->units->units_name );
 	}
-*/
 
 	return 0;
 }

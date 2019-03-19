@@ -18,6 +18,7 @@ typedef struct
 	char aggregation_sum_yn;
 	char bar_graph_yn;
 	char scale_graph_zero_yn;
+	LIST *measurement_list;
 } STATION_DATATYPE;
 
 /* Operations */

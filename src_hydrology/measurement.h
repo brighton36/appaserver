@@ -171,4 +171,6 @@ void measurement_update(		char *application_name,
 					char *time,
 					double value );
 
+MEASUREMENT *measurement_calloc(	void );
+
 #endif

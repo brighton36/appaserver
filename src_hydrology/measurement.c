@@ -134,13 +134,7 @@ void measurement_set_comma_delimited_record(
 
 } /* measurement_set_comma_delimited_record() */
 
-/* This function does strdup() for the memory. */
-/* ------------------------------------------- */
-MEASUREMENT *measurement_new(		char *station_name,
-					char *datatype,
-					char *date,
-					char *time,
-					char *value_string )
+MEASUREMENT *measurement_calloc( void )
 {
 	MEASUREMENT *m;
 
@@ -155,6 +149,20 @@ MEASUREMENT *measurement_new(		char *station_name,
 			 __LINE__ );
 		exit( 1 );
 	}
+	return m;
+} /* measurement_calloc() */
+
+/* This function does strdup() for the memory. */
+/* ------------------------------------------- */
+MEASUREMENT *measurement_new(		char *station_name,
+					char *datatype,
+					char *date,
+					char *time,
+					char *value_string )
+{
+	MEASUREMENT *m;
+
+	m = measurement_calloc();
 
 	m->station_name = strdup( station_name );
 	m->datatype = strdup( datatype );

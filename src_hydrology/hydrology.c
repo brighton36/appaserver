@@ -75,12 +75,6 @@ char *hydrology_units_name_seek_phrase(
 {
 	UNITS *units;
 
-fprintf( stderr, "%s/%s()/%d: got datatype_units_seek_phrase = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-datatype_units_seek_phrase );
-
 	if ( ! ( units =
 			station_datatype_list_seek_units(
 				station_datatype_list,
@@ -293,6 +287,15 @@ void hydrology_parse_datatype_units_phrase(
 		return;
 	}
 
+	/* Last character must be the closing paren ')'. */
+	/* --------------------------------------------- */
+	str_len = strlen( datatype_seek_phrase );
+
+	if ( * ( datatype_seek_phrase + (str_len - 1) ) != ')' )
+	{
+		return;
+	}
+
 	piece( datatype_phrase, '(', datatype_seek_phrase, 0 );
 
 	str_len = strlen( datatype_phrase );
@@ -306,4 +309,132 @@ void hydrology_parse_datatype_units_phrase(
 					/* ------------------------------ */
 
 } /* hydrology_parse_datatype_units_phrase() */
+
+MEASUREMENT *hydrology_extract_measurement(
+				char *input_string,
+				STATION_DATATYPE *station_datatype )
+{
+	MEASUREMENT *measurement;
+	char measurement_value[ 64 ];
+
+	if ( !station_datatype )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: empty station_datatype.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !station_datatype->datatype )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: empty datatype.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !piece_quote_comma(
+		measurement_value,
+		input_string,
+		station_datatype->datatype->column_piece ) )
+	{
+		return (MEASUREMENT *)0;
+	}
+
+	measurement = measurement_calloc();
+	measurement->measurement_value = atof( measurement_value );
+
+	return measurement;
+
+} /* hydrology_extract_measurement() */
+
+void hydrology_set_measurement(
+			LIST *station_datatype_list,
+			char *input_filename )
+{
+	FILE *input_file;
+	char input_string[ 4096 ];
+	int line_number = 0;
+	STATION_DATATYPE *station_datatype;
+	MEASUREMENT *measurement;
+
+	if ( !list_length( station_datatype_list ) ) return;
+
+	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot open %s for read.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 input_filename );
+		exit( 1 );
+	}
+
+	while( timlib_get_line( input_string, input_file, 4096 ) )
+	{
+		line_number++;
+		trim( input_string );
+		if ( !*input_string ) continue;
+
+/*
+	char *error_message;
+		if ( !extract_static_attributes(
+			&error_message,
+			measurement_date,
+			measurement_time,
+			input_string );
+		{
+			if ( *error_message )
+			{
+				fprintf(error_file,
+			"Warning in line %d: ignored = (%s) because %s.\n",
+					line_number,
+					input_string,
+					error_message );
+			}
+			else
+			{
+				fprintf(error_file,
+			"Warning in line %d: ignored = (%s)\n",
+					line_number,
+					input_string );
+			}
+			continue;
+		}
+*/
+
+		list_rewind( station_datatype_list );
+
+		do {
+			station_datatype = list_get( station_datatype_list );
+
+			if ( ! ( measurement =
+					hydrology_extract_measurement(
+						input_string,
+						station_datatype ) ) )
+			{
+				continue;
+			}
+
+			if ( !station_datatype->measurement_list )
+			{
+				station_datatype->measurement_list = list_new();
+			}
+
+			list_append_pointer(
+				station_datatype->measurement_list,
+				measurement );
+
+		} while ( list_next( station_datatype_list ) );
+
+	}
+
+	fclose( input_file );
+
+} /* hydrology_set_measurement() */
 

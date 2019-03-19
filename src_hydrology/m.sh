@@ -1,6 +1,6 @@
 :
 
-make shef_datatype_code_dvr
+make load_turkey_point
 
 #if [ "$?" -eq 0 ]
 #then

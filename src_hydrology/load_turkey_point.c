@@ -137,7 +137,6 @@ int load_turkey_point_file(	char *application_name,
 				boolean execute )
 {
 	int load_count = 0;
-	char buffer[ 128 ];
 	HYDROLOGY *hydrology;
 	STATION *station;
 
@@ -157,23 +156,18 @@ int load_turkey_point_file(	char *application_name,
 				input_filename,
 				TURKEY_POINT_FIRST_COLUMN_PIECE );
 
-/*
+	hydrology_set_measurement(
+		station->station_datatype_list,
+		input_filename );
+
 	if ( execute )
 	{
-		delete_waterquality(	application_name,
+/*
+		delete_turkey_point(	application_name,
 					input_filename,
 					water_quality );
-	}
-
-	load_count =
-		load_concentration_file(
-			application_name,
-			input_filename,
-			water_quality,
-			execute,
-			project_name,
-			heading_error_message );
 */
+	}
 
 	return load_count;
 

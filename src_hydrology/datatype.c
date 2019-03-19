@@ -246,6 +246,7 @@ LIST *datatype_with_station_name_get_datatype_list(
 		datatype = datatype_record2datatype(
 				application_name,
 				buffer );
+
 		list_append_pointer( datatype_list, datatype );
 	}
 
@@ -399,9 +400,22 @@ char *datatype_list_display( LIST *datatype_list )
 		datatype = list_get_pointer( datatype_list );
 
 		if ( !list_at_head( datatype_list ) )
-			ptr += sprintf( ptr, "," );
+			ptr += sprintf( ptr, ", " );
 
-		ptr += sprintf( ptr, "%s", datatype->datatype_name );
+		if ( datatype->units )
+		{
+			ptr += sprintf( ptr,
+					"%s (%s): %d",
+					datatype->datatype_name,
+					datatype->units->units_name,
+					datatype->column_piece );
+		}
+		else
+		{
+			ptr += sprintf( ptr,
+					"%s (null)",
+					datatype->datatype_name );
+		}
 
 	} while( list_next( datatype_list ) );
 
@@ -475,6 +489,21 @@ DATATYPE *datatype_record2datatype(	char *application_name,
 		datatype_new_datatype(
 			strdup( datatype_name ),
 			strdup( units ) );
+
+	if ( !datatype->units )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: empty units.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	datatype->units->units_alias_list =
+		units_fetch_units_alias_list(
+			application_name,
+			datatype->units->units_name );
 
 	datatype->bar_chart =
 		( tolower( *bar_graph_yn ) == 'y' );

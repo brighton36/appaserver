@@ -109,7 +109,7 @@ These files are purged automatically as users press the <Submit>
 button. However, an inactive system will leave temporary files
 lingering. Therefore, place this line in your crontab:
 
-0 2 * * * APPASERVER_HOME=/foo/appaserver; PATH=$PATH:$APPASERVER_HOME/src_appaserver:$APPASERVER_HOME/utility; export PATH; appaserver_purge_temporary_files.sh
+0 2 * * * . /etc/profile && appaserver_purge_temporary_files.sh
 
 ---------------------
 H) Upgrade Appaserver

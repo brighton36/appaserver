@@ -73,7 +73,7 @@ D) Shell installation steps
 16) $ sudo ./protect_appaserver_filesystem.sh noexecute|execute
 17) $ cd $APPASERVER_HOME
 18) $ make
-19) $ . set_project template
+19) $ . set_database template
 20) $ install_template_database.sh noexecute|execute
 21) $ upgrade-appaserver-database template
 

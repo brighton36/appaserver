@@ -31,6 +31,7 @@
 #include "hydrology_library.h"
 #include "station.h"
 #include "datatype.h"
+#include "units.h"
 #include "hydrology.h"
 #include "appaserver_link_file.h"
 
@@ -51,12 +52,6 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-void search_replace_special_codes(	char *two_line_datatype_heading );
-
-SPECIAL_CODE_STRUCTURE *special_code_structure_new(
-					int special_code,
-					char *replacement_string );
-
 char *station_fetch(			char *application_name,
 					char *input_filespecification );
 
@@ -817,7 +812,8 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 
 		trim( two_line_datatype_heading );
 
-		search_replace_special_codes( two_line_datatype_heading );
+		units_search_replace_special_codes(
+			two_line_datatype_heading );
 
 		if ( ( datatype =
 			datatype_list_ysi_load_heading_seek(
@@ -1253,72 +1249,4 @@ char *station_label_fetch(	char *application_name,
 	return (char *)0;
 
 } /* station_label_fetch() */
-
-void search_replace_special_codes( char *two_line_datatype_heading )
-{
-	static LIST *special_code_list = {0};
-	SPECIAL_CODE_STRUCTURE *s;
-	char *ptr = two_line_datatype_heading;
-	char buffer[ 1024 ];
-
-	if ( !special_code_list )
-	{
-		special_code_list = list_new();
-
-		s = special_code_structure_new(
-				-75,
-				"[mu]" );
-		list_append_pointer( special_code_list, s );
-
-		s = special_code_structure_new(
-				-80,
-				"[deg]" );
-		list_append_pointer( special_code_list, s );
-	}
-
-	while( *ptr )
-	{
-		list_rewind( special_code_list );
-
-		do {
-			s = list_get_pointer( special_code_list );
-
-			if ( *ptr == s->special_code )
-			{
-				strcpy( buffer, s->replacement_string );
-				strcat( buffer, ptr + 1 );
-				strcpy( ptr, buffer );
-				break;
-			}
-
-		} while( list_next( special_code_list ) );
-
-		ptr++;
-	}
-
-} /* search_replace_special_codes() */
-
-SPECIAL_CODE_STRUCTURE *special_code_structure_new(
-					int special_code,
-					char *replacement_string )
-{
-	SPECIAL_CODE_STRUCTURE *s;
-
-	if ( ! ( s = (SPECIAL_CODE_STRUCTURE *)
-			calloc( 1, sizeof( SPECIAL_CODE_STRUCTURE ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	s->special_code = special_code;
-	s->replacement_string = replacement_string;
-
-	return s;
-
-} /* special_code_structure_new() */
 

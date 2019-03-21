@@ -18,6 +18,12 @@
 /* ---------- */
 typedef struct
 {
+	int special_code;
+	char *replacement_string;
+} UNITS_SPECIAL_CODE_STRUCTURE;
+
+typedef struct
+{
 	char *units_converted;
 	double multiply_by;
 } UNITS_CONVERTED;
@@ -37,6 +43,10 @@ typedef struct
 
 /* Operations */
 /* ---------- */
+UNITS_SPECIAL_CODE_STRUCTURE *units_special_code_structure_new(
+				int special_code,
+				char *replacement_string );
+
 UNITS_CONVERTED *units_converted_new(
 				void );
 
@@ -73,5 +83,8 @@ char *units_translate_units_name(
 				LIST *units_alias_list,
 				char *units_name,
 				char *units_seek_phrase );
+
+char *units_search_replace_special_codes(
+				char *source );
 
 #endif

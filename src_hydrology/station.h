@@ -127,12 +127,4 @@ STATION *station_fetch_new(
 			char *application_name,
 			char *station_name );
 
-LIST *station_fetch_station_datatype_list(
-			char *application_name,
-			char *station_name,
-			/* -------------------------------------------- */
-			/* Only shef_upload_datatpe_list for a station. */
-			/* -------------------------------------------- */
-			LIST *shef_upload_datatype_list );
-
 #endif

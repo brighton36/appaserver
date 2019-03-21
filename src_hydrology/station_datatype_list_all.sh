@@ -37,11 +37,26 @@ else
 fi
 
 station_datatype=`get_table_name $application station_datatype`
+datatype=`get_table_name $application datatype`
 
-echo "	select station, datatype					\
-	from $station_datatype						\
-	where $station_where						\
-	order by station, datatype;"					|
+where="${station_datatype}.datatype = ${datatype}.datatype and $station_where"
+
+select="	$station_datatype.station,				\
+		$datatype.datatype,					\
+		$datatype.units,					\
+		$datatype.bar_graph_yn,					\
+		$datatype.scale_graph_to_zero_yn,			\
+		$datatype.aggregation_sum_yn,				\
+		$datatype.ysi_load_heading,				\
+		$datatype.exo_load_heading,				\
+		$datatype.set_negative_values_to_zero_yn,		\
+		$datatype.calibrated_yn"
+
+echo "	select $select							\
+	from $datatype,$station_datatype				\
+	where $where							\
+	order by $station_datatype.station, $datatype.datatype;"	|
 sql '|'									|
 cat
 
+exit 0

@@ -123,23 +123,27 @@ DATATYPE *hydrology_datatype_seek_phrase(
 {
 	char *datatype_name;
 	STATION_DATATYPE *station_datatype;
-	char datatype_phrase[ 128 ];
-	char units_phrase[ 128 ];
-
-	*datatype_phrase = '\0';
-	*units_phrase = '\0';
-
-	hydrology_parse_datatype_units_phrase(
-		datatype_phrase /* in/out */,
-		units_phrase	/* in/out */,
-		datatype_units_seek_phrase );
 
 	if ( ! ( datatype_name =
 			hydrology_translate_datatype_name(
 				station_datatype_list,
-				datatype_phrase ) ) )
+				datatype_units_seek_phrase ) ) )
 	{
-		return (DATATYPE *)0;
+		char *decoded_datatype;
+
+		/* Special codes include [mu] and [deg] */
+		/* ------------------------------------ */
+		decoded_datatype =
+			units_search_replace_special_codes(
+				datatype_units_seek_phrase );
+
+		if ( ! ( datatype_name =
+				hydrology_translate_datatype_name(
+					station_datatype_list,
+					decoded_datatype ) ) )
+		{
+			return (DATATYPE *)0;
+		}
 	}
 
 	if ( ! ( station_datatype =
@@ -167,14 +171,6 @@ DATATYPE *hydrology_datatype_seek_phrase(
 		 	datatype_name );
 		exit( 1 );
 	}
-
-#ifdef NOT_DEFINED
-	station_datatype->datatype->units =
-		station_datatype_list_seek_units(
-			station_datatype_list,
-			units_phrase
-				/* datatype_units_seek_phrase */ );
-#endif
 
 	return station_datatype->datatype;
 

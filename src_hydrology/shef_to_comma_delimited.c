@@ -114,27 +114,6 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-#ifdef NOT_DEFINED
-		station_datatype =
-			station_datatype_fetch_new(
-				application_name,
-				station_name,
-				shef /* datatype_name */,
-				(char *)0 /* units_name */ );
-
-		if ( !station_datatype )
-		{
-			fprintf( stderr,
-"Warning in %s/%s()/%d: station_datatype_fetch_new(%s/%s) returned null.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 station,
-				 shef );
-			continue;
-		}
-#endif
-
 		if ( !station_datatype->datatype )
 		{
 			fprintf( stderr,

@@ -749,7 +749,7 @@ STATION *station_fetch_new(	char *application_name,
 			station_name );
 
 	station->station_datatype_list =
-		station_fetch_station_datatype_list(
+		station_datatype_fetch_list(
 			application_name,
 			station_name,
 			station->shef_upload_datatype_list );
@@ -757,67 +757,4 @@ STATION *station_fetch_new(	char *application_name,
 	return station;
 
 } /* station_fetch_new() */
-
-LIST *station_fetch_station_datatype_list(
-			char *application_name,
-			char *station_name,
-			/* -------------------------------------------- */
-			/* Only shef_upload_datatpe_list for a station. */
-			/* -------------------------------------------- */
-			LIST *shef_upload_datatype_list )
-{
-	char sys_string[ 1024 ];
-	char *select;
-	char *folder_name;
-	char where[ 128 ];
-	STATION_DATATYPE *station_datatype;
-	LIST *record_list;
-	char *datatype_name;
-	LIST *return_list;
-
-	select = "datatype";
-	folder_name = "station_datatype";
-
-	sprintf( where, "station = '%s'", station_name );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s	"
-		 "			select=%s	"
-		 "			folder=%s	"
-		 "			where=\"%s\"	",
-		 application_name,
-		 select,
-		 folder_name,
-		 where );
-
-	record_list = pipe2list( sys_string );
-
-	if ( !list_rewind( record_list ) ) return (LIST *)0;
-
-	return_list = list_new();
-
-	do {
-		datatype_name = list_get( record_list );
-
-		station_datatype =
-			station_datatype_fetch_new(
-				application_name,
-				station_name,
-				datatype_name );
-
-		station_datatype->shef_upload_code =
-			shef_datatype_code_seek_upload_code(
-			   /* -------------------------------------------- */
-			   /* Only shef_upload_datatpe_list for a station. */
-			   /* -------------------------------------------- */
-			   shef_upload_datatype_list,
-			   datatype_name );
-
-		list_append_pointer( return_list, station_datatype );
-
-	} while ( list_next( record_list ) );
-
-	return return_list;
-
-} /* station_fetch_station_datatype_list() */
 

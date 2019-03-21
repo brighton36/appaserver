@@ -23,14 +23,6 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-LIST *station_datatype_fetch_list(
-				char *application_name );
-
-STATION_DATATYPE *station_datatype_fetch_new(
-				char *application_name,
-				char *station_name,
-				char *datatype_name );
-
 STATION_DATATYPE *station_datatype_list_seek(
 				LIST *station_datatype_list,
 				char *station,
@@ -72,5 +64,21 @@ UNITS *station_datatype_list_seek_units(
 				/* Samples: Salinity (PSU)	*/
 				/* ----------------------- 	*/
 				char *datatype_units_seek_phrase );
+
+STATION_DATATYPE *station_datatype_parse(
+			char *application_name,
+			/* -------------------------------------------- */
+			/* Only shef_upload_datatpe_list for a station. */
+			/* -------------------------------------------- */
+		   	LIST *shef_upload_datatype_list,
+			char *input_buffer );
+
+LIST *station_datatype_fetch_list(
+			char *application_name,
+			char *station_name,
+			/* -------------------------------------------- */
+			/* Only shef_upload_datatpe_list for a station. */
+			/* -------------------------------------------- */
+			LIST *shef_upload_datatype_list );
 
 #endif

@@ -27,8 +27,7 @@ integrity_check ()
 
 	if [ ! -d "${cgi_home}" ]
 	then
-		echo "Error: ${cgi_home} is not found in $appaserver_config_file" 1>&2
-		exit 1
+		echo "Warning: ${cgi_home} has not been created." 1>&2
 	fi
 
 	if [ "$DOCUMENT_ROOT" = "" ]

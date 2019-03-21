@@ -325,3 +325,92 @@ char *units_translate_units_name(
 
 } /* units_translate_units_name() */
 
+UNITS_SPECIAL_CODE_STRUCTURE *units_special_code_structure_new(
+					int special_code,
+					char *replacement_string )
+{
+	UNITS_SPECIAL_CODE_STRUCTURE *s;
+
+	if ( ! ( s = (UNITS_SPECIAL_CODE_STRUCTURE *)
+			calloc( 1, sizeof( UNITS_SPECIAL_CODE_STRUCTURE ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	s->special_code = special_code;
+	s->replacement_string = replacement_string;
+
+	return s;
+
+} /* units_special_code_structure_new() */
+
+char *units_search_replace_special_codes( char *source )
+{
+	static LIST *special_code_list = {0};
+	char destination[ 1024 ] = {0};
+	char *dest;
+	boolean made_swap;
+	UNITS_SPECIAL_CODE_STRUCTURE *s;
+
+	dest = destination;
+	*dest = '\0';
+
+	if ( !special_code_list )
+	{
+		special_code_list = list_new();
+
+		s = units_special_code_structure_new(
+				-75,
+				"[mu]" );
+		list_append_pointer( special_code_list, s );
+
+		s = units_special_code_structure_new(
+				-80,
+				"[deg]" );
+		list_append_pointer( special_code_list, s );
+	}
+
+	while ( *source )
+	{
+		list_rewind( special_code_list );
+		made_swap = 0;
+
+		do {
+			s = list_get_pointer( special_code_list );
+
+			if ( *source == s->special_code )
+			{
+				char end[ 1024 ];
+
+				strcpy( end, dest + 1 );
+
+				dest += sprintf(dest,
+					 	"%s%s",
+					 	s->replacement_string,
+					 	end );
+
+				made_swap = 1;
+				break;
+			}
+
+		} while( list_next( special_code_list ) );
+
+		/* Special codes are preceeded with a byte that's negative. */
+		/* -------------------------------------------------------- */
+		if ( !made_swap && *source > 0 )
+		{
+			*dest++ = *source;
+		}
+
+		source++;
+	}
+
+	return strdup( destination );
+
+} /* units_search_replace_special_codes() */
+

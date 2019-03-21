@@ -263,6 +263,12 @@ char *station_datatype_translate_datatype_name(
 
 	if ( !datatype ) return (char *)0;
 
+	if ( timlib_strcmp(	datatype->datatype_name,
+				datatype_units_seek_phrase ) == 0 )
+	{
+		return datatype->datatype_name;
+	}
+
 	*datatype_phrase = '\0';
 	*units_phrase = '\0';
 

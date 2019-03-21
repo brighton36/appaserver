@@ -15,9 +15,7 @@ int main( void )
 	DATATYPE *datatype;
 	char *datatype_units_seek_phrase;
 
-	hydrology = hydrology_new();
-
-#ifdef NOT_DEFINED
+/*
 	SHEF_DATATYPE_CODE *c;
 	c = shef_datatype_code_new( APPLICATION_NAME );
 
@@ -26,41 +24,12 @@ int main( void )
 					"BA",
 					"stage",
 					c->shef_download_datatype_list ) );
+*/
 
-	printf( "upload shef NE1/HH should be stage is (%s)\n",
-		shef_datatype_code_get_upload_datatype( 
-					(SHEF_UPLOAD_AGGREGATE_MEASUREMENT **)0,
-					"hydrology",
-					"NE1",
-					"HH",
-					(char *)0 /* measurement_date */,
-					(char *)0 /* measurement_time */,
-					0.0 /* measurement_value */ ) );
+	hydrology = hydrology_new();
 
-	station =
-		hydrology_get_or_set_station(
-			hydrology->input.station_list,
-			APPLICATION_NAME,
-			"NE1" );
-
-	if ( !station )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot load station.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	printf( "upload shef NE1/HH should be stage is (%s)\n",
-		shef_get_upload_default_datatype_name(
-				"NE1",
-				"HH",
-				c->shef_upload_datatype_list,
-				station->station_datatype_list ) );
-#endif
-
+	/* Test 1 */
+	/* ------ */
 	station =
 		hydrology_get_or_set_station(
 			hydrology->input.station_list,
@@ -103,6 +72,46 @@ int main( void )
 	else
 	{
 		printf( "Datatype='%s' should be salinity/ppt is (%s/%s)\n",
+			datatype_units_seek_phrase,
+			datatype->datatype_name,
+			datatype->units->units_name );
+	}
+
+	/* Test 2 */
+	/* ------ */
+	station =
+		hydrology_get_or_set_station(
+			hydrology->input.station_list,
+			APPLICATION_NAME,
+			"BK" );
+
+	if ( !station )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: cannot load station.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	datatype_units_seek_phrase = "Chlorophyll [mu]g/L";
+
+	datatype =
+		hydrology_datatype_seek_phrase(
+				station->station_datatype_list,
+				station->station_name,
+				datatype_units_seek_phrase );
+
+	if ( !datatype->units )
+	{
+		printf( "Datatype='%s' returned NULL units.\n",
+			datatype_units_seek_phrase );
+	}
+	else
+	{
+		printf(
+		"Datatype='%s' should be Chlorophyll2/ug/l is (%s/%s)\n",
 			datatype_units_seek_phrase,
 			datatype->datatype_name,
 			datatype->units->units_name );

@@ -1,9 +1,6 @@
 :
 
-cd ../library
-make
-cd -
-make load_turkey_point
+make shef_datatype_code_dvr
 
 #if [ "$?" -eq 0 ]
 #then

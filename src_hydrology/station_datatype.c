@@ -142,65 +142,6 @@ STATION_DATATYPE *station_datatype_get_station_datatype(
 
 } /* station_datatype_get_station_datatype() */
 
-LIST *station_datatype_list_get_station_datatype_list(
-				char *application_name )
-{
-	return station_datatype_fetch_list( application_name );
-}
-
-LIST *station_datatype_fetch_list(
-				char *application_name )
-{
-	char sys_string[ 1024 ];
-	char buffer[ 256 ];
-	char *station_datatype_table;
-	STATION_DATATYPE *station_datatype;
-	FILE *input_pipe;
-	char station_name[ 128 ];
-	char datatype_name[ 128 ];
-	LIST *station_datatype_list = list_new();
-
-	station_datatype_table =
-		get_table_name(
-			application_name,
-			"station_datatype" );
-
-	sprintf( sys_string,
-	"echo \"select station,datatype					   "
-	"	from  %s;\"						  |"
-	"sql.e '%c'							   ",
-		station_datatype_table,
-		FOLDER_DATA_DELIMITER );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( buffer, input_pipe ) )
-	{
-		station_datatype = station_datatype_new();
-
-		piece(	station_name,
-			FOLDER_DATA_DELIMITER,
-			buffer,
-			0 );
-
-		station_datatype->station_name = strdup( station_name );
-
-		piece(	datatype_name,
-			FOLDER_DATA_DELIMITER,
-			buffer,
-			1 );
-
-		station_datatype->datatype = datatype_new( datatype_name );
-
-		list_append_pointer(
-			station_datatype_list,
-			station_datatype );
-	}
-	pclose( input_pipe );
-	return station_datatype_list;
-
-} /* station_datatype_fetch_list() */
-
 STATION_DATATYPE *station_datatype_list_seek(
 				LIST *station_datatype_list,
 				char *station_name,
@@ -261,38 +202,6 @@ void station_datatype_free( STATION_DATATYPE *station_datatype )
 	free( station_datatype );
 
 } /* station_datatype_free() */
-
-STATION_DATATYPE *station_datatype_fetch_new(	char *application_name,
-						char *station_name,
-						char *datatype_name )
-{
-	STATION_DATATYPE *station_datatype;
-	static LIST *datatype_list = {0};
-
-	if ( !datatype_list )
-	{
-		datatype_list =
-			datatype_with_station_name_get_datatype_list(
-				application_name,
-				station_name );
-	}
-
-	station_datatype = station_datatype_new();
-	station_datatype->station_name = station_name;
-
-	station_datatype->datatype =
-		datatype_list_seek(
-			datatype_list,
-			datatype_name );
-
-	station_datatype->datatype->datatype_alias_list =
-		datatype_fetch_alias_list(
-			application_name,
-			datatype_name );
-
-	return station_datatype;
-
-} /* station_datatype_fetch_new() */
 
 STATION_DATATYPE *station_datatype_new( void )
 {
@@ -473,3 +382,124 @@ UNITS *station_datatype_list_seek_units(
 
 } /* station_datatype_list_seek_units() */
 
+LIST *station_datatype_fetch_list(
+			char *application_name,
+			char *station_name,
+			/* -------------------------------------------- */
+			/* Only shef_upload_datatpe_list for a station. */
+			/* -------------------------------------------- */
+			LIST *shef_upload_datatype_list )
+{
+	STATION_DATATYPE *station_datatype;
+	LIST *station_datatype_list;
+	char sys_string[ 128 ];
+	char input_buffer[ 1024 ];
+	FILE *input_pipe;
+
+	/* Note: delimiter is '|' */
+	/* ---------------------- */
+	sprintf(sys_string,
+	 	"station_datatype_list_all.sh %s",
+		station_name );
+
+	input_pipe = popen( sys_string, "r" );
+
+	station_datatype_list = list_new();
+
+	while ( get_line( input_buffer, input_pipe ) )
+	{
+		station_datatype =
+			station_datatype_parse(
+				application_name,
+		   		shef_upload_datatype_list,
+				input_buffer );
+
+		list_append_pointer(
+			station_datatype_list,
+			station_datatype );
+	}
+
+	pclose( input_pipe );
+	return station_datatype_list;
+
+} /* station_datatype_fetch_list() */
+
+#ifdef NOT_DEFINED
+/* ---------------------- */
+/* Note: delimiter is '|' */
+/* ---------------------- */
+select="	$station_datatype.station,				\
+		$datatype.datatype,					\
+		$datatype.units,					\
+		$datatype.bar_graph_yn,					\
+		$datatype.scale_graph_to_zero_yn,			\
+		$datatype.aggregation_sum_yn,				\
+		$datatype.ysi_load_heading,				\
+		$datatype.exo_load_heading,				\
+		$datatype.set_negative_values_to_zero_yn,		\
+		$datatype.calibrated_yn"
+#endif
+
+STATION_DATATYPE *station_datatype_parse(
+			char *application_name,
+			/* -------------------------------------------- */
+			/* Only shef_upload_datatpe_list for a station. */
+			/* -------------------------------------------- */
+		   	LIST *shef_upload_datatype_list,
+			char *input_buffer )
+{
+	char piece_buffer[ 128 ];
+	STATION_DATATYPE *station_datatype;
+
+	station_datatype = station_datatype_new();
+
+	piece( piece_buffer, '|', input_buffer, 0 );
+	station_datatype->station_name = strdup( piece_buffer );
+
+	piece( piece_buffer, '|', input_buffer, 1 );
+	station_datatype->datatype = datatype_new( strdup( piece_buffer ) );
+
+	station_datatype->datatype->datatype_alias_list =
+		datatype_fetch_alias_list(
+			application_name,
+			station_datatype->datatype->datatype_name );
+
+	station_datatype->shef_upload_code =
+		shef_datatype_code_seek_upload_code(
+		   /* -------------------------------------------- */
+		   /* Only shef_upload_datatpe_list for a station. */
+		   /* -------------------------------------------- */
+		   shef_upload_datatype_list,
+		   station_datatype->datatype->datatype_name );
+
+	piece( piece_buffer, '|', input_buffer, 2 );
+	station_datatype->datatype->units = units_new();
+	station_datatype->datatype->units->units_name = strdup( piece_buffer );
+
+	piece( piece_buffer, '|', input_buffer, 3 );
+	station_datatype->datatype->bar_chart = (*piece_buffer == 'y');
+
+	piece( piece_buffer, '|', input_buffer, 4 );
+	station_datatype->datatype->scale_graph_to_zero =
+		(*piece_buffer == 'y');
+
+	piece( piece_buffer, '|', input_buffer, 5 );
+	station_datatype->datatype->aggregation_sum =
+		(*piece_buffer == 'y');
+
+	piece( piece_buffer, '|', input_buffer, 6 );
+	station_datatype->datatype->ysi_load_heading = strdup( piece_buffer );
+
+	piece( piece_buffer, '|', input_buffer, 7 );
+	station_datatype->datatype->exo_load_heading = strdup( piece_buffer );
+
+	piece( piece_buffer, '|', input_buffer, 8 );
+	station_datatype->datatype->set_negative_values_to_zero =
+		(*piece_buffer == 'y');
+
+	piece( piece_buffer, '|', input_buffer, 9 );
+	station_datatype->datatype->calibrated = (*piece_buffer == 'y');
+
+	return station_datatype;
+
+} /* station_datatype_parse() */

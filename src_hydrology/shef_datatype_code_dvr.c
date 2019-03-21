@@ -243,7 +243,7 @@ void test4( void )
 	else
 	{
 		printf(
-		"Datatype='%s' should be Salinity/ppt is (%s/%s)\n",
+		"Datatype='%s' should be salinity/ppt is (%s/%s)\n",
 			datatype_units_seek_phrase,
 			datatype->datatype_name,
 			datatype->units->units_name );

@@ -3,6 +3,6 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make output_edit_table_form
+	cd ../src_creel
+	make load_guide_angler_submission
 fi

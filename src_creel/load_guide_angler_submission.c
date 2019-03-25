@@ -28,7 +28,7 @@
 /* Constants */
 /* --------- */
 #define PERMITS_PRIMARY_KEY			"permit_code"
-#define QUEUE_TOP_BOTTOM_LINES			200
+#define QUEUE_TOP_BOTTOM_LINES			1000
 #define PERMIT_CODE_INTERVIEW_NUMBER_DELIMITER	'|'
 #define CATCHES_INCREMENT			5
 #define GUIDE_CATCHES_RESEARCHER		"none"

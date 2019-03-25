@@ -71,6 +71,14 @@ int main( void )
 				station->station_name,
 				datatype_units_seek_phrase );
 
+	if ( !datatype )
+	{
+		printf( "Error: Station %s doesn't have datatype %s.\n",
+			station->station_name,
+			datatype_units_seek_phrase );
+		exit( 0 );
+	}
+
 	if ( !datatype->units )
 	{
 		printf( "Datatype='%s' returned NULL units.\n",
@@ -110,6 +118,14 @@ int main( void )
 				station->station_name,
 				datatype_units_seek_phrase );
 
+	if ( !datatype )
+	{
+		printf( "Error: Station %s doesn't have datatype %s.\n",
+			station->station_name,
+			datatype_units_seek_phrase );
+		exit( 0 );
+	}
+
 	if ( !datatype->units )
 	{
 		printf( "Datatype='%s' returned NULL units.\n",
@@ -136,7 +152,8 @@ int main( void )
 				station->station_name,
 				datatype_units_seek_phrase ) ) )
 	{
-		printf( "Datatype='%s' returned NULL.\n",
+		printf( "Error: Station %s doesn't have datatype %s.\n",
+			station->station_name,
 			datatype_units_seek_phrase );
 		exit( 0 );
 	}
@@ -184,7 +201,8 @@ void test3( void )
 				station->station_name,
 				datatype_units_seek_phrase ) ) )
 	{
-		printf( "Datatype='%s' returned NULL.\n",
+		printf( "Error: Station %s doesn't have datatype %s.\n",
+			station->station_name,
 			datatype_units_seek_phrase );
 		return;
 	}
@@ -229,7 +247,8 @@ void test4( void )
 				station->station_name,
 				datatype_units_seek_phrase ) ) )
 	{
-		printf( "Datatype='%s' returned NULL.\n",
+		printf( "Error: Station %s doesn't have datatype %s.\n",
+			station->station_name,
 			datatype_units_seek_phrase );
 		return;
 	}

@@ -41,12 +41,6 @@
 #define DEFAULT_OUTPUT_MEDIUM			"summary_table"
 #define FILENAME_STEM				"hydroperiod"
 
-#define DATE_PIECE		 		0
-#define TIME_PIECE		 		1
-#define VALUE_PIECE		 		2
-#define COUNT_PIECE		 		3
-#define PIECE_DELIMITER				'|'
-
 /* Structures */
 /* ---------- */
 
@@ -381,7 +375,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", title );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	
@@ -497,7 +491,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", title );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	
@@ -611,7 +605,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", title );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	
@@ -732,7 +726,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", title );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	

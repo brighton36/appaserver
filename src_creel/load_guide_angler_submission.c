@@ -28,7 +28,7 @@
 /* Constants */
 /* --------- */
 #define PERMITS_PRIMARY_KEY			"permit_code"
-#define QUEUE_TOP_BOTTOM_LINES			50
+#define QUEUE_TOP_BOTTOM_LINES			200
 #define PERMIT_CODE_INTERVIEW_NUMBER_DELIMITER	'|'
 #define CATCHES_INCREMENT			5
 #define GUIDE_CATCHES_RESEARCHER		"none"
@@ -318,6 +318,9 @@ int insert_fishing_trips(	char *application_name,
 			input_string,
 			GUIDE_SUBMISSION_ANGLER_NAME_PIECE ) )
 		{
+			fprintf(error_file,
+			"Warning: Cannot extract guide angler name in (%s)\n",
+				input_string );
 			continue;
 		}
 
@@ -332,6 +335,9 @@ int insert_fishing_trips(	char *application_name,
 					input_string,
 					GUIDE_SUBMISSION_PERMIT_CODE_PIECE ) )
 		{
+			fprintf(error_file,
+			"Warning: Cannot extract permit code in (%s)\n",
+				input_string );
 			continue;
 		}
 
@@ -342,7 +348,7 @@ int insert_fishing_trips(	char *application_name,
 					GUIDE_SUBMISSION_CENSUS_DATE_PIECE ) )
 		{
 			fprintf(error_file,
-			"Warning: Cannot piece census date in (%s)\n",
+			"Warning: Cannot extract census date in (%s)\n",
 				input_string );
 			continue;
 		}
@@ -387,7 +393,7 @@ int insert_fishing_trips(	char *application_name,
 				GUIDE_SUBMISSION_FISHING_DURATION_PIECE ) )
 		{
 			fprintf(error_file,
-			"Warning: Cannot piece fishing duration in (%s)\n",
+			"Warning: Cannot extract fishing duration in (%s)\n",
 				input_string );
 			continue;
 		}
@@ -399,7 +405,7 @@ int insert_fishing_trips(	char *application_name,
 				GUIDE_SUBMISSION_FISHING_AREA_PIECE ) )
 		{
 			fprintf(error_file,
-			"Warning: Cannot piece fishing area in (%s)\n",
+			"Warning: Cannot extract fishing area in (%s)\n",
 				input_string );
 			continue;
 		}
@@ -411,7 +417,7 @@ int insert_fishing_trips(	char *application_name,
 				GUIDE_SUBMISSION_FISHING_AREA_ZONE_PIECE ) )
 		{
 			fprintf(error_file,
-			"Warning: Cannot piece fishing zone in (%s)\n",
+			"Warning: Cannot extract fishing zone in (%s)\n",
 				input_string );
 		}
 
@@ -620,8 +626,12 @@ int insert_fishing_trips(	char *application_name,
 	if ( timlib_file_populated( error_filename ) )
 	{
 		sprintf( sys_string,
-"cat %s | queue_top_bottom_lines.e 50 | html_table.e 'Fishing Trips Errors' '' '|'",
-			 error_filename );
+"cat %s						|"
+"queue_top_bottom_lines.e %d			|"
+"html_table.e 'Fishing Trips Errors' '' '|'	",
+			 error_filename,
+			 QUEUE_TOP_BOTTOM_LINES );
+
 		if ( system( sys_string ) );
 	}
 	sprintf( sys_string, "rm %s", error_filename );
@@ -632,11 +642,16 @@ int insert_fishing_trips(	char *application_name,
 		if ( timlib_file_populated( sql_error_filename ) )
 		{
 			sprintf( sys_string,
-"cat %s | queue_top_bottom_lines.e 50 | html_table.e 'SQL Errors' '' '|'",
-			 	sql_error_filename );
+"cat %s						|"
+"queue_top_bottom_lines.e %d			|"
+"html_table.e 'SQL Errors' '' '|'		 ",
+			 	sql_error_filename,
+				QUEUE_TOP_BOTTOM_LINES );
+
 			if ( system( sys_string ) );
 		}
 		sprintf( sys_string, "rm %s", sql_error_filename );
+
 		if ( system( sys_string ) );
 	}
 

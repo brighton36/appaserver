@@ -681,14 +681,14 @@ int bank_upload_insert(			char *application_name,
 			 "cat %s | html_paragraph_wrapper.e",
 			 error_filename );
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 
 	sprintf( sys_string,
 		 "rm -f %s",
 		 error_filename );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	return table_insert_count;
 
@@ -1993,7 +1993,7 @@ LIST *bank_upload_get_general_transaction_list(
 	pipe_delimited_transaction_list_string = pipe2string( sys_string );
 
 	sprintf( sys_string, "rm %s", temp_output_file );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	transaction_list =
 		bank_upload_transaction_list_string_parse(
@@ -2178,7 +2178,7 @@ join_where,
 	pipe_delimited_transaction_list_string = pipe2string( sys_string );
 
 	sprintf( sys_string, "rm %s", temp_output_file );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	transaction_list =
 		bank_upload_transaction_list_string_parse(
@@ -2337,7 +2337,7 @@ void bank_upload_transaction_balance_propagate(
 		 "html_paragraph_wrapper.e			 	 ",
 		 bank_date );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	sprintf( sys_string,
 		 "bank_upload_balance_propagate.sh \"%s\" 		|"
@@ -2345,7 +2345,7 @@ void bank_upload_transaction_balance_propagate(
 		 "html_paragraph_wrapper.e			 	 ",
 		 bank_date );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 } /* bank_upload_transaction_balance_propagate() */
 
@@ -2362,6 +2362,8 @@ char *bank_upload_get_status_string(
 	else
 	if ( bank_upload_status == feeder_phrase_match )
 	{
+		char buffer[ 128 ];
+
 		if ( !transaction )
 		{
 			fprintf( stderr,
@@ -2372,9 +2374,12 @@ char *bank_upload_get_status_string(
 			exit( 1 );
 		}
 
-		return ledger_get_non_cash_account_name(
-				application_name,
-				transaction );
+		return strdup(
+			format_initial_capital(
+				buffer,
+				ledger_get_non_cash_account_name(
+					application_name,
+					transaction ) ) );
 	}
 	else
 	if ( bank_upload_status == cleared_check )

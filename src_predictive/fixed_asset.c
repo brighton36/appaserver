@@ -260,7 +260,7 @@ FIXED_ASSET *fixed_asset_purchase_fetch(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -356,7 +356,7 @@ LIST *fixed_asset_purchase_fetch_list(	char *application_name,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,

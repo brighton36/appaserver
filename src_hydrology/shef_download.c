@@ -172,7 +172,8 @@ int main( int argc, char **argv )
 		email_address = (char *)0;
 
 	validation_level =
-		validation_level_get_validation_level( validation_level_string);
+		validation_level_get_validation_level(
+			validation_level_string);
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );

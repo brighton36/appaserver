@@ -1269,7 +1269,7 @@ void bank_upload_table_display(
 		fprintf( output_pipe,
 			 "%s^%s^%s^%.2lf\n",
 			 bank_upload->bank_date,
-			 bank_upload_get_status_string(
+			 bank_upload_get_account_html(
 				application_name,
 				bank_upload->bank_upload_status,
 				bank_upload->transaction,
@@ -2349,7 +2349,7 @@ void bank_upload_transaction_balance_propagate(
 
 } /* bank_upload_transaction_balance_propagate() */
 
-char *bank_upload_get_status_string(
+char *bank_upload_get_account_html(
 				char *application_name,
 				enum bank_upload_status bank_upload_status,
 				TRANSACTION *transaction,
@@ -2401,7 +2401,7 @@ char *bank_upload_get_status_string(
 		return "<p style=\"color:red\">No</p> transaction";
 	}
 
-} /* bank_upload_get_status_string() */
+} /* bank_upload_get_account_html() */
 
 char *bank_upload_description_crop( char *bank_description )
 {

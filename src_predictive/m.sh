@@ -1,6 +1,6 @@
 :
 
-make post_change_purchase_order
+make load_bank_spreadsheet
 
 #if [ "$?" -eq 0 ]
 #then

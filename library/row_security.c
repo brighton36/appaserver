@@ -621,26 +621,6 @@ LIST *row_security_get_row_dictionary_list(
 		exit( 1 );
 	}
 
-#ifdef NOT_DEFINED
-	query = query_new(	application_name,
-				login_name,
-				select_folder_name,
-				append_isa_attribute_list,
-				query_dictionary,
-				sort_dictionary,
-				login_role,
-				where_clause_attribute_name_list,
-				where_clause_data_list,
-				QUERY_MAX_ROWS,
-				0 /* not_include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
-
 	query = query_folder_new(
 			application_name,
 			login_name,
@@ -661,6 +641,17 @@ LIST *row_security_get_row_dictionary_list(
 				attribute_list );
 	}
 
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: got where_clause = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+query->query_output->where_clause );
+m2( query->folder->application_name, msg );
+}
+*/
 	row_dictionary_list =
 		query_get_row_dictionary_list(
 				query->folder->application_name,

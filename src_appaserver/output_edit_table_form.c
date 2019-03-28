@@ -435,7 +435,7 @@ int main( int argc, char **argv )
 			(content_type_yn) ? content_type_yn : 'y',
 			appaserver_error_get_filename(
 				application_name ) );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 		fflush( stdout );
 	}
 	else
@@ -678,7 +678,7 @@ m2( application_name, msg );
 				folder->
 				primary_attribute_name_list ) /* select */ );
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 
 	if ( list_length(	row_security->

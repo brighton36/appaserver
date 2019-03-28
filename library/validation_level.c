@@ -20,6 +20,7 @@ enum validation_level validation_level_get_validation_level(
 		validation_level = either;
 
 	return validation_level;
+
 } /* validation_level_get_validation_level() */
 
 char *validation_level_display( enum validation_level validation_level )
@@ -27,7 +28,8 @@ char *validation_level_display( enum validation_level validation_level )
 	return validation_level_get_string( validation_level );
 }
 
-char *validation_level_get_string( enum validation_level validation_level )
+char *validation_level_get_string(
+				enum validation_level validation_level )
 {
 	if ( validation_level == provisional )
 		return "provisional";
@@ -39,5 +41,28 @@ char *validation_level_get_string( enum validation_level validation_level )
 		return "either";
 	else
 		return "validation level error";
-}
+
+} /* validation_level_get_string() */
+
+char *validation_level_get_title_string(
+				enum validation_level validation_level )
+{
+	char title_string[ 128 ];
+
+	if ( validation_level == provisional
+	||   validation_level == validated )
+	{
+		sprintf( title_string,
+			 "/%s",
+			 validation_level_get_string(
+				validation_level ) );
+	}
+	else
+	{
+		*title_string = '\0';
+	}
+
+	return strdup( title_string );
+
+} /* validation_level_get_title_string() */
 

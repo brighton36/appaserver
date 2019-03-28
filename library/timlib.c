@@ -1112,11 +1112,12 @@ int timlib_get_line(	char *in_line,
 		if ( buffer_size && ( size++ >= buffer_size ) )
 		{
 			fprintf( stderr,
-		"Error in %s/%s()/%d: exceeded buffer size of %d.\n",
-				 __FILE__,
+		"Warning in %s()/%d: exceeded max line length of %d:\n"
+		"%.75s...\n\n",
 				 __FUNCTION__,
 				 __LINE__,
-				 buffer_size );
+				 buffer_size - 1,
+				 anchor );
 			*in_line = '\0';
 			return 1;
 		}

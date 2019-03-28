@@ -5834,7 +5834,15 @@ QUERY_OUTPUT *query_folder_output_new(
 				LIST *where_attribute_data_list )
 {
 	QUERY_OUTPUT *query_output;
-	LIST *exclude_attribute_name_list = list_new();
+
+	/* -------------------------------------------- */
+	/* This function may be called two times if	*/
+	/* ROW_SECURITY_ROLE_UPDATE is populated.	*/
+	/* -------------------------------------------- */
+	static LIST *exclude_attribute_name_list = {0};
+
+	if ( !exclude_attribute_name_list )
+		exclude_attribute_name_list = list_new();
 
 	if ( !folder )
 	{

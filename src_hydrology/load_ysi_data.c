@@ -443,7 +443,7 @@ int load_ysi_filespecification(
 				"measurement" );
 
 		sprintf(sys_string,
-		 	"insert_statement.e %s %s '^' replace=y	|"
+	"insert_statement.e table=%s field=%s del='^' replace=y	|"
 		 	"sql.e 2>&1				|"
 		 	"cat >> %s			 	 ",
 		 	table_name,
@@ -752,20 +752,23 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 					char *second_line )
 {
 	LIST *datatype_list;
-	LIST *return_datatype_list;
 	DATATYPE *datatype;
 	char datatype_heading_first_line[ 128 ];
 	char datatype_heading_second_line[ 128 ];
 	char two_line_datatype_heading[ 256 ];
 	int column_piece;
+	HYDROLOGY *hydrology;
+	STATION *station;
 
-	return_datatype_list = list_new();
+	hydrology = hydrology_new();
 
-	datatype_list =
-		datatype_with_station_name_get_datatype_list(
+	station =
+		hydrology_get_or_set_station(
+			hydrology->input.station_list,
 			application_name,
 			station_name );
 
+	datatype_list = list_new();
 	*datatype_heading_second_line = '\0';
 
 	for(	column_piece = 0;
@@ -812,31 +815,20 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 
 		trim( two_line_datatype_heading );
 
-		units_search_replace_special_codes(
-			two_line_datatype_heading );
-
-		if ( ( datatype =
-			datatype_list_ysi_load_heading_seek(
-				datatype_list,
-				two_line_datatype_heading ) ) )
+		if ( ! ( datatype =
+				hydrology_datatype_seek_phrase(
+					station->station_datatype_list,
+					station->station_name,
+					two_line_datatype_heading ) ) )
 		{
-			datatype->column_piece = column_piece;
-			list_append_pointer( return_datatype_list, datatype );
 			continue;
 		}
 
-		if ( ( datatype =
-			datatype_list_exo_load_heading_seek(
-				datatype_list,
-				two_line_datatype_heading ) ) )
-		{
-			datatype->column_piece = column_piece;
-			list_append_pointer( return_datatype_list, datatype );
-			continue;
-		}
+		datatype->column_piece = column_piece;
+		list_append_pointer( datatype_list, datatype );
 	}
 
-	return return_datatype_list;
+	return datatype_list;
 
 } /* input_buffer_get_datatype_list() */
 

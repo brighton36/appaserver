@@ -534,7 +534,7 @@ void post_change_purchase_order_FOB_shipping_fixed_shipped_date(
 			: "fund",
 		 propagate_transaction_date_time );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	purchase_order->transaction_date_time =
 	purchase_order->transaction->transaction_date_time =
@@ -1112,7 +1112,7 @@ void post_change_purchase_order_changed_to_FOB_shipping(
 				: "fund",
 		 	propagate_transaction_date_time );
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 
 		purchase_order->transaction_date_time =
 		purchase_order->transaction->transaction_date_time =
@@ -1261,7 +1261,7 @@ void post_change_purchase_order_FOB_shipping_new_title_passage_rule(
 				: "fund",
 		 	propagate_transaction_date_time );
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 
 		purchase_order->transaction->transaction_date_time =
 			purchase_order->transaction_date_time;
@@ -1335,7 +1335,7 @@ void post_change_purchase_order_fixed_arrived_date_time(
 				: "fund",
 		 	propagate_transaction_date_time );
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 
 		purchase_order->transaction_date_time =
 		purchase_order->transaction->transaction_date_time =
@@ -1513,7 +1513,7 @@ void post_change_purchase_order_change_sales_tax_inventory(
 			 purchase_date_time,
 			 inventory_purchase->inventory_name );
 
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 
 	} while( list_next( inventory_purchase_list ) );
 

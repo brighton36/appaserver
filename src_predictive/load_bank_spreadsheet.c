@@ -201,7 +201,7 @@ int main( int argc, char **argv )
 	printf( "<h1>%s\n",
 		format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	if ( system( "date '+%x %H:%M'" ) ) {};
 	printf( "</h1>\n" );
 	fflush( stdout );
 
@@ -402,13 +402,13 @@ void bank_upload_propagate( char *minimum_bank_date )
 		"bank_upload_sequence_propagate.sh \"%s\" | sql.e",
 		 minimum_bank_date );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	sprintf( sys_string,
 		 "bank_upload_balance_propagate.sh \"%s\" | sql.e",
 		 minimum_bank_date );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 } /* bank_upload_propagate() */
 
@@ -648,7 +648,7 @@ void load_bank_spreadsheet_transaction_insert(
 			bank_upload->transaction->street_address,
 			bank_upload->transaction->transaction_date_time );
 
-			system( sys_string );
+			if ( system( sys_string ) ) {};
 		}
 		else
 		if ( bank_upload->cleared_journal_ledger )
@@ -667,7 +667,7 @@ void load_bank_spreadsheet_transaction_insert(
 				cleared_journal_ledger->
 				transaction_date_time );
 
-			system( sys_string );
+			if ( system( sys_string ) ) {};
 		}
 
 	} while( list_next( bank_upload_table_list ) );

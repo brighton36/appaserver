@@ -342,7 +342,7 @@ LIST *ledger_fetch_account_list(	char *application_name,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=account		",
 		 application_name,
 		 select );
@@ -715,7 +715,7 @@ void ledger_load(		char **full_name,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=%s		"
 		 "			where=\"%s\"		",
 		 application_name,
@@ -968,7 +968,7 @@ LIST *ledger_subclassification_quickly_get_account_list(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=account		"
 		 "			where=\"%s\"		",
 		 application_name,
@@ -2888,7 +2888,7 @@ LIST *ledger_get_journal_ledger_list(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=%s		"
 		 "			where=\"%s\"		"
 		 "			order=\"%s\"		",
@@ -3061,7 +3061,7 @@ LIST *ledger_get_year_journal_ledger_list(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=%s		"
 		 "			where=\"%s\"		"
 		 "			order=\"%s\"		",
@@ -3148,7 +3148,7 @@ boolean ledger_transaction_load(	double *transaction_amount,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=transaction		"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -4517,7 +4517,7 @@ boolean ledger_transaction_exists(	char *application_name,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=%s		"
 		 "			where=\"%s\"		",
 		 application_name,
@@ -4570,7 +4570,7 @@ LIST *ledger_fetch_transaction_list(	char *application_name,
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=transaction		"
 		 "			where=\"%s\"			"
 		 "			order=transaction_date_time    |"
@@ -5095,7 +5095,7 @@ HASH_TABLE *ledger_get_transaction_hash_table(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -5131,7 +5131,7 @@ HASH_TABLE *ledger_get_transaction_hash_table(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -5351,7 +5351,7 @@ HASH_TABLE *ledger_get_journal_ledger_hash_table(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -5387,7 +5387,7 @@ HASH_TABLE *ledger_get_journal_ledger_hash_table(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s			"
-		 "			select=%s			"
+		 "			select=\"%s\"			"
 		 "			folder=%s			"
 		 "			where=\"%s\"			",
 		 application_name,
@@ -5585,7 +5585,7 @@ LIST *ledger_get_contra_account_list( char *application_name )
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=contra_account	",
 		 application_name,
 		 select );
@@ -9836,7 +9836,7 @@ double ledger_get_sales_tax(
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		"
-		 "			select=%s		"
+		 "			select=\"%s\"		"
 		 "			folder=customer_sale	"
 		 "			where=\"%s\"		",
 		 application_name,

@@ -152,24 +152,12 @@ DATATYPE *hydrology_datatype_seek_phrase(
 				station_name,
 				datatype_name ) ) )
 	{
-		fprintf( stderr,
-"Error in %s/%s()/%d: cannot get station_datatype for datatype_name = (%s)\n",
-		 	__FILE__,
-		 	__FUNCTION__,
-		 	__LINE__,
-		 	datatype_name );
-		exit( 1 );
+		return (DATATYPE *)0;
 	}
 
 	if ( !station_datatype->datatype )
 	{
-		fprintf( stderr,
-	"Error in %s/%s()/%d: empty datatype for datatype_name = (%s)\n",
-		 	__FILE__,
-		 	__FUNCTION__,
-		 	__LINE__,
-		 	datatype_name );
-		exit( 1 );
+		return (DATATYPE *)0;
 	}
 
 	return station_datatype->datatype;

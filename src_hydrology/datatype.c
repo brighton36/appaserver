@@ -480,8 +480,13 @@ DATATYPE *datatype_record2datatype(	char *application_name,
 	piece( bar_graph_yn, '|', record, 2 );
 	piece( scale_graph_to_zero_yn, '|', record, 3 );
 	piece( aggregation_sum_yn, '|', record, 4 );
+/*
 	piece( ysi_load_heading, '|', record, 5 );
 	piece( exo_load_heading, '|', record, 6 );
+*/
+	*ysi_load_heading = '\0';
+	*exo_load_heading = '\0';
+
 	piece( set_negative_values_to_zero_yn, '|', record, 7 );
 	piece( calibrated_yn, '|', record, 8 );
 
@@ -514,9 +519,9 @@ DATATYPE *datatype_record2datatype(	char *application_name,
 	datatype->aggregation_sum =
 		( tolower( *aggregation_sum_yn ) == 'y' );
 
-	datatype->ysi_load_heading = strdup( ysi_load_heading );
+	/* datatype->ysi_load_heading = strdup( ysi_load_heading ); */
 
-	datatype->exo_load_heading = strdup( exo_load_heading );
+	/* datatype->exo_load_heading = strdup( exo_load_heading ); */
 
 	datatype->set_negative_values_to_zero =
 		( tolower( *set_negative_values_to_zero_yn ) == 'y' );

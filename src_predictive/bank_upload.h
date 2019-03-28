@@ -335,7 +335,7 @@ LIST *bank_upload_transaction_list_string_parse(
 void bank_upload_transaction_balance_propagate(
 					char *bank_date );
 
-char *bank_upload_get_status_string(
+char *bank_upload_get_account_html(
 				char *application_name,
 				enum bank_upload_status,
 				TRANSACTION *transaction,

@@ -28,7 +28,7 @@
 /* Constants */
 /* --------- */
 #define PERMITS_PRIMARY_KEY			"permit_code"
-#define QUEUE_TOP_BOTTOM_LINES			50
+#define QUEUE_TOP_BOTTOM_LINES			1000
 #define PERMIT_CODE_INTERVIEW_NUMBER_DELIMITER	'|'
 #define CATCHES_INCREMENT			5
 #define GUIDE_CATCHES_RESEARCHER		"none"
@@ -58,7 +58,7 @@ void delete_fishing_trips(
 				char *application_name,
 				char *input_filename );
 
-void insert_fishing_trips(	char *application_name,
+int insert_fishing_trips(	char *application_name,
 				char *login_name,
 				char *input_filename,
 				char really_yn );
@@ -70,43 +70,34 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *input_filename;
 	char really_yn;
+	int fishing_trip_count;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
+
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process login_name filename really_yn\n",
+"Usage: %s ignored process login_name filename really_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	process_name = argv[ 2 ];
 	login_name = argv[ 3 ];
 	input_filename = argv[ 4 ];
 	really_yn = *argv[ 5 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	document = document_new( "", application_name );
 	document_set_output_content_type( document );
@@ -144,23 +135,32 @@ int main( int argc, char **argv )
 		delete_fishing_trips( application_name, input_filename );
 	}
 
-
-	insert_fishing_trips(	application_name,
-				login_name,
-				input_filename,
-				really_yn );
+	fishing_trip_count =
+		insert_fishing_trips(
+			application_name,
+			login_name,
+			input_filename,
+			really_yn );
 
 	if ( really_yn == 'y' )
-		printf( "<h3>Process complete.</h3>\n" );
-	else
-		printf( "<h3>Process NOT executed.</h3>\n" );
+	{
+		printf( "<h3>Process complete with %d fishing trips.</h3>\n",
+			fishing_trip_count );
 
-	document_close();
-
-	process_increment_execution_count(
+		process_increment_execution_count(
 				application_name,
 				process_name,
 				appaserver_parameter_file_get_dbms() );
+
+	}
+	else
+	{
+		printf( "<h3>Process did NOT load %d fishing trips.</h3>\n",
+			fishing_trip_count );
+	}
+
+	document_close();
+
 	exit( 0 );
 } /* main() */
 
@@ -170,7 +170,7 @@ int main( int argc, char **argv )
 #define INSERT_GUIDE_ANGLERS_FIELD_LIST	"guide_angler_name"
 #define INSERT_PERMITS_FIELD_LIST	"permit_code,guide_angler_name"
 
-void insert_fishing_trips(	char *application_name,
+int insert_fishing_trips(	char *application_name,
 				char *login_name,
 				char *input_filename,
 				char really_yn )
@@ -203,9 +203,10 @@ void insert_fishing_trips(	char *application_name,
 	char sql_error_filename[ 128 ];
 	int line_number = 0;
 	int input_record_count;
-	int next_reference_number = 0;
+	int next_reference_number;
 	LIST *catches_list;
 	CATCHES *catches;
+	int fishing_trip_count;
 	char *now_string = pipe2string( "now.sh ymd" );
 
 	input_record_count = get_input_record_count( input_filename );
@@ -305,16 +306,21 @@ void insert_fishing_trips(	char *application_name,
 		date_get_now_date_yyyy_mm_dd(
 			date_get_utc_offset() );
 
-	while( get_line( input_string, input_file ) )
+	fishing_trip_count = 0;
+
+	while( timlib_get_line( input_string, input_file, 4096 ) )
 	{
 		line_number++;
 
-		if ( ! piece_double_quoted(
+		if ( !piece_double_quoted(
 			guide_angler_name,
 			',',
 			input_string,
 			GUIDE_SUBMISSION_ANGLER_NAME_PIECE ) )
 		{
+			fprintf(error_file,
+			"Warning: Cannot extract guide angler name in (%s)\n",
+				input_string );
 			continue;
 		}
 
@@ -329,6 +335,9 @@ void insert_fishing_trips(	char *application_name,
 					input_string,
 					GUIDE_SUBMISSION_PERMIT_CODE_PIECE ) )
 		{
+			fprintf(error_file,
+			"Warning: Cannot extract permit code in (%s)\n",
+				input_string );
 			continue;
 		}
 
@@ -339,7 +348,7 @@ void insert_fishing_trips(	char *application_name,
 					GUIDE_SUBMISSION_CENSUS_DATE_PIECE ) )
 		{
 			fprintf(error_file,
-			"Warning: Cannot piece census date in (%s)\n",
+			"Warning: Cannot extract census date in (%s)\n",
 				input_string );
 			continue;
 		}
@@ -384,7 +393,7 @@ void insert_fishing_trips(	char *application_name,
 				GUIDE_SUBMISSION_FISHING_DURATION_PIECE ) )
 		{
 			fprintf(error_file,
-			"Warning: Cannot piece fishing duration in (%s)\n",
+			"Warning: Cannot extract fishing duration in (%s)\n",
 				input_string );
 			continue;
 		}
@@ -396,7 +405,7 @@ void insert_fishing_trips(	char *application_name,
 				GUIDE_SUBMISSION_FISHING_AREA_PIECE ) )
 		{
 			fprintf(error_file,
-			"Warning: Cannot piece fishing area in (%s)\n",
+			"Warning: Cannot extract fishing area in (%s)\n",
 				input_string );
 			continue;
 		}
@@ -408,7 +417,7 @@ void insert_fishing_trips(	char *application_name,
 				GUIDE_SUBMISSION_FISHING_AREA_ZONE_PIECE ) )
 		{
 			fprintf(error_file,
-			"Warning: Cannot piece fishing zone in (%s)\n",
+			"Warning: Cannot extract fishing zone in (%s)\n",
 				input_string );
 		}
 
@@ -484,12 +493,16 @@ void insert_fishing_trips(	char *application_name,
 				GUIDE_CATCHES_RESEARCHER );
 		}
 
+		fishing_trip_count++;
+
 		fprintf(fishing_trips_output_pipe,
 			"%s|%s|%s|%d|%s|%s|%s|%s|%s|%s|%s|y|%s|%s",
 			GUIDE_FISHING_PURPOSE,
 			census_date_international,
 			GUIDE_CATCHES_INTERVIEW_LOCATION,
-			next_reference_number,
+			(really_yn == 'y')
+				? next_reference_number
+				: -1,
 			permit_code,
 			hours_fishing,
 			number_of_people_fishing,
@@ -613,8 +626,12 @@ void insert_fishing_trips(	char *application_name,
 	if ( timlib_file_populated( error_filename ) )
 	{
 		sprintf( sys_string,
-"cat %s | queue_top_bottom_lines.e 50 | html_table.e 'Fishing Trips Errors' '' '|'",
-			 error_filename );
+"cat %s						|"
+"queue_top_bottom_lines.e %d			|"
+"html_table.e 'Fishing Trips Errors' '' '|'	",
+			 error_filename,
+			 QUEUE_TOP_BOTTOM_LINES );
+
 		if ( system( sys_string ) );
 	}
 	sprintf( sys_string, "rm %s", error_filename );
@@ -625,13 +642,20 @@ void insert_fishing_trips(	char *application_name,
 		if ( timlib_file_populated( sql_error_filename ) )
 		{
 			sprintf( sys_string,
-"cat %s | queue_top_bottom_lines.e 50 | html_table.e 'SQL Errors' '' '|'",
-			 	sql_error_filename );
+"cat %s						|"
+"queue_top_bottom_lines.e %d			|"
+"html_table.e 'SQL Errors' '' '|'		 ",
+			 	sql_error_filename,
+				QUEUE_TOP_BOTTOM_LINES );
+
 			if ( system( sys_string ) );
 		}
 		sprintf( sys_string, "rm %s", sql_error_filename );
+
 		if ( system( sys_string ) );
 	}
+
+	return fishing_trip_count;
 
 } /* insert_fishing_trips() */
 
@@ -639,7 +663,7 @@ int get_input_record_count( char *input_filename )
 {
 	FILE *input_file;
 	char input_string[ 4096 ];
-	char guide_angler_name[ 128 ];
+	char guide_angler_name[ 1024 ];
 	int input_record_count = 0;
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
@@ -648,7 +672,7 @@ int get_input_record_count( char *input_filename )
 		exit( 1 );
 	}
 
-	while( get_line( input_string, input_file ) )
+	while( timlib_get_line( input_string, input_file, 4096 ) )
 	{
 		if ( !piece_double_quoted(
 				guide_angler_name,

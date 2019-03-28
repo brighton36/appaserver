@@ -35,6 +35,7 @@
 #include "application_constants.h"
 #include "appaserver_link_file.h"
 #include "google_chart.h"
+#include "validation_level.h"
 
 /* Constants */
 /* --------- */
@@ -110,7 +111,8 @@ LIST *get_station_datatype_list(	char *application_name,
 					char *end_date,
 					LIST *station_name_list,
 					LIST *datatype_name_list,
-					enum aggregate_level );
+					enum aggregate_level,
+					enum validation_level );
 
 MERGED_MEASUREMENT *new_merged_measurement(
 					char *date_space_time );
@@ -125,7 +127,8 @@ boolean merged_datasets_output_google_chart(
 					char *begin_date,
 					char *end_date,
 					LIST *station_datatype_list,
-					enum aggregate_level aggregate_level,
+					enum aggregate_level,
+					enum validation_level,
 					char *document_root_directory,
 					char *omit_output_if_any_missing_yn );
 
@@ -136,13 +139,15 @@ boolean merged_datasets_output_gracechart(
 				char *end_date,
 				LIST *station_name_list,
 				LIST *datatype_name_list,
-				enum aggregate_level aggregate_level,
+				enum aggregate_level,
+				enum validation_level,
 				char *document_root_directory,
 				char *argv_0 );
 
 void merged_datasets_output_table(
 				LIST *station_datatype_list,
 				enum aggregate_level,
+				enum validation_level,
 				char *omit_output_if_any_missing_yn,
 				boolean display_count,
 				char *begin_date,
@@ -154,6 +159,7 @@ void merged_datasets_output_transmit(
 					FILE *output_pipe,
 					LIST *station_datatype_list,
 					enum aggregate_level,
+					enum validation_level,
 					char *omit_output_if_any_missing_yn,
 					char *begin_date,
 					char *end_date );
@@ -165,7 +171,8 @@ void build_sys_string(
 					char *end_date,
 					char *station_name,
 					char *datatype_name,
-					enum aggregate_level aggregate_level );
+					enum aggregate_level,
+					enum validation_level );
 
 int main( int argc, char **argv )
 {
@@ -184,25 +191,35 @@ int main( int argc, char **argv )
 	DICTIONARY *parameter_dictionary;
 	char *aggregate_level_string;
 	enum aggregate_level aggregate_level;
+	char *validation_level_string = {0};
+	enum validation_level validation_level;
 	LIST *station_datatype_list = {0};
 	char *omit_output_if_any_missing_yn;
-	char *database_string = {0};
 	char *display_count_yn = {0};
 	boolean data_collection_frequency_out_of_sync = 0;
 	boolean date_range_period_of_record = 0;
 	APPASERVER_LINK_FILE *appaserver_link_file;
 
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s login_name ignored application role aggregate_level parameter_dictionary\n",
+"Usage: %s login_name ignored ignored role aggregate_level parameter_dictionary\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
 	/* session = argv[ 2 ]; */
-	application_name = argv[ 3 ];
+	/* application_name = argv[ 3 ]; */
 	role_name = argv[ 4 ];
 	aggregate_level_string = argv[ 5 ];
 
@@ -212,25 +229,7 @@ int main( int argc, char **argv )
 
 	parameter_dictionary_string = argv[ 6 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	parameter_dictionary = 
 		dictionary_index_string2dictionary(
@@ -293,6 +292,15 @@ int main( int argc, char **argv )
 					"omit_output_if_any_missing_yn", 
 					0 );
 
+	dictionary_get_index_data( 	&validation_level_string, 
+					parameter_dictionary, 
+					"validation_level", 
+					0 );
+
+	validation_level =
+		validation_level_get_validation_level(
+			validation_level_string);
+
 	station_name_list = 
 		dictionary_get_index_list( 	parameter_dictionary,
 						"station" );
@@ -310,7 +318,7 @@ int main( int argc, char **argv )
 						application_name,
 						appaserver_parameter_file->
 						appaserver_mount_point );
-			printf( "<h2>ERROR: insufficient input.</h2>" );
+			printf( "<h3>ERROR: insufficient input.</h3>" );
 			document_close();
 			exit( 1 );
 		}
@@ -357,7 +365,8 @@ int main( int argc, char **argv )
 						appaserver_parameter_file->
 						appaserver_mount_point );
 
-		printf( "<p>ERROR: no data available for these dates.\n" );
+		printf(
+		"<h3>ERROR: no data available for these dates.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
@@ -413,9 +422,10 @@ int main( int argc, char **argv )
 					end_date,
 					station_name_list,
 					datatype_name_list,
-					aggregate_level ) ) )
+					aggregate_level,
+					validation_level ) ) )
 	{
-		printf( "<h2>ERROR: insufficient input.</h2>\n" );
+		printf( "<h3>ERROR: insufficient input.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
@@ -429,6 +439,7 @@ int main( int argc, char **argv )
 					end_date,
 					station_datatype_list,
 					aggregate_level,
+					validation_level,
 					appaserver_parameter_file->
 						document_root,
 					omit_output_if_any_missing_yn ) )
@@ -464,6 +475,7 @@ int main( int argc, char **argv )
 					station_name_list,
 					datatype_name_list,
 					aggregate_level,
+					validation_level,
 					appaserver_parameter_file->
 						document_root,
 					argv[ 0 ] ) )
@@ -493,6 +505,7 @@ int main( int argc, char **argv )
 		merged_datasets_output_table(
 					station_datatype_list,
 					aggregate_level,
+					validation_level,
 					omit_output_if_any_missing_yn,
 					(*display_count_yn == 'y'),
 					begin_date,
@@ -560,7 +573,7 @@ int main( int argc, char **argv )
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
-			printf( "<H2>ERROR: Cannot open output file %s\n",
+			printf( "<h3>ERROR: Cannot open output file %s</h3>\n",
 				output_filename );
 			document_close();
 			exit( 1 );
@@ -580,6 +593,7 @@ int main( int argc, char **argv )
 					output_pipe,
 					station_datatype_list,
 					aggregate_level,
+					validation_level,
 					omit_output_if_any_missing_yn,
 					begin_date,
 					end_date );
@@ -589,7 +603,7 @@ int main( int argc, char **argv )
 		printf( "<h1>Merged Datasets Transmission<br></h1>\n" );
 		printf( "<h2>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h2>\n" );
 	
@@ -674,7 +688,7 @@ int main( int argc, char **argv )
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
-			printf( "<H2>ERROR: Cannot open output file %s\n",
+			printf( "<h3>ERROR: Cannot open output file %s</h3>\n",
 				output_filename );
 			document_close();
 			exit( 1 );
@@ -703,6 +717,7 @@ int main( int argc, char **argv )
 					output_pipe,
 					station_datatype_list,
 					aggregate_level,
+					validation_level,
 					omit_output_if_any_missing_yn,
 					begin_date,
 					end_date );
@@ -712,7 +727,7 @@ int main( int argc, char **argv )
 		printf( "<h1>Merged Datasets Transmission<br></h1>\n" );
 		printf( "<h2>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h2>\n" );
 	
@@ -757,6 +772,7 @@ int main( int argc, char **argv )
 					output_pipe,
 					station_datatype_list,
 					aggregate_level,
+					validation_level,
 					omit_output_if_any_missing_yn,
 					begin_date,
 					end_date );
@@ -781,6 +797,7 @@ void merged_datasets_output_transmit(
 					FILE *output_pipe,
 					LIST *station_datatype_list,
 					enum aggregate_level aggregate_level,
+					enum validation_level validation_level,
 					char *omit_output_if_any_missing_yn,
 					char *begin_date,
 					char *end_date )
@@ -791,13 +808,17 @@ void merged_datasets_output_transmit(
 	MERGED_MEASUREMENT *measurement;
 	char buffer[ 512 ];
 	HASH_TABLE *merged_date_space_time_key_hash_table;
-	char initial_capital_buffer[ 512 ];
+	char aggregate_buffer[ 512 ];
+	char validation_buffer[ 512 ];
 
 	fprintf(output_pipe,
-		"#Merged Datasets %s from %s to %s\n",
+		"#Merged Datasets %s%s from %s to %s\n",
 		format_initial_capital(
-			initial_capital_buffer,
+			aggregate_buffer,
 			aggregate_level_get_string( aggregate_level ) ),
+		format_initial_capital(
+			validation_buffer,
+			validation_level_get_title_string( validation_level ) ),
 		begin_date,
 		end_date );
 
@@ -837,7 +858,7 @@ void merged_datasets_output_transmit(
 
 	if ( !list_length( date_space_time_key_list ) )
 	{
-		printf( "<h2>ERROR: insufficient data to output</h2>\n" );
+		printf( "<h3>ERROR: insufficient data to output</h3>\n" );
 		return;
 	}
 
@@ -897,6 +918,7 @@ void merged_datasets_output_transmit(
 void merged_datasets_output_table(
 				LIST *station_datatype_list,
 				enum aggregate_level aggregate_level,
+				enum validation_level validation_level,
 				char *omit_output_if_any_missing_yn,
 				boolean display_count,
 				char *begin_date,
@@ -910,6 +932,8 @@ void merged_datasets_output_table(
 	MERGED_MEASUREMENT *measurement;
 	LIST *heading_list;
 	HTML_TABLE *html_table = {0};
+	char aggregation_buffer[ 512 ];
+	char validation_buffer[ 512 ];
 	char buffer[ 512 ];
 	char initial_capital_buffer[ 512 ];
 	HASH_TABLE *merged_date_space_time_key_hash_table;
@@ -933,10 +957,13 @@ void merged_datasets_output_table(
 	}
 
 	sprintf(title,
-		"Merged Datasets %s from %s to %s",
+		"Merged Datasets %s%s from %s to %s",
 		format_initial_capital(
-			buffer,
+			aggregation_buffer,
 			aggregate_level_get_string( aggregate_level ) ),
+		format_initial_capital(
+			validation_buffer,
+			validation_level_get_title_string( validation_level ) ),
 		begin_date,
 		end_date );
 
@@ -964,7 +991,9 @@ void merged_datasets_output_table(
 				initial_capital_buffer,
 				station_datatype->datatype ) );
 
-		list_append_pointer( heading_list, strdup( buffer ) );
+		list_append_pointer(
+			heading_list,
+			strdup( buffer ) );
 
 		if ( display_count )
 			list_append_pointer( heading_list, "Count" );
@@ -997,7 +1026,7 @@ void merged_datasets_output_table(
 	if ( !list_length( date_space_time_key_list ) )
 	{
 		printf( "</table>\n" );
-		printf( "<h2>ERROR: insufficient data to output</h2>\n" );
+		printf( "<h3>ERROR: insufficient data to output</h3>\n" );
 		return;
 	}
 
@@ -1102,7 +1131,8 @@ LIST *get_station_datatype_list(	char *application_name,
 					char *end_date,
 					LIST *station_name_list,
 					LIST *datatype_name_list,
-					enum aggregate_level aggregate_level )
+					enum aggregate_level aggregate_level,
+					enum validation_level validation_level )
 {
 	LIST *station_datatype_list;
 	char sys_string[ 1024 ];
@@ -1129,7 +1159,8 @@ LIST *get_station_datatype_list(	char *application_name,
 					end_date,
 					station_name,
 					datatype_name,
-					aggregate_level );
+					aggregate_level,
+					validation_level );
 
 			station_datatype =
 				get_station_datatype(
@@ -1155,9 +1186,11 @@ void build_sys_string(
 		char *end_date,
 		char *station_name,
 		char *datatype_name,
-		enum aggregate_level aggregate_level )
+		enum aggregate_level aggregate_level,
+		enum validation_level validation_level )
 {
 	char where_clause[ 1024 ];
+	char *validation_where;
 	char intermediate_process[ 1024 ];
 	char *pre_intermediate_process_sort;
 	enum aggregate_statistic aggregate_statistic;
@@ -1203,14 +1236,30 @@ void build_sys_string(
 		pre_intermediate_process_sort = "sort -r";
 	}
 
+	if ( validation_level == provisional )
+	{
+		validation_where = "last_validation_date is null";
+	}
+	else
+	if ( validation_level == validated )
+	{
+		validation_where = "last_validation_date is not null";
+	}
+	else
+	{
+		validation_where = "1 = 1";
+	}
+
 	sprintf( where_clause,
- 	"station = '%s' and 				      "
- 	"datatype = '%s' and 				      "
- 	"measurement_date >= '%s' and measurement_date <= '%s'",
+ 	"station = '%s' and 				      		"
+ 	"datatype = '%s' and 				      		"
+ 	"measurement_date >= '%s' and measurement_date <= '%s' and	"
+	"%s								",
 		station_name,
 		datatype_name,
 		begin_date,
-		end_date );
+		end_date,
+		validation_where );
 
 	if ( aggregate_level == real_time )
 	{
@@ -1474,6 +1523,7 @@ boolean merged_datasets_output_gracechart(
 				LIST *station_name_list,
 				LIST *datatype_name_list,
 				enum aggregate_level aggregate_level,
+				enum validation_level validation_level,
 				char *document_root_directory,
 				char *argv_0 )
 {
@@ -1506,8 +1556,9 @@ boolean merged_datasets_output_gracechart(
 		"Merged Datasets Gracechart" );
 
 	sprintf(sub_title,
-		"%s from %s to %s",
+		"%s%s from %s to %s",
 		aggregate_level_get_string( aggregate_level ),
+		validation_level_get_title_string( validation_level ),
 		begin_date,
 		end_date );
 
@@ -1541,7 +1592,7 @@ boolean merged_datasets_output_gracechart(
 			(char *)0 /* appaserver_mount_point */ );
 
 		printf(
-		"<h2>ERROR: Invalid date format format.</h2>" );
+		"<h3>ERROR: Invalid date format format.</h3>" );
 		document_close();
 		exit( 1 );
 	}
@@ -1580,7 +1631,8 @@ boolean merged_datasets_output_gracechart(
 				end_date,
 				station_name,
 				datatype_name,
-				aggregate_level );
+				aggregate_level,
+				validation_level );
 
 		station_datatype =
 			get_station_datatype(
@@ -1791,6 +1843,7 @@ boolean merged_datasets_output_google_chart(
 					char *end_date,
 					LIST *station_datatype_list,
 					enum aggregate_level aggregate_level,
+					enum validation_level validation_level,
 					char *document_root_directory,
 					char *omit_output_if_any_missing_yn )
 {
@@ -1799,7 +1852,8 @@ boolean merged_datasets_output_google_chart(
 	MERGED_DATASETS_STATION_DATATYPE *station_datatype;
 	MERGED_MEASUREMENT *measurement;
 	HASH_TABLE *merged_date_space_time_key_hash_table;
-	char initial_capital_buffer[ 512 ];
+	char validation_buffer[ 512 ];
+	char aggregation_buffer[ 512 ];
 	GOOGLE_OUTPUT_CHART *google_chart;
 	char *output_filename;
 	char *prompt_filename;
@@ -1815,10 +1869,13 @@ boolean merged_datasets_output_google_chart(
 			GOOGLE_CHART_HEIGHT );
 
 	sprintf(chart_title,
-		"Merged Datasets %s from %s to %s",
+		"Merged Datasets %s%s from %s to %s",
 		format_initial_capital(
-			initial_capital_buffer,
+			aggregation_buffer,
 			aggregate_level_get_string( aggregate_level ) ),
+		format_initial_capital(
+			validation_buffer,
+			validation_level_get_title_string( validation_level ) ),
 		begin_date,
 		end_date );
 
@@ -1848,7 +1905,7 @@ boolean merged_datasets_output_google_chart(
 
 	if ( !list_length( date_space_time_key_list ) )
 	{
-		printf( "<h2>ERROR: insufficient data to output</h2>\n" );
+		printf( "<h3>ERROR: insufficient data to output</h3>\n" );
 		return 0;
 	}
 

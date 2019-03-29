@@ -58,9 +58,9 @@ create_template_database ()
 
 	if [ "$execute" = "execute" ]
 	then
-		echo "create database template;" | sql.e mysql
+		echo "create database template;" | sql.e
 	else
-		echo 'echo "create database template;" | sql.e mysql'
+		echo 'echo "create database template;" | sql.e'
 	fi
 }
 
@@ -71,9 +71,9 @@ update_ssl_support ()
 	if [ "$execute" = "execute" ]
 	then
 		echo "update template_application set ssl_support_yn = 'n';" |
-		sql.e '^' mysql template
+		sql.e
 	else
-		echo 'echo "update template_application set ssl_support_yn = n;" | sql.e ^ mysql template'
+		echo 'echo "update template_application set ssl_support_yn = n;" | sql.e'
 
 	fi
 }
@@ -84,15 +84,11 @@ load_mysqldump_template ()
 
 	if [ "$execute" = "execute" ]
 	then
-		cd /tmp
-		rm mysqldump_template.sql.gz 2>/dev/null
-		wget timriley.net/download/appaserver/mysqldump_template.sql.gz
-		zcat mysqldump_template.sql.gz | sql.e '^' mysql template
+		cd $APPASERVER_HOME/template
+		zcat mysqldump_template.sql.gz | sql.e
 	else
-		echo "cd /tmp"
-		echo "rm mysqldump_template.sql.gz 2>/dev/null"
-		echo "wget timriley.net/download/appaserver/mysqldump_template.sql.gz"
-		echo "zcat mysqldump_template.sql.gz | sql.e '^' mysql template"
+		echo 'cd $APPASERVER_HOME/template'
+		echo "zcat mysqldump_template.sql.gz | sql.e"
 	fi
 }
 

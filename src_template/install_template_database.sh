@@ -58,9 +58,9 @@ create_template_database ()
 
 	if [ "$execute" = "execute" ]
 	then
-		echo "create database template;" | sql.e
+		echo "create database template;" | sql.e mysql
 	else
-		echo 'echo "create database template;" | sql.e'
+		echo 'echo "create database template;" | sql.e mysql'
 	fi
 }
 

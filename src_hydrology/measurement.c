@@ -76,7 +76,7 @@ void measurement_set_comma_delimited_record(
 			/* This function does strdup() for the memory. */
 			/* ------------------------------------------- */
 			m->measurement =
-				measurement_new(
+				measurement_strdup_new(
 					comma_delimited_record,
 					"" /* datatype */,
 					"" /* date */,
@@ -125,7 +125,7 @@ void measurement_set_comma_delimited_record(
 	/* This function does strdup() for the memory. */
 	/* ------------------------------------------- */
 	m->measurement =
-		measurement_new(
+		measurement_strdup_new(
 			station,
 			datatype,
 			date,
@@ -154,7 +154,7 @@ MEASUREMENT *measurement_calloc( void )
 
 /* This function does strdup() for the memory. */
 /* ------------------------------------------- */
-MEASUREMENT *measurement_new(		char *station_name,
+MEASUREMENT *measurement_strdup_new(	char *station_name,
 					char *datatype,
 					char *date,
 					char *time,
@@ -174,7 +174,8 @@ MEASUREMENT *measurement_new(		char *station_name,
 		measurement_get_value(
 			&m->null_value, value_string );
 	return m;
-} /* measurement_new() */
+
+} /* measurement_strdup_new() */
 
 void measurement_free( MEASUREMENT *m )
 {
@@ -287,17 +288,6 @@ void measurement_output_insert_pipe(	FILE *insert_pipe,
 	fflush( insert_pipe );
 } /* measurement_output_insert_pipe() */
 
-void measurement_close_insert_pipe( FILE *insert_pipe )
-{
-	pclose( insert_pipe );
-}
-
-void measurement_close_html_table_pipe( FILE *html_table_pipe )
-{
-	if ( html_table_pipe )
-		pclose( html_table_pipe );
-}
-
 FILE *measurement_open_html_table_pipe(	void )
 {
 	char sys_string[ 1024 ];
@@ -385,7 +375,7 @@ void measurement_update(	char *application_name,
 		date,
 		time );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 } /* measurement_update() */
 
@@ -405,17 +395,61 @@ double measurement_get_value(	boolean *null_value,
 	}
 } /* measurement_get_value() */
 
+LIST *measurement_fetch_list(	FILE *input_pipe,
+				char delimiter )
+{
+	LIST *measurement_list;
+	char input_buffer[ 1024 ];
+	MEASUREMENT *measurement;
+
+	if ( !input_pipe )
+	{
+		fprintf( stderr,
+			 "Warning in %s/%s()/%d: input_pipe is null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		return (LIST *)0;
+	}
+
+	measurement_list = list_new();
+
+	while ( timlib_get_line( input_buffer, input_pipe, 1024 ) )
+	{
+		if ( ! ( measurement = measurement_parse(
+						input_buffer,
+						delimiter ) ) )
+		{
+			fprintf( stderr,
+				 "Error in %s/%s()/%d: cannot parse [%s].\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
+
+			pclose( input_pipe );
+			exit( 1 );
+		}
+
+		list_append_pointer( measurement_list, measurement );
+	}
+
+	return measurement_list;
+
+} /* measurement_fetch_list(); */
+
 FILE *measurement_open_input_pipe(	char *application_name,
 					char *where_clause,
 					char delimiter )
 {
-	char sys_string[ 4096 ];
+	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		 "
 		 "			folder=measurement	 "
 		 "			select=%s		 "
-		 "			where=\"%s\"		|"
+		 "			where=\"%s\"		 "
+		 "			order=select		|"
 		 "tr '%c' '%c'					 ",
 		 application_name,
 		 MEASUREMENT_SELECT_LIST,
@@ -424,10 +458,11 @@ FILE *measurement_open_input_pipe(	char *application_name,
 		 delimiter );
 
 	return popen( sys_string, "r" );
+
 } /* measurement_open_input_pipe() */
 
-int measurement_fetch(	MEASUREMENT_STRUCTURE *m,
-			FILE *input_pipe )
+int measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
+					FILE *input_pipe )
 {
 	char buffer[ 1024 ];
 
@@ -438,7 +473,8 @@ int measurement_fetch(	MEASUREMENT_STRUCTURE *m,
 			buffer,
 			m->argv_0 );
 	return 1;
-} /* measurement_fetch() */
+
+} /* measurement_structure_fetch() */
 
 void measurement_set_argv_0( MEASUREMENT_STRUCTURE *m, char *argv_0 )
 {
@@ -650,4 +686,53 @@ MEASUREMENT_FREQUENCY *measurement_frequency_new( void )
 	return m;
 
 } /* measurement_frequency_new() */
+
+/*
+#define MEASUREMENT_SELECT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"
+*/
+
+MEASUREMENT *measurement_parse(		char *buffer,
+					char delimiter )
+{
+	MEASUREMENT *m = measurement_calloc();
+	char piece_buffer[ 128 ];
+	static boolean first_time = 0;
+	static double prior_value = 0.0;
+
+	if ( timlib_character_count( delimiter, buffer ) != 4 )
+	{
+		return (MEASUREMENT *)0;
+	}
+
+	m->station_name = strdup( piece( piece_buffer, delimiter, buffer, 0 ) );
+	m->datatype = strdup( piece( piece_buffer, delimiter, buffer, 1 ) );
+
+	m->measurement_date =
+		strdup( piece( piece_buffer, delimiter, buffer, 2 ) );
+
+	m->measurement_time =
+		strdup( piece( piece_buffer, delimiter, buffer, 3 ) );
+
+	m->value_string =
+		strdup( piece( piece_buffer, delimiter, buffer, 4 ) );
+
+	if ( !*m->value_string )
+		m->null_value = 1;
+	else
+		m->measurement_value = atof( m->value_string );
+
+	if ( first_time )
+	{
+		first_time = 0;
+	}
+	else
+	{
+		m->delta_value = m->measurement_value - prior_value;
+	}
+
+	prior_value = m->measurement_value;
+
+	return m;
+
+} /* measurement_parse() */
 

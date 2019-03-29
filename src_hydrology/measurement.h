@@ -28,7 +28,6 @@ typedef struct
 	char *application_name;
 	char *load_process;
 	MEASUREMENT *measurement;
-	int record_exists;
 	FILE *insert_pipe;
 	FILE *input_pipe;
 	FILE *delete_pipe;
@@ -78,7 +77,7 @@ void measurement_free(			MEASUREMENT *m );
 
 /* This function does strdup() for the memory. */
 /* ------------------------------------------- */
-MEASUREMENT *measurement_new(
+MEASUREMENT *measurement_strdup_new(
 					char *station_name,
 					char *datatype,
 					char *date,
@@ -118,8 +117,6 @@ FILE *measurement_open_insert_pipe(	char *application_name,
 
 FILE *measurement_open_html_table_pipe(	void );
 
-void measurement_close_insert_pipe( 	FILE *insert_pipe );
-
 double measurement_get_value(		boolean *null_value,
 					char *value_string );
 
@@ -130,7 +127,7 @@ void measurement_set_load_process( 	MEASUREMENT *m,
 void measurement_set_argv_0(		MEASUREMENT_STRUCTURE *m,
 					char *argv_0 );
 
-int measurement_fetch(			MEASUREMENT_STRUCTURE *m,
+int measurement_structure_fetch(	MEASUREMENT_STRUCTURE *m,
 					FILE *input_pipe );
 
 FILE *measurement_open_delete_pipe(	char *application_name );
@@ -143,8 +140,6 @@ void measurement_delete(		FILE *delete_pipe,
 void measurement_open_input_process( 	MEASUREMENT_STRUCTURE *m,
 					char *load_process,
 					int really_yn );
-
-void measurement_close_html_table_pipe( FILE *html_table_pipe );
 
 DICTIONARY *measurement_get_date_time_frequency_dictionary(
 					char *application_name,
@@ -172,5 +167,11 @@ void measurement_update(		char *application_name,
 					double value );
 
 MEASUREMENT *measurement_calloc(	void );
+
+LIST *measurement_fetch_list(		FILE *input_pipe,
+					char delimiter );
+
+MEASUREMENT *measurement_parse(		char *buffer,
+					char delimiter );
 
 #endif

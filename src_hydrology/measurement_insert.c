@@ -135,8 +135,8 @@ int main( int argc, char **argv )
 			m->html_table_pipe );
 	}
 
-	measurement_close_insert_pipe( m->insert_pipe );
-	measurement_close_html_table_pipe( m->html_table_pipe );
+	pclose( m->insert_pipe );
+	pclose( m->html_table_pipe );
 	pclose( input_pipe );
 
 	if ( not_loaded_count )

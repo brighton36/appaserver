@@ -509,3 +509,40 @@ STATION_DATATYPE *station_datatype_parse(
 	return station_datatype;
 
 } /* station_datatype_parse() */
+
+LIST *station_datatype_fetch_measurement_list(
+					char *application_name,
+					char *station_name,
+					char *datatype_name,
+					char *begin_measurement_date,
+					char *end_measurement_date )
+{
+	FILE *input_pipe;
+	char where_clause[ 256 ];
+	LIST *measurement_list;
+
+	sprintf( where_clause,
+		 "station = '%s' and				"
+		 "datatype = '%s' and				"
+		 "measurement_date between '%s' and '%s'	",
+		 station_name,
+		 datatype_name,
+		 begin_measurement_date,
+		 end_measurement_date );
+
+	input_pipe = measurement_open_input_pipe(
+			application_name,
+			where_clause,
+			FOLDER_DATA_DELIMITER );
+
+	measurement_list = 
+		measurement_fetch_list(
+			input_pipe,
+			FOLDER_DATA_DELIMITER );
+
+	pclose( input_pipe );
+
+	return measurement_list;
+
+} /* station_datatype_fetch_measurement_list() */
+

@@ -81,4 +81,11 @@ LIST *station_datatype_fetch_list(
 			/* -------------------------------------------- */
 			LIST *shef_upload_datatype_list );
 
+LIST *station_datatype_fetch_measurement_list(
+			char *application_name,
+			char *station_name,
+			char *datatype_name,
+			char *begin_measurement_date,
+			char *end_measurement_date );
+
 #endif

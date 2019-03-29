@@ -955,7 +955,7 @@ void datatype_set_measurement_record(
 					time );
 
 	sprintf( date_colon_time, "%s:%s", date, time );
-	measurement = measurement_new(
+	measurement = measurement_strdup_new(
 				strdup( date_colon_time ),
 				measurement_value );
 

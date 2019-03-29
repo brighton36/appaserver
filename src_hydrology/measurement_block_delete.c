@@ -259,7 +259,8 @@ int main( int argc, char **argv )
 		}
 	}
 
-	while( measurement_fetch(	measurement_structure,
+	while( measurement_structure_fetch(
+					measurement_structure,
 					measurement_structure->input_pipe ) )
 	{
 		counter++;

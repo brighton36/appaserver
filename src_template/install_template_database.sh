@@ -73,7 +73,7 @@ update_ssl_support ()
 		echo "update template_application set ssl_support_yn = 'n';" |
 		sql.e
 	else
-		echo 'echo "update template_application set ssl_support_yn = n;" | sql.e'
+		echo "echo \"update template_application set ssl_support_yn = 'n';\" | sql.e"
 
 	fi
 }

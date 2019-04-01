@@ -1,4 +1,4 @@
-/* src_hydrology/datatype.h				*/
+/* $APPASERVER_HOME/src_hydrology/datatype.h		*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/

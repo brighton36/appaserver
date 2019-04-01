@@ -38,6 +38,11 @@ STATION_DATATYPE *station_datatype_get_station_datatype(
 				char *station_name,
 				char *datatype_name );
 
+STATION_DATATYPE *station_datatype_fetch_new(
+				char *application_name,
+				char *station_name,
+				char *datatype_name );
+
 STATION_DATATYPE *station_datatype_new(
 				void );
 

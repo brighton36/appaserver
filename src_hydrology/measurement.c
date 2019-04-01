@@ -736,3 +736,20 @@ MEASUREMENT *measurement_parse(		char *buffer,
 
 } /* measurement_parse() */
 
+boolean measurement_list_update(	char *application_name,
+					LIST *measurement_list )
+{
+	return 1;
+
+} /* measurement_list_update() */
+
+MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
+					char *datatype_name /* optional */,
+					char *measurement_date,
+					char *measurement_time,
+					LIST *measurement_list )
+{
+	return (MEASUREMENT *)0;
+
+} /* measurement_list_seek() */
+

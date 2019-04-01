@@ -184,6 +184,7 @@ SOURCE_LIBS= 	${SOURCE_EVERGLADES}/measurement_update_parameter.o	\
 		${SOURCE_EVERGLADES}/hydrology.o			\
 		${SOURCE_EVERGLADES}/measurement.o			\
 		${SOURCE_EVERGLADES}/measurement_backup.o		\
+		${SOURCE_EVERGLADES}/measurement_spike.o		\
 		${SOURCE_EVERGLADES}/station_alias.o
 
 all: 	${SOURCE_LIBS} ${EXECUTABLES}
@@ -1496,6 +1497,11 @@ measurement_backup.o: measurement_backup.c measurement_backup.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c measurement_backup.c
+
+measurement_spike.o: measurement_spike.c measurement_spike.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c measurement_spike.c
 
 measurement_validation.o: measurement_validation.c measurement_validation.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

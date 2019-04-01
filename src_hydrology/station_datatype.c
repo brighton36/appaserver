@@ -61,6 +61,17 @@ STATION_DATATYPE *station_datatype_get_station_datatype(
 				char *station_name,
 				char *datatype_name )
 {
+	return station_datatype_fetch_new(
+				application_name,
+				station_name,
+				datatype_name );
+}
+
+STATION_DATATYPE *station_datatype_fetch_new(
+				char *application_name,
+				char *station_name,
+				char *datatype_name )
+{
 	char *station_datatype_string;
 	char sys_string[ 1024 ];
 	char buffer[ 256 ];
@@ -140,7 +151,7 @@ STATION_DATATYPE *station_datatype_get_station_datatype(
 
 	return station_datatype;
 
-} /* station_datatype_get_station_datatype() */
+} /* station_datatype_fetch_new() */
 
 STATION_DATATYPE *station_datatype_list_seek(
 				LIST *station_datatype_list,

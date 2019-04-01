@@ -174,4 +174,13 @@ LIST *measurement_fetch_list(		FILE *input_pipe,
 MEASUREMENT *measurement_parse(		char *buffer,
 					char delimiter );
 
+boolean measurement_list_update(	char *application_name,
+					LIST *measurement_list );
+
+MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
+					char *datatype_name /* optional */,
+					char *measurement_date,
+					char *measurement_time,
+					LIST *measurement_list );
+
 #endif

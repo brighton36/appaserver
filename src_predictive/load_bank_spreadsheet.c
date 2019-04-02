@@ -252,6 +252,17 @@ int main( int argc, char **argv )
 				credit_piece_offset,
 				balance_piece_offset,
 				execute );
+
+		if ( execute )
+		{
+			char sys_string[ 128 ];
+
+			sprintf( sys_string,
+				 "automatic_process_assign.sh all 2>&1	|"
+				 "html_paragraph_wrapper.e		 " );
+
+			if ( system( sys_string ) ) {};
+		}
 	}
 
 	if ( execute )

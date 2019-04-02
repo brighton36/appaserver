@@ -395,7 +395,7 @@ load_biscayne_ysi_data: load_biscayne_ysi_data.c			\
 		-o load_biscayne_ysi_data
 
 hydrology_verification_process: hydrology_verification_process.c	\
-	${EXTERNAL_LIBS} ${SOURCE_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS} ${STANDARD_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
@@ -405,7 +405,7 @@ hydrology_verification_process: hydrology_verification_process.c	\
 		-o hydrology_verification_process
 
 interpolation_spike_calculate: interpolation_spike_calculate.c		\
-	${EXTERNAL_LIBS}
+	${EXTERNAL_LIBS} ${SOURCE_LIBS} ${STANDARD_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\

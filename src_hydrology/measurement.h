@@ -13,6 +13,11 @@
 
 typedef struct
 {
+	double measurement_update;
+} MEASUREMENT_UPDATE;
+
+typedef struct
+{
 	char *station_name;
 	char *datatype;
 	char *measurement_date;
@@ -21,6 +26,7 @@ typedef struct
 	double measurement_value;
 	boolean null_value;
 	double delta_value;
+	MEASUREMENT_UPDATE *measurement_update;
 } MEASUREMENT;
 
 typedef struct
@@ -58,6 +64,9 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
+MEASUREMENT_UPDATE *measurement_update_new(
+					void );
+
 MEASUREMENT_FREQUENCY *measurement_frequency_new(
 					void );
 

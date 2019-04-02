@@ -211,7 +211,11 @@ int add_in_order( 		LIST *list,
 
 struct LINKTYPE *create_node(	void );
 void list_double_forward( 	LIST *double_list, double here );
-int list_previous( 		LIST *list );
+
+boolean list_previous( 		LIST *list );
+
+boolean list_prior( 		LIST *list );
+
 char *list_to_string( 		LIST *list, char delimiter );
 char *list2string_delimited(	LIST *list, char delimiter );
 int list_go_offset( 		LIST *list, int offset );

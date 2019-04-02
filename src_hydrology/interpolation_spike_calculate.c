@@ -17,14 +17,23 @@
 #include "appaserver_parameter_file.h"
 #include "environ.h"
 #include "application.h"
+#include "measurement_spike.h"
 
 /* Constants */
 /* --------- */
 #define VALUE_DELIMITER		','
-#define VALUE_PIECE		4
 
 /* Prototypes */
 /* ---------- */
+void interpolation_spike_calculate_input_pipe(
+				char *application_name,
+				char *station_name,
+				char *datatype_name,
+				char *begin_date,
+				char *end_date,
+				double threshold,
+				FILE *input_pipe );
+
 NAME_ARG *setup_named_command_line_arguments( int argc, char **argv );
 void output_spike_records( LIST *list );
 LIST *begin_list_buffer( char *old_buffer, char *input_buffer );
@@ -36,20 +45,8 @@ int main( int argc, char **argv )
 	char *datatype;
 	char *begin_date;
 	char *end_date;
-	char input_buffer[ 1024 ];
-	char old_buffer[ 1024 ];
-	char value_string[ 1024 ];
-	double value;
-	double save_value = 0.0;
-	double old_value = 0.0;
 	double minimum_spike;
-	double results;
-	int maximum_out_of_range;
-	int number_out_of_range = 0;
-	int inside_of_spike = 0;
 	NAME_ARG *name_arg;
-	int first_time = 1;
-	LIST *list = {0};
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -70,9 +67,6 @@ int main( int argc, char **argv )
 	datatype = fetch_arg( name_arg, "datatype" );
 
 	minimum_spike = atof( fetch_arg( name_arg, "minimum_spike" ) );
-
-	maximum_out_of_range = 
-		atoi( fetch_arg( name_arg, "maximum_out_of_range" ) );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -104,133 +98,20 @@ int main( int argc, char **argv )
 
 	input_pipe = popen( sys_string, "r" );
 
-	/* Sample input: "BA,rain,1999-10-27,2350,25.600000" */
-	/* ------------------------------------------------- */
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		if ( !piece(	value_string, 
-				VALUE_DELIMITER, 
-				input_buffer, 
-				VALUE_PIECE ) )
-		{
-			fprintf( stderr, 
-				 "Cannot piece the value in (%s)\n",
-				 input_buffer );
-			continue;
-		}
+	interpolation_spike_calculate_input_pipe(
+		application_name,
+		station,
+		datatype,
+		begin_date,
+		end_date,
+		minimum_spike /* threshold */,
+		input_pipe );
 
-		value = atof( value_string );
-
-		if ( first_time )
-		{
-			strcpy( old_buffer, input_buffer );
-			old_value = value;
-			first_time = 0;
-			printf( "%s\n", input_buffer );
-		}
-		else
-		if ( inside_of_spike )
-		{
-			results = abs_float( value - save_value );
-
-			/* If back on track */
-			/* ---------------- */
-			if ( results <= minimum_spike )
-			{
-				list_append_string( list, input_buffer );
-
-				list_interpolate_string_record(	
-							list,
-							VALUE_DELIMITER );
-
-				output_spike_records( list );
-
-				printf( "%s\n", input_buffer );
-
-				inside_of_spike = 0;
-				old_value = value;
-			}
-			else
-			/* ------------------ */
-			/* See if reset range */
-			/* ------------------ */
-			{
-				if ( ++number_out_of_range == 
-				       maximum_out_of_range )
-				{
-					/* Reset */
-					/* ----- */
-					list = begin_list_buffer( 
-								old_buffer, 
-								input_buffer );
-					inside_of_spike = 0;
-					number_out_of_range = 0;
-					save_value = old_value = value;
-				}
-				else
-				{
-					/* ---------- */
-					/* Same spike */
-					/* ---------- */
-					list_append_string( list, input_buffer);
-				}
-			}
-		}
-		else
-		/* ------------------ */
-		/* Not inside a spike */
-		/* ------------------ */
-		{
-			results = abs_float( value - old_value );
-
-			/* If new spike */
-			/* ------------ */
-			if ( results > minimum_spike )
-			{
-				inside_of_spike = 1;
-				save_value = old_value;
-
-				list = begin_list_buffer( old_buffer, 
-							  input_buffer );
-			}
-			else
-			/* --------------------- */
-			/* Everything's still OK */
-			/* --------------------- */
-			{
-				old_value = value;
-				strcpy( old_buffer, input_buffer );
-				printf( "%s\n", input_buffer );
-			}
-		} /* if not inside spike */
-
-	} /* while( get_line() ) */
+	pclose( input_pipe );
 
 	return 0;
 
 } /* main() */
-
-LIST *begin_list_buffer( char *old_buffer, char *buffer )
-{
-	LIST *l = list_new();
-	list_append_string( l, old_buffer );
-	list_append_string( l, buffer );
-	return l;
-}
-
-void output_spike_records( LIST *list )
-{
-	/* Skip the first and the last */
-	/* --------------------------- */
-	if ( list_rewind( list ) && list_length( list ) > 1 )
-	{
-		list_next( list );
-		do {
-			if ( !at_end( list ) )
-				printf( "%s\n", list_get_string( list ) );
-		} while( list_next( list ) );
-	}
-} /* output_spike_records() */
 
 NAME_ARG *setup_named_command_line_arguments( int argc, char **argv )
 {
@@ -243,7 +124,6 @@ NAME_ARG *setup_named_command_line_arguments( int argc, char **argv )
         ticket = add_valid_option( arg, "login_name" );
         set_default_value( arg, ticket,"");
 
-        ticket = add_valid_option( arg, "maximum_out_of_range" );
         ticket = add_valid_option( arg, "minimum_spike" );
         ticket = add_valid_option( arg, "begin_date" );
         ticket = add_valid_option( arg, "end_date" );
@@ -255,4 +135,66 @@ NAME_ARG *setup_named_command_line_arguments( int argc, char **argv )
 	return arg;
 } /* setup_named_command_line_arguments() */
 
+void interpolation_spike_calculate_input_pipe(
+			char *application_name,
+			char *station_name,
+			char *datatype_name,
+			char *begin_date,
+			char *end_date,
+			double threshold,
+			/* ---------------------------------------------- */
+			/* Sample input: "BA,rain,1999-10-27,2350,25.600" */
+			/* ---------------------------------------------- */
+			FILE *input_pipe )
+{
+	MEASUREMENT_SPIKE *measurement_spike;
+
+	if ( ! ( measurement_spike =	
+			measurement_spike_new(
+				application_name,
+				station_name,
+				datatype_name,
+				begin_date,
+				end_date,
+				threshold ) ) )
+	{
+		fprintf( stderr,
+"Error in %s/%s()/%d: measurement_spike_new(%s/%s) returned null.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 station_name,
+			 datatype_name );
+		return;
+	}
+
+	measurement_spike->input.station_datatype->measurement_list =
+		/* ---------------------------------------------- */
+		/* Sample input: "BA,rain,1999-10-27,2350,25.600" */
+		/* ---------------------------------------------- */
+		measurement_fetch_list(
+			input_pipe,
+			VALUE_DELIMITER );
+
+	/* -------------------------------------- */
+	/* Sets last_good_measurement_value	  */
+	/* Sets next_first_good_measurement_value */
+	/* Doesn't set measurement_update	  */
+	/* -------------------------------------- */
+	measurement_spike->spike_block_list =
+		measurement_spike_get_block_list(
+			measurement_spike->
+				input.
+				station_datatype->
+				measurement_list,
+			threshold );
+
+	measurement_spike_set_block_measurement_update(
+		measurement_spike->spike_block_list );
+
+	measurement_spike_block_text_output(
+		measurement_spike->spike_block_list,
+		VALUE_DELIMITER );
+
+} /* interpolation_spike_calculate_input_pipe() */
 

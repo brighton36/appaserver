@@ -18,12 +18,12 @@
 #include "dictionary.h"
 #include "measurement_update_parameter.h"
 #include "appaserver_parameter_file.h"
+#include "appaserver_error.h"
 #include "measurement_backup.h"
 #include "environ.h"
 
 /* Constants */
 /* --------- */
-#define MAXIMUM_OUT_OF_RANGE		6
 #define ESTIMATION_METHOD		"spike_correction"
 #define MEASUREMENT_KEY_LIST		 "station,datatype,measurement_date,measurement_time"
 
@@ -54,7 +54,6 @@ int main( int argc, char **argv )
 	DICTIONARY *parameter_dictionary;
 	char *parameter_dictionary_string;
 	char *notes;
-	char *database_string = {0};
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -121,16 +120,14 @@ int main( int argc, char **argv )
 		 "	datatype=%s				"
 		 "	begin_date=%s				"
 		 "	end_date=%s				"
-		 "	minimum_spike=%s			"
-		 "	maximum_out_of_range=%d			",
+		 "	minimum_spike=%s			",
 		 login_name,
 		 application_name,
 		 station,
 		 datatype,
 		 begin_date,
 		 end_date,
-		 minimum_spike,
-		 MAXIMUM_OUT_OF_RANGE );
+		 minimum_spike );
 
 	input_pipe = popen( sys_string, "r" );
 

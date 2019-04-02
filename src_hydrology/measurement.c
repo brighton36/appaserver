@@ -37,7 +37,6 @@ MEASUREMENT_STRUCTURE *measurement_structure_new(
 
 } /* measurement_structure_new() */
 
-
 void measurement_open_input_process( 	MEASUREMENT_STRUCTURE *m,
 					char *load_process,
 					int really_yn )
@@ -686,6 +685,28 @@ MEASUREMENT_FREQUENCY *measurement_frequency_new( void )
 	return m;
 
 } /* measurement_frequency_new() */
+
+MEASUREMENT_UPDATE *measurement_update_new( void )
+{
+	MEASUREMENT_UPDATE *m;
+
+	m = (MEASUREMENT_UPDATE *)
+		calloc( 1,
+			sizeof( MEASUREMENT_UPDATE ) );
+
+	if ( !m )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return m;
+
+} /* measurement_update_new() */
 
 /*
 #define MEASUREMENT_SELECT_LIST	 	"station,datatype,measurement_date,measurement_time,measurement_value"

@@ -1092,9 +1092,14 @@ int at_end( LIST *list )
                 return 0;
 } /* at_end() */
 
-int list_previous( LIST *list )
+boolean list_prior( LIST *list )
 {
-	return previous_item( list );
+	return (boolean)previous_item( list );
+}
+
+boolean list_previous( LIST *list )
+{
+	return (boolean)previous_item( list );
 }
 
 int list_next( LIST *list )

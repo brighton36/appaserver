@@ -774,3 +774,42 @@ MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
 
 } /* measurement_list_seek() */
 
+void measurement_change_text_output(	LIST *measurement_list,
+					char delimiter )
+{
+	MEASUREMENT *measurement;
+
+	if ( !list_rewind( measurement_list ) ) return;
+
+	do {
+		measurement = list_get( measurement_list );
+
+		printf( "%s%c%s%c%s%c%s%c%.3lf%c",
+			 measurement->station_name,
+			 delimiter,
+			 measurement->datatype,
+			 delimiter,
+			 measurement->measurement_date,
+			 delimiter,
+			 measurement->measurement_time,
+			 delimiter,
+			 measurement->measurement_value,
+			 delimiter );
+
+		if ( measurement->measurement_update )
+		{
+			printf( "%.3lf\n",
+				 measurement->
+					measurement_update->
+					measurement_update );
+		}
+		else
+		{
+			printf( "%.3lf\n",
+				 measurement->measurement_value );
+		}
+
+	} while ( list_next( measurement_list ) );
+
+} /* measurement_change_text_output() */
+

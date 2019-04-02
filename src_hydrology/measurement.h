@@ -192,4 +192,7 @@ MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
 					char *measurement_time,
 					LIST *measurement_list );
 
+void measurement_change_text_output(	LIST *measurement_list,
+					char delimiter );
+
 #endif

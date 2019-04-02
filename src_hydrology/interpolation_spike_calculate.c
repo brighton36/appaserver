@@ -192,8 +192,11 @@ void interpolation_spike_calculate_input_pipe(
 	measurement_spike_set_block_measurement_update(
 		measurement_spike->spike_block_list );
 
-	measurement_spike_block_text_output(
-		measurement_spike->spike_block_list,
+	measurement_change_text_output(
+		measurement_spike->
+			input.
+			station_datatype->
+			measurement_list,
 		VALUE_DELIMITER );
 
 } /* interpolation_spike_calculate_input_pipe() */

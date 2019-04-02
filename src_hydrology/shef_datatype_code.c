@@ -144,9 +144,14 @@ char *shef_datatype_code_get_upload_datatype(
 	char local_shef_code[ 128 ];
 	boolean is_aggregate_measurement = 0;
 	int str_len;
-	HYDROLOGY *hydrology;
+	static HYDROLOGY *hydrology = {0};
 	STATION *station;
 	static HASH_TABLE *shef_upload_hash_table = {0};
+
+	if ( !hydrology )
+	{
+		hydrology = hydrology_new();
+	}
 
 	if ( !shef_upload_hash_table )
 	{
@@ -167,8 +172,6 @@ char *shef_datatype_code_get_upload_datatype(
 			*( local_shef_code + str_len - 2 ) = '\0';
 		}
 	}
-
-	hydrology = hydrology_new();
 
 	station =
 		hydrology_get_or_set_station(

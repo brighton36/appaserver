@@ -51,7 +51,6 @@ int main( int argc, char **argv )
 	char minute[ 1024 ];
 	char measurement_value_string[ 1024 ];
 	char status[ 1024 ];
-	SHEF_DATATYPE_CODE *shef_datatype_code;
 	char *datatype_name;
 	char *station_name;
 	char *application_name;
@@ -75,9 +74,6 @@ int main( int argc, char **argv )
 	}
 
 	station_name = argv[ 2 ];
-
-	shef_datatype_code = 
-		shef_datatype_code_new( application_name );
 
 	while( get_line( input_line, stdin ) )
 	{

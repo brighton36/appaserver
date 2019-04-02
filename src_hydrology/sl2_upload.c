@@ -23,6 +23,7 @@
 #include "process.h"
 #include "session.h"
 #include "application.h"
+#include "appaserver_error.h"
 #include "appaserver_link_file.h"
 
 /* Constants */
@@ -51,7 +52,8 @@ void satlink_upload(	char *full_filename,
 			boolean execute,
 			char *application_name,
 			char *station_name,
-			char *argv_0 );
+			char *argv_0,
+			boolean nohtml );
 
 int main( int argc, char **argv )
 {
@@ -64,9 +66,9 @@ int main( int argc, char **argv )
 	char *argv_0;
 	char *shef_bad_file;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char buffer[ 1024 ];
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	boolean nohtml;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -80,7 +82,7 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored process station filename execute_yn\n",
+"Usage: %s ignored process station filename execute_yn|nohtml\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -90,15 +92,10 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	station_name = argv[ 3 ];
 	full_filename = argv[ 4 ];
+
 	execute = ( *argv[ 5 ] == 'y' );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
+	nohtml = (strcmp( argv[ 5 ], "nohtml" ) == 0);
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -109,36 +106,41 @@ int main( int argc, char **argv )
 		if ( !station_name ) station_name = "unknown";
 	}
 
-	document = document_new( "", application_name );
-	document_set_output_content_type( document );
+	if ( !nohtml )
+	{
+		document = document_new( "", application_name );
+		document_set_output_content_type( document );
+	
+		document_output_head(
+				document->application_name,
+				document->title,
+				document->output_content_type,
+				appaserver_parameter_file->
+					appaserver_mount_point,
+				document->javascript_module_list,
+				document->stylesheet_filename,
+				application_get_relative_source_directory(
+					application_name ),
+				0 /* not with_dynarch_menu */ );
+	
+		document_output_body(
+				document->application_name,
+				document->onload_control_string );
+	
+		printf( "<h1>%s<br></h1>\n",
+			format_initial_capital(
+				buffer,
+				process_name ) );
+	
+		printf( "<h2>\n" );
+		fflush( stdout );
+		if ( system( "date '+%x %H:%M'" ) ) {};
+		fflush( stdout );
+		printf( " Station: %s</h2>\n",
+			station_name );
+		fflush( stdout );
 
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-	printf( "<h1>%s<br></h1>\n",
-		format_initial_capital(
-			buffer,
-			process_name ) );
-
-	printf( "<h2>\n" );
-	fflush( stdout );
-	system( "date '+%x %H:%M'" );
-	fflush( stdout );
-	printf( " Station: %s</h2>\n",
-		station_name );
-	fflush( stdout );
+	} /* if !nohtml */
 
 	if ( !*full_filename || strcmp( full_filename, "filename" ) == 0 )
 	{
@@ -179,7 +181,8 @@ int main( int argc, char **argv )
 			execute,
 			application_name,
 			station_name,
-			argv_0 );
+			argv_0,
+			nohtml );
 
 	if ( execute )
 	{
@@ -195,8 +198,9 @@ int main( int argc, char **argv )
 		printf( "<p>Process NOT executed.\n" );
 	}
 
-	document_close();
-	exit( 0 );
+	if ( !nohtml ) document_close();
+
+	return 0;
 
 } /* main() */
 
@@ -205,7 +209,8 @@ void satlink_upload(	char *full_filename,
 			boolean execute,
 			char *application_name,
 			char *station_name,
-			char *argv_0 )
+			char *argv_0,
+			boolean nohtml )
 {
 	char insert_process[ 512 ];
 	char remove_process[ 512 ];
@@ -219,29 +224,35 @@ void satlink_upload(	char *full_filename,
 
 	sprintf(display_error_process,
 		"echo \"<br><big>Bad records:</big>\"			;"
-		"cat %s | queue_top_bottom_lines.e 50			|"
+		"cat %s							|"
+		"grep -v '^Starting:'					|"
+		"queue_top_bottom_lines.e 50				|"
 		"html_paragraph_wrapper					;"
 		"echo \"<br><big>END Bad records</big>\"		 ",
 		shef_bad_file );
 
 	if ( execute )
 	{
-	sprintf( insert_process,
+		sprintf( insert_process,
 "measurement_insert %s shef %c 2>>%s	|"
 "cat					 ",
-		 application_name,
-		 (execute) ? 'y' : 'n',
-		 shef_bad_file );
+		 	application_name,
+		 	(execute) ? 'y' : 'n',
+		 	shef_bad_file );
+	}
+	else
+	if ( nohtml )
+	{
+		strcpy( insert_process, "cat" );
 	}
 	else
 	{
-	sprintf( insert_process,
-"queue_top_bottom_lines.e 50 		|"
+		sprintf( insert_process,
 "measurement_insert %s shef %c 2>>%s	|"
 "cat					 ",
-		 application_name,
-		 (execute) ? 'y' : 'n',
-		 shef_bad_file );
+		 	application_name,
+		 	(execute) ? 'y' : 'n',
+		 	shef_bad_file );
 	}
 
 	if ( strcmp( argv_0, "sl2_upload" ) == 0 )
@@ -262,13 +273,13 @@ void satlink_upload(	char *full_filename,
 			 insert_process,
 			 display_error_process );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	sprintf( sys_string,
 		 "rm -f %s",
 		 shef_bad_file );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 } /* satlink_upload() */
 

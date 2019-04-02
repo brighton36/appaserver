@@ -1,6 +1,6 @@
 :
 
-make shef_datatype_code_dvr
+make sl2_shef_to_comma_delimited
 
 #if [ "$?" -eq 0 ]
 #then

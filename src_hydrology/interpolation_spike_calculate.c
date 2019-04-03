@@ -189,6 +189,14 @@ void interpolation_spike_calculate_input_pipe(
 				measurement_list,
 			threshold );
 
+/*
+fprintf( stderr, "%s/%s()/%d: blocks:\n%s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+measurement_spike_block_display( measurement_spike->spike_block_list ) );
+*/
+
 	measurement_spike_set_block_measurement_update(
 		measurement_spike->spike_block_list );
 

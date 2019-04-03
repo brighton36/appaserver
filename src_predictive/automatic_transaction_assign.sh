@@ -32,7 +32,7 @@ fi
 
 if [ "$usage_message" -eq 1 ]
 then
-	echo "Usage: $0 all|one [process]" 1>&2
+	echo "Usage: $0 all|one [process_name]" 1>&2
 	exit 1
 fi
 

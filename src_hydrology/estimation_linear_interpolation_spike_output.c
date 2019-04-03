@@ -81,7 +81,6 @@ int main( int argc, char **argv )
 	int page_length_pixels;
 	char *distill_landscape_flag;
 	char *grace_output;
-	char *database_string = {0};
 	int number_measurements_validated;
 	char *override_destination_validation_requirement_yn;
 	boolean override_destination_validation_requirement;
@@ -215,11 +214,12 @@ int main( int argc, char **argv )
 			"Estimation Linear Interpolation Spike" );
 
 		sprintf(sub_title,
-			"%s/%s from %s to %s",
+			"%s/%s; From %s To %s; Minimum Spike: %.1lf",
 			station,
 			format_initial_capital( buffer, datatype ),
 			begin_date,
-			end_date );
+			end_date,
+			minimum_spike );
 
 		grace = grace_new_unit_graph_grace(
 				application_name,

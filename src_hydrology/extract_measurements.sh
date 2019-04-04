@@ -34,7 +34,7 @@ echo "select 	station,						\
       from $table_name					        	\
       where station = '$station'					\
 	and datatype = '$datatype'					\
-	and (${date_where})						\
+	and ${date_where}						\
       order by station, datatype, measurement_date, measurement_time;" 	|
 sql.e ','								|
 cat

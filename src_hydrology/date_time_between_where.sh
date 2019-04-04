@@ -15,6 +15,6 @@ begin_time=$2
 end_date=$3
 end_time=$4
 
-echo "( measurement_date = '$begin_date' and measurement_time >= '$begin_time' and measurement_time <= '2359' ) or ( measurement_date = '$begin_date' and measurement_time = 'null' ) or ( measurement_date = '$end_date' and measurement_time = 'null' ) or ( measurement_date > '$begin_date' and measurement_date < '$end_date' ) or ( measurement_date = '$end_date' and measurement_time >= '0000' and measurement_time <= '$end_time' )"
+echo "( ( measurement_date = '$begin_date' and measurement_time >= '$begin_time' and measurement_time <= '2359' ) or ( measurement_date = '$begin_date' and measurement_time = 'null' ) or ( measurement_date = '$end_date' and measurement_time = 'null' ) or ( measurement_date > '$begin_date' and measurement_date < '$end_date' ) or ( measurement_date = '$end_date' and measurement_time >= '0000' and measurement_time <= '$end_time' ) )"
 
 exit 0

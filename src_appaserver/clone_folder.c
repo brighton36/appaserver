@@ -63,8 +63,7 @@ char *get_sys_string(	char *destination_table_name,
 			int attribute_piece,
 			char delete_yn,
 			char really_yn,
-			CREATE_CLONE_FILENAME *clone_filename,
-			char *destination_database_management_system );
+			CREATE_CLONE_FILENAME *clone_filename );
 
 int main( int argc, char **argv )
 {
@@ -297,11 +296,10 @@ passed_security_check:
 				attribute_piece,
 				delete_yn,
 				really_yn,
-				create_clone_filename,
-				destination_database_management_system );
+				create_clone_filename );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	if ( create_clone_filename )
 	{
@@ -374,8 +372,7 @@ char *get_sys_string(	char *destination_table_name,
 			int attribute_piece,
 			char delete_yn,
 			char really_yn,
-			CREATE_CLONE_FILENAME *create_clone_filename,
-			char *destination_database_management_system )
+			CREATE_CLONE_FILENAME *create_clone_filename )
 {
 	char buffer[ 4096 ];
 	char where_clause[ 512 ];
@@ -387,7 +384,6 @@ char *get_sys_string(	char *destination_table_name,
 	char replace_date_process[ 512 ];
 	char replace_special_characters_process[ 64 ];
 	char *quick_yes_no;
-	LIST *date_attribute_position_list = {0};
 	LIST *attribute_list;
 
 	attribute_list =
@@ -398,10 +394,12 @@ char *get_sys_string(	char *destination_table_name,
 		(LIST *)0 /* mto1_isa_related_folder_list */,
 		(char *)0 /* role_name */ );
 
+/*
+	LIST *date_attribute_position_list = {0};
 	date_attribute_position_list =
 		attribute_get_date_attribute_position_list(
 			attribute_list );
-
+*/
 
 	strcpy(	replace_special_characters_process,
 		"sed \"s/'/''/g\"" );
@@ -629,7 +627,7 @@ boolean go_output2shell_script(	CREATE_CLONE_FILENAME *create_clone_filename,
 	sprintf(	sys_string,
 			"chmod +x,g+w %s 2>/dev/null",
 			shell_script_filename );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	return 1;
 
@@ -675,6 +673,19 @@ void go_output2shell_script_header(
 
 	}
 #endif
+
+	if ( dont_output_if_statement_yn != 'y'
+	&&   !appaserver_library_is_system_folder( folder_name ) )
+	{
+		fprintf( output_file,
+			"if [ \"$application\" != %s ]\n", application_name );
+		fprintf( output_file,
+			"then\n" );
+		fprintf( output_file,
+			"\texit 0\n" );
+		fprintf( output_file,
+			"fi\n\n" );
+	}
 
 	if ( strcmp( folder_name, "application" ) == 0 )
 	{
@@ -722,7 +733,7 @@ void go_output2shell_script_insert_statements(
 fprintf( stderr, "%s\n", sys_string );
 */
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 } /* go_output2shell_script_insert_statements() */
 

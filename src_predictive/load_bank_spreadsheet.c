@@ -257,9 +257,8 @@ int main( int argc, char **argv )
 		{
 			char sys_string[ 128 ];
 
-			sprintf( sys_string,
-				 "automatic_process_assign.sh all 2>&1	|"
-				 "html_paragraph_wrapper.e		 " );
+			strcpy( sys_string,
+			"automatic_transaction_assign.sh all >/dev/null" );
 
 			if ( system( sys_string ) ) {};
 		}

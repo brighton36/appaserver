@@ -56,7 +56,7 @@ function insert_opening_entry()
 	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
 	echo "" >> $output_shell
 
-	echo "automatic_transaction_assign.sh all" >> $output_shell
+	echo "automatic_transaction_assign.sh all >/dev/null" >> $output_shell
 	echo "" >> $output_shell
 }
 # insert_opening_entry()
@@ -87,7 +87,7 @@ function export_predictivebooks()
 
 	if [ "$export_file" = "" ]
 	then
-		echo "ERROR: export_subschema generated an error." 1>&2
+		echo "ERROR in $0: export_subschema generated an error." 1>&2
 		exit 1
 	fi
 
@@ -324,8 +324,8 @@ function extract_static_tables()
 
 	where="hard_coded_account_key is not null"
 
-	get_folder_data a=$application f=$folder s=$columns w=\"$where\" |
-	insert_statement.e t=$folder field=$columns del='^'		 |
+	get_folder_data a=$application f=$folder s=$columns w="$where"	|
+	insert_statement.e t=$folder field=$columns del='^'		|
 	cat >> $output_shell
 
 	# Extract folder=fund (maybe)
@@ -820,13 +820,21 @@ function prepend_src_communityband()
 rm $output_shell 2>/dev/null
 
 export_predictivebooks $application $input_file $output_shell
+
 create_predictivebooks $application $input_file $output_shell
+
 extract_static_tables $application $input_file $output_shell
+
 #extract_investment $application $output_shell
+
 export_processes $application $input_file $output_shell
+
 extract_self $application $input_file $output_shell
+
 extract_subsidiary_transaction $application $output_shell
+
 extract_activity $application $output_shell
+
 insert_opening_entry $output_shell
 
 if [ "$input_file" = "predictivebooks_communityband.dat" ]

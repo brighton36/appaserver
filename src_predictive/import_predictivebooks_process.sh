@@ -23,16 +23,19 @@ fi
 
 echo "$0" "$*" 1>&2
 
-if [ "$#" -ne 4 ]
+if [ "$#" -ne 7 ]
 then
-	echo "Usage: $0 login_name process_name module execute_yn" 1>&2
+	echo "Usage: $0 login_name process_name module cash_opening_balance cash_account_name equity_account_name execute_yn" 1>&2
 	exit 1
 fi
 
 login_name=$1
 process_name=$2
 module=$3
-execute_yn=$4
+cash_opening_balance=$4
+cash_account_name=$5
+equity_account_name=$6
+execute_yn=$7
 
 # Variables
 # ---------
@@ -53,7 +56,7 @@ then
 	process="predictivebooks_nonprofit.sh"
 elif [ "$module" = "home" ]
 then
-	process="predictivebooks_home.sh $login_name"
+	process="predictivebooks_home.sh"
 fi
 
 process_title=`echo "$process_name" | format_initial_capital.e`
@@ -82,7 +85,10 @@ fi
 
 if [ "$execute_yn" = 'y' ]
 then
-	export login_name=$login_name
+	export login_name=${login_name}
+	export cash_opening_balance=${cash_opening_balance}
+	export cash_account_name=${cash_account_name}
+	export equity_acocunt_name=${equity_acocunt_name}
 
 	$process
 

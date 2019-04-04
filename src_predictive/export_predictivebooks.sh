@@ -27,8 +27,9 @@ fi
 input_file=$1
 cleanup_script=$2
 
-SELF_FULL_NAME="changeme"
-SELF_STREET_ADDRESS="1234 Main St."
+# Set SELF_FULL_NAME and SELF_STREET_ADDRESS
+# ------------------------------------------
+. set_self.sh
 
 output_shell="`basename.e $input_file y`".sh
 source_file="$APPASERVER_HOME/library/appaserver_library.h"
@@ -40,6 +41,25 @@ sleep 5
 echo "executing..."
 
 appaserver_config_file="/etc/appaserver.config"
+
+function insert_opening_entry()
+{
+	output_shell=$1
+
+	echo "" >> $output_shell
+	echo "(" >> $output_shell
+	echo "cat << all_done13" >> $output_shell
+
+	insert_opening_entry.sh >> $output_shell
+
+	echo "all_done13" >> $output_shell
+	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
+	echo "" >> $output_shell
+
+	echo "automatic_transaction_assign.sh all" >> $output_shell
+	echo "" >> $output_shell
+}
+# insert_opening_entry()
 
 function export_predictivebooks()
 {
@@ -302,8 +322,10 @@ function extract_static_tables()
 		columns=account,subclassification,hard_coded_account_key
 	fi
 
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
+	where="hard_coded_account_key is not null"
+
+	get_folder_data a=$application f=$folder s=$columns w=\"$where\" |
+	insert_statement.e t=$folder field=$columns del='^'		 |
 	cat >> $output_shell
 
 	# Extract folder=fund (maybe)
@@ -341,11 +363,11 @@ function extract_static_tables()
 		cat >> $output_shell
 	fi
 
-	folder=tax_form_line_account
-	columns=tax_form,tax_form_line,account
-	get_folder_data a=$application f=$folder s=$columns		|
-	insert_statement.e t=$folder field=$columns del='^'		|
-	cat >> $output_shell
+#	folder=tax_form_line_account
+#	columns=tax_form,tax_form_line,account
+#	get_folder_data a=$application f=$folder s=$columns		|
+#	insert_statement.e t=$folder field=$columns del='^'		|
+#	cat >> $output_shell
 
 	folder=tax_form_line
 	columns="	tax_form,
@@ -800,11 +822,12 @@ rm $output_shell 2>/dev/null
 export_predictivebooks $application $input_file $output_shell
 create_predictivebooks $application $input_file $output_shell
 extract_static_tables $application $input_file $output_shell
-extract_investment $application $output_shell
+#extract_investment $application $output_shell
 export_processes $application $input_file $output_shell
 extract_self $application $input_file $output_shell
 extract_subsidiary_transaction $application $output_shell
 extract_activity $application $output_shell
+insert_opening_entry $output_shell
 
 if [ "$input_file" = "predictivebooks_communityband.dat" ]
 then

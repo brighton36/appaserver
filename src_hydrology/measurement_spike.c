@@ -124,11 +124,64 @@ LIST *measurement_spike_get_block_list(
 				measurement_spike_block );
 		}
 
+		prior_measurement = measurement;
+
 	} while ( list_next( measurement_list ) );
 
 	return block_list;
 
 } /* measurement_spike_get_block_list() */
+
+char *measurement_spike_block_display(
+				LIST *spike_block_list )
+{
+	MEASUREMENT_SPIKE_BLOCK *b;
+	MEASUREMENT *first_measurement;
+	MEASUREMENT *last_measurement;
+	char buffer[ 65536 ];
+	char *ptr;
+
+	if ( !list_rewind( spike_block_list ) ) return strdup( "" );
+
+	ptr = buffer;
+	*ptr = '\0';
+
+	do {
+		b = list_get( spike_block_list );
+
+		if ( !list_length( b->spike_measurement_list ) )
+		{
+			ptr += sprintf( ptr,
+			"Warning: empty measurement_list for block.\n" );
+
+			continue;
+		}
+
+		first_measurement =
+			list_get_first_pointer(
+				b->spike_measurement_list );
+
+		last_measurement =
+			list_get_last_pointer(
+				b->spike_measurement_list );
+
+		ptr += sprintf( ptr,
+				"last_good_measurement_value: %.3lf; "
+				"next_first_good_measurement_value: %.3lf; "
+				"first_spike: %s:%s; "
+				"last_spike: %s:%s\n",
+				b->last_good_measurement_value,
+				b->next_first_good_measurement_value,
+				first_measurement->measurement_date,
+				first_measurement->measurement_time,
+				last_measurement->measurement_date,
+				last_measurement->measurement_time );
+
+	} while ( list_next( spike_block_list ) );
+
+	return strdup( buffer );
+
+} /* measurement_spike_block_display() */
 
 void measurement_spike_block_update_output(
 				char *application_name,

@@ -91,4 +91,7 @@ void measurement_spike_set_measurement_update(
 			double last_good_measurement_value,
 			double next_first_good_measurement_value );
 
+char *measurement_spike_block_display(
+			LIST *spike_block_list );
+
 #endif

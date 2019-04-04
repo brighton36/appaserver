@@ -51,7 +51,7 @@ int main( int argc, char **argv )
 	char input_buffer[ 4096 ];
 	char buffer[ 4096 ];
 	DOCUMENT *document;
-	int really_yn;
+	boolean execute;
 	char *parameter_dictionary_string;
 	DICTIONARY *parameter_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -64,7 +64,10 @@ int main( int argc, char **argv )
 	char new_value[ 128 ];
 	LIST *heading_list;
 	char infrastructure_process[ 1024 ];
-	char *begin_date, *end_date;
+	char *begin_date;
+	char *begin_time;
+	char *end_date;
+	char *end_time;
 	char title[ 256 ];
 	char sub_title[ 256 ] = {0};
 	GRACE *grace = {0};
@@ -97,24 +100,24 @@ int main( int argc, char **argv )
 	if ( argc != 14 )
 	{
 		fprintf(stderr,
-"Usage: %s person ignored ignored role station datatype minimum_spike parameter_dictionary begin_date end_date chart_yn notes really_yn\n",
+"Usage: %s person role station datatype minimum_spike parameter_dictionary begin_date begin_time end_date end_time chart_yn notes execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	/* session = argv[ 2 ]; */
-	/* application_name = argv[ 3 ]; */
-	role_name = argv[ 4 ];
-	station = argv[ 5 ];
-	datatype = argv[ 6 ];
-	minimum_spike = atof( argv[ 7 ] );
-	parameter_dictionary_string = argv[ 8 ];
-	begin_date = argv[ 9 ];
-	end_date = argv[ 10 ];
+	role_name = argv[ 2 ];
+	station = argv[ 3 ];
+	datatype = argv[ 4 ];
+	minimum_spike = atof( argv[ 5 ] );
+	parameter_dictionary_string = argv[ 6 ];
+	begin_date = argv[ 7 ];
+	begin_time = argv[ 8 ];
+	end_date = argv[ 9 ];
+	end_time = argv[ 10 ];
 	chart_yn = *argv[ 11 ];
 	notes = argv[ 12 ];
-	really_yn = *argv[ 13 ];
+	execute = (*argv[ 13 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -186,23 +189,24 @@ int main( int argc, char **argv )
 	search_replace_string( notes, "\"", "'" );
 
 	sprintf(buffer,
-"%s/%s/estimation_linear_interpolation_spike %s %s %s %s %s %s %lf \"%s\" \"%s\" %c",
+"%s/%s/estimation_linear_interpolation_spike %s %s %s %s %s %s %s %lf \"%s\" \"%s\" %c",
 		appaserver_parameter_file->appaserver_mount_point,
 		application_get_relative_source_directory( application_name ),
 		login_name,
-		application_name,
 		station,
 		datatype,
 		begin_date,
+		begin_time,
 		end_date,
+		end_time,
 		minimum_spike,
 		parameter_dictionary_string,
 		notes,
-		really_yn );
+		(execute) ? 'y' : 'n' );
 
 	input_pipe = popen( buffer, "r" );
 
-	if ( chart_yn == 'y' && really_yn != 'y' )
+	if ( chart_yn == 'y' && !execute )
 	{
 		sprintf(infrastructure_process,
 			INFRASTRUCTURE_PROCESS,
@@ -214,11 +218,13 @@ int main( int argc, char **argv )
 			"Estimation Linear Interpolation Spike" );
 
 		sprintf(sub_title,
-			"%s/%s; From %s To %s; Minimum Spike: %.1lf",
+			"%s/%s; From %s:%s To %s:%s; Minimum Spike: %.1lf",
 			station,
 			format_initial_capital( buffer, datatype ),
 			begin_date,
+			begin_time,
 			end_date,
+			end_time,
 			minimum_spike );
 
 		grace = grace_new_unit_graph_grace(
@@ -287,9 +293,9 @@ int main( int argc, char **argv )
 			grace_output );
 	}
 	else
-	/* ------------------------------------------ */
-	/* if ( chart_yn != 'y' || really_yn == 'y' ) */
-	/* ------------------------------------------ */
+	/* --------------------------------- */
+	/* if ( chart_yn != 'y' || execute ) */
+	/* --------------------------------- */
 	{
 		document = document_new( "", application_name );
 		document_set_output_content_type( document );
@@ -346,7 +352,7 @@ int main( int argc, char **argv )
 			break;
 		}
 
-		if ( chart_yn == 'y' && really_yn != 'y' )
+		if ( chart_yn == 'y' && !execute )
 		{
 			search_replace_string( input_buffer, ",", "|" );
 
@@ -386,7 +392,7 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			if ( really_yn != 'y' )
+			if ( !execute )
 			{
 				piece(	measurement_time,
 					',',
@@ -440,7 +446,7 @@ int main( int argc, char **argv )
 		}
 	} /* while( get_line() */
 
-	if ( chart_yn == 'y' && really_yn != 'y' )
+	if ( chart_yn == 'y' && !execute )
 	{
 		if ( !grace_set_structures(
 				&page_width_pixels,
@@ -545,19 +551,20 @@ int main( int argc, char **argv )
 		}
 	}
 	else
-	/* ------------------------------------------ */
-	/* if ( chart_yn != 'y' || really_yn == 'y' ) */
-	/* ------------------------------------------ */
+	/* --------------------------------- */
+	/* if ( chart_yn != 'y' || execute ) */
+	/* --------------------------------- */
 	{
 		/* Output the count */
 		/* ---------------- */
-		if ( really_yn != 'y' )
+		if ( !execute )
 		{
 			sprintf( buffer, "Did not process %s", input_buffer );
 		}
 		else
 		{
 			sprintf( buffer, "Processed %s", input_buffer );
+
 			process_increment_execution_count(
 				application_name,
 				PROCESS_NAME,
@@ -577,7 +584,7 @@ int main( int argc, char **argv )
 		html_table_close();
 	}
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
 		measurement_validation_update_measurement(
 					application_name,
@@ -591,7 +598,8 @@ int main( int argc, char **argv )
 
 	document_close();
 
-	exit( 0 );
+	return 0;
+
 } /* main() */
 
 /* Sample input: "BD|bottom_temperature|1999-01-01|1000|4.00|5.00" */

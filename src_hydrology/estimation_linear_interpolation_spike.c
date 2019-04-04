@@ -38,7 +38,9 @@ int main( int argc, char **argv )
 	char *datatype;
 	char *login_name;
 	char *begin_date;
+	char *begin_time;
 	char *end_date;
+	char *end_time;
 	int really_yn;
 	int counter = 0;
 	char sys_string[ 4096 ];
@@ -64,24 +66,25 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 11 )
+	if ( argc != 12 )
 	{
 		fprintf(stderr,
-"Usage: %s login_name ignored station datatype begin_date end_date minimum_spike parameter_dictionary notes really_yn\n",
+"Usage: %s login_name station datatype begin_date begin_time end_date end_time minimum_spike parameter_dictionary notes really_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	/* application_name = argv[ 2 ]; */
-	station = argv[ 3 ];
-	datatype = argv[ 4 ];
-	begin_date = argv[ 5 ];
+	station = argv[ 2 ];
+	datatype = argv[ 3 ];
+	begin_date = argv[ 4 ];
+	begin_time = argv[ 5 ];
 	end_date = argv[ 6 ];
-	minimum_spike = argv[ 7 ];
-	parameter_dictionary_string = argv[ 8 ];
-	notes = argv[ 9 ];
-	really_yn = *argv[ 10 ];
+	end_time = argv[ 7 ];
+	minimum_spike = argv[ 8 ];
+	parameter_dictionary_string = argv[ 9 ];
+	notes = argv[ 10 ];
+	really_yn = *argv[ 11 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -119,14 +122,18 @@ int main( int argc, char **argv )
 		 "	station=%s				"
 		 "	datatype=%s				"
 		 "	begin_date=%s				"
+		 "	begin_time=%s				"
 		 "	end_date=%s				"
+		 "	end_time=%s				"
 		 "	minimum_spike=%s			",
 		 login_name,
 		 application_name,
 		 station,
 		 datatype,
 		 begin_date,
+		 begin_time,
 		 end_date,
+		 end_time,
 		 minimum_spike );
 
 	input_pipe = popen( sys_string, "r" );

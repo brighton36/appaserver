@@ -1,6 +1,6 @@
 :
 
-make sl2_shef_to_comma_delimited
+make interpolation_spike_calculate
 
 #if [ "$?" -eq 0 ]
 #then

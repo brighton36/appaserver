@@ -44,7 +44,9 @@ int main( int argc, char **argv )
 	char *station;
 	char *datatype;
 	char *begin_date;
+	char *begin_time;
 	char *end_date;
+	char *end_time;
 	double minimum_spike;
 	NAME_ARG *name_arg;
 	char sys_string[ 1024 ];
@@ -59,13 +61,12 @@ int main( int argc, char **argv )
 
 	name_arg = setup_named_command_line_arguments( argc, argv );
 
-	/* application_name = fetch_arg( name_arg, "application" ); */
-	/* login_name = fetch_arg( name_arg, "login_name" ); */
 	begin_date = fetch_arg( name_arg, "begin_date" );
+	begin_time = fetch_arg( name_arg, "begin_time" );
 	end_date = fetch_arg( name_arg, "end_date" );
+	end_time = fetch_arg( name_arg, "end_time" );
 	station = fetch_arg( name_arg, "station" );
 	datatype = fetch_arg( name_arg, "datatype" );
-
 	minimum_spike = atof( fetch_arg( name_arg, "minimum_spike" ) );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -89,12 +90,14 @@ int main( int argc, char **argv )
 	}
 
 	sprintf( sys_string,
-		 "extract_measurements.sh %s '%s' '%s' %s %s",
+		 "extract_measurements.sh %s '%s' '%s' %s %s %s %s",
 		 application_name,
 		 station,
 		 datatype,
 		 begin_date,
-		 end_date );
+		 begin_time,
+		 end_date,
+		 end_time );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -126,7 +129,9 @@ NAME_ARG *setup_named_command_line_arguments( int argc, char **argv )
 
         ticket = add_valid_option( arg, "minimum_spike" );
         ticket = add_valid_option( arg, "begin_date" );
+        ticket = add_valid_option( arg, "begin_time" );
         ticket = add_valid_option( arg, "end_date" );
+        ticket = add_valid_option( arg, "end_time" );
         ticket = add_valid_option( arg, "datatype" );
         ticket = add_valid_option( arg, "station" );
 
@@ -188,6 +193,14 @@ void interpolation_spike_calculate_input_pipe(
 				station_datatype->
 				measurement_list,
 			threshold );
+
+/*
+fprintf( stderr, "%s/%s()/%d: blocks:\n%s\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+measurement_spike_block_display( measurement_spike->spike_block_list ) );
+*/
 
 	measurement_spike_set_block_measurement_update(
 		measurement_spike->spike_block_list );

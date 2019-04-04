@@ -14,11 +14,7 @@ then
 	exit 1
 fi
 
-# Returns 0 if BANK_UPLOAD.bank_date exists
-# -----------------------------------------
-folder_attribute_exists.sh $application bank_upload bank_date
-
-if [ $? -ne 0 ]
+if [ "$application" != "template" ]
 then
 	exit 1
 fi

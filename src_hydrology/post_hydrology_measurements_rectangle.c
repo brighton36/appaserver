@@ -15,7 +15,6 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "query.h"
-#include "appaserver_parameter_file.h"
 #include "environ.h"
 #include "post2dictionary.h"
 #include "dictionary_appaserver.h"
@@ -36,7 +35,6 @@ int main( int argc, char **argv )
 	char *session;
 	char *role_name;
 	DICTIONARY *post_dictionary;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
 	char sys_string[ 1024 ];
 	double rectangle_southwest_latitude;
@@ -82,7 +80,11 @@ int main( int argc, char **argv )
 	add_src_appaserver_to_path();
 	add_relative_source_directory_to_path( application_name );
 
+/*
+#include "appaserver_parameter_file.h"
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	appaserver_parameter_file = new_appaserver_parameter_file();
+*/
 
 	if ( session_remote_ip_address_changed(
 		application_name,
@@ -173,7 +175,7 @@ int main( int argc, char **argv )
 		 session,
 		 role_name );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	exit( 0 );
 

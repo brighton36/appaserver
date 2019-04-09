@@ -16,6 +16,9 @@
 #include "station_datatype.h"
 #include "measurement.h"
 
+/* Constants */
+/* --------- */
+
 /* Structures */
 /* ---------- */
 typedef struct
@@ -31,6 +34,7 @@ typedef struct
 	double last_good_measurement_value;
 	double next_first_good_measurement_value;
 	LIST *spike_measurement_list;
+	boolean is_negative_drop;
 } MEASUREMENT_SPIKE_BLOCK;
 
 typedef struct
@@ -70,6 +74,7 @@ void measurement_spike_update_output(
 			LIST *measurement_list );
 
 LIST *measurement_spike_block_get_measurement_list(
+			boolean *is_negative_spike,
 			/* ------------------------- */
 			/* Starts with the first bad */
 			/* ------------------------- */
@@ -79,6 +84,7 @@ LIST *measurement_spike_block_get_measurement_list(
 			double threshold );
 
 boolean measurement_spike_exceed_threshold(
+			boolean *is_negative_drop,
 			double measurement_value,
 			double prior_measurement_value,
 			double threshold );
@@ -93,5 +99,9 @@ void measurement_spike_set_measurement_update(
 
 char *measurement_spike_block_display(
 			LIST *spike_block_list );
+
+void measurement_spike_text_output(
+			LIST *spike_measurement_list,
+			char delimiter );
 
 #endif

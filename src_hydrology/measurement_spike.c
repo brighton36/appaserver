@@ -83,6 +83,7 @@ LIST *measurement_spike_get_block_list(
 	MEASUREMENT_SPIKE_BLOCK *measurement_spike_block;
 	MEASUREMENT *measurement;
 	MEASUREMENT *prior_measurement = {0};
+	boolean is_negative_drop;
 
 	if ( ! list_rewind( measurement_list ) ) return (LIST *)0;
 
@@ -95,18 +96,26 @@ LIST *measurement_spike_get_block_list(
 			continue;
 		}
 
+		is_negative_drop = 0;
+
 		if ( measurement_spike_exceed_threshold(
+				&is_negative_drop,
 				measurement->measurement_value,
 				prior_measurement->measurement_value,
 				threshold ) )
 		{
 			measurement_spike_block = measurement_spike_block_new();
 
+			measurement_spike_block->is_negative_drop =
+				is_negative_drop;
+
 			measurement_spike_block->last_good_measurement_value =
 				prior_measurement->measurement_value;
 
 			measurement_spike_block->spike_measurement_list =
 				measurement_spike_block_get_measurement_list(
+					&measurement_spike_block->
+						is_negative_drop,
 					/* ------------------------- */
 					/* Starts with the first bad */
 					/* ------------------------- */
@@ -248,6 +257,7 @@ void measurement_spike_update_output(
 } /* measurement_spike_update_output() */
 
 LIST *measurement_spike_block_get_measurement_list(
+				boolean *is_negative_drop,
 				/* ------------------------- */
 				/* Starts with the first bad */
 				/* ------------------------- */
@@ -269,6 +279,7 @@ LIST *measurement_spike_block_get_measurement_list(
 		/* If still bad */
 		/* ------------ */
 		if ( measurement_spike_exceed_threshold(
+				is_negative_drop,
 				measurement->measurement_value,
 				last_good_measurement_value,
 				threshold ) )
@@ -297,17 +308,6 @@ LIST *measurement_spike_block_get_measurement_list(
 	return return_measurement_list;
 
 } /* measurement_spike_block_get_measurement_list() */
-
-boolean measurement_spike_exceed_threshold(
-				double measurement_value,
-				double prior_measurement_value,
-				double threshold )
-{
-	return (boolean)
-		( measurement_value >
-			prior_measurement_value + threshold );
-
-} /* measurement_spike_exceed_threshold() */
 
 void measurement_spike_block_text_output(
 				LIST *spike_block_list,
@@ -419,4 +419,33 @@ void measurement_spike_set_measurement_update(
 	return;
 
 } /* measurement_spike_set_measurement_update() */
+
+boolean measurement_spike_exceed_threshold(
+				boolean *is_negative_drop,
+				double measurement_value,
+				double prior_measurement_value,
+				double threshold )
+{
+	boolean exceed_threshold = 0;
+	double prior_plus_threshold;
+	double prior_minus_threshold;
+
+	prior_plus_threshold = prior_measurement_value + threshold;
+	prior_minus_threshold = prior_measurement_value - threshold;
+
+	if ( measurement_value > prior_plus_threshold )
+	{
+		exceed_threshold = 1;
+		*is_negative_drop = 0;
+	}
+	else
+	if ( measurement_value < prior_minus_threshold )
+	{
+		exceed_threshold = 1;
+		*is_negative_drop = 1;
+	}
+	
+	return exceed_threshold;
+
+} /* measurement_spike_exceed_threshold() */
 

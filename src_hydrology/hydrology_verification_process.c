@@ -84,42 +84,29 @@ int main( int argc, char **argv )
 	DOCUMENT *document = {0};
 	HASH_TABLE *station_datatype_expected_hash_table;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *session;
-	char *login_name;
-	char *role_name;
-	char *database_string = {0};
 
-	if ( argc < 6 )
-	{
-		fprintf(stderr,
-"Usage: %s application session login_name role today|yesterday|yyyy-mm-dd [nohtml]\n",
-			argv[ 0 ] );
-		exit( 1 );
-	}
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	date_string = argv[ 5 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+	if ( argc < 6 )
+	{
+		fprintf(stderr,
+"Usage: %s ignored ignored ignored ignored today|yesterday|yyyy-mm-dd [nohtml]\n",
+			argv[ 0 ] );
+		exit( 1 );
+	}
+
+	/* application_name = argv[ 1 ]; */
+	/* session = argv[ 2 ]; */
+	/* login_name = argv[ 3 ]; */
+	/* role_name = argv[ 4 ]; */
+	date_string = argv[ 5 ];
 
 	if ( argc == 7 )
 		html_ok = ( strcmp( argv[ 6 ], "nohtml" ) != 0 );
@@ -193,7 +180,6 @@ int main( int argc, char **argv )
 	exit( 0 );
 } /* main() */
 
-
 void run_process(	char *application_name,
 			char *date_string, 
 			int html_ok,
@@ -203,10 +189,10 @@ void run_process(	char *application_name,
 	LIST *datatype_list;
 	LIST *station_list;
 	char *station, *datatype;
-	char *count_warning_yn;
-	char *bound_warning_yn;
 	double *f_array;
 	LIST *primary_key_data_list;
+
+station_datatype_expected_hash_table = (HASH_TABLE *)0;
 
 	f_array = (double *)calloc( 5, sizeof( double ) );
 	sprintf( sys_string, "telemetry_station_list.sh %s", application_name );
@@ -236,6 +222,8 @@ void run_process(	char *application_name,
 								datatype, 
 								date_string );
 
+/*
+				char *count_warning_yn;
 				count_warning_yn = 
 					get_count_warning_yn(
 					   f_array[ F_ARRAY_PREVIOUS_COUNT ],
@@ -244,6 +232,7 @@ void run_process(	char *application_name,
 					   station_datatype_expected_hash_table
 					 );
 
+				char *bound_warning_yn;
 				bound_warning_yn = 
 					get_bound_warning_yn(
 					   f_array[ F_ARRAY_PREVIOUS_LOW ],
@@ -252,6 +241,7 @@ void run_process(	char *application_name,
 					   datatype,
 					   station_datatype_expected_hash_table
 					 );
+*/
 
 				/* Set the primary key data */
 				/* ------------------------ */

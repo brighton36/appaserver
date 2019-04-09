@@ -32,6 +32,7 @@ void interpolation_spike_calculate_input_pipe(
 				char *begin_date,
 				char *end_date,
 				double threshold,
+				boolean trim_negative_drop,
 				FILE *input_pipe );
 
 NAME_ARG *setup_named_command_line_arguments( int argc, char **argv );
@@ -48,6 +49,8 @@ int main( int argc, char **argv )
 	char *end_date;
 	char *end_time;
 	double minimum_spike;
+	char *trim_negative_drop_yn;
+	boolean trim_negative_drop;
 	NAME_ARG *name_arg;
 	char sys_string[ 1024 ];
 	FILE *input_pipe;
@@ -68,6 +71,9 @@ int main( int argc, char **argv )
 	station = fetch_arg( name_arg, "station" );
 	datatype = fetch_arg( name_arg, "datatype" );
 	minimum_spike = atof( fetch_arg( name_arg, "minimum_spike" ) );
+	trim_negative_drop_yn = fetch_arg( name_arg, "trim_negative_drop_yn" );
+
+	trim_negative_drop = (*trim_negative_drop_yn == 'y' );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -108,6 +114,7 @@ int main( int argc, char **argv )
 		begin_date,
 		end_date,
 		minimum_spike /* threshold */,
+		trim_negative_drop,
 		input_pipe );
 
 	pclose( input_pipe );
@@ -122,10 +129,13 @@ NAME_ARG *setup_named_command_line_arguments( int argc, char **argv )
         NAME_ARG *arg = init_arg( argv[ 0 ] );
 
         ticket = add_valid_option( arg, "application" );
-        set_default_value( arg, ticket,"");
+        set_default_value( arg, ticket, "");
 
         ticket = add_valid_option( arg, "login_name" );
-        set_default_value( arg, ticket,"");
+        set_default_value( arg, ticket, "");
+
+        ticket = add_valid_option( arg, "trim_negative_drop_yn" );
+        set_default_value( arg, ticket, "n");
 
         ticket = add_valid_option( arg, "minimum_spike" );
         ticket = add_valid_option( arg, "begin_date" );
@@ -147,6 +157,7 @@ void interpolation_spike_calculate_input_pipe(
 			char *begin_date,
 			char *end_date,
 			double threshold,
+			boolean trim_negative_drop,
 			/* ---------------------------------------------- */
 			/* Sample input: "BA,rain,1999-10-27,2350,25.600" */
 			/* ---------------------------------------------- */
@@ -161,7 +172,8 @@ void interpolation_spike_calculate_input_pipe(
 				datatype_name,
 				begin_date,
 				end_date,
-				threshold ) ) )
+				threshold,
+				trim_negative_drop ) ) )
 	{
 		fprintf( stderr,
 "Error in %s/%s()/%d: measurement_spike_new(%s/%s) returned null.\n",
@@ -192,7 +204,12 @@ void interpolation_spike_calculate_input_pipe(
 				input.
 				station_datatype->
 				measurement_list,
-			threshold );
+			measurement_spike->
+				input.
+				threshold,
+			measurement_spike->
+				input.
+				trim_negative_drop );
 
 /*
 fprintf( stderr, "%s/%s()/%d: blocks:\n%s\n",

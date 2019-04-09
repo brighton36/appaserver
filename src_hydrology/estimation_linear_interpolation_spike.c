@@ -41,7 +41,8 @@ int main( int argc, char **argv )
 	char *begin_time;
 	char *end_date;
 	char *end_time;
-	int really_yn;
+	boolean trim_negative_drop;
+	boolean execute;
 	int counter = 0;
 	char sys_string[ 4096 ];
 	char comma_delimited_record[ 1024 ];
@@ -66,10 +67,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 12 )
+	if ( argc != 13 )
 	{
 		fprintf(stderr,
-"Usage: %s login_name station datatype begin_date begin_time end_date end_time minimum_spike parameter_dictionary notes really_yn\n",
+"Usage: %s login_name station datatype begin_date begin_time end_date end_time minimum_spike parameter_dictionary notes trim_negative_drop_yn execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -84,7 +85,8 @@ int main( int argc, char **argv )
 	minimum_spike = argv[ 8 ];
 	parameter_dictionary_string = argv[ 9 ];
 	notes = argv[ 10 ];
-	really_yn = *argv[ 11 ];
+	trim_negative_drop = (*argv[ 11 ] == 'y');
+	execute = (*argv[ 12 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -125,7 +127,8 @@ int main( int argc, char **argv )
 		 "	begin_time=%s				"
 		 "	end_date=%s				"
 		 "	end_time=%s				"
-		 "	minimum_spike=%s			",
+		 "	minimum_spike=%s			"
+		 "	trim_negative_drop_yn=%c		",
 		 login_name,
 		 application_name,
 		 station,
@@ -134,7 +137,8 @@ int main( int argc, char **argv )
 		 begin_time,
 		 end_date,
 		 end_time,
-		 minimum_spike );
+		 minimum_spike,
+		 (trim_negative_drop) ? 'y' : 'n' );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -211,7 +215,7 @@ int main( int argc, char **argv )
 			{
 				counter++;
 	
-				if ( really_yn == 'y' )
+				if ( execute )
 				{
 					fprintf( update_pipe,
 					"%s,%s,%s,%s|measurement_value=%s\n",
@@ -239,7 +243,8 @@ int main( int argc, char **argv )
 					 	measurement_update_method,
 					 measurement_backup->login_name,
 					 comma_delimited_record,
-					 really_yn,
+					 (execute) ? 'y' : 'n'
+						/* really_yn */,
 					 ',' );
 				}
 			}
@@ -247,7 +252,7 @@ int main( int argc, char **argv )
 		printf( "%s\n", comma_delimited_record );
 	}
 
-	if ( really_yn == 'y' )
+	if ( execute )
 	{
 		DICTIONARY *parameter_dictionary;
 		char count_string[ 16 ];

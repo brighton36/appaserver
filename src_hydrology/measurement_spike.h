@@ -26,6 +26,7 @@ typedef struct
 	char *begin_date;
 	char *end_date;
 	double threshold;
+	boolean trim_negative_drop;
 	STATION_DATATYPE *station_datatype;
 } MEASUREMENT_SPIKE_INPUT;
 
@@ -34,7 +35,6 @@ typedef struct
 	double last_good_measurement_value;
 	double next_first_good_measurement_value;
 	LIST *spike_measurement_list;
-	boolean is_negative_drop;
 } MEASUREMENT_SPIKE_BLOCK;
 
 typedef struct
@@ -54,7 +54,8 @@ MEASUREMENT_SPIKE *measurement_spike_new(
 			char *datatype_name,
 			char *begin_date,
 			char *end_date,
-			double threshold );
+			double threshold,
+			boolean trim_negative_drop );
 
 /* -------------------------------------- */
 /* Sets last_good_measurement_value	  */
@@ -63,7 +64,8 @@ MEASUREMENT_SPIKE *measurement_spike_new(
 /* -------------------------------------- */
 LIST *measurement_spike_get_block_list(
 			LIST *measurement_list,
-			double threshold );
+			double threshold,
+			boolean trim_negative_drop );
 
 void measurement_spike_block_update_output(
 			char *application_name,
@@ -74,20 +76,20 @@ void measurement_spike_update_output(
 			LIST *measurement_list );
 
 LIST *measurement_spike_block_get_measurement_list(
-			boolean *is_negative_spike,
 			/* ------------------------- */
 			/* Starts with the first bad */
 			/* ------------------------- */
 			LIST *measurement_list /* in/out */,
 			double *next_first_good_measurement_value,
 			double last_good_measurement_value,
-			double threshold );
+			double threshold,
+			boolean trim_negative_drop );
 
 boolean measurement_spike_exceed_threshold(
-			boolean *is_negative_drop,
 			double measurement_value,
 			double prior_measurement_value,
-			double threshold );
+			double threshold,
+			boolean trim_negative_drop );
 
 void measurement_spike_set_block_measurement_update(
 			LIST *spike_block_list );

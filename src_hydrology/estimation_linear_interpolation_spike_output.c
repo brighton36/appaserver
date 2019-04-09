@@ -87,6 +87,7 @@ int main( int argc, char **argv )
 	int number_measurements_validated;
 	char *override_destination_validation_requirement_yn;
 	boolean override_destination_validation_requirement;
+	boolean trim_negative_drop;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -97,10 +98,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 14 )
+	if ( argc != 15 )
 	{
 		fprintf(stderr,
-"Usage: %s person role station datatype minimum_spike parameter_dictionary begin_date begin_time end_date end_time chart_yn notes execute_yn\n",
+"Usage: %s person role station datatype minimum_spike parameter_dictionary begin_date begin_time end_date end_time trim_negative_drop_yn char_yn notes execute_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -115,9 +116,10 @@ int main( int argc, char **argv )
 	begin_time = argv[ 8 ];
 	end_date = argv[ 9 ];
 	end_time = argv[ 10 ];
-	chart_yn = *argv[ 11 ];
-	notes = argv[ 12 ];
-	execute = (*argv[ 13 ] == 'y');
+	trim_negative_drop = (*argv[ 11 ] == 'y');
+	chart_yn = *argv[ 12 ];
+	notes = argv[ 13 ];
+	execute = (*argv[ 14 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -189,7 +191,7 @@ int main( int argc, char **argv )
 	search_replace_string( notes, "\"", "'" );
 
 	sprintf(buffer,
-"%s/%s/estimation_linear_interpolation_spike %s %s %s %s %s %s %s %lf \"%s\" \"%s\" %c",
+"%s/%s/estimation_linear_interpolation_spike %s %s %s %s %s %s %s %lf \"%s\" \"%s\" %c %c",
 		appaserver_parameter_file->appaserver_mount_point,
 		application_get_relative_source_directory( application_name ),
 		login_name,
@@ -202,6 +204,7 @@ int main( int argc, char **argv )
 		minimum_spike,
 		parameter_dictionary_string,
 		notes,
+		(trim_negative_drop) ? 'y' : 'n',
 		(execute) ? 'y' : 'n' );
 
 	input_pipe = popen( buffer, "r" );

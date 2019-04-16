@@ -2281,26 +2281,13 @@ insert into subclassification (subclassification,element,display_order) values (
 insert into subclassification (subclassification,element,display_order) values ('retained earnings','equity','170');
 insert into subclassification (subclassification,element,display_order) values ('revenue','revenue','80');
 insert into account (account,subclassification,hard_coded_account_key) values ('accumulated_depreciation','property_plant_equipment','accumulated_depreciation_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('auto/travel','operating expense',null);
-insert into account (account,subclassification,hard_coded_account_key) values ('checking','cash','cash_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('cleaning_and_maintenance','operating expense','service_expense_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('commissions','operating expense',null);
-insert into account (account,subclassification,hard_coded_account_key) values ('depreciation','operating expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('depreciation_expense','operating expense','depreciation_expense_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('fixed_asset','property_plant_equipment','fixed_asset_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('insurance','operating expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('land','property_plant_equipment','land_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('legal/professional','operating expense',null);
-insert into account (account,subclassification,hard_coded_account_key) values ('management_fees','operating expense',null);
-insert into account (account,subclassification,hard_coded_account_key) values ('equity','contributed capital',null);
-insert into account (account,subclassification,hard_coded_account_key) values ('mortgage_interest','operating expense',null);
-insert into account (account,subclassification,hard_coded_account_key) values ('other_interest','operating expense',null);
-insert into account (account,subclassification,hard_coded_account_key) values ('rent_receivable','receivable',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('rent_revenue','revenue','service_revenue_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('repairs','operating expense',null);
 insert into account (account,subclassification,hard_coded_account_key) values ('supplies','operating expense','supply_expense_key');
 insert into account (account,subclassification,hard_coded_account_key) values ('taxes','operating expense','sales_tax_expense_key');
-insert into account (account,subclassification,hard_coded_account_key) values ('utilities','operating expense',null);
 insert into depreciation_method (depreciation_method) values ('double_declining_balance');
 insert into depreciation_method (depreciation_method) values ('n_declining_balance');
 insert into depreciation_method (depreciation_method) values ('straight_line');
@@ -2313,10 +2300,6 @@ insert into day (day) values ('sunday');
 insert into day (day) values ('thursday');
 insert into day (day) values ('tuesday');
 insert into day (day) values ('wednesday');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','03','rent_receivable');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','07','cleaning_and_maintenance');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','10','legal/professional');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('Schedule E','14','repairs');
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule E','03','Rents received',null);
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule E','07','Cleaning and maintenance',null);
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('Schedule E','10','Legal and other professional fees',null);
@@ -2400,22 +2383,6 @@ insert into tax_recovery_period (tax_recovery_period) values ('27.5-year');
 insert into tax_recovery_period (tax_recovery_period) values ('31.5-year');
 insert into tax_recovery_period (tax_recovery_period) values ('39-year');
 all_done2
-) | sql.e 2>&1 | grep -vi duplicate
-
-
-(
-cat << all_done5
-insert into investment_classification (classification) values ('certificate');
-insert into investment_classification (classification) values ('checking');
-insert into investment_classification (classification) values ('credit_card');
-insert into investment_classification (classification) values ('money_market');
-insert into investment_classification (classification) values ('mutual_fund');
-insert into investment_classification (classification) values ('savings');
-insert into investment_classification (classification) values ('stock');
-insert into investment_operation (investment_operation) values ('purchase');
-insert into investment_operation (investment_operation) values ('sale');
-insert into investment_operation (investment_operation) values ('time_passage');
-all_done5
 ) | sql.e 2>&1 | grep -vi duplicate
 
 
@@ -2659,6 +2626,7 @@ insert into process (process,		command_line,		notepad,		html_help_file_anchor,		
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('load_credit_spreadsheet','load_bank_spreadsheet \$process \$login_name fund bank_of_america_credit_card filename 1 3 5 -1 -1 transactions_only_yn execute_yn',null,null,null,null,'reconciliation',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_prepaid_asset_accrual','post_change_prepaid_asset_accrual ignored full_name street_address purchase_date_time asset_name accrual_date \$state preupdate_full_name preupdate_street_address preupdate_purchase_date_time preupdate_asset_name preupdate_accrual_date',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('post_change_prepaid_asset_purchase','post_change_prepaid_asset_purchase ignored full_name street_address purchase_date_time asset_name \$state preupdate_asset_name preupdate_extension preupdate_accrual_period_years',null,null,null,null,null,null,null);
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('import_predictivebooks','import_predictivebooks_process.sh \$login \$process module opening_cash_balance cash_account_name equity_account_name execute_yn','This process imports the PredictiveBooks application.',null,null,null,'manipulate',null,'y');
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('clone_application','null','null','null','system_folders_yn','3',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('clone_folder','folder_attribute','null','null','null','3',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('create_application','null','null','null','system_folders_yn','2',null,null,null,null);
@@ -2758,6 +2726,7 @@ insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,	
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('post_cash_expense_transaction','entity','null','null','null','2',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('post_cash_expense_transaction','null','null','null','execute_yn','9',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('post_cash_expense_transaction','null','null','null','memo','5',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','null','cash_account_name','3',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('transaction_balance_report','null','null','null','begin_date','1',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('direct_transaction_assign','transaction','null','null','null','2',null,null,'populate_bank_upload_transaction_pending',null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('direct_transaction_assign','bank_upload','null','null','null','1',null,null,'populate_bank_upload_pending',null);
@@ -2766,6 +2735,10 @@ insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,	
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('load_cash_spreadsheet','null','null','null','execute_yn','9',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('load_credit_spreadsheet','null','null','null','filename','1',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('load_credit_spreadsheet','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','null','equity_account_name','4',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','predictivebooks_module','null','1',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','null','opening_cash_balance','2',null,null,null,null);
 insert into role_process (process,role) values ('automatic_transaction_assign_all','bookkeeper');
 insert into role_process (process,role) values ('automatic_transaction_assign_one','bookkeeper');
 insert into role_process (process,role) values ('balance_sheet','bookkeeper');
@@ -2971,6 +2944,9 @@ insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		d
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('with_stub_yn','1',null,null,null);
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('appaserver_yn','1',null,null,null);
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('transactions_only_yn','1',null,null,null);
+insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('cash_account_name','60',null,null,null);
+insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('equity_account_name','60',null,null,null);
+insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('opening_cash_balance','14',null,null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('null','Necessary for outter joins to work',null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('output_medium',null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('database_management_system','Defaults to Mysql',null);
@@ -2981,6 +2957,7 @@ insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) va
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('finance_output_medium',null,'output_medium');
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('subclassification_option',null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('trial_balance_subclassification_option',null,'subclassification_option');
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('predictivebooks_module',null,'module');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','table','2');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','spreadsheet','3');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('database_management_system','mysql','1');
@@ -3003,6 +2980,9 @@ insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,displa
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('subclassification_option','omit','1');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('trial_balance_subclassification_option','display','1');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('trial_balance_subclassification_option','omit','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('predictivebooks_module','nonprofit','3');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('predictivebooks_module','personal','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('predictivebooks_module','professional','2');
 insert into operation (operation,output_yn) values ('delete','n');
 insert into operation (operation,output_yn) values ('detail','y');
 insert into operation (operation,output_yn) values ('delete_isa_only',null);
@@ -3037,6 +3017,21 @@ cat << all_done12
 insert into activity (activity) values ('reconciling');
 all_done12
 ) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done13
+echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( '$cash_account_name', 'cash', 'cash_key' )"
+echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( '$equity_account_name', 'contributed_capital', 'closing_key,contributed_capital_key' )"
+echo "insert into transaction ( full_name, street_address, transaction_date_time, transaction_amount, memo ) values ( 'changeme', '1234 Main St.', '2019-04-16 13:03:17', '$cash_opening_balance', 'Opening entry' )"
+echo "insert into journal_ledger ( full_name, street_address, transaction_date_time, account, debit_amount ) values ( 'changeme', '1234 Main St.', '2019-04-16 13:03:17', '$cash_account_name', '$cash_opening_balance' )"
+echo "insert into journal_ledger ( full_name, street_address, transaction_date_time, account, credit_amount ) values ( 'changeme', '1234 Main St.', '2019-04-16 13:03:17', '$equity_account_name', '$cash_opening_balance' )"
+echo "insert into bank_upload ( bank_date, bank_description, sequence_number, bank_running_balance ) values ( '2019-04-16', 'Opening balance', '1', '$cash_opening_balance' )"
+echo "insert into bank_upload_transaction ( bank_date, bank_description, full_name, street_address, transaction_date_time ) values ( '2019-04-16', 'Opening balance', 'changeme', '1234 Main St.', '2019-04-16 13:03:17' )"
+all_done13
+) | sql.e 2>&1 | grep -vi duplicate
+
+automatic_transaction_assign.sh all >/dev/null
 
 table=`get_table_name ignored application`
 results=`echo "select relative_source_directory from $table;" | sql.e`

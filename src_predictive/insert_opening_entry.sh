@@ -18,12 +18,45 @@ then
 	exit 1
 fi
 
+if [ "$#" -ne 1 ]
+then
+	echo "Usage: $0 input_file" 1>&2
+	exit 1
+fi
+
+input_file=$1
+
+if [	"$input_file" = "predictivebooks_autorepair.dat" -o	\
+	"$input_file" = "predictivebooks_enterprise.dat" -o	\
+	"$input_file" = "predictivebooks_rentalproperty.dat" 	]
+then
+	equity_subclassification="contributed_capital"
+else
+	equity_subclassification="net_assets"
+fi
+
 # Set SELF_FULL_NAME and SELF_STREET_ADDRESS
 # ------------------------------------------
 . set_self.sh
 
 now_date_time=`now.sh 19`
 now_date=`now.sh ymd`
+
+# ACCOUNT
+# -------
+echo 'echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( +place1+, +place2+, +place3+ )"'		|
+sed "s/place1/\$cash_account_name/"				|
+sed "s/place2/cash/"						|
+sed "s/place3/cash_key/"					|
+sed "s/+/'/g"							|
+cat
+
+echo 'echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( +place1+, +place2+, +place3+ )"'		|
+sed "s/place1/\$equity_account_name/"				|
+sed "s/place2/$equity_subclassification/"			|
+sed "s/place3/closing_key,contributed_capital_key/"		|
+sed "s/+/'/g"							|
+cat
 
 # TRANSACTION
 # -----------

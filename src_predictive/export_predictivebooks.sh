@@ -44,13 +44,14 @@ appaserver_config_file="/etc/appaserver.config"
 
 function insert_opening_entry()
 {
-	output_shell=$1
+	input_file=$1
+	output_shell=$2
 
 	echo "" >> $output_shell
 	echo "(" >> $output_shell
 	echo "cat << all_done13" >> $output_shell
 
-	insert_opening_entry.sh >> $output_shell
+	insert_opening_entry.sh $input_file >> $output_shell
 
 	echo "all_done13" >> $output_shell
 	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
@@ -835,7 +836,7 @@ extract_subsidiary_transaction $application $output_shell
 
 extract_activity $application $output_shell
 
-insert_opening_entry $output_shell
+insert_opening_entry $input_file $output_shell
 
 if [ "$input_file" = "predictivebooks_communityband.dat" ]
 then

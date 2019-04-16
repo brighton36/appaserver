@@ -173,46 +173,6 @@ insert into $subschemas (subschema) values ('bank_upload');
 insert into $role_operation (folder,role,operation) values ('bank_upload','bookkeeper','detail');
 insert into $role_operation (folder,role,operation) values ('bank_upload','supervisor','delete');
 insert into $role_operation (folder,role,operation) values ('bank_upload','supervisor','detail');
-delete from $folder where folder = 'bank_upload_activity_work';
-insert into $folder (folder,form,insert_rows_number,subschema,populate_drop_down_process,notepad,lookup_before_drop_down_yn,no_initial_capital_yn,post_change_javascript,post_change_process,html_help_file_anchor,exclude_application_export_yn,lookup_email_output_yn,create_view_statement,appaserver_yn,data_directory,index_directory) values ('bank_upload_activity_work','prompt','5','activity',null,null,null,null,null,null,null,null,null,null,null,null,null);
-delete from $relation where folder = 'bank_upload_activity_work';
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('bank_upload_activity_work','appaserver_user','null',null,null,null,null,null,null,null,null,null,null,null);
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('bank_upload_activity_work','bank_upload_event','null',null,null,null,null,null,null,null,null,null,null,null);
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('bank_upload_activity_work','role_activity','null',null,null,null,null,null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'login_name';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('login_name','text','50',null,null,null,null,null,null,'y');
-delete from $attribute where attribute = 'begin_work_date_time';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('begin_work_date_time','current_date_time','16',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'end_work_date_time';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('end_work_date_time','date_time','16',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'bank_upload_date_time';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('bank_upload_date_time','current_date_time','19',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'role';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('role','text','25',null,null,null,null,null,null,'y');
-delete from $attribute where attribute = 'activity';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('activity','text','30',null,null,null,null,null,null,null);
-delete from $attribute where attribute = 'work_hours';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('work_hours','float','6','2',null,null,null,null,null,null);
-delete from $folder_attribute where folder = 'bank_upload_activity_work';
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload_activity_work','activity',null,'4',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload_activity_work','bank_upload_date_time',null,'2',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload_activity_work','begin_work_date_time','2',null,null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload_activity_work','end_work_date_time',null,'1',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload_activity_work','login_name','1',null,'y',null,null,null,'y',null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload_activity_work','role',null,'3',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('bank_upload_activity_work','work_hours',null,'5','y',null,null,null,'y',null,null);
-insert into $role_folder (folder,role,permission) values ('bank_upload_activity_work','bookkeeper','insert');
-insert into $role_folder (folder,role,permission) values ('bank_upload_activity_work','bookkeeper','update');
-insert into $role_folder (folder,role,permission) values ('bank_upload_activity_work','supervisor','insert');
-insert into $role_folder (folder,role,permission) values ('bank_upload_activity_work','supervisor','update');
-delete from $javascript_folders where folder = 'bank_upload_activity_work';
-insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
-insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
-insert into $subschemas (subschema) values ('activity');
-insert into $role_operation (folder,role,operation) values ('bank_upload_activity_work','bookkeeper','delete');
-insert into $role_operation (folder,role,operation) values ('bank_upload_activity_work','bookkeeper','detail');
-insert into $role_operation (folder,role,operation) values ('bank_upload_activity_work','supervisor','delete');
-insert into $role_operation (folder,role,operation) values ('bank_upload_activity_work','supervisor','detail');
 delete from $folder where folder = 'bank_upload_archive';
 insert into $folder (folder,form,insert_rows_number,subschema,populate_drop_down_process,notepad,lookup_before_drop_down_yn,no_initial_capital_yn,post_change_javascript,post_change_process,html_help_file_anchor,exclude_application_export_yn,lookup_email_output_yn,create_view_statement,appaserver_yn,data_directory,index_directory) values ('bank_upload_archive','prompt','5','bank_upload',null,null,null,null,null,null,null,null,null,null,null,null,null);
 delete from $relation where folder = 'bank_upload_archive';
@@ -3329,9 +3289,6 @@ echo "create unique index $table_name on $table_name (full_name,street_address);
 table_name=bank_upload
 echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),bank_upload_date_time datetime) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e
-table_name=bank_upload_activity_work
-echo "create table $table_name (login_name char (50) not null,begin_work_date_time datetime not null,end_work_date_time datetime,bank_upload_date_time datetime,role char (25),activity char (30),work_hours double (6,2)) engine MyISAM;" | sql.e
-echo "create unique index $table_name on $table_name (login_name,begin_work_date_time);" | sql.e
 table_name=bank_upload_archive
 echo "create table $table_name (bank_date date not null,bank_description char (140) not null,sequence_number integer,bank_amount double (10,2),bank_running_balance double (12,2),bank_upload_date_time datetime) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (bank_date,bank_description);" | sql.e
@@ -3646,122 +3603,23 @@ insert into account (account,fund,subclassification,hard_coded_account_key) valu
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('account_payable_music_fund','music_memorial_fund','current_liability','account_payable_key');
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('account_receivable','general_fund','account_receivable','account_receivable_key');
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('accumulated_depreciation','general_fund','fixed_asset','accumulated_depreciation_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('advertising','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('amazon_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('amazon_smile','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Association Membership Dues','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('association_dues','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('auction_item_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Audio','general_fund','fixed_asset',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('awards_and_recognitions','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('bakery_sale','general_fund','service_revenue',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Band lapel pins','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('band_boosters_collection','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('bank_fee','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('bank_of_america_checking','general_fund','cash','cash_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('bestbuy_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('beverage_sale','general_fund','service_revenue',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('big_day_of_giving','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('blue_shirt_cost_of_goods_sold','general_fund','cost_of_goods_sold',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('blue_shirt_inventory','general_fund','inventory',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('California State Registration','general_fund','taxes',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('concert_decorations','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Copier maintenance plan','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('copier_lease_payable','general_fund','current_liability',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('copier_paper','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('copier_property_tax','general_fund','taxes',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('credit_card_hardware','general_fund','fixed_asset',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('dance_team_expense','general_fund','discretionary',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('depreciation_expense','general_fund','discretionary','depreciation_expense_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('dinner_table_accessories','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Director''s pay','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Director''s payable','general_fund','current_liability',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('dollar_jar','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('dollar_tree_expense','general_fund','discretionary',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('fixed_asset_expense','general_fund','discretionary','fixed_asset_expense_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('food, beverage, wares purchase for resale','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('food_sale','general_fund','service_revenue',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('freight_in_general_fund','general_fund','discretionary','freight_in_key');
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('freight_in_music_fund','music_memorial_fund','discretionary','freight_in_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('gain','general_fund','gain',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('gain_on_copier_purchase','general_fund','gain',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('general fund net assets','general_fund','net_assets','closing_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('general_fund_donation','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('general_interfund_transfer_in','general_fund','gain',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('general_interfund_transfer_out','general_fund','loss',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Insurance Expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('interest_general_fund','general_fund','interest',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('interest_memorial_fund','music_memorial_fund','interest',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('interest_scholarship_fund','scholarship_fund','interest',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('intrafund_transfer','general_fund','gain',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('inventory_loss','general_fund','loss','inventory_loss_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('in_kind_donation','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Liability Insurance','general_fund','prepaid',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('library_supplies','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('mailing_envelopes','general_fund','discretionary',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('member_dues','general_fund','donation','dues_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('merchandise_cost_of_goods_sold','general_fund','cost_of_goods_sold',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('merchandise_inventory','general_fund','inventory',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('merchandise_sale','general_fund','merchandise_sale','sales_revenue_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('miscellaneous_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Music Library (General)','general_fund','fixed_asset',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Music Library (Memorial)','music_memorial_fund','fixed_asset',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('music memorial net assets','music_memorial_fund','net_assets','closing_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('music_folder_boxes','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('music_interfund_transfer_in','music_memorial_fund','gain',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('music_interfund_transfer_out','music_memorial_fund','loss',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('music_library_accumulated_depreciation','music_memorial_fund','fixed_asset','accumulated_depreciation_key');
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('music_library_depreciation','music_memorial_fund','depreciation','depreciation_expense_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('music_memorial_donation','music_memorial_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('music_memorial_savings_8835','music_memorial_fund','cash','cash_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('music_return_loss','general_fund','loss',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('music_score_folders_100_pack','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Office/Room','general_fund','fixed_asset',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('officemax_officedepot_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('paypal_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('paypal_receivable','general_fund','account_receivable',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Percussion','general_fund','fixed_asset',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('performance_fee','general_fund','service_revenue','service_revenue_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('petty_cash','general_fund','cash',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('postage','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Postal box rental','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('prepaid_auction_items','general_fund','prepaid',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('promotion_items','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('race_for_the_arts','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('race_for_the_arts_receivable','general_fund','account_receivable',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('raffle_tickets','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('raffle_ticket_sale','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('refund_in_error','general_fund','gain',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('rehearsal_snacks','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Rent','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Rent payable','general_fund','current_liability',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('sales_tax_general_fund','general_fund','taxes','sales_tax_key');
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('sales_tax_music_fund','music_memorial_fund','taxes','sales_tax_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('sam''s_club_expense','general_fund','discretionary',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('scholarship net assets','scholarship_fund','net_assets','closing_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('scholarship_donation','scholarship_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('scholarship_interfund_transfer_in','scholarship_fund','gain',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('scholarship_interfund_transfer_out','scholarship_fund','loss',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('scholarship_savings_8838','scholarship_fund','cash','cash_key');
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('slippage','general_fund','loss','loss_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('slippage (music memorial fund)','music_memorial_fund','loss',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('SmartNFinal_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('sponsor_donation','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('staples_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('tax_filing_charge','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('timpani_repair_and_maintenance','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('tools','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('Truck/gas','general_fund','discretionary',null);
 insert into account (account,fund,subclassification,hard_coded_account_key) values ('uncleared_checks','general_fund','current_liability','uncleared_checks_key');
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('under_the_big_top_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('unidentified_purchase','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('unknown_donation','general_fund','donation',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('venue_cleanup_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('venue_deposit','general_fund','prepaid',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('venue_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('walmart_expense','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('water','general_fund','discretionary',null);
-insert into account (account,fund,subclassification,hard_coded_account_key) values ('website_donation','general_fund','donation',null);
 insert into fund (fund) values ('general_fund');
 insert into fund (fund) values ('music_memorial_fund');
 insert into fund (fund) values ('scholarship_fund');
@@ -3781,100 +3639,6 @@ insert into payroll_pay_period (payroll_pay_period) values ('biweekly');
 insert into payroll_pay_period (payroll_pay_period) values ('monthly');
 insert into payroll_pay_period (payroll_pay_period) values ('semimonthly');
 insert into payroll_pay_period (payroll_pay_period) values ('weekly');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('1099','7','Director''s pay');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','amazon_smile');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','band_boosters_collection');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','big_day_of_giving');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','dollar_jar');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','general_fund_donation');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','in_kind_donation');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','member_dues');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','music_memorial_donation');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','race_for_the_arts');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','scholarship_donation');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','sponsor_donation');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','01','website_donation');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','02','performance_fee');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','03','Association Membership Dues');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','04','interest_general_fund');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','04','interest_memorial_fund');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','04','interest_scholarship_fund');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','06a','raffle_ticket_sale');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','06b','bakery_sale');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','06b','beverage_sale');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','06b','concert_decorations');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','06b','food_sale');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','06c','auction_item_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','06c','food, beverage, wares purchase for resale');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','06c','venue_cleanup_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','07a','merchandise_sale');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','07b','blue_shirt_cost_of_goods_sold');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','08','gain');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','08','refund_in_error');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','13','Director''s pay');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','14','Rent');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','15','Copier maintenance plan');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','15','copier_paper');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','15','copier_property_tax');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','amazon_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','association_dues');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','awards_and_recognitions');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','bank_fee');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','bestbuy_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','dance_team_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','depreciation_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','dinner_table_accessories');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','dollar_tree_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','fixed_asset_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','freight_in_general_fund');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','Insurance Expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','inventory_loss');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','library_supplies');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','miscellaneous_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','music_folder_boxes');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','officemax_officedepot_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','postage');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','Postal box rental');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','rehearsal_snacks');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','sales_tax_general_fund');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','sam''s_club_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','slippage');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','slippage (music memorial fund)');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','SmartNFinal_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','staples_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','tax_filing_charge');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','Truck/gas');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','under_the_big_top_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','unidentified_purchase');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','venue_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','16','walmart_expense');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','19','general fund net assets');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','19','music memorial net assets');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','19','scholarship net assets');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','22B','bank_of_america_checking');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','22B','music_memorial_savings_8835');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','22B','petty_cash');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','22B','scholarship_savings_8838');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','account_receivable');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','accumulated_depreciation');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','Audio');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','blue_shirt_inventory');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','credit_card_hardware');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','Liability Insurance');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','Music Library (General)');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','Music Library (Memorial)');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','music_library_accumulated_depreciation');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','Office/Room');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','paypal_receivable');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','Percussion');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','prepaid_auction_items');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','race_for_the_arts_receivable');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','24B','venue_deposit');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','26B','account_payable_general_fund');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','26B','copier_lease_payable');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','26B','Director''s payable');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','26B','Rent payable');
-insert into tax_form_line_account (tax_form,tax_form_line,account) values ('IRS_990ez','26B','uncleared_checks');
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('1099','7','Nonemployee Compensation','n');
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('IRS_990ez','01','contributions_gifts',null);
 insert into tax_form_line (	tax_form,			tax_form_line,			tax_form_description,			itemize_accounts_yn) values ('IRS_990ez','02','program_service_revenue',null);
@@ -4045,12 +3809,6 @@ all_done2
 
 
 (
-cat << all_done5
-all_done5
-) | sql.e 2>&1 | grep -vi duplicate
-
-
-(
 cat << all_done3
 insert into role_operation (folder,role,operation) values ('account','accountant','delete');
 insert into role_operation (folder,role,operation) values ('account','accountant','detail');
@@ -4068,10 +3826,6 @@ insert into role_operation (folder,role,operation) values ('band_member','superv
 insert into role_operation (folder,role,operation) values ('bank_upload','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('bank_upload','supervisor','delete');
 insert into role_operation (folder,role,operation) values ('bank_upload','supervisor','detail');
-insert into role_operation (folder,role,operation) values ('bank_upload_activity_work','bookkeeper','delete');
-insert into role_operation (folder,role,operation) values ('bank_upload_activity_work','bookkeeper','detail');
-insert into role_operation (folder,role,operation) values ('bank_upload_activity_work','supervisor','delete');
-insert into role_operation (folder,role,operation) values ('bank_upload_activity_work','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('bank_upload_archive','bookkeeper','detail');
 insert into role_operation (folder,role,operation) values ('bank_upload_archive','supervisor','detail');
 insert into role_operation (folder,role,operation) values ('bank_upload_event','bookkeeper','detail');
@@ -4456,6 +4210,7 @@ insert into process (process,		command_line,		notepad,		html_help_file_anchor,		
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('populate_bank_upload_transaction_pending','populate_bank_upload_transaction_pending.sh',null,null,null,null,null,null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('load_cash_spreadsheet','load_bank_spreadsheet \$process \$login_name fund bank_of_america_checking filename 1 2 3 -1 4 transactions_only_yn execute_yn',null,null,null,null,'reconciliation',null,null);
 insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('load_credit_spreadsheet','load_bank_spreadsheet \$process \$login_name fund bank_of_america_credit_card filename 1 3 5 -1 -1 transactions_only_yn execute_yn',null,null,null,null,'reconciliation',null,null);
+insert into process (process,		command_line,		notepad,		html_help_file_anchor,		post_change_javascript,		process_set_display,		process_group,		preprompt_help_text,		appaserver_yn) values ('import_predictivebooks','import_predictivebooks_process.sh \$login \$process module opening_cash_balance cash_account_name equity_account_name execute_yn','This process imports the PredictiveBooks application.',null,null,null,'manipulate',null,'y');
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('clone_application','null','null','null','system_folders_yn','3',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('clone_folder','null','null','null','delete_yn','7',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('create_application','null','null','null','system_folders_yn','2',null,null,null,null);
@@ -4591,6 +4346,11 @@ insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,	
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('load_cash_spreadsheet','null','null','null','transactions_only_yn','3',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('load_credit_spreadsheet','null','null','null','execute_yn','9',null,null,null,null);
 insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('load_credit_spreadsheet','null','null','null','filename','1',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','null','cash_account_name','3',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','null','equity_account_name','4',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','null','execute_yn','9',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','predictivebooks_module','null','1',null,null,null,null);
+insert into process_parameter (process,		folder,		attribute,		drop_down_prompt,		prompt,		display_order,		drop_down_multi_select_yn,		preprompt_yn,		populate_drop_down_process,		populate_helper_process) values ('import_predictivebooks','null','null','null','opening_cash_balance','2',null,null,null,null);
 insert into role_process (process,role) values ('appaserver_info','accountant');
 insert into role_process (process,role) values ('close_nominal_accounts','accountant');
 insert into role_process (process,role) values ('depreciate_fixed_assets','accountant');
@@ -4811,6 +4571,9 @@ insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		d
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('appaserver_yn','1',null,null,null);
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('transactions_only_yn','1',null,null,null);
 insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('tax_year','4',null,null,null);
+insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('cash_account_name','60',null,null,null);
+insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('equity_account_name','60',null,null,null);
+insert into prompt (prompt,		input_width,		hint_message,		upload_filename_yn,		date_yn) values ('opening_cash_balance','14',null,null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('null','Necessary for outter joins to work',null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('output_medium',null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('database_management_system','Defaults to Mysql',null);
@@ -4825,6 +4588,7 @@ insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) va
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('inventory_balance_output_medium',null,'output_medium');
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('subclassification_option',null,null);
 insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('trial_balance_subclassification_option',null,'subclassification_option');
+insert into drop_down_prompt (drop_down_prompt,hint_message,optional_display) values ('predictivebooks_module',null,'module');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','table','2');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('output_medium','text_file','3');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('database_management_system','mysql','1');
@@ -4854,6 +4618,9 @@ insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,displa
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('subclassification_option','omit','3');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('trial_balance_subclassification_option','display','1');
 insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('trial_balance_subclassification_option','omit','2');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('predictivebooks_module','nonprofit','3');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('predictivebooks_module','personal','1');
+insert into drop_down_prompt_data (drop_down_prompt,drop_down_prompt_data,display_order) values ('predictivebooks_module','professional','2');
 insert into operation (operation,output_yn) values ('delete','n');
 insert into operation (operation,output_yn) values ('detail','y');
 insert into operation (operation,output_yn) values ('delete_isa_only',null);
@@ -4890,6 +4657,21 @@ cat << all_done12
 insert into activity (activity) values ('reconciling');
 all_done12
 ) | sql.e 2>&1 | grep -vi duplicate
+
+
+(
+cat << all_done13
+echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( '$cash_account_name', 'cash', 'cash_key' )"
+echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( '$equity_account_name', 'net_assets', 'closing_key,contributed_capital_key' )"
+echo "insert into transaction ( full_name, street_address, transaction_date_time, transaction_amount, memo ) values ( 'changeme', '1234 Main St.', '2019-04-16 13:00:29', '$cash_opening_balance', 'Opening entry' )"
+echo "insert into journal_ledger ( full_name, street_address, transaction_date_time, account, debit_amount ) values ( 'changeme', '1234 Main St.', '2019-04-16 13:00:29', '$cash_account_name', '$cash_opening_balance' )"
+echo "insert into journal_ledger ( full_name, street_address, transaction_date_time, account, credit_amount ) values ( 'changeme', '1234 Main St.', '2019-04-16 13:00:29', '$equity_account_name', '$cash_opening_balance' )"
+echo "insert into bank_upload ( bank_date, bank_description, sequence_number, bank_running_balance ) values ( '2019-04-16', 'Opening balance', '1', '$cash_opening_balance' )"
+echo "insert into bank_upload_transaction ( bank_date, bank_description, full_name, street_address, transaction_date_time ) values ( '2019-04-16', 'Opening balance', 'changeme', '1234 Main St.', '2019-04-16 13:00:29' )"
+all_done13
+) | sql.e 2>&1 | grep -vi duplicate
+
+automatic_transaction_assign.sh all >/dev/null
 
 table=`get_table_name ignored application`
 results=`echo "select relative_source_directory from $table;" | sql.e`

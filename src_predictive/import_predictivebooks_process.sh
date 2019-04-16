@@ -88,7 +88,7 @@ then
 	export login_name=${login_name}
 	export cash_opening_balance=${cash_opening_balance}
 	export cash_account_name=${cash_account_name}
-	export equity_acocunt_name=${equity_acocunt_name}
+	export equity_account_name=${equity_account_name}
 
 	$process
 

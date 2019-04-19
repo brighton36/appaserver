@@ -44,14 +44,14 @@ now_date=`now.sh ymd`
 
 # ACCOUNT
 # -------
-echo 'echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( +place1+, +place2+, +place3+ )"'		|
+echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( +place1+, +place2+, +place3+ );"			|
 sed "s/place1/\$cash_account_name/"				|
 sed "s/place2/cash/"						|
 sed "s/place3/cash_key/"					|
 sed "s/+/'/g"							|
 cat
 
-echo 'echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( +place1+, +place2+, +place3+ )"'		|
+echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( +place1+, +place2+, +place3+ );"			|
 sed "s/place1/\$equity_account_name/"				|
 sed "s/place2/$equity_subclassification/"			|
 sed "s/place3/closing_key,contributed_capital_key/"		|
@@ -60,7 +60,7 @@ cat
 
 # TRANSACTION
 # -----------
-echo 'echo "insert into transaction ( full_name, street_address, transaction_date_time, transaction_amount, memo ) values ( +place1+, +place2+, +place3+, +place4+, +place5+ )"'							|
+echo "insert into transaction ( full_name, street_address, transaction_date_time, transaction_amount, memo ) values ( +place1+, +place2+, +place3+, +place4+, +place5+ );"							|
 sed "s/place1/$SELF_FULL_NAME/"					|
 sed "s/place2/$SELF_STREET_ADDRESS/"				|
 sed "s/place3/$now_date_time/"					|
@@ -71,7 +71,7 @@ cat
 
 # JOURNAL_LEDGER (debit)
 # ----------------------
-echo 'echo "insert into journal_ledger ( full_name, street_address, transaction_date_time, account, debit_amount ) values ( +place1+, +place2+, +place3+, +place4+, +place5+ )"'						|
+echo "insert into journal_ledger ( full_name, street_address, transaction_date_time, account, debit_amount ) values ( +place1+, +place2+, +place3+, +place4+, +place5+ );"							|
 sed "s/place1/$SELF_FULL_NAME/"					|
 sed "s/place2/$SELF_STREET_ADDRESS/"				|
 sed "s/place3/$now_date_time/"					|
@@ -82,7 +82,7 @@ cat
 
 # JOURNAL_LEDGER (credit)
 # -----------------------
-echo 'echo "insert into journal_ledger ( full_name, street_address, transaction_date_time, account, credit_amount ) values ( +place1+, +place2+, +place3+, +place4+, +place5+ )"'						|
+echo "insert into journal_ledger ( full_name, street_address, transaction_date_time, account, credit_amount ) values ( +place1+, +place2+, +place3+, +place4+, +place5+ );"							|
 sed "s/place1/$SELF_FULL_NAME/"					|
 sed "s/place2/$SELF_STREET_ADDRESS/"				|
 sed "s/place3/$now_date_time/"					|
@@ -93,7 +93,7 @@ cat
 
 # BANK_UPLOAD
 # -----------
-echo 'echo "insert into bank_upload ( bank_date, bank_description, sequence_number, bank_running_balance ) values ( +place1+, +place2+, +place3+, +place4+ )"'									|
+echo "insert into bank_upload ( bank_date, bank_description, sequence_number, bank_running_balance ) values ( +place1+, +place2+, +place3+, +place4+ );"									|
 sed "s/place1/$now_date/"					|
 sed "s/place2/Opening balance/"					|
 sed "s/place3/1/"						|
@@ -103,7 +103,7 @@ cat
 
 # BANK_UPLOAD_TRANSACTION
 # -----------------------
-echo 'echo "insert into bank_upload_transaction ( bank_date, bank_description, full_name, street_address, transaction_date_time ) values ( +place1+, +place2+, +place3+, +place4+, +place5+ )"'					|
+echo "insert into bank_upload_transaction ( bank_date, bank_description, full_name, street_address, transaction_date_time ) values ( +place1+, +place2+, +place3+, +place4+, +place5+ );"					|
 sed "s/place1/$now_date/"					|
 sed "s/place2/Opening balance/"					|
 sed "s/place3/$SELF_FULL_NAME/"					|

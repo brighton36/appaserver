@@ -58,6 +58,8 @@ function insert_opening_entry()
 	echo "" >> $output_shell
 
 	echo "automatic_transaction_assign.sh all >/dev/null" >> $output_shell
+	echo "bank_upload_sequence_propagate.sh '' >/dev/null" >> $output_shell
+	echo "bank_upload_balance_propagate.sh '' >/dev/null" >> $output_shell
 	echo "" >> $output_shell
 }
 # insert_opening_entry()

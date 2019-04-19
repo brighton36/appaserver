@@ -23,9 +23,9 @@ fi
 
 echo "$0" "$*" 1>&2
 
-if [ "$#" -ne 7 ]
+if [ "$#" -ne 6 ]
 then
-	echo "Usage: $0 login_name process_name module cash_opening_balance cash_account_name equity_account_name execute_yn" 1>&2
+	echo "Usage: $0 login_name process_name module cash_opening_balance cash_account_name execute_yn" 1>&2
 	exit 1
 fi
 
@@ -34,29 +34,34 @@ process_name=$2
 module=$3
 cash_opening_balance=$4
 cash_account_name=$5
-equity_account_name=$6
-execute_yn=$7
+execute_yn=$6
 
 # Variables
 # ---------
 if [ "$module" = "enterprise" ]
 then
 	process="predictivebooks_enterprise.sh"
+	equity_account_name="contributed_capital"
 elif [ "$module" = "community_band" ]
 then
 	process="predictivebooks_communityband.sh"
-elif [ "$module" = "autorepair" ]
+	equity_account_name="net_assets"
+elif [ "$module" = "auto_repair" ]
 then
 	process="predictivebooks_autorepair.sh"
-elif [ "$module" = "rentalproperty" ]
+	equity_account_name="contributed_capital"
+elif [ "$module" = "rental_property" ]
 then
 	process="predictivebooks_rentalproperty.sh"
+	equity_account_name="contributed_capital"
 elif [ "$module" = "nonprofit" ]
 then
 	process="predictivebooks_nonprofit.sh"
+	equity_account_name="net_assets"
 elif [ "$module" = "home" ]
 then
 	process="predictivebooks_home.sh"
+	equity_account_name="net_assets"
 fi
 
 process_title=`echo "$process_name" | format_initial_capital.e`
@@ -83,7 +88,7 @@ then
 	echo "<h3>Existing data will be deleted.</h3>"
 fi
 
-if [ "$execute_yn" = 'y' ]
+if [ "$execute_yn" = "y" ]
 then
 	export login_name=${login_name}
 	export cash_opening_balance=${cash_opening_balance}
@@ -98,7 +103,7 @@ then
 
 	echo "<h3>Process complete.</h3>"
 else
-	echo "<h3>Will execute: \$APPASERVER_HOME/${process}`</h3>"
+	echo "<h3>Will execute: \$APPASERVER_HOME/${process}</h3>"
 fi
 
 echo "</body></html>"

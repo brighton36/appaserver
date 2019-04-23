@@ -297,8 +297,9 @@ FILE *measurement_open_html_table_pipe(	void )
 	justify_string = "left,left,left,left,right";
 
 	sprintf( sys_string,
-		 "queue_top_bottom_lines.e 50 |"
+		 "queue_top_bottom_lines.e %d |"
 		 "html_table.e '' '%s' ',' '%s'",
+		 MEASUREMENT_QUEUE_TOP_BOTTOM_LINES,
 		 heading_comma_string,
 		 justify_string );
 
@@ -757,6 +758,7 @@ MEASUREMENT *measurement_parse(		char *buffer,
 
 } /* measurement_parse() */
 
+#ifdef NOT_DEFINED
 boolean measurement_list_update(	char *application_name,
 					LIST *measurement_list )
 {
@@ -773,6 +775,7 @@ MEASUREMENT *measurement_list_seek(	char *station_name  /* optional */,
 	return (MEASUREMENT *)0;
 
 } /* measurement_list_seek() */
+#endif
 
 void measurement_change_text_output(	LIST *measurement_list,
 					char delimiter )

@@ -32,7 +32,6 @@ int main( int argc, char **argv )
 	MEASUREMENT_FREQUENCY_STATION_DATATYPE *
 		measurement_frequency_station_datatype;
 	char *begin_measurement_date = {0};
-	char *end_measurement_date;
 	FILE *input_pipe;
 
 	if ( argc != 4 )
@@ -74,7 +73,6 @@ int main( int argc, char **argv )
 
 	m = measurement_structure_new( application_name );
 	measurement_frequency = measurement_frequency_new();
-	end_measurement_date = pipe2string( "now.sh ymd" );
 
 	if ( really_yn != 'y' )
 	{
@@ -135,13 +133,16 @@ int main( int argc, char **argv )
 			m->html_table_pipe );
 	}
 
-	pclose( m->insert_pipe );
-	pclose( m->html_table_pipe );
 	pclose( input_pipe );
+
+	if ( m->insert_pipe ) pclose( m->insert_pipe );
+
+	if ( m->html_table_pipe ) pclose( m->html_table_pipe );
 
 	if ( not_loaded_count )
 		printf( "<p>Not loaded count = %d\n", not_loaded_count );
 
-	exit( 0 );
+	return 0;
+
 } /* main() */
 

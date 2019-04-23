@@ -126,80 +126,6 @@ char *shef_datatype_code_get_shef_download_code(
 } /* shef_datatype_code_get_shef_download_code() */
 
 
-/* -------------------------------------------- */
-/* If aggregate measurement, then this returns	*/
-/* SHEF_AGGREGATE_STUB.				*/
-/* -------------------------------------------- */
-char *shef_datatype_code_get_upload_datatype(
-				SHEF_UPLOAD_AGGREGATE_MEASUREMENT **
-					shef_upload_aggregate_measurement,
-				char *application_name,
-				char *station_name,
-				char *shef_code,
-				char *measurement_date,
-				char *measurement_time,
-				double measurement_value )
-{
-	char *datatype_name;
-	char local_shef_code[ 128 ];
-	boolean is_aggregate_measurement = 0;
-	int str_len;
-	static HYDROLOGY *hydrology = {0};
-	STATION *station;
-	static HASH_TABLE *shef_upload_hash_table = {0};
-
-	if ( !hydrology )
-	{
-		hydrology = hydrology_new();
-	}
-
-	if ( !shef_upload_hash_table )
-	{
-		shef_upload_hash_table = hash_table_new( HASH_TABLE_MEDIUM );
-	}
-
-	strcpy( local_shef_code, shef_code );
-
-	if ( measurement_date )
-	{
-		if ( ( is_aggregate_measurement =
-				shef_is_min_max(
-					&str_len,
-					local_shef_code ) ) )
-		{
-			/* Trim off the MM */
-			/* --------------- */
-			*( local_shef_code + str_len - 2 ) = '\0';
-		}
-	}
-
-	station =
-		hydrology_get_or_set_station(
-			hydrology->input.station_list,
-			application_name,
-			station_name );
-
-	datatype_name =
-		hydrology_translate_datatype_name(
-			station->station_datatype_list,
-			local_shef_code /* datatype_name */ );
-
-	if ( is_aggregate_measurement )
-	{
-		return shef_datatype_code_get_upload_min_max_datatype(
-				shef_upload_aggregate_measurement,
-				shef_upload_hash_table,
-				station->station_name,
-				datatype_name,
-				measurement_date,
-				measurement_time,
-				measurement_value );
-	}
-
-	return datatype_name;
-
-} /* shef_datatype_code_get_upload_datatype() */
-
 char *shef_upload_datatype_get_key(	char *datatype_name,
 					char *measurement_date,
 					char *measurement_time )
@@ -235,7 +161,7 @@ boolean shef_is_min_max(	int *str_len,
 
 SHEF_UPLOAD_DATATYPE *shef_get_upload_datatype(
 				char *station_name,
-				char *shef_code,
+				char *shef_upload_code,
 				LIST *shef_upload_datatype_list )
 {
 	SHEF_UPLOAD_DATATYPE *datatype;
@@ -246,15 +172,28 @@ SHEF_UPLOAD_DATATYPE *shef_get_upload_datatype(
 	do {
 		datatype = list_get( shef_upload_datatype_list );
 
-		if ( timlib_strcmp(
-				shef_code,
-				datatype->shef_upload_code ) == 0
-		&&   timlib_strcmp(
-				station_name,
-				datatype->station_name ) == 0 )
+		if ( !station_name )
 		{
-			return datatype;
+			if ( timlib_strcmp(
+				shef_upload_code,
+				datatype->shef_upload_code ) == 0 )
+			{
+				return datatype;
+			}
 		}
+		else
+		{
+			if ( timlib_strcmp(
+					shef_upload_code,
+					datatype->shef_upload_code ) == 0
+			&&   timlib_strcmp(
+					station_name,
+					datatype->station_name ) == 0 )
+			{
+				return datatype;
+			}
+		}
+
 	} while( list_next( shef_upload_datatype_list ) );
 
 	return (SHEF_UPLOAD_DATATYPE *)0;
@@ -656,7 +595,7 @@ char *shef_get_upload_default_datatype_name(
 	if ( ( datatype =
 			shef_get_upload_datatype(
 				station,
-				shef_code,
+				shef_code /* shef_upload_code */,
 				shef_upload_datatype_list ) ) )
 	{
 		return datatype->datatype_name;
@@ -665,7 +604,7 @@ char *shef_get_upload_default_datatype_name(
 	if ( ( datatype =
 			shef_get_upload_datatype(
 				SHEF_DEFAULT_UPLOAD_STATION,
-				shef_code,
+				shef_code /* shef_upload_code */,
 				shef_upload_datatype_list ) ) )
 	{
 		return datatype->datatype_name;
@@ -685,4 +624,106 @@ char *shef_get_upload_default_datatype_name(
 	}
 
 } /* shef_get_upload_default_datatype_name() */
+
+char *shef_datatype_code_translate_datatype_name(
+				LIST *shef_upload_datatype_list,
+				char *shef_upload_code )
+{
+	SHEF_UPLOAD_DATATYPE *shef_upload_datatype;
+
+	if ( ( shef_upload_datatype =
+		shef_get_upload_datatype(
+			(char *)0 /* station_name */,
+			shef_upload_code,
+			shef_upload_datatype_list ) ) )
+	{
+		return shef_upload_datatype->datatype_name;
+	}
+	else
+	{
+		return (char *)0;
+	}
+
+} /* shef_datatype_code_translate_datatype_name() */
+
+/* -------------------------------------------- */
+/* If aggregate measurement, then this returns	*/
+/* SHEF_AGGREGATE_STUB.				*/
+/* -------------------------------------------- */
+char *shef_datatype_code_get_upload_datatype(
+				SHEF_UPLOAD_AGGREGATE_MEASUREMENT **
+					shef_upload_aggregate_measurement,
+				char *application_name,
+				char *station_name,
+				char *shef_code,
+				char *measurement_date,
+				char *measurement_time,
+				double measurement_value )
+{
+	char *datatype_name;
+	char local_shef_code[ 128 ];
+	boolean is_aggregate_measurement = 0;
+	int str_len;
+	static HYDROLOGY *hydrology = {0};
+	STATION *station;
+	static HASH_TABLE *shef_upload_hash_table = {0};
+
+	if ( !hydrology )
+	{
+		hydrology = hydrology_new();
+	}
+
+	if ( !shef_upload_hash_table )
+	{
+		shef_upload_hash_table = hash_table_new( HASH_TABLE_MEDIUM );
+	}
+
+	strcpy( local_shef_code, shef_code );
+
+	if ( measurement_date )
+	{
+		if ( ( is_aggregate_measurement =
+				shef_is_min_max(
+					&str_len,
+					local_shef_code ) ) )
+		{
+			/* Trim off the MM */
+			/* --------------- */
+			*( local_shef_code + str_len - 2 ) = '\0';
+		}
+	}
+
+	station =
+		hydrology_get_or_set_station(
+			hydrology->input.station_list,
+			application_name,
+			station_name );
+
+	if ( ! ( datatype_name =
+			shef_datatype_code_translate_datatype_name(
+				station->shef_upload_datatype_list,
+				local_shef_code
+					/* shef_upload_code */ ) ) )
+	{
+		datatype_name =
+			hydrology_translate_datatype_name(
+				station->station_datatype_list,
+				local_shef_code /* datatype_name */ );
+	}
+
+	if ( is_aggregate_measurement )
+	{
+		return shef_datatype_code_get_upload_min_max_datatype(
+				shef_upload_aggregate_measurement,
+				shef_upload_hash_table,
+				station->station_name,
+				datatype_name,
+				measurement_date,
+				measurement_time,
+				measurement_value );
+	}
+
+	return datatype_name;
+
+} /* shef_datatype_code_get_upload_datatype() */
 

@@ -20,7 +20,7 @@ STG,2000/08/05,09:00/24.74,Good
  |   |           |    |     |
  |   |           |    |    Status
  |   |           |  Value
- |   |         HH:MM
+ |   |         HH:MM or HH:MM:SS
  |  Y/M/D
 shef
 --------------------------------------------------------------------------------
@@ -82,6 +82,7 @@ int main( int argc, char **argv )
 			fprintf( stderr, "%s\n", input_line );
 			continue;
 		}
+
 		if ( !load_shef_comma_piece(	shef,
 						input_line, 
 						SHEF_COMMA_PIECE ) )
@@ -98,8 +99,8 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-		/* Looks like 15:00:00 */
-		/* ------------------- */
+		/* Looks like 15:00 or 15:00:00 */
+		/* ---------------------------- */
 		if ( character_count( ':', measurement_time ) < 1 )
 		{
 			fprintf( stderr, "%s\n", input_line );

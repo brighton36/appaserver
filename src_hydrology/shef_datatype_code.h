@@ -139,4 +139,8 @@ char *shef_get_upload_default_datatype_name(
 				LIST *shef_upload_datatype_list,
 				LIST *station_datatype_list );
 
+char *shef_datatype_code_translate_datatype_name(
+				LIST *shef_upload_datatype_list,
+				char *shef_upload_code );
+
 #endif

@@ -1,8 +1,8 @@
 :
-# $APPASERVER_HOME/src_hydrology/datatype_merge_purge.sh
-# ------------------------------------------------------
+# $APPASERVER_HOME/src_hydrology/station_datatype_merge_purge.sh
+# --------------------------------------------------------------
 # Freely available software. See appaserver.org
-# ------------------------------------------------------
+# --------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
@@ -38,8 +38,9 @@ then
 fi
 
 if [	"$2" != "count" -a		\
-	"$2" != "head" -a		\
-	"$2" != "full" ]
+	"$2" != "trim" -a		\
+	"$2" != "full" -a		\
+	"$2" != "execute" ]
 then
 	exit_usage=1
 fi
@@ -49,7 +50,7 @@ operation=$2
 
 if [ "$exit_usage" -eq 1 ]
 then
-	echo "Usage: $0 infile count|head|full" 1>&2
+	echo "Usage: $0 infile count|trim|full|execute" 1>&2
 	exit 1
 fi
 
@@ -65,15 +66,15 @@ function generate_where ()
 }
 # generate_where()
 
-if [ "$operation" = "head" ]
+if [ "$operation" = "trim" ]
 then
-	head_process="head -10"
+	trim_process="queue_top_bottom_lines.e 5"
 else
-	head_process="cat"
+	trim_process="cat"
 fi
 
 cat $infile				|
-$head_process				|
+grep -v '^#'				|
 while read record
 do
 	station=`echo $record | column.e 0`
@@ -84,32 +85,47 @@ do
 
 	if [ "$operation" = "count" ]
 	then
-		echo "Count keep:"
-		echo "-----------"
 		generate_where $station $keep_datatype $begin_date $end_date
 
-		/bin/echo -n "$station/${keep_datatype}: "
+		/bin/echo -n "Count keep $station/${keep_datatype}: "
 		echo "select count(*) from measurement where $where;" |
 		sql.e
 
-		echo "Count purge:"
-		echo "------------"
 		generate_where $station $purge_datatype $begin_date $end_date
 
-		/bin/echo -n "$station/${purge_datatype}: "
+		/bin/echo -n "Count purge $station/${purge_datatype}: "
 		echo "select count(*) from measurement where $where;" |
 		sql.e
 	fi
 
-	if [ "$operation" = "full" -o "$operation" = "head" ]
+	if [ "$operation" = "full" -o	\
+	     "$operation" = "trim" -o	\
+	     "$operation" = "execute" ]
 	then
-		generate_where $station $keep_datatype $begin_date $end_date
-
-		echo "delete from measurement where $where;"
+		if [ "$operation" = "execute" ]
+		then
+			execute="sql.e"
+		else
+			execute="cat"
+		fi
 
 		generate_where $station $purge_datatype $begin_date $end_date
 
-		echo "update measurement set datatype = '$keep_datatype' where $where;"
+		f=`folder_attribute_name_list.sh measurement`
+
+		echo "select $f from measurement where $where;"		|
+		sql.e '^'						|
+		sed "s/${purge_datatype}/${keep_datatype}/"		|
+		insert_statement.e table=measurement field=$f del='^'	|
+		$trim_process						|
+		$execute						|
+		grep -vi duplicate					|
+		cat
+
+		echo "delete from measurement where $where;"		|
+		$execute						|
+		cat
+
 	fi
 
 done

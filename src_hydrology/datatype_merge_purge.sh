@@ -32,26 +32,24 @@ fi
 
 exit_usage=0
 
-if [ "$#" -ne 3 ]
+if [ "$#" -ne 2 ]
 then
 	exit_usage=1
 fi
 
-if [	"$2" != "countgood" -a		\
-	"$2" != "countbad" -a		\
-	"$2" != "update" -a		\
-	"$2" != "delete" ]
+if [	"$2" != "count" -a		\
+	"$2" != "head" -a		\
+	"$2" != "full" ]
 then
 	exit_usage=1
 fi
 
 infile=$1
 operation=$2
-head_only_yn=$3
 
 if [ "$exit_usage" -eq 1 ]
 then
-	echo "Usage: $0 infile countgood|countbad|update|delete head_only_yn" 1>&2
+	echo "Usage: $0 infile count|head|full" 1>&2
 	exit 1
 fi
 
@@ -67,7 +65,7 @@ function generate_where ()
 }
 # generate_where()
 
-if [ "$head_only_yn" = "y" ]
+if [ "$operation" = "head" ]
 then
 	head_process="head -10"
 else
@@ -79,41 +77,39 @@ $head_process				|
 while read record
 do
 	station=`echo $record | column.e 0`
-	bad_datatype=`echo $record | column.e 1`
-	good_datatype=`echo $record | column.e 2`
+	purge_datatype=`echo $record | column.e 1`
+	keep_datatype=`echo $record | column.e 2`
 	begin_date=`echo $record | column.e 3`
 	end_date=`echo $record | column.e 4`
 
-	if [ "$operation" = "countgood" ]
+	if [ "$operation" = "count" ]
 	then
-		generate_where $station $good_datatype $begin_date $end_date
+		echo "Count keep:"
+		echo "-----------"
+		generate_where $station $keep_datatype $begin_date $end_date
 
-		/bin/echo -n "$station/${good_datatype}: "
+		/bin/echo -n "$station/${keep_datatype}: "
+		echo "select count(*) from measurement where $where;" |
+		sql.e
+
+		echo "Count purge:"
+		echo "------------"
+		generate_where $station $purge_datatype $begin_date $end_date
+
+		/bin/echo -n "$station/${purge_datatype}: "
 		echo "select count(*) from measurement where $where;" |
 		sql.e
 	fi
 
-	if [ "$operation" = "countbad" ]
+	if [ "$operation" = "full" -o "$operation" = "head" ]
 	then
-		generate_where $station $bad_datatype $begin_date $end_date
-
-		/bin/echo -n "$station/${bad_datatype}: "
-		echo "select count(*) from measurement where $where;" |
-		sql.e
-	fi
-
-	if [ "$operation" = "update" ]
-	then
-		generate_where $station $bad_datatype $begin_date $end_date
-
-		echo "update measurement set datatype = '$good_datatype' where $where;"
-	fi
-
-	if [ "$operation" = "delete" ]
-	then
-		generate_where $station $good_datatype $begin_date $end_date
+		generate_where $station $keep_datatype $begin_date $end_date
 
 		echo "delete from measurement where $where;"
+
+		generate_where $station $purge_datatype $begin_date $end_date
+
+		echo "update measurement set datatype = '$keep_datatype' where $where;"
 	fi
 
 done

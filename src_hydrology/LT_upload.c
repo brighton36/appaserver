@@ -222,7 +222,7 @@ int load_measurement(	char *application_name,
 		 "shef_upload_datatype_convert %d %d '%c'		  |"
 		 "count.e %d 'LT Load count'				  |"
 		 "piece_inverse.e %d '%c'				  |"
-		 "insert_statement table=%s field=%s del='%c' replace=y   |"
+		 "insert_statement table=%s field=%s del='%c' replace=n   |"
 		 "sql.e 2>&1						  |"
 		 "html_paragraph_wrapper.e				   ",
 		 SHEF_CONVERT_STATION_PIECE,

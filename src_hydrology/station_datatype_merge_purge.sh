@@ -118,7 +118,7 @@ do
 		sed "s/${purge_datatype}/${keep_datatype}/"		|
 		insert_statement.e table=measurement field=$f del='^'	|
 		$trim_process						|
-		$execute						|
+		$execute 2>&1						|
 		grep -vi duplicate					|
 		cat
 

@@ -103,7 +103,7 @@ then
 
 	echo "<h3>Process complete.</h3>"
 else
-	echo "<h3>Will execute: \$APPASERVER_HOME/${process}</h3>"
+	echo "<h3>Will execute: \$APPASERVER_HOME/src_predictive/${process}</h3>"
 fi
 
 echo "</body></html>"

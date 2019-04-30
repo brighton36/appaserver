@@ -30,16 +30,11 @@ fi
 # ----------------------
 bank_date=`echo $1 | column.e 0`
 
-if [ "$bank_date" = "" -o "$bank_date" = "bank_date" ]
-then
-	prior_sequence_number=2
-else
-	# Returns prior_sequence_number^transaction_date_time
-	# ---------------------------------------------------
-	results=`bank_upload_prior_sequence_number.sh "$bank_date"`
-	prior_sequence_number=`echo $results | piece.e '^' 0`
-	prior_transaction_date_time=`echo $results | piece.e '^' 1`
-fi
+# Returns prior_sequence_number^transaction_date_time
+# ---------------------------------------------------
+results=`bank_upload_prior_sequence_number.sh "$bank_date"`
+prior_sequence_number=`echo $results | piece.e '^' 0`
+prior_transaction_date_time=`echo $results | piece.e '^' 1`
 
 select="bank_date,bank_description"
 

@@ -59,6 +59,7 @@ function insert_opening_entry()
 
 	echo "automatic_transaction_assign.sh all >/dev/null" >> $output_shell
 	echo "bank_upload_sequence_propagate.sh '' | sql.e" >> $output_shell
+	echo "ledger_propagate '' '' ''" >> $output_shell
 	echo "bank_upload_balance_propagate.sh '' sql.e" >> $output_shell
 	echo "" >> $output_shell
 }

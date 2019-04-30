@@ -30,16 +30,9 @@ fi
 # ----------------------
 bank_date=`echo $1 | column.e 0`
 
-if [ "$bank_date" = "" -o "$bank_date" = "bank_date" ]
-then
-	prior_sequence_number=1
-else
-	# Returns prior_sequence_number^transaction_date_time
-	# ---------------------------------------------------
-	results=`bank_upload_prior_sequence_number.sh "$bank_date"`
-	prior_sequence_number=`echo $results | piece.e '^' 0`
-	prior_transaction_date_time=`echo $results | piece.e '^' 1`
-fi
+results=`bank_upload_prior_sequence_number.sh "$bank_date"`
+prior_sequence_number=`echo $results | piece.e '^' 0`
+prior_transaction_date_time=`echo $results | piece.e '^' 1`
 
 select="bank_date,concat(bank_description,'^bank_running_balance'),bank_amount,bank_running_balance"
 
@@ -57,6 +50,7 @@ key=bank_date,bank_description
 
 echo "select $select from $table where $where order by $order;"	|
 sql.e								|
+tee /dev/tty |
 accumulate.e 3 '^' running					|
 # --------------------
 #piece out bank_amount

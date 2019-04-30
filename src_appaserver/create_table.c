@@ -264,7 +264,7 @@ passed_security_check:
 	if ( toupper( *really_yn ) == 'Y' )
 	{
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 		printf( "<h3>Process complete</h3>\n" );
 	}
 		
@@ -592,6 +592,6 @@ void make_executable( char *create_table_filename )
 	sprintf(sys_string,
 		"chmod -x,ug+x %s 2>/dev/null",
 		create_table_filename );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 }
 

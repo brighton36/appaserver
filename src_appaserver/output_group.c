@@ -235,26 +235,6 @@ int main( int argc, char **argv )
 			(LIST *)0,
 			(LIST *)0 );
 
-#ifdef NOT_DEFINED
-	query =	query_new(	application_name,
-				login_name,
-				appaserver->folder->folder_name,
-				(LIST *)0 /* attribute_list */,
-				dictionary_appaserver->query_dictionary,
-				(DICTIONARY *)0 /* sort_dictionary */,
-				role_new( application_name, role_name ),
-				(LIST *)0 /* where_attribute_name_list */,
-				(LIST *)0 /* where_attribute_data_list */,
-				0 /* max_rows */,
-				0 /* not include_root_folder */,
-				(LIST *)0
-					/* one2m_subquery_folder_name_list */,
-				(LIST *)0
-					/* mto1_join_folder_name_list */,
-				(RELATED_FOLDER *)0
-					/* root_related_folder */ );
-#endif
-
 	if ( ! ( total_count =
 			get_total_count(
 				application_name,
@@ -538,12 +518,6 @@ void output_related_folder(
 
 	table_output_pipe = popen( sys_string, "w" );
 
-/*
-	sprintf( sys_string,
-		 "tr '%c' ',' >> %s",
-		 FOLDER_DATA_DELIMITER,
-		 output_filename );
-*/
 	sprintf( sys_string,
 		 "double_quote_comma_delimited.e '%c' >> %s",
 		 FOLDER_DATA_DELIMITER,
@@ -598,7 +572,14 @@ char *get_total_delimiter_list(	int attribute_list_length,
 
 	for( i = 0; i < attribute_list_length; i++ )
 	{
-		ptr += sprintf( ptr, "%c", delimiter );
+		if ( i == 0 )
+		{
+			ptr += sprintf( ptr, "Row Count%c", delimiter );
+		}
+		else
+		{
+			ptr += sprintf( ptr, "%c", delimiter );
+		}
 	}
 
 	return total_delimiter_list;

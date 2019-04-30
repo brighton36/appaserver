@@ -18,13 +18,14 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 1 ]
+if [ "$#" -ne 2 ]
 then
-	echo "Usage: $0 input_file" 1>&2
+	echo "Usage: $0 input_file fund" 1>&2
 	exit 1
 fi
 
 input_file=$1
+fund=$2
 
 if [	"$input_file" = "predictivebooks_autorepair.dat" -o	\
 	"$input_file" = "predictivebooks_enterprise.dat" -o	\
@@ -44,6 +45,11 @@ now_date=`now.sh ymd`
 
 # ACCOUNT
 # -------
+if [ "$fund" = "" -o "$fund" = "fund" ]
+then
+
+# If not fund
+# -----------
 echo "insert into account ( account, subclassification, hard_coded_account_key ) values ( +place1+, +place2+, +place3+ );"			|
 sed "s/place1/\$cash_account_name/"				|
 sed "s/place2/cash/"						|
@@ -57,6 +63,28 @@ sed "s/place2/$equity_subclassification/"			|
 sed "s/place3/closing_key,contributed_capital_key/"		|
 sed "s/+/'/g"							|
 cat
+
+else
+
+# If fund
+# -------
+echo "insert into account ( account, subclassification, hard_coded_account_key, fund ) values ( +place1+, +place2+, +place3+, +place4+ );"	|
+sed "s/place1/\$cash_account_name/"				|
+sed "s/place2/cash/"						|
+sed "s/place3/cash_key/"					|
+sed "s/place4/$fund/"						|
+sed "s/+/'/g"							|
+cat
+
+echo "insert into account ( account, subclassification, hard_coded_account_key, fund ) values ( +place1+, +place2+, +place3+, +place4+ );"	|
+sed "s/place1/\$equity_account_name/"				|
+sed "s/place2/$equity_subclassification/"			|
+sed "s/place3/closing_key/"					|
+sed "s/place4/$fund/"						|
+sed "s/+/'/g"							|
+cat
+
+fi
 
 # TRANSACTION
 # -----------

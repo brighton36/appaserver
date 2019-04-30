@@ -468,7 +468,7 @@ void create_database(		char *destination_application,
 		 	destination_application );
 	}
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 } /* create_database() */
@@ -501,7 +501,7 @@ void create_application_table(		char *current_application,
 			output_string );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	set_database_environment(
@@ -522,7 +522,7 @@ void create_application_table(		char *current_application,
 			destination_application );
 	}
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(
@@ -560,7 +560,7 @@ void insert_application_row(		char *current_application,
 			output_string );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	set_database_environment(
@@ -583,7 +583,7 @@ void insert_application_row(		char *current_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(
@@ -626,7 +626,7 @@ void update_application_row(
 				really_yn );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(
@@ -665,7 +665,7 @@ void make_document_root_directory(	char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	if ( really_yn == 'y' )
@@ -696,7 +696,7 @@ void make_document_root_directory(	char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 } /* make_document_root_directory() */
@@ -707,31 +707,6 @@ void link_appaserver_source_directory(	char *destination_application,
 					char really_yn )
 {
 	char sys_string[ 1024 ];
-
-/*
-	if ( really_yn == 'y' )
-	{
-		sprintf( sys_string,
-		 	"mkdir %s/src_%s && chmod g+rwxs %s/src_%s",
-		 	appaserver_home_directory,
-		 	destination_application,
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-	else
-	{
-		sprintf( sys_string,
-"echo \"mkdir %s/src_%s && chmod g+rwxs %s/src_%s\" | html_paragraph_wrapper.e",
-		 	appaserver_home_directory,
-		 	destination_application,
-		 	appaserver_home_directory,
-		 	destination_application );
-	}
-
-	fflush( stdout );
-	system( sys_string );
-	fflush( stdout );
-*/
 
 	if ( really_yn == 'y' )
 	{
@@ -753,7 +728,7 @@ void link_appaserver_source_directory(	char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 } /* link_appaserver_source_directory() */
@@ -793,7 +768,7 @@ void populate_document_root_directory(	char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	if ( really_yn == 'y' )
@@ -822,10 +797,10 @@ void populate_document_root_directory(	char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
-	if ( really_yn == 'y' )
+	if ( really_yn == 'y'  )
 	{
 		sprintf( sys_string,
 "ln %s/%s/%s/index.php %s/%s/%s/%s",
@@ -851,7 +826,7 @@ void populate_document_root_directory(	char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 } /* populate_document_root_directory() */
@@ -897,7 +872,7 @@ void fix_index_dot_php(			char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	/* Fix application title */
@@ -933,7 +908,7 @@ void fix_index_dot_php(			char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	/* If redirect to cloudacus, change application_key. */
@@ -959,7 +934,7 @@ void fix_index_dot_php(			char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	/* Set the write bit for group */
@@ -980,7 +955,7 @@ void fix_index_dot_php(			char *destination_application,
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 } /* fix_index_dot_php() */
@@ -1016,7 +991,7 @@ void create_system_tables(	char *destination_application,
 		 output_string );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	if ( really_yn == 'y' )
@@ -1041,7 +1016,7 @@ void create_system_tables(	char *destination_application,
 			really_yn );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(
@@ -1069,7 +1044,7 @@ void insert_appaserver_rows(		char *destination_application,
 		 'y' /* nocontent_type_yn */ );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	if ( really_yn == 'y' )
@@ -1102,7 +1077,7 @@ void insert_appaserver_rows(		char *destination_application,
 				really_yn );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(
@@ -1323,7 +1298,7 @@ void delete_process_non_appaserver_rows(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(
@@ -1371,7 +1346,7 @@ void delete_appaserver_user_rows(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	/* ROLE_APPASERVER_USER */
@@ -1386,7 +1361,7 @@ void delete_appaserver_user_rows(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	/* LOGIN_DEFAULT_ROLE */
@@ -1401,7 +1376,7 @@ void delete_appaserver_user_rows(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(
@@ -1466,7 +1441,7 @@ void insert_appaserver_user_row(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	/* ------------------ */
@@ -1483,7 +1458,7 @@ void insert_appaserver_user_row(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	sprintf( sys_string,
@@ -1495,7 +1470,7 @@ void insert_appaserver_user_row(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	sprintf( sys_string,
@@ -1507,7 +1482,7 @@ void insert_appaserver_user_row(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	sprintf( sys_string,
@@ -1519,7 +1494,7 @@ void insert_appaserver_user_row(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(
@@ -1545,17 +1520,17 @@ void make_appaserver_error_file(	char *destination_application,
 		sprintf( sys_string,
 		 	 "echo '' > %s",
 		 	 error_filename );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 
 		sprintf( sys_string,
 		 	 "chmod g+rw %s",
 		 	 error_filename );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 
 		sprintf( sys_string,
 		 	 "chmod o-r %s",
 		 	 error_filename );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 	else
 	{
@@ -1721,7 +1696,7 @@ void drop_database(		char *destination_application,
 		 	destination_application );
 	}
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 } /* drop_database() */
@@ -1743,7 +1718,7 @@ void remove_appaserver_error_file(	char *destination_application,
 		sprintf( sys_string,
 		 	 "rm %s 2>&1 | html_paragraph_wrapper",
 		 	 error_filename );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 	else
 	{
@@ -1777,7 +1752,7 @@ void remove_document_root_directory(
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	if ( really_yn == 'y' )
@@ -1798,7 +1773,7 @@ void remove_document_root_directory(
 	}
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 } /* remove_document_root_directory() */
@@ -1896,7 +1871,7 @@ void remove_nobody_user(	char *destination_application,
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	sprintf( sys_string,
@@ -1907,7 +1882,7 @@ void remove_nobody_user(	char *destination_application,
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(
@@ -1961,7 +1936,7 @@ void create_existing_tar_file_application(
 		 sql_executable );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	restore_database_environment(

@@ -24,6 +24,8 @@ then
 	exit 1
 fi
 
+# Initialize
+# ----------
 input_file=$1
 cleanup_script=$2
 
@@ -42,16 +44,26 @@ echo "executing..."
 
 appaserver_config_file="/etc/appaserver.config"
 
+# Functions
+# ---------
 function insert_opening_entry()
 {
 	input_file=$1
 	output_shell=$2
+	exists_fund=$3
 
 	echo "" >> $output_shell
 	echo "(" >> $output_shell
 	echo "cat << all_done13" >> $output_shell
 
-	insert_opening_entry.sh $input_file >> $output_shell
+	if [ "$exists_fund" -eq 0 ]
+	then
+		fund="general_fund"
+	else
+		fund="fund"
+	fi
+
+	insert_opening_entry.sh $input_file $fund >> $output_shell
 
 	echo "all_done13" >> $output_shell
 	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
@@ -292,6 +304,7 @@ function extract_static_tables()
 	application=$1
 	input_file=$2
 	output_shell=$3
+	exists_fund=$4
 
 	echo "" >> $output_shell
 	echo "(" >> $output_shell
@@ -314,9 +327,6 @@ function extract_static_tables()
 
 	# Extract folder=account
 	# ----------------------
-	folder_attribute_exists.sh $application account fund
-	exists_fund=$?
-
 	folder=account
 
 	if [ "$exists_fund" -eq 0 ]
@@ -821,13 +831,21 @@ function prepend_src_communityband()
 }
 # prepend_src_communityband()
 
+# Main
+# ----
 rm $output_shell 2>/dev/null
+
+folder_attribute_exists.sh $application account fund
+
+# Zero means true
+# ---------------
+exists_fund=$?
 
 export_predictivebooks $application $input_file $output_shell
 
 create_predictivebooks $application $input_file $output_shell
 
-extract_static_tables $application $input_file $output_shell
+extract_static_tables $application $input_file $output_shell $exists_fund
 
 #extract_investment $application $output_shell
 
@@ -839,7 +857,7 @@ extract_subsidiary_transaction $application $output_shell
 
 extract_activity $application $output_shell
 
-insert_opening_entry $input_file $output_shell
+insert_opening_entry $input_file $output_shell $exists_fund
 
 if [ "$input_file" = "predictivebooks_communityband.dat" ]
 then

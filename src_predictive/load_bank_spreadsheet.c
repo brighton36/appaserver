@@ -355,6 +355,10 @@ int load_bank_spreadsheet_transactions_only(
 	/* Else execute */
 	/* ------------ */
 	{
+fprintf( stderr, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
 		/* ------------------------------------ */
 		/* Sets bank_upload->transaction	*/
 		/* and  bank_upload->bank_upload_status */
@@ -482,7 +486,7 @@ int load_bank_spreadsheet(
 		bank_upload_set_transaction(
 			bank_upload_structure->file.bank_upload_file_list,
 			application_name,
-			fund_name,
+			bank_upload_structure->fund_name,
 			bank_upload_structure->
 				reoccurring_structure->
 				reoccurring_transaction_list,
@@ -513,6 +517,12 @@ int load_bank_spreadsheet(
 	/* Else execute */
 	/* ------------ */
 	{
+fprintf( stderr, "%s/%s()/%d: fund_name = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+bank_upload_structure->fund_name );
+
 		if ( ! ( bank_upload_structure->file.table_insert_count =
 				bank_upload_insert(
 					application_name,
@@ -525,6 +535,12 @@ int load_bank_spreadsheet(
 		{
 			return 0;
 		}
+
+fprintf( stderr, "%s/%s()/%d: fund_name = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+bank_upload_structure->fund_name );
 
 		bank_upload_event_insert(
 			application_name,
@@ -539,6 +555,12 @@ int load_bank_spreadsheet(
 				file_sha256sum,
 			bank_upload_structure->fund_name,
 			bank_upload_structure->feeder_account );
+
+fprintf( stderr, "%s/%s()/%d: fund_name = (%s)\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+bank_upload_structure->fund_name );
 
 		bank_upload_archive_insert(
 			application_name,
@@ -564,7 +586,7 @@ int load_bank_spreadsheet(
 		bank_upload_set_transaction(
 			bank_upload_structure->table.bank_upload_table_list,
 			application_name,
-			fund_name,
+			bank_upload_structure->fund_name,
 			bank_upload_structure->
 				reoccurring_structure->
 				reoccurring_transaction_list,
@@ -602,7 +624,7 @@ int load_bank_spreadsheet(
 		/* --------------------- */
 		bank_upload_cleared_checks_update(
 			application_name,
-			fund_name,
+			bank_upload_structure->fund_name,
 			bank_upload_structure->
 				table.
 				bank_upload_table_list );

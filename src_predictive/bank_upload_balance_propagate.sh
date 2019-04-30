@@ -50,7 +50,6 @@ key=bank_date,bank_description
 
 echo "select $select from $table where $where order by $order;"	|
 sql.e								|
-tee /dev/tty |
 accumulate.e 3 '^' running					|
 # --------------------
 #piece out bank_amount

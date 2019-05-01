@@ -30,7 +30,8 @@ TAX *tax_new(			char *application_name,
 			application_name,
 			fund_name,
 			LEDGER_CASH_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 #endif
 
 	if ( ! ( t = calloc( 1, sizeof( TAX ) ) ) )

@@ -18,9 +18,9 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 6 ]
+if [ "$#" -lt 6 ]
 then
-	echo "Usage: `basename.e $0 n` process bank_date bank_description full_name street_address transaction_date_time" 1>&2
+	echo "Usage: `basename.e $0 n` process bank_date bank_description full_name street_address transaction_date_time [fund]" 1>&2
 	exit 1
 fi
 
@@ -32,6 +32,13 @@ bank_description="$3"
 full_name="$4"
 street_address="$5"
 transaction_date_time="$6"
+
+if [ "$#" -eq 6 ]
+then
+	fund=$6
+else
+	fund=""
+fi
 
 content_type_cgi.sh
 
@@ -47,7 +54,7 @@ echo "<html>"
 echo "<body>"
 echo "<h1>`echo $process | format_initial_capital.e`</h1>"
 
-bank_upload_transaction_insert "${bank_date}^${bank_description}^${full_name}^${street_address}^${transaction_date_time}" 			  |
+bank_upload_transaction_insert "${bank_date}^${bank_description}^${full_name}^${street_address}^${transaction_date_time}" "$fund"		  |
 html_paragraph_wrapper.e					  |
 cat
 

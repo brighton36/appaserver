@@ -69,10 +69,10 @@ function insert_opening_entry()
 	echo ") | sql.e 2>&1 | grep -vi duplicate" >> $output_shell
 	echo "" >> $output_shell
 
-	echo "automatic_transaction_assign.sh all >/dev/null" >> $output_shell
+	echo "automatic_transaction_assign.sh all process_name $fund >/dev/null" >> $output_shell
 	echo "bank_upload_sequence_propagate.sh '' | sql.e" >> $output_shell
 	echo "ledger_propagate '' '' ''" >> $output_shell
-	echo "bank_upload_balance_propagate.sh '' sql.e" >> $output_shell
+	echo "bank_upload_balance_propagate.sh '' | sql.e" >> $output_shell
 	echo "" >> $output_shell
 }
 # insert_opening_entry()

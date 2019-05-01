@@ -29,6 +29,7 @@
 /* Prototypes */
 /* ---------- */
 void load_bank_spreadsheet_transaction_insert(
+				char *fund_name,
 				LIST *bank_upload_table_list );
 
 void bank_upload_propagate(	char *minimum_bank_date );
@@ -257,8 +258,17 @@ int main( int argc, char **argv )
 		{
 			char sys_string[ 128 ];
 
-			strcpy( sys_string,
-			"automatic_transaction_assign.sh all >/dev/null" );
+			if ( fund_name && *fund_name )
+			{
+				sprintf( sys_string,
+	"automatic_transaction_assign.sh all process_name '%s' >/dev/null",
+				fund_name );
+			}
+			else
+			{
+				strcpy( sys_string,
+	"automatic_transaction_assign.sh all process_name fund >/dev/null" );
+			}
 
 			if ( system( sys_string ) ) {};
 		}
@@ -355,10 +365,6 @@ int load_bank_spreadsheet_transactions_only(
 	/* Else execute */
 	/* ------------ */
 	{
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
 		/* ------------------------------------ */
 		/* Sets bank_upload->transaction	*/
 		/* and  bank_upload->bank_upload_status */
@@ -517,12 +523,6 @@ int load_bank_spreadsheet(
 	/* Else execute */
 	/* ------------ */
 	{
-fprintf( stderr, "%s/%s()/%d: fund_name = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-bank_upload_structure->fund_name );
-
 		if ( ! ( bank_upload_structure->file.table_insert_count =
 				bank_upload_insert(
 					application_name,
@@ -536,12 +536,6 @@ bank_upload_structure->fund_name );
 			return 0;
 		}
 
-fprintf( stderr, "%s/%s()/%d: fund_name = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-bank_upload_structure->fund_name );
-
 		bank_upload_event_insert(
 			application_name,
 			bank_upload_structure->bank_upload_date_time,
@@ -549,18 +543,12 @@ bank_upload_structure->fund_name );
 			bank_upload_structure->
 				file.
 				input_filename
-				/* bank_upload_filename */,
+					/* bank_upload_filename */,
 			bank_upload_structure->
 				file.
 				file_sha256sum,
 			bank_upload_structure->fund_name,
 			bank_upload_structure->feeder_account );
-
-fprintf( stderr, "%s/%s()/%d: fund_name = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-bank_upload_structure->fund_name );
 
 		bank_upload_archive_insert(
 			application_name,
@@ -616,6 +604,7 @@ bank_upload_structure->fund_name );
 		/* Insert into BANK_UPLOAD_TRANSACTION */
 		/* ----------------------------------- */
 		load_bank_spreadsheet_transaction_insert(
+			bank_upload_structure->fund_name,
 			bank_upload_structure->
 				table.
 				bank_upload_table_list );
@@ -633,7 +622,6 @@ bank_upload_structure->fund_name );
 			bank_upload_structure->
 				file.
 				minimum_bank_date );
-
 	}
 
 	if ( list_length( bank_upload_structure->file.error_line_list ) )
@@ -656,10 +644,23 @@ bank_upload_structure->fund_name );
 /* Inserts into BANK_UPLOAD_TRANSACTION */
 /* ------------------------------------ */
 void load_bank_spreadsheet_transaction_insert(
+				char *fund_name,
 				LIST *bank_upload_table_list )
 {
 	char sys_string[ 1024 ];
 	BANK_UPLOAD *bank_upload;
+	char fund_buffer[ 128 ];
+
+	if ( fund_name
+	&&   *fund_name
+	&&   strcmp( fund_name, "fund" ) != 0 )
+	{
+		strcpy( fund_buffer, fund_name );
+	}
+	else
+	{
+		*fund_buffer = '\0';
+	}
 
 	if ( !list_rewind( bank_upload_table_list ) ) return;
 
@@ -672,13 +673,16 @@ void load_bank_spreadsheet_transaction_insert(
 				bank_upload->bank_description );
 
 			sprintf(
-			sys_string,
-		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
-			bank_upload->bank_date,
-			bank_upload->bank_description,
-			bank_upload->transaction->full_name,
-			bank_upload->transaction->street_address,
-			bank_upload->transaction->transaction_date_time );
+				sys_string,
+	"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" '%s' | sql.e",
+				bank_upload->bank_date,
+				bank_upload->bank_description,
+				bank_upload->transaction->full_name,
+				bank_upload->transaction->street_address,
+				bank_upload->
+					transaction->
+					transaction_date_time,
+				fund_buffer );
 
 			if ( system( sys_string ) ) {};
 		}
@@ -690,14 +694,15 @@ void load_bank_spreadsheet_transaction_insert(
 
 			sprintf(
 			sys_string,
-		"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" | sql.e",
+	"bank_upload_transaction_insert \"%s^%s^%s^%s^%s\" '%s' | sql.e",
 			bank_upload->bank_date,
 			bank_upload->bank_description,
 			bank_upload->cleared_journal_ledger->full_name,
 			bank_upload->cleared_journal_ledger->street_address,
 			bank_upload->
 				cleared_journal_ledger->
-				transaction_date_time );
+				transaction_date_time,
+			fund_buffer );
 
 			if ( system( sys_string ) ) {};
 		}

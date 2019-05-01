@@ -62,7 +62,8 @@ PAY_LIABILITIES *pay_liabilities_new(
 			application_name,
 			fund_name,
 			LEDGER_LOSS_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	ledger_get_vendor_payment_account_names(
 				&checking_account,

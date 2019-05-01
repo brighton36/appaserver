@@ -694,7 +694,8 @@ char *ledger_get_hard_coded_account_name(
 				char *application_name,
 				char *fund_name,
 				char *hard_coded_account_key,
-				boolean warning_only );
+				boolean warning_only,
+				const char *calling_function_name );
 
 char *ledger_get_hard_coded_dictionary_key(
 				char *fund_name,

@@ -246,7 +246,8 @@ boolean close_nominal_accounts_fund_execute(
 				application_name,
 				fund_name,
 				"closing_key",
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+				__FUNCTION__ );
 
 
 	table_name = get_table_name( application_name, LEDGER_FOLDER_NAME );
@@ -546,7 +547,8 @@ void close_nominal_accounts_fund_display(
 				application_name,
 				fund_name,
 				"closing_key",
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+				__FUNCTION__ );
 
 	if ( ! ( self = entity_self_load( application_name ) ) )
 	{

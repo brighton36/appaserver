@@ -969,7 +969,8 @@ LIST *bank_upload_fetch_uncleared_checks_transaction_list(
 			application_name,
 			fund_name,
 			LEDGER_UNCLEARED_CHECKS_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	uncleared_checks_transaction_date_time_list =
 		bank_upload_fetch_uncleared_checks_list(
@@ -1007,7 +1008,8 @@ LIST *bank_upload_fetch_existing_cash_journal_ledger_list(
 			application_name,
 			fund_name,
 			LEDGER_CASH_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	existing_cash_journal_ledger_list =
 		ledger_get_journal_ledger_list(
@@ -1068,14 +1070,16 @@ void bank_upload_set_check_transaction(
 			application_name,
 			fund_name,
 			LEDGER_CASH_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	uncleared_checks_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
 			LEDGER_UNCLEARED_CHECKS_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	do {
 		bank_upload = list_get( bank_upload_list );
@@ -1842,6 +1846,7 @@ void bank_upload_reconciliation_transaction_insert(
 
 LIST *bank_upload_get_general_transaction_list(
 				char *application_name,
+				char *fund_name,
 				char *bank_date,
 				double abs_bank_amount,
 				double exact_value,
@@ -1870,9 +1875,10 @@ LIST *bank_upload_get_general_transaction_list(
 	cash_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
-			(char *)0 /* fund_name */,
+			fund_name,
 			LEDGER_CASH_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	if ( select_debit )
 		amount_column = "debit_amount";
@@ -2006,6 +2012,7 @@ LIST *bank_upload_get_general_transaction_list(
 
 LIST *bank_upload_get_feeder_transaction_list(
 				char *application_name,
+				char *fund_name,
 				char *bank_date,
 				char *bank_description,
 				double abs_bank_amount,
@@ -2037,9 +2044,10 @@ LIST *bank_upload_get_feeder_transaction_list(
 	cash_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
-			(char *)0 /* fund_name */,
+			fund_name,
 			LEDGER_CASH_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	if ( select_debit )
 		amount_column = "debit_amount";
@@ -2234,6 +2242,7 @@ LIST *bank_upload_transaction_list_string_parse(
 
 LIST *bank_upload_get_reconciled_transaction_list(
 					char *application_name,
+					char *fund_name,
 					char *bank_date,
 					char *bank_description,
 					double bank_amount )
@@ -2248,6 +2257,7 @@ LIST *bank_upload_get_reconciled_transaction_list(
 	transaction_list =
 		bank_upload_get_feeder_transaction_list(
 				application_name,
+				fund_name,
 				bank_date,
 				bank_description,
 				abs_bank_amount,
@@ -2263,6 +2273,7 @@ LIST *bank_upload_get_reconciled_transaction_list(
 	transaction_list =
 		bank_upload_get_general_transaction_list(
 				application_name,
+				fund_name,
 				bank_date,
 				abs_bank_amount,
 				abs_bank_amount
@@ -2277,6 +2288,7 @@ LIST *bank_upload_get_reconciled_transaction_list(
 	transaction_list =
 		bank_upload_get_general_transaction_list(
 				application_name,
+				fund_name,
 				bank_date,
 				abs_bank_amount,
 				0.0 /* exact_value */,
@@ -2518,14 +2530,16 @@ void bank_upload_cleared_checks_update(
 			application_name,
 			fund_name,
 			LEDGER_CASH_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	uncleared_checks_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
 			fund_name,
 			LEDGER_UNCLEARED_CHECKS_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	key = "full_name,street_address,transaction_date_time,account";
 

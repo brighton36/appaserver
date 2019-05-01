@@ -30,17 +30,26 @@ else
 	usage_message=1
 fi
 
+if [ "$#" -ne 3 ]
+then
+	usage_message=1
+fi
+
 if [ "$usage_message" -eq 1 ]
 then
-	echo "Usage: $0 all|one [process_name]" 1>&2
+	echo "Usage: $0 all|one process_name fund" 1>&2
 	exit 1
 fi
 
-if [ "$#" -eq 2 ]
+operation=$1
+process_name=$2
+fund=$3
+
+if [ "$process_name" != "" -a "$process_name" != "process_name" ]
 then
 	echo "<html>"
 	echo "<body>"
-	echo "<h1>`echo $2 | format_initial_capital.e`</h1>"
+	echo "<h1>`echo $process_name | format_initial_capital.e`</h1>"
 fi
 
 populate_bank_upload_pending.sh 			|
@@ -60,9 +69,10 @@ do
 
 	# Doesn't do the propagate.
 	# -------------------------
-	bank_upload_transaction_insert "${bank_date}^${bank_description}" |
-	tee_process.e sql.e						  |
-	html_paragraph_wrapper.e					  |
+	bank_upload_transaction_insert	"${bank_date}^${bank_description}" \
+					"$fund" 			   |
+	tee_process.e sql.e						   |
+	html_paragraph_wrapper.e					   |
 	cat
 
 	if [ "$break_in_middle" -eq 1 ]
@@ -78,7 +88,10 @@ then
 	bank_upload_sequence_propagate.sh "$first_bank_date" | sql.e
 fi
 
-echo "</body>"
-echo "</html>"
+if [ "$process_name" != "" -a "$process_name" != "process_name" ]
+then
+	echo "</body>"
+	echo "</html>"
+fi
 
 exit 0

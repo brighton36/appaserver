@@ -3968,7 +3968,8 @@ char *ledger_get_hard_coded_account_name(
 				char *application_name,
 				char *fund_name,
 				char *hard_coded_account_key,
-				boolean warning_only )
+				boolean warning_only,
+				const char *calling_function_name )
 {
 	DICTIONARY *hard_coded_dictionary;
 	char *key;
@@ -3990,10 +3991,11 @@ char *ledger_get_hard_coded_account_name(
 		if ( !warning_only )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot fetch %s from hard_coded_account_key.\n",
+"ERROR in %s/%s()/%d; called from %s(): cannot fetch %s from hard_coded_account_key.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
+				 calling_function_name,
 				 key );
 
 			exit( 1 );
@@ -4040,7 +4042,8 @@ void ledger_get_depreciation_account_names(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	key = "accumulated_depreciation_key";
 	*accumulated_depreciation_account =
@@ -4048,7 +4051,8 @@ void ledger_get_depreciation_account_names(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 } /* ledger_get_depreciation_account_names() */
 
@@ -4067,7 +4071,8 @@ void ledger_get_vendor_payment_account_names(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	*uncleared_checks_account = '\0';
 
@@ -4077,7 +4082,8 @@ void ledger_get_vendor_payment_account_names(
 			application_name,
 			fund_name,
 			key,
-			1 /* warning_only */ );
+			1 /* warning_only */,
+			__FUNCTION__ );
 
 	key = "account_payable_key";
 	*account_payable_account =
@@ -4085,7 +4091,8 @@ void ledger_get_vendor_payment_account_names(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 } /* ledger_get_vendor_payment_account_names() */
 
@@ -4104,7 +4111,8 @@ void ledger_get_customer_sale_account_names(
 			application_name,
 			fund_name,
 			key,
-			1 /* warning_only */ );
+			1 /* warning_only */,
+			__FUNCTION__ );
 
 	key = "shipping_revenue_key";
 	*shipping_revenue_account =
@@ -4112,7 +4120,8 @@ void ledger_get_customer_sale_account_names(
 			application_name,
 			fund_name,
 			key,
-			1 /* warning_only */ );
+			1 /* warning_only */,
+			__FUNCTION__ );
 
 	key = "account_receivable_key";
 	*account_receivable_account =
@@ -4120,7 +4129,8 @@ void ledger_get_customer_sale_account_names(
 			application_name,
 			fund_name,
 			key,
-			1 /* warning_only */ );
+			1 /* warning_only */,
+			__FUNCTION__ );
 
 } /* ledger_get_customer_sale_account_names() */
 
@@ -4139,7 +4149,8 @@ void ledger_get_account_payable_account_name(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 } /* ledger_get_account_payable_account_name() */
@@ -4161,7 +4172,8 @@ void ledger_get_purchase_order_account_names(
 				application_name,
 				fund_name,
 				key,
-				1 /* warning_only */ );
+				1 /* warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( freight_in_expense_account )
@@ -4172,7 +4184,8 @@ void ledger_get_purchase_order_account_names(
 				application_name,
 				fund_name,
 				key,
-				1 /* warning_only */ );
+				1 /* warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( account_payable_account )
@@ -4183,7 +4196,8 @@ void ledger_get_purchase_order_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 } /* ledger_get_purchase_order_account_names() */
@@ -7778,7 +7792,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( payroll_tax_account )
@@ -7789,7 +7804,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( payroll_payable_account )
@@ -7800,7 +7816,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( federal_withholding_payable_account )
@@ -7811,7 +7828,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( state_withholding_payable_account )
@@ -7822,7 +7840,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				1 /* warning_only */ );
+				1 /* warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( social_security_payable_account )
@@ -7833,7 +7852,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( medicare_payable_account )
@@ -7844,7 +7864,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( retirement_plan_payable_account )
@@ -7855,7 +7876,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				1 /* warning_only */ );
+				1 /* warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( health_insurance_payable_account )
@@ -7866,7 +7888,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				1 /* warning_only */ );
+				1 /* warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( union_dues_payable_account )
@@ -7877,7 +7900,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				1 /* warning_only */ );
+				1 /* warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( federal_unemployment_tax_payable_account )
@@ -7888,7 +7912,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( state_unemployment_tax_payable_account )
@@ -7899,7 +7924,8 @@ void ledger_get_payroll_account_names(
 				application_name,
 				fund_name,
 				key,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 } /* ledger_get_payroll_account_names() */
@@ -7921,7 +7947,8 @@ void ledger_get_investment_account_names(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	key = "realized_investment_gain_key";
 	*realized_gain =
@@ -7929,7 +7956,8 @@ void ledger_get_investment_account_names(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	key = "realized_investment_loss_key";
 	*realized_loss =
@@ -7937,7 +7965,8 @@ void ledger_get_investment_account_names(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	key = LEDGER_CASH_KEY;
 	*checking_account =
@@ -7945,7 +7974,8 @@ void ledger_get_investment_account_names(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	key = "contributed_capital_key";
 	*contributed_capital_account =
@@ -7953,7 +7983,8 @@ void ledger_get_investment_account_names(
 			application_name,
 			fund_name,
 			key,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 } /* ledger_get_investment_account_names() */
 
@@ -9784,7 +9815,8 @@ char *ledger_get_non_cash_account_name(
 				application_name,
 				(char *)0 /* fund_name */,
 				LEDGER_CASH_KEY,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+			__FUNCTION__ );
 	}
 
 	if ( !list_rewind( transaction->journal_ledger_list ) )

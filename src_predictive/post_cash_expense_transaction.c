@@ -264,7 +264,8 @@ TRANSACTION *post_cash_expense_transaction(
 			application_name,
 			(char *)0 /* fund_name */,
 			LEDGER_CASH_KEY,
-			0 /* not warning_only */ );
+			0 /* not warning_only */,
+			__FUNCTION__ );
 
 	if ( ! ( bank_amount =
 			bank_upload_fetch_bank_amount(

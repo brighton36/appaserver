@@ -31,11 +31,13 @@ enum bank_upload_exception bank_upload_exception = {0};
 
 /* Prototypes */
 /* ---------- */
-void seek_withdrawal(		char *application_name );
+void seek_withdrawal(		char *application_name,
+				char *fund_name );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *fund_name = {0};
 	char *operation;
 	char bank_date[ 128 ];
 	char bank_description[ 1024 ];
@@ -44,10 +46,10 @@ int main( int argc, char **argv )
 	char transaction_date_time[ 64 ];
 	int delimiter_count;
 
-	if ( argc != 2 )
+	if ( argc < 2 )
 	{
 		fprintf( stderr,
-"Usage: %s deposit|withdrawal|both|bank_date^bank_description|bank_date^bank_description^full_name^street_address^transaction_date_time\n",
+"Usage: %s deposit|withdrawal|both|bank_date^bank_description|bank_date^bank_description^full_name^street_address^transaction_date_time [fund]\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
@@ -55,7 +57,16 @@ int main( int argc, char **argv )
 
 	operation = argv[ 1 ];
 
+	if ( argc == 3 ) fund_name = argv[ 2 ];
+
 	application_name = environ_get_application_name( argv[ 0 ] );
+
+/*
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+*/
 
 	if ( strcmp( operation, "deposit" ) == 0
 	||   strcmp( operation, "both" ) == 0 )
@@ -68,7 +79,7 @@ int main( int argc, char **argv )
 	if ( strcmp( operation, "withdrawal" ) == 0
 	||   strcmp( operation, "both" ) == 0 )
 	{
-		seek_withdrawal( application_name );
+		seek_withdrawal( application_name, fund_name );
 	}
 	else
 	{
@@ -104,6 +115,7 @@ int main( int argc, char **argv )
 			bank_upload->reconciled_transaction_list =
 				bank_upload_get_reconciled_transaction_list(
 				   application_name,
+				   fund_name,
 				   bank_upload->bank_date,
 				   bank_upload->bank_description,
 				   bank_upload->bank_amount );
@@ -150,7 +162,8 @@ int main( int argc, char **argv )
 
 } /* main() */
 
-void seek_withdrawal( char *application_name )
+void seek_withdrawal(	char *application_name,
+			char *fund_name )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -210,6 +223,7 @@ void seek_withdrawal( char *application_name )
 		bank_upload->reconciled_transaction_list =
 			bank_upload_get_reconciled_transaction_list(
 				application_name,
+				fund_name,
 				bank_upload->bank_date,
 				bank_upload->bank_description,
 				bank_upload->bank_amount );

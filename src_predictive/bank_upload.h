@@ -298,6 +298,7 @@ double bank_upload_archive_fetch_latest_running_balance(
 
 LIST *bank_upload_get_reconciled_transaction_list(
 				char *application_name,
+				char *fund_name,
 				char *bank_date,
 				char *bank_description,
 				double bank_amount );
@@ -311,6 +312,7 @@ void bank_upload_reconciliation_transaction_insert(
 
 LIST *bank_upload_get_feeder_transaction_list(
 					char *application_name,
+					char *fund_name,
 					char *bank_date,
 					char *bank_description,
 					double abs_bank_amount,
@@ -319,6 +321,7 @@ LIST *bank_upload_get_feeder_transaction_list(
 
 LIST *bank_upload_get_general_transaction_list(
 					char *application_name,
+					char *fund_name,
 					char *bank_date,
 					double abs_bank_amount,
 					double exact_value,

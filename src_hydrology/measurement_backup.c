@@ -60,6 +60,7 @@ FILE *measurement_backup_open_insert_pipe(
 		 MEASUREMENT_BACKUP_INSERT_COLUMN_COMMA_LIST );
 
 	return popen( sys_string, "w" );
+
 } /* measurement_backup_open_insert_pipe() */
 
 

@@ -25,12 +25,14 @@
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
 #include "hydrology_library.h"
+#include "appaserver_link_file.h"
 #include "process.h"
 
 /* Constants */
 /* --------- */
-#define PROCESS_NAME		"output_exceedance_curve"
-#define PDF_PROMPT		"Press to view chart."
+#define DEFAULT_OUTPUT_MEDIUM			"table"
+#define PDF_PROMPT				"Press to view chart."
+#define FILENAME_STEM				"exceedance_curve"
 
 #define VALUE_PIECE			0
 #define REAL_TIME_DATE_PIECE		1
@@ -58,13 +60,14 @@ void piece_input_buffer(
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *process_name;
 	char *station;
 	char *datatype;
 	char *begin_date;
 	char *end_date;
 	char *aggregate_level_string;
 	char *aggregate_statistic_string;
-	char *chart_yn;
+	char *output_medium;
 	char input_buffer[ 4096 ];
 	char buffer[ 4096 ];
 	DOCUMENT *document;
@@ -100,56 +103,50 @@ int main( int argc, char **argv )
 	char *distill_landscape_flag;
 	char *email_address;
 	char *chart_email_command_line;
-	char *database_string = {0};
 	int count = 0;
 	boolean bar_chart;
 	char value_heading[ 128 ];
 	char *horizontal_line_at_point;
+	char *ftp_filename = {0};
+	pid_t process_id = getpid();
+	FILE *output_file;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
-	if ( argc != 15 )
-	{
-		fprintf(stderr,
-"Usage: %s application ignored ignored ignored station datatype begin_date end_date aggregate_level aggregate_statistic chart_yn email_address units_converted horizontal_line_at_point\n",
-			argv[ 0 ] );
-		exit( 1 );
-	}
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
 
-	application_name = argv[ 1 ];
-	/* session = argv[ 2 ]; */
-	/* login_name = argv[ 3 ]; */
-	/* role_name = argv[ 4 ]; */
-	station = argv[ 5 ];
-	datatype = argv[ 6 ];
-	begin_date = argv[ 7 ];
-	end_date = argv[ 8 ];
-	aggregate_level_string = argv[ 9 ];
-	aggregate_statistic_string = argv[ 10 ];
-	chart_yn = argv[ 11 ];
-	email_address = argv[ 12 ];
-	units_converted = argv[ 13 ];
-	horizontal_line_at_point = argv[ 14 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
+	appaserver_output_starting_argv_append_file(
 				argc,
 				argv,
 				application_name );
 
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
+	if ( argc != 12 )
+	{
+		fprintf(stderr,
+"Usage: %s process_name station datatype begin_date end_date aggregate_level aggregate_statistic output_medium email_address units_converted horizontal_line_at_point\n",
+			argv[ 0 ] );
+		exit( 1 );
+	}
 
-	if ( strcmp( chart_yn, "chart_yn" ) == 0 ) chart_yn = "y";
+	process_name = argv[ 1 ];
+	station = argv[ 2 ];
+	datatype = argv[ 3 ];
+	begin_date = argv[ 4 ];
+	end_date = argv[ 5 ];
+	aggregate_level_string = argv[ 6 ];
+	aggregate_statistic_string = argv[ 7 ];
+	output_medium = argv[ 8 ];
+	email_address = argv[ 9 ];
+	units_converted = argv[ 10 ];
+	horizontal_line_at_point = argv[ 11 ];
 
-	appaserver_parameter_file = new_appaserver_parameter_file();
+	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
+	{
+		output_medium = DEFAULT_OUTPUT_MEDIUM;
+	}
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	hydrology_library_get_clean_begin_end_date(
 					&begin_date,
@@ -177,7 +174,8 @@ int main( int argc, char **argv )
 	}
 
 	aggregate_level =
-		aggregate_level_get_aggregate_level( aggregate_level_string );
+		aggregate_level_get_aggregate_level(
+			aggregate_level_string );
 
 	aggregate_statistic =
 		aggregate_statistic_get_aggregate_statistic(
@@ -263,7 +261,7 @@ int main( int argc, char **argv )
 		 begin_date,
 		 end_date );
 
-	if ( *chart_yn == 'y' )
+	if ( strcmp( output_medium, "chart" ) == 0 )
 	{
 		grace = grace_new_xy_grace(
 				(char *)0 /* application_name */,
@@ -299,9 +297,7 @@ int main( int argc, char **argv )
 			grace->grace_output );
 	}
 	else
-	/* ----------------------------- */
-	/* Must be *chart_yn != 'y'	 */
-	/* ----------------------------- */
+	if ( strcmp( output_medium, "table" ) == 0 )
 	{
 		document = document_new( "", application_name );
 		document_set_output_content_type( document );
@@ -381,6 +377,108 @@ int main( int argc, char **argv )
 				html_table->number_right_justified_columns,
 				html_table->justify_list );
 	}
+	else
+	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
+	{
+		document = document_new( "", application_name );
+		document_set_output_content_type( document );
+
+		document_output_head(
+			document->application_name,
+			document->title,
+			document->output_content_type,
+			appaserver_parameter_file->appaserver_mount_point,
+			document->javascript_module_list,
+			document->stylesheet_filename,
+			application_get_relative_source_directory(
+				application_name ),
+			0 /* not with_dynarch_menu */ );
+
+		document_output_body(
+			document->application_name,
+			document->onload_control_string );
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+	 			appaserver_parameter_file->
+					document_root,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		appaserver_link_file->begin_date_string = begin_date;
+		appaserver_link_file->end_date_string = end_date;
+
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
+		{
+			printf( "<H2>ERROR: Cannot open output file %s\n",
+				output_filename );
+			document_close();
+			exit( 1 );
+		}
+		else
+		{
+			fclose( output_file );
+		}
+	}
+	else
+	if ( strcmp( output_medium, "text_file" ) == 0 )
+	{
+		document = document_new( "", application_name );
+		document_set_output_content_type( document );
+
+		document_output_head(
+			document->application_name,
+			document->title,
+			document->output_content_type,
+			appaserver_parameter_file->appaserver_mount_point,
+			document->javascript_module_list,
+			document->stylesheet_filename,
+			application_get_relative_source_directory(
+				application_name ),
+			0 /* not with_dynarch_menu */ );
+
+		document_output_body(
+			document->application_name,
+			document->onload_control_string );
+	}
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
@@ -394,7 +492,7 @@ int main( int argc, char **argv )
 				input_buffer,
 				aggregate_level );
 
-		if ( *chart_yn == 'y' )
+		if ( strcmp( output_medium, "chart" ) == 0 )
 		{
 			grace_set_xy_to_point_list(
 				grace->graph_list, 
@@ -404,6 +502,7 @@ int main( int argc, char **argv )
 				grace->dataset_no_cycle_color );
 		}
 		else
+		if ( strcmp( output_medium, "table" ) == 0 )
 		{
 			html_table_set_data(	html_table->data_list,
 						strdup( measurement_value ) );
@@ -460,11 +559,12 @@ int main( int argc, char **argv )
 			list_free_string_list( html_table->data_list );
 			html_table->data_list = list_new();
 		}
+
 	} /* while( get_line() */
 
 	pclose( input_pipe );
 
-	if ( *chart_yn == 'y' )
+	if ( strcmp( output_medium, "chart" ) == 0 )
 	{
 		GRACE_GRAPH *grace_graph;
 
@@ -588,18 +688,44 @@ int main( int argc, char **argv )
 				1 /* with_document_output */,
 				(char *)0 /* where_clause */ );
 		}
+
+		document_close();
 	}
 	else
+	if ( strcmp( output_medium, "table" ) == 0 )
 	{
 		html_table_close();
+		document_close();
 	}
-	document_close();
+	else
+	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
+	{
+		printf( "<h1>%s<br></h1>\n", title );
+		printf( "<h1>\n" );
+		fflush( stdout );
+		if ( system( "date '+%x %H:%M'" ) ) {};
+		fflush( stdout );
+		printf( "</h1>\n" );
+	
+		appaserver_library_output_ftp_prompt(
+				ftp_filename,
+				TRANSMIT_PROMPT,
+				(char *)0 /* target */,
+				(char *)0 /* application_type */ );
+	}
+	else
+	if ( strcmp( output_medium, "text_file" ) == 0 )
+	{
+		document_close();
+	}
+
 	process_increment_execution_count(
 				application_name,
-				PROCESS_NAME,
+				process_name,
 				appaserver_parameter_file_get_dbms() );
 
-	exit( 0 );
+	return 0;
+
 } /* main() */
 
 void piece_input_buffer(

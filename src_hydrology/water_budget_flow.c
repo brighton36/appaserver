@@ -342,8 +342,7 @@ int main( int argc, char **argv )
 					"output_medium", 
 					0 );
 
-	if ( !*output_medium
-	||   strcmp( output_medium, "output_medium" ) == 0 )
+	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 	{
 		output_medium = DEFAULT_OUTPUT_MEDIUM;
 	}
@@ -585,7 +584,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", REPORT_TITLE );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
 	
@@ -715,7 +714,7 @@ int main( int argc, char **argv )
 		printf( "<h1>%s<br></h1>\n", REPORT_TITLE );
 		printf( "<h1>\n" );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
 

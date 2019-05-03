@@ -442,7 +442,7 @@ FILE *measurement_open_input_pipe(	char *application_name,
 					char *where_clause,
 					char delimiter )
 {
-	char sys_string[ 1024 ];
+	char sys_string[ 65536 ];
 
 	sprintf( sys_string,
 		 "get_folder_data	application=%s		 "

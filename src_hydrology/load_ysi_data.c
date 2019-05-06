@@ -832,80 +832,6 @@ LIST *input_buffer_get_datatype_list(	char *application_name,
 
 } /* input_buffer_get_datatype_list() */
 
-#ifdef NOT_DEFINED
-void delete_existing_measurements(
-				char *application_name,
-				char *station,
-				JULIAN *input_begin_date,
-				JULIAN *input_end_date,
-				LIST *datatype_list )
-{
-	char sys_string[ 4096 ];
-	char where_clause[ 4096 ];
-	DATATYPE *datatype;
-	char *begin_date_string;
-	char *begin_time_string;
-	char *end_date_string;
-	char *end_time_string;
-	char *table_name;
-	char *between_date_time_where;
-
-	if ( !list_rewind( datatype_list ) ) return;
-
-	table_name = get_table_name( application_name, "measurement" );
-
-	begin_date_string =
-		julian_get_yyyy_mm_dd_string(
-			input_begin_date->current );
-
-	begin_time_string =
-		julian_get_hhmm_string(
-			input_begin_date->current );
-
-	end_date_string =
-		julian_get_yyyy_mm_dd_string(
-			input_end_date->current );
-
-	end_time_string =
-		julian_get_hhmm_string(
-			input_end_date->current );
-
-	between_date_time_where =
-		query_get_between_date_time_where(
-				"measurement_date",
-				"measurement_time",
-				begin_date_string,
-				begin_time_string,
-				end_date_string,
-				end_time_string,
-				(char *)0 /* application */,
-				(char *)0 /* folder_name */ );
-
-	do {
-		datatype = list_get_pointer( datatype_list );
-
-		sprintf( where_clause,
-			 "station = '%s' and				"
-			 "datatype = '%s' 				"
-			 "and %s					",
-			 station,
-			 datatype->datatype_name,
-			 between_date_time_where );
-
-		sprintf( sys_string,
-		"echo \"delete from %s where %s;\" | sql.e",
-			 table_name,
-			 where_clause );
-
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-
-	} while( list_next( datatype_list ) );
-
-} /* delete_existing_measurements() */
-#endif
-
 boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 					JULIAN **file_end_date,
 					char *input_filespecification )
@@ -1080,7 +1006,7 @@ boolean get_file_begin_end_dates(	JULIAN **file_begin_date,
 	timlib_reset_get_line_check_utf_16();
 
 	sprintf( sys_string, "rm -f %s", tmp_filename );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	return return_value;
 

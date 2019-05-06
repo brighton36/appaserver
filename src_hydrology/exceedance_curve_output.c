@@ -47,6 +47,28 @@
 
 /* Prototypes */
 /* ---------- */
+GRACE *exceedance_curve_output(
+				char **agr_filename,
+				char **ftp_agr_filename,
+				char **postscript_filename,
+				char **output_filename,
+				char **ftp_output_filename,
+				char **ftp_filename,
+				char *application_name,
+				char *process_name,
+				char *station,
+				char *datatype,
+				char *begin_date,
+				char *end_date,
+				enum aggregate_level,
+				enum aggregate_statistic,
+				char *output_medium,
+				char *units,
+				char *units_converted,
+				char *units_display,
+				char *appaserver_mount_point,
+				char *document_root_directory );
+
 void piece_input_buffer(
 				char *measurement_value,
 				char *count_below,
@@ -65,52 +87,25 @@ int main( int argc, char **argv )
 	char *datatype;
 	char *begin_date;
 	char *end_date;
+	char *email_address;
 	char *aggregate_level_string;
 	char *aggregate_statistic_string;
-	char *output_medium;
-	char input_buffer[ 4096 ];
-	char buffer[ 4096 ];
-	DOCUMENT *document;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	FILE *input_pipe;
-	HTML_TABLE *html_table = {0};
-	char measurement_date[ 128 ];
-	char measurement_time[ 128 ];
-	char measurement_value[ 128 ];
-	char aggregation_count[ 128 ];
-	char count_below[ 128 ];
-	char percent_below[ 128 ];
-	LIST *heading_list;
-	char *ftp_agr_filename;
-	char *ftp_output_filename;
-	char *output_filename;
-	char *agr_filename;
-	char *postscript_filename;
-	char title[ 256 ];
-	char sub_title[ 1024 ] = {0};
-	GRACE *grace = {0};
-	char graph_identifier[ 128 ];
-	char where_clause[ 1024 ];
-	char *units_converted;
+	char *horizontal_line_at_point;
 	char *units;
-	char *units_display;
-	char legend[ 128 ];
-	char value_label[ 128 ];
+	char *units_converted;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	char *output_medium;
 	enum aggregate_level aggregate_level;
 	enum aggregate_statistic aggregate_statistic;
-	int page_width_pixels;
-	int page_length_pixels;
-	char *distill_landscape_flag;
-	char *email_address;
-	char *chart_email_command_line;
-	int count = 0;
 	boolean bar_chart;
-	char value_heading[ 128 ];
-	char *horizontal_line_at_point;
+	char *agr_filename = {0};
+	char *ftp_agr_filename = {0};
+	char *postscript_filename = {0};
+	char *output_filename = {0};
+	char *ftp_output_filename = {0};
 	char *ftp_filename = {0};
-	pid_t process_id = getpid();
-	FILE *output_file;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	char *units_display;
+	GRACE *grace;
 
 	/* Exits if failure. */
 	/* ----------------- */
@@ -126,6 +121,10 @@ int main( int argc, char **argv )
 		fprintf(stderr,
 "Usage: %s process_name station datatype begin_date end_date aggregate_level aggregate_statistic output_medium email_address units_converted horizontal_line_at_point\n",
 			argv[ 0 ] );
+
+		fprintf(stderr,
+"Note: output_medium = {chart, table, spreadsheet, text_file, stdout}\n" );
+
 		exit( 1 );
 	}
 
@@ -218,355 +217,38 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	sprintf( where_clause,
-"station = '%s' and datatype = '%s' and measurement_date between '%s' and '%s' and measurement_value is not null",
-		 station,
-		 datatype,
-		 begin_date,
-		 end_date );
-
-	sprintf(buffer,
-"%s/%s/exceedance_curve %s \"%s\" \"%s\" %s \"%s\" \"%s\" 2>>%s",
-		appaserver_parameter_file->appaserver_mount_point,
-		application_get_relative_source_directory( application_name ),
-		application_name,
-		where_clause,
-		aggregate_level_get_string( aggregate_level ),
-		aggregate_statistic_get_string( aggregate_statistic ),
-		units,
-		units_converted,
-		appaserver_error_get_filename( application_name ) );
-
-	input_pipe = popen( buffer, "r" );
-
-	sprintf( title, "Exceedance Curve for %s/%s", station, datatype );
-	format_initial_capital( title, title );
-
-	if ( aggregate_level != real_time )
-	{
-		format_initial_capital(
-			value_label,
-		 	aggregate_statistic_get_string(
-				aggregate_statistic ) );
-	}
-	else
-		*value_label = '\0';
-
-	sprintf( sub_title,
-		 "%s %s Values Begin: %s End: %s",
-		 format_initial_capital(
-				buffer,
-		 		aggregate_level_get_string( aggregate_level ) ),
-		 value_label,
-		 begin_date,
-		 end_date );
-
-	if ( strcmp( output_medium, "chart" ) == 0 )
-	{
-		grace = grace_new_xy_grace(
-				(char *)0 /* application_name */,
-				(char *)0 /* role_name */,
-				title,
-				sub_title,
-				units_display,
-				format_initial_capital( legend, datatype ) );
-
-		grace->xaxis_ticklabel_precision = 0;
-		grace->world_min_x = 0.0;
-		grace->world_max_x = 100.0;
-
-		sprintf(	graph_identifier,
-				"%s_%s_%d",
+	grace = exceedance_curve_output(
+				&agr_filename,
+				&ftp_agr_filename,
+				&postscript_filename,
+				&output_filename,
+				&ftp_output_filename,
+				&ftp_filename,
+				application_name,
+				process_name,
 				station,
 				datatype,
-				getpid() );
-
-		grace->grace_output =
-			application_get_grace_output( application_name );
-
-		grace_get_filenames(
-			&agr_filename,
-			&ftp_agr_filename,
-			&postscript_filename,
-			&output_filename,
-			&ftp_output_filename,
-			application_name,
-			appaserver_parameter_file->
-				document_root,
-			graph_identifier,
-			grace->grace_output );
-	}
-	else
-	if ( strcmp( output_medium, "table" ) == 0 )
-	{
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-		sprintf( title + strlen( title ), "<br>%s", sub_title );
-	 	html_table = new_html_table(
-				title,
-				(char *)0 /* sub_title */ );
-	
-		heading_list = new_list();
-
-		sprintf( value_heading,
-			 "Value<br>(%s)",
-			 units_display );
-		list_append_string( heading_list, value_heading );
-
-		list_append_string( heading_list, "Count Below" );
-		list_append_string( heading_list, "Percent Below" );
-	
-		if ( aggregate_level == real_time )
-		{
-			list_append_string( heading_list, "Date" );
-			list_append_string( heading_list, "Time" );
-		}
-		else
-		if ( aggregate_level == half_hour
-		||   aggregate_level == hourly )
-		{
-			list_append_string(	heading_list,
-						"Date" );
-			list_append_string( heading_list, "Time" );
-			list_append_string( 	heading_list,
-						"Aggregation Count" );
-		}
-		else
-		if ( aggregate_level == daily )
-		{
-			list_append_string(	heading_list,
-						"Date" );
-			list_append_string(	heading_list,
-						"Aggregation Count" );
-		}
-		else
-		{
-			list_append_string(	heading_list,
-						"Representative Date" );
-			list_append_string(	heading_list,
-						"Aggregation Count" );
-		}
-
-		html_table_set_heading_list( html_table, heading_list );
-		html_table_output_table_heading(
-						html_table->title,
-						html_table->sub_title );
-
-		html_table->number_left_justified_columns = 0;
-		html_table->number_right_justified_columns = 99;
-
-		html_table_output_data_heading(
-				html_table->heading_list,
-				html_table->number_left_justified_columns,
-				html_table->number_right_justified_columns,
-				html_table->justify_list );
-	}
-	else
-	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
-	{
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-		appaserver_link_file =
-			appaserver_link_file_new(
-				application_get_http_prefix( application_name ),
-				appaserver_library_get_server_address(),
-				( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' ),
-	 			appaserver_parameter_file->
-					document_root,
-				FILENAME_STEM,
-				application_name,
-				process_id,
-				(char *)0 /* session */,
-				"csv" );
-
-		appaserver_link_file->begin_date_string = begin_date;
-		appaserver_link_file->end_date_string = end_date;
-
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
-		{
-			printf( "<H2>ERROR: Cannot open output file %s\n",
-				output_filename );
-			document_close();
-			exit( 1 );
-		}
-		else
-		{
-			fclose( output_file );
-		}
-	}
-	else
-	if ( strcmp( output_medium, "text_file" ) == 0 )
-	{
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-	}
-
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		piece_input_buffer(
-				measurement_value,
-				count_below,
-				percent_below,
-				measurement_date,
-				measurement_time,
-				aggregation_count,
-				input_buffer,
-				aggregate_level );
-
-		if ( strcmp( output_medium, "chart" ) == 0 )
-		{
-			grace_set_xy_to_point_list(
-				grace->graph_list, 
-				atof( percent_below ),
-				strdup( measurement_value ),
-				(char *)0 /* optional_label */,
-				grace->dataset_no_cycle_color );
-		}
-		else
-		if ( strcmp( output_medium, "table" ) == 0 )
-		{
-			html_table_set_data(	html_table->data_list,
-						strdup( measurement_value ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( count_below ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( percent_below ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( measurement_date ) );
-	
-			if ( aggregate_level == real_time )
-			{
-				html_table_set_data(
-						html_table->data_list,
-						strdup( measurement_time ) );
-			}
-			else
-			if ( aggregate_level == half_hour
-			||   aggregate_level == hourly )
-			{
-				html_table_set_data(
-						html_table->data_list,
-						strdup( measurement_time ) );
-				html_table_set_data(
-						html_table->data_list,
-						strdup( aggregation_count ) );
-			}
-			else
-			{
-				html_table_set_data(
-						html_table->data_list,
-						strdup( aggregation_count ) );
-			}
-
-			if ( ++count == 20 )
-			{
-				html_table_output_data_heading(
-					html_table->heading_list,
-					html_table->
-					number_left_justified_columns,
-					html_table->
-					number_right_justified_columns,
-					html_table->justify_list );
-				count = 0;
-			}
-
-			html_table_output_data(
-				html_table->data_list,
-				html_table->number_left_justified_columns,
-				html_table->number_right_justified_columns,
-				html_table->background_shaded,
-				html_table->justify_list );
-
-			list_free_string_list( html_table->data_list );
-			html_table->data_list = list_new();
-		}
-
-	} /* while( get_line() */
-
-	pclose( input_pipe );
+				begin_date,
+				end_date,
+				aggregate_level,
+				aggregate_statistic,
+				output_medium,
+				units,
+				units_converted,
+				units_display,
+				appaserver_parameter_file->
+					appaserver_mount_point,
+				appaserver_parameter_file->
+					document_root );
 
 	if ( strcmp( output_medium, "chart" ) == 0 )
 	{
 		GRACE_GRAPH *grace_graph;
+		int page_width_pixels;
+		int page_length_pixels;
+		char *distill_landscape_flag;
+		char *postscript_filename = {0};
+		char *chart_email_command_line;
 
 		grace_graph =
 			(GRACE_GRAPH *)
@@ -700,12 +382,14 @@ int main( int argc, char **argv )
 	else
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
+/*
 		printf( "<h1>%s<br></h1>\n", title );
 		printf( "<h1>\n" );
 		fflush( stdout );
 		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
+*/
 	
 		appaserver_library_output_ftp_prompt(
 				ftp_filename,
@@ -797,4 +481,428 @@ void piece_input_buffer(
 		AGGREGATION_PERCENT_BELOW_PIECE );
 
 } /* piece_input_buffer() */
+
+GRACE *exceedance_curve_output(
+				char **agr_filename,
+				char **ftp_agr_filename,
+				char **postscript_filename,
+				char **output_filename,
+				char **ftp_output_filename,
+				char **ftp_filename,
+				char *application_name,
+				char *process_name,
+				char *station,
+				char *datatype,
+				char *begin_date,
+				char *end_date,
+				enum aggregate_level aggregate_level,
+				enum aggregate_statistic aggregate_statistic,
+				char *output_medium,
+				char *units,
+				char *units_converted,
+				char *units_display,
+				char *appaserver_mount_point,
+				char *document_root_directory )
+{
+	char where_clause[ 1024 ];
+	FILE *input_pipe;
+	char input_buffer[ 4096 ];
+	char buffer[ 4096 ];
+	HTML_TABLE *html_table = {0};
+	char measurement_date[ 128 ];
+	char measurement_time[ 128 ];
+	char measurement_value[ 128 ];
+	char aggregation_count[ 128 ];
+	char count_below[ 128 ];
+	char percent_below[ 128 ];
+	LIST *heading_list;
+	char title[ 256 ];
+	char sub_title[ 1024 ] = {0};
+	GRACE *grace = {0};
+	char graph_identifier[ 128 ];
+	char legend[ 128 ];
+	char value_label[ 128 ];
+	int count = 0;
+	char value_heading[ 128 ];
+	pid_t process_id = getpid();
+	FILE *output_file;
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	sprintf( title, "%s for %s/%s", process_name, station, datatype );
+	format_initial_capital( title, title );
+
+	if ( aggregate_level != real_time )
+	{
+		format_initial_capital(
+			value_label,
+		 	aggregate_statistic_get_string(
+				aggregate_statistic ) );
+	}
+	else
+		*value_label = '\0';
+
+	sprintf( sub_title,
+		 "%s %s Values Begin: %s End: %s",
+		 format_initial_capital(
+				buffer,
+		 		aggregate_level_get_string( aggregate_level ) ),
+		 value_label,
+		 begin_date,
+		 end_date );
+
+	sprintf( where_clause,
+"station = '%s' and datatype = '%s' and measurement_date between '%s' and '%s' and measurement_value is not null",
+		 station,
+		 datatype,
+		 begin_date,
+		 end_date );
+
+	sprintf(buffer,
+"%s/%s/exceedance_curve %s \"%s\" \"%s\" %s \"%s\" \"%s\" 2>>%s",
+		appaserver_mount_point,
+		application_get_relative_source_directory( application_name ),
+		application_name,
+		where_clause,
+		aggregate_level_get_string( aggregate_level ),
+		aggregate_statistic_get_string( aggregate_statistic ),
+		units,
+		units_converted,
+		appaserver_error_get_filename( application_name ) );
+
+	if ( strcmp( output_medium, "chart" ) == 0 )
+	{
+		grace = grace_new_xy_grace(
+				(char *)0 /* application_name */,
+				(char *)0 /* role_name */,
+				title,
+				sub_title,
+				units_display,
+				format_initial_capital( legend, datatype ) );
+
+		grace->xaxis_ticklabel_precision = 0;
+		grace->world_min_x = 0.0;
+		grace->world_max_x = 100.0;
+
+		sprintf(	graph_identifier,
+				"%s_%s_%d",
+				station,
+				datatype,
+				getpid() );
+
+		grace->grace_output =
+			application_get_grace_output( application_name );
+
+		grace_get_filenames(
+			agr_filename,
+			ftp_agr_filename,
+			postscript_filename,
+			output_filename,
+			ftp_output_filename,
+			application_name,
+			document_root_directory,
+			graph_identifier,
+			grace->grace_output );
+	}
+	else
+	if ( strcmp( output_medium, "table" ) == 0 )
+	{
+		DOCUMENT *document;
+
+		document = document_new( "", application_name );
+		document_set_output_content_type( document );
+
+		document_output_head(
+			document->application_name,
+			document->title,
+			document->output_content_type,
+			appaserver_mount_point,
+			document->javascript_module_list,
+			document->stylesheet_filename,
+			application_get_relative_source_directory(
+				application_name ),
+			0 /* not with_dynarch_menu */ );
+
+		document_output_body(
+			document->application_name,
+			document->onload_control_string );
+
+		sprintf( title + strlen( title ), "<br>%s", sub_title );
+
+	 	html_table = new_html_table(
+				title,
+				(char *)0 /* sub_title */ );
+	
+		heading_list = new_list();
+
+		sprintf( value_heading,
+			 "Value<br>(%s)",
+			 units_display );
+
+		list_append_string( heading_list, value_heading );
+
+		list_append_string( heading_list, "Count Below" );
+		list_append_string( heading_list, "Percent Below" );
+	
+		if ( aggregate_level == real_time )
+		{
+			list_append_string( heading_list, "Date" );
+			list_append_string( heading_list, "Time" );
+		}
+		else
+		if ( aggregate_level == half_hour
+		||   aggregate_level == hourly )
+		{
+			list_append_string(	heading_list,
+						"Date" );
+			list_append_string( heading_list, "Time" );
+			list_append_string( 	heading_list,
+						"Aggregation Count" );
+		}
+		else
+		if ( aggregate_level == daily )
+		{
+			list_append_string(	heading_list,
+						"Date" );
+			list_append_string(	heading_list,
+						"Aggregation Count" );
+		}
+		else
+		{
+			list_append_string(	heading_list,
+						"Representative Date" );
+			list_append_string(	heading_list,
+						"Aggregation Count" );
+		}
+
+		html_table_set_heading_list( html_table, heading_list );
+		html_table_output_table_heading(
+						html_table->title,
+						html_table->sub_title );
+
+		html_table->number_left_justified_columns = 0;
+		html_table->number_right_justified_columns = 99;
+
+		html_table_output_data_heading(
+				html_table->heading_list,
+				html_table->number_left_justified_columns,
+				html_table->number_right_justified_columns,
+				html_table->justify_list );
+	}
+	else
+	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
+	{
+		DOCUMENT *document;
+
+		document = document_new( "", application_name );
+		document_set_output_content_type( document );
+
+		document_output_head(
+			document->application_name,
+			document->title,
+			document->output_content_type,
+			appaserver_mount_point,
+			document->javascript_module_list,
+			document->stylesheet_filename,
+			application_get_relative_source_directory(
+				application_name ),
+			0 /* not with_dynarch_menu */ );
+
+		document_output_body(
+			document->application_name,
+			document->onload_control_string );
+
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_get_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_get_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+				document_root_directory,
+				FILENAME_STEM,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				"csv" );
+
+		appaserver_link_file->begin_date_string = begin_date;
+		appaserver_link_file->end_date_string = end_date;
+
+		*output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		*ftp_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+		if ( ! ( output_file = fopen( *output_filename, "w" ) ) )
+		{
+			printf( "<H2>ERROR: Cannot open output file %s\n",
+				*output_filename );
+			document_close();
+			exit( 1 );
+		}
+		else
+		{
+			fclose( output_file );
+		}
+	}
+	else
+	if ( strcmp( output_medium, "text_file" ) == 0 )
+	{
+		DOCUMENT *document;
+
+		document = document_new( "", application_name );
+		document_set_output_content_type( document );
+
+		document_output_head(
+			document->application_name,
+			document->title,
+			document->output_content_type,
+			appaserver_mount_point,
+			document->javascript_module_list,
+			document->stylesheet_filename,
+			application_get_relative_source_directory(
+				application_name ),
+			0 /* not with_dynarch_menu */ );
+
+		document_output_body(
+			document->application_name,
+			document->onload_control_string );
+	}
+	else
+	if ( strcmp( output_medium, "stdout" ) == 0 )
+	{
+		DOCUMENT *document;
+
+		document = document_new( "", application_name );
+		document_set_output_content_type( document );
+
+		document_output_head(
+			document->application_name,
+			document->title,
+			document->output_content_type,
+			appaserver_mount_point,
+			document->javascript_module_list,
+			document->stylesheet_filename,
+			application_get_relative_source_directory(
+				application_name ),
+			0 /* not with_dynarch_menu */ );
+
+		document_output_body(
+			document->application_name,
+			document->onload_control_string );
+	}
+
+	input_pipe = popen( buffer, "r" );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece_input_buffer(
+				measurement_value,
+				count_below,
+				percent_below,
+				measurement_date,
+				measurement_time,
+				aggregation_count,
+				input_buffer,
+				aggregate_level );
+
+		if ( strcmp( output_medium, "chart" ) == 0 )
+		{
+			grace_set_xy_to_point_list(
+				grace->graph_list, 
+				atof( percent_below ),
+				strdup( measurement_value ),
+				(char *)0 /* optional_label */,
+				grace->dataset_no_cycle_color );
+		}
+		else
+		if ( strcmp( output_medium, "table" ) == 0 )
+		{
+			html_table_set_data(	html_table->data_list,
+						strdup( measurement_value ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( count_below ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( percent_below ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( measurement_date ) );
+	
+			if ( aggregate_level == real_time )
+			{
+				html_table_set_data(
+						html_table->data_list,
+						strdup( measurement_time ) );
+			}
+			else
+			if ( aggregate_level == half_hour
+			||   aggregate_level == hourly )
+			{
+				html_table_set_data(
+						html_table->data_list,
+						strdup( measurement_time ) );
+				html_table_set_data(
+						html_table->data_list,
+						strdup( aggregation_count ) );
+			}
+			else
+			{
+				html_table_set_data(
+						html_table->data_list,
+						strdup( aggregation_count ) );
+			}
+
+			if ( ++count == 20 )
+			{
+				html_table_output_data_heading(
+					html_table->heading_list,
+					html_table->
+					number_left_justified_columns,
+					html_table->
+					number_right_justified_columns,
+					html_table->justify_list );
+				count = 0;
+			}
+
+			html_table_output_data(
+				html_table->data_list,
+				html_table->number_left_justified_columns,
+				html_table->number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+
+			list_free_string_list( html_table->data_list );
+			html_table->data_list = list_new();
+		}
+
+	} /* while( get_line() */
+
+	pclose( input_pipe );
+	return grace;
+
+} /* exceedance_curve_output() */
 

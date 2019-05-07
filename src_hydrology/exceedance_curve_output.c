@@ -247,7 +247,6 @@ int main( int argc, char **argv )
 		int page_width_pixels;
 		int page_length_pixels;
 		char *distill_landscape_flag;
-		char *postscript_filename = {0};
 		char *chart_email_command_line;
 
 		grace_graph =

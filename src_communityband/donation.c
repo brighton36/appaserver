@@ -422,7 +422,8 @@ void donation_journal_ledger_refresh_and_propagate(
 				application_name,
 				donation_fund->fund_name,
 				LEDGER_CASH_KEY,
-				0 /* not warning_only */ );
+				0 /* not warning_only */,
+				__FUNCTION__ );
 
 		if ( !propagate_only )
 		{

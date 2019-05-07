@@ -212,18 +212,6 @@ void grace_output_data(
 				legend = datatype->legend;
 			}
 
-/*
-			datatype_type_bar_xy_xyhilo =
-			(datatype->datatype_type_bar_xy_xyhilo) ?
-				datatype->datatype_type_bar_xy_xyhilo :
-				"";
-
-			if ( strcmp( datatype_type_bar_xy_xyhilo, "bar" ) == 0 )
-				datatype->line_linestyle = 0;
-			else
-				datatype->line_linestyle = 1;
-*/
-
 			grace_output_datatype(
 				output_pipe,
 				datatype,
@@ -232,8 +220,11 @@ void grace_output_data(
 				symbols );
 
 		} while( list_next( datatype_list ) );
+
 		graph_number++;
+
 	} while( list_next( graph_list ) );
+
 } /* grace_output_data() */
 
 void grace_output_datatype(
@@ -287,6 +278,7 @@ void grace_output_datatype(
 		{
 			legend = "";
 		}
+
 	} while( list_next( datatype->dataset_list ) );
 
 } /* grace_output_datatype() */
@@ -1190,6 +1182,7 @@ boolean grace_output_point_list(
 				p->low_string,
 				p->y_string,
 				p->y_string );
+
 			output_any = 1;
 		}
 		else
@@ -1208,8 +1201,11 @@ boolean grace_output_point_list(
 		}
 
 	} while( list_next( point_list ) );
+
 	fprintf( output_pipe, "&\n" );
+
 	return output_any;
+
 } /* grace_output_point_list() */
 
 void grace_set_point(		boolean *inside_null,
@@ -1428,7 +1424,7 @@ boolean grace_get_is_null( char *value_string )
 		return 0;
 } /* grace_get_is_null() */
 
-int grace_output_to_file(
+boolean grace_output_to_file(
 				char *output_filename,
 				char *postscript_filename,
 				char *agr_filename,
@@ -1501,8 +1497,10 @@ int grace_output_to_file(
 				world_max_x,
 				1 /* is_datatype_overlay_anchor_graph */ );
 	}
+
 	pclose( output_pipe );
 	return 1;
+
 } /* grace_output_to_file() */
 
 boolean grace_convert_postscript_to_pdf(
@@ -1564,6 +1562,19 @@ FILE *grace_open_output_pipe(
 		local_output_filename = output_filename;
 	else
 		local_output_filename = postscript_filename;
+
+	if ( !local_output_filename )
+	{
+		fprintf( stderr,
+"Error in %s/%s()/%d: with grace_output = [%s], got output_filename = [%s] and postscript_filename = [%s].\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 grace_output,
+			 output_filename,
+			 postscript_filename );
+		exit( 1 );
+	}
 
 	if ( grace_free_option_yn == 'y' )
 		free_option = "-free";
@@ -4511,7 +4522,9 @@ void grace_email_graph(	char *application_name,
 
 	printf( "<h1>Emailed graph to %s ", email_address );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+
+	if ( system( "date '+%x %H:%M'" ) ){};
+
 	printf( "</h1>\n" );
 
 	if ( where_clause && *where_clause )
@@ -4531,7 +4544,7 @@ void grace_email_graph(	char *application_name,
 		"echo '' | %s",
 		search_replace_command_line );
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	if ( with_document_output ) document_close();
 } /* grace_email_graph() */
 
@@ -5239,7 +5252,7 @@ void grace_output_screen_title( void )
 {
 	printf( "<h1>Grace Project Viewer<br>");
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	if ( system( "date '+%x %H:%M'" ) ) {};
 	printf( "</h1>\n" );
 } /* grace_output_screen_title() */
 

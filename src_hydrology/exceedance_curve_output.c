@@ -254,6 +254,7 @@ int main( int argc, char **argv )
 			(GRACE_GRAPH *)
 				list_get_first_pointer(
 					grace->graph_list );
+
 		grace_graph->xaxis_label = "Percent Below";
 		grace_graph->horizontal_line_at_point =
 			atof( horizontal_line_at_point );

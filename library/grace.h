@@ -414,7 +414,7 @@ int grace_remove_empty_graphs(	LIST *graph_list,
 				LIST *anchor_graph_list,
 				enum grace_graph_type );
 
-int grace_output_to_file(
+boolean grace_output_to_file(
 				char *output_filename,
 				char *postscript_filename,
 				char *agr_filename,

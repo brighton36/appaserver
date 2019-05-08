@@ -69,6 +69,9 @@ char *appaserver_link_get_abbreviated_output_filename(
 		char *session,
 		char *extension );
 
+/* ---------------- */
+/* Returns strdup() */
+/* ---------------- */
 char *appaserver_link_get_output_filename(
 		char *document_root_directory,
 		char *application_name,
@@ -79,6 +82,9 @@ char *appaserver_link_get_output_filename(
 		char *session,
 		char *extension );
 
+/* ---------------- */
+/* Returns strdup() */
+/* ---------------- */
 char *appaserver_link_get_link_prompt(
 		boolean prepend_http_boolean,
 		char *http_prefix,
@@ -91,10 +97,16 @@ char *appaserver_link_get_link_prompt(
 		char *session,
 		char *extension );
 
+/* ---------------- */
+/* Returns strdup() */
+/* ---------------- */
 char *appaserver_link_get_source_directory(
 		char *document_root_directory,
 		char *application_name );
 
+/* -------------- */
+/* Returns static */
+/* -------------- */
 char *appaserver_link_get_tail_half(
 		char *application_name,
 		char *filename_stem,

@@ -14,7 +14,6 @@
 #include "appaserver_error.h"
 #include "timlib.h"
 #include "piece.h"
-#include "appaserver_parameter_file.h"
 #include "list.h"
 #include "environ.h"
 #include "aggregate_level.h"
@@ -32,63 +31,50 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *where_clause;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *aggregate_level_string;
 	enum aggregate_level aggregate_level;
 	char *aggregate_statistic_string;
 	enum aggregate_statistic aggregate_statistic;
 	char sys_string[ 1024 ];
-	char aggregate_process[ 256 ];
+	char aggregate_process[ 1024 ];
 	char *select_list;
 	char *units;
 	char *units_converted;
-	char units_converted_process[ 128 ];
-	char *database_string = {0};
+	char units_converted_process[ 1024 ];
 	int station_piece;
-	int results;
+
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
 
 	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s application \"where_clause\" aggregate_level aggregate_statistic units units_converted\n",
+"Usage: %s ignored \"where_clause\" aggregate_level aggregate_statistic units units_converted\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	where_clause = argv[ 2 ];
 	aggregate_level_string = argv[ 3 ];
 	aggregate_statistic_string = argv[ 4 ];
 	units = argv[ 5 ];
 	units_converted = argv[ 6 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
-
 	aggregate_level =
-		aggregate_level_get_aggregate_level( aggregate_level_string );
+		aggregate_level_get_aggregate_level(
+			aggregate_level_string );
 
 	aggregate_statistic =
 		aggregate_statistic_get_aggregate_statistic(
 			aggregate_statistic_string,
 			aggregate_level );
-
-	appaserver_parameter_file = new_appaserver_parameter_file();
 
 	if ( aggregate_level == real_time )
 	{
@@ -147,8 +133,9 @@ int main( int argc, char **argv )
 		FOLDER_DATA_DELIMITER,
 		units_converted_process );
 
-	results = system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	exit( 0 );
+
 } /* main() */
 

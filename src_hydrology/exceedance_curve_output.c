@@ -48,7 +48,7 @@
 /* Prototypes */
 /* ---------- */
 void exceedance_curve_data_output(
-				FILE *output,
+				FILE *output_pipe,
 				char *measurement_value,
 				char *count_below,
 				char *percent_below,
@@ -160,7 +160,6 @@ GRACE *exceedance_curve_output(
 				char **postscript_filename,
 				char **output_filename,
 				char **ftp_output_filename,
-				char **ftp_filename,
 				char *application_name,
 				char *process_name,
 				char *station,
@@ -210,7 +209,6 @@ int main( int argc, char **argv )
 	char *postscript_filename = {0};
 	char *output_filename = {0};
 	char *ftp_output_filename = {0};
-	char *ftp_filename = {0};
 	char *units_display;
 	GRACE *grace = {0};
 
@@ -434,7 +432,6 @@ int main( int argc, char **argv )
 					&postscript_filename,
 					&output_filename,
 					&ftp_output_filename,
-					&ftp_filename,
 					application_name,
 					process_name,
 					station,
@@ -684,7 +681,6 @@ GRACE *exceedance_curve_output(
 				char **postscript_filename,
 				char **output_filename,
 				char **ftp_output_filename,
-				char **ftp_filename,
 				char *application_name,
 				char *process_name,
 				char *station,
@@ -704,7 +700,6 @@ GRACE *exceedance_curve_output(
 	FILE *input_pipe;
 	char input_buffer[ 4096 ];
 	char buffer[ 4096 ];
-	HTML_TABLE *html_table = {0};
 	char measurement_date[ 128 ];
 	char measurement_time[ 128 ];
 	char measurement_value[ 128 ];
@@ -717,10 +712,6 @@ GRACE *exceedance_curve_output(
 	char graph_identifier[ 128 ];
 	char legend[ 128 ];
 	char value_label[ 128 ];
-	int count = 0;
-	pid_t process_id = getpid();
-	FILE *output_file;
-	APPASERVER_LINK_FILE *appaserver_link_file;
 
 	sprintf( title, "%s for %s/%s", process_name, station, datatype );
 	format_initial_capital( title, title );
@@ -797,134 +788,6 @@ GRACE *exceedance_curve_output(
 			graph_identifier,
 			grace->grace_output );
 	}
-	else
-	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
-	{
-		DOCUMENT *document;
-
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-		appaserver_link_file =
-			appaserver_link_file_new(
-				application_get_http_prefix( application_name ),
-				appaserver_library_get_server_address(),
-				( application_get_prepend_http_protocol_yn(
-					application_name ) == 'y' ),
-				document_root_directory,
-				FILENAME_STEM,
-				application_name,
-				process_id,
-				(char *)0 /* session */,
-				"csv" );
-
-		appaserver_link_file->begin_date_string = begin_date;
-		appaserver_link_file->end_date_string = end_date;
-
-		*output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		*ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		if ( ! ( output_file = fopen( *output_filename, "w" ) ) )
-		{
-			printf( "<H2>ERROR: Cannot open output file %s\n",
-				*output_filename );
-			document_close();
-			exit( 1 );
-		}
-		else
-		{
-			fclose( output_file );
-		}
-	}
-	else
-	if ( strcmp( output_medium, "text_file" ) == 0 )
-	{
-		DOCUMENT *document;
-
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-	}
-	else
-	if ( strcmp( output_medium, "stdout" ) == 0 )
-	{
-		DOCUMENT *document;
-
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_get_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-	}
 
 	input_pipe = popen( buffer, "r" );
 
@@ -948,64 +811,6 @@ GRACE *exceedance_curve_output(
 				strdup( measurement_value ),
 				(char *)0 /* optional_label */,
 				grace->dataset_no_cycle_color );
-		}
-		else
-		if ( strcmp( output_medium, "table" ) == 0 )
-		{
-			html_table_set_data(	html_table->data_list,
-						strdup( measurement_value ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( count_below ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( percent_below ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( measurement_date ) );
-	
-			if ( aggregate_level == real_time )
-			{
-				html_table_set_data(
-						html_table->data_list,
-						strdup( measurement_time ) );
-			}
-			else
-			if ( aggregate_level == half_hour
-			||   aggregate_level == hourly )
-			{
-				html_table_set_data(
-						html_table->data_list,
-						strdup( measurement_time ) );
-				html_table_set_data(
-						html_table->data_list,
-						strdup( aggregation_count ) );
-			}
-			else
-			{
-				html_table_set_data(
-						html_table->data_list,
-						strdup( aggregation_count ) );
-			}
-
-			if ( ++count == 20 )
-			{
-				html_table_output_data_heading(
-					html_table->heading_list,
-					html_table->
-					number_left_justified_columns,
-					html_table->
-					number_right_justified_columns,
-					html_table->justify_list );
-				count = 0;
-			}
-
-			html_table_output_data(
-				html_table->data_list,
-				html_table->number_left_justified_columns,
-				html_table->number_right_justified_columns,
-				html_table->background_shaded,
-				html_table->justify_list );
-
-			list_free_string_list( html_table->data_list );
-			html_table->data_list = list_new();
 		}
 
 	} /* while( get_line() */
@@ -1383,7 +1188,7 @@ LIST *exceedance_curve_output_get_heading_list(
 
 } /* exceedance_curve_output_get_heading_list() */
 
-void exceedance_curve_data_output(	FILE *output,
+void exceedance_curve_data_output(	FILE *output_pipe,
 					char *measurement_value,
 					char *count_below,
 					char *percent_below,
@@ -1393,25 +1198,25 @@ void exceedance_curve_data_output(	FILE *output,
 					enum aggregate_level aggregate_level )
 {
 
-	fprintf( output, "%s,", measurement_value );
-	fprintf( output, "%s,", count_below );
-	fprintf( output, "%s,", percent_below );
-	fprintf( output, "%s,", measurement_date );
+	fprintf( output_pipe, "%s,", measurement_value );
+	fprintf( output_pipe, "%s,", count_below );
+	fprintf( output_pipe, "%s,", percent_below );
+	fprintf( output_pipe, "%s,", measurement_date );
 
 	if ( aggregate_level == real_time )
 	{
-		fprintf( output, "%s\n", measurement_time );
+		fprintf( output_pipe, "%s\n", measurement_time );
 	}
 	else
 	if ( aggregate_level == half_hour
 	||   aggregate_level == hourly )
 	{
-		fprintf( output, "%s,", measurement_time );
-		fprintf( output, "%s\n", aggregation_count );
+		fprintf( output_pipe, "%s,", measurement_time );
+		fprintf( output_pipe, "%s\n", aggregation_count );
 	}
 	else
 	{
-		fprintf( output, "%s\n", aggregation_count );
+		fprintf( output_pipe, "%s\n", aggregation_count );
 	}
 
 } /* exceedance_curve_data_output() */
@@ -1450,7 +1255,7 @@ boolean exceedance_curve_spreadsheet_output(
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	pid_t process_id = getpid();
 	char *ftp_filename;
-	FILE *output;
+	FILE *output_pipe;
 	char output_sys_string[ 128 ];
 
 	appaserver_link_file =
@@ -1506,10 +1311,10 @@ boolean exceedance_curve_spreadsheet_output(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-	if ( ! ( output = fopen( *output_filename, "w" ) ) )
+	if ( ! ( output_pipe = fopen( *output_filename, "w" ) ) )
 		return 0;
 	else
-		fclose( output );
+		fclose( output_pipe );
 
 	*title = '\0';
 	exceedance_curve_output_get_title(
@@ -1588,11 +1393,11 @@ boolean exceedance_curve_spreadsheet_output(
 	 	"tr '^' ',' >> %s",
 	 	*output_filename );
 
-	output = popen( output_sys_string, "w" );
+	output_pipe = popen( output_sys_string, "w" );
 
 	/* Output the title and sub_title */
 	/* ------------------------------ */
-	fprintf( output, "%s %s\n", title, sub_title );
+	fprintf( output_pipe, "%s %s\n", title, sub_title );
 
 	/* Output the heading */
 	/* ------------------ */
@@ -1602,24 +1407,24 @@ boolean exceedance_curve_spreadsheet_output(
 				aggregate_level,
 				0 /* not with_html */ );
 
-	fprintf( output, "%s\n", list_display( heading_list ) );
+	fprintf( output_pipe, "%s\n", list_display( heading_list ) );
 
 	input_pipe = popen( sys_string, "r" );
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece_input_buffer(
-				measurement_value,
-				count_below,
-				percent_below,
-				measurement_date,
-				measurement_time,
-				aggregation_count,
-				input_buffer,
-				aggregate_level );
+			measurement_value,
+			count_below,
+			percent_below,
+			measurement_date,
+			measurement_time,
+			aggregation_count,
+			input_buffer,
+			aggregate_level );
 
 		exceedance_curve_data_output(
-			output,
+			output_pipe,
 			measurement_value,
 			count_below,
 			percent_below,
@@ -1631,7 +1436,7 @@ boolean exceedance_curve_spreadsheet_output(
 	} /* while( get_line() */
 
 	pclose( input_pipe );
-	pclose( output );
+	pclose( output_pipe );
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,
@@ -1679,7 +1484,7 @@ boolean exceedance_curve_text_file_output(
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	pid_t process_id = getpid();
 	char *ftp_filename;
-	FILE *output;
+	FILE *output_pipe;
 	char output_sys_string[ 128 ];
 
 	appaserver_link_file =
@@ -1735,10 +1540,10 @@ boolean exceedance_curve_text_file_output(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-	if ( ! ( output = fopen( *output_filename, "w" ) ) )
+	if ( ! ( output_pipe = fopen( *output_filename, "w" ) ) )
 		return 0;
 	else
-		fclose( output );
+		fclose( output_pipe );
 
 	*title = '\0';
 	exceedance_curve_output_get_title(
@@ -1818,11 +1623,11 @@ boolean exceedance_curve_text_file_output(
 	 	"tr ',' '^' >> %s",
 	 	*output_filename );
 
-	output = popen( output_sys_string, "w" );
+	output_pipe = popen( output_sys_string, "w" );
 
 	/* Output the title and sub_title */
 	/* ------------------------------ */
-	fprintf( output, "#%s %s\n", title, sub_title );
+	fprintf( output_pipe, "#%s %s\n", title, sub_title );
 
 	/* Output the heading */
 	/* ------------------ */
@@ -1832,7 +1637,7 @@ boolean exceedance_curve_text_file_output(
 				aggregate_level,
 				0 /* not with_html */ );
 
-	fprintf( output, "#%s\n", list_display( heading_list ) );
+	fprintf( output_pipe, "#%s\n", list_display( heading_list ) );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -1849,7 +1654,7 @@ boolean exceedance_curve_text_file_output(
 				aggregate_level );
 
 		exceedance_curve_data_output(
-			output,
+			output_pipe,
 			measurement_value,
 			count_below,
 			percent_below,
@@ -1861,7 +1666,7 @@ boolean exceedance_curve_text_file_output(
 	} /* while( get_line() */
 
 	pclose( input_pipe );
-	pclose( output );
+	pclose( output_pipe );
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,
@@ -1907,7 +1712,7 @@ void exceedance_curve_stdout_output(
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	pid_t process_id = getpid();
 	char *output_filename;
-	FILE *output;
+	FILE *output_pipe;
 	char output_sys_string[ 128 ];
 
 	*title = '\0';
@@ -1994,11 +1799,11 @@ void exceedance_curve_stdout_output(
 	 	"tr ',' '^' >> %s",
 	 	output_filename );
 
-	output = popen( output_sys_string, "w" );
+	output_pipe = popen( output_sys_string, "w" );
 
 	/* Output the title and sub_title */
 	/* ------------------------------ */
-	fprintf( output, "#%s %s\n", title, sub_title );
+	fprintf( output_pipe, "#%s %s\n", title, sub_title );
 
 	/* Output the heading */
 	/* ------------------ */
@@ -2008,7 +1813,7 @@ void exceedance_curve_stdout_output(
 				aggregate_level,
 				0 /* not with_html */ );
 
-	fprintf( output, "#%s\n", list_display( heading_list ) );
+	fprintf( output_pipe, "#%s\n", list_display( heading_list ) );
 
 	input_pipe = popen( sys_string, "r" );
 
@@ -2025,7 +1830,7 @@ void exceedance_curve_stdout_output(
 				aggregate_level );
 
 		exceedance_curve_data_output(
-			output,
+			output_pipe,
 			measurement_value,
 			count_below,
 			percent_below,
@@ -2037,7 +1842,7 @@ void exceedance_curve_stdout_output(
 	} /* while( get_line() */
 
 	pclose( input_pipe );
-	pclose( output );
+	pclose( output_pipe );
 
 	sprintf( sys_string, "cat %s", output_filename );
 	if ( system( sys_string ) ) {};

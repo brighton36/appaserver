@@ -23,15 +23,23 @@ function post_change_journal_ledger( state )
 
 		if ( debit_element == '' ) break;
 
+		element_name = 'credit_amount_' + i;
+		credit_element = timlib_get_element( element_name );
+
+		if ( debit_element == '' ) break;
+
+		if ( debit_element.value == 0.0
+		&&   credit_element.value == 0.0 )
+		{
+			return true;
+		}
+
 		if ( debit_element.value )
 		{
 			total += debit_element.value;
 		}
 		else
 		{
-			element_name = 'credit_amount_' + i;
-			credit_element = timlib_get_element( element_name );
-
 			if ( credit_element.value )
 			{
 				total -= credit_element.value;

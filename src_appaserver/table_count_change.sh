@@ -39,11 +39,11 @@ current_count=`	echo "select count(*) from $table;"	|\
 		sql.e					|\
 		tee $last_time_file`
 
-difference=`expr $current_count - $last_time_count`
+change=`expr $current_count - $last_time_count`
 
 echo "Current:    $current_count"
 echo "Last:       $last_time_count"
-echo "Difference: $difference"
+echo "Change:     $change"
 
 exit 0
 

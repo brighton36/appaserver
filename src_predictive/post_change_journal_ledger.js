@@ -5,65 +5,99 @@ function post_change_journal_ledger( state )
 {
 	var element_name;
 	var debit_element;
+	var debit_amount;
 	var credit_element;
+	var credit_amount;
 	var i;
-	var first_empty_row;
-	var total;
+	var first_row_debit;
+	var remaining;
 
 	if ( state != 'insert' ) return true;
 
-	total = 0.0;
-	first_empty_row = 0;
-	i = 1;
+	// Get first row debit_amount
+	// --------------------------
+	element_name = 'debit_amount_1';
+	debit_element = timlib_get_element( element_name );
+
+	if ( debit_element == '' ) return false;
+
+	debit_amount = debit_element.value;
+
+	first_row_debit = ( debit_amount > 0 );
+
+	// Get first row credit_amount
+	// ---------------------------
+	element_name = 'credit_amount_1';
+	credit_element = timlib_get_element( element_name );
+
+	if ( credit_element == '' ) return false;
+
+	credit_amount = credit_element.value;
+
+	if ( first_row_debit && credit_amount > 0 ) return false;
+
+	if ( first_row_debit )
+		remaining = debit_amount;
+	else
+		remaining = credit_amount;
+
+	i = 2;
 
 	while( true )
 	{
+		// Get next row debit_amount
+		// -------------------------
 		element_name = 'debit_amount_' + i;
 		debit_element = timlib_get_element( element_name );
 
 		if ( debit_element == '' ) break;
 
-		if ( debit_element.value )
+		debit_amount = debit_element.value;
+
+		// Get next row credit_amount
+		// --------------------------
+		element_name = 'credit_amount_' + i;
+		credit_element = timlib_get_element( element_name );
+
+		if ( credit_element == '' ) break;
+
+		credit_amount = credit_element.value;
+
+		/* Subtract what's there. */
+		/* ---------------------- */
+		if ( first_row_debit )
 		{
-			total += debit_element.value;
+			if ( debit_amount > 0 ) return false;
+
+			if ( credit_amount == 0 ) break;
+
+			remaining -= credit_amount;
 		}
 		else
 		{
-			element_name = 'credit_amount_' + i;
-			credit_element = timlib_get_element( element_name );
+			if ( credit_amount > 0 ) return false;
 
-			if ( credit_element.value )
-			{
-				total -= credit_element.value;
-			}
-			else
-			{
-				first_empty_row = i;
-				break;
-			}
+			if ( debit_amount == 0 ) break;
+
+			remaining -= debit_amount;
 		}
 
 		i++;
 	}
 
-	if ( !first_empty_row ) return true;
+	if ( remaining <= 0 ) return true;
 
-	// Why is there a leading zero?
-	// ----------------------------
-	if ( total.charAt( 0 ) == '0' ) total = total.substr( 1 );
-
-	if ( total > 0 )
+	if ( first_row_debit )
 	{
-		element_name = 'credit_amount_' + first_empty_row;
+		element_name = 'credit_amount_' + i;
 		credit_element = timlib_get_element( element_name );
-		credit_element.value = total;
+		credit_element.value = remaining;
 	}
 	else
-	if ( total < 0 )
 	{
-		element_name = 'debit_amount_' + first_empty_row;
+		element_name = 'credit_amount_' + i;
 		debit_element = timlib_get_element( element_name );
-		debit_element.value = 0 - total;
+		debit_element.value = remaining;
 	}
 
 	return true;

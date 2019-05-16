@@ -77,44 +77,34 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *station_name;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char *parent_process_id_string;
 	char *operation_row_count_string;
 	char *session;
 	OPERATION_SEMAPHORE *operation_semaphore;
 
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s application process station process_id operation_row_count session\n",
+"Usage: %s ignored process station process_id operation_row_count session\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	process_name = argv[ 2 ];
 	station_name = argv[ 3 ];
 	parent_process_id_string = argv[ 4 ];
 	operation_row_count_string = argv[ 5 ];
 	session = argv[ 6 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -215,7 +205,7 @@ int main( int argc, char **argv )
 
 		printf( "<h1>Google Earth Station Viewer " );
 		fflush( stdout );
-		system( "date '+%x %H:%M'" );
+		if ( system( "date '+%x %H:%M'" ) ) {};
 		fflush( stdout );
 		printf( "</h1>\n" );
 
@@ -567,9 +557,11 @@ void zip_kmz_file(	char *output_kmz_filename,
 
 	*ptr = '\0';
 
+/*
 fprintf( stderr, "%s\n", sys_string );
+*/
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 } /* zip_kmz_file() */
 

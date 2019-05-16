@@ -95,7 +95,7 @@ function post_change_journal_ledger( state )
 	}
 	else
 	{
-		element_name = 'credit_amount_' + i;
+		element_name = 'debit_amount_' + i;
 		debit_element = timlib_get_element( element_name );
 		debit_element.value = remaining;
 	}

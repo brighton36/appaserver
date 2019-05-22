@@ -245,7 +245,7 @@ int main( int argc, char **argv )
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "date.sh" );
+	if ( system( "date.sh" ) ) {};
 	fflush( stdout );
 	printf( "</h2>\n" );
 
@@ -872,7 +872,7 @@ FILE *get_input_pipe(	char **heading,
 			char *fishing_area_list_string,
 			char *interview_location )
 {
-	char sys_string[ 1024 ];
+	char sys_string[ 65536 ];
 	char select[ 1024 ];
 	char catches_join_where[ 1024 ];
 	char species_where[ 512 ];

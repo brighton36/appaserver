@@ -743,7 +743,7 @@ void output_catches(	FILE *catches_output_pipe,
 			else
 			{
 				fprintf(fishing_trips_output_pipe,
-					"|||||||||||%s|%s|%s|%d|%d\n",
+					"|||||||||||||%s|%s|%s|%d|%d\n",
 					catches->family,
 					catches->genus,
 					catches->species,

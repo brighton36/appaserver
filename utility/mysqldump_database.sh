@@ -61,6 +61,9 @@ each_line_insert=$results
 parse_parameter_file $parameter_file big_table_list
 big_table_list=$results
 
+parse_parameter_file $parameter_file exclude_table_list
+exclude_table_list=$results
+
 if [ "$directory_root" != "" ]
 then
 	output_directory=${directory_root}/$output_directory
@@ -111,7 +114,8 @@ mysqldump_fork.e	$mysqluser			\
 			$output_directory		\
 			$processes_in_parallel		\
 			"$each_line_insert"		\
-			$big_table_list
+			"$big_table_list"		\
+			"$exclude_table_list"
 
 return_value=$?
 

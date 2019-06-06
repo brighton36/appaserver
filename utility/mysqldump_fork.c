@@ -46,6 +46,7 @@ void output_audit_datafile_count(	char *audit_datafile_filename,
 					char *output_directory,
 					LIST *table_name_list,
 					LIST *big_table_name_list,
+					LIST *exclude_table_name_list,
 					char *date_stamp );
 
 void output_audit_database_count(	char *audit_database_filename,
@@ -63,14 +64,16 @@ char *get_filename(			char *table_name,
 LIST *get_filename_list(
 					LIST *table_name_list,
 					char *date_stamp,
-					LIST *big_table_name_list );
+					LIST *big_table_name_list,
+					LIST *exclude_table_name_list );
 
 boolean tar_small_files(
 					LIST *table_name_list,
 					char *database,
 					char *output_directory,
 					char *date_stamp,
-					LIST *big_table_name_list );
+					LIST *big_table_name_list,
+					LIST *exclude_table_name_list );
 
 LIST *get_table_name_list(
 					char *database );
@@ -84,6 +87,7 @@ LIST *get_process_list(			LIST *process_list,
 					char *output_directory,
 					char *date_stamp,
 					LIST *big_table_name_list,
+					LIST *exclude_table_name_list,
 					boolean each_line_insert );
 
 int main( int argc, char **argv )
@@ -97,6 +101,7 @@ int main( int argc, char **argv )
 	LIST *table_name_list;
 	boolean each_line_insert;
 	LIST *big_table_name_list = {0};
+	LIST *exclude_table_name_list = {0};
 	char *date_stamp;
 	char *audit_database_filename;
 	char *audit_datafile_filename;
@@ -105,7 +110,7 @@ int main( int argc, char **argv )
 	if ( argc < 7 )
 	{
 		fprintf( stderr,
-"Usage: %s mysqluser database mysql_password_file output_directory processes_in_parallel each_line_insert_yn [big_table_name_list]\n",
+"Usage: %s mysqluser database mysql_password_file output_directory processes_in_parallel each_line_insert_yn [big_table_name_list] [exclude_table_name_list]\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
@@ -124,9 +129,20 @@ int main( int argc, char **argv )
 	processes_in_parallel = atoi( argv[ 5 ] );
 	each_line_insert = ( *argv[ 6 ] == 'y' );
 
-	if ( argc == 8 )
+	if ( argc >= 8
+	&&   *argv[ 7 ]
+	&&   strcmp(	argv[ 7 ],
+			"big_table_name_list" ) != 0 )
 	{
 		big_table_name_list = list_string2list( argv[ 7 ], ',' );
+	}
+
+	if ( argc >= 9
+	&&   *argv[ 8 ]
+	&&   strcmp(	argv[ 8 ],
+			"exclude_table_name_list" ) != 0 )
+	{
+		exclude_table_name_list = list_string2list( argv[ 8 ], ',' );
 	}
 
 	if ( ! ( table_name_list = get_table_name_list( database ) )
@@ -174,6 +190,7 @@ int main( int argc, char **argv )
 				output_directory,
 				date_stamp,
 				big_table_name_list,
+				exclude_table_name_list,
 				each_line_insert ) )
 	||   !list_length( fork_control->process_list ) )
 	{
@@ -196,6 +213,7 @@ int main( int argc, char **argv )
 					output_directory,
 					table_name_list,
 					big_table_name_list,
+					exclude_table_name_list,
 					date_stamp );
 	}
 
@@ -204,7 +222,8 @@ int main( int argc, char **argv )
 		database,
 		output_directory,
 		date_stamp,
-		big_table_name_list ) )
+		big_table_name_list,
+		exclude_table_name_list ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s: cannot tar_small_files.\n",
@@ -235,6 +254,7 @@ LIST *get_process_list(	LIST *process_list,
 			char *output_directory,
 			char *date_stamp,
 			LIST *big_table_name_list,
+			LIST *exclude_table_name_list,
 			boolean each_line_insert )
 {
 	char *table_name;
@@ -248,6 +268,13 @@ LIST *get_process_list(	LIST *process_list,
 
 	do {
 		table_name = list_get_pointer( table_name_list );
+
+		if ( list_exists_string(
+			exclude_table_name_list,
+			table_name ) )
+		{
+			continue;
+		}
 
 /*
 #define MYSQL_DUMP_TEMPLATE "rm %s 2>/dev/null; touch %s && chmod o-r %s && nice -9 mysqldump --defaults-extra-file=%s -u%s --extended-insert=FALSE --force --quick --add-drop-table %s %s | %s >> %s"
@@ -325,7 +352,8 @@ LIST *get_table_name_list( char *database )
 
 LIST *get_filename_list(	LIST *table_name_list,
 				char *date_stamp,
-				LIST *big_table_name_list )
+				LIST *big_table_name_list,
+				LIST *exclude_table_name_list )
 {
 	LIST *filename_list;
 	char *table_name;
@@ -336,6 +364,13 @@ LIST *get_filename_list(	LIST *table_name_list,
 
 	do {
 		table_name = list_get_pointer( table_name_list );
+
+		if ( list_exists_string(
+			exclude_table_name_list,
+			table_name ) )
+		{
+			continue;
+		}
 
 		if ( list_length( big_table_name_list ) )
 		{
@@ -377,7 +412,8 @@ boolean tar_small_files(
 		char *database,
 		char *output_directory,
 		char *date_stamp,
-		LIST *big_table_name_list )
+		LIST *big_table_name_list,
+		LIST *exclude_table_name_list )
 {
 	char sys_string[ 65536 ];
 	char *filename_list_string;
@@ -393,7 +429,8 @@ boolean tar_small_files(
 			get_filename_list(
 				table_name_list,
 				date_stamp,
-				big_table_name_list ) ) )
+				big_table_name_list,
+				exclude_table_name_list ) ) )
 	{
 		return 0;
 	}
@@ -411,17 +448,17 @@ boolean tar_small_files(
 		 "tar czf %s %s",
 		 output_file,
 		 filename_list_string );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	sprintf( sys_string,
 		 "rm -f %s",
 		 filename_list_string );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	sprintf( sys_string,
 		 "chmod o-r %s",
 		 output_file );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 	return 1;
 
@@ -510,6 +547,7 @@ void output_audit_datafile_count(	char *audit_datafile_filename,
 					char *output_directory,
 					LIST *table_name_list,
 					LIST *big_table_name_list,
+					LIST *exclude_table_name_list,
 					char *date_stamp )
 {
 	FILE *output_file;
@@ -534,6 +572,13 @@ void output_audit_datafile_count(	char *audit_datafile_filename,
 
 	do {
 		table_name = list_get_pointer( table_name_list );
+
+		if ( list_exists_string(
+			exclude_table_name_list,
+			table_name ) )
+		{
+			continue;
+		}
 
 		filename = get_filename( table_name, date_stamp );
 
@@ -580,7 +625,7 @@ void remove_file( char *filename )
 	if ( filename && *filename )
 	{
 		sprintf( sys_string, "rm -f %s", filename );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 
 } /* remove_file() */
@@ -633,7 +678,7 @@ void output_audit_results(	char *audit_database_filename,
 		AUDIT_DELIMITER );
 
 	fflush( stdout );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
 	/* Output the warnings messages at the bottom. */

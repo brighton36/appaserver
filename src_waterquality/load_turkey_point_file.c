@@ -29,6 +29,8 @@
 #include "load_turkey_point_file.h"
 #include "water_quality.h"
 
+#define QUEUE_TOP_BOTTOM_LINES	65536
+
 void remove_error_file(		char *error_filename );
 
 int main( int argc, char **argv )
@@ -91,7 +93,7 @@ int main( int argc, char **argv )
 
 	printf( "<h2>%s\n", format_initial_capital( buffer, process_name ) );
 	fflush( stdout );
-	system( "date '+%x %H:%M'" );
+	if ( system( "date '+%x %H:%M'" ) ) {};
 	printf( "</h2>\n" );
 	fflush( stdout );
 
@@ -343,8 +345,9 @@ int load_concentration_file(
 	else
 	{
 		sprintf( sys_string,
-		"queue_top_bottom_lines.e 50				|"
+		"queue_top_bottom_lines.e %d				|"
 		"html_table.e 'Insert into Water Quality Results' %s '|' ",
+			 QUEUE_TOP_BOTTOM_LINES,
 			 DISPLAY_RESULTS );
 
 		table_output_pipe = popen( sys_string, "w" );
@@ -539,7 +542,7 @@ int load_concentration_file(
 		sprintf( sys_string,
 "cat %s | queue_top_bottom_lines.e 300 | html_table.e 'Water Quality Errors' '' '|'",
 			 error_filename );
-		system( sys_string );
+		if ( system( sys_string ) ) {};
 	}
 
 	remove_error_file( error_filename );
@@ -552,7 +555,7 @@ void remove_error_file( char *error_filename )
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string, "rm %s", error_filename );
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 }
 
 #define DELETE_FIELD_LIST	"station,collection_date,collection_time"

@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_creel/catches_per_species.c		       	*/
+/* $APPASERVER_HOME/src_creel/catches_per_species.c    	*/
 /* --------------------------------------------------- 	*/
 /* Freely available software: see Appaserver.org	*/
 /* --------------------------------------------------- 	*/
@@ -49,6 +49,8 @@ void output_catches_per_species(
 
 FILE *get_input_pipe(		char **heading,
 				int *fishing_purpose_piece,
+				int *fishing_area_piece,
+				int *interview_location_piece,
 				int *interview_number_piece,
 				int *florida_state_code_piece,
 				int *family_piece,
@@ -75,6 +77,8 @@ void parse_input_buffer(	char **year,
 				char **day,
 				char **census_date,
 				char **fishing_purpose,
+				char **fishing_area,
+				char **interview_location,
 				char **interview_number,
 				char **florida_state_code,
 				char **family,
@@ -85,6 +89,8 @@ void parse_input_buffer(	char **year,
 				int *released_count,
 				char *input_buffer,
 				int fishing_purpose_piece,
+				int fishing_area_piece,
+				int interview_location_piece,
 				int interview_number_piece,
 				int florida_state_code_piece,
 				int family_piece,
@@ -99,6 +105,8 @@ void parse_input_buffer(	char **year,
 int perform_output(		FILE *output_pipe,
 				FILE *input_pipe,
 				int fishing_purpose_piece,
+				int fishing_area_piece,
+				int interview_location_piece,
 				int interview_number_piece,
 				int florida_state_code_piece,
 				int family_piece,
@@ -137,22 +145,30 @@ int main( int argc, char **argv )
 	char *begin_date;
 	char *end_date;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *database_string = {0};
 	char title[ 512 ];
 	char sub_title[ 512 ];
 	DOCUMENT *document;
 	char *fishing_area_list_string;
 	char *interview_location;
 
+	/* Exits if failure. */
+	/* ----------------- */
+	application_name = environ_get_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+				argc,
+				argv,
+				application_name );
+
 	if ( argc != 13 )
 	{
 		fprintf(stderr,
-"Usage: %s application process begin_date end_date family genus species fishing_purpose aggregate_level output_medium fishing_area interview_location\n",
+"Usage: %s ignored process begin_date end_date family genus species fishing_purpose aggregate_level output_medium fishing_area interview_location\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	application_name = argv[ 1 ];
+	/* application_name = argv[ 1 ]; */
 	process_name = argv[ 2 ];
 	begin_date = argv[ 3 ];
 	end_date = argv[ 4 ];
@@ -164,30 +180,6 @@ int main( int argc, char **argv )
 	output_medium = argv[ 10 ];
 	fishing_area_list_string = argv[ 11 ];
 	interview_location = argv[ 12 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_relative_source_directory_to_path( application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -245,7 +237,7 @@ int main( int argc, char **argv )
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "date.sh" );
+	if ( system( "date.sh" ) ) {};
 	fflush( stdout );
 	printf( "</h2>\n" );
 
@@ -269,7 +261,7 @@ int main( int argc, char **argv )
 			interview_location );
 
 	document_close();
-	exit( 0 );
+	return 0;
 
 } /* main() */
 
@@ -299,6 +291,8 @@ void output_catches_per_species(
 	char *ftp_filename;
 	char *heading;
 	int fishing_purpose_piece = -1;
+	int fishing_area_piece = -1;
+	int interview_location_piece = -1;
 	int interview_number_piece = -1;
 	int florida_state_code_piece = -1;
 	int family_piece = -1;
@@ -315,6 +309,8 @@ void output_catches_per_species(
 	input_pipe = get_input_pipe(
 			&heading,
 			&fishing_purpose_piece,
+			&fishing_area_piece,
+			&interview_location_piece,
 			&interview_number_piece,
 			&florida_state_code_piece,
 			&family_piece,
@@ -349,7 +345,8 @@ void output_catches_per_species(
 			(char *)0 /* session */,
 			"csv" );
 
-	if ( strcmp( output_medium, "text_file" ) == 0 )
+	if ( strcmp( output_medium, "text_file" ) == 0
+	||   strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
 		output_filename =
 			appaserver_link_get_output_filename(
@@ -390,6 +387,8 @@ void output_catches_per_species(
 			output_pipe,
 			input_pipe,
 			fishing_purpose_piece,
+			fishing_area_piece,
+			interview_location_piece,
 			interview_number_piece,
 			florida_state_code_piece,
 			family_piece,
@@ -446,6 +445,8 @@ void output_catches_per_species(
 			output_pipe,
 			input_pipe,
 			fishing_purpose_piece,
+			fishing_area_piece,
+			interview_location_piece,
 			interview_number_piece,
 			florida_state_code_piece,
 			family_piece,
@@ -544,6 +545,8 @@ void get_title_and_sub_title(
 int perform_output(	FILE *output_pipe,
 			FILE *input_pipe,
 			int fishing_purpose_piece,
+			int fishing_area_piece,
+			int interview_location_piece,
 			int interview_number_piece,
 			int florida_state_code_piece,
 			int family_piece,
@@ -562,6 +565,8 @@ int perform_output(	FILE *output_pipe,
 	char *census_date;
 	char *interview_number;
 	char *fishing_purpose;
+	char *fishing_area;
+	char *interview_location;
 	char *florida_state_code;
 	char *family;
 	char *genus;
@@ -597,6 +602,8 @@ int perform_output(	FILE *output_pipe,
 				&day,
 				&census_date,
 				&fishing_purpose,
+				&fishing_area,
+				&interview_location,
 				&interview_number,
 				&florida_state_code,
 				&family,
@@ -607,6 +614,8 @@ int perform_output(	FILE *output_pipe,
 				&released_count,
 				input_buffer,
 				fishing_purpose_piece,
+				fishing_area_piece,
+				interview_location_piece,
 				interview_number_piece,
 				florida_state_code_piece,
 				family_piece,
@@ -764,6 +773,20 @@ int perform_output(	FILE *output_pipe,
 			 	fishing_purpose );
 		}
 
+		if ( fishing_area_piece != -1 )
+		{
+			fprintf( output_pipe,
+			 	",%s",
+			 	fishing_area );
+		}
+
+		if ( interview_location_piece != -1 )
+		{
+			fprintf( output_pipe,
+			 	",%s",
+			 	interview_location );
+		}
+
 		if ( interview_number_piece != -1 )
 		{
 			fprintf( output_pipe,
@@ -851,6 +874,8 @@ static char *catches_table_name = "catches";
 
 FILE *get_input_pipe(	char **heading,
 			int *fishing_purpose_piece,
+			int *fishing_area_piece,
+			int *interview_location_piece,
 			int *interview_number_piece,
 			int *florida_state_code_piece,
 			int *family_piece,
@@ -872,7 +897,7 @@ FILE *get_input_pipe(	char **heading,
 			char *fishing_area_list_string,
 			char *interview_location )
 {
-	char sys_string[ 1024 ];
+	char sys_string[ 65536 ];
 	char select[ 1024 ];
 	char catches_join_where[ 1024 ];
 	char species_where[ 512 ];
@@ -905,14 +930,15 @@ FILE *get_input_pipe(	char **heading,
 		order = "select";
 
 		*fishing_purpose_piece = 1;
-		*interview_number_piece = 2;
-		*florida_state_code_piece = 3;
-		*family_piece = 4;
-		*genus_piece = 5;
-		*species_piece = 6;
-		*common_name_piece = 7;
-		*kept_piece = 8;
-
+		*fishing_area_piece = 2;
+		*interview_location_piece = 3;
+		*interview_number_piece = 4;
+		*florida_state_code_piece = 5;
+		*family_piece = 6;
+		*genus_piece = 7;
+		*species_piece = 8;
+		*common_name_piece = 9;
+		*kept_piece = 10;
 	}
 	else
 	if ( strcmp( aggregate_level, "daily" ) == 0 )
@@ -1088,13 +1114,6 @@ FILE *get_input_pipe(	char **heading,
 		exit( 1 );
 	}
 
-/*
-fprintf( stderr, "%s/%s()/%d: %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-*/
 	return popen( sys_string, "r" );
 
 } /* get_input_pipe() */
@@ -1104,6 +1123,8 @@ void parse_input_buffer(	char **year,
 				char **day,
 				char **census_date,
 				char **fishing_purpose,
+				char **fishing_area,
+				char **interview_location,
 				char **interview_number,
 				char **florida_state_code,
 				char **family,
@@ -1114,6 +1135,8 @@ void parse_input_buffer(	char **year,
 				int *released_count,
 				char *input_buffer,
 				int fishing_purpose_piece,
+				int fishing_area_piece,
+				int interview_location_piece,
 				int interview_number_piece,
 				int florida_state_code_piece,
 				int family_piece,
@@ -1128,6 +1151,8 @@ void parse_input_buffer(	char **year,
 	static char local_day[ 16 ];
 	static char local_census_date[ 16 ];
 	static char local_fishing_purpose[ 128 ];
+	static char local_fishing_area[ 128 ];
+	static char local_interview_location[ 128 ];
 	static char local_interview_number[ 128 ];
 	static char local_florida_state_code[ 16 ];
 	static char local_family[ 128 ];
@@ -1141,6 +1166,8 @@ void parse_input_buffer(	char **year,
 	*day = local_day;
 	*census_date = local_census_date;
 	*fishing_purpose = local_fishing_purpose;
+	*fishing_area = local_fishing_area;
+	*interview_location = local_interview_location;
 	*interview_number = local_interview_number;
 	*florida_state_code = local_florida_state_code;
 	*family = local_family;
@@ -1207,6 +1234,22 @@ void parse_input_buffer(	char **year,
 			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			fishing_purpose_piece );
+	}
+
+	if ( fishing_area_piece != -1 )
+	{
+		piece(	local_fishing_area,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			fishing_area_piece );
+	}
+
+	if ( interview_location_piece != -1 )
+	{
+		piece(	local_interview_location,
+			FOLDER_DATA_DELIMITER,
+			input_buffer,
+			interview_location_piece );
 	}
 
 	if ( interview_number_piece != -1 )

@@ -150,7 +150,7 @@ int main( int argc, char **argv )
 	if ( really_yn == 'y' )
 	{
 		printf(
-"<p>Process complete with %d fishing trips and %d catches.\n",
+"<p>Process complete with %d fishing trips and %d catch records.\n",
 			fishing_trip_count,
 			catch_count );
 
@@ -162,7 +162,7 @@ int main( int argc, char **argv )
 	else
 	{
 		printf(
-"<p>Process NOT executed with %d fishing trips and %d catches.\n",
+"<p>Process NOT executed with %d fishing trips and %d catch records.\n",
 			fishing_trip_count,
 			catch_count );
 	}

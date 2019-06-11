@@ -92,8 +92,8 @@ typedef struct
 	double database_purchase_amount;
 	double sum_payment_amount;
 	double amount_due;
-	double liability_payment_amount;
 	double database_amount_due;
+	double liability_payment_amount;
 	enum title_passage_rule title_passage_rule;
 	char *shipped_date;
 	char *database_shipped_date;
@@ -104,6 +104,7 @@ typedef struct
 	LIST *supply_purchase_list;
 	LIST *service_purchase_list;
 	LIST *fixed_asset_purchase_list;
+	LIST *property_fixed_asset_purchase_list;
 	LIST *prepaid_asset_purchase_list;
 	LIST *vendor_payment_list;
 	TRANSACTION *transaction;

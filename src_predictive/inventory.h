@@ -42,9 +42,20 @@ typedef struct
 	double database_extension;
 	double cost_of_goods_sold;
 	double database_cost_of_goods_sold;
-	char *credit_account_name;
+	char *inventory_account_name;
 	char *cost_of_goods_sold_account_name;
 } INVENTORY_SALE;
+
+typedef struct
+{
+	char *return_date_time;
+	int returned_quantity;
+	double sales_tax;
+	double database_sales_tax;
+	char *transaction_date_time;
+	char *database_transaction_date_time;
+	TRANSACTION *transaction;
+} INVENTORY_PURCHASE_RETURN;
 
 typedef struct
 {
@@ -66,7 +77,8 @@ typedef struct
 	int database_quantity_on_hand;
 	double average_unit_cost;
 	double database_average_unit_cost;
-	char *credit_account_name;
+	char *inventory_account_name;
+	LIST *inventory_purchase_return_list;
 } INVENTORY_PURCHASE;
 
 typedef struct
@@ -82,7 +94,7 @@ typedef struct
 typedef struct
 {
 	char *inventory_name;
-	char *credit_account_name;
+	char *inventory_account_name;
 	char *cost_of_goods_sold_account_name;
 	double retail_price;
 	int reorder_quantity;
@@ -115,7 +127,7 @@ INVENTORY_PURCHASE *inventory_purchase_new(
 INVENTORY *inventory_load_new(		char *application_name,
 					char *inventory_name );
 
-void inventory_load(			char **credit_account_name,
+void inventory_load(			char **inventory_account_name,
 					char **cost_of_goods_sold_account_name,
 					double *retail_price,
 					int *reorder_quantity,
@@ -541,7 +553,7 @@ void inventory_sale_parse(
 				double *cost_of_goods_sold,
 				double *database_cost_of_goods_sold,
 				char **completed_date_time,
-				char **credit_account_name,
+				char **inventory_account_name,
 				char **cost_of_goods_sold_account_name,
 				char *input_buffer );
 
@@ -665,7 +677,7 @@ INVENTORY_COST_ACCOUNT *inventory_get_or_set_cost_account(
 				LIST *inventory_cost_account_list,
 				char *account_name );
 
-char *inventory_get_credit_account_name(
+char *inventory_get_inventory_account_name(
 				char *application_name,
 				char *inventory_name );
 
@@ -674,6 +686,24 @@ void inventory_folder_table_display(
 				char *application_name,
 				char *inventory_name,
 				char *heading );
+
+LIST *inventory_purchase_fetch_return_list(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *purchase_date_time,
+				char *inventory_name );
+
+INVENTORY_PURCHASE_RETURN *inventory_purchase_return_parse(
+				char *application_name,
+				char *full_name,
+				char *street_address,
+				char *input_buffer );
+
+char *inventory_get_where(	char *inventory_name );
+
+char *inventory_purchase_return_get_select(
+				void );
 
 #endif
 

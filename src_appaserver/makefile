@@ -174,15 +174,6 @@ clean:
 	${CGI_HOME}/post_change_sort_order				\
 	${CGI_HOME}/post_login						\
 	${CGI_HOME}/post_login_cloudacus				\
-	get_appaserver_error_directory					\
-	get_appaserver_data_directory					\
-	get_document_root						\
-	sql								\
-	sql_quick							\
-	s								\
-	view_pdf_files							\
-	upgrade-appaserver-database					\
-	clone_application						\
 	${CGI_HOME}/post_choose_role_drop_down 				\
 	${CGI_HOME}/post_prompt_edit_form				\
 	${CGI_HOME}/post_prompt_insert_form				\
@@ -196,8 +187,17 @@ clean:
 	${CGI_HOME}/post_merge_purge					\
 	${CGI_HOME}/post_maintain_user_account				\
 	${CGI_HOME}/post_prompt_process_form				\
-	${CGI_HOME/drop_column						\
-	${CGI_HOME/drop_table
+	${CGI_HOME}/drop_column						\
+	${CGI_HOME}/drop_table						\
+	get_appaserver_error_directory					\
+	get_appaserver_data_directory					\
+	get_document_root						\
+	sql								\
+	sql_quick							\
+	s								\
+	view_pdf_files							\
+	upgrade-appaserver-database					\
+	clone_application
 
 get_appaserver_mount_point: get_appaserver_mount_point.c 		\
 	${EXTERNAL_LIBS}

@@ -2759,7 +2759,7 @@ void customer_sale_inventory_cost_account_list_set(
 			exit(1 );
 		}
 
-		if ( !inventory->credit_account_name )
+		if ( !inventory->inventory_account_name )
 		{
 			fprintf( stderr,
 "Error in %s/%s()/%d: empty credit account name for inventory_name = (%s).\n",
@@ -2784,7 +2784,7 @@ void customer_sale_inventory_cost_account_list_set(
 		inventory_cost_account =
 			inventory_get_or_set_cost_account(
 				inventory_account_list,
-				inventory->credit_account_name );
+				inventory->inventory_account_name );
 
 		if ( is_database )
 		{
@@ -3651,7 +3651,7 @@ LIST *customer_sale_inventory_distinct_account_extract(
 
 		/* Credit inventory */
 		/* ---------------- */
-		if ( !inventory_sale->credit_account_name )
+		if ( !inventory_sale->inventory_account_name )
 		{
 			fprintf( stderr,
 	"ERROR in %s/%s()/%d: empty credit_account_name for (%s)\n",
@@ -3665,7 +3665,7 @@ LIST *customer_sale_inventory_distinct_account_extract(
 		journal_ledger =
 			ledger_get_or_set_journal_ledger(
 				journal_ledger_list,
-				inventory_sale->credit_account_name );
+				inventory_sale->inventory_account_name );
 
 		journal_ledger->credit_amount +=
 			inventory_sale->cost_of_goods_sold;

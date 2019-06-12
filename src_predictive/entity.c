@@ -531,7 +531,7 @@ LIST *entity_get_inventory_list(
 			exit( 1 );
 		}
 
-		inventory->credit_account_name = strdup( piece_buffer );
+		inventory->inventory_account_name = strdup( piece_buffer );
 
 		piece(	piece_buffer,
 			FOLDER_DATA_DELIMITER,

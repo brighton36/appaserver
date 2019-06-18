@@ -204,13 +204,6 @@ void process_generic_value_folder_load(	char **value_folder_name,
 		 where_clause,
 		 FOLDER_DATA_DELIMITER );
 
-
-fprintf( stderr, "%s/%s()/%d: sys_string = (%s)\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string );
-
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
 		fprintf(stderr,

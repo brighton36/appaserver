@@ -250,7 +250,7 @@ char *dictionary_new_index_key( 	DICTIONARY *d, char *key );
 boolean dictionary_exists_key( 		DICTIONARY *dictionary,
 					char *search_key );
 
-int dictionary_key_exists( 		DICTIONARY *dictionary,
+boolean dictionary_key_exists( 		DICTIONARY *dictionary,
 					char *search_key );
 
 boolean dictionary_exists_index_key( 	DICTIONARY *d, 

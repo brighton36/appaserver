@@ -248,7 +248,7 @@ void dictionary_delete_keys_with_prefix(
 	} while( list_next( attribute_key_list ) );
 } /* dictionary_delete_keys_with_prefix() */
 
-int dictionary_key_exists( 	DICTIONARY *dictionary,
+boolean dictionary_key_exists( 	DICTIONARY *dictionary,
 				char *search_key )
 {
 	return dictionary_exists_key( dictionary, search_key );
@@ -258,8 +258,13 @@ boolean dictionary_exists_key( 	DICTIONARY *dictionary,
 				char *search_key )
 {
 	char *data;
+
 	data = dictionary_get( dictionary, search_key );
-	return (int)data;
+
+	if ( data )
+		return 1;
+	else
+		return 0;
 }
 
 boolean dictionary_populated_key_exists_index_one(
@@ -590,7 +595,9 @@ char *dictionary_list_display( LIST *dictionary_list )
 		dictionary = list_get( dictionary_list );
 		dictionary_buffer = dictionary_display( dictionary );
 		buf_ptr += sprintf( buf_ptr, "%s\n", dictionary_buffer );
-		free( dictionary_buffer );
+
+		/* free( dictionary_buffer ); */
+
 	} while( list_next ( dictionary_list ) );
 
 	return strdup( buffer ); 
@@ -2059,17 +2066,30 @@ int dictionary_exists_key_in_list(
 		LIST *key_list,
 		DICTIONARY *dictionary )
 {
-	char *data;
 	char *key;
 
 	if ( !list_rewind( key_list ) ) return 0;
 
 	do {
 		key = list_get_string( key_list );
+
+		if ( dictionary_key_exists(
+			dictionary,
+			key ) )
+		{
+			return 1;
+		}
+
+/*
 		data = dictionary_get( dictionary, key );
-		if ( (int)data ) return 1;
+
+		if ( data ) return 1;
+*/
+
 	} while( list_next( key_list ) );
+
 	return 0;
+
 } /* dictionary_exists_key_in_list() */
 
 LIST *dictionary_get_populated_index_zero_key_list(

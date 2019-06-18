@@ -43,21 +43,26 @@ DICTIONARY *dictionary2file_get_dictionary(
 
 	dictionary = dictionary_new_medium_dictionary();
 
-	while( get_line( buffer, f ) )
+	while( timlib_get_line( buffer, f, MAX_INPUT_LINE ) )
 	{
 		piece( key, dictionary_delimiter, buffer, 0 );
+
+		*data = '\0';
 		piece( data, dictionary_delimiter, buffer, 1 );
-		dictionary_set_pointer(	dictionary,
-					strdup( key ),
-					strdup( data ) );
+
+		if ( !dictionary_key_exists(
+			dictionary,
+			key ) )
+		{
+			dictionary_set_pointer(
+				dictionary,
+				strdup( key ),
+				strdup( data ) );
+		}
 	}
 
 	fclose( f );
 
-/* Can't do. This prevents the back button from functioning.
-	sprintf( sys_string, "rm -f %s", filename );
-	system( sys_string );
-*/
 	return dictionary;
 
 } /* dictionary2file_get_dictionary() */

@@ -1222,6 +1222,8 @@ char *update_database_execute_for_folder(
 		changed_attribute_list,
 		primary_attribute_name_list );
 
+	*where_clause = '\0';
+
 	update_database_build_where_clause(
 		where_clause,
 		where_attribute_list );
@@ -1318,7 +1320,7 @@ char *update_database_execute_for_folder(
 					sys_string,
 					login_name );
 
-				system( sys_string );
+				if ( system( sys_string ) ){};
 
 				list_next( additional_update_data_list );
 
@@ -1326,7 +1328,9 @@ char *update_database_execute_for_folder(
 				additional_update_attribute_name_list ) );
 		}
 	}
+
 	return (char *)0;
+
 } /* update_database_execute_for_folder() */
 
 void update_database_build_where_clause(
@@ -1365,7 +1369,9 @@ void update_database_build_where_clause(
 							attribute_name,
 						data_buffer );
 		}
+
 	} while( list_next( where_attribute_list ) );
+
 } /* update_database_build_where_clause() */
 
 void update_database_build_update_clause(
@@ -1459,9 +1465,13 @@ boolean update_database_get_dictionary_index_data(
 	 	key, index );
 
 	data = dictionary_get( dictionary, dictionary_key );
+
 	if ( !data ) return 0;
+
 	*destination  = data;
+
 	return 1;
+
 } /* update_database_get_dictionary_index_data() */
 
 void update_database_set_one2m_related_folder_list(

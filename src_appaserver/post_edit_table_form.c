@@ -1306,7 +1306,7 @@ void execute_output_process(
 				appaserver_error_get_filename(
 					application_name ) );
 
-			system( sys_string );
+			if ( system( sys_string ) ) {};
 			fflush( stdout );
 
 			dictionary_set_pointer(
@@ -1371,7 +1371,7 @@ void execute_output_process(
 				appaserver_error_get_filename(
 					application_name ) );
 
-			system( sys_string );
+			if ( system( sys_string ) ) {};
 			fflush( stdout );
 			content_type_yn = 'n';
 		}
@@ -1443,7 +1443,7 @@ void execute_output_process(
 		 	 appaserver_error_get_filename( application_name ) );
 	}
 
-	system( sys_string );
+	if ( system( sys_string ) ) {};
 
 } /* execute_output_process() */
 

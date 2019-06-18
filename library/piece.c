@@ -51,10 +51,6 @@ char *piece( char *destination, char delimiter, char *source, int offset )
 				source );
 	}
 
-/*
-	if ( delimiter == 't' ) delimiter = 9;
-*/
-
         *buf_ptr = '\0';
  
         /* if offset is not zero, find occurrence */

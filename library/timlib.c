@@ -803,10 +803,16 @@ char *trim( char *buffer )
         /* -------------------- */
         buf_ptr = buffer + strlen( buffer ) - 1;
 
+/*
         while (	*buf_ptr &&
 		( isspace( *buf_ptr ) ||
 		  *buf_ptr > 127 ||
 		  *buf_ptr < 0 ) )
+	{
+        	buf_ptr--;
+	}
+*/
+        while (	*buf_ptr && isspace( *buf_ptr ) )
 	{
         	buf_ptr--;
 	}

@@ -11,6 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "timlib.h"
+#include "date.h"
 #include "piece.h"
 #include "appaserver_library.h"
 #include "inventory.h"
@@ -1666,6 +1667,29 @@ LIST *inventory_get_balance_list(
 
 } /* inventory_get_balance_list() */
  
+INVENTORY_PURCHASE_RETURN *inventory_purchase_return_list_seek(
+				LIST *inventory_purchase_return_list,
+				char *return_date_time )
+{
+	INVENTORY_PURCHASE_RETURN *i;
+
+	if ( !list_rewind( inventory_purchase_return_list ) )
+		return (INVENTORY_PURCHASE_RETURN *)0;
+
+	do {
+		i = list_get( inventory_purchase_return_list );
+
+		if ( strcmp( i->return_date_time, return_date_time ) == 0 )
+		{
+			return i;
+		}
+
+	} while( list_next( inventory_purchase_return_list ) );
+
+	return (INVENTORY_PURCHASE_RETURN *)0;
+
+} /* inventory_purchase_list_return_seek() */
+
 INVENTORY_PURCHASE *inventory_purchase_list_seek(
 				LIST *inventory_purchase_list,
 				char *inventory_name )
@@ -3995,4 +4019,91 @@ char *inventory_get_where( char *inventory_name )
 	return where;
 
 } /* inventory_get_where() */
+
+TRANSACTION *inventory_purchase_return_transaction_new(
+					char **transaction_date_time,
+					char *application_name,
+					char *fund_name,
+					char *full_name,
+					char *street_address,
+					double unit_cost,
+					char *inventory_account_name,
+					char *return_date_time,
+					int returned_quantity,
+					double sales_tax )
+{
+	TRANSACTION *transaction;
+	JOURNAL_LEDGER *journal_ledger;
+	char *account_payable_account = {0};
+	char *account_receivable_account = {0};
+	char *sales_tax_expense_account = {0};
+
+	if ( !full_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: empty full_name.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	inventory_get_inventory_purchase_return_account_names(
+			&account_payable_account,
+			&account_receivable_account,
+			&sales_tax_expense_account,
+			application_name,
+			fund_name );
+
+	transaction =
+		ledger_transaction_new(
+			full_name,
+			street_address,
+			ledger_get_transaction_date_time(
+				date_get_now_yyyy_mm_dd(
+					date_get_utc_offset() )
+						/* transaction_date */ ),
+			(char *)0 /* memo  */ );
+
+	return transaction;
+
+} /* inventory_purchase_return_transaction_new() */
+
+void inventory_get_inventory_purchase_return_account_names(
+				char **account_payable_account,
+				char **account_receivable_account,
+				char **sales_tax_expense_account,
+				char *application_name,
+				char *fund_name )
+{
+	char *key;
+
+	key = LEDGER_ACCOUNT_PAYABLE_KEY;
+	*account_payable_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */,
+			__FUNCTION__ );
+
+	key = LEDGER_ACCOUNT_RECEIVABLE_KEY;
+	*account_receivable_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */,
+			__FUNCTION__ );
+
+	key = LEDGER_SALES_TAX_EXPENSE_KEY;
+	*sales_tax_expense_account =
+		ledger_get_hard_coded_account_name(
+			application_name,
+			fund_name,
+			key,
+			0 /* not warning_only */,
+			__FUNCTION__ );
+
+} /* inventory_get_inventory_purchase_return_account_names() */
 

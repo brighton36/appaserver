@@ -42,6 +42,18 @@ PURCHASE_ORDER *purchase_order_calloc( void )
 
 } /* purchase_order_calloc() */
 
+PURCHASE_ORDER *purchase_order_fetch_new(
+					char *application_name,
+					char *full_name,
+					char *street_address,
+					char *purchase_date_time )
+{
+	return purchase_order_new(	application_name,
+					full_name,
+					street_address,
+					purchase_date_time );
+}
+
 PURCHASE_ORDER *purchase_order_new(	char *application_name,
 					char *full_name,
 					char *street_address,

@@ -4045,7 +4045,7 @@ void ledger_get_depreciation_account_names(
 			0 /* not warning_only */,
 			__FUNCTION__ );
 
-	key = "accumulated_depreciation_key";
+	key = LEDGER_ACCUMULATED_KEY;
 	*accumulated_depreciation_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
@@ -4085,7 +4085,7 @@ void ledger_get_vendor_payment_account_names(
 			1 /* warning_only */,
 			__FUNCTION__ );
 
-	key = "account_payable_key";
+	key = LEDGER_ACCOUNT_PAYABLE_KEY;
 	*account_payable_account =
 		ledger_get_hard_coded_account_name(
 			application_name,
@@ -4143,7 +4143,7 @@ void ledger_get_account_payable_account_name(
 
 	if ( account_payable_account )
 	{
-		key = "account_payable_key";
+		key = LEDGER_ACCOUNT_PAYABLE_KEY;
 		*account_payable_account =
 			ledger_get_hard_coded_account_name(
 				application_name,
@@ -4190,7 +4190,7 @@ void ledger_get_purchase_order_account_names(
 
 	if ( account_payable_account )
 	{
-		key = "account_payable_key";
+		key = LEDGER_ACCOUNT_PAYABLE_KEY;
 		*account_payable_account =
 			ledger_get_hard_coded_account_name(
 				application_name,

@@ -36,27 +36,27 @@ long int get_needed_megabytes(		char *output_directory,
 
 boolean filesystem_enough_space(	char *output_directory );
 
-void output_audit_results(		char *audit_database_filename,
-					char *audit_datafile_filename,
-					char *prior_audit_database_filename );
+void output_count_results(		char *count_database_filename,
+					char *count_datafile_filename,
+					char *prior_count_database_filename );
 
 void remove_file(			char *filename );
 
-void output_audit_datafile_count(	char *audit_datafile_filename,
+void output_count_datafile_count(	char *count_datafile_filename,
 					char *output_directory,
 					LIST *table_name_list,
 					LIST *big_table_name_list,
 					LIST *exclude_table_name_list,
 					char *date_stamp );
 
-void output_audit_database_count(	char *audit_database_filename,
+void output_count_database_count(	char *count_database_filename,
 					LIST *table_name_list );
 
-char *get_audit_database_filename(	char *database );
+char *get_count_database_filename(	char *database );
 
-char *get_audit_datafile_filename(	void );
+char *get_count_datafile_filename(	void );
 
-char *get_prior_audit_database_filename(void );
+char *get_prior_count_database_filename(void );
 
 char *get_filename(			char *table_name,
 					char *date_stamp );
@@ -103,9 +103,9 @@ int main( int argc, char **argv )
 	LIST *big_table_name_list = {0};
 	LIST *exclude_table_name_list = {0};
 	char *date_stamp;
-	char *audit_database_filename;
-	char *audit_datafile_filename;
-	char *prior_audit_database_filename;
+	char *count_database_filename;
+	char *count_datafile_filename;
+	char *prior_count_database_filename;
 
 	if ( argc < 7 )
 	{
@@ -154,24 +154,24 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	audit_database_filename =
-		get_audit_database_filename(
+	count_database_filename =
+		get_count_database_filename(
 			database );
 
-	prior_audit_database_filename =
-		get_prior_audit_database_filename();
+	prior_count_database_filename =
+		get_prior_count_database_filename();
 
-	audit_datafile_filename = get_audit_datafile_filename();
+	count_datafile_filename = get_count_datafile_filename();
 
 	/* Archive the audit file because it gets smashed. */
 	/* ----------------------------------------------- */
-	timlib_cp(	prior_audit_database_filename
+	timlib_cp(	prior_count_database_filename
 				/* destination_filename */,
-			audit_database_filename
+			count_database_filename
 				/* source_filename */ );
 
-	output_audit_database_count(
-		audit_database_filename,
+	output_count_database_count(
+		count_database_filename,
 		table_name_list );
 
 	fork_control = fork_control_new();
@@ -208,8 +208,8 @@ int main( int argc, char **argv )
 
 	if ( each_line_insert )
 	{
-		output_audit_datafile_count(
-					audit_datafile_filename,
+		output_count_datafile_count(
+					count_datafile_filename,
 					output_directory,
 					table_name_list,
 					big_table_name_list,
@@ -233,14 +233,14 @@ int main( int argc, char **argv )
 
 	if ( each_line_insert )
 	{
-		output_audit_results(
-				audit_database_filename,
-				audit_datafile_filename,
-				prior_audit_database_filename );
+		output_count_results(
+				count_database_filename,
+				count_datafile_filename,
+				prior_count_database_filename );
 	}
 
-	/* remove_file( prior_audit_database_filename ); */
-	remove_file( audit_datafile_filename );
+	/* remove_file( prior_count_database_filename ); */
+	remove_file( count_datafile_filename );
 
 	return 0;
 
@@ -464,44 +464,44 @@ boolean tar_small_files(
 
 } /* tar_small_files() */
 
-char *get_audit_database_filename( char *database )
+char *get_count_database_filename( char *database )
 {
-	static char audit_database_filename[ 128 ];
+	static char count_database_filename[ 128 ];
 
-	sprintf( audit_database_filename,
+	sprintf( count_database_filename,
 		 "%s/mysqldump_count_%s.dat",
 		 MYSQLDUMP_FORK_BACKUP_DIRECTORY,
 		 database );
 
-	return audit_database_filename;
+	return count_database_filename;
 
-} /* get_audit_database_filename() */
+} /* get_count_database_filename() */
 
-char *get_prior_audit_database_filename( void )
+char *get_prior_count_database_filename( void )
 {
-	static char prior_audit_database_filename[ 128 ];
+	static char prior_count_database_filename[ 128 ];
 
-	sprintf( prior_audit_database_filename,
-		 "/tmp/mysqldump_fork_audit_database_%d.dat",
+	sprintf( prior_count_database_filename,
+		 "/tmp/mysqldump_fork_count_database_%d.dat",
 		 getpid() );
 
-	return prior_audit_database_filename;
+	return prior_count_database_filename;
 
-} /* get_prior_audit_database_filename() */
+} /* get_prior_count_database_filename() */
 
-char *get_audit_datafile_filename( void )
+char *get_count_datafile_filename( void )
 {
-	static char audit_datafile_filename[ 128 ];
+	static char count_datafile_filename[ 128 ];
 
-	sprintf( audit_datafile_filename,
-		 "/tmp/mysqldump_fork_audit_datafile_%d.dat",
+	sprintf( count_datafile_filename,
+		 "/tmp/mysqldump_fork_count_datafile_%d.dat",
 		 getpid() );
 
-	return audit_datafile_filename;
+	return count_datafile_filename;
 
-} /* get_audit_datafile_filename() */
+} /* get_count_datafile_filename() */
 
-void output_audit_database_count(	char *audit_database_filename,
+void output_count_database_count(	char *count_database_filename,
 					LIST *table_name_list )
 {
 	FILE *output_file;
@@ -511,14 +511,14 @@ void output_audit_database_count(	char *audit_database_filename,
 
 	if ( !list_rewind( table_name_list ) ) return;
 
-	if ( ! ( output_file = fopen( audit_database_filename, "w" ) ) )
+	if ( ! ( output_file = fopen( count_database_filename, "w" ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR In %s/%s()/%d: cannot open %s for write.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 audit_database_filename );
+			 count_database_filename );
 		exit( 1 );
 	}
 
@@ -541,9 +541,9 @@ void output_audit_database_count(	char *audit_database_filename,
 
 	fclose( output_file );
 
-} /* output_audit_database_count() */
+} /* output_count_database_count() */
 
-void output_audit_datafile_count(	char *audit_datafile_filename,
+void output_count_datafile_count(	char *count_datafile_filename,
 					char *output_directory,
 					LIST *table_name_list,
 					LIST *big_table_name_list,
@@ -559,14 +559,14 @@ void output_audit_datafile_count(	char *audit_datafile_filename,
 
 	if ( !list_rewind( table_name_list ) ) return;
 
-	if ( ! ( output_file = fopen( audit_datafile_filename, "w" ) ) )
+	if ( ! ( output_file = fopen( count_datafile_filename, "w" ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR In %s/%s()/%d: cannot open %s for write.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 audit_datafile_filename );
+			 count_datafile_filename );
 		exit( 1 );
 	}
 
@@ -616,7 +616,7 @@ void output_audit_datafile_count(	char *audit_datafile_filename,
 
 	fclose( output_file );
 
-} /* output_audit_datafile_count() */
+} /* output_count_datafile_count() */
 
 void remove_file( char *filename )
 {
@@ -630,9 +630,9 @@ void remove_file( char *filename )
 
 } /* remove_file() */
 
-void output_audit_results(	char *audit_database_filename,
-				char *audit_datafile_filename,
-				char *prior_audit_database_filename )
+void output_count_results(	char *count_database_filename,
+				char *count_datafile_filename,
+				char *prior_count_database_filename )
 {
 	char sys_string[ 1024 ];
 	char *diff_results = {0};
@@ -642,8 +642,8 @@ void output_audit_results(	char *audit_database_filename,
 	/* ---------------------------------------- */
 	sprintf(	sys_string,
 			"diff %s %s",
-			audit_database_filename,
-			audit_datafile_filename );
+			count_database_filename,
+			count_datafile_filename );
 
 	if ( ( diff_results = pipe2string( sys_string ) ) )
 	{
@@ -652,12 +652,12 @@ void output_audit_results(	char *audit_database_filename,
 		printf( "[%s]\n", diff_results );
 	}
 
-	if ( prior_audit_database_filename && *prior_audit_database_filename )
+	if ( prior_count_database_filename && *prior_count_database_filename )
 	{
 		sprintf(	sys_string,
 				"mysqldump_fork_count_drop.e %s %s",
-				audit_database_filename,
-				prior_audit_database_filename );
+				count_database_filename,
+				prior_count_database_filename );
 
 		if ( ( drop_results = pipe2string( sys_string ) ) )
 		{
@@ -673,8 +673,8 @@ void output_audit_results(	char *audit_database_filename,
 			"join -t'%c' %s %s			|"
 			"sort -t'%c' -r -n -k2			 ",
 			AUDIT_DELIMITER,
-			audit_database_filename,
-			audit_datafile_filename,
+			count_database_filename,
+			count_datafile_filename,
 			AUDIT_DELIMITER );
 
 	printf( "table%cdatabase%cbackup\n",
@@ -699,7 +699,7 @@ void output_audit_results(	char *audit_database_filename,
 			drop_results );
 	}
 
-} /* output_audit_results() */
+} /* output_count_results() */
 
 long int get_needed_megabytes(	char *output_directory,
 				char *latest_date )

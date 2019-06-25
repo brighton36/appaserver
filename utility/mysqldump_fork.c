@@ -646,7 +646,11 @@ void output_audit_results(	char *audit_database_filename,
 			audit_datafile_filename );
 
 	if ( ( diff_results = pipe2string( sys_string ) ) )
+	{
 		printf( "%s\n", DIFF_WARNING_MESSAGE );
+		printf( "[%s]\n", sys_string );
+		printf( "[%s]\n", diff_results );
+	}
 
 	if ( prior_audit_database_filename && *prior_audit_database_filename )
 	{
@@ -681,15 +685,19 @@ void output_audit_results(	char *audit_database_filename,
 	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
+#ifdef NOT_DEFINED
 	/* Output the warnings messages at the bottom. */
 	/* ------------------------------------------- */
 	if ( diff_results )
 		printf( "%s\n", DIFF_WARNING_MESSAGE );
+#endif
 
 	if ( drop_results )
+	{
 		printf( "%s: %s\n",
 			COUNT_DROP_WARNING_MESSAGE,
 			drop_results );
+	}
 
 } /* output_audit_results() */
 

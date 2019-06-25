@@ -1,7 +1,9 @@
 :
-# --------------------------------
-# utility/mysqldump_offsite_scp.sh
-# --------------------------------
+# -------------------------------------------------
+# $APPASERVER_HOME/utility/mysqldump_offsite_scp.sh
+#
+# This is called from mysqldump_database.sh
+# -------------------------------------------------
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 parameter_file yyyy_mm_dd" 1>&2
@@ -65,6 +67,8 @@ output_directory=$results
 
 if [ "$directory_root" != "" ]
 then
+	# Expect output_directory=/var/backups/appaserver/$database/son
+	# -------------------------------------------------------------
 	source_directory=${directory_root}/$output_directory
 fi
 

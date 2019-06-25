@@ -2,6 +2,9 @@
 # --------------------------------------------------------
 # $APPASERVER_HOME/utility/mysqldump_database_summarize.sh
 # --------------------------------------------------------
+# This is NOT called from mysqldump_database.sh.
+# Instead, these outputs are made from mysqldump_fork.c
+# --------------------------------------------------------
 
 spoolfile="/tmp/mysqldump_database_summarize_$$.dat"
 

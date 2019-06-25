@@ -1,7 +1,9 @@
 :
-# ---------------------------------------------------
-# utility/mysqldump_archive_grandfather_father_son.sh
-# ---------------------------------------------------
+# --------------------------------------------------------------------
+# $APPASERVER_HOME/utility/mysqldump_archive_grandfather_father_son.sh
+#
+# This is called from mysqldump_database.sh and csvdump_database.sh
+# --------------------------------------------------------------------
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 parameter_file yyyy_mm_dd" 1>&2
@@ -60,6 +62,8 @@ output_directory=$results
 
 if [ "$directory_root" != "" ]
 then
+	# Expect output_directory=/var/backups/appaserver/$database/son
+	# -------------------------------------------------------------
 	output_directory=${directory_root}/$output_directory
 fi
 

@@ -581,8 +581,6 @@ void build_datafile_count_file(		char *mysqldump_datafile_count_file,
 			 cat_process,
 			 full_filename );
 
-fprintf( stderr, "%s\n\n", sys_string );
-
 		fprintf(	output_file,
 				"%s%c%s\n",
 				table_name,
@@ -639,8 +637,6 @@ void output_count_results(	char *mysqldump_database_count_file,
 			"mysqldump_fork_count_drop.e %s %s",
 			mysqldump_database_count_file,
 			mysqldump_database_yesterday_count_file );
-
-fprintf( stderr, "%s/n", sys_string );
 
 	if ( ( drop_results = pipe2string( sys_string ) ) )
 	{

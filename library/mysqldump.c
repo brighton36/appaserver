@@ -148,16 +148,7 @@ LIST *mysqldump_fetch_folder_list(
 	char piece_buffer[ 64 ];
 
 	if ( ! ( input_file = fopen( database_filename, "r" ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot open %s for read.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 database_filename );
-
-		exit( 1 );
-	}
+		return (LIST *)0;
 
 	folder_list = list_new();
 

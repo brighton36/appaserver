@@ -861,11 +861,13 @@ get_sequence.e: get_sequence.c
 		${STANDARD_LIBRARY}					\
 		-o get_sequence.e
 
-mysqldump_fork.e: mysqldump_fork.c ${LIBRARY}/fork_control.o
+mysqldump_fork.e: mysqldump_fork.c ${LIBRARY}/fork_control.o		\
+		${APPASERVER_LIBRARY}
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		mysqldump_fork.c 					\
 		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
 		${LIBRARY}/fork_control.o				\
 		-o mysqldump_fork.e
 

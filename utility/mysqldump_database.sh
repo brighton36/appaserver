@@ -136,7 +136,6 @@ fi
 # After the backup, run these:
 # ----------------------------
 mysqldump_appaserver_log.sh $database $parameter_file $date_yyyy_mm_dd
-mysqldump_count_file.sh $database $parameter_file $date_yyyy_mm_dd
 mysqldump_archive_grandfather_father_son.sh $parameter_file $date_yyyy_mm_dd
 mysqldump_offsite_rsync.sh $database $parameter_file
 mysqldump_offsite_scp.sh $parameter_file $date_yyyy_mm_dd

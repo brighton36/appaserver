@@ -467,4 +467,8 @@ char *appaserver_library_get_folder_foreign_translation(
 LIST *appaserver_library_get_application_name_list(
 			char *appaserver_error_directory );
 
+char *appaserver_library_get_table_name(
+					char *application_name,
+					char *folder_name );
+
 #endif

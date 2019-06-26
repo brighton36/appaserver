@@ -8,6 +8,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "column.h"
+#include "folder.h"
 #include "timlib.h"
 
 /* Constants */
@@ -40,9 +41,7 @@ void output_count_results(	char *mysqldump_database_count_file,
 				char *mysqldump_datafile_count_file,
 				char *mysqldump_database_yesterday_file );
 
-void remove_file(			char *filename );
-
-void output_datafile_count(		char *mysqldump_datafile_count_file,
+void build_datafile_count_file(		char *mysqldump_datafile_count_file,
 					char *output_directory,
 					LIST *table_name_list,
 					LIST *big_table_name_list,
@@ -74,10 +73,6 @@ boolean tar_small_files(
 					char *now_yyyymmdd,
 					LIST *big_table_name_list,
 					LIST *exclude_table_name_list );
-
-LIST *get_table_name_list(
-					char *database );
-
 
 LIST *get_process_list(			LIST *process_list,
 					LIST *table_name_list,
@@ -146,7 +141,7 @@ int main( int argc, char **argv )
 		exclude_table_name_list = list_string2list( argv[ 8 ], ',' );
 	}
 
-	if ( ! ( table_name_list = get_table_name_list( database ) )
+	if ( ! ( table_name_list = folder_get_table_name_list( database ) )
 	||   !   list_length( table_name_list ) )
 	{
 		fprintf( stderr,
@@ -212,9 +207,11 @@ int main( int argc, char **argv )
 		fork_control->process_list,
 		fork_control->processes_in_parallel );
 
+	/* Must happen before tar_small_files() */
+	/* ------------------------------------ */
 	if ( each_line_insert )
 	{
-		output_datafile_count(
+		build_datafile_count_file(
 					mysqldump_datafile_count_file,
 					output_directory,
 					table_name_list,
@@ -342,18 +339,6 @@ LIST *get_process_list(	LIST *process_list,
 	return process_list;
 
 } /* get_process_list() */
-
-LIST *get_table_name_list( char *database )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "echo 'show tables;' | sql.e '^' mysql %s",
-		 database );
-
-	return pipe2list( sys_string );
-
-} /* get_table_name_list() */
 
 LIST *get_filename_list(	LIST *table_name_list,
 				char *now_yyyymmdd,
@@ -531,7 +516,7 @@ void output_database_count(		char *mysqldump_database_count_file,
 
 } /* output_database_count() */
 
-void output_datafile_count(		char *mysqldump_datafile_count_file,
+void build_datafile_count_file(		char *mysqldump_datafile_count_file,
 					char *output_directory,
 					LIST *table_name_list,
 					LIST *big_table_name_list,
@@ -596,6 +581,8 @@ void output_datafile_count(		char *mysqldump_datafile_count_file,
 			 cat_process,
 			 full_filename );
 
+fprintf( stderr, "%s\n\n", sys_string );
+
 		fprintf(	output_file,
 				"%s%c%s\n",
 				table_name,
@@ -606,19 +593,7 @@ void output_datafile_count(		char *mysqldump_datafile_count_file,
 
 	fclose( output_file );
 
-} /* output_datafile_count() */
-
-void remove_file( char *filename )
-{
-	char sys_string[ 256 ];
-
-	if ( filename && *filename )
-	{
-		sprintf( sys_string, "rm -f %s", filename );
-		if ( system( sys_string ) ) {};
-	}
-
-} /* remove_file() */
+} /* build_datafile_count_file() */
 
 void output_count_results(	char *mysqldump_database_count_file,
 				char *mysqldump_datafile_count_file,
@@ -640,18 +615,6 @@ void output_count_results(	char *mysqldump_database_count_file,
 		printf( "%s\n", DIFF_WARNING_MESSAGE );
 	}
 
-	sprintf(	sys_string,
-			"mysqldump_fork_count_drop.e %s %s",
-			mysqldump_database_count_file,
-			mysqldump_database_yesterday_count_file );
-
-	if ( ( drop_results = pipe2string( sys_string ) ) )
-	{
-		printf( "%s: %s\n",
-			COUNT_DROP_WARNING_MESSAGE,
-			drop_results );
-	}
-
 	/* Output the table of counts. */
 	/* --------------------------  */
 	sprintf(	sys_string,
@@ -670,7 +633,16 @@ void output_count_results(	char *mysqldump_database_count_file,
 	if ( system( sys_string ) ) {};
 	fflush( stdout );
 
-	if ( drop_results )
+	/* Output the drop count. */
+	/* ---------------------- */
+	sprintf(	sys_string,
+			"mysqldump_fork_count_drop.e %s %s",
+			mysqldump_database_count_file,
+			mysqldump_database_yesterday_count_file );
+
+fprintf( stderr, "%s/n", sys_string );
+
+	if ( ( drop_results = pipe2string( sys_string ) ) )
 	{
 		printf( "%s: %s\n",
 			COUNT_DROP_WARNING_MESSAGE,

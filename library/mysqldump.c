@@ -13,8 +13,8 @@
 #include "piece.h"
 #include "mysqldump.h"
 
-MYSQLDUMP *mysqldump_new(	char *audit_database_filename,
-				char *prior_audit_database_filename )
+MYSQLDUMP *mysqldump_new(	char *mysqldump_database_count_file,
+				char *mysqldump_database_yesterday_count_file )
 
 {
 	MYSQLDUMP *a;
@@ -29,16 +29,18 @@ MYSQLDUMP *mysqldump_new(	char *audit_database_filename,
 		exit( 1 );
 	}
 
-	a->audit_database_filename = audit_database_filename;
-	a->prior_audit_database_filename = prior_audit_database_filename;
+	a->mysqldump_database_count_file = mysqldump_database_count_file;
 
-	a->audit_mysqldump_folder_list =
-		mysqldump_fetch_folder_list(
-			audit_database_filename );
+	a->mysqldump_database_yesterday_count_file =
+		mysqldump_database_yesterday_count_file;
 
-	a->prior_mysqldump_folder_list =
+	a->mysqldump_database_folder_list =
 		mysqldump_fetch_folder_list(
-			prior_audit_database_filename );
+			mysqldump_database_count_file );
+
+	a->mysqldump_database_yesterday_folder_list =
+		mysqldump_fetch_folder_list(
+			mysqldump_database_yesterday_count_file );
 
 	return a;
 
@@ -68,19 +70,19 @@ MYSQLDUMP_FOLDER *mysqldump_seek_folder(
 } /* mysqldump_seek_folder() */
 
 void mysqldump_set_percentage_drop(
-				LIST *audit_mysqldump_folder_list,
-				LIST *prior_mysqldump_folder_list )
+				LIST *mysqldump_database_folder_list,
+				LIST *mysqldump_database_yesterday_folder_list )
 {
 	MYSQLDUMP_FOLDER *audit_folder;
 	MYSQLDUMP_FOLDER *prior_folder;
 	int row_count_drop;
 
-	if ( !list_length( prior_mysqldump_folder_list ) ) return;
+	if ( !list_length( mysqldump_database_yesterday_folder_list ) ) return;
 
-	if ( !list_rewind( audit_mysqldump_folder_list ) )
+	if ( !list_rewind( mysqldump_database_folder_list ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty audit_mysqldump_folder_list.\n",
+		"ERROR in %s/%s()/%d: empty mysqldump_database_folder_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -88,17 +90,17 @@ void mysqldump_set_percentage_drop(
 	}
 
 	do {
-		audit_folder = list_get( audit_mysqldump_folder_list );
+		audit_folder = list_get( mysqldump_database_folder_list );
 
 		if ( ! ( prior_folder =
 				mysqldump_seek_folder(
-					prior_mysqldump_folder_list,
-					audit_folder->folder_name ) ) )
+				    mysqldump_database_yesterday_folder_list,
+				    audit_folder->folder_name ) ) )
 		{
 			continue;
 		}
 
-		prior_folder->table_exists = 1;
+		/* prior_folder->table_exists = 1; */
 
 		row_count_drop =
 			prior_folder->row_count -
@@ -110,7 +112,7 @@ void mysqldump_set_percentage_drop(
 			(double)row_count_drop / 
 			(double)prior_folder->row_count;
 
-	} while( list_next( audit_mysqldump_folder_list ) );
+	} while( list_next( mysqldump_database_folder_list ) );
 
 } /* mysqldump_set_percentage_drop() */
 
@@ -127,6 +129,10 @@ MYSQLDUMP_FOLDER *mysqldump_folder_new(	void )
 			 __LINE__ );
 		exit( 1 );
 	}
+
+	/* Need to retire. */
+	/* --------------- */
+	a->table_exists = 1;
 
 	return a;
 
@@ -190,15 +196,15 @@ LIST *mysqldump_fetch_folder_list(
 } /* mysqldump_fetch_folder_list() */
 
 LIST *mysqldump_get_table_not_exists_drop_name_list(
-				LIST *prior_mysqldump_folder_list )
+				LIST *mysqldump_database_yesterday_folder_list )
 {
 	MYSQLDUMP_FOLDER *mysqldump_folder;
 	LIST *not_exists_name_list;
 
-	if ( !list_rewind( prior_mysqldump_folder_list ) )
+	if ( !list_rewind( mysqldump_database_yesterday_folder_list ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty prior_mysqldump_folder_list.\n",
+"ERROR in %s/%s()/%d: empty mysqldump_database_yesterday_folder_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -208,7 +214,9 @@ LIST *mysqldump_get_table_not_exists_drop_name_list(
 	not_exists_name_list = list_new();
 
 	do {
-		mysqldump_folder = list_get( prior_mysqldump_folder_list );
+		mysqldump_folder =
+			list_get(
+				mysqldump_database_yesterday_folder_list );
 
 		if ( !mysqldump_folder->table_exists )
 		{
@@ -217,23 +225,23 @@ LIST *mysqldump_get_table_not_exists_drop_name_list(
 				mysqldump_folder->folder_name );
 		}
 
-	} while( list_next( prior_mysqldump_folder_list ) );
+	} while( list_next( mysqldump_database_yesterday_folder_list ) );
 
 	return not_exists_name_list;
 
 } /* mysqldump_get_table_not_exists_drop_name_list() */
 
 LIST *mysqldump_get_reached_percentage_drop_name_list(
-				LIST *audit_mysqldump_folder_list,
+				LIST *mysqldump_database_folder_list,
 				double percentage_drop_threshold )
 {
 	MYSQLDUMP_FOLDER *mysqldump_folder;
 	LIST *reached_name_list;
 
-	if ( !list_rewind( audit_mysqldump_folder_list ) )
+	if ( !list_rewind( mysqldump_database_folder_list ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty audit_mysqldump_folder_list.\n",
+		"ERROR in %s/%s()/%d: empty mysqldump_database_folder_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -243,7 +251,7 @@ LIST *mysqldump_get_reached_percentage_drop_name_list(
 	reached_name_list = list_new();
 
 	do {
-		mysqldump_folder = list_get( audit_mysqldump_folder_list );
+		mysqldump_folder = list_get( mysqldump_database_folder_list );
 
 		if (	mysqldump_folder->percentage_drop >=
 			percentage_drop_threshold )
@@ -253,7 +261,7 @@ LIST *mysqldump_get_reached_percentage_drop_name_list(
 				mysqldump_folder->folder_name );
 		}
 
-	} while( list_next( audit_mysqldump_folder_list ) );
+	} while( list_next( mysqldump_database_folder_list ) );
 
 	return reached_name_list;
 

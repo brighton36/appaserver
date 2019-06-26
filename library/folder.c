@@ -1284,13 +1284,20 @@ char *folder_get_folder_row_level_restrictions_record(
 LIST *folder_get_folder_name_list( char *application_name )
 {
 	char sys_string[ 1024 ];
+	char *where;
+
+	where = "create_view_statement is null and folder <> 'null';";
 
 	sprintf(sys_string,
 		"get_folder_data	application=%s			"
 		"			select=folder			"
-		"			folder=folder			",
-		application_name );
+		"			folder=folder			"
+		"			where=\"%s\"			",
+		application_name,
+		where );
+
 	return pipe2list( sys_string );
+
 } /* folder_get_folder_name_list() */
 
 LIST *folder_get_folder_list(
@@ -2002,4 +2009,34 @@ char *folder_display( FOLDER *folder )
 	return strdup( buffer );
 
 } /* folder_display() */
+
+LIST *folder_get_table_name_list( char *application_name )
+{
+	LIST *folder_name_list;
+	LIST *table_name_list;
+	char *folder_name;
+
+	folder_name_list = folder_get_folder_name_list( application_name );
+
+	if ( !list_rewind( folder_name_list ) ) return (LIST *)0;
+
+	table_name_list = list_new();
+
+	do {
+		folder_name = list_get_pointer( folder_name_list );
+
+		list_append_pointer(
+			table_name_list,
+			/* ------------------------------ */
+			/* Returns heap memory [strdup()] */
+			/* ------------------------------ */
+			appaserver_library_get_table_name(
+				application_name,
+				folder_name ) );
+
+	} while( list_next( folder_name_list ) );
+
+	return table_name_list;
+
+} /* folder_get_table_name_list() */
 

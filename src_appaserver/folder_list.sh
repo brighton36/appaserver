@@ -5,4 +5,8 @@ then
 	exit 1
 fi
 
-get_folder_data application=$1 folder=folder select=folder
+get_folder_data application=$1 folder=folder select=folder	|
+grep -v '^null$'						|
+cat
+
+exit 0

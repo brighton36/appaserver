@@ -705,5 +705,28 @@ char *inventory_get_where(	char *inventory_name );
 char *inventory_purchase_return_get_select(
 				void );
 
+INVENTORY_PURCHASE_RETURN *inventory_purchase_return_list_seek(
+				LIST *inventory_purchase_return_list,
+				char *return_date_time );
+
+TRANSACTION *inventory_purchase_return_transaction_new(
+				char **transaction_date_time,
+				char *application_name,
+				char *fund_name,
+				char *full_name,
+				char *street_address,
+				double unit_cost,
+				char *inventory_account_name,
+				char *return_date_time,
+				int returned_quantity,
+				double sales_tax );
+
+void inventory_get_inventory_purchase_return_account_names(
+				char **account_payable_account,
+				char **account_receivable_account,
+				char **sales_tax_expense_account,
+				char *application_name,
+				char *fund_name );
+
 #endif
 

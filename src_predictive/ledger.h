@@ -63,6 +63,10 @@
 #define LEDGER_CASH_KEY			"cash_key"
 #define LEDGER_LOSS_KEY			"loss_key"
 #define LEDGER_ACCUMULATED_KEY		"accumulated_depreciation_key"
+#define LEDGER_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
+#define LEDGER_SALES_TAX_PAYABLE_KEY	"sales_tax_payable_key"
+#define LEDGER_ACCOUNT_PAYABLE_KEY	"account_payable_key"
+#define LEDGER_ACCOUNT_RECEIVABLE_KEY	"account_receivable_key"
 #define LEDGER_CLOSING_KEY		"closing_key"
 #define LEDGER_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
 

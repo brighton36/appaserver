@@ -341,4 +341,7 @@ LIST *folder_get_process_dictionary_list(
 			char *prompt,
 			LIST *primary_attribute_name_list );
 
+LIST *folder_get_table_name_list(
+				char *application_name );
+
 #endif

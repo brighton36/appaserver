@@ -20,15 +20,15 @@ typedef struct
 
 typedef struct
 {
-	char *audit_database_filename;
-	char *prior_audit_database_filename;
-	LIST *audit_mysqldump_folder_list;
-	LIST *prior_mysqldump_folder_list;
+	char *mysqldump_database_count_file;
+	char *mysqldump_database_yesterday_count_file;
+	LIST *mysqldump_database_folder_list;
+	LIST *mysqldump_database_yesterday_folder_list;
 	LIST *reached_percentage_drop_name_list;
 } MYSQLDUMP;
 
-MYSQLDUMP *mysqldump_new(		char *audit_database_filename,
-					char *prior_audit_database_filename );
+MYSQLDUMP *mysqldump_new(	char *mysqldump_database_count_file,
+				char *mysqldump_database_yesterday_count_file );
 
 MYSQLDUMP_FOLDER *mysqldump_folder_new(	void );
 
@@ -36,19 +36,19 @@ LIST *mysqldump_fetch_folder_list(
 					char *database_filename );
 
 void mysqldump_set_percentage_drop(
-					LIST *audit_mysqldump_folder_list,
-					LIST *prior_mysqldump_folder_list );
+			LIST *mysqldump_database_folder_list,
+			LIST *mysqldump_database_yesterday_folder_list );
 
 MYSQLDUMP_FOLDER *mysqldump_seek_folder(
 					LIST *folder_list,
 					char *folder_name );
 
 LIST *mysqldump_get_reached_percentage_drop_name_list(
-					LIST *audit_mysqldump_folder_list,
-					double percentage_drop_threshold );
+			LIST *mysqldump_database_folder_list,
+			double percentage_drop_threshold );
 
 LIST *mysqldump_get_table_not_exists_drop_name_list(
-					LIST *prior_mysqldump_folder_list );
+			LIST *mysqldump_database_yesterday_folder_list );
 
 LIST *mysqldump_get_folder_name_list(	LIST *folder_list );
 

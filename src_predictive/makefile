@@ -46,6 +46,7 @@ EXECUTABLES=	trial_balance						\
 		post_change_supply_purchase				\
 		post_change_service_purchase				\
 		post_change_inventory_purchase				\
+		post_change_inventory_purchase_return			\
 		post_change_fixed_asset_purchase			\
 		post_change_fixed_asset					\
 		post_change_inventory_sale				\
@@ -422,6 +423,15 @@ post_change_inventory_purchase: post_change_inventory_purchase.c	\
 		${SOURCE_LIBRARY}					\
 		post_change_inventory_purchase.c			\
 		-o post_change_inventory_purchase
+
+post_change_inventory_purchase_return:					\
+	post_change_inventory_purchase_return.c				\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		post_change_inventory_purchase_return.c			\
+		-o post_change_inventory_purchase_return
 
 post_change_supply_purchase: post_change_supply_purchase.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

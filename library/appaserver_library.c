@@ -197,8 +197,18 @@ char *get_folder_name(		char *application_name,
 				table_name + strlen( application_name ) + 1 );
 		}
 	}
+
 	return strdup( folder_name );
+
 } /* get_folder_name() */
+
+char *appaserver_library_get_table_name(
+				char *application_name,
+				char *folder_name )
+{
+	return get_table_name( application_name, folder_name );
+
+}
 
 char *get_table_name( 	char *application_name,
 			char *folder_name )
@@ -220,7 +230,9 @@ char *get_table_name( 	char *application_name,
 	{
 		sprintf( table_name, "%s_%s", application_name, folder_name );
 	}
+
 	return strdup( table_name );
+
 } /* get_table_name() */
 
 /* Sample: dictionary_string = "first_name=tim&last_name=riley" */

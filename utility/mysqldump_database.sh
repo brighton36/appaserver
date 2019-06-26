@@ -1,7 +1,9 @@
 :
 # ----------------------------------------------
 # $APPASERVER_HOME/utility/mysqldump_database.sh
-# ----------------------------------------------
+#
+# This is the backup driver program.
+#-----------------------------------------------
 if [ "$#" -ne 1 ]
 then
 	echo "Usage: $0 parameter_file" 1>&2
@@ -66,9 +68,13 @@ exclude_table_list=$results
 
 if [ "$directory_root" != "" ]
 then
+	# Expect output_directory=/var/backups/appaserver/$database/son
+	# -------------------------------------------------------------
 	output_directory=${directory_root}/$output_directory
 fi
 
+# Build mysql_password_file
+# -------------------------
 echo "[mysqldump]" > $mysql_password_file
 
 chmod go-rw $mysql_password_file
@@ -127,9 +133,9 @@ then
 	exit 1
 fi
 
+# After the backup, run these:
+# ----------------------------
 mysqldump_appaserver_log.sh $database $parameter_file $date_yyyy_mm_dd
-mysqldump_count_file.sh $database $parameter_file $date_yyyy_mm_dd
-mysqldump_count_file.sh $database $parameter_file $date_yyyy_mm_dd
 mysqldump_archive_grandfather_father_son.sh $parameter_file $date_yyyy_mm_dd
 mysqldump_offsite_rsync.sh $database $parameter_file
 mysqldump_offsite_scp.sh $parameter_file $date_yyyy_mm_dd

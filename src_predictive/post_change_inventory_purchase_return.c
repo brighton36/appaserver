@@ -95,6 +95,7 @@ int main( int argc, char **argv )
 
 	if ( strcmp( state, "predelete" ) == 0 )
 	{
+/*
 		post_change_inventory_purchase_return_delete(
 			application_name,
 			full_name,
@@ -102,6 +103,7 @@ int main( int argc, char **argv )
 			purchase_date_time,
 			inventory_name,
 			return_date_time );
+*/
 	}
 	else
 	if ( strcmp( state, "insert" ) == 0 )
@@ -116,6 +118,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
+/*
 		post_change_inventory_purchase_return_update(
 			application_name,
 			full_name,
@@ -124,6 +127,7 @@ int main( int argc, char **argv )
 			inventory_name,
 			return_date_time,
 			preupdate_inventory_name );
+*/
 	}
 
 	return 0;
@@ -140,9 +144,10 @@ void post_change_inventory_purchase_return_insert(
 {
 	PURCHASE_ORDER *purchase_order;
 	INVENTORY_PURCHASE *inventory_purchase;
+	INVENTORY_PURCHASE_RETURN *inventory_purchase_return;
 
 	purchase_order =
-		purchase_order_new(
+		purchase_order_fetch_new(
 			application_name,
 			full_name,
 			street_address,
@@ -164,7 +169,7 @@ void post_change_inventory_purchase_return_insert(
 				inventory_name ) ) )
 	{
 		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot seek inventory = [%s]\n",
+		"Error in %s/%s()/%d: cannot seek inventory_purchase = [%s]\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -172,8 +177,49 @@ void post_change_inventory_purchase_return_insert(
 		exit( 1 );
 	}
 
+	if ( ! ( inventory_purchase_return =
+			inventory_purchase_return_list_seek(
+				inventory_purchase->
+					inventory_purchase_return_list,
+				return_date_time ) ) )
+	{
+		fprintf( stderr,
+"Error in %s/%s()/%d: cannot seek inventory_purchase_return = [%s/%s]\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 inventory_name,
+			 return_date_time );
+		exit( 1 );
+	}
+
+	if ( inventory_purchase_return->transaction )
+	{
+		fprintf( stderr,
+		"Warning in %s/%s()/%d: transaction exists for [%s/%s]\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 inventory_name,
+			 return_date_time );
+	}
+
+	inventory_purchase_return->transaction =
+		inventory_purchase_return_transaction_new(
+			&inventory_purchase_return->transaction_date_time,
+			application_name,
+			(char *)0 /* fund_name */,
+			inventory_purchase->full_name,
+			inventory_purchase->street_address,
+			inventory_purchase->unit_cost,
+			inventory_purchase->inventory_account_name,
+			inventory_purchase_return->return_date_time,
+			inventory_purchase_return->returned_quantity,
+			inventory_purchase_return->sales_tax );
+
 } /* post_change_inventory_purchase_return_insert() */
 
+#ifdef NOT_DEFINED
 void post_change_inventory_purchase_return_update(
 			char *application_name,
 			char *full_name,
@@ -923,4 +969,4 @@ void post_change_inventory_purchase_insert_title_passage_rule_null(
 		purchase_order->database_shipped_date );
 
 } /* post_change_inventory_purchase_insert_title_passage_rule_null() */
-
+#endif

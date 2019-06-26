@@ -1,7 +1,10 @@
 :
-# -----------------------------------
-# utility/mysqldump_appaserver_log.sh
-# -----------------------------------
+# -----------------------------------------------------------------
+# $APPASERVER_HOME/utility/mysqldump_appaserver_log.sh
+#
+# This script archives /var/log/appaserver/appaserver_$database.err
+# It's called from mysqldump_database.sh
+# -----------------------------------------------------------------
 if [ "$#" -ne 3 ]
 then
 	echo "Usage: $0 database parameter_file yyyy_mm_dd" 1>&2
@@ -39,15 +42,21 @@ appaserver_config=$results
 parse_parameter_file $parameter_file directory_root
 directory_root=$results
 
+# Expect output_directory=son
+# ---------------------------
 parse_parameter_file $parameter_file output_directory
 error_exit_if_blank "$results" output_directory
 output_directory=$results
 
 if [ "$directory_root" != "" ]
 then
+	# Expect output_directory=/var/backups/appaserver/$database/son
+	# -------------------------------------------------------------
 	output_directory=${directory_root}/$output_directory
 fi
 
+# If no /etc/appaserver_$database.config
+# --------------------------------------
 if [ ! -f "$appaserver_config" ]
 then
 	appaserver_config=/etc/appaserver.config

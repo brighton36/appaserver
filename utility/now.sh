@@ -11,6 +11,9 @@ fi
 if [ "$1" = "colon" ]
 then
 	date_format="+%Y-%m-%d %H:%M:%S"
+elif [ "$1" = "yyyymmdd" ]
+then
+	date_format="+%Y%m%d"
 elif [ "$1" = "19" ]
 then
 	date_format="+%Y-%m-%d %H:%M:%S"

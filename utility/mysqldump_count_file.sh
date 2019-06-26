@@ -1,7 +1,9 @@
 :
-# -----------------------------------
-# utility/mysqldump_count_file.sh
-# -----------------------------------
+# ------------------------------------------------
+# $APPASERVER_HOME/utility/mysqldump_count_file.sh
+#
+# This is called from mysqldump_database.sh
+# ------------------------------------------------
 if [ "$#" -ne 3 ]
 then
 	echo "Usage: $0 database parameter_file yyyy_mm_dd" 1>&2
@@ -36,6 +38,9 @@ error_exit_if_blank()
 parse_parameter_file $parameter_file appaserver_config
 appaserver_config=$results
 
+parse_parameter_file $parameter_file exclude_table_list
+exclude_table_list=$results
+
 parse_parameter_file $parameter_file directory_root
 directory_root=$results
 
@@ -45,6 +50,8 @@ output_directory=$results
 
 if [ "$directory_root" != "" ]
 then
+	# Expect output_directory=/var/backups/appaserver/$database/son
+	# -------------------------------------------------------------
 	output_directory=${directory_root}/$output_directory
 fi
 
